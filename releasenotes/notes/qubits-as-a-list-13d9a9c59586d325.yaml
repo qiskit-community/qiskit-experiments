@@ -1,8 +1,0 @@
----
-upgrade:
-  - |
-    For randomized benchmarking, tomography, and quantum volume experiments the
-    ``qubits`` parameter must contain the list of physical qubits. The option to specify
-    ``qubits`` as an integer, as a shortcut to the range of qubits from 0 to `qubits-1`,
-    has been removed. This is true also for the class 
-    :py:class:`~qiskit_experiments.framework.base_experiment_BaseExperiment`.

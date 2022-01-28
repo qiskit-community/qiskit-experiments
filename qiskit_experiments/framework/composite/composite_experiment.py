@@ -24,8 +24,6 @@ from .composite_analysis import CompositeAnalysis
 class CompositeExperiment(BaseExperiment):
     """Composite Experiment base class"""
 
-    __analysis_class__ = CompositeAnalysis
-
     def __init__(
         self,
         experiments: List[BaseExperiment],
@@ -43,7 +41,12 @@ class CompositeExperiment(BaseExperiment):
         """
         self._experiments = experiments
         self._num_experiments = len(experiments)
-        super().__init__(qubits, backend=backend, experiment_type=experiment_type)
+        super().__init__(
+            qubits,
+            analysis=CompositeAnalysis(),
+            backend=backend,
+            experiment_type=experiment_type,
+        )
 
     @abstractmethod
     def circuits(self):

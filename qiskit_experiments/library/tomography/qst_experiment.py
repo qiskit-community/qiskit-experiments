@@ -17,7 +17,6 @@ from typing import Union, Optional, Iterable, List, Sequence
 from qiskit.circuit import QuantumCircuit, Instruction
 from qiskit.quantum_info.operators.base_operator import BaseOperator
 from qiskit.quantum_info import Statevector
-from qiskit_experiments.framework import Options
 from .tomography_experiment import TomographyExperiment
 from .qst_analysis import StateTomographyAnalysis
 from . import basis
@@ -39,34 +38,13 @@ class StateTomography(TomographyExperiment):
         running :math:`3^N` measurement circuits when using the default
         measurement basis.
 
+    # section: analysis_ref
+        :py:class:`StateTomographyAnalysis`
+
     # section: see_also
         qiskit_experiments.library.tomography.tomography_experiment.TomographyExperiment
 
     """
-
-    __analysis_class__ = StateTomographyAnalysis
-
-    @classmethod
-    def _default_analysis_options(cls) -> Options:
-        """Default analysis options.
-
-        Analysis Options:
-            measurement_basis (:class`~basis.BaseFitterMeasurementBasis`): A custom
-                measurement basis for analysis. By default the :meth:`experiment_options`
-                measurement basis will be used.
-            fitter (``str`` or ``Callable``): The fitter function to use for reconstruction.
-            rescale_psd (``bool``): If True rescale the fitted state to be
-                positive-semidefinite (Default: True).
-            rescale_trace (``bool``): If True rescale the state returned by the fitter
-                have either trace 1 (Default: True).
-            kwargs: Additional kwargs will be supplied to the fitter function.
-
-        """
-        options = super()._default_analysis_options()
-
-        options.measurement_basis = basis.PauliMeasurementBasis().matrix
-
-        return options
 
     def __init__(
         self,
@@ -110,3 +88,4 @@ class StateTomography(TomographyExperiment):
             basis_indices=basis_indices,
             qubits=qubits,
         )
+        self.analysis = StateTomographyAnalysis()

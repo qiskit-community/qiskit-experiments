@@ -255,22 +255,14 @@ def _deserialize_type(value: Dict):
             method_cls = None
             name = qualname[0]
         mod = value["module"]
+        mod_scope = importlib.import_module(mod)
         scope = None
-        if mod == "__main__":
-            if method_cls is None:
-                if name in globals():
-                    return globals()[name]
-            else:
-                scope = globals().get(method_cls, None)
+        if method_cls is None:
+            scope = mod_scope
         else:
-            mod_scope = importlib.import_module(mod)
-            if method_cls is None:
-                scope = mod_scope
-            else:
-                for name_, obj in inspect.getmembers(mod_scope, inspect.isclass):
-                    if name_ == method_cls:
-                        scope = obj
-
+            for name_, obj in inspect.getmembers(mod_scope, inspect.isclass):
+                if name_ == method_cls:
+                    scope = obj
         if scope is not None:
             for name_, obj in inspect.getmembers(scope, istype):
                 if name_ == name:

@@ -32,7 +32,8 @@ class DragCalAnalysis(curve.CurveAnalysis):
 
         .. math::
 
-            y_i = {\rm amp} \cos\left(2 \pi\cdot {\rm freq}_i\cdot x - 2 \pi \beta\right) + {\rm base}
+            y_i = {\rm amp} \cos\left(2 \pi\cdot {\rm freq}_i\cdot x -
+            2 \pi\cdot {\rm freq}_i\cdot \beta\right) + {\rm base}
 
         Note that the aim of the Drag calibration is to find the :math:`\beta` that minimizes the
         phase shifts. This implies that the optimal :math:`\beta` occurs when all three :math:`y`
@@ -42,7 +43,7 @@ class DragCalAnalysis(curve.CurveAnalysis):
 
             y_i = 0 \quad \Longrightarrow \quad -{\rm amp} \cos(2 \pi\cdot X_i) = {\rm base}
 
-        Here, we abbreviated :math:`{\rm freq}_i\cdot x - \beta` by :math:`X_i`.
+        Here, we abbreviated :math:`{\rm freq}_i\cdot x - {\rm freq}_i\cdot \beta` by :math:`X_i`.
         For a signal between 0 and 1 the :math:`{\rm base}` will typically fit to 0.5. However, the
         equation has an ambiguity if the amplitude is not properly bounded. Indeed,
 
@@ -84,7 +85,7 @@ class DragCalAnalysis(curve.CurveAnalysis):
             filter_kwargs={"series": 0},
             plot_symbol="o",
             model_description=r"{\rm amp} \cos\left(2 \pi\cdot {\rm freq}_0\cdot x "
-            r"- 2 \pi \beta\right) + {\rm base}",
+            r"- 2 \pi\cdot {\rm freq}_0\cdot \beta\right) + {\rm base}",
         ),
         curve.SeriesDef(
             fit_func=lambda x, amp, freq0, freq1, freq2, beta, base: cos(
@@ -95,7 +96,7 @@ class DragCalAnalysis(curve.CurveAnalysis):
             filter_kwargs={"series": 1},
             plot_symbol="^",
             model_description=r"{\rm amp} \cos\left(2 \pi\cdot {\rm freq}_1\cdot x "
-            r"- 2 \pi \beta\right) + {\rm base}",
+            r"- 2 \pi\cdot {\rm freq}_1\cdot \beta\right) + {\rm base}",
         ),
         curve.SeriesDef(
             fit_func=lambda x, amp, freq0, freq1, freq2, beta, base: cos(
@@ -106,7 +107,7 @@ class DragCalAnalysis(curve.CurveAnalysis):
             filter_kwargs={"series": 2},
             plot_symbol="v",
             model_description=r"{\rm amp} \cos\left(2 \pi\cdot {\rm freq}_2\cdot x "
-            r"- 2 \pi \beta\right) + {\rm base}",
+            r"- 2 \pi\cdot {\rm freq}_2\cdot \beta\right) + {\rm base}",
         ),
     ]
 

@@ -183,21 +183,9 @@ class TestCurveAnalysisUnit(QiskitExperimentsTestCase):
                 fixed_params=["not_existing_parameter"],  # this parameter is not defined
             )
 
-    def test_arg_parse_and_get_option(self):
-        """Test if option parsing works correctly."""
-        user_option = {"x_key": "test_value", "test_key1": "value1", "test_key2": "value2"}
-
-        # argument not defined in default option should be returned as extra option
-        extra_option = self.analysis._arg_parse(**user_option)
-        ref_option = {"test_key1": "value1", "test_key2": "value2"}
-        self.assertDictEqual(extra_option, ref_option)
-
-        # default option value is stored as class variable
-        self.assertEqual(self.analysis._get_option("x_key"), "test_value")
-
     def test_data_extraction(self):
         """Test data extraction method."""
-        self.analysis._arg_parse(x_key="xval")
+        self.analysis.set_options(x_key="xval")
 
         # data to analyze
         test_data0 = simulate_output_data(
@@ -274,7 +262,7 @@ class TestCurveAnalysisUnit(QiskitExperimentsTestCase):
         def _processor(datum):
             return datum["data"], datum["data"] * 2
 
-        self.analysis._arg_parse(x_key="xval")
+        self.analysis.set_options(x_key="xval")
         self.analysis._extract_curves(expdata, data_processor=_processor)
 
         filt_data = self.analysis._data(series_name="curve1")

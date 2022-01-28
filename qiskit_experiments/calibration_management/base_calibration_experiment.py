@@ -13,7 +13,7 @@
 """Base class for calibration-type experiments."""
 
 from abc import ABC
-from typing import List, Optional, Type
+from typing import List, Optional, Type, Union
 import warnings
 
 from qiskit.providers.backend import Backend
@@ -21,6 +21,7 @@ from qiskit.pulse import ScheduleBlock
 
 from qiskit_experiments.calibration_management.calibrations import Calibrations
 from qiskit_experiments.calibration_management.update_library import BaseUpdater
+from qiskit_experiments.framework.base_analysis import BaseAnalysis
 from qiskit_experiments.framework.base_experiment import BaseExperiment
 from qiskit_experiments.framework.experiment_data import ExperimentData
 from qiskit_experiments.exceptions import CalibrationError
@@ -79,9 +80,6 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
     :mod:`qiskit_experiments.calibration_management.update_library`. See also
     :class:`qiskit_experiments.calibration_management.update_library.BaseUpdater`. If no updater
     is specified the experiment will still run but no update of the calibrations will be performed.
-
-    In addition to the calibration specific requirements, the developer must set the analysis method
-    with the class variable :code:`__analysis_class__` and any default experiment options.
     """
 
     def __init_subclass__(cls, **kwargs):
@@ -222,7 +220,8 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
     def run(
         self,
         backend: Optional[Backend] = None,
-        analysis: bool = True,
+        analysis: Optional[Union[BaseAnalysis, None]] = "default",
+        timeout: Optional[float] = None,
         **run_options,
     ) -> ExperimentData:
         """Run an experiment, perform analysis, and update any calibrations.
@@ -231,13 +230,20 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
             backend: Optional, the backend to run the experiment on. This
                      will override any currently set backends for the single
                      execution.
-            analysis: If True run analysis on the experiment data.
+            analysis: Optional, a custom analysis instance to use for performing
+                      analysis. If None analysis will not be run. If ``"default"``
+                      the experiments :meth:`analysis` instance will be used if
+                      it contains one.
+            timeout: Time to wait for experiment jobs to finish running before
+                     cancelling.
             run_options: backend runtime options used for circuit execution.
 
         Returns:
             The experiment data object.
         """
-        experiment_data = super().run(backend, analysis, **run_options)
+        experiment_data = super().run(
+            backend=backend, analysis=analysis, timeout=timeout, **run_options
+        )
 
         self._add_cal_metadata(experiment_data)
 

@@ -19,7 +19,6 @@ import numpy as np
 from qiskit import pulse, circuit, QuantumCircuit
 from qiskit.exceptions import QiskitError
 from qiskit.providers import Backend
-from qiskit.utils import apply_prefix
 from qiskit_experiments.framework import BaseExperiment, Options
 from qiskit_experiments.library.characterization.analysis import CrossResonanceHamiltonianAnalysis
 
@@ -112,6 +111,9 @@ class CrossResonanceHamiltonian(BaseExperiment):
 
         which is derived by assuming a square edges with the full pulse amplitude.
 
+    # section: analysis_ref
+        :py:class:`CrossResonanceHamiltonianAnalysis`
+
     # section: reference
         .. ref_arxiv:: 1 1603.04821
 
@@ -119,8 +121,6 @@ class CrossResonanceHamiltonian(BaseExperiment):
         .. ref_website:: Qiskit Textbook 6.7,
             https://qiskit.org/textbook/ch-quantum-hardware/hamiltonian-tomography.html
     """
-
-    __analysis_class__ = CrossResonanceHamiltonianAnalysis
 
     # Number of CR pulses. The flat top duration per pulse is divided by this number.
     __n_cr_pulses__ = 1
@@ -130,7 +130,6 @@ class CrossResonanceHamiltonian(BaseExperiment):
         qubits: Tuple[int, int],
         flat_top_widths: Iterable[float],
         backend: Optional[Backend] = None,
-        unit: str = "dt",
         **kwargs,
     ):
         """Create a new experiment.
@@ -139,23 +138,23 @@ class CrossResonanceHamiltonian(BaseExperiment):
             qubits: Two-value tuple of qubit indices on which to run tomography.
                 The first index stands for the control qubit.
             flat_top_widths: The total duration of the square part of cross resonance pulse(s)
-                to scan. The total pulse duration including Gaussian rising and falling edges
-                is implicitly computed with experiment parameters ``sigma`` and ``risefall``.
+                to scan, in units of dt. The total pulse duration including Gaussian rising and
+                falling edges is implicitly computed with experiment parameters ``sigma`` and
+                ``risefall``.
             backend: Optional, the backend to run the experiment on.
-            unit: The time unit of durations.
             kwargs: Pulse parameters. See :meth:`experiment_options` for details.
 
         Raises:
             QiskitError: When ``qubits`` length is not 2.
         """
-        super().__init__(qubits, backend=backend)
+        super().__init__(qubits, analysis=CrossResonanceHamiltonianAnalysis(), backend=backend)
 
         if len(qubits) != 2:
             raise QiskitError(
                 "Length of qubits is not 2. Please provide index for control and target qubit."
             )
 
-        self.set_experiment_options(flat_top_widths=flat_top_widths, unit=unit, **kwargs)
+        self.set_experiment_options(flat_top_widths=flat_top_widths, **kwargs)
 
     @classmethod
     def _default_experiment_options(cls) -> Options:
@@ -163,18 +162,16 @@ class CrossResonanceHamiltonian(BaseExperiment):
 
         Experiment Options:
             flat_top_widths (np.ndarray): The total duration of the square part of
-                cross resonance pulse(s) to scan. This can start from zero and
+                cross resonance pulse(s) to scan, in units of dt. This can start from zero and
                 take positive real values representing the durations.
                 Pulse edge effect is considered as an offset to the durations.
-            unit (str): Time unit of durations.
             amp (complex): Amplitude of the cross resonance tone.
             amp_t (complex): Amplitude of the cancellation or rotary drive on target qubit.
-            sigma (float): Sigma of Gaussian rise and fall edges.
+            sigma (float): Sigma of Gaussian rise and fall edges, in units of dt.
             risefall (float): Ratio of edge durations to sigma.
         """
         options = super()._default_experiment_options()
         options.flat_top_widths = None
-        options.unit = "dt"
         options.amp = 0.2
         options.amp_t = 0.0
         options.sigma = 64
@@ -263,17 +260,11 @@ class CrossResonanceHamiltonian(BaseExperiment):
             AttributeError: When the backend doesn't report the time resolution of waveforms.
         """
         opt = self.experiment_options
-        prefactor = 1.0
 
         try:
             dt_factor = self.backend.configuration().dt
         except AttributeError as ex:
             raise AttributeError("Backend configuration does not provide time resolution.") from ex
-
-        if opt.unit != "dt":
-            if opt.unit != "s":
-                prefactor *= apply_prefix(1.0, opt.unit)
-            prefactor /= dt_factor
 
         # Parametrized duration cannot be used because total duration is computed
         # on the fly with granularity validation. This validation requires
@@ -283,7 +274,6 @@ class CrossResonanceHamiltonian(BaseExperiment):
         expr_circs = list()
         for flat_top_width in np.asarray(opt.flat_top_widths, dtype=float):
 
-            # circuit duration is shown in given units (just for visualization)
             cr_gate = circuit.Gate(
                 "cr_gate",
                 num_qubits=2,
@@ -317,7 +307,7 @@ class CrossResonanceHamiltonian(BaseExperiment):
                     tomo_circ.metadata = {
                         "experiment_type": self.experiment_type,
                         "qubits": self.physical_qubits,
-                        "xval": prefactor * flat_top_width * dt_factor,  # in units of sec
+                        "xval": flat_top_width * dt_factor,  # in units of sec
                         "control_state": control_state,
                         "meas_basis": meas_basis,
                     }
@@ -330,8 +320,8 @@ class CrossResonanceHamiltonian(BaseExperiment):
                         qubits=self.physical_qubits,
                         schedule=self._build_cr_schedule(
                             backend=self.backend,
-                            flat_top_width=prefactor * flat_top_width / self.__n_cr_pulses__,
-                            sigma=prefactor * opt.sigma,
+                            flat_top_width=flat_top_width / self.__n_cr_pulses__,
+                            sigma=opt.sigma,
                         ),
                     )
 

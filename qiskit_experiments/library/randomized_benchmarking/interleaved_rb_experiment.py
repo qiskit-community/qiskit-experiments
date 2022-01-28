@@ -15,6 +15,7 @@ Interleaved RB Experiment class.
 from typing import Union, Iterable, Optional, List, Sequence
 
 from numpy.random import Generator
+from numpy.random.bit_generator import BitGenerator, SeedSequence
 
 from qiskit import QuantumCircuit
 from qiskit.circuit import Instruction
@@ -22,6 +23,7 @@ from qiskit.quantum_info import Clifford
 from qiskit.exceptions import QiskitError
 from qiskit.providers.backend import Backend
 
+import qiskit_experiments.data_processing as dp
 from .rb_experiment import StandardRB
 from .interleaved_rb_analysis import InterleavedRBAnalysis
 
@@ -39,13 +41,13 @@ class InterleavedRB(StandardRB):
         the ground state, fits the two exponentially decaying curves, and estimates
         the interleaved gate error. See Ref. [1] for details.
 
+    # section: analysis_ref
+        :py:class:`InterleavedRBAnalysis`
+
     # section: reference
         .. ref_arxiv:: 1 1203.4550
 
     """
-
-    # Analysis class for experiment
-    __analysis_class__ = InterleavedRBAnalysis
 
     def __init__(
         self,
@@ -54,7 +56,7 @@ class InterleavedRB(StandardRB):
         lengths: Iterable[int],
         backend: Optional[Backend] = None,
         num_samples: int = 3,
-        seed: Optional[Union[int, Generator]] = None,
+        seed: Optional[Union[int, SeedSequence, BitGenerator, Generator]] = None,
         full_sampling: bool = False,
     ):
         """Initialize an interleaved randomized benchmarking experiment.
@@ -67,8 +69,9 @@ class InterleavedRB(StandardRB):
             backend: The backend to run the experiment on.
             num_samples: Number of samples to generate for each
                          sequence length
-            seed: Seed or generator object for random number
-                  generation. If None default_rng will be used.
+            seed: Optional, seed used to initialize ``numpy.random.default_rng``.
+                  when generating circuits. The ``default_rng`` will be initialized
+                  with this seed value everytime :meth:`circuits` is called.
             full_sampling: If True all Cliffords are independently sampled for
                            all lengths. If False for sample of lengths longer
                            sequences are constructed by appending additional
@@ -83,11 +86,18 @@ class InterleavedRB(StandardRB):
             seed=seed,
             full_sampling=full_sampling,
         )
+        self.analysis = InterleavedRBAnalysis()
+        self.analysis.set_options(
+            data_processor=dp.DataProcessor(
+                input_key="counts",
+                data_actions=[dp.Probability(outcome="0" * self.num_qubits)],
+            )
+        )
 
-    def _sample_circuits(self, lengths, seed=None):
+    def _sample_circuits(self, lengths, rng):
         circuits = []
         for length in lengths if self._full_sampling else [lengths[-1]]:
-            elements = self._clifford_utils.random_clifford_circuits(self.num_qubits, length, seed)
+            elements = self._clifford_utils.random_clifford_circuits(self.num_qubits, length, rng)
             element_lengths = [len(elements)] if self._full_sampling else lengths
             std_circuits = self._generate_circuit(elements, element_lengths)
             for circuit in std_circuits:

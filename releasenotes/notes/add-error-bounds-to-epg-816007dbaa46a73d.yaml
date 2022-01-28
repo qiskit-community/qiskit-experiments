@@ -1,6 +1,0 @@
----
-other:
-  - |
-    Error bounds are now computed as part of the error-per-gate computation
-    in the randomized benchmarking experiment. The result is now given as
-    a `FitVal` instead of `float`.

@@ -250,7 +250,7 @@ class QuantumVolumeAnalysis(BaseAnalysis):
         hop_accumulative = np.cumsum(heavy_probs) / trial_list
         two_sigma = 2 * (hop_accumulative * (1 - hop_accumulative) / trial_list) ** 0.5
 
-        # Plot inidivual HOP as scatter
+        # Plot individual HOP as scatter
         ax = plot_scatter(
             trial_list,
             heavy_probs,

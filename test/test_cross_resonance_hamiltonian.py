@@ -164,7 +164,6 @@ class TestCrossResonanceHamiltonian(QiskitExperimentsTestCase):
         expr = cr_hamiltonian.CrossResonanceHamiltonian(
             qubits=(0, 1),
             flat_top_widths=[1000],
-            unit="dt",
             amp=0.1,
             sigma=64,
             risefall=2,
@@ -228,76 +227,6 @@ class TestCrossResonanceHamiltonian(QiskitExperimentsTestCase):
 
         self.assertListEqual(expr_circs, ref_circs)
 
-    def test_circuit_generation_from_sec(self):
-        """Test generated circuits when time unit is sec."""
-
-        expr = cr_hamiltonian.CrossResonanceHamiltonian(
-            qubits=(0, 1),
-            flat_top_widths=[500],
-            unit="ns",
-            amp=0.1,
-            sigma=20,
-            risefall=2,
-        )
-        expr.backend = CrossResonanceHamiltonianBackend()
-
-        nearlest_16 = 576
-
-        with pulse.build(default_alignment="left", name="cr") as ref_cr_sched:
-            pulse.play(
-                pulse.GaussianSquare(
-                    nearlest_16,
-                    amp=0.1,
-                    sigma=20,
-                    width=500,
-                ),
-                pulse.ControlChannel(0),
-            )
-            pulse.delay(nearlest_16, pulse.DriveChannel(0))
-            pulse.delay(nearlest_16, pulse.DriveChannel(1))
-
-        cr_gate = circuit.Gate("cr_gate", num_qubits=2, params=[500])
-        expr_circs = expr.circuits()
-
-        x0_circ = QuantumCircuit(2, 1)
-        x0_circ.append(cr_gate, [0, 1])
-        x0_circ.h(1)
-        x0_circ.measure(1, 0)
-
-        x1_circ = QuantumCircuit(2, 1)
-        x1_circ.x(0)
-        x1_circ.append(cr_gate, [0, 1])
-        x1_circ.h(1)
-        x1_circ.measure(1, 0)
-
-        y0_circ = QuantumCircuit(2, 1)
-        y0_circ.append(cr_gate, [0, 1])
-        y0_circ.sdg(1)
-        y0_circ.h(1)
-        y0_circ.measure(1, 0)
-
-        y1_circ = QuantumCircuit(2, 1)
-        y1_circ.x(0)
-        y1_circ.append(cr_gate, [0, 1])
-        y1_circ.sdg(1)
-        y1_circ.h(1)
-        y1_circ.measure(1, 0)
-
-        z0_circ = QuantumCircuit(2, 1)
-        z0_circ.append(cr_gate, [0, 1])
-        z0_circ.measure(1, 0)
-
-        z1_circ = QuantumCircuit(2, 1)
-        z1_circ.x(0)
-        z1_circ.append(cr_gate, [0, 1])
-        z1_circ.measure(1, 0)
-
-        ref_circs = [x0_circ, y0_circ, z0_circ, x1_circ, y1_circ, z1_circ]
-        for c in ref_circs:
-            c.add_calibration(cr_gate, (0, 1), ref_cr_sched)
-
-        self.assertListEqual(expr_circs, ref_circs)
-
     @data(
         [1e6, 2e6, 1e3, -3e6, -2e6, 1e4],
         [-1e6, -2e6, 1e3, 3e6, 2e6, 1e4],
@@ -318,6 +247,7 @@ class TestCrossResonanceHamiltonian(QiskitExperimentsTestCase):
             qubits=(0, 1), flat_top_widths=durations, sigma=sigma, risefall=2
         )
         exp_data = expr.run(backend, shots=2000)
+        self.assertExperimentDone(exp_data)
 
         self.assertEqual(exp_data.analysis_results(0).quality, "good")
         self.assertAlmostEqual(exp_data.analysis_results("omega_ix").value.n, ix, delta=2e4)
@@ -331,24 +261,22 @@ class TestCrossResonanceHamiltonian(QiskitExperimentsTestCase):
         """Test converting to and from config works"""
         exp = cr_hamiltonian.CrossResonanceHamiltonian(
             qubits=[0, 1],
-            flat_top_widths=[500],
-            unit="ns",
+            flat_top_widths=[1000],
             amp=0.1,
-            sigma=20,
+            sigma=64,
             risefall=2,
         )
         loaded_exp = cr_hamiltonian.CrossResonanceHamiltonian.from_config(exp.config())
         self.assertNotEqual(exp, loaded_exp)
-        self.assertTrue(self.experiments_equiv(exp, loaded_exp))
+        self.assertTrue(self.json_equiv(exp, loaded_exp))
 
     def test_roundtrip_serializable(self):
         """Test round trip JSON serialization"""
         exp = cr_hamiltonian.CrossResonanceHamiltonian(
             qubits=[0, 1],
-            flat_top_widths=[500],
-            unit="ns",
+            flat_top_widths=[1000],
             amp=0.1,
-            sigma=20,
+            sigma=64,
             risefall=2,
         )
-        self.assertRoundTripSerializable(exp, self.experiments_equiv)
+        self.assertRoundTripSerializable(exp, self.json_equiv)

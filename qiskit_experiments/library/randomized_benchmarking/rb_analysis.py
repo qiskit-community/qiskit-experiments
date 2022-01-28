@@ -181,16 +181,16 @@ class RBAnalysis(curve.CurveAnalysis):
         )
 
         # Calculate EPG
-        if not self._get_option("gate_error_ratio"):
+        if not self.options.gate_error_ratio:
             # we attempt to get the ratio from the backend properties
-            if not self._get_option("error_dict"):
+            if not self.options.error_dict:
                 gate_error_ratio = RBUtils.get_error_dict_from_backend(
                     backend=self._backend, qubits=self._physical_qubits
                 )
             else:
-                gate_error_ratio = self._get_option("error_dict")
+                gate_error_ratio = self.options.error_dict
         else:
-            gate_error_ratio = self._get_option("gate_error_ratio")
+            gate_error_ratio = self.options.gate_error_ratio
 
         count_ops = []
         for meta in self._data(label="raw_data").metadata:
@@ -208,7 +208,7 @@ class RBAnalysis(curve.CurveAnalysis):
                     gates_per_clifford,
                 )
             elif num_qubits == 2:
-                epg_1_qubit = self._get_option("epg_1_qubit")
+                epg_1_qubit = self.options.epg_1_qubit
                 epg_dict = RBUtils.calculate_2q_epg(
                     epc,
                     self._physical_qubits,

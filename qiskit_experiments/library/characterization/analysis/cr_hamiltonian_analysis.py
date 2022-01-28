@@ -17,7 +17,6 @@ from itertools import product
 from typing import List, Union
 
 import numpy as np
-from qiskit.utils import apply_prefix
 
 import qiskit_experiments.curve_analysis as curve
 import qiskit_experiments.data_processing as dp
@@ -85,7 +84,7 @@ class CrossResonanceHamiltonianAnalysis(curve.CurveAnalysis):
             desc: Offset to the pulse duration. For example, if pulse envelope is
                 a flat-topped Gaussian, two Gaussian edges may become an offset duration.
             init_guess: Computed as :math:`N \sqrt{2 \pi} \sigma` where the :math:`N` is number of
-                pulses and :math:`\sigma` is Gaussian sigma of riring and falling edges.
+                pulses and :math:`\sigma` is Gaussian sigma of rising and falling edges.
                 Note that this implicitly assumes the :py:class:`~qiskit.pulse.library\
                 .parametric_pulses.GaussianSquare` pulse envelope.
             bounds: [0, None]
@@ -228,25 +227,16 @@ class CrossResonanceHamiltonianAnalysis(curve.CurveAnalysis):
             An initial guess for time offset parameter ``t_off`` in SI units.
 
         Raises:
-            AnalysisError: When time unit is ``dt`` but the backend doesn't report
-                the time resolution of waveforms.
+            AnalysisError: When the backend doesn't report the time resolution of waveforms.
         """
         n_pulses = self._extra_metadata().get("n_cr_pulses", 1)
         sigma = self._experiment_options().get("sigma", 0)
-        unit = self._experiment_options().get("unit")
 
         # Convert sigma unit into SI
-        if unit == "dt":
-            try:
-                prefactor = self._backend.configuration().dt
-            except AttributeError as ex:
-                raise AnalysisError(
-                    "Backend configuration does not provide time resolution."
-                ) from ex
-        elif unit != "s":
-            prefactor = apply_prefix(1.0, unit)
-        else:
-            prefactor = 1.0
+        try:
+            prefactor = self._backend.configuration().dt
+        except AttributeError as ex:
+            raise AnalysisError("Backend configuration does not provide time resolution.") from ex
 
         return np.sqrt(2 * np.pi) * prefactor * sigma * n_pulses
 

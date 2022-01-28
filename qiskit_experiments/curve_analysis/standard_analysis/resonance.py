@@ -17,6 +17,7 @@ from typing import List, Union
 import numpy as np
 
 import qiskit_experiments.curve_analysis as curve
+from qiskit_experiments.framework import Options
 
 
 class ResonanceAnalysis(curve.CurveAnalysis):
@@ -66,6 +67,16 @@ class ResonanceAnalysis(curve.CurveAnalysis):
             model_description=r"a \exp(-(x-f)^2/(2\sigma^2)) + b",
         )
     ]
+
+    @classmethod
+    def _default_options(cls) -> Options:
+        options = super()._default_options()
+        options.result_parameters = [curve.ParameterRepr("freq", "f01", "Hz")]
+        options.normalization = True
+        options.xlabel = "Frequency"
+        options.ylabel = "Signal (arb. units)"
+        options.xval_unit = "Hz"
+        return options
 
     def _generate_fit_guesses(
         self, user_opt: curve.FitOptions

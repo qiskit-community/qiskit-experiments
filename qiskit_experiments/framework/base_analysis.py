@@ -141,12 +141,7 @@ class BaseAnalysis(ABC, StoreInitArgs):
             This data can then be saved as its own experiment to a database service.
         """
         # Make a new copy of experiment data if not updating results
-        if not replace_results and (
-            experiment_data._created_in_db
-            or experiment_data._analysis_results
-            or experiment_data._figures
-            or getattr(experiment_data, "_child_data", None)
-        ):
+        if not replace_results and _requires_copy(experiment_data):
             experiment_data = experiment_data.copy()
 
         # Get experiment device components
@@ -230,3 +225,23 @@ class BaseAnalysis(ABC, StoreInitArgs):
     @classmethod
     def __json_decode__(cls, value):
         return cls.from_config(value)
+
+
+def _requires_copy(experiment_data) -> bool:
+    """Return True if a copy of the experiment data should be made."""
+    # If data is from DB or contains analysis results it should be copied
+    if (
+        experiment_data._created_in_db
+        or experiment_data._analysis_results
+        or experiment_data._figures
+    ):
+        return True
+
+    # Check child data:
+    if hasattr(experiment_data, "_child_data"):
+        for subdata in experiment_data._child_data.values():
+            if _requires_copy(subdata):
+                return True
+
+    # No Copy required
+    return False

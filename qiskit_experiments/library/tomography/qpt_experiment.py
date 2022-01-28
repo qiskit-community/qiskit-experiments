@@ -16,7 +16,6 @@ Quantum Process Tomography experiment
 from typing import Union, Optional, Iterable, List, Tuple, Sequence
 from qiskit.circuit import QuantumCircuit, Instruction
 from qiskit.quantum_info.operators.base_operator import BaseOperator
-from qiskit_experiments.framework import Options
 from .tomography_experiment import TomographyExperiment
 from .qpt_analysis import ProcessTomographyAnalysis
 from . import basis
@@ -39,58 +38,13 @@ class ProcessTomography(TomographyExperiment):
         running :math:`4^N 3^N` measurement circuits when using the default
         preparation and measurement bases.
 
+    # section: analysis_ref
+        :py:class:`ProcessTomographyAnalysis`
+
     # section: see_also
         qiskit_experiments.library.tomography.tomography_experiment.TomographyExperiment
 
     """
-
-    __analysis_class__ = ProcessTomographyAnalysis
-
-    @classmethod
-    def _default_experiment_options(cls) -> Options:
-        """Default experiment options.
-
-        Experiment Options:
-            measurement_basis (:class:`~basis.BaseTomographyMeasurementBasis`): The
-                Tomography measurement basis to use for the experiment.
-                The default basis is the :class:`~basis.PauliMeasurementBasis` which
-                performs measurements in the Pauli Z, X, Y bases for each qubit
-                measurement.
-            preparation_basis (:class:`~basis.BaseTomographyPreparationBasis`):
-                The Tomography measurement basis to use for the experiment.
-                The default basis is the :class:`~basis.PauliPreparationBasis` which
-                prepares the :math:`|0\\rangle, |1\\rangle, |+\\rangle |+i\\rangle`
-                states on each prepared qubit.
-        """
-        options = super()._default_experiment_options()
-
-        return options
-
-    @classmethod
-    def _default_analysis_options(cls) -> Options:
-        """Default analysis options.
-
-        Analysis Options:
-            measurement_basis (:class:`~basis.BaseFitterMeasurementBasis`): A custom measurement
-                basis for analysis. By default the :meth:`experiment_options` measurement basis
-                will be used.
-            preparation_basis (:class:`~basis.BaseFitterPreparationBasis`): A custom preparation
-                basis for analysis. By default the :meth:`experiment_options` preparation basis
-                will be used.
-            fitter (str or Callable): The fitter function to use for reconstruction.
-                rescale_psd (bool): If True rescale the fitted state to be positive-semidefinite
-                (Default: True).
-            rescale_trace (bool): If True rescale the state returned by the fitter have either
-                trace 1 (Default: True).
-            kwargs: Additional kwargs will be supplied to the fitter function.
-
-        """
-        options = super()._default_analysis_options()
-
-        options.measurement_basis = basis.PauliMeasurementBasis()
-        options.preparation_basis = basis.PauliPreparationBasis()
-
-        return options
 
     def __init__(
         self,
@@ -135,3 +89,4 @@ class ProcessTomography(TomographyExperiment):
             basis_indices=basis_indices,
             qubits=qubits,
         )
+        self.analysis = ProcessTomographyAnalysis()

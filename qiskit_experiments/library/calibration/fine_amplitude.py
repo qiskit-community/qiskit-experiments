@@ -20,12 +20,11 @@ from qiskit.providers.backend import Backend
 
 from qiskit_experiments.calibration_management import (
     BaseCalibrationExperiment,
-    BackendCalibrations,
+    Calibrations,
 )
 from qiskit_experiments.library.characterization import FineAmplitude
 from qiskit_experiments.framework import ExperimentData, Options
 from qiskit_experiments.calibration_management.update_library import BaseUpdater
-from qiskit_experiments.library.characterization.analysis import FineXAmplitudeAnalysis
 
 
 class FineAmplitudeCal(BaseCalibrationExperiment, FineAmplitude):
@@ -36,12 +35,16 @@ class FineAmplitudeCal(BaseCalibrationExperiment, FineAmplitude):
         :class:`FineAmplitudeCal` is a subclass of :class:`FineAmplitude`. In the calibration
         experiment the circuits that are run have a custom gate with the pulse schedule attached
         to it through the calibrations.
+
+    # section: see_also
+        qiskit_experiments.library.characterization.fine_amplitude.FineAmplitude
+
     """
 
     def __init__(
         self,
         qubit: int,
-        calibrations: BackendCalibrations,
+        calibrations: Calibrations,
         schedule_name: str,
         backend: Optional[Backend] = None,
         cal_parameter_name: Optional[str] = "amp",
@@ -84,7 +87,7 @@ class FineAmplitudeCal(BaseCalibrationExperiment, FineAmplitude):
     def _add_cal_metadata(self, experiment_data: ExperimentData):
         """Add metadata to the experiment data making it more self contained.
 
-        The following keys are added to each circuit's metadata:
+        The following keys are added to each experiment's metadata:
             cal_param_value: The value of the pulse amplitude. This value together with
                 the fit result will be used to find the new value of the pulse amplitude.
             cal_param_name: The name of the parameter in the calibrations.
@@ -144,9 +147,34 @@ class FineAmplitudeCal(BaseCalibrationExperiment, FineAmplitude):
 
 
 class FineXAmplitudeCal(FineAmplitudeCal):
-    """A calibration experiment to calibrate the amplitude of the X schedule."""
+    """A calibration experiment to calibrate the amplitude of the X schedule.
 
-    __analysis_class__ = FineXAmplitudeAnalysis
+    # section: see_also
+        qiskit_experiments.library.characterization.fine_amplitude.FineAmplitude
+    """
+
+    def __init__(
+        self,
+        qubit: int,
+        calibrations: Calibrations,
+        schedule_name: str,
+        backend: Optional[Backend] = None,
+        cal_parameter_name: Optional[str] = "amp",
+        auto_update: bool = True,
+    ):
+        super().__init__(
+            qubit,
+            calibrations,
+            schedule_name,
+            backend=backend,
+            cal_parameter_name=cal_parameter_name,
+            auto_update=auto_update,
+        )
+        self.analysis.set_options(
+            angle_per_gate=np.pi,
+            phase_offset=np.pi / 2,
+            amp=1,
+        )
 
     @classmethod
     def _default_experiment_options(cls) -> Options:
@@ -179,19 +207,35 @@ class FineXAmplitudeCal(FineAmplitudeCal):
 
         return options
 
-    @classmethod
-    def _default_analysis_options(cls) -> Options:
-        """Default analysis options."""
-        options = super()._default_analysis_options()
-        options.angle_per_gate = np.pi
-        options.phase_offset = np.pi / 2
-        options.amp = 1
-
-        return options
-
 
 class FineSXAmplitudeCal(FineAmplitudeCal):
-    """A calibration experiment to calibrate the amplitude of the SX schedule."""
+    """A calibration experiment to calibrate the amplitude of the SX schedule.
+
+    # section: see_also
+        qiskit_experiments.library.characterization.fine_amplitude.FineAmplitude
+    """
+
+    def __init__(
+        self,
+        qubit: int,
+        calibrations: Calibrations,
+        schedule_name: str,
+        backend: Optional[Backend] = None,
+        cal_parameter_name: Optional[str] = "amp",
+        auto_update: bool = True,
+    ):
+        super().__init__(
+            qubit,
+            calibrations,
+            schedule_name,
+            backend=backend,
+            cal_parameter_name=cal_parameter_name,
+            auto_update=auto_update,
+        )
+        self.analysis.set_options(
+            angle_per_gate=np.pi / 2,
+            phase_offset=np.pi,
+        )
 
     @classmethod
     def _default_experiment_options(cls) -> Options:
@@ -227,14 +271,5 @@ class FineSXAmplitudeCal(FineAmplitudeCal):
         """
         options = super()._default_transpile_options()
         options.basis_gates = ["x", "sx"]
-
-        return options
-
-    @classmethod
-    def _default_analysis_options(cls) -> Options:
-        """Default analysis options."""
-        options = super()._default_analysis_options()
-        options.angle_per_gate = np.pi / 2
-        options.phase_offset = np.pi
 
         return options

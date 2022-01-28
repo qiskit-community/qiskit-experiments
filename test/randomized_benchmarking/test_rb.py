@@ -58,6 +58,7 @@ class TestStandardRB(QiskitExperimentsTestCase):
             seed=exp_attributes["seed"],
         )
         exp_data = rb_exp.run(backend)
+        self.assertExperimentDone(exp_data)
         exp = exp_data.experiment
         exp_circuits = rb_exp.circuits()
         self.validate_metadata(exp_circuits, exp_attributes)
@@ -163,12 +164,12 @@ class TestStandardRB(QiskitExperimentsTestCase):
         exp = StandardRB([0, 1], lengths=[10, 20, 30, 40], num_samples=10)
         loaded_exp = StandardRB.from_config(exp.config())
         self.assertNotEqual(exp, loaded_exp)
-        self.assertTrue(self.experiments_equiv(exp, loaded_exp))
+        self.assertTrue(self.json_equiv(exp, loaded_exp))
 
     def test_roundtrip_serializable(self):
         """Test round trip JSON serialization"""
         exp = StandardRB([0, 1], lengths=[10, 20, 30, 40], num_samples=10)
-        self.assertRoundTripSerializable(exp, self.experiments_equiv)
+        self.assertRoundTripSerializable(exp, self.json_equiv)
 
 
 @ddt
@@ -203,6 +204,7 @@ class TestInterleavedRB(TestStandardRB):
             seed=exp_attributes["seed"],
         )
         experiment_obj = rb_exp.run(backend)
+        self.assertExperimentDone(experiment_obj)
         exp_data = experiment_obj.experiment
         exp_circuits = rb_exp.circuits()
         self.validate_metadata(exp_circuits, exp_attributes)
@@ -263,9 +265,9 @@ class TestInterleavedRB(TestStandardRB):
         exp = InterleavedRB(CXGate(), [0, 1], lengths=[10, 20, 30, 40], num_samples=10)
         loaded_exp = InterleavedRB.from_config(exp.config())
         self.assertNotEqual(exp, loaded_exp)
-        self.assertTrue(self.experiments_equiv(exp, loaded_exp))
+        self.assertTrue(self.json_equiv(exp, loaded_exp))
 
     def test_roundtrip_serializable(self):
         """Test round trip JSON serialization"""
         exp = InterleavedRB(CXGate(), [0, 1], lengths=[10, 20, 30, 40], num_samples=10)
-        self.assertRoundTripSerializable(exp, self.experiments_equiv)
+        self.assertRoundTripSerializable(exp, self.json_equiv)

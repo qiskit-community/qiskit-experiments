@@ -247,14 +247,6 @@ class CurveAnalysis(BaseAnalysis, ABC):
         #: Backend: backend object used for experimentation
         self.__backend = None
 
-        # Add expected options to instance variable so that every method can access to.
-        for key in self._default_options().__dict__:
-            setattr(self, f"__{key}", None)
-
-        # Add fixed parameters to instance variable so that every method can access to.
-        for key in self.__fixed_parameters__:
-            setattr(self, f"__{key}", None)
-
     @classmethod
     def _fit_params(cls) -> List[str]:
         """Return a list of fitting parameters.
@@ -343,6 +335,8 @@ class CurveAnalysis(BaseAnalysis, ABC):
                 that contains a set of configurations to create a fit plot.
             extra (Dict[str, Any]): A dictionary that is appended to all database entries
                 as extra information.
+            curve_fitter_options (Dict[str, Any]) Options that are passed to the
+                specified curve fitting function.
         """
         options = super()._default_options()
 
@@ -363,6 +357,7 @@ class CurveAnalysis(BaseAnalysis, ABC):
         options.curve_plotter = "mpl_single_canvas"
         options.style = PlotterStyle()
         options.extra = dict()
+        options.curve_fitter_options = dict()
 
         # automatically populate initial guess and boundary
         fit_params = cls._fit_params()
@@ -574,7 +569,7 @@ class CurveAnalysis(BaseAnalysis, ABC):
         # Extract X, Y, Y_sigma data
         data = experiment_data.data()
 
-        x_key = self._get_option("x_key")
+        x_key = self.options.x_key
         try:
             xdata = np.asarray([datum["metadata"][x_key] for datum in data], dtype=float)
         except KeyError as ex:
@@ -667,21 +662,6 @@ class CurveAnalysis(BaseAnalysis, ABC):
             # Ignore experiment metadata or job metadata is not set or key is not found
             return None
 
-    def _analysis_options(self, index: int = -1) -> Dict[str, Any]:
-        """Returns the analysis options of given job index.
-
-        Args:
-            index: Index of job metadata to extract. Default to -1 (latest).
-
-        Returns:
-            Analysis options. This option is used for analysis.
-        """
-        try:
-            return self.__experiment_metadata["job_metadata"][index]["analysis_options"]
-        except (TypeError, KeyError, IndexError):
-            # Ignore experiment metadata or job metadata is not set or key is not found
-            return None
-
     def _run_options(self, index: int = -1) -> Dict[str, Any]:
         """Returns the run options of given job index.
 
@@ -764,67 +744,17 @@ class CurveAnalysis(BaseAnalysis, ABC):
 
         raise AnalysisError(f"Specified series {series_name} is not defined in this analysis.")
 
-    def _arg_parse(self, **options) -> Dict[str, Any]:
-        """Parse input kwargs with predicted input.
-
-        Class attributes will be updated according to the ``options``.
-        For example, if ``options`` has a key ``p0``, and the class
-        has an attribute named ``__p0``,  then the attribute  ``__0p``
-        will be updated to ``options["p0"]``.
-
-        Options that don't have matching attributes will be included
-        in the returned dictionary.
-
-        Args:
-            options: User-input keyword argument options.
-
-        Returns:
-            Keyword arguments not specified in the default options
-            of the class.
-        """
-        extra_options = dict()
-        for key, value in options.items():
-            private_key = f"__{key}"
-            if hasattr(self, private_key):
-                setattr(self, private_key, value)
-            else:
-                extra_options[key] = value
-
-        return extra_options
-
-    def _get_option(self, arg_name: str) -> Any:
-        """A helper function to get specified field from the input analysis options.
-
-        Args:
-            arg_name: Name of option.
-
-        Return:
-            Arbitrary object specified by the option name.
-
-        Raises:
-            AnalysisError:
-                - When `arg_name` is not found in the analysis options.
-        """
-        try:
-            return getattr(self, f"__{arg_name}")
-        except AttributeError as ex:
-            raise AnalysisError(
-                f"The argument {arg_name} is selected but not defined. "
-                "This key-value pair should be defined in the analysis option."
-            ) from ex
-
     def _run_analysis(
         self, experiment_data: ExperimentData
     ) -> Tuple[List[AnalysisResultData], List["pyplot.Figure"]]:
         #
         # 1. Parse arguments
         #
-        extra_options = self._arg_parse(**self.options.__dict__)
 
         # Update all fit functions in the series definitions if fixed parameter is defined.
         # Fixed parameters should be provided by the analysis options.
         if self.__fixed_parameters__:
-            assigned_params = {k: self._get_option(k) for k in self.__fixed_parameters__}
+            assigned_params = {k: self.options.get(k, None) for k in self.__fixed_parameters__}
 
             # Check if all parameters are assigned.
             if any(v is None for v in assigned_params.values()):
@@ -860,24 +790,12 @@ class CurveAnalysis(BaseAnalysis, ABC):
         # 2. Setup data processor
         #
 
-        # No data processor has been provided at run-time we infer one from the job
+        # If no data processor was provided at run-time we infer one from the job
         # metadata and default to the data processor for averaged classified data.
-        data_processor = self._get_option("data_processor")
+        data_processor = self.options.data_processor
 
         if not data_processor:
-            run_options = self._run_options() or dict()
-
-            try:
-                meas_level = run_options["meas_level"]
-            except KeyError as ex:
-                raise DataProcessorError(
-                    f"Cannot process data without knowing the measurement level: {str(ex)}."
-                ) from ex
-
-            meas_return = run_options.get("meas_return", None)
-            normalization = self._get_option("normalization")
-
-            data_processor = get_processor(meas_level, meas_return, normalization)
+            data_processor = get_processor(experiment_data, self.options)
 
         if isinstance(data_processor, DataProcessor) and not data_processor.is_trained:
             # Qiskit DataProcessor instance. May need calibration.
@@ -891,15 +809,14 @@ class CurveAnalysis(BaseAnalysis, ABC):
         #
         # 4. Run fitting
         #
-        curve_fitter = self._get_option("curve_fitter")
         formatted_data = self._data(label="fit_ready")
 
         # Generate algorithmic initial guesses and boundaries
         default_fit_opt = FitOptions(
             parameters=self._fit_params(),
-            default_p0=self._get_option("p0"),
-            default_bounds=self._get_option("bounds"),
-            **extra_options,
+            default_p0=self.options.p0,
+            default_bounds=self.options.bounds,
+            **self.options.curve_fitter_options,
         )
 
         fit_options = self._generate_fit_guesses(default_fit_opt)
@@ -910,7 +827,7 @@ class CurveAnalysis(BaseAnalysis, ABC):
         fit_results = []
         for fit_opt in set(fit_options):
             try:
-                fit_result = curve_fitter(
+                fit_result = self.options.curve_fitter(
                     funcs=[series_def.fit_func for series_def in self.__series__],
                     series=formatted_data.data_index,
                     xdata=formatted_data.x,
@@ -961,13 +878,13 @@ class CurveAnalysis(BaseAnalysis, ABC):
                         "dof": fit_result.dof,
                         "covariance_mat": fit_result.pcov,
                         "fit_models": fit_models,
-                        **self._get_option("extra"),
+                        **self.options.extra,
                     },
                 )
             )
 
             # output special parameters
-            result_parameters = self._get_option("result_parameters")
+            result_parameters = self.options.result_parameters
             if result_parameters:
                 for param_repr in result_parameters:
                     if isinstance(param_repr, ParameterRepr):
@@ -984,14 +901,14 @@ class CurveAnalysis(BaseAnalysis, ABC):
                         unit=unit,
                         chisq=fit_result.reduced_chisq,
                         quality=quality,
-                        extra=self._get_option("extra"),
+                        extra=self.options.extra,
                     )
                     analysis_results.append(result_entry)
 
             # add extra database entries
             analysis_results.extend(self._extra_database_entry(fit_result))
 
-        if self._get_option("return_data_points"):
+        if self.options.return_data_points:
             # save raw data points in the data base if option is set (default to false)
             raw_data_dict = dict()
             for series_def in self.__series__:
@@ -1005,8 +922,8 @@ class CurveAnalysis(BaseAnalysis, ABC):
                 name=DATA_ENTRY_PREFIX + self.__class__.__name__,
                 value=raw_data_dict,
                 extra={
-                    "x-unit": self._get_option("xval_unit"),
-                    "y-unit": self._get_option("yval_unit"),
+                    "x-unit": self.options.xval_unit,
+                    "y-unit": self.options.yval_unit,
                 },
             )
             analysis_results.append(raw_data_entry)
@@ -1014,23 +931,23 @@ class CurveAnalysis(BaseAnalysis, ABC):
         #
         # 6. Create figures
         #
-        if self._get_option("plot"):
-            fit_figure = FitResultPlotters[self._get_option("curve_plotter")].value.draw(
+        if self.options.plot:
+            fit_figure = FitResultPlotters[self.options.curve_plotter].value.draw(
                 series_defs=self.__series__,
                 raw_samples=[self._data(ser.name, "raw_data") for ser in self.__series__],
                 fit_samples=[self._data(ser.name, "fit_ready") for ser in self.__series__],
                 tick_labels={
-                    "xval_unit": self._get_option("xval_unit"),
-                    "yval_unit": self._get_option("yval_unit"),
-                    "xlabel": self._get_option("xlabel"),
-                    "ylabel": self._get_option("ylabel"),
-                    "xlim": self._get_option("xlim"),
-                    "ylim": self._get_option("ylim"),
+                    "xval_unit": self.options.xval_unit,
+                    "yval_unit": self.options.yval_unit,
+                    "xlabel": self.options.xlabel,
+                    "ylabel": self.options.ylabel,
+                    "xlim": self.options.xlim,
+                    "ylim": self.options.ylim,
                 },
                 fit_data=fit_result,
                 result_entries=analysis_results,
-                style=self._get_option("style"),
-                axis=self._get_option("axis"),
+                style=self.options.style,
+                axis=self.options.axis,
             )
             figures = [fit_figure]
         else:
