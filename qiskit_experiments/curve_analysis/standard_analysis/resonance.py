@@ -21,10 +21,11 @@ from qiskit_experiments.framework import Options
 
 
 class ResonanceAnalysis(curve.CurveAnalysis):
-    r"""A class to analyze a resonance, typically seen as a Lorentzian peak.
+    r"""A class to analyze a resonance peak with a square rooted Lorentzian function.
 
     Overview
-        This analysis takes only single series. This series is fit by the Lorentzian function.
+        This analysis takes only single series. This series is fit to the square root of
+        a Lorentzian function.
 
     Fit Model
         The fit is based on the following Lorentzian function.
@@ -59,7 +60,7 @@ class ResonanceAnalysis(curve.CurveAnalysis):
 
     __series__ = [
         curve.SeriesDef(
-            fit_func=lambda x, a, kappa, freq, b: curve.fit_function.lorentzian(
+            fit_func=lambda x, a, kappa, freq, b: curve.fit_function.sqrt_lorentzian(
                 x, amp=a, kappa=kappa, x0=freq, baseline=b
             ),
             plot_color="blue",
