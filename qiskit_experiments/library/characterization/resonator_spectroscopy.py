@@ -65,10 +65,6 @@ class ResonatorSpectroscopy(Spectroscopy):
         Experiment Options:
             amp (float): The amplitude of the spectroscopy pulse. Defaults to 1 and must
                 be between 0 and 1.
-            acquire_duration (float): The duration of the acquisition instruction. By
-                default is lasts 240 ns, i.e. the same duration as the measurement pulse.
-            acquire_delay (float): The duration by which to delay the acquire instruction
-                with respect to the measurement pulse.
             duration (float): The duration in seconds of the spectroscopy pulse.
             sigma (float): The standard deviation of the spectroscopy pulse in seconds.
             width (float): The width of the flat-top part of the GaussianSquare pulse in
@@ -77,8 +73,6 @@ class ResonatorSpectroscopy(Spectroscopy):
         options = super()._default_experiment_options()
 
         options.amp = 1
-        options.acquire_duration = 480e-9
-        options.acquire_delay = 0
         options.duration = 480e-9
         options.sigma = 60e-9
         options.width = 360e-9
@@ -157,8 +151,6 @@ class ResonatorSpectroscopy(Spectroscopy):
 
         dt, granularity = self._dt, self._granularity
 
-        acq_dur = int(granularity * (self.experiment_options.acquire_duration / dt // granularity))
-        acq_del = int(granularity * (self.experiment_options.acquire_delay / dt // granularity))
         duration = int(granularity * (self.experiment_options.duration / dt // granularity))
         sigma = granularity * (self.experiment_options.sigma / dt // granularity)
         width = granularity * (self.experiment_options.width / dt // granularity)
@@ -178,12 +170,7 @@ class ResonatorSpectroscopy(Spectroscopy):
                 ),
                 pulse.MeasureChannel(qubit),
             )
-
-            with pulse.align_left():
-                if acq_del != 0:
-                    pulse.delay(acq_del, pulse.AcquireChannel(qubit))
-
-                pulse.acquire(acq_dur, qubit, pulse.MemorySlot(0))
+            pulse.acquire(duration, qubit, pulse.MemorySlot(0))
 
         return schedule, freq_param
 
