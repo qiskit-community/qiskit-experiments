@@ -23,9 +23,9 @@ LOG = logging.getLogger(__name__)
 class AnalysisResultData:
     """Dataclass for experiment analysis results"""
 
+    # TODO: move stderr and unit into custom value class
     name: str
     value: Any
-    unit: Optional[str] = None
     chisq: Optional[float] = None
     quality: Optional[str] = None
     extra: Dict[str, Any] = dataclasses.field(default_factory=dict, hash=False, compare=False)
@@ -34,8 +34,6 @@ class AnalysisResultData:
     def __str__(self):
         out = f"{self.name}:"
         out += f"\n- value:{self.value}"
-        if self.unit is not None:
-            out += f" {self.unit}"
         if self.chisq is not None:
             out += f"\n- chisq: {self.chisq}"
         if self.quality is not None:

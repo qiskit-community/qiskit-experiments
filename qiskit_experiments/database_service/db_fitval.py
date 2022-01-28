@@ -17,20 +17,12 @@ import warnings
 from typing import Optional
 
 
-warnings.warn(
-    "FitVal object has been deprecated in QiskitExperiment version 0.2 and "
-    "will be removed in version 0.3. Use version < 0.2 to load this object.",
-    DeprecationWarning,
-)
-
-
 @dataclasses.dataclass(frozen=True)
 class FitVal:
     """A data container for the value estimated by the curve fitting.
 
     This data is serializable with the Qiskit Experiment json serializer.
     """
-
     value: float
     stderr: Optional[float] = None
     unit: Optional[str] = None
@@ -42,3 +34,11 @@ class FitVal:
         if self.unit is not None:
             out += f" {str(self.unit)}"
         return out
+
+
+def __new__(cls, *args, **kwargs):
+    warnings.warn(
+        "FitVal object has been deprecated in Qiskit Experiments version 0.3 and "
+        "will be removed in version 0.5. Use version <= 0.3 to load this object.",
+        DeprecationWarning,
+    )

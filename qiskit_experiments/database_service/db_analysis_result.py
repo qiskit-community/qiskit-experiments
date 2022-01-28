@@ -14,11 +14,9 @@
 
 import logging
 from typing import Optional, List, Union, Dict, Any
-from uncertainties import UFloat
 import uuid
 import copy
 import math
-import numpy as np
 
 from qiskit_experiments.framework.json import (
     ExperimentEncoder,
@@ -29,6 +27,7 @@ from .database_service import DatabaseServiceV1
 from .utils import save_data, qiskit_version
 from .exceptions import DbExperimentDataError
 from .device_component import DeviceComponent, to_component
+from .db_fitval import FitVal
 
 
 LOG = logging.getLogger(__name__)
@@ -53,7 +52,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
     """
 
     version = 1
-    _data_version = 2
+    _data_version = 1
 
     _json_encoder = ExperimentEncoder
     _json_decoder = ExperimentDecoder
@@ -69,7 +68,6 @@ class DbAnalysisResultV1(DbAnalysisResult):
         result_id: Optional[str] = None,
         chisq: Optional[float] = None,
         quality: Optional[str] = None,
-        unit: Optional[str] = None,
         extra: Optional[Dict[str, Any]] = None,
         verified: bool = False,
         tags: Optional[List[str]] = None,
@@ -87,8 +85,6 @@ class DbAnalysisResultV1(DbAnalysisResult):
             chisq: Reduced chi squared of the fit.
             quality: Quality of the analysis. Refer to the experiment service
                 provider for valid values.
-            unit: String representation of unit of the entry value.
-                Usually SI unit without pre-factor.
             extra: Dictionary of extra analysis result data
             verified: Whether the result quality has been verified.
             tags: Tags for this analysis result.
@@ -111,7 +107,6 @@ class DbAnalysisResultV1(DbAnalysisResult):
         self._chisq = chisq
         self._quality = quality
         self._quality_verified = verified
-        self._unit = unit
         self._tags = tags or []
 
         # Other attributes.
@@ -166,16 +161,17 @@ class DbAnalysisResultV1(DbAnalysisResult):
             "_chisq": self._chisq,
             "_extra": self.extra,
             "_source": self._source,
-            "unit": self.unit,
         }
 
         # Format special DB display fields
-        if isinstance(value, UFloat):
-            db_value = self._display_format(value.nominal_value)
+        if isinstance(value, FitVal):
+            db_value = self._display_format(value.value)
             if db_value is not None:
                 result_data["value"] = db_value
-            if np.isfinite(value.std_dev):
-                result_data["variance"] = self._display_format(value.std_dev ** 2)
+            if isinstance(value.stderr, (int, float)):
+                result_data["variance"] = self._display_format(value.stderr ** 2)
+            if isinstance(value.unit, str):
+                result_data["unit"] = value.unit
         else:
             db_value = self._display_format(value)
             if db_value is not None:
@@ -214,7 +210,6 @@ class DbAnalysisResultV1(DbAnalysisResult):
             experiment_id=self.experiment_id,
             chisq=self.chisq,
             quality=self.quality,
-            unit=self.unit,
             extra=self.extra,
             verified=self.verified,
             tags=self.tags,
@@ -238,7 +233,6 @@ class DbAnalysisResultV1(DbAnalysisResult):
         chisq = result_data.pop("_chisq", None)
         extra = result_data.pop("_extra", {})
         source = result_data.pop("_source", None)
-        unit = result_data.pop("unit", None)
 
         # Initialize the result object
         obj = cls(
@@ -248,7 +242,6 @@ class DbAnalysisResultV1(DbAnalysisResult):
             experiment_id=service_data.pop("experiment_id"),
             result_id=service_data.pop("result_id"),
             quality=service_data.pop("quality"),
-            unit=unit,
             extra=extra,
             chisq=chisq,
             verified=service_data.pop("verified"),
@@ -365,15 +358,6 @@ class DbAnalysisResultV1(DbAnalysisResult):
             self.save()
 
     @property
-    def unit(self) -> str:
-        """Return the unit of this entry value.
-
-        Returns:
-            Unit of the value.
-        """
-        return self._unit
-
-    @property
     def verified(self) -> bool:
         """Return the verified flag.
 
@@ -484,8 +468,6 @@ class DbAnalysisResultV1(DbAnalysisResult):
         ret = f"{type(self).__name__}"
         ret += f"\n- name: {self.name}"
         ret += f"\n- value: {str(self.value)}"
-        if self.unit is not None:
-            ret += f" {self.unit}"
         if self.chisq is not None:
             ret += f"\n- χ²: {str(self.chisq)}"
         if self.quality is not None:
@@ -505,7 +487,6 @@ class DbAnalysisResultV1(DbAnalysisResult):
         out += f", result_id={self.result_id}"
         out += f", chisq={self.chisq}"
         out += f", quality={self.quality}"
-        out += f", unit={self.unit}"
         out += f", verified={self.verified}"
         out += f", extra={repr(self.extra)}"
         out += f", tags={self.tags}"
