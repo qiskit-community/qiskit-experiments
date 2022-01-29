@@ -105,7 +105,7 @@ class DecayAnalysis(curve.CurveAnalysis):
 
         criteria = [
             fit_data.reduced_chisq < 3,
-            curve.check_if_nominal_significant(tau),
+            curve.is_error_not_significant(tau),
         ]
 
         if all(criteria):

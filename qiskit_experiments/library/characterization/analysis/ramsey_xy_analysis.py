@@ -162,7 +162,7 @@ class RamseyXYAnalysis(curve.CurveAnalysis):
 
         criteria = [
             fit_data.reduced_chisq < 3,
-            curve.check_if_nominal_significant(fit_freq),
+            curve.is_error_not_significant(fit_freq),
         ]
 
         if all(criteria):

@@ -20,22 +20,22 @@ import numpy as np
 from uncertainties.core import UFloat
 
 
-def check_if_nominal_significant(
+def is_error_not_significant(
     val: Union[float, UFloat],
     fraction: float = 1.0,
     absolute: Optional[float] = None,
 ) -> bool:
-    """Check if the nominal part of the given value is larger than the standard error.
+    """Check if the standard error of given value is not significant.
 
     Args:
-        val: Input value to evaluate.
+        val: Input value to evaluate. This is assumed to be float or ufloat.
         fraction: Valid fraction of the nominal part to its standard error.
             This function returns ``False`` if the nominal part is
             smaller than the error by this fraction.
         absolute: Use this value as a threshold if given.
 
     Returns:
-        ``True`` if the nominal part is significant.
+        ``True`` if the standard error of given value is not significant.
     """
     if isinstance(val, float):
         return True

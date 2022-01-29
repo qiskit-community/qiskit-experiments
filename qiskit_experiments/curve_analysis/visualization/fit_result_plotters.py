@@ -26,8 +26,8 @@ from typing import List, Dict, Optional
 
 import numpy as np
 from matplotlib.ticker import FuncFormatter
-from uncertainties.core import UFloat
 from qiskit.utils import detach_prefix
+from uncertainties.core import UFloat
 
 from qiskit_experiments.curve_analysis.curve_data import SeriesDef, FitData, CurveData
 from qiskit_experiments.framework import AnalysisResultData
