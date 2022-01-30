@@ -1,7 +1,13 @@
 ---
 features:
   - |
-    Hahn Echo experiment is added to the library.
-    This experiment estimates dephasing noise T2.
-
-    See experiment class documentation for details.
+    Adds a :class:`~qiskit.qiskit_experiments.library.characterization.T2Hahn` 
+    class for composing and running Hahn Echo experiment to estimate T2.
+  - |
+    Adds a :class:`~qiskit.qiskit_experiments.library.characterization.analysis.T2HahnAnalysis` 
+    class for analyzing experiment data from :class:`~qiskit.qiskit_experiments.library.characterization.T2Hahn`.
+  - |
+    Adds a :class:`~qiskit.qiskit_experiments.test.T2HahnBackend` class for testing
+    which simulates T2 noise statistics.
+    
+    
