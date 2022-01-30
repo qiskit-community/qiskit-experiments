@@ -110,7 +110,7 @@ def get_processor(
         )
 
     if meas_level == MeasLevel.CLASSIFIED:
-        return DataProcessor("counts", [nodes.Probability("1")])
+        return DataProcessor("counts", [nodes.Probability(outcome)])
 
     if meas_level == MeasLevel.KERNELED:
         if meas_return == MeasReturnType.SINGLE:
