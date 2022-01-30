@@ -193,7 +193,7 @@ class T2HahnBackend(BackendV1):
                     "Theta": new_theta,
                 }
             elif isclose(angle, np.pi / 2):
-                new_theta = angle - qubit_state["Theta"]
+                new_theta = (np.pi / 2) - qubit_state["Theta"]
                 new_theta = new_theta % (2 * np.pi)
                 new_qubit_state = {
                     "XY plane": False,
@@ -201,7 +201,7 @@ class T2HahnBackend(BackendV1):
                     "Theta": new_theta,
                 }
             elif isclose(angle, -np.pi / 2):
-                new_theta = np.abs(angle - qubit_state["Theta"])
+                new_theta = np.abs((-np.pi / 2) - qubit_state["Theta"])
                 new_theta = new_theta % (2 * np.pi)
                 new_qubit_state = {
                     "XY plane": False,
@@ -210,7 +210,7 @@ class T2HahnBackend(BackendV1):
                 }
             else:
                 raise QiskitError(
-                    f"Error - the angle {angle} isn't supported. We only support multiplication of pi/2"
+                    f"Error - the angle {angle} isn't supported. We only support multiplications of pi/2"
                 )
         else:
             if isclose(angle, np.pi):
