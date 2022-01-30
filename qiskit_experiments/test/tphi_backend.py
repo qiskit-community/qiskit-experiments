@@ -114,9 +114,7 @@ class TphiBackend(BackendV1):
                 raise ValueError("Illegal name for circuit in Tphi")
 
         job_t1 = self._internal_backends["T1"].run(run_input=t1_circuits, shots=shots)
-        job_t2ramsey = self._internal_backends["T2*"].run(
-            run_input=t2ramsey_circuits, shots=shots
-        )
+        job_t2ramsey = self._internal_backends["T2*"].run(run_input=t2ramsey_circuits, shots=shots)
         final_results = job_t1.result().results + job_t2ramsey.result().results
         result_for_fake = Result(
             backend_name="Tphi backend",
