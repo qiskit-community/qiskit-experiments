@@ -31,7 +31,7 @@ class FakeService(DatabaseServiceV1):
 
     def __init__(self):
         self.exps = pd.DataFrame(columns=["experiment_type", "backend_name", "metadata", "experiment_id", "parent_id", "job_ids", "tags", "notes"])
-        self.results = pd.DataFrame(columns=["experiment_id", "result_data", "result_type", "device_components", "tags", "quality", "verified", "result_id"])
+        self.results = pd.DataFrame(columns=["experiment_id", "result_data", "result_type", "device_components", "tags", "quality", "verified", "result_id", "chisq"])
 
     def create_experiment(
         self,
@@ -230,7 +230,8 @@ class FakeService(DatabaseServiceV1):
             "quality": quality,
             "verified": verified,
             "tags": tags,
-            "backend_name": self.exps.loc[self.exps.experiment_id == experiment_id].iloc[0].backend_name
+            "backend_name": self.exps.loc[self.exps.experiment_id == experiment_id].iloc[0].backend_name,
+            "chisq": kwargs.get("chisq", None)
         }, ignore_index=True)
 
         def add_new_components(expcomps):
@@ -251,12 +252,22 @@ class FakeService(DatabaseServiceV1):
         verified: bool = None,
         **kwargs: Any,
     ) -> None:
-        raise Exception("not implemented")
+        row = (self.results.result_id == result_id)
+        if result_data is not None:
+            self.results.loc[row, "result_data"] = result_data
+        if tags is not None:
+            self.results.loc[row, "tags"] = tags
+        if quality is not None:
+            self.results.loc[row, "quality"] = quality
+        if verified is not None:
+            self.results.loc[row, "verified"] = verified
+        if "chisq" in kwargs:
+            self.result.loc[row, "chisq"] = chisq
 
     def analysis_result(
         self, result_id: str, json_decoder: Type[json.JSONDecoder] = json.JSONDecoder
     ) -> Dict:
-        raise Exception("not implemented")
+        return self.results.loc[self.results.result_id == result_id].to_dict("records")[0]
 
     def analysis_results(
         self,

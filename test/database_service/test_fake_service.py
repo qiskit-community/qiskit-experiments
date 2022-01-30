@@ -141,4 +141,14 @@ class TestFakeService(QiskitExperimentsTestCase):
         self.service.delete_experiment(experiment_id="2")
         exps = self.service.experiments(start_datetime_before=datetime(2022, 1, 1, 2), start_datetime_after=datetime(2022, 1, 1, 2))
         self.assertEqual(len(exps), 0)
-        
+
+    def test_single_result_query(self):
+        for resid in range(16):
+            full_entry = self.service.analysis_result(str(resid))
+            entry = self.resdict[str(resid)]
+            self.assertTrue(entry.items() <= full_entry.items())
+
+    def test_update_result(self):
+        self.service.update_analysis_result(result_id="1", tags=["hey"])
+        res = self.service.analysis_result(result_id="1")
+        self.assertEqual(res["tags"], "hey")
