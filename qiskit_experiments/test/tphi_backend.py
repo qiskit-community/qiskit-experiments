@@ -95,7 +95,7 @@ class TphiBackend(BackendV1):
     @classmethod
     def _default_options(cls):
         """Default options of the test backend."""
-        return Options(t1_shots=1024, t2_ramsey_shots=1024)
+        return Options()
 
     def run(self, run_input, **options):
         """

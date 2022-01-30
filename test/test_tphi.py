@@ -36,8 +36,8 @@ class TestTphi(QiskitExperimentsTestCase):
         t2ramsey = 25
         backend = TphiBackend(t1=t1, t2ramsey=t2ramsey, freq=0.1)
 
-        expdata = exp.run(backend=backend, analysis=TphiAnalysis()).block_for_results()
-
+        expdata = exp.run(backend=backend, analysis=TphiAnalysis())
+        self.assertExperimentDone(expdata)
         result = expdata.analysis_results("T_phi")
         estimated_tphi = 1 / ((1 / t2ramsey) - (1 / (2 * t1)))
         self.assertAlmostEqual(
