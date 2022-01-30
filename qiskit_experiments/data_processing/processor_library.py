@@ -44,8 +44,9 @@ def get_processor(
         An instance of DataProcessor capable of processing the data for the corresponding job.
 
     Notes:
-        The following relevant argument is extracted from the experiment_data metadata run options:
-            - num_qubits: The number of qubits used in the experiment.
+        The `num_qubits` argument is extracted from the `experiment_data` metadata and is used
+        to determine the default `outcome` to extract from classified data if it was not given in the
+        analysis options.
 
     Raises:
         DataProcessorError: if the measurement level is not supported.
