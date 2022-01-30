@@ -57,7 +57,7 @@ class TestFakeService(QiskitExperimentsTestCase):
                     verified = samebool4all
                     result_data = samebool4all
                     device_components = samebool4all
-                    resentry = {"experiment_id": str(experiment_id), "result_type": str(result_type), "result_id": str(resid), "tags": ["a"+str(tags), "b"+str(tags)], "quality": quality, "verified": verified, "result_data": {"value": result_data}, "device_components": [device_components]}
+                    resentry = {"experiment_id": str(experiment_id), "result_type": str(result_type), "result_id": str(resid), "tags": ["a"+str(tags), "b"+str(tags)], "quality": quality, "verified": verified, "result_data": {"value": result_data}, "device_components": [device_components], "creation_datetime": self.expdict[str(experiment_id)]["start_datetime"]}
                     self.service.create_analysis_result(**resentry)
                     resentry["backend_name"] = self.expdict[str(experiment_id)]["backend_name"]
                     self.resdict[str(resid)] = resentry
@@ -84,45 +84,45 @@ class TestFakeService(QiskitExperimentsTestCase):
 
     def test_experiments_query(self):        
         for experiment_type in range(2):
-            expids = sorted([exp["experiment_id"] for exp in self.service.experiments(experiment_type=str(experiment_type))])
+            expids = sorted([exp["experiment_id"] for exp in self.service.experiments(experiment_type=str(experiment_type), limit=None)])
             ref_expids = sorted([exp["experiment_id"] for exp in self.expdict.values() if exp["experiment_type"] == str(experiment_type)])
             self.assertTrue(len(expids)>0)
             self.assertEqual(expids, ref_expids)
 
         for backend_name in range(2):
-            expids = sorted([exp["experiment_id"] for exp in self.service.experiments(backend_name=str(backend_name))])
+            expids = sorted([exp["experiment_id"] for exp in self.service.experiments(backend_name=str(backend_name), limit=None)])
             ref_expids = sorted([exp["experiment_id"] for exp in self.expdict.values() if exp["backend_name"] == str(backend_name)])
             self.assertTrue(len(expids)>0)
             self.assertEqual(expids, ref_expids)
 
         for parent_id in range(3):
-            expids = sorted([exp["experiment_id"] for exp in self.service.experiments(parent_id=str(parent_id))])
+            expids = sorted([exp["experiment_id"] for exp in self.service.experiments(parent_id=str(parent_id), limit=None)])
             ref_expids = sorted([exp["experiment_id"] for exp in self.expdict.values() if exp["parent_id"] == str(parent_id)])
             self.assertTrue(len(expids)>0)
             self.assertEqual(expids, ref_expids)
 
-        expids = sorted([exp["experiment_id"] for exp in self.service.experiments(tags=["a1", "b1"], tags_operator="AND")])
+        expids = sorted([exp["experiment_id"] for exp in self.service.experiments(tags=["a1", "b1"], tags_operator="AND", limit=None)])
         ref_expids = sorted([exp["experiment_id"] for exp in self.expdict.values() if "a1" in exp["tags"] and "b1" in exp["tags"]])
         self.assertTrue(len(expids)>0)
         self.assertEqual(expids, ref_expids)
 
-        expids = sorted([exp["experiment_id"] for exp in self.service.experiments(tags=["a1", "c1"], tags_operator="AND")])
+        expids = sorted([exp["experiment_id"] for exp in self.service.experiments(tags=["a1", "c1"], tags_operator="AND", limit=None)])
         self.assertEqual(len(expids), 0)
 
-        expids = sorted([exp["experiment_id"] for exp in self.service.experiments(tags=["a0", "c0"])])
+        expids = sorted([exp["experiment_id"] for exp in self.service.experiments(tags=["a0", "c0"], limit=None)])
         ref_expids = sorted([exp["experiment_id"] for exp in self.expdict.values() if "a0" in exp["tags"]])
         self.assertTrue(len(expids)>0)
         self.assertEqual(expids, ref_expids)
 
-        expids = sorted([exp["experiment_id"] for exp in self.service.experiments(start_datetime_before=datetime(2022, 1, 1, 6), start_datetime_after=datetime(2022, 1, 1, 3))])
+        expids = sorted([exp["experiment_id"] for exp in self.service.experiments(start_datetime_before=datetime(2022, 1, 1, 6), start_datetime_after=datetime(2022, 1, 1, 3), limit=None)])
         self.assertEqual(expids, ["3", "4", "5", "6"])
 
-        datetimes = [exp["start_datetime"] for exp in self.service.experiments()]
+        datetimes = [exp["start_datetime"] for exp in self.service.experiments(limit=None)]
         self.assertTrue(len(datetimes)>0)
         for i in range(len(datetimes)-1):
             self.assertTrue(datetimes[i] >= datetimes[i+1])
 
-        datetimes = [exp["start_datetime"] for exp in self.service.experiments(sort_by="start_datetime:asc")]
+        datetimes = [exp["start_datetime"] for exp in self.service.experiments(sort_by="start_datetime:asc", limit=None)]
         self.assertTrue(len(datetimes)>0)
         for i in range(len(datetimes)-1):
             self.assertTrue(datetimes[i] <= datetimes[i+1])
@@ -152,3 +152,59 @@ class TestFakeService(QiskitExperimentsTestCase):
         self.service.update_analysis_result(result_id="1", tags=["hey"])
         res = self.service.analysis_result(result_id="1")
         self.assertEqual(res["tags"], "hey")
+
+    def test_results_query(self):        
+        for result_type in range(2):
+            resids = sorted([res["result_id"] for res in self.service.analysis_results(result_type=str(result_type), limit=None)])
+            ref_resids = sorted([res["result_id"] for res in self.resdict.values() if res["result_type"] == str(result_type)])
+            self.assertTrue(len(resids)>0)
+            self.assertEqual(resids, ref_resids)
+
+        for experiment_id in range(2):
+            resids = sorted([res["result_id"] for res in self.service.analysis_results(experiment_id=str(experiment_id), limit=None)])
+            ref_resids = sorted([res["result_id"] for res in self.resdict.values() if res["experiment_id"] == str(experiment_id)])
+            self.assertTrue(len(resids)>0)
+            self.assertEqual(resids, ref_resids)
+
+        for quality in range(2):
+            resids = sorted([res["result_id"] for res in self.service.analysis_results(quality=quality, limit=None)])
+            ref_resids = sorted([res["result_id"] for res in self.resdict.values() if res["quality"] == quality])
+            self.assertTrue(len(resids)>0)
+            self.assertEqual(resids, ref_resids)
+
+        for verified in range(2):
+            resids = sorted([res["result_id"] for res in self.service.analysis_results(verified=verified, limit=None)])
+            ref_resids = sorted([res["result_id"] for res in self.resdict.values() if res["verified"] == verified])
+            self.assertTrue(len(resids)>0)
+            self.assertEqual(resids, ref_resids)
+
+        for backend_name in range(2):
+            resids = sorted([res["result_id"] for res in self.service.analysis_results(backend_name=str(backend_name), limit=None)])
+            ref_resids = sorted([res["result_id"] for res in self.resdict.values() if res["backend_name"] == str(backend_name)])
+            self.assertTrue(len(resids)>0)
+            self.assertEqual(resids, ref_resids)
+
+        resids = sorted([res["result_id"] for res in self.service.analysis_results(tags=["a1", "b1"], tags_operator="AND", limit=None)])
+        ref_resids = sorted([res["result_id"] for res in self.resdict.values() if "a1" in res["tags"] and "b1" in res["tags"]])
+        self.assertTrue(len(resids)>0)
+        self.assertEqual(resids, ref_resids)
+
+        resids = sorted([res["result_id"] for res in self.service.analysis_results(tags=["a1", "c1"], tags_operator="AND", limit=None)])
+        self.assertEqual(len(resids), 0)
+
+        resids = sorted([res["result_id"] for res in self.service.analysis_results(tags=["a0", "c0"], limit=None)])
+        ref_resids = sorted([res["result_id"] for res in self.resdict.values() if "a0" in res["tags"]])
+        self.assertTrue(len(resids)>0)
+        self.assertEqual(resids, ref_resids)
+
+        datetimes = [res["creation_datetime"] for res in self.service.analysis_results(limit=None)]
+        self.assertTrue(len(datetimes)>0)
+        for i in range(len(datetimes)-1):
+            self.assertTrue(datetimes[i] >= datetimes[i+1])
+
+        datetimes = [res["creation_datetime"] for res in self.service.analysis_results(sort_by="creation_datetime:asc", limit=None)]
+        self.assertTrue(len(datetimes)>0)
+        for i in range(len(datetimes)-1):
+            self.assertTrue(datetimes[i] <= datetimes[i+1])
+
+        self.assertEqual(len(self.service.analysis_results(limit=4)), 4)

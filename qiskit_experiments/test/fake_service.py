@@ -31,7 +31,7 @@ class FakeService(DatabaseServiceV1):
 
     def __init__(self):
         self.exps = pd.DataFrame(columns=["experiment_type", "backend_name", "metadata", "experiment_id", "parent_id", "job_ids", "tags", "notes"])
-        self.results = pd.DataFrame(columns=["experiment_id", "result_data", "result_type", "device_components", "tags", "quality", "verified", "result_id", "chisq"])
+        self.results = pd.DataFrame(columns=["experiment_id", "result_data", "result_type", "device_components", "tags", "quality", "verified", "result_id", "chisq", "creation_datetime"])
 
     def create_experiment(
         self,
@@ -198,7 +198,7 @@ class FakeService(DatabaseServiceV1):
         if len(sortby_split) != 2 or sortby_split[0] != "start_datetime" or (sortby_split[1] != "asc" and sortby_split[1] != "desc"):
             raise ValueError("The fake service currently supports only sorting by start_datetime, which can be either asc or desc")
 
-        df = df.sort_values(by="start_datetime", ascending=(sortby_split[1] == "asc"))
+        df = df.sort_values(["start_datetime", "experiment_id"], ascending=[(sortby_split[1] == "asc"), True])
 
         df = df.iloc[:limit]
             
@@ -231,7 +231,8 @@ class FakeService(DatabaseServiceV1):
             "verified": verified,
             "tags": tags,
             "backend_name": self.exps.loc[self.exps.experiment_id == experiment_id].iloc[0].backend_name,
-            "chisq": kwargs.get("chisq", None)
+            "chisq": kwargs.get("chisq", None),
+            "creation_datetime": self.exps.loc[self.exps.experiment_id == experiment_id].iloc[0].start_datetime
         }, ignore_index=True)
 
         def add_new_components(expcomps):
@@ -283,7 +284,53 @@ class FakeService(DatabaseServiceV1):
         tags_operator: Optional[str] = "OR",
         **filters: Any,
     ) -> List[Dict]:
-        return self.results.loc[self.results.experiment_id == experiment_id].to_dict("records")
+        df = self.results
+
+        # TODO: skipping device components for now until we conslidate more with the provider service
+        # (in the qiskit-experiments service there is no opertor for device components,
+        # so the specification for filtering is not clearly defined)
+
+        if experiment_id is not None:
+            df = df.loc[df.experiment_id == experiment_id]
+        if result_type is not None:
+            df = df.loc[df.result_type == result_type]
+        if backend_name is not None:
+            df = df.loc[df.backend_name == backend_name]
+        if quality is not None:
+            df = df.loc[df.quality == quality]
+        if verified is not None:
+            df = df.loc[df.verified == verified]
+
+        if tags is not None:
+            if tags_operator == "OR":
+                df = df.loc[df.tags.apply(lambda dftags: any([x in dftags for x in tags]))]
+            elif tags_operator == "AND":
+                df = df.loc[df.tags.apply(lambda dftags: all([x in dftags for x in tags]))]
+            else:
+                raise ValueError("Unrecognized tags operator")
+
+        # This is a parameter of IBMExperimentService.experiments
+        if "sort_by" in filters:
+            sort_by = filters["sort_by"]
+        else:
+            sort_by = "creation_datetime:desc"
+
+        if not isinstance(sort_by, list):
+            sort_by = [sort_by]
+            
+        # TODO: support also device components and result type
+        if len(sort_by) != 1:
+            raise ValueError("The fake service currently supports only sorting by creation_datetime")
+
+        sortby_split = sort_by[0].split(":")
+        # TODO: support also device components and result type
+        if len(sortby_split) != 2 or sortby_split[0] != "creation_datetime" or (sortby_split[1] != "asc" and sortby_split[1] != "desc"):
+            raise ValueError("The fake service currently supports only sorting by creation_datetime, which can be either asc or desc")
+
+        df = df.sort_values(["creation_datetime", "result_id"], ascending=[(sortby_split[1] == "asc"), True])
+
+        df = df.iloc[:limit]
+        return df.to_dict("records")
 
     def delete_analysis_result(self, result_id: str) -> None:
         raise Exception("not implemented")
