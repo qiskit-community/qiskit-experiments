@@ -45,7 +45,7 @@ def get_processor(
 
     Notes:
         The following relevant argument is extracted from the experiment_data metadata run options:
-            - physical qubits: The physical qubits used in the experiment.
+            - num_qubits: The number of qubits used in the experiment.
 
     Raises:
         DataProcessorError: if the measurement level is not supported.
@@ -56,8 +56,7 @@ def get_processor(
     meas_return = run_options.get("meas_return", MeasReturnType.AVERAGE)
     normalize = analysis_options.get("normalization", True)
 
-    physical_qubits = experiment_data.metadata["physical_qubits"]
-    num_qubits = len(physical_qubits)
+    num_qubits = experiment_data.metadata["num_qubits"]
 
     outcome = analysis_options.get("outcome", "1" * num_qubits)
 
