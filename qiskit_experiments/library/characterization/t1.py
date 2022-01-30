@@ -109,7 +109,7 @@ class T1(BaseExperiment):
 
         circuits = []
         for delay in self.experiment_options.delays:
-            circ = QuantumCircuit(1, 1, name="T1")
+            circ = QuantumCircuit(1, 1)
             circ.x(0)
             circ.barrier(0)
             if dt_unit:

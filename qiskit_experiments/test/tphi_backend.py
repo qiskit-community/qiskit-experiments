@@ -106,9 +106,9 @@ class TphiBackend(BackendV1):
         t1_circuits = []
         t2ramsey_circuits = []
         for circ in run_input:
-            if circ.name == "T1":
+            if circ.metadata["composite_metadata"][0]["experiment_type"] == "T1":
                 t1_circuits.append(circ)
-            elif circ.name == "T2Ramsey":
+            elif circ.metadata["composite_metadata"][0]["experiment_type"] == "T2Ramsey":
                 t2ramsey_circuits.append(circ)
             else:
                 raise ValueError("Illegal name for circuit in Tphi")

@@ -134,7 +134,7 @@ class T2Ramsey(BaseExperiment):
 
             rotation_angle = 2 * np.pi * self.experiment_options.osc_freq * real_delay_in_sec
 
-            circ = qiskit.QuantumCircuit(1, 1, name="T2Ramsey")
+            circ = qiskit.QuantumCircuit(1, 1)
             circ.h(0)
             if dt_unit:
                 circ.delay(delay_dt, 0, "dt")
