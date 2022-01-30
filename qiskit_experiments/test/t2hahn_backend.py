@@ -263,7 +263,7 @@ class T2HahnBackend(BackendV1):
             # measuring output. First, we calculate the probability and later we are
             # tossing to see if the event did happen.
             z_projection = np.cos(qubit_state["Theta"])
-            probability = z_projection ** 2
+            probability = z_projection**2
             if self._rng.random() > probability:
                 meas_res = self._rng.random() < 0.5
             else:
