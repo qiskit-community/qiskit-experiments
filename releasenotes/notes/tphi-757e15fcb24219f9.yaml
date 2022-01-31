@@ -3,5 +3,14 @@
 features:
   - |
     New experiment Tphi. This is a composite experiment with sub-experiments
-    T1 and T2Ramsey.
+    T1 and T2Ramsey.New classes:
+    :class:`~qiskit.qiskit_experiments.library.characterization.Tphi` - class defining the Tphi 
+    experiment.
+
+    :class:`~qiskit.qiskit_experiments.library.characterization.analysis.TphiAnalysis` - class
+    for Tphi analysis.
+
+    :class:`~qiskit.qiskit_experiments.test.TphiBackend` - fake backend for running a Tphi 
+    experiment, based on the fake backends for T1 and T2Ramsey.
+
 
