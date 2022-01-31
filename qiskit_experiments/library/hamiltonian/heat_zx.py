@@ -32,7 +32,7 @@ class ZXHeat(BatchHeatHelper):
         by a cross-resonance drive, which is typically used to create a CNOT gate.
 
         The experimental circuits are prepared as follows for different
-        interrogated error axis specified by the experiment parameter ``error_axis``.
+        interrogated error axes specified by the experiment parameter ``error_axis``.
 
         .. parsed-literal::
 
@@ -75,14 +75,14 @@ class ZXHeat(BatchHeatHelper):
 
             U = A_{II} II + A_{IX} IX + A_{ZX} ZX + A_{ZI} ZI.
 
-        Since we have known control qubit state throughout the echo sequence,
-        we can compute partial unitary on the target qubit, namely,
+        Since we have a known control qubit state throughout the echo sequence,
+        we can compute a partial unitary on the target qubit, namely,
         :math:`U_{j} = A_{Ij} I + A_{Xj} X` for the control qubit state :math:`|j\rangle`.
         Here :math:`A_{Ij} =\cos \theta_j` and :math:`A_{Xj} =-i \sin \theta_j`.
         This form is exactly identical to the unitary of :math:`R_X(\theta_j)` gate,
         with :math:`\theta_0 =\Delta_{IX} + \Omega_{ZX}` and
-        :math:`\theta_1 =\Delta_{IX} - \Omega_{ZX}`.
-        Given we calibrated the gate to have :math:`\Omega_{ZX} = \phi + \Delta_{ZX}`
+        :math:`\theta_1 =\Delta_{IX} - \Omega_{ZX}`,
+        given we calibrated the gate to have :math:`\Omega_{ZX} = \phi + \Delta_{ZX}`
         so that :math:`\phi` corresponds to the experiment parameter ``angle``,
         or the angle of the controlled rotation we want,
         e.g. :math:`\phi = \pi/2` for the CNOT gate.
@@ -98,15 +98,15 @@ class ZXHeat(BatchHeatHelper):
         in the measured target qubit population,
         which may be fit by :math:`P(N) = \cos(N (d\theta_j + \pi) + \phi_{\rm offset})`,
         where :math:`d\theta_j = \Delta_{ZX}\pm \Delta_{IX}`.
-        By combining error amplification fit parameter :math:`d\theta_j` for
-        different control qubit states, we can resolve local (IX) and non-local (ZX)
+        By combining error amplification fit parameters :math:`d\theta_j` for
+        different control qubit states :math:`j`, we can resolve the local (IX) and non-local (ZX)
         dynamics of the Hamiltonian of interest.
 
         In this pulse sequence, the pi-pulse echo is applied to the target qubit
-        in the same axis with the interrogated error axis.
+        around the same axis as the interrogated error.
         This cancels out the errors in other axes since the errors anti-commute with the echo,
-        e.g. :math:`XYX = -Y`, while the error in the interrogated axis are accumulated.
-        This is the trick how the sequence selectively amplifies the error axis.
+        e.g. :math:`XYX = -Y`, while the error in the interrogated axis is accumulated.
+        This is the trick of how the sequence selectively amplifies the error axis.
 
         However, strictly speaking, non-X error terms :math:`{\cal P}` also anti-commute
         with the primary :math:`ZX` term of the Hamiltonian, and

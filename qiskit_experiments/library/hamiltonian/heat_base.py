@@ -68,8 +68,8 @@ class HeatElement(BaseExperiment):
     # section: note
 
         This class is usually not exposed to end users.
-        Developer of new HEAT experiment must design amplification sequence and
-        instantiate the class implicitly in the batch experiment.
+        The developer of a new HEAT experiment must design the amplification sequences and
+        create instances of this class implicitly in the batch experiment.
         The :class:`BatchHeatHelper` provides a convenient wrapper class of
         the :class:`qiskit_experiments.framework.BatchExperiment` for implementing a
         typical HEAT experiment.
