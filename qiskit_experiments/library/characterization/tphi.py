@@ -79,24 +79,24 @@ class Tphi(BatchExperiment):
             osc_freq: the oscillation frequency induced using by the user for T2Ramsey
             backend: Optional, the backend on which to run the experiment
         """
-        self.set_experiment_options = self._default_experiment_options()
         # Set experiment options
-        self.set_experiment_options.delays_t1 = delays_t1
-        self.set_experiment_options.delays_t2 = delays_t2
+        options =  self._default_experiment_options()
+        options.delays_t1 = delays_t1
+        options.delays_t2 = delays_t2
 
         self.exps = []
         self.exps.append(
-            T1(qubit=qubit, delays=self.set_experiment_options.delays_t1, backend=backend)
+            T1(qubit=qubit, delays=options.delays_t1, backend=backend)
         )
         self.exps.append(
             T2Ramsey(
                 qubit=qubit,
-                delays=self.set_experiment_options.delays_t2,
+                delays=options.delays_t2,
                 backend=backend,
                 osc_freq=osc_freq,
             )
         )
-        # Run batch experiment
+        # Create batch experiment
         super().__init__(experiments=self.exps, backend=backend)
         self.analysis = TphiAnalysis()
 
