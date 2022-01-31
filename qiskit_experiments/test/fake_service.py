@@ -339,24 +339,24 @@ class FakeService(DatabaseServiceV1):
     def create_figure(
         self, experiment_id: str, figure: Union[str, bytes], figure_name: Optional[str]
     ) -> Tuple[str, int]:
-        return
+        pass
 
     def update_figure(
         self, experiment_id: str, figure: Union[str, bytes], figure_name: str
     ) -> Tuple[str, int]:
-        raise Exception("not implemented")
+        pass
 
     def figure(
         self, experiment_id: str, figure_name: str, file_name: Optional[str] = None
     ) -> Union[int, bytes]:
-        raise Exception("not implemented")
+        pass
 
     def delete_figure(
         self,
         experiment_id: str,
         figure_name: str,
     ) -> None:
-        raise Exception("not implemented")
+        pass
 
     @property
     def preferences(self) -> Dict:
