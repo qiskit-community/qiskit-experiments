@@ -103,7 +103,7 @@ class ZXHeat(BatchHeatHelper):
         dynamics of the Hamiltonian of interest.
 
         In this pulse sequence, the pi-pulse echo is applied to the target qubit
-        in the same axis with the interrogated error axis.
+        around the same axis as the interrogated error.
         This cancels out the errors in other axes since the errors anti-commute with the echo,
         e.g. :math:`XYX = -Y`, while the error in the interrogated axis is accumulated.
         This is the trick of how the sequence selectively amplifies the error axis.
