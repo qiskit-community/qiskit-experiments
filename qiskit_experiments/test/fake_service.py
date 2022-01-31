@@ -333,7 +333,8 @@ class FakeService(DatabaseServiceV1):
         return df.to_dict("records")
 
     def delete_analysis_result(self, result_id: str) -> None:
-        raise Exception("not implemented")
+        index = self.results[self.results.result_id == result_id].index
+        self.results.drop(index, inplace=True)
 
     def create_figure(
         self, experiment_id: str, figure: Union[str, bytes], figure_name: Optional[str]

@@ -208,3 +208,11 @@ class TestFakeService(QiskitExperimentsTestCase):
             self.assertTrue(datetimes[i] <= datetimes[i+1])
 
         self.assertEqual(len(self.service.analysis_results(limit=4)), 4)
+
+    def test_delete_result(self):
+        results = self.service.analysis_results(experiment_id="6")
+        old_number = len(results)
+        to_delete = results[0]["result_id"]
+        self.service.delete_analysis_result(result_id=to_delete)
+        results = self.service.analysis_results(experiment_id="6")
+        self.assertEqual(len(results), old_number-1)
