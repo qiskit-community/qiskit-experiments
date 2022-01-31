@@ -32,7 +32,7 @@ class ZXHeat(BatchHeatHelper):
         by a cross-resonance drive, which is typically used to create a CNOT gate.
 
         The experimental circuits are prepared as follows for different
-        interrogated error axis specified by the experiment parameter ``error_axis``.
+        interrogated error axes specified by the experiment parameter ``error_axis``.
 
         .. parsed-literal::
 
