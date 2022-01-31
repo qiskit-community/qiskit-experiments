@@ -81,8 +81,8 @@ class ZXHeat(BatchHeatHelper):
         Here :math:`A_{Ij} =\cos \theta_j` and :math:`A_{Xj} =-i \sin \theta_j`.
         This form is exactly identical to the unitary of :math:`R_X(\theta_j)` gate,
         with :math:`\theta_0 =\Delta_{IX} + \Omega_{ZX}` and
-        :math:`\theta_1 =\Delta_{IX} - \Omega_{ZX}`.
-        Given we calibrated the gate to have :math:`\Omega_{ZX} = \phi + \Delta_{ZX}`
+        :math:`\theta_1 =\Delta_{IX} - \Omega_{ZX}`,
+        given we calibrated the gate to have :math:`\Omega_{ZX} = \phi + \Delta_{ZX}`
         so that :math:`\phi` corresponds to the experiment parameter ``angle``,
         or the angle of the controlled rotation we want,
         e.g. :math:`\phi = \pi/2` for the CNOT gate.
