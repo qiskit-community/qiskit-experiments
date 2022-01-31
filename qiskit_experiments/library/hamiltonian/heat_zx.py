@@ -106,7 +106,7 @@ class ZXHeat(BatchHeatHelper):
         in the same axis with the interrogated error axis.
         This cancels out the errors in other axes since the errors anti-commute with the echo,
         e.g. :math:`XYX = -Y`, while the error in the interrogated axis are accumulated.
-        This is the trick how the sequence selectively amplifies the error axis.
+        This is the trick of how the sequence selectively amplifies the error axis.
 
         However, strictly speaking, non-X error terms :math:`{\cal P}` also anti-commute
         with the primary :math:`ZX` term of the Hamiltonian, and
