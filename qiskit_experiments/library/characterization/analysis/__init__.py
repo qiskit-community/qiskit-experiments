@@ -19,6 +19,7 @@ from .fine_drag_analysis import FineDragAnalysis
 from .fine_frequency_analysis import FineFrequencyAnalysis
 from .ramsey_xy_analysis import RamseyXYAnalysis
 from .t2ramsey_analysis import T2RamseyAnalysis
+from .t2hahn_analysis import T2HahnAnalysis
 from .t1_analysis import T1Analysis
 from .tphi_analysis import TphiAnalysis
 from .cr_hamiltonian_analysis import CrossResonanceHamiltonianAnalysis

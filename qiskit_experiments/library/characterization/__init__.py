@@ -25,6 +25,7 @@ Experiments
 
     T1
     T2Ramsey
+    T2Hahn
     Tphi
     QubitSpectroscopy
     CrossResonanceHamiltonian
@@ -53,6 +54,7 @@ Analysis
 
     T1Analysis
     T2RamseyAnalysis
+    T2HahnAnalysis
     TphiAnalysis
     CrossResonanceHamiltonianAnalysis
     DragCalAnalysis
@@ -71,6 +73,7 @@ from .analysis import (
     RamseyXYAnalysis,
     T2RamseyAnalysis,
     T1Analysis,
+    T2HahnAnalysis,
     TphiAnalysis,
     CrossResonanceHamiltonianAnalysis,
     ReadoutAngleAnalysis,
@@ -80,6 +83,7 @@ from .t1 import T1
 from .qubit_spectroscopy import QubitSpectroscopy
 from .ef_spectroscopy import EFSpectroscopy
 from .t2ramsey import T2Ramsey
+from .t2hahn import T2Hahn
 from .tphi import Tphi
 from .cr_hamiltonian import CrossResonanceHamiltonian, EchoedCrossResonanceHamiltonian
 from .rabi import Rabi, EFRabi

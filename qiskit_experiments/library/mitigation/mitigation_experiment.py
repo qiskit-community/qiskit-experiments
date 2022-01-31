@@ -92,7 +92,7 @@ class CorrelatedMitigationHelper:
 
     def labels(self) -> List[str]:
         """Returns the labels dictating the generation of the mitigation circuits"""
-        return [bin(j)[2:].zfill(self.num_qubits) for j in range(2 ** self.num_qubits)]
+        return [bin(j)[2:].zfill(self.num_qubits) for j in range(2**self.num_qubits)]
 
 
 class LocalMitigationHelper:
