@@ -30,8 +30,34 @@ class FakeService(DatabaseServiceV1):
     """
 
     def __init__(self):
-        self.exps = pd.DataFrame(columns=["experiment_type", "backend_name", "metadata", "experiment_id", "parent_id", "job_ids", "tags", "notes", "figure_names"])
-        self.results = pd.DataFrame(columns=["experiment_id", "result_data", "result_type", "device_components", "tags", "quality", "verified", "result_id", "chisq", "creation_datetime", "service"])
+        self.exps = pd.DataFrame(
+            columns=[
+                "experiment_type",
+                "backend_name",
+                "metadata",
+                "experiment_id",
+                "parent_id",
+                "job_ids",
+                "tags",
+                "notes",
+                "figure_names",
+            ]
+        )
+        self.results = pd.DataFrame(
+            columns=[
+                "experiment_id",
+                "result_data",
+                "result_type",
+                "device_components",
+                "tags",
+                "quality",
+                "verified",
+                "result_id",
+                "chisq",
+                "creation_datetime",
+                "service",
+            ]
+        )
 
     def create_experiment(
         self,
@@ -68,21 +94,24 @@ class FakeService(DatabaseServiceV1):
 
         if experiment_id is None:
             raise ValueError("The fake service requires the experiment id parameter")
-        
-        self.exps = self.exps.append({ 
-            "experiment_type": experiment_type,
-            "experiment_id": experiment_id,
-            "parent_id": parent_id,
-            "backend_name": backend_name,
-            "metadata": metadata,
-            "job_ids": job_ids,
-            "tags": tags,
-            "notes": notes,
-            "share_level": kwargs.get("share_level", None),
-            "device_components": [],
-            "start_datetime": datetime(2022, 1, 1) + timedelta(hours=len(self.exps)),
-            "figure_names": []
-         }, ignore_index=True)
+
+        self.exps = self.exps.append(
+            {
+                "experiment_type": experiment_type,
+                "experiment_id": experiment_id,
+                "parent_id": parent_id,
+                "backend_name": backend_name,
+                "metadata": metadata,
+                "job_ids": job_ids,
+                "tags": tags,
+                "notes": notes,
+                "share_level": kwargs.get("share_level", None),
+                "device_components": [],
+                "start_datetime": datetime(2022, 1, 1) + timedelta(hours=len(self.exps)),
+                "figure_names": [],
+            },
+            ignore_index=True,
+        )
 
         return experiment_id
 
@@ -105,7 +134,7 @@ class FakeService(DatabaseServiceV1):
             tags: Tags to be associated with the experiment.
             kwargs: Additional keywords supported by the service provider.
         """
-        row = (self.exps.experiment_id == experiment_id)
+        row = self.exps.experiment_id == experiment_id
         if metadata is not None:
             self.exps.loc[row, "metadata"] = metadata
         if job_ids is not None:
@@ -148,7 +177,7 @@ class FakeService(DatabaseServiceV1):
         **filters: Any,
     ) -> List[Dict]:
         df = self.exps
-        
+
         if experiment_type is not None:
             df = df.loc[df.experiment_type == experiment_type]
 
@@ -165,7 +194,9 @@ class FakeService(DatabaseServiceV1):
         # Waiting for consistency between provider service and qiskit-experiments service,
         # currently they have different types for `device_components`
         if device_components is not None:
-            raise ValueError("The fake service currently does not support filtering on device components")
+            raise ValueError(
+                "The fake service currently does not support filtering on device components"
+            )
 
         if tags is not None:
             if tags_operator == "OR":
@@ -189,20 +220,28 @@ class FakeService(DatabaseServiceV1):
 
         if not isinstance(sort_by, list):
             sort_by = [sort_by]
-            
+
         # TODO: support also experiment_type
         if len(sort_by) != 1:
             raise ValueError("The fake service currently supports only sorting by start_datetime")
 
         sortby_split = sort_by[0].split(":")
         # TODO: support also experiment_type
-        if len(sortby_split) != 2 or sortby_split[0] != "start_datetime" or (sortby_split[1] != "asc" and sortby_split[1] != "desc"):
-            raise ValueError("The fake service currently supports only sorting by start_datetime, which can be either asc or desc")
+        if (
+            len(sortby_split) != 2
+            or sortby_split[0] != "start_datetime"
+            or (sortby_split[1] != "asc" and sortby_split[1] != "desc")
+        ):
+            raise ValueError(
+                "The fake service currently supports only sorting by start_datetime, which can be either asc or desc"
+            )
 
-        df = df.sort_values(["start_datetime", "experiment_id"], ascending=[(sortby_split[1] == "asc"), True])
+        df = df.sort_values(
+            ["start_datetime", "experiment_id"], ascending=[(sortby_split[1] == "asc"), True]
+        )
 
         df = df.iloc[:limit]
-            
+
         return df.to_dict("records")
 
     def delete_experiment(self, experiment_id: str) -> None:
@@ -222,26 +261,35 @@ class FakeService(DatabaseServiceV1):
         json_encoder: Type[json.JSONEncoder] = json.JSONEncoder,
         **kwargs: Any,
     ) -> str:
-        self.results = self.results.append({
-            "result_data": result_data,
-            "result_id": result_id,
-            "result_type": result_type,
-            "device_components": device_components,
-            "experiment_id": experiment_id,
-            "quality": quality,
-            "verified": verified,
-            "tags": tags,
-            "backend_name": self.exps.loc[self.exps.experiment_id == experiment_id].iloc[0].backend_name,
-            "chisq": kwargs.get("chisq", None),
-            "creation_datetime": self.exps.loc[self.exps.experiment_id == experiment_id].iloc[0].start_datetime,
-        }, ignore_index=True)
+        self.results = self.results.append(
+            {
+                "result_data": result_data,
+                "result_id": result_id,
+                "result_type": result_type,
+                "device_components": device_components,
+                "experiment_id": experiment_id,
+                "quality": quality,
+                "verified": verified,
+                "tags": tags,
+                "backend_name": self.exps.loc[self.exps.experiment_id == experiment_id]
+                .iloc[0]
+                .backend_name,
+                "chisq": kwargs.get("chisq", None),
+                "creation_datetime": self.exps.loc[self.exps.experiment_id == experiment_id]
+                .iloc[0]
+                .start_datetime,
+            },
+            ignore_index=True,
+        )
 
         def add_new_components(expcomps):
             for dc in device_components:
                 if dc not in expcomps:
                     expcomps.append(dc)
 
-        self.exps.loc[self.exps.experiment_id==experiment_id, "device_components"].apply(add_new_components)
+        self.exps.loc[self.exps.experiment_id == experiment_id, "device_components"].apply(
+            add_new_components
+        )
 
         return result_id
 
@@ -254,7 +302,7 @@ class FakeService(DatabaseServiceV1):
         verified: bool = None,
         **kwargs: Any,
     ) -> None:
-        row = (self.results.result_id == result_id)
+        row = self.results.result_id == result_id
         if result_data is not None:
             self.results.loc[row, "result_data"] = result_data
         if tags is not None:
@@ -318,17 +366,27 @@ class FakeService(DatabaseServiceV1):
 
         if not isinstance(sort_by, list):
             sort_by = [sort_by]
-            
+
         # TODO: support also device components and result type
         if len(sort_by) != 1:
-            raise ValueError("The fake service currently supports only sorting by creation_datetime")
+            raise ValueError(
+                "The fake service currently supports only sorting by creation_datetime"
+            )
 
         sortby_split = sort_by[0].split(":")
         # TODO: support also device components and result type
-        if len(sortby_split) != 2 or sortby_split[0] != "creation_datetime" or (sortby_split[1] != "asc" and sortby_split[1] != "desc"):
-            raise ValueError("The fake service currently supports only sorting by creation_datetime, which can be either asc or desc")
+        if (
+            len(sortby_split) != 2
+            or sortby_split[0] != "creation_datetime"
+            or (sortby_split[1] != "asc" and sortby_split[1] != "desc")
+        ):
+            raise ValueError(
+                "The fake service currently supports only sorting by creation_datetime, which can be either asc or desc"
+            )
 
-        df = df.sort_values(["creation_datetime", "result_id"], ascending=[(sortby_split[1] == "asc"), True])
+        df = df.sort_values(
+            ["creation_datetime", "result_id"], ascending=[(sortby_split[1] == "asc"), True]
+        )
 
         df = df.iloc[:limit]
         return df.to_dict("records")
