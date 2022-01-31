@@ -76,7 +76,7 @@ class TestStandardRB(QiskitExperimentsTestCase):
             circ.remove_final_measurements()
             # Checking if the matrix representation is the identity matrix
             self.assertTrue(
-                matrix_equal(Clifford(circ).to_matrix(), np.identity(2 ** num_qubits)),
+                matrix_equal(Clifford(circ).to_matrix(), np.identity(2**num_qubits)),
                 "Clifford sequence doesn't result in the identity matrix.",
             )
 
