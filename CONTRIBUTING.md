@@ -196,7 +196,7 @@ Note that header should be named `Analysis Options` to be parsed correctly.
 
 After you complete documentation of your classes, you must add documentation to the toctree 
 so that it can be rendered as the API documentation.
-In Qiskit Experiments, we have different table of containts per 
+In Qiskit Experiments, we have different tables of contents per 
 experiment module (e.g. [characterization](https://qiskit.org/documentation/experiments/apidocs/mod_characterization.html)) 
 and for the [entire library](https://qiskit.org/documentation/experiments/apidocs/library.html).
 Thus we should add document to the tree of the paticular module and then add reference
