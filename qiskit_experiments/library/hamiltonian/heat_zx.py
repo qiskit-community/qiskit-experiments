@@ -75,7 +75,7 @@ class ZXHeat(BatchHeatHelper):
 
             U = A_{II} II + A_{IX} IX + A_{ZX} ZX + A_{ZI} ZI.
 
-        Since we have known control qubit state throughout the echo sequence,
+        Since we have a known control qubit state throughout the echo sequence,
         we can compute a partial unitary on the target qubit, namely,
         :math:`U_{j} = A_{Ij} I + A_{Xj} X` for the control qubit state :math:`|j\rangle`.
         Here :math:`A_{Ij} =\cos \theta_j` and :math:`A_{Xj} =-i \sin \theta_j`.
