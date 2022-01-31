@@ -30,8 +30,8 @@ class FakeService(DatabaseServiceV1):
     """
 
     def __init__(self):
-        self.exps = pd.DataFrame(columns=["experiment_type", "backend_name", "metadata", "experiment_id", "parent_id", "job_ids", "tags", "notes"])
-        self.results = pd.DataFrame(columns=["experiment_id", "result_data", "result_type", "device_components", "tags", "quality", "verified", "result_id", "chisq", "creation_datetime"])
+        self.exps = pd.DataFrame(columns=["experiment_type", "backend_name", "metadata", "experiment_id", "parent_id", "job_ids", "tags", "notes", "figure_names"])
+        self.results = pd.DataFrame(columns=["experiment_id", "result_data", "result_type", "device_components", "tags", "quality", "verified", "result_id", "chisq", "creation_datetime", "service"])
 
     def create_experiment(
         self,
@@ -80,8 +80,9 @@ class FakeService(DatabaseServiceV1):
             "notes": notes,
             "share_level": kwargs.get("share_level", None),
             "device_components": [],
-            "start_datetime": datetime(2022, 1, 1) + timedelta(hours=len(self.exps))
-        }, ignore_index=True)
+            "start_datetime": datetime(2022, 1, 1) + timedelta(hours=len(self.exps)),
+            "figure_names": []
+         }, ignore_index=True)
 
         return experiment_id
 
@@ -232,7 +233,7 @@ class FakeService(DatabaseServiceV1):
             "tags": tags,
             "backend_name": self.exps.loc[self.exps.experiment_id == experiment_id].iloc[0].backend_name,
             "chisq": kwargs.get("chisq", None),
-            "creation_datetime": self.exps.loc[self.exps.experiment_id == experiment_id].iloc[0].start_datetime
+            "creation_datetime": self.exps.loc[self.exps.experiment_id == experiment_id].iloc[0].start_datetime,
         }, ignore_index=True)
 
         def add_new_components(expcomps):
