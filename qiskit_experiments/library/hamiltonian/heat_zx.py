@@ -105,7 +105,7 @@ class ZXHeat(BatchHeatHelper):
         In this pulse sequence, the pi-pulse echo is applied to the target qubit
         in the same axis with the interrogated error axis.
         This cancels out the errors in other axes since the errors anti-commute with the echo,
-        e.g. :math:`XYX = -Y`, while the error in the interrogated axis are accumulated.
+        e.g. :math:`XYX = -Y`, while the error in the interrogated axis is accumulated.
         This is the trick of how the sequence selectively amplifies the error axis.
 
         However, strictly speaking, non-X error terms :math:`{\cal P}` also anti-commute
