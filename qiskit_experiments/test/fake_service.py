@@ -187,7 +187,7 @@ class FakeService(DatabaseServiceV1):
 
         # DbExperimentData expects an instansiated backend object, and not the backend name
         db_entry["backend"] = FakeBackend(db_entry["backend_name"])
-        
+
         return db_entry
 
     def experiments(

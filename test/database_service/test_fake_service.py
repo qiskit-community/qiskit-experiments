@@ -31,7 +31,7 @@ class TestFakeService(QiskitExperimentsTestCase):
         # A copy of the database, in the form of a dictionary
         # To serve as a reference
         self.expdict = {}
-        
+
         expid = 0
         for experiment_type in range(2):
             for backend_name in range(2):
@@ -42,7 +42,7 @@ class TestFakeService(QiskitExperimentsTestCase):
                         "backend_name": str(backend_name),
                         "tags": ["a" + str(tags), "b" + str(tags)],
                     }
-                    
+
                     if expid > 2:
                         expentry["parent_id"] = str(expid % 3)
                     else:
@@ -71,12 +71,12 @@ class TestFakeService(QiskitExperimentsTestCase):
 
                     # Update the reference dictionary
                     self.expdict[str(expid)] = expentry
-                    
+
                     expid += 1
 
         # A reference dictionary for the analysis results
         self.resdict = {}
-        
+
         resid = 0
         for experiment_id in [0, 1, 6, 7]:
             for result_type in range(2):
@@ -112,11 +112,13 @@ class TestFakeService(QiskitExperimentsTestCase):
 
                     # The service determines the time (see documentation in
                     # FakeService.create_analysis_result).
-                    resentry["creation_datetime"] = self.expdict[str(experiment_id)]["start_datetime"]
+                    resentry["creation_datetime"] = self.expdict[str(experiment_id)][
+                        "start_datetime"
+                    ]
 
                     # Update the reference dictionary
                     self.resdict[str(resid)] = resentry
-                    
+
                     resid += 1
 
     def test_creation(self):
