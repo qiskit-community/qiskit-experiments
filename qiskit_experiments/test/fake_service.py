@@ -46,7 +46,11 @@ class FakeService(DatabaseServiceV1):
                 "job_ids",
                 "tags",
                 "notes",
-                "figure_names",
+                "figure_names"
+                "share_level",
+                "start_datetime",
+                "device_components",
+                "figure_names"
             ]
         )
         self.results = pd.DataFrame(
@@ -62,6 +66,7 @@ class FakeService(DatabaseServiceV1):
                 "chisq",
                 "creation_datetime",
                 "service",
+                "backend_name"
             ]
         )
 
