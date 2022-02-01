@@ -142,8 +142,7 @@ class TestFakeService(QiskitExperimentsTestCase):
     def test_query_for_single(self):
         """Test FakeService methods experiment and analysis_result"""
         for query_method, reference_dict, in zip(
-            [self.service.experiment, self.service.analysis_result],
-            [self.expdict, self.resdict]
+            [self.service.experiment, self.service.analysis_result], [self.expdict, self.resdict]
         ):
             for id_value in range(len(reference_dict)):
                 full_entry = query_method(str(id_value))

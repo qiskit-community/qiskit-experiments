@@ -21,7 +21,10 @@ from qiskit_experiments.test.fake_backend import FakeBackend
 
 from qiskit_experiments.database_service import DatabaseServiceV1
 from qiskit_experiments.database_service.device_component import DeviceComponent
-from qiskit_experiments.database_service.exceptions import DbExperimentEntryExists, DbExperimentEntryNotFound
+from qiskit_experiments.database_service.exceptions import (
+    DbExperimentEntryExists,
+    DbExperimentEntryNotFound,
+)
 
 
 class FakeService(DatabaseServiceV1):
@@ -78,7 +81,7 @@ class FakeService(DatabaseServiceV1):
         if experiment_id is None:
             raise ValueError("The fake service requires the experiment id parameter")
 
-        if experiment_id in self.exps.experiment_id.values:      
+        if experiment_id in self.exps.experiment_id.values:
             raise DbExperimentEntryExists("Cannot add experiment with existing id")
 
         # Clarifications about some of the columns:
@@ -128,7 +131,7 @@ class FakeService(DatabaseServiceV1):
     ) -> None:
         if experiment_id not in self.exps.experiment_id.values:
             raise DbExperimentEntryNotFound("Attempt to update a non-existing experiment")
-        
+
         row = self.exps.experiment_id == experiment_id
         if metadata is not None:
             self.exps.loc[row, "metadata"] = metadata
@@ -147,8 +150,8 @@ class FakeService(DatabaseServiceV1):
         self, experiment_id: str, json_decoder: Type[json.JSONDecoder] = json.JSONDecoder
     ) -> Dict:
         if experiment_id not in self.exps.experiment_id.values:
-             raise DbExperimentEntryNotFound("Experiment does not exist")
-        
+            raise DbExperimentEntryNotFound("Experiment does not exist")
+
         db_entry = self.exps.loc[self.exps.experiment_id == experiment_id].to_dict("records")[0]
 
         # DbExperimentData expects an instansiated backend object, and not the backend name
@@ -237,7 +240,7 @@ class FakeService(DatabaseServiceV1):
     def delete_experiment(self, experiment_id: str) -> None:
         if experiment_id not in self.exps.experiment_id.values:
             return
-        
+
         index = self.exps[self.exps.experiment_id == experiment_id].index
         self.exps.drop(index, inplace=True)
 
@@ -257,9 +260,9 @@ class FakeService(DatabaseServiceV1):
         if result_id is None:
             raise ValueError("The fake service requires the result id parameter")
 
-        if result_id in self.results.result_id.values:      
+        if result_id in self.results.result_id.values:
             raise DbExperimentEntryExists("Cannot add analysis result with existing id")
-        
+
         # Clarifications about some of the columns:
         # backend_name - taken from the experiment.
         # creation_datetime - start_datetime - not a parameter of
@@ -312,7 +315,7 @@ class FakeService(DatabaseServiceV1):
     ) -> None:
         if result_id not in self.results.result_id.values:
             raise DbExperimentEntryNotFound("Attempt to update a non-existing analysis result")
-        
+
         row = self.results.result_id == result_id
         if result_data is not None:
             self.results.loc[row, "result_data"] = result_data
@@ -330,7 +333,7 @@ class FakeService(DatabaseServiceV1):
     ) -> Dict:
         if result_id not in self.results.result_id.values:
             raise DbExperimentEntryNotFound("Analysis result does not exist")
-        
+
         # The `experiment` method implements special handling of the backend, we skip it here.
         # It's a bit strange, so, if not required by `DbExperimentData` then we'd better skip.
         return self.results.loc[self.results.result_id == result_id].to_dict("records")[0]
@@ -408,7 +411,7 @@ class FakeService(DatabaseServiceV1):
     def delete_analysis_result(self, result_id: str) -> None:
         if result_id not in self.results.result_id.values:
             return
-        
+
         index = self.results[self.results.result_id == result_id].index
         self.results.drop(index, inplace=True)
 
