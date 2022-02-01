@@ -28,7 +28,10 @@ class TestFakeService(QiskitExperimentsTestCase):
 
         self.service = FakeService()
 
+        # A copy of the database, in the form of a dictionary
+        # To serve as a reference
         self.expdict = {}
+        
         expid = 0
         for experiment_type in range(2):
             for backend_name in range(2):
@@ -39,29 +42,53 @@ class TestFakeService(QiskitExperimentsTestCase):
                         "backend_name": str(backend_name),
                         "tags": ["a" + str(tags), "b" + str(tags)],
                     }
+                    
                     if expid > 2:
                         expentry["parent_id"] = str(expid % 3)
                     else:
                         expentry["parent_id"] = None
+
+                    # Create the experiment in the service
                     self.service.create_experiment(**expentry)
+
+                    # We have sent the experiment for creation in the service.
+                    # We will now update the reference dictionary self.expdict
+                    # with columns that are set internally by the service.
+
+                    # Below we add analysis results to the experiments 0, 1, 6, and 7.
+                    # For each of these experiments, some of the results have device
+                    # components [0], an d some have device components [1].
+                    # This means that each of these experiments should eventually have
+                    # device components [0, 1].
                     if expid in [0, 1, 6, 7]:
                         expentry["device_components"] = [0, 1]
                     else:
                         expentry["device_components"] = []
+
+                    # The service determines the time (see documentation in
+                    # FakeService.create_experiment).
                     expentry["start_datetime"] = datetime(2022, 1, 1, expid)
+
+                    # Update the reference dictionary
                     self.expdict[str(expid)] = expentry
+                    
                     expid += 1
 
+        # A reference dictionary for the analysis results
         self.resdict = {}
+        
         resid = 0
         for experiment_id in [0, 1, 6, 7]:
             for result_type in range(2):
                 for samebool4all in range(2):
+                    # We don't branch of each column because it makes the data too large and slows
+                    # down the test
                     tags = samebool4all
                     quality = samebool4all
                     verified = samebool4all
                     result_data = samebool4all
                     device_components = samebool4all
+
                     resentry = {
                         "experiment_id": str(experiment_id),
                         "result_type": str(result_type),
@@ -71,11 +98,25 @@ class TestFakeService(QiskitExperimentsTestCase):
                         "verified": verified,
                         "result_data": {"value": result_data},
                         "device_components": [device_components],
-                        "creation_datetime": self.expdict[str(experiment_id)]["start_datetime"],
                     }
+
+                    # Create the result in the service
                     self.service.create_analysis_result(**resentry)
+
+                    # We have sent the experiment for creation in the service.
+                    # We will now update the reference dictionary self.expdict
+                    # with columns that are set internally by the service.
+
+                    # The service sets the backend to be the experiment's backend
                     resentry["backend_name"] = self.expdict[str(experiment_id)]["backend_name"]
+
+                    # The service determines the time (see documentation in
+                    # FakeService.create_analysis_result).
+                    resentry["creation_datetime"] = self.expdict[str(experiment_id)]["start_datetime"]
+
+                    # Update the reference dictionary
                     self.resdict[str(resid)] = resentry
+                    
                     resid += 1
 
     def test_creation(self):
@@ -91,15 +132,20 @@ class TestFakeService(QiskitExperimentsTestCase):
                 id = full_entry[id_field]
                 self.assertTrue(id not in is_in_frame)
                 is_in_frame.append(id)
-                self.assertTrue(id in reference_dict.keys())
+                self.assertTrue(id in reference_dict)
                 entry = reference_dict[id]
                 self.assertTrue(entry.items() <= full_entry.items())
 
-    def test_single_experiment_query(self):
-        for expid in range(8):
-            full_entry = self.service.experiment(str(expid))
-            entry = self.expdict[str(expid)]
-            self.assertTrue(entry.items() <= full_entry.items())
+    def test_query_for_single(self):
+        for query_method, reference_dict, id_field in zip(
+            [self.service.experiment, self.service.analysis_result],
+            [self.expdict, self.resdict],
+            ["experiment_id", "result_id"],
+        ):
+            for id in range(len(reference_dict)):
+                full_entry = query_method(str(id))
+                entry = reference_dict[str(id)]
+                self.assertTrue(entry.items() <= full_entry.items())
 
     def test_experiments_query(self):
         for experiment_type in range(2):
@@ -240,12 +286,6 @@ class TestFakeService(QiskitExperimentsTestCase):
             start_datetime_after=datetime(2022, 1, 1, 2),
         )
         self.assertEqual(len(exps), 0)
-
-    def test_single_result_query(self):
-        for resid in range(16):
-            full_entry = self.service.analysis_result(str(resid))
-            entry = self.resdict[str(resid)]
-            self.assertTrue(entry.items() <= full_entry.items())
 
     def test_update_result(self):
         self.service.update_analysis_result(result_id="1", tags=["hey"])

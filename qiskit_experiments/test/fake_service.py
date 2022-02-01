@@ -26,7 +26,10 @@ from qiskit_experiments.database_service.device_component import DeviceComponent
 
 class FakeService(DatabaseServiceV1):
     """
-    Extremely simple database for testing
+    This extremely simple database is designated for testing and as a playground for developers.
+    It does not support multi-threading.
+    It is not guaranteed to perform well for a large amount of data.
+    It implements most of the methods of `DatabaseService`.
     """
 
     def __init__(self):
@@ -90,11 +93,31 @@ class FakeService(DatabaseServiceV1):
 
         Returns:
             Experiment ID.
+
+        Raises:
+            ValueError: if the experiment_id parameter is None.
+                The fake service requires this parameter, and does not generate it by itself.
         """
 
         if experiment_id is None:
             raise ValueError("The fake service requires the experiment id parameter")
 
+        # Clarifications about some of the columns:
+        # share_level - not a parameter of `DatabaseService.create_experiment` but a parameter of
+        #    `IBMExperimentService.create_experiment`. It must be supported because it is used
+        #    in `DbExperimentData`.
+        # device_components - the user speicifies the device components when adding a result
+        #    (this is not a local decision of the fake service but the interface of DatabaseService
+        #    and IBMExperimentService). The components of the different results of the same
+        #    experiment are aggregated here in the device_components column.
+        # start_datetime - not a parameter of `DatabaseService.create_experiment` but a parameter of
+        #    `IBMExperimentService.create_experiment`. Since `DbExperimentData` does not set it
+        #    via kwargs (as it does with share_level), the user cannot control the time and the
+        #    service alone decides about it. Here we've chosen to set a unique time for each
+        #    experiment, with the first experiment dated to midnight of January 1st, 2022, the
+        #    second exeperiment an hour later, etc.
+        # figure_names - the fake service currently does not support figures. The column
+        #    (degenerated to []) is required to prevent a flaw in the work with DbExperimentData.
         self.exps = self.exps.append(
             {
                 "experiment_type": experiment_type,
@@ -161,7 +184,10 @@ class FakeService(DatabaseServiceV1):
             A dictionary containing the retrieved experiment data.
         """
         db_entry = self.exps.loc[self.exps.experiment_id == experiment_id].to_dict("records")[0]
+
+        # DbExperimentData expects an instansiated backend object, and not the backend name
         db_entry["backend"] = FakeBackend(db_entry["backend_name"])
+        
         return db_entry
 
     def experiments(
@@ -186,7 +212,7 @@ class FakeService(DatabaseServiceV1):
             df = df.loc[df.backend_name == backend_name]
 
         # Note a bug in the interface for all services:
-        # It is impossible to filter by expeirments whose parent id is None
+        # It is impossible to filter by experiments whose parent id is None
         # (i.e., root experiments)
         if parent_id is not None:
             df = df.loc[df.parent_id == parent_id]
@@ -261,6 +287,13 @@ class FakeService(DatabaseServiceV1):
         json_encoder: Type[json.JSONEncoder] = json.JSONEncoder,
         **kwargs: Any,
     ) -> str:
+        # Clarifications about some of the columns:
+        # backend_name - taken from the experiment.
+        # creation_datetime - start_datetime - not a parameter of
+        #    `DatabaseService.create_analysis_result` but a parameter of
+        #    `IBMExperimentService.create_analysis_result`. Since `DbExperimentData` does not set it
+        #    via kwargs (as it does with chisq), the user cannot control the time and the service
+        #    alone decides about it. Here we've chosen to set the start date of the experiment.
         self.results = self.results.append(
             {
                 "result_data": result_data,
@@ -282,11 +315,13 @@ class FakeService(DatabaseServiceV1):
             ignore_index=True,
         )
 
+        # a helper method for updating the experiment's device components, see usage below
         def add_new_components(expcomps):
             for dc in device_components:
                 if dc not in expcomps:
                     expcomps.append(dc)
 
+        # update the experiment's device components
         self.exps.loc[self.exps.experiment_id == experiment_id, "device_components"].apply(
             add_new_components
         )
@@ -317,6 +352,8 @@ class FakeService(DatabaseServiceV1):
     def analysis_result(
         self, result_id: str, json_decoder: Type[json.JSONDecoder] = json.JSONDecoder
     ) -> Dict:
+        # The `experiment` method implements special handling of the backend, we skip it here.
+        # It's a bit strange, so, if not required by `DbExperimentData` then we'd better skip.
         return self.results.loc[self.results.result_id == result_id].to_dict("records")[0]
 
     def analysis_results(
