@@ -126,6 +126,9 @@ class FakeService(DatabaseServiceV1):
         tags: Optional[List[str]] = None,
         **kwargs: Any,
     ) -> None:
+        if experiment_id not in self.exps.experiment_id.values:
+            raise DbExperimentEntryNotFound("Attempt to update a non-existing experiment")
+        
         row = self.exps.experiment_id == experiment_id
         if metadata is not None:
             self.exps.loc[row, "metadata"] = metadata
@@ -143,6 +146,9 @@ class FakeService(DatabaseServiceV1):
     def experiment(
         self, experiment_id: str, json_decoder: Type[json.JSONDecoder] = json.JSONDecoder
     ) -> Dict:
+        if experiment_id not in self.exps.experiment_id.values:
+             raise DbExperimentEntryNotFound("Experiment does not exist")
+        
         db_entry = self.exps.loc[self.exps.experiment_id == experiment_id].to_dict("records")[0]
 
         # DbExperimentData expects an instansiated backend object, and not the backend name
@@ -229,6 +235,9 @@ class FakeService(DatabaseServiceV1):
         return df.to_dict("records")
 
     def delete_experiment(self, experiment_id: str) -> None:
+        if experiment_id not in self.exps.experiment_id.values:
+            return
+        
         index = self.exps[self.exps.experiment_id == experiment_id].index
         self.exps.drop(index, inplace=True)
 
@@ -301,6 +310,9 @@ class FakeService(DatabaseServiceV1):
         verified: bool = None,
         **kwargs: Any,
     ) -> None:
+        if result_id not in self.results.result_id.values:
+            raise DbExperimentEntryNotFound("Attempt to update a non-existing analysis result")
+        
         row = self.results.result_id == result_id
         if result_data is not None:
             self.results.loc[row, "result_data"] = result_data
@@ -316,6 +328,9 @@ class FakeService(DatabaseServiceV1):
     def analysis_result(
         self, result_id: str, json_decoder: Type[json.JSONDecoder] = json.JSONDecoder
     ) -> Dict:
+        if result_id not in self.results.result_id.values:
+            raise DbExperimentEntryNotFound("Analysis result does not exist")
+        
         # The `experiment` method implements special handling of the backend, we skip it here.
         # It's a bit strange, so, if not required by `DbExperimentData` then we'd better skip.
         return self.results.loc[self.results.result_id == result_id].to_dict("records")[0]
@@ -391,6 +406,9 @@ class FakeService(DatabaseServiceV1):
         return df.to_dict("records")
 
     def delete_analysis_result(self, result_id: str) -> None:
+        if result_id not in self.results.result_id.values:
+            return
+        
         index = self.results[self.results.result_id == result_id].index
         self.results.drop(index, inplace=True)
 
