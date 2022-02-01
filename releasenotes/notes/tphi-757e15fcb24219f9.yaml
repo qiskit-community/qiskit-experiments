@@ -2,8 +2,10 @@
 
 features:
   - |
-    New experiment Tphi. This is a composite experiment with sub-experiments
-    T1 and T2Ramsey.New classes:
+    New experiment Tphi. It computes the pure dephasing time and is computed as
+    :math:`1/T_\varphi = 1/T_{2*} - 1/2T_1`.
+    It is implemented as a composite experiment with sub-experiments
+    T1 and T2Ramsey. The new classes are:
     :class:`~qiskit.qiskit_experiments.library.characterization.Tphi` - class defining the Tphi 
     experiment.
 
