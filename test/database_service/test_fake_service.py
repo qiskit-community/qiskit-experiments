@@ -15,7 +15,7 @@ Test the fake service
 
 from datetime import datetime
 from test.base import QiskitExperimentsTestCase
-from qiskit_experiments.test.fake_service import FakeService
+from qiskit_experiments.test import FakeService
 
 
 class TestFakeService(QiskitExperimentsTestCase):
