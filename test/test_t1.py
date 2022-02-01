@@ -44,6 +44,7 @@ class TestT1(QiskitExperimentsTestCase):
         exp = T1(0, delays)
         exp.analysis.set_options(p0={"amp": 1, "tau": t1, "base": 0})
         exp_data = exp.run(backend, shots=10000)
+        self.assertExperimentDone(exp_data)
         res = exp_data.analysis_results("T1")
         fitval = res.value
         self.assertEqual(res.quality, "good")
@@ -68,7 +69,8 @@ class TestT1(QiskitExperimentsTestCase):
         exp0 = T1(0, delays)
         exp2 = T1(2, delays)
         par_exp = ParallelExperiment([exp0, exp2])
-        res = par_exp.run(T1Backend([t1[0], None, t1[1]])).block_for_results()
+        res = par_exp.run(T1Backend([t1[0], None, t1[1]]))
+        self.assertExperimentDone(res)
 
         for i in range(2):
             sub_res = res.child_data(i).analysis_results("T1")
@@ -99,7 +101,8 @@ class TestT1(QiskitExperimentsTestCase):
         exp1.analysis.set_options(p0={"tau": 1000000})
 
         par_exp = ParallelExperiment([exp0, exp1])
-        res = par_exp.run(T1Backend([t1, t1])).block_for_results()
+        res = par_exp.run(T1Backend([t1, t1]))
+        self.assertExperimentDone(res)
 
         sub_res = []
         for i in range(2):
@@ -202,12 +205,12 @@ class TestT1(QiskitExperimentsTestCase):
         exp = T1(0, [1, 2, 3, 4, 5])
         loaded_exp = T1.from_config(exp.config())
         self.assertNotEqual(exp, loaded_exp)
-        self.assertTrue(self.experiments_equiv(exp, loaded_exp))
+        self.assertTrue(self.json_equiv(exp, loaded_exp))
 
     def test_roundtrip_serializable(self):
         """Test round trip JSON serialization"""
         exp = T1(0, [1, 2, 3, 4, 5])
-        self.assertRoundTripSerializable(exp, self.experiments_equiv)
+        self.assertRoundTripSerializable(exp, self.json_equiv)
 
     def test_analysis_config(self):
         """ "Test converting analysis to and from config works"""

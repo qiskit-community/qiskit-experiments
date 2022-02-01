@@ -47,7 +47,7 @@ class SpectroscopyBackend(MockIQBackend):
         """Returns the probability based on the frequency."""
         freq_shift = next(iter(circuit.calibrations["Spec"]))[1][0]
         delta_freq = freq_shift - self._freq_offset
-        return np.exp(-(delta_freq ** 2) / (2 * self._linewidth ** 2))
+        return np.exp(-(delta_freq**2) / (2 * self._linewidth**2))
 
 
 class TestQubitSpectroscopy(QiskitExperimentsTestCase):
@@ -64,6 +64,7 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
         spec = QubitSpectroscopy(qubit, frequencies)
         spec.set_run_options(meas_level=MeasLevel.CLASSIFIED)
         expdata = spec.run(backend)
+        self.assertExperimentDone(expdata)
         result = expdata.analysis_results(1)
         value = result.value.value
 
@@ -76,6 +77,7 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
         spec = QubitSpectroscopy(qubit, frequencies)
         spec.set_run_options(meas_level=MeasLevel.CLASSIFIED)
         expdata = spec.run(backend)
+        self.assertExperimentDone(expdata)
         result = expdata.analysis_results(1)
         value = result.value.value
 
@@ -92,6 +94,7 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
 
         spec = QubitSpectroscopy(qubit, frequencies)
         expdata = spec.run(backend)
+        self.assertExperimentDone(expdata)
         result = expdata.analysis_results(1)
         value = result.value.value
 
@@ -103,6 +106,7 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
 
         spec = QubitSpectroscopy(qubit, frequencies)
         expdata = spec.run(backend)
+        self.assertExperimentDone(expdata)
         result = expdata.analysis_results(1)
         value = result.value.value
 
@@ -111,6 +115,7 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
 
         spec.set_run_options(meas_return="avg")
         expdata = spec.run(backend)
+        self.assertExperimentDone(expdata)
         result = expdata.analysis_results(1)
         value = result.value.value
 
@@ -131,6 +136,7 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
         spec.backend = backend
         spec.set_run_options(meas_level=MeasLevel.CLASSIFIED)
         expdata = spec.run(backend)
+        self.assertExperimentDone(expdata)
         result = expdata.analysis_results(1)
         value = result.value.value
 
@@ -147,9 +153,9 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
         exp = QubitSpectroscopy(1, np.linspace(100, 150, 20) * 1e6)
         loaded_exp = QubitSpectroscopy.from_config(exp.config())
         self.assertNotEqual(exp, loaded_exp)
-        self.assertTrue(self.experiments_equiv(exp, loaded_exp))
+        self.assertTrue(self.json_equiv(exp, loaded_exp))
 
     def test_roundtrip_serializable(self):
         """Test round trip JSON serialization"""
         exp = QubitSpectroscopy(1, np.linspace(int(100e6), int(150e6), int(20e6)))
-        self.assertRoundTripSerializable(exp, self.experiments_equiv)
+        self.assertRoundTripSerializable(exp, self.json_equiv)

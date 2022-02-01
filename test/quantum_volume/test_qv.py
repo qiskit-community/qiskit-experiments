@@ -105,8 +105,10 @@ class TestQuantumVolume(QiskitExperimentsTestCase):
         # set number of trials to a low number to make the test faster
         qv_exp.set_experiment_options(trials=2)
         expdata1 = qv_exp.run(backend)
+        self.assertExperimentDone(expdata1)
         result_data1 = expdata1.analysis_results(0)
         expdata2 = qv_exp.run(backend, analysis=None)
+        self.assertExperimentDone(expdata2)
         expdata2.add_data(expdata1.data())
         qv_exp.analysis.run(expdata2)
         result_data2 = expdata2.analysis_results(0)
@@ -247,9 +249,9 @@ class TestQuantumVolume(QiskitExperimentsTestCase):
         exp = QuantumVolume([0, 1, 2], seed=42)
         loaded_exp = QuantumVolume.from_config(exp.config())
         self.assertNotEqual(exp, loaded_exp)
-        self.assertTrue(self.experiments_equiv(exp, loaded_exp))
+        self.assertTrue(self.json_equiv(exp, loaded_exp))
 
     def test_roundtrip_serializable(self):
         """Test round trip JSON serialization"""
         exp = QuantumVolume([0, 1, 2], seed=42)
-        self.assertRoundTripSerializable(exp, self.experiments_equiv)
+        self.assertRoundTripSerializable(exp, self.json_equiv)

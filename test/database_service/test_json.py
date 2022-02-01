@@ -60,7 +60,7 @@ class TestJSON(QiskitExperimentsTestCase):
         obj = FakeExperiment([0])
         obj.set_transpile_options(optimization_level=3, basis_gates=["rx", "ry", "cz"])
         obj.set_run_options(shots=2000)
-        self.assertRoundTripSerializable(obj, self.experiments_equiv)
+        self.assertRoundTripSerializable(obj, self.json_equiv)
 
     def test_roundtrip_quantum_circuit(self):
         """Test round-trip serialization of a circuits"""
@@ -119,4 +119,49 @@ class TestJSON(QiskitExperimentsTestCase):
     def test_roundtrip_custom_static_method(self):
         """Test roundtrip serialization of custom class object"""
         obj = CustomClass.static_method
+        self.assertRoundTripSerializable(obj)
+
+    def test_roundtrip_main_function(self):
+        """Test roundtrip serialization of __main__ custom class object"""
+        import __main__ as main_mod
+
+        main_mod.custom_function = custom_function
+        main_mod.custom_function.__module__ = "__main__"
+        obj = main_mod.custom_function
+        self.assertRoundTripSerializable(obj)
+
+    def test_roundtrip_main_class_type(self):
+        """Test roundtrip serialization of __main__ custom class"""
+        import __main__ as main_mod
+
+        main_mod.CustomClass = CustomClass
+        main_mod.CustomClass.__module__ = "__main__"
+        obj = main_mod.CustomClass
+        self.assertRoundTripSerializable(obj)
+
+    def test_roundtrip_main_class_object(self):
+        """Test roundtrip serialization of __main__ custom class object"""
+        import __main__ as main_mod
+
+        main_mod.CustomClass = CustomClass
+        main_mod.CustomClass.__module__ = "__main__"
+        obj = main_mod.CustomClass(123)
+        self.assertRoundTripSerializable(obj)
+
+    def test_roundtrip_main_class_method(self):
+        """Test roundtrip serialization of __main__ custom class object"""
+        import __main__ as main_mod
+
+        main_mod.CustomClass = CustomClass
+        main_mod.CustomClass.__module__ = "__main__"
+        obj = main_mod.CustomClass.class_method
+        self.assertRoundTripSerializable(obj)
+
+    def test_roundtrip_main_custom_static_method(self):
+        """Test roundtrip serialization of __main__ custom class object"""
+        import __main__ as main_mod
+
+        main_mod.CustomClass = CustomClass
+        main_mod.CustomClass.__module__ = "__main__"
+        obj = main_mod.CustomClass.static_method
         self.assertRoundTripSerializable(obj)

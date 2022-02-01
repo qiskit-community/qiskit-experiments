@@ -62,17 +62,10 @@ def plot_curve_fit(
         plot_opts["linewidth"] = 2
 
     # Result data
-    if isinstance(result, dict):
-        # TODO: remove this after T1 T2 migration to curve analysis
-        fit_params = result["popt"]
-        param_keys = result["popt_keys"]
-        fit_errors = result["popt_err"]
-        xmin, xmax = result["x_range"]
-    else:
-        fit_params = result.popt
-        param_keys = result.popt_keys
-        fit_errors = result.popt_err
-        xmin, xmax = result.x_range
+    fit_params = result.popt
+    param_keys = result.popt_keys
+    fit_errors = result.popt_err
+    xmin, xmax = result.x_range
 
     # Plot fit data
     xs = np.linspace(xmin, xmax, num_fit_points)

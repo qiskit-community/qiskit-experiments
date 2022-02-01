@@ -46,6 +46,7 @@ class BaseExperiment(ABC, StoreInitArgs):
 
         Args:
             qubits: list of physical qubits for the experiment.
+            analysis: Optional, the analysis to use for the experiment.
             backend: Optional, the backend to run the experiment on.
             experiment_type: Optional, the experiment type string.
 
@@ -199,6 +200,7 @@ class BaseExperiment(ABC, StoreInitArgs):
         self,
         backend: Optional[Backend] = None,
         analysis: Optional[Union[BaseAnalysis, None]] = "default",
+        timeout: Optional[float] = None,
         **run_options,
     ) -> ExperimentData:
         """Run an experiment and perform analysis.
@@ -211,6 +213,8 @@ class BaseExperiment(ABC, StoreInitArgs):
                       analysis. If None analysis will not be run. If ``"default"``
                       the experiments :meth:`analysis` instance will be used if
                       it contains one.
+            timeout: Time to wait for experiment jobs to finish running before
+                     cancelling.
             run_options: backend runtime options used for circuit execution.
 
         Returns:
@@ -270,7 +274,7 @@ class BaseExperiment(ABC, StoreInitArgs):
 
         # Run jobs
         jobs = experiment._run_jobs(circuits, **run_opts)
-        experiment_data.add_data(jobs)
+        experiment_data.add_jobs(jobs, timeout=timeout)
         experiment._add_job_metadata(experiment_data.metadata, jobs, **run_opts)
 
         # Optionally run analysis
