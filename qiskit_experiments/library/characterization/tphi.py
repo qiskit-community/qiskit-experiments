@@ -16,9 +16,9 @@ Tphi Experiment class.
 from typing import List, Optional, Union
 import numpy as np
 
+from qiskit import QiskitError
 from qiskit.providers import Backend
 from qiskit.test.mock import FakeBackend
-from qiskit_experiments.framework import Options
 from qiskit_experiments.framework.composite.batch_experiment import BatchExperiment
 from qiskit_experiments.library.characterization import T1, T2Ramsey
 from qiskit_experiments.library.characterization.analysis.tphi_analysis import TphiAnalysis
@@ -49,18 +49,22 @@ class Tphi(BatchExperiment):
         :doc:`/tutorials/tphi_characterization`
     """
 
-    @classmethod
-    def _default_experiment_options(cls) -> Options:
-        """Default experiment options.
+    def set_experiment_options(self, **fields):
+        """Set the experiment options.
+        Args:
+            fields: The fields defining the options
 
-        Experiment Options:
-            delays_t1 (Iterable[float]): Delay times of the t1 experiment in seconds.
-            delays_t2 (Iterable[float]): Delay times of the t2ramsey experiment in seconds.
+        Raises:
+             QiskitError : Error for invalid input option.
         """
-        options = super()._default_experiment_options()
-        options.delays_t1 = None
-        options.delays_t2 = None
-        return options
+        # propagate options to the sub-experiments.
+        for key in fields:
+            if key == "delays_t1":
+                self.component_experiment(0).set_experiment_options(delays=fields["delays_t1"])
+            elif key == "delays_t2":
+                self.component_experiment(1).set_experiment_options(delays=fields["delays_t2"])
+            else:
+                raise QiskitError(f"Tphi experiment does not support option {key}")
 
     def __init__(
         self,
@@ -79,25 +83,21 @@ class Tphi(BatchExperiment):
             osc_freq: the oscillation frequency induced using by the user for T2Ramsey
             backend: Optional, the backend on which to run the experiment
         """
-        # Set experiment options
-        options =  self._default_experiment_options()
-        options.delays_t1 = delays_t1
-        options.delays_t2 = delays_t2
 
         self.exps = []
-        self.exps.append(
-            T1(qubit=qubit, delays=options.delays_t1, backend=backend)
-        )
+        self.exps.append(T1(qubit=qubit, delays=delays_t1, backend=backend))
         self.exps.append(
             T2Ramsey(
                 qubit=qubit,
-                delays=options.delays_t2,
+                delays=delays_t2,
                 backend=backend,
                 osc_freq=osc_freq,
             )
         )
         # Create batch experiment
         super().__init__(experiments=self.exps, backend=backend)
+
+        self.set_experiment_options(delays_t1=delays_t1, delays_t2=delays_t2)
         self.analysis = TphiAnalysis()
 
     def _set_backend(self, backend: Backend):
