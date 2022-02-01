@@ -159,7 +159,8 @@ class FakeService(DatabaseServiceV1):
 
         db_entry = self.exps.loc[self.exps.experiment_id == experiment_id].to_dict("records")[0]
 
-        # DbExperimentData expects an instansiated backend object, and not the backend name
+        # DbExperimentData expects an instansiated backend object, and not the backend name.
+        # Here we assume that the fake service works with the fake backend (class FakeBackend).
         db_entry["backend"] = FakeBackend(db_entry["backend_name"])
 
         return db_entry
