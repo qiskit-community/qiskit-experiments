@@ -26,7 +26,7 @@ class TestTphi(QiskitExperimentsTestCase):
 
     def test_tphi_end_to_end(self):
         """
-        Run the Tphi backend
+        Run a complete Tphi experiment on a fake Tphi backend
         """
         delays_t1 = list(range(1, 40, 3))
         delays_t2 = list(range(1, 51, 2))
@@ -46,6 +46,41 @@ class TestTphi(QiskitExperimentsTestCase):
             delta=TestTphi.__tolerance__ * result.value.value,
         )
         self.assertEqual(result.quality, "good", "Result quality bad")
+
+    def test_tphi_with_changing_delays(self):
+        """
+        Run Tphi experiment, then set new delay values in set_experiment_options, and check
+        that the new experiment has the correct delay values.
+        """
+        delays_t1 = list(range(1, 40, 3))
+        delays_t2 = list(range(1, 50, 2))
+        exp = Tphi(qubit=0, delays_t1=delays_t1, delays_t2=delays_t2, osc_freq=0.1)
+
+        t1 = 20
+        t2ramsey = 25
+        backend = TphiBackend(t1=t1, t2ramsey=t2ramsey, freq=0.1)
+        expdata = exp.run(backend=backend, analysis=TphiAnalysis()).block_for_results()
+        self.assertExperimentDone(expdata)
+
+        data_t1 = expdata.child_data(0).data()
+        x_values_t1 = [datum["metadata"]["xval"] for datum in data_t1]
+        data_t2 = expdata.child_data(1).data()
+        x_values_t2 = [datum["metadata"]["xval"] for datum in data_t2]
+        self.assertListEqual(x_values_t1, delays_t1, "Incorrect delays_t1")
+        self.assertListEqual(x_values_t2, delays_t2, "Incorrect delays_t2")
+
+        new_delays_t1 = list(range(1, 45, 3))
+        new_delays_t2 = list(range(1, 55, 2))
+
+        exp.set_experiment_options(delays_t1=new_delays_t1, delays_t2=new_delays_t2)
+        expdata = exp.run(backend=backend, analysis=TphiAnalysis()).block_for_results()
+
+        data_t1 = expdata.child_data(0).data()
+        x_values_t1 = [datum["metadata"]["xval"] for datum in data_t1]
+        data_t2 = expdata.child_data(1).data()
+        x_values_t2 = [datum["metadata"]["xval"] for datum in data_t2]
+        self.assertListEqual(x_values_t1, new_delays_t1, "Option delays_t1 not set correctly")
+        self.assertListEqual(x_values_t2, new_delays_t2, "Option delays_t2 not set correctly")
 
     def test_roundtrip_serializable(self):
         """Test round trip JSON serialization"""
