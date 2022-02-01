@@ -146,10 +146,10 @@ class FakeService(DatabaseServiceV1):
             self.exps.loc[row, "tags"] = tags
         if notes is not None:
             self.exps.loc[row, "notes"] = notes
-        if "share_level" in kwargs:
-            self.exps.loc[row, "share_level"] = kwargs["share_level"]
-        if "parent_id" in kwargs:
-            self.exps.loc[row, "parent_id"] = kwargs["parent_id"]
+
+        for field_name in ["share_level", "parent_id"]:
+            if field_name in kwargs:
+                self.exps.loc[row, field_name] = kwargs[field_name]
 
     def experiment(
         self, experiment_id: str, json_decoder: Type[json.JSONDecoder] = json.JSONDecoder
