@@ -21,6 +21,7 @@ from qiskit_experiments.test.fake_backend import FakeBackend
 
 from qiskit_experiments.database_service import DatabaseServiceV1
 from qiskit_experiments.database_service.device_component import DeviceComponent
+from qiskit_experiments.database_service.exceptions import DbExperimentEntryExists, DbExperimentEntryNotFound
 
 
 class FakeService(DatabaseServiceV1):
@@ -76,6 +77,9 @@ class FakeService(DatabaseServiceV1):
     ) -> str:
         if experiment_id is None:
             raise ValueError("The fake service requires the experiment id parameter")
+
+        if experiment_id in self.exps.experiment_id.values:      
+            raise DbExperimentEntryExists("Cannot add experiment with existing id")
 
         # Clarifications about some of the columns:
         # share_level - not a parameter of `DatabaseService.create_experiment` but a parameter of
@@ -243,6 +247,9 @@ class FakeService(DatabaseServiceV1):
     ) -> str:
         if result_id is None:
             raise ValueError("The fake service requires the result id parameter")
+
+        if result_id in self.results.result_id.values:      
+            raise DbExperimentEntryExists("Cannot add analysis result with existing id")
         
         # Clarifications about some of the columns:
         # backend_name - taken from the experiment.
