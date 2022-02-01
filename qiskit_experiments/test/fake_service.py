@@ -47,11 +47,11 @@ class FakeService(DatabaseServiceV1):
                 "job_ids",
                 "tags",
                 "notes",
-                "figure_names",
                 "share_level",
                 "start_datetime",
                 "device_components",
                 "figure_names",
+                "backend",
             ]
         )
         self.results = pd.DataFrame(
@@ -103,9 +103,12 @@ class FakeService(DatabaseServiceV1):
         #    via kwargs (as it does with share_level), the user cannot control the time and the
         #    service alone decides about it. Here we've chosen to set a unique time for each
         #    experiment, with the first experiment dated to midnight of January 1st, 2022, the
-        #    second exeperiment an hour later, etc.
+        #    second experiment an hour later, etc.
         # figure_names - the fake service currently does not support figures. The column
         #    (degenerated to []) is required to prevent a flaw in the work with DbExperimentData.
+        # backend - the query methods `experiment` and `experiments` are supposed to return an
+        #    an instansiated backend object, and not only the backend name. We assume that the fake
+        #    service works with the fake backend (class FakeBackend).
         self.exps = self.exps.append(
             {
                 "experiment_type": experiment_type,
@@ -120,6 +123,7 @@ class FakeService(DatabaseServiceV1):
                 "device_components": [],
                 "start_datetime": datetime(2022, 1, 1) + timedelta(hours=len(self.exps)),
                 "figure_names": [],
+                "backend": FakeBackend(backend_name),
             },
             ignore_index=True,
         )
@@ -158,13 +162,7 @@ class FakeService(DatabaseServiceV1):
         if experiment_id not in self.exps.experiment_id.values:
             raise DbExperimentEntryNotFound("Experiment does not exist")
 
-        db_entry = self.exps.loc[self.exps.experiment_id == experiment_id].to_dict("records")[0]
-
-        # DbExperimentData expects an instansiated backend object, and not the backend name.
-        # Here we assume that the fake service works with the fake backend (class FakeBackend).
-        db_entry["backend"] = FakeBackend(db_entry["backend_name"])
-
-        return db_entry
+        return self.exps.loc[self.exps.experiment_id == experiment_id].to_dict("records")[0]
 
     def experiments(
         self,
@@ -183,7 +181,6 @@ class FakeService(DatabaseServiceV1):
         if experiment_type is not None:
             df = df.loc[df.experiment_type == experiment_type]
 
-        # TODO: do we have to return the backend itself, as in `experiment`?
         if backend_name is not None:
             df = df.loc[df.backend_name == backend_name]
 
