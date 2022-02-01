@@ -15,6 +15,7 @@
 from typing import Optional, List, Dict, Type, Any, Union, Tuple
 import json
 from datetime import datetime, timedelta
+import uuid
 import pandas as pd
 
 from qiskit_experiments.test.fake_backend import FakeBackend
@@ -46,11 +47,10 @@ class FakeService(DatabaseServiceV1):
                 "job_ids",
                 "tags",
                 "notes",
-                "figure_names"
-                "share_level",
+                "figure_names" "share_level",
                 "start_datetime",
                 "device_components",
-                "figure_names"
+                "figure_names",
             ]
         )
         self.results = pd.DataFrame(
@@ -66,7 +66,7 @@ class FakeService(DatabaseServiceV1):
                 "chisq",
                 "creation_datetime",
                 "service",
-                "backend_name"
+                "backend_name",
             ]
         )
 
