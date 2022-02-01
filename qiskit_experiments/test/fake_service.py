@@ -13,10 +13,9 @@
 """Fake service class for tests."""
 
 from typing import Optional, List, Dict, Type, Any, Union, Tuple
-import copy
 import json
-import pandas as pd
 from datetime import datetime, timedelta
+import pandas as pd
 
 from qiskit_experiments.test.fake_backend import FakeBackend
 
@@ -226,9 +225,9 @@ class FakeService(DatabaseServiceV1):
 
         if tags is not None:
             if tags_operator == "OR":
-                df = df.loc[df.tags.apply(lambda dftags: any([x in dftags for x in tags]))]
+                df = df.loc[df.tags.apply(lambda dftags: any(x in dftags for x in tags))]
             elif tags_operator == "AND":
-                df = df.loc[df.tags.apply(lambda dftags: all([x in dftags for x in tags]))]
+                df = df.loc[df.tags.apply(lambda dftags: all(x in dftags for x in tags))]
             else:
                 raise ValueError("Unrecognized tags operator")
 
@@ -239,10 +238,7 @@ class FakeService(DatabaseServiceV1):
             df = df.loc[df.start_datetime >= filters["start_datetime_after"]]
 
         # This is a parameter of IBMExperimentService.experiments
-        if "sort_by" in filters:
-            sort_by = filters["sort_by"]
-        else:
-            sort_by = "start_datetime:desc"
+        sort_by = filters.get("sort_by", "start_datetime:desc")
 
         if not isinstance(sort_by, list):
             sort_by = [sort_by]
@@ -259,7 +255,8 @@ class FakeService(DatabaseServiceV1):
             or (sortby_split[1] != "asc" and sortby_split[1] != "desc")
         ):
             raise ValueError(
-                "The fake service currently supports only sorting by start_datetime, which can be either asc or desc"
+                "The fake service currently supports only sorting by start_datetime, which can be "
+                "either asc or desc"
             )
 
         df = df.sort_values(
@@ -347,7 +344,7 @@ class FakeService(DatabaseServiceV1):
         if verified is not None:
             self.results.loc[row, "verified"] = verified
         if "chisq" in kwargs:
-            self.result.loc[row, "chisq"] = chisq
+            self.results.loc[row, "chisq"] = kwargs["chisq"]
 
     def analysis_result(
         self, result_id: str, json_decoder: Type[json.JSONDecoder] = json.JSONDecoder
@@ -389,17 +386,14 @@ class FakeService(DatabaseServiceV1):
 
         if tags is not None:
             if tags_operator == "OR":
-                df = df.loc[df.tags.apply(lambda dftags: any([x in dftags for x in tags]))]
+                df = df.loc[df.tags.apply(lambda dftags: any(x in dftags for x in tags))]
             elif tags_operator == "AND":
-                df = df.loc[df.tags.apply(lambda dftags: all([x in dftags for x in tags]))]
+                df = df.loc[df.tags.apply(lambda dftags: all(x in dftags for x in tags))]
             else:
                 raise ValueError("Unrecognized tags operator")
 
         # This is a parameter of IBMExperimentService.experiments
-        if "sort_by" in filters:
-            sort_by = filters["sort_by"]
-        else:
-            sort_by = "creation_datetime:desc"
+        sort_by = filters.get("sort_by", "creation_datetime:desc")
 
         if not isinstance(sort_by, list):
             sort_by = [sort_by]
@@ -418,7 +412,8 @@ class FakeService(DatabaseServiceV1):
             or (sortby_split[1] != "asc" and sortby_split[1] != "desc")
         ):
             raise ValueError(
-                "The fake service currently supports only sorting by creation_datetime, which can be either asc or desc"
+                "The fake service currently supports only sorting by creation_datetime, "
+                "which can be either asc or desc"
             )
 
         df = df.sort_values(

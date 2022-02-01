@@ -122,6 +122,7 @@ class TestFakeService(QiskitExperimentsTestCase):
                     resid += 1
 
     def test_creation(self):
+        """Test FakeService methods create_experiment and create_analysis_result"""
         for df, reference_dict, id_field in zip(
             [self.service.exps, self.service.results],
             [self.expdict, self.resdict],
@@ -131,25 +132,26 @@ class TestFakeService(QiskitExperimentsTestCase):
             is_in_frame = []
             for i in range(len(df)):
                 full_entry = df.loc[i, :].to_dict()
-                id = full_entry[id_field]
-                self.assertTrue(id not in is_in_frame)
-                is_in_frame.append(id)
-                self.assertTrue(id in reference_dict)
-                entry = reference_dict[id]
+                id_value = full_entry[id_field]
+                self.assertTrue(id_value not in is_in_frame)
+                is_in_frame.append(id_value)
+                self.assertTrue(id_value in reference_dict)
+                entry = reference_dict[id_value]
                 self.assertTrue(entry.items() <= full_entry.items())
 
     def test_query_for_single(self):
-        for query_method, reference_dict, id_field in zip(
+        """Test FakeService methods experiment and analysis_result"""
+        for query_method, reference_dict, in zip(
             [self.service.experiment, self.service.analysis_result],
-            [self.expdict, self.resdict],
-            ["experiment_id", "result_id"],
+            [self.expdict, self.resdict]
         ):
-            for id in range(len(reference_dict)):
-                full_entry = query_method(str(id))
-                entry = reference_dict[str(id)]
+            for id_value in range(len(reference_dict)):
+                full_entry = query_method(str(id_value))
+                entry = reference_dict[str(id_value)]
                 self.assertTrue(entry.items() <= full_entry.items())
 
     def test_experiments_query(self):
+        """Test FakeService.experiments"""
         for experiment_type in range(2):
             expids = sorted(
                 [
@@ -271,12 +273,14 @@ class TestFakeService(QiskitExperimentsTestCase):
         self.assertEqual(len(self.service.experiments(limit=4)), 4)
 
     def test_update_experiment(self):
+        """Test FakeService.update_experiment"""
         self.service.update_experiment(experiment_id="1", metadata="hey", notes="hi")
         exp = self.service.experiment(experiment_id="1")
         self.assertEqual(exp["metadata"], "hey")
         self.assertEqual(exp["notes"], "hi")
 
     def test_delete_experiment(self):
+        """Test FakeService.delete_experiment"""
         exps = self.service.experiments(
             start_datetime_before=datetime(2022, 1, 1, 2),
             start_datetime_after=datetime(2022, 1, 1, 2),
@@ -290,11 +294,13 @@ class TestFakeService(QiskitExperimentsTestCase):
         self.assertEqual(len(exps), 0)
 
     def test_update_result(self):
+        """Test FakeService.update_analysis_result"""
         self.service.update_analysis_result(result_id="1", tags=["hey"])
         res = self.service.analysis_result(result_id="1")
         self.assertEqual(res["tags"], "hey")
 
     def test_results_query(self):
+        """Test FakeService.analysis_results"""
         for result_type in range(2):
             resids = sorted(
                 [
@@ -434,6 +440,7 @@ class TestFakeService(QiskitExperimentsTestCase):
         self.assertEqual(len(self.service.analysis_results(limit=4)), 4)
 
     def test_delete_result(self):
+        """Test FakeService.delete_analysis_result"""
         results = self.service.analysis_results(experiment_id="6")
         old_number = len(results)
         to_delete = results[0]["result_id"]
