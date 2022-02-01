@@ -79,7 +79,7 @@ class FakeService(DatabaseServiceV1):
         **kwargs: Any,
     ) -> str:
         if experiment_id is None:
-            raise ValueError("The fake service requires the experiment id parameter")
+            experiment_id = uuid.uuid4()
 
         if experiment_id in self.exps.experiment_id.values:
             raise DbExperimentEntryExists("Cannot add experiment with existing id")
@@ -258,7 +258,7 @@ class FakeService(DatabaseServiceV1):
         **kwargs: Any,
     ) -> str:
         if result_id is None:
-            raise ValueError("The fake service requires the result id parameter")
+            result_id = uuid.uuid4()
 
         if result_id in self.results.result_id.values:
             raise DbExperimentEntryExists("Cannot add analysis result with existing id")
