@@ -241,6 +241,9 @@ class FakeService(DatabaseServiceV1):
         json_encoder: Type[json.JSONEncoder] = json.JSONEncoder,
         **kwargs: Any,
     ) -> str:
+        if result_id is None:
+            raise ValueError("The fake service requires the result id parameter")
+        
         # Clarifications about some of the columns:
         # backend_name - taken from the experiment.
         # creation_datetime - start_datetime - not a parameter of
