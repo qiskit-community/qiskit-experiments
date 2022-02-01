@@ -74,30 +74,6 @@ class FakeService(DatabaseServiceV1):
         json_encoder: Type[json.JSONEncoder] = json.JSONEncoder,
         **kwargs: Any,
     ) -> str:
-        """Create a new experiment in the database.
-
-        Args:
-            experiment_type: Experiment type.
-            backend_name: Name of the backend the experiment ran on.
-            metadata: Experiment metadata.
-            experiment_id: Experiment ID. It must be in the ``uuid4`` format.
-            parent_id: The experiment ID of the parent experiment.
-                The parent experiment must exist, must be on the same backend as the child,
-                and an experiment cannot be its own parent.
-            job_ids: IDs of experiment jobs.
-            tags: Tags to be associated with the experiment.
-            notes: Freeform notes about the experiment.
-            json_encoder: Custom JSON encoder to use to encode the experiment.
-            kwargs: Additional keywords supported by the service provider.
-
-        Returns:
-            Experiment ID.
-
-        Raises:
-            ValueError: if the experiment_id parameter is None.
-                The fake service requires this parameter, and does not generate it by itself.
-        """
-
         if experiment_id is None:
             raise ValueError("The fake service requires the experiment id parameter")
 
@@ -146,16 +122,6 @@ class FakeService(DatabaseServiceV1):
         tags: Optional[List[str]] = None,
         **kwargs: Any,
     ) -> None:
-        """Update an existing experiment.
-
-        Args:
-            experiment_id: Experiment ID.
-            metadata: Experiment metadata.
-            job_ids: IDs of experiment jobs.
-            notes: Freeform notes about the experiment.
-            tags: Tags to be associated with the experiment.
-            kwargs: Additional keywords supported by the service provider.
-        """
         row = self.exps.experiment_id == experiment_id
         if metadata is not None:
             self.exps.loc[row, "metadata"] = metadata
@@ -173,15 +139,6 @@ class FakeService(DatabaseServiceV1):
     def experiment(
         self, experiment_id: str, json_decoder: Type[json.JSONDecoder] = json.JSONDecoder
     ) -> Dict:
-        """Retrieve a previously stored experiment.
-
-        Args:
-            experiment_id: Experiment ID.
-            json_decoder: Custom JSON decoder to use to decode the retrieved experiment.
-
-        Returns:
-            A dictionary containing the retrieved experiment data.
-        """
         db_entry = self.exps.loc[self.exps.experiment_id == experiment_id].to_dict("records")[0]
 
         # DbExperimentData expects an instansiated backend object, and not the backend name
