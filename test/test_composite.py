@@ -16,7 +16,7 @@ import copy
 import uuid
 
 from test.fake_backend import FakeBackend
-from test.fake_experiment import FakeExperiment
+from test.fake_experiment import FakeExperiment, FakeAnalysis
 from test.fake_service import FakeService
 from test.base import QiskitExperimentsTestCase
 
@@ -467,3 +467,32 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
             self.assertEqual(len(childdata.data()), len(child_counts))
             for circ_data, circ_counts in zip(childdata.data(), child_counts):
                 self.assertDictEqual(circ_data["counts"], circ_counts)
+
+    def test_composite_analysis_options(self):
+        """Test setting component analysis options"""
+
+        class Analysis(FakeAnalysis):
+            """Fake analysis class with options"""
+
+            @classmethod
+            def _default_options(cls):
+                opts = super()._default_options()
+                opts.option1 = None
+                opts.option2 = None
+                return opts
+
+        exp1 = FakeExperiment([0])
+        exp1.analysis = Analysis()
+        exp2 = FakeExperiment([1])
+        exp2.analysis = Analysis()
+        par_exp = ParallelExperiment([exp1, exp2])
+
+        # Set new analysis classes to component exp objects
+        opt1_val = 9000
+        opt2_val = 2113
+        exp1.analysis.set_options(option1=opt1_val)
+        exp2.analysis.set_options(option2=opt2_val)
+
+        # Check this is reflected in parallel experiment
+        self.assertEqual(par_exp.analysis.component_analysis(0).options.option1, opt1_val)
+        self.assertEqual(par_exp.analysis.component_analysis(1).options.option2, opt2_val)

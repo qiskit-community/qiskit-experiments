@@ -13,11 +13,12 @@
 Composite Experiment abstract base class.
 """
 
-from typing import List, Sequence, Optional
+from typing import List, Sequence, Optional, Union
 from abc import abstractmethod
 import warnings
 from qiskit.providers.backend import Backend
 from qiskit_experiments.framework import BaseExperiment, ExperimentData
+from qiskit_experiments.framework.base_analysis import BaseAnalysis
 from .composite_analysis import CompositeAnalysis
 
 
@@ -41,9 +42,10 @@ class CompositeExperiment(BaseExperiment):
         """
         self._experiments = experiments
         self._num_experiments = len(experiments)
+        analysis = CompositeAnalysis([exp.analysis for exp in self._experiments])
         super().__init__(
             qubits,
-            analysis=CompositeAnalysis(),
+            analysis=analysis,
             backend=backend,
             experiment_type=experiment_type,
         )
@@ -57,8 +59,9 @@ class CompositeExperiment(BaseExperiment):
         """Return the number of sub experiments"""
         return self._num_experiments
 
-    def component_experiment(self, index=None):
+    def component_experiment(self, index=None) -> Union[BaseExperiment, List[BaseExperiment]]:
         """Return the component Experiment object.
+
         Args:
             index (int): Experiment index, or ``None`` if all experiments are to be returned.
         Returns:
@@ -68,9 +71,16 @@ class CompositeExperiment(BaseExperiment):
             return self._experiments
         return self._experiments[index]
 
-    def component_analysis(self, index):
+    def component_analysis(self, index=None) -> Union[BaseAnalysis, List[BaseAnalysis]]:
         """Return the component experiment Analysis object"""
-        return self.component_experiment(index).analysis()
+        warnings.warn(
+            "The `component_analysis` method is deprecated as of "
+            "qiskit-experiments 0.3.0 and will be removed in the 0.4.0 release."
+            " Use `analysis.component_analysis` instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return self.analysis.component_analysis(index)
 
     def copy(self) -> "BaseExperiment":
         """Return a copy of the experiment"""
