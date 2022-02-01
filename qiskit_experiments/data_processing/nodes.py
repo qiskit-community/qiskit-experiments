@@ -14,13 +14,14 @@
 
 from abc import abstractmethod
 from numbers import Number
-from typing import List, Union, Sequence
+from typing import Union, Sequence
 
 import numpy as np
 from uncertainties import unumpy as unp, ufloat
 
 from qiskit_experiments.data_processing.data_action import DataAction, TrainableDataAction
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
+from qiskit_experiments.framework import Options
 
 
 class AverageData(DataAction):
@@ -88,6 +89,10 @@ class AverageData(DataAction):
 
         return unp.uarray(nominals, errors)
 
+    def __repr__(self):
+        """String representation of the node."""
+        return f"{self.__class__.__name__}(validate={self._validate}, axis={self._axis})"
+
 
 class MinMaxNormalize(DataAction):
     """Normalizes the data."""
@@ -122,13 +127,20 @@ class SVD(TrainableDataAction):
             validate: If set to False the DataAction will not validate its input.
         """
         super().__init__(validate=validate)
-        self._main_axes = None
-        self._means = None
-        self._scales = None
         self._n_circs = 0
         self._n_shots = 0
         self._n_slots = 0
         self._n_iq = 0
+
+    @classmethod
+    def _default_parameters(cls) -> Options:
+        params = super()._default_parameters()
+        params.main_axes = None
+        params.i_means = None
+        params.q_means = None
+        params.scales = None
+
+        return params
 
     def _format_data(self, data: np.ndarray) -> np.ndarray:
         """Check that the IQ data is 2D and convert it to a numpy array.
@@ -175,41 +187,6 @@ class SVD(TrainableDataAction):
 
         return data
 
-    @property
-    def axis(self) -> List[np.array]:
-        """Return the axis of the trained SVD"""
-        return self._main_axes
-
-    def means(self, qubit: int, iq_index: int) -> float:
-        """Return the mean by which to correct the IQ data.
-
-        Before training the SVD the mean of the training data is subtracted from the
-        training data to avoid large offsets in the data. These means can be retrieved
-        with this function.
-
-        Args:
-            qubit: Index of the qubit.
-            iq_index: Index of either the in-phase (i.e. 0) or the quadrature (i.e. 1).
-
-        Returns:
-            The mean that was determined during training for the given qubit and IQ index.
-        """
-        return self._means[qubit][iq_index]
-
-    @property
-    def scales(self) -> List[float]:
-        """Return the scaling of the SVD."""
-        return self._scales
-
-    @property
-    def is_trained(self) -> bool:
-        """Return True is the SVD has been trained.
-
-        Returns:
-            True if the SVD has been trained.
-        """
-        return self._main_axes is not None
-
     def _process(self, data: np.ndarray) -> np.ndarray:
         """Project the IQ data onto the axis defined by an SVD and scale it.
 
@@ -238,12 +215,15 @@ class SVD(TrainableDataAction):
         projected_data = np.zeros(dims, dtype=object)
 
         for idx in range(self._n_slots):
-            scale = self.scales[idx]
+            scale = self.parameters.scales[idx]
             # error propagation is computed from data if any std error exists
             centered = np.array(
-                [data[..., idx, iq] - self.means(qubit=idx, iq_index=iq) for iq in [0, 1]]
+                [
+                    data[..., idx, 0] - self.parameters.i_means[idx],
+                    data[..., idx, 1] - self.parameters.q_means[idx],
+                ]
             )
-            projected_data[..., idx] = (self._main_axes[idx] @ centered) / scale
+            projected_data[..., idx] = (self.parameters.main_axes[idx] @ centered) / scale
 
         return projected_data
 
@@ -267,26 +247,32 @@ class SVD(TrainableDataAction):
         # TODO do not remove standard error. Currently svd is not supported.
         data = unp.nominal_values(self._format_data(data))
 
-        self._main_axes = []
-        self._scales = []
-        self._means = []
-
+        main_axes = []
+        scales = []
+        i_means = []
+        q_means = []
         for idx in range(self._n_slots):
             datums = np.vstack([datum[idx] for datum in data]).T
 
             # Calculate the mean of the data to recenter it in the IQ plane.
             mean_i = np.average(datums[0, :])
             mean_q = np.average(datums[1, :])
-
-            self._means.append((mean_i, mean_q))
+            i_means.append(mean_i)
+            q_means.append(mean_q)
 
             datums[0, :] = datums[0, :] - mean_i
             datums[1, :] = datums[1, :] - mean_q
 
             mat_u, mat_s, _ = np.linalg.svd(datums)
+            main_axes.append(mat_u[:, 0])
+            scales.append(mat_s[0])
 
-            self._main_axes.append(mat_u[:, 0])
-            self._scales.append(mat_s[0])
+        self.set_parameters(
+            main_axes=main_axes,
+            scales=scales,
+            i_means=i_means,
+            q_means=q_means,
+        )
 
 
 class IQPart(DataAction):
@@ -341,7 +327,7 @@ class IQPart(DataAction):
 
     def __repr__(self):
         """String representation of the node."""
-        return f"{self.__class__.__name__}(validate: {self._validate}, scale: {self.scale})"
+        return f"{self.__class__.__name__}(validate={self._validate}, scale={self.scale})"
 
 
 class ToReal(IQPart):
@@ -514,6 +500,17 @@ class Probability(DataAction):
             probabilities[idx] = ufloat(nominal_value=p_mean, std_dev=np.sqrt(p_var))
 
         return probabilities
+
+    def __repr__(self):
+        """String representation of the node."""
+        options_str = ", ".join(
+            [
+                f"validate={self._validate}",
+                f"outcome={self._outcome}",
+                f"alpha_prior={self._alpha_prior}",
+            ]
+        )
+        return f"{self.__class__.__name__}({options_str})"
 
 
 class BasisExpectationValue(DataAction):
