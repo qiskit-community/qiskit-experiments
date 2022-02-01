@@ -47,7 +47,7 @@ class TestStateTomography(QiskitExperimentsTestCase):
         backend = AerSimulator(seed_simulator=9000)
         seed = 1234
         f_threshold = 0.95
-        target = qi.random_statevector(2 ** num_qubits, seed=seed)
+        target = qi.random_statevector(2**num_qubits, seed=seed)
         qstexp = StateTomography(target)
         if fitter:
             qstexp.analysis.set_options(fitter=fitter)
@@ -128,7 +128,7 @@ class TestStateTomography(QiskitExperimentsTestCase):
         tomo_circuits = exp.circuits()
 
         # Check correct number of circuits are generated
-        self.assertEqual(len(tomo_circuits), 3 ** num_meas)
+        self.assertEqual(len(tomo_circuits), 3**num_meas)
 
         # Check circuit metadata is correct
         for circ in tomo_circuits:
@@ -298,7 +298,7 @@ class TestProcessTomography(QiskitExperimentsTestCase):
         backend = AerSimulator(seed_simulator=9000)
         seed = 1234
         f_threshold = 0.94
-        target = qi.random_unitary(2 ** num_qubits, seed=seed)
+        target = qi.random_unitary(2**num_qubits, seed=seed)
         qstexp = ProcessTomography(target)
         if fitter:
             qstexp.analysis.set_options(fitter=fitter)
@@ -335,7 +335,7 @@ class TestProcessTomography(QiskitExperimentsTestCase):
         tomo_circuits = exp.circuits()
 
         # Check correct number of circuits are generated
-        size = 3 ** num_meas * 4 ** num_meas
+        size = 3**num_meas * 4**num_meas
         self.assertEqual(len(tomo_circuits), size)
 
         # Check circuit metadata is correct

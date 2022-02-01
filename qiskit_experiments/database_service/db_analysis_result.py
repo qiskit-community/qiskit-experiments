@@ -169,7 +169,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
             if db_value is not None:
                 result_data["value"] = db_value
             if isinstance(value.stderr, (int, float)):
-                result_data["variance"] = self._display_format(value.stderr ** 2)
+                result_data["variance"] = self._display_format(value.stderr**2)
             if isinstance(value.unit, str):
                 result_data["unit"] = value.unit
         else:
