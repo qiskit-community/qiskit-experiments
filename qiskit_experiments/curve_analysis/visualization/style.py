@@ -40,6 +40,4 @@ class PlotterStyle:
 
     # sigma values for confidence interval, which are the tuple of (sigma, alpha).
     # the alpha indicates the transparency of the corresponding interval plot.
-    plot_sigma: List[Tuple[float, float]] = dataclasses.field(
-        default=[(1.0, 0.3), (3.0, 0.1)]
-    )
+    plot_sigma: List[Tuple[float, float]] = dataclasses.field(default=[(1.0, 0.3), (3.0, 0.1)])

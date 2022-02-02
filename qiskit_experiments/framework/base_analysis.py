@@ -194,7 +194,6 @@ class BaseAnalysis(ABC, StoreInitArgs):
             experiment_id=experiment_id,
             chisq=data.chisq,
             quality=data.quality,
-            unit=data.unit,
             extra=data.extra,
         )
 

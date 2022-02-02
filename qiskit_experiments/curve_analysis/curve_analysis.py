@@ -895,10 +895,13 @@ class CurveAnalysis(BaseAnalysis, ABC):
                         p_name = param_repr
                         p_repr = param_repr
                         unit = None
+
+                    # TODO Temporally use tag for storing unit.
+                    fit_val = fit_result.fitval(p_name)
+                    fit_val.tag = unit
                     result_entry = AnalysisResultData(
                         name=p_repr,
-                        value=fit_result.fitval(p_name),
-                        unit=unit,
+                        value=fit_val,
                         chisq=fit_result.reduced_chisq,
                         quality=quality,
                         extra=self.options.extra,

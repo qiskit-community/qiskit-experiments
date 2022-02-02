@@ -22,6 +22,7 @@ class FitVal:
 
     This data is serializable with the Qiskit Experiment json serializer.
     """
+
     value: float
     stderr: Optional[float] = None
     unit: Optional[str] = None

@@ -12,7 +12,7 @@
 """
 Plotting functions for experiment analysis
 """
-from typing import Callable, List, Tuple
+from typing import Callable, List, Tuple, Optional
 import numpy as np
 from uncertainties import unumpy as unp
 
