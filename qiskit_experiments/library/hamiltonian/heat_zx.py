@@ -112,7 +112,7 @@ class ZXHeat(composite.BatchExperiment):
         e.g. :math:`XYX = -Y`, while the error in the interrogated axis is accumulated.
         This is the trick of how the sequence selectively amplifies the error axis.
 
-        However, strictly speaking, non-X error terms :math:`{\cal P}` also anti-commute
+        However, strictly speaking, non-X error terms :math:`{\cal P}` do not commute
         with the primary :math:`ZX` term of the Hamiltonian, and
         they are skewed by the significant nonzero commutator :math:`[ZX, {\cal P}]`.
         Thus this sequence pattern might underestimate the coefficients in non-X axes.
