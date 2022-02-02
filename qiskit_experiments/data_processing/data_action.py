@@ -172,10 +172,11 @@ class TrainableDataAction(DataAction):
     @classmethod
     def __json_decode__(cls, config: Dict[str, Any]) -> "TrainableDataAction":
         """Initialize a node from config dict."""
-        params = config.pop("params", dict())
-        instance = super().__json_decode__(config)
+        init_args = config.get("args", tuple())
+        init_kwargs = config.get("kwargs", dict())
+        params = config.get("params", dict())
 
-        # pylint: disable=no-member
+        instance = cls(*init_args, **init_kwargs)
         instance.set_parameters(**params)
 
         return instance
