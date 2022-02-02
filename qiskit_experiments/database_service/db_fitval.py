@@ -24,6 +24,7 @@ class FitVal:
 
     This data is serializable with the Qiskit Experiment json serializer.
     """
+
     value: float
     stderr: Optional[float] = None
     unit: Optional[str] = None
@@ -46,15 +47,15 @@ class FitVal:
         if len(args) > 0:
             nominal_value = args[0]
         else:
-            nominal_value = kwargs.get('value')
+            nominal_value = kwargs.get("value")
         if len(args) > 1:
             std_dev = args[1]
         else:
-            std_dev = kwargs.get('stderr')
+            std_dev = kwargs.get("stderr")
         if len(args) > 2:
             tag = args[2]
         else:
-            tag = kwargs.get('unit')
+            tag = kwargs.get("unit")
 
         return uncertainties.ufloat(nominal_value, std_dev, tag)
 
@@ -69,7 +70,9 @@ def value(self):
     warnings.warn(
         "The FitVal class has been depreacted and replaced with UFloat "
         "objects, use .nominal_value or .n to access the equivalent of "
-        "the FitVal.value property", DeprecationWarning, stacklevel=2
+        "the FitVal.value property",
+        DeprecationWarning,
+        stacklevel=2,
     )
     # deprecation warning
     return self.nominal_value
@@ -80,7 +83,9 @@ def stderr(self):
     warnings.warn(
         "The FitVal class has been depreacted and replaced with UFloat "
         "objects, use .std_dev or .s to access the equivalent of the "
-        "FitVal.stderr property.", DeprecationWarning, stacklevel=2
+        "FitVal.stderr property.",
+        DeprecationWarning,
+        stacklevel=2,
     )
     # deprecation warning
     return self.std_dev
@@ -93,7 +98,8 @@ def unit(self):
         "objects which do not contain units. This will return the .tag "
         "property which may be equivalent to the FitVal.unit property "
         "if constructed from a loaded FitVal.",
-        DeprecationWarning, stacklevel=2
+        DeprecationWarning,
+        stacklevel=2,
     )
     return self.tag
 
