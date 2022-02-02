@@ -1,5 +1,5 @@
 ---
-others:
+upgrade:
   - |
     Curve analysis is updated to use the covariance between fit parameters in the error propagation.
     Now, all result figures show a 1 sigma and 3 sigma confidence intervals with
@@ -7,3 +7,9 @@ others:
     The width of the area corresponds to the standard deviation computed by the
     uncertainties of fit parameters with the covariance matrix. All analysis outcomes derived from the 
     fit parameters also have a standard error computed in the same way.
+deprecations:
+  - |
+    The :class:`.FitVal` class had been deprecated and its usage replaced with
+    UFloats from the uncertainties package. FitVals from loaded experiments
+    will be automatically converted to UFloats and should be re-saved to avoid
+    errors when loading the results in future versions.
