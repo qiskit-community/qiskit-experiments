@@ -16,14 +16,18 @@ HEAT experiments for ZX Hamiltonian.
 from typing import Tuple, Optional
 
 import numpy as np
-from qiskit.circuit import QuantumCircuit
+from qiskit.circuit import QuantumCircuit, Gate
 from qiskit.providers import Backend
 
-from .heat_base import BatchHeatHelper, HeatElement
+from .heat_base import HeatElement
 from .heat_analysis import HeatAnalysis
 
+from qiskit_experiments.framework import Options, composite
 
-class ZXHeat(BatchHeatHelper):
+
+@composite.sync_experiment_options
+@composite.sync_transpile_options
+class ZXHeat(composite.BatchExperiment):
     r"""HEAT experiment for the ZX-type entangler.
 
     # section: overview
@@ -212,20 +216,41 @@ class ZXHeat(BatchHeatHelper):
                 echo_circ=echo,
                 meas_circ=meas,
                 backend=backend,
-                parameter_name=f"d_heat_{error_axis}{control}",
             )
             amplification_exps.append(exp)
 
-        analysis = HeatAnalysis(
-            fit_params=[f"d_heat_{error_axis}0", f"d_heat_{error_axis}1"],
-            out_params=[f"A_I{error_axis.upper()}", f"A_Z{error_axis.upper()}"],
+        heat_analysis = HeatAnalysis(
+            fit_params=(f"d_heat_{error_axis}0", f"d_heat_{error_axis}1"),
+            out_params=(f"A_I{error_axis.upper()}", f"A_Z{error_axis.upper()}"),
         )
 
-        super().__init__(
-            heat_experiments=amplification_exps,
-            heat_analysis=analysis,
-            backend=backend,
-        )
+        super().__init__(experiments=amplification_exps, backend=backend)
+
+        # override analysis.
+        self.analysis = heat_analysis
+
+    @classmethod
+    def _default_experiment_options(cls) -> Options:
+        """Default experiment options.
+
+        Experiment Options:
+            repetitions (Sequence[int]): A list of the number of echo repetitions.
+            heat_gate (Gate): A gate instance representing the entangling sequence.
+        """
+        options = super()._default_experiment_options()
+        options.repetitions = list(range(21))
+        options.heat_gate = Gate("heat", num_qubits=2, params=[])
+
+        return options
+
+    @classmethod
+    def _default_transpile_options(cls) -> Options:
+        """Default transpile options."""
+        options = super()._default_transpile_options()
+        options.basis_gates = ["sx", "x", "rz", "heat"]
+        options.optimization_level = 1
+
+        return options
 
 
 class ZX90HeatXError(ZXHeat):

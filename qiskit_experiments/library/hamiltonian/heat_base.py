@@ -13,14 +13,13 @@
 Base Class for general Hamiltonian Error Amplifying Tomography experiments.
 """
 
-from abc import ABC
 from typing import List, Tuple, Optional
 
 from qiskit import circuit, QuantumCircuit
 from qiskit.providers import Backend
-from qiskit_experiments.framework import BaseExperiment, BatchExperiment, Options
-from qiskit_experiments.curve_analysis import ParameterRepr
-from .heat_analysis import HeatElementAnalysis, HeatAnalysis
+
+from qiskit_experiments.framework import BaseExperiment, Options
+from .heat_analysis import HeatElementAnalysis
 
 
 class HeatElement(BaseExperiment):
@@ -70,9 +69,6 @@ class HeatElement(BaseExperiment):
         This class is usually not exposed to end users.
         The developer of a new HEAT experiment must design the amplification sequences and
         create instances of this class implicitly in the batch experiment.
-        The :class:`BatchHeatHelper` provides a convenient wrapper class of
-        the :class:`qiskit_experiments.framework.BatchExperiment` for implementing a
-        typical HEAT experiment.
 
     # section: analysis_ref
         :py:class:`HeatElementAnalysis`
@@ -88,7 +84,6 @@ class HeatElement(BaseExperiment):
         echo_circ: QuantumCircuit,
         meas_circ: QuantumCircuit,
         backend: Optional[Backend] = None,
-        parameter_name: Optional[str] = "d_theta",
         **kwargs,
     ):
         """Create new HEAT sub experiment.
@@ -99,17 +94,11 @@ class HeatElement(BaseExperiment):
             echo_circ: A circuit to selectively amplify the specific error term.
             meas_circ: A circuit to project target qubit onto the basis of interest.
             backend: Optional, the backend to run the experiment on.
-            parameter_name: A name of :math:`d\\theta` parameter from the
-                amplification fit. The fit parameter is represented by this name
-                in the analysis result.
 
         Keyword Args:
             See :meth:`experiment_options` for details.
         """
-        analysis = HeatElementAnalysis()
-        analysis.set_options(result_parameters=[ParameterRepr("d_theta", parameter_name, "rad")])
-
-        super().__init__(qubits=qubits, backend=backend, analysis=analysis)
+        super().__init__(qubits=qubits, backend=backend, analysis=HeatElementAnalysis())
         self.set_experiment_options(**kwargs)
 
         # These are not user configurable options. Be frozen once assigned.
@@ -165,86 +154,3 @@ class HeatElement(BaseExperiment):
             circs.append(circ)
 
         return circs
-
-
-class BatchHeatHelper(BatchExperiment, ABC):
-    """A wrapper class of ``BatchExperiment`` to implement HEAT experiment.
-
-    # section: overview
-
-        This is a helper class for experiment developers of HEAT experiments.
-        This class overrides the :meth:`set_experiment_options` and :meth:`set_transpile_options`
-        methods of :class:`BatchExperiment` such that they set the options of the
-        individual amplification sub-experiments to the same values. Therefore, from
-        end user's perspective, this experiment behaves as if a single HEAT experiment.
-
-    # section: analysis_ref
-        :py:class:`HeatAnalysis`
-    """
-
-    def __init__(
-        self,
-        heat_experiments: List[HeatElement],
-        heat_analysis: HeatAnalysis,
-        backend: Optional[Backend] = None,
-    ):
-        """Create new HEAT experiment.
-
-        Args:
-            heat_experiments: A list of error amplification sequence that might be
-                implemented as :class:``HeatElement`` instance.
-            heat_analysis: HEAT analysis instance.
-            backend: Optional, the backend to run the experiment on.
-        """
-        super().__init__(experiments=heat_experiments, backend=backend)
-
-        # override analysis. we expect the instance is initialized with
-        # parameter names specific to child amplification experiments.
-        self.analysis = heat_analysis
-
-    @classmethod
-    def _default_experiment_options(cls) -> Options:
-        """Default experiment options.
-
-        Experiment Options:
-            repetitions (Sequence[int]): A list of the number of echo repetitions.
-            heat_gate (Gate): A gate instance representing the entangling sequence.
-        """
-        options = super()._default_experiment_options()
-        options.repetitions = list(range(21))
-        options.heat_gate = circuit.Gate("heat", num_qubits=2, params=[])
-
-        return options
-
-    def set_experiment_options(self, **fields):
-        """Set the analysis options for :meth:`run` method.
-
-        Args:
-            fields: The fields to update the options
-        """
-        # propagate options through all nested amplification experiments.
-        for comp_exp in self.component_experiment():
-            comp_exp.set_experiment_options(**fields)
-
-        super().set_experiment_options(**fields)
-
-    @classmethod
-    def _default_transpile_options(cls) -> Options:
-        """Default transpile options."""
-        options = super()._default_transpile_options()
-        options.basis_gates = ["sx", "x", "rz", "heat"]
-        options.optimization_level = 1
-
-        return options
-
-    def set_transpile_options(self, **fields):
-        """Set the transpiler options for :meth:`run` method.
-
-        Args:
-            fields: The fields to update the options
-        """
-        # propagate options through all nested amplification experiments.
-        for comp_exp in self.component_experiment():
-            comp_exp.set_transpile_options(**fields)
-
-        super().set_transpile_options(**fields)

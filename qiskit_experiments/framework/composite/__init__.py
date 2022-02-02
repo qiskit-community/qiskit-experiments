@@ -18,3 +18,5 @@ from .composite_analysis import CompositeAnalysis
 # Composite experiment classes
 from .parallel_experiment import ParallelExperiment
 from .batch_experiment import BatchExperiment
+
+from .composite_experiment import sync_experiment_options, sync_transpile_options

@@ -56,11 +56,10 @@ HEAT Base Classes
     :template: autosummary/experiment.rst
 
     HeatElement
-    BatchHeatHelper
 
 
 """
 
-from .heat_base import HeatElement, BatchHeatHelper
+from .heat_base import HeatElement
 from .heat_zx import ZXHeat, ZX90HeatXError, ZX90HeatYError, ZX90HeatZError
 from .heat_analysis import HeatElementAnalysis, HeatAnalysis

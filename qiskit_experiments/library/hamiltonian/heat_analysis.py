@@ -17,7 +17,7 @@ from typing import Tuple
 
 import numpy as np
 
-from qiskit_experiments.curve_analysis import ErrorAmplificationAnalysis
+from qiskit_experiments.curve_analysis import ErrorAmplificationAnalysis, ParameterRepr
 from qiskit_experiments.exceptions import AnalysisError
 from qiskit_experiments.framework import (
     CompositeAnalysis,
@@ -97,15 +97,12 @@ class HeatAnalysis(CompositeAnalysis):
         Raises:
             AnalysisError: When size of ``fit_params`` or ``out_params`` are not 2.
         """
-        super().__init__()
-
         if len(fit_params) != 2:
             raise AnalysisError(
                 f"{self.__class__.__name__} assumes two fit parameters extracted from "
                 "a set of experiments with different control qubit state input. "
                 f"{len(fit_params)} input parameter names are specified."
             )
-        self._fit_params = fit_params
 
         if len(out_params) != 2:
             raise AnalysisError(
@@ -113,6 +110,16 @@ class HeatAnalysis(CompositeAnalysis):
                 "a set of experiment results with different control qubit state input. "
                 f"{len(out_params)} output parameter names are specified."
             )
+
+        analyses = []
+        for fit_parm in fit_params:
+            sub_analysis = HeatElementAnalysis()
+            sub_analysis.set_options(result_parameters=[ParameterRepr("d_theta", fit_parm, "rad")])
+            analyses.append(sub_analysis)
+
+        super().__init__(analyses=analyses)
+
+        self._fit_params = fit_params
         self._out_params = out_params
 
     def _run_analysis(self, experiment_data: ExperimentData):

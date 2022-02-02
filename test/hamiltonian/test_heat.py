@@ -22,7 +22,7 @@ from ddt import ddt, data, unpack
 
 from qiskit import circuit, quantum_info as qi
 from qiskit.providers.aer import AerSimulator
-from qiskit_experiments.library.hamiltonian import HeatElement, BatchHeatHelper, HeatAnalysis
+from qiskit_experiments.library.hamiltonian import HeatElement, HeatAnalysis
 from qiskit_experiments.library import ZX90HeatXError, ZX90HeatYError, ZX90HeatZError
 from qiskit_experiments.framework import BatchExperiment
 
@@ -50,7 +50,7 @@ class TestHeatBase(QiskitExperimentsTestCase):
     """Test for base classes."""
 
     @staticmethod
-    def _create_fake_amplifier(prep_seed, echo_seed, meas_seed, pname):
+    def _create_fake_amplifier(prep_seed, echo_seed, meas_seed):
         """Helper method to generate fake experiment."""
         prep = circuit.QuantumCircuit(2)
         prep.compose(qi.random_unitary(4, seed=prep_seed).to_instruction(), inplace=True)
@@ -66,14 +66,13 @@ class TestHeatBase(QiskitExperimentsTestCase):
             prep_circ=prep,
             echo_circ=echo,
             meas_circ=meas,
-            parameter_name=pname,
         )
 
         return exp
 
     def test_element_experiment_config(self):
         """Test converting to and from config works"""
-        exp = self._create_fake_amplifier(123, 456, 789, "test")
+        exp = self._create_fake_amplifier(123, 456, 789)
 
         loaded_exp = HeatElement.from_config(exp.config())
         self.assertNotEqual(exp, loaded_exp)
@@ -81,33 +80,13 @@ class TestHeatBase(QiskitExperimentsTestCase):
 
     def test_element_roundtrip_serializable(self):
         """Test round trip JSON serialization"""
-        exp = self._create_fake_amplifier(123, 456, 789, "test")
-
-        self.assertRoundTripSerializable(exp, self.json_equiv)
-
-    def test_experiment_config(self):
-        """Test converting to and from config works"""
-        ampl1 = self._create_fake_amplifier(123, 456, 789, "i1")
-        ampl2 = self._create_fake_amplifier(987, 654, 321, "i2")
-        analysis = HeatAnalysis(fit_params=["i1", "i2"], out_params=["o1", "o2"])
-        exp = BatchHeatHelper(heat_experiments=[ampl1, ampl2], heat_analysis=analysis)
-
-        loaded_exp = BatchHeatHelper.from_config(exp.config())
-        self.assertNotEqual(exp, loaded_exp)
-        self.assertTrue(self.json_equiv(exp, loaded_exp))
-
-    def test_roundtrip_serializable(self):
-        """Test round trip JSON serialization"""
-        ampl1 = self._create_fake_amplifier(123, 456, 789, "i1")
-        ampl2 = self._create_fake_amplifier(987, 654, 321, "i2")
-        analysis = HeatAnalysis(fit_params=["i1", "i2"], out_params=["o1", "o2"])
-        exp = BatchHeatHelper(heat_experiments=[ampl1, ampl2], heat_analysis=analysis)
+        exp = self._create_fake_amplifier(123, 456, 789)
 
         self.assertRoundTripSerializable(exp, self.json_equiv)
 
     def test_analysis_config(self):
         """Test converting analysis to and from config works"""
-        analysis = HeatAnalysis(fit_params=["i1", "i2"], out_params=["o1", "o2"])
+        analysis = HeatAnalysis(fit_params=("i1", "i2"), out_params=("o1", "o2"))
         loaded = HeatAnalysis.from_config(analysis.config())
         self.assertNotEqual(analysis, loaded)
         self.assertEqual(analysis.config(), loaded.config())
@@ -129,12 +108,8 @@ class TestHeatBase(QiskitExperimentsTestCase):
             prep_circ=prep,
             echo_circ=echo,
             meas_circ=meas,
-            parameter_name="testing",
         )
         exp.set_experiment_options(repetitions=[2])
-
-        # check also overriding of amplified parameter name
-        self.assertEqual(exp.analysis.options.result_parameters[0].repr, "testing")
 
         heat_circ = exp.circuits()[0]
 
@@ -182,6 +157,36 @@ class TestZXHeat(QiskitExperimentsTestCase, HeatExperimentsTestCase):
         )
 
         return generator_ham
+
+    def test_transpile_options_sync(self):
+        """Test if transpile option set to composite can update all component experiments."""
+        exp = ZX90HeatXError(qubits=(0, 1), backend=self.backend)
+        basis_exp0 = exp.component_experiment(0).transpile_options.basis_gates
+        basis_exp1 = exp.component_experiment(1).transpile_options.basis_gates
+        self.assertListEqual(basis_exp0, ["sx", "x", "rz", "heat"])
+        self.assertListEqual(basis_exp1, ["sx", "x", "rz", "heat"])
+
+        # override from composite
+        exp.set_transpile_options(basis_gates=["sx", "x", "rz", "my_heat"])
+        new_basis_exp0 = exp.component_experiment(0).transpile_options.basis_gates
+        new_basis_exp1 = exp.component_experiment(1).transpile_options.basis_gates
+        self.assertListEqual(new_basis_exp0, ["sx", "x", "rz", "my_heat"])
+        self.assertListEqual(new_basis_exp1, ["sx", "x", "rz", "my_heat"])
+
+    def test_experiment_options_sync(self):
+        """Test if experiment option set to composite can update all component experiments."""
+        exp = ZX90HeatXError(qubits=(0, 1), backend=self.backend)
+        reps_exp0 = exp.component_experiment(0).experiment_options.repetitions
+        reps_exp1 = exp.component_experiment(1).experiment_options.repetitions
+        self.assertListEqual(reps_exp0, list(range(21)))
+        self.assertListEqual(reps_exp1, list(range(21)))
+
+        # override from composite
+        exp.set_experiment_options(repetitions=[1, 2, 3])
+        new_reps_exp0 = exp.component_experiment(0).experiment_options.repetitions
+        new_reps_exp1 = exp.component_experiment(1).experiment_options.repetitions
+        self.assertListEqual(new_reps_exp0, [1, 2, 3])
+        self.assertListEqual(new_reps_exp1, [1, 2, 3])
 
     @data(
         [0.08, -0.01],
