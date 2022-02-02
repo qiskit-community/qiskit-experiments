@@ -26,3 +26,9 @@ upgrade:
     confidence interval properly computed with error propagation.
     By default it shows 1 sigma and 3 sigma region but you can customize this
     via the ``style`` option of the curve analysis subclass.
+deprecations:
+  - |
+    The :class:`.FitVal` class had been deprecated and its usage replaced with
+    UFloats from the uncertainties package. FitVals from loaded experiments
+    will be automatically converted to UFloats and should be re-saved to avoid
+    errors when loading the results in future versions.
