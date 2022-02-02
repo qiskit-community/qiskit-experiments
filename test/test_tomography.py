@@ -496,6 +496,50 @@ class TestProcessTomography(QiskitExperimentsTestCase):
             target_fid = qi.process_fidelity(state, targets[i], require_tp=False, require_cp=False)
             self.assertAlmostEqual(fid, target_fid, places=6, msg="result fidelity is incorrect")
 
+    def test_mixed_batch_exp(self):
+        """Test batch state and process tomography experiment"""
+        # Subsystem unitaries
+        state_op = qi.random_unitary(2, seed=321)
+        chan_op = qi.random_unitary(2, seed=123)
+
+        state_target = qi.Statevector(state_op.to_instruction())
+        chan_target = qi.Choi(chan_op.to_instruction())
+
+        state_exp = StateTomography(state_op)
+        chan_exp = ProcessTomography(chan_op)
+        batch_exp = BatchExperiment([state_exp, chan_exp])
+
+        # Run batch experiments
+        backend = AerSimulator(seed_simulator=9000)
+        par_data = batch_exp.run(backend)
+        self.assertExperimentDone(par_data)
+
+        f_threshold = 0.95
+
+        # Check state tomo results
+        state_results = par_data.child_data(0).analysis_results()
+        state = filter_results(state_results, "state").value
+
+        # Check fit state fidelity
+        state_fid = filter_results(state_results, "state_fidelity").value
+        self.assertGreater(state_fid, f_threshold, msg="fit fidelity is low")
+
+        # Manually check fidelity
+        target_fid = qi.state_fidelity(state, state_target, validate=False)
+        self.assertAlmostEqual(state_fid, target_fid, places=6, msg="result fidelity is incorrect")
+
+        # Check process tomo results
+        chan_results = par_data.child_data(1).analysis_results()
+        chan = filter_results(chan_results, "state").value
+
+        # Check fit process fidelity
+        chan_fid = filter_results(chan_results, "process_fidelity").value
+        self.assertGreater(chan_fid, f_threshold, msg="fit fidelity is low")
+
+        # Manually check fidelity
+        target_fid = qi.process_fidelity(chan, chan_target, require_cp=False, require_tp=False)
+        self.assertAlmostEqual(chan_fid, target_fid, places=6, msg="result fidelity is incorrect")
+
     def test_experiment_config(self):
         """Test converting to and from config works"""
         exp = ProcessTomography(teleport_circuit(), measurement_qubits=[2], preparation_qubits=[0])
