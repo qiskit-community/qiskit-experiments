@@ -109,22 +109,31 @@ class FakeService(DatabaseServiceV1):
         # backend - the query methods `experiment` and `experiments` are supposed to return an
         #    an instansiated backend object, and not only the backend name. We assume that the fake
         #    service works with the fake backend (class FakeBackend).
-        self.exps = self.exps.append(
-            {
-                "experiment_type": experiment_type,
-                "experiment_id": experiment_id,
-                "parent_id": parent_id,
-                "backend_name": backend_name,
-                "metadata": metadata,
-                "job_ids": job_ids,
-                "tags": tags,
-                "notes": notes,
-                "share_level": kwargs.get("share_level", None),
-                "device_components": [],
-                "start_datetime": datetime(2022, 1, 1) + timedelta(hours=len(self.exps)),
-                "figure_names": [],
-                "backend": FakeBackend(backend_name),
-            },
+        self.exps = pd.concat(
+            [
+                self.exps,
+                pd.DataFrame(
+                    [
+                        {
+                            "experiment_type": experiment_type,
+                            "experiment_id": experiment_id,
+                            "parent_id": parent_id,
+                            "backend_name": backend_name,
+                            "metadata": metadata,
+                            "job_ids": job_ids,
+                            "tags": tags,
+                            "notes": notes,
+                            "share_level": kwargs.get("share_level", None),
+                            "device_components": [],
+                            "start_datetime": datetime(2022, 1, 1)
+                            + timedelta(hours=len(self.exps)),
+                            "figure_names": [],
+                            "backend": FakeBackend(backend_name),
+                        }
+                    ],
+                    columns=self.exps.columns,
+                ),
+            ],
             ignore_index=True,
         )
 
@@ -274,24 +283,33 @@ class FakeService(DatabaseServiceV1):
         #    `IBMExperimentService.create_analysis_result`. Since `DbExperimentData` does not set it
         #    via kwargs (as it does with chisq), the user cannot control the time and the service
         #    alone decides about it. Here we've chosen to set the start date of the experiment.
-        self.results = self.results.append(
-            {
-                "result_data": result_data,
-                "result_id": result_id,
-                "result_type": result_type,
-                "device_components": device_components,
-                "experiment_id": experiment_id,
-                "quality": quality,
-                "verified": verified,
-                "tags": tags,
-                "backend_name": self.exps.loc[self.exps.experiment_id == experiment_id]
-                .iloc[0]
-                .backend_name,
-                "chisq": kwargs.get("chisq", None),
-                "creation_datetime": self.exps.loc[self.exps.experiment_id == experiment_id]
-                .iloc[0]
-                .start_datetime,
-            },
+        self.results = pd.concat(
+            [
+                self.results,
+                pd.DataFrame(
+                    [
+                        {
+                            "result_data": result_data,
+                            "result_id": result_id,
+                            "result_type": result_type,
+                            "device_components": device_components,
+                            "experiment_id": experiment_id,
+                            "quality": quality,
+                            "verified": verified,
+                            "tags": tags,
+                            "backend_name": self.exps.loc[self.exps.experiment_id == experiment_id]
+                            .iloc[0]
+                            .backend_name,
+                            "chisq": kwargs.get("chisq", None),
+                            "creation_datetime": self.exps.loc[
+                                self.exps.experiment_id == experiment_id
+                            ]
+                            .iloc[0]
+                            .start_datetime,
+                        }
+                    ]
+                ),
+            ],
             ignore_index=True,
         )
 
