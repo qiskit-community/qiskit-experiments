@@ -12,13 +12,13 @@
 
 """Tests for base experiment framework."""
 
-from test.fake_backend import FakeBackend
 from test.fake_experiment import FakeExperiment, FakeAnalysis
 from test.base import QiskitExperimentsTestCase
 import ddt
 
 from qiskit import QuantumCircuit
 from qiskit_experiments.framework import ExperimentData
+from qiskit_experiments.test.fake_backend import FakeBackend
 
 
 @ddt.ddt
