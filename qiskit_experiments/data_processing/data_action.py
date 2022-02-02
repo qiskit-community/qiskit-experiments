@@ -122,7 +122,7 @@ class TrainableDataAction(DataAction):
         return self._parameters
 
     def set_parameters(self, **fields):
-        """Set parameters from training."""
+        """Set parameters for training."""
         for field in fields:
             if not hasattr(self._parameters, field):
                 raise AttributeError(
