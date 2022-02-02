@@ -155,6 +155,20 @@ class DbAnalysisResultV1(DbAnalysisResult):
             )
             return
 
+        # The next code sections construct the result_data dictionary.
+        # Eventually it will contain:
+        # - _value - value in its raw form, as given in self.value, which can be of type FitVal.
+        # - value (not prefixed by an underscore) - a formatted version of the nominal value
+        #     (self.value.value if self.value is of type FitVal). By "formatted" we mean that
+        #     edge cases like strings representing infinity are handled to allow proper
+        #     display (see DbAnalysisResult._display_format for details).
+        # - variance - a formatted version of the variance (self.value.variance if self.value is of
+        #     type FitVal).
+        # - unit - self.value.unit if self.value is of type FitVal.
+        # - _chisq - chisq in its raw form, as given in self.chisq, without formatting.
+        #
+        # Below, in the `update_data` dictionary, there is an item named `chisq`, which is the
+        #     formatted version of chisq.
         value = self.value
         result_data = {
             "_value": value,
