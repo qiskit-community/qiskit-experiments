@@ -21,7 +21,7 @@ import inspect
 import warnings
 from abc import ABC
 from typing import Any, Dict, List, Tuple, Callable, Union, Optional
-from uncertainties import unumpy as unp, UFloat
+from uncertainties import unumpy as unp
 
 import numpy as np
 from qiskit.providers import Backend
@@ -45,6 +45,7 @@ from qiskit_experiments.framework import (
     ExperimentData,
     AnalysisResultData,
     Options,
+    UFloat,
 )
 
 PARAMS_ENTRY_PREFIX = "@Parameters_"

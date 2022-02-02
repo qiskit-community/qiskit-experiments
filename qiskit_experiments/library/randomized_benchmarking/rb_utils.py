@@ -19,10 +19,9 @@ from typing import Tuple, Dict, Optional, List, Union, Sequence
 import numpy as np
 from qiskit import QiskitError, QuantumCircuit
 from qiskit.providers.backend import Backend
-from uncertainties.core import UFloat
 
 from qiskit_experiments.database_service.device_component import Qubit
-from qiskit_experiments.framework import DbAnalysisResultV1, AnalysisResultData
+from qiskit_experiments.framework import DbAnalysisResultV1, AnalysisResultData, UFloat
 
 
 class RBUtils:

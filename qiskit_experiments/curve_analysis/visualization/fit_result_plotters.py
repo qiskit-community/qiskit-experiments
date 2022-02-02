@@ -27,10 +27,9 @@ from typing import List, Dict, Optional
 import numpy as np
 from matplotlib.ticker import FuncFormatter
 from qiskit.utils import detach_prefix
-from uncertainties.core import Variable as UFloat
 
 from qiskit_experiments.curve_analysis.curve_data import SeriesDef, FitData, CurveData
-from qiskit_experiments.framework import AnalysisResultData
+from qiskit_experiments.framework import AnalysisResultData, UFloat
 from qiskit_experiments.framework.matplotlib import get_non_gui_ax
 from .curves import plot_scatter, plot_errorbar, plot_curve_fit
 from .style import PlotterStyle

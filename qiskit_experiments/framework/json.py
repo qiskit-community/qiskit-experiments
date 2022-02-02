@@ -35,6 +35,7 @@ from qiskit.circuit import ParameterExpression, QuantumCircuit, qpy_serializatio
 from qiskit.circuit.library import BlueprintCircuit
 from qiskit.quantum_info import DensityMatrix
 from qiskit.quantum_info.operators.channel.quantum_channel import QuantumChannel
+from qiskit_experiments.framework import UFloat
 from qiskit_experiments.version import __version__
 
 

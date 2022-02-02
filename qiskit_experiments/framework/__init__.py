@@ -235,6 +235,7 @@ Base Classes
 
 .. _create-experiment:
 """
+from uncertainties.core import Variable as UFloat
 from qiskit.providers.options import Options
 from qiskit_experiments.database_service.db_analysis_result import DbAnalysisResultV1
 from qiskit_experiments.database_service.db_fitval import FitVal
