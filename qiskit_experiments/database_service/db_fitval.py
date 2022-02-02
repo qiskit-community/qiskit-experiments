@@ -15,11 +15,12 @@
 import dataclasses
 import warnings
 from typing import Optional
+import uncertainties
 
 
 @dataclasses.dataclass(frozen=True)
 class FitVal:
-    """A data container for the value estimated by the curve fitting.
+    """DEPRECATED A data container for the value estimated by the curve fitting.
 
     This data is serializable with the Qiskit Experiment json serializer.
     """
@@ -35,10 +36,69 @@ class FitVal:
             out += f" {str(self.unit)}"
         return out
 
+    def __new__(cls, *args, **kwargs):
+        warnings.warn(
+            "The FitVal class is deprecated as of Qiskit Experiments 0.3 and will"
+            " be removed in a future version. Re-saving loaded experiment data or "
+            " analysis results will convert FitVals to UFloats.",
+            DeprecationWarning,
+        )
+        if len(args) > 0:
+            nominal_value = args[0]
+        else:
+            nominal_value = kwargs.get('value')
+        if len(args) > 1:
+            std_dev = args[1]
+        else:
+            std_dev = kwargs.get('stderr')
+        if len(args) > 2:
+            tag = args[2]
+        else:
+            tag = kwargs.get('unit')
 
-def __new__(cls, *args, **kwargs):
+        return uncertainties.ufloat(nominal_value, std_dev, tag)
+
+
+# Monkey patch uncertainties UFloat class so that it behaves like
+# FitVal with deprecation warnings when used as a replacement for
+# for analysis result value types
+
+
+def value(self):
+    """DEPRECATED"""
     warnings.warn(
-        "FitVal object has been deprecated in Qiskit Experiments version 0.3 and "
-        "will be removed in version 0.5. Use version <= 0.3 to load this object.",
-        DeprecationWarning,
+        "The FitVal class has been depreacted and replaced with UFloat "
+        "objects, use .nominal_value or .n to access the equivalent of "
+        "the FitVal.value property", DeprecationWarning, stacklevel=2
     )
+    # deprecation warning
+    return self.nominal_value
+
+
+def stderr(self):
+    """DEPRECATED"""
+    warnings.warn(
+        "The FitVal class has been depreacted and replaced with UFloat "
+        "objects, use .std_dev or .s to access the equivalent of the "
+        "FitVal.stderr property.", DeprecationWarning, stacklevel=2
+    )
+    # deprecation warning
+    return self.std_dev
+
+
+def unit(self):
+    """DEPRECATED"""
+    warnings.warn(
+        "The FitVal class has been depreacted and replaced with UFloat "
+        "objects which do not contain units. This will return the .tag "
+        "property which may be equivalent to the FitVal.unit property "
+        "if constructed from a loaded FitVal.",
+        DeprecationWarning, stacklevel=2
+    )
+    return self.tag
+
+
+# Monkey patch ufloat for deprecated FitVal equivalent API
+uncertainties.UFloat.value = property(value)
+uncertainties.UFloat.stderr = property(stderr)
+uncertainties.UFloat.unit = property(unit)
