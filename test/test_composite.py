@@ -16,7 +16,7 @@ import copy
 import uuid
 
 from test.fake_backend import FakeBackend
-from test.fake_experiment import FakeExperiment
+from test.fake_experiment import FakeExperiment, FakeAnalysis
 from test.fake_service import FakeService
 from test.base import QiskitExperimentsTestCase
 
@@ -64,7 +64,32 @@ class TestComposite(QiskitExperimentsTestCase):
             self.assertEqual(par_exp.transpile_options, Options(optimization_level=0))
             self.assertEqual(par_exp.analysis.options, Options())
 
-            par_exp.run(FakeBackend())
+            expdata = par_exp.run(FakeBackend())
+            self.assertExperimentDone(expdata)
+
+    def test_experiment_config(self):
+        """Test converting to and from config works"""
+        exp1 = FakeExperiment([0])
+        exp1.set_run_options(shots=1000)
+        exp2 = FakeExperiment([2])
+        exp2.set_run_options(shots=2000)
+
+        exp = BatchExperiment([exp1, exp2])
+
+        loaded_exp = BatchExperiment.from_config(exp.config())
+        self.assertNotEqual(exp, loaded_exp)
+        self.assertTrue(self.json_equiv(exp, loaded_exp))
+
+    def test_roundtrip_serializable(self):
+        """Test round trip JSON serialization"""
+        exp1 = FakeExperiment([0])
+        exp1.set_run_options(shots=1000)
+        exp2 = FakeExperiment([2])
+        exp2.set_run_options(shots=2000)
+
+        exp = BatchExperiment([exp1, exp2])
+
+        self.assertRoundTripSerializable(exp, self.json_equiv)
 
 
 class TestCompositeExperimentData(QiskitExperimentsTestCase):
@@ -84,7 +109,8 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
         exp3 = FakeExperiment([0, 1, 2, 3])
         batch_exp = BatchExperiment([par_exp, exp3])
 
-        self.rootdata = batch_exp.run(backend=self.backend).block_for_results()
+        self.rootdata = batch_exp.run(backend=self.backend)
+        self.assertExperimentDone(self.rootdata)
         self.assertEqual(len(self.rootdata.child_data()), 2)
 
         self.rootdata.share_level = self.share_level
@@ -171,9 +197,8 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
         exp4 = BatchExperiment([exp3, exp1])
         exp5 = ParallelExperiment([exp4, FakeExperiment([4])])
         nested_exp = BatchExperiment([exp5, exp3])
-        expdata = nested_exp.run(FakeBackend()).block_for_results()
-        status = expdata.status()
-        self.assertEqual(status, "DONE")
+        expdata = nested_exp.run(FakeBackend())
+        self.assertExperimentDone(expdata)
 
     def test_analysis_replace_results_true(self):
         """
@@ -182,15 +207,18 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
         exp1 = FakeExperiment([0, 2])
         exp2 = FakeExperiment([1, 3])
         par_exp = ParallelExperiment([exp1, exp2])
-        data1 = par_exp.run(FakeBackend()).block_for_results()
+        data1 = par_exp.run(FakeBackend())
+        self.assertExperimentDone(data1)
 
         # Additional data not part of composite experiment
         exp3 = FakeExperiment([0, 1])
         extra_data = exp3.run(FakeBackend())
+        self.assertExperimentDone(extra_data)
         data1.add_child_data(extra_data)
 
         # Replace results
         data2 = par_exp.analysis.run(data1, replace_results=True)
+        self.assertExperimentDone(data2)
         self.assertEqual(data1, data2)
         self.assertEqual(len(data1.child_data()), len(data2.child_data()))
         for sub1, sub2 in zip(data1.child_data(), data2.child_data()):
@@ -203,15 +231,18 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
         exp1 = FakeExperiment([0, 2])
         exp2 = FakeExperiment([1, 3])
         par_exp = BatchExperiment([exp1, exp2])
-        data1 = par_exp.run(FakeBackend()).block_for_results()
+        data1 = par_exp.run(FakeBackend())
+        self.assertExperimentDone(data1)
 
         # Additional data not part of composite experiment
         exp3 = FakeExperiment([0, 1])
         extra_data = exp3.run(FakeBackend())
+        self.assertExperimentDone(extra_data)
         data1.add_child_data(extra_data)
 
         # Replace results
         data2 = par_exp.analysis.run(data1, replace_results=False)
+        self.assertExperimentDone(data2)
         self.assertNotEqual(data1.experiment_id, data2.experiment_id)
         self.assertEqual(len(data1.child_data()), len(data2.child_data()))
         for sub1, sub2 in zip(data1.child_data(), data2.child_data()):
@@ -224,7 +255,8 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
         exp1 = FakeExperiment([0, 2])
         exp2 = FakeExperiment([1, 3])
         par_exp = BatchExperiment([exp1, exp2])
-        expdata = par_exp.run(FakeBackend()).block_for_results()
+        expdata = par_exp.run(FakeBackend())
+        self.assertExperimentDone(expdata)
         data1 = expdata.child_data(0)
         data2 = expdata.child_data(1)
 
@@ -379,7 +411,8 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
         par_exp = ParallelExperiment(
             [exp1, BatchExperiment([ParallelExperiment([exp2, exp3]), exp4])]
         )
-        expdata = par_exp.run(Backend()).block_for_results()
+        expdata = par_exp.run(Backend())
+        self.assertExperimentDone(expdata)
 
         self.assertEqual(len(expdata.data()), len(counts))
         for circ_data, circ_counts in zip(expdata.data(), counts):
@@ -434,3 +467,32 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
             self.assertEqual(len(childdata.data()), len(child_counts))
             for circ_data, circ_counts in zip(childdata.data(), child_counts):
                 self.assertDictEqual(circ_data["counts"], circ_counts)
+
+    def test_composite_analysis_options(self):
+        """Test setting component analysis options"""
+
+        class Analysis(FakeAnalysis):
+            """Fake analysis class with options"""
+
+            @classmethod
+            def _default_options(cls):
+                opts = super()._default_options()
+                opts.option1 = None
+                opts.option2 = None
+                return opts
+
+        exp1 = FakeExperiment([0])
+        exp1.analysis = Analysis()
+        exp2 = FakeExperiment([1])
+        exp2.analysis = Analysis()
+        par_exp = ParallelExperiment([exp1, exp2])
+
+        # Set new analysis classes to component exp objects
+        opt1_val = 9000
+        opt2_val = 2113
+        exp1.analysis.set_options(option1=opt1_val)
+        exp2.analysis.set_options(option2=opt2_val)
+
+        # Check this is reflected in parallel experiment
+        self.assertEqual(par_exp.analysis.component_analysis(0).options.option1, opt1_val)
+        self.assertEqual(par_exp.analysis.component_analysis(1).options.option2, opt2_val)

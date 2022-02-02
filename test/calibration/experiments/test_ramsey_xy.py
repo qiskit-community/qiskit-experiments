@@ -44,6 +44,7 @@ class TestRamseyXY(QiskitExperimentsTestCase):
 
         for freq_shift in [2e6, -3e6]:
             test_data = ramsey.run(MockRamseyXY(freq_shift=freq_shift))
+            self.assertExperimentDone(test_data)
             meas_shift = test_data.analysis_results(1).value.value
             self.assertTrue((meas_shift - freq_shift) < abs(test_tol * freq_shift))
 
@@ -62,7 +63,8 @@ class TestRamseyXY(QiskitExperimentsTestCase):
         freq_shift = 4e6
         osc_shift = 2e6
         backend = MockRamseyXY(freq_shift=freq_shift + osc_shift)  # oscillation with 6 MHz
-        FrequencyCal(0, self.cals, backend, osc_freq=osc_shift).run().block_for_results()
+        expdata = FrequencyCal(0, self.cals, backend, osc_freq=osc_shift).run()
+        self.assertExperimentDone(expdata)
 
         # Check that qubit frequency after running the cal is shifted by freq_shift, i.e. 4 MHz.
         f01 = self.cals.get_parameter_value(freq_name, 0)
@@ -74,22 +76,22 @@ class TestRamseyXY(QiskitExperimentsTestCase):
         exp = RamseyXY(0)
         loaded_exp = RamseyXY.from_config(exp.config())
         self.assertNotEqual(exp, loaded_exp)
-        self.assertTrue(self.experiments_equiv(exp, loaded_exp))
+        self.assertTrue(self.json_equiv(exp, loaded_exp))
 
     def test_ramseyxy_roundtrip_serializable(self):
         """Test round trip JSON serialization"""
         exp = RamseyXY(0)
-        self.assertRoundTripSerializable(exp, self.experiments_equiv)
+        self.assertRoundTripSerializable(exp, self.json_equiv)
 
     def test_cal_experiment_config(self):
         """Test FrequencyCal config roundtrips"""
         exp = FrequencyCal(0, self.cals)
         loaded_exp = FrequencyCal.from_config(exp.config())
         self.assertNotEqual(exp, loaded_exp)
-        self.assertTrue(self.experiments_equiv(exp, loaded_exp))
+        self.assertTrue(self.json_equiv(exp, loaded_exp))
 
     @unittest.skip("Cal experiments are not yet JSON serializable")
     def test_freqcal_roundtrip_serializable(self):
         """Test round trip JSON serialization"""
         exp = FrequencyCal(0, self.cals)
-        self.assertRoundTripSerializable(exp, self.experiments_equiv)
+        self.assertRoundTripSerializable(exp, self.json_equiv)
