@@ -35,10 +35,18 @@ def get_processor(
             - normalization (bool): A boolean to specify if the data should be normalized to
               the interval [0, 1]. The default is True. This option is only relevant if
               kerneled data is used.
-        index: The index of the job for which to get a data processor.
+             - outcome (string): The measurement outcome that will be passed to a Probability node.
+               The default value is a string of 1's where the length of the string is the number of
+               qubits, e.g. '111' for three qubits.
+        index: The index of the job for which to get a data processor. The default value is -1.
 
     Returns:
         An instance of DataProcessor capable of processing the data for the corresponding job.
+
+    Notes:
+        The `num_qubits` argument is extracted from the `experiment_data` metadata and is used
+        to determine the default `outcome` to extract from classified data if it was not given in the
+        analysis options.
 
     Raises:
         DataProcessorError: if the measurement level is not supported.
@@ -50,7 +58,9 @@ def get_processor(
     normalize = analysis_options.get("normalization", True)
 
     if meas_level == MeasLevel.CLASSIFIED:
-        return DataProcessor("counts", [nodes.Probability("1")])
+        num_qubits = experiment_data.metadata.get("num_qubits", 1)
+        outcome = analysis_options.get("outcome", "1" * num_qubits)
+        return DataProcessor("counts", [nodes.Probability(outcome)])
 
     if meas_level == MeasLevel.KERNELED:
         if meas_return == MeasReturnType.SINGLE:

@@ -116,7 +116,7 @@ class RBAnalysis(curve.CurveAnalysis):
         opt: curve.FitOptions, x_values: np.ndarray, y_values: np.ndarray, num_qubits: int
     ) -> curve.FitOptions:
         """Create initial guess with experiment data."""
-        opt.p0.set_if_empty(b=1 / 2 ** num_qubits)
+        opt.p0.set_if_empty(b=1 / 2**num_qubits)
 
         # Use the first two points to guess the decay param
         dcliff = x_values[1] - x_values[0]

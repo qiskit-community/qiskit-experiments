@@ -163,7 +163,7 @@ class InterleavedRBAnalysis(RBAnalysis):
 
     def _extra_database_entry(self, fit_data: curve.FitData) -> List[AnalysisResultData]:
         """Calculate EPC."""
-        nrb = 2 ** self._num_qubits
+        nrb = 2**self._num_qubits
         scale = (nrb - 1) / nrb
 
         alpha = fit_data.fitval("alpha")
