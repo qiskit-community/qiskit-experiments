@@ -57,11 +57,9 @@ def get_processor(
     meas_return = run_options.get("meas_return", MeasReturnType.AVERAGE)
     normalize = analysis_options.get("normalization", True)
 
-    num_qubits = experiment_data.metadata.get("num_qubits", 1)
-
-    outcome = analysis_options.get("outcome", "1" * num_qubits)
-
     if meas_level == MeasLevel.CLASSIFIED:
+        num_qubits = experiment_data.metadata.get("num_qubits", 1)
+        outcome = analysis_options.get("outcome", "1" * num_qubits)
         return DataProcessor("counts", [nodes.Probability(outcome)])
 
     if meas_level == MeasLevel.KERNELED:
