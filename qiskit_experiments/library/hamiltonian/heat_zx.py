@@ -19,10 +19,9 @@ import numpy as np
 from qiskit.circuit import QuantumCircuit, Gate
 from qiskit.providers import Backend
 
-from .heat_base import HeatElement
-from .heat_analysis import HeatAnalysis
-
 from qiskit_experiments.framework import Options, composite
+from .heat_analysis import HeatAnalysis
+from .heat_base import HeatElement
 
 
 @composite.sync_experiment_options

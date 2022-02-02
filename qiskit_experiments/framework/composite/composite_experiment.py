@@ -13,7 +13,7 @@
 Composite Experiment abstract base class.
 """
 
-from typing import List, Sequence, Optional, Union, Type, Callable
+from typing import List, Sequence, Optional, Union, Type
 from abc import abstractmethod
 import functools
 import warnings
@@ -148,6 +148,9 @@ def sync_transpile_options(
 
     Returns:
         Composite experiment that implements option synchronization.
+
+    Raises:
+        TypeError: When class is not subclass of :class:`CompositeExperiment`
     """
     if not issubclass(composite_cls, CompositeExperiment):
         raise TypeError("Class is not composite experiment. Cannot override method.")
@@ -181,6 +184,9 @@ def sync_experiment_options(
 
     Returns:
         Composite experiment that implements option synchronization.
+
+    Raises:
+        TypeError: When class is not subclass of :class:`CompositeExperiment`
     """
     if not issubclass(composite_cls, CompositeExperiment):
         raise TypeError("Class is not composite experiment. Cannot override method.")
