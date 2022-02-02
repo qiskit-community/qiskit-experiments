@@ -13,7 +13,6 @@
 """DB class for fit value with std error and unit."""
 
 import dataclasses
-import warnings
 from typing import Optional
 import uncertainties
 

@@ -12,7 +12,7 @@
 """
 Plotting functions for experiment analysis
 """
-from typing import Callable, Optional
+from typing import Callable, List, Tuple
 import numpy as np
 from uncertainties import unumpy as unp
 
@@ -27,6 +27,7 @@ def plot_curve_fit(
     num_fit_points: int = 100,
     labelsize: int = 14,
     grid: bool = True,
+    fit_uncertainty: List[Tuple[float, float]] = None,
     **kwargs,
 ):
     """Generate plot of a curve fit analysis result.
@@ -40,6 +41,7 @@ def plot_curve_fit(
         num_fit_points: the number of points to plot for xrange.
         labelsize: label size for plot
         grid: Show grid on plot.
+        fit_uncertainty: a list of sigma values to plot confidence interval of fit line.
         **kwargs: Additional options for matplotlib.pyplot.plot
 
     Returns:
@@ -50,6 +52,11 @@ def plot_curve_fit(
     """
     if ax is None:
         ax = get_non_gui_ax()
+
+    if fit_uncertainty is None:
+        fit_uncertainty = list()
+    elif isinstance(fit_uncertainty, tuple):
+        fit_uncertainty = [fit_uncertainty]
 
     # Default plot options
     plot_opts = kwargs.copy()
@@ -72,22 +79,14 @@ def plot_curve_fit(
     # Confidence interval of 1 sigma
     stdev_arr = unp.std_devs(ys_fit_with_error)
     if np.isfinite(stdev_arr).all():
-        # 1 sigma plot
-        ax.fill_between(
-            xs,
-            y1=unp.nominal_values(ys_fit_with_error) - stdev_arr,
-            y2=unp.nominal_values(ys_fit_with_error) + stdev_arr,
-            alpha=0.3,
-            color=plot_opts["color"],
-        )
-        # 3 sigma plot
-        ax.fill_between(
-            xs,
-            y1=unp.nominal_values(ys_fit_with_error) - 3 * stdev_arr,
-            y2=unp.nominal_values(ys_fit_with_error) + 3 * stdev_arr,
-            alpha=0.1,
-            color=plot_opts["color"],
-        )
+        for sigma, alpha in fit_uncertainty:
+            ax.fill_between(
+                xs,
+                y1=unp.nominal_values(ys_fit_with_error) - sigma * stdev_arr,
+                y2=unp.nominal_values(ys_fit_with_error) + sigma * stdev_arr,
+                alpha=alpha,
+                color=plot_opts["color"],
+            )
 
     # Formatting
     ax.tick_params(labelsize=labelsize)
