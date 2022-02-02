@@ -21,7 +21,7 @@ import inspect
 import warnings
 from abc import ABC
 from typing import Any, Dict, List, Tuple, Callable, Union, Optional
-from uncertainties import unumpy as unp
+from uncertainties import unumpy as unp, UFloat
 
 import numpy as np
 from qiskit.providers import Backend
@@ -954,3 +954,30 @@ class CurveAnalysis(BaseAnalysis, ABC):
             figures = []
 
         return analysis_results, figures
+
+
+def is_error_not_significant(
+    val: Union[float, UFloat],
+    fraction: float = 1.0,
+    absolute: Optional[float] = None,
+) -> bool:
+    """Check if the standard error of given value is not significant.
+
+    Args:
+        val: Input value to evaluate. This is assumed to be float or ufloat.
+        fraction: Valid fraction of the nominal part to its standard error.
+            This function returns ``False`` if the nominal part is
+            smaller than the error by this fraction.
+        absolute: Use this value as a threshold if given.
+
+    Returns:
+        ``True`` if the standard error of given value is not significant.
+    """
+    if isinstance(val, float):
+        return True
+
+    threshold = absolute if absolute is not None else fraction * val.nominal_value
+    if np.isnan(val.std_dev) or val.std_dev < threshold:
+        return True
+
+    return False

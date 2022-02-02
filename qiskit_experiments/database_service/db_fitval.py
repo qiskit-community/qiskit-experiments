@@ -13,7 +13,6 @@
 """DB class for fit value with std error and unit."""
 
 import dataclasses
-import warnings
 from typing import Optional
 
 
@@ -34,11 +33,3 @@ class FitVal:
         if self.unit is not None:
             out += f" {str(self.unit)}"
         return out
-
-
-def __new__(cls, *args, **kwargs):
-    warnings.warn(
-        "FitVal object has been deprecated in Qiskit Experiments version 0.3 and "
-        "will be removed in version 0.5. Use version <= 0.3 to load this object.",
-        DeprecationWarning,
-    )

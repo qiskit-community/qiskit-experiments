@@ -22,7 +22,7 @@ import numpy as np
 from uncertainties import unumpy as unp, UFloat
 
 
-def typecast_returns(fit_func: Callable) -> Callable:
+def typecast_float(fit_func: Callable) -> Callable:
     """A decorator to typecast y values to a float array if the input parameters have no error.
 
     Args:
@@ -45,7 +45,7 @@ def typecast_returns(fit_func: Callable) -> Callable:
     return _wrapper
 
 
-@typecast_returns
+@typecast_float
 def cos(
     x: np.ndarray,
     amp: float = 1.0,
@@ -62,7 +62,7 @@ def cos(
     return amp * unp.cos(2 * np.pi * freq * x + phase) + baseline
 
 
-@typecast_returns
+@typecast_float
 def sin(
     x: np.ndarray,
     amp: float = 1.0,
@@ -79,7 +79,7 @@ def sin(
     return amp * unp.sin(2 * np.pi * freq * x + phase) + baseline
 
 
-@typecast_returns
+@typecast_float
 def exponential_decay(
     x: np.ndarray,
     amp: float = 1.0,
@@ -96,7 +96,7 @@ def exponential_decay(
     return amp * base ** (-lamb * x + x0) + baseline
 
 
-@typecast_returns
+@typecast_float
 def gaussian(
     x: np.ndarray, amp: float = 1.0, sigma: float = 1.0, x0: float = 0.0, baseline: float = 0.0
 ) -> np.ndarray:
@@ -108,7 +108,7 @@ def gaussian(
     return amp * unp.exp(-((x - x0) ** 2) / (2 * sigma ** 2)) + baseline
 
 
-@typecast_returns
+@typecast_float
 def cos_decay(
     x: np.ndarray,
     amp: float = 1.0,
@@ -126,7 +126,7 @@ def cos_decay(
     return exponential_decay(x, lamb=1 / tau) * cos(x, amp=amp, freq=freq, phase=phase) + baseline
 
 
-@typecast_returns
+@typecast_float
 def sin_decay(
     x: np.ndarray,
     amp: float = 1.0,
@@ -144,7 +144,7 @@ def sin_decay(
     return exponential_decay(x, lamb=1 / tau) * sin(x, amp=amp, freq=freq, phase=phase) + baseline
 
 
-@typecast_returns
+@typecast_float
 def bloch_oscillation_x(
     x: np.ndarray, px: float = 0.0, py: float = 0.0, pz: float = 0.0, baseline: float = 0.0
 ):
@@ -162,7 +162,7 @@ def bloch_oscillation_x(
     return (-pz * px + pz * px * unp.cos(w * x) + w * py * unp.sin(w * x)) / (w ** 2) + baseline
 
 
-@typecast_returns
+@typecast_float
 def bloch_oscillation_y(
     x: np.ndarray, px: float = 0.0, py: float = 0.0, pz: float = 0.0, baseline: float = 0.0
 ):
@@ -180,7 +180,7 @@ def bloch_oscillation_y(
     return (pz * py - pz * py * unp.cos(w * x) - w * px * unp.sin(w * x)) / (w ** 2) + baseline
 
 
-@typecast_returns
+@typecast_float
 def bloch_oscillation_z(
     x: np.ndarray, px: float = 0.0, py: float = 0.0, pz: float = 0.0, baseline: float = 0.0
 ):
