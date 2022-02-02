@@ -18,7 +18,7 @@ import dataclasses
 from typing import Any, Dict, Callable, Union, List, Tuple, Optional, Iterable
 
 import numpy as np
-from uncertainties.core import UFloat
+from uncertainties.core import Variable as UFloat
 
 from qiskit_experiments.exceptions import AnalysisError
 

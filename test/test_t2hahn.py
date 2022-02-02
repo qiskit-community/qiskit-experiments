@@ -66,7 +66,7 @@ class TestT2Hahn(QiskitExperimentsTestCase):
             fitval = result.value
             if num_of_echoes != 0:
                 self.assertEqual(result.quality, "good")
-                self.assertAlmostEqual(fitval.value, estimated_t2hahn, delta=3)
+                self.assertAlmostEqual(fitval.n, estimated_t2hahn, delta=3)
 
     def test_t2hahn_parallel(self):
         """
@@ -105,7 +105,7 @@ class TestT2Hahn(QiskitExperimentsTestCase):
 
             fitval = res_t2.value
             self.assertEqual(res_t2.quality, "good")
-            self.assertAlmostEqual(fitval.value, t2hahn[i], delta=3)
+            self.assertAlmostEqual(fitval.n, t2hahn[i], delta=3)
 
     def test_t2hahn_concat_2_experiments(self):
         """
@@ -144,15 +144,15 @@ class TestT2Hahn(QiskitExperimentsTestCase):
 
         fitval = res_t2_1.value
         self.assertEqual(res_t2_1.quality, "good")
-        self.assertAlmostEqual(fitval.value, estimated_t2hahn, delta=3)
+        self.assertAlmostEqual(fitval.n, estimated_t2hahn, delta=3)
 
         self.assertAlmostEqual(
-            fitval.value,
+            fitval.n,
             estimated_t2hahn,
-            delta=TestT2Hahn.__tolerance__ * res_t2_1.value.value,
+            delta=TestT2Hahn.__tolerance__ * res_t2_1.value.n,
         )
 
-        self.assertLessEqual(res_t2_1.value.stderr, res_t2_0.value.stderr)
+        self.assertLessEqual(res_t2_1.value.s, res_t2_0.value.s)
         self.assertEqual(len(expdata1.data()), len(delays0) + len(delays1))
 
     def test_experiment_config(self):

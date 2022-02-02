@@ -106,6 +106,6 @@ def unit(self):
 
 
 # Monkey patch ufloat for deprecated FitVal equivalent API
-uncertainties.UFloat.value = property(value)
-uncertainties.UFloat.stderr = property(stderr)
-uncertainties.UFloat.unit = property(unit)
+uncertainties.core.Variable.value = property(value)
+uncertainties.core.Variable.stderr = property(stderr)
+uncertainties.core.Variable.unit = property(unit)
