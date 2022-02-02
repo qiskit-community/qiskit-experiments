@@ -237,6 +237,13 @@ class SVD(TrainableDataAction):
         to numpy's svd function. The dominant axis and the scale is saved for each
         qubit so that future data points can be projected onto the axis.
 
+        .. note::
+
+            Before training the SVD the mean of the training data is subtracted from the
+            training data to avoid large offsets in the data.
+            These means can be retrieved with :attr:`.parameters.i_means` or
+            :attr:`parameters.q_means` for I and Q quadrature, respectively.
+
         Args:
             data: A data array to be trained. This is a single numpy array containing
                 all circuit results input to the data processor.

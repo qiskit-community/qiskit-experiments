@@ -100,7 +100,20 @@ class DataAction(ABC, StoreInitArgs):
 
 
 class TrainableDataAction(DataAction):
-    """A base class for data actions that need training."""
+    """A base class for data actions that need training.
+
+    .. note::
+
+        The parameters set to this node by the training should be listed in
+        the class method :meth:`._default_parameters`.
+        The parameters defined there are initialized at the constructor
+        and serialized together with the constructor arguments.
+
+        Parameter values can be updated with :meth:`.set_parameters` method
+        and one can refer to the values with :meth:`.parameters`.
+        This is required to correctly JSON serialize and deserialize
+        a processing node with parameters populated by the previous training.
+    """
 
     def __init__(self, validate: bool = True):
         """Create new node.
