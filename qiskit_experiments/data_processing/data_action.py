@@ -126,7 +126,7 @@ class TrainableDataAction(DataAction):
         for field in fields:
             if not hasattr(self._parameters, field):
                 raise AttributeError(
-                    f"Parameters field {field} is not valid for {type(self).__name__}."
+                    f"{field} is not a valid parameter for {type(self).__name__}."
                 )
         self._parameters.update_options(**fields)
 
