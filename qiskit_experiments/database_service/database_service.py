@@ -82,7 +82,7 @@ class DatabaseServiceV1(DatabaseService, ABC):
             Experiment ID.
 
         Raises:
-            ExperimentEntryExists: If the experiment already exists.
+            DbExperimentEntryExists: If the experiment already exists.
         """
         pass
 
@@ -107,7 +107,7 @@ class DatabaseServiceV1(DatabaseService, ABC):
             kwargs: Additional keywords supported by the service provider.
 
         Raises:
-            ExperimentEntryNotFound: If the experiment does not exist.
+            DbExperimentEntryNotFound: If the experiment does not exist.
         """
         pass
 
@@ -125,7 +125,7 @@ class DatabaseServiceV1(DatabaseService, ABC):
             A dictionary containing the retrieved experiment data.
 
         Raises:
-            ExperimentEntryNotFound: If the experiment does not exist.
+            DbExperimentEntryNotFound: If the experiment does not exist.
         """
         pass
 
@@ -211,7 +211,7 @@ class DatabaseServiceV1(DatabaseService, ABC):
             Analysis result ID.
 
         Raises:
-            ExperimentEntryExists: If the analysis result already exists.
+            DbExperimentEntryExists: If the analysis result already exits.
         """
         pass
 
@@ -236,7 +236,7 @@ class DatabaseServiceV1(DatabaseService, ABC):
             kwargs: Additional keywords supported by the service provider.
 
         Raises:
-            ExperimentEntryNotFound: If the analysis result does not exist.
+            DbExperimentEntryNotFound: If the analysis result does not exist.
         """
         pass
 
@@ -254,7 +254,7 @@ class DatabaseServiceV1(DatabaseService, ABC):
             Retrieved analysis result.
 
         Raises:
-            ExperimentEntryNotFound: If the analysis result does not exist.
+            DbExperimentEntryNotFound: If the analysis result does not exist.
         """
         pass
 
