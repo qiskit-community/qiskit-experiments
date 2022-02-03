@@ -15,6 +15,7 @@
 from test.base import QiskitExperimentsTestCase
 from typing import Tuple
 import numpy as np
+from ddt import ddt, data
 
 from qiskit import QuantumCircuit
 
@@ -60,14 +61,16 @@ class ResonatorSpectroscopyBackend(MockIQBackend):
         return delta_freq / self._linewidth
 
 
+@ddt
 class TestResonatorSpectroscopy(QiskitExperimentsTestCase):
     """Tests for the resonator spectroscopy experiment."""
 
-    def test_end_to_end(self):
+    @data(-5e6, -2e6, 0, 1e6, 3e6)
+    def test_end_to_end(self, freq_shift):
         """Test the experiment from end to end."""
 
         qubit = 1
-        backend = ResonatorSpectroscopyBackend(freq_offset=10e6)
+        backend = ResonatorSpectroscopyBackend(freq_offset=freq_shift)
         res_freq = backend.defaults().meas_freq_est[qubit]
 
         frequencies = np.linspace(res_freq - 20e6, res_freq + 20e6, 51)
@@ -77,8 +80,7 @@ class TestResonatorSpectroscopy(QiskitExperimentsTestCase):
         result = expdata.analysis_results(1)
         value = result.value.value
 
-        self.assertTrue(6.6099e9 < value < 6.6101e9)
-        self.assertAlmostEqual(value, res_freq, delta=0.1e6)
+        self.assertAlmostEqual(value, res_freq + freq_shift, delta=0.1e6)
         self.assertEqual(str(result.device_components[0]), f"R{qubit}")
 
     def test_experiment_config(self):
