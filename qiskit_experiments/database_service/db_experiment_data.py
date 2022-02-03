@@ -534,7 +534,7 @@ class DbExperimentDataV1(DbExperimentData):
                     retrieved_jobs[jid] = job
                 except Exception:  # pylint: disable=broad-except
                     LOG.warning(
-                        "Unable to retrive data from job on backend %s [Job ID: %s]",
+                        "Unable to retrieve data from job on backend %s [Job ID: %s]",
                         self._backend,
                         jid,
                     )
