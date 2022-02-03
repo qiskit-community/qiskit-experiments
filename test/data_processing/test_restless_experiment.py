@@ -27,8 +27,8 @@ from qiskit_experiments.data_processing.nodes import Probability
 
 
 @ddt
-class TestFineAmpEndToEnd(QiskitExperimentsTestCase):
-    """Test the fine amplitude experiment."""
+class TestFineAmpEndToEndRestless(QiskitExperimentsTestCase):
+    """Test the fine amplitude experiment in a restless measurement setting."""
 
     @data(-0.03, -0.02, -0.01, 0.02, 0.04)
     def test_end_to_end_restless(self, pi_ratio):
