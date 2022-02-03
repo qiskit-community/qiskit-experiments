@@ -56,9 +56,9 @@ class TestT1(QiskitExperimentsTestCase):
         loaded_data = ExperimentData.load(exp_data.experiment_id, exp_data.service)
         exp_res = exp_data.analysis_results()
         load_res = loaded_data.analysis_results()
-        self.assertEqual(len(exp_res), len(load_res))
-        for res1, res2 in zip(exp_res, load_res):
-            self.assertEqual(repr(res1), repr(res2))
+        repr1 = sorted([repr(res) for res in exp_res])
+        repr2 = sorted([repr(res) for res in load_res])
+        self.assertEqual(repr1, repr2)
 
     def test_t1_parallel(self):
         """
