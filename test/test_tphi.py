@@ -16,6 +16,8 @@ Test T2Ramsey experiment
 from test.base import QiskitExperimentsTestCase
 from qiskit_experiments.library import Tphi
 from qiskit_experiments.test.tphi_backend import TphiBackend
+from qiskit_experiments.library.characterization.analysis.t1_analysis import T1Analysis
+from qiskit_experiments.library.characterization.analysis.t2ramsey_analysis import T2RamseyAnalysis
 from qiskit_experiments.library.characterization.analysis.tphi_analysis import TphiAnalysis
 
 
@@ -35,8 +37,8 @@ class TestTphi(QiskitExperimentsTestCase):
         t1 = 20
         t2ramsey = 25
         backend = TphiBackend(t1=t1, t2ramsey=t2ramsey, freq=0.1)
-
-        expdata = exp.run(backend=backend, analysis=TphiAnalysis())
+        analysis = TphiAnalysis([T1Analysis(), T2RamseyAnalysis()])
+        expdata = exp.run(backend=backend, analysis=analysis)
         self.assertExperimentDone(expdata)
         result = expdata.analysis_results("T_phi")
         estimated_tphi = 1 / ((1 / t2ramsey) - (1 / (2 * t1)))
@@ -59,7 +61,8 @@ class TestTphi(QiskitExperimentsTestCase):
         t1 = 20
         t2ramsey = 25
         backend = TphiBackend(t1=t1, t2ramsey=t2ramsey, freq=0.1)
-        expdata = exp.run(backend=backend, analysis=TphiAnalysis()).block_for_results()
+        analysis = TphiAnalysis([T1Analysis(), T2RamseyAnalysis()])
+        expdata = exp.run(backend=backend, analysis=analysis).block_for_results()
         self.assertExperimentDone(expdata)
 
         data_t1 = expdata.child_data(0).data()
@@ -73,7 +76,7 @@ class TestTphi(QiskitExperimentsTestCase):
         new_delays_t2 = list(range(1, 55, 2))
 
         exp.set_experiment_options(delays_t1=new_delays_t1, delays_t2=new_delays_t2)
-        expdata = exp.run(backend=backend, analysis=TphiAnalysis()).block_for_results()
+        expdata = exp.run(backend=backend, analysis=analysis).block_for_results()
 
         data_t1 = expdata.child_data(0).data()
         x_values_t1 = [datum["metadata"]["xval"] for datum in data_t1]
@@ -88,8 +91,8 @@ class TestTphi(QiskitExperimentsTestCase):
         self.assertRoundTripSerializable(exp, self.json_equiv)
 
     def test_analysis_config(self):
-        """ "Test converting analysis to and from config works"""
-        analysis = TphiAnalysis()
-        loaded = TphiAnalysis.from_config(analysis.config())
+        """Test converting analysis to and from config works"""
+        analysis = TphiAnalysis([T1Analysis(), T2RamseyAnalysis()])
+        loaded = analysis.from_config(analysis.config())
         self.assertNotEqual(analysis, loaded)
         self.assertEqual(analysis.config(), loaded.config())

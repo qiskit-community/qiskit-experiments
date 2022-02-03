@@ -20,8 +20,7 @@ from qiskit import QiskitError
 from qiskit.providers import Backend
 from qiskit.test.mock import FakeBackend
 from qiskit_experiments.framework.composite.batch_experiment import BatchExperiment
-from qiskit_experiments.library.characterization import T1, T2Ramsey
-from qiskit_experiments.library.characterization.analysis.tphi_analysis import TphiAnalysis
+from qiskit_experiments.library.characterization import T1, T2Ramsey, TphiAnalysis, T1Analysis, T2RamseyAnalysis
 
 
 class Tphi(BatchExperiment):
@@ -84,21 +83,21 @@ class Tphi(BatchExperiment):
             backend: Optional, the backend on which to run the experiment
         """
 
-        self.exps = []
-        self.exps.append(T1(qubit=qubit, delays=delays_t1, backend=backend))
-        self.exps.append(
-            T2Ramsey(
-                qubit=qubit,
-                delays=delays_t2,
-                backend=backend,
-                osc_freq=osc_freq,
-            )
+        exp_t1 = T1(qubit=qubit, delays=delays_t1, backend=backend)
+        exp_t2 = T2Ramsey(
+            qubit=qubit,
+            delays=delays_t2,
+            backend=backend,
+            osc_freq=osc_freq,
         )
+        self.exps = [exp_t1, exp_t2]
+
         # Create batch experiment
         super().__init__(experiments=self.exps, backend=backend)
 
         self.set_experiment_options(delays_t1=delays_t1, delays_t2=delays_t2)
-        self.analysis = TphiAnalysis()
+        # CompositeAnalysis accept the component analysis classes in its constructor
+        self.analysis = TphiAnalysis(analyses=[T1Analysis(), T2RamseyAnalysis()])
 
     def _set_backend(self, backend: Backend):
         super()._set_backend(backend)
