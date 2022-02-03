@@ -44,9 +44,7 @@ class TestFineAmpEndToEndRestless(QiskitExperimentsTestCase):
         result = expdata.analysis_results(1)
         d_theta = result.value.value
 
-        tol = 0.01
-
-        self.assertAlmostEqual(d_theta, error, delta=tol)
+        self.assertAlmostEqual(d_theta, error, delta=0.01)
         self.assertEqual(result.quality, "good")
 
     @data(-0.02, 0.03, 0.04)
@@ -66,8 +64,6 @@ class TestFineAmpEndToEndRestless(QiskitExperimentsTestCase):
         result = expdata.analysis_results(1)
         d_theta = result.value.value
 
-        tol = 0.01
-
-        self.assertTrue(abs(d_theta - error) > tol)
+        self.assertTrue(abs(d_theta - error) > 0.01)
         # this does not always work
         # self.assertEqual(result.quality, "bad")
