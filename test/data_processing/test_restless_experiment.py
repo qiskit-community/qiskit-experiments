@@ -47,6 +47,10 @@ class TestFineAmpEndToEndRestless(QiskitExperimentsTestCase):
         self.assertAlmostEqual(d_theta, error, delta=0.01)
         self.assertEqual(result.quality, "good")
 
+        # check that the fit amplitude is almost 1 as expected.
+        amp_fit = expdata.analysis_results(0).value.value[0]
+        self.assertAlmostEqual(amp_fit, 1.0, delta=0.02)
+
     @data(-0.02, 0.03, 0.04)
     def test_end_to_end_restless_standard_processor(self, pi_ratio):
         """Test the restless experiment with a standard processor end to end."""
@@ -65,5 +69,10 @@ class TestFineAmpEndToEndRestless(QiskitExperimentsTestCase):
         d_theta = result.value.value
 
         self.assertTrue(abs(d_theta - error) > 0.01)
+
+        # check that the fit amplitude is much smaller than 1.
+        amp_fit = expdata.analysis_results(0).value.value[0]
+        self.assertTrue(amp_fit < 0.05)
+
         # this does not always work
         # self.assertEqual(result.quality, "bad")
