@@ -59,7 +59,7 @@ class MockRestlessBackend(FakeOpenPulse2Q):
         return states
 
     @abstractmethod
-    def _compute_outcome_probabilities(self,  circuits: List[QuantumCircuit]):
+    def _compute_outcome_probabilities(self, circuits: List[QuantumCircuit]):
         """Compute the probabilities of measuring 0 or 1 for each of the given
          circuits based on the previous measurement shot.
 
@@ -128,7 +128,9 @@ class MockRestlessBackend(FakeOpenPulse2Q):
 class MockRestlessFineAmp(MockRestlessBackend):
     """A mock backend for restless fine amplitude calibration."""
 
-    def __init__(self, angle_error: float, angle_per_gate: float, gate_name: str):
+    def __init__(
+        self, angle_error: float, angle_per_gate: float, gate_name: str, rng_seed: int = 0
+    ):
         """Setup a mock backend to test the restless fine amplitude calibration.
 
         Args:
@@ -138,7 +140,7 @@ class MockRestlessFineAmp(MockRestlessBackend):
         self.angle_error = angle_error
         self._gate_name = gate_name
         self._angle_per_gate = angle_per_gate
-        super().__init__()
+        super().__init__(rng_seed=rng_seed)
 
         self.configuration().basis_gates.append("sx")
         self.configuration().basis_gates.append("x")
