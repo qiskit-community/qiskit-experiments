@@ -49,7 +49,7 @@ class TestTphi(QiskitExperimentsTestCase):
         )
         self.assertEqual(result.quality, "good", "Result quality bad")
 
-    def test_tphi_with_changing_delays(self):
+    def test_tphi_with_changing_params(self):
         """
         Run Tphi experiment, then set new delay values in set_experiment_options, and check
         that the new experiment has the correct delay values.
@@ -74,8 +74,11 @@ class TestTphi(QiskitExperimentsTestCase):
 
         new_delays_t1 = list(range(1, 45, 3))
         new_delays_t2 = list(range(1, 55, 2))
+        new_osc_freq = 0.2
 
-        exp.set_experiment_options(delays_t1=new_delays_t1, delays_t2=new_delays_t2)
+        exp.set_experiment_options(
+            delays_t1=new_delays_t1, delays_t2=new_delays_t2, osc_freq=new_osc_freq
+        )
         expdata = exp.run(backend=backend, analysis=analysis).block_for_results()
 
         data_t1 = expdata.child_data(0).data()
@@ -84,6 +87,8 @@ class TestTphi(QiskitExperimentsTestCase):
         x_values_t2 = [datum["metadata"]["xval"] for datum in data_t2]
         self.assertListEqual(x_values_t1, new_delays_t1, "Option delays_t1 not set correctly")
         self.assertListEqual(x_values_t2, new_delays_t2, "Option delays_t2 not set correctly")
+        new_freq_t2 = data_t2[0]["metadata"]["osc_freq"]
+        self.assertEqual(new_freq_t2, new_osc_freq, "Option osc_freq not set correctly")
 
     def test_roundtrip_serializable(self):
         """Test round trip JSON serialization"""

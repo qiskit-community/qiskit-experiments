@@ -68,6 +68,8 @@ class Tphi(BatchExperiment):
                 self.component_experiment(0).set_experiment_options(delays=fields["delays_t1"])
             elif key == "delays_t2":
                 self.component_experiment(1).set_experiment_options(delays=fields["delays_t2"])
+            elif key == "osc_freq":
+                self.component_experiment(1).set_experiment_options(osc_freq=fields["osc_freq"])
             else:
                 raise QiskitError(f"Tphi experiment does not support option {key}")
 
