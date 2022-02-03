@@ -3,7 +3,15 @@ fixes:
   - |
     The ResonanceAnalysis class has been switched from a Gaussian fit to a Lorentzian
     fit function. Furthermore, the Gaussian fitting capability is preserved by moving
-    the Gaussian fitting to a new class called GaussianAnalysis.
+    the Gaussian fitting to a new class called GaussianAnalysis. Note that the
+    previous analysis can be used by doing:
+
+    .. code:: python
+
+      spec = ResonatorSpectroscopy(qubit, backend)
+      spec.analysis = GaussianAnalysis()
+
+    where :code:`GaussianAnalysis` is imported from ``curve_analysis``.
 features:
   - |
     This change introduces the new experiment
