@@ -16,10 +16,8 @@ from test.base import QiskitExperimentsTestCase
 import numpy as np
 from ddt import ddt, data
 
-from qiskit.circuit import Gate
-
 from qiskit_experiments.library import (
-    FineAmplitude,
+    FineXAmplitude,
 )
 
 from qiskit_experiments.test.mock_iq_backend import MockRestlessFineAmp
@@ -36,10 +34,7 @@ class TestFineAmpEndToEnd(QiskitExperimentsTestCase):
     def test_end_to_end_restless(self, pi_ratio):
         """Test the restless experiment end to end."""
 
-        amp_exp = FineAmplitude(0, Gate("x", 1, []))
-        amp_exp.set_transpile_options(basis_gates=["xp", "x", "sx"])
-        amp_exp.set_experiment_options(add_sx=True)
-        amp_exp.analysis.set_options(angle_per_gate=np.pi, phase_offset=np.pi / 2)
+        amp_exp = FineXAmplitude(0)
         amp_exp.set_run_options(rep_delay=1e-6, meas_level=2, memory=True, init_qubits=False)
 
         error = -np.pi * pi_ratio
@@ -49,7 +44,7 @@ class TestFineAmpEndToEnd(QiskitExperimentsTestCase):
         result = expdata.analysis_results(1)
         d_theta = result.value.value
 
-        tol = 0.04
+        tol = 0.01
 
         self.assertAlmostEqual(d_theta, error, delta=tol)
         self.assertEqual(result.quality, "good")
@@ -58,14 +53,10 @@ class TestFineAmpEndToEnd(QiskitExperimentsTestCase):
     def test_end_to_end_restless_standard_processor(self, pi_ratio):
         """Test the restless experiment with a standard processor end to end."""
 
-        amp_exp = FineAmplitude(0, Gate("x", 1, []))
-        amp_exp.set_transpile_options(basis_gates=["xp", "x", "sx"])
-        amp_exp.set_experiment_options(add_sx=True)
+        amp_exp = FineXAmplitude(0)
         # standard data processor.
         standard_processor = DataProcessor("counts", [Probability("1")])
-        amp_exp.analysis.set_options(
-            angle_per_gate=np.pi, phase_offset=np.pi / 2, data_processor=standard_processor
-        )
+        amp_exp.analysis.set_options(data_processor=standard_processor)
         amp_exp.set_run_options(rep_delay=1e-6, meas_level=2, memory=True, init_qubits=False)
 
         error = -np.pi * pi_ratio
@@ -75,6 +66,8 @@ class TestFineAmpEndToEnd(QiskitExperimentsTestCase):
         result = expdata.analysis_results(1)
         d_theta = result.value.value
 
-        self.assertTrue(d_theta != error)
+        tol = 0.01
+
+        self.assertTrue(abs(d_theta - error) > tol)
         # this does not always work
         # self.assertEqual(result.quality, "bad")
