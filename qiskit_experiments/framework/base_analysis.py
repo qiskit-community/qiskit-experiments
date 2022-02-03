@@ -70,7 +70,7 @@ class BaseAnalysis(ABC, StoreInitArgs):
     def from_config(cls, config: Union[AnalysisConfig, Dict]) -> "BaseAnalysis":
         """Initialize an analysis class from analysis config"""
         if isinstance(config, dict):
-            config = AnalysisConfig(**dict)
+            config = AnalysisConfig(**config)
         ret = cls(*config.args, **config.kwargs)
         if config.options:
             ret.set_options(**config.options)
