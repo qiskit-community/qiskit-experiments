@@ -49,7 +49,7 @@ class ResonatorSpectroscopy(Spectroscopy):
         meaningful signal. The default data processing workflow will therefore reduce the two-
         dimensional IQ data to one-dimensional data using the magnitude of each IQ point.
 
-    # section: examples
+    # section: example
 
         The resonator spectroscopy experiment can be run by doing:
 
