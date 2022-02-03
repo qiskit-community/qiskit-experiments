@@ -49,6 +49,20 @@ class ResonatorSpectroscopy(Spectroscopy):
         meaningful signal. The default data processing workflow will therefore reduce the two-
         dimensional IQ data to one-dimensional data using the magnitude of each IQ point.
 
+    # section: examples
+
+        The resonator spectroscopy experiment can be run by doing:
+
+        .. code:: python
+
+            qubit = 1
+            spec = ResonatorSpectroscopy(qubit, backend)
+            exp_data = spec.run().block_for_results()
+            exp_data.figure(0)
+
+        This will measure the resonator attached to qubit 1 and report the resonance frequency
+        as well as the kappa, i.e. the line width, of the resonator.
+
     # section: analysis_ref
         :py:class:`ResonatorSpectroscopyAnalysis`
 
