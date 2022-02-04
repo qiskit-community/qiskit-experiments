@@ -79,8 +79,8 @@ def _instruction_povms(instructions: List[Instruction]) -> List[Dict[int, np.nda
     for inst in instructions:
         inst_inv = inst.inverse()
         basis_dict = {
-            i: DensityMatrix.from_int(i, 2 ** inst.num_qubits).evolve(inst_inv).data
-            for i in range(2 ** inst.num_qubits)
+            i: DensityMatrix.from_int(i, 2**inst.num_qubits).evolve(inst_inv).data
+            for i in range(2**inst.num_qubits)
         }
         basis.append(basis_dict)
     return basis
@@ -90,7 +90,7 @@ def _instruction_states(instructions: List[Instruction]) -> List[np.ndarray]:
     """Construct preparation density matrices from instructions"""
     states = []
     num_qubits = instructions[0].num_qubits
-    init = DensityMatrix.from_int(0, 2 ** num_qubits)
+    init = DensityMatrix.from_int(0, 2**num_qubits)
     for inst in instructions:
         states.append(init.evolve(inst).data)
     return states
