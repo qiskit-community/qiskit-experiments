@@ -128,7 +128,11 @@ class TrainableDataAction(DataAction):
 
     @classmethod
     def _default_parameters(cls) -> Options:
-        """Set default node parameters."""
+        """Parameters of trainable nodes.
+        
+        The parameters defined here should be assigned a `None` to
+        indicate that the node has not been trained.
+        """
         return Options()
 
     @property
