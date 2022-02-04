@@ -66,6 +66,7 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
         expdata = spec.run(backend)
         self.assertExperimentDone(expdata)
         result = expdata.analysis_results(1)
+        self.assertRoundTripSerializable(result.value)
 
         self.assertTrue(4.999e9 < result.value.n < 5.001e9)
         self.assertEqual(result.quality, "good")
@@ -94,6 +95,7 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
         expdata = spec.run(backend)
         self.assertExperimentDone(expdata)
         result = expdata.analysis_results(1)
+        self.assertRoundTripSerializable(result.value)
 
         self.assertTrue(freq01 - 2e6 < result.value.n < freq01 + 2e6)
         self.assertEqual(result.quality, "good")
@@ -105,6 +107,7 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
         expdata = spec.run(backend)
         self.assertExperimentDone(expdata)
         result = expdata.analysis_results(1)
+        self.assertRoundTripSerializable(result.value)
 
         self.assertTrue(freq01 + 3e6 < result.value.n < freq01 + 8e6)
         self.assertEqual(result.quality, "good")
@@ -113,6 +116,7 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
         expdata = spec.run(backend)
         self.assertExperimentDone(expdata)
         result = expdata.analysis_results(1)
+        self.assertRoundTripSerializable(result.value)
 
         self.assertTrue(freq01 + 3e6 < result.value.n < freq01 + 8e6)
         self.assertEqual(result.quality, "good")
@@ -133,6 +137,7 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
         expdata = spec.run(backend)
         self.assertExperimentDone(expdata)
         result = expdata.analysis_results(1)
+        self.assertRoundTripSerializable(result.value)
 
         self.assertTrue(freq01 - 2e6 < result.value.n < freq01 + 2e6)
         self.assertEqual(result.quality, "good")

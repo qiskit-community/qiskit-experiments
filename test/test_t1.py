@@ -46,9 +46,10 @@ class TestT1(QiskitExperimentsTestCase):
         exp_data = exp.run(backend, shots=10000)
         self.assertExperimentDone(exp_data)
         res = exp_data.analysis_results("T1")
+        self.assertRoundTripSerializable(res.value)
         self.assertEqual(res.quality, "good")
         self.assertAlmostEqual(res.value.n, t1, delta=3)
-        self.assertEqual(res.unit, "s")
+        self.assertEqual(res.value.unit, "s")
 
         exp_data.service = FakeService()
         exp_data.save()

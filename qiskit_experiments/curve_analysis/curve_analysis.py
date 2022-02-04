@@ -46,6 +46,7 @@ from qiskit_experiments.framework import (
     AnalysisResultData,
     Options,
     UFloat,
+    ExperimentVariable,
 )
 
 PARAMS_ENTRY_PREFIX = "@Parameters_"
@@ -897,9 +898,10 @@ class CurveAnalysis(BaseAnalysis, ABC):
                         p_repr = param_repr
                         unit = None
 
-                    # TODO Temporally use tag for storing unit.
                     fit_val = fit_result.fitval(p_name)
-                    fit_val.tag = unit
+                    if unit:
+                        fit_val.unit = unit
+
                     result_entry = AnalysisResultData(
                         name=p_repr,
                         value=fit_val,

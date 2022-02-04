@@ -15,13 +15,14 @@ Curve fitting functions for experiment analysis
 # pylint: disable = invalid-name
 
 from typing import List, Dict, Tuple, Callable, Optional, Union
-from uncertainties import correlated_values, ufloat
+from uncertainties import correlated_values
 
 import numpy as np
 import scipy.optimize as opt
 from qiskit_experiments.exceptions import AnalysisError
 from qiskit_experiments.curve_analysis.data_processing import filter_data
 from qiskit_experiments.curve_analysis.curve_data import FitData
+from qiskit_experiments.framework import ExperimentVariable
 
 
 def curve_fit(
@@ -142,7 +143,8 @@ def curve_fit(
     else:
         # Ignore correlations, add standard error if finite.
         fit_params = [
-            ufloat(n, s if np.isfinite(s) else np.nan) for n, s in zip(popt, np.sqrt(np.diag(pcov)))
+            ExperimentVariable(n, s if np.isfinite(s) else np.nan)
+            for n, s in zip(popt, np.sqrt(np.diag(pcov)))
         ]
 
     # Calculate the reduced chi-squared for fit

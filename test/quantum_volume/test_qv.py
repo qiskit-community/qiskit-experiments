@@ -16,13 +16,12 @@ A Tester for the Quantum Volume experiment
 from test.base import QiskitExperimentsTestCase
 import json
 import os
-from uncertainties import UFloat
 from qiskit.quantum_info.operators.predicates import matrix_equal
 
 from qiskit import Aer
 from qiskit_experiments.framework import ExperimentData
 from qiskit_experiments.library import QuantumVolume
-from qiskit_experiments.framework import ExperimentDecoder
+from qiskit_experiments.framework import ExperimentDecoder, UFloat
 
 SEED = 42
 

@@ -212,6 +212,8 @@ Experiment Data Classes
     AnalysisConfig
     ExperimentEncoder
     ExperimentDecoder
+    ExperimentVariable
+    ExperimentAffineScalarFunc
 
 .. _composite-experiment:
 
@@ -235,7 +237,9 @@ Base Classes
 
 .. _create-experiment:
 """
-from uncertainties.core import Variable as UFloat
+# This applies monkey patch to uncertainties package
+from .experiment_ufloat import ExperimentVariable, ExperimentAffineScalarFunc as UFloat
+
 from qiskit.providers.options import Options
 from qiskit_experiments.database_service.db_analysis_result import DbAnalysisResultV1
 from qiskit_experiments.database_service.db_fitval import FitVal

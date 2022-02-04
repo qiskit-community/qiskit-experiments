@@ -336,8 +336,7 @@ class CrossResonanceHamiltonianAnalysis(curve.CurveAnalysis):
                 else:
                     coef_val = 0.5 * (p0_val + p1_val) / (2 * np.pi)
 
-                # TODO temporally use tag for storing unit
-                coef_val.tag = "Hz"
+                coef_val.unit = "Hz"
 
                 extra_entries.append(
                     AnalysisResultData(

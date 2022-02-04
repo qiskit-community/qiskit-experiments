@@ -18,9 +18,13 @@ import math
 import warnings
 from typing import Optional
 import numpy as np
-from uncertainties import ufloat
 
-from qiskit_experiments.framework import BaseAnalysis, AnalysisResultData, Options
+from qiskit_experiments.framework import (
+    BaseAnalysis,
+    AnalysisResultData,
+    Options,
+    ExperimentVariable,
+)
 from qiskit_experiments.curve_analysis import plot_scatter, plot_errorbar
 
 
@@ -207,7 +211,7 @@ class QuantumVolumeAnalysis(BaseAnalysis):
 
         hop_result = AnalysisResultData(
             "mean_HOP",
-            value=ufloat(nominal_value=mean_hop, std_dev=sigma_hop),
+            value=ExperimentVariable(value=mean_hop, std_dev=sigma_hop),
             quality=quality,
             extra={
                 "HOPs": heavy_output_prob_exp,

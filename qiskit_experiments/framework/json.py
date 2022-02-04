@@ -26,7 +26,6 @@ import traceback
 from functools import lru_cache
 from types import FunctionType, MethodType
 from typing import Any, Dict, Type, Optional, Union, Callable
-from uncertainties import UFloat
 
 import numpy as np
 import scipy.sparse as sps
@@ -35,7 +34,6 @@ from qiskit.circuit import ParameterExpression, QuantumCircuit, qpy_serializatio
 from qiskit.circuit.library import BlueprintCircuit
 from qiskit.quantum_info import DensityMatrix
 from qiskit.quantum_info.operators.channel.quantum_channel import QuantumChannel
-from qiskit_experiments.framework import UFloat
 from qiskit_experiments.version import __version__
 
 
@@ -453,17 +451,6 @@ class ExperimentEncoder(json.JSONEncoder):
         if isinstance(obj, sps.spmatrix):
             value = _serialize_and_encode(obj, sps.save_npz, compress=False)
             return {"__type__": "spmatrix", "__value__": value}
-        if isinstance(obj, UFloat):
-            # Correlation to another ufloat value is not conserved.
-            # Basically a ufloat object identifies correlation with ufloat object id,
-            # so it is hard to recover exactly the same object from serialized data.
-            # However, you can still operate on the deserialized ufloat objects.
-            settings = {
-                "nominal_value": obj.nominal_value,
-                "std_dev": obj.std_dev,
-                "tag": obj.tag,
-            }
-            return _serialize_object(obj, settings=settings)
         if isinstance(obj, bytes):
             return _serialize_bytes(obj)
         if dataclasses.is_dataclass(obj):

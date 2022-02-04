@@ -12,9 +12,15 @@
 
 """Test parameter guess functions."""
 # pylint: disable=invalid-name
+
 from test.base import QiskitExperimentsTestCase
+
+import json
 from ddt import ddt, data
+
 from qiskit_experiments.database_service.db_fitval import FitVal
+from qiskit_experiments.database_service.utils import experiments_version
+from qiskit_experiments.framework import ExperimentVariable, ExperimentDecoder
 
 
 @ddt
@@ -30,16 +36,61 @@ class TestFitVal(QiskitExperimentsTestCase):
         [-1.3e1, 0.36, "a.u."],
     ]
 
-    @data(*__signle_value__)
-    def test_serialize(self, val):
-        """Test serialization of data."""
-        val = FitVal(*val)
-        self.assertRoundTripSerializable(val)
+    def test_deprecation(self):
+        """Test if fit val shows deprecation warning and being typecasted."""
+        with self.assertWarns(FutureWarning):
+            instance = FitVal(0.1, 0.2, unit="ab/cde**2")
+
+        self.assertIsInstance(instance, ExperimentVariable)
 
     @data(*__signle_value__)
-    def test_str(self, val):
-        """Test str."""
-        v = FitVal(*val)
-        ret = str(v)
+    def test_can_load(self, val):
+        """Test if we can still load cache data from old Qiskit Experiments."""
+        value, stderr, unit = val
 
-        self.assertEqual(ret, f"{val[0]} \u00B1 {val[1]} {val[2]}")
+        # This is necessary because we cannot instantiate FitVal
+        # Now FitVal is immediately typecasted to ExperimentVariable before
+        # the instance is created, i.e. __new__
+        # This mimics the behavior of loading analysis result created with
+        # old Qiskit Experiments.
+        hard_coded_json_str = f"""
+        {{
+            "__type__": "object", 
+            "__value__": {{
+                "class": {{
+                    "__type__": "type", 
+                    "__value__": {{
+                        "name": "FitVal", 
+                        "module": "qiskit_experiments.database_service.db_fitval",
+                        "version": "{experiments_version}"
+                    }}
+                }}, 
+                "settings": {{
+                    "value": {value}, 
+                    "stderr": {stderr},
+                    "unit": {f'"{unit}"' if unit else "null"}
+                }}, 
+                "version": "{experiments_version}"
+            }}
+        }}
+        """
+        with self.assertWarns(FutureWarning):
+            loaded_val = json.loads(hard_coded_json_str, cls=ExperimentDecoder)
+
+        self.assertIsInstance(loaded_val, ExperimentVariable)
+        self.assertEqual(loaded_val.nominal_value, value)
+        self.assertEqual(loaded_val.std_dev, stderr)
+        self.assertEqual(loaded_val.unit, unit)
+
+    @data(*__signle_value__)
+    def test_can_access(self, val):
+        """Test if we can still use old properties."""
+        with self.assertWarns(FutureWarning):
+            value, stderr, unit = val
+            val = FitVal(value=value, stderr=stderr, unit=unit)
+
+        with self.assertWarns(DeprecationWarning):
+            self.assertEqual(val.value, value)
+
+        with self.assertWarns(DeprecationWarning):
+            self.assertEqual(val.stderr, stderr)

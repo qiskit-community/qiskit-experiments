@@ -250,12 +250,21 @@ class TestCrossResonanceHamiltonian(QiskitExperimentsTestCase):
         self.assertExperimentDone(exp_data)
 
         self.assertEqual(exp_data.analysis_results(0).quality, "good")
+
+        # These values are computed from other analysis results in post hook.
+        # Thus these values are also round-trip tested.
         self.assertAlmostEqual(exp_data.analysis_results("omega_ix").value.n, ix, delta=2e4)
+        self.assertRoundTripSerializable(exp_data.analysis_results("omega_ix").value)
         self.assertAlmostEqual(exp_data.analysis_results("omega_iy").value.n, iy, delta=2e4)
+        self.assertRoundTripSerializable(exp_data.analysis_results("omega_iy").value)
         self.assertAlmostEqual(exp_data.analysis_results("omega_iz").value.n, iz, delta=2e4)
+        self.assertRoundTripSerializable(exp_data.analysis_results("omega_iz").value)
         self.assertAlmostEqual(exp_data.analysis_results("omega_zx").value.n, zx, delta=2e4)
+        self.assertRoundTripSerializable(exp_data.analysis_results("omega_zx").value)
         self.assertAlmostEqual(exp_data.analysis_results("omega_zy").value.n, zy, delta=2e4)
+        self.assertRoundTripSerializable(exp_data.analysis_results("omega_zy").value)
         self.assertAlmostEqual(exp_data.analysis_results("omega_zz").value.n, zz, delta=2e4)
+        self.assertRoundTripSerializable(exp_data.analysis_results("omega_zz").value)
 
     def test_experiment_config(self):
         """Test converting to and from config works"""
