@@ -49,7 +49,7 @@ class ResonatorSpectroscopy(Spectroscopy):
         meaningful signal. The default data processing workflow will therefore reduce the two-
         dimensional IQ data to one-dimensional data using the magnitude of each IQ point.
 
-        .. warning::
+        # section: warning
             Some backends may not have the required functionality to properly support resonator
             spectroscopy experiments. The experiment may not work or the resulting resonance
             may not properly reflect the properties of the readout resonator.
