@@ -14,6 +14,7 @@
 
 from test.base import QiskitExperimentsTestCase
 
+import json
 import numpy as np
 from uncertainties import unumpy as unp, ufloat
 
@@ -24,6 +25,7 @@ from qiskit_experiments.data_processing.nodes import (
     MinMaxNormalize,
     Probability,
 )
+from qiskit_experiments.framework.json import ExperimentDecoder, ExperimentEncoder
 from . import BaseDataProcessorTest
 
 
@@ -137,6 +139,11 @@ class TestAveraging(BaseDataProcessorTest):
             decimal=-8,
         )
 
+    def test_json(self):
+        """Check if the node is serializable."""
+        node = AverageData(axis=3)
+        self.assertRoundTripSerializable(node, check_func=self.json_equiv)
+
 
 class TestToAbs(QiskitExperimentsTestCase):
     """Test the ToAbs node."""
@@ -206,6 +213,11 @@ class TestNormalize(QiskitExperimentsTestCase):
             expected_error,
         )
 
+    def test_json(self):
+        """Check if the node is serializable."""
+        node = MinMaxNormalize()
+        self.assertRoundTripSerializable(node, check_func=self.json_equiv)
+
 
 class TestSVD(BaseDataProcessorTest):
     """Test the SVD nodes."""
@@ -223,10 +235,14 @@ class TestSVD(BaseDataProcessorTest):
         iq_svd.train(np.asarray([datum["memory"] for datum in self.iq_experiment.data()]))
 
         # qubit 0 IQ data is oriented along (1,1)
-        np.testing.assert_array_almost_equal(iq_svd._main_axes[0], np.array([-1, -1]) / np.sqrt(2))
+        np.testing.assert_array_almost_equal(
+            iq_svd.parameters.main_axes[0], np.array([-1, -1]) / np.sqrt(2)
+        )
 
         # qubit 1 IQ data is oriented along (1, -1)
-        np.testing.assert_array_almost_equal(iq_svd._main_axes[1], np.array([-1, 1]) / np.sqrt(2))
+        np.testing.assert_array_almost_equal(
+            iq_svd.parameters.main_axes[1], np.array([-1, 1]) / np.sqrt(2)
+        )
 
         # This is n_circuit = 1, n_slot = 2, the input shape should be [1, 2, 2]
         # Then the output shape will be [1, 2] by reducing the last dimension
@@ -273,10 +289,10 @@ class TestSVD(BaseDataProcessorTest):
         iq_svd.train(np.asarray([datum["memory"] for datum in self.iq_experiment.data()]))
 
         np.testing.assert_array_almost_equal(
-            iq_svd._main_axes[0], np.array([-0.99633018, -0.08559302])
+            iq_svd.parameters.main_axes[0], np.array([-0.99633018, -0.08559302])
         )
         np.testing.assert_array_almost_equal(
-            iq_svd._main_axes[1], np.array([-0.99627747, -0.0862044])
+            iq_svd.parameters.main_axes[1], np.array([-0.99627747, -0.0862044])
         )
 
     def test_svd_error(self):
@@ -285,9 +301,9 @@ class TestSVD(BaseDataProcessorTest):
         # Then the output shape will be [1, 1] by reducing the last dimension
 
         iq_svd = SVD()
-        iq_svd._main_axes = np.array([[1.0, 0.0]])
-        iq_svd._scales = [1.0]
-        iq_svd._means = [[0.0, 0.0]]
+        iq_svd.set_parameters(
+            main_axes=np.array([[1.0, 0.0]]), scales=[1.0], i_means=[0.0], q_means=[0.0]
+        )
 
         # Since the axis is along the real part the imaginary error is irrelevant.
         processed_data = iq_svd(unp.uarray(nominal_values=[[[1.0, 0.2]]], std_devs=[[[0.2, 0.1]]]))
@@ -300,7 +316,7 @@ class TestSVD(BaseDataProcessorTest):
         np.testing.assert_array_almost_equal(unp.std_devs(processed_data), np.array([[0.2]]))
 
         # Tilt the axis to an angle of 36.9... degrees
-        iq_svd._main_axes = np.array([[0.8, 0.6]])
+        iq_svd.set_parameters(main_axes=np.array([[0.8, 0.6]]))
 
         processed_data = iq_svd(unp.uarray(nominal_values=[[[1.0, 0.0]]], std_devs=[[[0.2, 0.3]]]))
         cos_ = np.cos(np.arctan(0.6 / 0.8))
@@ -313,6 +329,22 @@ class TestSVD(BaseDataProcessorTest):
             unp.std_devs(processed_data),
             np.array([[np.sqrt((0.2 * cos_) ** 2 + (0.3 * sin_) ** 2)]]),
         )
+
+    def test_json(self):
+        """Check if the node is serializable."""
+        node = SVD()
+        self.assertRoundTripSerializable(node, check_func=self.json_equiv)
+
+    def test_json_trained(self):
+        """Check if the trained node is serializable."""
+        node = SVD()
+        node.set_parameters(
+            main_axes=np.array([[1.0, 2.0]]), scales=[1.0], i_means=[2.0], q_means=[3.0]
+        )
+        self.assertRoundTripSerializable(node, check_func=self.json_equiv)
+
+        loaded_node = json.loads(json.dumps(node, cls=ExperimentEncoder), cls=ExperimentDecoder)
+        self.assertTrue(loaded_node.is_trained)
 
 
 class TestProbability(QiskitExperimentsTestCase):
@@ -340,3 +372,8 @@ class TestProbability(QiskitExperimentsTestCase):
         data = {"1": 512, "0": 512}
         processed_data = node(data=np.asarray([data]))
         self.assertAlmostEqual(unp.nominal_values(processed_data), 0.5)
+
+    def test_json(self):
+        """Check if the node is serializable."""
+        node = Probability(outcome="00", alpha_prior=0.2)
+        self.assertRoundTripSerializable(node, check_func=self.json_equiv)
