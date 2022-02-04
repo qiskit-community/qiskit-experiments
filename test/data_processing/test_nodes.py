@@ -16,10 +16,11 @@ from test.base import QiskitExperimentsTestCase
 
 import json
 import numpy as np
-from uncertainties import unumpy as unp
+from uncertainties import unumpy as unp, ufloat
 
 from qiskit_experiments.data_processing.nodes import (
     SVD,
+    ToAbs,
     AverageData,
     MinMaxNormalize,
     Probability,
@@ -142,6 +143,44 @@ class TestAveraging(BaseDataProcessorTest):
         """Check if the node is serializable."""
         node = AverageData(axis=3)
         self.assertRoundTripSerializable(node, check_func=self.json_equiv)
+
+
+class TestToAbs(QiskitExperimentsTestCase):
+    """Test the ToAbs node."""
+
+    def test_simple(self):
+        """Simple test to check the it runs."""
+
+        data = [
+            [[ufloat(2.0, np.nan), ufloat(2.0, np.nan)]],
+            [[ufloat(1.0, np.nan), ufloat(2.0, np.nan)]],
+            [[ufloat(2.0, 0.2), ufloat(3.0, 0.3)]],
+        ]
+
+        processed = ToAbs()(np.array(data))
+
+        val = np.sqrt(2**2 + 3**2)
+        val_err = np.sqrt(2**2 * 0.2**2 + 2**2 * 0.3**2) / val
+
+        expected = np.array(
+            [
+                [ufloat(np.sqrt(8), np.nan)],
+                [ufloat(np.sqrt(5), np.nan)],
+                [ufloat(val, val_err)],
+            ]
+        )
+
+        np.testing.assert_array_almost_equal(
+            unp.nominal_values(processed),
+            unp.nominal_values(expected),
+            decimal=-8,
+        )
+
+        np.testing.assert_array_almost_equal(
+            unp.std_devs(processed),
+            unp.std_devs(expected),
+            decimal=-8,
+        )
 
 
 class TestNormalize(QiskitExperimentsTestCase):

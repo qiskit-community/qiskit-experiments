@@ -13,6 +13,7 @@
 """Different data analysis steps."""
 
 from abc import abstractmethod
+from enum import Enum
 from numbers import Number
 from typing import Union, Sequence
 
@@ -378,6 +379,22 @@ class ToImag(IQPart):
         return data[..., 1] * self.scale
 
 
+class ToAbs(IQPart):
+    """IQ data post-processing. Take the absolute value of the IQ point."""
+
+    def _process(self, data: np.array) -> np.array:
+        """Take the absolute value of the IQ data.
+
+        Args:
+            data: An N-dimensional array of complex IQ point as [real, imaginary].
+
+        Returns:
+            A N-1 dimensional array, each entry is the absolute value of the given IQ data.
+        """
+        # pylint: disable=no-member
+        return unp.sqrt(data[..., 0] ** 2 + data[..., 1] ** 2) * self.scale
+
+
 class Probability(DataAction):
     r"""Compute the mean probability of a single measurement outcome from counts.
 
@@ -570,3 +587,12 @@ class BasisExpectationValue(DataAction):
             The data that has been processed.
         """
         return 2 * (0.5 - data)
+
+
+class ProjectorType(Enum):
+    """Types of projectors for data dimensionality reduction."""
+
+    SVD = SVD
+    ABS = ToAbs
+    REAL = ToReal
+    IMAG = ToImag
