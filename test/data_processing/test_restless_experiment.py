@@ -73,6 +73,3 @@ class TestFineAmpEndToEndRestless(QiskitExperimentsTestCase):
         # check that the fit amplitude is much smaller than 1.
         amp_fit = expdata.analysis_results(0).value.value[0]
         self.assertTrue(amp_fit < 0.05)
-
-        # this does not always work
-        # self.assertEqual(result.quality, "bad")
