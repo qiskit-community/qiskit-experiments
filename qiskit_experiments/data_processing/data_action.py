@@ -104,15 +104,17 @@ class TrainableDataAction(DataAction):
 
     .. note::
 
-        The parameters set to this node by the training should be listed in
-        the class method :meth:`._default_parameters`.
-        The parameters defined there are initialized at the constructor
-        and serialized together with the constructor arguments.
+        The parameters of trainable nodes computed during training should be listed
+        in the class method :meth:`._default_parameters`. These parameters
+        are initialized at construction time and serialized together with the 
+        constructor arguments. All parameters defined in 
+        :meth:`._default_parameters` should be assigned a `None` value to
+        indicate that the node has not been trained.
 
-        Parameter values can be updated with :meth:`.set_parameters` method
-        and one can refer to the values with :meth:`.parameters`.
+        Parameter values can be updated with the :meth:`.set_parameters` method
+        and refer to using the :meth:`.parameters` method.
         This is required to correctly JSON serialize and deserialize
-        a processing node with parameters populated by the previous training.
+        a trainable node with parameters set during training.
     """
 
     def __init__(self, validate: bool = True):
@@ -126,12 +128,16 @@ class TrainableDataAction(DataAction):
 
     @classmethod
     def _default_parameters(cls) -> Options:
-        """Set default node parameters."""
+        """Parameters of trainable nodes.
+        
+        The parameters defined here should be assigned a `None` to
+        indicate that the node has not been trained.
+        """
         return Options()
 
     @property
     def parameters(self) -> Options:
-        """Returns the trained node parameters."""
+        """Return the parameters of the trainable node."""
         return self._parameters
 
     def set_parameters(self, **fields):
