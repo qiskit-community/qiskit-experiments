@@ -111,10 +111,10 @@ class TrainableDataAction(DataAction):
         :meth:`._default_parameters` should be assigned a `None` value to
         indicate that the node has not been trained.
 
-        Parameter values can be updated with :meth:`.set_parameters` method
-        and one can refer to the values with :meth:`.parameters`.
+        Parameter values can be updated with the :meth:`.set_parameters` method
+        and refer to using the :meth:`.parameters` method.
         This is required to correctly JSON serialize and deserialize
-        a processing node with parameters populated by the previous training.
+        a trainable node with parameters set during training.
     """
 
     def __init__(self, validate: bool = True):
