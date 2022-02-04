@@ -137,7 +137,7 @@ class TrainableDataAction(DataAction):
 
     @property
     def parameters(self) -> Options:
-        """Returns the trained node parameters."""
+        """Return the parameters of the trainable node."""
         return self._parameters
 
     def set_parameters(self, **fields):
