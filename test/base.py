@@ -29,6 +29,7 @@ from qiskit_experiments.framework import (
     BaseExperiment,
     BaseAnalysis,
 )
+from qiskit_experiments.data_processing import DataAction, DataProcessor
 
 
 class QiskitExperimentsTestCase(QiskitTestCase):
@@ -77,6 +78,7 @@ class QiskitExperimentsTestCase(QiskitTestCase):
         """Check if two experiments are equivalent by comparing their configs"""
         # pylint: disable = too-many-return-statements
         configrable_type = (BaseExperiment, BaseAnalysis)
+        compare_repr = (DataAction, DataProcessor)
         list_type = (list, tuple, set)
         skipped = (Calibrations,)
 
@@ -98,5 +100,8 @@ class QiskitExperimentsTestCase(QiskitTestCase):
             return np.allclose(data1, data2)
         elif isinstance(data1, list_type) and isinstance(data2, list_type):
             return all(QiskitExperimentsTestCase.json_equiv(e1, e2) for e1, e2 in zip(data1, data2))
+        elif isinstance(data1, compare_repr) and isinstance(data2, compare_repr):
+            # otherwise compare instance representation
+            return repr(data1) == repr(data2)
 
         return data1 == data2
