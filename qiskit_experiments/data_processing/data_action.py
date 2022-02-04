@@ -145,6 +145,9 @@ class TrainableDataAction(DataAction):
     def is_trained(self) -> bool:
         """Return False if the DataAction needs to be trained.
 
+        A node is considered trained if all its parameters are assigned,
+        or do not have ``None`` values.
+
         Return:
             True if the data action has been trained.
         """

@@ -134,6 +134,17 @@ class SVD(TrainableDataAction):
 
     @classmethod
     def _default_parameters(cls) -> Options:
+        """Default parameters.
+
+        Parameters are defined for each qubit in the data and thus
+        represented as an array-like.
+
+        Trainable parameters:
+            main_axes: A unit vector representing the main axis in IQ plane.
+            i_means: Mean value of training data along I quadrature.
+            q_means: Mean value of training data along Q quadrature.
+            scales: Scaling of IQ signal.
+        """
         params = super()._default_parameters()
         params.main_axes = None
         params.i_means = None
