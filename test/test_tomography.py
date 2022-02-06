@@ -136,9 +136,8 @@ class TestStateTomography(QiskitExperimentsTestCase):
             clbits = meta.get("clbits")
             self.assertEqual(clbits, list(range(num_meas)), msg="metadata clbits is incorrect")
 
-        # Check experiment target metadata is correct
-        exp_meta = exp._metadata()
-        target_state = exp_meta.get("target")
+        # Check analysis target is correct
+        target_state = exp.analysis.options.target
 
         target_circ = QuantumCircuit(num_meas)
         for i, qubit in enumerate(meas_qubits):
@@ -344,9 +343,8 @@ class TestProcessTomography(QiskitExperimentsTestCase):
             clbits = meta.get("clbits")
             self.assertEqual(clbits, list(range(num_meas)), msg="metadata clbits is incorrect")
 
-        # Check experiment target metadata is correct
-        exp_meta = exp._metadata()
-        target_state = exp_meta.get("target")
+        # Check analysis target is correct
+        target_state = exp.analysis.options.target
 
         target_circ = QuantumCircuit(num_meas)
         for i, qubit in enumerate(qubits):

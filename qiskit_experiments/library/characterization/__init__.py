@@ -43,6 +43,7 @@ Experiments
     FineDrag
     FineXDrag
     FineSXDrag
+    ResonatorSpectroscopy
 
 
 Analysis
@@ -63,6 +64,7 @@ Analysis
     FineAmplitudeAnalysis
     RamseyXYAnalysis
     ReadoutAngleAnalysis
+    ResonatorSpectroscopyAnalysis
 """
 
 from .analysis import (
@@ -77,6 +79,7 @@ from .analysis import (
     TphiAnalysis,
     CrossResonanceHamiltonianAnalysis,
     ReadoutAngleAnalysis,
+    ResonatorSpectroscopyAnalysis,
 )
 
 from .t1 import T1
@@ -94,3 +97,4 @@ from .fine_frequency import FineFrequency
 from .drag import RoughDrag
 from .readout_angle import ReadoutAngle
 from .fine_drag import FineDrag, FineXDrag, FineSXDrag
+from .resonator_spectroscopy import ResonatorSpectroscopy
