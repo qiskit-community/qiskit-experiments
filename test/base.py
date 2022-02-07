@@ -38,7 +38,7 @@ class QiskitExperimentsTestCase(QiskitTestCase):
     def assertExperimentDone(
         self,
         experiment_data: ExperimentData,
-        timeout: float = 600,
+        timeout: float = 120,
     ):
         """Blocking execution of next line until all threads are completed then
         checks if status returns Done.
