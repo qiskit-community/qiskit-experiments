@@ -80,7 +80,7 @@ class TestFitVal(QiskitExperimentsTestCase):
         self.assertIsInstance(loaded_val, ExperimentVariable)
         self.assertEqual(loaded_val.nominal_value, value)
         self.assertEqual(loaded_val.std_dev, stderr)
-        self.assertEqual(loaded_val.unit, unit)
+        self.assertEqual(loaded_val.tag, unit)
 
     @data(*__signle_value__)
     def test_can_access(self, val):

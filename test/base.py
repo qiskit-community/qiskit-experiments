@@ -105,3 +105,8 @@ class QiskitExperimentsTestCase(QiskitTestCase):
             return repr(data1) == repr(data2)
 
         return data1 == data2
+
+    @staticmethod
+    def ufloat_equiv(data1, data2) -> bool:
+        """Check if two values with uncertainties are equal. No correlation is considered."""
+        return data1.n == data2.n and data1.s == data2.s

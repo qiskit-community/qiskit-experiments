@@ -23,7 +23,7 @@ from qiskit_experiments.framework.json import (
     ExperimentDecoder,
     _serialize_safe_float,
 )
-from qiskit_experiments.framework.experiment_ufloat import ExperimentAffineScalarFunc
+from qiskit_experiments.framework import UFloat
 from .database_service import DatabaseServiceV1
 from .utils import save_data, qiskit_version
 from .exceptions import DbExperimentDataError
@@ -187,14 +187,14 @@ class DbAnalysisResultV1(DbAnalysisResult):
                 result_data["variance"] = self._display_format(value.stderr**2)
             if isinstance(value.unit, str):
                 result_data["unit"] = value.unit
-        elif isinstance(value, ExperimentAffineScalarFunc):
+        elif isinstance(value, UFloat):
             db_value = self._display_format(value.nominal_value)
             if db_value is not None:
                 result_data["value"] = db_value
             if isinstance(value.std_dev, (int, float)):
                 result_data["variance"] = self._display_format(value.std_dev**2)
-            if isinstance(value.unit, str):
-                result_data["unit"] = value.unit
+            if "unit" in self.extra:
+                result_data["unit"] = self.extra["unit"]
         else:
             db_value = self._display_format(value)
             if db_value is not None:

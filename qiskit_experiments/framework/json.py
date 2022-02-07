@@ -34,6 +34,7 @@ from qiskit.circuit import ParameterExpression, QuantumCircuit, qpy_serializatio
 from qiskit.circuit.library import BlueprintCircuit
 from qiskit.quantum_info import DensityMatrix
 from qiskit.quantum_info.operators.channel.quantum_channel import QuantumChannel
+from qiskit_experiments.framework import ExperimentVariable, UFloat
 from qiskit_experiments.version import __version__
 
 
@@ -455,6 +456,27 @@ class ExperimentEncoder(json.JSONEncoder):
             return _serialize_bytes(obj)
         if dataclasses.is_dataclass(obj):
             return _serialize_object(obj, settings=dataclasses.asdict(obj))
+        if isinstance(obj, UFloat):
+            # This could be UFloat (AffineScalarFunc) or Variable.
+            # UFloat is a base class of Variable that contains parameter correlation.
+            # i.e. Variable is special subclass for single number.
+            # Since this object is not serializable, we will drop correlation information
+            # during serialization. Then both can be serialized as Variable.
+            # Note that UFloat doesn't have a tag.
+            settings = {
+                "value": obj.nominal_value,
+                "std_dev": obj.std_dev,
+                "tag": getattr(obj, "tag", None)
+            }
+            cls = ExperimentVariable
+            return {
+                "__type__": "object",
+                "__value__": {
+                    "class": _serialize_type(cls),
+                    "settings": settings,
+                    "version": get_object_version(cls),
+                }
+            }
         if isinstance(obj, QuantumCircuit):
             # TODO Remove the decompose when terra 6713 is released.
             if isinstance(obj, BlueprintCircuit):

@@ -15,6 +15,7 @@ Analysis class for curve fitting.
 """
 # pylint: disable=invalid-name
 
+import copy
 import dataclasses
 import functools
 import inspect
@@ -900,14 +901,17 @@ class CurveAnalysis(BaseAnalysis, ABC):
 
                     fit_val = fit_result.fitval(p_name)
                     if unit:
-                        fit_val.unit = unit
+                        metadata = copy.copy(self.options.extra)
+                        metadata["unit"] = unit
+                    else:
+                        metadata = self.options.extra
 
                     result_entry = AnalysisResultData(
                         name=p_repr,
                         value=fit_val,
                         chisq=fit_result.reduced_chisq,
                         quality=quality,
-                        extra=self.options.extra,
+                        extra=metadata,
                     )
                     analysis_results.append(result_entry)
 

@@ -64,7 +64,7 @@ class TestT2Hahn(QiskitExperimentsTestCase):
             self.assertExperimentDone(expdata)
             result = expdata.analysis_results("T2")
             fitval = result.value
-            self.assertRoundTripSerializable(fitval)
+            self.assertRoundTripSerializable(fitval, check_func=self.ufloat_equiv)
             if num_of_echoes != 0:
                 self.assertEqual(result.quality, "good")
                 self.assertAlmostEqual(fitval.n, estimated_t2hahn, delta=3)

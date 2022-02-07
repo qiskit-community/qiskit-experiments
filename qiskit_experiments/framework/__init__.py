@@ -237,8 +237,7 @@ Base Classes
 
 .. _create-experiment:
 """
-# This applies monkey patch to uncertainties package
-from .experiment_ufloat import ExperimentVariable, ExperimentAffineScalarFunc as UFloat
+from uncertainties.core import Variable as ExperimentVariable, UFloat
 
 from qiskit.providers.options import Options
 from qiskit_experiments.database_service.db_analysis_result import DbAnalysisResultV1

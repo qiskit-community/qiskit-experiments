@@ -254,17 +254,29 @@ class TestCrossResonanceHamiltonian(QiskitExperimentsTestCase):
         # These values are computed from other analysis results in post hook.
         # Thus these values are also round-trip tested.
         self.assertAlmostEqual(exp_data.analysis_results("omega_ix").value.n, ix, delta=2e4)
-        self.assertRoundTripSerializable(exp_data.analysis_results("omega_ix").value)
+        self.assertRoundTripSerializable(
+            exp_data.analysis_results("omega_ix").value, check_func=self.ufloat_equiv
+        )
         self.assertAlmostEqual(exp_data.analysis_results("omega_iy").value.n, iy, delta=2e4)
-        self.assertRoundTripSerializable(exp_data.analysis_results("omega_iy").value)
+        self.assertRoundTripSerializable(
+            exp_data.analysis_results("omega_iy").value, check_func=self.ufloat_equiv
+        )
         self.assertAlmostEqual(exp_data.analysis_results("omega_iz").value.n, iz, delta=2e4)
-        self.assertRoundTripSerializable(exp_data.analysis_results("omega_iz").value)
+        self.assertRoundTripSerializable(
+            exp_data.analysis_results("omega_iz").value, check_func=self.ufloat_equiv
+        )
         self.assertAlmostEqual(exp_data.analysis_results("omega_zx").value.n, zx, delta=2e4)
-        self.assertRoundTripSerializable(exp_data.analysis_results("omega_zx").value)
+        self.assertRoundTripSerializable(
+            exp_data.analysis_results("omega_zx").value, check_func=self.ufloat_equiv
+        )
         self.assertAlmostEqual(exp_data.analysis_results("omega_zy").value.n, zy, delta=2e4)
-        self.assertRoundTripSerializable(exp_data.analysis_results("omega_zy").value)
+        self.assertRoundTripSerializable(
+            exp_data.analysis_results("omega_zy").value, check_func=self.ufloat_equiv
+        )
         self.assertAlmostEqual(exp_data.analysis_results("omega_zz").value.n, zz, delta=2e4)
-        self.assertRoundTripSerializable(exp_data.analysis_results("omega_zz").value)
+        self.assertRoundTripSerializable(
+            exp_data.analysis_results("omega_zz").value, check_func=self.ufloat_equiv
+        )
 
     def test_experiment_config(self):
         """Test converting to and from config works"""

@@ -336,14 +336,13 @@ class CrossResonanceHamiltonianAnalysis(curve.CurveAnalysis):
                 else:
                     coef_val = 0.5 * (p0_val + p1_val) / (2 * np.pi)
 
-                coef_val.unit = "Hz"
-
                 extra_entries.append(
                     AnalysisResultData(
                         name=f"omega_{control}{target}",
                         value=coef_val,
                         chisq=fit_data.reduced_chisq,
                         device_components=[Qubit(q) for q in self._physical_qubits],
+                        extra={"unit": "Hz"}
                     )
                 )
 
