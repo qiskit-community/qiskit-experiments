@@ -212,8 +212,6 @@ Experiment Data Classes
     AnalysisConfig
     ExperimentEncoder
     ExperimentDecoder
-    ExperimentVariable
-    ExperimentAffineScalarFunc
 
 .. _composite-experiment:
 
