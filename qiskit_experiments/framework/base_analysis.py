@@ -144,13 +144,7 @@ class BaseAnalysis(ABC, StoreInitArgs):
         if not replace_results and _requires_copy(experiment_data):
             experiment_data = experiment_data.copy()
 
-        # Get experiment device components
-        if "physical_qubits" in experiment_data.metadata:
-            experiment_components = [
-                Qubit(qubit) for qubit in experiment_data.metadata["physical_qubits"]
-            ]
-        else:
-            experiment_components = []
+        experiment_components = self._get_experiment_components(experiment_data)
 
         # Set Analysis options
         if not options:
@@ -178,6 +172,17 @@ class BaseAnalysis(ABC, StoreInitArgs):
         experiment_data.add_analysis_callback(run_analysis)
 
         return experiment_data
+
+    def _get_experiment_components(self, experiment_data: ExperimentData):
+        """Subclasses may override this method to specify the experiment components."""
+        if "physical_qubits" in experiment_data.metadata:
+            experiment_components = [
+                Qubit(qubit) for qubit in experiment_data.metadata["physical_qubits"]
+            ]
+        else:
+            experiment_components = []
+
+        return experiment_components
 
     def _format_analysis_result(self, data, experiment_id, experiment_components=None):
         """Format run analysis result to DbAnalysisResult"""

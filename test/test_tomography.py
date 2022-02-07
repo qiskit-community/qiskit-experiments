@@ -47,11 +47,12 @@ class TestStateTomography(QiskitExperimentsTestCase):
         backend = AerSimulator(seed_simulator=9000)
         seed = 1234
         f_threshold = 0.95
-        target = qi.random_statevector(2 ** num_qubits, seed=seed)
+        target = qi.random_statevector(2**num_qubits, seed=seed)
         qstexp = StateTomography(target)
         if fitter:
             qstexp.analysis.set_options(fitter=fitter)
         expdata = qstexp.run(backend)
+        self.assertExperimentDone(expdata)
         results = expdata.analysis_results()
 
         # Check state is density matrix
@@ -77,6 +78,7 @@ class TestStateTomography(QiskitExperimentsTestCase):
         backend = AerSimulator(seed_simulator=9000)
         exp = StateTomography(teleport_circuit(), measurement_qubits=[2])
         expdata = exp.run(backend)
+        self.assertExperimentDone(expdata)
         results = expdata.analysis_results()
 
         # Check result
@@ -126,7 +128,7 @@ class TestStateTomography(QiskitExperimentsTestCase):
         tomo_circuits = exp.circuits()
 
         # Check correct number of circuits are generated
-        self.assertEqual(len(tomo_circuits), 3 ** num_meas)
+        self.assertEqual(len(tomo_circuits), 3**num_meas)
 
         # Check circuit metadata is correct
         for circ in tomo_circuits:
@@ -134,9 +136,8 @@ class TestStateTomography(QiskitExperimentsTestCase):
             clbits = meta.get("clbits")
             self.assertEqual(clbits, list(range(num_meas)), msg="metadata clbits is incorrect")
 
-        # Check experiment target metadata is correct
-        exp_meta = exp._metadata()
-        target_state = exp_meta.get("target")
+        # Check analysis target is correct
+        target_state = exp.analysis.options.target
 
         target_circ = QuantumCircuit(num_meas)
         for i, qubit in enumerate(meas_qubits):
@@ -167,6 +168,7 @@ class TestStateTomography(QiskitExperimentsTestCase):
         backend = AerSimulator(seed_simulator=9000)
         exp = StateTomography(circ, measurement_qubits=meas_qubits)
         expdata = exp.run(backend)
+        self.assertExperimentDone(expdata)
         results = expdata.analysis_results()
 
         # Check result
@@ -208,7 +210,8 @@ class TestStateTomography(QiskitExperimentsTestCase):
         # Run batch experiments
         backend = AerSimulator(seed_simulator=9000)
         batch_exp = BatchExperiment(exps)
-        batch_data = batch_exp.run(backend).block_for_results()
+        batch_data = batch_exp.run(backend)
+        self.assertExperimentDone(batch_data)
 
         # Check target fidelity of component experiments
         f_threshold = 0.95
@@ -246,7 +249,8 @@ class TestStateTomography(QiskitExperimentsTestCase):
         # Run batch experiments
         backend = AerSimulator(seed_simulator=9000)
         par_exp = ParallelExperiment(exps)
-        par_data = par_exp.run(backend).block_for_results()
+        par_data = par_exp.run(backend)
+        self.assertExperimentDone(par_data)
 
         # Check target fidelity of component experiments
         f_threshold = 0.95
@@ -293,11 +297,12 @@ class TestProcessTomography(QiskitExperimentsTestCase):
         backend = AerSimulator(seed_simulator=9000)
         seed = 1234
         f_threshold = 0.94
-        target = qi.random_unitary(2 ** num_qubits, seed=seed)
+        target = qi.random_unitary(2**num_qubits, seed=seed)
         qstexp = ProcessTomography(target)
         if fitter:
             qstexp.analysis.set_options(fitter=fitter)
         expdata = qstexp.run(backend)
+        self.assertExperimentDone(expdata)
         results = expdata.analysis_results()
 
         # Check state is density matrix
@@ -329,7 +334,7 @@ class TestProcessTomography(QiskitExperimentsTestCase):
         tomo_circuits = exp.circuits()
 
         # Check correct number of circuits are generated
-        size = 3 ** num_meas * 4 ** num_meas
+        size = 3**num_meas * 4**num_meas
         self.assertEqual(len(tomo_circuits), size)
 
         # Check circuit metadata is correct
@@ -338,9 +343,8 @@ class TestProcessTomography(QiskitExperimentsTestCase):
             clbits = meta.get("clbits")
             self.assertEqual(clbits, list(range(num_meas)), msg="metadata clbits is incorrect")
 
-        # Check experiment target metadata is correct
-        exp_meta = exp._metadata()
-        target_state = exp_meta.get("target")
+        # Check analysis target is correct
+        target_state = exp.analysis.options.target
 
         target_circ = QuantumCircuit(num_meas)
         for i, qubit in enumerate(qubits):
@@ -371,6 +375,7 @@ class TestProcessTomography(QiskitExperimentsTestCase):
         backend = AerSimulator(seed_simulator=9000)
         exp = ProcessTomography(circ, measurement_qubits=qubits, preparation_qubits=qubits)
         expdata = exp.run(backend)
+        self.assertExperimentDone(expdata)
         results = expdata.analysis_results()
 
         # Check result
@@ -397,6 +402,7 @@ class TestProcessTomography(QiskitExperimentsTestCase):
         backend = AerSimulator(seed_simulator=9000)
         exp = ProcessTomography(teleport_circuit(), measurement_qubits=[2], preparation_qubits=[0])
         expdata = exp.run(backend, shots=10000)
+        self.assertExperimentDone(expdata)
         results = expdata.analysis_results()
 
         # Check result
@@ -431,7 +437,8 @@ class TestProcessTomography(QiskitExperimentsTestCase):
         # Run batch experiments
         backend = AerSimulator(seed_simulator=9000)
         batch_exp = BatchExperiment(exps)
-        batch_data = batch_exp.run(backend).block_for_results()
+        batch_data = batch_exp.run(backend)
+        self.assertExperimentDone(batch_data)
 
         # Check target fidelity of component experiments
         f_threshold = 0.95
@@ -467,7 +474,8 @@ class TestProcessTomography(QiskitExperimentsTestCase):
         # Run batch experiments
         backend = AerSimulator(seed_simulator=9000)
         par_exp = ParallelExperiment(exps)
-        par_data = par_exp.run(backend).block_for_results()
+        par_data = par_exp.run(backend)
+        self.assertExperimentDone(par_data)
 
         # Check target fidelity of component experiments
         f_threshold = 0.95
@@ -485,6 +493,50 @@ class TestProcessTomography(QiskitExperimentsTestCase):
             # Manually check fidelity
             target_fid = qi.process_fidelity(state, targets[i], require_tp=False, require_cp=False)
             self.assertAlmostEqual(fid, target_fid, places=6, msg="result fidelity is incorrect")
+
+    def test_mixed_batch_exp(self):
+        """Test batch state and process tomography experiment"""
+        # Subsystem unitaries
+        state_op = qi.random_unitary(2, seed=321)
+        chan_op = qi.random_unitary(2, seed=123)
+
+        state_target = qi.Statevector(state_op.to_instruction())
+        chan_target = qi.Choi(chan_op.to_instruction())
+
+        state_exp = StateTomography(state_op)
+        chan_exp = ProcessTomography(chan_op)
+        batch_exp = BatchExperiment([state_exp, chan_exp])
+
+        # Run batch experiments
+        backend = AerSimulator(seed_simulator=9000)
+        par_data = batch_exp.run(backend)
+        self.assertExperimentDone(par_data)
+
+        f_threshold = 0.95
+
+        # Check state tomo results
+        state_results = par_data.child_data(0).analysis_results()
+        state = filter_results(state_results, "state").value
+
+        # Check fit state fidelity
+        state_fid = filter_results(state_results, "state_fidelity").value
+        self.assertGreater(state_fid, f_threshold, msg="fit fidelity is low")
+
+        # Manually check fidelity
+        target_fid = qi.state_fidelity(state, state_target, validate=False)
+        self.assertAlmostEqual(state_fid, target_fid, places=6, msg="result fidelity is incorrect")
+
+        # Check process tomo results
+        chan_results = par_data.child_data(1).analysis_results()
+        chan = filter_results(chan_results, "state").value
+
+        # Check fit process fidelity
+        chan_fid = filter_results(chan_results, "process_fidelity").value
+        self.assertGreater(chan_fid, f_threshold, msg="fit fidelity is low")
+
+        # Manually check fidelity
+        target_fid = qi.process_fidelity(chan, chan_target, require_cp=False, require_tp=False)
+        self.assertAlmostEqual(chan_fid, target_fid, places=6, msg="result fidelity is incorrect")
 
     def test_experiment_config(self):
         """Test converting to and from config works"""
