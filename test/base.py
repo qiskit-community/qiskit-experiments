@@ -35,15 +35,20 @@ from qiskit_experiments.data_processing import DataAction, DataProcessor
 class QiskitExperimentsTestCase(QiskitTestCase):
     """Qiskit Experiments specific extra functionality for test cases."""
 
-    def assertExperimentDone(self, experiment_data: ExperimentData):
+    def assertExperimentDone(
+        self,
+        experiment_data: ExperimentData,
+        timeout: float = 600,
+    ):
         """Blocking execution of next line until all threads are completed then
         checks if status returns Done.
 
         Args:
             experiment_data: Experiment data to evaluate.
+            timeout: The maximum time we wait for executor to complete.
         """
         # 10 minutes should be enough for unittest without queueing
-        experiment_data.block_for_results(timeout=600)
+        experiment_data.block_for_results(timeout=timeout)
 
         self.assertEqual(
             experiment_data.status(),
