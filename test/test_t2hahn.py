@@ -61,7 +61,7 @@ class TestT2Hahn(QiskitExperimentsTestCase):
                 p0={"amp": 0.5, "tau": estimated_t2hahn, "base": 0.5}, plot=True
             )
             expdata = exp.run(backend=backend, shots=1000)
-            self.assertExperimentDone(expdata)
+            self.assertExperimentDone(expdata, timeout=300)
             result = expdata.analysis_results("T2")
             fitval = result.value
             self.assertRoundTripSerializable(fitval, check_func=self.ufloat_equiv)
