@@ -72,6 +72,7 @@ def get_processor(
     meas_level = run_options.get("meas_level", MeasLevel.CLASSIFIED)
     meas_return = run_options.get("meas_return", MeasReturnType.AVERAGE)
     normalize = analysis_options.get("normalization", True)
+    esp_enabled = analysis_options.get("use_measure_esp", False)
 
     physical_qubits = experiment_data.metadata["physical_qubits"]
     num_qubits = len(physical_qubits)
@@ -86,6 +87,15 @@ def get_processor(
     # restless data processing.
     restless = False
     if rep_delay and not init_qubits:
+        if esp_enabled:
+            raise DataProcessorError(
+                f"Restless experiments are not compatible with the excited "
+                f"state promotion readout analysis option."
+            )
+        if num_qubits > 1:
+            raise DataProcessorError(
+                f"To date, only single-qubit restless measurements can be processed."
+            )
         t1_values = [
             experiment_data.backend.properties().qubit_property(physical_qubit)["T1"][0]
             for physical_qubit in physical_qubits
