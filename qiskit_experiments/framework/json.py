@@ -466,7 +466,7 @@ class ExperimentEncoder(json.JSONEncoder):
             settings = {
                 "value": obj.nominal_value,
                 "std_dev": obj.std_dev,
-                "tag": getattr(obj, "tag", None)
+                "tag": getattr(obj, "tag", None),
             }
             cls = ExperimentVariable
             return {
@@ -475,7 +475,7 @@ class ExperimentEncoder(json.JSONEncoder):
                     "class": _serialize_type(cls),
                     "settings": settings,
                     "version": get_object_version(cls),
-                }
+                },
             }
         if isinstance(obj, QuantumCircuit):
             # TODO Remove the decompose when terra 6713 is released.

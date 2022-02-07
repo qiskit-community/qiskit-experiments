@@ -342,7 +342,7 @@ class CrossResonanceHamiltonianAnalysis(curve.CurveAnalysis):
                         value=coef_val,
                         chisq=fit_data.reduced_chisq,
                         device_components=[Qubit(q) for q in self._physical_qubits],
-                        extra={"unit": "Hz"}
+                        extra={"unit": "Hz"},
                     )
                 )
 

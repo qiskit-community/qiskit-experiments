@@ -47,7 +47,6 @@ from qiskit_experiments.framework import (
     AnalysisResultData,
     Options,
     UFloat,
-    ExperimentVariable,
 )
 
 PARAMS_ENTRY_PREFIX = "@Parameters_"
