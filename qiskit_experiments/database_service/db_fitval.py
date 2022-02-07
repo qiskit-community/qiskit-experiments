@@ -38,7 +38,7 @@ class FitVal:
             out += f" {str(self.unit)}"
         return out
 
-    def __new__(cls, *args, **kwargs) -> uncertainties.core.Variable:
+    def __new__(cls, *args, **kwargs):
         # Note that FitVal can be instantiated from the json loader thus
         # DeprecationWarning is not captured by default execution setting.
         # It can be only seen if the code is executed from __main__.
@@ -60,6 +60,11 @@ class FitVal:
             tag = args[2]
         else:
             tag = kwargs.get("unit")
+
+        if not isinstance(nominal_value, float):
+            # might be an entry for all fitting parameters
+            # stdevs are no longer necessary since they can be computed from covariance matrix.
+            return list(nominal_value)
 
         return uncertainties.core.Variable(
             value=nominal_value,
