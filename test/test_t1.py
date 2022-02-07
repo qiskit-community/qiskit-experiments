@@ -49,7 +49,7 @@ class TestT1(QiskitExperimentsTestCase):
         self.assertRoundTripSerializable(res.value, check_func=self.ufloat_equiv)
         self.assertEqual(res.quality, "good")
         self.assertAlmostEqual(res.value.n, t1, delta=3)
-        self.assertEqual(res.value.unit, "s")
+        self.assertEqual(res.extra["unit"], "s")
 
         exp_data.service = FakeService()
         exp_data.save()

@@ -257,6 +257,14 @@ class DbAnalysisResultV1(DbAnalysisResult):
         extra = result_data.pop("_extra", {})
         source = result_data.pop("_source", None)
 
+        # For backward compatibility
+        # If loaded value is FitVal which may be typecasted into UFloat,
+        # the loader will copy unit in deprecated attribute to metadata for re-saving.
+        if isinstance(value, UFloat):
+            unit = getattr(value, "tag", None)
+            if unit:
+                extra["unit"] = unit
+
         # Initialize the result object
         obj = cls(
             name=service_data.pop("result_type"),

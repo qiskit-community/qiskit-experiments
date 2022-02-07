@@ -331,7 +331,7 @@ class TestCurveAnalysisIntegration(QiskitExperimentsTestCase):
         # special entry formatted for database
         result = results[1]
         self.assertEqual(result.name, "parameter_name")
-        self.assertEqual(result.value.unit, "unit")
+        self.assertEqual(result.extra["unit"], "unit")
         self.assertAlmostEqual(result.value.nominal_value, ref_p1, places=self.err_decimal)
 
     def test_run_single_curve_fail(self):

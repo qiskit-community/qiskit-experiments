@@ -94,3 +94,6 @@ class TestFitVal(QiskitExperimentsTestCase):
 
         with self.assertWarns(DeprecationWarning):
             self.assertEqual(val.stderr, stderr)
+
+        with self.assertWarns(DeprecationWarning):
+            self.assertEqual(val.unit, unit)
