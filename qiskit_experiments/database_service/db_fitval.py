@@ -61,16 +61,18 @@ class FitVal:
         else:
             tag = kwargs.get("unit")
 
-        if not isinstance(nominal_value, float):
-            # might be an entry for all fitting parameters
-            # stdevs are no longer necessary since they can be computed from covariance matrix.
-            return list(nominal_value)
-
-        return uncertainties.core.Variable(
-            value=nominal_value,
-            std_dev=std_dev,
-            tag=tag,
-        )
+        try:
+            # This might be fitting parameter entries
+            # This has been storing list of parameters and stdevs as a single FitVal
+            # Stdevs are no longer necessary since it can be computed with covariance matrix.
+            nominal_values = iter(nominal_value)
+            return list(nominal_values)
+        except TypeError:
+            return uncertainties.core.Variable(
+                value=nominal_value,
+                std_dev=std_dev,
+                tag=tag,
+            )
 
 
 # Monkey patch uncertainties UFloat class so that it behaves like
