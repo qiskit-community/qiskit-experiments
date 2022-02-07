@@ -34,13 +34,13 @@ upgrade:
     By default it shows 1 sigma and 3 sigma region but you can customize this
     via the ``style`` option of the curve analysis subclass.
   - |
-    In the analysis result object, :attr:``.unit`` property that is attached to :class:`FitVal`
-    has been moved to :attr:`.extra` as metadata.
+    In the analysis result object, :attr:`FitVal.unit` property has been moved to
+    :attr:`DbAnalysisResultV1.extra` as metadata.
 deprecations:
   - |
     The :class:`FitVal` class had been deprecated and being replaced with :class:`UFloat`.
     The saved analysis result containing the deprecated :class:`FitVal` can be
     still loaded with `FutureWarning` and implicitly typecasted into :class:`UFloat`.
-    The old properties :attr:`.value` and :attr:`.stddev` are backported so that
+    The old properties :attr:`FitVal.value` and :attr:`FitVal.stddev` are backported so that
     this doesn't induce any breaking API change. However, it is expected the loaded analysis result
     will be saved again to override the deprecated data format with :class:`UFloat`.
