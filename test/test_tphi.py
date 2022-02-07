@@ -98,6 +98,6 @@ class TestTphi(QiskitExperimentsTestCase):
     def test_analysis_config(self):
         """Test converting analysis to and from config works"""
         analysis = TphiAnalysis([T1Analysis(), T2RamseyAnalysis()])
-        loaded = analysis.from_config(analysis.config())
-        self.assertNotEqual(analysis, loaded)
-        self.assertEqual(analysis.config(), loaded.config())
+        loaded_analysis = analysis.from_config(analysis.config())
+        self.assertNotEqual(analysis, loaded_analysis)
+        self.assertEqual(analysis.config(), loaded_analysis.config())
