@@ -64,7 +64,7 @@ class ResonanceAnalysis(curve.CurveAnalysis):
                 x, amp=a, kappa=kappa, x0=freq, baseline=b
             ),
             plot_color="blue",
-            model_description=r"a \kappa / sqrt(kappa^2 + 4 * (x - x_0)^2) + b",
+            model_description=r"a |\kappa| / sqrt(kappa^2 + 4 * (x - x_0)^2) + b",
         )
     ]
 

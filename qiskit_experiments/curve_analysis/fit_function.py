@@ -83,9 +83,9 @@ def sqrt_lorentzian(
     r"""Square-root Lorentzian function for spectroscopy.
 
     .. math::
-        y = \frac{{\rm amp} \kappa}{\sqrt{\kappa^2 + 4(x -x_0)^2}} + {\rm baseline}
+        y = \frac{{\rm amp} |\kappa|}{\sqrt{\kappa^2 + 4(x -x_0)^2}} + {\rm baseline}
     """
-    return amp * kappa / np.sqrt(kappa**2 + 4 * (x - x0) ** 2) + baseline
+    return amp * abs(kappa) / np.sqrt(kappa**2 + 4 * (x - x0) ** 2) + baseline
 
 
 def cos_decay(
