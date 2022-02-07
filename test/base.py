@@ -47,7 +47,6 @@ class QiskitExperimentsTestCase(QiskitTestCase):
             experiment_data: Experiment data to evaluate.
             timeout: The maximum time in seconds to wait for executor to complete.
         """
-        # 10 minutes should be enough for unittest without queueing
         experiment_data.block_for_results(timeout=timeout)
 
         self.assertEqual(
