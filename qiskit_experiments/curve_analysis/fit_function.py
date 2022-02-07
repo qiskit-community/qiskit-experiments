@@ -117,9 +117,9 @@ def sqrt_lorentzian(
     r"""Square-root Lorentzian function for spectroscopy.
 
     .. math::
-        y = {\rm amp}{\rm abs}\left(\frac{1}{1 + 2i(x - x0)/\kappa}\right) + {\rm baseline}
+        y = \frac{{\rm amp} \kappa}{\sqrt{\kappa^2 + 4(x -x_0)^2}} + {\rm baseline}
     """
-    return amp * unp.abs(1 / (1 + 2.0j * (x - x0) / kappa)) + baseline
+    return amp * kappa / unp.sqrt(kappa**2 + 4 * (x - x0) ** 2) + baseline
 
 
 @typecast_float
