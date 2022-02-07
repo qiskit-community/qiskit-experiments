@@ -150,18 +150,32 @@ class DbAnalysisResultV1(DbAnalysisResult):
         Raises:
             DbExperimentDataError: If the analysis result contains invalid data.
         """
-        if not self._service:
+        if not self.service:
             LOG.warning(
                 "Analysis result cannot be saved because no experiment service is available."
             )
             return
 
+        # The next code sections construct the result_data dictionary.
+        # Eventually it will contain:
+        # - _value - value in its raw form, as given in self.value, which can be of type FitVal.
+        # - value (not prefixed by an underscore) - a formatted version of the nominal value
+        #     (self.value.value if self.value is of type FitVal). By "formatted" we mean that
+        #     edge cases like strings representing infinity are handled to allow proper
+        #     display (see DbAnalysisResult._display_format for details).
+        # - variance - a formatted version of the variance (self.value.variance if self.value is of
+        #     type FitVal).
+        # - unit - self.value.unit if self.value is of type FitVal.
+        # - _chisq - chisq in its raw form, as given in self.chisq, without formatting.
+        #
+        # Below, in the `update_data` dictionary, there is an item named `chisq`, which is the
+        #     formatted version of chisq.
         value = self.value
         result_data = {
             "_value": value,
-            "_chisq": self._chisq,
+            "_chisq": self.chisq,
             "_extra": self.extra,
-            "_source": self._source,
+            "_source": self.source,
         }
 
         # Format special DB display fields
@@ -187,7 +201,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
                 result_data["value"] = db_value
 
         new_data = {
-            "experiment_id": self._experiment_id,
+            "experiment_id": self.experiment_id,
             "result_type": self.name,
             "device_components": self.device_components,
         }
@@ -196,7 +210,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
             "result_id": self.result_id,
             "result_data": result_data,
             "tags": self.tags,
-            "chisq": self._display_format(self._chisq),
+            "chisq": self._display_format(self.chisq),
             "quality": self.quality,
             "verified": self.verified,
         }
@@ -223,7 +237,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
             verified=self.verified,
             tags=self.tags,
             service=self.service,
-            source=self._source,
+            source=self.source,
         )
 
     @classmethod

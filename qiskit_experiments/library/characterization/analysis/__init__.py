@@ -23,3 +23,4 @@ from .t2hahn_analysis import T2HahnAnalysis
 from .t1_analysis import T1Analysis
 from .cr_hamiltonian_analysis import CrossResonanceHamiltonianAnalysis
 from .readout_angle_analysis import ReadoutAngleAnalysis
+from .resonator_spectroscopy_analysis import ResonatorSpectroscopyAnalysis
