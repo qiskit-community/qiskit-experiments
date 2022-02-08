@@ -61,7 +61,7 @@ class TestT2Hahn(QiskitExperimentsTestCase):
                 p0={"amp": 0.5, "tau": estimated_t2hahn, "base": 0.5}, plot=True
             )
             expdata = exp.run(backend=backend, shots=1000)
-            expdata.block_for_results()  # Wait for job/analysis to finish.
+            self.assertExperimentDone(expdata, timeout=300)
             result = expdata.analysis_results("T2")
             fitval = result.value
             if num_of_echoes != 0:

@@ -34,7 +34,7 @@ class CompositeAnalysis(BaseAnalysis):
 
     .. note::
 
-        The the child :class:`ExperimentData` for each component experiment
+        If the child :class:`ExperimentData` for each component experiment
         does not already exist in the experiment data they will be initialized
         and added to the experiment data when :meth:`run` is called on the
         composite :class:`ExperimentData`.
@@ -91,7 +91,7 @@ class CompositeAnalysis(BaseAnalysis):
             )
 
         # Extract job metadata for the component experiments so it can be added
-        # to the child experiment data incase it is required by the child experiments
+        # to the child experiment data in case it is required by the child experiments
         # analysis classes
         component_metadata = experiment_data.metadata.get(
             "component_metadata", [{}] * len(component_ids)

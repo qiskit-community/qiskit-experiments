@@ -13,11 +13,8 @@
 T2Ramsey Experiment class.
 """
 from typing import Union
-
 from qiskit_experiments.data_processing import DataProcessor, Probability
 import qiskit_experiments.curve_analysis as curve
-
-
 from qiskit_experiments.framework import Options
 
 
