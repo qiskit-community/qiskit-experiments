@@ -102,8 +102,8 @@ class ZXHeat(composite.BatchExperiment):
         which may be fit by :math:`P(N) = \cos(N (d\theta_j + \pi) + \phi_{\rm offset})`,
         where :math:`d\theta_j = \Delta_{ZX}\pm \Delta_{IX}`.
         By combining error amplification fit parameters :math:`d\theta_j` for
-        different control qubit states :math:`j`, we can resolve the local (IX) and non-local (ZX)
-        dynamics of the Hamiltonian of interest.
+        different control qubit states :math:`j`, we can differentiate the local (IX) from the 
+        non-local (ZX) dynamics.
 
         In this pulse sequence, the pi-pulse echo is applied to the target qubit
         around the same axis as the interrogated error.
