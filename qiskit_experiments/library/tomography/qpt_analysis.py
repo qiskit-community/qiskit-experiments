@@ -83,11 +83,9 @@ class ProcessTomographyAnalysis(TomographyAnalysis):
             rescale_trace (bool): If True rescale the state returned by the fitter have either
                 trace 1 (Default: True).
             target (Union[str, :class:`~qiskit.quantum_info.operators.channel.quantum_channel`,
-                :class:`~qiskit.quantum_info.Operator`]): Set a custom target quantum
+                :class:`~qiskit.quantum_info.Operator`]): Optional, Set a custom target quantum
                 channel for computing the :func:~qiskit.quantum_info.process_fidelity` of the
-                fitted process against. If ``"default"`` the ideal process corresponding for
-                the input circuit will be used. If ``None`` no fidelity will be computed
-                (Default: "default").
+                fitted process against (Default: None).
         """
         options = super()._default_options()
         options.measurement_basis = PauliMeasurementBasis()

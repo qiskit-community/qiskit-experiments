@@ -58,6 +58,7 @@ class TestStandardRB(QiskitExperimentsTestCase):
             seed=exp_attributes["seed"],
         )
         exp_data = rb_exp.run(backend)
+        self.assertExperimentDone(exp_data)
         exp = exp_data.experiment
         exp_circuits = rb_exp.circuits()
         self.validate_metadata(exp_circuits, exp_attributes)
@@ -75,7 +76,7 @@ class TestStandardRB(QiskitExperimentsTestCase):
             circ.remove_final_measurements()
             # Checking if the matrix representation is the identity matrix
             self.assertTrue(
-                matrix_equal(Clifford(circ).to_matrix(), np.identity(2 ** num_qubits)),
+                matrix_equal(Clifford(circ).to_matrix(), np.identity(2**num_qubits)),
                 "Clifford sequence doesn't result in the identity matrix.",
             )
 
@@ -203,6 +204,7 @@ class TestInterleavedRB(TestStandardRB):
             seed=exp_attributes["seed"],
         )
         experiment_obj = rb_exp.run(backend)
+        self.assertExperimentDone(experiment_obj)
         exp_data = experiment_obj.experiment
         exp_circuits = rb_exp.circuits()
         self.validate_metadata(exp_circuits, exp_attributes)

@@ -74,7 +74,18 @@ def gaussian(
     .. math::
         y = {\rm amp} \cdot \exp \left( - (x - x0)^2 / 2 \sigma^2 \right) + {\rm baseline}
     """
-    return amp * np.exp(-((x - x0) ** 2) / (2 * sigma ** 2)) + baseline
+    return amp * np.exp(-((x - x0) ** 2) / (2 * sigma**2)) + baseline
+
+
+def sqrt_lorentzian(
+    x: np.ndarray, amp: float = 1.0, kappa: float = 1.0, x0: float = 0.0, baseline: float = 0.0
+) -> np.ndarray:
+    r"""Square-root Lorentzian function for spectroscopy.
+
+    .. math::
+        y = \frac{{\rm amp} |\kappa|}{\sqrt{\kappa^2 + 4(x -x_0)^2}} + {\rm baseline}
+    """
+    return amp * abs(kappa) / np.sqrt(kappa**2 + 4 * (x - x0) ** 2) + baseline
 
 
 def cos_decay(
@@ -123,9 +134,9 @@ def bloch_oscillation_x(
     where :math:`\omega = \sqrt{p_x^2 + p_y^2 + p_z^2}`. The `p_i` stands for the
     measured probability in :math:`i \in \left\{ X, Y, Z \right\}` basis.
     """
-    w = np.sqrt(px ** 2 + py ** 2 + pz ** 2)
+    w = np.sqrt(px**2 + py**2 + pz**2)
 
-    return (-pz * px + pz * px * np.cos(w * x) + w * py * np.sin(w * x)) / (w ** 2) + baseline
+    return (-pz * px + pz * px * np.cos(w * x) + w * py * np.sin(w * x)) / (w**2) + baseline
 
 
 def bloch_oscillation_y(
@@ -140,9 +151,9 @@ def bloch_oscillation_y(
     where :math:`\omega = \sqrt{p_x^2 + p_y^2 + p_z^2}`. The `p_i` stands for the
     measured probability in :math:`i \in \left\{ X, Y, Z \right\}` basis.
     """
-    w = np.sqrt(px ** 2 + py ** 2 + pz ** 2)
+    w = np.sqrt(px**2 + py**2 + pz**2)
 
-    return (pz * py - pz * py * np.cos(w * x) - w * px * np.sin(w * x)) / (w ** 2) + baseline
+    return (pz * py - pz * py * np.cos(w * x) - w * px * np.sin(w * x)) / (w**2) + baseline
 
 
 def bloch_oscillation_z(
@@ -157,6 +168,6 @@ def bloch_oscillation_z(
     where :math:`\omega = \sqrt{p_x^2 + p_y^2 + p_z^2}`. The `p_i` stands for the
     measured probability in :math:`i \in \left\{ X, Y, Z \right\}` basis.
     """
-    w = np.sqrt(px ** 2 + py ** 2 + pz ** 2)
+    w = np.sqrt(px**2 + py**2 + pz**2)
 
-    return (pz ** 2 + (px ** 2 + py ** 2) * np.cos(w * x)) / (w ** 2) + baseline
+    return (pz**2 + (px**2 + py**2) * np.cos(w * x)) / (w**2) + baseline

@@ -29,6 +29,7 @@ from qiskit_experiments.curve_analysis.standard_analysis.oscillation import Osci
 from qiskit_experiments.data_processing.data_processor import DataProcessor
 from qiskit_experiments.data_processing.nodes import Probability
 from qiskit_experiments.test.mock_iq_backend import RabiBackend
+from qiskit_experiments.database_service.db_experiment_data import ExperimentStatus
 
 
 class TestRabiEndToEnd(QiskitExperimentsTestCase):
@@ -54,6 +55,7 @@ class TestRabiEndToEnd(QiskitExperimentsTestCase):
         rabi = Rabi(self.qubit, self.sched)
         rabi.set_experiment_options(amplitudes=np.linspace(-0.95, 0.95, 21))
         expdata = rabi.run(backend)
+        self.assertExperimentDone(expdata)
         result = expdata.analysis_results(0)
 
         self.assertEqual(result.quality, "good")
@@ -64,6 +66,7 @@ class TestRabiEndToEnd(QiskitExperimentsTestCase):
         rabi = Rabi(self.qubit, self.sched)
         rabi.set_experiment_options(amplitudes=np.linspace(-0.95, 0.95, 21))
         expdata = rabi.run(backend)
+        self.assertExperimentDone(expdata)
         result = expdata.analysis_results(0)
         self.assertEqual(result.quality, "good")
         self.assertTrue(abs(result.value.value[1] - backend.rabi_rate) < test_tol)
@@ -73,6 +76,7 @@ class TestRabiEndToEnd(QiskitExperimentsTestCase):
         rabi = Rabi(self.qubit, self.sched)
         rabi.set_experiment_options(amplitudes=np.linspace(-0.95, 0.95, 101))
         expdata = rabi.run(backend)
+        self.assertExperimentDone(expdata)
         result = expdata.analysis_results(0)
         self.assertEqual(result.quality, "good")
         self.assertTrue(abs(result.value.value[1] - backend.rabi_rate) < test_tol)
@@ -91,6 +95,7 @@ class TestRabiEndToEnd(QiskitExperimentsTestCase):
         data = rabi.run(backend)
         result = data.analysis_results()
 
+        self.assertEqual(data.status(), ExperimentStatus.ERROR)
         self.assertEqual(len(result), 0)
 
     def test_experiment_config(self):
@@ -135,6 +140,7 @@ class TestEFRabi(QiskitExperimentsTestCase):
         rabi = EFRabi(self.qubit, self.sched)
         rabi.set_experiment_options(amplitudes=np.linspace(-0.95, 0.95, 21))
         expdata = rabi.run(backend)
+        self.assertExperimentDone(expdata)
         result = expdata.analysis_results(1)
 
         self.assertEqual(result.quality, "good")

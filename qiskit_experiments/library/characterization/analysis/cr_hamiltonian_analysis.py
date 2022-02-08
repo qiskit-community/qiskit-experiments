@@ -336,7 +336,7 @@ class CrossResonanceHamiltonianAnalysis(curve.CurveAnalysis):
                 else:
                     coef_val = 0.5 * (p0_val.value + p1_val.value) / (2 * np.pi)
 
-                coef_err = 0.5 * np.sqrt(p0_val.stderr ** 2 + p1_val.stderr ** 2) / (2 * np.pi)
+                coef_err = 0.5 * np.sqrt(p0_val.stderr**2 + p1_val.stderr**2) / (2 * np.pi)
 
                 extra_entries.append(
                     AnalysisResultData(

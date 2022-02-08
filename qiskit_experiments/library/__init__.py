@@ -54,6 +54,7 @@ Some experiments may be also used for gate calibration.
 
     ~characterization.T1
     ~characterization.T2Ramsey
+    ~characterization.Tphi
     ~characterization.QubitSpectroscopy
     ~characterization.EFSpectroscopy
     ~characterization.CrossResonanceHamiltonian
@@ -73,6 +74,7 @@ Some experiments may be also used for gate calibration.
     ~characterization.RamseyXY
     ~characterization.FineFrequency
     ~characterization.ReadoutAngle
+    ~characterization.ResonatorSpectroscopy
 
 
 .. _calibration:
@@ -105,24 +107,11 @@ See :doc:`/tutorials/calibrating_armonk` for example.
     ~calibration.EFRoughXSXAmplitudeCal
 
 """
-from .calibration import (
-    RoughDragCal,
-    FineDragCal,
-    FineXDragCal,
-    FineSXDragCal,
-    RoughAmplitudeCal,
-    RoughXSXAmplitudeCal,
-    EFRoughXSXAmplitudeCal,
-    FineAmplitudeCal,
-    FineXAmplitudeCal,
-    FineSXAmplitudeCal,
-    RoughFrequencyCal,
-    FrequencyCal,
-    FineFrequencyCal,
-)
+
 from .characterization import (
     T1,
     T2Ramsey,
+    Tphi,
     QubitSpectroscopy,
     EFSpectroscopy,
     CrossResonanceHamiltonian,
@@ -142,7 +131,25 @@ from .characterization import (
     RamseyXY,
     FineFrequency,
     ReadoutAngle,
+    ResonatorSpectroscopy,
 )
+
+from .calibration import (
+    RoughDragCal,
+    FineDragCal,
+    FineXDragCal,
+    FineSXDragCal,
+    RoughAmplitudeCal,
+    RoughXSXAmplitudeCal,
+    EFRoughXSXAmplitudeCal,
+    FineAmplitudeCal,
+    FineXAmplitudeCal,
+    FineSXAmplitudeCal,
+    RoughFrequencyCal,
+    FrequencyCal,
+    FineFrequencyCal,
+)
+
 from .randomized_benchmarking import StandardRB, InterleavedRB
 from .tomography import StateTomography, ProcessTomography
 from .quantum_volume import QuantumVolume

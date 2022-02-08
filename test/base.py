@@ -15,22 +15,45 @@ Qiskit Experiments test case class
 
 import dataclasses
 import json
-from typing import Any, Callable, Optional
 import warnings
+from typing import Any, Callable, Optional
 
 import numpy as np
 from qiskit.test import QiskitTestCase
+from qiskit_experiments.calibration_management import Calibrations
+from qiskit_experiments.database_service.db_experiment_data import ExperimentStatus
 from qiskit_experiments.framework import (
     ExperimentDecoder,
     ExperimentEncoder,
+    ExperimentData,
     BaseExperiment,
     BaseAnalysis,
 )
-from qiskit_experiments.calibration_management import Calibrations
+from qiskit_experiments.data_processing import DataAction, DataProcessor
 
 
 class QiskitExperimentsTestCase(QiskitTestCase):
     """Qiskit Experiments specific extra functionality for test cases."""
+
+    def assertExperimentDone(
+        self,
+        experiment_data: ExperimentData,
+        timeout: float = 120,
+    ):
+        """Blocking execution of next line until all threads are completed then
+        checks if status returns Done.
+
+        Args:
+            experiment_data: Experiment data to evaluate.
+            timeout: The maximum time in seconds to wait for executor to complete.
+        """
+        experiment_data.block_for_results(timeout=timeout)
+
+        self.assertEqual(
+            experiment_data.status(),
+            ExperimentStatus.DONE,
+            msg="All threads are executed but status is not DONE. " + experiment_data.errors(),
+        )
 
     def assertRoundTripSerializable(self, obj: Any, check_func: Optional[Callable] = None):
         """Assert that an object is round trip serializable.
@@ -60,6 +83,7 @@ class QiskitExperimentsTestCase(QiskitTestCase):
         """Check if two experiments are equivalent by comparing their configs"""
         # pylint: disable = too-many-return-statements
         configrable_type = (BaseExperiment, BaseAnalysis)
+        compare_repr = (DataAction, DataProcessor)
         list_type = (list, tuple, set)
         skipped = (Calibrations,)
 
@@ -81,5 +105,8 @@ class QiskitExperimentsTestCase(QiskitTestCase):
             return np.allclose(data1, data2)
         elif isinstance(data1, list_type) and isinstance(data2, list_type):
             return all(QiskitExperimentsTestCase.json_equiv(e1, e2) for e1, e2 in zip(data1, data2))
+        elif isinstance(data1, compare_repr) and isinstance(data2, compare_repr):
+            # otherwise compare instance representation
+            return repr(data1) == repr(data2)
 
         return data1 == data2
