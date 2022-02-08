@@ -107,6 +107,13 @@ class TestFine2QAmpEndToEnd(QiskitExperimentsTestCase):
         self.assertAlmostEqual(d_theta, error, delta=tol)
         self.assertEqual(result.quality, "good")
 
+    def test_experiment_config(self):
+        """Test converting to and from config works"""
+        exp = FineTwoQubitAmplitude((0, 1), RZXGate(np.pi/2))
+        loaded_exp = FineTwoQubitAmplitude.from_config(exp.config())
+        self.assertNotEqual(exp, loaded_exp)
+        self.assertTrue(self.json_equiv(exp, loaded_exp))
+
 
 class TestFineAmplitudeCircuits(QiskitExperimentsTestCase):
     """Test the circuits."""
