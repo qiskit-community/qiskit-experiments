@@ -54,6 +54,7 @@ Some experiments may be also used for gate calibration.
 
     ~characterization.T1
     ~characterization.T2Ramsey
+    ~characterization.Tphi
     ~characterization.QubitSpectroscopy
     ~characterization.EFSpectroscopy
     ~characterization.CrossResonanceHamiltonian
@@ -108,6 +109,7 @@ See :doc:`/tutorials/calibrating_armonk` for example.
 from .characterization import (
     T1,
     T2Ramsey,
+    Tphi,
     QubitSpectroscopy,
     EFSpectroscopy,
     CrossResonanceHamiltonian,
