@@ -15,15 +15,15 @@
 import copy
 import uuid
 
-from test.fake_backend import FakeBackend
 from test.fake_experiment import FakeExperiment, FakeAnalysis
-from test.fake_service import FakeService
 from test.base import QiskitExperimentsTestCase
 
 from qiskit import QuantumCircuit
 from qiskit.result import Result
 
 from qiskit_experiments.test.utils import FakeJob
+from qiskit_experiments.test import FakeService
+from qiskit_experiments.test.fake_backend import FakeBackend
 from qiskit_experiments.framework import (
     ParallelExperiment,
     Options,

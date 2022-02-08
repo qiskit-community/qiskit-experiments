@@ -77,6 +77,17 @@ def gaussian(
     return amp * np.exp(-((x - x0) ** 2) / (2 * sigma**2)) + baseline
 
 
+def sqrt_lorentzian(
+    x: np.ndarray, amp: float = 1.0, kappa: float = 1.0, x0: float = 0.0, baseline: float = 0.0
+) -> np.ndarray:
+    r"""Square-root Lorentzian function for spectroscopy.
+
+    .. math::
+        y = \frac{{\rm amp} |\kappa|}{\sqrt{\kappa^2 + 4(x -x_0)^2}} + {\rm baseline}
+    """
+    return amp * abs(kappa) / np.sqrt(kappa**2 + 4 * (x - x0) ** 2) + baseline
+
+
 def cos_decay(
     x: np.ndarray,
     amp: float = 1.0,
