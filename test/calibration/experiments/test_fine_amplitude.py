@@ -92,10 +92,10 @@ class TestFine2QAmpEndToEnd(QiskitExperimentsTestCase):
     def test_end_to_end(self, pi_ratio):
         """Test the experiment end to end."""
 
-        amp_exp = FineTwoQubitAmplitude((0, 1), RZXGate(np.pi/2))
+        amp_exp = FineTwoQubitAmplitude((0, 1), RZXGate(np.pi / 2))
 
         error = -np.pi * pi_ratio
-        backend = MockFineAmp(error, np.pi/2, "rzx")
+        backend = MockFineAmp(error, np.pi / 2, "rzx")
 
         expdata = amp_exp.run(backend)
         self.assertExperimentDone(expdata)
@@ -109,7 +109,7 @@ class TestFine2QAmpEndToEnd(QiskitExperimentsTestCase):
 
     def test_experiment_config(self):
         """Test converting to and from config works"""
-        exp = FineTwoQubitAmplitude((0, 1), RZXGate(np.pi/2))
+        exp = FineTwoQubitAmplitude((0, 1), RZXGate(np.pi / 2))
         loaded_exp = FineTwoQubitAmplitude.from_config(exp.config())
         self.assertNotEqual(exp, loaded_exp)
         self.assertTrue(self.json_equiv(exp, loaded_exp))
