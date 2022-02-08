@@ -13,6 +13,7 @@
 """Fine amplitude characterization experiment for two-qubit gates."""
 
 from typing import Optional, Tuple
+import numpy as np
 
 from qiskit import QiskitError
 from qiskit.circuit import QuantumCircuit, Gate
@@ -78,7 +79,7 @@ class FineTwoQubitAmplitude(FineAmplitude):
         # Set default analysis options
         self.analysis.set_options(
             angle_per_gate=angle,
-            phase_offset=0,
+            phase_offset=-np.pi,
             outcome="1",
         )
         self.set_transpile_options(basis_gates=[gate.name])

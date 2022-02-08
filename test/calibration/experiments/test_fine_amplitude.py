@@ -18,7 +18,7 @@ from ddt import ddt, data
 
 from qiskit import transpile
 from qiskit.circuit import Gate
-from qiskit.circuit.library import XGate, SXGate
+from qiskit.circuit.library import XGate, SXGate, RZXGate
 from qiskit.pulse import DriveChannel, Drag
 import qiskit.pulse as pulse
 
@@ -26,6 +26,7 @@ from qiskit_experiments.library import (
     FineAmplitude,
     FineXAmplitude,
     FineSXAmplitude,
+    FineTwoQubitAmplitude,
     FineXAmplitudeCal,
     FineSXAmplitudeCal,
 )
@@ -71,6 +72,30 @@ class TestFineAmpEndToEnd(QiskitExperimentsTestCase):
 
         error = np.pi * pi_ratio
         backend = MockFineAmp(error, np.pi, "xp")
+
+        expdata = amp_exp.run(backend)
+        self.assertExperimentDone(expdata)
+        result = expdata.analysis_results(1)
+        d_theta = result.value.value
+
+        tol = 0.04
+
+        self.assertAlmostEqual(d_theta, error, delta=tol)
+        self.assertEqual(result.quality, "good")
+
+
+@ddt
+class TestFine2QAmpEndToEnd(QiskitExperimentsTestCase):
+    """Test the fine amplitude experiment."""
+
+    @data(-0.08, -0.03, -0.02, 0.02, 0.06, 0.07)
+    def test_end_to_end(self, pi_ratio):
+        """Test the experiment end to end."""
+
+        amp_exp = FineTwoQubitAmplitude((0, 1), RZXGate(np.pi/2))
+
+        error = -np.pi * pi_ratio
+        backend = MockFineAmp(error, np.pi/2, "rzx")
 
         expdata = amp_exp.run(backend)
         self.assertExperimentDone(expdata)
