@@ -47,7 +47,7 @@ class HeatElement(BaseExperiment):
         coefficients along a specific axis of the second qubit. The ``prep`` circuit is
         carefully chosen based on the generator of the ``heat`` gate under consideration.
         The ``echo`` and ``meas`` circuits depend on the axis of the error to amplify.
-        Only the second qubit is measured following to the projection in the ``meas`` circuit.
+        Only the second qubit is measured.
 
         The measured qubit population containing the amplified error typically has contributions
         from both local (e.g. IZ) and non-local rotations (e.g. ZX).
