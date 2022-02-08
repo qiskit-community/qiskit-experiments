@@ -55,7 +55,7 @@ def requires_pandas(func: Callable) -> Callable:
     def decorated_func(*args, **kwargs):
         if not HAS_PANDAS:
             raise ImportError(
-                f"The PANDAS package is required to for {func}."
+                f"The pandas python package is required for {func}."
                 "You can install it with 'pip install pandas'."
             )
         return func(*args, **kwargs)
