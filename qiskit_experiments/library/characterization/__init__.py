@@ -83,7 +83,7 @@ from .cr_hamiltonian import CrossResonanceHamiltonian, EchoedCrossResonanceHamil
 from .rabi import Rabi, EFRabi
 from .half_angle import HalfAngle
 from .fine_amplitude import FineAmplitude, FineXAmplitude, FineSXAmplitude
-from .fine_cr_amp import FineTwoQubitAmplitude, FineRZXAmplitude
+from .fine_2q_ampplitude import FineTwoQubitAmplitude, FineRZXAmplitude
 from .ramsey_xy import RamseyXY
 from .fine_frequency import FineFrequency
 from .drag import RoughDrag
