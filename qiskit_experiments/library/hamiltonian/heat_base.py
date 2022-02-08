@@ -56,8 +56,8 @@ class HeatElement(BaseExperiment):
         This experiment just provides a single error amplification sequence, and therefore
         you must combine multiple instances instantiated with different ``prep``, ``echo``,
         and ``meas`` circuits designed to resolve the different error terms.
-        This class can be wrapped with hard-coded circuits to define new experiment class
-        to provide HEAT experiment with respect to the error axis and Hamiltonian of interest.
+        This class can be wrapped with hard-coded circuits to define new experiment classes
+        to provide HEAT experiments for different error axes and Hamiltonians of interest.
 
         The ``heat`` gate is a custom gate representing the entangling pulse sequence.
         One must thus provide its definition through the backend or a custom transpiler
