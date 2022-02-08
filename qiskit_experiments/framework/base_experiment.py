@@ -359,7 +359,7 @@ class BaseExperiment(ABC, StoreInitArgs):
             are obtained via the :meth:`transpiled_circuits` method.
         """
         # NOTE: Subclasses should override this method using the `options`
-        # values for any explicit experiment options that effect circuit
+        # values for any explicit experiment options that affect circuit
         # generation
 
     @classmethod
