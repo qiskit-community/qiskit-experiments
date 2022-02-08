@@ -192,8 +192,6 @@ class FineAmplitude(BaseExperiment):
 
         qubits_ = tuple(range(len(self.physical_qubits)))
 
-        print(self.experiment_options.gate, qubits_)
-
         for repetition in repetitions:
             circuit = self._pre_circuit()
 
