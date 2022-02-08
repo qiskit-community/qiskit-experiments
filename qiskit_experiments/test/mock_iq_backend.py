@@ -52,7 +52,7 @@ class MockIQBackend(FakeOpenPulse2Q):
             meas_return="single",
         )
 
-    def _draw_iq_shots(self, prob, shots) -> List[List[List[float]]]:
+    def _draw_iq_shots(self, prob, shots, phase: float = 0.0) -> List[List[List[float]]]:
         """Produce an IQ shot."""
 
         rand_i = self._rng.normal(0, self._iq_cluster_width, size=shots)
@@ -67,6 +67,10 @@ class MockIQBackend(FakeOpenPulse2Q):
             else:
                 point_i = self._iq_cluster_centers[2] + rand_i[idx]
                 point_q = self._iq_cluster_centers[3] + rand_q[idx]
+
+            if not np.allclose(phase, 0.0):
+                complex_iq = (point_i + 1.0j * point_q) * np.exp(1.0j * phase)
+                point_i, point_q = np.real(complex_iq), np.imag(complex_iq)
 
             memory.append([[point_i, point_q]])
 
@@ -85,6 +89,15 @@ class MockIQBackend(FakeOpenPulse2Q):
         Returns:
              The probability that the binaomial distribution will use to generate an IQ shot.
         """
+
+    # pylint: disable=unused-argument
+    def _iq_phase(self, circuit: QuantumCircuit) -> float:
+        """Sub-classes can override this method to introduce a phase in the IQ plan.
+
+        This is needed, to test the resonator spectroscopy where the point in the IQ
+        plan has a frequency-dependent phase rotation.
+        """
+        return 0.0
 
     def run(self, run_input, **options):
         """Run the IQ backend."""
@@ -117,7 +130,8 @@ class MockIQBackend(FakeOpenPulse2Q):
                 ones = np.sum(self._rng.binomial(1, prob, size=shots))
                 run_result["data"] = {"counts": {"1": ones, "0": shots - ones}}
             else:
-                memory = self._draw_iq_shots(prob, shots)
+                phase = self._iq_phase(circ)
+                memory = self._draw_iq_shots(prob, shots, phase)
 
                 if meas_return == "avg":
                     memory = np.average(np.array(memory), axis=0).tolist()

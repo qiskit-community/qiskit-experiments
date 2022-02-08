@@ -48,6 +48,7 @@ your experiment class, you can still tailor the standard analysis classes to you
     DumpedOscillationAnalysis
     OscillationAnalysis
     ResonanceAnalysis
+    GaussianAnalysis
     ErrorAmplificationAnalysis
 
 Functions
@@ -73,6 +74,7 @@ Fit Functions
     fit_function.cos_decay
     fit_function.exponential_decay
     fit_function.gaussian
+    fit_function.sqrt_lorentzian
     fit_function.sin
     fit_function.sin_decay
     fit_function.bloch_oscillation_x
@@ -120,5 +122,6 @@ from .standard_analysis import (
     DumpedOscillationAnalysis,
     OscillationAnalysis,
     ResonanceAnalysis,
+    GaussianAnalysis,
     ErrorAmplificationAnalysis,
 )
