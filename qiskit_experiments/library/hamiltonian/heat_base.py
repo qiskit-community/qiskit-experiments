@@ -55,7 +55,7 @@ class HeatElement(BaseExperiment):
         are usually combined to resolve these rotation terms.
         This experiment just provides a single error amplification sequence, and therefore
         you must combine multiple instances instantiated with different ``prep``, ``echo``,
-        and ``meas`` circuits designed to resolve error terms.
+        and ``meas`` circuits designed to resolve the different error terms.
         This class can be wrapped with hard-coded circuits to define new experiment class
         to provide HEAT experiment with respect to the error axis and Hamiltonian of interest.
 
