@@ -418,7 +418,7 @@ class DbExperimentDataV1(DbExperimentData):
         """Add analysis callback for running after experiment data jobs are finished.
 
         This method adds the `callback` function to a queue to be run
-        asynchronously after complition of any running jobs, or immediately
+        asynchronously after completion of any running jobs, or immediately
         if no running jobs. If this method is called multiple times the
         callback functions will be executed in the order they were
         added.

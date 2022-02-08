@@ -90,7 +90,7 @@ class BaseExperiment(ABC, StoreInitArgs):
             self.analysis = analysis_cls()  # pylint: disable = not-callable
 
         # Set backend
-        # This should be called last incase `_set_backend` access any of the
+        # This should be called last in case `_set_backend` access any of the
         # attributes created during initialization
         self._backend = None
         if isinstance(backend, (Backend, BaseBackend)):
