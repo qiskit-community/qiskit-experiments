@@ -31,7 +31,7 @@ class BaseAnalysis(ABC, StoreInitArgs):
     """Abstract base class for analyzing Experiment data.
 
     The data produced by experiments (i.e. subclasses of BaseExperiment)
-    are analyzed with subclasses of BaseExperiment. The analysis is
+    are analyzed with subclasses of BaseAnalysis. The analysis is
     typically run after the data has been gathered by the experiment.
     For example, an analysis may perform some data processing of the
     measured data and a fit to a function to extract a parameter.
