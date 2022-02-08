@@ -13,9 +13,11 @@
 """DB class for fit value with std error and unit."""
 
 import dataclasses
+import numbers
 import warnings
 from typing import Optional
 
+import numpy as np
 import uncertainties
 
 
@@ -45,7 +47,7 @@ class FitVal:
         warnings.warn(
             "The FitVal class is deprecated as of Qiskit Experiments 0.3 and will"
             " be removed in a future version. Re-saving loaded experiment data or "
-            " analysis results will convert FitVals to ExperimentVariable.",
+            " analysis results will convert FitVals to UFloat.",
             FutureWarning,
         )
         if len(args) > 0:
@@ -61,18 +63,24 @@ class FitVal:
         else:
             tag = kwargs.get("unit")
 
-        try:
-            # This might be fitting parameter entries
-            # This has been storing list of parameters and stdevs as a single FitVal
-            # Stdevs are no longer necessary since it can be computed with covariance matrix.
-            nominal_values = iter(nominal_value)
-            return list(nominal_values)
-        except TypeError:
-            return uncertainties.core.Variable(
-                value=nominal_value,
+        if isinstance(nominal_value, numbers.Number):
+            return uncertainties.ufloat(
+                nominal_value=nominal_value,
                 std_dev=std_dev,
                 tag=tag,
             )
+        elif isinstance(nominal_value, (np.ndarray, list)):
+            warnings.warn(
+                "The analysis result .value of the @Parameters_ entry now "
+                "only returns nominal values. This is because these values should consider "
+                "correlation in standard error with the covariance matrix in .extra field. "
+                "You can create UFloat values with parameter correlation "
+                "with uncertainties.correlated_values(nominal_values, cov_matrix).",
+                UserWarning,
+            )
+            return list(nominal_value)
+
+        raise TypeError(f"Invalid data format {type(nominal_value)} for FitVal data type.")
 
 
 # Monkey patch uncertainties UFloat class so that it behaves like
@@ -120,6 +128,6 @@ def unit(self):
 
 
 # Monkey patch ufloat for deprecated FitVal equivalent API
-uncertainties.UFloat.value = property(value)
-uncertainties.UFloat.stderr = property(stderr)
-uncertainties.UFloat.unit = property(unit)
+uncertainties.core.Variable.value = property(value)
+uncertainties.core.Variable.stderr = property(stderr)
+uncertainties.core.Variable.unit = property(unit)

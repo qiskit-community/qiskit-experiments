@@ -12,24 +12,24 @@
 
 """Analysis result abstract interface."""
 
-import logging
-from typing import Optional, List, Union, Dict, Any
-import uuid
 import copy
+import logging
 import math
+import uuid
+from typing import Optional, List, Union, Dict, Any
 
+import uncertainties
 from qiskit_experiments.framework.json import (
     ExperimentEncoder,
     ExperimentDecoder,
     _serialize_safe_float,
 )
-from qiskit_experiments.framework import UFloat
-from .database_service import DatabaseServiceV1
-from .utils import save_data, qiskit_version
-from .exceptions import DbExperimentDataError
-from .device_component import DeviceComponent, to_component
-from .db_fitval import FitVal
 
+from .database_service import DatabaseServiceV1
+from .db_fitval import FitVal
+from .device_component import DeviceComponent, to_component
+from .exceptions import DbExperimentDataError
+from .utils import save_data, qiskit_version
 
 LOG = logging.getLogger(__name__)
 
@@ -187,7 +187,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
                 result_data["variance"] = self._display_format(value.stderr**2)
             if isinstance(value.unit, str):
                 result_data["unit"] = value.unit
-        elif isinstance(value, UFloat):
+        elif isinstance(value, uncertainties.UFloat):
             db_value = self._display_format(value.nominal_value)
             if db_value is not None:
                 result_data["value"] = db_value
@@ -260,7 +260,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
         # For backward compatibility
         # If loaded value is FitVal which may be typecasted into UFloat,
         # the loader will copy unit in deprecated attribute to metadata for re-saving.
-        if isinstance(value, UFloat):
+        if isinstance(value, uncertainties.UFloat):
             unit = getattr(value, "tag", None)
             if unit:
                 extra["unit"] = unit

@@ -18,9 +18,8 @@ from numbers import Number
 from typing import Union, Sequence
 
 import numpy as np
-from uncertainties import unumpy as unp
+from uncertainties import unumpy as unp, ufloat
 
-from qiskit_experiments.framework import ExperimentVariable
 from qiskit_experiments.data_processing.data_action import DataAction, TrainableDataAction
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
 from qiskit_experiments.framework import Options
@@ -533,7 +532,7 @@ class Probability(DataAction):
             p_mean = alpha_posterior[0] / alpha_sum
             p_var = p_mean * (1 - p_mean) / (alpha_sum + 1)
 
-            probabilities[idx] = ExperimentVariable(value=p_mean, std_dev=np.sqrt(p_var))
+            probabilities[idx] = ufloat(nominal_value=p_mean, std_dev=np.sqrt(p_var))
 
         return probabilities
 

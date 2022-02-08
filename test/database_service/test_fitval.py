@@ -18,9 +18,11 @@ from test.base import QiskitExperimentsTestCase
 import json
 from ddt import ddt, data
 
+import uncertainties
+
 from qiskit_experiments.database_service.db_fitval import FitVal
 from qiskit_experiments.database_service.utils import experiments_version
-from qiskit_experiments.framework import ExperimentVariable, ExperimentDecoder
+from qiskit_experiments.framework import ExperimentDecoder
 
 
 @ddt
@@ -41,7 +43,7 @@ class TestFitVal(QiskitExperimentsTestCase):
         with self.assertWarns(FutureWarning):
             instance = FitVal(0.1, 0.2, unit="ab/cde**2")
 
-        self.assertIsInstance(instance, ExperimentVariable)
+        self.assertIsInstance(instance, uncertainties.core.Variable)
 
     @data(*__signle_value__)
     def test_can_load(self, val):
@@ -49,7 +51,7 @@ class TestFitVal(QiskitExperimentsTestCase):
         value, stderr, unit = val
 
         # This is necessary because we cannot instantiate FitVal
-        # Now FitVal is immediately typecasted to ExperimentVariable before
+        # Now FitVal is immediately typecasted to Variable before
         # the instance is created, i.e. __new__
         # This mimics the behavior of loading analysis result created with
         # old Qiskit Experiments.
@@ -77,7 +79,7 @@ class TestFitVal(QiskitExperimentsTestCase):
         with self.assertWarns(FutureWarning):
             loaded_val = json.loads(hard_coded_json_str, cls=ExperimentDecoder)
 
-        self.assertIsInstance(loaded_val, ExperimentVariable)
+        self.assertIsInstance(loaded_val, uncertainties.core.Variable)
         self.assertEqual(loaded_val.nominal_value, value)
         self.assertEqual(loaded_val.std_dev, stderr)
         self.assertEqual(loaded_val.tag, unit)

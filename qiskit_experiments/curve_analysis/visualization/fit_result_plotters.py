@@ -24,12 +24,13 @@ This is just like a function, but allows serialization via Enum.
 from collections import defaultdict
 from typing import List, Dict, Optional
 
+import uncertainties
 import numpy as np
 from matplotlib.ticker import FuncFormatter
 from qiskit.utils import detach_prefix
 
 from qiskit_experiments.curve_analysis.curve_data import SeriesDef, FitData, CurveData
-from qiskit_experiments.framework import AnalysisResultData, UFloat
+from qiskit_experiments.framework import AnalysisResultData
 from qiskit_experiments.framework.matplotlib import get_non_gui_ax
 from .curves import plot_scatter, plot_errorbar, plot_curve_fit
 from .style import PlotterStyle
@@ -352,7 +353,7 @@ def write_fit_report(result_entries: List[AnalysisResultData]) -> str:
         return f"{float_val: .4g}"
 
     for res in result_entries:
-        if isinstance(res.value, UFloat):
+        if isinstance(res.value, uncertainties.UFloat):
             fitval = res.value
             unit = res.extra.get("unit", None)
             if unit:

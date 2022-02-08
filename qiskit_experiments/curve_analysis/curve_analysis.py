@@ -22,11 +22,12 @@ import inspect
 import warnings
 from abc import ABC
 from typing import Any, Dict, List, Tuple, Callable, Union, Optional
-from uncertainties import unumpy as unp
 
 import numpy as np
-from qiskit.providers import Backend
+import uncertainties
+from uncertainties import unumpy as unp
 
+from qiskit.providers import Backend
 from qiskit_experiments.curve_analysis.curve_data import (
     CurveData,
     SeriesDef,
@@ -46,7 +47,6 @@ from qiskit_experiments.framework import (
     ExperimentData,
     AnalysisResultData,
     Options,
-    UFloat,
 )
 
 PARAMS_ENTRY_PREFIX = "@Parameters_"
@@ -966,7 +966,7 @@ class CurveAnalysis(BaseAnalysis, ABC):
 
 
 def is_error_not_significant(
-    val: Union[float, UFloat],
+    val: Union[float, uncertainties.UFloat],
     fraction: float = 1.0,
     absolute: Optional[float] = None,
 ) -> bool:

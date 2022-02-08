@@ -17,11 +17,12 @@ RB Helper functions
 from typing import Tuple, Dict, Optional, List, Union, Sequence
 
 import numpy as np
+import uncertainties
 from qiskit import QiskitError, QuantumCircuit
 from qiskit.providers.backend import Backend
 
 from qiskit_experiments.database_service.device_component import Qubit
-from qiskit_experiments.framework import DbAnalysisResultV1, AnalysisResultData, UFloat
+from qiskit_experiments.framework import DbAnalysisResultV1, AnalysisResultData
 
 
 class RBUtils:
@@ -185,11 +186,11 @@ class RBUtils:
 
     @staticmethod
     def calculate_1q_epg(
-        epc_1_qubit: Union[float, UFloat],
+        epc_1_qubit: Union[float, uncertainties.UFloat],
         qubits: Sequence[int],
         gate_error_ratio: Dict[str, float],
         gates_per_clifford: Dict[Tuple[Sequence[int], str], float],
-    ) -> Dict[int, Dict[str, UFloat]]:
+    ) -> Dict[int, Dict[str, uncertainties.UFloat]]:
         r"""
         Convert error per Clifford (EPC) into error per gates (EPGs) of single qubit basis gates.
 
@@ -218,13 +219,13 @@ class RBUtils:
 
     @staticmethod
     def calculate_2q_epg(
-        epc_2_qubit: Union[UFloat, float],
+        epc_2_qubit: Union[uncertainties.UFloat, float],
         qubits: Sequence[int],
         gate_error_ratio: Dict[str, float],
         gates_per_clifford: Dict[Tuple[Sequence[int], str], float],
         epg_1_qubit: Optional[List[Union[DbAnalysisResultV1, AnalysisResultData]]] = None,
         gate_2_qubit_type: Optional[str] = "cx",
-    ) -> Dict[int, Dict[str, UFloat]]:
+    ) -> Dict[int, Dict[str, uncertainties.UFloat]]:
         r"""
         Convert error per Clifford (EPC) into error per gates (EPGs) of two-qubit basis gates.
         Assumes a single two-qubit gate type is used in transpilation

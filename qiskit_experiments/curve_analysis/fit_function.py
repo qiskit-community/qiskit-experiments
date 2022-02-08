@@ -19,9 +19,7 @@ import functools
 from typing import Callable, Union
 
 import numpy as np
-from uncertainties import unumpy as unp
-
-from qiskit_experiments.framework import UFloat
+from uncertainties import unumpy as unp, UFloat
 
 
 def typecast_float(fit_func: Callable) -> Callable:
