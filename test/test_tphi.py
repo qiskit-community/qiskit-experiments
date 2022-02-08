@@ -62,7 +62,7 @@ class TestTphi(QiskitExperimentsTestCase):
         t2ramsey = 25
         backend = TphiBackend(t1=t1, t2ramsey=t2ramsey, freq=0.1)
         analysis = TphiAnalysis([T1Analysis(), T2RamseyAnalysis()])
-        expdata = exp.run(backend=backend, analysis=analysis).block_for_results()
+        expdata = exp.run(backend=backend, analysis=analysis)
         self.assertExperimentDone(expdata)
 
         data_t1 = expdata.child_data(0).data()
@@ -79,7 +79,8 @@ class TestTphi(QiskitExperimentsTestCase):
         exp.set_experiment_options(
             delays_t1=new_delays_t1, delays_t2=new_delays_t2, osc_freq=new_osc_freq
         )
-        expdata = exp.run(backend=backend, analysis=analysis).block_for_results()
+        expdata = exp.run(backend=backend, analysis=analysis)
+        self.assertExperimentDone(expdata)
 
         data_t1 = expdata.child_data(0).data()
         x_values_t1 = [datum["metadata"]["xval"] for datum in data_t1]
