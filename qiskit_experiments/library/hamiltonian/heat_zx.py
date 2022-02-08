@@ -59,7 +59,7 @@ class ZXHeat(composite.BatchExperiment):
             c: 1/══════════════════════════════════════════════════════╩═
                                                                        0
 
-        ZX-HEAT experiments are performed with combination of two
+        ZX-HEAT experiments are performed by the combination of the two
         error amplification experiments shown above, where :math:`\alpha, \beta, \gamma`
         depend on the interrogated error axis, namely,
         (``X``, ``X``, ``I``), (``Y``, ``Y``, ``I``), (``Y``, ``Z``, ``Rx(-pi/2)``)
