@@ -58,7 +58,16 @@ class FineTwoQubitAmplitude(FineAmplitude):
     """
 
     def __init__(self, qubits: Tuple[int, int], gate: Gate, backend: Optional[Backend] = None):
-        """Initialize the experiment."""
+        """Initialize the experiment.
+
+        Args:
+            qubits: A length two tuple of the qubits on which to run.
+            gate: A Qiskit Gate instruction with one parameter corresponding to the rotation angle.
+            backend: The backend to run on.
+
+        Raises:
+            QiskitError: If the gate does not have exactly one parameter.
+        """
 
         if len(gate.params) != 1:
             raise QiskitError(f"A gate with a single rotation angle is required.")

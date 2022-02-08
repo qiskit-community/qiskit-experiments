@@ -1,0 +1,8 @@
+---
+features:
+  - |
+    A new fine amplitude experiment for two-qubits is added. This experiment
+    accepts a two-qubit gate with on rotation angle as parameter.
+upgrade:
+  - |
+    The FineAmplitude experiment is refactored for more flexibility.
