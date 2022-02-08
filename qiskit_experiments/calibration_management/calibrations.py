@@ -177,6 +177,10 @@ class Calibrations:
         # Push the schedules to the instruction schedule map.
         self.update_inst_map()
 
+        # This internal parameter is False so that if a schedule is added after the
+        # init it will be set to True and serialization will raise an error.
+        self._has_manually_added_schedule = False
+
     @classmethod
     def from_backend(
         cls,
@@ -446,6 +450,8 @@ class Calibrations:
                 number of qubits.
 
         """
+        self._has_manually_added_schedule = True
+
         qubits = self._to_tuple(qubits)
 
         if len(qubits) == 0 and num_qubits is None:
@@ -1511,3 +1517,53 @@ class Calibrations:
             f"{qubits} must be int, tuple of ints, or str  that can be parsed"
             f"to a tuple if ints. Received {qubits}."
         )
+
+    def config(self) -> Dict[str, Any]:
+        """Return the settings used to initialize the library.
+
+        Returns:
+            The config dictionary of the calibrations instance.
+
+        Raises:
+            CalibrationError: If schedules were added outside of the :code:`__init__`
+                method. This will remain so until schedules can be serialized.
+        """
+        if self._has_manually_added_schedule:
+            raise CalibrationError(
+                f"Config dictionaries for {self.__class__.__name__} are currently "
+                "not supported if schedules were added manually."
+            )
+
+        kwargs = {
+            "coupling_map": self._coupling_map,
+            "control_channel_map": self._control_channel_map,
+            "library": self.library,
+            "add_parameter_defaults": False,  # the parameters will be added outside of the init
+            "backend_name": self._backend_name,
+            "backend_version": self._backend_version,
+        }
+
+        return {
+            "class": self.__class__.__name__,
+            "kwargs": kwargs,
+            "parameters": self.parameters_table()["data"],
+        }
+
+    @classmethod
+    def from_config(cls, config: Dict) -> "Calibrations":
+        """Deserialize the library given the input dictionary"""
+        calibrations = cls(**config["kwargs"])
+
+        for param_config in config["parameters"]:
+            calibrations._add_parameter_value_from_conf(**param_config)
+
+        return calibrations
+
+    def __json_encode__(self):
+        """Convert to format that can be JSON serialized."""
+        return self.config()
+
+    @classmethod
+    def __json_decode__(cls, value: Dict[str, Any]) -> "Calibrations":
+        """Load from JSON compatible format."""
+        return cls.from_config(value)

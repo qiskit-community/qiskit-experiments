@@ -12,6 +12,7 @@
 
 """Class to test the calibrations."""
 from test.base import QiskitExperimentsTestCase
+import json
 import os
 import uuid
 from collections import defaultdict
@@ -1612,3 +1613,36 @@ class TestInstructionScheduleMap(QiskitExperimentsTestCase):
         )
 
         self.assertEqual(str(cals1.get_schedule("x", 1)), str(cals2.get_schedule("x", 1)))
+
+
+class TestSerialization(QiskitExperimentsTestCase):
+    """Test the serialization of the Calibrations."""
+
+    def test_serialization(self):
+        """Test the serialization."""
+
+        def test_equivalent_cals(cal_a: Calibrations, cal_b: Calibrations) -> bool:
+            """Test that two instances of calibrations are equivalent.
+
+            They are equivalent if they have the same schedules and parameters.
+            """
+            if cal_a.schedules() != cal_b.schedules():
+                return False
+
+            def _hash(data: dict):
+                return hash(json.dumps(data))
+
+            sorted_params_a = sorted(cal_a.parameters_table()["data"], key=lambda d: _hash(d))
+            sorted_params_b = sorted(cal_b.parameters_table()["data"], key=lambda d: _hash(d))
+
+            return sorted_params_a == sorted_params_b
+
+        backend = FakeBelem()
+        library = FixedFrequencyTransmon(basis_gates=["sx", "x"])
+
+        cals = Calibrations.from_backend(backend, library)
+        cals.add_parameter_value(0.12345, "amp", 3, "x")
+
+        cals_b = Calibrations.from_config(cals.config())
+
+        self.assertTrue(test_equivalent_cals(cals, cals_b))
