@@ -129,5 +129,4 @@ class T1Backend(BackendV1):
                     "data": {"counts": counts},
                 }
             )
-
         return FakeJob(backend=self, result=Result.from_dict(result))

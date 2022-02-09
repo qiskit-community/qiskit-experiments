@@ -55,7 +55,8 @@ class TestFineFreqEndToEnd(QiskitExperimentsTestCase):
         freq_exp = FineFrequency(0, 160, backend)
         freq_exp.set_transpile_options(inst_map=self.inst_map)
 
-        expdata = freq_exp.run(shots=100).block_for_results()
+        expdata = freq_exp.run(shots=100)
+        self.assertExperimentDone(expdata)
         result = expdata.analysis_results(1)
         d_theta = result.value.value
         dt = backend.configuration().dt
@@ -79,7 +80,8 @@ class TestFineFreqEndToEnd(QiskitExperimentsTestCase):
 
         self.assertAlmostEqual(freq_before, armonk_freq)
 
-        fine_freq.run().block_for_results()
+        expdata = fine_freq.run()
+        self.assertExperimentDone(expdata)
 
         freq_after = self.cals.get_parameter_value(self.cals.__drive_freq_parameter__, 0)
 
@@ -91,9 +93,9 @@ class TestFineFreqEndToEnd(QiskitExperimentsTestCase):
         exp = FineFrequency(0, 160)
         loaded_exp = FineFrequency.from_config(exp.config())
         self.assertNotEqual(exp, loaded_exp)
-        self.assertTrue(self.experiments_equiv(exp, loaded_exp))
+        self.assertTrue(self.json_equiv(exp, loaded_exp))
 
     def test_roundtrip_serializable(self):
         """Test round trip JSON serialization"""
         exp = FineFrequency(0, 160)
-        self.assertRoundTripSerializable(exp, self.experiments_equiv)
+        self.assertRoundTripSerializable(exp, self.json_equiv)
