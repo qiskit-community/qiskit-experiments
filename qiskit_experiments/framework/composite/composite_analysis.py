@@ -60,6 +60,12 @@ class CompositeAnalysis(BaseAnalysis):
             return self._analyses
         return self._analyses[index]
 
+    def copy(self):
+        ret = super().copy()
+        # Recursively copy analysis
+        ret._analyses = [analysis.copy() for analysis in ret._analyses]
+        return ret
+
     def _run_analysis(self, experiment_data: ExperimentData):
         # Return list of experiment data containers for each component experiment
         # containing the marginalied data from the composite experiment
