@@ -1632,8 +1632,8 @@ class TestSerialization(QiskitExperimentsTestCase):
             def _hash(data: dict):
                 return hash(json.dumps(data))
 
-            sorted_params_a = sorted(cal_a.parameters_table()["data"], key=lambda d: _hash(d))
-            sorted_params_b = sorted(cal_b.parameters_table()["data"], key=lambda d: _hash(d))
+            sorted_params_a = sorted(cal_a.parameters_table()["data"], key=_hash)
+            sorted_params_b = sorted(cal_b.parameters_table()["data"], key=_hash)
 
             return sorted_params_a == sorted_params_b
 
