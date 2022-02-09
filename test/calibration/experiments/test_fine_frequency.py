@@ -58,7 +58,7 @@ class TestFineFreqEndToEnd(QiskitExperimentsTestCase):
         expdata = freq_exp.run(shots=100)
         self.assertExperimentDone(expdata)
         result = expdata.analysis_results(1)
-        d_theta = result.value.value
+        d_theta = result.value.n
         dt = backend.configuration().dt
         d_freq = d_theta / (2 * np.pi * self.sx_duration * dt)
 

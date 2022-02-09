@@ -103,8 +103,15 @@ Visualization
     plot_curve_fit
     plot_errorbar
     plot_scatter
+
+Utilities
+*********
+.. autosummary::
+    :toctree: ../stubs/
+
+    is_error_not_significant
 """
-from .curve_analysis import CurveAnalysis
+from .curve_analysis import CurveAnalysis, is_error_not_significant
 from .curve_data import CurveData, SeriesDef, FitData, ParameterRepr, FitOptions
 from .curve_fit import (
     curve_fit,
