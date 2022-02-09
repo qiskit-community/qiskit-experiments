@@ -87,6 +87,15 @@ class CompositeExperiment(BaseExperiment):
         ret = super().copy()
         # Recursively call copy of component experiments
         ret._experiments = [exp.copy() for exp in self._experiments]
+
+        # Check if the analysis in CompositeAnalysis was a reference to the
+        # original component experiment analyses and if so update the copies
+        # to preserve this relationship
+        if isinstance(self.analysis, CompositeAnalysis):
+            for i, orig_exp in enumerate(self._experiments):
+                if orig_exp.analysis is self.analysis._analyses[i]:
+                    # Update copies analysis with reference to experiment analysis
+                    ret.analysis._analyses[i] = ret._experiments[i].analysis
         return ret
 
     def _set_backend(self, backend):
