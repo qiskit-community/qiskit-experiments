@@ -52,7 +52,7 @@ class TestHalfAngle(QiskitExperimentsTestCase):
             hac = HalfAngle(0)
             exp_data = hac.run(HalfAngleTestBackend(error))
             self.assertExperimentDone(exp_data)
-            d_theta = exp_data.analysis_results(1).value.value
+            d_theta = exp_data.analysis_results(1).value.n
 
             self.assertTrue(abs(d_theta - error) < tol)
 

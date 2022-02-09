@@ -13,7 +13,7 @@
 Configurable stylesheet.
 """
 import dataclasses
-from typing import Tuple
+from typing import Tuple, List
 
 
 @dataclasses.dataclass
@@ -37,3 +37,9 @@ class PlotterStyle:
 
     # size of fit report text
     fit_report_text_size: int = 14
+
+    # sigma values for confidence interval, which are the tuple of (sigma, alpha).
+    # the alpha indicates the transparency of the corresponding interval plot.
+    plot_sigma: List[Tuple[float, float]] = dataclasses.field(
+        default_factory=lambda: [(1.0, 0.3), (3.0, 0.1)]
+    )
