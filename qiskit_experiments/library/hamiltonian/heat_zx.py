@@ -93,10 +93,10 @@ class ZXHeat(composite.BatchExperiment):
         :math:`R_X(\pi + \Delta_{ZX} \pm \Delta_{IX})` for the control qubit state
         0 and 1, respectively.
 
-        In the echo circuit, the non-local ZX rotation by :math:`\phi` is undone by
-        applying :math:`R_X(\mp \phi)` with sign depending on the control qubit state,
-        thus only rotation error :math:`\Delta_{ZX}` from the target
-        angle :math:`\phi` is selectively amplified.
+        In the echo circuit, the non-local ZX rotation of angle :math:`\phi` is undone by
+        the :math:`R_X(\mp \phi)` rotation whose sign depends on the control qubit state.
+        Therefore, the rotation error :math:`\Delta_{ZX}` from the target
+        angle :math:`\phi` is amplified.
         Repeating this sequence N times forms a typical ping-pong oscillation pattern
         in the measured target qubit population,
         which may be fit by :math:`P(N) = \cos(N (d\theta_j + \pi) + \phi_{\rm offset})`,
