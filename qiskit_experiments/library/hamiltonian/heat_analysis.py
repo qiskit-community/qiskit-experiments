@@ -25,10 +25,16 @@ from qiskit_experiments.framework import (
     AnalysisResultData,
     Options,
 )
+from qiskit_experiments.data_processing import DataProcessor, Probability
 
 
 class HeatElementAnalysis(ErrorAmplificationAnalysis):
     """An analysis class for HEAT experiment to define the fixed parameters.
+
+    # section: note
+
+        This analysis assumes the experiment measures only single qubit
+        regardless of the number of physical qubits used in the experiment.
 
     # section: overview
 
@@ -47,6 +53,7 @@ class HeatElementAnalysis(ErrorAmplificationAnalysis):
         options.angle_per_gate = np.pi
         options.phase_offset = np.pi / 2
         options.amp = 1.0
+        options.data_processor = DataProcessor(input_key="counts", data_actions=[Probability("1")])
 
         return options
 
