@@ -132,21 +132,20 @@ class GaussianAnalysis(curve.CurveAnalysis):
         min_freq = np.min(curve_data.x)
         freq_increment = np.mean(np.diff(curve_data.x))
 
-        fit_a = fit_data.fitval("a").value
-        fit_b = fit_data.fitval("b").value
-        fit_freq = fit_data.fitval("freq").value
-        fit_sigma = fit_data.fitval("sigma").value
-        fit_sigma_err = fit_data.fitval("sigma").stderr
+        fit_a = fit_data.fitval("a")
+        fit_b = fit_data.fitval("b")
+        fit_freq = fit_data.fitval("freq")
+        fit_sigma = fit_data.fitval("sigma")
 
-        snr = abs(fit_a) / np.sqrt(abs(np.median(curve_data.y) - fit_b))
-        fit_width_ratio = fit_sigma / (max_freq - min_freq)
+        snr = abs(fit_a.n) / np.sqrt(abs(np.median(curve_data.y) - fit_b.n))
+        fit_width_ratio = fit_sigma.n / (max_freq - min_freq)
 
         criteria = [
-            min_freq <= fit_freq <= max_freq,
-            1.5 * freq_increment < fit_sigma,
+            min_freq <= fit_freq.n <= max_freq,
+            1.5 * freq_increment < fit_sigma.n,
             fit_width_ratio < 0.25,
             fit_data.reduced_chisq < 3,
-            (fit_sigma_err is None or fit_sigma_err < fit_sigma),
+            curve.is_error_not_significant(fit_sigma),
             snr > 2,
         ]
 

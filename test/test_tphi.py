@@ -41,11 +41,12 @@ class TestTphi(QiskitExperimentsTestCase):
         expdata = exp.run(backend=backend, analysis=analysis)
         self.assertExperimentDone(expdata)
         result = expdata.analysis_results("T_phi")
+        self.assertRoundTripSerializable(result.value, check_func=self.ufloat_equiv)
         estimated_tphi = 1 / ((1 / t2ramsey) - (1 / (2 * t1)))
         self.assertAlmostEqual(
-            result.value.value,
+            result.value.nominal_value,
             estimated_tphi,
-            delta=TestTphi.__tolerance__ * result.value.value,
+            delta=TestTphi.__tolerance__ * result.value.nominal_value,
         )
         self.assertEqual(result.quality, "good", "Result quality bad")
 

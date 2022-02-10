@@ -17,6 +17,7 @@ Curve fitting functions for experiment analysis
 from typing import List, Dict, Tuple, Callable, Optional, Union
 
 import numpy as np
+import uncertainties
 import scipy.optimize as opt
 from qiskit_experiments.exceptions import AnalysisError
 from qiskit_experiments.curve_analysis.data_processing import filter_data
@@ -62,8 +63,9 @@ def curve_fit(
         ``xrange`` the range of xdata values used for fit.
 
     Raises:
-        AnalysisError: if the number of degrees of freedom of the fit is
-                       less than 1, or the curve fitting fails.
+        AnalysisError:
+            When the number of degrees of freedom of the fit is
+            less than 1, or the curve fitting fails.
 
     .. note::
         ``sigma`` is assumed to be specified in the same units as ``ydata``
@@ -92,7 +94,7 @@ def curve_fit(
             return func(x, **dict(zip(param_keys, params)))
 
     else:
-        param_keys = None
+        param_keys = [f"p{i}" for i in range(len(p0))]
         param_p0 = p0
         if bounds:
             param_bounds = bounds
@@ -134,7 +136,17 @@ def curve_fit(
             "scipy.optimize.curve_fit failed with error: {}".format(str(ex))
         ) from ex
 
-    popt_err = np.sqrt(np.diag(pcov))
+    if np.isfinite(pcov).all():
+        # Keep parameter correlations in following analysis steps
+        fit_params = uncertainties.correlated_values(
+            nom_values=popt, covariance_mat=pcov, tags=param_keys
+        )
+    else:
+        # Ignore correlations, add standard error if finite.
+        fit_params = [
+            uncertainties.ufloat(nominal_value=n, std_dev=s if np.isfinite(s) else np.nan)
+            for n, s in zip(popt, np.sqrt(np.diag(pcov)))
+        ]
 
     # Calculate the reduced chi-squared for fit
     yfits = fit_func(xdata, *popt)
@@ -148,9 +160,8 @@ def curve_fit(
     ydata_range = np.min(ydata), np.max(ydata)
 
     return FitData(
-        popt=popt,
-        popt_keys=param_keys,
-        popt_err=popt_err,
+        popt=list(fit_params),
+        popt_keys=list(param_keys),
         pcov=pcov,
         reduced_chisq=reduced_chisq,
         dof=dof,
