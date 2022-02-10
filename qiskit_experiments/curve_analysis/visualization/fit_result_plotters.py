@@ -84,6 +84,7 @@ class MplDrawSingleCanvas:
                 raw_sample=raw_samp,
                 fit_sample=fit_samp,
                 fit_data=fit_data,
+                style=style,
             )
 
         # add legend
@@ -221,6 +222,7 @@ class MplDrawMultiCanvasVstack:
                     raw_sample=raw_samples[curve_ind],
                     fit_sample=fit_samples[curve_ind],
                     fit_data=fit_data,
+                    style=style,
                 )
 
             # add legend to each inset axis
@@ -292,6 +294,7 @@ def draw_single_curve_mpl(
     raw_sample: CurveData,
     fit_sample: CurveData,
     fit_data: FitData,
+    style: PlotterStyle,
 ):
     """A function that draws a single curve on the given plotter canvas.
 
@@ -301,6 +304,7 @@ def draw_single_curve_mpl(
         raw_sample: Raw sample data.
         fit_sample: Formatted sample data.
         fit_data: Fitting parameter collection.
+        style: Style sheet for plotting.
     """
 
     # plot raw data if data is formatted
@@ -333,6 +337,7 @@ def draw_single_curve_mpl(
             ax=axis,
             color=series_def.plot_color,
             zorder=2,
+            fit_uncertainty=style.plot_sigma,
         )
 
 
