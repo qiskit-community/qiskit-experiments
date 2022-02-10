@@ -16,7 +16,7 @@ Base Experiment class.
 from abc import ABC, abstractmethod
 import copy
 from collections import OrderedDict
-from typing import Sequence, Optional, Tuple, List, Dict, Union, Any
+from typing import Iterable, Sequence, Optional, Tuple, List, Dict, Union, Any
 import warnings
 
 from qiskit import transpile, assemble, QuantumCircuit
@@ -269,7 +269,7 @@ class BaseExperiment(ABC, StoreInitArgs):
         # Generate and transpile circuits
         transpile_opts = copy.copy(experiment.transpile_options.__dict__)
         transpile_opts["initial_layout"] = list(experiment.physical_qubits)
-        circuits = transpile(experiment.circuits(), experiment.backend, **transpile_opts)
+        circuits = transpile(list(experiment.circuits()), experiment.backend, **transpile_opts)
         experiment._postprocess_transpiled_circuits(circuits, **run_options)
 
         # Run jobs
@@ -347,11 +347,11 @@ class BaseExperiment(ABC, StoreInitArgs):
         return jobs
 
     @abstractmethod
-    def circuits(self) -> List[QuantumCircuit]:
+    def circuits(self) -> Iterable[QuantumCircuit]:
         """Return a list of experiment circuits.
 
         Returns:
-            A list of :class:`QuantumCircuit`.
+            An iterable of :class:`QuantumCircuit`.
 
         .. note::
             These circuits should be on qubits ``[0, .., N-1]`` for an

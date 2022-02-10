@@ -39,7 +39,8 @@ class TestFramework(QiskitExperimentsTestCase):
                 """Generate fake circuits"""
                 qc = QuantumCircuit(1)
                 qc.measure_all()
-                return num_circuits * [qc]
+                for _ in range(num_circuits):
+                    yield qc
 
         exp = Experiment([0])
         expdata = exp.run(backend)
