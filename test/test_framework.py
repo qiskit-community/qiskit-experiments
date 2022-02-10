@@ -12,6 +12,7 @@
 
 """Tests for base experiment framework."""
 
+import math
 from test.fake_experiment import FakeExperiment, FakeAnalysis
 from test.base import QiskitExperimentsTestCase
 import ddt
@@ -54,6 +55,33 @@ class TestFramework(QiskitExperimentsTestCase):
             if num_circuits % max_experiments:
                 num_jobs += 1
         self.assertEqual(len(job_ids), num_jobs)
+
+    def test_circuits_per_job(self):
+        """Test specifying number of circuits per job"""
+        max_experiments = 10
+        num_circuits = 20
+        backend = FakeBackend(max_experiments=max_experiments)
+
+        class Experiment(FakeExperiment):
+            """Fake Experiment to test job splitting"""
+
+            def circuits(self):
+                """Generate fake circuits"""
+                qc = QuantumCircuit(1)
+                qc.measure_all()
+                return num_circuits * [qc]
+
+        exp = Experiment([0])
+
+        circuits_per_job = 5
+        expdata = exp.run(backend, circuits_per_job=circuits_per_job)
+        self.assertExperimentDone(expdata)
+        job_ids = expdata.job_ids
+        num_jobs = math.ceil(num_circuits / circuits_per_job)
+        self.assertEqual(len(job_ids), num_jobs)
+
+        with self.assertRaises(RuntimeError):
+            _ = exp.run(backend, circuits_per_job=max_experiments + 1)
 
     def test_analysis_replace_results_true(self):
         """Test running analysis with replace_results=True"""

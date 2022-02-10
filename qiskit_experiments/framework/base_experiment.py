@@ -201,6 +201,7 @@ class BaseExperiment(ABC, StoreInitArgs):
         backend: Optional[Backend] = None,
         analysis: Optional[Union[BaseAnalysis, None]] = "default",
         timeout: Optional[float] = None,
+        circuits_per_job: Optional[int] = None,
         **run_options,
     ) -> ExperimentData:
         """Run an experiment and perform analysis.
@@ -215,6 +216,9 @@ class BaseExperiment(ABC, StoreInitArgs):
                       it contains one.
             timeout: Time to wait for experiment jobs to finish running before
                      cancelling.
+            circuits_per_job: Number of circuits to include in each job sent
+                     to the backend. The default behavior is to use the maximum
+                     number allowed by the backend.
             run_options: backend runtime options used for circuit execution.
 
         Returns:
@@ -223,6 +227,7 @@ class BaseExperiment(ABC, StoreInitArgs):
         Raises:
             QiskitError: if experiment is run with an incompatible existing
                          ExperimentData container.
+            RunTimeError: Requested number of circuits per job exceeds backend limit.
         """
         # Handle deprecated analysis kwarg values
         if isinstance(analysis, bool):
@@ -273,7 +278,7 @@ class BaseExperiment(ABC, StoreInitArgs):
         experiment._postprocess_transpiled_circuits(circuits, **run_options)
 
         # Run jobs
-        jobs = experiment._run_jobs(circuits, **run_opts)
+        jobs = experiment._run_jobs(circuits, circuits_per_job, **run_opts)
         experiment_data.add_jobs(jobs, timeout=timeout)
         experiment._add_job_metadata(experiment_data.metadata, jobs, **run_opts)
 
@@ -322,14 +327,20 @@ class BaseExperiment(ABC, StoreInitArgs):
         )
         return self.analysis.run(experiment_data, replace_results=replace_results, **options)
 
-    def _run_jobs(self, circuits: List[QuantumCircuit], **run_options) -> List[BaseJob]:
+    def _run_jobs(
+        self, circuits: List[QuantumCircuit], circuits_per_job: Optional[int], **run_options
+    ) -> List[BaseJob]:
         """Run circuits on backend as 1 or more jobs."""
         # Run experiment jobs
         max_experiments = getattr(self.backend.configuration(), "max_experiments", None)
-        if max_experiments and len(circuits) > max_experiments:
-            # Split jobs for backends that have a maximum job size
+        circuits_per_job = circuits_per_job or max_experiments
+        if max_experiments and circuits_per_job > max_experiments:
+            raise RuntimeError("Requested number of circuits per job exceeds backend limit.")
+        if circuits_per_job and len(circuits) > circuits_per_job:
+            # Split jobs
             job_circuits = [
-                circuits[i : i + max_experiments] for i in range(0, len(circuits), max_experiments)
+                circuits[i : i + circuits_per_job]
+                for i in range(0, len(circuits), circuits_per_job)
             ]
         else:
             # Run as single job
