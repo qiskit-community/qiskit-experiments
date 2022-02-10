@@ -205,10 +205,15 @@ class TestZXHeat(QiskitExperimentsTestCase, HeatExperimentsTestCase):
         exp.set_experiment_options(heat_gate=gate)
         exp.set_transpile_options(basis_gates=["x", "sx", "rz", "unitary"])
 
-        exp_data = exp.run().block_for_results()
+        exp_data = exp.run()
+        self.assertExperimentDone(exp_data)
 
-        self.assertAlmostEqual(exp_data.analysis_results("A_IX").value.value, e_ix, delta=0.01)
-        self.assertAlmostEqual(exp_data.analysis_results("A_ZX").value.value, e_zx, delta=0.01)
+        self.assertAlmostEqual(
+            exp_data.analysis_results("A_IX").value.nominal_value, e_ix, delta=0.01
+        )
+        self.assertAlmostEqual(
+            exp_data.analysis_results("A_ZX").value.nominal_value, e_zx, delta=0.01
+        )
 
     @data(
         [0.02, -0.01],
@@ -227,15 +232,16 @@ class TestZXHeat(QiskitExperimentsTestCase, HeatExperimentsTestCase):
         exp.set_experiment_options(heat_gate=gate)
         exp.set_transpile_options(basis_gates=["x", "sx", "rz", "unitary"])
 
-        exp_data = exp.run().block_for_results()
+        exp_data = exp.run()
+        self.assertExperimentDone(exp_data)
 
         # The factor 0.7 is estimated from numerical analysis, which comes from ZX commutator term.
         # Note that this number may depend on magnitude of coefficients.
         self.assertAlmostEqual(
-            exp_data.analysis_results("A_IY").value.value, 0.7 * e_iy, delta=0.01
+            exp_data.analysis_results("A_IY").value.nominal_value, 0.7 * e_iy, delta=0.01
         )
         self.assertAlmostEqual(
-            exp_data.analysis_results("A_ZY").value.value, 0.7 * e_zy, delta=0.01
+            exp_data.analysis_results("A_ZY").value.nominal_value, 0.7 * e_zy, delta=0.01
         )
 
     @data(
@@ -255,15 +261,16 @@ class TestZXHeat(QiskitExperimentsTestCase, HeatExperimentsTestCase):
         exp.set_experiment_options(heat_gate=gate)
         exp.set_transpile_options(basis_gates=["x", "sx", "rz", "unitary"])
 
-        exp_data = exp.run().block_for_results()
+        exp_data = exp.run()
+        self.assertExperimentDone(exp_data)
 
         # The factor 0.7 is estimated from numerical analysis, which comes from ZX commutator term.
         # Note that this number may depend on magnitude of coefficients.
         self.assertAlmostEqual(
-            exp_data.analysis_results("A_IZ").value.value, 0.7 * e_iz, delta=0.01
+            exp_data.analysis_results("A_IZ").value.nominal_value, 0.7 * e_iz, delta=0.01
         )
         self.assertAlmostEqual(
-            exp_data.analysis_results("A_ZZ").value.value, 0.7 * e_zz, delta=0.01
+            exp_data.analysis_results("A_ZZ").value.nominal_value, 0.7 * e_zz, delta=0.01
         )
 
     @data(123, 456)
@@ -307,13 +314,14 @@ class TestZXHeat(QiskitExperimentsTestCase, HeatExperimentsTestCase):
             exp_z.set_transpile_options(basis_gates=["x", "sx", "rz", "unitary"])
 
             exp = BatchExperiment([exp_x, exp_y, exp_z], backend=self.backend)
-            exp_data = exp.run().block_for_results()
+            exp_data = exp.run()
+            self.assertExperimentDone(exp_data)
 
             for n, tp in enumerate(["x", "y", "z"]):
                 a_zp = exp_data.child_data(n).analysis_results(f"A_Z{tp.upper()}")
                 a_ip = exp_data.child_data(n).analysis_results(f"A_I{tp.upper()}")
-                errors_dict[f"e_z{tp}"] -= a_zp.value.value
-                errors_dict[f"e_i{tp}"] -= a_ip.value.value
+                errors_dict[f"e_z{tp}"] -= a_zp.value.nominal_value
+                errors_dict[f"e_i{tp}"] -= a_ip.value.nominal_value
 
         for v in errors_dict.values():
             self.assertAlmostEqual(v, 0.0, delta=0.005)

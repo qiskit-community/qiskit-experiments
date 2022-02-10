@@ -24,7 +24,6 @@ from qiskit_experiments.framework import (
     ExperimentData,
     AnalysisResultData,
     Options,
-    FitVal,
 )
 
 
@@ -135,23 +134,18 @@ class HeatAnalysis(CompositeAnalysis):
         # Check data quality
         is_good_quality = all(r.quality == "good" for r in fit_results)
 
-        # Compute unitary terms
-        ib = (fit_results[0].value.value + fit_results[1].value.value) / 2
-        zb = (fit_results[0].value.value - fit_results[1].value.value) / 2
-
-        # Compute new variance
-        sigma = np.sqrt(fit_results[0].value.stderr ** 2 + fit_results[1].value.stderr ** 2)
-
         estimate_ib = AnalysisResultData(
             name=self._out_params[0],
-            value=FitVal(value=ib, stderr=sigma, unit="rad"),
+            value=(fit_results[0].value + fit_results[1].value) / 2,
             quality="good" if is_good_quality else "bad",
+            extra={"unit": "rad"},
         )
 
         estimate_zb = AnalysisResultData(
             name=self._out_params[1],
-            value=FitVal(value=zb, stderr=sigma, unit="rad"),
+            value=(fit_results[0].value - fit_results[1].value) / 2,
             quality="good" if is_good_quality else "bad",
+            extra={"unit": "rad"},
         )
 
         return [estimate_ib, estimate_zb], []
