@@ -222,6 +222,7 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
         backend: Optional[Backend] = None,
         analysis: Optional[Union[BaseAnalysis, None]] = "default",
         timeout: Optional[float] = None,
+        circuits_per_job: Optional[int] = None,
         **run_options,
     ) -> ExperimentData:
         """Run an experiment, perform analysis, and update any calibrations.
@@ -236,13 +237,20 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
                       it contains one.
             timeout: Time to wait for experiment jobs to finish running before
                      cancelling.
+            circuits_per_job: Number of circuits to include in each job sent
+                     to the backend. The default behavior is to use the maximum
+                     number allowed by the backend.
             run_options: backend runtime options used for circuit execution.
 
         Returns:
             The experiment data object.
         """
         experiment_data = super().run(
-            backend=backend, analysis=analysis, timeout=timeout, **run_options
+            backend=backend,
+            analysis=analysis,
+            timeout=timeout,
+            circuits_per_job=circuits_per_job,
+            **run_options,
         )
 
         self._add_cal_metadata(experiment_data)
