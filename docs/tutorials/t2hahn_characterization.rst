@@ -17,7 +17,7 @@ take the following form:
 
 .. math:: f(t) = A \cdot e^{-\frac{t}{T_2}}+ B
 
- The difference between Hahn Echo and CPMG sequence is that in Hahn Echo
+The difference between Hahn Echo and CPMG sequence is that in Hahn Echo
 experiment, there is only one echo sequence while in CPMG there are
 multiple echo sequences.
 
