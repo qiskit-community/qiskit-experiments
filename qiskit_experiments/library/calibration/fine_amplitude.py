@@ -63,7 +63,7 @@ class FineAmplitudeCal(BaseCalibrationExperiment, FineAmplitude):
         """
         super().__init__(
             calibrations,
-            qubit,
+            [qubit],
             Gate(name=schedule_name, num_qubits=1, params=[]),
             schedule_name=schedule_name,
             backend=backend,

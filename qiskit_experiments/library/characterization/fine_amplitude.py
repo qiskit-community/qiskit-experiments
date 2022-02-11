@@ -114,7 +114,7 @@ class FineAmplitude(BaseExperiment):
 
         return options
 
-    def __init__(self, qubits: Union[int, Sequence], gate: Gate, backend: Optional[Backend] = None):
+    def __init__(self, qubits: Sequence[int], gate: Gate, backend: Optional[Backend] = None):
         """Setup a fine amplitude experiment on the given qubit.
 
         Args:
@@ -122,10 +122,6 @@ class FineAmplitude(BaseExperiment):
             gate: The gate that will be repeated.
             backend: Optional, the backend to run the experiment on.
         """
-
-        if not isinstance(qubits, Sequence):
-            qubits = [qubits]
-
         super().__init__(qubits, analysis=FineAmplitudeAnalysis(), backend=backend)
         self.set_experiment_options(gate=gate)
 
@@ -223,7 +219,7 @@ class FineXAmplitude(FineAmplitude):
 
     def __init__(self, qubit: int, backend: Optional[Backend] = None):
         """Initialize the experiment."""
-        super().__init__(qubit, XGate(), backend=backend)
+        super().__init__([qubit], XGate(), backend=backend)
         # Set default analysis options
         self.analysis.set_options(
             angle_per_gate=np.pi,
@@ -261,7 +257,7 @@ class FineSXAmplitude(FineAmplitude):
 
     def __init__(self, qubit: int, backend: Optional[Backend] = None):
         """Initialize the experiment."""
-        super().__init__(qubit, SXGate(), backend=backend)
+        super().__init__([qubit], SXGate(), backend=backend)
         # Set default analysis options
         self.analysis.set_options(
             angle_per_gate=np.pi / 2,

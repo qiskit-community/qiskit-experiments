@@ -43,7 +43,7 @@ class TestFineAmpEndToEnd(QiskitExperimentsTestCase):
     def test_end_to_end_under_rotation(self, pi_ratio):
         """Test the experiment end to end."""
 
-        amp_exp = FineAmplitude(0, Gate("xp", 1, []))
+        amp_exp = FineAmplitude([0], Gate("xp", 1, []))
         amp_exp.set_transpile_options(basis_gates=["xp", "x", "sx"])
         amp_exp.set_experiment_options(add_sx=True)
         amp_exp.analysis.set_options(angle_per_gate=np.pi, phase_offset=np.pi / 2)
@@ -65,7 +65,7 @@ class TestFineAmpEndToEnd(QiskitExperimentsTestCase):
     def test_end_to_end_over_rotation(self, pi_ratio):
         """Test the experiment end to end."""
 
-        amp_exp = FineAmplitude(0, Gate("xp", 1, []))
+        amp_exp = FineAmplitude([0], Gate("xp", 1, []))
         amp_exp.set_transpile_options(basis_gates=["xp", "x", "sx"])
         amp_exp.set_experiment_options(add_sx=True)
         amp_exp.analysis.set_options(angle_per_gate=np.pi, phase_offset=np.pi / 2)
