@@ -41,6 +41,7 @@ from qiskit.providers.backend import BackendV1 as Backend
 from qiskit_experiments.exceptions import CalibrationError
 from qiskit_experiments.calibration_management.basis_gate_library import BasisGateLibrary
 from qiskit_experiments.calibration_management.parameter_value import ParameterValue
+from qiskit_experiments.calibration_management.control_channel_map import ControlChannelMap
 from qiskit_experiments.calibration_management.calibration_key_types import (
     ParameterKey,
     ParameterValueType,
@@ -1519,7 +1520,7 @@ class Calibrations:
         )
 
     def config(self) -> Dict[str, Any]:
-        """Return the settings used to initialize the library.
+        """Return the settings used to initialize the calibrations.
 
         Returns:
             The config dictionary of the calibrations instance.
@@ -1536,7 +1537,7 @@ class Calibrations:
 
         kwargs = {
             "coupling_map": self._coupling_map,
-            "control_channel_map": self._control_channel_map,
+            "control_channel_map": ControlChannelMap(self._control_channel_map),
             "library": self.library,
             "add_parameter_defaults": False,  # the parameters will be added outside of the init
             "backend_name": self._backend_name,
@@ -1551,7 +1552,10 @@ class Calibrations:
 
     @classmethod
     def from_config(cls, config: Dict) -> "Calibrations":
-        """Deserialize the library given the input dictionary"""
+        """Deserialize the calibrations given the input dictionary"""
+
+        config["kwargs"]["control_channel_map"] = config["kwargs"]["control_channel_map"].chan_map
+
         calibrations = cls(**config["kwargs"])
 
         for param_config in config["parameters"]:

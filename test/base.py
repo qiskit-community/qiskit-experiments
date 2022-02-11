@@ -85,7 +85,7 @@ class QiskitExperimentsTestCase(QiskitTestCase):
         configrable_type = (BaseExperiment, BaseAnalysis)
         compare_repr = (DataAction, DataProcessor)
         list_type = (list, tuple, set)
-        skipped = (Calibrations,)
+        skipped = tuple()
 
         if isinstance(data1, skipped) and isinstance(data2, skipped):
             warnings.warn(f"Equivalence check for data {data1.__class__.__name__} is skipped.")

@@ -30,7 +30,7 @@ from typing import Any, Dict, Type, Optional, Union, Callable
 import numpy as np
 import scipy.sparse as sps
 
-from qiskit.circuit import ParameterExpression, QuantumCircuit, qpy_serialization
+from qiskit.circuit import ParameterExpression, QuantumCircuit, qpy_serialization, Gate
 from qiskit.circuit.library import BlueprintCircuit
 from qiskit.quantum_info import DensityMatrix
 from qiskit.quantum_info.operators.channel.quantum_channel import QuantumChannel
@@ -455,6 +455,13 @@ class ExperimentEncoder(json.JSONEncoder):
             return _serialize_bytes(obj)
         if dataclasses.is_dataclass(obj):
             return _serialize_object(obj, settings=dataclasses.asdict(obj))
+        if isinstance(obj, Gate):
+            value = _serialize_and_encode(
+                data=obj.name,
+                serializer=qpy_serialization._write_custom_instruction,
+                instruction=obj,
+            )
+            return {"__type__": "Gate", "__value__": value}
         if isinstance(obj, QuantumCircuit):
             # TODO Remove the decompose when terra 6713 is released.
             if isinstance(obj, BlueprintCircuit):
@@ -525,6 +532,10 @@ class ExperimentDecoder(json.JSONDecoder):
                 return _deserialize_bytes(obj_val)
             if obj_type == "set":
                 return set(obj_val)
+            if obj_type == "Gate":
+                return _decode_and_deserialize(
+                    obj_val, qpy_serialization._read_custom_instructions, name=obj_type
+                )
             if obj_type == "QuantumCircuit":
                 return _decode_and_deserialize(obj_val, qpy_serialization.load, name=obj_type)[0]
             if obj_type == "ParameterExpression":
