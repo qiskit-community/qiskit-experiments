@@ -50,8 +50,8 @@ class LocalReadoutError(BaseExperiment):
         in :mod:`qiskit.result`.
 
         The experiment generates 2 circuits, corresponding to the states
-        :math:`|0^n\rangle` and :math:`|1^n\rangle`, measuring the error in all the qubits at once, and constructs
-        the assignment matrix and local mitigator from the results.
+        :math:`|0^n\rangle` and :math:`|1^n\rangle`, measuring the error in all
+        the qubits at once, and constructs the assignment matrix and local mitigator from the results.
 
         See :class:`LocalReadoutErrorAnalysis`
         documentation for additional information on local readout error experiment analysis.

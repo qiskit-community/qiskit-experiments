@@ -39,9 +39,9 @@ def calibration_circuit(num_qubits: int, state_label: str) -> QuantumCircuit:
 class CorrelatedReadoutError(BaseExperiment):
     r"""Class for correlated readout error characterization experiment
     # section: overview
-        This class constructs the a :class:`~qiskit.result.CorrelatedReadoutMitigator` containing the full
-        assignment matrix :math:`A` characterizing the readout error for the given qubits
-        from the experiment results accessible via the
+        This class constructs the a :class:`~qiskit.result.CorrelatedReadoutMitigator`
+        containing the full assignment matrix :math:`A` characterizing the readout error
+        for the given qubits from the experiment results accessible via the
         :meth:`~qiskit.result.CorrelatedReadoutMitigator.assignment_matrix` method.
 
         Readout errors affect quantum computation during the measurement
