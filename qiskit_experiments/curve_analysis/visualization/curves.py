@@ -76,7 +76,7 @@ def plot_curve_fit(
     # Line
     ax.plot(xs, unp.nominal_values(ys_fit_with_error), **plot_opts)
 
-    # Confidence interval of 1 sigma
+    # Confidence interval of N sigma values
     stdev_arr = unp.std_devs(ys_fit_with_error)
     if np.isfinite(stdev_arr).all():
         for sigma, alpha in fit_uncertainty:
