@@ -35,6 +35,7 @@ def calibration_circuit(num_qubits: int, state_label: str) -> QuantumCircuit:
     circ.metadata = {"state_label": state_label}
     return circ
 
+
 class CorrelatedReadoutError(BaseExperiment):
     r"""Class for correlated readout error characterization experiment
     # section: overview
@@ -84,5 +85,5 @@ class CorrelatedReadoutError(BaseExperiment):
 
     def circuits(self) -> List[QuantumCircuit]:
         """Returns the experiment's circuits"""
-        labels = [bin(j)[2:].zfill(self.num_qubits) for j in range(2 ** self.num_qubits)]
+        labels = [bin(j)[2:].zfill(self.num_qubits) for j in range(2**self.num_qubits)]
         return [calibration_circuit(self.num_qubits, label) for label in labels]
