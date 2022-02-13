@@ -132,9 +132,9 @@ class BaseUpdater(ABC):
         # must be passed to analysis results so we don't block indefinitely
         candidates = exp_data.analysis_results(param_name, block=False)
         if isinstance(candidates, list):
-            return candidates[index].value.value
+            return candidates[index].value.nominal_value
         else:
-            return candidates.value.value
+            return candidates.value.nominal_value
 
 
 class Frequency(BaseUpdater):

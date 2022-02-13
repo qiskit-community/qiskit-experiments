@@ -54,6 +54,7 @@ Some experiments may be also used for gate calibration.
 
     ~characterization.T1
     ~characterization.T2Ramsey
+    ~characterization.Tphi
     ~characterization.QubitSpectroscopy
     ~characterization.EFSpectroscopy
     ~characterization.CrossResonanceHamiltonian
@@ -73,6 +74,7 @@ Some experiments may be also used for gate calibration.
     ~characterization.ReadoutAngle
     ~characterization.LocalReadoutError
     ~characterization.CorrelatedReadoutError
+    ~characterization.ResonatorSpectroscopy
 
 
 .. _calibration:
@@ -123,6 +125,7 @@ from .calibration import (
 from .characterization import (
     T1,
     T2Ramsey,
+    Tphi,
     QubitSpectroscopy,
     EFSpectroscopy,
     CrossResonanceHamiltonian,
@@ -140,6 +143,7 @@ from .characterization import (
     RamseyXY,
     FineFrequency,
     ReadoutAngle,
+    ResonatorSpectroscopy,
     LocalReadoutError,
     CorrelatedReadoutError,
 )

@@ -31,7 +31,7 @@ class BaseAnalysis(ABC, StoreInitArgs):
     """Abstract base class for analyzing Experiment data.
 
     The data produced by experiments (i.e. subclasses of BaseExperiment)
-    are analyzed with subclasses of BaseExperiment. The analysis is
+    are analyzed with subclasses of BaseAnalysis. The analysis is
     typically run after the data has been gathered by the experiment.
     For example, an analysis may perform some data processing of the
     measured data and a fit to a function to extract a parameter.
@@ -70,7 +70,7 @@ class BaseAnalysis(ABC, StoreInitArgs):
     def from_config(cls, config: Union[AnalysisConfig, Dict]) -> "BaseAnalysis":
         """Initialize an analysis class from analysis config"""
         if isinstance(config, dict):
-            config = AnalysisConfig(**dict)
+            config = AnalysisConfig(**config)
         ret = cls(*config.args, **config.kwargs)
         if config.options:
             ret.set_options(**config.options)
@@ -141,21 +141,10 @@ class BaseAnalysis(ABC, StoreInitArgs):
             This data can then be saved as its own experiment to a database service.
         """
         # Make a new copy of experiment data if not updating results
-        if not replace_results and (
-            experiment_data._created_in_db
-            or experiment_data._analysis_results
-            or experiment_data._figures
-            or getattr(experiment_data, "_child_data", None)
-        ):
+        if not replace_results and _requires_copy(experiment_data):
             experiment_data = experiment_data.copy()
 
-        # Get experiment device components
-        if "physical_qubits" in experiment_data.metadata:
-            experiment_components = [
-                Qubit(qubit) for qubit in experiment_data.metadata["physical_qubits"]
-            ]
-        else:
-            experiment_components = []
+        experiment_components = self._get_experiment_components(experiment_data)
 
         # Set Analysis options
         if not options:
@@ -183,6 +172,17 @@ class BaseAnalysis(ABC, StoreInitArgs):
         experiment_data.add_analysis_callback(run_analysis)
 
         return experiment_data
+
+    def _get_experiment_components(self, experiment_data: ExperimentData):
+        """Subclasses may override this method to specify the experiment components."""
+        if "physical_qubits" in experiment_data.metadata:
+            experiment_components = [
+                Qubit(qubit) for qubit in experiment_data.metadata["physical_qubits"]
+            ]
+        else:
+            experiment_components = []
+
+        return experiment_components
 
     def _format_analysis_result(self, data, experiment_id, experiment_components=None):
         """Format run analysis result to DbAnalysisResult"""
@@ -229,3 +229,23 @@ class BaseAnalysis(ABC, StoreInitArgs):
     @classmethod
     def __json_decode__(cls, value):
         return cls.from_config(value)
+
+
+def _requires_copy(experiment_data) -> bool:
+    """Return True if a copy of the experiment data should be made."""
+    # If data is from DB or contains analysis results it should be copied
+    if (
+        experiment_data._created_in_db
+        or experiment_data._analysis_results
+        or experiment_data._figures
+    ):
+        return True
+
+    # Check child data:
+    if hasattr(experiment_data, "_child_data"):
+        for subdata in experiment_data._child_data.values():
+            if _requires_copy(subdata):
+                return True
+
+    # No Copy required
+    return False

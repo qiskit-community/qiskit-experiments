@@ -15,17 +15,19 @@ Analysis class for curve fitting.
 """
 # pylint: disable=invalid-name
 
+import copy
 import dataclasses
 import functools
 import inspect
 import warnings
 from abc import ABC
 from typing import Any, Dict, List, Tuple, Callable, Union, Optional
-from uncertainties import unumpy as unp
 
 import numpy as np
-from qiskit.providers import Backend
+import uncertainties
+from uncertainties import unumpy as unp
 
+from qiskit.providers import Backend
 from qiskit_experiments.curve_analysis.curve_data import (
     CurveData,
     SeriesDef,
@@ -44,7 +46,6 @@ from qiskit_experiments.framework import (
     BaseAnalysis,
     ExperimentData,
     AnalysisResultData,
-    FitVal,
     Options,
 )
 
@@ -72,8 +73,6 @@ class CurveAnalysis(BaseAnalysis, ABC):
             - ``name``: Name of the curve. This is arbitrary data field, but should be unique.
             - ``plot_color``: String color representation of this series in the plot.
             - ``plot_symbol``: String formatter of the scatter of this series in the plot.
-            - ``plot_fit_uncertainty``: A Boolean signaling whether to plot fit uncertainty
-              for this series in the plot.
 
         - ``__fixed_parameters__``: A list of parameter names fixed during the fitting.
             These parameters should be provided in some way. For example, you can provide
@@ -574,22 +573,17 @@ class CurveAnalysis(BaseAnalysis, ABC):
 
         x_key = self.options.x_key
         try:
-            x_values = np.asarray([datum["metadata"][x_key] for datum in data], dtype=float)
+            xdata = np.asarray([datum["metadata"][x_key] for datum in data], dtype=float)
         except KeyError as ex:
             raise DataProcessorError(
                 f"X value key {x_key} is not defined in circuit metadata."
             ) from ex
 
         if isinstance(data_processor, DataProcessor):
-            y_data = data_processor(data)
-
-            y_nominals = unp.nominal_values(y_data)
-            y_stderrs = unp.std_devs(y_data)
+            ydata = data_processor(data)
         else:
             y_nominals, y_stderrs = zip(*map(data_processor, data))
-
-            y_nominals = np.asarray(y_nominals, dtype=float)
-            y_stderrs = np.asarray(y_stderrs, dtype=float)
+            ydata = unp.uarray(y_nominals, y_stderrs)
 
         # Store metadata
         metadata = np.asarray([datum["metadata"] for datum in data], dtype=object)
@@ -598,7 +592,7 @@ class CurveAnalysis(BaseAnalysis, ABC):
         shots = np.asarray([datum.get("shots", np.nan) for datum in data])
 
         # Find series (invalid data is labeled as -1)
-        data_index = np.full(x_values.size, -1, dtype=int)
+        data_index = np.full(xdata.size, -1, dtype=int)
         for idx, series_def in enumerate(self.__series__):
             data_matched = np.asarray(
                 [_is_target_series(datum, **series_def.filter_kwargs) for datum in data], dtype=bool
@@ -608,9 +602,9 @@ class CurveAnalysis(BaseAnalysis, ABC):
         # Store raw data
         raw_data = CurveData(
             label="raw_data",
-            x=x_values,
-            y=y_nominals,
-            y_err=y_stderrs,
+            x=xdata,
+            y=unp.nominal_values(ydata),
+            y_err=unp.std_devs(ydata),
             shots=shots,
             data_index=data_index,
             metadata=metadata,
@@ -798,23 +792,12 @@ class CurveAnalysis(BaseAnalysis, ABC):
         # 2. Setup data processor
         #
 
-        # No data processor has been provided at run-time we infer one from the job
+        # If no data processor was provided at run-time we infer one from the job
         # metadata and default to the data processor for averaged classified data.
         data_processor = self.options.data_processor
 
         if not data_processor:
-            run_options = self._run_options() or dict()
-
-            try:
-                meas_level = run_options["meas_level"]
-            except KeyError as ex:
-                raise DataProcessorError(
-                    f"Cannot process data without knowing the measurement level: {str(ex)}."
-                ) from ex
-
-            meas_return = run_options.get("meas_return", None)
-
-            data_processor = get_processor(meas_level, meas_return, self.options.normalization)
+            data_processor = get_processor(experiment_data, self.options)
 
         if isinstance(data_processor, DataProcessor) and not data_processor.is_trained:
             # Qiskit DataProcessor instance. May need calibration.
@@ -889,7 +872,7 @@ class CurveAnalysis(BaseAnalysis, ABC):
             analysis_results.append(
                 AnalysisResultData(
                     name=PARAMS_ENTRY_PREFIX + self.__class__.__name__,
-                    value=FitVal(fit_result.popt, fit_result.popt_err),
+                    value=[p.nominal_value for p in fit_result.popt],
                     chisq=fit_result.reduced_chisq,
                     quality=quality,
                     extra={
@@ -914,12 +897,20 @@ class CurveAnalysis(BaseAnalysis, ABC):
                         p_name = param_repr
                         p_repr = param_repr
                         unit = None
+
+                    fit_val = fit_result.fitval(p_name)
+                    if unit:
+                        metadata = copy.copy(self.options.extra)
+                        metadata["unit"] = unit
+                    else:
+                        metadata = self.options.extra
+
                     result_entry = AnalysisResultData(
                         name=p_repr,
-                        value=fit_result.fitval(p_name, unit),
+                        value=fit_val,
                         chisq=fit_result.reduced_chisq,
                         quality=quality,
-                        extra=self.options.extra,
+                        extra=metadata,
                     )
                     analysis_results.append(result_entry)
 
@@ -972,3 +963,30 @@ class CurveAnalysis(BaseAnalysis, ABC):
             figures = []
 
         return analysis_results, figures
+
+
+def is_error_not_significant(
+    val: Union[float, uncertainties.UFloat],
+    fraction: float = 1.0,
+    absolute: Optional[float] = None,
+) -> bool:
+    """Check if the standard error of given value is not significant.
+
+    Args:
+        val: Input value to evaluate. This is assumed to be float or ufloat.
+        fraction: Valid fraction of the nominal part to its standard error.
+            This function returns ``False`` if the nominal part is
+            smaller than the error by this fraction.
+        absolute: Use this value as a threshold if given.
+
+    Returns:
+        ``True`` if the standard error of given value is not significant.
+    """
+    if isinstance(val, float):
+        return True
+
+    threshold = absolute if absolute is not None else fraction * val.nominal_value
+    if np.isnan(val.std_dev) or val.std_dev < threshold:
+        return True
+
+    return False

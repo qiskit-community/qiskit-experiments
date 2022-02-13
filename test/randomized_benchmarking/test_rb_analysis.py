@@ -24,7 +24,8 @@ from qiskit.circuit.library import (
 )
 from qiskit_experiments.framework import ExperimentData
 from qiskit_experiments.library import StandardRB, InterleavedRB
-from qiskit_experiments.framework import ExperimentDecoder, FitVal
+from qiskit_experiments.framework import ExperimentDecoder
+from qiskit_experiments.database_service.db_fitval import FitVal
 
 ATOL_DEFAULT = 1e-2
 RTOL_DEFAULT = 1e-5
@@ -140,8 +141,8 @@ class TestRBAnalysis(QiskitExperimentsTestCase):
             value = result.value
             target = reference["value"]
             if isinstance(value, FitVal):
-                value = value.value
-                target = target.value
+                value = value.n
+                target = target.n
             if isinstance(value, float):
                 self.assertAlmostEqual(value, target)
             elif isinstance(value, np.ndarray):
@@ -151,8 +152,8 @@ class TestRBAnalysis(QiskitExperimentsTestCase):
             for key, value in result.extra.items():
                 target = reference["extra"][key]
                 if isinstance(value, FitVal):
-                    value = value.value
-                    target = target.value
+                    value = value.n
+                    target = target.n
                 if isinstance(value, float):
                     self.assertAlmostEqual(value, target)
                 elif isinstance(value, np.ndarray):
@@ -205,7 +206,8 @@ class TestRBAnalysis(QiskitExperimentsTestCase):
             ((0, 1), "cx"): 1,
         }
         rb_exp.analysis.set_options(gate_error_ratio=gate_error_ratio)
-        analysis_results = rb_exp.analysis.run(expdata1).block_for_results()
+        analysis_results = rb_exp.analysis.run(expdata1)
+        self.assertExperimentDone(analysis_results)
         return data, analysis_results
 
 
@@ -260,7 +262,8 @@ class TestInterleavedRBAnalysis(TestRBAnalysis):
             ((0, 1), "cx"): 1,
         }
         rb_exp.analysis.set_options(gate_error_ratio=gate_error_ratio)
-        analysis_results = rb_exp.analysis.run(expdata1).block_for_results()
+        analysis_results = rb_exp.analysis.run(expdata1)
+        self.assertExperimentDone(analysis_results)
         return data, analysis_results
 
     def test_interleaved_rb_analysis_test(self):

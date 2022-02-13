@@ -203,7 +203,9 @@ Experiment Data Classes
     :toctree: ../stubs/
 
     ExperimentData
-    FitVal
+    ExperimentStatus
+    JobStatus
+    AnalysisStatus
     AnalysisResultData
     ExperimentConfig
     AnalysisConfig
@@ -234,7 +236,11 @@ Base Classes
 """
 from qiskit.providers.options import Options
 from qiskit_experiments.database_service.db_analysis_result import DbAnalysisResultV1
-from qiskit_experiments.database_service.db_fitval import FitVal
+from qiskit_experiments.database_service.db_experiment_data import (
+    ExperimentStatus,
+    JobStatus,
+    AnalysisStatus,
+)
 from .base_analysis import BaseAnalysis
 from .base_experiment import BaseExperiment
 from .configs import ExperimentConfig, AnalysisConfig
