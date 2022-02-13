@@ -78,3 +78,9 @@ we compute the results for :math:`T_\varphi.`
 .. jupyter-execute::
 
     display(expdata.child_data(1).figure(0))
+
+.. jupyter-execute::
+
+    import qiskit.tools.jupyter
+    %qiskit_copyright
+
