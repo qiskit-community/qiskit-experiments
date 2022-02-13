@@ -24,6 +24,7 @@ from qiskit.test.mock import FakeParis
 from qiskit_experiments.library.characterization import LocalReadoutError, CorrelatedReadoutError
 from qiskit_experiments.framework import ExperimentData
 from qiskit_experiments.framework import ParallelExperiment
+from qiskit_experiments.test.fake_service import FakeService
 
 
 class TestMitigation(QiskitExperimentsTestCase):
@@ -152,6 +153,20 @@ class TestMitigation(QiskitExperimentsTestCase):
         assignment_matrix1 = mit1.assignment_matrix()
         assignment_matrix2 = mit2.assignment_matrix()
         self.assertFalse(matrix_equal(assignment_matrix1, assignment_matrix2))
+
+    def test_database_save_and_load(self):
+        qubits = [0, 1]
+        backend = AerSimulator.from_backend(FakeParis())
+        exp = LocalReadoutError(qubits)
+        exp_data = exp.run(backend).block_for_results()
+        exp_data.service = FakeService()
+        exp_data.save()
+        loaded_data = ExperimentData.load(exp_data.experiment_id, exp_data.service)
+        exp_res = exp_data.analysis_results()
+        load_res = loaded_data.analysis_results()
+        exp_matrix = exp_res[0].value.assignment_matrix()
+        load_matrix = load_res[0].value.assignment_matrix()
+        self.assertTrue(matrix_equal(exp_matrix, load_matrix))
 
 
 if __name__ == "__main__":
