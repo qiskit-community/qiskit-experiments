@@ -24,6 +24,12 @@ from .correlated_readout_error import calibration_circuit
 class LocalReadoutError(BaseExperiment):
     r"""Class for local readout error characterization experiment
     # section: overview
+
+        This class constructs the a :class:`~qiskit.result.LocalReadoutMitigator` containing sequence
+        of assignment matrices :math:`A` characterizing the readout error for the given qubits
+        from the experiment results. The full assignment matrix is accessible via the
+        :meth:`~qiskit.result.LocalReadoutMitigator.assignment_matrix` method.
+
         Readout errors affect quantum computation during the measurement
         of the qubits in a quantum device. By characterizing the readout errors,
         it is possible to construct a *readout error mitigator* that is used both
@@ -40,9 +46,8 @@ class LocalReadoutError(BaseExperiment):
         In this case, the assignment matrix is the tensor product of :math:`n` :math:`2 \times 2`
         matrices, one for each qubit, making it practical to store the assignment matrix in implicit
         form, by storing the individual :math:`2 \times 2` assignment matrices.
-        The corresponding class in Qiskit is the `Local readout mitigator
-        <https://qiskit.org/documentation/stubs/qiskit.result.LocalReadoutMitigator.html>`_
-        in ``qiskit-terra``.
+        The corresponding class in Qiskit is the :class:`~qiskit.result.LocalReadoutMitigator`
+        in :mod:`qiskit.result`.
 
         The experiment generates 2 circuits, corresponding to the states
         :math:`|0^n\rangle` and :math:`|1^n\rangle`, measuring the error in all the qubits at once, and constructs
