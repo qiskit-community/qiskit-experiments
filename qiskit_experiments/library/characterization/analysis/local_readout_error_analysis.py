@@ -44,8 +44,7 @@ class LocalReadoutErrorAnalysis(BaseAnalysis):
 
        Analysis Figures:
            * (Optional) A figure of the assignment matrix.
-           Note: producing this figure scales exponentially with the number of qubits.
-
+             Note: producing this figure scales exponentially with the number of qubits.
 
     # section: reference
         .. ref_arxiv:: 1 2006.14044
