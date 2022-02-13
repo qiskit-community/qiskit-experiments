@@ -28,7 +28,8 @@ class LocalReadoutErrorAnalysis(BaseAnalysis):
     # section: overview
 
        This class generates the assignment matrices characterizing the
-       readout error for each of the given qubits from the experiment results.
+       readout error for each of the given qubits from the experiment result,
+       and returns the resulting :class:`~qiskit.result.LocalReadoutMitigator`
 
        Each such matrix is a :math:`2\times 2` matrix :math:`A`. Such that :math:`A_{y,x}`
        is the probability to observe :math:`y` given the true outcome should be :math:`x`,
@@ -38,13 +39,12 @@ class LocalReadoutErrorAnalysis(BaseAnalysis):
        qubits and one for 1 outcome. From the observed results on the circuit, the
        probability for each :math:`x,y` is determined, and :math:`A_{y,x}` is set accordingly.
 
-       Returns
+       Analysis Results:
+           * "Local Readout Mitigator": The :class:`~qiskit.result.LocalReadoutMitigator`.
 
-            * The `Local readout error mitigator
-              <https://qiskit.org/documentation/stubs/qiskit.result.LocalReadoutMitigator.html>`_
-              object (the assignment matrix can be accessed via its ``assignment_matrix()`` method).
-
-            * (Optional) A figure of the assignment matrix.
+       Analysis Figures:
+           * (Optional) A figure of the assignment matrix.
+           Note: producing this figure scales exponentially with the number of qubits.
 
 
     # section: reference

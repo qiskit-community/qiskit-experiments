@@ -155,6 +155,7 @@ class TestMitigation(QiskitExperimentsTestCase):
         self.assertFalse(matrix_equal(assignment_matrix1, assignment_matrix2))
 
     def test_database_save_and_load(self):
+        """Tests saving and loading the mitigator from the DB"""
         qubits = [0, 1]
         backend = AerSimulator.from_backend(FakeParis())
         exp = LocalReadoutError(qubits)

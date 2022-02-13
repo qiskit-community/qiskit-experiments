@@ -28,7 +28,8 @@ class CorrelatedReadoutErrorAnalysis(BaseAnalysis):
     # section: overview
 
         This class generates the full assignment matrix :math:`A` characterizing the
-        readout error for the given qubits from the experiment results.
+        readout error for the given qubits from the experiment results
+        and returns the resulting :class:`~qiskit.result.CorrelatedReadoutMitigator`
 
         :math:`A` is a :math:`2^n\times 2^n` matrix :math:`A` such that :math:`A_{y,x}`
         is the probability to observe :math:`y` given the true outcome should be :math:`x`.
@@ -37,14 +38,11 @@ class CorrelatedReadoutErrorAnalysis(BaseAnalysis):
         outcome is :math:`x`. From the observed results on the circuit, the probability for
         each :math:`y` is determined, and :math:`A_{y,x}` is set accordingly.
 
-        Returns
+        Analysis Results:
+           * "Local Readout Mitigator": The :class:`~qiskit.result.LocalReadoutMitigator`.
 
-            * The `Correlated readout error mitigator
-              <https://qiskit.org/documentation/stubs/qiskit.result.CorrelatedReadoutMitigator.html>`_
-              object (the assignment matrix can be accessed via its ``assignment_matrix()`` method).
-
-            * (Optional) A figure of the assignment matrix.
-
+        Analysis Figures:
+           * (Optional) A figure of the assignment matrix.
 
     # section: reference
         .. ref_arxiv:: 1 2006.14044
