@@ -34,7 +34,6 @@ Experiments
     EFRabi
     HalfAngle
     FineAmplitude
-    FineTwoQubitAmplitude
     FineXAmplitude
     FineSXAmplitude
     FineZXAmplitude
