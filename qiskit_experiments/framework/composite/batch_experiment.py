@@ -13,10 +13,12 @@
 Batch Experiment class.
 """
 
+import copy
 from typing import List, Optional
 from collections import OrderedDict
 
-from qiskit import QuantumCircuit
+from qiskit import QuantumCircuit, transpile
+from qiskit.exceptions import QiskitError
 from qiskit.providers.backend import Backend
 from .composite_experiment import CompositeExperiment, BaseExperiment
 
@@ -60,7 +62,22 @@ class BatchExperiment(CompositeExperiment):
         super().__init__(experiments, qubits, backend=backend)
 
     def circuits(self):
+        circs = []
+        for circ_group in self._batch_circuits():
+            circs.extend(circ_group[0])
 
+        return circs
+
+    def transpiled_circuits(self):
+        circs = []
+        for circ_group in self._batch_circuits():
+            transpile_opts = copy.copy(circ_group[1].transpile_options.__dict__)
+            transpile_opts["initial_layout"] = list(self.physical_qubits)
+            circs.extend(transpile(circ_group[0], self.backend, **transpile_opts))
+
+        return circs
+
+    def _batch_circuits(self):
         batch_circuits = []
 
         # Generate data for combination
@@ -69,17 +86,28 @@ class BatchExperiment(CompositeExperiment):
                 qubit_mapping = None
             else:
                 qubit_mapping = [self._qubit_map[qubit] for qubit in expr.physical_qubits]
-            for circuit in expr.circuits():
-                # Update metadata
-                circuit.metadata = {
-                    "experiment_type": self._type,
-                    "composite_metadata": [circuit.metadata],
-                    "composite_index": [index],
-                }
-                # Remap qubits if required
-                if qubit_mapping:
-                    circuit = self._remap_qubits(circuit, qubit_mapping)
-                batch_circuits.append(circuit)
+
+            if isinstance(expr, BatchExperiment):
+                circ_groups = expr._batch_circuits()
+            else:
+                circ_groups = [(expr.circuits(), expr)]
+
+            for group in circ_groups:
+                local_circuits = []
+                for circuit in group[0]:
+                    # Update metadata
+                    circuit.metadata = {
+                        "experiment_type": self._type,
+                        "composite_metadata": [circuit.metadata],
+                        "composite_index": [index],
+                    }
+                    # Remap qubits if required
+                    if qubit_mapping:
+                        circuit = self._remap_qubits(circuit, qubit_mapping)
+                    local_circuits.append(circuit)
+                    
+                batch_circuits.append((local_circuits, group[1]))
+                    
         return batch_circuits
 
     def _remap_qubits(self, circuit, qubit_mapping):

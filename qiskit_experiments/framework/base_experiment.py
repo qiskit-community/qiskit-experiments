@@ -267,9 +267,7 @@ class BaseExperiment(ABC, StoreInitArgs):
         run_opts = run_opts.__dict__
 
         # Generate and transpile circuits
-        transpile_opts = copy.copy(experiment.transpile_options.__dict__)
-        transpile_opts["initial_layout"] = list(experiment.physical_qubits)
-        circuits = transpile(experiment.circuits(), experiment.backend, **transpile_opts)
+        circuits = experiment.transpiled_circuits()
         experiment._postprocess_transpiled_circuits(circuits, **run_options)
 
         # Run jobs
@@ -361,6 +359,11 @@ class BaseExperiment(ABC, StoreInitArgs):
         # NOTE: Subclasses should override this method using the `options`
         # values for any explicit experiment options that affect circuit
         # generation
+
+    def transpiled_circuits(self):
+        transpile_opts = copy.copy(self.transpile_options.__dict__)
+        transpile_opts["initial_layout"] = list(self.physical_qubits)
+        return transpile(self.circuits(), self.backend, **transpile_opts)
 
     @classmethod
     def _default_experiment_options(cls) -> Options:
