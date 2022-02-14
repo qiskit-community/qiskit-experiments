@@ -122,6 +122,7 @@ class ErrorAmplificationAnalysis(curve.CurveAnalysis):
         default_options.phase_offset = 0.0
         default_options.max_good_angle_error = np.pi / 2
         default_options.amp = 1.0
+        default_options.ylim = [0, 1.0]
 
         return default_options
 

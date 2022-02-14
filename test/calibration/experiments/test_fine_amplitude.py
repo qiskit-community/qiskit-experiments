@@ -17,16 +17,14 @@ import numpy as np
 from ddt import ddt, data
 
 from qiskit import transpile
-from qiskit.circuit import Gate
 from qiskit.circuit.library import XGate, SXGate, RZXGate
 from qiskit.pulse import DriveChannel, Drag
 import qiskit.pulse as pulse
 
 from qiskit_experiments.library import (
-    FineAmplitude,
     FineXAmplitude,
     FineSXAmplitude,
-    FineTwoQubitAmplitude,
+    FineZXAmplitude,
     FineXAmplitudeCal,
     FineSXAmplitudeCal,
 )
@@ -43,13 +41,11 @@ class TestFineAmpEndToEnd(QiskitExperimentsTestCase):
     def test_end_to_end_under_rotation(self, pi_ratio):
         """Test the experiment end to end."""
 
-        amp_exp = FineAmplitude([0], Gate("xp", 1, []))
-        amp_exp.set_transpile_options(basis_gates=["xp", "x", "sx"])
-        amp_exp.set_experiment_options(add_sx=True)
-        amp_exp.analysis.set_options(angle_per_gate=np.pi, phase_offset=np.pi / 2)
+        amp_exp = FineXAmplitude(0)
+        amp_exp.set_transpile_options(basis_gates=["x", "sx"])
 
         error = -np.pi * pi_ratio
-        backend = MockFineAmp(error, np.pi, "xp")
+        backend = MockFineAmp(error, np.pi, "x")
 
         expdata = amp_exp.run(backend)
         self.assertExperimentDone(expdata)
@@ -65,13 +61,11 @@ class TestFineAmpEndToEnd(QiskitExperimentsTestCase):
     def test_end_to_end_over_rotation(self, pi_ratio):
         """Test the experiment end to end."""
 
-        amp_exp = FineAmplitude([0], Gate("xp", 1, []))
-        amp_exp.set_transpile_options(basis_gates=["xp", "x", "sx"])
-        amp_exp.set_experiment_options(add_sx=True)
-        amp_exp.analysis.set_options(angle_per_gate=np.pi, phase_offset=np.pi / 2)
+        amp_exp = FineXAmplitude(0)
+        amp_exp.set_transpile_options(basis_gates=["x", "sx"])
 
         error = np.pi * pi_ratio
-        backend = MockFineAmp(error, np.pi, "xp")
+        backend = MockFineAmp(error, np.pi, "x")
 
         expdata = amp_exp.run(backend)
         self.assertExperimentDone(expdata)
@@ -85,14 +79,15 @@ class TestFineAmpEndToEnd(QiskitExperimentsTestCase):
 
 
 @ddt
-class TestFine2QAmpEndToEnd(QiskitExperimentsTestCase):
+class TestFineZXAmpEndToEnd(QiskitExperimentsTestCase):
     """Test the fine amplitude experiment."""
 
     @data(-0.08, -0.03, -0.02, 0.02, 0.06, 0.07)
     def test_end_to_end(self, pi_ratio):
         """Test the experiment end to end."""
 
-        amp_exp = FineTwoQubitAmplitude((0, 1), RZXGate(np.pi / 2))
+        amp_exp = FineZXAmplitude((0, 1))
+        amp_exp.set_transpile_options(basis_gates=["x", "sx", "rzx"])
 
         error = -np.pi * pi_ratio
         backend = MockFineAmp(error, np.pi / 2, "rzx")
@@ -109,8 +104,8 @@ class TestFine2QAmpEndToEnd(QiskitExperimentsTestCase):
 
     def test_experiment_config(self):
         """Test converting to and from config works"""
-        exp = FineTwoQubitAmplitude((0, 1), RZXGate(np.pi / 2))
-        loaded_exp = FineTwoQubitAmplitude.from_config(exp.config())
+        exp = FineZXAmplitude((0, 1))
+        loaded_exp = FineZXAmplitude.from_config(exp.config())
         self.assertNotEqual(exp, loaded_exp)
         self.assertTrue(self.json_equiv(exp, loaded_exp))
 
@@ -137,11 +132,12 @@ class TestFineAmplitudeCircuits(QiskitExperimentsTestCase):
         amp_cal = FineXAmplitude(0)
         circs = amp_cal.circuits()
 
-        self.assertTrue(circs[0].data[0][0].name == "x")
+        self.assertTrue(circs[0].data[0][0].name == "measure")
+        self.assertTrue(circs[1].data[0][0].name == "x")
 
-        for idx, circ in enumerate(circs[1:]):
+        for idx, circ in enumerate(circs[2:]):
             self.assertTrue(circ.data[0][0].name == "sx")
-            self.assertEqual(circ.count_ops().get("x", 0), idx)
+            self.assertEqual(circ.count_ops().get("x", 0), idx + 1)
 
     def test_x90p(self):
         """Test circuits with an x90p pulse."""
@@ -161,8 +157,7 @@ class TestSpecializations(QiskitExperimentsTestCase):
 
         exp = FineXAmplitude(0)
 
-        self.assertTrue(exp.experiment_options.add_sx)
-        self.assertTrue(exp.experiment_options.add_xp_circuit)
+        self.assertTrue(exp.experiment_options.add_cal_circuits)
         self.assertEqual(exp.analysis.options.angle_per_gate, np.pi)
         self.assertEqual(exp.analysis.options.phase_offset, np.pi / 2)
         self.assertEqual(exp.experiment_options.gate, XGate())
@@ -172,8 +167,7 @@ class TestSpecializations(QiskitExperimentsTestCase):
 
         exp = FineSXAmplitude(0)
 
-        self.assertFalse(exp.experiment_options.add_sx)
-        self.assertFalse(exp.experiment_options.add_xp_circuit)
+        self.assertFalse(exp.experiment_options.add_cal_circuits)
 
         expected = [0, 1, 2, 3, 5, 7, 9, 11, 13, 15, 17, 21, 23, 25]
         self.assertEqual(exp.experiment_options.repetitions, expected)
@@ -203,8 +197,7 @@ class TestFineAmplitudeCal(QiskitExperimentsTestCase):
         exp_opt = amp_cal.experiment_options
 
         self.assertEqual(exp_opt.gate.name, "x")
-        self.assertTrue(exp_opt.add_sx)
-        self.assertTrue(exp_opt.add_xp_circuit)
+        self.assertTrue(exp_opt.add_cal_circuits)
         self.assertEqual(exp_opt.result_index, -1)
         self.assertEqual(exp_opt.group, "default")
         self.assertTrue(np.allclose(exp_opt.target_angle, np.pi))
@@ -215,8 +208,7 @@ class TestFineAmplitudeCal(QiskitExperimentsTestCase):
         exp_opt = amp_cal.experiment_options
 
         self.assertEqual(exp_opt.gate.name, "sx")
-        self.assertFalse(exp_opt.add_sx)
-        self.assertFalse(exp_opt.add_xp_circuit)
+        self.assertFalse(exp_opt.add_cal_circuits)
         self.assertEqual(exp_opt.result_index, -1)
         self.assertEqual(exp_opt.group, "default")
         self.assertTrue(np.allclose(exp_opt.target_angle, np.pi / 2))
