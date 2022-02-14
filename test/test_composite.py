@@ -187,6 +187,35 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
         self.check_attributes(new_instance)
         self.assertEqual(new_instance.parent_id, None)
 
+    def test_composite_copy_analysis_ref(self):
+        """Test copy of composite expeirment preserves component analysis refs"""
+
+        class Analysis(FakeAnalysis):
+            """Fake analysis class with options"""
+
+            @classmethod
+            def _default_options(cls):
+                opts = super()._default_options()
+                opts.option1 = None
+                opts.option2 = None
+                return opts
+
+        exp1 = FakeExperiment([0])
+        exp1.analysis = Analysis()
+        exp2 = FakeExperiment([1])
+        exp2.analysis = Analysis()
+
+        # Generate a copy
+        par_exp = ParallelExperiment([exp1, exp2]).copy()
+        comp_exp0 = par_exp.component_experiment(0)
+        comp_exp1 = par_exp.component_experiment(1)
+        comp_an0 = par_exp.analysis.component_analysis(0)
+        comp_an1 = par_exp.analysis.component_analysis(1)
+
+        # Check reference of analysis is preserved
+        self.assertTrue(comp_exp0.analysis is comp_an0)
+        self.assertTrue(comp_exp1.analysis is comp_an1)
+
     def test_nested_composite(self):
         """
         Test nested parallel experiments.

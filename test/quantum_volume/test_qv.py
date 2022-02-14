@@ -16,6 +16,7 @@ A Tester for the Quantum Volume experiment
 from test.base import QiskitExperimentsTestCase
 import json
 import os
+from uncertainties import UFloat
 from qiskit.quantum_info.operators.predicates import matrix_equal
 
 from qiskit import Aer
@@ -119,7 +120,7 @@ class TestQuantumVolume(QiskitExperimentsTestCase):
             "number of trials is incorrect" " after adding more trials",
         )
         self.assertTrue(
-            result_data2.value.stderr <= result_data1.value.stderr,
+            result_data2.value.s <= result_data1.value.s,
             "sigma did not decreased after adding more trials",
         )
 
@@ -220,11 +221,19 @@ class TestQuantumVolume(QiskitExperimentsTestCase):
 
         results = exp_data.analysis_results()
         for result, reference in zip(results, successful_results):
-            self.assertEqual(
-                result.value,
-                reference["value"],
-                "result value is not the same as precalculated analysis",
-            )
+            if isinstance(result.value, UFloat):
+                # ufloat is distinguished by object id. so usually not identical to cache.
+                self.assertTupleEqual(
+                    (result.value.n, result.value.s),
+                    (reference["value"].n, reference["value"].s),
+                    "result value is not the same as precalculated analysis",
+                )
+            else:
+                self.assertEqual(
+                    result.value,
+                    reference["value"],
+                    "result value is not the same as precalculated analysis",
+                )
             self.assertEqual(
                 result.name,
                 reference["name"],

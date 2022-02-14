@@ -97,6 +97,14 @@ class TestFramework(QiskitExperimentsTestCase):
         loaded = FakeAnalysis.from_config(config)
         self.assertEqual(config, loaded.config())
 
+    def test_analysis_from_dict_config(self):
+        """Test analysis config dataclass for dict type."""
+        analysis = FakeAnalysis(arg1=10, arg2=20)
+        analysis.set_options(option1=False, option2=True)
+        config = analysis.config()
+        loaded = FakeAnalysis.from_config({"kwargs": config.kwargs, "options": config.options})
+        self.assertEqual(config, loaded.config())
+
     def test_analysis_runtime_opts(self):
         """Test runtime options don't modify instance"""
         opts = {"opt1": False, "opt2": False}

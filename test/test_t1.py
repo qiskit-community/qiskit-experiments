@@ -46,10 +46,10 @@ class TestT1(QiskitExperimentsTestCase):
         exp_data = exp.run(backend, shots=10000)
         self.assertExperimentDone(exp_data)
         res = exp_data.analysis_results("T1")
-        fitval = res.value
+        self.assertRoundTripSerializable(res.value, check_func=self.ufloat_equiv)
         self.assertEqual(res.quality, "good")
-        self.assertAlmostEqual(fitval.value, t1, delta=3)
-        self.assertEqual(fitval.unit, "s")
+        self.assertAlmostEqual(res.value.n, t1, delta=3)
+        self.assertEqual(res.extra["unit"], "s")
 
         exp_data.service = FakeService()
         exp_data.save()
@@ -77,7 +77,7 @@ class TestT1(QiskitExperimentsTestCase):
         for i in range(2):
             sub_res = res.child_data(i).analysis_results("T1")
             self.assertEqual(sub_res.quality, "good")
-            self.assertAlmostEqual(sub_res.value.value, t1[i], delta=3)
+            self.assertAlmostEqual(sub_res.value.n, t1[i], delta=3)
 
         res.service = FakeService()
         res.save()
@@ -111,7 +111,7 @@ class TestT1(QiskitExperimentsTestCase):
             sub_res.append(res.child_data(i).analysis_results("T1"))
 
         self.assertEqual(sub_res[0].quality, "good")
-        self.assertAlmostEqual(sub_res[0].value.value, t1, delta=3)
+        self.assertAlmostEqual(sub_res[0].value.n, t1, delta=3)
         self.assertEqual(sub_res[1].quality, "bad")
 
     def test_t1_analysis(self):
@@ -146,7 +146,7 @@ class TestT1(QiskitExperimentsTestCase):
         res, _ = T1Analysis()._run_analysis(data)
         result = res[1]
         self.assertEqual(result.quality, "good")
-        self.assertAlmostEqual(result.value.value, 25e-9, delta=3)
+        self.assertAlmostEqual(result.value.nominal_value, 25e-9, delta=3)
 
     def test_t1_metadata(self):
         """
