@@ -130,7 +130,7 @@ class TestFineDragCal(QiskitExperimentsTestCase):
         # run the calibration experiment. This should update the beta parameter of x which we test.
         exp_data = drag_cal.run(self.backend)
         self.assertExperimentDone(exp_data)
-        d_theta = exp_data.analysis_results(1).value.value
+        d_theta = exp_data.analysis_results(1).value.n
         sigma = 40
         target_angle = np.pi
         new_beta = -np.sqrt(np.pi) * d_theta * sigma / target_angle**2

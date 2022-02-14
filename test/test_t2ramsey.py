@@ -67,17 +67,18 @@ class TestT2Ramsey(QiskitExperimentsTestCase):
             expdata = exp.run(backend=backend, shots=2000)
             self.assertExperimentDone(expdata)
             result = expdata.analysis_results("T2star")
+            self.assertRoundTripSerializable(result.value, check_func=self.ufloat_equiv)
             self.assertAlmostEqual(
-                result.value.value,
+                result.value.n,
                 estimated_t2ramsey,
-                delta=TestT2Ramsey.__tolerance__ * result.value.value,
+                delta=TestT2Ramsey.__tolerance__ * result.value.n,
             )
             self.assertEqual(result.quality, "good", "Result quality bad")
             result = expdata.analysis_results("Frequency")
             self.assertAlmostEqual(
-                result.value.value,
+                result.value.n,
                 estimated_freq,
-                delta=TestT2Ramsey.__tolerance__ * result.value.value,
+                delta=TestT2Ramsey.__tolerance__ * result.value.n,
             )
             self.assertEqual(result.quality, "good", "Result quality bad")
 
@@ -110,18 +111,18 @@ class TestT2Ramsey(QiskitExperimentsTestCase):
         for i in range(2):
             res_t2star = expdata.child_data(i).analysis_results("T2star")
             self.assertAlmostEqual(
-                res_t2star.value.value,
+                res_t2star.value.n,
                 t2ramsey[i],
-                delta=TestT2Ramsey.__tolerance__ * res_t2star.value.value,
+                delta=TestT2Ramsey.__tolerance__ * res_t2star.value.n,
             )
             self.assertEqual(
                 res_t2star.quality, "good", "Result quality bad for experiment on qubit " + str(i)
             )
             res_freq = expdata.child_data(i).analysis_results("Frequency")
             self.assertAlmostEqual(
-                res_freq.value.value,
+                res_freq.value.n,
                 estimated_freq[i],
-                delta=TestT2Ramsey.__tolerance__ * res_freq.value.value,
+                delta=TestT2Ramsey.__tolerance__ * res_freq.value.n,
             )
             self.assertEqual(
                 res_freq.quality, "good", "Result quality bad for experiment on qubit " + str(i)
@@ -178,16 +179,16 @@ class TestT2Ramsey(QiskitExperimentsTestCase):
         res_freq_1 = expdata1.analysis_results("Frequency")
 
         self.assertAlmostEqual(
-            res_t2star_1.value.value,
+            res_t2star_1.value.n,
             estimated_t2ramsey,
-            delta=TestT2Ramsey.__tolerance__ * res_t2star_1.value.value,
+            delta=TestT2Ramsey.__tolerance__ * res_t2star_1.value.n,
         )
         self.assertAlmostEqual(
-            res_freq_1.value.value,
+            res_freq_1.value.n,
             estimated_freq,
-            delta=TestT2Ramsey.__tolerance__ * res_freq_1.value.value,
+            delta=TestT2Ramsey.__tolerance__ * res_freq_1.value.n,
         )
-        self.assertLessEqual(res_t2star_1.value.stderr, res_t2star_0.value.stderr)
+        self.assertLessEqual(res_t2star_1.value.s, res_t2star_0.value.s)
         self.assertEqual(len(expdata1.data()), len(delays0) + len(delays1))
 
     def test_experiment_config(self):

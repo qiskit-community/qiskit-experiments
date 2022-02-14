@@ -59,7 +59,7 @@ class TestRabiEndToEnd(QiskitExperimentsTestCase):
         result = expdata.analysis_results(0)
 
         self.assertEqual(result.quality, "good")
-        self.assertTrue(abs(result.value.value[1] - backend.rabi_rate) < test_tol)
+        self.assertAlmostEqual(result.value[1], backend.rabi_rate, delta=test_tol)
 
         backend = RabiBackend(amplitude_to_angle=np.pi / 2)
 
@@ -69,7 +69,7 @@ class TestRabiEndToEnd(QiskitExperimentsTestCase):
         self.assertExperimentDone(expdata)
         result = expdata.analysis_results(0)
         self.assertEqual(result.quality, "good")
-        self.assertTrue(abs(result.value.value[1] - backend.rabi_rate) < test_tol)
+        self.assertAlmostEqual(result.value[1], backend.rabi_rate, delta=test_tol)
 
         backend = RabiBackend(amplitude_to_angle=2.5 * np.pi)
 
@@ -79,7 +79,7 @@ class TestRabiEndToEnd(QiskitExperimentsTestCase):
         self.assertExperimentDone(expdata)
         result = expdata.analysis_results(0)
         self.assertEqual(result.quality, "good")
-        self.assertTrue(abs(result.value.value[1] - backend.rabi_rate) < test_tol)
+        self.assertAlmostEqual(result.value[1], backend.rabi_rate, delta=test_tol)
 
     def test_wrong_processor(self):
         """Test that we can override the data processing by giving a faulty data processor."""
@@ -144,7 +144,7 @@ class TestEFRabi(QiskitExperimentsTestCase):
         result = expdata.analysis_results(1)
 
         self.assertEqual(result.quality, "good")
-        self.assertTrue(abs(result.value.value - backend.rabi_rate) < test_tol)
+        self.assertTrue(abs(result.value.n - backend.rabi_rate) < test_tol)
 
     def test_ef_rabi_circuit(self):
         """Test the EFRabi experiment end to end."""
@@ -278,9 +278,9 @@ class TestRabiAnalysis(QiskitExperimentsTestCase):
         experiment_data = OscillationAnalysis().run(
             experiment_data, data_processor=data_processor, plot=False
         )
-        result = experiment_data.analysis_results()
-        self.assertEqual(result[0].quality, "good")
-        self.assertTrue(abs(result[0].value.value[1] - expected_rate) < test_tol)
+        result = experiment_data.analysis_results(0)
+        self.assertEqual(result.quality, "good")
+        self.assertAlmostEqual(result.value[1], expected_rate, delta=test_tol)
 
     def test_bad_analysis(self):
         """Test the Rabi analysis."""

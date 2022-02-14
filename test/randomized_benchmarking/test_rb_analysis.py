@@ -24,7 +24,8 @@ from qiskit.circuit.library import (
 )
 from qiskit_experiments.framework import ExperimentData
 from qiskit_experiments.library import StandardRB, InterleavedRB
-from qiskit_experiments.framework import ExperimentDecoder, FitVal
+from qiskit_experiments.framework import ExperimentDecoder
+from qiskit_experiments.database_service.db_fitval import FitVal
 
 ATOL_DEFAULT = 1e-2
 RTOL_DEFAULT = 1e-5
@@ -140,8 +141,8 @@ class TestRBAnalysis(QiskitExperimentsTestCase):
             value = result.value
             target = reference["value"]
             if isinstance(value, FitVal):
-                value = value.value
-                target = target.value
+                value = value.n
+                target = target.n
             if isinstance(value, float):
                 self.assertAlmostEqual(value, target)
             elif isinstance(value, np.ndarray):
@@ -151,8 +152,8 @@ class TestRBAnalysis(QiskitExperimentsTestCase):
             for key, value in result.extra.items():
                 target = reference["extra"][key]
                 if isinstance(value, FitVal):
-                    value = value.value
-                    target = target.value
+                    value = value.n
+                    target = target.n
                 if isinstance(value, float):
                     self.assertAlmostEqual(value, target)
                 elif isinstance(value, np.ndarray):

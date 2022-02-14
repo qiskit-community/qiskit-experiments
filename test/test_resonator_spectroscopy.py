@@ -77,10 +77,11 @@ class TestResonatorSpectroscopy(QiskitExperimentsTestCase):
         spec = ResonatorSpectroscopy(qubit, backend=backend, frequencies=frequencies)
 
         expdata = spec.run(backend)
+        self.assertExperimentDone(expdata)
         result = expdata.analysis_results(1)
-        value = result.value.value
+        self.assertRoundTripSerializable(result.value, check_func=self.ufloat_equiv)
 
-        self.assertAlmostEqual(value, res_freq + freq_shift, delta=0.1e6)
+        self.assertAlmostEqual(result.value.n, res_freq + freq_shift, delta=0.1e6)
         self.assertEqual(str(result.device_components[0]), f"R{qubit}")
 
     def test_experiment_config(self):
