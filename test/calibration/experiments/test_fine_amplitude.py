@@ -17,7 +17,7 @@ import numpy as np
 from ddt import ddt, data
 
 from qiskit import transpile
-from qiskit.circuit.library import XGate, SXGate, RZXGate
+from qiskit.circuit.library import XGate, SXGate
 from qiskit.pulse import DriveChannel, Drag
 import qiskit.pulse as pulse
 
@@ -95,7 +95,7 @@ class TestFineZXAmpEndToEnd(QiskitExperimentsTestCase):
         expdata = amp_exp.run(backend)
         self.assertExperimentDone(expdata)
         result = expdata.analysis_results(1)
-        d_theta = result.value.value
+        d_theta = result.value.n
 
         tol = 0.04
 
