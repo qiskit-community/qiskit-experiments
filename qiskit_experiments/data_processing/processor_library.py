@@ -85,11 +85,6 @@ def get_processor(
     dimensionality_reduction = analysis_options.get("dimensionality_reduction", ProjectorType.SVD)
     esp_enabled = analysis_options.get("use_measure_esp", False)
 
-    physical_qubits = experiment_data.metadata["physical_qubits"]
-    num_qubits = len(physical_qubits)
-
-    outcome = analysis_options.get("outcome", "1" * num_qubits)
-
     init_qubits = run_options.get("init_qubits", True)
     memory = run_options.get("memory", False)
     rep_delay = run_options.get("rep_delay", None)
@@ -98,11 +93,16 @@ def get_processor(
     # restless data processing.
     restless = False
     if rep_delay and not init_qubits:
+
         if esp_enabled:
             raise DataProcessorError(
                 f"Restless experiments are not compatible with the excited "
                 f"state promotion readout analysis option."
             )
+
+        physical_qubits = experiment_data.metadata["physical_qubits"]
+        num_qubits = len(physical_qubits)
+
         if num_qubits > 1:
             raise DataProcessorError(
                 f"To date, only single-qubit restless measurements can be processed."
@@ -117,6 +117,8 @@ def get_processor(
             restless = True
 
     if meas_level == MeasLevel.CLASSIFIED and memory and restless:
+        num_qubits = experiment_data.metadata.get("num_qubits", 1)
+        outcome = analysis_options.get("outcome", "1" * num_qubits)
         return DataProcessor(
             "memory",
             [
