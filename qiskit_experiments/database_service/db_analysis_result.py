@@ -12,23 +12,24 @@
 
 """Analysis result abstract interface."""
 
-import logging
-from typing import Optional, List, Union, Dict, Any
-import uuid
 import copy
+import logging
 import math
+import uuid
+from typing import Optional, List, Union, Dict, Any
 
+import uncertainties
 from qiskit_experiments.framework.json import (
     ExperimentEncoder,
     ExperimentDecoder,
     _serialize_safe_float,
 )
-from .database_service import DatabaseServiceV1
-from .utils import save_data, qiskit_version
-from .exceptions import DbExperimentDataError
-from .device_component import DeviceComponent, to_component
-from .db_fitval import FitVal
 
+from .database_service import DatabaseServiceV1
+from .db_fitval import FitVal
+from .device_component import DeviceComponent, to_component
+from .exceptions import DbExperimentDataError
+from .utils import save_data, qiskit_version
 
 LOG = logging.getLogger(__name__)
 
@@ -186,6 +187,14 @@ class DbAnalysisResultV1(DbAnalysisResult):
                 result_data["variance"] = self._display_format(value.stderr**2)
             if isinstance(value.unit, str):
                 result_data["unit"] = value.unit
+        elif isinstance(value, uncertainties.UFloat):
+            db_value = self._display_format(value.nominal_value)
+            if db_value is not None:
+                result_data["value"] = db_value
+            if isinstance(value.std_dev, (int, float)):
+                result_data["variance"] = self._display_format(value.std_dev**2)
+            if "unit" in self.extra:
+                result_data["unit"] = self.extra["unit"]
         else:
             db_value = self._display_format(value)
             if db_value is not None:
@@ -247,6 +256,14 @@ class DbAnalysisResultV1(DbAnalysisResult):
         chisq = result_data.pop("_chisq", None)
         extra = result_data.pop("_extra", {})
         source = result_data.pop("_source", None)
+
+        # For backward compatibility
+        # If loaded value is FitVal which may be typecasted into UFloat,
+        # the loader will copy unit in deprecated attribute to metadata for re-saving.
+        if isinstance(value, uncertainties.UFloat):
+            unit = getattr(value, "tag", None)
+            if unit:
+                extra["unit"] = unit
 
         # Initialize the result object
         obj = cls(

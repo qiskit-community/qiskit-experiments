@@ -19,8 +19,10 @@ import warnings
 from typing import Any, Callable, Optional
 
 import numpy as np
+import uncertainties
 from qiskit.test import QiskitTestCase
 from qiskit_experiments.calibration_management import Calibrations
+from qiskit_experiments.data_processing import DataAction, DataProcessor
 from qiskit_experiments.database_service.db_experiment_data import ExperimentStatus
 from qiskit_experiments.framework import (
     ExperimentDecoder,
@@ -29,7 +31,6 @@ from qiskit_experiments.framework import (
     BaseExperiment,
     BaseAnalysis,
 )
-from qiskit_experiments.data_processing import DataAction, DataProcessor
 
 
 class QiskitExperimentsTestCase(QiskitTestCase):
@@ -105,8 +106,15 @@ class QiskitExperimentsTestCase(QiskitTestCase):
             return np.allclose(data1, data2)
         elif isinstance(data1, list_type) and isinstance(data2, list_type):
             return all(QiskitExperimentsTestCase.json_equiv(e1, e2) for e1, e2 in zip(data1, data2))
+        elif isinstance(data1, uncertainties.UFloat) and isinstance(data2, uncertainties.UFloat):
+            return QiskitExperimentsTestCase.ufloat_equiv(data1, data2)
         elif isinstance(data1, compare_repr) and isinstance(data2, compare_repr):
             # otherwise compare instance representation
             return repr(data1) == repr(data2)
 
         return data1 == data2
+
+    @staticmethod
+    def ufloat_equiv(data1: uncertainties.UFloat, data2: uncertainties.UFloat) -> bool:
+        """Check if two values with uncertainties are equal. No correlation is considered."""
+        return data1.n == data2.n and data1.s == data2.s
