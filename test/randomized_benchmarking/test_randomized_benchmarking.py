@@ -122,7 +122,6 @@ class TestStandardRB(RBTestCase):
 
         epc_expected = 1 - (1 - 1 / 2 * self.p1q) ** 1.0
         self.assertAlmostEqual(epc.value.n, epc_expected, delta=0.1 * epc_expected)
-        self.assertTrue(epc)
 
     @data(123, 456)
     def test_two_qubit(self, seed):
