@@ -135,6 +135,12 @@ class TestSpecializations(QiskitExperimentsTestCase):
         self.assertEqual(exp.analysis.options.phase_offset, np.pi / 2)
         self.assertEqual(exp.experiment_options.gate, XGate())
 
+    # @unittest.skip("Gates are not yet serializable")
+    def test_x_roundtrip_serializable(self):
+        """Test round trip JSON serialization"""
+        exp = FineXAmplitude(0)
+        self.assertRoundTripSerializable(exp, self.json_equiv)
+
     def test_fine_sx_amp(self):
         """Test the fine SX amplitude."""
 
