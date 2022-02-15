@@ -21,50 +21,50 @@ from qiskit_experiments.framework import Options
 
 
 class ResonanceAnalysis(curve.CurveAnalysis):
-    r"""A class to analyze a resonance, typically seen as a peak.
+    r"""A class to analyze a resonance peak with a square rooted Lorentzian function.
 
     Overview
-        This analysis takes only single series. This series is fit by the Gaussian function.
+        This analysis takes only single series. This series is fit to the square root of
+        a Lorentzian function.
 
     Fit Model
-        The fit is based on the following Gaussian function.
+        The fit is based on the following Lorentzian function.
 
         .. math::
 
-            F(x) = a \exp(-(x-f)^2/(2\sigma^2)) + b
+            F(x) = a{\rm abs}\left(\frac{1}{1 + 2i(x - x0)/\kappa}\right) + b
 
     Fit Parameters
         - :math:`a`: Peak height.
         - :math:`b`: Base line.
-        - :math:`f`: Center frequency. This is the fit parameter of main interest.
-        - :math:`\sigma`: Standard deviation of Gaussian function.
+        - :math:`x0`: Center value. This is typically the fit parameter of interest.
+        - :math:`\kappa`: Linewidth.
 
     Initial Guesses
         - :math:`a`: Calculated by :func:`~qiskit_experiments.curve_analysis.guess.max_height`.
         - :math:`b`: Calculated by :func:`~qiskit_experiments.curve_analysis.guess.\
           constant_spectral_offset`.
-        - :math:`f`: Frequency at max height position calculated by
+        - :math:`x0`: The max height position is calculated by the function
           :func:`~qiskit_experiments.curve_analysis.guess.max_height`.
-        - :math:`\sigma`: Calculated from FWHM of peak :math:`w`
-          such that :math:`w / \sqrt{8} \ln{2}`, where FWHM is calculated by
+        - :math:`\kappa`: Calculated from FWHM of the peak using
           :func:`~qiskit_experiments.curve_analysis.guess.full_width_half_max`.
 
     Bounds
         - :math:`a`: [-2, 2] scaled with maximum signal value.
         - :math:`b`: [-1, 1] scaled with maximum signal value.
-        - :math:`f`: [min(x), max(x)] of frequency scan range.
-        - :math:`\sigma`: [0, :math:`\Delta x`] where :math:`\Delta x`
-          represents frequency scan range.
+        - :math:`f`: [min(x), max(x)] of x-value scan range.
+        - :math:`\kappa`: [0, :math:`\Delta x`] where :math:`\Delta x`
+          represents the x-value scan range.
 
     """
 
     __series__ = [
         curve.SeriesDef(
-            fit_func=lambda x, a, sigma, freq, b: curve.fit_function.gaussian(
-                x, amp=a, sigma=sigma, x0=freq, baseline=b
+            fit_func=lambda x, a, kappa, freq, b: curve.fit_function.sqrt_lorentzian(
+                x, amp=a, kappa=kappa, x0=freq, baseline=b
             ),
             plot_color="blue",
-            model_description=r"a \exp(-(x-f)^2/(2\sigma^2)) + b",
+            model_description=r"a |\kappa| / sqrt(kappa^2 + 4 * (x - x_0)^2) + b",
         )
     ]
 
@@ -94,7 +94,7 @@ class ResonanceAnalysis(curve.CurveAnalysis):
 
         user_opt.bounds.set_if_empty(
             a=(-2 * max_abs_y, 2 * max_abs_y),
-            sigma=(0, np.ptp(curve_data.x)),
+            kappa=(0, np.ptp(curve_data.x)),
             freq=(min(curve_data.x), max(curve_data.x)),
             b=(-max_abs_y, max_abs_y),
         )
@@ -106,9 +106,9 @@ class ResonanceAnalysis(curve.CurveAnalysis):
         fwhm = curve.guess.full_width_half_max(curve_data.x, y_, peak_idx)
 
         user_opt.p0.set_if_empty(
-            a=curve_data.y[peak_idx] - user_opt.p0["b"],
+            a=(curve_data.y[peak_idx] - user_opt.p0["b"]),
             freq=curve_data.x[peak_idx],
-            sigma=fwhm / np.sqrt(8 * np.log(2)),
+            kappa=fwhm,
         )
 
         return user_opt
@@ -124,7 +124,7 @@ class ResonanceAnalysis(curve.CurveAnalysis):
             - a signal-to-noise ratio, defined as the amplitude of the peak divided by the
               square root of the median y-value less the fit offset, greater than a
               threshold of two, and
-            - a standard error on the sigma of the Gaussian that is smaller than the sigma.
+            - a standard error on the kappa of the Lorentzian that is smaller than the kappa.
         """
         curve_data = self._data()
 
@@ -132,21 +132,20 @@ class ResonanceAnalysis(curve.CurveAnalysis):
         min_freq = np.min(curve_data.x)
         freq_increment = np.mean(np.diff(curve_data.x))
 
-        fit_a = fit_data.fitval("a").value
-        fit_b = fit_data.fitval("b").value
-        fit_freq = fit_data.fitval("freq").value
-        fit_sigma = fit_data.fitval("sigma").value
-        fit_sigma_err = fit_data.fitval("sigma").stderr
+        fit_a = fit_data.fitval("a")
+        fit_b = fit_data.fitval("b")
+        fit_freq = fit_data.fitval("freq")
+        fit_kappa = fit_data.fitval("kappa")
 
-        snr = abs(fit_a) / np.sqrt(abs(np.median(curve_data.y) - fit_b))
-        fit_width_ratio = fit_sigma / (max_freq - min_freq)
+        snr = abs(fit_a.n) / np.sqrt(abs(np.median(curve_data.y) - fit_b.n))
+        fit_width_ratio = fit_kappa.n / (max_freq - min_freq)
 
         criteria = [
-            min_freq <= fit_freq <= max_freq,
-            1.5 * freq_increment < fit_sigma,
+            min_freq <= fit_freq.n <= max_freq,
+            1.5 * freq_increment < fit_kappa.n,
             fit_width_ratio < 0.25,
             fit_data.reduced_chisq < 3,
-            (fit_sigma_err is None or fit_sigma_err < fit_sigma),
+            curve.is_error_not_significant(fit_kappa),
             snr > 2,
         ]
 

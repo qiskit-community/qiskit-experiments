@@ -90,7 +90,7 @@ class BaseExperiment(ABC, StoreInitArgs):
             self.analysis = analysis_cls()  # pylint: disable = not-callable
 
         # Set backend
-        # This should be called last incase `_set_backend` access any of the
+        # This should be called last in case `_set_backend` access any of the
         # attributes created during initialization
         self._backend = None
         if isinstance(backend, (Backend, BaseBackend)):
@@ -279,7 +279,7 @@ class BaseExperiment(ABC, StoreInitArgs):
 
         # Optionally run analysis
         if analysis and experiment.analysis:
-            return self.analysis.run(experiment_data)
+            return experiment.analysis.run(experiment_data)
         else:
             return experiment_data
 
@@ -359,7 +359,7 @@ class BaseExperiment(ABC, StoreInitArgs):
             are obtained via the :meth:`transpiled_circuits` method.
         """
         # NOTE: Subclasses should override this method using the `options`
-        # values for any explicit experiment options that effect circuit
+        # values for any explicit experiment options that affect circuit
         # generation
 
     @classmethod

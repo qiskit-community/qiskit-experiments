@@ -72,7 +72,9 @@ class ErrorAmplificationAnalysis(curve.CurveAnalysis):
                 where a is given by :code:`max(abs(angle_per_gate), np.pi / 2)`.
                 Extra guesses are added based on curve data when either :math:`\rm amp` or
                 :math:`\rm base` is :math:`\pi/2`. See fit model for details.
-            bounds: [-pi, pi].
+            bounds: [-0.8 pi, 0.8 pi]. The bounds do not include plus and minus pi since these values
+                often correspond to symmetry points of the fit function. Furthermore,
+                this type of analysis is intended for values of :math:`d\theta` close to zero.
 
     # section: note
 
@@ -141,7 +143,9 @@ class ErrorAmplificationAnalysis(curve.CurveAnalysis):
         max_abs_y, _ = curve.guess.max_height(curve_data.y, absolute=True)
         max_y, min_y = np.max(curve_data.y), np.min(curve_data.y)
 
-        user_opt.bounds.set_if_empty(d_theta=(-np.pi, np.pi), base=(-max_abs_y, max_abs_y))
+        user_opt.bounds.set_if_empty(
+            d_theta=(-0.8 * np.pi, 0.8 * np.pi), base=(-max_abs_y, max_abs_y)
+        )
         user_opt.p0.set_if_empty(base=(max_y + min_y) / 2)
 
         if "amp" in user_opt.p0:
@@ -191,11 +195,11 @@ class ErrorAmplificationAnalysis(curve.CurveAnalysis):
             - a measured angle error that is smaller than the allowed maximum good angle error.
               This quantity is set in the analysis options.
         """
-        fit_d_theta = fit_data.fitval("d_theta").value
+        fit_d_theta = fit_data.fitval("d_theta")
 
         criteria = [
             fit_data.reduced_chisq < 3,
-            abs(fit_d_theta) < abs(self.options.max_good_angle_error),
+            abs(fit_d_theta.nominal_value) < abs(self.options.max_good_angle_error),
         ]
 
         if all(criteria):
