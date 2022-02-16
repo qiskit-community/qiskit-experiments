@@ -53,7 +53,7 @@ class MockRestlessBackend(FakeOpenPulse2Q):
         """Generate all state strings for the system."""
         states, format_str = [], "{0:0" + str(n_qubits) + "b}"
 
-        for state_num in range(2 ** n_qubits):
+        for state_num in range(2**n_qubits):
             states.append(format_str.format(state_num))
 
         return states

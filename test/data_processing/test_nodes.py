@@ -160,8 +160,8 @@ class TestToAbs(QiskitExperimentsTestCase):
 
         processed = ToAbs()(np.array(data))
 
-        val = np.sqrt(2 ** 2 + 3 ** 2)
-        val_err = np.sqrt(2 ** 2 * 0.2 ** 2 + 2 ** 2 * 0.3 ** 2) / val
+        val = np.sqrt(2**2 + 3**2)
+        val_err = np.sqrt(2**2 * 0.2**2 + 2**2 * 0.3**2) / val
 
         expected = np.array(
             [
