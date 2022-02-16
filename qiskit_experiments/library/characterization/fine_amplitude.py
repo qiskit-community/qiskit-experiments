@@ -122,21 +122,26 @@ class FineAmplitude(BaseExperiment):
         super().__init__(qubits, analysis=FineAmplitudeAnalysis(), backend=backend)
         self.set_experiment_options(gate=gate)
 
-    def _spam_cal_circuits(self) -> List[QuantumCircuit]:
+    def _spam_cal_circuits(self, meas_circuit: QuantumCircuit) -> List[QuantumCircuit]:
         """This method returns the calibration circuits.
 
         Calibration circuits allow the experiment to overcome state preparation and
         measurement errors which cause ideal probabilities to be below 1.
+
+        Args:
+            meas_circuit: The measurement circuit, so that we only apply x gates to the
+                measured qubits.
         """
         cal_circuits = []
 
         for add_x in [0, 1]:
-            circ = QuantumCircuit(self.num_qubits, self.num_qubits)
+            circ = QuantumCircuit(self.num_qubits, meas_circuit.num_clbits)
 
             if add_x:
-                circ.x(range(self.num_qubits))
+                qubits = meas_circuit.get_instructions("measure")[0][1]
+                circ.x(qubits)
 
-            circ.measure(range(self.num_qubits), range(self.num_qubits))
+            circ.compose(meas_circuit, inplace=True)
 
             circ.metadata = {
                 "experiment_type": self._type,
@@ -179,14 +184,16 @@ class FineAmplitude(BaseExperiment):
         Raises:
             CalibrationError: If the analysis options do not contain the angle_per_gate.
         """
-        # Prepare the circuits.
         repetitions = self.experiment_options.get("repetitions")
-
-        circuits = self._spam_cal_circuits() if self.experiment_options.add_cal_circuits else []
 
         qubits = range(self.num_qubits)
         meas_circ = self._measure_circuit()
         pre_circ = self._pre_circuit(meas_circ.num_clbits)
+
+        if self.experiment_options.add_cal_circuits:
+            circuits = self._spam_cal_circuits(meas_circ)
+        else:
+            circuits = []
 
         for repetition in repetitions:
             circuit = QuantumCircuit(self.num_qubits, meas_circ.num_clbits)
