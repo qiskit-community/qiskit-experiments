@@ -160,8 +160,8 @@ class TestToAbs(QiskitExperimentsTestCase):
 
         processed = ToAbs()(np.array(data))
 
-        val = np.sqrt(2**2 + 3**2)
-        val_err = np.sqrt(2**2 * 0.2**2 + 2**2 * 0.3**2) / val
+        val = np.sqrt(2 ** 2 + 3 ** 2)
+        val_err = np.sqrt(2 ** 2 * 0.2 ** 2 + 2 ** 2 * 0.3 ** 2) / val
 
         expected = np.array(
             [
@@ -378,6 +378,7 @@ class TestProbability(QiskitExperimentsTestCase):
         """Check if the node is serializable."""
         node = Probability(outcome="00", alpha_prior=0.2)
         self.assertRoundTripSerializable(node, check_func=self.json_equiv)
+
 
 class TestRestless(QiskitExperimentsTestCase):
     """Test the restless measurements node."""
