@@ -374,7 +374,10 @@ class TestProbability(QiskitExperimentsTestCase):
         processed_data = node(data=np.asarray([data]))
         self.assertAlmostEqual(unp.nominal_values(processed_data), 0.5)
 
-<<<<<<< HEAD
+    def test_json(self):
+        """Check if the node is serializable."""
+        node = Probability(outcome="00", alpha_prior=0.2)
+        self.assertRoundTripSerializable(node, check_func=self.json_equiv)
 
 class TestRestless(QiskitExperimentsTestCase):
     """Test the restless measurements node."""
@@ -436,9 +439,3 @@ class TestRestless(QiskitExperimentsTestCase):
             self.assertTrue(processed_data[idx] == expected_data[idx])
             for idx in range(len(expected_data))
         ]
-=======
-    def test_json(self):
-        """Check if the node is serializable."""
-        node = Probability(outcome="00", alpha_prior=0.2)
-        self.assertRoundTripSerializable(node, check_func=self.json_equiv)
->>>>>>> d6957f4a63799da160f5f2a581d192e5db271f74

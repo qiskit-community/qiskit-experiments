@@ -604,11 +604,11 @@ class ProjectorType(Enum):
 
 class RestlessNode(DataAction, ABC):
     """An abstract node for restless data processing nodes.
-    
+
     In restless measurements, the qubit is not reset after each measurement. Instead, the
     outcome of the previous quantum non-demolition measurement is the initial state for the
     current circuit. Restless measurements therefore require special data processing nodes
-    that are implemented as sub-classes of `ResltessNode`. 
+    that are implemented as sub-classes of `ResltessNode`.
     """
 
     def __init__(self, validate: bool = True):
@@ -699,7 +699,7 @@ class RestlessToCounts(RestlessNode):
         """
         Args:
             num_qubits: The number of qubits which is needed to construct the header needed
-            by :code:`qiskit.result.postprocess.format_counts_memory` to convert the memory 
+            by :code:`qiskit.result.postprocess.format_counts_memory` to convert the memory
             into a bit-string of counts.
             validate: If set to False the DataAction will not validate its input.
         """
