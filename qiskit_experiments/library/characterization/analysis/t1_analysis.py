@@ -55,11 +55,11 @@ class T1Analysis(curve.DecayAnalysis):
 
         criteria = [
             fit_data.reduced_chisq < 3,
-            abs(amp.value - 1.0) < 0.1,
-            abs(base.value) < 0.1,
-            amp.stderr is None or amp.stderr < 0.1,
-            tau.stderr is None or tau.stderr < tau.value,
-            base.stderr is None or base.stderr < 0.1,
+            abs(amp.nominal_value - 1.0) < 0.1,
+            abs(base.nominal_value) < 0.1,
+            curve.is_error_not_significant(amp, absolute=0.1),
+            curve.is_error_not_significant(tau),
+            curve.is_error_not_significant(base, absolute=0.1),
         ]
 
         if all(criteria):

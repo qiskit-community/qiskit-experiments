@@ -22,7 +22,7 @@ import qiskit_experiments.curve_analysis as curve
 import qiskit_experiments.data_processing as dp
 from qiskit_experiments.database_service.device_component import Qubit
 from qiskit_experiments.exceptions import AnalysisError
-from qiskit_experiments.framework import AnalysisResultData, FitVal
+from qiskit_experiments.framework import AnalysisResultData
 
 
 # pylint: disable=line-too-long
@@ -332,18 +332,17 @@ class CrossResonanceHamiltonianAnalysis(curve.CurveAnalysis):
                 p1_val = fit_data.fitval(f"p{target}1")
 
                 if control == "z":
-                    coef_val = 0.5 * (p0_val.value - p1_val.value) / (2 * np.pi)
+                    coef_val = 0.5 * (p0_val - p1_val) / (2 * np.pi)
                 else:
-                    coef_val = 0.5 * (p0_val.value + p1_val.value) / (2 * np.pi)
-
-                coef_err = 0.5 * np.sqrt(p0_val.stderr**2 + p1_val.stderr**2) / (2 * np.pi)
+                    coef_val = 0.5 * (p0_val + p1_val) / (2 * np.pi)
 
                 extra_entries.append(
                     AnalysisResultData(
                         name=f"omega_{control}{target}",
-                        value=FitVal(value=coef_val, stderr=coef_err, unit="Hz"),
+                        value=coef_val,
                         chisq=fit_data.reduced_chisq,
                         device_components=[Qubit(q) for q in self._physical_qubits],
+                        extra={"unit": "Hz"},
                     )
                 )
 
