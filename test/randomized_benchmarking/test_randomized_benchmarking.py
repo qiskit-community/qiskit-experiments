@@ -21,7 +21,6 @@ from qiskit.exceptions import QiskitError
 from qiskit.providers.aer import AerSimulator
 from qiskit.providers.aer.noise import NoiseModel, depolarizing_error
 from qiskit.quantum_info import Clifford
-from qiskit.quantum_info.operators.predicates import matrix_equal
 
 from qiskit_experiments.library import randomized_benchmarking as rb
 
@@ -34,8 +33,8 @@ class RBTestCase(QiskitExperimentsTestCase):
         super().setUp()
 
         # depolarizing error
-        self.p1q = 0.002
-        self.p2q = 0.010
+        self.p1q = 0.02
+        self.p2q = 0.10
         self.pvz = 0.0
 
         # basis gates
@@ -59,25 +58,19 @@ class RBTestCase(QiskitExperimentsTestCase):
             "optimization_level": 1,
         }
 
-        # Aer simulator run options
-        self.run_options = {
-            "seed_simulator": 123,
-            "noise_model": self.noise_model,
-        }
+        # Aer simulator
+        self.backend = AerSimulator(noise_model=noise_model, seed_simulator=123)
 
-        self.backend = AerSimulator()
-
-    def is_identity(self, circuits):
-        """Standard randomized benchmarking test - Identity check.
-        (assuming all the operator are spanned by clifford group)
-        """
+    def assertAllIdentity(self, circuits):
+        """Test if all experiment circuits are identity."""
         for circ in circuits:
             num_qubits = circ.num_qubits
+            iden = Clifford(np.eye(2 * num_qubits, dtype=bool))
+
             circ.remove_final_measurements()
-            # Checking if the matrix representation is the identity matrix
-            self.assertTrue(
-                matrix_equal(Clifford(circ).to_matrix(), np.identity(2**num_qubits)),
-                "Clifford sequence doesn't result in the identity matrix.",
+
+            self.assertEqual(
+                Clifford(circ), iden, f"Circuit {circ.name} doesn't result in the identity matrix."
             )
 
 
@@ -85,19 +78,17 @@ class RBTestCase(QiskitExperimentsTestCase):
 class TestStandardRB(RBTestCase):
     """Test for standard RB."""
 
-    @data(123, 456)
-    def test_single_qubit(self, seed):
+    def test_single_qubit(self):
         """Test single qubit RB."""
         exp = rb.StandardRB(
             qubits=(0,),
-            lengths=list(range(1, 1000, 100)),
-            seed=seed,
+            lengths=list(range(1, 300, 30)),
+            seed=123,
             backend=self.backend,
         )
-        exp.set_run_options(**self.run_options)
         exp.set_transpile_options(**self.transpiler_options)
         exp.analysis.set_options(gate_error_ratio={((0,), "sx"): 1.0, ((0,), "rz"): 0.0})
-        self.is_identity(exp.circuits())
+        self.assertAllIdentity(exp.circuits())
 
         expdata = exp.run()
         self.assertExperimentDone(expdata)
@@ -123,18 +114,16 @@ class TestStandardRB(RBTestCase):
         epc_expected = 1 - (1 - 1 / 2 * self.p1q) ** 1.0
         self.assertAlmostEqual(epc.value.n, epc_expected, delta=0.1 * epc_expected)
 
-    @data(123, 456)
-    def test_two_qubit(self, seed):
+    def test_two_qubit(self):
         """Test two qubit RB."""
         exp = rb.StandardRB(
             qubits=(0, 1),
-            lengths=list(range(1, 200, 20)),
-            seed=seed,
+            lengths=list(range(1, 30, 3)),
+            seed=123,
             backend=self.backend,
         )
-        exp.set_run_options(**self.run_options)
         exp.set_transpile_options(**self.transpiler_options)
-        self.is_identity(exp.circuits())
+        self.assertAllIdentity(exp.circuits())
 
         expdata = exp.run()
         self.assertExperimentDone(expdata)
@@ -145,9 +134,59 @@ class TestStandardRB(RBTestCase):
         # Since this is two qubit RB, the dep-parameter is factored by 3/4.
         epc = expdata.analysis_results("EPC")
 
-        # Allow for 20 percent tolerance since we ignore 1q gate contribution
+        # Allow for 50 percent tolerance since we ignore 1q gate contribution
         epc_expected = 1 - (1 - 3 / 4 * self.p2q) ** 1.5
-        self.assertAlmostEqual(epc.value.n, epc_expected, delta=0.3 * epc_expected)
+        self.assertAlmostEqual(epc.value.n, epc_expected, delta=0.5 * epc_expected)
+
+    def test_return_same_circuit(self):
+        """Test if setting the same seed returns the same circuits."""
+        exp1 = rb.StandardRB(
+            qubits=(0, 1),
+            lengths=[10, 20, 30],
+            seed=123,
+            backend=self.backend,
+        )
+
+        exp2 = rb.StandardRB(
+            qubits=(0, 1),
+            lengths=[10, 20, 30],
+            seed=123,
+            backend=self.backend,
+        )
+
+        circs1 = exp1.circuits()
+        circs2 = exp2.circuits()
+
+        self.assertEqual(circs1[0].decompose(), circs2[0].decompose())
+        self.assertEqual(circs1[1].decompose(), circs2[1].decompose())
+        self.assertEqual(circs1[2].decompose(), circs2[2].decompose())
+
+    def test_full_sampling(self):
+        """Test if full sampling generates different circuits."""
+        exp1 = rb.StandardRB(
+            qubits=(0, 1),
+            lengths=[10, 20, 30],
+            seed=123,
+            backend=self.backend,
+            full_sampling=False,
+        )
+
+        exp2 = rb.StandardRB(
+            qubits=(0, 1),
+            lengths=[10, 20, 30],
+            seed=123,
+            backend=self.backend,
+            full_sampling=True,
+        )
+
+        circs1 = exp1.circuits()
+        circs2 = exp2.circuits()
+
+        self.assertEqual(circs1[0].decompose(), circs2[0].decompose())
+
+        # fully sampled circuits are regenerated while other is just built on top of previous length
+        self.assertNotEqual(circs1[1].decompose(), circs2[1].decompose())
+        self.assertNotEqual(circs1[2].decompose(), circs2[2].decompose())
 
     @data(
         {"qubits": [3, 3], "lengths": [1, 3, 5, 7, 9], "num_samples": 1, "seed": 100},
@@ -182,7 +221,7 @@ class TestStandardRB(RBTestCase):
 
 @ddt
 class TestInterleavedRB(RBTestCase):
-    """Test for interleaved RB. No data driven test due to overhead (roughly 2x)"""
+    """Test for interleaved RB."""
 
     @data([XGate(), [3], 4], [CXGate(), [4, 7], 5])
     @unpack
@@ -220,16 +259,15 @@ class TestInterleavedRB(RBTestCase):
         exp = rb.InterleavedRB(
             interleaved_element=SXGate(),
             qubits=(0,),
-            lengths=list(range(1, 1000, 100)),
+            lengths=list(range(1, 300, 30)),
             seed=123,
             backend=self.backend,
         )
-        exp.set_run_options(**self.run_options)
         exp.set_transpile_options(**self.transpiler_options)
-        self.is_identity(exp.circuits())
+        self.assertAllIdentity(exp.circuits())
 
         expdata = exp.run()
-        self.assertExperimentDone(expdata, timeout=300)
+        self.assertExperimentDone(expdata)
 
         # Since this is interleaved, we can directly compare values, i.e. n_gpc = 1
         epc = expdata.analysis_results("EPC")
@@ -241,13 +279,12 @@ class TestInterleavedRB(RBTestCase):
         exp = rb.InterleavedRB(
             interleaved_element=CXGate(),
             qubits=(0, 1),
-            lengths=list(range(1, 200, 20)),
+            lengths=list(range(1, 30, 3)),
             seed=123,
             backend=self.backend,
         )
-        exp.set_run_options(**self.run_options)
         exp.set_transpile_options(**self.transpiler_options)
-        self.is_identity(exp.circuits())
+        self.assertAllIdentity(exp.circuits())
 
         expdata = exp.run()
         self.assertExperimentDone(expdata)
