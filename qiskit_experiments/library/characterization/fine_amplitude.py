@@ -297,6 +297,23 @@ class FineZXAmplitude(FineAmplitude):
 
         :class:`FineZXAmplitude` is a subclass of :class:`FineAmplitude` and is used to set
         the appropriate values for the default options to calibrate a :code:`RZXGate(np.pi / 2)`.
+
+    # section: example
+
+        To run this experiment the user will have to provide the instruction schedule
+        map in the transpile options that contains the schedule for the experiment.
+
+        ..code-block:: python
+
+            qubits = (1, 2)
+            inst_map = InstructionScheduleMap()
+            inst_map.add("szx", qubits, my_schedule)
+
+            fine_amp = FineZXAmplitude(qubits, backend)
+            fine_amp.set_transpile_options(inst_map=inst_map)
+
+        Here, :code:`my_schedule` is the pulse schedule that will implement the
+        :code:`RZXGate(np.pi / 2)` rotation.
     """
 
     def __init__(self, qubits: Sequence[int], backend: Optional[Backend] = None):
@@ -304,7 +321,7 @@ class FineZXAmplitude(FineAmplitude):
 
         # We cannot use RZXGate since it has a parameter so we redefine the gate.
         # Failing to do so causes issues with QuantumCircuit.calibrations.
-        gate = Gate("rzx", 2, [], label="Rzx(pi/2)")
+        gate = Gate("szx", 2, [])
 
         super().__init__(qubits, gate, backend=backend)
         # Set default analysis options
@@ -329,6 +346,21 @@ class FineZXAmplitude(FineAmplitude):
         options = super()._default_experiment_options()
         options.add_cal_circuits = False
         options.repetitions = [0, 1, 2, 3, 4, 5, 7, 9, 11, 13]
+        return options
+
+    @classmethod
+    def _default_transpile_options(cls) -> Options:
+        """Default transpile options for the fine amplitude experiment.
+
+        Experiment Options:
+            basis_gates: Set to :code:`["szx"]`.
+            inst_map: The instruction schedule map that will contain the schedule for the
+                Rzx(pi/2) gate. This schedule should be stored under the instruction name
+                ``szx``.
+        """
+        options = super()._default_transpile_options()
+        options.basis_gates = ["szx"]
+        options.inst_map = None
         return options
 
     def _measure_circuit(self) -> QuantumCircuit:
