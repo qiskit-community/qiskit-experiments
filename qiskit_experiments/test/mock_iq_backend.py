@@ -97,7 +97,7 @@ class MockRestlessBackend(FakeOpenPulse2Q):
         # Setup the list of dicts where each dict corresponds to a circuit.
         sorted_memory = [{"memory": [], "metadata": circ.metadata} for circ in run_input]
 
-        for shot in range(shots):
+        for _ in range(shots):
             for circ_idx, _ in enumerate(run_input):
                 prob = self._precomputed_probabilities[(circ_idx, prev_outcome)]
                 # Generate the next shot dependent on the pre-computed probabilities.
@@ -135,7 +135,9 @@ class MockRestlessFineAmp(MockRestlessBackend):
 
         Args:
             angle_error: The rotation error per gate.
+            angle_per_gate: The angle per gate.
             gate_name: The name of the gate to find in the circuit.
+            rng_seed: The random bit generator seed.
         """
         self.angle_error = angle_error
         self._gate_name = gate_name
@@ -345,6 +347,7 @@ class MockFineAmp(MockIQBackend):
 
         Args:
             angle_error: The rotation error per gate.
+            angle_per_gate: The angle per gate.
             gate_name: The name of the gate to find in the circuit.
         """
         self.angle_error = angle_error

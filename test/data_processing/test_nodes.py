@@ -417,11 +417,8 @@ class TestRestless(QiskitExperimentsTestCase):
         processed_data = node(data=np.array(data))
         # time-ordered data: ["1", "0", "1", "1", "0", "1", "0", "0"]
         # classification: ["1", "1", "1", "0", "1", "1", "1", "0"]
-        expected_data = [{"1": 4}, {"1": 2, "0": 2}]
-        [
-            self.assertTrue(processed_data[idx] == expected_data[idx])
-            for idx in range(len(expected_data))
-        ]
+        expected_data = np.array([{"1": 4}, {"1": 2, "0": 2}])
+        self.assertTrue(processed_data.all() == expected_data.all())
 
     def test_restless_process_2(self):
         """Test if a two-qubit restless memory is correctly post-processed.
@@ -435,8 +432,5 @@ class TestRestless(QiskitExperimentsTestCase):
         processed_data = node(data=np.array(data))
         # time-ordered data: ["11", "11", "01", "01", "10", "10", "00", "00"]
         # classification: ["11", "00", "10", "00", "11", "00", "10", "00"]
-        expected_data = [{"10": 2, "11": 2}, {"00": 4}]
-        [
-            self.assertTrue(processed_data[idx] == expected_data[idx])
-            for idx in range(len(expected_data))
-        ]
+        expected_data = np.array([{"10": 2, "11": 2}, {"00": 4}])
+        self.assertTrue(processed_data.all() == expected_data.all())

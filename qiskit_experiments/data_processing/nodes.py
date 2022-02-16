@@ -13,20 +13,19 @@
 """Different data analysis steps."""
 
 from abc import abstractmethod
+from abc import ABC
 from enum import Enum
 from numbers import Number
 from typing import Union, Sequence, Any
+from collections import defaultdict
 
 import numpy as np
 from uncertainties import unumpy as unp, ufloat
 
+from qiskit.result.postprocess import format_counts_memory
 from qiskit_experiments.data_processing.data_action import DataAction, TrainableDataAction
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
 from qiskit_experiments.framework import Options
-from abc import ABC
-from collections import defaultdict
-
-from qiskit.result.postprocess import format_counts_memory
 
 
 class AverageData(DataAction):
@@ -631,6 +630,12 @@ class RestlessNode(DataAction, ABC):
 
         Args:
             data: An array representing the memory.
+
+        Returns:
+            The data that has been processed.
+
+        Raises:
+            DataProcessorError: If the datum has the wrong shape.
         """
 
         self._n_shots = len(data[0])
@@ -750,6 +755,7 @@ class RestlessToCounts(RestlessNode):
 
         Args:
             shot: A measured shot as a binary string, e.g. "0110100".
+            prev_shot: The shot that was measured in the previous circuit.
 
         Returns:
             The restless adjusted string computed by comparing the shot with the previous shot.
