@@ -16,7 +16,7 @@ Code for generating data for the RB experiment for testing data analysis.
 import os
 import sys
 import json
-from qiskit.providers.aer import QasmSimulator
+from qiskit.providers.aer import AerSimulator
 from qiskit.providers.aer.noise import NoiseModel
 from qiskit.providers.aer.noise.errors.standard_errors import depolarizing_error
 from qiskit.circuit.library import (
@@ -24,7 +24,7 @@ from qiskit.circuit.library import (
     CXGate,
 )
 from qiskit_experiments.library import StandardRB, InterleavedRB
-from qiskit_experiments.database_service.json import ExperimentEncoder
+from qiskit_experiments.framework import ExperimentEncoder
 
 
 def create_depolarizing_noise_model():
@@ -94,7 +94,7 @@ def _generate_rb_fitter_data(dir_name: str, rb_exp_name: str, exp_attributes: di
     results_file_path = os.path.join(dir_name, str(rb_exp_name + "_output_data.json"))
     analysis_file_path = os.path.join(dir_name, str(rb_exp_name + "_output_analysis.json"))
     noise_model = create_depolarizing_noise_model()
-    backend = QasmSimulator()
+    backend = AerSimulator(seed_simulator=exp_attributes["seed"])
     print("Generating RB experiment")
     rb_exp = StandardRB(
         exp_attributes["physical_qubits"],
@@ -102,13 +102,11 @@ def _generate_rb_fitter_data(dir_name: str, rb_exp_name: str, exp_attributes: di
         num_samples=exp_attributes["num_samples"],
         seed=exp_attributes["seed"],
     )
-    rb_exp.set_analysis_options(gate_error_ratio=gate_error_ratio)
+    rb_exp.analysis.set_options(gate_error_ratio=gate_error_ratio)
     print("Running experiment")
-    experiment_obj = rb_exp.run(
-        backend, noise_model=noise_model, basis_gates=transpiled_base_gate
-    ).block_for_results()
-    print("Done running experiment")
+    experiment_obj = rb_exp.run(backend, noise_model=noise_model, basis_gates=transpiled_base_gate)
     experiment_obj.block_for_results()
+    print("Done running experiment")
     exp_results = experiment_obj.data()
     with open(results_file_path, "w") as json_file:
         joined_list_data = [exp_attributes, exp_results]
@@ -191,7 +189,7 @@ def _generate_int_rb_fitter_data(dir_name: str, rb_exp_name: str, exp_attributes
     results_file_path = os.path.join(dir_name, str(rb_exp_name + "_output_data.json"))
     analysis_file_path = os.path.join(dir_name, str(rb_exp_name + "_output_analysis.json"))
     noise_model = create_depolarizing_noise_model()
-    backend = QasmSimulator()
+    backend = AerSimulator(seed_simulator=exp_attributes["seed"])
     print("Generating experiment")
     rb_exp = InterleavedRB(
         interleaved_gates[exp_attributes["interleaved_element"]],
@@ -200,11 +198,11 @@ def _generate_int_rb_fitter_data(dir_name: str, rb_exp_name: str, exp_attributes
         num_samples=exp_attributes["num_samples"],
         seed=exp_attributes["seed"],
     )
-    rb_exp.set_analysis_options(gate_error_ratio=gate_error_ratio)
+    rb_exp.analysis.set_options(gate_error_ratio=gate_error_ratio)
     print("Running experiment")
     experiment_obj = rb_exp.run(backend, noise_model=noise_model, basis_gates=transpiled_base_gate)
-    print("Done running experiment")
     experiment_obj.block_for_results()
+    print("Done running experiment")
     exp_results = experiment_obj.data()
     with open(results_file_path, "w") as json_file:
         joined_list_data = [exp_attributes, exp_results]

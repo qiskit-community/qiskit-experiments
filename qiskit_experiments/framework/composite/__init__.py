@@ -13,7 +13,6 @@
 """Composite Experiments"""
 
 # Base classes
-from .composite_experiment_data import CompositeExperimentData
 from .composite_analysis import CompositeAnalysis
 
 # Composite experiment classes

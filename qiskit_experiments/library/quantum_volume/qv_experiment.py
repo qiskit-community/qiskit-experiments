@@ -13,9 +13,9 @@
 Quantum Volume Experiment class.
 """
 
-from typing import Union, Iterable, Optional, List
+from typing import Union, Sequence, Optional, List
 from numpy.random import Generator, default_rng
-from qiskit.providers.backend import Backend
+from numpy.random.bit_generator import BitGenerator, SeedSequence
 
 try:
     from qiskit import Aer
@@ -27,6 +27,7 @@ except ImportError:
 from qiskit import QuantumCircuit
 from qiskit.circuit.library import QuantumVolume as QuantumVolumeCircuit
 from qiskit import transpile
+from qiskit.providers.backend import Backend
 from qiskit_experiments.framework import BaseExperiment, Options
 from .qv_analysis import QuantumVolumeAnalysis
 
@@ -61,45 +62,42 @@ class QuantumVolume(BaseExperiment):
         See :class:`QuantumVolumeAnalysis` documentation for additional
         information on QV experiment analysis.
 
+    # section: analysis_ref
+        :py:class:`QuantumVolumeAnalysis`
+
     # section: reference
         .. ref_arxiv:: 1 1811.12926
         .. ref_arxiv:: 2 2008.08571
 
     """
 
-    # Analysis class for experiment
-    __analysis_class__ = QuantumVolumeAnalysis
-
     def __init__(
         self,
-        qubits: Union[int, Iterable[int]],
+        qubits: Sequence[int],
+        backend: Optional[Backend] = None,
         trials: Optional[int] = 100,
-        seed: Optional[Union[int, Generator]] = None,
+        seed: Optional[Union[int, SeedSequence, BitGenerator, Generator]] = None,
         simulation_backend: Optional[Backend] = None,
     ):
         """Initialize a quantum volume experiment.
 
         Args:
-            qubits: The number of qubits or list of
-                    physical qubits for the experiment.
+            qubits: list of physical qubits for the experiment.
+            backend: Optional, the backend to run the experiment on.
             trials: The number of trials to run the quantum volume circuit.
-            seed: Seed or generator object for random number
-                  generation. If None default_rng will be used.
+            seed: Optional, seed used to initialize ``numpy.random.default_rng``
+                  when generating circuits. The ``default_rng`` will be initialized
+                  with this seed value everytime :meth:`circuits` is called.
             simulation_backend: The simulator backend to use to generate
                 the expected results. the simulator must have a 'save_probabilities'
                 method. If None :class:`AerSimulator` simulator will be used
                 (in case :class:`AerSimulator` is not
                 installed :class:`qiskit.quantum_info.Statevector` will be used).
         """
-        super().__init__(qubits)
+        super().__init__(qubits, analysis=QuantumVolumeAnalysis(), backend=backend)
 
         # Set configurable options
-        self.set_experiment_options(trials=trials)
-
-        if not isinstance(seed, Generator):
-            self._rng = default_rng(seed=seed)
-        else:
-            self._rng = seed
+        self.set_experiment_options(trials=trials, seed=seed)
 
         if not simulation_backend and HAS_SIMULATION_BACKEND:
             self._simulation_backend = Aer.get_backend("aer_simulator")
@@ -113,10 +111,15 @@ class QuantumVolume(BaseExperiment):
         Experiment Options:
             trials (int): Optional, number of times to generate new Quantum Volume
                 circuits and calculate their heavy output.
+            seed (None or int or SeedSequence or BitGenerator or Generator): A seed
+                used to initialize ``numpy.random.default_rng`` when generating circuits.
+                The ``default_rng`` will be initialized with this seed value everytime
+                :meth:`circuits` is called.
         """
         options = super()._default_experiment_options()
 
         options.trials = 100
+        options.seed = None
 
         return options
 
@@ -150,21 +153,19 @@ class QuantumVolume(BaseExperiment):
             probabilities = state_vector.probabilities()
         return probabilities
 
-    def circuits(self, backend: Optional[Backend] = None) -> List[QuantumCircuit]:
+    def circuits(self) -> List[QuantumCircuit]:
         """Return a list of Quantum Volume circuits.
-
-        Args:
-            backend (Backend): Optional, a backend object.
 
         Returns:
             A list of :class:`QuantumCircuit`.
         """
+        rng = default_rng(seed=self.experiment_options.seed)
         circuits = []
         depth = self._num_qubits
 
         # Note: the trials numbering in the metadata is starting from 1 for each new experiment run
         for trial in range(1, self.experiment_options.trials + 1):
-            qv_circ = QuantumVolumeCircuit(depth, depth, seed=self._rng)
+            qv_circ = QuantumVolumeCircuit(depth, depth, seed=rng)
             qv_circ.measure_active()
             qv_circ.metadata = {
                 "experiment_type": self._type,

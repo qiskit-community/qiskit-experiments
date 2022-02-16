@@ -13,35 +13,45 @@
 Composite Experiment abstract base class.
 """
 
+from typing import List, Sequence, Optional, Union
 from abc import abstractmethod
 import warnings
-
-from qiskit_experiments.framework import BaseExperiment
-from .composite_experiment_data import CompositeExperimentData
+from qiskit.providers.backend import Backend
+from qiskit_experiments.framework import BaseExperiment, ExperimentData
+from qiskit_experiments.framework.base_analysis import BaseAnalysis
 from .composite_analysis import CompositeAnalysis
 
 
 class CompositeExperiment(BaseExperiment):
     """Composite Experiment base class"""
 
-    __analysis_class__ = CompositeAnalysis
-    __experiment_data__ = CompositeExperimentData
-
-    def __init__(self, experiments, qubits, experiment_type=None):
+    def __init__(
+        self,
+        experiments: List[BaseExperiment],
+        qubits: Sequence[int],
+        backend: Optional[Backend] = None,
+        experiment_type: Optional[str] = None,
+    ):
         """Initialize the composite experiment object.
 
         Args:
-            experiments (List[BaseExperiment]): a list of experiment objects.
-            qubits (int or Iterable[int]): the number of qubits or list of
-                                           physical qubits for the experiment.
-            experiment_type (str): Optional, composite experiment subclass name.
+            experiments: a list of experiment objects.
+            qubits: list of physical qubits for the experiment.
+            backend: Optional, the backend to run the experiment on.
+            experiment_type: Optional, composite experiment subclass name.
         """
         self._experiments = experiments
         self._num_experiments = len(experiments)
-        super().__init__(qubits, experiment_type=experiment_type)
+        analysis = CompositeAnalysis([exp.analysis for exp in self._experiments])
+        super().__init__(
+            qubits,
+            analysis=analysis,
+            backend=backend,
+            experiment_type=experiment_type,
+        )
 
     @abstractmethod
-    def circuits(self, backend=None):
+    def circuits(self):
         pass
 
     @property
@@ -49,8 +59,9 @@ class CompositeExperiment(BaseExperiment):
         """Return the number of sub experiments"""
         return self._num_experiments
 
-    def component_experiment(self, index=None):
+    def component_experiment(self, index=None) -> Union[BaseExperiment, List[BaseExperiment]]:
         """Return the component Experiment object.
+
         Args:
             index (int): Experiment index, or ``None`` if all experiments are to be returned.
         Returns:
@@ -60,32 +71,72 @@ class CompositeExperiment(BaseExperiment):
             return self._experiments
         return self._experiments[index]
 
-    def component_analysis(self, index):
+    def component_analysis(self, index=None) -> Union[BaseAnalysis, List[BaseAnalysis]]:
         """Return the component experiment Analysis object"""
-        return self.component_experiment(index).analysis()
+        warnings.warn(
+            "The `component_analysis` method is deprecated as of "
+            "qiskit-experiments 0.3.0 and will be removed in the 0.4.0 release."
+            " Use `analysis.component_analysis` instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return self.analysis.component_analysis(index)
 
-    def _add_job_metadata(self, experiment_data, jobs, **run_options):
-        # Add composite metadata
-        super()._add_job_metadata(experiment_data, jobs, **run_options)
+    def copy(self) -> "BaseExperiment":
+        """Return a copy of the experiment"""
+        ret = super().copy()
+        # Recursively call copy of component experiments
+        ret._experiments = [exp.copy() for exp in self._experiments]
 
+        # Check if the analysis in CompositeAnalysis was a reference to the
+        # original component experiment analyses and if so update the copies
+        # to preserve this relationship
+        if isinstance(self.analysis, CompositeAnalysis):
+            for i, orig_exp in enumerate(self._experiments):
+                if orig_exp.analysis is self.analysis._analyses[i]:
+                    # Update copies analysis with reference to experiment analysis
+                    ret.analysis._analyses[i] = ret._experiments[i].analysis
+        return ret
+
+    def _set_backend(self, backend):
+        super()._set_backend(backend)
+        for subexp in self._experiments:
+            subexp._set_backend(backend)
+
+    def _initialize_experiment_data(self):
+        """Initialize the return data container for the experiment run"""
+        experiment_data = ExperimentData(experiment=self)
+        # Initialize child experiment data
+        for sub_exp in self._experiments:
+            sub_data = sub_exp._initialize_experiment_data()
+            experiment_data.add_child_data(sub_data)
+        experiment_data.metadata["component_child_index"] = list(range(self.num_experiments))
+        return experiment_data
+
+    def _additional_metadata(self):
+        """Add component experiment metadata"""
+        return {
+            "component_metadata": [sub_exp._metadata() for sub_exp in self.component_experiment()]
+        }
+
+    def _add_job_metadata(self, metadata, jobs, **run_options):
+        super()._add_job_metadata(metadata, jobs, **run_options)
         # Add sub-experiment options
-        for i in range(self.num_experiments):
-            sub_exp = self.component_experiment(i)
-
+        for sub_metadata, sub_exp in zip(
+            metadata["component_metadata"], self.component_experiment()
+        ):
             # Run and transpile options are always overridden
             if (
                 sub_exp.run_options != sub_exp._default_run_options()
                 or sub_exp.transpile_options != sub_exp._default_transpile_options()
             ):
-
                 warnings.warn(
                     "Sub-experiment run and transpile options"
                     " are overridden by composite experiment options."
                 )
-            sub_data = experiment_data.component_experiment_data(i)
-            sub_exp._add_job_metadata(sub_data, jobs, **run_options)
+            sub_exp._add_job_metadata(sub_metadata, jobs, **run_options)
 
-    def _postprocess_transpiled_circuits(self, circuits, backend, **run_options):
+    def _postprocess_transpiled_circuits(self, circuits, **run_options):
         for expr in self._experiments:
             if not isinstance(expr, CompositeExperiment):
-                expr._postprocess_transpiled_circuits(circuits, backend, **run_options)
+                expr._postprocess_transpiled_circuits(circuits, **run_options)

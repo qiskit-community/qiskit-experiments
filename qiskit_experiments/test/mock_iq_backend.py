@@ -18,6 +18,7 @@ import numpy as np
 
 from qiskit import QuantumCircuit
 from qiskit.result import Result
+from qiskit.providers.aer import AerSimulator
 from qiskit.test.mock import FakeOpenPulse2Q
 
 from qiskit.qobj.utils import MeasLevel
@@ -51,7 +52,7 @@ class MockIQBackend(FakeOpenPulse2Q):
             meas_return="single",
         )
 
-    def _draw_iq_shots(self, prob, shots) -> List[List[List[float]]]:
+    def _draw_iq_shots(self, prob, shots, phase: float = 0.0) -> List[List[List[float]]]:
         """Produce an IQ shot."""
 
         rand_i = self._rng.normal(0, self._iq_cluster_width, size=shots)
@@ -66,6 +67,10 @@ class MockIQBackend(FakeOpenPulse2Q):
             else:
                 point_i = self._iq_cluster_centers[2] + rand_i[idx]
                 point_q = self._iq_cluster_centers[3] + rand_q[idx]
+
+            if not np.allclose(phase, 0.0):
+                complex_iq = (point_i + 1.0j * point_q) * np.exp(1.0j * phase)
+                point_i, point_q = np.real(complex_iq), np.imag(complex_iq)
 
             memory.append([[point_i, point_q]])
 
@@ -84,6 +89,15 @@ class MockIQBackend(FakeOpenPulse2Q):
         Returns:
              The probability that the binaomial distribution will use to generate an IQ shot.
         """
+
+    # pylint: disable=unused-argument
+    def _iq_phase(self, circuit: QuantumCircuit) -> float:
+        """Sub-classes can override this method to introduce a phase in the IQ plan.
+
+        This is needed, to test the resonator spectroscopy where the point in the IQ
+        plan has a frequency-dependent phase rotation.
+        """
+        return 0.0
 
     def run(self, run_input, **options):
         """Run the IQ backend."""
@@ -116,7 +130,8 @@ class MockIQBackend(FakeOpenPulse2Q):
                 ones = np.sum(self._rng.binomial(1, prob, size=shots))
                 run_result["data"] = {"counts": {"1": ones, "0": shots - ones}}
             else:
-                memory = self._draw_iq_shots(prob, shots)
+                phase = self._iq_phase(circ)
+                memory = self._draw_iq_shots(prob, shots, phase)
 
                 if meas_return == "avg":
                     memory = np.average(np.array(memory), axis=0).tolist()
@@ -156,6 +171,31 @@ class DragBackend(MockIQBackend):
         return np.sin(n_gates * self._error * (beta - self.ideal_beta)) ** 2
 
 
+class RabiBackend(MockIQBackend):
+    """A simple and primitive backend, to be run by the Rabi tests."""
+
+    def __init__(
+        self,
+        iq_cluster_centers: Tuple[float, float, float, float] = (1.0, 1.0, -1.0, -1.0),
+        iq_cluster_width: float = 1.0,
+        amplitude_to_angle: float = np.pi,
+    ):
+        """Initialize the rabi backend."""
+        self._amplitude_to_angle = amplitude_to_angle
+
+        super().__init__(iq_cluster_centers, iq_cluster_width)
+
+    @property
+    def rabi_rate(self) -> float:
+        """Returns the rabi rate."""
+        return self._amplitude_to_angle / np.pi
+
+    def _compute_probability(self, circuit: QuantumCircuit) -> float:
+        """Returns the probability based on the rotation angle and amplitude_to_angle."""
+        amp = next(iter(circuit.calibrations["Rabi"].keys()))[1][0]
+        return np.sin(self._amplitude_to_angle * amp) ** 2
+
+
 class MockFineAmp(MockIQBackend):
     """A mock backend for fine amplitude calibration."""
 
@@ -187,6 +227,40 @@ class MockFineAmp(MockIQBackend):
             angle += np.pi * circuit.count_ops().get("x", 0)
 
         return np.sin(angle / 2) ** 2
+
+
+class MockFineFreq(MockIQBackend):
+    """A mock backend for fine frequency calibration."""
+
+    def __init__(self, freq_shift: float, sx_duration: int = 160):
+        super().__init__()
+        self.freq_shift = freq_shift
+        self.dt = self.configuration().dt
+        self.sx_duration = sx_duration
+        self.simulator = AerSimulator(method="automatic")
+
+    def _compute_probability(self, circuit: QuantumCircuit) -> float:
+        """The freq shift acts as the value that will accumulate phase."""
+
+        delay = None
+        for instruction in circuit.data:
+            if instruction[0].name == "delay":
+                delay = instruction[0].duration
+
+        if delay is None:
+            return 1.0
+        else:
+            reps = delay // self.sx_duration
+
+            qc = QuantumCircuit(1)
+            qc.sx(0)
+            qc.rz(np.pi * reps / 2 + 2 * np.pi * self.freq_shift * delay * self.dt, 0)
+            qc.sx(0)
+            qc.measure_all()
+
+            counts = self.simulator.run(qc, seed_simulator=1).result().get_counts(0)
+
+            return counts.get("1", 0) / sum(counts.values())
 
 
 class MockRamseyXY(MockIQBackend):

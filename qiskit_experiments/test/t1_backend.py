@@ -26,13 +26,10 @@ class T1Backend(BackendV1):
     A simple and primitive backend, to be run by the T1 tests
     """
 
-    def __init__(self, t1, initial_prob1=None, readout0to1=None, readout1to0=None, dt_factor=None):
+    def __init__(self, t1, initial_prob1=None, readout0to1=None, readout1to0=None):
         """
         Initialize the T1 backend
         """
-
-        dt_factor_in_ns = dt_factor * 1e9 if dt_factor is not None else None
-
         configuration = QasmBackendConfiguration(
             backend_name="t1_simulator",
             backend_version="0",
@@ -46,14 +43,12 @@ class T1Backend(BackendV1):
             memory=False,
             max_shots=int(1e6),
             coupling_map=None,
-            dt=dt_factor_in_ns,
         )
 
         self._t1 = t1
         self._initial_prob1 = initial_prob1
         self._readout0to1 = readout0to1
         self._readout1to0 = readout1to0
-        self._dt_factor = dt_factor
         self._rng = np.random.default_rng(0)
         super().__init__(configuration)
 
@@ -134,5 +129,4 @@ class T1Backend(BackendV1):
                     "data": {"counts": counts},
                 }
             )
-
         return FakeJob(backend=self, result=Result.from_dict(result))

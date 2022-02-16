@@ -11,16 +11,17 @@
 # that they have been altered from the originals.
 
 """Spectroscopy tests."""
+from test.base import QiskitExperimentsTestCase
 
 import numpy as np
 from ddt import ddt, data, unpack
 from qiskit import QuantumCircuit, circuit, pulse
 from qiskit.providers.models import PulseBackendConfiguration
 from qiskit.result import Result
-from qiskit.test import QiskitTestCase
 from qiskit.test.mock import FakeBackend
 
-from qiskit_experiments.library.characterization import cr_hamiltonian, cr_hamiltonian_analysis
+from qiskit_experiments.library.characterization import cr_hamiltonian
+from qiskit_experiments.library.characterization.analysis import cr_hamiltonian_analysis
 from qiskit_experiments.test.utils import FakeJob
 
 
@@ -37,6 +38,7 @@ class CrossResonanceHamiltonianBackend(FakeBackend):
         zy: float = 0.0,
         zz: float = 0.0,
         b: float = 0.0,
+        seed: int = 123,
     ):
         """Initialize fake backend.
 
@@ -49,6 +51,7 @@ class CrossResonanceHamiltonianBackend(FakeBackend):
             zy: ZY term coefficient.
             zz: ZZ term coefficient.
             b: Offset term.
+            seed: Seed of random number generator used to generate count data.
         """
         self.fit_func_args = {
             "t_off": t_off,
@@ -60,6 +63,7 @@ class CrossResonanceHamiltonianBackend(FakeBackend):
             "pz1": 2 * np.pi * (iz - zz),
             "b": b,
         }
+        self.seed = seed
         configuration = PulseBackendConfiguration(
             backend_name="fake_cr_hamiltonian",
             backend_version="0.1.0",
@@ -114,6 +118,7 @@ class CrossResonanceHamiltonianBackend(FakeBackend):
         """Hard-coded experiment result generation based on the series definition."""
         results = []
         shots = kwargs.get("shots", 1024)
+        rng = np.random.default_rng(seed=self.seed)
 
         series_defs = cr_hamiltonian_analysis.CrossResonanceHamiltonianAnalysis.__series__
         filter_kwargs_list = [sdef.filter_kwargs for sdef in series_defs]
@@ -128,13 +133,13 @@ class CrossResonanceHamiltonianBackend(FakeBackend):
 
             expv = series_defs[curve_ind].fit_func(xval, **self.fit_func_args)
             popl = 0.5 * (1 - expv)
-            one_count = int(np.round(shots * popl))
+            counts = rng.multinomial(shots, [1 - popl, popl])
             results.append(
                 {
                     "shots": shots,
                     "success": True,
                     "header": {"metadata": test_circ.metadata},
-                    "data": {"counts": {"0": shots - one_count, "1": one_count}},
+                    "data": {"counts": dict(zip(["0", "1"], counts))},
                 }
             )
 
@@ -150,22 +155,20 @@ class CrossResonanceHamiltonianBackend(FakeBackend):
 
 
 @ddt
-class TestCrossResonanceHamiltonian(QiskitTestCase):
+class TestCrossResonanceHamiltonian(QiskitExperimentsTestCase):
     """Test for cross resonance Hamiltonian tomography."""
 
     def test_circuit_generation(self):
         """Test generated circuits."""
 
-        backend = CrossResonanceHamiltonianBackend()
-
         expr = cr_hamiltonian.CrossResonanceHamiltonian(
             qubits=(0, 1),
             flat_top_widths=[1000],
-            unit="dt",
             amp=0.1,
             sigma=64,
             risefall=2,
         )
+        expr.backend = CrossResonanceHamiltonianBackend()
 
         nearlest_16 = 1248
 
@@ -183,78 +186,7 @@ class TestCrossResonanceHamiltonian(QiskitTestCase):
             pulse.delay(nearlest_16, pulse.DriveChannel(1))
 
         cr_gate = circuit.Gate("cr_gate", num_qubits=2, params=[1000])
-        expr_circs = expr.circuits(backend)
-
-        x0_circ = QuantumCircuit(2, 1)
-        x0_circ.append(cr_gate, [0, 1])
-        x0_circ.h(1)
-        x0_circ.measure(1, 0)
-
-        x1_circ = QuantumCircuit(2, 1)
-        x1_circ.x(0)
-        x1_circ.append(cr_gate, [0, 1])
-        x1_circ.h(1)
-        x1_circ.measure(1, 0)
-
-        y0_circ = QuantumCircuit(2, 1)
-        y0_circ.append(cr_gate, [0, 1])
-        y0_circ.sdg(1)
-        y0_circ.h(1)
-        y0_circ.measure(1, 0)
-
-        y1_circ = QuantumCircuit(2, 1)
-        y1_circ.x(0)
-        y1_circ.append(cr_gate, [0, 1])
-        y1_circ.sdg(1)
-        y1_circ.h(1)
-        y1_circ.measure(1, 0)
-
-        z0_circ = QuantumCircuit(2, 1)
-        z0_circ.append(cr_gate, [0, 1])
-        z0_circ.measure(1, 0)
-
-        z1_circ = QuantumCircuit(2, 1)
-        z1_circ.x(0)
-        z1_circ.append(cr_gate, [0, 1])
-        z1_circ.measure(1, 0)
-
-        ref_circs = [x0_circ, y0_circ, z0_circ, x1_circ, y1_circ, z1_circ]
-        for c in ref_circs:
-            c.add_calibration(cr_gate, (0, 1), ref_cr_sched)
-
-        self.assertListEqual(expr_circs, ref_circs)
-
-    def test_circuit_generation_from_sec(self):
-        """Test generated circuits when time unit is sec."""
-
-        backend = CrossResonanceHamiltonianBackend()
-
-        expr = cr_hamiltonian.CrossResonanceHamiltonian(
-            qubits=(0, 1),
-            flat_top_widths=[500],
-            unit="ns",
-            amp=0.1,
-            sigma=20,
-            risefall=2,
-        )
-
-        nearlest_16 = 576
-
-        with pulse.build(default_alignment="left", name="cr") as ref_cr_sched:
-            pulse.play(
-                pulse.GaussianSquare(
-                    nearlest_16,
-                    amp=0.1,
-                    sigma=20,
-                    width=500,
-                ),
-                pulse.ControlChannel(0),
-            )
-            pulse.delay(nearlest_16, pulse.DriveChannel(0))
-            pulse.delay(nearlest_16, pulse.DriveChannel(1))
-
-        cr_gate = circuit.Gate("cr_gate", num_qubits=2, params=[500])
-        expr_circs = expr.circuits(backend)
+        expr_circs = expr.circuits()
 
         x0_circ = QuantumCircuit(2, 1)
         x0_circ.append(cr_gate, [0, 1])
@@ -314,12 +246,44 @@ class TestCrossResonanceHamiltonian(QiskitTestCase):
         expr = cr_hamiltonian.CrossResonanceHamiltonian(
             qubits=(0, 1), flat_top_widths=durations, sigma=sigma, risefall=2
         )
-        exp_data = expr.run(backend, shots=1000)
-        exp_data.block_for_results()
+        exp_data = expr.run(backend, shots=2000)
+        self.assertExperimentDone(exp_data, timeout=600)
 
-        self.assertAlmostEqual(exp_data.analysis_results("omega_ix").value.value, ix, delta=1e3)
-        self.assertAlmostEqual(exp_data.analysis_results("omega_iy").value.value, iy, delta=1e3)
-        self.assertAlmostEqual(exp_data.analysis_results("omega_iz").value.value, iz, delta=1e3)
-        self.assertAlmostEqual(exp_data.analysis_results("omega_zx").value.value, zx, delta=1e3)
-        self.assertAlmostEqual(exp_data.analysis_results("omega_zy").value.value, zy, delta=1e3)
-        self.assertAlmostEqual(exp_data.analysis_results("omega_zz").value.value, zz, delta=1e3)
+        self.assertEqual(exp_data.analysis_results(0).quality, "good")
+
+        # These values are computed from other analysis results in post hook.
+        # Thus at least one of these values should be round-trip tested.
+        res_ix = exp_data.analysis_results("omega_ix")
+        self.assertAlmostEqual(res_ix.value.n, ix, delta=2e4)
+        self.assertRoundTripSerializable(res_ix.value, check_func=self.ufloat_equiv)
+        self.assertEqual(res_ix.extra["unit"], "Hz")
+
+        self.assertAlmostEqual(exp_data.analysis_results("omega_iy").value.n, iy, delta=2e4)
+        self.assertAlmostEqual(exp_data.analysis_results("omega_iz").value.n, iz, delta=2e4)
+        self.assertAlmostEqual(exp_data.analysis_results("omega_zx").value.n, zx, delta=2e4)
+        self.assertAlmostEqual(exp_data.analysis_results("omega_zy").value.n, zy, delta=2e4)
+        self.assertAlmostEqual(exp_data.analysis_results("omega_zz").value.n, zz, delta=2e4)
+
+    def test_experiment_config(self):
+        """Test converting to and from config works"""
+        exp = cr_hamiltonian.CrossResonanceHamiltonian(
+            qubits=[0, 1],
+            flat_top_widths=[1000],
+            amp=0.1,
+            sigma=64,
+            risefall=2,
+        )
+        loaded_exp = cr_hamiltonian.CrossResonanceHamiltonian.from_config(exp.config())
+        self.assertNotEqual(exp, loaded_exp)
+        self.assertTrue(self.json_equiv(exp, loaded_exp))
+
+    def test_roundtrip_serializable(self):
+        """Test round trip JSON serialization"""
+        exp = cr_hamiltonian.CrossResonanceHamiltonian(
+            qubits=[0, 1],
+            flat_top_widths=[1000],
+            amp=0.1,
+            sigma=64,
+            risefall=2,
+        )
+        self.assertRoundTripSerializable(exp, self.json_equiv)

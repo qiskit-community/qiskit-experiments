@@ -21,6 +21,8 @@ from sphinx.config import Config as SphinxConfig
 from sphinx.ext.napoleon.docstring import GoogleDocstring
 from sphinx.util.docstrings import prepare_docstring
 
+from qiskit_experiments.framework import BaseExperiment
+
 
 def _trim_empty_lines(docstring_lines: List[str]) -> List[str]:
     """A helper function to remove redundant line feeds."""
@@ -123,6 +125,51 @@ def _generate_options_documentation(
     return options_docstring_lines
 
 
+def _generate_analysis_ref(
+    current_class: object,
+    config: SphinxConfig = None,
+    indent: str = "",
+) -> List[str]:
+    """Automatically generate analysis class reference with recursive ref to superclass."""
+
+    if not issubclass(current_class, BaseExperiment):
+        # check if no more base class
+        raise TypeError("This is not valid experiment class.")
+
+    experiment_option_parser = GoogleDocstring(
+        docstring=prepare_docstring(current_class.__doc__, tabsize=len(indent)),
+        config=config,
+    )
+    lines = list(map(lambda l: l.strip(), experiment_option_parser.lines()))
+
+    analysis_ref_start = None
+    try:
+        analysis_ref_start = lines.index("# section: analysis_ref")
+    except ValueError:
+        super_classes = getattr(current_class, "__bases__")
+        for super_cls in super_classes:
+            try:
+                return _generate_analysis_ref(
+                    current_class=super_cls,
+                    config=config,
+                    indent=indent,
+                )
+            except Exception:
+                pass
+
+    if analysis_ref_start is None:
+        raise Exception(f"Option docstring for analysis_ref is missing.")
+
+    analysis_ref_lines = []
+    for line in lines[analysis_ref_start + 1 :]:
+        # add lines until hitting to next section
+        if line.startswith("# section:"):
+            break
+        analysis_ref_lines.append(line)
+
+    return analysis_ref_lines
+
+
 def _format_default_options(defaults: Dict[str, Any], indent: str = "") -> List[str]:
     """Format default options to docstring lines."""
     docstring_lines = [
@@ -155,6 +202,7 @@ def _format_default_options(defaults: Dict[str, Any], indent: str = "") -> List[
 
 def _check_no_indent(method: Callable) -> Callable:
     """Check indent of lines and return if this block is correctly indented."""
+
     def wraps(self, lines: List[str], *args, **kwargs):
         if all(l.startswith(" ") for l in lines):
             text_block = "\n".join(lines)

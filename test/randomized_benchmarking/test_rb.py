@@ -13,13 +13,12 @@
 """
 A Tester for the RB experiment
 """
-
-
+from test.base import QiskitExperimentsTestCase
 import numpy as np
 from ddt import ddt, data, unpack
 from qiskit.quantum_info.operators.predicates import matrix_equal
 from qiskit.quantum_info import Clifford
-from qiskit.test import QiskitTestCase
+
 from qiskit.test.mock import FakeParis
 from qiskit.providers.aer import AerSimulator
 from qiskit.exceptions import QiskitError
@@ -32,7 +31,7 @@ from qiskit_experiments.library import StandardRB, InterleavedRB
 
 
 @ddt
-class TestStandardRB(QiskitTestCase):
+class TestStandardRB(QiskitExperimentsTestCase):
     """
     A test class for the RB Experiment to check that the StandardRB class is working correctly.
     """
@@ -59,6 +58,7 @@ class TestStandardRB(QiskitTestCase):
             seed=exp_attributes["seed"],
         )
         exp_data = rb_exp.run(backend)
+        self.assertExperimentDone(exp_data)
         exp = exp_data.experiment
         exp_circuits = rb_exp.circuits()
         self.validate_metadata(exp_circuits, exp_attributes)
@@ -76,7 +76,7 @@ class TestStandardRB(QiskitTestCase):
             circ.remove_final_measurements()
             # Checking if the matrix representation is the identity matrix
             self.assertTrue(
-                matrix_equal(Clifford(circ).to_matrix(), np.identity(2 ** num_qubits)),
+                matrix_equal(Clifford(circ).to_matrix(), np.identity(2**num_qubits)),
                 "Clifford sequence doesn't result in the identity matrix.",
             )
 
@@ -159,6 +159,18 @@ class TestStandardRB(QiskitTestCase):
                 seed=exp_data["seed"],
             )
 
+    def test_experiment_config(self):
+        """Test converting to and from config works"""
+        exp = StandardRB([0, 1], lengths=[10, 20, 30, 40], num_samples=10)
+        loaded_exp = StandardRB.from_config(exp.config())
+        self.assertNotEqual(exp, loaded_exp)
+        self.assertTrue(self.json_equiv(exp, loaded_exp))
+
+    def test_roundtrip_serializable(self):
+        """Test round trip JSON serialization"""
+        exp = StandardRB([0, 1], lengths=[10, 20, 30, 40], num_samples=10)
+        self.assertRoundTripSerializable(exp, self.json_equiv)
+
 
 @ddt
 class TestInterleavedRB(TestStandardRB):
@@ -192,6 +204,7 @@ class TestInterleavedRB(TestStandardRB):
             seed=exp_attributes["seed"],
         )
         experiment_obj = rb_exp.run(backend)
+        self.assertExperimentDone(experiment_obj)
         exp_data = experiment_obj.experiment
         exp_circuits = rb_exp.circuits()
         self.validate_metadata(exp_circuits, exp_attributes)
@@ -246,3 +259,15 @@ class TestInterleavedRB(TestStandardRB):
             qubits,
             lengths,
         )
+
+    def test_experiment_config(self):
+        """Test converting to and from config works"""
+        exp = InterleavedRB(CXGate(), [0, 1], lengths=[10, 20, 30, 40], num_samples=10)
+        loaded_exp = InterleavedRB.from_config(exp.config())
+        self.assertNotEqual(exp, loaded_exp)
+        self.assertTrue(self.json_equiv(exp, loaded_exp))
+
+    def test_roundtrip_serializable(self):
+        """Test round trip JSON serialization"""
+        exp = InterleavedRB(CXGate(), [0, 1], lengths=[10, 20, 30, 40], num_samples=10)
+        self.assertRoundTripSerializable(exp, self.json_equiv)

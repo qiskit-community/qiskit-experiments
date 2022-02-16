@@ -151,9 +151,6 @@ To create an experiment subclass
   Arguments in the constructor can be overridden so that a subclass can
   be initialized with some experiment configuration.
 
-- Set :attr:`BaseExperiment.__analysis_class__` class attribute to
-  specify the :class:`BaseAnalysis` subclass for analyzing result data.
-
 Optionally the following methods can also be overridden in the subclass to
 allow configuring various experiment and execution options
 
@@ -206,8 +203,14 @@ Experiment Data Classes
     :toctree: ../stubs/
 
     ExperimentData
-    FitVal
+    ExperimentStatus
+    JobStatus
+    AnalysisStatus
     AnalysisResultData
+    ExperimentConfig
+    AnalysisConfig
+    ExperimentEncoder
+    ExperimentDecoder
 
 .. _composite-experiment:
 
@@ -219,7 +222,6 @@ Composite Experiment Classes
     ParallelExperiment
     BatchExperiment
     CompositeAnalysis
-    CompositeExperimentData
 
 Base Classes
 ************
@@ -234,14 +236,19 @@ Base Classes
 """
 from qiskit.providers.options import Options
 from qiskit_experiments.database_service.db_analysis_result import DbAnalysisResultV1
-from qiskit_experiments.database_service.db_fitval import FitVal
+from qiskit_experiments.database_service.db_experiment_data import (
+    ExperimentStatus,
+    JobStatus,
+    AnalysisStatus,
+)
 from .base_analysis import BaseAnalysis
 from .base_experiment import BaseExperiment
+from .configs import ExperimentConfig, AnalysisConfig
 from .analysis_result_data import AnalysisResultData
 from .experiment_data import ExperimentData
 from .composite import (
     ParallelExperiment,
     BatchExperiment,
     CompositeAnalysis,
-    CompositeExperimentData,
 )
+from .json import ExperimentEncoder, ExperimentDecoder

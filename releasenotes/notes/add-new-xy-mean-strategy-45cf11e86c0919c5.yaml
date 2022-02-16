@@ -1,8 +1,0 @@
----
-features:
-  - |
-    ``shots_weighted`` options is added to :py:func:`~qiskit_experiments.curve_analysis.\
-    data_processing.mean_xy_data` and :py:func:`~qiskit_experiments.curve_analysis.\
-    data_processing.multi_mean_xy_data`. This options will change averaging stategy to
-    compute value and sigma of y data by weighted average and weighed sum of variances,
-    respectively. The number of shots used to obtain the data point is used as a weight.
