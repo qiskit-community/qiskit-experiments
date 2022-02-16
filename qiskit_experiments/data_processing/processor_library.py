@@ -54,22 +54,6 @@ def get_processor(
         The `num_qubits` argument is extracted from the `experiment_data` metadata and is used
         to determine the default `outcome` to extract from classified data if it was not given in the
         analysis options.
-        The following relevant arguments are extracted from the experiment_data metadata run options:
-            - meas_level (MeasLevel): The measurement level of the data to process which is by default
-              set to MeasLevel.CLASSIFIED.
-            - meas_return (MeasReturnType): The measurement return (single or avg) of the data to
-              process. The default is MeasReturnType.AVERAGE.
-            - init_qubits (bool): If False, the qubits are not reset to the ground state after a
-              measurement. The default is True.
-            - physical qubits: The physical qubits used in the experiment.
-            - memory (bool): If True, single-shot measurement bitstrings are returned.
-              The default is False.
-            - rep_delay (float): The delay between a measurement and the subsequent circuit.
-            The default is None.
-
-        In addition, the following argument is extracted from the experiment_data:
-            - t1_values (List[float]): The T1 values of the physical qubits at the time
-              of the experiment.
 
     Raises:
         DataProcessorError: if the measurement level is not supported.
@@ -85,49 +69,9 @@ def get_processor(
     meas_return = run_options.get("meas_return", MeasReturnType.AVERAGE)
     normalize = analysis_options.get("normalization", True)
     dimensionality_reduction = analysis_options.get("dimensionality_reduction", ProjectorType.SVD)
-    esp_enabled = analysis_options.get("use_measure_esp", False)
-
-    init_qubits = run_options.get("init_qubits", True)
     memory = run_options.get("memory", False)
-    rep_delay = run_options.get("rep_delay", None)
-    restless_threshold = analysis_options.get("restless_threshold", 1)
 
-    # restless data processing.
-    restless = False
-    if rep_delay and not init_qubits:
-
-        if esp_enabled:
-            raise DataProcessorError(
-                "Restless experiments are not compatible with the excited "
-                "state promotion readout analysis option."
-            )
-
-        physical_qubits = experiment_data.metadata["physical_qubits"]
-        num_qubits = len(physical_qubits)
-
-        if num_qubits > 1:
-            raise DataProcessorError(
-                "To date, only single-qubit restless measurements can be processed."
-            )
-        t1_values = [
-            experiment_data.backend.properties().qubit_property(physical_qubit)["T1"][0]
-            for physical_qubit in physical_qubits
-        ]
-        if [rep_delay / t1_value < restless_threshold for t1_value in t1_values] == [
-            True
-        ] * num_qubits:
-            restless = True
-
-    if meas_level == MeasLevel.CLASSIFIED and memory and restless:
-        num_qubits = experiment_data.metadata.get("num_qubits", 1)
-        outcome = analysis_options.get("outcome", "1" * num_qubits)
-        return DataProcessor(
-            "memory",
-            [
-                nodes.RestlessToCounts(num_qubits),
-                nodes.Probability(outcome),
-            ],
-        )
+    restless = is_restless(experiment_data, analysis_options, index)
 
     if restless and not memory:
         raise DataProcessorError(
@@ -137,6 +81,14 @@ def get_processor(
     if meas_level == MeasLevel.CLASSIFIED:
         num_qubits = experiment_data.metadata.get("num_qubits", 1)
         outcome = analysis_options.get("outcome", "1" * num_qubits)
+        if memory and restless:
+            return DataProcessor(
+                "memory",
+                [
+                    nodes.RestlessToCounts(num_qubits),
+                    nodes.Probability(outcome),
+                ],
+            )
         return DataProcessor("counts", [nodes.Probability(outcome)])
 
     if meas_level == MeasLevel.KERNELED:
@@ -165,3 +117,70 @@ def get_processor(
         return processor
 
     raise DataProcessorError(f"Unsupported measurement level {meas_level}.")
+
+
+def is_restless(experiment_data: ExperimentData, analysis_options: Options, index: -1) -> bool:
+    """Check if the experiment data and analysis options correspond to a restless experiment.
+    An experiment is run in a restless setting if the qubits are not reset to the ground
+    state after the measurement and the repetition delay is set to a value much smaller
+    than the T1 value of the physical qubits in the experiment.
+
+    Args:
+        experiment_data: The experiment data that holds all the data and metadata needed
+            to determine the data processor to use to process the data for analysis.
+        analysis_options: The analysis options with which to analyze the data.
+        index: The index of the job for which to get a data processor. The default value is -1.
+
+    Returns:
+        True if the experiment is classified as a restless experiment.
+
+    Notes:
+        The following relevant arguments are extracted from the experiment_data metadata run options:
+            - init_qubits (bool): If False, the qubits are not reset to the ground state after a
+              measurement. The default is True.
+            - physical qubits: The physical qubits used in the experiment.
+            - rep_delay (float): The delay between a measurement and the subsequent circuit.
+              The default is None.
+
+        In addition, the following argument is extracted from the experiment_data:
+            - t1_values (List[float]): The T1 values of the physical qubits at the time
+              of the experiment.
+
+    Raises:
+        DataProcessorError: if excited state promotion readout is enabled.
+        DataProcessorError: if the experiment is run with more than on qubit.
+    """
+
+    run_options = experiment_data.metadata["job_metadata"][index].get("run_options", {})
+    init_qubits = run_options.get("init_qubits", True)
+    rep_delay = run_options.get("rep_delay", None)
+    restless_threshold = analysis_options.get("restless_threshold", 1)
+    esp_enabled = analysis_options.get("use_measure_esp", False)
+
+    restless = False
+
+    if rep_delay and not init_qubits:
+
+        if esp_enabled:
+            raise DataProcessorError(
+                "Restless experiments are not compatible with the excited "
+                "state promotion readout analysis option."
+            )
+
+        physical_qubits = experiment_data.metadata["physical_qubits"]
+        num_qubits = len(physical_qubits)
+
+        if num_qubits > 1:
+            raise DataProcessorError(
+                "To date, only single-qubit restless measurements can be processed."
+            )
+        t1_values = [
+            experiment_data.backend.properties().qubit_property(physical_qubit)["T1"][0]
+            for physical_qubit in physical_qubits
+        ]
+        if [rep_delay / t1_value < restless_threshold for t1_value in t1_values] == [
+            True
+        ] * num_qubits:
+            restless = True
+
+    return restless
