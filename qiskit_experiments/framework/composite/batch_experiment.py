@@ -70,6 +70,7 @@ class BatchExperiment(CompositeExperiment):
             else:
                 qubit_mapping = [self._qubit_map[qubit] for qubit in expr.physical_qubits]
             for circuit in expr.circuits():
+                circ_cals = circuit.calibrations.items()
                 # Update metadata
                 circuit.metadata = {
                     "experiment_type": self._type,
@@ -78,16 +79,14 @@ class BatchExperiment(CompositeExperiment):
                 }
                 # Remap qubits if required
                 if qubit_mapping:
-                    circuit_remapped = self._remap_qubits(circuit, qubit_mapping)
+                    circuit = self._remap_qubits(circuit, qubit_mapping)
 
                 # Add the calibrations
-                for gate, cals in circuit.calibrations.items():
+                for gate, cals in circ_cals:
                     for key, sched in cals.items():
-                        circuit_remapped.add_calibration(
-                            gate, qubits=key[0], schedule=sched, params=key[1]
-                        )
+                        circuit.add_calibration(gate, qubits=key[0], schedule=sched, params=key[1])
 
-                batch_circuits.append(circuit_remapped.decompose())
+                batch_circuits.append(circuit.decompose())
         return batch_circuits
 
     def _remap_qubits(self, circuit, qubit_mapping):
