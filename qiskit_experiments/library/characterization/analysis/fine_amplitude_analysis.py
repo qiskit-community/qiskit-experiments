@@ -39,8 +39,8 @@ class FineAmplitudeAnalysis(ErrorAmplificationAnalysis):
             + 0.5 * amp * (2 * x - 1),
             plot_color="green",
             model_description=r"{\rm base} + \frac{{\rm amp}}{2} * (2 * x - 1)",
-            name="series-cal",
-            filter_kwargs={"series": "cal"},
+            name="spam cal.",
+            filter_kwargs={"series": "spam-cal"},
         ),
         curve.SeriesDef(
             # pylint: disable=line-too-long
@@ -54,7 +54,7 @@ class FineAmplitudeAnalysis(ErrorAmplificationAnalysis):
             plot_color="blue",
             model_description=r"\frac{{\rm amp}}{2}\cos\left(x[{\rm d}\theta + {\rm apg} ] "
             r"+ {\rm phase\_offset}\right)+{\rm base}",
-            name="series-1",
+            name="fine amp.",
             filter_kwargs={"series": 1},
         ),
     ]

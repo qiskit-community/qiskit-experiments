@@ -87,10 +87,9 @@ class TestFineZXAmpEndToEnd(QiskitExperimentsTestCase):
         """Test the experiment end to end."""
 
         amp_exp = FineZXAmplitude((0, 1))
-        amp_exp.set_transpile_options(basis_gates=["x", "sx", "rzx"])
 
         error = -np.pi * pi_ratio
-        backend = MockFineAmp(error, np.pi / 2, "rzx")
+        backend = MockFineAmp(error, np.pi / 2, "szx")
 
         expdata = amp_exp.run(backend)
         self.assertExperimentDone(expdata)

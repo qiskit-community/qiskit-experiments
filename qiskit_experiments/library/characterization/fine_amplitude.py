@@ -100,7 +100,8 @@ class FineAmplitude(BaseExperiment):
                 measured signal to the interval [0, 1]. Defaults to True.
             add_cal_circuits (bool): If set to True then two circuits to calibrate 0 and 1 points
                 will be added. These circuits are often needed to properly calibrate the amplitude
-                of the ping-pong oscillation that encodes the errors.
+                of the ping-pong oscillation that encodes the errors. This helps account for
+                state preparation and measurement errors.
         """
         options = super()._default_experiment_options()
         options.repetitions = list(range(1, 15))
@@ -121,7 +122,7 @@ class FineAmplitude(BaseExperiment):
         super().__init__(qubits, analysis=FineAmplitudeAnalysis(), backend=backend)
         self.set_experiment_options(gate=gate)
 
-    def _cal_circuits(self) -> List[QuantumCircuit]:
+    def _spam_cal_circuits(self) -> List[QuantumCircuit]:
         """This method returns the calibration circuits.
 
         Calibration circuits allow the experiment to overcome state preparation and
@@ -142,7 +143,7 @@ class FineAmplitude(BaseExperiment):
                 "qubits": self.physical_qubits,
                 "xval": add_x,
                 "unit": "gate number",
-                "series": "cal",
+                "series": "spam-cal",
             }
 
             cal_circuits.append(circ)
@@ -181,7 +182,7 @@ class FineAmplitude(BaseExperiment):
         # Prepare the circuits.
         repetitions = self.experiment_options.get("repetitions")
 
-        circuits = self._cal_circuits() if self.experiment_options.add_cal_circuits else []
+        circuits = self._spam_cal_circuits() if self.experiment_options.add_cal_circuits else []
 
         qubits = range(self.num_qubits)
         meas_circ = self._measure_circuit()
