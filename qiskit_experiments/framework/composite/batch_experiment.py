@@ -13,12 +13,10 @@
 Batch Experiment class.
 """
 
-import copy
 from typing import List, Optional
 from collections import OrderedDict
 
-from qiskit import QuantumCircuit, transpile
-from qiskit.exceptions import QiskitError
+from qiskit import QuantumCircuit
 from qiskit.providers.backend import Backend
 from .composite_experiment import CompositeExperiment, BaseExperiment
 
@@ -62,52 +60,44 @@ class BatchExperiment(CompositeExperiment):
         super().__init__(experiments, qubits, backend=backend)
 
     def circuits(self):
-        circs = []
-        for circ_group in self._batch_circuits():
-            circs.extend(circ_group[0])
+        return self._batch_circuits(to_transpile=False)
 
-        return circs
+    def _transpiled_circuits(self):
+        return self._batch_circuits(to_transpile=True)
 
-    def transpiled_circuits(self):
-        circs = []
-        for circ_group in self._batch_circuits():
-            transpile_opts = copy.copy(circ_group[1].transpile_options.__dict__)
-            transpile_opts["initial_layout"] = list(self.physical_qubits)
-            circs.extend(transpile(circ_group[0], self.backend, **transpile_opts))
-
-        return circs
-
-    def _batch_circuits(self):
+    def _batch_circuits(self, to_transpile=False):
         batch_circuits = []
 
         # Generate data for combination
         for index, expr in enumerate(self._experiments):
-            if self.physical_qubits == expr.physical_qubits:
+            if self.physical_qubits == expr.physical_qubits or to_transpile:
                 qubit_mapping = None
             else:
                 qubit_mapping = [self._qubit_map[qubit] for qubit in expr.physical_qubits]
 
             if isinstance(expr, BatchExperiment):
-                circ_groups = expr._batch_circuits()
+                expr_circuits = expr._batch_circuits(to_transpile)
             else:
-                circ_groups = [(expr.circuits(), expr)]
+                if to_transpile:
+                    expr_circuits = expr._transpiled_circuits()
+                else:
+                    expr_circuits = expr.circuits()
 
-            for group in circ_groups:
-                local_circuits = []
-                for circuit in group[0]:
-                    # Update metadata
-                    circuit.metadata = {
-                        "experiment_type": self._type,
-                        "composite_metadata": [circuit.metadata],
-                        "composite_index": [index],
-                    }
-                    # Remap qubits if required
-                    if qubit_mapping:
-                        circuit = self._remap_qubits(circuit, qubit_mapping)
-                    local_circuits.append(circuit)
-                    
-                batch_circuits.append((local_circuits, group[1]))
-                    
+            circuits = []
+            for circuit in expr_circuits:
+                # Update metadata
+                circuit.metadata = {
+                    "experiment_type": self._type,
+                    "composite_metadata": [circuit.metadata],
+                    "composite_index": [index],
+                }
+                # Remap qubits if required
+                if qubit_mapping:
+                    circuit = self._remap_qubits(circuit, qubit_mapping)
+                circuits.append(circuit)
+
+            batch_circuits.extend(circuits)
+                
         return batch_circuits
 
     def _remap_qubits(self, circuit, qubit_mapping):
