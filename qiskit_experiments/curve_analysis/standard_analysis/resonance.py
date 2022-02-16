@@ -132,21 +132,20 @@ class ResonanceAnalysis(curve.CurveAnalysis):
         min_freq = np.min(curve_data.x)
         freq_increment = np.mean(np.diff(curve_data.x))
 
-        fit_a = fit_data.fitval("a").value
-        fit_b = fit_data.fitval("b").value
-        fit_freq = fit_data.fitval("freq").value
-        fit_kappa = fit_data.fitval("kappa").value
-        fit_kappa_err = fit_data.fitval("kappa").stderr
+        fit_a = fit_data.fitval("a")
+        fit_b = fit_data.fitval("b")
+        fit_freq = fit_data.fitval("freq")
+        fit_kappa = fit_data.fitval("kappa")
 
-        snr = abs(fit_a) / np.sqrt(abs(np.median(curve_data.y) - fit_b))
-        fit_width_ratio = fit_kappa / (max_freq - min_freq)
+        snr = abs(fit_a.n) / np.sqrt(abs(np.median(curve_data.y) - fit_b.n))
+        fit_width_ratio = fit_kappa.n / (max_freq - min_freq)
 
         criteria = [
-            min_freq <= fit_freq <= max_freq,
-            1.5 * freq_increment < fit_kappa,
+            min_freq <= fit_freq.n <= max_freq,
+            1.5 * freq_increment < fit_kappa.n,
             fit_width_ratio < 0.25,
             fit_data.reduced_chisq < 3,
-            (fit_kappa_err is None or fit_kappa_err < fit_kappa),
+            curve.is_error_not_significant(fit_kappa),
             snr > 2,
         ]
 

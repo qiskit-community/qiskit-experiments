@@ -14,13 +14,8 @@ Tphi Analysis class.
 """
 
 from typing import List, Tuple
-from uncertainties import ufloat
 
-from qiskit_experiments.framework import (
-    ExperimentData,
-    AnalysisResultData,
-    FitVal,
-)
+from qiskit_experiments.framework import ExperimentData, AnalysisResultData
 from qiskit_experiments.framework.composite.composite_analysis import CompositeAnalysis
 
 
@@ -32,36 +27,30 @@ class TphiAnalysis(CompositeAnalysis):
     """
 
     def _run_analysis(
-        self, experiment_data: ExperimentData, **options
+        self, experiment_data: ExperimentData
     ) -> Tuple[List[AnalysisResultData], List["matplotlib.figure.Figure"]]:
         r"""Run analysis for :math:`T_\phi` experiment.
         It invokes CompositeAnalysis._run_analysis that will invoke
         _run_analysis for the two sub-experiments.
         Based on the results, it computes the result for :math:`T_phi`.
         """
-        _, _ = super()._run_analysis(experiment_data, **options)
+        super()._run_analysis(experiment_data)
 
         t1_result = experiment_data.child_data(0).analysis_results("T1")
         t2star_result = experiment_data.child_data(1).analysis_results("T2star")
-        # we use the 'ucert' prefix to denote values that include
-        # uncertainty using the `uncertainties` package
-        uncert_t1_res = ufloat(t1_result.value.value, t1_result.value.stderr)
-        uncert_t2star_res = ufloat(t2star_result.value.value, t2star_result.value.stderr)
-        uncert_reciprocal = (1 / uncert_t2star_res) - (1 / (2 * uncert_t1_res))
-        uncert_tphi = 1 / uncert_reciprocal
+        tphi = 1 / (1 / t2star_result.value - 1 / (2 * t1_result.value))
 
         quality_tphi = (
             "good" if (t1_result.quality == "good" and t2star_result.quality == "good") else "bad"
         )
 
-        analysis_results = []
-        analysis_results.append(
+        analysis_results = [
             AnalysisResultData(
                 name="T_phi",
-                value=FitVal(uncert_tphi.nominal_value, uncert_tphi.std_dev),
+                value=tphi,
                 chisq=None,
                 quality=quality_tphi,
-                extra={},
+                extra={"unit": "s"},
             )
-        )
+        ]
         return analysis_results, []

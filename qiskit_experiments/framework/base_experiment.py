@@ -279,7 +279,7 @@ class BaseExperiment(ABC, StoreInitArgs):
 
         # Optionally run analysis
         if analysis and experiment.analysis:
-            return self.analysis.run(experiment_data)
+            return experiment.analysis.run(experiment_data)
         else:
             return experiment_data
 

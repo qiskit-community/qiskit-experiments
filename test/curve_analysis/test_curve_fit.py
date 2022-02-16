@@ -10,15 +10,17 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Test curve fitting base class."""
 # pylint: disable=invalid-name
+
+"""Test curve fitting base class."""
 from test.base import QiskitExperimentsTestCase
 from test.fake_experiment import FakeExperiment
 from typing import List
+
 import numpy as np
 from qiskit.qobj.utils import MeasLevel
+from uncertainties import correlated_values
 
-from qiskit_experiments.framework import ExperimentData, FitVal
 from qiskit_experiments.curve_analysis import CurveAnalysis, fit_function
 from qiskit_experiments.curve_analysis.curve_data import (
     SeriesDef,
@@ -28,6 +30,7 @@ from qiskit_experiments.curve_analysis.curve_data import (
 )
 from qiskit_experiments.curve_analysis.data_processing import probability
 from qiskit_experiments.exceptions import AnalysisError
+from qiskit_experiments.framework import ExperimentData
 
 
 def simulate_output_data(func, xvals, param_dict, **metadata):
@@ -71,11 +74,14 @@ class TestFitData(QiskitExperimentsTestCase):
 
     def test_get_value(self):
         """Get fit value from fit data object."""
+        pcov = np.diag(np.ones(3))
+        popt = np.asarray([1.0, 2.0, 3.0])
+        fit_params = correlated_values(popt, pcov)
+
         data = FitData(
-            popt=np.asarray([1.0, 2.0, 3.0]),
+            popt=fit_params,
             popt_keys=["a", "b", "c"],
-            popt_err=np.asarray([0.1, 0.2, 0.3]),
-            pcov=np.diag(np.ones(3)),
+            pcov=pcov,
             reduced_chisq=0.0,
             dof=0,
             x_range=(0, 0),
@@ -83,13 +89,13 @@ class TestFitData(QiskitExperimentsTestCase):
         )
 
         a_val = data.fitval("a")
-        self.assertEqual(a_val, FitVal(1.0, 0.1))
+        self.assertEqual(a_val, fit_params[0])
 
         b_val = data.fitval("b")
-        self.assertEqual(b_val, FitVal(2.0, 0.2))
+        self.assertEqual(b_val, fit_params[1])
 
         c_val = data.fitval("c")
-        self.assertEqual(c_val, FitVal(3.0, 0.3))
+        self.assertEqual(c_val, fit_params[2])
 
 
 class TestCurveAnalysisUnit(QiskitExperimentsTestCase):
@@ -317,7 +323,7 @@ class TestCurveAnalysisIntegration(QiskitExperimentsTestCase):
         ref_popt = np.asarray([ref_p0, ref_p1, ref_p2, ref_p3])
 
         # check result data
-        np.testing.assert_array_almost_equal(result.value.value, ref_popt, decimal=self.err_decimal)
+        np.testing.assert_array_almost_equal(result.value, ref_popt, decimal=self.err_decimal)
         self.assertEqual(result.extra["dof"], 46)
         self.assertListEqual(result.extra["popt_keys"], ["p0", "p1", "p2", "p3"])
         self.assertDictEqual(result.extra["fit_models"], {"curve1": r"p_0 \exp(p_1 x + p_2) + p_3"})
@@ -325,8 +331,8 @@ class TestCurveAnalysisIntegration(QiskitExperimentsTestCase):
         # special entry formatted for database
         result = results[1]
         self.assertEqual(result.name, "parameter_name")
-        self.assertEqual(result.value.unit, "unit")
-        self.assertAlmostEqual(result.value.value, ref_p1, places=self.err_decimal)
+        self.assertEqual(result.extra["unit"], "unit")
+        self.assertAlmostEqual(result.value.nominal_value, ref_p1, places=self.err_decimal)
 
     def test_run_single_curve_fail(self):
         """Test analysis returns status when it fails."""
@@ -416,7 +422,7 @@ class TestCurveAnalysisIntegration(QiskitExperimentsTestCase):
         ref_popt = np.asarray([ref_p0, ref_p1, ref_p2, ref_p3, ref_p4])
 
         # check result data
-        np.testing.assert_array_almost_equal(result.value.value, ref_popt, decimal=self.err_decimal)
+        np.testing.assert_array_almost_equal(result.value, ref_popt, decimal=self.err_decimal)
 
     def test_run_two_curves_with_two_fitfuncs(self):
         """Test analysis for two curves. Curves shares fit parameters."""
@@ -468,7 +474,7 @@ class TestCurveAnalysisIntegration(QiskitExperimentsTestCase):
         ref_popt = np.asarray([ref_p0, ref_p1, ref_p2, ref_p3])
 
         # check result data
-        np.testing.assert_array_almost_equal(result.value.value, ref_popt, decimal=self.err_decimal)
+        np.testing.assert_array_almost_equal(result.value, ref_popt, decimal=self.err_decimal)
 
     def test_run_fixed_parameters(self):
         """Test analysis when some of parameters are fixed."""
@@ -506,7 +512,7 @@ class TestCurveAnalysisIntegration(QiskitExperimentsTestCase):
         ref_popt = np.asarray([ref_p0, ref_p1, ref_p3])
 
         # check result data
-        np.testing.assert_array_almost_equal(result.value.value, ref_popt, decimal=self.err_decimal)
+        np.testing.assert_array_almost_equal(result.value, ref_popt, decimal=self.err_decimal)
 
     def test_fixed_param_is_missing(self):
         """Test raising an analysis error when fixed parameter is missing."""

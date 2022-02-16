@@ -68,7 +68,7 @@ class TestFrequencyUpdate(QiskitExperimentsTestCase):
         exp_data = spec.run(backend)
         self.assertExperimentDone(exp_data)
         result = exp_data.analysis_results(1)
-        value = result.value.value
+        value = result.value.n
 
         self.assertTrue(freq01 + peak_offset - 2e6 < value < freq01 + peak_offset + 2e6)
         self.assertEqual(result.quality, "good")
