@@ -138,6 +138,35 @@ class TestStandardRB(RBTestCase):
         epc_expected = 1 - (1 - 3 / 4 * self.p2q) ** 1.5
         self.assertAlmostEqual(epc.value.n, epc_expected, delta=0.5 * epc_expected)
 
+    def test_add_more_circuit_yields_lower_variance(self):
+        """Test variance reduction with larger number of sampling."""
+        exp1 = rb.StandardRB(
+            qubits=(0, 1),
+            lengths=list(range(1, 30, 3)),
+            seed=123,
+            backend=self.backend,
+            num_samples=3,
+        )
+        exp1.set_transpile_options(**self.transpiler_options)
+        expdata1 = exp1.run()
+        self.assertExperimentDone(expdata1)
+
+        exp2 = rb.StandardRB(
+            qubits=(0, 1),
+            lengths=list(range(1, 30, 3)),
+            seed=456,
+            backend=self.backend,
+            num_samples=5,
+        )
+        exp2.set_transpile_options(**self.transpiler_options)
+        expdata2 = exp2.run()
+        self.assertExperimentDone(expdata2)
+
+        self.assertLess(
+            expdata2.analysis_results("EPC").value.s,
+            expdata1.analysis_results("EPC").value.s,
+        )
+
     def test_return_same_circuit(self):
         """Test if setting the same seed returns the same circuits."""
         exp1 = rb.StandardRB(
