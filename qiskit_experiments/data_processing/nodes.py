@@ -608,7 +608,9 @@ class RestlessNode(DataAction, ABC):
     In restless measurements, the qubit is not reset after each measurement. Instead, the
     outcome of the previous quantum non-demolition measurement is the initial state for the
     current circuit. Restless measurements therefore require special data processing nodes
-    that are implemented as sub-classes of `ResltessNode`.
+    that are implemented as sub-classes of `RestlessNode`. Restless experiments provide a
+    fast alternative for several calibration and characterization tasks, for details
+    see https://arxiv.org/pdf/2202.06981.pdf.
     """
 
     def __init__(self, validate: bool = True):
