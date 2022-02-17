@@ -177,9 +177,7 @@ def is_restless(experiment_data: ExperimentData, analysis_options: Options, inde
             experiment_data.backend.properties().qubit_property(physical_qubit)["T1"][0]
             for physical_qubit in physical_qubits
         ]
-        if [rep_delay / t1_value < restless_threshold for t1_value in t1_values] == [
-            True
-        ] * num_qubits:
+        if all(rep_delay / t1_value < restless_threshold for t1_value in t1_values):
             return True
 
     return False
