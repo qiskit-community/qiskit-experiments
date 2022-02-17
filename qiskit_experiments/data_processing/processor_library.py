@@ -157,7 +157,6 @@ def is_restless(experiment_data: ExperimentData, analysis_options: Options, inde
     restless_threshold = analysis_options.get("restless_threshold", 1)
     esp_enabled = analysis_options.get("use_measure_esp", False)
 
-    restless = False
 
     if rep_delay and not init_qubits:
 
