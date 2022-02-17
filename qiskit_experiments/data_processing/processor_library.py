@@ -62,7 +62,6 @@ def get_processor(
         DataProcessorError: if no single-shot memory is present but the run options suggest that a
                             restless experiment was run.
     """
-
     run_options = experiment_data.metadata["job_metadata"][index].get("run_options", {})
 
     meas_level = run_options.get("meas_level", MeasLevel.CLASSIFIED)
@@ -150,21 +149,13 @@ def is_restless(experiment_data: ExperimentData, analysis_options: Options, inde
         DataProcessorError: if excited state promotion readout is enabled in a restless setting.
         DataProcessorError: if the experiment is run with more than on qubit.
     """
-
     run_options = experiment_data.metadata["job_metadata"][index].get("run_options", {})
     init_qubits = run_options.get("init_qubits", True)
     rep_delay = run_options.get("rep_delay", None)
     restless_threshold = analysis_options.get("restless_threshold", 1)
     esp_enabled = analysis_options.get("use_measure_esp", False)
 
-
     if rep_delay and not init_qubits:
-
-        if esp_enabled:
-            raise DataProcessorError(
-                "Restless experiments are not compatible with the excited "
-                "state promotion readout analysis option."
-            )
 
         physical_qubits = experiment_data.metadata["physical_qubits"]
         num_qubits = len(physical_qubits)
@@ -173,11 +164,18 @@ def is_restless(experiment_data: ExperimentData, analysis_options: Options, inde
             raise DataProcessorError(
                 "To date, only single-qubit restless measurements can be processed."
             )
+
         t1_values = [
             experiment_data.backend.properties().qubit_property(physical_qubit)["T1"][0]
             for physical_qubit in physical_qubits
         ]
+
         if all(rep_delay / t1_value < restless_threshold for t1_value in t1_values):
+            if esp_enabled:
+                raise DataProcessorError(
+                    "Restless experiments are not compatible with the excited "
+                    "state promotion readout analysis option."
+                )
             return True
 
     return False
