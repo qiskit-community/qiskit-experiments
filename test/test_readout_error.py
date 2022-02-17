@@ -16,9 +16,9 @@ A Tester for the Readout error experiment
 
 
 import unittest
-import numpy as np
 import json
 from test.base import QiskitExperimentsTestCase
+import numpy as np
 from qiskit.quantum_info.operators.predicates import matrix_equal
 from qiskit.providers.aer import AerSimulator
 from qiskit.test.mock import FakeParis
@@ -27,7 +27,6 @@ from qiskit_experiments.framework import ExperimentData
 from qiskit_experiments.framework import ParallelExperiment
 from qiskit_experiments.test.fake_service import FakeService
 from qiskit_experiments.framework.json import ExperimentEncoder, ExperimentDecoder
-from qiskit_experiments.library.quantum_volume import QuantumVolume
 
 
 class TestRedoutError(QiskitExperimentsTestCase):
@@ -173,6 +172,7 @@ class TestRedoutError(QiskitExperimentsTestCase):
         self.assertTrue(matrix_equal(exp_matrix, load_matrix))
 
     def test_json_serialization(self):
+        """Verifies that mitigators can be serialized for DB storage"""
         qubits = [0, 1]
         backend = AerSimulator.from_backend(FakeParis())
         exp = LocalReadoutError(qubits)
