@@ -111,7 +111,13 @@ class FineAmplitude(BaseExperiment):
 
         return options
 
-    def __init__(self, qubits: Sequence[int], gate: Gate, backend: Optional[Backend] = None):
+    def __init__(
+        self,
+        qubits: Sequence[int],
+        gate: Gate,
+        backend: Optional[Backend] = None,
+        measurement_qubits: Sequence[int] = None,
+    ):
         """Setup a fine amplitude experiment on the given qubit.
 
         Args:
@@ -121,6 +127,7 @@ class FineAmplitude(BaseExperiment):
         """
         super().__init__(qubits, analysis=FineAmplitudeAnalysis(), backend=backend)
         self.set_experiment_options(gate=gate)
+        self._measurement_qubits = measurement_qubits or qubits
 
     def _spam_cal_circuits(self, meas_circuit: QuantumCircuit) -> List[QuantumCircuit]:
         """This method returns the calibration circuits.
@@ -131,6 +138,9 @@ class FineAmplitude(BaseExperiment):
         Args:
             meas_circuit: The measurement circuit, so that we only apply x gates to the
                 measured qubits.
+
+        Returns:
+            Two circuits that calibrate the spam errors for the 0 and 1 state.
         """
         cal_circuits = []
 
@@ -171,8 +181,11 @@ class FineAmplitude(BaseExperiment):
         Returns:
             A quantum circuit which defines the qubits that will be measured.
         """
-        circuit = QuantumCircuit(self.num_qubits)
-        circuit.measure_all()
+        circuit = QuantumCircuit(self.num_qubits, len(self._measurement_qubits))
+
+        for idx, qubit in enumerate(self._measurement_qubits):
+            circuit.measure(qubit, idx)
+
         return circuit
 
     def circuits(self) -> List[QuantumCircuit]:
@@ -331,7 +344,7 @@ class FineZXAmplitude(FineAmplitude):
         # Failing to do so causes issues with QuantumCircuit.calibrations.
         gate = Gate("szx", 2, [])
 
-        super().__init__(qubits, gate, backend=backend)
+        super().__init__(qubits, gate, backend=backend, measurement_qubits=[qubits[1]])
         # Set default analysis options
         self.analysis.set_options(
             angle_per_gate=np.pi / 2,
@@ -370,9 +383,3 @@ class FineZXAmplitude(FineAmplitude):
         options.basis_gates = ["szx"]
         options.inst_map = None
         return options
-
-    def _measure_circuit(self) -> QuantumCircuit:
-        """Measure only the target qubit."""
-        circuit = QuantumCircuit(self.num_qubits, 1)
-        circuit.measure(1, 0)
-        return circuit

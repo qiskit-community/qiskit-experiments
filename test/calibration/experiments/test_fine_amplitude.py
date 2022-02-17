@@ -131,7 +131,7 @@ class TestFineAmplitudeCircuits(QiskitExperimentsTestCase):
         amp_cal = FineXAmplitude(0)
         circs = amp_cal.circuits()
 
-        self.assertTrue(circs[0].data[1][0].name == "measure")
+        self.assertTrue(circs[0].data[0][0].name == "measure")
         self.assertTrue(circs[1].data[0][0].name == "x")
 
         for idx, circ in enumerate(circs[2:]):
