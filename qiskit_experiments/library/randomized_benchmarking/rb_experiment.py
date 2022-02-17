@@ -135,54 +135,49 @@ class StandardRB(BaseExperiment):
 
         return options
 
-    def circuits(self) -> List[QuantumCircuit]:
-        """Return a list of RB circuits.
+    def circuits(self) -> Iterable[QuantumCircuit]:
+        """Yield RB circuits.
 
-        Returns:
-            A list of :class:`QuantumCircuit`.
+        Yields:
+            :class:`QuantumCircuit`.
         """
         rng = default_rng(seed=self.experiment_options.seed)
-        circuits = []
         for _ in range(self.experiment_options.num_samples):
-            circuits += self._sample_circuits(self.experiment_options.lengths, rng)
-        return circuits
+            yield from self._sample_circuits(self.experiment_options.lengths, rng)
 
-    def _sample_circuits(self, lengths: Iterable[int], rng: Generator) -> List[QuantumCircuit]:
-        """Return a list RB circuits for the given lengths.
+    def _sample_circuits(self, lengths: Iterable[int], rng: Generator) -> Iterable[QuantumCircuit]:
+        """Yield the RB circuits for the given lengths.
 
         Args:
             lengths: A list of RB sequences lengths.
             seed: Seed or generator object for random number
                   generation. If None default_rng will be used.
 
-        Returns:
-            A list of :class:`QuantumCircuit`.
+        Yields:
+            :class:`QuantumCircuit`.
         """
-        circuits = []
         for length in lengths if self._full_sampling else [lengths[-1]]:
             elements = self._clifford_utils.random_clifford_circuits(self.num_qubits, length, rng)
             element_lengths = [len(elements)] if self._full_sampling else lengths
-            circuits += self._generate_circuit(elements, element_lengths)
-        return circuits
+            yield from self._generate_circuit(elements, element_lengths)
 
     def _generate_circuit(
         self, elements: Iterable[Clifford], lengths: Iterable[int]
-    ) -> List[QuantumCircuit]:
-        """Return the RB circuits constructed from the given element list.
+    ) -> Iterable[QuantumCircuit]:
+        """Yield the RB circuits constructed from the given element list.
 
         Args:
             elements: A list of Clifford elements
             lengths: A list of RB sequences lengths.
 
-        Returns:
-            A list of :class:`QuantumCircuit`s.
+        Yields:
+            :class:`QuantumCircuit`s.
 
         Additional information:
             The circuits are constructed iteratively; each circuit is obtained
             by extending the previous circuit (without the inversion and measurement gates)
         """
         qubits = list(range(self.num_qubits))
-        circuits = []
 
         circs = [QuantumCircuit(self.num_qubits) for _ in range(len(lengths))]
         for circ in circs:
@@ -216,8 +211,7 @@ class StandardRB(BaseExperiment):
                     "physical_qubits": self.physical_qubits,
                 }
                 rb_circ.measure_all()
-                circuits.append(rb_circ)
-        return circuits
+                yield rb_circ
 
     def _get_circuit_metadata(self, circuit):
         if circuit.metadata["experiment_type"] == self._type:

@@ -95,23 +95,19 @@ class InterleavedRB(StandardRB):
         )
 
     def _sample_circuits(self, lengths, rng):
-        circuits = []
         for length in lengths if self._full_sampling else [lengths[-1]]:
             elements = self._clifford_utils.random_clifford_circuits(self.num_qubits, length, rng)
             element_lengths = [len(elements)] if self._full_sampling else lengths
-            std_circuits = self._generate_circuit(elements, element_lengths)
-            for circuit in std_circuits:
+            for circuit in self._generate_circuit(elements, element_lengths):
                 circuit.metadata["interleaved"] = False
-            circuits += std_circuits
+                yield circuit
 
             int_elements = self._interleave(elements)
             int_elements_lengths = [length * 2 for length in element_lengths]
-            int_circuits = self._generate_circuit(int_elements, int_elements_lengths)
-            for circuit in int_circuits:
+            for circuit in self._generate_circuit(int_elements, int_elements_lengths):
                 circuit.metadata["interleaved"] = True
                 circuit.metadata["xval"] = circuit.metadata["xval"] // 2
-            circuits += int_circuits
-        return circuits
+                yield circuit
 
     def _interleave(self, element_list: List) -> List:
         """Interleaving the interleaved element inside the element list.
