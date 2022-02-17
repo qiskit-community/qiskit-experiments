@@ -503,11 +503,11 @@ class ExperimentEncoder(json.JSONEncoder):
             return _serialize_object(obj, settings=settings)
         if isinstance(obj, LocalReadoutMitigator):
             # Temporary handling until serialization is added to terra stable release
-            settings = {"amats": obj._assignment_mats, "qubits": obj.qubits}
+            settings = {"assignment_matrices": obj._assignment_mats, "qubits": obj.qubits}
             return _serialize_object(obj, settings=settings)
         if isinstance(obj, CorrelatedReadoutMitigator):
             # Temporary handling until serialization is added to terra stable release
-            settings = {"amat": obj._assignment_mat, "qubits": obj.qubits}
+            settings = {"assignment_matrix": obj._assignment_mat, "qubits": obj.qubits}
             return _serialize_object(obj, settings=settings)
         if isinstance(obj, DensityMatrix):
             # Temporary fix for incorrect settings in qiskit-terra
