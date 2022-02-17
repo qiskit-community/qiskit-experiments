@@ -29,10 +29,7 @@ from qiskit_experiments.test.utils import FakeJob
 class MockRestlessBackend(FakeOpenPulse2Q):
     """An abstract backend for testing that can mock restless data."""
 
-    def __init__(
-        self,
-        rng_seed: int = 0,
-    ):
+    def __init__(self, rng_seed: int = 0):
         """
         Initialize the backend.
         """
