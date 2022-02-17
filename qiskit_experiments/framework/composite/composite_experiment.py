@@ -135,8 +135,3 @@ class CompositeExperiment(BaseExperiment):
                     " are overridden by composite experiment options."
                 )
             sub_exp._add_job_metadata(sub_metadata, jobs, **run_options)
-
-    def _postprocess_transpiled_circuits(self, circuits, **run_options):
-        for expr in self._experiments:
-            if not isinstance(expr, CompositeExperiment):
-                expr._postprocess_transpiled_circuits(circuits, **run_options)

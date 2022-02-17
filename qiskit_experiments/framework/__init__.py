@@ -170,8 +170,8 @@ allow configuring various experiment and execution options
   method :meth:`BaseAnalysis._default_options` instead of this method except in the
   case where the experiment requires different defaults to the used analysis class.
 
-- :meth:`BaseExperiment._post_process_transpiled_circuits`
-  to implement any post-processing of the transpiled circuits before execution.
+- :meth:`BaseExperiment._transpile`
+  to override the default transpilation of circuits before execution.
 
 - :meth:`BaseExperiment._additional_metadata`
   to add any experiment metadata to the result data.

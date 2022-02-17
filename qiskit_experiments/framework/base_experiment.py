@@ -269,8 +269,7 @@ class BaseExperiment(ABC, StoreInitArgs):
         # Generate and transpile circuits
         transpile_opts = copy.copy(experiment.transpile_options.__dict__)
         transpile_opts["initial_layout"] = list(experiment.physical_qubits)
-        circuits = transpile(experiment.circuits(), experiment.backend, **transpile_opts)
-        experiment._postprocess_transpiled_circuits(circuits, **run_options)
+        circuits = self._transpile(experiment.circuits(), experiment.backend, **transpile_opts)
 
         # Run jobs
         jobs = experiment._run_jobs(circuits, **run_opts)
@@ -479,9 +478,27 @@ class BaseExperiment(ABC, StoreInitArgs):
         )
         self.analysis.options.update_options(**fields)
 
-    def _postprocess_transpiled_circuits(self, circuits: List[QuantumCircuit], **run_options):
-        """Additional post-processing of transpiled circuits before running on backend"""
-        pass
+    def _transpile(
+        self, circuits: List[QuantumCircuit], backend: Backend, **transpile_options
+    ) -> List[QuantumCircuit]:
+        """Transpile the experiment circuits.
+
+        This function is used to transpile the experiment circuits before sending them to
+        the backend. It can be overridden to define custom transpilation.
+        """
+        transpiled = transpile(circuits, backend, **transpile_options)
+
+        # TODO remove this deprecation after 0.3.0 release
+        if hasattr(self, "_postprocess_transpiled_circuits"):
+            warnings.warn(
+                "`BaseExperiment._postprocess_transpiled_circuits` is deprecated as of "
+                "qiskit-experiments 0.3.0 and will be removed in the 0.4.0 release."
+                " Use `BaseExperiment._transpile` instead.",
+                DeprecationWarning,
+            )
+            self._postprocess_transpiled_circuits(transpiled)  # pylint: disable=no-member
+
+        return transpiled
 
     def _metadata(self) -> Dict[str, any]:
         """Return experiment metadata for ExperimentData.
