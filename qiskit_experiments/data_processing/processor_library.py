@@ -180,6 +180,6 @@ def is_restless(experiment_data: ExperimentData, analysis_options: Options, inde
         if [rep_delay / t1_value < restless_threshold for t1_value in t1_values] == [
             True
         ] * num_qubits:
-            restless = True
+            return True
 
     return False
