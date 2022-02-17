@@ -144,8 +144,7 @@ class MockRestlessFineAmp(MockRestlessBackend):
         self._angle_per_gate = angle_per_gate
         super().__init__(rng_seed=rng_seed)
 
-        self.configuration().basis_gates.append("sx")
-        self.configuration().basis_gates.append("x")
+        self.configuration().basis_gates.extend(["sx", "x"])
 
     def _compute_outcome_probabilities(self, circuits: List[QuantumCircuit]):
         """Compute the probabilities of being in the excited state or
