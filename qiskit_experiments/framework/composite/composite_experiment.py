@@ -128,10 +128,9 @@ class CompositeExperiment(BaseExperiment):
             # Run and transpile options are always overridden
             if (
                 sub_exp.run_options != sub_exp._default_run_options()
-                or sub_exp.transpile_options != sub_exp._default_transpile_options()
             ):
                 warnings.warn(
-                    "Sub-experiment run and transpile options"
+                    "Sub-experiment run options"
                     " are overridden by composite experiment options."
                 )
             sub_exp._add_job_metadata(sub_metadata, jobs, **run_options)

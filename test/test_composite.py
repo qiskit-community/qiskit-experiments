@@ -60,7 +60,7 @@ class TestComposite(QiskitExperimentsTestCase):
 
         with self.assertWarnsRegex(
             Warning,
-            "Sub-experiment run and transpile options"
+            "Sub-experiment run options"
             " are overridden by composite experiment options.",
         ):
             self.assertEqual(par_exp.experiment_options, Options())
