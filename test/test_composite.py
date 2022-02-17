@@ -18,7 +18,8 @@ import uuid
 from test.fake_experiment import FakeExperiment, FakeAnalysis
 from test.base import QiskitExperimentsTestCase
 
-from qiskit import QuantumCircuit
+from qiskit import QuantumCircuit, Aer
+from qiskit.providers.aer import noise
 from qiskit.result import Result
 
 from qiskit_experiments.test.utils import FakeJob
@@ -29,6 +30,9 @@ from qiskit_experiments.framework import (
     Options,
     ExperimentData,
     BatchExperiment,
+    BaseExperiment,
+    BaseAnalysis,
+    AnalysisResultData
 )
 
 # pylint: disable=missing-raises-doc
@@ -525,3 +529,70 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
         # Check this is reflected in parallel experiment
         self.assertEqual(par_exp.analysis.component_analysis(0).options.option1, opt1_val)
         self.assertEqual(par_exp.analysis.component_analysis(1).options.option2, opt2_val)
+
+        
+class TestBatchTranspileOptions(QiskitExperimentsTestCase):
+    """
+    For batch experiments, circuits are transpiled with the transpile options of the 
+    sub-experiments
+    """
+    
+    class SimpleExperiment(BaseExperiment):
+        def __init__(self, qubits, backend=None):
+            super().__init__(qubits, analysis=TestBatchTranspileOptions.SimpleAnalysis(), backend=backend)
+        
+        def circuits(backend):
+            circ = QuantumCircuit(4, 4)
+            circ.h(0)
+            circ.cx(0, 3)
+            circ.barrier()
+            circ.measure(range(4), range(4))
+            return [circ]
+
+    class SimpleAnalysis(BaseAnalysis):
+        def _run_analysis(self, experiment_data):
+            analysis_results = [
+                AnalysisResultData(
+                    name="non-zero counts",
+                    value=len(experiment_data.data(0)["counts"])
+                ),
+            ]
+
+            return analysis_results, []
+    
+    def setUp(self):
+        super().setUp()
+
+        exp1 = self.SimpleExperiment(range(4))
+        exp2 = self.SimpleExperiment(range(4))
+        exp3 = self.SimpleExperiment(range(4))
+        batch1 = BatchExperiment([exp2, exp3])
+        self.batch2 =  BatchExperiment([exp1, batch1])
+
+        exp1.set_transpile_options(coupling_map=[[0, 1], [1, 3], [3, 2]])
+        exp2.set_transpile_options(coupling_map=[[0, 1], [1, 2], [2, 3]])
+
+        # exp3 circuit: two active qubits and six instructions: hadamard, cnot, four measurements.
+        # exp1 circuit: three active qubits (0, 1, 3) and seven instructions: hadamard, two 2Q gates, four measurements.
+        # exp2 circuit: four active qubits and eight instructions.
+    
+    def test_batch_transpiled_circuits(self):
+        """
+        For batch experiments, circuits are transpiled with the transpile options of the 
+        sub-experiments
+        """
+        circs = self.batch2._transpiled_circuits()
+        numbers_of_gates = [len(circ.data) for circ in circs]
+        self.assertEqual(set(numbers_of_gates), set([7, 8, 9]))
+
+    def test_batch_transpile_options_integrated(self):
+        backend = Aer.get_backend("aer_simulator")
+        noise_model = noise.NoiseModel()        
+        noise_model.add_all_qubit_quantum_error(noise.depolarizing_error(0.5, 2), ["cx", "swap"])
+
+        expdata = self.batch2.run(backend, noise_model=noise_model, shots=1000)
+        expdata.block_for_results()
+        
+        self.assertEqual(expdata.child_data(0).analysis_results(0).value, 8)
+        self.assertEqual(expdata.child_data(1).child_data(0).analysis_results(0).value, 16)
+        self.assertEqual(expdata.child_data(1).child_data(1).analysis_results(0).value, 4)
