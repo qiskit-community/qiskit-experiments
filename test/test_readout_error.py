@@ -16,8 +16,9 @@ A Tester for the Readout error experiment
 
 
 import unittest
-from test.base import QiskitExperimentsTestCase
 import numpy as np
+import json
+from test.base import QiskitExperimentsTestCase
 from qiskit.quantum_info.operators.predicates import matrix_equal
 from qiskit.providers.aer import AerSimulator
 from qiskit.test.mock import FakeParis
@@ -25,9 +26,11 @@ from qiskit_experiments.library.characterization import LocalReadoutError, Corre
 from qiskit_experiments.framework import ExperimentData
 from qiskit_experiments.framework import ParallelExperiment
 from qiskit_experiments.test.fake_service import FakeService
+from qiskit_experiments.framework.json import ExperimentEncoder, ExperimentDecoder
+from qiskit_experiments.library.quantum_volume import QuantumVolume
 
 
-class TestMitigation(QiskitExperimentsTestCase):
+class TestRedoutError(QiskitExperimentsTestCase):
     """Test Readout Error experiments"""
 
     def test_local_analysis(self):
@@ -168,6 +171,16 @@ class TestMitigation(QiskitExperimentsTestCase):
         exp_matrix = exp_res[0].value.assignment_matrix()
         load_matrix = load_res[0].value.assignment_matrix()
         self.assertTrue(matrix_equal(exp_matrix, load_matrix))
+
+    def test_json_serialization(self):
+        qubits = [0, 1]
+        backend = AerSimulator.from_backend(FakeParis())
+        exp = LocalReadoutError(qubits)
+        exp_data = exp.run(backend).block_for_results()
+        mitigator = exp_data.analysis_results(0).value
+        serialized = json.dumps(mitigator, cls=ExperimentEncoder)
+        loaded = json.loads(serialized, cls=ExperimentDecoder)
+        self.assertTrue(matrix_equal(mitigator.assignment_matrix(), loaded.assignment_matrix()))
 
 
 if __name__ == "__main__":
