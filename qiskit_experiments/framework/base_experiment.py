@@ -267,12 +267,10 @@ class BaseExperiment(ABC, StoreInitArgs):
         run_opts = run_opts.__dict__
 
         # Generate and transpile circuits
-        transpile_opts = copy.copy(experiment.transpile_options.__dict__)
-        transpile_opts["initial_layout"] = list(experiment.physical_qubits)
-        circuits = self._transpile(experiment.circuits(), experiment.backend, **transpile_opts)
+        transpiled_circuits = self._transpile(experiment.circuits(), experiment.backend)
 
         # Run jobs
-        jobs = experiment._run_jobs(circuits, **run_opts)
+        jobs = experiment._run_jobs(transpiled_circuits, **run_opts)
         experiment_data.add_jobs(jobs, timeout=timeout)
         experiment._add_job_metadata(experiment_data.metadata, jobs, **run_opts)
 
@@ -479,14 +477,16 @@ class BaseExperiment(ABC, StoreInitArgs):
         self.analysis.options.update_options(**fields)
 
     def _transpile(
-        self, circuits: List[QuantumCircuit], backend: Backend, **transpile_options
+        self, circuits: List[QuantumCircuit], backend: Backend
     ) -> List[QuantumCircuit]:
         """Transpile the experiment circuits.
 
         This function is used to transpile the experiment circuits before sending them to
         the backend. It can be overridden to define custom transpilation.
         """
-        transpiled = transpile(circuits, backend, **transpile_options)
+        transpile_opts = copy.copy(self.transpile_options.__dict__)
+        transpile_opts["initial_layout"] = list(self.physical_qubits)
+        transpiled = transpile(circuits, backend, **transpile_opts)
 
         # TODO remove this deprecation after 0.3.0 release
         if hasattr(self, "_postprocess_transpiled_circuits"):
