@@ -1,15 +1,36 @@
 Readout Mitigation
 ==================
 
-Readout mitigation is part of ``qiskit-terra``. The readout mitigators
-can be initalized based on existing backend data, or via a readout
-mitigation experiment.
+Readout errors affect quantum computation during the measurement of the
+qubits in a quantum device. By characterizing the readout errors, it is
+possible to construct a *readout error mitigator* that is used both to
+obtain a more accurate distribution of the outputs, and more accurate
+measurements of expectation value for measurables.
 
-In a readout mitigation experiment, simple circuits are generated for
-various combinations of “0” and “1” readout values. The results give us
-a matrix describing the probability to obtain a wrong measurement. This
-matrix is used to initialize the readout mitigation object, which is
-given as the result of the expriment.
+The readout mitigator is generated from an *assignment matrix*: a
+:math:`2^n \times 2^n` matrix :math:`A` such that :math:`A_{y,x}` is the
+probability to observe :math:`y` given the true outcome should be
+:math:`x`. The assignment matrix is used to compute the *mitigation
+matrix* used in the readout error mitigation process itself.
+
+A *Local readout mitigator* works under the assumption that readout
+errors are mostly *local*, meaning readout errors for different qubits
+are independent of each other. In this case, the assignment matrix is
+the tensor product of :math:`n` :math:`2 \times 2` matrices, one for
+each qubit, making it practical to store the assignment matrix in
+implicit form, by storing the individual :math:`2 \times 2` assignment
+matrices. The corresponding class in Qiskit is the `Local readout
+mitigator <https://qiskit.org/documentation/stubs/qiskit.result.LocalReadoutMitigator.html%3E>`__
+in ``qiskit-terra``.
+
+A *Correlated readout mitigator* uses the full :math:`2^n \times 2^n`
+assignment matrix, meaning it can only be used for small values of
+:math:`n`. The corresponding class in Qiskit is the `Correlated readout
+mitigator <https://qiskit.org/documentation/stubs/qiskit.result.CorrelatedReadoutMitigator.html>`__
+in ``qiskit-terra``.
+
+This notebook demonstrates the usage of both the local and correlated
+experiments to generate the corresponding mitigators.
 
 .. jupyter-execute::
 
@@ -17,17 +38,17 @@ given as the result of the expriment.
     import matplotlib.pyplot as plt
     from qiskit import QuantumCircuit
     from qiskit.visualization import plot_histogram
-    from qiskit_experiments.library import ReadoutMitigationExperiment
+    from qiskit_experiments.library import LocalReadoutError, CorrelatedReadoutError
     # For simulation
     from qiskit.providers.aer import AerSimulator
     from qiskit.test.mock import FakeParis
-    
+
     from qiskit.result.mitigation.utils import (
         expval_with_stddev,
         str2diag,
         counts_probability_vector
     )
-    
+
     backend = AerSimulator.from_backend(FakeParis())
 
 .. jupyter-execute::
@@ -45,14 +66,15 @@ circuits, one for all “0” and one for all “1” results.
 
 .. jupyter-execute::
 
-    exp = ReadoutMitigationExperiment(qubits)
+    exp = LocalReadoutError(qubits)
     for c in exp.circuits():
         print(c)
 
 
 .. jupyter-execute::
 
-    result = exp.run(backend).block_for_results()
+    exp.analysis.set_options(plot=True)
+    result = exp.run(backend)
     mitigator = result.analysis_results(0).value
 
 The resulting measurement matrix can be illustrated by comparing it to
@@ -61,6 +83,7 @@ the identity.
 .. jupyter-execute::
 
     result.figure(0)
+
 
 Mitigation matrices
 -------------------
@@ -145,9 +168,10 @@ a few qubits.
 
     qubits = [0,3]
     num_qubits = len(qubits)
-    exp = ReadoutMitigationExperiment(qubits, method="correlated")
+    exp = CorrelatedReadoutError(qubits)
     for c in exp.circuits():
         print(c)
+
 
 .. jupyter-execute::
 

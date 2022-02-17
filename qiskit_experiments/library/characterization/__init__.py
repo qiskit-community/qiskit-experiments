@@ -43,6 +43,8 @@ Experiments
     FineDrag
     FineXDrag
     FineSXDrag
+    LocalReadoutError
+    CorrelatedReadoutError
     ResonatorSpectroscopy
 
 
@@ -65,6 +67,9 @@ Analysis
     RamseyXYAnalysis
     ReadoutAngleAnalysis
     ResonatorSpectroscopyAnalysis
+    LocalReadoutErrorAnalysis
+    CorrelatedReadoutErrorAnalysis
+
 """
 
 from .analysis import (
@@ -80,6 +85,8 @@ from .analysis import (
     CrossResonanceHamiltonianAnalysis,
     ReadoutAngleAnalysis,
     ResonatorSpectroscopyAnalysis,
+    LocalReadoutErrorAnalysis,
+    CorrelatedReadoutErrorAnalysis,
 )
 
 from .t1 import T1
@@ -97,4 +104,6 @@ from .fine_frequency import FineFrequency
 from .drag import RoughDrag
 from .readout_angle import ReadoutAngle
 from .fine_drag import FineDrag, FineXDrag, FineSXDrag
+from .local_readout_error import LocalReadoutError
+from .correlated_readout_error import CorrelatedReadoutError
 from .resonator_spectroscopy import ResonatorSpectroscopy
