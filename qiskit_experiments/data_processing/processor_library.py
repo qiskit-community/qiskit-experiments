@@ -147,7 +147,7 @@ def is_restless(experiment_data: ExperimentData, analysis_options: Options, inde
               of the experiment.
 
     Raises:
-        DataProcessorError: if excited state promotion readout is enabled.
+        DataProcessorError: if excited state promotion readout is enabled in a restless setting.
         DataProcessorError: if the experiment is run with more than on qubit.
     """
 
