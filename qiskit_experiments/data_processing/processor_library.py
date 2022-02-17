@@ -182,4 +182,4 @@ def is_restless(experiment_data: ExperimentData, analysis_options: Options, inde
         ] * num_qubits:
             restless = True
 
-    return restless
+    return False
