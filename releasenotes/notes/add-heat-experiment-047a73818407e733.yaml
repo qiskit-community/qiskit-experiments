@@ -1,0 +1,24 @@
+---
+features:
+  - |
+    New experiment module :mod:`qiskit_experiments.library.hamiltonian`
+    has been added. This module collects experiments to characterize low level
+    system properties, such as device Hamiltonian.
+  - |
+    The `Hamiltonian Error Amplifying Tomography` (HEAT) experiment has been
+    added. This experiment consists of the base class
+    :class:`~qiskit_experiments.library.hamiltonian.BatchHeatHelper`
+    and :class:`~qiskit_experiments.library.hamiltonian.HeatElement`
+    class for experiment developers to implement their own HEAT experiment
+    for arbitrary generator and for specific interrogated error axis.
+    This can be realized by designing proper initialization circuit,
+    echo sequence, and measurement axis against the interrogated error axis.
+
+    The HEAT experiment specific to the ZX-type generator
+    :class:`~qiskit_experiments.library.hamiltonian.ZXHeat` is also added
+    along with pre-configured experiments for
+    X (:class:`~qiskit_experiments.library.hamiltonian.ZX90HeatXError`),
+    Y (:class:`~qiskit_experiments.library.hamiltonian.ZX90HeatYError`),
+    Z (:class:`~qiskit_experiments.library.hamiltonian.ZX90HeatZError`)
+    error axis. These experiments are typically used to characterize
+    the Cross Resonance gate Hamiltonian implementing the CNOT gate.

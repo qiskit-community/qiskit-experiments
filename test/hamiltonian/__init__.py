@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -10,13 +10,4 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Composite Experiments"""
-
-# Base classes
-from .composite_analysis import CompositeAnalysis
-
-# Composite experiment classes
-from .parallel_experiment import ParallelExperiment
-from .batch_experiment import BatchExperiment
-
-from .composite_experiment import sync_experiment_options, sync_transpile_options
+"""Test cases for Hamiltonian characterization."""

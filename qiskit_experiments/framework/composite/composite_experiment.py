@@ -13,8 +13,9 @@
 Composite Experiment abstract base class.
 """
 
-from typing import List, Sequence, Optional, Union
+from typing import List, Sequence, Optional, Union, Type
 from abc import abstractmethod
+import functools
 import warnings
 from qiskit.providers.backend import Backend
 from qiskit_experiments.framework import BaseExperiment, ExperimentData
@@ -140,3 +141,75 @@ class CompositeExperiment(BaseExperiment):
         for expr in self._experiments:
             if not isinstance(expr, CompositeExperiment):
                 expr._postprocess_transpiled_circuits(circuits, **run_options)
+
+
+def sync_transpile_options(
+    composite_cls: Type[CompositeExperiment],
+) -> Type[CompositeExperiment]:
+    """A class decorator that overrides the transpile option setter method.
+
+    This method overrides the behavior of :meth:`set_transpile_options` method.
+    The option values set to the composite instance
+    will be propagated through all component experiments.
+
+    Args:
+        composite_cls: CompositeExperiment subclass to decorate.
+
+    Returns:
+        Composite experiment that implements option synchronization.
+
+    Raises:
+        TypeError: When class is not subclass of :class:`CompositeExperiment`
+    """
+    if not issubclass(composite_cls, CompositeExperiment):
+        raise TypeError("Class is not composite experiment. Cannot override method.")
+
+    options_setter = getattr(composite_cls, "set_transpile_options")
+
+    @functools.wraps(options_setter)
+    def sync_opts(instance, **fields):
+        options_setter(instance, **fields)
+        # set the same options to component experiments
+        for comp in instance.component_experiment():
+            comp.set_transpile_options(**fields)
+
+    # override set method
+    setattr(composite_cls, "set_transpile_options", sync_opts)
+
+    return composite_cls
+
+
+def sync_experiment_options(
+    composite_cls: Type[CompositeExperiment],
+) -> Type[CompositeExperiment]:
+    """A class decorator that overrides the experiment option setter method.
+
+    This method overrides the behavior of :meth:`set_experiment_options` method.
+    The option values set to the composite instance
+    will be propagated through all component experiments.
+
+    Args:
+        composite_cls: CompositeExperiment subclass to decorate.
+
+    Returns:
+        Composite experiment that implements option synchronization.
+
+    Raises:
+        TypeError: When class is not subclass of :class:`CompositeExperiment`
+    """
+    if not issubclass(composite_cls, CompositeExperiment):
+        raise TypeError("Class is not composite experiment. Cannot override method.")
+
+    options_setter = getattr(composite_cls, "set_experiment_options")
+
+    @functools.wraps(options_setter)
+    def sync_opts(instance, **fields):
+        options_setter(instance, **fields)
+        # set the same options to component experiments
+        for comp in instance.component_experiment():
+            comp.set_experiment_options(**fields)
+
+    # override set method
+    setattr(composite_cls, "set_experiment_options", sync_opts)
+
+    return composite_cls
