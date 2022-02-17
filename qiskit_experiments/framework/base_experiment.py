@@ -476,9 +476,7 @@ class BaseExperiment(ABC, StoreInitArgs):
         )
         self.analysis.options.update_options(**fields)
 
-    def _transpile(
-        self, circuits: List[QuantumCircuit], backend: Backend
-    ) -> List[QuantumCircuit]:
+    def _transpile(self, circuits: List[QuantumCircuit], backend: Backend) -> List[QuantumCircuit]:
         """Transpile the experiment circuits.
 
         This function is used to transpile the experiment circuits before sending them to
