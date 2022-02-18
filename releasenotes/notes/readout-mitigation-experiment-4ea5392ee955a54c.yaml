@@ -1,5 +1,5 @@
 ---
 features:
   - |
-    Added a new experiment (`qiskit_experiments.library import ReadoutMitigationExperiment`)
-    for calibrating readout mitigators.
+    Added two new experiments (:class:`qiskit_experiments.library.LocalReadoutError` and :class:`qiskit_experiments.library.CorrelatedReadoutError`)
+    for characterizing the readout error of devices.
