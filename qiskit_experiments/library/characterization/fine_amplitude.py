@@ -344,7 +344,7 @@ class FineZXAmplitude(FineAmplitude):
         # Failing to do so causes issues with QuantumCircuit.calibrations.
         gate = Gate("szx", 2, [])
 
-        super().__init__(qubits, gate, backend=backend, measurement_qubits=[qubits[1]])
+        super().__init__(qubits, gate, backend=backend, measurement_qubits=[1])
         # Set default analysis options
         self.analysis.set_options(
             angle_per_gate=np.pi / 2,
