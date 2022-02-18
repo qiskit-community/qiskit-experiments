@@ -1,0 +1,10 @@
+---
+upgrade:
+  - |
+    The component experiment circuits of :class:`.ParallelExperiment` are
+    now explicitly transpiled using that component experiments
+    :meth:`~.BaseExperiment.transpile_options` before being combined into
+    the circuits returned by :meth:`.ParallelExperiment.circuits`. 
+    Any transpile options set on the Parallel Experiment will then be
+    applied to the transpilation of these combined circuits before
+    execution on a backend.
