@@ -67,6 +67,7 @@ Some experiments may be also used for gate calibration.
     ~characterization.FineAmplitude
     ~characterization.FineXAmplitude
     ~characterization.FineSXAmplitude
+    ~characterization.FineZXAmplitude
     ~characterization.Rabi
     ~characterization.EFRabi
     ~characterization.RamseyXY
@@ -140,6 +141,7 @@ from .characterization import (
     FineAmplitude,
     FineXAmplitude,
     FineSXAmplitude,
+    FineZXAmplitude,
     RamseyXY,
     FineFrequency,
     ReadoutAngle,
