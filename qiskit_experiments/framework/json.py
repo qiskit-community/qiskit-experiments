@@ -34,6 +34,7 @@ from qiskit.circuit import ParameterExpression, QuantumCircuit, qpy_serializatio
 from qiskit.circuit.library import BlueprintCircuit
 from qiskit.quantum_info import DensityMatrix
 from qiskit.quantum_info.operators.channel.quantum_channel import QuantumChannel
+from qiskit.result import LocalReadoutMitigator, CorrelatedReadoutMitigator
 from qiskit_experiments.version import __version__
 
 
@@ -499,6 +500,14 @@ class ExperimentEncoder(json.JSONEncoder):
                 "input_dims": obj.input_dims(),
                 "output_dims": obj.output_dims(),
             }
+            return _serialize_object(obj, settings=settings)
+        if isinstance(obj, LocalReadoutMitigator):
+            # Temporary handling until serialization is added to terra stable release
+            settings = {"assignment_matrices": obj._assignment_mats, "qubits": obj.qubits}
+            return _serialize_object(obj, settings=settings)
+        if isinstance(obj, CorrelatedReadoutMitigator):
+            # Temporary handling until serialization is added to terra stable release
+            settings = {"assignment_matrix": obj._assignment_mat, "qubits": obj.qubits}
             return _serialize_object(obj, settings=settings)
         if isinstance(obj, DensityMatrix):
             # Temporary fix for incorrect settings in qiskit-terra
