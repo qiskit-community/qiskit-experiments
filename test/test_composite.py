@@ -537,12 +537,21 @@ class TestBatchTranspileOptions(QiskitExperimentsTestCase):
     """
 
     class SimpleExperiment(BaseExperiment):
+        """
+        An experiment that creates a circuit of four qubits.
+        Qubits 1 and 2 are inactive.
+        Qubits 0 and 3 form a Bell state.
+        The purpose: we will test with varying coupling maps, spanning from a coupling map that
+        directly connects qubits 0 and 3 (hence qubits 1 and 2 remains inactive also in the
+        transpiled circuit) to a coupling map with distance 3 between qubits 0 and 3.
+        """
+
         def __init__(self, qubits, backend=None):
             super().__init__(
                 qubits, analysis=TestBatchTranspileOptions.SimpleAnalysis(), backend=backend
             )
 
-        def circuits(backend):
+        def circuits(self):
             circ = QuantumCircuit(4, 4)
             circ.h(0)
             circ.cx(0, 3)
@@ -551,6 +560,11 @@ class TestBatchTranspileOptions(QiskitExperimentsTestCase):
             return [circ]
 
     class SimpleAnalysis(BaseAnalysis):
+        """
+        The number of non-zero counts is equal to
+        2^(distance between qubits 0 and 3 in the transpiled circuit + 1)
+        """
+
         def _run_analysis(self, experiment_data):
             analysis_results = [
                 AnalysisResultData(
@@ -573,7 +587,8 @@ class TestBatchTranspileOptions(QiskitExperimentsTestCase):
         exp2.set_transpile_options(coupling_map=[[0, 1], [1, 2], [2, 3]])
 
         # exp3 circuit: two active qubits and six instructions: hadamard, cnot, four measurements.
-        # exp1 circuit: three active qubits (0, 1, 3) and seven instructions: hadamard, two 2Q gates, four measurements.
+        # exp1 circuit: three active qubits (0, 1, 3) and seven instructions: hadamard,
+        #               two 2Q gates, four measurements.
         # exp2 circuit: four active qubits and eight instructions.
 
     def test_batch_transpiled_circuits(self):
@@ -586,6 +601,11 @@ class TestBatchTranspileOptions(QiskitExperimentsTestCase):
         self.assertEqual(set(numbers_of_gates), set([7, 8, 9]))
 
     def test_batch_transpile_options_integrated(self):
+        """
+        The goal is to verify that not only `_trasnpiled_circuits` works well
+        (`test_batch_transpiled_circuits` takes care of it) but that it's correctly called within
+        the entire flow of `BaseExperiment.run`.
+        """
         backend = Aer.get_backend("aer_simulator")
         noise_model = noise.NoiseModel()
         noise_model.add_all_qubit_quantum_error(noise.depolarizing_error(0.5, 2), ["cx", "swap"])

@@ -18,7 +18,6 @@ import numpy as np
 
 from qiskit import QiskitError
 from qiskit.providers import Backend
-from qiskit.test.mock import FakeBackend
 from qiskit_experiments.framework.composite.batch_experiment import BatchExperiment
 from qiskit_experiments.library.characterization import (
     T1,
