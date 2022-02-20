@@ -76,6 +76,10 @@ class BatchExperiment(CompositeExperiment):
                 qubit_mapping = [self._qubit_map[qubit] for qubit in expr.physical_qubits]
 
             if isinstance(expr, BatchExperiment):
+                # Batch experiments don't contain their own native circuits.
+                # If to_trasnpile is True then the circuits will be transpiled at the non-batch
+                # experiments.
+                # Fetch the circuits from the sub-experiments.
                 expr_circuits = expr._batch_circuits(to_transpile)
             else:
                 if to_transpile:
@@ -83,7 +87,6 @@ class BatchExperiment(CompositeExperiment):
                 else:
                     expr_circuits = expr.circuits()
 
-            circuits = []
             for circuit in expr_circuits:
                 # Update metadata
                 circuit.metadata = {
@@ -94,9 +97,7 @@ class BatchExperiment(CompositeExperiment):
                 # Remap qubits if required
                 if qubit_mapping:
                     circuit = self._remap_qubits(circuit, qubit_mapping)
-                circuits.append(circuit)
-
-            batch_circuits.extend(circuits)
+                batch_circuits.append(circuit)
                 
         return batch_circuits
 
