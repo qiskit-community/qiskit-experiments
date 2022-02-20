@@ -106,4 +106,3 @@ class Tphi(BatchExperiment):
         self.set_experiment_options(delays_t1=delays_t1, delays_t2=delays_t2)
         # CompositeAnalysis accept the component analysis classes in its constructor
         self.analysis = TphiAnalysis(analyses=[T1Analysis(), T2RamseyAnalysis()])
-

@@ -98,7 +98,7 @@ class BatchExperiment(CompositeExperiment):
                 if qubit_mapping:
                     circuit = self._remap_qubits(circuit, qubit_mapping)
                 batch_circuits.append(circuit)
-                
+
         return batch_circuits
 
     def _remap_qubits(self, circuit, qubit_mapping):
