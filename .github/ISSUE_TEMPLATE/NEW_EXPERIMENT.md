@@ -81,6 +81,6 @@ Include in your testing running the experiment in the context of `ParallelExperi
 - [ ] Write a tutorial for your experiment. Follow the guideline [here](https://github.com/Qiskit/qiskit-experiments/blob/main/docs/tutorials/GUIDELINES.md)
 - [ ] Add a new release note. Follow the guideline [here](https://github.com/Qiskit/qiskit-experiments/blob/main/CONTRIBUTING.md#adding-a-new-release-note) 
 - [ ] Ask for a final review of the documentation and implementation
-- [ ] Celebrate !
+- [ ] Celebrate!
 
   
