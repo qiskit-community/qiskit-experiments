@@ -20,7 +20,7 @@ your proposal.
 What is the experiment class name? This name will also be used in the API documentation and tutorial.
 
 ### Experiment type
-What type the experiment is? Characterization, calibration, verification, validation, else? 
+What is the experiment type? Characterization, calibration, verification, validation, or other? 
 
 ### Experiment protocol
 Provide a concise description of the experiment. Make sure you cover the following aspects:  
