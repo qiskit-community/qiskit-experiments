@@ -222,11 +222,9 @@ class StandardRB(BaseExperiment):
                     return meta
         return None
 
-    def _transpile(
-        self, circuits: List[QuantumCircuit], backend: Backend, **transpile_options
-    ) -> List[QuantumCircuit]:
-        """Transpile the experiment circuits."""
-        transpiled = super()._transpile(circuits, backend, **transpile_options)
+    def _transpiled_circuits(self, backend: Backend) -> List[QuantumCircuit]:
+        """Return a list of experiment circuits, transpiled."""
+        transpiled = super()._transpiled_circuits(backend)
         for c in transpiled:
             meta = self._get_circuit_metadata(c)
             if meta is not None:
