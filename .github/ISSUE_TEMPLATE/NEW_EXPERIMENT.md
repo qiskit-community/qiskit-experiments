@@ -31,7 +31,7 @@ Provide a concise description of the experiment. Make sure you cover the followi
 ### Experiment analysis
 Provide a concise description of the experiment's analysis. Make sure you cover the following aspects:
 * What is the main fit model for the experiment? 
-* What are the main fit parameters?
+* What are the main fit parameters? Specify parameter defaults and bounds where relevant
 * How would you evaluate whether the fit is good or bad?
 
 ### References 
