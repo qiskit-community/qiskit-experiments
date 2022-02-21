@@ -267,7 +267,7 @@ class BaseExperiment(ABC, StoreInitArgs):
         run_opts = run_opts.__dict__
 
         # Generate and transpile circuits
-        transpiled_circuits = self._transpiled_circuits(experiment.backend)
+        transpiled_circuits = experiment._transpiled_circuits(experiment.backend)
 
         # Run jobs
         jobs = experiment._run_jobs(transpiled_circuits, **run_opts)
