@@ -81,11 +81,10 @@ class BatchExperiment(CompositeExperiment):
                 # experiments.
                 # Fetch the circuits from the sub-experiments.
                 expr_circuits = expr._batch_circuits(to_transpile)
+            elif to_transpile:
+                expr_circuits = expr._transpiled_circuits()
             else:
-                if to_transpile:
-                    expr_circuits = expr._transpiled_circuits()
-                else:
-                    expr_circuits = expr.circuits()
+                expr_circuits = expr.circuits()
 
             for circuit in expr_circuits:
                 # Update metadata
