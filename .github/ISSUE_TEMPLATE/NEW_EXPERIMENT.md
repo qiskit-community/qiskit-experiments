@@ -59,7 +59,7 @@ These are the steps required for adding a new experiment to qiskit-experiments. 
 in order and get the proper review approvals from the qiskit-experiments core team before moving on to subsequent steps 
 in the workflow. 
 
-NOTE: An experiment PR failing to complete all the workflow steps below will not be merged !
+NOTE: An experiment PR failing to complete all the workflow steps below will not be merged!
 
 - [ ] Complete the proposal section above and have your proposal reviewed and approved 
 - [ ] Open a PR and link it to the new experiment issue
