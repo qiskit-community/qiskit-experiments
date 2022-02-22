@@ -641,10 +641,8 @@ class RestlessNode(DataAction, ABC):
         self._n_shots = len(data[0])
         self._n_circuits = len(data)
 
-        datum = np.array(data)
-
         if self._validate:
-            if datum.shape != (self._n_circuits, self._n_shots):
+            if data.shape != (self._n_circuits, self._n_shots):
                 raise DataProcessorError(
                     f"The datum given to {self.__class__.__name__} does not convert "
                     "of an array with dimension (number of circuit, number of shots)."
