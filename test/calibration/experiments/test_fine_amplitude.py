@@ -135,7 +135,6 @@ class TestSpecializations(QiskitExperimentsTestCase):
         self.assertEqual(exp.analysis.options.phase_offset, np.pi / 2)
         self.assertEqual(exp.experiment_options.gate, XGate())
 
-    # @unittest.skip("Gates are not yet serializable")
     def test_x_roundtrip_serializable(self):
         """Test round trip JSON serialization"""
         exp = FineXAmplitude(0)
@@ -154,6 +153,11 @@ class TestSpecializations(QiskitExperimentsTestCase):
         self.assertEqual(exp.analysis.options.angle_per_gate, np.pi / 2)
         self.assertEqual(exp.analysis.options.phase_offset, np.pi)
         self.assertEqual(exp.experiment_options.gate, SXGate())
+
+    def test_sx_roundtrip_serializable(self):
+        """Test round trip JSON serialization"""
+        exp = FineSXAmplitude(0)
+        self.assertRoundTripSerializable(exp, self.json_equiv)
 
 
 class TestFineAmplitudeCal(QiskitExperimentsTestCase):
@@ -286,5 +290,19 @@ class TestFineAmplitudeCal(QiskitExperimentsTestCase):
     #@unittest.skip("Calbrations are not yet serializable")
     def test_roundtrip_serializable(self):
         """Test round trip JSON serialization"""
+
+        import json
+        from qiskit_experiments.framework import ExperimentDecoder, ExperimentEncoder
+
+
         exp = FineSXAmplitudeCal(0, self.cals, "sx")
+
+        print(exp.config())
+        print()
+
+        encoded = json.dumps(exp, cls=ExperimentEncoder)
+        decoded = json.loads(encoded, cls=ExperimentDecoder)
+
+        print(decoded.config())
+
         self.assertRoundTripSerializable(exp, self.json_equiv)
