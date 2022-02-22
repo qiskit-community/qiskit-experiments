@@ -622,7 +622,7 @@ class RestlessNode(DataAction, ABC):
         self._n_shots = None
         self._n_circuits = None
 
-    def _format_data(self, data: Any) -> Any:
+    def _format_data(self, data: np.ndarray) -> np.ndarray:
         """Convert the data to an array.
 
         This node will also set all the attributes needed to process the data such as
@@ -652,7 +652,7 @@ class RestlessNode(DataAction, ABC):
 
         return data
 
-    def _reorder(self, unordered_data: np.array) -> np.array:
+    def _reorder(self, unordered_data: np.ndarray) -> np.ndarray:
         """Reorder the measured data according to the measurement sequence.
 
         Here, is assumed that the inner loop of the measurement is done over the circuits
@@ -713,7 +713,7 @@ class RestlessToCounts(RestlessNode):
         super().__init__(validate)
         self._num_qubits = num_qubits
 
-    def _process(self, data: np.array) -> np.array:
+    def _process(self, data: np.ndarray) -> np.ndarray:
         """Reorder the shots and assign values to them based on the previous outcome.
 
         Args:
