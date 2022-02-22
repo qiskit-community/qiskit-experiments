@@ -73,14 +73,13 @@ folders
 different qubits. Verify this also on a real device
 - [ ] Verify that figures look OK: for regular experiments, parallel experiments, aggregated experiments
 - [ ] Verify that experiment data is properly saved to and load from the results DB (experiments service), and that your
-experiment data is displayed correctly in the results DB webpage. 
-- [ ] Add unit testing for the experiment and analysis classes. If needed implement a mock-backend for your experiment. 
+experiment data is displayed correctly in the results DB webpage
+- [ ] Add unit testing for the experiment and analysis classes. If needed implement a mock-backend for your experiment 
 Include in your testing running the experiment in the context of `ParallelExperiment`
-- [ ] Ask for a detailed implementation review
 - [ ] Write API docs for all your API methods. Follow the guideline [here](https://github.com/Qiskit/qiskit-experiments/blob/main/CONTRIBUTING.md)
 - [ ] Write a tutorial for your experiment. Follow the guideline [here](https://github.com/Qiskit/qiskit-experiments/blob/main/docs/tutorials/GUIDELINES.md)
 - [ ] Add a new release note. Follow the guideline [here](https://github.com/Qiskit/qiskit-experiments/blob/main/CONTRIBUTING.md#adding-a-new-release-note) 
-- [ ] Ask for a final review of the documentation and implementation
+- [ ] Ask for a final review for the implementation, documentation and testing
 - [ ] Celebrate!
 
   
