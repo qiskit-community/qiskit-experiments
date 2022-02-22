@@ -22,8 +22,10 @@ from qiskit.providers.backend import Backend
 from qiskit_experiments.framework import BaseExperiment, Options
 from qiskit_experiments.library.characterization.analysis import FineAmplitudeAnalysis
 
+from qiskit_experiments.calibration_management.restless_mix_in import RestlessEnabledExperiment
 
-class FineAmplitude(BaseExperiment):
+
+class FineAmplitude(RestlessEnabledExperiment):
     r"""Error amplifying fine amplitude calibration experiment.
 
     # section: overview
