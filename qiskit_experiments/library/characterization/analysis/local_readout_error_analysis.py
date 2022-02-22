@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2021, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -10,12 +10,11 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """
-Measurement calibration analysis classes
+Analysis class to characterize local readout error
 """
 from typing import List, Tuple
 import numpy as np
 import matplotlib.pyplot as plt
-from qiskit.result import CorrelatedReadoutMitigator
 from qiskit.result import LocalReadoutMitigator
 from qiskit.result import marginal_counts
 from qiskit_experiments.framework import ExperimentData
@@ -23,72 +22,32 @@ from qiskit_experiments.framework.matplotlib import get_non_gui_ax
 from qiskit_experiments.framework import BaseAnalysis, AnalysisResultData, Options
 
 
-class CorrelatedMitigationAnalysis(BaseAnalysis):
-    """
-    Measurement correction analysis for a full calibration
-    """
+class LocalReadoutErrorAnalysis(BaseAnalysis):
+    r"""
+    Local readout error characterization analysis
+    # section: overview
 
-    def _run_analysis(
-        self, experiment_data: ExperimentData, **options
-    ) -> Tuple[List[AnalysisResultData], List["matplotlib.figure.Figure"]]:
-        data = experiment_data.data()
-        qubits = experiment_data.metadata["physical_qubits"]
-        labels = [datum["metadata"]["label"] for datum in data]
-        matrix = self._generate_matrix(data, labels)
-        result_mitigator = CorrelatedReadoutMitigator(matrix, qubits=qubits)
-        analysis_results = [AnalysisResultData("Correlated Readout Mitigator", result_mitigator)]
-        ax = options.get("ax", None)
-        figures = [self._plot_calibration(matrix, labels, ax)]
-        return analysis_results, figures
+       This class generates the assignment matrices characterizing the
+       readout error for each of the given qubits from the experiment result,
+       and returns the resulting :class:`~qiskit.result.LocalReadoutMitigator`
 
-    def _generate_matrix(self, data, labels) -> np.array:
-        list_size = len(labels)
-        matrix = np.zeros([list_size, list_size], dtype=float)
-        # matrix[i][j] is the probability of counting i for expected j
-        for datum in data:
-            expected_outcome = datum["metadata"]["label"]
-            j = labels.index(expected_outcome)
-            total_counts = sum(datum["counts"].values())
-            for measured_outcome, count in datum["counts"].items():
-                i = labels.index(measured_outcome)
-                matrix[i][j] = count / total_counts
-        return matrix
+       Each such matrix is a :math:`2\times 2` matrix :math:`A`. Such that :math:`A_{y,x}`
+       is the probability to observe :math:`y` given the true outcome should be :math:`x`,
+       where :math:`x,y \in \left\{0,1\right\}` can be 0 and 1.
 
-    def _plot_calibration(self, matrix, labels, ax=None) -> "matplotlib.figure.Figure":
-        """
-        Plot the calibration matrix (2D color grid plot).
+       In the experiment, two circuits are constructed - one for 0 outcome for all
+       qubits and one for 1 outcome. From the observed results on the circuit, the
+       probability for each :math:`x,y` is determined, and :math:`A_{y,x}` is set accordingly.
 
-        Args:
-            matrix: calibration matrix to plot
-            ax (matplotlib.axes): settings for the graph
+       Analysis Results:
+           * "Local Readout Mitigator": The :class:`~qiskit.result.LocalReadoutMitigator`.
 
-        Returns:
-            The generated plot of the calibration matrix
+       Analysis Figures:
+           * (Optional) A figure of the assignment matrix.
+             Note: producing this figure scales exponentially with the number of qubits.
 
-        Raises:
-            QiskitError: if _cal_matrices was not set.
-
-            ImportError: if matplotlib was not installed.
-
-        """
-
-        if ax is None:
-            ax = get_non_gui_ax()
-        figure = ax.get_figure()
-        ax.matshow(matrix, cmap=plt.cm.binary, clim=[0, 1])
-        ax.set_xlabel("Prepared State")
-        ax.xaxis.set_label_position("top")
-        ax.set_ylabel("Measured State")
-        ax.set_xticks(np.arange(len(labels)))
-        ax.set_yticks(np.arange(len(labels)))
-        ax.set_xticklabels(labels)
-        ax.set_yticklabels(labels)
-        return figure
-
-
-class LocalMitigationAnalysis(BaseAnalysis):
-    """
-    Measurement correction analysis for a full calibration
+    # section: reference
+        .. ref_arxiv:: 1 2006.14044
     """
 
     @classmethod
@@ -100,7 +59,8 @@ class LocalMitigationAnalysis(BaseAnalysis):
             ax(AxesSubplot): Optional. A matplotlib axis object to draw.
         """
         options = super()._default_options()
-        options.plot = True
+        # since the plot size grows exponentially with the number of qubits, plotting is off by default
+        options.plot = False
         options.ax = None
         return options
 
@@ -122,11 +82,11 @@ class LocalMitigationAnalysis(BaseAnalysis):
         return analysis_results, figures
 
     def _generate_matrices(self, data) -> List[np.array]:
-        num_qubits = len(data[0]["metadata"]["label"])
+        num_qubits = len(data[0]["metadata"]["state_label"])
         counts = [None, None]
         for result in data:
             for i in range(2):
-                if result["metadata"]["label"] == str(i) * num_qubits:
+                if result["metadata"]["state_label"] == str(i) * num_qubits:
                     counts[i] = result["counts"]
         matrices = []
         for k in range(num_qubits):
@@ -156,6 +116,9 @@ def assignment_matrix_visualization(assignment_matrix, ax=None):
     ax.set_xticks(np.arange(n))
     ax.set_yticklabels(n * [""])
     ax.set_xticklabels(n * [""])
-    ax.set_xlabel(r"$|A - I|$", fontsize=16)
+    ax.set_title(r"$|A - I  |$", fontsize=16)
+    ax.set_xlabel("Prepared State")
+    ax.xaxis.set_label_position("top")
+    ax.set_ylabel("Measured State")
     figure.colorbar(im2, ax=ax)
     return figure
