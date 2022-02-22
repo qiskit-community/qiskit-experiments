@@ -267,7 +267,7 @@ class BaseExperiment(ABC, StoreInitArgs):
         run_opts = run_opts.__dict__
 
         # Generate and transpile circuits
-        transpiled_circuits = experiment._transpiled_circuits(experiment.backend)
+        transpiled_circuits = experiment._transpiled_circuits()
 
         # Run jobs
         jobs = experiment._run_jobs(transpiled_circuits, **run_opts)
@@ -359,14 +359,14 @@ class BaseExperiment(ABC, StoreInitArgs):
         # values for any explicit experiment options that affect circuit
         # generation
 
-    def _transpiled_circuits(self, backend: Backend) -> List[QuantumCircuit]:
+    def _transpiled_circuits(self) -> List[QuantumCircuit]:
         """Return a list of experiment circuits, transpiled.
 
         This function can be overridden to define custom transpilation.
         """
         transpile_opts = copy.copy(self.transpile_options.__dict__)
         transpile_opts["initial_layout"] = list(self.physical_qubits)
-        transpiled = transpile(self.circuits(), backend, **transpile_opts)
+        transpiled = transpile(self.circuits(), self.backend, **transpile_opts)
 
         # TODO remove this deprecation after 0.3.0 release
         if hasattr(self, "_postprocess_transpiled_circuits"):
