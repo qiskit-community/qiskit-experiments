@@ -64,10 +64,10 @@ def requires_cvxpy(func: Callable) -> Callable:
     return decorated_func
 
 
-def solve_iteratively(problem: Problem, iters: int, **solve_kwargs) -> None:
+def solve_iteratively(problem: Problem, initial_iters: int, scale: int = 2, **solve_kwargs) -> None:
     """Solve a CVXPY problem increasing iterations if solution is inaccurate.
 
-    If the problem is not solved with the initial ``iters`` value of
+    If the problem is not solved with the ``initial_iters`` value of
     iterations the number of iterations will be doubled up to the
     specified ``"max_iters"`` value in the solve_kwargs. If no max
     iters is specified this will be set to 4 times the initial iters
@@ -75,34 +75,37 @@ def solve_iteratively(problem: Problem, iters: int, **solve_kwargs) -> None:
 
     Args:
         problem: A CVXPY Problem to solve
-        iters: The initial number of max iterations to use when solving
-               the problem
+        initial_iters: The initial number of max iterations to use
+                       when solving the problem
+        scale: Scale factor for increasing the initial_iters up to
+               max_iters at each step (Default: 2).
         solve_kwargs: kwargs for problem.solve method.
 
     Raises:
         AnalysisError: If the CVXPY solve fails to return an optimal or
                        optimal_inaccurate solution.
     """
-    max_iters = solve_kwargs.get("max_iters", 4 * iters)
+    current_max_iters = initial_iters
+    final_max_iters = solve_kwargs.get("max_iters", 2 * scale * initial_iters)
     problem_solved = False
     while not problem_solved:
-        solve_kwargs["max_iters"] = iters
+        solve_kwargs["max_iters"] = current_max_iters
         problem.solve(**solve_kwargs)
         if problem.status in ["optimal_inaccurate", "optimal"]:
             problem_solved = True
         elif problem.status == "unbounded_inaccurate":
-            if iters < max_iters:
-                iters *= 2
+            if scale > 1 and current_max_iters < final_max_iters:
+                current_max_iters = int(scale * current_max_iters)
             else:
                 raise AnalysisError(
-                    "CVXPY fit failed, probably not enough iterations for the solver"
+                    "CVXPY solver failed to find an optimal solution in "
+                    "the given number of iterations. Try setting a larger "
+                    "value for 'max_iters' solver option."
                 )
-        elif problem.status in ["infeasible", "unbounded"]:
-            raise AnalysisError(
-                "CVXPY fit failed, problem status {} which should not happen".format(problem.status)
-            )
         else:
-            raise AnalysisError("CVXPY fit failed, reason unknown")
+            raise AnalysisError(
+                "CVXPY solver failed with problem status '{}'.".format(problem.status)
+            )
 
 
 def set_default_sdp_solver(solver_kwargs: dict):
@@ -123,9 +126,10 @@ def complex_matrix_variable(
     Args:
         dim: The dimension of the complex square matrix.
         hermitian: If True add constraint that the matrix is Hermitian.
+                   (Default: False).
         psd: If True add a constraint that the matrix is positive
-             semidefinite.
-        trace: If True add constraint that the trace of the matrix is
+             semidefinite (Default: False).
+        trace: Optional, add a constraint that the trace of the matrix is
                the specified value.
 
     Returns:
