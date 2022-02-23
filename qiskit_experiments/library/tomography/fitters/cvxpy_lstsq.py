@@ -17,12 +17,12 @@ from typing import Optional, Dict, Tuple
 import numpy as np
 
 from qiskit_experiments.library.tomography.basis import (
-    BaseFitterMeasurementBasis,
-    BaseFitterPreparationBasis,
+    MeasurementBasis,
+    PreparationBasis,
 )
 from . import cvxpy_utils
 from .cvxpy_utils import cvxpy
-from . import fitter_utils
+from . import lstsq_utils
 
 
 @cvxpy_utils.requires_cvxpy
@@ -31,8 +31,10 @@ def cvxpy_linear_lstsq(
     shot_data: np.ndarray,
     measurement_data: np.ndarray,
     preparation_data: np.ndarray,
-    measurement_basis: Optional[BaseFitterMeasurementBasis] = None,
-    preparation_basis: Optional[BaseFitterPreparationBasis] = None,
+    measurement_basis: Optional[MeasurementBasis] = None,
+    preparation_basis: Optional[PreparationBasis] = None,
+    measurement_qubits: Optional[Tuple[int]] = None,
+    preparation_qubits: Optional[Tuple[int]] = None,
     psd: bool = True,
     trace_preserving: bool = False,
     trace: Optional[float] = None,
@@ -96,8 +98,14 @@ def cvxpy_linear_lstsq(
         shot_data: basis measurement total shot data.
         measurement_data: measurement basis indice data.
         preparation_data: preparation basis indice data.
-        measurement_basis: measurement matrix basis.
+        measurement_basis: Optional, measurement matrix basis.
         preparation_basis: Optional, preparation matrix basis.
+        measurement_qubits: Optional, the physical qubits that were measured.
+                            If None they are assumed to be [0, ..., M-1] for
+                            M measured qubits.
+        preparation_qubits: Optional, the physical qubits that were prepared.
+                            If None they are assumed to be [0, ..., N-1] for
+                            N preparated qubits.
         psd: If True rescale the eigenvalues of fitted matrix to be positive
              semidefinite (default: True)
         trace_preserving: Enforce the fitted matrix to be
@@ -114,13 +122,15 @@ def cvxpy_linear_lstsq(
     Returns:
         The fitted matrix rho that maximizes the least-squares likelihood function.
     """
-    basis_matrix, probability_data = fitter_utils.lstsq_data(
+    basis_matrix, probability_data = lstsq_utils.lstsq_data(
         outcome_data,
         shot_data,
         measurement_data,
         preparation_data,
         measurement_basis=measurement_basis,
         preparation_basis=preparation_basis,
+        measurement_qubits=measurement_qubits,
+        preparation_qubits=preparation_qubits,
     )
 
     if weights is not None:
@@ -179,8 +189,10 @@ def cvxpy_gaussian_lstsq(
     shot_data: np.ndarray,
     measurement_data: np.ndarray,
     preparation_data: np.ndarray,
-    measurement_basis: Optional[BaseFitterMeasurementBasis] = None,
-    preparation_basis: Optional[BaseFitterPreparationBasis] = None,
+    measurement_basis: Optional[MeasurementBasis] = None,
+    preparation_basis: Optional[PreparationBasis] = None,
+    measurement_qubits: Optional[Tuple[int]] = None,
+    preparation_qubits: Optional[Tuple[int]] = None,
     psd: bool = True,
     trace_preserving: bool = False,
     trace: Optional[float] = None,
@@ -224,8 +236,14 @@ def cvxpy_gaussian_lstsq(
         shot_data: basis measurement total shot data.
         measurement_data: measurement basis indice data.
         preparation_data: preparation basis indice data.
-        measurement_basis: measurement matrix basis.
+        measurement_basis: Optional, measurement matrix basis.
         preparation_basis: Optional, preparation matrix basis.
+        measurement_qubits: Optional, the physical qubits that were measured.
+                            If None they are assumed to be [0, ..., M-1] for
+                            M measured qubits.
+        preparation_qubits: Optional, the physical qubits that were prepared.
+                            If None they are assumed to be [0, ..., N-1] for
+                            N preparated qubits.
         psd: If True rescale the eigenvalues of fitted matrix to be positive
              semidefinite (default: True)
         trace_preserving: Enforce the fitted matrix to be
@@ -241,11 +259,7 @@ def cvxpy_gaussian_lstsq(
     Returns:
         The fitted matrix rho that maximizes the least-squares likelihood function.
     """
-    if measurement_basis is None:
-        num_outcomes = None
-    else:
-        num_outcomes = [measurement_basis.num_outcomes(i) for i in measurement_data]
-    weights = fitter_utils.binomial_weights(outcome_data, shot_data, num_outcomes, beta=0.5)
+    weights = lstsq_utils.binomial_weights(outcome_data, shot_data, beta=0.5)
     return cvxpy_linear_lstsq(
         outcome_data,
         shot_data,
@@ -253,6 +267,8 @@ def cvxpy_gaussian_lstsq(
         preparation_data,
         measurement_basis=measurement_basis,
         preparation_basis=preparation_basis,
+        measurement_qubits=measurement_qubits,
+        preparation_qubits=preparation_qubits,
         psd=psd,
         trace=trace,
         trace_preserving=trace_preserving,

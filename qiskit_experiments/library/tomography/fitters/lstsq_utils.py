@@ -16,9 +16,10 @@ Common utility functions for tomography fitters.
 from typing import Optional, Tuple
 import numpy as np
 
+from qiskit_experiments.exceptions import AnalysisError
 from qiskit_experiments.library.tomography.basis import (
-    FitterMeasurementBasis,
-    FitterPreparationBasis,
+    MeasurementBasis,
+    PreparationBasis,
 )
 
 
@@ -27,30 +28,36 @@ def lstsq_data(
     shot_data: np.ndarray,
     measurement_data: np.ndarray,
     preparation_data: np.ndarray,
-    measurement_basis: Optional[FitterMeasurementBasis] = None,
-    preparation_basis: Optional[FitterPreparationBasis] = None,
+    measurement_basis: Optional[MeasurementBasis] = None,
+    preparation_basis: Optional[PreparationBasis] = None,
+    measurement_qubits: Optional[Tuple[int]] = None,
+    preparation_qubits: Optional[Tuple[int]] = None,
 ) -> Tuple[np.ndarray, np.ndarray]:
     """Return stacked vectorized basis matrix A for least squares."""
+    if measurement_basis is None and preparation_basis is None:
+        raise AnalysisError("`measurement_basis` and `preparation_basis` cannot both be None")
+
     # Get leading dimension of returned matrix
     size = outcome_data.size
+    mdim = 1
+    pdim = 1
 
     # Get measurement basis dimensions
     if measurement_basis:
-        bsize, msize = measurement_data.shape
-        mdim = measurement_basis.matrix([0], 0).size ** msize
-    else:
-        msize = 0
-        mdim = 1
+        bsize, num_meas = measurement_data.shape
+        if not measurement_qubits:
+            measurement_qubits = tuple(range(num_meas))
+        mdim = np.prod(measurement_basis.matrix_shape(measurement_qubits))
+
     # Get preparation basis dimensions
     if preparation_basis:
-        bsize, psize = preparation_data.shape
-        pdim = preparation_basis.matrix([0]).size ** psize
-    else:
-        psize = 0
-        pdim = 1
+        bsize, num_prep = preparation_data.shape
+        if not preparation_qubits:
+            preparation_qubits = tuple(range(num_prep))
+        pdim = np.prod(preparation_basis.matrix_shape(preparation_qubits))
 
     # Allocate empty stacked basis matrix and prob vector
-    basis_mat = np.zeros((size, mdim * pdim), dtype=complex)
+    basis_mat = np.zeros((size, mdim * mdim * pdim * pdim), dtype=complex)
     probs = np.zeros(size, dtype=float)
     idx = 0
     for i in range(bsize):
@@ -61,14 +68,14 @@ def lstsq_data(
 
         # Get prep basis component
         if preparation_basis:
-            p_mat = np.transpose(preparation_basis.matrix(pidx))
+            p_mat = np.transpose(preparation_basis.matrix(pidx, preparation_qubits))
         else:
             p_mat = None
 
         # Get probabilities and optional measurement basis component
         for outcome in range(odata.size):
             if measurement_basis:
-                op = measurement_basis.matrix(midx, outcome)
+                op = measurement_basis.matrix(midx, outcome, measurement_qubits)
                 if preparation_basis:
                     op = np.kron(p_mat, op)
             else:
@@ -84,7 +91,6 @@ def lstsq_data(
 def binomial_weights(
     outcome_data: np.ndarray,
     shot_data: np.ndarray,
-    num_outcomes: Optional[np.ndarray] = None,
     beta: float = 0,
 ) -> np.ndarray:
     r"""Compute weights vector from the binomial distribution.
@@ -104,8 +110,6 @@ def binomial_weights(
     Args:
         outcome_data: measurement outcome frequency data.
         shot_data: basis measurement total shot data.
-        num_outcomes: the number of measurement outcomes for
-                      each outcome data set.
         beta: Hedging parameter for converting frequencies to
               probabilities. If 0 hedging is disabled.
 
