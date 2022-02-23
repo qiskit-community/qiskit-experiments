@@ -21,7 +21,6 @@ from typing import Any, Callable, Optional
 import numpy as np
 import uncertainties
 from qiskit.test import QiskitTestCase
-from qiskit_experiments.calibration_management import Calibrations
 from qiskit_experiments.data_processing import DataAction, DataProcessor
 from qiskit_experiments.database_service.db_experiment_data import ExperimentStatus
 from qiskit_experiments.framework import (

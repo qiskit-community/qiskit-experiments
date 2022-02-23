@@ -12,11 +12,10 @@
 
 """Class to test the calibrations."""
 from test.base import QiskitExperimentsTestCase
-from datetime import timezone
 import os
 import uuid
 from collections import defaultdict
-from datetime import datetime
+from datetime import datetime, timezone
 from qiskit.circuit import Parameter, Gate
 from qiskit.pulse import (
     Drag,
