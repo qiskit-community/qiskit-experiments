@@ -610,6 +610,31 @@ class RestlessNode(DataAction, ABC):
     that are implemented as sub-classes of `RestlessNode`. Restless experiments provide a
     fast alternative for several calibration and characterization tasks, for details
     see https://arxiv.org/pdf/2202.06981.pdf.
+
+    This node takes as input a list of lists where the sublist is the memory of
+    each measured circuit. The sublists therefore have a length given by the
+    number of shots. This data is reordered into a one dimensional array where
+    the element at index j was the jth measured shot. This node assumes that
+    a list of circuits :code:`[circ_1, cric_2, ..., circ_m]` is measured :code:`n_shots`
+    times according to the following order:
+
+    .. parsed-literal::
+
+        [
+            circuit 1 - shot 1,
+            circuit 2 - shot 1,
+            ...
+            circuit m - shot 1,
+            circuit 1 - shot 2,
+            circuit 2 - shot 2,
+            ...
+            circuit m - shot 2,
+            circuit 1 - shot 3,
+            ...
+            circuit m - shot n,
+        ]
+
+    Once the shots have been ordered in this fashion the data can be post-processed.
     """
 
     def __init__(self, validate: bool = True):
@@ -669,35 +694,12 @@ class RestlessNode(DataAction, ABC):
 
 
 class RestlessToCounts(RestlessNode):
-    """Convert restless memory to counts.
+    """Post-process restless data and convert restless memory to counts.
 
-    This node takes as input a list of lists where the sublist is the memory of
-    each measured circuit. The sublists therefore have a length given by the
-    number of shots. This data is reordered into a one dimensional array where
-    the element at index j was the jth measured shot. This node assumes that
-    a list of circuits :code:`[circ_1, cric_2, ..., circ_m]` is measured :code:`n_shots`
-    times according to the following order:
-
-    .. parsed-literal::
-
-        [
-            circuit 1 - shot 1,
-            circuit 2 - shot 1,
-            ...
-            circuit m - shot 1,
-            circuit 1 - shot 2,
-            circuit 2 - shot 2,
-            ...
-            circuit m - shot 2,
-            circuit 1 - shot 3,
-            ...
-            circuit m - shot n,
-        ]
-
-    Once the shots have been ordered in this fashion the node compares each shot with the
-    previous shot. If they are the same then the shot corresponds to a 0, i.e. no state
-    change, and if they are different then the shot corresponds to a 1, i.e. there was
-    a state change.
+    This node first orders the measured restless data according to the measurement
+    sequence and then compares each shot with the previous shot. If they are the
+    same then the shot corresponds to a 0, i.e. no state change, and if they are
+    different then the shot corresponds to a 1, i.e. there was a state change.
     """
 
     def __init__(self, num_qubits: int, validate: bool = True):
