@@ -25,6 +25,9 @@ class DeviceComponent(ABC):
     def __repr__(self):
         return f"<{self.__class__.__name__}({str(self)})>"
 
+    def __eq__(self, value):
+        return str(self) == str(value)
+
 
 class Qubit(DeviceComponent):
     """Class representing a qubit device component."""

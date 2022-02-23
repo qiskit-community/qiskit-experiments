@@ -40,8 +40,9 @@ class TestTphi(QiskitExperimentsTestCase):
         analysis = TphiAnalysis([T1Analysis(), T2RamseyAnalysis()])
         expdata = exp.run(backend=backend, analysis=analysis)
         self.assertExperimentDone(expdata)
+        self.assertRoundTripSerializable(expdata, check_func=self.experiment_data_equiv)
+        self.assertRoundTripPickle(expdata, check_func=self.experiment_data_equiv)
         result = expdata.analysis_results("T_phi")
-        self.assertRoundTripSerializable(result.value, check_func=self.ufloat_equiv)
         estimated_tphi = 1 / ((1 / t2ramsey) - (1 / (2 * t1)))
         self.assertAlmostEqual(
             result.value.nominal_value,
