@@ -16,7 +16,7 @@ from abc import abstractmethod
 from abc import ABC
 from enum import Enum
 from numbers import Number
-from typing import Union, Sequence, Any
+from typing import Union, Sequence
 from collections import defaultdict
 
 import numpy as np
@@ -642,6 +642,9 @@ class RestlessNode(DataAction, ABC):
 
         Args:
             validate: If set to True the node will validate its input.
+            circuits_first: If set to True the backend subsequently first
+                measures all circuits and then repeats this n times, where
+                n is the total number of shots.
         """
         super().__init__(validate)
         self._n_shots = None
@@ -704,8 +707,8 @@ class RestlessToCounts(RestlessNode):
         """
         Args:
             num_qubits: The number of qubits which is needed to construct the header needed
-            by :code:`qiskit.result.postprocess.format_counts_memory` to convert the memory
-            into a bit-string of counts.
+                by :code:`qiskit.result.postprocess.format_counts_memory` to convert the memory
+                into a bit-string of counts.
             validate: If set to False the DataAction will not validate its input.
         """
         super().__init__(validate)
