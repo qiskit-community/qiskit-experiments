@@ -21,7 +21,7 @@ from qiskit.providers.backend import Backend
 from qiskit.quantum_info.operators.base_operator import BaseOperator
 from qiskit_experiments.exceptions import QiskitError
 from qiskit_experiments.framework import BaseExperiment, Options
-from .basis import BaseTomographyMeasurementBasis, BaseTomographyPreparationBasis
+from .basis import PreparationBasis, MeasurementBasis
 from .tomography_analysis import TomographyAnalysis
 
 
@@ -54,9 +54,9 @@ class TomographyExperiment(BaseExperiment):
         self,
         circuit: Union[QuantumCircuit, Instruction, BaseOperator],
         backend: Optional[Backend] = None,
-        measurement_basis: Optional[BaseTomographyMeasurementBasis] = None,
+        measurement_basis: Optional[MeasurementBasis] = None,
         measurement_qubits: Optional[Sequence[int]] = None,
-        preparation_basis: Optional[BaseTomographyPreparationBasis] = None,
+        preparation_basis: Optional[PreparationBasis] = None,
         preparation_qubits: Optional[Sequence[int]] = None,
         basis_indices: Optional[Iterable[Tuple[List[int], List[int]]]] = None,
         qubits: Optional[Sequence[int]] = None,
@@ -85,7 +85,7 @@ class TomographyExperiment(BaseExperiment):
         """
         # Initialize BaseExperiment
         if qubits is None:
-            qubits = range(circuit.num_qubits)
+            qubits = tuple(range(circuit.num_qubits))
         if analysis is None:
             analysis = TomographyAnalysis()
         super().__init__(qubits, analysis=analysis, backend=backend)
@@ -103,28 +103,39 @@ class TomographyExperiment(BaseExperiment):
         # Measurement basis and qubits
         self._meas_circ_basis = measurement_basis
         if measurement_qubits:
+            # Convert logical qubits to physical qubits
             self._meas_qubits = tuple(measurement_qubits)
+            self._meas_physical_qubits = tuple(self.physical_qubits[i] for i in self._meas_qubits)
             for qubit in self._meas_qubits:
                 if qubit not in range(self.num_qubits):
                     raise QiskitError(
                         f"measurement qubit ({qubit}) is outside the range"
                         f" of circuit qubits [0, {self.num_qubits})."
                     )
+        elif measurement_basis:
+            self._meas_qubits = tuple(range(self.num_qubits))
+            self._meas_physical_qubits = self.physical_qubits
         else:
-            self._meas_qubits = None
+            self._meas_qubits = tuple()
+            self._meas_physical_qubits = tuple()
 
         # Preparation basis and qubits
         self._prep_circ_basis = preparation_basis
         if preparation_qubits:
             self._prep_qubits = tuple(preparation_qubits)
+            self._prep_physical_qubits = tuple(self.physical_qubits[i] for i in self._prep_qubits)
             for qubit in self._prep_qubits:
                 if qubit not in range(self.num_qubits):
                     raise QiskitError(
                         f"preparation qubit ({qubit}) is outside the range"
                         f" of circuit qubits [0, {self.num_qubits})."
                     )
+        elif preparation_basis:
+            self._prep_qubits = tuple(range(self.num_qubits))
+            self._prep_physical_qubits = self.physical_qubits
         else:
-            self._prep_qubits = None
+            self._prep_qubits = tuple()
+            self._prep_physical_qubits = tuple()
 
         # Configure experiment options
         if basis_indices:
@@ -136,26 +147,25 @@ class TomographyExperiment(BaseExperiment):
             analysis_options["measurement_basis"] = measurement_basis
         if preparation_basis:
             analysis_options["preparation_basis"] = preparation_basis
+
         self.analysis.set_options(**analysis_options)
 
     def circuits(self):
 
         # Get qubits and clbits
-        meas_qubits = self._meas_qubits or range(self.num_qubits)
-        total_clbits = self._circuit.num_clbits + len(meas_qubits)
         circ_qubits = list(range(self._circuit.num_qubits))
+        total_clbits = self._circuit.num_clbits + len(self._meas_qubits)
         circ_clbits = list(range(self._circuit.num_clbits))
         meas_clbits = list(range(self._circuit.num_clbits, total_clbits))
 
         # Build circuits
         circuits = []
         for prep_element, meas_element in self._basis_indices():
-            name = f"{self._type}_{meas_element}"
-            metadata = {
-                "experiment_type": self._type,
-                "clbits": meas_clbits,
-                "m_idx": list(meas_element),
-            }
+            name = f"{self._type}"
+            metadata = {"clbits": meas_clbits}
+            if meas_element:
+                name += f"_{meas_element}"
+                metadata["m_idx"] = list(meas_element)
             if prep_element:
                 name += f"_{prep_element}"
                 metadata["p_idx"] = list(prep_element)
@@ -164,11 +174,10 @@ class TomographyExperiment(BaseExperiment):
 
             if prep_element:
                 # Add tomography preparation
-                prep_qubits = self._prep_qubits or range(self.num_qubits)
-                prep_circ = self._prep_circ_basis.circuit(prep_element)
-                circ.reset(prep_qubits)
-                circ.append(prep_circ, prep_qubits)
-                circ.barrier(prep_qubits)
+                prep_circ = self._prep_circ_basis.circuit(prep_element, self._prep_physical_qubits)
+                circ.reset(self._prep_qubits)
+                circ.compose(prep_circ, self._prep_qubits, inplace=True)
+                circ.barrier(self._prep_qubits)
 
             # Add target circuit
             # Have to use compose since circuit.to_instruction has a bug
@@ -176,15 +185,23 @@ class TomographyExperiment(BaseExperiment):
             circ = circ.compose(self._circuit, circ_qubits, circ_clbits)
 
             # Add tomography measurement
-            meas_circ = self._meas_circ_basis.circuit(meas_element)
-            circ.barrier(meas_qubits)
-            circ.append(meas_circ, meas_qubits)
-            circ.measure(meas_qubits, meas_clbits)
+            if meas_element:
+                meas_circ = self._meas_circ_basis.circuit(meas_element, self._meas_physical_qubits)
+                circ.barrier(self._meas_qubits)
+                circ.compose(meas_circ, self._meas_qubits, meas_clbits, inplace=True)
 
             # Add metadata
             circ.metadata = metadata
             circuits.append(circ)
         return circuits
+
+    def _additional_metadata(self):
+        meta = {}
+        if self._meas_physical_qubits:
+            meta["m_qubits"] = list(self._meas_physical_qubits)
+        if self._prep_physical_qubits:
+            meta["p_qubits"] = list(self._prep_physical_qubits)
+        return meta
 
     def _basis_indices(self):
         """Return list of basis element indices"""
@@ -192,18 +209,15 @@ class TomographyExperiment(BaseExperiment):
         if basis_indices is not None:
             return basis_indices
         if self._meas_circ_basis:
-            meas_size = len(self._meas_circ_basis)
-            num_meas = len(self._meas_qubits) if self._meas_qubits else self.num_qubits
-            meas_elements = product(range(meas_size), repeat=num_meas)
+            meas_shape = self._meas_circ_basis.index_shape(self._meas_physical_qubits)
+            meas_elements = product(*[range(i) for i in meas_shape])
         else:
             meas_elements = [None]
         if self._prep_circ_basis:
-            prep_size = len(self._prep_circ_basis)
-            num_prep = len(self._prep_qubits) if self._prep_qubits else self.num_qubits
-            prep_elements = product(range(prep_size), repeat=num_prep)
+            prep_shape = self._prep_circ_basis.index_shape(self._prep_physical_qubits)
+            prep_elements = product(*[range(i) for i in prep_shape])
         else:
             prep_elements = [None]
-
         return product(prep_elements, meas_elements)
 
     def _permute_circuit(self) -> QuantumCircuit:
@@ -213,7 +227,10 @@ class TomographyExperiment(BaseExperiment):
         qubits correspond to input and output qubits [0, ..., N-1] and [0, ..., M-1]
         respectively for the returned circuit.
         """
-        if self._meas_qubits is None and self._prep_qubits is None:
+        default_range = tuple(range(self.num_qubits))
+        permute_meas = self._meas_qubits and self._meas_qubits != default_range
+        permute_prep = self._prep_qubits and self._prep_qubits != default_range
+        if not permute_meas and not permute_prep:
             return self._circuit
 
         total_qubits = self._circuit.num_qubits
