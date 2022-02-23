@@ -18,6 +18,7 @@ from datetime import datetime, timezone
 from typing import Any, Dict, Set, Tuple, Union, List, Optional
 import csv
 import dataclasses
+import json
 import warnings
 import re
 
@@ -181,6 +182,16 @@ class Calibrations:
         # This internal parameter is False so that if a schedule is added after the
         # init it will be set to True and serialization will raise an error.
         self._has_manually_added_schedule = False
+
+    @property
+    def backend_name(self) -> str:
+        """Return the name of the backend."""
+        return self._backend_name
+
+    @property
+    def backend_version(self) -> str:
+        """Return the version of the backend."""
+        return self._backend_version
 
     @classmethod
     def from_backend(
@@ -1518,6 +1529,39 @@ class Calibrations:
             f"{qubits} must be int, tuple of ints, or str  that can be parsed"
             f"to a tuple if ints. Received {qubits}."
         )
+
+    def __eq__(self, other: "Calibrations") -> bool:
+        """Test equality between two calibrations.
+
+        Two calibration instances are considered equal if
+        - The backends have the same name.
+        - The backends have the same version.
+        - The calibrations contain the same schedules.
+        - The stored paramters have the same values.
+        """
+        if self.backend_name != other.backend_name:
+            return False
+
+        if self._backend_version != other.backend_version:
+            return False
+
+        # Compare the contents of schedules, schedules are compared by their string
+        # representation because they contain parameters.
+        for key, schedule in self._schedules.items():
+            if repr(schedule) != repr(other._schedules.get(key, None)):
+                return False
+
+        # Check the keys.
+        if self._schedules.keys() != other._schedules.keys():
+            return False
+
+        def _hash(data: dict):
+            return hash(json.dumps(data))
+
+        sorted_params_a = sorted(self.parameters_table()["data"], key=_hash)
+        sorted_params_b = sorted(other.parameters_table()["data"], key=_hash)
+
+        return sorted_params_a == sorted_params_b
 
     def config(self) -> Dict[str, Any]:
         """Return the settings used to initialize the calibrations.
