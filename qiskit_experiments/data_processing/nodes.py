@@ -637,7 +637,7 @@ class RestlessNode(DataAction, ABC):
     Once the shots have been ordered in this fashion the data can be post-processed.
     """
 
-    def __init__(self, validate: bool = True):
+    def __init__(self, validate: bool = True, circuits_first: bool = True):
         """Initialize a restless node.
 
         Args:
@@ -646,6 +646,7 @@ class RestlessNode(DataAction, ABC):
         super().__init__(validate)
         self._n_shots = None
         self._n_circuits = None
+        self._circuits_first = circuits_first
 
     def _format_data(self, data: np.ndarray) -> np.ndarray:
         """Convert the data to an array.
@@ -675,19 +676,19 @@ class RestlessNode(DataAction, ABC):
 
         return data
 
-    @staticmethod
-    def _reorder(unordered_data: np.ndarray) -> np.ndarray:
+    def _reorder(self, unordered_data: np.ndarray) -> np.ndarray:
         """Reorder the measured data according to the measurement sequence.
 
-        Here, is assumed that the inner loop of the measurement is done over the circuits
-        and the outer loop is done over the shots.
+        Here, by default, it is assumed that the inner loop of the measurement
+        is done over the circuits and the outer loop is done over the shots.
         """
         if unordered_data is None:
             return unordered_data
 
-        ordered_data = unordered_data.T.flatten()
-
-        return ordered_data
+        if self._circuits_first:
+            return unordered_data.T.flatten()
+        else:
+            return unordered_data.flatten()
 
 
 class RestlessToCounts(RestlessNode):
