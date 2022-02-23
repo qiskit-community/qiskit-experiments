@@ -209,7 +209,11 @@ class DbExperimentDataV1(DbExperimentData):
         self._job_futures = ThreadSafeOrderedDict()
         self._analysis_callbacks = ThreadSafeOrderedDict()
         self._analysis_futures = ThreadSafeOrderedDict()
-        self._analysis_executor = futures.ThreadPoolExecutor(max_workers=1)
+        # Set 2 workers for analysis executor so there can be 1 actively running
+        # future and one waiting "running" future. This is to allow the second
+        # future to be cancelled without waiting for the actively running future
+        # to finish first.
+        self._analysis_executor = futures.ThreadPoolExecutor(max_workers=2)
         self._monitor_executor = futures.ThreadPoolExecutor()
 
         self._data = ThreadSafeList()
@@ -474,11 +478,16 @@ class DbExperimentDataV1(DbExperimentData):
 
             # Add run analysis future
             self._analysis_futures[cid] = self._analysis_executor.submit(
-                self._run_analysis_callback, cid, [wait_future, cancel_future], callback, **kwargs
+                self._run_analysis_callback, cid, wait_future, cancel_future, callback, **kwargs
             )
 
     def _run_analysis_callback(
-        self, callback_id: str, futs: List[futures.Future], callback: Callable, **kwargs
+        self,
+        callback_id: str,
+        wait_future: futures.Future,
+        cancel_future: futures.Future,
+        callback: Callable,
+        **kwargs,
     ):
         """Run an analysis callback after specified futures have finished."""
         if callback_id not in self._analysis_callbacks:
@@ -487,7 +496,7 @@ class DbExperimentDataV1(DbExperimentData):
         # Monitor jobs and cancellation event to see if callback should be run
         # or cancelled
         # Future which returns if either all jobs finish, or cancel event is set
-        waited = futures.wait(futs, return_when="FIRST_COMPLETED")
+        waited = futures.wait([wait_future, cancel_future], return_when="FIRST_COMPLETED")
         cancel = not all(fut.result() for fut in waited.done)
 
         # Ensure monitor event is set so monitor future can terminate
@@ -1102,29 +1111,25 @@ class DbExperimentDataV1(DbExperimentData):
 
             # Get IDs of futures to cancel
             if ids is None:
-                ids = self._jobs.values()
+                ids = self._jobs.keys()
             elif isinstance(ids, str):
                 ids = [ids]
             jobs = [self._jobs[jid] for jid in ids]
 
             # Attempt to cancel callbacks
-            done_or_cancelled = []
             for jid, job in zip(ids, jobs):
                 if job and job.status() not in JOB_FINAL_STATES:
                     try:
                         job.cancel()
-                        LOG.debug("Cancelled job [Job ID: %s]", jid)
+                        LOG.warning("Cancelled job [Job ID: %s]", jid)
                     except Exception as err:  # pylint: disable=broad-except
                         cancelled = False
                         LOG.warning("Unable to cancel job [Job ID: %s]:\n%s", jid, err)
                         continue
-                done_or_cancelled.append(jid)
 
-            # Remove done or cancelled job futures
-            with self._job_futures.lock:
-                for jid in done_or_cancelled:
-                    if jid in self._job_futures:
-                        del self._job_futures[jid]
+                # Remove done or cancelled job futures
+                if jid in self._job_futures:
+                    del self._job_futures[jid]
 
         return cancelled
 
@@ -1156,13 +1161,6 @@ class DbExperimentDataV1(DbExperimentData):
 
             # Set events to cancel callbacks
             for cid in ids:
-                # Try to cancel future directly
-                if self._analysis_futures[cid].cancel():
-                    self._analysis_callbacks[cid].status = AnalysisStatus.CANCELLED
-                    LOG.warning("Cancelled analysis callback [Analysis ID: %s]", cid)
-
-                # Set event for future cancellation of active future that is
-                # still waiting on jobs
                 self._analysis_callbacks[cid].event.set()
 
             # Check for running callback that can't be cancelled
@@ -1176,7 +1174,6 @@ class DbExperimentDataV1(DbExperimentData):
 
             # Wait for completion of other futures cancelled via event.set
             waited = futures.wait([self._analysis_futures[cid] for cid in not_running], timeout=1)
-
             # Get futures that didn't raise exception
             for fut in waited.done:
                 if fut.done() and not fut.exception():
@@ -1223,12 +1220,14 @@ class DbExperimentDataV1(DbExperimentData):
         # Clean up done job futures
         for jid, fut in zip(job_ids, job_futs):
             if (fut.done() and not fut.exception()) or fut.cancelled():
-                del self._job_futures[jid]
+                if jid in self._job_futures:
+                    del self._job_futures[jid]
 
         # Clean up done analysis futures
         for cid, fut in zip(analysis_ids, analysis_futs):
             if (fut.done() and not fut.exception()) or fut.cancelled():
-                del self._analysis_futures[cid]
+                if cid in self._analysis_futures:
+                    del self._analysis_futures[cid]
 
         return self
 
@@ -1272,7 +1271,6 @@ class DbExperimentDataV1(DbExperimentData):
                     name,
                     self.experiment_id,
                 )
-                value = False
         if excepts:
             LOG.error(
                 "%s raised exceptions [Experiment ID: %s]:%s", name, self.experiment_id, excepts
