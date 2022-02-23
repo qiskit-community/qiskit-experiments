@@ -1717,6 +1717,17 @@ class DbExperimentDataV1(DbExperimentData):
             jobs[jid] = None
         return jobs
 
+    def _safe_serialize_figures(self):
+        """Return serializable object for stored figures"""
+        # Convert any MPL figures into SVG images before serializing
+        figures = ThreadSafeOrderedDict()
+        for name, figure in self._figures.items():
+            if isinstance(figure, pyplot.Figure):
+                figures[name] = plot_to_svg_bytes(figure)
+            else:
+                figures[name] = figure
+        return figures
+
     def __json_encode__(self):
         if any(not fut.done() for fut in self._job_futures.values()):
             LOG.warning(
@@ -1741,7 +1752,6 @@ class DbExperimentDataV1(DbExperimentData):
             "_share_level",
             "_notes",
             "_data",
-            "_figures",
             "_analysis_results",
             "_analysis_callbacks",
             "_deleted_figures",
@@ -1752,6 +1762,9 @@ class DbExperimentDataV1(DbExperimentData):
             value = getattr(self, att)
             if value:
                 json_value[att] = value
+
+        # Convert figures to SVG
+        json_value["_figures"] = self._safe_serialize_figures()
 
         # Handle non-serializable objects
         json_value["_jobs"] = self._safe_serialize_jobs()
@@ -1782,6 +1795,9 @@ class DbExperimentDataV1(DbExperimentData):
         # Remove non-pickleable attributes
         for key in ["_job_futures", "_analysis_futures", "_analysis_executor"]:
             del state[key]
+
+        # Convert figures to SVG
+        state["_figures"] = self._safe_serialize_figures()
 
         # Handle partially pickleable attributes
         state["_jobs"] = self._safe_serialize_jobs()
