@@ -287,22 +287,7 @@ class TestFineAmplitudeCal(QiskitExperimentsTestCase):
         self.assertNotEqual(exp, loaded_exp)
         self.assertTrue(self.json_equiv(exp, loaded_exp))
 
-    #@unittest.skip("Calbrations are not yet serializable")
     def test_roundtrip_serializable(self):
         """Test round trip JSON serialization"""
-
-        import json
-        from qiskit_experiments.framework import ExperimentDecoder, ExperimentEncoder
-
-
         exp = FineSXAmplitudeCal(0, self.cals, "sx")
-
-        print(exp.config())
-        print()
-
-        encoded = json.dumps(exp, cls=ExperimentEncoder)
-        decoded = json.loads(encoded, cls=ExperimentDecoder)
-
-        print(decoded.config())
-
         self.assertRoundTripSerializable(exp, self.json_equiv)

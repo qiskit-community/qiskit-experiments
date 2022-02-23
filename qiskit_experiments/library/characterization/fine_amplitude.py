@@ -236,7 +236,7 @@ class FineAmplitude(BaseExperiment):
 
     @classmethod
     def from_config(cls, config: ExperimentConfig):
-        """"""
+        """Deserialize from config by extracting the gate from a circuit."""
         args = [arg.data[0][0] if isinstance(arg, QuantumCircuit) else arg for arg in config.args]
 
         return cls(*args, **config.kwargs)
