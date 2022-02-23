@@ -675,7 +675,8 @@ class RestlessNode(DataAction, ABC):
 
         return data
 
-    def _reorder(self, unordered_data: np.ndarray) -> np.ndarray:
+    @staticmethod
+    def _reorder(unordered_data: np.ndarray) -> np.ndarray:
         """Reorder the measured data according to the measurement sequence.
 
         Here, is assumed that the inner loop of the measurement is done over the circuits
@@ -684,13 +685,9 @@ class RestlessNode(DataAction, ABC):
         if unordered_data is None:
             return unordered_data
 
-        order_data = []
+        ordered_data = unordered_data.T.flatten()
 
-        for shot_idx in range(self._n_shots):
-            for circuit_idx in range(self._n_circuits):
-                order_data.append(unordered_data[circuit_idx][shot_idx])
-
-        return np.array(order_data)
+        return ordered_data
 
 
 class RestlessToCounts(RestlessNode):
