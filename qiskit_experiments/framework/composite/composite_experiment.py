@@ -69,6 +69,12 @@ class CompositeExperiment(BaseExperiment):
     def circuits(self):
         pass
 
+    def set_transpile_options(self, **fields):
+        super().set_transpile_options(**fields)
+        # Recursively set transpile options of component experiments
+        for exp in self._experiments:
+            exp.set_transpile_options(**fields)
+
     @property
     def num_experiments(self):
         """Return the number of sub experiments"""
