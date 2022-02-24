@@ -65,19 +65,20 @@ class TestT2Ramsey(QiskitExperimentsTestCase):
         for user_p0 in [default_p0, dict()]:
             exp.analysis.set_options(p0=user_p0)
             expdata = exp.run(backend=backend, shots=2000)
-            expdata.block_for_results()  # Wait for job/analysis to finish.
+            self.assertExperimentDone(expdata)
             result = expdata.analysis_results("T2star")
+            self.assertRoundTripSerializable(result.value, check_func=self.ufloat_equiv)
             self.assertAlmostEqual(
-                result.value.value,
+                result.value.n,
                 estimated_t2ramsey,
-                delta=TestT2Ramsey.__tolerance__ * result.value.value,
+                delta=TestT2Ramsey.__tolerance__ * result.value.n,
             )
             self.assertEqual(result.quality, "good", "Result quality bad")
             result = expdata.analysis_results("Frequency")
             self.assertAlmostEqual(
-                result.value.value,
+                result.value.n,
                 estimated_freq,
-                delta=TestT2Ramsey.__tolerance__ * result.value.value,
+                delta=TestT2Ramsey.__tolerance__ * result.value.n,
             )
             self.assertEqual(result.quality, "good", "Result quality bad")
 
@@ -104,23 +105,24 @@ class TestT2Ramsey(QiskitExperimentsTestCase):
         }
 
         backend = T2RamseyBackend(p0)
-        expdata = par_exp.run(backend=backend, shots=1000).block_for_results()
+        expdata = par_exp.run(backend=backend, shots=1000)
+        self.assertExperimentDone(expdata)
 
         for i in range(2):
             res_t2star = expdata.child_data(i).analysis_results("T2star")
             self.assertAlmostEqual(
-                res_t2star.value.value,
+                res_t2star.value.n,
                 t2ramsey[i],
-                delta=TestT2Ramsey.__tolerance__ * res_t2star.value.value,
+                delta=TestT2Ramsey.__tolerance__ * res_t2star.value.n,
             )
             self.assertEqual(
                 res_t2star.quality, "good", "Result quality bad for experiment on qubit " + str(i)
             )
             res_freq = expdata.child_data(i).analysis_results("Frequency")
             self.assertAlmostEqual(
-                res_freq.value.value,
+                res_freq.value.n,
                 estimated_freq[i],
-                delta=TestT2Ramsey.__tolerance__ * res_freq.value.value,
+                delta=TestT2Ramsey.__tolerance__ * res_freq.value.n,
             )
             self.assertEqual(
                 res_freq.quality, "good", "Result quality bad for experiment on qubit " + str(i)
@@ -161,6 +163,7 @@ class TestT2Ramsey(QiskitExperimentsTestCase):
 
         # run circuits
         expdata0 = exp0.run(backend=backend, shots=1000)
+        self.assertExperimentDone(expdata0)
         res_t2star_0 = expdata0.analysis_results("T2star")
 
         # second experiment
@@ -168,6 +171,7 @@ class TestT2Ramsey(QiskitExperimentsTestCase):
         exp1 = T2Ramsey(qubit, delays1)
         exp1.analysis.set_options(p0=default_p0)
         expdata1 = exp1.run(backend=backend, analysis=None, shots=1000)
+        self.assertExperimentDone(expdata1)
         expdata1.add_data(expdata0.data())
         exp1.analysis.run(expdata1)
 
@@ -175,16 +179,16 @@ class TestT2Ramsey(QiskitExperimentsTestCase):
         res_freq_1 = expdata1.analysis_results("Frequency")
 
         self.assertAlmostEqual(
-            res_t2star_1.value.value,
+            res_t2star_1.value.n,
             estimated_t2ramsey,
-            delta=TestT2Ramsey.__tolerance__ * res_t2star_1.value.value,
+            delta=TestT2Ramsey.__tolerance__ * res_t2star_1.value.n,
         )
         self.assertAlmostEqual(
-            res_freq_1.value.value,
+            res_freq_1.value.n,
             estimated_freq,
-            delta=TestT2Ramsey.__tolerance__ * res_freq_1.value.value,
+            delta=TestT2Ramsey.__tolerance__ * res_freq_1.value.n,
         )
-        self.assertLessEqual(res_t2star_1.value.stderr, res_t2star_0.value.stderr)
+        self.assertLessEqual(res_t2star_1.value.s, res_t2star_0.value.s)
         self.assertEqual(len(expdata1.data()), len(delays0) + len(delays1))
 
     def test_experiment_config(self):

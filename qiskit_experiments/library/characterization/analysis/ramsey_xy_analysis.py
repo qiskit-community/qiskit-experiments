@@ -158,12 +158,11 @@ class RamseyXYAnalysis(curve.CurveAnalysis):
             - a reduced chi-squared lower than three,
             - an error on the frequency smaller than the frequency.
         """
-        fit_freq = fit_data.fitval("freq").value
-        fit_freq_err = fit_data.fitval("freq").stderr
+        fit_freq = fit_data.fitval("freq")
 
         criteria = [
             fit_data.reduced_chisq < 3,
-            fit_freq_err < abs(fit_freq),
+            curve.is_error_not_significant(fit_freq),
         ]
 
         if all(criteria):
