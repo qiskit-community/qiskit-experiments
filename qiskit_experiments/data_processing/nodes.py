@@ -611,10 +611,10 @@ class RestlessNode(DataAction, ABC):
     fast alternative for several calibration and characterization tasks, for details
     see https://arxiv.org/pdf/2202.06981.pdf.
 
-    This node takes as input a list of lists where the sublist is the memory of
-    each measured circuit. The sublists therefore have a length given by the
-    number of shots. This data is reordered into a one dimensional array where
-    the element at index j was the jth measured shot. This node assumes that
+    This node takes as input an array of arrays (2d array) where the sub-arrays are
+    the memories of each measured circuit. The sub-arrays therefore have a length
+    given by the number of shots. This data is reordered into a one dimensional array where
+    the element at index j was the jth measured shot. This node assumes by default that
     a list of circuits :code:`[circ_1, cric_2, ..., circ_m]` is measured :code:`n_shots`
     times according to the following order:
 
@@ -742,6 +742,8 @@ class RestlessToCounts(RestlessNode):
             counts[circuit_idx][restless_adjusted_shot] += 1
 
             prev_shot = shot
+
+        print(np.array([dict(counts_dict) for counts_dict in counts]))
 
         return np.array([dict(counts_dict) for counts_dict in counts])
 
