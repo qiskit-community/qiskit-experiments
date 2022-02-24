@@ -166,6 +166,7 @@ class QiskitExperimentsTestCase(QiskitTestCase):
     @classmethod
     def experiment_data_equiv(cls, data1, data2):
         """Check two experiment data containers are equivalent"""
+
         # Check basic attrbiutes
         # Skip non-compatible backend
         for att in [
@@ -181,16 +182,37 @@ class QiskitExperimentsTestCase(QiskitTestCase):
             if not cls.json_equiv(getattr(data1, att), getattr(data2, att)):
                 return False
 
+        # Check length of data, results, child_data
+        # check for child data attribute so this method still works for
+        # DbExperimentData
+        if hasattr(data1, "child_data"):
+            child_data1 = data1.child_data()
+        else:
+            child_data1 = []
+        if hasattr(data2, "child_data"):
+            child_data2 = data2.child_data()
+        else:
+            child_data2 = []
+
+        if (
+            len(data1.data()) != len(data2.data())
+            or len(data1.analysis_results()) != len(data2.analysis_results())
+            or len(child_data1) != len(child_data2)
+        ):
+            return False
+
         # Check data
         if not cls.json_equiv(data1.data(), data2.data()):
             return False
 
-        # Check analysis results
-        results1 = data1.analysis_results()
-        results2 = data2.analysis_results()
-        if len(results1) != len(results2):
-            return False
-        return all(
-            cls.analysis_result_equiv(result1, result2)
-            for result1, result2 in zip(results1, results2)
-        )
+        # Check analysis resultsx
+        for result1, result2 in zip(data1.analysis_results(), data2.analysis_results()):
+            if not cls.analysis_result_equiv(result1, result2):
+                return False
+
+        # Check child data
+        for child1, child2 in zip(child_data1, child_data2):
+            if not cls.experiment_data_equiv(child1, child2):
+                return False
+
+        return True

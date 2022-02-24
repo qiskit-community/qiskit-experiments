@@ -28,6 +28,7 @@ from datetime import datetime
 import numpy as np
 
 from matplotlib import pyplot
+from qiskit import QiskitError
 from qiskit.providers import Job, BaseJob, Backend, BaseBackend, Provider
 from qiskit.result import Result
 from qiskit.providers.jobstatus import JobStatus, JOB_FINAL_STATES
@@ -1713,31 +1714,33 @@ class DbExperimentDataV1(DbExperimentData):
         # them from the jobs dict and returns {job_id: None}
         # that can be used to retrieve jobs from a service after loading
         jobs = ThreadSafeOrderedDict()
-        for jid, _ in self._jobs.items():
-            jobs[jid] = None
+        with self._jobs.lock:
+            for jid in self._jobs.keys():
+                jobs[jid] = None
         return jobs
 
     def _safe_serialize_figures(self):
         """Return serializable object for stored figures"""
         # Convert any MPL figures into SVG images before serializing
         figures = ThreadSafeOrderedDict()
-        for name, figure in self._figures.items():
-            if isinstance(figure, pyplot.Figure):
-                figures[name] = plot_to_svg_bytes(figure)
-            else:
-                figures[name] = figure
+        with self._figures.lock:
+            for name, figure in self._figures.items():
+                if isinstance(figure, pyplot.Figure):
+                    figures[name] = plot_to_svg_bytes(figure)
+                else:
+                    figures[name] = figure
         return figures
 
     def __json_encode__(self):
         if any(not fut.done() for fut in self._job_futures.values()):
-            LOG.warning(
-                "Not all job futures have finished."
-                " Data from running futures will not be serialized."
+            raise QiskitError(
+                "Not all experiment jobs have finished. Jobs must be "
+                "cancelled or done to serialize experiment data."
             )
         if any(not fut.done() for fut in self._analysis_futures.values()):
-            LOG.warning(
-                "Not all analysis callbacks have finished."
-                " Results from running analysis will not be serialized."
+            raise QiskitError(
+                "Not all experiment analysis has finished. Analysis must be "
+                "cancelled or done to serialize experiment data."
             )
         json_value = {}
         for att in [
