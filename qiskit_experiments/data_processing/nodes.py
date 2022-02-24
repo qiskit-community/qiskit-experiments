@@ -743,8 +743,6 @@ class RestlessToCounts(RestlessNode):
 
             prev_shot = shot
 
-        print(np.array([dict(counts_dict) for counts_dict in counts]))
-
         return np.array([dict(counts_dict) for counts_dict in counts])
 
     @staticmethod
