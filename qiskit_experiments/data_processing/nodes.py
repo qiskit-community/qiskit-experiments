@@ -642,9 +642,9 @@ class RestlessNode(DataAction, ABC):
 
         Args:
             validate: If set to True the node will validate its input.
-            circuits_first: If set to True the backend subsequently first
-                measures all circuits and then repeats this n times, where
-                n is the total number of shots.
+            circuits_first: If set to True the node assumes that the backend 
+                subsequently first measures all circuits and then repeats this 
+                n times, where n is the total number of shots.
         """
         super().__init__(validate)
         self._n_shots = None
