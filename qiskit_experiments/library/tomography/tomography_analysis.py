@@ -328,7 +328,7 @@ class TomographyAnalysis(BaseAnalysis):
 
     @staticmethod
     def _append_counts(counts1, counts2):
-        for key, val in counts2:
+        for key, val in counts2.items():
             if key in counts1:
                 counts1[key] += val
             else:
