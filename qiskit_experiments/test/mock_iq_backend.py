@@ -50,7 +50,7 @@ class MockRestlessBackend(FakeOpenPulse2Q):
         """Generate all state strings for the system."""
         states, format_str = [], "{0:0" + str(n_qubits) + "b}"
 
-        for state_num in range(2 ** n_qubits):
+        for state_num in range(2**n_qubits):
             states.append(format_str.format(state_num))
 
         return states
@@ -126,7 +126,7 @@ class MockRestlessFineAmp(MockRestlessBackend):
     """A mock backend for restless fine amplitude calibration."""
 
     def __init__(
-            self, angle_error: float, angle_per_gate: float, gate_name: str, rng_seed: int = 0
+        self, angle_error: float, angle_per_gate: float, gate_name: str, rng_seed: int = 0
     ):
         """Setup a mock backend to test the restless fine amplitude calibration.
 
