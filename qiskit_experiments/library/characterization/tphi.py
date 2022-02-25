@@ -18,7 +18,6 @@ import numpy as np
 
 from qiskit import QiskitError
 from qiskit.providers import Backend
-from qiskit.test.mock import FakeBackend
 from qiskit_experiments.framework.composite.batch_experiment import BatchExperiment
 from qiskit_experiments.library.characterization import (
     T1,
@@ -106,16 +105,3 @@ class Tphi(BatchExperiment):
         self.set_experiment_options(delays_t1=delays_t1, delays_t2=delays_t2)
         # CompositeAnalysis accept the component analysis classes in its constructor
         self.analysis = TphiAnalysis(analyses=[T1Analysis(), T2RamseyAnalysis()])
-
-    def _set_backend(self, backend: Backend):
-        super()._set_backend(backend)
-
-        # Scheduling parameters
-        if not self._backend.configuration().simulator and not isinstance(backend, FakeBackend):
-            timing_constraints = getattr(self.transpile_options, "timing_constraints", {})
-            if "acquire_alignment" not in timing_constraints:
-                timing_constraints["acquire_alignment"] = 16
-            scheduling_method = getattr(self.transpile_options, "scheduling_method", "alap")
-            self.set_transpile_options(
-                timing_constraints=timing_constraints, scheduling_method=scheduling_method
-            )
