@@ -699,9 +699,9 @@ class RestlessToCounts(RestlessNode):
     """Post-process restless data and convert restless memory to counts.
 
     This node first orders the measured restless data according to the measurement
-    sequence and then compares each shot with the previous shot. If they are the
-    same then the shot corresponds to a 0, i.e. no state change, and if they are
-    different then the shot corresponds to a 1, i.e. there was a state change.
+    sequence and then compares each bit in a shot with its value in the previous shot. 
+    If they are the same then the bit corresponds to a 0, i.e. no state change, and if 
+    they are different then the bit corresponds to a 1, i.e. there was a state change.
     """
 
     def __init__(self, num_qubits: int, validate: bool = True):
