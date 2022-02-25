@@ -393,7 +393,7 @@ class TestRestless(QiskitExperimentsTestCase):
         shot = "1"
 
         restless_classified_shot = RestlessToCounts._restless_classify(shot, previous_shot)
-        self.assertAlmostEqual(restless_classified_shot, "0")
+        self.assertEqual(restless_classified_shot, "0")
 
     def test_restless_classify_2(self):
         """Test the classification of restless shots for two eight-qubit shots.
@@ -404,7 +404,7 @@ class TestRestless(QiskitExperimentsTestCase):
         shot = "11100010"
 
         restless_classified_shot = RestlessToCounts._restless_classify(shot, previous_shot)
-        self.assertAlmostEqual(restless_classified_shot, "00100100")
+        self.assertEqual(restless_classified_shot, "00100100")
 
     def test_restless_process_1(self):
         """Test that a single-qubit restless memory is correctly post-processed.
