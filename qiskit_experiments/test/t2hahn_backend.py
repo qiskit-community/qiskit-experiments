@@ -289,8 +289,8 @@ class T2HahnBackend(BackendV1):
         result = {
             "backend_name": "T2Hahn backend",
             "backend_version": "0",
-            "qobj_id": 0,
-            "job_id": 0,
+            "qobj_id": "0",
+            "job_id": "0",
             "success": True,
             "results": [],
         }
