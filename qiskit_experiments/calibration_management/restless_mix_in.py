@@ -23,18 +23,20 @@ from qiskit_experiments.data_processing import nodes
 class RestlessEnabledExperiment(BaseExperiment, ABC):
     """Restless enabled class."""
 
-    def enable_restless(self, rep_delay: float, outcome: str):
+    def enable_restless(self, rep_delay: float):
         """Enables a restless experiment by setting the restless run options and
         the restless data processor.
 
             Args:
                 rep_delay: The repetition delay.
-                outcome
         """
-        # Todo: outcome can be extracted from the analysis options.
-        # if self._is_restless(rep_delay):
+        outcome = self.analysis.options.get("outcome", "1" * self.num_qubits)
         self.set_run_options(rep_delay=rep_delay, init_qubit=False, memory=True, meas_level=2)
-        self.analysis.set_options(data_processor=self._get_restless_processor(outcome * self.num_qubits))
+        self.analysis.set_options(data_processor=self._get_restless_processor(outcome))
+        # print([
+        #     self.backend.properties().qubit_property(physical_qubit)["T1"][0]
+        #     for physical_qubit in self.physical_qubits
+        # ])
 
     def _get_restless_processor(self, outcome: str) -> DataProcessor:
         return DataProcessor(
@@ -51,6 +53,7 @@ class RestlessEnabledExperiment(BaseExperiment, ABC):
 
         Args:
             rep_delay: The repetition delay.
+
         Returns:
             True if the repetition delay is much smaller than the qubit T1 times.
         """
@@ -60,6 +63,11 @@ class RestlessEnabledExperiment(BaseExperiment, ABC):
         # Todo: include properties in mock backend.
         t1_values = [
             self.backend.properties().qubits[physical_qubit][0].value * 1e-6
+            for physical_qubit in self.physical_qubits
+        ]
+
+        t1_values = [
+            self.backend.properties().qubit_property(physical_qubit)["T1"][0]
             for physical_qubit in self.physical_qubits
         ]
 

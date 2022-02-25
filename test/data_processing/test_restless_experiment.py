@@ -35,16 +35,8 @@ class TestFineAmpEndToEndRestless(QiskitExperimentsTestCase):
         """Test the restless experiment end to end."""
 
         amp_exp = FineXAmplitude(0)
-        amp_exp.set_run_options(rep_delay=1e-6, meas_level=2, memory=True, init_qubits=False)
-        # restless_data_processor = DataProcessor(
-        #          "memory",
-        #          [
-        #              RestlessToCounts(1),
-        #              Probability("1"),
-        #          ],
-        #      )
-        # amp_exp.analysis.set_options(data_processor=restless_data_processor)
-        amp_exp.enable_restless(1e-6, "1")
+        # enable a restless measurement setting.
+        amp_exp.enable_restless(rep_delay=1e-6)
 
         error = -np.pi * pi_ratio
         backend = MockRestlessFineAmp(error, np.pi, "x")
@@ -69,6 +61,7 @@ class TestFineAmpEndToEndRestless(QiskitExperimentsTestCase):
         # standard data processor.
         standard_processor = DataProcessor("counts", [Probability("1")])
         amp_exp.analysis.set_options(data_processor=standard_processor)
+        # set restless run options.
         amp_exp.set_run_options(rep_delay=1e-6, meas_level=2, memory=True, init_qubits=False)
 
         error = -np.pi * pi_ratio
