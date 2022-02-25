@@ -64,6 +64,7 @@ class TestFineAmpEndToEndRestless(QiskitExperimentsTestCase):
         # standard data processor.
         standard_processor = DataProcessor("counts", [Probability("1")])
         amp_exp.analysis.set_options(data_processor=standard_processor)
+        # enable a restless measurement setting.
         amp_exp.enable_restless(rep_delay=1e-6, backend=backend)
 
         expdata = amp_exp.run(backend)
