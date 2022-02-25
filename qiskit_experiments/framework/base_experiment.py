@@ -16,7 +16,7 @@ Base Experiment class.
 from abc import ABC, abstractmethod
 import copy
 from collections import OrderedDict
-from typing import Sequence, Optional, Tuple, List, Dict, Union, Any
+from typing import Sequence, Optional, Tuple, List, Dict, Union
 import warnings
 
 from qiskit import transpile, assemble, QuantumCircuit
@@ -274,7 +274,6 @@ class BaseExperiment(ABC, StoreInitArgs):
         # Run jobs
         jobs = experiment._run_jobs(transpiled_circuits, **run_opts)
         experiment_data.add_jobs(jobs, timeout=timeout)
-        experiment._add_job_metadata(experiment_data.metadata, jobs, **run_opts)
 
         # Optionally run analysis
         if analysis and experiment.analysis:
@@ -508,37 +507,7 @@ class BaseExperiment(ABC, StoreInitArgs):
             "experiment_config": self.config(),
             "analysis_config": self.analysis.config() if self.analysis else None,
         }
-        # Add additional metadata if subclasses specify it
-        for key, val in self._additional_metadata().items():
-            metadata[key] = val
         return metadata
-
-    def _additional_metadata(self) -> Dict[str, any]:
-        """Add additional subclass experiment metadata.
-
-        Subclasses can override this method if it is necessary to store
-        additional experiment metadata in ExperimentData.
-        """
-        return {}
-
-    def _add_job_metadata(self, metadata: Dict[str, Any], jobs: BaseJob, **run_options):
-        """Add runtime job metadata to ExperimentData.
-
-        Args:
-            metadata: the metadata dict to update with job data.
-            jobs: the job objects.
-            run_options: backend run options for the job.
-        """
-        values = {
-            "job_ids": [job.job_id() for job in jobs],
-            "experiment_options": copy.copy(self.experiment_options.__dict__),
-            "transpile_options": copy.copy(self.transpile_options.__dict__),
-            "run_options": copy.copy(run_options),
-        }
-        if self.analysis is not None:
-            values["analysis_options"] = copy.copy(self.analysis.options.__dict__)
-
-        metadata["job_metadata"] = [values]
 
     def __json_encode__(self):
         """Convert to format that can be JSON serialized"""
