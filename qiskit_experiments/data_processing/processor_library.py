@@ -12,13 +12,16 @@
 
 """A collection of functions that return various data processors."""
 
+import logging
 from qiskit.qobj.utils import MeasLevel, MeasReturnType
 
-from qiskit_experiments.framework import ExperimentData, Options, ExperimentConfig
+from qiskit_experiments.framework import ExperimentData, Options
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
 from qiskit_experiments.data_processing.data_processor import DataProcessor
 from qiskit_experiments.data_processing.nodes import ProjectorType
 from qiskit_experiments.data_processing import nodes
+
+LOG = logging.getLogger(__name__)
 
 
 def get_processor(
@@ -49,16 +52,25 @@ def get_processor(
         An instance of DataProcessor capable of processing the data for the corresponding job.
 
     Notes:
-        The `num_qubits` argument is extracted from the `experiment_data` metadata and is used
-        to determine the default `outcome` to extract from classified data if it was not given in the
-        analysis options.
+        The `num_qubits` argument is extracted from the `experiment_data` metadata
+        and is used to determine the default `outcome` to extract from classified
+        data if it was not given in the analysis options.
 
     Raises:
         DataProcessorError: if the measurement level is not supported.
         DataProcessorError: if the wrong dimensionality reduction for kerneled data
             is specified.
     """
-    run_options = experiment_data.metadata.get("experiment_config", ExperimentConfig()).run_options
+    exp_config = experiment_data.metadata.get("experiment_config", None)
+    if exp_config is None:
+        LOG.warning(
+            "ExperimentConfig not found in ExperimentData. DataProcessor may not be"
+            "correctly configured for experiment run options."
+        )
+        run_options = {}
+    else:
+        run_options = exp_config.run_options
+
     meas_level = run_options.get("meas_level", MeasLevel.CLASSIFIED)
     meas_return = run_options.get("meas_return", MeasReturnType.AVERAGE)
     normalize = analysis_options.get("normalization", True)

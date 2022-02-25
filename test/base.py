@@ -22,6 +22,7 @@ from typing import Any, Callable, Optional
 import numpy as np
 import uncertainties
 from qiskit.test import QiskitTestCase
+from qiskit.providers import Backend, BaseBackend
 from qiskit_experiments.calibration_management import Calibrations
 from qiskit_experiments.data_processing import DataAction, DataProcessor
 from qiskit_experiments.database_service.db_experiment_data import ExperimentStatus
@@ -110,7 +111,7 @@ class QiskitExperimentsTestCase(QiskitTestCase):
         configrable_type = (BaseExperiment, BaseAnalysis)
         compare_repr = (DataAction, DataProcessor)
         list_type = (list, tuple, set)
-        skipped = (Calibrations,)
+        skipped = (Calibrations, Backend, BaseBackend)
 
         if isinstance(data1, skipped) and isinstance(data2, skipped):
             warnings.warn(f"Equivalence check for data {data1.__class__.__name__} is skipped.")
@@ -133,7 +134,6 @@ class QiskitExperimentsTestCase(QiskitTestCase):
         elif isinstance(data1, compare_repr) and isinstance(data2, compare_repr):
             # otherwise compare instance representation
             return repr(data1) == repr(data2)
-
         return data1 == data2
 
     @staticmethod
@@ -205,7 +205,7 @@ class QiskitExperimentsTestCase(QiskitTestCase):
         if not cls.json_equiv(data1.data(), data2.data()):
             return False
 
-        # Check analysis resultsx
+        # Check analysis results
         for result1, result2 in zip(data1.analysis_results(), data2.analysis_results()):
             if not cls.analysis_result_equiv(result1, result2):
                 return False
