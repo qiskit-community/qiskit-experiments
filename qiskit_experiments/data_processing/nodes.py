@@ -684,6 +684,7 @@ class RestlessNode(DataAction, ABC):
 
         Here, by default, it is assumed that the inner loop of the measurement
         is done over the circuits and the outer loop is done over the shots.
+        The returned data is a one-dimensional array of time-ordered shots.
         """
         if unordered_data is None:
             return unordered_data
