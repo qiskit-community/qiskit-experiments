@@ -119,8 +119,8 @@ class TphiBackend(BackendV1):
         result_for_fake = Result(
             backend_name="Tphi backend",
             backend_version="0",
-            qobj_id=0,
-            job_id=0,
+            qobj_id="0",
+            job_id="0",
             success=True,
             results=final_results,
             status="JobStatus.DONE",

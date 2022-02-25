@@ -247,6 +247,20 @@ class TestStandardRB(RBTestCase):
         self.assertNotEqual(analysis, loaded)
         self.assertEqual(analysis.config(), loaded.config())
 
+    def test_expdata_serialization(self):
+        """Test serializing experiment data works."""
+        exp = rb.StandardRB(
+            qubits=(0,),
+            lengths=list(range(1, 200, 50)),
+            seed=123,
+            backend=self.backend,
+        )
+        exp.set_transpile_options(**self.transpiler_options)
+        expdata = exp.run()
+        self.assertExperimentDone(expdata)
+        self.assertRoundTripSerializable(expdata, check_func=self.experiment_data_equiv)
+        self.assertRoundTripPickle(expdata, check_func=self.experiment_data_equiv)
+
 
 @ddt
 class TestInterleavedRB(RBTestCase):
@@ -358,3 +372,18 @@ class TestInterleavedRB(RBTestCase):
         loaded = rb.InterleavedRBAnalysis.from_config(analysis.config())
         self.assertNotEqual(analysis, loaded)
         self.assertEqual(analysis.config(), loaded.config())
+
+    def test_expdata_serialization(self):
+        """Test serializing experiment data works."""
+        exp = rb.InterleavedRB(
+            interleaved_element=SXGate(),
+            qubits=(0,),
+            lengths=list(range(1, 200, 50)),
+            seed=123,
+            backend=self.backend,
+        )
+        exp.set_transpile_options(**self.transpiler_options)
+        expdata = exp.run()
+        self.assertExperimentDone(expdata)
+        self.assertRoundTripSerializable(expdata, check_func=self.experiment_data_equiv)
+        self.assertRoundTripPickle(expdata, check_func=self.experiment_data_equiv)
