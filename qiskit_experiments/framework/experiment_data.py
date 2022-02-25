@@ -23,6 +23,7 @@ from qiskit_experiments.database_service import DbExperimentDataV1 as DbExperime
 from qiskit_experiments.database_service.database_service import (
     DatabaseServiceV1 as DatabaseService,
 )
+from qiskit_experiments.framework.configs import ExperimentConfig, AnalysisConfig
 from qiskit_experiments.database_service.utils import ThreadSafeOrderedDict
 
 if TYPE_CHECKING:
@@ -75,6 +76,30 @@ class ExperimentData(DbExperimentData):
         self._child_data = ThreadSafeOrderedDict()
         if child_data is not None:
             self._set_child_data(child_data)
+
+    def experiment_config(self) -> Optional[ExperimentConfig]:
+        """Return the experiment config used to generate this data.
+
+        Returns:
+            The :class:`.ExperimentConfig` if one is stored in the "experiment_config"
+            meth:`~ExperimentData.metadata` or None if no config is found.
+        """
+        config = self.metadata.get("experiment_config")
+        if config is None:
+            LOG.warning("No experiment config found in ExperimentData metadata")
+        return config
+
+    def analysis_config(self) -> Optional[AnalysisConfig]:
+        """Return the analysis config used to generate analysis result data.
+
+        Returns:
+            The :class:`.AnaylsisConfig` if one is stored in the "analysis_config"
+            meth:`~ExperimentData.metadata` or None if no config is found.
+        """
+        config = self.metadata.get("analysis_config")
+        if config is None:
+            LOG.warning("No analysis config found in ExperimentData metadata")
+        return config
 
     @property
     def experiment(self):

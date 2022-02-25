@@ -1,0 +1,16 @@
+---
+features:
+  - |
+    Running an experiment now stores the :class:`.ExperimentConfig` of
+    the experiment in the :class:`~.ExperimentData.metadata` of the returned
+    :class:`.ExperimentData`.
+  - |
+    Adds :meth:`.ExperimentData.experiment_config` methods for recovering the
+    :class:`.ExperimentConfig` of a run experiment from saved metadata.
+  - |
+    Running an experiment or analysis now stores the :class:`.AnalysisConfig`
+    of the analysis class in the :class:`~.ExperimentData.metadata` of the
+    analyzed :class:`.ExperimentData`.
+  - |
+    Adds :meth:`.ExperimentData.analysis_config` methods for recovering the
+    :class:`.AnalysisConfig` of a run experiment from saved metadata.

@@ -14,7 +14,7 @@
 
 from qiskit.qobj.utils import MeasLevel, MeasReturnType
 
-from qiskit_experiments.framework import ExperimentData, Options
+from qiskit_experiments.framework import ExperimentData, Options, ExperimentConfig
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
 from qiskit_experiments.data_processing.data_processor import DataProcessor
 from qiskit_experiments.data_processing.nodes import ProjectorType
@@ -24,7 +24,6 @@ from qiskit_experiments.data_processing import nodes
 def get_processor(
     experiment_data: ExperimentData,
     analysis_options: Options,
-    index: int = -1,
 ) -> DataProcessor:
     """Get a DataProcessor that produces a continuous signal given the options.
 
@@ -45,7 +44,6 @@ def get_processor(
             - outcome (string): The measurement outcome that will be passed to a Probability node.
               The default value is a string of 1's where the length of the string is the number of
               qubits, e.g. '111' for three qubits.
-        index: The index of the job for which to get a data processor. The default value is -1.
 
     Returns:
         An instance of DataProcessor capable of processing the data for the corresponding job.
@@ -60,8 +58,7 @@ def get_processor(
         DataProcessorError: if the wrong dimensionality reduction for kerneled data
             is specified.
     """
-    run_options = experiment_data.metadata["job_metadata"][index].get("run_options", {})
-
+    run_options = experiment_data.metadata.get("experiment_config", ExperimentConfig()).run_options
     meas_level = run_options.get("meas_level", MeasLevel.CLASSIFIED)
     meas_return = run_options.get("meas_return", MeasReturnType.AVERAGE)
     normalize = analysis_options.get("normalization", True)

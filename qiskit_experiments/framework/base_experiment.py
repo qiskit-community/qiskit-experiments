@@ -165,14 +165,17 @@ class BaseExperiment(ABC, StoreInitArgs):
         """Return the config dataclass for this experiment"""
         args = tuple(getattr(self, "__init_args__", OrderedDict()).values())
         kwargs = dict(getattr(self, "__init_kwargs__", OrderedDict()))
-        # Only store non-default valued options
+        # Only store non-default valued options for experiment and transpile opts
         experiment_options = dict(
             (key, getattr(self._experiment_options, key)) for key in self._set_experiment_options
         )
         transpile_options = dict(
             (key, getattr(self._transpile_options, key)) for key in self._set_transpile_options
         )
-        run_options = dict((key, getattr(self._run_options, key)) for key in self._set_run_options)
+        # Store all run options including defaults, since currently they are required
+        # for handling data processor in certain experiments. Hopfully this handling
+        # can be improved in the future.
+        run_options = self.run_options.__dict__
         return ExperimentConfig(
             cls=type(self),
             args=args,
@@ -245,13 +248,15 @@ class BaseExperiment(ABC, StoreInitArgs):
                     stacklevel=2,
                 )
 
-        if backend is not None or analysis != "default":
+        if backend is not None or analysis != "default" or run_options:
             # Make a copy to update analysis or backend if one is provided at runtime
             experiment = self.copy()
             if backend:
                 experiment._set_backend(backend)
             if isinstance(analysis, BaseAnalysis):
                 experiment.analysis = analysis
+            if run_options:
+                experiment.set_run_options(**run_options)
         else:
             experiment = self
 
@@ -262,10 +267,7 @@ class BaseExperiment(ABC, StoreInitArgs):
         experiment_data = experiment._initialize_experiment_data()
 
         # Run options
-        run_opts = copy.copy(experiment.run_options)
-        run_opts.update_options(**run_options)
-        run_opts = run_opts.__dict__
-
+        run_opts = experiment.run_options.__dict__
         # Generate and transpile circuits
         transpiled_circuits = experiment._transpiled_circuits()
 
@@ -498,16 +500,13 @@ class BaseExperiment(ABC, StoreInitArgs):
         self.analysis.options.update_options(**fields)
 
     def _metadata(self) -> Dict[str, any]:
-        """Return experiment metadata for ExperimentData.
-
-        The :meth:`_add_job_metadata` method will be called for each
-        experiment execution to append job metadata, including current
-        option values, to the ``job_metadata`` list.
-        """
+        """Return experiment metadata to be added to ExperimentData."""
         metadata = {
             "experiment_type": self._type,
             "num_qubits": self.num_qubits,
             "physical_qubits": list(self.physical_qubits),
+            "experiment_config": self.config(),
+            "analysis_config": self.analysis.config() if self.analysis else None,
         }
         # Add additional metadata if subclasses specify it
         for key, val in self._additional_metadata().items():

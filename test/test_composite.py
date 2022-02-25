@@ -12,7 +12,6 @@
 
 """Class to test composite experiments."""
 
-import copy
 import uuid
 
 from test.fake_experiment import FakeExperiment, FakeAnalysis
@@ -130,6 +129,26 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
             self.check_attributes(childdata)
             self.assertEqual(childdata.parent_id, expdata.experiment_id)
 
+    def metadata_equal(self, metadata1, metadata2, is_a_copy) -> bool:
+        """Recursively check metadata is equal"""
+        for key, value1 in metadata1.items():
+            if key not in metadata2:
+                return False
+            value2 = metadata2[key]
+            if key == "component_metadata":
+                if len(value1) != len(value2):
+                    return False
+                for comp_meta1, comp_meta2 in zip(value1, value2):
+                    if not self.metadata_equal(comp_meta1, comp_meta2, is_a_copy):
+                        return False
+            elif is_a_copy and key == "child_data_ids":
+                continue
+            elif key in ["experiment_config", "analysis_config"]:
+                continue
+            elif value1 != value2:
+                return False
+        return True
+
     def check_if_equal(self, expdata1, expdata2, is_a_copy):
         """
         Recursively traverse the tree and check equality of expdata1 and expdata2
@@ -139,11 +158,10 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
         self.assertEqual(expdata1.experiment_type, expdata2.experiment_type)
         self.assertEqual(expdata1.share_level, expdata2.share_level)
 
-        metadata1 = copy.copy(expdata1.metadata)
-        metadata2 = copy.copy(expdata2.metadata)
-        metadata1.pop("child_data_ids", [])
-        metadata2.pop("child_data_ids", [])
-        self.assertDictEqual(metadata1, metadata2, msg="metadata not equal")
+        self.assertTrue(
+            self.metadata_equal(expdata1.metadata, expdata2.metadata, is_a_copy),
+            msg="metadata not equal",
+        )
 
         if is_a_copy:
             self.assertNotEqual(expdata1.experiment_id, expdata2.experiment_id)

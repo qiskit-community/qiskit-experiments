@@ -153,6 +153,9 @@ class BaseAnalysis(ABC, StoreInitArgs):
             analysis = self.copy()
             analysis.set_options(**options)
 
+        # Store analysis config
+        experiment_data.metadata["analysis_config"] = analysis.config()
+
         def run_analysis(expdata):
             results, figures = analysis._run_analysis(expdata)
             # Add components
