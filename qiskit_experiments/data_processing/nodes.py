@@ -642,8 +642,8 @@ class RestlessNode(DataAction, ABC):
 
         Args:
             validate: If set to True the node will validate its input.
-            circuits_first: If set to True the node assumes that the backend 
-                subsequently first measures all circuits and then repeats this 
+            circuits_first: If set to True the node assumes that the backend
+                subsequently first measures all circuits and then repeats this
                 n times, where n is the total number of shots.
         """
         super().__init__(validate)
@@ -699,8 +699,8 @@ class RestlessToCounts(RestlessNode):
     """Post-process restless data and convert restless memory to counts.
 
     This node first orders the measured restless data according to the measurement
-    sequence and then compares each bit in a shot with its value in the previous shot. 
-    If they are the same then the bit corresponds to a 0, i.e. no state change, and if 
+    sequence and then compares each bit in a shot with its value in the previous shot.
+    If they are the same then the bit corresponds to a 0, i.e. no state change, and if
     they are different then the bit corresponds to a 1, i.e. there was a state change.
     """
 
