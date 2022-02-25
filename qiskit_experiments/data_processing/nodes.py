@@ -750,8 +750,8 @@ class RestlessToCounts(RestlessNode):
     def _restless_classify(shot: str, prev_shot: str) -> str:
         """Adjust the measured shot based on the previous shot.
 
-        Each bitstring of shot is compared to the previous bitstring. If both are equal
-        the restless adjusted bitstring is 0 (no state change) otherwise it is 1 (the
+        Each bit in shot is compared to its value in the previous shot. If both are equal
+        the restless adjusted bit is 0 (no state change) otherwise it is 1 (the
         qubit changed state). This corresponds to taking the exclusive OR operation
         between each bit and its previous outcome.
 
