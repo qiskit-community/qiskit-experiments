@@ -30,7 +30,7 @@ from qiskit_experiments.data_processing.nodes import Probability, RestlessToCoun
 class TestFineAmpEndToEndRestless(QiskitExperimentsTestCase):
     """Test the fine amplitude experiment in a restless measurement setting."""
 
-    @data(-0.03, -0.02, -0.01, 0.02, 0.04)
+    @data(-0.03, -0.01, 0.02, 0.04)
     def test_end_to_end_restless(self, pi_ratio):
         """Test the restless experiment end to end."""
 
@@ -53,7 +53,7 @@ class TestFineAmpEndToEndRestless(QiskitExperimentsTestCase):
         amp_fit = expdata.analysis_results(0).value[0]
         self.assertAlmostEqual(amp_fit, 1.0, delta=0.02)
 
-    @data(-0.02, 0.03, 0.04)
+    @data(-0.02, 0.04)
     def test_end_to_end_restless_standard_processor(self, pi_ratio):
         """Test the restless experiment with a standard processor end to end."""
 

@@ -16,7 +16,7 @@ from abc import abstractmethod
 from abc import ABC
 from enum import Enum
 from numbers import Number
-from typing import Union, Sequence, Any
+from typing import Union, Sequence
 from collections import defaultdict
 
 import numpy as np
@@ -610,73 +610,11 @@ class RestlessNode(DataAction, ABC):
     that are implemented as sub-classes of `RestlessNode`. Restless experiments provide a
     fast alternative for several calibration and characterization tasks, for details
     see https://arxiv.org/pdf/2202.06981.pdf.
-    """
 
-    def __init__(self, validate: bool = True): # , circuits_first: bool = True):
-        """Initialize a restless node.
-
-        Args:
-            validate: If set to True the node will validate its input.
-        """
-        super().__init__(validate)
-        self._n_shots = None
-        self._n_circuits = None
-
-    def _format_data(self, data: Any) -> Any:
-        """Convert the data to an array.
-
-        This node will also set all the attributes needed to process the data such as
-        the number of shots and the number of circuits.
-
-        Args:
-            data: An array representing the memory.
-
-        Returns:
-            The data that has been processed.
-
-        Raises:
-            DataProcessorError: If the datum has the wrong shape.
-        """
-
-        self._n_shots = len(data[0])
-        self._n_circuits = len(data)
-
-        datum = np.array(data)
-
-        if self._validate:
-            if datum.shape != (self._n_circuits, self._n_shots):
-                raise DataProcessorError(
-                    f"The datum given to {self.__class__.__name__} does not convert "
-                    "of an array with dimension (number of circuit, number of shots)."
-                )
-
-        return data
-
-    def _reorder(self, unordered_data: np.array) -> np.array:
-        """Reorder the measured data according to the measurement sequence.
-
-        Here, is assumed that the inner loop of the measurement is done over the circuits
-        and the outer loop is done over the shots.
-        """
-        if unordered_data is None:
-            return unordered_data
-
-        order_data = []
-
-        for shot_idx in range(self._n_shots):
-            for circuit_idx in range(self._n_circuits):
-                order_data.append(unordered_data[circuit_idx][shot_idx])
-
-        return np.array(order_data)
-
-
-class RestlessToCounts(RestlessNode):
-    """Convert restless memory to counts.
-
-    This node takes as input a list of lists where the sublist is the memory of
-    each measured circuit. The sublists therefore have a length given by the
-    number of shots. This data is reordered into a one dimensional array where
-    the element at index j was the jth measured shot. This node assumes that
+    This node takes as input an array of arrays (2d array) where the sub-arrays are
+    the memories of each measured circuit. The sub-arrays therefore have a length
+    given by the number of shots. This data is reordered into a one dimensional array where
+    the element at index j was the jth measured shot. This node assumes by default that
     a list of circuits :code:`[circ_1, cric_2, ..., circ_m]` is measured :code:`n_shots`
     times according to the following order:
 
@@ -696,24 +634,88 @@ class RestlessToCounts(RestlessNode):
             circuit m - shot n,
         ]
 
-    Once the shots have been ordered in this fashion the node compares each shot with the
-    previous shot. If they are the same then the shot corresponds to a 0, i.e. no state
-    change, and if they are different then the shot corresponds to a 1, i.e. there was
-    a state change.
+    Once the shots have been ordered in this fashion the data can be post-processed.
+    """
+
+    def __init__(self, validate: bool = True, circuits_first: bool = True):
+        """Initialize a restless node.
+
+        Args:
+            validate: If set to True the node will validate its input.
+            circuits_first: If set to True the node assumes that the backend
+                subsequently first measures all circuits and then repeats this
+                n times, where n is the total number of shots.
+        """
+        super().__init__(validate)
+        self._n_shots = None
+        self._n_circuits = None
+        self._circuits_first = circuits_first
+
+    def _format_data(self, data: np.ndarray) -> np.ndarray:
+        """Convert the data to an array.
+
+        This node will also set all the attributes needed to process the data such as
+        the number of shots and the number of circuits.
+
+        Args:
+            data: An array representing the memory.
+
+        Returns:
+            The data that has been processed.
+
+        Raises:
+            DataProcessorError: If the datum has the wrong shape.
+        """
+
+        self._n_shots = len(data[0])
+        self._n_circuits = len(data)
+
+        if self._validate:
+            if data.shape != (self._n_circuits, self._n_shots):
+                raise DataProcessorError(
+                    f"The datum given to {self.__class__.__name__} does not convert "
+                    "of an array with dimension (number of circuit, number of shots)."
+                )
+
+        return data
+
+    def _reorder(self, unordered_data: np.ndarray) -> np.ndarray:
+        """Reorder the measured data according to the measurement sequence.
+
+        Here, by default, it is assumed that the inner loop of the measurement
+        is done over the circuits and the outer loop is done over the shots.
+        The returned data is a one-dimensional array of time-ordered shots.
+        """
+        if unordered_data is None:
+            return unordered_data
+
+        if self._circuits_first:
+            return unordered_data.T.flatten()
+        else:
+            return unordered_data.flatten()
+
+
+class RestlessToCounts(RestlessNode):
+    """Post-process restless data and convert restless memory to counts.
+
+    This node first orders the measured restless data according to the measurement
+    sequence and then compares each bit in a shot with its value in the previous shot.
+    If they are the same then the bit corresponds to a 0, i.e. no state change, and if
+    they are different then the bit corresponds to a 1, i.e. there was a state change.
     """
 
     def __init__(self, num_qubits: int, validate: bool = True):
         """
         Args:
             num_qubits: The number of qubits which is needed to construct the header needed
-            by :code:`qiskit.result.postprocess.format_counts_memory` to convert the memory
-            into a bit-string of counts.
+                by :code:`qiskit.result.postprocess.format_counts_memory` to convert the memory
+                into a bit-string of counts.
             validate: If set to False the DataAction will not validate its input.
         """
         super().__init__(validate)
         self._num_qubits = num_qubits
 
-    def _process(self, data: np.array) -> np.array:
+    def _process(self, data: np.ndarray) -> np.ndarray:
         """Reorder the shots and assign values to them based on the previous outcome.
 
         Args:
@@ -748,8 +750,8 @@ class RestlessToCounts(RestlessNode):
     def _restless_classify(shot: str, prev_shot: str) -> str:
         """Adjust the measured shot based on the previous shot.
 
-        Each bitstring of shot is compared to the previous bitstring. If both are equal
-        the restless adjusted bitstring is 0 (no state change) otherwise it is 1 (the
+        Each bit in shot is compared to its value in the previous shot. If both are equal
+        the restless adjusted bit is 0 (no state change) otherwise it is 1 (the
         qubit changed state). This corresponds to taking the exclusive OR operation
         between each bit and its previous outcome.
 
