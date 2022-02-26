@@ -603,6 +603,7 @@ class ProjectorType(Enum):
 
 class ShotOrder(Enum):
     """Shot order allowed values"""
+
     # pylint: disable=invalid-name
     circuit_first = "c"
     shot_first = "s"
