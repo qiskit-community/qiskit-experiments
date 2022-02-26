@@ -10,156 +10,60 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
+# pylint: disable=invalid-name
+
 """Spectroscopy tests."""
 from test.base import QiskitExperimentsTestCase
 
 import numpy as np
 from ddt import ddt, data, unpack
-from qiskit import QuantumCircuit, circuit, pulse
-from qiskit.providers.models import PulseBackendConfiguration
-from qiskit.result import Result
-from qiskit.test.mock import FakeBackend
-
+from qiskit import QuantumCircuit, pulse, quantum_info as qi
+from qiskit.test.mock import FakeBogota
+from qiskit.extensions.hamiltonian_gate import HamiltonianGate
+from qiskit.providers.aer import AerSimulator
 from qiskit_experiments.library.characterization import cr_hamiltonian
-from qiskit_experiments.library.characterization.analysis import cr_hamiltonian_analysis
-from qiskit_experiments.test.utils import FakeJob
-
-
-class CrossResonanceHamiltonianBackend(FakeBackend):
-    """Fake backend to test cross resonance hamiltonian experiment."""
-
-    def __init__(
-        self,
-        t_off: float = 0.0,
-        ix: float = 0.0,
-        iy: float = 0.0,
-        iz: float = 0.0,
-        zx: float = 0.0,
-        zy: float = 0.0,
-        zz: float = 0.0,
-        b: float = 0.0,
-        seed: int = 123,
-    ):
-        """Initialize fake backend.
-
-        Args:
-            t_off: Offset of gate duration.
-            ix: IX term coefficient.
-            iy: IY term coefficient.
-            iz: IZ term coefficient.
-            zx: ZX term coefficient.
-            zy: ZY term coefficient.
-            zz: ZZ term coefficient.
-            b: Offset term.
-            seed: Seed of random number generator used to generate count data.
-        """
-        self.fit_func_args = {
-            "t_off": t_off,
-            "px0": 2 * np.pi * (ix + zx),
-            "px1": 2 * np.pi * (ix - zx),
-            "py0": 2 * np.pi * (iy + zy),
-            "py1": 2 * np.pi * (iy - zy),
-            "pz0": 2 * np.pi * (iz + zz),
-            "pz1": 2 * np.pi * (iz - zz),
-            "b": b,
-        }
-        self.seed = seed
-        configuration = PulseBackendConfiguration(
-            backend_name="fake_cr_hamiltonian",
-            backend_version="0.1.0",
-            n_qubits=2,
-            basis_gates=["sx", "rz", "x", "cx"],
-            gates=None,
-            local=True,
-            simulator=True,
-            conditional=False,
-            open_pulse=True,
-            memory=True,
-            max_shots=10000,
-            coupling_map=[[0, 1], [1, 0]],
-            n_uchannels=2,
-            u_channel_lo=[],
-            meas_levels=[2],
-            qubit_lo_range=[],
-            meas_lo_range=[],
-            dt=1,
-            dtm=1,
-            rep_times=[],
-            meas_kernels=[],
-            discriminators=[],
-            channels={
-                "d0": {"operates": {"qubits": [0]}, "purpose": "drive", "type": "drive"},
-                "d1": {"operates": {"qubits": [1]}, "purpose": "drive", "type": "drive"},
-                "u0": {
-                    "operates": {"qubits": [0, 1]},
-                    "purpose": "cross-resonance",
-                    "type": "control",
-                },
-                "u1": {
-                    "operates": {"qubits": [0, 1]},
-                    "purpose": "cross-resonance",
-                    "type": "control",
-                },
-            },
-            timing_constraints={"granularity": 16, "min_length": 64},
-        )
-
-        super().__init__(configuration)
-        setattr(
-            self._configuration,
-            "_control_channels",
-            {
-                (0, 1): [pulse.ControlChannel(0)],
-                (1, 0): [pulse.ControlChannel(1)],
-            },
-        )
-
-    def run(self, run_input, **kwargs):
-        """Hard-coded experiment result generation based on the series definition."""
-        results = []
-        shots = kwargs.get("shots", 1024)
-        rng = np.random.default_rng(seed=self.seed)
-
-        series_defs = cr_hamiltonian_analysis.CrossResonanceHamiltonianAnalysis.__series__
-        filter_kwargs_list = [sdef.filter_kwargs for sdef in series_defs]
-
-        for test_circ in run_input:
-            metadata = {
-                "control_state": test_circ.metadata["control_state"],
-                "meas_basis": test_circ.metadata["meas_basis"],
-            }
-            curve_ind = filter_kwargs_list.index(metadata)
-            xval = test_circ.metadata["xval"]
-
-            expv = series_defs[curve_ind].fit_func(xval, **self.fit_func_args)
-            popl = 0.5 * (1 - expv)
-            counts = rng.multinomial(shots, [1 - popl, popl])
-            results.append(
-                {
-                    "shots": shots,
-                    "success": True,
-                    "header": {"metadata": test_circ.metadata},
-                    "data": {"counts": dict(zip(["0", "1"], counts))},
-                }
-            )
-
-        result = {
-            "backend_name": self.name(),
-            "backend_version": self.configuration().backend_version,
-            "qobj_id": "12345",
-            "job_id": "12345",
-            "success": True,
-            "results": results,
-        }
-        return FakeJob(backend=self, result=Result.from_dict(result))
 
 
 @ddt
 class TestCrossResonanceHamiltonian(QiskitExperimentsTestCase):
     """Test for cross resonance Hamiltonian tomography."""
 
+    @staticmethod
+    def cr_gate_factory(t_off, ix, iy, iz, zx, zy, zz, dt=1e-9):
+        """A factory method to generate simulatable gate with given Hamiltonian."""
+
+        # pylint: disable=missing-class-docstring
+        class SimulatableCRGate(HamiltonianGate):
+            def __init__(self, width):
+
+                # Note that Qiskit is Little endien, i.e. [q1, q0]
+                hamiltonian = (
+                    2
+                    * np.pi
+                    * (
+                        ix * qi.Operator.from_label("XI")
+                        + iy * qi.Operator.from_label("YI")
+                        + iz * qi.Operator.from_label("ZI")
+                        + zx * qi.Operator.from_label("XZ")
+                        + zy * qi.Operator.from_label("YZ")
+                        + zz * qi.Operator.from_label("ZZ")
+                    )
+                    / 2
+                )
+                super().__init__(data=hamiltonian, time=(t_off + width) * dt)
+
+        return SimulatableCRGate
+
     def test_circuit_generation(self):
         """Test generated circuits."""
+        backend = FakeBogota()
+
+        # Add granularity to check duration optimization logic
+        setattr(
+            backend.configuration(),
+            "timing_constraints",
+            {"granularity": 16},
+        )
 
         expr = cr_hamiltonian.CrossResonanceHamiltonian(
             qubits=(0, 1),
@@ -168,7 +72,7 @@ class TestCrossResonanceHamiltonian(QiskitExperimentsTestCase):
             sigma=64,
             risefall=2,
         )
-        expr.backend = CrossResonanceHamiltonianBackend()
+        expr.backend = backend
 
         nearlest_16 = 1248
 
@@ -185,7 +89,7 @@ class TestCrossResonanceHamiltonian(QiskitExperimentsTestCase):
             pulse.delay(nearlest_16, pulse.DriveChannel(0))
             pulse.delay(nearlest_16, pulse.DriveChannel(1))
 
-        cr_gate = circuit.Gate("cr_gate", num_qubits=2, params=[1000])
+        cr_gate = cr_hamiltonian.CrossResonanceHamiltonian.CRPulseGate(width=1000)
         expr_circs = expr.circuits()
 
         x0_circ = QuantumCircuit(2, 1)
@@ -227,6 +131,19 @@ class TestCrossResonanceHamiltonian(QiskitExperimentsTestCase):
 
         self.assertListEqual(expr_circs, ref_circs)
 
+    def test_circuit_generation_no_backend(self):
+        """User can check experiment circuit without setting backend."""
+        expr = cr_hamiltonian.CrossResonanceHamiltonian(
+            qubits=(0, 1),
+            flat_top_widths=[1000],
+            amp=0.1,
+            sigma=64,
+            risefall=2,
+        )
+
+        # Not raise error
+        expr.circuits()
+
     @data(
         [1e6, 2e6, 1e3, -3e6, -2e6, 1e4],
         [-1e6, -2e6, 1e3, 3e6, 2e6, 1e4],
@@ -235,18 +152,26 @@ class TestCrossResonanceHamiltonian(QiskitExperimentsTestCase):
         [-1.0e5, 1.2e5, 1.0e3, 1.5e5, -1.1e5, -1.0e3],  # low frequency test case 2
     )
     @unpack
-    # pylint: disable=invalid-name
     def test_integration(self, ix, iy, iz, zx, zy, zz):
         """Integration test for Hamiltonian tomography."""
-        sigma = 20
-        toff = np.sqrt(2 * np.pi) * sigma * 1e-9
+        backend = AerSimulator(seed_simulator=123, shots=2000)
+        delta = 3e4
 
-        backend = CrossResonanceHamiltonianBackend(toff, ix, iy, iz, zx, zy, zz)
+        sigma = 20
+        t_off = np.sqrt(2 * np.pi) * sigma
+        cr_gate = self.cr_gate_factory(t_off, ix, iy, iz, zx, zy, zz)
+
         durations = np.linspace(0, 700, 50)
         expr = cr_hamiltonian.CrossResonanceHamiltonian(
-            qubits=(0, 1), flat_top_widths=durations, sigma=sigma, risefall=2
+            qubits=(0, 1),
+            flat_top_widths=durations,
+            sigma=sigma,
+            risefall=2,
+            cr_gate=cr_gate,
         )
-        exp_data = expr.run(backend, shots=2000)
+        expr.backend = backend
+
+        exp_data = expr.run()
         self.assertExperimentDone(exp_data, timeout=600)
 
         self.assertEqual(exp_data.analysis_results(0).quality, "good")
@@ -254,15 +179,15 @@ class TestCrossResonanceHamiltonian(QiskitExperimentsTestCase):
         # These values are computed from other analysis results in post hook.
         # Thus at least one of these values should be round-trip tested.
         res_ix = exp_data.analysis_results("omega_ix")
-        self.assertAlmostEqual(res_ix.value.n, ix, delta=2e4)
+        self.assertAlmostEqual(res_ix.value.n, ix, delta=delta)
         self.assertRoundTripSerializable(res_ix.value, check_func=self.ufloat_equiv)
         self.assertEqual(res_ix.extra["unit"], "Hz")
 
-        self.assertAlmostEqual(exp_data.analysis_results("omega_iy").value.n, iy, delta=2e4)
-        self.assertAlmostEqual(exp_data.analysis_results("omega_iz").value.n, iz, delta=2e4)
-        self.assertAlmostEqual(exp_data.analysis_results("omega_zx").value.n, zx, delta=2e4)
-        self.assertAlmostEqual(exp_data.analysis_results("omega_zy").value.n, zy, delta=2e4)
-        self.assertAlmostEqual(exp_data.analysis_results("omega_zz").value.n, zz, delta=2e4)
+        self.assertAlmostEqual(exp_data.analysis_results("omega_iy").value.n, iy, delta=delta)
+        self.assertAlmostEqual(exp_data.analysis_results("omega_iz").value.n, iz, delta=delta)
+        self.assertAlmostEqual(exp_data.analysis_results("omega_zx").value.n, zx, delta=delta)
+        self.assertAlmostEqual(exp_data.analysis_results("omega_zy").value.n, zy, delta=delta)
+        self.assertAlmostEqual(exp_data.analysis_results("omega_zz").value.n, zz, delta=delta)
 
     def test_experiment_config(self):
         """Test converting to and from config works"""
