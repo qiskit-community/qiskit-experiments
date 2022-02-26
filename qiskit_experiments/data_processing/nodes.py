@@ -601,6 +601,13 @@ class ProjectorType(Enum):
     IMAG = ToImag
 
 
+class ShotOrder(Enum):
+    """Shot order allowed values"""
+
+    circuit_first = "c"
+    shot_first = "s"
+
+
 class RestlessNode(DataAction, ABC):
     """An abstract node for restless data processing nodes.
 
@@ -637,19 +644,22 @@ class RestlessNode(DataAction, ABC):
     Once the shots have been ordered in this fashion the data can be post-processed.
     """
 
-    def __init__(self, validate: bool = True, circuits_first: bool = True):
+    def __init__(
+        self, validate: bool = True, memory_allocation: ShotOrder = ShotOrder.circuit_first
+    ):
         """Initialize a restless node.
 
         Args:
             validate: If set to True the node will validate its input.
-            circuits_first: If set to True the node assumes that the backend
+            memory_allocation: If set to "c" the node assumes that the backend
                 subsequently first measures all circuits and then repeats this
-                n times, where n is the total number of shots.
+                n times, where n is the total number of shots. The default value
+                is "c".
         """
         super().__init__(validate)
         self._n_shots = None
         self._n_circuits = None
-        self._circuits_first = circuits_first
+        self._memory_allocation = memory_allocation
 
     def _format_data(self, data: np.ndarray) -> np.ndarray:
         """Convert the data to an array.
@@ -689,7 +699,7 @@ class RestlessNode(DataAction, ABC):
         if unordered_data is None:
             return unordered_data
 
-        if self._circuits_first:
+        if self._memory_allocation == ShotOrder.circuit_first:
             return unordered_data.T.flatten()
         else:
             return unordered_data.flatten()
