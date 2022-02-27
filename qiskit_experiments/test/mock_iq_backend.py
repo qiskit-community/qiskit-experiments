@@ -107,6 +107,16 @@ class MockIQBackend(FakeOpenPulse2Q):
         return return_dict
 
     def _expand_probability(self, probability: Dict[float], num_qubits: int):
+        """
+        Take a dictionary of probabilities and expand it to include trivial cases with
+        probability of 0.
+        Args:
+            probability(dict): A dictionary that it's keys are strings
+            num_qubits:
+
+        Returns:
+
+        """
         value2str = self._values_to_string_array(num_qubits)
         for _, qubit_string_value in value2str.items():
             if qubit_string_value in probability:
