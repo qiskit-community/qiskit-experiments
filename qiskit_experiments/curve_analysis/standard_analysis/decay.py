@@ -57,7 +57,6 @@ class DecayAnalysis(curve.CurveAnalysis):
             ),
             plot_color="blue",
             model_description=r"amp \exp(-x/tau) + base",
-            plot_fit_uncertainty=True,
         )
     ]
 
@@ -106,7 +105,7 @@ class DecayAnalysis(curve.CurveAnalysis):
 
         criteria = [
             fit_data.reduced_chisq < 3,
-            tau.stderr is None or tau.stderr < tau.value,
+            curve.is_error_not_significant(tau),
         ]
 
         if all(criteria):

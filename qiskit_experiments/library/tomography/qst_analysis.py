@@ -79,11 +79,9 @@ class StateTomographyAnalysis(TomographyAnalysis):
             rescale_trace (bool): If True rescale the state returned by the fitter have either
                 trace 1 (Default: True).
             target (Union[str, :class:`~qiskit.quantum_info.DensityMatrix`,
-                :class:`~qiskit.quantum_info.Statevector`]): Set a custom target quantum
-                state for computing the :func:~qiskit.quantum_info.state_fidelity` of the
-                fitted state against. If ``"default"`` the ideal state corresponding for
-                the input circuit will be used. If ``None`` no fidelity will be computed
-                (Default: "default").
+                :class:`~qiskit.quantum_info.Statevector`]): Optional, et a custom target
+                quantum state for computing the :func:~qiskit.quantum_info.state_fidelity`
+                of the fitted state against (Default: None).
         """
         options = super()._default_options()
         options.measurement_basis = PauliMeasurementBasis()

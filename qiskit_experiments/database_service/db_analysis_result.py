@@ -12,23 +12,24 @@
 
 """Analysis result abstract interface."""
 
-import logging
-from typing import Optional, List, Union, Dict, Any
-import uuid
 import copy
+import logging
 import math
+import uuid
+from typing import Optional, List, Union, Dict, Any
 
+import uncertainties
 from qiskit_experiments.framework.json import (
     ExperimentEncoder,
     ExperimentDecoder,
     _serialize_safe_float,
 )
-from .database_service import DatabaseServiceV1
-from .utils import save_data, qiskit_version
-from .exceptions import DbExperimentDataError
-from .device_component import DeviceComponent, to_component
-from .db_fitval import FitVal
 
+from .database_service import DatabaseServiceV1
+from .db_fitval import FitVal
+from .device_component import DeviceComponent, to_component
+from .exceptions import DbExperimentDataError
+from .utils import save_data, qiskit_version
 
 LOG = logging.getLogger(__name__)
 
@@ -149,18 +150,32 @@ class DbAnalysisResultV1(DbAnalysisResult):
         Raises:
             DbExperimentDataError: If the analysis result contains invalid data.
         """
-        if not self._service:
+        if not self.service:
             LOG.warning(
                 "Analysis result cannot be saved because no experiment service is available."
             )
             return
 
+        # The next code sections construct the result_data dictionary.
+        # Eventually it will contain:
+        # - _value - value in its raw form, as given in self.value, which can be of type FitVal.
+        # - value (not prefixed by an underscore) - a formatted version of the nominal value
+        #     (self.value.value if self.value is of type FitVal). By "formatted" we mean that
+        #     edge cases like strings representing infinity are handled to allow proper
+        #     display (see DbAnalysisResult._display_format for details).
+        # - variance - a formatted version of the variance (self.value.variance if self.value is of
+        #     type FitVal).
+        # - unit - self.value.unit if self.value is of type FitVal.
+        # - _chisq - chisq in its raw form, as given in self.chisq, without formatting.
+        #
+        # Below, in the `update_data` dictionary, there is an item named `chisq`, which is the
+        #     formatted version of chisq.
         value = self.value
         result_data = {
             "_value": value,
-            "_chisq": self._chisq,
+            "_chisq": self.chisq,
             "_extra": self.extra,
-            "_source": self._source,
+            "_source": self.source,
         }
 
         # Format special DB display fields
@@ -172,13 +187,21 @@ class DbAnalysisResultV1(DbAnalysisResult):
                 result_data["variance"] = self._display_format(value.stderr**2)
             if isinstance(value.unit, str):
                 result_data["unit"] = value.unit
+        elif isinstance(value, uncertainties.UFloat):
+            db_value = self._display_format(value.nominal_value)
+            if db_value is not None:
+                result_data["value"] = db_value
+            if isinstance(value.std_dev, (int, float)):
+                result_data["variance"] = self._display_format(value.std_dev**2)
+            if "unit" in self.extra:
+                result_data["unit"] = self.extra["unit"]
         else:
             db_value = self._display_format(value)
             if db_value is not None:
                 result_data["value"] = db_value
 
         new_data = {
-            "experiment_id": self._experiment_id,
+            "experiment_id": self.experiment_id,
             "result_type": self.name,
             "device_components": self.device_components,
         }
@@ -187,7 +210,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
             "result_id": self.result_id,
             "result_data": result_data,
             "tags": self.tags,
-            "chisq": self._display_format(self._chisq),
+            "chisq": self._display_format(self.chisq),
             "quality": self.quality,
             "verified": self.verified,
         }
@@ -214,7 +237,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
             verified=self.verified,
             tags=self.tags,
             service=self.service,
-            source=self._source,
+            source=self.source,
         )
 
     @classmethod
@@ -233,6 +256,14 @@ class DbAnalysisResultV1(DbAnalysisResult):
         chisq = result_data.pop("_chisq", None)
         extra = result_data.pop("_extra", {})
         source = result_data.pop("_source", None)
+
+        # For backward compatibility
+        # If loaded value is FitVal which may be typecasted into UFloat,
+        # the loader will copy unit in deprecated attribute to metadata for re-saving.
+        if isinstance(value, uncertainties.UFloat):
+            unit = getattr(value, "tag", None)
+            if unit:
+                extra["unit"] = unit
 
         # Initialize the result object
         obj = cls(
@@ -495,3 +526,19 @@ class DbAnalysisResultV1(DbAnalysisResult):
             out += f", {key}={repr(val)}"
         out += ")"
         return out
+
+    def __json_encode__(self):
+        return {
+            "name": self._name,
+            "value": self._value,
+            "device_components": self._device_components,
+            "experiment_id": self._experiment_id,
+            "result_id": self._id,
+            "chisq": self._chisq,
+            "quality": self._quality,
+            "extra": self._extra,
+            "verified": self._quality_verified,
+            "tags": self._tags,
+            "service": self._service,
+            "source": self._source,
+        }

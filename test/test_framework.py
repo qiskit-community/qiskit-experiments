@@ -12,13 +12,13 @@
 
 """Tests for base experiment framework."""
 
-from test.fake_backend import FakeBackend
 from test.fake_experiment import FakeExperiment, FakeAnalysis
 from test.base import QiskitExperimentsTestCase
 import ddt
 
 from qiskit import QuantumCircuit
 from qiskit_experiments.framework import ExperimentData
+from qiskit_experiments.test.fake_backend import FakeBackend
 
 
 @ddt.ddt
@@ -95,6 +95,14 @@ class TestFramework(QiskitExperimentsTestCase):
         analysis.set_options(option1=False, option2=True)
         config = analysis.config()
         loaded = FakeAnalysis.from_config(config)
+        self.assertEqual(config, loaded.config())
+
+    def test_analysis_from_dict_config(self):
+        """Test analysis config dataclass for dict type."""
+        analysis = FakeAnalysis(arg1=10, arg2=20)
+        analysis.set_options(option1=False, option2=True)
+        config = analysis.config()
+        loaded = FakeAnalysis.from_config({"kwargs": config.kwargs, "options": config.options})
         self.assertEqual(config, loaded.config())
 
     def test_analysis_runtime_opts(self):

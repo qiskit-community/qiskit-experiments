@@ -15,24 +15,23 @@ Contrained convex least-squares tomography fitter.
 
 from typing import Optional, Dict, List, Tuple
 import numpy as np
-from scipy import sparse as sps
 
-from qiskit_experiments.exceptions import AnalysisError
 from qiskit_experiments.library.tomography.basis import (
     BaseFitterMeasurementBasis,
     BaseFitterPreparationBasis,
 )
-from .cvxpy_utils import requires_cvxpy, cvxpy
+from . import cvxpy_utils
+from .cvxpy_utils import cvxpy
 from . import fitter_utils
 
 
-@requires_cvxpy
+@cvxpy_utils.requires_cvxpy
 def cvxpy_linear_lstsq(
     outcome_data: List[np.ndarray],
     shot_data: np.ndarray,
     measurement_data: np.ndarray,
     preparation_data: np.ndarray,
-    measurement_basis: BaseFitterMeasurementBasis,
+    measurement_basis: Optional[BaseFitterMeasurementBasis] = None,
     preparation_basis: Optional[BaseFitterPreparationBasis] = None,
     psd: bool = True,
     trace_preserving: bool = False,
@@ -120,7 +119,7 @@ def cvxpy_linear_lstsq(
         shot_data,
         measurement_data,
         preparation_data,
-        measurement_basis,
+        measurement_basis=measurement_basis,
         preparation_basis=preparation_basis,
     )
 
@@ -128,48 +127,21 @@ def cvxpy_linear_lstsq(
         basis_matrix = weights[:, None] * basis_matrix
         probability_data = weights * probability_data
 
-    # SDP VARIABLES
-
     # Since CVXPY only works with real variables we must specify the real
     # and imaginary parts of rho seperately: rho = rho_r + 1j * rho_i
 
     dim = int(np.sqrt(basis_matrix.shape[1]))
-    rho_r = cvxpy.Variable((dim, dim), symmetric=True)
-    rho_i = cvxpy.Variable((dim, dim))
-
-    # CONSTRAINTS
-
-    # The constraint that rho is Hermitian (rho.H = rho)
-    # transforms to the two constraints
-    #   1. rho_r.T = rho_r.T  (real part is symmetric)
-    #   2. rho_i.T = -rho_i.T  (imaginary part is anti-symmetric)
-
-    cons = [rho_i == -rho_i.T]
-
-    # Trace constraint: note this should not be used at the same
-    # time as the trace preserving constraint.
-    if trace is not None:
-        cons.append(cvxpy.trace(rho_r) == trace)
-
-    # Since we can only work with real matrices in CVXPY we can specify
-    # a complex PSD constraint as
-    #   rho >> 0 iff [[rho_r, -rho_i], [rho_i, rho_r]] >> 0
-
-    if psd is True:
-        rho = cvxpy.bmat([[rho_r, -rho_i], [rho_i, rho_r]])
-        cons.append(rho >> 0)
+    rho_r, rho_i, cons = cvxpy_utils.complex_matrix_variable(
+        dim, hermitian=True, psd=psd, trace=trace
+    )
 
     # Trace preserving constraint when fitting Choi-matrices for
     # quantum process tomography. Note that this adds an implicity
     # trace constraint of trace(rho) = sqrt(len(rho)) = dim
     # if a different trace constraint is specified above this will
     # cause the fitter to fail.
-
-    if trace_preserving is True:
-        sdim = int(np.sqrt(dim))
-        ptr = partial_trace_super(sdim, sdim)
-        cons.append(ptr @ cvxpy.vec(rho_r) == np.identity(sdim).ravel())
-        cons.append(ptr @ cvxpy.vec(rho_i) == np.zeros(sdim * sdim))
+    if trace_preserving:
+        cons += cvxpy_utils.trace_preserving_constaint(rho_r, rho_i)
 
     # OBJECTIVE FUNCTION
 
@@ -181,45 +153,17 @@ def cvxpy_linear_lstsq(
     #                   + 1j * (bm_r * vec(rho_i) + bm_i * vec(rho_r))
     #                 = bm_r * vec(rho_r) - bm_i * vec(rho_i)
     # where we drop the imaginary part since the expectation value is real
-
     bm_r = np.real(basis_matrix)
     bm_i = np.imag(basis_matrix)
-
-    # SDP objective function
     arg = bm_r @ cvxpy.vec(rho_r) - bm_i @ cvxpy.vec(rho_i) - probability_data
     obj = cvxpy.Minimize(cvxpy.norm(arg, p=2))
+    prob = cvxpy.Problem(obj, cons)
 
     # Solve SDP
-    prob = cvxpy.Problem(obj, cons)
-    iters = 5000
-    max_iters = kwargs.get("max_iters", 20000)
-    # Set default solver if none is specified
-    if "solver" not in kwargs:
-        if "CVXOPT" in cvxpy.installed_solvers():
-            kwargs["solver"] = "CVXOPT"
-        elif "MOSEK" in cvxpy.installed_solvers():
-            kwargs["solver"] = "MOSEK"
+    cvxpy_utils.set_default_sdp_solver(kwargs)
+    cvxpy_utils.solve_iteratively(prob, 5000, **kwargs)
 
-    problem_solved = False
-    while not problem_solved:
-        kwargs["max_iters"] = iters
-        prob.solve(**kwargs)
-        if prob.status in ["optimal_inaccurate", "optimal"]:
-            problem_solved = True
-        elif prob.status == "unbounded_inaccurate":
-            if iters < max_iters:
-                iters *= 2
-            else:
-                raise AnalysisError(
-                    "CVXPY fit failed, probably not enough iterations for the " "solver"
-                )
-        elif prob.status in ["infeasible", "unbounded"]:
-            raise AnalysisError(
-                "CVXPY fit failed, problem status {} which should not " "happen".format(prob.status)
-            )
-        else:
-            raise AnalysisError("CVXPY fit failed, reason unknown")
-
+    # Return optimal values and problem metadata
     rho_fit = rho_r.value + 1j * rho_i.value
     metadata = {
         "cvxpy_solver": prob.solver_stats.solver_name,
@@ -228,13 +172,13 @@ def cvxpy_linear_lstsq(
     return rho_fit, metadata
 
 
-@requires_cvxpy
+@cvxpy_utils.requires_cvxpy
 def cvxpy_gaussian_lstsq(
     outcome_data: List[np.ndarray],
     shot_data: np.ndarray,
     measurement_data: np.ndarray,
     preparation_data: np.ndarray,
-    measurement_basis: BaseFitterMeasurementBasis,
+    measurement_basis: Optional[BaseFitterMeasurementBasis] = None,
     preparation_basis: Optional[BaseFitterPreparationBasis] = None,
     psd: bool = True,
     trace_preserving: bool = False,
@@ -296,7 +240,10 @@ def cvxpy_gaussian_lstsq(
     Returns:
         The fitted matrix rho that maximizes the least-squares likelihood function.
     """
-    num_outcomes = num_outcomes = [measurement_basis.num_outcomes(i) for i in measurement_data]
+    if measurement_basis is None:
+        num_outcomes = None
+    else:
+        num_outcomes = [measurement_basis.num_outcomes(i) for i in measurement_data]
     weights = fitter_utils.binomial_weights(outcome_data, shot_data, num_outcomes, beta=0.5)
     return cvxpy_linear_lstsq(
         outcome_data,
@@ -311,30 +258,3 @@ def cvxpy_gaussian_lstsq(
         weights=weights,
         **kwargs,
     )
-
-
-def partial_trace_super(dim1: int, dim2: int) -> np.array:
-    """
-    Return the partial trace superoperator in the column-major basis.
-
-    This returns the superoperator S_TrB such that:
-        S_TrB * vec(rho_AB) = vec(rho_A)
-    for rho_AB = kron(rho_A, rho_B)
-
-    Args:
-        dim1: the dimension of the system not being traced
-        dim2: the dimension of the system being traced over
-
-    Returns:
-        A Numpy array of the partial trace superoperator S_TrB.
-    """
-
-    iden = sps.identity(dim1)
-    ptr = sps.csr_matrix((dim1 * dim1, dim1 * dim2 * dim1 * dim2))
-
-    for j in range(dim2):
-        v_j = sps.coo_matrix(([1], ([0], [j])), shape=(1, dim2))
-        tmp = sps.kron(iden, v_j.tocsr())
-        ptr += sps.kron(tmp, tmp)
-
-    return ptr

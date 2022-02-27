@@ -69,6 +69,7 @@ class MockIQBackend(FakeOpenPulse2Q):
         # check that the length of attributes matches the number of qubits.
         # check that probability is 1.
 
+
     def _get_normal_samples_for_shot(self, num_qubits: int):
         """
         Produce a list in the size of num_qubits. Each entry value produced from normal distribution with expected value
@@ -114,7 +115,7 @@ class MockIQBackend(FakeOpenPulse2Q):
                 probability[qubit_string_value] = 0
 
     def _draw_iq_shots(
-        self, prob: Dict[float], shots: int, num_qubits: int
+        self, prob: Dict[float], shots: int, num_qubits: int, phase: float = 0.0
     ) -> List[List[Tuple[float, float]]]:
         """
         Produce an IQ shot.
@@ -160,6 +161,12 @@ class MockIQBackend(FakeOpenPulse2Q):
                     q_center = iq_centers[current_qubit][int(char_qubit)][1]
                     point_i = i_center + qubits_iq_rand[shot_num][qubit_number]
                     point_q = q_center + qubits_iq_rand[shot_num][qubit_number]
+                    
+                    # Adding phase if not 0.0
+                    if not np.allclose(phase, 0.0):
+                        complex_iq = (point_i + 1.0j * point_q) * np.exp(1.0j * phase)
+                        point_i, point_q = np.real(complex_iq), np.imag(complex_iq)
+                    
                     shot_memory.append([point_i, point_q])
                 # We proceed to the next occurrence - meaning its a new shot.
                 memory.append(shot_memory)
@@ -167,7 +174,7 @@ class MockIQBackend(FakeOpenPulse2Q):
 
         return memory
 
-    def _generate_data(self, prob: dict, num_qubits: int) -> Dict:
+    def _generate_data(self, prob: dict, num_qubits: int, circuit: QuantumCircuit) -> Dict:
         """
 
         Args:
@@ -192,7 +199,8 @@ class MockIQBackend(FakeOpenPulse2Q):
                 counts[result_in_str] = num_occurrences
             run_result["counts"] = counts
         else:
-            memory = self._draw_iq_shots(prob, shots, num_qubits)
+            phase = self._iq_phase(circuit)
+            memory = self._draw_iq_shots(prob, shots, num_qubits, phase)
             if meas_return == "avg":
                 memory = np.average(np.array(memory), axis=0).tolist()  # could have a bug here
 
@@ -213,6 +221,15 @@ class MockIQBackend(FakeOpenPulse2Q):
              The probability that the multinomial distribution will use to generate an IQ shot.
         """
 
+    # pylint: disable=unused-argument
+    def _iq_phase(self, circuit: QuantumCircuit) -> float:
+        """Sub-classes can override this method to introduce a phase in the IQ plan.
+
+        This is needed, to test the resonator spectroscopy where the point in the IQ
+        plan has a frequency-dependent phase rotation.
+        """
+        return 0.0
+
     def run(self, run_input, **options):
         """Run the IQ backend."""
 
@@ -224,8 +241,8 @@ class MockIQBackend(FakeOpenPulse2Q):
         result = {
             "backend_name": f"{self.__class__.__name__}",
             "backend_version": "0",
-            "qobj_id": 0,
-            "job_id": 0,
+            "qobj_id": "0",
+            "job_id": "0",
             "success": True,
             "results": [],
         }

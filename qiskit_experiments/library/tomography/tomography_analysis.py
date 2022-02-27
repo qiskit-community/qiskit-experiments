@@ -77,7 +77,8 @@ class TomographyAnalysis(BaseAnalysis):
             rescale_trace (bool): If True rescale the state returned by the fitter
                 have either trace 1 for :class:`~qiskit.quantum_info.DensityMatrix`,
                 or trace dim for :class:`~qiskit.quantum_info.Choi` matrices (Default: True).
-            target (Any): depends on subclass.
+            target (Any): Optional, target object for fidelity comparison of the fit
+                (Default: None).
         """
         options = super()._default_options()
 
@@ -87,7 +88,7 @@ class TomographyAnalysis(BaseAnalysis):
         options.fitter_options = {}
         options.rescale_positive = True
         options.rescale_trace = True
-        options.target = "default"
+        options.target = None
         return options
 
     @classmethod
@@ -106,12 +107,6 @@ class TomographyAnalysis(BaseAnalysis):
         outcome_data, shot_data, measurement_data, preparation_data = self._fitter_data(
             experiment_data.data()
         )
-
-        # Get target state
-        target_state = self.options.target
-        if target_state == "default":
-            metadata = experiment_data.metadata
-            target_state = metadata.get("target", None)
 
         # Get tomography fitter function
         fitter = self._get_fitter(self.options.fitter)
@@ -136,7 +131,7 @@ class TomographyAnalysis(BaseAnalysis):
             analysis_results = self._postprocess_fit(
                 state,
                 metadata=fitter_metadata,
-                target_state=target_state,
+                target_state=self.options.target,
                 rescale_positive=self.options.rescale_positive,
                 rescale_trace=self.options.rescale_trace,
                 qpt=bool(self.options.preparation_basis),
@@ -333,7 +328,7 @@ class TomographyAnalysis(BaseAnalysis):
 
     @staticmethod
     def _append_counts(counts1, counts2):
-        for key, val in counts2:
+        for key, val in counts2.items():
             if key in counts1:
                 counts1[key] += val
             else:

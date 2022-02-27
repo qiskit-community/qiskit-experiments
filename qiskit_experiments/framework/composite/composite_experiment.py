@@ -13,11 +13,12 @@
 Composite Experiment abstract base class.
 """
 
-from typing import List, Sequence, Optional
+from typing import List, Sequence, Optional, Union
 from abc import abstractmethod
 import warnings
 from qiskit.providers.backend import Backend
 from qiskit_experiments.framework import BaseExperiment, ExperimentData
+from qiskit_experiments.framework.base_analysis import BaseAnalysis
 from .composite_analysis import CompositeAnalysis
 
 
@@ -41,9 +42,10 @@ class CompositeExperiment(BaseExperiment):
         """
         self._experiments = experiments
         self._num_experiments = len(experiments)
+        analysis = CompositeAnalysis([exp.analysis for exp in self._experiments])
         super().__init__(
             qubits,
-            analysis=CompositeAnalysis(),
+            analysis=analysis,
             backend=backend,
             experiment_type=experiment_type,
         )
@@ -57,8 +59,9 @@ class CompositeExperiment(BaseExperiment):
         """Return the number of sub experiments"""
         return self._num_experiments
 
-    def component_experiment(self, index=None):
+    def component_experiment(self, index=None) -> Union[BaseExperiment, List[BaseExperiment]]:
         """Return the component Experiment object.
+
         Args:
             index (int): Experiment index, or ``None`` if all experiments are to be returned.
         Returns:
@@ -68,15 +71,31 @@ class CompositeExperiment(BaseExperiment):
             return self._experiments
         return self._experiments[index]
 
-    def component_analysis(self, index):
+    def component_analysis(self, index=None) -> Union[BaseAnalysis, List[BaseAnalysis]]:
         """Return the component experiment Analysis object"""
-        return self.component_experiment(index).analysis()
+        warnings.warn(
+            "The `component_analysis` method is deprecated as of "
+            "qiskit-experiments 0.3.0 and will be removed in the 0.4.0 release."
+            " Use `analysis.component_analysis` instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return self.analysis.component_analysis(index)
 
     def copy(self) -> "BaseExperiment":
         """Return a copy of the experiment"""
         ret = super().copy()
         # Recursively call copy of component experiments
         ret._experiments = [exp.copy() for exp in self._experiments]
+
+        # Check if the analysis in CompositeAnalysis was a reference to the
+        # original component experiment analyses and if so update the copies
+        # to preserve this relationship
+        if isinstance(self.analysis, CompositeAnalysis):
+            for i, orig_exp in enumerate(self._experiments):
+                if orig_exp.analysis is self.analysis._analyses[i]:
+                    # Update copies analysis with reference to experiment analysis
+                    ret.analysis._analyses[i] = ret._experiments[i].analysis
         return ret
 
     def _set_backend(self, backend):
@@ -107,17 +126,8 @@ class CompositeExperiment(BaseExperiment):
             metadata["component_metadata"], self.component_experiment()
         ):
             # Run and transpile options are always overridden
-            if (
-                sub_exp.run_options != sub_exp._default_run_options()
-                or sub_exp.transpile_options != sub_exp._default_transpile_options()
-            ):
+            if sub_exp.run_options != sub_exp._default_run_options():
                 warnings.warn(
-                    "Sub-experiment run and transpile options"
-                    " are overridden by composite experiment options."
+                    "Sub-experiment run options" " are overridden by composite experiment options."
                 )
             sub_exp._add_job_metadata(sub_metadata, jobs, **run_options)
-
-    def _postprocess_transpiled_circuits(self, circuits, **run_options):
-        for expr in self._experiments:
-            if not isinstance(expr, CompositeExperiment):
-                expr._postprocess_transpiled_circuits(circuits, **run_options)

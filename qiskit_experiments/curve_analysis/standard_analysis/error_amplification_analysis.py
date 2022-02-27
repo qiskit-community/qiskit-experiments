@@ -122,6 +122,7 @@ class ErrorAmplificationAnalysis(curve.CurveAnalysis):
         default_options.phase_offset = 0.0
         default_options.max_good_angle_error = np.pi / 2
         default_options.amp = 1.0
+        default_options.ylim = [0, 1.0]
 
         return default_options
 
@@ -195,11 +196,11 @@ class ErrorAmplificationAnalysis(curve.CurveAnalysis):
             - a measured angle error that is smaller than the allowed maximum good angle error.
               This quantity is set in the analysis options.
         """
-        fit_d_theta = fit_data.fitval("d_theta").value
+        fit_d_theta = fit_data.fitval("d_theta")
 
         criteria = [
             fit_data.reduced_chisq < 3,
-            abs(fit_d_theta) < abs(self.options.max_good_angle_error),
+            abs(fit_d_theta.nominal_value) < abs(self.options.max_good_angle_error),
         ]
 
         if all(criteria):

@@ -12,7 +12,7 @@
 
 """Fine amplitude characterization experiment."""
 
-from typing import List, Optional
+from typing import List, Optional, Sequence
 import numpy as np
 
 from qiskit import QuantumCircuit
@@ -21,7 +21,6 @@ from qiskit.circuit.library import XGate, SXGate
 from qiskit.providers.backend import Backend
 from qiskit_experiments.framework import BaseExperiment, Options
 from qiskit_experiments.library.characterization.analysis import FineAmplitudeAnalysis
-from qiskit_experiments.exceptions import CalibrationError
 
 
 class FineAmplitude(BaseExperiment):
@@ -99,42 +98,93 @@ class FineAmplitude(BaseExperiment):
                 by doing :code:`options.gate_class()`.
             normalization (bool): If set to True the DataProcessor will normalized the
                 measured signal to the interval [0, 1]. Defaults to True.
-            add_sx (bool): If True then the circuits will start with an sx gate. This is typically
-                needed when calibrating pulses with a target rotation angle of :math:`\pi`. The
-                default value is False.
-            add_xp_circuit (bool): If set to True then a circuit with only an X gate will also be
-                run. This allows the analysis class to determine the correct sign for the amplitude.
+            add_cal_circuits (bool): If set to True then two circuits to calibrate 0 and 1 points
+                will be added. These circuits are often needed to properly calibrate the amplitude
+                of the ping-pong oscillation that encodes the errors. This helps account for
+                state preparation and measurement errors.
         """
         options = super()._default_experiment_options()
-        options.repetitions = list(range(15))
+        options.repetitions = list(range(1, 15))
         options.gate = None
         options.normalization = True
-        options.add_sx = False
-        options.add_xp_circuit = True
+        options.add_cal_circuits = True
 
         return options
 
-    def __init__(self, qubit: int, gate: Gate, backend: Optional[Backend] = None):
+    def __init__(
+        self,
+        qubits: Sequence[int],
+        gate: Gate,
+        backend: Optional[Backend] = None,
+        measurement_qubits: Sequence[int] = None,
+    ):
         """Setup a fine amplitude experiment on the given qubit.
 
         Args:
-            qubit: The qubit on which to run the fine amplitude calibration experiment.
+            qubits: The qubit(s) on which to run the fine amplitude calibration experiment.
             gate: The gate that will be repeated.
             backend: Optional, the backend to run the experiment on.
         """
-        super().__init__([qubit], analysis=FineAmplitudeAnalysis(), backend=backend)
+        super().__init__(qubits, analysis=FineAmplitudeAnalysis(), backend=backend)
         self.set_experiment_options(gate=gate)
+        self._measurement_qubits = measurement_qubits or qubits
 
-    def _pre_circuit(self) -> QuantumCircuit:
+    def _spam_cal_circuits(self, meas_circuit: QuantumCircuit) -> List[QuantumCircuit]:
+        """This method returns the calibration circuits.
+
+        Calibration circuits allow the experiment to overcome state preparation and
+        measurement errors which cause ideal probabilities to be below 1.
+
+        Args:
+            meas_circuit: The measurement circuit, so that we only apply x gates to the
+                measured qubits.
+
+        Returns:
+            Two circuits that calibrate the spam errors for the 0 and 1 state.
+        """
+        cal_circuits = []
+
+        for add_x in [0, 1]:
+            circ = QuantumCircuit(self.num_qubits, meas_circuit.num_clbits)
+
+            if add_x:
+                qubits = meas_circuit.get_instructions("measure")[0][1]
+                circ.x(qubits)
+
+            circ.compose(meas_circuit, inplace=True)
+
+            circ.metadata = {
+                "experiment_type": self._type,
+                "qubits": self.physical_qubits,
+                "xval": add_x,
+                "unit": "gate number",
+                "series": "spam-cal",
+            }
+
+            cal_circuits.append(circ)
+
+        return cal_circuits
+
+    def _pre_circuit(self, num_clbits: int) -> QuantumCircuit:
         """Return a preparation circuit.
 
         This method can be overridden by subclasses e.g. to calibrate gates on
         transitions other than the 0 <-> 1 transition.
         """
-        circuit = QuantumCircuit(1)
+        return QuantumCircuit(self.num_qubits, num_clbits)
 
-        if self.experiment_options.add_sx:
-            circuit.sx(0)
+    def _measure_circuit(self) -> QuantumCircuit:
+        """Create the measurement part of the quantum circuit.
+
+        Sub-classes may override this function.
+
+        Returns:
+            A quantum circuit which defines the qubits that will be measured.
+        """
+        circuit = QuantumCircuit(self.num_qubits, len(self._measurement_qubits))
+
+        for idx, qubit in enumerate(self._measurement_qubits):
+            circuit.measure(qubit, idx)
 
         return circuit
 
@@ -147,51 +197,35 @@ class FineAmplitude(BaseExperiment):
         Raises:
             CalibrationError: If the analysis options do not contain the angle_per_gate.
         """
-        # Prepare the circuits.
         repetitions = self.experiment_options.get("repetitions")
 
-        circuits = []
+        qubits = range(self.num_qubits)
+        meas_circ = self._measure_circuit()
+        pre_circ = self._pre_circuit(meas_circ.num_clbits)
 
-        if self.experiment_options.add_xp_circuit:
-            # Note that the rotation error in this xval will be overweighted when calibrating xp
-            # because it will be treated as a half pulse instead of a full pulse. However, since
-            # the qubit population is first-order insensitive to rotation errors for an xp pulse
-            # this point won't contribute much to inferring the angle error.
-            angle_per_gate = self.analysis.options.get("angle_per_gate", None)
-            phase_offset = self.analysis.options.get("phase_offset")
-
-            if angle_per_gate is None:
-                raise CalibrationError(
-                    f"Unknown angle_per_gate for {self.__class__.__name__}. "
-                    "Please set it in the analysis options."
-                )
-
-            circuit = QuantumCircuit(1)
-            circuit.x(0)
-            circuit.measure_all()
-
-            circuit.metadata = {
-                "experiment_type": self._type,
-                "qubits": self.physical_qubits,
-                "xval": (np.pi - phase_offset) / angle_per_gate,
-                "unit": "gate number",
-            }
-
-            circuits.append(circuit)
+        if self.experiment_options.add_cal_circuits:
+            circuits = self._spam_cal_circuits(meas_circ)
+        else:
+            circuits = []
 
         for repetition in repetitions:
-            circuit = self._pre_circuit()
+            circuit = QuantumCircuit(self.num_qubits, meas_circ.num_clbits)
+
+            # Add pre-circuit
+            circuit.compose(pre_circ, qubits, range(meas_circ.num_clbits), inplace=True)
 
             for _ in range(repetition):
-                circuit.append(self.experiment_options.gate, (0,))
+                circuit.append(self.experiment_options.gate, qubits)
 
-            circuit.measure_all()
+            # Add the measurement part of the circuit
+            circuit.compose(meas_circ, qubits, range(meas_circ.num_clbits), inplace=True)
 
             circuit.metadata = {
                 "experiment_type": self._type,
                 "qubits": self.physical_qubits,
                 "xval": repetition,
                 "unit": "gate number",
+                "series": 1,
             }
 
             circuits.append(circuit)
@@ -210,7 +244,7 @@ class FineXAmplitude(FineAmplitude):
 
     def __init__(self, qubit: int, backend: Optional[Backend] = None):
         """Initialize the experiment."""
-        super().__init__(qubit, XGate(), backend=backend)
+        super().__init__([qubit], XGate(), backend=backend)
         # Set default analysis options
         self.analysis.set_options(
             angle_per_gate=np.pi,
@@ -224,17 +258,16 @@ class FineXAmplitude(FineAmplitude):
 
         Experiment Options:
             gate (Gate): Gate to characterize. Defaults to an XGate.
-            add_sx (bool): This option is True by default when calibrating gates with a target
-                angle per gate of :math:`\pi` as this increases the sensitivity of the
-                experiment.
-            add_xp_circuit (bool): This option is True by default when calibrating gates with
-                a target angle per gate of :math:`\pi`.
         """
         options = super()._default_experiment_options()
         options.gate = XGate()
-        options.add_sx = True
-        options.add_xp_circuit = True
         return options
+
+    def _pre_circuit(self, num_clbits: int) -> QuantumCircuit:
+        """The preparation circuit is an sx gate to move to the equator of the Bloch sphere."""
+        circuit = QuantumCircuit(self.num_qubits, num_clbits)
+        circuit.sx(0)
+        return circuit
 
 
 class FineSXAmplitude(FineAmplitude):
@@ -248,7 +281,7 @@ class FineSXAmplitude(FineAmplitude):
 
     def __init__(self, qubit: int, backend: Optional[Backend] = None):
         """Initialize the experiment."""
-        super().__init__(qubit, SXGate(), backend=backend)
+        super().__init__([qubit], SXGate(), backend=backend)
         # Set default analysis options
         self.analysis.set_options(
             angle_per_gate=np.pi / 2,
@@ -261,10 +294,10 @@ class FineSXAmplitude(FineAmplitude):
 
         Experiment Options:
             gate (Gate): FineSXAmplitude calibrates an SXGate.
-            add_sx (bool): This option is False by default when calibrating gates with a target
-                angle per gate of :math:`\pi/2` as it is not necessary in this case.
-            add_xp_circuit (bool): This option is False by default when calibrating gates with
-                a target angle per gate of :math:`\pi/2`.
+            add_cal_circuits (bool): If set to True then two circuits to calibrate 0 and 1 points
+                will be added. This option is set to False by default for ``FineSXAmplitude``
+                since the amplitude calibration can be achieved with two SX gates and this is
+                included in the repetitions.
             repetitions (List[int]): By default the repetitions take on odd numbers for
                 :math:`\pi/2` target angles as this ideally prepares states on the equator of
                 the Bloch sphere. Note that the repetitions include two repetitions which
@@ -272,8 +305,81 @@ class FineSXAmplitude(FineAmplitude):
         """
         options = super()._default_experiment_options()
         options.gate = SXGate()
-        options.add_sx = False
-        options.add_xp_circuit = False
+        options.add_cal_circuits = False
         options.repetitions = [0, 1, 2, 3, 5, 7, 9, 11, 13, 15, 17, 21, 23, 25]
 
+        return options
+
+
+class FineZXAmplitude(FineAmplitude):
+    r"""A fine amplitude experiment for the :code:`RZXGate(np.pi / 2)`.
+
+    # section: overview
+
+        :class:`FineZXAmplitude` is a subclass of :class:`FineAmplitude` and is used to set
+        the appropriate values for the default options to calibrate a :code:`RZXGate(np.pi / 2)`.
+
+    # section: example
+
+        To run this experiment the user will have to provide the instruction schedule
+        map in the transpile options that contains the schedule for the experiment.
+
+        ..code-block:: python
+
+            qubits = (1, 2)
+            inst_map = InstructionScheduleMap()
+            inst_map.add("szx", qubits, my_schedule)
+
+            fine_amp = FineZXAmplitude(qubits, backend)
+            fine_amp.set_transpile_options(inst_map=inst_map)
+
+        Here, :code:`my_schedule` is the pulse schedule that will implement the
+        :code:`RZXGate(np.pi / 2)` rotation.
+    """
+
+    def __init__(self, qubits: Sequence[int], backend: Optional[Backend] = None):
+        """Initialize the experiment."""
+
+        # We cannot use RZXGate since it has a parameter so we redefine the gate.
+        # Failing to do so causes issues with QuantumCircuit.calibrations.
+        gate = Gate("szx", 2, [])
+
+        super().__init__(qubits, gate, backend=backend, measurement_qubits=[1])
+        # Set default analysis options
+        self.analysis.set_options(
+            angle_per_gate=np.pi / 2,
+            phase_offset=np.pi,
+            amp=1,
+            outcome="1",
+        )
+
+    @classmethod
+    def _default_experiment_options(cls) -> Options:
+        r"""Default values for the fine amplitude experiment.
+
+        Experiment Options:
+            add_cal_circuits (bool): If set to True then two circuits to calibrate 0 and 1 points
+                will be added. This option is set to False by default for ``FineZXAmplitude``
+                since the amplitude calibration can be achieved with two RZX gates and this is
+                included in the repetitions.
+            repetitions (List[int]): A list of the number of times that the gate is repeated.
+        """
+        options = super()._default_experiment_options()
+        options.add_cal_circuits = False
+        options.repetitions = [0, 1, 2, 3, 4, 5, 7, 9, 11, 13]
+        return options
+
+    @classmethod
+    def _default_transpile_options(cls) -> Options:
+        """Default transpile options for the fine amplitude experiment.
+
+        Experiment Options:
+            basis_gates: Set to :code:`["szx"]`.
+            inst_map: The instruction schedule map that will contain the schedule for the
+                Rzx(pi/2) gate. This schedule should be stored under the instruction name
+                ``szx``.
+        """
+        options = super()._default_transpile_options()
+        options.basis_gates = ["szx"]
+        options.inst_map = None
         return options

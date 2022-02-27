@@ -26,6 +26,7 @@ Experiments
     T1
     T2Ramsey
     T2Hahn
+    Tphi
     QubitSpectroscopy
     CrossResonanceHamiltonian
     EchoedCrossResonanceHamiltonian
@@ -35,6 +36,7 @@ Experiments
     FineAmplitude
     FineXAmplitude
     FineSXAmplitude
+    FineZXAmplitude
     RamseyXY
     FineFrequency
     RoughDrag
@@ -42,6 +44,9 @@ Experiments
     FineDrag
     FineXDrag
     FineSXDrag
+    LocalReadoutError
+    CorrelatedReadoutError
+    ResonatorSpectroscopy
 
 
 Analysis
@@ -54,6 +59,7 @@ Analysis
     T1Analysis
     T2RamseyAnalysis
     T2HahnAnalysis
+    TphiAnalysis
     CrossResonanceHamiltonianAnalysis
     DragCalAnalysis
     FineHalfAngleAnalysis
@@ -61,6 +67,10 @@ Analysis
     FineAmplitudeAnalysis
     RamseyXYAnalysis
     ReadoutAngleAnalysis
+    ResonatorSpectroscopyAnalysis
+    LocalReadoutErrorAnalysis
+    CorrelatedReadoutErrorAnalysis
+
 """
 
 from .analysis import (
@@ -72,8 +82,12 @@ from .analysis import (
     T2RamseyAnalysis,
     T1Analysis,
     T2HahnAnalysis,
+    TphiAnalysis,
     CrossResonanceHamiltonianAnalysis,
     ReadoutAngleAnalysis,
+    ResonatorSpectroscopyAnalysis,
+    LocalReadoutErrorAnalysis,
+    CorrelatedReadoutErrorAnalysis,
 )
 
 from .t1 import T1
@@ -81,12 +95,16 @@ from .qubit_spectroscopy import QubitSpectroscopy
 from .ef_spectroscopy import EFSpectroscopy
 from .t2ramsey import T2Ramsey
 from .t2hahn import T2Hahn
+from .tphi import Tphi
 from .cr_hamiltonian import CrossResonanceHamiltonian, EchoedCrossResonanceHamiltonian
 from .rabi import Rabi, EFRabi
 from .half_angle import HalfAngle
-from .fine_amplitude import FineAmplitude, FineXAmplitude, FineSXAmplitude
+from .fine_amplitude import FineAmplitude, FineXAmplitude, FineSXAmplitude, FineZXAmplitude
 from .ramsey_xy import RamseyXY
 from .fine_frequency import FineFrequency
 from .drag import RoughDrag
 from .readout_angle import ReadoutAngle
 from .fine_drag import FineDrag, FineXDrag, FineSXDrag
+from .local_readout_error import LocalReadoutError
+from .correlated_readout_error import CorrelatedReadoutError
+from .resonator_spectroscopy import ResonatorSpectroscopy
