@@ -181,7 +181,6 @@ class DbExperimentDataV1(DbExperimentData):
         self._backend = backend
         self._auto_save = False
 
-
         self._id = experiment_id or str(uuid.uuid4())
         self._parent_id = parent_id
         self._type = experiment_type
@@ -927,7 +926,11 @@ class DbExperimentDataV1(DbExperimentData):
             "tags": self.tags,
             "notes": self.notes,
         }
-        new_data = {"experiment_type": self._type, "backend_name": self._backend.name(), "provider": self._provider}
+        new_data = {
+            "experiment_type": self._type,
+            "backend_name": self._backend.name(),
+            "provider": self._provider,
+        }
         if self.share_level:
             update_data["share_level"] = self.share_level
         if self.parent_id:
