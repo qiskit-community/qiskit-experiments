@@ -602,7 +602,18 @@ class ProjectorType(Enum):
 
 
 class ShotOrder(Enum):
-    """Shot order allowed values"""
+    """Shot order allowed values.
+
+    Generally, there are two possible modes in which a backend measures m
+    circuits with n shots:
+        - In the "circuit_first" mode, the backend subsequently first measures
+          all m circuits and then repeats this n times.
+        - In the "shot_first" mode, the backend first measures the 1st circuit
+          n times, then the 2nd circuit n times, and it proceeds with the remaining
+          circuits in the same way until it measures the m-th circuit n times.
+
+    The current default mode of IBM Quantum devices is "circuit_first".
+    """
 
     # pylint: disable=invalid-name
     circuit_first = "c"
@@ -655,7 +666,8 @@ class RestlessNode(DataAction, ABC):
             memory_allocation: If set to "c" the node assumes that the backend
                 subsequently first measures all circuits and then repeats this
                 n times, where n is the total number of shots. The default value
-                is "c".
+                is "c". If set to "s" it is assumed that the backend subsequently
+                measures each circuit n times.
         """
         super().__init__(validate)
         self._n_shots = None
