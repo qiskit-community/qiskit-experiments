@@ -13,12 +13,12 @@
 """An mock IQ backend for testing."""
 
 from abc import abstractmethod
-from typing import List, Tuple, Dict
+from typing import List, Tuple, Dict, Union
 import numpy as np
 
 from qiskit import QuantumCircuit
 from qiskit.result import Result
-from qiskit.providers.aer import AerSimulator
+# from qiskit.providers.aer import AerSimulator
 from qiskit.test.mock import FakeOpenPulse2Q
 
 from qiskit.qobj.utils import MeasLevel
@@ -106,7 +106,7 @@ class MockIQBackend(FakeOpenPulse2Q):
             return_dict[num] = qubit_string_value
         return return_dict
 
-    def _expand_probability(self, probability: Dict[float], num_qubits: int):
+    def _expand_probability(self, probability: Dict[str, float], num_qubits: int):
         """
         Take a dictionary of probabilities and expand it to include trivial cases with
         probability of 0.
@@ -125,7 +125,7 @@ class MockIQBackend(FakeOpenPulse2Q):
                 probability[qubit_string_value] = 0
 
     def _draw_iq_shots(
-        self, prob: Dict[float], shots: int, num_qubits: int, phase: float = 0.0
+        self, prob: Dict[str, float], shots: int, num_qubits: int, phase: float = 0.0
     ) -> List[List[Tuple[float, float]]]:
         """
         Produce an IQ shot.
@@ -184,11 +184,11 @@ class MockIQBackend(FakeOpenPulse2Q):
 
         return memory
 
-    def _generate_data(self, prob: dict, num_qubits: int, circuit: QuantumCircuit) -> Dict:
+    def _generate_data(self, prob: Dict[str, float], num_qubits: int, circuit: QuantumCircuit) -> Dict:
         """
 
         Args:
-            prob:
+            prob(dict):
             num_qubits:
 
         Returns:
@@ -218,7 +218,7 @@ class MockIQBackend(FakeOpenPulse2Q):
         return run_result
 
     @abstractmethod
-    def _compute_probability(self, circuit: QuantumCircuit) -> Dict[float]:
+    def _compute_probability(self, circuit: QuantumCircuit) -> Dict[str, float]:
         """Compute the probability used in the binomial distribution creating the IQ shot.
 
         An abstract method that subclasses will implement to create a probability of
@@ -267,7 +267,7 @@ class MockIQBackend(FakeOpenPulse2Q):
             }
 
             prob = self._compute_probability(circ)
-            run_result["data"] = self._generate_data(prob, nqubits)
+            run_result["data"] = self._generate_data(prob, nqubits, circ)
             result["results"].append(run_result)
 
         return FakeJob(self, Result.from_dict(result))
@@ -292,15 +292,17 @@ class DragBackend(MockIQBackend):
 
         super().__init__(iq_cluster_centers, iq_cluster_width, rng_seed=rng_seed)
 
-    def _compute_probability(self, circuit: QuantumCircuit) -> float:
+    def _compute_probability(self, circuit: QuantumCircuit) -> Dict[str, float]:
         """Returns the probability based on the beta, number of gates, and leakage."""
-
+        probability_output_dict = {}
         # Need to change that the output will be dict. Need to see what the circuit do.
         n_gates = sum(circuit.count_ops().values())
-
         beta = next(iter(circuit.calibrations[self._gate_name].keys()))[1][0]
 
-        return np.sin(n_gates * self._error * (beta - self.ideal_beta)) ** 2
+        # Dictionary of output  vectors and there probability
+        probability_output_dict["1"] = np.sin(n_gates * self._error * (beta - self.ideal_beta)) ** 2
+        probability_output_dict["0"] = 1 - probability_output_dict["1"]
+        return probability_output_dict
 
 
 class RabiBackend(MockIQBackend):
