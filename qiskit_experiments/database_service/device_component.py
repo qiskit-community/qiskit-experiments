@@ -25,6 +25,9 @@ class DeviceComponent(ABC):
     def __repr__(self):
         return f"<{self.__class__.__name__}({str(self)})>"
 
+    def __eq__(self, value):
+        return str(self) == str(value)
+
 
 class Qubit(DeviceComponent):
     """Class representing a qubit device component."""
@@ -34,6 +37,9 @@ class Qubit(DeviceComponent):
 
     def __str__(self):
         return f"Q{self._index}"
+
+    def __json_encode__(self):
+        return {"index": self._index}
 
 
 class Resonator(DeviceComponent):
@@ -45,6 +51,9 @@ class Resonator(DeviceComponent):
     def __str__(self):
         return f"R{self._index}"
 
+    def __json_encode__(self):
+        return {"index": self._index}
+
 
 class UnknownComponent(DeviceComponent):
     """Class representing unknown device component."""
@@ -54,6 +63,9 @@ class UnknownComponent(DeviceComponent):
 
     def __str__(self):
         return self._component
+
+    def __json_encode__(self):
+        return {"component": self._component}
 
 
 def to_component(string: str) -> DeviceComponent:
