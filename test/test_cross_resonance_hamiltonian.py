@@ -15,6 +15,7 @@
 """Spectroscopy tests."""
 from test.base import QiskitExperimentsTestCase
 
+import functools
 import numpy as np
 from ddt import ddt, data, unpack
 from qiskit import QuantumCircuit, pulse, quantum_info as qi
@@ -24,35 +25,25 @@ from qiskit.providers.aer import AerSimulator
 from qiskit_experiments.library.characterization import cr_hamiltonian
 
 
+class SimulatableCRGate(HamiltonianGate):
+    """Cross resonance unitary that can be simulated with Aer simulator."""
+
+    def __init__(self, width, t_off, wix, wiy, wiz, wzx, wzy, wzz, dt=1e-9):
+        # Note that Qiskit is Little endien, i.e. [q1, q0]
+        hamiltonian = (
+            wix * qi.Operator.from_label("XI") / 2
+            + wiy * qi.Operator.from_label("YI") / 2
+            + wiz * qi.Operator.from_label("ZI") / 2
+            + wzx * qi.Operator.from_label("XZ") / 2
+            + wzy * qi.Operator.from_label("YZ") / 2
+            + wzz * qi.Operator.from_label("ZZ") / 2
+        )
+        super().__init__(data=hamiltonian, time=(t_off + width) * dt)
+
+
 @ddt
 class TestCrossResonanceHamiltonian(QiskitExperimentsTestCase):
     """Test for cross resonance Hamiltonian tomography."""
-
-    @staticmethod
-    def cr_gate_factory(t_off, ix, iy, iz, zx, zy, zz, dt=1e-9):
-        """A factory method to generate simulatable gate with given Hamiltonian."""
-
-        # pylint: disable=missing-class-docstring
-        class SimulatableCRGate(HamiltonianGate):
-            def __init__(self, width):
-
-                # Note that Qiskit is Little endien, i.e. [q1, q0]
-                hamiltonian = (
-                    2
-                    * np.pi
-                    * (
-                        ix * qi.Operator.from_label("XI")
-                        + iy * qi.Operator.from_label("YI")
-                        + iz * qi.Operator.from_label("ZI")
-                        + zx * qi.Operator.from_label("XZ")
-                        + zy * qi.Operator.from_label("YZ")
-                        + zz * qi.Operator.from_label("ZZ")
-                    )
-                    / 2
-                )
-                super().__init__(data=hamiltonian, time=(t_off + width) * dt)
-
-        return SimulatableCRGate
 
     def test_circuit_generation(self):
         """Test generated circuits."""
@@ -159,7 +150,18 @@ class TestCrossResonanceHamiltonian(QiskitExperimentsTestCase):
 
         sigma = 20
         t_off = np.sqrt(2 * np.pi) * sigma
-        cr_gate = self.cr_gate_factory(t_off, ix, iy, iz, zx, zy, zz)
+
+        # Hack: transpiler calls qiskit.parallel but local object cannot be picked
+        cr_gate = functools.partial(
+            SimulatableCRGate,
+            t_off=t_off,
+            wix=2 * np.pi * ix,
+            wiy=2 * np.pi * iy,
+            wiz=2 * np.pi * iz,
+            wzx=2 * np.pi * zx,
+            wzy=2 * np.pi * zy,
+            wzz=2 * np.pi * zz,
+        )
 
         durations = np.linspace(0, 700, 50)
         expr = cr_hamiltonian.CrossResonanceHamiltonian(
