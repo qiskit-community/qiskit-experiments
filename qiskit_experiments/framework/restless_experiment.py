@@ -21,16 +21,34 @@ from qiskit_experiments.data_processing import nodes
 
 
 class RestlessEnabledExperiment(BaseExperiment, ABC):
-    """Restless experiment class."""
+    """Restless enabled experiment class.
+
+    A restless enabled experiment is an experiment that is run in a restless
+    measurement setting. In restless measurements, the qubit is not reset after
+    each measurement. Instead, the outcome of the previous quantum non-demolition
+    measurement is the initial state for the current circuit. Restless measurements
+    therefore require special data processing which is provided by sub-classes of
+    the :code:`RestlessNode`. Restless experiments provide a fast alternative for
+    several calibration and characterization tasks, for details see
+    https://arxiv.org/pdf/2202.06981.pdf.
+    This class provides convenience for users to consistently enable the restless
+    operation mode for an experiment without specifying the needed experiment run
+    options and restless data processing nodes.
+    """
 
     def enable_restless(self, rep_delay: float, override_processor: bool = False):
         """Enables a restless experiment by setting the restless run options and
         the restless data processor.
 
             Args:
-                rep_delay: The repetition delay.
+                rep_delay: The repetition delay. This is the delay between a measurement
+                    and the subsequent quantum circuit. Since IBM Quantum backends have
+                    dynamic repetition rates, the repetition delay can be set to a small
+                    value which is required for restless experiments. Typical values are
+                    1 us or less.
                 override_processor: If True, a data processor that is specified in the
-                    analysis options of the experiment can override the restless data processor.
+                    analysis options of the experiment can override the restless data
+                    processor.
 
             Raises:
                 DataProcessorError: if the rep_delay is equal to or greater than the
