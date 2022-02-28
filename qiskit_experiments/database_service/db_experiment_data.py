@@ -1003,7 +1003,7 @@ class DbExperimentDataV1(DbExperimentData):
                 self._service.delete_figure(experiment_id=self.experiment_id, figure_name=name)
             self._deleted_figures.remove(name)
 
-        if self.verbose:
+        if self._created_in_db and self.verbose:
             print(
                 "You can view the experiment online at "
                 "https://quantum-computing.ibm.com/experiments/" + self.experiment_id
