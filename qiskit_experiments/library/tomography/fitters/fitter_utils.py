@@ -13,92 +13,13 @@
 Common utility functions for tomography fitters.
 """
 
-from typing import Optional, List, Tuple, Iterable
+from typing import Optional, List, Tuple
 import numpy as np
-import scipy.linalg as la
 
-from qiskit_experiments.exceptions import AnalysisError
 from qiskit_experiments.library.tomography.basis import (
     FitterMeasurementBasis,
     FitterPreparationBasis,
 )
-
-
-def make_positive_semidefinite(mat: np.array, epsilon: float = 0) -> np.array:
-    """
-    Rescale a Hermitian matrix to nearest postive semidefinite matrix.
-
-    Args:
-        mat: a hermitian matrix.
-        epsilon: (default: 0) the threshold for setting
-            eigenvalues to zero. If epsilon > 0 positive eigenvalues
-            below epsilon will also be set to zero.
-    Raises:
-        AnalysisError: If epsilon is negative
-
-    Returns:
-        The input matrix rescaled to have non-negative eigenvalues.
-
-    References:
-        [1] J Smolin, JM Gambetta, G Smith, Phys. Rev. Lett. 108, 070502
-            (2012). Open access: arXiv:1106.5458 [quant-ph].
-    """
-
-    if epsilon < 0:
-        raise AnalysisError("epsilon must be non-negative.")
-
-    # Get the eigenvalues and eigenvectors of rho
-    # eigenvalues are sorted in increasing order
-    # v[i] <= v[i+1]
-
-    dim = len(mat)
-    v, w = la.eigh(mat)
-    for j in range(dim):
-        if v[j] < epsilon:
-            tmp = v[j]
-            v[j] = 0.0
-            # Rescale remaining eigenvalues
-            x = 0.0
-            for k in range(j + 1, dim):
-                x += tmp / (dim - (j + 1))
-                v[k] = v[k] + tmp / (dim - (j + 1))
-
-    # Build positive matrix from the rescaled eigenvalues
-    # and the original eigenvectors
-
-    mat_psd = np.zeros([dim, dim], dtype=complex)
-    for j in range(dim):
-        mat_psd += v[j] * np.outer(w[:, j], np.conj(w[:, j]))
-
-    return mat_psd
-
-
-def single_basis_matrix(
-    measurement_index: np.ndarray,
-    outcome: int,
-    measurement_basis: FitterMeasurementBasis,
-    preparation_index: Optional[np.ndarray] = None,
-    preparation_basis: Optional[FitterPreparationBasis] = None,
-) -> np.ndarray:
-    """Return a single element basis matrix.
-
-    Args:
-        measurement_index: measurement basis indices for each
-            subsystem
-        outcome: measurement outcome in the specified basis.
-        measurement_basis: fitter measurement basis object.
-        preparation_index: Optional, preparation basis indices
-            for each subsystem.
-        preparation_basis: fitter preparation basis object.
-
-    Returns:
-        The corresponding basis matrix for tomography fitter.
-    """
-    op = measurement_basis.matrix(measurement_index, outcome)
-    if preparation_basis:
-        pmat = preparation_basis.matrix(preparation_index)
-        op = np.kron(pmat.T, op)
-    return op
 
 
 def lstsq_data(
@@ -106,7 +27,7 @@ def lstsq_data(
     shot_data: np.ndarray,
     measurement_data: np.ndarray,
     preparation_data: np.ndarray,
-    measurement_basis: FitterMeasurementBasis,
+    measurement_basis: Optional[FitterMeasurementBasis] = None,
     preparation_basis: Optional[FitterPreparationBasis] = None,
 ) -> Tuple[np.ndarray, np.ndarray]:
     """Return stacked vectorized basis matrix A for least squares."""
@@ -116,17 +37,21 @@ def lstsq_data(
         size += len(outcome)
 
     # Get measurement basis dimensions
-    bsize, msize = measurement_data.shape
-    mdim = measurement_basis.matrix([0], 0).size ** msize
+    if measurement_basis:
+        bsize, msize = measurement_data.shape
+        mdim = measurement_basis.matrix([0], 0).size ** msize
+    else:
+        msize = 0
+        mdim = 1
+    # Get preparation basis dimensions
     if preparation_basis:
-        # Get preparation basis dimensions
-        _, psize = preparation_data.shape
+        bsize, psize = preparation_data.shape
         pdim = preparation_basis.matrix([0]).size ** psize
     else:
         psize = 0
         pdim = 1
 
-    # Construct basis matrix
+    # Allocate empty stacked basis matrix and prob vector
     basis_mat = np.zeros((size, mdim * pdim), dtype=complex)
     probs = np.zeros(size, dtype=float)
     idx = 0
@@ -135,14 +60,23 @@ def lstsq_data(
         pidx = preparation_data[i]
         shots = shot_data[i]
         odata = outcome_data[i]
+
+        # Get prep basis component
+        if preparation_basis:
+            p_mat = np.transpose(preparation_basis.matrix(pidx))
+        else:
+            p_mat = None
+
+        # Get probabilities and optional measurement basis component
         for outcome, freq in odata:
-            op = single_basis_matrix(
-                midx,
-                outcome,
-                measurement_basis=measurement_basis,
-                preparation_index=pidx,
-                preparation_basis=preparation_basis,
-            )
+            if measurement_basis:
+                op = measurement_basis.matrix(midx, outcome)
+                if preparation_basis:
+                    op = np.kron(p_mat, op)
+            else:
+                op = p_mat
+
+            # Add vectorized op to stacked basis matrix
             basis_mat[idx] = np.conj(np.ravel(op, order="F"))
             probs[idx] = freq / shots
             idx += 1
@@ -203,22 +137,3 @@ def binomial_weights(
             idx += 1
     variance = probs * (1 - probs)
     return np.sqrt(prob_shots / variance)
-
-
-def dual_states(states: Iterable[np.ndarray]):
-    """Construct a dual preparation basis for linear inversion"""
-    mats = np.asarray(states)
-    size, dim1, dim2 = np.shape(mats)
-    vec_basis = np.reshape(mats, (size, dim1 * dim2))
-    basis_mat = np.sum([np.outer(i, np.conj(i)) for i in vec_basis], axis=0)
-
-    try:
-        inv_mat = np.linalg.inv(basis_mat)
-    except np.linalg.LinAlgError as ex:
-        raise ValueError(
-            "Cannot construct dual basis states. Input states" " are not tomographically complete"
-        ) from ex
-
-    vec_dual = np.tensordot(inv_mat, vec_basis, axes=([1], [1])).T
-    dual_mats = np.reshape(vec_dual, (size, dim1, dim2))
-    return dual_mats

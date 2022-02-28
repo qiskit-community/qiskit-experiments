@@ -13,14 +13,13 @@
 Linear inversion MLEtomography fitter.
 """
 
-from typing import Dict, List, Tuple, Optional
+from typing import Dict, List, Tuple, Optional, Sequence
 from functools import lru_cache
 import numpy as np
 from qiskit_experiments.library.tomography.basis.fitter_basis import (
     FitterMeasurementBasis,
     FitterPreparationBasis,
 )
-from . import fitter_utils
 
 
 def linear_inversion(
@@ -28,7 +27,7 @@ def linear_inversion(
     shot_data: np.ndarray,
     measurement_data: np.ndarray,
     preparation_data: np.ndarray,
-    measurement_basis: FitterMeasurementBasis,
+    measurement_basis: Optional[FitterMeasurementBasis] = None,
     preparation_basis: Optional[FitterPreparationBasis] = None,
 ) -> Tuple[np.ndarray, Dict]:
     r"""Linear inversion tomography fitter.
@@ -81,7 +80,7 @@ def linear_inversion(
         shot_data: basis measurement total shot data.
         measurement_data: measurement basis indice data.
         preparation_data: preparation basis indice data.
-        measurement_basis: measurement matrix basis.
+        measurement_basis: Optional, measurement matrix basis.
         preparation_basis: Optional, preparation matrix basis.
 
     Raises:
@@ -91,7 +90,10 @@ def linear_inversion(
         The fitted matrix rho.
     """
     # Construct dual bases
-    meas_dual_basis = dual_measurement_basis(measurement_basis)
+    if measurement_basis:
+        meas_dual_basis = dual_measurement_basis(measurement_basis)
+    else:
+        meas_dual_basis = None
     if preparation_basis:
         prep_dual_basis = dual_preparation_basis(preparation_basis)
     else:
@@ -106,15 +108,24 @@ def linear_inversion(
         shots = shot_data[i]
         midx = measurement_data[i]
         pidx = preparation_data[i]
+
+        # Get prep basis component
+        if prep_dual_basis:
+            p_mat = np.transpose(prep_dual_basis.matrix(pidx))
+        else:
+            p_mat = None
+
+        # Get probabilities and optional measurement basis component
         for outcome, freq in outcomes:
+            if meas_dual_basis:
+                dual_op = meas_dual_basis.matrix(midx, outcome)
+                if prep_dual_basis:
+                    dual_op = np.kron(p_mat, dual_op)
+            else:
+                dual_op = p_mat
+
+            # Add component to linear inversion reconstruction
             prob = freq / shots
-            dual_op = fitter_utils.single_basis_matrix(
-                midx,
-                outcome,
-                preparation_index=pidx,
-                measurement_basis=meas_dual_basis,
-                preparation_basis=prep_dual_basis,
-            )
             rho_fit = rho_fit + prob * dual_op
 
     return rho_fit, {}
@@ -123,7 +134,7 @@ def linear_inversion(
 @lru_cache(2)
 def dual_preparation_basis(basis: FitterPreparationBasis):
     """Construct a dual preparation basis for linear inversion"""
-    return FitterPreparationBasis(fitter_utils.dual_states(basis._mats), name=f"Dual_{basis.name}")
+    return FitterPreparationBasis(_dual_states(basis._mats), name=f"Dual_{basis.name}")
 
 
 @lru_cache(2)
@@ -143,9 +154,28 @@ def dual_measurement_basis(basis: FitterMeasurementBasis):
             extra.append([i, None])
 
     # Compute dual states and convert back to dicts
-    dbasis = fitter_utils.dual_states(states)
+    dbasis = _dual_states(states)
     dual_basis = [{} for i in range(num_basis)]
     for povm, (idx, outcome) in zip(dbasis, extra):
         dual_basis[idx][outcome] = povm
 
     return FitterMeasurementBasis(dual_basis, name=f"Dual_{basis.name}")
+
+
+def _dual_states(states: Sequence[np.ndarray]):
+    """Construct a dual preparation basis for linear inversion"""
+    mats = np.asarray(states)
+    size, dim1, dim2 = np.shape(mats)
+    vec_basis = np.reshape(mats, (size, dim1 * dim2))
+    basis_mat = np.sum([np.outer(i, np.conj(i)) for i in vec_basis], axis=0)
+
+    try:
+        inv_mat = np.linalg.inv(basis_mat)
+    except np.linalg.LinAlgError as ex:
+        raise ValueError(
+            "Cannot construct dual basis states. Input states" " are not tomographically complete"
+        ) from ex
+
+    vec_dual = np.tensordot(inv_mat, vec_basis, axes=([1], [1])).T
+    dual_mats = np.reshape(vec_dual, (size, dim1, dim2))
+    return dual_mats

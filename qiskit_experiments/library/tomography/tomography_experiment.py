@@ -191,10 +191,12 @@ class TomographyExperiment(BaseExperiment):
         basis_indices = self.experiment_options.basis_indices
         if basis_indices is not None:
             return basis_indices
-
-        meas_size = len(self._meas_circ_basis)
-        num_meas = len(self._meas_qubits) if self._meas_qubits else self.num_qubits
-        meas_elements = product(range(meas_size), repeat=num_meas)
+        if self._meas_circ_basis:
+            meas_size = len(self._meas_circ_basis)
+            num_meas = len(self._meas_qubits) if self._meas_qubits else self.num_qubits
+            meas_elements = product(range(meas_size), repeat=num_meas)
+        else:
+            meas_elements = [None]
         if self._prep_circ_basis:
             prep_size = len(self._prep_circ_basis)
             num_prep = len(self._prep_qubits) if self._prep_qubits else self.num_qubits

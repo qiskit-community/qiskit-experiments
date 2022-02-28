@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Transpile options of batch experiments are now ignored. Instead, sub-experiment circuits are transpiled with the sub-experiment's transpile options.
+
