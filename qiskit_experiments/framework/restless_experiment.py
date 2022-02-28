@@ -56,12 +56,12 @@ class RestlessEnabledExperiment(BaseExperiment, ABC):
                 DataProcessorError: if excited state promotion readout is enabled in the
                 restless setting.
         """
-        esp_enabled = self.run_options.get("use_measure_esp", False)
-        if esp_enabled:
-            raise DataProcessorError(
-                "Restless experiments are not compatible with the excited "
-                "state promotion readout analysis option."
-            )
+
+        # If excited state promotion readout analysis option is enabled,
+        # it will be set to False because it is not compatible with a
+        # restless experiment.
+        if self.run_options.get("use_measure_esp", False):
+            self.set_run_options(use_measure_esp=False)
 
         if self._t1_check(rep_delay):
             if not self.analysis.options.get("data_processor", None):
@@ -107,7 +107,8 @@ class RestlessEnabledExperiment(BaseExperiment, ABC):
         times of the physical qubits in the experiment.
 
         Args:
-            rep_delay: The repetition delay.
+            rep_delay: The repetition delay. This is the delay between a measurement
+                    and the subsequent quantum circuit.
 
         Returns:
             True if the repetition delay is smaller than the qubit T1 times.
