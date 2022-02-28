@@ -82,7 +82,7 @@ Extra data included in the analysis results includes
 
 .. jupyter-execute::
 
-    qubits = range(4) # Can use specific qubits. for example [2, 4, 7, 10]
+    qubits = tuple(range(4)) # Can use specific qubits. for example [2, 4, 7, 10]
     
     qv_exp = QuantumVolume(qubits, seed=42)
     # Transpile options like optimization_level affect only the real device run and not the simulation run
@@ -142,7 +142,10 @@ enhancements might be required (See Ref. [2] for details).
 
 .. jupyter-execute::
 
-    exps = [QuantumVolume(range(i), trials=200) for i in range(3, 6)]
+    exps = []
+    for i in range(3,6):
+        exps.append(QuantumVolume(tuple(range(i)), trials=200))
+
     batch_exp = BatchExperiment(exps)
     batch_exp.set_transpile_options(optimization_level=3)
     
