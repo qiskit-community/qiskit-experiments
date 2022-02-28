@@ -29,7 +29,8 @@ class RestlessEnabledExperiment(BaseExperiment, ABC):
 
             Args:
                 rep_delay: The repetition delay.
-                override_processor:
+                override_processor: If True, a data processor that is specified in the
+                    analysis options of the experiment can override the restless data processor.
 
             Raises:
                 DataProcessorError: if the rep_delay is equal to or greater than the
@@ -46,11 +47,15 @@ class RestlessEnabledExperiment(BaseExperiment, ABC):
 
         if self._t1_check(rep_delay):
             if not self.analysis.options.get("data_processor", None):
-                self.set_run_options(rep_delay=rep_delay, init_qubit=False, memory=True, meas_level=2)
+                self.set_run_options(
+                    rep_delay=rep_delay, init_qubit=False, memory=True, meas_level=2
+                )
                 self.analysis.set_options(data_processor=self._get_restless_processor())
             else:
                 if override_processor:
-                    self.set_run_options(rep_delay=rep_delay, init_qubit=False, memory=True, meas_level=2)
+                    self.set_run_options(
+                        rep_delay=rep_delay, init_qubit=False, memory=True, meas_level=2
+                    )
                 else:
                     raise DataProcessorError(
                         "Cannot enable restless. Data processor has already been set and "
