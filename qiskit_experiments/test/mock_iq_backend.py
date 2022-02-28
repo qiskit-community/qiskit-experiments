@@ -110,8 +110,8 @@ class MockIQBackend(FakeOpenPulse2Q):
         result = {
             "backend_name": f"{self.__class__.__name__}",
             "backend_version": "0",
-            "qobj_id": 0,
-            "job_id": 0,
+            "qobj_id": "0",
+            "job_id": "0",
             "success": True,
             "results": [],
         }

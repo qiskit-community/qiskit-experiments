@@ -526,3 +526,19 @@ class DbAnalysisResultV1(DbAnalysisResult):
             out += f", {key}={repr(val)}"
         out += ")"
         return out
+
+    def __json_encode__(self):
+        return {
+            "name": self._name,
+            "value": self._value,
+            "device_components": self._device_components,
+            "experiment_id": self._experiment_id,
+            "result_id": self._id,
+            "chisq": self._chisq,
+            "quality": self._quality,
+            "extra": self._extra,
+            "verified": self._quality_verified,
+            "tags": self._tags,
+            "service": self._service,
+            "source": self._source,
+        }
