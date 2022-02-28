@@ -127,7 +127,7 @@ class FineAmplitude(BaseExperiment):
         """
         super().__init__(qubits, analysis=FineAmplitudeAnalysis(), backend=backend)
         self.set_experiment_options(gate=gate)
-        self._measurement_qubits = measurement_qubits or qubits
+        self._measurement_qubits = measurement_qubits or range(len(qubits))
 
     def _spam_cal_circuits(self, meas_circuit: QuantumCircuit) -> List[QuantumCircuit]:
         """This method returns the calibration circuits.

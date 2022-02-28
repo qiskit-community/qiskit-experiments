@@ -148,6 +148,7 @@ class TestFineAmplitudeCircuits(QiskitExperimentsTestCase):
             self.assertEqual(circ.count_ops().get("sx", 0), expected[idx])
 
 
+@ddt
 class TestSpecializations(QiskitExperimentsTestCase):
     """Test the options of the specialized classes."""
 
@@ -173,6 +174,16 @@ class TestSpecializations(QiskitExperimentsTestCase):
         self.assertEqual(exp.analysis.options.angle_per_gate, np.pi / 2)
         self.assertEqual(exp.analysis.options.phase_offset, np.pi)
         self.assertEqual(exp.experiment_options.gate, SXGate())
+
+    @data((2, 3), (3, 1), (0, 1))
+    def test_measure_qubits(self):
+        """Test that the measurement is on the logical qubits."""
+
+        fine_amp = FineZXAmplitude((2, 3))
+        for circuit in fine_amp.circuits():
+            self.assertEqual(circuit.num_qubits, 2)
+            self.assertEqual(circuit.data[-1][0].name, "measure")
+            self.assertEqual(circuit.data[-1][1][0], circuit.qregs[0][1])
 
 
 class TestFineAmplitudeCal(QiskitExperimentsTestCase):
