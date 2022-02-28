@@ -17,6 +17,7 @@ from test.base import QiskitExperimentsTestCase
 import itertools as it
 import ddt
 from qiskit import QuantumCircuit
+from qiskit.circuit.library import XGate
 import qiskit.quantum_info as qi
 from qiskit.providers.aer import AerSimulator
 from qiskit_experiments.framework import BatchExperiment, ParallelExperiment
@@ -270,6 +271,15 @@ class TestStateTomography(QiskitExperimentsTestCase):
             # Manually check fidelity
             target_fid = qi.state_fidelity(state, targets[i], validate=False)
             self.assertAlmostEqual(fid, target_fid, places=6, msg="result fidelity is incorrect")
+
+    def test_expdata_serialization(self):
+        """Test serializing experiment data works."""
+        backend = AerSimulator(seed_simulator=9000)
+        exp = StateTomography(XGate())
+        expdata = exp.run(backend)
+        self.assertExperimentDone(expdata)
+        self.assertRoundTripSerializable(expdata, check_func=self.experiment_data_equiv)
+        self.assertRoundTripPickle(expdata, check_func=self.experiment_data_equiv)
 
     def test_experiment_config(self):
         """Test converting to and from config works"""
@@ -551,6 +561,15 @@ class TestProcessTomography(QiskitExperimentsTestCase):
         loaded = ProcessTomographyAnalysis.from_config(analysis.config())
         self.assertNotEqual(analysis, loaded)
         self.assertEqual(analysis.config(), loaded.config())
+
+    def test_expdata_serialization(self):
+        """Test serializing experiment data works."""
+        backend = AerSimulator(seed_simulator=9000)
+        exp = ProcessTomography(XGate())
+        expdata = exp.run(backend)
+        self.assertExperimentDone(expdata)
+        self.assertRoundTripPickle(expdata, check_func=self.experiment_data_equiv)
+        self.assertRoundTripSerializable(expdata, check_func=self.experiment_data_equiv)
 
 
 def teleport_circuit():
