@@ -176,10 +176,10 @@ class TestSpecializations(QiskitExperimentsTestCase):
         self.assertEqual(exp.experiment_options.gate, SXGate())
 
     @data((2, 3), (3, 1), (0, 1))
-    def test_measure_qubits(self):
+    def test_measure_qubits(self, qubits):
         """Test that the measurement is on the logical qubits."""
 
-        fine_amp = FineZXAmplitude((2, 3))
+        fine_amp = FineZXAmplitude(qubits)
         for circuit in fine_amp.circuits():
             self.assertEqual(circuit.num_qubits, 2)
             self.assertEqual(circuit.data[-1][0].name, "measure")
