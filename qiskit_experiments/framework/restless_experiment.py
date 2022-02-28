@@ -27,19 +27,18 @@ from qiskit_experiments.data_processing import nodes
 class RestlessEnabledExperiment(BaseExperiment, ABC):
     """Restless experiment class."""
 
-    def enable_restless(self, rep_delay: float, backend: Union[BaseBackend, FakeBackend]):
+    def enable_restless(self, rep_delay: float):
         """Enables a restless experiment by setting the restless run options and
         the restless data processor.
 
             Args:
                 rep_delay: The repetition delay.
-                backend: The experiment backend.
 
             Raises:
                 DataProcessorError: if the rep_delay is equal to or greater than the
                     T1 time of one of the physical qubits in the experiment.
         """
-        if self._is_restless(rep_delay, backend):
+        if self._is_restless(rep_delay):
             self.set_run_options(rep_delay=rep_delay, init_qubit=False, memory=True, meas_level=2)
             if self.analysis.options.get("data_processor", None):
                 pass
@@ -64,13 +63,12 @@ class RestlessEnabledExperiment(BaseExperiment, ABC):
             ],
         )
 
-    def _is_restless(self, rep_delay: float, backend: Union[BaseBackend, FakeBackend]) -> bool:
+    def _is_restless(self, rep_delay: float) -> bool:
         """Checks if the specified repetition delay is smaller than the T1
         times of the physical qubits in the experiment.
 
         Args:
             rep_delay: The repetition delay.
-            backend: The experiment backend.
 
         Returns:
             True if the repetition delay is smaller than the qubit T1 times.
@@ -80,12 +78,12 @@ class RestlessEnabledExperiment(BaseExperiment, ABC):
         """
 
         t1_values = [
-            backend.properties().qubit_property(physical_qubit)["T1"][0]
+            self.backend.properties().qubit_property(physical_qubit)["T1"][0]
             for physical_qubit in self.physical_qubits
         ]
 
         if all(rep_delay / t1_value < 1.0 for t1_value in t1_values):
-            esp_enabled = self.analysis.options.get("use_measure_esp", False)
+            esp_enabled = self.run_options.get("use_measure_esp", False)
             if esp_enabled:
                 raise DataProcessorError(
                     "Restless experiments are not compatible with the excited "
