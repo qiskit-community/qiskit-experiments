@@ -38,6 +38,11 @@ class BaseFitterMeasurementBasis(ABC):
     def __hash__(self):
         return hash((type(self), self._name))
 
+    def __eq__(self, value):
+        tup1 = (type(self), self.name)
+        tup2 = (type(value), getattr(value, "name", None))
+        return tup1 == tup2
+
     @property
     def name(self) -> str:
         """Return the basis name"""
@@ -103,6 +108,11 @@ class BaseFitterPreparationBasis(ABC):
 
     def __hash__(self):
         return hash((type(self), self._name))
+
+    def __eq__(self, value):
+        tup1 = (type(self), self.name)
+        tup2 = (type(value), getattr(value, "name", None))
+        return tup1 == tup2
 
     @property
     def name(self) -> str:
