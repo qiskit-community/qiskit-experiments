@@ -54,7 +54,7 @@ class RestlessEnabledExperiment(BaseExperiment, ABC):
                 DataProcessorError: if the rep_delay is equal to or greater than the
                     T1 time of one of the physical qubits in the experiment.
                 DataProcessorError: if excited state promotion readout is enabled in the
-                restless setting.
+                    restless setting.
         """
 
         # If excited state promotion readout analysis option is enabled,
