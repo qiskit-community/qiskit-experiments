@@ -1658,7 +1658,7 @@ class TestSerialization(QiskitExperimentsTestCase):
         self.assertFalse(cals1 == cals3)
 
         # The schedules contained in the cals are different.
-        library2 = FixedFrequencyTransmon()
+        library2 = FixedFrequencyTransmon(basis_gates=["sx", "x", "y"])
         cals1 = Calibrations.from_backend(backend, library)
         cals2 = Calibrations.from_backend(backend, library2)
         self.assertFalse(cals1 == cals2)
