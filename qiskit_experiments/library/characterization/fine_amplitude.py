@@ -13,14 +13,13 @@
 """Fine amplitude characterization experiment."""
 
 from typing import List, Optional
-import copy
 import numpy as np
 
 from qiskit import QuantumCircuit
 from qiskit.circuit import Gate
 from qiskit.circuit.library import XGate, SXGate
 from qiskit.providers.backend import Backend
-from qiskit_experiments.framework import BaseExperiment, Options, ExperimentConfig
+from qiskit_experiments.framework import BaseExperiment, Options
 from qiskit_experiments.library.characterization.analysis import FineAmplitudeAnalysis
 from qiskit_experiments.exceptions import CalibrationError
 
@@ -198,48 +197,6 @@ class FineAmplitude(BaseExperiment):
             circuits.append(circuit)
 
         return circuits
-
-    def _serialize_gate(self, gate: Gate) -> QuantumCircuit:
-        """Serialize a gate by encapsulating it in a circuit."""
-        circuit = QuantumCircuit(self.num_qubits)
-        circuit.append(gate, range(self.num_qubits))
-        return circuit
-
-    def config(self) -> ExperimentConfig:
-        """Return the config dataclass for this experiment."""
-        gate = copy.deepcopy(self.experiment_options.gate)
-
-        # Remove gate from args and options.
-        self.set_experiment_options(gate=None)
-
-        config = super().config()
-
-        # Encapsulate gate in a circuit and add to args
-        args = []
-        for arg in config.args:
-            if isinstance(arg, Gate):
-                args.append(self._serialize_gate(arg))
-            else:
-                args.append(arg)
-
-        # Restore the gate
-        self.experiment_options.gate = gate
-
-        return ExperimentConfig(
-            cls=type(self),
-            args=tuple(args),
-            kwargs=config.kwargs,
-            experiment_options=config.experiment_options,
-            transpile_options=config.transpile_options,
-            run_options=config.run_options,
-        )
-
-    @classmethod
-    def from_config(cls, config: ExperimentConfig):
-        """Deserialize from config by extracting the gate from a circuit."""
-        args = [arg.data[0][0] if isinstance(arg, QuantumCircuit) else arg for arg in config.args]
-
-        return cls(*args, **config.kwargs)
 
 
 class FineXAmplitude(FineAmplitude):
