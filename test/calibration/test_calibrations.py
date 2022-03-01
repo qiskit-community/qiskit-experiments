@@ -1662,3 +1662,17 @@ class TestSerialization(QiskitExperimentsTestCase):
         cals1 = Calibrations.from_backend(backend, library)
         cals2 = Calibrations.from_backend(backend, library2)
         self.assertFalse(cals1 == cals2)
+
+        # Ensure that the equality is not sensitive to parameter adding order.
+        cals1 = Calibrations.from_backend(backend, library, add_parameter_defaults=False)
+        cals2 = Calibrations.from_backend(backend, library, add_parameter_defaults=False)
+        param_val1 = ParameterValue(0.54321, date_time=date_time)
+        param_val2 = ParameterValue(0.12345, date_time=date_time - timedelta(seconds=1))
+
+        cals1.add_parameter_value(param_val2, "amp", 3, "x")
+        cals1.add_parameter_value(param_val1, "amp", 3, "x")
+
+        cals2.add_parameter_value(param_val1, "amp", 3, "x")
+        cals2.add_parameter_value(param_val2, "amp", 3, "x")
+
+        self.assertTrue(cals1 == cals2)
