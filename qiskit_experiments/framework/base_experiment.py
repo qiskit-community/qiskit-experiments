@@ -260,6 +260,9 @@ class BaseExperiment(ABC, StoreInitArgs):
         if experiment.backend is None:
             raise QiskitError("Cannot run experiment, no backend has been set.")
 
+        # Finalize experiment before executions
+        experiment._finalize()
+
         # Initialize result container
         experiment_data = experiment._initialize_experiment_data()
 
@@ -318,6 +321,15 @@ class BaseExperiment(ABC, StoreInitArgs):
             DeprecationWarning,
         )
         return self.analysis.run(experiment_data, replace_results=replace_results, **options)
+
+    def _finalize(self):
+        """Finalize experiment object before running jobs.
+
+        Subclasses can override this method to set any final option
+        values derived from other options or attributes of the
+        experiment before `_run` is called.
+        """
+        pass
 
     def _run_jobs(self, circuits: List[QuantumCircuit], **run_options) -> List[BaseJob]:
         """Run circuits on backend as 1 or more jobs."""
