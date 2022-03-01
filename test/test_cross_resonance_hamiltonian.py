@@ -132,7 +132,7 @@ class TestCrossResonanceHamiltonian(QiskitExperimentsTestCase):
             risefall=2,
         )
 
-        # Not raise error
+        # Not raise an error
         expr.circuits()
 
     @data(
@@ -146,6 +146,7 @@ class TestCrossResonanceHamiltonian(QiskitExperimentsTestCase):
     def test_integration(self, ix, iy, iz, zx, zy, zz):
         """Integration test for Hamiltonian tomography."""
         backend = AerSimulator(seed_simulator=123, shots=2000)
+        backend._configuration.dt = 1e-9
         delta = 3e4
 
         sigma = 20
@@ -161,6 +162,7 @@ class TestCrossResonanceHamiltonian(QiskitExperimentsTestCase):
             wzx=2 * np.pi * zx,
             wzy=2 * np.pi * zy,
             wzz=2 * np.pi * zz,
+            dt=1e-9,
         )
 
         durations = np.linspace(0, 700, 50)

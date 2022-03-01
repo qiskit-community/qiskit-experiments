@@ -165,7 +165,14 @@ class CrossResonanceHamiltonian(BaseExperiment):
             )
 
         self.set_experiment_options(flat_top_widths=flat_top_widths, **kwargs)
-        self._cr_gate = cr_gate or self.CRPulseGate
+        self._cr_gate = cr_gate
+
+        # backend parameters required to run this experiment
+        # random values are populated here but these are immediately updated after backend is set
+        # this is to keep capability of generating circuits just for checking
+        self._dt = 1
+        self._cr_channel = 0
+        self._granularity = 1
 
     @classmethod
     def _default_experiment_options(cls) -> Options:
@@ -180,12 +187,6 @@ class CrossResonanceHamiltonian(BaseExperiment):
             amp_t (complex): Amplitude of the cancellation or rotary drive on target qubit.
             sigma (float): Sigma of Gaussian rise and fall edges, in units of dt.
             risefall (float): Ratio of edge durations to sigma.
-            cr_channel (PulseChannel): A channel index to apply cross resonance.
-                This option is automatically filled when a backend is set.
-            dt (float): A time resolution of control system.
-                This option is automatically filled when a backend is set.
-            granularity (int): A minimum chunk size of waveform memory.
-                This option is automatically filled when a backend is set.
         """
         options = super()._default_experiment_options()
         options.flat_top_widths = None
@@ -194,50 +195,40 @@ class CrossResonanceHamiltonian(BaseExperiment):
         options.sigma = 64
         options.risefall = 2
 
-        # These are automatically filled when backend is set
-        options.cr_channel = 0
-        options.dt = 1e-9
-        options.granularity = 1
-
         return options
 
     def _set_backend(self, backend: Backend):
         super()._set_backend(backend)
 
-        new_options = {}
+        if self._cr_gate is None:
+            # This falls into CRPulseGate which requires pulse schedule
 
-        # Extract control channel index
-        try:
-            cr_channels = backend.configuration().control(self.physical_qubits)
-            new_options["cr_channel"] = cr_channels[0].index
-        except AttributeError:
-            pass
-
-        # Extract time resolution
-        try:
-            new_options["dt"] = backend.configuration().dt
-        except AttributeError:
-            pass
-
-        # Extract pulse granularity
-        try:
-            new_options["granularity"] = backend.configuration().timing_constraints["granularity"]
-        except (AttributeError, KeyError):
-            pass
-
-        # Validate if option is already provided and any mismatch
-        for k, v in new_options.items():
-            if k in self._set_experiment_options and self.experiment_options.get(k) != v:
+            # Extract control channel index
+            try:
+                cr_channels = backend.configuration().control(self.physical_qubits)
+                self._cr_channel = cr_channels[0].index
+            except AttributeError:
                 warnings.warn(
-                    f"Option {k} has been already set but the value doesn't match with "
-                    f"the hardware setup {self.experiment_options.get(k)} != {v}."
-                    "Please review this setting is still valid in the backend you set.",
+                    f"{backend.name()} doesn't provide cr channel mapping. "
+                    "Cannot find proper channel index to play the cross resonance pulse.",
                     UserWarning,
                 )
-                new_options.pop(k)
+            # Extract pulse granularity
+            try:
+                self._granularity = backend.configuration().timing_constraints["granularity"]
+            except (AttributeError, KeyError):
+                # Probably no chunk size restriction on waveform memory.
+                pass
 
-        # Update experiment options
-        self.set_experiment_options(**new_options)
+        # Extract time resolution, this is anyways required for xvalue conversion
+        try:
+            self._dt = backend.configuration().dt
+        except AttributeError:
+            warnings.warn(
+                f"{backend.name()} doesn't provide system time resolution dt. "
+                "Cannot estimate Hamiltonian coefficients in SI units.",
+                UserWarning,
+            )
 
     def _build_cr_circuit(self, pulse_gate: circuit.Gate) -> QuantumCircuit:
         """Single tone cross resonance.
@@ -266,7 +257,7 @@ class CrossResonanceHamiltonian(BaseExperiment):
 
         # Compute valid integer duration
         duration = flat_top_width + 2 * opt.sigma * opt.risefall
-        valid_duration = int(opt.granularity * np.floor(duration / opt.granularity))
+        valid_duration = int(self._granularity * np.floor(duration / self._granularity))
 
         with pulse.build(default_alignment="left", name="cr") as cross_resonance:
 
@@ -278,7 +269,7 @@ class CrossResonanceHamiltonian(BaseExperiment):
                     sigma=opt.sigma,
                     width=flat_top_width,
                 ),
-                pulse.ControlChannel(opt.cr_channel),
+                pulse.ControlChannel(self._cr_channel),
             )
             # add cancellation tone
             if not np.isclose(opt.amp_t, 0.0):
@@ -299,17 +290,6 @@ class CrossResonanceHamiltonian(BaseExperiment):
 
         return cross_resonance
 
-    def set_experiment_options(self, **fields):
-        super().set_experiment_options(**fields)
-
-        # Set analysis option for initial guess that depends on experiment option values.
-        edge_duration = np.sqrt(2 * np.pi) * self.experiment_options.sigma * self.num_pulses
-
-        init_guess = self.analysis.options.p0.copy()
-        init_guess["t_off"] = edge_duration * self.experiment_options.dt
-
-        self.analysis.set_options(p0=init_guess)
-
     def circuits(self) -> List[QuantumCircuit]:
         """Return a list of experiment circuits.
 
@@ -318,13 +298,19 @@ class CrossResonanceHamiltonian(BaseExperiment):
 
         Raises:
             AttributeError: When the backend doesn't report the time resolution of waveforms.
+            QiskitError: When backend is not set.
         """
         opt = self.experiment_options
 
         expr_circs = []
         for flat_top_width in opt.flat_top_widths:
-            cr_schedule = self._build_cr_schedule(flat_top_width)
-            cr_gate = self._cr_gate(flat_top_width)
+            if self._cr_gate is None:
+                # default pulse gate execution
+                cr_schedule = self._build_cr_schedule(flat_top_width)
+                cr_gate = self.CRPulseGate(flat_top_width)
+            else:
+                cr_schedule = None
+                cr_gate = self._cr_gate(flat_top_width)
 
             for control_state in (0, 1):
                 for meas_basis in ("x", "y", "z"):
@@ -349,7 +335,7 @@ class CrossResonanceHamiltonian(BaseExperiment):
                     tomo_circ.metadata = {
                         "experiment_type": self.experiment_type,
                         "qubits": self.physical_qubits,
-                        "xval": flat_top_width * opt.dt,  # in units of sec
+                        "xval": flat_top_width * self._dt,  # in units of sec
                         "control_state": control_state,
                         "meas_basis": meas_basis,
                     }
@@ -362,6 +348,14 @@ class CrossResonanceHamiltonian(BaseExperiment):
                         )
 
                     expr_circs.append(tomo_circ)
+
+        # Set analysis option for initial guess that depends on experiment option values.
+        edge_duration = np.sqrt(2 * np.pi) * self.experiment_options.sigma * self.num_pulses
+
+        init_guess = self.analysis.options.p0.copy()
+        init_guess["t_off"] = edge_duration * self._dt
+
+        self.analysis.set_options(p0=init_guess)
 
         return expr_circs
 
