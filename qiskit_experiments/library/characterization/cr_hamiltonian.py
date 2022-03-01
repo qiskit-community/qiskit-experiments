@@ -15,6 +15,7 @@ Cross resonance Hamiltonian tomography.
 
 from typing import List, Tuple, Iterable, Optional, Type
 
+import warnings
 import numpy as np
 from qiskit import pulse, circuit, QuantumCircuit
 from qiskit.circuit.parameterexpression import ParameterValueType
@@ -126,8 +127,9 @@ class CrossResonanceHamiltonian(BaseExperiment):
     # Number of CR pulses. The flat top duration per pulse is divided by this number.
     num_pulses = 1
 
-    # pylint: disable=missing-class-docstring
     class CRPulseGate(circuit.Gate):
+        """A pulse gate of cross resonance. Definition should be provided via calibration."""
+
         def __init__(self, width: ParameterValueType):
             super().__init__("cr_gate", 2, [width])
 
@@ -202,27 +204,40 @@ class CrossResonanceHamiltonian(BaseExperiment):
     def _set_backend(self, backend: Backend):
         super()._set_backend(backend)
 
+        new_options = {}
+
         # Extract control channel index
         try:
             cr_channels = backend.configuration().control(self.physical_qubits)
-            index = cr_channels[0].index
+            new_options["cr_channel"] = cr_channels[0].index
         except AttributeError:
-            index = self.experiment_options.cr_channel
+            pass
 
         # Extract time resolution
         try:
-            dt_factor = backend.configuration().dt
+            new_options["dt"] = backend.configuration().dt
         except AttributeError:
-            dt_factor = self.experiment_options.dt
+            pass
 
         # Extract pulse granularity
         try:
-            granularity = backend.configuration().timing_constraints["granularity"]
+            new_options["granularity"] = backend.configuration().timing_constraints["granularity"]
         except (AttributeError, KeyError):
-            granularity = self.experiment_options.granularity
+            pass
+
+        # Validate if option is already provided and any mismatch
+        for k, v in new_options.items():
+            if k in self._set_experiment_options and self.experiment_options.get(k) != v:
+                warnings.warn(
+                    f"Option {k} has been already set but the value doesn't match with "
+                    f"the hardware setup {self.experiment_options.get(k)} != {v}."
+                    "Please review this setting is still valid in the backend you set.",
+                    UserWarning,
+                )
+                new_options.pop(k)
 
         # Update experiment options
-        self.set_experiment_options(dt=dt_factor, granularity=granularity, cr_channel=index)
+        self.set_experiment_options(**new_options)
 
     def _build_cr_circuit(self, pulse_gate: circuit.Gate) -> QuantumCircuit:
         """Single tone cross resonance.
@@ -287,7 +302,7 @@ class CrossResonanceHamiltonian(BaseExperiment):
     def set_experiment_options(self, **fields):
         super().set_experiment_options(**fields)
 
-        # Effective length of Gaussian rising falling edges for fit guess (in dt).
+        # Set analysis option for initial guess that depends on experiment option values.
         edge_duration = np.sqrt(2 * np.pi) * self.experiment_options.sigma * self.num_pulses
 
         init_guess = self.analysis.options.p0.copy()
