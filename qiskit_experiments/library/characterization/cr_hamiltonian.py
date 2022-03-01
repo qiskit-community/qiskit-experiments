@@ -298,7 +298,6 @@ class CrossResonanceHamiltonian(BaseExperiment):
 
         Raises:
             AttributeError: When the backend doesn't report the time resolution of waveforms.
-            QiskitError: When backend is not set.
         """
         opt = self.experiment_options
 
