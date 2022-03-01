@@ -329,11 +329,10 @@ class CrossResonanceHamiltonian(BaseExperiment):
 
         return expr_circs
 
-    def _metadata(self) -> Dict[str, any]:
-        # Attach number of pulses to construct time offset initial guess in the fitter
-        metadata = super()._metadata()
-        metadata["n_cr_pulses"] = self.__n_cr_pulses__
-        return metadata
+    def _additional_metadata(self) -> Dict[str, any]:
+        """Attach number of pulses to construct time offset initial guess in the fitter."""
+
+        return {"n_cr_pulses": self.__n_cr_pulses__}
 
 
 class EchoedCrossResonanceHamiltonian(CrossResonanceHamiltonian):

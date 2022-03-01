@@ -56,13 +56,18 @@ class TestComposite(QiskitExperimentsTestCase):
         exp2.analysis.set_options(dummyoption="test")
 
         par_exp = ParallelExperiment([exp0, exp2])
-        self.assertEqual(par_exp.experiment_options, Options())
-        self.assertEqual(par_exp.run_options, Options(meas_level=2))
-        self.assertEqual(par_exp.transpile_options, Options(optimization_level=0))
-        self.assertEqual(par_exp.analysis.options, Options())
 
-        expdata = par_exp.run(FakeBackend())
-        self.assertExperimentDone(expdata)
+        with self.assertWarnsRegex(
+            Warning,
+            "Sub-experiment run options" " are overridden by composite experiment options.",
+        ):
+            self.assertEqual(par_exp.experiment_options, Options())
+            self.assertEqual(par_exp.run_options, Options(meas_level=2))
+            self.assertEqual(par_exp.transpile_options, Options(optimization_level=0))
+            self.assertEqual(par_exp.analysis.options, Options())
+
+            expdata = par_exp.run(FakeBackend())
+            self.assertExperimentDone(expdata)
 
     def test_experiment_config(self):
         """Test converting to and from config works"""
