@@ -28,7 +28,7 @@ class RestlessEnabledExperiment(BaseExperiment, ABC):
     each measurement. Instead, the outcome of the previous quantum non-demolition
     measurement is the initial state for the current circuit. Restless measurements
     therefore require special data processing which is provided by sub-classes of
-    the :code:`RestlessNode`. Restless experiments provide a fast alternative for
+    the :code:`RestlessNode`. Restless experiments are a fast alternative for
     several calibration and characterization tasks, for details see
     https://arxiv.org/pdf/2202.06981.pdf.
     This class provides convenience for users to consistently enable the restless
@@ -57,7 +57,7 @@ class RestlessEnabledExperiment(BaseExperiment, ABC):
                     restless setting.
         """
 
-        # If excited state promotion readout analysis option is enabled,
+        # If the excited state promotion readout analysis option is enabled,
         # it will be set to False because it is not compatible with a
         # restless experiment.
         if self.run_options.get("use_measure_esp", False):
