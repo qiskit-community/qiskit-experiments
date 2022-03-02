@@ -847,7 +847,7 @@ class CurveAnalysis(BaseAnalysis, ABC):
         # Find best value with chi-squared value
         if len(fit_results) == 0:
             if self.options.raise_on_fit_fail:
-                raise KeyError
+                raise AnalysisError("All initial guesses failed to fit the data.")
             else:
                 warnings.warn(
                     "All initial guesses and parameter boundaries failed to fit the data. "
