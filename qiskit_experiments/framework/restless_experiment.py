@@ -31,9 +31,12 @@ class RestlessEnabledExperiment(BaseExperiment, ABC):
     the :code:`RestlessNode`. Restless experiments are a fast alternative for
     several calibration and characterization tasks, for details see
     https://arxiv.org/pdf/2202.06981.pdf.
-    This class provides convenience for users to consistently enable the restless
-    operation mode for an experiment without specifying the needed experiment run
-    options and restless data processing nodes.
+    This class makes it possible for users to enter a restless run-mode without having
+    to set all the required run options and the data processor. Furthermore, subclasses
+    can override the :meth:`_get_restless_processor` method if they require more
+    complex restless data processing such as two-qubit calibrations. In addition, this
+    class makes it easy to determine if restless measurements are supported for a given
+    experiments.
     """
 
     def enable_restless(self, rep_delay: float, override_processor: bool = False):
