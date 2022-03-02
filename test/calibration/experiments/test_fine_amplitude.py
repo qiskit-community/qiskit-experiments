@@ -235,9 +235,7 @@ class TestFineAmplitudeCal(QiskitExperimentsTestCase):
 
         amp_cal = FineXAmplitudeCal(0, self.cals, "x")
 
-        circs = transpile(
-            amp_cal.circuits(), self.backend, inst_map=amp_cal.transpile_options.inst_map
-        )
+        circs = transpile(amp_cal.circuits(), self.backend, inst_map=self.cals.default_inst_map)
 
         with pulse.build(name="x") as expected_x:
             pulse.play(pulse.Drag(160, 0.5, 40, 0), pulse.DriveChannel(0))
@@ -254,9 +252,7 @@ class TestFineAmplitudeCal(QiskitExperimentsTestCase):
         d_theta = exp_data.analysis_results(1).value.n
         new_amp = init_amp * np.pi / (np.pi + d_theta)
 
-        circs = transpile(
-            amp_cal.circuits(), self.backend, inst_map=amp_cal.transpile_options.inst_map
-        )
+        circs = transpile(amp_cal.circuits(), self.backend, inst_map=self.cals.default_inst_map)
 
         x_cal = circs[5].calibrations["x"][((0,), ())]
 
@@ -278,9 +274,7 @@ class TestFineAmplitudeCal(QiskitExperimentsTestCase):
 
         amp_cal = FineSXAmplitudeCal(0, self.cals, "sx")
 
-        circs = transpile(
-            amp_cal.circuits(), self.backend, inst_map=amp_cal.transpile_options.inst_map
-        )
+        circs = transpile(amp_cal.circuits(), self.backend, inst_map=self.cals.default_inst_map)
 
         with pulse.build(name="sx") as expected_sx:
             pulse.play(pulse.Drag(160, 0.25, 40, 0), pulse.DriveChannel(0))
@@ -293,9 +287,7 @@ class TestFineAmplitudeCal(QiskitExperimentsTestCase):
         d_theta = exp_data.analysis_results(1).value.n
         new_amp = init_amp * (np.pi / 2) / (np.pi / 2 + d_theta)
 
-        circs = transpile(
-            amp_cal.circuits(), self.backend, inst_map=amp_cal.transpile_options.inst_map
-        )
+        circs = transpile(amp_cal.circuits(), self.backend, inst_map=self.cals.default_inst_map)
 
         sx_cal = circs[5].calibrations["sx"][((0,), ())]
 

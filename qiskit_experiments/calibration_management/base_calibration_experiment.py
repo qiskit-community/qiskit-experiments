@@ -16,6 +16,7 @@ from abc import ABC
 from typing import List, Optional, Type, Union
 import warnings
 
+from qiskit import QuantumCircuit
 from qiskit.providers.backend import Backend
 from qiskit.pulse import ScheduleBlock
 
@@ -216,6 +217,22 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
         experiment data if needed.
         """
         pass
+
+    def _transpiled_circuits(self) -> List[QuantumCircuit]:
+        """Override the transpiled circuits method to bring in the inst_map.
+
+        Instances of :class:`InstructionScheduleMap` are not serializable. However,
+        they do not need to be serialized since they are in the calibrations. Here,
+        we add the instruction schedule map to the transpile options for transpilation
+        and then remove it.
+
+        Returns:
+            A list of transpiled circuits.
+        """
+        self.set_transpile_options(inst_map=self.calibrations.default_inst_map)
+        circs = super()._transpiled_circuits()
+        self.set_transpile_options(inst_map=None)
+        return circs
 
     def run(
         self,
