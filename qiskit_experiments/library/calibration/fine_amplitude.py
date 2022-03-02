@@ -17,14 +17,13 @@ import numpy as np
 
 from qiskit.circuit import Gate, QuantumCircuit
 from qiskit.providers.backend import Backend
-from qiskit.pulse import InstructionScheduleMap
 
 from qiskit_experiments.calibration_management import (
     BaseCalibrationExperiment,
     Calibrations,
 )
 from qiskit_experiments.library.characterization import FineAmplitude
-from qiskit_experiments.framework import ExperimentData, Options, ExperimentConfig
+from qiskit_experiments.framework import ExperimentData, Options
 from qiskit_experiments.calibration_management.update_library import BaseUpdater
 
 
@@ -142,25 +141,6 @@ class FineAmplitudeCal(BaseCalibrationExperiment, FineAmplitude):
             self._param_name,
             self._sched_name,
             group,
-        )
-
-    def config(self) -> ExperimentConfig:
-        """Return the experiment config without the instruction schedule map."""
-        config = super().config()
-
-        # The inst_map is set at init time from the cals. We can therefore safely ignore it.
-        transpile_opts = {}
-        for key, opt in config.transpile_options.items():
-            if not isinstance(opt, InstructionScheduleMap):
-                transpile_opts[key] = opt
-
-        return ExperimentConfig(
-            cls=config.cls,
-            args=config.args,
-            kwargs=config.kwargs,
-            experiment_options=config.experiment_options,
-            transpile_options=transpile_opts,
-            run_options=config.run_options,
         )
 
 
