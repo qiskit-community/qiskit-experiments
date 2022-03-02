@@ -862,18 +862,23 @@ class DbExperimentDataV1(DbExperimentData):
         self._retrieve_analysis_results(refresh=refresh)
         if index is None:
             return self._analysis_results.values()
+
+        def make_not_found_message(index):
+            """Helper to make error message for index not found"""
+            msg = [f"Analysis result {index} not found."]
+            errors = self.errors()
+            if errors:
+                msg.append(f"Errors: {errors}")
+            return "\n".join(msg)
+
         if isinstance(index, int):
             if index >= len(self._analysis_results.values()):
-                raise DbExperimentEntryNotFound(
-                    f"Analysis result {index} not found. " f"Errors: {self.errors()}"
-                )
+                raise DbExperimentEntryNotFound(make_not_found_message(index))
             return self._analysis_results.values()[index]
         if isinstance(index, slice):
             results = self._analysis_results.values()[index]
             if not results:
-                raise DbExperimentEntryNotFound(
-                    f"Analysis result {index} not found. " f"Errors: {self.errors()}"
-                )
+                raise DbExperimentEntryNotFound(make_not_found_message(index))
             return results
         if isinstance(index, str):
             # Check by result ID
@@ -884,9 +889,7 @@ class DbExperimentDataV1(DbExperimentData):
                 result for result in self._analysis_results.values() if result.name == index
             ]
             if not filtered:
-                raise DbExperimentEntryNotFound(
-                    f"Analysis result {index} not found. " f"Errors: {self.errors()}"
-                )
+                raise DbExperimentEntryNotFound(make_not_found_message(index))
             if len(filtered) == 1:
                 return filtered[0]
             else:
