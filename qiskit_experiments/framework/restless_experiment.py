@@ -39,7 +39,7 @@ class RestlessEnabledExperiment(BaseExperiment, ABC):
     experiments.
     """
 
-    def enable_restless(self, rep_delay: float, override_processor: bool = False):
+    def enable_restless(self, rep_delay: float, override_restless_processor: bool = False):
         """Enables a restless experiment by setting the restless run options and
         the restless data processor.
 
