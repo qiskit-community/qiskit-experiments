@@ -13,8 +13,9 @@
 """An mock IQ backend for testing."""
 
 from abc import abstractmethod
-from typing import List, Tuple, Dict, Union
+from typing import List, Tuple, Dict, Union, Any
 import numpy as np
+from numpy import ndarray
 
 from qiskit import QuantumCircuit
 from qiskit.result import Result
@@ -62,13 +63,18 @@ class MockIQBackend(FakeOpenPulse2Q):
         )
 
     @staticmethod
-    def _verify_parameters(num_qubits):
+    def _verify_parameters(num_qubits: int, prob_dict: Dict[str, float]):
         if num_qubits < 1:
             raise ValueError(f"The number of qubits {num_qubits} is smaller than 1.")
+
+        if not np.allclose(1, sum(prob_dict.values())):
+            raise ValueError(f"The probabilities given don't sum up to 1.")
+        for key in prob_dict.keys():
+            if num_qubits is not len(key):
+                raise ValueError("The number of qubits and the length of the output string don't match.")
         # TODO:
         # check that the length of attributes matches the number of qubits.
         # check that probability is 1.
-
 
     def _get_normal_samples_for_shot(self, num_qubits: int):
         """
@@ -84,45 +90,23 @@ class MockIQBackend(FakeOpenPulse2Q):
         samples = [self._rng.normal(0, widths[qubit], size=1) for qubit in range(num_qubits)]
         return samples
 
-    @staticmethod
-    def _values_to_string_array(num_qubits):
-        """
-        This function creates a dictionary in the size of num_qubits ** 2 (all possible values)
-        that connects between a number and its full binary representation as string with length of
-        num_qubits.
-        Args:
-            num_qubits(int): The number of qubits in the circuit.
-        Returns:
-            dict: A dictionary that connects between a value to its string representation.
-        """
-        return_dict = {}
-        for num in range(num_qubits ** 2):
-            num_in_binary = format(num, 'b').zfill(num_qubits)
-            qubit_string_value = str(num_in_binary)
-            return_dict[num] = qubit_string_value
-        return return_dict
-
-    def _expand_probability(self, probability: Dict[str, float], num_qubits: int):
-        """
-        Take a dictionary of probabilities and expand it to include trivial cases with
-        probability of 0.
-        Args:
-            probability(dict): A dictionary that it's keys are binary strings of the outputs
-             and the values are probabilities.
-            num_qubits(int): the number of qubits in the circuit.
-        """
-        for num in range(num_qubits ** 2):
+    def _probability_dict_to_probability_array(self, prob_dict: Dict[str, float], num_qubits: int) -> List[float]:
+        prob_list = []
+        for num in range(2 ** num_qubits):
             num_binary_str = str(format(num, 'b').zfill(num_qubits))
-            if num_binary_str not in probability:
-                probability[num_binary_str] = 0
+            if num_binary_str in prob_dict:
+                prob_list.append(prob_dict[num_binary_str])
+            else:
+                prob_list.append(0)
+        return prob_list
 
     def _draw_iq_shots(
-        self, prob: Dict[str, float], shots: int, num_qubits: int, phase: float = 0.0
-    ) -> List[List[Tuple[float, float]]]:
+        self, prob: List[float], shots: int, num_qubits: int, phase: float = 0.0
+    ) -> List[List[List[Union[float, complex]]]]:
         """
         Produce an IQ shot.
         Args:
-            prob(dict): A dictionary that the keys are output string and the value is the probability.
+            prob(List): A list of probabilities for each output.
             shots(int): The number of times the circuit will run.
             num_qubits(int): The number of qubit in hte circuit.
 
@@ -137,21 +121,15 @@ class MockIQBackend(FakeOpenPulse2Q):
             rand_q = np.squeeze(np.array(self._get_normal_samples_for_shot(num_qubits)))
             qubits_iq_rand.append(np.array([rand_i, rand_q], dtype="float").T)
 
-        # For multinomial, the probabilities is given in list for each outcome.
-        # hence, np.log2(len(prob)) = num_qubits
-        if np.log2(len(prob)) != num_qubits:
-            raise ValueError("The probability provided doesn't match all cases possible.")
-
-        val2str_dict = self._values_to_string_array(num_qubits)
         memory = []
         shot_num = 0
         iq_centers = self._iq_cluster_centers
 
-        for idx, number_of_occurrences in enumerate(self._rng.multinomial(1, prob, size=shots)):
-            # For multiple qubit - translate number to string
+        for idx, number_of_occurrences in enumerate(self._rng.multinomial(shots, prob, size=1)[0]):
+            # For multiple qubits - translate numbers to strings
             # and then count them.
             # need to think about the structure of probability.
-            state_str = val2str_dict[idx]
+            state_str = str(format(idx, 'b').zfill(num_qubits))
             for _ in range(number_of_occurrences):
                 shot_memory = []
                 for qubit_number, char_qubit in enumerate(state_str):
@@ -176,7 +154,7 @@ class MockIQBackend(FakeOpenPulse2Q):
 
         return memory
 
-    def _generate_data(self, prob: Dict[str, float], num_qubits: int, circuit: QuantumCircuit) -> Dict:
+    def _generate_data(self, prob_dict: Dict[str, float], num_qubits: int, circuit: QuantumCircuit) -> Dict:
         """
 
         Args:
@@ -186,23 +164,24 @@ class MockIQBackend(FakeOpenPulse2Q):
         Returns:
 
         """
+        self._verify_parameters(num_qubits, prob_dict)
+        prob_arr = self._probability_dict_to_probability_array(prob_dict, num_qubits)
         # Maybe I need to get as input for generalization
         shots = self.options.get("shots")
         meas_level = self.options.get("meas_level")
         meas_return = self.options.get("meas_return")
         run_result = {}
 
-        val2str_dict = self._values_to_string_array(num_qubits)
         if meas_level == MeasLevel.CLASSIFIED:
             counts = {}
-            results = self._rng.multinomial(shots, prob, size=1)
+            results = self._rng.multinomial(shots, prob_arr, size=1)[0]
             for result, num_occurrences in enumerate(results):
-                result_in_str = val2str_dict["result"]
+                result_in_str = str(format(result, 'b').zfill(num_qubits))
                 counts[result_in_str] = num_occurrences
             run_result["counts"] = counts
         else:
             phase = self._iq_phase(circuit)
-            memory = self._draw_iq_shots(prob, shots, num_qubits, phase)
+            memory = self._draw_iq_shots(prob_arr, shots, num_qubits, phase)
             if meas_return == "avg":
                 memory = np.average(np.array(memory), axis=0).tolist()  # could have a bug here
 
@@ -250,7 +229,8 @@ class MockIQBackend(FakeOpenPulse2Q):
         }
 
         for circ in run_input:
-            nqubits = circ.num_qubits
+            # nqubits = circ.num_qubits
+            nqubits = len(circ.qregs)
             run_result = {
                 "shots": shots,
                 "success": True,
@@ -264,18 +244,15 @@ class MockIQBackend(FakeOpenPulse2Q):
 
         return FakeJob(self, Result.from_dict(result))
 
-# class ParallelMockIQBackend(MockIQBackend):
-
-
 class DragBackend(MockIQBackend):
     """A simple and primitive backend, to be run by the rough drag tests."""
 
     def __init__(
         self,
-        iq_cluster_centers: List[Tuple[Tuple[float, float], Tuple[float, float]]] = [((1.0, 1.0), (-1.0, -1.0))],
-        iq_cluster_width: List[float] = [1.0],
+        iq_cluster_centers: List[Tuple[Tuple[float, float], Tuple[float, float]]] = None,
+        iq_cluster_width: List[float] = None,
         error: float = 0.03,
-        ideal_beta=2.0,
+        ideal_beta = 2.0,
         gate_name: str = "Rp",
         rng_seed: int = 0,
     ):
@@ -283,6 +260,11 @@ class DragBackend(MockIQBackend):
         self._error = error
         self._gate_name = gate_name
         self.ideal_beta = ideal_beta
+
+        if iq_cluster_centers is None:
+            iq_cluster_centers = [((1.0, 1.0), (-1.0, -1.0))]
+        if iq_cluster_width is None:
+            iq_cluster_centers = [1.0]
 
         super().__init__(iq_cluster_centers, iq_cluster_width, rng_seed=rng_seed)
 
