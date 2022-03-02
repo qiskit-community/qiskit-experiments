@@ -95,14 +95,10 @@ class MockIQBackend(FakeOpenPulse2Q):
         Returns:
             dict: A dictionary that connects between a value to its string representation.
         """
-        max_value = num_qubits ** 2
         return_dict = {}
-        for num in range(max_value):
-            num_in_binary = format(num, "b")
-            qubit_string_value = ""
-            for _ in range(num_qubits - len(num_in_binary)):
-                qubit_string_value += "0"
-            qubit_string_value += str(num_in_binary)
+        for num in range(num_qubits ** 2):
+            num_in_binary = format(num, 'b').zfill(num_qubits)
+            qubit_string_value = str(num_in_binary)
             return_dict[num] = qubit_string_value
         return return_dict
 
@@ -111,18 +107,14 @@ class MockIQBackend(FakeOpenPulse2Q):
         Take a dictionary of probabilities and expand it to include trivial cases with
         probability of 0.
         Args:
-            probability(dict): A dictionary that it's keys are strings
-            num_qubits:
-
-        Returns:
-
+            probability(dict): A dictionary that it's keys are binary strings of the outputs
+             and the values are probabilities.
+            num_qubits(int): the number of qubits in the circuit.
         """
-        value2str = self._values_to_string_array(num_qubits)
-        for _, qubit_string_value in value2str.items():
-            if qubit_string_value in probability:
-                continue
-            else:
-                probability[qubit_string_value] = 0
+        for num in range(num_qubits ** 2):
+            num_binary_str = str(format(num, 'b').zfill(num_qubits))
+            if num_binary_str not in probability:
+                probability[num_binary_str] = 0
 
     def _draw_iq_shots(
         self, prob: Dict[str, float], shots: int, num_qubits: int, phase: float = 0.0
@@ -135,12 +127,12 @@ class MockIQBackend(FakeOpenPulse2Q):
             num_qubits(int): The number of qubit in hte circuit.
 
         Returns:
-            List[List[Tuple[float, float]]]: return a list that each entry is a list that represent a shot. The output
-            is build as following - List[shot index][qubit index] = [I,Q]
+            List[List[Tuple[float, float]]]: return a list that each entry is a list that represent a shot.
+            The output is built as following - List[shot index][qubit index] = [I,Q]
         """
         # Randomize samples
         qubits_iq_rand = []
-        for shot_index in range(shots):
+        for _ in range(shots):
             rand_i = np.squeeze(np.array(self._get_normal_samples_for_shot(num_qubits)))
             rand_q = np.squeeze(np.array(self._get_normal_samples_for_shot(num_qubits)))
             qubits_iq_rand.append(np.array([rand_i, rand_q], dtype="float").T)
@@ -271,6 +263,8 @@ class MockIQBackend(FakeOpenPulse2Q):
             result["results"].append(run_result)
 
         return FakeJob(self, Result.from_dict(result))
+
+# class ParallelMockIQBackend(MockIQBackend):
 
 
 class DragBackend(MockIQBackend):
