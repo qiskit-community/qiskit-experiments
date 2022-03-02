@@ -69,7 +69,7 @@ class RestlessEnabledExperiment(BaseExperiment, ABC):
         if self._t1_check(rep_delay):
             if not self.analysis.options.get("data_processor", None):
                 self.set_run_options(
-                    rep_delay=rep_delay, init_qubit=False, memory=True, meas_level=2
+                    rep_delay=rep_delay, init_qubit=False, memory=True, meas_level=2, use_measure_esp=False
                 )
                 self.analysis.set_options(data_processor=self._get_restless_processor())
             else:
