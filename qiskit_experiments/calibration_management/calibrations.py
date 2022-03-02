@@ -160,6 +160,10 @@ class Calibrations:
                 for param_conf in library.default_values():
                     self.add_parameter_value(*param_conf, update_inst_map=False)
 
+        # This internal parameter is False so that if a schedule is added after the
+        # init it will be set to True and serialization will raise an error.
+        self._has_manually_added_schedule = False
+
         # Instruction schedule map variables and support variables.
         self._inst_map = InstructionScheduleMap()
 
@@ -178,10 +182,6 @@ class Calibrations:
 
         # Push the schedules to the instruction schedule map.
         self.update_inst_map()
-
-        # This internal parameter is False so that if a schedule is added after the
-        # init it will be set to True and serialization will raise an error.
-        self._has_manually_added_schedule = False
 
     @property
     def backend_name(self) -> str:

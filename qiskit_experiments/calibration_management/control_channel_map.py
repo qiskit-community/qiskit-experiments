@@ -39,7 +39,7 @@ class ControlChannelMap:
         """Return the settings used to initialize the mapping."""
         return {
             "class": self.__class__.__name__,
-            "map": [{"key": k, "value": [chan.index for chan in v]} for k, v in self._map.items()]
+            "map": [{"key": k, "value": [chan.index for chan in v]} for k, v in self._map.items()],
         }
 
     @classmethod

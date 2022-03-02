@@ -12,11 +12,10 @@
 
 """Class to test the calibrations."""
 from test.base import QiskitExperimentsTestCase
-from datetime import timezone
 import os
 import uuid
 from collections import defaultdict
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 from qiskit.circuit import Parameter, Gate
 from qiskit.pulse import (
     Drag,
@@ -1634,22 +1633,24 @@ class TestSerialization(QiskitExperimentsTestCase):
         backend = FakeBelem()
         library = FixedFrequencyTransmon(basis_gates=["sx", "x"])
 
-        cals1 = Calibrations.from_backend(backend, library)
+        cals1 = Calibrations.from_backend(backend, library, add_parameter_defaults=False)
+        cals2 = Calibrations.from_backend(backend, library, add_parameter_defaults=False)
+        self.assertTrue(cals1 == cals2)
 
         date_time = datetime.now(timezone.utc).astimezone()
         param_val = ParameterValue(0.12345, date_time=date_time)
         cals1.add_parameter_value(param_val, "amp", 3, "x")
 
         # The two objects are different due to missing parameter value
-        cals2 = Calibrations.from_backend(backend, library)
         self.assertFalse(cals1 == cals2)
 
         # The two objects are different due to time stamps
-        cals2.add_parameter_value(0.12345, "amp", 3, "x")
+        param_val2 = ParameterValue(0.12345, date_time=date_time - timedelta(seconds=1))
+        cals2.add_parameter_value(param_val2, "amp", 3, "x")
         self.assertFalse(cals1 == cals2)
 
         # The two objects are different due to missing parameter value
-        cals3 = Calibrations.from_backend(backend, library)
+        cals3 = Calibrations.from_backend(backend, library, add_parameter_defaults=False)
         self.assertFalse(cals1 == cals3)
 
         # The two objects are identical due to time stamps
@@ -1657,7 +1658,21 @@ class TestSerialization(QiskitExperimentsTestCase):
         self.assertFalse(cals1 == cals3)
 
         # The schedules contained in the cals are different.
-        library2 = FixedFrequencyTransmon()
+        library2 = FixedFrequencyTransmon(basis_gates=["sx", "x", "y"])
         cals1 = Calibrations.from_backend(backend, library)
         cals2 = Calibrations.from_backend(backend, library2)
         self.assertFalse(cals1 == cals2)
+
+        # Ensure that the equality is not sensitive to parameter adding order.
+        cals1 = Calibrations.from_backend(backend, library, add_parameter_defaults=False)
+        cals2 = Calibrations.from_backend(backend, library, add_parameter_defaults=False)
+        param_val1 = ParameterValue(0.54321, date_time=date_time)
+        param_val2 = ParameterValue(0.12345, date_time=date_time - timedelta(seconds=1))
+
+        cals1.add_parameter_value(param_val2, "amp", 3, "x")
+        cals1.add_parameter_value(param_val1, "amp", 3, "x")
+
+        cals2.add_parameter_value(param_val1, "amp", 3, "x")
+        cals2.add_parameter_value(param_val2, "amp", 3, "x")
+
+        self.assertTrue(cals1 == cals2)
