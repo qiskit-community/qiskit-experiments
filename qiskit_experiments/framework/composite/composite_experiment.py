@@ -98,10 +98,19 @@ class CompositeExperiment(BaseExperiment):
                     ret.analysis._analyses[i] = ret._experiments[i].analysis
         return ret
 
+    def set_run_options(self, **fields):
+        super().set_run_options(**fields)
+        for subexp in self._experiments:
+            subexp.set_run_options(**fields)
+
     def _set_backend(self, backend):
         super()._set_backend(backend)
         for subexp in self._experiments:
             subexp._set_backend(backend)
+
+    def _finalize(self):
+        for subexp in self._experiments:
+            subexp._finalize()
 
     def _initialize_experiment_data(self):
         """Initialize the return data container for the experiment run"""
