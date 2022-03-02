@@ -64,6 +64,7 @@ class FrequencyCal(BaseCalibrationExperiment, RamseyXY):
 
         # Instruction schedule map to bring in the calibrations for the sx gate.
         self.set_transpile_options(inst_map=calibrations.default_inst_map)
+        self.analysis.set_options(raise_on_fit_fail=True)
 
     def _add_cal_metadata(self, experiment_data: ExperimentData):
         """Add the oscillation frequency of the experiment to the metadata."""

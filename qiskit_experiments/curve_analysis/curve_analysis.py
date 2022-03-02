@@ -360,6 +360,7 @@ class CurveAnalysis(BaseAnalysis, ABC):
         options.style = PlotterStyle()
         options.extra = dict()
         options.curve_fitter_options = dict()
+        options.raise_on_fit_fail = False
 
         # automatically populate initial guess and boundary
         fit_params = cls._fit_params()
@@ -845,11 +846,15 @@ class CurveAnalysis(BaseAnalysis, ABC):
 
         # Find best value with chi-squared value
         if len(fit_results) == 0:
-            warnings.warn(
-                "All initial guesses and parameter boundaries failed to fit the data. "
-                "Please provide better initial guesses or fit parameter boundaries.",
-                UserWarning,
-            )
+            if self.options.raise_on_fit_fail:
+                raise KeyError
+            else:
+                warnings.warn(
+                    "All initial guesses and parameter boundaries failed to fit the data. "
+                    "Please provide better initial guesses or fit parameter boundaries.",
+                    UserWarning,
+                )
+
             # at least return raw data points rather than terminating
             fit_result = None
         else:
