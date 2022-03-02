@@ -245,13 +245,15 @@ class BaseExperiment(ABC, StoreInitArgs):
                     stacklevel=2,
                 )
 
-        if backend is not None or analysis != "default":
+        if backend is not None or analysis != "default" or run_options:
             # Make a copy to update analysis or backend if one is provided at runtime
             experiment = self.copy()
             if backend:
                 experiment._set_backend(backend)
             if isinstance(analysis, BaseAnalysis):
                 experiment.analysis = analysis
+            if run_options:
+                experiment.set_run_options(**run_options)
         else:
             experiment = self
 
@@ -261,13 +263,11 @@ class BaseExperiment(ABC, StoreInitArgs):
         # Initialize result container
         experiment_data = experiment._initialize_experiment_data()
 
-        # Run options
-        run_opts = copy.copy(experiment.run_options)
-        run_opts.update_options(**run_options)
-        run_opts = run_opts.__dict__
-
         # Generate and transpile circuits
         transpiled_circuits = experiment._transpiled_circuits()
+
+        # Run options
+        run_opts = experiment.run_options.__dict__
 
         # Run jobs
         jobs = experiment._run_jobs(transpiled_circuits, **run_opts)
