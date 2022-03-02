@@ -86,7 +86,7 @@ class TestFineFreqEndToEnd(QiskitExperimentsTestCase):
         freq_after = self.cals.get_parameter_value(self.cals.__drive_freq_parameter__, 0)
 
         # Test equality up to 10kHz on a 100 kHz shift
-        self.assertAlmostEqual(freq_after, armonk_freq - freq_shift, delta=1e4)
+        self.assertAlmostEqual(freq_after, armonk_freq + freq_shift, delta=1e4)
 
     def test_experiment_config(self):
         """Test converting to and from config works"""
