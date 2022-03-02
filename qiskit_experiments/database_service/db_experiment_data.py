@@ -503,9 +503,8 @@ class DbExperimentDataV1(DbExperimentData):
             return callback_id, True
         except Exception as ex:  # pylint: disable=broad-except
             self._analysis_callbacks[callback_id].status = AnalysisStatus.ERROR
-            error_msg = f"Analysis callback failed [Analysis ID: {callback_id}]:\n" "".join(
-                traceback.format_exception(type(ex), ex, ex.__traceback__)
-            )
+            tb_text = "".join(traceback.format_exception(type(ex), ex, ex.__traceback__))
+            error_msg = f"Analysis callback failed [Analysis ID: {callback_id}]:\n{tb_text}"
             self._analysis_callbacks[callback_id].error_msg = error_msg
             LOG.warning(error_msg)
             return callback_id, False
