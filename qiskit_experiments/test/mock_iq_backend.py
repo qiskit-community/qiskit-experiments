@@ -123,7 +123,7 @@ class MockRestlessBackend(FakeOpenPulse2Q):
 
 
 class MockRestlessFineAmp(MockRestlessBackend):
-    """A mock backend for restless fine amplitude calibration."""
+    """A mock backend for restless single-qubit fine amplitude experiments."""
 
     def __init__(
         self, angle_error: float, angle_per_gate: float, gate_name: str, rng_seed: int = 0
