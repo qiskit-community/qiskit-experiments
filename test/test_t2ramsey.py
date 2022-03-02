@@ -66,8 +66,10 @@ class TestT2Ramsey(QiskitExperimentsTestCase):
             exp.analysis.set_options(p0=user_p0)
             expdata = exp.run(backend=backend, shots=2000)
             self.assertExperimentDone(expdata)
+            self.assertRoundTripSerializable(expdata, check_func=self.experiment_data_equiv)
+            self.assertRoundTripPickle(expdata, check_func=self.experiment_data_equiv)
+
             result = expdata.analysis_results("T2star")
-            self.assertRoundTripSerializable(result.value, check_func=self.ufloat_equiv)
             self.assertAlmostEqual(
                 result.value.n,
                 estimated_t2ramsey,
