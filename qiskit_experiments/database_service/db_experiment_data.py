@@ -1392,14 +1392,6 @@ class DbExperimentDataV1(DbExperimentData):
             if callback.status == AnalysisStatus.ERROR:
                 errors.append(f"\n[Analysis ID: {cid}]: {callback.error_msg}")
 
-        # Get any callback futures errors:
-        for cid, fut in self._analysis_futures.items():
-            ex = fut.exception()
-            if fut.exception():
-                errors.append(
-                    f"[Analysis ID: {cid}]"
-                    "\n".join(traceback.format_exception(type(ex), ex, ex.__traceback__))
-                )
         return "".join(errors)
 
     def errors(self) -> str:
