@@ -1377,7 +1377,7 @@ class DbExperimentDataV1(DbExperimentData):
 
         # Get any job futures errors:
         for jid, fut in self._job_futures.items():
-            if fut and fut.exception():
+            if fut and fut.done() and fut.exception():
                 ex = fut.exception()
                 errors.append(
                     f"[Job ID: {jid}]"
