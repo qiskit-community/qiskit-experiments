@@ -49,7 +49,7 @@ class RestlessEnabledExperiment(BaseExperiment, ABC):
                     dynamic repetition rates, the repetition delay can be set to a small
                     value which is required for restless experiments. Typical values are
                     1 us or less.
-                override_processor: If True, a data processor that is specified in the
+                override_restless_processor: If True, a data processor that is specified in the
                     analysis options of the experiment can override the restless data
                     processor.
 
