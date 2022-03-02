@@ -23,7 +23,7 @@ from qiskit_experiments.data_processing import nodes
 class RestlessEnabledExperiment(BaseExperiment, ABC):
     """Restless enabled experiment class.
 
-    A restless enabled experiment is an experiment that is run in a restless
+    A restless enabled experiment is an experiment that can be run in a restless
     measurement setting. In restless measurements, the qubit is not reset after
     each measurement. Instead, the outcome of the previous quantum non-demolition
     measurement is the initial state for the current circuit. Restless measurements
