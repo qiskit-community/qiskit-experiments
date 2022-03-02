@@ -73,7 +73,7 @@ class RestlessEnabledExperiment(BaseExperiment, ABC):
                 )
                 self.analysis.set_options(data_processor=self._get_restless_processor())
             else:
-                if override_processor:
+                if override_restless_processor:
                     self.set_run_options(
                         rep_delay=rep_delay, init_qubit=False, memory=True, meas_level=2
                     )
