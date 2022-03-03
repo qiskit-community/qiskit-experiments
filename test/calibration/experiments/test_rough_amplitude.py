@@ -109,9 +109,7 @@ class TestSpecializations(QiskitExperimentsTestCase):
         test_amps = [-0.5, 0, 0.5]
         rabi_ef = EFRoughXSXAmplitudeCal(0, self.cals, amplitudes=test_amps)
 
-        circs = transpile(
-            rabi_ef.circuits(), self.backend, inst_map=self.cals.default_inst_map
-        )
+        circs = transpile(rabi_ef.circuits(), self.backend, inst_map=self.cals.default_inst_map)
 
         for circ, amp in zip(circs, test_amps):
 

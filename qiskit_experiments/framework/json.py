@@ -484,10 +484,7 @@ class ExperimentEncoder(json.JSONEncoder):
             value = _serialize_and_encode(
                 data=circuit, serializer=lambda buff, data: qpy_serialization.dump(data, buff)
             )
-            return {
-                "__type__": "Gate",
-                "__value__": value
-            }
+            return {"__type__": "Gate", "__value__": value}
         if isinstance(obj, QuantumCircuit):
             # TODO Remove the decompose when terra 6713 is released.
             if isinstance(obj, BlueprintCircuit):
