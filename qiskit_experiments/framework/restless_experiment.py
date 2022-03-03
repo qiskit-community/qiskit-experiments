@@ -84,7 +84,7 @@ class RestlessEnabledExperiment(BaseExperiment, ABC):
                 else:
                     raise DataProcessorError(
                         "Cannot enable restless. Data processor has already been set and "
-                        "override_processor is False."
+                        "override_restless_processor is False."
                     )
         else:
             raise DataProcessorError(
