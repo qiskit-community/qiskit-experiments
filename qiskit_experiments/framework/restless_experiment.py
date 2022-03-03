@@ -63,8 +63,6 @@ class RestlessEnabledExperiment(BaseExperiment, ABC):
         # If the excited state promotion readout analysis option is enabled,
         # it will be set to False because it is not compatible with a
         # restless experiment.
-        if self.run_options.get("use_measure_esp", False):
-            self.set_run_options(use_measure_esp=False)
 
         if self._t1_check(rep_delay):
             if not self.analysis.options.get("data_processor", None):
