@@ -142,20 +142,11 @@ class CompositeExperiment(BaseExperiment):
             # Call sub-experiments finalize method
             subexp._finalize()
 
-    def _initialize_experiment_data(self):
-        """Initialize the return data container for the experiment run"""
-        experiment_data = ExperimentData(experiment=self)
-        # Initialize child experiment data
-        for sub_exp in self._experiments:
-            sub_data = sub_exp._initialize_experiment_data()
-            experiment_data.add_child_data(sub_data)
-        experiment_data.metadata["component_child_index"] = list(range(self.num_experiments))
-        return experiment_data
-
     def _additional_metadata(self):
         """Add component experiment metadata"""
         return {
-            "component_metadata": [sub_exp._metadata() for sub_exp in self.component_experiment()]
+            "component_types": [sub_exp.experiment_type for sub_exp in self.component_experiment()],
+            "component_metadata": [sub_exp._metadata() for sub_exp in self.component_experiment()],
         }
 
     def _add_job_metadata(self, metadata, jobs, **run_options):
