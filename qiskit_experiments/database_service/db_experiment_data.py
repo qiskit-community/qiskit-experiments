@@ -863,7 +863,7 @@ class DbExperimentDataV1(DbExperimentData):
         if index is None:
             return self._analysis_results.values()
 
-        def make_not_found_message(index):
+        def _make_not_found_message(index: Union[int, slice, str]) -> str:
             """Helper to make error message for index not found"""
             msg = [f"Analysis result {index} not found."]
             errors = self.errors()
