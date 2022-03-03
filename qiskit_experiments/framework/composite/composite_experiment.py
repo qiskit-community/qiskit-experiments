@@ -109,7 +109,24 @@ class CompositeExperiment(BaseExperiment):
             subexp._set_backend(backend)
 
     def _finalize(self):
-        for subexp in self._experiments:
+        # NOTE: When CompositeAnalysis is updated to support level-1
+        # measurements this method should be updated to validate that all
+        # sub-experiments have the same meas level and meas return types,
+        # and update the composite experiment run option to that value.
+
+        for i, subexp in enumerate(self._experiments):
+            # Raise warning if different run options were set for individual
+            # component experiments and not through the composite experiments
+            # set_run_options
+            for key in subexp._set_run_options:
+                subval = getattr(subexp.run_options, key)
+                compval = getattr(self.run_options, key, None)
+                if subval != compval:
+                    warnings.warn(
+                        f"Component experiment {i} run option {key}={subval} is "
+                        f" differs from the the composite experiment value {compval}"
+                        " and will be overridden."
+                    )
             subexp._finalize()
 
     def _initialize_experiment_data(self):
