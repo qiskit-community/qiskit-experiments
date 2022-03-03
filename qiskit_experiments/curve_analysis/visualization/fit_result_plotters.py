@@ -396,14 +396,24 @@ def write_fit_report(result_entries: List[AnalysisResultData]) -> str:
             unit = res.extra.get("unit", None)
             if unit:
                 # unit is defined. do detaching prefix, i.e. 1000 Hz -> 1 kHz
-                val, val_prefix = detach_prefix(fitval.nominal_value, decimal=3)
+                try:
+                    val, val_prefix = detach_prefix(fitval.nominal_value, decimal=3)
+                except ValueError:
+                    # Value is too small or too big
+                    val = fitval.nominal_value
+                    val_prefix = ""
                 val_unit = val_prefix + unit
                 value_repr = f"{val: .3g}"
 
                 # write error bar if it is finite value
                 if fitval.std_dev is not None and np.isfinite(fitval.std_dev):
                     # with stderr
-                    err, err_prefix = detach_prefix(fitval.std_dev, decimal=3)
+                    try:
+                        err, err_prefix = detach_prefix(fitval.std_dev, decimal=3)
+                    except ValueError:
+                        # Value is too small or too big
+                        err = fitval.std_dev
+                        err_prefix = ""
                     err_unit = err_prefix + unit
                     if val_unit == err_unit:
                         # same value scaling, same prefix
