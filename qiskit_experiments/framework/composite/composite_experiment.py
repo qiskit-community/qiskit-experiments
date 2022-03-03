@@ -115,18 +115,31 @@ class CompositeExperiment(BaseExperiment):
         # and update the composite experiment run option to that value.
 
         for i, subexp in enumerate(self._experiments):
-            # Raise warning if different run options were set for individual
-            # component experiments and not through the composite experiments
-            # set_run_options
-            for key in subexp._set_run_options:
-                subval = getattr(subexp.run_options, key)
-                compval = getattr(self.run_options, key, None)
-                if subval != compval:
-                    warnings.warn(
-                        f"Component experiment {i} run option {key}={subval} is "
-                        f" differs from the the composite experiment value {compval}"
-                        " and will be overridden."
-                    )
+            # Validate set and default run options in component experiment
+            # against and component experiment run options and raise a
+            # warning if any are different and will be overridden
+            overridden_keys = []
+            sub_vals = []
+            comp_vals = []
+            for key, sub_val in subexp.run_options.__dict__.items():
+                comp_val = getattr(self.run_options, key, None)
+                if sub_val != comp_val:
+                    overridden_keys.append(key)
+                    sub_vals.append(sub_val)
+                    comp_vals.append(comp_val)
+
+            if overridden_keys:
+                warnings.warn(
+                    f"Component experiment {i} run options {overridden_keys} values"
+                    f" {sub_vals} will be overridden with component experiment"
+                    f" values {comp_vals}.",
+                    UserWarning,
+                )
+                # Update sub-experiment options with actual run option values so
+                # they can be used by that sub experiments _finalize method.
+                subexp.set_run_options(**dict(zip(overridden_keys, comp_vals)))
+
+            # Call sub-experiments finalize method
             subexp._finalize()
 
     def _initialize_experiment_data(self):
