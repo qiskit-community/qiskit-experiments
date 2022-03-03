@@ -221,10 +221,12 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
     def _transpiled_circuits(self) -> List[QuantumCircuit]:
         """Override the transpiled circuits method to bring in the inst_map.
 
-        Instances of :class:`InstructionScheduleMap` are not serializable. However,
-        they do not need to be serialized since they are in the calibrations. Here,
-        we add the instruction schedule map to the transpile options for transpilation
-        and then remove it.
+        The calibrated schedules are transpiled into the circuits using the instruction
+        schedule map which can be provided through the options. However, instances of
+        :class:`InstructionScheduleMap` are not serializable. This is fine since they
+        do not need to be serialized. Only instances of :class:`Calibrations` need to
+        be serialized. Here, we add the instruction schedule map to the transpile options
+        for transpilation and then remove it to avoid serialization issues.
 
         Returns:
             A list of transpiled circuits.
