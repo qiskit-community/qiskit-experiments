@@ -111,7 +111,7 @@ Extra data included in the analysis results includes
 
 
 Adding trials
-~~~~~~~~~~~~~
+-------------
 
 Adding more trials may reduce the error bars to allow passing the
 threshold (beside the error bars - QV experiment must have at least 100
@@ -133,7 +133,7 @@ re-running the experiment.
 
 
 Calculating Quantum Volume using a batch experiment
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+---------------------------------------------------
 
 Run the QV experiment with an increasing number of qubits to check what
 is the maximum Quantum Volume for the specific device. To reach the real
@@ -174,7 +174,7 @@ Extracting the maximum Quantum Volume.
             print(result)
 
 References
-~~~~~~~~~~
+----------
 
 [1] Andrew W. Cross, Lev S. Bishop, Sarah Sheldon, Paul D. Nation, and
 Jay M. Gambetta, Validating quantum computers using randomized model
