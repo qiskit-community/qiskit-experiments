@@ -114,7 +114,7 @@ class RestlessEnabledExperiment(BaseExperiment, ABC):
         )
 
     def _t1_check(self, rep_delay: float) -> bool:
-        """Check that repetition delay < T1of the physical qubits in the experiment.
+        """Check that repetition delay < T1 of the physical qubits in the experiment.
 
         Args:
             rep_delay: The repetition delay. This is the delay between a measurement
