@@ -23,7 +23,7 @@ from qiskit_experiments.library import (
 from qiskit_experiments.test.mock_iq_backend import MockRestlessFineAmp
 
 from qiskit_experiments.data_processing.data_processor import DataProcessor
-from qiskit_experiments.data_processing.nodes import Probability, RestlessToCounts
+from qiskit_experiments.data_processing.nodes import Probability
 from qiskit_experiments.framework import Options
 
 
