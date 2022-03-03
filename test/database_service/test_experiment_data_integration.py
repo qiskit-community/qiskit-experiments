@@ -315,7 +315,9 @@ class TestExperimentDataIntegration(QiskitTestCase):
         exp_data.save()
 
         rexp = DbExperimentData.load(exp_data.experiment_id, self.experiment)
-        self.assertEqual(["foo", "bar"], rexp.tags)
+        # Experiment tag order is not necessarily preserved
+        # so compare tags with a predictable sort order.
+        self.assertEqual(["bar", "foo"], sorted(rexp.tags))
         self.assertEqual(aresult.result_id, rexp.analysis_results(0).result_id)
         self.assertEqual(hello_bytes, rexp.figure(0))
 
