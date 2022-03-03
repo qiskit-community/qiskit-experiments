@@ -130,9 +130,9 @@ class CompositeExperiment(BaseExperiment):
 
             if overridden_keys:
                 warnings.warn(
-                    f"Component experiment {i} run options {overridden_keys} values"
-                    f" {sub_vals} will be overridden with component experiment"
-                    f" values {comp_vals}.",
+                    f"Component {i} {subexp.experiment_type} experiment run options"
+                    f" {overridden_keys} values {sub_vals} will be overridden with"
+                    f" {self.experiment_type} values {comp_vals}.",
                     UserWarning,
                 )
                 # Update sub-experiment options with actual run option values so
