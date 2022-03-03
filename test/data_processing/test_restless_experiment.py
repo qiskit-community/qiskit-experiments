@@ -23,12 +23,30 @@ from qiskit_experiments.library import (
 from qiskit_experiments.test.mock_iq_backend import MockRestlessFineAmp
 
 from qiskit_experiments.data_processing.data_processor import DataProcessor
-from qiskit_experiments.data_processing.nodes import Probability
+from qiskit_experiments.data_processing.nodes import Probability, RestlessToCounts
+from qiskit_experiments.framework import Options
 
 
 @ddt
 class TestFineAmpEndToEndRestless(QiskitExperimentsTestCase):
     """Test the fine amplitude experiment in a restless measurement setting."""
+
+    def test_enable_restless(self):
+        """Test the enable_restless method."""
+
+        error = -np.pi * 0.01
+        backend = MockRestlessFineAmp(error, np.pi, "x")
+
+        amp_exp = FineXAmplitude(0, backend)
+        # enable a restless measurement setting.
+        amp_exp.enable_restless(rep_delay=2e-6)
+
+        self.assertTrue(
+            amp_exp.run_options,
+            Options(
+                meas_level=2, rep_delay=2e-6, init_qubit=False, memory=True, use_measure_esp=False
+            ),
+        )
 
     @data(-0.03, -0.01, 0.02, 0.04)
     def test_end_to_end_restless(self, pi_ratio):
