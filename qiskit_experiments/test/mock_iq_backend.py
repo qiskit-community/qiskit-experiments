@@ -105,12 +105,14 @@ class MockRestlessBackend(FakeOpenPulse2Q):
                 prev_outcome = outcome
 
         for idx, circ in enumerate(run_input):
+            ones = sorted_memory[idx]["memory"].count("0x1")
             run_result = {
                 "shots": shots,
                 "success": True,
                 "header": {"metadata": circ.metadata},
                 "meas_level": meas_level,
                 "data": {
+                    "counts": {"1": ones, "0": shots - ones},
                     "memory": sorted_memory[idx]["memory"],
                 },
             }

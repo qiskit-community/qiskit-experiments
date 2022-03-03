@@ -79,7 +79,11 @@ class RestlessEnabledExperiment(BaseExperiment, ABC):
             else:
                 if override_restless_processor:
                     self.set_run_options(
-                        rep_delay=rep_delay, init_qubit=False, memory=True, meas_level=2
+                        rep_delay=rep_delay,
+                        init_qubit=False,
+                        memory=True,
+                        meas_level=2,
+                        use_measure_esp=False,
                     )
                 else:
                     raise DataProcessorError(
