@@ -236,10 +236,10 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
         """
         transpile_opts = copy.copy(self.transpile_options.__dict__)
         if "inst_map" in transpile_opts:
-              LOG.warning(
-                  "Instruction schedule maps should not be present in calibration experiments. "
-                  f"Overriding with the inst. map of {self._cals.__class__.__name__}."
-              )
+            LOG.warning(
+                "Instruction schedule maps should not be present in calibration experiments. "
+                f"Overriding with the inst. map of {self._cals.__class__.__name__}."
+            )
 
         transpile_opts["inst_map"] = self.calibrations.default_inst_map
         transpile_opts["initial_layout"] = list(self.physical_qubits)
