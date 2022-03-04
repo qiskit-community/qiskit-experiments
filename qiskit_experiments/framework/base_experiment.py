@@ -512,6 +512,9 @@ class BaseExperiment(ABC, StoreInitArgs):
     def _metadata(self) -> Dict[str, any]:
         """Return experiment metadata for ExperimentData.
 
+        Subclasses can override this method to add custom experiment
+        metadata to the returned experiment result data.
+
         The :meth:`_add_job_metadata` method will be called for each
         experiment execution to append job metadata, including current
         option values, to the ``job_metadata`` list.
@@ -521,18 +524,7 @@ class BaseExperiment(ABC, StoreInitArgs):
             "num_qubits": self.num_qubits,
             "physical_qubits": list(self.physical_qubits),
         }
-        # Add additional metadata if subclasses specify it
-        for key, val in self._additional_metadata().items():
-            metadata[key] = val
         return metadata
-
-    def _additional_metadata(self) -> Dict[str, any]:
-        """Add additional subclass experiment metadata.
-
-        Subclasses can override this method if it is necessary to store
-        additional experiment metadata in ExperimentData.
-        """
-        return {}
 
     def _add_job_metadata(self, metadata: Dict[str, Any], jobs: BaseJob, **run_options):
         """Add runtime job metadata to ExperimentData.

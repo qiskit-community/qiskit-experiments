@@ -152,11 +152,12 @@ class CompositeExperiment(BaseExperiment):
         experiment_data.metadata["component_child_index"] = list(range(self.num_experiments))
         return experiment_data
 
-    def _additional_metadata(self):
-        """Add component experiment metadata"""
-        return {
-            "component_metadata": [sub_exp._metadata() for sub_exp in self.component_experiment()]
-        }
+    def _metadata(self):
+        metadata = super()._metadata()
+        metadata["component_metadata"] = [
+            sub_exp._metadata() for sub_exp in self.component_experiment()
+        ]
+        return metadata
 
     def _add_job_metadata(self, metadata, jobs, **run_options):
         super()._add_job_metadata(metadata, jobs, **run_options)
