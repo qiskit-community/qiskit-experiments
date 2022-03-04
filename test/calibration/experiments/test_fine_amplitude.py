@@ -12,7 +12,6 @@
 
 """Test the fine amplitude characterization and calibration experiments."""
 from test.base import QiskitExperimentsTestCase
-import unittest
 import numpy as np
 from ddt import ddt, data
 
