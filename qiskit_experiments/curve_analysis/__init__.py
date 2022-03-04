@@ -278,7 +278,7 @@ Providing initial guesses and boundaries
 A template for initial guesses and boundaries are automatically generated in
 :attr:`CurveAnalysis.options` as a dictionary keyed on the parameter names parsed from
 the series definition. The default values are set to ``None``.
-The list of parameter names is also available in the class attribute
+The list of parameter names is also available in the property
 :attr:`CurveAnalysis.fit_params`.
 
 A developer of the curve analysis subclass is recommended to override

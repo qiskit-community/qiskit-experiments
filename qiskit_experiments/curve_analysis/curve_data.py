@@ -16,7 +16,6 @@ Curve data classes.
 
 import dataclasses
 import inspect
-import itertools
 from typing import Any, Dict, Callable, Union, List, Tuple, Optional, Iterable
 
 import numpy as np
@@ -110,9 +109,14 @@ class CompositeFitFunction:
         self._fixed_params = {p: None for p in fixed_parameters}
         self._data_index = None
 
-        # Signature of composite function
-        fit_args = set(itertools.chain.from_iterable(signatures)) - set(fixed_parameters)
-        self._full_params = sorted(fit_args)
+        fit_args = []
+        # Logic is not efficient but should keep order of parameters for backward compatibility
+        for signature in signatures:
+            for param in signature:
+                if param not in fit_args and param not in fixed_parameters:
+                    fit_args.append(param)
+
+        self._full_params = fit_args
 
     def __call__(self, x: np.ndarray, *params) -> np.ndarray:
         """Called by the scipy fit function.
@@ -168,6 +172,16 @@ class CompositeFitFunction:
     def group(self) -> str:
         """Return a group that this function belongs to."""
         return self._group
+
+    def copy(self):
+        """Return copy of this function. Assigned parameters and indices are refleshed."""
+        return CompositeFitFunction(
+            group=self.group,
+            fit_functions=self._fit_functions,
+            signatures=self._signatures,
+            fixed_parameters=list(self._fixed_params.keys()),
+            **self.metadata.copy(),
+        )
 
     def __repr__(self):
         sigrepr = ", ".join(self.signature)

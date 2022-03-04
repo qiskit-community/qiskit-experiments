@@ -19,7 +19,7 @@ import copy
 import itertools
 import warnings
 from abc import ABC
-from typing import Any, Dict, List, Tuple, Callable, Union, Optional
+from typing import Any, Dict, List, Tuple, Callable, Union, Optional, Iterator
 
 import numpy as np
 import scipy.optimize as opt
@@ -75,10 +75,10 @@ class CurveAnalysis(BaseAnalysis, ABC):
     __fixed_parameters__ = list()
 
     # Automatically generated fitting functions of child class
-    composite_funcs = None
+    _composite_funcs = None
 
     # Automatically generated fitting parameters of child class
-    fit_params = None
+    _fit_params = None
 
     def __init_subclass__(cls, **kwargs):
         """Parse series definition of subclass and set fit function and signature."""
@@ -115,12 +115,17 @@ class CurveAnalysis(BaseAnalysis, ABC):
         ]
 
         # Dictionary of fit functions to each group
-        cls.composite_funcs = composite_funcs
+        cls._composite_funcs = composite_funcs
 
         # All fit parameter names that this analysis manages
-        cls.fit_params = sorted(
-            set(itertools.chain.from_iterable(f.signature for f in composite_funcs))
-        )
+        # Let's keep order of parameters rather than using set, though code is bit messy.
+        # It is better to match composite function signature with the func in series definition.
+        fit_args = []
+        for func in composite_funcs:
+            for param in func.signature:
+                if param not in fit_args:
+                    fit_args.append(param)
+        cls._fit_params = fit_args
 
     def __init__(self):
         """Initialize data fields that are privately accessed by methods."""
@@ -135,9 +140,8 @@ class CurveAnalysis(BaseAnalysis, ABC):
         #: Backend: backend object used for experimentation
         self.__backend = None
 
-    @classmethod
+    @staticmethod
     def curve_fit(
-        cls,
         func: CompositeFitFunction,
         xdata: np.ndarray,
         ydata: np.ndarray,
@@ -253,6 +257,20 @@ class CurveAnalysis(BaseAnalysis, ABC):
             group=func.group,
         )
 
+    @property
+    def composite_funcs(self) -> Iterator[CompositeFitFunction]:
+        """Return parsed composite fit function for this analysis instance."""
+        for fit_func in self._composite_funcs:
+            # Return copy of the composite fit function
+            # Note that this is a statefull class attribute, which can be modified during the fit.
+            # This may cause unexpected behavior in multithread execution, i.e. composite analysis.
+            yield fit_func.copy()
+
+    @property
+    def fit_params(self) -> List[str]:
+        """Return parameters of this curve analysis."""
+        return self._fit_params.copy()
+
     @classmethod
     def _default_options(cls) -> Options:
         """Return default analysis options.
@@ -325,8 +343,8 @@ class CurveAnalysis(BaseAnalysis, ABC):
         options.curve_fitter_options = dict()
 
         # automatically populate initial guess and boundary
-        options.p0 = {par_name: None for par_name in cls.fit_params}
-        options.bounds = {par_name: None for par_name in cls.fit_params}
+        options.p0 = {par_name: None for par_name in cls._fit_params}
+        options.bounds = {par_name: None for par_name in cls._fit_params}
 
         return options
 
@@ -673,17 +691,15 @@ class CurveAnalysis(BaseAnalysis, ABC):
 
         fit_results = []
         for fit_func in self.composite_funcs:
-            signature = fit_func.signature
-            group = fit_func.group
-
             # Set parameter and data index to the composite fit function
-            fit_func.bind_parameters(**fixed_params)
+            if fixed_params:
+                fit_func.bind_parameters(**fixed_params)
             fit_func.data_index = formatted_data.data_index
 
             # Generate algorithmic initial guesses and boundaries
             default_fit_opt = FitOptions(
-                group=group,
-                parameters=signature,
+                group=fit_func.group,
+                parameters=fit_func.signature,
                 default_p0=self.options.p0,
                 default_bounds=self.options.bounds,
                 **self.options.curve_fitter_options,
@@ -714,7 +730,7 @@ class CurveAnalysis(BaseAnalysis, ABC):
             if len(temp_results) == 0:
                 warnings.warn(
                     "All initial guesses and parameter boundaries failed to fit the data "
-                    f"in the fit group {group}. Please provide better initial guesses "
+                    f"in the fit group {fit_func.group}. Please provide better initial guesses "
                     "or fit parameter boundaries.",
                     UserWarning,
                 )
