@@ -226,11 +226,10 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
         """Override the transpiled circuits method to bring in the inst_map.
 
         The calibrated schedules are transpiled into the circuits using the instruction
-        schedule map which can be provided through the options. However, instances of
-        :class:`InstructionScheduleMap` are not serializable. This is fine since they
-        do not need to be serialized. Only instances of :class:`Calibrations` need to
-        be serialized. Here, we add the instruction schedule map to the transpile options
-        for transpilation and then remove it to avoid serialization issues.
+        schedule map. Since instances of :class:`InstructionScheduleMap` are not serializable
+        they should not be in the transpile options. Only instances of :class:`Calibrations`
+        need to be serialized. Here, we pass the instruction schedule map of the calibrations
+        to the transpiler.
 
         Returns:
             A list of transpiled circuits.
