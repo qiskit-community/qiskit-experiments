@@ -55,6 +55,12 @@ class TestFramework(QiskitExperimentsTestCase):
                 num_jobs += 1
         self.assertEqual(len(job_ids), num_jobs)
 
+    def test_properties(self):
+        """Test experiment properties"""
+        qubits = (0, 2, 3)
+        exp = FakeExperiment(qubits=qubits)
+        self.assertEqual(exp.qubits, qubits)
+
     def test_analysis_replace_results_true(self):
         """Test running analysis with replace_results=True"""
         analysis = FakeAnalysis()
