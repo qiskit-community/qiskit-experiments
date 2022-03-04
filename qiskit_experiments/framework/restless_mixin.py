@@ -24,21 +24,21 @@ from qiskit_experiments.framework.base_analysis import BaseAnalysis
 class RestlessMixin:
     """Restless enabled experiment class.
 
-     A restless enabled experiment is an experiment that can be run in a restless
-     measurement setting. In restless measurements, the qubit is not reset after
-     each measurement. Instead, the outcome of the previous quantum non-demolition
-     measurement is the initial state for the current circuit. Restless measurements
-     therefore require special data processing which is provided by sub-classes of
-     the :code:`RestlessNode`. Restless experiments are a fast alternative for
-     several calibration and characterization tasks, for details see
-     https://arxiv.org/pdf/2202.06981.pdf.
-     This class makes it possible for users to enter a restless run-mode without having
-     to set all the required run options and the data processor. Furthermore, subclasses
-     can override the :meth:`_get_restless_processor` method if they require more
-     complex restless data processing such as two-qubit calibrations. In addition, this
-     class makes it easy to determine if restless measurements are supported for a given
-     experiments.
-     """
+    A restless enabled experiment is an experiment that can be run in a restless
+    measurement setting. In restless measurements, the qubit is not reset after
+    each measurement. Instead, the outcome of the previous quantum non-demolition
+    measurement is the initial state for the current circuit. Restless measurements
+    therefore require special data processing which is provided by sub-classes of
+    the :code:`RestlessNode`. Restless experiments are a fast alternative for
+    several calibration and characterization tasks, for details see
+    https://arxiv.org/pdf/2202.06981.pdf.
+    This class makes it possible for users to enter a restless run-mode without having
+    to set all the required run options and the data processor. Furthermore, subclasses
+    can override the :meth:`_get_restless_processor` method if they require more
+    complex restless data processing such as two-qubit calibrations. In addition, this
+    class makes it easy to determine if restless measurements are supported for a given
+    experiments.
+    """
 
     analysis: BaseAnalysis
     set_run_options: Callable
@@ -49,24 +49,28 @@ class RestlessMixin:
     def enable_restless(self, rep_delay: float, override_restless_processor: bool = False):
 
         """Enables a restless experiment by setting the restless run options and
-         the restless data processor.
+        the restless data processor.
 
-             Args:
-                 rep_delay: The repetition delay. This is the delay between a measurement
-                     and the subsequent quantum circuit. Since IBM Quantum backends have
-                     dynamic repetition rates, the repetition delay can be set to a small
-                     value which is required for restless experiments. Typical values are
-                     1 us or less.
-                 override_restless_processor: If True, a data processor that is specified in the
-                     analysis options of the experiment can override the restless data
-                     processor.
+            Args:
+                rep_delay: The repetition delay. This is the delay between a measurement
+                    and the subsequent quantum circuit. Since IBM Quantum backends have
+                    dynamic repetition rates, the repetition delay can be set to a small
+                    value which is required for restless experiments. Typical values are
+                    1 us or less.
+                override_restless_processor: If True, a data processor that is specified in the
+                    analysis options of the experiment can override the restless data
+                    processor.
 
-             Raises:
-                 DataProcessorError: if the rep_delay is equal to or greater than the
-                     T1 time of one of the physical qubits in the experiment.
-                 DataProcessorError: if excited state promotion readout is enabled in the
-                     restless setting.
-         """
+            Raises:
+                DataProcessorError: if the rep_delay is equal to or greater than the
+                    T1 time of one of the physical qubits in the experiment.
+                DataProcessorError: if excited state promotion readout is enabled in the
+                    restless setting.
+        """
+
+        # check that rep_delay is not negative.
+        if rep_delay < 0.0:
+            raise DataProcessorError("The repetition delay has to be positive or zero.")
 
         # The excited state promotion readout analysis option is set to
         # False because it is not compatible with a restless experiment.
