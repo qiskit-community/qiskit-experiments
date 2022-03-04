@@ -39,6 +39,12 @@ class RestlessMixin:
     experiments.
     """
 
+    analysis: BaseAnalysis
+    set_run_options: Callable
+    physical_qubits: Sequence[int]
+    num_qubits: int
+    backend: Backend
+
     def enable_restless(self, rep_delay: float, override_restless_processor: bool = False):
         """Enables a restless experiment by setting the restless run options and
         the restless data processor.
