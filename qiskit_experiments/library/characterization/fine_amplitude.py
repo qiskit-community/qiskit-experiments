@@ -147,7 +147,7 @@ class FineAmplitude(BaseExperiment, RestlessMixin):
         cal_circuits = []
 
         for add_x in [0, 1]:
-            circ = QuantumCircuit(self.num_qubits, meas_circuit.num_clbits)
+            circ = QuantumCircuit(self._num_qubits, meas_circuit.num_clbits)
 
             if add_x:
                 qubits = meas_circuit.get_instructions("measure")[0][1]
@@ -157,7 +157,7 @@ class FineAmplitude(BaseExperiment, RestlessMixin):
 
             circ.metadata = {
                 "experiment_type": self._type,
-                "qubits": self.physical_qubits,
+                "qubits": self._physical_qubits,
                 "xval": add_x,
                 "unit": "gate number",
                 "series": "spam-cal",
@@ -173,7 +173,7 @@ class FineAmplitude(BaseExperiment, RestlessMixin):
         This method can be overridden by subclasses e.g. to calibrate gates on
         transitions other than the 0 <-> 1 transition.
         """
-        return QuantumCircuit(self.num_qubits, num_clbits)
+        return QuantumCircuit(self._num_qubits, num_clbits)
 
     def _measure_circuit(self) -> QuantumCircuit:
         """Create the measurement part of the quantum circuit.
@@ -183,7 +183,7 @@ class FineAmplitude(BaseExperiment, RestlessMixin):
         Returns:
             A quantum circuit which defines the qubits that will be measured.
         """
-        circuit = QuantumCircuit(self.num_qubits, len(self._measurement_qubits))
+        circuit = QuantumCircuit(self._num_qubits, len(self._measurement_qubits))
 
         for idx, qubit in enumerate(self._measurement_qubits):
             circuit.measure(qubit, idx)
@@ -201,7 +201,7 @@ class FineAmplitude(BaseExperiment, RestlessMixin):
         """
         repetitions = self.experiment_options.get("repetitions")
 
-        qubits = range(self.num_qubits)
+        qubits = range(self._num_qubits)
         meas_circ = self._measure_circuit()
         pre_circ = self._pre_circuit(meas_circ.num_clbits)
 
@@ -211,7 +211,7 @@ class FineAmplitude(BaseExperiment, RestlessMixin):
             circuits = []
 
         for repetition in repetitions:
-            circuit = QuantumCircuit(self.num_qubits, meas_circ.num_clbits)
+            circuit = QuantumCircuit(self._num_qubits, meas_circ.num_clbits)
 
             # Add pre-circuit
             circuit.compose(pre_circ, qubits, range(meas_circ.num_clbits), inplace=True)
@@ -224,7 +224,7 @@ class FineAmplitude(BaseExperiment, RestlessMixin):
 
             circuit.metadata = {
                 "experiment_type": self._type,
-                "qubits": self.physical_qubits,
+                "qubits": self._physical_qubits,
                 "xval": repetition,
                 "unit": "gate number",
                 "series": 1,
@@ -267,7 +267,7 @@ class FineXAmplitude(FineAmplitude):
 
     def _pre_circuit(self, num_clbits: int) -> QuantumCircuit:
         """The preparation circuit is an sx gate to move to the equator of the Bloch sphere."""
-        circuit = QuantumCircuit(self.num_qubits, num_clbits)
+        circuit = QuantumCircuit(self._num_qubits, num_clbits)
         circuit.sx(0)
         return circuit
 
