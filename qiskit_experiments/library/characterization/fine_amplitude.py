@@ -25,7 +25,7 @@ from qiskit_experiments.library.characterization.analysis import FineAmplitudeAn
 from qiskit_experiments.framework.restless_mixin import RestlessMixin
 
 
-class FineAmplitude(RestlessEnabledExperiment):
+class FineAmplitude(BaseExperiment, RestlessMixin):
     r"""Error amplifying fine amplitude calibration experiment.
 
     # section: overview
