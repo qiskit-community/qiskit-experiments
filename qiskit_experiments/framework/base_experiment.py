@@ -514,16 +514,14 @@ class BaseExperiment(ABC, StoreInitArgs):
 
         Subclasses can override this method to add custom experiment
         metadata to the returned experiment result data.
-
-        The :meth:`_add_job_metadata` method will be called for each
-        experiment execution to append job metadata, including current
-        option values, to the ``job_metadata`` list.
         """
-        metadata = {
-            "experiment_type": self._type,
-            "num_qubits": self.num_qubits,
-            "physical_qubits": list(self.physical_qubits),
-        }
+        metadata = {"physical_qubits": list(self.physical_qubits)}
+
+        # Store measurement level and meas return if they have been
+        # set for the experiment
+        for run_opt in ["meas_level", "meas_return"]:
+            if hasattr(self.run_options, run_opt):
+                metadata[run_opt] = getattr(self.run_options, run_opt)
         return metadata
 
     def _add_job_metadata(self, metadata: Dict[str, Any], jobs: BaseJob, **run_options):

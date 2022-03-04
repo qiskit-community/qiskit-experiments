@@ -52,7 +52,7 @@ def simulate_output_data(func, xvals, param_dict, **metadata):
     for datum in data:
         expdata.add_data(datum)
 
-    expdata.metadata["job_metadata"] = [{"run_options": {"meas_level": MeasLevel.CLASSIFIED}}]
+    expdata.metadata["meas_level"] = MeasLevel.CLASSIFIED
 
     return expdata
 
