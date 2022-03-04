@@ -159,15 +159,11 @@ class CompositeExperiment(BaseExperiment):
 
     def _metadata(self):
         """Add component experiment metadata"""
-        return {
-            "component_types": [sub_exp.experiment_type for sub_exp in self.component_experiment()],
-            "component_metadata": [sub_exp._metadata() for sub_exp in self.component_experiment()],
-        }
-
-    def _add_job_metadata(self, metadata, jobs, **run_options):
-        super()._add_job_metadata(metadata, jobs, **run_options)
-        # Add sub-experiment options
-        for sub_metadata, sub_exp in zip(
-            metadata["component_metadata"], self.component_experiment()
-        ):
-            sub_exp._add_job_metadata(sub_metadata, jobs, **run_options)
+        metadata = super()._metadata()
+        metadata["component_types"] = [
+            sub_exp.experiment_type for sub_exp in self.component_experiment()
+        ]
+        metadata["component_metadata"] = [
+            sub_exp._metadata() for sub_exp in self.component_experiment()
+        ]
+        return metadata
