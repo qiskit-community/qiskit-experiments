@@ -12,12 +12,13 @@
 
 """Restless experiment class."""
 
-from abc import ABC
-from qiskit_experiments.framework.base_experiment import BaseExperiment
+from typing import Callable, Sequence
 
+from qiskit.providers import Backend
 from qiskit_experiments.data_processing.data_processor import DataProcessor
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
 from qiskit_experiments.data_processing import nodes
+from qiskit_experiments.framework.base_analysis import BaseAnalysis
 
 
 class RestlessMixin:
