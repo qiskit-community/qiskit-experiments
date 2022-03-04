@@ -348,15 +348,16 @@ class CrossResonanceHamiltonian(BaseExperiment):
 
                     expr_circs.append(tomo_circ)
 
-        # Set analysis option for initial guess that depends on experiment option values.
+        return expr_circs
+
+    def _finalize(self):
+        """Set analysis option for initial guess that depends on experiment option values."""
         edge_duration = np.sqrt(2 * np.pi) * self.experiment_options.sigma * self.num_pulses
 
         init_guess = self.analysis.options.p0.copy()
         init_guess["t_off"] = edge_duration * self._dt
 
         self.analysis.set_options(p0=init_guess)
-
-        return expr_circs
 
 
 class EchoedCrossResonanceHamiltonian(CrossResonanceHamiltonian):
