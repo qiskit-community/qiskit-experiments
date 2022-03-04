@@ -157,7 +157,7 @@ class CompositeExperiment(BaseExperiment):
             # Call sub-experiments finalize method
             subexp._finalize()
 
-    def _additional_metadata(self):
+    def _metadata(self):
         """Add component experiment metadata"""
         return {
             "component_types": [sub_exp.experiment_type for sub_exp in self.component_experiment()],
