@@ -46,7 +46,7 @@ we compute the results for :math:`T_\varphi.`
     exp = Tphi(qubit=0, delays_t1=delays_t1, delays_t2=delays_t2, osc_freq=1e5)
     
     tphi_analysis = TphiAnalysis([T1Analysis(), T2RamseyAnalysis()])
-    expdata = exp.run(backend=backend, analysis=tphi_analysis).block_for_results()
+    expdata = exp.run(backend=backend, analysis=tphi_analysis, seed_simulator=101).block_for_results()
     result = expdata.analysis_results("T_phi")
 
 .. jupyter-execute::
