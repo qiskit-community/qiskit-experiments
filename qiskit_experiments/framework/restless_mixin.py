@@ -47,7 +47,6 @@ class RestlessMixin:
     _num_qubits: int
 
     def enable_restless(self, rep_delay: float, override_restless_processor: bool = False):
-
         """Enables a restless experiment by setting the restless run options and
         the restless data processor.
 
