@@ -75,10 +75,10 @@ class HalfAngleCal(BaseCalibrationExperiment, HalfAngle):
             cal_schedule: The name of the schedule in the calibrations.
             cal_group: The calibration group to which the parameter belongs.
         """
-
+        physical_qubits = experiment_data.metadata["physical_qubits"]
         param_val = self._cals.get_parameter_value(
             self._param_name,
-            self._physical_qubits,
+            physical_qubits,
             self._sched_name,
             group=self.experiment_options.group,
         )

@@ -162,13 +162,17 @@ class RBAnalysis(curve.CurveAnalysis):
             data_index=series,
         )
 
-    def _extra_database_entry(self, fit_data: curve.FitData) -> List[AnalysisResultData]:
+    def _extra_database_entry(self, fit_data, device_components):
         """Calculate EPC."""
         extra_entries = []
+        qubits = [
+            component._index for component in device_components if isinstance(component, Qubit)
+        ]
+        num_qubits = len(qubits)
 
         # Calculate EPC
         alpha = fit_data.fitval("alpha")
-        scale = (2**self._num_qubits - 1) / (2**self._num_qubits)
+        scale = (2**num_qubits - 1) / (2**num_qubits)
         epc = scale * (1 - alpha)
 
         extra_entries.append(
@@ -177,6 +181,7 @@ class RBAnalysis(curve.CurveAnalysis):
                 value=epc,
                 chisq=fit_data.reduced_chisq,
                 quality=self._evaluate_quality(fit_data),
+                device_components=device_components,
             )
         )
 
@@ -185,7 +190,7 @@ class RBAnalysis(curve.CurveAnalysis):
             # we attempt to get the ratio from the backend properties
             if not self.options.error_dict:
                 gate_error_ratio = RBUtils.get_error_dict_from_backend(
-                    backend=self._backend, qubits=self._physical_qubits
+                    backend=self._backend, qubits=qubits
                 )
             else:
                 gate_error_ratio = self.options.error_dict
@@ -198,12 +203,12 @@ class RBAnalysis(curve.CurveAnalysis):
 
         if len(count_ops) > 0 and gate_error_ratio is not None:
             gates_per_clifford = RBUtils.gates_per_clifford(count_ops)
-            num_qubits = len(self._physical_qubits)
+            num_qubits = len(qubits)
 
             if num_qubits == 1:
                 epg_dict = RBUtils.calculate_1q_epg(
                     epc,
-                    self._physical_qubits,
+                    qubits,
                     gate_error_ratio,
                     gates_per_clifford,
                 )
@@ -211,7 +216,7 @@ class RBAnalysis(curve.CurveAnalysis):
                 epg_1_qubit = self.options.epg_1_qubit
                 epg_dict = RBUtils.calculate_2q_epg(
                     epc,
-                    self._physical_qubits,
+                    qubits,
                     gate_error_ratio,
                     gates_per_clifford,
                     epg_1_qubit=epg_1_qubit,
@@ -229,7 +234,7 @@ class RBAnalysis(curve.CurveAnalysis):
                                 value,
                                 chisq=fit_data.reduced_chisq,
                                 quality=self._evaluate_quality(fit_data),
-                                device_components=[Qubit(i) for i in qubits],
+                                device_components=device_components,
                             )
                         )
         return extra_entries

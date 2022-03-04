@@ -21,13 +21,12 @@ import functools
 import inspect
 import warnings
 from abc import ABC
-from typing import Any, Dict, List, Tuple, Callable, Union, Optional
+from typing import List, Tuple, Callable, Union, Optional
 
 import numpy as np
 import uncertainties
 from uncertainties import unumpy as unp
 
-from qiskit.providers import Backend
 from qiskit_experiments.curve_analysis.curve_data import (
     CurveData,
     SeriesDef,
@@ -42,6 +41,7 @@ from qiskit_experiments.data_processing import DataProcessor
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
 from qiskit_experiments.data_processing.processor_library import get_processor
 from qiskit_experiments.exceptions import AnalysisError
+from qiskit_experiments.database_service.device_component import DeviceComponent, Qubit
 from qiskit_experiments.framework import (
     BaseAnalysis,
     ExperimentData,
@@ -240,14 +240,15 @@ class CurveAnalysis(BaseAnalysis, ABC):
         """Initialize data fields that are privately accessed by methods."""
         super().__init__()
 
-        #: Dict[str, Any]: Experiment metadata
-        self.__experiment_metadata = None
-
         #: List[CurveData]: Processed experiment data set.
         self.__processed_data_set = list()
 
-        #: Backend: backend object used for experimentation
-        self.__backend = None
+        # Number of qubits and backend for curve analysis
+        # TODO: these should be removed as attributes in this class,
+        # however they are currently required RBAnalysis and RBUtils
+        # which needs refactoring to remove this dependency.
+        self._num_qubits = None
+        self._backend = None
 
     @classmethod
     def _fit_params(cls) -> List[str]:
@@ -375,7 +376,6 @@ class CurveAnalysis(BaseAnalysis, ABC):
 
         Subclass can access to the curve data with ``self._data()`` method.
         If there are multiple series, you can get a specific series by specifying ``series_name``.
-        This method returns a ``CurveData`` instance, which is the `dataclass`
         containing x values `.x`, y values `.y`, and  sigma values `.y_err`.
 
         Subclasses can also access the defined analysis options with the ``self._get_option``.
@@ -498,13 +498,16 @@ class CurveAnalysis(BaseAnalysis, ABC):
         )
 
     # pylint: disable=unused-argument
-    def _extra_database_entry(self, fit_data: FitData) -> List[AnalysisResultData]:
+    def _extra_database_entry(
+        self, fit_data: FitData, device_components: List[DeviceComponent]
+    ) -> List[AnalysisResultData]:
         """Calculate new quantity from the fit result.
 
         Subclasses can override this method to do post analysis.
 
         Args:
             fit_data: Fit result.
+            device_components: Device components for the experiment.
 
         Returns:
             List of database entry created from the fit data.
@@ -617,92 +620,6 @@ class CurveAnalysis(BaseAnalysis, ABC):
             raise AnalysisError(f"Not expected data label {formatted_data.label} != fit_ready.")
         self.__processed_data_set.append(formatted_data)
 
-    @property
-    def _experiment_type(self) -> str:
-        """Return type of experiment."""
-        try:
-            return self.__experiment_metadata["experiment_type"]
-        except (TypeError, KeyError):
-            # Ignore experiment metadata is not set or key is not found
-            return None
-
-    @property
-    def _num_qubits(self) -> int:
-        """Getter for qubit number."""
-        try:
-            return len(self.__experiment_metadata["physical_qubits"])
-        except (TypeError, KeyError):
-            # Ignore experiment metadata is not set or key is not found
-            return None
-
-    @property
-    def _physical_qubits(self) -> List[int]:
-        """Getter for physical qubit indices."""
-        try:
-            return list(self.__experiment_metadata["physical_qubits"])
-        except (TypeError, KeyError):
-            # Ignore experiment metadata is not set or key is not found
-            return None
-
-    @property
-    def _backend(self) -> Backend:
-        """Getter for backend object."""
-        return self.__backend
-
-    def _experiment_options(self, index: int = -1) -> Dict[str, Any]:
-        """Return the experiment options of given job index.
-
-        Args:
-            index: Index of job metadata to extract. Default to -1 (latest).
-
-        Returns:
-            Experiment options. This option is used for circuit generation.
-        """
-        try:
-            return self.__experiment_metadata["job_metadata"][index]["experiment_options"]
-        except (TypeError, KeyError, IndexError):
-            # Ignore experiment metadata or job metadata is not set or key is not found
-            return None
-
-    def _run_options(self, index: int = -1) -> Dict[str, Any]:
-        """Returns the run options of given job index.
-
-        Args:
-            index: Index of job metadata to extract. Default to -1 (latest).
-
-        Returns:
-            Run options. This option is used for backend execution.
-        """
-        try:
-            return self.__experiment_metadata["job_metadata"][index]["run_options"]
-        except (TypeError, KeyError, IndexError):
-            # Ignore experiment metadata or job metadata is not set or key is not found
-            return None
-
-    def _transpile_options(self, index: int = -1) -> Dict[str, Any]:
-        """Returns the transpile options of given job index.
-
-        Args:
-            index: Index of job metadata to extract. Default to -1 (latest).
-
-        Returns:
-            Transpile options. This option is used for circuit optimization.
-        """
-        try:
-            return self.__experiment_metadata["job_metadata"][index]["transpile_options"]
-        except (TypeError, KeyError, IndexError):
-            # Ignore experiment metadata or job metadata is not set or key is not found
-            return None
-
-    def _extra_metadata(self) -> Dict[str, Any]:
-        """Returns extra metadata.
-
-        Returns:
-            Extra metadata explicitly added by the experiment subclass.
-        """
-        exclude = ["experiment_type", "num_qubits", "physical_qubits", "job_metadata"]
-        return {k: v for k, v in self.__experiment_metadata.items() if k not in exclude}
-
     def _data(
         self,
         series_name: Optional[str] = None,
@@ -775,17 +692,10 @@ class CurveAnalysis(BaseAnalysis, ABC):
             self.__series__ = assigned_series
 
         # get experiment metadata
-        try:
-            self.__experiment_metadata = experiment_data.metadata
-
-        except AttributeError:
-            pass
+        self._num_qubits = len(experiment_data.metadata.get("physical_qubits", []))
 
         # get backend
-        try:
-            self.__backend = experiment_data.backend
-        except AttributeError:
-            pass
+        self._backend = experiment_data.backend
 
         #
         # 2. Setup data processor
@@ -914,7 +824,10 @@ class CurveAnalysis(BaseAnalysis, ABC):
                     analysis_results.append(result_entry)
 
             # add extra database entries
-            analysis_results.extend(self._extra_database_entry(fit_result))
+            device_components = [
+                Qubit(i) for i in experiment_data.metadata.get("physical_qubits", [])
+            ]
+            analysis_results.extend(self._extra_database_entry(fit_result, device_components))
 
         if self.options.return_data_points:
             # save raw data points in the data base if option is set (default to false)

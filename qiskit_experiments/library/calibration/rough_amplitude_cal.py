@@ -133,12 +133,12 @@ class RoughAmplitudeCal(BaseCalibrationExperiment, Rabi):
                 parameter to update, and the previous value of the amplitude parameter to update.
             cal_group: The calibration group to which the amplitude parameters belong.
         """
-
+        physical_qubits = experiment_data.metadata["physical_qubits"]
         param_values = []
         for angle, param_name, schedule_name, _ in self.experiment_options.angles_schedules:
             param_val = self._cals.get_parameter_value(
                 param_name,
-                self._physical_qubits,
+                physical_qubits,
                 schedule_name,
                 group=self.experiment_options.group,
             )

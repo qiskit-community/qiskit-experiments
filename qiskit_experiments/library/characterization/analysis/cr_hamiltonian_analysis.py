@@ -294,7 +294,7 @@ class CrossResonanceHamiltonianAnalysis(curve.CurveAnalysis):
 
         return "bad"
 
-    def _extra_database_entry(self, fit_data: curve.FitData) -> List[AnalysisResultData]:
+    def _extra_database_entry(self, fit_data, device_components):
         """Calculate Hamiltonian coefficients from fit values."""
         extra_entries = []
 
@@ -313,7 +313,7 @@ class CrossResonanceHamiltonianAnalysis(curve.CurveAnalysis):
                         name=f"omega_{control}{target}",
                         value=coef_val,
                         chisq=fit_data.reduced_chisq,
-                        device_components=[Qubit(q) for q in self._physical_qubits],
+                        device_components=device_components,
                         extra={"unit": "Hz"},
                     )
                 )
