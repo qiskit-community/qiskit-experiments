@@ -60,7 +60,7 @@ for qubit 0.
     exp.set_transpile_options(scheduling_method='asap')
     
     # Run the experiment circuits and analyze the result
-    exp_data = exp.run(backend=backend).block_for_results()
+    exp_data = exp.run(backend=backend, seed_simulator=101).block_for_results()
     
     # Print the result
     display(exp_data.figure(0))
@@ -79,7 +79,7 @@ create a parallel experiment:
     # Create a parallel T1 experiment
     parallel_exp = ParallelExperiment([T1(qubit=i, delays=delays) for i in range(2)])
     parallel_exp.set_transpile_options(scheduling_method='asap')
-    parallel_data = parallel_exp.run(backend).block_for_results()
+    parallel_data = parallel_exp.run(backend, seed_simulator=101).block_for_results()
     
     # View result data
     for result in parallel_data.analysis_results():
