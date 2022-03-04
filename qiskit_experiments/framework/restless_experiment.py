@@ -20,7 +20,7 @@ from qiskit_experiments.data_processing.exceptions import DataProcessorError
 from qiskit_experiments.data_processing import nodes
 
 
-class RestlessEnabledExperiment(BaseExperiment, ABC):
+class RestlessMixin:
     """Restless enabled experiment class.
 
     A restless enabled experiment is an experiment that can be run in a restless
