@@ -245,29 +245,32 @@ class BaseExperiment(ABC, StoreInitArgs):
                     stacklevel=2,
                 )
 
-        if backend is not None or analysis != "default":
+        if backend is not None or analysis != "default" or run_options:
             # Make a copy to update analysis or backend if one is provided at runtime
             experiment = self.copy()
             if backend:
                 experiment._set_backend(backend)
             if isinstance(analysis, BaseAnalysis):
                 experiment.analysis = analysis
+            if run_options:
+                experiment.set_run_options(**run_options)
         else:
             experiment = self
 
         if experiment.backend is None:
             raise QiskitError("Cannot run experiment, no backend has been set.")
 
+        # Finalize experiment before executions
+        experiment._finalize()
+
         # Initialize result container
         experiment_data = experiment._initialize_experiment_data()
 
-        # Run options
-        run_opts = copy.copy(experiment.run_options)
-        run_opts.update_options(**run_options)
-        run_opts = run_opts.__dict__
-
         # Generate and transpile circuits
         transpiled_circuits = experiment._transpiled_circuits()
+
+        # Run options
+        run_opts = experiment.run_options.__dict__
 
         # Run jobs
         jobs = experiment._run_jobs(transpiled_circuits, **run_opts)
@@ -318,6 +321,15 @@ class BaseExperiment(ABC, StoreInitArgs):
             DeprecationWarning,
         )
         return self.analysis.run(experiment_data, replace_results=replace_results, **options)
+
+    def _finalize(self):
+        """Finalize experiment object before running jobs.
+
+        Subclasses can override this method to set any final option
+        values derived from other options or attributes of the
+        experiment before `_run` is called.
+        """
+        pass
 
     def _run_jobs(self, circuits: List[QuantumCircuit], **run_options) -> List[BaseJob]:
         """Run circuits on backend as 1 or more jobs."""

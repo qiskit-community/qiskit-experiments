@@ -98,10 +98,49 @@ class CompositeExperiment(BaseExperiment):
                     ret.analysis._analyses[i] = ret._experiments[i].analysis
         return ret
 
+    def set_run_options(self, **fields):
+        super().set_run_options(**fields)
+        for subexp in self._experiments:
+            subexp.set_run_options(**fields)
+
     def _set_backend(self, backend):
         super()._set_backend(backend)
         for subexp in self._experiments:
             subexp._set_backend(backend)
+
+    def _finalize(self):
+        # NOTE: When CompositeAnalysis is updated to support level-1
+        # measurements this method should be updated to validate that all
+        # sub-experiments have the same meas level and meas return types,
+        # and update the composite experiment run option to that value.
+
+        for i, subexp in enumerate(self._experiments):
+            # Validate set and default run options in component experiment
+            # against and component experiment run options and raise a
+            # warning if any are different and will be overridden
+            overridden_keys = []
+            sub_vals = []
+            comp_vals = []
+            for key, sub_val in subexp.run_options.__dict__.items():
+                comp_val = getattr(self.run_options, key, None)
+                if sub_val != comp_val:
+                    overridden_keys.append(key)
+                    sub_vals.append(sub_val)
+                    comp_vals.append(comp_val)
+
+            if overridden_keys:
+                warnings.warn(
+                    f"Component {i} {subexp.experiment_type} experiment run options"
+                    f" {overridden_keys} values {sub_vals} will be overridden with"
+                    f" {self.experiment_type} values {comp_vals}.",
+                    UserWarning,
+                )
+                # Update sub-experiment options with actual run option values so
+                # they can be used by that sub experiments _finalize method.
+                subexp.set_run_options(**dict(zip(overridden_keys, comp_vals)))
+
+            # Call sub-experiments finalize method
+            subexp._finalize()
 
     def _initialize_experiment_data(self):
         """Initialize the return data container for the experiment run"""
@@ -125,9 +164,4 @@ class CompositeExperiment(BaseExperiment):
         for sub_metadata, sub_exp in zip(
             metadata["component_metadata"], self.component_experiment()
         ):
-            # Run and transpile options are always overridden
-            if sub_exp.run_options != sub_exp._default_run_options():
-                warnings.warn(
-                    "Sub-experiment run options" " are overridden by composite experiment options."
-                )
             sub_exp._add_job_metadata(sub_metadata, jobs, **run_options)
