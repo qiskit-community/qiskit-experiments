@@ -18,12 +18,14 @@ import numpy as np
 
 from qiskit import QuantumCircuit
 from qiskit.result import Result
+
 from qiskit.providers.aer import AerSimulator
 from qiskit.test.mock import FakeOpenPulse2Q
 
 from qiskit.qobj.utils import MeasLevel
 from qiskit_experiments.framework import Options
 from qiskit_experiments.test.utils import FakeJob
+from qiskit_experiments.data_processing.exceptions import DataProcessorError
 
 
 class MockRestlessBackend(FakeOpenPulse2Q):
@@ -49,7 +51,7 @@ class MockRestlessBackend(FakeOpenPulse2Q):
     def _get_state_strings(n_qubits: int) -> List[str]:
         """Generate all state strings for the system."""
         format_str = "{0:0" + str(n_qubits) + "b}"
-        return list(format_str.format(state_num) for state_num in range(2 ** n_qubits))
+        return list(format_str.format(state_num) for state_num in range(2**n_qubits))
 
     @abstractmethod
     def _compute_outcome_probabilities(self, circuits: List[QuantumCircuit]):
@@ -83,7 +85,7 @@ class MockRestlessBackend(FakeOpenPulse2Q):
         self._compute_outcome_probabilities(run_input)
 
         if run_input[0].num_qubits != 2:
-            raise DataProcessingError(f"{self.__class__.__name__} is a two qubit mock device.")
+            raise DataProcessorError(f"{self.__class__.__name__} is a two qubit mock device.")
 
         prev_outcome, state_strings = "00", self._get_state_strings(2)
 
@@ -92,9 +94,9 @@ class MockRestlessBackend(FakeOpenPulse2Q):
 
         for _ in range(shots):
             for circ_idx, _ in enumerate(run_input):
-                prob = self._precomputed_probabilities[(circ_idx, prev_outcome)]
+                probs = self._precomputed_probabilities[(circ_idx, prev_outcome)]
                 # Generate the next shot dependent on the pre-computed probabilities.
-                outcome = self._rng.choice(state_strings[:2], p=[1 - prob, prob])
+                outcome = self._rng.choice(state_strings, p=probs)
                 # Append the single shot to the memory of the corresponding circuit.
                 sorted_memory[circ_idx]["memory"].append(hex(int(outcome, 2)))
 
@@ -108,7 +110,7 @@ class MockRestlessBackend(FakeOpenPulse2Q):
                 "header": {"metadata": circ.metadata},
                 "meas_level": meas_level,
                 "data": {
-                    "counts": {"1": ones, "0": shots - ones},
+                    "counts": {"01": ones, "00": shots - ones},
                     "memory": sorted_memory[idx]["memory"],
                 },
             }
@@ -156,11 +158,11 @@ class MockRestlessFineAmp(MockRestlessBackend):
             if self._gate_name != "x":
                 angle += np.pi * circuit.count_ops().get("x", 0)
 
-            prob_0 = np.sin(angle / 2) ** 2
-            prob_1 = 1 - prob_0
+            prob_1 = np.sin(angle / 2) ** 2
+            prob_0 = 1 - prob_1
 
-            self._precomputed_probabilities[(idx, "00")] = prob_0
-            self._precomputed_probabilities[(idx, "01")] = prob_1
+            self._precomputed_probabilities[(idx, "00")] = [prob_0, prob_1, 0, 0]
+            self._precomputed_probabilities[(idx, "01")] = [prob_1, prob_0, 0, 0]
 
 
 class MockIQBackend(FakeOpenPulse2Q):
