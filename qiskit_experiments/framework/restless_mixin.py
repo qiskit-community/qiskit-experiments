@@ -42,9 +42,9 @@ class RestlessMixin:
 
     analysis: BaseAnalysis
     set_run_options: Callable
-    physical_qubits: Sequence[int]
-    num_qubits: int
     backend: Backend
+    _physical_qubits: Sequence[int]
+    _num_qubits: int
 
     def enable_restless(self, rep_delay: float, override_restless_processor: bool = False):
 
@@ -103,7 +103,7 @@ class RestlessMixin:
             raise DataProcessorError(
                 f"The specified repetition delay {rep_delay} is equal to or greater "
                 f"than the T1 time of one of the physical qubits"
-                f"{self.physical_qubits} in the experiment. Consider choosing "
+                f"{self._physical_qubits} in the experiment. Consider choosing "
                 f"a smaller repetition delay for the restless experiment."
             )
 
@@ -113,11 +113,11 @@ class RestlessMixin:
         Notes:
             Sub-classes can override this method if they need more complex data processing.
         """
-        outcome = self.analysis.options.get("outcome", "1" * self.num_qubits)
+        outcome = self.analysis.options.get("outcome", "1" * self._num_qubits)
         return DataProcessor(
             "memory",
             [
-                nodes.RestlessToCounts(self.num_qubits),
+                nodes.RestlessToCounts(self._num_qubits),
                 nodes.Probability(outcome),
             ],
         )
@@ -135,7 +135,7 @@ class RestlessMixin:
 
         t1_values = [
             self.backend.properties().qubit_property(physical_qubit)["T1"][0]
-            for physical_qubit in self.physical_qubits
+            for physical_qubit in self._physical_qubits
         ]
 
         if all(rep_delay / t1_value < 1.0 for t1_value in t1_values):
