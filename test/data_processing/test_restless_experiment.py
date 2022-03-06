@@ -44,7 +44,7 @@ class TestFineAmpEndToEndRestless(QiskitExperimentsTestCase):
         self.assertTrue(
             amp_exp.run_options,
             Options(
-                meas_level=2, rep_delay=2e-6, init_qubit=False, memory=True, use_measure_esp=False
+                meas_level=2, rep_delay=2e-6, init_qubits=False, memory=True, use_measure_esp=False
             ),
         )
 
