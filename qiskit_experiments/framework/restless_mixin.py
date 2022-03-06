@@ -62,10 +62,10 @@ class RestlessMixin:
 
             Raises:
                 DataProcessorError: if the rep_delay is negative.
+                DataProcessorError: if a data processor has already been set but
+                    override_restless_processor is False.
                 DataProcessorError: if the rep_delay is equal to or greater than the
                     T1 time of one of the physical qubits in the experiment.
-                DataProcessorError: if excited state promotion readout is enabled in the
-                    restless setting.
         """
 
         # check that rep_delay is not negative.
