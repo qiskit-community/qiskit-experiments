@@ -78,7 +78,7 @@ class RestlessMixin:
             if not self.analysis.options.get("data_processor", None):
                 self.set_run_options(
                     rep_delay=rep_delay,
-                    init_qubit=False,
+                    init_qubits=False,
                     memory=True,
                     meas_level=2,
                     use_measure_esp=False,
@@ -88,7 +88,7 @@ class RestlessMixin:
                 if override_restless_processor:
                     self.set_run_options(
                         rep_delay=rep_delay,
-                        init_qubit=False,
+                        init_qubits=False,
                         memory=True,
                         meas_level=2,
                         use_measure_esp=False,
