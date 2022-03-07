@@ -132,13 +132,12 @@ class MockIQBackend(FakeOpenPulse2Q):
             state_str = str(format(output_number, 'b').zfill(num_qubits))
             for _ in range(number_of_occurrences):
                 shot_memory = []
-                for qubit_number, char_qubit in enumerate(state_str):
-                    # the iteration on the str starts from the MSB so we will use a variable to
-                    # make the code more readable.
-                    current_qubit = num_qubits - qubit_number - 1
+                # the iteration on the string variable state_str starts from the MSB. For readability, we will reverse
+                # the string so the loop will run from the LSB to MSB.
+                for qubit_number, char_qubit in enumerate(state_str[::-1]):
                     # The structure of iq_centers is [qubit_number][logic_result][I/Q].
-                    i_center = iq_centers[current_qubit][int(char_qubit)][0]
-                    q_center = iq_centers[current_qubit][int(char_qubit)][1]
+                    i_center = iq_centers[qubit_number][int(char_qubit)][0]
+                    q_center = iq_centers[qubit_number][int(char_qubit)][1]
                     point_i = i_center + qubits_iq_rand[shot_num][qubit_number]
                     point_q = q_center + qubits_iq_rand[shot_num][qubit_number]
                     
