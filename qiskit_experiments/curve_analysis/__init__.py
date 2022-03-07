@@ -83,6 +83,15 @@ This instance should be set to :attr:`CurveAnalysis.__series__` as a python list
 
 For multi-objective optimization, i.e. if you have more than two curves that you
 want to optimize simultaneously, you can create a list consisting of multiple curve entries.
+In this case, the curves defined in the series definition form a single composite function
+and the analysis solves the optimization problem:
+
+.. math::
+
+    \Theta_{\mbox{opt}} = \arg\min_\Theta \sum_i \sigma_i^{-2} (f(x_i, \Theta) -  y_i)^2
+
+where the curve fit will find the parameters :math:`\Theta` that simultaneously minimize
+the chi-squared values of all defined sub curves. Here is an example:
 
 .. code-block:: python3
 
@@ -235,7 +244,7 @@ The code looks almost identical to one in :ref:`curve_analysis_define_new`,
 however, here we are providing a unique ``group`` value to each series definition.
 In this configuration, the parameters ``[p0, p1, p2, p3]`` are not shared among
 underlying curve fittings, thus we will get two fit parameter sets as a result.
-This means the ``p*`` value may change between curves.
+This means any fit parameter value may change between curves.
 The parameters can be distinguished by the ``group`` value passed to the result metadata.
 
 This is identical to running individual ``my_experiment1`` and ``my_experiment2`` as a

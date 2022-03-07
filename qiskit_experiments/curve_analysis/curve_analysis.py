@@ -382,6 +382,10 @@ class CurveAnalysis(BaseAnalysis, ABC):
     def _format_data(self, data: CurveData) -> CurveData:
         """An optional subroutine to perform data pre-processing.
 
+        .. note::
+
+            The data returned by this method should have the label "fit_ready".
+
         Returns:
             Formatted CurveData instance.
         """
