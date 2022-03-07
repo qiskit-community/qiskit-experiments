@@ -18,6 +18,7 @@ import numpy as np
 
 from qiskit import QuantumCircuit
 from qiskit.result import Result
+
 from qiskit.providers.aer import AerSimulator
 from qiskit.test.mock import FakeOpenPulse2Q
 
@@ -102,14 +103,16 @@ class MockRestlessBackend(FakeOpenPulse2Q):
                 prev_outcome = outcome
 
         for idx, circ in enumerate(run_input):
-            ones = sorted_memory[idx]["memory"].count("0x1")
+            counts = {}
+            for key1, key2 in zip(["00", "01", "10", "11"], ["0x0", "0x1", "0x2", "0x3"]):
+                counts[key1] = sorted_memory[idx]["memory"].count(key2)
             run_result = {
                 "shots": shots,
                 "success": True,
                 "header": {"metadata": circ.metadata},
                 "meas_level": meas_level,
                 "data": {
-                    "counts": {"01": ones, "00": shots - ones},
+                    "counts": counts,
                     "memory": sorted_memory[idx]["memory"],
                 },
             }
