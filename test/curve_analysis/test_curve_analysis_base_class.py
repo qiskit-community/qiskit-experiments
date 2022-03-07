@@ -48,6 +48,7 @@ class TestCompositeFunction(QiskitExperimentsTestCase):
             group="default",
             fit_functions=[child_function],
             signatures=[["p0", "p1"]],
+            curve_inds=[0],
             model="p0 x + p1",
         )
 
@@ -74,6 +75,7 @@ class TestCompositeFunction(QiskitExperimentsTestCase):
             group="default",
             fit_functions=[child_function],
             signatures=[["p0", "p1"]],
+            curve_inds=[0],
             fixed_parameters=["p0"],
         )
 
@@ -103,6 +105,7 @@ class TestCompositeFunction(QiskitExperimentsTestCase):
             group="default",
             fit_functions=[child_function1, child_function2],
             signatures=[["p0", "p1"], ["p0", "p2"]],
+            curve_inds=[0, 1],
         )
 
         self.assertListEqual(function.signature, ["p0", "p1", "p2"])
@@ -139,6 +142,7 @@ class TestCompositeFunction(QiskitExperimentsTestCase):
             group="default",
             fit_functions=[child_function1, child_function2],
             signatures=[["p0", "p1"], ["p0", "p2"]],
+            curve_inds=[0, 1],
             fixed_parameters=["p1"],
         )
 
@@ -695,8 +699,8 @@ class TestCurveAnalysisIntegration(CurveAnalysisTestCase):
         yvalues_a = fit_function.exponential_decay(xvalues, amp=p0a, lamb=p1a)
         yvalues_b = fit_function.exponential_decay(xvalues, amp=p0b, lamb=p1b)
 
-        test_data_a = self.single_sampler(xvalues, yvalues_a)
-        test_data_b = self.single_sampler(xvalues, yvalues_b)
+        test_data_a = self.single_sampler(xvalues, yvalues_a, tag="a")
+        test_data_b = self.single_sampler(xvalues, yvalues_b, tag="b")
         expdata = ExperimentData()
         expdata.add_data(test_data_a + test_data_b)
 
@@ -705,10 +709,12 @@ class TestCurveAnalysisIntegration(CurveAnalysisTestCase):
                 # They have the same fit function signature, but they are separately fit
                 SeriesDef(
                     fit_func=lambda x, p0, p1: fit_function.exponential_decay(x, amp=p0, lamb=p1),
+                    filter_kwargs={"tag": "a"},
                     group="a",
                 ),
                 SeriesDef(
                     fit_func=lambda x, p0, p1: fit_function.exponential_decay(x, amp=p0, lamb=p1),
+                    filter_kwargs={"tag": "b"},
                     group="b",
                 ),
             ]
@@ -758,8 +764,8 @@ class TestCurveAnalysisIntegration(CurveAnalysisTestCase):
         yvalues_a = fit_function.exponential_decay(xvalues, amp=p0a, lamb=p1a)
         yvalues_b = fit_function.exponential_decay(xvalues, amp=p0b, lamb=p1b)
 
-        test_data_a = self.single_sampler(xvalues, yvalues_a)
-        test_data_b = self.single_sampler(xvalues, yvalues_b)
+        test_data_a = self.single_sampler(xvalues, yvalues_a, tag="a")
+        test_data_b = self.single_sampler(xvalues, yvalues_b, tag="b")
         expdata = ExperimentData()
         expdata.add_data(test_data_a + test_data_b)
 
@@ -768,10 +774,12 @@ class TestCurveAnalysisIntegration(CurveAnalysisTestCase):
                 # They have the same fit function signature, but they are separately fit
                 SeriesDef(
                     fit_func=lambda x, p0, p1: fit_function.exponential_decay(x, amp=p0, lamb=p1),
+                    filter_kwargs={"tag": "a"},
                     group="a",
                 ),
                 SeriesDef(
                     fit_func=lambda x, p0, p1: fit_function.exponential_decay(x, amp=p0, lamb=p1),
+                    filter_kwargs={"tag": "b"},
                     group="b",
                 ),
             ]
@@ -797,7 +805,7 @@ class TestCurveAnalysisIntegration(CurveAnalysisTestCase):
         run_expdata = instance.run(expdata, replace_results=False)
 
         p0 = run_expdata.analysis_results("p0")
-        self.assertEqual(p0.value.n, p0a)
+        self.assertAlmostEqual(p0.value.n, p0a, delta=0.05)
         self.assertEqual(p0.extra["group"], "a")
 
     def test_curve_analysis_multi_thread(self):

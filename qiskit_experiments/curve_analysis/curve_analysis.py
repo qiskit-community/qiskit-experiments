@@ -93,16 +93,18 @@ class CurveAnalysis(BaseAnalysis, ABC):
 
         # Parse series information and generate function and signature
         fit_groups = dict()
-        for series in cls.__series__:
+        for i, series in enumerate(cls.__series__):
             if series.group not in fit_groups:
                 fit_groups[series.group] = {
                     "fit_functions": [series.fit_func],
                     "signatures": [series.signature],
+                    "curve_inds": [i],
                     "models": [series.model_description],
                 }
             else:
                 fit_groups[series.group]["fit_functions"].append(series.fit_func)
                 fit_groups[series.group]["signatures"].append(series.signature)
+                fit_groups[series.group]["curve_inds"].append(i)
                 fit_groups[series.group]["models"].append(series.model_description)
 
         composite_funcs = [
@@ -687,6 +689,11 @@ class CurveAnalysis(BaseAnalysis, ABC):
         # 3. Run fitting
         #
         formatted_data = self._data(label="fit_ready")
+        xvals = formatted_data.x
+        yvals = formatted_data.y
+        sigma = formatted_data.y_err
+        index = formatted_data.data_index
+
         fixed_params = {p: self.options.get(p) for p in self.__fixed_parameters__}
 
         fit_results = []
@@ -694,7 +701,17 @@ class CurveAnalysis(BaseAnalysis, ABC):
             # Set parameter and data index to the composite fit function
             if fixed_params:
                 fit_func.bind_parameters(**fixed_params)
-            fit_func.data_index = formatted_data.data_index
+
+            # Valid data index for this group
+            if len(self.__series__) > 1:
+                series_inds = [i for i, s in enumerate(self.__series__) if s.group == fit_func.group]
+                data_inds = np.full(index.size, False, dtype=bool)
+                for i in series_inds:
+                    data_inds |= index == i
+            else:
+                data_inds = np.full(index.size, True, dtype=bool)
+
+            fit_func.data_index = index[data_inds]
 
             # Generate algorithmic initial guesses and boundaries
             default_fit_opt = FitOptions(
@@ -715,9 +732,9 @@ class CurveAnalysis(BaseAnalysis, ABC):
                 try:
                     fit_result = self.curve_fit(
                         func=fit_func,
-                        xdata=formatted_data.x,
-                        ydata=formatted_data.y,
-                        sigma=formatted_data.y_err,
+                        xdata=xvals[data_inds],
+                        ydata=yvals[data_inds],
+                        sigma=sigma[data_inds],
                         **fit_opt.options,
                     )
                     temp_results.append(fit_result)
