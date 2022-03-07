@@ -1424,6 +1424,9 @@ class DbExperimentDataV1(DbExperimentData):
         .. note:
             If analysis results and figures are copied they will also have
             new result IDs and figure names generated for the copies.
+
+            This method can not be called from an analysis callback. It waits
+            for analysis callbacks to complete before copying analysis results.
         """
         new_instance = self.__class__()
         LOG.debug(
