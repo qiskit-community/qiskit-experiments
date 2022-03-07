@@ -79,6 +79,7 @@ class CompositeFitFunction:
         group: str,
         fit_functions: [List[Callable]],
         signatures: List[List[str]],
+        curve_inds: List[int],
         fixed_parameters: Optional[List[str]] = None,
         **metadata,
     ):
@@ -88,6 +89,7 @@ class CompositeFitFunction:
             group: A name of the fit group that this function belongs to.
             fit_functions: List of callable that defines fit function of a single series.
             signatures: List of parameter names of a single series.
+            curve_inds: List of index corresponding to the curve data.
             fixed_parameters: List of parameter names that are fixed in the fit.
             **metadata: Arbitrary dictionary with information of this fit function.
 
@@ -103,6 +105,7 @@ class CompositeFitFunction:
         self._group = group
         self._fit_functions = fit_functions
         self._signatures = signatures
+        self._curve_inds = curve_inds
         self._metadata = metadata or dict()
 
         # Parameters that can be overridden
@@ -132,7 +135,7 @@ class CompositeFitFunction:
         kwparams.update(self._fixed_params)
 
         y = np.zeros(x.size)
-        for i, (func, sig) in enumerate(zip(self._fit_functions, self._signatures)):
+        for i, func, sig in zip(self._curve_inds, self._fit_functions, self._signatures):
             if self._data_index is not None:
                 inds = self._data_index == i
             else:
@@ -179,6 +182,7 @@ class CompositeFitFunction:
             group=self.group,
             fit_functions=self._fit_functions,
             signatures=self._signatures,
+            curve_inds=self._curve_inds,
             fixed_parameters=list(self._fixed_params.keys()),
             **self.metadata.copy(),
         )

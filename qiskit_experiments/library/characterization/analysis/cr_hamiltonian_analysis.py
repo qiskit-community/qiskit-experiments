@@ -20,11 +20,10 @@ import numpy as np
 
 import qiskit_experiments.curve_analysis as curve
 import qiskit_experiments.data_processing as dp
-from qiskit_experiments.database_service.device_component import Qubit
 from qiskit_experiments.framework import AnalysisResultData
+from qiskit_experiments.exceptions import AnalysisError
 
 
-# pylint: disable=line-too-long
 class CrossResonanceHamiltonianAnalysis(curve.CurveAnalysis):
     r"""A class to analyze cross resonance Hamiltonian tomography experiment.
 
@@ -132,63 +131,69 @@ class CrossResonanceHamiltonianAnalysis(curve.CurveAnalysis):
     __series__ = [
         curve.SeriesDef(
             name="x|c=0",
-            fit_func=lambda x, t_off, px0, px1, py0, py1, pz0, pz1, b: curve.fit_function.bloch_oscillation_x(
+            fit_func=lambda x, t_off, px0, py0, pz0, b: curve.fit_function.bloch_oscillation_x(
                 x + t_off, px=px0, py=py0, pz=pz0, baseline=b
             ),
             filter_kwargs={"control_state": 0, "meas_basis": "x"},
             plot_color="blue",
             plot_symbol="o",
             canvas=0,
+            group="ctrl_state0",
         ),
         curve.SeriesDef(
             name="y|c=0",
-            fit_func=lambda x, t_off, px0, px1, py0, py1, pz0, pz1, b: curve.fit_function.bloch_oscillation_y(
+            fit_func=lambda x, t_off, px0, py0, pz0, b: curve.fit_function.bloch_oscillation_y(
                 x + t_off, px=px0, py=py0, pz=pz0, baseline=b
             ),
             filter_kwargs={"control_state": 0, "meas_basis": "y"},
             plot_color="blue",
             plot_symbol="o",
             canvas=1,
+            group="ctrl_state0",
         ),
         curve.SeriesDef(
             name="z|c=0",
-            fit_func=lambda x, t_off, px0, px1, py0, py1, pz0, pz1, b: curve.fit_function.bloch_oscillation_z(
+            fit_func=lambda x, t_off, px0, py0, pz0, b: curve.fit_function.bloch_oscillation_z(
                 x + t_off, px=px0, py=py0, pz=pz0, baseline=b
             ),
             filter_kwargs={"control_state": 0, "meas_basis": "z"},
             plot_color="blue",
             plot_symbol="o",
             canvas=2,
+            group="ctrl_state0",
         ),
         curve.SeriesDef(
             name="x|c=1",
-            fit_func=lambda x, t_off, px0, px1, py0, py1, pz0, pz1, b: curve.fit_function.bloch_oscillation_x(
+            fit_func=lambda x, t_off, px1, py1, pz1, b: curve.fit_function.bloch_oscillation_x(
                 x + t_off, px=px1, py=py1, pz=pz1, baseline=b
             ),
             filter_kwargs={"control_state": 1, "meas_basis": "x"},
             plot_color="red",
             plot_symbol="^",
             canvas=0,
+            group="ctrl_state1",
         ),
         curve.SeriesDef(
             name="y|c=1",
-            fit_func=lambda x, t_off, px0, px1, py0, py1, pz0, pz1, b: curve.fit_function.bloch_oscillation_y(
+            fit_func=lambda x, t_off, px1, py1, pz1, b: curve.fit_function.bloch_oscillation_y(
                 x + t_off, px=px1, py=py1, pz=pz1, baseline=b
             ),
             filter_kwargs={"control_state": 1, "meas_basis": "y"},
             plot_color="red",
             plot_symbol="^",
             canvas=1,
+            group="ctrl_state1",
         ),
         curve.SeriesDef(
             name="z|c=1",
-            fit_func=lambda x, t_off, px0, px1, py0, py1, pz0, pz1, b: curve.fit_function.bloch_oscillation_z(
+            fit_func=lambda x, t_off, px1, py1, pz1, b: curve.fit_function.bloch_oscillation_z(
                 x + t_off, px=px1, py=py1, pz=pz1, baseline=b
             ),
             filter_kwargs={"control_state": 1, "meas_basis": "z"},
             plot_color="red",
             plot_symbol="^",
             canvas=2,
+            group="ctrl_state1",
         ),
     ]
 
@@ -224,64 +229,57 @@ class CrossResonanceHamiltonianAnalysis(curve.CurveAnalysis):
         Returns:
             List of fit options that are passed to the fitter function.
         """
+        control = int(user_opt.group[-1])
+        if control not in (0, 1):
+            raise AnalysisError(f"Undefined fit group {user_opt.group}")
+
+        x_data = self._data(series_name=f"x|c={control}")
+        y_data = self._data(series_name=f"y|c={control}")
+        z_data = self._data(series_name=f"z|c={control}")
+
         user_opt.bounds.set_if_empty(t_off=(0, np.inf), b=(-1, 1))
         user_opt.p0.set_if_empty(b=1e-9)
 
-        guesses = defaultdict(list)
-        for control in (0, 1):
-            x_data = self._data(series_name=f"x|c={control}")
-            y_data = self._data(series_name=f"y|c={control}")
-            z_data = self._data(series_name=f"z|c={control}")
+        omega_xyz = []
+        for data in (x_data, y_data, z_data):
+            ymin, ymax = np.percentile(data.y, [10, 90])
+            if ymax - ymin < 0.2:
+                # oscillation amplitude might be almost zero,
+                # then exclude from average because of lower SNR
+                continue
+            fft_freq = curve.guess.frequency(data.x, data.y)
+            omega_xyz.append(fft_freq)
+        if omega_xyz:
+            omega = 2 * np.pi * np.average(omega_xyz)
+        else:
+            omega = 1e-3
 
-            omega_xyz = []
-            for data in (x_data, y_data, z_data):
-                ymin, ymax = np.percentile(data.y, [10, 90])
-                if ymax - ymin < 0.2:
-                    # oscillation amplitude might be almost zero,
-                    # then exclude from average because of lower SNR
-                    continue
-                fft_freq = curve.guess.frequency(data.x, data.y)
-                omega_xyz.append(fft_freq)
-            if omega_xyz:
-                omega = 2 * np.pi * np.average(omega_xyz)
-            else:
-                omega = 1e-3
+        zmin, zmax = np.percentile(z_data.y, [10, 90])
+        theta = np.arccos(np.sqrt((zmax - zmin) / 2))
 
-            zmin, zmax = np.percentile(z_data.y, [10, 90])
-            theta = np.arccos(np.sqrt((zmax - zmin) / 2))
+        # The FFT might be up to 1/2 bin off
+        df = 2 * np.pi / ((z_data.x[1] - z_data.x[0]) * len(z_data.x))
 
-            # The FFT might be up to 1/2 bin off
-            df = 2 * np.pi / ((z_data.x[1] - z_data.x[0]) * len(z_data.x))
-            for omega_shifted in [omega, omega - df / 2, omega + df / 2]:
-                for phi in np.linspace(-np.pi, np.pi, 5):
-                    px = omega_shifted * np.cos(theta) * np.cos(phi)
-                    py = omega_shifted * np.cos(theta) * np.sin(phi)
-                    pz = omega_shifted * np.sin(theta)
-                    guesses[control].append(
-                        {
-                            f"px{control}": px,
-                            f"py{control}": py,
-                            f"pz{control}": pz,
-                        }
-                    )
-            if omega < df:
-                # empirical guess for low frequency case
-                guesses[control].append(
-                    {
-                        f"px{control}": omega,
-                        f"py{control}": omega,
-                        f"pz{control}": 0,
-                    }
-                )
+        guesses = []
+        for omega_shifted in [omega, omega - df / 2, omega + df / 2]:
+            for phi in np.linspace(-np.pi, np.pi, 5):
+                new_guess = user_opt.copy()
+                new_p0 = {
+                    f"px{control}": omega_shifted * np.cos(theta) * np.cos(phi),
+                    f"py{control}": omega_shifted * np.cos(theta) * np.sin(phi),
+                    f"pz{control}": omega_shifted * np.sin(theta),
+                }
+                new_guess.p0.set_if_empty(**new_p0)
+                guesses.append(new_guess)
 
-        fit_options = []
-        # combine all guesses in Cartesian product
-        for p0s, p1s in product(guesses[0], guesses[1]):
-            new_opt = user_opt.copy()
-            new_opt.p0.set_if_empty(**p0s, **p1s)
-            fit_options.append(new_opt)
+        if omega < df:
+            # empirical guess for low frequency case
+            low_freq_guess = user_opt.copy()
+            new_p0 = {f"px{control}": omega, f"py{control}": omega, f"pz{control}": 0}
+            low_freq_guess.p0.set_if_empty(**new_p0)
+            guesses.append(low_freq_guess)
 
-        return fit_options
+        return guesses
 
     def _evaluate_quality(self, fit_data: curve.FitData) -> Union[str, None]:
         """Algorithmic criteria for whether the fit is good or bad.
@@ -294,14 +292,21 @@ class CrossResonanceHamiltonianAnalysis(curve.CurveAnalysis):
 
         return "bad"
 
-    def _extra_database_entry(self, fit_data: curve.FitData) -> List[AnalysisResultData]:
+    def _extra_database_entry(self, fit_data: List[curve.FitData]) -> List[AnalysisResultData]:
         """Calculate Hamiltonian coefficients from fit values."""
         extra_entries = []
 
+        qualities = set(self._evaluate_quality(datum) for datum in fit_data)
+        if len(qualities) > 1:
+            quality = "bad"
+        else:
+            quality = next(iter(qualities))
+
+        get_value_of = {datum.group: datum.fitval for datum in fit_data}
         for control in ("z", "i"):
             for target in ("x", "y", "z"):
-                p0_val = fit_data.fitval(f"p{target}0")
-                p1_val = fit_data.fitval(f"p{target}1")
+                p0_val = get_value_of["ctrl_state0"](f"p{target}0")
+                p1_val = get_value_of["ctrl_state1"](f"p{target}1")
 
                 if control == "z":
                     coef_val = 0.5 * (p0_val - p1_val) / (2 * np.pi)
@@ -312,8 +317,7 @@ class CrossResonanceHamiltonianAnalysis(curve.CurveAnalysis):
                     AnalysisResultData(
                         name=f"omega_{control}{target}",
                         value=coef_val,
-                        chisq=fit_data.reduced_chisq,
-                        device_components=[Qubit(q) for q in self._physical_qubits],
+                        quality=quality,
                         extra={"unit": "Hz"},
                     )
                 )
