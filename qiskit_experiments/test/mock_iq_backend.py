@@ -18,7 +18,6 @@ import numpy as np
 
 from qiskit import QuantumCircuit
 from qiskit.result import Result
-
 from qiskit.providers.aer import AerSimulator
 from qiskit.test.mock import FakeOpenPulse2Q
 

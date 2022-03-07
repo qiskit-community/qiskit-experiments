@@ -47,25 +47,25 @@ class RestlessMixin:
     _num_qubits: int
 
     def enable_restless(self, rep_delay: float, override_restless_processor: bool = False):
-        """Enables a restless experiment by setting the restless run options and
-        the restless data processor.
+        """Enables a restless experiment by setting the restless run options and the
+        restless data processor.
 
-            Args:
-                rep_delay: The repetition delay. This is the delay between a measurement
-                    and the subsequent quantum circuit. Since IBM Quantum backends have
-                    dynamic repetition rates, the repetition delay can be set to a small
-                    value which is required for restless experiments. Typical values are
-                    1 us or less.
-                override_restless_processor: If True, a data processor that is specified in the
-                    analysis options of the experiment can override the restless data
-                    processor.
+        Args:
+            rep_delay: The repetition delay. This is the delay between a measurement
+                and the subsequent quantum circuit. Since IBM Quantum backends have
+                dynamic repetition rates, the repetition delay can be set to a small
+                value which is required for restless experiments. Typical values are
+                1 us or less.
+            override_restless_processor: If True, a data processor that is specified in the
+                analysis options of the experiment can override the restless data
+                processor.
 
-            Raises:
-                DataProcessorError: if the rep_delay is negative.
-                DataProcessorError: if a data processor has already been set but
-                    override_restless_processor is False.
-                DataProcessorError: if the rep_delay is equal to or greater than the
-                    T1 time of one of the physical qubits in the experiment.
+        Raises:
+            DataProcessorError: if the rep_delay is negative.
+            DataProcessorError: if a data processor has already been set but
+                override_restless_processor is False.
+            DataProcessorError: if the rep_delay is equal to or greater than the
+                T1 time of one of the physical qubits in the experiment.
         """
 
         # check that rep_delay is not negative.
