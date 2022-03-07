@@ -67,8 +67,6 @@ class RestlessMixin:
             DataProcessorError: if the rep_delay is equal to or greater than the
                 T1 time of one of the physical qubits in the experiment.
         """
-
-        # check that rep_delay is not negative.
         if rep_delay < 0.0:
             raise DataProcessorError("The repetition delay has to be positive or zero.")
 
