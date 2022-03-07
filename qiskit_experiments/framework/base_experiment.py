@@ -58,7 +58,6 @@ class BaseExperiment(ABC, StoreInitArgs):
 
         # Circuit parameters
         self._num_qubits = len(qubits)
-        self._qubits = tuple(qubits)
         self._physical_qubits = tuple(qubits)
         if self._num_qubits != len(set(self._physical_qubits)):
             raise QiskitError("Duplicate qubits in physical qubits list.")
@@ -105,7 +104,7 @@ class BaseExperiment(ABC, StoreInitArgs):
     @property
     def qubits(self) -> Tuple[int, ...]:
         """Return the qubits for the experiment."""
-        return self._qubits
+        return self._physical_qubits
 
     @property
     def physical_qubits(self) -> Tuple[int, ...]:
