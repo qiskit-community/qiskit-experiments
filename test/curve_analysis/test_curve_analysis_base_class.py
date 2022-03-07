@@ -205,7 +205,7 @@ class TestCurveFit(QiskitExperimentsTestCase):
         )
         self.assertIsInstance(result, FitData)
 
-        self.assertEqual(result.fit_mdoel, "not defined")
+        self.assertEqual(result.fit_model, "not defined")
         self.assertEqual(result.popt_keys, ["p0", "p1"])
         self.assertEqual(result.dof, 8)
         self.assertEqual(result.group, "default")
@@ -266,7 +266,7 @@ class TestCurveFit(QiskitExperimentsTestCase):
             bounds={"p0": (0, 2), "p1": (1, 3), "p2": (2, 4)},
         )
 
-        self.assertEqual(result.fit_mdoel, "p0 x + p1,p0 x - p2")
+        self.assertEqual(result.fit_model, "p0 x + p1,p0 x - p2")
         self.assertEqual(result.popt_keys, ["p0", "p1", "p2"])
         np.testing.assert_array_almost_equal(unp.nominal_values(result.popt), [p0, p1, p2])
 

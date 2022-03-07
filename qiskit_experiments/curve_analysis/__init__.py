@@ -17,9 +17,9 @@ Curve Analysis (:mod:`qiskit_experiments.curve_analysis`)
 
 .. currentmodule:: qiskit_experiments.curve_analysis
 
-Curve analysis provides the analysis base class for variety of experiments with 1-D parameter scan.
-Subclass can override several class attributes to define the behavior of the
-data formatting and fitting. Here we describe how code developer can create new curve fit
+Curve analysis provides the analysis base class for a variety of experiments with 1-D parameter scan.
+Subclasses can override several class attributes to define the behavior of the
+data formatting and fitting. Here we describe how code developers can create new curve fit
 analysis inheriting from the base class.
 
 
@@ -27,11 +27,11 @@ Overview
 ========
 
 The base class :class:`CurveAnalysis` supports multi-objective optimization on
-different set of experiment results, and you can also define multiple independent
-optimization tasks in the same class. The analysis is implemented with following data model.
+different sets of experiment results, and you can also define multiple independent
+optimization tasks in the same class. The analysis is implemented with the following data model.
 
 - Group: This is top level component of the fitting. If an analysis defines
-  multiple groups, it performs multiple independent optimization
+  multiple groups, it performs multiple independent optimizations
   and generates results for every optimization group.
 
 - Series: This is a collection of curves to form a multi-objective optimization task.
@@ -43,8 +43,8 @@ optimization tasks in the same class. The analysis is implemented with following
   along with the callback function used for the curve fitting.
 
 To manage this structure, curve analysis provides a special dataclass :class:`SeriesDef`
-that represents a optimization configuration for a single curve data.
-Based on this information, the analysis automatically constructs a proper optimization logic.
+that represents an optimization configuration for a single curve data.
+Based on this information, the analysis automatically constructs proper optimization logic.
 Thus one can avoid writing boilerplate code in various curve analyses
 and quickly write up the analysis code for a particular experiment.
 This analysis generates a set of :class:`~qiskit_experiments.framework.AnalysisResultData`
@@ -55,7 +55,7 @@ entries with a single Matplotlib plot of the fit curves with raw data points.
 Defining new curves
 ===================
 
-You can intuitively write definition of new curve, as shown below
+You can intuitively write the definition of a new curve, as shown below:
 
 .. code-block:: python3
 
@@ -69,12 +69,12 @@ You can intuitively write definition of new curve, as shown below
     )
 
 The minimum field you must fill with is the ``fit_func``, which is a callback function used
-with the optimization solver. Here you must call one of fit functions from the module
+with the optimization solver. Here you must call one of the fit functions from the module
 :mod:`qiskit_experiments.curve_analysis.fit_function` because they implement
-a special logic to compute error propagation.
+special logic to compute error propagation.
 Note that argument name of the fit function, i.e. ``[p0, p1, p2]``, is important because
-the signature of the provided fit function is parsed behind the scene and
-used as a parameter name of analysis result instance.
+the signature of the provided fit function is parsed behind the scenes and
+used as a parameter name of the analysis result instance.
 Thus, this name may be used to populate your experiment database with the result.
 
 Optionally you can set ``model_description`` which is a string representation of your
@@ -111,7 +111,7 @@ Note that now you also need to provide ``name`` and ``filter_kwargs`` to
 distinguish the entries and filter the corresponding (x, y) data from the experiment results.
 Optionally, you can provide ``plot_color`` and ``plot_symbol`` to visually
 separate two curves in the plot. In this model, you have 4 parameters ``[p0, p1, p2, p3]``
-and two curves share ``p0`` (``p3``) for ``amp`` (``baseline``) of
+and the two curves share ``p0`` (``p3``) for ``amp`` (``baseline``) of
 the :func:`exponential_decay` fit function.
 Here one should expect the experiment results will have two classes of data with metadata
 ``"tag": 1`` and ``"tag": 2`` for ``my_experiment1`` and ``my_experiment2``, respectively.
@@ -180,7 +180,7 @@ a particular analysis class.
 The parameter specified in :attr:`CurveAnalysis.__fixed_parameters__` should be provided
 via the analysis options. Thus you may need to define a default value of the parameter in the
 :meth:`CurveAnalysis._default_options`.
-This code will give you identical fit model to one defined in the following class
+This code will give you identical fit model to the one defined in the following class:
 
 .. code-block:: python3
 
@@ -194,8 +194,8 @@ This code will give you identical fit model to one defined in the following clas
             ),
         ]
 
-however, note that you can also inherit other features, e.g. the algorithm to
-generate initial guess, from the :class:`AnalysisA` in the first example.
+However, note that you can also inherit other features, e.g. the algorithm to
+generate initial guesses, from the :class:`AnalysisA` in the first example.
 On the other hand, in the latter case, you need to manually copy and paste
 every logic defined in the :class:`AnalysisA`.
 
@@ -204,7 +204,7 @@ every logic defined in the :class:`AnalysisA`.
 Defining multiple tasks
 =======================
 
-The code blow shows how a subclass can define separate optimization tasks.
+The code below shows how a subclass can define separate optimization tasks.
 
 .. code-block:: python3
 
@@ -232,11 +232,11 @@ The code blow shows how a subclass can define separate optimization tasks.
     ]
 
 The code looks almost identical to one in :ref:`curve_analysis_define_new`,
-however, here we are providing unique ``group`` value to each series definition.
+however, here we are providing a unique ``group`` value to each series definition.
 In this configuration, the parameters ``[p0, p1, p2, p3]`` are not shared among
 underlying curve fittings, thus we will get two fit parameter sets as a result.
 This means the ``p*`` value may change between curves.
-The parameters can be distinguished by ``group`` value passed to the result metadata.
+The parameters can be distinguished by the ``group`` value passed to the result metadata.
 
 This is identical to running individual ``my_experiment1`` and ``my_experiment2`` as a
 :class:`~qiskit_experiments.framework.BatchExperiment` and collect fit results afterwards
@@ -265,17 +265,17 @@ Pre-processing the fit data
 
 A subclass may override :meth:`CurveAnalysis._format_data` to perform custom pre-processing
 on experiment data before computing the initial guesses.
-Here a subclass may perform data smoothing, removal of outlier, etc...
+Here a subclass may perform data smoothing, removal of outliers, etc...
 By default, it performs averaging of y values over the same x values,
 followed by the data sort by x values.
-This method should return :class:`CurveData` instance with `label="fit_ready"`.
+This method should return a :class:`CurveData` instance with `label="fit_ready"`.
 
 .. _curve_analysis_init_guess:
 
 Providing initial guesses and boundaries
 ========================================
 
-A template for initial guesses and boundaries are automatically generated in
+A template for initial guesses and boundaries is automatically generated in
 :attr:`CurveAnalysis.options` as a dictionary keyed on the parameter names parsed from
 the series definition. The default values are set to ``None``.
 The list of parameter names is also available in the property
@@ -284,7 +284,7 @@ The list of parameter names is also available in the property
 A developer of the curve analysis subclass is recommended to override
 :meth:`CurveAnalysis._generate_fit_guesses` to provide systematic guesses and boundaries
 based on the experimental result.
-For accessing the formatted experiment result, you can use :meth:`CurveAnalysis._data` method.
+For accessing the formatted experiment result, you can use the :meth:`CurveAnalysis._data` method.
 
 .. code-block:: python3
 
@@ -293,7 +293,7 @@ For accessing the formatted experiment result, you can use :meth:`CurveAnalysis.
     x = curve_data.x  # you can get x-values
     y = curve_data.y  # you can get y-values
 
-In addition, there are several common initial guess estimators available in the
+In addition, there are several common initial guess estimators available in
 :mod:`qiskit_experiments.curve_analysis.guess`.
 
 When fit is performed without any prior information of parameters, it usually
@@ -314,35 +314,35 @@ thus systematically generated values cannot override user values.
 
     return [opt1, opt2]
 
-The ``user_opt`` is :class:`FitOptions` instance, which consists of sub dictionary for
-initial guesses (``.p0``), boundaries (``.bounds``).
-The :meth:`.set_if_empty` method overrides parameter value only when user doesn't provide
+``user_opt`` is a :class:`FitOptions` instance, which consists of sub-dictionaries for
+initial guesses (``.p0``) and boundaries (``.bounds``).
+The :meth:`.set_if_empty` method overrides the parameter value only when the user doesn't provide
 any prior information.
-The ``user_opt`` also has extra configuration dictionary that is directly passed to
+``user_opt`` also has extra configuration dictionary that is directly passed to
 the curve fitting function. Note that the :class:`CurveAnalysis` uses
 SciPy `curve_fit`_ function as a core solver. See the API documentation for available options.
 
 The final fitting outcome is determined with the following procedure.
 
-1. The ``user_opt`` is initialized with values a user provides via the analysis options.
+1. ``user_opt`` is initialized with the values provided by the user via the analysis options.
 
-2. Algorithmic guess is generated in :meth:`_generate_fit_guesses`
-   in which the logic implemented by a subclass may overrides the ``user_opt``.
+2. The algorithmic guess is generated in :meth:`_generate_fit_guesses`,
+   where the logic implemented by a subclass may override the ``user_opt``.
    If you want, you can copy it to create multiple fitting configurations.
    When multiple configurations are generated here, the curve fitter runs fitting multiple times.
 
 3. If multiple configurations are created, the curve analysis framework checks
-   duplication of configurations and perform fitting multiple times with unique configuration set.
+   duplication of configurations and performs fitting multiple times with a unique configuration set.
 
 4. The curve fitter computes a reduced chi-squared value for every attempt,
-   and find the outcome with the minimum reduced chi-squared value.
-   If the fitting fails, or the solver cannot find reasonable parameter within the maximum recursion,
+   and finds the outcome with the minimum reduced chi-squared value.
+   If the fitting fails, or the solver cannot find reasonable parameters within the maximum recursion,
    it just ignores the current configuration and moves to the next.
    If all provided configurations fail, it raises ``UserWarning`` and continues
-   the rest of analysis.
+   the rest of the analysis.
 
 5. Analysis results are automatically generated if the curve fitter
-   successfully find the best-fit outcome.
+   successfully finds the best-fit outcome.
 
 .. _curve_fit: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.curve_fit.html
 
@@ -352,7 +352,7 @@ Evaluating fit quality
 ======================
 
 A subclass can override :meth:`CurveAnalysis._evaluate_quality` method to provide an algorithm to
-evaluate quality of the fitting. This method is called with :class:`FitData` object
+evaluate quality of the fitting. This method is called with the :class:`FitData` object
 which contains fit parameters and the reduced chi-squared value.
 Qiskit Experiments often uses the empirical condition chi-squared < 3 as a goodness of fitting.
 
@@ -361,7 +361,7 @@ Qiskit Experiments often uses the empirical condition chi-squared < 3 as a goodn
 Computing new quantity with fit parameters
 ==========================================
 
-Once the best fit parameters are found, :meth:`CurveAnalysis._extra_database_entry` method is
+Once the best fit parameters are found, the :meth:`CurveAnalysis._extra_database_entry` method is
 called with the same :class:`FitData` object.
 You can compute new quantities by combining multiple fit parameters.
 
@@ -378,7 +378,7 @@ You can compute new quantities by combining multiple fit parameters.
     )
 
 Note that both ``p0`` and ``p1`` are `ufloat`_ object consisting of
-nominal value and error value assuming the standard deviation.
+a nominal value and an error value which assumes the standard deviation.
 Since this object natively supports error propagation, you don't need to manually compute errors.
 
 .. _ufloat: https://pythonhosted.org/uncertainties/user_guide.html
@@ -392,7 +392,7 @@ By default :class:`CurveAnalysis` only stores a single entry ``@Parameters_<name
 This entry consists of a value which is a list of all fitting parameters
 with extra metadata involving their covariance matrix.
 If you want to save a particular parameter as a standalone entry,
-you can override ``result_parameters`` option of the analysis.
+you can override the ``result_parameters`` option of the analysis.
 By using :class:`ParameterRepr` representation, you can rename the parameter in the database.
 
 .. code-block:: python3

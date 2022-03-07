@@ -776,7 +776,7 @@ class CurveAnalysis(BaseAnalysis, ABC):
                         "popt_keys": fit_result.popt_keys,
                         "dof": fit_result.dof,
                         "covariance_mat": fit_result.pcov,
-                        "fit_models": fit_result.fit_mdoel,
+                        "fit_models": fit_result.fit_model,
                         **self.options.extra,
                     },
                 )
@@ -809,7 +809,7 @@ class CurveAnalysis(BaseAnalysis, ABC):
                         quality=quality,
                         extra={
                             "group": fit_result.group,
-                            "fit_models": fit_result.fit_mdoel,
+                            "fit_models": fit_result.fit_model,
                             **metadata,
                         },
                     )
