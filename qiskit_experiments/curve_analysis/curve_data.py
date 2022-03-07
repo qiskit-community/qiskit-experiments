@@ -56,7 +56,14 @@ class SeriesDef:
 
     def __post_init__(self):
         """Implicitly parse fit function signature for fit function."""
-        # The first argument is x, which is not a fit parameter
+        # Parse parameter names defiend in the fit function.
+        # Sicne SeriesDef doesn't explicitly define the fit parameter names,
+        # it should use python inspect module to investigate the fit function signature.
+        # Since this is relatively heavy overhead, this should be called one after instantiation.
+        # https://docs.python.org/3/library/inspect.html#inspect.signature
+        #
+        # Note that fit function usually takes arguments F(x, p0, p1, p2, ...)
+        # thus the first value should be excluded.
         sig = list(inspect.signature(self.fit_func).parameters.keys())[1:]
         # Note that this dataclass is frozen
         object.__setattr__(self, "signature", sig)

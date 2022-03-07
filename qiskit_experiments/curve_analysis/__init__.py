@@ -88,10 +88,18 @@ and the analysis solves the optimization problem:
 
 .. math::
 
-    \Theta_{\mbox{opt}} = \arg\min_\Theta \sum_i \sigma_i^{-2} (f(x_i, \Theta) -  y_i)^2
+    \Theta_{\mbox{opt}} = \arg\min_\Theta \sum_i \sigma_i^{-2} (f_i(x_i, \theta_i) -  y_i)^2,
 
-where the curve fit will find the parameters :math:`\Theta` that simultaneously minimize
-the chi-squared values of all defined sub curves. Here is an example:
+where :math:`\Theta = \{\theta_0, \theta_1, ..., \theta_N\} \in \mathbb{R}` and
+this analysis has multiple fit functions each defined in the :attr:`SeriesDef.fit_func`
+:math:`f_i(x_i, \theta_i)` with fit parameters :math:`\theta_i`.
+Note that each fit model can take different parameters distinguished by function argument name
+:math:`\theta_i = \{ p_{i0}, p_{i1}, ..., p_{iM} \}`.
+Now we run a set of experiments that scans experiment parameters :math:`x_i`
+and measure the outcomes :math:`y_i` with uncertainties :math:`\sigma_i`.
+In the analysis, the solver will find the parameters :math:`\Theta_{\mbox{opt}}`
+that simultaneously minimize the chi-squared values of all fit models defined in the series.
+Here is an example how to implement such multi-objective optimization task:
 
 .. code-block:: python3
 
@@ -125,7 +133,7 @@ the :func:`exponential_decay` fit function.
 Here one should expect the experiment results will have two classes of data with metadata
 ``"tag": 1`` and ``"tag": 2`` for ``my_experiment1`` and ``my_experiment2``, respectively.
 
-By using this model, one can flexibly set up your fit model. For example,
+By using this model, one can flexibly set up your fit model. Here is another example:
 
 .. code-block:: python3
 
@@ -150,7 +158,7 @@ By using this model, one can flexibly set up your fit model. For example,
         ),
     ]
 
-here you have the same set of fit parameters for two curves, but you fit two datasets
+You have the same set of fit parameters for two curves, but now you fit two datasets
 with different trigonometric functions.
 
 .. _curve_analysis_fixed_param:

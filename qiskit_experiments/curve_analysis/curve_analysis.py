@@ -87,6 +87,10 @@ class CurveAnalysis(BaseAnalysis, ABC):
 
         # Validate if all fixed parameter names are defined in the fit model
         if cls.__fixed_parameters__:
+            # This generates order-insensitive collection of all fitting parameters
+            # defined under the analysis. Since SeriesDef.signature returns a list,
+            # this generates a flat list from iterator and typecast it into
+            # set to remove duplicaed values.
             all_params = set(itertools.chain.from_iterable(s.signature for s in cls.__series__))
             if any(p not in all_params for p in cls.__fixed_parameters__):
                 raise AnalysisError("Not existing parameter is fixed.")
