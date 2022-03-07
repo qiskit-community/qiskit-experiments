@@ -12,7 +12,7 @@
 
 """Restless mixin class."""
 
-from typing import Callable, Sequence
+from typing import Callable, Sequence, Optional
 
 from qiskit.providers import Backend
 from qiskit_experiments.data_processing.data_processor import DataProcessor
@@ -46,13 +46,15 @@ class RestlessMixin:
     _physical_qubits: Sequence[int]
     _num_qubits: int
 
-    def enable_restless(self, rep_delay: float, override_restless_processor: bool = False):
+    def enable_restless(
+        self, rep_delay: Optional[float] = None, override_restless_processor: bool = False
+    ):
         """Enables a restless experiment by setting the restless run options and the
         restless data processor.
 
         Args:
             rep_delay: The repetition delay. This is the delay between a measurement
-                and the subsequent quantum circuit. Since IBM Quantum backends have
+                and the subsequent quantum circuit. Since the backends have
                 dynamic repetition rates, the repetition delay can be set to a small
                 value which is required for restless experiments. Typical values are
                 1 us or less.
@@ -67,6 +69,9 @@ class RestlessMixin:
             DataProcessorError: if the rep_delay is equal to or greater than the
                 T1 time of one of the physical qubits in the experiment.
         """
+        if not rep_delay:
+            rep_delay = self.backend.configuration().rep_delay_range[0]
+
         if rep_delay < 0.0:
             raise DataProcessorError("The repetition delay has to be positive or zero.")
 
