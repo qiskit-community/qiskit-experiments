@@ -255,7 +255,7 @@ class CurveAnalysis(BaseAnalysis, ABC):
             dof=dof,
             x_range=xdata_range,
             y_range=ydata_range,
-            fit_mdoel=fit_model_repr,
+            fit_model=fit_model_repr,
             group=func.group,
         )
 
@@ -708,7 +708,9 @@ class CurveAnalysis(BaseAnalysis, ABC):
 
             # Valid data index for this group
             if len(self.__series__) > 1:
-                series_inds = [i for i, s in enumerate(self.__series__) if s.group == fit_func.group]
+                series_inds = [
+                    i for i, s in enumerate(self.__series__) if s.group == fit_func.group
+                ]
                 data_inds = np.full(index.size, False, dtype=bool)
                 for i in series_inds:
                     data_inds |= index == i
