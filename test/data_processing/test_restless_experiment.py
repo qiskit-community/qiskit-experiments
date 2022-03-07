@@ -38,7 +38,6 @@ class TestFineAmpEndToEndRestless(QiskitExperimentsTestCase):
         backend = MockRestlessFineAmp(error, np.pi, "x")
 
         amp_exp = FineXAmplitude(0, backend)
-        # enable a restless measurement setting.
         amp_exp.enable_restless(rep_delay=2e-6)
 
         self.assertTrue(
