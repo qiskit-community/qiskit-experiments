@@ -147,6 +147,7 @@ class TestFineAmplitudeCircuits(QiskitExperimentsTestCase):
             self.assertEqual(circ.count_ops().get("sx", 0), expected[idx])
 
 
+@ddt
 class TestSpecializations(QiskitExperimentsTestCase):
     """Test the options of the specialized classes."""
 
@@ -182,6 +183,16 @@ class TestSpecializations(QiskitExperimentsTestCase):
         """Test round trip JSON serialization"""
         exp = FineSXAmplitude(0)
         self.assertRoundTripSerializable(exp, self.json_equiv)
+
+    @data((2, 3), (3, 1), (0, 1))
+    def test_measure_qubits(self, qubits):
+        """Test that the measurement is on the logical qubits."""
+
+        fine_amp = FineZXAmplitude(qubits)
+        for circuit in fine_amp.circuits():
+            self.assertEqual(circuit.num_qubits, 2)
+            self.assertEqual(circuit.data[-1][0].name, "measure")
+            self.assertEqual(circuit.data[-1][1][0], circuit.qregs[0][1])
 
 
 class TestFineAmplitudeCal(QiskitExperimentsTestCase):
