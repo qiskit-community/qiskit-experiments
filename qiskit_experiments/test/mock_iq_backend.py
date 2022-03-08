@@ -32,15 +32,11 @@ class MockIQBackend(FakeOpenPulse2Q):
 
     def __init__(
         self,
+        compute_probabilities: Callable[[List[QuantumCircuit], ...], List[Dict[str, float]]],
         iq_cluster_centers: List[Tuple[Tuple[float, float], Tuple[float, float]]] = None,
         iq_cluster_width: List[float] = None,
         rng_seed: int = 0,
-        calculation_parameters: Optional[Dict[str, Any]] = None,
-        compute_probabilities: Optional[Union[Callable[[Union[QuantumCircuit, List[QuantumCircuit]]],
-                                                       Union[Dict[str, float], List[Dict[str, float]]]],
-                                              Callable[[Union[QuantumCircuit, List[QuantumCircuit]],
-                                                        Optional[Union[Dict, List[Dict]]]],
-                                                       Union[Dict[str, float], List[Dict[str, float]]]]]] = None,
+        calculation_parameters: Optional[List[Dict[str, Any]]] = None,
     ):
         """
         Initialize the backend.
@@ -49,14 +45,9 @@ class MockIQBackend(FakeOpenPulse2Q):
             iq_cluster_width:
             rng_seed:
             compute_probabilities: A function that the user provide to calculate the probability of each output of the
-            circuit.
-                Args:
-                     circuit(QuantumCircuit): The circuit from which to compute the probability.
-                     calculation_parameters(dict): A dictionary with additional data that is needed by function the
-                     user provided.
-
-                Returns:
-                    A dictionary that its keys are binary strings of the output and their value is their probabilities.
+            circuit. The user pass the list of circuit and any variable that he needs to calculate the probability and
+            return a list of dictionaries that each dictionary in the output list corresponds to the probabilities of
+            output vectors for the circuit with the same index in the circuit list.
 
         """
 
@@ -156,12 +147,12 @@ class MockIQBackend(FakeOpenPulse2Q):
                 shot_memory = []
                 # the iteration on the string variable state_str starts from the MSB. For readability, we will reverse
                 # the string so the loop will run from the LSB to MSB.
-                for qubit_number, char_qubit in enumerate(state_str[::-1]):
+                for iq_center, qubit_iq_rand_sample, char_qubit in zip(iq_centers, qubits_iq_rand[shot_num], state_str[::-1]):
                     # The structure of iq_centers is [qubit_number][logic_result][I/Q].
-                    i_center = iq_centers[qubit_number][int(char_qubit)][0]
-                    q_center = iq_centers[qubit_number][int(char_qubit)][1]
-                    point_i = i_center + qubits_iq_rand[shot_num][qubit_number]
-                    point_q = q_center + qubits_iq_rand[shot_num][qubit_number]
+                    i_center = iq_center[int(char_qubit)][0]
+                    q_center = iq_center[int(char_qubit)][1]
+                    point_i = i_center + qubit_iq_rand_sample
+                    point_q = q_center + qubit_iq_rand_sample
                     
                     # Adding phase if not 0.0
                     if not np.allclose(phase, 0.0):
@@ -250,7 +241,8 @@ class MockIQBackend(FakeOpenPulse2Q):
             "results": [],
         }
 
-        for circ in run_input:
+        prob_list = self._compute_probabilities(run_input, self._calculation_parameters)
+        for prob, circ in zip(prob_list, run_input):
             # nqubits = circ.num_qubits
             nqubits = len(circ.qregs)
             run_result = {
@@ -260,8 +252,6 @@ class MockIQBackend(FakeOpenPulse2Q):
                 "meas_level": meas_level,
             }
 
-            # prob = self._compute_probability(circ)
-            prob = self._compute_probabilities(circ, self._calculation_parameters)
             run_result["data"] = self._generate_data(prob, nqubits, circ)
             result["results"].append(run_result)
 
