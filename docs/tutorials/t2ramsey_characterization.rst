@@ -87,7 +87,7 @@ frequency.
     exp1.set_transpile_options(scheduling_method='asap')
     
     # Run experiment
-    expdata1 = exp1.run(backend=backend, shots=2000)
+    expdata1 = exp1.run(backend=backend, shots=2000, seed_simulator=101)
     expdata1.block_for_results()  # Wait for job/analysis to finish.
     
     # Display the figure
@@ -126,7 +126,7 @@ computed for other qubits.
     exp_with_p0 = T2Ramsey(qubit, delays, osc_freq=1e5)
     exp_with_p0.analysis.set_options(p0=user_p0)
     exp_with_p0.set_transpile_options(scheduling_method='asap')
-    expdata_with_p0 = exp_with_p0.run(backend=backend, shots=2000)
+    expdata_with_p0 = exp_with_p0.run(backend=backend, shots=2000, seed_simulator=101)
     expdata_with_p0.block_for_results()
     
     # Display fit figure
