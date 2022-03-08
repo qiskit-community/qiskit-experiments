@@ -53,7 +53,7 @@ class RestlessMixin:
     _num_qubits: int
 
     def enable_restless(
-        self, rep_delay: Optional[float] = None, override_restless_processor: bool = False
+        self, rep_delay: Optional[float] = None, override_processor_by_restless: bool = True
     ):
         """Enables a restless experiment by setting the restless run options and the
         restless data processor.
@@ -64,9 +64,9 @@ class RestlessMixin:
                 dynamic repetition rates, the repetition delay can be set to a small
                 value which is required for restless experiments. Typical values are
                 1 us or less.
-            override_restless_processor: If True, a data processor that is specified in the
-                analysis options of the experiment can override the restless data
-                processor.
+            override_processor_by_restless: If False, a data processor that is specified in the
+                analysis options of the experiment is not overridden by the restless data
+                processor. The default is True.
 
         Raises:
             DataProcessorError: if the rep_delay is negative.
@@ -94,7 +94,7 @@ class RestlessMixin:
                 )
                 self.analysis.set_options(data_processor=self._get_restless_processor())
             else:
-                if override_restless_processor:
+                if not override_processor_by_restless:
                     self.set_run_options(
                         rep_delay=rep_delay,
                         init_qubits=False,
