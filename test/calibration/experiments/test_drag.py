@@ -15,7 +15,9 @@
 from test.base import QiskitExperimentsTestCase
 import unittest
 import numpy as np
+from typing import Dict, Any
 
+from qiskit import QuantumCircuit
 from qiskit.circuit import Parameter
 from qiskit.exceptions import QiskitError
 from qiskit.pulse import DriveChannel, Drag
@@ -25,9 +27,37 @@ from qiskit import transpile
 
 from qiskit_experiments.exceptions import CalibrationError
 from qiskit_experiments.library import RoughDrag, RoughDragCal
-from qiskit_experiments.test.mock_iq_backend import DragBackend
+from qiskit_experiments.test.mock_iq_backend import MockIQBackend
 from qiskit_experiments.calibration_management.basis_gate_library import FixedFrequencyTransmon
 from qiskit_experiments.calibration_management import Calibrations
+
+
+def compute_probability(circuit: QuantumCircuit, calc_parameters: Dict[str, Any]) -> Dict[str, float]:
+    """Returns the probability based on the beta, number of gates, and leakage."""
+    if "gate_name" in calc_parameters.keys():
+        gate_name = calc_parameters["gate_name"]
+    else:
+        gate_name = "Rp"
+
+    if "error" in calc_parameters.keys():
+        error = calc_parameters["error"]
+    else:
+        error = 0.03
+
+    if "ideal_beta" in calc_parameters.keys():
+        ideal_beta = calc_parameters["ideal_beta"]
+    else:
+        ideal_beta = 2.0
+
+    probability_output_dict = {}
+    # Need to change that the output will be dict. Need to see what the circuit do.
+    n_gates = sum(circuit.count_ops().values())
+    beta = next(iter(circuit.calibrations[gate_name].keys()))[1][0]
+
+    # Dictionary of output string vectors and their probability
+    probability_output_dict["1"] = np.sin(n_gates * error * (beta - ideal_beta)) ** 2
+    probability_output_dict["0"] = 1 - probability_output_dict["1"]
+    return probability_output_dict
 
 
 class TestDragEndToEnd(QiskitExperimentsTestCase):
@@ -56,7 +86,10 @@ class TestDragEndToEnd(QiskitExperimentsTestCase):
     def test_end_to_end(self):
         """Test the drag experiment end to end."""
 
-        backend = DragBackend(gate_name="Drag(xp)")
+        calc_parameters = {"gate_name": "Drag(xp)", "ideal_beta": 2.0, "error": 0.03}
+        # backend = DragBackend(gate_name="Drag(xp)")
+        backend = MockIQBackend(compute_probabilities=compute_probability,
+                                calculation_parameters=calc_parameters)
 
         drag = RoughDrag(1, self.x_plus)
 
@@ -64,12 +97,15 @@ class TestDragEndToEnd(QiskitExperimentsTestCase):
         self.assertExperimentDone(expdata)
         result = expdata.analysis_results(1)
 
-        self.assertTrue(abs(result.value.n - backend.ideal_beta) < self.test_tol)
+        self.assertTrue(abs(result.value.n - calc_parameters["ideal_beta"]) < self.test_tol)
         self.assertEqual(result.quality, "good")
 
         # Small leakage will make the curves very flat, in this case one should
         # rather increase beta.
-        backend = DragBackend(error=0.0051, gate_name="Drag(xp)")
+        calc_parameters["error"] = 0.0051
+        # backend = DragBackend(error=0.0051, gate_name="Drag(xp)")
+        backend = MockIQBackend(compute_probabilities=compute_probability,
+                                calculation_parameters=calc_parameters)
 
         drag = RoughDrag(0, self.x_plus)
         drag.analysis.set_options(p0={"beta": 1.2})
@@ -77,11 +113,14 @@ class TestDragEndToEnd(QiskitExperimentsTestCase):
         self.assertExperimentDone(exp_data)
         result = exp_data.analysis_results(1)
 
-        self.assertTrue(abs(result.value.n - backend.ideal_beta) < self.test_tol)
+        self.assertTrue(abs(result.value.n - calc_parameters["ideal_beta"]) < self.test_tol)
         self.assertEqual(result.quality, "good")
 
         # Large leakage will make the curves oscillate quickly.
-        backend = DragBackend(error=0.05, gate_name="Drag(xp)")
+        calc_parameters["error"] = 0.05
+        # backend = DragBackend(error=0.05, gate_name="Drag(xp)")
+        backend = MockIQBackend(compute_probabilities=compute_probability,
+                                calculation_parameters=calc_parameters)
 
         drag = RoughDrag(1, self.x_plus, betas=np.linspace(-4, 4, 31))
         drag.set_run_options(shots=200)
@@ -93,7 +132,7 @@ class TestDragEndToEnd(QiskitExperimentsTestCase):
         meas_level = exp_data.metadata["job_metadata"][-1]["run_options"]["meas_level"]
 
         self.assertEqual(meas_level, MeasLevel.CLASSIFIED)
-        self.assertTrue(abs(result.value.n - backend.ideal_beta) < self.test_tol)
+        self.assertTrue(abs(result.value.n - calc_parameters["ideal_beta"]) < self.test_tol)
         self.assertEqual(result.quality, "good")
 
 
@@ -114,11 +153,15 @@ class TestDragCircuits(QiskitExperimentsTestCase):
     def test_default_circuits(self):
         """Test the default circuit."""
 
-        backend = DragBackend(error=0.005, gate_name="Drag(xp)")
-
+        # backend = DragBackend(error=0.005, gate_name="Drag(xp)")
+        calc_parameters = {"gate_name": "Drag(xp)", "ideal_beta": 2.0, "error": 0.03}
+        backend = MockIQBackend(compute_probabilities=compute_probability,
+                                calculation_parameters=calc_parameters)
         drag = RoughDrag(0, self.x_plus)
         drag.set_experiment_options(reps=[2, 4, 8])
-        drag.backend = DragBackend(gate_name="Drag(xp)")
+        # drag.backend = DragBackend(gate_name="Drag(xp)")
+        drag.backend = MockIQBackend(compute_probabilities=compute_probability,
+                                     calculation_parameters=calc_parameters)
         circuits = drag.circuits()
 
         for idx, expected in enumerate([4, 8, 16]):
@@ -147,7 +190,9 @@ class TestRoughDragCalUpdate(QiskitExperimentsTestCase):
 
         library = FixedFrequencyTransmon()
 
-        self.backend = DragBackend(gate_name="Drag(x)")
+        self.calc_parameters = {"gate_name": "Drag(x)", "ideal_beta": 2.0, "error": 0.03}
+        self.backend = MockIQBackend(compute_probabilities=compute_probability,
+                                     calculation_parameters=self.calc_parameters)
         self.cals = Calibrations.from_backend(self.backend, library)
         self.test_tol = 0.05
 
@@ -162,7 +207,7 @@ class TestRoughDragCalUpdate(QiskitExperimentsTestCase):
         self.assertExperimentDone(expdata)
 
         new_beta = self.cals.get_parameter_value("β", (0,), "x")
-        self.assertTrue(abs(new_beta - self.backend.ideal_beta) < self.test_tol)
+        self.assertTrue(abs(new_beta - self.calc_parameters["ideal_beta"]) < self.test_tol)
         self.assertTrue(abs(new_beta) > self.test_tol)
 
     def test_dragcal_experiment_config(self):

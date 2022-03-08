@@ -13,7 +13,7 @@
 """An mock IQ backend for testing."""
 
 from abc import abstractmethod
-from typing import List, Tuple, Dict, Union, Any
+from typing import List, Tuple, Dict, Union, Any, Optional, Callable
 import numpy as np
 from numpy import ndarray
 
@@ -35,12 +35,30 @@ class MockIQBackend(FakeOpenPulse2Q):
         iq_cluster_centers: List[Tuple[Tuple[float, float], Tuple[float, float]]] = None,
         iq_cluster_width: List[float] = None,
         rng_seed: int = 0,
+        calculation_parameters: Optional[Dict[str, Any]] = None,
+        compute_probabilities: Optional[Union[Callable[[Union[QuantumCircuit, List[QuantumCircuit]]],
+                                                       Union[Dict[str, float], List[Dict[str, float]]]],
+                                              Callable[[Union[QuantumCircuit, List[QuantumCircuit]],
+                                                        Optional[Union[Dict, List[Dict]]]],
+                                                       Union[Dict[str, float], List[Dict[str, float]]]]]] = None,
     ):
         """
         Initialize the backend.
-        """
+        Args:
+            iq_cluster_centers:
+            iq_cluster_width:
+            rng_seed:
+            compute_probabilities: A function that the user provide to calculate the probability of each output of the
+            circuit.
+                Args:
+                     circuit(QuantumCircuit): The circuit from which to compute the probability.
+                     calculation_parameters(dict): A dictionary with additional data that is needed by function the
+                     user provided.
 
-        self._rng = np.random.default_rng(rng_seed)
+                Returns:
+                    A dictionary that its keys are binary strings of the output and their value is their probabilities.
+
+        """
 
         if iq_cluster_centers is None:
             self._iq_cluster_centers = [((1.0, 1.0), (-1.0, -1.0))]
@@ -51,6 +69,10 @@ class MockIQBackend(FakeOpenPulse2Q):
             self._iq_cluster_width = [1.0]
         else:
             self._iq_cluster_width = iq_cluster_width
+
+        self._calculation_parameters = calculation_parameters
+        self._compute_probabilities = compute_probabilities  # or self._aer_wrapper
+        self._rng = np.random.default_rng(rng_seed)
 
         super().__init__()
 
@@ -188,19 +210,19 @@ class MockIQBackend(FakeOpenPulse2Q):
             run_result["memory"] = memory
         return run_result
 
-    @abstractmethod
-    def _compute_probability(self, circuit: QuantumCircuit) -> Dict[str, float]:
-        """Compute the probability used in the binomial distribution creating the IQ shot.
-
-        An abstract method that subclasses will implement to create a probability of
-        being in the excited state based on the received quantum circuit.
-
-        Args:
-            circuit: The circuit from which to compute the probability.
-
-        Returns:
-             The probability that the multinomial distribution will use to generate an IQ shot.
-        """
+    # @abstractmethod
+    # def _compute_probability(self, circuit: QuantumCircuit) -> Dict[str, float]:
+    #     """Compute the probability used in the binomial distribution creating the IQ shot.
+    #
+    #     An abstract method that subclasses will implement to create a probability of
+    #     being in the excited state based on the received quantum circuit.
+    #
+    #     Args:
+    #         circuit: The circuit from which to compute the probability.
+    #
+    #     Returns:
+    #          The probability that the multinomial distribution will use to generate an IQ shot.
+    #     """
 
     # pylint: disable=unused-argument
     def _iq_phase(self, circuit: QuantumCircuit) -> float:
@@ -238,7 +260,8 @@ class MockIQBackend(FakeOpenPulse2Q):
                 "meas_level": meas_level,
             }
 
-            prob = self._compute_probability(circ)
+            # prob = self._compute_probability(circ)
+            prob = self._compute_probabilities(circ, self._calculation_parameters)
             run_result["data"] = self._generate_data(prob, nqubits, circ)
             result["results"].append(run_result)
 

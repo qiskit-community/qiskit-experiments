@@ -14,6 +14,7 @@
 
 from test.base import QiskitExperimentsTestCase
 import copy
+from typing import Dict, Any
 import numpy as np
 
 from qiskit import transpile
@@ -25,6 +26,33 @@ from qiskit_experiments.library import FineDrag, FineXDrag, FineDragCal
 from qiskit_experiments.test.mock_iq_backend import DragBackend
 from qiskit_experiments.calibration_management import Calibrations
 from qiskit_experiments.calibration_management.basis_gate_library import FixedFrequencyTransmon
+
+
+def compute_probability(circuit: QuantumCircuit, calc_parameters: Dict[str, Any]) -> Dict[str, float]:
+    """Returns the probability based on the beta, number of gates, and leakage."""
+    if "gate_name" in calc_parameters.keys():
+        gate_name = calc_parameters["gate_name"]
+    else:
+        gate_name = "Rp"
+
+    if "error" in calc_parameters.keys():
+        error = calc_parameters["error"]
+    else:
+        error = 0.03
+
+    if "ideal_beta" in calc_parameters.keys():
+        ideal_beta = calc_parameters["ideal_beta"]
+    else:
+        ideal_beta = 2.0
+
+    probability_output_dict = {}
+    # Need to change that the output will be dict. Need to see what the circuit do.
+    n_gates = circuit.count_ops().get("rz", 0) // 2
+
+    # Dictionary of output string vectors and their probability
+    probability_output_dict["1"] = 0.5 * np.sin(n_gates * error) + 0.5
+    probability_output_dict["0"] = 1 - probability_output_dict["1"]
+    return probability_output_dict
 
 
 class FineDragTestBackend(DragBackend):
