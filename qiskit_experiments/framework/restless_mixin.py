@@ -24,6 +24,12 @@ from qiskit_experiments.framework.base_analysis import BaseAnalysis
 class RestlessMixin:
     """A mixin to facilitate restless experiments.
 
+    This class defines the following methods
+
+        - :meth:`enable_restless`
+        - :meth:`_get_restless_processor`
+        - :meth:`_t1_check`
+
     A restless enabled experiment is an experiment that can be run in a restless
     measurement setting. In restless measurements, the qubit is not reset after
     each measurement. Instead, the outcome of the previous quantum non-demolition
