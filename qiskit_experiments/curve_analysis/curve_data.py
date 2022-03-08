@@ -15,6 +15,7 @@ Curve data classes.
 """
 
 import dataclasses
+import inspect
 from typing import Any, Dict, Callable, Union, List, Tuple, Optional, Iterable
 
 import numpy as np
@@ -46,6 +47,20 @@ class SeriesDef:
 
     # Index of canvas if the result figure is multi-panel
     canvas: Optional[int] = None
+
+    # Automatically extracted signature of the fit function
+    signature: List[str] = dataclasses.field(init=False)
+
+    def __post_init__(self):
+        """Implicitly parse fit function signature for fit function."""
+        # Parse parameter names defiend in the fit function.
+        # Note that fit function usually takes arguments F(x, p0, p1, p2, ...)
+        # thus the first value should be excluded.
+        signature = list(inspect.signature(self.fit_func).parameters.keys())
+        fitparams = signature[1:]
+
+        # Note that this dataclass is frozen
+        object.__setattr__(self, "signature", fitparams)
 
 
 @dataclasses.dataclass(frozen=True)
@@ -98,6 +113,9 @@ class FitData:
 
     # Y data range
     y_range: Tuple[float, float]
+
+    # String representation of fit model
+    fit_model: str = "not defined"
 
     def fitval(self, key: str) -> uncertainties.UFloat:
         """A helper method to get fit value object from parameter key name.

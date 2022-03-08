@@ -1,0 +1,24 @@
+---
+features:
+  - |
+    :attr:`CurveAnalysis.fit_model` and :attr:`CurveAnalysis.parameters` have been
+    added to the curve analysis and its subclasses. These properties return
+    :class:`FitModel` instance that represents a fit function of the analysis
+    and parameters to be fit with the analysis, respectively.
+  - |
+    New classes :class:`SingleFitFunction` and :class:`CompositeFitFunction` have been
+    added to the curve analysis module. These classes abstract the curve definition
+    hard-coded in the class attribute :attr:`CurveAnalysis.__series__` as a
+    Python function-like object. This may help user to grasp the fitting model
+    without reading the code.
+upgrade:
+  - |
+    Analysis option `curve_fitter` of the :class:`CurveAnalysis` has be removed
+    because of the serialization problem. To use custom curve fitting library,
+    one must directly override the class method :meth:`CurveAnalysis.curve_fit`.
+developer:
+  - |
+    :meth:`CurveAnalysis.curve_fit` has been added to the curve analysis and
+    its subclasses. Now you can directly access to the core fitting code
+    with bare numpy arrays representing data to be fit.
+    This may help debugging of new fit function.

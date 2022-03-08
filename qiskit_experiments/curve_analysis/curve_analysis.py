@@ -16,9 +16,8 @@ Analysis class for curve fitting.
 # pylint: disable=invalid-name
 
 import copy
-import dataclasses
-import functools
-import inspect
+import collections
+import itertools
 import warnings
 from abc import ABC
 from typing import Any, Dict, List, Tuple, Callable, Union, Optional
@@ -26,16 +25,20 @@ from typing import Any, Dict, List, Tuple, Callable, Union, Optional
 import numpy as np
 import uncertainties
 from uncertainties import unumpy as unp
+from scipy import optimize as opt
 
 from qiskit.providers import Backend
 from qiskit_experiments.curve_analysis.curve_data import (
     CurveData,
-    SeriesDef,
     FitData,
     ParameterRepr,
     FitOptions,
 )
-from qiskit_experiments.curve_analysis.curve_fit import multi_curve_fit
+from qiskit_experiments.curve_analysis.fit_models import (
+    FitModel,
+    SingleFitFunction,
+    CompositeFitFunction,
+)
 from qiskit_experiments.curve_analysis.data_processing import multi_mean_xy_data, data_sort
 from qiskit_experiments.curve_analysis.visualization import FitResultPlotters, PlotterStyle
 from qiskit_experiments.data_processing import DataProcessor
@@ -236,6 +239,39 @@ class CurveAnalysis(BaseAnalysis, ABC):
     #: List[str]: Fixed parameter in fit function. Value should be set to the analysis options.
     __fixed_parameters__ = list()
 
+    # Automatically generated fitting functions of child class
+    _fit_model = None
+
+    def __init_subclass__(cls, **kwargs):
+        """Parse series definition of subclass and set fit function and signature."""
+
+        super().__init_subclass__(**kwargs)
+
+        # Validate if all fixed parameter names are defined in the fit model
+        if cls.__fixed_parameters__:
+            # This generates order-insensitive collection of all fitting parameters
+            # defined under the analysis. Since SeriesDef.signature returns a list,
+            # this generates a flat list from iterator and remove duplicated values.
+            all_params = set(itertools.chain.from_iterable(s.signature for s in cls.__series__))
+            if any(p not in all_params for p in cls.__fixed_parameters__):
+                raise AnalysisError("Not existing parameter is fixed.")
+
+        # Create fit model
+        model_source = collections.defaultdict(list)
+        for series in cls.__series__:
+            model_source["fit_functions"].append(series.fit_func)
+            model_source["signatures"].append(series.signature)
+            model_source["fit_models"].append(series.model_description)
+
+        if len(cls.__series__) == 1:
+            # Only single curve. Use single fit model for simplicity.
+            model_type = SingleFitFunction
+        else:
+            # Use composite function for multi objective optimization.
+            model_type = CompositeFitFunction
+
+        cls._fit_model = model_type(**model_source, fixed_parameters=cls.__fixed_parameters__)
+
     def __init__(self):
         """Initialize data fields that are privately accessed by methods."""
         super().__init__()
@@ -249,51 +285,135 @@ class CurveAnalysis(BaseAnalysis, ABC):
         #: Backend: backend object used for experimentation
         self.__backend = None
 
-    @classmethod
-    def _fit_params(cls) -> List[str]:
-        """Return a list of fitting parameters.
+    @staticmethod
+    def curve_fit(
+        func: FitModel,
+        xdata: np.ndarray,
+        ydata: np.ndarray,
+        sigma: np.ndarray,
+        p0: Dict[str, float],
+        bounds: Dict[str, Tuple[float, float]],
+        **kwargs,
+    ) -> FitData:
+        """Perform curve fitting.
+
+        This is the scipy curve fit wrapper to manage named fit parameters and
+        return outcomes as ufloat objects with parameter correlation computed based on the
+        covariance matrix obtained from the fitting. Result is returned as
+        :class:`~qiskit_experiments.curve_analysis.FitData` which is a special data container
+        for curve analysis. This method can perform multi-objective optimization with
+        multiple data series with related fit models.
+
+        Args:
+            func: A fit model that may consist of multiple curves.
+            xdata: Numpy array representing X values.
+            ydata: Numpy array representing Y values.
+            sigma: Numpy array representing standard error of Y values.
+            p0: Dictionary of initial guesses for given fit function.
+            bounds: Dictionary of parameter boundary for given fit function.
+            **kwargs: Solver options.
 
         Returns:
-            A list of fit parameter names.
+            Fit result.
 
         Raises:
-            AnalysisError: When series definitions have inconsistent multi-objective fit function.
-            ValueError: When fixed parameter name is not used in the fit function.
+            AnalysisError: When invalid fit function is provided.
+            AnalysisError: When number of data points is too small.
+            AnalysisError: When curve fitting does not converge.
         """
-        fsigs = set()
-        for series_def in cls.__series__:
-            fsigs.add(inspect.signature(series_def.fit_func))
-        if len(fsigs) > 1:
+        if not isinstance(func, FitModel):
             raise AnalysisError(
-                "Fit functions specified in the series definition have "
-                "different function signature. They should receive "
-                "the same parameter set for multi-objective function fit."
+                "CurveAnalysis subclass requires `func` of FitModel instance to perform fitting. "
+                "This SciPy fit wrapper requires .signature that returns a list of fit parameters "
+                "for name-based parameter mapping, which is not available in a standard callable."
             )
 
-        # remove the first function argument. this is usually x, i.e. not a fit parameter.
-        fit_params = list(list(fsigs)[0].parameters.keys())[1:]
+        lower = [bounds[p][0] for p in func.signature]
+        upper = [bounds[p][1] for p in func.signature]
+        scipy_bounds = (lower, upper)
+        scipy_p0 = list(p0.values())
 
-        # remove fixed parameters
-        if cls.__fixed_parameters__ is not None:
-            for fixed_param in cls.__fixed_parameters__:
-                try:
-                    fit_params.remove(fixed_param)
-                except ValueError as ex:
-                    raise AnalysisError(
-                        f"Defined fixed parameter {fixed_param} is not a fit function argument."
-                        "Update series definition to ensure the parameter name is defined with "
-                        f"fit functions. Currently available parameters are {fit_params}."
-                    ) from ex
+        dof = len(ydata) - len(func.signature)
+        if dof < 1:
+            raise AnalysisError(
+                "The number of degrees of freedom of the fit data and model "
+                " (len(ydata) - len(p0)) is less than 1"
+            )
 
-        return fit_params
+        if np.any(np.nan_to_num(sigma) == 0):
+            # Sigma = 0 causes zero division error
+            sigma = None
+        else:
+            if "absolute_sigma" not in kwargs:
+                kwargs["absolute_sigma"] = True
+
+        try:
+            # pylint: disable = unbalanced-tuple-unpacking
+            popt, pcov = opt.curve_fit(
+                func,
+                xdata,
+                ydata,
+                sigma=sigma,
+                p0=scipy_p0,
+                bounds=scipy_bounds,
+                **kwargs,
+            )
+        except Exception as ex:
+            raise AnalysisError(
+                "scipy.optimize.curve_fit failed with error: {}".format(str(ex))
+            ) from ex
+
+        # Compute outcome with errors correlation
+        if np.isfinite(pcov).all():
+            # Keep parameter correlations in following analysis steps
+            fit_params = uncertainties.correlated_values(nom_values=popt, covariance_mat=pcov)
+        else:
+            # Ignore correlations, add standard error if finite.
+            fit_params = [
+                uncertainties.ufloat(nominal_value=n, std_dev=s if np.isfinite(s) else np.nan)
+                for n, s in zip(popt, np.sqrt(np.diag(pcov)))
+            ]
+
+        # Calculate the reduced chi-squared for fit
+        yfits = func(xdata, *popt)
+        residues = (yfits - ydata) ** 2
+        if sigma is not None:
+            residues = residues / (sigma**2)
+        reduced_chisq = np.sum(residues) / dof
+
+        # Compute data range for fit
+        xdata_range = np.min(xdata), np.max(xdata)
+        ydata_range = np.min(ydata), np.max(ydata)
+
+        return FitData(
+            popt=list(fit_params),
+            popt_keys=func.signature,
+            pcov=pcov,
+            reduced_chisq=reduced_chisq,
+            dof=dof,
+            x_range=xdata_range,
+            y_range=ydata_range,
+            fit_model=func.fit_model,
+        )
+
+    @property
+    def fit_model(self) -> FitModel:
+        """Return a fit model for this analysis instance."""
+        # This should return a copy of instance.
+        # Note that fit model is class attribute though parameters can be bound.
+        # This may cause conflict issue between instance without copying.
+        return self._fit_model.copy()
+
+    @property
+    def parameters(self) -> List[str]:
+        """Return parameters of this curve analysis."""
+        return self._fit_model.signature
 
     @classmethod
     def _default_options(cls) -> Options:
         """Return default analysis options.
 
         Analysis Options:
-            curve_fitter (Callable): A callback function to perform fitting with formatted data.
-                See :func:`~qiskit_experiments.analysis.multi_curve_fit` for example.
             data_processor (Callable): A callback function to format experiment data.
                 This can be a :class:`~qiskit_experiments.data_processing.DataProcessor`
                 instance that defines the `self.__call__` method.
@@ -342,7 +462,6 @@ class CurveAnalysis(BaseAnalysis, ABC):
         """
         options = super()._default_options()
 
-        options.curve_fitter = multi_curve_fit
         options.data_processor = None
         options.normalization = False
         options.x_key = "xval"
@@ -362,11 +481,27 @@ class CurveAnalysis(BaseAnalysis, ABC):
         options.curve_fitter_options = dict()
 
         # automatically populate initial guess and boundary
-        fit_params = cls._fit_params()
-        options.p0 = {par_name: None for par_name in fit_params}
-        options.bounds = {par_name: None for par_name in fit_params}
+        options.p0 = {par_name: None for par_name in cls._fit_model.signature}
+        options.bounds = {par_name: None for par_name in cls._fit_model.signature}
 
         return options
+
+    def set_options(self, **fields):
+        """Set the analysis options for :meth:`run` method.
+
+        Args:
+            fields: The fields to update the options
+
+        Raises:
+            KeyError: When removed option ``curve_fitter`` is set.
+        """
+        # TODO remove this in Qiskit Experiments v0.4
+        if "curve_fitter" in fields:
+            raise KeyError(
+                "Option curve_fitter has been removed. Please directly override curve_fit method."
+            )
+
+        super().set_options(**fields)
 
     def _generate_fit_guesses(self, user_opt: FitOptions) -> Union[FitOptions, List[FitOptions]]:
         """Create algorithmic guess with analysis options and curve data.
@@ -749,31 +884,6 @@ class CurveAnalysis(BaseAnalysis, ABC):
     def _run_analysis(
         self, experiment_data: ExperimentData
     ) -> Tuple[List[AnalysisResultData], List["pyplot.Figure"]]:
-        #
-        # 1. Parse arguments
-        #
-
-        # Update all fit functions in the series definitions if fixed parameter is defined.
-        # Fixed parameters should be provided by the analysis options.
-        if self.__fixed_parameters__:
-            assigned_params = {k: self.options.get(k, None) for k in self.__fixed_parameters__}
-
-            # Check if all parameters are assigned.
-            if any(v is None for v in assigned_params.values()):
-                raise AnalysisError(
-                    f"Unassigned fixed-value parameters for the fit "
-                    f"function {self.__class__.__name__}."
-                    f"All values of fixed-parameters, i.e. {self.__fixed_parameters__}, "
-                    "must be provided by the analysis options to run this analysis."
-                )
-
-            # Override series definition with assigned fit functions.
-            assigned_series = []
-            for series_def in self.__series__:
-                dict_def = dataclasses.asdict(series_def)
-                dict_def["fit_func"] = functools.partial(series_def.fit_func, **assigned_params)
-                assigned_series.append(SeriesDef(**dict_def))
-            self.__series__ = assigned_series
 
         # get experiment metadata
         try:
@@ -789,7 +899,7 @@ class CurveAnalysis(BaseAnalysis, ABC):
             pass
 
         #
-        # 2. Setup data processor
+        # 1. Setup data processor
         #
 
         # If no data processor was provided at run-time we infer one from the job
@@ -804,18 +914,18 @@ class CurveAnalysis(BaseAnalysis, ABC):
             data_processor.train(data=experiment_data.data())
 
         #
-        # 3. Extract curve entries from experiment data
+        # 2. Extract curve entries from experiment data
         #
         self._extract_curves(experiment_data=experiment_data, data_processor=data_processor)
 
         #
-        # 4. Run fitting
+        # 3. Run fitting
         #
         formatted_data = self._data(label="fit_ready")
 
         # Generate algorithmic initial guesses and boundaries
         default_fit_opt = FitOptions(
-            parameters=self._fit_params(),
+            parameters=self.parameters,
             default_p0=self.options.p0,
             default_bounds=self.options.bounds,
             **self.options.curve_fitter_options,
@@ -825,13 +935,24 @@ class CurveAnalysis(BaseAnalysis, ABC):
         if isinstance(fit_options, FitOptions):
             fit_options = [fit_options]
 
+        # Prepare fit model
+        prepared_fit_func = self.fit_model
+
+        if self.__fixed_parameters__:
+            fixed_params = {p: self.options.get(p) for p in self.__fixed_parameters__}
+            prepared_fit_func.bind_parameters(**fixed_params)
+        else:
+            fixed_params = None
+
+        if isinstance(prepared_fit_func, CompositeFitFunction):
+            prepared_fit_func.data_allocation = formatted_data.data_index
+
         # Run fit for each configuration
         fit_results = []
         for fit_opt in set(fit_options):
             try:
-                fit_result = self.options.curve_fitter(
-                    funcs=[series_def.fit_func for series_def in self.__series__],
-                    series=formatted_data.data_index,
+                fit_result = self.curve_fit(
+                    func=prepared_fit_func,
                     xdata=formatted_data.x,
                     ydata=formatted_data.y,
                     sigma=formatted_data.y_err,
@@ -856,17 +977,12 @@ class CurveAnalysis(BaseAnalysis, ABC):
             fit_result = sorted(fit_results, key=lambda r: r.reduced_chisq)[0]
 
         #
-        # 5. Create database entry
+        # 4. Create database entry
         #
         analysis_results = []
         if fit_result:
             # pylint: disable=assignment-from-none
             quality = self._evaluate_quality(fit_data=fit_result)
-
-            fit_models = {
-                series_def.name: series_def.model_description or "no description"
-                for series_def in self.__series__
-            }
 
             # overview entry
             analysis_results.append(
@@ -879,7 +995,7 @@ class CurveAnalysis(BaseAnalysis, ABC):
                         "popt_keys": fit_result.popt_keys,
                         "dof": fit_result.dof,
                         "covariance_mat": fit_result.pcov,
-                        "fit_models": fit_models,
+                        "fit_model": fit_result.fit_model,
                         **self.options.extra,
                     },
                 )
@@ -899,11 +1015,10 @@ class CurveAnalysis(BaseAnalysis, ABC):
                         unit = None
 
                     fit_val = fit_result.fitval(p_name)
+
+                    metadata = copy.copy(self.options.extra)
                     if unit:
-                        metadata = copy.copy(self.options.extra)
                         metadata["unit"] = unit
-                    else:
-                        metadata = self.options.extra
 
                     result_entry = AnalysisResultData(
                         name=p_repr,
@@ -938,7 +1053,7 @@ class CurveAnalysis(BaseAnalysis, ABC):
             analysis_results.append(raw_data_entry)
 
         #
-        # 6. Create figures
+        # 5. Create figures
         #
         if self.options.plot:
             fit_figure = FitResultPlotters[self.options.curve_plotter].value.draw(
@@ -954,6 +1069,7 @@ class CurveAnalysis(BaseAnalysis, ABC):
                     "ylim": self.options.ylim,
                 },
                 fit_data=fit_result,
+                fix_parameters=fixed_params,
                 result_entries=analysis_results,
                 style=self.options.style,
                 axis=self.options.axis,

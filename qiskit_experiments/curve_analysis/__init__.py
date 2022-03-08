@@ -28,6 +28,9 @@ These are the base class and internal data structures to implement a curve analy
     CurveAnalysis
     SeriesDef
     CurveData
+    FitModel
+    SingleFitFunction
+    CompositeFitFunction
     FitData
     ParameterRepr
     FitOptions
@@ -112,7 +115,18 @@ Utilities
     is_error_not_significant
 """
 from .curve_analysis import CurveAnalysis, is_error_not_significant
-from .curve_data import CurveData, SeriesDef, FitData, ParameterRepr, FitOptions
+from .curve_data import (
+    CurveData,
+    SeriesDef,
+    FitData,
+    ParameterRepr,
+    FitOptions,
+)
+from .fit_models import (
+    FitModel,
+    SingleFitFunction,
+    CompositeFitFunction,
+)
 from .curve_fit import (
     curve_fit,
     multi_curve_fit,
