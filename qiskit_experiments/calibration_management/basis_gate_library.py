@@ -289,3 +289,101 @@ class FixedFrequencyTransmon(BasisGateLibrary):
                     defaults.append(DefaultCalValue(value, param.name, tuple(), name))
 
         return defaults
+
+
+class FixedFrequencyTransmonCR(FixedFrequencyTransmon):
+    """A fixed-frequency transmon gate library with echoed cross-resonance gates.
+
+    This library extends the FixedFrequencyTransmon library by adding support for
+    cross-resonance gates.
+    """
+
+    __default_values__ = {
+        "duration": 160,
+        "amp": 0.5,
+        "β": 0.0,
+        "cr_duration": 640,
+        "cr_width": 384,
+        "cr_sigma": 64,
+        "cr_amp": 0.5,
+        "rot_amp": 0.0,
+    }
+
+    def __init__(
+        self,
+        echo: bool = True,
+        rotary: bool = True,
+        basis_gates: Optional[List[str]] = None,
+        default_values: Optional[Dict] = None,
+        link_parameters: bool = True,
+    ):
+        """Setup the schedules.
+
+        Args:
+            echo: A boolean to indicate if an echo is used in the CR gate schedule.
+                The default is True.
+            rotary: A boolean to indicate if a rotary tones are used in the CR gate.
+            basis_gates: The basis gates to generate.
+            default_values: Default values for the parameters this dictionary can contain
+                the following keys: "duration", "amp", "β", and "σ". If "σ" is not provided
+                this library will take one fourth of the pulse duration as default value.
+            link_parameters: if set to True then the amplitude and DRAG parameters of the
+                X and Y gates will be linked as well as those of the SX and SY gates.
+        """
+        super().__init__(basis_gates, default_values, link_parameters)
+        self._echo = echo
+        self._rotary = rotary
+
+    def _build_schedules(self, basis_gates: Set[str]) -> Dict[str, ScheduleBlock]:
+        """Build the schedules of the library."""
+        if "x" not in basis_gates:
+            raise CalibrationError(
+                "x gate is required to build cross-resonance schedules."
+            )
+
+        schedules = super()._build_schedules(basis_gates)
+
+        target = pulse.DriveChannel(Parameter("ch1"))
+        cr_chan = pulse.ControlChannel(Parameter("ch0.1"))
+
+        cr_amp = Parameter("cr_amp")
+        rot_amp = Parameter("rot_amp")
+        cr_sigma = Parameter("cr_σ")
+        cr_duration = Parameter("cr_duration")
+        cr_width = Parameter("cr_width")
+
+        cr90p = pulse.GaussianSquare(
+            duration=cr_duration, amp=cr_amp, sigma=cr_sigma, width=cr_width, name="cr90p"
+        )
+
+        cr90m = pulse.GaussianSquare(
+            duration=cr_duration, amp=-cr_amp, sigma=cr_sigma, width=cr_width, name="cr90m"
+        )
+
+        rot90p = pulse.GaussianSquare(
+            duration=cr_duration, amp=rot_amp, sigma=cr_sigma, width=cr_width, name="rot90p"
+        )
+
+        rot90m = pulse.GaussianSquare(
+            duration=cr_duration, amp=-rot_amp, sigma=cr_sigma, width=cr_width, name="rot90m"
+        )
+
+        with pulse.build(name="cr") as cr_sched:
+            with pulse.align_sequential():
+                with pulse.align_left():
+                    pulse.play(cr90p, cr_chan)
+                    if self._rotary:
+                        pulse.play(rot90p, target)
+                if self._echo:
+                    pulse.call(schedules["x"])
+
+                    with pulse.align_left():
+                        pulse.play(cr90m, cr_chan)
+                        if self._rotary:
+                            pulse.play(rot90m, target)
+
+                    pulse.call(schedules["x"])
+
+        schedules["cr"] = cr_sched
+
+        return schedules

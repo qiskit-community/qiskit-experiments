@@ -12,14 +12,20 @@
 
 """Class to test the calibrations setup methods."""
 
+from ddt import ddt, data
 from typing import Dict, Set
 import json
 
 from test.base import QiskitExperimentsTestCase
 import qiskit.pulse as pulse
+from qiskit.test.mock import FakeBelem
 
-from qiskit_experiments.calibration_management.basis_gate_library import FixedFrequencyTransmon
+from qiskit_experiments.calibration_management.basis_gate_library import (
+    FixedFrequencyTransmon,
+    FixedFrequencyTransmonCR,
+)
 from qiskit_experiments.calibration_management.calibration_key_types import DefaultCalValue
+from qiskit_experiments.calibration_management.calibrations import Calibrations
 from qiskit_experiments.exceptions import CalibrationError
 from qiskit_experiments.framework.json import ExperimentEncoder, ExperimentDecoder
 
@@ -228,3 +234,57 @@ class TestFixedFrequencyTransmon(QiskitExperimentsTestCase):
                 return False
 
         return True
+
+
+@ddt
+class TestFixedFrequencyTransmonCR(QiskitExperimentsTestCase):
+    """Test the cross-resonance extension of the fixed frequency library."""
+
+    def test_library(self):
+        """Basic test of the library."""
+        self.assertTrue("cr" in FixedFrequencyTransmonCR())
+
+    def test_exceptions(self):
+        """Test that x gate is required."""
+        with self.assertRaises(CalibrationError):
+            FixedFrequencyTransmonCR(basis_gates=["y", "cr"])
+
+    @data((1, 2, 1), (3, 4, 2))
+    def test_cals_initialization(self, qubits):
+        """Test the an instance of Calibrations can be initialized with this library."""
+        cals = Calibrations.from_backend(FakeBelem(), FixedFrequencyTransmonCR())
+
+        cr_sched = cals.get_schedule("cr", qubits[:2])
+
+        control = qubits[0]
+        target = qubits[1]
+        uchan = qubits[2]
+        with pulse.build(name="cr") as expected:
+            with pulse.align_sequential():
+                with pulse.align_left():
+                    pulse.play(
+                        pulse.GaussianSquare(640, 0.5, 384, 64, name="cr90p"),
+                        pulse.ControlChannel(uchan)
+                    )
+                    pulse.play(
+                        pulse.GaussianSquare(640, 0.0, 384, 64, name="rot90p"),
+                        pulse.DriveChannel(target)
+                    )
+                pulse.play(pulse.Drag(160, 0.5, 40, 0), pulse.DriveChannel(control))
+                with pulse.align_left():
+                    pulse.play(
+                        pulse.GaussianSquare(640, -0.5, 384, 64, name="cr90m"),
+                        pulse.ControlChannel(uchan)
+                    )
+                    pulse.play(
+                        pulse.GaussianSquare(640, 0.0, 384, 64, name="rot90m"),
+                        pulse.DriveChannel(target)
+                    )
+                pulse.play(pulse.Drag(160, 0.5, 40, 0), pulse.DriveChannel(control))
+
+        self.assertEqual(cr_sched, expected)
+
+    def test_round_trip_serialize(self):
+        """Test that we can serialize and deserialize the CR-based library."""
+        lib = FixedFrequencyTransmonCR()
+        self.assertRoundTripSerializable(lib, self.json_equiv)
