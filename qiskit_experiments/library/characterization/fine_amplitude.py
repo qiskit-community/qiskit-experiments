@@ -125,10 +125,16 @@ class FineAmplitude(BaseExperiment, RestlessMixin):
             qubits: The qubit(s) on which to run the fine amplitude calibration experiment.
             gate: The gate that will be repeated.
             backend: Optional, the backend to run the experiment on.
+            measurement_qubits: The qubits in the given physical qubits that need to
+                be measured.
         """
         super().__init__(qubits, analysis=FineAmplitudeAnalysis(), backend=backend)
         self.set_experiment_options(gate=gate)
-        self._measurement_qubits = measurement_qubits or qubits
+
+        if measurement_qubits is not None:
+            self._measurement_qubits = [self.physical_qubits.index(q) for q in measurement_qubits]
+        else:
+            self._measurement_qubits = range(self.num_qubits)
 
     def _spam_cal_circuits(self, meas_circuit: QuantumCircuit) -> List[QuantumCircuit]:
         """This method returns the calibration circuits.
@@ -345,7 +351,7 @@ class FineZXAmplitude(FineAmplitude):
         # Failing to do so causes issues with QuantumCircuit.calibrations.
         gate = Gate("szx", 2, [])
 
-        super().__init__(qubits, gate, backend=backend, measurement_qubits=[1])
+        super().__init__(qubits, gate, backend=backend, measurement_qubits=[qubits[1]])
         # Set default analysis options
         self.analysis.set_options(
             angle_per_gate=np.pi / 2,

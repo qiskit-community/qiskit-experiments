@@ -19,6 +19,7 @@ from typing import Optional
 
 import numpy as np
 import uncertainties
+from qiskit_experiments.exceptions import AnalysisError
 from qiskit_experiments.curve_analysis import plot_scatter, plot_errorbar
 from qiskit_experiments.framework import (
     BaseAnalysis,
@@ -55,14 +56,19 @@ class QuantumVolumeAnalysis(BaseAnalysis):
         return options
 
     def _run_analysis(self, experiment_data):
-        depth = experiment_data.experiment.num_qubits
         data = experiment_data.data()
         num_trials = len(data)
+        depth = None
         heavy_output_prob_exp = []
 
         for data_trial in data:
+            trial_depth = data_trial["metadata"]["depth"]
+            if depth is None:
+                depth = trial_depth
+            elif trial_depth != depth:
+                raise AnalysisError("QuantumVolume circuits do not all have the same depth.")
             heavy_output = self._calc_ideal_heavy_output(
-                data_trial["metadata"]["ideal_probabilities"], data_trial["metadata"]["depth"]
+                data_trial["metadata"]["ideal_probabilities"], trial_depth
             )
             heavy_output_prob_exp.append(
                 self._calc_exp_heavy_output_probability(data_trial, heavy_output)
