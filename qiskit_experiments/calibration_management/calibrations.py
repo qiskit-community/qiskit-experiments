@@ -1407,7 +1407,6 @@ class Calibrations:
         else:
             raise CalibrationError(f"Saving to .{file_type} is not yet supported.")
 
-
     def schedule_information(self) -> Tuple[List[str], List[Dict]]:
         """Get the information on the schedules stored in the calibrations.
 
