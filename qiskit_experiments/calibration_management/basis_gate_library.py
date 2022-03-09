@@ -304,7 +304,7 @@ class FixedFrequencyTransmonCR(FixedFrequencyTransmon):
         "β": 0.0,
         "cr_duration": 640,
         "cr_width": 384,
-        "cr_sigma": 64,
+        "cr_σ": 64,
         "cr_amp": 0.5,
         "rot_amp": 0.0,
     }
@@ -330,16 +330,21 @@ class FixedFrequencyTransmonCR(FixedFrequencyTransmon):
             link_parameters: if set to True then the amplitude and DRAG parameters of the
                 X and Y gates will be linked as well as those of the SX and SY gates.
         """
-        super().__init__(basis_gates, default_values, link_parameters)
         self._echo = echo
         self._rotary = rotary
+        super().__init__(basis_gates, default_values, link_parameters)
+
+    @property
+    def __supported_gates__(self) -> Dict[str, int]:
+        """The gates that this library supports."""
+        gates = super().__supported_gates__
+        gates["cr"] = 2
+        return gates
 
     def _build_schedules(self, basis_gates: Set[str]) -> Dict[str, ScheduleBlock]:
         """Build the schedules of the library."""
         if "x" not in basis_gates:
-            raise CalibrationError(
-                "x gate is required to build cross-resonance schedules."
-            )
+            raise CalibrationError("x gate is required to build cross-resonance schedules.")
 
         schedules = super()._build_schedules(basis_gates)
 

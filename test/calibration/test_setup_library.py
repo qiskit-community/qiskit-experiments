@@ -12,12 +12,13 @@
 
 """Class to test the calibrations setup methods."""
 
-from ddt import ddt, data
+from ddt import ddt, data, unpack
 from typing import Dict, Set
 import json
 
 from test.base import QiskitExperimentsTestCase
 import qiskit.pulse as pulse
+from qiskit.pulse.transforms import block_to_schedule
 from qiskit.test.mock import FakeBelem
 
 from qiskit_experiments.calibration_management.basis_gate_library import (
@@ -47,6 +48,43 @@ class TestLibrary(FixedFrequencyTransmon):
             schedules["x"] = schedule
 
         return schedules
+
+
+def comp_sched(sched1: pulse.ScheduleBlock, sched2: pulse.ScheduleBlock):
+    """Recursively compare schedule blocks.
+
+    This is needed because the alignment contexts of the pulse builder create
+    ScheduleBlock instances with :code:`f"block{itertools.count()}"` names making
+    it impossible to compare two schedule blocks via equality.
+    """
+    all_blocks_equal = []
+    for idx, block1 in enumerate(sched1.blocks):
+        block2 = sched2.blocks[idx]
+        if isinstance(block1, pulse.ScheduleBlock) and isinstance(block2, pulse.ScheduleBlock):
+            all_blocks_equal.append(comp_sched(block1, block2))
+        else:
+            all_blocks_equal.append(str(block1) == str(block2))
+
+    return all(all_blocks_equal)
+
+
+def _test_library_equivalence(lib1, lib2) -> bool:
+    """Test if libraries are equivalent.
+
+    Two libraries are equivalent if they have the same basis gates and
+    if the strings of the schedules are equal. We cannot directly compare
+    the schedules because the parameter objects in them will be different
+    instances.
+    """
+
+    if len(set(lib1.basis_gates)) != len(set(lib2.basis_gates)):
+        return False
+
+    for gate in lib1.basis_gates:
+        if not comp_sched(lib1[gate], lib2[gate]):
+            return False
+
+    return True
 
 
 class TestFixedFrequencyTransmon(QiskitExperimentsTestCase):
@@ -156,7 +194,7 @@ class TestFixedFrequencyTransmon(QiskitExperimentsTestCase):
         self.assertEqual(lib2.basis_gates, lib1.basis_gates)
 
         # Note: we convert to string since the parameters prevent a direct comparison.
-        self.assertTrue(self._test_library_equivalence(lib1, lib2))
+        self.assertTrue(_test_library_equivalence(lib1, lib2))
 
         # Test that the extra args are properly accounted for.
         lib3 = FixedFrequencyTransmon(
@@ -165,7 +203,7 @@ class TestFixedFrequencyTransmon(QiskitExperimentsTestCase):
             link_parameters=True,
         )
 
-        self.assertFalse(self._test_library_equivalence(lib1, lib3))
+        self.assertFalse(_test_library_equivalence(lib1, lib3))
 
     def test_json_serialization(self):
         """Test that the library can be serialized using JSon."""
@@ -184,7 +222,7 @@ class TestFixedFrequencyTransmon(QiskitExperimentsTestCase):
         lib_data = json.dumps(lib1, cls=ExperimentEncoder)
         lib2 = json.loads(lib_data, cls=ExperimentDecoder)
 
-        self.assertTrue(self._test_library_equivalence(lib1, lib2))
+        self.assertTrue(_test_library_equivalence(lib1, lib2))
 
     def test_hash_warn(self):
         """Test that a warning is raised when the hash of the library is different.
@@ -200,7 +238,7 @@ class TestFixedFrequencyTransmon(QiskitExperimentsTestCase):
         lib_data = json.dumps(lib1, cls=ExperimentEncoder)
         lib2 = json.loads(lib_data, cls=ExperimentDecoder)
 
-        self.assertTrue(self._test_library_equivalence(lib1, lib2))
+        self.assertTrue(_test_library_equivalence(lib1, lib2))
 
         # stash method build schedules to avoid other tests from failing
         build_schedules = TestLibrary._build_schedules
@@ -217,24 +255,6 @@ class TestFixedFrequencyTransmon(QiskitExperimentsTestCase):
 
         TestLibrary._build_schedules = build_schedules
 
-    def _test_library_equivalence(self, lib1, lib2) -> bool:
-        """Test if libraries are equivalent.
-
-        Two libraries are equivalent if they have the same basis gates and
-        if the strings of the schedules are equal. We cannot directly compare
-        the schedules because the parameter objects in them will be different
-        instances.
-        """
-
-        if len(set(lib1.basis_gates)) != len(set(lib2.basis_gates)):
-            return False
-
-        for gate in lib1.basis_gates:
-            if str(lib1[gate]) != str(lib2[gate]):
-                return False
-
-        return True
-
 
 @ddt
 class TestFixedFrequencyTransmonCR(QiskitExperimentsTestCase):
@@ -249,42 +269,57 @@ class TestFixedFrequencyTransmonCR(QiskitExperimentsTestCase):
         with self.assertRaises(CalibrationError):
             FixedFrequencyTransmonCR(basis_gates=["y", "cr"])
 
-    @data((1, 2, 1), (3, 4, 2))
-    def test_cals_initialization(self, qubits):
+    @data(
+        (1, 2, 2),
+        (3, 4, 6),
+    )
+    @unpack
+    def test_cals_initialization(self, control, target, uchan):
         """Test the an instance of Calibrations can be initialized with this library."""
         cals = Calibrations.from_backend(FakeBelem(), FixedFrequencyTransmonCR())
 
-        cr_sched = cals.get_schedule("cr", qubits[:2])
+        cr_sched = cals.get_schedule("cr", (control, target))
 
-        control = qubits[0]
-        target = qubits[1]
-        uchan = qubits[2]
         with pulse.build(name="cr") as expected:
             with pulse.align_sequential():
                 with pulse.align_left():
                     pulse.play(
-                        pulse.GaussianSquare(640, 0.5, 384, 64, name="cr90p"),
-                        pulse.ControlChannel(uchan)
+                        pulse.GaussianSquare(640, 0.5, 64, 384, name="cr90p"),
+                        pulse.ControlChannel(uchan),
                     )
                     pulse.play(
-                        pulse.GaussianSquare(640, 0.0, 384, 64, name="rot90p"),
-                        pulse.DriveChannel(target)
+                        pulse.GaussianSquare(640, 0.0, 64, 384, name="rot90p"),
+                        pulse.DriveChannel(target),
                     )
                 pulse.play(pulse.Drag(160, 0.5, 40, 0), pulse.DriveChannel(control))
                 with pulse.align_left():
                     pulse.play(
-                        pulse.GaussianSquare(640, -0.5, 384, 64, name="cr90m"),
-                        pulse.ControlChannel(uchan)
+                        pulse.GaussianSquare(640, -0.5, 64, 384, name="cr90m"),
+                        pulse.ControlChannel(uchan),
                     )
                     pulse.play(
-                        pulse.GaussianSquare(640, 0.0, 384, 64, name="rot90m"),
-                        pulse.DriveChannel(target)
+                        pulse.GaussianSquare(640, 0.0, 64, 384, name="rot90m"),
+                        pulse.DriveChannel(target),
                     )
                 pulse.play(pulse.Drag(160, 0.5, 40, 0), pulse.DriveChannel(control))
 
-        self.assertEqual(cr_sched, expected)
+        self.assertEqual(block_to_schedule(cr_sched), block_to_schedule(expected))
 
-    def test_round_trip_serialize(self):
-        """Test that we can serialize and deserialize the CR-based library."""
-        lib = FixedFrequencyTransmonCR()
-        self.assertRoundTripSerializable(lib, self.json_equiv)
+    def test_json_serialization(self):
+        """Test that the library can be serialized using JSon."""
+
+        lib1 = FixedFrequencyTransmonCR(
+            basis_gates=["x", "sy"],
+            default_values={"duration": 320},
+            link_parameters=False,
+        )
+
+        # Test that serialization fails without the right encoder
+        with self.assertRaises(TypeError):
+            json.dumps(lib1)
+
+        # Test that serialization works with the proper library
+        lib_data = json.dumps(lib1, cls=ExperimentEncoder)
+        lib2 = json.loads(lib_data, cls=ExperimentDecoder)
+
+        self.assertTrue(_test_library_equivalence(lib1, lib2))
