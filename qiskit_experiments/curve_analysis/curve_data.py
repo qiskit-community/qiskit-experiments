@@ -52,7 +52,7 @@ class SeriesDef:
     signature: List[str] = dataclasses.field(init=False)
 
     def __post_init__(self):
-        """Implicitly parse fit function signature for fit function."""
+        """Parse the fit function signature to extract the names of the variables."""
         # Parse parameter names defiend in the fit function.
         # Note that fit function usually takes arguments F(x, p0, p1, p2, ...)
         # thus the first value should be excluded.
