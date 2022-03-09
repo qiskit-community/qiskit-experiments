@@ -99,7 +99,7 @@ class FitModel(ABC):
                 defined in the model.
 
         Raises:
-            AnalysisError: When ``fit_functions`` and ``signatures`` don't match.
+            AnalysisError: When ``fit_functions`` and ``signatures`` have a different length.
         """
         if len(fit_functions) != len(signatures):
             raise AnalysisError("Different numbers of fit_functions and signatures are given.")
