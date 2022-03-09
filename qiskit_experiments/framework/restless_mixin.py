@@ -40,7 +40,7 @@ class RestlessMixin:
     https://arxiv.org/pdf/2202.06981.pdf.
     This class makes it possible for users to enter a restless run-mode without having
     to manually set all the required run options and the data processor. The required options
-    are ``rep_delay``, ``init_qubits``, ``memory``, and ``meas_level``. Furthermore, 
+    are ``rep_delay``, ``init_qubits``, ``memory``, and ``meas_level``. Furthermore,
     subclasses can override the :meth:`_get_restless_processor` method if they require more
     complex restless data processing such as two-qubit calibrations. In addition, this
     class makes it easy to determine if restless measurements are supported for a given
