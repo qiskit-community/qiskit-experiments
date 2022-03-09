@@ -69,17 +69,21 @@ class RestlessMixin:
                 processor. The default is True.
 
         Raises:
-            DataProcessorError: if the rep_delay is negative.
+            DataProcessorError: if the attribute rep_delay_range is not defined for the backend.
             DataProcessorError: if a data processor has already been set but
-                override_restless_processor is False.
+                override_processor_by_restless is True.
             DataProcessorError: if the rep_delay is equal to or greater than the
                 T1 time of one of the physical qubits in the experiment.
         """
-        if not rep_delay:
-            rep_delay = self.backend.configuration().rep_delay_range[0]
-
-        if rep_delay < 0.0:
-            raise DataProcessorError("The repetition delay has to be positive or zero.")
+        try:
+            if not rep_delay:
+                rep_delay = self.backend.configuration().rep_delay_range[0]
+        except AttributeError as error:
+            raise DataProcessorError(
+                "The restless experiment can not be enabled because "
+                "the attribute rep_delay_range is not defined for this backend "
+                "and a minimum rep_delay can not be set."
+            ) from error
 
         # The excited state promotion readout analysis option is set to
         # False because it is not compatible with a restless experiment.
@@ -92,7 +96,8 @@ class RestlessMixin:
                     meas_level=2,
                     use_measure_esp=False,
                 )
-                self.analysis.set_options(data_processor=self._get_restless_processor())
+                if hasattr(self.analysis.options, "data_processor"):
+                    self.analysis.set_options(data_processor=self._get_restless_processor())
             else:
                 if not override_processor_by_restless:
                     self.set_run_options(
@@ -105,7 +110,7 @@ class RestlessMixin:
                 else:
                     raise DataProcessorError(
                         "Cannot enable restless. Data processor has already been set and "
-                        "override_restless_processor is False."
+                        "override_processor_by_restless is True."
                     )
         else:
             raise DataProcessorError(
@@ -139,14 +144,24 @@ class RestlessMixin:
 
         Returns:
             True if the repetition delay is smaller than the qubit T1 times.
+
+        Raises:
+            DataProcessorError: if the T1 values are not defined for the qubits of
+                the used backend.
         """
 
-        t1_values = [
-            self.backend.properties().qubit_property(physical_qubit)["T1"][0]
-            for physical_qubit in self._physical_qubits
-        ]
+        try:
+            t1_values = [
+                self.backend.properties().qubit_property(physical_qubit)["T1"][0]
+                for physical_qubit in self._physical_qubits
+            ]
 
-        if all(rep_delay / t1_value < 1.0 for t1_value in t1_values):
-            return True
+            if all(rep_delay / t1_value < 1.0 for t1_value in t1_values):
+                return True
+        except AttributeError as error:
+            raise DataProcessorError(
+                "The restless experiment can not be enabled since "
+                "T1 values are not defined for the qubits of the used backend."
+            ) from error
 
         return False
