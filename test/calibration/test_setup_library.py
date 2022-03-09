@@ -12,11 +12,11 @@
 
 """Class to test the calibrations setup methods."""
 
-from ddt import ddt, data, unpack
 from typing import Dict, Set
 import json
-
 from test.base import QiskitExperimentsTestCase
+from ddt import ddt, data, unpack
+
 import qiskit.pulse as pulse
 from qiskit.pulse.transforms import block_to_schedule
 from qiskit.test.mock import FakeBelem
