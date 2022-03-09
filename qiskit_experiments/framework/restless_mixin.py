@@ -72,6 +72,8 @@ class RestlessMixin:
             DataProcessorError: if the attribute rep_delay_range is not defined for the backend.
             DataProcessorError: if a data processor has already been set but
                 override_processor_by_restless is True.
+            DataProcessorError: if the experiment analysis does not have the data_processor
+                option.
             DataProcessorError: if the rep_delay is equal to or greater than the
                 T1 time of one of the physical qubits in the experiment.
         """
@@ -98,6 +100,11 @@ class RestlessMixin:
                 )
                 if hasattr(self.analysis.options, "data_processor"):
                     self.analysis.set_options(data_processor=self._get_restless_processor())
+                else:
+                    raise DataProcessorError(
+                        "The restless data processor can not be set since the experiment analysis"
+                        "does not have the data_processor option."
+                    )
             else:
                 if not override_processor_by_restless:
                     self.set_run_options(
