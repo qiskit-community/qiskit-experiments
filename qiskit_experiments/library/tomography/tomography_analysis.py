@@ -110,6 +110,24 @@ class TomographyAnalysis(BaseAnalysis):
 
         # Get tomography fitter function
         fitter = self._get_fitter(self.options.fitter)
+        fitter_opts = self.options.fitter_options
+
+        # Work around to set proper trace and trace preserving constraints for
+        # cvxpy fitter
+        if fitter in (cvxpy_linear_lstsq, cvxpy_gaussian_lstsq):
+            fitter_opts = fitter_opts.copy()
+
+            # Add default value for CVXPY trace constraint if no user value is provided
+            if "trace" not in fitter_opts:
+                if self.options.preparation_basis:
+                    fitter_opts["trace"] = 2 ** len(preparation_data[0])
+                else:
+                    fitter_opts["trace"] = 1
+
+            # By default add trace preserving constraint to cvxpy QPT fit
+            if "trace_preserving" not in fitter_opts and self.options.preparation_basis:
+                fitter_opts["trace_preserving"] = True
+
         try:
             t_fitter_start = time.time()
             state, fitter_metadata = fitter(
