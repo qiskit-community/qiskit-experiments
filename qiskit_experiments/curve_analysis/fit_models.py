@@ -84,7 +84,8 @@ class FitModel(ABC):
 
         Args:
             fit_functions: List of callables that forms the fit model for a
-                particular curve analysis class. It may consists of multiple curves.
+                particular curve analysis class. It may consists of multiple curves
+                which are defined in :attr:`CurveAnalysis.__series__`.
             signatures: List of argument names that each fit function callable takes.
                 The length of the list should be identical to the ``fit_functions``.
             fit_models: String representation of fit functions.
@@ -126,10 +127,19 @@ class FitModel(ABC):
             for parameter in signature:
                 if parameter not in union_params and parameter not in fixed_parameters:
                     union_params.append(parameter)
-        self._uniton_params = union_params
+        self._union_params = union_params
 
     @abstractmethod
     def __call__(self, x: np.ndarray, *params) -> np.ndarray:
+        """Compute values of fit functions.
+
+        Args:
+            x: Input X values array.
+            *params: Variadic argument provided from the fitter.
+
+        Returns:
+            Computed Y values array.
+        """
         pass
 
     def bind_parameters(self, **kwparams):
@@ -140,7 +150,7 @@ class FitModel(ABC):
     @property
     def signature(self) -> List[str]:
         """Return signature of this fit model."""
-        return self._uniton_params
+        return self._union_params
 
     @property
     def fit_model(self) -> str:
@@ -186,16 +196,7 @@ class SingleFitFunction(FitModel):
     """
 
     def __call__(self, x: np.ndarray, *params) -> np.ndarray:
-        """Compute values of fit functions.
-
-        Args:
-            x: Input X values array.
-            *params: Variadic argument provided from the fitter.
-
-        Returns:
-            Computed Y values array.
-        """
-        kwparams = dict(zip(self._uniton_params, params))
+        kwparams = dict(zip(self._union_params, params))
         kwparams.update(self._fixed_params)
 
         return self._fit_functions[0](x, **{p: kwparams[p] for p in self._signatures[0]})
@@ -245,16 +246,7 @@ class CompositeFitFunction(FitModel):
         self.data_allocation = None
 
     def __call__(self, x: np.ndarray, *params) -> np.ndarray:
-        """Compute values of fit functions.
-
-        Args:
-            x: Input X values array.
-            *params: Variadic argument provided from the fitter.
-
-        Returns:
-            Computed Y values array.
-        """
-        kwparams = dict(zip(self._uniton_params, params))
+        kwparams = dict(zip(self._union_params, params))
         kwparams.update(self._fixed_params)
 
         y = np.zeros(x.size, dtype=float)
