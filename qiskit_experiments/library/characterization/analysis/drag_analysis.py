@@ -150,14 +150,14 @@ class DragCalAnalysis(curve.CurveAnalysis):
         freq_bound = max(10 / user_opt.p0["freq0"], max(x_data))
 
         user_opt.bounds.set_if_empty(
-            amp=(-2 * max_abs_y, 0),
+            amp=(-2 * max_abs_y, 2 * max_abs_y),
             freq0=(0, np.inf),
             freq1=(0, np.inf),
             freq2=(0, np.inf),
             beta=(-freq_bound, freq_bound),
             base=(-max_abs_y, max_abs_y),
         )
-        user_opt.p0.set_if_empty(base=0.5)
+        user_opt.p0.set_if_empty(base=(user_opt.p0["amp"] or max_abs_y) / 2)
 
         # Drag curves can sometimes be very flat, i.e. averages of y-data
         # and min-max do not always make good initial guesses. We therefore add
@@ -165,10 +165,10 @@ class DragCalAnalysis(curve.CurveAnalysis):
         # becomes +1 at zero phase, i.e. optimal beta, in which y data should become zero
         # in discriminated measurement level.
         options = []
-        for amp_guess in (0.5, -0.5):
-            for beta_guess in np.linspace(min_beta, max_beta, 20):
+        for amp_factor in (-1, -0.5, 0.5, 1):
+            for beta_guess in np.linspace(0.5 * min_beta, 0.5 * max_beta, 10):
                 new_opt = user_opt.copy()
-                new_opt.p0.set_if_empty(amp=amp_guess, beta=beta_guess)
+                new_opt.p0.set_if_empty(amp=max_abs_y * amp_factor, beta=beta_guess)
                 options.append(new_opt)
 
         return options
