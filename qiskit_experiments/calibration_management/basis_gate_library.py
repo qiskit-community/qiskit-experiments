@@ -338,7 +338,7 @@ class FixedFrequencyTransmonCR(FixedFrequencyTransmon):
     def __supported_gates__(self) -> Dict[str, int]:
         """The gates that this library supports."""
         gates = super().__supported_gates__
-        gates["cr"] = 2
+        gates.update({"cr": 2, "cr90p": 2, "cr90m": 2})
         return gates
 
     def _build_schedules(self, basis_gates: Set[str]) -> Dict[str, ScheduleBlock]:
@@ -390,5 +390,19 @@ class FixedFrequencyTransmonCR(FixedFrequencyTransmon):
                     pulse.call(schedules["x"])
 
         schedules["cr"] = cr_sched
+
+        with pulse.build(name="cr90p") as cr_sched:
+            pulse.play(cr90p, cr_chan)
+            if self._rotary:
+                pulse.play(rot90p, target)
+
+        schedules["cr90p"] = cr_sched
+
+        with pulse.build(name="cr90m") as cr_sched:
+            pulse.play(cr90m, cr_chan)
+            if self._rotary:
+                pulse.play(rot90m, target)
+
+        schedules["cr90m"] = cr_sched
 
         return schedules
