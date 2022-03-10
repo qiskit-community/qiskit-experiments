@@ -29,13 +29,17 @@ from qiskit_experiments.library import Rabi, EFRabi
 from qiskit_experiments.curve_analysis.standard_analysis.oscillation import OscillationAnalysis
 from qiskit_experiments.data_processing.data_processor import DataProcessor
 from qiskit_experiments.data_processing.nodes import Probability
-from qiskit_experiments.test.mock_iq_backend import MockIQBackend, RabiBackend
+from qiskit_experiments.test.mock_iq_backend import MockIQBackend
 from qiskit_experiments.database_service.db_experiment_data import ExperimentStatus
 
 
-def rabi_compute_probabilities(circuits: List[QuantumCircuit], calc_parameters_list: List[Dict[str, Any]]) -> List[Dict[str, float]]:
+def rabi_compute_probabilities(
+    circuits: List[QuantumCircuit], calc_parameters_list: List[Dict[str, Any]]
+) -> List[Dict[str, float]]:
     """Returns the probability based on the rotation angle and amplitude_to_angle."""
-    amplitude_to_angle = calc_parameters_list[0]["amplitude_to_angle"] if calc_parameters_list else np.pi
+    amplitude_to_angle = (
+        calc_parameters_list[0]["amplitude_to_angle"] if calc_parameters_list else np.pi
+    )
     output_dict_list = []
     for circuit in circuits:
         probability_output_dict = {}
@@ -50,7 +54,7 @@ def rabi_compute_probabilities(circuits: List[QuantumCircuit], calc_parameters_l
 
 def rabi_rate(amplitude_to_angle: float = np.pi) -> float:
     """Returns the rabi rate."""
-    return amplitude_to_angle/np.pi
+    return amplitude_to_angle / np.pi
 
 
 class TestRabiEndToEnd(QiskitExperimentsTestCase):
@@ -71,7 +75,6 @@ class TestRabiEndToEnd(QiskitExperimentsTestCase):
         """Test the Rabi experiment end to end."""
 
         test_tol = 0.01
-        # backend = RabiBackend()
         backend = MockIQBackend(compute_probabilities=rabi_compute_probabilities)
 
         rabi = Rabi(self.qubit, self.sched)
@@ -83,10 +86,11 @@ class TestRabiEndToEnd(QiskitExperimentsTestCase):
         self.assertEqual(result.quality, "good")
         self.assertAlmostEqual(result.value[1], rabi_rate(), delta=test_tol)
 
-        # backend = RabiBackend(amplitude_to_angle=np.pi / 2)
         rabi_calc_parameters_list = {"amplitude_to_angle": np.pi / 2}
-        backend = MockIQBackend(compute_probabilities=rabi_compute_probabilities,
-                                calculation_parameters=[rabi_calc_parameters_list])
+        backend = MockIQBackend(
+            compute_probabilities=rabi_compute_probabilities,
+            calculation_parameters=[rabi_calc_parameters_list],
+        )
 
         rabi = Rabi(self.qubit, self.sched)
         rabi.set_experiment_options(amplitudes=np.linspace(-0.95, 0.95, 21))
@@ -94,13 +98,17 @@ class TestRabiEndToEnd(QiskitExperimentsTestCase):
         self.assertExperimentDone(expdata)
         result = expdata.analysis_results(0)
         self.assertEqual(result.quality, "good")
-        self.assertAlmostEqual(result.value[1], rabi_rate(rabi_calc_parameters_list["amplitude_to_angle"]),
-                               delta=test_tol)
+        self.assertAlmostEqual(
+            result.value[1],
+            rabi_rate(rabi_calc_parameters_list["amplitude_to_angle"]),
+            delta=test_tol,
+        )
 
-        # backend = RabiBackend(amplitude_to_angle=2.5 * np.pi)
         rabi_calc_parameters_list = {"amplitude_to_angle": 2.5 * np.pi}
-        backend = MockIQBackend(compute_probabilities=rabi_compute_probabilities,
-                                calculation_parameters=[rabi_calc_parameters_list])
+        backend = MockIQBackend(
+            compute_probabilities=rabi_compute_probabilities,
+            calculation_parameters=[rabi_calc_parameters_list],
+        )
 
         rabi = Rabi(self.qubit, self.sched)
         rabi.set_experiment_options(amplitudes=np.linspace(-0.95, 0.95, 101))
@@ -108,13 +116,15 @@ class TestRabiEndToEnd(QiskitExperimentsTestCase):
         self.assertExperimentDone(expdata)
         result = expdata.analysis_results(0)
         self.assertEqual(result.quality, "good")
-        self.assertAlmostEqual(result.value[1], rabi_rate(rabi_calc_parameters_list["amplitude_to_angle"]),
-                               delta=test_tol)
+        self.assertAlmostEqual(
+            result.value[1],
+            rabi_rate(rabi_calc_parameters_list["amplitude_to_angle"]),
+            delta=test_tol,
+        )
 
     def test_wrong_processor(self):
         """Test that we can override the data processing by giving a faulty data processor."""
 
-        # backend = RabiBackend()
         backend = MockIQBackend(compute_probabilities=rabi_compute_probabilities)
 
         rabi = Rabi(self.qubit, self.sched)
@@ -164,7 +174,6 @@ class TestEFRabi(QiskitExperimentsTestCase):
         """Test the EFRabi experiment end to end."""
 
         test_tol = 0.01
-        # backend = RabiBackend()
         backend = MockIQBackend(compute_probabilities=rabi_compute_probabilities)
 
         # Note that the backend is not sophisticated enough to simulate an e-f
@@ -231,7 +240,6 @@ class TestRabiCircuits(QiskitExperimentsTestCase):
 
         rabi = Rabi(2, self.sched)
         rabi.set_experiment_options(amplitudes=[0.5])
-        # rabi.backend = RabiBackend()
         rabi.backend = MockIQBackend(compute_probabilities=rabi_compute_probabilities)
         circs = rabi.circuits()
 
@@ -251,7 +259,6 @@ class TestRabiCircuits(QiskitExperimentsTestCase):
 
         rabi = Rabi(2, self.sched)
         rabi.set_experiment_options(schedule=my_schedule, amplitudes=[0.5])
-        # rabi.backend = RabiBackend()
         rabi.backend = MockIQBackend(compute_probabilities=rabi_compute_probabilities)
         circs = rabi.circuits()
 
@@ -365,5 +372,6 @@ class TestCompositeExperiment(QiskitExperimentsTestCase):
             self.assertEqual(cal_key[0], (qubit,))
             self.assertTrue(cal_key in par_circ.calibrations["Rabi"])
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()

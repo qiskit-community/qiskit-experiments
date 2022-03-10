@@ -14,8 +14,8 @@
 
 from test.base import QiskitExperimentsTestCase
 import unittest
-import numpy as np
 from typing import Dict, List, Any
+import numpy as np
 
 from qiskit import QuantumCircuit
 from qiskit.circuit import Parameter
@@ -32,7 +32,9 @@ from qiskit_experiments.calibration_management.basis_gate_library import FixedFr
 from qiskit_experiments.calibration_management import Calibrations
 
 
-def compute_probability(circuits: List[QuantumCircuit], calc_parameters_list: List[Dict[str, Any]]) -> List[Dict[str, float]]:
+def compute_probability(
+    circuits: List[QuantumCircuit], calc_parameters_list: List[Dict[str, Any]]
+) -> List[Dict[str, float]]:
     """Returns the probability based on the beta, number of gates, and leakage."""
     if "gate_name" in calc_parameters_list[0].keys():
         gate_name = calc_parameters_list[0]["gate_name"]
@@ -89,9 +91,9 @@ class TestDragEndToEnd(QiskitExperimentsTestCase):
         """Test the drag experiment end to end."""
 
         calc_parameters = {"gate_name": "Drag(xp)", "ideal_beta": 2.0, "error": 0.03}
-        # backend = DragBackend(gate_name="Drag(xp)")
-        backend = MockIQBackend(compute_probabilities=compute_probability,
-                                calculation_parameters=[calc_parameters])
+        backend = MockIQBackend(
+            compute_probabilities=compute_probability, calculation_parameters=[calc_parameters]
+        )
 
         drag = RoughDrag(1, self.x_plus)
 
@@ -105,9 +107,9 @@ class TestDragEndToEnd(QiskitExperimentsTestCase):
         # Small leakage will make the curves very flat, in this case one should
         # rather increase beta.
         calc_parameters["error"] = 0.0051
-        # backend = DragBackend(error=0.0051, gate_name="Drag(xp)")
-        backend = MockIQBackend(compute_probabilities=compute_probability,
-                                calculation_parameters=[calc_parameters])
+        backend = MockIQBackend(
+            compute_probabilities=compute_probability, calculation_parameters=[calc_parameters]
+        )
 
         drag = RoughDrag(0, self.x_plus)
         drag.analysis.set_options(p0={"beta": 1.2})
@@ -120,9 +122,9 @@ class TestDragEndToEnd(QiskitExperimentsTestCase):
 
         # Large leakage will make the curves oscillate quickly.
         calc_parameters["error"] = 0.05
-        # backend = DragBackend(error=0.05, gate_name="Drag(xp)")
-        backend = MockIQBackend(compute_probabilities=compute_probability,
-                                calculation_parameters=[calc_parameters])
+        backend = MockIQBackend(
+            compute_probabilities=compute_probability, calculation_parameters=[calc_parameters]
+        )
 
         drag = RoughDrag(1, self.x_plus, betas=np.linspace(-4, 4, 31))
         drag.set_run_options(shots=200)
@@ -155,15 +157,15 @@ class TestDragCircuits(QiskitExperimentsTestCase):
     def test_default_circuits(self):
         """Test the default circuit."""
 
-        # backend = DragBackend(error=0.005, gate_name="Drag(xp)")
         calc_parameters = {"gate_name": "Drag(xp)", "ideal_beta": 2.0, "error": 0.03}
-        backend = MockIQBackend(compute_probabilities=compute_probability,
-                                calculation_parameters=[calc_parameters])
+        backend = MockIQBackend(
+            compute_probabilities=compute_probability, calculation_parameters=[calc_parameters]
+        )
         drag = RoughDrag(0, self.x_plus)
         drag.set_experiment_options(reps=[2, 4, 8])
-        # drag.backend = DragBackend(gate_name="Drag(xp)")
-        drag.backend = MockIQBackend(compute_probabilities=compute_probability,
-                                     calculation_parameters=[calc_parameters])
+        drag.backend = MockIQBackend(
+            compute_probabilities=compute_probability, calculation_parameters=[calc_parameters]
+        )
         circuits = drag.circuits()
 
         for idx, expected in enumerate([4, 8, 16]):
@@ -193,8 +195,9 @@ class TestRoughDragCalUpdate(QiskitExperimentsTestCase):
         library = FixedFrequencyTransmon()
 
         self.calc_parameters = {"gate_name": "Drag(x)", "ideal_beta": 2.0, "error": 0.03}
-        self.backend = MockIQBackend(compute_probabilities=compute_probability,
-                                     calculation_parameters=[self.calc_parameters])
+        self.backend = MockIQBackend(
+            compute_probabilities=compute_probability, calculation_parameters=[self.calc_parameters]
+        )
         self.cals = Calibrations.from_backend(self.backend, library)
         self.test_tol = 0.05
 
