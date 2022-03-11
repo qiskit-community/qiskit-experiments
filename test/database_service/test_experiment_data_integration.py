@@ -30,6 +30,7 @@ from qiskit.providers.ibmq.experiment import (
 from qiskit.test import QiskitTestCase
 from qiskit_experiments.database_service import DbExperimentDataV1 as DbExperimentData
 from qiskit_experiments.database_service import DbAnalysisResultV1 as AnalysisResult
+from qiskit_experiments.database_service.db_experiment_data import ExperimentStatus
 from qiskit_experiments.database_service.exceptions import DbExperimentEntryNotFound
 
 from ..decorators import requires_provider, requires_device
@@ -315,7 +316,9 @@ class TestExperimentDataIntegration(QiskitTestCase):
         exp_data.save()
 
         rexp = DbExperimentData.load(exp_data.experiment_id, self.experiment)
-        self.assertEqual(["foo", "bar"], rexp.tags)
+        # Experiment tag order is not necessarily preserved
+        # so compare tags with a predictable sort order.
+        self.assertEqual(["bar", "foo"], sorted(rexp.tags))
         self.assertEqual(aresult.result_id, rexp.analysis_results(0).result_id)
         self.assertEqual(hello_bytes, rexp.figure(0))
 
@@ -470,7 +473,7 @@ class TestExperimentDataIntegration(QiskitTestCase):
             jobs.append(job)
         exp_data.block_for_results()
         self.assertTrue(all(job.status() == JobStatus.DONE for job in jobs))
-        self.assertEqual("DONE", exp_data.status())
+        self.assertEqual(ExperimentStatus.DONE, exp_data.status())
 
     def _create_experiment_data(self):
         """Create an experiment data."""

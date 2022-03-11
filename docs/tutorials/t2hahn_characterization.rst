@@ -95,7 +95,7 @@ The resulting graph will have the form:
 .. jupyter-execute::
 
     exp1.analysis.set_options(p0=None, plot=True)
-    expdata1 = exp1.run(backend=backend, shots=2000)
+    expdata1 = exp1.run(backend=backend, shots=2000, seed_simulator=101)
     expdata1.block_for_results()  # Wait for job/analysis to finish.
     
     # Display the figure
@@ -126,7 +126,7 @@ computed for other qubits.
 
     exp_with_p0 = T2Hahn(qubit=qubit, delays=delays, num_echoes=number_of_echoes)
     exp_with_p0.analysis.set_options(p0={"amp": 0.5, "tau": estimated_t2hahn, "base": 0.5})
-    expdata_with_p0 = exp_with_p0.run(backend=backend, shots=2000)
+    expdata_with_p0 = exp_with_p0.run(backend=backend, shots=2000, seed_simulator=101)
     expdata_with_p0.block_for_results()
     
     # Display fit figure
@@ -214,11 +214,11 @@ total delay time.
         readout1to0=[0.02],)
     
     # Analysis for Hahn Echo experiemnt with 0 echoes.
-    expdata2_0echoes = exp2_0echoes.run(backend=backend2, shots=2000)
+    expdata2_0echoes = exp2_0echoes.run(backend=backend2, shots=2000, seed_simulator=101)
     expdata2_0echoes.block_for_results()  # Wait for job/analysis to finish.
     
     # Analysis for Hahn Echo experiemnt with 1 echo
-    expdata2_1echoes = exp2_1echoes.run(backend=backend2, shots=2000)
+    expdata2_1echoes = exp2_1echoes.run(backend=backend2, shots=2000, seed_simulator=101)
     expdata2_1echoes.block_for_results()  # Wait for job/analysis to finish.
     
     # Display the figure
