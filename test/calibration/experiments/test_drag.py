@@ -12,9 +12,9 @@
 
 """Test drag calibration experiment."""
 
-from ddt import ddt, data, unpack
 from test.base import QiskitExperimentsTestCase
 import unittest
+from ddt import ddt, data, unpack
 import numpy as np
 
 from qiskit.circuit import Parameter
