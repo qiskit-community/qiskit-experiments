@@ -81,7 +81,7 @@ class TestRamseyXY(QiskitExperimentsTestCase):
         """
         backend = MockRamseyXY(freq_shift=0)
 
-        class NoResults((BaseAnalysis)):
+        class NoResults(BaseAnalysis):
             """Simple analysis class that generates no results"""
 
             def _run_analysis(self, experiment_data):
