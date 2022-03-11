@@ -25,19 +25,23 @@ class DragCalAnalysis(curve.CurveAnalysis):
 
     # section: fit_model
 
-        Analyse a Drag calibration experiment by fitting three series each to a cosine function.
-        The three functions share the phase parameter (i.e. beta) but each have their own amplitude,
-        baseline, and frequency parameters (which therefore depend on the number of repetitions of
-        xp-xm). Several initial guesses are tried if the user does not provide one.
+        Analyse a Drag calibration experiment by fitting three series each to a cosine
+        function. The three functions share the phase parameter (i.e. beta), amplitude, and
+        baseline. The frequencies of the oscillations are related through the number of
+        repetitions of the Drag gates. Several initial guesses are tried if the user
+        does not provide one.
 
         .. math::
 
             y_i = {\rm amp} \cos\left(2 \pi\cdot {\rm freq}_i\cdot x -
             2 \pi\cdot {\rm freq}_i\cdot \beta\right) + {\rm base}
 
-        Note that the aim of the Drag calibration is to find the :math:`\beta` that minimizes the
-        phase shifts. This implies that the optimal :math:`\beta` occurs when all three :math:`y`
-        curves are minimum, i.e. they produce the ground state. Therefore,
+        Here, :math:`{\rm freq}_i` is given by the fit parameter :math:`freq` multiplied by
+        :math:`{\rm rep}_i` which is the number of times that the Drag plus and minus
+        rotations are repeated. Note that the aim of the Drag calibration is to find the
+        :math:`\beta` that minimizes the phase shifts. This implies that the optimal
+        :math:`\beta` occurs when all three :math:`y` curves are minimum, i.e. they
+        produce the ground state. Therefore,
 
         .. math::
 
@@ -56,17 +60,18 @@ class DragCalAnalysis(curve.CurveAnalysis):
     # section: fit_parameters
         defpar \rm amp:
             desc: Amplitude of all series.
-            init_guess: The maximum y value less the minimum y value. 0.5 is also tried.
-            bounds: [-2, 2] scaled to the maximum signal value.
+            init_guess: The maximum y value less the minimum y value scaled by -1, -0.5, and -0.25.
+            bounds: [-2, 0] scaled to the maximum signal value.
 
         defpar \rm base:
             desc: Base line of all series.
-            init_guess: The average of the data. 0.5 is also tried.
-            bounds: [-1, 1] scaled to the maximum signal value.
+            init_guess: Half the maximum y-range of the data.
+            bounds: [-1, 1] scaled to the maximum y-range.
 
-        defpar {\rm freq}_i:
-            desc: Frequency of the :math:`i` th oscillation.
-            init_guess: The frequency with the highest power spectral density.
+        defpar {\rm freq}:
+            desc: Frequency of the :math:`i` th oscillation divided by the number of repetitions.
+            init_guess: The frequency with the highest power spectral density of the curve with
+                the highest number of Drag plus and minus rotation repetitions.
             bounds: [0, inf].
 
         defpar \beta:
