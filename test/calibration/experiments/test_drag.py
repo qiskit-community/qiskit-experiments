@@ -12,6 +12,7 @@
 
 """Test drag calibration experiment."""
 
+from ddt import ddt, data, unpack
 from test.base import QiskitExperimentsTestCase
 import unittest
 import numpy as np
@@ -30,6 +31,7 @@ from qiskit_experiments.calibration_management.basis_gate_library import FixedFr
 from qiskit_experiments.calibration_management import Calibrations
 
 
+@ddt
 class TestDragEndToEnd(QiskitExperimentsTestCase):
     """Test the drag experiment."""
 
@@ -43,7 +45,7 @@ class TestDragEndToEnd(QiskitExperimentsTestCase):
             pulse.play(Drag(duration=160, amp=0.208519, sigma=40, beta=beta), DriveChannel(0))
 
         self.x_plus = xp
-        self.test_tol = 0.05
+        self.test_tol = 0.1
 
     def test_reps(self):
         """Test that setting reps raises and error if reps is not of length three."""
@@ -72,7 +74,6 @@ class TestDragEndToEnd(QiskitExperimentsTestCase):
         backend = DragBackend(error=0.0051, gate_name="Drag(xp)")
 
         drag = RoughDrag(0, self.x_plus)
-        drag.analysis.set_options(p0={"beta": 1.2})
         exp_data = drag.run(backend)
         self.assertExperimentDone(exp_data)
         result = exp_data.analysis_results(1)
@@ -93,6 +94,27 @@ class TestDragEndToEnd(QiskitExperimentsTestCase):
         meas_level = exp_data.metadata["job_metadata"][-1]["run_options"]["meas_level"]
 
         self.assertEqual(meas_level, MeasLevel.CLASSIFIED)
+        self.assertTrue(abs(result.value.n - backend.ideal_beta) < self.test_tol)
+        self.assertEqual(result.quality, "good")
+
+    @data(
+        (0.0050, 1.0, 0.00, [1, 3, 5], None),  # partial oscillation.
+        (0.0025, 0.5, 0.00, [1, 3, 5], None),  # even slower oscillation with amp < 1
+        (0.0050, 0.8, 0.05, [3, 5, 7], None),  # constant offset, i.e. lower SNR.
+        (0.1000, 0.5, 0.10, [1, 3, 5], np.linspace(-1, 1, 51)),  # Beta not in range
+    )
+    @unpack
+    def test_nasty_data(self, error, amp, offset, reps, betas):
+        """A set of tests for non-ideal data."""
+        backend = DragBackend(error=error, gate_name="Drag(xp)", max_prob=amp, offset_prob=offset)
+
+        drag = RoughDrag(0, self.x_plus, betas=betas)
+        drag.set_experiment_options(reps=reps)
+
+        exp_data = drag.run(backend)
+        self.assertExperimentDone(exp_data)
+        result = exp_data.analysis_results(1)
+
         self.assertTrue(abs(result.value.n - backend.ideal_beta) < self.test_tol)
         self.assertEqual(result.quality, "good")
 

@@ -77,8 +77,8 @@ class DragCalAnalysis(curve.CurveAnalysis):
 
     __series__ = [
         curve.SeriesDef(
-            fit_func=lambda x, amp, freq0, freq1, freq2, beta, base: cos(
-                x, amp=amp, freq=freq0, phase=-2 * np.pi * freq0 * beta, baseline=base
+            fit_func=lambda x, amp, freq, reps1, reps2, reps3, beta, base: cos(
+                x, amp=amp, freq=reps1 * freq, phase=-2 * np.pi * reps1 * freq * beta, baseline=base
             ),
             plot_color="blue",
             name="series-0",
@@ -88,8 +88,8 @@ class DragCalAnalysis(curve.CurveAnalysis):
             r"- 2 \pi\cdot {\rm freq}_0\cdot \beta\right) + {\rm base}",
         ),
         curve.SeriesDef(
-            fit_func=lambda x, amp, freq0, freq1, freq2, beta, base: cos(
-                x, amp=amp, freq=freq1, phase=-2 * np.pi * freq1 * beta, baseline=base
+            fit_func=lambda x, amp, freq, reps1, reps2, reps3, beta, base: cos(
+                x, amp=amp, freq=reps2 * freq, phase=-2 * np.pi * reps2 * freq * beta, baseline=base
             ),
             plot_color="green",
             name="series-1",
@@ -99,8 +99,8 @@ class DragCalAnalysis(curve.CurveAnalysis):
             r"- 2 \pi\cdot {\rm freq}_1\cdot \beta\right) + {\rm base}",
         ),
         curve.SeriesDef(
-            fit_func=lambda x, amp, freq0, freq1, freq2, beta, base: cos(
-                x, amp=amp, freq=freq2, phase=-2 * np.pi * freq2 * beta, baseline=base
+            fit_func=lambda x, amp, freq, reps1, reps2, reps3, beta, base: cos(
+                x, amp=amp, freq=reps3 * freq, phase=-2 * np.pi * reps3 * freq * beta, baseline=base
             ),
             plot_color="red",
             name="series-2",
@@ -110,6 +110,8 @@ class DragCalAnalysis(curve.CurveAnalysis):
             r"- 2 \pi\cdot {\rm freq}_2\cdot \beta\right) + {\rm base}",
         ),
     ]
+
+    __fixed_parameters__ = ["reps1", "reps2", "reps3"]
 
     @classmethod
     def _default_options(cls):
@@ -122,6 +124,9 @@ class DragCalAnalysis(curve.CurveAnalysis):
         default_options.result_parameters = ["beta"]
         default_options.xlabel = "Beta"
         default_options.ylabel = "Signal (arb. units)"
+        default_options.rep1 = 1
+        default_options.rep2 = 3
+        default_options.rep3 = 5
 
         return default_options
 
@@ -140,20 +145,17 @@ class DragCalAnalysis(curve.CurveAnalysis):
         x_data = self._data("series-0").x
         min_beta, max_beta = min(x_data), max(x_data)
 
-        freqs_guesses = {}
-        for i in range(3):
-            curve_data = self._data(f"series-{i}")
-            freqs_guesses[f"freq{i}"] = curve.guess.frequency(curve_data.x, curve_data.y)
-        user_opt.p0.set_if_empty(**freqs_guesses)
+        # Use the highest-frequency curve to estimate the oscillation frequency.
+        curve_data = self._data(f"series-2")
+        freqs_guess = curve.guess.frequency(curve_data.x, curve_data.y) / self.options.reps3
+        user_opt.p0.set_if_empty(freq=freqs_guess)
 
         max_abs_y, _ = curve.guess.max_height(self._data().y, absolute=True)
-        freq_bound = max(10 / user_opt.p0["freq0"], max(x_data))
+        freq_bound = max(10 / user_opt.p0["freq"], max(x_data))
 
         user_opt.bounds.set_if_empty(
-            amp=(-2 * max_abs_y, 2 * max_abs_y),
-            freq0=(0, np.inf),
-            freq1=(0, np.inf),
-            freq2=(0, np.inf),
+            amp=(-2 * max_abs_y, 0),
+            freq=(0, np.inf),
             beta=(-freq_bound, freq_bound),
             base=(-max_abs_y, max_abs_y),
         )
@@ -165,8 +167,8 @@ class DragCalAnalysis(curve.CurveAnalysis):
         # becomes +1 at zero phase, i.e. optimal beta, in which y data should become zero
         # in discriminated measurement level.
         options = []
-        for amp_factor in (-1, -0.5, 0.5, 1):
-            for beta_guess in np.linspace(0.5 * min_beta, 0.5 * max_beta, 10):
+        for amp_factor in (-1, -0.5, -0.25):
+            for beta_guess in np.linspace(min_beta, max_beta, 20):
                 new_opt = user_opt.copy()
                 new_opt.p0.set_if_empty(amp=max_abs_y * amp_factor, beta=beta_guess)
                 options.append(new_opt)
@@ -182,11 +184,11 @@ class DragCalAnalysis(curve.CurveAnalysis):
             - an error on the drag beta smaller than the beta.
         """
         fit_beta = fit_data.fitval("beta")
-        fit_freq0 = fit_data.fitval("freq0")
+        fit_freq = fit_data.fitval("freq")
 
         criteria = [
             fit_data.reduced_chisq < 3,
-            fit_beta.nominal_value < 1 / fit_freq0.nominal_value,
+            fit_beta.nominal_value < 1 / fit_freq.nominal_value,
             curve.is_error_not_significant(fit_beta),
         ]
 
