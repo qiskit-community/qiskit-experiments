@@ -142,7 +142,7 @@ enhancements might be required (See Ref. [2] for details).
 
 .. jupyter-execute::
 
-    exps = [QuantumVolume(tuple(range(qubits)), trials=200) for qubits in range(3,6)]
+    exps = [QuantumVolume(tuple(range(i)), trials=200) for i in range(3, 6)]
 
     batch_exp = BatchExperiment(exps)
     batch_exp.set_transpile_options(optimization_level=3)
