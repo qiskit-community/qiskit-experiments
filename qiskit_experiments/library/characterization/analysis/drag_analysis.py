@@ -60,13 +60,13 @@ class DragCalAnalysis(curve.CurveAnalysis):
     # section: fit_parameters
         defpar \rm amp:
             desc: Amplitude of all series.
-            init_guess: The maximum y value less the minimum y value scaled by -1, -0.5, and -0.25.
+            init_guess: The maximum y value scaled by -1, -0.5, and -0.25.
             bounds: [-2, 0] scaled to the maximum signal value.
 
         defpar \rm base:
             desc: Base line of all series.
-            init_guess: Half the maximum y-range of the data.
-            bounds: [-1, 1] scaled to the maximum y-range.
+            init_guess: Half the maximum y-value of the data.
+            bounds: [-1, 1] scaled to the maximum y-value.
 
         defpar {\rm freq}:
             desc: Frequency of the :math:`i` th oscillation divided by the number of repetitions.
