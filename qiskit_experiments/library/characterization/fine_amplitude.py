@@ -253,9 +253,10 @@ class FineXAmplitude(FineAmplitude):
         super().__init__([qubit], XGate(), backend=backend)
         # Set default analysis options
         self.analysis.set_options(
-            angle_per_gate=np.pi,
-            phase_offset=np.pi / 2,
-            amp=1,
+            fixed_parameters={
+                "angle_per_gate": np.pi,
+                "phase_offset": np.pi / 2,
+            }
         )
 
     @classmethod
@@ -290,8 +291,10 @@ class FineSXAmplitude(FineAmplitude):
         super().__init__([qubit], SXGate(), backend=backend)
         # Set default analysis options
         self.analysis.set_options(
-            angle_per_gate=np.pi / 2,
-            phase_offset=np.pi,
+            fixed_parameters={
+                "angle_per_gate": np.pi / 2,
+                "phase_offset": np.pi,
+            }
         )
 
     @classmethod
@@ -353,9 +356,10 @@ class FineZXAmplitude(FineAmplitude):
         super().__init__(qubits, gate, backend=backend, measurement_qubits=[qubits[1]])
         # Set default analysis options
         self.analysis.set_options(
-            angle_per_gate=np.pi / 2,
-            phase_offset=np.pi,
-            amp=1,
+            fixed_parameters={
+                "angle_per_gate": np.pi / 2,
+                "phase_offset": np.pi,
+            },
             outcome="1",
         )
 
