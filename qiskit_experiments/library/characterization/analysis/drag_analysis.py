@@ -192,7 +192,7 @@ class DragCalAnalysis(curve.CurveAnalysis):
 
         criteria = [
             fit_data.reduced_chisq < 3,
-            fit_beta.nominal_value < 1 / fit_freq.nominal_value,
+            abs(fit_beta.nominal_value) < 1 / fit_freq.nominal_value / 2,
             curve.is_error_not_significant(fit_beta),
         ]
 
