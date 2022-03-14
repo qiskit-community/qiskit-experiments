@@ -245,10 +245,10 @@ class CurveAnalysis(BaseAnalysis, ABC):
         super().__init_subclass__(**kwargs)
 
         # Create fit model:
-        # The fit model is created once when the sub-class, i.e. type, is initialized.
+        # The fit model is created only once when the sub-class, i.e. type, is initialized.
         # This removes overhead of instantiating the same fit model object multiple times.
-        # This impact is significant especially when user create parallel experiment instance,
-        # where the curve analysis subclass is instantiated multiple times.
+        # Its impact is significant especially when user creates a parallel experiment instance,
+        # where the curve analysis subclass is instantiated multiple times along with fit model.
         model_source = collections.defaultdict(list)
         for series in cls.__series__:
             model_source["fit_functions"].append(series.fit_func)

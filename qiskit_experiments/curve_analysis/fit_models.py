@@ -43,14 +43,14 @@ class FitModel(ABC):
         Note that :class:`FitModel` subclass is instantiated with a list of
         :math:`F_1` and :math:`F_2` (``fit_functions``) together with
         a list of :math:`\Theta_1` and :math:`\Theta_2` (``signatures``) and
-        :math:`\Theta_{\rm fix}` (``fixed_parameters``).
+        :math:`\Theta_{\rm fix}` (set via :meth:`bind_parameters`).
         The signature of new fit model instance will be
         :math:`\Theta = (\Theta_1 \cup \Theta_2) - \Theta_{\rm fix} = \{ p_0, p_2, p_3\}`.
         The fit function that this model provides is accordingly
 
         .. math::
 
-            F(x, \Theta) = F_1(x_0, \Theta_1) \oplus F_2(x_1, \Theta_2) \\
+            F(x, \Theta) = F_1(x_0, \Theta_1) \oplus F_2(x_1, \Theta_2) \
                 = F(x_0 \oplus x_1, p_0, p_2, p_3).
 
         This function might be called from the scipy curve fit algorithm
@@ -70,8 +70,8 @@ class FitModel(ABC):
 
         This class is usually instantiated with the :class:`SeriesDef` in the
         ``__init_subclass__`` method of :class:`CurveAnalysis` subclasses.
-        User doesn't need to take care of input values to the constructor
-        unless one manually instantiates the class for debugging purposes.
+        User doesn't need to take care of how to initialize this class
+        unless one manually create the instance for debugging purposes.
     """
 
     def __init__(
