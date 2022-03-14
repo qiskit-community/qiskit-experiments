@@ -50,7 +50,7 @@ class FitModel(ABC):
 
         .. math::
 
-            F(x, \Theta) = F(x_0 \oplus x_1, p_0, p_2, p_3).
+            F(x, \Theta) = F_1(x_0, \Theta_1) \oplus F_2(x_1, \Theta_2).
 
         This function might be called from the scipy curve fit algorithm
         which only takes variadic arguments (i.e. agnostic to parameter names).
@@ -70,7 +70,7 @@ class FitModel(ABC):
         This class is usually instantiated with the :class:`SeriesDef` in the
         ``__init_subclass__`` method of :class:`CurveAnalysis` subclasses.
         User doesn't need to take care of input values to the constructor
-        unless one manually instantiates the class for debugging purpose.
+        unless one manually instantiates the class for debugging purposes.
     """
 
     def __init__(
@@ -84,14 +84,14 @@ class FitModel(ABC):
 
         Args:
             fit_functions: List of callables that forms the fit model for a
-                particular curve analysis class. It may consists of multiple curves
+                particular curve analysis class. It may consist of multiple curves
                 which are defined in :attr:`CurveAnalysis.__series__`.
             signatures: List of argument names that each fit function callable takes.
                 The length of the list should be identical to the ``fit_functions``.
             fit_models: String representation of fit functions.
                 Because this is just a metadata, the format of input value doesn't matter.
                 It may be a single string description for the entire fit model, or
-                list of descriptions for each fit functions. If not provided,
+                list of descriptions for each fit function. If not provided,
                 "not defined" is stored in the experiment result metadata.
             fixed_parameters: List of parameter names that are not considered to be fit parameter.
                 The value of parameter is provided by analysis default setting or users,
@@ -120,7 +120,7 @@ class FitModel(ABC):
         self._fixed_params = {p: None for p in fixed_parameters}
 
         # Create signature of this fit model, i.e. this will be signature of scipy fit function.
-        # The curves comprising this model may have different signature.
+        # The curves comprising this model may have different signatures.
         # The signature of this fit model is union of parameters in all curves.
         union_params = []
         for signature in signatures:
@@ -179,7 +179,7 @@ class FitModel(ABC):
 class SingleFitFunction(FitModel):
     r"""Fit model consisting of a single curve.
 
-    This model is created when only single curve exist in the fit model.
+    This model is created when only a single curve exists in the fit model.
 
     .. math::
 
@@ -243,6 +243,10 @@ class CompositeFitFunction(FitModel):
         fixed_parameters: Optional[List[str]] = None,
     ):
         super().__init__(fit_functions, signatures, fit_models, fixed_parameters)
+
+        # This attribute is set by users or another function that calls this model.
+        # The existence of this value is not checked within the __call__ for performance,
+        # but one must guarantee this is assigned before the model is called.
         self.data_allocation = None
 
     def __call__(self, x: np.ndarray, *params) -> np.ndarray:
