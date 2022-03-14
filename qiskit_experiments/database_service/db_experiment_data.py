@@ -151,6 +151,7 @@ class DbExperimentDataV1(DbExperimentData):
         self,
         experiment_type: Optional[str] = "Unknown",
         backend: Optional[Union[Backend, BaseBackend]] = None,
+        service: Optional[DatabaseServiceV1] = None,
         experiment_id: Optional[str] = None,
         parent_id: Optional[str] = None,
         tags: Optional[List[str]] = None,
@@ -189,10 +190,11 @@ class DbExperimentDataV1(DbExperimentData):
             },
         )
 
-        self._service = None
+        self._service = service
+        if self.service is None:
+            self._set_service_from_backend(backend)
         self._backend = backend
         self._auto_save = False
-        self._set_service_from_backend(backend)
 
         self._id = experiment_id or str(uuid.uuid4())
         self._parent_id = parent_id
@@ -941,7 +943,11 @@ class DbExperimentDataV1(DbExperimentData):
             "tags": self.tags,
             "notes": self.notes,
         }
-        new_data = {"experiment_type": self._type, "backend_name": self._backend.name()}
+        new_data = {
+            "experiment_type": self._type,
+            "backend_name": self._backend.name(),
+            "provider": self._provider,
+        }
         if self.share_level:
             update_data["share_level"] = self.share_level
         if self.parent_id:

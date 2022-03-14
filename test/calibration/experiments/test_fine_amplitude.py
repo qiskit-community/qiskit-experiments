@@ -148,6 +148,7 @@ class TestFineAmplitudeCircuits(QiskitExperimentsTestCase):
             self.assertEqual(circ.count_ops().get("sx", 0), expected[idx])
 
 
+@ddt
 class TestSpecializations(QiskitExperimentsTestCase):
     """Test the options of the specialized classes."""
 
@@ -157,8 +158,10 @@ class TestSpecializations(QiskitExperimentsTestCase):
         exp = FineXAmplitude(0)
 
         self.assertTrue(exp.experiment_options.add_cal_circuits)
-        self.assertEqual(exp.analysis.options.angle_per_gate, np.pi)
-        self.assertEqual(exp.analysis.options.phase_offset, np.pi / 2)
+        self.assertDictEqual(
+            exp.analysis.options.fixed_parameters,
+            {"angle_per_gate": np.pi, "phase_offset": np.pi / 2},
+        )
         self.assertEqual(exp.experiment_options.gate, XGate())
 
     def test_fine_sx_amp(self):
@@ -170,9 +173,21 @@ class TestSpecializations(QiskitExperimentsTestCase):
 
         expected = [0, 1, 2, 3, 5, 7, 9, 11, 13, 15, 17, 21, 23, 25]
         self.assertEqual(exp.experiment_options.repetitions, expected)
-        self.assertEqual(exp.analysis.options.angle_per_gate, np.pi / 2)
-        self.assertEqual(exp.analysis.options.phase_offset, np.pi)
+        self.assertDictEqual(
+            exp.analysis.options.fixed_parameters,
+            {"angle_per_gate": np.pi / 2, "phase_offset": np.pi},
+        )
         self.assertEqual(exp.experiment_options.gate, SXGate())
+
+    @data((2, 3), (3, 1), (0, 1))
+    def test_measure_qubits(self, qubits):
+        """Test that the measurement is on the logical qubits."""
+
+        fine_amp = FineZXAmplitude(qubits)
+        for circuit in fine_amp.circuits():
+            self.assertEqual(circuit.num_qubits, 2)
+            self.assertEqual(circuit.data[-1][0].name, "measure")
+            self.assertEqual(circuit.data[-1][1][0], circuit.qregs[0][1])
 
 
 class TestFineAmplitudeCal(QiskitExperimentsTestCase):
