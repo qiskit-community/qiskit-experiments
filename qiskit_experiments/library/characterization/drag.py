@@ -22,11 +22,12 @@ from qiskit.providers.backend import Backend
 from qiskit.pulse import ScheduleBlock
 
 from qiskit_experiments.framework import BaseExperiment, Options
+from qiskit_experiments.framework.restless_mixin import RestlessMixin
 from qiskit_experiments.exceptions import CalibrationError
 from qiskit_experiments.library.characterization.analysis import DragCalAnalysis
 
 
-class RoughDrag(BaseExperiment):
+class RoughDrag(BaseExperiment, RestlessMixin):
     r"""An experiment that scans the DRAG parameter to find the optimal value.
 
     # section: overview

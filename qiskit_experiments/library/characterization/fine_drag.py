@@ -20,12 +20,13 @@ from qiskit.circuit import Gate
 from qiskit.circuit.library import XGate, SXGate
 from qiskit.providers.backend import Backend
 from qiskit_experiments.framework import BaseExperiment, Options
+from qiskit_experiments.framework.restless_mixin import RestlessMixin
 from qiskit_experiments.library.characterization.analysis import (
     FineDragAnalysis,
 )
 
 
-class FineDrag(BaseExperiment):
+class FineDrag(BaseExperiment, RestlessMixin):
     r"""Fine DRAG experiment.
 
     # section: overview
