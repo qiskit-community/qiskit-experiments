@@ -113,7 +113,7 @@ class TestDragEndToEnd(QiskitExperimentsTestCase):
 
         exp_data = drag.run(backend)
         self.assertExperimentDone(exp_data)
-        result = exp_data.analysis_results(1)
+        result = exp_data.analysis_results("beta")
 
         self.assertTrue(abs(result.value.n - backend.ideal_beta) < self.test_tol)
         self.assertEqual(result.quality, "good")
