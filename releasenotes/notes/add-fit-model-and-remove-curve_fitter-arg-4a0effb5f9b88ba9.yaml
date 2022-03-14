@@ -7,10 +7,14 @@ features:
     and parameters to be fit with the analysis, respectively.
   - |
     New classes :class:`SingleFitFunction` and :class:`CompositeFitFunction` have been
-    added to the curve analysis module. These classes abstract the curve definition
-    hard-coded in the class attribute :attr:`CurveAnalysis.__series__` as a
-    Python function-like object. This may help user to grasp the fitting model
-    without reading the code.
+    added to the curve analysis module. These fit function instance is created for
+    each curve analysis subclass, and user can access it via
+    the curve analysis property ``.fit_model``.
+    Note that the fit function instance can be called by itself, and user can manually test
+    the curve beeing computed against given x values and parameters.
+    In addition, these function implements pretty printing to describe the function itself.
+    These information have been hidden in the private member :attr:`CurveAnalysis.__series__`,
+    but now one can easily grasp the fit model details with these fit function object.
 upgrade:
   - |
     Analysis option `curve_fitter` of the :class:`CurveAnalysis` has been removed
