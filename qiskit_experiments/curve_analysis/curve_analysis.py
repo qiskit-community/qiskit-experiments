@@ -241,7 +241,9 @@ class CurveAnalysis(BaseAnalysis, ABC):
         if hasattr(self, "__fixed_parameters__"):
             warnings.warn(
                 "The class attribute __fixed_parameters__ has been deprecated and will be removed. "
-                "Now this attribute is absorbed in analysis options as fixed_parameters.",
+                "Now this attribute is absorbed in analysis options as fixed_parameters. "
+                "This warning will be dropped in v0.4 along with "
+                "the support for the deprecated attribute.",
                 DeprecationWarning,
                 stacklevel=2,
             )
@@ -967,6 +969,8 @@ class CurveAnalysis(BaseAnalysis, ABC):
 
     @classmethod
     def from_config(cls, config: Union[AnalysisConfig, Dict]) -> "CurveAnalysis":
+        # For backward compatibility. This will be removed in v0.4.
+
         instance = super().from_config(config)
 
         # When fixed param value is hard-coded as options. This is deprecated data structure.
@@ -980,7 +984,9 @@ class CurveAnalysis(BaseAnalysis, ABC):
             warnings.warn(
                 "Fixed parameter value should be defined in options.fixed_parameters as "
                 "a dictionary values, rather than a standalone analysis option. "
-                "Please re-save this experiment to be loaded after deprecation period.",
+                "Please re-save this experiment to be loaded after deprecation period. "
+                "This warning will be dropped in v0.4 along with "
+                "the support for the deprecated fixed parameter options.",
                 DeprecationWarning,
                 stacklevel=2,
             )
