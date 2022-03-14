@@ -50,6 +50,7 @@ from qiskit_experiments.framework import (
     ExperimentData,
     AnalysisResultData,
     Options,
+    AnalysisConfig,
 )
 
 PARAMS_ENTRY_PREFIX = "@Parameters_"
@@ -236,9 +237,6 @@ class CurveAnalysis(BaseAnalysis, ABC):
     #: List[SeriesDef]: List of mapping representing a data series
     __series__ = list()
 
-    #: List[str]: Fixed parameter in fit function. Value should be set to the analysis options.
-    __fixed_parameters__ = list()
-
     # Automatically generated fitting functions of child class
     _fit_model = None
 
@@ -275,6 +273,20 @@ class CurveAnalysis(BaseAnalysis, ABC):
     def __init__(self):
         """Initialize data fields that are privately accessed by methods."""
         super().__init__()
+
+        if hasattr(self, "__fixed_parameters__"):
+            warnings.warn(
+                "The class attribute __fixed_parameters__ has been deprecated and will be removed. "
+                "Now this attribute is absorbed in analysis options as fixed_parameters. "
+                "This warning will be dropped in v0.4 along with "
+                "the support for the deprecated attribute.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            # pylint: disable=no-member
+            self._options.fixed_parameters = {
+                p: self.options.get(p, None) for p in self.__fixed_parameters__
+            }
 
         #: Dict[str, Any]: Experiment metadata
         self.__experiment_metadata = None
@@ -459,6 +471,9 @@ class CurveAnalysis(BaseAnalysis, ABC):
                 as extra information.
             curve_fitter_options (Dict[str, Any]) Options that are passed to the
                 specified curve fitting function.
+            fixed_parameters (Dict[str, Any]): Fitting model parameters that are fixed
+                during the curve fitting. This should be provided with default value
+                keyed on one of the parameter names in the series definition.
         """
         options = super()._default_options()
 
@@ -479,10 +494,9 @@ class CurveAnalysis(BaseAnalysis, ABC):
         options.style = PlotterStyle()
         options.extra = dict()
         options.curve_fitter_options = dict()
-
-        # automatically populate initial guess and boundary
-        options.p0 = {par_name: None for par_name in cls._fit_model.signature}
-        options.bounds = {par_name: None for par_name in cls._fit_model.signature}
+        options.p0 = {}
+        options.bounds = {}
+        options.fixed_parameters = {}
 
         return options
 
@@ -1079,6 +1093,35 @@ class CurveAnalysis(BaseAnalysis, ABC):
             figures = []
 
         return analysis_results, figures
+
+    @classmethod
+    def from_config(cls, config: Union[AnalysisConfig, Dict]) -> "CurveAnalysis":
+        # For backward compatibility. This will be removed in v0.4.
+
+        instance = super().from_config(config)
+
+        # When fixed param value is hard-coded as options. This is deprecated data structure.
+        loaded_opts = instance.options.__dict__
+
+        # pylint: disable=no-member
+        deprecated_fixed_params = {
+            p: loaded_opts[p] for p in instance.parameters if p in loaded_opts
+        }
+        if any(deprecated_fixed_params):
+            warnings.warn(
+                "Fixed parameter value should be defined in options.fixed_parameters as "
+                "a dictionary values, rather than a standalone analysis option. "
+                "Please re-save this experiment to be loaded after deprecation period. "
+                "This warning will be dropped in v0.4 along with "
+                "the support for the deprecated fixed parameter options.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            new_fixed_params = instance.options.fixed_parameters
+            new_fixed_params.update(deprecated_fixed_params)
+            instance.set_options(fixed_parameters=new_fixed_params)
+
+        return instance
 
 
 def is_error_not_significant(
