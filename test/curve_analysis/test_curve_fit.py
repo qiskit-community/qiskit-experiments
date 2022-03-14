@@ -64,7 +64,14 @@ def create_new_analysis(series: List[SeriesDef], fixed_params: List[str] = None)
         """A mock analysis class to test."""
 
         __series__ = series
-        __fixed_parameters__ = fixed_params or list()
+
+        @classmethod
+        def _default_options(cls):
+            opts = super()._default_options()
+            if fixed_params:
+                opts.fixed_parameters = {p: None for p in fixed_params}
+
+            return opts
 
     return TestAnalysis()
 
@@ -117,24 +124,24 @@ class TestCurveAnalysisUnit(QiskitExperimentsTestCase):
             series=[
                 SeriesDef(
                     name="curve1",
-                    fit_func=lambda x, p0, p1, p2, p3, p4: fit_function.exponential_decay(
-                        x, amp=p0, lamb=p1, baseline=p4
+                    fit_func=lambda x, par0, par1, par2, par3, par4: fit_function.exponential_decay(
+                        x, amp=par0, lamb=par1, baseline=par4
                     ),
                     filter_kwargs={"type": 1, "valid": True},
                     model_description=r"p_0 * \exp(p_1 x) + p4",
                 ),
                 SeriesDef(
                     name="curve2",
-                    fit_func=lambda x, p0, p1, p2, p3, p4: fit_function.exponential_decay(
-                        x, amp=p0, lamb=p2, baseline=p4
+                    fit_func=lambda x, par0, par1, par2, par3, par4: fit_function.exponential_decay(
+                        x, amp=par0, lamb=par2, baseline=par4
                     ),
                     filter_kwargs={"type": 2, "valid": True},
                     model_description=r"p_0 * \exp(p_2 x) + p4",
                 ),
                 SeriesDef(
                     name="curve3",
-                    fit_func=lambda x, p0, p1, p2, p3, p4: fit_function.exponential_decay(
-                        x, amp=p0, lamb=p3, baseline=p4
+                    fit_func=lambda x, par0, par1, par2, par3, par4: fit_function.exponential_decay(
+                        x, amp=par0, lamb=par3, baseline=par4
                     ),
                     filter_kwargs={"type": 3, "valid": True},
                     model_description=r"p_0 * \exp(p_3 x) + p4",
@@ -145,43 +152,27 @@ class TestCurveAnalysisUnit(QiskitExperimentsTestCase):
 
     def test_parsed_fit_params(self):
         """Test parsed fit params."""
-        self.assertSetEqual(set(self.analysis._fit_params()), {"p0", "p1", "p2", "p3", "p4"})
-
-    def test_parsed_init_guess(self):
-        """Test parsed initial guess and boundaries."""
-        default_p0 = self.analysis._default_options().p0
-        default_bounds = self.analysis._default_options().bounds
-        ref = {"p0": None, "p1": None, "p2": None, "p3": None, "p4": None}
-        self.assertDictEqual(default_p0, ref)
-        self.assertDictEqual(default_bounds, ref)
+        self.assertSetEqual(
+            set(self.analysis._fit_params()), {"par0", "par1", "par2", "par3", "par4"}
+        )
 
     def test_cannot_create_invalid_series_fit(self):
         """Test we cannot create invalid analysis instance."""
         invalid_series = [
             SeriesDef(
                 name="fit1",
-                fit_func=lambda x, p0: fit_function.exponential_decay(x, amp=p0),
+                fit_func=lambda x, par0: fit_function.exponential_decay(x, amp=par0),
             ),
             SeriesDef(
                 name="fit2",
-                fit_func=lambda x, p1: fit_function.exponential_decay(x, amp=p1),
+                fit_func=lambda x, par1: fit_function.exponential_decay(x, amp=par1),
             ),
         ]
-        with self.assertRaises(AnalysisError):
-            create_new_analysis(series=invalid_series)  # fit1 has param p0 while fit2 has p1
 
-    def test_cannot_create_invalid_fixed_parameter(self):
-        """Test we cannot create invalid analysis instance with wrong fixed value name."""
-        valid_series = [
-            SeriesDef(
-                fit_func=lambda x, p0, p1: fit_function.exponential_decay(x, amp=p0, lamb=p1),
-            ),
-        ]
+        instance = create_new_analysis(series=invalid_series)
         with self.assertRaises(AnalysisError):
-            create_new_analysis(
-                series=valid_series,
-                fixed_params=["not_existing_parameter"],  # this parameter is not defined
-            )
+            # pylint: disable=pointless-statement
+            instance.parameters  # fit1 has param par0 while fit2 has par1
 
     def test_data_extraction(self):
         """Test data extraction method."""
@@ -295,8 +286,8 @@ class TestCurveAnalysisIntegration(QiskitExperimentsTestCase):
             series=[
                 SeriesDef(
                     name="curve1",
-                    fit_func=lambda x, p0, p1, p2, p3: fit_function.exponential_decay(
-                        x, amp=p0, lamb=p1, x0=p2, baseline=p3
+                    fit_func=lambda x, par0, par1, par2, par3: fit_function.exponential_decay(
+                        x, amp=par0, lamb=par1, x0=par2, baseline=par3
                     ),
                     model_description=r"p_0 \exp(p_1 x + p_2) + p_3",
                 )
@@ -313,8 +304,8 @@ class TestCurveAnalysisIntegration(QiskitExperimentsTestCase):
             param_dict={"amp": ref_p0, "lamb": ref_p1, "x0": ref_p2, "baseline": ref_p3},
         )
         analysis.set_options(
-            p0={"p0": ref_p0, "p1": ref_p1, "p2": ref_p2, "p3": ref_p3},
-            result_parameters=[ParameterRepr("p1", "parameter_name", "unit")],
+            p0={"par0": ref_p0, "par1": ref_p1, "par2": ref_p2, "par3": ref_p3},
+            result_parameters=[ParameterRepr("par1", "parameter_name", "unit")],
         )
 
         results, _ = analysis._run_analysis(test_data)
@@ -325,7 +316,7 @@ class TestCurveAnalysisIntegration(QiskitExperimentsTestCase):
         # check result data
         np.testing.assert_array_almost_equal(result.value, ref_popt, decimal=self.err_decimal)
         self.assertEqual(result.extra["dof"], 46)
-        self.assertListEqual(result.extra["popt_keys"], ["p0", "p1", "p2", "p3"])
+        self.assertListEqual(result.extra["popt_keys"], ["par0", "par1", "par2", "par3"])
         self.assertDictEqual(result.extra["fit_models"], {"curve1": r"p_0 \exp(p_1 x + p_2) + p_3"})
 
         # special entry formatted for database
@@ -340,8 +331,8 @@ class TestCurveAnalysisIntegration(QiskitExperimentsTestCase):
             series=[
                 SeriesDef(
                     name="curve1",
-                    fit_func=lambda x, p0, p1, p2, p3: fit_function.exponential_decay(
-                        x, amp=p0, lamb=p1, x0=p2, baseline=p3
+                    fit_func=lambda x, par0, par1, par2, par3: fit_function.exponential_decay(
+                        x, amp=par0, lamb=par1, x0=par2, baseline=par3
                     ),
                 )
             ],
@@ -357,8 +348,8 @@ class TestCurveAnalysisIntegration(QiskitExperimentsTestCase):
             param_dict={"amp": ref_p0, "lamb": ref_p1, "x0": ref_p2, "baseline": ref_p3},
         )
         analysis.set_options(
-            p0={"p0": ref_p0, "p1": ref_p1, "p2": ref_p2, "p3": ref_p3},
-            bounds={"p0": [-10, 0], "p1": [-10, 0], "p2": [-10, 0], "p3": [-10, 0]},
+            p0={"par0": ref_p0, "par1": ref_p1, "par2": ref_p2, "par3": ref_p3},
+            bounds={"par0": [-10, 0], "par1": [-10, 0], "par2": [-10, 0], "par3": [-10, 0]},
             return_data_points=True,
         )
 
@@ -375,15 +366,15 @@ class TestCurveAnalysisIntegration(QiskitExperimentsTestCase):
             series=[
                 SeriesDef(
                     name="curve1",
-                    fit_func=lambda x, p0, p1, p2, p3, p4: fit_function.exponential_decay(
-                        x, amp=p0, lamb=p1, x0=p3, baseline=p4
+                    fit_func=lambda x, par0, par1, par2, par3, par4: fit_function.exponential_decay(
+                        x, amp=par0, lamb=par1, x0=par3, baseline=par4
                     ),
                     filter_kwargs={"exp": 0},
                 ),
                 SeriesDef(
                     name="curve1",
-                    fit_func=lambda x, p0, p1, p2, p3, p4: fit_function.exponential_decay(
-                        x, amp=p0, lamb=p2, x0=p3, baseline=p4
+                    fit_func=lambda x, par0, par1, par2, par3, par4: fit_function.exponential_decay(
+                        x, amp=par0, lamb=par2, x0=par3, baseline=par4
                     ),
                     filter_kwargs={"exp": 1},
                 ),
@@ -414,7 +405,7 @@ class TestCurveAnalysisIntegration(QiskitExperimentsTestCase):
             test_data0.add_data(datum)
 
         analysis.set_options(
-            p0={"p0": ref_p0, "p1": ref_p1, "p2": ref_p2, "p3": ref_p3, "p4": ref_p4}
+            p0={"par0": ref_p0, "par1": ref_p1, "par2": ref_p2, "par3": ref_p3, "par4": ref_p4}
         )
         results, _ = analysis._run_analysis(test_data0)
         result = results[0]
@@ -430,15 +421,15 @@ class TestCurveAnalysisIntegration(QiskitExperimentsTestCase):
             series=[
                 SeriesDef(
                     name="curve1",
-                    fit_func=lambda x, p0, p1, p2, p3: fit_function.cos(
-                        x, amp=p0, freq=p1, phase=p2, baseline=p3
+                    fit_func=lambda x, par0, par1, par2, par3: fit_function.cos(
+                        x, amp=par0, freq=par1, phase=par2, baseline=par3
                     ),
                     filter_kwargs={"exp": 0},
                 ),
                 SeriesDef(
                     name="curve2",
-                    fit_func=lambda x, p0, p1, p2, p3: fit_function.sin(
-                        x, amp=p0, freq=p1, phase=p2, baseline=p3
+                    fit_func=lambda x, par0, par1, par2, par3: fit_function.sin(
+                        x, amp=par0, freq=par1, phase=par2, baseline=par3
                     ),
                     filter_kwargs={"exp": 1},
                 ),
@@ -467,7 +458,7 @@ class TestCurveAnalysisIntegration(QiskitExperimentsTestCase):
         for datum in test_data1.data():
             test_data0.add_data(datum)
 
-        analysis.set_options(p0={"p0": ref_p0, "p1": ref_p1, "p2": ref_p2, "p3": ref_p3})
+        analysis.set_options(p0={"par0": ref_p0, "par1": ref_p1, "par2": ref_p2, "par3": ref_p3})
         results, _ = analysis._run_analysis(test_data0)
         result = results[0]
 
@@ -482,12 +473,12 @@ class TestCurveAnalysisIntegration(QiskitExperimentsTestCase):
             series=[
                 SeriesDef(
                     name="curve1",
-                    fit_func=lambda x, p0, p1, fixed_p2, p3: fit_function.cos(
-                        x, amp=p0, freq=p1, phase=fixed_p2, baseline=p3
+                    fit_func=lambda x, par0, par1, fixed_par2, par3: fit_function.cos(
+                        x, amp=par0, freq=par1, phase=fixed_par2, baseline=par3
                     ),
                 ),
             ],
-            fixed_params=["fixed_p2"],
+            fixed_params=["fixed_par2"],
         )
 
         ref_p0 = 0.1
@@ -502,8 +493,8 @@ class TestCurveAnalysisIntegration(QiskitExperimentsTestCase):
         )
 
         analysis.set_options(
-            p0={"p0": ref_p0, "p1": ref_p1, "p3": ref_p3},
-            fixed_p2=ref_p2,
+            p0={"par0": ref_p0, "par1": ref_p1, "par3": ref_p3},
+            fixed_parameters={"fixed_par2": ref_p2},
         )
 
         results, _ = analysis._run_analysis(test_data)
@@ -520,8 +511,8 @@ class TestCurveAnalysisIntegration(QiskitExperimentsTestCase):
             series=[
                 SeriesDef(
                     name="curve1",
-                    fit_func=lambda x, p0, p1, fixed_p2, p3: fit_function.cos(
-                        x, amp=p0, freq=p1, phase=fixed_p2, baseline=p3
+                    fit_func=lambda x, par0, par1, fixed_par2, par3: fit_function.cos(
+                        x, amp=par0, freq=par1, phase=fixed_par2, baseline=par3
                     ),
                 ),
             ],
@@ -539,7 +530,7 @@ class TestCurveAnalysisIntegration(QiskitExperimentsTestCase):
             param_dict={"amp": ref_p0, "freq": ref_p1, "phase": ref_p2, "baseline": ref_p3},
         )
         # do not define fixed_p2 here
-        analysis.set_options(p0={"p0": ref_p0, "p1": ref_p1, "p3": ref_p3})
+        analysis.set_options(p0={"par0": ref_p0, "par1": ref_p1, "par3": ref_p3})
         with self.assertRaises(AnalysisError):
             analysis._run_analysis(test_data)
 
@@ -549,12 +540,16 @@ class TestFitOptions(QiskitExperimentsTestCase):
 
     def test_empty(self):
         """Test if default value is automatically filled."""
-        opt = FitOptions(["p0", "p1", "p2"])
+        opt = FitOptions(["par0", "par1", "par2"])
 
         # bounds should be default to inf tuple. otherwise crashes the scipy fitter.
         ref_opts = {
-            "p0": {"p0": None, "p1": None, "p2": None},
-            "bounds": {"p0": (-np.inf, np.inf), "p1": (-np.inf, np.inf), "p2": (-np.inf, np.inf)},
+            "p0": {"par0": None, "par1": None, "par2": None},
+            "bounds": {
+                "par0": (-np.inf, np.inf),
+                "par1": (-np.inf, np.inf),
+                "par2": (-np.inf, np.inf),
+            },
         }
 
         self.assertDictEqual(opt.options, ref_opts)
@@ -562,14 +557,14 @@ class TestFitOptions(QiskitExperimentsTestCase):
     def test_create_option_with_dict(self):
         """Create option and fill with dictionary."""
         opt = FitOptions(
-            ["p0", "p1", "p2"],
-            default_p0={"p0": 0, "p1": 1, "p2": 2},
-            default_bounds={"p0": (0, 1), "p1": (1, 2), "p2": (2, 3)},
+            ["par0", "par1", "par2"],
+            default_p0={"par0": 0, "par1": 1, "par2": 2},
+            default_bounds={"par0": (0, 1), "par1": (1, 2), "par2": (2, 3)},
         )
 
         ref_opts = {
-            "p0": {"p0": 0.0, "p1": 1.0, "p2": 2.0},
-            "bounds": {"p0": (0.0, 1.0), "p1": (1.0, 2.0), "p2": (2.0, 3.0)},
+            "p0": {"par0": 0.0, "par1": 1.0, "par2": 2.0},
+            "bounds": {"par0": (0.0, 1.0), "par1": (1.0, 2.0), "par2": (2.0, 3.0)},
         }
 
         self.assertDictEqual(opt.options, ref_opts)
@@ -577,73 +572,89 @@ class TestFitOptions(QiskitExperimentsTestCase):
     def test_create_option_with_array(self):
         """Create option and fill with array."""
         opt = FitOptions(
-            ["p0", "p1", "p2"],
+            ["par0", "par1", "par2"],
             default_p0=[0, 1, 2],
             default_bounds=[(0, 1), (1, 2), (2, 3)],
         )
 
         ref_opts = {
-            "p0": {"p0": 0.0, "p1": 1.0, "p2": 2.0},
-            "bounds": {"p0": (0.0, 1.0), "p1": (1.0, 2.0), "p2": (2.0, 3.0)},
+            "p0": {"par0": 0.0, "par1": 1.0, "par2": 2.0},
+            "bounds": {"par0": (0.0, 1.0), "par1": (1.0, 2.0), "par2": (2.0, 3.0)},
         }
 
         self.assertDictEqual(opt.options, ref_opts)
 
     def test_override_partial_dict(self):
         """Create option and override value with partial dictionary."""
-        opt = FitOptions(["p0", "p1", "p2"])
-        opt.p0.set_if_empty(p1=3)
+        opt = FitOptions(["par0", "par1", "par2"])
+        opt.p0.set_if_empty(par1=3)
 
         ref_opts = {
-            "p0": {"p0": None, "p1": 3.0, "p2": None},
-            "bounds": {"p0": (-np.inf, np.inf), "p1": (-np.inf, np.inf), "p2": (-np.inf, np.inf)},
+            "p0": {"par0": None, "par1": 3.0, "par2": None},
+            "bounds": {
+                "par0": (-np.inf, np.inf),
+                "par1": (-np.inf, np.inf),
+                "par2": (-np.inf, np.inf),
+            },
         }
 
         self.assertDictEqual(opt.options, ref_opts)
 
     def test_cannot_override_assigned_value(self):
         """Test cannot override already assigned value."""
-        opt = FitOptions(["p0", "p1", "p2"])
-        opt.p0.set_if_empty(p1=3)
-        opt.p0.set_if_empty(p1=5)
+        opt = FitOptions(["par0", "par1", "par2"])
+        opt.p0.set_if_empty(par1=3)
+        opt.p0.set_if_empty(par1=5)
 
         ref_opts = {
-            "p0": {"p0": None, "p1": 3.0, "p2": None},
-            "bounds": {"p0": (-np.inf, np.inf), "p1": (-np.inf, np.inf), "p2": (-np.inf, np.inf)},
+            "p0": {"par0": None, "par1": 3.0, "par2": None},
+            "bounds": {
+                "par0": (-np.inf, np.inf),
+                "par1": (-np.inf, np.inf),
+                "par2": (-np.inf, np.inf),
+            },
         }
 
         self.assertDictEqual(opt.options, ref_opts)
 
     def test_can_override_assigned_value_with_dict_access(self):
         """Test override already assigned value with direct dict access."""
-        opt = FitOptions(["p0", "p1", "p2"])
-        opt.p0["p1"] = 3
-        opt.p0["p1"] = 5
+        opt = FitOptions(["par0", "par1", "par2"])
+        opt.p0["par1"] = 3
+        opt.p0["par1"] = 5
 
         ref_opts = {
-            "p0": {"p0": None, "p1": 5.0, "p2": None},
-            "bounds": {"p0": (-np.inf, np.inf), "p1": (-np.inf, np.inf), "p2": (-np.inf, np.inf)},
+            "p0": {"par0": None, "par1": 5.0, "par2": None},
+            "bounds": {
+                "par0": (-np.inf, np.inf),
+                "par1": (-np.inf, np.inf),
+                "par2": (-np.inf, np.inf),
+            },
         }
 
         self.assertDictEqual(opt.options, ref_opts)
 
     def test_cannot_override_user_option(self):
         """Test cannot override already assigned value."""
-        opt = FitOptions(["p0", "p1", "p2"], default_p0={"p1": 3})
-        opt.p0.set_if_empty(p1=5)
+        opt = FitOptions(["par0", "par1", "par2"], default_p0={"par1": 3})
+        opt.p0.set_if_empty(par1=5)
 
         ref_opts = {
-            "p0": {"p0": None, "p1": 3, "p2": None},
-            "bounds": {"p0": (-np.inf, np.inf), "p1": (-np.inf, np.inf), "p2": (-np.inf, np.inf)},
+            "p0": {"par0": None, "par1": 3, "par2": None},
+            "bounds": {
+                "par0": (-np.inf, np.inf),
+                "par1": (-np.inf, np.inf),
+                "par2": (-np.inf, np.inf),
+            },
         }
 
         self.assertDictEqual(opt.options, ref_opts)
 
     def test_set_operation(self):
         """Test if set works and duplicated entry is removed."""
-        opt1 = FitOptions(["p0", "p1"], default_p0=[0, 1])
-        opt2 = FitOptions(["p0", "p1"], default_p0=[0, 1])
-        opt3 = FitOptions(["p0", "p1"], default_p0=[0, 2])
+        opt1 = FitOptions(["par0", "par1"], default_p0=[0, 1])
+        opt2 = FitOptions(["par0", "par1"], default_p0=[0, 1])
+        opt3 = FitOptions(["par0", "par1"], default_p0=[0, 2])
 
         opts = set()
         opts.add(opt1)
@@ -656,39 +667,39 @@ class TestFitOptions(QiskitExperimentsTestCase):
         """Test if invalid p0 raises Error."""
         with self.assertRaises(AnalysisError):
             # less element
-            FitOptions(["p0", "p1", "p2"], default_p0=[0, 1])
+            FitOptions(["par0", "par1", "par2"], default_p0=[0, 1])
 
     def test_detect_invalid_bounds(self):
         """Test if invalid bounds raises Error."""
         with self.assertRaises(AnalysisError):
             # less element
-            FitOptions(["p0", "p1", "p2"], default_bounds=[(0, 1), (1, 2)])
+            FitOptions(["par0", "par1", "par2"], default_bounds=[(0, 1), (1, 2)])
 
         with self.assertRaises(AnalysisError):
             # not min-max tuple
-            FitOptions(["p0", "p1", "p2"], default_bounds=[0, 1, 2])
+            FitOptions(["par0", "par1", "par2"], default_bounds=[0, 1, 2])
 
         with self.assertRaises(AnalysisError):
             # max-min tuple
-            FitOptions(["p0", "p1", "p2"], default_bounds=[(1, 0), (2, 1), (3, 2)])
+            FitOptions(["par0", "par1", "par2"], default_bounds=[(1, 0), (2, 1), (3, 2)])
 
     def test_detect_invalid_key(self):
         """Test if invalid key raises Error."""
-        opt = FitOptions(["p0", "p1", "p2"])
+        opt = FitOptions(["par0", "par1", "par2"])
 
         with self.assertRaises(AnalysisError):
-            opt.p0.set_if_empty(p3=3)
+            opt.p0.set_if_empty(par3=3)
 
     def test_set_extra_options(self):
         """Add extra fitter options."""
         opt = FitOptions(
-            ["p0", "p1", "p2"], default_p0=[0, 1, 2], default_bounds=[(0, 1), (1, 2), (2, 3)]
+            ["par0", "par1", "par2"], default_p0=[0, 1, 2], default_bounds=[(0, 1), (1, 2), (2, 3)]
         )
         opt.add_extra_options(ex1=0, ex2=1)
 
         ref_opts = {
-            "p0": {"p0": 0.0, "p1": 1.0, "p2": 2.0},
-            "bounds": {"p0": (0.0, 1.0), "p1": (1.0, 2.0), "p2": (2.0, 3.0)},
+            "p0": {"par0": 0.0, "par1": 1.0, "par2": 2.0},
+            "bounds": {"par0": (0.0, 1.0), "par1": (1.0, 2.0), "par2": (2.0, 3.0)},
             "ex1": 0,
             "ex2": 1,
         }
@@ -697,40 +708,89 @@ class TestFitOptions(QiskitExperimentsTestCase):
 
     def test_complicated(self):
         """Test for realistic operations for algorithmic guess with user options."""
-        user_p0 = {"p0": 1, "p1": None}
-        user_bounds = {"p0": None, "p1": (-100, 100)}
+        user_p0 = {"par0": 1, "par1": None}
+        user_bounds = {"par0": None, "par1": (-100, 100)}
 
         opt = FitOptions(
-            ["p0", "p1", "p2"],
+            ["par0", "par1", "par2"],
             default_p0=user_p0,
             default_bounds=user_bounds,
         )
 
         # similar computation in algorithmic guess
 
-        opt.p0.set_if_empty(p0=5)  # this is ignored because user already provided initial guess
-        opt.p0.set_if_empty(p1=opt.p0["p0"] * 2 + 3)  # user provided guess propagates
+        opt.p0.set_if_empty(par0=5)  # this is ignored because user already provided initial guess
+        opt.p0.set_if_empty(par1=opt.p0["par0"] * 2 + 3)  # user provided guess propagates
 
-        opt.bounds.set_if_empty(p0=(0, 10))  # this will be set
+        opt.bounds.set_if_empty(par0=(0, 10))  # this will be set
         opt.add_extra_options(fitter="algo1")
 
         opt1 = opt.copy()  # copy options while keeping previous values
-        opt1.p0.set_if_empty(p2=opt1.p0["p0"] + opt1.p0["p1"])
+        opt1.p0.set_if_empty(par2=opt1.p0["par0"] + opt1.p0["par1"])
 
         opt2 = opt.copy()
-        opt2.p0.set_if_empty(p2=opt2.p0["p0"] * 2)  # add another p2 value
+        opt2.p0.set_if_empty(par2=opt2.p0["par0"] * 2)  # add another p2 value
 
         ref_opt1 = {
-            "p0": {"p0": 1.0, "p1": 5.0, "p2": 6.0},
-            "bounds": {"p0": (0.0, 10.0), "p1": (-100.0, 100.0), "p2": (-np.inf, np.inf)},
+            "p0": {"par0": 1.0, "par1": 5.0, "par2": 6.0},
+            "bounds": {"par0": (0.0, 10.0), "par1": (-100.0, 100.0), "par2": (-np.inf, np.inf)},
             "fitter": "algo1",
         }
 
         ref_opt2 = {
-            "p0": {"p0": 1.0, "p1": 5.0, "p2": 2.0},
-            "bounds": {"p0": (0.0, 10.0), "p1": (-100.0, 100.0), "p2": (-np.inf, np.inf)},
+            "p0": {"par0": 1.0, "par1": 5.0, "par2": 2.0},
+            "bounds": {"par0": (0.0, 10.0), "par1": (-100.0, 100.0), "par2": (-np.inf, np.inf)},
             "fitter": "algo1",
         }
 
         self.assertDictEqual(opt1.options, ref_opt1)
         self.assertDictEqual(opt2.options, ref_opt2)
+
+
+class TestBackwardCompatibility(QiskitExperimentsTestCase):
+    """Test case for backward compatibility."""
+
+    def test_old_fixed_param_attributes(self):
+        """Test if old class structure for fixed param is still supported."""
+
+        class _DeprecatedAnalysis(CurveAnalysis):
+            __series__ = [
+                SeriesDef(
+                    fit_func=lambda x, par0, par1, par2, par3: fit_function.exponential_decay(
+                        x, amp=par0, lamb=par1, x0=par2, baseline=par3
+                    ),
+                )
+            ]
+
+            __fixed_parameters__ = ["par1"]
+
+            @classmethod
+            def _default_options(cls):
+                opts = super()._default_options()
+                opts.par1 = 2
+
+                return opts
+
+        with self.assertWarns(DeprecationWarning):
+            instance = _DeprecatedAnalysis()
+
+        self.assertDictEqual(instance.options.fixed_parameters, {"par1": 2})
+
+    def test_loading_data_with_deprecated_fixed_param(self):
+        """Test loading old data with fixed parameters as standalone options."""
+
+        class _DeprecatedAnalysis(CurveAnalysis):
+            __series__ = [
+                SeriesDef(
+                    fit_func=lambda x, par0, par1, par2, par3: fit_function.exponential_decay(
+                        x, amp=par0, lamb=par1, x0=par2, baseline=par3
+                    ),
+                )
+            ]
+
+        with self.assertWarns(DeprecationWarning):
+            # old option data structure, i.e. fixed param as a standalone option
+            # the analysis instance fixed parameters might be set via the experiment instance
+            instance = _DeprecatedAnalysis.from_config({"options": {"par1": 2}})
+
+        self.assertDictEqual(instance.options.fixed_parameters, {"par1": 2})
