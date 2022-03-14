@@ -69,7 +69,7 @@ class DragCalAnalysis(curve.CurveAnalysis):
             bounds: [-1, 1] scaled to the maximum y-value.
 
         defpar {\rm freq}:
-            desc: Frequency of the :math:`i` th oscillation divided by the number of repetitions.
+            desc: Frequency of oscillation as a function of :math:`\beta` for a single pair of DRAG plus and minus pulses.
             init_guess: For the curve with the most Drag pulse repetitions, the peak frequency of the power spectral density is found and then divided by the number of repetitions.
             bounds: [0, inf].
 
