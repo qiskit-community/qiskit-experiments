@@ -21,9 +21,7 @@ from qiskit.circuit.library import XGate, SXGate
 from qiskit.providers.backend import Backend
 from qiskit_experiments.framework import BaseExperiment, Options
 from qiskit_experiments.framework.restless_mixin import RestlessMixin
-from qiskit_experiments.library.characterization.analysis import (
-    FineDragAnalysis,
-)
+from qiskit_experiments.curve_analysis.standard_analysis import ErrorAmplificationAnalysis
 
 
 class FineDrag(BaseExperiment, RestlessMixin):
@@ -127,7 +125,7 @@ class FineDrag(BaseExperiment, RestlessMixin):
         This is the correction formula in the FineDRAG Updater.
 
     # section: analysis_ref
-        :py:class:`FineDragAnalysis`
+        :py:class:`~qiskit_experiments.curve_analysis.ErrorAmplificationAnalysis`
 
     # section: see_also
         qiskit_experiments.library.calibration.drag.DragCal
@@ -162,7 +160,17 @@ class FineDrag(BaseExperiment, RestlessMixin):
             gate: The gate that will be repeated.
             backend: Optional, the backend to run the experiment on.
         """
-        super().__init__([qubit], analysis=FineDragAnalysis(), backend=backend)
+        analysis = ErrorAmplificationAnalysis()
+        analysis.set_options(
+            normalization=True,
+            fixed_parameters={
+                "angle_per_gate": 0.0,
+                "phase_offset": np.pi / 2,
+                "amp": 1.0,
+            },
+        )
+
+        super().__init__([qubit], analysis=analysis, backend=backend)
         self.set_experiment_options(gate=gate)
 
     @staticmethod
