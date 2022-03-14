@@ -238,23 +238,18 @@ class CurveAnalysis(BaseAnalysis, ABC):
     __series__ = list()
 
     # Automatically generated fitting functions of child class
-    _fit_model = None
+    _cls_fit_model = None
 
     def __init_subclass__(cls, **kwargs):
         """Parse series definition of subclass and set fit function and signature."""
 
         super().__init_subclass__(**kwargs)
 
-        # Validate if all fixed parameter names are defined in the fit model
-        if cls.__fixed_parameters__:
-            # This generates order-insensitive collection of all fitting parameters
-            # defined under the analysis. Since SeriesDef.signature returns a list,
-            # this generates a flat list from iterator and remove duplicated values.
-            all_params = set(itertools.chain.from_iterable(s.signature for s in cls.__series__))
-            if any(p not in all_params for p in cls.__fixed_parameters__):
-                raise AnalysisError("Not existing parameter is fixed.")
-
-        # Create fit model
+        # Create fit model:
+        # The fit model is created once when the sub-class, i.e. type, is initialized.
+        # This removes overhead of instantiating the same fit model object multiple times.
+        # This impact is significant especially when user create parallel experiment instance,
+        # where the curve analysis subclass is instantiated multiple times.
         model_source = collections.defaultdict(list)
         for series in cls.__series__:
             model_source["fit_functions"].append(series.fit_func)
@@ -268,7 +263,7 @@ class CurveAnalysis(BaseAnalysis, ABC):
             # Use composite function for multi objective optimization.
             model_type = CompositeFitFunction
 
-        cls._fit_model = model_type(**model_source, fixed_parameters=cls.__fixed_parameters__)
+        cls._cls_fit_model = model_type(**model_source)
 
     def __init__(self):
         """Initialize data fields that are privately accessed by methods."""
@@ -287,6 +282,14 @@ class CurveAnalysis(BaseAnalysis, ABC):
             self._options.fixed_parameters = {
                 p: self.options.get(p, None) for p in self.__fixed_parameters__
             }
+
+        # Create fit model for this instance. Load parsed series data from the class.
+        # The model is copied because it can be modified, i.e. parameter binding.
+        self._fit_model = self._cls_fit_model.copy()
+
+        # Assign fixed parameters
+        if self.options.fixed_parameters:
+            self._fit_model.bind_parameters(**self.options.fixed_parameters)
 
         #: Dict[str, Any]: Experiment metadata
         self.__experiment_metadata = None
@@ -411,10 +414,7 @@ class CurveAnalysis(BaseAnalysis, ABC):
     @property
     def fit_model(self) -> FitModel:
         """Return a fit model for this analysis instance."""
-        # This should return a copy of instance.
-        # Note that fit model is class attribute though parameters can be bound.
-        # This may cause conflict issue between instance without copying.
-        return self._fit_model.copy()
+        return self._fit_model
 
     @property
     def parameters(self) -> List[str]:
@@ -514,6 +514,10 @@ class CurveAnalysis(BaseAnalysis, ABC):
             raise KeyError(
                 "Option curve_fitter has been removed. Please directly override curve_fit method."
             )
+
+        if "fixed_parameters" in fields:
+            # User can update fixed parameter via analysis options.
+            self._fit_model.bind_parameters(**fields["fixed_parameters"])
 
         super().set_options(**fields)
 
@@ -949,24 +953,16 @@ class CurveAnalysis(BaseAnalysis, ABC):
         if isinstance(fit_options, FitOptions):
             fit_options = [fit_options]
 
-        # Prepare fit model
-        prepared_fit_func = self.fit_model
-
-        if self.__fixed_parameters__:
-            fixed_params = {p: self.options.get(p) for p in self.__fixed_parameters__}
-            prepared_fit_func.bind_parameters(**fixed_params)
-        else:
-            fixed_params = None
-
-        if isinstance(prepared_fit_func, CompositeFitFunction):
-            prepared_fit_func.data_allocation = formatted_data.data_index
+        # Assign data allocation if the model consists of multiple curves
+        if isinstance(self._fit_model, CompositeFitFunction):
+            self._fit_model.data_allocation = formatted_data.data_index
 
         # Run fit for each configuration
         fit_results = []
         for fit_opt in set(fit_options):
             try:
                 fit_result = self.curve_fit(
-                    func=prepared_fit_func,
+                    func=self._fit_model,
                     xdata=formatted_data.x,
                     ydata=formatted_data.y,
                     sigma=formatted_data.y_err,
@@ -1083,7 +1079,7 @@ class CurveAnalysis(BaseAnalysis, ABC):
                     "ylim": self.options.ylim,
                 },
                 fit_data=fit_result,
-                fix_parameters=fixed_params,
+                fix_parameters=self._fit_model._fixed_params,
                 result_entries=analysis_results,
                 style=self.options.style,
                 axis=self.options.axis,

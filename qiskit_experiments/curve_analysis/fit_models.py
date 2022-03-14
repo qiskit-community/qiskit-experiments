@@ -50,7 +50,8 @@ class FitModel(ABC):
 
         .. math::
 
-            F(x, \Theta) = F_1(x_0, \Theta_1) \oplus F_2(x_1, \Theta_2).
+            F(x, \Theta) = F_1(x_0, \Theta_1) \oplus F_2(x_1, \Theta_2) \\
+                = F(x_0 \oplus x_1, p_0, p_2, p_3).
 
         This function might be called from the scipy curve fit algorithm
         which only takes variadic arguments (i.e. agnostic to parameter names).
@@ -78,7 +79,6 @@ class FitModel(ABC):
         fit_functions: List[Callable],
         signatures: List[List[str]],
         fit_models: Optional[Union[List[str], str]] = None,
-        fixed_parameters: Optional[List[str]] = None,
     ):
         """Create new fit model.
 
@@ -93,11 +93,6 @@ class FitModel(ABC):
                 It may be a single string description for the entire fit model, or
                 list of descriptions for each fit function. If not provided,
                 "not defined" is stored in the experiment result metadata.
-            fixed_parameters: List of parameter names that are not considered to be fit parameter.
-                The value of parameter is provided by analysis default setting or users,
-                which is fixed during the curve fitting. Arbitrary number of parameters
-                in the fit model can be fixed, however, every parameter should be
-                defined in the model.
 
         Raises:
             AnalysisError: When ``fit_functions`` and ``signatures`` have a different length.
@@ -113,21 +108,20 @@ class FitModel(ABC):
             fit_models = [fit_models]
         self._fit_models = fit_models
 
-        # No validation is performed since this class is always instantiated from the
-        # curve analysis class itself. The validation is performed there.
-        if not fixed_parameters:
-            fixed_parameters = []
-        self._fixed_params = {p: None for p in fixed_parameters}
-
         # Create signature of this fit model, i.e. this will be signature of scipy fit function.
         # The curves comprising this model may have different signatures.
         # The signature of this fit model is union of parameters in all curves.
+        # This is order preserving since this affects the index of ``popt`` that scipy fitter
+        # returns, which appears as @Parameters entry of curve analysis as-is.
         union_params = []
         for signature in signatures:
             for parameter in signature:
-                if parameter not in union_params and parameter not in fixed_parameters:
+                if parameter not in union_params:
                     union_params.append(parameter)
         self._union_params = union_params
+
+        # This is set by users.
+        self._fixed_params = {}
 
     @abstractmethod
     def __call__(self, x: np.ndarray, *params) -> np.ndarray:
@@ -143,14 +137,23 @@ class FitModel(ABC):
         pass
 
     def bind_parameters(self, **kwparams):
-        """Assign values to the fixed parameters."""
-        bind_dict = {k: kwparams[k] for k in self._fixed_params.keys() if k in kwparams}
-        self._fixed_params.update(bind_dict)
+        """Assign values to the fixed parameters.
+
+        Args:
+            kwparams: Dictionary of parameters that are excluded from the fitting.
+                Every parameter, i.e. dictionary key, should be defined in the fit model.
+        """
+        if any(k not in self._union_params for k in kwparams.keys()):
+            raise AnalysisError(
+                f"Fixed parameters {', '.join(kwparams.keys())} are not all defined in the "
+                f"fit model {', '.join(self._union_params)}."
+            )
+        self._fixed_params = kwparams
 
     @property
     def signature(self) -> List[str]:
         """Return signature of this fit model."""
-        return self._union_params
+        return [p for p in self._union_params if p not in self._fixed_params]
 
     @property
     def fit_model(self) -> str:
@@ -161,12 +164,16 @@ class FitModel(ABC):
 
     def copy(self):
         """Return copy of this function."""
-        return self.__class__(
+        instance = self.__class__(
             fit_functions=self._fit_functions,
             signatures=self._signatures,
             fit_models=self._fit_models,
-            fixed_parameters=list(self._fixed_params.keys()),
         )
+
+        if self._fixed_params:
+            instance.bind_parameters(**self._fixed_params.copy())
+
+        return instance
 
     def __repr__(self):
         sigrepr = ", ".join(self.signature)
@@ -240,9 +247,8 @@ class CompositeFitFunction(FitModel):
         fit_functions: List[Callable],
         signatures: List[List[str]],
         fit_models: Optional[List[str]] = None,
-        fixed_parameters: Optional[List[str]] = None,
     ):
-        super().__init__(fit_functions, signatures, fit_models, fixed_parameters)
+        super().__init__(fit_functions, signatures, fit_models)
 
         # This attribute is set by users or another function that calls this model.
         # The existence of this value is not checked within the __call__ for performance,
