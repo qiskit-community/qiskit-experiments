@@ -142,8 +142,11 @@ class FitModel(ABC):
         Args:
             kwparams: Dictionary of parameters that are excluded from the fitting.
                 Every parameter, i.e. dictionary key, should be defined in the fit model.
+
+        Raises:
+            AnalysisError: When parameter name is not defined in the fit model.
         """
-        if any(k not in self._union_params for k in kwparams.keys()):
+        if any(k not in self._union_params for k in kwparams):
             raise AnalysisError(
                 f"Fixed parameters {', '.join(kwparams.keys())} are not all defined in the "
                 f"fit model {', '.join(self._union_params)}."
@@ -203,7 +206,7 @@ class SingleFitFunction(FitModel):
     """
 
     def __call__(self, x: np.ndarray, *params) -> np.ndarray:
-        kwparams = dict(zip(self._union_params, params))
+        kwparams = dict(zip(self.signature, params))
         kwparams.update(self._fixed_params)
 
         return self._fit_functions[0](x, **{p: kwparams[p] for p in self._signatures[0]})
@@ -256,7 +259,7 @@ class CompositeFitFunction(FitModel):
         self.data_allocation = None
 
     def __call__(self, x: np.ndarray, *params) -> np.ndarray:
-        kwparams = dict(zip(self._union_params, params))
+        kwparams = dict(zip(self.signature, params))
         kwparams.update(self._fixed_params)
 
         y = np.zeros(x.size, dtype=float)

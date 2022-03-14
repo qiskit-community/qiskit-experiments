@@ -17,7 +17,6 @@ Analysis class for curve fitting.
 
 import copy
 import collections
-import itertools
 import warnings
 from abc import ABC
 from typing import Any, Dict, List, Tuple, Callable, Union, Optional
@@ -287,7 +286,7 @@ class CurveAnalysis(BaseAnalysis, ABC):
         # The model is copied because it can be modified, i.e. parameter binding.
         self._fit_model = self._cls_fit_model.copy()
 
-        # Assign fixed parameters
+        # Assign class default fixed parameters
         if self.options.fixed_parameters:
             self._fit_model.bind_parameters(**self.options.fixed_parameters)
 
@@ -1118,6 +1117,20 @@ class CurveAnalysis(BaseAnalysis, ABC):
             instance.set_options(fixed_parameters=new_fixed_params)
 
         return instance
+
+    def __getstate__(self):
+        state = self.__dict__.copy()
+        # Remove fit model. Many subclasses define fit functions as lambda function.
+        # In python lambda function is not picklable so instance's fit model is removed here.
+        # This can be easily reconstructed from the class attribute's fit model.
+        del state["_fit_model"]
+        return state
+
+    def __setstate__(self, state):
+        self.__dict__.update(state)
+        # Reconstruct fit model from the class attribute.
+        self._fit_model = self._cls_fit_model.copy()
+        self._fit_model.bind_parameters(**self.options.fixed_parameters)
 
 
 def is_error_not_significant(

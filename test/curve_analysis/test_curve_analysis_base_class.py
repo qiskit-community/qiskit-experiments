@@ -37,76 +37,74 @@ class TestCompositeFunction(QiskitExperimentsTestCase):
     def test_single_function(self):
         """A simple testcase for having only single fit function."""
 
-        def child_function(x, p0, p1):
-            return p0 * x + p1
+        def child_function(x, par0, par1):
+            return par0 * x + par1
 
         function = SingleFitFunction(
             fit_functions=[child_function],
-            signatures=[["p0", "p1"]],
-            fit_models=["p0 x + p1"],
+            signatures=[["par0", "par1"]],
+            fit_models=["par0 x + par1"],
         )
 
-        self.assertListEqual(function.signature, ["p0", "p1"])
-        self.assertEqual(function.fit_model, "p0 x + p1")
-        self.assertEqual(repr(function), "SingleFitFunction(x, p0, p1)")
+        self.assertListEqual(function.signature, ["par0", "par1"])
+        self.assertEqual(function.fit_model, "par0 x + par1")
+        self.assertEqual(repr(function), "SingleFitFunction(x, par0, par1)")
 
         x = np.linspace(0, 1, 10)
-        p0 = 1
-        p1 = 2
-        ref_y = child_function(x, p0, p1)
-        test_y = function(x, p0, p1)
+        par0 = 1
+        par1 = 2
+        ref_y = child_function(x, par0, par1)
+        test_y = function(x, par0, par1)
 
         np.testing.assert_array_equal(ref_y, test_y)
 
     def test_single_function_parameter_fixed(self):
         """Test when some parameters are fixed."""
 
-        def child_function(x, p0, p1):
-            return p0 * x + p1
+        def child_function(x, par0, par1):
+            return par0 * x + par1
+
+        x = np.linspace(0, 1, 10)
+        par0 = 1
+        par1 = 2
 
         function = SingleFitFunction(
             fit_functions=[child_function],
-            signatures=[["p0", "p1"]],
-            fixed_parameters=["p0"],
+            signatures=[["par0", "par1"]],
         )
+        function.bind_parameters(par0=par0)
 
-        self.assertListEqual(function.signature, ["p1"])
-        self.assertEqual(repr(function), "SingleFitFunction(x, p1; @ Fixed p0)")
+        self.assertListEqual(function.signature, ["par1"])
+        self.assertEqual(repr(function), "SingleFitFunction(x, par1; @ Fixed par0)")
 
-        x = np.linspace(0, 1, 10)
-        p0 = 1
-        p1 = 2
-        ref_y = child_function(x, p0, p1)
-
-        # Need to call parameter binding here
-        function.bind_parameters(p0=p0)
-        test_y = function(x, p1)
+        ref_y = child_function(x, par0, par1)
+        test_y = function(x, par1)
 
         np.testing.assert_array_equal(ref_y, test_y)
 
     def test_multiple_functions(self):
         """Test with multiple functions."""
 
-        def child_function1(x, p0, p1):
-            return p0 * x + p1
+        def child_function1(x, par0, par1):
+            return par0 * x + par1
 
-        def child_function2(x, p0, p2):
-            return p0 * x - p2
+        def child_function2(x, par0, par2):
+            return par0 * x - par2
 
         function = CompositeFitFunction(
             fit_functions=[child_function1, child_function2],
-            signatures=[["p0", "p1"], ["p0", "p2"]],
+            signatures=[["par0", "par1"], ["par0", "par2"]],
         )
 
-        self.assertListEqual(function.signature, ["p0", "p1", "p2"])
+        self.assertListEqual(function.signature, ["par0", "par1", "par2"])
 
         x1 = np.linspace(0, 1, 10)
         x2 = np.linspace(2, 3, 10)
-        p0 = 1
-        p1 = 2
-        p2 = 3
-        ref_y1 = child_function1(x1, p0, p1)
-        ref_y2 = child_function2(x2, p0, p2)
+        par0 = 1
+        par1 = 2
+        par2 = 3
+        ref_y1 = child_function1(x1, par0, par1)
+        ref_y2 = child_function2(x2, par0, par2)
 
         data_index = np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
         ref_y = np.zeros(ref_y1.size + ref_y2.size)
@@ -115,44 +113,44 @@ class TestCompositeFunction(QiskitExperimentsTestCase):
 
         # Need to set data index
         function.data_allocation = data_index
-        test_y = function(np.r_[x1, x2], p0, p1, p2)
+        test_y = function(np.r_[x1, x2], par0, par1, par2)
 
         np.testing.assert_array_equal(ref_y, test_y)
 
     def test_multiple_functions_with_fixed_parameter(self):
         """Test with multiple functions while some parameters are fixed."""
 
-        def child_function1(x, p0, p1):
-            return p0 * x + p1
+        def child_function1(x, par0, par1):
+            return par0 * x + par1
 
-        def child_function2(x, p0, p2):
-            return p0 * x - p2
-
-        function = CompositeFitFunction(
-            fit_functions=[child_function1, child_function2],
-            signatures=[["p0", "p1"], ["p0", "p2"]],
-            fixed_parameters=["p1"],
-        )
-
-        self.assertListEqual(function.signature, ["p0", "p2"])
+        def child_function2(x, par0, par2):
+            return par0 * x - par2
 
         x1 = np.linspace(0, 1, 10)
         x2 = np.linspace(2, 3, 10)
-        p0 = 1
-        p1 = 2
-        p2 = 3
-        ref_y1 = child_function1(x1, p0, p1)
-        ref_y2 = child_function2(x2, p0, p2)
+        par0 = 1
+        par1 = 2
+        par2 = 3
+
+        function = CompositeFitFunction(
+            fit_functions=[child_function1, child_function2],
+            signatures=[["par0", "par1"], ["par0", "par2"]],
+        )
+        function.bind_parameters(par1=par1)
+
+        self.assertListEqual(function.signature, ["par0", "par2"])
+        self.assertEqual(repr(function), "CompositeFitFunction(x, par0, par2; @ Fixed par1)")
+
+        ref_y1 = child_function1(x1, par0, par1)
+        ref_y2 = child_function2(x2, par0, par2)
 
         data_index = np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
         ref_y = np.zeros(ref_y1.size + ref_y2.size)
         ref_y[data_index == 0] = ref_y1
         ref_y[data_index == 1] = ref_y2
 
-        # Need to set data index and fixed parameter here
         function.data_allocation = data_index
-        function.bind_parameters(p1=p1)
-        test_y = function(np.r_[x1, x2], p0, p2)
+        test_y = function(np.r_[x1, x2], par0, par2)
 
         np.testing.assert_array_equal(ref_y, test_y)
 
@@ -169,8 +167,8 @@ class TestCurveFit(QiskitExperimentsTestCase):
     def test_single_function(self):
         """Test case for single curve entry."""
 
-        def child_function(x, p0, p1):
-            return p0 * x + p1
+        def child_function(x, par0, par1):
+            return par0 * x + par1
 
         class MyCurveFit(CurveAnalysis):
             __series__ = [SeriesDef(fit_func=child_function)]
@@ -178,9 +176,9 @@ class TestCurveFit(QiskitExperimentsTestCase):
         instance = MyCurveFit()
 
         x = np.linspace(0, 1, 10)
-        p0 = 1
-        p1 = 2
-        fake_outcome = child_function(x, p0, p1)
+        par0 = 1
+        par1 = 2
+        fake_outcome = child_function(x, par0, par1)
 
         fit_func = instance.fit_model
         result = instance.curve_fit(
@@ -188,41 +186,116 @@ class TestCurveFit(QiskitExperimentsTestCase):
             xdata=x,
             ydata=fake_outcome,
             sigma=np.zeros_like(fake_outcome),
-            p0={"p0": 0.9, "p1": 2.1},
-            bounds={"p0": (0, 2), "p1": (1, 3)},
+            p0={"par0": 0.9, "par1": 2.1},
+            bounds={"par0": (0, 2), "par1": (1, 3)},
         )
         self.assertIsInstance(result, FitData)
 
         self.assertEqual(result.fit_model, "not defined")
-        self.assertEqual(result.popt_keys, ["p0", "p1"])
+        self.assertEqual(result.popt_keys, ["par0", "par1"])
         self.assertEqual(result.dof, 8)
-        np.testing.assert_array_almost_equal(unp.nominal_values(result.popt), [p0, p1])
+        np.testing.assert_array_almost_equal(unp.nominal_values(result.popt), [par0, par1])
 
         # test if values are operable
-        p0_val = result.fitval("p0")
-        p1_val = result.fitval("p1")
+        par0_val = result.fitval("par0")
+        par1_val = result.fitval("par1")
 
-        new_quantity = p0_val + p1_val
-        self.assertAlmostEqual(new_quantity.s, np.sqrt(p0_val.s**2 + p1_val.s**2))
+        new_quantity = par0_val + par1_val
+        self.assertAlmostEqual(new_quantity.s, np.sqrt(par0_val.s**2 + par1_val.s**2))
+
+    def test_single_function_with_fixed_parameter(self):
+        """Test case for single curve entry and parameters are fixed."""
+
+        def child_function(x, par0, par1):
+            return par0 * x + par1
+
+        class MyCurveFit(CurveAnalysis):
+            __series__ = [SeriesDef(fit_func=child_function)]
+
+            @classmethod
+            def _default_options(cls):
+                opts = super()._default_options()
+                opts.fixed_parameters = {"par1": 2}
+
+                return opts
+
+        instance = MyCurveFit()
+
+        # parameter par1 is excluded
+        self.assertListEqual(instance.parameters, ["par0"])
+
+        x = np.linspace(0, 1, 10)
+        par0 = 1
+        par1 = 2
+        fake_outcome = child_function(x, par0, par1)
+
+        fit_func = instance.fit_model
+        result = instance.curve_fit(
+            func=fit_func,
+            xdata=x,
+            ydata=fake_outcome,
+            sigma=np.zeros_like(fake_outcome),
+            p0={"par0": 0.9},
+            bounds={"par0": (0, 2)},
+        )
+
+        self.assertEqual(result.popt_keys, ["par0"])
+        self.assertAlmostEqual(result.popt[0], par0)
+
+    def test_single_function_user_fix_parameters(self):
+        """Test case for single curve entry and user fixes parameter afterwards."""
+
+        def child_function(x, par0, par1):
+            return par0 * x + par1
+
+        class MyCurveFit(CurveAnalysis):
+            __series__ = [SeriesDef(fit_func=child_function)]
+
+        instance = MyCurveFit()
+
+        # both par0 and par1 is excluded
+        self.assertListEqual(instance.parameters, ["par0", "par1"])
+
+        # par1 is excluded
+        instance.set_options(fixed_parameters={"par1": 2})
+        self.assertListEqual(instance.parameters, ["par0"])
+
+        x = np.linspace(0, 1, 10)
+        par0 = 1
+        par1 = 2
+        fake_outcome = child_function(x, par0, par1)
+
+        fit_func = instance.fit_model
+        result = instance.curve_fit(
+            func=fit_func,
+            xdata=x,
+            ydata=fake_outcome,
+            sigma=np.zeros_like(fake_outcome),
+            p0={"par0": 0.9},
+            bounds={"par0": (0, 2)},
+        )
+
+        self.assertEqual(result.popt_keys, ["par0"])
+        self.assertAlmostEqual(result.popt[0], par0)
 
     def test_multiple_functions(self):
         """Test case for multiple curve entries."""
 
-        def child_function1(x, p0, p1):
-            return p0 * x + p1
+        def child_function1(x, par0, par1):
+            return par0 * x + par1
 
-        def child_function2(x, p0, p2):
-            return p0 * x - p2
+        def child_function2(x, par0, par2):
+            return par0 * x - par2
 
         class MyCurveFit(CurveAnalysis):
             __series__ = [
                 SeriesDef(
                     fit_func=child_function1,
-                    model_description="p0 x + p1",
+                    model_description="par0 x + par1",
                 ),
                 SeriesDef(
                     fit_func=child_function2,
-                    model_description="p0 x - p2",
+                    model_description="par0 x - par2",
                 ),
             ]
 
@@ -230,11 +303,11 @@ class TestCurveFit(QiskitExperimentsTestCase):
 
         x1 = np.linspace(0, 1, 10)
         x2 = np.linspace(2, 3, 10)
-        p0 = 1
-        p1 = 2
-        p2 = 3
-        ref_y1 = child_function1(x1, p0, p1)
-        ref_y2 = child_function2(x2, p0, p2)
+        par0 = 1
+        par1 = 2
+        par2 = 3
+        ref_y1 = child_function1(x1, par0, par1)
+        ref_y2 = child_function2(x2, par0, par2)
 
         data_index = np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
         fake_outcome = np.zeros(ref_y1.size + ref_y2.size)
@@ -249,19 +322,19 @@ class TestCurveFit(QiskitExperimentsTestCase):
             xdata=np.r_[x1, x2],
             ydata=fake_outcome,
             sigma=np.zeros_like(fake_outcome),
-            p0={"p0": 0.9, "p1": 2.1, "p2": 2.9},
-            bounds={"p0": (0, 2), "p1": (1, 3), "p2": (2, 4)},
+            p0={"par0": 0.9, "par1": 2.1, "par2": 2.9},
+            bounds={"par0": (0, 2), "par1": (1, 3), "par2": (2, 4)},
         )
 
-        self.assertEqual(result.fit_model, "p0 x + p1,p0 x - p2")
-        self.assertEqual(result.popt_keys, ["p0", "p1", "p2"])
-        np.testing.assert_array_almost_equal(unp.nominal_values(result.popt), [p0, p1, p2])
+        self.assertEqual(result.fit_model, "par0 x + par1,par0 x - par2")
+        self.assertEqual(result.popt_keys, ["par0", "par1", "par2"])
+        np.testing.assert_array_almost_equal(unp.nominal_values(result.popt), [par0, par1, par2])
 
     def test_assert_dof_error(self):
         """Test raise an DOF error when input data size is too small."""
 
-        def child_function(x, p0, p1):
-            return p0 * x + p1
+        def child_function(x, par0, par1):
+            return par0 * x + par1
 
         class MyCurveFit(CurveAnalysis):
             __series__ = [SeriesDef(fit_func=child_function)]
@@ -269,9 +342,9 @@ class TestCurveFit(QiskitExperimentsTestCase):
         instance = MyCurveFit()
 
         x = np.array([2])  # DOF = 0
-        p0 = 1
-        p1 = 2
-        fake_outcome = child_function(x, p0, p1)
+        par0 = 1
+        par1 = 2
+        fake_outcome = child_function(x, par0, par1)
 
         fit_func = instance.fit_model
         with self.assertRaises(AnalysisError):
@@ -280,15 +353,15 @@ class TestCurveFit(QiskitExperimentsTestCase):
                 xdata=x,
                 ydata=fake_outcome,
                 sigma=np.zeros_like(fake_outcome),
-                p0={"p0": 0.9, "p1": 2.1},
-                bounds={"p0": (0, 2), "p1": (1, 3)},
+                p0={"par0": 0.9, "par1": 2.1},
+                bounds={"par0": (0, 2), "par1": (1, 3)},
             )
 
     def test_assert_invalid_fit(self):
         """Test scipy solver error is converted into AnalysisError."""
 
-        def child_function(x, p0, p1):
-            return p0 * x + p1
+        def child_function(x, par0, par1):
+            return par0 * x + par1
 
         class MyCurveFit(CurveAnalysis):
             __series__ = [SeriesDef(fit_func=child_function)]
@@ -296,9 +369,9 @@ class TestCurveFit(QiskitExperimentsTestCase):
         instance = MyCurveFit()
 
         x = np.linspace(0, 1, 10)
-        p0 = 1
-        p1 = 2
-        fake_outcome = child_function(x, p0, p1)
+        par0 = 1
+        par1 = 2
+        fake_outcome = child_function(x, par0, par1)
 
         fit_func = instance.fit_model
         with self.assertRaises(AnalysisError):
@@ -307,15 +380,15 @@ class TestCurveFit(QiskitExperimentsTestCase):
                 xdata=x,
                 ydata=fake_outcome,
                 sigma=np.zeros_like(fake_outcome),
-                p0={"p0": 0, "p1": 2.1},
-                bounds={"p0": (-1, 0), "p1": (-1, 0)},  # impossible to fit within this range
+                p0={"par0": 0, "par1": 2.1},
+                bounds={"par0": (-1, 0), "par1": (-1, 0)},  # impossible to fit within this range
             )
 
     def test_assert_fit_with_bare_calback(self):
         """Test raise error when normal callback is set."""
 
-        def child_function(x, p0, p1):
-            return p0 * x + p1
+        def child_function(x, par0, par1):
+            return par0 * x + par1
 
         class MyCurveFit(CurveAnalysis):
             __series__ = [SeriesDef(fit_func=child_function)]
@@ -323,9 +396,9 @@ class TestCurveFit(QiskitExperimentsTestCase):
         instance = MyCurveFit()
 
         x = np.linspace(0, 1, 10)
-        p0 = 1
-        p1 = 2
-        fake_outcome = child_function(x, p0, p1)
+        par0 = 1
+        par1 = 2
+        fake_outcome = child_function(x, par0, par1)
 
         with self.assertRaises(AnalysisError):
             instance.curve_fit(
@@ -333,21 +406,29 @@ class TestCurveFit(QiskitExperimentsTestCase):
                 xdata=x,
                 ydata=fake_outcome,
                 sigma=np.zeros_like(fake_outcome),
-                p0={"p0": 0, "p1": 2.1},
-                bounds={"p0": (-1, 0), "p1": (-1, 0)},  # impossible to fit within this range
+                p0={"par0": 0, "par1": 2.1},
+                bounds={"par0": (-1, 0), "par1": (-1, 0)},  # impossible to fit within this range
             )
 
     def test_assert_invalid_fixed_parameter(self):
         """Test we cannot create invalid analysis instance with wrong fixed value name."""
+
+        class InvalidAnalysis(CurveAnalysis):
+            __series__ = [
+                SeriesDef(
+                    fit_func=lambda x, par0: x + par0,
+                )
+            ]
+
+            @classmethod
+            def _default_options(cls):
+                opts = super()._default_options()
+                opts.fixed_parameters = {"not_existing": 1}
+
+                return opts
+
         with self.assertRaises(AnalysisError):
-            # pylint: disable=unused-variable
-            class InvalidAnalysis(CurveAnalysis):
-                __series__ = [
-                    SeriesDef(
-                        fit_func=lambda x, p0: x + p0,
-                    )
-                ]
-                __fixed_parameters__ = ["not_existing"]
+            InvalidAnalysis()
 
 
 class CurveAnalysisTestCase(QiskitExperimentsTestCase):
@@ -376,9 +457,9 @@ class CurveAnalysisTestCase(QiskitExperimentsTestCase):
         rng = np.random.default_rng(seed=cls.seeds)
 
         data = []
-        for xi, p1, p2 in zip(xvalues, yvalues1, yvalues2):
+        for xi, par1, par2 in zip(xvalues, yvalues1, yvalues2):
             cs = rng.multinomial(
-                shots, [(1 - p1) * (1 - p2), p1 * (1 - p2), (1 - p1) * p2, p1 * p2]
+                shots, [(1 - par1) * (1 - par2), par1 * (1 - par2), (1 - par1) * par2, par1 * par2]
             )
             circ_data = {
                 "counts": {"00": cs[0], "01": cs[1], "10": cs[2], "11": cs[3]},
@@ -406,7 +487,7 @@ class TestCurveAnalysisUnit(CurveAnalysisTestCase):
         # - Each curve can be represented by the same function
         # - Parameter amp and baseline are shared among all curves
         # - Each curve has unique lamb
-        # - In total 5 parameters in the fit, namely, p0, p1, p2, p3
+        # - In total 5 parameters in the fit, namely, par0, par1, par2, par3
         #
         class MyAnalysis(CurveAnalysis):
             """Test analysis"""
@@ -416,27 +497,27 @@ class TestCurveAnalysisUnit(CurveAnalysisTestCase):
             __series__ = [
                 SeriesDef(
                     name="curve1",
-                    fit_func=lambda x, p0, p1, p4: fit_function.exponential_decay(
-                        x, amp=p0, lamb=p1, baseline=p4
+                    fit_func=lambda x, par0, par1, par4: fit_function.exponential_decay(
+                        x, amp=par0, lamb=par1, baseline=par4
                     ),
                     filter_kwargs={"type": 1, "valid": True},
-                    model_description=r"p_0 * \exp(p_1 x) + p4",
+                    model_description=r"p_0 * \exp(p_1 x) + par4",
                 ),
                 SeriesDef(
                     name="curve2",
-                    fit_func=lambda x, p0, p2, p4: fit_function.exponential_decay(
-                        x, amp=p0, lamb=p2, baseline=p4
+                    fit_func=lambda x, par0, par2, par4: fit_function.exponential_decay(
+                        x, amp=par0, lamb=par2, baseline=par4
                     ),
                     filter_kwargs={"type": 2, "valid": True},
-                    model_description=r"p_0 * \exp(p_2 x) + p4",
+                    model_description=r"p_0 * \exp(p_2 x) + par4",
                 ),
                 SeriesDef(
                     name="curve3",
-                    fit_func=lambda x, p0, p3, p4: fit_function.exponential_decay(
-                        x, amp=p0, lamb=p3, baseline=p4
+                    fit_func=lambda x, par0, par3, par4: fit_function.exponential_decay(
+                        x, amp=par0, lamb=par3, baseline=par4
                     ),
                     filter_kwargs={"type": 3, "valid": True},
-                    model_description=r"p_0 * \exp(p_3 x) + p4",
+                    model_description=r"p_0 * \exp(p_3 x) + par4",
                 ),
             ]
 
@@ -450,15 +531,7 @@ class TestCurveAnalysisUnit(CurveAnalysisTestCase):
         # 1. Take series[0] and add its fittting parameters
         # 2. Take next series and its fitting parameters if not exist in the list
         # 3. Repeat until the last series
-        self.assertListEqual(instance.parameters, ["p0", "p1", "p4", "p2", "p3"])
-
-    def test_parsed_init_guess(self):
-        """Test parsed initial guess and boundaries."""
-        instance = self.analysis_cls()
-
-        ref = {"p0": None, "p1": None, "p2": None, "p3": None, "p4": None}
-        self.assertDictEqual(instance.options.p0, ref)
-        self.assertDictEqual(instance.options.bounds, ref)
+        self.assertListEqual(instance.parameters, ["par0", "par1", "par4", "par2", "par3"])
 
     def test_data_extraction(self):
         """Test data extraction method."""
@@ -552,17 +625,19 @@ class TestCurveAnalysisIntegration(CurveAnalysisTestCase):
 
     def test_single_function(self):
         """Simple test case with a single curve."""
-        p0 = 0.5
-        p1 = 3
+        par0 = 0.5
+        par1 = 3
 
         data_processor = DataProcessor(input_key="counts", data_actions=[Probability("1")])
         xvalues = np.linspace(0, 1, 100)
-        yvalues = fit_function.exponential_decay(xvalues, amp=p0, lamb=p1)
+        yvalues = fit_function.exponential_decay(xvalues, amp=par0, lamb=par1)
 
         class MyAnalysis(CurveAnalysis):
             __series__ = [
                 SeriesDef(
-                    fit_func=lambda x, p0, p1: fit_function.exponential_decay(x, amp=p0, lamb=p1)
+                    fit_func=lambda x, par0, par1: fit_function.exponential_decay(
+                        x, amp=par0, lamb=par1
+                    )
                 )
             ]
 
@@ -570,12 +645,12 @@ class TestCurveAnalysisIntegration(CurveAnalysisTestCase):
         expdata = ExperimentData()
         expdata.add_data(test_data)
 
-        init_guess = {"p0": 0.4, "p1": 2.9}
+        init_guess = {"par0": 0.4, "par1": 2.9}
         instance = MyAnalysis()
         instance.set_options(
             x_key="xval",
             p0=init_guess,
-            result_parameters=[ParameterRepr("p0", "amp"), ParameterRepr("p1", "lamb")],
+            result_parameters=[ParameterRepr("par0", "amp"), ParameterRepr("par1", "lamb")],
             data_processor=data_processor,
             plot=False,
         )
@@ -583,26 +658,28 @@ class TestCurveAnalysisIntegration(CurveAnalysisTestCase):
         run_expdata = instance.run(expdata, replace_results=False)
 
         all_parameters = run_expdata.analysis_results("@Parameters_MyAnalysis")
-        p0_analyzed = run_expdata.analysis_results("amp")
-        p1_analyzed = run_expdata.analysis_results("lamb")
+        par0_analyzed = run_expdata.analysis_results("amp")
+        par1_analyzed = run_expdata.analysis_results("lamb")
 
-        np.testing.assert_array_almost_equal(all_parameters.value, [p0, p1], decimal=2)
-        self.assertAlmostEqual(p0_analyzed.value.n, p0, delta=0.05)
-        self.assertAlmostEqual(p1_analyzed.value.n, p1, delta=0.05)
+        np.testing.assert_array_almost_equal(all_parameters.value, [par0, par1], decimal=2)
+        self.assertAlmostEqual(par0_analyzed.value.n, par0, delta=0.05)
+        self.assertAlmostEqual(par1_analyzed.value.n, par1, delta=0.05)
 
     def test_extra_entry(self):
         """Simple test case analysis add new entry."""
-        p0 = 0.5
-        p1 = 3
+        par0 = 0.5
+        par1 = 3
 
         data_processor = DataProcessor(input_key="counts", data_actions=[Probability("1")])
         xvalues = np.linspace(0, 1, 100)
-        yvalues = fit_function.exponential_decay(xvalues, amp=p0, lamb=p1)
+        yvalues = fit_function.exponential_decay(xvalues, amp=par0, lamb=par1)
 
         class MyAnalysis(CurveAnalysis):
             __series__ = [
                 SeriesDef(
-                    fit_func=lambda x, p0, p1: fit_function.exponential_decay(x, amp=p0, lamb=p1)
+                    fit_func=lambda x, par0, par1: fit_function.exponential_decay(
+                        x, amp=par0, lamb=par1
+                    )
                 )
             ]
 
@@ -610,7 +687,7 @@ class TestCurveAnalysisIntegration(CurveAnalysisTestCase):
                 return [
                     AnalysisResultData(
                         name="new_value",
-                        value=fit_data.fitval("p0") + fit_data.fitval("p1"),
+                        value=fit_data.fitval("par0") + fit_data.fitval("par1"),
                     )
                 ]
 
@@ -618,7 +695,7 @@ class TestCurveAnalysisIntegration(CurveAnalysisTestCase):
         expdata = ExperimentData()
         expdata.add_data(test_data)
 
-        init_guess = {"p0": 0.4, "p1": 2.9}
+        init_guess = {"par0": 0.4, "par1": 2.9}
         instance = MyAnalysis()
         instance.set_options(
             x_key="xval",
@@ -631,21 +708,23 @@ class TestCurveAnalysisIntegration(CurveAnalysisTestCase):
 
         new_entry = run_expdata.analysis_results("new_value")
 
-        self.assertAlmostEqual(new_entry.value.n, p0 + p1, delta=0.05)
+        self.assertAlmostEqual(new_entry.value.n, par0 + par1, delta=0.05)
 
     def test_evaluate_quality(self):
         """Simple test case evaluating quality."""
-        p0 = 0.5
-        p1 = 3
+        par0 = 0.5
+        par1 = 3
 
         data_processor = DataProcessor(input_key="counts", data_actions=[Probability("1")])
         xvalues = np.linspace(0, 1, 100)
-        yvalues = fit_function.exponential_decay(xvalues, amp=p0, lamb=p1)
+        yvalues = fit_function.exponential_decay(xvalues, amp=par0, lamb=par1)
 
         class MyAnalysis(CurveAnalysis):
             __series__ = [
                 SeriesDef(
-                    fit_func=lambda x, p0, p1: fit_function.exponential_decay(x, amp=p0, lamb=p1)
+                    fit_func=lambda x, par0, par1: fit_function.exponential_decay(
+                        x, amp=par0, lamb=par1
+                    )
                 )
             ]
 
@@ -656,7 +735,7 @@ class TestCurveAnalysisIntegration(CurveAnalysisTestCase):
         expdata = ExperimentData()
         expdata.add_data(test_data)
 
-        init_guess = {"p0": 0.4, "p1": 2.9}
+        init_guess = {"par0": 0.4, "par1": 2.9}
         instance = MyAnalysis()
         instance.set_options(
             x_key="xval",
@@ -677,16 +756,16 @@ class TestCurveAnalysisIntegration(CurveAnalysisTestCase):
         in the multiple threads. Note that composite function is a class attribute
         thus it should not be modified during the fit.
         """
-        p00 = 0.5
-        p10 = 3
+        par00 = 0.5
+        par10 = 3
 
-        p01 = 0.5
-        p11 = 4
+        par01 = 0.5
+        par11 = 4
 
         data_processor = DataProcessor(input_key="counts", data_actions=[Probability("1")])
         xvalues = np.linspace(0, 1, 100)
-        yvalues_a = fit_function.exponential_decay(xvalues, amp=p00, lamb=p10)
-        yvalues_b = fit_function.exponential_decay(xvalues, amp=p01, lamb=p11)
+        yvalues_a = fit_function.exponential_decay(xvalues, amp=par00, lamb=par10)
+        yvalues_b = fit_function.exponential_decay(xvalues, amp=par01, lamb=par11)
 
         comp_data = self.parallel_sampler(xvalues, yvalues_a, yvalues_b)
 
@@ -702,249 +781,39 @@ class TestCurveAnalysisIntegration(CurveAnalysisTestCase):
         class MyAnalysis(CurveAnalysis):
             __series__ = [
                 SeriesDef(
-                    fit_func=lambda x, p0, p1: fit_function.exponential_decay(x, amp=p0, lamb=p1)
+                    fit_func=lambda x, par0, par1: fit_function.exponential_decay(
+                        x, amp=par0, lamb=par1
+                    )
                 )
             ]
-            __fixed_parameters__ = ["p1"]
 
             @classmethod
             def _default_options(cls):
                 options = super()._default_options()
                 options.data_processor = data_processor
                 options.plot = False
-                options.result_parameters = ["p0"]
-                options.p0 = {"p0": 0.49}
-                options.bounds = {"p0": (0.4, 0.6)}
-                options.p1 = None
+                options.result_parameters = ["par0"]
+                options.p0 = {"par0": 0.49}
+                options.bounds = {"par0": (0.4, 0.6)}
+                options.par1 = None
 
                 return options
 
         # Override CompositeFitFunction with different fixed parameters
+        # Model attached to each instance should be independent object.
         sub_analysis1 = MyAnalysis()
-        sub_analysis1.set_options(p1=p10)
+        sub_analysis1.set_options(fixed_parameters={"par1": par10})
         sub_analysis2 = MyAnalysis()
-        sub_analysis2.set_options(p1=p11)
+        sub_analysis2.set_options(fixed_parameters={"par1": par11})
 
         instance = CompositeAnalysis([sub_analysis1, sub_analysis2])
         run_expdata = instance.run(composite_expdata, replace_results=False).block_for_results()
 
-        p0_sub1 = run_expdata.child_data(0).analysis_results("p0")
-        self.assertAlmostEqual(p0_sub1.value.n, p00, delta=0.05)
+        par0_sub1 = run_expdata.child_data(0).analysis_results("par0")
+        self.assertAlmostEqual(par0_sub1.value.n, par00, delta=0.05)
 
-        p0_sub2 = run_expdata.child_data(1).analysis_results("p0")
-        self.assertAlmostEqual(p0_sub2.value.n, p01, delta=0.05)
-
-
-class TestFitOptions(QiskitExperimentsTestCase):
-    """Unittest for fit option object."""
-
-    def test_empty(self):
-        """Test if default value is automatically filled."""
-        opt = FitOptions(["par0", "par1", "par2"])
-
-        # bounds should be default to inf tuple. otherwise crashes the scipy fitter.
-        ref_opts = {
-            "p0": {"par0": None, "par1": None, "par2": None},
-            "bounds": {
-                "par0": (-np.inf, np.inf),
-                "par1": (-np.inf, np.inf),
-                "par2": (-np.inf, np.inf),
-            },
-        }
-
-        self.assertDictEqual(opt.options, ref_opts)
-
-    def test_create_option_with_dict(self):
-        """Create option and fill with dictionary."""
-        opt = FitOptions(
-            ["par0", "par1", "par2"],
-            default_p0={"par0": 0, "par1": 1, "par2": 2},
-            default_bounds={"par0": (0, 1), "par1": (1, 2), "par2": (2, 3)},
-        )
-
-        ref_opts = {
-            "p0": {"par0": 0.0, "par1": 1.0, "par2": 2.0},
-            "bounds": {"par0": (0.0, 1.0), "par1": (1.0, 2.0), "par2": (2.0, 3.0)},
-        }
-
-        self.assertDictEqual(opt.options, ref_opts)
-
-    def test_create_option_with_array(self):
-        """Create option and fill with array."""
-        opt = FitOptions(
-            ["par0", "par1", "par2"],
-            default_p0=[0, 1, 2],
-            default_bounds=[(0, 1), (1, 2), (2, 3)],
-        )
-
-        ref_opts = {
-            "p0": {"par0": 0.0, "par1": 1.0, "par2": 2.0},
-            "bounds": {"par0": (0.0, 1.0), "par1": (1.0, 2.0), "par2": (2.0, 3.0)},
-        }
-
-        self.assertDictEqual(opt.options, ref_opts)
-
-    def test_override_partial_dict(self):
-        """Create option and override value with partial dictionary."""
-        opt = FitOptions(["par0", "par1", "par2"])
-        opt.p0.set_if_empty(par1=3)
-
-        ref_opts = {
-            "p0": {"par0": None, "par1": 3.0, "par2": None},
-            "bounds": {
-                "par0": (-np.inf, np.inf),
-                "par1": (-np.inf, np.inf),
-                "par2": (-np.inf, np.inf),
-            },
-        }
-
-        self.assertDictEqual(opt.options, ref_opts)
-
-    def test_cannot_override_assigned_value(self):
-        """Test cannot override already assigned value."""
-        opt = FitOptions(["par0", "par1", "par2"])
-        opt.p0.set_if_empty(par1=3)
-        opt.p0.set_if_empty(par1=5)
-
-        ref_opts = {
-            "p0": {"par0": None, "par1": 3.0, "par2": None},
-            "bounds": {
-                "par0": (-np.inf, np.inf),
-                "par1": (-np.inf, np.inf),
-                "par2": (-np.inf, np.inf),
-            },
-        }
-
-        self.assertDictEqual(opt.options, ref_opts)
-
-    def test_can_override_assigned_value_with_dict_access(self):
-        """Test override already assigned value with direct dict access."""
-        opt = FitOptions(["par0", "par1", "par2"])
-        opt.p0["par1"] = 3
-        opt.p0["par1"] = 5
-
-        ref_opts = {
-            "p0": {"par0": None, "par1": 5.0, "par2": None},
-            "bounds": {
-                "par0": (-np.inf, np.inf),
-                "par1": (-np.inf, np.inf),
-                "par2": (-np.inf, np.inf),
-            },
-        }
-
-        self.assertDictEqual(opt.options, ref_opts)
-
-    def test_cannot_override_user_option(self):
-        """Test cannot override already assigned value."""
-        opt = FitOptions(["par0", "par1", "par2"], default_p0={"par1": 3})
-        opt.p0.set_if_empty(par1=5)
-
-        ref_opts = {
-            "p0": {"par0": None, "par1": 3, "par2": None},
-            "bounds": {
-                "par0": (-np.inf, np.inf),
-                "par1": (-np.inf, np.inf),
-                "par2": (-np.inf, np.inf),
-            },
-        }
-
-        self.assertDictEqual(opt.options, ref_opts)
-
-    def test_set_operation(self):
-        """Test if set works and duplicated entry is removed."""
-        opt1 = FitOptions(["par0", "par1"], default_p0=[0, 1])
-        opt2 = FitOptions(["par0", "par1"], default_p0=[0, 1])
-        opt3 = FitOptions(["par0", "par1"], default_p0=[0, 2])
-
-        opts = set()
-        opts.add(opt1)
-        opts.add(opt2)
-        opts.add(opt3)
-
-        self.assertEqual(len(opts), 2)
-
-    def test_detect_invalid_p0(self):
-        """Test if invalid p0 raises Error."""
-        with self.assertRaises(AnalysisError):
-            # less element
-            FitOptions(["par0", "par1", "par2"], default_p0=[0, 1])
-
-    def test_detect_invalid_bounds(self):
-        """Test if invalid bounds raises Error."""
-        with self.assertRaises(AnalysisError):
-            # less element
-            FitOptions(["par0", "par1", "par2"], default_bounds=[(0, 1), (1, 2)])
-
-        with self.assertRaises(AnalysisError):
-            # not min-max tuple
-            FitOptions(["par0", "par1", "par2"], default_bounds=[0, 1, 2])
-
-        with self.assertRaises(AnalysisError):
-            # max-min tuple
-            FitOptions(["par0", "par1", "par2"], default_bounds=[(1, 0), (2, 1), (3, 2)])
-
-    def test_detect_invalid_key(self):
-        """Test if invalid key raises Error."""
-        opt = FitOptions(["par0", "par1", "par2"])
-
-        with self.assertRaises(AnalysisError):
-            opt.p0.set_if_empty(par3=3)
-
-    def test_set_extra_options(self):
-        """Add extra fitter options."""
-        opt = FitOptions(
-            ["par0", "par1", "par2"], default_p0=[0, 1, 2], default_bounds=[(0, 1), (1, 2), (2, 3)]
-        )
-        opt.add_extra_options(ex1=0, ex2=1)
-
-        ref_opts = {
-            "p0": {"par0": 0.0, "par1": 1.0, "par2": 2.0},
-            "bounds": {"par0": (0.0, 1.0), "par1": (1.0, 2.0), "par2": (2.0, 3.0)},
-            "ex1": 0,
-            "ex2": 1,
-        }
-
-        self.assertDictEqual(opt.options, ref_opts)
-
-    def test_complicated(self):
-        """Test for realistic operations for algorithmic guess with user options."""
-        user_p0 = {"par0": 1, "par1": None}
-        user_bounds = {"par0": None, "par1": (-100, 100)}
-
-        opt = FitOptions(
-            ["par0", "par1", "par2"],
-            default_p0=user_p0,
-            default_bounds=user_bounds,
-        )
-
-        # similar computation in algorithmic guess
-
-        opt.p0.set_if_empty(par0=5)  # this is ignored because user already provided initial guess
-        opt.p0.set_if_empty(par1=opt.p0["par0"] * 2 + 3)  # user provided guess propagates
-
-        opt.bounds.set_if_empty(par0=(0, 10))  # this will be set
-        opt.add_extra_options(fitter="algo1")
-
-        opt1 = opt.copy()  # copy options while keeping previous values
-        opt1.p0.set_if_empty(par2=opt1.p0["par0"] + opt1.p0["par1"])
-
-        opt2 = opt.copy()
-        opt2.p0.set_if_empty(par2=opt2.p0["par0"] * 2)  # add another p2 value
-
-        ref_opt1 = {
-            "p0": {"par0": 1.0, "par1": 5.0, "par2": 6.0},
-            "bounds": {"par0": (0.0, 10.0), "par1": (-100.0, 100.0), "par2": (-np.inf, np.inf)},
-            "fitter": "algo1",
-        }
-
-        ref_opt2 = {
-            "p0": {"par0": 1.0, "par1": 5.0, "par2": 2.0},
-            "bounds": {"par0": (0.0, 10.0), "par1": (-100.0, 100.0), "par2": (-np.inf, np.inf)},
-            "fitter": "algo1",
-        }
-
-        self.assertDictEqual(opt1.options, ref_opt1)
-        self.assertDictEqual(opt2.options, ref_opt2)
+        par0_sub2 = run_expdata.child_data(1).analysis_results("par0")
+        self.assertAlmostEqual(par0_sub2.value.n, par01, delta=0.05)
 
 
 class TestBackwardCompatibility(QiskitExperimentsTestCase):
