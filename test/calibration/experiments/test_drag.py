@@ -71,7 +71,7 @@ class TestDragEndToEnd(QiskitExperimentsTestCase):
 
         # Small leakage will make the curves very flat, in this case one should
         # rather increase beta.
-        backend = DragBackend(error=0.0051, gate_name="Drag(xp)")
+        backend = DragBackend(freq=0.0011, gate_name="Drag(xp)")
 
         drag = RoughDrag(0, self.x_plus)
         exp_data = drag.run(backend)
@@ -82,11 +82,11 @@ class TestDragEndToEnd(QiskitExperimentsTestCase):
         self.assertEqual(result.quality, "good")
 
         # Large leakage will make the curves oscillate quickly.
-        backend = DragBackend(error=0.05, gate_name="Drag(xp)")
+        backend = DragBackend(freq=0.01, gate_name="Drag(xp)")
 
         drag = RoughDrag(1, self.x_plus, betas=np.linspace(-4, 4, 31))
         drag.set_run_options(shots=200)
-        drag.analysis.set_options(p0={"beta": 1.8, "freq0": 0.08, "freq1": 0.16, "freq2": 0.32})
+        drag.analysis.set_options(p0={"beta": 1.8, "freq": 0.08})
         exp_data = drag.run(backend)
         self.assertExperimentDone(exp_data)
         result = exp_data.analysis_results(1)
@@ -98,15 +98,15 @@ class TestDragEndToEnd(QiskitExperimentsTestCase):
         self.assertEqual(result.quality, "good")
 
     @data(
-        (0.0050, 1.0, 0.00, [1, 3, 5], None),  # partial oscillation.
-        (0.0025, 0.5, 0.00, [1, 3, 5], None),  # even slower oscillation with amp < 1
-        (0.0050, 0.8, 0.05, [3, 5, 7], None),  # constant offset, i.e. lower SNR.
-        (0.1000, 0.5, 0.10, [1, 3, 5], np.linspace(-1, 1, 51)),  # Beta not in range
+        (0.0010, 1.0, 0.00, [1, 3, 5], None),  # partial oscillation.
+        (0.0005, 0.5, 0.00, [1, 3, 5], None),  # even slower oscillation with amp < 1
+        (0.0010, 0.8, 0.05, [3, 5, 7], None),  # constant offset, i.e. lower SNR.
+        (0.0200, 0.5, 0.10, [1, 3, 5], np.linspace(-1, 1, 51)),  # Beta not in range
     )
     @unpack
     def test_nasty_data(self, error, amp, offset, reps, betas):
         """A set of tests for non-ideal data."""
-        backend = DragBackend(error=error, gate_name="Drag(xp)", max_prob=amp, offset_prob=offset)
+        backend = DragBackend(freq=error, gate_name="Drag(xp)", max_prob=amp, offset_prob=offset)
 
         drag = RoughDrag(0, self.x_plus, betas=betas)
         drag.set_experiment_options(reps=reps)
@@ -136,7 +136,7 @@ class TestDragCircuits(QiskitExperimentsTestCase):
     def test_default_circuits(self):
         """Test the default circuit."""
 
-        backend = DragBackend(error=0.005, gate_name="Drag(xp)")
+        backend = DragBackend(freq=0.005, gate_name="Drag(xp)")
 
         drag = RoughDrag(0, self.x_plus)
         drag.set_experiment_options(reps=[2, 4, 8])

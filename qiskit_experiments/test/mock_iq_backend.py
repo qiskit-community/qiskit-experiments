@@ -291,7 +291,7 @@ class DragBackend(MockIQBackend):
         self,
         iq_cluster_centers: Tuple[float, float, float, float] = (1.0, 1.0, -1.0, -1.0),
         iq_cluster_width: float = 1.0,
-        error: float = 0.03,
+        freq: float = 0.005,
         ideal_beta=2.0,
         gate_name: str = "Rp",
         rng_seed: int = 0,
@@ -299,7 +299,7 @@ class DragBackend(MockIQBackend):
         offset_prob: float = 0.0,
     ):
         """Initialize the rabi backend."""
-        self._error = error
+        self._freq = freq
         self._gate_name = gate_name
         self.ideal_beta = ideal_beta
 
@@ -317,7 +317,7 @@ class DragBackend(MockIQBackend):
 
         beta = next(iter(circuit.calibrations[self._gate_name].keys()))[1][0]
 
-        prob = np.sin(n_gates * self._error * (beta - self.ideal_beta)) ** 2
+        prob = np.sin(2 * np.pi * n_gates * self._freq * (beta - self.ideal_beta)) ** 2
         rescaled_prob = self._max_prob * prob + self._offset_prob
 
         return rescaled_prob
