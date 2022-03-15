@@ -240,15 +240,16 @@ class CurveAnalysis(BaseAnalysis, ABC):
     _cls_fit_model = None
 
     def __init_subclass__(cls, **kwargs):
-        """Parse series definition of subclass and set fit function and signature."""
+        """Parse series definition of subclass and set fit function and signature.
 
+        This initializes the function(s) to which the data is fit:
+        The fit model is created only once when the sub-class is initialized.
+        This removes the overhead of instantiating the same fit model object multiple times.
+        This may occur in, e.g., parallel experiments where the curve analysis subclass is
+        instantiated multiple times.
+        """
         super().__init_subclass__(**kwargs)
 
-        # Create the fit model, i.e. the function(s) to which the data is fit:
-        # The fit model is created only once when the sub-class is initialized.
-        # This removes the overhead of instantiating the same fit model object multiple times.
-        # This may occur in, e.g., parallel experiments where the curve analysis subclass is 
-        # instantiated multiple times.
         model_source = collections.defaultdict(list)
         for series in cls.__series__:
             model_source["fit_functions"].append(series.fit_func)
