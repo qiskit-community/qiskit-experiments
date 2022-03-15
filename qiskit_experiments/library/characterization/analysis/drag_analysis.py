@@ -117,6 +117,7 @@ class DragCalAnalysis(curve.CurveAnalysis):
         ),
     ]
 
+    # TODO: remove for Qiskit Experiments 0.4
     __fixed_parameters__ = ["reps0", "reps1", "reps2"]
 
     @classmethod
@@ -130,9 +131,8 @@ class DragCalAnalysis(curve.CurveAnalysis):
         default_options.result_parameters = ["beta"]
         default_options.xlabel = "Beta"
         default_options.ylabel = "Signal (arb. units)"
-        default_options.reps0 = 1
-        default_options.reps1 = 3
-        default_options.reps2 = 5
+        default_options.fixed_parameters = {"reps0": 1, "reps1": 3, "reps2": 5}
+        default_options.normalization = True
 
         return default_options
 
@@ -157,12 +157,12 @@ class DragCalAnalysis(curve.CurveAnalysis):
         user_opt.p0.set_if_empty(freq=freqs_guess)
 
         max_abs_y, _ = curve.guess.max_height(self._data().y, absolute=True)
-        freq_bound = max(10 / user_opt.p0["freq"], max(x_data))
+        beta_bound = max(10 / user_opt.p0["freq"], max(x_data))
 
         user_opt.bounds.set_if_empty(
             amp=(-2 * max_abs_y, 0),
             freq=(0, np.inf),
-            beta=(-freq_bound, freq_bound),
+            beta=(-beta_bound, beta_bound),
             base=(-max_abs_y, max_abs_y),
         )
         user_opt.p0.set_if_empty(base=(user_opt.p0["amp"] or max_abs_y) / 2)

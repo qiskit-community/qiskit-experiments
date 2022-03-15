@@ -92,14 +92,6 @@ class RoughDrag(BaseExperiment):
 
         return options
 
-    @classmethod
-    def _default_analysis_options(cls) -> Options:
-        """Default analysis options."""
-        options = Options()
-        options.normalization = True
-
-        return options
-
     # pylint: disable=arguments-differ
     def set_experiment_options(self, reps: Optional[List] = None, **fields):
         """Raise if reps has a length different from three.
@@ -122,9 +114,9 @@ class RoughDrag(BaseExperiment):
         super().set_experiment_options(reps=reps, **fields)
 
         if isinstance(self.analysis, DragCalAnalysis):
-            self.analysis.set_options(reps0=reps[0])
-            self.analysis.set_options(reps1=reps[1])
-            self.analysis.set_options(reps2=reps[2])
+            self.analysis.set_options(
+                fixed_parameters={"reps0": reps[0], "reps1": reps[1], "reps2": reps[2]}
+            )
 
     def __init__(
         self,
@@ -148,7 +140,6 @@ class RoughDrag(BaseExperiment):
         """
 
         super().__init__([qubit], analysis=DragCalAnalysis(), backend=backend)
-        self.analysis.set_options(**self._default_analysis_options.__dict__)
 
         if betas is not None:
             self.set_experiment_options(betas=betas)
