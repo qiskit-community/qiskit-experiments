@@ -117,9 +117,6 @@ class DragCalAnalysis(curve.CurveAnalysis):
         ),
     ]
 
-    # TODO: remove for Qiskit Experiments 0.4
-    __fixed_parameters__ = ["reps0", "reps1", "reps2"]
-
     @classmethod
     def _default_options(cls):
         """Return the default analysis options.
@@ -152,7 +149,7 @@ class DragCalAnalysis(curve.CurveAnalysis):
         min_beta, max_beta = min(x_data), max(x_data)
 
         # Use the highest-frequency curve to estimate the oscillation frequency.
-        curve_data = self._data(f"series-2")
+        curve_data = self._data("series-2")
         reps2 = self.options.fixed_parameters["reps2"]
         freqs_guess = curve.guess.frequency(curve_data.x, curve_data.y) / reps2
         user_opt.p0.set_if_empty(freq=freqs_guess)
