@@ -122,9 +122,9 @@ class RoughDrag(BaseExperiment):
         super().set_experiment_options(reps=reps, **fields)
 
         if isinstance(self.analysis, DragCalAnalysis):
-            self.analysis.set_options(reps1=reps[0])
-            self.analysis.set_options(reps2=reps[1])
-            self.analysis.set_options(reps3=reps[2])
+            self.analysis.set_options(reps0=reps[0])
+            self.analysis.set_options(reps1=reps[1])
+            self.analysis.set_options(reps2=reps[2])
 
     def __init__(
         self,

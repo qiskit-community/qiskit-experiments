@@ -33,11 +33,11 @@ class DragCalAnalysis(curve.CurveAnalysis):
 
         .. math::
 
-            y_i = {\rm amp} \cos\left(2 \pi\cdot {\rm rep}_i \cdot {\rm freq}\cdot x -
-            2 \pi\cdot {\rm rep}_i \cdot {\rm freq}\cdot \beta\right) + {\rm base}
+            y_i = {\rm amp} \cos\left(2 \pi\cdot {\rm reps}_i \cdot {\rm freq}\cdot x -
+            2 \pi\cdot {\rm reps}_i \cdot {\rm freq}\cdot \beta\right) + {\rm base}
 
         Here, the fit parameter :math:`freq` is the frequency of the oscillation of a
-        single pair of Drag plus and minus rotations and :math:`{\rm rep}_i` is the number
+        single pair of Drag plus and minus rotations and :math:`{\rm reps}_i` is the number
         of times that the Drag plus and minus rotations are repeated in curve :math:`i`.
         Note that the aim of the Drag calibration is to find the :math:`\beta` that
         minimizes the phase shifts. This implies that the optimal :math:`\beta` occurs when
@@ -47,7 +47,7 @@ class DragCalAnalysis(curve.CurveAnalysis):
 
             y_i = 0 \quad \Longrightarrow \quad -{\rm amp} \cos(2 \pi\cdot X_i) = {\rm base}
 
-        Here, we abbreviated :math:`{\rm rep}_i\cdot{\rm freq}(x - \beta)` by :math:`X_i`.
+        Here, we abbreviated :math:`{\rm reps}_i\cdot{\rm freq}(x - \beta)` by :math:`X_i`.
         For a signal between 0 and 1 the :math:`{\rm base}` will typically fit to 0.5. However,
         the equation has an ambiguity if the amplitude is not properly bounded. Indeed,
 
@@ -69,8 +69,10 @@ class DragCalAnalysis(curve.CurveAnalysis):
             bounds: [-1, 1] scaled to the maximum y-value.
 
         defpar {\rm freq}:
-            desc: Frequency of oscillation as a function of :math:`\beta` for a single pair of DRAG plus and minus pulses.
-            init_guess: For the curve with the most Drag pulse repetitions, the peak frequency of the power spectral density is found and then divided by the number of repetitions.
+            desc: Frequency of oscillation as a function of :math:`\beta` for a single pair
+                of DRAG plus and minus pulses.
+            init_guess: For the curve with the most Drag pulse repetitions, the peak frequency
+                of the power spectral density is found and then divided by the number of repetitions.
             bounds: [0, inf].
 
         defpar \beta:
@@ -81,8 +83,8 @@ class DragCalAnalysis(curve.CurveAnalysis):
 
     __series__ = [
         curve.SeriesDef(
-            fit_func=lambda x, amp, freq, reps1, reps2, reps3, beta, base: cos(
-                x, amp=amp, freq=reps1 * freq, phase=-2 * np.pi * reps1 * freq * beta, baseline=base
+            fit_func=lambda x, amp, freq, reps0, reps1, reps2, beta, base: cos(
+                x, amp=amp, freq=reps0 * freq, phase=-2 * np.pi * reps0 * freq * beta, baseline=base
             ),
             plot_color="blue",
             name="series-0",
@@ -92,8 +94,8 @@ class DragCalAnalysis(curve.CurveAnalysis):
             r"- 2 \pi\cdot {\rm freq}_0\cdot \beta\right) + {\rm base}",
         ),
         curve.SeriesDef(
-            fit_func=lambda x, amp, freq, reps1, reps2, reps3, beta, base: cos(
-                x, amp=amp, freq=reps2 * freq, phase=-2 * np.pi * reps2 * freq * beta, baseline=base
+            fit_func=lambda x, amp, freq, reps0, reps1, reps2, beta, base: cos(
+                x, amp=amp, freq=reps1 * freq, phase=-2 * np.pi * reps1 * freq * beta, baseline=base
             ),
             plot_color="green",
             name="series-1",
@@ -103,8 +105,8 @@ class DragCalAnalysis(curve.CurveAnalysis):
             r"- 2 \pi\cdot {\rm freq}_1\cdot \beta\right) + {\rm base}",
         ),
         curve.SeriesDef(
-            fit_func=lambda x, amp, freq, reps1, reps2, reps3, beta, base: cos(
-                x, amp=amp, freq=reps3 * freq, phase=-2 * np.pi * reps3 * freq * beta, baseline=base
+            fit_func=lambda x, amp, freq, reps0, reps1, reps2, beta, base: cos(
+                x, amp=amp, freq=reps2 * freq, phase=-2 * np.pi * reps2 * freq * beta, baseline=base
             ),
             plot_color="red",
             name="series-2",
@@ -115,7 +117,7 @@ class DragCalAnalysis(curve.CurveAnalysis):
         ),
     ]
 
-    __fixed_parameters__ = ["reps1", "reps2", "reps3"]
+    __fixed_parameters__ = ["reps0", "reps1", "reps2"]
 
     @classmethod
     def _default_options(cls):
@@ -128,9 +130,9 @@ class DragCalAnalysis(curve.CurveAnalysis):
         default_options.result_parameters = ["beta"]
         default_options.xlabel = "Beta"
         default_options.ylabel = "Signal (arb. units)"
-        default_options.rep1 = 1
-        default_options.rep2 = 3
-        default_options.rep3 = 5
+        default_options.reps0 = 1
+        default_options.reps1 = 3
+        default_options.reps2 = 5
 
         return default_options
 
@@ -151,7 +153,7 @@ class DragCalAnalysis(curve.CurveAnalysis):
 
         # Use the highest-frequency curve to estimate the oscillation frequency.
         curve_data = self._data(f"series-2")
-        freqs_guess = curve.guess.frequency(curve_data.x, curve_data.y) / self.options.reps3
+        freqs_guess = curve.guess.frequency(curve_data.x, curve_data.y) / self.options.reps2
         user_opt.p0.set_if_empty(freq=freqs_guess)
 
         max_abs_y, _ = curve.guess.max_height(self._data().y, absolute=True)
