@@ -123,6 +123,11 @@ class DragCalAnalysis(curve.CurveAnalysis):
 
         See :meth:`~qiskit_experiment.curve_analysis.CurveAnalysis._default_options` for
         descriptions of analysis options.
+
+        Analysis Options:
+            beta_integers_check (Sequence[int]): A sequence of integers that is used to
+                ensure that we return the beta closest to zero. See the method
+                :meth:`_post_process_fit_result`.
         """
         default_options = super()._default_options()
         default_options.result_parameters = ["beta"]
@@ -130,6 +135,7 @@ class DragCalAnalysis(curve.CurveAnalysis):
         default_options.ylabel = "Signal (arb. units)"
         default_options.fixed_parameters = {"reps0": 1, "reps1": 3, "reps2": 5}
         default_options.normalization = True
+        default_options.beta_integers_check = [-5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5]
 
         return default_options
 
@@ -178,6 +184,36 @@ class DragCalAnalysis(curve.CurveAnalysis):
                 options.append(new_opt)
 
         return options
+
+    def _post_process_fit_result(self, fit_result: curve.FitData) -> curve.FitData:
+        r"""Post-process the fit result from a Drag analysis.
+
+        The Drag analysis should return the beta value that is closest to zero.
+        Since the oscillating term is of the form
+
+        .. math::
+
+            \cos(2 \pi\cdot {\rm reps}_i \cdot {\rm freq}\cdot [x - \beta])
+
+        There is a periodicity in beta. This post processing finds the beta that is
+        closest to zero by performing the minimization
+
+        .. math::
+
+            n_\text{min} = \min_{n}|\beta_\text{fit} + n / {\rm freq}|
+
+        and assigning the new beta value to
+
+        .. math::
+
+            \beta = \beta_\text{fit} + n_\text{min} / {\rm freq}.
+        """
+        beta = fit_result.popt[2]
+        freq = fit_result.popt[1]
+        betas = [abs(beta + n / freq) for n in self.options.beta_integers_check]
+        n_min = self.options.beta_integers_check[np.argmin(betas)]
+        fit_result.popt[2] = beta + n_min / freq
+        return fit_result
 
     def _evaluate_quality(self, fit_data: curve.FitData) -> Union[str, None]:
         """Algorithmic criteria for whether the fit is good or bad.
