@@ -32,21 +32,21 @@ class FitModel(ABC):
 
     Examples:
 
-        Given we have two functions :math:`F_1(x_1, p_0, p_1, p_2)` and :math:`F_2(x_2, p_0, p_3)`.
+        We assume a model with two functions :math:`F_1(x_1, p_0, p_1, p_2)` and :math:`F_2(x_2, p_0, p_3)`.
         During the fit, we assign :math:`p_1=2` and exclude it from the fitting.
-        This is formulated with set operation as follows:
+        The parameters of this model are described by the sets
 
         .. math::
 
             \Theta_1 = \{ p_0, p_1, p_2 \}, \Theta_2 = \{p_0, p_3\}, \Theta_{\rm fix} = \{p_1\}
 
-        Note that :class:`FitModel` subclass is instantiated with a list of
-        :math:`F_1` and :math:`F_2` (``fit_functions``) together with
-        a list of :math:`\Theta_1` and :math:`\Theta_2` (``signatures``) and
-        :math:`\Theta_{\rm fix}` (set via :meth:`bind_parameters`).
-        The signature of new fit model instance will be
+        The corresponding :class:`FitModel` subclass is instantiated with a list ``fit_functions``
+        containing the :math:`F_1` and :math:`F_2` functions together with
+        a list ``signatures`` containing :math:`\Theta_1` and :math:`\Theta_2`. The parameters
+        with fixed values :math:`\Theta_{\rm fix}` are removed from the signature using the 
+        :meth:`bind_parameters` method. The signature of new fit model instance will be
         :math:`\Theta = (\Theta_1 \cup \Theta_2) - \Theta_{\rm fix} = \{ p_0, p_2, p_3\}`.
-        The fit function that this model provides is accordingly
+        The fit function that this model provides is therefore
 
         .. math::
 
@@ -70,8 +70,8 @@ class FitModel(ABC):
 
         This class is usually instantiated with the :class:`SeriesDef` in the
         ``__init_subclass__`` method of :class:`CurveAnalysis` subclasses.
-        User doesn't need to take care of how to initialize this class
-        unless one manually create the instance for debugging purposes.
+        Users do not need to know how to initialize this class
+        unless they manually create the instance for debugging purposes.
     """
 
     def __init__(
@@ -108,9 +108,9 @@ class FitModel(ABC):
             fit_models = [fit_models]
         self._fit_models = fit_models
 
-        # Create signature of this fit model, i.e. this will be signature of scipy fit function.
-        # The curves comprising this model may have different signatures.
-        # The signature of this fit model is union of parameters in all curves.
+        # Create the signature of the fit model, i.e. the signature of `__call__` for scipy.
+        # The individual curves comprising this model may have different signatures.
+        # The signature of this fit model is the union of the parameters in all curves.
         # This is order preserving since this affects the index of ``popt`` that scipy fitter
         # returns, which appears as @Parameters entry of curve analysis as-is.
         union_params = []
