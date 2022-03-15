@@ -29,27 +29,27 @@ class DragCalAnalysis(curve.CurveAnalysis):
         function. The three functions share the phase parameter (i.e. beta), amplitude, and
         baseline. The frequencies of the oscillations are related through the number of
         repetitions of the Drag gates. Several initial guesses are tried if the user
-        does not provide one.
+        does not provide one. The fit function is
 
         .. math::
 
-            y_i = {\rm amp} \cos\left(2 \pi\cdot {\rm freq}_i\cdot x -
-            2 \pi\cdot {\rm freq}_i\cdot \beta\right) + {\rm base}
+            y_i = {\rm amp} \cos\left(2 \pi\cdot {\rm rep}_i \cdot {\rm freq}\cdot x -
+            2 \pi\cdot {\rm rep}_i \cdot {\rm freq}\cdot \beta\right) + {\rm base}
 
-        Here, :math:`{\rm freq}_i` is given by the fit parameter :math:`freq` multiplied by
-        :math:`{\rm rep}_i` which is the number of times that the Drag plus and minus
-        rotations are repeated. Note that the aim of the Drag calibration is to find the
-        :math:`\beta` that minimizes the phase shifts. This implies that the optimal
-        :math:`\beta` occurs when all three :math:`y` curves are minimum, i.e. they
-        produce the ground state. Therefore,
+        Here, the fit parameter :math:`freq` is the frequency of the oscillation of a
+        single pair of Drag plus and minus rotations and :math:`{\rm rep}_i` is the number
+        of times that the Drag plus and minus rotations are repeated in curve :math:`i`.
+        Note that the aim of the Drag calibration is to find the :math:`\beta` that
+        minimizes the phase shifts. This implies that the optimal :math:`\beta` occurs when
+        all three :math:`y` curves are minimum, i.e. they produce the ground state. Therefore,
 
         .. math::
 
             y_i = 0 \quad \Longrightarrow \quad -{\rm amp} \cos(2 \pi\cdot X_i) = {\rm base}
 
-        Here, we abbreviated :math:`{\rm freq}_i\cdot x - {\rm freq}_i\cdot \beta` by :math:`X_i`.
-        For a signal between 0 and 1 the :math:`{\rm base}` will typically fit to 0.5. However, the
-        equation has an ambiguity if the amplitude is not properly bounded. Indeed,
+        Here, we abbreviated :math:`{\rm rep}_i\cdot{\rm freq}(x - \beta)` by :math:`X_i`.
+        For a signal between 0 and 1 the :math:`{\rm base}` will typically fit to 0.5. However,
+        the equation has an ambiguity if the amplitude is not properly bounded. Indeed,
 
         - if :math:`{\rm amp} < 0` then we require :math:`2 \pi\cdot X_i = 0` mod :math:`2\pi`, and
         - if :math:`{\rm amp} > 0` then we require :math:`2 \pi\cdot X_i = \pi` mod :math:`2\pi`.
