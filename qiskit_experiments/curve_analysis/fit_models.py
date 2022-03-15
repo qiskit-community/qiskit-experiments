@@ -28,7 +28,7 @@ class FitModel(ABC):
 
     This class ties together the fit function and associated parameter names to
     perform correct parameter mapping among multiple objective functions with different signatures,
-    in which some parameters may be excluded from the fitting when they are fixed.
+    in which some parameters may be excluded from the fitting when their values are fixed.
 
     Examples:
 

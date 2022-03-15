@@ -18,7 +18,7 @@ features:
 upgrade:
   - |
     Analysis option `curve_fitter` of the :class:`CurveAnalysis` has been removed
-    because of the serialization problem. To use custom curve fitting library,
+    because callable lambda functions are not serializable. To use a custom curve fitting library,
     one must directly override the class method :meth:`CurveAnalysis.curve_fit`.
 developer:
   - |

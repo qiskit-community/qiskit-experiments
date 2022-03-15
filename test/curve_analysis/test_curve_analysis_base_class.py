@@ -253,7 +253,7 @@ class TestCurveFit(QiskitExperimentsTestCase):
 
         instance = MyCurveFit()
 
-        # both par0 and par1 is excluded
+        # both par0 and par1 are included
         self.assertListEqual(instance.parameters, ["par0", "par1"])
 
         # par1 is excluded

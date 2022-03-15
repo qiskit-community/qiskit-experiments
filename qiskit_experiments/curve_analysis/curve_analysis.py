@@ -244,11 +244,11 @@ class CurveAnalysis(BaseAnalysis, ABC):
 
         super().__init_subclass__(**kwargs)
 
-        # Create fit model:
-        # The fit model is created only once when the sub-class, i.e. type, is initialized.
-        # This removes overhead of instantiating the same fit model object multiple times.
-        # Its impact is significant especially when user creates a parallel experiment instance,
-        # where the curve analysis subclass is instantiated multiple times along with fit model.
+        # Create the fit model, i.e. the function(s) to which the data is fit:
+        # The fit model is created only once when the sub-class is initialized.
+        # This removes the overhead of instantiating the same fit model object multiple times.
+        # This may occur in, e.g., parallel experiments where the curve analysis subclass is 
+        # instantiated multiple times.
         model_source = collections.defaultdict(list)
         for series in cls.__series__:
             model_source["fit_functions"].append(series.fit_func)
@@ -313,7 +313,7 @@ class CurveAnalysis(BaseAnalysis, ABC):
 
         This is the scipy curve fit wrapper to manage named fit parameters and
         return outcomes as ufloat objects with parameter correlation computed based on the
-        covariance matrix obtained from the fitting. Result is returned as
+        covariance matrix obtained from the fitting. The result is returned as
         :class:`~qiskit_experiments.curve_analysis.FitData` which is a special data container
         for curve analysis. This method can perform multi-objective optimization with
         multiple data series with related fit models.
