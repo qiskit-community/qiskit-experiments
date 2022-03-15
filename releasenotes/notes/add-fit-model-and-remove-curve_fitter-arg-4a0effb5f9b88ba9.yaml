@@ -17,9 +17,15 @@ features:
     but now one can easily grasp the fit model details with these fit function object.
 upgrade:
   - |
-    Analysis option `curve_fitter` of the :class:`CurveAnalysis` has been removed
-    because callable lambda functions are not serializable. To use a custom curve fitting library,
-    one must directly override the class method :meth:`CurveAnalysis.curve_fit`.
+    Analysis option `curve_fitter` of the :class:`CurveAnalysis` has been removed.
+    The `curve_fitter` had been a python callable that performs curve fit with given numpy arrays
+    and fit functions, which defaulted to
+    :func:`~qiskit_experiments.curve_analysis.curve_fit.multi_curve_fit`.
+    Becasue of the strict specification of the input and output data format of the function,
+    this has been removed from the analysis options and
+    now it is integarated as a class method :meth:`CurveAnalysis.curve_fit`.
+    This integaration will avoid complicated serialization (no version control is performed
+    for functions) and will offer better reproducibility of analysis for future updates.
 developer:
   - |
     :meth:`CurveAnalysis.curve_fit` has been added to the curve analysis and
