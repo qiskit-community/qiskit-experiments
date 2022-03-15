@@ -160,16 +160,17 @@ class DragCalAnalysis(curve.CurveAnalysis):
         freqs_guess = curve.guess.frequency(curve_data.x, curve_data.y) / reps2
         user_opt.p0.set_if_empty(freq=freqs_guess)
 
-        max_abs_y, _ = curve.guess.max_height(self._data().y, absolute=True)
+        ptp_y = np.ptp(self._data().y)
         beta_bound = max(10 / user_opt.p0["freq"], max(x_data))
 
         user_opt.bounds.set_if_empty(
-            amp=(-2 * max_abs_y, 0),
+            amp=(-2 * ptp_y, 0),
             freq=(0, np.inf),
             beta=(-beta_bound, beta_bound),
-            base=(-max_abs_y, max_abs_y),
+            base=(-ptp_y, ptp_y),
         )
-        user_opt.p0.set_if_empty(base=(user_opt.p0["amp"] or max_abs_y) / 2)
+        base_guess = (max(self._data().y) - min(self._data().y)) / 2
+        user_opt.p0.set_if_empty(base=(user_opt.p0["amp"] or base_guess))
 
         # Drag curves can sometimes be very flat, i.e. averages of y-data
         # and min-max do not always make good initial guesses. We therefore add
@@ -180,7 +181,7 @@ class DragCalAnalysis(curve.CurveAnalysis):
         for amp_factor in (-1, -0.5, -0.25):
             for beta_guess in np.linspace(min_beta, max_beta, 20):
                 new_opt = user_opt.copy()
-                new_opt.p0.set_if_empty(amp=max_abs_y * amp_factor, beta=beta_guess)
+                new_opt.p0.set_if_empty(amp=ptp_y * amp_factor, beta=beta_guess)
                 options.append(new_opt)
 
         return options
