@@ -53,7 +53,7 @@ class SeriesDef:
 
     def __post_init__(self):
         """Parse the fit function signature to extract the names of the variables.
-        
+
         Fit functions take arguments F(x, p0, p1, p2, ...) thus the first value should be excluded.
         """
         signature = list(inspect.signature(self.fit_func).parameters.keys())

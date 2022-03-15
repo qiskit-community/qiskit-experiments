@@ -44,7 +44,7 @@ class FitModel(ABC):
         The corresponding :class:`FitModel` subclass is instantiated with a list ``fit_functions``
         containing the :math:`F_1` and :math:`F_2` functions together with
         a list ``signatures`` containing :math:`\Theta_1` and :math:`\Theta_2`. The parameters
-        with fixed values :math:`\Theta_{\rm fix}` are removed from the signature using the 
+        with fixed values :math:`\Theta_{\rm fix}` are removed from the signature using the
         :meth:`bind_parameters` method. The signature of new fit model instance will be
 
         .. math::
