@@ -32,7 +32,8 @@ class FitModel(ABC):
 
     Examples:
 
-        We assume a model with two functions :math:`F_1(x_1, p_0, p_1, p_2)` and :math:`F_2(x_2, p_0, p_3)`.
+        We assume a model with two functions :math:`F_1(x_1, p_0, p_1, p_2)` and
+        :math:`F_2(x_2, p_0, p_3)`.
         During the fit, we assign :math:`p_1=2` and exclude it from the fitting.
         The parameters of this model are described by the sets
 
@@ -45,7 +46,11 @@ class FitModel(ABC):
         a list ``signatures`` containing :math:`\Theta_1` and :math:`\Theta_2`. The parameters
         with fixed values :math:`\Theta_{\rm fix}` are removed from the signature using the 
         :meth:`bind_parameters` method. The signature of new fit model instance will be
-        :math:`\Theta = (\Theta_1 \cup \Theta_2) - \Theta_{\rm fix} = \{ p_0, p_2, p_3\}`.
+
+        .. math::
+
+            \Theta = (\Theta_1 \cup \Theta_2) - \Theta_{\rm fix} = \{ p_0, p_2, p_3\}.
+
         The fit function that this model provides is therefore
 
         .. math::
@@ -108,7 +113,7 @@ class FitModel(ABC):
             fit_models = [fit_models]
         self._fit_models = fit_models
 
-        # Create the signature of the fit model, i.e. the signature of `__call__` for scipy.
+        # Create the signature of the fit model, i.e. the signature of ``__call__`` for scipy.
         # The individual curves comprising this model may have different signatures.
         # The signature of this fit model is the union of the parameters in all curves.
         # This is order preserving since this affects the index of ``popt`` that scipy fitter
@@ -219,26 +224,65 @@ class CompositeFitFunction(FitModel):
 
     .. math::
 
-        F(x, \Theta) = f_0(x_0, \vec{p}_0) \oplus f_1(x_1, \vec{p}_1) \oplus ...
+        F(X, \Theta) = f_0(\vec{x}_0, \vec{p}_0) \oplus f_1(\vec{x}_1, \vec{p}_1) \oplus ...,
+
+    here the function :math:`f_i(\vec{x}_i, \vec{p}_i)` is applied to the data with the sequence
+    of x-values :math:`\vec{x}_i \in \Re^{N_i}`, which are provided by the :math:`i`-th subset
+    of experiments, :math:`E_i(\vec{x}_i) = \{E_i(x_0), E_i(x_1), ... E_i(x_{N_i-1})\}`,
+    together with the measured outcomes :math:`\vec{y}_i \in \Re^{N_i}` that are fit by this model.
+    The size of vector :math:`N_i` may depend on the configuration of experiment :math:`i`.
 
     The parameter :math:`\vec{p}_i = \theta_i \cup \Theta_{\rm fix}` is a union of the
     fit parameter for the function :math:`f_i` and the fixed parameters :math:`\Theta_{\rm fix}`.
     The composite function :math:`F` consists of multiple fit functions :math:`f_i`
-    taking independent data points :math:`x_i` with partly shared fit parameters :math:`\theta_i`,
-    where :math:`\Theta = \theta_0 \cup \theta_1 \cup ...` and the composite data vector
-    :math:`x = x_0 \oplus x_1 \oplus ...`
+    taking independent data points :math:`\vec{x}_i` with
+    partly shared fit parameters :math:`\theta_i`,
+    where :math:`\Theta = \theta_0 \cup \theta_1 \cup ...`.
+    The composite scan values is :math:`X =\vec{x}_0 \oplus \vec{x}_1 \oplus ...` and
+    the corresponding outcome is :math:`Y =\vec{y}_0 \oplus \vec{y}_1 \oplus ...`.
 
-    In the NumPy array data, this can be represented
-    by a single array together with the array specifying location, which is provided as a
-    :attr:`CompositeFitFunction.data_allocation`. For example:
+    In the Qiskit Experiments, these data sources are represented by
+    a single flat array ``vec[k]``, rather than a jugged array ``mat[i, j]``.
+    To keep the mapping of the datum at index :math:`k` to the original series :math:`i`,
+    an extra index vector ``data_allocation`` :math:`I` must be
+    provided with :math:`X` and :math:`Y`.
 
-    .. parsed-literal::
+    For example, we assume following data are obtained with two experiments :math:`E_0, E_1`.
 
-        data_allocation = array([0, 0, 0, 0, 0, 1, 1, 1, 1, 1, ...])
+    .. code-block:: python3
 
-    This data represents the location where the function with index ``i``
-    is returned and where the x values :math:`x_i` comes from.
-    One must set this data indices before calling the composite fit function.
+        # From E0
+        x_0 = array([1, 2, 3])
+        y_0 = array([4, 5, 6])
+
+        # From E1
+        x_1 = array([4, 5])
+        y_1 = array([7, 8])
+
+    The composite data :math:`(X, Y, I)` might take the form:
+
+    .. code-block:: python3
+
+        X = array([1, 4, 2, 5, 3])
+        Y = array([4, 7, 5, 8, 6])
+        I = array([0, 1, 0, 1, 0])
+
+    With this data representation, we can reconstruct each subset as
+
+    .. code-block:: python3
+
+        # To E0 subset
+        assert all(X[I == 0] == x_0)
+        assert all(Y[I == 0] == y_0)
+
+        # To E1 subset
+        assert all(X[I == 1] == x_1)
+        assert all(Y[I == 1] == y_1)
+
+    The caller of this model must set this data indices before calling the function.
+    With this data representation, we can reuse the fitting algorithm for the
+    single objective function, where only 1-D arrays are accepted,
+    for the multi-objective optimization model consisting of multiple data set.
 
     .. seealso::
 
