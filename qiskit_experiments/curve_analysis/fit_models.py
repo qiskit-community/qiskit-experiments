@@ -17,6 +17,7 @@ from typing import Callable, List, Optional, Union
 import numpy as np
 
 from qiskit_experiments.exceptions import AnalysisError
+from qiskit_experiments.curve_analysis.curve_data import SeriesDef
 
 
 class FitModel(ABC):
@@ -140,6 +141,30 @@ class FitModel(ABC):
             Computed Y values array.
         """
         pass
+
+    @classmethod
+    def from_definitions(
+        cls, series_defs: List[SeriesDef]
+    ) -> Union["SingleFitFunction", "CompositeFitFunction"]:
+        """Create fit model from series definitions.
+
+        Args:
+            series_defs: Series definitions that define a set of fit functions.
+
+        Returns:
+            Fit model.
+        """
+        fit_functions = []
+        signatures = []
+        fit_models = []
+        for series_def in series_defs:
+            fit_functions.append(series_def.fit_func)
+            signatures.append(series_def.signature)
+            fit_models.append(series_def.model_description)
+
+        if len(series_defs) == 1:
+            return SingleFitFunction(fit_functions, signatures, fit_models)
+        return CompositeFitFunction(fit_functions, signatures, fit_models)
 
     def bind_parameters(self, **kwparams):
         """Assign values to the fixed parameters.

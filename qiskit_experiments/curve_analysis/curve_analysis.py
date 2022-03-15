@@ -16,7 +16,6 @@ Analysis class for curve fitting.
 # pylint: disable=invalid-name
 
 import copy
-import collections
 import warnings
 from abc import ABC
 from typing import Any, Dict, List, Tuple, Callable, Union, Optional
@@ -33,11 +32,7 @@ from qiskit_experiments.curve_analysis.curve_data import (
     ParameterRepr,
     FitOptions,
 )
-from qiskit_experiments.curve_analysis.fit_models import (
-    FitModel,
-    SingleFitFunction,
-    CompositeFitFunction,
-)
+from qiskit_experiments.curve_analysis.fit_models import FitModel, CompositeFitFunction
 from qiskit_experiments.curve_analysis.data_processing import multi_mean_xy_data, data_sort
 from qiskit_experiments.curve_analysis.visualization import FitResultPlotters, PlotterStyle
 from qiskit_experiments.data_processing import DataProcessor
@@ -249,21 +244,7 @@ class CurveAnalysis(BaseAnalysis, ABC):
         instantiated multiple times.
         """
         super().__init_subclass__(**kwargs)
-
-        model_source = collections.defaultdict(list)
-        for series in cls.__series__:
-            model_source["fit_functions"].append(series.fit_func)
-            model_source["signatures"].append(series.signature)
-            model_source["fit_models"].append(series.model_description)
-
-        if len(cls.__series__) == 1:
-            # Only single curve. Use single fit model for simplicity.
-            model_type = SingleFitFunction
-        else:
-            # Use composite function for multi objective optimization.
-            model_type = CompositeFitFunction
-
-        cls._cls_fit_model = model_type(**model_source)
+        cls._cls_fit_model = FitModel.from_definitions(cls.__series__)
 
     def __init__(self):
         """Initialize data fields that are privately accessed by methods."""
