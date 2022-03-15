@@ -160,13 +160,15 @@ class DragCalAnalysis(curve.CurveAnalysis):
         freqs_guess = curve.guess.frequency(curve_data.x, curve_data.y) / reps2
         user_opt.p0.set_if_empty(freq=freqs_guess)
 
-        ptp_y = np.ptp(self._data().y)
-        beta_bound = max(10 / user_opt.p0["freq"], max(x_data))
+        avg_x = (max(x_data) + min(x_data)) / 2
+        span_x = max(x_data) - min(x_data)
+        beta_bound = max(5 / user_opt.p0["freq"], span_x)
 
+        ptp_y = np.ptp(self._data().y)
         user_opt.bounds.set_if_empty(
             amp=(-2 * ptp_y, 0),
             freq=(0, np.inf),
-            beta=(-beta_bound, beta_bound),
+            beta=(avg_x - beta_bound, avg_x + beta_bound),
             base=(-ptp_y, ptp_y),
         )
         base_guess = (max(self._data().y) - min(self._data().y)) / 2
