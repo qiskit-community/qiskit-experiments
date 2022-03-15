@@ -153,7 +153,8 @@ class DragCalAnalysis(curve.CurveAnalysis):
 
         # Use the highest-frequency curve to estimate the oscillation frequency.
         curve_data = self._data(f"series-2")
-        freqs_guess = curve.guess.frequency(curve_data.x, curve_data.y) / self.options.reps2
+        reps2 = self.options.fixed_parameters["reps2"]
+        freqs_guess = curve.guess.frequency(curve_data.x, curve_data.y) / reps2
         user_opt.p0.set_if_empty(freq=freqs_guess)
 
         max_abs_y, _ = curve.guess.max_height(self._data().y, absolute=True)
