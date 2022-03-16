@@ -84,6 +84,7 @@ class TestDragEndToEnd(QiskitExperimentsTestCase):
         backend = DragBackend(error=0.05, gate_name="Drag(xp)")
 
         drag = RoughDrag(1, self.x_plus, betas=np.linspace(-4, 4, 31))
+        # pylint: disable=no-member
         drag.set_run_options(shots=200)
         drag.analysis.set_options(p0={"beta": 1.8, "freq0": 0.08, "freq1": 0.16, "freq2": 0.32})
         exp_data = drag.run(backend)
