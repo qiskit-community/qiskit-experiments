@@ -71,7 +71,7 @@ class TestDragEndToEnd(QiskitExperimentsTestCase):
 
         # Small leakage will make the curves very flat, in this case one should
         # rather increase beta.
-        backend = DragBackend(freq=0.0011, gate_name="Drag(xp)")
+        backend = DragBackend(freq=0.0044, gate_name="Drag(xp)")
 
         drag = RoughDrag(0, self.x_plus)
         exp_data = drag.run(backend)
@@ -82,7 +82,7 @@ class TestDragEndToEnd(QiskitExperimentsTestCase):
         self.assertEqual(result.quality, "good")
 
         # Large leakage will make the curves oscillate quickly.
-        backend = DragBackend(freq=0.01, gate_name="Drag(xp)")
+        backend = DragBackend(freq=0.04, gate_name="Drag(xp)")
 
         drag = RoughDrag(1, self.x_plus, betas=np.linspace(-4, 4, 31))
         drag.set_run_options(shots=200)
@@ -98,11 +98,11 @@ class TestDragEndToEnd(QiskitExperimentsTestCase):
         self.assertEqual(result.quality, "good")
 
     @data(
-        (0.0010, 1.0, 0.00, [1, 3, 5], None, 0.1),  # partial oscillation.
-        (0.0005, 0.5, 0.00, [1, 3, 5], None, 0.5),  # even slower oscillation with amp < 1
-        (0.0010, 0.8, 0.05, [3, 5, 7], None, 0.1),  # constant offset, i.e. lower SNR.
-        (0.0200, 0.9, 0.05, [1, 3, 5], np.linspace(-1, 1, 51), 0.1),  # Beta not in range
-        (0.0500, 0.5, 0.10, [1, 3, 5], np.linspace(-2.5, 2.5, 51), 0.1),  # Max closer to zero
+        (0.0040, 1.0, 0.00, [1, 3, 5], None, 0.1),  # partial oscillation.
+        (0.0020, 0.5, 0.00, [1, 3, 5], None, 0.5),  # even slower oscillation with amp < 1
+        (0.0040, 0.8, 0.05, [3, 5, 7], None, 0.1),  # constant offset, i.e. lower SNR.
+        (0.0800, 0.9, 0.05, [1, 3, 5], np.linspace(-1, 1, 51), 0.1),  # Beta not in range
+        (0.2000, 0.5, 0.10, [1, 3, 5], np.linspace(-2.5, 2.5, 51), 0.1),  # Max closer to zero
     )
     @unpack
     def test_nasty_data(self, freq, amp, offset, reps, betas, tol):
