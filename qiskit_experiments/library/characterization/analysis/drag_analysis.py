@@ -123,11 +123,6 @@ class DragCalAnalysis(curve.CurveAnalysis):
 
         See :meth:`~qiskit_experiment.curve_analysis.CurveAnalysis._default_options` for
         descriptions of analysis options.
-
-        Analysis Options:
-            beta_integers_check (Sequence[int]): A sequence of integers that is used to
-                ensure that we return the beta closest to zero. See the method
-                :meth:`_post_process_fit_result`.
         """
         default_options = super()._default_options()
         default_options.result_parameters = ["beta"]
@@ -135,7 +130,6 @@ class DragCalAnalysis(curve.CurveAnalysis):
         default_options.ylabel = "Signal (arb. units)"
         default_options.fixed_parameters = {"reps0": 1, "reps1": 3, "reps2": 5}
         default_options.normalization = True
-        default_options.beta_integers_check = [-5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5]
 
         return default_options
 
@@ -199,7 +193,7 @@ class DragCalAnalysis(curve.CurveAnalysis):
             \cos(2 \pi\cdot {\rm reps}_i \cdot {\rm freq}\cdot [x - \beta])
 
         There is a periodicity in beta. This post processing finds the beta that is
-        closest to zero by performing the minimization
+        closest to zero by performing the minimization using the modulo function.
 
         .. math::
 
@@ -213,9 +207,7 @@ class DragCalAnalysis(curve.CurveAnalysis):
         """
         beta = fit_result.popt[2]
         freq = fit_result.popt[1]
-        betas = [abs(beta + n / freq) for n in self.options.beta_integers_check]
-        n_min = self.options.beta_integers_check[np.argmin(betas)]
-        fit_result.popt[2] = beta + n_min / freq
+        fit_result.popt[2] = ((beta + 1 / freq / 2) % (1 / freq)) - 1 / freq / 2
         return fit_result
 
     def _evaluate_quality(self, fit_data: curve.FitData) -> Union[str, None]:
