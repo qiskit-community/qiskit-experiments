@@ -19,7 +19,8 @@ from qiskit import QuantumCircuit
 from qiskit.providers import Backend
 
 from qiskit_experiments.framework import BaseExperiment, Options
-from qiskit_experiments.library.characterization.analysis import FineHalfAngleAnalysis
+from qiskit_experiments.curve_analysis.standard_analysis import ErrorAmplificationAnalysis
+from qiskit_experiments.curve_analysis import ParameterRepr
 
 
 class HalfAngle(BaseExperiment):
@@ -84,7 +85,23 @@ class HalfAngle(BaseExperiment):
             qubit: The qubit on which to run the fine amplitude calibration experiment.
             backend: Optional, the backend to run the experiment on.
         """
-        super().__init__([qubit], analysis=FineHalfAngleAnalysis(), backend=backend)
+        analysis = ErrorAmplificationAnalysis()
+
+        default_bounds = analysis.options.bounds
+        default_bounds.update({"d_theta": (-np.pi / 2, np.pi / 2)})
+
+        analysis.set_options(
+            fixed_parameters={
+                "angle_per_gate": np.pi,
+                "phase_offset": -np.pi / 2,
+                "amp": 1.0,
+            },
+            result_parameters=[ParameterRepr("d_theta", "d_hac", "rad")],
+            normalization=True,
+            bounds=default_bounds,
+        )
+
+        super().__init__([qubit], analysis=analysis, backend=backend)
 
     @staticmethod
     def _pre_circuit() -> QuantumCircuit:
