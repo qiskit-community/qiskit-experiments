@@ -48,9 +48,9 @@ class DragCalAnalysis(curve.CurveAnalysis):
 
             {\rm reps}_i * {\rm freq} * (x - \beta) = N
 
-        is satisfied with :math:`N` an integer. Note, however, that there is an ambiguity
-        in :math:`\beta` if the amplitude is not properly bounded. We avoid this ambiguity
-        by bounding the amplitude from above by 0.
+        is satisfied with :math:`N` an integer. Note, however, that this condition
+        produces a minimum only when the amplitude is negative. To ensure this is
+        the case, we bound the amplitude to be less than 0.
 
     # section: fit_parameters
         defpar \rm amp:
