@@ -267,7 +267,7 @@ class CompositeFitFunction(FitModel):
     the corresponding outcome is :math:`Y =\vec{y}_0 \oplus \vec{y}_1 \oplus ...`.
 
     In the Qiskit Experiments, these data sources are represented by
-    a single flat array ``vec[k]``, rather than a jugged array ``mat[i, j]``.
+    a single 1D array ``vec[k]``, rather than a 2D array ``mat[i, j]``.
     To keep the mapping of the datum at index :math:`k` to the original series :math:`i`,
     an extra index vector ``data_allocation`` :math:`I` must be
     provided with :math:`X` and :math:`Y`.

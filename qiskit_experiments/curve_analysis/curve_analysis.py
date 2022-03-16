@@ -1101,16 +1101,21 @@ class CurveAnalysis(BaseAnalysis, ABC):
         return instance
 
     def __getstate__(self):
+        """Remove entries from :code:`self.__dict__` that cannot be pickled.
+
+        Instances of ``CurveAnalysis`` must be serializable. However, the fit model they contain, i.e.
+        `self._fit_model` has fit functions which are typically defined as lambda functions. These
+        lambda functions are not serializable. Therefore, to make them serializable with pickle we
+        remove them from the state dictionary. Deserialization reconstructs the fit  model from
+        the class fit model and the fixed parameters in the options (see ``__setstate__``).
+        """
         state = self.__dict__.copy()
-        # Remove fit model. Many subclasses define fit functions as lambda function.
-        # In python lambda function is not picklable so instance's fit model is removed here.
-        # This can be easily reconstructed from the class attribute's fit model.
         del state["_fit_model"]
         return state
 
     def __setstate__(self, state):
+        """Reconstruct fit model from the class attribute."""
         self.__dict__.update(state)
-        # Reconstruct fit model from the class attribute.
         self._fit_model = self._cls_fit_model.copy()
         self._fit_model.bind_parameters(**self.options.fixed_parameters)
 
