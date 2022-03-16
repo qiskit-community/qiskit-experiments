@@ -158,7 +158,7 @@ class DragCalAnalysis(curve.CurveAnalysis):
             amp=(-2 * ptp_y, 0),
             freq=(0, np.inf),
             beta=(avg_x - beta_bound, avg_x + beta_bound),
-            base=(-ptp_y, ptp_y),
+            base=(min(self._data().y) - ptp_y, max(self._data().y) + ptp_y),
         )
         base_guess = (max(self._data().y) - min(self._data().y)) / 2
         user_opt.p0.set_if_empty(base=(user_opt.p0["amp"] or base_guess))
