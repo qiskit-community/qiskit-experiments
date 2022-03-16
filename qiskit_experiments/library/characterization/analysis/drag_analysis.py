@@ -145,7 +145,9 @@ class DragCalAnalysis(curve.CurveAnalysis):
 
         # Use the highest-frequency curve to estimate the oscillation frequency.
         series_label, reps_label = max(
-            ("series-0", "reps0"), ("series-1", "reps1"), ("series-2", "reps2"),
+            ("series-0", "reps0"),
+            ("series-1", "reps1"),
+            ("series-2", "reps2"),
             key=lambda x: self.options.fixed_parameters[x[1]],
         )
         curve_data = self._data(series_label)
