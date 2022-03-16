@@ -42,10 +42,16 @@ class T2HahnAnalysis(curve.DecayAnalysis):
             "tau": (0.0, np.inf),
             "base": (0.0, 1.0),
         }
+        options.result_parameters = [curve.ParameterRepr("tau", "T2", "s")]
+
+        return options
+
+    @classmethod
+    def _default_draw_options(cls):
+        options = super()._default_draw_options()
         options.xlabel = "Delay"
         options.ylabel = "P(0)"
         options.xval_unit = "s"
-        options.result_parameters = [curve.ParameterRepr("tau", "T2", "s")]
 
         return options
 

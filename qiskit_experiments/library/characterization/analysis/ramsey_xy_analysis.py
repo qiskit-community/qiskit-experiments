@@ -96,6 +96,12 @@ class RamseyXYAnalysis(curve.CurveAnalysis):
         """
         default_options = super()._default_options()
         default_options.result_parameters = ["freq"]
+
+        return default_options
+
+    @classmethod
+    def _default_draw_options(cls):
+        default_options = super()._default_draw_options()
         default_options.xlabel = "Delay"
         default_options.xval_unit = "s"
         default_options.ylabel = "Signal (arb. units)"

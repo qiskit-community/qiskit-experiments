@@ -31,10 +31,16 @@ class T1Analysis(curve.DecayAnalysis):
     def _default_options(cls) -> Options:
         """Default analysis options."""
         options = super()._default_options()
+        options.result_parameters = [curve.ParameterRepr("tau", "T1", "s")]
+
+        return options
+
+    @classmethod
+    def _default_draw_options(cls):
+        options = super()._default_draw_options()
         options.xlabel = "Delay"
         options.ylabel = "P(1)"
         options.xval_unit = "s"
-        options.result_parameters = [curve.ParameterRepr("tau", "T1", "s")]
 
         return options
 

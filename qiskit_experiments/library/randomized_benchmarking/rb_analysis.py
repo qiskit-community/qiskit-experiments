@@ -81,12 +81,19 @@ class RBAnalysis(curve.CurveAnalysis):
 
         """
         default_options = super()._default_options()
-        default_options.xlabel = "Clifford Length"
-        default_options.ylabel = "P(0)"
         default_options.result_parameters = ["alpha"]
         default_options.error_dict = None
         default_options.epg_1_qubit = None
         default_options.gate_error_ratio = None
+
+        return default_options
+
+    @classmethod
+    def _default_draw_options(cls):
+        default_options = super()._default_draw_options()
+        default_options.xlabel = "Clifford Length"
+        default_options.ylabel = "P(0)"
+        default_options.plot_raw_data = True
 
         return default_options
 

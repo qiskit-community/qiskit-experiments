@@ -37,7 +37,7 @@ from qiskit_experiments.curve_analysis.curve_data import (
 )
 from qiskit_experiments.curve_analysis.curve_fit import multi_curve_fit
 from qiskit_experiments.curve_analysis.data_processing import multi_mean_xy_data, data_sort
-from qiskit_experiments.curve_analysis.visualization import FitResultPlotters, PlotterStyle
+from qiskit_experiments.curve_analysis.drawer_mixin import CurveDrawerMixin
 from qiskit_experiments.data_processing import DataProcessor
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
 from qiskit_experiments.data_processing.processor_library import get_processor
@@ -54,7 +54,7 @@ PARAMS_ENTRY_PREFIX = "@Parameters_"
 DATA_ENTRY_PREFIX = "@Data_"
 
 
-class CurveAnalysis(BaseAnalysis, ABC):
+class CurveAnalysis(BaseAnalysis, CurveDrawerMixin, ABC):
     """A base class for curve fit type analysis.
 
     The subclasses can override class attributes to define the behavior of
@@ -252,6 +252,9 @@ class CurveAnalysis(BaseAnalysis, ABC):
                 p: self.options.get(p, None) for p in self.__fixed_parameters__
             }
 
+        # Set drawing options
+        self._draw_options = self._default_draw_options()
+
         #: Dict[str, Any]: Experiment metadata
         self.__experiment_metadata = None
 
@@ -307,22 +310,6 @@ class CurveAnalysis(BaseAnalysis, ABC):
                 of (min, max) tuple of fit parameter boundaries.
             x_key (str): Circuit metadata key representing a scanned value.
             plot (bool): Set ``True`` to create figure for fit result.
-            axis (AxesSubplot): Optional. A matplotlib axis object to draw.
-            xlabel (str): X label of fit result figure.
-            ylabel (str): Y label of fit result figure.
-            xlim (Tuple[float, float]): Min and max value of horizontal axis of the fit plot.
-            ylim (Tuple[float, float]): Min and max value of vertical axis of the fit plot.
-            xval_unit (str): SI unit of x values. No prefix is needed here.
-                For example, when the x values represent time, this option will be just "s"
-                rather than "ms". In the fit result plot, the prefix is automatically selected
-                based on the maximum value. If your x values are in [1e-3, 1e-4], they
-                are displayed as [1 ms, 10 ms]. This option is likely provided by the
-                analysis class rather than end-users. However, users can still override
-                if they need different unit notation. By default, this option is set to ``None``,
-                and no scaling is applied. X axis will be displayed in the scientific notation.
-            yval_unit (str): Unit of y values. Same as ``xval_unit``.
-                This value is not provided in most experiments, because y value is usually
-                population or expectation values.
             result_parameters (List[Union[str, ParameterRepr]): Parameters reported in the
                 database as a dedicated entry. This is a list of parameter representation
                 which is either string or ParameterRepr object. If you provide more
@@ -331,13 +318,6 @@ class CurveAnalysis(BaseAnalysis, ABC):
                 The parameter name should be defined in the series definition.
                 Representation should be printable in standard output, i.e. no latex syntax.
             return_data_points (bool): Set ``True`` to return formatted XY data.
-            curve_plotter (str): A name of plotter function used to generate
-                the curve fit result figure. This refers to the mapper
-                :py:class:`~qiskit_experiments.curve_analysis.visualization.FitResultPlotters`
-                to retrieve the corresponding callback function.
-            style (PlotterStyle): An instance of
-                :py:class:`~qiskit_experiments.curve_analysis.visualization.style.PlotterStyle`
-                that contains a set of configurations to create a fit plot.
             extra (Dict[str, Any]): A dictionary that is appended to all database entries
                 as extra information.
             curve_fitter_options (Dict[str, Any]) Options that are passed to the
@@ -353,17 +333,8 @@ class CurveAnalysis(BaseAnalysis, ABC):
         options.normalization = False
         options.x_key = "xval"
         options.plot = True
-        options.axis = None
-        options.xlabel = None
-        options.ylabel = None
-        options.xlim = None
-        options.ylim = None
-        options.xval_unit = None
-        options.yval_unit = None
         options.result_parameters = None
         options.return_data_points = False
-        options.curve_plotter = "mpl_single_canvas"
-        options.style = PlotterStyle()
         options.extra = dict()
         options.curve_fitter_options = dict()
         options.p0 = {}
@@ -371,6 +342,40 @@ class CurveAnalysis(BaseAnalysis, ABC):
         options.fixed_parameters = {}
 
         return options
+
+    def set_options(self, **fields):
+        """Set the analysis options for :meth:`run` method.
+
+        Args:
+            fields: The fields to update the options
+
+        Raises:
+            KeyError: When removed option ``curve_fitter`` is set.
+        """
+        # TODO remove this in Qiskit Experiments v0.4
+        if "curve_plotter" in fields:
+            raise KeyError("Option curve_plotter has been removed. Please check CurveDrawerMixin.")
+
+        draw_options = set(self._draw_options.__dict__.keys()) | {"style"}
+        deprecated = draw_options & fields.keys()
+        if any(deprecated):
+            warnings.warn(
+                f"Option(s) {deprecated} have been moved to draw_options and will be removed soon. "
+                "Use set_draw_options instead.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            draw_options = dict()
+            for depopt in deprecated:
+                if depopt == "style":
+                    for k, v in fields.pop("style").items():
+                        draw_options[k] = v
+                else:
+                    draw_options[depopt] = fields.pop(depopt)
+
+            self.set_draw_options(**draw_options)
+
+        super().set_options(**fields)
 
     def _generate_fit_guesses(self, user_opt: FitOptions) -> Union[FitOptions, List[FitOptions]]:
         """Create algorithmic guess with analysis options and curve data.
@@ -786,6 +791,7 @@ class CurveAnalysis(BaseAnalysis, ABC):
             for series_def in self.__series__:
                 dict_def = dataclasses.asdict(series_def)
                 dict_def["fit_func"] = functools.partial(series_def.fit_func, **assigned_params)
+                del dict_def["signature"]
                 assigned_series.append(SeriesDef(**dict_def))
             self.__series__ = assigned_series
 
@@ -956,24 +962,49 @@ class CurveAnalysis(BaseAnalysis, ABC):
         # 6. Create figures
         #
         if self.options.plot:
-            fit_figure = FitResultPlotters[self.options.curve_plotter].value.draw(
-                series_defs=self.__series__,
-                raw_samples=[self._data(ser.name, "raw_data") for ser in self.__series__],
-                fit_samples=[self._data(ser.name, "fit_ready") for ser in self.__series__],
-                tick_labels={
-                    "xval_unit": self.options.xval_unit,
-                    "yval_unit": self.options.yval_unit,
-                    "xlabel": self.options.xlabel,
-                    "ylabel": self.options.ylabel,
-                    "xlim": self.options.xlim,
-                    "ylim": self.options.ylim,
-                },
-                fit_data=fit_result,
-                result_entries=analysis_results,
-                style=self.options.style,
-                axis=self.options.axis,
-            )
-            figures = [fit_figure]
+            # initialize axis
+            axis = self._initialize_canvas()
+            # write raw data
+            if self.draw_options.plot_raw_data:
+                for s in self.__series__:
+                    raw_data = self._data(label="raw_data", series_name=s.name)
+                    self._draw_raw_data(
+                        axis=axis,
+                        x_data=raw_data.x,
+                        y_data=raw_data.y,
+                        axis_ind=s.canvas,
+                    )
+            # write data points
+            for s in self.__series__:
+                curve_data = self._data(label="fit_ready", series_name=s.name)
+                self._draw_formatted_data(
+                    axis=axis,
+                    x_data=curve_data.x,
+                    y_data=curve_data.y,
+                    y_err_data=curve_data.y_err,
+                    axis_ind=s.canvas,
+                    color=s.plot_color,
+                    marker=s.plot_symbol,
+                )
+            # write fit results if fitting succeeded
+            if fit_result:
+                for s in self.__series__:
+                    self._draw_fit_lines(
+                        axis=axis,
+                        fit_function=s.fit_func,
+                        signature=s.signature,
+                        fit_result=fit_result,
+                        fixed_params=self.options.fixed_parameters,
+                        axis_ind=s.canvas,
+                        color=s.plot_color,
+                    )
+                self._draw_fit_report(
+                    axis=axis,
+                    analysis_results=analysis_results,
+                    chisq=fit_result.reduced_chisq,
+                )
+            self._format_axis(axis)
+            figures = [axis.get_figure()]
         else:
             figures = []
 

@@ -121,6 +121,12 @@ class DragCalAnalysis(curve.CurveAnalysis):
         """
         default_options = super()._default_options()
         default_options.result_parameters = ["beta"]
+
+        return default_options
+
+    @classmethod
+    def _default_draw_options(cls):
+        default_options = super()._default_draw_options()
         default_options.xlabel = "Beta"
         default_options.ylabel = "Signal (arb. units)"
         default_options.fixed_parameters = {"reps0": 1, "reps1": 3, "reps2": 5}

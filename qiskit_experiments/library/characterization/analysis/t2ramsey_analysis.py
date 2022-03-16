@@ -33,13 +33,19 @@ class T2RamseyAnalysis(curve.DumpedOscillationAnalysis):
         options.data_processor = DataProcessor(
             input_key="counts", data_actions=[Probability(outcome="0")]
         )
-        options.xlabel = "Delay"
-        options.ylabel = "P(0)"
-        options.xval_unit = "s"
         options.result_parameters = [
             curve.ParameterRepr("freq", "Frequency", "Hz"),
             curve.ParameterRepr("tau", "T2star", "s"),
         ]
+
+        return options
+
+    @classmethod
+    def _default_draw_options(cls):
+        options = super()._default_draw_options()
+        options.xlabel = "Delay"
+        options.ylabel = "P(0)"
+        options.xval_unit = "s"
 
         return options
 

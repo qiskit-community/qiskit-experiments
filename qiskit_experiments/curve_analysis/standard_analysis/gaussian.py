@@ -73,9 +73,15 @@ class GaussianAnalysis(curve.CurveAnalysis):
         options = super()._default_options()
         options.result_parameters = [curve.ParameterRepr("freq", "f01", "Hz")]
         options.normalization = True
+        return options
+
+    @classmethod
+    def _default_draw_options(cls):
+        options = super()._default_draw_options()
         options.xlabel = "Frequency"
         options.ylabel = "Signal (arb. units)"
         options.xval_unit = "Hz"
+
         return options
 
     def _generate_fit_guesses(

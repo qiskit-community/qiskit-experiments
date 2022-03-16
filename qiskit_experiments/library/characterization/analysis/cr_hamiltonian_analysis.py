@@ -200,15 +200,19 @@ class CrossResonanceHamiltonianAnalysis(curve.CurveAnalysis):
             input_key="counts",
             data_actions=[dp.Probability("1"), dp.BasisExpectationValue()],
         )
-        default_options.curve_plotter = "mpl_multiv_canvas"
+
+        return default_options
+
+    @classmethod
+    def _default_draw_options(cls):
+        default_options = super()._default_draw_options()
+        default_options.subplots = (3, 1)
         default_options.xlabel = "Flat top width"
-        default_options.ylabel = "<X(t)>,<Y(t)>,<Z(t)>"
+        default_options.ylabel = ["<X(t)>", "<Y(t)>", "<Z(t)>"]
         default_options.xval_unit = "s"
-        default_options.style = curve.visualization.PlotterStyle(
-            figsize=(8, 10),
-            legend_loc="lower right",
-            fit_report_rpos=(0.28, -0.10),
-        )
+        default_options.figsize = (8, 10)
+        default_options.legend_loc = "lower right"
+        default_options.fit_report_rpos = (0.28, -0.10)
         default_options.ylim = (-1, 1)
 
         return default_options

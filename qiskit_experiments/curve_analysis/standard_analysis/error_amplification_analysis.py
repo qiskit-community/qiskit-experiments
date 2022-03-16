@@ -110,10 +110,16 @@ class ErrorAmplificationAnalysis(curve.CurveAnalysis):
         """
         default_options = super()._default_options()
         default_options.result_parameters = ["d_theta"]
+        default_options.max_good_angle_error = np.pi / 2
+
+        return default_options
+
+    @classmethod
+    def _default_draw_options(cls):
+        default_options = super()._default_draw_options()
         default_options.xlabel = "Number of gates (n)"
         default_options.ylabel = "Population"
-        default_options.ylim = [0, 1.0]
-        default_options.max_good_angle_error = np.pi / 2
+        default_options.ylim = (0, 1.0)
 
         return default_options
 
