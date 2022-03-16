@@ -14,6 +14,7 @@
 
 from test.base import QiskitExperimentsTestCase
 import unittest
+from ddt import ddt, data, unpack
 import numpy as np
 
 from qiskit.circuit import Parameter
@@ -30,6 +31,7 @@ from qiskit_experiments.calibration_management.basis_gate_library import FixedFr
 from qiskit_experiments.calibration_management import Calibrations
 
 
+@ddt
 class TestDragEndToEnd(QiskitExperimentsTestCase):
     """Test the drag experiment."""
 
@@ -43,7 +45,7 @@ class TestDragEndToEnd(QiskitExperimentsTestCase):
             pulse.play(Drag(duration=160, amp=0.208519, sigma=40, beta=beta), DriveChannel(0))
 
         self.x_plus = xp
-        self.test_tol = 0.05
+        self.test_tol = 0.1
 
     def test_reps(self):
         """Test that setting reps raises and error if reps is not of length three."""
@@ -69,10 +71,9 @@ class TestDragEndToEnd(QiskitExperimentsTestCase):
 
         # Small leakage will make the curves very flat, in this case one should
         # rather increase beta.
-        backend = DragBackend(error=0.0051, gate_name="Drag(xp)")
+        backend = DragBackend(freq=0.0044, gate_name="Drag(xp)")
 
         drag = RoughDrag(0, self.x_plus)
-        drag.analysis.set_options(p0={"beta": 1.2})
         exp_data = drag.run(backend)
         self.assertExperimentDone(exp_data)
         result = exp_data.analysis_results(1)
@@ -81,11 +82,11 @@ class TestDragEndToEnd(QiskitExperimentsTestCase):
         self.assertEqual(result.quality, "good")
 
         # Large leakage will make the curves oscillate quickly.
-        backend = DragBackend(error=0.05, gate_name="Drag(xp)")
+        backend = DragBackend(freq=0.04, gate_name="Drag(xp)")
 
         drag = RoughDrag(1, self.x_plus, betas=np.linspace(-4, 4, 31))
         drag.set_run_options(shots=200)
-        drag.analysis.set_options(p0={"beta": 1.8, "freq0": 0.08, "freq1": 0.16, "freq2": 0.32})
+        drag.analysis.set_options(p0={"beta": 1.8, "freq": 0.08})
         exp_data = drag.run(backend)
         self.assertExperimentDone(exp_data)
         result = exp_data.analysis_results(1)
@@ -94,6 +95,28 @@ class TestDragEndToEnd(QiskitExperimentsTestCase):
 
         self.assertEqual(meas_level, MeasLevel.CLASSIFIED)
         self.assertTrue(abs(result.value.n - backend.ideal_beta) < self.test_tol)
+        self.assertEqual(result.quality, "good")
+
+    @data(
+        (0.0040, 1.0, 0.00, [1, 3, 5], None, 0.1),  # partial oscillation.
+        (0.0020, 0.5, 0.00, [1, 3, 5], None, 0.5),  # even slower oscillation with amp < 1
+        (0.0040, 0.8, 0.05, [3, 5, 7], None, 0.1),  # constant offset, i.e. lower SNR.
+        (0.0800, 0.9, 0.05, [1, 3, 5], np.linspace(-1, 1, 51), 0.1),  # Beta not in range
+        (0.2000, 0.5, 0.10, [1, 3, 5], np.linspace(-2.5, 2.5, 51), 0.1),  # Max closer to zero
+    )
+    @unpack
+    def test_nasty_data(self, freq, amp, offset, reps, betas, tol):
+        """A set of tests for non-ideal data."""
+        backend = DragBackend(freq=freq, gate_name="Drag(xp)", max_prob=amp, offset_prob=offset)
+
+        drag = RoughDrag(0, self.x_plus, betas=betas)
+        drag.set_experiment_options(reps=reps)
+
+        exp_data = drag.run(backend)
+        self.assertExperimentDone(exp_data)
+        result = exp_data.analysis_results("beta")
+
+        self.assertTrue(abs(result.value.n - backend.ideal_beta) < tol)
         self.assertEqual(result.quality, "good")
 
 
@@ -114,7 +137,7 @@ class TestDragCircuits(QiskitExperimentsTestCase):
     def test_default_circuits(self):
         """Test the default circuit."""
 
-        backend = DragBackend(error=0.005, gate_name="Drag(xp)")
+        backend = DragBackend(freq=0.005, gate_name="Drag(xp)")
 
         drag = RoughDrag(0, self.x_plus)
         drag.set_experiment_options(reps=[2, 4, 8])
