@@ -169,9 +169,10 @@ class FineXAmplitudeCal(FineAmplitudeCal):
             auto_update=auto_update,
         )
         self.analysis.set_options(
-            angle_per_gate=np.pi,
-            phase_offset=np.pi / 2,
-            amp=1,
+            fixed_parameters={
+                "angle_per_gate": np.pi,
+                "phase_offset": np.pi / 2,
+            }
         )
 
     @classmethod
@@ -220,8 +221,10 @@ class FineSXAmplitudeCal(FineAmplitudeCal):
             auto_update=auto_update,
         )
         self.analysis.set_options(
-            angle_per_gate=np.pi / 2,
-            phase_offset=np.pi,
+            fixed_parameters={
+                "angle_per_gate": np.pi / 2,
+                "phase_offset": np.pi,
+            }
         )
 
     @classmethod

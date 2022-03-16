@@ -33,16 +33,19 @@ from qiskit.providers import JobV1 as Job
 from qiskit.providers import JobStatus
 
 from qiskit_experiments.database_service import DbExperimentDataV1 as DbExperimentData
+from qiskit_experiments.database_service import DbAnalysisResultV1 as DbAnalysisResult
 from qiskit_experiments.database_service import DatabaseServiceV1
 from qiskit_experiments.database_service.exceptions import (
     DbExperimentDataError,
     DbExperimentEntryNotFound,
     DbExperimentEntryExists,
 )
+from qiskit_experiments.database_service.device_component import Qubit
 from qiskit_experiments.database_service.db_experiment_data import (
     AnalysisStatus,
     ExperimentStatus,
 )
+from qiskit_experiments.framework.matplotlib import get_non_gui_ax
 
 
 class TestDbExperimentData(QiskitExperimentsTestCase):
@@ -790,6 +793,66 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         self.assertEqual(ExperimentStatus.ERROR, exp_data.status())
         self.assertIn("Kaboom", ",".join(cm.output))
         self.assertTrue(re.match(r".*5678.*Kaboom!", exp_data.errors(), re.DOTALL))
+
+    def test_simple_methods_from_callback(self):
+        """Test that simple methods used in call back function don't hang
+
+        This test runs through many of the public methods of DbExperimentData
+        from analysis callbacks to make sure that they do not raise exceptions
+        or hang the analysis thread. Hangs have occurred in the past when one
+        of these methods blocks waiting for analysis to complete.
+
+        These methods are not tested because they explicitly assume they are
+        run from the main thread:
+
+            + copy
+            + block_for_results
+
+        These methods are not tested because they require additional setup.
+        They could be tested in separate tests:
+
+            + save
+            + save_metadata
+            + add_jobs
+            + cancel
+            + cancel_analysis
+            + cancel_jobs
+        """
+
+        def callback1(exp_data):
+            """Callback function that call add_analysis_callback"""
+            exp_data.add_analysis_callback(callback2)
+            result = DbAnalysisResult("result_name", 0, [Qubit(0)], "experiment_id")
+            exp_data.add_analysis_results(result)
+            figure = get_non_gui_ax().get_figure()
+            exp_data.add_figures(figure, "figure.svg")
+            exp_data.add_data({"key": 1.2})
+            exp_data.data()
+
+        def callback2(exp_data):
+            """Callback function that exercises status lookups"""
+            exp_data.figure("figure.svg")
+            exp_data.jobs()
+
+            exp_data.analysis_results("result_name", block=False)
+
+            exp_data.delete_figure("figure.svg")
+            exp_data.delete_analysis_result("result_name")
+
+            exp_data.status()
+            exp_data.job_status()
+            exp_data.analysis_status()
+
+            exp_data.errors()
+            exp_data.job_errors()
+            exp_data.analysis_errors()
+
+        exp_data = DbExperimentData(experiment_type="qiskit_test")
+
+        exp_data.add_analysis_callback(callback1)
+        exp_data.block_for_results(timeout=3)
+
+        self.assertEqual(exp_data.analysis_status(), AnalysisStatus.DONE)
 
     def test_source(self):
         """Test getting experiment source."""
