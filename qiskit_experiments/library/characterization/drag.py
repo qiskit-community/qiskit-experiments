@@ -99,24 +99,21 @@ class RoughDrag(BaseExperiment):
         Raises:
             CalibrationError: if the number of repetitions is different from three.
         """
-
-        if reps is None:
-            reps = [1, 3, 5]
-        else:
+        if reps is not None:
+            if len(reps) != 3:
+                raise CalibrationError(
+                    f"{self.__class__.__name__} must use exactly three repetition numbers. "
+                    f"Received {reps} with length {len(reps)} != 3."
+                )
             reps = sorted(reps)  # ensure reps 1 is the lowest frequency.
+            super().set_experiment_options(reps=reps)
 
-        if len(reps) != 3:
-            raise CalibrationError(
-                f"{self.__class__.__name__} must use exactly three repetition numbers. "
-                f"Received {reps} with length {len(reps)} != 3."
-            )
+            if isinstance(self.analysis, DragCalAnalysis):
+                self.analysis.set_options(
+                    fixed_parameters={"reps0": reps[0], "reps1": reps[1], "reps2": reps[2]}
+                )
 
-        super().set_experiment_options(reps=reps, **fields)
-
-        if isinstance(self.analysis, DragCalAnalysis):
-            self.analysis.set_options(
-                fixed_parameters={"reps0": reps[0], "reps1": reps[1], "reps2": reps[2]}
-            )
+        super().set_experiment_options(**fields)
 
     def __init__(
         self,
