@@ -932,6 +932,7 @@ class Calibrations:
         candidates = [val for val in candidates if val.group == group]
 
         if cutoff_date:
+            cutoff_date = cutoff_date.astimezone()
             candidates = [val for val in candidates if val.date_time <= cutoff_date]
 
         if len(candidates) == 0:
