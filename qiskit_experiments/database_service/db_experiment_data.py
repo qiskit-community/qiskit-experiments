@@ -428,7 +428,7 @@ class DbExperimentDataV1(DbExperimentData):
                     job.error_message(),
                 )
                 return jid, False
-            LOG.warning("Addind data from job failed [Job ID: %s]", job.job_id())
+            LOG.warning("Adding data from job failed [Job ID: %s]", job.job_id())
             raise ex
 
     def add_analysis_callback(self, callback: Callable, **kwargs: Any):
