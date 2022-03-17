@@ -96,7 +96,8 @@ class Calibrations:
                 qubits is :code:`[[0, 1], [1, 0], [1, 2], [2, 1], [2, 0], [0, 2]]`.
             control_channel_map: A configuration dictionary of any control channels. The
                 keys are tuples of qubits and the values are a list of ControlChannels
-                that correspond to the qubits in the keys.
+                that correspond to the qubits in the keys. If a control_channel_map is given
+                then the qubits must be in the coupling_map.
             library: A library instance from which to get template schedules to register as well
                 as default parameter values.
             add_parameter_defaults: A boolean to indicate weather the default parameter values of
@@ -174,14 +175,31 @@ class Calibrations:
         self._register_parameter(self.meas_freq, ())
 
         # Backends with a single qubit may not have a coupling map.
-        num_qubits = max(max(coupling_map)) + 1 if coupling_map is not None else 1
-
-        self._qubits = list(range(num_qubits))
-        self._coupling_map = coupling_map
+        self._coupling_map = coupling_map or []
         self._operated_qubits = self._get_operated_qubits()
+        self._check_consistency()
 
         # Push the schedules to the instruction schedule map.
         self.update_inst_map()
+
+    def _check_consistency(self):
+        """Check that the attributes defined in self are consistent.
+
+        Raises:
+            CalibrationError: If there is a control channel map but no coupling map.
+            CalibrationError: If a qubit in the control channel map is not in the
+                coupling map.
+        """
+        if not self._coupling_map and self._control_channel_map:
+            raise CalibrationError("No coupling map but a control channel map was found.")
+
+        if self._coupling_map and self._control_channel_map:
+            cmap_qubits = set(qubit for pair in self._coupling_map for qubit in pair)
+            for qubits in self._control_channel_map:
+                if not set(qubits).issubset(cmap_qubits):
+                    raise CalibrationError(
+                        f"Qubits {qubits} of control_channel_map are not in the coupling map."
+                    )
 
     @property
     def backend_name(self) -> str:
@@ -268,8 +286,12 @@ class Calibrations:
         operated_qubits = defaultdict(list)
 
         # Single qubits
-        for qubit in self._qubits:
-            operated_qubits[1].append([qubit])
+        if self._coupling_map:
+            for qubit in set(qubit for coupled in self._coupling_map for qubit in coupled):
+                operated_qubits[1].append([qubit])
+        else:
+            # Edge case for single-qubit device.
+            operated_qubits[1].append([0])
 
         # Multi-qubit couplings
         if self._coupling_map is not None:
@@ -353,7 +375,7 @@ class Calibrations:
             if schedules is not None and sched_name not in schedules:
                 continue
 
-            if qubits is not None:
+            if qubits:
                 self._robust_inst_map_add(inst_map, sched_name, qubits, group, cutoff_date)
             else:
                 for qubits_ in self._operated_qubits[self._schedules_qubits[key]]:
@@ -770,7 +792,7 @@ class Calibrations:
         if update_inst_map and schedule is not None:
             param_obj = self.calibration_parameter(param_name, qubits, sched_name)
             schedules = set(key.schedule for key in self._parameter_map_r[param_obj])
-            self.update_inst_map(schedules)
+            self.update_inst_map(schedules, qubits=qubits)
 
     def _get_channel_index(self, qubits: Tuple[int, ...], chan: PulseChannel) -> int:
         """Get the index of the parameterized channel.
@@ -816,7 +838,7 @@ class Calibrations:
 
                 indices = [int(sub_channel) for sub_channel in qubit_channels.split(".")]
                 ch_qubits = tuple(qubits[index] for index in indices)
-                chs_ = self._control_channel_map[ch_qubits]
+                chs_ = self._control_channel_map.get(ch_qubits, [])
 
                 control_index = 0
                 if len(channel_index_parts) == 2:

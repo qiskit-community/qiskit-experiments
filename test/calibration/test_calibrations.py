@@ -116,6 +116,20 @@ class TestCalibrationsBasic(QiskitExperimentsTestCase):
         self.assertEqual(self.cals.get_parameter_value("amp", 3, "x90p"), 0.1)
         self.assertEqual(self.cals.get_parameter_value("amp", 3, "y90p"), 0.08)
 
+    def test_improper_setup(self):
+        """Check that an error is raised when coupling map and control channel map do not match."""
+        controls = {
+            (3, 2): [ControlChannel(10), ControlChannel(123)],
+            (2, 3): [ControlChannel(15), ControlChannel(23)],
+        }
+        coupling_map = [[0, 1], [1, 0]]
+
+        with self.assertRaises(CalibrationError):
+            Calibrations(coupling_map=coupling_map, control_channel_map=controls)
+
+        with self.assertRaises(CalibrationError):
+            Calibrations(control_channel_map=controls)
+
     def test_preserve_template(self):
         """Test that the template schedule is still fully parametric after we get a schedule."""
 
@@ -774,7 +788,8 @@ class CrossResonanceTest(QiskitExperimentsTestCase):
             (3, 2): [ControlChannel(10), ControlChannel(123)],
             (2, 3): [ControlChannel(15), ControlChannel(23)],
         }
-        self.cals = Calibrations(control_channel_map=controls)
+        coupling_map = [[0, 1], [1, 0], [1, 2], [2, 1], [2, 3], [3, 2]]
+        self.cals = Calibrations(coupling_map=coupling_map, control_channel_map=controls)
 
         self.amp_cr = Parameter("amp")
         self.amp_rot = Parameter("amp_rot")
@@ -894,6 +909,33 @@ class TestControlChannels(CrossResonanceTest):
 
         self.assertEqual(self.cals.get_schedule("tcp", (3, 2)), expected)
 
+    def test_inst_map_stays_consistent(self):
+        """Check that get schedule and inst map are in sync in a complex ECR case.
+
+        This needs to be in a subclass of CrossResonanceTest. Note, that this test
+        will fail if the coupling_map and the control_channel_map are not consistent
+        with each other. This is because the coupling_map is used to build the
+        _operated_qubits variable which determines the qubits of the instruction to
+        which a schedule is associated.
+        """
+
+        # Check that the ECR schedules from get_schedule and the instmap are the same
+        sched_inst = self.cals.default_inst_map.get("cr", (2, 3))
+        self.assertEqual(sched_inst, self.cals.get_schedule("cr", (2,3)))
+
+        # Ensure that sigma is 40
+        insts = block_to_schedule(sched_inst).filter(channels=[DriveChannel(2)]).instructions
+        self.assertEqual(insts[0][1].pulse.sigma, 40)
+
+        # Update sigma to 5 and check that change is propagated through.
+        date_time2 = datetime.strptime("15/09/19 10:22:35", "%d/%m/%y %H:%M:%S")
+        self.cals.add_parameter_value(ParameterValue(5, date_time2), "σ", schedule="xp")
+
+        sched_inst = self.cals.default_inst_map.get("cr", (2, 3))
+        self.assertEqual(sched_inst, self.cals.get_schedule("cr", (2,3)))
+        insts = block_to_schedule(sched_inst).filter(channels=[DriveChannel(2)]).instructions
+        self.assertEqual(insts[0][1].pulse.sigma, 5)
+
 
 class TestAssignment(QiskitExperimentsTestCase):
     """Test simple assignment"""
@@ -903,8 +945,8 @@ class TestAssignment(QiskitExperimentsTestCase):
         super().setUp()
 
         controls = {(3, 2): [ControlChannel(10)]}
-
-        self.cals = Calibrations(control_channel_map=controls)
+        coupling_map = [[2, 3], [3, 2]]
+        self.cals = Calibrations(coupling_map=coupling_map, control_channel_map=controls)
 
         self.amp_xp = Parameter("amp")
         self.ch0 = Parameter("ch0")
@@ -1109,8 +1151,8 @@ class TestCoupledAssigning(QiskitExperimentsTestCase):
         super().setUp()
 
         controls = {(3, 2): [ControlChannel(10)]}
-
-        self.cals = Calibrations(control_channel_map=controls)
+        coupling_map = [[2, 3], [3, 2]]
+        self.cals = Calibrations(coupling_map=coupling_map, control_channel_map=controls)
 
         self.amp_cr = Parameter("amp")
         self.amp_xp = Parameter("amp")
