@@ -39,7 +39,7 @@ Classes
     Calibrations
     ParameterValue
     FixedFrequencyTransmon
-    FixedFrequencyTransmonCR
+    EchoedCrossResonance
     BasisGateLibrary
     BaseCalibrationExperiment
 
@@ -153,6 +153,6 @@ from .parameter_value import ParameterValue
 from .base_calibration_experiment import BaseCalibrationExperiment
 from .basis_gate_library import (
     FixedFrequencyTransmon,
-    FixedFrequencyTransmonCR,
+    EchoedCrossResonance,
     BasisGateLibrary,
 )

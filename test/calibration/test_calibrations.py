@@ -34,7 +34,10 @@ import qiskit.pulse as pulse
 from qiskit.test.mock import FakeArmonk, FakeBelem
 from qiskit_experiments.calibration_management.calibrations import Calibrations, ParameterKey
 from qiskit_experiments.calibration_management.parameter_value import ParameterValue
-from qiskit_experiments.calibration_management.basis_gate_library import FixedFrequencyTransmon
+from qiskit_experiments.calibration_management.basis_gate_library import (
+    FixedFrequencyTransmon,
+    EchoedCrossResonance,
+)
 from qiskit_experiments.exceptions import CalibrationError
 
 
@@ -1624,6 +1627,17 @@ class TestSerialization(QiskitExperimentsTestCase):
         library = FixedFrequencyTransmon(basis_gates=["sx", "x"])
 
         cals = Calibrations.from_backend(backend, library)
+        cals.add_parameter_value(0.12345, "amp", 3, "x")
+
+        self.assertRoundTripSerializable(cals, self.json_equiv)
+
+    def test_library_list(self):
+        """Test serialization when initialized from a list"""
+        backend = FakeBelem()
+        sq_lib = FixedFrequencyTransmon(basis_gates=["sx", "x"])
+        libraries = [sq_lib, EchoedCrossResonance(sq_lib)]
+
+        cals = Calibrations.from_backend(backend, libraries)
         cals.add_parameter_value(0.12345, "amp", 3, "x")
 
         self.assertRoundTripSerializable(cals, self.json_equiv)

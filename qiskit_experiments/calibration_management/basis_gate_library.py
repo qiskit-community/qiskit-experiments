@@ -39,6 +39,7 @@ class BasisGateLibrary(ABC, Mapping):
         self,
         basis_gates: Optional[List[str]] = None,
         default_values: Optional[Dict] = None,
+        other_libraries: Optional[List["BasisGateLibrary"]] = None,
         **extra_kwargs,
     ):
         """Setup the library.
@@ -48,6 +49,8 @@ class BasisGateLibrary(ABC, Mapping):
             default_values: A dictionary to override library default parameter values.
             extra_kwargs: Extra key-word arguments of the subclasses that are saved to be able
                 to reconstruct the library using the :meth:`__init__` method.
+            other_libraries: A list of other libraries that ``self`` can use to, e.g., call
+                other schedules that it needs when building its own schedules.
 
         Raises:
             CalibrationError: If on of the given basis gates is not supported by the library.
@@ -55,6 +58,7 @@ class BasisGateLibrary(ABC, Mapping):
         # Update the default values.
         self._extra_kwargs = extra_kwargs
         self._default_values = self.__default_values__.copy()
+        self._other_libraries = other_libraries
         if default_values is not None:
             self._default_values.update(default_values)
 
@@ -68,7 +72,7 @@ class BasisGateLibrary(ABC, Mapping):
                     f"Supported gates are: {self.__supported_gates__}."
                 )
 
-        self._schedules = self._build_schedules(set(basis_gates))
+        self._schedules = self._build_schedules(set(basis_gates), other_libraries)
 
     @property
     @abstractmethod
@@ -115,7 +119,6 @@ class BasisGateLibrary(ABC, Mapping):
         """Return the basis gates supported by the library."""
         return list(self._schedules)
 
-    @abstractmethod
     def default_values(self) -> List[DefaultCalValue]:
         """Return the default values for the parameters.
 
@@ -123,9 +126,25 @@ class BasisGateLibrary(ABC, Mapping):
             A list of tuples is returned. These tuples are structured so that instances of
             :class:`Calibrations` can call :meth:`add_parameter_value` on the tuples.
         """
+        defaults = []
+        for name, schedule in self.items():
+            for param in schedule.parameters:
+                if "ch" not in param.name:
+                    # When the library calls schedules from another library then the default
+                    # values should come from that other library to avoid adding them twice
+                    # in the calibrations.
+                    value = self._default_values.get(param.name, None)
+                    if value is not None:
+                        defaults.append(DefaultCalValue(value, param.name, tuple(), name))
+
+        return defaults
 
     @abstractmethod
-    def _build_schedules(self, basis_gates: Set[str]) -> Dict[str, ScheduleBlock]:
+    def _build_schedules(
+        self,
+        basis_gates: Set[str],
+        other_libraries: Optional[List["BasisGateLibrary"]] = None,
+    ) -> Dict[str, ScheduleBlock]:
         """Build the schedules stored in the library.
 
         This method is called as the last step in the :meth:`__init__`. Subclasses must implement
@@ -134,6 +153,8 @@ class BasisGateLibrary(ABC, Mapping):
 
         Args:
             basis_gates: The set of basis gates to build.
+            other_libraries: A list of other libraries that ``self`` can use to, e.g., call
+                other schedules that it needs when building its own schedules.
 
         Returns:
             A dictionary where the keys are the names of the schedules/basis gates and the values
@@ -144,6 +165,10 @@ class BasisGateLibrary(ABC, Mapping):
         """Return the settings used to initialize the library."""
 
         kwargs = {"basis_gates": self.basis_gates, "default_values": self._default_values}
+
+        if self._other_libraries is not None:
+            kwargs["other_libraries"] = self._other_libraries
+
         kwargs.update(self._extra_kwargs)
 
         return {
@@ -212,7 +237,11 @@ class FixedFrequencyTransmon(BasisGateLibrary):
         """The gates that this library supports."""
         return {"x": 1, "y": 1, "sx": 1, "sy": 1}
 
-    def _build_schedules(self, basis_gates: Set[str]) -> Dict[str, ScheduleBlock]:
+    def _build_schedules(
+        self,
+        basis_gates: Set[str],
+        other_libraries: Optional[List["BasisGateLibrary"]] = None,
+    ) -> Dict[str, ScheduleBlock]:
         """Build the schedule of the class."""
         dur = Parameter("duration")
         sigma = Parameter("σ")
@@ -264,6 +293,9 @@ class FixedFrequencyTransmon(BasisGateLibrary):
     def default_values(self) -> List[DefaultCalValue]:
         """Return the default values for the parameters.
 
+        This overrides the method of the base class to account for parameter linkages and
+        standard sigma to duration relations.
+
         Returns
             A list of tuples is returned. These tuples are structured so that instances of
             :class:`Calibrations` can call :meth:`add_parameter_value` on the tuples.
@@ -291,7 +323,7 @@ class FixedFrequencyTransmon(BasisGateLibrary):
         return defaults
 
 
-class FixedFrequencyTransmonCR(FixedFrequencyTransmon):
+class EchoedCrossResonance(BasisGateLibrary):
     """A fixed-frequency transmon gate library with echoed cross-resonance gates.
 
     This library extends the FixedFrequencyTransmon library by adding support for
@@ -299,9 +331,6 @@ class FixedFrequencyTransmonCR(FixedFrequencyTransmon):
     """
 
     __default_values__ = {
-        "duration": 160,
-        "amp": 0.5,
-        "β": 0.0,
         "cr_duration": 640,
         "cr_width": 384,
         "cr_σ": 64,
@@ -311,42 +340,38 @@ class FixedFrequencyTransmonCR(FixedFrequencyTransmon):
 
     def __init__(
         self,
-        echo: bool = True,
+        single_qubit_library: BasisGateLibrary,
         rotary: bool = True,
         basis_gates: Optional[List[str]] = None,
         default_values: Optional[Dict] = None,
-        link_parameters: bool = True,
     ):
         """Setup the schedules.
 
         Args:
-            echo: A boolean to indicate if an echo is used in the CR gate schedule.
-                The default is True.
+            single_qubit_library: The library with the single-qubit gates from which
+                the x-gate schedule will be called to build the echo.
             rotary: A boolean to indicate if a rotary tones are used in the CR gate.
             basis_gates: The basis gates to generate.
             default_values: Default values for the parameters this dictionary can contain
                 the following keys: "duration", "amp", "β", and "σ". If "σ" is not provided
                 this library will take one fourth of the pulse duration as default value.
-            link_parameters: if set to True then the amplitude and DRAG parameters of the
-                X and Y gates will be linked as well as those of the SX and SY gates.
         """
-        self._echo = echo
         self._rotary = rotary
-        super().__init__(basis_gates, default_values, link_parameters)
+        super().__init__(basis_gates, default_values, [single_qubit_library])
 
     @property
     def __supported_gates__(self) -> Dict[str, int]:
         """The gates that this library supports."""
-        gates = super().__supported_gates__
-        gates.update({"cr": 2, "cr90p": 2, "cr90m": 2})
-        return gates
+        return {"cr": 2, "cr90p": 2, "cr90m": 2}
 
-    def _build_schedules(self, basis_gates: Set[str]) -> Dict[str, ScheduleBlock]:
+    def _build_schedules(
+        self,
+        basis_gates: Set[str],
+        other_libraries: Optional[List["BasisGateLibrary"]] = None,
+    ) -> Dict[str, ScheduleBlock]:
         """Build the schedules of the library."""
-        if "x" not in basis_gates:
+        if "x" not in other_libraries[0]:
             raise CalibrationError("x gate is required to build cross-resonance schedules.")
-
-        schedules = super()._build_schedules(basis_gates)
 
         target = pulse.DriveChannel(Parameter("ch1"))
         cr_chan = pulse.ControlChannel(Parameter("ch0.1"))
@@ -379,30 +404,31 @@ class FixedFrequencyTransmonCR(FixedFrequencyTransmon):
                     pulse.play(cr90p, cr_chan)
                     if self._rotary:
                         pulse.play(rot90p, target)
-                if self._echo:
-                    pulse.call(schedules["x"])
 
-                    with pulse.align_left():
-                        pulse.play(cr90m, cr_chan)
-                        if self._rotary:
-                            pulse.play(rot90m, target)
+                pulse.call(other_libraries[0]["x"])
 
-                    pulse.call(schedules["x"])
+                with pulse.align_left():
+                    pulse.play(cr90m, cr_chan)
+                    if self._rotary:
+                        pulse.play(rot90m, target)
 
-        schedules["cr"] = cr_sched
+                pulse.call(other_libraries[0]["x"])
 
-        with pulse.build(name="cr90p") as cr_sched:
+        with pulse.build(name="cr90p") as cr90p_sched:
             pulse.play(cr90p, cr_chan)
             if self._rotary:
                 pulse.play(rot90p, target)
 
-        schedules["cr90p"] = cr_sched
-
-        with pulse.build(name="cr90m") as cr_sched:
+        with pulse.build(name="cr90m") as cr90m_sched:
             pulse.play(cr90m, cr_chan)
             if self._rotary:
                 pulse.play(rot90m, target)
 
-        schedules["cr90m"] = cr_sched
+        return {"cr": cr_sched, "cr90m": cr90m_sched, "cr90p": cr90p_sched}
 
-        return schedules
+    def config(self) -> Dict[str, Any]:
+        """Return the settings used to initialize the library."""
+        conf = super().config()
+        conf["kwargs"]["single_qubit_library"] = conf["kwargs"]["other_libraries"][0]
+        del conf["kwargs"]["other_libraries"]
+        return conf

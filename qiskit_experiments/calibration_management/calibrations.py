@@ -40,6 +40,7 @@ from qiskit.circuit import Parameter, ParameterExpression
 from qiskit.providers.backend import BackendV1 as Backend
 
 from qiskit_experiments.exceptions import CalibrationError
+from qiskit_experiments.calibration_management.calibration_utils import CalUtils
 from qiskit_experiments.calibration_management.basis_gate_library import BasisGateLibrary
 from qiskit_experiments.calibration_management.parameter_value import ParameterValue
 from qiskit_experiments.calibration_management.control_channel_map import ControlChannelMap
@@ -112,11 +113,8 @@ class Calibrations:
         self._backend_name = backend_name
         self._backend_version = backend_version
 
-        if isinstance(library, list):
-            raise NotImplementedError(
-                "Passing a list of libraries from which to instantiate "
-                "will be supported in future releases."
-            )
+        if library and not isinstance(library, list):
+            library = [library]
 
         # Mapping between qubits and their control channels.
         self._control_channel_map = control_channel_map if control_channel_map else {}
@@ -150,15 +148,16 @@ class Calibrations:
         self._library = None
         if library is not None:
             self._library = library
+            for lib in library:
 
-            # Add the basis gates
-            for gate in library.basis_gates:
-                self.add_schedule(library[gate], num_qubits=library.num_qubits(gate))
+                # Add the basis gates
+                for gate in lib.basis_gates:
+                    self.add_schedule(lib[gate], num_qubits=lib.num_qubits(gate))
 
-            # Add the default values
-            if add_parameter_defaults:
-                for param_conf in library.default_values():
-                    self.add_parameter_value(*param_conf, update_inst_map=False)
+                # Add the default values
+                if add_parameter_defaults:
+                    for param_conf in lib.default_values():
+                        self.add_parameter_value(*param_conf, update_inst_map=False)
 
         # This internal parameter is False so that if a schedule is added after the
         # init it will be set to True and serialization will raise an error.
@@ -197,7 +196,7 @@ class Calibrations:
     def from_backend(
         cls,
         backend: Backend,
-        library: Optional[BasisGateLibrary] = None,
+        library: Optional[Union[BasisGateLibrary, List[BasisGateLibrary]]] = None,
         add_parameter_defaults: bool = True,
     ) -> "Calibrations":
         """Create an instance of Calibrations from a backend.
@@ -206,8 +205,8 @@ class Calibrations:
             backend: A backend instance from which to extract the qubit and readout frequencies
                 (which will be added as first guesses for the corresponding parameters) as well
                 as the coupling map.
-            library: A library instance from which to get template schedules to register as well
-                as default parameter values.
+            library: A library of list thereof from which to get template schedules to register as
+                well as default parameter values.
             add_parameter_defaults: A boolean to indicate whether the default parameter values of
                 the given library should be used to populate the calibrations. By default this
                 value is ``True``.
@@ -242,7 +241,7 @@ class Calibrations:
         return cals
 
     @property
-    def library(self) -> Optional[BasisGateLibrary]:
+    def library(self) -> Optional[List[BasisGateLibrary]]:
         """Return the name of the library, e.g. for experiment metadata."""
         return self._library
 
@@ -1537,7 +1536,7 @@ class Calibrations:
         - The backends have the same name.
         - The backends have the same version.
         - The calibrations contain the same schedules.
-        - The stored paramters have the same values.
+        - The stored parameters have the same values.
         """
         if self.backend_name != other.backend_name:
             return False
@@ -1545,10 +1544,10 @@ class Calibrations:
         if self._backend_version != other.backend_version:
             return False
 
-        # Compare the contents of schedules, schedules are compared by their string
-        # representation because they contain parameters.
         for key, schedule in self._schedules.items():
-            if repr(schedule) != repr(other._schedules.get(key, None)):
+            other_sched = other._schedules.get(key, None)
+            are_equal = CalUtils.compare_schedule_blocks(schedule, other_sched)
+            if not are_equal:
                 return False
 
         # Check the keys.

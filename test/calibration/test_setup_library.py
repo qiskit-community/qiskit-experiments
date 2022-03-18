@@ -12,7 +12,7 @@
 
 """Class to test the calibrations setup methods."""
 
-from typing import Dict, Set
+from typing import Dict, List, Optional, Set
 import json
 from test.base import QiskitExperimentsTestCase
 from ddt import ddt, data, unpack
@@ -23,10 +23,11 @@ from qiskit.test.mock import FakeBelem
 
 from qiskit_experiments.calibration_management.basis_gate_library import (
     FixedFrequencyTransmon,
-    FixedFrequencyTransmonCR,
+    EchoedCrossResonance,
 )
 from qiskit_experiments.calibration_management.calibration_key_types import DefaultCalValue
 from qiskit_experiments.calibration_management.calibrations import Calibrations
+from qiskit_experiments.calibration_management.calibration_utils import CalUtils
 from qiskit_experiments.exceptions import CalibrationError
 from qiskit_experiments.framework.json import ExperimentEncoder, ExperimentDecoder
 
@@ -38,7 +39,11 @@ class TestLibrary(FixedFrequencyTransmon):
     with the serialization :meth:`in test_hash_warn`.
     """
 
-    def _build_schedules(self, basis_gates: Set[str]) -> Dict[str, pulse.ScheduleBlock]:
+    def _build_schedules(
+        self,
+        basis_gates: Set[str],
+        other_libraries: Optional[List["BasisGateLibrary"]] = None,
+    ) -> Dict[str, pulse.ScheduleBlock]:
         """Dummy schedule building."""
         with pulse.build(name="x") as schedule:
             pulse.play(pulse.Drag(160, 0.1, 40, 0), pulse.DriveChannel(0))
@@ -48,24 +53,6 @@ class TestLibrary(FixedFrequencyTransmon):
             schedules["x"] = schedule
 
         return schedules
-
-
-def comp_sched(sched1: pulse.ScheduleBlock, sched2: pulse.ScheduleBlock):
-    """Recursively compare schedule blocks.
-
-    This is needed because the alignment contexts of the pulse builder create
-    ScheduleBlock instances with :code:`f"block{itertools.count()}"` names making
-    it impossible to compare two schedule blocks via equality.
-    """
-    all_blocks_equal = []
-    for idx, block1 in enumerate(sched1.blocks):
-        block2 = sched2.blocks[idx]
-        if isinstance(block1, pulse.ScheduleBlock) and isinstance(block2, pulse.ScheduleBlock):
-            all_blocks_equal.append(comp_sched(block1, block2))
-        else:
-            all_blocks_equal.append(str(block1) == str(block2))
-
-    return all(all_blocks_equal)
 
 
 def _test_library_equivalence(lib1, lib2) -> bool:
@@ -81,7 +68,7 @@ def _test_library_equivalence(lib1, lib2) -> bool:
         return False
 
     for gate in lib1.basis_gates:
-        if not comp_sched(lib1[gate], lib2[gate]):
+        if not CalUtils.compare_schedule_blocks(lib1[gate], lib2[gate]):
             return False
 
     return True
@@ -262,12 +249,12 @@ class TestFixedFrequencyTransmonCR(QiskitExperimentsTestCase):
 
     def test_library(self):
         """Basic test of the library."""
-        self.assertTrue("cr" in FixedFrequencyTransmonCR())
+        self.assertTrue("cr" in EchoedCrossResonance(FixedFrequencyTransmon()))
 
     def test_exceptions(self):
         """Test that x gate is required."""
         with self.assertRaises(CalibrationError):
-            FixedFrequencyTransmonCR(basis_gates=["y", "cr"])
+            EchoedCrossResonance(FixedFrequencyTransmon(basis_gates=["y", "cr"]))
 
     @data(
         (1, 2, 2),
@@ -276,7 +263,9 @@ class TestFixedFrequencyTransmonCR(QiskitExperimentsTestCase):
     @unpack
     def test_cals_initialization(self, control, target, uchan):
         """Test the an instance of Calibrations can be initialized with this library."""
-        cals = Calibrations.from_backend(FakeBelem(), FixedFrequencyTransmonCR())
+        sq_lib = FixedFrequencyTransmon()
+        libraries = [sq_lib, EchoedCrossResonance(sq_lib)]
+        cals = Calibrations.from_backend(FakeBelem(), libraries)
 
         cr_sched = cals.get_schedule("cr", (control, target))
 
@@ -308,10 +297,11 @@ class TestFixedFrequencyTransmonCR(QiskitExperimentsTestCase):
     def test_json_serialization(self):
         """Test that the library can be serialized using JSon."""
 
-        lib1 = FixedFrequencyTransmonCR(
-            basis_gates=["x", "sy"],
-            default_values={"duration": 320},
-            link_parameters=False,
+        lib1 = EchoedCrossResonance(
+            FixedFrequencyTransmon(
+                basis_gates=["x", "sy"],
+                default_values={"duration": 320},
+            )
         )
 
         # Test that serialization fails without the right encoder
