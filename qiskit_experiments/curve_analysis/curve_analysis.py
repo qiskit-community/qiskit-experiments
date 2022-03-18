@@ -645,6 +645,17 @@ class CurveAnalysis(BaseAnalysis, ABC):
         """
         return []
 
+    def _post_process_fit_result(self, fit_result: FitData) -> FitData:
+        """A hook that sub-classes can override to manipulate the result of the fit.
+
+        Args:
+            fit_result: A result from the fitting.
+
+        Returns:
+            A fit result that might be post-processed.
+        """
+        return fit_result
+
     # pylint: disable=unused-argument
     def _evaluate_quality(self, fit_data: FitData) -> Union[str, None]:
         """Evaluate quality of the fit result.
@@ -966,6 +977,7 @@ class CurveAnalysis(BaseAnalysis, ABC):
             fit_result = None
         else:
             fit_result = sorted(fit_results, key=lambda r: r.reduced_chisq)[0]
+            fit_result = self._post_process_fit_result(fit_result)
 
         #
         # 4. Create database entry

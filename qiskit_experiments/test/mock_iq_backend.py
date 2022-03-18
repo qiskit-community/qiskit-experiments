@@ -291,25 +291,36 @@ class DragBackend(MockIQBackend):
         self,
         iq_cluster_centers: Tuple[float, float, float, float] = (1.0, 1.0, -1.0, -1.0),
         iq_cluster_width: float = 1.0,
-        error: float = 0.03,
+        freq: float = 0.02,
         ideal_beta=2.0,
         gate_name: str = "Rp",
         rng_seed: int = 0,
+        max_prob: float = 1.0,
+        offset_prob: float = 0.0,
     ):
         """Initialize the rabi backend."""
-        self._error = error
+        self._freq = freq
         self._gate_name = gate_name
         self.ideal_beta = ideal_beta
+
+        if max_prob + offset_prob > 1:
+            raise ValueError("Probabilities need to be between 0 and 1.")
+
+        self._max_prob = max_prob
+        self._offset_prob = offset_prob
 
         super().__init__(iq_cluster_centers, iq_cluster_width, rng_seed=rng_seed)
 
     def _compute_probability(self, circuit: QuantumCircuit) -> float:
         """Returns the probability based on the beta, number of gates, and leakage."""
-        n_gates = sum(circuit.count_ops().values())
+        n_gates = circuit.count_ops()[self._gate_name]
 
         beta = next(iter(circuit.calibrations[self._gate_name].keys()))[1][0]
 
-        return np.sin(n_gates * self._error * (beta - self.ideal_beta)) ** 2
+        prob = np.sin(2 * np.pi * n_gates * self._freq * (beta - self.ideal_beta) / 4) ** 2
+        rescaled_prob = self._max_prob * prob + self._offset_prob
+
+        return rescaled_prob
 
 
 class RabiBackend(MockIQBackend):
