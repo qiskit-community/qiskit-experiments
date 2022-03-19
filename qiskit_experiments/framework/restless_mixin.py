@@ -49,7 +49,7 @@ class RestlessMixin:
 
     analysis: BaseAnalysis
     set_run_options: Callable
-    backend: Backend
+    _backend: Backend
     _physical_qubits: Sequence[int]
     _num_qubits: int
 
@@ -80,7 +80,7 @@ class RestlessMixin:
         """
         try:
             if not rep_delay:
-                rep_delay = self.backend.configuration().rep_delay_range[0]
+                rep_delay = self._backend.configuration().rep_delay_range[0]
         except AttributeError as error:
             raise DataProcessorError(
                 "The restless experiment can not be enabled because "
@@ -160,7 +160,7 @@ class RestlessMixin:
 
         try:
             t1_values = [
-                self.backend.properties().qubit_property(physical_qubit)["T1"][0]
+                self._backend.properties().qubit_property(physical_qubit)["T1"][0]
                 for physical_qubit in self._physical_qubits
             ]
 
