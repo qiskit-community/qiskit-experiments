@@ -912,7 +912,9 @@ class TestControlChannels(CrossResonanceTest):
     def test_inst_map_stays_consistent(self):
         """Check that get schedule and inst map are in sync in a complex ECR case.
 
-        This needs to be in a subclass of CrossResonanceTest. Note, that this test
+        Test that when a parameter value is updated for a parameter that is used in a
+        schedule nested inside a call instruction of an outer schedule that that outer
+        schedule is also updated in the instruction schedule map. For example, this test
         will fail if the coupling_map and the control_channel_map are not consistent
         with each other. This is because the coupling_map is used to build the
         _operated_qubits variable which determines the qubits of the instruction to
@@ -925,16 +927,16 @@ class TestControlChannels(CrossResonanceTest):
 
         # Ensure that sigma is 40
         insts = block_to_schedule(sched_inst).filter(channels=[DriveChannel(2)]).instructions
-        self.assertEqual(insts[0][1].pulse.sigma, 40)
+        self.assertEqual(insts[0][1].pulse.amp, 0.15)
 
         # Update sigma to 5 and check that change is propagated through.
         date_time2 = datetime.strptime("15/09/19 10:22:35", "%d/%m/%y %H:%M:%S")
-        self.cals.add_parameter_value(ParameterValue(5, date_time2), "σ", schedule="xp")
+        self.cals.add_parameter_value(ParameterValue(0.25, date_time2), "amp", (2,), schedule="xp")
 
         sched_inst = self.cals.default_inst_map.get("cr", (2, 3))
         self.assertEqual(sched_inst, self.cals.get_schedule("cr", (2, 3)))
         insts = block_to_schedule(sched_inst).filter(channels=[DriveChannel(2)]).instructions
-        self.assertEqual(insts[0][1].pulse.sigma, 5)
+        self.assertEqual(insts[0][1].pulse.amp, 0.25)
 
 
 class TestAssignment(QiskitExperimentsTestCase):
