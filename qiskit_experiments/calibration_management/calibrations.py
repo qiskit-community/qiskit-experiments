@@ -294,9 +294,8 @@ class Calibrations:
             operated_qubits[1].append([0])
 
         # Multi-qubit couplings
-        if self._coupling_map is not None:
-            for coupling in self._coupling_map:
-                operated_qubits[len(coupling)].append(coupling)
+        for coupling in self._coupling_map:
+            operated_qubits[len(coupling)].append(coupling)
 
         return operated_qubits
 
