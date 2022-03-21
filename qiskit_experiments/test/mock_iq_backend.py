@@ -295,40 +295,6 @@ class DragBackend(MockIQBackend):
         return probability_output_dict
 
 
-class RabiBackend(MockIQBackend):
-    """A simple and primitive backend, to be run by the Rabi tests."""
-
-    def __init__(
-        self,
-        iq_cluster_centers: List[Tuple[Tuple[float, float], Tuple[float, float]]] = None,
-        iq_cluster_width: List[float] = None,
-        amplitude_to_angle: float = np.pi,
-    ):
-        """Initialize the rabi backend."""
-        self._amplitude_to_angle = amplitude_to_angle
-        if iq_cluster_centers is None:
-            self._iq_cluster_centers = [((1.0, 1.0), (-1.0, -1.0))]
-        if iq_cluster_width is None:
-            self._iq_cluster_centers = [1.0]
-
-        super().__init__(iq_cluster_centers, iq_cluster_width)
-
-    @property
-    def rabi_rate(self) -> float:
-        """Returns the rabi rate."""
-        return self._amplitude_to_angle / np.pi
-
-    def _compute_probability(self, circuit: QuantumCircuit) -> Dict[str, float]:
-        """Returns the probability based on the rotation angle and amplitude_to_angle."""
-        probability_output_dict = {}
-        amp = next(iter(circuit.calibrations["Rabi"].keys()))[1][0]
-
-        # Dictionary of output string vectors and their probability
-        probability_output_dict["1"] = np.sin(self._amplitude_to_angle * amp) ** 2
-        probability_output_dict["0"] = 1 - probability_output_dict["1"]
-        return probability_output_dict
-
-
 class MockFineAmp(MockIQBackend):
     """A mock backend for fine amplitude calibration."""
 
