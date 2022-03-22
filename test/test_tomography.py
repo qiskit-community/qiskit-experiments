@@ -13,7 +13,9 @@
 """
 A Tester for the RB experiment
 """
+
 from test.base import QiskitExperimentsTestCase
+import unittest
 import itertools as it
 import ddt
 from qiskit import QuantumCircuit
@@ -70,6 +72,7 @@ class TestStateTomography(QiskitExperimentsTestCase):
         target_fid = qi.state_fidelity(state, target, validate=False)
         self.assertAlmostEqual(fid, target_fid, places=6, msg="result fidelity is incorrect")
 
+    @unittest.skip("Test broken by Terra PR #7653, waiting for commit revert")
     def test_qst_teleport(self):
         """Test subset state tomography generation"""
         # NOTE: This test breaks transpiler. I think it is a bug with
@@ -403,6 +406,7 @@ class TestProcessTomography(QiskitExperimentsTestCase):
         target_fid = qi.process_fidelity(state, target, require_tp=False, require_cp=False)
         self.assertAlmostEqual(fid, target_fid, places=6, msg="result fidelity is incorrect")
 
+    @unittest.skip("Test broken by Terra PR #7653, waiting for commit revert")
     def test_qpt_teleport(self):
         """Test subset state tomography generation"""
         # NOTE: This test breaks transpiler. I think it is a bug with
