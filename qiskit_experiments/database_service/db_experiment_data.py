@@ -505,9 +505,8 @@ class DbExperimentDataV1(DbExperimentData):
             return callback_id, True
         except Exception as ex:  # pylint: disable=broad-except
             self._analysis_callbacks[callback_id].status = AnalysisStatus.ERROR
-            error_msg = f"Analysis callback failed [Analysis ID: {callback_id}]:\n" "".join(
-                traceback.format_exception(type(ex), ex, ex.__traceback__)
-            )
+            tb_text = "".join(traceback.format_exception(type(ex), ex, ex.__traceback__))
+            error_msg = f"Analysis callback failed [Analysis ID: {callback_id}]:\n{tb_text}"
             self._analysis_callbacks[callback_id].error_msg = error_msg
             LOG.warning(error_msg)
             return callback_id, False
@@ -865,18 +864,23 @@ class DbExperimentDataV1(DbExperimentData):
         self._retrieve_analysis_results(refresh=refresh)
         if index is None:
             return self._analysis_results.values()
+
+        def _make_not_found_message(index: Union[int, slice, str]) -> str:
+            """Helper to make error message for index not found"""
+            msg = [f"Analysis result {index} not found."]
+            errors = self.errors()
+            if errors:
+                msg.append(f"Errors: {errors}")
+            return "\n".join(msg)
+
         if isinstance(index, int):
             if index >= len(self._analysis_results.values()):
-                raise DbExperimentEntryNotFound(
-                    f"Analysis result {index} not found. " f"Errors: {self.errors()}"
-                )
+                raise DbExperimentEntryNotFound(_make_not_found_message(index))
             return self._analysis_results.values()[index]
         if isinstance(index, slice):
             results = self._analysis_results.values()[index]
             if not results:
-                raise DbExperimentEntryNotFound(
-                    f"Analysis result {index} not found. " f"Errors: {self.errors()}"
-                )
+                raise DbExperimentEntryNotFound(_make_not_found_message(index))
             return results
         if isinstance(index, str):
             # Check by result ID
@@ -887,9 +891,7 @@ class DbExperimentDataV1(DbExperimentData):
                 result for result in self._analysis_results.values() if result.name == index
             ]
             if not filtered:
-                raise DbExperimentEntryNotFound(
-                    f"Analysis result {index} not found. " f"Errors: {self.errors()}"
-                )
+                raise DbExperimentEntryNotFound(_make_not_found_message(index))
             if len(filtered) == 1:
                 return filtered[0]
             else:
@@ -1392,7 +1394,7 @@ class DbExperimentDataV1(DbExperimentData):
 
         # Get any job futures errors:
         for jid, fut in self._job_futures.items():
-            if fut and fut.exception():
+            if fut and fut.done() and fut.exception():
                 ex = fut.exception()
                 errors.append(
                     f"[Job ID: {jid}]"
@@ -1409,14 +1411,6 @@ class DbExperimentDataV1(DbExperimentData):
             if callback.status == AnalysisStatus.ERROR:
                 errors.append(f"\n[Analysis ID: {cid}]: {callback.error_msg}")
 
-        # Get any callback futures errors:
-        for cid, fut in self._analysis_futures.items():
-            ex = fut.exception()
-            if fut.exception():
-                errors.append(
-                    f"[Analysis ID: {cid}]"
-                    "\n".join(traceback.format_exception(type(ex), ex, ex.__traceback__))
-                )
         return "".join(errors)
 
     def errors(self) -> str:
@@ -1447,6 +1441,9 @@ class DbExperimentDataV1(DbExperimentData):
         .. note:
             If analysis results and figures are copied they will also have
             new result IDs and figure names generated for the copies.
+
+            This method can not be called from an analysis callback. It waits
+            for analysis callbacks to complete before copying analysis results.
         """
         new_instance = self.__class__()
         LOG.debug(

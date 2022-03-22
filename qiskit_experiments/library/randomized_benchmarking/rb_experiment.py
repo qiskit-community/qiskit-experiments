@@ -24,12 +24,13 @@ from qiskit.circuit import Gate
 from qiskit.providers.backend import Backend
 
 from qiskit_experiments.framework import BaseExperiment, ParallelExperiment, Options
+from qiskit_experiments.framework.restless_mixin import RestlessMixin
 from .rb_analysis import RBAnalysis
 from .clifford_utils import CliffordUtils
 from .rb_utils import RBUtils
 
 
-class StandardRB(BaseExperiment):
+class StandardRB(BaseExperiment, RestlessMixin):
     """Standard randomized benchmarking experiment.
 
     # section: overview
