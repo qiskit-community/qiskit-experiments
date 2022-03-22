@@ -938,6 +938,14 @@ class TestControlChannels(CrossResonanceTest):
         insts = block_to_schedule(sched_inst).filter(channels=[DriveChannel(2)]).instructions
         self.assertEqual(insts[0][1].pulse.amp, 0.25)
 
+        # Test linked parameters.
+        self.cals.add_parameter_value(ParameterValue(2, date_time2), "σ", (2,), schedule="xp")
+
+        sched_inst = self.cals.default_inst_map.get("cr", (2, 3))
+        self.assertEqual(sched_inst, self.cals.get_schedule("cr", (2, 3)))
+        insts = block_to_schedule(sched_inst).filter(channels=[DriveChannel(2)]).instructions
+        self.assertEqual(insts[0][1].pulse.sigma, 2)
+
 
 class TestAssignment(QiskitExperimentsTestCase):
     """Test simple assignment"""

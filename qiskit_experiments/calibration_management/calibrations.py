@@ -43,6 +43,7 @@ from qiskit_experiments.exceptions import CalibrationError
 from qiskit_experiments.calibration_management.basis_gate_library import BasisGateLibrary
 from qiskit_experiments.calibration_management.parameter_value import ParameterValue
 from qiskit_experiments.calibration_management.control_channel_map import ControlChannelMap
+from qiskit_experiments.calibration_management.calibration_utils import CalUtils
 from qiskit_experiments.calibration_management.calibration_key_types import (
     ParameterKey,
     ParameterValueType,
@@ -176,6 +177,9 @@ class Calibrations:
 
         # Backends with a single qubit may not have a coupling map.
         self._coupling_map = coupling_map or []
+
+        # An dict extension of the coupling map where the key is the number of qubits and
+        # the values are a list of qubits coupled.
         self._operated_qubits = self._get_operated_qubits()
         self._check_consistency()
 
@@ -392,23 +396,65 @@ class Calibrations:
 
         get_schedule may raise an error if not all parameters have values or
         default values. In this case we ignore and continue updating inst_map.
+        Note that ``qubits`` may only be a sub-set of the qubits of the schedule that
+        we want to update. This may arise in cases such as an ECR gate schedule that calls
+        an X-gate schedule. When updating the X-gate schedule we need to also update the
+        corresponding ECR schedules which operate on a larger number of qubits.
 
         Args:
             sched_name: The name of the schedule.
-            qubits: The qubit to which the schedule applies.
+            qubits: The qubit to which the schedule applies. Note, these may be only a
+                subset of the qubits in the schedule. For example, if the name of the
+                schedule is `"cr"` we may have `qubits` be `(3, )` and this function
+                will update the CR schedules on all schedules which involve qubit 3.
             group: The calibration group.
             cutoff: The cutoff date.
         """
-        try:
-            inst_map.add(
-                instruction=sched_name,
-                qubits=qubits,
-                schedule=self.get_schedule(sched_name, qubits, group=group, cutoff_date=cutoff),
-            )
-        except CalibrationError:
-            # get_schedule may raise an error if not all parameters have values or
-            # default values. In this case we ignore and continue updating inst_map.
-            pass
+        for update_qubits in self._get_full_qubits_of_schedule(sched_name, qubits):
+            try:
+                schedule = self.get_schedule(
+                    sched_name, update_qubits, group=group, cutoff_date=cutoff
+                )
+                inst_map.add(instruction=sched_name, qubits=update_qubits, schedule=schedule)
+            except CalibrationError:
+                # get_schedule may raise an error if not all parameters have values or
+                # default values. In this case we ignore and continue updating inst_map.
+                pass
+
+    def _get_full_qubits_of_schedule(
+        self, schedule_name: str, partial_qubits: Tuple[int, ...]
+    ) -> List[Tuple[int, ...]]:
+        """Find all qubits for which there is a schedule ``schedule_name`` on ``partial_qubits``.
+
+        This method will uses the map between the schedules and the number of qubits that they
+        operate on as well as the extension of the coupling map ``_operated_qubits`` to find
+        which qubits are involved in the schedule named ``schedule_name`` involving the
+        ``partial_qubits``.
+
+        Args:
+            schedule_name: The name of the schedule as registered in ``self``.
+            partial_qubits: A sub-set of qubits on which the schedule applies.
+
+        Returns:
+            A list of tuples. Each tuple is the set of qubits for which there is a schedule
+            named ``schedule_name`` and ``partial_qubits`` is a sub-set of said qubits.
+        """
+        for key, circuit_inst_num_qubits in self._schedules_qubits.items():
+            if key.schedule == schedule_name:
+
+                if len(partial_qubits) == circuit_inst_num_qubits:
+                    return [partial_qubits]
+
+                else:
+                    candidates = self._operated_qubits[circuit_inst_num_qubits]
+                    qubits_for_update = []
+                    for candidate_qubits in candidates:
+                        if set(partial_qubits).issubset(set(candidate_qubits)):
+                            qubits_for_update.append(tuple(candidate_qubits))
+
+                    return qubits_for_update
+
+        return []
 
     def inst_map_add(
         self,
@@ -791,6 +837,10 @@ class Calibrations:
         if update_inst_map and schedule is not None:
             param_obj = self.calibration_parameter(param_name, qubits, sched_name)
             schedules = set(key.schedule for key in self._parameter_map_r[param_obj])
+
+            # Find schedules that may call the schedule we want to update.
+            schedules.update(CalUtils.used_in_calls(sched_name, list(self._schedules.values())))
+
             self.update_inst_map(schedules, qubits=qubits)
 
     def _get_channel_index(self, qubits: Tuple[int, ...], chan: PulseChannel) -> int:
