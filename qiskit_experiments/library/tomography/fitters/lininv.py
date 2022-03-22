@@ -15,6 +15,7 @@ Linear inversion MLEtomography fitter.
 
 from typing import Dict, Tuple, Optional, Sequence, List
 from functools import lru_cache
+from math import prod
 import numpy as np
 from qiskit_experiments.library.tomography.basis import (
     MeasurementBasis,
@@ -22,6 +23,7 @@ from qiskit_experiments.library.tomography.basis import (
     LocalMeasurementBasis,
     LocalPreparationBasis,
 )
+from .lstsq_utils import _partial_outcome_function
 
 
 def linear_inversion(
@@ -33,6 +35,7 @@ def linear_inversion(
     preparation_basis: Optional[PreparationBasis] = None,
     measurement_qubits: Optional[Tuple[int, ...]] = None,
     preparation_qubits: Optional[Tuple[int, ...]] = None,
+    conditional_measurement_indices: Optional[np.ndarray] = None,
 ) -> Tuple[np.ndarray, Dict]:
     r"""Linear inversion tomography fitter.
 
@@ -92,11 +95,12 @@ def linear_inversion(
         measurement_basis: the tomography measurement basis.
         preparation_basis: the tomography preparation basis.
         measurement_qubits: Optional, the physical qubits that were measured.
-                            If None they are assumed to be [0, ..., M-1] for
-                            M measured qubits.
+             If None they are assumed to be [0, ..., M-1] for M measured qubits.
         preparation_qubits: Optional, the physical qubits that were prepared.
-                            If None they are assumed to be [0, ..., N-1] for
-                            N prepared qubits.
+            If None they are assumed to be [0, ..., N-1] forN prepared qubits.
+        conditional_measurement_indices: Optional, conditional measurement data
+            indices. If set this will return a list of conditional fitted
+            states conditioned on a fixed basis measurement of these qubits.
 
     Raises:
         AnalysisError: If the fitted vector is not a square matrix
@@ -104,11 +108,42 @@ def linear_inversion(
     Returns:
         The fitted matrix rho.
     """
+    if measurement_basis and measurement_qubits is None:
+        measurement_qubits = tuple(range(measurement_data.shape[1]))
+    if preparation_basis and preparation_qubits is None:
+        preparation_qubits = tuple(range(preparation_data.shape[1]))
+
+    if conditional_measurement_indices:
+        # Split measurement qubits into conditional and non-conditional qubits
+        f_cond_qubits = []
+        f_meas_qubits = []
+        meas_indices = []
+        for i, qubit in enumerate(measurement_qubits):
+            if i in conditional_measurement_indices:
+                f_cond_qubits.append(qubit)
+            else:
+                f_meas_qubits.append(qubit)
+                meas_indices.append(i)
+
+        # Get size of conditional outcomes
+        cond_size = prod(measurement_basis.outcome_shape(f_cond_qubits))
+
+        # Indexing array for fully tomo measured qubits
+        f_meas_indices = np.array(meas_indices, dtype=int)
+
+        # Reduced outcome functions
+        f_meas_outcome = _partial_outcome_function(tuple(f_meas_indices))
+        f_cond_outcome = _partial_outcome_function(tuple(conditional_measurement_indices))
+    else:
+        cond_size = 1
+        f_meas_qubits = measurement_qubits
+        f_meas_indices = slice(None)
+        f_meas_outcome = lambda x: x
+        f_cond_outcome = lambda x: 0
+
     # Construct dual bases
     meas_dual_basis = None
-    if measurement_basis:
-        if not measurement_qubits:
-            measurement_qubits = tuple(range(measurement_data.shape[1]))
+    if measurement_basis and f_meas_indices:
         meas_duals = {i: _dual_povms(measurement_basis, i) for i in measurement_qubits}
         meas_dual_basis = LocalMeasurementBasis(
             f"Dual_{measurement_basis.name}", qubit_povms=meas_duals
@@ -116,8 +151,6 @@ def linear_inversion(
 
     prep_dual_basis = None
     if preparation_basis:
-        if not preparation_qubits:
-            preparation_qubits = tuple(range(preparation_data.shape[1]))
         prep_duals = {i: _dual_states(preparation_basis, i) for i in preparation_qubits}
         prep_dual_basis = LocalPreparationBasis(
             f"Dual_{preparation_basis.name}", qubit_states=prep_duals
@@ -126,39 +159,63 @@ def linear_inversion(
     if shot_data is None:
         shot_data = np.ones(len(outcome_data))
 
+    # Calculate shape of matrix to be fitted
+    if prep_dual_basis:
+        pdim = prod(prep_dual_basis.matrix_shape(preparation_qubits))
+    else:
+        pdim = 1
+    if meas_dual_basis:
+        mdim = prod(meas_dual_basis.matrix_shape(f_meas_qubits))
+    else:
+        mdim = 1
+    shape = (pdim * mdim, pdim * mdim)
+
     # Construct linear inversion matrix
-    rho_fit = 0.0
-    for i, outcomes in enumerate(outcome_data):
-        shots = shot_data[i]
-        midx = measurement_data[i]
-        pidx = preparation_data[i]
+    cond_circ_size = outcome_data.shape[0]
+    cond_fits = []
+    metadata = {"component_conditionals": []}
 
-        # Get prep basis component
-        if prep_dual_basis:
-            # TODO: Add prep qubits
-            p_mat = np.transpose(prep_dual_basis.matrix(pidx, preparation_qubits))
-        else:
-            p_mat = None
+    for circ_idx in range(cond_circ_size):
+        fits = [np.zeros(shape, dtype=complex) for _ in range(cond_size)]
+        for i, outcomes in enumerate(outcome_data[circ_idx]):
 
-        # Get probabilities and optional measurement basis component
-        for outcome, freq in enumerate(outcomes):
-            if freq == 0:
-                # Skip component with zero probability
-                continue
+            shots = shot_data[circ_idx][i]
+            pidx = preparation_data[i]
+            midx = measurement_data[i][f_meas_indices]
 
-            if meas_dual_basis:
-                # TODO: Add meas qubits
-                dual_op = meas_dual_basis.matrix(midx, outcome, measurement_qubits)
-                if prep_dual_basis:
-                    dual_op = np.kron(p_mat, dual_op)
+            # Get prep basis component
+            if prep_dual_basis:
+                p_mat = np.transpose(prep_dual_basis.matrix(pidx, preparation_qubits))
             else:
-                dual_op = p_mat
+                p_mat = None
 
-            # Add component to linear inversion reconstruction
-            prob = freq / shots
-            rho_fit = rho_fit + prob * dual_op
+            # Get probabilities and optional measurement basis component
+            for outcome, freq in enumerate(outcomes):
+                if freq == 0:
+                    # Skip component with zero probability
+                    continue
+                prob = freq / shots
 
-    return rho_fit, {}
+                # Get component on non-conditional bits
+                outcome_meas = f_meas_outcome(outcome)
+                if meas_dual_basis:
+                    dual_op = meas_dual_basis.matrix(midx, outcome_meas, f_meas_qubits)
+                    if prep_dual_basis:
+                        dual_op = np.kron(p_mat, dual_op)
+                else:
+                    dual_op = p_mat
+
+                # Add component to correct conditional
+                outcome_cond = f_cond_outcome(outcome)
+                fits[outcome_cond] += prob * dual_op
+
+        # Add metadata
+        metadata["component_conditionals"] += list(zip((circ_idx,) * cond_size, range(cond_size)))
+
+        # Append conditional circuit fits
+        cond_fits += fits
+
+    return cond_fits, metadata
 
 
 @lru_cache(None)
