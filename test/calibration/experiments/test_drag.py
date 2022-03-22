@@ -32,34 +32,54 @@ from qiskit_experiments.test.mock_iq_backend import MockIQBackend
 from qiskit_experiments.calibration_management.basis_gate_library import FixedFrequencyTransmon
 from qiskit_experiments.calibration_management import Calibrations
 
-def set_deafult_calc_parameters_list(calc_parameters_list: List[Dict[str, Any]]):
-    
+
+def set_default_calc_parameters_list(calc_parameters_list: List[Dict[str, Any]]):
+    """
+    Set default values to the calculation parameters list if they are not defined.
+    Args:
+        calc_parameters_list(List[Dict[str, any]]): A list of dictionaries that contain parameters for the probability
+        calculation for the corresponding quantum circuit.
+    """
     if "gate_name" not in calc_parameters_list[0].keys():
         calc_parameters_list[0]["gate_name"] = "Rp"
-
     if "error" not in calc_parameters_list[0].keys():
         calc_parameters_list[0]["error"] = 0.03
     if "ideal_beta" not in calc_parameters_list[0].keys():
         calc_parameters_list[0]["ideal_beta"] = 2.0
     if "freq" not in calc_parameters_list[0].keys():
         calc_parameters_list[0]["freq"] = 0.02
-       
+    if "max_prob" not in calc_parameters_list[0].keys():
+        calc_parameters_list[0]["max_prob"] = 1.0
+    if "offset_prob" not in calc_parameters_list[0].keys():
+        calc_parameters_list[0]["offset_prob"] = 0.0
+
+    if calc_parameters_list[0]["max_prob"] + calc_parameters_list[0]["offset_prob"] > 1:
+        raise ValueError("Probabilities need to be between 0 and 1.")
 
 
 def compute_probability(
     circuits: List[QuantumCircuit], calc_parameters_list: List[Dict[str, Any]]
 ) -> List[Dict[str, float]]:
     """Returns the probability based on the beta, number of gates, and leakage."""
-    set_deafult_calc_parameters_list(calc_parameters_list)
+    set_default_calc_parameters_list(calc_parameters_list)
+
+    gate_name = calc_parameters_list[0]["gate_name"]
+    error = calc_parameters_list[0]["error"]
+    ideal_beta = calc_parameters_list[0]["ideal_beta"]
+    freq = calc_parameters_list[0]["freq"]
+    max_prob = calc_parameters_list[0]["max_prob"]
+    offset_prob = calc_parameters_list[0]["offset_prob"]
+
     output_dict_list = []
     for circuit in circuits:
         probability_output_dict = {}
         # Need to change that the output will be dict. Need to see what the circuit do.
-        n_gates = sum(circuit.count_ops().values())
+        n_gates = circuit.count_ops()[gate_name]
         beta = next(iter(circuit.calibrations[gate_name].keys()))[1][0]
 
         # Dictionary of output string vectors and their probability
-        probability_output_dict["1"] = np.sin(n_gates * error * (beta - ideal_beta)) ** 2
+        prob = np.sin(2 * np.pi * n_gates * freq * (beta - ideal_beta) / 4) ** 2
+        probability_output_dict["1"] = max_prob * prob + offset_prob
         probability_output_dict["0"] = 1 - probability_output_dict["1"]
         output_dict_list.append(probability_output_dict)
     return output_dict_list
@@ -154,7 +174,11 @@ class TestDragEndToEnd(QiskitExperimentsTestCase):
     @unpack
     def test_nasty_data(self, freq, amp, offset, reps, betas, tol):
         """A set of tests for non-ideal data."""
-        backend = DragBackend(freq=freq, gate_name="Drag(xp)", max_prob=amp, offset_prob=offset)
+        calc_parameters = {"gate_name": "Drag(xp)", "ideal_beta": 2.0, "error": 0.03, "freq": freq,
+                           "max_prob": amp, "offset_prob": offset}
+        backend = MockIQBackend(
+            compute_probabilities=compute_probability, calculation_parameters=[calc_parameters]
+        )
 
         drag = RoughDrag(0, self.x_plus, betas=betas)
         drag.set_experiment_options(reps=reps)
@@ -162,8 +186,8 @@ class TestDragEndToEnd(QiskitExperimentsTestCase):
         exp_data = drag.run(backend)
         self.assertExperimentDone(exp_data)
         result = exp_data.analysis_results("beta")
-
-        self.assertTrue(abs(result.value.n - backend.ideal_beta) < tol)
+        self.assertTrue(abs(result.value.n - calc_parameters["ideal_beta"]) < tol)
+        # self.assertTrue(abs(result.value.n - backend.ideal_beta) < tol)
         self.assertEqual(result.quality, "good")
 
 
