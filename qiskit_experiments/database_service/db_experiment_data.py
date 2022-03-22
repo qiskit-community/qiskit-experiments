@@ -1017,7 +1017,7 @@ class DbExperimentDataV1(DbExperimentData):
 
         if self.verbose:
             # this field will be implemented in the new service package
-            if hasattr(self._service, 'web_interface_link'):
+            if hasattr(self._service, "web_interface_link"):
                 print(
                     "You can view the experiment online at "
                     f"{self._service.web_interface_link}/{self.experiment_id}"
