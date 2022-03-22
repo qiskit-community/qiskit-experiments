@@ -12,9 +12,8 @@
 
 """Class to test utility functions for calibrations."""
 
-import qiskit.pulse as pulse
-
 from test.base import QiskitExperimentsTestCase
+import qiskit.pulse as pulse
 from qiskit_experiments.calibration_management.calibration_utils import CalUtils
 
 

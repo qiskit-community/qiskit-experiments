@@ -178,7 +178,7 @@ class Calibrations:
         # Backends with a single qubit may not have a coupling map.
         self._coupling_map = coupling_map or []
 
-        # An dict extension of the coupling map where the key is the number of qubits and
+        # A dict extension of the coupling map where the key is the number of qubits and
         # the values are a list of qubits coupled.
         self._operated_qubits = self._get_operated_qubits()
         self._check_consistency()

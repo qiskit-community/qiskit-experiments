@@ -17,7 +17,7 @@ from qiskit.pulse import ScheduleBlock, Call
 
 
 class CalUtils:
-    """A collection of utility functions for for calibration management."""
+    """A collection of utility functions to help calibration management."""
 
     @staticmethod
     def used_in_calls(schedule_name: str, schedules: List[ScheduleBlock]) -> Set[str]:
@@ -25,26 +25,29 @@ class CalUtils:
 
         Args:
             schedule_name: The name of the callee to identify.
-            schedules: A list of schedule over which to search.
+            schedules: A list of potential caller schedules to search.
 
         Returns:
             A set of schedule names that call the given schedule.
         """
-        sub_routines = set()
+        caller_names = set()
 
         for schedule in schedules:
             if CalUtils._used_in_calls(schedule_name, schedule):
-                sub_routines.add(schedule.name)
+                caller_names.add(schedule.name)
 
-        return sub_routines
+        return caller_names
 
     @staticmethod
-    def _used_in_calls(schedule_name: str, schedule: ScheduleBlock):
+    def _used_in_calls(schedule_name: str, schedule: ScheduleBlock) -> bool:
         """Recursively find if the schedule calls a schedule with name ``schedule_name``.
 
         Args:
             schedule_name: The name of the callee to identify.
             schedule: The schedule to parse.
+
+        Returns:
+            True if ``schedule``calls a ``ScheduleBlock`` with name ``schedule_name``.
         """
         blocks_have_schedule = set()
 
