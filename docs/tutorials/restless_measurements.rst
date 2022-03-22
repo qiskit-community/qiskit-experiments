@@ -30,12 +30,12 @@ measurement outcomes represented as complex numbers in the IQ plane in a restles
 setting. Here, we run three circuits with an identity gate and three circuits with
 an X gate, each followed by a measurement. The numbers in the IQ shots indicate the
 order in which the shots were acquired. The IQ plane on the left shows the single
-measurement shots gathered when the qubits are reset. Here, the blue and red points
-corresponding to measurements following the Id and X gates are associated with the
+measurement shots gathered when the qubits are reset. Here, the blue and red points,
+corresponding to measurements following the Id and X gates, are associated with the
 :math:`\left\vert0\right\rangle` and :math:`\left\vert1\right\rangle` states,
 respectively.
 By contrast, with restless measurements the qubit is not reset after a
-measurement. As one can see in the IQ plane on the left the single measurement
+measurement. As one can see in the IQ plane on the right the single measurement
 outcomes of the Id and X circuits no longer match with the
 :math:`\left\vert0\right\rangle` and :math:`\left\vert1\right\rangle` states,
 respectively. This is why restless measurements need special post-processing.
@@ -85,9 +85,9 @@ mode. With a hardware backend this would be done by calling the ``run`` method
 As shown by the example, the code is identical to running a normal
 experiment aside from a call to the method ``enable_restless``. This method
 will set the data processor that post-processes the restless measured shots
-according to the order in which they were acquired. You can also chose
+according to the order in which they were acquired. You can also choose
 to keep the standard data processor by providing it to the analysis
-options and telling ``enable_restless`` not to override the data processor
+options and telling ``enable_restless`` not to override the data processor.
 
 .. jupyter-execute::
 
@@ -119,7 +119,7 @@ standard jobs. This allows us to compute the effective speed-up we gain when
 performing restless experiments. Note that we do not consider any classical
 run-time contributions such as runtime-compilation or data transfer times [3].
 
-The time to run :math:`K` circuits and gathering :math:`N` shots for each
+The time to run :math:`K` circuits and gather :math:`N` shots for each
 circuit is
 
 .. math::
@@ -170,6 +170,9 @@ using the code below.
     reset = 4e-6  # Estimated reset duration
     speed_up = (meas_length + reset + delay_s + tau) / (meas_length + delay_r + tau)
     print(f"The QPU will spend {speed_up:.1f}x less time running restless Drag.")
+
+The example above is applicable to other experiments and shows that restless
+measurements can greatly speed-up characterization and calibration tasks.
 
 References
 ~~~~~~~~~~
