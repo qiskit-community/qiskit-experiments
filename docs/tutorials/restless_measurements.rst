@@ -44,7 +44,7 @@ respectively. This is why restless measurements need special post-processing.
    :width: 600
 
 Enabling restless measurements
-------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 In Qiskit Experiments the experiments that support restless measurements
 inherit from the ``RestlessMixin``. This mix-in class adds methods to set
@@ -111,6 +111,66 @@ in Ref. [2] restless measurements can be done with a wide variety
 of experiments such as fine amplitude and drag error amplifying gate sequences
 as well as randomized benchmarking.
 
+Calculating restless quantum processor speed-ups
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+We can compare the time spent by the quantum processor executing restless and
+standard jobs. This allows us to compute the effective speed-up we gain when
+performing restless experiments. Note that we do not consider any classical
+run-time contributions such as runtime-compilation or data transfer times [3].
+
+The time to run :math:`K` circuits and gathering :math:`N` shots for each
+circuit is
+
+.. math::
+
+    \tau^{(x)} = NK\left(\tau^{(x)}_\text{reset}+\tau^{(x)}_\text{delay}+
+    \langle{\tau}_\text{circ}\rangle+\tau_\text{meas}\right),
+
+where :math:`\tau^{(x)}_\text{reset}` and :math:`\tau^{(x)}_\text{delay}`
+are the reset and delay times, respectively. The superscript :math:`(x)`
+indicates restless :math:`(r)` or standard :math:`(s)` measurements.
+The average duration of all :math:`K` circuits in an experiment is
+:math:`\langle{\tau}_\text{circ}\rangle=K^{-1}\sum_{k=1}^{K} \tau_{\text{circ},k}`
+where :math:`\tau_{\text{circ},k}` is the duration of only the gates in circuit
+:math:`k`. We therefore compute the quantum processor speed-up of restless
+measurements as :math:`\tau^{(\text{s})}/\tau^{(\text{r})}` which is independent
+of the number of circuits and shots.
+
+The standard reset time is on average :math:`\tau^{(s)}_\text{reset} = 4\,\mu s`
+whereas :math:`\tau^{(r)}_\text{reset} = 0\,\mu s` since we do not reset the
+qubit in a restless experiment. By default, the repetition delay is
+:math:`\tau^{(s)}_\text{delay} = 250\,\mu s`. For our restless experiments we
+set :math:`\tau^{(r)}_\text{delay} = 1\,\mu s`. These speed-ups can be evaluated
+using the code below.
+
+.. jupyter-execute::
+
+    from qiskit import schedule, transpile
+
+    dt = backend.configuration().dt
+    inst_map = backend.defaults().instruction_schedule_map
+    meas_length = inst_map.get("measure", (qubit, )).duration * dt
+
+    # Compute the average duration of all circuits
+    durations = []
+    for qc in cal_drag.circuits():
+        qc.remove_final_measurements(inplace=True)
+        qc_schedule = schedule(
+            transpile(qc, backend, initial_layout=[qubit]),
+            backend
+        )
+        durations.append(qc_schedule.duration)
+
+    tau = sum(durations) * dt / (len(durations))
+
+    n_circs = len(cal_drag.circuits())
+    delay_s = backend.configuration().default_rep_delay
+    delay_r = 1e-6  # restless delay
+    reset = 4e-6  # Estimated reset duration
+    speed_up = (meas_length + reset + delay_s + tau) / (meas_length + delay_r + tau)
+    print(f"The QPU will spend {speed_up:.1f}x less time running restless Drag.")
+
 References
 ~~~~~~~~~~
 
@@ -122,6 +182,11 @@ PRX Quantum 2, 020324 (2021).
 Minimum quantum run-time characterization and calibration via restless
 measurements with dynamic repetition rates,
 https://arxiv.org/abs/2202.06981
+
+[3] Andrew Wack, Hanhee Paik, Ali Javadi-Abhari, Petar Jurcevic, Ismael Faro,
+Jay M. Gambetta, Blake R. Johnson, Quality, Speed, and Scale: three key
+attributes to measure the performance of near-term quantum computers,
+https://arxiv.org/abs/2110.14108
 
 .. jupyter-execute::
 
