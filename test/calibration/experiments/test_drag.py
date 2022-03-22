@@ -15,6 +15,7 @@
 from test.base import QiskitExperimentsTestCase
 import unittest
 from typing import Dict, List, Any
+from ddt import ddt, data, unpack
 import numpy as np
 
 from qiskit import QuantumCircuit
@@ -31,25 +32,25 @@ from qiskit_experiments.test.mock_iq_backend import MockIQBackend
 from qiskit_experiments.calibration_management.basis_gate_library import FixedFrequencyTransmon
 from qiskit_experiments.calibration_management import Calibrations
 
+def set_deafult_calc_parameters_list(calc_parameters_list: List[Dict[str, Any]]):
+    
+    if "gate_name" not in calc_parameters_list[0].keys():
+        calc_parameters_list[0]["gate_name"] = "Rp"
+
+    if "error" not in calc_parameters_list[0].keys():
+        calc_parameters_list[0]["error"] = 0.03
+    if "ideal_beta" not in calc_parameters_list[0].keys():
+        calc_parameters_list[0]["ideal_beta"] = 2.0
+    if "freq" not in calc_parameters_list[0].keys():
+        calc_parameters_list[0]["freq"] = 0.02
+       
+
 
 def compute_probability(
     circuits: List[QuantumCircuit], calc_parameters_list: List[Dict[str, Any]]
 ) -> List[Dict[str, float]]:
     """Returns the probability based on the beta, number of gates, and leakage."""
-    if "gate_name" in calc_parameters_list[0].keys():
-        gate_name = calc_parameters_list[0]["gate_name"]
-    else:
-        gate_name = "Rp"
-
-    if "error" in calc_parameters_list[0].keys():
-        error = calc_parameters_list[0]["error"]
-    else:
-        error = 0.03
-
-    if "ideal_beta" in calc_parameters_list[0].keys():
-        ideal_beta = calc_parameters_list[0]["ideal_beta"]
-    else:
-        ideal_beta = 2.0
+    set_deafult_calc_parameters_list(calc_parameters_list)
     output_dict_list = []
     for circuit in circuits:
         probability_output_dict = {}
@@ -64,6 +65,7 @@ def compute_probability(
     return output_dict_list
 
 
+@ddt
 class TestDragEndToEnd(QiskitExperimentsTestCase):
     """Test the drag experiment."""
 
@@ -77,7 +79,7 @@ class TestDragEndToEnd(QiskitExperimentsTestCase):
             pulse.play(Drag(duration=160, amp=0.208519, sigma=40, beta=beta), DriveChannel(0))
 
         self.x_plus = xp
-        self.test_tol = 0.05
+        self.test_tol = 0.1
 
     def test_reps(self):
         """Test that setting reps raises and error if reps is not of length three."""
@@ -107,12 +109,13 @@ class TestDragEndToEnd(QiskitExperimentsTestCase):
         # Small leakage will make the curves very flat, in this case one should
         # rather increase beta.
         calc_parameters["error"] = 0.0051
+        calc_parameters["freq"] = 0.0044
+        calc_parameters["gate_name"] = "Drag(xp)"
         backend = MockIQBackend(
             compute_probabilities=compute_probability, calculation_parameters=[calc_parameters]
         )
 
         drag = RoughDrag(0, self.x_plus)
-        drag.analysis.set_options(p0={"beta": 1.2})
         exp_data = drag.run(backend)
         self.assertExperimentDone(exp_data)
         result = exp_data.analysis_results(1)
@@ -122,13 +125,15 @@ class TestDragEndToEnd(QiskitExperimentsTestCase):
 
         # Large leakage will make the curves oscillate quickly.
         calc_parameters["error"] = 0.05
+        calc_parameters["freq"] = 0.04
         backend = MockIQBackend(
             compute_probabilities=compute_probability, calculation_parameters=[calc_parameters]
         )
 
         drag = RoughDrag(1, self.x_plus, betas=np.linspace(-4, 4, 31))
+        # pylint: disable=no-member
         drag.set_run_options(shots=200)
-        drag.analysis.set_options(p0={"beta": 1.8, "freq0": 0.08, "freq1": 0.16, "freq2": 0.32})
+        drag.analysis.set_options(p0={"beta": 1.8, "freq": 0.08})
         exp_data = drag.run(backend)
         self.assertExperimentDone(exp_data)
         result = exp_data.analysis_results(1)
@@ -137,6 +142,28 @@ class TestDragEndToEnd(QiskitExperimentsTestCase):
 
         self.assertEqual(meas_level, MeasLevel.CLASSIFIED)
         self.assertTrue(abs(result.value.n - calc_parameters["ideal_beta"]) < self.test_tol)
+        self.assertEqual(result.quality, "good")
+
+    @data(
+        (0.0040, 1.0, 0.00, [1, 3, 5], None, 0.1),  # partial oscillation.
+        (0.0020, 0.5, 0.00, [1, 3, 5], None, 0.5),  # even slower oscillation with amp < 1
+        (0.0040, 0.8, 0.05, [3, 5, 7], None, 0.1),  # constant offset, i.e. lower SNR.
+        (0.0800, 0.9, 0.05, [1, 3, 5], np.linspace(-1, 1, 51), 0.1),  # Beta not in range
+        (0.2000, 0.5, 0.10, [1, 3, 5], np.linspace(-2.5, 2.5, 51), 0.1),  # Max closer to zero
+    )
+    @unpack
+    def test_nasty_data(self, freq, amp, offset, reps, betas, tol):
+        """A set of tests for non-ideal data."""
+        backend = DragBackend(freq=freq, gate_name="Drag(xp)", max_prob=amp, offset_prob=offset)
+
+        drag = RoughDrag(0, self.x_plus, betas=betas)
+        drag.set_experiment_options(reps=reps)
+
+        exp_data = drag.run(backend)
+        self.assertExperimentDone(exp_data)
+        result = exp_data.analysis_results("beta")
+
+        self.assertTrue(abs(result.value.n - backend.ideal_beta) < tol)
         self.assertEqual(result.quality, "good")
 
 
@@ -158,9 +185,11 @@ class TestDragCircuits(QiskitExperimentsTestCase):
         """Test the default circuit."""
 
         calc_parameters = {"gate_name": "Drag(xp)", "ideal_beta": 2.0, "error": 0.03}
+        calc_parameters["freq"] = 0.005
         backend = MockIQBackend(
             compute_probabilities=compute_probability, calculation_parameters=[calc_parameters]
         )
+        calc_parameters = {"gate_name": "Drag(xp)", "ideal_beta": 2.0, "error": 0.03}
         drag = RoughDrag(0, self.x_plus)
         drag.set_experiment_options(reps=[2, 4, 8])
         drag.backend = MockIQBackend(
