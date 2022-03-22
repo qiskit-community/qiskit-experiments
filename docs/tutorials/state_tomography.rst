@@ -2,6 +2,7 @@ Quantum State Tomography
 ========================
 
 .. jupyter-execute::
+    :raises:
 
     import qiskit
     from qiskit_experiments.framework import ParallelExperiment
@@ -22,6 +23,7 @@ circuit to prepare the state to be measured. We can also pass in an
 ``Operator``, or a ``Statevector`` to describe the preparation circuit.
 
 .. jupyter-execute::
+    :raises:
 
     # Run experiments
     
@@ -50,6 +52,7 @@ The main result for tomography is the fitted state, which is stored as a
 ``DensityMatrix`` object:
 
 .. jupyter-execute::
+    :raises:
 
     state_result = qstdata1.analysis_results("state")
     print(state_result.value)
@@ -64,6 +67,7 @@ state cannot be automatically generated and this field will be set to
 ``None``.
 
 .. jupyter-execute::
+    :raises:
 
     fid_result = qstdata1.analysis_results("state_fidelity")
     print("State Fidelity = {:.5f}".format(fid_result.value))
@@ -87,6 +91,7 @@ if the state was rescaled to be positive or trace 1 an additional field
 performed.
 
 .. jupyter-execute::
+    :raises:
 
     state_result.extra
 
@@ -94,6 +99,7 @@ To see the effect of rescaling we can perform a “bad” fit with very low
 counts
 
 .. jupyter-execute::
+    :raises:
 
     # QST Experiment
     bad_data = qstexp1.run(backend, shots=10, seed_simulation=100).block_for_results()
@@ -124,6 +130,7 @@ details). For example if ``cvxpy`` is installed we can use the
 PSD without requiring rescaling.
 
 .. jupyter-execute::
+    :raises:
 
     try:
         import cvxpy
@@ -152,6 +159,7 @@ run subsystem tomography on multiple qubits in parallel.
 For example if we want to perform 1-qubit QST on several qubits at once:
 
 .. jupyter-execute::
+    :raises:
 
     from math import pi
     num_qubits = 5
@@ -171,6 +179,7 @@ For example if we want to perform 1-qubit QST on several qubits at once:
 View component experiment analysis results
 
 .. jupyter-execute::
+    :raises:
 
     for i, expdata in enumerate(pardata.child_data()):
         state_result_i = expdata.analysis_results("state")
@@ -182,6 +191,7 @@ View component experiment analysis results
 
 
 .. jupyter-execute::
+    :raises:
 
     import qiskit.tools.jupyter
     %qiskit_copyright

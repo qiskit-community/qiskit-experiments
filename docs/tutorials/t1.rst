@@ -29,6 +29,7 @@ The following code demonstrates a basic run of a :math:`T_1` experiment
 for qubit 0.
 
 .. jupyter-execute::
+    :raises:
 
     import numpy as np
     from qiskit_experiments.framework import ParallelExperiment
@@ -75,6 +76,7 @@ To measure :math:`T_1` of multiple qubits in the same experiment, we
 create a parallel experiment:
 
 .. jupyter-execute::
+    :raises:
 
     # Create a parallel T1 experiment
     parallel_exp = ParallelExperiment([T1(qubit=i, delays=delays) for i in range(2)])
@@ -94,6 +96,7 @@ individual experiment data for each sub experiment which can be accessed
 using ``child_data``
 
 .. jupyter-execute::
+    :raises:
 
     # Print sub-experiment data
     for i, sub_data in enumerate(parallel_data.child_data()):
@@ -103,6 +106,7 @@ using ``child_data``
             print(result)
 
 .. jupyter-execute::
+    :raises:
 
     import qiskit.tools.jupyter
     %qiskit_copyright

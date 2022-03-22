@@ -33,6 +33,7 @@ This notebook demonstrates the usage of both the local and correlated
 experiments to generate the corresponding mitigators.
 
 .. jupyter-execute::
+    :raises:
 
     import numpy as np
     import matplotlib.pyplot as plt
@@ -52,6 +53,7 @@ experiments to generate the corresponding mitigators.
     backend = AerSimulator.from_backend(FakeParis())
 
 .. jupyter-execute::
+    :raises:
 
     SHOTS = 1024
     qubits = [0,1,2,3]
@@ -65,6 +67,7 @@ is measured individually for each qubit. The experiment generates two
 circuits, one for all “0” and one for all “1” results.
 
 .. jupyter-execute::
+    :raises:
 
     exp = LocalReadoutError(qubits)
     for c in exp.circuits():
@@ -72,6 +75,7 @@ circuits, one for all “0” and one for all “1” results.
 
 
 .. jupyter-execute::
+    :raises:
 
     exp.analysis.set_options(plot=True)
     result = exp.run(backend)
@@ -81,6 +85,7 @@ The resulting measurement matrix can be illustrated by comparing it to
 the identity.
 
 .. jupyter-execute::
+    :raises:
 
     result.figure(0)
 
@@ -91,6 +96,7 @@ Mitigation matrices
 The individual mitigation matrices can be read off the mitigator.
 
 .. jupyter-execute::
+    :raises:
 
     for m in mitigator._mitigation_mats:
         print(m)
@@ -101,6 +107,7 @@ Mitigation Example
 ------------------
 
 .. jupyter-execute::
+    :raises:
 
     qc = QuantumCircuit(num_qubits)
     qc.h(0)
@@ -109,11 +116,13 @@ Mitigation Example
     qc.measure_all()
 
 .. jupyter-execute::
+    :raises:
 
     counts = backend.run(qc, shots=SHOTS, seed_simulator=42, method="density_matrix").result().get_counts()
     unmitigated_probs = {label: count / SHOTS for label, count in counts.items()}
 
 .. jupyter-execute::
+    :raises:
 
     mitigated_quasi_probs = mitigator.quasi_probabilities(counts)
     mitigated_stddev = mitigated_quasi_probs._stddev_upper_bound
@@ -123,6 +132,7 @@ Probabilities
 ~~~~~~~~~~~~~
 
 .. jupyter-execute::
+    :raises:
 
     legend = ['Mitigated Probabilities', 'Unmitigated Probabilities']
     plot_histogram([mitigated_probs, unmitigated_probs], legend=legend, sort="value_desc", bar_labels=False)
@@ -132,6 +142,7 @@ Expectation value
 -----------------
 
 .. jupyter-execute::
+    :raises:
 
     diagonal_labels = ["ZZZZ", "ZIZI", "IZII", "1ZZ0"]
     ideal_expectation = []
@@ -142,6 +153,7 @@ Expectation value
     mitigated_expectation = [mitigator.expectation_value(counts, d) for d in diagonals]
 
 .. jupyter-execute::
+    :raises:
 
     mitigated_expectation_values, mitigated_stddev = zip(*mitigated_expectation)
     unmitigated_expectation_values, unmitigated_stddev = zip(*unmitigated_expectation)
@@ -165,6 +177,7 @@ amount of circuits and storage space, and so is infeasible for more than
 a few qubits.
 
 .. jupyter-execute::
+    :raises:
 
     qubits = [0,3]
     num_qubits = len(qubits)
@@ -174,6 +187,7 @@ a few qubits.
 
 
 .. jupyter-execute::
+    :raises:
 
     import qiskit.tools.jupyter
     %qiskit_copyright

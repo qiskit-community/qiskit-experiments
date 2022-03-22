@@ -26,6 +26,7 @@ probability’ > 2/3 with confidence level > 0.977 (corresponding to
 z_value = 2), and at least 100 trials have been ran.
 
 .. jupyter-execute::
+    :raises:
 
     from qiskit_experiments.framework import BatchExperiment
     from qiskit_experiments.library import QuantumVolume
@@ -81,6 +82,7 @@ Extra data included in the analysis results includes
 -  Whether the QV circuit was succesful
 
 .. jupyter-execute::
+    :raises:
 
     qubits = range(4) # Can use specific qubits. for example [2, 4, 7, 10]
     
@@ -93,6 +95,7 @@ Extra data included in the analysis results includes
     expdata = qv_exp.run(backend).block_for_results()
 
 .. jupyter-execute::
+    :raises:
 
     # View result data
     display(expdata.figure(0))
@@ -102,6 +105,7 @@ Extra data included in the analysis results includes
 
 
 .. jupyter-execute::
+    :raises:
 
     # Print extra data
     for result in expdata.analysis_results():
@@ -120,6 +124,7 @@ trials to be considered successful). In case you want to add less than
 re-running the experiment.
 
 .. jupyter-execute::
+    :raises:
 
     qv_exp.set_experiment_options(trials=60)
     expdata2 = qv_exp.run(backend, analysis=None).block_for_results()
@@ -141,6 +146,7 @@ system’s Quantum Volume, one must run more trials and additional
 enhancements might be required (See Ref. [2] for details).
 
 .. jupyter-execute::
+    :raises:
 
     exps = [QuantumVolume(range(i), trials=200) for i in range(3, 6)]
     batch_exp = BatchExperiment(exps)
@@ -152,6 +158,7 @@ enhancements might be required (See Ref. [2] for details).
 Extracting the maximum Quantum Volume.
 
 .. jupyter-execute::
+    :raises:
 
     qv_values = [
         batch_expdata.child_data(i).analysis_results("quantum_volume").value
@@ -162,6 +169,7 @@ Extracting the maximum Quantum Volume.
 
 
 .. jupyter-execute::
+    :raises:
 
     for i in range(batch_exp.num_experiments):
         print(f"\nComponent experiment {i}")
@@ -183,6 +191,7 @@ asuperconducting quantum computing system,
 https://arxiv.org/pdf/2008.08571
 
 .. jupyter-execute::
+    :raises:
 
     import qiskit.tools.jupyter
     %qiskit_copyright
