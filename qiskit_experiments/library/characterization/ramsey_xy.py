@@ -21,10 +21,11 @@ from qiskit.providers.backend import Backend
 from qiskit.test.mock import FakeBackend
 
 from qiskit_experiments.framework import BaseExperiment
+from qiskit_experiments.framework.restless_mixin import RestlessMixin
 from qiskit_experiments.library.characterization.analysis import RamseyXYAnalysis
 
 
-class RamseyXY(BaseExperiment):
+class RamseyXY(BaseExperiment, RestlessMixin):
     r"""Ramsey XY experiment to measure the frequency of a qubit.
 
     # section: overview
