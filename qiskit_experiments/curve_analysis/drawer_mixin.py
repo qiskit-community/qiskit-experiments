@@ -39,10 +39,11 @@ class CurveDrawerMixin:
 
         # This is a hack to let the mixin have internal state for drawing option.
         @functools.wraps(cls.__init__, assigned=("__annotations__",))
-        def __new__(cls, *args, **kwargs):
-            instance = super().__new__(cls, *args, **kwargs)
-            setattr(instance, "_default_draw_options", cls._default_draw_options)
-            setattr(instance, "_set_draw_options", set())
+        def __new__(sub_cls, *args, **kwargs):
+            instance = super(cls, sub_cls).__new__(sub_cls, *args, **kwargs)
+            instance._draw_options = instance._default_draw_options()
+            instance._set_draw_options = set()
+
             return instance
 
         cls.__new__ = __new__
@@ -420,8 +421,12 @@ class CurveDrawerMixin:
         xmin, xmax = fit_result.x_range
 
         # This is ufloat parameters.
-        parameters = {s: fit_result.fitval(s) for s in signature}
-        parameters.update(fixed_params)
+        parameters = {}
+        for fitpar in signature:
+            if fitpar in fixed_params:
+                parameters[fitpar] = fixed_params[fitpar]
+            else:
+                parameters[fitpar] = fit_result.fitval(fitpar)
 
         # The confidence interval is automatically computed with uncertainty package.
         xs = np.linspace(xmin, xmax, 100)

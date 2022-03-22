@@ -252,9 +252,6 @@ class CurveAnalysis(BaseAnalysis, CurveDrawerMixin, ABC):
                 p: self.options.get(p, None) for p in self.__fixed_parameters__
             }
 
-        # Set drawing options
-        self._draw_options = self._default_draw_options()
-
         #: Dict[str, Any]: Experiment metadata
         self.__experiment_metadata = None
 
