@@ -45,7 +45,7 @@ class TestCalibrationsBasic(QiskitExperimentsTestCase):
         """Create the setting to test."""
         super().setUp()
 
-        self.cals = Calibrations()
+        self.cals = Calibrations(coupling_map=[])
 
         self.sigma = Parameter("σ")
         self.amp_xp = Parameter("amp")
@@ -128,7 +128,7 @@ class TestCalibrationsBasic(QiskitExperimentsTestCase):
             Calibrations(coupling_map=coupling_map, control_channel_map=controls)
 
         with self.assertRaises(CalibrationError):
-            Calibrations(control_channel_map=controls)
+            Calibrations(coupling_map=[], control_channel_map=controls)
 
     def test_preserve_template(self):
         """Test that the template schedule is still fully parametric after we get a schedule."""
@@ -282,7 +282,7 @@ class TestOverrideDefaults(QiskitExperimentsTestCase):
         """Create the setting to test."""
         super().setUp()
 
-        self.cals = Calibrations()
+        self.cals = Calibrations(coupling_map=[])
 
         self.sigma = Parameter("σ")
         self.amp_xp = Parameter("amp")
@@ -475,7 +475,7 @@ class TestConcurrentParameters(QiskitExperimentsTestCase):
         Ensure that if the max time has multiple entries we take the most recent appended one.
         """
 
-        cals = Calibrations()
+        cals = Calibrations(coupling_map=[])
 
         amp = Parameter("amp")
         ch0 = Parameter("ch0")
@@ -536,7 +536,7 @@ class TestMeasurements(QiskitExperimentsTestCase):
                 pulse.call(xp, value_dict={ch0: ch1})
                 pulse.call(meas, value_dict={ch0: ch1})
 
-        self.cals = Calibrations()
+        self.cals = Calibrations(coupling_map=[])
         self.cals.add_schedule(meas, num_qubits=1)
         self.cals.add_schedule(xp, num_qubits=1)
         self.cals.add_schedule(xp_meas, num_qubits=1)
@@ -675,7 +675,7 @@ class TestInstructions(QiskitExperimentsTestCase):
             pulse.call(xp)
             pulse.call(xp12)
 
-        self.cals = Calibrations()
+        self.cals = Calibrations(coupling_map=[])
         self.cals.add_schedule(xp, num_qubits=1)
         self.cals.add_schedule(xp12, num_qubits=1)
         self.cals.add_schedule(xp02, num_qubits=1)
@@ -711,7 +711,7 @@ class TestRegistering(QiskitExperimentsTestCase):
         """Create the setting to test."""
         super().setUp()
 
-        self.cals = Calibrations()
+        self.cals = Calibrations(coupling_map=[])
         self.d0_ = DriveChannel(Parameter("ch0"))
 
     def test_call_registering(self):
@@ -1107,7 +1107,7 @@ class TestReplaceScheduleAndCall(QiskitExperimentsTestCase):
         """Create the setting to test."""
         super().setUp()
 
-        self.cals = Calibrations()
+        self.cals = Calibrations(coupling_map=[])
 
         self.amp = Parameter("amp")
         self.dur = Parameter("duration")
@@ -1311,7 +1311,7 @@ class TestFiltering(QiskitExperimentsTestCase):
         """Setup a calibration."""
         super().setUp()
 
-        self.cals = Calibrations()
+        self.cals = Calibrations(coupling_map=[])
 
         self.sigma = Parameter("σ")
         self.amp = Parameter("amp")

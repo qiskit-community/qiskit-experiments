@@ -70,7 +70,7 @@ class Calibrations:
 
     def __init__(
         self,
-        coupling_map: Optional[List[List[int]]] = None,
+        coupling_map: List[List[int]],
         control_channel_map: Optional[Dict[Tuple[int, ...], List[ControlChannel]]] = None,
         library: Optional[Union[BasisGateLibrary, List[BasisGateLibrary]]] = None,
         add_parameter_defaults: bool = True,
@@ -243,7 +243,7 @@ class Calibrations:
             backend_name = None
 
         cals = Calibrations(
-            getattr(backend.configuration(), "coupling_map", None),
+            getattr(backend.configuration(), "coupling_map", []),
             getattr(backend.configuration(), "control_channels", None),
             library,
             add_parameter_defaults,
