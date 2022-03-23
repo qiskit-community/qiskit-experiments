@@ -13,7 +13,7 @@
 Linear inversion MLEtomography fitter.
 """
 
-from typing import Dict, List, Tuple, Optional, Sequence
+from typing import Dict, Tuple, Optional, Sequence
 from functools import lru_cache
 import numpy as np
 from qiskit_experiments.library.tomography.basis.fitter_basis import (
@@ -23,7 +23,7 @@ from qiskit_experiments.library.tomography.basis.fitter_basis import (
 
 
 def linear_inversion(
-    outcome_data: List[np.ndarray],
+    outcome_data: np.ndarray,
     shot_data: np.ndarray,
     measurement_data: np.ndarray,
     preparation_data: np.ndarray,
@@ -76,7 +76,7 @@ def linear_inversion(
         least-squares optimization.
 
     Args:
-        outcome_data: list of outcome frequency data.
+        outcome_data: measurement outcome frequency data.
         shot_data: basis measurement total shot data.
         measurement_data: measurement basis indice data.
         preparation_data: preparation basis indice data.
@@ -116,7 +116,11 @@ def linear_inversion(
             p_mat = None
 
         # Get probabilities and optional measurement basis component
-        for outcome, freq in outcomes:
+        for outcome, freq in enumerate(outcomes):
+            if freq == 0:
+                # Skip component with zero probability
+                continue
+
             if meas_dual_basis:
                 dual_op = meas_dual_basis.matrix(midx, outcome)
                 if prep_dual_basis:
