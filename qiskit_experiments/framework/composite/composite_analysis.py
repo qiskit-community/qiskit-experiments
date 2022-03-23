@@ -170,7 +170,7 @@ class CompositeAnalysis(BaseAnalysis):
 
         # Initialize the component experiment data containers and add them
         # as child data to the current experiment data
-        child_components = self._initialize_component_data(experiment_data)
+        child_components = self._initialize_component_experiment_data(experiment_data)
         start_index = len(experiment_data.child_data())
         for i, subdata in enumerate(child_components):
             experiment_data.add_child_data(subdata)
@@ -179,7 +179,9 @@ class CompositeAnalysis(BaseAnalysis):
         # Store the indices of the added child data in metadata
         experiment_data.metadata["component_child_index"] = component_index
 
-    def _initialize_component_data(self, experiment_data: ExperimentData) -> List[ExperimentData]:
+    def _initialize_component_experiment_data(
+        self, experiment_data: ExperimentData
+    ) -> List[ExperimentData]:
         """Initialize component experiment data objects.
 
         These contain the component metadata, and copy the tags, share level,

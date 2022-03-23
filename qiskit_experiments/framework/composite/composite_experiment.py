@@ -16,6 +16,7 @@ Composite Experiment abstract base class.
 from typing import List, Sequence, Optional, Union
 from abc import abstractmethod
 import warnings
+from qiskit import QiskitError
 from qiskit.providers.backend import Backend
 from qiskit_experiments.framework import BaseExperiment
 from qiskit_experiments.framework.base_analysis import BaseAnalysis
@@ -43,11 +44,20 @@ class CompositeExperiment(BaseExperiment):
             analysis: Optional, the composite analysis class to use. If not
                       provided this will be initialized automatically from the
                       supplied experiments.
+
+        Raises:
+            QiskitError: if the provided analysis class is not a CompositeAnalysis
+                         instance.
         """
         self._experiments = experiments
         self._num_experiments = len(experiments)
         if analysis is None:
             analysis = CompositeAnalysis([exp.analysis for exp in self._experiments])
+        elif not isinstance(analysis, CompositeAnalysis):
+            raise QiskitError(
+                f"{type(analysis)} is not a CompositeAnalysis instance. CompositeExperiments"
+                " require a CompositeAnalysis class or subclass for analysis."
+            )
         super().__init__(
             qubits,
             analysis=analysis,
