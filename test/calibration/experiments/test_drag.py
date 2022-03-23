@@ -63,15 +63,16 @@ def compute_probability(
     """Returns the probability based on the beta, number of gates, and leakage."""
     set_default_calc_parameters_list(calc_parameters_list)
 
-    gate_name = calc_parameters_list[0]["gate_name"] or "Rp"
-    error = calc_parameters_list[0]["error"] or 0.03
-    ideal_beta = calc_parameters_list[0]["ideal_beta"] or 2.0
-    freq = calc_parameters_list[0]["freq"] or 0.02
-    max_prob = calc_parameters_list[0]["max_prob"] or 1.0
-    offset_prob = calc_parameters_list[0]["offset_prob"] or 0.0
+    gate_name = calc_parameters_list[0].get("gate_name", "Rp")
+    error = calc_parameters_list[0].get("error", 0.03)
+    ideal_beta = calc_parameters_list[0].get("ideal_beta", 2.0)
+    freq = calc_parameters_list[0].get("freq", 0.02)
+    max_prob = calc_parameters_list[0].get("max_prob", 1.0)
+    offset_prob = calc_parameters_list[0].get("offset_prob", 0.0)
 
-    if calc_parameters_list[0]["max_prob"] + calc_parameters_list[0]["offset_prob"] > 1:
+    if max_prob + offset_prob > 1:
         raise ValueError("Probabilities need to be between 0 and 1.")
+
     output_dict_list = []
     for circuit in circuits:
         probability_output_dict = {}

@@ -31,26 +31,10 @@ from qiskit_experiments.calibration_management.basis_gate_library import FixedFr
 
 def fine_drag_compute_probabilities(circuits: List[QuantumCircuit], calc_parameters: List[Dict[str, Any]]) -> List[Dict[str, float]]:
     """Returns the probability based on the beta, number of gates, and leakage."""
-    if not calc_parameters:
-        if "gate_name" in calc_parameters[0].keys():
-            gate_name = calc_parameters[0]["gate_name"]
-        else:
-            gate_name = "Rp"
 
-        if "error" in calc_parameters[0].keys():
-            error = calc_parameters[0]["error"]
-        else:
-            error = 0.03
-
-        if "ideal_beta" in calc_parameters[0].keys():
-            ideal_beta = calc_parameters[0]["ideal_beta"]
-        else:
-            ideal_beta = 2.0
-    else:
-        gate_name = "Rp"
-        error = 0.03
-        ideal_beta = 2.0
-
+    gate_name = calc_parameters[0].get("gate_name", "Rp")
+    error = calc_parameters[0].get("error", 0.03)
+    ideal_beta = calc_parameters[0].get("ideal_beta", 2.0)
     output_dict_list = []
     for circuit in circuits:
         probability_output_dict = {}

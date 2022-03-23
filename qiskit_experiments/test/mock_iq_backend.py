@@ -239,10 +239,7 @@ class MockIQBackend(FakeOpenPulse2Q):
         prob_list = []
         for num in range(2 ** num_qubits):
             num_binary_str = str(format(num, 'b').zfill(num_qubits))
-            if num_binary_str in prob_dict:
-                prob_list.append(prob_dict[num_binary_str])
-            else:
-                prob_list.append(0)
+            prob_list.append(prob_dict.get(num_binary_str, 0))
         return prob_list
 
     def _draw_iq_shots(
@@ -253,10 +250,11 @@ class MockIQBackend(FakeOpenPulse2Q):
         Args:
             prob(List): A list of probabilities for each output.
             shots(int): The number of times the circuit will run.
-            num_qubits(int): The number of qubit in hte circuit.
+            num_qubits(int): The number of qubits in the circuit.
 
         Returns:
-            List[List[Tuple[float, float]]]: return a list that each entry is a list that represent a shot.
+            List[List[Tuple[float, float]]]: A list of shots. Each shot composed of a list of qubits. The qubits are
+            tuples with two values [I,Q].
             The output structure is  - List[shot index][qubit index] = [I,Q]
         """
         # Randomize samples
@@ -271,9 +269,6 @@ class MockIQBackend(FakeOpenPulse2Q):
         iq_centers = self._iq_cluster_centers
 
         for output_number, number_of_occurrences in enumerate(self._rng.multinomial(shots, prob, size=1)[0]):
-            # For multiple qubits - translate a number to a string
-            # and then count them.
-            # need to think about the structure of probability.
             state_str = str(format(output_number, 'b').zfill(num_qubits))
             for _ in range(number_of_occurrences):
                 shot_memory = []
@@ -283,8 +278,8 @@ class MockIQBackend(FakeOpenPulse2Q):
                     # The structure of iq_centers is [qubit_number][logic_result][I/Q].
                     i_center = iq_center[int(char_qubit)][0]
                     q_center = iq_center[int(char_qubit)][1]
-                    point_i = i_center + qubit_iq_rand_sample
-                    point_q = q_center + qubit_iq_rand_sample
+                    point_i = i_center + qubit_iq_rand_sample[0]
+                    point_q = q_center + qubit_iq_rand_sample[1]
                     
                     # Adding phase if not 0.0
                     if not np.allclose(phase, 0.0):
@@ -298,17 +293,19 @@ class MockIQBackend(FakeOpenPulse2Q):
 
         return memory
 
-    def _generate_data(self, prob_dict: Dict[str, float], num_qubits: int, circuit: QuantumCircuit) -> Dict[str, Union[Union[dict[str, Any], list[list[list[Union[float, complex]]]]], Any]]:
+    def _generate_data(self, prob_dict: Dict[str, float], num_qubits: int, circuit: QuantumCircuit) \
+            -> Dict[str, Union[Dict[str, int], List[List[List[Union[float, complex]]]]]]:
         """
         Generate data for the circuit.
         Args:
-            prob_dict(dict): A dictionary that its keys are strings representing the output vectors and their values are
+            prob_dict(dict): A dictionary whose keys are strings representing the output vectors and their values are
             the probability to get the output in this circuit.
             num_qubits(int): The number of qubits.
             circuit(QuantumCircuit): The circuit that needs to be simulated.
 
         Returns:
-            A dictionary that filled with the simulated data.
+            A dictionary that filled with the simulated data. The output format is different between measurement level 1
+            and measurement level 2.
         """
         self._verify_parameters(num_qubits, prob_dict)
         prob_arr = self._probability_dict_to_probability_array(prob_dict, num_qubits)
@@ -332,20 +329,6 @@ class MockIQBackend(FakeOpenPulse2Q):
 
             run_result["memory"] = memory
         return run_result
-
-    # @abstractmethod
-    # def _compute_probability(self, circuit: QuantumCircuit) -> Dict[str, float]:
-    #     """Compute the probability used in the binomial distribution creating the IQ shot.
-    #
-    #     An abstract method that subclasses will implement to create a probability of
-    #     being in the excited state based on the received quantum circuit.
-    #
-    #     Args:
-    #         circuit: The circuit from which to compute the probability.
-    #
-    #     Returns:
-    #          The probability that the multinomial distribution will use to generate an IQ shot.
-    #     """
 
     # pylint: disable=unused-argument
     def _iq_phase(self, circuit: QuantumCircuit) -> float:

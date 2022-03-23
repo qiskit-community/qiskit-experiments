@@ -32,9 +32,7 @@ def rabi_compute_probabilities(
     circuits: List[QuantumCircuit], calc_parameters_list: List[Dict[str, Any]]
 ) -> List[Dict[str, float]]:
     """Returns the probability based on the rotation angle and amplitude_to_angle."""
-    amplitude_to_angle = (
-        calc_parameters_list[0]["amplitude_to_angle"] if calc_parameters_list else np.pi
-    )
+    amplitude_to_angle = calc_parameters_list[0].get("amplitude_to_angle", np.pi)
     output_dict_list = []
     for circuit in circuits:
         probability_output_dict = {}
