@@ -983,6 +983,10 @@ class DbExperimentDataV1(DbExperimentData):
             return
 
         self._save_experiment_metadata()
+        if not self._created_in_db:
+            LOG.warning("Could not save experiment metadata to DB, aborting experiment save")
+            return
+
         for result in self._analysis_results.values():
             result.save()
 
@@ -1011,11 +1015,18 @@ class DbExperimentDataV1(DbExperimentData):
                 self._service.delete_figure(experiment_id=self.experiment_id, figure_name=name)
             self._deleted_figures.remove(name)
 
-        if self._created_in_db and self.verbose:
-            print(
-                "You can view the experiment online at "
-                "https://quantum-computing.ibm.com/experiments/" + self.experiment_id
-            )
+        if self.verbose:
+            # this field will be implemented in the new service package
+            if hasattr(self._service, "web_interface_link"):
+                print(
+                    "You can view the experiment online at "
+                    f"{self._service.web_interface_link}/{self.experiment_id}"
+                )
+            else:
+                print(
+                    "You can view the experiment online at "
+                    f"https://quantum-computing.ibm.com/experiments/{self.experiment_id}"
+                )
 
     @classmethod
     def load(cls, experiment_id: str, service: DatabaseServiceV1) -> "DbExperimentDataV1":
