@@ -286,16 +286,25 @@ class CompositeAnalysis(BaseAnalysis):
         experiment_types = metadata.get("component_types", [None] * num_components)
         component_metadata = metadata.get("component_metadata", [{}] * num_components)
 
-        # Create component experiments and copy backend, tags, share level
-        # and auto save from the parent experiment data
+        # Create component experiments and set the backend and
+        # metadata for the components
         component_expdata = []
         for i, _ in enumerate(self._analyses):
             subdata = ExperimentData(backend=experiment_data.backend)
             subdata._type = experiment_types[i]
             subdata.metadata.update(component_metadata[i])
-            subdata.tags = experiment_data.tags
-            subdata.share_level = experiment_data.share_level
-            subdata.auto_save = experiment_data.auto_save
+
+            if self.options.combine_results:
+                # Explicitly set auto_save to false so the temporary
+                # data can't accidentally be saved
+                subdata.auto_save = False
+            else:
+                # Copy tags, share_level and auto_save from the parent
+                # experiment data if results are not being combined.
+                subdata.tags = experiment_data.tags
+                subdata.share_level = experiment_data.share_level
+                subdata.auto_save = experiment_data.auto_save
+
             component_expdata.append(subdata)
 
         return component_expdata
