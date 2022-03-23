@@ -24,6 +24,7 @@ from qiskit_experiments.data_processing.nodes import (
     AverageData,
     MinMaxNormalize,
     Probability,
+    MarginalizeCounts,
     RestlessToCounts,
 )
 from qiskit_experiments.framework.json import ExperimentDecoder, ExperimentEncoder
@@ -346,6 +347,29 @@ class TestSVD(BaseDataProcessorTest):
 
         loaded_node = json.loads(json.dumps(node, cls=ExperimentEncoder), cls=ExperimentDecoder)
         self.assertTrue(loaded_node.is_trained)
+
+
+class TestMarginalize(QiskitExperimentsTestCase):
+    """Test the marginalization node."""
+
+    def test_marginalize(self):
+        """Test the counts marginalization."""
+        node = MarginalizeCounts(qubits_to_keep={0, 1})
+
+        data = np.array([
+            {"010": 1, "110": 10, "100": 100},
+            {"111": 1, "110": 10, "100": 100},
+        ])
+
+        processed_data = node(data)
+
+        self.assertEqual(processed_data[0], {"10": 11, "00": 100})
+        self.assertEqual(processed_data[0], {"11": 1,"10": 10, "00": 100})
+
+    def test_json(self):
+        """Check if the node is serializable."""
+        node = MarginalizeCounts(qubits_to_keep={0, 1})
+        self.assertRoundTripSerializable(node, check_func=self.json_equiv)
 
 
 class TestProbability(QiskitExperimentsTestCase):
