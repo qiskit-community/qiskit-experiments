@@ -13,7 +13,7 @@
 Contrained convex least-squares tomography fitter.
 """
 
-from typing import Optional, Dict, List, Tuple
+from typing import Optional, Dict, Tuple
 import numpy as np
 
 from qiskit_experiments.library.tomography.basis import (
@@ -27,7 +27,7 @@ from . import fitter_utils
 
 @cvxpy_utils.requires_cvxpy
 def cvxpy_linear_lstsq(
-    outcome_data: List[np.ndarray],
+    outcome_data: np.ndarray,
     shot_data: np.ndarray,
     measurement_data: np.ndarray,
     preparation_data: np.ndarray,
@@ -92,7 +92,7 @@ def cvxpy_linear_lstsq(
         fitter function.
 
     Args:
-        outcome_data: list of outcome frequency data.
+        outcome_data: measurement outcome frequency data.
         shot_data: basis measurement total shot data.
         measurement_data: measurement basis indice data.
         preparation_data: preparation basis indice data.
@@ -124,6 +124,7 @@ def cvxpy_linear_lstsq(
     )
 
     if weights is not None:
+        weights = weights / np.sqrt(np.sum(weights**2))
         basis_matrix = weights[:, None] * basis_matrix
         probability_data = weights * probability_data
 
@@ -174,7 +175,7 @@ def cvxpy_linear_lstsq(
 
 @cvxpy_utils.requires_cvxpy
 def cvxpy_gaussian_lstsq(
-    outcome_data: List[np.ndarray],
+    outcome_data: np.ndarray,
     shot_data: np.ndarray,
     measurement_data: np.ndarray,
     preparation_data: np.ndarray,
@@ -219,7 +220,7 @@ def cvxpy_gaussian_lstsq(
         :math:`K=2^m` the number of measurement outcomes for each basis measurement.
 
     Args:
-        outcome_data: list of outcome frequency data.
+        outcome_data: measurement outcome frequency data.
         shot_data: basis measurement total shot data.
         measurement_data: measurement basis indice data.
         preparation_data: preparation basis indice data.
@@ -250,7 +251,7 @@ def cvxpy_gaussian_lstsq(
         shot_data,
         measurement_data,
         preparation_data,
-        measurement_basis,
+        measurement_basis=measurement_basis,
         preparation_basis=preparation_basis,
         psd=psd,
         trace=trace,
