@@ -22,11 +22,12 @@ from qiskit.providers.backend import Backend
 from qiskit.pulse import ScheduleBlock
 
 from qiskit_experiments.framework import BaseExperiment, Options
+from qiskit_experiments.framework.restless_mixin import RestlessMixin
 from qiskit_experiments.exceptions import CalibrationError
 from qiskit_experiments.library.characterization.analysis import DragCalAnalysis
 
 
-class RoughDrag(BaseExperiment):
+class RoughDrag(BaseExperiment, RestlessMixin):
     r"""An experiment that scans the DRAG parameter to find the optimal value.
 
     # section: overview
@@ -92,14 +93,6 @@ class RoughDrag(BaseExperiment):
 
         return options
 
-    @classmethod
-    def _default_analysis_options(cls) -> Options:
-        """Default analysis options."""
-        options = Options()
-        options.normalization = True
-
-        return options
-
     # pylint: disable=arguments-differ
     def set_experiment_options(self, reps: Optional[List] = None, **fields):
         """Raise if reps has a length different from three.
@@ -107,19 +100,21 @@ class RoughDrag(BaseExperiment):
         Raises:
             CalibrationError: if the number of repetitions is different from three.
         """
-
-        if reps is None:
-            reps = [1, 3, 5]
-        else:
+        if reps is not None:
+            if len(reps) != 3:
+                raise CalibrationError(
+                    f"{self.__class__.__name__} must use exactly three repetition numbers. "
+                    f"Received {reps} with length {len(reps)} != 3."
+                )
             reps = sorted(reps)  # ensure reps 1 is the lowest frequency.
+            super().set_experiment_options(reps=reps)
 
-        if len(reps) != 3:
-            raise CalibrationError(
-                f"{self.__class__.__name__} must use exactly three repetition numbers. "
-                f"Received {reps} with length {len(reps)} != 3."
-            )
+            if isinstance(self.analysis, DragCalAnalysis):
+                self.analysis.set_options(
+                    fixed_parameters={"reps0": reps[0], "reps1": reps[1], "reps2": reps[2]}
+                )
 
-        super().set_experiment_options(reps=reps, **fields)
+        super().set_experiment_options(**fields)
 
     def __init__(
         self,
@@ -143,7 +138,6 @@ class RoughDrag(BaseExperiment):
         """
 
         super().__init__([qubit], analysis=DragCalAnalysis(), backend=backend)
-        self.analysis.set_options(**self._default_analysis_options.__dict__)
 
         if betas is not None:
             self.set_experiment_options(betas=betas)
