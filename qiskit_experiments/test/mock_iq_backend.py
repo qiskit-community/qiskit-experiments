@@ -173,36 +173,28 @@ class MockIQBackend(FakeOpenPulse2Q):
     def __init__(
         self,
         compute_probabilities: Callable[[List[QuantumCircuit], ...], List[Dict[str, float]]],
-        iq_cluster_centers: List[Tuple[Tuple[float, float], Tuple[float, float]]] = None,
-        iq_cluster_width: List[float] = None,
         rng_seed: int = 0,
+        iq_cluster_centers: Optional[List[Tuple[Tuple[float, float], Tuple[float, float]]]] = None,
+        iq_cluster_width: Optional[List[float]] = None,
         calculation_parameters: Optional[List[Dict[str, Any]]] = None,
     ):
         """
         Initialize the backend.
         Args:
+            compute_probabilities(Callable): A function that the user provides to calculate the probability of each
+            output of the circuit. The user passes the list of circuits and any variable that he needs to calculate
+            the probability. The function return a list of dictionaries. Each dictionary in the output list
+            corresponds to the probabilities of output vectors for the circuit with the same index in the circuit list.
+            rng_seed(int): The random seed value.
             iq_cluster_centers:
             iq_cluster_width:
-            rng_seed:
-            compute_probabilities: A function that the user provide to calculate the probability of each output of the
-            circuit. The user pass the list of circuit and any variable that he needs to calculate the probability and
-            return a list of dictionaries that each dictionary in the output list corresponds to the probabilities of
-            output vectors for the circuit with the same index in the circuit list.
-
+            calculation_parameters:
         """
 
-        if iq_cluster_centers is None:
-            self._iq_cluster_centers = [((1.0, 1.0), (-1.0, -1.0))]
-        else:
-            self._iq_cluster_centers = iq_cluster_centers
-
-        if iq_cluster_width is None:
-            self._iq_cluster_width = [1.0]
-        else:
-            self._iq_cluster_width = iq_cluster_width
-
+        self._iq_cluster_centers = iq_cluster_centers or [((1.0, 1.0), (-1.0, -1.0))]
+        self._iq_cluster_width = iq_cluster_width or [1.0]
         self._calculation_parameters = calculation_parameters
-        self._compute_probabilities = compute_probabilities  # or self._aer_wrapper
+        self._compute_probabilities = compute_probabilities
         self._rng = np.random.default_rng(rng_seed)
 
         super().__init__()
@@ -231,7 +223,7 @@ class MockIQBackend(FakeOpenPulse2Q):
 
     def _get_normal_samples_for_shot(self, num_qubits: int):
         """
-        Produce a list in the size of num_qubits. Each entry value produced from normal distribution with expected value
+        Produce a list in the size of num_qubits. Each entry value is produced from normal distribution with expected value
         of '0' and standard deviation of self._iq_cluster_width.
         Args:
             num_qubits(int): The amount of qubits in the circuit.
