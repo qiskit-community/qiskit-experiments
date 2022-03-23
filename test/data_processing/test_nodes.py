@@ -356,15 +356,17 @@ class TestMarginalize(QiskitExperimentsTestCase):
         """Test the counts marginalization."""
         node = MarginalizeCounts(qubits_to_keep={0, 1})
 
-        data = np.array([
-            {"010": 1, "110": 10, "100": 100},
-            {"111": 1, "110": 10, "100": 100},
-        ])
+        data = np.array(
+            [
+                {"010": 1, "110": 10, "100": 100},
+                {"111": 1, "110": 10, "100": 100},
+            ]
+        )
 
         processed_data = node(data)
 
         self.assertEqual(processed_data[0], {"10": 11, "00": 100})
-        self.assertEqual(processed_data[0], {"11": 1,"10": 10, "00": 100})
+        self.assertEqual(processed_data[0], {"11": 1, "10": 10, "00": 100})
 
     def test_json(self):
         """Check if the node is serializable."""
