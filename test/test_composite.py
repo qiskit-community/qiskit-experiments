@@ -67,6 +67,24 @@ class TestComposite(QiskitExperimentsTestCase):
             expdata = par_exp.run(FakeBackend())
         self.assertExperimentDone(expdata)
 
+    def test_combine_results(self):
+        """Test combining results."""
+        exp0 = FakeExperiment([0])
+        exp1 = FakeExperiment([1])
+        exp2 = FakeExperiment([2])
+        exp3 = FakeExperiment([3])
+        comp_exp = ParallelExperiment([
+            BatchExperiment(2 * [ParallelExperiment([exp0, exp1])]),
+            BatchExperiment(3 * [ParallelExperiment([exp2, exp3])])
+        ])
+        comp_exp.analysis.set_options(combine_results=True)
+        expdata = comp_exp.run(FakeBackend())
+        self.assertExperimentDone(expdata)
+        # Check no child data was saved
+        self.assertEqual(len(expdata.child_data()), 0)
+        # Check right number of analysis results is returned
+        self.assertEqual(len(expdata.analysis_results()), 30)
+
     def test_experiment_config(self):
         """Test converting to and from config works"""
         exp1 = FakeExperiment([0])

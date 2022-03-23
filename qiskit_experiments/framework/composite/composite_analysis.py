@@ -88,7 +88,7 @@ class CompositeAnalysis(BaseAnalysis):
         if fields.get("combine_results", False):
             for analysis in self._analyses:
                 if isinstance(analysis, CompositeAnalysis):
-                    analysis.options.combine_results = True
+                    analysis.set_options(combine_results=True)
 
     def component_analysis(
         self, index: Optional[int] = None
@@ -148,7 +148,6 @@ class CompositeAnalysis(BaseAnalysis):
         # the parent experiment analysis results
         for sub_expdata in component_expdata:
             sub_expdata.block_for_results()
-
         # Optionally combine results from all component experiments
         # for adding to the main experiment data container
         if self.options.combine_results:
@@ -325,17 +324,15 @@ class CompositeAnalysis(BaseAnalysis):
         """
         analysis_results = []
         figures = []
-        if self.options.combine_results:
-            # Optionally combine results into main container
-            for i, sub_expdata in enumerate(component_experiment_data):
-                figures += sub_expdata._figures.values()
-                for result in sub_expdata.analysis_results():
-                    # Add metadata to distinguish the component experiment
-                    # the result was generated from
-                    result.extra["component_experiment"] = {
-                        "experiment_type": sub_expdata.experiment_type,
-                        "component_index": i,
-                    }
-                    analysis_results.append(result)
+        for i, sub_expdata in enumerate(component_experiment_data):
+            figures += sub_expdata._figures.values()
+            for result in sub_expdata.analysis_results():
+                # Add metadata to distinguish the component experiment
+                # the result was generated from
+                result.extra["component_experiment"] = {
+                    "experiment_type": sub_expdata.experiment_type,
+                    "component_index": i,
+                }
+                analysis_results.append(result)
 
         return analysis_results, figures
