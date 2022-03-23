@@ -13,7 +13,7 @@
 Linear least-square MLE tomography fitter.
 """
 
-from typing import Optional, Dict, List, Tuple
+from typing import Optional, Dict, Tuple
 import numpy as np
 import scipy.linalg as la
 
@@ -26,7 +26,7 @@ from . import fitter_utils
 
 
 def scipy_linear_lstsq(
-    outcome_data: List[np.ndarray],
+    outcome_data: np.ndarray,
     shot_data: np.ndarray,
     measurement_data: np.ndarray,
     preparation_data: np.ndarray,
@@ -67,7 +67,7 @@ def scipy_linear_lstsq(
         fitter function.
 
     Args:
-        outcome_data: list of outcome frequency data.
+        outcome_data: measurement outcome frequency data.
         shot_data: basis measurement total shot data.
         measurement_data: measurement basis indice data.
         preparation_data: preparation basis indice data.
@@ -112,7 +112,7 @@ def scipy_linear_lstsq(
 
 
 def scipy_gaussian_lstsq(
-    outcome_data: List[np.ndarray],
+    outcome_data: np.ndarray,
     shot_data: np.ndarray,
     measurement_data: np.ndarray,
     preparation_data: np.ndarray,
@@ -152,7 +152,7 @@ def scipy_gaussian_lstsq(
         :math:`K=2^m` the number of measurement outcomes for each basis measurement.
 
     Args:
-        outcome_data: list of outcome frequency data.
+        outcome_data: measurement outcome frequency data.
         shot_data: basis measurement total shot data.
         measurement_data: measurement basis indice data.
         preparation_data: preparation basis indice data.
