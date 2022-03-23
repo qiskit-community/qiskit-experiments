@@ -62,10 +62,6 @@ class CurveDrawerMixin:
         # Create axis if empty
         if not self.draw_options.axis:
             axis = get_non_gui_ax()
-
-            # Set figure size if axis is not provided.
-            # Otherwise user may set the figure size by oneself.
-            # Then avoid applying draw defaults to avoid override user's preference.
             figure = axis.get_figure()
             figure.set_size_inches(*self.draw_options.figsize)
         else:
@@ -476,7 +472,9 @@ class CurveDrawerMixin:
             yval_unit (str): Unit of y values. Same as ``xval_unit``.
                 This value is not provided in most experiments, because y value is usually
                 population or expectation values.
-            figsize (Tuple[int, int]): Size of figure (width, height).
+            figsize (Tuple[int, int]): Size of figure (width, height). Note that this is applicable
+                only when ``axis`` is not provided. If any matplotlib Axis object is provided,
+                the figure size associated with the axis is preferentially applied.
             legend_loc (str): Vertical and horizontal location of the curve label window in
                 strings separated by a space.
             tick_label_size (int): Text size of tick label.
