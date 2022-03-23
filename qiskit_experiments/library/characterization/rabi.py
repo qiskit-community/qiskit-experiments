@@ -57,6 +57,7 @@ class Rabi(BaseExperiment):
     """
 
     __gate_name__ = "Rabi"
+    __outcome__ = "rabi_rate"
 
     @classmethod
     def _default_run_options(cls) -> Options:
@@ -85,17 +86,6 @@ class Rabi(BaseExperiment):
 
         return options
 
-    @classmethod
-    def _default_analysis_options(cls) -> Options:
-        """Default analysis options."""
-        options = Options()
-        options.result_parameters = [ParameterRepr("freq", "rabi_rate")]
-        options.xlabel = "Amplitude"
-        options.ylabel = "Signal (arb. units)"
-        options.normalization = True
-
-        return options
-
     def __init__(
         self,
         qubit: int,
@@ -114,7 +104,13 @@ class Rabi(BaseExperiment):
             backend: Optional, the backend to run the experiment on.
         """
         super().__init__([qubit], analysis=OscillationAnalysis(), backend=backend)
-        self.analysis.set_options(**self._default_analysis_options().__dict__)
+
+        self.analysis.set_options(
+            result_parameters=[ParameterRepr("freq", self.__outcome__)],
+            xlabel="Amplitude",
+            ylabel="Signal (arb. units)",
+            normalization=True,
+        )
 
         if amplitudes is not None:
             self.experiment_options.amplitudes = amplitudes
@@ -195,14 +191,7 @@ class EFRabi(Rabi):
                                              0
 
     """
-
-    @classmethod
-    def _default_analysis_options(cls) -> Options:
-        """Default analysis options."""
-        options = super()._default_analysis_options()
-        options.result_parameters = [ParameterRepr("freq", "rabi_rate_12")]
-
-        return options
+    __outcome__ = "rabi_rate_12"
 
     def _pre_circuit(self) -> QuantumCircuit:
         """A circuit with operations to perform before the Rabi."""
