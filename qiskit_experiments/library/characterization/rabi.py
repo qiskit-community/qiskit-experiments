@@ -107,9 +107,11 @@ class Rabi(BaseExperiment):
 
         self.analysis.set_options(
             result_parameters=[ParameterRepr("freq", self.__outcome__)],
+            normalization=True,
+        )
+        self.analysis.set_draw_options(
             xlabel="Amplitude",
             ylabel="Signal (arb. units)",
-            normalization=True,
         )
 
         if amplitudes is not None:
@@ -191,6 +193,7 @@ class EFRabi(Rabi):
                                              0
 
     """
+
     __outcome__ = "rabi_rate_12"
 
     def _pre_circuit(self) -> QuantumCircuit:

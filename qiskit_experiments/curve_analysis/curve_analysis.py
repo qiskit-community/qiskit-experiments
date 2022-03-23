@@ -353,6 +353,7 @@ class CurveAnalysis(BaseAnalysis, CurveDrawerMixin, ABC):
         if "curve_plotter" in fields:
             raise KeyError("Option curve_plotter has been removed. Please check CurveDrawerMixin.")
 
+        # pylint: disable=no-member
         draw_options = set(self._draw_options.__dict__.keys()) | {"style"}
         deprecated = draw_options & fields.keys()
         if any(deprecated):
@@ -949,8 +950,8 @@ class CurveAnalysis(BaseAnalysis, CurveDrawerMixin, ABC):
                 name=DATA_ENTRY_PREFIX + self.__class__.__name__,
                 value=raw_data_dict,
                 extra={
-                    "x-unit": self.options.xval_unit,
-                    "y-unit": self.options.yval_unit,
+                    "x-unit": self.draw_options.xval_unit,
+                    "y-unit": self.draw_options.yval_unit,
                 },
             )
             analysis_results.append(raw_data_entry)

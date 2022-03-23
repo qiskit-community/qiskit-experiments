@@ -68,9 +68,7 @@ class ResonatorSpectroscopyAnalysis(ResonanceAnalysis):
             if len(iqs) > 0:
                 iqs = np.vstack(iqs)
                 axis.scatter(iqs[:, 0], iqs[:, 1], color="b")
-                axis.set_xlabel(
-                    "In phase [arb. units]", fontsize=self.draw_options.axis_label_size
-                )
+                axis.set_xlabel("In phase [arb. units]", fontsize=self.draw_options.axis_label_size)
                 axis.set_ylabel(
                     "Quadrature [arb. units]", fontsize=self.draw_options.axis_label_size
                 )

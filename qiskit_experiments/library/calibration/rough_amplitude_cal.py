@@ -20,11 +20,10 @@ from qiskit import QuantumCircuit
 from qiskit.circuit import Parameter
 from qiskit.providers.backend import Backend
 
-from qiskit_experiments.framework import ExperimentData, Options
+from qiskit_experiments.framework import ExperimentData
 from qiskit_experiments.calibration_management import BaseCalibrationExperiment, Calibrations
 from qiskit_experiments.library.characterization import Rabi
 from qiskit_experiments.calibration_management.update_library import BaseUpdater
-from qiskit_experiments.curve_analysis import ParameterRepr
 
 AnglesSchedules = namedtuple(
     "AnglesSchedules", ["target_angle", "parameter", "schedule", "previous_value"]
@@ -37,6 +36,8 @@ class RoughAmplitudeCal(BaseCalibrationExperiment, Rabi):
     # section: see_also
         qiskit_experiments.library.characterization.rabi.Rabi
     """
+
+    __outcome__ = "freq"
 
     def __init__(
         self,
@@ -200,6 +201,8 @@ class RoughXSXAmplitudeCal(RoughAmplitudeCal):
         qiskit_experiments.library.characterization.rabi.Rabi
     """
 
+    __outcome__ = "rabi_rate"
+
     def __init__(
         self,
         qubit: int,
@@ -232,6 +235,8 @@ class EFRoughXSXAmplitudeCal(RoughAmplitudeCal):
     # section: see_also
         qiskit_experiments.library.characterization.rabi.Rabi
     """
+
+    __outcome__ = "rabi_rate_12"
 
     def __init__(
         self,
@@ -277,14 +282,6 @@ class EFRoughXSXAmplitudeCal(RoughAmplitudeCal):
                 previous_value=None,
             ),
         ]
-
-    @classmethod
-    def _default_analysis_options(cls) -> Options:
-        """Default analysis options."""
-        options = super()._default_analysis_options()
-        options.result_parameters = [ParameterRepr("freq", "rabi_rate_12")]
-
-        return options
 
     def _pre_circuit(self) -> QuantumCircuit:
         """A circuit with operations to perform before the Rabi."""
