@@ -43,6 +43,7 @@ class ParallelExperiment(CompositeExperiment):
         self,
         experiments: List[BaseExperiment],
         backend: Optional[Backend] = None,
+        combine_results: bool = False,
         analysis: Optional[CompositeAnalysis] = None,
     ):
         """Initialize the analysis object.
@@ -50,6 +51,12 @@ class ParallelExperiment(CompositeExperiment):
         Args:
             experiments: a list of experiments.
             backend: Optional, the backend to run the experiment on.
+            combine_results: If True flatten all component experiment results
+                             into a single ExperimentData container, including
+                             nested composite experiments. If False save each
+                             component experiment results as a separate child
+                             ExperimentData container. This kwarg is ignored
+                             if the analysis kwarg is used.
             analysis: Optional, the composite analysis class to use. If not
                       provided this will be initialized automatically from the
                       supplied experiments.
@@ -57,7 +64,9 @@ class ParallelExperiment(CompositeExperiment):
         qubits = []
         for exp in experiments:
             qubits += exp.physical_qubits
-        super().__init__(experiments, qubits, backend=backend, analysis=analysis)
+        super().__init__(
+            experiments, qubits, backend=backend, analysis=analysis, combine_results=combine_results
+        )
 
     def circuits(self):
 

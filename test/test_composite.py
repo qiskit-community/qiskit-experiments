@@ -58,16 +58,16 @@ class TestComposite(QiskitExperimentsTestCase):
 
         par_exp = ParallelExperiment([exp0, exp2])
 
-        self.assertEqual(par_exp.experiment_options, Options())
+        self.assertEqual(par_exp.experiment_options, par_exp._default_experiment_options())
         self.assertEqual(par_exp.run_options, Options(meas_level=2))
         self.assertEqual(par_exp.transpile_options, Options(optimization_level=0))
-        self.assertEqual(par_exp.analysis.options, Options())
+        self.assertEqual(par_exp.analysis.options, par_exp.analysis._default_options())
 
         with self.assertWarns(UserWarning):
             expdata = par_exp.run(FakeBackend())
         self.assertExperimentDone(expdata)
 
-    def test_combine_results(self):
+    def test_combine_results_nested(self):
         """Test combining results."""
         exp0 = FakeExperiment([0])
         exp1 = FakeExperiment([1])
@@ -77,15 +77,42 @@ class TestComposite(QiskitExperimentsTestCase):
             [
                 BatchExperiment(2 * [ParallelExperiment([exp0, exp1])]),
                 BatchExperiment(3 * [ParallelExperiment([exp2, exp3])]),
-            ]
+            ],
+            combine_results=True,
         )
-        comp_exp.analysis.set_options(combine_results=True)
         expdata = comp_exp.run(FakeBackend())
         self.assertExperimentDone(expdata)
         # Check no child data was saved
         self.assertEqual(len(expdata.child_data()), 0)
         # Check right number of analysis results is returned
         self.assertEqual(len(expdata.analysis_results()), 30)
+
+    def test_combine_results_partial(self):
+        """Test combining results."""
+        exp0 = FakeExperiment([0])
+        exp1 = FakeExperiment([1])
+        exp2 = FakeExperiment([2])
+        exp3 = FakeExperiment([3])
+        comp_exp = BatchExperiment(
+            [
+                ParallelExperiment([exp0, exp1, exp2], combine_results=True),
+                ParallelExperiment([exp2, exp3], combine_results=True),
+            ],
+        )
+        expdata = comp_exp.run(FakeBackend())
+        self.assertExperimentDone(expdata)
+        # Check out experiment wasnt flattened
+        self.assertEqual(len(expdata.child_data()), 2)
+        self.assertEqual(len(expdata.analysis_results()), 0)
+
+        # check inner experiments were flattened
+        child0 = expdata.child_data(0)
+        child1 = expdata.child_data(1)
+        self.assertEqual(len(child0.child_data()), 0)
+        self.assertEqual(len(child1.child_data()), 0)
+        # Check right number of analysis results is returned
+        self.assertEqual(len(child0.analysis_results()), 9)
+        self.assertEqual(len(child1.analysis_results()), 6)
 
     def test_experiment_config(self):
         """Test converting to and from config works"""

@@ -50,45 +50,22 @@ class CompositeAnalysis(BaseAnalysis):
         from the composite experiment data.
     """
 
-    def __init__(self, analyses: List[BaseAnalysis], **options):
+    def __init__(self, analyses: List[BaseAnalysis], combine_results: bool = False):
         """Initialize a composite analysis class.
 
         Args:
             analyses: a list of component experiment analysis objects.
-            options: set values for analysis options.
+            combine_results: If True flatten all component experiment results
+                             into a single ExperimentData container, including
+                             nested composite experiments. If False save each
+                             component experiment results as a separate child
+                             ExperimentData container.
         """
         super().__init__()
         self._analyses = analyses
-
-        # Set any init kwarg analysis options
-        if options:
-            self.set_options(**options)
-
-    @classmethod
-    def _default_options(cls):
-        """Default analysis options.
-
-        Analysis Options:
-            combine_results (bool): If True flatten all component experiment
-                results into a single ExperimentData container, including
-                nested composite experiments. If False save each component
-                experiment results as a separate child ExperimentData
-                container (Default: False).
-        """
-        opts = super()._default_options()
-        opts.combine_results = False
-        return opts
-
-    def set_options(self, **fields):
-        super().set_options(**fields)
-        # If combining results we need to recursively set combine_results
-        # to True for any CompositeAnalysis component analysis because
-        # there will be no saved children to attach those components
-        # child results to.
-        if fields.get("combine_results", False):
-            for analysis in self._analyses:
-                if isinstance(analysis, CompositeAnalysis):
-                    analysis.set_options(combine_results=True)
+        self._combine_results = False
+        if combine_results:
+            self._set_combine_results()
 
     def component_analysis(
         self, index: Optional[int] = None
@@ -123,7 +100,7 @@ class CompositeAnalysis(BaseAnalysis):
         if not replace_results and _requires_copy(experiment_data):
             experiment_data = experiment_data.copy()
 
-        if not self.options.combine_results:
+        if not self._combine_results:
             # Initialize child components if they are not initalized
             # This only needs to be done if results are not being combined
             self._add_child_data(experiment_data)
@@ -150,8 +127,8 @@ class CompositeAnalysis(BaseAnalysis):
             sub_expdata.block_for_results()
         # Optionally combine results from all component experiments
         # for adding to the main experiment data container
-        if self.options.combine_results:
-            return self._combine_results(component_expdata)
+        if self._combine_results:
+            return self._combine_component_results(component_expdata)
 
         return [], []
 
@@ -168,7 +145,7 @@ class CompositeAnalysis(BaseAnalysis):
         Raises:
             AnalysisError: if the component experiment data cannot be extracted.
         """
-        if not self.options.combine_results:
+        if not self._combine_results:
             # Retrieve child data for component experiments for updating
             component_index = experiment_data.metadata.get("component_child_index", [])
             if not component_index:
@@ -293,7 +270,7 @@ class CompositeAnalysis(BaseAnalysis):
             subdata._type = experiment_types[i]
             subdata.metadata.update(component_metadata[i])
 
-            if self.options.combine_results:
+            if self._combine_results:
                 # Explicitly set auto_save to false so the temporary
                 # data can't accidentally be saved
                 subdata.auto_save = False
@@ -308,7 +285,14 @@ class CompositeAnalysis(BaseAnalysis):
 
         return component_expdata
 
-    def _combine_results(
+    def _set_combine_results(self):
+        """Recursively set combine results to True for all composite components."""
+        self._combine_results = True
+        for analysis in self._analyses:
+            if isinstance(analysis, CompositeAnalysis):
+                analysis._set_combine_results()
+
+    def _combine_component_results(
         self, component_experiment_data: List[ExperimentData]
     ) -> Tuple[List[AnalysisResultData], List["matplotlib.figure.Figure"]]:
         """Combine analysis results from component experiment data.
