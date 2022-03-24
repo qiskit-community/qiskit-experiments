@@ -13,27 +13,28 @@
 
 """Experiment serialization methods."""
 
-import json
-import math
+import base64
 import dataclasses
 import importlib
 import inspect
-import warnings
 import io
-import base64
-import zlib
+import json
+import math
 import traceback
+import warnings
+import zlib
 from functools import lru_cache
 from types import FunctionType, MethodType
 from typing import Any, Dict, Type, Optional, Union, Callable
 
 import numpy as np
 import scipy.sparse as sps
-
+import uncertainties
 from qiskit.circuit import ParameterExpression, QuantumCircuit, qpy_serialization
 from qiskit.circuit.library import BlueprintCircuit
 from qiskit.quantum_info import DensityMatrix
 from qiskit.quantum_info.operators.channel.quantum_channel import QuantumChannel
+from qiskit.result import LocalReadoutMitigator, CorrelatedReadoutMitigator
 from qiskit_experiments.version import __version__
 
 
@@ -455,6 +456,27 @@ class ExperimentEncoder(json.JSONEncoder):
             return _serialize_bytes(obj)
         if dataclasses.is_dataclass(obj):
             return _serialize_object(obj, settings=dataclasses.asdict(obj))
+        if isinstance(obj, uncertainties.UFloat):
+            # This could be UFloat (AffineScalarFunc) or Variable.
+            # UFloat is a base class of Variable that contains parameter correlation.
+            # i.e. Variable is special subclass for single number.
+            # Since this object is not serializable, we will drop correlation information
+            # during serialization. Then both can be serialized as Variable.
+            # Note that UFloat doesn't have a tag.
+            settings = {
+                "value": obj.nominal_value,
+                "std_dev": obj.std_dev,
+                "tag": getattr(obj, "tag", None),
+            }
+            cls = uncertainties.core.Variable
+            return {
+                "__type__": "object",
+                "__value__": {
+                    "class": _serialize_type(cls),
+                    "settings": settings,
+                    "version": get_object_version(cls),
+                },
+            }
         if isinstance(obj, QuantumCircuit):
             # TODO Remove the decompose when terra 6713 is released.
             if isinstance(obj, BlueprintCircuit):
@@ -478,6 +500,14 @@ class ExperimentEncoder(json.JSONEncoder):
                 "input_dims": obj.input_dims(),
                 "output_dims": obj.output_dims(),
             }
+            return _serialize_object(obj, settings=settings)
+        if isinstance(obj, LocalReadoutMitigator):
+            # Temporary handling until serialization is added to terra stable release
+            settings = {"assignment_matrices": obj._assignment_mats, "qubits": obj.qubits}
+            return _serialize_object(obj, settings=settings)
+        if isinstance(obj, CorrelatedReadoutMitigator):
+            # Temporary handling until serialization is added to terra stable release
+            settings = {"assignment_matrix": obj._assignment_mat, "qubits": obj.qubits}
             return _serialize_object(obj, settings=settings)
         if isinstance(obj, DensityMatrix):
             # Temporary fix for incorrect settings in qiskit-terra

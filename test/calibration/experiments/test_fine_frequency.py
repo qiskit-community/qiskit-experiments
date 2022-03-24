@@ -58,7 +58,7 @@ class TestFineFreqEndToEnd(QiskitExperimentsTestCase):
         expdata = freq_exp.run(shots=100)
         self.assertExperimentDone(expdata)
         result = expdata.analysis_results(1)
-        d_theta = result.value.value
+        d_theta = result.value.n
         dt = backend.configuration().dt
         d_freq = d_theta / (2 * np.pi * self.sx_duration * dt)
 
@@ -86,7 +86,7 @@ class TestFineFreqEndToEnd(QiskitExperimentsTestCase):
         freq_after = self.cals.get_parameter_value(self.cals.__drive_freq_parameter__, 0)
 
         # Test equality up to 10kHz on a 100 kHz shift
-        self.assertAlmostEqual(freq_after, armonk_freq - freq_shift, delta=1e4)
+        self.assertAlmostEqual(freq_after, armonk_freq + freq_shift, delta=1e4)
 
     def test_experiment_config(self):
         """Test converting to and from config works"""

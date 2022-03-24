@@ -161,7 +161,7 @@ def _generate_analysis_ref(
         raise Exception(f"Option docstring for analysis_ref is missing.")
 
     analysis_ref_lines = []
-    for line in lines[analysis_ref_start + 1:]:
+    for line in lines[analysis_ref_start + 1 :]:
         # add lines until hitting to next section
         if line.startswith("# section:"):
             break
@@ -202,6 +202,7 @@ def _format_default_options(defaults: Dict[str, Any], indent: str = "") -> List[
 
 def _check_no_indent(method: Callable) -> Callable:
     """Check indent of lines and return if this block is correctly indented."""
+
     def wraps(self, lines: List[str], *args, **kwargs):
         if all(l.startswith(" ") for l in lines):
             text_block = "\n".join(lines)

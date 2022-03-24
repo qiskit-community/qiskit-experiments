@@ -34,7 +34,7 @@ https://pypi.org/project/uncertainties/
 
 """
 
-from typing import Dict, List, Set, Tuple, Union
+from typing import Dict, List, Set, Tuple, Union, Any
 
 import numpy as np
 from uncertainties import unumpy as unp
@@ -274,6 +274,22 @@ class DataProcessor:
 
     def __repr__(self):
         """String representation of data processors."""
-        names = ", ".join(node.__class__.__name__ for node in self._nodes)
+        names = ", ".join(repr(node) for node in self._nodes)
 
         return f"{self.__class__.__name__}(input_key={self._input_key}, nodes=[{names}])"
+
+    def __json_encode__(self) -> Dict[str, Any]:
+        """Return the config dict for this data processor."""
+        return dict(
+            cls=type(self),
+            input_key=self._input_key,
+            nodes=self._nodes,
+        )
+
+    @classmethod
+    def __json_decode__(cls, config: Dict[str, Any]) -> "DataProcessor":
+        """Initialize a data processor from config dict."""
+        try:
+            return cls(input_key=config["input_key"], data_actions=config["nodes"])
+        except KeyError as ex:
+            raise KeyError("Imperfect configuration data. Cannot load this processor.") from ex

@@ -15,20 +15,24 @@
 import copy
 import uuid
 
-from test.fake_backend import FakeBackend
-from test.fake_experiment import FakeExperiment
-from test.fake_service import FakeService
+from test.fake_experiment import FakeExperiment, FakeAnalysis
 from test.base import QiskitExperimentsTestCase
 
-from qiskit import QuantumCircuit
+from qiskit import QuantumCircuit, Aer
+from qiskit.providers.aer import noise
 from qiskit.result import Result
 
 from qiskit_experiments.test.utils import FakeJob
+from qiskit_experiments.test import FakeService
+from qiskit_experiments.test.fake_backend import FakeBackend
 from qiskit_experiments.framework import (
     ParallelExperiment,
     Options,
     ExperimentData,
     BatchExperiment,
+    BaseExperiment,
+    BaseAnalysis,
+    AnalysisResultData,
 )
 
 # pylint: disable=missing-raises-doc
@@ -54,18 +58,14 @@ class TestComposite(QiskitExperimentsTestCase):
 
         par_exp = ParallelExperiment([exp0, exp2])
 
-        with self.assertWarnsRegex(
-            Warning,
-            "Sub-experiment run and transpile options"
-            " are overridden by composite experiment options.",
-        ):
-            self.assertEqual(par_exp.experiment_options, Options())
-            self.assertEqual(par_exp.run_options, Options(meas_level=2))
-            self.assertEqual(par_exp.transpile_options, Options(optimization_level=0))
-            self.assertEqual(par_exp.analysis.options, Options())
+        self.assertEqual(par_exp.experiment_options, Options())
+        self.assertEqual(par_exp.run_options, Options(meas_level=2))
+        self.assertEqual(par_exp.transpile_options, Options(optimization_level=0))
+        self.assertEqual(par_exp.analysis.options, Options())
 
+        with self.assertWarns(UserWarning):
             expdata = par_exp.run(FakeBackend())
-            self.assertExperimentDone(expdata)
+        self.assertExperimentDone(expdata)
 
     def test_experiment_config(self):
         """Test converting to and from config works"""
@@ -186,6 +186,35 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
         self.check_if_equal(new_instance, self.rootdata, is_a_copy=True)
         self.check_attributes(new_instance)
         self.assertEqual(new_instance.parent_id, None)
+
+    def test_composite_copy_analysis_ref(self):
+        """Test copy of composite expeirment preserves component analysis refs"""
+
+        class Analysis(FakeAnalysis):
+            """Fake analysis class with options"""
+
+            @classmethod
+            def _default_options(cls):
+                opts = super()._default_options()
+                opts.option1 = None
+                opts.option2 = None
+                return opts
+
+        exp1 = FakeExperiment([0])
+        exp1.analysis = Analysis()
+        exp2 = FakeExperiment([1])
+        exp2.analysis = Analysis()
+
+        # Generate a copy
+        par_exp = ParallelExperiment([exp1, exp2]).copy()
+        comp_exp0 = par_exp.component_experiment(0)
+        comp_exp1 = par_exp.component_experiment(1)
+        comp_an0 = par_exp.analysis.component_analysis(0)
+        comp_an1 = par_exp.analysis.component_analysis(1)
+
+        # Check reference of analysis is preserved
+        self.assertTrue(comp_exp0.analysis is comp_an0)
+        self.assertTrue(comp_exp1.analysis is comp_an1)
 
     def test_nested_composite(self):
         """
@@ -467,3 +496,120 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
             self.assertEqual(len(childdata.data()), len(child_counts))
             for circ_data, circ_counts in zip(childdata.data(), child_counts):
                 self.assertDictEqual(circ_data["counts"], circ_counts)
+
+    def test_composite_analysis_options(self):
+        """Test setting component analysis options"""
+
+        class Analysis(FakeAnalysis):
+            """Fake analysis class with options"""
+
+            @classmethod
+            def _default_options(cls):
+                opts = super()._default_options()
+                opts.option1 = None
+                opts.option2 = None
+                return opts
+
+        exp1 = FakeExperiment([0])
+        exp1.analysis = Analysis()
+        exp2 = FakeExperiment([1])
+        exp2.analysis = Analysis()
+        par_exp = ParallelExperiment([exp1, exp2])
+
+        # Set new analysis classes to component exp objects
+        opt1_val = 9000
+        opt2_val = 2113
+        exp1.analysis.set_options(option1=opt1_val)
+        exp2.analysis.set_options(option2=opt2_val)
+
+        # Check this is reflected in parallel experiment
+        self.assertEqual(par_exp.analysis.component_analysis(0).options.option1, opt1_val)
+        self.assertEqual(par_exp.analysis.component_analysis(1).options.option2, opt2_val)
+
+
+class TestBatchTranspileOptions(QiskitExperimentsTestCase):
+    """
+    For batch experiments, circuits are transpiled with the transpile options of the
+    sub-experiments
+    """
+
+    class SimpleExperiment(BaseExperiment):
+        """
+        An experiment that creates a circuit of four qubits.
+        Qubits 1 and 2 are inactive.
+        Qubits 0 and 3 form a Bell state.
+        The purpose: we will test with varying coupling maps, spanning from a coupling map that
+        directly connects qubits 0 and 3 (hence qubits 1 and 2 remains inactive also in the
+        transpiled circuit) to a coupling map with distance 3 between qubits 0 and 3.
+        """
+
+        def __init__(self, qubits, backend=None):
+            super().__init__(
+                qubits, analysis=TestBatchTranspileOptions.SimpleAnalysis(), backend=backend
+            )
+
+        def circuits(self):
+            circ = QuantumCircuit(4, 4)
+            circ.h(0)
+            circ.cx(0, 3)
+            circ.barrier()
+            circ.measure(range(4), range(4))
+            return [circ]
+
+    class SimpleAnalysis(BaseAnalysis):
+        """
+        The number of non-zero counts is equal to
+        2^(distance between qubits 0 and 3 in the transpiled circuit + 1)
+        """
+
+        def _run_analysis(self, experiment_data):
+            analysis_results = [
+                AnalysisResultData(
+                    name="non-zero counts", value=len(experiment_data.data(0)["counts"])
+                ),
+            ]
+
+            return analysis_results, []
+
+    def setUp(self):
+        super().setUp()
+
+        exp1 = self.SimpleExperiment(range(4))
+        exp2 = self.SimpleExperiment(range(4))
+        exp3 = self.SimpleExperiment(range(4))
+        batch1 = BatchExperiment([exp2, exp3])
+        self.batch2 = BatchExperiment([exp1, batch1])
+
+        exp1.set_transpile_options(coupling_map=[[0, 1], [1, 3], [3, 2]])
+        exp2.set_transpile_options(coupling_map=[[0, 1], [1, 2], [2, 3]])
+
+        # exp3 circuit: two active qubits and six instructions: hadamard, cnot, four measurements.
+        # exp1 circuit: three active qubits (0, 1, 3) and seven instructions: hadamard,
+        #               two 2Q gates, four measurements.
+        # exp2 circuit: four active qubits and eight instructions.
+
+    def test_batch_transpiled_circuits(self):
+        """
+        For batch experiments, circuits are transpiled with the transpile options of the
+        sub-experiments
+        """
+        circs = self.batch2._transpiled_circuits()
+        numbers_of_gates = [len(circ.data) for circ in circs]
+        self.assertEqual(set(numbers_of_gates), set([7, 8, 9]))
+
+    def test_batch_transpile_options_integrated(self):
+        """
+        The goal is to verify that not only `_trasnpiled_circuits` works well
+        (`test_batch_transpiled_circuits` takes care of it) but that it's correctly called within
+        the entire flow of `BaseExperiment.run`.
+        """
+        backend = Aer.get_backend("aer_simulator")
+        noise_model = noise.NoiseModel()
+        noise_model.add_all_qubit_quantum_error(noise.depolarizing_error(0.5, 2), ["cx", "swap"])
+
+        expdata = self.batch2.run(backend, noise_model=noise_model, shots=1000)
+        expdata.block_for_results()
+
+        self.assertEqual(expdata.child_data(0).analysis_results(0).value, 8)
+        self.assertEqual(expdata.child_data(1).child_data(0).analysis_results(0).value, 16)
+        self.assertEqual(expdata.child_data(1).child_data(1).analysis_results(0).value, 4)

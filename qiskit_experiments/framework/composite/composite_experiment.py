@@ -13,11 +13,13 @@
 Composite Experiment abstract base class.
 """
 
-from typing import List, Sequence, Optional
+from typing import List, Sequence, Optional, Union
 from abc import abstractmethod
 import warnings
+from qiskit import QiskitError
 from qiskit.providers.backend import Backend
-from qiskit_experiments.framework import BaseExperiment, ExperimentData
+from qiskit_experiments.framework import BaseExperiment
+from qiskit_experiments.framework.base_analysis import BaseAnalysis
 from .composite_analysis import CompositeAnalysis
 
 
@@ -30,6 +32,7 @@ class CompositeExperiment(BaseExperiment):
         qubits: Sequence[int],
         backend: Optional[Backend] = None,
         experiment_type: Optional[str] = None,
+        analysis: Optional[CompositeAnalysis] = None,
     ):
         """Initialize the composite experiment object.
 
@@ -38,12 +41,26 @@ class CompositeExperiment(BaseExperiment):
             qubits: list of physical qubits for the experiment.
             backend: Optional, the backend to run the experiment on.
             experiment_type: Optional, composite experiment subclass name.
+            analysis: Optional, the composite analysis class to use. If not
+                      provided this will be initialized automatically from the
+                      supplied experiments.
+
+        Raises:
+            QiskitError: if the provided analysis class is not a CompositeAnalysis
+                         instance.
         """
         self._experiments = experiments
         self._num_experiments = len(experiments)
+        if analysis is None:
+            analysis = CompositeAnalysis([exp.analysis for exp in self._experiments])
+        elif not isinstance(analysis, CompositeAnalysis):
+            raise QiskitError(
+                f"{type(analysis)} is not a CompositeAnalysis instance. CompositeExperiments"
+                " require a CompositeAnalysis class or subclass for analysis."
+            )
         super().__init__(
             qubits,
-            analysis=CompositeAnalysis(),
+            analysis=analysis,
             backend=backend,
             experiment_type=experiment_type,
         )
@@ -57,8 +74,9 @@ class CompositeExperiment(BaseExperiment):
         """Return the number of sub experiments"""
         return self._num_experiments
 
-    def component_experiment(self, index=None):
+    def component_experiment(self, index=None) -> Union[BaseExperiment, List[BaseExperiment]]:
         """Return the component Experiment object.
+
         Args:
             index (int): Experiment index, or ``None`` if all experiments are to be returned.
         Returns:
@@ -68,36 +86,82 @@ class CompositeExperiment(BaseExperiment):
             return self._experiments
         return self._experiments[index]
 
-    def component_analysis(self, index):
+    def component_analysis(self, index=None) -> Union[BaseAnalysis, List[BaseAnalysis]]:
         """Return the component experiment Analysis object"""
-        return self.component_experiment(index).analysis()
+        warnings.warn(
+            "The `component_analysis` method is deprecated as of "
+            "qiskit-experiments 0.3.0 and will be removed in the 0.4.0 release."
+            " Use `analysis.component_analysis` instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return self.analysis.component_analysis(index)
 
     def copy(self) -> "BaseExperiment":
         """Return a copy of the experiment"""
         ret = super().copy()
         # Recursively call copy of component experiments
         ret._experiments = [exp.copy() for exp in self._experiments]
+
+        # Check if the analysis in CompositeAnalysis was a reference to the
+        # original component experiment analyses and if so update the copies
+        # to preserve this relationship
+        if isinstance(self.analysis, CompositeAnalysis):
+            for i, orig_exp in enumerate(self._experiments):
+                if orig_exp.analysis is self.analysis._analyses[i]:
+                    # Update copies analysis with reference to experiment analysis
+                    ret.analysis._analyses[i] = ret._experiments[i].analysis
         return ret
+
+    def set_run_options(self, **fields):
+        super().set_run_options(**fields)
+        for subexp in self._experiments:
+            subexp.set_run_options(**fields)
 
     def _set_backend(self, backend):
         super()._set_backend(backend)
         for subexp in self._experiments:
             subexp._set_backend(backend)
 
-    def _initialize_experiment_data(self):
-        """Initialize the return data container for the experiment run"""
-        experiment_data = ExperimentData(experiment=self)
-        # Initialize child experiment data
-        for sub_exp in self._experiments:
-            sub_data = sub_exp._initialize_experiment_data()
-            experiment_data.add_child_data(sub_data)
-        experiment_data.metadata["component_child_index"] = list(range(self.num_experiments))
-        return experiment_data
+    def _finalize(self):
+        # NOTE: When CompositeAnalysis is updated to support level-1
+        # measurements this method should be updated to validate that all
+        # sub-experiments have the same meas level and meas return types,
+        # and update the composite experiment run option to that value.
+
+        for i, subexp in enumerate(self._experiments):
+            # Validate set and default run options in component experiment
+            # against and component experiment run options and raise a
+            # warning if any are different and will be overridden
+            overridden_keys = []
+            sub_vals = []
+            comp_vals = []
+            for key, sub_val in subexp.run_options.__dict__.items():
+                comp_val = getattr(self.run_options, key, None)
+                if sub_val != comp_val:
+                    overridden_keys.append(key)
+                    sub_vals.append(sub_val)
+                    comp_vals.append(comp_val)
+
+            if overridden_keys:
+                warnings.warn(
+                    f"Component {i} {subexp.experiment_type} experiment run options"
+                    f" {overridden_keys} values {sub_vals} will be overridden with"
+                    f" {self.experiment_type} values {comp_vals}.",
+                    UserWarning,
+                )
+                # Update sub-experiment options with actual run option values so
+                # they can be used by that sub experiments _finalize method.
+                subexp.set_run_options(**dict(zip(overridden_keys, comp_vals)))
+
+            # Call sub-experiments finalize method
+            subexp._finalize()
 
     def _additional_metadata(self):
         """Add component experiment metadata"""
         return {
-            "component_metadata": [sub_exp._metadata() for sub_exp in self.component_experiment()]
+            "component_types": [sub_exp.experiment_type for sub_exp in self.component_experiment()],
+            "component_metadata": [sub_exp._metadata() for sub_exp in self.component_experiment()],
         }
 
     def _add_job_metadata(self, metadata, jobs, **run_options):
@@ -106,18 +170,4 @@ class CompositeExperiment(BaseExperiment):
         for sub_metadata, sub_exp in zip(
             metadata["component_metadata"], self.component_experiment()
         ):
-            # Run and transpile options are always overridden
-            if (
-                sub_exp.run_options != sub_exp._default_run_options()
-                or sub_exp.transpile_options != sub_exp._default_transpile_options()
-            ):
-                warnings.warn(
-                    "Sub-experiment run and transpile options"
-                    " are overridden by composite experiment options."
-                )
             sub_exp._add_job_metadata(sub_metadata, jobs, **run_options)
-
-    def _postprocess_transpiled_circuits(self, circuits, **run_options):
-        for expr in self._experiments:
-            if not isinstance(expr, CompositeExperiment):
-                expr._postprocess_transpiled_circuits(circuits, **run_options)

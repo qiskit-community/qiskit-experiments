@@ -50,15 +50,15 @@ class TestErrorAmplificationAnalysis(QiskitExperimentsTestCase):
         class FakeAmpAnalysis(ErrorAmplificationAnalysis):
             """Analysis class for testing."""
 
-            __fixed_parameters__ = ["angle_per_gate", "phase_offset", "amp"]
-
             @classmethod
             def _default_options(cls) -> Options:
                 """Default analysis options."""
                 options = super()._default_options()
-                options.angle_per_gate = np.pi
-                options.phase_offset = np.pi / 2
-                options.amp = 1.0
+                options.fixed_parameters = {
+                    "angle_per_gate": np.pi,
+                    "phase_offset": np.pi / 2,
+                    "amp": 1.0,
+                }
 
                 return options
 
@@ -72,5 +72,5 @@ class TestErrorAmplificationAnalysis(QiskitExperimentsTestCase):
         fake_data = analysis.run(fake_data).block_for_results()
 
         self.assertAlmostEqual(
-            fake_data.analysis_results("d_theta").value.value, d_theta_targ, delta=0.01
+            fake_data.analysis_results("d_theta").value.n, d_theta_targ, delta=0.01
         )

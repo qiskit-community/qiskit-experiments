@@ -18,6 +18,7 @@ from qiskit.test.mock import FakeArmonk
 
 from qiskit_experiments.calibration_management.calibrations import Calibrations
 from qiskit_experiments.calibration_management.basis_gate_library import FixedFrequencyTransmon
+from qiskit_experiments.framework import AnalysisStatus, BaseAnalysis
 from qiskit_experiments.library import RamseyXY, FrequencyCal
 from qiskit_experiments.test.mock_iq_backend import MockRamseyXY
 
@@ -45,7 +46,7 @@ class TestRamseyXY(QiskitExperimentsTestCase):
         for freq_shift in [2e6, -3e6]:
             test_data = ramsey.run(MockRamseyXY(freq_shift=freq_shift))
             self.assertExperimentDone(test_data)
-            meas_shift = test_data.analysis_results(1).value.value
+            meas_shift = test_data.analysis_results(1).value.n
             self.assertTrue((meas_shift - freq_shift) < abs(test_tol * freq_shift))
 
     def test_update_calibrations(self):
@@ -70,6 +71,27 @@ class TestRamseyXY(QiskitExperimentsTestCase):
         f01 = self.cals.get_parameter_value(freq_name, 0)
         self.assertTrue(len(self.cals.parameters_table(parameters=[freq_name])["data"]), 2)
         self.assertTrue(abs(f01 - (freq_shift + FakeArmonk().defaults().qubit_freq_est[0])) < tol)
+
+    def test_update_with_failed_analysis(self):
+        """Test that calibration update handles analysis producing no results
+
+        Here we test that the experiment does not raise an unexpected exception
+        or hang indefinitely. Since there are no analysis results, we expect
+        that the calibration update will result in an ERROR status.
+        """
+        backend = MockRamseyXY(freq_shift=0)
+
+        class NoResults(BaseAnalysis):
+            """Simple analysis class that generates no results"""
+
+            def _run_analysis(self, experiment_data):
+                return ([], [])
+
+        expt = FrequencyCal(0, self.cals, backend, auto_update=True)
+        expt.analysis = NoResults()
+        expdata = expt.run()
+        expdata.block_for_results(timeout=3)
+        self.assertEqual(expdata.analysis_status(), AnalysisStatus.ERROR)
 
     def test_ramseyxy_experiment_config(self):
         """Test RamseyXY config roundtrips"""

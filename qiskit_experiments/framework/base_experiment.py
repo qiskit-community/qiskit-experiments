@@ -90,7 +90,7 @@ class BaseExperiment(ABC, StoreInitArgs):
             self.analysis = analysis_cls()  # pylint: disable = not-callable
 
         # Set backend
-        # This should be called last incase `_set_backend` access any of the
+        # This should be called last in case `_set_backend` access any of the
         # attributes created during initialization
         self._backend = None
         if isinstance(backend, (Backend, BaseBackend)):
@@ -245,41 +245,41 @@ class BaseExperiment(ABC, StoreInitArgs):
                     stacklevel=2,
                 )
 
-        if backend is not None or analysis != "default":
+        if backend is not None or analysis != "default" or run_options:
             # Make a copy to update analysis or backend if one is provided at runtime
             experiment = self.copy()
             if backend:
                 experiment._set_backend(backend)
             if isinstance(analysis, BaseAnalysis):
                 experiment.analysis = analysis
+            if run_options:
+                experiment.set_run_options(**run_options)
         else:
             experiment = self
 
         if experiment.backend is None:
             raise QiskitError("Cannot run experiment, no backend has been set.")
 
+        # Finalize experiment before executions
+        experiment._finalize()
+
         # Initialize result container
         experiment_data = experiment._initialize_experiment_data()
 
-        # Run options
-        run_opts = copy.copy(experiment.run_options)
-        run_opts.update_options(**run_options)
-        run_opts = run_opts.__dict__
-
         # Generate and transpile circuits
-        transpile_opts = copy.copy(experiment.transpile_options.__dict__)
-        transpile_opts["initial_layout"] = list(experiment.physical_qubits)
-        circuits = transpile(experiment.circuits(), experiment.backend, **transpile_opts)
-        experiment._postprocess_transpiled_circuits(circuits, **run_options)
+        transpiled_circuits = experiment._transpiled_circuits()
+
+        # Run options
+        run_opts = experiment.run_options.__dict__
 
         # Run jobs
-        jobs = experiment._run_jobs(circuits, **run_opts)
+        jobs = experiment._run_jobs(transpiled_circuits, **run_opts)
         experiment_data.add_jobs(jobs, timeout=timeout)
         experiment._add_job_metadata(experiment_data.metadata, jobs, **run_opts)
 
         # Optionally run analysis
         if analysis and experiment.analysis:
-            return self.analysis.run(experiment_data)
+            return experiment.analysis.run(experiment_data)
         else:
             return experiment_data
 
@@ -322,6 +322,15 @@ class BaseExperiment(ABC, StoreInitArgs):
         )
         return self.analysis.run(experiment_data, replace_results=replace_results, **options)
 
+    def _finalize(self):
+        """Finalize experiment object before running jobs.
+
+        Subclasses can override this method to set any final option
+        values derived from other options or attributes of the
+        experiment before `_run` is called.
+        """
+        pass
+
     def _run_jobs(self, circuits: List[QuantumCircuit], **run_options) -> List[BaseJob]:
         """Run circuits on backend as 1 or more jobs."""
         # Run experiment jobs
@@ -359,8 +368,29 @@ class BaseExperiment(ABC, StoreInitArgs):
             are obtained via the :meth:`transpiled_circuits` method.
         """
         # NOTE: Subclasses should override this method using the `options`
-        # values for any explicit experiment options that effect circuit
+        # values for any explicit experiment options that affect circuit
         # generation
+
+    def _transpiled_circuits(self) -> List[QuantumCircuit]:
+        """Return a list of experiment circuits, transpiled.
+
+        This function can be overridden to define custom transpilation.
+        """
+        transpile_opts = copy.copy(self.transpile_options.__dict__)
+        transpile_opts["initial_layout"] = list(self.physical_qubits)
+        transpiled = transpile(self.circuits(), self.backend, **transpile_opts)
+
+        # TODO remove this deprecation after 0.3.0 release
+        if hasattr(self, "_postprocess_transpiled_circuits"):
+            warnings.warn(
+                "`BaseExperiment._postprocess_transpiled_circuits` is deprecated as of "
+                "qiskit-experiments 0.3.0 and will be removed in the 0.4.0 release."
+                " Use `BaseExperiment._transpile` instead.",
+                DeprecationWarning,
+            )
+            self._postprocess_transpiled_circuits(transpiled)  # pylint: disable=no-member
+
+        return transpiled
 
     @classmethod
     def _default_experiment_options(cls) -> Options:
@@ -478,10 +508,6 @@ class BaseExperiment(ABC, StoreInitArgs):
             DeprecationWarning,
         )
         self.analysis.options.update_options(**fields)
-
-    def _postprocess_transpiled_circuits(self, circuits: List[QuantumCircuit], **run_options):
-        """Additional post-processing of transpiled circuits before running on backend"""
-        pass
 
     def _metadata(self) -> Dict[str, any]:
         """Return experiment metadata for ExperimentData.

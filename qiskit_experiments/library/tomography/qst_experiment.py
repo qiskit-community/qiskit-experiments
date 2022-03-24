@@ -16,7 +16,8 @@ Quantum State Tomography experiment
 from typing import Union, Optional, Iterable, List, Sequence
 from qiskit.circuit import QuantumCircuit, Instruction
 from qiskit.quantum_info.operators.base_operator import BaseOperator
-from qiskit.quantum_info import Statevector
+from qiskit.quantum_info import Statevector, DensityMatrix, partial_trace
+from qiskit_experiments.exceptions import QiskitError
 from .tomography_experiment import TomographyExperiment
 from .qst_analysis import StateTomographyAnalysis
 from . import basis
@@ -87,5 +88,38 @@ class StateTomography(TomographyExperiment):
             measurement_qubits=measurement_qubits,
             basis_indices=basis_indices,
             qubits=qubits,
+            analysis=StateTomographyAnalysis(),
         )
-        self.analysis = StateTomographyAnalysis()
+
+        # Set target quantum state
+        self.analysis.set_options(target=self._target_quantum_state())
+
+    def _target_quantum_state(self) -> Union[Statevector, DensityMatrix]:
+        """Return the state tomography target"""
+        # Check if circuit contains measure instructions
+        # If so we cannot return target state
+        circuit_ops = self._circuit.count_ops()
+        if "measure" in circuit_ops:
+            return None
+
+        perm_circ = self._permute_circuit()
+        try:
+            if "reset" in circuit_ops or "kraus" in circuit_ops or "superop" in circuit_ops:
+                state = DensityMatrix(perm_circ)
+            else:
+                state = Statevector(perm_circ)
+        except QiskitError:
+            # Circuit couldn't be simulated
+            return None
+
+        total_qubits = self._circuit.num_qubits
+        if self._meas_qubits:
+            num_meas = len(self._meas_qubits)
+        else:
+            num_meas = total_qubits
+        if num_meas == total_qubits:
+            return state
+
+        # Trace out non-measurement qubits
+        tr_qargs = range(num_meas, total_qubits)
+        return partial_trace(state, tr_qargs)

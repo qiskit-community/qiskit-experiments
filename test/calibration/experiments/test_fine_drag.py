@@ -34,7 +34,7 @@ class FineDragTestBackend(DragBackend):
         """Returns the probability based on the beta, number of gates, and leakage."""
         n_gates = circuit.count_ops().get("rz", 0) // 2
 
-        return 0.5 * np.sin(n_gates * self._error) + 0.5
+        return 0.5 * np.sin(n_gates * self._freq) + 0.5
 
 
 class TestFineDrag(QiskitExperimentsTestCase):
@@ -130,10 +130,10 @@ class TestFineDragCal(QiskitExperimentsTestCase):
         # run the calibration experiment. This should update the beta parameter of x which we test.
         exp_data = drag_cal.run(self.backend)
         self.assertExperimentDone(exp_data)
-        d_theta = exp_data.analysis_results(1).value.value
+        d_theta = exp_data.analysis_results(1).value.n
         sigma = 40
         target_angle = np.pi
-        new_beta = -np.sqrt(np.pi) * d_theta * sigma / target_angle ** 2
+        new_beta = -np.sqrt(np.pi) * d_theta * sigma / target_angle**2
 
         transpile_opts = copy.copy(drag_cal.transpile_options.__dict__)
         transpile_opts["initial_layout"] = list(drag_cal.physical_qubits)

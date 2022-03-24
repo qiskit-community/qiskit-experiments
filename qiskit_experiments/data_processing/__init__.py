@@ -59,6 +59,7 @@ Data Processing Nodes
     :toctree: ../stubs/
 
     Probability
+    MarginalizeCounts
     ToImag
     ToReal
     SVD
@@ -69,6 +70,7 @@ Data Processing Nodes
 from .data_action import DataAction, TrainableDataAction
 from .nodes import (
     Probability,
+    MarginalizeCounts,
     ToImag,
     ToReal,
     SVD,

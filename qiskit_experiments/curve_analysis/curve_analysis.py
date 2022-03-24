@@ -15,17 +15,19 @@ Analysis class for curve fitting.
 """
 # pylint: disable=invalid-name
 
+import copy
 import dataclasses
 import functools
 import inspect
 import warnings
 from abc import ABC
 from typing import Any, Dict, List, Tuple, Callable, Union, Optional
-from uncertainties import unumpy as unp
 
 import numpy as np
-from qiskit.providers import Backend
+import uncertainties
+from uncertainties import unumpy as unp
 
+from qiskit.providers import Backend
 from qiskit_experiments.curve_analysis.curve_data import (
     CurveData,
     SeriesDef,
@@ -44,8 +46,8 @@ from qiskit_experiments.framework import (
     BaseAnalysis,
     ExperimentData,
     AnalysisResultData,
-    FitVal,
     Options,
+    AnalysisConfig,
 )
 
 PARAMS_ENTRY_PREFIX = "@Parameters_"
@@ -72,8 +74,6 @@ class CurveAnalysis(BaseAnalysis, ABC):
             - ``name``: Name of the curve. This is arbitrary data field, but should be unique.
             - ``plot_color``: String color representation of this series in the plot.
             - ``plot_symbol``: String formatter of the scatter of this series in the plot.
-            - ``plot_fit_uncertainty``: A Boolean signaling whether to plot fit uncertainty
-              for this series in the plot.
 
         - ``__fixed_parameters__``: A list of parameter names fixed during the fitting.
             These parameters should be provided in some way. For example, you can provide
@@ -234,12 +234,23 @@ class CurveAnalysis(BaseAnalysis, ABC):
     #: List[SeriesDef]: List of mapping representing a data series
     __series__ = list()
 
-    #: List[str]: Fixed parameter in fit function. Value should be set to the analysis options.
-    __fixed_parameters__ = list()
-
     def __init__(self):
         """Initialize data fields that are privately accessed by methods."""
         super().__init__()
+
+        if hasattr(self, "__fixed_parameters__"):
+            warnings.warn(
+                "The class attribute __fixed_parameters__ has been deprecated and will be removed. "
+                "Now this attribute is absorbed in analysis options as fixed_parameters. "
+                "This warning will be dropped in v0.4 along with "
+                "the support for the deprecated attribute.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            # pylint: disable=no-member
+            self._options.fixed_parameters = {
+                p: self.options.get(p, None) for p in self.__fixed_parameters__
+            }
 
         #: Dict[str, Any]: Experiment metadata
         self.__experiment_metadata = None
@@ -272,21 +283,12 @@ class CurveAnalysis(BaseAnalysis, ABC):
             )
 
         # remove the first function argument. this is usually x, i.e. not a fit parameter.
-        fit_params = list(list(fsigs)[0].parameters.keys())[1:]
+        return list(list(fsigs)[0].parameters.keys())[1:]
 
-        # remove fixed parameters
-        if cls.__fixed_parameters__ is not None:
-            for fixed_param in cls.__fixed_parameters__:
-                try:
-                    fit_params.remove(fixed_param)
-                except ValueError as ex:
-                    raise AnalysisError(
-                        f"Defined fixed parameter {fixed_param} is not a fit function argument."
-                        "Update series definition to ensure the parameter name is defined with "
-                        f"fit functions. Currently available parameters are {fit_params}."
-                    ) from ex
-
-        return fit_params
+    @property
+    def parameters(self) -> List[str]:
+        """Return parameters of this curve analysis."""
+        return [s for s in self._fit_params() if s not in self.options.fixed_parameters]
 
     @classmethod
     def _default_options(cls) -> Options:
@@ -340,6 +342,9 @@ class CurveAnalysis(BaseAnalysis, ABC):
                 as extra information.
             curve_fitter_options (Dict[str, Any]) Options that are passed to the
                 specified curve fitting function.
+            fixed_parameters (Dict[str, Any]): Fitting model parameters that are fixed
+                during the curve fitting. This should be provided with default value
+                keyed on one of the parameter names in the series definition.
         """
         options = super()._default_options()
 
@@ -361,11 +366,9 @@ class CurveAnalysis(BaseAnalysis, ABC):
         options.style = PlotterStyle()
         options.extra = dict()
         options.curve_fitter_options = dict()
-
-        # automatically populate initial guess and boundary
-        fit_params = cls._fit_params()
-        options.p0 = {par_name: None for par_name in fit_params}
-        options.bounds = {par_name: None for par_name in fit_params}
+        options.p0 = {}
+        options.bounds = {}
+        options.fixed_parameters = {}
 
         return options
 
@@ -512,6 +515,17 @@ class CurveAnalysis(BaseAnalysis, ABC):
         """
         return []
 
+    def _post_process_fit_result(self, fit_result: FitData) -> FitData:
+        """A hook that sub-classes can override to manipulate the result of the fit.
+
+        Args:
+            fit_result: A result from the fitting.
+
+        Returns:
+            A fit result that might be post-processed.
+        """
+        return fit_result
+
     # pylint: disable=unused-argument
     def _evaluate_quality(self, fit_data: FitData) -> Union[str, None]:
         """Evaluate quality of the fit result.
@@ -574,22 +588,17 @@ class CurveAnalysis(BaseAnalysis, ABC):
 
         x_key = self.options.x_key
         try:
-            x_values = np.asarray([datum["metadata"][x_key] for datum in data], dtype=float)
+            xdata = np.asarray([datum["metadata"][x_key] for datum in data], dtype=float)
         except KeyError as ex:
             raise DataProcessorError(
                 f"X value key {x_key} is not defined in circuit metadata."
             ) from ex
 
         if isinstance(data_processor, DataProcessor):
-            y_data = data_processor(data)
-
-            y_nominals = unp.nominal_values(y_data)
-            y_stderrs = unp.std_devs(y_data)
+            ydata = data_processor(data)
         else:
             y_nominals, y_stderrs = zip(*map(data_processor, data))
-
-            y_nominals = np.asarray(y_nominals, dtype=float)
-            y_stderrs = np.asarray(y_stderrs, dtype=float)
+            ydata = unp.uarray(y_nominals, y_stderrs)
 
         # Store metadata
         metadata = np.asarray([datum["metadata"] for datum in data], dtype=object)
@@ -598,7 +607,7 @@ class CurveAnalysis(BaseAnalysis, ABC):
         shots = np.asarray([datum.get("shots", np.nan) for datum in data])
 
         # Find series (invalid data is labeled as -1)
-        data_index = np.full(x_values.size, -1, dtype=int)
+        data_index = np.full(xdata.size, -1, dtype=int)
         for idx, series_def in enumerate(self.__series__):
             data_matched = np.asarray(
                 [_is_target_series(datum, **series_def.filter_kwargs) for datum in data], dtype=bool
@@ -608,9 +617,9 @@ class CurveAnalysis(BaseAnalysis, ABC):
         # Store raw data
         raw_data = CurveData(
             label="raw_data",
-            x=x_values,
-            y=y_nominals,
-            y_err=y_stderrs,
+            x=xdata,
+            y=unp.nominal_values(ydata),
+            y_err=unp.std_devs(ydata),
             shots=shots,
             data_index=data_index,
             metadata=metadata,
@@ -760,16 +769,15 @@ class CurveAnalysis(BaseAnalysis, ABC):
         #
 
         # Update all fit functions in the series definitions if fixed parameter is defined.
-        # Fixed parameters should be provided by the analysis options.
-        if self.__fixed_parameters__:
-            assigned_params = {k: self.options.get(k, None) for k in self.__fixed_parameters__}
+        assigned_params = self.options.fixed_parameters
 
+        if assigned_params:
             # Check if all parameters are assigned.
             if any(v is None for v in assigned_params.values()):
                 raise AnalysisError(
                     f"Unassigned fixed-value parameters for the fit "
                     f"function {self.__class__.__name__}."
-                    f"All values of fixed-parameters, i.e. {self.__fixed_parameters__}, "
+                    f"All values of fixed-parameters, i.e. {assigned_params}, "
                     "must be provided by the analysis options to run this analysis."
                 )
 
@@ -821,7 +829,7 @@ class CurveAnalysis(BaseAnalysis, ABC):
 
         # Generate algorithmic initial guesses and boundaries
         default_fit_opt = FitOptions(
-            parameters=self._fit_params(),
+            parameters=self.parameters,
             default_p0=self.options.p0,
             default_bounds=self.options.bounds,
             **self.options.curve_fitter_options,
@@ -860,6 +868,7 @@ class CurveAnalysis(BaseAnalysis, ABC):
             fit_result = None
         else:
             fit_result = sorted(fit_results, key=lambda r: r.reduced_chisq)[0]
+            fit_result = self._post_process_fit_result(fit_result)
 
         #
         # 5. Create database entry
@@ -878,7 +887,7 @@ class CurveAnalysis(BaseAnalysis, ABC):
             analysis_results.append(
                 AnalysisResultData(
                     name=PARAMS_ENTRY_PREFIX + self.__class__.__name__,
-                    value=FitVal(fit_result.popt, fit_result.popt_err),
+                    value=[p.nominal_value for p in fit_result.popt],
                     chisq=fit_result.reduced_chisq,
                     quality=quality,
                     extra={
@@ -903,12 +912,20 @@ class CurveAnalysis(BaseAnalysis, ABC):
                         p_name = param_repr
                         p_repr = param_repr
                         unit = None
+
+                    fit_val = fit_result.fitval(p_name)
+                    if unit:
+                        metadata = copy.copy(self.options.extra)
+                        metadata["unit"] = unit
+                    else:
+                        metadata = self.options.extra
+
                     result_entry = AnalysisResultData(
                         name=p_repr,
-                        value=fit_result.fitval(p_name, unit),
+                        value=fit_val,
                         chisq=fit_result.reduced_chisq,
                         quality=quality,
-                        extra=self.options.extra,
+                        extra=metadata,
                     )
                     analysis_results.append(result_entry)
 
@@ -961,3 +978,59 @@ class CurveAnalysis(BaseAnalysis, ABC):
             figures = []
 
         return analysis_results, figures
+
+    @classmethod
+    def from_config(cls, config: Union[AnalysisConfig, Dict]) -> "CurveAnalysis":
+        # For backward compatibility. This will be removed in v0.4.
+
+        instance = super().from_config(config)
+
+        # When fixed param value is hard-coded as options. This is deprecated data structure.
+        loaded_opts = instance.options.__dict__
+
+        # pylint: disable=no-member
+        deprecated_fixed_params = {
+            p: loaded_opts[p] for p in instance.parameters if p in loaded_opts
+        }
+        if any(deprecated_fixed_params):
+            warnings.warn(
+                "Fixed parameter value should be defined in options.fixed_parameters as "
+                "a dictionary values, rather than a standalone analysis option. "
+                "Please re-save this experiment to be loaded after deprecation period. "
+                "This warning will be dropped in v0.4 along with "
+                "the support for the deprecated fixed parameter options.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            new_fixed_params = instance.options.fixed_parameters
+            new_fixed_params.update(deprecated_fixed_params)
+            instance.set_options(fixed_parameters=new_fixed_params)
+
+        return instance
+
+
+def is_error_not_significant(
+    val: Union[float, uncertainties.UFloat],
+    fraction: float = 1.0,
+    absolute: Optional[float] = None,
+) -> bool:
+    """Check if the standard error of given value is not significant.
+
+    Args:
+        val: Input value to evaluate. This is assumed to be float or ufloat.
+        fraction: Valid fraction of the nominal part to its standard error.
+            This function returns ``False`` if the nominal part is
+            smaller than the error by this fraction.
+        absolute: Use this value as a threshold if given.
+
+    Returns:
+        ``True`` if the standard error of given value is not significant.
+    """
+    if isinstance(val, float):
+        return True
+
+    threshold = absolute if absolute is not None else fraction * val.nominal_value
+    if np.isnan(val.std_dev) or val.std_dev < threshold:
+        return True
+
+    return False

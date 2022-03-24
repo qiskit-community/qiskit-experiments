@@ -28,6 +28,7 @@ from datetime import datetime
 import numpy as np
 
 from matplotlib import pyplot
+from qiskit import QiskitError
 from qiskit.providers import Job, BaseJob, Backend, BaseBackend, Provider
 from qiskit.result import Result
 from qiskit.providers.jobstatus import JobStatus, JOB_FINAL_STATES
@@ -82,6 +83,13 @@ class ExperimentStatus(enum.Enum):
     DONE = "experiment jobs and analysis have successfully run"
     ERROR = "experiment jobs or analysis incurred an error"
 
+    def __json_encode__(self):
+        return self.name
+
+    @classmethod
+    def __json_decode__(cls, value):
+        return cls.__members__[value]  # pylint: disable=unsubscriptable-object
+
 
 class AnalysisStatus(enum.Enum):
     """Class for analysis callback status enumerated type."""
@@ -91,6 +99,13 @@ class AnalysisStatus(enum.Enum):
     CANCELLED = "analysis callback has been cancelled"
     DONE = "analysis callback has successfully run"
     ERROR = "analysis callback incurred an error"
+
+    def __json_encode__(self):
+        return self.name
+
+    @classmethod
+    def __json_decode__(cls, value):
+        return cls.__members__[value]  # pylint: disable=unsubscriptable-object
 
 
 @dataclasses.dataclass
@@ -136,6 +151,7 @@ class DbExperimentDataV1(DbExperimentData):
         self,
         experiment_type: Optional[str] = "Unknown",
         backend: Optional[Union[Backend, BaseBackend]] = None,
+        service: Optional[DatabaseServiceV1] = None,
         experiment_id: Optional[str] = None,
         parent_id: Optional[str] = None,
         tags: Optional[List[str]] = None,
@@ -174,10 +190,11 @@ class DbExperimentDataV1(DbExperimentData):
             },
         )
 
-        self._service = None
+        self._service = service
+        if self.service is None:
+            self._set_service_from_backend(backend)
         self._backend = backend
         self._auto_save = False
-        self._set_service_from_backend(backend)
 
         self._id = experiment_id or str(uuid.uuid4())
         self._parent_id = parent_id
@@ -418,7 +435,7 @@ class DbExperimentDataV1(DbExperimentData):
         """Add analysis callback for running after experiment data jobs are finished.
 
         This method adds the `callback` function to a queue to be run
-        asynchronously after complition of any running jobs, or immediately
+        asynchronously after completion of any running jobs, or immediately
         if no running jobs. If this method is called multiple times the
         callback functions will be executed in the order they were
         added.
@@ -488,9 +505,8 @@ class DbExperimentDataV1(DbExperimentData):
             return callback_id, True
         except Exception as ex:  # pylint: disable=broad-except
             self._analysis_callbacks[callback_id].status = AnalysisStatus.ERROR
-            error_msg = f"Analysis callback failed [Analysis ID: {callback_id}]:\n" "".join(
-                traceback.format_exception(type(ex), ex, ex.__traceback__)
-            )
+            tb_text = "".join(traceback.format_exception(type(ex), ex, ex.__traceback__))
+            error_msg = f"Analysis callback failed [Analysis ID: {callback_id}]:\n{tb_text}"
             self._analysis_callbacks[callback_id].error_msg = error_msg
             LOG.warning(error_msg)
             return callback_id, False
@@ -534,7 +550,7 @@ class DbExperimentDataV1(DbExperimentData):
                     retrieved_jobs[jid] = job
                 except Exception:  # pylint: disable=broad-except
                     LOG.warning(
-                        "Unable to retrive data from job on backend %s [Job ID: %s]",
+                        "Unable to retrieve data from job on backend %s [Job ID: %s]",
                         self._backend,
                         jid,
                     )
@@ -848,18 +864,23 @@ class DbExperimentDataV1(DbExperimentData):
         self._retrieve_analysis_results(refresh=refresh)
         if index is None:
             return self._analysis_results.values()
+
+        def _make_not_found_message(index: Union[int, slice, str]) -> str:
+            """Helper to make error message for index not found"""
+            msg = [f"Analysis result {index} not found."]
+            errors = self.errors()
+            if errors:
+                msg.append(f"Errors: {errors}")
+            return "\n".join(msg)
+
         if isinstance(index, int):
             if index >= len(self._analysis_results.values()):
-                raise DbExperimentEntryNotFound(
-                    f"Analysis result {index} not found. " f"Errors: {self.errors()}"
-                )
+                raise DbExperimentEntryNotFound(_make_not_found_message(index))
             return self._analysis_results.values()[index]
         if isinstance(index, slice):
             results = self._analysis_results.values()[index]
             if not results:
-                raise DbExperimentEntryNotFound(
-                    f"Analysis result {index} not found. " f"Errors: {self.errors()}"
-                )
+                raise DbExperimentEntryNotFound(_make_not_found_message(index))
             return results
         if isinstance(index, str):
             # Check by result ID
@@ -870,9 +891,7 @@ class DbExperimentDataV1(DbExperimentData):
                 result for result in self._analysis_results.values() if result.name == index
             ]
             if not filtered:
-                raise DbExperimentEntryNotFound(
-                    f"Analysis result {index} not found. " f"Errors: {self.errors()}"
-                )
+                raise DbExperimentEntryNotFound(_make_not_found_message(index))
             if len(filtered) == 1:
                 return filtered[0]
             else:
@@ -924,7 +943,11 @@ class DbExperimentDataV1(DbExperimentData):
             "tags": self.tags,
             "notes": self.notes,
         }
-        new_data = {"experiment_type": self._type, "backend_name": self._backend.name()}
+        new_data = {
+            "experiment_type": self._type,
+            "backend_name": self._backend.name(),
+            "provider": self._provider,
+        }
         if self.share_level:
             update_data["share_level"] = self.share_level
         if self.parent_id:
@@ -960,6 +983,10 @@ class DbExperimentDataV1(DbExperimentData):
             return
 
         self._save_experiment_metadata()
+        if not self._created_in_db:
+            LOG.warning("Could not save experiment metadata to DB, aborting experiment save")
+            return
+
         for result in self._analysis_results.values():
             result.save()
 
@@ -989,10 +1016,17 @@ class DbExperimentDataV1(DbExperimentData):
             self._deleted_figures.remove(name)
 
         if self.verbose:
-            print(
-                "You can view the experiment online at "
-                "https://quantum-computing.ibm.com/experiments/" + self.experiment_id
-            )
+            # this field will be implemented in the new service package
+            if hasattr(self._service, "web_interface_link"):
+                print(
+                    "You can view the experiment online at "
+                    f"{self._service.web_interface_link}/{self.experiment_id}"
+                )
+            else:
+                print(
+                    "You can view the experiment online at "
+                    f"https://quantum-computing.ibm.com/experiments/{self.experiment_id}"
+                )
 
     @classmethod
     def load(cls, experiment_id: str, service: DatabaseServiceV1) -> "DbExperimentDataV1":
@@ -1360,7 +1394,7 @@ class DbExperimentDataV1(DbExperimentData):
 
         # Get any job futures errors:
         for jid, fut in self._job_futures.items():
-            if fut and fut.exception():
+            if fut and fut.done() and fut.exception():
                 ex = fut.exception()
                 errors.append(
                     f"[Job ID: {jid}]"
@@ -1377,14 +1411,6 @@ class DbExperimentDataV1(DbExperimentData):
             if callback.status == AnalysisStatus.ERROR:
                 errors.append(f"\n[Analysis ID: {cid}]: {callback.error_msg}")
 
-        # Get any callback futures errors:
-        for cid, fut in self._analysis_futures.items():
-            ex = fut.exception()
-            if fut.exception():
-                errors.append(
-                    f"[Analysis ID: {cid}]"
-                    "\n".join(traceback.format_exception(type(ex), ex, ex.__traceback__))
-                )
         return "".join(errors)
 
     def errors(self) -> str:
@@ -1415,6 +1441,9 @@ class DbExperimentDataV1(DbExperimentData):
         .. note:
             If analysis results and figures are copied they will also have
             new result IDs and figure names generated for the copies.
+
+            This method can not be called from an analysis callback. It waits
+            for analysis callbacks to complete before copying analysis results.
         """
         new_instance = self.__class__()
         LOG.debug(
@@ -1692,3 +1721,109 @@ class DbExperimentDataV1(DbExperimentData):
         except KeyError:
             # pylint: disable=raise-missing-from
             raise AttributeError("Attribute %s is not defined" % name)
+
+    def _safe_serialize_jobs(self):
+        """Return serializable object for stored jobs"""
+        # Since Job objects are not serializable this removes
+        # them from the jobs dict and returns {job_id: None}
+        # that can be used to retrieve jobs from a service after loading
+        jobs = ThreadSafeOrderedDict()
+        with self._jobs.lock:
+            for jid in self._jobs.keys():
+                jobs[jid] = None
+        return jobs
+
+    def _safe_serialize_figures(self):
+        """Return serializable object for stored figures"""
+        # Convert any MPL figures into SVG images before serializing
+        figures = ThreadSafeOrderedDict()
+        with self._figures.lock:
+            for name, figure in self._figures.items():
+                if isinstance(figure, pyplot.Figure):
+                    figures[name] = plot_to_svg_bytes(figure)
+                else:
+                    figures[name] = figure
+        return figures
+
+    def __json_encode__(self):
+        if any(not fut.done() for fut in self._job_futures.values()):
+            raise QiskitError(
+                "Not all experiment jobs have finished. Jobs must be "
+                "cancelled or done to serialize experiment data."
+            )
+        if any(not fut.done() for fut in self._analysis_futures.values()):
+            raise QiskitError(
+                "Not all experiment analysis has finished. Analysis must be "
+                "cancelled or done to serialize experiment data."
+            )
+        json_value = {}
+        for att in [
+            "_metadata",
+            "_source",
+            "_service",
+            "_backend",
+            "_id",
+            "_parent_id",
+            "_type",
+            "_tags",
+            "_share_level",
+            "_notes",
+            "_data",
+            "_analysis_results",
+            "_analysis_callbacks",
+            "_deleted_figures",
+            "_deleted_analysis_results",
+            "_created_in_db",
+            "_extra_data",
+        ]:
+            value = getattr(self, att)
+            if value:
+                json_value[att] = value
+
+        # Convert figures to SVG
+        json_value["_figures"] = self._safe_serialize_figures()
+
+        # Handle non-serializable objects
+        json_value["_jobs"] = self._safe_serialize_jobs()
+
+        return json_value
+
+    @classmethod
+    def __json_decode__(cls, value):
+        ret = cls()
+        for att, att_val in value.items():
+            setattr(ret, att, att_val)
+        return ret
+
+    def __getstate__(self):
+        if any(not fut.done() for fut in self._job_futures.values()):
+            LOG.warning(
+                "Not all job futures have finished."
+                " Data from running futures will not be serialized."
+            )
+        if any(not fut.done() for fut in self._analysis_futures.values()):
+            LOG.warning(
+                "Not all analysis callbacks have finished."
+                " Results from running callbacks will not be serialized."
+            )
+
+        state = self.__dict__.copy()
+
+        # Remove non-pickleable attributes
+        for key in ["_job_futures", "_analysis_futures", "_analysis_executor"]:
+            del state[key]
+
+        # Convert figures to SVG
+        state["_figures"] = self._safe_serialize_figures()
+
+        # Handle partially pickleable attributes
+        state["_jobs"] = self._safe_serialize_jobs()
+
+        return state
+
+    def __setstate__(self, state):
+        self.__dict__.update(state)
+        # Initialize non-pickled attributes
+        self._job_futures = ThreadSafeOrderedDict()
+        self._analysis_futures = ThreadSafeOrderedDict()
+        self._analysis_executor = futures.ThreadPoolExecutor(max_workers=1)
