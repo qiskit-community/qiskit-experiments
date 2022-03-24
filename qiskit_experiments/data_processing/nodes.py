@@ -454,11 +454,11 @@ class MarginalizeCounts(CountsAction):
     is marginalized over a set of specified qubits. For example, given the count
     dictionary :code:`{"010": 1, "110": 10, "100": 100}` this node will return the
     count dictionary :code:`{"10": 11, "00": 100}` when marginalized over qubit 2.
-    
+
     .. note::
         This data action can be used to discard one or more qubits in the counts
         dictionary. This is, for example, useful when processing two-qubit restless
-        experiments but can be used in a more general context. In composite 
+        experiments but can be used in a more general context. In composite
         experiments the counts marginalization is already done in the data container.
     """
 
