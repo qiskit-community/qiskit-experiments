@@ -1,16 +1,17 @@
 ---
 features:
   - |
-    Adds a ``combine_results`` analysis option to :class:`.CompositeAnalysis`
-    that if set to ``True`` combines all analysis results and figures from
-    component experiment analysis into a single :class:`.ExperimentData`
-    container. This can be used to flatten results from :class:`.ParallelExperiment`
-    and :class:`.BatchExperiment` into a single :class:`.ExperimentData` container.
-    
-    If set to ``False`` (the default value) the results of each component
-    experiment will be saved as separate :meth:`~.ExperimentData.child_data`
-    as was previously done.
+    Adds a ``combine_results`` init kwarg to :class:`.CompositeAnalysis`,
+    :class:`.CompositeExperiment`, :class:`.ParallelExperiment`, and
+    :class:`.BatchExperiment` that if set to ``True`` combines all analysis
+    results and figures from component experiment analysis into a single
+    :class:`.ExperimentData` container. 
 
     Note that for nested composite experiments setting ``combine_results=True``
     will recursively set the same value for all component experiments that
     are also composite experiments.
+upgrade:
+  - |
+    Changed the :class:`.Tphi` experiment and :class:`.TphiAnalysis` to combine
+    the component analysis results so that it runs as a single experiment
+    returning :math:`T_\phi`, :math:`T_1`, and :math:`T_2^\ast` analysis results.
