@@ -62,8 +62,7 @@ class TestTphi(QiskitExperimentsTestCase):
         backend = TphiBackend(t1=t1, t2ramsey=t2ramsey, freq=0.1)
         expdata = exp.run(backend=backend)
         self.assertExperimentDone(expdata)
-        for r in expdata.analysis_results():
-            print(r)
+
         # Extract x values from metadata
         x_values_t1 = []
         x_values_t2 = []
