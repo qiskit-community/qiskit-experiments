@@ -13,9 +13,11 @@
 """Test the fine amplitude characterization and calibration experiments."""
 from test.base import QiskitExperimentsTestCase
 import unittest
+from typing import Dict, List, Any
 import numpy as np
 from ddt import ddt, data
 
+from qiskit import QuantumCircuit
 from qiskit import transpile
 from qiskit.circuit.library import XGate, SXGate
 from qiskit.pulse import DriveChannel, Drag
@@ -30,7 +32,33 @@ from qiskit_experiments.library import (
 )
 from qiskit_experiments.calibration_management.basis_gate_library import FixedFrequencyTransmon
 from qiskit_experiments.calibration_management import Calibrations
-from qiskit_experiments.test.mock_iq_backend import MockFineAmp
+from qiskit_experiments.test.mock_iq_backend import MockIQBackend
+
+
+def fine_amp_compute_probabilities(
+    circuits: List[QuantumCircuit], calc_parameters: List[Dict[str, Any]]
+) -> List[Dict[str, float]]:
+    """Return the probability of being in the excited state."""
+    angle_error = calc_parameters[0].get("angle_error", 0)
+    angle_per_gate = calc_parameters[0].get("angle_per_gate", 0)
+    gate_name = calc_parameters[0].get("gate_name", "x")
+    output_dict_list = []
+    for circuit in circuits:
+        probability_output_dict = {}
+        n_ops = circuit.count_ops().get(gate_name, 0)
+        angle = n_ops * (angle_per_gate + angle_error)
+
+        if gate_name != "sx":
+            angle += np.pi / 2 * circuit.count_ops().get("sx", 0)
+
+        if gate_name != "x":
+            angle += np.pi * circuit.count_ops().get("x", 0)
+
+        # Dictionary of output string vectors and their probability
+        probability_output_dict["1"] = np.sin(angle / 2) ** 2
+        probability_output_dict["0"] = 1 - probability_output_dict["1"]
+        output_dict_list.append(probability_output_dict)
+    return output_dict_list
 
 
 @ddt
@@ -45,7 +73,11 @@ class TestFineAmpEndToEnd(QiskitExperimentsTestCase):
         amp_exp.set_transpile_options(basis_gates=["x", "sx"])
 
         error = -np.pi * pi_ratio
-        backend = MockFineAmp(error, np.pi, "x")
+        calc_parameters = {"angle_error": error, "angle_per_gate": np.pi, "gate_name": "x"}
+        backend = MockIQBackend(
+            compute_probabilities=fine_amp_compute_probabilities,
+            calculation_parameters=[calc_parameters],
+        )
 
         expdata = amp_exp.run(backend)
         self.assertExperimentDone(expdata)
@@ -65,7 +97,11 @@ class TestFineAmpEndToEnd(QiskitExperimentsTestCase):
         amp_exp.set_transpile_options(basis_gates=["x", "sx"])
 
         error = np.pi * pi_ratio
-        backend = MockFineAmp(error, np.pi, "x")
+        calc_parameters = {"angle_error": error, "angle_per_gate": np.pi, "gate_name": "x"}
+        backend = MockIQBackend(
+            compute_probabilities=fine_amp_compute_probabilities,
+            calculation_parameters=[calc_parameters],
+        )
 
         expdata = amp_exp.run(backend)
         self.assertExperimentDone(expdata)
@@ -89,7 +125,11 @@ class TestFineZXAmpEndToEnd(QiskitExperimentsTestCase):
         amp_exp = FineZXAmplitude((0, 1))
 
         error = -np.pi * pi_ratio
-        backend = MockFineAmp(error, np.pi / 2, "szx")
+        calc_parameters = {"angle_error": error, "angle_per_gate": np.pi / 2, "gate_name": "szx"}
+        backend = MockIQBackend(
+            compute_probabilities=fine_amp_compute_probabilities,
+            calculation_parameters=[calc_parameters],
+        )
 
         expdata = amp_exp.run(backend)
         self.assertExperimentDone(expdata)
@@ -199,7 +239,13 @@ class TestFineAmplitudeCal(QiskitExperimentsTestCase):
 
         library = FixedFrequencyTransmon()
 
-        self.backend = MockFineAmp(-np.pi * 0.07, np.pi, "xp")
+        calc_parameters = {"angle_error": -np.pi * 0.07, "angle_per_gate": np.pi, "gate_name": "xp"}
+        self.backend = MockIQBackend(
+            compute_probabilities=fine_amp_compute_probabilities,
+            calculation_parameters=[calc_parameters],
+        )
+        self.backend.configuration().basis_gates.append("sx")
+        self.backend.configuration().basis_gates.append("x")
         self.cals = Calibrations.from_backend(self.backend, library)
 
     def test_cal_options(self):
@@ -292,8 +338,20 @@ class TestFineAmplitudeCal(QiskitExperimentsTestCase):
 
         self.assertEqual(circs[5].calibrations["sx"][((0,), ())], expected_sx)
 
+        # a new backend required for the new setup
+
+        calc_parameters = {
+            "angle_error": -np.pi * 0.07,
+            "angle_per_gate": np.pi / 2,
+            "gate_name": "sx",
+        }
+        backend = MockIQBackend(
+            compute_probabilities=fine_amp_compute_probabilities,
+            calculation_parameters=[calc_parameters],
+        )
+
         # run the calibration experiment. This should update the amp parameter of x which we test.
-        exp_data = amp_cal.run(MockFineAmp(-np.pi * 0.07, np.pi / 2, "sx"))
+        exp_data = amp_cal.run(backend)
         self.assertExperimentDone(exp_data)
         d_theta = exp_data.analysis_results(1).value.n
         new_amp = init_amp * (np.pi / 2) / (np.pi / 2 + d_theta)

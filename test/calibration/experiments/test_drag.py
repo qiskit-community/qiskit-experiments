@@ -33,38 +33,12 @@ from qiskit_experiments.calibration_management.basis_gate_library import FixedFr
 from qiskit_experiments.calibration_management import Calibrations
 
 
-def set_default_calc_parameters_list(calc_parameters_list: List[Dict[str, Any]]):
-    """
-    Set default values to the calculation parameters list if they are not defined.
-    Args:
-        calc_parameters_list(List[Dict[str, any]]): A list of dictionaries that contain parameters for the probability
-        calculation for the corresponding quantum circuit.
-    """
-    if "gate_name" not in calc_parameters_list[0].keys():
-        calc_parameters_list[0]["gate_name"] = "Rp"
-    if "error" not in calc_parameters_list[0].keys():
-        calc_parameters_list[0]["error"] = 0.03
-    if "ideal_beta" not in calc_parameters_list[0].keys():
-        calc_parameters_list[0]["ideal_beta"] = 2.0
-    if "freq" not in calc_parameters_list[0].keys():
-        calc_parameters_list[0]["freq"] = 0.02
-    if "max_prob" not in calc_parameters_list[0].keys():
-        calc_parameters_list[0]["max_prob"] = 1.0
-    if "offset_prob" not in calc_parameters_list[0].keys():
-        calc_parameters_list[0]["offset_prob"] = 0.0
-
-    if calc_parameters_list[0]["max_prob"] + calc_parameters_list[0]["offset_prob"] > 1:
-        raise ValueError("Probabilities need to be between 0 and 1.")
-
-
 def compute_probability(
     circuits: List[QuantumCircuit], calc_parameters_list: List[Dict[str, Any]]
 ) -> List[Dict[str, float]]:
     """Returns the probability based on the beta, number of gates, and leakage."""
-    set_default_calc_parameters_list(calc_parameters_list)
 
     gate_name = calc_parameters_list[0].get("gate_name", "Rp")
-    error = calc_parameters_list[0].get("error", 0.03)
     ideal_beta = calc_parameters_list[0].get("ideal_beta", 2.0)
     freq = calc_parameters_list[0].get("freq", 0.02)
     max_prob = calc_parameters_list[0].get("max_prob", 1.0)
@@ -177,8 +151,14 @@ class TestDragEndToEnd(QiskitExperimentsTestCase):
     @unpack
     def test_nasty_data(self, freq, amp, offset, reps, betas, tol):
         """A set of tests for non-ideal data."""
-        calc_parameters = {"gate_name": "Drag(xp)", "ideal_beta": 2.0, "error": 0.03, "freq": freq,
-                           "max_prob": amp, "offset_prob": offset}
+        calc_parameters = {
+            "gate_name": "Drag(xp)",
+            "ideal_beta": 2.0,
+            "error": 0.03,
+            "freq": freq,
+            "max_prob": amp,
+            "offset_prob": offset,
+        }
         backend = MockIQBackend(
             compute_probabilities=compute_probability, calculation_parameters=[calc_parameters]
         )
@@ -190,7 +170,6 @@ class TestDragEndToEnd(QiskitExperimentsTestCase):
         self.assertExperimentDone(exp_data)
         result = exp_data.analysis_results("beta")
         self.assertTrue(abs(result.value.n - calc_parameters["ideal_beta"]) < tol)
-        # self.assertTrue(abs(result.value.n - backend.ideal_beta) < tol)
         self.assertEqual(result.quality, "good")
 
 

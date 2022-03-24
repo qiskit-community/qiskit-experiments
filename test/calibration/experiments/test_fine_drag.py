@@ -24,17 +24,17 @@ from qiskit.test.mock import FakeArmonk
 import qiskit.pulse as pulse
 
 from qiskit_experiments.library import FineDrag, FineXDrag, FineDragCal
-from qiskit_experiments.test.mock_iq_backend import MockIQBackend, DragBackend
+from qiskit_experiments.test.mock_iq_backend import MockIQBackend
 from qiskit_experiments.calibration_management import Calibrations
 from qiskit_experiments.calibration_management.basis_gate_library import FixedFrequencyTransmon
 
 
-def fine_drag_compute_probabilities(circuits: List[QuantumCircuit], calc_parameters: List[Dict[str, Any]]) -> List[Dict[str, float]]:
+def fine_drag_compute_probabilities(
+    circuits: List[QuantumCircuit], calc_parameters: List[Dict[str, Any]]
+) -> List[Dict[str, float]]:
     """Returns the probability based on the beta, number of gates, and leakage."""
 
-    gate_name = calc_parameters[0].get("gate_name", "Rp")
     error = calc_parameters[0].get("error", 0.03)
-    ideal_beta = calc_parameters[0].get("ideal_beta", 2.0)
     output_dict_list = []
     for circuit in circuits:
         probability_output_dict = {}
@@ -46,16 +46,6 @@ def fine_drag_compute_probabilities(circuits: List[QuantumCircuit], calc_paramet
         probability_output_dict["0"] = 1 - probability_output_dict["1"]
         output_dict_list.append(probability_output_dict)
     return output_dict_list
-
-
-class FineDragTestBackend(DragBackend):
-    """A simple and primitive backend, to be run by the rough drag tests."""
-
-    def _compute_probability(self, circuit: QuantumCircuit) -> float:
-        """Returns the probability based on the beta, number of gates, and leakage."""
-        n_gates = circuit.count_ops().get("rz", 0) // 2
-
-        return 0.5 * np.sin(n_gates * self._freq) + 0.5
 
 
 class TestFineDrag(QiskitExperimentsTestCase):
@@ -86,11 +76,13 @@ class TestFineDrag(QiskitExperimentsTestCase):
         drag = FineDrag(0, Gate("Drag", num_qubits=1, params=[]))
         drag.set_experiment_options(schedule=self.schedule)
         drag.set_transpile_options(basis_gates=["rz", "Drag", "sx"])
-        # exp_data = drag.run(FineDragTestBackend())
         calc_parameters = {"gate_name": "Drag(xp)", "ideal_beta": 2.0, "error": 0.03}
-        exp_data = drag.run(MockIQBackend(
-            compute_probabilities=fine_drag_compute_probabilities, calculation_parameters=[calc_parameters]
-        ))
+        exp_data = drag.run(
+            MockIQBackend(
+                compute_probabilities=fine_drag_compute_probabilities,
+                calculation_parameters=[calc_parameters],
+            )
+        )
         self.assertExperimentDone(exp_data)
 
         self.assertEqual(exp_data.analysis_results(0).quality, "good")
@@ -98,9 +90,12 @@ class TestFineDrag(QiskitExperimentsTestCase):
     def test_end_to_end_no_schedule(self):
         """Test that we can run without a schedule."""
         calc_parameters = {"gate_name": "Drag(xp)", "ideal_beta": 2.0, "error": 0.03}
-        exp_data = FineXDrag(0).run(MockIQBackend(
-            compute_probabilities=fine_drag_compute_probabilities, calculation_parameters=[calc_parameters]
-        ))
+        exp_data = FineXDrag(0).run(
+            MockIQBackend(
+                compute_probabilities=fine_drag_compute_probabilities,
+                calculation_parameters=[calc_parameters],
+            )
+        )
         self.assertExperimentDone(exp_data)
 
         self.assertEqual(exp_data.analysis_results(0).quality, "good")
@@ -124,7 +119,8 @@ class TestFineDragCal(QiskitExperimentsTestCase):
         library = FixedFrequencyTransmon()
         calc_parameters = {"gate_name": "Drag(xp)", "ideal_beta": 2.0, "error": 0.03}
         self.backend = MockIQBackend(
-            compute_probabilities=fine_drag_compute_probabilities, calculation_parameters=[calc_parameters]
+            compute_probabilities=fine_drag_compute_probabilities,
+            calculation_parameters=[calc_parameters],
         )
         self.cals = Calibrations.from_backend(self.backend, library)
 
@@ -162,7 +158,7 @@ class TestFineDragCal(QiskitExperimentsTestCase):
         d_theta = exp_data.analysis_results(1).value.n
         sigma = 40
         target_angle = np.pi
-        new_beta = -np.sqrt(np.pi) * d_theta * sigma / target_angle**2
+        new_beta = -np.sqrt(np.pi) * d_theta * sigma / target_angle ** 2
 
         transpile_opts = copy.copy(drag_cal.transpile_options.__dict__)
         transpile_opts["initial_layout"] = list(drag_cal.physical_qubits)

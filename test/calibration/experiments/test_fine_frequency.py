@@ -13,10 +13,13 @@
 """Test the fine frequency characterization and calibration experiments."""
 
 from test.base import QiskitExperimentsTestCase
+from typing import Dict, List, Any
 import numpy as np
 from ddt import ddt, data
 
+from qiskit import QuantumCircuit
 from qiskit.test.mock import FakeArmonk
+from qiskit.providers.aer import AerSimulator
 import qiskit.pulse as pulse
 
 from qiskit_experiments.library import (
@@ -25,7 +28,43 @@ from qiskit_experiments.library import (
 )
 from qiskit_experiments.calibration_management.basis_gate_library import FixedFrequencyTransmon
 from qiskit_experiments.calibration_management import Calibrations
-from qiskit_experiments.test.mock_iq_backend import MockFineFreq
+from qiskit_experiments.test.mock_iq_backend import MockIQBackend
+
+
+def fine_freq_compute_probabilities(
+    circuits: List[QuantumCircuit], calc_parameters: List[Dict[str, Any]]
+) -> List[Dict[str, float]]:
+    """Return the probability of being in the excited state."""
+    simulator = AerSimulator(method="automatic")
+    sx_duration = calc_parameters[0].get("sx_duration", 160)
+    freq_shift = calc_parameters[0].get("freq_shift", 0)
+    dt = calc_parameters[0].get("dt", 1e-9)
+    output_dict_list = []
+    for circuit in circuits:
+        probability_output_dict = {}
+        delay = None
+        for instruction in circuit.data:
+            if instruction[0].name == "delay":
+                delay = instruction[0].duration
+
+        if delay is None:
+            probability_output_dict["1"] = 1
+            probability_output_dict["0"] = 1 - probability_output_dict["1"]
+        else:
+            reps = delay // sx_duration
+
+            qc = QuantumCircuit(1)
+            qc.sx(0)
+            qc.rz(np.pi * reps / 2 + 2 * np.pi * freq_shift * delay * dt, 0)
+            qc.sx(0)
+            qc.measure_all()
+
+            counts = simulator.run(qc, seed_simulator=1).result().get_counts(0)
+            probability_output_dict["1"] = counts.get("1", 0) / sum(counts.values())
+            probability_output_dict["0"] = 1 - probability_output_dict["1"]
+        output_dict_list.append(probability_output_dict)
+
+    return output_dict_list
 
 
 @ddt
@@ -49,8 +88,10 @@ class TestFineFreqEndToEnd(QiskitExperimentsTestCase):
     @data(-0.5e6, -0.1e6, 0.1e6, 0.5e6)
     def test_end_to_end(self, freq_shift):
         """Test the experiment end to end."""
-
-        backend = MockFineFreq(freq_shift, sx_duration=self.sx_duration)
+        calc_parameters = {"freq_shift": freq_shift, "sx_duration": self.sx_duration}
+        backend = MockIQBackend(compute_probabilities=fine_freq_compute_probabilities)
+        calc_parameters["dt"] = backend.configuration().dt
+        backend.set_calculation_parameters([calc_parameters])
 
         freq_exp = FineFrequency(0, 160, backend)
         freq_exp.set_transpile_options(inst_map=self.inst_map)
@@ -71,7 +112,10 @@ class TestFineFreqEndToEnd(QiskitExperimentsTestCase):
         """Test the calibration version of the experiment."""
 
         freq_shift = 0.1e6
-        backend = MockFineFreq(freq_shift, sx_duration=self.sx_duration)
+        calc_parameters = {"freq_shift": freq_shift, "sx_duration": self.sx_duration}
+        backend = MockIQBackend(compute_probabilities=fine_freq_compute_probabilities)
+        calc_parameters["dt"] = backend.configuration().dt
+        backend.set_calculation_parameters([calc_parameters])
 
         fine_freq = FineFrequencyCal(0, self.cals, backend)
         armonk_freq = FakeArmonk().defaults().qubit_freq_est[0]

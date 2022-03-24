@@ -15,11 +15,9 @@
 from abc import abstractmethod
 from typing import List, Tuple, Dict, Union, Any, Optional, Callable
 import numpy as np
-from numpy import ndarray
 
 from qiskit import QuantumCircuit
 from qiskit.result import Result
-from qiskit.providers.aer import AerSimulator
 from qiskit.test.mock import FakeOpenPulse2Q
 
 from qiskit.qobj.utils import MeasLevel
@@ -51,7 +49,7 @@ class MockRestlessBackend(FakeOpenPulse2Q):
     def _get_state_strings(n_qubits: int) -> List[str]:
         """Generate all state strings for the system."""
         format_str = "{0:0" + str(n_qubits) + "b}"
-        return list(format_str.format(state_num) for state_num in range(2**n_qubits))
+        return list(format_str.format(state_num) for state_num in range(2 ** n_qubits))
 
     @abstractmethod
     def _compute_outcome_probabilities(self, circuits: List[QuantumCircuit]):
@@ -181,14 +179,20 @@ class MockIQBackend(FakeOpenPulse2Q):
         """
         Initialize the backend.
         Args:
-            compute_probabilities(Callable): A function that the user provides to calculate the probability of each
-            output of the circuit. The user passes the list of circuits and any variable that he needs to calculate
-            the probability. The function return a list of dictionaries. Each dictionary in the output list
-            corresponds to the probabilities of output vectors for the circuit with the same index in the circuit list.
+            compute_probabilities(Callable): A function that the user provides to calculate the
+            probability of each output of the circuit. The user passes the list of circuits and any
+            variable that he needs to calculatethe probability. The function return a list of
+            dictionaries. Each dictionary in the output list
+            corresponds to the probabilities of output vectors for the circuit with the same index in the
+            circuit list.
             rng_seed(int): The random seed value.
-            iq_cluster_centers:
-            iq_cluster_width:
-            calculation_parameters:
+            iq_cluster_centers(Optional[List]): A list of tuples containing the clusters' centers in the
+            IQ plane.
+            There are different centers for different logical values of the qubit.
+            iq_cluster_width(Optional[List]): A list of standard deviation values for the sampling of
+            each qubit.
+            calculation_parameters(Optional[List]): A dictionary with parameters that are needed for the
+            function 'compute_probabilities'.
         """
 
         self._iq_cluster_centers = iq_cluster_centers or [((1.0, 1.0), (-1.0, -1.0))]
@@ -207,24 +211,35 @@ class MockIQBackend(FakeOpenPulse2Q):
             meas_return="single",
         )
 
+    def set_calculation_parameters(self, calculation_parameters: List[Dict[str, Any]]):
+        """
+        A function to set calculation parameters for the compute_probabilities function.
+        Args:
+            calculation_parameters(Dict): A dictionary with parameters that will replace the existing
+            parameters of the backend.
+        """
+        self._calculation_parameters = calculation_parameters
+
     @staticmethod
     def _verify_parameters(num_qubits: int, prob_dict: Dict[str, float]):
         if num_qubits < 1:
             raise ValueError(f"The number of qubits {num_qubits} is smaller than 1.")
 
         if not np.allclose(1, sum(prob_dict.values())):
-            raise ValueError(f"The probabilities given don't sum up to 1.")
+            raise ValueError("The probabilities given don't sum up to 1.")
         for key in prob_dict.keys():
             if num_qubits is not len(key):
-                raise ValueError("The number of qubits and the length of the output string don't match.")
+                raise ValueError(
+                    "The number of qubits and the length of the output string don't match."
+                )
         # TODO:
         # check that the length of attributes matches the number of qubits.
         # check that probability is 1.
 
     def _get_normal_samples_for_shot(self, num_qubits: int):
         """
-        Produce a list in the size of num_qubits. Each entry value is produced from normal distribution with expected value
-        of '0' and standard deviation of self._iq_cluster_width.
+        Produce a list in the size of num_qubits. Each entry value is produced from normal distribution
+        with expected value of '0' and standard deviation of self._iq_cluster_width.
         Args:
             num_qubits(int): The amount of qubits in the circuit.
 
@@ -235,10 +250,12 @@ class MockIQBackend(FakeOpenPulse2Q):
         samples = [self._rng.normal(0, widths[qubit], size=1) for qubit in range(num_qubits)]
         return samples
 
-    def _probability_dict_to_probability_array(self, prob_dict: Dict[str, float], num_qubits: int) -> List[float]:
+    def _probability_dict_to_probability_array(
+        self, prob_dict: Dict[str, float], num_qubits: int
+    ) -> List[float]:
         prob_list = []
         for num in range(2 ** num_qubits):
-            num_binary_str = str(format(num, 'b').zfill(num_qubits))
+            num_binary_str = str(format(num, "b").zfill(num_qubits))
             prob_list.append(prob_dict.get(num_binary_str, 0))
         return prob_list
 
@@ -253,8 +270,8 @@ class MockIQBackend(FakeOpenPulse2Q):
             num_qubits(int): The number of qubits in the circuit.
 
         Returns:
-            List[List[Tuple[float, float]]]: A list of shots. Each shot composed of a list of qubits. The qubits are
-            tuples with two values [I,Q].
+            List[List[Tuple[float, float]]]: A list of shots. Each shot composed of a list of qubits.
+            The qubits are tuples with two values [I,Q].
             The output structure is  - List[shot index][qubit index] = [I,Q]
         """
         # Randomize samples
@@ -268,24 +285,28 @@ class MockIQBackend(FakeOpenPulse2Q):
         shot_num = 0
         iq_centers = self._iq_cluster_centers
 
-        for output_number, number_of_occurrences in enumerate(self._rng.multinomial(shots, prob, size=1)[0]):
-            state_str = str(format(output_number, 'b').zfill(num_qubits))
+        for output_number, number_of_occurrences in enumerate(
+            self._rng.multinomial(shots, prob, size=1)[0]
+        ):
+            state_str = str(format(output_number, "b").zfill(num_qubits))
             for _ in range(number_of_occurrences):
                 shot_memory = []
-                # the iteration on the string variable state_str starts from the MSB. For readability, we will reverse
-                # the string so the loop will run from the LSB to MSB.
-                for iq_center, qubit_iq_rand_sample, char_qubit in zip(iq_centers, qubits_iq_rand[shot_num], state_str[::-1]):
+                # the iteration on the string variable state_str starts from the MSB. For readability,
+                # we will reverse the string so the loop will run from the LSB to MSB.
+                for iq_center, qubit_iq_rand_sample, char_qubit in zip(
+                    iq_centers, qubits_iq_rand[shot_num], state_str[::-1]
+                ):
                     # The structure of iq_centers is [qubit_number][logic_result][I/Q].
                     i_center = iq_center[int(char_qubit)][0]
                     q_center = iq_center[int(char_qubit)][1]
                     point_i = i_center + qubit_iq_rand_sample[0]
                     point_q = q_center + qubit_iq_rand_sample[1]
-                    
+
                     # Adding phase if not 0.0
                     if not np.allclose(phase, 0.0):
                         complex_iq = (point_i + 1.0j * point_q) * np.exp(1.0j * phase)
                         point_i, point_q = np.real(complex_iq), np.imag(complex_iq)
-                    
+
                     shot_memory.append([point_i, point_q])
                 # We proceed to the next occurrence - meaning it's a new shot.
                 memory.append(shot_memory)
@@ -293,19 +314,20 @@ class MockIQBackend(FakeOpenPulse2Q):
 
         return memory
 
-    def _generate_data(self, prob_dict: Dict[str, float], num_qubits: int, circuit: QuantumCircuit) \
-            -> Dict[str, Union[Dict[str, int], List[List[List[Union[float, complex]]]]]]:
+    def _generate_data(
+        self, prob_dict: Dict[str, float], num_qubits: int, circuit: QuantumCircuit
+    ) -> Dict[str, Any]:
         """
         Generate data for the circuit.
         Args:
-            prob_dict(dict): A dictionary whose keys are strings representing the output vectors and their values are
-            the probability to get the output in this circuit.
+            prob_dict(dict): A dictionary whose keys are strings representing the output vectors and
+            their values are the probability to get the output in this circuit.
             num_qubits(int): The number of qubits.
             circuit(QuantumCircuit): The circuit that needs to be simulated.
 
         Returns:
-            A dictionary that filled with the simulated data. The output format is different between measurement level 1
-            and measurement level 2.
+            A dictionary that filled with the simulated data. The output format is different between
+            measurement level 1 and measurement level 2.
         """
         self._verify_parameters(num_qubits, prob_dict)
         prob_arr = self._probability_dict_to_probability_array(prob_dict, num_qubits)
@@ -318,7 +340,7 @@ class MockIQBackend(FakeOpenPulse2Q):
             counts = {}
             results = self._rng.multinomial(shots, prob_arr, size=1)[0]
             for result, num_occurrences in enumerate(results):
-                result_in_str = str(format(result, 'b').zfill(num_qubits))
+                result_in_str = str(format(result, "b").zfill(num_qubits))
                 counts[result_in_str] = num_occurrences
             run_result["counts"] = counts
         else:
@@ -345,7 +367,6 @@ class MockIQBackend(FakeOpenPulse2Q):
         self.options.update_options(**options)
         shots = self.options.get("shots")
         meas_level = self.options.get("meas_level")
-        meas_return = self.options.get("meas_return")
 
         result = {
             "backend_name": f"{self.__class__.__name__}",
@@ -371,140 +392,3 @@ class MockIQBackend(FakeOpenPulse2Q):
             result["results"].append(run_result)
 
         return FakeJob(self, Result.from_dict(result))
-
-
-class DragBackend(MockIQBackend):
-    """A simple and primitive backend, to be run by the rough drag tests."""
-
-    def __init__(
-        self,
-        iq_cluster_centers: List[Tuple[Tuple[float, float], Tuple[float, float]]] = None,
-        iq_cluster_width: List[float] = None,
-        freq: float = 0.02,
-        error: float = 0.03,
-        ideal_beta: float = 2.0,
-        gate_name: str = "Rp",
-        rng_seed: int = 0,
-        max_prob: float = 1.0,
-        offset_prob: float = 0.0,
-    ):
-        """Initialize the rabi backend."""
-        self._freq = freq
-        self._gate_name = gate_name
-        self.ideal_beta = ideal_beta
-
-        if iq_cluster_centers is None:
-            self._iq_cluster_centers = [((1.0, 1.0), (-1.0, -1.0))]
-        if iq_cluster_width is None:
-            self._iq_cluster_centers = [1.0]
-        if max_prob + offset_prob > 1:
-            raise ValueError("Probabilities need to be between 0 and 1.")
-
-        self._max_prob = max_prob
-        self._offset_prob = offset_prob
-
-        super().__init__(iq_cluster_centers, iq_cluster_width, rng_seed=rng_seed)
-
-    def _compute_probability(self, circuit: QuantumCircuit) -> Dict[str, float]:
-        """Returns the probability based on the beta, number of gates, and leakage."""
-        probability_output_dict = {}
-        # Need to change that the output will be dict. Need to see what the circuit do.
-        n_gates = sum(circuit.count_ops().values())
-        beta = next(iter(circuit.calibrations[self._gate_name].keys()))[1][0]
-
-        # Dictionary of output string vectors and their probability
-        prob = np.sin(2 * np.pi * n_gates * self._freq * (beta - self.ideal_beta) / 4) ** 2
-        probability_output_dict["1"] = self._max_prob * prob + self._offset_prob
-        probability_output_dict["0"] = 1 - probability_output_dict["1"]
-        return probability_output_dict
-
-
-class MockFineAmp(MockIQBackend):
-    """A mock backend for fine amplitude calibration."""
-
-    def __init__(self, angle_error: float, angle_per_gate: float, gate_name: str):
-        """Setup a mock backend to test the fine amplitude calibration.
-
-        Args:
-            angle_error: The rotation error per gate.
-            gate_name: The name of the gate to find in the circuit.
-        """
-        self.angle_error = angle_error
-        self._gate_name = gate_name
-        self._angle_per_gate = angle_per_gate
-        super().__init__()
-
-        self.configuration().basis_gates.append("sx")
-        self.configuration().basis_gates.append("x")
-
-    def _compute_probability(self, circuit: QuantumCircuit) -> Dict[str, float]:
-        """Return the probability of being in the excited state."""
-        probability_output_dict = {}
-        n_ops = circuit.count_ops().get(self._gate_name, 0)
-        angle = n_ops * (self._angle_per_gate + self.angle_error)
-
-        if self._gate_name != "sx":
-            angle += np.pi / 2 * circuit.count_ops().get("sx", 0)
-
-        if self._gate_name != "x":
-            angle += np.pi * circuit.count_ops().get("x", 0)
-
-        # Dictionary of output string vectors and their probability
-        probability_output_dict["1"] = np.sin(angle / 2) ** 2
-        probability_output_dict["0"] = 1 - probability_output_dict["1"]
-        return probability_output_dict
-
-
-class MockFineFreq(MockIQBackend):
-    """A mock backend for fine frequency calibration."""
-
-    def __init__(self, freq_shift: float, sx_duration: int = 160):
-        super().__init__()
-        self.freq_shift = freq_shift
-        self.dt = self.configuration().dt
-        self.sx_duration = sx_duration
-        self.simulator = AerSimulator(method="automatic")
-
-    def _compute_probability(self, circuit: QuantumCircuit) -> float:
-        """The freq shift acts as the value that will accumulate phase."""
-
-        delay = None
-        for instruction in circuit.data:
-            if instruction[0].name == "delay":
-                delay = instruction[0].duration
-
-        if delay is None:
-            return 1.0
-        else:
-            reps = delay // self.sx_duration
-
-            qc = QuantumCircuit(1)
-            qc.sx(0)
-            qc.rz(np.pi * reps / 2 + 2 * np.pi * self.freq_shift * delay * self.dt, 0)
-            qc.sx(0)
-            qc.measure_all()
-
-            counts = self.simulator.run(qc, seed_simulator=1).result().get_counts(0)
-
-            return counts.get("1", 0) / sum(counts.values())
-
-
-class MockRamseyXY(MockIQBackend):
-    """A mock backend for the RamseyXY experiment."""
-
-    def __init__(self, freq_shift: float):
-        super().__init__()
-        self.freq_shift = freq_shift
-
-    def _compute_probability(self, circuit: QuantumCircuit) -> float:
-        """Return the probability of the circuit."""
-
-        series = circuit.metadata["series"]
-        delay = circuit.metadata["xval"]
-
-        if series == "X":
-            phase_offset = 0.0
-        else:
-            phase_offset = np.pi / 2
-
-        return 0.5 * np.cos(2 * np.pi * delay * self.freq_shift - phase_offset) + 0.5
