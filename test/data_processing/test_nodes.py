@@ -366,7 +366,7 @@ class TestMarginalize(QiskitExperimentsTestCase):
         processed_data = node(data)
 
         self.assertEqual(processed_data[0], {"10": 11, "00": 100})
-        self.assertEqual(processed_data[0], {"11": 1, "10": 10, "00": 100})
+        self.assertEqual(processed_data[1], {"11": 1, "10": 10, "00": 100})
 
     def test_json(self):
         """Check if the node is serializable."""
