@@ -73,10 +73,12 @@ class TestComposite(QiskitExperimentsTestCase):
         exp1 = FakeExperiment([1])
         exp2 = FakeExperiment([2])
         exp3 = FakeExperiment([3])
-        comp_exp = ParallelExperiment([
-            BatchExperiment(2 * [ParallelExperiment([exp0, exp1])]),
-            BatchExperiment(3 * [ParallelExperiment([exp2, exp3])])
-        ])
+        comp_exp = ParallelExperiment(
+            [
+                BatchExperiment(2 * [ParallelExperiment([exp0, exp1])]),
+                BatchExperiment(3 * [ParallelExperiment([exp2, exp3])]),
+            ]
+        )
         comp_exp.analysis.set_options(combine_results=True)
         expdata = comp_exp.run(FakeBackend())
         self.assertExperimentDone(expdata)
