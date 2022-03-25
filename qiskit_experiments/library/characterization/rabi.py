@@ -23,10 +23,11 @@ from qiskit.pulse import ScheduleBlock
 from qiskit.exceptions import QiskitError
 
 from qiskit_experiments.framework import BaseExperiment, Options
+from qiskit_experiments.framework.restless_mixin import RestlessMixin
 from qiskit_experiments.curve_analysis import ParameterRepr, OscillationAnalysis
 
 
-class Rabi(BaseExperiment):
+class Rabi(BaseExperiment, RestlessMixin):
     """An experiment that scans a pulse amplitude to calibrate rotations between 0 and 1.
 
     # section: overview

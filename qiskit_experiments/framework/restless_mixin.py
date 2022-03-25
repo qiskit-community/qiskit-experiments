@@ -13,10 +13,13 @@
 """Restless mixin class."""
 
 from typing import Callable, Sequence, Optional
+from qiskit.qobj.utils import MeasLevel, MeasReturnType
 
 from qiskit.providers import Backend
+from qiskit_experiments.framework import Options
 from qiskit_experiments.data_processing.data_processor import DataProcessor
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
+from qiskit_experiments.data_processing.nodes import ProjectorType
 from qiskit_experiments.data_processing import nodes
 from qiskit_experiments.framework.base_analysis import BaseAnalysis
 
@@ -48,6 +51,7 @@ class RestlessMixin:
     """
 
     analysis: BaseAnalysis
+    _default_run_options: Options()
     set_run_options: Callable
     _backend: Backend
     _physical_qubits: Sequence[int]
@@ -91,16 +95,20 @@ class RestlessMixin:
         # The excited state promotion readout analysis option is set to
         # False because it is not compatible with a restless experiment.
         if self._t1_check(rep_delay):
+            meas_level = self._default_run_options().get("meas_level", MeasLevel.CLASSIFIED)
+            meas_return = self._default_run_options().get("meas_return", MeasReturnType.AVERAGE)
             if not self.analysis.options.get("data_processor", None):
                 self.set_run_options(
                     rep_delay=rep_delay,
                     init_qubits=False,
                     memory=True,
-                    meas_level=2,
+                    meas_level=meas_level,
+                    meas_return=meas_return,
                     use_measure_esp=False,
                 )
                 if hasattr(self.analysis.options, "data_processor"):
-                    self.analysis.set_options(data_processor=self._get_restless_processor())
+                    self.analysis.set_options(data_processor=self._get_restless_processor(meas_level=meas_level,
+                                                                                          meas_return=meas_return))
                 else:
                     raise DataProcessorError(
                         "The restless data processor can not be set since the experiment analysis"
@@ -112,7 +120,8 @@ class RestlessMixin:
                         rep_delay=rep_delay,
                         init_qubits=False,
                         memory=True,
-                        meas_level=2,
+                        meas_level=meas_level,
+                        meas_return=meas_return,
                         use_measure_esp=False,
                     )
                 else:
@@ -128,20 +137,47 @@ class RestlessMixin:
                 f"a smaller repetition delay for the restless experiment."
             )
 
-    def _get_restless_processor(self) -> DataProcessor:
+    def _get_restless_processor(self, meas_level: int = 2, meas_return: str = "average") -> DataProcessor:
         """Returns the restless experiments data processor.
 
         Notes:
             Sub-classes can override this method if they need more complex data processing.
         """
         outcome = self.analysis.options.get("outcome", "1" * self._num_qubits)
-        return DataProcessor(
-            "memory",
-            [
-                nodes.RestlessToCounts(self._num_qubits),
-                nodes.Probability(outcome),
-            ],
-        )
+        normalize = self.analysis.options.get("normalization", True)
+        dimensionality_reduction = self.analysis.options.get("dimensionality_reduction", ProjectorType.SVD)
+        if meas_level == MeasLevel.KERNELED:
+
+            try:
+                if isinstance(dimensionality_reduction, ProjectorType):
+                    projector_name = dimensionality_reduction.name
+                else:
+                    projector_name = dimensionality_reduction
+                projector = ProjectorType[projector_name].value
+
+            except KeyError as error:
+                raise DataProcessorError(
+                    f"Invalid dimensionality reduction: {dimensionality_reduction}."
+                ) from error
+
+            if meas_return == "single":
+                processor = DataProcessor("memory", [nodes.RestlessToIQ(self._num_qubits),
+                                                     nodes.AverageData(axis=1), projector()])
+            else:
+                processor = DataProcessor("memory", [nodes.RestlessToIQ(self._num_qubits), projector()])
+
+            if normalize:
+                processor.append(nodes.MinMaxNormalize())
+
+            return processor
+        else:
+            return DataProcessor(
+                "memory",
+                [
+                    nodes.RestlessToCounts(self._num_qubits),
+                    nodes.Probability(outcome),
+                ],
+            )
 
     def _t1_check(self, rep_delay: float) -> bool:
         """Check that repetition delay < T1 of the physical qubits in the experiment.

@@ -751,7 +751,7 @@ class RestlessNode(DataAction, ABC):
         self._n_circuits = len(data)
 
         if self._validate:
-            if data.shape != (self._n_circuits, self._n_shots):
+            if data.shape[:2] != (self._n_circuits, self._n_shots):
                 raise DataProcessorError(
                     f"The datum given to {self.__class__.__name__} does not convert "
                     "of an array with dimension (number of circuit, number of shots)."
@@ -773,6 +773,20 @@ class RestlessNode(DataAction, ABC):
             return unordered_data.T.flatten()
         else:
             return unordered_data.flatten()
+
+    def _reorder_iq(self, unordered_data: np.ndarray) -> np.ndarray:
+        """Reorder IQ data according to the measurement sequence."""
+
+        if unordered_data is None:
+            return unordered_data
+
+        ordered_data = []
+
+        if self._memory_allocation == ShotOrder.circuit_first:
+            for shot_idx in range(self._n_shots):
+                for circ_idx in range(self._n_circuits):
+                    ordered_data.append(unordered_data[circ_idx][shot_idx])
+            return np.array(ordered_data)
 
 
 class RestlessToCounts(RestlessNode):
@@ -848,3 +862,49 @@ class RestlessToCounts(RestlessNode):
             restless_adjusted_bits.append("0" if bit == prev_shot[idx] else "1")
 
         return "".join(restless_adjusted_bits)
+
+
+class RestlessToIQ(RestlessNode):
+    """Post-process restless data and convert restless memory to IQ data."""
+
+    def __init__(self, num_qubits: int, validate: bool = True):
+        """
+        Args:
+            num_qubits: The number of qubits which is needed to construct the header needed
+                by :code:`qiskit.result.postprocess.format_counts_memory` to convert the memory
+                into a bit-string of counts.
+            validate: If set to False the DataAction will not validate its input.
+        """
+        super().__init__(validate)
+        self._num_qubits = num_qubits
+
+    def _process(self, data: np.ndarray) -> np.ndarray:
+        """Reorder the IQ shots and assign values to them based on the previous outcome.
+
+        Args:
+            data: An array representing the memory.
+
+        Returns:
+            An array of arrays of IQ shots processed according to the restless methodology.
+        """
+
+        # Step 1. Reorder the data.
+        memory = self._reorder_iq(data)
+
+        memory_diff_abs = []
+        memory_diff_abs.insert(0, [[np.abs(memory[0][0][0]), np.abs(memory[0][0][1])]])
+
+        for idx in range(1, len(memory)):
+            memory_diff_abs.append([[np.abs(memory[idx][0][0] - memory[idx - 1][0][0]),
+                                     np.abs(memory[idx][0][1] - memory[idx - 1][0][1])]])
+
+        index_list = [idx for idx in range(self._n_circuits)] * self._n_shots
+
+        iq_list_abs = []
+        for _ in range(self._n_circuits):
+            iq_list_abs.append([])
+
+        for idx in range(len(memory_diff_abs)):
+            iq_list_abs[index_list[idx]].append(memory_diff_abs[idx])
+
+        return np.array(iq_list_abs)
