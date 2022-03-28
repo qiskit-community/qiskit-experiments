@@ -341,7 +341,7 @@ class EchoedCrossResonance(BasisGateLibrary):
     def __init__(
         self,
         single_qubit_library: BasisGateLibrary,
-        rotary: bool = True,
+        pulse_on_target: bool = True,
         basis_gates: Optional[List[str]] = None,
         default_values: Optional[Dict] = None,
     ):
@@ -350,13 +350,15 @@ class EchoedCrossResonance(BasisGateLibrary):
         Args:
             single_qubit_library: The library with the single-qubit gates from which
                 the x-gate schedule will be called to build the echo.
-            rotary: A boolean to indicate if a rotary tones are used in the CR gate.
+            pulse_on_target: A boolean to indicate if a rotary/cancellation tones are
+                used in the CR gate. If this value is set to False then no pulse is played
+                on the target qubit during the cross-resonance pulse.
             basis_gates: The basis gates to generate.
             default_values: Default values for the parameters this dictionary can contain
                 the following keys: "duration", "amp", "β", and "σ". If "σ" is not provided
                 this library will take one fourth of the pulse duration as default value.
         """
-        self._rotary = rotary
+        self._rotary = pulse_on_target
         super().__init__(basis_gates, default_values, [single_qubit_library])
 
     @property
