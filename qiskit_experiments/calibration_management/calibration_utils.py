@@ -54,7 +54,7 @@ class CalUtils:
         for block in schedule.blocks:
             if isinstance(block, Call):
                 if block.subroutine.name == schedule_name:
-                    blocks_have_schedule.add(True)
+                    return True
                 else:
                     blocks_have_schedule.add(
                         CalUtils._used_in_calls(schedule_name, block.subroutine)
