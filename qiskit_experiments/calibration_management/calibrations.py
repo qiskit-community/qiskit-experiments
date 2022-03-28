@@ -70,7 +70,7 @@ class Calibrations:
 
     def __init__(
         self,
-        coupling_map: List[List[int]],
+        coupling_map: Optional[List[List[int]]] = None,
         control_channel_map: Optional[Dict[Tuple[int, ...], List[ControlChannel]]] = None,
         library: Optional[Union[BasisGateLibrary, List[BasisGateLibrary]]] = None,
         add_parameter_defaults: bool = True,
