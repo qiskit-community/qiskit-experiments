@@ -291,8 +291,7 @@ class Calibrations:
 
         # Single qubits
         if self._coupling_map:
-            for qubit in set(qubit for coupled in self._coupling_map for qubit in coupled):
-                operated_qubits[1].append([qubit])
+            operated_qubits[1] = sorted(set(qubit for coupled in self._coupling_map for qubit in coupled))
         else:
             # Edge case for single-qubit device.
             operated_qubits[1].append([0])
