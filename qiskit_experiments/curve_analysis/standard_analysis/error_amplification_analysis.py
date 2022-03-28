@@ -17,6 +17,7 @@ from typing import List, Union
 import numpy as np
 
 import qiskit_experiments.curve_analysis as curve
+from qiskit_experiments.curve_analysis.visualization.mpl_drawer import MplCurveDrawer
 
 
 class ErrorAmplificationAnalysis(curve.CurveAnalysis):
@@ -108,18 +109,17 @@ class ErrorAmplificationAnalysis(curve.CurveAnalysis):
             max_good_angle_error (float): The maximum angle error for which the fit is
                 considered as good. Defaults to :math:`\pi/2`.
         """
+        drawer = MplCurveDrawer()
+        drawer.set_options(
+            xlabel="Number of gates (n)",
+            ylabel="Population",
+            ylim=(0, 1.0),
+        )
+
         default_options = super()._default_options()
+        default_options.curve_plotter = drawer
         default_options.result_parameters = ["d_theta"]
         default_options.max_good_angle_error = np.pi / 2
-
-        return default_options
-
-    @classmethod
-    def _default_draw_options(cls):
-        default_options = super()._default_draw_options()
-        default_options.xlabel = "Number of gates (n)"
-        default_options.ylabel = "Population"
-        default_options.ylim = (0, 1.0)
 
         return default_options
 

@@ -109,7 +109,7 @@ class Rabi(BaseExperiment):
             result_parameters=[ParameterRepr("freq", self.__outcome__)],
             normalization=True,
         )
-        self.analysis.set_draw_options(
+        self.analysis.drawer.set_options(
             xlabel="Amplitude",
             ylabel="Signal (arb. units)",
         )

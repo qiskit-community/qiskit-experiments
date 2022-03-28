@@ -17,6 +17,7 @@ from typing import List, Union
 import numpy as np
 
 import qiskit_experiments.curve_analysis as curve
+from qiskit_experiments.curve_analysis.visualization.mpl_drawer import MplCurveDrawer
 from qiskit_experiments.curve_analysis.fit_function import cos
 
 
@@ -119,17 +120,16 @@ class DragCalAnalysis(curve.CurveAnalysis):
         See :meth:`~qiskit_experiment.curve_analysis.CurveAnalysis._default_options` for
         descriptions of analysis options.
         """
+        drawer = MplCurveDrawer()
+        drawer.set_options(
+            xlabel="Beta",
+            ylabel="Signal (arb. units)",
+        )
+
         default_options = super()._default_options()
+        default_options.curve_plotter = drawer
         default_options.result_parameters = ["beta"]
         default_options.fixed_parameters = {"reps0": 1, "reps1": 3, "reps2": 5}
-
-        return default_options
-
-    @classmethod
-    def _default_draw_options(cls):
-        default_options = super()._default_draw_options()
-        default_options.xlabel = "Beta"
-        default_options.ylabel = "Signal (arb. units)"
         default_options.normalization = True
 
         return default_options

@@ -15,6 +15,7 @@ T2Ramsey Experiment class.
 from typing import Union
 from qiskit_experiments.data_processing import DataProcessor, Probability
 import qiskit_experiments.curve_analysis as curve
+from qiskit_experiments.curve_analysis.visualization.mpl_drawer import MplCurveDrawer
 from qiskit_experiments.framework import Options
 
 
@@ -29,7 +30,15 @@ class T2RamseyAnalysis(curve.DumpedOscillationAnalysis):
     @classmethod
     def _default_options(cls) -> Options:
         """Default analysis options."""
+        drawer = MplCurveDrawer()
+        drawer.set_options(
+            xlabel="Delay",
+            ylabel="P(0)",
+            xval_unit="s",
+        )
+
         options = super()._default_options()
+        options.curve_plotter = drawer
         options.data_processor = DataProcessor(
             input_key="counts", data_actions=[Probability(outcome="0")]
         )
@@ -37,15 +46,6 @@ class T2RamseyAnalysis(curve.DumpedOscillationAnalysis):
             curve.ParameterRepr("freq", "Frequency", "Hz"),
             curve.ParameterRepr("tau", "T2star", "s"),
         ]
-
-        return options
-
-    @classmethod
-    def _default_draw_options(cls):
-        options = super()._default_draw_options()
-        options.xlabel = "Delay"
-        options.ylabel = "P(0)"
-        options.xval_unit = "s"
 
         return options
 

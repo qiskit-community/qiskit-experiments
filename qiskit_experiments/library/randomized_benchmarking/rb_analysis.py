@@ -17,6 +17,7 @@ from typing import List, Union
 
 import numpy as np
 import qiskit_experiments.curve_analysis as curve
+from qiskit_experiments.curve_analysis.visualization.mpl_drawer import MplCurveDrawer
 from qiskit_experiments.curve_analysis.data_processing import multi_mean_xy_data, data_sort
 from qiskit_experiments.database_service.device_component import Qubit
 from qiskit_experiments.framework import AnalysisResultData
@@ -80,20 +81,19 @@ class RBAnalysis(curve.CurveAnalysis):
                 between errors on different gates.
 
         """
+        drawer = MplCurveDrawer()
+        drawer.set_options(
+            xlabel="Clifford Length",
+            ylabel="P(0)",
+        )
+
         default_options = super()._default_options()
+        default_options.curve_plotter = drawer
+        default_options.plot_raw_data = True
         default_options.result_parameters = ["alpha"]
         default_options.error_dict = None
         default_options.epg_1_qubit = None
         default_options.gate_error_ratio = None
-
-        return default_options
-
-    @classmethod
-    def _default_draw_options(cls):
-        default_options = super()._default_draw_options()
-        default_options.xlabel = "Clifford Length"
-        default_options.ylabel = "P(0)"
-        default_options.plot_raw_data = True
 
         return default_options
 

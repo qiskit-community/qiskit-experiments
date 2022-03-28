@@ -37,7 +37,7 @@ from qiskit_experiments.curve_analysis.curve_data import (
 )
 from qiskit_experiments.curve_analysis.curve_fit import multi_curve_fit
 from qiskit_experiments.curve_analysis.data_processing import multi_mean_xy_data, data_sort
-from qiskit_experiments.curve_analysis.drawer_mixin import CurveDrawerMixin
+from qiskit_experiments.curve_analysis.visualization import MplCurveDrawer, BaseCurveDrawer
 from qiskit_experiments.data_processing import DataProcessor
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
 from qiskit_experiments.data_processing.processor_library import get_processor
@@ -54,7 +54,7 @@ PARAMS_ENTRY_PREFIX = "@Parameters_"
 DATA_ENTRY_PREFIX = "@Data_"
 
 
-class CurveAnalysis(BaseAnalysis, CurveDrawerMixin, ABC):
+class CurveAnalysis(BaseAnalysis, ABC):
     """A base class for curve fit type analysis.
 
     The subclasses can override class attributes to define the behavior of
@@ -290,11 +290,20 @@ class CurveAnalysis(BaseAnalysis, CurveDrawerMixin, ABC):
         """Return parameters of this curve analysis."""
         return [s for s in self._fit_params() if s not in self.options.fixed_parameters]
 
+    @property
+    def drawer(self) -> BaseCurveDrawer:
+        """A short-cut for curve drawer instance."""
+        return self._options.curve_plotter
+
     @classmethod
     def _default_options(cls) -> Options:
         """Return default analysis options.
 
         Analysis Options:
+            curve_plotter (BaseCurveDrawer): A curve drawer instance to visualize
+                the analysis result.
+            plot_raw_data (bool): Set ``True`` to draw un-formatted data points on canvas.
+            plot (bool): Set ``True`` to create figure for fit result.
             curve_fitter (Callable): A callback function to perform fitting with formatted data.
                 See :func:`~qiskit_experiments.analysis.multi_curve_fit` for example.
             data_processor (Callable): A callback function to format experiment data.
@@ -306,7 +315,6 @@ class CurveAnalysis(BaseAnalysis, CurveDrawerMixin, ABC):
             bounds (Dict[str, Tuple[float, float]]): Array-like or dictionary
                 of (min, max) tuple of fit parameter boundaries.
             x_key (str): Circuit metadata key representing a scanned value.
-            plot (bool): Set ``True`` to create figure for fit result.
             result_parameters (List[Union[str, ParameterRepr]): Parameters reported in the
                 database as a dedicated entry. This is a list of parameter representation
                 which is either string or ParameterRepr object. If you provide more
@@ -325,11 +333,13 @@ class CurveAnalysis(BaseAnalysis, CurveDrawerMixin, ABC):
         """
         options = super()._default_options()
 
+        options.curve_plotter = MplCurveDrawer()
+        options.plot_raw_data = False
+        options.plot = True
         options.curve_fitter = multi_curve_fit
         options.data_processor = None
         options.normalization = False
         options.x_key = "xval"
-        options.plot = True
         options.result_parameters = None
         options.return_data_points = False
         options.extra = dict()
@@ -348,18 +358,36 @@ class CurveAnalysis(BaseAnalysis, CurveDrawerMixin, ABC):
 
         Raises:
             KeyError: When removed option ``curve_fitter`` is set.
+            TypeError: When invalid drawer instance is provided.
         """
         # TODO remove this in Qiskit Experiments v0.4
-        if "curve_plotter" in fields:
-            raise KeyError("Option curve_plotter has been removed. Please check CurveDrawerMixin.")
+        if "curve_plotter" in fields and isinstance(fields["curve_plotter"], str):
+            plotter_str = fields["curve_plotter"]
+            warnings.warn(
+                f"The curve plotter '{plotter_str}' has been deprecated. "
+                "The option is replaced with 'MplCurveDrawer' instance. "
+                "If this is a loaded analysis, please save this instance again to update option value. "
+                "This warning will be removed with backport in Qiskit Experiments 0.4.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            fields["curve_plotter"] = MplCurveDrawer()
+
+        if "curve_plotter" in fields and not isinstance(fields["curve_plotter"], BaseCurveDrawer):
+            plotter_obj = fields["curve_plotter"]
+            raise TypeError(
+                f"'{plotter_obj.__class__.__name__}' object is not valid curve drawer instance."
+            )
 
         # pylint: disable=no-member
-        draw_options = set(self._draw_options.__dict__.keys()) | {"style"}
+        draw_options = set(self.drawer.options.__dict__.keys()) | {"style"}
         deprecated = draw_options & fields.keys()
         if any(deprecated):
             warnings.warn(
                 f"Option(s) {deprecated} have been moved to draw_options and will be removed soon. "
-                "Use set_draw_options instead.",
+                "Use self.drawer.set_options instead. "
+                "If this is a loaded analysis, please save this instance again to update option value. "
+                "This warning will be removed with backport in Qiskit Experiments 0.4.",
                 DeprecationWarning,
                 stacklevel=2,
             )
@@ -370,8 +398,7 @@ class CurveAnalysis(BaseAnalysis, CurveDrawerMixin, ABC):
                         draw_options[k] = v
                 else:
                     draw_options[depopt] = fields.pop(depopt)
-
-            self.set_draw_options(**draw_options)
+            self.drawer.set_options(**draw_options)
 
         super().set_options(**fields)
 
@@ -950,8 +977,8 @@ class CurveAnalysis(BaseAnalysis, CurveDrawerMixin, ABC):
                 name=DATA_ENTRY_PREFIX + self.__class__.__name__,
                 value=raw_data_dict,
                 extra={
-                    "x-unit": self.draw_options.xval_unit,
-                    "y-unit": self.draw_options.yval_unit,
+                    "x-unit": self.drawer.options.xval_unit,
+                    "y-unit": self.drawer.options.yval_unit,
                 },
             )
             analysis_results.append(raw_data_entry)
@@ -961,48 +988,45 @@ class CurveAnalysis(BaseAnalysis, CurveDrawerMixin, ABC):
         #
         if self.options.plot:
             # initialize axis
-            axis = self._initialize_canvas()
+            self.drawer.initialize_canvas()
             # write raw data
-            if self.draw_options.plot_raw_data:
+            if self.options.plot_raw_data:
                 for s in self.__series__:
                     raw_data = self._data(label="raw_data", series_name=s.name)
-                    self._draw_raw_data(
-                        axis=axis,
+                    self.drawer.draw_raw_data(
                         x_data=raw_data.x,
                         y_data=raw_data.y,
-                        axis_ind=s.canvas,
+                        ax_index=s.canvas,
                     )
             # write data points
             for s in self.__series__:
                 curve_data = self._data(label="fit_ready", series_name=s.name)
-                self._draw_formatted_data(
-                    axis=axis,
+                self.drawer.draw_formatted_data(
                     x_data=curve_data.x,
                     y_data=curve_data.y,
                     y_err_data=curve_data.y_err,
-                    axis_ind=s.canvas,
+                    name=s.name,
+                    ax_index=s.canvas,
                     color=s.plot_color,
                     marker=s.plot_symbol,
                 )
             # write fit results if fitting succeeded
             if fit_result:
                 for s in self.__series__:
-                    self._draw_fit_lines(
-                        axis=axis,
+                    self.drawer.draw_fit_lines(
                         fit_function=s.fit_func,
                         signature=s.signature,
                         fit_result=fit_result,
                         fixed_params=self.options.fixed_parameters,
-                        axis_ind=s.canvas,
+                        ax_index=s.canvas,
                         color=s.plot_color,
                     )
-                self._draw_fit_report(
-                    axis=axis,
+                self.drawer.draw_fit_report(
                     analysis_results=analysis_results,
                     chisq=fit_result.reduced_chisq,
                 )
-            self._format_axis(axis)
-            figures = [axis.get_figure()]
+            self.drawer.format_canvas()
+            figures = [self.drawer.figure]
         else:
             figures = []
 

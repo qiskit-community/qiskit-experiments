@@ -15,6 +15,8 @@ Visualization functions
 
 from enum import Enum
 
+from .mpl_drawer import MplCurveDrawer, BaseCurveDrawer
+
 from . import fit_result_plotters
 from .curves import plot_scatter, plot_errorbar, plot_curve_fit
 from .style import PlotterStyle

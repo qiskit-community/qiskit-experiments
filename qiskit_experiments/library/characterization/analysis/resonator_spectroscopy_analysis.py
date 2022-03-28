@@ -50,7 +50,7 @@ class ResonatorSpectroscopyAnalysis(ResonanceAnalysis):
         if self.options.plot_iq_data:
             axis = get_non_gui_ax()
             figure = axis.get_figure()
-            figure.set_size_inches(*self.draw_options.figsize)
+            figure.set_size_inches(*self.drawer.options.figsize)
 
             iqs = []
 
@@ -68,11 +68,13 @@ class ResonatorSpectroscopyAnalysis(ResonanceAnalysis):
             if len(iqs) > 0:
                 iqs = np.vstack(iqs)
                 axis.scatter(iqs[:, 0], iqs[:, 1], color="b")
-                axis.set_xlabel("In phase [arb. units]", fontsize=self.draw_options.axis_label_size)
-                axis.set_ylabel(
-                    "Quadrature [arb. units]", fontsize=self.draw_options.axis_label_size
+                axis.set_xlabel(
+                    "In phase [arb. units]", fontsize=self.drawer.options.axis_label_size
                 )
-                axis.tick_params(labelsize=self.draw_options.tick_label_size)
+                axis.set_ylabel(
+                    "Quadrature [arb. units]", fontsize=self.drawer.options.axis_label_size
+                )
+                axis.tick_params(labelsize=self.drawer.options.tick_label_size)
                 axis.grid(True)
 
                 figures.append(figure)

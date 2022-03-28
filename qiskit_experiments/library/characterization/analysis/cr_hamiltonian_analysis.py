@@ -19,6 +19,8 @@ from typing import List, Union
 import numpy as np
 
 import qiskit_experiments.curve_analysis as curve
+from qiskit_experiments.curve_analysis.visualization.mpl_drawer import MplCurveDrawer
+
 import qiskit_experiments.data_processing as dp
 from qiskit_experiments.database_service.device_component import Qubit
 from qiskit_experiments.framework import AnalysisResultData
@@ -195,25 +197,24 @@ class CrossResonanceHamiltonianAnalysis(curve.CurveAnalysis):
     @classmethod
     def _default_options(cls):
         """Return the default analysis options."""
+        drawer = MplCurveDrawer()
+        drawer.set_options(
+            subplots=(3, 1),
+            xlabel="Flat top width",
+            ylabel=["<X(t)>", "<Y(t)>", "<Z(t)>"],
+            xval_unit="s",
+            figsize=(8, 10),
+            legend_loc="lower right",
+            fit_report_rpos=(0.28, -0.10),
+            ylim=(-1, 1),
+        )
+
         default_options = super()._default_options()
+        default_options.curve_plotter = drawer
         default_options.data_processor = dp.DataProcessor(
             input_key="counts",
             data_actions=[dp.Probability("1"), dp.BasisExpectationValue()],
         )
-
-        return default_options
-
-    @classmethod
-    def _default_draw_options(cls):
-        default_options = super()._default_draw_options()
-        default_options.subplots = (3, 1)
-        default_options.xlabel = "Flat top width"
-        default_options.ylabel = ["<X(t)>", "<Y(t)>", "<Z(t)>"]
-        default_options.xval_unit = "s"
-        default_options.figsize = (8, 10)
-        default_options.legend_loc = "lower right"
-        default_options.fit_report_rpos = (0.28, -0.10)
-        default_options.ylim = (-1, 1)
 
         return default_options
 

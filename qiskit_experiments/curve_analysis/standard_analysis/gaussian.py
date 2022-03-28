@@ -17,6 +17,7 @@ from typing import List, Union
 import numpy as np
 
 import qiskit_experiments.curve_analysis as curve
+from qiskit_experiments.curve_analysis.visualization.mpl_drawer import MplCurveDrawer
 from qiskit_experiments.framework import Options
 
 
@@ -70,18 +71,17 @@ class GaussianAnalysis(curve.CurveAnalysis):
 
     @classmethod
     def _default_options(cls) -> Options:
+        drawer = MplCurveDrawer()
+        drawer.set_options(
+            xlabel="Frequency",
+            ylabel="Signal (arb. units)",
+            xval_unit="Hz",
+        )
+
         options = super()._default_options()
+        options.curve_plotter = drawer
         options.result_parameters = [curve.ParameterRepr("freq", "f01", "Hz")]
         options.normalization = True
-        return options
-
-    @classmethod
-    def _default_draw_options(cls):
-        options = super()._default_draw_options()
-        options.xlabel = "Frequency"
-        options.ylabel = "Signal (arb. units)"
-        options.xval_unit = "Hz"
-
         return options
 
     def _generate_fit_guesses(
