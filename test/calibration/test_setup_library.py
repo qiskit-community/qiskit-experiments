@@ -249,7 +249,7 @@ class TestFixedFrequencyTransmonCR(QiskitExperimentsTestCase):
 
     def test_library(self):
         """Basic test of the library."""
-        self.assertTrue("cr" in EchoedCrossResonance(FixedFrequencyTransmon()))
+        self.assertTrue("ecr" in EchoedCrossResonance(FixedFrequencyTransmon()))
 
     def test_exceptions(self):
         """Test that x gate is required."""
@@ -267,9 +267,9 @@ class TestFixedFrequencyTransmonCR(QiskitExperimentsTestCase):
         libraries = [sq_lib, EchoedCrossResonance(sq_lib)]
         cals = Calibrations.from_backend(FakeBelem(), libraries)
 
-        cr_sched = cals.get_schedule("cr", (control, target))
+        cr_sched = cals.get_schedule("ecr", (control, target))
 
-        with pulse.build(name="cr") as expected:
+        with pulse.build(name="ecr") as expected:
             with pulse.align_sequential():
                 with pulse.align_left():
                     pulse.play(

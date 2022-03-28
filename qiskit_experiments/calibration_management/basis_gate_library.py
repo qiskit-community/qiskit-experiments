@@ -365,7 +365,7 @@ class EchoedCrossResonance(BasisGateLibrary):
     @property
     def __supported_gates__(self) -> Dict[str, int]:
         """The gates that this library supports."""
-        return {"cr": 2, "cr90p": 2, "cr90m": 2}
+        return {"ecr": 2, "cr90p": 2, "cr90m": 2}
 
     def _build_schedules(
         self,
@@ -401,7 +401,7 @@ class EchoedCrossResonance(BasisGateLibrary):
             duration=cr_duration, amp=-rot_amp, sigma=cr_sigma, width=cr_width, name="rot90m"
         )
 
-        with pulse.build(name="cr") as cr_sched:
+        with pulse.build(name="ecr") as ecr_sched:
             with pulse.align_sequential():
                 with pulse.align_left():
                     pulse.play(cr90p, cr_chan)
@@ -427,7 +427,7 @@ class EchoedCrossResonance(BasisGateLibrary):
             if self._rotary:
                 pulse.play(rot90m, target)
 
-        return {"cr": cr_sched, "cr90m": cr90m_sched, "cr90p": cr90p_sched}
+        return {"ecr": ecr_sched, "cr90m": cr90m_sched, "cr90p": cr90p_sched}
 
     def config(self) -> Dict[str, Any]:
         """Return the settings used to initialize the library."""
