@@ -176,7 +176,7 @@ class Calibrations:
         self._register_parameter(self.meas_freq, ())
 
         # Backends with a single qubit may not have a coupling map.
-        self._coupling_map = coupling_map or []
+        self._coupling_map = coupling_map if coupling_map is not None else []
 
         # A dict extension of the coupling map where the key is the number of qubits and
         # the values are a list of qubits coupled.
