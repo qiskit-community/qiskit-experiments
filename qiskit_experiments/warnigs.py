@@ -39,6 +39,7 @@ def deprecated_function(
     Returns:
         Deprecated function.
     """
+
     def deprecated_wrapper(func: Callable):
         @functools.wraps(func)
         def _wrap(*args, **kwargs):
@@ -51,7 +52,9 @@ def deprecated_function(
                 message += f"Please '{use_instead}' instead. "
             warnings.warn(message, DeprecationWarning, stacklevel=2)
             return func(*args, **kwargs)
+
         return _wrap
+
     return deprecated_wrapper
 
 
@@ -80,11 +83,14 @@ def deprecated_method(
     Returns:
         Deprecated method.
     """
+
     def deprecated_wrapper(method: Callable):
         @functools.wraps(method)
         def _wrap(self, *args, **kwargs):
             clsname = method.__qualname__.split(".")[0]
-            message = f"Calling the method '{method.__name__}' of '{clsname}' has been deprecated and "
+            message = (
+                f"Calling the method '{method.__name__}' of '{clsname}' has been deprecated and "
+            )
             if version_removed:
                 message += f"will be removed in Qiskit Experiments {version_removed}. "
             else:
@@ -93,7 +99,9 @@ def deprecated_method(
                 message += f"Please '{use_instead}' instead. "
             warnings.warn(message, DeprecationWarning, stacklevel=2)
             return method(self, *args, **kwargs)
+
         return _wrap
+
     return deprecated_wrapper
 
 
@@ -124,11 +132,15 @@ def deprecated_clsmethod(
     Returns:
         Deprecated method.
     """
+
     def deprecated_wrapper(method: Callable):
         @functools.wraps(method)
         def _wrap(cls, *args, **kwargs):
             clsname = cls.__name__
-            message = f"Calling the class method '{method.__name__}' of '{clsname}' has been deprecated and "
+            message = (
+                f"Calling the class method '{method.__name__}' "
+                f"of '{clsname}' has been deprecated and "
+            )
             if version_removed:
                 message += f"will be removed in Qiskit Experiments {version_removed}. "
             else:
@@ -137,7 +149,9 @@ def deprecated_clsmethod(
                 message += f"Please '{use_instead}' instead. "
             warnings.warn(message, DeprecationWarning, stacklevel=2)
             return method(cls, *args, **kwargs)
+
         return _wrap
+
     return deprecated_wrapper
 
 
@@ -166,6 +180,7 @@ def deprecated_class(
     Returns:
         Deprecated class.
     """
+
     def patch_new(cls) -> Type:
         @functools.wraps(cls.__init__, assigned=("__annotations__",))
         def new(deprecated_cls, *args, **kwargs):
@@ -182,6 +197,7 @@ def deprecated_class(
             instance = object.__new__(new_cls or deprecated_cls)
             instance.__init__(*args, **kwargs)
             return instance
+
         cls.__new__ = new
         return cls
 
@@ -214,6 +230,7 @@ def deprecated_options(
     Returns:
         Deprecated set options method.
     """
+
     def update_signature(set_options_method):
         @functools.wraps(set_options_method)
         def _wrap(self, **fields):
@@ -227,7 +244,9 @@ def deprecated_options(
                     message += "will be removed in future release. "
                 clsname = set_options_method.__qualname__.split(".")[0]
                 message += f"If this is a loaded '{clsname}' class instance, "
-                message += "please save the experiment again for further retrieval with future software."
+                message += (
+                    "please save the experiment again for further retrieval with future software."
+                )
                 warnings.warn(message, DeprecationWarning, stacklevel=2)
                 for dep in deprecated:
                     new_opt = options_map[dep]
@@ -240,12 +259,13 @@ def deprecated_options(
                         fields[new_opt] = fields[dep]
                     del fields[dep]
             set_options_method(self, **fields)
+
         return _wrap
 
     return update_signature
 
 
-def deprecated_constructor_signature(
+def deprecated_init_args(
     arguments_map: Dict[str, str],
     version_removed: Optional[str] = None,
 ) -> Callable:
@@ -264,7 +284,7 @@ def deprecated_constructor_signature(
 
         .. code-block::
 
-            @deprecated_constructor_signature(
+            @deprecated_init_args(
                 arguments_map={"opt1": "new_opt1", "opt2": None},
                 version_removed="0.3",
             )
@@ -275,6 +295,7 @@ def deprecated_constructor_signature(
     Returns:
         Experiment class with deprecated constructor arguments.
     """
+
     def patch_init(cls) -> Type:
         cls_init = getattr(cls, "__init__")
 
@@ -289,7 +310,9 @@ def deprecated_constructor_signature(
                 else:
                     message += "will be removed in future release. "
                 message += f"If this is a loaded '{cls.__name__}' class instance, "
-                message += "please save the experiment again for further retrieval with future software."
+                message += (
+                    "please save the experiment again for further retrieval with future software."
+                )
                 warnings.warn(message, DeprecationWarning, stacklevel=2)
                 for dep in deprecated_args:
                     new_arg = arguments_map[dep]
@@ -304,6 +327,7 @@ def deprecated_constructor_signature(
                     del kwargs[dep]
                     del self.__init_kwargs__[dep]
             cls_init(self, *args, **kwargs)
+
         cls.__init__ = init
         return cls
 
