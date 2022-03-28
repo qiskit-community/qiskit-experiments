@@ -49,18 +49,20 @@ class CalUtils:
         Returns:
             True if ``schedule``calls a ``ScheduleBlock`` with name ``schedule_name``.
         """
-        blocks_have_schedule = set()
+        blocks_have_schedule = False
 
         for block in schedule.blocks:
             if isinstance(block, Call):
                 if block.subroutine.name == schedule_name:
                     return True
                 else:
-                    blocks_have_schedule.add(
-                        CalUtils._used_in_calls(schedule_name, block.subroutine)
+                    blocks_have_schedule = blocks_have_schedule or CalUtils._used_in_calls(
+                        schedule_name, block.subroutine
                     )
 
             if isinstance(block, ScheduleBlock):
-                blocks_have_schedule.add(CalUtils._used_in_calls(schedule_name, block))
+                blocks_have_schedule = blocks_have_schedule or CalUtils._used_in_calls(
+                    schedule_name, block
+                )
 
-        return any(blocks_have_schedule)
+        return blocks_have_schedule
