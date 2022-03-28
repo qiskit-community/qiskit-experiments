@@ -349,7 +349,8 @@ class EchoedCrossResonance(BasisGateLibrary):
 
         Args:
             single_qubit_library: The library with the single-qubit gates from which
-                the x-gate schedule will be called to build the echo.
+                the X-gate schedule will be called to build the echo. This library needs
+                to supply a single-qubit schedule named ``"x"``.
             pulse_on_target: A boolean to indicate if a rotary/cancellation tones are
                 used in the CR gate. If this value is set to False then no pulse is played
                 on the target qubit during the cross-resonance pulse.
