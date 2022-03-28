@@ -158,7 +158,7 @@ class TestFineDragCal(QiskitExperimentsTestCase):
         d_theta = exp_data.analysis_results(1).value.n
         sigma = 40
         target_angle = np.pi
-        new_beta = -np.sqrt(np.pi) * d_theta * sigma / target_angle ** 2
+        new_beta = -np.sqrt(np.pi) * d_theta * sigma / target_angle**2
 
         transpile_opts = copy.copy(drag_cal.transpile_options.__dict__)
         transpile_opts["initial_layout"] = list(drag_cal.physical_qubits)

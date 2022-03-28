@@ -80,10 +80,12 @@ class TestRoughAmpCal(QiskitExperimentsTestCase):
 
         rabi_ef = RoughXSXAmplitudeCal(0, self.cals)
         rabi_calc_parameters_list = {"amplitude_to_angle": np.pi * 1.5}
-        expdata = rabi_ef.run(MockIQBackend(
-            compute_probabilities=rabi_compute_probabilities,
-            calculation_parameters=[rabi_calc_parameters_list],
-        ))
+        expdata = rabi_ef.run(
+            MockIQBackend(
+                compute_probabilities=rabi_compute_probabilities,
+                calculation_parameters=[rabi_calc_parameters_list],
+            )
+        )
         self.assertExperimentDone(expdata)
 
         tol = 0.002
@@ -160,10 +162,12 @@ class TestSpecializations(QiskitExperimentsTestCase):
 
         rabi_ef = EFRoughXSXAmplitudeCal(0, self.cals)
         rabi_calc_parameters_list = {"amplitude_to_angle": np.pi * 1.5}
-        expdata = rabi_ef.run(MockIQBackend(
-            compute_probabilities=rabi_compute_probabilities,
-            calculation_parameters=[rabi_calc_parameters_list],
-        ))
+        expdata = rabi_ef.run(
+            MockIQBackend(
+                compute_probabilities=rabi_compute_probabilities,
+                calculation_parameters=[rabi_calc_parameters_list],
+            )
+        )
         self.assertExperimentDone(expdata)
 
         tol = 0.002

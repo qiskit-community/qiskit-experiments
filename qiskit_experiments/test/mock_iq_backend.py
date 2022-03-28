@@ -49,7 +49,7 @@ class MockRestlessBackend(FakeOpenPulse2Q):
     def _get_state_strings(n_qubits: int) -> List[str]:
         """Generate all state strings for the system."""
         format_str = "{0:0" + str(n_qubits) + "b}"
-        return list(format_str.format(state_num) for state_num in range(2 ** n_qubits))
+        return list(format_str.format(state_num) for state_num in range(2**n_qubits))
 
     @abstractmethod
     def _compute_outcome_probabilities(self, circuits: List[QuantumCircuit]):
@@ -254,7 +254,7 @@ class MockIQBackend(FakeOpenPulse2Q):
         self, prob_dict: Dict[str, float], num_qubits: int
     ) -> List[float]:
         prob_list = []
-        for num in range(2 ** num_qubits):
+        for num in range(2**num_qubits):
             num_binary_str = str(format(num, "b").zfill(num_qubits))
             prob_list.append(prob_dict.get(num_binary_str, 0))
         return prob_list
