@@ -27,7 +27,7 @@ from qiskit_experiments.calibration_management.basis_gate_library import (
 )
 from qiskit_experiments.calibration_management.calibration_key_types import DefaultCalValue
 from qiskit_experiments.calibration_management.calibrations import Calibrations
-from qiskit_experiments.calibration_management.calibration_utils import CalUtils
+from qiskit_experiments.calibration_management.calibration_utils import compare_schedule_blocks
 from qiskit_experiments.exceptions import CalibrationError
 from qiskit_experiments.framework.json import ExperimentEncoder, ExperimentDecoder
 
@@ -68,7 +68,7 @@ def _test_library_equivalence(lib1, lib2) -> bool:
         return False
 
     for gate in lib1.basis_gates:
-        if not CalUtils.compare_schedule_blocks(lib1[gate], lib2[gate]):
+        if not compare_schedule_blocks(lib1[gate], lib2[gate]):
             return False
 
     return True

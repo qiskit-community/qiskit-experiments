@@ -40,7 +40,7 @@ from qiskit.circuit import Parameter, ParameterExpression
 from qiskit.providers.backend import BackendV1 as Backend
 
 from qiskit_experiments.exceptions import CalibrationError
-from qiskit_experiments.calibration_management.calibration_utils import CalUtils
+from qiskit_experiments.calibration_management.calibration_utils import compare_schedule_blocks
 from qiskit_experiments.calibration_management.basis_gate_library import BasisGateLibrary
 from qiskit_experiments.calibration_management.parameter_value import ParameterValue
 from qiskit_experiments.calibration_management.control_channel_map import ControlChannelMap
@@ -1546,7 +1546,7 @@ class Calibrations:
 
         for key, schedule in self._schedules.items():
             other_sched = other._schedules.get(key, None)
-            are_equal = CalUtils.compare_schedule_blocks(schedule, other_sched)
+            are_equal = compare_schedule_blocks(schedule, other_sched)
             if not are_equal:
                 return False
 
