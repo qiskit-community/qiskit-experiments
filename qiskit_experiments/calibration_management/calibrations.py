@@ -425,7 +425,7 @@ class Calibrations:
     ) -> List[Tuple[int, ...]]:
         """Find all qubits for which there is a schedule ``schedule_name`` on ``partial_qubits``.
 
-        This method will uses the map between the schedules and the number of qubits that they
+        This method uses the map between the schedules and the number of qubits that they
         operate on as well as the extension of the coupling map ``_operated_qubits`` to find
         which qubits are involved in the schedule named ``schedule_name`` involving the
         ``partial_qubits``.
