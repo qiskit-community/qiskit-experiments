@@ -18,32 +18,39 @@ import warnings
 from typing import Callable, Optional, Type, Dict
 
 
-def deprecated_function(
+def deprecated(
     version_removed: Optional[str] = None,
     use_instead: Optional[str] = None,
 ) -> Callable:
-    """A function decorator to show deprecation warning.
+    """A function or method decorator to show deprecation warning.
 
     Args:
         version_removed: The Qiskit Experiment version that this function is removed.
-        use_instead: Alternative function.
+        use_instead: Alternative approach.
 
     Examples:
 
         .. code-block::
 
-            @deprecated_function(version_removed="0.3", use_instead="use new_function")
+            @deprecated(version_removed="0.3", use_instead="use new_function")
             def old_function(*args, **kwargs):
                 pass
 
-    Returns:
-        Deprecated function.
-    """
+            def new_function(*args, **kwargs):
+                pass
 
+    Returns:
+        Deprecated function or method.
+    """
     def deprecated_wrapper(func: Callable):
         @functools.wraps(func)
         def _wrap(*args, **kwargs):
-            message = f"The function '{func.__name__}' has been deprecated and "
+            namespace = func.__qualname__.split(".")
+            if len(namespace) == 1:
+                message = f"The function '{func.__name__}' has been deprecated and "
+            else:
+                cls_name, meth_name = namespace
+                message = f"The method '{meth_name}' of '{cls_name}' class has been deprecated and "
             if version_removed:
                 message += f"will be removed in Qiskit Experiments {version_removed}. "
             else:
@@ -52,103 +59,6 @@ def deprecated_function(
                 message += f"Please '{use_instead}' instead. "
             warnings.warn(message, DeprecationWarning, stacklevel=2)
             return func(*args, **kwargs)
-
-        return _wrap
-
-    return deprecated_wrapper
-
-
-def deprecated_method(
-    version_removed: Optional[str] = None,
-    use_instead: Optional[str] = None,
-) -> Callable:
-    """A method decorator to show deprecation warning.
-
-    Args:
-        version_removed: The Qiskit Experiment version that this method is removed.
-        use_instead: Alternative method.
-
-    Examples:
-
-        .. code-block::
-
-            class SomeClass:
-                @deprecated_method(version_removed="0.3", use_instead="use new_method")
-                def old_method(self, *args, **kwargs):
-                    pass
-
-                def new_method(self, *args, **kwargs):
-                    pass
-
-    Returns:
-        Deprecated method.
-    """
-
-    def deprecated_wrapper(method: Callable):
-        @functools.wraps(method)
-        def _wrap(self, *args, **kwargs):
-            clsname = method.__qualname__.split(".")[0]
-            message = (
-                f"Calling the method '{method.__name__}' of '{clsname}' has been deprecated and "
-            )
-            if version_removed:
-                message += f"will be removed in Qiskit Experiments {version_removed}. "
-            else:
-                message += "will be removed in future release. "
-            if use_instead:
-                message += f"Please '{use_instead}' instead. "
-            warnings.warn(message, DeprecationWarning, stacklevel=2)
-            return method(self, *args, **kwargs)
-
-        return _wrap
-
-    return deprecated_wrapper
-
-
-def deprecated_clsmethod(
-    version_removed: Optional[str] = None,
-    use_instead: Optional[str] = None,
-) -> Callable:
-    """A class method decorator to show deprecation warning.
-
-    Args:
-        version_removed: The Qiskit Experiment version that this class method is removed.
-        use_instead: Alternative method.
-
-    Examples:
-
-        .. code-block::
-
-            class SomeClass:
-                @classmethod
-                @deprecated_method(version_removed="0.3", use_instead="use new_method")
-                def old_method(self, *args, **kwargs):
-                    pass
-
-                @classmethod
-                def new_method(self, *args, **kwargs):
-                    pass
-
-    Returns:
-        Deprecated method.
-    """
-
-    def deprecated_wrapper(method: Callable):
-        @functools.wraps(method)
-        def _wrap(cls, *args, **kwargs):
-            clsname = cls.__name__
-            message = (
-                f"Calling the class method '{method.__name__}' "
-                f"of '{clsname}' has been deprecated and "
-            )
-            if version_removed:
-                message += f"will be removed in Qiskit Experiments {version_removed}. "
-            else:
-                message += "will be removed in future release. "
-            if use_instead:
-                message += f"Please '{use_instead}' instead. "
-            warnings.warn(message, DeprecationWarning, stacklevel=2)
-            return method(cls, *args, **kwargs)
 
         return _wrap
 
