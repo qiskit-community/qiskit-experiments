@@ -786,7 +786,12 @@ class RestlessNode(DataAction, ABC):
             for shot_idx in range(self._n_shots):
                 for circ_idx in range(self._n_circuits):
                     ordered_data.append(unordered_data[circ_idx][shot_idx])
-            return np.array(ordered_data)
+        else:
+            for circ_idx in range(self._n_circuits):
+                for shot_idx in range(self._n_shots):
+                    ordered_data.append(unordered_data[circ_idx][shot_idx])
+
+        return np.array(ordered_data)
 
 
 class RestlessToCounts(RestlessNode):
@@ -865,18 +870,23 @@ class RestlessToCounts(RestlessNode):
 
 
 class RestlessToIQ(RestlessNode):
-    """Post-process restless data and convert restless memory to IQ data."""
+    """Post-process restless data and convert restless memory to IQ data.
 
-    def __init__(self, num_qubits: int, validate: bool = True):
+    This node first orders the measured restless IQ point (measurement level 1) data
+    according to the measurement sequence and then subtracts an IQ point from the previous
+    one, i.e. :math:`(I_2 - I_1) + i(Q_2 - Q_1)` for consecutively measured IQ points
+    :math:`I_1 + iQ_1` and :math:`I_2 + iQ_2`. Following this, it takes the absolute
+    value of the in-phase and quadrature component and returns a sequence of circuit-
+    ordered IQ values, e.g. containing :math:`\abs{(I_2 - I_1)} + i\abs{(Q_2 - Q_1)}`.
+    This procedure is based on M. Werninghaus, et al., PRX Quantum 2, 020324 (2021).
+    """
+
+    def __init__(self, validate: bool = True):
         """
         Args:
-            num_qubits: The number of qubits which is needed to construct the header needed
-                by :code:`qiskit.result.postprocess.format_counts_memory` to convert the memory
-                into a bit-string of counts.
             validate: If set to False the DataAction will not validate its input.
         """
         super().__init__(validate)
-        self._num_qubits = num_qubits
 
     def _process(self, data: np.ndarray) -> np.ndarray:
         """Reorder the IQ shots and assign values to them based on the previous outcome.
@@ -891,20 +901,24 @@ class RestlessToIQ(RestlessNode):
         # Step 1. Reorder the data.
         memory = self._reorder_iq(data)
 
-        memory_diff_abs = []
-        memory_diff_abs.insert(0, [[np.abs(memory[0][0][0]), np.abs(memory[0][0][1])]])
+        post_processed_memory = []
+        post_processed_memory.insert(0, [[np.abs(memory[0][0][0]), np.abs(memory[0][0][1])]])
 
+        # Step 2. Subtract and take absolute value of consecutive IQ points in
+        # the reordered memory.
         for idx in range(1, len(memory)):
-            memory_diff_abs.append([[np.abs(memory[idx][0][0] - memory[idx - 1][0][0]),
-                                     np.abs(memory[idx][0][1] - memory[idx - 1][0][1])]])
+            post_processed_memory.append(
+                [
+                    [
+                        np.abs(memory[idx][0][0] - memory[idx - 1][0][0]),
+                        np.abs(memory[idx][0][1] - memory[idx - 1][0][1]),
+                    ]
+                ]
+            )
 
-        index_list = [idx for idx in range(self._n_circuits)] * self._n_shots
+        # Step 3. Order post-processed IQ points by circuit.
+        iq_memory = [[] for _ in range(self._n_circuits)]
+        for idx, iq_point in enumerate(post_processed_memory):
+            iq_memory[idx % self._n_circuits].append(iq_point)
 
-        iq_list_abs = []
-        for _ in range(self._n_circuits):
-            iq_list_abs.append([])
-
-        for idx in range(len(memory_diff_abs)):
-            iq_list_abs[index_list[idx]].append(memory_diff_abs[idx])
-
-        return np.array(iq_list_abs)
+        return np.array(iq_memory)

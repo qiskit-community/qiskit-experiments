@@ -107,8 +107,11 @@ class RestlessMixin:
                     use_measure_esp=False,
                 )
                 if hasattr(self.analysis.options, "data_processor"):
-                    self.analysis.set_options(data_processor=self._get_restless_processor(meas_level=meas_level,
-                                                                                          meas_return=meas_return))
+                    self.analysis.set_options(
+                        data_processor=self._get_restless_processor(
+                            meas_level=meas_level, meas_return=meas_return
+                        )
+                    )
                 else:
                     raise DataProcessorError(
                         "The restless data processor can not be set since the experiment analysis"
@@ -137,7 +140,9 @@ class RestlessMixin:
                 f"a smaller repetition delay for the restless experiment."
             )
 
-    def _get_restless_processor(self, meas_level: int = 2, meas_return: str = "average") -> DataProcessor:
+    def _get_restless_processor(
+        self, meas_level: int = 2, meas_return: str = "average"
+    ) -> DataProcessor:
         """Returns the restless experiments data processor.
 
         Notes:
@@ -145,7 +150,11 @@ class RestlessMixin:
         """
         outcome = self.analysis.options.get("outcome", "1" * self._num_qubits)
         normalize = self.analysis.options.get("normalization", True)
-        dimensionality_reduction = self.analysis.options.get("dimensionality_reduction", ProjectorType.SVD)
+        dimensionality_reduction = self.analysis.options.get(
+            "dimensionality_reduction", ProjectorType.SVD
+        )
+        # Todo: The following code is copied and adapted from the processor library.
+        # Todo: This could maybe be simplified.
         if meas_level == MeasLevel.KERNELED:
 
             try:
@@ -161,10 +170,11 @@ class RestlessMixin:
                 ) from error
 
             if meas_return == "single":
-                processor = DataProcessor("memory", [nodes.RestlessToIQ(self._num_qubits),
-                                                     nodes.AverageData(axis=1), projector()])
+                processor = DataProcessor(
+                    "memory", [nodes.RestlessToIQ(), nodes.AverageData(axis=1), projector()]
+                )
             else:
-                processor = DataProcessor("memory", [nodes.RestlessToIQ(self._num_qubits), projector()])
+                processor = DataProcessor("memory", [nodes.RestlessToIQ(), projector()])
 
             if normalize:
                 processor.append(nodes.MinMaxNormalize())
