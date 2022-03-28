@@ -42,7 +42,7 @@ class TestLibrary(FixedFrequencyTransmon):
     def _build_schedules(
         self,
         basis_gates: Set[str],
-        other_libraries: Optional[List["BasisGateLibrary"]] = None,
+        dependencies: Optional[List["BasisGateLibrary"]] = None,
     ) -> Dict[str, pulse.ScheduleBlock]:
         """Dummy schedule building."""
         with pulse.build(name="x") as schedule:

@@ -39,7 +39,7 @@ class BasisGateLibrary(ABC, Mapping):
         self,
         basis_gates: Optional[List[str]] = None,
         default_values: Optional[Dict] = None,
-        other_libraries: Optional[List["BasisGateLibrary"]] = None,
+        dependencies: Optional[List["BasisGateLibrary"]] = None,
         **extra_kwargs,
     ):
         """Setup the library.
@@ -49,7 +49,7 @@ class BasisGateLibrary(ABC, Mapping):
             default_values: A dictionary to override library default parameter values.
             extra_kwargs: Extra key-word arguments of the subclasses that are saved to be able
                 to reconstruct the library using the :meth:`__init__` method.
-            other_libraries: A list of other libraries that ``self`` can use to, e.g., call
+            dependencies: A list of libraries that ``self`` depends on, e.g., to call
                 other schedules that it needs when building its own schedules.
 
         Raises:
@@ -58,7 +58,7 @@ class BasisGateLibrary(ABC, Mapping):
         # Update the default values.
         self._extra_kwargs = extra_kwargs
         self._default_values = self.__default_values__.copy()
-        self._other_libraries = other_libraries
+        self._dependencies = dependencies
         if default_values is not None:
             self._default_values.update(default_values)
 
@@ -72,7 +72,7 @@ class BasisGateLibrary(ABC, Mapping):
                     f"Supported gates are: {self.__supported_gates__}."
                 )
 
-        self._schedules = self._build_schedules(set(basis_gates), other_libraries)
+        self._schedules = self._build_schedules(set(basis_gates), dependencies)
 
     @property
     @abstractmethod
@@ -166,8 +166,8 @@ class BasisGateLibrary(ABC, Mapping):
 
         kwargs = {"basis_gates": self.basis_gates, "default_values": self._default_values}
 
-        if self._other_libraries is not None:
-            kwargs["other_libraries"] = self._other_libraries
+        if self._dependencies is not None:
+            kwargs["dependencies"] = self._dependencies
 
         kwargs.update(self._extra_kwargs)
 
@@ -429,6 +429,6 @@ class EchoedCrossResonance(BasisGateLibrary):
     def config(self) -> Dict[str, Any]:
         """Return the settings used to initialize the library."""
         conf = super().config()
-        conf["kwargs"]["single_qubit_library"] = conf["kwargs"]["other_libraries"][0]
-        del conf["kwargs"]["other_libraries"]
+        conf["kwargs"]["single_qubit_library"] = conf["kwargs"]["dependencies"][0]
+        del conf["kwargs"]["dependencies"]
         return conf
