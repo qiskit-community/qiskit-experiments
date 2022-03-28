@@ -18,7 +18,7 @@ import warnings
 from typing import Callable, Optional, Type, Dict
 
 
-def deprecated(
+def deprecated_logic(
     version_removed: Optional[str] = None,
     use_instead: Optional[str] = None,
 ) -> Callable:
@@ -32,7 +32,7 @@ def deprecated(
 
         .. code-block::
 
-            @deprecated(version_removed="0.3", use_instead="use new_function")
+            @deprecated_logic(version_removed="0.3", use_instead="use new_function")
             def old_function(*args, **kwargs):
                 pass
 
@@ -42,6 +42,7 @@ def deprecated(
     Returns:
         Deprecated function or method.
     """
+
     def deprecated_wrapper(func: Callable):
         @functools.wraps(func)
         def _wrap(*args, **kwargs):
