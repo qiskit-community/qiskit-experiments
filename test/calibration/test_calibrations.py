@@ -925,11 +925,11 @@ class TestControlChannels(CrossResonanceTest):
         sched_inst = self.cals.default_inst_map.get("cr", (2, 3))
         self.assertEqual(sched_inst, self.cals.get_schedule("cr", (2, 3)))
 
-        # Ensure that sigma is 40
+        # Ensure that amp is 0.15
         insts = block_to_schedule(sched_inst).filter(channels=[DriveChannel(2)]).instructions
         self.assertEqual(insts[0][1].pulse.amp, 0.15)
 
-        # Update sigma to 5 and check that change is propagated through.
+        # Update amp to 0.25 and check that change is propagated through.
         date_time2 = datetime.strptime("15/09/19 10:22:35", "%d/%m/%y %H:%M:%S")
         self.cals.add_parameter_value(ParameterValue(0.25, date_time2), "amp", (2,), schedule="xp")
 
