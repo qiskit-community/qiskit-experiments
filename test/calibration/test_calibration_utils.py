@@ -14,7 +14,7 @@
 
 from test.base import QiskitExperimentsTestCase
 import qiskit.pulse as pulse
-from qiskit_experiments.calibration_management.calibration_utils import CalUtils
+from qiskit_experiments.calibration_management.calibration_utils import used_in_calls
 
 
 class TestCalibrationUtils(QiskitExperimentsTestCase):
@@ -36,10 +36,10 @@ class TestCalibrationUtils(QiskitExperimentsTestCase):
             pulse.play(pulse.Drag(160, 0.5, 40, 0.2), pulse.DriveChannel(1))
             pulse.call(xp_call)
 
-        self.assertSetEqual(CalUtils.used_in_calls("xp", [xp_call]), {"call_xp"})
-        self.assertSetEqual(CalUtils.used_in_calls("xp", [xp2]), set())
+        self.assertSetEqual(used_in_calls("xp", [xp_call]), {"call_xp"})
+        self.assertSetEqual(used_in_calls("xp", [xp2]), set())
         self.assertSetEqual(
-            CalUtils.used_in_calls("xp", [xp_call, xp_call_call]), {"call_xp", "call_call_xp"}
+            used_in_calls("xp", [xp_call, xp_call_call]), {"call_xp", "call_call_xp"}
         )
 
         with pulse.build(name="xp") as xp:
@@ -62,4 +62,4 @@ class TestCalibrationUtils(QiskitExperimentsTestCase):
                     pulse.play(cr_tone_m, pulse.ControlChannel(2))
                 pulse.call(xp)
 
-        self.assertSetEqual(CalUtils.used_in_calls("xp", [cr]), {"cr"})
+        self.assertSetEqual(used_in_calls("xp", [cr]), {"cr"})

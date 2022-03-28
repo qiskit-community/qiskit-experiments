@@ -43,7 +43,7 @@ from qiskit_experiments.exceptions import CalibrationError
 from qiskit_experiments.calibration_management.basis_gate_library import BasisGateLibrary
 from qiskit_experiments.calibration_management.parameter_value import ParameterValue
 from qiskit_experiments.calibration_management.control_channel_map import ControlChannelMap
-from qiskit_experiments.calibration_management.calibration_utils import CalUtils
+from qiskit_experiments.calibration_management.calibration_utils import used_in_calls
 from qiskit_experiments.calibration_management.calibration_key_types import (
     ParameterKey,
     ParameterValueType,
@@ -839,7 +839,7 @@ class Calibrations:
             schedules = set(key.schedule for key in self._parameter_map_r[param_obj])
 
             # Find schedules that may call the schedule we want to update.
-            schedules.update(CalUtils.used_in_calls(sched_name, list(self._schedules.values())))
+            schedules.update(used_in_calls(sched_name, list(self._schedules.values())))
 
             self.update_inst_map(schedules, qubits=qubits)
 

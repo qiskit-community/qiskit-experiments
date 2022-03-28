@@ -16,53 +16,47 @@ from typing import List, Set
 from qiskit.pulse import ScheduleBlock, Call
 
 
-class CalUtils:
-    """A collection of utility functions to help calibration management."""
+def used_in_calls(schedule_name: str, schedules: List[ScheduleBlock]) -> Set[str]:
+    """Find the schedules in the given list that call a given schedule by name.
 
-    @staticmethod
-    def used_in_calls(schedule_name: str, schedules: List[ScheduleBlock]) -> Set[str]:
-        """Find the schedules in the given list that call a given schedule by name.
+    Args:
+        schedule_name: The name of the callee to identify.
+        schedules: A list of potential caller schedules to search.
 
-        Args:
-            schedule_name: The name of the callee to identify.
-            schedules: A list of potential caller schedules to search.
+    Returns:
+        A set of schedule names that call the given schedule.
+    """
+    caller_names = set()
 
-        Returns:
-            A set of schedule names that call the given schedule.
-        """
-        caller_names = set()
+    for schedule in schedules:
+        if _used_in_calls(schedule_name, schedule):
+            caller_names.add(schedule.name)
 
-        for schedule in schedules:
-            if CalUtils._used_in_calls(schedule_name, schedule):
-                caller_names.add(schedule.name)
+    return caller_names
 
-        return caller_names
 
-    @staticmethod
-    def _used_in_calls(schedule_name: str, schedule: ScheduleBlock) -> bool:
-        """Recursively find if the schedule calls a schedule with name ``schedule_name``.
+def _used_in_calls(schedule_name: str, schedule: ScheduleBlock) -> bool:
+    """Recursively find if the schedule calls a schedule with name ``schedule_name``.
 
-        Args:
-            schedule_name: The name of the callee to identify.
-            schedule: The schedule to parse.
+    Args:
+        schedule_name: The name of the callee to identify.
+        schedule: The schedule to parse.
 
-        Returns:
-            True if ``schedule``calls a ``ScheduleBlock`` with name ``schedule_name``.
-        """
-        blocks_have_schedule = False
+    Returns:
+        True if ``schedule``calls a ``ScheduleBlock`` with name ``schedule_name``.
+    """
+    blocks_have_schedule = False
 
-        for block in schedule.blocks:
-            if isinstance(block, Call):
-                if block.subroutine.name == schedule_name:
-                    return True
-                else:
-                    blocks_have_schedule = blocks_have_schedule or CalUtils._used_in_calls(
-                        schedule_name, block.subroutine
-                    )
-
-            if isinstance(block, ScheduleBlock):
-                blocks_have_schedule = blocks_have_schedule or CalUtils._used_in_calls(
-                    schedule_name, block
+    for block in schedule.blocks:
+        if isinstance(block, Call):
+            if block.subroutine.name == schedule_name:
+                return True
+            else:
+                blocks_have_schedule = blocks_have_schedule or _used_in_calls(
+                    schedule_name, block.subroutine
                 )
 
-        return blocks_have_schedule
+        if isinstance(block, ScheduleBlock):
+            blocks_have_schedule = blocks_have_schedule or _used_in_calls(schedule_name, block)
+
+    return blocks_have_schedule
