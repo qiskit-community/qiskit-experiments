@@ -12,18 +12,17 @@ time but also lasts a few microseconds (between :math:`3` and :math:`5\,\mu s`).
 Furthermore, a delay, typically lasting :math:`250\,\mu s`, after the reset
 operation is often necessary to ensure a high initialization quality.
 However, for several types of characterization and calibration experiments we can
-avoid qubit reset by post-processing the measurement outcomes and directly continue 
-with the subsequent circuit after an optional short delay, even if the qubit was 
-measured in the excited state. Foregoing qubit
+avoid qubit reset by post-processing the measurement outcomes and continue directly
+with the next circuit after an optional short delay, even if the qubit was measured
+in the excited state. Foregoing qubit reset is the main idea behind restless measurements.
 
-reset is the main idea behind restless measurements.
-
-The IBM Quantum devices have dynamical repetition delays enabled. This means that
-we can choose the delay between the execution of two quantum circuits. This delay
-can typically range from :math:`0` to :math:`500\,\mu s` depending on the system. The default value for
-
-most of the devices is :math:`250\,\mu s`. Restless measurements set this delay to
-a small value such as :math:`1\,\mu s`.
+The IBM Quantum systems have dynamical repetition delays enabled. We can thus choose
+the delay between the execution of two quantum circuits. This delay
+typically ranges from :math:`0` to :math:`500\,\mu s` depending on the system.
+The default value for most devices is :math:`250\,\mu s`. Restless measurements
+set this delay to small values such as :math:`1\,\mu s` or lower. Note that sometimes
+the measurement instructions already contain a delay after the measurement pulse to
+allow the readout resonator to depopulate.
 
 When the qubit is not reset it will either be in the :math:`\left\vert0\right\rangle`
 or in the :math:`\left\vert1\right\rangle` state when the next circuit starts.
@@ -83,10 +82,11 @@ they use always starts with the qubits in the ground state.
     print(cal_drag.analysis.options.data_processor)
     print(cal_drag.run_options)
 
-As you can see, a data processor is automatically chosen for the experiment and the appropriate run 
-options are set. Note that these run options might be unique to IBM Quantum providers. Therefore, 
-execute may fail on non-IBM Quantum providers if the required options are not supported.
-
+As you can see, a restless data processor is automatically chosen for the experiment. This
+data processor post-processes the restless measured shots according to the order in which
+they were acquired. Furthermore, the appropriate run options are also set. Note that
+these run options might be unique to IBM Quantum providers. Therefore, execute may fail
+on non-IBM Quantum providers if the required options are not supported.
 After calling ``enable_restless`` the experiment is ready to be run in a restless
 mode. With a hardware backend this would be done by calling the ``run`` method
 
@@ -94,12 +94,10 @@ mode. With a hardware backend this would be done by calling the ``run`` method
 
     drag_data_restless = cal_drag.run()
 
-As shown by the example, the code is identical to running a normal
-experiment aside from a call to the method ``enable_restless``. This method
-will set the data processor that post-processes the restless measured shots
-according to the order in which they were acquired. You can also choose
-to keep the standard data processor by providing it to the analysis
-options and telling ``enable_restless`` not to override the data processor.
+As shown by the example, the code is identical to running a normal experiment aside
+from a call to the method ``enable_restless``. Note that you can also choose to keep
+the standard data processor by providing it to the analysis options and telling
+``enable_restless`` not to override the data processor.
 
 .. jupyter-execute::
 
@@ -130,7 +128,6 @@ We can compare the time spent by the quantum processor executing restless and
 standard jobs. This allows us to compute the effective speed-up we gain when
 performing restless experiments. Note that we do not consider any classical
 run-time contributions such as runtime-compilation or data transfer times [3].
-
 The time to run :math:`K` circuits and gather :math:`N` shots for each
 circuit is
 
@@ -140,8 +137,8 @@ circuit is
     \langle{\tau}_\text{circ}\rangle+\tau_\text{meas}\right),
 
 where :math:`\tau^{(x)}_\text{reset}` and :math:`\tau^{(x)}_\text{delay}`
-are the reset and delay times, respectively. The superscript :math:`(x)`
-indicates restless :math:`(r)` or standard :math:`(s)` measurements.
+are the reset and post measurement delay times, respectively. The superscript
+:math:`(x)` indicates restless :math:`(r)` or standard :math:`(s)` measurements.
 The average duration of all :math:`K` circuits in an experiment is
 :math:`\langle{\tau}_\text{circ}\rangle=K^{-1}\sum_{k=1}^{K} \tau_{\text{circ},k}`
 where :math:`\tau_{\text{circ},k}` is the duration of only the gates in circuit
@@ -149,10 +146,9 @@ where :math:`\tau_{\text{circ},k}` is the duration of only the gates in circuit
 measurements as :math:`\tau^{(\text{s})}/\tau^{(\text{r})}` which is independent
 of the number of circuits and shots.
 
-The standard reset time in IBM Quantum backends is on average :math:`\tau^{(s)}_\text{reset} = 4\,\mu s`
-whereas :math:`\tau^{(r)}_\text{reset} = 0\,\mu s` since we do not reset the
-
-qubit in a restless experiment. By default, the repetition delay is
+We approximate the standard reset time in IBM Quantum backends by
+:math:`\tau^{(s)}_\text{reset} = 4\,\mu s` whereas :math:`\tau^{(r)}_\text{reset} = 0\,\mu s`
+since we do not reset the qubit in a restless experiment. By default, the repetition delay is
 :math:`\tau^{(s)}_\text{delay} = 250\,\mu s`. For our restless experiments we
 set :math:`\tau^{(r)}_\text{delay} = 1\,\mu s`. These speed-ups can be evaluated
 using the code below.
