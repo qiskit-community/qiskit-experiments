@@ -59,7 +59,7 @@ backend and on an ideal simulator:
    ``AerSimulator`` is not installed ``qiskit.quantum_info.Statevector``
    will be used).
 
-**Note:** In some cases, 100 trails are not enough to obtain a QV
+**Note:** In some cases, 100 trials are not enough to obtain a QV
 greater than 1 for the specified number of qubits. In this case, adding
 more trials may reduce the error bars to allow passing the threshold.
 
