@@ -56,8 +56,8 @@ If you are an experiment developer, you can add the :class:`RestlessMixin`
 to your experiment class to add support for restless measurements.
 Here, we will show how to activate restless measurements using
 a fake backend and a rough Drag experiment. Note however, that you will not
-be able to run the experiment since only real backends support restless
-measurements.
+observe any meaningful outcomes with fake backends since the circuit simulator
+they use always starts with the qubits in the ground state.
 
 .. jupyter-execute::
 
