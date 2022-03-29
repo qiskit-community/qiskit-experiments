@@ -20,7 +20,6 @@ is the sum of the detuning frequency and the user induced *oscillation
 frequency* (``osc_freq`` parameter).
 
 .. jupyter-execute::
-    :raises:
 
     import numpy as np
     import qiskit
@@ -47,14 +46,12 @@ the qubit state between the :math:`\left|0\right\rangle` and
 resulting function, and can analytically extract the desired values.
 
 .. jupyter-execute::
-    :raises:
 
     qubit = 0
     # set the desired delays
     delays = list(np.arange(1e-6, 50e-6, 2e-6))
 
 .. jupyter-execute::
-    :raises:
 
     # Create a T2Ramsey experiment. Print the first circuit as an example
     exp1 = T2Ramsey(qubit, delays, osc_freq=1e5)
@@ -65,7 +62,6 @@ We run the experiment on a simulated backend using Qiskit Aer with a
 pure T1/T2 relaxation noise model.
 
 .. jupyter-execute::
-    :raises:
 
     # A T1 simulator
     from qiskit.test.mock import FakeVigo
@@ -86,7 +82,6 @@ the delay, :math:`T_2^\ast` is the decay factor, and *f* is the detuning
 frequency.
 
 .. jupyter-execute::
-    :raises:
 
     # Set scheduling method so circuit is scheduled for delay noise simulation
     exp1.set_transpile_options(scheduling_method='asap')
@@ -100,7 +95,6 @@ frequency.
 
 
 .. jupyter-execute::
-    :raises:
 
     # Print results
     for result in expdata1.analysis_results():
@@ -121,7 +115,6 @@ computed in previous experiments on this qubit or a similar values
 computed for other qubits.
 
 .. jupyter-execute::
-    :raises:
 
     user_p0={
         "A": 0.5,
@@ -141,7 +134,6 @@ computed for other qubits.
 
 
 .. jupyter-execute::
-    :raises:
 
     # Print results
     for result in expdata_with_p0.analysis_results():
@@ -149,7 +141,6 @@ computed for other qubits.
 
 
 .. jupyter-execute::
-    :raises:
 
     import qiskit.tools.jupyter
     %qiskit_copyright

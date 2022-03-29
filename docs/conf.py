@@ -100,6 +100,7 @@ extensions = [
     "autoref",
     "autodoc_experiment",
     "autodoc_analysis",
+    "jupyter-execute-checkenv",
 ]
 html_static_path = ["_static"]
 templates_path = ["_templates"]
@@ -110,13 +111,6 @@ nbsphinx_execute = os.getenv("QISKIT_DOCS_BUILD_TUTORIALS", "never")
 nbsphinx_widgets_path = ""
 exclude_patterns = ["_build", "**.ipynb_checkpoints"]
 nbsphinx_thumbnails = {}
-
-# For skipping execution of jupyter code in .rst files
-jupyter_execute_kwargs = {
-    "timeout": int(os.getenv("QISKIT_DOCS_SKIP_RST", -1)),
-    "interrupt_on_timeout": int(os.getenv("QISKIT_DOCS_SKIP_RST", False)),
-    "allow_errors": int(os.getenv("QISKIT_DOCS_SKIP_RST", 0)),
-}
 
 
 # -----------------------------------------------------------------------------

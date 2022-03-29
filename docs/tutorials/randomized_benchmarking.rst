@@ -12,7 +12,6 @@ Textbook <https://qiskit.org/textbook/ch-quantum-hardware/randomized-benchmarkin
 for an explanation on the RB method, which is based on Ref. [1, 2].
 
 .. jupyter-execute::
-    :raises:
 
     import numpy as np
     from qiskit_experiments.library import StandardRB, InterleavedRB
@@ -62,7 +61,6 @@ Running a 1-qubit RB experiment
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. jupyter-execute::
-    :raises:
 
     lengths = np.arange(1, 800, 200)
     num_samples = 10
@@ -88,7 +86,6 @@ Running a 1-qubit RB experiment and a 2-qubit RB experiment, in order to
 calculate the gate error (EPG) of the ``cx`` gate:
 
 .. jupyter-execute::
-    :raises:
 
     lengths = np.arange(1, 200, 30)
     num_samples = 10
@@ -106,7 +103,6 @@ calculate the gate error (EPG) of the ``cx`` gate:
         epg_1q += expdata.analysis_results()
 
 .. jupyter-execute::
-    :raises:
 
     # Run an RB experiment on qubits 1, 4
     exp2 = StandardRB(qubits, lengths, num_samples=num_samples, seed=seed)
@@ -121,7 +117,6 @@ calculate the gate error (EPG) of the ``cx`` gate:
     results2 = expdata2.analysis_results()
 
 .. jupyter-execute::
-    :raises:
 
     # View result data
     display(expdata2.figure(0))
@@ -129,7 +124,6 @@ calculate the gate error (EPG) of the ``cx`` gate:
         print(result)
 
 .. jupyter-execute::
-    :raises:
 
     # Compare the computed EPG of the cx gate with the backend's recorded cx gate error:
     expected_epg = RBUtils.get_error_dict_from_backend(backend, qubits)[(qubits, 'cx')]
@@ -145,7 +139,6 @@ Displaying the RB circuits
 Generating an example RB circuit:
 
 .. jupyter-execute::
-    :raises:
 
     # Run an RB experiment on qubit 0
     exp = StandardRB(qubits=[0], lengths=[10], num_samples=1, seed=seed)
@@ -154,7 +147,6 @@ Generating an example RB circuit:
 We transpile the circuit into the backend’s basis gate set:
 
 .. jupyter-execute::
-    :raises:
 
     from qiskit import transpile
     basis_gates = backend.configuration().basis_gates
@@ -191,7 +183,6 @@ Running a 1-qubit interleaved RB experiment
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. jupyter-execute::
-    :raises:
 
     lengths = np.arange(1, 800, 200)
     num_samples = 10
@@ -208,7 +199,6 @@ Running a 1-qubit interleaved RB experiment
     int_results1 = int_expdata1.analysis_results()
 
 .. jupyter-execute::
-    :raises:
 
     # View result data
     display(int_expdata1.figure(0))
@@ -220,7 +210,6 @@ Running a 2-qubit interleaved RB experiment
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. jupyter-execute::
-    :raises:
 
     lengths = np.arange(1, 200, 30)
     num_samples = 10
@@ -237,7 +226,6 @@ Running a 2-qubit interleaved RB experiment
     int_results2 = int_expdata2.analysis_results()
 
 .. jupyter-execute::
-    :raises:
 
     # View result data
     display(int_expdata2.figure(0))
@@ -253,7 +241,6 @@ We use ``ParallelExperiment`` to run the RB experiment simultaneously on
 different qubits (see Ref. [5])
 
 .. jupyter-execute::
-    :raises:
 
     lengths = np.arange(1, 800, 200)
     num_samples = 10
@@ -282,7 +269,6 @@ individual experiment data for each sub experiment which can be accessed
 using ``child_data``
 
 .. jupyter-execute::
-    :raises:
 
     # Print sub-experiment data
     for i in qubits:
@@ -319,7 +305,6 @@ addressability by simultaneous randomized benchmarking*,
 https://arxiv.org/pdf/1204.6308
 
 .. jupyter-execute::
-    :raises:
 
     import qiskit.tools.jupyter
     %qiskit_copyright

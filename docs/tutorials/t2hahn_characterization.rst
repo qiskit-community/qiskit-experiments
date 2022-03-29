@@ -35,7 +35,6 @@ using :math:`Rx(\pi)` pulses for decoupling and to solve our inaccuracy
 for the qubit frequency estimation.
 
 .. jupyter-execute::
-    :raises:
 
     import qiskit
     from qiskit_experiments.library.characterization.t2hahn import T2Hahn
@@ -60,7 +59,6 @@ decaying measurements. We can draw the graph of the resulting function
 and can analytically extract the desired values.
 
 .. jupyter-execute::
-    :raises:
 
     qubit = 0
     conversion_factor = 1e-6 # our delay will be in micro-sec
@@ -77,7 +75,6 @@ We run the experiment on a simple, simulated backend, tailored
 specifically for this experiment.
 
 .. jupyter-execute::
-    :raises:
 
     from qiskit_experiments.test.t2hahn_backend import T2HahnBackend
     
@@ -96,7 +93,6 @@ The resulting graph will have the form:
 :math:`T_2` is the decay factor.
 
 .. jupyter-execute::
-    :raises:
 
     exp1.analysis.set_options(p0=None, plot=True)
     expdata1 = exp1.run(backend=backend, shots=2000, seed_simulator=101)
@@ -106,7 +102,6 @@ The resulting graph will have the form:
     display(expdata1.figure(0))
 
 .. jupyter-execute::
-    :raises:
 
     # Print results
     for result in expdata1.analysis_results():
@@ -128,7 +123,6 @@ value computed in previous experiments on this qubit or a similar value
 computed for other qubits.
 
 .. jupyter-execute::
-    :raises:
 
     exp_with_p0 = T2Hahn(qubit=qubit, delays=delays, num_echoes=number_of_echoes)
     exp_with_p0.analysis.set_options(p0={"amp": 0.5, "tau": estimated_t2hahn, "base": 0.5})
@@ -139,7 +133,6 @@ computed for other qubits.
     display(expdata_with_p0.figure(0))
 
 .. jupyter-execute::
-    :raises:
 
     # Print results
     for result in expdata_with_p0.analysis_results():
@@ -163,7 +156,6 @@ The list ``delays`` is the times provided to each delay gate, not the
 total delay time.
 
 .. jupyter-execute::
-    :raises:
 
     import numpy as np
     
@@ -208,7 +200,6 @@ total delay time.
 
 
 .. jupyter-execute::
-    :raises:
 
     from qiskit_experiments.test.t2hahn_backend import T2HahnBackend
     
@@ -242,7 +233,6 @@ mock backend for this experiment used :math:`T_{2} = 30[\mu s]`, which
 is close to the estimate of the 1 echo experiment.
 
 .. jupyter-execute::
-    :raises:
 
     import qiskit.tools.jupyter
     %qiskit_copyright

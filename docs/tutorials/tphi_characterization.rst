@@ -14,14 +14,12 @@ experiment and a :math:`T_2*` experiment. From the results of these two,
 we compute the results for :math:`T_\varphi.`
 
 .. jupyter-execute::
-    :raises:
 
     import numpy as np
     import qiskit
     from qiskit_experiments.library.characterization import Tphi, TphiAnalysis, T1Analysis, T2RamseyAnalysis
 
 .. jupyter-execute::
-    :raises:
 
     # An Aer simulator
     from qiskit.test.mock import FakeVigo
@@ -43,7 +41,6 @@ we compute the results for :math:`T_\varphi.`
     
 
 .. jupyter-execute::
-    :raises:
 
     # Create an experiment for qubit 0 with the specified time intervals
     exp = Tphi(qubit=0, delays_t1=delays_t1, delays_t2=delays_t2, osc_freq=1e5)
@@ -53,43 +50,36 @@ we compute the results for :math:`T_\varphi.`
     result = expdata.analysis_results("T_phi")
 
 .. jupyter-execute::
-    :raises:
 
     # Print the result for T_phi
     print(result)
 
 
 .. jupyter-execute::
-    :raises:
 
     # It is possible to see the results of the sub-experiments:
     print(expdata)
 
 
 .. jupyter-execute::
-    :raises:
 
     print(expdata.child_data(0).analysis_results("T1"))
 
 .. jupyter-execute::
-    :raises:
 
     display(expdata.child_data(0).figure(0))
 
 
 .. jupyter-execute::
-    :raises:
 
     print(expdata.child_data(1).analysis_results("T2star"))
 
 
 .. jupyter-execute::
-    :raises:
 
     display(expdata.child_data(1).figure(0))
 
 .. jupyter-execute::
-    :raises:
 
     import qiskit.tools.jupyter
     %qiskit_copyright
