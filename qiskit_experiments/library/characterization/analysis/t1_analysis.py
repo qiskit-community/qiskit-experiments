@@ -15,8 +15,6 @@ T1 Analysis class.
 from typing import Union
 
 import qiskit_experiments.curve_analysis as curve
-from qiskit_experiments.curve_analysis.visualization.mpl_drawer import MplCurveDrawer
-
 from qiskit_experiments.framework import Options
 
 
@@ -31,15 +29,12 @@ class T1Analysis(curve.DecayAnalysis):
     @classmethod
     def _default_options(cls) -> Options:
         """Default analysis options."""
-        drawer = MplCurveDrawer()
-        drawer.set_options(
+        options = super()._default_options()
+        options.curve_plotter.set_options(
             xlabel="Delay",
             ylabel="P(1)",
             xval_unit="s",
         )
-
-        options = super()._default_options()
-        options.curve_plotter = drawer
         options.result_parameters = [curve.ParameterRepr("tau", "T1", "s")]
 
         return options

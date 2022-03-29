@@ -19,7 +19,6 @@ from typing import List, Union
 import numpy as np
 
 import qiskit_experiments.curve_analysis as curve
-from qiskit_experiments.curve_analysis.visualization.mpl_drawer import MplCurveDrawer
 
 import qiskit_experiments.data_processing as dp
 from qiskit_experiments.database_service.device_component import Qubit
@@ -197,8 +196,8 @@ class CrossResonanceHamiltonianAnalysis(curve.CurveAnalysis):
     @classmethod
     def _default_options(cls):
         """Return the default analysis options."""
-        drawer = MplCurveDrawer()
-        drawer.set_options(
+        default_options = super()._default_options()
+        default_options.curve_plotter.set_options(
             subplots=(3, 1),
             xlabel="Flat top width",
             ylabel=["<X(t)>", "<Y(t)>", "<Z(t)>"],
@@ -208,9 +207,6 @@ class CrossResonanceHamiltonianAnalysis(curve.CurveAnalysis):
             fit_report_rpos=(0.28, -0.10),
             ylim=(-1, 1),
         )
-
-        default_options = super()._default_options()
-        default_options.curve_plotter = drawer
         default_options.data_processor = dp.DataProcessor(
             input_key="counts",
             data_actions=[dp.Probability("1"), dp.BasisExpectationValue()],

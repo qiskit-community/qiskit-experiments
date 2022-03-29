@@ -18,7 +18,6 @@ import numpy as np
 
 import qiskit_experiments.curve_analysis as curve
 from qiskit_experiments.curve_analysis import fit_function
-from qiskit_experiments.curve_analysis.visualization.mpl_drawer import MplCurveDrawer
 
 
 class RamseyXYAnalysis(curve.CurveAnalysis):
@@ -95,15 +94,12 @@ class RamseyXYAnalysis(curve.CurveAnalysis):
         See :meth:`~qiskit_experiment.curve_analysis.CurveAnalysis._default_options` for
         descriptions of analysis options.
         """
-        drawer = MplCurveDrawer()
-        drawer.set_options(
+        default_options = super()._default_options()
+        default_options.curve_plotter.set_options(
             xlabel="Delay",
             ylabel="Signal (arb. units)",
             xval_unit="s",
         )
-
-        default_options = super()._default_options()
-        default_options.curve_plotter = drawer
         default_options.result_parameters = ["freq"]
 
         return default_options
