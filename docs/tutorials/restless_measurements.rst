@@ -79,6 +79,13 @@ they use always starts with the qubits in the ground state.
 
     # Enable restless measurements by setting the run options and data processor
     cal_drag.enable_restless(rep_delay=1e-6)
+    
+    print(cal_drag.analysis.options.data_processor)
+    print(cal_drag.run_options)
+
+As you can see, a data processor is automatically chosen for the experiment and the appropriate run 
+options are set. Note that these run options might be unique to IBM Quantum providers. Therefore, 
+execute may fail on non-IBM Quantum providers if the required options are not supported.
 
 After calling ``enable_restless`` the experiment is ready to be run in a restless
 mode. With a hardware backend this would be done by calling the ``run`` method
