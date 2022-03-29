@@ -166,14 +166,21 @@ using the code below.
     meas_length = inst_map.get("measure", (qubit, )).duration * dt
 
     # Compute the average duration of all circuits
-    durations = []
+    # Remove measurement instructions
+    circuits = []
     for qc in cal_drag.circuits():
         qc.remove_final_measurements(inplace=True)
-        qc_schedule = schedule(
-            transpile(qc, backend, initial_layout=[qubit]),
-            backend
-        )
-        durations.append(qc_schedule.duration)
+        circuits.append(qc)
+
+    # Schedule the circuits to obtain the duration of all the gates
+    executed_circs = transpile(
+        cal_drag.circuits(),
+        backend,
+        initial_layout=[qubit],
+        scheduling_method="alap",
+        **cal_drag.transpile_options.__dict__,
+    )
+    durations = [c.duration for c in executed_circs]
 
     tau = sum(durations) * dt / (len(durations))
 
