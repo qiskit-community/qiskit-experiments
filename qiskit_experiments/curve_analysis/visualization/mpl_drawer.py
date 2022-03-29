@@ -17,7 +17,7 @@ from typing import List, Dict, Sequence, Union, Optional, Callable
 import numpy as np
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
-from matplotlib.ticker import FuncFormatter, ScalarFormatter
+from matplotlib.ticker import ScalarFormatter, Formatter
 from qiskit.utils import detach_prefix
 from uncertainties import unumpy as unp, UFloat
 
@@ -29,6 +29,20 @@ from .base_drawer import BaseCurveDrawer
 
 class MplCurveDrawer(BaseCurveDrawer):
     """Curve drawer for MatplotLib backend."""
+
+    class PrefixFormatter(Formatter):
+        """Matplotlib axis formatter to detach prefix.
+
+        If axis value is x=1000 and the factor is 1000, it will be shown
+        to be 1.0 in the ticks and its unit is shown with the prefactor 'k'
+        in the axis label.
+        """
+
+        def __init__(self, factor: float):
+            self.factor = factor
+
+        def __call__(self, x, pos=None):
+            return self.fix_minus("{:.3g}".format(x * self.factor))
 
     def initialize_canvas(self):
         # Create axis if empty
@@ -144,10 +158,7 @@ class MplCurveDrawer(BaseCurveDrawer):
                     prefix = ""
                     prefactor = 1
 
-                # pylint: disable=cell-var-from-loop
-                formatter = FuncFormatter(lambda x, p: f"{x * prefactor: .3g}")
-
-                # Add units to axis label if exist
+                formatter = MplCurveDrawer.PrefixFormatter(prefactor)
                 units_str = f" [{prefix}{unit}]"
             else:
                 # Use scientific notation with 3 digits, 1000 -> 1e3
