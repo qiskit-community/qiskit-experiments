@@ -13,7 +13,9 @@
 """Test the half angle experiment."""
 
 from test.base import QiskitExperimentsTestCase
+import unittest
 import copy
+from typing import Dict, List, Any
 import numpy as np
 
 from qiskit import QuantumCircuit, transpile
@@ -23,6 +25,26 @@ from qiskit.pulse import InstructionScheduleMap
 
 from qiskit_experiments.test.mock_iq_backend import MockIQBackend
 from qiskit_experiments.library import HalfAngle
+
+
+def compute_probability_half_angle(
+    circuits: List[QuantumCircuit], calc_parameters_list: List[Dict[str, Any]]
+) -> List[Dict[str, float]]:
+    """Returns the probability of measuring the excited state."""
+
+    error = calc_parameters_list[0].get("error", 0)
+
+    output_dict_list = []
+    for circuit in circuits:
+        probability_output_dict = {}
+        n_gates = circuit.metadata["xval"]
+
+        # Dictionary of output string vectors and their probability
+        probability_output_dict["1"] = 0.5 * np.sin((-1) ** (n_gates + 1) * n_gates * error) + 0.5
+        probability_output_dict["0"] = 1 - probability_output_dict["1"]
+        output_dict_list.append(probability_output_dict)
+    return output_dict_list
+
 
 
 class HalfAngleTestBackend(MockIQBackend):
@@ -49,8 +71,14 @@ class TestHalfAngle(QiskitExperimentsTestCase):
 
         tol = 0.005
         for error in [-0.05, -0.02, 0.02, 0.05]:
+            calc_parameters = {"error": error}
             hac = HalfAngle(0)
-            exp_data = hac.run(HalfAngleTestBackend(error))
+            exp_data = hac.run(MockIQBackend(
+                compute_probabilities=compute_probability_half_angle,
+                calculation_parameters=[calc_parameters])
+            )
+
+            # exp_data = hac.run(HalfAngleTestBackend(error))
             self.assertExperimentDone(exp_data)
             d_theta = exp_data.analysis_results(1).value.n
 
@@ -87,3 +115,7 @@ class TestHalfAngle(QiskitExperimentsTestCase):
         loaded_exp = HalfAngle.from_config(config)
         self.assertNotEqual(exp, loaded_exp)
         self.assertEqual(config, loaded_exp.config())
+
+
+if __name__ == "__main__":
+    unittest.main()

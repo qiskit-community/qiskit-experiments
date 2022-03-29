@@ -14,19 +14,24 @@ Test readout angle experiment
 """
 
 from test.base import QiskitExperimentsTestCase
+import unittest
+from typing import Dict, List
 import numpy as np
 
+from qiskit import QuantumCircuit
 from qiskit_experiments.library import ReadoutAngle
 from qiskit_experiments.test.mock_iq_backend import MockIQBackend
 
 
-class ReadoutAngleBackend(MockIQBackend):
-    """
-    Mock IQ backend tailored to the readout angle test
-    """
+def compute_probability_half_angle(circuits: List[QuantumCircuit]) -> List[Dict[str, float]]:
+    """Returns the probability based on the beta, number of gates, and leakage."""
 
-    def _compute_probability(self, circuit):
-        return 1 - circuit.metadata["xval"]
+    output_dict_list = []
+    for circuit in circuits:
+        probability_output_dict = {"1": 1 - circuit.metadata["xval"]}
+        probability_output_dict["0"] = 1 - probability_output_dict["1"]
+        output_dict_list.append(probability_output_dict)
+    return output_dict_list
 
 
 class TestReadoutAngle(QiskitExperimentsTestCase):
@@ -38,16 +43,25 @@ class TestReadoutAngle(QiskitExperimentsTestCase):
         """
         Test readout angle experiment using a simulator.
         """
-        backend = ReadoutAngleBackend(iq_cluster_centers=(5.0, 5.0, -3.0, 3.0))
+
+        backend = MockIQBackend(iq_cluster_centers=[((5.0, 5.0), (-3.0, 3.0))],
+                                compute_probabilities=compute_probability_half_angle
+                                )
         exp = ReadoutAngle(0)
         expdata = exp.run(backend, shots=100000)
         self.assertExperimentDone(expdata)
         res = expdata.analysis_results(0)
         self.assertAlmostEqual(res.value % (2 * np.pi), np.pi / 2, places=2)
 
-        backend = ReadoutAngleBackend(iq_cluster_centers=(5.0, 5.0, 0, -3.0))
+        backend = MockIQBackend(iq_cluster_centers=[((5.0, 5.0), (0, -3.0))],
+                                compute_probabilities=compute_probability_half_angle
+                                )
         exp = ReadoutAngle(0)
         expdata = exp.run(backend, shots=100000)
         self.assertExperimentDone(expdata)
         res = expdata.analysis_results(0)
         self.assertAlmostEqual(res.value % (2 * np.pi), 15 * np.pi / 8, places=2)
+
+
+if __name__ == "__main__":
+    unittest.main()

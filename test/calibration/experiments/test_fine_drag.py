@@ -38,7 +38,6 @@ def fine_drag_compute_probabilities(
     output_dict_list = []
     for circuit in circuits:
         probability_output_dict = {}
-        # Need to change that the output will be dict. Need to see what the circuit do.
         n_gates = circuit.count_ops().get("rz", 0) // 2
 
         # Dictionary of output string vectors and their probability

@@ -13,7 +13,7 @@
 """Spectroscopy tests for resonator spectroscop experiment."""
 
 from test.base import QiskitExperimentsTestCase
-from typing import Tuple
+from typing import Tuple, Dict, List, Any
 import numpy as np
 from ddt import ddt, data
 
@@ -23,6 +23,25 @@ from qiskit_experiments.library import ResonatorSpectroscopy
 from qiskit_experiments.test.mock_iq_backend import MockIQBackend
 
 
+def compute_probability_resonator_spectroscopy(circuits: List[QuantumCircuit],
+                                               calc_parameters_list: List[Dict[str, Any]]) \
+        -> List[Dict[str, float]]:
+    """Returns the probability based on the beta, number of gates, and leakage."""
+    freq_offset = calc_parameters_list[0].get("freq_offset", 0.0)
+    line_width = calc_parameters_list[0].get("line_width", 2e6)
+    output_dict_list = []
+    for circuit in circuits:
+        """Returns the probability based on the frequency."""
+        probability_output_dict = {}
+        freq_shift = next(iter(circuit.calibrations["measure"].values())).blocks[0].frequency
+        delta_freq = freq_shift - freq_offset
+
+        probability_output_dict["1"] = np.abs(1 / (1 + 2.0j * delta_freq / line_width))
+        probability_output_dict["0"] = 1 - probability_output_dict["1"]
+        output_dict_list.append(probability_output_dict)
+    return output_dict_list
+
+
 class ResonatorSpectroscopyBackend(MockIQBackend):
     """A simple and primitive backend to test spectroscopy experiments."""
 
@@ -30,23 +49,18 @@ class ResonatorSpectroscopyBackend(MockIQBackend):
         self,
         line_width: float = 2e6,
         freq_offset: float = 0.0,
-        iq_cluster_centers: Tuple[float, float, float, float] = (-1.0, 0.0, 0.0, 0.0),
-        iq_cluster_width: float = 0.2,
+        iq_cluster_centers: List[Tuple[Tuple[float, float], Tuple[float, float]]] = None,
+        iq_cluster_width: List[float] = None,
     ):
         """Initialize the spectroscopy backend."""
 
         super().__init__(iq_cluster_centers, iq_cluster_width)
-
-        self._linewidth = line_width
+        self._iq_cluster_centers = iq_cluster_centers or [((-1.0, 0.0), (0.0, 0.0))]
+        self._iq_cluster_width = iq_cluster_width or [0.2]
         self._freq_offset = freq_offset
+        self._linewidth = line_width
+
         self._configuration.timing_constraints = {"granularity": 16}
-
-    def _compute_probability(self, circuit: QuantumCircuit) -> float:
-        """Returns the probability based on the frequency."""
-        freq_shift = next(iter(circuit.calibrations["measure"].values())).blocks[0].frequency
-        delta_freq = freq_shift - self._freq_offset
-
-        return np.abs(1 / (1 + 2.0j * delta_freq / self._linewidth))
 
     def _iq_phase(self, circuit: QuantumCircuit) -> float:
         """Add a phase to the IQ point depending on how far we are from the resonance.

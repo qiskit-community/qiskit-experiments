@@ -248,7 +248,9 @@ class MockIQBackend(FakeOpenPulse2Q):
         """
         widths = self._iq_cluster_width
         samples = [self._rng.normal(0, widths[qubit], size=1) for qubit in range(num_qubits)]
-        return samples
+        # we squeeze the second dimension because samples is List[qubit_number][0][0\1] = I\Q
+        # and we want to change it to be List[qubit_number][0\1]
+        return np.squeeze(np.array(samples), axis=1)
 
     def _probability_dict_to_probability_array(
         self, prob_dict: Dict[str, float], num_qubits: int
@@ -277,8 +279,8 @@ class MockIQBackend(FakeOpenPulse2Q):
         # Randomize samples
         qubits_iq_rand = []
         for _ in range(shots):
-            rand_i = np.squeeze(np.array(self._get_normal_samples_for_shot(num_qubits)))
-            rand_q = np.squeeze(np.array(self._get_normal_samples_for_shot(num_qubits)))
+            rand_i = self._get_normal_samples_for_shot(num_qubits)
+            rand_q = self._get_normal_samples_for_shot(num_qubits)
             qubits_iq_rand.append(np.array([rand_i, rand_q], dtype="float").T)
 
         memory = []
@@ -376,8 +378,10 @@ class MockIQBackend(FakeOpenPulse2Q):
             "success": True,
             "results": [],
         }
-
-        prob_list = self._compute_probabilities(run_input, self._calculation_parameters)
+        if self._calculation_parameters:
+            prob_list = self._compute_probabilities(run_input, self._calculation_parameters)
+        else:
+            prob_list = self._compute_probabilities(run_input)
         for prob, circ in zip(prob_list, run_input):
             # nqubits = circ.num_qubits
             nqubits = len(circ.qregs)
