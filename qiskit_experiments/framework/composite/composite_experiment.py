@@ -16,8 +16,9 @@ Composite Experiment abstract base class.
 from typing import List, Sequence, Optional, Union
 from abc import abstractmethod
 import warnings
+from qiskit import QiskitError
 from qiskit.providers.backend import Backend
-from qiskit_experiments.framework import BaseExperiment, ExperimentData
+from qiskit_experiments.framework import BaseExperiment
 from qiskit_experiments.framework.base_analysis import BaseAnalysis
 from .composite_analysis import CompositeAnalysis
 
@@ -31,6 +32,7 @@ class CompositeExperiment(BaseExperiment):
         qubits: Sequence[int],
         backend: Optional[Backend] = None,
         experiment_type: Optional[str] = None,
+        analysis: Optional[CompositeAnalysis] = None,
     ):
         """Initialize the composite experiment object.
 
@@ -39,10 +41,23 @@ class CompositeExperiment(BaseExperiment):
             qubits: list of physical qubits for the experiment.
             backend: Optional, the backend to run the experiment on.
             experiment_type: Optional, composite experiment subclass name.
+            analysis: Optional, the composite analysis class to use. If not
+                      provided this will be initialized automatically from the
+                      supplied experiments.
+
+        Raises:
+            QiskitError: if the provided analysis class is not a CompositeAnalysis
+                         instance.
         """
         self._experiments = experiments
         self._num_experiments = len(experiments)
-        analysis = CompositeAnalysis([exp.analysis for exp in self._experiments])
+        if analysis is None:
+            analysis = CompositeAnalysis([exp.analysis for exp in self._experiments])
+        elif not isinstance(analysis, CompositeAnalysis):
+            raise QiskitError(
+                f"{type(analysis)} is not a CompositeAnalysis instance. CompositeExperiments"
+                " require a CompositeAnalysis class or subclass for analysis."
+            )
         super().__init__(
             qubits,
             analysis=analysis,
@@ -142,20 +157,11 @@ class CompositeExperiment(BaseExperiment):
             # Call sub-experiments finalize method
             subexp._finalize()
 
-    def _initialize_experiment_data(self):
-        """Initialize the return data container for the experiment run"""
-        experiment_data = ExperimentData(experiment=self)
-        # Initialize child experiment data
-        for sub_exp in self._experiments:
-            sub_data = sub_exp._initialize_experiment_data()
-            experiment_data.add_child_data(sub_data)
-        experiment_data.metadata["component_child_index"] = list(range(self.num_experiments))
-        return experiment_data
-
     def _additional_metadata(self):
         """Add component experiment metadata"""
         return {
-            "component_metadata": [sub_exp._metadata() for sub_exp in self.component_experiment()]
+            "component_types": [sub_exp.experiment_type for sub_exp in self.component_experiment()],
+            "component_metadata": [sub_exp._metadata() for sub_exp in self.component_experiment()],
         }
 
     def _add_job_metadata(self, metadata, jobs, **run_options):
