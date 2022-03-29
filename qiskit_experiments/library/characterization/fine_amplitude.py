@@ -409,7 +409,9 @@ class FineZXAmplitude(FineAmplitude):
         super().enable_restless(rep_delay, override_processor_by_restless)
         self._measurement_qubits = range(self.num_qubits)
 
-    def _get_restless_processor(self) -> DataProcessor:
+    def _get_restless_processor(
+        self, meas_level: int = 2, meas_return: str = "average"
+    ) -> DataProcessor:
         """Marginalize the counts after the restless shot reordering."""
         return DataProcessor(
             "memory",
