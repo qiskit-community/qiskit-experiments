@@ -124,9 +124,9 @@ as well as randomized benchmarking.
 Calculating restless quantum processor speed-ups
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-We can compare the time spent by the quantum processor executing restless and
-standard jobs. This allows us to compute the effective speed-up we gain when
-performing restless experiments. Note that we do not consider any classical
+Following Ref. [2], we can compare the time spent by the quantum processor executing
+restless and standard jobs. This allows us to compute the effective speed-up we gain
+when performing restless experiments. Note that we do not consider any classical
 run-time contributions such as runtime-compilation or data transfer times [3].
 The time to run :math:`K` circuits and gather :math:`N` shots for each
 circuit is
