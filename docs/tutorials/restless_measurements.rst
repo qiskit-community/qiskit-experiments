@@ -149,8 +149,9 @@ where :math:`\tau_{\text{circ},k}` is the duration of only the gates in circuit
 measurements as :math:`\tau^{(\text{s})}/\tau^{(\text{r})}` which is independent
 of the number of circuits and shots.
 
-The standard reset time is on average :math:`\tau^{(s)}_\text{reset} = 4\,\mu s`
+The standard reset time in IBM Quantum backends is on average :math:`\tau^{(s)}_\text{reset} = 4\,\mu s`
 whereas :math:`\tau^{(r)}_\text{reset} = 0\,\mu s` since we do not reset the
+
 qubit in a restless experiment. By default, the repetition delay is
 :math:`\tau^{(s)}_\text{delay} = 250\,\mu s`. For our restless experiments we
 set :math:`\tau^{(r)}_\text{delay} = 1\,\mu s`. These speed-ups can be evaluated
