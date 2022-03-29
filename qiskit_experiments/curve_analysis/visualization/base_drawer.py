@@ -240,11 +240,14 @@ class BaseCurveDrawer(ABC):
         This method returns the entire figure object, which is saved in the database.
         """
 
+    def config(self) -> Dict:
+        """Return the config dictionary for this drawing."""
+        options = dict((key, getattr(self._options, key)) for key in self._set_options)
+
+        return {"cls": type(self), "options": options}
+
     def __json_encode__(self):
-        return {
-            "cls": type(self),
-            "options": self._set_options,
-        }
+        return self.config()
 
     @classmethod
     def __json_decode__(cls, value):
