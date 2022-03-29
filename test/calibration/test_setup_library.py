@@ -27,7 +27,10 @@ from qiskit_experiments.calibration_management.basis_gate_library import (
 )
 from qiskit_experiments.calibration_management.calibration_key_types import DefaultCalValue
 from qiskit_experiments.calibration_management.calibrations import Calibrations
-from qiskit_experiments.calibration_management.calibration_utils import compare_schedule_blocks
+from qiskit_experiments.calibration_management.calibration_utils import (
+    compare_schedule_blocks,
+    get_called_subroutines,
+)
 from qiskit_experiments.exceptions import CalibrationError
 from qiskit_experiments.framework.json import ExperimentEncoder, ExperimentDecoder
 
@@ -244,7 +247,7 @@ class TestFixedFrequencyTransmon(QiskitExperimentsTestCase):
 
 
 @ddt
-class TestFixedFrequencyTransmonCR(QiskitExperimentsTestCase):
+class TestEchoedCrossResonance(QiskitExperimentsTestCase):
     """Test the cross-resonance extension of the fixed frequency library."""
 
     def test_library(self):
@@ -313,3 +316,16 @@ class TestFixedFrequencyTransmonCR(QiskitExperimentsTestCase):
         lib2 = json.loads(lib_data, cls=ExperimentDecoder)
 
         self.assertTrue(_test_library_equivalence(lib1, lib2))
+
+    def test_library_list_json(self):
+        """Check that library dependencies are preserved when serializing several of them."""
+        lib_sq = FixedFrequencyTransmon()
+        lic_cr = EchoedCrossResonance(lib_sq)
+
+        libraries = [lib_sq, lic_cr]
+
+        lib_data = json.dumps(libraries, cls=ExperimentEncoder)
+        libraries2 = json.loads(lib_data, cls=ExperimentDecoder)
+        x_gate_ecr = get_called_subroutines(libraries2[1]["ecr"])[0]
+
+        self.assertEqual(libraries2[0]["x"], x_gate_ecr)

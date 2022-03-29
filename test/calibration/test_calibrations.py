@@ -779,6 +779,23 @@ class TestRegistering(QiskitExperimentsTestCase):
                 error.message, "Calling a Schedule is forbidden, call ScheduleBlock instead."
             )
 
+    def test_calls_and_libraries(self):
+        """This tests that called schedules are the same as the ones already registered."""
+
+        # This should succeed as the libraries are properly configured.
+        sq_lib = FixedFrequencyTransmon()
+        lib_ecr = EchoedCrossResonance(sq_lib)
+        cals = Calibrations.from_backend(backend=FakeBelem(), library=[sq_lib, lib_ecr])
+
+        self.assertTrue(isinstance(cals.get_schedule("ecr", (0, 1)), pulse.ScheduleBlock))
+
+        # This test will fail with a calibration error as the x gate in the second single-qubit
+        # library is a different instance from the one in the first.
+        lib_ecr = EchoedCrossResonance(FixedFrequencyTransmon())
+
+        with self.assertRaises(CalibrationError):
+            Calibrations.from_backend(backend=FakeBelem(), library=[sq_lib, lib_ecr])
+
 
 class CrossResonanceTest(QiskitExperimentsTestCase):
     """Setup class for an echoed cross-resonance calibration."""

@@ -40,7 +40,10 @@ from qiskit.circuit import Parameter, ParameterExpression
 from qiskit.providers.backend import BackendV1 as Backend
 
 from qiskit_experiments.exceptions import CalibrationError
-from qiskit_experiments.calibration_management.calibration_utils import compare_schedule_blocks
+from qiskit_experiments.calibration_management.calibration_utils import (
+    compare_schedule_blocks,
+    get_called_subroutines,
+)
 from qiskit_experiments.calibration_management.basis_gate_library import BasisGateLibrary
 from qiskit_experiments.calibration_management.parameter_value import ParameterValue
 from qiskit_experiments.calibration_management.control_channel_map import ControlChannelMap
@@ -526,6 +529,7 @@ class Calibrations:
             CalibrationError: If a :class:`Schedule` is Called instead of a :class:`ScheduleBlock`.
             CalibrationError: If a schedule with the same name exists and acts on a different
                 number of qubits.
+            CalibrationError: If a called subroutine is not equal to one that was already added.
 
         """
         self._has_manually_added_schedule = True
@@ -571,18 +575,23 @@ class Calibrations:
                     )
 
         # Check that subroutines are present.
-        for block in schedule.blocks:
-            if isinstance(block, Call):
-                if isinstance(block.subroutine, Schedule):
-                    raise CalibrationError(
-                        "Calling a Schedule is forbidden, call ScheduleBlock instead."
-                    )
+        for subroutine in get_called_subroutines(schedule):
+            if isinstance(subroutine, Schedule):
+                raise CalibrationError(
+                    "Calling a Schedule is forbidden, call ScheduleBlock instead."
+                )
 
-                if (block.subroutine.name, qubits) not in self._schedules:
-                    raise CalibrationError(
-                        f"Cannot register schedule block {schedule.name} with unregistered "
-                        f"subroutine {block.subroutine.name}."
-                    )
+            if (subroutine.name, qubits) not in self._schedules:
+                raise CalibrationError(
+                    f"Cannot register schedule block {schedule.name} with unregistered "
+                    f"subroutine {subroutine.name}."
+                )
+
+            if self._schedules[(subroutine.name, qubits)] != subroutine:
+                raise CalibrationError(
+                    f"The subroutine {subroutine.name} called by {schedule.name} does not "
+                    "correspond to the already added subroutine with the same name."
+                )
 
         # Clean the parameter to schedule mapping. This is needed if we overwrite a schedule.
         self._clean_parameter_map(schedule.name, qubits)
