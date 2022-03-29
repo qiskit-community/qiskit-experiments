@@ -31,7 +31,7 @@ class TestAmplitudeUpdate(QiskitExperimentsTestCase):
     def setUp(self):
         """Setup amplitude values."""
         super().setUp()
-        self.cals = Calibrations()
+        self.cals = Calibrations(coupling_map=[])
         self.qubit = 1
 
         axp = Parameter("amp")

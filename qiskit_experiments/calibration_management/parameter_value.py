@@ -69,6 +69,8 @@ class ParameterValue:
                     f"Cannot parse {self.date_time} in either of {formats} formats."
                 )
 
+        self.date_time = self.date_time.astimezone()
+
         if not isinstance(self.value, (int, float, complex)):
             raise CalibrationError(f"Values {self.value} must be int, float or complex.")
 
