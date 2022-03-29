@@ -20,7 +20,8 @@ reset is the main idea behind restless measurements.
 
 The IBM Quantum devices have dynamical repetition delays enabled. This means that
 we can choose the delay between the execution of two quantum circuits. This delay
-can typically range from :math:`0` to :math:`500\,\mu s`. The default value for
+can typically range from :math:`0` to :math:`500\,\mu s` depending on the system. The default value for
+
 most of the devices is :math:`250\,\mu s`. Restless measurements set this delay to
 a small value such as :math:`1\,\mu s`.
 
