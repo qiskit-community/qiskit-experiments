@@ -14,10 +14,9 @@
 A Tester for the RB experiment
 """
 from test.base import QiskitExperimentsTestCase
-import itertools as it
 import ddt
 from qiskit import QuantumCircuit
-from qiskit.circuit.library import XGate
+from qiskit.circuit.library import XGate, CXGate
 import qiskit.quantum_info as qi
 from qiskit.providers.aer import AerSimulator
 from qiskit_experiments.framework import BatchExperiment, ParallelExperiment
@@ -26,7 +25,14 @@ from qiskit_experiments.library.tomography import StateTomographyAnalysis, Proce
 
 
 # TODO: tests for CVXPY fitters
-FITTERS = [None, "linear_inversion", "scipy_linear_lstsq", "scipy_gaussian_lstsq"]
+FITTERS = [
+    None,
+    "linear_inversion",
+    "scipy_linear_lstsq",
+    "scipy_gaussian_lstsq",
+    "cvxpy_linear_lstsq",
+    "cvxpy_gaussian_lstsq",
+]
 
 
 def filter_results(analysis_results, name):
@@ -41,34 +47,46 @@ def filter_results(analysis_results, name):
 class TestStateTomography(QiskitExperimentsTestCase):
     """Test StateTomography"""
 
-    @ddt.data(*list(it.product([1, 2], FITTERS)))
-    @ddt.unpack
-    def test_full_qst(self, num_qubits, fitter):
-        """Test 1-qubit QST experiment"""
-        backend = AerSimulator(seed_simulator=9000)
+    @ddt.data(1, 2)
+    def test_full_qst(self, num_qubits):
+        """Test QST experiment"""
         seed = 1234
-        f_threshold = 0.95
+        shots = 5000
+        f_threshold = 0.99
+
+        # Generate tomography data without analysis
+        backend = AerSimulator(seed_simulator=seed, shots=shots)
         target = qi.random_statevector(2**num_qubits, seed=seed)
-        qstexp = StateTomography(target)
-        if fitter:
-            qstexp.analysis.set_options(fitter=fitter)
-        expdata = qstexp.run(backend)
+        exp = StateTomography(target)
+        expdata = exp.run(backend, analysis=None)
         self.assertExperimentDone(expdata)
-        results = expdata.analysis_results()
 
-        # Check state is density matrix
-        state = filter_results(results, "state").value
-        self.assertTrue(
-            isinstance(state, qi.DensityMatrix), msg="fitted state is not density matrix"
-        )
+        # Run each tomography fitter analysis as a subtest so
+        # we don't have to re-run simulation data for each fitter
+        for fitter in FITTERS:
+            with self.subTest(fitter=fitter):
+                if fitter:
+                    exp.analysis.set_options(fitter=fitter)
+                fitdata = exp.analysis.run(expdata)
+                self.assertExperimentDone(fitdata)
+                results = expdata.analysis_results()
 
-        # Check fit state fidelity
-        fid = filter_results(results, "state_fidelity").value
-        self.assertGreater(fid, f_threshold, msg="fit fidelity is low")
+                # Check state is density matrix
+                state = filter_results(results, "state").value
+                self.assertTrue(
+                    isinstance(state, qi.DensityMatrix),
+                    msg=f"{fitter} fitted state is not density matrix",
+                )
 
-        # Manually check fidelity
-        target_fid = qi.state_fidelity(state, target, validate=False)
-        self.assertAlmostEqual(fid, target_fid, places=6, msg="result fidelity is incorrect")
+                # Check fit state fidelity
+                fid = filter_results(results, "state_fidelity").value
+                self.assertGreater(fid, f_threshold, msg=f"{fitter} fit fidelity is low")
+
+                # Manually check fidelity
+                target_fid = qi.state_fidelity(state, target, validate=False)
+                self.assertAlmostEqual(
+                    fid, target_fid, places=6, msg=f"{fitter} result fidelity is incorrect"
+                )
 
     def test_qst_teleport(self):
         """Test subset state tomography generation"""
@@ -300,31 +318,76 @@ class TestStateTomography(QiskitExperimentsTestCase):
 class TestProcessTomography(QiskitExperimentsTestCase):
     """Test QuantumProcessTomography"""
 
-    @ddt.data(*list(it.product([1, 2], FITTERS)))
-    @ddt.unpack
-    def test_full_qpt(self, num_qubits, fitter):
+    @ddt.data(1, 2)
+    def test_full_qpt_random_unitary(self, num_qubits):
         """Test QPT experiment"""
-        backend = AerSimulator(seed_simulator=9000)
         seed = 1234
-        f_threshold = 0.94
+        shots = 5000
+        f_threshold = 0.98
+
+        # Generate tomography data without analysis
+        backend = AerSimulator(seed_simulator=seed, shots=shots)
         target = qi.random_unitary(2**num_qubits, seed=seed)
-        qstexp = ProcessTomography(target)
-        if fitter:
-            qstexp.analysis.set_options(fitter=fitter)
-        expdata = qstexp.run(backend)
+        exp = ProcessTomography(target)
+        expdata = exp.run(backend, analysis=None)
         self.assertExperimentDone(expdata)
+
+        # Run each tomography fitter analysis as a subtest so
+        # we don't have to re-run simulation data for each fitter
+        for fitter in FITTERS:
+            with self.subTest(fitter=fitter):
+                if fitter:
+                    exp.analysis.set_options(fitter=fitter)
+                fitdata = exp.analysis.run(expdata)
+                self.assertExperimentDone(fitdata)
+                results = fitdata.analysis_results()
+
+                # Check state is density matrix
+                state = filter_results(results, "state").value
+                self.assertTrue(
+                    isinstance(state, qi.Choi), msg=f"{fitter} fitted state is not a Choi matrix"
+                )
+
+                # Check fit state fidelity
+                fid = filter_results(results, "process_fidelity").value
+                self.assertGreater(fid, f_threshold, msg=f"{fitter} fit fidelity is low")
+                # Manually check fidelity
+                target_fid = qi.process_fidelity(state, target, require_tp=False, require_cp=False)
+                self.assertAlmostEqual(
+                    fid, target_fid, places=6, msg=f"{fitter} result fidelity is incorrect"
+                )
+
+    def test_cvxpy_gaussian_lstsq_cx(self):
+        """Test fitter with high fidelity threshold"""
+        seed = 1234
+        shots = 3000
+        f_threshold = 0.999
+        fitter = "cvxpy_gaussian_lstsq"
+
+        # Generate tomography data without analysis
+        backend = AerSimulator(seed_simulator=seed, shots=shots)
+        target = CXGate()
+        exp = ProcessTomography(target)
+        exp.analysis.set_options(fitter=fitter)
+        expdata = exp.run(backend)
+        self.assertExperimentDone(expdata)
+
         results = expdata.analysis_results()
 
         # Check state is density matrix
         state = filter_results(results, "state").value
-        self.assertTrue(isinstance(state, qi.Choi), msg="fitted state is not a Choi matrix")
+        self.assertTrue(
+            isinstance(state, qi.Choi), msg=f"{fitter} fitted state is not a Choi matrix"
+        )
 
         # Check fit state fidelity
         fid = filter_results(results, "process_fidelity").value
-        self.assertGreater(fid, f_threshold, msg="fit fidelity is low")
+        self.assertGreater(fid, f_threshold, msg=f"{fitter} fit fidelity is low")
         # Manually check fidelity
         target_fid = qi.process_fidelity(state, target, require_tp=False, require_cp=False)
-        self.assertAlmostEqual(fid, target_fid, places=6, msg="result fidelity is incorrect")
+        self.assertAlmostEqual(
+            fid, target_fid, places=6, msg=f"{fitter} result fidelity is incorrect"
+        )
 
     @ddt.data([0], [1], [2], [0, 1], [1, 0], [0, 2], [2, 0], [1, 2], [2, 1])
     def test_exp_measurement_preparation_qubits(self, qubits):
