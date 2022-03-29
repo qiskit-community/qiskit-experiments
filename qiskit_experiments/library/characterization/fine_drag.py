@@ -211,7 +211,12 @@ class FineDrag(BaseExperiment, RestlessMixin):
             circuit.measure_all()
 
             if schedule is not None:
-                circuit.add_calibration(schedule.name, self.physical_qubits, schedule, params=[])
+                circuit.add_calibration(
+                    self.experiment_options.gate.name,
+                    self.physical_qubits,
+                    schedule,
+                    params=[],
+                )
 
             circuit.metadata = {
                 "experiment_type": self._type,
