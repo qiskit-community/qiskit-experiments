@@ -13,7 +13,7 @@
 Common utility functions for tomography fitters.
 """
 
-from typing import Optional, List, Tuple
+from typing import Optional, Tuple
 import numpy as np
 
 from qiskit_experiments.library.tomography.basis import (
@@ -23,7 +23,7 @@ from qiskit_experiments.library.tomography.basis import (
 
 
 def lstsq_data(
-    outcome_data: List[np.ndarray],
+    outcome_data: np.ndarray,
     shot_data: np.ndarray,
     measurement_data: np.ndarray,
     preparation_data: np.ndarray,
@@ -32,9 +32,7 @@ def lstsq_data(
 ) -> Tuple[np.ndarray, np.ndarray]:
     """Return stacked vectorized basis matrix A for least squares."""
     # Get leading dimension of returned matrix
-    size = 0
-    for outcome in outcome_data:
-        size += len(outcome)
+    size = outcome_data.size
 
     # Get measurement basis dimensions
     if measurement_basis:
@@ -68,7 +66,7 @@ def lstsq_data(
             p_mat = None
 
         # Get probabilities and optional measurement basis component
-        for outcome, freq in odata:
+        for outcome in range(odata.size):
             if measurement_basis:
                 op = measurement_basis.matrix(midx, outcome)
                 if preparation_basis:
@@ -78,20 +76,20 @@ def lstsq_data(
 
             # Add vectorized op to stacked basis matrix
             basis_mat[idx] = np.conj(np.ravel(op, order="F"))
-            probs[idx] = freq / shots
+            probs[idx] = odata[outcome] / shots
             idx += 1
     return basis_mat, probs
 
 
 def binomial_weights(
-    outcome_data: List[np.ndarray],
+    outcome_data: np.ndarray,
     shot_data: np.ndarray,
     num_outcomes: Optional[np.ndarray] = None,
     beta: float = 0,
 ) -> np.ndarray:
     r"""Compute weights vector from the binomial distribution.
 
-    The returned weights are given by :math:`w_i 1 / \sigma_i` where
+    The returned weights are given by :math:`w_i = 1 / \sigma_i` where
     the standard deviation :math:`\sigma_i` is estimated as
     :math:`\sigma_i = \sqrt{p_i(1-p_i) / n_i}`. To avoid dividing
     by zero the probabilities are hedged using the *add-beta* rule
@@ -104,7 +102,7 @@ def binomial_weights(
     outcomes.
 
     Args:
-        outcome_data: list of outcome frequency data.
+        outcome_data: measurement outcome frequency data.
         shot_data: basis measurement total shot data.
         num_outcomes: the number of measurement outcomes for
                       each outcome data set.
@@ -114,13 +112,8 @@ def binomial_weights(
     Returns:
         The weight vector.
     """
-    num_data = len(outcome_data)
-    if num_outcomes is None:
-        num_outcomes = 2 * np.ones(num_data, dtype=int)
-    # Get leading dimension of returned matrix
-    size = 0
-    for outcome in outcome_data:
-        size += len(outcome)
+    size = outcome_data.size
+    num_data, num_outcomes = outcome_data.shape
 
     # Compute hedged probabilities where the "add-beta" rule ensures
     # there are no zero or 1 values so we don't have any zero variance
@@ -129,10 +122,10 @@ def binomial_weights(
     idx = 0
     for i in range(num_data):
         shots = shot_data[i]
-        denom = shots + num_outcomes[i] * beta
-        odata = outcome_data[i]
-        for outcome, freq in odata:
-            probs[idx] = (freq + beta) / denom
+        denom = shots + num_outcomes * beta
+        freqs = outcome_data[i]
+        for outcome in range(num_outcomes):
+            probs[idx] = (freqs[outcome] + beta) / denom
             prob_shots[idx] = shots
             idx += 1
     variance = probs * (1 - probs)
