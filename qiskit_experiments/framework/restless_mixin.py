@@ -52,7 +52,7 @@ class RestlessMixin:
 
     analysis: BaseAnalysis
     _default_run_options: Options()
-    _set_run_options: Callable
+    set_run_options: Callable
     _backend: Backend
     _physical_qubits: Sequence[int]
     _num_qubits: int
@@ -98,7 +98,7 @@ class RestlessMixin:
             meas_level = self._default_run_options().get("meas_level", MeasLevel.CLASSIFIED)
             meas_return = self._default_run_options().get("meas_return", MeasReturnType.AVERAGE)
             if not self.analysis.options.get("data_processor", None):
-                self._set_run_options(
+                self.set_run_options(
                     rep_delay=rep_delay,
                     init_qubits=False,
                     memory=True,
@@ -119,7 +119,7 @@ class RestlessMixin:
                     )
             else:
                 if not override_processor_by_restless:
-                    self._set_run_options(
+                    self.set_run_options(
                         rep_delay=rep_delay,
                         init_qubits=False,
                         memory=True,
