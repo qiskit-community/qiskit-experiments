@@ -11,9 +11,11 @@ Active qubit reset, as employed by IBM Quantum systems is more efficient and sav
 time but also lasts a few microseconds (between :math:`3` and :math:`5\,\mu s`).
 Furthermore, a delay, typically lasting :math:`250\,\mu s`, after the reset
 operation is often necessary to ensure a high initialization quality.
-However, for several types of characterization and calibration experiments qubit
-reset is not needed and we can directly continue with the subsequent circuit after
-a short delay, even if the qubit was measured in the excited state. Foregoing qubit
+However, for several types of characterization and calibration experiments we can
+avoid qubit reset by post-processing the measurement outcomes and directly continue 
+with the subsequent circuit after an optional short delay, even if the qubit was 
+measured in the excited state. Foregoing qubit
+
 reset is the main idea behind restless measurements.
 
 The IBM Quantum devices have dynamical repetition delays enabled. This means that
