@@ -170,7 +170,7 @@ using the code below.
 
     # Schedule the circuits to obtain the duration of all the gates
     executed_circs = transpile(
-        cal_drag.circuits(),
+        circuits,
         backend,
         initial_layout=[qubit],
         scheduling_method="alap",
