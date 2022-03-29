@@ -50,9 +50,11 @@ Enabling restless measurements
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 In Qiskit Experiments the experiments that support restless measurements
-inherit from the ``RestlessMixin``. This mix-in class adds methods to set
-restless run options and defines the data processor that will process the
-measured data. Here, we will show how to activate restless measurements using
+have a special method :meth:`enable_restless` to set the restless run options 
+and define the data processor that will process the measured data.
+If you are an experiment developer, you can add the :class:`RestlessMixin`
+to your experiment class to add support for restless measurements.
+Here, we will show how to activate restless measurements using
 a fake backend and a rough Drag experiment. Note however, that you will not
 be able to run the experiment since only real backends support restless
 measurements.
