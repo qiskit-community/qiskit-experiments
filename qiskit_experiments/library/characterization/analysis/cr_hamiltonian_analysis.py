@@ -200,7 +200,11 @@ class CrossResonanceHamiltonianAnalysis(curve.CurveAnalysis):
         default_options.curve_plotter.set_options(
             subplots=(3, 1),
             xlabel="Flat top width",
-            ylabel=["<X(t)>", "<Y(t)>", "<Z(t)>"],
+            ylabel=[
+                r"$\langle$X(t)$\rangle$",
+                r"$\langle$Y(t)$\rangle$",
+                r"$\langle$Z(t)$\rangle$",
+            ],
             xval_unit="s",
             figsize=(8, 10),
             legend_loc="lower right",
