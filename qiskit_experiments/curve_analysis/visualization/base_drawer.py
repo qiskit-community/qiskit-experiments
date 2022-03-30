@@ -184,7 +184,7 @@ class BaseCurveDrawer(ABC):
         ax_index: Optional[int] = None,
         **options,
     ):
-        """Draw formatted data that used for fitting.
+        """Draw the formatted data that is used for fitting.
 
         Args:
             x_data: X values.
