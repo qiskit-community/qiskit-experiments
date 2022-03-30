@@ -22,7 +22,7 @@ from qiskit_experiments.framework import Options, AnalysisResultData
 class BaseCurveDrawer(ABC):
     """Abstract class for the serializable Qiskit Experiments curve drawer.
 
-    A subclass must implement following abstract methods.
+    A subclass must implement the following abstract methods.
 
     initialize_canvas
 
