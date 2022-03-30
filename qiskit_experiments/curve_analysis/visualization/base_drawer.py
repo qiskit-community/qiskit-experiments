@@ -49,7 +49,7 @@ class BaseCurveDrawer(ABC):
 
         This method is called after data formatting is completed.
         The formatted data might be averaged over the same x values,
-        or smoothed by the filtering algorithms, depending on how analysis class is implemented.
+        or smoothed by a filtering algorithm, depending on how analysis class is implemented.
         This method is called with error bars of y values and the name of the curve.
 
     draw_fit_lines
