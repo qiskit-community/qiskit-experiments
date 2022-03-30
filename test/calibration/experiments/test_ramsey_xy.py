@@ -120,7 +120,6 @@ class TestRamseyXY(QiskitExperimentsTestCase):
             compute_probabilities=ramsey_xy_compute_probabilities,
             calculation_parameters=[calc_parameters],
         )
-        # backend = MockRamseyXY(freq_shift=0)
 
         class NoResults(BaseAnalysis):
             """Simple analysis class that generates no results"""
@@ -158,7 +157,3 @@ class TestRamseyXY(QiskitExperimentsTestCase):
         """Test round trip JSON serialization"""
         exp = FrequencyCal(0, self.cals)
         self.assertRoundTripSerializable(exp, self.json_equiv)
-
-
-if __name__ == "__main__":
-    unittest.main()

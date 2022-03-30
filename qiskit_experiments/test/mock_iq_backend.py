@@ -195,7 +195,7 @@ class MockIQBackend(FakeOpenPulse2Q):
             function 'compute_probabilities'.
         """
 
-        self._iq_cluster_centers = iq_cluster_centers or [((1.0, 1.0), (-1.0, -1.0))]
+        self._iq_cluster_centers = iq_cluster_centers or [((-1.0, -1.0), (1.0, 1.0))]
         self._iq_cluster_width = iq_cluster_width or [1.0]
         self._calculation_parameters = calculation_parameters
         self._compute_probabilities = compute_probabilities
@@ -301,11 +301,6 @@ class MockIQBackend(FakeOpenPulse2Q):
                     # The structure of iq_centers is [qubit_number][logic_result][I/Q].
                     i_center = iq_center[int(char_qubit)][0]
                     q_center = iq_center[int(char_qubit)][1]
-
-                    # In the old code, the first two number in the iq_centers tuple are the [I,Q]
-                    # value corresponding to the measured value of 1 so we make here a little test
-                    # i_center = iq_center[(int(char_qubit)+1)%2][0]
-                    # q_center = iq_center[(int(char_qubit)+1)%2][1]
 
                     point_i = i_center + qubit_iq_rand_sample[0]
                     point_q = q_center + qubit_iq_rand_sample[1]

@@ -13,7 +13,6 @@
 """Test fine drag calibration experiment."""
 
 from test.base import QiskitExperimentsTestCase
-import unittest
 import copy
 from typing import Dict, List, Any
 import numpy as np
@@ -169,7 +168,3 @@ class TestFineDragCal(QiskitExperimentsTestCase):
         self.assertTrue(np.allclose(x_cal.blocks[0].pulse.beta, new_beta))
         self.assertFalse(np.allclose(x_cal.blocks[0].pulse.beta, init_beta))
         self.assertEqual(circs[5].calibrations["sx"][((0,), ())], expected_sx)
-
-
-if __name__ == "__main__":
-    unittest.main()

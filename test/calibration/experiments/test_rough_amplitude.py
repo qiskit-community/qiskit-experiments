@@ -13,7 +13,6 @@
 """Test rough amplitude calibration experiment classes."""
 
 from test.base import QiskitExperimentsTestCase
-import unittest
 from typing import Dict, List, Any
 import numpy as np
 
@@ -173,7 +172,3 @@ class TestSpecializations(QiskitExperimentsTestCase):
         tol = 0.002
         self.assertTrue(abs(self.cals.get_parameter_value("amp", 0, "x12") - 0.333) < tol)
         self.assertTrue(abs(self.cals.get_parameter_value("amp", 0, "sx12") - 0.333 / 2) < tol)
-
-
-if __name__ == "__main__":
-    unittest.main()

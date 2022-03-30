@@ -14,7 +14,6 @@ Test readout angle experiment
 """
 
 from test.base import QiskitExperimentsTestCase
-import unittest
 from typing import Dict, List
 import numpy as np
 
@@ -44,7 +43,7 @@ class TestReadoutAngle(QiskitExperimentsTestCase):
         Test readout angle experiment using a simulator.
         """
 
-        backend = MockIQBackend(iq_cluster_centers=[((5.0, 5.0), (-3.0, 3.0))],
+        backend = MockIQBackend(iq_cluster_centers=[((-3.0, 3.0), (5.0, 5.0))],
                                 compute_probabilities=compute_probability_half_angle
                                 )
         exp = ReadoutAngle(0)
@@ -53,7 +52,7 @@ class TestReadoutAngle(QiskitExperimentsTestCase):
         res = expdata.analysis_results(0)
         self.assertAlmostEqual(res.value % (2 * np.pi), np.pi / 2, places=2)
 
-        backend = MockIQBackend(iq_cluster_centers=[((5.0, 5.0), (0, -3.0))],
+        backend = MockIQBackend(iq_cluster_centers=[((0, -3.0), (5.0, 5.0))],
                                 compute_probabilities=compute_probability_half_angle
                                 )
         exp = ReadoutAngle(0)
@@ -61,7 +60,3 @@ class TestReadoutAngle(QiskitExperimentsTestCase):
         self.assertExperimentDone(expdata)
         res = expdata.analysis_results(0)
         self.assertAlmostEqual(res.value % (2 * np.pi), 15 * np.pi / 8, places=2)
-
-
-if __name__ == "__main__":
-    unittest.main()

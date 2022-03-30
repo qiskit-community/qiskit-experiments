@@ -13,7 +13,6 @@
 """Test the half angle experiment."""
 
 from test.base import QiskitExperimentsTestCase
-import unittest
 import copy
 from typing import Dict, List, Any
 import numpy as np
@@ -46,23 +45,6 @@ def compute_probability_half_angle(
     return output_dict_list
 
 
-
-class HalfAngleTestBackend(MockIQBackend):
-    """A simple and primitive backend, to be run by the half angle tests."""
-
-    def __init__(self, error: float):
-        """Initialize the class."""
-        super().__init__()
-        self._error = error
-
-    def _compute_probability(self, circuit: QuantumCircuit) -> float:
-        """Returns the probability of measuring the excited state."""
-
-        n_gates = circuit.metadata["xval"]
-
-        return 0.5 * np.sin((-1) ** (n_gates + 1) * n_gates * self._error) + 0.5
-
-
 class TestHalfAngle(QiskitExperimentsTestCase):
     """Class to test the half angle experiment."""
 
@@ -78,7 +60,6 @@ class TestHalfAngle(QiskitExperimentsTestCase):
                 calculation_parameters=[calc_parameters])
             )
 
-            # exp_data = hac.run(HalfAngleTestBackend(error))
             self.assertExperimentDone(exp_data)
             d_theta = exp_data.analysis_results(1).value.n
 
@@ -115,7 +96,3 @@ class TestHalfAngle(QiskitExperimentsTestCase):
         loaded_exp = HalfAngle.from_config(config)
         self.assertNotEqual(exp, loaded_exp)
         self.assertEqual(config, loaded_exp.config())
-
-
-if __name__ == "__main__":
-    unittest.main()

@@ -12,7 +12,7 @@
 
 """Rough frequency calibration tests."""
 from test.base import QiskitExperimentsTestCase
-from test.test_qubit_spectroscopy import SpectroscopyBackend, compute_probability_qubit_spectroscopy
+from test.test_qubit_spectroscopy import SpectroscopyBackend, compute_prob_qubit_spectroscopy
 
 import numpy as np
 
@@ -52,9 +52,8 @@ class TestRoughFrequency(QiskitExperimentsTestCase):
         calc_parameters = {"line_width": 2e6, "freq_offset": 5e6}
         backend = SpectroscopyBackend(
             iq_cluster_centers=[((-1.0, -1.0), (1.0, 1.0))],
-            compute_probabilities=compute_probability_qubit_spectroscopy,
+            compute_probabilities=compute_prob_qubit_spectroscopy,
             calculation_parameters=[calc_parameters])
-        # backend = SpectroscopyBackend(freq_offset=5e6, line_width=2e6)
         backend.defaults().qubit_freq_est = [freq01, freq01]
 
         library = FixedFrequencyTransmon(basis_gates=["x", "sx"])

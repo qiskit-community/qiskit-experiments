@@ -12,11 +12,9 @@
 
 """Test the calibration update library."""
 from test.base import QiskitExperimentsTestCase
-from test.test_qubit_spectroscopy import SpectroscopyBackend, compute_probability_qubit_spectroscopy
-from typing import Callable, Tuple, Dict, List, Any
+from test.test_qubit_spectroscopy import SpectroscopyBackend, compute_prob_qubit_spectroscopy
 import numpy as np
 
-from qiskit import QuantumCircuit
 from qiskit.circuit import Parameter
 from qiskit.qobj.utils import MeasLevel
 import qiskit.pulse as pulse
@@ -63,9 +61,8 @@ class TestFrequencyUpdate(QiskitExperimentsTestCase):
         peak_offset = 5.0e6
         calc_parameters = {"line_width": 2e6, "freq_offset": peak_offset}
         backend = SpectroscopyBackend(
-            compute_probabilities=compute_probability_qubit_spectroscopy,
+            compute_probabilities=compute_prob_qubit_spectroscopy,
             calculation_parameters=[calc_parameters])
-        # backend = SpectroscopyBackend(line_width=2e6, freq_offset=peak_offset)
         freq01 = backend.defaults().qubit_freq_est[qubit]
         frequencies = np.linspace(freq01 - 10.0e6, freq01 + 10.0e6, 21)
 
