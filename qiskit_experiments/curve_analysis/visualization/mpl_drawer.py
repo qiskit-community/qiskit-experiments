@@ -33,8 +33,8 @@ class MplCurveDrawer(BaseCurveDrawer):
     class PrefixFormatter(Formatter):
         """Matplotlib axis formatter to detach prefix.
 
-        If axis value is x=1000 and the factor is 1000, it will be shown
-        to be 1.0 in the ticks and its unit is shown with the prefactor 'k'
+        If a value is, e.g., x=1000.0 and the factor is 1000, then it will be shown
+        as 1.0 in the ticks and its unit will be shown with the prefactor 'k'
         in the axis label.
         """
 
