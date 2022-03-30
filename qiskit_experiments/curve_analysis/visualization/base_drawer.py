@@ -28,8 +28,13 @@ class BaseCurveDrawer(ABC):
 
         This method should implement a protocol to initialize a drawing canvas
         with user input ``axis`` object. Note that curve analysis drawer
-        supports visualization in the 2D inset axes. This method
-        should first check the drawing options for the axis object
+        supports visualization of experiment results in multiple canvases
+        tiled into N (row) x M (column) inset grids, which is specified in the option ``subplots``.
+        By default, this is N=1, M=1 and thus no inset grid will be initialized.
+        The data points to draw might be provided with a canvas number defined in
+        :attr:`SeriesDef.canvas` which defaults to ``None``, i.e. no-inset grids.
+
+        This method should first check the drawing options for the axis object
         and initialize the axis only when it is not provided by the options.
         Once axis is initialized, this is set to the instance member ``self._axis``.
 
@@ -84,8 +89,10 @@ class BaseCurveDrawer(ABC):
             axis (Any): Arbitrary object that can be used as a drawing canvas.
             subplots (Tuple[int, int]): Number of rows and columns when the experimental
                 result is drawn in the multiple windows.
-            xlabel (str): X-axis label string of the output figure.
-            ylabel (str): Y-axis label string of the output figure.
+            xlabel (Union[str, List[str]]): X-axis label string of the output figure.
+                If there are multiple columns in the canvas, this could be a list of labels.
+            ylabel (Union[str, List[str]]): Y-axis label string of the output figure.
+                If there are multiple rows in the canvas, this could be a list of labels.
             xlim (Tuple[float, float]): Min and max value of the horizontal axis.
                 If not provided, it is automatically scaled based on the input data points.
             ylim (Tuple[float, float]): Min and max value of the vertical axis.
@@ -233,12 +240,7 @@ class BaseCurveDrawer(ABC):
     @property
     @abstractmethod
     def figure(self):
-        """Return figure object handler of the canvas object.
-
-        Note that figure and axis might be different plot when a user provide
-        an axis object which is a part of other multiple axis figure.
-        This method returns the entire figure object, which is saved in the database.
-        """
+        """Return figure object handler to be saved in the database."""
 
     def config(self) -> Dict:
         """Return the config dictionary for this drawing."""

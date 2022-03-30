@@ -303,7 +303,9 @@ class CurveAnalysis(BaseAnalysis, ABC):
             curve_plotter (BaseCurveDrawer): A curve drawer instance to visualize
                 the analysis result.
             plot_raw_data (bool): Set ``True`` to draw un-formatted data points on canvas.
+                This is ``True`` by default.
             plot (bool): Set ``True`` to create figure for fit result.
+                This is ``False`` by default.
             curve_fitter (Callable): A callback function to perform fitting with formatted data.
                 See :func:`~qiskit_experiments.analysis.multi_curve_fit` for example.
             data_processor (Callable): A callback function to format experiment data.

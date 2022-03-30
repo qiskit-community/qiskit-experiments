@@ -358,4 +358,17 @@ class MplCurveDrawer(BaseCurveDrawer):
 
     @property
     def figure(self) -> Figure:
+        """Return figure object handler to be saved in the database.
+
+        In the MatplotLib the ``Figure`` and ``Axes`` are different object.
+        User can pass a part of the figure (i.e. multi-axes) to the drawer option ``axis``.
+        For example, a user wants to combine two different experiment results in the
+        same figure, one can call ``pyplot.subplots`` with two rows and pass one of the
+        generated two axes to each experiment drawer. Once all the experiments complete,
+        the user will obtain the single figure collecting all experimental results.
+
+        Note that this method returns the entire figure object, rather than a single axis.
+        Thus, the experiment data saved in the database might have a figure
+        collecting all child axes drawings.
+        """
         return self._axis.get_figure()
