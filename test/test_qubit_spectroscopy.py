@@ -22,9 +22,9 @@ from qiskit_experiments.library import QubitSpectroscopy, EFSpectroscopy
 from qiskit_experiments.test.mock_iq_backend import MockIQBackend
 
 
-def compute_prob_qubit_spectroscopy(circuits: List[QuantumCircuit],
-                                           calc_parameters_list: List[Dict[str, Any]]) \
-        -> List[Dict[str, float]]:
+def compute_prob_qubit_spectroscopy(
+    circuits: List[QuantumCircuit], calc_parameters_list: List[Dict[str, Any]]
+) -> List[Dict[str, float]]:
     """Returns the probability based on the parameters provided."""
     freq_offset = calc_parameters_list[0].get("freq_offset", 0.0)
     line_width = calc_parameters_list[0].get("line_width", 2e6)
@@ -58,10 +58,12 @@ class SpectroscopyBackend(MockIQBackend):
         self._iq_cluster_width = iq_cluster_width or [0.2]
         self._freq_offset = freq_offset
         self._linewidth = line_width
-        super().__init__(iq_cluster_centers=self._iq_cluster_centers,
-                         iq_cluster_width=self._iq_cluster_width,
-                         compute_probabilities=compute_probabilities,
-                         calculation_parameters=calculation_parameters)
+        super().__init__(
+            iq_cluster_centers=self._iq_cluster_centers,
+            iq_cluster_width=self._iq_cluster_width,
+            compute_probabilities=compute_probabilities,
+            calculation_parameters=calculation_parameters,
+        )
 
         self._configuration.basis_gates = ["x"]
         self._configuration.timing_constraints = {"granularity": 16}
@@ -76,7 +78,8 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
         calc_parameters = {"line_width": 2e6}
         backend = SpectroscopyBackend(
             compute_probabilities=compute_prob_qubit_spectroscopy,
-            calculation_parameters=[calc_parameters])
+            calculation_parameters=[calc_parameters],
+        )
         qubit = 1
         freq01 = backend.defaults().qubit_freq_est[qubit]
         frequencies = np.linspace(freq01 - 10.0e6, freq01 + 10.0e6, 21)
@@ -96,7 +99,8 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
         calc_parameters = {"line_width": 2e6, "freq_offset": 5.0e6}
         backend = SpectroscopyBackend(
             compute_probabilities=compute_prob_qubit_spectroscopy,
-            calculation_parameters=[calc_parameters])
+            calculation_parameters=[calc_parameters],
+        )
 
         spec = QubitSpectroscopy(qubit, frequencies)
         spec.set_run_options(meas_level=MeasLevel.CLASSIFIED)
@@ -115,7 +119,8 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
         backend = SpectroscopyBackend(
             iq_cluster_centers=[((1.0, 1.0), (-1.0, -1.0))],
             compute_probabilities=compute_prob_qubit_spectroscopy,
-            calculation_parameters=[calc_parameters])
+            calculation_parameters=[calc_parameters],
+        )
         qubit = 0
         freq01 = backend.defaults().qubit_freq_est[qubit]
         frequencies = np.linspace(freq01 - 10.0e6, freq01 + 10.0e6, 21)
@@ -134,7 +139,8 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
         backend = SpectroscopyBackend(
             iq_cluster_centers=[((1.0, 1.0), (-1.0, -1.0))],
             compute_probabilities=compute_prob_qubit_spectroscopy,
-            calculation_parameters=[calc_parameters])
+            calculation_parameters=[calc_parameters],
+        )
 
         spec = QubitSpectroscopy(qubit, frequencies)
         expdata = spec.run(backend)
@@ -160,7 +166,8 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
         calc_parameters = {"line_width": 2e6}
         backend = SpectroscopyBackend(
             compute_probabilities=compute_prob_qubit_spectroscopy,
-            calculation_parameters=[calc_parameters])
+            calculation_parameters=[calc_parameters],
+        )
         qubit = 0
         freq01 = backend.defaults().qubit_freq_est[qubit]
         frequencies = np.linspace(freq01 - 10.0e6, freq01 + 10.0e6, 21)

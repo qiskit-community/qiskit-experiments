@@ -23,9 +23,9 @@ from qiskit_experiments.library import ResonatorSpectroscopy
 from qiskit_experiments.test.mock_iq_backend import MockIQBackend
 
 
-def compute_prob_reso_spectroscopy(circuits: List[QuantumCircuit],
-                                               calc_parameters_list: List[Dict[str, Any]]) \
-        -> List[Dict[str, float]]:
+def compute_prob_reso_spectroscopy(
+    circuits: List[QuantumCircuit], calc_parameters_list: List[Dict[str, Any]]
+) -> List[Dict[str, float]]:
     """Returns the probability based on the parameters provided."""
     freq_offset = calc_parameters_list[0].get("freq_offset", 0.0)
     line_width = calc_parameters_list[0].get("line_width", 2e6)
@@ -60,10 +60,12 @@ class ResonatorSpectroscopyBackend(MockIQBackend):
         self._freq_offset = freq_offset
         self._linewidth = line_width
 
-        super().__init__(iq_cluster_centers=self._iq_cluster_centers,
-                         iq_cluster_width=self._iq_cluster_width,
-                         compute_probabilities=compute_probabilities,
-                         calculation_parameters=calculation_parameters)
+        super().__init__(
+            iq_cluster_centers=self._iq_cluster_centers,
+            iq_cluster_width=self._iq_cluster_width,
+            compute_probabilities=compute_probabilities,
+            calculation_parameters=calculation_parameters,
+        )
         self._configuration.timing_constraints = {"granularity": 16}
 
     def _iq_phase(self, circuit: QuantumCircuit) -> float:
@@ -92,7 +94,8 @@ class TestResonatorSpectroscopy(QiskitExperimentsTestCase):
         backend = ResonatorSpectroscopyBackend(
             freq_offset=freq_shift,
             compute_probabilities=compute_prob_reso_spectroscopy,
-            calculation_parameters=[calc_parameters])
+            calculation_parameters=[calc_parameters],
+        )
 
         res_freq = backend.defaults().meas_freq_est[qubit]
 

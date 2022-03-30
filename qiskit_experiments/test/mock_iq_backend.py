@@ -179,12 +179,107 @@ class MockIQBackend(FakeOpenPulse2Q):
         """
         Initialize the backend.
         Args:
-            compute_probabilities(Callable): A function that the user provides to calculate the
-            probability of each output of the circuit. The user passes the list of circuits and any
-            variable that he needs to calculatethe probability. The function return a list of
-            dictionaries. Each dictionary in the output list
-            corresponds to the probabilities of output vectors for the circuit with the same index in the
-            circuit list.
+            compute_probabilities(Callable): A function provided by the user which is used to determine
+             the probability of each output of the circuit.
+            The function return a list of dictionaries, each contain output binary strings and their
+            probabilities.
+
+            Examples:
+
+                **1 qubit circuit - excited state**
+
+                In this experiment, we want to bring a qubit to its excited state and measure it.
+                The circuit:
+                             ┌───┐┌─┐
+                          q: ┤ X ├┤M├
+                             └───┘└╥┘
+                        c: 1/══════╩═
+                                   0
+
+                The function that calculate the probability for this circuit, doesn't need any
+                calculation_parameters. It will be as following:
+
+                .. code-block::
+
+                    def compute_probability_excited(
+                        circuits: List[QuantumCircuit], calc_parameters_list: List[Dict[str, Any]]
+                    ) -> List[Dict[str, float]]:
+
+                        output_dict_list = []
+                        for circuit in circuits:
+                            probability_output_dict["1"] = 1
+                            probability_output_dict["0"] = 1 - probability_output_dict["1"]
+                            output_dict_list.append(probability_output_dict)
+                        return output_dict_list
+
+                **3 qubit circuit**
+                In this experiment, we will make a cat state with the first and second qubit.
+                In addition, we will bring the thirds qubit to its excited state.
+                The circuit:
+                                  ┌─┐
+                        q_0: ──■──┤M├──────
+                             ┌─┴─┐└╥┘┌─┐
+                        q_1: ┤ X ├─╫─┤M├───
+                             ├───┤ ║ └╥┘┌─┐
+                        q_2: ┤ X ├─╫──╫─┤M├
+                             └───┘ ║  ║ └╥┘
+                        c: 3/══════╩══╩══╩═
+                                   0  1  2
+
+                The backend has a feature, that the output can include only states with probabilities
+                greater than 0. The backend will assume that if an output string isn't in the probability
+                dictionary, it's probability is 0.
+
+                .. code-block::
+
+                    def compute_probability_3q(
+                        circuits: List[QuantumCircuit], calc_parameters_list: List[Dict[str, Any]]
+                    ) -> List[Dict[str, float]]:
+
+                        output_dict_list = []
+                        for circuit in circuits:
+                            probability_output_dict["001"] = 0.5
+                            probability_output_dict["111"] = 0.5
+                            output_dict_list.append(probability_output_dict)
+                        return output_dict_list
+
+
+                **Ramsey XY Experiment**
+                The experiment exists in qiskit experiment :class:`~qiskit_experiments.library.\
+                characterization.ramsey_xy.RamseyXY`.
+                The circuit:
+                           ┌────┐┌─────────────┐┌───────┐┌────┐ ░ ┌─┐
+                      q_0: ┤ √X ├┤ Delay(τ[s]) ├┤ Rz(θ) ├┤ √X ├─░─┤M├
+                           └────┘└─────────────┘└───────┘└────┘ ░ └╥┘
+                measure: 1/════════════════════════════════════════╩═
+                                                                   0
+
+                The output probabilities depends on the circuit parameters. The function for calculating
+                the probability will be as following:
+
+                .. code-block::
+                    def ramsey_xy_compute_probabilities(
+                        circuits: List[QuantumCircuit], calc_parameters: List[Dict[str, Any]]
+                    ) -> List[Dict[str, float]]:
+                        freq_shift = calc_parameters[0].get("freq_shift", 0)
+                        output_dict_list = []
+                        for circuit in circuits:
+                            probability_output_dict = {}
+                            series = circuit.metadata["series"]
+                            delay = circuit.metadata["xval"]
+
+                            if series == "X":
+                                phase_offset = 0.0
+                            else:
+                                phase_offset = np.pi / 2
+
+                            probability_output_dict["1"] = (
+                                0.5 * np.cos(2 * np.pi * delay * freq_shift - phase_offset) + 0.5
+                            )
+                            probability_output_dict["0"] = 1 - probability_output_dict["1"]
+                            output_dict_list.append(probability_output_dict)
+                        return output_dict_list
+
             rng_seed(int): The random seed value.
             iq_cluster_centers(Optional[List]): A list of tuples containing the clusters' centers in the
             IQ plane.
@@ -232,9 +327,6 @@ class MockIQBackend(FakeOpenPulse2Q):
                 raise ValueError(
                     "The number of qubits and the length of the output string don't match."
                 )
-        # TODO:
-        # check that the length of attributes matches the number of qubits.
-        # check that probability is 1.
 
     def _get_normal_samples_for_shot(self, num_qubits: int):
         """

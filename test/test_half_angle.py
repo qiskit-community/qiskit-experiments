@@ -55,9 +55,11 @@ class TestHalfAngle(QiskitExperimentsTestCase):
         for error in [-0.05, -0.02, 0.02, 0.05]:
             calc_parameters = {"error": error}
             hac = HalfAngle(0)
-            exp_data = hac.run(MockIQBackend(
-                compute_probabilities=compute_probability_half_angle,
-                calculation_parameters=[calc_parameters])
+            exp_data = hac.run(
+                MockIQBackend(
+                    compute_probabilities=compute_probability_half_angle,
+                    calculation_parameters=[calc_parameters],
+                )
             )
 
             self.assertExperimentDone(exp_data)

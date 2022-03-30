@@ -53,7 +53,8 @@ class TestRoughFrequency(QiskitExperimentsTestCase):
         backend = SpectroscopyBackend(
             iq_cluster_centers=[((-1.0, -1.0), (1.0, 1.0))],
             compute_probabilities=compute_prob_qubit_spectroscopy,
-            calculation_parameters=[calc_parameters])
+            calculation_parameters=[calc_parameters],
+        )
         backend.defaults().qubit_freq_est = [freq01, freq01]
 
         library = FixedFrequencyTransmon(basis_gates=["x", "sx"])

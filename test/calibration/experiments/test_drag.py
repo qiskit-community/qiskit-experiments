@@ -230,7 +230,8 @@ class TestRoughDragCalUpdate(QiskitExperimentsTestCase):
 
         self.calc_parameters = {"gate_name": "Drag(x)", "ideal_beta": 2.0, "error": 0.03}
         self.backend = MockIQBackend(
-            compute_probabilities=compute_probability_drag, calculation_parameters=[self.calc_parameters]
+            compute_probabilities=compute_probability_drag,
+            calculation_parameters=[self.calc_parameters],
         )
         self.cals = Calibrations.from_backend(self.backend, library)
         self.test_tol = 0.05

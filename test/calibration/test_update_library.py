@@ -62,7 +62,8 @@ class TestFrequencyUpdate(QiskitExperimentsTestCase):
         calc_parameters = {"line_width": 2e6, "freq_offset": peak_offset}
         backend = SpectroscopyBackend(
             compute_probabilities=compute_prob_qubit_spectroscopy,
-            calculation_parameters=[calc_parameters])
+            calculation_parameters=[calc_parameters],
+        )
         freq01 = backend.defaults().qubit_freq_est[qubit]
         frequencies = np.linspace(freq01 - 10.0e6, freq01 + 10.0e6, 21)
 
