@@ -73,7 +73,11 @@ class TestRabiEndToEnd(QiskitExperimentsTestCase):
         """Test the Rabi experiment end to end."""
 
         test_tol = 0.01
-        backend = MockIQBackend(compute_probabilities=rabi_compute_probabilities)
+        rabi_calc_parameters_list = {"amplitude_to_angle": np.pi}
+        backend = MockIQBackend(
+            compute_probabilities=rabi_compute_probabilities,
+            calculation_parameters=[rabi_calc_parameters_list],
+        )
 
         rabi = Rabi(self.qubit, self.sched)
         rabi.set_experiment_options(amplitudes=np.linspace(-0.95, 0.95, 21))
@@ -122,8 +126,11 @@ class TestRabiEndToEnd(QiskitExperimentsTestCase):
 
     def test_wrong_processor(self):
         """Test that we can override the data processing by giving a faulty data processor."""
-
-        backend = MockIQBackend(compute_probabilities=rabi_compute_probabilities)
+        rabi_calc_parameters_list = {"amplitude_to_angle": np.pi}
+        backend = MockIQBackend(
+            compute_probabilities=rabi_compute_probabilities,
+            calculation_parameters=[rabi_calc_parameters_list],
+        )
 
         rabi = Rabi(self.qubit, self.sched)
 
@@ -172,7 +179,11 @@ class TestEFRabi(QiskitExperimentsTestCase):
         """Test the EFRabi experiment end to end."""
 
         test_tol = 0.01
-        backend = MockIQBackend(compute_probabilities=rabi_compute_probabilities)
+        rabi_calc_parameters_list = {"amplitude_to_angle": np.pi}
+        backend = MockIQBackend(
+            compute_probabilities=rabi_compute_probabilities,
+            calculation_parameters=[rabi_calc_parameters_list],
+        )
 
         # Note that the backend is not sophisticated enough to simulate an e-f
         # transition so we run the test with a tiny frequency shift, still driving the e-g transition.
@@ -235,10 +246,13 @@ class TestRabiCircuits(QiskitExperimentsTestCase):
 
     def test_default_schedule(self):
         """Test the default schedule."""
-
         rabi = Rabi(2, self.sched)
         rabi.set_experiment_options(amplitudes=[0.5])
-        rabi.backend = MockIQBackend(compute_probabilities=rabi_compute_probabilities)
+        rabi_calc_parameters_list = {"amplitude_to_angle": np.pi}
+        rabi.backend = MockIQBackend(
+            compute_probabilities=rabi_compute_probabilities,
+            calculation_parameters=[rabi_calc_parameters_list],
+        )
         circs = rabi.circuits()
 
         with pulse.build() as expected:

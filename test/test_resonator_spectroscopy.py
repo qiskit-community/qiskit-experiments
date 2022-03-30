@@ -13,7 +13,7 @@
 """Spectroscopy tests for resonator spectroscop experiment."""
 
 from test.base import QiskitExperimentsTestCase
-from typing import Tuple, Dict, List, Any
+from typing import Callable, Tuple, Dict, List, Any
 import numpy as np
 from ddt import ddt, data
 
@@ -26,7 +26,7 @@ from qiskit_experiments.test.mock_iq_backend import MockIQBackend
 def compute_probability_resonator_spectroscopy(circuits: List[QuantumCircuit],
                                                calc_parameters_list: List[Dict[str, Any]]) \
         -> List[Dict[str, float]]:
-    """Returns the probability based on the beta, number of gates, and leakage."""
+    """Returns the probability based on the parameters provided."""
     freq_offset = calc_parameters_list[0].get("freq_offset", 0.0)
     line_width = calc_parameters_list[0].get("line_width", 2e6)
     output_dict_list = []
@@ -47,19 +47,24 @@ class ResonatorSpectroscopyBackend(MockIQBackend):
 
     def __init__(
         self,
+        compute_probabilities: Callable[[List[QuantumCircuit], ...], List[Dict[str, float]]],
         line_width: float = 2e6,
         freq_offset: float = 0.0,
         iq_cluster_centers: List[Tuple[Tuple[float, float], Tuple[float, float]]] = None,
         iq_cluster_width: List[float] = None,
+        calculation_parameters: List[Dict[str, Any]] = None,
     ):
         """Initialize the spectroscopy backend."""
 
-        super().__init__(iq_cluster_centers, iq_cluster_width)
         self._iq_cluster_centers = iq_cluster_centers or [((-1.0, 0.0), (0.0, 0.0))]
         self._iq_cluster_width = iq_cluster_width or [0.2]
         self._freq_offset = freq_offset
         self._linewidth = line_width
 
+        super().__init__(iq_cluster_centers=self._iq_cluster_centers,
+                         iq_cluster_width=self._iq_cluster_width,
+                         compute_probabilities=compute_probabilities,
+                         calculation_parameters=calculation_parameters)
         self._configuration.timing_constraints = {"granularity": 16}
 
     def _iq_phase(self, circuit: QuantumCircuit) -> float:
@@ -84,7 +89,13 @@ class TestResonatorSpectroscopy(QiskitExperimentsTestCase):
         """Test the experiment from end to end."""
 
         qubit = 1
-        backend = ResonatorSpectroscopyBackend(freq_offset=freq_shift)
+        calc_parameters = {"freq_offset": freq_shift}
+        backend = ResonatorSpectroscopyBackend(
+            freq_offset=freq_shift,
+            compute_probabilities=compute_probability_resonator_spectroscopy,
+            calculation_parameters=[calc_parameters])
+
+        # backend = ResonatorSpectroscopyBackend(freq_offset=freq_shift)
         res_freq = backend.defaults().meas_freq_est[qubit]
 
         frequencies = np.linspace(res_freq - 20e6, res_freq + 20e6, 51)

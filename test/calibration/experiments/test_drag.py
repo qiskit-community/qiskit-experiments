@@ -90,7 +90,7 @@ class TestDragEndToEnd(QiskitExperimentsTestCase):
 
         calc_parameters = {"gate_name": "Drag(xp)", "ideal_beta": 2.0, "error": 0.03}
         backend = MockIQBackend(
-            c
+            compute_probabilities=compute_probability_drag, calculation_parameters=[calc_parameters]
         )
 
         drag = RoughDrag(1, self.x_plus)
