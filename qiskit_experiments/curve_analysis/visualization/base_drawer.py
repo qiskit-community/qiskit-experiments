@@ -29,8 +29,8 @@ class BaseCurveDrawer(ABC):
         This method should implement a protocol to initialize a drawing canvas
         with user input ``axis`` object. Note that curve analysis drawer
         supports visualization in the 2D inset axes. This method
-        should first check the drawing options if axis object is provided,
-        and initialize the axis only when it is not provided.
+        should first check the drawing options for the axis object
+        and initialize the axis only when it is not provided by the options.
         Once axis is initialized, this is set to the instance member ``self._axis``.
 
     format_canvas
