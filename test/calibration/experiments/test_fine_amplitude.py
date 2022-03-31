@@ -12,7 +12,6 @@
 
 """Test the fine amplitude characterization and calibration experiments."""
 from test.base import QiskitExperimentsTestCase
-import unittest
 import numpy as np
 from ddt import ddt, data
 
@@ -164,6 +163,11 @@ class TestSpecializations(QiskitExperimentsTestCase):
         )
         self.assertEqual(exp.experiment_options.gate, XGate())
 
+    def test_x_roundtrip_serializable(self):
+        """Test round trip JSON serialization"""
+        exp = FineXAmplitude(0)
+        self.assertRoundTripSerializable(exp, self.json_equiv)
+
     def test_fine_sx_amp(self):
         """Test the fine SX amplitude."""
 
@@ -178,6 +182,11 @@ class TestSpecializations(QiskitExperimentsTestCase):
             {"angle_per_gate": np.pi / 2, "phase_offset": np.pi},
         )
         self.assertEqual(exp.experiment_options.gate, SXGate())
+
+    def test_sx_roundtrip_serializable(self):
+        """Test round trip JSON serialization"""
+        exp = FineSXAmplitude(0)
+        self.assertRoundTripSerializable(exp, self.json_equiv)
 
     @data((2, 3), (3, 1), (0, 1))
     def test_measure_qubits(self, qubits):
@@ -240,9 +249,7 @@ class TestFineAmplitudeCal(QiskitExperimentsTestCase):
 
         amp_cal = FineXAmplitudeCal(0, self.cals, "x")
 
-        circs = transpile(
-            amp_cal.circuits(), self.backend, inst_map=amp_cal.transpile_options.inst_map
-        )
+        circs = transpile(amp_cal.circuits(), self.backend, inst_map=self.cals.default_inst_map)
 
         with pulse.build(name="x") as expected_x:
             pulse.play(pulse.Drag(160, 0.5, 40, 0), pulse.DriveChannel(0))
@@ -259,9 +266,7 @@ class TestFineAmplitudeCal(QiskitExperimentsTestCase):
         d_theta = exp_data.analysis_results(1).value.n
         new_amp = init_amp * np.pi / (np.pi + d_theta)
 
-        circs = transpile(
-            amp_cal.circuits(), self.backend, inst_map=amp_cal.transpile_options.inst_map
-        )
+        circs = transpile(amp_cal.circuits(), self.backend, inst_map=self.cals.default_inst_map)
 
         x_cal = circs[5].calibrations["x"][((0,), ())]
 
@@ -283,9 +288,7 @@ class TestFineAmplitudeCal(QiskitExperimentsTestCase):
 
         amp_cal = FineSXAmplitudeCal(0, self.cals, "sx")
 
-        circs = transpile(
-            amp_cal.circuits(), self.backend, inst_map=amp_cal.transpile_options.inst_map
-        )
+        circs = transpile(amp_cal.circuits(), self.backend, inst_map=self.cals.default_inst_map)
 
         with pulse.build(name="sx") as expected_sx:
             pulse.play(pulse.Drag(160, 0.25, 40, 0), pulse.DriveChannel(0))
@@ -298,9 +301,7 @@ class TestFineAmplitudeCal(QiskitExperimentsTestCase):
         d_theta = exp_data.analysis_results(1).value.n
         new_amp = init_amp * (np.pi / 2) / (np.pi / 2 + d_theta)
 
-        circs = transpile(
-            amp_cal.circuits(), self.backend, inst_map=amp_cal.transpile_options.inst_map
-        )
+        circs = transpile(amp_cal.circuits(), self.backend, inst_map=self.cals.default_inst_map)
 
         sx_cal = circs[5].calibrations["sx"][((0,), ())]
 
@@ -315,7 +316,6 @@ class TestFineAmplitudeCal(QiskitExperimentsTestCase):
         self.assertNotEqual(exp, loaded_exp)
         self.assertTrue(self.json_equiv(exp, loaded_exp))
 
-    @unittest.skip("Calbrations are not yet serializable")
     def test_roundtrip_serializable(self):
         """Test round trip JSON serialization"""
         exp = FineSXAmplitudeCal(0, self.cals, "sx")
