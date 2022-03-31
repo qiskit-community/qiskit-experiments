@@ -181,7 +181,7 @@ class MockIQBackend(FakeOpenPulse2Q):
         Args:
             compute_probabilities(Callable): A function provided by the user which is used to determine
              the probability of each output of the circuit.
-            The function return a list of dictionaries, each contain output binary strings and their
+            The function returns a list of dictionaries, each containing output binary strings and their
             probabilities.
 
             Examples:
@@ -196,7 +196,7 @@ class MockIQBackend(FakeOpenPulse2Q):
                         c: 1/══════╩═
                                    0
 
-                The function that calculate the probability for this circuit, doesn't need any
+                The function that calculates the probability for this circuit, doesn't need any
                 calculation_parameters. It will be as following:
 
                 .. code-block::
@@ -208,12 +208,12 @@ class MockIQBackend(FakeOpenPulse2Q):
                         output_dict_list = []
                         for circuit in circuits:
                             probability_output_dict["1"] = 1
-                            probability_output_dict["0"] = 1 - probability_output_dict["1"]
+                            probability_output_dict["0"] = 0
                             output_dict_list.append(probability_output_dict)
                         return output_dict_list
 
                 **3 qubit circuit**
-                In this experiment, we will make a cat state with the first and second qubit.
+                In this experiment, we will make Bell state with the first and second qubit.
                 In addition, we will bring the thirds qubit to its excited state.
                 The circuit:
                                   ┌─┐
@@ -228,7 +228,7 @@ class MockIQBackend(FakeOpenPulse2Q):
 
                 The backend has a feature, that the output can include only states with probabilities
                 greater than 0. The backend will assume that if an output string isn't in the probability
-                dictionary, it's probability is 0.
+                dictionary, it's probability 0.
 
                 .. code-block::
 
@@ -245,7 +245,7 @@ class MockIQBackend(FakeOpenPulse2Q):
 
 
                 **Ramsey XY Experiment**
-                The experiment exists in qiskit experiment :class:`~qiskit_experiments.library.\
+                The experiment resides in qiskit experiment :class:`~qiskit_experiments.library.\
                 characterization.ramsey_xy.RamseyXY`.
                 The circuit:
                            ┌────┐┌─────────────┐┌───────┐┌────┐ ░ ┌─┐
@@ -254,7 +254,7 @@ class MockIQBackend(FakeOpenPulse2Q):
                 measure: 1/════════════════════════════════════════╩═
                                                                    0
 
-                The output probabilities depends on the circuit parameters. The function for calculating
+                The output probabilities depend on the circuit parameters. The function for calculating
                 the probability will be as following:
 
                 .. code-block::
@@ -421,7 +421,7 @@ class MockIQBackend(FakeOpenPulse2Q):
             circuit(QuantumCircuit): The circuit that needs to be simulated.
 
         Returns:
-            A dictionary that filled with the simulated data. The output format is different between
+            A dictionary that's filled with the simulated data. The output format is different between
             measurement level 1 and measurement level 2.
         """
         self._verify_parameters(num_qubits, prob_dict)
