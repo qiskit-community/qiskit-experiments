@@ -12,8 +12,7 @@
 
 """Fake experiment using resonator instead of qubits for testing."""
 
-from typing import Iterable, Optional, Tuple, List
-from qiskit.providers import Backend
+from typing import Iterable, Tuple, List
 from qiskit_experiments.framework import BaseExperiment, Options, BaseAnalysis, AnalysisResultData
 
 
@@ -55,6 +54,6 @@ class FakeResonatorExperiment(BaseExperiment):
     def _additional_metadata(self):
         return {"resonators": self.experiment_options.resonators}
 
-    def circuits(self, backend: Optional[Backend] = None):
+    def circuits(self):
         """return empty circuits for test"""
         return []

@@ -13,16 +13,14 @@
 # pylint: disable=missing-docstring
 
 """Test AnalysisResult."""
-from test.base import QiskitExperimentsTestCase
 from unittest import mock
 import json
-from test.fake_resonator_experiment import FakeResonatorExperiment
-from test.fake_backend import FakeBackend
-
 import math
+from test.base import QiskitExperimentsTestCase
+from test.fake_resonator_experiment import FakeResonatorExperiment
 import numpy as np
 
-
+from qiskit_experiments.test.fake_backend import FakeBackend
 from qiskit_experiments.database_service import DbAnalysisResultV1 as DbAnalysisResult
 from qiskit_experiments.database_service.device_component import Qubit, Resonator, to_component
 from qiskit_experiments.database_service.database_service import DatabaseServiceV1
