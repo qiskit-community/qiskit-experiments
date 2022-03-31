@@ -12,27 +12,54 @@
 """
 Parallel Experiment class.
 """
+from typing import List, Optional
 
 from qiskit import QuantumCircuit, ClassicalRegister
-
-from .composite_experiment import CompositeExperiment
+from qiskit.providers.backend import Backend
+from .composite_experiment import CompositeExperiment, BaseExperiment
+from .composite_analysis import CompositeAnalysis
 
 
 class ParallelExperiment(CompositeExperiment):
-    """Parallel Experiment class"""
+    """Combine multiple experiments into a parallel experiment.
 
-    def __init__(self, experiments):
+    Parallel experiments combine individual experiments on disjoint subsets
+    of qubits into a single composite experiment on the union of those qubits.
+    The component experiment circuits are combined to run in parallel on the
+    respective qubits.
+
+    Analysis of parallel experiments is performed using the
+    :class:`~qiskit_experiments.framework.CompositeAnalysis` class which handles
+    marginalizing the composite experiment circuit data into individual child
+    :class:`ExperimentData` containers for each component experiment which are
+    then analyzed using the corresponding analysis class for that component
+    experiment.
+
+    See :class:`~qiskit_experiments.framework.CompositeAnalysis`
+    documentation for additional information.
+    """
+
+    def __init__(
+        self,
+        experiments: List[BaseExperiment],
+        backend: Optional[Backend] = None,
+        analysis: Optional[CompositeAnalysis] = None,
+    ):
         """Initialize the analysis object.
 
         Args:
-            experiments (List[BaseExperiment]): a list of experiments.
+            experiments: a list of experiments.
+            backend: Optional, the backend to run the experiment on.
+            analysis: Optional, the composite analysis class to use. If not
+                      provided this will be initialized automatically from the
+                      supplied experiments.
         """
         qubits = []
         for exp in experiments:
             qubits += exp.physical_qubits
-        super().__init__(experiments, qubits)
+        super().__init__(experiments, qubits, backend=backend, analysis=analysis)
 
-    def circuits(self, backend=None):
+    def circuits(self):
 
         sub_circuits = []
         sub_qubits = []
@@ -42,7 +69,7 @@ class ParallelExperiment(CompositeExperiment):
         # Generate data for combination
         for expr in self._experiments:
             # Add subcircuits
-            circs = expr.circuits(backend)
+            circs = expr.circuits()
             sub_circuits.append(circs)
             sub_size.append(len(circs))
 

@@ -13,21 +13,49 @@
 Batch Experiment class.
 """
 
+from typing import List, Optional
 from collections import OrderedDict
 
 from qiskit import QuantumCircuit
+from qiskit.providers.backend import Backend
 
-from .composite_experiment import CompositeExperiment
+from .composite_experiment import CompositeExperiment, BaseExperiment
+from .composite_analysis import CompositeAnalysis
 
 
 class BatchExperiment(CompositeExperiment):
-    """Batch experiment class"""
+    """Combine multiple experiments into a batch experiment.
 
-    def __init__(self, experiments):
+    Batch experiments combine individual experiments on any subset of qubits
+    into a single composite experiment which appends all the circuits from
+    each component experiment into a single batch of circuits to be executed
+    as one experiment job.
+
+    Analysis of batch experiments is performed using the
+    :class:`~qiskit_experiments.framework.CompositeAnalysis` class which handles
+    sorting the composite experiment circuit data into individual child
+    :class:`ExperimentData` containers for each component experiment which are
+    then analyzed using the corresponding analysis class for that component
+    experiment.
+
+    See :class:`~qiskit_experiments.framework.CompositeAnalysis`
+    documentation for additional information.
+    """
+
+    def __init__(
+        self,
+        experiments: List[BaseExperiment],
+        backend: Optional[Backend] = None,
+        analysis: Optional[CompositeAnalysis] = None,
+    ):
         """Initialize a batch experiment.
 
         Args:
-            experiments (List[BaseExperiment]): a list of experiments.
+            experiments: a list of experiments.
+            backend: Optional, the backend to run the experiment on.
+            analysis: Optional, the composite analysis class to use. If not
+                      provided this will be initialized automatically from the
+                      supplied experiments.
         """
 
         # Generate qubit map
@@ -39,19 +67,36 @@ class BatchExperiment(CompositeExperiment):
                     self._qubit_map[physical_qubit] = logical_qubit
                     logical_qubit += 1
         qubits = tuple(self._qubit_map.keys())
-        super().__init__(experiments, qubits)
+        super().__init__(experiments, qubits, backend=backend, analysis=analysis)
 
-    def circuits(self, backend=None):
+    def circuits(self):
+        return self._batch_circuits(to_transpile=False)
 
+    def _transpiled_circuits(self):
+        return self._batch_circuits(to_transpile=True)
+
+    def _batch_circuits(self, to_transpile=False):
         batch_circuits = []
 
         # Generate data for combination
         for index, expr in enumerate(self._experiments):
-            if self.physical_qubits == expr.physical_qubits:
+            if self.physical_qubits == expr.physical_qubits or to_transpile:
                 qubit_mapping = None
             else:
                 qubit_mapping = [self._qubit_map[qubit] for qubit in expr.physical_qubits]
-            for circuit in expr.circuits(backend):
+
+            if isinstance(expr, BatchExperiment):
+                # Batch experiments don't contain their own native circuits.
+                # If to_trasnpile is True then the circuits will be transpiled at the non-batch
+                # experiments.
+                # Fetch the circuits from the sub-experiments.
+                expr_circuits = expr._batch_circuits(to_transpile)
+            elif to_transpile:
+                expr_circuits = expr._transpiled_circuits()
+            else:
+                expr_circuits = expr.circuits()
+
+            for circuit in expr_circuits:
                 # Update metadata
                 circuit.metadata = {
                     "experiment_type": self._type,
@@ -62,6 +107,7 @@ class BatchExperiment(CompositeExperiment):
                 if qubit_mapping:
                     circuit = self._remap_qubits(circuit, qubit_mapping)
                 batch_circuits.append(circuit)
+
         return batch_circuits
 
     def _remap_qubits(self, circuit, qubit_mapping):

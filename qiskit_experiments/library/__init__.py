@@ -36,10 +36,6 @@ Experiments for verification and validation of quantum devices.
 
     ~randomized_benchmarking.StandardRB
     ~randomized_benchmarking.InterleavedRB
-
-.. autosummary::
-    :toctree: ../stubs/
-
     ~tomography.StateTomography
     ~tomography.ProcessTomography
     ~quantum_volume.QuantumVolume
@@ -58,10 +54,29 @@ Some experiments may be also used for gate calibration.
 
     ~characterization.T1
     ~characterization.T2Ramsey
+    ~characterization.Tphi
     ~characterization.QubitSpectroscopy
     ~characterization.EFSpectroscopy
     ~characterization.CrossResonanceHamiltonian
     ~characterization.EchoedCrossResonanceHamiltonian
+    ~characterization.RoughDrag
+    ~characterization.FineDrag
+    ~characterization.FineXDrag
+    ~characterization.FineSXDrag
+    ~characterization.HalfAngle
+    ~characterization.FineAmplitude
+    ~characterization.FineXAmplitude
+    ~characterization.FineSXAmplitude
+    ~characterization.FineZXAmplitude
+    ~characterization.Rabi
+    ~characterization.EFRabi
+    ~characterization.RamseyXY
+    ~characterization.FineFrequency
+    ~characterization.ReadoutAngle
+    ~characterization.LocalReadoutError
+    ~characterization.CorrelatedReadoutError
+    ~characterization.ResonatorSpectroscopy
+
 
 .. _calibration:
 
@@ -79,38 +94,60 @@ See :doc:`/tutorials/calibrating_armonk` for example.
     :template: autosummary/experiment.rst
 
     ~calibration.RoughFrequencyCal
-    ~calibration.DragCal
-    ~calibration.FineDrag
-    ~calibration.FineXDrag
-    ~calibration.FineSXDrag
-    ~calibration.Rabi
-    ~calibration.EFRabi
-    ~calibration.FineAmplitude
-    ~calibration.FineXAmplitude
-    ~calibration.FineSXAmplitude
-    ~calibration.RamseyXY
+    ~calibration.FrequencyCal
+    ~calibration.FineFrequencyCal
+    ~calibration.RoughDragCal
+    ~calibration.FineXDragCal
+    ~calibration.FineSXDragCal
+    ~calibration.FineDragCal
+    ~calibration.FineAmplitudeCal
+    ~calibration.FineXAmplitudeCal
+    ~calibration.FineSXAmplitudeCal
+    ~calibration.RoughAmplitudeCal
+    ~calibration.RoughXSXAmplitudeCal
+    ~calibration.EFRoughXSXAmplitudeCal
 
 """
 from .calibration import (
-    DragCal,
+    RoughDragCal,
+    FineDragCal,
+    FineXDragCal,
+    FineSXDragCal,
+    RoughAmplitudeCal,
+    RoughXSXAmplitudeCal,
+    EFRoughXSXAmplitudeCal,
+    FineAmplitudeCal,
+    FineXAmplitudeCal,
+    FineSXAmplitudeCal,
+    RoughFrequencyCal,
+    FrequencyCal,
+    FineFrequencyCal,
+)
+from .characterization import (
+    T1,
+    T2Ramsey,
+    Tphi,
+    QubitSpectroscopy,
+    EFSpectroscopy,
+    CrossResonanceHamiltonian,
+    EchoedCrossResonanceHamiltonian,
+    RoughDrag,
     FineDrag,
     FineXDrag,
     FineSXDrag,
     Rabi,
     EFRabi,
+    HalfAngle,
     FineAmplitude,
     FineXAmplitude,
     FineSXAmplitude,
-    RoughFrequencyCal,
+    FineZXAmplitude,
     RamseyXY,
-)
-from .characterization import (
-    T1,
-    T2Ramsey,
-    QubitSpectroscopy,
-    EFSpectroscopy,
-    CrossResonanceHamiltonian,
-    EchoedCrossResonanceHamiltonian,
+    FineFrequency,
+    ReadoutAngle,
+    ResonatorSpectroscopy,
+    LocalReadoutError,
+    CorrelatedReadoutError,
 )
 from .randomized_benchmarking import StandardRB, InterleavedRB
 from .tomography import StateTomography, ProcessTomography

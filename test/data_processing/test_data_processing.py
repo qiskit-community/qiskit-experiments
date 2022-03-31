@@ -16,11 +16,14 @@
 
 from test.fake_experiment import FakeExperiment
 
+import json
 import numpy as np
+from uncertainties import unumpy as unp, ufloat
 from qiskit.result.models import ExperimentResultData, ExperimentResult
 from qiskit.result import Result
 
 from qiskit_experiments.framework import ExperimentData
+from qiskit_experiments.framework.json import ExperimentDecoder, ExperimentEncoder
 from qiskit_experiments.data_processing.data_processor import DataProcessor
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
 from qiskit_experiments.data_processing.nodes import (
@@ -35,7 +38,7 @@ from qiskit_experiments.data_processing.nodes import (
 from . import BaseDataProcessorTest
 
 
-class DataProcessorTest(BaseDataProcessorTest):
+class TestDataProcessor(BaseDataProcessorTest):
     """Class to test DataProcessor."""
 
     def setUp(self):
@@ -67,21 +70,162 @@ class DataProcessorTest(BaseDataProcessorTest):
         raw_counts2 = {"0x0": 2, "0x2": 8}
         data1 = ExperimentResultData(counts=dict(**raw_counts1))
         data2 = ExperimentResultData(counts=dict(**raw_counts2))
-        res1 = ExperimentResult(shots=9, success=True, meas_level=2, data=data1, header=self.header)
-        res2 = ExperimentResult(shots=9, success=True, meas_level=2, data=data2, header=self.header)
+        res1 = ExperimentResult(
+            shots=10, success=True, meas_level=2, data=data1, header=self.header
+        )
+        res2 = ExperimentResult(
+            shots=10, success=True, meas_level=2, data=data2, header=self.header
+        )
         self.exp_data_lvl2 = ExperimentData(FakeExperiment())
         self.exp_data_lvl2.add_data(Result(results=[res1, res2], **self.base_result_args))
+
+    def test_data_prep_level1_memory_single(self):
+        """Format meas_level=1 meas_return=single."""
+        # slots = 3, shots = 2, circuits = 2
+        data_raw = [
+            {
+                "memory": [
+                    [[0.1, 0.2], [0.3, 0.4], [0.5, 0.6]],
+                    [[0.1, 0.2], [0.3, 0.4], [0.5, 0.6]],
+                ],
+            },
+            {
+                "memory": [
+                    [[0.7, 0.8], [0.9, 1.0], [1.1, 1.2]],
+                    [[0.7, 0.8], [0.9, 1.0], [1.1, 1.2]],
+                ],
+            },
+        ]
+        formatted_data = DataProcessor("memory", [])._data_extraction(data_raw)
+
+        ref_data = np.array(
+            [
+                [
+                    [
+                        [ufloat(0.1, np.nan), ufloat(0.2, np.nan)],
+                        [ufloat(0.3, np.nan), ufloat(0.4, np.nan)],
+                        [ufloat(0.5, np.nan), ufloat(0.6, np.nan)],
+                    ],
+                    [
+                        [ufloat(0.1, np.nan), ufloat(0.2, np.nan)],
+                        [ufloat(0.3, np.nan), ufloat(0.4, np.nan)],
+                        [ufloat(0.5, np.nan), ufloat(0.6, np.nan)],
+                    ],
+                ],
+                [
+                    [
+                        [ufloat(0.7, np.nan), ufloat(0.8, np.nan)],
+                        [ufloat(0.9, np.nan), ufloat(1.0, np.nan)],
+                        [ufloat(1.1, np.nan), ufloat(1.2, np.nan)],
+                    ],
+                    [
+                        [ufloat(0.7, np.nan), ufloat(0.8, np.nan)],
+                        [ufloat(0.9, np.nan), ufloat(1.0, np.nan)],
+                        [ufloat(1.1, np.nan), ufloat(1.2, np.nan)],
+                    ],
+                ],
+            ]
+        )
+
+        self.assertTupleEqual(formatted_data.shape, ref_data.shape)
+        np.testing.assert_array_equal(
+            unp.nominal_values(formatted_data), unp.nominal_values(ref_data)
+        )
+        # note that np.nan cannot be evaluated by "=="
+        self.assertTrue(np.isnan(unp.std_devs(formatted_data)).all())
+
+    def test_data_prep_level1_memory_average(self):
+        """Format meas_level=1 meas_return=avg."""
+        # slots = 3, circuits = 2
+        data_raw = [
+            {
+                "memory": [[0.1, 0.2], [0.3, 0.4], [0.5, 0.6]],
+            },
+            {
+                "memory": [[0.7, 0.8], [0.9, 1.0], [1.1, 1.2]],
+            },
+        ]
+        formatted_data = DataProcessor("memory", [])._data_extraction(data_raw)
+
+        ref_data = np.array(
+            [
+                [
+                    [ufloat(0.1, np.nan), ufloat(0.2, np.nan)],
+                    [ufloat(0.3, np.nan), ufloat(0.4, np.nan)],
+                    [ufloat(0.5, np.nan), ufloat(0.6, np.nan)],
+                ],
+                [
+                    [ufloat(0.7, np.nan), ufloat(0.8, np.nan)],
+                    [ufloat(0.9, np.nan), ufloat(1.0, np.nan)],
+                    [ufloat(1.1, np.nan), ufloat(1.2, np.nan)],
+                ],
+            ]
+        )
+
+        self.assertTupleEqual(formatted_data.shape, ref_data.shape)
+        np.testing.assert_array_equal(
+            unp.nominal_values(formatted_data), unp.nominal_values(ref_data)
+        )
+        # note that np.nan cannot be evaluated by "=="
+        self.assertTrue(np.isnan(unp.std_devs(formatted_data)).all())
+
+    def test_data_prep_level2_counts(self):
+        """Format meas_level=2."""
+        # slots = 2, shots=10, circuits = 2
+        data_raw = [
+            {
+                "counts": {"00": 2, "01": 3, "10": 1, "11": 4},
+            },
+            {
+                "counts": {"00": 3, "01": 3, "10": 2, "11": 2},
+            },
+        ]
+        formatted_data = DataProcessor("counts", [])._data_extraction(data_raw)
+
+        ref_data = np.array(
+            [
+                {"00": 2, "01": 3, "10": 1, "11": 4},
+                {"00": 3, "01": 3, "10": 2, "11": 2},
+            ],
+            dtype=object,
+        )
+
+        np.testing.assert_array_equal(formatted_data, ref_data)
+
+    def test_data_prep_level2_counts_memory(self):
+        """Format meas_level=2 with having memory set."""
+        # slots = 2, shots=10, circuits = 2
+        data_raw = [
+            {
+                "counts": {"00": 2, "01": 3, "10": 1, "11": 4},
+                "memory": ["00", "01", "01", "10", "11", "11", "00", "01", "11", "11"],
+            },
+            {
+                "counts": {"00": 3, "01": 3, "10": 2, "11": 2},
+                "memory": ["00", "00", "01", "00", "10", "01", "01", "11", "10", "11"],
+            },
+        ]
+        formatted_data = DataProcessor("memory", [])._data_extraction(data_raw)
+
+        ref_data = np.array(
+            [
+                ["00", "01", "01", "10", "11", "11", "00", "01", "11", "11"],
+                ["00", "00", "01", "00", "10", "01", "01", "11", "10", "11"],
+            ],
+            dtype=object,
+        )
+
+        np.testing.assert_array_equal(formatted_data, ref_data)
 
     def test_empty_processor(self):
         """Check that a DataProcessor without steps does nothing."""
         data_processor = DataProcessor("counts")
 
-        datum, error = data_processor(self.exp_data_lvl2.data(0))
-        self.assertEqual(datum, [{"00": 4, "10": 6}])
-        self.assertIsNone(error)
+        datum = data_processor(self.exp_data_lvl2.data(0))
+        self.assertEqual(datum, {"00": 4, "10": 6})
 
-        datum, error, history = data_processor.call_with_history(self.exp_data_lvl2.data(0))
-        self.assertEqual(datum, [{"00": 4, "10": 6}])
+        datum, history = data_processor.call_with_history(self.exp_data_lvl2.data(0))
+        self.assertEqual(datum, {"00": 4, "10": 6})
         self.assertEqual(history, [])
 
     def test_to_real(self):
@@ -92,7 +236,7 @@ class DataProcessorTest(BaseDataProcessorTest):
         exp_data.add_data(self.result_lvl1)
 
         # Test to real on a single datum
-        new_data, error = processor(exp_data.data(0))
+        new_data = processor(exp_data.data(0))
 
         expected_old = {
             "memory": [
@@ -109,20 +253,29 @@ class DataProcessorTest(BaseDataProcessorTest):
         expected_new = np.array([[1103.26, 2959.012], [442.17, -5279.41], [3016.514, -3404.7560]])
 
         self.assertEqual(exp_data.data(0), expected_old)
-        self.assertTrue(np.allclose(new_data, expected_new))
-        self.assertIsNone(error)
+        np.testing.assert_array_almost_equal(
+            unp.nominal_values(new_data),
+            expected_new,
+        )
+        self.assertTrue(np.isnan(unp.std_devs(new_data)).all())
 
         # Test that we can call with history.
-        new_data, error, history = processor.call_with_history(exp_data.data(0))
+        new_data, history = processor.call_with_history(exp_data.data(0))
 
         self.assertEqual(exp_data.data(0), expected_old)
-        self.assertTrue(np.allclose(new_data, expected_new))
+        np.testing.assert_array_almost_equal(
+            unp.nominal_values(new_data),
+            expected_new,
+        )
 
         self.assertEqual(history[0][0], "ToReal")
-        self.assertTrue(np.allclose(history[0][1], expected_new))
+        np.testing.assert_array_almost_equal(
+            unp.nominal_values(history[0][1]),
+            expected_new,
+        )
 
         # Test to real on more than one datum
-        new_data, error = processor(exp_data.data())
+        new_data = processor(exp_data.data())
 
         expected_new = np.array(
             [
@@ -130,8 +283,10 @@ class DataProcessorTest(BaseDataProcessorTest):
                 [[5131.962, 4438.87], [3415.985, 2942.458], [5199.964, 4030.843]],
             ]
         )
-
-        self.assertTrue(np.allclose(new_data, expected_new))
+        np.testing.assert_array_almost_equal(
+            unp.nominal_values(new_data),
+            expected_new,
+        )
 
     def test_to_imag(self):
         """Test that we can average the data."""
@@ -141,7 +296,7 @@ class DataProcessorTest(BaseDataProcessorTest):
         exp_data = ExperimentData(FakeExperiment())
         exp_data.add_data(self.result_lvl1)
 
-        new_data, error = processor(exp_data.data(0))
+        new_data = processor(exp_data.data(0))
 
         expected_old = {
             "memory": [
@@ -164,19 +319,28 @@ class DataProcessorTest(BaseDataProcessorTest):
         )
 
         self.assertEqual(exp_data.data(0), expected_old)
-        self.assertTrue(np.allclose(new_data, expected_new))
-        self.assertIsNone(error)
+        np.testing.assert_array_almost_equal(
+            unp.nominal_values(new_data),
+            expected_new,
+        )
+        self.assertTrue(np.isnan(unp.std_devs(new_data)).all())
 
         # Test that we can call with history.
-        new_data, error, history = processor.call_with_history(exp_data.data(0))
+        new_data, history = processor.call_with_history(exp_data.data(0))
         self.assertEqual(exp_data.data(0), expected_old)
-        self.assertTrue(np.allclose(new_data, expected_new))
+        np.testing.assert_array_almost_equal(
+            unp.nominal_values(new_data),
+            expected_new,
+        )
 
         self.assertEqual(history[0][0], "ToImag")
-        self.assertTrue(np.allclose(history[0][1], expected_new))
+        np.testing.assert_array_almost_equal(
+            unp.nominal_values(history[0][1]),
+            expected_new,
+        )
 
         # Test to imaginary on more than one datum
-        new_data, error = processor(exp_data.data())
+        new_data = processor(exp_data.data())
 
         expected_new = np.array(
             [
@@ -185,23 +349,29 @@ class DataProcessorTest(BaseDataProcessorTest):
             ]
         )
 
-        self.assertTrue(np.allclose(new_data, expected_new))
+        np.testing.assert_array_almost_equal(
+            unp.nominal_values(new_data),
+            expected_new,
+        )
 
     def test_populations(self):
         """Test that counts are properly converted to a population."""
 
         processor = DataProcessor("counts")
-        processor.append(Probability("00"))
+        processor.append(Probability("00", alpha_prior=1.0))
 
         # Test on a single datum.
-        new_data, error = processor(self.exp_data_lvl2.data(0))
+        new_data = processor(self.exp_data_lvl2.data(0))
 
-        self.assertEqual(new_data, 0.4)
-        self.assertEqual(error, np.sqrt(0.4 * (1 - 0.4) / 10))
+        self.assertAlmostEqual(float(unp.nominal_values(new_data)), 0.41666667)
+        self.assertAlmostEqual(float(unp.std_devs(new_data)), 0.13673544235706114)
 
         # Test on all the data
-        new_data, error = processor(self.exp_data_lvl2.data())
-        self.assertTrue(np.allclose(new_data, np.array([0.4, 0.2])))
+        new_data = processor(self.exp_data_lvl2.data())
+        np.testing.assert_array_almost_equal(
+            unp.nominal_values(new_data),
+            np.array([0.41666667, 0.25]),
+        )
 
     def test_validation(self):
         """Test the validation mechanism."""
@@ -212,6 +382,46 @@ class DataProcessorTest(BaseDataProcessorTest):
 
             with self.assertRaises(error):
                 processor({"counts": [0, 1, 2]})
+
+    def test_json_single_node(self):
+        """Check if the data processor is serializable."""
+        node = MinMaxNormalize()
+        processor = DataProcessor("counts", [node])
+        self.assertRoundTripSerializable(processor, check_func=self.json_equiv)
+
+    def test_json_multi_node(self):
+        """Check if the data processor with multiple nodes is serializable."""
+        node1 = MinMaxNormalize()
+        node2 = AverageData(axis=2)
+        processor = DataProcessor("counts", [node1, node2])
+        self.assertRoundTripSerializable(processor, check_func=self.json_equiv)
+
+    def test_json_trained(self):
+        """Check if trained data processor is serializable and still work."""
+        test_data = {"memory": [[1, 1]]}
+
+        node = SVD()
+        node.set_parameters(
+            main_axes=np.array([[1, 0]]), scales=[1.0], i_means=[0.0], q_means=[0.0]
+        )
+        processor = DataProcessor("memory", data_actions=[node])
+        self.assertRoundTripSerializable(processor, check_func=self.json_equiv)
+
+        serialized = json.dumps(processor, cls=ExperimentEncoder)
+        loaded_processor = json.loads(serialized, cls=ExperimentDecoder)
+
+        ref_out = processor(data=test_data)
+        loaded_out = loaded_processor(data=test_data)
+
+        np.testing.assert_array_almost_equal(
+            unp.nominal_values(ref_out),
+            unp.nominal_values(loaded_out),
+        )
+
+        np.testing.assert_array_almost_equal(
+            unp.std_devs(ref_out),
+            unp.std_devs(loaded_out),
+        )
 
 
 class TestIQSingleAvg(BaseDataProcessorTest):
@@ -263,7 +473,7 @@ class TestIQSingleAvg(BaseDataProcessorTest):
         to_imag = DataProcessor("memory", [ToImag(scale=1)])
 
         # Test the real single shot node
-        new_data, error = to_real(self.exp_data_single.data(0))
+        new_data = to_real(self.exp_data_single.data(0))
         expected = np.array(
             [
                 [-56470872.0, -53407256.0],
@@ -274,11 +484,14 @@ class TestIQSingleAvg(BaseDataProcessorTest):
                 [51426688.0, 34330920.0],
             ]
         )
-        self.assertTrue(np.allclose(new_data, expected))
-        self.assertIsNone(error)
+        np.testing.assert_array_almost_equal(
+            unp.nominal_values(new_data),
+            expected,
+        )
+        self.assertTrue(np.isnan(unp.std_devs(new_data)).all())
 
         # Test the imaginary single shot node
-        new_data, error = to_imag(self.exp_data_single.data(0))
+        new_data = to_imag(self.exp_data_single.data(0))
         expected = np.array(
             [
                 [-136691568.0, -176278624.0],
@@ -289,15 +502,24 @@ class TestIQSingleAvg(BaseDataProcessorTest):
                 [-142703104.0, -185572592.0],
             ]
         )
-        self.assertTrue(np.allclose(new_data, expected))
+        np.testing.assert_array_almost_equal(
+            unp.nominal_values(new_data),
+            expected,
+        )
 
         # Test the real average node
-        new_data, error = to_real(self.exp_data_avg.data(0))
-        self.assertTrue(np.allclose(new_data, np.array([-539698.0, 5541283.0])))
+        new_data = to_real(self.exp_data_avg.data(0))
+        np.testing.assert_array_almost_equal(
+            unp.nominal_values(new_data),
+            np.array([-539698.0, 5541283.0]),
+        )
 
         # Test the imaginary average node
-        new_data, error = to_imag(self.exp_data_avg.data(0))
-        self.assertTrue(np.allclose(new_data, np.array([-153030784.0, -160369600.0])))
+        new_data = to_imag(self.exp_data_avg.data(0))
+        np.testing.assert_array_almost_equal(
+            unp.nominal_values(new_data),
+            np.array([-153030784.0, -160369600.0]),
+        )
 
 
 class TestAveragingAndSVD(BaseDataProcessorTest):
@@ -318,7 +540,7 @@ class TestAveragingAndSVD(BaseDataProcessorTest):
                 [[0.9, 0.9], [-1.1, 1.0]],
             ]
         )
-        self._sig_gs = np.array([[1.0], [-1.0]]) / np.sqrt(2.0)
+        self._sig_gs = np.array([1.0, -1.0]) / np.sqrt(2.0)
 
         circ_gs = ExperimentResultData(
             memory=[
@@ -328,7 +550,7 @@ class TestAveragingAndSVD(BaseDataProcessorTest):
                 [[-0.9, -0.9], [1.1, -1.0]],
             ]
         )
-        self._sig_es = np.array([[-1.0], [1.0]]) / np.sqrt(2.0)
+        self._sig_es = np.array([-1.0, 1.0]) / np.sqrt(2.0)
 
         circ_x90p = ExperimentResultData(
             memory=[
@@ -338,7 +560,7 @@ class TestAveragingAndSVD(BaseDataProcessorTest):
                 [[1.0, 1.0], [-1.0, 1.0]],
             ]
         )
-        self._sig_x90 = np.array([[0], [0]])
+        self._sig_x90 = np.array([0, 0])
 
         circ_x45p = ExperimentResultData(
             memory=[
@@ -348,7 +570,7 @@ class TestAveragingAndSVD(BaseDataProcessorTest):
                 [[1.0, 1.0], [-1.0, 1.0]],
             ]
         )
-        self._sig_x45 = np.array([[0.5], [-0.5]]) / np.sqrt(2.0)
+        self._sig_x45 = np.array([0.5, -0.5]) / np.sqrt(2.0)
 
         res_es = ExperimentResult(
             shots=4,
@@ -397,18 +619,28 @@ class TestAveragingAndSVD(BaseDataProcessorTest):
         processor = DataProcessor("memory", [AverageData(axis=1)])
 
         # Test that we get the expected outcome for the excited state
-        processed, error = processor(self.data.data(0))
-        expected_avg = np.array([[1.0, 1.0], [-1.0, 1.0]])
-        expected_std = np.array([[0.15811388300841894, 0.1], [0.15811388300841894, 0.0]]) / 2.0
-        self.assertTrue(np.allclose(processed, expected_avg))
-        self.assertTrue(np.allclose(error, expected_std))
+        processed = processor(self.data.data(0))
+
+        np.testing.assert_array_almost_equal(
+            unp.nominal_values(processed),
+            np.array([[1.0, 1.0], [-1.0, 1.0]]),
+        )
+        np.testing.assert_array_almost_equal(
+            unp.std_devs(processed),
+            np.array([[0.15811388300841894, 0.1], [0.15811388300841894, 0.0]]) / 2.0,
+        )
 
         # Test that we get the expected outcome for the ground state
-        processed, error = processor(self.data.data(1))
-        expected_avg = np.array([[-1.0, -1.0], [1.0, -1.0]])
-        expected_std = np.array([[0.15811388300841894, 0.1], [0.15811388300841894, 0.0]]) / 2.0
-        self.assertTrue(np.allclose(processed, expected_avg))
-        self.assertTrue(np.allclose(error, expected_std))
+        processed = processor(self.data.data(1))
+
+        np.testing.assert_array_almost_equal(
+            unp.nominal_values(processed),
+            np.array([[-1.0, -1.0], [1.0, -1.0]]),
+        )
+        np.testing.assert_array_almost_equal(
+            unp.std_devs(processed),
+            np.array([[0.15811388300841894, 0.1], [0.15811388300841894, 0.0]]) / 2.0,
+        )
 
     def test_averaging_and_svd(self):
         """Test averaging followed by a SVD."""
@@ -421,23 +653,40 @@ class TestAveragingAndSVD(BaseDataProcessorTest):
         self.assertTrue(processor.is_trained)
 
         # Test the excited state
-        processed, error = processor(self.data.data(0))
-        self.assertTrue(np.allclose(processed, self._sig_es))
+        processed = processor(self.data.data(0))
+        np.testing.assert_array_almost_equal(
+            unp.nominal_values(processed),
+            self._sig_es,
+        )
 
         # Test the ground state
-        processed, error = processor(self.data.data(1))
-        self.assertTrue(np.allclose(processed, self._sig_gs))
+        processed = processor(self.data.data(1))
+        np.testing.assert_array_almost_equal(
+            unp.nominal_values(processed),
+            self._sig_gs,
+        )
 
         # Test the x90p rotation
-        processed, error = processor(self.data.data(2))
-        self.assertTrue(np.allclose(processed, self._sig_x90))
-        self.assertTrue(np.allclose(error, np.array([0.25, 0.25])))
+        processed = processor(self.data.data(2))
+        np.testing.assert_array_almost_equal(
+            unp.nominal_values(processed),
+            self._sig_x90,
+        )
+        np.testing.assert_array_almost_equal(
+            unp.std_devs(processed),
+            np.array([0.25, 0.25]),
+        )
 
         # Test the x45p rotation
-        processed, error = processor(self.data.data(3))
-        expected_std = np.array([np.std([1, 1, 1, -1]) / np.sqrt(4.0) / 2] * 2)
-        self.assertTrue(np.allclose(processed, self._sig_x45))
-        self.assertTrue(np.allclose(error, expected_std))
+        processed = processor(self.data.data(3))
+        np.testing.assert_array_almost_equal(
+            unp.nominal_values(processed),
+            self._sig_x45,
+        )
+        np.testing.assert_array_almost_equal(
+            unp.std_devs(processed),
+            np.array([np.std([1, 1, 1, -1]) / np.sqrt(4.0) / 2] * 2),
+        )
 
     def test_process_all_data(self):
         """Test that we can process all data at once."""
@@ -456,16 +705,22 @@ class TestAveragingAndSVD(BaseDataProcessorTest):
                 self._sig_x90.reshape(1, 2),
                 self._sig_x45.reshape(1, 2),
             )
-        ).T
+        )
 
         # Test processing of all data
-        processed = processor(self.data.data())[0]
-        self.assertTrue(np.allclose(processed, all_expected))
+        processed = processor(self.data.data())
+        np.testing.assert_array_almost_equal(
+            unp.nominal_values(processed),
+            all_expected,
+        )
 
         # Test processing of each datum individually
         for idx, expected in enumerate([self._sig_es, self._sig_gs, self._sig_x90, self._sig_x45]):
-            processed = processor(self.data.data(idx))[0]
-            self.assertTrue(np.allclose(processed, expected))
+            processed = processor(self.data.data(idx))
+            np.testing.assert_array_almost_equal(
+                unp.nominal_values(processed),
+                expected,
+            )
 
     def test_normalize(self):
         """Test that by adding a normalization node we get a signal between 1 and 1."""
@@ -476,11 +731,36 @@ class TestAveragingAndSVD(BaseDataProcessorTest):
         processor.train([self.data.data(idx) for idx in [0, 1]])
         self.assertTrue(processor.is_trained)
 
-        all_expected = np.array([[0.0, 1.0, 0.5, 0.75], [1.0, 0.0, 0.5, 0.25]])
-
         # Test processing of all data
-        processed = processor(self.data.data())[0]
-        self.assertTrue(np.allclose(processed, all_expected))
+        processed = processor(self.data.data())
+        np.testing.assert_array_almost_equal(
+            unp.nominal_values(processed),
+            np.array([[0.0, 1.0], [1.0, 0.0], [0.5, 0.5], [0.75, 0.25]]),
+        )
+
+    def test_distorted_iq_data(self):
+        """Test if uncertainty can consider correlation.
+
+        SVD projects IQ data onto I-axis, and input different data sets that
+        have the same mean and same variance but squeezed along different axis.
+        """
+        svd_node = SVD()
+        svd_node.set_parameters(
+            main_axes=np.array([[1, 0]]), scales=[1.0], i_means=[0.0], q_means=[0.0]
+        )
+
+        processor = DataProcessor("memory", [AverageData(axis=1), svd_node])
+
+        dist_i_axis = {"memory": [[[-1, 0]], [[-0.5, 0]], [[0.0, 0]], [[0.5, 0]], [[1, 0]]]}
+        dist_q_axis = {"memory": [[[0, -1]], [[0, -0.5]], [[0, 0.0]], [[0, 0.5]], [[0, 1]]]}
+
+        out_i = processor(dist_i_axis)
+        self.assertAlmostEqual(out_i[0].nominal_value, 0.0)
+        self.assertAlmostEqual(out_i[0].std_dev, 0.31622776601683794)
+
+        out_q = processor(dist_q_axis)
+        self.assertAlmostEqual(out_q[0].nominal_value, 0.0)
+        self.assertAlmostEqual(out_q[0].std_dev, 0.0)
 
 
 class TestAvgDataAndSVD(BaseDataProcessorTest):
@@ -555,8 +835,9 @@ class TestAvgDataAndSVD(BaseDataProcessorTest):
         processor.train([self.data.data(idx) for idx in [0, 1]])
         self.assertTrue(processor.is_trained)
 
-        all_expected = np.array([[0.0, 1.0, 0.5, 0.75], [1.0, 0.0, 0.5, 0.25]])
-
         # Test processing of all data
-        processed = processor(self.data.data())[0]
-        self.assertTrue(np.allclose(processed, all_expected))
+        processed = processor(self.data.data())
+        np.testing.assert_array_almost_equal(
+            unp.nominal_values(processed),
+            np.array([[0.0, 1.0], [1.0, 0.0], [0.5, 0.5], [0.75, 0.25]]),
+        )

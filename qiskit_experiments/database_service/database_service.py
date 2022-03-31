@@ -54,6 +54,7 @@ class DatabaseServiceV1(DatabaseService, ABC):
         backend_name: str,
         metadata: Optional[Dict] = None,
         experiment_id: Optional[str] = None,
+        parent_id: Optional[str] = None,
         job_ids: Optional[List[str]] = None,
         tags: Optional[List[str]] = None,
         notes: Optional[str] = None,
@@ -68,6 +69,9 @@ class DatabaseServiceV1(DatabaseService, ABC):
             metadata: Experiment metadata.
             experiment_id: Experiment ID. It must be in the ``uuid4`` format.
                 One will be generated if not supplied.
+            parent_id: The experiment ID of the parent experiment.
+                The parent experiment must exist, must be on the same backend as the child,
+                and an experiment cannot be its own parent.
             job_ids: IDs of experiment jobs.
             tags: Tags to be associated with the experiment.
             notes: Freeform notes about the experiment.
@@ -78,7 +82,7 @@ class DatabaseServiceV1(DatabaseService, ABC):
             Experiment ID.
 
         Raises:
-            ExperimentEntryExists: If the experiment already exits.
+            DbExperimentEntryExists: If the experiment already exists.
         """
         pass
 
@@ -103,7 +107,7 @@ class DatabaseServiceV1(DatabaseService, ABC):
             kwargs: Additional keywords supported by the service provider.
 
         Raises:
-            ExperimentEntryNotFound: If the experiment does not exist.
+            DbExperimentEntryNotFound: If the experiment does not exist.
         """
         pass
 
@@ -121,7 +125,7 @@ class DatabaseServiceV1(DatabaseService, ABC):
             A dictionary containing the retrieved experiment data.
 
         Raises:
-            ExperimentEntryNotFound: If the experiment does not exist.
+            DbExperimentEntryNotFound: If the experiment does not exist.
         """
         pass
 
@@ -134,6 +138,7 @@ class DatabaseServiceV1(DatabaseService, ABC):
         experiment_type: Optional[str] = None,
         backend_name: Optional[str] = None,
         tags: Optional[List[str]] = None,
+        parent_id: Optional[str] = None,
         tags_operator: Optional[str] = "OR",
         **filters: Any,
     ) -> List[Dict]:
@@ -148,6 +153,7 @@ class DatabaseServiceV1(DatabaseService, ABC):
             backend_name: Backend name used for filtering.
             tags: Filter by tags assigned to experiments. This can be used
                 with `tags_operator` for granular filtering.
+            parent_id: Filter by parent experiment ID.
             tags_operator: Logical operator to use when filtering by tags. Valid
                 values are "AND" and "OR":
 
@@ -205,7 +211,7 @@ class DatabaseServiceV1(DatabaseService, ABC):
             Analysis result ID.
 
         Raises:
-            ExperimentEntryExists: If the analysis result already exits.
+            DbExperimentEntryExists: If the analysis result already exits.
         """
         pass
 
@@ -230,7 +236,7 @@ class DatabaseServiceV1(DatabaseService, ABC):
             kwargs: Additional keywords supported by the service provider.
 
         Raises:
-            ExperimentEntryNotFound: If the analysis result does not exist.
+            DbExperimentEntryNotFound: If the analysis result does not exist.
         """
         pass
 
@@ -248,7 +254,7 @@ class DatabaseServiceV1(DatabaseService, ABC):
             Retrieved analysis result.
 
         Raises:
-            ExperimentEntryNotFound: If the analysis result does not exist.
+            DbExperimentEntryNotFound: If the analysis result does not exist.
         """
         pass
 

@@ -13,11 +13,11 @@
 Quantum State Tomography experiment
 """
 
-from typing import Union, Optional, Iterable, List
+from typing import Union, Optional, Iterable, List, Sequence
 from qiskit.circuit import QuantumCircuit, Instruction
 from qiskit.quantum_info.operators.base_operator import BaseOperator
-from qiskit.quantum_info import Statevector
-from qiskit_experiments.framework import Options
+from qiskit.quantum_info import Statevector, DensityMatrix, partial_trace
+from qiskit_experiments.exceptions import QiskitError
 from .tomography_experiment import TomographyExperiment
 from .qst_analysis import StateTomographyAnalysis
 from . import basis
@@ -26,7 +26,7 @@ from . import basis
 class StateTomography(TomographyExperiment):
     """Quantum state tomography experiment.
 
-    Overview
+    # section: overview
         Quantum state tomography (QST) is a method for experimentally
         reconstructing the quantum state from measurement data.
 
@@ -34,55 +34,26 @@ class StateTomography(TomographyExperiment):
         circuit in different measurement bases and post-processes the
         measurement data to reconstruct the state.
 
-        See :class:`TomographyAnalysis` documentation for additional
-        information on tomography experiment analysis.
+    # section: note
+        Performing full state tomography on an `N`-qubit state requires
+        running :math:`3^N` measurement circuits when using the default
+        measurement basis.
 
-        .. note::
-            Performing full state tomography on an `N`-qubit state requires
-            running :math:`3^N` measurement circuits when using the default
-            measurement basis.
+    # section: analysis_ref
+        :py:class:`StateTomographyAnalysis`
 
-    Analysis Class
-        :class:`~qiskit.experiments.tomography.TomographyAnalysis`
+    # section: see_also
+        qiskit_experiments.library.tomography.tomography_experiment.TomographyExperiment
 
-    Experiment Options
-        - **measurement_basis** (:class:`~basis.BaseTomographyMeasurementBasis`):
-          The Tomography measurement basis to use for the experiment.
-          The default basis is the :class:`~basis.PauliMeasurementBasis` which
-          performs measurements in the Pauli Z, X, Y bases for each qubit
-          measurement.
-
-    Analysis Options
-        - **measurement_basis**
-          (:class`~basis.BaseFitterMeasurementBasis`):
-          A custom measurement basis for analysis. By default the
-          :meth:`experiment_options` measurement basis will be used.
-        - **fitter** (``str`` or ``Callable``): The fitter function to use for
-          reconstruction.
-        - **rescale_psd** (``bool``): If True rescale the fitted state to be
-          positive-semidefinite (Default: True).
-        - **rescale_trace** (``bool``): If True rescale the state returned by the fitter
-          have either trace 1 (Default: True).
-        - **kwargs**: Additional kwargs will be supplied to the fitter function.
     """
-
-    __analysis_class__ = StateTomographyAnalysis
-
-    @classmethod
-    def _default_analysis_options(cls) -> Options:
-        options = super()._default_analysis_options()
-
-        options.measurement_basis = basis.PauliMeasurementBasis().matrix
-
-        return options
 
     def __init__(
         self,
         circuit: Union[QuantumCircuit, Instruction, BaseOperator, Statevector],
         measurement_basis: basis.BaseTomographyMeasurementBasis = basis.PauliMeasurementBasis(),
-        measurement_qubits: Optional[Iterable[int]] = None,
+        measurement_qubits: Optional[Sequence[int]] = None,
         basis_indices: Optional[Iterable[List[int]]] = None,
-        qubits: Optional[Iterable[int]] = None,
+        qubits: Optional[Sequence[int]] = None,
     ):
         """Initialize a quantum process tomography experiment.
 
@@ -117,4 +88,38 @@ class StateTomography(TomographyExperiment):
             measurement_qubits=measurement_qubits,
             basis_indices=basis_indices,
             qubits=qubits,
+            analysis=StateTomographyAnalysis(),
         )
+
+        # Set target quantum state
+        self.analysis.set_options(target=self._target_quantum_state())
+
+    def _target_quantum_state(self) -> Union[Statevector, DensityMatrix]:
+        """Return the state tomography target"""
+        # Check if circuit contains measure instructions
+        # If so we cannot return target state
+        circuit_ops = self._circuit.count_ops()
+        if "measure" in circuit_ops:
+            return None
+
+        perm_circ = self._permute_circuit()
+        try:
+            if "reset" in circuit_ops or "kraus" in circuit_ops or "superop" in circuit_ops:
+                state = DensityMatrix(perm_circ)
+            else:
+                state = Statevector(perm_circ)
+        except QiskitError:
+            # Circuit couldn't be simulated
+            return None
+
+        total_qubits = self._circuit.num_qubits
+        if self._meas_qubits:
+            num_meas = len(self._meas_qubits)
+        else:
+            num_meas = total_qubits
+        if num_meas == total_qubits:
+            return state
+
+        # Trace out non-measurement qubits
+        tr_qargs = range(num_meas, total_qubits)
+        return partial_trace(state, tr_qargs)

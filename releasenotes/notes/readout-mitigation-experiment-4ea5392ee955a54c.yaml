@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Added two new experiments (:class:`qiskit_experiments.library.LocalReadoutError` and :class:`qiskit_experiments.library.CorrelatedReadoutError`)
+    for characterizing the readout error of devices.

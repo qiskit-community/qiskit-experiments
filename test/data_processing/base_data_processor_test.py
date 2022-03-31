@@ -11,12 +11,19 @@
 # that they have been altered from the originals.
 
 """Base class for data processor tests."""
+from test.base import QiskitExperimentsTestCase
+from test.fake_experiment import FakeExperiment
 
-from qiskit.test import QiskitTestCase
+from typing import Any, List
+
+from qiskit.result import Result
+
 from qiskit.qobj.common import QobjExperimentHeader
+from qiskit.result.models import ExperimentResultData, ExperimentResult
+from qiskit_experiments.framework import ExperimentData
 
 
-class BaseDataProcessorTest(QiskitTestCase):
+class BaseDataProcessorTest(QiskitExperimentsTestCase):
     """Define some basic setup functionality for data processor tests."""
 
     def setUp(self):
@@ -35,3 +42,37 @@ class BaseDataProcessorTest(QiskitTestCase):
             memory_slots=2,
             metadata={"experiment_type": "fake_test_experiment"},
         )
+
+    def create_experiment(self, iq_data: List[Any], single_shot: bool = False):
+        """Populate avg_iq_data to use it for testing.
+
+        Args:
+            iq_data: A List of IQ data.
+            single_shot: Indicates if the data is single-shot or not.
+        """
+        results = []
+        if not single_shot:
+            for circ_data in iq_data:
+                res = ExperimentResult(
+                    success=True,
+                    meas_level=1,
+                    meas_return="avg",
+                    data=ExperimentResultData(memory=circ_data),
+                    header=self.header,
+                    shots=1024,
+                )
+                results.append(res)
+        else:
+            res = ExperimentResult(
+                success=True,
+                meas_level=1,
+                meas_return="single",
+                data=ExperimentResultData(memory=iq_data),
+                header=self.header,
+                shots=1024,
+            )
+            results.append(res)
+
+        # pylint: disable=attribute-defined-outside-init
+        self.iq_experiment = ExperimentData(FakeExperiment())
+        self.iq_experiment.add_data(Result(results=results, **self.base_result_args))

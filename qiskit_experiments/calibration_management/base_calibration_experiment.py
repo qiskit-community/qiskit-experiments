@@ -13,15 +13,15 @@
 """Base class for calibration-type experiments."""
 
 from abc import ABC
-from typing import Dict, Optional, Tuple, Type
+from typing import List, Optional, Type, Union
 import warnings
 
 from qiskit.providers.backend import Backend
-from qiskit.circuit import Parameter
 from qiskit.pulse import ScheduleBlock
 
 from qiskit_experiments.calibration_management.calibrations import Calibrations
 from qiskit_experiments.calibration_management.update_library import BaseUpdater
+from qiskit_experiments.framework.base_analysis import BaseAnalysis
 from qiskit_experiments.framework.base_experiment import BaseExperiment
 from qiskit_experiments.framework.experiment_data import ExperimentData
 from qiskit_experiments.exceptions import CalibrationError
@@ -80,9 +80,6 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
     :mod:`qiskit_experiments.calibration_management.update_library`. See also
     :class:`qiskit_experiments.calibration_management.update_library.BaseUpdater`. If no updater
     is specified the experiment will still run but no update of the calibrations will be performed.
-
-    In addition to the calibration specific requirements, the developer must set the analysis method
-    with the class variable :code:`__analysis_class__` and any default experiment options.
     """
 
     def __init_subclass__(cls, **kwargs):
@@ -139,6 +136,23 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
         """Return the calibrations."""
         return self._cals
 
+    @classmethod
+    def _default_experiment_options(cls):
+        """Default values for a calibration experiment.
+
+        Experiment Options:
+            result_index (int): The index of the result from which to update the calibrations.
+            group (str): The calibration group to which the parameter belongs. This will default
+                to the value "default".
+
+        """
+        options = super()._default_experiment_options()
+
+        options.result_index = -1
+        options.group = "default"
+
+        return options
+
     def update_calibrations(self, experiment_data: ExperimentData):
         """Update parameter values in the :class:`Calibrations` instance.
 
@@ -156,94 +170,7 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
                 schedule=self._sched_name,
             )
 
-    def _get_schedule_from_options(self, option_name: str) -> ScheduleBlock:
-        """Get a schedule from the experiment options.
-
-        Developers can subclass this method if they need a more sophisticated
-        methodology to get schedules from their experiment options.
-
-        Args:
-            option_name: The name of the option under which the schedule is stored.
-
-        Returns:
-            The schedule to use in the calibration experiment.
-        """
-        return self.experiment_options.get(option_name, None)
-
-    def _get_schedule_from_calibrations(
-        self,
-        qubits: Optional[Tuple[int, ...]] = None,
-        sched_name: Optional[str] = None,
-        assign_params: Optional[Dict[str, Parameter]] = None,
-    ) -> Optional[ScheduleBlock]:
-        """Get the schedules from the Calibrations instance.
-
-        This method is called if :meth:`get_schedules_from_options` did not return
-        any schedules to use. Here, we get a schedule from an instance of
-        :class:`Calibrations` using the :meth:`get_schedule` method. Subclasses can override
-        this method if they need a different behaviour.
-
-        Args:
-            qubits: The qubits for which to fetch the schedules. If None is given this will
-                default to the physical qubits of the experiment.
-            sched_name: The name of the schedule to fetch from the calibrations. If None is
-                gven this will default to :code:`self._sched_name`.
-            assign_params: A dict to specify parameters in the schedule that are
-                to be mapped to an unassigned parameter.
-
-        Returns:
-            A schedule for the corresponding arguments if there exists an instance
-            :code:`self._cals`.
-        """
-
-        if sched_name is None:
-            sched_name = self._sched_name
-
-        if qubits is None:
-            qubits = self.physical_qubits
-
-        if self._cals is not None:
-            return self._cals.get_schedule(sched_name, qubits=qubits, assign_params=assign_params)
-
-        return None
-
-    def _get_schedule_from_defaults(self, **kwargs) -> Optional[ScheduleBlock]:
-        """Get the schedules based on default experiment options.
-
-        Subclasses can override this method to define and get default schedules based on
-        default experiment options such as the number of samples in a Gaussian and its
-        amplitude. This function is called as a last resort in :meth:`get_schedules`
-        and accommodates cases when the user provides neither calibrations nor schedules.
-        For example, if the default schedule is a Gaussian then this function may return
-        the schedule
-
-        .. code-block:: python
-
-            with pulse.build(backend=backend, name="rabi") as default_schedule:
-                pulse.play(
-                    pulse.Gaussian(
-                        duration=self.experiment_options.duration,
-                        amp=Parameter("amp"),
-                        sigma=self.experiment_options.sigma,
-                    ),
-                    pulse.DriveChannel(self.physical_qubits[0]),
-            )
-
-        """
-        raise NotImplementedError(
-            f"{self.__class__.__name__} could not find a schedule in the experiment options "
-            "or the calibrations and no default schedule method was implemented."
-        )
-
-    def _validate_schedule(self, schedule: ScheduleBlock):
-        """Subclass can implement this method to validate the schedule they use.
-
-        Validating schedules may include checks on the number of parameters and
-        the channels in the schedule. The functions :meth:`_validate_channels` and
-        :meth:`_validate_parameters` implement such standard checks for reuse.
-        """
-
-    def _validate_channels(self, schedule: ScheduleBlock):
+    def _validate_channels(self, schedule: ScheduleBlock, physical_qubits: List[int]):
         """Check that the physical qubits are contained in the schedule.
 
         This is a helper method that experiment developers can call in their implementation
@@ -251,11 +178,12 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
 
         Args:
             schedule: The schedule for which to check the qubits.
+            physical_qubits: The qubits that should be included in the schedule.
 
         Raises:
             CalibrationError: If a physical qubit is not contained in the channels schedule.
         """
-        for qubit in self.physical_qubits:
+        for qubit in physical_qubits:
             if qubit not in set(ch.index for ch in schedule.channels):
                 raise CalibrationError(
                     f"Schedule {schedule.name} does not contain a channel "
@@ -281,84 +209,43 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
                 f"{n_expected_parameters} parameters. Found {len(schedule.parameters)}."
             )
 
-    def get_schedule(
-        self,
-        qubits: Optional[Tuple[int, ...]] = None,
-        sched_name: Optional[str] = None,
-        option_name: str = "schedule",
-        assign_params: Optional[Dict[str, Parameter]] = None,
-        **kwargs,
-    ) -> ScheduleBlock:
-        """Get the schedules for the circuits.
+    def _add_cal_metadata(self, experiment_data: ExperimentData):
+        """A hook to add calibration metadata to the experiment data.
 
-        This method defines the order in which the schedules are consumed. This order is
-
-        #. Use the schedules directly available in the experiment, i.e. those specified
-           by experiment users. This is made possible in experiments by implementing the
-           :meth:`get_schedules_from_options` method.
-
-        #. Use the schedules found in the instance of :class:`Calibrations` attached to the
-           experiment. This is done by implementing the :meth:`get_schedules_from_calibrations`
-           method.
-
-        #. Use any default schedules specified by the :meth:`get_schedules_from_defaults`.
-
-        If any one step does not return a schedule then we attempt to get schedules from the next
-        step. If none of these three steps have returned any schedules then an error is raised.
-
-        Args:
-            qubits: The qubits for which to get the schedule in the calibrations. If None is given
-                this will default to the physical qubits of the experiment.
-            sched_name: The name of the schedule to retrieve from the instance of
-                :class:`Calibrations` stored as a protected variable. If this is None then
-                :meth:`get_schedule_from_calibrations` will default to the :code:`self._sched_name`.
-            option_name: The name of the option under which to get the schedule from the experiment
-                options. This will default to "schedule" if None is given.
-            assign_params: A dict that :meth:`get_schedule_from_calibrations` can use to leave
-                certain parameters in the schedule unassigned. The key is the name of the parameter
-                and the value should be an instance of :class:`ParameterExpression`.
-            kwargs: Additional keyword arguments that can be used by implementations of
-                :meth:`get_schedule_from_defaults`.
-
-        Returns:
-            schedules: The schedules (possibly with one or more free parameters) as either a
-                ScheduleBlock or a list of ScheduleBlocks depending on the experiment.
-
-        Raises:
-            CalibrationError: if none of the methods above returned schedules.
+        This hook allows calibration experiments to add their own meta data to the
+        experiment data if needed.
         """
-        schedules = self._get_schedule_from_options(option_name)
-
-        if schedules is None:
-            schedules = self._get_schedule_from_calibrations(qubits, sched_name, assign_params)
-
-        if schedules is None:
-            schedules = self._get_schedule_from_defaults(**kwargs)
-
-        self._validate_schedule(schedules)
-
-        return schedules
+        pass
 
     def run(
         self,
-        backend: Backend,
-        analysis: bool = True,
-        experiment_data: Optional[ExperimentData] = None,
+        backend: Optional[Backend] = None,
+        analysis: Optional[Union[BaseAnalysis, None]] = "default",
+        timeout: Optional[float] = None,
         **run_options,
     ) -> ExperimentData:
         """Run an experiment, perform analysis, and update any calibrations.
 
         Args:
-            backend: The backend to run the experiment on.
-            analysis: If True run analysis on the experiment data.
-            experiment_data: Optional, add results to existing experiment data.
-                If None a new ExperimentData object will be returned.
+            backend: Optional, the backend to run the experiment on. This
+                     will override any currently set backends for the single
+                     execution.
+            analysis: Optional, a custom analysis instance to use for performing
+                      analysis. If None analysis will not be run. If ``"default"``
+                      the experiments :meth:`analysis` instance will be used if
+                      it contains one.
+            timeout: Time to wait for experiment jobs to finish running before
+                     cancelling.
             run_options: backend runtime options used for circuit execution.
 
         Returns:
             The experiment data object.
         """
-        experiment_data = super().run(backend, analysis, experiment_data, **run_options)
+        experiment_data = super().run(
+            backend=backend, analysis=analysis, timeout=timeout, **run_options
+        )
+
+        self._add_cal_metadata(experiment_data)
 
         if self.auto_update and analysis:
             experiment_data.add_analysis_callback(self.update_calibrations)

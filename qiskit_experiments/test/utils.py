@@ -15,7 +15,6 @@
 import uuid
 from typing import Optional, Union, Dict
 from datetime import datetime, timezone
-import time
 
 from qiskit.providers.job import JobV1 as Job
 from qiskit.providers.jobstatus import JobStatus
@@ -38,7 +37,6 @@ class FakeJob(Job):
 
     def result(self):
         """Return job result."""
-        time.sleep(3)
         return self._result
 
     def submit(self):

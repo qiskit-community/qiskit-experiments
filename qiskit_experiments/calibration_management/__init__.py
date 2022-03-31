@@ -36,11 +36,12 @@ Classes
 .. autosummary::
     :toctree: ../stubs/
 
-    BackendCalibrations
     Calibrations
-    Frequency
-    Amplitude
-    Drag
+    ParameterValue
+    FixedFrequencyTransmon
+    BasisGateLibrary
+    BaseCalibrationExperiment
+
 
 Managing Calibration Data
 =========================
@@ -147,6 +148,6 @@ which would return the default xp schedule block template for all qubits.
 """
 
 from .calibrations import Calibrations
-from .backend_calibrations import BackendCalibrations
-
-from .update_library import Frequency, Drag, Amplitude, FineDragUpdater
+from .parameter_value import ParameterValue
+from .base_calibration_experiment import BaseCalibrationExperiment
+from .basis_gate_library import FixedFrequencyTransmon, BasisGateLibrary

@@ -20,34 +20,9 @@ from .tomography_analysis import TomographyAnalysis
 class StateTomographyAnalysis(TomographyAnalysis):
     """State tomography experiment analysis.
 
-    Analysis Options
-        - **measurement_basis**
-          (:class:`~qiskit_experiments.library.tomography.basis.BaseFitterMeasurementBasis`):
-          The measurement
-          :class:`~qiskit_experiments.library.tomography.basis.BaseFitterMeasurementBasis`
-          to use for tomographic reconstruction when running a
-          :class:`~qiskit_experiments.library.tomography.StateTomography` or
-          :class:`~qiskit_experiments.library.tomography.ProcessTomography`.
-        - **fitter** (``str`` or ``Callable``): The fitter function to use for reconstruction.
-          This can  be a string to select one of the built-in fitters, or a callable to
-          supply a custom fitter function. See the `Fitter Functions` section
-          for additional information.
-        - **rescale_positive** (``bool``): If True rescale the state returned by the fitter
-          to be positive-semidefinite. See the `PSD Rescaling` section for
-          additional information (Default: True).
-        - **rescale_trace** (``bool``): If True rescale the state returned by the fitter
-          have either trace 1 for :class:`~qiskit.quantum_info.DensityMatrix`,
-          or trace dim for :class:`~qiskit.quantum_info.Choi`.
-          matrices (Default: True).
-        - **target** (``Statevector`` or ``DensityMatrix``) Set a custom target state
-          for computing the :func:`~qiskit.quantum_info.state_fidelity` of the fitted
-          state against. If ``"default"``  the ideal state prepared by the input circuit
-          will be used. If ``None`` no fidelity will be computed (Default: "default").
-        - **kwargs**: will be supplied to the fitter function,
-          for documentation of available args refer to the fitter function
-          documentation.
+    # section: overview
+        Fitter Functions
 
-    Fitter Functions
         Built-in fitter functions may be selected using the following string
         labels, refer to the corresponding functions documentation for additional
         details on the fitters.
@@ -63,16 +38,8 @@ class StateTomographyAnalysis(TomographyAnalysis):
         * ``"cvxpy_gaussian_lstsq"``:
           :func:`~qiskit_experiments.library.tomography.fitters.cvxpy_gaussian_lstsq`
 
-        .. note::
+        PSD Rescaling
 
-            Fitters starting with ``"cvxpy_*"`` require the optional CVXPY Python
-            package to be installed.
-
-        .. warning::
-            The API for tomography fitters is still under development so may change
-            in future releases.
-
-    PSD Rescaling
         For fitters that do not constrain the reconstructed state to be
         `positive-semidefinite` (PSD) we construct the maximum-likelihood
         nearest PSD state under the assumption of Gaussian measurement noise
@@ -80,19 +47,42 @@ class StateTomographyAnalysis(TomographyAnalysis):
         support PSD constraints this option can be disabled by setting
         ``rescale_positive=False``.
 
-    References
-        1. J Smolin, JM Gambetta, G Smith, Phys. Rev. Lett. 108, 070502 (2012).
-           Open access: https://arxiv.org/abs/arXiv:1106.5458
+    # section: warning
+        The API for tomography fitters is still under development so may change
+        in future releases.
+
+    # section: note
+        Fitters starting with ``"cvxpy_*"`` require the optional CVXPY Python
+        package to be installed.
+
+    # section: reference
+        .. ref_arxiv:: 1 1106.5458
+
+    # section: see_also
+        qiskit_experiments.library.tomography.tomography_analysis.TomographyAnalysis
+
     """
 
     @classmethod
     def _default_options(cls) -> Options:
+        """Default analysis options
+
+        Analysis Options:
+            measurement_basis (:class:`~basis.BaseFitterMeasurementBasis`): A custom measurement
+                basis for analysis. By default the :meth:`experiment_options` measurement basis
+                will be used.
+            fitter (str or Callable): The fitter function to use for reconstruction.
+                rescale_psd (bool): If True rescale the fitted state to be positive-semidefinite
+                (Default: True).
+            fitter_options (Dict[str, Any]): Additional kwargs will be supplied to the
+                fitter function.
+            rescale_trace (bool): If True rescale the state returned by the fitter have either
+                trace 1 (Default: True).
+            target (Union[str, :class:`~qiskit.quantum_info.DensityMatrix`,
+                :class:`~qiskit.quantum_info.Statevector`]): Optional, et a custom target
+                quantum state for computing the :func:~qiskit.quantum_info.state_fidelity`
+                of the fitted state against (Default: None).
+        """
         options = super()._default_options()
-
         options.measurement_basis = PauliMeasurementBasis()
-        options.fitter = "linear_inversion"
-        options.rescale_positive = True
-        options.rescale_trace = True
-        options.target = "default"
-
         return options

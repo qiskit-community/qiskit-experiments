@@ -13,10 +13,11 @@
 """
 A Tester for the RB utils module
 """
-
+from test.base import QiskitExperimentsTestCase
 import numpy as np
+from uncertainties import ufloat
 from ddt import ddt, data, unpack
-from qiskit.test import QiskitTestCase
+
 from qiskit import QuantumCircuit
 from qiskit.circuit.library import (
     IGate,
@@ -33,11 +34,10 @@ from qiskit.circuit.library import (
 from qiskit.quantum_info import Clifford
 import qiskit_experiments.library.randomized_benchmarking as rb
 from qiskit_experiments.framework import AnalysisResultData
-from qiskit_experiments.database_service.db_fitval import FitVal
 
 
 @ddt
-class TestRBUtilities(QiskitTestCase):
+class TestRBUtilities(QiskitExperimentsTestCase):
     """
     A test class for additional functionality provided by the StandardRB
     class.
@@ -83,22 +83,24 @@ class TestRBUtilities(QiskitTestCase):
         in the RB experiment, the gate counts, and an estimate about the
         relations between the errors of different gate types
         """
-        epc_1_qubit = FitVal(0.0037, 0)
+        epc_1_qubit = ufloat(0.0037, 0)
         qubits = [0]
         gate_error_ratio = {((0,), "id"): 1, ((0,), "rz"): 0, ((0,), "sx"): 1, ((0,), "x"): 1}
         gates_per_clifford = {((0,), "rz"): 10.5, ((0,), "sx"): 8.15, ((0,), "x"): 0.25}
         epg = rb.RBUtils.calculate_1q_epg(epc_1_qubit, qubits, gate_error_ratio, gates_per_clifford)
         error_dict = {
-            ((0,), "rz"): FitVal(0, 0),
-            ((0,), "sx"): FitVal(0.0004432101747785104, 0),
-            ((0,), "x"): FitVal(0.0004432101747785104, 0),
+            ((0,), "rz"): ufloat(0, 0),
+            ((0,), "sx"): ufloat(0.0004432101747785104, 0),
+            ((0,), "x"): ufloat(0.0004432101747785104, 0),
         }
 
         for gate in ["x", "sx", "rz"]:
             expected_epg = error_dict[((0,), gate)]
             actual_epg = epg[(0,)][gate]
-            self.assertTrue(np.allclose(expected_epg.value, actual_epg.value, atol=0.001))
-            self.assertTrue(np.allclose(expected_epg.stderr, actual_epg.stderr, atol=0.001))
+            self.assertAlmostEqual(
+                expected_epg.nominal_value, actual_epg.nominal_value, delta=0.001
+            )
+            self.assertAlmostEqual(expected_epg.std_dev, actual_epg.std_dev, delta=0.001)
 
     def test_calculate_2q_epg(self):
         """Testing the calculation of 2 qubit error per gate
@@ -106,7 +108,7 @@ class TestRBUtilities(QiskitTestCase):
         in the RB experiment, the gate counts, and an estimate about the
         relations between the errors of different gate types
         """
-        epc_2_qubit = FitVal(0.034184849962675984, 0)
+        epc_2_qubit = ufloat(0.034184849962675984, 0)
         qubits = [1, 4]
         gate_error_ratio = {
             ((1,), "id"): 1,
@@ -146,13 +148,13 @@ class TestRBUtilities(QiskitTestCase):
         )
 
         error_dict = {
-            ((1, 4), "cx"): FitVal(0.012438847900902494, 0),
+            ((1, 4), "cx"): ufloat(0.012438847900902494, 0),
         }
 
         expected_epg = error_dict[((1, 4), "cx")]
         actual_epg = epg[(1, 4)]["cx"]
-        self.assertTrue(np.allclose(expected_epg.value, actual_epg.value, atol=0.001))
-        self.assertTrue(np.allclose(expected_epg.stderr, actual_epg.stderr, atol=0.001))
+        self.assertAlmostEqual(expected_epg.nominal_value, actual_epg.nominal_value, delta=0.001)
+        self.assertAlmostEqual(expected_epg.std_dev, actual_epg.std_dev, delta=0.001)
 
     def test_coherence_limit(self):
         """Test coherence_limit."""

@@ -12,322 +12,228 @@
 
 """Fine amplitude calibration experiment."""
 
-from typing import List, Optional
+from typing import Optional
 import numpy as np
 
-from qiskit import QuantumCircuit
-from qiskit.circuit import Gate
-from qiskit.circuit.library import XGate, SXGate
-from qiskit.providers import Backend
-from qiskit.pulse.schedule import ScheduleBlock
+from qiskit.circuit import Gate, QuantumCircuit
+from qiskit.providers.backend import Backend
 
-from qiskit_experiments.framework import BaseExperiment, Options
-from qiskit_experiments.library.calibration.analysis.fine_amplitude_analysis import (
-    FineAmplitudeAnalysis,
+from qiskit_experiments.calibration_management import (
+    BaseCalibrationExperiment,
+    Calibrations,
 )
-from qiskit_experiments.exceptions import CalibrationError
+from qiskit_experiments.library.characterization import FineAmplitude
+from qiskit_experiments.framework import ExperimentData, Options
+from qiskit_experiments.calibration_management.update_library import BaseUpdater
 
 
-class FineAmplitude(BaseExperiment):
-    r"""Error amplifying fine amplitude calibration experiment.
+class FineAmplitudeCal(BaseCalibrationExperiment, FineAmplitude):
+    r"""A calibration version of the :class:`FineAmplitude` experiment.
 
     # section: overview
 
-        The :class:`FineAmplitude` calibration experiment repeats N times a gate with a pulse
-        to amplify the under-/over-rotations in the gate to determine the optimal amplitude.
-        The circuits that are run have a custom gate with the pulse schedule attached to it
-        through the calibrations. The circuits are therefore of the form:
+        :class:`FineAmplitudeCal` is a subclass of :class:`FineAmplitude`. In the calibration
+        experiment the circuits that are run have a custom gate with the pulse schedule attached
+        to it through the calibrations.
 
-        .. parsed-literal::
-
-                       ┌─────┐       ┌─────┐ ░ ┌─┐
-                  q_0: ┤ Cal ├─ ... ─┤ Cal ├─░─┤M├
-                       └─────┘       └─────┘ ░ └╥┘
-            measure: 1/════════ ... ════════════╩═
-                                                0
-
-        Here, Cal is the name of the gate which will be taken from the name of the schedule.
-        The user can optionally add a square-root of X pulse before the Cal gates are repeated.
-        This square-root of X pulse allows the analysis to differentiate between over rotations
-        and under rotations in the case of pi-pulses. Importantly, the resulting data is analyzed
-        by a fit to a cosine function in which we try and determine the over/under rotation given
-        an intended rotation angle per gate which must also be specified by the user.
-
-        Error amplifying experiments are most sensitive to angle errors when we measure points along
-        the equator of the Block sphere. This is why users should insert a square-root of X pulse
-        before running calibrations for :math:`\pm\pi` rotations. Furthermore, when running
-        calibrations for :math:`\pm\pi/2` rotations users are advised to use an odd number of
-        repetitions, e.g. [1, 2, 3, 5, 7, ...] to ensure that the ideal points are on the equator
-        of the Bloch sphere. Note the presence of two repetitions which allows us to prepare the
-        excited state. Therefore, add_xp_circuit = True is not needed in this case.
-
-        Users can call :meth:`set_schedule` to conveniently set the schedule and the corresponding
-        experiment and analysis options.
-
-    # section: example
-
-
-        The steps to run a fine amplitude calibration experiment are
-
-        .. code-block:: python
-
-            qubit = 3
-            amp_cal = FineAmplitude(qubit)
-            amp_cal.set_schedule(
-                schedule=x90p,
-                angle_per_gate=np.pi/2,
-                add_xp_circuit=False,
-                add_sx=False
-            )
-            amp_cal.run(backend)
-
-        Note that the ``schedule`` and ``angle_per_gate`` could have been set by independently calling
-        :meth:`set_experiment_options` for the ``schedule`` and :meth:`set_analysis_options` for
-        the ``angle_per_gate``.
-
-
-    # section: reference
-        .. ref_arxiv:: 1 1504.06597
-
-
-    # section: tutorial
-        :doc:`/tutorials/fine_calibrations`
+    # section: see_also
+        qiskit_experiments.library.characterization.fine_amplitude.FineAmplitude
 
     """
 
-    __analysis_class__ = FineAmplitudeAnalysis
+    def __init__(
+        self,
+        qubit: int,
+        calibrations: Calibrations,
+        schedule_name: str,
+        backend: Optional[Backend] = None,
+        cal_parameter_name: Optional[str] = "amp",
+        auto_update: bool = True,
+    ):
+        """see class :class:`FineAmplitude` for details.
+
+        Args:
+            qubit: The qubit for which to run the fine amplitude calibration.
+            calibrations: The calibrations instance with the schedules.
+            schedule_name: The name of the schedule to calibrate.
+            backend: Optional, the backend to run the experiment on.
+            cal_parameter_name: The name of the parameter in the schedule to update.
+            auto_update: Whether or not to automatically update the calibrations. By
+                default this variable is set to True.
+        """
+        super().__init__(
+            calibrations,
+            [qubit],
+            Gate(name=schedule_name, num_qubits=1, params=[]),
+            schedule_name=schedule_name,
+            backend=backend,
+            cal_parameter_name=cal_parameter_name,
+            auto_update=auto_update,
+        )
+
+        self.set_transpile_options(inst_map=calibrations.default_inst_map)
 
     @classmethod
-    def _default_experiment_options(cls) -> Options:
-        r"""Default values for the fine amplitude experiment.
+    def _default_experiment_options(cls):
+        """Default values for the fine amplitude calibration experiment.
 
         Experiment Options:
-            repetitions (List[int]): A list of the number of times that the gate is repeated.
-            schedule (ScheduleBlock): The schedule attached to the gate that will be repeated.
-            gate_type (Type): This is a gate class such as XGate, so that one can obtain a gate
-                by doing :code:`options.gate_class()`.
-            normalization (bool): If set to True the DataProcessor will normalized the
-                measured signal to the interval [0, 1]. Defaults to True.
-            add_sx (bool): If True then the circuits will start with an sx gate. This is typically
-                needed when calibrating pulses with a target rotation angle of :math:`\pi`. The
-                default value is False.
-            add_xp_circuit (bool): If set to True then a circuit with only an X gate will also be
-                run. This allows the analysis class to determine the correct sign for the amplitude.
-            sx_schedule (ScheduleBlock): The schedule to attache to the SX gate.
+            target_angle (float): The target angle of the pulse.
         """
         options = super()._default_experiment_options()
-        options.repetitions = list(range(15))
-        options.schedule = None
-        options.gate_type = None
-        options.normalization = True
-        options.add_sx = False
-        options.add_xp_circuit = True
-        options.sx_schedule = None
+        options.target_angle = np.pi
+        return options
+
+    def _add_cal_metadata(self, experiment_data: ExperimentData):
+        """Add metadata to the experiment data making it more self contained.
+
+        The following keys are added to each experiment's metadata:
+            cal_param_value: The value of the pulse amplitude. This value together with
+                the fit result will be used to find the new value of the pulse amplitude.
+            cal_param_name: The name of the parameter in the calibrations.
+            cal_schedule: The name of the schedule in the calibrations.
+            target_angle: The target angle of the gate.
+            cal_group: The calibration group to which the parameter belongs.
+        """
+
+        param_val = self._cals.get_parameter_value(
+            self._param_name,
+            self.physical_qubits,
+            self._sched_name,
+            group=self.experiment_options.group,
+        )
+
+        experiment_data.metadata["cal_param_value"] = param_val
+        experiment_data.metadata["cal_param_name"] = self._param_name
+        experiment_data.metadata["cal_schedule"] = self._sched_name
+        experiment_data.metadata["target_angle"] = self.experiment_options.target_angle
+        experiment_data.metadata["cal_group"] = self.experiment_options.group
+
+    def update_calibrations(self, experiment_data: ExperimentData):
+        r"""Update the amplitude of the pulse in the calibrations.
+
+        The update rule of this experiment is
+
+        .. math::
+
+            A \to A \frac{\theta_\text{target}}{\theta_\text{target} + {\rm d}\theta}
+
+        Where :math:`A` is the amplitude of the pulse before the update.
+
+        Args:
+            experiment_data: The experiment data from which to extract the measured over/under
+                rotation used to adjust the amplitude.
+        """
+
+        result_index = self.experiment_options.result_index
+        group = experiment_data.metadata["cal_group"]
+        target_angle = experiment_data.metadata["target_angle"]
+        prev_amp = experiment_data.metadata["cal_param_value"]
+
+        # Protect against cases where the complex amplitude was converted to a list.
+        if isinstance(prev_amp, list) and len(prev_amp) == 2:
+            prev_amp = prev_amp[0] + 1.0j * prev_amp[1]
+
+        d_theta = BaseUpdater.get_value(experiment_data, "d_theta", result_index)
+
+        BaseUpdater.add_parameter_value(
+            self._cals,
+            experiment_data,
+            prev_amp * target_angle / (target_angle + d_theta),
+            self._param_name,
+            self._sched_name,
+            group,
+        )
+
+
+class FineXAmplitudeCal(FineAmplitudeCal):
+    """A calibration experiment to calibrate the amplitude of the X schedule.
+
+    # section: see_also
+        qiskit_experiments.library.characterization.fine_amplitude.FineAmplitude
+    """
+
+    def __init__(
+        self,
+        qubit: int,
+        calibrations: Calibrations,
+        schedule_name: str,
+        backend: Optional[Backend] = None,
+        cal_parameter_name: Optional[str] = "amp",
+        auto_update: bool = True,
+    ):
+        super().__init__(
+            qubit,
+            calibrations,
+            schedule_name,
+            backend=backend,
+            cal_parameter_name=cal_parameter_name,
+            auto_update=auto_update,
+        )
+        self.analysis.set_options(
+            fixed_parameters={
+                "angle_per_gate": np.pi,
+                "phase_offset": np.pi / 2,
+            }
+        )
+
+    @classmethod
+    def _default_transpile_options(cls):
+        """Default transpile options.
+
+        Transpile Options:
+            basis_gates (list(str)): A list of basis gates needed for this experiment.
+                The schedules for these basis gates will be provided by the instruction
+                schedule map from the calibrations.
+        """
+        options = super()._default_transpile_options()
+        options.basis_gates = ["x", "sx"]
 
         return options
 
-    def __init__(self, qubit: int):
-        """Setup a fine amplitude experiment on the given qubit.
-
-        Args:
-            qubit: The qubit on which to run the fine amplitude calibration experiment.
-        """
-        super().__init__([qubit])
-
-    def set_schedule(
-        self,
-        schedule: ScheduleBlock,
-        angle_per_gate: float,
-        add_xp_circuit: bool,
-        add_sx: bool,
-    ):
-        r"""Set the schedule and its corresponding intended angle per gate.
-
-        Args:
-            schedule: The schedule to attache to the gates.
-            angle_per_gate: The intended angle per gate used by the analysis method.
-            add_xp_circuit: If True then a circuit preparing the excited state is also run.
-            add_sx: Whether or not to add a pi-half pulse before running the calibration.
-
-        Raises:
-            CalibrationError: If the target angle is a multiple of :math:`2\pi`.
-        """
-        self.set_experiment_options(schedule=schedule, add_xp_circuit=add_xp_circuit, add_sx=add_sx)
-
-        if np.isclose(angle_per_gate % (2 * np.pi), 0.0):
-            raise CalibrationError(
-                f"It does not make sense to use {self.__class__.__name__} on a pulse with an "
-                "angle_per_gate of zero as the update rule will set the amplitude to zero "
-                "angle_per_gate / (angle_per_gate + d_theta)."
-            )
-
-        phase_offset = np.pi / 2 if add_sx else 0
-
-        self.set_analysis_options(angle_per_gate=angle_per_gate, phase_offset=phase_offset)
-
-    def _pre_circuit(self) -> QuantumCircuit:
-        """Return a preparation circuit.
-
-        This method can be overridden by subclasses e.g. to calibrate schedules on
-        transitions other than the 0 <-> 1 transition.
-        """
-        circuit = QuantumCircuit(1)
-
-        if self.experiment_options.add_sx:
-            circuit.sx(0)
-
-        if self.experiment_options.sx_schedule is not None:
-            sx_schedule = self.experiment_options.sx_schedule
-            circuit.add_calibration("sx", (self.physical_qubits[0],), sx_schedule, params=[])
-            circuit.barrier()
-
+    def _pre_circuit(self, num_clbits: int) -> QuantumCircuit:
+        """The preparation circuit is an sx gate to move to the equator of the Bloch sphere."""
+        circuit = QuantumCircuit(self.num_qubits, num_clbits)
+        circuit.sx(0)
         return circuit
 
-    def circuits(self, backend: Optional[Backend] = None) -> List[QuantumCircuit]:
-        """Create the circuits for the fine amplitude calibration experiment.
 
-        Args:
-            backend: A backend object.
+class FineSXAmplitudeCal(FineAmplitudeCal):
+    """A calibration experiment to calibrate the amplitude of the SX schedule.
 
-        Returns:
-            A list of circuits with a variable number of gates. Each gate has the same
-            pulse schedule.
-
-        Raises:
-            CalibrationError: If no schedule was provided.
-            CalibrationError: If the channel index does not correspond to the physical qubit index.
-            CalibrationError: If the schedule contains unassigned parameters.
-            CalibrationError: If the analysis options do not contain the angle_per_gate.
-        """
-
-        # Get the schedule and check assumptions.
-        schedule = self.experiment_options.schedule
-
-        if schedule is None:
-            gate = self.experiment_options.gate_type()
-        else:
-            gate = Gate(name=schedule.name, num_qubits=1, params=[])
-
-            if self.physical_qubits[0] not in set(ch.index for ch in schedule.channels):
-                raise CalibrationError(
-                    f"User provided schedule {schedule.name} does not contain a channel "
-                    "for the qubit on which to run the fine amplitude calibration."
-                )
-
-            if len(schedule.parameters) > 0:
-                raise CalibrationError(
-                    "All parameters in a fine amplitude calibration schedule must be bound. "
-                    f"Unbound parameters: {schedule.parameters}"
-                )
-
-        # Prepare the circuits.
-        repetitions = self.experiment_options.get("repetitions")
-
-        circuits = []
-
-        if self.experiment_options.add_xp_circuit:
-            # Note that the rotation error in this xval will be overweighted when calibrating xp
-            # because it will be treated as a half pulse instead of a full pulse. However, since
-            # the qubit population is first-order insensitive to rotation errors for an xp pulse
-            # this point won't contribute much to inferring the angle error.
-            angle_per_gate = self.analysis_options.get("angle_per_gate", None)
-            phase_offset = self.analysis_options.get("phase_offset")
-
-            if angle_per_gate is None:
-                raise CalibrationError(
-                    f"Unknown angle_per_gate for {self.__class__.__name__}. "
-                    "Please set it in the analysis options."
-                )
-
-            circuit = QuantumCircuit(1)
-            circuit.x(0)
-            circuit.measure_all()
-
-            circuit.metadata = {
-                "experiment_type": self._type,
-                "qubits": self.physical_qubits,
-                "xval": (np.pi - phase_offset) / angle_per_gate,
-                "unit": "gate number",
-            }
-
-            circuits.append(circuit)
-
-        for repetition in repetitions:
-            circuit = self._pre_circuit()
-
-            for _ in range(repetition):
-                circuit.append(gate, (0,))
-
-            circuit.measure_all()
-
-            if schedule is not None:
-                circuit.add_calibration(gate, self.physical_qubits, schedule, params=[])
-
-            circuit.metadata = {
-                "experiment_type": self._type,
-                "qubits": self.physical_qubits,
-                "xval": repetition,
-                "unit": "gate number",
-            }
-
-            circuits.append(circuit)
-
-        return circuits
-
-
-class FineXAmplitude(FineAmplitude):
-    r"""A fine amplitude experiment with all the options set for the :math:`\pi`-rotation.
-
-    # section: overview
-
-        :class:`FineXAmplitude` is a subclass of :class:`FineAmplitude` and is used to set
-        the appropriate values for the default options.
+    # section: see_also
+        qiskit_experiments.library.characterization.fine_amplitude.FineAmplitude
     """
+
+    def __init__(
+        self,
+        qubit: int,
+        calibrations: Calibrations,
+        schedule_name: str,
+        backend: Optional[Backend] = None,
+        cal_parameter_name: Optional[str] = "amp",
+        auto_update: bool = True,
+    ):
+        super().__init__(
+            qubit,
+            calibrations,
+            schedule_name,
+            backend=backend,
+            cal_parameter_name=cal_parameter_name,
+            auto_update=auto_update,
+        )
+        self.analysis.set_options(
+            fixed_parameters={
+                "angle_per_gate": np.pi / 2,
+                "phase_offset": np.pi,
+            }
+        )
 
     @classmethod
     def _default_experiment_options(cls) -> Options:
         r"""Default values for the fine amplitude experiment.
 
         Experiment Options:
-            gate_type (Type): FineXAmplitude calibrates an XGate.
-            add_sx (bool): This option is True by default when calibrating gates with a target
-                angle per gate of :math:`\pi` as this increases the sensitivity of the
-                experiment.
-            add_xp_circuit (bool): This option is True by default when calibrating gates with
-                a target angle per gate of :math:`\pi`.
-        """
-        options = super()._default_experiment_options()
-        options.gate_type = XGate
-        options.add_sx = True
-        options.add_xp_circuit = True
-
-        return options
-
-    @classmethod
-    def _default_analysis_options(cls) -> Options:
-        """Default analysis options."""
-        options = super()._default_analysis_options()
-        options.angle_per_gate = np.pi
-        options.phase_offset = np.pi / 2
-
-        return options
-
-
-class FineSXAmplitude(FineAmplitude):
-    r"""A fine amplitude experiment with all the options set for the :math:`\pi/2`-rotation.
-
-    # section: overview
-
-        :class:`FineSXAmplitude` is a subclass of :class:`FineAmplitude` and is used to set
-        the appropriate values for the default options.
-    """
-
-    @classmethod
-    def _default_experiment_options(cls) -> Options:
-        r"""Default values for the fine amplitude experiment.
-
-        Experiment Options:
-            gate_type (Type): FineSXAmplitude calibrates an SXGate.
             add_sx (bool): This option is False by default when calibrating gates with a target
                 angle per gate of :math:`\pi/2` as this increases the sensitivity of the
                 experiment.
@@ -337,20 +243,24 @@ class FineSXAmplitude(FineAmplitude):
                 :math:`\pi/2` target angles as this ideally prepares states on the equator of
                 the Bloch sphere. Note that the repetitions include two repetitions which
                 plays the same role as including a circuit with an X gate.
+            target_angle (float): The target angle per gate.
         """
         options = super()._default_experiment_options()
-        options.gate_type = SXGate
-        options.add_sx = False
-        options.add_xp_circuit = False
-        options.repetitions = [1, 2, 3, 5, 7, 9, 11, 13, 15, 17, 21, 23, 25]
-
+        options.add_cal_circuits = False
+        options.repetitions = [0, 1, 2, 3, 5, 7, 9, 11, 13, 15, 17, 21, 23, 25]
+        options.target_angle = np.pi / 2
         return options
 
     @classmethod
-    def _default_analysis_options(cls) -> Options:
-        """Default analysis options."""
-        options = super()._default_analysis_options()
-        options.angle_per_gate = np.pi / 2
-        options.phase_offset = 0
+    def _default_transpile_options(cls):
+        """Default transpile options.
+
+        Transpile Options:
+            basis_gates (list(str)): A list of basis gates needed for this experiment.
+                The schedules for these basis gates will be provided by the instruction
+                schedule map from the calibrations.
+        """
+        options = super()._default_transpile_options()
+        options.basis_gates = ["x", "sx"]
 
         return options

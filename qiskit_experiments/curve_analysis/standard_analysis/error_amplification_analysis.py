@@ -17,7 +17,6 @@ from typing import List, Union
 import numpy as np
 
 import qiskit_experiments.curve_analysis as curve
-from qiskit_experiments.exceptions import CalibrationError
 
 
 class ErrorAmplificationAnalysis(curve.CurveAnalysis):
@@ -32,7 +31,29 @@ class ErrorAmplificationAnalysis(curve.CurveAnalysis):
 
         .. math::
             y = \frac{{\rm amp}}{2}\cos\left(x[{\rm d}\theta + {\rm apg} ] \
-            +{\rm phase\_offset}\right)+{\rm base}
+            -{\rm phase\_offset}\right)+{\rm base}
+
+        To understand how the error is measured we can transformed the function above into
+
+        .. math::
+            y = \frac{{\rm amp}}{2} \left(\
+            \cos\right({\rm d}\theta \cdot x\left)\
+            \cos\right({\rm apg} \cdot x - {\rm phase\_offset}\left) -\
+            \sin\right({\rm d}\theta \cdot x\left)\
+            \sin\right({\rm apg} \cdot x - {\rm phase\_offset}\left)
+            \right) + {\rm base}
+
+        When :math:`{\rm apg} \cdot x - {\rm phase\_offset} = (2n + 1) \pi/2` is satisfied the
+        fit model above simplifies to
+
+        .. math::
+            y = \mp \frac{{\rm amp}}{2} \sin\left({\rm d}\theta \cdot x\right) + {\rm base}
+
+        In the limit :math:`{\rm d}\theta \ll 1`, the error can be estimated from the curve data
+
+        .. math::
+            {\rm d}\theta \simeq \mp \frac{2(y - {\rm base})}{x \cdot {\rm amp}}
+
 
     # section: fit_parameters
         defpar \rm amp:
@@ -49,7 +70,11 @@ class ErrorAmplificationAnalysis(curve.CurveAnalysis):
             desc: The angle offset in the gate that we wish to measure.
             init_guess: Multiple initial guesses are tried ranging from -a to a
                 where a is given by :code:`max(abs(angle_per_gate), np.pi / 2)`.
-            bounds: [-pi, pi].
+                Extra guesses are added based on curve data when either :math:`\rm amp` or
+                :math:`\rm base` is :math:`\pi/2`. See fit model for details.
+            bounds: [-0.8 pi, 0.8 pi]. The bounds do not include plus and minus pi since these values
+                often correspond to symmetry points of the fit function. Furthermore,
+                this type of analysis is intended for values of :math:`d\theta` close to zero.
 
     # section: note
 
@@ -63,7 +88,7 @@ class ErrorAmplificationAnalysis(curve.CurveAnalysis):
                 x,
                 amp=0.5 * amp,
                 freq=(d_theta + angle_per_gate) / (2 * np.pi),
-                phase=phase_offset,
+                phase=-phase_offset,
                 baseline=base,
             ),
             plot_color="blue",
@@ -80,13 +105,6 @@ class ErrorAmplificationAnalysis(curve.CurveAnalysis):
         descriptions of analysis options.
 
         Analysis Options:
-            angle_per_gate (float): The ideal angle per repeated gate.
-                The user must set this option as it defaults to None.
-            phase_offset (float): A phase offset for the analysis. This phase offset will be
-                :math:`\pi/2` if the square-root of X gate is added before the repeated gates.
-                This is decided for the user in :meth:`set_schedule` depending on whether the
-                sx gate is included in the experiment.
-            number_of_guesses (int): The number of initial guesses to try.
             max_good_angle_error (float): The maximum angle error for which the fit is
                 considered as good. Defaults to :math:`\pi/2`.
         """
@@ -94,9 +112,7 @@ class ErrorAmplificationAnalysis(curve.CurveAnalysis):
         default_options.result_parameters = ["d_theta"]
         default_options.xlabel = "Number of gates (n)"
         default_options.ylabel = "Population"
-        default_options.angle_per_gate = None
-        default_options.phase_offset = 0.0
-        default_options.number_guesses = 21
+        default_options.ylim = [0, 1.0]
         default_options.max_good_angle_error = np.pi / 2
 
         return default_options
@@ -115,28 +131,53 @@ class ErrorAmplificationAnalysis(curve.CurveAnalysis):
         Raises:
             CalibrationError: When ``angle_per_gate`` is missing.
         """
-        n_guesses = self._get_option("number_guesses")
+        fixed_params = self.options.fixed_parameters
 
         curve_data = self._data()
         max_abs_y, _ = curve.guess.max_height(curve_data.y, absolute=True)
         max_y, min_y = np.max(curve_data.y), np.min(curve_data.y)
 
-        user_opt.bounds.set_if_empty(d_theta=(-np.pi, np.pi), base=(-max_abs_y, max_abs_y))
+        user_opt.bounds.set_if_empty(
+            d_theta=(-0.8 * np.pi, 0.8 * np.pi), base=(-max_abs_y, max_abs_y)
+        )
         user_opt.p0.set_if_empty(base=(max_y + min_y) / 2)
 
         if "amp" in user_opt.p0:
             user_opt.p0.set_if_empty(amp=max_y - min_y)
-            user_opt.bounds.set_if_empty(amp=(-2 * max_abs_y, 2 * max_abs_y))
+            user_opt.bounds.set_if_empty(amp=(0, 2 * max_abs_y))
+            amp = user_opt.p0["amp"]
+        else:
+            # Fixed parameter
+            amp = fixed_params.get("amp", 1.0)
 
-        # Base the initial guess on the intended angle_per_gate.
-        angle_per_gate = self._get_option("angle_per_gate")
+        # Base the initial guess on the intended angle_per_gate and phase offset.
+        apg = user_opt.p0.get("angle_per_gate", fixed_params.get("angle_per_gate", 0.0))
+        phi = user_opt.p0.get("phase_offset", fixed_params.get("phase_offset", 0.0))
 
-        if angle_per_gate is None:
-            raise CalibrationError("The angle_per_gate was not specified in the analysis options.")
+        # Prepare logical guess for specific condition (often satisfied)
+        d_theta_guesses = []
 
-        guess_range = max(abs(angle_per_gate), np.pi / 2)
+        offsets = apg * curve_data.x + phi
+        for i in range(curve_data.x.size):
+            xi = curve_data.x[i]
+            yi = curve_data.y[i]
+            if np.isclose(offsets[i] % np.pi, np.pi / 2) and xi > 0:
+                # Condition satisfied: i.e. cos(apg x - phi) = 0
+                err = -np.sign(np.sin(offsets[i])) * (yi - user_opt.p0["base"]) / (0.5 * amp)
+                # Validate estimate. This is just the first order term of Maclaurin expansion.
+                if np.abs(err) < 0.5:
+                    d_theta_guesses.append(err / xi)
+                else:
+                    # Terminate guess generation because larger d_theta x will start to
+                    # reduce net y value and underestimate the rotation.
+                    break
+
+        # Add naive guess for more coverage
+        guess_range = max(abs(apg), np.pi / 2)
+        d_theta_guesses.extend(np.linspace(-guess_range, guess_range, 11))
+
         options = []
-        for d_theta_guess in np.linspace(-guess_range, guess_range, n_guesses):
+        for d_theta_guess in d_theta_guesses:
             new_opt = user_opt.copy()
             new_opt.p0.set_if_empty(d_theta=d_theta_guess)
             options.append(new_opt)
@@ -151,12 +192,11 @@ class ErrorAmplificationAnalysis(curve.CurveAnalysis):
             - a measured angle error that is smaller than the allowed maximum good angle error.
               This quantity is set in the analysis options.
         """
-        fit_d_theta = fit_data.fitval("d_theta").value
-        max_good_angle_error = self._get_option("max_good_angle_error")
+        fit_d_theta = fit_data.fitval("d_theta")
 
         criteria = [
             fit_data.reduced_chisq < 3,
-            abs(fit_d_theta) < abs(max_good_angle_error),
+            abs(fit_d_theta.nominal_value) < abs(self.options.max_good_angle_error),
         ]
 
         if all(criteria):
