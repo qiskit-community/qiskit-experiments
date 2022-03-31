@@ -479,8 +479,8 @@ class ExperimentEncoder(json.JSONEncoder):
             }
         if isinstance(obj, Instruction):
             # Serialize gate by storing it in a circuit.
-            circuit = QuantumCircuit(obj.num_qubits)
-            circuit.append(obj, range(obj.num_qubits))
+            circuit = QuantumCircuit(obj.num_qubits, obj.num_clbits)
+            circuit.append(obj, range(obj.num_qubits), range(obj.num_clbits))
             value = _serialize_and_encode(
                 data=circuit, serializer=lambda buff, data: qpy_serialization.dump(data, buff)
             )
