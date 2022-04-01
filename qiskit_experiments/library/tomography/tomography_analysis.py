@@ -114,7 +114,7 @@ class TomographyAnalysis(BaseAnalysis):
 
         # Check for both preparation and measurement data to determine if we are
         # fitting a channel via QPT or a density matrix via QST
-        qpt = preparation_data.shape[0] and measurement_data.shape[0]
+        qpt = preparation_data.shape[0]
 
         # Compute the preparation dimension if we are performing QPT
         if qpt:
@@ -335,7 +335,7 @@ class TomographyAnalysis(BaseAnalysis):
             fit: the fitted state matrix.
 
         Returns:
-            A pair of eigenvectors, eigenvalues.
+            A pair of (eigenvalues, eigenvectors).
         """
         evals, evecs = la.eigh(fit)
         # Truncate eigenvalues to real part
