@@ -14,7 +14,7 @@ Quantum process tomography analysis
 """
 
 
-from typing import List, Dict, Tuple
+from typing import List, Dict, Tuple, Union, Optional, Callable
 import time
 import numpy as np
 import scipy.linalg as la
@@ -92,7 +92,7 @@ class TomographyAnalysis(BaseAnalysis):
         return options
 
     @classmethod
-    def _get_fitter(cls, fitter):
+    def _get_fitter(cls, fitter: Union[str, Callable]) -> Callable:
         """Return fitter function for named builtin fitters"""
         if fitter is None:
             raise AnalysisError("No tomography fitter given")
@@ -112,6 +112,20 @@ class TomographyAnalysis(BaseAnalysis):
         fitter = self._get_fitter(self.options.fitter)
         fitter_opts = self.options.fitter_options
 
+        # Check for both preparation and measurement data to determine if we are
+        # fitting a channel via QPT or a density matrix via QST
+        qpt = preparation_data.shape[0]
+
+        # Compute the preparation dimension if we are performing QPT
+        if qpt:
+            preparation_dim = 2 ** preparation_data.shape[1]
+        else:
+            preparation_dim = 1
+
+        # Use preparation dim to set the expected trace of the fitted state.
+        # For QPT this is the input dimension, for QST this will always be 1.
+        trace = preparation_dim if self.options.rescale_trace else None
+
         # Work around to set proper trace and trace preserving constraints for
         # cvxpy fitter
         if fitter in (cvxpy_linear_lstsq, cvxpy_gaussian_lstsq):
@@ -119,18 +133,16 @@ class TomographyAnalysis(BaseAnalysis):
 
             # Add default value for CVXPY trace constraint if no user value is provided
             if "trace" not in fitter_opts:
-                if self.options.preparation_basis:
-                    fitter_opts["trace"] = 2 ** len(preparation_data[0])
-                else:
-                    fitter_opts["trace"] = 1
+                fitter_opts["trace"] = trace
 
             # By default add trace preserving constraint to cvxpy QPT fit
-            if "trace_preserving" not in fitter_opts and self.options.preparation_basis:
+            if qpt and "trace_preserving" not in fitter_opts:
                 fitter_opts["trace_preserving"] = True
 
+        # Run tomography fitter
+        t_fitter_start = time.time()
         try:
-            t_fitter_start = time.time()
-            state, fitter_metadata = fitter(
+            fit, fitter_metadata = fitter(
                 outcome_data,
                 shot_data,
                 measurement_data,
@@ -139,72 +151,47 @@ class TomographyAnalysis(BaseAnalysis):
                 preparation_basis=self.options.preparation_basis,
                 **self.options.fitter_options,
             )
-            t_fitter_stop = time.time()
-            if fitter_metadata is None:
-                fitter_metadata = {}
-            state = Choi(state) if self.options.preparation_basis else DensityMatrix(state)
-
-            fitter_metadata["fitter"] = fitter.__name__
-            fitter_metadata["fitter_time"] = t_fitter_stop - t_fitter_start
-
-            analysis_results = self._postprocess_fit(
-                state,
-                metadata=fitter_metadata,
-                target_state=self.options.target,
-                rescale_positive=self.options.rescale_positive,
-                rescale_trace=self.options.rescale_trace,
-                qpt=bool(self.options.preparation_basis),
-            )
-
         except AnalysisError as ex:
             raise AnalysisError(f"Tomography fitter failed with error: {str(ex)}") from ex
+        t_fitter_stop = time.time()
 
+        # Add fitter metadata
+        if fitter_metadata is None:
+            fitter_metadata = {}
+        fitter_metadata["fitter"] = fitter.__name__
+        fitter_metadata["fitter_time"] = t_fitter_stop - t_fitter_start
+
+        # Post process fit
+        analysis_results = self._postprocess_fit(
+            fit,
+            fitter_metadata=fitter_metadata,
+            trace=trace,
+            make_positive=self.options.rescale_positive,
+            preparation_dim=preparation_dim,
+            target_state=self.options.target,
+        )
         return analysis_results, []
 
     @classmethod
     def _postprocess_fit(
         cls,
-        state,
-        metadata=None,
-        target_state=None,
-        rescale_positive=False,
-        rescale_trace=False,
-        qpt=False,
+        fit: np.ndarray,
+        fitter_metadata: Optional[Dict] = None,
+        trace: Optional[float] = None,
+        make_positive: bool = False,
+        preparation_dim: int = 1,
+        target_state: Optional[Union[Choi, DensityMatrix]] = None,
     ):
-        """Post-process fitter data"""
-        # Get eigensystem of state
-        state_cls = type(state)
-        evals, evecs = cls._state_eigensystem(state)
+        """Post-process raw fitter data"""
+        # Convert fitter matrix to state data for post-processing
+        qpt = preparation_dim > 1
+        state_result = cls._state_result(
+            fit, make_positive=make_positive, trace=trace, preparation_dim=preparation_dim
+        )
 
-        # Rescale eigenvalues to be PSD
-        rescaled_psd = False
-        if rescale_positive and np.any(evals < 0):
-            scaled_evals = cls._make_positive(evals)
-            rescaled_psd = True
-        else:
-            scaled_evals = evals
-
-        # Rescale trace
-        trace = np.sqrt(len(scaled_evals)) if qpt else 1
-        sum_evals = np.sum(scaled_evals)
-        rescaled_trace = False
-        if rescale_trace and not np.isclose(sum_evals - trace, 0, atol=1e-12):
-            scaled_evals = trace * scaled_evals / sum_evals
-            rescaled_trace = True
-
-        # Compute state with rescaled eigenvalues
-        state_result = AnalysisResultData("state", state, extra=metadata)
-        state_result.extra["eigvals"] = scaled_evals
-        if rescaled_psd or rescaled_trace:
-            state = state_cls(evecs @ (scaled_evals * evecs).T.conj())
-            state_result.value = state
-            state_result.extra["raw_eigvals"] = evals
-
-        if rescaled_trace:
-            state_result.extra["trace"] = np.sum(scaled_evals)
-            state_result.extra["raw_trace"] = sum_evals
-        else:
-            state_result.extra["trace"] = sum_evals
+        # Add fitter metadata
+        if fitter_metadata:
+            state_result.extra["fitter_metadata"] = fitter_metadata
 
         # Results list
         analysis_results = [state_result]
@@ -212,21 +199,145 @@ class TomographyAnalysis(BaseAnalysis):
         # Compute fidelity with target
         if target_state is not None:
             analysis_results.append(
-                cls._fidelity_result(scaled_evals, evecs, target_state, qpt=qpt)
+                cls._fidelity_result(state_result, target_state, preparation_dim=preparation_dim)
             )
 
         # Check positive
-        analysis_results.append(cls._positivity_result(scaled_evals, qpt=qpt))
+        analysis_results.append(cls._positivity_result(state_result, qpt=qpt))
 
         # Check trace preserving
         if qpt:
-            analysis_results.append(cls._tp_result(scaled_evals, evecs))
+            analysis_results.append(cls._tp_result(state_result, preparation_dim=preparation_dim))
+
+        # Finally format state result metadata to remove eigenvectors
+        # which are no longer needed to reduce size
+        state_result.extra.pop("eigvecs")
 
         return analysis_results
 
+    @classmethod
+    def _state_result(
+        cls,
+        fit: np.ndarray,
+        make_positive: bool = False,
+        trace: Optional[float] = None,
+        preparation_dim: int = 1,
+    ) -> AnalysisResultData:
+        """Convert fit data to state result data"""
+        # Get eigensystem of state fit
+        raw_eigvals, eigvecs = cls._state_eigensystem(fit)
+
+        # Optionally rescale eigenvalues to be non-negative
+        if make_positive and np.any(raw_eigvals < 0):
+            eigvals = cls._make_positive(raw_eigvals)
+            fit = eigvecs @ (eigvals * eigvecs).T.conj()
+            rescaled_psd = True
+        else:
+            eigvals = raw_eigvals
+            rescaled_psd = False
+
+        # Optionally rescale fit trace
+        fit_trace = np.sum(eigvals)
+        if trace is not None and not np.isclose(fit_trace - trace, 0, atol=1e-12):
+            scale = trace / fit_trace
+            fit = fit * scale
+            eigvals = eigvals * scale
+        else:
+            trace = fit_trace
+
+        # Convert class of value
+        if preparation_dim > 1:
+            value = Choi(fit, input_dims=preparation_dim)
+        else:
+            value = DensityMatrix(fit)
+
+        # Construct state result extra metadata
+        extra = {
+            "trace": trace,
+            "eigvals": eigvals,
+            "raw_eigvals": raw_eigvals,
+            "rescaled_psd": rescaled_psd,
+            "eigvecs": eigvecs,
+        }
+        return AnalysisResultData("state", value, extra=extra)
+
     @staticmethod
-    def _state_eigensystem(state):
-        evals, evecs = la.eigh(state)
+    def _positivity_result(
+        state_result: AnalysisResultData, qpt: bool = False
+    ) -> AnalysisResultData:
+        """Check if eigenvalues are positive"""
+        evals = state_result.extra["eigvals"]
+        cond = np.sum(np.abs(evals[evals < 0]))
+        is_pos = bool(np.isclose(cond, 0))
+        name = "completely_positive" if qpt else "positive"
+        result = AnalysisResultData(name, is_pos)
+        if not is_pos:
+            result.extra = {"delta": cond}
+        return result
+
+    @staticmethod
+    def _tp_result(
+        state_result: AnalysisResultData, preparation_dim: int = 1
+    ) -> AnalysisResultData:
+        """Check if QPT channel is trace preserving"""
+        evals = state_result.extra["eigvals"]
+        evecs = state_result.extra["eigvecs"]
+        size = len(evals)
+        measurement_dim = size // preparation_dim
+        mats = np.reshape(evecs.T, (size, measurement_dim, preparation_dim), order="F")
+        kraus_cond = np.einsum("i,ija,ijb->ab", evals, mats.conj(), mats)
+        cond = np.sum(np.abs(la.eigvalsh(kraus_cond - np.eye(preparation_dim))))
+        is_tp = bool(np.isclose(cond, 0))
+        result = AnalysisResultData("trace_preserving", is_tp)
+        if not is_tp:
+            result.extra = {"delta": cond}
+        return result
+
+    @staticmethod
+    def _fidelity_result(
+        state_result: AnalysisResultData,
+        target: Union[Choi, DensityMatrix],
+        preparation_dim: int = 1,
+    ):
+        """Faster computation of fidelity from eigen decomposition"""
+        evals = state_result.extra["eigvals"]
+        evecs = state_result.extra["eigvecs"]
+
+        # Format target to statevector or densitymatrix array
+        name = "process_fidelity" if preparation_dim > 1 else "state_fidelity"
+        if target is None:
+            raise AnalysisError("No target state provided")
+        if isinstance(target, QuantumChannel):
+            target_state = Choi(target).data / preparation_dim
+        elif isinstance(target, BaseOperator):
+            target_state = np.ravel(Operator(target), order="F") / np.sqrt(preparation_dim)
+        else:
+            # Statevector or density matrix
+            target_state = np.array(target)
+
+        if target_state.ndim == 1:
+            rho = evecs @ (evals / preparation_dim * evecs).T.conj()
+            fidelity = np.real(target_state.conj() @ rho @ target_state)
+        else:
+            sqrt_rho = evecs @ (np.sqrt(evals / preparation_dim) * evecs).T.conj()
+            eig = la.eigvalsh(sqrt_rho @ target_state @ sqrt_rho)
+            fidelity = np.sum(np.sqrt(np.maximum(eig, 0))) ** 2
+        return AnalysisResultData(name, fidelity)
+
+    @staticmethod
+    def _state_eigensystem(fit: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+        """Compute the eigensystem of the fitted state.
+
+        The eigenvalues are returned as a real array ordered from
+        smallest to largest eigenvalues.
+
+        Args:
+            fit: the fitted state matrix.
+
+        Returns:
+            A pair of (eigenvalues, eigenvectors).
+        """
+        evals, evecs = la.eigh(fit)
         # Truncate eigenvalues to real part
         evals = np.real(evals)
         # Sort eigensystem from largest to smallest eigenvalues
@@ -234,7 +345,13 @@ class TomographyAnalysis(BaseAnalysis):
         return evals[sort_inds], evecs[:, sort_inds]
 
     @staticmethod
-    def _make_positive(evals, epsilon=0):
+    def _make_positive(evals: np.ndarray, epsilon: float = 0) -> np.ndarray:
+        """Rescale a real vector to be non-negative.
+
+        This truncates any negative values to zero and rescales
+        the remaining eigenvectors such that the sum of the vector
+        is preserved.
+        """
         if epsilon < 0:
             raise AnalysisError("epsilon must be non-negative.")
         ret = evals.copy()
@@ -252,55 +369,6 @@ class TomographyAnalysis(BaseAnalysis):
                     ret[j] = evals[j] + shift
                 break
         return ret
-
-    @staticmethod
-    def _positivity_result(evals, qpt=False):
-        """Check if eigenvalues are positive"""
-        cond = np.sum(np.abs(evals[evals < 0]))
-        is_pos = bool(np.isclose(cond, 0))
-        name = "completely_positive" if qpt else "positive"
-        result = AnalysisResultData(name, is_pos)
-        if not is_pos:
-            result.extra = {"delta": cond}
-        return result
-
-    @staticmethod
-    def _tp_result(evals, evecs):
-        """Check if QPT channel is trace preserving"""
-        size = len(evals)
-        dim = int(np.sqrt(size))
-        mats = np.reshape(evecs.T, (size, dim, dim), order="F")
-        kraus_cond = np.einsum("i,ija,ijb->ab", evals, mats.conj(), mats)
-        cond = np.sum(np.abs(la.eigvalsh(kraus_cond - np.eye(dim))))
-        is_tp = bool(np.isclose(cond, 0))
-        result = AnalysisResultData("trace_preserving", is_tp)
-        if not is_tp:
-            result.extra = {"delta": cond}
-        return result
-
-    @staticmethod
-    def _fidelity_result(evals, evecs, target, qpt=False):
-        """Faster computation of fidelity from eigen decomposition"""
-        # Format target to statevector or densitymatrix array
-        trace = np.sqrt(len(evals)) if qpt else 1
-        name = "process_fidelity" if qpt else "state_fidelity"
-        if target is None:
-            raise AnalysisError("No target state provided")
-        if isinstance(target, QuantumChannel):
-            target_state = Choi(target).data / trace
-        elif isinstance(target, BaseOperator):
-            target_state = np.ravel(Operator(target), order="F") / np.sqrt(trace)
-        else:
-            target_state = np.array(target)
-
-        if target_state.ndim == 1:
-            rho = evecs @ (evals / trace * evecs).T.conj()
-            fidelity = np.real(target_state.conj() @ rho @ target_state)
-        else:
-            sqrt_rho = evecs @ (np.sqrt(evals / trace) * evecs).T.conj()
-            eig = la.eigvalsh(sqrt_rho @ target_state @ sqrt_rho)
-            fidelity = np.sum(np.sqrt(np.maximum(eig, 0))) ** 2
-        return AnalysisResultData(name, fidelity)
 
     @staticmethod
     def _fitter_data(
