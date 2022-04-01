@@ -43,6 +43,7 @@ from qiskit_experiments.exceptions import CalibrationError
 from qiskit_experiments.calibration_management.calibration_utils import (
     compare_schedule_blocks,
     get_called_subroutines,
+    get_names_called_by_name,
 )
 from qiskit_experiments.calibration_management.basis_gate_library import BasisGateLibrary
 from qiskit_experiments.calibration_management.parameter_value import ParameterValue
@@ -575,12 +576,20 @@ class Calibrations:
                         f"Parameterized channel must correspond to {self.__channel_pattern__}"
                     )
 
-        # Check that no subroutines are present.
+        # Check that no Call instructions are present.
         if get_called_subroutines(schedule):
             raise CalibrationError(
                 "ScheduleBlocks with Call instructions are forbidden in Calibrations. "
                 f"Use {CalledScheduleByName.__name__} instead."
             )
+
+        # Check that all schedules that are called by name only are registered
+        for called_name in get_names_called_by_name(schedule):
+            if (called_name, qubits) not in self._schedules:
+                raise CalibrationError(
+                    f"The schedule {called_name} called by name in {schedule.name} "
+                    "is not registered."
+                )
 
         # Clean the parameter to schedule mapping. This is needed if we overwrite a schedule.
         self._clean_parameter_map(schedule.name, qubits)
@@ -979,6 +988,7 @@ class Calibrations:
         assign_params: Dict[Union[str, ParameterKey], ParameterValueType] = None,
         group: Optional[str] = "default",
         cutoff_date: datetime = None,
+        check_free_params: bool = True,
     ) -> ScheduleBlock:
         """Get the template schedule with parameters assigned to values.
 
@@ -1012,6 +1022,8 @@ class Calibrations:
                 generated after the cutoff date will be ignored. If the cutoff_date is None then
                 all parameters are considered. This allows users to discard more recent values that
                 may be erroneous.
+            check_free_params: When this variable is set to False then the check on the number of
+                free parameters is disabled.
 
         Returns:
             schedule: A copy of the template schedule with all parameters assigned
@@ -1050,33 +1062,57 @@ class Calibrations:
             if ch.is_parameterized():
                 binding_dict[ch.index] = self._get_channel_index(qubits, ch)
 
-        # Get any called by name schedules
-        for block in schedule.blocks:
-            if isinstance(block, CalledScheduleByName):
-                called_name = block.name
-                called_qubits = tuple(self._get_channel_index(qubits, ch) for ch in block.channels)
-                called_sched = self.get_schedule(called_name, called_qubits, assign_params)
-                schedule.replace(block, called_sched)
+        # Build up the schedule and replace any called schedules by name with actual one.
+        ret_schedule = self._resolve_called_by_name(schedule, qubits, assign_params)
 
         # Binding the channel indices makes it easier to deal with parameters later on
-        schedule = schedule.assign_parameters(binding_dict, inplace=False)
+        ret_schedule = ret_schedule.assign_parameters(binding_dict, inplace=False)
 
         # Now assign the other parameters
-        assigned_schedule = self._assign(schedule, qubits, assign_params, group, cutoff_date)
+        assigned_schedule = self._assign(ret_schedule, qubits, assign_params, group, cutoff_date)
 
         free_params = set()
         for param in assign_params.values():
             if isinstance(param, ParameterExpression):
                 free_params.add(param)
 
-        if len(assigned_schedule.parameters) != len(free_params):
-            raise CalibrationError(
-                f"The number of free parameters {len(assigned_schedule.parameters)} in "
-                f"the assigned schedule differs from the requested number of free "
-                f"parameters {len(free_params)}."
-            )
+        if check_free_params:
+            if len(assigned_schedule.parameters) != len(free_params):
+                raise CalibrationError(
+                    f"The number of free parameters {len(assigned_schedule.parameters)} in "
+                    f"the assigned schedule differs from the requested number of free "
+                    f"parameters {len(free_params)}."
+                )
 
         return assigned_schedule
+
+    def _resolve_called_by_name(
+        self,
+        schedule: ScheduleBlock,
+        qubits: Union[int, Tuple[int, ...]],
+        assign_params: Dict[Union[str, ParameterKey], ParameterValueType] = None,
+        group: Optional[str] = "default",
+        cutoff_date: datetime = None,
+    ) -> ScheduleBlock:
+        """Recursively removes all called by name instructions."""
+        ret_schedule = ScheduleBlock(name=schedule.name, alignment_context=schedule.alignment_context)
+
+        for block in schedule.blocks:
+            if isinstance(block, CalledScheduleByName):
+                called_qubits = tuple(self._get_channel_index(qubits, ch) for ch in block.channels)
+
+                # Avoid the check at the end. This is done upon the final return of get_schedule
+                ret_schedule.append(
+                    self.get_schedule(
+                        block.name, called_qubits, assign_params, group, cutoff_date, False
+                    )
+                )
+            elif isinstance(block, ScheduleBlock):
+                ret_schedule.append(self._resolve_called_by_name(block, qubits, assign_params))
+            else:
+                ret_schedule.append(block)
+
+        return ret_schedule
 
     def _assign(
         self,

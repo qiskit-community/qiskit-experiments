@@ -29,11 +29,13 @@ from qiskit.pulse import (
     Play,
 )
 from qiskit import transpile, QuantumCircuit
-from qiskit.pulse.transforms import inline_subroutines, block_to_schedule
+from qiskit.pulse.transforms import inline_subroutines, block_to_schedule, AlignSequential
 import qiskit.pulse as pulse
 from qiskit.test.mock import FakeArmonk, FakeBelem
+
 from qiskit_experiments.calibration_management.calibrations import Calibrations, ParameterKey
 from qiskit_experiments.calibration_management.parameter_value import ParameterValue
+from qiskit_experiments.calibration_management.called_schedule_by_name import CalledScheduleByName
 from qiskit_experiments.calibration_management.basis_gate_library import (
     FixedFrequencyTransmon,
     EchoedCrossResonance,
@@ -514,6 +516,8 @@ class TestMeasurements(QiskitExperimentsTestCase):
         ch1 = Parameter("ch1")
         self.m0_ = MeasureChannel(ch0)
         self.d0_ = DriveChannel(ch0)
+        self.m1_ = MeasureChannel(ch1)
+        self.d1_ = DriveChannel(ch1)
         self.delay = Parameter("delay")
 
         with pulse.build(name="meas") as meas:
@@ -527,17 +531,21 @@ class TestMeasurements(QiskitExperimentsTestCase):
         with pulse.build(name="xp") as xp:
             pulse.play(Gaussian(self.duration_xp, self.amp_xp, self.sigma_xp), self.d0_)
 
-        with pulse.build(name="xp_meas") as xp_meas:
-            pulse.call(xp)
-            pulse.call(meas)
+        xp_meas = pulse.ScheduleBlock(name="xp_meas")
+        xp_meas.append(CalledScheduleByName("xp", self.d0_))
+        xp_meas.append(CalledScheduleByName("meas", self.m0_))
 
-        with pulse.build(name="xt_meas") as xt_meas:
-            with pulse.align_sequential():
-                pulse.call(xp)
-                pulse.call(meas)
-            with pulse.align_sequential():
-                pulse.call(xp, value_dict={ch0: ch1})
-                pulse.call(meas, value_dict={ch0: ch1})
+        sub_sched1 = pulse.ScheduleBlock(name="sub_sched1", alignment_context=AlignSequential())
+        sub_sched1.append(CalledScheduleByName("xp", self.d0_))
+        sub_sched1.append(CalledScheduleByName("meas", self.m0_))
+
+        sub_sched2 = pulse.ScheduleBlock(name="sub_sched2", alignment_context=AlignSequential())
+        sub_sched2.append(CalledScheduleByName("xp", self.d1_))
+        sub_sched2.append(CalledScheduleByName("meas", self.m1_))
+
+        xt_meas = pulse.ScheduleBlock(name="xt_meas")
+        xt_meas.append(sub_sched1)
+        xt_meas.append(sub_sched2)
 
         self.cals = Calibrations(coupling_map=[])
         self.cals.add_schedule(meas, num_qubits=1)
@@ -674,9 +682,9 @@ class TestInstructions(QiskitExperimentsTestCase):
             pulse.play(Gaussian(160, 0.5, 40), self.d0_)
 
         # To make things more interesting we will use a call.
-        with pulse.build(name="xp02") as xp02:
-            pulse.call(xp)
-            pulse.call(xp12)
+        xp02 = pulse.ScheduleBlock(name="xp02", alignment_context=AlignSequential())
+        xp02.append(CalledScheduleByName("xp", self.d0_))
+        xp02.append(CalledScheduleByName("xp12", self.d0_))
 
         self.cals = Calibrations(coupling_map=[])
         self.cals.add_schedule(xp, num_qubits=1)
@@ -718,12 +726,12 @@ class TestRegistering(QiskitExperimentsTestCase):
         self.d0_ = DriveChannel(Parameter("ch0"))
 
     def test_call_registering(self):
-        """Test registering of schedules with call."""
+        """Test registering of schedules with call by name."""
         with pulse.build(name="xp") as xp:
             pulse.play(Gaussian(160, 0.5, 40), self.d0_)
 
-        with pulse.build(name="call_xp") as call_xp:
-            pulse.call(xp)
+        call_xp = pulse.ScheduleBlock(name="call_xp")
+        call_xp.append(CalledScheduleByName("xp", self.d0_))
 
         with self.assertRaises(CalibrationError):
             self.cals.add_schedule(call_xp, num_qubits=1)
@@ -746,9 +754,9 @@ class TestRegistering(QiskitExperimentsTestCase):
 
         self.assertEqual(registered_xp, xp)
 
-        with pulse.build(name="dxp") as dxp:
-            pulse.call(registered_xp)
-            pulse.play(Gaussian(160, amp, 40), self.d0_)
+        dxp = pulse.ScheduleBlock(name="dxp")
+        dxp.append(CalledScheduleByName(schedule_name="xp", channels=self.d0_))
+        dxp.append(pulse.Play(Gaussian(160, amp, 40), self.d0_))
 
         self.cals.add_schedule(dxp, num_qubits=1)
         self.cals.add_parameter_value(0.5, "amp", 3, "xp")
@@ -769,32 +777,20 @@ class TestRegistering(QiskitExperimentsTestCase):
         xp = pulse.Schedule(name="xp")
         xp.insert(0, pulse.Play(pulse.Gaussian(160, 0.5, 40), pulse.DriveChannel(0)), inplace=True)
 
-        with pulse.build(name="call_xp") as call_xp:
-            pulse.call(xp)
-
         try:
-            self.cals.add_schedule(call_xp, num_qubits=1)
+            self.cals.add_schedule(xp, num_qubits=1)
         except CalibrationError as error:
-            self.assertEqual(
-                error.message, "Calling a Schedule is forbidden, call ScheduleBlock instead."
-            )
+            self.assertEqual(error.message, "xp is not a ScheduleBlock.")
 
     def test_calls_and_libraries(self):
         """This tests that called schedules are the same as the ones already registered."""
 
         # This should succeed as the libraries are properly configured.
         sq_lib = FixedFrequencyTransmon()
-        lib_ecr = EchoedCrossResonance(sq_lib)
+        lib_ecr = EchoedCrossResonance()
         cals = Calibrations.from_backend(backend=FakeBelem(), library=[sq_lib, lib_ecr])
 
         self.assertTrue(isinstance(cals.get_schedule("ecr", (0, 1)), pulse.ScheduleBlock))
-
-        # This test will fail with a calibration error as the x gate in the second single-qubit
-        # library is a different instance from the one in the first.
-        lib_ecr = EchoedCrossResonance(FixedFrequencyTransmon())
-
-        with self.assertRaises(CalibrationError):
-            Calibrations.from_backend(backend=FakeBelem(), library=[sq_lib, lib_ecr])
 
 
 class CrossResonanceTest(QiskitExperimentsTestCase):
@@ -809,61 +805,28 @@ class CrossResonanceTest(QiskitExperimentsTestCase):
             (2, 3): [ControlChannel(15), ControlChannel(23)],
         }
         coupling_map = [[0, 1], [1, 0], [1, 2], [2, 1], [2, 3], [3, 2]]
-        self.cals = Calibrations(coupling_map=coupling_map, control_channel_map=controls)
+        self.cals = Calibrations(
+            coupling_map=coupling_map,
+            control_channel_map=controls,
+            library=[FixedFrequencyTransmon(), EchoedCrossResonance()],
+        )
 
-        self.amp_cr = Parameter("amp")
-        self.amp_rot = Parameter("amp_rot")
-        self.amp = Parameter("amp")
         self.amp_tcp = Parameter("amp")
-        self.d0_ = DriveChannel(Parameter("ch0"))
-        self.d1_ = DriveChannel(Parameter("ch1"))
         self.c1_ = ControlChannel(Parameter("ch0.1"))
-        self.sigma = Parameter("σ")
-        self.width = Parameter("w")
+        self.sigma_tcp = Parameter("σ")
+        self.width_tcp = Parameter("w")
         self.date_time = datetime.strptime("15/09/19 10:21:35", "%d/%m/%y %H:%M:%S")
 
-        cr_tone_p = GaussianSquare(640, self.amp_cr, self.sigma, self.width)
-        rotary_p = GaussianSquare(640, self.amp_rot, self.sigma, self.width)
-
-        cr_tone_m = GaussianSquare(640, -self.amp_cr, self.sigma, self.width)
-        rotary_m = GaussianSquare(640, -self.amp_rot, self.sigma, self.width)
-
-        with pulse.build(name="xp") as xp:
-            pulse.play(Gaussian(160, self.amp, self.sigma), self.d0_)
-
-        with pulse.build(name="cr") as cr:
-            with pulse.align_sequential():
-                with pulse.align_left():
-                    pulse.play(rotary_p, self.d1_)  # Rotary tone
-                    pulse.play(cr_tone_p, self.c1_)  # CR tone.
-                pulse.call(xp)
-                with pulse.align_left():
-                    pulse.play(rotary_m, self.d1_)
-                    pulse.play(cr_tone_m, self.c1_)
-                pulse.call(xp)
 
         # Mimic a tunable coupler pulse that is just a pulse on a control channel.
         with pulse.build(name="tcp") as tcp:
-            pulse.play(GaussianSquare(640, self.amp_tcp, self.sigma, self.width), self.c1_)
+            pulse.play(GaussianSquare(640, self.amp_tcp, self.sigma_tcp, self.width_tcp), self.c1_)
 
-        self.cals.add_schedule(xp, num_qubits=1)
-        self.cals.add_schedule(cr, num_qubits=2)
         self.cals.add_schedule(tcp, num_qubits=2)
 
-        self.cals.add_parameter_value(ParameterValue(40, self.date_time), "σ", schedule="xp")
-        self.cals.add_parameter_value(
-            ParameterValue(0.1 + 0.01j, self.date_time), "amp", (3,), "xp"
-        )
-        self.cals.add_parameter_value(ParameterValue(0.3, self.date_time), "amp", (3, 2), "cr")
-        self.cals.add_parameter_value(ParameterValue(0.2, self.date_time), "amp_rot", (3, 2), "cr")
         self.cals.add_parameter_value(ParameterValue(0.8, self.date_time), "amp", (3, 2), "tcp")
-        self.cals.add_parameter_value(ParameterValue(20, self.date_time), "w", (3, 2), "cr")
-
-        # Reverse gate parameters
-        self.cals.add_parameter_value(ParameterValue(0.15, self.date_time), "amp", (2,), "xp")
-        self.cals.add_parameter_value(ParameterValue(0.5, self.date_time), "amp", (2, 3), "cr")
-        self.cals.add_parameter_value(ParameterValue(0.4, self.date_time), "amp_rot", (2, 3), "cr")
-        self.cals.add_parameter_value(ParameterValue(30, self.date_time), "w", (2, 3), "cr")
+        self.cals.add_parameter_value(ParameterValue(40, self.date_time), "σ", (3, 2), "tcp")
+        self.cals.add_parameter_value(ParameterValue(540, self.date_time), "w", (3, 2), "tcp")
 
 
 class TestControlChannels(CrossResonanceTest):
@@ -876,56 +839,65 @@ class TestControlChannels(CrossResonanceTest):
     def test_get_schedule(self):
         """Check that we can get a CR schedule with a built in Call."""
 
-        with pulse.build(name="cr") as cr_32:
-            with pulse.align_sequential():
-                with pulse.align_left():
-                    pulse.play(GaussianSquare(640, 0.2, 40, 20), DriveChannel(2))  # Rotary tone
-                    pulse.play(GaussianSquare(640, 0.3, 40, 20), ControlChannel(10))  # CR tone.
-                pulse.play(Gaussian(160, 0.1 + 0.01j, 40), DriveChannel(3))
-                with pulse.align_left():
-                    pulse.play(GaussianSquare(640, -0.2, 40, 20), DriveChannel(2))  # Rotary tone
-                    pulse.play(GaussianSquare(640, -0.3, 40, 20), ControlChannel(10))  # CR tone.
-                pulse.play(Gaussian(160, 0.1 + 0.01j, 40), DriveChannel(3))
+        cr45p = pulse.GaussianSquare(duration=640, amp=0.5, sigma=64, width=384, name="cr45p")
+        cr45m = pulse.GaussianSquare(duration=640, amp=-0.5, sigma=64, width=384, name="cr45m")
+        rot45p = pulse.GaussianSquare(duration=640, amp=0.0, sigma=64, width=384, name="rot45p")
+        rot45m = pulse.GaussianSquare(duration=640, amp=0.0, sigma=64, width=384, name="rot45m")
+
+        with pulse.build(name="cr45p") as cr45p_sched:
+            pulse.play(cr45p, ControlChannel(10))
+            pulse.play(rot45p, DriveChannel(2))
+
+        with pulse.build(name="cr45m") as cr45m_sched:
+            pulse.play(cr45m, ControlChannel(10))
+            pulse.play(rot45m, DriveChannel(2))
+
+        with pulse.build(name="x") as x_sched:
+            pulse.play(Drag(160, 0.5 + 0.0j, 40, 0), DriveChannel(3))
+
+        cr_32 = pulse.ScheduleBlock(name="ecr", alignment_context=AlignSequential())
+        cr_32.append(cr45p_sched)
+        cr_32.append(x_sched)
+        cr_32.append(cr45m_sched)
+        cr_32.append(x_sched)
 
         # We inline to make the schedules comparable with the construction directly above.
-        schedule = self.cals.get_schedule("cr", (3, 2))
-        inline_schedule = inline_subroutines(schedule)
-        for idx, inst in enumerate(inline_schedule.instructions):
-            self.assertTrue(inst == cr_32.instructions[idx])
-
-        self.assertEqual(schedule.parameters, set())
+        self.assertEqual(self.cals.get_schedule("ecr", (3, 2)), cr_32)
 
         # Do the CR in the other direction
-        with pulse.build(name="cr") as cr_23:
-            with pulse.align_sequential():
-                with pulse.align_left():
-                    pulse.play(GaussianSquare(640, 0.4, 40, 30), DriveChannel(3))  # Rotary tone
-                    pulse.play(GaussianSquare(640, 0.5, 40, 30), ControlChannel(15))  # CR tone.
-                pulse.play(Gaussian(160, 0.15, 40), DriveChannel(2))
-                with pulse.align_left():
-                    pulse.play(GaussianSquare(640, -0.4, 40, 30), DriveChannel(3))  # Rotary tone
-                    pulse.play(GaussianSquare(640, -0.5, 40, 30), ControlChannel(15))  # CR tone.
-                pulse.play(Gaussian(160, 0.15, 40), DriveChannel(2))
+        with pulse.build(name="cr45p") as cr45p_sched:
+            pulse.play(cr45p, ControlChannel(15))
+            pulse.play(rot45p, DriveChannel(3))
 
-        schedule = self.cals.get_schedule("cr", (2, 3))
-        inline_schedule = inline_subroutines(schedule)
-        for idx, inst in enumerate(inline_schedule.instructions):
-            self.assertTrue(inst == cr_23.instructions[idx])
+        with pulse.build(name="cr45m") as cr45m_sched:
+            pulse.play(cr45m, ControlChannel(15))
+            pulse.play(rot45m, DriveChannel(3))
 
-        self.assertEqual(schedule.parameters, set())
+        with pulse.build(name="x") as x_sched:
+            pulse.play(Drag(160, 0.5 + 0.0j, 40, 0), DriveChannel(2))
+
+        cr_23 = pulse.ScheduleBlock(name="ecr", alignment_context=AlignSequential())
+        cr_23.append(cr45p_sched)
+        cr_23.append(x_sched)
+        cr_23.append(cr45m_sched)
+        cr_23.append(x_sched)
+
+        self.assertEqual(self.cals.get_schedule("ecr", (2, 3)), cr_23)
+        self.assertEqual(self.cals.get_schedule("ecr", (2, 3)).parameters, set())
 
     def test_free_parameters(self):
         """Test that we can get a schedule with free parameters."""
 
-        schedule = self.cals.get_schedule("cr", (3, 2), assign_params={"amp": self.amp_cr})
+        new_param = Parameter("new_amp")
+        schedule = self.cals.get_schedule("ecr", (3, 2), assign_params={("cr_amp", (3, 2), "ecr"): new_param})
 
-        self.assertEqual(schedule.parameters, {self.amp_cr})
+        self.assertEqual(schedule.parameters, {new_param})
 
     def test_single_control_channel(self):
         """Test that getting a correct pulse on a control channel only works."""
 
         with pulse.build(name="tcp") as expected:
-            pulse.play(GaussianSquare(640, 0.8, 40, 20), ControlChannel(10))
+            pulse.play(GaussianSquare(640, 0.8, 40, 540), ControlChannel(10))
 
         self.assertEqual(self.cals.get_schedule("tcp", (3, 2)), expected)
 
@@ -942,27 +914,27 @@ class TestControlChannels(CrossResonanceTest):
         """
 
         # Check that the ECR schedules from get_schedule and the instmap are the same
-        sched_inst = self.cals.default_inst_map.get("cr", (2, 3))
-        self.assertEqual(sched_inst, self.cals.get_schedule("cr", (2, 3)))
+        sched_inst = self.cals.default_inst_map.get("ecr", (2, 3))
+        self.assertEqual(sched_inst, self.cals.get_schedule("ecr", (2, 3)))
 
-        # Ensure that amp is 0.15
+        # Ensure that amp is 0.5+0.0j
         insts = block_to_schedule(sched_inst).filter(channels=[DriveChannel(2)]).instructions
-        self.assertEqual(insts[0][1].pulse.amp, 0.15)
+        self.assertEqual(insts[0][1].pulse.amp, 0.5+0.0j)
 
         # Update amp to 0.25 and check that change is propagated through.
         date_time2 = datetime.strptime("15/09/19 10:22:35", "%d/%m/%y %H:%M:%S")
-        self.cals.add_parameter_value(ParameterValue(0.25, date_time2), "amp", (2,), schedule="xp")
+        self.cals.add_parameter_value(ParameterValue(0.25, date_time2), "amp", (2,), schedule="x")
 
-        sched_inst = self.cals.default_inst_map.get("cr", (2, 3))
-        self.assertEqual(sched_inst, self.cals.get_schedule("cr", (2, 3)))
+        sched_inst = self.cals.default_inst_map.get("ecr", (2, 3))
+        self.assertEqual(sched_inst, self.cals.get_schedule("ecr", (2, 3)))
         insts = block_to_schedule(sched_inst).filter(channels=[DriveChannel(2)]).instructions
         self.assertEqual(insts[0][1].pulse.amp, 0.25)
 
         # Test linked parameters.
-        self.cals.add_parameter_value(ParameterValue(2, date_time2), "σ", (2,), schedule="xp")
+        self.cals.add_parameter_value(ParameterValue(2, date_time2), "σ", (2,), schedule="x")
 
-        sched_inst = self.cals.default_inst_map.get("cr", (2, 3))
-        self.assertEqual(sched_inst, self.cals.get_schedule("cr", (2, 3)))
+        sched_inst = self.cals.default_inst_map.get("ecr", (2, 3))
+        self.assertEqual(sched_inst, self.cals.get_schedule("ecr", (2, 3)))
         insts = block_to_schedule(sched_inst).filter(channels=[DriveChannel(2)]).instructions
         self.assertEqual(insts[0][1].pulse.sigma, 2)
 
@@ -990,10 +962,9 @@ class TestAssignment(QiskitExperimentsTestCase):
         with pulse.build(name="xp") as xp:
             pulse.play(Gaussian(160, self.amp_xp, self.sigma), self.d0_)
 
-        with pulse.build(name="xpxp") as xpxp:
-            with pulse.align_left():
-                pulse.call(xp)
-                pulse.call(xp, value_dict={self.ch0: self.ch1})
+        xpxp = pulse.ScheduleBlock(name="xpxp")
+        xpxp.append(CalledScheduleByName("xp", self.d0_))
+        xpxp.append(CalledScheduleByName("xp", self.d1_))
 
         self.xp_ = xp
         self.cals.add_schedule(xp, num_qubits=1)
@@ -1121,7 +1092,7 @@ class TestAssignment(QiskitExperimentsTestCase):
 
 
 class TestReplaceScheduleAndCall(QiskitExperimentsTestCase):
-    """A test to ensure that inconsistencies are picked up when a schedule is reassigned."""
+    """A test to ensure consistency between called by name and the called schedule."""
 
     def setUp(self):
         """Create the setting to test."""
@@ -1138,8 +1109,8 @@ class TestReplaceScheduleAndCall(QiskitExperimentsTestCase):
         with pulse.build(name="xp") as xp:
             pulse.play(Gaussian(self.dur, self.amp, self.sigma), DriveChannel(self.ch0))
 
-        with pulse.build(name="call_xp") as call_xp:
-            pulse.call(xp)
+        call_xp = pulse.ScheduleBlock(name="call_xp")
+        call_xp.append(CalledScheduleByName("xp", DriveChannel(self.ch0)))
 
         self.cals.add_schedule(xp, num_qubits=1)
         self.cals.add_schedule(call_xp, num_qubits=1)
@@ -1149,32 +1120,34 @@ class TestReplaceScheduleAndCall(QiskitExperimentsTestCase):
         self.cals.add_parameter_value(40, "σ", (), "xp")
 
     def test_call_replaced(self):
-        """Test that we get an error when there is an inconsistency in subroutines."""
+        """Test that a called by name schedule sees changes in its called schedule."""
 
-        sched = self.cals.get_schedule("call_xp", (4,))
-        sched = block_to_schedule(sched)
-
+        # Test that call_xp gives the original Gaussian
         with pulse.build(name="xp") as expected:
             pulse.play(Gaussian(160, 0.2, 40), DriveChannel(4))
 
-        expected = block_to_schedule(expected)
+        sched = block_to_schedule(self.cals.get_schedule("call_xp", (4,)))
+        self.assertEqual(sched, block_to_schedule(expected))
 
-        self.assertEqual(sched, expected)
-
-        # Now update the xp pulse without updating the call_xp schedule and ensure that
-        # an error is raised.
+        # Update xp to Drag and check that call_xp returns a Drag and not a Gaussian.
         with pulse.build(name="xp") as drag:
             pulse.play(Drag(self.dur, self.amp, self.sigma, self.beta), DriveChannel(self.ch0))
 
         self.cals.add_schedule(drag, num_qubits=1)
         self.cals.add_parameter_value(10.0, "β", (4,), "xp")
 
-        with self.assertRaises(CalibrationError):
-            self.cals.get_schedule("call_xp", (4,))
+        with pulse.build(name="xp") as expected:
+            pulse.play(Drag(160, 0.2, 40, 10.0), DriveChannel(4))
+
+        sched = block_to_schedule(self.cals.get_schedule("call_xp", (4,)))
+        self.assertEqual(sched, block_to_schedule(expected))
 
 
 class TestCoupledAssigning(QiskitExperimentsTestCase):
-    """Test that assigning parameters works when they are coupled in calls."""
+    """Test that assigning parameters works when they are coupled in calls.
+
+    TODO: Are these tests still relevant?
+    """
 
     def setUp(self):
         """Create the setting to test."""
@@ -1204,11 +1177,10 @@ class TestCoupledAssigning(QiskitExperimentsTestCase):
         with pulse.build(name="xp") as xp:
             pulse.play(Gaussian(160, self.amp_xp, self.sigma), self.d0_)
 
-        with pulse.build(name="ecr") as ecr:
-            with pulse.align_sequential():
-                pulse.call(cr_p)
-                pulse.call(xp)
-                pulse.call(cr_m)
+        ecr = pulse.ScheduleBlock(name="ecr", alignment_context=AlignSequential())
+        ecr.append(CalledScheduleByName("cr_p", self.c1_))
+        ecr.append(CalledScheduleByName("x", self.d0_))
+        ecr.append(CalledScheduleByName("cr_m", self.c1_))
 
         with pulse.build(name="cr_echo_both") as cr_echo_both:
             with pulse.align_sequential():

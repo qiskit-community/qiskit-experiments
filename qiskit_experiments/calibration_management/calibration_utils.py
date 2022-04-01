@@ -12,8 +12,10 @@
 
 """Calibration helper functions"""
 
-from typing import List, Optional, Set
+from typing import List, Set
 from qiskit.pulse import ScheduleBlock, Call
+
+from qiskit_experiments.calibration_management.called_schedule_by_name import CalledScheduleByName
 
 
 def compare_schedule_blocks(schedule1: ScheduleBlock, schedule2: ScheduleBlock) -> bool:
@@ -57,6 +59,32 @@ def _get_called_subroutines(schedule: ScheduleBlock, subroutines: List[ScheduleB
 
         if isinstance(block, Call):
             subroutines.append(block.subroutine)
+
+    return subroutines
+
+
+def get_names_called_by_name(schedule: ScheduleBlock) -> List[str]:
+    """Returns the list of subroutines that the given schedule calls.
+
+    Args:
+        schedule: A schedule to parse and find the called subroutines.
+
+    Returns:
+        A list of the names of the called by name ``schedule``.
+    """
+    subroutines = []
+    _get_names_called_by_name(schedule, subroutines)
+    return subroutines
+
+
+def _get_names_called_by_name(schedule: ScheduleBlock, subroutines: List[str]):
+    """Helper method to recursively find called by name subroutines."""
+    for block in schedule.blocks:
+        if isinstance(block, ScheduleBlock):
+            _get_names_called_by_name(block, subroutines)
+
+        if isinstance(block, CalledScheduleByName):
+            subroutines.append(block.name)
 
     return subroutines
 

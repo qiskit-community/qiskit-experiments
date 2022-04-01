@@ -300,12 +300,7 @@ class TestEchoedCrossResonance(QiskitExperimentsTestCase):
     def test_json_serialization(self):
         """Test that the library can be serialized using JSon."""
 
-        lib1 = EchoedCrossResonance(
-            FixedFrequencyTransmon(
-                basis_gates=["x", "sy"],
-                default_values={"duration": 320},
-            )
-        )
+        lib1 = EchoedCrossResonance()
 
         # Test that serialization fails without the right encoder
         with self.assertRaises(TypeError):
@@ -320,7 +315,7 @@ class TestEchoedCrossResonance(QiskitExperimentsTestCase):
     def test_library_list_json(self):
         """Check that library dependencies are preserved when serializing several of them."""
         lib_sq = FixedFrequencyTransmon()
-        lic_cr = EchoedCrossResonance(lib_sq)
+        lic_cr = EchoedCrossResonance()
 
         libraries = [lib_sq, lic_cr]
 
