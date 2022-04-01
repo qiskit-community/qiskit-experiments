@@ -10,6 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
+# pylint: disable=unused-argument, unused-variable
 """Test warning helper."""
 
 from test.base import QiskitExperimentsTestCase
@@ -18,14 +19,17 @@ from qiskit_experiments.framework import BaseExperiment, ExperimentConfig
 
 
 class TestWarningsHelper(QiskitExperimentsTestCase):
+    """Test case for warnings decorator with tricky behavior."""
 
     def test_creating_experiment_with_old_args(self):
         """Test raise warning and update configuration when create instance with old kwargs."""
+
         @deprecated_init_args(
             arguments_map={"some_old_arg1": "some_new_arg1", "some_old_arg2": None},
         )
         class FakeExperiment(BaseExperiment):
             """Fake experiment."""
+
             def __init__(self, qubits, some_new_arg1):
                 super().__init__(qubits)
 
@@ -46,6 +50,7 @@ class TestWarningsHelper(QiskitExperimentsTestCase):
         )
         class FakeExperiment(BaseExperiment):
             """Fake experiment."""
+
             def __init__(self, qubits, some_new_arg1):
                 super().__init__(qubits)
 
@@ -54,7 +59,7 @@ class TestWarningsHelper(QiskitExperimentsTestCase):
 
         old_config = ExperimentConfig(
             cls=FakeExperiment,
-            args=([0], ),
+            args=([0],),
             kwargs={"some_old_arg1": 1, "some_old_arg2": 2},
         )
 
@@ -63,11 +68,23 @@ class TestWarningsHelper(QiskitExperimentsTestCase):
 
         new_config = ExperimentConfig(
             cls=FakeExperiment,
-            args=([0,]),
-            kwargs={"some_old_arg1": 1}
+            args=([0],),
+            kwargs={"some_new_arg1": 1},
         )
 
         self.json_equiv(instance.config(), new_config)
+
+    def test_wrong_decorator_usage(self):
+        """Test decorator cannot be applied to non experiment or analysis class."""
+
+        with self.assertRaises(TypeError):
+
+            @deprecated_init_args(arguments_map={"arg1": "arg2"})
+            class SomeClass:
+                """Non experiment nor analysis class."""
+
+                def __init__(self, arg1):
+                    pass
 
     def test_switch_class(self):
         """Test old class is instantiated as a new class instance."""
@@ -75,6 +92,7 @@ class TestWarningsHelper(QiskitExperimentsTestCase):
         # Here we assume we want to rename class but want to have deprecation period
         class TempExperiment(BaseExperiment):
             """Fake experiment."""
+
             def __init__(self, qubits):
                 super().__init__(qubits)
 
@@ -82,12 +100,16 @@ class TestWarningsHelper(QiskitExperimentsTestCase):
                 pass
 
         class NewExperiment(TempExperiment):
+            """Experiment to be renamed."""
+
             pass
 
         @deprecated_class(
             new_cls=NewExperiment,
         )
         class OldExperiment(TempExperiment):
+            """Original experiment."""
+
             pass
 
         with self.assertWarns(DeprecationWarning):

@@ -17,6 +17,8 @@ import warnings
 
 from typing import Callable, Optional, Type, Dict, Union
 
+from qiskit_experiments.framework import BaseExperiment, BaseAnalysis
+
 
 def deprecated_function(
     last_version: Optional[str] = None,
@@ -228,6 +230,11 @@ def deprecated_init_args(
     """
 
     def patch_init(cls) -> Type:
+        if not issubclass(cls, (BaseExperiment, BaseAnalysis)):
+            raise TypeError(
+                f"deprecated_init_args decorator is not applicable to class '{cls.__name__}'."
+            )
+
         cls_init = getattr(cls, "__init__")
 
         @functools.wraps(cls.__init__, assigned=("__annotations__",))
