@@ -24,8 +24,10 @@ from warnings import warn
 from qiskit.circuit import Parameter
 import qiskit.pulse as pulse
 from qiskit.pulse import ScheduleBlock
+from qiskit.pulse.transforms import AlignSequential
 
 from qiskit_experiments.calibration_management.calibration_key_types import DefaultCalValue
+from qiskit_experiments.calibration_management.called_schedule_by_name import CalledScheduleByName
 from qiskit_experiments.exceptions import CalibrationError
 
 
@@ -39,7 +41,6 @@ class BasisGateLibrary(ABC, Mapping):
         self,
         basis_gates: Optional[List[str]] = None,
         default_values: Optional[Dict] = None,
-        dependencies: Optional[List["BasisGateLibrary"]] = None,
         **extra_kwargs,
     ):
         """Setup the library.
@@ -49,8 +50,6 @@ class BasisGateLibrary(ABC, Mapping):
             default_values: A dictionary to override library default parameter values.
             extra_kwargs: Extra key-word arguments of the subclasses that are saved to be able
                 to reconstruct the library using the :meth:`__init__` method.
-            dependencies: A list of libraries that ``self`` depends on, e.g., to call
-                other schedules that it needs when building its own schedules.
 
         Raises:
             CalibrationError: If on of the given basis gates is not supported by the library.
@@ -58,7 +57,6 @@ class BasisGateLibrary(ABC, Mapping):
         # Update the default values.
         self._extra_kwargs = extra_kwargs
         self._default_values = self.__default_values__.copy()
-        self._dependencies = dependencies
         if default_values is not None:
             self._default_values.update(default_values)
 
@@ -72,7 +70,7 @@ class BasisGateLibrary(ABC, Mapping):
                     f"Supported gates are: {self.__supported_gates__}."
                 )
 
-        self._schedules = self._build_schedules(set(basis_gates), dependencies)
+        self._schedules = self._build_schedules(set(basis_gates))
 
     @property
     @abstractmethod
@@ -140,11 +138,7 @@ class BasisGateLibrary(ABC, Mapping):
         return defaults
 
     @abstractmethod
-    def _build_schedules(
-        self,
-        basis_gates: Set[str],
-        other_libraries: Optional[List["BasisGateLibrary"]] = None,
-    ) -> Dict[str, ScheduleBlock]:
+    def _build_schedules(self, basis_gates: Set[str]) -> Dict[str, ScheduleBlock]:
         """Build the schedules stored in the library.
 
         This method is called as the last step in the :meth:`__init__`. Subclasses must implement
@@ -153,8 +147,6 @@ class BasisGateLibrary(ABC, Mapping):
 
         Args:
             basis_gates: The set of basis gates to build.
-            other_libraries: A list of other libraries that ``self`` can use to, e.g., call
-                other schedules that it needs when building its own schedules.
 
         Returns:
             A dictionary where the keys are the names of the schedules/basis gates and the values
@@ -165,10 +157,6 @@ class BasisGateLibrary(ABC, Mapping):
         """Return the settings used to initialize the library."""
 
         kwargs = {"basis_gates": self.basis_gates, "default_values": self._default_values}
-
-        if self._dependencies is not None:
-            kwargs["dependencies"] = self._dependencies
-
         kwargs.update(self._extra_kwargs)
 
         return {
@@ -237,11 +225,7 @@ class FixedFrequencyTransmon(BasisGateLibrary):
         """The gates that this library supports."""
         return {"x": 1, "y": 1, "sx": 1, "sy": 1}
 
-    def _build_schedules(
-        self,
-        basis_gates: Set[str],
-        other_libraries: Optional[List["BasisGateLibrary"]] = None,
-    ) -> Dict[str, ScheduleBlock]:
+    def _build_schedules(self, basis_gates: Set[str]) -> Dict[str, ScheduleBlock]:
         """Build the schedule of the class."""
         dur = Parameter("duration")
         sigma = Parameter("σ")
@@ -340,7 +324,6 @@ class EchoedCrossResonance(BasisGateLibrary):
 
     def __init__(
         self,
-        single_qubit_library: BasisGateLibrary,
         pulse_on_target: bool = True,
         basis_gates: Optional[List[str]] = None,
         default_values: Optional[Dict] = None,
@@ -348,9 +331,6 @@ class EchoedCrossResonance(BasisGateLibrary):
         """Setup the schedules.
 
         Args:
-            single_qubit_library: The library with the single-qubit gates from which
-                the X-gate schedule will be called to build the echo. This library needs
-                to supply a single-qubit schedule named ``"x"``.
             pulse_on_target: A boolean to indicate if a rotary/cancellation tones are
                 used in the CR gate. If this value is set to False then no pulse is played
                 on the target qubit during the cross-resonance pulse.
@@ -360,22 +340,17 @@ class EchoedCrossResonance(BasisGateLibrary):
                 this library will take one fourth of the pulse duration as default value.
         """
         self._rotary = pulse_on_target
-        super().__init__(basis_gates, default_values, [single_qubit_library])
+        super().__init__(basis_gates, default_values)
 
     @property
     def __supported_gates__(self) -> Dict[str, int]:
         """The gates that this library supports."""
-        return {"ecr": 2, "cr90p": 2, "cr90m": 2}
+        return {"ecr": 2, "cr45p": 2, "cr45m": 2}
 
-    def _build_schedules(
-        self,
-        basis_gates: Set[str],
-        other_libraries: Optional[List["BasisGateLibrary"]] = None,
-    ) -> Dict[str, ScheduleBlock]:
+    def _build_schedules(self, basis_gates: Set[str]) -> Dict[str, ScheduleBlock]:
         """Build the schedules of the library."""
-        if "x" not in other_libraries[0]:
-            raise CalibrationError("x gate is required to build cross-resonance schedules.")
 
+        control = pulse.DriveChannel(Parameter("ch0"))
         target = pulse.DriveChannel(Parameter("ch1"))
         cr_chan = pulse.ControlChannel(Parameter("ch0.1"))
 
@@ -385,49 +360,39 @@ class EchoedCrossResonance(BasisGateLibrary):
         cr_duration = Parameter("cr_duration")
         cr_width = Parameter("cr_width")
 
-        cr90p = pulse.GaussianSquare(
-            duration=cr_duration, amp=cr_amp, sigma=cr_sigma, width=cr_width, name="cr90p"
+        cr45p = pulse.GaussianSquare(
+            duration=cr_duration, amp=cr_amp, sigma=cr_sigma, width=cr_width, name="cr45p"
         )
 
-        cr90m = pulse.GaussianSquare(
-            duration=cr_duration, amp=-cr_amp, sigma=cr_sigma, width=cr_width, name="cr90m"
+        cr45m = pulse.GaussianSquare(
+            duration=cr_duration, amp=-cr_amp, sigma=cr_sigma, width=cr_width, name="cr45m"
         )
 
-        rot90p = pulse.GaussianSquare(
-            duration=cr_duration, amp=rot_amp, sigma=cr_sigma, width=cr_width, name="rot90p"
+        rot45p = pulse.GaussianSquare(
+            duration=cr_duration, amp=rot_amp, sigma=cr_sigma, width=cr_width, name="rot45p"
         )
 
-        rot90m = pulse.GaussianSquare(
-            duration=cr_duration, amp=-rot_amp, sigma=cr_sigma, width=cr_width, name="rot90m"
+        rot45m = pulse.GaussianSquare(
+            duration=cr_duration, amp=-rot_amp, sigma=cr_sigma, width=cr_width, name="rot45m"
         )
 
-        with pulse.build(name="ecr") as ecr_sched:
-            with pulse.align_sequential():
-                with pulse.align_left():
-                    pulse.play(cr90p, cr_chan)
-                    if self._rotary:
-                        pulse.play(rot90p, target)
-
-                pulse.call(other_libraries[0]["x"])
-
-                with pulse.align_left():
-                    pulse.play(cr90m, cr_chan)
-                    if self._rotary:
-                        pulse.play(rot90m, target)
-
-                pulse.call(other_libraries[0]["x"])
-
-        with pulse.build(name="cr90p") as cr90p_sched:
-            pulse.play(cr90p, cr_chan)
+        with pulse.build(name="cr45p") as cr45p_sched:
+            pulse.play(cr45p, cr_chan)
             if self._rotary:
-                pulse.play(rot90p, target)
+                pulse.play(rot45p, target)
 
-        with pulse.build(name="cr90m") as cr90m_sched:
-            pulse.play(cr90m, cr_chan)
+        with pulse.build(name="cr45m") as cr45m_sched:
+            pulse.play(cr45m, cr_chan)
             if self._rotary:
-                pulse.play(rot90m, target)
+                pulse.play(rot45m, target)
 
-        return {"ecr": ecr_sched, "cr90m": cr90m_sched, "cr90p": cr90p_sched}
+        ecr_sched = pulse.ScheduleBlock(name="ecr", alignment_context=AlignSequential())
+        ecr_sched.append(cr45p_sched)
+        ecr_sched.append(CalledScheduleByName("x", control))
+        ecr_sched.append(cr45m_sched)
+        ecr_sched.append(CalledScheduleByName("x", control))
+
+        return {"ecr": ecr_sched, "cr45m": cr45m_sched, "cr45p": cr45p_sched}
 
     def config(self) -> Dict[str, Any]:
         """Return the settings used to initialize the library."""
