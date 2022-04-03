@@ -96,7 +96,7 @@ class RestlessMixin:
         # False because it is not compatible with a restless experiment.
         if self._t1_check(rep_delay):
             meas_level = self._default_run_options().get("meas_level", MeasLevel.CLASSIFIED)
-            meas_return = self._default_run_options().get("meas_return", MeasReturnType.AVERAGE)
+            meas_return = self._default_run_options().get("meas_return", MeasReturnType.SINGLE)
             if not self.analysis.options.get("data_processor", None):
                 self.set_run_options(
                     rep_delay=rep_delay,
@@ -108,9 +108,7 @@ class RestlessMixin:
                 )
                 if hasattr(self.analysis.options, "data_processor"):
                     self.analysis.set_options(
-                        data_processor=self._get_restless_processor(
-                            meas_level=meas_level, meas_return=meas_return
-                        )
+                        data_processor=self._get_restless_processor(meas_level=meas_level)
                     )
                 else:
                     raise DataProcessorError(
@@ -140,9 +138,7 @@ class RestlessMixin:
                 f"a smaller repetition delay for the restless experiment."
             )
 
-    def _get_restless_processor(
-        self, meas_level: int = 2, meas_return: str = "average"
-    ) -> DataProcessor:
+    def _get_restless_processor(self, meas_level: int = 2) -> DataProcessor:
         """Returns the restless experiments data processor.
 
         Notes:
@@ -169,12 +165,9 @@ class RestlessMixin:
                     f"Invalid dimensionality reduction: {dimensionality_reduction}."
                 ) from error
 
-            if meas_return == "single":
-                processor = DataProcessor(
-                    "memory", [nodes.RestlessToIQ(), nodes.AverageData(axis=1), projector()]
-                )
-            else:
-                processor = DataProcessor("memory", [nodes.RestlessToIQ(), projector()])
+            processor = DataProcessor(
+                "memory", [nodes.RestlessToIQ(), nodes.AverageData(axis=1), projector()]
+            )
 
             if normalize:
                 processor.append(nodes.MinMaxNormalize())
