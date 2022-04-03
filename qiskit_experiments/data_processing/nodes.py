@@ -901,8 +901,7 @@ class RestlessToIQ(RestlessNode):
         # Step 1. Reorder the data.
         memory = self._reorder_iq(data)
 
-        post_processed_memory = []
-        post_processed_memory.insert(0, [[np.abs(memory[0][0][0]), np.abs(memory[0][0][1])]])
+        post_processed_memory = [[[np.abs(memory[0][0][0]), np.abs(memory[0][0][1])]]]
 
         # Step 2. Subtract and take absolute value of consecutive IQ points in
         # the reordered memory.
