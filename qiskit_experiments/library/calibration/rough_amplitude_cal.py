@@ -85,7 +85,6 @@ class RoughAmplitudeCal(BaseCalibrationExperiment, Rabi):
         )
 
         # Needed for subclasses that will drive other transitions than the 0<->1 transition.
-        self.set_transpile_options(inst_map=calibrations.default_inst_map)
         self._analysis_param_name = "rabi_rate"
 
         # Set the pulses to update.
