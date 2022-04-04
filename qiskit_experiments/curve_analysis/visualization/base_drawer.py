@@ -13,9 +13,8 @@
 """Curve drawer abstract class."""
 
 from abc import ABC, abstractmethod
-from typing import List, Dict, Sequence, Union, Optional, Callable
+from typing import List, Dict, Sequence, Union, Optional
 
-from qiskit_experiments.curve_analysis.curve_data import FitData
 from qiskit_experiments.framework import Options, AnalysisResultData
 
 
@@ -203,22 +202,37 @@ class BaseCurveDrawer(ABC):
         """
 
     @abstractmethod
-    def draw_fit_lines(
+    def draw_fit_line(
         self,
-        fit_function: Callable,
-        signature: List[str],
-        fit_result: FitData,
-        fixed_params: Dict[str, float],
+        x_data: Sequence[float],
+        y_data: Sequence[float],
         ax_index: Optional[int] = None,
         **options,
     ):
-        """Draw fit lines.
+        """Draw fit line.
 
         Args:
-            fit_function: The function defines a single curve.
-            signature: The fit parameters associated with the function.
-            fit_result: The result of fit.
-            fixed_params: The parameter fixed during the fitting.
+            x_data: X values.
+            y_data: Fit Y values.
+            ax_index: Index of canvas if multiple inset axis exist.
+            options: Valid options for the drawer backend API.
+        """
+
+    @abstractmethod
+    def draw_confidence_interval(
+        self,
+        x_data: Sequence[float],
+        y_ub: Sequence[float],
+        y_lb: Sequence[float],
+        ax_index: Optional[int] = None,
+        **options,
+    ):
+        """Draw cofidence interval.
+
+        Args:
+            x_data: X values.
+            y_ub: The upper boundary of Y values.
+            y_lb: The lower boundary of Y values.
             ax_index: Index of canvas if multiple inset axis exist.
             options: Valid options for the drawer backend API.
         """

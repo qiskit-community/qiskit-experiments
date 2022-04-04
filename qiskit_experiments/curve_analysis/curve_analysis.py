@@ -989,9 +989,9 @@ class CurveAnalysis(BaseAnalysis, ABC):
         # 6. Create figures
         #
         if self.options.plot:
-            # initialize axis
+            # Initialize axis
             self.drawer.initialize_canvas()
-            # write raw data
+            # Write raw data
             if self.options.plot_raw_data:
                 for s in self.__series__:
                     raw_data = self._data(label="raw_data", series_name=s.name)
@@ -1000,7 +1000,7 @@ class CurveAnalysis(BaseAnalysis, ABC):
                         y_data=raw_data.y,
                         ax_index=s.canvas,
                     )
-            # write data points
+            # Write data points
             for s in self.__series__:
                 curve_data = self._data(label="fit_ready", series_name=s.name)
                 self.drawer.draw_formatted_data(
@@ -1012,17 +1012,40 @@ class CurveAnalysis(BaseAnalysis, ABC):
                     color=s.plot_color,
                     marker=s.plot_symbol,
                 )
-            # write fit results if fitting succeeded
+            # Write fit results if fitting succeeded
             if fit_result:
                 for s in self.__series__:
-                    self.drawer.draw_fit_lines(
-                        fit_function=s.fit_func,
-                        signature=s.signature,
-                        fit_result=fit_result,
-                        fixed_params=self.options.fixed_parameters,
+                    interp_x = np.linspace(*fit_result.x_range, 100)
+
+                    params = {}
+                    for fitpar in s.signature:
+                        if fitpar in self.options.fixed_parameters:
+                            params[fitpar] = self.options.fixed_parameters[fitpar]
+                        else:
+                            params[fitpar] = fit_result.fitval(fitpar)
+
+                    y_data_with_uncertainty = s.fit_func(interp_x, **params)
+                    y_mean = unp.nominal_values(y_data_with_uncertainty)
+                    y_std = unp.std_devs(y_data_with_uncertainty)
+                    # Draw fit line
+                    self.drawer.draw_fit_line(
+                        x_data=interp_x,
+                        y_data=y_mean,
                         ax_index=s.canvas,
                         color=s.plot_color,
                     )
+                    # Draw confidence intervals with different n_sigma
+                    sigmas = unp.std_devs(y_data_with_uncertainty)
+                    if np.isfinite(sigmas).all():
+                        for n_sigma, alpha in self.drawer.options.plot_sigma:
+                            self.drawer.draw_confidence_interval(
+                                x_data=interp_x,
+                                y_ub=y_mean + n_sigma * y_std,
+                                y_lb=y_mean - n_sigma * y_std,
+                                ax_index=s.canvas,
+                                alpha=alpha,
+                                color=s.plot_color,
+                            )
                 self.drawer.draw_fit_report(
                     analysis_results=analysis_results,
                     chisq=fit_result.reduced_chisq,

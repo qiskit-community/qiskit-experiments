@@ -12,18 +12,19 @@
 
 """Curve drawer for matplotlib backend."""
 
-from typing import List, Dict, Sequence, Union, Optional, Callable
+from typing import List, Dict, Sequence, Union, Optional
 
 import numpy as np
+
+from uncertainties import UFloat
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
 from matplotlib.ticker import ScalarFormatter, Formatter
-from qiskit.utils import detach_prefix
-from uncertainties import unumpy as unp, UFloat
 
-from qiskit_experiments.curve_analysis.curve_data import FitData
+from qiskit.utils import detach_prefix
 from qiskit_experiments.framework import AnalysisResultData
 from qiskit_experiments.framework.matplotlib import get_non_gui_ax
+
 from .base_drawer import BaseCurveDrawer
 
 
@@ -253,54 +254,36 @@ class MplCurveDrawer(BaseCurveDrawer):
             draw_ops["label"] = name
         self._get_axis(ax_index).errorbar(x_data, y_data, yerr=y_err_data, **draw_ops)
 
-    def draw_fit_lines(
+    def draw_fit_line(
         self,
-        fit_function: Callable,
-        signature: List[str],
-        fit_result: FitData,
-        fixed_params: Dict[str, float],
+        x_data: Sequence[float],
+        y_data: Sequence[float],
         ax_index: Optional[int] = None,
         **options,
     ):
         draw_ops = {
-            "markersize": 9,
             "zorder": 5,
             "linestyle": "-",
             "linewidth": 2,
         }
         draw_ops.update(**options)
+        self._get_axis(ax_index).plot(x_data, y_data, **draw_ops)
 
-        xmin, xmax = fit_result.x_range
-
-        # This is ufloat parameters.
-        parameters = {}
-        for fitpar in signature:
-            if fitpar in fixed_params:
-                parameters[fitpar] = fixed_params[fitpar]
-            else:
-                parameters[fitpar] = fit_result.fitval(fitpar)
-
-        # The confidence interval is automatically computed with uncertainty package.
-        xs = np.linspace(xmin, xmax, 100)
-        ys_with_sigma = fit_function(xs, **parameters)
-
-        axis = self._get_axis(ax_index)
-
-        # Plot fit line
-        axis.plot(xs, unp.nominal_values(ys_with_sigma), **draw_ops)
-
-        # Plot confidence interval
-        sigmas = unp.std_devs(ys_with_sigma)
-        if np.isfinite(sigmas).all():
-            for n_sigma, alpha in self.options.plot_sigma:
-                axis.fill_between(
-                    xs,
-                    y1=unp.nominal_values(ys_with_sigma) - n_sigma * sigmas,
-                    y2=unp.nominal_values(ys_with_sigma) + n_sigma * sigmas,
-                    alpha=alpha,
-                    zorder=3,
-                    color=draw_ops.get("color", "black"),
-                )
+    def draw_confidence_interval(
+        self,
+        x_data: Sequence[float],
+        y_ub: Sequence[float],
+        y_lb: Sequence[float],
+        ax_index: Optional[int] = None,
+        **options,
+    ):
+        draw_ops = {
+            "zorder": 3,
+            "alpha": 0.1,
+            "color": "black",
+        }
+        draw_ops.update(**options)
+        self._get_axis(ax_index).fill_between(x_data, y1=y_lb, y2=y_ub, **draw_ops)
 
     def draw_fit_report(
         self,
