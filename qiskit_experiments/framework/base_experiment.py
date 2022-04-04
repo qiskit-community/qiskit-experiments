@@ -515,12 +515,6 @@ class BaseExperiment(ABC, StoreInitArgs):
         metadata to the returned experiment result data.
         """
         metadata = {"physical_qubits": list(self.physical_qubits)}
-
-        # Store measurement level and meas return if they have been
-        # set for the experiment
-        for run_opt in ["meas_level", "meas_return"]:
-            if hasattr(self.run_options, run_opt):
-                metadata[run_opt] = getattr(self.run_options, run_opt)
         return metadata
 
     def __json_encode__(self):

@@ -222,6 +222,15 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
         """
         pass
 
+    def _metadata(self):
+        metadata = super()._metadata()
+        # Store measurement level and meas return if they have been
+        # set for the experiment
+        for run_opt in ["meas_level", "meas_return"]:
+            if hasattr(self.run_options, run_opt):
+                metadata[run_opt] = getattr(self.run_options, run_opt)
+        return metadata
+
     def _transpiled_circuits(self) -> List[QuantumCircuit]:
         """Override the transpiled circuits method to bring in the inst_map.
 
