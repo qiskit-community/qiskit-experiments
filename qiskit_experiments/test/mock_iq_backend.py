@@ -214,17 +214,17 @@ class MockIQBackend(FakeOpenPulse2Q):
 
                 **3 qubit circuit**
                 In this experiment, we will make Bell state with the first and second qubit.
-                In addition, we will bring the thirds qubit to its excited state.
+                In addition, we will bring the third qubit to its excited state.
                 The circuit:
-                                  ┌─┐
-                        q_0: ──■──┤M├──────
-                             ┌─┴─┐└╥┘┌─┐
-                        q_1: ┤ X ├─╫─┤M├───
-                             ├───┤ ║ └╥┘┌─┐
-                        q_2: ┤ X ├─╫──╫─┤M├
-                             └───┘ ║  ║ └╥┘
-                        c: 3/══════╩══╩══╩═
-                                   0  1  2
+                             ┌───┐     ┌─┐
+                        q_0: ┤ H ├──■──┤M├───
+                             └───┘┌─┴─┐└╥┘┌─┐
+                        q_1: ─────┤ X ├─╫─┤M├
+                             ┌───┐└┬─┬┘ ║ └╥┘
+                        q_2: ┤ X ├─┤M├──╫──╫─
+                             └───┘ └╥┘  ║  ║
+                        c: 3/═══════╩═══╩══╩═
+                                    2   0  1
 
                 The backend has a feature, that the output can include only states with probabilities
                 greater than 0. The backend will assume that if an output string isn't in the probability
