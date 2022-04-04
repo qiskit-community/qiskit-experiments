@@ -30,6 +30,7 @@ def ramsey_xy_compute_probabilities(
     circuits: List[QuantumCircuit], calc_parameters: List[Dict[str, Any]]
 ) -> List[Dict[str, float]]:
     """Return the probability of being in the excited state."""
+    t2ramsey = calc_parameters[0].get("t2ramsey", 100e-6)
     freq_shift = calc_parameters[0].get("freq_shift", 0)
     output_dict_list = []
     for circuit in circuits:
@@ -43,7 +44,7 @@ def ramsey_xy_compute_probabilities(
             phase_offset = np.pi / 2
 
         probability_output_dict["1"] = (
-            0.5 * np.cos(2 * np.pi * delay * freq_shift - phase_offset) + 0.5
+            0.5 * np.exp(-delay / t2ramsey) * np.cos(2 * np.pi * delay * freq_shift - phase_offset) + 0.5
         )
         probability_output_dict["0"] = 1 - probability_output_dict["1"]
         output_dict_list.append(probability_output_dict)

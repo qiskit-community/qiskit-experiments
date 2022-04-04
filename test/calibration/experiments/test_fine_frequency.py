@@ -91,7 +91,7 @@ class TestFineFreqEndToEnd(QiskitExperimentsTestCase):
         calc_parameters = {"freq_shift": freq_shift, "sx_duration": self.sx_duration}
         backend = MockIQBackend(compute_probabilities=fine_freq_compute_probabilities)
         calc_parameters["dt"] = backend.configuration().dt
-        backend.set_calculation_parameters([calc_parameters])
+        backend.calculation_parameters = [calc_parameters]
 
         freq_exp = FineFrequency(0, 160, backend)
         freq_exp.set_transpile_options(inst_map=self.inst_map)
@@ -115,7 +115,7 @@ class TestFineFreqEndToEnd(QiskitExperimentsTestCase):
         calc_parameters = {"freq_shift": freq_shift, "sx_duration": self.sx_duration}
         backend = MockIQBackend(compute_probabilities=fine_freq_compute_probabilities)
         calc_parameters["dt"] = backend.configuration().dt
-        backend.set_calculation_parameters([calc_parameters])
+        backend.calculation_parameters = [calc_parameters]
 
         fine_freq = FineFrequencyCal(0, self.cals, backend)
         armonk_freq = FakeArmonk().defaults().qubit_freq_est[0]

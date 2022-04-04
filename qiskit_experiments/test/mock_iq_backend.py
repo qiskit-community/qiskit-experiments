@@ -213,7 +213,7 @@ class MockIQBackend(FakeOpenPulse2Q):
                         return output_dict_list
 
                 **3 qubit circuit**
-                In this experiment, we will make Bell state with the first and second qubit.
+                In this experiment, we prepare a Bell state with the first and second qubit.
                 In addition, we will bring the third qubit to its excited state.
                 The circuit:
                              ┌───┐     ┌─┐
@@ -306,9 +306,17 @@ class MockIQBackend(FakeOpenPulse2Q):
             meas_return="single",
         )
 
-    def set_calculation_parameters(self, calculation_parameters: List[Dict[str, Any]]):
+    @property
+    def calculation_parameters(self):
         """
-        A function to set calculation parameters for the compute_probabilities function.
+        Get calculation_parameters attribute.
+        """
+        return self._calculation_parameters
+
+    @calculation_parameters.setter
+    def calculation_parameters(self, calculation_parameters: List[Dict[str, Any]]):
+        """
+        Set calculation_parameters attribute.
         Args:
             calculation_parameters(Dict): A dictionary with parameters that will replace the existing
             parameters of the backend.
@@ -409,21 +417,19 @@ class MockIQBackend(FakeOpenPulse2Q):
 
         return memory
 
-    def _generate_data(
-        self, prob_dict: Dict[str, float], num_qubits: int, circuit: QuantumCircuit
-    ) -> Dict[str, Any]:
+    def _generate_data(self, prob_dict: Dict[str, float], circuit: QuantumCircuit) -> Dict[str, Any]:
         """
         Generate data for the circuit.
         Args:
             prob_dict(dict): A dictionary whose keys are strings representing the output vectors and
             their values are the probability to get the output in this circuit.
-            num_qubits(int): The number of qubits.
             circuit(QuantumCircuit): The circuit that needs to be simulated.
 
         Returns:
             A dictionary that's filled with the simulated data. The output format is different between
             measurement level 1 and measurement level 2.
         """
+        num_qubits = len(circuit.qregs)
         self._verify_parameters(num_qubits, prob_dict)
         prob_arr = self._probability_dict_to_probability_array(prob_dict, num_qubits)
         shots = self.options.get("shots")
@@ -442,7 +448,7 @@ class MockIQBackend(FakeOpenPulse2Q):
             phase = self._iq_phase(circuit)
             memory = self._draw_iq_shots(prob_arr, shots, num_qubits, phase)
             if meas_return == "avg":
-                memory = np.average(np.array(memory), axis=0).tolist()  # could have a bug here
+                memory = np.average(np.array(memory), axis=0).tolist()
 
             run_result["memory"] = memory
         return run_result
@@ -471,13 +477,11 @@ class MockIQBackend(FakeOpenPulse2Q):
             "success": True,
             "results": [],
         }
-        if self._calculation_parameters:
-            prob_list = self._compute_probabilities(run_input, self._calculation_parameters)
+        if self.calculation_parameters:
+            prob_list = self._compute_probabilities(run_input, self.calculation_parameters)
         else:
             prob_list = self._compute_probabilities(run_input)
         for prob, circ in zip(prob_list, run_input):
-            # nqubits = circ.num_qubits
-            nqubits = len(circ.qregs)
             run_result = {
                 "shots": shots,
                 "success": True,
@@ -485,7 +489,7 @@ class MockIQBackend(FakeOpenPulse2Q):
                 "meas_level": meas_level,
             }
 
-            run_result["data"] = self._generate_data(prob, nqubits, circ)
+            run_result["data"] = self._generate_data(prob, circ)
             result["results"].append(run_result)
 
         return FakeJob(self, Result.from_dict(result))
