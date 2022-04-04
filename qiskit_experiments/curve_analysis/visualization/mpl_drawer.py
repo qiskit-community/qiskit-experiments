@@ -12,17 +12,14 @@
 
 """Curve drawer for matplotlib backend."""
 
-from typing import List, Dict, Sequence, Union, Optional
+from typing import Sequence, Optional
 
 import numpy as np
-
-from uncertainties import UFloat
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
 from matplotlib.ticker import ScalarFormatter, Formatter
 
 from qiskit.utils import detach_prefix
-from qiskit_experiments.framework import AnalysisResultData
 from qiskit_experiments.framework.matplotlib import get_non_gui_ax
 
 from .base_drawer import BaseCurveDrawer
@@ -287,56 +284,26 @@ class MplCurveDrawer(BaseCurveDrawer):
 
     def draw_fit_report(
         self,
-        analysis_results: List[AnalysisResultData],
-        chisq: Union[float, Dict[str, float]],
+        description: str,
+        **options,
     ):
-        def _format_val(value, unit):
-            # Return value with unit with prefix, i.e. 1000 Hz -> 1 kHz.
-            if unit:
-                try:
-                    val, val_prefix = detach_prefix(value, decimal=3)
-                except ValueError:
-                    val = value
-                    val_prefix = ""
-                return f"{val: .3g}", f" {val_prefix}{unit}"
-            if np.abs(value) < 1e-3 or np.abs(value) > 1e3:
-                return f"{value: .4e}", ""
-            return f"{value: .4g}", ""
-
-        # Generate text inside the fit report
-        report_str = ""
-        for res in analysis_results:
-            if isinstance(res.value, UFloat):
-                unit = res.extra.get("unit", None)
-                n_repr, n_unit = _format_val(res.value.nominal_value, unit)
-                if res.value.std_dev is not None and np.isfinite(res.value.std_dev):
-                    s_repr, s_unit = _format_val(res.value.std_dev, unit)
-                    if n_unit == s_unit:
-                        value_repr = f" {n_repr} \u00B1 {s_repr}{n_unit}"
-                    else:
-                        value_repr = f" {n_repr + n_unit} \u00B1 {s_repr + s_unit}"
-                else:
-                    value_repr = n_repr + n_unit
-                report_str += f"{res.name} = {value_repr}\n"
-
-        # Write reduced chi-squared values
-        if isinstance(chisq, float):
-            report_str += r"Fit $\chi^2$ = " + f"{chisq: .4g}"
-        else:
-            chisq_repr = [
-                r"Fit $\chi^2$ = " + f"{val: .4g} ({name})" for name, val in chisq.items()
-            ]
-            report_str += "\n".join(chisq_repr)
+        bbox_props = {
+            "boxstyle": "square, pad=0.3",
+            "fc": "white",
+            "ec": "black",
+            "lw": 1,
+            "alpha": 0.8,
+        }
+        bbox_props.update(**options)
 
         report_handler = self._axis.text(
             *self.options.fit_report_rpos,
-            s=report_str,
+            s=description,
             ha="center",
             va="top",
             size=self.options.fit_report_text_size,
             transform=self._axis.transAxes,
         )
-        bbox_props = dict(boxstyle="square, pad=0.3", fc="white", ec="black", lw=1, alpha=0.8)
         report_handler.set_bbox(bbox_props)
 
     @property

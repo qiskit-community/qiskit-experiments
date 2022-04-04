@@ -13,9 +13,9 @@
 """Curve drawer abstract class."""
 
 from abc import ABC, abstractmethod
-from typing import List, Dict, Sequence, Union, Optional
+from typing import Dict, Sequence, Optional
 
-from qiskit_experiments.framework import Options, AnalysisResultData
+from qiskit_experiments.framework import Options
 
 
 class BaseCurveDrawer(ABC):
@@ -240,15 +240,14 @@ class BaseCurveDrawer(ABC):
     @abstractmethod
     def draw_fit_report(
         self,
-        analysis_results: List[AnalysisResultData],
-        chisq: Union[float, Dict[str, float]],
+        description: str,
+        **options,
     ):
         """Draw text box that shows fit reports.
 
         Args:
-            analysis_results: List of analysis result entries containing fit parameters.
-            chisq: Chi-squared value from the fitting. If this is provided as a dictionary,
-                the key is also shown with the chi-squared value.
+            description: A string to describe the fiting outcome.
+            options: Valid options for the drawer backend API.
         """
 
     @property

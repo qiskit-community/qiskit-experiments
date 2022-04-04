@@ -28,6 +28,7 @@ import uncertainties
 from uncertainties import unumpy as unp
 
 from qiskit.providers import Backend
+from qiskit.utils import detach_prefix
 from qiskit_experiments.curve_analysis.curve_data import (
     CurveData,
     SeriesDef,
@@ -1046,10 +1047,14 @@ class CurveAnalysis(BaseAnalysis, ABC):
                                 alpha=alpha,
                                 color=s.plot_color,
                             )
-                self.drawer.draw_fit_report(
-                    analysis_results=analysis_results,
-                    chisq=fit_result.reduced_chisq,
-                )
+
+                # Write fitting report
+                report_description = ""
+                for res in analysis_results:
+                    if isinstance(res.value, (float, uncertainties.UFloat)):
+                        report_description += f"{analysis_result_to_repr(res)}\n"
+                report_description += r"Fit $\chi^2$ = " + f"{fit_result.reduced_chisq: .4g}"
+                self.drawer.draw_fit_report(description=report_description)
             self.drawer.format_canvas()
             figures = [self.drawer.figure]
         else:
@@ -1112,3 +1117,51 @@ def is_error_not_significant(
         return True
 
     return False
+
+
+def analysis_result_to_repr(result: AnalysisResultData) -> str:
+    """A helper function to create string representation from analysis result data object.
+
+    Args:
+        result: Analysis result data.
+
+    Returns:
+        String representation of the data.
+    """
+    if not isinstance(result.value, (float, uncertainties.UFloat)):
+        return AnalysisError(f"Result data {result.name} is not valid fit parameter data type.")
+
+    unit = result.extra.get("unit", None)
+
+    def _format_val(value):
+        # Return value with unit with prefix, i.e. 1000 Hz -> 1 kHz.
+        if unit:
+            try:
+                val, val_prefix = detach_prefix(value, decimal=3)
+            except ValueError:
+                val = value
+                val_prefix = ""
+            return f"{val: .3g}", f" {val_prefix}{unit}"
+        if np.abs(value) < 1e-3 or np.abs(value) > 1e3:
+            return f"{value: .4e}", ""
+        return f"{value: .4g}", ""
+
+    if isinstance(result.value, float):
+        # Only nominal part
+        n_repr, n_unit = _format_val(result.value)
+        value_repr = n_repr + n_unit
+    else:
+        # Nominal part
+        n_repr, n_unit = _format_val(result.value.nominal_value)
+
+        # Standard error part
+        if result.value.std_dev is not None and np.isfinite(result.value.std_dev):
+            s_repr, s_unit = _format_val(result.value.std_dev)
+            if n_unit == s_unit:
+                value_repr = f" {n_repr} \u00B1 {s_repr}{n_unit}"
+            else:
+                value_repr = f" {n_repr + n_unit} \u00B1 {s_repr + s_unit}"
+        else:
+            value_repr = n_repr + n_unit
+
+    return f"{result.name} = {value_repr}"
