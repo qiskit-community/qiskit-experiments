@@ -442,6 +442,8 @@ class ExperimentEncoder(json.JSONEncoder):
     def default(self, obj: Any) -> Any:  # pylint: disable=arguments-differ
         if istype(obj):
             return _serialize_type(obj)
+        if hasattr(obj, "__json_encode__"):
+            return _serialize_object(obj)
         if isinstance(obj, complex):
             return _serialize_safe_float(obj)
         if isinstance(obj, set):

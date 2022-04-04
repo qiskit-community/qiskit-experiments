@@ -119,6 +119,16 @@ class AnalysisCallback:
     error_msg: Optional[str] = None
     event: Event = dataclasses.field(default_factory=Event)
 
+    def __getstate__(self):
+        # We need to remove the Event object from state when pickling
+        # since events are not pickleable
+        state = self.__dict__
+        state["event"] = None
+        return state
+
+    def __json_encode__(self):
+        return self.__getstate__()
+
 
 class DbExperimentData:
     """Base common type for all versioned DbExperimentData classes.
@@ -1105,25 +1115,21 @@ class DbExperimentDataV1(DbExperimentData):
             True if the specified jobs were successfully cancelled
             otherwise false.
         """
-        cancelled = True
+        if isinstance(ids, str):
+            ids = [ids]
 
         with self._jobs.lock:
-
-            # Get IDs of futures to cancel
-            if ids is None:
-                ids = self._jobs.keys()
-            elif isinstance(ids, str):
-                ids = [ids]
-            jobs = [self._jobs[jid] for jid in ids]
-
-            # Attempt to cancel callbacks
-            for jid, job in zip(ids, jobs):
+            all_cancelled = True
+            for jid, job in reversed(self._jobs.items()):
+                if ids and jid not in ids:
+                    # Skip cancelling this callback
+                    continue
                 if job and job.status() not in JOB_FINAL_STATES:
                     try:
                         job.cancel()
                         LOG.warning("Cancelled job [Job ID: %s]", jid)
                     except Exception as err:  # pylint: disable=broad-except
-                        cancelled = False
+                        all_cancelled = False
                         LOG.warning("Unable to cancel job [Job ID: %s]:\n%s", jid, err)
                         continue
 
@@ -1131,7 +1137,7 @@ class DbExperimentDataV1(DbExperimentData):
                 if jid in self._job_futures:
                     del self._job_futures[jid]
 
-        return cancelled
+        return all_cancelled
 
     def cancel_analysis(self, ids: Optional[Union[str, List[str]]] = None) -> bool:
         """Cancel any queued analysis callbacks.
@@ -1147,26 +1153,23 @@ class DbExperimentDataV1(DbExperimentData):
             True if the specified analysis callbacks were successfully
             cancelled otherwise false.
         """
-        all_cancelled = True
+        if isinstance(ids, str):
+            ids = [ids]
+
         # Lock analysis futures so we can't add more while trying to cancel
         with self._analysis_futures.lock:
-
-            # Get IDs of futures to cancel
-            if ids is None:
-                # We reverse iterate since later callbacks are queued pending earlier ones
-                # and can have their future directly cancelled.
-                ids = list(reversed(self._analysis_futures.keys()))
-            elif isinstance(ids, str):
-                ids = [ids]
-
-            # Set events to cancel callbacks
-            for cid in ids:
-                self._analysis_callbacks[cid].event.set()
-
-            # Check for running callback that can't be cancelled
+            all_cancelled = True
             not_running = []
-            for cid in ids:
-                if self._analysis_callbacks[cid].status == AnalysisStatus.RUNNING:
+            for cid, callback in reversed(self._analysis_callbacks.items()):
+                if ids and cid not in ids:
+                    # Skip cancelling this callback
+                    continue
+
+                # Set event to cancel callback
+                callback.event.set()
+
+                # Check for running callback that can't be cancelled
+                if callback.status == AnalysisStatus.RUNNING:
                     all_cancelled = False
                     LOG.warning("Unable to cancel running analysis callback [Analysis ID: %s]", cid)
                 else:
@@ -1195,7 +1198,9 @@ class DbExperimentDataV1(DbExperimentData):
         # Cancel analysis first since it is queued on jobs, then cancel jobs
         # otherwise there can be a race issue when analysis starts running
         # as soon as jobs are cancelled
-        return self.cancel_analysis() and self.cancel_jobs()
+        analysis_cancelled = self.cancel_analysis()
+        jobs_cancelled = self.cancel_jobs()
+        return analysis_cancelled and jobs_cancelled
 
     def block_for_results(self, timeout: Optional[float] = None) -> "DbExperimentDataV1":
         """Block until all pending jobs and analysis callbacks finish.
@@ -1848,7 +1853,7 @@ class DbExperimentDataV1(DbExperimentData):
         state = self.__dict__.copy()
 
         # Remove non-pickleable attributes
-        for key in ["_job_futures", "_analysis_futures", "_analysis_executor"]:
+        for key in ["_job_futures", "_analysis_futures", "_analysis_executor", "_monitor_executor"]:
             del state[key]
 
         # Convert figures to SVG
