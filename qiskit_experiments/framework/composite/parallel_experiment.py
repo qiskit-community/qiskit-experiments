@@ -78,9 +78,11 @@ class ParallelExperiment(CompositeExperiment):
             sub_circuits.append(circuits)
             sub_size.append(len(circuits))
 
-            # Add sub qubits
+            # Sub experiment logical qubits in the combined circuits full qubits
             qubits = list(range(num_qubits, num_qubits + sub_exp.num_qubits))
             sub_qubits.append(qubits)
+            # Construct mapping for the sub-experiments logical qubits to physical qubits
+            # in the full combined circuits
             sub_maps.append({q: qubits[i] for i, q in enumerate(sub_exp.physical_qubits)})
             num_qubits += sub_exp.num_qubits
 
