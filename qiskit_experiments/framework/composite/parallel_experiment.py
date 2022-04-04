@@ -127,7 +127,9 @@ class ParallelExperiment(CompositeExperiment):
                             if inst.name == "delay":
                                 continue
                             raise QiskitError(
-                                "Invalid physical qubits for component experiment"
+                                "Component experiment has been transpiled outside of the "
+                                "allowed physical qubits for that component. Check the "
+                                "experiment is valid on the  backends coupling map."
                             ) from ex
                         mapped_cargs = [
                             circuit.clbits[clbits[sub_circ.find_bit(i).index]] for i in cargs
