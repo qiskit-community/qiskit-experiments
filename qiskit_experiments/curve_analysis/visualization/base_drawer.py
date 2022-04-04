@@ -22,7 +22,7 @@ class BaseCurveDrawer(ABC):
     """Abstract class for the serializable Qiskit Experiments curve drawer.
 
     A curve drawer may be implemented by different drawing backends such as matplotlib
-    or plotly. Sub-classes that wrap these backends by subclassing `BaseCurveDrawer` must 
+    or plotly. Sub-classes that wrap these backends by subclassing `BaseCurveDrawer` must
     implement the following abstract methods.
 
     initialize_canvas
