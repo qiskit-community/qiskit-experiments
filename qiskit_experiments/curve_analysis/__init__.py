@@ -31,6 +31,7 @@ These are the base class and internal data structures to implement a curve analy
     FitData
     ParameterRepr
     FitOptions
+    MplCurveDrawer
 
 Standard Analysis
 =================
@@ -119,7 +120,7 @@ from .curve_fit import (
     process_curve_data,
     process_multi_curve_data,
 )
-from .visualization import plot_curve_fit, plot_errorbar, plot_scatter, FitResultPlotters
+from .visualization import MplCurveDrawer
 from . import guess
 from . import fit_function
 
@@ -132,3 +133,6 @@ from .standard_analysis import (
     GaussianAnalysis,
     ErrorAmplificationAnalysis,
 )
+
+# deprecated
+from .visualization import plot_curve_fit, plot_errorbar, plot_scatter, FitResultPlotters
