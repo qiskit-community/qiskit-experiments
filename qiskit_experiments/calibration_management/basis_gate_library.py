@@ -368,23 +368,23 @@ class EchoedCrossResonance(BasisGateLibrary):
             duration=cr_duration, amp=-cr_amp, sigma=cr_sigma, width=cr_width, name="cr45m"
         )
 
-        rot45p = pulse.GaussianSquare(
-            duration=cr_duration, amp=rot_amp, sigma=cr_sigma, width=cr_width, name="rot45p"
+        cr45p_target = pulse.GaussianSquare(
+            duration=cr_duration, amp=rot_amp, sigma=cr_sigma, width=cr_width, name="cr45p_target"
         )
 
-        rot45m = pulse.GaussianSquare(
-            duration=cr_duration, amp=-rot_amp, sigma=cr_sigma, width=cr_width, name="rot45m"
+        cr45m_target = pulse.GaussianSquare(
+            duration=cr_duration, amp=-rot_amp, sigma=cr_sigma, width=cr_width, name="cr45m_target"
         )
 
         with pulse.build(name="cr45p") as cr45p_sched:
             pulse.play(cr45p, cr_chan)
             if self._rotary:
-                pulse.play(rot45p, target)
+                pulse.play(cr45p_target, target)
 
         with pulse.build(name="cr45m") as cr45m_sched:
             pulse.play(cr45m, cr_chan)
             if self._rotary:
-                pulse.play(rot45m, target)
+                pulse.play(cr45m_target, target)
 
         ecr_sched = pulse.ScheduleBlock(name="ecr", alignment_context=AlignSequential())
         ecr_sched.append(cr45p_sched)
