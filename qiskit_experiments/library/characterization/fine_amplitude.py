@@ -240,6 +240,15 @@ class FineAmplitude(BaseExperiment, RestlessMixin):
 
         return circuits
 
+    def _metadata(self):
+        metadata = super()._metadata()
+        # Store measurement level and meas return if they have been
+        # set for the experiment
+        for run_opt in ["meas_level", "meas_return"]:
+            if hasattr(self.run_options, run_opt):
+                metadata[run_opt] = getattr(self.run_options, run_opt)
+        return metadata
+
 
 class FineXAmplitude(FineAmplitude):
     r"""A fine amplitude experiment with all the options set for the :math:`\pi`-rotation.
