@@ -43,7 +43,7 @@ class ParallelExperiment(CompositeExperiment):
         self,
         experiments: List[BaseExperiment],
         backend: Optional[Backend] = None,
-        combine_results: bool = False,
+        flatten_results: bool = False,
         analysis: Optional[CompositeAnalysis] = None,
     ):
         """Initialize the analysis object.
@@ -51,7 +51,7 @@ class ParallelExperiment(CompositeExperiment):
         Args:
             experiments: a list of experiments.
             backend: Optional, the backend to run the experiment on.
-            combine_results: If True flatten all component experiment results
+            flatten_results: If True flatten all component experiment results
                              into a single ExperimentData container, including
                              nested composite experiments. If False save each
                              component experiment results as a separate child
@@ -65,7 +65,7 @@ class ParallelExperiment(CompositeExperiment):
         for exp in experiments:
             qubits += exp.physical_qubits
         super().__init__(
-            experiments, qubits, backend=backend, analysis=analysis, combine_results=combine_results
+            experiments, qubits, backend=backend, analysis=analysis, flatten_results=flatten_results
         )
 
     def circuits(self):

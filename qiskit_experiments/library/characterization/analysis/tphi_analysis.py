@@ -43,7 +43,7 @@ class TphiAnalysis(CompositeAnalysis):
                 "Invlaid component analyses for T2phi, analyses must be a pair of "
                 "T1Analysis and T2RamseyAnalysis instances."
             )
-        super().__init__(analyses, combine_results=True)
+        super().__init__(analyses, flatten_results=True)
 
     def _run_analysis(
         self, experiment_data: ExperimentData

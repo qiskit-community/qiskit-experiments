@@ -67,7 +67,7 @@ class TestComposite(QiskitExperimentsTestCase):
             expdata = par_exp.run(FakeBackend())
         self.assertExperimentDone(expdata)
 
-    def test_combine_results_nested(self):
+    def test_flatten_results_nested(self):
         """Test combining results."""
         exp0 = FakeExperiment([0])
         exp1 = FakeExperiment([1])
@@ -78,7 +78,7 @@ class TestComposite(QiskitExperimentsTestCase):
                 BatchExperiment(2 * [ParallelExperiment([exp0, exp1])]),
                 BatchExperiment(3 * [ParallelExperiment([exp2, exp3])]),
             ],
-            combine_results=True,
+            flatten_results=True,
         )
         expdata = comp_exp.run(FakeBackend())
         self.assertExperimentDone(expdata)
@@ -87,16 +87,16 @@ class TestComposite(QiskitExperimentsTestCase):
         # Check right number of analysis results is returned
         self.assertEqual(len(expdata.analysis_results()), 30)
 
-    def test_combine_results_partial(self):
-        """Test combining results."""
+    def test_flatten_results_partial(self):
+        """Test flattening results."""
         exp0 = FakeExperiment([0])
         exp1 = FakeExperiment([1])
         exp2 = FakeExperiment([2])
         exp3 = FakeExperiment([3])
         comp_exp = BatchExperiment(
             [
-                ParallelExperiment([exp0, exp1, exp2], combine_results=True),
-                ParallelExperiment([exp2, exp3], combine_results=True),
+                ParallelExperiment([exp0, exp1, exp2], flatten_results=True),
+                ParallelExperiment([exp2, exp3], flatten_results=True),
             ],
         )
         expdata = comp_exp.run(FakeBackend())

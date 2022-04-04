@@ -50,12 +50,12 @@ class CompositeAnalysis(BaseAnalysis):
         from the composite experiment data.
     """
 
-    def __init__(self, analyses: List[BaseAnalysis], combine_results: bool = False):
+    def __init__(self, analyses: List[BaseAnalysis], flatten_results: bool = False):
         """Initialize a composite analysis class.
 
         Args:
             analyses: a list of component experiment analysis objects.
-            combine_results: If True flatten all component experiment results
+            flatten_results: If True flatten all component experiment results
                              into a single ExperimentData container, including
                              nested composite experiments. If False save each
                              component experiment results as a separate child
@@ -63,9 +63,9 @@ class CompositeAnalysis(BaseAnalysis):
         """
         super().__init__()
         self._analyses = analyses
-        self._combine_results = False
-        if combine_results:
-            self._set_combine_results()
+        self._flatten_results = False
+        if flatten_results:
+            self._set_flatten_results()
 
     def component_analysis(
         self, index: Optional[int] = None
@@ -100,9 +100,9 @@ class CompositeAnalysis(BaseAnalysis):
         if not replace_results and _requires_copy(experiment_data):
             experiment_data = experiment_data.copy()
 
-        if not self._combine_results:
+        if not self._flatten_results:
             # Initialize child components if they are not initalized
-            # This only needs to be done if results are not being combined
+            # This only needs to be done if results are not being flattened
             self._add_child_data(experiment_data)
 
         # Run analysis with replace_results = True since we have already
@@ -125,10 +125,10 @@ class CompositeAnalysis(BaseAnalysis):
         # the parent experiment analysis results
         for sub_expdata in component_expdata:
             sub_expdata.block_for_results()
-        # Optionally combine results from all component experiments
+        # Optionally flatten results from all component experiments
         # for adding to the main experiment data container
-        if self._combine_results:
-            return self._combine_component_results(component_expdata)
+        if self._flatten_results:
+            return self._combine_results(component_expdata)
 
         return [], []
 
@@ -145,7 +145,7 @@ class CompositeAnalysis(BaseAnalysis):
         Raises:
             AnalysisError: if the component experiment data cannot be extracted.
         """
-        if not self._combine_results:
+        if not self._flatten_results:
             # Retrieve child data for component experiments for updating
             component_index = experiment_data.metadata.get("component_child_index", [])
             if not component_index:
@@ -270,13 +270,13 @@ class CompositeAnalysis(BaseAnalysis):
             subdata._type = experiment_types[i]
             subdata.metadata.update(component_metadata[i])
 
-            if self._combine_results:
+            if self._flatten_results:
                 # Explicitly set auto_save to false so the temporary
                 # data can't accidentally be saved
                 subdata.auto_save = False
             else:
                 # Copy tags, share_level and auto_save from the parent
-                # experiment data if results are not being combined.
+                # experiment data if results are not being flattened.
                 subdata.tags = experiment_data.tags
                 subdata.share_level = experiment_data.share_level
                 subdata.auto_save = experiment_data.auto_save
@@ -285,14 +285,14 @@ class CompositeAnalysis(BaseAnalysis):
 
         return component_expdata
 
-    def _set_combine_results(self):
-        """Recursively set combine results to True for all composite components."""
-        self._combine_results = True
+    def _set_flatten_results(self):
+        """Recursively set flatten_results to True for all composite components."""
+        self._flatten_results = True
         for analysis in self._analyses:
             if isinstance(analysis, CompositeAnalysis):
-                analysis._set_combine_results()
+                analysis._set_flatten_results()
 
-    def _combine_component_results(
+    def _combine_results(
         self, component_experiment_data: List[ExperimentData]
     ) -> Tuple[List[AnalysisResultData], List["matplotlib.figure.Figure"]]:
         """Combine analysis results from component experiment data.

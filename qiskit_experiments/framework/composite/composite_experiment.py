@@ -31,7 +31,7 @@ class CompositeExperiment(BaseExperiment):
         qubits: Sequence[int],
         backend: Optional[Backend] = None,
         experiment_type: Optional[str] = None,
-        combine_results: bool = False,
+        flatten_results: bool = False,
         analysis: Optional[CompositeAnalysis] = None,
     ):
         """Initialize the composite experiment object.
@@ -41,7 +41,7 @@ class CompositeExperiment(BaseExperiment):
             qubits: list of physical qubits for the experiment.
             backend: Optional, the backend to run the experiment on.
             experiment_type: Optional, composite experiment subclass name.
-            combine_results: If True flatten all component experiment results
+            flatten_results: If True flatten all component experiment results
                              into a single ExperimentData container, including
                              nested composite experiments. If False save each
                              component experiment results as a separate child
@@ -59,7 +59,7 @@ class CompositeExperiment(BaseExperiment):
         self._num_experiments = len(experiments)
         if analysis is None:
             analysis = CompositeAnalysis(
-                [exp.analysis for exp in self._experiments], combine_results=combine_results
+                [exp.analysis for exp in self._experiments], flatten_results=flatten_results
             )
         super().__init__(
             qubits,
