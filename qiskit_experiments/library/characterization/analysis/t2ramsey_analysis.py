@@ -12,12 +12,9 @@
 """
 T2Ramsey Experiment class.
 """
-from typing import Union, List
-
+from typing import Union
 from qiskit_experiments.data_processing import DataProcessor, Probability
 import qiskit_experiments.curve_analysis as curve
-
-
 from qiskit_experiments.framework import Options
 
 
@@ -46,17 +43,6 @@ class T2RamseyAnalysis(curve.DumpedOscillationAnalysis):
 
         return options
 
-    def _generate_fit_guesses(
-        self, user_opt: curve.FitOptions
-    ) -> Union[curve.FitOptions, List[curve.FitOptions]]:
-        """Apply conversion factor to tau."""
-        conversion_factor = self._experiment_options()["conversion_factor"]
-
-        if user_opt.p0["tau"] is not None:
-            user_opt.p0["tau"] *= conversion_factor
-
-        return super()._generate_fit_guesses(user_opt)
-
     def _evaluate_quality(self, fit_data: curve.FitData) -> Union[str, None]:
         """Algorithmic criteria for whether the fit is good or bad.
 
@@ -72,9 +58,9 @@ class T2RamseyAnalysis(curve.DumpedOscillationAnalysis):
 
         criteria = [
             fit_data.reduced_chisq < 3,
-            amp.stderr is None or amp.stderr < 0.1 * amp.value,
-            tau.stderr is None or tau.stderr < 0.1 * tau.value,
-            freq.stderr is None or freq.stderr < 0.1 * freq.value,
+            curve.is_error_not_significant(amp, fraction=0.1),
+            curve.is_error_not_significant(tau, fraction=0.1),
+            curve.is_error_not_significant(freq, fraction=0.1),
         ]
 
         if all(criteria):

@@ -12,7 +12,7 @@
 """
 T1 Analysis class.
 """
-from typing import Union, List
+from typing import Union
 
 import qiskit_experiments.curve_analysis as curve
 
@@ -38,17 +38,6 @@ class T1Analysis(curve.DecayAnalysis):
 
         return options
 
-    def _generate_fit_guesses(
-        self, user_opt: curve.FitOptions
-    ) -> Union[curve.FitOptions, List[curve.FitOptions]]:
-        """Apply conversion factor to tau."""
-        conversion_factor = self._experiment_options()["conversion_factor"]
-
-        if user_opt.p0["tau"] is not None:
-            user_opt.p0["tau"] *= conversion_factor
-
-        return super()._generate_fit_guesses(user_opt)
-
     def _evaluate_quality(self, fit_data: curve.FitData) -> Union[str, None]:
         """Algorithmic criteria for whether the fit is good or bad.
 
@@ -66,11 +55,11 @@ class T1Analysis(curve.DecayAnalysis):
 
         criteria = [
             fit_data.reduced_chisq < 3,
-            abs(amp.value - 1.0) < 0.1,
-            abs(base.value) < 0.1,
-            amp.stderr is None or amp.stderr < 0.1,
-            tau.stderr is None or tau.stderr < tau.value,
-            base.stderr is None or base.stderr < 0.1,
+            abs(amp.nominal_value - 1.0) < 0.1,
+            abs(base.nominal_value) < 0.1,
+            curve.is_error_not_significant(amp, absolute=0.1),
+            curve.is_error_not_significant(tau),
+            curve.is_error_not_significant(base, absolute=0.1),
         ]
 
         if all(criteria):

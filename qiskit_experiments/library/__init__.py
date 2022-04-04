@@ -38,10 +38,6 @@ Experiments for verification and validation of quantum devices.
     ~randomized_benchmarking.InterleavedRB
     ~tomography.StateTomography
     ~tomography.ProcessTomography
-
-.. autosummary::
-    :toctree: ../stubs/
-
     ~quantum_volume.QuantumVolume
 
 .. _characterization:
@@ -58,6 +54,7 @@ Some experiments may be also used for gate calibration.
 
     ~characterization.T1
     ~characterization.T2Ramsey
+    ~characterization.Tphi
     ~characterization.QubitSpectroscopy
     ~characterization.EFSpectroscopy
     ~characterization.CrossResonanceHamiltonian
@@ -70,10 +67,15 @@ Some experiments may be also used for gate calibration.
     ~characterization.FineAmplitude
     ~characterization.FineXAmplitude
     ~characterization.FineSXAmplitude
+    ~characterization.FineZXAmplitude
     ~characterization.Rabi
     ~characterization.EFRabi
     ~characterization.RamseyXY
+    ~characterization.FineFrequency
     ~characterization.ReadoutAngle
+    ~characterization.LocalReadoutError
+    ~characterization.CorrelatedReadoutError
+    ~characterization.ResonatorSpectroscopy
 
 
 .. _calibration:
@@ -92,6 +94,8 @@ See :doc:`/tutorials/calibrating_armonk` for example.
     :template: autosummary/experiment.rst
 
     ~calibration.RoughFrequencyCal
+    ~calibration.FrequencyCal
+    ~calibration.FineFrequencyCal
     ~calibration.RoughDragCal
     ~calibration.FineXDragCal
     ~calibration.FineSXDragCal
@@ -117,10 +121,12 @@ from .calibration import (
     FineSXAmplitudeCal,
     RoughFrequencyCal,
     FrequencyCal,
+    FineFrequencyCal,
 )
 from .characterization import (
     T1,
     T2Ramsey,
+    Tphi,
     QubitSpectroscopy,
     EFSpectroscopy,
     CrossResonanceHamiltonian,
@@ -135,8 +141,13 @@ from .characterization import (
     FineAmplitude,
     FineXAmplitude,
     FineSXAmplitude,
+    FineZXAmplitude,
     RamseyXY,
+    FineFrequency,
     ReadoutAngle,
+    ResonatorSpectroscopy,
+    LocalReadoutError,
+    CorrelatedReadoutError,
 )
 from .randomized_benchmarking import StandardRB, InterleavedRB
 from .tomography import StateTomography, ProcessTomography

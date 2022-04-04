@@ -21,6 +21,10 @@ class FakeAnalysis(BaseAnalysis):
     Dummy analysis class for test purposes only.
     """
 
+    def __init__(self, **kwargs):
+        super().__init__()
+        self._kwargs = kwargs
+
     def _run_analysis(self, experiment_data, **options):
         seed = options.get("seed", None)
         rng = np.random.default_rng(seed=seed)
@@ -33,8 +37,6 @@ class FakeAnalysis(BaseAnalysis):
 class FakeExperiment(BaseExperiment):
     """Fake experiment class for testing."""
 
-    __analysis_class__ = FakeAnalysis
-
     @classmethod
     def _default_experiment_options(cls) -> Options:
         return Options(dummyoption=None)
@@ -43,7 +45,7 @@ class FakeExperiment(BaseExperiment):
         """Initialise the fake experiment."""
         if qubits is None:
             qubits = [0]
-        super().__init__(qubits)
+        super().__init__(qubits, analysis=FakeAnalysis())
 
     def circuits(self):
         """Fake circuits."""

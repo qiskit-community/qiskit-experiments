@@ -17,13 +17,11 @@ from itertools import product
 from typing import List, Union
 
 import numpy as np
-from qiskit.utils import apply_prefix
 
 import qiskit_experiments.curve_analysis as curve
 import qiskit_experiments.data_processing as dp
 from qiskit_experiments.database_service.device_component import Qubit
-from qiskit_experiments.exceptions import AnalysisError
-from qiskit_experiments.framework import AnalysisResultData, FitVal
+from qiskit_experiments.framework import AnalysisResultData
 
 
 # pylint: disable=line-too-long
@@ -85,7 +83,7 @@ class CrossResonanceHamiltonianAnalysis(curve.CurveAnalysis):
             desc: Offset to the pulse duration. For example, if pulse envelope is
                 a flat-topped Gaussian, two Gaussian edges may become an offset duration.
             init_guess: Computed as :math:`N \sqrt{2 \pi} \sigma` where the :math:`N` is number of
-                pulses and :math:`\sigma` is Gaussian sigma of riring and falling edges.
+                pulses and :math:`\sigma` is Gaussian sigma of rising and falling edges.
                 Note that this implicitly assumes the :py:class:`~qiskit.pulse.library\
                 .parametric_pulses.GaussianSquare` pulse envelope.
             bounds: [0, None]
@@ -215,41 +213,6 @@ class CrossResonanceHamiltonianAnalysis(curve.CurveAnalysis):
 
         return default_options
 
-    def _t_off_initial_guess(self) -> float:
-        """Return initial guess for time offset.
-
-        This method assumes the :py:class:`~qiskit.pulse.library.parametric_pulses.GaussianSquare`
-        envelope with the Gaussian rising and falling edges with the parameter ``sigma``.
-
-        This is intended to be overridden by a child class so that rest of the analysis class
-        logic can be reused for the fitting that assumes other pulse envelopes.
-
-        Returns:
-            An initial guess for time offset parameter ``t_off`` in SI units.
-
-        Raises:
-            AnalysisError: When time unit is ``dt`` but the backend doesn't report
-                the time resolution of waveforms.
-        """
-        n_pulses = self._extra_metadata().get("n_cr_pulses", 1)
-        sigma = self._experiment_options().get("sigma", 0)
-        unit = self._experiment_options().get("unit")
-
-        # Convert sigma unit into SI
-        if unit == "dt":
-            try:
-                prefactor = self._backend.configuration().dt
-            except AttributeError as ex:
-                raise AnalysisError(
-                    "Backend configuration does not provide time resolution."
-                ) from ex
-        elif unit != "s":
-            prefactor = apply_prefix(1.0, unit)
-        else:
-            prefactor = 1.0
-
-        return np.sqrt(2 * np.pi) * prefactor * sigma * n_pulses
-
     def _generate_fit_guesses(
         self, user_opt: curve.FitOptions
     ) -> Union[curve.FitOptions, List[curve.FitOptions]]:
@@ -262,8 +225,7 @@ class CrossResonanceHamiltonianAnalysis(curve.CurveAnalysis):
             List of fit options that are passed to the fitter function.
         """
         user_opt.bounds.set_if_empty(t_off=(0, np.inf), b=(-1, 1))
-
-        user_opt.p0.set_if_empty(t_off=self._t_off_initial_guess(), b=1e-9)
+        user_opt.p0.set_if_empty(b=1e-9)
 
         guesses = defaultdict(list)
         for control in (0, 1):
@@ -342,18 +304,17 @@ class CrossResonanceHamiltonianAnalysis(curve.CurveAnalysis):
                 p1_val = fit_data.fitval(f"p{target}1")
 
                 if control == "z":
-                    coef_val = 0.5 * (p0_val.value - p1_val.value) / (2 * np.pi)
+                    coef_val = 0.5 * (p0_val - p1_val) / (2 * np.pi)
                 else:
-                    coef_val = 0.5 * (p0_val.value + p1_val.value) / (2 * np.pi)
-
-                coef_err = 0.5 * np.sqrt(p0_val.stderr ** 2 + p1_val.stderr ** 2) / (2 * np.pi)
+                    coef_val = 0.5 * (p0_val + p1_val) / (2 * np.pi)
 
                 extra_entries.append(
                     AnalysisResultData(
                         name=f"omega_{control}{target}",
-                        value=FitVal(value=coef_val, stderr=coef_err, unit="Hz"),
+                        value=coef_val,
                         chisq=fit_data.reduced_chisq,
                         device_components=[Qubit(q) for q in self._physical_qubits],
+                        extra={"unit": "Hz"},
                     )
                 )
 

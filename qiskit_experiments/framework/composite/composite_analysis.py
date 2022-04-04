@@ -13,11 +13,12 @@
 Composite Experiment Analysis class.
 """
 
-from typing import List, Dict
+from typing import List, Dict, Union, Optional
 import numpy as np
 from qiskit.result import marginal_counts
-from qiskit_experiments.framework import BaseAnalysis, ExperimentData, AnalysisResultData
-from qiskit_experiments.database_service.device_component import Qubit
+from qiskit_experiments.framework import BaseAnalysis, ExperimentData
+from qiskit_experiments.framework.base_analysis import _requires_copy
+from qiskit_experiments.exceptions import AnalysisError
 
 
 class CompositeAnalysis(BaseAnalysis):
@@ -26,58 +27,117 @@ class CompositeAnalysis(BaseAnalysis):
     Composite experiments consist of several component experiments
     run together in a single execution, the results of which are returned
     as a single list of circuit result data in the :class:`ExperimentData`
-    container. Analysis of this composite circuit data involves constructing
-    a child experiment data container for each component experiment containing
-    the marginalized circuit result data for that experiment. Each component
-    child data is then analyzed using the analysis class from the corresponding
-    component experiment.
+    container.
+
+    Analysis of this composite circuit data involves constructing
+    a list of experiment data containers for each component experiment containing
+    the marginalized circuit result data for that experiment. These are saved as
+    :meth:.~ExperimentData.child_data` in the main :class:`.ExperimentData` container.
+    Each component experiment data is then analyzed using the analysis class from
+    the corresponding component experiment.
 
     .. note::
 
-        The the child :class:`ExperimentData` for each component experiment
-        does not already exist in the experiment data they will be initialized
-        and added to the experiment data when :meth:`run` is called on the
-        composite :class:`ExperimentData`.
+        If the composite :class:`ExperimentData` does not already contain
+        child experiment data containers for the component experiments
+        they will be initialized and added to the experiment data when :meth:`run`
+        is called on the composite data.
 
         When calling :meth:`run` on experiment data already containing
-        initialized component experiment child data, any previously stored
+        initialized component experiment data, any previously stored
         circuit data will be cleared and replaced with the marginalized data
-        reconstructed from the parent composite experiment data.
+        from the composite experiment data.
     """
 
-    # pylint: disable = arguments-differ
-    def _run_analysis(self, experiment_data: ExperimentData, **options):
-        """Run analysis on composite experiment circuit data.
+    def __init__(self, analyses: List[BaseAnalysis]):
+        """Initialize a composite analysis class.
 
         Args:
-            experiment_data: the experiment data to analyze.
-            options: kwarg options for analysis function.
+            analyses: a list of component experiment analysis objects.
+        """
+        super().__init__()
+        self._analyses = analyses
+
+    def component_analysis(
+        self, index: Optional[int] = None
+    ) -> Union[BaseAnalysis, List[BaseAnalysis]]:
+        """Return the component experiment Analysis instance.
+
+        Args:
+            index: Optional, the component index to return analysis for.
+                   If None return a list of all component analysis instances.
 
         Returns:
-            tuple: A pair ``(analysis_results, figures)`` where ``analysis_results``
-                   is a list of :class:`AnalysisResultData` objects, and ``figures``
-                   is a list of any figures for the experiment.
+            The analysis instance for the specified index, or a list of all
+            analysis instances if index is None.
+        """
+        if index is None:
+            return self._analyses
+        return self._analyses[index]
+
+    def copy(self):
+        ret = super().copy()
+        # Recursively copy analysis
+        ret._analyses = [analysis.copy() for analysis in ret._analyses]
+        return ret
+
+    def run(
+        self,
+        experiment_data: ExperimentData,
+        replace_results: bool = False,
+        **options,
+    ) -> ExperimentData:
+        # Make a new copy of experiment data if not updating results
+        if not replace_results and _requires_copy(experiment_data):
+            experiment_data = experiment_data.copy()
+
+        # Initialize child components if they are not initalized.
+        self._add_child_data(experiment_data)
+
+        # Run analysis with replace_results = True since we have already
+        # created the copy if it was required
+        return super().run(experiment_data, replace_results=True, **options)
+
+    def _run_analysis(self, experiment_data: ExperimentData):
+        # Return list of experiment data containers for each component experiment
+        # containing the marginalied data from the composite experiment
+        component_expdata = self._component_experiment_data(experiment_data)
+
+        # Run the component analysis on each component data
+        for i, sub_expdata in enumerate(component_expdata):
+            # Since copy for replace result is handled at the parent level
+            # we always run with replace result on component analysis
+            self._analyses[i].run(sub_expdata, replace_results=True)
+
+        # Analysis is running in parallel so we add loop to wait
+        # for all component analysis to finish before returning
+        # the parent experiment analysis results
+        for sub_expdata in component_expdata:
+            sub_expdata.block_for_results()
+
+        return [], []
+
+    def _component_experiment_data(self, experiment_data: ExperimentData) -> List[ExperimentData]:
+        """Return a list of marginalized experiment data for component experiments.
+
+        Args:
+            experiment_data: a composite experiment experiment data container.
+
+        Returns:
+            The list of analysis-ready marginalized experiment data for each
+            component experiment.
 
         Raises:
-            QiskitError: if analysis is attempted on non-composite
-                         experiment data.
+            AnalysisError: if the component experiment data cannot be extracted.
         """
-        # Extract job metadata for the component experiments so it can be added
-        # to the child experiment data incase it is required by the child experiments
-        # analysis classes
-        composite_exp = experiment_data.experiment
-        component_exps = composite_exp.component_experiment()
-        component_metadata = experiment_data.metadata.get(
-            "component_metadata", [{}] * composite_exp.num_experiments
-        )
-
-        # Initialize component data for updating and get the experiment IDs for
-        # the component child experiments in case there are other child experiments
-        # in the experiment data
-        component_ids = self._initialize_components(composite_exp, experiment_data)
+        # Retrieve or initialize the component data for updating
+        component_index = experiment_data.metadata.get("component_child_index", [])
+        if not component_index:
+            raise AnalysisError("Unable to extract component experiment data")
+        component_expdata = [experiment_data.child_data(i) for i in component_index]
 
         # Compute marginalize data for each component experiment
-        marginalized_data = self._marginalize_data(experiment_data.data())
+        marginalized_data = self._marginalized_component_data(experiment_data.data())
 
         # Add the marginalized component data and component job metadata
         # to each component child experiment. Note that this will clear
@@ -85,69 +145,23 @@ class CompositeAnalysis(BaseAnalysis):
         # child data is handled by the `replace_results` kwarg of the
         # parent container it is safe to always clear and replace the
         # results of child containers in this step
-        analysis_results = []
-        for i, (sub_data, sub_exp) in enumerate(zip(marginalized_data, component_exps)):
-            sub_exp_data = experiment_data.child_data(component_ids[i])
-
+        for sub_expdata, sub_data in zip(component_expdata, marginalized_data):
             # Clear any previously stored data and add marginalized data
-            sub_exp_data._data.clear()
-            sub_exp_data.add_data(sub_data)
+            sub_expdata._data.clear()
+            sub_expdata.add_data(sub_data)
 
-            # Add component job metadata
-            sub_exp_data.metadata.update(component_metadata[i])
+        return component_expdata
 
-            # Run analysis
-            # Since copy for replace result is handled at the parent level
-            # we always run with replace result on component analysis
-            sub_exp.run_analysis(sub_exp_data, replace_results=True)
+    def _marginalized_component_data(self, composite_data: List[Dict]) -> List[List[Dict]]:
+        """Return marginalized data for component experiments.
 
-            # Record the component experiment id and type as an analysis result
-            # for evidence analysis has started and to display in the service DB
-            result = AnalysisResultData(
-                name=sub_exp_data.experiment_type,
-                value=sub_exp_data.experiment_id,
-                device_components=[
-                    Qubit(qubit) for qubit in sub_exp_data.metadata.get("physical_qubits", [])
-                ],
-            )
-            analysis_results.append(result)
+        Args:
+            composite_data: a list of composite experiment circuit data.
 
-        # Add callback to wait for all component analysis to finish before returning
-        # the parent experiment analysis results
-        def _wait_for_components(experiment_data, component_ids):
-            for comp_id in component_ids:
-                experiment_data.child_data(comp_id).block_for_results()
-
-        experiment_data.add_analysis_callback(_wait_for_components, component_ids=component_ids)
-
-        return analysis_results, []
-
-    def _initialize_components(self, experiment, experiment_data):
-        """Initialize child data components and return list of child experiment IDs"""
-        # Check if component child experiment data containers have already
-        # been created. If so the list of indices for their positions in the
-        # ordered dict should exist. Index is used to extract the experiment
-        # IDs for each child experiment which can change when re-running analysis
-        # if replace_results=False, so that we update the correct child data
-        # for each component experiment
-        component_index = experiment_data.metadata.get("component_child_index", [])
-        if not component_index:
-            # If the experiment Construct component data and update indices
-            start_index = len(experiment_data.child_data())
-            component_index = []
-            for i, sub_exp in enumerate(experiment.component_experiment()):
-                sub_data = sub_exp._initialize_experiment_data()
-                experiment_data.add_child_data(sub_data)
-                component_index.append(start_index + i)
-            experiment_data.metadata["component_child_index"] = component_index
-
-        # Child components exist so we can get their ID for accessing them
-        child_ids = experiment_data._child_data.keys()
-        component_ids = [child_ids[idx] for idx in component_index]
-        return component_ids
-
-    def _marginalize_data(self, composite_data: List[Dict]) -> List[Dict]:
-        """Return marginalized data for component experiments"""
+        Returns:
+            A List of lists of marginalized circuit data for each component
+            experiment in the composite experiment.
+        """
         # Marginalize data
         marginalized_data = {}
         for datum in composite_data:
@@ -179,3 +193,63 @@ class CompositeAnalysis(BaseAnalysis):
 
         # Sort by index
         return [marginalized_data[i] for i in sorted(marginalized_data.keys())]
+
+    def _add_child_data(self, experiment_data: ExperimentData):
+        """Save empty component experiment data as child data.
+
+        This will initialize empty ExperimentData objects for each component
+        experiment and add them as child data to the main composite experiment
+        ExperimentData container container for saving.
+
+        Args:
+            experiment_data: a composite experiment experiment data container.
+        """
+        component_index = experiment_data.metadata.get("component_child_index", [])
+        if component_index:
+            # Child components are already initialized
+            return
+
+        # Initialize the component experiment data containers and add them
+        # as child data to the current experiment data
+        child_components = self._initialize_component_experiment_data(experiment_data)
+        start_index = len(experiment_data.child_data())
+        for i, subdata in enumerate(child_components):
+            experiment_data.add_child_data(subdata)
+            component_index.append(start_index + i)
+
+        # Store the indices of the added child data in metadata
+        experiment_data.metadata["component_child_index"] = component_index
+
+    def _initialize_component_experiment_data(
+        self, experiment_data: ExperimentData
+    ) -> List[ExperimentData]:
+        """Initialize empty experiment data containers for component experiments.
+
+        Args:
+            experiment_data: a composite experiment experiment data container.
+
+        Returns:
+            The list of experiment data containers for each component experiment
+            containing the component metadata, and tags, share level, and
+            auto save settings of the composite experiment.
+        """
+        # Extract component experiment types and metadata so they can be
+        # added to the component experiment data containers
+        metadata = experiment_data.metadata
+        num_components = len(self._analyses)
+        experiment_types = metadata.get("component_types", [None] * num_components)
+        component_metadata = metadata.get("component_metadata", [{}] * num_components)
+
+        # Create component experiments and copy backend, tags, share level
+        # and auto save from the parent experiment data
+        component_expdata = []
+        for i, _ in enumerate(self._analyses):
+            subdata = ExperimentData(backend=experiment_data.backend)
+            subdata._type = experiment_types[i]
+            subdata.metadata.update(component_metadata[i])
+            subdata.tags = experiment_data.tags
+            subdata.share_level = experiment_data.share_level
+            subdata.auto_save = experiment_data.auto_save
+            component_expdata.append(subdata)
+
+        return component_expdata

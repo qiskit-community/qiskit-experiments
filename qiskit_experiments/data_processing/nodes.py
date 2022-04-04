@@ -13,14 +13,19 @@
 """Different data analysis steps."""
 
 from abc import abstractmethod
+from abc import ABC
+from enum import Enum
 from numbers import Number
-from typing import List, Union, Sequence
+from typing import Union, Sequence, Set
+from collections import defaultdict
 
 import numpy as np
 from uncertainties import unumpy as unp, ufloat
 
+from qiskit.result.postprocess import format_counts_memory
 from qiskit_experiments.data_processing.data_action import DataAction, TrainableDataAction
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
+from qiskit_experiments.framework import Options
 
 
 class AverageData(DataAction):
@@ -88,6 +93,10 @@ class AverageData(DataAction):
 
         return unp.uarray(nominals, errors)
 
+    def __repr__(self):
+        """String representation of the node."""
+        return f"{self.__class__.__name__}(validate={self._validate}, axis={self._axis})"
+
 
 class MinMaxNormalize(DataAction):
     """Normalizes the data."""
@@ -122,13 +131,31 @@ class SVD(TrainableDataAction):
             validate: If set to False the DataAction will not validate its input.
         """
         super().__init__(validate=validate)
-        self._main_axes = None
-        self._means = None
-        self._scales = None
         self._n_circs = 0
         self._n_shots = 0
         self._n_slots = 0
         self._n_iq = 0
+
+    @classmethod
+    def _default_parameters(cls) -> Options:
+        """Default parameters.
+
+        Parameters are defined for each qubit in the data and thus
+        represented as an array-like.
+
+        Trainable parameters:
+            main_axes: A unit vector representing the main axis in IQ plane.
+            i_means: Mean value of training data along I quadrature.
+            q_means: Mean value of training data along Q quadrature.
+            scales: Scaling of IQ signal.
+        """
+        params = super()._default_parameters()
+        params.main_axes = None
+        params.i_means = None
+        params.q_means = None
+        params.scales = None
+
+        return params
 
     def _format_data(self, data: np.ndarray) -> np.ndarray:
         """Check that the IQ data is 2D and convert it to a numpy array.
@@ -175,41 +202,6 @@ class SVD(TrainableDataAction):
 
         return data
 
-    @property
-    def axis(self) -> List[np.array]:
-        """Return the axis of the trained SVD"""
-        return self._main_axes
-
-    def means(self, qubit: int, iq_index: int) -> float:
-        """Return the mean by which to correct the IQ data.
-
-        Before training the SVD the mean of the training data is subtracted from the
-        training data to avoid large offsets in the data. These means can be retrieved
-        with this function.
-
-        Args:
-            qubit: Index of the qubit.
-            iq_index: Index of either the in-phase (i.e. 0) or the quadrature (i.e. 1).
-
-        Returns:
-            The mean that was determined during training for the given qubit and IQ index.
-        """
-        return self._means[qubit][iq_index]
-
-    @property
-    def scales(self) -> List[float]:
-        """Return the scaling of the SVD."""
-        return self._scales
-
-    @property
-    def is_trained(self) -> bool:
-        """Return True is the SVD has been trained.
-
-        Returns:
-            True if the SVD has been trained.
-        """
-        return self._main_axes is not None
-
     def _process(self, data: np.ndarray) -> np.ndarray:
         """Project the IQ data onto the axis defined by an SVD and scale it.
 
@@ -238,12 +230,15 @@ class SVD(TrainableDataAction):
         projected_data = np.zeros(dims, dtype=object)
 
         for idx in range(self._n_slots):
-            scale = self.scales[idx]
+            scale = self.parameters.scales[idx]
             # error propagation is computed from data if any std error exists
             centered = np.array(
-                [data[..., idx, iq] - self.means(qubit=idx, iq_index=iq) for iq in [0, 1]]
+                [
+                    data[..., idx, 0] - self.parameters.i_means[idx],
+                    data[..., idx, 1] - self.parameters.q_means[idx],
+                ]
             )
-            projected_data[..., idx] = (self._main_axes[idx] @ centered) / scale
+            projected_data[..., idx] = (self.parameters.main_axes[idx] @ centered) / scale
 
         return projected_data
 
@@ -257,6 +252,13 @@ class SVD(TrainableDataAction):
         to numpy's svd function. The dominant axis and the scale is saved for each
         qubit so that future data points can be projected onto the axis.
 
+        .. note::
+
+            Before training the SVD the mean of the training data is subtracted from the
+            training data to avoid large offsets in the data.
+            These means can be retrieved with :attr:`.parameters.i_means` or
+            :attr:`parameters.q_means` for I and Q quadrature, respectively.
+
         Args:
             data: A data array to be trained. This is a single numpy array containing
                 all circuit results input to the data processor.
@@ -267,26 +269,32 @@ class SVD(TrainableDataAction):
         # TODO do not remove standard error. Currently svd is not supported.
         data = unp.nominal_values(self._format_data(data))
 
-        self._main_axes = []
-        self._scales = []
-        self._means = []
-
+        main_axes = []
+        scales = []
+        i_means = []
+        q_means = []
         for idx in range(self._n_slots):
             datums = np.vstack([datum[idx] for datum in data]).T
 
             # Calculate the mean of the data to recenter it in the IQ plane.
             mean_i = np.average(datums[0, :])
             mean_q = np.average(datums[1, :])
-
-            self._means.append((mean_i, mean_q))
+            i_means.append(mean_i)
+            q_means.append(mean_q)
 
             datums[0, :] = datums[0, :] - mean_i
             datums[1, :] = datums[1, :] - mean_q
 
             mat_u, mat_s, _ = np.linalg.svd(datums)
+            main_axes.append(mat_u[:, 0])
+            scales.append(mat_s[0])
 
-            self._main_axes.append(mat_u[:, 0])
-            self._scales.append(mat_s[0])
+        self.set_parameters(
+            main_axes=main_axes,
+            scales=scales,
+            i_means=i_means,
+            q_means=q_means,
+        )
 
 
 class IQPart(DataAction):
@@ -341,7 +349,7 @@ class IQPart(DataAction):
 
     def __repr__(self):
         """String representation of the node."""
-        return f"{self.__class__.__name__}(validate: {self._validate}, scale: {self.scale})"
+        return f"{self.__class__.__name__}(validate={self._validate}, scale={self.scale})"
 
 
 class ToReal(IQPart):
@@ -374,7 +382,121 @@ class ToImag(IQPart):
         return data[..., 1] * self.scale
 
 
-class Probability(DataAction):
+class ToAbs(IQPart):
+    """IQ data post-processing. Take the absolute value of the IQ point."""
+
+    def _process(self, data: np.array) -> np.array:
+        """Take the absolute value of the IQ data.
+
+        Args:
+            data: An N-dimensional array of complex IQ point as [real, imaginary].
+
+        Returns:
+            A N-1 dimensional array, each entry is the absolute value of the given IQ data.
+        """
+        # pylint: disable=no-member
+        return unp.sqrt(data[..., 0] ** 2 + data[..., 1] ** 2) * self.scale
+
+
+class CountsAction(DataAction):
+    """An abstract DataAction that acts on count dictionaries."""
+
+    @abstractmethod
+    def _process(self, data: np.ndarray) -> np.ndarray:
+        """Defines how the counts are processed."""
+
+    def _format_data(self, data: np.ndarray) -> np.ndarray:
+        """
+        Checks that the given data has a counts format.
+
+        Args:
+            data: A data array to format. This is a single numpy array containing
+                all circuit results input to the data processor.
+                This is usually an object data type containing Python dictionaries of
+                count data keyed on the measured bitstring.
+                A count value is a discrete quantity representing the frequency of an event.
+                Therefore, count values do not have an uncertainty.
+
+        Returns:
+            The ``data`` as given.
+
+        Raises:
+            DataProcessorError: If the data is not a counts dict or a list of counts dicts.
+        """
+        valid_count_type = int, np.integer
+
+        if self._validate:
+            for datum in data:
+                if not isinstance(datum, dict):
+                    raise DataProcessorError(
+                        f"Data entry must be dictionary of counts, received {type(datum)}."
+                    )
+                for bit_str, count in datum.items():
+                    if not isinstance(bit_str, str):
+                        raise DataProcessorError(
+                            f"Key {bit_str} is not a valid count key in {self.__class__.__name__}."
+                        )
+                    if not isinstance(count, valid_count_type):
+                        raise DataProcessorError(
+                            f"Count {bit_str} is not a valid count for {self.__class__.__name__}. "
+                            "The uncertainty of probability is computed based on sampling error, "
+                            "thus the count should be an error-free discrete quantity "
+                            "representing the frequency of event."
+                        )
+
+        return data
+
+
+class MarginalizeCounts(CountsAction):
+    r"""A data action to marginalize count dictionaries.
+
+    This data action takes a count dictionary and returns a new count dictionary that
+    is marginalized over a set of specified qubits. For example, given the count
+    dictionary :code:`{"010": 1, "110": 10, "100": 100}` this node will return the
+    count dictionary :code:`{"10": 11, "00": 100}` when marginalized over qubit 2.
+
+    .. note::
+        This data action can be used to discard one or more qubits in the counts
+        dictionary. This is, for example, useful when processing two-qubit restless
+        experiments but can be used in a more general context. In composite
+        experiments the counts marginalization is already done in the data container.
+    """
+
+    def __init__(self, qubits_to_keep: Set[int], validate: bool = True):
+        """Initialize a counts marginalization node.
+
+        Args:
+            qubits_to_keep: A set of qubits to retain during the marginalization process.
+            validate: If set to False the DataAction will not validate its input.
+        """
+        super().__init__(validate)
+        self._qubits_to_keep = sorted(qubits_to_keep, reverse=True)
+
+    def _process(self, data: np.ndarray) -> np.ndarray:
+        """Perform counts marginalization."""
+        marginalized_counts = []
+
+        for datum in data:
+            new_counts = defaultdict(int)
+            for bit_str, count in datum.items():
+                new_counts["".join([bit_str[::-1][idx] for idx in self._qubits_to_keep])] += count
+
+            marginalized_counts.append(new_counts)
+
+        return np.array(marginalized_counts)
+
+    def __repr__(self):
+        """String representation of the node."""
+        options_str = ", ".join(
+            [
+                f"qubits_to_keep={self._qubits_to_keep}",
+                f"validate={self._validate}",
+            ]
+        )
+        return f"{self.__class__.__name__}({options_str})"
+
+
+class Probability(CountsAction):
     r"""Compute the mean probability of a single measurement outcome from counts.
 
     This node returns the mean and standard deviation of a single measurement
@@ -447,47 +569,6 @@ class Probability(DataAction):
 
         super().__init__(validate)
 
-    def _format_data(self, data: np.ndarray) -> np.ndarray:
-        """
-        Checks that the given data has a counts format.
-
-        Args:
-            data: A data array to format. This is a single numpy array containing
-                all circuit results input to the data processor.
-                This is usually an object data type containing Python dictionaries of
-                count data keyed on the measured bitstring.
-                A count value is a discrete quantity representing the frequency of an event.
-                Therefore, count values do not have an uncertainty.
-
-        Returns:
-            The ``data`` as given.
-
-        Raises:
-            DataProcessorError: If the data is not a counts dict or a list of counts dicts.
-        """
-        valid_count_type = int, np.integer
-
-        if self._validate:
-            for datum in data:
-                if not isinstance(datum, dict):
-                    raise DataProcessorError(
-                        f"Data entry must be dictionary of counts, received {type(datum)}."
-                    )
-                for bit_str, count in datum.items():
-                    if not isinstance(bit_str, str):
-                        raise DataProcessorError(
-                            f"Key {bit_str} is not a valid count key in {self.__class__.__name__}."
-                        )
-                    if not isinstance(count, valid_count_type):
-                        raise DataProcessorError(
-                            f"Count {bit_str} is not a valid count for {self.__class__.__name__}. "
-                            "The uncertainty of probability is computed based on sampling error, "
-                            "thus the count should be an error-free discrete quantity "
-                            "representing the frequency of event."
-                        )
-
-        return data
-
     def _process(self, data: np.ndarray) -> np.ndarray:
         """Compute mean and standard error from the beta distribution.
 
@@ -514,6 +595,17 @@ class Probability(DataAction):
             probabilities[idx] = ufloat(nominal_value=p_mean, std_dev=np.sqrt(p_var))
 
         return probabilities
+
+    def __repr__(self):
+        """String representation of the node."""
+        options_str = ", ".join(
+            [
+                f"validate={self._validate}",
+                f"outcome={self._outcome}",
+                f"alpha_prior={self._alpha_prior}",
+            ]
+        )
+        return f"{self.__class__.__name__}({options_str})"
 
 
 class BasisExpectationValue(DataAction):
@@ -555,3 +647,204 @@ class BasisExpectationValue(DataAction):
             The data that has been processed.
         """
         return 2 * (0.5 - data)
+
+
+class ProjectorType(Enum):
+    """Types of projectors for data dimensionality reduction."""
+
+    SVD = SVD
+    ABS = ToAbs
+    REAL = ToReal
+    IMAG = ToImag
+
+
+class ShotOrder(Enum):
+    """Shot order allowed values.
+
+    Generally, there are two possible modes in which a backend measures m
+    circuits with n shots:
+        - In the "circuit_first" mode, the backend subsequently first measures
+          all m circuits and then repeats this n times.
+        - In the "shot_first" mode, the backend first measures the 1st circuit
+          n times, then the 2nd circuit n times, and it proceeds with the remaining
+          circuits in the same way until it measures the m-th circuit n times.
+
+    The current default mode of IBM Quantum devices is "circuit_first".
+    """
+
+    # pylint: disable=invalid-name
+    circuit_first = "c"
+    shot_first = "s"
+
+
+class RestlessNode(DataAction, ABC):
+    """An abstract node for restless data processing nodes.
+
+    In restless measurements, the qubit is not reset after each measurement. Instead, the
+    outcome of the previous quantum non-demolition measurement is the initial state for the
+    current circuit. Restless measurements therefore require special data processing nodes
+    that are implemented as sub-classes of `RestlessNode`. Restless experiments provide a
+    fast alternative for several calibration and characterization tasks, for details
+    see https://arxiv.org/pdf/2202.06981.pdf.
+
+    This node takes as input an array of arrays (2d array) where the sub-arrays are
+    the memories of each measured circuit. The sub-arrays therefore have a length
+    given by the number of shots. This data is reordered into a one dimensional array where
+    the element at index j was the jth measured shot. This node assumes by default that
+    a list of circuits :code:`[circ_1, cric_2, ..., circ_m]` is measured :code:`n_shots`
+    times according to the following order:
+
+    .. parsed-literal::
+
+        [
+            circuit 1 - shot 1,
+            circuit 2 - shot 1,
+            ...
+            circuit m - shot 1,
+            circuit 1 - shot 2,
+            circuit 2 - shot 2,
+            ...
+            circuit m - shot 2,
+            circuit 1 - shot 3,
+            ...
+            circuit m - shot n,
+        ]
+
+    Once the shots have been ordered in this fashion the data can be post-processed.
+    """
+
+    def __init__(
+        self, validate: bool = True, memory_allocation: ShotOrder = ShotOrder.circuit_first
+    ):
+        """Initialize a restless node.
+
+        Args:
+            validate: If set to True the node will validate its input.
+            memory_allocation: If set to "c" the node assumes that the backend
+                subsequently first measures all circuits and then repeats this
+                n times, where n is the total number of shots. The default value
+                is "c". If set to "s" it is assumed that the backend subsequently
+                measures each circuit n times.
+        """
+        super().__init__(validate)
+        self._n_shots = None
+        self._n_circuits = None
+        self._memory_allocation = memory_allocation
+
+    def _format_data(self, data: np.ndarray) -> np.ndarray:
+        """Convert the data to an array.
+
+        This node will also set all the attributes needed to process the data such as
+        the number of shots and the number of circuits.
+
+        Args:
+            data: An array representing the memory.
+
+        Returns:
+            The data that has been processed.
+
+        Raises:
+            DataProcessorError: If the datum has the wrong shape.
+        """
+
+        self._n_shots = len(data[0])
+        self._n_circuits = len(data)
+
+        if self._validate:
+            if data.shape != (self._n_circuits, self._n_shots):
+                raise DataProcessorError(
+                    f"The datum given to {self.__class__.__name__} does not convert "
+                    "of an array with dimension (number of circuit, number of shots)."
+                )
+
+        return data
+
+    def _reorder(self, unordered_data: np.ndarray) -> np.ndarray:
+        """Reorder the measured data according to the measurement sequence.
+
+        Here, by default, it is assumed that the inner loop of the measurement
+        is done over the circuits and the outer loop is done over the shots.
+        The returned data is a one-dimensional array of time-ordered shots.
+        """
+        if unordered_data is None:
+            return unordered_data
+
+        if self._memory_allocation == ShotOrder.circuit_first:
+            return unordered_data.T.flatten()
+        else:
+            return unordered_data.flatten()
+
+
+class RestlessToCounts(RestlessNode):
+    """Post-process restless data and convert restless memory to counts.
+
+    This node first orders the measured restless data according to the measurement
+    sequence and then compares each bit in a shot with its value in the previous shot.
+    If they are the same then the bit corresponds to a 0, i.e. no state change, and if
+    they are different then the bit corresponds to a 1, i.e. there was a state change.
+    """
+
+    def __init__(self, num_qubits: int, validate: bool = True):
+        """
+        Args:
+            num_qubits: The number of qubits which is needed to construct the header needed
+                by :code:`qiskit.result.postprocess.format_counts_memory` to convert the memory
+                into a bit-string of counts.
+            validate: If set to False the DataAction will not validate its input.
+        """
+        super().__init__(validate)
+        self._num_qubits = num_qubits
+
+    def _process(self, data: np.ndarray) -> np.ndarray:
+        """Reorder the shots and assign values to them based on the previous outcome.
+
+        Args:
+            data: An array representing the memory.
+
+        Returns:
+            A counts dictionary processed according to the restless methodology.
+        """
+
+        # Step 1. Reorder the data.
+        memory = self._reorder(data)
+
+        # Step 2. Do the restless classification into counts.
+        counts = [defaultdict(int) for _ in range(self._n_circuits)]
+        prev_shot = "0" * self._num_qubits
+        header = {"memory_slots": self._num_qubits}
+
+        for idx, shot in enumerate(memory):
+            shot = format_counts_memory(shot, header)
+
+            restless_adjusted_shot = RestlessToCounts._restless_classify(shot, prev_shot)
+
+            circuit_idx = idx % self._n_circuits
+
+            counts[circuit_idx][restless_adjusted_shot] += 1
+
+            prev_shot = shot
+
+        return np.array([dict(counts_dict) for counts_dict in counts])
+
+    @staticmethod
+    def _restless_classify(shot: str, prev_shot: str) -> str:
+        """Adjust the measured shot based on the previous shot.
+
+        Each bit in shot is compared to its value in the previous shot. If both are equal
+        the restless adjusted bit is 0 (no state change) otherwise it is 1 (the
+        qubit changed state). This corresponds to taking the exclusive OR operation
+        between each bit and its previous outcome.
+
+        Args:
+            shot: A measured shot as a binary string, e.g. "0110100".
+            prev_shot: The shot that was measured in the previous circuit.
+
+        Returns:
+            The restless adjusted string computed by comparing the shot with the previous shot.
+        """
+        restless_adjusted_bits = []
+
+        for idx, bit in enumerate(shot):
+            restless_adjusted_bits.append("0" if bit == prev_shot[idx] else "1")
+
+        return "".join(restless_adjusted_bits)

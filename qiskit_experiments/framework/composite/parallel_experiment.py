@@ -17,6 +17,7 @@ from typing import List, Optional
 from qiskit import QuantumCircuit, ClassicalRegister
 from qiskit.providers.backend import Backend
 from .composite_experiment import CompositeExperiment, BaseExperiment
+from .composite_analysis import CompositeAnalysis
 
 
 class ParallelExperiment(CompositeExperiment):
@@ -38,17 +39,25 @@ class ParallelExperiment(CompositeExperiment):
     documentation for additional information.
     """
 
-    def __init__(self, experiments: List[BaseExperiment], backend: Optional[Backend] = None):
+    def __init__(
+        self,
+        experiments: List[BaseExperiment],
+        backend: Optional[Backend] = None,
+        analysis: Optional[CompositeAnalysis] = None,
+    ):
         """Initialize the analysis object.
 
         Args:
             experiments: a list of experiments.
             backend: Optional, the backend to run the experiment on.
+            analysis: Optional, the composite analysis class to use. If not
+                      provided this will be initialized automatically from the
+                      supplied experiments.
         """
         qubits = []
         for exp in experiments:
             qubits += exp.physical_qubits
-        super().__init__(experiments, qubits, backend=backend)
+        super().__init__(experiments, qubits, backend=backend, analysis=analysis)
 
     def circuits(self):
 

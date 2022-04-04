@@ -33,12 +33,19 @@ from qiskit.providers import JobV1 as Job
 from qiskit.providers import JobStatus
 
 from qiskit_experiments.database_service import DbExperimentDataV1 as DbExperimentData
+from qiskit_experiments.database_service import DbAnalysisResultV1 as DbAnalysisResult
 from qiskit_experiments.database_service import DatabaseServiceV1
 from qiskit_experiments.database_service.exceptions import (
     DbExperimentDataError,
     DbExperimentEntryNotFound,
     DbExperimentEntryExists,
 )
+from qiskit_experiments.database_service.device_component import Qubit
+from qiskit_experiments.database_service.db_experiment_data import (
+    AnalysisStatus,
+    ExperimentStatus,
+)
+from qiskit_experiments.framework.matplotlib import get_non_gui_ax
 
 
 class TestDbExperimentData(QiskitExperimentsTestCase):
@@ -116,6 +123,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         for _ in range(2):
             job = mock.create_autospec(Job, instance=True)
             job.result.return_value = self._get_job_result(2)
+            job.status.return_value = JobStatus.DONE
             jobs.append(job)
 
         expected = a_job.result().get_counts()
@@ -123,10 +131,10 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
             expected.extend(job.result().get_counts())
 
         exp_data = DbExperimentData(backend=self.backend, experiment_type="qiskit_test")
-        exp_data.add_data(a_job)
-        exp_data.block_for_results()
-        exp_data.add_data(jobs)
-        exp_data.block_for_results()
+        exp_data.add_jobs(a_job)
+        self.assertExperimentDone(exp_data)
+        exp_data.add_jobs(jobs)
+        self.assertExperimentDone(exp_data)
         self.assertEqual(expected, [sdata["counts"] for sdata in exp_data.data()])
         self.assertIn(a_job.job_id(), exp_data.job_ids)
 
@@ -145,12 +153,13 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
 
         a_job = mock.create_autospec(Job, instance=True)
         a_job.result.return_value = self._get_job_result(2)
+        a_job.status.return_value = JobStatus.DONE
 
         called_back = False
         exp_data = DbExperimentData(backend=self.backend, experiment_type="qiskit_test")
-        exp_data.add_data(a_job)
+        exp_data.add_jobs(a_job)
         exp_data.add_analysis_callback(_callback)
-        exp_data.block_for_results()
+        self.assertExperimentDone(exp_data)
         self.assertTrue(called_back)
 
     def test_add_data_callback(self):
@@ -183,7 +192,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
             with self.subTest(data=data):
                 exp_data.add_data(data)
                 exp_data.add_analysis_callback(_callback)
-                exp_data.block_for_results()
+                self.assertExperimentDone(exp_data)
 
         self.assertEqual(len(subtests), called_back_count)
 
@@ -198,13 +207,14 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
 
         a_job = mock.create_autospec(Job, instance=True)
         a_job.result.return_value = self._get_job_result(2)
+        a_job.status.return_value = JobStatus.DONE
 
         called_back = False
         callback_kwargs = "foo"
         exp_data = DbExperimentData(backend=self.backend, experiment_type="qiskit_test")
-        exp_data.add_data(a_job)
+        exp_data.add_jobs(a_job)
         exp_data.add_analysis_callback(_callback, foo=callback_kwargs)
-        exp_data.block_for_results()
+        self.assertExperimentDone(exp_data)
         self.assertTrue(called_back)
 
     def test_add_data_pending_post_processing(self):
@@ -215,13 +225,14 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
 
         a_job = mock.create_autospec(Job, instance=True)
         a_job.result.return_value = self._get_job_result(2)
+        a_job.status.return_value = JobStatus.DONE
 
         event = threading.Event()
         self.addCleanup(event.set)
 
         exp_data = DbExperimentData(experiment_type="qiskit_test")
         exp_data.add_analysis_callback(_callback, event=event)
-        exp_data.add_data(a_job)
+        exp_data.add_jobs(a_job)
         with self.assertLogs("qiskit_experiments", "WARNING"):
             exp_data.add_data({"foo": "bar"})
 
@@ -366,7 +377,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         self.assertIsNone(exp_data.service)
         exp_data.save_metadata()
         a_job = mock.create_autospec(Job, instance=True)
-        exp_data.add_data(a_job)
+        exp_data.add_jobs(a_job)
         self.assertIsNotNone(exp_data.backend)
         self.assertIsNotNone(exp_data.service)
 
@@ -376,7 +387,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         a_job = mock.create_autospec(Job, instance=True)
         self.assertNotEqual(exp_data.backend, a_job.backend())
         with self.assertLogs("qiskit_experiments", "WARNING"):
-            exp_data.add_data(a_job)
+            exp_data.add_jobs(a_job)
 
     def test_add_get_analysis_result(self):
         """Test adding and getting analysis results."""
@@ -473,9 +484,10 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         mock_service = self._set_mock_service()
         job = mock.create_autospec(Job, instance=True)
         job.backend.return_value = self.backend
+        job.status.return_value = JobStatus.DONE
         exp_data = DbExperimentData(experiment_type="qiskit_test")
         self.assertIsNone(exp_data.service)
-        exp_data.add_data(job)
+        exp_data.add_jobs(job)
         self.assertEqual(mock_service, exp_data.service)
 
     def test_set_service_direct(self):
@@ -499,7 +511,8 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         new_service = self._set_mock_service()
         self.assertNotEqual(orig_service, new_service)
         job.backend.return_value = self.backend
-        exp_data.add_data(job)
+        job.status.return_value = JobStatus.DONE
+        exp_data.add_jobs(job)
         self.assertEqual(orig_service, exp_data.service)
 
     def test_auto_save(self):
@@ -536,14 +549,16 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         event = threading.Event()
         job2 = mock.create_autospec(Job, instance=True)
         job2.result = lambda *args, **kwargs: event.wait(timeout=15)
-        job2.status.return_value = JobStatus.RUNNING
+        job2.status = lambda: JobStatus.CANCELLED if event.is_set() else JobStatus.RUNNING
         self.addCleanup(event.set)
 
         exp_data = DbExperimentData(experiment_type="qiskit_test")
-        exp_data.add_data(job1)
-        exp_data.add_data(job2)
+        exp_data.add_jobs(job1)
+        exp_data.add_jobs(job2)
         exp_data.add_analysis_callback(lambda *args, **kwargs: event.wait(timeout=15))
-        self.assertEqual("RUNNING", exp_data.status())
+        self.assertEqual(ExperimentStatus.RUNNING, exp_data.status())
+        self.assertEqual(JobStatus.RUNNING, exp_data.job_status())
+        self.assertEqual(AnalysisStatus.QUEUED, exp_data.analysis_status())
 
         # Cleanup
         with self.assertLogs("qiskit_experiments", "WARNING"):
@@ -561,23 +576,42 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
 
         exp_data = DbExperimentData(experiment_type="qiskit_test")
         with self.assertLogs(logger="qiskit_experiments.database_service", level="WARN") as cm:
-            exp_data.add_data([job1, job2])
+            exp_data.add_jobs([job1, job2])
         self.assertIn("Adding a job from a backend", ",".join(cm.output))
-        self.assertEqual("ERROR", exp_data.status())
+        self.assertEqual(ExperimentStatus.ERROR, exp_data.status())
 
     def test_status_post_processing(self):
         """Test experiment status during post processing."""
         job = mock.create_autospec(Job, instance=True)
         job.result.return_value = self._get_job_result(3)
+        job.status.return_value = JobStatus.DONE
 
         event = threading.Event()
         self.addCleanup(event.set)
 
         exp_data = DbExperimentData(experiment_type="qiskit_test")
-        exp_data.add_data(job)
+        exp_data.add_jobs(job)
         exp_data.add_analysis_callback((lambda *args, **kwargs: event.wait(timeout=15)))
         status = exp_data.status()
-        self.assertEqual("POST_PROCESSING", status)
+        self.assertEqual(ExperimentStatus.POST_PROCESSING, status)
+
+    def test_status_cancelled_analysis(self):
+        """Test experiment status during post processing."""
+        job = mock.create_autospec(Job, instance=True)
+        job.result.return_value = self._get_job_result(3)
+        job.status.return_value = JobStatus.DONE
+
+        event = threading.Event()
+        self.addCleanup(event.set)
+
+        exp_data = DbExperimentData(experiment_type="qiskit_test")
+        exp_data.add_jobs(job)
+        exp_data.add_analysis_callback((lambda *args, **kwargs: event.wait(timeout=2)))
+        # Add second callback because the first can't be cancelled once it has started
+        exp_data.add_analysis_callback((lambda *args, **kwargs: event.wait(timeout=20)))
+        exp_data.cancel_analysis()
+        status = exp_data.status()
+        self.assertEqual(ExperimentStatus.CANCELLED, status)
 
     def test_status_post_processing_error(self):
         """Test experiment status when post processing failed."""
@@ -587,26 +621,27 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
 
         job = mock.create_autospec(Job, instance=True)
         job.result.return_value = self._get_job_result(3)
+        job.status.return_value = JobStatus.DONE
 
         exp_data = DbExperimentData(experiment_type="qiskit_test")
-        exp_data.add_data(job)
+        exp_data.add_jobs(job)
         with self.assertLogs(logger="qiskit_experiments.database_service", level="WARN") as cm:
-            exp_data.add_data(job)
+            exp_data.add_jobs(job)
             exp_data.add_analysis_callback(_post_processing)
             exp_data.block_for_results()
-        self.assertEqual("ERROR", exp_data.status())
+        self.assertEqual(ExperimentStatus.ERROR, exp_data.status())
         self.assertIn("Kaboom!", ",".join(cm.output))
 
     def test_status_done(self):
         """Test experiment status when all jobs are done."""
         job = mock.create_autospec(Job, instance=True)
         job.result.return_value = self._get_job_result(3)
+        job.status.return_value = JobStatus.DONE
         exp_data = DbExperimentData(experiment_type="qiskit_test")
-        exp_data.add_data(job)
-        exp_data.add_data(job)
-        exp_data.add_analysis_callback(lambda *args, **kwargs: time.sleep(1))
-        exp_data.block_for_results()
-        self.assertEqual("DONE", exp_data.status())
+        exp_data.add_jobs(job)
+        exp_data.add_jobs(job)
+        self.assertExperimentDone(exp_data)
+        self.assertEqual(ExperimentStatus.DONE, exp_data.status())
 
     def test_set_tags(self):
         """Test updating experiment tags."""
@@ -627,14 +662,101 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         self.addCleanup(event.set)
         job = mock.create_autospec(Job, instance=True)
         job.result = _job_result
-        exp_data.add_data(job)
+        exp_data.add_jobs(job)
         exp_data.cancel_jobs()
         job.cancel.assert_called_once()
 
         # Cleanup
         with self.assertLogs("qiskit_experiments", "WARNING"):
             event.set()
+            self.assertExperimentDone(exp_data)
+
+    def test_cancel_analysis(self):
+        """Test canceling experiment analysis."""
+
+        event = threading.Event()
+        self.addCleanup(event.set)
+
+        def _job_result():
+            event.wait(timeout=15)
+            return self._get_job_result(1)
+
+        def _analysis(*args):  # pylint: disable = unused-argument
+            event.wait(timeout=15)
+
+        job = mock.create_autospec(Job, instance=True)
+        job.job_id.return_value = "1234"
+        job.result = _job_result
+        job.status = lambda: JobStatus.DONE if event.is_set() else JobStatus.RUNNING
+
+        exp_data = DbExperimentData(experiment_type="qiskit_test")
+        exp_data.add_jobs(job)
+        exp_data.add_analysis_callback(_analysis)
+        exp_data.cancel_analysis()
+
+        # Test status while job still running
+        self.assertEqual(exp_data.job_status(), JobStatus.RUNNING)
+        self.assertEqual(exp_data.analysis_status(), AnalysisStatus.CANCELLED)
+        self.assertEqual(exp_data.status(), ExperimentStatus.RUNNING)
+
+        # Test status after job finishes
+        event.set()
+        self.assertEqual(exp_data.job_status(), JobStatus.DONE)
+        self.assertEqual(exp_data.analysis_status(), AnalysisStatus.CANCELLED)
+        self.assertEqual(exp_data.status(), ExperimentStatus.CANCELLED)
+
+    def test_cancel(self):
+        """Test canceling experiment jobs and analysis."""
+
+        event = threading.Event()
+        self.addCleanup(event.set)
+
+        def _job_result():
+            event.wait(timeout=15)
+            raise ValueError("Job was cancelled.")
+
+        def _analysis(*args):  # pylint: disable = unused-argument
+            event.wait(timeout=15)
+
+        job = mock.create_autospec(Job, instance=True)
+        job.job_id.return_value = "1234"
+        job.result = _job_result
+        job.cancel = event.set
+        job.status = lambda: JobStatus.CANCELLED if event.is_set() else JobStatus.RUNNING
+
+        exp_data = DbExperimentData(experiment_type="qiskit_test")
+        exp_data.add_jobs(job)
+        exp_data.add_analysis_callback(_analysis)
+        exp_data.cancel()
+
+        # Test status while job still running
+        self.assertEqual(exp_data.job_status(), JobStatus.CANCELLED)
+        self.assertEqual(exp_data.analysis_status(), AnalysisStatus.CANCELLED)
+        self.assertEqual(exp_data.status(), ExperimentStatus.CANCELLED)
+
+    def test_add_jobs_timeout(self):
+        """Test timeout kwarg of add_jobs"""
+
+        event = threading.Event()
+        self.addCleanup(event.set)
+
+        def _job_result():
+            event.wait(timeout=15)
+            raise ValueError("Job was cancelled.")
+
+        job = mock.create_autospec(Job, instance=True)
+        job.job_id.return_value = "1234"
+        job.result = _job_result
+        job.cancel = event.set
+        job.status = lambda: JobStatus.CANCELLED if event.is_set() else JobStatus.RUNNING
+
+        exp_data = DbExperimentData(experiment_type="qiskit_test")
+        exp_data.add_jobs(job, timeout=0.5)
+
+        with self.assertLogs("qiskit_experiments", "WARNING"):
             exp_data.block_for_results()
+            self.assertEqual(exp_data.job_status(), JobStatus.CANCELLED)
+            self.assertEqual(exp_data.status(), ExperimentStatus.CANCELLED)
 
     def test_metadata_serialization(self):
         """Test experiment metadata serialization."""
@@ -656,6 +778,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
 
         job1 = mock.create_autospec(Job, instance=True)
         job1.job_id.return_value = "1234"
+        job1.status.return_value = JobStatus.DONE
 
         job2 = mock.create_autospec(Job, instance=True)
         job2.status.return_value = JobStatus.ERROR
@@ -663,13 +786,73 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
 
         exp_data = DbExperimentData(experiment_type="qiskit_test")
         with self.assertLogs(logger="qiskit_experiments.database_service", level="WARN") as cm:
-            exp_data.add_data(job1)
+            exp_data.add_jobs(job1)
             exp_data.add_analysis_callback(_post_processing)
-            exp_data.add_data(job2)
+            exp_data.add_jobs(job2)
             exp_data.block_for_results()
-        self.assertEqual("ERROR", exp_data.status())
+        self.assertEqual(ExperimentStatus.ERROR, exp_data.status())
         self.assertIn("Kaboom", ",".join(cm.output))
         self.assertTrue(re.match(r".*5678.*Kaboom!", exp_data.errors(), re.DOTALL))
+
+    def test_simple_methods_from_callback(self):
+        """Test that simple methods used in call back function don't hang
+
+        This test runs through many of the public methods of DbExperimentData
+        from analysis callbacks to make sure that they do not raise exceptions
+        or hang the analysis thread. Hangs have occurred in the past when one
+        of these methods blocks waiting for analysis to complete.
+
+        These methods are not tested because they explicitly assume they are
+        run from the main thread:
+
+            + copy
+            + block_for_results
+
+        These methods are not tested because they require additional setup.
+        They could be tested in separate tests:
+
+            + save
+            + save_metadata
+            + add_jobs
+            + cancel
+            + cancel_analysis
+            + cancel_jobs
+        """
+
+        def callback1(exp_data):
+            """Callback function that call add_analysis_callback"""
+            exp_data.add_analysis_callback(callback2)
+            result = DbAnalysisResult("result_name", 0, [Qubit(0)], "experiment_id")
+            exp_data.add_analysis_results(result)
+            figure = get_non_gui_ax().get_figure()
+            exp_data.add_figures(figure, "figure.svg")
+            exp_data.add_data({"key": 1.2})
+            exp_data.data()
+
+        def callback2(exp_data):
+            """Callback function that exercises status lookups"""
+            exp_data.figure("figure.svg")
+            exp_data.jobs()
+
+            exp_data.analysis_results("result_name", block=False)
+
+            exp_data.delete_figure("figure.svg")
+            exp_data.delete_analysis_result("result_name")
+
+            exp_data.status()
+            exp_data.job_status()
+            exp_data.analysis_status()
+
+            exp_data.errors()
+            exp_data.job_errors()
+            exp_data.analysis_errors()
+
+        exp_data = DbExperimentData(experiment_type="qiskit_test")
+
+        exp_data.add_analysis_callback(callback1)
+        exp_data.block_for_results(timeout=3)
+
+        self.assertEqual(exp_data.analysis_status(), AnalysisStatus.DONE)
 
     def test_source(self):
         """Test getting experiment source."""
@@ -690,9 +873,9 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         job = mock.create_autospec(Job, instance=True)
         job.result = _sleeper
         exp_data = DbExperimentData(experiment_type="qiskit_test")
-        exp_data.add_data(job)
+        exp_data.add_jobs(job)
         exp_data.add_analysis_callback(_sleeper)
-        exp_data.block_for_results()
+        self.assertExperimentDone(exp_data)
         self.assertEqual(2, sleep_count)
 
     def test_additional_attr(self):
@@ -712,27 +895,28 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
 
     def test_copy_metadata_pending_job(self):
         """Test copy metadata with a pending job."""
+        event = threading.Event()
+        self.addCleanup(event.set)
+        job_results1 = self._get_job_result(1)
+        job_results2 = self._get_job_result(1)
 
         def _job1_result():
             event.wait(timeout=15)
-            return job_results[0]
+            return job_results1
 
         def _job2_result():
             event.wait(timeout=15)
-            return job_results[1]
+            return job_results2
 
         exp_data = DbExperimentData(experiment_type="qiskit_test")
-        event = threading.Event()
-        self.addCleanup(event.set)
-        job_results = [self._get_job_result(1), self._get_job_result(1)]
         job = mock.create_autospec(Job, instance=True)
         job.result = _job1_result
-        exp_data.add_data(job)
+        exp_data.add_jobs(job)
 
         copied = exp_data.copy(copy_results=False)
         job2 = mock.create_autospec(Job, instance=True)
         job2.result = _job2_result
-        copied.add_data(job2)
+        copied.add_jobs(job2)
         event.set()
 
         exp_data.block_for_results()

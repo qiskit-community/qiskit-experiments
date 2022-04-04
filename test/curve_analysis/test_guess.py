@@ -110,6 +110,16 @@ class TestGuesses(QiskitExperimentsTestCase):
 
         self.assertAlmostEqualAbsolute(alpha_guess, alpha)
 
+    def test_exp_decay_with_invalid_y(self):
+        """Test when invalid y data is input to exp curve init guess."""
+        x = np.array([9.0e-06, 1.9e-05, 2.9e-05, 3.9e-05])
+        y = np.array([0.16455749, 0.07045296, 0.02702439, -0.00135192])
+
+        # The last point is excluded. This point might be some artifact due to filtering.
+        alpha_guess = guess.exp_decay(x, y)
+
+        np.testing.assert_almost_equal(alpha_guess, -90326, decimal=0)
+
     @data([1.2, 1.4], [-0.6, 2.5], [0.1, 2.3], [3.5, 1.1], [-4.1, 6.5], [3.0, 1.2])
     @unpack
     def test_exp_osci_decay(self, alpha, freq):
@@ -134,7 +144,7 @@ class TestGuesses(QiskitExperimentsTestCase):
         """Test of linewidth of peaks."""
         x = np.linspace(-1, 1, 100)
         sigma = fwhm / np.sqrt(8 * np.log(2))
-        y = a * np.exp(-((x - x[idx]) ** 2) / (2 * sigma ** 2))
+        y = a * np.exp(-((x - x[idx]) ** 2) / (2 * sigma**2))
 
         lw_guess = guess.full_width_half_max(x, y, idx)
 
@@ -153,7 +163,7 @@ class TestGuesses(QiskitExperimentsTestCase):
         """Test of baseline of peaks."""
         x = np.linspace(-1, 1, 100)
         sigma = fwhm / np.sqrt(8 * np.log(2))
-        y = a * np.exp(-((x - x0) ** 2) / (2 * sigma ** 2)) + b0
+        y = a * np.exp(-((x - x0) ** 2) / (2 * sigma**2)) + b0
 
         b0_guess = guess.constant_spectral_offset(y)
 

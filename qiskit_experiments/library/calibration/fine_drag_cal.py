@@ -23,19 +23,23 @@ from qiskit_experiments.exceptions import CalibrationError
 from qiskit_experiments.framework import ExperimentData, Options
 from qiskit_experiments.calibration_management import (
     BaseCalibrationExperiment,
-    BackendCalibrations,
+    Calibrations,
 )
 from qiskit_experiments.calibration_management.update_library import BaseUpdater
 from qiskit_experiments.library.characterization.fine_drag import FineDrag
 
 
 class FineDragCal(BaseCalibrationExperiment, FineDrag):
-    """A calibration version of the fine drag experiment."""
+    """A calibration version of the fine drag experiment.
+
+    # section: see_also
+        qiskit_experiments.library.characterization.fine_drag.FineDrag
+    """
 
     def __init__(
         self,
         qubit: int,
-        calibrations: BackendCalibrations,
+        calibrations: Calibrations,
         schedule_name: str,
         backend: Optional[Backend] = None,
         cal_parameter_name: Optional[str] = "β",
@@ -65,10 +69,7 @@ class FineDragCal(BaseCalibrationExperiment, FineDrag):
             auto_update=auto_update,
         )
 
-        self.set_transpile_options(
-            inst_map=calibrations.default_inst_map,
-            basis_gates=["sx", schedule_name, "rz"],
-        )
+        self.set_transpile_options(basis_gates=["sx", schedule_name, "rz"])
 
     @classmethod
     def _default_experiment_options(cls) -> Options:
@@ -85,7 +86,7 @@ class FineDragCal(BaseCalibrationExperiment, FineDrag):
     def _add_cal_metadata(self, experiment_data: ExperimentData):
         """Add metadata to the experiment data making it more self contained.
 
-        The following keys are added to each circuit's metadata:
+        The following keys are added to each experiment's metadata:
             cal_param_value: The value of the drag parameter. This value together with
                 the fit result will be used to find the new value of the drag parameter.
             cal_param_name: The name of the parameter in the calibrations.
@@ -134,7 +135,7 @@ class FineDragCal(BaseCalibrationExperiment, FineDrag):
         d_theta = BaseUpdater.get_value(experiment_data, "d_theta", result_index)
 
         # See the documentation in fine_drag.py for the derivation of this rule.
-        d_beta = -np.sqrt(np.pi) * d_theta * sigmas[0] / target_angle ** 2
+        d_beta = -np.sqrt(np.pi) * d_theta * sigmas[0] / target_angle**2
         old_beta = experiment_data.metadata["cal_param_value"]
         new_beta = old_beta + d_beta
 
@@ -144,12 +145,16 @@ class FineDragCal(BaseCalibrationExperiment, FineDrag):
 
 
 class FineXDragCal(FineDragCal):
-    """Fine drag calibration of X gate."""
+    """Fine drag calibration of X gate.
+
+    # section: see_also
+        qiskit_experiments.library.characterization.fine_drag.FineDrag
+    """
 
     def __init__(
         self,
         qubit: int,
-        calibrations: BackendCalibrations,
+        calibrations: Calibrations,
         backend: Optional[Backend] = None,
         cal_parameter_name: Optional[str] = "β",
         auto_update: bool = True,
@@ -175,12 +180,16 @@ class FineXDragCal(FineDragCal):
 
 
 class FineSXDragCal(FineDragCal):
-    """Fine drag calibration of X gate."""
+    """Fine drag calibration of X gate.
+
+    # section: see_also
+        qiskit_experiments.library.characterization.fine_drag.FineDrag
+    """
 
     def __init__(
         self,
         qubit: int,
-        calibrations: BackendCalibrations,
+        calibrations: Calibrations,
         backend: Optional[Backend] = None,
         cal_parameter_name: Optional[str] = "β",
         auto_update: bool = True,

@@ -69,21 +69,25 @@ class ProcessTomographyAnalysis(TomographyAnalysis):
         """Default analysis options
 
         Analysis Options:
-            target (Union[str, :class:`~qiskit.quantum_info..operators.channel.quantum_channel`,
-                :class:`~qiskit.quantum_info.Operator`]): Set a custom target quantum
+            measurement_basis (:class:`~basis.BaseFitterMeasurementBasis`): A custom measurement
+                basis for analysis. By default the :meth:`experiment_options` measurement basis
+                will be used.
+            preparation_basis (:class:`~basis.BaseFitterPreparationBasis`): A custom preparation
+                basis for analysis. By default the :meth:`experiment_options` preparation basis
+                will be used.
+            fitter (str or Callable): The fitter function to use for reconstruction.
+                rescale_psd (bool): If True rescale the fitted state to be positive-semidefinite
+                (Default: True).
+            fitter_options (Dict[str, Any]): Additional kwargs will be supplied to the
+                fitter function.
+            rescale_trace (bool): If True rescale the state returned by the fitter have either
+                trace 1 (Default: True).
+            target (Union[str, :class:`~qiskit.quantum_info.operators.channel.quantum_channel`,
+                :class:`~qiskit.quantum_info.Operator`]): Optional, Set a custom target quantum
                 channel for computing the :func:~qiskit.quantum_info.process_fidelity` of the
-                fitted process against. If ``"default"`` the ideal process corresponding for
-                the input circuit will be used. If ``None`` no fidelity will be computed
-                (Default: "default").
-
+                fitted process against (Default: None).
         """
         options = super()._default_options()
-
         options.measurement_basis = PauliMeasurementBasis()
         options.preparation_basis = PauliPreparationBasis()
-        options.fitter = "linear_inversion"
-        options.rescale_positive = True
-        options.rescale_trace = True
-        options.target = "default"
-
         return options

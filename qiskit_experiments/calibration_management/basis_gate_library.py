@@ -18,14 +18,14 @@ Note that the set of available libraries will be extended in future releases.
 
 from abc import ABC, abstractmethod
 from collections.abc import Mapping
-from typing import Any, Dict, List, Optional, Set, Tuple
+from typing import Any, Dict, List, Optional, Set
 from warnings import warn
 
 from qiskit.circuit import Parameter
 import qiskit.pulse as pulse
 from qiskit.pulse import ScheduleBlock
 
-from qiskit_experiments.calibration_management.calibration_key_types import ParameterValueType
+from qiskit_experiments.calibration_management.calibration_key_types import DefaultCalValue
 from qiskit_experiments.exceptions import CalibrationError
 
 
@@ -116,7 +116,7 @@ class BasisGateLibrary(ABC, Mapping):
         return list(self._schedules)
 
     @abstractmethod
-    def default_values(self) -> List[Tuple[ParameterValueType, Parameter, Tuple, ScheduleBlock]]:
+    def default_values(self) -> List[DefaultCalValue]:
         """Return the default values for the parameters.
 
         Returns
@@ -140,7 +140,6 @@ class BasisGateLibrary(ABC, Mapping):
             are the corresponding schedules.
         """
 
-    @property
     def config(self) -> Dict[str, Any]:
         """Return the settings used to initialize the library."""
 
@@ -169,7 +168,7 @@ class BasisGateLibrary(ABC, Mapping):
 
     def __json_encode__(self):
         """Convert to format that can be JSON serialized."""
-        return self.config
+        return self.config()
 
     @classmethod
     def __json_decode__(cls, value: Dict[str, Any]) -> "BasisGateLibrary":
@@ -262,7 +261,7 @@ class FixedFrequencyTransmon(BasisGateLibrary):
 
         return sched
 
-    def default_values(self) -> List[Tuple[ParameterValueType, Parameter, Tuple, ScheduleBlock]]:
+    def default_values(self) -> List[DefaultCalValue]:
         """Return the default values for the parameters.
 
         Returns
@@ -287,6 +286,6 @@ class FixedFrequencyTransmon(BasisGateLibrary):
                     if "y" in name and param.name == "amp":
                         value *= 1.0j
 
-                    defaults.append((value, param.name, tuple(), name))
+                    defaults.append(DefaultCalValue(value, param.name, tuple(), name))
 
         return defaults

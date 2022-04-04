@@ -1,6 +1,0 @@
----
-developer:
-  - |
-    Data format used in the :py:class:`~qiskit_experiments.data_processing.data_processor.\
-    DataProcessor` is upgraded from `Tuple[Any, Any]` to `np.ndarray`. Uncertainty propagation
-    computation is offloaded to uncertainties package. See module documentation for details.

@@ -1,8 +1,0 @@
----
-other:
-  - |
-    Default data pre-processing for fit data is added to the :py:class:`~qiskit_experiments.\
-    curve_analysis.curve_analysis.CurveAnalysis`. The input data to the analysis are
-    averaged over the same x values and sorted by x values. This processing is necessary to
-    correctly analyze an experimental data which has multiple same x values, e.g. run experiment
-    with the previous experimental data.

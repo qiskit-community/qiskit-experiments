@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Fine DRAG calibration experiment."""
+"""Fine DRAG characterization experiment."""
 
 from typing import List, Optional
 import numpy as np
@@ -20,21 +20,20 @@ from qiskit.circuit import Gate
 from qiskit.circuit.library import XGate, SXGate
 from qiskit.providers.backend import Backend
 from qiskit_experiments.framework import BaseExperiment, Options
-from qiskit_experiments.library.characterization.analysis import (
-    FineDragAnalysis,
-)
+from qiskit_experiments.framework.restless_mixin import RestlessMixin
+from qiskit_experiments.curve_analysis.standard_analysis import ErrorAmplificationAnalysis
 
 
-class FineDrag(BaseExperiment):
+class FineDrag(BaseExperiment, RestlessMixin):
     r"""Fine DRAG experiment.
 
     # section: overview
 
-        The class :class:`FineDrag` runs fine DRAG calibration experiments (see :class:`DragCal`
-        for the definition of DRAG pulses). Fine DRAG calibration proceeds by iterating the
-        gate sequence Rp - Rm where Rp is a rotation around an axis and Rm is the same rotation
-        but in the opposite direction and is implemented by the gates Rz - Rp - Rz where the Rz
-        gates are virtual Z-rotations, see Ref. [1]. The executed circuits are of the form
+        :class:`FineDrag` runs fine DRAG characterization experiments (see :class:`DragCal`
+        for the definition of DRAG pulses). Fine DRAG proceeds by iterating the gate sequence
+        Rp - Rm where Rp is a rotation around an axis and Rm is the same rotation but in the
+        opposite direction and is implemented by the gates Rz - Rp - Rz where the Rz gates
+        are virtual Z-rotations, see Ref. [1]. The executed circuits are of the form
 
         .. parsed-literal::
 
@@ -125,6 +124,9 @@ class FineDrag(BaseExperiment):
 
         This is the correction formula in the FineDRAG Updater.
 
+    # section: analysis_ref
+        :py:class:`~qiskit_experiments.curve_analysis.ErrorAmplificationAnalysis`
+
     # section: see_also
         qiskit_experiments.library.calibration.drag.DragCal
 
@@ -132,8 +134,6 @@ class FineDrag(BaseExperiment):
         .. ref_arxiv:: 1 1612.00858
         .. ref_arxiv:: 2 1011.1949
     """
-
-    __analysis_class__ = FineDragAnalysis
 
     @classmethod
     def _default_experiment_options(cls) -> Options:
@@ -152,17 +152,6 @@ class FineDrag(BaseExperiment):
 
         return options
 
-    @classmethod
-    def _default_analysis_options(cls) -> Options:
-        """Default analysis options."""
-        options = super()._default_analysis_options()
-        options.normalization = True
-        options.angle_per_gate = 0.0
-        options.phase_offset = np.pi / 2
-        options.amp = 1.0
-
-        return options
-
     def __init__(self, qubit: int, gate: Gate, backend: Optional[Backend] = None):
         """Setup a fine amplitude experiment on the given qubit.
 
@@ -171,7 +160,17 @@ class FineDrag(BaseExperiment):
             gate: The gate that will be repeated.
             backend: Optional, the backend to run the experiment on.
         """
-        super().__init__([qubit], backend=backend)
+        analysis = ErrorAmplificationAnalysis()
+        analysis.set_options(
+            normalization=True,
+            fixed_parameters={
+                "angle_per_gate": 0.0,
+                "phase_offset": np.pi / 2,
+                "amp": 1.0,
+            },
+        )
+
+        super().__init__([qubit], analysis=analysis, backend=backend)
         self.set_experiment_options(gate=gate)
 
     @staticmethod
@@ -212,7 +211,12 @@ class FineDrag(BaseExperiment):
             circuit.measure_all()
 
             if schedule is not None:
-                circuit.add_calibration(schedule.name, self.physical_qubits, schedule, params=[])
+                circuit.add_calibration(
+                    self.experiment_options.gate.name,
+                    self.physical_qubits,
+                    schedule,
+                    params=[],
+                )
 
             circuit.metadata = {
                 "experiment_type": self._type,
@@ -227,10 +231,10 @@ class FineDrag(BaseExperiment):
 
 
 class FineXDrag(FineDrag):
-    """Class to fine calibrate the DRAG parameter of an X gate.
+    """Class to fine characterize the DRAG parameter of an X gate.
 
     # section: see_also
-        qiskit_experiments.library.calibration.fine_drag.FineDrag
+        qiskit_experiments.library.characterization.fine_drag.FineDrag
     """
 
     def __init__(self, qubit: int, backend: Optional[Backend] = None):
@@ -256,10 +260,10 @@ class FineXDrag(FineDrag):
 
 
 class FineSXDrag(FineDrag):
-    """Class to fine calibrate the DRAG parameter of an SX gate.
+    """Class to fine characterize the DRAG parameter of an SX gate.
 
     # section: see_also
-        qiskit_experiments.library.calibration.fine_drag.FineDrag
+        qiskit_experiments.library.characterization.fine_drag.FineDrag
     """
 
     def __init__(self, qubit: int, backend: Optional[Backend] = None):

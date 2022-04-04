@@ -1,0 +1,5 @@
+---
+fixes:
+  - |
+    Fixes bug in :class:`.CompositeAnalysis` where analysis of nested
+    composite experiments could raise a RuntimeError.

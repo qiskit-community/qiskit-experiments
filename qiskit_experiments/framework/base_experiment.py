@@ -15,9 +15,9 @@ Base Experiment class.
 
 from abc import ABC, abstractmethod
 import copy
-import dataclasses
 from collections import OrderedDict
 from typing import Sequence, Optional, Tuple, List, Dict, Union, Any
+import warnings
 
 from qiskit import transpile, assemble, QuantumCircuit
 from qiskit.providers import BaseJob
@@ -26,81 +26,19 @@ from qiskit.providers.basebackend import BaseBackend as LegacyBackend
 from qiskit.exceptions import QiskitError
 from qiskit.qobj.utils import MeasLevel
 from qiskit.providers.options import Options
-from qiskit_experiments.framework.settings import Settings
+from qiskit_experiments.framework.store_init_args import StoreInitArgs
+from qiskit_experiments.framework.base_analysis import BaseAnalysis
 from qiskit_experiments.framework.experiment_data import ExperimentData
-from qiskit_experiments.version import __version__
+from qiskit_experiments.framework.configs import ExperimentConfig
 
 
-@dataclasses.dataclass(frozen=True)
-class ExperimentConfig:
-    """Store configuration settings for an Experiment
-
-    This stores the current configuration of a
-    :class:~qiskit_experiments.framework.BaseExperiment` and
-    can be used to reconstruct the experiment using either the
-    :meth:`experiment` property if the experiment class type is
-    currently stored, or the
-    :meth:~qiskit_experiments.framework.BaseExperiment.from_config`
-    class method of the appropriate experiment.
-    """
-
-    cls: type = None
-    args: Tuple[Any] = dataclasses.field(default_factory=tuple)
-    kwargs: Dict[str, Any] = dataclasses.field(default_factory=dict)
-    experiment_options: Dict[str, Any] = dataclasses.field(default_factory=dict)
-    transpile_options: Dict[str, Any] = dataclasses.field(default_factory=dict)
-    run_options: Dict[str, Any] = dataclasses.field(default_factory=dict)
-    version: str = __version__
-
-    @property
-    def experiment(self) -> "BaseExperiment":
-        """Return the experiment constructed from this config.
-
-        Returns:
-            The experiment reconstructed from the config.
-
-        Raises:
-            QiskitError: if the experiment class is not stored,
-                         was not successful deserialized, or reconstruction
-                         of the experiment fails.
-        """
-        cls = self.cls
-        if cls is None:
-            raise QiskitError("No experiment class in experiment config")
-        if isinstance(cls, dict):
-            raise QiskitError(
-                "Unable to load experiment class. Try manually loading "
-                "experiment using `Experiment.from_config(config)` instead."
-            )
-        try:
-            return cls.from_config(self)
-        except Exception as ex:
-            msg = "Unable to construct experiments from config."
-            if cls.version != __version__:
-                msg += (
-                    f" Note that config version ({cls.version}) differs from the current"
-                    f" qiskit-experiments version ({__version__}). You could try"
-                    " installing a compatible qiskit-experiments version."
-                )
-            raise QiskitError("{}\nError Message:\n{}".format(msg, str(ex))) from ex
-
-
-class BaseExperiment(ABC, Settings):
-    """Abstract base class for experiments.
-
-    Class Attributes:
-
-        __analysis_class__: Optional, the default Analysis class to use for
-                            data analysis. If None no data analysis will be
-                            done on experiment data (Default: None).
-    """
-
-    # Analysis class for experiment
-    __analysis_class__ = None
+class BaseExperiment(ABC, StoreInitArgs):
+    """Abstract base class for experiments."""
 
     def __init__(
         self,
         qubits: Sequence[int],
+        analysis: Optional[BaseAnalysis] = None,
         backend: Optional[Backend] = None,
         experiment_type: Optional[str] = None,
     ):
@@ -108,6 +46,7 @@ class BaseExperiment(ABC, Settings):
 
         Args:
             qubits: list of physical qubits for the experiment.
+            analysis: Optional, the analysis to use for the experiment.
             backend: Optional, the backend to run the experiment on.
             experiment_type: Optional, the experiment type string.
 
@@ -127,7 +66,6 @@ class BaseExperiment(ABC, Settings):
         self._experiment_options = self._default_experiment_options()
         self._transpile_options = self._default_transpile_options()
         self._run_options = self._default_run_options()
-        self._analysis_options = self._default_analysis_options()
 
         # Store keys of non-default options
         self._set_experiment_options = set()
@@ -135,8 +73,24 @@ class BaseExperiment(ABC, Settings):
         self._set_run_options = set()
         self._set_analysis_options = set()
 
+        # Set analysis
+        self._analysis = None
+        if analysis:
+            self.analysis = analysis
+        # TODO: Hack for backwards compatibility with old base class.
+        # Remove after updating subclasses
+        elif hasattr(self, "__analysis_class__"):
+            warnings.warn(
+                "Defining a default BaseAnalysis class for an experiment using the "
+                "__analysis_class__ attribute is deprecated as of 0.2.0. "
+                "Use the `analysis` kwarg of BaseExperiment.__init__ "
+                "to specify a default analysis class."
+            )
+            analysis_cls = getattr(self, "__analysis_class__")
+            self.analysis = analysis_cls()  # pylint: disable = not-callable
+
         # Set backend
-        # This should be called last incase `_set_backend` access any of the
+        # This should be called last in case `_set_backend` access any of the
         # attributes created during initialization
         self._backend = None
         if isinstance(backend, (Backend, BaseBackend)):
@@ -158,6 +112,18 @@ class BaseExperiment(ABC, Settings):
         return self._num_qubits
 
     @property
+    def analysis(self) -> Union[BaseAnalysis, None]:
+        """Return the analysis instance for the experiment"""
+        return self._analysis
+
+    @analysis.setter
+    def analysis(self, analysis: Union[BaseAnalysis, None]) -> None:
+        """Set the analysis instance for the experiment"""
+        if analysis is not None and not isinstance(analysis, BaseAnalysis):
+            raise TypeError("Input is not a None or a BaseAnalysis subclass.")
+        self._analysis = analysis
+
+    @property
     def backend(self) -> Union[Backend, None]:
         """Return the backend for the experiment"""
         return self._backend
@@ -165,6 +131,8 @@ class BaseExperiment(ABC, Settings):
     @backend.setter
     def backend(self, backend: Union[Backend, None]) -> None:
         """Set the backend for the experiment"""
+        if not isinstance(backend, (Backend, BaseBackend)):
+            raise TypeError("Input is not a backend.")
         self._set_backend(backend)
 
     def _set_backend(self, backend: Backend):
@@ -181,13 +149,18 @@ class BaseExperiment(ABC, Settings):
         # need to also copy the Options structures so that if they are
         # updated on the copy they don't effect the original.
         ret = copy.copy(self)
+        if self.analysis:
+            ret.analysis = self.analysis.copy()
+
         ret._experiment_options = copy.copy(self._experiment_options)
         ret._run_options = copy.copy(self._run_options)
         ret._transpile_options = copy.copy(self._transpile_options)
-        ret._analysis_options = copy.copy(self._analysis_options)
+
+        ret._set_experiment_options = copy.copy(self._set_experiment_options)
+        ret._set_transpile_options = copy.copy(self._set_transpile_options)
+        ret._set_run_options = copy.copy(self._set_run_options)
         return ret
 
-    @property
     def config(self) -> ExperimentConfig:
         """Return the config dataclass for this experiment"""
         args = tuple(getattr(self, "__init_args__", OrderedDict()).values())
@@ -226,7 +199,8 @@ class BaseExperiment(ABC, Settings):
     def run(
         self,
         backend: Optional[Backend] = None,
-        analysis: bool = True,
+        analysis: Optional[Union[BaseAnalysis, None]] = "default",
+        timeout: Optional[float] = None,
         **run_options,
     ) -> ExperimentData:
         """Run an experiment and perform analysis.
@@ -235,7 +209,12 @@ class BaseExperiment(ABC, Settings):
             backend: Optional, the backend to run the experiment on. This
                      will override any currently set backends for the single
                      execution.
-            analysis: If True run analysis on the experiment data.
+            analysis: Optional, a custom analysis instance to use for performing
+                      analysis. If None analysis will not be run. If ``"default"``
+                      the experiments :meth:`analysis` instance will be used if
+                      it contains one.
+            timeout: Time to wait for experiment jobs to finish running before
+                     cancelling.
             run_options: backend runtime options used for circuit execution.
 
         Returns:
@@ -245,36 +224,62 @@ class BaseExperiment(ABC, Settings):
             QiskitError: if experiment is run with an incompatible existing
                          ExperimentData container.
         """
-        if backend is None:
-            experiment = self
-        else:
+        # Handle deprecated analysis kwarg values
+        if isinstance(analysis, bool):
+            if analysis:
+                analysis = "default"
+                warnings.warn(
+                    "Setting analysis=True in BaseExperiment.run is deprecated as of "
+                    "qiskit-experiments 0.2.0 and will be removed in the 0.3.0 release."
+                    " Use analysis='default' instead.",
+                    DeprecationWarning,
+                    stacklevel=2,
+                )
+            else:
+                analysis = None
+                warnings.warn(
+                    "Setting analysis=False in BaseExperiment.run is deprecated as of "
+                    "qiskit-experiments 0.2.0 and will be removed in the 0.3.0 release."
+                    " Use analysis=None instead.",
+                    DeprecationWarning,
+                    stacklevel=2,
+                )
+
+        if backend is not None or analysis != "default" or run_options:
+            # Make a copy to update analysis or backend if one is provided at runtime
             experiment = self.copy()
-            experiment._set_backend(backend)
+            if backend:
+                experiment._set_backend(backend)
+            if isinstance(analysis, BaseAnalysis):
+                experiment.analysis = analysis
+            if run_options:
+                experiment.set_run_options(**run_options)
+        else:
+            experiment = self
+
         if experiment.backend is None:
             raise QiskitError("Cannot run experiment, no backend has been set.")
+
+        # Finalize experiment before executions
+        experiment._finalize()
 
         # Initialize result container
         experiment_data = experiment._initialize_experiment_data()
 
-        # Run options
-        run_opts = copy.copy(experiment.run_options)
-        run_opts.update_options(**run_options)
-        run_opts = run_opts.__dict__
-
         # Generate and transpile circuits
-        transpile_opts = copy.copy(experiment.transpile_options.__dict__)
-        transpile_opts["initial_layout"] = list(experiment.physical_qubits)
-        circuits = transpile(experiment.circuits(), experiment.backend, **transpile_opts)
-        experiment._postprocess_transpiled_circuits(circuits, **run_options)
+        transpiled_circuits = experiment._transpiled_circuits()
+
+        # Run options
+        run_opts = experiment.run_options.__dict__
 
         # Run jobs
-        jobs = experiment._run_jobs(circuits, **run_opts)
-        experiment_data.add_data(jobs)
+        jobs = experiment._run_jobs(transpiled_circuits, **run_opts)
+        experiment_data.add_jobs(jobs, timeout=timeout)
         experiment._add_job_metadata(experiment_data.metadata, jobs, **run_opts)
 
         # Optionally run analysis
-        if analysis and self.__analysis_class__ is not None:
-            return self.run_analysis(experiment_data)
+        if analysis and experiment.analysis:
+            return experiment.analysis.run(experiment_data)
         else:
             return experiment_data
 
@@ -288,6 +293,11 @@ class BaseExperiment(ABC, Settings):
         """Run analysis and update ExperimentData with analysis result.
 
         See :meth:`BaseAnalysis.run` for additional information.
+
+        .. deprecated:: 0.2.0
+            This is replaced by calling ``experiment.analysis.run`` using
+            the :meth:`analysis` property and
+            :meth:`~qiskit_experiments.framework.BaseAnalysis.run` method.
 
         Args:
             experiment_data: the experiment data to analyze.
@@ -304,14 +314,22 @@ class BaseExperiment(ABC, Settings):
         Raises:
             QiskitError: if experiment_data container is not valid for analysis.
         """
-        # Get analysis options
-        analysis_options = copy.copy(self.analysis_options)
-        analysis_options.update_options(**options)
-        analysis_options = analysis_options.__dict__
+        warnings.warn(
+            "`BaseExperiment.run_analysis` is deprecated as of qiskit-experiments"
+            " 0.2.0 and will be removed in the 0.3.0 release."
+            " Use `experiment.analysis.run` instead",
+            DeprecationWarning,
+        )
+        return self.analysis.run(experiment_data, replace_results=replace_results, **options)
 
-        # Run analysis
-        analysis = self.analysis()
-        return analysis.run(experiment_data, replace_results=replace_results, **analysis_options)
+    def _finalize(self):
+        """Finalize experiment object before running jobs.
+
+        Subclasses can override this method to set any final option
+        values derived from other options or attributes of the
+        experiment before `_run` is called.
+        """
+        pass
 
     def _run_jobs(self, circuits: List[QuantumCircuit], **run_options) -> List[BaseJob]:
         """Run circuits on backend as 1 or more jobs."""
@@ -337,14 +355,6 @@ class BaseExperiment(ABC, Settings):
             jobs.append(job)
         return jobs
 
-    @classmethod
-    def analysis(cls):
-        """Return the default Analysis class for the experiment."""
-        if cls.__analysis_class__ is None:
-            raise QiskitError(f"Experiment {cls.__name__} does not have a default Analysis class")
-        # pylint: disable = not-callable
-        return cls.__analysis_class__()
-
     @abstractmethod
     def circuits(self) -> List[QuantumCircuit]:
         """Return a list of experiment circuits.
@@ -358,8 +368,29 @@ class BaseExperiment(ABC, Settings):
             are obtained via the :meth:`transpiled_circuits` method.
         """
         # NOTE: Subclasses should override this method using the `options`
-        # values for any explicit experiment options that effect circuit
+        # values for any explicit experiment options that affect circuit
         # generation
+
+    def _transpiled_circuits(self) -> List[QuantumCircuit]:
+        """Return a list of experiment circuits, transpiled.
+
+        This function can be overridden to define custom transpilation.
+        """
+        transpile_opts = copy.copy(self.transpile_options.__dict__)
+        transpile_opts["initial_layout"] = list(self.physical_qubits)
+        transpiled = transpile(self.circuits(), self.backend, **transpile_opts)
+
+        # TODO remove this deprecation after 0.3.0 release
+        if hasattr(self, "_postprocess_transpiled_circuits"):
+            warnings.warn(
+                "`BaseExperiment._postprocess_transpiled_circuits` is deprecated as of "
+                "qiskit-experiments 0.3.0 and will be removed in the 0.4.0 release."
+                " Use `BaseExperiment._transpile` instead.",
+                DeprecationWarning,
+            )
+            self._postprocess_transpiled_circuits(transpiled)  # pylint: disable=no-member
+
+        return transpiled
 
     @classmethod
     def _default_experiment_options(cls) -> Options:
@@ -442,33 +473,41 @@ class BaseExperiment(ABC, Settings):
         self._run_options.update_options(**fields)
         self._set_run_options = self._set_run_options.union(fields)
 
-    @classmethod
-    def _default_analysis_options(cls) -> Options:
-        """Default options for analysis of experiment results."""
-        # Experiment subclasses can override this method if they need
-        # to set specific analysis options defaults that are different
-        # from the Analysis subclass `_default_options` values.
-        if cls.__analysis_class__:
-            return cls.__analysis_class__._default_options()
-        return Options()
-
     @property
     def analysis_options(self) -> Options:
-        """Return the analysis options for :meth:`run` analysis."""
-        return self._analysis_options
+        """Return the analysis options for :meth:`run` analysis.
+
+        .. deprecated:: 0.2.0
+            This is replaced by calling ``experiment.analysis.options`` using
+            the :meth:`analysis`and :meth:`~qiskit_experiments.framework.BaseAnalysis.options`
+            properties.
+        """
+        warnings.warn(
+            "`BaseExperiment.analysis_options` is deprecated as of qiskit-experiments"
+            " 0.2.0 and will be removed in the 0.3.0 release."
+            " Use `experiment.analysis.options instead",
+            DeprecationWarning,
+        )
+        return self.analysis.options
 
     def set_analysis_options(self, **fields):
         """Set the analysis options for :meth:`run` method.
 
         Args:
             fields: The fields to update the options
-        """
-        self._analysis_options.update_options(**fields)
-        self._set_analysis_options = self._set_analysis_options.union(fields)
 
-    def _postprocess_transpiled_circuits(self, circuits: List[QuantumCircuit], **run_options):
-        """Additional post-processing of transpiled circuits before running on backend"""
-        pass
+        .. deprecated:: 0.2.0
+            This is replaced by calling ``experiment.analysis.set_options`` using
+            the :meth:`analysis` property and
+            :meth:`~qiskit_experiments.framework.BaseAnalysis.set_options` method.
+        """
+        warnings.warn(
+            "`BaseExperiment.set_analysis_options` is deprecated as of qiskit-experiments"
+            " 0.2.0 and will be removed in the 0.3.0 release."
+            " Use `experiment.analysis.set_options instead",
+            DeprecationWarning,
+        )
+        self.analysis.options.update_options(**fields)
 
     def _metadata(self) -> Dict[str, any]:
         """Return experiment metadata for ExperimentData.
@@ -503,19 +542,20 @@ class BaseExperiment(ABC, Settings):
             jobs: the job objects.
             run_options: backend run options for the job.
         """
-        metadata["job_metadata"] = [
-            {
-                "job_ids": [job.job_id() for job in jobs],
-                "experiment_options": copy.copy(self.experiment_options.__dict__),
-                "transpile_options": copy.copy(self.transpile_options.__dict__),
-                "analysis_options": copy.copy(self.analysis_options.__dict__),
-                "run_options": copy.copy(run_options),
-            }
-        ]
+        values = {
+            "job_ids": [job.job_id() for job in jobs],
+            "experiment_options": copy.copy(self.experiment_options.__dict__),
+            "transpile_options": copy.copy(self.transpile_options.__dict__),
+            "run_options": copy.copy(run_options),
+        }
+        if self.analysis is not None:
+            values["analysis_options"] = copy.copy(self.analysis.options.__dict__)
+
+        metadata["job_metadata"] = [values]
 
     def __json_encode__(self):
         """Convert to format that can be JSON serialized"""
-        return self.config
+        return self.config()
 
     @classmethod
     def __json_decode__(cls, value):

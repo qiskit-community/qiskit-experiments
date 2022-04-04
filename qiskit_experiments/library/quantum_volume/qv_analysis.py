@@ -14,13 +14,18 @@ Quantum Volume analysis class.
 """
 
 import math
-
 import warnings
 from typing import Optional
-import numpy as np
 
-from qiskit_experiments.framework import BaseAnalysis, AnalysisResultData, FitVal
+import numpy as np
+import uncertainties
+from qiskit_experiments.exceptions import AnalysisError
 from qiskit_experiments.curve_analysis import plot_scatter, plot_errorbar
+from qiskit_experiments.framework import (
+    BaseAnalysis,
+    AnalysisResultData,
+    Options,
+)
 
 
 class QuantumVolumeAnalysis(BaseAnalysis):
@@ -37,34 +42,33 @@ class QuantumVolumeAnalysis(BaseAnalysis):
         is the success probability.
     """
 
-    # pylint: disable = arguments-differ
-    def _run_analysis(
-        self,
-        experiment_data,
-        plot: bool = True,
-        ax: Optional["matplotlib.pyplot.AxesSubplot"] = None,
-    ):
-        """Run analysis on circuit data.
+    @classmethod
+    def _default_options(cls) -> Options:
+        """Return default analysis options.
 
-        Args:
-            experiment_data (ExperimentData): the experiment data to analyze.
-            plot (bool): If True generate a plot of fitted data.
-            ax (AxesSubplot): Optional, matplotlib axis to add plot to.
-
-        Returns:
-            tuple: A pair ``(result_data figures)`` where
-                   ``result_data`` is a list of
-                   :class:`AnalysisResultData` objects, and ``figures`` may be
-                   None, a single figure, or a list of figures.
+        Analysis Options:
+            plot (bool): Set ``True`` to create figure for fit result.
+            ax(AxesSubplot): Optional. A matplotlib axis object to draw.
         """
-        depth = experiment_data.experiment.num_qubits
+        options = super()._default_options()
+        options.plot = True
+        options.ax = None
+        return options
+
+    def _run_analysis(self, experiment_data):
         data = experiment_data.data()
         num_trials = len(data)
+        depth = None
         heavy_output_prob_exp = []
 
         for data_trial in data:
+            trial_depth = data_trial["metadata"]["depth"]
+            if depth is None:
+                depth = trial_depth
+            elif trial_depth != depth:
+                raise AnalysisError("QuantumVolume circuits do not all have the same depth.")
             heavy_output = self._calc_ideal_heavy_output(
-                data_trial["metadata"]["ideal_probabilities"], data_trial["metadata"]["depth"]
+                data_trial["metadata"]["ideal_probabilities"], trial_depth
             )
             heavy_output_prob_exp.append(
                 self._calc_exp_heavy_output_probability(data_trial, heavy_output)
@@ -72,8 +76,8 @@ class QuantumVolumeAnalysis(BaseAnalysis):
 
         hop_result, qv_result = self._calc_quantum_volume(heavy_output_prob_exp, depth, num_trials)
 
-        if plot:
-            ax = self._format_plot(hop_result, ax=ax)
+        if self.options.plot:
+            ax = self._format_plot(hop_result, ax=self.options.ax)
             figures = [ax.get_figure()]
         else:
             figures = None
@@ -95,7 +99,7 @@ class QuantumVolumeAnalysis(BaseAnalysis):
         # Keys are bit strings and values are probabilities of observing those strings
         all_output_prob_ideal = {
             format_spec.format(b): float(np.real(probabilities_vector[b]))
-            for b in range(2 ** depth)
+            for b in range(2**depth)
         }
 
         median_probabilities = float(np.real(np.median(probabilities_vector)))
@@ -163,7 +167,7 @@ class QuantumVolumeAnalysis(BaseAnalysis):
             float: confidence level in decimal (not percentage).
         """
 
-        confidence_level = 0.5 * (1 + math.erf(z_value / 2 ** 0.5))
+        confidence_level = 0.5 * (1 + math.erf(z_value / 2**0.5))
 
         return confidence_level
 
@@ -207,12 +211,12 @@ class QuantumVolumeAnalysis(BaseAnalysis):
             warnings.warn("Must use at least 100 trials to consider Quantum Volume as successful.")
 
         if mean_hop > threshold and trials >= 100:
-            quantum_volume = 2 ** depth
+            quantum_volume = 2**depth
             success = True
 
         hop_result = AnalysisResultData(
             "mean_HOP",
-            value=FitVal(mean_hop, sigma_hop),
+            value=uncertainties.ufloat(nominal_value=mean_hop, std_dev=sigma_hop),
             quality=quality,
             extra={
                 "HOPs": heavy_output_prob_exp,
@@ -255,7 +259,7 @@ class QuantumVolumeAnalysis(BaseAnalysis):
         hop_accumulative = np.cumsum(heavy_probs) / trial_list
         two_sigma = 2 * (hop_accumulative * (1 - hop_accumulative) / trial_list) ** 0.5
 
-        # Plot inidivual HOP as scatter
+        # Plot individual HOP as scatter
         ax = plot_scatter(
             trial_list,
             heavy_probs,
