@@ -14,77 +14,13 @@
 """Test warning helper."""
 
 from test.base import QiskitExperimentsTestCase
-from qiskit_experiments.warnings import deprecated_init_args, deprecated_class
-from qiskit_experiments.framework import BaseExperiment, ExperimentConfig
+
+from qiskit_experiments.framework import BaseExperiment
+from qiskit_experiments.warnings import deprecated_class
 
 
 class TestWarningsHelper(QiskitExperimentsTestCase):
     """Test case for warnings decorator with tricky behavior."""
-
-    def test_creating_experiment_with_old_args(self):
-        """Test raise warning and update configuration when create instance with old kwargs."""
-
-        @deprecated_init_args(
-            arguments_map={"some_old_arg1": "some_new_arg1", "some_old_arg2": None},
-        )
-        class FakeExperiment(BaseExperiment):
-            """Fake experiment."""
-
-            def __init__(self, qubits, some_new_arg1):
-                super().__init__(qubits)
-
-            def circuits(self):
-                pass
-
-        with self.assertWarns(DeprecationWarning):
-            instance = FakeExperiment(qubits=[0], some_old_arg1=1, some_old_arg2=2)
-
-        config = instance.config()
-        self.assertDictEqual(config.kwargs, {"qubits": [0], "some_new_arg1": 1})
-
-    def test_roundtrip_old_instance(self):
-        """Test raise warning and update configuration when create instance from old config."""
-
-        @deprecated_init_args(
-            arguments_map={"some_old_arg1": "some_new_arg1", "some_old_arg2": None},
-        )
-        class FakeExperiment(BaseExperiment):
-            """Fake experiment."""
-
-            def __init__(self, qubits, some_new_arg1):
-                super().__init__(qubits)
-
-            def circuits(self):
-                pass
-
-        old_config = ExperimentConfig(
-            cls=FakeExperiment,
-            args=([0],),
-            kwargs={"some_old_arg1": 1, "some_old_arg2": 2},
-        )
-
-        with self.assertWarns(DeprecationWarning):
-            instance = FakeExperiment.from_config(old_config)
-
-        new_config = ExperimentConfig(
-            cls=FakeExperiment,
-            args=([0],),
-            kwargs={"some_new_arg1": 1},
-        )
-
-        self.json_equiv(instance.config(), new_config)
-
-    def test_wrong_decorator_usage(self):
-        """Test decorator cannot be applied to non experiment or analysis class."""
-
-        with self.assertRaises(TypeError):
-
-            @deprecated_init_args(arguments_map={"arg1": "arg2"})
-            class SomeClass:
-                """Non experiment nor analysis class."""
-
-                def __init__(self, arg1):
-                    pass
 
     def test_switch_class(self):
         """Test old class is instantiated as a new class instance."""
