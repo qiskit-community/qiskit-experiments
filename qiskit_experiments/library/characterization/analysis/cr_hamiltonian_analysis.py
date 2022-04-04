@@ -19,6 +19,7 @@ from typing import List, Union
 import numpy as np
 
 import qiskit_experiments.curve_analysis as curve
+
 import qiskit_experiments.data_processing as dp
 from qiskit_experiments.database_service.device_component import Qubit
 from qiskit_experiments.framework import AnalysisResultData
@@ -196,20 +197,24 @@ class CrossResonanceHamiltonianAnalysis(curve.CurveAnalysis):
     def _default_options(cls):
         """Return the default analysis options."""
         default_options = super()._default_options()
+        default_options.curve_plotter.set_options(
+            subplots=(3, 1),
+            xlabel="Flat top width",
+            ylabel=[
+                r"$\langle$X(t)$\rangle$",
+                r"$\langle$Y(t)$\rangle$",
+                r"$\langle$Z(t)$\rangle$",
+            ],
+            xval_unit="s",
+            figsize=(8, 10),
+            legend_loc="lower right",
+            fit_report_rpos=(0.28, -0.10),
+            ylim=(-1, 1),
+        )
         default_options.data_processor = dp.DataProcessor(
             input_key="counts",
             data_actions=[dp.Probability("1"), dp.BasisExpectationValue()],
         )
-        default_options.curve_plotter = "mpl_multiv_canvas"
-        default_options.xlabel = "Flat top width"
-        default_options.ylabel = "<X(t)>,<Y(t)>,<Z(t)>"
-        default_options.xval_unit = "s"
-        default_options.style = curve.visualization.PlotterStyle(
-            figsize=(8, 10),
-            legend_loc="lower right",
-            fit_report_rpos=(0.28, -0.10),
-        )
-        default_options.ylim = (-1, 1)
 
         return default_options
 

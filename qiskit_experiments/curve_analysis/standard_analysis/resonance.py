@@ -71,11 +71,13 @@ class ResonanceAnalysis(curve.CurveAnalysis):
     @classmethod
     def _default_options(cls) -> Options:
         options = super()._default_options()
+        options.curve_plotter.set_options(
+            xlabel="Frequency",
+            ylabel="Signal (arb. units)",
+            xval_unit="Hz",
+        )
         options.result_parameters = [curve.ParameterRepr("freq", "f01", "Hz")]
         options.normalization = True
-        options.xlabel = "Frequency"
-        options.ylabel = "Signal (arb. units)"
-        options.xval_unit = "Hz"
         return options
 
     def _generate_fit_guesses(
