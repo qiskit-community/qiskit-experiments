@@ -308,11 +308,7 @@ class FixedFrequencyTransmon(BasisGateLibrary):
 
 
 class EchoedCrossResonance(BasisGateLibrary):
-    """A fixed-frequency transmon gate library with echoed cross-resonance gates.
-
-    This library extends the FixedFrequencyTransmon library by adding support for
-    cross-resonance gates.
-    """
+    """A gate library to define the echoed cross-resonance gate."""
 
     __default_values__ = {
         "cr_duration": 640,
