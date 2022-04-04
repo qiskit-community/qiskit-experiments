@@ -20,10 +20,11 @@ from qiskit.circuit import Gate
 from qiskit.circuit.library import XGate, SXGate
 from qiskit.providers.backend import Backend
 from qiskit_experiments.framework import BaseExperiment, Options
+from qiskit_experiments.framework.restless_mixin import RestlessMixin
 from qiskit_experiments.curve_analysis.standard_analysis import ErrorAmplificationAnalysis
 
 
-class FineDrag(BaseExperiment):
+class FineDrag(BaseExperiment, RestlessMixin):
     r"""Fine DRAG experiment.
 
     # section: overview
@@ -210,7 +211,12 @@ class FineDrag(BaseExperiment):
             circuit.measure_all()
 
             if schedule is not None:
-                circuit.add_calibration(schedule.name, self.physical_qubits, schedule, params=[])
+                circuit.add_calibration(
+                    self.experiment_options.gate.name,
+                    self.physical_qubits,
+                    schedule,
+                    params=[],
+                )
 
             circuit.metadata = {
                 "experiment_type": self._type,

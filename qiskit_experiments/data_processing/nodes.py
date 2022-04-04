@@ -16,7 +16,7 @@ from abc import abstractmethod
 from abc import ABC
 from enum import Enum
 from numbers import Number
-from typing import Union, Sequence
+from typing import Union, Sequence, Set
 from collections import defaultdict
 
 import numpy as np
@@ -398,7 +398,105 @@ class ToAbs(IQPart):
         return unp.sqrt(data[..., 0] ** 2 + data[..., 1] ** 2) * self.scale
 
 
-class Probability(DataAction):
+class CountsAction(DataAction):
+    """An abstract DataAction that acts on count dictionaries."""
+
+    @abstractmethod
+    def _process(self, data: np.ndarray) -> np.ndarray:
+        """Defines how the counts are processed."""
+
+    def _format_data(self, data: np.ndarray) -> np.ndarray:
+        """
+        Checks that the given data has a counts format.
+
+        Args:
+            data: A data array to format. This is a single numpy array containing
+                all circuit results input to the data processor.
+                This is usually an object data type containing Python dictionaries of
+                count data keyed on the measured bitstring.
+                A count value is a discrete quantity representing the frequency of an event.
+                Therefore, count values do not have an uncertainty.
+
+        Returns:
+            The ``data`` as given.
+
+        Raises:
+            DataProcessorError: If the data is not a counts dict or a list of counts dicts.
+        """
+        valid_count_type = int, np.integer
+
+        if self._validate:
+            for datum in data:
+                if not isinstance(datum, dict):
+                    raise DataProcessorError(
+                        f"Data entry must be dictionary of counts, received {type(datum)}."
+                    )
+                for bit_str, count in datum.items():
+                    if not isinstance(bit_str, str):
+                        raise DataProcessorError(
+                            f"Key {bit_str} is not a valid count key in {self.__class__.__name__}."
+                        )
+                    if not isinstance(count, valid_count_type):
+                        raise DataProcessorError(
+                            f"Count {bit_str} is not a valid count for {self.__class__.__name__}. "
+                            "The uncertainty of probability is computed based on sampling error, "
+                            "thus the count should be an error-free discrete quantity "
+                            "representing the frequency of event."
+                        )
+
+        return data
+
+
+class MarginalizeCounts(CountsAction):
+    r"""A data action to marginalize count dictionaries.
+
+    This data action takes a count dictionary and returns a new count dictionary that
+    is marginalized over a set of specified qubits. For example, given the count
+    dictionary :code:`{"010": 1, "110": 10, "100": 100}` this node will return the
+    count dictionary :code:`{"10": 11, "00": 100}` when marginalized over qubit 2.
+
+    .. note::
+        This data action can be used to discard one or more qubits in the counts
+        dictionary. This is, for example, useful when processing two-qubit restless
+        experiments but can be used in a more general context. In composite
+        experiments the counts marginalization is already done in the data container.
+    """
+
+    def __init__(self, qubits_to_keep: Set[int], validate: bool = True):
+        """Initialize a counts marginalization node.
+
+        Args:
+            qubits_to_keep: A set of qubits to retain during the marginalization process.
+            validate: If set to False the DataAction will not validate its input.
+        """
+        super().__init__(validate)
+        self._qubits_to_keep = sorted(qubits_to_keep, reverse=True)
+
+    def _process(self, data: np.ndarray) -> np.ndarray:
+        """Perform counts marginalization."""
+        marginalized_counts = []
+
+        for datum in data:
+            new_counts = defaultdict(int)
+            for bit_str, count in datum.items():
+                new_counts["".join([bit_str[::-1][idx] for idx in self._qubits_to_keep])] += count
+
+            marginalized_counts.append(new_counts)
+
+        return np.array(marginalized_counts)
+
+    def __repr__(self):
+        """String representation of the node."""
+        options_str = ", ".join(
+            [
+                f"qubits_to_keep={self._qubits_to_keep}",
+                f"validate={self._validate}",
+            ]
+        )
+        return f"{self.__class__.__name__}({options_str})"
+
+
+class Probability(CountsAction):
     r"""Compute the mean probability of a single measurement outcome from counts.
 
     This node returns the mean and standard deviation of a single measurement
@@ -470,47 +568,6 @@ class Probability(DataAction):
             self._alpha_prior = list(alpha_prior)
 
         super().__init__(validate)
-
-    def _format_data(self, data: np.ndarray) -> np.ndarray:
-        """
-        Checks that the given data has a counts format.
-
-        Args:
-            data: A data array to format. This is a single numpy array containing
-                all circuit results input to the data processor.
-                This is usually an object data type containing Python dictionaries of
-                count data keyed on the measured bitstring.
-                A count value is a discrete quantity representing the frequency of an event.
-                Therefore, count values do not have an uncertainty.
-
-        Returns:
-            The ``data`` as given.
-
-        Raises:
-            DataProcessorError: If the data is not a counts dict or a list of counts dicts.
-        """
-        valid_count_type = int, np.integer
-
-        if self._validate:
-            for datum in data:
-                if not isinstance(datum, dict):
-                    raise DataProcessorError(
-                        f"Data entry must be dictionary of counts, received {type(datum)}."
-                    )
-                for bit_str, count in datum.items():
-                    if not isinstance(bit_str, str):
-                        raise DataProcessorError(
-                            f"Key {bit_str} is not a valid count key in {self.__class__.__name__}."
-                        )
-                    if not isinstance(count, valid_count_type):
-                        raise DataProcessorError(
-                            f"Count {bit_str} is not a valid count for {self.__class__.__name__}. "
-                            "The uncertainty of probability is computed based on sampling error, "
-                            "thus the count should be an error-free discrete quantity "
-                            "representing the frequency of event."
-                        )
-
-        return data
 
     def _process(self, data: np.ndarray) -> np.ndarray:
         """Compute mean and standard error from the beta distribution.
