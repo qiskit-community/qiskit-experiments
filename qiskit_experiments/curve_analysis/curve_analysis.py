@@ -253,14 +253,8 @@ class CurveAnalysis(BaseAnalysis, ABC):
                 p: self.options.get(p, None) for p in self.__fixed_parameters__
             }
 
-        #: Dict[str, Any]: Experiment metadata
-        self.__experiment_metadata = None
-
         #: List[CurveData]: Processed experiment data set.
         self.__processed_data_set = list()
-
-        #: Backend: backend object used for experimentation
-        self.__backend = None
 
     @classmethod
     def _fit_params(cls) -> List[str]:
@@ -665,93 +659,6 @@ class CurveAnalysis(BaseAnalysis, ABC):
             raise AnalysisError(f"Not expected data label {formatted_data.label} != fit_ready.")
         self.__processed_data_set.append(formatted_data)
 
-    @property
-    def _experiment_type(self) -> str:
-        """Return type of experiment."""
-        try:
-            return self.__experiment_metadata["experiment_type"]
-        except (TypeError, KeyError):
-            # Ignore experiment metadata is not set or key is not found
-            return None
-
-    @property
-    def _num_qubits(self) -> int:
-        """Getter for qubit number."""
-        try:
-            return self.__experiment_metadata["num_qubits"]
-        except (TypeError, KeyError):
-            # Ignore experiment metadata is not set or key is not found
-            return None
-
-    @property
-    def _physical_qubits(self) -> List[int]:
-        """Getter for physical qubit indices."""
-        try:
-            return list(self.__experiment_metadata["physical_qubits"])
-        except (TypeError, KeyError):
-            # Ignore experiment metadata is not set or key is not found
-            return None
-
-    @property
-    def _backend(self) -> Backend:
-        """Getter for backend object."""
-        return self.__backend
-
-    def _experiment_options(self, index: int = -1) -> Dict[str, Any]:
-        """Return the experiment options of given job index.
-
-        Args:
-            index: Index of job metadata to extract. Default to -1 (latest).
-
-        Returns:
-            Experiment options. This option is used for circuit generation.
-        """
-        try:
-            return self.__experiment_metadata["job_metadata"][index]["experiment_options"]
-        except (TypeError, KeyError, IndexError):
-            # Ignore experiment metadata or job metadata is not set or key is not found
-            return None
-
-    def _run_options(self, index: int = -1) -> Dict[str, Any]:
-        """Returns the run options of given job index.
-
-        Args:
-            index: Index of job metadata to extract. Default to -1 (latest).
-
-        Returns:
-            Run options. This option is used for backend execution.
-        """
-        try:
-            return self.__experiment_metadata["job_metadata"][index]["run_options"]
-        except (TypeError, KeyError, IndexError):
-            # Ignore experiment metadata or job metadata is not set or key is not found
-            return None
-
-    def _transpile_options(self, index: int = -1) -> Dict[str, Any]:
-        """Returns the transpile options of given job index.
-
-        Args:
-            index: Index of job metadata to extract. Default to -1 (latest).
-
-        Returns:
-            Transpile options. This option is used for circuit optimization.
-        """
-        try:
-            return self.__experiment_metadata["job_metadata"][index]["transpile_options"]
-        except (TypeError, KeyError, IndexError):
-            # Ignore experiment metadata or job metadata is not set or key is not found
-            return None
-
-    def _extra_metadata(self) -> Dict[str, Any]:
-        """Returns extra metadata.
-
-        Returns:
-            Extra metadata explicitly added by the experiment subclass.
-        """
-        exclude = ["experiment_type", "num_qubits", "physical_qubits", "job_metadata"]
-
-        return {k: v for k, v in self.__experiment_metadata.items() if k not in exclude}
-
     def _data(
         self,
         series_name: Optional[str] = None,
@@ -825,14 +732,9 @@ class CurveAnalysis(BaseAnalysis, ABC):
 
         # get experiment metadata
         try:
-            self.__experiment_metadata = experiment_data.metadata
-
-        except AttributeError:
-            pass
-
-        # get backend
-        try:
-            self.__backend = experiment_data.backend
+            physical_qubits = experiment_data.metadata["physical_qubits"]
+            setattr(self, "_physical_qubits", physical_qubits)
+            setattr(self, "_num_qubits", len(physical_qubits))
         except AttributeError:
             pass
 
@@ -851,10 +753,41 @@ class CurveAnalysis(BaseAnalysis, ABC):
             # Qiskit DataProcessor instance. May need calibration.
             data_processor.train(data=experiment_data.data())
 
+        # Initialize fit figure canvas
+        if self.options.plot:
+            self.drawer.initialize_canvas()
+
         #
         # 3. Extract curve entries from experiment data
         #
         self._extract_curves(experiment_data=experiment_data, data_processor=data_processor)
+
+        # TODO remove _data method dependency in follow-up
+        #  self.__processed_data_set will be removed from instance.
+
+        # Draw raw data
+        if self.options.plot and self.options.plot_raw_data:
+            for s in self.__series__:
+                raw_data = self._data(label="raw_data", series_name=s.name)
+                self.drawer.draw_raw_data(
+                    x_data=raw_data.x,
+                    y_data=raw_data.y,
+                    ax_index=s.canvas,
+                )
+
+        # Draw formatted data
+        if self.options.plot:
+            for s in self.__series__:
+                curve_data = self._data(label="fit_ready", series_name=s.name)
+                self.drawer.draw_formatted_data(
+                    x_data=curve_data.x,
+                    y_data=curve_data.y,
+                    y_err_data=curve_data.y_err,
+                    name=s.name,
+                    ax_index=s.canvas,
+                    color=s.plot_color,
+                    marker=s.plot_symbol,
+                )
 
         #
         # 4. Run fitting
@@ -986,75 +919,51 @@ class CurveAnalysis(BaseAnalysis, ABC):
             )
             analysis_results.append(raw_data_entry)
 
-        #
-        # 6. Create figures
-        #
-        if self.options.plot:
-            # Initialize axis
-            self.drawer.initialize_canvas()
-            # Write raw data
-            if self.options.plot_raw_data:
-                for s in self.__series__:
-                    raw_data = self._data(label="raw_data", series_name=s.name)
-                    self.drawer.draw_raw_data(
-                        x_data=raw_data.x,
-                        y_data=raw_data.y,
-                        ax_index=s.canvas,
-                    )
-            # Write data points
+        # Draw fit results if fitting succeeded
+        if self.options.plot and fit_result:
             for s in self.__series__:
-                curve_data = self._data(label="fit_ready", series_name=s.name)
-                self.drawer.draw_formatted_data(
-                    x_data=curve_data.x,
-                    y_data=curve_data.y,
-                    y_err_data=curve_data.y_err,
-                    name=s.name,
+                interp_x = np.linspace(*fit_result.x_range, 100)
+
+                params = {}
+                for fitpar in s.signature:
+                    if fitpar in self.options.fixed_parameters:
+                        params[fitpar] = self.options.fixed_parameters[fitpar]
+                    else:
+                        params[fitpar] = fit_result.fitval(fitpar)
+
+                y_data_with_uncertainty = s.fit_func(interp_x, **params)
+                y_mean = unp.nominal_values(y_data_with_uncertainty)
+                y_std = unp.std_devs(y_data_with_uncertainty)
+                # Draw fit line
+                self.drawer.draw_fit_line(
+                    x_data=interp_x,
+                    y_data=y_mean,
                     ax_index=s.canvas,
                     color=s.plot_color,
-                    marker=s.plot_symbol,
                 )
-            # Write fit results if fitting succeeded
-            if fit_result:
-                for s in self.__series__:
-                    interp_x = np.linspace(*fit_result.x_range, 100)
+                # Draw confidence intervals with different n_sigma
+                sigmas = unp.std_devs(y_data_with_uncertainty)
+                if np.isfinite(sigmas).all():
+                    for n_sigma, alpha in self.drawer.options.plot_sigma:
+                        self.drawer.draw_confidence_interval(
+                            x_data=interp_x,
+                            y_ub=y_mean + n_sigma * y_std,
+                            y_lb=y_mean - n_sigma * y_std,
+                            ax_index=s.canvas,
+                            alpha=alpha,
+                            color=s.plot_color,
+                        )
 
-                    params = {}
-                    for fitpar in s.signature:
-                        if fitpar in self.options.fixed_parameters:
-                            params[fitpar] = self.options.fixed_parameters[fitpar]
-                        else:
-                            params[fitpar] = fit_result.fitval(fitpar)
+            # Draw fitting report
+            report_description = ""
+            for res in analysis_results:
+                if isinstance(res.value, (float, uncertainties.UFloat)):
+                    report_description += f"{analysis_result_to_repr(res)}\n"
+            report_description += r"Fit $\chi^2$ = " + f"{fit_result.reduced_chisq: .4g}"
+            self.drawer.draw_fit_report(description=report_description)
 
-                    y_data_with_uncertainty = s.fit_func(interp_x, **params)
-                    y_mean = unp.nominal_values(y_data_with_uncertainty)
-                    y_std = unp.std_devs(y_data_with_uncertainty)
-                    # Draw fit line
-                    self.drawer.draw_fit_line(
-                        x_data=interp_x,
-                        y_data=y_mean,
-                        ax_index=s.canvas,
-                        color=s.plot_color,
-                    )
-                    # Draw confidence intervals with different n_sigma
-                    sigmas = unp.std_devs(y_data_with_uncertainty)
-                    if np.isfinite(sigmas).all():
-                        for n_sigma, alpha in self.drawer.options.plot_sigma:
-                            self.drawer.draw_confidence_interval(
-                                x_data=interp_x,
-                                y_ub=y_mean + n_sigma * y_std,
-                                y_lb=y_mean - n_sigma * y_std,
-                                ax_index=s.canvas,
-                                alpha=alpha,
-                                color=s.plot_color,
-                            )
-
-                # Write fitting report
-                report_description = ""
-                for res in analysis_results:
-                    if isinstance(res.value, (float, uncertainties.UFloat)):
-                        report_description += f"{analysis_result_to_repr(res)}\n"
-                report_description += r"Fit $\chi^2$ = " + f"{fit_result.reduced_chisq: .4g}"
-                self.drawer.draw_fit_report(description=report_description)
+        # Output figure
+        if self.options.plot:
             self.drawer.format_canvas()
             figures = [self.drawer.figure]
         else:
