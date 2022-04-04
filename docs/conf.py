@@ -100,6 +100,7 @@ extensions = [
     "autoref",
     "autodoc_experiment",
     "autodoc_analysis",
+    "jupyter-execute-checkenv",
 ]
 html_static_path = ["_static"]
 templates_path = ["_templates"]

@@ -16,7 +16,8 @@ from test.base import QiskitExperimentsTestCase
 from test.fake_experiment import FakeExperiment
 
 import ddt
-from qiskit.circuit.library import QuantumVolume
+from qiskit.circuit import Instruction
+from qiskit.circuit.library import QuantumVolume, SXGate, RZXGate, Barrier, Measure
 import qiskit.quantum_info as qi
 
 
@@ -61,6 +62,27 @@ class TestJSON(QiskitExperimentsTestCase):
         obj.set_transpile_options(optimization_level=3, basis_gates=["rx", "ry", "cz"])
         obj.set_run_options(shots=2000)
         self.assertRoundTripSerializable(obj, self.json_equiv)
+
+    @ddt.data(SXGate(), RZXGate(0.4), Barrier(5), Measure())
+    def test_roundtrip_gate(self, instruction):
+        """Test round-trip serialization of a gate."""
+        self.assertRoundTripSerializable(instruction)
+
+    def test_custom_instruction(self):
+        """Test the serialisation of a custom instruction."""
+
+        class CustomInstruction(Instruction):
+            """A custom instruction for testing."""
+
+            def __init__(self, param: float):
+                """Initialize the instruction."""
+                super().__init__("test_inst", 2, 2, [param, 0.6])
+
+        def compare_instructions(inst1, inst2):
+            """Soft comparison of two instructions."""
+            return inst1.soft_compare(inst2)
+
+        self.assertRoundTripSerializable(CustomInstruction(0.123), check_func=compare_instructions)
 
     def test_roundtrip_quantum_circuit(self):
         """Test round-trip serialization of a circuits"""

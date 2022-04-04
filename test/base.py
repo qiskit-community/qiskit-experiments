@@ -31,6 +31,7 @@ from qiskit_experiments.framework import (
     BaseExperiment,
     BaseAnalysis,
 )
+from qiskit_experiments.curve_analysis.visualization.base_drawer import BaseCurveDrawer
 
 
 class QiskitExperimentsTestCase(QiskitTestCase):
@@ -106,7 +107,7 @@ class QiskitExperimentsTestCase(QiskitTestCase):
     def json_equiv(cls, data1, data2) -> bool:
         """Check if two experiments are equivalent by comparing their configs"""
         # pylint: disable = too-many-return-statements
-        configrable_type = (BaseExperiment, BaseAnalysis)
+        configrable_type = (BaseExperiment, BaseAnalysis, BaseCurveDrawer)
         compare_repr = (DataAction, DataProcessor)
         list_type = (list, tuple, set)
         skipped = tuple()
