@@ -173,7 +173,7 @@ allow configuring various experiment and execution options
 - :meth:`BaseExperiment._transpiled_circuits`
   to override the default transpilation of circuits before execution.
 
-- :meth:`BaseExperiment._additional_metadata`
+- :meth:`BaseExperiment._metadata`
   to add any experiment metadata to the result data.
 
 Analysis Subclasses

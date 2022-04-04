@@ -678,7 +678,7 @@ class CurveAnalysis(BaseAnalysis, ABC):
     def _num_qubits(self) -> int:
         """Getter for qubit number."""
         try:
-            return self.__experiment_metadata["num_qubits"]
+            return len(self.__experiment_metadata["physical_qubits"])
         except (TypeError, KeyError):
             # Ignore experiment metadata is not set or key is not found
             return None
@@ -749,7 +749,6 @@ class CurveAnalysis(BaseAnalysis, ABC):
             Extra metadata explicitly added by the experiment subclass.
         """
         exclude = ["experiment_type", "num_qubits", "physical_qubits", "job_metadata"]
-
         return {k: v for k, v in self.__experiment_metadata.items() if k not in exclude}
 
     def _data(
