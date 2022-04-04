@@ -121,13 +121,7 @@ class TestT1(QiskitExperimentsTestCase):
         """
 
         data = ExperimentData()
-        data._metadata = {
-            "job_metadata": [
-                {
-                    "run_options": {"meas_level": 2},
-                },
-            ]
-        }
+        data._metadata = {"meas_level": 2}
 
         numbers = [750, 1800, 2750, 3550, 4250, 4850, 5450, 5900, 6400, 6800, 7000, 7350, 7700]
 
@@ -178,13 +172,7 @@ class TestT1(QiskitExperimentsTestCase):
         """
 
         data = ExperimentData()
-        data._metadata = {
-            "job_metadata": [
-                {
-                    "run_options": {"meas_level": 2},
-                },
-            ]
-        }
+        data._metadata = {"meas_level": 2}
 
         for i in range(10):
             data.add_data(
