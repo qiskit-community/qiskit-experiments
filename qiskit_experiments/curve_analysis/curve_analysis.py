@@ -1129,7 +1129,7 @@ def analysis_result_to_repr(result: AnalysisResultData) -> str:
         String representation of the data.
     """
     if not isinstance(result.value, (float, uncertainties.UFloat)):
-        return AnalysisError(f"Result data {result.name} is not valid fit parameter data type.")
+        return AnalysisError(f"Result data {result.name} is not a valid fit parameter data type.")
 
     unit = result.extra.get("unit", None)
 
