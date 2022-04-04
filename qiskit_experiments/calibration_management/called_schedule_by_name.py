@@ -34,7 +34,7 @@ class CalledScheduleByName(ScheduleBlock):
         self,
         schedule_name: str,
         channels: Union[Channel, Tuple[Channel]],
-        alignment_context: Optional[AlignmentKind] = None
+        alignment_context: Optional[AlignmentKind] = None,
     ):
         """
         Args:
@@ -46,7 +46,7 @@ class CalledScheduleByName(ScheduleBlock):
         super().__init__(name=schedule_name, alignment_context=alignment_context)
 
         if not isinstance(channels, tuple):
-            channels = (channels, )
+            channels = (channels,)
 
         self._channels = channels
 

@@ -817,7 +817,6 @@ class CrossResonanceTest(QiskitExperimentsTestCase):
         self.width_tcp = Parameter("w")
         self.date_time = datetime.strptime("15/09/19 10:21:35", "%d/%m/%y %H:%M:%S")
 
-
         # Mimic a tunable coupler pulse that is just a pulse on a control channel.
         with pulse.build(name="tcp") as tcp:
             pulse.play(GaussianSquare(640, self.amp_tcp, self.sigma_tcp, self.width_tcp), self.c1_)
@@ -889,7 +888,9 @@ class TestControlChannels(CrossResonanceTest):
         """Test that we can get a schedule with free parameters."""
 
         new_param = Parameter("new_amp")
-        schedule = self.cals.get_schedule("ecr", (3, 2), assign_params={("cr_amp", (3, 2), "ecr"): new_param})
+        schedule = self.cals.get_schedule(
+            "ecr", (3, 2), assign_params={("cr_amp", (3, 2), "ecr"): new_param}
+        )
 
         self.assertEqual(schedule.parameters, {new_param})
 
@@ -919,9 +920,9 @@ class TestControlChannels(CrossResonanceTest):
 
         # Ensure that amp is 0.5+0.0j
         insts = block_to_schedule(sched_inst).filter(channels=[DriveChannel(2)]).instructions
-        self.assertEqual(insts[0][1].pulse.amp, 0.5+0.0j)
+        self.assertEqual(insts[0][1].pulse.amp, 0.5 + 0.0j)
 
-        # Update amp to 0.25 and check that change is propagated through.
+        # Update amp in x to 0.25 and check that change is propagated through.
         date_time2 = datetime.strptime("15/09/19 10:22:35", "%d/%m/%y %H:%M:%S")
         self.cals.add_parameter_value(ParameterValue(0.25, date_time2), "amp", (2,), schedule="x")
 
@@ -995,8 +996,9 @@ class TestAssignment(QiskitExperimentsTestCase):
 
     def test_assign_to_parameter_in_call(self):
         """Test assigning to a Parameter instance in a call"""
-        with pulse.build(name="call_xp") as call_xp:
-            pulse.call(self.xp_)
+
+        call_xp = pulse.ScheduleBlock(name="call_xp")
+        call_xp.append(CalledScheduleByName("xp", self.d0_))
         self.cals.add_schedule(call_xp, num_qubits=1)
 
         my_amp = Parameter("my_amp")
@@ -1011,9 +1013,12 @@ class TestAssignment(QiskitExperimentsTestCase):
 
     def test_assign_to_parameter_in_call_and_to_value_in_caller(self):
         """Test assigning to a Parameter instances in a call and caller"""
-        with pulse.build(name="call_xp_xp") as call_xp_xp:
-            pulse.call(self.xp_)
+        call_xp_xp = pulse.ScheduleBlock(name="call_xp_xp")
+        call_xp_xp.append(CalledScheduleByName("xp", self.d0_))
+        with pulse.build(name="another_xp") as another_xp:
             pulse.play(Gaussian(160, self.amp_xp, self.sigma), self.d0_)
+        call_xp_xp.append(another_xp)
+
         self.cals.add_schedule(call_xp_xp, num_qubits=1)
 
         my_amp = Parameter("amp")
@@ -1042,9 +1047,12 @@ class TestAssignment(QiskitExperimentsTestCase):
         by assigning it to a Parameter that is also used in the calling
         schedule as that will re-bind the Parameter in the subschedule as well.
         """
-        with pulse.build(name="call_xp_xp") as call_xp_xp:
-            pulse.call(self.xp_)
+        call_xp_xp = pulse.ScheduleBlock(name="call_xp_xp")
+        call_xp_xp.append(CalledScheduleByName("xp", self.d0_))
+        with pulse.build(name="another_xp") as another_xp:
             pulse.play(Gaussian(160, self.amp_xp, self.sigma), self.d0_)
+        call_xp_xp.append(another_xp)
+
         self.cals.add_schedule(call_xp_xp, num_qubits=1)
 
         my_amp = Parameter("amp")
@@ -1179,16 +1187,17 @@ class TestCoupledAssigning(QiskitExperimentsTestCase):
 
         ecr = pulse.ScheduleBlock(name="ecr", alignment_context=AlignSequential())
         ecr.append(CalledScheduleByName("cr_p", self.c1_))
-        ecr.append(CalledScheduleByName("x", self.d0_))
+        ecr.append(CalledScheduleByName("xp", self.d0_))
         ecr.append(CalledScheduleByName("cr_m", self.c1_))
 
-        with pulse.build(name="cr_echo_both") as cr_echo_both:
-            with pulse.align_sequential():
-                pulse.call(cr_p)
-                with pulse.align_left():
-                    pulse.call(xp)
-                    pulse.call(xp, value_dict={self.ch0: self.ch1})
-                pulse.call(cr_m)
+        double_x = pulse.ScheduleBlock(name="double_x")
+        double_x.append(CalledScheduleByName("xp", self.d0_))
+        double_x.append(CalledScheduleByName("xp", self.d1_))
+
+        cr_echo_both = pulse.ScheduleBlock(name="cr_echo_both", alignment_context=AlignSequential())
+        cr_echo_both.append(CalledScheduleByName("cr_p", self.c1_))
+        cr_echo_both.append(double_x)
+        cr_echo_both.append(CalledScheduleByName("cr_m", self.c1_))
 
         self.cals.add_schedule(cr_p, num_qubits=2)
         self.cals.add_schedule(cr_m, num_qubits=2)
@@ -1378,26 +1387,26 @@ class TestSavingAndLoading(CrossResonanceTest):
         """Test that we can save and load parameter values."""
 
         self.cals.save("csv", overwrite=True, file_prefix=self._prefix)
-        self.assertEqual(self.cals.get_parameter_value("amp", (3,), "xp"), 0.1 + 0.01j)
+        self.assertEqual(self.cals.get_parameter_value("amp", (3,), "x"), 0.5)
 
         self.cals._params = defaultdict(list)
 
         with self.assertRaises(CalibrationError):
-            self.cals.get_parameter_value("amp", (3,), "xp")
+            self.cals.get_parameter_value("amp", (3,), "x")
 
         # Load the parameters, check value and type.
         self.cals.load_parameter_values(self._prefix + "parameter_values.csv")
 
-        val = self.cals.get_parameter_value("amp", (3,), "xp")
-        self.assertEqual(val, 0.1 + 0.01j)
-        self.assertTrue(isinstance(val, complex))
+        val = self.cals.get_parameter_value("amp", (3,), "x")
+        self.assertEqual(val, 0.5)
+        self.assertTrue(isinstance(val, float))
 
-        val = self.cals.get_parameter_value("σ", (3,), "xp")
+        val = self.cals.get_parameter_value("σ", (3,), "x")
         self.assertEqual(val, 40)
-        self.assertTrue(isinstance(val, int))
+        self.assertTrue(isinstance(val, float))
 
-        val = self.cals.get_parameter_value("amp", (3, 2), "cr")
-        self.assertEqual(val, 0.3)
+        val = self.cals.get_parameter_value("cr_amp", (3, 2), "ecr")
+        self.assertEqual(val, 0.5)
         self.assertTrue(isinstance(val, float))
 
         # Check that we cannot rewrite files as they already exist.
@@ -1411,7 +1420,7 @@ class TestSavingAndLoading(CrossResonanceTest):
 
         new_date = datetime.strptime("16/09/20 10:21:35.012+0200", "%d/%m/%y %H:%M:%S.%f%z")
         value = ParameterValue(0.222, date_time=new_date)
-        self.cals.add_parameter_value(value, "amp", (3,), "xp")
+        self.cals.add_parameter_value(value, "amp", (3,), "x")
 
         self.cals.save("csv", overwrite=True, file_prefix=self._prefix)
         self.cals._params = defaultdict(list)

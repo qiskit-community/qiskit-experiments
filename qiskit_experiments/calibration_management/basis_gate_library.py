@@ -393,10 +393,3 @@ class EchoedCrossResonance(BasisGateLibrary):
         ecr_sched.append(CalledScheduleByName("x", control))
 
         return {"ecr": ecr_sched, "cr45m": cr45m_sched, "cr45p": cr45p_sched}
-
-    def config(self) -> Dict[str, Any]:
-        """Return the settings used to initialize the library."""
-        conf = super().config()
-        conf["kwargs"]["single_qubit_library"] = conf["kwargs"]["dependencies"][0]
-        del conf["kwargs"]["dependencies"]
-        return conf

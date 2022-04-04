@@ -27,12 +27,9 @@ from qiskit.pulse import (
     DriveChannel,
     ControlChannel,
     MeasureChannel,
-    Call,
-    Instruction,
     AcquireChannel,
     RegisterSlot,
     MemorySlot,
-    Schedule,
     InstructionScheduleMap,
 )
 from qiskit.pulse.channels import PulseChannel
@@ -1095,13 +1092,28 @@ class Calibrations:
         cutoff_date: datetime = None,
     ) -> ScheduleBlock:
         """Recursively removes all called by name instructions."""
-        ret_schedule = ScheduleBlock(name=schedule.name, alignment_context=schedule.alignment_context)
+        ret_schedule = ScheduleBlock(
+            name=schedule.name, alignment_context=schedule.alignment_context
+        )
 
         for block in schedule.blocks:
             if isinstance(block, CalledScheduleByName):
-                called_qubits = tuple(self._get_channel_index(qubits, ch) for ch in block.channels)
 
-                # Avoid the check at the end. This is done upon the final return of get_schedule
+                # Down-select the qubits to those of the called instruction.
+                called_qubits = []
+                for ch in block.channels:
+                    # Ignore ControlChannels as their index does not map to a qubit index.
+                    if not isinstance(ch, ControlChannel):
+                        called_qubits.append(self._get_channel_index(qubits, ch))
+
+                    called_qubits = tuple(called_qubits)
+
+                # If no qubits were down-selected then use all the qubits.
+                if len(called_qubits) == 0:
+                    called_qubits = qubits
+
+                # Avoid the free-parameter count check at the end.
+                # This is done upon the final return of get_schedule
                 ret_schedule.append(
                     self.get_schedule(
                         block.name, called_qubits, assign_params, group, cutoff_date, False
