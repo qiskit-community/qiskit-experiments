@@ -13,9 +13,12 @@
 """Base class for calibration-type experiments."""
 
 from abc import ABC
+import copy
+import logging
 from typing import List, Optional, Type, Union
 import warnings
 
+from qiskit import QuantumCircuit, transpile
 from qiskit.providers.backend import Backend
 from qiskit.pulse import ScheduleBlock
 
@@ -25,6 +28,8 @@ from qiskit_experiments.framework.base_analysis import BaseAnalysis
 from qiskit_experiments.framework.base_experiment import BaseExperiment
 from qiskit_experiments.framework.experiment_data import ExperimentData
 from qiskit_experiments.exceptions import CalibrationError
+
+LOG = logging.getLogger(__name__)
 
 
 class BaseCalibrationExperiment(BaseExperiment, ABC):
@@ -216,6 +221,30 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
         experiment data if needed.
         """
         pass
+
+    def _transpiled_circuits(self) -> List[QuantumCircuit]:
+        """Override the transpiled circuits method to bring in the inst_map.
+
+        The calibrated schedules are transpiled into the circuits using the instruction
+        schedule map. Since instances of :class:`InstructionScheduleMap` are not serializable
+        they should not be in the transpile options. Only instances of :class:`Calibrations`
+        need to be serialized. Here, we pass the instruction schedule map of the calibrations
+        to the transpiler.
+
+        Returns:
+            A list of transpiled circuits.
+        """
+        transpile_opts = copy.copy(self.transpile_options.__dict__)
+        if "inst_map" in transpile_opts:
+            LOG.warning(
+                "Instruction schedule maps should not be present in calibration "
+                "experiments. Overriding with the inst. map of the calibrations."
+            )
+
+        transpile_opts["inst_map"] = self.calibrations.default_inst_map
+        transpile_opts["initial_layout"] = list(self.physical_qubits)
+
+        return transpile(self.circuits(), self.backend, **transpile_opts)
 
     def run(
         self,
