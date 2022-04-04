@@ -58,11 +58,17 @@ class BaseCurveDrawer(ABC):
         or smoothed by a filtering algorithm, depending on how analysis class is implemented.
         This method is called with error bars of y values and the name of the curve.
 
-    draw_fit_lines
+    draw_fit_line
 
         This method is called after fitting is completed and when there is valid fit outcome.
-        This method is called with the fitting model that can generate y values with
-        error bars. Interpolated x value should be internally generated.
+        This method is called with the interpolated x and y values.
+
+    draw_confidence_interval
+
+        This method is called after fitting is completed and when there is valid fit outcome.
+        This method is called with the interpolated x and a pair of y values
+        that represent the upper and lower bound within certain confidence interval.
+        This might be called multiple times with different interval sizes.
 
     draw_fit_report
 
