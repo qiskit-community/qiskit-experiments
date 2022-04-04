@@ -109,10 +109,12 @@ class ErrorAmplificationAnalysis(curve.CurveAnalysis):
                 considered as good. Defaults to :math:`\pi/2`.
         """
         default_options = super()._default_options()
+        default_options.curve_plotter.set_options(
+            xlabel="Number of gates (n)",
+            ylabel="Population",
+            ylim=(0, 1.0),
+        )
         default_options.result_parameters = ["d_theta"]
-        default_options.xlabel = "Number of gates (n)"
-        default_options.ylabel = "Population"
-        default_options.ylim = [0, 1.0]
         default_options.max_good_angle_error = np.pi / 2
 
         return default_options
