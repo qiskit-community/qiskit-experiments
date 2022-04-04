@@ -17,6 +17,7 @@ import logging
 import dataclasses
 import uuid
 import enum
+import time
 from typing import Optional, List, Any, Union, Callable, Dict, Tuple
 import copy
 from concurrent import futures
@@ -1211,6 +1212,7 @@ class DbExperimentDataV1(DbExperimentData):
         Returns:
             The experiment data with finished jobs and post-processing.
         """
+        start_time = time.time()
         with self._job_futures.lock and self._analysis_futures.lock:
             # Lock threads to get all current job and analysis futures
             # at the time of function call and then release the lock
@@ -1223,16 +1225,29 @@ class DbExperimentDataV1(DbExperimentData):
         self._wait_for_futures(job_futs + analysis_futs, name="jobs and analysis", timeout=timeout)
 
         # Clean up done job futures
+        num_jobs = len(job_ids)
         for jid, fut in zip(job_ids, job_futs):
             if (fut.done() and not fut.exception()) or fut.cancelled():
                 if jid in self._job_futures:
                     del self._job_futures[jid]
+                    num_jobs -= 1
 
         # Clean up done analysis futures
+        num_analysis = len(analysis_ids)
         for cid, fut in zip(analysis_ids, analysis_futs):
             if (fut.done() and not fut.exception()) or fut.cancelled():
                 if cid in self._analysis_futures:
                     del self._analysis_futures[cid]
+                    num_analysis -= 1
+
+        # Check if more futures got added while this function was running
+        # and block recursively. This could happen if an analysis callback
+        # spawns another callback or creates more jobs
+        if len(self._job_futures) > num_jobs or len(self._analysis_futures) > num_analysis:
+            time_taken = time.time() - start_time
+            if timeout is not None:
+                timeout = max(0, timeout - time_taken)
+            return self.block_for_results(timeout=timeout)
 
         return self
 
