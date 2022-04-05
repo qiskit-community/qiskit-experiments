@@ -251,11 +251,9 @@ class StandardRB(BaseExperiment, RestlessMixin):
                 2: {"cx": 1.0},
             }
             qubits = tuple(self.physical_qubits)
-            default_ratio = num_qubit_default_basis.get(len(qubits), None)
-            if default_ratio:
-                gate_error_ratio = {(qubits, k): v for k, v in default_ratio.items()}
-            else:
-                gate_error_ratio = None
+            gate_error_ratio = {
+                (qubits, k): v for k, v in num_qubit_default_basis.get(len(qubits), {}).items()
+            }
 
         if gate_error_ratio != "skip":
 
