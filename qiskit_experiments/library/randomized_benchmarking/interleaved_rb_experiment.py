@@ -23,6 +23,7 @@ from qiskit.quantum_info import Clifford
 from qiskit.exceptions import QiskitError
 from qiskit.providers.backend import Backend
 
+from qiskit_experiments.framework import Options
 from .rb_experiment import StandardRB
 from .interleaved_rb_analysis import InterleavedRBAnalysis
 
@@ -141,3 +142,10 @@ class InterleavedRB(StandardRB):
                     interleaved_element.name
                 )
             ) from error
+
+    def _default_experiment_options(cls) -> Options:
+        options = super()._default_experiment_options()
+        # Computation of EPG is not necessary for IRB. This will drastically reduce overhead of ops counting.
+        options.gate_error_ratio = "skip"
+
+        return options

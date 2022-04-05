@@ -76,7 +76,7 @@ class RBAnalysis(curve.CurveAnalysis):
                 This is used to estimate the 2-qubit EPG.
             gate_error_ratio (Dict[str, float]): An estimate for the ratios
                 between errors on different gates.
-            gate_per_clifford (Dict[Tuple[Sequence[int], str], float]): A dictionary
+            gate_counts_per_clifford (Dict[Tuple[Sequence[int], str], float]): A dictionary
                 of gate numbers constituting a single averaged Clifford operation
                 on particular physical qubit.
         """
@@ -89,7 +89,7 @@ class RBAnalysis(curve.CurveAnalysis):
         default_options.result_parameters = ["alpha"]
         default_options.epg_1_qubit = None
         default_options.gate_error_ratio = None
-        default_options.gate_per_clifford = None
+        default_options.gate_counts_per_clifford = None
 
         return default_options
 
@@ -147,21 +147,6 @@ class RBAnalysis(curve.CurveAnalysis):
     def _format_data(self, data: curve.CurveData) -> curve.CurveData:
         """Data format with averaging with sampling strategy."""
 
-        # just for backward compatibility. new framework assumes it is set to analysis option in finalize.
-        if self.options.gate_per_clifford is None:
-            warnings.warn(
-                "Computing gate number per Clifford from circuit metadata has been deprecated and "
-                "will be removed after Qiskit Experiments 0.4. Now this is pre-computed before "
-                f"{self.__class__.__name__} is called and set to analysis option 'gates_per_clifford'."
-            )
-            count_ops = []
-            for meta in data.metadata:
-                count_ops += meta.get("count_ops", [])
-            if len(count_ops) > 0 and self.options.gate_error_ratio is not None:
-                self.set_options(
-                    gates_per_clifford=RBUtils.gates_per_clifford(count_ops)
-                )
-
         # take average over the same x value by regenerating sigma from variance of y values
         series, xdata, ydata, sigma, shots = multi_mean_xy_data(
             series=data.data_index,
@@ -209,7 +194,7 @@ class RBAnalysis(curve.CurveAnalysis):
         )
 
         # Calculate EPG
-        if self.options.gate_per_clifford is not None and self.options.gate_error_ratio is not None:
+        if self.options.gate_error_ratio != "skip":
             num_qubits = len(self._physical_qubits)
 
             if num_qubits == 1:
@@ -217,7 +202,7 @@ class RBAnalysis(curve.CurveAnalysis):
                     epc,
                     self._physical_qubits,
                     self.options.gate_error_ratio,
-                    self.options.gate_per_clifford,
+                    self.options.gate_counts_per_clifford,
                 )
             elif num_qubits == 2:
                 epg_1_qubit = self.options.epg_1_qubit
@@ -225,7 +210,7 @@ class RBAnalysis(curve.CurveAnalysis):
                     epc,
                     self._physical_qubits,
                     self.options.gate_error_ratio,
-                    self.options.gate_per_clifford,
+                    self.options.gate_counts_per_clifford,
                     epg_1_qubit=epg_1_qubit,
                 )
             else:
@@ -252,12 +237,31 @@ class RBAnalysis(curve.CurveAnalysis):
     ) -> Tuple[List[AnalysisResultData], List["pyplot.Figure"]]:
 
         if self.options.gate_error_ratio is None:
-            # For backward compatibility when loading old experiment data.
-            # This could return errorneous error ratio.
-            # Deprecation warning is triggered on RBUtils.
-            gate_error_ratio = RBUtils.get_error_dict_from_backend(
-                backend=experiment_data.backend, qubits=experiment_data.metadata["physical_qubits"],
-            )
+            gate_error_ratio = experiment_data.metadata.get("gate_error_ratio", None)
+
+            if gate_error_ratio is None:
+                # For backward compatibility when loading old experiment data.
+                # This could return errorneous error ratio.
+                # Deprecation warning is triggered on RBUtils.
+                gate_error_ratio = RBUtils.get_error_dict_from_backend(
+                    backend=experiment_data.backend, qubits=experiment_data.metadata["physical_qubits"],
+                )
+
             self.set_options(gate_error_ratio=gate_error_ratio)
+
+        if self.options.gate_counts_per_clifford is None:
+            gpc = experiment_data.metadata.get("gate_counts_per_clifford", None)
+
+            if gpc is None and self.options.gate_error_ratio != "skip":
+                # Just for backward compatibility.
+                # New framework assumes it is set to experiment metadata rather than in circuit metadata.
+                # Deprecation warning is triggered on RBUtils.
+                count_ops = []
+                for circ_metadata in experiment_data.data().metadata:
+                    count_ops += circ_metadata.get("count_ops", [])
+                if len(count_ops) > 0 and self.options.gate_error_ratio is not None:
+                    gpc = RBUtils.gates_per_clifford(count_ops)
+
+            self.set_options(gate_counts_per_clifford=gpc)
 
         return super()._run_analysis(experiment_data)

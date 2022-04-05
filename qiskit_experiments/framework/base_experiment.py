@@ -263,11 +263,11 @@ class BaseExperiment(ABC, StoreInitArgs):
         # Finalize experiment before executions
         experiment._finalize()
 
-        # Initialize result container
-        experiment_data = experiment._initialize_experiment_data()
-
         # Generate and transpile circuits
         transpiled_circuits = experiment._transpiled_circuits()
+
+        # Initialize result container
+        experiment_data = experiment._initialize_experiment_data()
 
         # Run options
         run_opts = experiment.run_options.__dict__
