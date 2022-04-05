@@ -16,6 +16,7 @@ from typing import List, Optional
 
 from qiskit import QuantumCircuit, ClassicalRegister
 from qiskit.providers.backend import Backend
+from qiskit_experiments.exceptions import QiskitError
 from .composite_experiment import CompositeExperiment, BaseExperiment
 from .composite_analysis import CompositeAnalysis
 
@@ -63,20 +64,27 @@ class ParallelExperiment(CompositeExperiment):
 
         sub_circuits = []
         sub_qubits = []
+        sub_maps = []
         sub_size = []
         num_qubits = 0
 
         # Generate data for combination
-        for expr in self._experiments:
-            # Add subcircuits
-            circs = expr.circuits()
-            sub_circuits.append(circs)
-            sub_size.append(len(circs))
+        for sub_exp in self._experiments:
 
-            # Add sub qubits
-            qubits = list(range(num_qubits, num_qubits + expr.num_qubits))
+            # Generate transpiled subcircuits
+            circuits = sub_exp._transpiled_circuits()
+
+            # Add subcircuits
+            sub_circuits.append(circuits)
+            sub_size.append(len(circuits))
+
+            # Sub experiment logical qubits in the combined circuits full qubits
+            qubits = list(range(num_qubits, num_qubits + sub_exp.num_qubits))
             sub_qubits.append(qubits)
-            num_qubits += expr.num_qubits
+            # Construct mapping for the sub-experiments logical qubits to physical qubits
+            # in the full combined circuits
+            sub_maps.append({q: qubits[i] for i, q in enumerate(sub_exp.physical_qubits)})
+            num_qubits += sub_exp.num_qubits
 
         # Generate empty joint circuits
         num_circuits = max(sub_size)
@@ -97,9 +105,37 @@ class ParallelExperiment(CompositeExperiment):
                     sub_circ = sub_circuits[exp_idx][circ_idx]
                     num_clbits = circuit.num_clbits
                     qubits = sub_qubits[exp_idx]
+                    qargs_map = sub_maps[exp_idx]
                     clbits = list(range(num_clbits, num_clbits + sub_circ.num_clbits))
                     circuit.add_register(ClassicalRegister(sub_circ.num_clbits))
-                    circuit.append(sub_circ, qubits, clbits)
+
+                    # Apply transpiled subcircuit
+                    # Note that this assumes the circuit was not expanded to use
+                    # any qubits outside the specified physical qubits
+                    for inst, qargs, cargs in sub_circ.data:
+                        try:
+                            mapped_qargs = [
+                                circuit.qubits[qargs_map[sub_circ.find_bit(i).index]] for i in qargs
+                            ]
+                        except KeyError as ex:
+                            # Instruction is outside physical qubits for the component
+                            # experiment.
+                            # This could legitimately happen if the subcircuit was
+                            # explicitly scheduled during transpilation which would
+                            # insert delays on all auxillary device qubits.
+                            # We skip delay instructions to allow for this.
+                            if inst.name == "delay":
+                                continue
+                            raise QiskitError(
+                                "Component experiment has been transpiled outside of the "
+                                "allowed physical qubits for that component. Check the "
+                                "experiment is valid on the backends coupling map."
+                            ) from ex
+                        mapped_cargs = [
+                            circuit.clbits[clbits[sub_circ.find_bit(i).index]] for i in cargs
+                        ]
+                        circuit._append(inst, mapped_qargs, mapped_cargs)
+
                     # Add subcircuit metadata
                     circuit.metadata["composite_index"].append(exp_idx)
                     circuit.metadata["composite_metadata"].append(sub_circ.metadata)
@@ -114,6 +150,6 @@ class ParallelExperiment(CompositeExperiment):
                             )
 
             # Add joint circuit to returned list
-            joint_circuits.append(circuit.decompose())
+            joint_circuits.append(circuit)
 
         return joint_circuits
