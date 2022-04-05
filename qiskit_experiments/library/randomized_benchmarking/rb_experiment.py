@@ -12,7 +12,7 @@
 """
 Standard RB Experiment class.
 """
-from typing import Union, Iterable, Optional, List, Sequence, Dict
+from typing import Union, Iterable, Optional, List, Sequence
 from collections import defaultdict
 
 import numpy as np
@@ -24,7 +24,7 @@ from qiskit.quantum_info import Clifford
 from qiskit.circuit import Gate
 from qiskit.providers.backend import Backend
 
-from qiskit_experiments.framework import BaseExperiment, ParallelExperiment, Options
+from qiskit_experiments.framework import BaseExperiment, Options
 from qiskit_experiments.framework.restless_mixin import RestlessMixin
 from .rb_analysis import RBAnalysis
 from .clifford_utils import CliffordUtils
@@ -124,15 +124,17 @@ class StandardRB(BaseExperiment, RestlessMixin):
                 used to initialize ``numpy.random.default_rng`` when generating circuits.
                 The ``default_rng`` will be initialized with this seed value everytime
                 :meth:`circuits` is called.
-            gate_error_ratio (Union[str, Dict[Tuple[int, str], float]]): The assumption of error ratio of
-                basis gates constituting RB Clifford sequences. When this value is set,
-                the error per gate (EPG) values are computed from the estimated error per Clifford (EPC) parameter
-                in the RB analysis. This value defaults to "default". When explicit gate error ratio is not
-                provided, a gate error ratio dictionary of typical basis gates for superconducting processor is
+            gate_error_ratio (Union[str, Dict[Tuple[int, str], float]]): The assumption of error ratio
+                of basis gates constituting RB Clifford sequences. When this value is set,
+                the error per gate (EPG) values are computed from the estimated
+                error per Clifford (EPC) parameter in the RB analysis.
+                This value defaults to "default". When explicit gate error ratio is not provided,
+                a gate error ratio dictionary of typical basis gates for superconducting processor is
                 implicitly created and set, i.e. ``(sx, x, rz)`` for single qubit RB,
-                and ``(cx, )`` for two qubit RB. No default gate definition for more than three qubit RB.
+                and ``(cx, )`` for two qubit RB.
+                No default gate definition for more than three qubit RB.
                 The dictionary is keyed on a tuple of qubit index and string label of instruction.
-                Defined instruction should appear in the basis gates configurations in the transpile options.
+                Defined instructions should appear in the ``basis_gates`` in the transpile options.
                 If this value is set to ``"skip"``, the computation of EPG values is skipped.
         """
         options = super()._default_experiment_options()
@@ -228,6 +230,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
                 circuits.append(rb_circ)
         return circuits
 
+    @classmethod
     def _default_transpile_options(cls) -> Options:
         options = super()._default_experiment_options()
 
@@ -256,14 +259,13 @@ class StandardRB(BaseExperiment, RestlessMixin):
 
         if gate_error_ratio != "skip":
 
-            gates_in_estimates = set(
-                q_gate_tup[1] for q_gate_tup in gate_error_ratio.keys()
-            )
+            gates_in_estimates = set(q_gate_tup[1] for q_gate_tup in gate_error_ratio.keys())
             # Validate if assumed gates are a part to basis gates in the transpile options
             basis_gates = set(self.transpile_options.basis_gates)
             if not basis_gates.issuperset(gates_in_estimates):
                 raise ValueError(
-                    f"Assumed gates {gates_in_estimates} is not valid subset of basis gates {basis_gates}."
+                    f"Assumed gates {gates_in_estimates} is not valid "
+                    f"subset of basis gates {basis_gates}."
                 )
 
         # Directly copy the value to experiment data metadata via instance state

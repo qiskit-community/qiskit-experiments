@@ -194,7 +194,11 @@ class RBAnalysis(curve.CurveAnalysis):
         )
 
         # Calculate EPG
-        if self.options.gate_error_ratio != "skip":
+
+        if (
+            self.options.gate_counts_per_clifford is not None
+            and self.options.gate_error_ratio != "skip"
+        ):
             num_qubits = len(self._physical_qubits)
 
             if num_qubits == 1:
@@ -244,7 +248,8 @@ class RBAnalysis(curve.CurveAnalysis):
                 # This could return errorneous error ratio.
                 # Deprecation warning is triggered on RBUtils.
                 gate_error_ratio = RBUtils.get_error_dict_from_backend(
-                    backend=experiment_data.backend, qubits=experiment_data.metadata["physical_qubits"],
+                    backend=experiment_data.backend,
+                    qubits=experiment_data.metadata["physical_qubits"],
                 )
 
             self.set_options(gate_error_ratio=gate_error_ratio)

@@ -21,13 +21,12 @@ import functools
 import inspect
 import warnings
 from abc import ABC
-from typing import Any, Dict, List, Tuple, Callable, Union, Optional
+from typing import Dict, List, Tuple, Callable, Union, Optional
 
 import numpy as np
 import uncertainties
 from uncertainties import unumpy as unp
 
-from qiskit.providers import Backend
 from qiskit.utils import detach_prefix
 from qiskit_experiments.curve_analysis.curve_data import (
     CurveData,
@@ -255,6 +254,9 @@ class CurveAnalysis(BaseAnalysis, ABC):
 
         #: List[CurveData]: Processed experiment data set.
         self.__processed_data_set = list()
+
+        #: List[int]: Index of physical qubits
+        self._physical_qubits = None
 
     @classmethod
     def _fit_params(cls) -> List[str]:
@@ -701,6 +703,10 @@ class CurveAnalysis(BaseAnalysis, ABC):
 
         raise AnalysisError(f"Specified series {series_name} is not defined in this analysis.")
 
+    @property
+    def _num_qubits(self) -> int:
+        return len(self._physical_qubits)
+
     def _run_analysis(
         self, experiment_data: ExperimentData
     ) -> Tuple[List[AnalysisResultData], List["pyplot.Figure"]]:
@@ -732,10 +738,8 @@ class CurveAnalysis(BaseAnalysis, ABC):
 
         # get experiment metadata
         try:
-            physical_qubits = experiment_data.metadata["physical_qubits"]
-            setattr(self, "_physical_qubits", physical_qubits)
-            setattr(self, "_num_qubits", len(physical_qubits))
-        except AttributeError:
+            self._physical_qubits = experiment_data.metadata["physical_qubits"]
+        except KeyError:
             pass
 
         #

@@ -143,9 +143,11 @@ class InterleavedRB(StandardRB):
                 )
             ) from error
 
+    @classmethod
     def _default_experiment_options(cls) -> Options:
         options = super()._default_experiment_options()
-        # Computation of EPG is not necessary for IRB. This will drastically reduce overhead of ops counting.
+        # Computation of EPG is not necessary for IRB.
+        # This will drastically reduce overhead of ops counting.
         options.gate_error_ratio = "skip"
 
         return options
