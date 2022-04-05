@@ -61,8 +61,8 @@ expected to be used when you want to interact with the database directly - for
 example, to retrieve a saved analysis result.
 
 Currently only IBM Quantum provides this database service. See
-`qiskit-ibmq-provider <https://qiskit.org/documentation/apidoc/ibmq_experiment.html>`_
-for more details.
+the :mod:`Experiment <qiskit.providers.ibmq.experiment>` module in the IBM
+Quantum provider for more details.
 
 Classes
 =======

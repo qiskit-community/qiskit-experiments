@@ -19,7 +19,7 @@ from qiskit import QuantumCircuit
 from qiskit.providers.backend import Backend
 
 from qiskit_experiments.framework import BaseExperiment, Options
-from qiskit_experiments.library.characterization.analysis import FineFrequencyAnalysis
+from qiskit_experiments.curve_analysis.standard_analysis import ErrorAmplificationAnalysis
 
 
 class FineFrequency(BaseExperiment):
@@ -47,7 +47,7 @@ class FineFrequency(BaseExperiment):
             meas: 1/══════════════════════════════════════════════╩═
                                                                   0
     # section: analysis_ref
-        :py:class:`FineFrequencyAnalysis`
+        :py:class:`~qiskit_experiments.curve_analysis.ErrorAmplificationAnalysis`
     """
 
     def __init__(
@@ -66,7 +66,16 @@ class FineFrequency(BaseExperiment):
             repetitions: The number of repetitions, if not given then the default value
                 from the experiment default options will be used.
         """
-        super().__init__([qubit], analysis=FineFrequencyAnalysis(), backend=backend)
+        analysis = ErrorAmplificationAnalysis()
+        analysis.set_options(
+            normalization=True,
+            fixed_parameters={
+                "angle_per_gate": np.pi / 2,
+                "phase_offset": 0.0,
+            },
+        )
+
+        super().__init__([qubit], analysis=analysis, backend=backend)
 
         if repetitions is not None:
             self.set_experiment_options(repetitions=repetitions)
@@ -127,3 +136,12 @@ class FineFrequency(BaseExperiment):
             circuits.append(circuit)
 
         return circuits
+
+    def _metadata(self):
+        metadata = super()._metadata()
+        # Store measurement level and meas return if they have been
+        # set for the experiment
+        for run_opt in ["meas_level", "meas_return"]:
+            if hasattr(self.run_options, run_opt):
+                metadata[run_opt] = getattr(self.run_options, run_opt)
+        return metadata

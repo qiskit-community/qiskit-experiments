@@ -14,7 +14,6 @@
 
 import io
 import logging
-import time
 import threading
 import traceback
 from abc import ABC, abstractmethod
@@ -104,27 +103,6 @@ def plot_to_svg_bytes(figure: "pyplot.Figure") -> bytes:
     figure_data = buf.read()
     buf.close()
     return figure_data
-
-
-def combined_timeout(
-    func: Callable, timeout: Optional[float] = None
-) -> Tuple[Any, Union[float, None]]:
-    """Call func(timeout) and return reduced timeout for subsequent funcs.
-
-    Args:
-        func: A function with signature func(timeout).
-        timeout: The time to wait for function call.
-
-    Returns:
-        A pair of the function return and the updated timeout variable
-        for remaining time left to wait for other functions.
-    """
-    time_start = time.time()
-    ret = func(timeout)
-    time_stop = time.time()
-    if timeout is not None:
-        timeout = max(0, timeout + time_start - time_stop)
-    return ret, timeout
 
 
 def save_data(
@@ -244,6 +222,27 @@ class ThreadSafeContainer(ABC):
         """Remove all elements from this container."""
         with self.lock:
             self._container.clear()
+
+    def __json_encode__(self):
+        cpy = self.copy_object()
+        return {"_container": cpy._container}
+
+    @classmethod
+    def __json_decode__(cls, value):
+        ret = cls()
+        ret._container = value["_container"]
+        return ret
+
+    def __getstate__(self):
+        state = self.__dict__.copy()
+        # Remove non-pickleable attribute
+        del state["_lock"]
+        return state
+
+    def __setstate__(self, state):
+        self.__dict__.update(state)
+        # Initialize non-pickleable attribute
+        self._lock = threading.RLock()
 
 
 class ThreadSafeOrderedDict(ThreadSafeContainer):

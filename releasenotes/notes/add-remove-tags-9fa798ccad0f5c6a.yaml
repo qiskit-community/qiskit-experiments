@@ -1,4 +1,0 @@
----
-features:
-  - |
-    New methods `add_tags_recursive` and `remove_tags_recursive` for adding and removing tags of an experiment data object and recursively all its descendants (if it is composite).

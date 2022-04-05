@@ -1,9 +1,0 @@
----
-features:
-  - |
-    Adds automatic job splitting to
-    :class:`~qiskit_experiments.framework.BaseExperiment` for execution of
-    experiments with a larger number of circuits than can be run in a single
-    job on the target backend. This enables running large experiments on
-    legacy and non-IBM backends that don't handle job splitting
-    automatically.

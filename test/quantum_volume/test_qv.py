@@ -16,6 +16,7 @@ A Tester for the Quantum Volume experiment
 from test.base import QiskitExperimentsTestCase
 import json
 import os
+from uncertainties import UFloat
 from qiskit.quantum_info.operators.predicates import matrix_equal
 
 from qiskit import Aer
@@ -105,8 +106,10 @@ class TestQuantumVolume(QiskitExperimentsTestCase):
         # set number of trials to a low number to make the test faster
         qv_exp.set_experiment_options(trials=2)
         expdata1 = qv_exp.run(backend)
+        self.assertExperimentDone(expdata1)
         result_data1 = expdata1.analysis_results(0)
         expdata2 = qv_exp.run(backend, analysis=None)
+        self.assertExperimentDone(expdata2)
         expdata2.add_data(expdata1.data())
         qv_exp.analysis.run(expdata2)
         result_data2 = expdata2.analysis_results(0)
@@ -117,7 +120,7 @@ class TestQuantumVolume(QiskitExperimentsTestCase):
             "number of trials is incorrect" " after adding more trials",
         )
         self.assertTrue(
-            result_data2.value.stderr <= result_data1.value.stderr,
+            result_data2.value.s <= result_data1.value.s,
             "sigma did not decreased after adding more trials",
         )
 
@@ -218,11 +221,19 @@ class TestQuantumVolume(QiskitExperimentsTestCase):
 
         results = exp_data.analysis_results()
         for result, reference in zip(results, successful_results):
-            self.assertEqual(
-                result.value,
-                reference["value"],
-                "result value is not the same as precalculated analysis",
-            )
+            if isinstance(result.value, UFloat):
+                # ufloat is distinguished by object id. so usually not identical to cache.
+                self.assertTupleEqual(
+                    (result.value.n, result.value.s),
+                    (reference["value"].n, reference["value"].s),
+                    "result value is not the same as precalculated analysis",
+                )
+            else:
+                self.assertEqual(
+                    result.value,
+                    reference["value"],
+                    "result value is not the same as precalculated analysis",
+                )
             self.assertEqual(
                 result.name,
                 reference["name"],
@@ -247,9 +258,9 @@ class TestQuantumVolume(QiskitExperimentsTestCase):
         exp = QuantumVolume([0, 1, 2], seed=42)
         loaded_exp = QuantumVolume.from_config(exp.config())
         self.assertNotEqual(exp, loaded_exp)
-        self.assertTrue(self.experiments_equiv(exp, loaded_exp))
+        self.assertTrue(self.json_equiv(exp, loaded_exp))
 
     def test_roundtrip_serializable(self):
         """Test round trip JSON serialization"""
         exp = QuantumVolume([0, 1, 2], seed=42)
-        self.assertRoundTripSerializable(exp, self.experiments_equiv)
+        self.assertRoundTripSerializable(exp, self.json_equiv)

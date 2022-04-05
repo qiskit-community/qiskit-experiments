@@ -29,6 +29,7 @@ from qiskit_experiments.curve_analysis.standard_analysis.oscillation import Osci
 from qiskit_experiments.data_processing.data_processor import DataProcessor
 from qiskit_experiments.data_processing.nodes import Probability
 from qiskit_experiments.test.mock_iq_backend import RabiBackend
+from qiskit_experiments.database_service.db_experiment_data import ExperimentStatus
 
 
 class TestRabiEndToEnd(QiskitExperimentsTestCase):
@@ -54,28 +55,31 @@ class TestRabiEndToEnd(QiskitExperimentsTestCase):
         rabi = Rabi(self.qubit, self.sched)
         rabi.set_experiment_options(amplitudes=np.linspace(-0.95, 0.95, 21))
         expdata = rabi.run(backend)
+        self.assertExperimentDone(expdata)
         result = expdata.analysis_results(0)
 
         self.assertEqual(result.quality, "good")
-        self.assertTrue(abs(result.value.value[1] - backend.rabi_rate) < test_tol)
+        self.assertAlmostEqual(result.value[1], backend.rabi_rate, delta=test_tol)
 
         backend = RabiBackend(amplitude_to_angle=np.pi / 2)
 
         rabi = Rabi(self.qubit, self.sched)
         rabi.set_experiment_options(amplitudes=np.linspace(-0.95, 0.95, 21))
         expdata = rabi.run(backend)
+        self.assertExperimentDone(expdata)
         result = expdata.analysis_results(0)
         self.assertEqual(result.quality, "good")
-        self.assertTrue(abs(result.value.value[1] - backend.rabi_rate) < test_tol)
+        self.assertAlmostEqual(result.value[1], backend.rabi_rate, delta=test_tol)
 
         backend = RabiBackend(amplitude_to_angle=2.5 * np.pi)
 
         rabi = Rabi(self.qubit, self.sched)
         rabi.set_experiment_options(amplitudes=np.linspace(-0.95, 0.95, 101))
         expdata = rabi.run(backend)
+        self.assertExperimentDone(expdata)
         result = expdata.analysis_results(0)
         self.assertEqual(result.quality, "good")
-        self.assertTrue(abs(result.value.value[1] - backend.rabi_rate) < test_tol)
+        self.assertAlmostEqual(result.value[1], backend.rabi_rate, delta=test_tol)
 
     def test_wrong_processor(self):
         """Test that we can override the data processing by giving a faulty data processor."""
@@ -91,6 +95,7 @@ class TestRabiEndToEnd(QiskitExperimentsTestCase):
         data = rabi.run(backend)
         result = data.analysis_results()
 
+        self.assertEqual(data.status(), ExperimentStatus.ERROR)
         self.assertEqual(len(result), 0)
 
     def test_experiment_config(self):
@@ -98,13 +103,13 @@ class TestRabiEndToEnd(QiskitExperimentsTestCase):
         exp = Rabi(0, self.sched)
         loaded_exp = Rabi.from_config(exp.config())
         self.assertNotEqual(exp, loaded_exp)
-        self.assertTrue(self.experiments_equiv(exp, loaded_exp))
+        self.assertTrue(self.json_equiv(exp, loaded_exp))
 
     @unittest.skip("Schedules are not yet JSON serializable")
     def test_roundtrip_serializable(self):
         """Test round trip JSON serialization"""
         exp = Rabi(0, self.sched)
-        self.assertRoundTripSerializable(exp, self.experiments_equiv)
+        self.assertRoundTripSerializable(exp, self.json_equiv)
 
 
 class TestEFRabi(QiskitExperimentsTestCase):
@@ -135,10 +140,11 @@ class TestEFRabi(QiskitExperimentsTestCase):
         rabi = EFRabi(self.qubit, self.sched)
         rabi.set_experiment_options(amplitudes=np.linspace(-0.95, 0.95, 21))
         expdata = rabi.run(backend)
+        self.assertExperimentDone(expdata)
         result = expdata.analysis_results(1)
 
         self.assertEqual(result.quality, "good")
-        self.assertTrue(abs(result.value.value - backend.rabi_rate) < test_tol)
+        self.assertTrue(abs(result.value.n - backend.rabi_rate) < test_tol)
 
     def test_ef_rabi_circuit(self):
         """Test the EFRabi experiment end to end."""
@@ -167,13 +173,13 @@ class TestEFRabi(QiskitExperimentsTestCase):
         exp = EFRabi(0, self.sched)
         loaded_exp = EFRabi.from_config(exp.config())
         self.assertNotEqual(exp, loaded_exp)
-        self.assertTrue(self.experiments_equiv(exp, loaded_exp))
+        self.assertTrue(self.json_equiv(exp, loaded_exp))
 
     @unittest.skip("Schedules are not yet JSON serializable")
     def test_roundtrip_serializable(self):
         """Test round trip JSON serialization"""
         exp = EFRabi(0, self.sched)
-        self.assertRoundTripSerializable(exp, self.experiments_equiv)
+        self.assertRoundTripSerializable(exp, self.json_equiv)
 
 
 class TestRabiCircuits(QiskitExperimentsTestCase):
@@ -272,9 +278,9 @@ class TestRabiAnalysis(QiskitExperimentsTestCase):
         experiment_data = OscillationAnalysis().run(
             experiment_data, data_processor=data_processor, plot=False
         )
-        result = experiment_data.analysis_results()
-        self.assertEqual(result[0].quality, "good")
-        self.assertTrue(abs(result[0].value.value[1] - expected_rate) < test_tol)
+        result = experiment_data.analysis_results(0)
+        self.assertEqual(result.quality, "good")
+        self.assertAlmostEqual(result.value[1], expected_rate, delta=test_tol)
 
     def test_bad_analysis(self):
         """Test the Rabi analysis."""

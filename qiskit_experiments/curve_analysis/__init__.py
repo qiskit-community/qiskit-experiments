@@ -31,6 +31,7 @@ These are the base class and internal data structures to implement a curve analy
     FitData
     ParameterRepr
     FitOptions
+    MplCurveDrawer
 
 Standard Analysis
 =================
@@ -48,6 +49,7 @@ your experiment class, you can still tailor the standard analysis classes to you
     DumpedOscillationAnalysis
     OscillationAnalysis
     ResonanceAnalysis
+    GaussianAnalysis
     ErrorAmplificationAnalysis
 
 Functions
@@ -73,6 +75,7 @@ Fit Functions
     fit_function.cos_decay
     fit_function.exponential_decay
     fit_function.gaussian
+    fit_function.sqrt_lorentzian
     fit_function.sin
     fit_function.sin_decay
     fit_function.bloch_oscillation_x
@@ -101,8 +104,15 @@ Visualization
     plot_curve_fit
     plot_errorbar
     plot_scatter
+
+Utilities
+*********
+.. autosummary::
+    :toctree: ../stubs/
+
+    is_error_not_significant
 """
-from .curve_analysis import CurveAnalysis
+from .curve_analysis import CurveAnalysis, is_error_not_significant
 from .curve_data import CurveData, SeriesDef, FitData, ParameterRepr, FitOptions
 from .curve_fit import (
     curve_fit,
@@ -110,7 +120,7 @@ from .curve_fit import (
     process_curve_data,
     process_multi_curve_data,
 )
-from .visualization import plot_curve_fit, plot_errorbar, plot_scatter, FitResultPlotters
+from .visualization import MplCurveDrawer
 from . import guess
 from . import fit_function
 
@@ -120,5 +130,9 @@ from .standard_analysis import (
     DumpedOscillationAnalysis,
     OscillationAnalysis,
     ResonanceAnalysis,
+    GaussianAnalysis,
     ErrorAmplificationAnalysis,
 )
+
+# deprecated
+from .visualization import plot_curve_fit, plot_errorbar, plot_scatter, FitResultPlotters

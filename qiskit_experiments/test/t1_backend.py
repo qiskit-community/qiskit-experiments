@@ -67,8 +67,8 @@ class T1Backend(BackendV1):
         result = {
             "backend_name": "T1 backend",
             "backend_version": "0",
-            "qobj_id": 0,
-            "job_id": 0,
+            "qobj_id": "0",
+            "job_id": "0",
             "success": True,
             "results": [],
         }
@@ -129,5 +129,4 @@ class T1Backend(BackendV1):
                     "data": {"counts": counts},
                 }
             )
-
         return FakeJob(backend=self, result=Result.from_dict(result))

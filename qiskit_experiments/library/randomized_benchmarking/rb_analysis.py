@@ -16,11 +16,11 @@ Standard RB analysis class.
 from typing import List, Union
 
 import numpy as np
-
 import qiskit_experiments.curve_analysis as curve
 from qiskit_experiments.curve_analysis.data_processing import multi_mean_xy_data, data_sort
 from qiskit_experiments.database_service.device_component import Qubit
-from qiskit_experiments.framework import AnalysisResultData, FitVal
+from qiskit_experiments.framework import AnalysisResultData
+
 from .rb_utils import RBUtils
 
 
@@ -61,7 +61,6 @@ class RBAnalysis(curve.CurveAnalysis):
                 x, amp=a, lamb=-1.0, base=alpha, baseline=b
             ),
             plot_color="blue",
-            plot_fit_uncertainty=True,
             model_description=r"a \alpha^x + b",
         )
     ]
@@ -82,8 +81,11 @@ class RBAnalysis(curve.CurveAnalysis):
 
         """
         default_options = super()._default_options()
-        default_options.xlabel = "Clifford Length"
-        default_options.ylabel = "P(0)"
+        default_options.curve_plotter.set_options(
+            xlabel="Clifford Length",
+            ylabel="P(0)",
+        )
+        default_options.plot_raw_data = True
         default_options.result_parameters = ["alpha"]
         default_options.error_dict = None
         default_options.epg_1_qubit = None
@@ -117,7 +119,7 @@ class RBAnalysis(curve.CurveAnalysis):
         opt: curve.FitOptions, x_values: np.ndarray, y_values: np.ndarray, num_qubits: int
     ) -> curve.FitOptions:
         """Create initial guess with experiment data."""
-        opt.p0.set_if_empty(b=1 / 2 ** num_qubits)
+        opt.p0.set_if_empty(b=1 / 2**num_qubits)
 
         # Use the first two points to guess the decay param
         dcliff = x_values[1] - x_values[0]
@@ -169,8 +171,9 @@ class RBAnalysis(curve.CurveAnalysis):
 
         # Calculate EPC
         alpha = fit_data.fitval("alpha")
-        scale = (2 ** self._num_qubits - 1) / (2 ** self._num_qubits)
-        epc = FitVal(value=scale * (1 - alpha.value), stderr=scale * alpha.stderr)
+        scale = (2**self._num_qubits - 1) / (2**self._num_qubits)
+        epc = scale * (1 - alpha)
+
         extra_entries.append(
             AnalysisResultData(
                 name="EPC",
@@ -201,7 +204,7 @@ class RBAnalysis(curve.CurveAnalysis):
             num_qubits = len(self._physical_qubits)
 
             if num_qubits == 1:
-                epg = RBUtils.calculate_1q_epg(
+                epg_dict = RBUtils.calculate_1q_epg(
                     epc,
                     self._physical_qubits,
                     gate_error_ratio,
@@ -209,7 +212,7 @@ class RBAnalysis(curve.CurveAnalysis):
                 )
             elif num_qubits == 2:
                 epg_1_qubit = self.options.epg_1_qubit
-                epg = RBUtils.calculate_2q_epg(
+                epg_dict = RBUtils.calculate_2q_epg(
                     epc,
                     self._physical_qubits,
                     gate_error_ratio,
@@ -218,9 +221,10 @@ class RBAnalysis(curve.CurveAnalysis):
                 )
             else:
                 # EPG calculation is not supported for more than 3 qubits RB
-                epg = None
-            if epg:
-                for qubits, gate_dict in epg.items():
+                epg_dict = None
+
+            if epg_dict:
+                for qubits, gate_dict in epg_dict.items():
                     for gate, value in gate_dict.items():
                         extra_entries.append(
                             AnalysisResultData(

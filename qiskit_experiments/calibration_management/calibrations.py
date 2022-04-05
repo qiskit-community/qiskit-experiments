@@ -18,6 +18,7 @@ from datetime import datetime, timezone
 from typing import Any, Dict, Set, Tuple, Union, List, Optional
 import csv
 import dataclasses
+import json
 import warnings
 import re
 
@@ -41,6 +42,8 @@ from qiskit.providers.backend import BackendV1 as Backend
 from qiskit_experiments.exceptions import CalibrationError
 from qiskit_experiments.calibration_management.basis_gate_library import BasisGateLibrary
 from qiskit_experiments.calibration_management.parameter_value import ParameterValue
+from qiskit_experiments.calibration_management.control_channel_map import ControlChannelMap
+from qiskit_experiments.calibration_management.calibration_utils import used_in_calls
 from qiskit_experiments.calibration_management.calibration_key_types import (
     ParameterKey,
     ParameterValueType,
@@ -94,7 +97,8 @@ class Calibrations:
                 qubits is :code:`[[0, 1], [1, 0], [1, 2], [2, 1], [2, 0], [0, 2]]`.
             control_channel_map: A configuration dictionary of any control channels. The
                 keys are tuples of qubits and the values are a list of ControlChannels
-                that correspond to the qubits in the keys.
+                that correspond to the qubits in the keys. If a control_channel_map is given
+                then the qubits must be in the coupling_map.
             library: A library instance from which to get template schedules to register as well
                 as default parameter values.
             add_parameter_defaults: A boolean to indicate weather the default parameter values of
@@ -158,6 +162,10 @@ class Calibrations:
                 for param_conf in library.default_values():
                     self.add_parameter_value(*param_conf, update_inst_map=False)
 
+        # This internal parameter is False so that if a schedule is added after the
+        # init it will be set to True and serialization will raise an error.
+        self._has_manually_added_schedule = False
+
         # Instruction schedule map variables and support variables.
         self._inst_map = InstructionScheduleMap()
 
@@ -168,14 +176,44 @@ class Calibrations:
         self._register_parameter(self.meas_freq, ())
 
         # Backends with a single qubit may not have a coupling map.
-        num_qubits = max(max(coupling_map)) + 1 if coupling_map is not None else 1
+        self._coupling_map = coupling_map if coupling_map is not None else []
 
-        self._qubits = list(range(num_qubits))
-        self._coupling_map = coupling_map
+        # A dict extension of the coupling map where the key is the number of qubits and
+        # the values are a list of qubits coupled.
         self._operated_qubits = self._get_operated_qubits()
+        self._check_consistency()
 
         # Push the schedules to the instruction schedule map.
         self.update_inst_map()
+
+    def _check_consistency(self):
+        """Check that the attributes defined in self are consistent.
+
+        Raises:
+            CalibrationError: If there is a control channel map but no coupling map.
+            CalibrationError: If a qubit in the control channel map is not in the
+                coupling map.
+        """
+        if not self._coupling_map and self._control_channel_map:
+            raise CalibrationError("No coupling map but a control channel map was found.")
+
+        if self._coupling_map and self._control_channel_map:
+            cmap_qubits = set(qubit for pair in self._coupling_map for qubit in pair)
+            for qubits in self._control_channel_map:
+                if not set(qubits).issubset(cmap_qubits):
+                    raise CalibrationError(
+                        f"Qubits {qubits} of control_channel_map are not in the coupling map."
+                    )
+
+    @property
+    def backend_name(self) -> str:
+        """Return the name of the backend."""
+        return self._backend_name
+
+    @property
+    def backend_version(self) -> str:
+        """Return the version of the backend."""
+        return self._backend_version
 
     @classmethod
     def from_backend(
@@ -205,7 +243,7 @@ class Calibrations:
             backend_name = None
 
         cals = Calibrations(
-            getattr(backend.configuration(), "coupling_map", None),
+            getattr(backend.configuration(), "coupling_map", []),
             getattr(backend.configuration(), "control_channels", None),
             library,
             add_parameter_defaults,
@@ -252,13 +290,16 @@ class Calibrations:
         operated_qubits = defaultdict(list)
 
         # Single qubits
-        for qubit in self._qubits:
-            operated_qubits[1].append([qubit])
+        if self._coupling_map:
+            for qubit in set(qubit for coupled in self._coupling_map for qubit in coupled):
+                operated_qubits[1].append([qubit])
+        else:
+            # Edge case for single-qubit device.
+            operated_qubits[1].append([0])
 
         # Multi-qubit couplings
-        if self._coupling_map is not None:
-            for coupling in self._coupling_map:
-                operated_qubits[len(coupling)].append(coupling)
+        for coupling in self._coupling_map:
+            operated_qubits[len(coupling)].append(coupling)
 
         return operated_qubits
 
@@ -337,7 +378,7 @@ class Calibrations:
             if schedules is not None and sched_name not in schedules:
                 continue
 
-            if qubits is not None:
+            if qubits:
                 self._robust_inst_map_add(inst_map, sched_name, qubits, group, cutoff_date)
             else:
                 for qubits_ in self._operated_qubits[self._schedules_qubits[key]]:
@@ -355,23 +396,65 @@ class Calibrations:
 
         get_schedule may raise an error if not all parameters have values or
         default values. In this case we ignore and continue updating inst_map.
+        Note that ``qubits`` may only be a sub-set of the qubits of the schedule that
+        we want to update. This may arise in cases such as an ECR gate schedule that calls
+        an X-gate schedule. When updating the X-gate schedule we need to also update the
+        corresponding ECR schedules which operate on a larger number of qubits.
 
         Args:
             sched_name: The name of the schedule.
-            qubits: The qubit to which the schedule applies.
+            qubits: The qubit to which the schedule applies. Note, these may be only a
+                subset of the qubits in the schedule. For example, if the name of the
+                schedule is `"cr"` we may have `qubits` be `(3, )` and this function
+                will update the CR schedules on all schedules which involve qubit 3.
             group: The calibration group.
             cutoff: The cutoff date.
         """
-        try:
-            inst_map.add(
-                instruction=sched_name,
-                qubits=qubits,
-                schedule=self.get_schedule(sched_name, qubits, group=group, cutoff_date=cutoff),
-            )
-        except CalibrationError:
-            # get_schedule may raise an error if not all parameters have values or
-            # default values. In this case we ignore and continue updating inst_map.
-            pass
+        for update_qubits in self._get_full_qubits_of_schedule(sched_name, qubits):
+            try:
+                schedule = self.get_schedule(
+                    sched_name, update_qubits, group=group, cutoff_date=cutoff
+                )
+                inst_map.add(instruction=sched_name, qubits=update_qubits, schedule=schedule)
+            except CalibrationError:
+                # get_schedule may raise an error if not all parameters have values or
+                # default values. In this case we ignore and continue updating inst_map.
+                pass
+
+    def _get_full_qubits_of_schedule(
+        self, schedule_name: str, partial_qubits: Tuple[int, ...]
+    ) -> List[Tuple[int, ...]]:
+        """Find all qubits for which there is a schedule ``schedule_name`` on ``partial_qubits``.
+
+        This method uses the map between the schedules and the number of qubits that they
+        operate on as well as the extension of the coupling map ``_operated_qubits`` to find
+        which qubits are involved in the schedule named ``schedule_name`` involving the
+        ``partial_qubits``.
+
+        Args:
+            schedule_name: The name of the schedule as registered in ``self``.
+            partial_qubits: A sub-set of qubits on which the schedule applies.
+
+        Returns:
+            A list of tuples. Each tuple is the set of qubits for which there is a schedule
+            named ``schedule_name`` and ``partial_qubits`` is a sub-set of said qubits.
+        """
+        for key, circuit_inst_num_qubits in self._schedules_qubits.items():
+            if key.schedule == schedule_name:
+
+                if len(partial_qubits) == circuit_inst_num_qubits:
+                    return [partial_qubits]
+
+                else:
+                    candidates = self._operated_qubits[circuit_inst_num_qubits]
+                    qubits_for_update = []
+                    for candidate_qubits in candidates:
+                        if set(partial_qubits).issubset(set(candidate_qubits)):
+                            qubits_for_update.append(tuple(candidate_qubits))
+
+                    return qubits_for_update
+
+        return []
 
     def inst_map_add(
         self,
@@ -446,6 +529,8 @@ class Calibrations:
                 number of qubits.
 
         """
+        self._has_manually_added_schedule = True
+
         qubits = self._to_tuple(qubits)
 
         if len(qubits) == 0 and num_qubits is None:
@@ -752,7 +837,11 @@ class Calibrations:
         if update_inst_map and schedule is not None:
             param_obj = self.calibration_parameter(param_name, qubits, sched_name)
             schedules = set(key.schedule for key in self._parameter_map_r[param_obj])
-            self.update_inst_map(schedules)
+
+            # Find schedules that may call the schedule we want to update.
+            schedules.update(used_in_calls(sched_name, list(self._schedules.values())))
+
+            self.update_inst_map(schedules, qubits=qubits)
 
     def _get_channel_index(self, qubits: Tuple[int, ...], chan: PulseChannel) -> int:
         """Get the index of the parameterized channel.
@@ -798,7 +887,7 @@ class Calibrations:
 
                 indices = [int(sub_channel) for sub_channel in qubit_channels.split(".")]
                 ch_qubits = tuple(qubits[index] for index in indices)
-                chs_ = self._control_channel_map[ch_qubits]
+                chs_ = self._control_channel_map.get(ch_qubits, [])
 
                 control_index = 0
                 if len(channel_index_parts) == 2:
@@ -892,6 +981,7 @@ class Calibrations:
         candidates = [val for val in candidates if val.group == group]
 
         if cutoff_date:
+            cutoff_date = cutoff_date.astimezone()
             candidates = [val for val in candidates if val.date_time <= cutoff_date]
 
         if len(candidates) == 0:
@@ -1511,3 +1601,89 @@ class Calibrations:
             f"{qubits} must be int, tuple of ints, or str  that can be parsed"
             f"to a tuple if ints. Received {qubits}."
         )
+
+    def __eq__(self, other: "Calibrations") -> bool:
+        """Test equality between two calibrations.
+
+        Two calibration instances are considered equal if
+        - The backends have the same name.
+        - The backends have the same version.
+        - The calibrations contain the same schedules.
+        - The stored paramters have the same values.
+        """
+        if self.backend_name != other.backend_name:
+            return False
+
+        if self._backend_version != other.backend_version:
+            return False
+
+        # Compare the contents of schedules, schedules are compared by their string
+        # representation because they contain parameters.
+        for key, schedule in self._schedules.items():
+            if repr(schedule) != repr(other._schedules.get(key, None)):
+                return False
+
+        # Check the keys.
+        if self._schedules.keys() != other._schedules.keys():
+            return False
+
+        def _hash(data: dict):
+            return hash(json.dumps(data))
+
+        sorted_params_a = sorted(self.parameters_table()["data"], key=_hash)
+        sorted_params_b = sorted(other.parameters_table()["data"], key=_hash)
+
+        return sorted_params_a == sorted_params_b
+
+    def config(self) -> Dict[str, Any]:
+        """Return the settings used to initialize the calibrations.
+
+        Returns:
+            The config dictionary of the calibrations instance.
+
+        Raises:
+            CalibrationError: If schedules were added outside of the :code:`__init__`
+                method. This will remain so until schedules can be serialized.
+        """
+        if self._has_manually_added_schedule:
+            raise CalibrationError(
+                f"Config dictionaries for {self.__class__.__name__} are currently "
+                "not supported if schedules were added manually."
+            )
+
+        kwargs = {
+            "coupling_map": self._coupling_map,
+            "control_channel_map": ControlChannelMap(self._control_channel_map),
+            "library": self.library,
+            "add_parameter_defaults": False,  # the parameters will be added outside of the init
+            "backend_name": self._backend_name,
+            "backend_version": self._backend_version,
+        }
+
+        return {
+            "class": self.__class__.__name__,
+            "kwargs": kwargs,
+            "parameters": self.parameters_table()["data"],
+        }
+
+    @classmethod
+    def from_config(cls, config: Dict) -> "Calibrations":
+        """Deserialize the calibrations given the input dictionary"""
+
+        config["kwargs"]["control_channel_map"] = config["kwargs"]["control_channel_map"].chan_map
+
+        calibrations = cls(**config["kwargs"])
+
+        for param_config in config["parameters"]:
+            calibrations._add_parameter_value_from_conf(**param_config)
+
+        return calibrations
+
+    def __json_encode__(self):
+        """Convert to format that can be JSON serialized."""
+        return self.config()
+
+    @classmethod
+    def __json_decode__(cls, value: Dict[str, Any]) -> "Calibrations":
+        """Load from JSON compatible format."""
+        return cls.from_config(value)

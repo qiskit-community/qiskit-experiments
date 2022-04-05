@@ -1,4 +1,0 @@
----
-other:
-  - |
-    All the experiments work only with predefined units: Hz for frequency, seconds for delays, dt for pulse widths and durations. Unit arguments were removed from experiment class constructors and options.

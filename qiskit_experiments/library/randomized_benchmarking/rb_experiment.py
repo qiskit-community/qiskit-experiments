@@ -23,14 +23,14 @@ from qiskit.quantum_info import Clifford
 from qiskit.circuit import Gate
 from qiskit.providers.backend import Backend
 
-import qiskit_experiments.data_processing as dp
 from qiskit_experiments.framework import BaseExperiment, ParallelExperiment, Options
+from qiskit_experiments.framework.restless_mixin import RestlessMixin
 from .rb_analysis import RBAnalysis
 from .clifford_utils import CliffordUtils
 from .rb_utils import RBUtils
 
 
-class StandardRB(BaseExperiment):
+class StandardRB(BaseExperiment, RestlessMixin):
     """Standard randomized benchmarking experiment.
 
     # section: overview
@@ -91,12 +91,7 @@ class StandardRB(BaseExperiment):
 
         # Set configurable options
         self.set_experiment_options(lengths=list(lengths), num_samples=num_samples, seed=seed)
-        self.analysis.set_options(
-            data_processor=dp.DataProcessor(
-                input_key="counts",
-                data_actions=[dp.Probability(outcome="0" * self.num_qubits)],
-            )
-        )
+        self.analysis.set_options(outcome="0" * self.num_qubits)
 
         # Set fixed options
         self._full_sampling = full_sampling
@@ -228,12 +223,23 @@ class StandardRB(BaseExperiment):
                     return meta
         return None
 
-    def _postprocess_transpiled_circuits(self, circuits, **run_options):
-        """Additional post-processing of transpiled circuits before running on backend"""
-        for c in circuits:
+    def _transpiled_circuits(self) -> List[QuantumCircuit]:
+        """Return a list of experiment circuits, transpiled."""
+        transpiled = super()._transpiled_circuits()
+        for c in transpiled:
             meta = self._get_circuit_metadata(c)
             if meta is not None:
                 c_count_ops = RBUtils.count_ops(c, self.physical_qubits)
                 circuit_length = meta["xval"]
                 count_ops = [(key, (value, circuit_length)) for key, value in c_count_ops.items()]
                 meta.update({"count_ops": count_ops})
+        return transpiled
+
+    def _metadata(self):
+        metadata = super()._metadata()
+        # Store measurement level and meas return if they have been
+        # set for the experiment
+        for run_opt in ["meas_level", "meas_return"]:
+            if hasattr(self.run_options, run_opt):
+                metadata[run_opt] = getattr(self.run_options, run_opt)
+        return metadata

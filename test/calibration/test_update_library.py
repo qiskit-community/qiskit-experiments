@@ -31,7 +31,7 @@ class TestAmplitudeUpdate(QiskitExperimentsTestCase):
     def setUp(self):
         """Setup amplitude values."""
         super().setUp()
-        self.cals = Calibrations()
+        self.cals = Calibrations(coupling_map=[])
         self.qubit = 1
 
         axp = Parameter("amp")
@@ -66,8 +66,9 @@ class TestFrequencyUpdate(QiskitExperimentsTestCase):
         spec = QubitSpectroscopy(qubit, frequencies)
         spec.set_run_options(meas_level=MeasLevel.CLASSIFIED)
         exp_data = spec.run(backend)
+        self.assertExperimentDone(exp_data)
         result = exp_data.analysis_results(1)
-        value = result.value.value
+        value = result.value.n
 
         self.assertTrue(freq01 + peak_offset - 2e6 < value < freq01 + peak_offset + 2e6)
         self.assertEqual(result.quality, "good")

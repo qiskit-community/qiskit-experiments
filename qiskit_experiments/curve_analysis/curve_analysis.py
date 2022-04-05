@@ -15,17 +15,20 @@ Analysis class for curve fitting.
 """
 # pylint: disable=invalid-name
 
+import copy
 import dataclasses
 import functools
 import inspect
 import warnings
 from abc import ABC
 from typing import Any, Dict, List, Tuple, Callable, Union, Optional
-from uncertainties import unumpy as unp
 
 import numpy as np
-from qiskit.providers import Backend
+import uncertainties
+from uncertainties import unumpy as unp
 
+from qiskit.providers import Backend
+from qiskit.utils import detach_prefix
 from qiskit_experiments.curve_analysis.curve_data import (
     CurveData,
     SeriesDef,
@@ -35,7 +38,7 @@ from qiskit_experiments.curve_analysis.curve_data import (
 )
 from qiskit_experiments.curve_analysis.curve_fit import multi_curve_fit
 from qiskit_experiments.curve_analysis.data_processing import multi_mean_xy_data, data_sort
-from qiskit_experiments.curve_analysis.visualization import FitResultPlotters, PlotterStyle
+from qiskit_experiments.curve_analysis.visualization import MplCurveDrawer, BaseCurveDrawer
 from qiskit_experiments.data_processing import DataProcessor
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
 from qiskit_experiments.data_processing.processor_library import get_processor
@@ -44,8 +47,8 @@ from qiskit_experiments.framework import (
     BaseAnalysis,
     ExperimentData,
     AnalysisResultData,
-    FitVal,
     Options,
+    AnalysisConfig,
 )
 
 PARAMS_ENTRY_PREFIX = "@Parameters_"
@@ -72,8 +75,6 @@ class CurveAnalysis(BaseAnalysis, ABC):
             - ``name``: Name of the curve. This is arbitrary data field, but should be unique.
             - ``plot_color``: String color representation of this series in the plot.
             - ``plot_symbol``: String formatter of the scatter of this series in the plot.
-            - ``plot_fit_uncertainty``: A Boolean signaling whether to plot fit uncertainty
-              for this series in the plot.
 
         - ``__fixed_parameters__``: A list of parameter names fixed during the fitting.
             These parameters should be provided in some way. For example, you can provide
@@ -234,12 +235,23 @@ class CurveAnalysis(BaseAnalysis, ABC):
     #: List[SeriesDef]: List of mapping representing a data series
     __series__ = list()
 
-    #: List[str]: Fixed parameter in fit function. Value should be set to the analysis options.
-    __fixed_parameters__ = list()
-
     def __init__(self):
         """Initialize data fields that are privately accessed by methods."""
         super().__init__()
+
+        if hasattr(self, "__fixed_parameters__"):
+            warnings.warn(
+                "The class attribute __fixed_parameters__ has been deprecated and will be removed. "
+                "Now this attribute is absorbed in analysis options as fixed_parameters. "
+                "This warning will be dropped in v0.4 along with "
+                "the support for the deprecated attribute.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            # pylint: disable=no-member
+            self._options.fixed_parameters = {
+                p: self.options.get(p, None) for p in self.__fixed_parameters__
+            }
 
         #: Dict[str, Any]: Experiment metadata
         self.__experiment_metadata = None
@@ -272,27 +284,29 @@ class CurveAnalysis(BaseAnalysis, ABC):
             )
 
         # remove the first function argument. this is usually x, i.e. not a fit parameter.
-        fit_params = list(list(fsigs)[0].parameters.keys())[1:]
+        return list(list(fsigs)[0].parameters.keys())[1:]
 
-        # remove fixed parameters
-        if cls.__fixed_parameters__ is not None:
-            for fixed_param in cls.__fixed_parameters__:
-                try:
-                    fit_params.remove(fixed_param)
-                except ValueError as ex:
-                    raise AnalysisError(
-                        f"Defined fixed parameter {fixed_param} is not a fit function argument."
-                        "Update series definition to ensure the parameter name is defined with "
-                        f"fit functions. Currently available parameters are {fit_params}."
-                    ) from ex
+    @property
+    def parameters(self) -> List[str]:
+        """Return parameters of this curve analysis."""
+        return [s for s in self._fit_params() if s not in self.options.fixed_parameters]
 
-        return fit_params
+    @property
+    def drawer(self) -> BaseCurveDrawer:
+        """A short-cut for curve drawer instance."""
+        return self._options.curve_plotter
 
     @classmethod
     def _default_options(cls) -> Options:
         """Return default analysis options.
 
         Analysis Options:
+            curve_plotter (BaseCurveDrawer): A curve drawer instance to visualize
+                the analysis result.
+            plot_raw_data (bool): Set ``True`` to draw un-formatted data points on canvas.
+                This is ``True`` by default.
+            plot (bool): Set ``True`` to create figure for fit result.
+                This is ``False`` by default.
             curve_fitter (Callable): A callback function to perform fitting with formatted data.
                 See :func:`~qiskit_experiments.analysis.multi_curve_fit` for example.
             data_processor (Callable): A callback function to format experiment data.
@@ -304,23 +318,6 @@ class CurveAnalysis(BaseAnalysis, ABC):
             bounds (Dict[str, Tuple[float, float]]): Array-like or dictionary
                 of (min, max) tuple of fit parameter boundaries.
             x_key (str): Circuit metadata key representing a scanned value.
-            plot (bool): Set ``True`` to create figure for fit result.
-            axis (AxesSubplot): Optional. A matplotlib axis object to draw.
-            xlabel (str): X label of fit result figure.
-            ylabel (str): Y label of fit result figure.
-            xlim (Tuple[float, float]): Min and max value of horizontal axis of the fit plot.
-            ylim (Tuple[float, float]): Min and max value of vertical axis of the fit plot.
-            xval_unit (str): SI unit of x values. No prefix is needed here.
-                For example, when the x values represent time, this option will be just "s"
-                rather than "ms". In the fit result plot, the prefix is automatically selected
-                based on the maximum value. If your x values are in [1e-3, 1e-4], they
-                are displayed as [1 ms, 10 ms]. This option is likely provided by the
-                analysis class rather than end-users. However, users can still override
-                if they need different unit notation. By default, this option is set to ``None``,
-                and no scaling is applied. X axis will be displayed in the scientific notation.
-            yval_unit (str): Unit of y values. Same as ``xval_unit``.
-                This value is not provided in most experiments, because y value is usually
-                population or expectation values.
             result_parameters (List[Union[str, ParameterRepr]): Parameters reported in the
                 database as a dedicated entry. This is a list of parameter representation
                 which is either string or ParameterRepr object. If you provide more
@@ -329,45 +326,84 @@ class CurveAnalysis(BaseAnalysis, ABC):
                 The parameter name should be defined in the series definition.
                 Representation should be printable in standard output, i.e. no latex syntax.
             return_data_points (bool): Set ``True`` to return formatted XY data.
-            curve_plotter (str): A name of plotter function used to generate
-                the curve fit result figure. This refers to the mapper
-                :py:class:`~qiskit_experiments.curve_analysis.visualization.FitResultPlotters`
-                to retrieve the corresponding callback function.
-            style (PlotterStyle): An instance of
-                :py:class:`~qiskit_experiments.curve_analysis.visualization.style.PlotterStyle`
-                that contains a set of configurations to create a fit plot.
             extra (Dict[str, Any]): A dictionary that is appended to all database entries
                 as extra information.
             curve_fitter_options (Dict[str, Any]) Options that are passed to the
                 specified curve fitting function.
+            fixed_parameters (Dict[str, Any]): Fitting model parameters that are fixed
+                during the curve fitting. This should be provided with default value
+                keyed on one of the parameter names in the series definition.
         """
         options = super()._default_options()
 
+        options.curve_plotter = MplCurveDrawer()
+        options.plot_raw_data = False
+        options.plot = True
         options.curve_fitter = multi_curve_fit
         options.data_processor = None
         options.normalization = False
         options.x_key = "xval"
-        options.plot = True
-        options.axis = None
-        options.xlabel = None
-        options.ylabel = None
-        options.xlim = None
-        options.ylim = None
-        options.xval_unit = None
-        options.yval_unit = None
         options.result_parameters = None
         options.return_data_points = False
-        options.curve_plotter = "mpl_single_canvas"
-        options.style = PlotterStyle()
         options.extra = dict()
         options.curve_fitter_options = dict()
-
-        # automatically populate initial guess and boundary
-        fit_params = cls._fit_params()
-        options.p0 = {par_name: None for par_name in fit_params}
-        options.bounds = {par_name: None for par_name in fit_params}
+        options.p0 = {}
+        options.bounds = {}
+        options.fixed_parameters = {}
 
         return options
+
+    def set_options(self, **fields):
+        """Set the analysis options for :meth:`run` method.
+
+        Args:
+            fields: The fields to update the options
+
+        Raises:
+            KeyError: When removed option ``curve_fitter`` is set.
+            TypeError: When invalid drawer instance is provided.
+        """
+        # TODO remove this in Qiskit Experiments v0.4
+        if "curve_plotter" in fields and isinstance(fields["curve_plotter"], str):
+            plotter_str = fields["curve_plotter"]
+            warnings.warn(
+                f"The curve plotter '{plotter_str}' has been deprecated. "
+                "The option is replaced with 'MplCurveDrawer' instance. "
+                "If this is a loaded analysis, please save this instance again to update option value. "
+                "This warning will be removed with backport in Qiskit Experiments 0.4.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            fields["curve_plotter"] = MplCurveDrawer()
+
+        if "curve_plotter" in fields and not isinstance(fields["curve_plotter"], BaseCurveDrawer):
+            plotter_obj = fields["curve_plotter"]
+            raise TypeError(
+                f"'{plotter_obj.__class__.__name__}' object is not valid curve drawer instance."
+            )
+
+        # pylint: disable=no-member
+        draw_options = set(self.drawer.options.__dict__.keys()) | {"style"}
+        deprecated = draw_options & fields.keys()
+        if any(deprecated):
+            warnings.warn(
+                f"Option(s) {deprecated} have been moved to draw_options and will be removed soon. "
+                "Use self.drawer.set_options instead. "
+                "If this is a loaded analysis, please save this instance again to update option value. "
+                "This warning will be removed with backport in Qiskit Experiments 0.4.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            draw_options = dict()
+            for depopt in deprecated:
+                if depopt == "style":
+                    for k, v in fields.pop("style").items():
+                        draw_options[k] = v
+                else:
+                    draw_options[depopt] = fields.pop(depopt)
+            self.drawer.set_options(**draw_options)
+
+        super().set_options(**fields)
 
     def _generate_fit_guesses(self, user_opt: FitOptions) -> Union[FitOptions, List[FitOptions]]:
         """Create algorithmic guess with analysis options and curve data.
@@ -512,6 +548,17 @@ class CurveAnalysis(BaseAnalysis, ABC):
         """
         return []
 
+    def _post_process_fit_result(self, fit_result: FitData) -> FitData:
+        """A hook that sub-classes can override to manipulate the result of the fit.
+
+        Args:
+            fit_result: A result from the fitting.
+
+        Returns:
+            A fit result that might be post-processed.
+        """
+        return fit_result
+
     # pylint: disable=unused-argument
     def _evaluate_quality(self, fit_data: FitData) -> Union[str, None]:
         """Evaluate quality of the fit result.
@@ -574,22 +621,17 @@ class CurveAnalysis(BaseAnalysis, ABC):
 
         x_key = self.options.x_key
         try:
-            x_values = np.asarray([datum["metadata"][x_key] for datum in data], dtype=float)
+            xdata = np.asarray([datum["metadata"][x_key] for datum in data], dtype=float)
         except KeyError as ex:
             raise DataProcessorError(
                 f"X value key {x_key} is not defined in circuit metadata."
             ) from ex
 
         if isinstance(data_processor, DataProcessor):
-            y_data = data_processor(data)
-
-            y_nominals = unp.nominal_values(y_data)
-            y_stderrs = unp.std_devs(y_data)
+            ydata = data_processor(data)
         else:
             y_nominals, y_stderrs = zip(*map(data_processor, data))
-
-            y_nominals = np.asarray(y_nominals, dtype=float)
-            y_stderrs = np.asarray(y_stderrs, dtype=float)
+            ydata = unp.uarray(y_nominals, y_stderrs)
 
         # Store metadata
         metadata = np.asarray([datum["metadata"] for datum in data], dtype=object)
@@ -598,7 +640,7 @@ class CurveAnalysis(BaseAnalysis, ABC):
         shots = np.asarray([datum.get("shots", np.nan) for datum in data])
 
         # Find series (invalid data is labeled as -1)
-        data_index = np.full(x_values.size, -1, dtype=int)
+        data_index = np.full(xdata.size, -1, dtype=int)
         for idx, series_def in enumerate(self.__series__):
             data_matched = np.asarray(
                 [_is_target_series(datum, **series_def.filter_kwargs) for datum in data], dtype=bool
@@ -608,9 +650,9 @@ class CurveAnalysis(BaseAnalysis, ABC):
         # Store raw data
         raw_data = CurveData(
             label="raw_data",
-            x=x_values,
-            y=y_nominals,
-            y_err=y_stderrs,
+            x=xdata,
+            y=unp.nominal_values(ydata),
+            y_err=unp.std_devs(ydata),
             shots=shots,
             data_index=data_index,
             metadata=metadata,
@@ -636,7 +678,7 @@ class CurveAnalysis(BaseAnalysis, ABC):
     def _num_qubits(self) -> int:
         """Getter for qubit number."""
         try:
-            return self.__experiment_metadata["num_qubits"]
+            return len(self.__experiment_metadata["physical_qubits"])
         except (TypeError, KeyError):
             # Ignore experiment metadata is not set or key is not found
             return None
@@ -707,7 +749,6 @@ class CurveAnalysis(BaseAnalysis, ABC):
             Extra metadata explicitly added by the experiment subclass.
         """
         exclude = ["experiment_type", "num_qubits", "physical_qubits", "job_metadata"]
-
         return {k: v for k, v in self.__experiment_metadata.items() if k not in exclude}
 
     def _data(
@@ -760,16 +801,15 @@ class CurveAnalysis(BaseAnalysis, ABC):
         #
 
         # Update all fit functions in the series definitions if fixed parameter is defined.
-        # Fixed parameters should be provided by the analysis options.
-        if self.__fixed_parameters__:
-            assigned_params = {k: self.options.get(k, None) for k in self.__fixed_parameters__}
+        assigned_params = self.options.fixed_parameters
 
+        if assigned_params:
             # Check if all parameters are assigned.
             if any(v is None for v in assigned_params.values()):
                 raise AnalysisError(
                     f"Unassigned fixed-value parameters for the fit "
                     f"function {self.__class__.__name__}."
-                    f"All values of fixed-parameters, i.e. {self.__fixed_parameters__}, "
+                    f"All values of fixed-parameters, i.e. {assigned_params}, "
                     "must be provided by the analysis options to run this analysis."
                 )
 
@@ -778,6 +818,7 @@ class CurveAnalysis(BaseAnalysis, ABC):
             for series_def in self.__series__:
                 dict_def = dataclasses.asdict(series_def)
                 dict_def["fit_func"] = functools.partial(series_def.fit_func, **assigned_params)
+                del dict_def["signature"]
                 assigned_series.append(SeriesDef(**dict_def))
             self.__series__ = assigned_series
 
@@ -798,23 +839,12 @@ class CurveAnalysis(BaseAnalysis, ABC):
         # 2. Setup data processor
         #
 
-        # No data processor has been provided at run-time we infer one from the job
+        # If no data processor was provided at run-time we infer one from the job
         # metadata and default to the data processor for averaged classified data.
         data_processor = self.options.data_processor
 
         if not data_processor:
-            run_options = self._run_options() or dict()
-
-            try:
-                meas_level = run_options["meas_level"]
-            except KeyError as ex:
-                raise DataProcessorError(
-                    f"Cannot process data without knowing the measurement level: {str(ex)}."
-                ) from ex
-
-            meas_return = run_options.get("meas_return", None)
-
-            data_processor = get_processor(meas_level, meas_return, self.options.normalization)
+            data_processor = get_processor(experiment_data, self.options)
 
         if isinstance(data_processor, DataProcessor) and not data_processor.is_trained:
             # Qiskit DataProcessor instance. May need calibration.
@@ -832,7 +862,7 @@ class CurveAnalysis(BaseAnalysis, ABC):
 
         # Generate algorithmic initial guesses and boundaries
         default_fit_opt = FitOptions(
-            parameters=self._fit_params(),
+            parameters=self.parameters,
             default_p0=self.options.p0,
             default_bounds=self.options.bounds,
             **self.options.curve_fitter_options,
@@ -871,6 +901,7 @@ class CurveAnalysis(BaseAnalysis, ABC):
             fit_result = None
         else:
             fit_result = sorted(fit_results, key=lambda r: r.reduced_chisq)[0]
+            fit_result = self._post_process_fit_result(fit_result)
 
         #
         # 5. Create database entry
@@ -889,7 +920,7 @@ class CurveAnalysis(BaseAnalysis, ABC):
             analysis_results.append(
                 AnalysisResultData(
                     name=PARAMS_ENTRY_PREFIX + self.__class__.__name__,
-                    value=FitVal(fit_result.popt, fit_result.popt_err),
+                    value=[p.nominal_value for p in fit_result.popt],
                     chisq=fit_result.reduced_chisq,
                     quality=quality,
                     extra={
@@ -914,12 +945,20 @@ class CurveAnalysis(BaseAnalysis, ABC):
                         p_name = param_repr
                         p_repr = param_repr
                         unit = None
+
+                    fit_val = fit_result.fitval(p_name)
+                    if unit:
+                        metadata = copy.copy(self.options.extra)
+                        metadata["unit"] = unit
+                    else:
+                        metadata = self.options.extra
+
                     result_entry = AnalysisResultData(
                         name=p_repr,
-                        value=fit_result.fitval(p_name, unit),
+                        value=fit_val,
                         chisq=fit_result.reduced_chisq,
                         quality=quality,
-                        extra=self.options.extra,
+                        extra=metadata,
                     )
                     analysis_results.append(result_entry)
 
@@ -940,8 +979,8 @@ class CurveAnalysis(BaseAnalysis, ABC):
                 name=DATA_ENTRY_PREFIX + self.__class__.__name__,
                 value=raw_data_dict,
                 extra={
-                    "x-unit": self.options.xval_unit,
-                    "y-unit": self.options.yval_unit,
+                    "x-unit": self.drawer.options.xval_unit,
+                    "y-unit": self.drawer.options.yval_unit,
                 },
             )
             analysis_results.append(raw_data_entry)
@@ -950,25 +989,178 @@ class CurveAnalysis(BaseAnalysis, ABC):
         # 6. Create figures
         #
         if self.options.plot:
-            fit_figure = FitResultPlotters[self.options.curve_plotter].value.draw(
-                series_defs=self.__series__,
-                raw_samples=[self._data(ser.name, "raw_data") for ser in self.__series__],
-                fit_samples=[self._data(ser.name, "fit_ready") for ser in self.__series__],
-                tick_labels={
-                    "xval_unit": self.options.xval_unit,
-                    "yval_unit": self.options.yval_unit,
-                    "xlabel": self.options.xlabel,
-                    "ylabel": self.options.ylabel,
-                    "xlim": self.options.xlim,
-                    "ylim": self.options.ylim,
-                },
-                fit_data=fit_result,
-                result_entries=analysis_results,
-                style=self.options.style,
-                axis=self.options.axis,
-            )
-            figures = [fit_figure]
+            # Initialize axis
+            self.drawer.initialize_canvas()
+            # Write raw data
+            if self.options.plot_raw_data:
+                for s in self.__series__:
+                    raw_data = self._data(label="raw_data", series_name=s.name)
+                    self.drawer.draw_raw_data(
+                        x_data=raw_data.x,
+                        y_data=raw_data.y,
+                        ax_index=s.canvas,
+                    )
+            # Write data points
+            for s in self.__series__:
+                curve_data = self._data(label="fit_ready", series_name=s.name)
+                self.drawer.draw_formatted_data(
+                    x_data=curve_data.x,
+                    y_data=curve_data.y,
+                    y_err_data=curve_data.y_err,
+                    name=s.name,
+                    ax_index=s.canvas,
+                    color=s.plot_color,
+                    marker=s.plot_symbol,
+                )
+            # Write fit results if fitting succeeded
+            if fit_result:
+                for s in self.__series__:
+                    interp_x = np.linspace(*fit_result.x_range, 100)
+
+                    params = {}
+                    for fitpar in s.signature:
+                        if fitpar in self.options.fixed_parameters:
+                            params[fitpar] = self.options.fixed_parameters[fitpar]
+                        else:
+                            params[fitpar] = fit_result.fitval(fitpar)
+
+                    y_data_with_uncertainty = s.fit_func(interp_x, **params)
+                    y_mean = unp.nominal_values(y_data_with_uncertainty)
+                    y_std = unp.std_devs(y_data_with_uncertainty)
+                    # Draw fit line
+                    self.drawer.draw_fit_line(
+                        x_data=interp_x,
+                        y_data=y_mean,
+                        ax_index=s.canvas,
+                        color=s.plot_color,
+                    )
+                    # Draw confidence intervals with different n_sigma
+                    sigmas = unp.std_devs(y_data_with_uncertainty)
+                    if np.isfinite(sigmas).all():
+                        for n_sigma, alpha in self.drawer.options.plot_sigma:
+                            self.drawer.draw_confidence_interval(
+                                x_data=interp_x,
+                                y_ub=y_mean + n_sigma * y_std,
+                                y_lb=y_mean - n_sigma * y_std,
+                                ax_index=s.canvas,
+                                alpha=alpha,
+                                color=s.plot_color,
+                            )
+
+                # Write fitting report
+                report_description = ""
+                for res in analysis_results:
+                    if isinstance(res.value, (float, uncertainties.UFloat)):
+                        report_description += f"{analysis_result_to_repr(res)}\n"
+                report_description += r"Fit $\chi^2$ = " + f"{fit_result.reduced_chisq: .4g}"
+                self.drawer.draw_fit_report(description=report_description)
+            self.drawer.format_canvas()
+            figures = [self.drawer.figure]
         else:
             figures = []
 
         return analysis_results, figures
+
+    @classmethod
+    def from_config(cls, config: Union[AnalysisConfig, Dict]) -> "CurveAnalysis":
+        # For backward compatibility. This will be removed in v0.4.
+
+        instance = super().from_config(config)
+
+        # When fixed param value is hard-coded as options. This is deprecated data structure.
+        loaded_opts = instance.options.__dict__
+
+        # pylint: disable=no-member
+        deprecated_fixed_params = {
+            p: loaded_opts[p] for p in instance.parameters if p in loaded_opts
+        }
+        if any(deprecated_fixed_params):
+            warnings.warn(
+                "Fixed parameter value should be defined in options.fixed_parameters as "
+                "a dictionary values, rather than a standalone analysis option. "
+                "Please re-save this experiment to be loaded after deprecation period. "
+                "This warning will be dropped in v0.4 along with "
+                "the support for the deprecated fixed parameter options.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            new_fixed_params = instance.options.fixed_parameters
+            new_fixed_params.update(deprecated_fixed_params)
+            instance.set_options(fixed_parameters=new_fixed_params)
+
+        return instance
+
+
+def is_error_not_significant(
+    val: Union[float, uncertainties.UFloat],
+    fraction: float = 1.0,
+    absolute: Optional[float] = None,
+) -> bool:
+    """Check if the standard error of given value is not significant.
+
+    Args:
+        val: Input value to evaluate. This is assumed to be float or ufloat.
+        fraction: Valid fraction of the nominal part to its standard error.
+            This function returns ``False`` if the nominal part is
+            smaller than the error by this fraction.
+        absolute: Use this value as a threshold if given.
+
+    Returns:
+        ``True`` if the standard error of given value is not significant.
+    """
+    if isinstance(val, float):
+        return True
+
+    threshold = absolute if absolute is not None else fraction * val.nominal_value
+    if np.isnan(val.std_dev) or val.std_dev < threshold:
+        return True
+
+    return False
+
+
+def analysis_result_to_repr(result: AnalysisResultData) -> str:
+    """A helper function to create string representation from analysis result data object.
+
+    Args:
+        result: Analysis result data.
+
+    Returns:
+        String representation of the data.
+    """
+    if not isinstance(result.value, (float, uncertainties.UFloat)):
+        return AnalysisError(f"Result data {result.name} is not a valid fit parameter data type.")
+
+    unit = result.extra.get("unit", None)
+
+    def _format_val(value):
+        # Return value with unit with prefix, i.e. 1000 Hz -> 1 kHz.
+        if unit:
+            try:
+                val, val_prefix = detach_prefix(value, decimal=3)
+            except ValueError:
+                val = value
+                val_prefix = ""
+            return f"{val: .3g}", f" {val_prefix}{unit}"
+        if np.abs(value) < 1e-3 or np.abs(value) > 1e3:
+            return f"{value: .4e}", ""
+        return f"{value: .4g}", ""
+
+    if isinstance(result.value, float):
+        # Only nominal part
+        n_repr, n_unit = _format_val(result.value)
+        value_repr = n_repr + n_unit
+    else:
+        # Nominal part
+        n_repr, n_unit = _format_val(result.value.nominal_value)
+
+        # Standard error part
+        if result.value.std_dev is not None and np.isfinite(result.value.std_dev):
+            s_repr, s_unit = _format_val(result.value.std_dev)
+            if n_unit == s_unit:
+                value_repr = f" {n_repr} \u00B1 {s_repr}{n_unit}"
+            else:
+                value_repr = f" {n_repr + n_unit} \u00B1 {s_repr + s_unit}"
+        else:
+            value_repr = n_repr + n_unit
+
+    return f"{result.name} = {value_repr}"

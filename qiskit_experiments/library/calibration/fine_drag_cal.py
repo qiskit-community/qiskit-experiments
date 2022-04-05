@@ -69,10 +69,7 @@ class FineDragCal(BaseCalibrationExperiment, FineDrag):
             auto_update=auto_update,
         )
 
-        self.set_transpile_options(
-            inst_map=calibrations.default_inst_map,
-            basis_gates=["sx", schedule_name, "rz"],
-        )
+        self.set_transpile_options(basis_gates=["sx", schedule_name, "rz"])
 
     @classmethod
     def _default_experiment_options(cls) -> Options:
@@ -138,7 +135,7 @@ class FineDragCal(BaseCalibrationExperiment, FineDrag):
         d_theta = BaseUpdater.get_value(experiment_data, "d_theta", result_index)
 
         # See the documentation in fine_drag.py for the derivation of this rule.
-        d_beta = -np.sqrt(np.pi) * d_theta * sigmas[0] / target_angle ** 2
+        d_beta = -np.sqrt(np.pi) * d_theta * sigmas[0] / target_angle**2
         old_beta = experiment_data.metadata["cal_param_value"]
         new_beta = old_beta + d_beta
 

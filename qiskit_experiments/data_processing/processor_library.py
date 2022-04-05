@@ -12,39 +12,96 @@
 
 """A collection of functions that return various data processors."""
 
-from qiskit.qobj.utils import MeasLevel
+import warnings
+from qiskit.qobj.utils import MeasLevel, MeasReturnType
 
+from qiskit_experiments.framework import ExperimentData, Options
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
 from qiskit_experiments.data_processing.data_processor import DataProcessor
+from qiskit_experiments.data_processing.nodes import ProjectorType
 from qiskit_experiments.data_processing import nodes
 
 
-def get_processor(
-    meas_level: MeasLevel = MeasLevel.CLASSIFIED,
-    meas_return: str = "avg",
-    normalize: bool = True,
-) -> DataProcessor:
+def get_processor(experiment_data: ExperimentData, analysis_options: Options) -> DataProcessor:
     """Get a DataProcessor that produces a continuous signal given the options.
 
     Args:
-        meas_level: The measurement level of the data to process.
-        meas_return: The measurement return (single or avg) of the data to process.
-        normalize: Add a data normalization node to the Kerneled data processor.
+        experiment_data: The experiment data that holds all the data and metadata needed
+            to determine the data processor to use to process the data for analysis.
+        analysis_options: The analysis options with which to analyze the data. The options that
+            are relevant for the configuration of a data processor are:
+            - normalization (bool): A boolean to specify if the data should be normalized to
+              the interval [0, 1]. The default is True. This option is only relevant if
+              kerneled data is used.
+            - dimensionality_reduction: An optional string or instance of :class:`ProjectorType`
+              to represent the dimensionality reduction node for Kerneled data. For the
+              supported nodes, see :class:`ProjectorType`. Typically, these nodes convert
+              complex IQ data to real data, for example by performing a singular-value
+              decomposition. This argument is only needed for Kerneled data (i.e. level 1)
+              and can thus be ignored if Classified data (the default) is used.
+            - outcome (string): The measurement outcome that will be passed to a Probability node.
+              The default value is a string of 1's where the length of the string is the number of
+              qubits, e.g. '111' for three qubits.
 
     Returns:
-        An instance of DataProcessor capable of dealing with the given options.
+        An instance of DataProcessor capable of processing the data for the corresponding job.
+
+    Notes:
+        The `physical_qubits` argument is extracted from the `experiment_data`
+        metadata and is used to determine the default `outcome` to extract from
+        classified data if it was not given in the analysis options.
 
     Raises:
         DataProcessorError: if the measurement level is not supported.
+        DataProcessorError: if the wrong dimensionality reduction for kerneled data
+            is specified.
     """
+    metadata = experiment_data.metadata
+    if "job_metadata" in metadata:
+        # Backwards compatibility for old experiment data
+        # remove job metadata and add required fields to new location in metadata
+        job_meta = metadata.pop("job_metadata")
+        run_options = job_meta[-1].get("run_options", {})
+        for opt in ["meas_level", "meas_return"]:
+            if opt in run_options:
+                metadata[opt] = run_options[opt]
+        warnings.warn(
+            "The analyzed ExperimentData contains deprecated data processor "
+            " job_metadata which has been been updated to current metadat format. "
+            "If this data was loaded from a database servide you should re-save it "
+            "to update the metadata in the database.",
+            DeprecationWarning,
+        )
+
+    meas_level = metadata.get("meas_level", MeasLevel.CLASSIFIED)
+    meas_return = metadata.get("meas_return", MeasReturnType.AVERAGE)
+    normalize = analysis_options.get("normalization", True)
+    dimensionality_reduction = analysis_options.get("dimensionality_reduction", ProjectorType.SVD)
+
     if meas_level == MeasLevel.CLASSIFIED:
-        return DataProcessor("counts", [nodes.Probability("1")])
+        num_qubits = len(metadata.get("physical_qubits", [0]))
+        outcome = analysis_options.get("outcome", "1" * num_qubits)
+        return DataProcessor("counts", [nodes.Probability(outcome)])
 
     if meas_level == MeasLevel.KERNELED:
+
+        try:
+            if isinstance(dimensionality_reduction, ProjectorType):
+                projector_name = dimensionality_reduction.name
+            else:
+                projector_name = dimensionality_reduction
+
+            projector = ProjectorType[projector_name].value
+
+        except KeyError as error:
+            raise DataProcessorError(
+                f"Invalid dimensionality reduction: {dimensionality_reduction}."
+            ) from error
+
         if meas_return == "single":
-            processor = DataProcessor("memory", [nodes.AverageData(axis=1), nodes.SVD()])
+            processor = DataProcessor("memory", [nodes.AverageData(axis=1), projector()])
         else:
-            processor = DataProcessor("memory", [nodes.SVD()])
+            processor = DataProcessor("memory", [projector()])
 
         if normalize:
             processor.append(nodes.MinMaxNormalize())
