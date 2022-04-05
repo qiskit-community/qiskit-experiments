@@ -916,6 +916,37 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
 
         self.assertEqual(exp_data.analysis_status(), AnalysisStatus.DONE)
 
+    def test_recursive_callback_raises(self):
+        """Test handling of excepting callbacks"""
+
+        def callback1(exp_data):
+            """Callback function that call add_analysis_callback"""
+            time.sleep(1)
+            exp_data.add_analysis_callback(callback2)
+            result = DbAnalysisResult("RESULT1", True, ["Q0"], exp_data.experiment_id)
+            exp_data.add_analysis_results(result)
+
+        def callback2(exp_data):
+            """Callback function that exercises status lookups"""
+            time.sleep(1)
+            exp_data.add_analysis_callback(callback3)
+            raise RuntimeError("YOU FAIL")
+
+        def callback3(exp_data):
+            """Callback function that exercises status lookups"""
+            time.sleep(1)
+            result = DbAnalysisResult("RESULT2", True, ["Q0"], exp_data.experiment_id)
+            exp_data.add_analysis_results(result)
+
+        exp_data = DbExperimentData(experiment_type="qiskit_test")
+        exp_data.add_analysis_callback(callback1)
+        exp_data.block_for_results(timeout=10)
+        results = exp_data.analysis_results(block=False)
+
+        self.assertEqual(exp_data.analysis_status(), AnalysisStatus.ERROR)
+        self.assertTrue("RuntimeError: YOU FAIL" in exp_data.analysis_errors())
+        self.assertEqual(len(results), 2)
+
     def test_source(self):
         """Test getting experiment source."""
         exp_data = DbExperimentData(experiment_type="qiskit_test")
