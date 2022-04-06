@@ -23,6 +23,7 @@ from qiskit.providers.aer.noise import NoiseModel, depolarizing_error
 from qiskit.quantum_info import Clifford
 
 from qiskit_experiments.library import randomized_benchmarking as rb
+from qiskit_experiments.database_service.exceptions import DbExperimentEntryNotFound
 
 
 class RBTestCase(QiskitExperimentsTestCase):
@@ -136,6 +137,47 @@ class TestStandardRB(RBTestCase):
         # Allow for 50 percent tolerance since we ignore 1q gate contribution
         epc_expected = 1 - (1 - 3 / 4 * self.p2q) ** 1.5
         self.assertAlmostEqual(epc.value.n, epc_expected, delta=0.5 * epc_expected)
+
+    def test_single_qubit_computing_epg_from_data(self):
+        """Reanalyze experiment data with different EPG options."""
+        exp = rb.StandardRB(
+            qubits=(0,),
+            lengths=list(range(1, 300, 30)),
+            seed=123,
+            backend=self.backend,
+        )
+        exp.set_transpile_options(**self.transpiler_options)
+        expdata = exp.run(analysis=None)
+        self.assertExperimentDone(expdata)
+
+        # Normal analysis, EPG and gate counts are populated from metadata
+        analysis = rb.RBAnalysis()
+        analysis.set_options(outcome="0")
+        result = analysis.run(expdata, replace_results=False)
+
+        sx_epg = result.analysis_results("EPG_sx")
+        rz_epg = result.analysis_results("EPG_rz")
+
+        self.assertAlmostEqual(sx_epg.value.n, self.p1q / 2, delta=0.1 * self.p1q)
+        self.assertAlmostEqual(rz_epg.value.n, self.pvz / 2, delta=0.1 * self.p1q)
+
+        # Do not analyze EPGs
+        analysis = rb.RBAnalysis()
+        analysis.set_options(outcome="0", gate_error_ratio=False)
+        result = analysis.run(expdata, replace_results=False)
+
+        with self.assertRaises(DbExperimentEntryNotFound):
+            sx_epg = result.analysis_results("EPG_sx")
+
+        # With custom error ratio
+        analysis = rb.RBAnalysis()
+        analysis.set_options(outcome="0", gate_error_ratio={((0, ), "sx"): 1.0, ((0, ), "rz"): 1.0})
+        result = analysis.run(expdata, replace_results=False)
+
+        sx_epg = result.analysis_results("EPG_sx")
+        rz_epg = result.analysis_results("EPG_rz")
+
+        self.assertAlmostEqual(sx_epg.value.n, rz_epg.value.n)
 
     def test_add_more_circuit_yields_lower_variance(self):
         """Test variance reduction with larger number of sampling."""
