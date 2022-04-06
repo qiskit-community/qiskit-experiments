@@ -1,0 +1,26 @@
+---
+features:
+  - |
+    A helper funciton :func:`lookup_epg_ratio` has been added. 
+    This function returns predefined error ratio of given gate name for RB experiments.
+upgrade:
+  - |
+    Implicit computation of gate error ratio in the standard RB experiment will be
+    dropped from the experiment code. This information has been used to compute 
+    error per gates (EPGs) from the estimated error per Clifford (EPC).
+    Now this should be explicitly provided as an experiment option ``gate_error_ratio``.
+    By default it computs the error ratio of basis gates with the predefined 
+    look-up table. User can set ``False`` to this option to avoid computation of EPGs
+    for speed-up. See qiskit-experiments/#762 for more details.
+deprecations:
+  - |
+    Calling :meth:`RBUtils.get_error_dict_from_backend` has been deprecated and 
+    will be removed after 0.4. This method computes the ratio of basis gate errors 
+    from the fresh backend calibration, but error ratio could depend on the
+    status of previous calibration. Due to this potential instability, 
+    we eliminate the usage of this method.
+  - |
+    Calling :meth:`RBUtils.gates_per_clifford` has been deprecated and will be
+    removed after 0.4. This method compute average gate counts per Clifford
+    constituting RB sequence from count ops in the RB circuit metadata.
+    This protocol is merged into `StandardRB._transpiled_circuits` for efficiency.
