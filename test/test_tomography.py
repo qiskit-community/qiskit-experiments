@@ -425,6 +425,74 @@ class TestProcessTomography(QiskitExperimentsTestCase):
         fid = qi.process_fidelity(target_state, qi.Operator(target_circ))
         self.assertGreater(fid, 0.99, msg="target_state is incorrect")
 
+    @ddt.data([0, 1], [0, 2], [1, 0], [1, 2], [2, 0], [2, 1])
+    @ddt.unpack
+    def test_asymmetric_qubits(self, prep_qubit, meas_qubit):
+        """Test subset measurement process tomography generation"""
+        # Subsystem unitaries
+        seed = 1111
+        nq = 3
+        ops = [qi.random_unitary(2, seed=seed + i) for i in range(nq)]
+
+        # Preparation circuit
+        circ = QuantumCircuit(nq)
+        for i, op in enumerate(ops):
+            circ.append(op, [i])
+
+        exp = ProcessTomography(
+            circ, measurement_qubits=[meas_qubit], preparation_qubits=[prep_qubit]
+        )
+        backend = AerSimulator(seed_simulator=9000)
+        expdata = exp.run(backend, shots=5000)
+        self.assertExperimentDone(expdata)
+
+        # Check Choi matrix
+        state = expdata.analysis_results("state").value
+        self.assertTrue(isinstance(state, qi.Choi), msg="fitted state is not a Choi matrix")
+        self.assertEqual(state.input_dims(), (2,), msg="fitted state has wrong input dims")
+        self.assertEqual(state.output_dims(), (2,), msg="fitted state has wrong output dims")
+
+        # Check fit state fidelity
+        f_threshold = 0.99
+        fid = expdata.analysis_results("process_fidelity").value
+        self.assertGreater(fid, f_threshold, msg="fit fidelity is low")
+
+    @ddt.data([(0,), (1, 2)], [(2, 0), (2,)])
+    @ddt.unpack
+    def test_asymmetric_dimensions(self, prep_qubits, meas_qubits):
+        """Test subset measurement process tomography generation"""
+        # Subsystem unitaries
+        seed = 1111
+        nq = 3
+        ops = [qi.random_unitary(2, seed=seed + i) for i in range(nq)]
+
+        # Preparation circuit
+        circ = QuantumCircuit(nq)
+        for i, op in enumerate(ops):
+            circ.append(op, [i])
+
+        exp = ProcessTomography(
+            circ, measurement_qubits=meas_qubits, preparation_qubits=prep_qubits
+        )
+        backend = AerSimulator(seed_simulator=9000)
+        expdata = exp.run(backend, shots=5000)
+        self.assertExperimentDone(expdata)
+
+        # Check Choi matrix
+        state = expdata.analysis_results("state").value
+        self.assertTrue(isinstance(state, qi.Choi), msg="fitted state is not a Choi matrix")
+        self.assertEqual(
+            state.input_dims(), len(prep_qubits) * (2,), msg="fitted state has wrong input dims"
+        )
+        self.assertEqual(
+            state.output_dims(), len(meas_qubits) * (2,), msg="fitted state has wrong output dims"
+        )
+
+        # Check fit state fidelity
+        f_threshold = 0.98
+        fid = expdata.analysis_results("process_fidelity").value
+        self.assertGreater(fid, f_threshold, msg="fit fidelity is low")
+
     @ddt.data([0], [1], [1, 0])
     def test_full_exp_meas_prep_qubits(self, qubits):
         """Test subset state tomography generation"""

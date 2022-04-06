@@ -185,7 +185,11 @@ def exp_decay(x: np.ndarray, y: np.ndarray) -> float:
     Returns:
          Decay rate of signal.
     """
-    coeffs = np.polyfit(x, np.log(y), deg=1)
+    inds = y > 0
+    if np.count_nonzero(inds) < 2:
+        return 0
+
+    coeffs = np.polyfit(x[inds], np.log(y[inds]), deg=1)
 
     return float(coeffs[0])
 

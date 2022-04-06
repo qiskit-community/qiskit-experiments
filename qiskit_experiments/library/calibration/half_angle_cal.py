@@ -63,8 +63,6 @@ class HalfAngleCal(BaseCalibrationExperiment, HalfAngle):
             auto_update=auto_update,
         )
 
-        self.set_transpile_options(inst_map=calibrations.default_inst_map)
-
     def _add_cal_metadata(self, experiment_data: ExperimentData):
         """Add metadata to the experiment data making it more self contained.
 

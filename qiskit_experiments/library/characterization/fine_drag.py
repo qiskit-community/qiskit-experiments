@@ -211,7 +211,12 @@ class FineDrag(BaseExperiment, RestlessMixin):
             circuit.measure_all()
 
             if schedule is not None:
-                circuit.add_calibration(schedule.name, self.physical_qubits, schedule, params=[])
+                circuit.add_calibration(
+                    self.experiment_options.gate.name,
+                    self.physical_qubits,
+                    schedule,
+                    params=[],
+                )
 
             circuit.metadata = {
                 "experiment_type": self._type,
@@ -223,6 +228,15 @@ class FineDrag(BaseExperiment, RestlessMixin):
             circuits.append(circuit)
 
         return circuits
+
+    def _metadata(self):
+        metadata = super()._metadata()
+        # Store measurement level and meas return if they have been
+        # set for the experiment
+        for run_opt in ["meas_level", "meas_return"]:
+            if hasattr(self.run_options, run_opt):
+                metadata[run_opt] = getattr(self.run_options, run_opt)
+        return metadata
 
 
 class FineXDrag(FineDrag):

@@ -71,8 +71,6 @@ class FineAmplitudeCal(BaseCalibrationExperiment, FineAmplitude):
             auto_update=auto_update,
         )
 
-        self.set_transpile_options(inst_map=calibrations.default_inst_map)
-
     @classmethod
     def _default_experiment_options(cls):
         """Default values for the fine amplitude calibration experiment.
