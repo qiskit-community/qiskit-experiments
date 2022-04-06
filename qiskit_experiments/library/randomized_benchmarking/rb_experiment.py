@@ -274,14 +274,13 @@ class StandardRB(BaseExperiment, RestlessMixin):
         # This is probably main source of performance regression.
         # This should be integrated into transpile pass in future.
         gate_counts_per_clifford = defaultdict(int)
-        total_cliffs = np.sum(self.experiment_options.lengths)
+        total_cliffs = np.sum(self.experiment_options.lengths) * self.experiment_options.num_samples
         for circ in transpiled:
             for (qubits, instr), count in RBUtils.count_ops(circ, self.physical_qubits).items():
                 if instr in ("measure", "reset", "delay", "barrier", "snapshot"):
                     continue
                 # This is qubit aware count opts
                 gate_counts_per_clifford[(qubits, instr)] += count / total_cliffs
-
         # Directly copy the value to experiment data metadata via instance state
         self._gate_counts_per_clifford = dict(gate_counts_per_clifford)
 
