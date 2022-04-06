@@ -26,7 +26,6 @@ from functools import wraps
 import traceback
 import contextlib
 from collections import deque
-from datetime import datetime
 import numpy as np
 
 from matplotlib import pyplot
@@ -673,8 +672,9 @@ class DbExperimentDataV1(DbExperimentData):
                     fig_name = figure
                 else:
                     fig_name = (
-                        f"figure_{self.experiment_id[:8]}_"
-                        f"{datetime.now().isoformat()}_{len(self._figures)}.svg"
+                        f"{self.experiment_type}_"
+                        f"Fig-{len(self._figures)}_"
+                        f"Exp-{self.experiment_id[:8]}.svg"
                     )
             else:
                 fig_name = figure_names[idx]
