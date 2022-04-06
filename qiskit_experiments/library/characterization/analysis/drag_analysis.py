@@ -185,32 +185,42 @@ class DragCalAnalysis(curve.CurveAnalysis):
 
         return options
 
-    def _post_process_fit_result(self, fit_result: curve.FitData) -> curve.FitData:
-        r"""Post-process the fit result from a Drag analysis.
+    def _run_curve_fit(
+        self,
+        curve_data: CurveData,
+        series: List[SeriesDef],
+    ) -> Union[None, FitData]:
+        r"""Perform curve fitting on given data collection and fit models.
 
-        The Drag analysis should return the beta value that is closest to zero.
-        Since the oscillating term is of the form
+        .. note::
 
-        .. math::
+            This class performs post-process the fit result from a Drag analysis.
 
-            \cos(2 \pi\cdot {\rm reps}_i \cdot {\rm freq}\cdot [x - \beta])
+            The Drag analysis should return the beta value that is closest to zero.
+            Since the oscillating term is of the form
 
-        There is a periodicity in beta. This post processing finds the beta that is
-        closest to zero by performing the minimization using the modulo function.
+            .. math::
 
-        .. math::
+                \cos(2 \pi\cdot {\rm reps}_i \cdot {\rm freq}\cdot [x - \beta])
 
-            n_\text{min} = \min_{n}|\beta_\text{fit} + n / {\rm freq}|
+            There is a periodicity in beta. This post processing finds the beta that is
+            closest to zero by performing the minimization using the modulo function.
 
-        and assigning the new beta value to
+            .. math::
 
-        .. math::
+                n_\text{min} = \min_{n}|\beta_\text{fit} + n / {\rm freq}|
 
-            \beta = \beta_\text{fit} + n_\text{min} / {\rm freq}.
+            and assigning the new beta value to
+
+            .. math::
+
+                \beta = \beta_\text{fit} + n_\text{min} / {\rm freq}.
         """
+        fit_result = super()._run_curve_fit(curve_data, series)
         beta = fit_result.popt[2]
         freq = fit_result.popt[1]
         fit_result.popt[2] = ((beta + 1 / freq / 2) % (1 / freq)) - 1 / freq / 2
+
         return fit_result
 
     def _evaluate_quality(self, fit_data: curve.FitData) -> Union[str, None]:

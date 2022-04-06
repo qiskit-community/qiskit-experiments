@@ -67,13 +67,10 @@ class SeriesDef:
 class CurveData:
     """Set of extracted experiment data."""
 
-    # Name of this data set
-    label: str
-
     # X data
     x: np.ndarray
 
-    # Y data (measured data)
+    # Y data
     y: np.ndarray
 
     # Error bar
@@ -83,11 +80,31 @@ class CurveData:
     shots: np.ndarray
 
     # Maping of data index to series index
-    data_index: Union[np.ndarray, int]
+    data_allocation: np.ndarray
 
-    # Metadata associated with each data point. Generated from the circuit metadata.
-    metadata: np.ndarray = None
+    # List of curve names
+    labels: List[str]
 
+    def get_subset_of(self, index: Union[str, int]) -> CurveData:
+        """Filter data by series name or index.
+
+        Args:
+            index: Series index of name.
+
+        Returns:
+            A subset of data corresponding to a particular series.
+        """
+        if isinstance(index, int):
+            inds = self.data_allocation == index
+        else:
+            inds = self.data_allocation == self.labels.index(index)
+        return CurveData(
+            x=self.x[inds],
+            y=self.y[inds],
+            y_err=self.y_err[inds],
+            shots=self.shots[inds],
+            labels=[name],
+        )
 
 @dataclasses.dataclass(frozen=True)
 class FitData:
