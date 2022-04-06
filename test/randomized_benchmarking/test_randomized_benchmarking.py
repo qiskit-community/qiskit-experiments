@@ -171,7 +171,7 @@ class TestStandardRB(RBTestCase):
 
         # With custom error ratio
         analysis = rb.RBAnalysis()
-        analysis.set_options(outcome="0", gate_error_ratio={((0, ), "sx"): 1.0, ((0, ), "rz"): 1.0})
+        analysis.set_options(outcome="0", gate_error_ratio={((0,), "sx"): 1.0, ((0,), "rz"): 1.0})
         result = analysis.run(expdata, replace_results=False)
 
         sx_epg = result.analysis_results("EPG_sx")

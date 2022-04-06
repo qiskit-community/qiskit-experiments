@@ -248,7 +248,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
             except AttributeError:
                 # When basis gates is not provided, disable EPG computation
                 warnings.warn(
-                    "The basis gates infromation is not available. Cannot compute EPGs.",
+                    "The basis gates information is not available. Cannot compute EPGs.",
                     UserWarning,
                 )
                 self._gate_error_ratio = False
