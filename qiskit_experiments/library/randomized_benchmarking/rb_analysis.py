@@ -264,7 +264,7 @@ class RBAnalysis(curve.CurveAnalysis):
             except TypeError:
                 pass
 
-            if gpc is None and self.options.gate_error_ratio != False:
+            if gpc is None and self.options.gate_error_ratio is not False:
                 # Just for backward compatibility.
                 # New framework assumes it is set to experiment metadata rather than in circuit metadata.
                 # Deprecation warning is triggered on RBUtils.
