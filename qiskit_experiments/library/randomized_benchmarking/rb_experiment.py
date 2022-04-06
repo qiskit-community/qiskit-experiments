@@ -134,7 +134,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
                 randomized_benchmarking.rb_utils.lookup_epg_ratio`.
                 The dictionary is keyed on a tuple of qubit index and string label of instruction.
                 Defined instructions should appear in the ``basis_gates`` in the transpile options.
-                If this value is set to ``"skip"``, the computation of EPG values is skipped.
+                If this value is set to ``False``, the computation of EPG values is skipped.
         """
         options = super()._default_experiment_options()
 
@@ -251,7 +251,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
                     "The basis gates infromation is not available. Cannot compute EPGs.",
                     UserWarning,
                 )
-                self._gate_error_ratio = "skip"
+                self._gate_error_ratio = False
 
         gate_error_ratio = {}
         for basis_gate in basis_gates:
@@ -266,7 +266,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
         """Return a list of experiment circuits, transpiled."""
         transpiled = super()._transpiled_circuits()
 
-        if self._gate_error_ratio == "skip":
+        if self._gate_error_ratio == False:
             # Gate errors are not computed, then counting ops is not necessary.
             return transpiled
 

@@ -195,10 +195,7 @@ class RBAnalysis(curve.CurveAnalysis):
 
         # Calculate EPG
 
-        if (
-            self.options.gate_counts_per_clifford is not None
-            and self.options.gate_error_ratio != "skip"
-        ):
+        if self.options.gate_counts_per_clifford is not None and self.options.gate_error_ratio:
             num_qubits = len(self._physical_qubits)
 
             if num_qubits == 1:
@@ -257,7 +254,7 @@ class RBAnalysis(curve.CurveAnalysis):
         if self.options.gate_counts_per_clifford is None:
             gpc = experiment_data.metadata.get("gate_counts_per_clifford", None)
 
-            if gpc is None and self.options.gate_error_ratio != "skip":
+            if gpc is None and self.options.gate_error_ratio != False:
                 # Just for backward compatibility.
                 # New framework assumes it is set to experiment metadata rather than in circuit metadata.
                 # Deprecation warning is triggered on RBUtils.

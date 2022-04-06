@@ -148,6 +148,6 @@ class InterleavedRB(StandardRB):
         options = super()._default_experiment_options()
         # Computation of EPG is not necessary for IRB.
         # This will drastically reduce overhead of ops counting.
-        options.gate_error_ratio = "skip"
+        options.gate_error_ratio = False
 
         return options
