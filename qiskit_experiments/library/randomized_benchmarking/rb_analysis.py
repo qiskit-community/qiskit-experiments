@@ -240,6 +240,11 @@ class RBAnalysis(curve.CurveAnalysis):
         if self.options.gate_error_ratio is None:
             gate_error_ratio = experiment_data.metadata.get("gate_error_ratio", None)
 
+            try:
+                gate_error_ratio = dict(gate_error_ratio)
+            except TypeError:
+                pass
+
             if gate_error_ratio is None:
                 # For backward compatibility when loading old experiment data.
                 # This could return errorneous error ratio.
@@ -253,6 +258,11 @@ class RBAnalysis(curve.CurveAnalysis):
 
         if self.options.gate_counts_per_clifford is None:
             gpc = experiment_data.metadata.get("gate_counts_per_clifford", None)
+
+            try:
+                gpc = dict(gpc)
+            except TypeError:
+                pass
 
             if gpc is None and self.options.gate_error_ratio != False:
                 # Just for backward compatibility.

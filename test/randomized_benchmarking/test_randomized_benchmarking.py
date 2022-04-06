@@ -87,7 +87,6 @@ class TestStandardRB(RBTestCase):
             backend=self.backend,
         )
         exp.set_transpile_options(**self.transpiler_options)
-        exp.analysis.set_options(gate_error_ratio={((0,), "sx"): 1.0, ((0,), "rz"): 0.0})
         self.assertAllIdentity(exp.circuits())
 
         expdata = exp.run()

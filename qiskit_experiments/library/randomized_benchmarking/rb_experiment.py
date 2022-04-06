@@ -295,6 +295,12 @@ class StandardRB(BaseExperiment, RestlessMixin):
             if hasattr(self.run_options, run_opt):
                 metadata[run_opt] = getattr(self.run_options, run_opt)
 
-        metadata["gate_error_ratio"] = self._gate_error_ratio
-        metadata["gate_counts_per_clifford"] = self._gate_counts_per_clifford
+        def _to_tuple(value):
+            # For JSON serialization. The dict key is not string.
+            if isinstance(value, dict):
+                return tuple(value.items())
+            return value
+
+        metadata["gate_error_ratio"] = _to_tuple(self._gate_error_ratio)
+        metadata["gate_counts_per_clifford"] = _to_tuple(self._gate_counts_per_clifford)
         return metadata
