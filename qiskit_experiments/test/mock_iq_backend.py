@@ -355,10 +355,10 @@ class MockIQBackend(FakeOpenPulse2Q):
     def _probability_dict_to_probability_array(
         self, prob_dict: Dict[str, float], num_qubits: int
     ) -> List[float]:
-        prob_list = []
-        for num in range(2**num_qubits):
-            num_binary_str = str(format(num, "b").zfill(num_qubits))
-            prob_list.append(prob_dict.get(num_binary_str, 0))
+        prob_list = [0] * (2**num_qubits)
+        for output_str, probability in prob_dict.items():
+            index = int(output_str, 2)
+            prob_list[index] = probability
         return prob_list
 
     def _draw_iq_shots(
