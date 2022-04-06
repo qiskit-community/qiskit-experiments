@@ -9,11 +9,6 @@ need to have ``qiskit-ibmq-provider`` installed locally and an account
 in the Qiskit cloud service. We will use the ``ibmq_armonk`` backend
 which is open and available to everyone.
 
-.. jupyter-execute:: 
-
-    from qiskit.test.ibmq_mock import mock_get_backend
-    backend = mock_get_backend('FakeVigo')
-
 :math:`T_1` Experiment
 ----------------------
 
@@ -23,13 +18,14 @@ experiment database.
 .. jupyter-execute::
 
     from qiskit_experiments.library.characterization import T1
+    import numpy as np
     
-    t1_delays = list(range(0, 800, 50))
+    t1_delays = np.arange(1e-6, 600e-6, 50e-6)
     
     # Create an experiment for qubit 0,
     # setting the unit to microseconds,
     # with the specified time intervals
-    exp = T1(qubit=0, delays=t1_delays, unit="us")
+    exp = T1(qubit=0, delays=t1_delays)
     print(exp.circuits()[0])
 
 Now we run the experiment. ``block_for_results()`` blocks execution
@@ -37,12 +33,27 @@ until the experiment is complete, then ``save()`` is called to save the
 data to ResultsDB.
 
 .. jupyter-execute::
+    :hide-code:
+    :hide-output:
 
-    # Run the experiment circuits with 1000 shots each,
-    # and analyze the result
-    
+    from qiskit.test.ibmq_mock import mock_get_backend
+    backend = mock_get_backend('FakeArmonk')
+
+
+.. jupyter-execute::
+
+    from qiskit import IBMQ
+    IBMQ.load_account()
+    provider = IBMQ.get_provider(hub="ibm-q", group="open", project="main")
+    backend = provider.get_backend("ibmq_armonk")
+
     t1_expdata = exp.run(backend=backend, shots=1000).block_for_results()
     t1_expdata.save()
+
+.. jupyter-execute::
+    :hide-code:
+
+    print("You can view the experiment online at https://quantum-computing.ibm.com/experiments/96b86d51-5200-4270-8ac1-ce4c20188ab9")
 
 Note that calling ``save()`` before the experiment is complete will
 instantiate an experiment entry in the database, but it will not have
@@ -89,23 +100,25 @@ Loading an experiment from the database
 
 You can also load the full saved experiment from the database service.
 Let’s load a `previous T1
-experiment <https://quantum-computing.ibm.com/experiments/9eb0b0f4-be97-4c57-9665-8c9ff09442e8>`__,
+experiment <https://quantum-computing.ibm.com/experiments/96b86d51-5200-4270-8ac1-ce4c20188ab9>`__,
 which we’ve made public by editing the ``Share level`` field:
 
 .. jupyter-execute::
 
     from qiskit_experiments.database_service import DbExperimentDataV1 as DbExperimentData
-    
-    load_exp = DbExperimentData.load("9eb0b0f4-be97-4c57-9665-8c9ff09442e8", provider.service("experiment"))
+    load_exp = DbExperimentData.load("96b86d51-5200-4270-8ac1-ce4c20188ab9", provider.service("experiment"))
 
 To display the figure, which is serialized into a string, we need the
 SVG library:
 
 .. jupyter-execute::
+    :hide-output:
+    :raises:
 
     from IPython.display import SVG
     SVG(load_exp.figure(0))
 
+.. image:: ./experiment_cloud_service/t1_loaded.png
 
 We’ve also retrieved the full analysis results from the database:
 
@@ -114,17 +127,37 @@ We’ve also retrieved the full analysis results from the database:
     for result in load_exp.analysis_results():
         print(result)
 
+.. jupyter-execute::
+    :hide-code:
+
+    print ("""DbAnalysisResultV1
+    - name: T1
+    - value: 0.000168+/-0.000006
+    - χ²: 1.3178510503089684
+    - quality: ResultQuality.GOOD
+    - extra: <1 items>
+    - device_components: ['Q0']
+    - verified: False
+    DbAnalysisResultV1
+    - name: @Parameters_T1Analysis
+    - value: [0.9211991764658336, 0.035243060640676796, 0.00016807035946402193]
+    - χ²: 1.3178510503089684
+    - quality: ResultQuality.GOOD
+    - extra: <4 items>
+    - device_components: ['Q0']
+    - verified: False""")
+
 Auto-saving an experiment
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-There is also the ``auto_save`` feature, which saves the data of an
-experiment preemptively. In the future, you will be able to set
+The ``auto_save`` feature saves the data of an
+experiment preemptively before it runs. In the future, you will be able to set
 ``provider.experiment.set_option(auto_save=True)`` to turn ``auto_save``
 on by default at the experiment service level.
 
 .. jupyter-execute::
 
-    exp = T1(qubit=0, delays=t1_delays, unit="us")
+    exp = T1(qubit=0, delays=t1_delays)
     
     t1_expdata = exp.run(backend=backend, shots=1000)
     t1_expdata.auto_save = True
@@ -168,14 +201,10 @@ These fields can also be updated in the web interface from the menu on the right
 
 .. |web_tags_share.png| image:: ./experiment_cloud_service/web_tags_share.png
 
-
-More Information
-~~~~~~~~~~~~~~~~
-
 For more information about using the cloud database interface, please take a look at its `documentation <https://quantum-computing.ibm.com/lab/docs/iql/manage/experiments/>`. 
 
-RB experiment
--------------
+Randomized Benchmarking experiment
+----------------------------------
 
 Let’s now do a standard RB experiment and save the results to ResultsDB.
 
@@ -227,7 +256,7 @@ Let’s do state tomography on a Hadamard state.
 
 
 The tomography experiment doesn’t have associated figures. Similar to
-randomized benchmarking, the tomography matrix is not shown in the
+randomized benchmarking, the tomography matrix is not directly shown in the
 graphical interface, but the other analysis parameters are:
 
 .. image:: ./experiment_cloud_service/tomo_experiment.png
