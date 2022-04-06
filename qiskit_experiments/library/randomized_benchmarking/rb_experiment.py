@@ -97,8 +97,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
         self._full_sampling = full_sampling
         self._clifford_utils = CliffordUtils()
 
-        # Evaluated in the execution stage. Values are copied to experiment data metadata.
-        self._gate_error_ratio = None
+        # Internal state to copy data from transpile to metadata
         self._gate_counts_per_clifford = None
 
     def _verify_parameters(self, lengths, num_samples):
@@ -229,44 +228,11 @@ class StandardRB(BaseExperiment, RestlessMixin):
                 circuits.append(rb_circ)
         return circuits
 
-    def _finalize(self):
-        super()._finalize()
-
-        # Set constraints to compute basis gates EPGs from an estimated EPC
-        gate_error_ratio = self.experiment_options.gate_error_ratio
-
-        if gate_error_ratio != "default":
-            self._gate_error_ratio = gate_error_ratio
-            return
-
-        # When 'default' is set, create standard gate error ratio from basis gates
-        basis_gates = self.transpile_options.get("basis_gates", None)
-
-        if basis_gates is None:
-            try:
-                basis_gates = self.backend.configuration().basis_gates
-            except AttributeError:
-                # When basis gates is not provided, disable EPG computation
-                warnings.warn(
-                    "The basis gates information is not available. Cannot compute EPGs.",
-                    UserWarning,
-                )
-                self._gate_error_ratio = False
-
-        gate_error_ratio = {}
-        for basis_gate in basis_gates:
-            r_epg = lookup_epg_ratio(basis_gate, self.num_qubits)
-            if r_epg is None:
-                continue
-            gate_error_ratio[(tuple(self.physical_qubits), basis_gate)] = r_epg
-
-        self._gate_error_ratio = gate_error_ratio
-
     def _transpiled_circuits(self) -> List[QuantumCircuit]:
         """Return a list of experiment circuits, transpiled."""
         transpiled = super()._transpiled_circuits()
 
-        if self._gate_error_ratio is False:
+        if self.experiment_options.gate_error_ratio is False:
             # Gate errors are not computed, then counting ops is not necessary.
             return transpiled
 
@@ -281,6 +247,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
                     continue
                 # This is qubit aware count opts
                 gate_counts_per_clifford[(qubits, instr)] += count / total_cliffs
+
         # Directly copy the value to experiment data metadata via instance state
         self._gate_counts_per_clifford = dict(gate_counts_per_clifford)
 
@@ -294,12 +261,36 @@ class StandardRB(BaseExperiment, RestlessMixin):
             if hasattr(self.run_options, run_opt):
                 metadata[run_opt] = getattr(self.run_options, run_opt)
 
+        # Set constraints to compute basis gates EPGs from an estimated EPC
+        gate_error_ratio = self.experiment_options.gate_error_ratio
+
+        if gate_error_ratio == "default":
+            # Extract basis gate from transpile option, then backend configuration
+            try:
+                basis_gates = self.transpile_options.get(
+                    "basis_gates", self.backend.configuration().basis_gates
+                )
+                # Do gate error ratio look-up
+                gate_error_ratio = {}
+                for basis_gate in basis_gates:
+                    r_epg = lookup_epg_ratio(basis_gate, self.num_qubits)
+                    if r_epg is None:
+                        continue
+                    gate_error_ratio[(tuple(self.physical_qubits), basis_gate)] = r_epg
+            except AttributeError:
+                # When basis gates is not provided, disable EPG computation
+                warnings.warn(
+                    "The basis gates information is not available. Cannot compute EPGs.",
+                    UserWarning,
+                )
+                gate_error_ratio = False
+
         def _to_tuple(value):
             # For JSON serialization. The dict key is not string.
             if isinstance(value, dict):
                 return tuple(value.items())
             return value
 
-        metadata["gate_error_ratio"] = _to_tuple(self._gate_error_ratio)
+        metadata["gate_error_ratio"] = _to_tuple(gate_error_ratio)
         metadata["gate_counts_per_clifford"] = _to_tuple(self._gate_counts_per_clifford)
         return metadata
