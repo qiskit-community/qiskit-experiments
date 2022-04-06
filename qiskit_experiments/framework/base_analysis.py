@@ -194,6 +194,12 @@ class BaseAnalysis(ABC, StoreInitArgs):
         elif experiment_components:
             device_components = experiment_components
 
+        if isinstance(data, DbAnalysisResultV1):
+            # Update device components and experiment id
+            data.device_components = device_components
+            data._experiment_id = experiment_id
+            return data
+
         return DbAnalysisResultV1(
             name=data.name,
             value=data.value,
