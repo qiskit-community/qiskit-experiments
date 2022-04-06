@@ -63,21 +63,21 @@ we compute the results for :math:`T_\varphi.`
 
 .. jupyter-execute::
 
-    print(expdata.child_data(0).analysis_results("T1"))
+    print(expdata.analysis_results("T1"))
 
 .. jupyter-execute::
 
-    display(expdata.child_data(0).figure(0))
-
-
-.. jupyter-execute::
-
-    print(expdata.child_data(1).analysis_results("T2star"))
+    display(expdata.figure(0))
 
 
 .. jupyter-execute::
 
-    display(expdata.child_data(1).figure(0))
+    print(expdata.analysis_results("T2star"))
+
+
+.. jupyter-execute::
+
+    display(expdata.figure(1))
 
 .. jupyter-execute::
 
