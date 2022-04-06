@@ -12,6 +12,7 @@
 """
 Standard RB Experiment class.
 """
+import warnings
 from typing import Union, Iterable, Optional, List, Sequence
 from collections import defaultdict
 
@@ -28,7 +29,7 @@ from qiskit_experiments.framework import BaseExperiment, Options
 from qiskit_experiments.framework.restless_mixin import RestlessMixin
 from .rb_analysis import RBAnalysis
 from .clifford_utils import CliffordUtils
-from .rb_utils import RBUtils
+from .rb_utils import RBUtils, lookup_epg_ratio
 
 
 class StandardRB(BaseExperiment, RestlessMixin):
@@ -129,10 +130,8 @@ class StandardRB(BaseExperiment, RestlessMixin):
                 the error per gate (EPG) values are computed from the estimated
                 error per Clifford (EPC) parameter in the RB analysis.
                 This value defaults to "default". When explicit gate error ratio is not provided,
-                a gate error ratio dictionary of typical basis gates for superconducting processor is
-                implicitly created and set, i.e. ``(sx, x, rz)`` for single qubit RB,
-                and ``(cx, )`` for two qubit RB.
-                No default gate definition for more than three qubit RB.
+                typical error ratio is provided by :func:`~qiskit_experiments.library.\
+                randomized_benchmarking.rb_utils.lookup_epg_ratio`.
                 The dictionary is keyed on a tuple of qubit index and string label of instruction.
                 Defined instructions should appear in the ``basis_gates`` in the transpile options.
                 If this value is set to ``"skip"``, the computation of EPG values is skipped.
@@ -230,43 +229,37 @@ class StandardRB(BaseExperiment, RestlessMixin):
                 circuits.append(rb_circ)
         return circuits
 
-    @classmethod
-    def _default_transpile_options(cls) -> Options:
-        options = super()._default_experiment_options()
-
-        # Assumes typical basis gates for superconduncting processor
-        options.basis_gates = ["sx", "rz", "x", "cx", "measure"]
-
-        return options
-
     def _finalize(self):
         super()._finalize()
 
         # Set constraints to compute basis gates EPGs from an estimated EPC
         gate_error_ratio = self.experiment_options.gate_error_ratio
 
-        if gate_error_ratio == "default":
-            num_qubit_default_basis = {
-                1: {"sx": 1.0, "rz": 0.0, "x": 1.0},
-                2: {"cx": 1.0},
-            }
-            qubits = tuple(self.physical_qubits)
-            gate_error_ratio = {
-                (qubits, k): v for k, v in num_qubit_default_basis.get(len(qubits), {}).items()
-            }
+        if gate_error_ratio != "default":
+            self._gate_error_ratio = gate_error_ratio
+            return
 
-        if gate_error_ratio != "skip":
+        # When 'default' is set, create standard gate error ratio from basis gates
+        basis_gates = self.transpile_options.get("basis_gates", None)
 
-            gates_in_estimates = set(q_gate_tup[1] for q_gate_tup in gate_error_ratio.keys())
-            # Validate if assumed gates are a part to basis gates in the transpile options
-            basis_gates = set(self.transpile_options.basis_gates)
-            if not basis_gates.issuperset(gates_in_estimates):
-                raise ValueError(
-                    f"Assumed gates {gates_in_estimates} is not valid "
-                    f"subset of basis gates {basis_gates}."
+        if basis_gates is None:
+            try:
+                basis_gates = self.backend.configuration().basis_gates
+            except AttributeError:
+                # When basis gates is not provided, disable EPG computation
+                warnings.warn(
+                    "The basis gates infromation is not available. Cannot compute EPGs.",
+                    UserWarning,
                 )
+                self._gate_error_ratio = "skip"
 
-        # Directly copy the value to experiment data metadata via instance state
+        gate_error_ratio = {}
+        for basis_gate in basis_gates:
+            r_epg = lookup_epg_ratio(basis_gate, self.num_qubits)
+            if r_epg is None:
+                continue
+            gate_error_ratio[(tuple(self.physical_qubits), basis_gate)] = r_epg
+
         self._gate_error_ratio = gate_error_ratio
 
     def _transpiled_circuits(self) -> List[QuantumCircuit]:
@@ -284,7 +277,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
         total_cliffs = np.sum(self.experiment_options.lengths)
         for circ in transpiled:
             for (qubits, instr), count in RBUtils.count_ops(circ, self.physical_qubits).items():
-                if instr in ("measure", "barrier"):
+                if instr in ("measure", "reset", "delay", "barrier", "snapshot"):
                     continue
                 # This is qubit aware count opts
                 gate_counts_per_clifford[(qubits, instr)] += count / total_cliffs
