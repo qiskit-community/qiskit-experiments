@@ -1068,13 +1068,12 @@ class Calibrations:
             if isinstance(param, ParameterExpression):
                 free_params.add(param)
 
-        if check_free_params:
-            if len(assigned_schedule.parameters) != len(free_params):
-                raise CalibrationError(
-                    f"The number of free parameters {len(assigned_schedule.parameters)} in "
-                    f"the assigned schedule differs from the requested number of free "
-                    f"parameters {len(free_params)}."
-                )
+        if check_free_params and len(assigned_schedule.parameters) != len(free_params):
+            raise CalibrationError(
+                f"The number of free parameters {len(assigned_schedule.parameters)} in "
+                f"the assigned schedule differs from the requested number of free "
+                f"parameters {len(free_params)}."
+            )
 
         return assigned_schedule
 
