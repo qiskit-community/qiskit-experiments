@@ -128,9 +128,6 @@ class BasisGateLibrary(ABC, Mapping):
         for name, schedule in self.items():
             for param in schedule.parameters:
                 if "ch" not in param.name:
-                    # When the library calls schedules from another library then the default
-                    # values should come from that other library to avoid adding them twice
-                    # in the calibrations.
                     value = self._default_values.get(param.name, None)
                     if value is not None:
                         defaults.append(DefaultCalValue(value, param.name, tuple(), name))
