@@ -311,11 +311,11 @@ class EchoedCrossResonance(BasisGateLibrary):
     """A gate library to define the echoed cross-resonance gate."""
 
     __default_values__ = {
-        "cr_duration": 640,
-        "cr_width": 384,
-        "cr_σ": 64,
-        "cr_amp": 0.5,
-        "rot_amp": 0.0,
+        "duration": 640,
+        "width": 384,
+        "σ": 64,
+        "amp": 0.5,
+        "amp_trg": 0.0,
     }
 
     def __init__(

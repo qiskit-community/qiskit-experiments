@@ -889,7 +889,7 @@ class TestControlChannels(CrossResonanceTest):
 
         new_param = Parameter("new_amp")
         schedule = self.cals.get_schedule(
-            "ecr", (3, 2), assign_params={("cr_amp", (3, 2), "ecr"): new_param}
+            "ecr", (3, 2), assign_params={("amp", (3, 2), "ecr"): new_param}
         )
 
         self.assertEqual(schedule.parameters, {new_param})
@@ -1405,7 +1405,7 @@ class TestSavingAndLoading(CrossResonanceTest):
         self.assertEqual(val, 40)
         self.assertTrue(isinstance(val, float))
 
-        val = self.cals.get_parameter_value("cr_amp", (3, 2), "ecr")
+        val = self.cals.get_parameter_value("amp", (3, 2), "ecr")
         self.assertEqual(val, 0.5)
         self.assertTrue(isinstance(val, float))
 

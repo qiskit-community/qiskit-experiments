@@ -306,16 +306,3 @@ class TestEchoedCrossResonance(QiskitExperimentsTestCase):
         lib2 = json.loads(lib_data, cls=ExperimentDecoder)
 
         self.assertTrue(_test_library_equivalence(lib1, lib2))
-
-    def test_library_list_json(self):
-        """Check that library dependencies are preserved when serializing several of them."""
-        lib_sq = FixedFrequencyTransmon()
-        lic_cr = EchoedCrossResonance()
-
-        libraries = [lib_sq, lic_cr]
-
-        lib_data = json.dumps(libraries, cls=ExperimentEncoder)
-        libraries2 = json.loads(lib_data, cls=ExperimentDecoder)
-        x_gate_ecr = get_called_subroutines(libraries2[1]["ecr"])[0]
-
-        self.assertEqual(libraries2[0]["x"], x_gate_ecr)
