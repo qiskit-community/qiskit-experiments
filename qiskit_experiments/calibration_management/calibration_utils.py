@@ -51,7 +51,7 @@ def has_calls(schedule: ScheduleBlock) -> bool:
 
 
 def get_names_called_by_name(schedule: ScheduleBlock) -> Set[str]:
-    """Returns the list of subroutines that the given schedule calls.
+    """Returns the set of subroutine names that the given schedule calls by name.
 
     Args:
         schedule: A schedule to parse and find the called subroutines.
