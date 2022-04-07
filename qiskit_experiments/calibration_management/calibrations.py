@@ -39,7 +39,7 @@ from qiskit.providers.backend import BackendV1 as Backend
 from qiskit_experiments.exceptions import CalibrationError
 from qiskit_experiments.calibration_management.calibration_utils import (
     compare_schedule_blocks,
-    get_called_subroutines,
+    has_calls,
     get_names_called_by_name,
 )
 from qiskit_experiments.calibration_management.basis_gate_library import BasisGateLibrary
@@ -573,7 +573,7 @@ class Calibrations:
                     )
 
         # Check that no Call instructions are present.
-        if get_called_subroutines(schedule):
+        if has_calls(schedule):
             raise CalibrationError(
                 "ScheduleBlocks with Call instructions are forbidden in Calibrations. "
                 f"Use {CalledScheduleByName.__name__} instead."

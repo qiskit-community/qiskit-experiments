@@ -37,30 +37,17 @@ def compare_schedule_blocks(schedule1: ScheduleBlock, schedule2: ScheduleBlock) 
     return all(all_blocks_equal)
 
 
-def get_called_subroutines(schedule: ScheduleBlock) -> List[ScheduleBlock]:
-    """Returns the list of subroutines that the given schedule calls.
-
-    Args:
-        schedule: A schedule to parse and find the called subroutines.
-
-    Returns:
-        A list of schedules called by ``schedule``.
-    """
-    subroutines = []
-    _get_called_subroutines(schedule, subroutines)
-    return subroutines
-
-
-def _get_called_subroutines(schedule: ScheduleBlock, subroutines: List[ScheduleBlock]):
-    """Helper method to recursively find called subroutines."""
+def has_calls(schedule: ScheduleBlock) -> bool:
+    """Return True if the schedule has any call instructions in it."""
+    has_call = False
     for block in schedule.blocks:
         if isinstance(block, ScheduleBlock):
-            _get_called_subroutines(block, subroutines)
+            has_call = has_call or has_calls(block)
 
         if isinstance(block, Call):
-            subroutines.append(block.subroutine)
+            return True
 
-    return subroutines
+    return has_call
 
 
 def get_names_called_by_name(schedule: ScheduleBlock) -> List[str]:

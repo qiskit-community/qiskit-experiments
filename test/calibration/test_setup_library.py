@@ -29,7 +29,7 @@ from qiskit_experiments.calibration_management.calibration_key_types import Defa
 from qiskit_experiments.calibration_management.calibrations import Calibrations
 from qiskit_experiments.calibration_management.calibration_utils import (
     compare_schedule_blocks,
-    get_called_subroutines,
+    has_calls,
 )
 from qiskit_experiments.exceptions import CalibrationError
 from qiskit_experiments.framework.json import ExperimentEncoder, ExperimentDecoder
