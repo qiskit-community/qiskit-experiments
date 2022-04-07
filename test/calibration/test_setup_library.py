@@ -12,7 +12,7 @@
 
 """Class to test the calibrations setup methods."""
 
-from typing import Dict, List, Optional, Set
+from typing import Dict, Set
 import json
 from test.base import QiskitExperimentsTestCase
 from ddt import ddt, data, unpack
@@ -27,10 +27,7 @@ from qiskit_experiments.calibration_management.basis_gate_library import (
 )
 from qiskit_experiments.calibration_management.calibration_key_types import DefaultCalValue
 from qiskit_experiments.calibration_management.calibrations import Calibrations
-from qiskit_experiments.calibration_management.calibration_utils import (
-    compare_schedule_blocks,
-    has_calls,
-)
+from qiskit_experiments.calibration_management.calibration_utils import compare_schedule_blocks
 from qiskit_experiments.exceptions import CalibrationError
 from qiskit_experiments.framework.json import ExperimentEncoder, ExperimentDecoder
 
@@ -42,11 +39,7 @@ class TestLibrary(FixedFrequencyTransmon):
     with the serialization :meth:`in test_hash_warn`.
     """
 
-    def _build_schedules(
-        self,
-        basis_gates: Set[str],
-        dependencies: Optional[List["BasisGateLibrary"]] = None,
-    ) -> Dict[str, pulse.ScheduleBlock]:
+    def _build_schedules(self, basis_gates: Set[str]) -> Dict[str, pulse.ScheduleBlock]:
         """Dummy schedule building."""
         with pulse.build(name="x") as schedule:
             pulse.play(pulse.Drag(160, 0.1, 40, 0), pulse.DriveChannel(0))

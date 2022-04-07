@@ -29,9 +29,6 @@ class TestCalibrationUtils(QiskitExperimentsTestCase):
     def test_used_in_calls(self):
         """Test that we can identify schedules by name when calls are present."""
 
-        with pulse.build(name="xp") as xp:
-            pulse.play(pulse.Gaussian(160, 0.5, 40), pulse.DriveChannel(1))
-
         with pulse.build(name="xp2") as xp2:
             pulse.play(pulse.Gaussian(160, 0.5, 40), pulse.DriveChannel(1))
 
