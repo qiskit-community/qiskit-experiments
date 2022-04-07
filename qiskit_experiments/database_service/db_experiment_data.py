@@ -1014,7 +1014,7 @@ class DbExperimentDataV1(DbExperimentData):
         upload_request_url = f"/experiments/{self._id}/files/upload/{filename}"
         session = self._provider.experiment._api_client.base_api.session
         upload_url = session.get(upload_request_url).json()["url"]
-        response = session.put(upload_url, data=file_data, headers=header, bare=True)
+        session.put(upload_url, data=file_data, headers=header, bare=True)
 
     def save(self) -> None:
         """Save the experiment data to a database service.
