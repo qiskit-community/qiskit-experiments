@@ -351,7 +351,7 @@ class EchoedCrossResonance(BasisGateLibrary):
         cr_chan = pulse.ControlChannel(Parameter("ch0.1"))
 
         cr_amp = Parameter("cr_amp")
-        rot_amp = Parameter("rot_amp")
+        rot_amp = Parameter("cr_amp_trg")
         cr_sigma = Parameter("cr_σ")
         cr_duration = Parameter("cr_duration")
         cr_width = Parameter("cr_width")
