@@ -350,11 +350,11 @@ class EchoedCrossResonance(BasisGateLibrary):
         target = pulse.DriveChannel(Parameter("ch1"))
         cr_chan = pulse.ControlChannel(Parameter("ch0.1"))
 
-        cr_amp = Parameter("cr_amp")
-        rot_amp = Parameter("cr_amp_trg")
-        cr_sigma = Parameter("cr_σ")
-        cr_duration = Parameter("cr_duration")
-        cr_width = Parameter("cr_width")
+        cr_amp = Parameter("amp")
+        rot_amp = Parameter("amp_trg")
+        cr_sigma = Parameter("σ")
+        cr_duration = Parameter("duration")
+        cr_width = Parameter("width")
 
         cr45p = pulse.GaussianSquare(
             duration=cr_duration, amp=cr_amp, sigma=cr_sigma, width=cr_width, name="cr45p"
