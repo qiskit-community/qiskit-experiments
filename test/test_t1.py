@@ -121,13 +121,7 @@ class TestT1(QiskitExperimentsTestCase):
         """
 
         data = ExperimentData()
-        data._metadata = {
-            "job_metadata": [
-                {
-                    "run_options": {"meas_level": 2},
-                },
-            ]
-        }
+        data._metadata = {"meas_level": 2}
 
         numbers = [750, 1800, 2750, 3550, 4250, 4850, 5450, 5900, 6400, 6800, 7000, 7350, 7700]
 
@@ -178,13 +172,7 @@ class TestT1(QiskitExperimentsTestCase):
         """
 
         data = ExperimentData()
-        data._metadata = {
-            "job_metadata": [
-                {
-                    "run_options": {"meas_level": 2},
-                },
-            ]
-        }
+        data._metadata = {"meas_level": 2}
 
         for i in range(10):
             data.add_data(
@@ -202,6 +190,42 @@ class TestT1(QiskitExperimentsTestCase):
         res, _ = T1Analysis()._run_analysis(data)
         result = res[1]
         self.assertEqual(result.quality, "bad")
+
+    def test_t1_parallel_exp_transpile(self):
+        """Test parallel transpile options for T1 experiment"""
+        num_qubits = 5
+        instruction_durations = []
+        for i in range(num_qubits):
+            instruction_durations += [
+                ("rx", [i], (i + 1) * 10, "ns"),
+                ("measure", [i], (i + 1) * 1000, "ns"),
+            ]
+        coupling_map = [[i - 1, i] for i in range(1, num_qubits)]
+        basis_gates = ["rx", "delay"]
+
+        exp1 = T1(1, delays=[50e-9, 100e-9, 160e-9])
+        exp2 = T1(3, delays=[40e-9, 80e-9, 190e-9])
+        parexp = ParallelExperiment([exp1, exp2])
+        parexp.set_transpile_options(
+            basis_gates=basis_gates,
+            instruction_durations=instruction_durations,
+            coupling_map=coupling_map,
+            scheduling_method="alap",
+        )
+
+        circs = parexp.circuits()
+        for circ in circs:
+            self.assertEqual(circ.num_qubits, 2)
+            op_counts = circ.count_ops()
+            self.assertEqual(op_counts.get("rx"), 2)
+            self.assertEqual(op_counts.get("delay"), 2)
+
+        tcircs = parexp._transpiled_circuits()
+        for circ in tcircs:
+            self.assertEqual(circ.num_qubits, num_qubits)
+            op_counts = circ.count_ops()
+            self.assertEqual(op_counts.get("rx"), 2)
+            self.assertGreater(op_counts.get("delay"), num_qubits - 1)
 
     def test_experiment_config(self):
         """Test converting to and from config works"""
