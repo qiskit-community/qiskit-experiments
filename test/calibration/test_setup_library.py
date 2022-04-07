@@ -254,11 +254,6 @@ class TestEchoedCrossResonance(QiskitExperimentsTestCase):
         """Basic test of the library."""
         self.assertTrue("ecr" in EchoedCrossResonance(FixedFrequencyTransmon()))
 
-    def test_exceptions(self):
-        """Test that x gate is required."""
-        with self.assertRaises(CalibrationError):
-            EchoedCrossResonance(FixedFrequencyTransmon(basis_gates=["y", "cr"]))
-
     @data(
         (1, 2, 2),
         (3, 4, 6),
