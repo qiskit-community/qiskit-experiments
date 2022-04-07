@@ -1072,6 +1072,15 @@ class DbExperimentDataV1(DbExperimentData):
                 )
 
     @classmethod
+    def _load_metadata_file(cls, experiment_id: str, service: DatabaseServiceV1):
+        uuid = experiment_id
+        filename = "metadata.json"
+        download_request_url = f"/experiments/{uuid}/files/{filename}"
+        session = service._api_client.base_api.session
+        result = session.get(download_request_url)
+        return result.json()
+
+    @classmethod
     def load(cls, experiment_id: str, service: DatabaseServiceV1) -> "DbExperimentDataV1":
         """Load a saved experiment data from a database service.
 
@@ -1085,7 +1094,13 @@ class DbExperimentDataV1(DbExperimentData):
         service_data = service.experiment(experiment_id, json_decoder=cls._json_decoder)
 
         # Parse serialized metadata
-        metadata = service_data.pop("metadata")
+        metadata = {}
+        metadata_from_service_data = service_data.pop("metadata")
+        if metadata_from_service_data is not None:
+            metadata.update(metadata_from_service_data)
+        metadata_from_file = cls._load_metadata_file(experiment_id, service)
+        if metadata_from_file is not None:
+            metadata.update(metadata_from_file)
 
         # Initialize container
         expdata = DbExperimentDataV1(
