@@ -149,9 +149,8 @@ class Calibrations:
         self._hash_to_counter_map = {}
         self._parameter_counter = 0
 
-        self._library = None
+        self._library = library
         if library is not None:
-            self._library = library
             for lib in library:
 
                 # Add the basis gates
