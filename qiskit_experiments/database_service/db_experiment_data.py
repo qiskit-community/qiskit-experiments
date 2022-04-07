@@ -984,10 +984,8 @@ class DbExperimentDataV1(DbExperimentData):
             update_data["parent_id"] = self.parent_id
 
         # check whether we are able to use _save_metadata_file
-        try:
-            session = self._provider.experiment._api_client.base_api.session
-            can_save_metadata_file = True
-        except Exception:
+        can_save_metadata_file = True
+        if self._provider is None:
             # revert to the old method
             update_data["metadata"] = metadata
             can_save_metadata_file = False
@@ -1012,12 +1010,11 @@ class DbExperimentDataV1(DbExperimentData):
         """
         file_data = json.dumps(metadata)
         filename = "metadata.json"
-        HEADER_JSON_CONTENT = {"Content-Type": "application/json"}
-        uuid = self._id
-        upload_request_url = f"/experiments/{uuid}/files/upload/{filename}"
+        header = {"Content-Type": "application/json"}
+        upload_request_url = f"/experiments/{self._id}/files/upload/{filename}"
         session = self._provider.experiment._api_client.base_api.session
         upload_url = session.get(upload_request_url).json()["url"]
-        response = session.put(upload_url, data=file_data, headers=HEADER_JSON_CONTENT, bare=True)
+        response = session.put(upload_url, data=file_data, headers=header, bare=True)
 
     def save(self) -> None:
         """Save the experiment data to a database service.
@@ -1096,9 +1093,10 @@ class DbExperimentDataV1(DbExperimentData):
         Returns:
             The loaded experiment data.
         """
-        uuid = experiment_id
+        if not hasattr(service, "_api_client"):
+            return None
         filename = "metadata.json"
-        download_request_url = f"/experiments/{uuid}/files/{filename}"
+        download_request_url = f"/experiments/{experiment_id}/files/{filename}"
         session = service._api_client.base_api.session
         result = session.get(download_request_url)
         return result.json()
@@ -1121,13 +1119,9 @@ class DbExperimentDataV1(DbExperimentData):
         metadata_from_service_data = service_data.pop("metadata")
         if metadata_from_service_data is not None:
             metadata.update(metadata_from_service_data)
-        try:
-            metadata_from_file = cls._load_metadata_file(experiment_id, service)
-            if metadata_from_file is not None:
-                metadata.update(metadata_from_file)
-        except Exception:
-            # without an actual provider, there's no metadata file to read
-            pass
+        metadata_from_file = cls._load_metadata_file(experiment_id, service)
+        if metadata_from_file is not None:
+            metadata.update(metadata_from_file)
 
         # Initialize container
         expdata = DbExperimentDataV1(
