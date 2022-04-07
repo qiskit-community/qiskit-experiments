@@ -792,6 +792,18 @@ class TestRegistering(QiskitExperimentsTestCase):
 
         self.assertTrue(isinstance(cals.get_schedule("ecr", (0, 1)), pulse.ScheduleBlock))
 
+    def test_unique_names(self):
+        """Test that we cannot register a schedule where parameters have the same names."""
+
+        param1 = Parameter("p1")
+        param2 = Parameter("p1")
+
+        with pulse.build(name="new_xp") as xp_sched:
+            pulse.play(pulse.Drag(160, param1, 40, param2), self.d0_)
+
+        with self.assertRaisesRegex(CalibrationError, "Parameter names in new_xp must be unique."):
+            self.cals.add_schedule(xp_sched, num_qubits=1)
+
 
 class CrossResonanceTest(QiskitExperimentsTestCase):
     """Setup class for an echoed cross-resonance calibration."""

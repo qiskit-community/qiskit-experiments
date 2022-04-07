@@ -595,11 +595,7 @@ class Calibrations:
         self._schedules_qubits[sched_key] = num_qubits
 
         # Register parameters that are not indices.
-        # Do not register parameters that are in call instructions.
-        params_to_register = set()
-        for param in schedule.parameters:
-            if param not in param_indices:
-                params_to_register.add(param)
+        params_to_register = schedule.parameters.difference(param_indices)
 
         if len(params_to_register) != len(set(param.name for param in params_to_register)):
             raise CalibrationError(f"Parameter names in {schedule.name} must be unique.")
