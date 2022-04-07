@@ -983,6 +983,15 @@ class DbExperimentDataV1(DbExperimentData):
         if self.parent_id:
             update_data["parent_id"] = self.parent_id
 
+        # check whether we are able to use _save_metadata_file
+        try:
+            session = self._provider.experiment._api_client.base_api.session
+            can_save_metadata_file = True
+        except Exception:
+            # revert to the old method
+            update_data["metadata"] = metadata
+            can_save_metadata_file = False
+
         self._created_in_db, _ = save_data(
             is_new=(not self._created_in_db),
             new_func=self._service.create_experiment,
@@ -991,8 +1000,9 @@ class DbExperimentDataV1(DbExperimentData):
             update_data=update_data,
             json_encoder=self._json_encoder,
         )
-        # metadata is saved as separate artifact in case it's too large
-        self._save_metadata_file(metadata)
+        if can_save_metadata_file:
+            # metadata is saved as separate artifact in case it's too large
+            self._save_metadata_file(metadata)
 
     def _save_metadata_file(self, metadata: Dict):
         """Save the metadata of an experiment data using a database service.
@@ -1111,9 +1121,13 @@ class DbExperimentDataV1(DbExperimentData):
         metadata_from_service_data = service_data.pop("metadata")
         if metadata_from_service_data is not None:
             metadata.update(metadata_from_service_data)
-        metadata_from_file = cls._load_metadata_file(experiment_id, service)
-        if metadata_from_file is not None:
-            metadata.update(metadata_from_file)
+        try:
+            metadata_from_file = cls._load_metadata_file(experiment_id, service)
+            if metadata_from_file is not None:
+                metadata.update(metadata_from_file)
+        except Exception:
+            # without an actual provider, there's no metadata file to read
+            pass
 
         # Initialize container
         expdata = DbExperimentDataV1(
