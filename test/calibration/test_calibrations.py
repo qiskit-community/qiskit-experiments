@@ -1164,10 +1164,7 @@ class TestReplaceScheduleAndCall(QiskitExperimentsTestCase):
 
 
 class TestCoupledAssigning(QiskitExperimentsTestCase):
-    """Test that assigning parameters works when they are coupled in calls.
-
-    TODO: Are these tests still relevant?
-    """
+    """Test that assigning parameters works when they are coupled in calls."""
 
     def setUp(self):
         """Create the setting to test."""
