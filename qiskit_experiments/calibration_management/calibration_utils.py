@@ -50,28 +50,28 @@ def has_calls(schedule: ScheduleBlock) -> bool:
     return has_call
 
 
-def get_names_called_by_name(schedule: ScheduleBlock) -> List[str]:
+def get_names_called_by_name(schedule: ScheduleBlock) -> Set[str]:
     """Returns the list of subroutines that the given schedule calls.
 
     Args:
         schedule: A schedule to parse and find the called subroutines.
 
     Returns:
-        A list of the names of the called by name ``schedule``.
+        A set of the names of the called by name ``schedule``.
     """
-    subroutines = []
+    subroutines = set()
     _get_names_called_by_name(schedule, subroutines)
-    return subroutines
+    return set(subroutines)
 
 
-def _get_names_called_by_name(schedule: ScheduleBlock, subroutines: List[str]):
+def _get_names_called_by_name(schedule: ScheduleBlock, subroutines: Set[str]):
     """Helper method to recursively find called by name subroutines."""
     for block in schedule.blocks:
         if isinstance(block, ScheduleBlock):
             _get_names_called_by_name(block, subroutines)
 
         if isinstance(block, CalledScheduleByName):
-            subroutines.append(block.name)
+            subroutines.add(block.name)
 
     return subroutines
 

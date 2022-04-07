@@ -14,7 +14,11 @@
 
 from test.base import QiskitExperimentsTestCase
 import qiskit.pulse as pulse
-from qiskit_experiments.calibration_management.calibration_utils import used_in_calls, has_calls
+from qiskit_experiments.calibration_management.calibration_utils import (
+    used_in_calls,
+    has_calls,
+    get_names_called_by_name,
+)
 from qiskit_experiments.calibration_management.called_schedule_by_name import CalledScheduleByName
 from qiskit_experiments.calibration_management.basis_gate_library import EchoedCrossResonance
 
@@ -60,3 +64,11 @@ class TestCalibrationUtils(QiskitExperimentsTestCase):
         self.assertTrue(has_calls(call_xp))
         self.assertTrue(has_calls(call_xp2))
         self.assertFalse(has_calls(EchoedCrossResonance()["ecr"]))
+
+    def test_get_names_called_by_name(self):
+        """Test the get names called by name method."""
+
+        ecr = EchoedCrossResonance()
+
+        self.assertSetEqual(get_names_called_by_name(ecr["ecr"]), {"x"})
+        self.assertSetEqual(get_names_called_by_name(ecr["cr45p"]), set())
