@@ -228,7 +228,7 @@ class Calibrations:
             backend: A backend instance from which to extract the qubit and readout frequencies
                 (which will be added as first guesses for the corresponding parameters) as well
                 as the coupling map.
-            library: A library of list thereof from which to get template schedules to register as
+            library: A library or list thereof from which to get template schedules to register as
                 well as default parameter values.
             add_parameter_defaults: A boolean to indicate whether the default parameter values of
                 the given library should be used to populate the calibrations. By default this
