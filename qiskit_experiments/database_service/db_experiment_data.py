@@ -27,6 +27,7 @@ import traceback
 import contextlib
 from collections import deque
 from datetime import datetime
+import json
 import numpy as np
 
 from matplotlib import pyplot
@@ -968,7 +969,7 @@ class DbExperimentDataV1(DbExperimentData):
 
         update_data = {
             "experiment_id": self._id,
-            "metadata": metadata,
+#            "metadata": metadata,
             "job_ids": self.job_ids,
             "tags": self.tags,
             "notes": self.notes,
@@ -991,6 +992,18 @@ class DbExperimentDataV1(DbExperimentData):
             update_data=update_data,
             json_encoder=self._json_encoder,
         )
+        # metadata is saved as separate artifact in case it's too large
+        self._save_metadata_file(metadata)
+
+    def _save_metadata_file(self, metadata):
+        file_data = json.dumps(metadata)
+        filename = "metadata.json"
+        HEADER_JSON_CONTENT = {"Content-Type": "application/json"}
+        uuid = self._id
+        upload_request_url = f"/experiments/{uuid}/files/upload/{filename}"
+        session = self._provider.experiment._api_client.base_api.session
+        upload_url = session.get(upload_request_url).json()["url"]
+        response = session.put(upload_url, data=file_data, headers=HEADER_JSON_CONTENT, bare=True)
 
     def save(self) -> None:
         """Save the experiment data to a database service.
