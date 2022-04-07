@@ -329,15 +329,14 @@ class EchoedCrossResonance(BasisGateLibrary):
                 on the target qubit during the cross-resonance pulse.
             basis_gates: The basis gates to generate.
             default_values: Default values for the parameters this dictionary can contain
-                the following keys: "duration", "amp", "β", and "σ". If "σ" is not provided
-                this library will take one fourth of the pulse duration as default value.
+                the following keys: "duration", "amp", "amp_trg", "width", and "σ".
         """
         self._rotary = pulse_on_target
         super().__init__(basis_gates, default_values)
 
     @property
     def __supported_gates__(self) -> Dict[str, int]:
-        """The gates that this library supports."""
+        """The gates that this library supports and the number of qubits they apply to."""
         return {"ecr": 2, "cr45p": 2, "cr45m": 2}
 
     def _build_schedules(self, basis_gates: Set[str]) -> Dict[str, ScheduleBlock]:
