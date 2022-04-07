@@ -61,7 +61,7 @@ def get_names_called_by_name(schedule: ScheduleBlock) -> Set[str]:
     """
     subroutines = set()
     _get_names_called_by_name(schedule, subroutines)
-    return set(subroutines)
+    return subroutines
 
 
 def _get_names_called_by_name(schedule: ScheduleBlock, subroutines: Set[str]):
