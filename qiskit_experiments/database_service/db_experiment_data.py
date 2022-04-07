@@ -969,7 +969,6 @@ class DbExperimentDataV1(DbExperimentData):
 
         update_data = {
             "experiment_id": self._id,
-#            "metadata": metadata,
             "job_ids": self.job_ids,
             "tags": self.tags,
             "notes": self.notes,
@@ -995,7 +994,12 @@ class DbExperimentDataV1(DbExperimentData):
         # metadata is saved as separate artifact in case it's too large
         self._save_metadata_file(metadata)
 
-    def _save_metadata_file(self, metadata):
+    def _save_metadata_file(self, metadata: Dict):
+        """Save the metadata of an experiment data using a database service.
+
+        Args:
+            metadata: The metadata object to store
+        """
         file_data = json.dumps(metadata)
         filename = "metadata.json"
         HEADER_JSON_CONTENT = {"Content-Type": "application/json"}
@@ -1072,7 +1076,16 @@ class DbExperimentDataV1(DbExperimentData):
                 )
 
     @classmethod
-    def _load_metadata_file(cls, experiment_id: str, service: DatabaseServiceV1):
+    def _load_metadata_file(cls, experiment_id: str, service: DatabaseServiceV1) -> Dict:
+        """Load the saved metadata of an experiment data from a database service.
+
+        Args:
+            experiment_id: Experiment ID.
+            service: the database service.
+
+        Returns:
+            The loaded experiment data.
+        """
         uuid = experiment_id
         filename = "metadata.json"
         download_request_url = f"/experiments/{uuid}/files/{filename}"
