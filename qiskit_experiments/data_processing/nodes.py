@@ -901,9 +901,12 @@ class RestlessToIQ(RestlessNode):
         # Step 1. Reorder the data.
         memory = self._reorder_iq(data)
 
+        # Set up a new memory that will contain the post-processed data (see
+        # step 2). The first element is the first element of the reordered memory
+        # from step 1.
         post_processed_memory = [
             [
-                [np.abs(memory[0][sub_idx][0]), np.abs(memory[0][sub_idx][1])]
+                [memory[0][sub_idx][0], memory[0][sub_idx][1]]
                 for sub_idx in range(len(memory[0]))
             ]
         ]
