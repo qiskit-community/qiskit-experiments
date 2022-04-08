@@ -13,10 +13,11 @@
 Composite Experiment Analysis class.
 """
 
-from typing import List, Dict, Union, Optional
+from typing import List, Dict, Union, Optional, Tuple
 import numpy as np
 from qiskit.result import marginal_counts
 from qiskit_experiments.framework import BaseAnalysis, ExperimentData
+from qiskit_experiments.framework.analysis_result_data import AnalysisResultData
 from qiskit_experiments.framework.base_analysis import _requires_copy
 from qiskit_experiments.exceptions import AnalysisError
 
@@ -49,14 +50,22 @@ class CompositeAnalysis(BaseAnalysis):
         from the composite experiment data.
     """
 
-    def __init__(self, analyses: List[BaseAnalysis]):
+    def __init__(self, analyses: List[BaseAnalysis], flatten_results: bool = False):
         """Initialize a composite analysis class.
 
         Args:
             analyses: a list of component experiment analysis objects.
+            flatten_results: If True flatten all component experiment results
+                             into a single ExperimentData container, including
+                             nested composite experiments. If False save each
+                             component experiment results as a separate child
+                             ExperimentData container.
         """
         super().__init__()
         self._analyses = analyses
+        self._flatten_results = False
+        if flatten_results:
+            self._set_flatten_results()
 
     def component_analysis(
         self, index: Optional[int] = None
@@ -91,8 +100,10 @@ class CompositeAnalysis(BaseAnalysis):
         if not replace_results and _requires_copy(experiment_data):
             experiment_data = experiment_data.copy()
 
-        # Initialize child components if they are not initalized.
-        self._add_child_data(experiment_data)
+        if not self._flatten_results:
+            # Initialize child components if they are not initalized
+            # This only needs to be done if results are not being flattened
+            self._add_child_data(experiment_data)
 
         # Run analysis with replace_results = True since we have already
         # created the copy if it was required
@@ -114,6 +125,10 @@ class CompositeAnalysis(BaseAnalysis):
         # the parent experiment analysis results
         for sub_expdata in component_expdata:
             sub_expdata.block_for_results()
+        # Optionally flatten results from all component experiments
+        # for adding to the main experiment data container
+        if self._flatten_results:
+            return self._combine_results(component_expdata)
 
         return [], []
 
@@ -130,11 +145,18 @@ class CompositeAnalysis(BaseAnalysis):
         Raises:
             AnalysisError: if the component experiment data cannot be extracted.
         """
-        # Retrieve or initialize the component data for updating
-        component_index = experiment_data.metadata.get("component_child_index", [])
-        if not component_index:
-            raise AnalysisError("Unable to extract component experiment data")
-        component_expdata = [experiment_data.child_data(i) for i in component_index]
+        if not self._flatten_results:
+            # Retrieve child data for component experiments for updating
+            component_index = experiment_data.metadata.get("component_child_index", [])
+            if not component_index:
+                raise AnalysisError("Unable to extract component child experiment data")
+            component_expdata = [experiment_data.child_data(i) for i in component_index]
+        else:
+            # Initialize temporary ExperimentData containers for
+            # each component experiment to analysis on. These will
+            # not be saved but results and figures will be collected
+            # from them
+            component_expdata = self._initialize_component_experiment_data(experiment_data)
 
         # Compute marginalize data for each component experiment
         marginalized_data = self._marginalized_component_data(experiment_data.data())
@@ -240,16 +262,61 @@ class CompositeAnalysis(BaseAnalysis):
         experiment_types = metadata.get("component_types", [None] * num_components)
         component_metadata = metadata.get("component_metadata", [{}] * num_components)
 
-        # Create component experiments and copy backend, tags, share level
-        # and auto save from the parent experiment data
+        # Create component experiments and set the backend and
+        # metadata for the components
         component_expdata = []
         for i, _ in enumerate(self._analyses):
             subdata = ExperimentData(backend=experiment_data.backend)
             subdata._type = experiment_types[i]
             subdata.metadata.update(component_metadata[i])
-            subdata.tags = experiment_data.tags
-            subdata.share_level = experiment_data.share_level
-            subdata.auto_save = experiment_data.auto_save
+
+            if self._flatten_results:
+                # Explicitly set auto_save to false so the temporary
+                # data can't accidentally be saved
+                subdata.auto_save = False
+            else:
+                # Copy tags, share_level and auto_save from the parent
+                # experiment data if results are not being flattened.
+                subdata.tags = experiment_data.tags
+                subdata.share_level = experiment_data.share_level
+                subdata.auto_save = experiment_data.auto_save
+
             component_expdata.append(subdata)
 
         return component_expdata
+
+    def _set_flatten_results(self):
+        """Recursively set flatten_results to True for all composite components."""
+        self._flatten_results = True
+        for analysis in self._analyses:
+            if isinstance(analysis, CompositeAnalysis):
+                analysis._set_flatten_results()
+
+    def _combine_results(
+        self, component_experiment_data: List[ExperimentData]
+    ) -> Tuple[List[AnalysisResultData], List["matplotlib.figure.Figure"]]:
+        """Combine analysis results from component experiment data.
+
+        Args:
+            component_experiment_data: list of experiment data containers containing the
+                                       analysis results for each component experiment.
+
+        Returns:
+            A pair of the combined list of all analysis results from each of the
+            component experiments, and a list of all figures from each component
+            experiment.
+        """
+        analysis_results = []
+        figures = []
+        for i, sub_expdata in enumerate(component_experiment_data):
+            figures += sub_expdata._figures.values()
+            for result in sub_expdata.analysis_results():
+                # Add metadata to distinguish the component experiment
+                # the result was generated from
+                result.extra["component_experiment"] = {
+                    "experiment_type": sub_expdata.experiment_type,
+                    "component_index": i,
+                }
+                analysis_results.append(result)
+
+        return analysis_results, figures

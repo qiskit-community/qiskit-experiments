@@ -1,0 +1,10 @@
+---
+fixes:
+  - |
+    Fixes some issues with :meth:`.ExperimentData.cancel_analysis`
+    and :meth:`.ExperimentData.cancel` to make cancelling analysis
+    callbacks more robust.
+  - |
+    Fixes :meth:`.ExperimentData.block_for_results` to handle blocking
+    in recursive cases where an analysis callback adds another
+    job or analysis callback.
