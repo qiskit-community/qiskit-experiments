@@ -32,15 +32,15 @@ class CrossResonancePhase(BaseExperiment):
         value that most closely produces a ZX-like drive. The following circuits
         are executed
 
-        .. parsed-literal:: TODO fix me
+        .. parsed-literal::
 
-                   ┌───┐  ┌──────┐  ┌───┐  ┌──────┐
-            q_0: ──┤ X ├──┤0     ├──┤ X ├──┤0     ├───
-                 ┌─┴───┴─┐│  crp │┌─┴───┴─┐│  crm │┌─┐
-            q_1: ┤ Rz(φ) ├┤1     ├┤ Rz(φ) ├┤1     ├┤M├
-                 └───────┘└──────┘└───────┘└──────┘└╥┘
-            c: 1/═══════════════════════════════════╩═
-                                                    0
+                 ┌───┐┌─────────┐┌───┐┌─────────┐
+            q_0: ┤ X ├┤0        ├┤ X ├┤0        ├───
+                 └───┘│  crp(φ) │└───┘│  crm(φ) │┌─┐
+            q_1: ─────┤1        ├─────┤1        ├┤M├
+                      └─────────┘     └─────────┘└╥┘
+            c: 1/═════════════════════════════════╩═
+                                                  0
 
         Here, the phase φ is scanned over a range. The resulting oscillation is fit
         to a cosine function.
@@ -59,6 +59,12 @@ class CrossResonancePhase(BaseExperiment):
 
         Args:
             qubits: The physical qubits on which to run as (control, target).
+            crp: The positive cross-resonance schedule with a parameterized amplitude
+                with the form :math:`A\cdot e^{-i\phi}` where :math:`A` is a real number
+                and :math:`\phi` is a Qiskit :class:`Parameter`.
+            crm: The negative cross-resonance schedule with a parameterized amplitude
+                with the form :math:`-A\cdot e^{-i\phi}` where :math:`A` is a real number,
+                identical to the a in ``crp`` and :math:`\phi` is a Qiskit :class:`Parameter`.
             backend: The backend on which to run the experiment.
             phases: The phases of the CR drives that will be scanned.
         """
@@ -107,6 +113,7 @@ class CrossResonancePhase(BaseExperiment):
 
         circuits = []
         for phase in self.experiment_options.phases:
+            phase = np.round(phase, 6)
             assigned_circ = circuit.assign_parameters({param: phase}, inplace=False)
             assigned_circ.metadata = {
                 "experiment_type": self._type,
