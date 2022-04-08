@@ -12,7 +12,7 @@
 """
 Standard RB Experiment class.
 """
-import warnings
+import logging
 from typing import Union, Iterable, Optional, List, Sequence
 
 import numpy as np
@@ -29,6 +29,8 @@ from qiskit_experiments.framework.restless_mixin import RestlessMixin
 from .rb_analysis import RBAnalysis
 from .clifford_utils import CliffordUtils
 from .rb_utils import RBUtils, lookup_epg_ratio
+
+LOG = logging.getLogger(__name__)
 
 
 class StandardRB(BaseExperiment, RestlessMixin):
@@ -272,10 +274,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
                     gate_error_ratio[basis_gate] = r_epg
             except AttributeError:
                 # When basis gates is not provided, disable EPG computation
-                warnings.warn(
-                    "The basis gates information is not available. Cannot compute EPGs.",
-                    UserWarning,
-                )
+                LOG.warning("The basis gates information is not available. Cannot compute EPGs.")
                 gate_error_ratio = False
 
         metadata["gate_error_ratio"] = gate_error_ratio
