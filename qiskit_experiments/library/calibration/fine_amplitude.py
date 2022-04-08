@@ -71,8 +71,6 @@ class FineAmplitudeCal(BaseCalibrationExperiment, FineAmplitude):
             auto_update=auto_update,
         )
 
-        self.set_transpile_options(inst_map=calibrations.default_inst_map)
-
     @classmethod
     def _default_experiment_options(cls):
         """Default values for the fine amplitude calibration experiment.
@@ -171,9 +169,10 @@ class FineXAmplitudeCal(FineAmplitudeCal):
             auto_update=auto_update,
         )
         self.analysis.set_options(
-            angle_per_gate=np.pi,
-            phase_offset=np.pi / 2,
-            amp=1,
+            fixed_parameters={
+                "angle_per_gate": np.pi,
+                "phase_offset": np.pi / 2,
+            }
         )
 
     @classmethod
@@ -222,8 +221,10 @@ class FineSXAmplitudeCal(FineAmplitudeCal):
             auto_update=auto_update,
         )
         self.analysis.set_options(
-            angle_per_gate=np.pi / 2,
-            phase_offset=np.pi,
+            fixed_parameters={
+                "angle_per_gate": np.pi / 2,
+                "phase_offset": np.pi,
+            }
         )
 
     @classmethod

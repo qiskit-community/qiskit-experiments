@@ -58,5 +58,3 @@ class FineAmplitudeAnalysis(ErrorAmplificationAnalysis):
             filter_kwargs={"series": 1},
         ),
     ]
-
-    __fixed_parameters__ = ["angle_per_gate", "phase_offset"]

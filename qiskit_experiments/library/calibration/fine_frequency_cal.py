@@ -76,8 +76,6 @@ class FineFrequencyCal(BaseCalibrationExperiment, FineFrequency):
             auto_update=auto_update,
         )
 
-        self.set_transpile_options(inst_map=calibrations.default_inst_map)
-
         if self.backend is not None:
             self.set_experiment_options(dt=getattr(self.backend.configuration(), "dt", None))
 

@@ -210,8 +210,8 @@ class TomographyExperiment(BaseExperiment):
         """Permute circuit qubits.
 
         This permutes the circuit so that the specified preparation and measurement
-        qubits correspond to input and output qubits [0, ..., N-1] respectively
-        for the returned circuit.
+        qubits correspond to input and output qubits [0, ..., N-1] and [0, ..., M-1]
+        respectively for the returned circuit.
         """
         if self._meas_qubits is None and self._prep_qubits is None:
             return self._circuit

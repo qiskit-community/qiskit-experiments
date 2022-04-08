@@ -34,7 +34,7 @@ class FineDragTestBackend(DragBackend):
         """Returns the probability based on the beta, number of gates, and leakage."""
         n_gates = circuit.count_ops().get("rz", 0) // 2
 
-        return 0.5 * np.sin(n_gates * self._error) + 0.5
+        return 0.5 * np.sin(n_gates * self._freq) + 0.5
 
 
 class TestFineDrag(QiskitExperimentsTestCase):
@@ -116,7 +116,9 @@ class TestFineDragCal(QiskitExperimentsTestCase):
 
         transpile_opts = copy.copy(drag_cal.transpile_options.__dict__)
         transpile_opts["initial_layout"] = list(drag_cal.physical_qubits)
-        circs = transpile(drag_cal.circuits(), **transpile_opts)
+        circs = transpile(
+            drag_cal.circuits(), inst_map=self.cals.default_inst_map, **transpile_opts
+        )
 
         with pulse.build(name="x") as expected_x:
             pulse.play(pulse.Drag(160, 0.5, 40, 0), pulse.DriveChannel(0))
@@ -137,7 +139,9 @@ class TestFineDragCal(QiskitExperimentsTestCase):
 
         transpile_opts = copy.copy(drag_cal.transpile_options.__dict__)
         transpile_opts["initial_layout"] = list(drag_cal.physical_qubits)
-        circs = transpile(drag_cal.circuits(), **transpile_opts)
+        circs = transpile(
+            drag_cal.circuits(), inst_map=self.cals.default_inst_map, **transpile_opts
+        )
 
         x_cal = circs[5].calibrations["x"][((0,), ())]
 

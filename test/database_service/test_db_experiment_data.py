@@ -33,16 +33,19 @@ from qiskit.providers import JobV1 as Job
 from qiskit.providers import JobStatus
 
 from qiskit_experiments.database_service import DbExperimentDataV1 as DbExperimentData
+from qiskit_experiments.database_service import DbAnalysisResultV1 as DbAnalysisResult
 from qiskit_experiments.database_service import DatabaseServiceV1
 from qiskit_experiments.database_service.exceptions import (
     DbExperimentDataError,
     DbExperimentEntryNotFound,
     DbExperimentEntryExists,
 )
+from qiskit_experiments.database_service.device_component import Qubit
 from qiskit_experiments.database_service.db_experiment_data import (
     AnalysisStatus,
     ExperimentStatus,
 )
+from qiskit_experiments.framework.matplotlib import get_non_gui_ax
 
 
 class TestDbExperimentData(QiskitExperimentsTestCase):
@@ -649,24 +652,33 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
 
     def test_cancel_jobs(self):
         """Test canceling experiment jobs."""
+        event = threading.Event()
+        cancel_count = 0
 
         def _job_result():
             event.wait(timeout=15)
             raise ValueError("Job was cancelled.")
 
+        def _job_cancel():
+            nonlocal cancel_count
+            cancel_count += 1
+            event.set()
+
         exp_data = DbExperimentData(experiment_type="qiskit_test")
         event = threading.Event()
         self.addCleanup(event.set)
         job = mock.create_autospec(Job, instance=True)
+        job.job_id.return_value = "1234"
+        job.cancel = _job_cancel
         job.result = _job_result
+        job.status = lambda: JobStatus.CANCELLED if event.is_set() else JobStatus.RUNNING
         exp_data.add_jobs(job)
-        exp_data.cancel_jobs()
-        job.cancel.assert_called_once()
 
-        # Cleanup
         with self.assertLogs("qiskit_experiments", "WARNING"):
-            event.set()
-            self.assertExperimentDone(exp_data)
+            exp_data.cancel_jobs()
+            self.assertEqual(cancel_count, 1)
+            self.assertEqual(exp_data.job_status(), JobStatus.CANCELLED)
+            self.assertEqual(exp_data.status(), ExperimentStatus.CANCELLED)
 
     def test_cancel_analysis(self):
         """Test canceling experiment analysis."""
@@ -702,6 +714,54 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         self.assertEqual(exp_data.analysis_status(), AnalysisStatus.CANCELLED)
         self.assertEqual(exp_data.status(), ExperimentStatus.CANCELLED)
 
+    def test_partial_cancel_analysis(self):
+        """Test canceling experiment analysis."""
+
+        event = threading.Event()
+        self.addCleanup(event.set)
+        run_analysis = []
+
+        def _job_result():
+            event.wait(timeout=3)
+            return self._get_job_result(1)
+
+        def _analysis(expdata, name=None, timeout=0):  # pylint: disable = unused-argument
+            event.wait(timeout=timeout)
+            run_analysis.append(name)
+
+        job = mock.create_autospec(Job, instance=True)
+        job.job_id.return_value = "1234"
+        job.result = _job_result
+        job.status = lambda: JobStatus.DONE if event.is_set() else JobStatus.RUNNING
+
+        exp_data = DbExperimentData(experiment_type="qiskit_test")
+        exp_data.add_jobs(job)
+        exp_data.add_analysis_callback(_analysis, name=1, timeout=1)
+        exp_data.add_analysis_callback(_analysis, name=2, timeout=30)
+        cancel_id = exp_data._analysis_callbacks.keys()[-1]
+        exp_data.add_analysis_callback(_analysis, name=3, timeout=1)
+        exp_data.cancel_analysis(cancel_id)
+
+        # Test status while job still running
+        self.assertEqual(exp_data.job_status(), JobStatus.RUNNING)
+        self.assertEqual(exp_data.analysis_status(), AnalysisStatus.CANCELLED)
+        self.assertEqual(exp_data.status(), ExperimentStatus.RUNNING)
+
+        # Test status after job finishes
+        event.set()
+        self.assertEqual(exp_data.job_status(), JobStatus.DONE)
+        self.assertEqual(exp_data.analysis_status(), AnalysisStatus.CANCELLED)
+        self.assertEqual(exp_data.status(), ExperimentStatus.CANCELLED)
+
+        # Check that correct analysis callback was cancelled
+        exp_data.block_for_results()
+        self.assertEqual(run_analysis, [1, 3])
+        for cid, analysis in exp_data._analysis_callbacks.items():
+            if cid == cancel_id:
+                self.assertEqual(analysis.status, AnalysisStatus.CANCELLED)
+            else:
+                self.assertEqual(analysis.status, AnalysisStatus.DONE)
+
     def test_cancel(self):
         """Test canceling experiment jobs and analysis."""
 
@@ -715,11 +775,16 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         def _analysis(*args):  # pylint: disable = unused-argument
             event.wait(timeout=15)
 
+        def _status():
+            if event.is_set():
+                return JobStatus.CANCELLED
+            return JobStatus.RUNNING
+
         job = mock.create_autospec(Job, instance=True)
         job.job_id.return_value = "1234"
         job.result = _job_result
         job.cancel = event.set
-        job.status = lambda: JobStatus.CANCELLED if event.is_set() else JobStatus.RUNNING
+        job.status = _status
 
         exp_data = DbExperimentData(experiment_type="qiskit_test")
         exp_data.add_jobs(job)
@@ -790,6 +855,97 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         self.assertEqual(ExperimentStatus.ERROR, exp_data.status())
         self.assertIn("Kaboom", ",".join(cm.output))
         self.assertTrue(re.match(r".*5678.*Kaboom!", exp_data.errors(), re.DOTALL))
+
+    def test_simple_methods_from_callback(self):
+        """Test that simple methods used in call back function don't hang
+
+        This test runs through many of the public methods of DbExperimentData
+        from analysis callbacks to make sure that they do not raise exceptions
+        or hang the analysis thread. Hangs have occurred in the past when one
+        of these methods blocks waiting for analysis to complete.
+
+        These methods are not tested because they explicitly assume they are
+        run from the main thread:
+
+            + copy
+            + block_for_results
+
+        These methods are not tested because they require additional setup.
+        They could be tested in separate tests:
+
+            + save
+            + save_metadata
+            + add_jobs
+            + cancel
+            + cancel_analysis
+            + cancel_jobs
+        """
+
+        def callback1(exp_data):
+            """Callback function that call add_analysis_callback"""
+            exp_data.add_analysis_callback(callback2)
+            result = DbAnalysisResult("result_name", 0, [Qubit(0)], "experiment_id")
+            exp_data.add_analysis_results(result)
+            figure = get_non_gui_ax().get_figure()
+            exp_data.add_figures(figure, "figure.svg")
+            exp_data.add_data({"key": 1.2})
+            exp_data.data()
+
+        def callback2(exp_data):
+            """Callback function that exercises status lookups"""
+            exp_data.figure("figure.svg")
+            exp_data.jobs()
+
+            exp_data.analysis_results("result_name", block=False)
+
+            exp_data.delete_figure("figure.svg")
+            exp_data.delete_analysis_result("result_name")
+
+            exp_data.status()
+            exp_data.job_status()
+            exp_data.analysis_status()
+
+            exp_data.errors()
+            exp_data.job_errors()
+            exp_data.analysis_errors()
+
+        exp_data = DbExperimentData(experiment_type="qiskit_test")
+
+        exp_data.add_analysis_callback(callback1)
+        exp_data.block_for_results(timeout=3)
+
+        self.assertEqual(exp_data.analysis_status(), AnalysisStatus.DONE)
+
+    def test_recursive_callback_raises(self):
+        """Test handling of excepting callbacks"""
+
+        def callback1(exp_data):
+            """Callback function that call add_analysis_callback"""
+            time.sleep(1)
+            exp_data.add_analysis_callback(callback2)
+            result = DbAnalysisResult("RESULT1", True, ["Q0"], exp_data.experiment_id)
+            exp_data.add_analysis_results(result)
+
+        def callback2(exp_data):
+            """Callback function that exercises status lookups"""
+            time.sleep(1)
+            exp_data.add_analysis_callback(callback3)
+            raise RuntimeError("YOU FAIL")
+
+        def callback3(exp_data):
+            """Callback function that exercises status lookups"""
+            time.sleep(1)
+            result = DbAnalysisResult("RESULT2", True, ["Q0"], exp_data.experiment_id)
+            exp_data.add_analysis_results(result)
+
+        exp_data = DbExperimentData(experiment_type="qiskit_test")
+        exp_data.add_analysis_callback(callback1)
+        exp_data.block_for_results(timeout=10)
+        results = exp_data.analysis_results(block=False)
+
+        self.assertEqual(exp_data.analysis_status(), AnalysisStatus.ERROR)
+        self.assertTrue("RuntimeError: YOU FAIL" in exp_data.analysis_errors())
+        self.assertEqual(len(results), 2)
 
     def test_source(self):
         """Test getting experiment source."""

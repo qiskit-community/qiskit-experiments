@@ -24,12 +24,13 @@ from qiskit.circuit import Gate
 from qiskit.providers.backend import Backend
 
 from qiskit_experiments.framework import BaseExperiment, ParallelExperiment, Options
+from qiskit_experiments.framework.restless_mixin import RestlessMixin
 from .rb_analysis import RBAnalysis
 from .clifford_utils import CliffordUtils
 from .rb_utils import RBUtils
 
 
-class StandardRB(BaseExperiment):
+class StandardRB(BaseExperiment, RestlessMixin):
     """Standard randomized benchmarking experiment.
 
     # section: overview
@@ -233,3 +234,12 @@ class StandardRB(BaseExperiment):
                 count_ops = [(key, (value, circuit_length)) for key, value in c_count_ops.items()]
                 meta.update({"count_ops": count_ops})
         return transpiled
+
+    def _metadata(self):
+        metadata = super()._metadata()
+        # Store measurement level and meas return if they have been
+        # set for the experiment
+        for run_opt in ["meas_level", "meas_return"]:
+            if hasattr(self.run_options, run_opt):
+                metadata[run_opt] = getattr(self.run_options, run_opt)
+        return metadata

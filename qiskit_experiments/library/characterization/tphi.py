@@ -23,8 +23,6 @@ from qiskit_experiments.library.characterization import (
     T1,
     T2Ramsey,
     TphiAnalysis,
-    T1Analysis,
-    T2RamseyAnalysis,
 )
 
 
@@ -97,11 +95,8 @@ class Tphi(BatchExperiment):
             backend=backend,
             osc_freq=osc_freq,
         )
-        self.exps = [exp_t1, exp_t2]
+        analysis = TphiAnalysis([exp_t1.analysis, exp_t2.analysis])
 
         # Create batch experiment
-        super().__init__(experiments=self.exps, backend=backend)
-
+        super().__init__([exp_t1, exp_t2], backend=backend, analysis=analysis)
         self.set_experiment_options(delays_t1=delays_t1, delays_t2=delays_t2)
-        # CompositeAnalysis accept the component analysis classes in its constructor
-        self.analysis = TphiAnalysis(analyses=[T1Analysis(), T2RamseyAnalysis()])
