@@ -14,7 +14,6 @@ Standard RB Experiment class.
 """
 import warnings
 from typing import Union, Iterable, Optional, List, Sequence
-from collections import defaultdict
 
 import numpy as np
 from numpy.random import Generator, default_rng
@@ -97,9 +96,6 @@ class StandardRB(BaseExperiment, RestlessMixin):
         self._full_sampling = full_sampling
         self._clifford_utils = CliffordUtils()
 
-        # Internal state to copy data from transpile to metadata
-        self._gate_counts_per_clifford = None
-
     def _verify_parameters(self, lengths, num_samples):
         """Verify input correctness, raise QiskitError if needed"""
         if any(length <= 0 for length in lengths):
@@ -124,14 +120,14 @@ class StandardRB(BaseExperiment, RestlessMixin):
                 used to initialize ``numpy.random.default_rng`` when generating circuits.
                 The ``default_rng`` will be initialized with this seed value everytime
                 :meth:`circuits` is called.
-            gate_error_ratio (Union[str, Dict[Tuple[int, str], float]]): The assumption of error ratio
+            gate_error_ratio (Union[str, bool, Dict[str, float]]): The assumption of error ratio
                 of basis gates constituting RB Clifford sequences. When this value is set,
                 the error per gate (EPG) values are computed from the estimated
                 error per Clifford (EPC) parameter in the RB analysis.
                 This value defaults to "default". When explicit gate error ratio is not provided,
                 typical error ratio is provided by :func:`~qiskit_experiments.library.\
                 randomized_benchmarking.rb_utils.lookup_epg_ratio`.
-                The dictionary is keyed on a tuple of qubit index and string label of instruction.
+                The dictionary is keyed on a string label of instruction.
                 Defined instructions should appear in the ``basis_gates`` in the transpile options.
                 If this value is set to ``False``, the computation of EPG values is skipped.
         """
@@ -239,17 +235,14 @@ class StandardRB(BaseExperiment, RestlessMixin):
         # Compute average basis gate numbers per Clifford operation
         # This is probably main source of performance regression.
         # This should be integrated into transpile pass in future.
-        gate_counts_per_clifford = defaultdict(int)
-        total_cliffs = np.sum(self.experiment_options.lengths) * self.experiment_options.num_samples
         for circ in transpiled:
+            gpc_dict = {}
             for (qubits, instr), count in RBUtils.count_ops(circ, self.physical_qubits).items():
                 if instr in ("measure", "reset", "delay", "barrier", "snapshot"):
                     continue
                 # This is qubit aware count opts
-                gate_counts_per_clifford[(qubits, instr)] += count / total_cliffs
-
-        # Directly copy the value to experiment data metadata via instance state
-        self._gate_counts_per_clifford = dict(gate_counts_per_clifford)
+                gpc_dict[(qubits, instr)] = count
+            circ.metadata["count_ops"] = tuple(gpc_dict.items())
 
         return transpiled
 
@@ -276,7 +269,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
                     r_epg = lookup_epg_ratio(basis_gate, self.num_qubits)
                     if r_epg is None:
                         continue
-                    gate_error_ratio[(tuple(self.physical_qubits), basis_gate)] = r_epg
+                    gate_error_ratio[basis_gate] = r_epg
             except AttributeError:
                 # When basis gates is not provided, disable EPG computation
                 warnings.warn(
@@ -285,12 +278,5 @@ class StandardRB(BaseExperiment, RestlessMixin):
                 )
                 gate_error_ratio = False
 
-        def _to_tuple(value):
-            # For JSON serialization. The dict key is not string.
-            if isinstance(value, dict):
-                return tuple(value.items())
-            return value
-
-        metadata["gate_error_ratio"] = _to_tuple(gate_error_ratio)
-        metadata["gate_counts_per_clifford"] = _to_tuple(self._gate_counts_per_clifford)
+        metadata["gate_error_ratio"] = gate_error_ratio
         return metadata

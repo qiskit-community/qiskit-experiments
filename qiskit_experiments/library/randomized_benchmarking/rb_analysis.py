@@ -13,15 +13,16 @@
 Standard RB analysis class.
 """
 import warnings
+from collections import defaultdict
 from typing import List, Tuple, Union
 
 import numpy as np
 import qiskit_experiments.curve_analysis as curve
 from qiskit_experiments.curve_analysis.data_processing import multi_mean_xy_data, data_sort
-from qiskit_experiments.database_service.device_component import Qubit
 from qiskit_experiments.framework import AnalysisResultData, ExperimentData
+from qiskit_experiments.exceptions import AnalysisError
 
-from .rb_utils import RBUtils
+from .rb_utils import RBUtils, QubitGateTuple, calculate_epg, exclude_1q_error
 
 
 class RBAnalysis(curve.CurveAnalysis):
@@ -70,15 +71,14 @@ class RBAnalysis(curve.CurveAnalysis):
         """Default analysis options.
 
         Analysis Options:
-            epg_1_qubit (Dict[int, Dict[str, float]]) : Optional.
-                EPG data for the 1-qubit gate involved,
-                assumed to have been obtained from previous experiments.
-                This is used to estimate the 2-qubit EPG.
             gate_error_ratio (Dict[str, float]): An estimate for the ratios
                 between errors on different gates.
-            gate_counts_per_clifford (Dict[Tuple[Sequence[int], str], float]): A dictionary
+            gate_counts_per_clifford (Union[bool, Dict[str, float]]): A dictionary
                 of gate numbers constituting a single averaged Clifford operation
                 on particular physical qubit.
+            qpg_1_qubit (List[DbAnalysisResultV1]): Analysis results from previous RB experiments
+                for individual single qubit gates. If this is provided, EPC of
+                2Q RB is corected to exclude the deporalization of underlying 1Q channels.
         """
         default_options = super()._default_options()
         default_options.curve_plotter.set_options(
@@ -87,9 +87,9 @@ class RBAnalysis(curve.CurveAnalysis):
         )
         default_options.plot_raw_data = True
         default_options.result_parameters = ["alpha"]
-        default_options.epg_1_qubit = None
         default_options.gate_error_ratio = None
         default_options.gate_counts_per_clifford = None
+        default_options.qpg_1_qubit = None
 
         return default_options
 
@@ -178,6 +178,8 @@ class RBAnalysis(curve.CurveAnalysis):
     def _extra_database_entry(self, fit_data: curve.FitData) -> List[AnalysisResultData]:
         """Calculate EPC."""
         extra_entries = []
+        # pylint: disable=assignment-from-none
+        quality = self._evaluate_quality(fit_data)
 
         # Calculate EPC
         alpha = fit_data.fitval("alpha")
@@ -189,54 +191,51 @@ class RBAnalysis(curve.CurveAnalysis):
                 name="EPC",
                 value=epc,
                 chisq=fit_data.reduced_chisq,
-                quality=self._evaluate_quality(fit_data),
+                quality=quality,
             )
         )
 
+        # Correction for 1Q depolarizing channel if EPGs are provided
+        if self.options.qpg_1_qubit and self._num_qubits == 2:
+            epc = exclude_1q_error(
+                epc=epc,
+                qubits=self._physical_qubits,
+                gate_counts_per_clifford=self.options.gate_counts_per_clifford,
+                extra_analyses=self.options.qpg_1_qubit,
+            )
+            extra_entries.append(
+                AnalysisResultData(
+                    name="EPC_corrected",
+                    value=epc,
+                    chisq=fit_data.reduced_chisq,
+                    quality=quality,
+                )
+            )
+
         # Calculate EPG
-
         if self.options.gate_counts_per_clifford is not None and self.options.gate_error_ratio:
-            num_qubits = len(self._physical_qubits)
-
-            if num_qubits == 1:
-                epg_dict = RBUtils.calculate_1q_epg(
-                    epc,
-                    self._physical_qubits,
-                    self.options.gate_error_ratio,
-                    self.options.gate_counts_per_clifford,
-                )
-            elif num_qubits == 2:
-                epg_1_qubit = self.options.epg_1_qubit
-                epg_dict = RBUtils.calculate_2q_epg(
-                    epc,
-                    self._physical_qubits,
-                    self.options.gate_error_ratio,
-                    self.options.gate_counts_per_clifford,
-                    epg_1_qubit=epg_1_qubit,
-                )
-            else:
-                # EPG calculation is not supported for more than 3 qubits RB
-                epg_dict = None
-
+            epg_dict = calculate_epg(
+                epc=epc,
+                qubits=self._physical_qubits,
+                gate_error_ratio=self.options.gate_error_ratio,
+                gate_counts_per_clifford=self.options.gate_counts_per_clifford,
+            )
             if epg_dict:
-                for qubits, gate_dict in epg_dict.items():
-                    for gate, value in gate_dict.items():
-                        extra_entries.append(
-                            AnalysisResultData(
-                                f"EPG_{gate}",
-                                value,
-                                chisq=fit_data.reduced_chisq,
-                                quality=self._evaluate_quality(fit_data),
-                                device_components=[Qubit(i) for i in qubits],
-                            )
+                for gate, epg_val in epg_dict.items():
+                    extra_entries.append(
+                        AnalysisResultData(
+                            name=f"EPG_{gate}",
+                            value=epg_val,
+                            chisq=fit_data.reduced_chisq,
+                            quality=quality,
                         )
+                    )
 
         return extra_entries
 
     def _run_analysis(
         self, experiment_data: ExperimentData
     ) -> Tuple[List[AnalysisResultData], List["pyplot.Figure"]]:
-
         if self.options.gate_error_ratio is None:
             gate_error_ratio = experiment_data.metadata.get("gate_error_ratio", None)
 
@@ -249,31 +248,32 @@ class RBAnalysis(curve.CurveAnalysis):
                 # For backward compatibility when loading old experiment data.
                 # This could return errorneous error ratio.
                 # Deprecation warning is triggered on RBUtils.
-                gate_error_ratio = RBUtils.get_error_dict_from_backend(
+                gate_error_ratio = {}
+                for q_gate_tup, ratio in RBUtils.get_error_dict_from_backend(
                     backend=experiment_data.backend,
                     qubits=experiment_data.metadata["physical_qubits"],
-                )
+                ).items():
+                    # Drop qubit information which is obvious
+                    gate_error_ratio[q_gate_tup[1]] = ratio
 
             self.set_options(gate_error_ratio=gate_error_ratio)
 
-        if self.options.gate_counts_per_clifford is None:
-            gpc = experiment_data.metadata.get("gate_counts_per_clifford", None)
-
-            try:
-                gpc = dict(gpc)
-            except TypeError:
-                pass
-
-            if gpc is None and self.options.gate_error_ratio is not False:
-                # Just for backward compatibility.
-                # New framework assumes it is set to experiment metadata rather than in circuit metadata.
-                # Deprecation warning is triggered on RBUtils.
-                count_ops = []
-                for circ_metadata in experiment_data.data().metadata:
-                    count_ops += circ_metadata.get("count_ops", [])
-                if len(count_ops) > 0 and self.options.gate_error_ratio is not None:
-                    gpc = RBUtils.gates_per_clifford(count_ops)
-
-            self.set_options(gate_counts_per_clifford=gpc)
+        if self.options.gate_error_ratio and self.options.gate_counts_per_clifford is None:
+            avg_gpc = defaultdict(float)
+            n_circs = len(experiment_data.data())
+            for circ_result in experiment_data.data():
+                try:
+                    count_ops = circ_result["metadata"]["count_ops"]
+                except KeyError as ex:
+                    raise AnalysisError(
+                        "'count_ops' key is not found in the result metadata. "
+                        "This analysis cannot compute error per gates. "
+                        "Please disable this with 'gate_error_ratio=False'."
+                    ) from ex
+                nclif = circ_result["metadata"]["xval"]
+                for (qubits, gate), count in count_ops:
+                    key = QubitGateTuple(*qubits, gate=gate)
+                    avg_gpc[key] += count / nclif / n_circs
+            self.set_options(gate_counts_per_clifford=dict(avg_gpc))
 
         return super()._run_analysis(experiment_data)
