@@ -905,10 +905,7 @@ class RestlessToIQ(RestlessNode):
         # step 2). The first element is the first element of the reordered memory
         # from step 1.
         post_processed_memory = [
-            [
-                [memory[0][sub_idx][0], memory[0][sub_idx][1]]
-                for sub_idx in range(len(memory[0]))
-            ]
+            [[memory[0][sub_idx][0], memory[0][sub_idx][1]] for sub_idx in range(len(memory[0]))]
         ]
 
         # Step 2. Subtract and take absolute value of consecutive IQ points in
