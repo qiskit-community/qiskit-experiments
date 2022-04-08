@@ -72,6 +72,8 @@ class CrossResonancePhase(BaseExperiment):
         self.set_experiment_options(crp=crp, crm=crm)
         if phases is not None:
             self.set_experiment_options(phases=phases)
+        
+        self.analysis.set_options(outcome="1")
 
     def _default_experiment_options(cls) -> Options:
         """The default experiment options.
