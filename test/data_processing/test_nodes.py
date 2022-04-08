@@ -464,8 +464,7 @@ class TestRestless(QiskitExperimentsTestCase):
 
     def test_restless_iq_process(self):
         """Test restless IQ data processing."""
-        n_qubits = 1
-        node = RestlessToIQ(n_qubits)
+        node = RestlessToIQ()
 
         data = [[[[1, -2]], [[1, 3]]], [[[6, -4]], [[-3, 1]]]]
         # time-ordered data: [[[1, -2]], [[6, -4]], [[1, 3]], [[-3, 1]]]
@@ -473,5 +472,21 @@ class TestRestless(QiskitExperimentsTestCase):
         # absolute value: [[[1, 2]], [[5, 2]], [[5, 7]], [[4, 2]]]
         # sorted by circuit: [[[[1, 2]], [[5, 7]]], [[[5, 2]], [[4, 2]]]]
         expected_data = np.array([[[[1, 2]], [[5, 7]]], [[[5, 2]], [[4, 2]]]])
+        processed_data = node(data=np.array(data))
+        self.assertTrue(processed_data.all() == expected_data.all())
+
+    def test_restless_iq_process_2q(self):
+        """Test two-qubit restless IQ data processing."""
+        node = RestlessToIQ()
+
+        data = [[[[1, -2], [2, 5]], [[1, 3], [4, 2]]], [[[6, -4], [-8, 2]], [[-3, 1], [0, 3]]]]
+        # time-ordered data: [[[1, -2], [2, 5]], [[6, -4], [-8, 2]], [[1, 3], [4, 2]], [[-3, 1], [0, 3]]]
+        # subtraction: [[[1, -2], [2, 5]], [[5, -2], [-10, -3]], [[-5, 7], [12, 0]], [[-4, -2], [-4, 1]]]
+        # absolute value: [[[1, 2], [2, 5]], [[5, 2], [10, 3]], [[5, 7], [12, 0]], [[4, 2], [4, 1]]]
+        # sorted by circuit: [[[[1, 2], [2, 5]], [[5, 7], [12, 0]]],
+        # [[[5, 2], [10, 3]], [[4, 2], [12, 0]]]]
+        expected_data = np.array(
+            [[[[1, 2], [2, 5]], [[5, 7], [12, 0]]], [[[5, 2], [10, 3]], [[4, 2], [12, 0]]]]
+        )
         processed_data = node(data=np.array(data))
         self.assertTrue(processed_data.all() == expected_data.all())
