@@ -114,7 +114,7 @@ class TomographyAnalysis(BaseAnalysis):
 
         # Check for both preparation and measurement data to determine if we are
         # fitting a channel via QPT or a density matrix via QST
-        qpt = preparation_data.shape[0]
+        qpt = preparation_data.shape[1] > 0
 
         # Compute the preparation dimension if we are performing QPT
         if qpt:
@@ -149,7 +149,7 @@ class TomographyAnalysis(BaseAnalysis):
                 preparation_data,
                 measurement_basis=self.options.measurement_basis,
                 preparation_basis=self.options.preparation_basis,
-                **self.options.fitter_options,
+                **fitter_opts,
             )
         except AnalysisError as ex:
             raise AnalysisError(f"Tomography fitter failed with error: {str(ex)}") from ex
