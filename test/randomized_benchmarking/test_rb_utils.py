@@ -87,7 +87,10 @@ class TestRBUtilities(QiskitExperimentsTestCase):
         qubits = [0]
         gate_error_ratio = {((0,), "id"): 1, ((0,), "rz"): 0, ((0,), "sx"): 1, ((0,), "x"): 1}
         gates_per_clifford = {((0,), "rz"): 10.5, ((0,), "sx"): 8.15, ((0,), "x"): 0.25}
-        epg = rb.RBUtils.calculate_1q_epg(epc_1_qubit, qubits, gate_error_ratio, gates_per_clifford)
+        with self.assertWarns(DeprecationWarning):
+            epg = rb.RBUtils.calculate_1q_epg(
+                epc_1_qubit, qubits, gate_error_ratio, gates_per_clifford
+            )
         error_dict = {
             ((0,), "rz"): ufloat(0, 0),
             ((0,), "sx"): ufloat(0.0004432101747785104, 0),
@@ -143,9 +146,10 @@ class TestRBUtilities(QiskitExperimentsTestCase):
             AnalysisResultData("EPG_x", 0.00036207066403884814, device_components=[1]),
             AnalysisResultData("EPG_x", 0.0005429962529239195, device_components=[4]),
         ]
-        epg = rb.RBUtils.calculate_2q_epg(
-            epc_2_qubit, qubits, gate_error_ratio, gates_per_clifford, epg_1_qubit
-        )
+        with self.assertWarns(DeprecationWarning):
+            epg = rb.RBUtils.calculate_2q_epg(
+                epc_2_qubit, qubits, gate_error_ratio, gates_per_clifford, epg_1_qubit
+            )
 
         error_dict = {
             ((1, 4), "cx"): ufloat(0.012438847900902494, 0),
