@@ -40,7 +40,9 @@ class TestReadoutAngle(QiskitExperimentsTestCase):
         res = expdata.analysis_results(0)
         self.assertAlmostEqual(res.value % (2 * np.pi), np.pi / 2, places=2)
 
-        backend = MockIQBackend(MockIQReadoutAngleHelper(), iq_cluster_centers=[((0, -3.0), (5.0, 5.0))])
+        backend = MockIQBackend(
+            MockIQReadoutAngleHelper(), iq_cluster_centers=[((0, -3.0), (5.0, 5.0))]
+        )
         exp = ReadoutAngle(0)
         expdata = exp.run(backend, shots=100000)
         self.assertExperimentDone(expdata)
