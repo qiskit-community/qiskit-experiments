@@ -336,6 +336,3 @@ class TestCompositeExperiment(QiskitExperimentsTestCase):
             self.assertEqual(cal_key[0], (qubit,))
             self.assertTrue(cal_key in par_circ.calibrations["Rabi"])
 
-
-if __name__ == "__main__":
-    unittest.main()

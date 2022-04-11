@@ -18,7 +18,7 @@ import numpy as np
 
 from qiskit_experiments.library import ReadoutAngle
 from qiskit_experiments.test.mock_iq_backend import MockIQBackend
-from qiskit_experiments.test.mock_iq_helpers import MockIQReadoutAngleHelper as ReadoutAngleHelper
+from qiskit_experiments.test.mock_iq_helpers import MockIQReadoutAngleHelper
 
 
 class TestReadoutAngle(QiskitExperimentsTestCase):
@@ -32,7 +32,7 @@ class TestReadoutAngle(QiskitExperimentsTestCase):
         """
 
         backend = MockIQBackend(
-            ReadoutAngleHelper(), iq_cluster_centers=[((-3.0, 3.0), (5.0, 5.0))]
+            MockIQReadoutAngleHelper(), iq_cluster_centers=[((-3.0, 3.0), (5.0, 5.0))]
         )
         exp = ReadoutAngle(0)
         expdata = exp.run(backend, shots=100000)
@@ -40,7 +40,7 @@ class TestReadoutAngle(QiskitExperimentsTestCase):
         res = expdata.analysis_results(0)
         self.assertAlmostEqual(res.value % (2 * np.pi), np.pi / 2, places=2)
 
-        backend = MockIQBackend(ReadoutAngleHelper(), iq_cluster_centers=[((0, -3.0), (5.0, 5.0))])
+        backend = MockIQBackend(MockIQReadoutAngleHelper(), iq_cluster_centers=[((0, -3.0), (5.0, 5.0))])
         exp = ReadoutAngle(0)
         expdata = exp.run(backend, shots=100000)
         self.assertExperimentDone(expdata)

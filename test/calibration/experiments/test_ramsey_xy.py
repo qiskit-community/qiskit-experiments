@@ -121,4 +121,3 @@ class TestRamseyXY(QiskitExperimentsTestCase):
         """Test round trip JSON serialization"""
         exp = FrequencyCal(0, self.cals)
         self.assertRoundTripSerializable(exp, self.json_equiv)
-

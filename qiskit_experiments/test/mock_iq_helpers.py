@@ -23,7 +23,7 @@ class MockIQExperimentHelper:
     """Abstract class for experiment tools"""
 
     @abstractmethod
-    def compute_probability(self, circuit: QuantumCircuit) -> List[Dict[str, float]]:
+    def compute_probability(self, circuits: List[QuantumCircuit]) -> List[Dict[str, float]]:
         """
         A function provided by the user which is used to determine the probability of each output of the
          circuit. The function returns a list of dictionaries, each containing output binary strings and
@@ -101,12 +101,12 @@ class MockIQDragHelper(MockIQExperimentHelper):
     """functions needed for test_drag"""
 
     def __init__(
-            self,
-            gate_name: str = "Rp",
-            ideal_beta: float = 2.0,
-            frequency: float = 0.02,
-            max_probability: float = 1.0,
-            offset_probability: float = 0.0,
+        self,
+        gate_name: str = "Rp",
+        ideal_beta: float = 2.0,
+        frequency: float = 0.02,
+        max_probability: float = 1.0,
+        offset_probability: float = 0.0,
     ):
         if max_probability + offset_probability > 1:
             raise ValueError("Probabilities need to be between 0 and 1.")
@@ -287,8 +287,10 @@ class MockIQRamseyXYHelper(MockIQExperimentHelper):
                 phase_offset = np.pi / 2
 
             probability_output_dict["1"] = (
-                    0.5 * np.exp(-delay / t2ramsey) * np.cos(
-                2 * np.pi * delay * freq_shift - phase_offset) + 0.5
+                0.5
+                * np.exp(-delay / t2ramsey)
+                * np.cos(2 * np.pi * delay * freq_shift - phase_offset)
+                + 0.5
             )
             probability_output_dict["0"] = 1 - probability_output_dict["1"]
             output_dict_list.append(probability_output_dict)
@@ -382,7 +384,9 @@ class MockIQHalfAngleHelper(MockIQExperimentHelper):
             n_gates = circuit.metadata["xval"]
 
             # Dictionary of output string vectors and their probability
-            probability_output_dict["1"] = 0.5 * np.sin((-1) ** (n_gates + 1) * n_gates * error) + 0.5
+            probability_output_dict["1"] = (
+                0.5 * np.sin((-1) ** (n_gates + 1) * n_gates * error) + 0.5
+            )
             probability_output_dict["0"] = 1 - probability_output_dict["1"]
             output_dict_list.append(probability_output_dict)
 

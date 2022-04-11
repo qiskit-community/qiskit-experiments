@@ -190,7 +190,7 @@ class MockIQBackend(FakeOpenPulse2Q):
         """
 
         self._iq_cluster_centers = iq_cluster_centers or [((-1.0, -1.0), (1.0, 1.0))]
-        self._iq_cluster_width = iq_cluster_width or [1.0]
+        self._iq_cluster_width = iq_cluster_width or [1.0 for _ in self._iq_cluster_centers]
         self.experiment_helper_object = experiment_helper_object
         self._rng = np.random.default_rng(rng_seed)
 
@@ -299,7 +299,9 @@ class MockIQBackend(FakeOpenPulse2Q):
 
         return memory
 
-    def _generate_data(self, prob_dict: Dict[str, float], circuit: QuantumCircuit) -> Dict[str, Any]:
+    def _generate_data(
+        self, prob_dict: Dict[str, float], circuit: QuantumCircuit
+    ) -> Dict[str, Any]:
         """
         Generate data for the circuit.
         Args:
