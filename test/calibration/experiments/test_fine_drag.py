@@ -63,7 +63,6 @@ class TestFineDrag(QiskitExperimentsTestCase):
 
     def test_end_to_end_no_schedule(self):
         """Test that we can run without a schedule."""
-        calc_parameters = {"gate_name": "Drag(xp)", "ideal_beta": 2.0, "error": 0.03}
         exp_data = FineXDrag(0).run(MockIQBackend(FineDragHelper()))
         self.assertExperimentDone(exp_data)
 
