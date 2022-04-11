@@ -16,8 +16,6 @@ Test T2Ramsey experiment
 from test.base import QiskitExperimentsTestCase
 from qiskit_experiments.library import Tphi
 from qiskit_experiments.test.tphi_backend import TphiBackend
-from qiskit_experiments.library.characterization.analysis.t1_analysis import T1Analysis
-from qiskit_experiments.library.characterization.analysis.t2ramsey_analysis import T2RamseyAnalysis
 from qiskit_experiments.library.characterization.analysis.tphi_analysis import TphiAnalysis
 
 
@@ -37,8 +35,7 @@ class TestTphi(QiskitExperimentsTestCase):
         t1 = 20
         t2ramsey = 25
         backend = TphiBackend(t1=t1, t2ramsey=t2ramsey, freq=0.1)
-        analysis = TphiAnalysis([T1Analysis(), T2RamseyAnalysis()])
-        expdata = exp.run(backend=backend, analysis=analysis)
+        expdata = exp.run(backend=backend)
         self.assertExperimentDone(expdata)
         self.assertRoundTripSerializable(expdata, check_func=self.experiment_data_equiv)
         self.assertRoundTripPickle(expdata, check_func=self.experiment_data_equiv)
@@ -63,14 +60,18 @@ class TestTphi(QiskitExperimentsTestCase):
         t1 = 20
         t2ramsey = 25
         backend = TphiBackend(t1=t1, t2ramsey=t2ramsey, freq=0.1)
-        analysis = TphiAnalysis([T1Analysis(), T2RamseyAnalysis()])
-        expdata = exp.run(backend=backend, analysis=analysis)
+        expdata = exp.run(backend=backend)
         self.assertExperimentDone(expdata)
 
-        data_t1 = expdata.child_data(0).data()
-        x_values_t1 = [datum["metadata"]["xval"] for datum in data_t1]
-        data_t2 = expdata.child_data(1).data()
-        x_values_t2 = [datum["metadata"]["xval"] for datum in data_t2]
+        # Extract x values from metadata
+        x_values_t1 = []
+        x_values_t2 = []
+        for datum in expdata.data():
+            comp_meta = datum["metadata"]["composite_metadata"][0]
+            if comp_meta["experiment_type"] == "T1":
+                x_values_t1.append(comp_meta["xval"])
+            else:
+                x_values_t2.append(comp_meta["xval"])
         self.assertListEqual(x_values_t1, delays_t1, "Incorrect delays_t1")
         self.assertListEqual(x_values_t2, delays_t2, "Incorrect delays_t2")
 
@@ -81,16 +82,23 @@ class TestTphi(QiskitExperimentsTestCase):
         exp.set_experiment_options(
             delays_t1=new_delays_t1, delays_t2=new_delays_t2, osc_freq=new_osc_freq
         )
-        expdata = exp.run(backend=backend, analysis=analysis)
+        expdata = exp.run(backend=backend)
         self.assertExperimentDone(expdata)
 
-        data_t1 = expdata.child_data(0).data()
-        x_values_t1 = [datum["metadata"]["xval"] for datum in data_t1]
-        data_t2 = expdata.child_data(1).data()
-        x_values_t2 = [datum["metadata"]["xval"] for datum in data_t2]
-        self.assertListEqual(x_values_t1, new_delays_t1, "Option delays_t1 not set correctly")
-        self.assertListEqual(x_values_t2, new_delays_t2, "Option delays_t2 not set correctly")
-        new_freq_t2 = data_t2[0]["metadata"]["osc_freq"]
+        # Extract x values from metadata
+        x_values_t1 = []
+        x_values_t2 = []
+        new_freq_t2 = None
+        for datum in expdata.data():
+            comp_meta = datum["metadata"]["composite_metadata"][0]
+            if comp_meta["experiment_type"] == "T1":
+                x_values_t1.append(comp_meta["xval"])
+            else:
+                x_values_t2.append(comp_meta["xval"])
+                if new_freq_t2 is None:
+                    new_freq_t2 = comp_meta["osc_freq"]
+        self.assertListEqual(x_values_t1, new_delays_t1, "Incorrect delays_t1")
+        self.assertListEqual(x_values_t2, new_delays_t2, "Incorrect delays_t2")
         self.assertEqual(new_freq_t2, new_osc_freq, "Option osc_freq not set correctly")
 
     def test_roundtrip_serializable(self):
@@ -100,7 +108,7 @@ class TestTphi(QiskitExperimentsTestCase):
 
     def test_analysis_config(self):
         """Test converting analysis to and from config works"""
-        analysis = TphiAnalysis([T1Analysis(), T2RamseyAnalysis()])
+        analysis = TphiAnalysis()
         loaded_analysis = analysis.from_config(analysis.config())
         self.assertNotEqual(analysis, loaded_analysis)
         self.assertEqual(analysis.config(), loaded_analysis.config())
