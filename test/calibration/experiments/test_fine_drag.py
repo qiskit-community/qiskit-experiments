@@ -14,36 +14,18 @@
 
 from test.base import QiskitExperimentsTestCase
 import copy
-from typing import Dict, List, Any
 import numpy as np
 
 from qiskit import transpile
-from qiskit.circuit import QuantumCircuit, Gate
+from qiskit.circuit import Gate
 from qiskit.test.mock import FakeArmonk
 import qiskit.pulse as pulse
 
 from qiskit_experiments.library import FineDrag, FineXDrag, FineDragCal
 from qiskit_experiments.test.mock_iq_backend import MockIQBackend
+from qiskit_experiments.test.mock_iq_helpers import MockIQFineDragHelper as FineDragHelper
 from qiskit_experiments.calibration_management import Calibrations
 from qiskit_experiments.calibration_management.basis_gate_library import FixedFrequencyTransmon
-
-
-def fine_drag_compute_probabilities(
-    circuits: List[QuantumCircuit], calc_parameters: List[Dict[str, Any]]
-) -> List[Dict[str, float]]:
-    """Returns the probability based on the beta, number of gates, and leakage."""
-
-    error = calc_parameters[0].get("error", 0.03)
-    output_dict_list = []
-    for circuit in circuits:
-        probability_output_dict = {}
-        n_gates = circuit.count_ops().get("rz", 0) // 2
-
-        # Dictionary of output string vectors and their probability
-        probability_output_dict["1"] = 0.5 * np.sin(n_gates * error) + 0.5
-        probability_output_dict["0"] = 1 - probability_output_dict["1"]
-        output_dict_list.append(probability_output_dict)
-    return output_dict_list
 
 
 class TestFineDrag(QiskitExperimentsTestCase):
@@ -74,13 +56,7 @@ class TestFineDrag(QiskitExperimentsTestCase):
         drag = FineDrag(0, Gate("Drag", num_qubits=1, params=[]))
         drag.set_experiment_options(schedule=self.schedule)
         drag.set_transpile_options(basis_gates=["rz", "Drag", "sx"])
-        calc_parameters = {"gate_name": "Drag(xp)", "ideal_beta": 2.0, "error": 0.03}
-        exp_data = drag.run(
-            MockIQBackend(
-                compute_probabilities=fine_drag_compute_probabilities,
-                calculation_parameters=[calc_parameters],
-            )
-        )
+        exp_data = drag.run(MockIQBackend(FineDragHelper()))
         self.assertExperimentDone(exp_data)
 
         self.assertEqual(exp_data.analysis_results(0).quality, "good")
@@ -88,12 +64,7 @@ class TestFineDrag(QiskitExperimentsTestCase):
     def test_end_to_end_no_schedule(self):
         """Test that we can run without a schedule."""
         calc_parameters = {"gate_name": "Drag(xp)", "ideal_beta": 2.0, "error": 0.03}
-        exp_data = FineXDrag(0).run(
-            MockIQBackend(
-                compute_probabilities=fine_drag_compute_probabilities,
-                calculation_parameters=[calc_parameters],
-            )
-        )
+        exp_data = FineXDrag(0).run(MockIQBackend(FineDragHelper()))
         self.assertExperimentDone(exp_data)
 
         self.assertEqual(exp_data.analysis_results(0).quality, "good")
@@ -115,11 +86,7 @@ class TestFineDragCal(QiskitExperimentsTestCase):
         super().setUp()
 
         library = FixedFrequencyTransmon()
-        calc_parameters = {"gate_name": "Drag(xp)", "ideal_beta": 2.0, "error": 0.03}
-        self.backend = MockIQBackend(
-            compute_probabilities=fine_drag_compute_probabilities,
-            calculation_parameters=[calc_parameters],
-        )
+        self.backend = MockIQBackend(FineDragHelper())
         self.cals = Calibrations.from_backend(self.backend, library)
 
     def test_experiment_config(self):

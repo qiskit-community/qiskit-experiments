@@ -13,10 +13,9 @@
 """Test rough amplitude calibration experiment classes."""
 
 from test.base import QiskitExperimentsTestCase
-from typing import Dict, List, Any
 import numpy as np
 
-from qiskit import QuantumCircuit, transpile
+from qiskit import transpile
 import qiskit.pulse as pulse
 from qiskit.circuit import Parameter
 from qiskit.test.mock import FakeArmonk
@@ -25,23 +24,7 @@ from qiskit_experiments.calibration_management.basis_gate_library import FixedFr
 from qiskit_experiments.calibration_management import Calibrations
 from qiskit_experiments.library import EFRoughXSXAmplitudeCal, RoughXSXAmplitudeCal
 from qiskit_experiments.test.mock_iq_backend import MockIQBackend
-
-
-def rabi_compute_probabilities(
-    circuits: List[QuantumCircuit], calc_parameters_list: List[Dict[str, Any]]
-) -> List[Dict[str, float]]:
-    """Returns the probability based on the rotation angle and amplitude_to_angle."""
-    amplitude_to_angle = calc_parameters_list[0].get("amplitude_to_angle", np.pi)
-    output_dict_list = []
-    for circuit in circuits:
-        probability_output_dict = {}
-        amp = next(iter(circuit.calibrations["Rabi"].keys()))[1][0]
-
-        # Dictionary of output string vectors and their probability
-        probability_output_dict["1"] = np.sin(amplitude_to_angle * amp) ** 2
-        probability_output_dict["0"] = 1 - probability_output_dict["1"]
-        output_dict_list.append(probability_output_dict)
-    return output_dict_list
+from qiskit_experiments.test.mock_iq_helpers import MockIQRabiHelper as RabiHelper
 
 
 class TestRoughAmpCal(QiskitExperimentsTestCase):
@@ -78,13 +61,7 @@ class TestRoughAmpCal(QiskitExperimentsTestCase):
         self.assertTrue(np.allclose(self.cals.get_parameter_value("amp", 0, "sx"), 0.25))
 
         rabi_ef = RoughXSXAmplitudeCal(0, self.cals)
-        rabi_calc_parameters_list = {"amplitude_to_angle": np.pi * 1.5}
-        expdata = rabi_ef.run(
-            MockIQBackend(
-                compute_probabilities=rabi_compute_probabilities,
-                calculation_parameters=[rabi_calc_parameters_list],
-            )
-        )
+        expdata = rabi_ef.run(MockIQBackend(RabiHelper(amplitude_to_angle=np.pi * 1.5)))
         self.assertExperimentDone(expdata)
 
         tol = 0.002
@@ -158,13 +135,7 @@ class TestSpecializations(QiskitExperimentsTestCase):
         self.assertTrue(np.allclose(self.cals.get_parameter_value("amp", 0, "sx12"), 0.2))
 
         rabi_ef = EFRoughXSXAmplitudeCal(0, self.cals)
-        rabi_calc_parameters_list = {"amplitude_to_angle": np.pi * 1.5}
-        expdata = rabi_ef.run(
-            MockIQBackend(
-                compute_probabilities=rabi_compute_probabilities,
-                calculation_parameters=[rabi_calc_parameters_list],
-            )
-        )
+        expdata = rabi_ef.run(MockIQBackend(RabiHelper(amplitude_to_angle=np.pi * 1.5)))
         self.assertExperimentDone(expdata)
 
         tol = 0.002

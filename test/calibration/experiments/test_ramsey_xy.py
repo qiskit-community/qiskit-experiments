@@ -12,11 +12,8 @@
 
 """Test Ramsey XY experiments."""
 
-from typing import Dict, List, Any
 import unittest
 from test.base import QiskitExperimentsTestCase
-import numpy as np
-from qiskit import QuantumCircuit
 from qiskit.test.mock import FakeArmonk
 
 from qiskit_experiments.calibration_management.calibrations import Calibrations
@@ -24,31 +21,7 @@ from qiskit_experiments.calibration_management.basis_gate_library import FixedFr
 from qiskit_experiments.framework import AnalysisStatus, BaseAnalysis
 from qiskit_experiments.library import RamseyXY, FrequencyCal
 from qiskit_experiments.test.mock_iq_backend import MockIQBackend
-
-
-def ramsey_xy_compute_probabilities(
-    circuits: List[QuantumCircuit], calc_parameters: List[Dict[str, Any]]
-) -> List[Dict[str, float]]:
-    """Return the probability of being in the excited state."""
-    t2ramsey = calc_parameters[0].get("t2ramsey", 100e-6)
-    freq_shift = calc_parameters[0].get("freq_shift", 0)
-    output_dict_list = []
-    for circuit in circuits:
-        probability_output_dict = {}
-        series = circuit.metadata["series"]
-        delay = circuit.metadata["xval"]
-
-        if series == "X":
-            phase_offset = 0.0
-        else:
-            phase_offset = np.pi / 2
-
-        probability_output_dict["1"] = (
-            0.5 * np.exp(-delay / t2ramsey) * np.cos(2 * np.pi * delay * freq_shift - phase_offset) + 0.5
-        )
-        probability_output_dict["0"] = 1 - probability_output_dict["1"]
-        output_dict_list.append(probability_output_dict)
-    return output_dict_list
+from qiskit_experiments.test.mock_iq_helpers import MockIQRamseyXYHelper as RamseyXYHelper
 
 
 class TestRamseyXY(QiskitExperimentsTestCase):
@@ -68,16 +41,12 @@ class TestRamseyXY(QiskitExperimentsTestCase):
         """
 
         test_tol = 0.01
-
+        exp_helper = RamseyXYHelper()
         ramsey = RamseyXY(0)
-
+        ramsey.backend = MockIQBackend(exp_helper)
         for freq_shift in [2e6, -3e6]:
-            test_data = ramsey.run(
-                MockIQBackend(
-                    compute_probabilities=ramsey_xy_compute_probabilities,
-                    calculation_parameters=[{"freq_shift": freq_shift}],
-                )
-            )
+            exp_helper.freq_shift = freq_shift
+            test_data = ramsey.run()
             self.assertExperimentDone(test_data)
             meas_shift = test_data.analysis_results(1).value.n
             self.assertTrue((meas_shift - freq_shift) < abs(test_tol * freq_shift))
@@ -96,11 +65,9 @@ class TestRamseyXY(QiskitExperimentsTestCase):
 
         freq_shift = 4e6
         osc_shift = 2e6
-        calc_parameters = {"freq_shift": freq_shift + osc_shift}  # oscillation with 6 MHz
-        backend = MockIQBackend(
-            compute_probabilities=ramsey_xy_compute_probabilities,
-            calculation_parameters=[calc_parameters],
-        )
+
+        # oscillation with 6 MHz
+        backend = MockIQBackend(RamseyXYHelper(freq_shift=freq_shift + osc_shift))
         expdata = FrequencyCal(0, self.cals, backend, osc_freq=osc_shift).run()
         self.assertExperimentDone(expdata)
 
@@ -116,11 +83,7 @@ class TestRamseyXY(QiskitExperimentsTestCase):
         or hang indefinitely. Since there are no analysis results, we expect
         that the calibration update will result in an ERROR status.
         """
-        calc_parameters = {"freq_shift": 0}
-        backend = MockIQBackend(
-            compute_probabilities=ramsey_xy_compute_probabilities,
-            calculation_parameters=[calc_parameters],
-        )
+        backend = MockIQBackend(RamseyXYHelper(freq_shift=0))
 
         class NoResults(BaseAnalysis):
             """Simple analysis class that generates no results"""
@@ -158,3 +121,4 @@ class TestRamseyXY(QiskitExperimentsTestCase):
         """Test round trip JSON serialization"""
         exp = FrequencyCal(0, self.cals)
         self.assertRoundTripSerializable(exp, self.json_equiv)
+
