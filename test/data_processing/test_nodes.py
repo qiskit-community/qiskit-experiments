@@ -466,6 +466,8 @@ class TestRestless(QiskitExperimentsTestCase):
         """Test restless IQ data processing."""
         node = RestlessToIQ()
 
+        # The shape of the IQ data is (2, 2, 1, 2) corresponding to
+        # 2 circuits, 2 shots, 1 qubit and the respective IQ-point [I, Q].
         data = [[[[1, -2]], [[1, 3]]], [[[6, -4]], [[-3, 1]]]]
         # time-ordered data: [[[1, -2]], [[6, -4]], [[1, 3]], [[-3, 1]]]
         # subtraction: [[[1, -2]], [[5, -2]], [[-5, 7]], [[-4, -2]]]
@@ -479,6 +481,8 @@ class TestRestless(QiskitExperimentsTestCase):
         """Test two-qubit restless IQ data processing."""
         node = RestlessToIQ()
 
+        # The shape of the IQ data is (2, 2, 2, 2) corresponding to
+        # 2 circuits, 2 shots, 2 qubits and the respective IQ-point [I, Q].
         data = [[[[1, -2], [2, 5]], [[1, 3], [4, 2]]], [[[6, -4], [-8, 2]], [[-3, 1], [0, 3]]]]
         # time-ordered data: [[[1, -2], [2, 5]], [[6, -4], [-8, 2]], [[1, 3], [4, 2]], [[-3, 1], [0, 3]]]
         # subtraction: [[[1, -2], [2, 5]], [[5, -2], [-10, -3]], [[-5, 7], [12, 0]], [[-4, -2], [-4, 1]]]
