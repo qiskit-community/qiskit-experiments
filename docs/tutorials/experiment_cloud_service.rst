@@ -201,7 +201,7 @@ These fields can also be updated in the web interface from the menu on the right
 
 .. |web_tags_share.png| image:: ./experiment_cloud_service/web_tags_share.png
 
-For more information about using the cloud database interface, please take a look at its `documentation <https://quantum-computing.ibm.com/lab/docs/iql/manage/experiments/>`. 
+For more information about using the cloud database interface, please take a look at its `documentation <https://quantum-computing.ibm.com/lab/docs/iql/manage/experiments/>`__. 
 
 Randomized Benchmarking experiment
 ----------------------------------
