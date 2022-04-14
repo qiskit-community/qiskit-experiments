@@ -259,11 +259,11 @@ class MockIQBackend(FakeOpenPulse2Q):
             The output structure is  - List[shot index][qubit index] = [I,Q]
         """
         # Randomize samples
-        qubits_iq_rand = []
-        for _ in range(shots):
+        qubits_iq_rand = [np.nan] * shots
+        for shot in range(shots):
             rand_i = self._get_normal_samples_for_shot(output_length)
             rand_q = self._get_normal_samples_for_shot(output_length)
-            qubits_iq_rand.append(np.array([rand_i, rand_q], dtype="float").T)
+            qubits_iq_rand[shot] = np.array([rand_i, rand_q], dtype="float").T
 
         memory = []
         shot_num = 0
@@ -338,7 +338,7 @@ class MockIQBackend(FakeOpenPulse2Q):
             run_result["memory"] = memory
         return run_result
 
-    def run(self, run_input, **options):
+    def run(self, run_input: List[QuantumCircuit], **options):
         """Run the IQ backend."""
 
         self.options.update_options(**options)
