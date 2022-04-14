@@ -2,11 +2,13 @@
 from abc import ABC, abstractmethod
 from typing import List, Optional, Union
 
+from qiskit import QuantumCircuit
 from qiskit.providers import Backend
+from qiskit.providers import BaseJob
+from qiskit.providers.options import Options
+
 from qiskit_experiments.framework.base_experiment import BaseExperiment, ExperimentData, BaseAnalysis
 from qiskit_experiments.framework.composite.composite_experiment import CompositeExperiment
-from qiskit.providers.options import Options
-from qiskit import QuantumCircuit
 
 
 class BaseTransitionCallable(ABC):
@@ -46,7 +48,21 @@ class GoodExperimentTransition(BaseTransitionCallable):
 
 
 class ChainedExperiment(CompositeExperiment):
-    """An experiment that is made of several experiments that are run one after another."""
+    """An experiment that is made of several experiments that are run one after another.
+
+    The chained experiment works using analysis callback functions and an index to the experiment
+    in the chain of experiments that needs to be run. Each time an experiment is run there are
+    two analysis callback functions that are added to the experiment data as follows.
+
+    1. An experiment transition callback. This is a function thar determines relative changes to
+    the experiment index. For example, if the next experiment in the chain is to be executed then
+    this function returns 1. However, if the current experiment is to be repeated thes this
+    function will return 0.
+
+    2. A callback to launch the next experiment based on the value of the experiment index.
+
+    The experiment data from this class will contain all the sub-experiments as children.
+    """
 
     def __init__(self, experiments: List[BaseExperiment], transition_callback: BaseTransitionCallable):
         """
@@ -55,8 +71,11 @@ class ChainedExperiment(CompositeExperiment):
             experiments: The list of experiments to run.
             transition_callback: The method that determines which experiment to run next.
         """
-        qubits = tuple()  # TODO
-        super().__init__(experiments, qubits)
+        qubits = set()
+        for exp in experiments:
+            qubits.update(exp.physical_qubits)
+
+        super().__init__(experiments, list(qubits))
 
         self._current_index = 0
         self._transition_callback = transition_callback
@@ -91,14 +110,20 @@ class ChainedExperiment(CompositeExperiment):
         """Do not run anything yet."""
         return []
 
-    def _run_index(self, experiment_data):
+    def _run_index(self, experiment_data: ExperimentData):
+        """Run the experiment at the current index.
+
+        Args:
+            experiment_data: The experiment data to which the experiment data of the
+                run experiment will be added as a child.
+        """
         if self._current_index >= self.num_experiments:
             return experiment_data
 
         exp_data = self.component_experiment(self._current_index).run()
         experiment_data.add_child_data(exp_data)
 
-        # transition callback thingy
+        # Add the transition callback as an analysis callback to the experiment data
         experiment_data.add_analysis_callback(self._transition_callback)
 
         # recursion
