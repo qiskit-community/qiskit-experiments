@@ -466,8 +466,8 @@ class ExperimentEncoder(json.JSONEncoder):
             # during serialization. Then both can be serialized as Variable.
             # Note that UFloat doesn't have a tag.
             settings = {
-                "value": obj.nominal_value,
-                "std_dev": obj.std_dev,
+                "value": _serialize_safe_float(obj.nominal_value),
+                "std_dev": _serialize_safe_float(obj.std_dev),
                 "tag": getattr(obj, "tag", None),
             }
             cls = uncertainties.core.Variable
