@@ -1,14 +1,36 @@
-# Contributing
+# Contributing Guide
 
-First read the overall project contributing guidelines. These are all
-included in the qiskit documentation:
+To contribute to Qiskit Experiments, first read the overall project contributing guidelines.
+These are included in the qiskit documentation:
 
 https://qiskit.org/documentation/contributing_to_qiskit.html
 
 ## Contributing to Qiskit Experiments
 
-In addition to the general guidelines there are specific details for
-contributing to qiskit experiments, these are documented below.
+In addition to the general guidelines, the specific guidelines for
+contributing to Qiskit Experiments are documented below.
+
+### Contents
+
+  + [Pull request checklist](#pull-request-checklist)
+  + [Changelog generation](#changelog-generation)
+  + [Release Notes](#release-notes)
+    - [Adding a new release note](#adding-a-new-release-note)
+      * [Linking to issues](#linking-to-issues)
+    - [Generating the release notes](#generating-the-release-notes)
+    - [Building release notes locally](#building-release-notes-locally)
+  + [Test](#test)
+      * [STDOUT/STDERR and logging capture](#stdout-stderr-and-logging-capture)
+  + [Code style](#code-style)
+  + [Development Cycle](#development-cycle)
+  + [Branches](#branches)
+  + [Release cycle](#release-cycle)
+
+### Choose an issue to work on
+We use the following labels to help non-maintainers find issues best suited to their interests and experience level:
+
+* [good first issue](https://github.com/Qiskit/qiskit-experiments/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22) - these issues are typically the simplest available to work on, perfect for newcomers. They should already be fully scoped, with a clear approach outlined in the descriptions.
+* [help wanted](https://github.com/Qiskit/qiskit-experiments/issues?q=is%3Aopen+is%3Aissue+label%3A%22help+wanted%22) - these issues are generally more complex than good first issues. They typically cover work that core maintainers don't currently have capacity to implement and may require more investigation/discussion. These are a great option for experienced contributors looking for something a bit more challenging.
 
 ### Pull request checklist
 
@@ -16,187 +38,42 @@ When submitting a pull request and you feel it is ready for review,
 please ensure that:
 
 1. The code follows the code style of the project and successfully
-   passes the tests. For convenience, you can execute `tox` locally,
-   which will run these checks and report any issues.
+   passes the tests.
 2. The documentation has been updated accordingly. In particular, if a
    function or class has been modified during the PR, please update the
    *docstring* accordingly.
-3. You update the relevant tutorial or write a new one. Use this [tutorial guidelines](docs/tutorials/GUIDELINES.md)
-   document for further details.
+3. You update the relevant tutorial or write a new one. Read these [tutorial guidelines](docs/tutorials/GUIDELINES.md)
+    for further details.
 
    In case the PR needs to be merged without delay (e.g. for a high priority fix), open an issue for updating or adding
    the tutorial later.
-4. If it makes sense for your change that you have added to include new tests that cover the changes.
+4. You've added tests that cover the changes you've made, if relevant.
 5. If your change has an end user facing impact (new feature,
-   deprecation, removal etc) that you have added a reno release note for that
+   deprecation, removal, etc.), you must add a reno release note for that
    change and that the PR is tagged for the changelog.
 
+### Code style
 
+The qiskit-experiments repository uses `black` for code formatting and style and `pylint` for linting. You can run these checks locally with
 
-### Changelog generation
-
-The changelog is automatically generated as part of the release process
-automation. This works through a combination of the git log and the pull
-request. When a release is tagged and pushed to github the release automation
-bot looks at all commit messages from the git log for the release. It takes the
-PR numbers from the git log (assuming a squash merge) and checks if that PR had
-a `Changelog:` label on it. If there is a label it will add the git commit
-message summary line from the git log for the release to the changelog.
-
-If there are multiple `Changelog:` tags on a PR the git commit message summary
-line from the git log will be used for each changelog category tagged.
-
-The current categories for each label are as follows:
-
-| PR Label               | Changelog Category |
-| -----------------------|--------------------|
-| Changelog: Deprecation | Deprecated         |
-| Changelog: New Feature | Added              |
-| Changelog: API Change  | Changed            |
-| Changelog: Removal     | Removed            |
-| Changelog: Bugfix      | Fixed              |
-
-### Release Notes
-
-When making any end user facing changes in a contribution we have to make sure
-we document that when we release a new version of qiskit-experiments. The expectation
-is that if your code contribution has user facing changes that you will write
-the release documentation for these changes. This documentation must explain
-what was changed, why it was changed, and how users can either use or adapt
-to the change. The idea behind release documentation is that when a naive
-user with limited internal knowledge of the project is upgrading from the
-previous release to the new one, they should be able to read the release notes,
-understand if they need to update their program which uses qiskit, and how they
-would go about doing that. It ideally should explain why they need to make
-this change too, to provide the necessary context.
-
-To make sure we don't forget a release note or if the details of user facing
-changes over a release cycle we require that all user facing changes include
-documentation at the same time as the code. To accomplish this we use the
-[reno](https://docs.openstack.org/reno/latest/) tool which enables a git based
-workflow for writing and compiling release notes.
-
-#### Adding a new release note
-
-Making a new release note is quite straightforward. Ensure that you have reno
-installed with::
-
-    pip install -U reno
-
-Once you have reno installed you can make a new release note by running in
-your local repository checkout's root::
-
-    reno new short-description-string
-
-where short-description-string is a brief string (with no spaces) that describes
-what's in the release note. This will become the prefix for the release note
-file. Once that is run it will create a new yaml file in releasenotes/notes.
-Then open that yaml file in a text editor and write the release note. The basic
-structure of a release note is restructured text in yaml lists under category
-keys. You add individual items under each category and they will be grouped
-automatically by release when the release notes are compiled. A single file
-can have as many entries in it as needed, but to avoid potential conflicts
-you'll want to create a new file for each pull request that has user facing
-changes. When you open the newly created file it will be a full template of
-the different categories with a description of a category as a single entry
-in each category. You'll want to delete all the sections you aren't using and
-update the contents for those you are. For example, the end result should
-look something like::
-
-```yaml
-features:
-  - |
-    Introduced a new feature foo, that adds support for doing something to
-    ``QuantumCircuit`` objects. It can be used by using the foo function,
-    for example::
-
-      from qiskit import foo
-      from qiskit import QuantumCircuit
-      foo(QuantumCircuit())
-
-  - |
-    The ``qiskit.QuantumCircuit`` module has a new method ``foo()``. This is
-    the equivalent of calling the ``qiskit.foo()`` to do something to your
-    QuantumCircuit. This is the equivalent of running ``qiskit.foo()`` on
-    your circuit, but provides the convenience of running it natively on
-    an object. For example::
-
-      from qiskit import QuantumCircuit
-
-      circ = QuantumCircuit()
-      circ.foo()
-
-deprecations:
-  - |
-    The ``qiskit.bar`` module has been deprecated and will be removed in a
-    future release. Its sole function, ``foobar()`` has been superseded by the
-    ``qiskit.foo()`` function which provides similar functionality but with
-    more accurate results and better performance. You should update your calls
-    ``qiskit.bar.foobar()`` calls to ``qiskit.foo()``.
+```
+tox -elint
 ```
 
-You can also look at other release notes for other examples.
+If there is a code formatting issue identified by black you can just run
+``black`` locally to fix this (or ``tox -eblack`` which will install it and
+run it).
 
-You can use any restructured text feature in them (code sections, tables,
-enumerated lists, bulleted list, etc) to express what is being changed as
-needed. In general you want the release notes to include as much detail as
-needed so that users will understand what has changed, why it changed, and how
-they'll have to update their code.
+Because `pylint` analysis can be slow, there is also a `tox -elint-incr` target,
+which only applies `pylint` to files which have changed from the source github.
+On rare occasions this will miss some issues that would have been caught by
+checking the complete source tree, but makes up for this by being much faster
+(and those rare oversights will still be caught by the CI after you open a pull
+request).
+### Test your code
 
-After you've finished writing your release notes you'll want to add the note
-file to your commit with `git add` and commit them to your PR branch to make
-sure they're included with the code in your PR.
-
-##### Linking to issues
-
-If you need to link to an issue or other github artifact as part of the release
-note this should be done using an inline link with the text being the issue
-number. For example you would write a release note with a link to issue 12345
-as:
-
-```yaml
-fixes:
-  - |
-    Fixes a race condition in the function ``foo()``. Refer to
-    `#12345 <https://github.com/Qiskit/qiskit-experiments/issues/12345>` for more
-    details.
-```
-
-#### Generating the release notes
-
-After release notes have been added if you want to see what the full output of
-the release notes. In general the output from reno that we'll get is a rst
-(ReStructuredText) file that can be compiled by
-[sphinx](https://www.sphinx-doc.org/en/master/). To generate the rst file you
-use the ``reno report`` command. If you want to generate the full qiskit-experiments release
-notes for all releases (since we started using reno during 0.9) you just run::
-
-    reno report
-
-but you can also use the ``--version`` argument to view a single release (after
-it has been tagged::
-
-    reno report --version 0.9.0
-
-At release time ``reno report`` is used to generate the release notes for the
-release and the output will be submitted as a pull request to the documentation
-repository's [release notes file](
-https://github.com/Qiskit/qiskit/blob/master/docs/release_notes.rst)
-
-#### Building release notes locally
-
-Building The release notes are part of the standard qiskit-experiments documentation
-builds. To check what the rendered html output of the release notes will look
-like for the current state of the repo you can run: `tox -edocs`, which will
-build all the documentation into `docs/_build/html` and the release notes in
-particular will be located at `docs/_build/html/release_notes.html`. To build release
-notes and docs without building the Jupyter cells in .rst files under `tutorials/`, 
-which is a relatively slow process, you can run `tox -edocsnorst` instead.
-
-### Test
-
-Once you've made a code change, it is important to verify that your change
-does not break any existing tests and that any new tests that you've added
+It is important to verify that your code changes
+don't break any existing tests and that any new tests you've added
 also run successfully. Before you open a new pull request for your change,
 you'll want to run the test suite locally.
 
@@ -258,62 +135,247 @@ accomplished by using the
 [`--buffer`](https://docs.python.org/3/library/unittest.html#command-line-options)
 option (e.g. `python -m unittest discover --buffer ./test/python`).
 
-### Code style
 
-The qiskit-experiments repo uses black for code formatting and style and pylint
-is run to do a deeper check on the code. You can run these checks locally with
+### Changelog generation
 
+The changelog is automatically generated as part of the release process
+automation. This works through a combination of the git log and the pull
+request. When a release is tagged and pushed to github the release automation
+bot looks at all commit messages from the git log for the release. It takes the
+PR numbers from the git log (assuming a squash merge) and checks if that PR had
+a `Changelog:` label on it. If there is a label it will add the git commit
+message summary line from the git log for the release to the changelog.
+
+If there are multiple `Changelog:` tags on a PR the git commit message summary
+line from the git log will be used for each changelog category tagged.
+
+The current categories for each label are as follows:
+
+| PR Label               | Changelog Category |
+| ---------------------- | ------------------ |
+| Changelog: Deprecation | Deprecated         |
+| Changelog: New Feature | Added              |
+| Changelog: API Change  | Changed            |
+| Changelog: Removal     | Removed            |
+| Changelog: Bugfix      | Fixed              |
+
+### Release Notes
+
+All end user facing changes have to be documented with each release of Qiskit Experiments. 
+The expectation is that if your code contribution has user facing changes that you will write
+the release documentation for these changes. This documentation must explain
+what was changed, why it was changed, and how users can either use or adapt
+to the change. The idea behind release documentation is that when a naive
+user with limited internal knowledge of the project is upgrading from the
+previous release to the new one, they should be able to read the release notes,
+understand if they need to update their program which uses qiskit, and how they
+would go about doing that. It ideally should explain why they need to make
+this change too, to provide the necessary context.
+
+To make sure we don't forget a release note or if the details of user facing
+changes over a release cycle, we require that all user facing changes include
+documentation at the same time as the code. To accomplish this we use the
+[reno](https://docs.openstack.org/reno/latest/) tool which enables a git based
+workflow for writing and compiling release notes.
+
+#### Adding a new release note
+
+Making a new release note is quite straightforward. Ensure that you have reno
+installed with:
+
+    pip install -U reno
+
+Once you have reno installed, you can make a new release note by running in
+your local repository checkout's root:
+
+    reno new short-description-string
+
+where short-description-string is a brief string (with no spaces) that describes
+what's in the release note. This will become the prefix for the release note
+file. Once that is run, it will create a new yaml file in `releasenotes/notes`.
+Then open that yaml file in a text editor and write the release note.
+
+The basic structure of a release note is restructured text in yaml lists under category
+keys. You add individual items under each category, and they will be grouped
+automatically by release when the release notes are compiled. A single file
+can have as many entries in it as needed, but to avoid potential conflicts,
+you'll want to create a new file for each pull request that has user facing
+changes. When you open the newly created file it will be a full template of
+the different categories with a description of a category as a single entry
+in each category. You'll want to delete all the sections you aren't using and
+update the contents for those you are. For example, the end result should
+look something like:
+
+```yaml
+features:
+  - |
+    Introduced a new feature foo, that adds support for doing something to
+    ``QuantumCircuit`` objects. It can be used by using the foo function,
+    for example::
+
+      from qiskit import foo
+      from qiskit import QuantumCircuit
+      foo(QuantumCircuit())
+
+  - |
+    The ``qiskit.QuantumCircuit`` module has a new method ``foo()``. This is
+    the equivalent of calling the ``qiskit.foo()`` to do something to your
+    QuantumCircuit. This is the equivalent of running ``qiskit.foo()`` on
+    your circuit, but provides the convenience of running it natively on
+    an object. For example::
+
+      from qiskit import QuantumCircuit
+
+      circ = QuantumCircuit()
+      circ.foo()
+
+deprecations:
+  - |
+    The ``qiskit.bar`` module has been deprecated and will be removed in a
+    future release. Its sole function, ``foobar()`` has been superseded by the
+    ``qiskit.foo()`` function which provides similar functionality but with
+    more accurate results and better performance. You should update your calls
+    ``qiskit.bar.foobar()`` calls to ``qiskit.foo()``.
 ```
-tox -elint
+
+You can also look at other release notes for other examples.
+
+You can use any restructured text feature in them (code sections, tables,
+enumerated lists, bulleted list, etc.) to express what is being changed as
+needed. In general, you want the release notes to include as much detail as
+needed so that users will understand what has changed, why it changed, and how
+they'll have to update their code.
+
+After you've finished writing your release notes you'll want to add the note
+file to your commit with `git add` and commit them to your PR branch to make
+sure they're included with the code in your PR.
+
+##### Linking to issues
+
+If you need to link to an issue or another Github artifact as part of the release
+note, this should be done using an inline link with the text being the issue
+number. For example you would write a release note with a link to issue 12345
+as:
+
+```yaml
+fixes:
+  - |
+    Fixes a race condition in the function ``foo()``. Refer to
+    `#12345 <https://github.com/Qiskit/qiskit-experiments/issues/12345>` for more
+    details.
 ```
 
-If there is a code formatting issue identified by black you can just run
-``black`` locally to fix this (or ``tox -eblack`` which will install it and
-run it).
+#### Generating the release notes
 
-Because `pylint` analysis can be slow, there is also a `tox -elint-incr` target,
-which only applies `pylint` to files which have changed from the source github.
-On rare occasions this will miss some issues that would have been caught by
-checking the complete source tree, but makes up for this by being much faster
-(and those rare oversights will still be caught by the CI after you open a pull
-request).
+After adding your release note, you should generate it to check that the output
+looks as expected. In general, the output from reno that we'll get is a `.rst`
+(ReStructuredText) file that can be compiled by
+[sphinx](https://www.sphinx-doc.org/en/master/). If you want to generate the full Qiskit Experiments release
+notes for all releases, simply run:
+
+    reno report
+
+You can also use the ``--version`` argument to view a single release (after
+it has been tagged):
+
+    reno report --version 0.9.0
+
+At release time, ``reno report`` is used to generate the release notes for the
+release, and the output will be submitted as a pull request to the documentation
+repository's [release notes file](
+https://github.com/Qiskit/qiskit/blob/master/docs/release_notes.rst)
+
+### Documentation
+
+Your contribution should be fully documented in the relevant module, class, and method docstrings, and anything that would change an existing tutorial or a new feature that requires a tutorial should be updated correspondingly.
+
+To check what the rendered html output of the API documentation, tutorials,
+and release notes will look like for the current state of the repo, run:
+
+    tox -edocs
+    
+This will build all the documentation into `docs/_build/html`. The main page `index.html`
+will link to the relevant pages in the subdirectories, or you can navigate manually:
+
+* `apidocs/`:  Contains the API docs automatically compiled from module docstrings.
+* `tutorials/`: Contains the `.rst` tutorials with automatically executed Jupyter cells.
+* `release_notes.html`: Contains the release notes.
+
+To build release notes and API docs without building the Jupyter cells in the `.rst` files under `tutorials/`, 
+which is a relatively slow process, you can run `tox -edocsnorst` instead.
+
+
+## Adding deprecation warnings
+The qiskit-terra code is part of Qiskit and, therefore, the [Qiskit Deprecation Policy](https://qiskit.org/documentation/contributing_to_qiskit.html#deprecation-policy) fully applies here. Additionally, qiskit-terra does not allow `DeprecationWarning`s in its testsuite. If you are deprecating code, you should add a test to use the new/non-deprecated method (most of the time based on the existing test of the deprecated method) and alter the existing test to check that the deprecated method still works as expected, [using `assertWarns`](https://docs.python.org/3/library/unittest.html#unittest.TestCase.assertWarns). The `assertWarns` context will silence the deprecation warning while checking that it raises.
+
+For example, if `Obj.method1` is being deprecated in favour of `Obj.method2`, the existing test (or tests) for `method1` might look like this:
+
+```python
+def test_method1(self):
+   result = Obj.method1()
+   self.assertEqual(result, <expected>)
+```
+
+Deprecating `method1` means that `Obj.method1()` now raises a deprecation warning and the test will not pass. The existing test should be updated and a new test added for `method2`:
+
+
+We have a deprecation decorator for showing deprecation warnings. To deprecate a function:
+
+```python
+  @deprecated_function(last_version="0.3", msg="Use new_function instead.")
+  def old_function(*args, **kwargs):
+      pass
+  def new_function(*args, **kwargs):
+      pass
+```
+
+To deprecate a class:
+
+```python
+  @deprecated_class(last_version="0.3", new_cls=NewCls)
+  class OldClass:
+      pass
+  class NewClass:
+      pass
+```
+
+You can learn more by 
+
+
 
 ### Development Cycle
 
-The development cycle for qiskit-experiments is all handled in the open using
-the project boards in Github for project management. We use milestones
-in Github to track work for specific releases. The features or other changes
+The development cycle for Qiskit Experiments is all handled in the open using project boards in Github for project management. We use milestones
+in Github to track work for specific releases. Features or other changes
 that we want to include in a release will be tagged and discussed in Github.
-As we're preparing a new release we'll document what has changed since the
-previous version in the release notes.
 
 ### Branches
 
-* `master`:
+* `main`:
 
-The master branch is used for development of the next version of qiskit-experiments.
+The main branch is used for development of the next version of qiskit-experiments.
 It will be updated frequently and should not be considered stable. The API
 can and will change on master as we introduce and refine new features.
 
 * `stable/*` branches:
 Branches under `stable/*` are used to maintain released versions of qiskit-experiments.
 It contains the version of the code corresponding to the latest release for
-that minor version on pypi. For example, stable/0.8 contains the code for the
-0.8.2 release on pypi. The API on these branches are stable and the only changes
-merged to it are bugfixes.
+that minor version on pypi. For example, `stable/0.1` contains the code for the
+0.1.0 release on pypi. The API on these branches are stable and the only changes
+merged to it are bug fixes.
 
 ### Release cycle
 
-When it is time to release a new minor version of qiskit-experiments we will:
+When it is time to release a new minor version of qiskit-experiments, we will:
 
 1.  Create a new tag with the version number and push it to github
-2.  Change the `master` version to the next release version.
+2.  Change the `main` version to the next release version.
 
 The release automation processes will be triggered by the new tag and perform
 the following steps:
 
 1.  Create a stable branch for the new minor version from the release tag
-    on the `master` branch
+    on the `main` branch
 2.  Build and upload binary wheels to pypi
 3.  Create a github release page with a generated changelog
 4.  Generate a PR on the meta-repository to bump the qiskit-experiments version and
@@ -321,3 +383,7 @@ the following steps:
 
 The `stable/*` branches should only receive changes in the form of bug
 fixes.
+
+#### Proposing a new experiment
+
+If there is an experiment you would like to see as part of this package, you can write a new experiment proposal by creating an issue 
