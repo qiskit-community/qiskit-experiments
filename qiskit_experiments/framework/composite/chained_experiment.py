@@ -79,17 +79,20 @@ class ChainedExperiment(CompositeExperiment):
             experiments: The list of experiments to run.
             transition_callback: The method that determines which experiment to run next.
         """
-        qubits = set()
+        qubits, backend = set(), None
         for exp in experiments:
             qubits.update(exp.physical_qubits)
 
-        super().__init__(experiments, list(qubits))
+            if backend is None and exp.backend:
+                backend = exp.backend
 
         # The index that points to the experiment that is running.
         self._current_index = 0
 
         # A counter to safe-guard against endless experiment runs.
         self._number_of_runs = 0
+
+        super().__init__(experiments, list(qubits), backend=backend)
 
         # The arguments for the transition callback function.
         self._transition_options = self._default_transition_options()
@@ -100,6 +103,10 @@ class ChainedExperiment(CompositeExperiment):
     def current_index(self) -> int:
         """Returns the index of the experiment that is currently being run in the chain."""
         return self._current_index
+
+    def _set_backend(self, backend: Backend):
+        """Set the backend of the experiment at the current pointer index."""
+        self._backend = backend
 
     @classmethod
     def _default_experiment_options(cls) -> Options:
@@ -112,7 +119,7 @@ class ChainedExperiment(CompositeExperiment):
                 can be called. By default this value is set to 100.
         """
         options = super()._default_experiment_options()
-        options.callback = GoodExperimentTransition
+        options.callback = GoodExperimentTransition()
         options.max_runs = 100
         return options
 
@@ -134,25 +141,30 @@ class ChainedExperiment(CompositeExperiment):
         **run_options,
     ) -> ExperimentData:
         """Run the chained experiment by transitioning between the sub-experiments using a counter."""
-        experiment_data = super().run(backend=backend, analysis=analysis, timeout=timeout, **run_options)
+        experiment_data = super().run(backend=backend, analysis=None, timeout=timeout, **run_options)
         return self._run_index(experiment_data)
 
     def _run_jobs(self, circuits: List[QuantumCircuit], **run_options) -> List[BaseJob]:
         """Do not run anything yet."""
         return []
 
-    def _run_index(self, experiment_data: ExperimentData):
+    def _run_index(self, experiment_data: ExperimentData) -> ExperimentData:
         """Run the experiment at the current index.
 
         Args:
             experiment_data: The experiment data to which the experiment data of the
                 run experiment will be added as a child.
+
+        Returns:
+            The experiment data with an extra child experiment data added to it.
         """
         if self._current_index >= self.num_experiments:
             return experiment_data
 
         if self._number_of_runs > self.experiment_options.max_runs:
             raise AnalysisError("The maximum allowed number of runs has been exceeded.")
+
+        self.backend = self.component_experiment(self._current_index).backend
 
         exp_data = self.component_experiment(self._current_index).run()
         experiment_data.add_child_data(exp_data)
@@ -162,6 +174,8 @@ class ChainedExperiment(CompositeExperiment):
 
         # recursion
         experiment_data.add_analysis_callback(self._run_index)
+
+        return experiment_data
 
     def _transition_callback(self, experiment_data, **kwargs):
         """Define how the index is updated."""
