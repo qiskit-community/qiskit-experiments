@@ -150,6 +150,21 @@ class ChainedExperiment(CompositeExperiment):
         """Update the options of the transition callable."""
         self._transition_options.update_options(**fields)
 
+    def set_run_options(self, experiment_index: int = None, **fields):
+        """Set the run options of the sub-experiments.
+
+        Args:
+            experiment_index: If this value is provided then only the experiment at the
+                specified index will be updated. Otherwise, all experiments will be
+                updated.
+            fields: The fields of the options to update.
+        """
+        if experiment_index:
+            self.component_experiment(experiment_index).set_run_options(**fields)
+        else:
+            for exp in self._experiments:
+                exp.set_run_options(**fields)
+
     def run(
         self,
         backend: Optional[Backend] = None,
@@ -163,6 +178,10 @@ class ChainedExperiment(CompositeExperiment):
         )
 
         return self._run_index(experiment_data)
+
+    def _finalize(self):
+        """Nothing to do as run options can differ from one experiment to the next."""
+        pass
 
     def _run_jobs(self, circuits: List[QuantumCircuit], **run_options) -> List[BaseJob]:
         """Do not run anything yet."""
