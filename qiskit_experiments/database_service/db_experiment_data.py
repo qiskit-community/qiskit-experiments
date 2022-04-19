@@ -651,19 +651,15 @@ class DbExperimentDataV1(DbExperimentData):
                 and `overwrite=True` is not specified.
             ValueError: If an input parameter has an invalid value.
         """
-        if (
-            isinstance(figures, list)
-            and figure_names is not None
-            and (not isinstance(figure_names, list) or len(figures) != len(figure_names))
-        ):
+        if figure_names is not None and not isinstance(figure_names, list):
+            figure_names = [figure_names]
+        if not isinstance(figures, list):
+            figures = [figures]
+        if figure_names is not None and len(figures) != len(figure_names):
             raise ValueError(
                 "The parameter figure_names must be None or a list of "
                 "the same size as the parameter figures."
             )
-        if not isinstance(figures, list):
-            figures = [figures]
-        if figure_names is not None and not isinstance(figure_names, list):
-            figure_names = [figure_names]
 
         added_figs = []
         for idx, figure in enumerate(figures):

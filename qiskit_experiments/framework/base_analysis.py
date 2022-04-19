@@ -88,7 +88,10 @@ class BaseAnalysis(ABC, StoreInitArgs):
 
     @classmethod
     def _default_options(cls) -> Options:
+        """Default analysis options common to all analyzes."""
         options = Options()
+        # figure names can be set for each analysis by calling
+        # experiment_obj.analysis.set_options(figure_names=FIGURE_NAMES)
         options.figure_names = None
         return options
 
