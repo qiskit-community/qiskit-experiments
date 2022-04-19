@@ -64,7 +64,7 @@ class GoodExperimentTransition(BaseTransitionCallable):
 
 
 class ChainedExperiment(CompositeExperiment):
-    """An experiment that is made of several experiments that are run one after another.
+    """An experiment made of several sub-experiments ran one after another.
 
     The chained experiment works using analysis callback functions and an index to the experiment
     in the chain of experiments that needs to be run. Each time an experiment is run there are
