@@ -173,11 +173,7 @@ class RoughAmplitudeCal(BaseCalibrationExperiment, Rabi):
         result_index = self.experiment_options.result_index
         group = experiment_data.metadata["cal_group"]
 
-        rate = (
-            2
-            * np.pi
-            * BaseUpdater.get_value(experiment_data, self.__outcome__, result_index)
-        )
+        rate = 2 * np.pi * BaseUpdater.get_value(experiment_data, self.__outcome__, result_index)
 
         for angle, param, schedule, prev_amp in experiment_data.metadata["angles_schedules"]:
 
