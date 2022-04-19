@@ -37,8 +37,6 @@ class RoughAmplitudeCal(BaseCalibrationExperiment, Rabi):
         qiskit_experiments.library.characterization.rabi.Rabi
     """
 
-    __outcome__ = "freq"
-
     def __init__(
         self,
         qubit: int,
@@ -86,7 +84,7 @@ class RoughAmplitudeCal(BaseCalibrationExperiment, Rabi):
         )
 
         # Needed for subclasses that will drive other transitions than the 0<->1 transition.
-        self._analysis_param_name = "rabi_rate"
+        self._analysis_param_name = self.__outcome__
 
         # Set the pulses to update.
         prev_amp = calibrations.get_parameter_value(cal_parameter_name, qubit, schedule_name)
@@ -200,8 +198,6 @@ class RoughXSXAmplitudeCal(RoughAmplitudeCal):
         qiskit_experiments.library.characterization.rabi.Rabi
     """
 
-    __outcome__ = "rabi_rate"
-
     def __init__(
         self,
         qubit: int,
@@ -266,7 +262,7 @@ class EFRoughXSXAmplitudeCal(RoughAmplitudeCal):
             target_angle=np.pi,
         )
 
-        self._analysis_param_name = "rabi_rate_12"
+        self._analysis_param_name = self.__outcome__
         self.experiment_options.angles_schedules = [
             AnglesSchedules(
                 target_angle=np.pi,
