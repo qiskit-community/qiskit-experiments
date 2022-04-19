@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -13,61 +13,24 @@
 """Class to test chained experiments."""
 
 import copy
-from typing import List, Optional, Union
+from typing import List
 import numpy as np
 
 from qiskit.circuit import QuantumCircuit
 from qiskit.test.mock import FakeBelem
-from qiskit.providers import Backend
 
 from test.base import QiskitExperimentsTestCase
-
+from test.fake_experiment import FakeExperiment
+from qiskit_experiments.test.fake_backend import FakeBackend
 from qiskit_experiments.framework.composite.chained_experiment import (
     ChainedExperiment,
     BaseTransitionCallable,
+    GoodExperimentTransition,
 )
-from qiskit_experiments.framework.base_experiment import BaseExperiment, ExperimentData
-from qiskit_experiments.framework.base_analysis import BaseAnalysis
 from qiskit_experiments.calibration_management.calibrations import Calibrations
 from qiskit_experiments.calibration_management.basis_gate_library import FixedFrequencyTransmon
 from qiskit_experiments.library.calibration import FineXAmplitudeCal, RoughDragCal
 from qiskit_experiments.test.mock_iq_backend import MockFineAmp, DragBackend
-from qiskit_experiments.exceptions import AnalysisError
-
-
-class FineXAmplitudeCalTest(FineXAmplitudeCal):
-    """A class so that we can access the inst_map that was used."""
-
-    def _transpiled_circuits(self) -> List[QuantumCircuit]:
-        """Wrap the transpile step to save the inst map so we can test it."""
-        self.inst_map = copy.deepcopy(self.calibrations.default_inst_map)
-        return super()._transpiled_circuits()
-
-
-class DefectiveTransitionCallable(BaseTransitionCallable):
-    """A defective callable that does not transition."""
-
-    def __call__(self, *args, **kwargs):
-        """The pointer index is never incremented."""
-        return 0
-
-
-class DummyExperiment(BaseExperiment):
-    """A dummy experiment."""
-
-    def run(
-        self,
-        backend: Optional[Backend] = None,
-        analysis: Optional[Union[BaseAnalysis, None]] = "default",
-        timeout: Optional[float] = None,
-        **run_options,
-    ) -> ExperimentData:
-        """Returns an empty experiment data instance."""
-        return ExperimentData()
-
-    def circuits(self) -> List[QuantumCircuit]:
-        """Return an empty list."""
-        return []
 
 
 class TestChained(QiskitExperimentsTestCase):
@@ -98,21 +61,17 @@ class TestChained(QiskitExperimentsTestCase):
         self.assertExperimentDone(exp_data)
         self.assertEqual(len(self.cals.parameters_table(parameters=["β"])["data"]), 3)
 
-    def test_watchdog(self):
-        """Test that we do not get endless loops on ill-defined transition functions."""
-
-        exp = DummyExperiment((0, ), backend=DragBackend(gate_name="Drag(x)"))
-        exp_chain = ChainedExperiment([exp], DefectiveTransitionCallable())
-        exp_chain.analysis = None
-
-        with self.assertRaisesRegex(AnalysisError, expected_regex=""):
-            exp_chain.run()
-
     def test_simple_cal_chain(self):
-        """Test a simple calibration chain made of a Rabi and Drag.
+        """Test a simple calibration chain made of a Drag and a fine amp."""
 
-        The parameters in the Calibrations should be properly updated if the chain is successful.
-        """
+        class FineXAmplitudeCalTest(FineXAmplitudeCal):
+            """A class so that we can access the inst_map that was used."""
+
+            def _transpiled_circuits(self) -> List[QuantumCircuit]:
+                """Wrap the transpile step to save the inst map for tests."""
+                self.inst_map = copy.deepcopy(self.calibrations.default_inst_map)
+                return super()._transpiled_circuits()
+
         drag = RoughDragCal(0, self.cals, backend=self.drag_backend)
         fine_amp = FineXAmplitudeCalTest(0, self.cals, backend=self.amp_backend, schedule_name="x")
 
@@ -126,7 +85,7 @@ class TestChained(QiskitExperimentsTestCase):
 
         exp_data = cal_chain.run()
 
-        # We can only start checking the cals once the chain has run.
+        # If the chain is successful then the parameters in the cal should be updated.
         self.assertExperimentDone(exp_data)
 
         self.assertEqual(len(exp_data.child_data()), 2)
@@ -137,7 +96,7 @@ class TestChained(QiskitExperimentsTestCase):
         self.assertEqual(len(self.cals.parameters_table(parameters=["β"])["data"]), 3)
 
         # Check that the fine amplitude experiment ran with the updated beta
-        x_sched = fine_amp.inst_map.get("x", qubits=(0, ))
+        x_sched = fine_amp.inst_map.get("x", qubits=(0,))
         self.assertAlmostEqual(x_sched.blocks[0].pulse.beta, new_beta, places=7)
         self.assertEqual(len(self.cals.parameters_table(parameters=["amp"])["data"]), 3)
 
@@ -151,3 +110,77 @@ class TestChained(QiskitExperimentsTestCase):
 
     def test_transition_callback(self):
         """Test that we can change the behaviour of the transition callback with options."""
+
+        class ExperimentA(FakeExperiment):
+            """Fake Experiment to test experiment type"""
+
+        class ExperimentB(FakeExperiment):
+            """Fake Experiment to test experiment type"""
+
+        class CustomIncrementTransitionCallable(BaseTransitionCallable):
+            """A callable that increments based on options."""
+
+            def __call__(self, *args, increment: int = 1, **kwargs):
+                """The pointer index increments depending on the options."""
+                return increment
+
+        experiments, backend = [], FakeBackend()
+        for idx in range(6):
+            exp = ExperimentA() if idx % 2 == 0 else ExperimentB()
+            exp.backend = backend
+            experiments.append(exp)
+
+        # Test a chain that increments by one.
+        chain_exp = ChainedExperiment(experiments, CustomIncrementTransitionCallable())
+
+        exp_data = chain_exp.run()
+
+        self.assertExperimentDone(exp_data)
+
+        for idx, exp in enumerate(experiments):
+            self.assertEqual(type(exp_data.child_data(idx).experiment), type(exp))
+
+        # Test a chain that increments by two, i.e. we skip ExperimentB.
+        chain_exp = ChainedExperiment(experiments, CustomIncrementTransitionCallable())
+        chain_exp.set_transition_options(increment=2)
+
+        exp_data = chain_exp.run()
+
+        self.assertExperimentDone(exp_data)
+
+        for child_data in exp_data.child_data():
+            self.assertEqual(type(child_data.experiment), ExperimentA)
+
+        self.assertEqual(len(exp_data.child_data()), 3)
+
+    def test_raise_on_too_many_experiments(self):
+        """Check that we get an analysis error if we do not transition."""
+
+        backend = FakeBackend()
+        experiment1 = FakeExperiment()
+        experiment1.backend = backend
+        experiment2 = FakeExperiment()
+        experiment2.backend = backend
+
+        class DefectiveTransitionCallable(BaseTransitionCallable):
+            """A callable that increments based on options."""
+
+            def __call__(self, *args, **kwargs):
+                """The pointer index never increments."""
+                return 0
+
+        chain_exp = ChainedExperiment([experiment1, experiment2], DefectiveTransitionCallable())
+
+        msg = "The maximum allowed number of runs has been exceeded."
+        with self.assertRaisesRegex(AssertionError, expected_regex=msg):
+            exp_data = chain_exp.run()
+            self.assertExperimentDone(exp_data)
+
+
+class TestSerialization(QiskitExperimentsTestCase):
+    """Test serialization of objects."""
+
+    def test_callback_serialization(self):
+        """Test the serialization of the transition callbacks."""
+
+        self.assertRoundTripSerializable(GoodExperimentTransition(), self.json_equiv)

@@ -1,3 +1,16 @@
+# This code is part of Qiskit.
+#
+# (C) Copyright IBM 2022.
+#
+# This code is licensed under the Apache License, Version 2.0. You may
+# obtain a copy of this license in the LICENSE.txt file in the root directory
+# of this source tree or at http://www.apache.org/licenses/LICENSE-2.0.
+#
+# Any modifications or derivative works of this code must retain this
+# copyright notice, and modified files need to carry a notice indicating
+# that they have been altered from the originals.
+
+"""A class to run several experiments one after the other."""
 
 from abc import ABC, abstractmethod
 from typing import List, Optional, Union
@@ -7,16 +20,17 @@ from qiskit.providers import Backend
 from qiskit.providers import BaseJob
 from qiskit.providers.options import Options
 
-from qiskit_experiments.framework.base_experiment import BaseExperiment, ExperimentData, BaseAnalysis
+from qiskit_experiments.framework.base_experiment import (
+    BaseExperiment,
+    ExperimentData,
+    BaseAnalysis,
+)
 from qiskit_experiments.framework.composite.composite_experiment import CompositeExperiment
 from qiskit_experiments.exceptions import AnalysisError
 
 
 class BaseTransitionCallable(ABC):
-    """A method to determine how to transition between experiments.
-
-    TODO These should be serializable.
-    """
+    """A method to determine how to transition between experiments."""
 
     @abstractmethod
     def __call__(
@@ -27,23 +41,21 @@ class BaseTransitionCallable(ABC):
         """The call method determines if the ChainedExperiment can transition to the next experiment.
 
         Args:
-            current_exp_idx: The index of the experiment that just run.
             experiment_data: The experiment data. Typically, the children will contain the
                 experiment data of the sub-experiments.
-            args: Additional arguments.
             kwargs: Additional keyword arguments.
         """
+
+    def __eq__(self, other):
+        """Check equality, allows for serialization testing."""
+        return isinstance(self, type(other))
 
 
 class GoodExperimentTransition(BaseTransitionCallable):
     """A simple experiment transition callable."""
 
-    def __call__(
-        self,
-        experiment_data: ExperimentData,
-        **kwargs
-    ) -> int:
-        """A simple experiment transition callback based on the quality of the result."""
+    def __call__(self, experiment_data: ExperimentData, **kwargs) -> int:
+        """A simple experiment transition callback based on the quality of the last result."""
 
         if experiment_data.child_data(-1).analysis_results(0).quality == "good":
             return 1
@@ -58,9 +70,9 @@ class ChainedExperiment(CompositeExperiment):
     in the chain of experiments that needs to be run. Each time an experiment is run there are
     two analysis callback functions that are added to the experiment data as follows.
 
-    1. An experiment transition callback. This is a function thar determines relative changes to
+    1. An experiment transition callback. This is a function that determines relative changes to
     the experiment index. For example, if the next experiment in the chain is to be executed then
-    this function returns 1. However, if the current experiment is to be repeated thes this
+    this function returns 1. However, if the current experiment is to be repeated then this
     function will return 0.
 
     2. A callback to launch the next experiment based on the value of the experiment index.
@@ -71,9 +83,9 @@ class ChainedExperiment(CompositeExperiment):
     def __init__(
         self,
         experiments: List[BaseExperiment],
-        transition_callback: Optional[BaseTransitionCallable] = None
+        transition_callback: Optional[BaseTransitionCallable] = None,
     ):
-        """
+        """Setup the chained experiment.
 
         Args:
             experiments: The list of experiments to run.
@@ -114,7 +126,8 @@ class ChainedExperiment(CompositeExperiment):
 
         Experiment Options:
             callback: The function that determines how to transition between experiments
-                in the chain.
+                in the chain. By default this is a callback that increments the experiment
+                if the quality of the result is good.
             max_runs: The maximum number of times that the run method of the experiments
                 can be called. By default this value is set to 100.
         """
@@ -133,6 +146,10 @@ class ChainedExperiment(CompositeExperiment):
         """Options that can be given to the transition callback."""
         return self._transition_options
 
+    def set_transition_options(self, **fields):
+        """Update the options of the transition callable."""
+        self._transition_options.update_options(**fields)
+
     def run(
         self,
         backend: Optional[Backend] = None,
@@ -140,8 +157,11 @@ class ChainedExperiment(CompositeExperiment):
         timeout: Optional[float] = None,
         **run_options,
     ) -> ExperimentData:
-        """Run the chained experiment by transitioning between the sub-experiments using a counter."""
-        experiment_data = super().run(backend=backend, analysis=None, timeout=timeout, **run_options)
+        """Run the chained experiment by transitioning between sub-experiments with the index."""
+        experiment_data = super().run(
+            backend=backend, analysis=None, timeout=timeout, **run_options
+        )
+
         return self._run_index(experiment_data)
 
     def _run_jobs(self, circuits: List[QuantumCircuit], **run_options) -> List[BaseJob]:
@@ -149,7 +169,10 @@ class ChainedExperiment(CompositeExperiment):
         return []
 
     def _run_index(self, experiment_data: ExperimentData) -> ExperimentData:
-        """Run the experiment at the current index.
+        """Recursively run the experiments.
+
+        The experiment at the current index is run and then the index is updated using an analysis
+        callback.
 
         Args:
             experiment_data: The experiment data to which the experiment data of the
@@ -157,7 +180,12 @@ class ChainedExperiment(CompositeExperiment):
 
         Returns:
             The experiment data with an extra child experiment data added to it.
+
+        Raises:
+            AnalysisError: if the maximum number of experiment executions has been exceeded.
         """
+
+        # Termination condition.
         if self._current_index >= self.num_experiments:
             return experiment_data
 
@@ -168,8 +196,9 @@ class ChainedExperiment(CompositeExperiment):
 
         exp_data = self.component_experiment(self._current_index).run()
         experiment_data.add_child_data(exp_data)
+        self._number_of_runs += 1
 
-        # Add the transition callback as an analysis callback to the experiment data
+        # Add the transition callback as an analysis callback to the experiment data.
         experiment_data.add_analysis_callback(self._transition_callback)
 
         # recursion
@@ -177,9 +206,12 @@ class ChainedExperiment(CompositeExperiment):
 
         return experiment_data
 
-    def _transition_callback(self, experiment_data, **kwargs):
-        """Define how the index is updated."""
-        self._current_index += self.experiment_options.callback(experiment_data, **kwargs)
+    def _transition_callback(self, experiment_data):
+        """Update the index pointing to the experiment to run."""
+        self._current_index += self.experiment_options.callback(
+            experiment_data,
+            **self._transition_options.__dict__,
+        )
 
     def circuits(self) -> List[QuantumCircuit]:
         """Returns the circuits of the current experiment."""
