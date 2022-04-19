@@ -9,10 +9,14 @@ from qiskit.providers.options import Options
 
 from qiskit_experiments.framework.base_experiment import BaseExperiment, ExperimentData, BaseAnalysis
 from qiskit_experiments.framework.composite.composite_experiment import CompositeExperiment
+from qiskit_experiments.exceptions import AnalysisError
 
 
 class BaseTransitionCallable(ABC):
-    """A method to determine how to transition between experiments."""
+    """A method to determine how to transition between experiments.
+
+    TODO These should be serializable.
+    """
 
     @abstractmethod
     def __call__(
@@ -64,7 +68,11 @@ class ChainedExperiment(CompositeExperiment):
     The experiment data from this class will contain all the sub-experiments as children.
     """
 
-    def __init__(self, experiments: List[BaseExperiment], transition_callback: BaseTransitionCallable):
+    def __init__(
+        self,
+        experiments: List[BaseExperiment],
+        transition_callback: Optional[BaseTransitionCallable] = None
+    ):
         """
 
         Args:
@@ -77,13 +85,36 @@ class ChainedExperiment(CompositeExperiment):
 
         super().__init__(experiments, list(qubits))
 
+        # The index that points to the experiment that is running.
         self._current_index = 0
-        self._transition_callback = transition_callback
+
+        # A counter to safe-guard against endless experiment runs.
+        self._number_of_runs = 0
+
+        # The arguments for the transition callback function.
         self._transition_options = self._default_transition_options()
+
+        if transition_callback:
+            self.set_experiment_options(callback=transition_callback)
 
     def current_index(self) -> int:
         """Returns the index of the experiment that is currently being run in the chain."""
         return self._current_index
+
+    @classmethod
+    def _default_experiment_options(cls) -> Options:
+        """The default options for this experiment.
+
+        Experiment Options:
+            callback: The function that determines how to transition between experiments
+                in the chain.
+            max_runs: The maximum number of times that the run method of the experiments
+                can be called. By default this value is set to 100.
+        """
+        options = super()._default_experiment_options()
+        options.callback = GoodExperimentTransition
+        options.max_runs = 100
+        return options
 
     @classmethod
     def _default_transition_options(cls) -> Options:
@@ -120,6 +151,9 @@ class ChainedExperiment(CompositeExperiment):
         if self._current_index >= self.num_experiments:
             return experiment_data
 
+        if self._number_of_runs > self.experiment_options.max_runs:
+            raise AnalysisError("The maximum allowed number of runs has been exceeded.")
+
         exp_data = self.component_experiment(self._current_index).run()
         experiment_data.add_child_data(exp_data)
 
@@ -129,7 +163,7 @@ class ChainedExperiment(CompositeExperiment):
         # recursion
         experiment_data.add_analysis_callback(self._run_index)
 
-    def _transition_callack(self, experiment_data, **kwargs):
+    def _transition_callback(self, experiment_data, **kwargs):
         """Define how the index is updated."""
         self._current_index += self.experiment_options.callback(experiment_data, **kwargs)
 
