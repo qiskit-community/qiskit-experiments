@@ -30,8 +30,8 @@ def lstsq_data(
     preparation_data: np.ndarray,
     measurement_basis: Optional[MeasurementBasis] = None,
     preparation_basis: Optional[PreparationBasis] = None,
-    measurement_qubits: Optional[Tuple[int]] = None,
-    preparation_qubits: Optional[Tuple[int]] = None,
+    measurement_qubits: Optional[Tuple[int, ...]] = None,
+    preparation_qubits: Optional[Tuple[int, ...]] = None,
 ) -> Tuple[np.ndarray, np.ndarray]:
     """Return stacked vectorized basis matrix A for least squares."""
     if measurement_basis is None and preparation_basis is None:

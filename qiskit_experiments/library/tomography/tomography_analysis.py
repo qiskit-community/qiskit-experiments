@@ -214,8 +214,8 @@ class TomographyAnalysis(BaseAnalysis):
         fitter_metadata: Optional[Dict] = None,
         trace: Optional[float] = None,
         make_positive: bool = False,
-        input_dims: Optional[Tuple[int]] = None,
-        output_dims: Optional[Tuple[int]] = None,
+        input_dims: Optional[Tuple[int, ...]] = None,
+        output_dims: Optional[Tuple[int, ...]] = None,
         target_state: Optional[Union[Choi, DensityMatrix]] = None,
     ):
         """Post-process raw fitter data"""
@@ -262,8 +262,8 @@ class TomographyAnalysis(BaseAnalysis):
         fit: np.ndarray,
         make_positive: bool = False,
         trace: Optional[float] = None,
-        input_dims: Optional[Tuple[int]] = None,
-        output_dims: Optional[Tuple[int]] = None,
+        input_dims: Optional[Tuple[int, ...]] = None,
+        output_dims: Optional[Tuple[int, ...]] = None,
     ) -> AnalysisResultData:
         """Convert fit data to state result data"""
         # Get eigensystem of state fit
@@ -417,8 +417,8 @@ class TomographyAnalysis(BaseAnalysis):
     def _fitter_data(
         data: List[Dict[str, any]],
         measurement_basis: Optional[MeasurementBasis] = None,
-        measurement_qubits: Optional[Tuple[int]] = None,
-    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, List[np.ndarray]]:
+        measurement_qubits: Optional[Tuple[int, ...]] = None,
+    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
         """Return list a tuple of basis, frequency, shot data"""
         meas_size = None
         prep_size = None
@@ -493,7 +493,7 @@ class TomographyAnalysis(BaseAnalysis):
 
 
 @functools.lru_cache(None)
-def _int_outcome_function(outcome_shape: Tuple[int]) -> Callable:
+def _int_outcome_function(outcome_shape: Tuple[int, ...]) -> Callable:
     """Generate function for converting string outcomes to ints"""
     # Recursively extract leading bit(dit)
     if len(set(outcome_shape)) == 1:

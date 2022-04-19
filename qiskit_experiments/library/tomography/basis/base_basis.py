@@ -43,7 +43,7 @@ class BaseBasis(ABC):
         return self._name
 
     @abstractmethod
-    def index_shape(self, qubits: Sequence[int]) -> Tuple[int]:
+    def index_shape(self, qubits: Sequence[int]) -> Tuple[int, ...]:
         """Return the shape for the specified number of indices.
 
         Args:
@@ -62,7 +62,13 @@ class BaseBasis(ABC):
             qubits: The physical qubit subsystems for the index.
 
         Returns:
-            The basis circuit for the specified index and qubits.
+            The logical basis circuit for the specified index and qubits.
+
+        .. note::
+
+            This returns a logical circuit on the specified number of qubits
+            and should be remapped to the corresponding physical qubits
+            during experiment transpilation.
         """
 
 
@@ -72,9 +78,11 @@ class PreparationBasis(BaseBasis):
     Subclasses should implement the following abstract methods to
     define a preparation basis:
 
-    * The :meth:`circuit` method which returns the preparation
+    * The :meth:`circuit` method which returns the logical preparation
       :class:`.QuantumCircuit` for basis element index on the specified
-      qubits.
+      qubits. This circuit should be a logical circuit on the specified
+      number of qubits and will be remapped to the corresponding physical
+      qubits during transpilation.
 
     * The :meth:`matrix` method which returns the density matrix prepared
       by the bases element index on the specified qubits.
@@ -84,16 +92,10 @@ class PreparationBasis(BaseBasis):
 
     * The :meth:`matrix_shape` method which returns the shape of subsystem
       dimensions of the density matrix state on the specified qubits.
-
-    .. note::
-
-      The number of qubits and number of index elements do not necessarily
-      need to be the same, it is left up to the implementation of the basis
-      subclass.
     """
 
     @abstractmethod
-    def matrix_shape(self, qubits: Sequence[int]) -> Tuple[int]:
+    def matrix_shape(self, qubits: Sequence[int]) -> Tuple[int, ...]:
         """Return the shape of subsystem dimensions of a matrix element."""
 
     @abstractmethod
@@ -119,11 +121,13 @@ class MeasurementBasis(BaseBasis):
     Subclasses should implement the following abstract methods to
     define a preparation basis:
 
-    * The :meth:`circuit` method which returns the measurement
+    * The :meth:`circuit` method which returns the logical measurement
       :class:`.QuantumCircuit` for basis element index on the specified
-      qubits. This circuit should include classical bits and the measure
-      instructions for the basis measurement storing the outcome value
-      in these bits.
+      physical qubits. This circuit should be a logical circuit on the
+      specified number of qubits and will be remapped to the corresponding
+      physical qubits during transpilation. It should include classical
+      bits and the measure instructions for the basis measurement storing
+      the outcome value in these bits.
 
     * The :meth:`matrix` method which returns the POVM element corresponding
       to the basis element index and measurement outcome on the specified
@@ -138,20 +142,14 @@ class MeasurementBasis(BaseBasis):
 
     * The :meth:`outcome_shape` method which returns the shape of allowed
       outcome values for a measurement of specified qubits.
-
-    .. note::
-
-      The number of qubits and number of index elements do not necessarily
-      need to be the same, it is left up to the implementation of the basis
-      subclass.
     """
 
     @abstractmethod
-    def outcome_shape(self, qubits: Sequence[int]) -> Tuple[int]:
+    def outcome_shape(self, qubits: Sequence[int]) -> Tuple[int, ...]:
         """Return the shape of allowed measurement outcomes on specified qubits."""
 
     @abstractmethod
-    def matrix_shape(self, qubits: Sequence[int]) -> Tuple[int]:
+    def matrix_shape(self, qubits: Sequence[int]) -> Tuple[int, ...]:
         """Return the shape of subsystem dimensions of a POVM matrix element."""
 
     @abstractmethod

@@ -32,8 +32,8 @@ def scipy_linear_lstsq(
     preparation_data: np.ndarray,
     measurement_basis: Optional[MeasurementBasis] = None,
     preparation_basis: Optional[PreparationBasis] = None,
-    measurement_qubits: Optional[Tuple[int]] = None,
-    preparation_qubits: Optional[Tuple[int]] = None,
+    measurement_qubits: Optional[Tuple[int, ...]] = None,
+    preparation_qubits: Optional[Tuple[int, ...]] = None,
     weights: Optional[np.ndarray] = None,
     **kwargs,
 ) -> Tuple[np.ndarray, Dict]:
@@ -76,10 +76,10 @@ def scipy_linear_lstsq(
         measurement_basis: Optional, measurement matrix basis.
         preparation_basis: Optional, preparation matrix basis.
         measurement_qubits: Optional, the physical qubits that were measured.
-                            If None they are assumed to be [0, ..., M-1] for
+                            If None they are assumed to be ``[0, ..., M-1]`` for
                             M measured qubits.
         preparation_qubits: Optional, the physical qubits that were prepared.
-                            If None they are assumed to be [0, ..., N-1] for
+                            If None they are assumed to be ``[0, ..., N-1]`` for
                             N preparated qubits.
         weights: Optional array of weights for least squares objective.
         kwargs: additional kwargs for :func:`scipy.linalg.lstsq`.
@@ -128,8 +128,8 @@ def scipy_gaussian_lstsq(
     preparation_data: np.ndarray,
     measurement_basis: Optional[MeasurementBasis] = None,
     preparation_basis: Optional[PreparationBasis] = None,
-    measurement_qubits: Optional[Tuple[int]] = None,
-    preparation_qubits: Optional[Tuple[int]] = None,
+    measurement_qubits: Optional[Tuple[int, ...]] = None,
+    preparation_qubits: Optional[Tuple[int, ...]] = None,
     **kwargs,
 ) -> Dict:
     r"""Gaussian linear least-squares tomography fitter.
@@ -171,10 +171,10 @@ def scipy_gaussian_lstsq(
         measurement_basis: Optional, measurement matrix basis.
         preparation_basis: Optional, preparation matrix basis.
         measurement_qubits: Optional, the physical qubits that were measured.
-                            If None they are assumed to be [0, ..., M-1] for
+                            If None they are assumed to be ``[0, ..., M-1]`` for
                             M measured qubits.
         preparation_qubits: Optional, the physical qubits that were prepared.
-                            If None they are assumed to be [0, ..., N-1] for
+                            If None they are assumed to be ``[0, ..., N-1]`` for
                             N preparated qubits.
         kwargs: additional kwargs for :func:`scipy.linalg.lstsq`.
 

@@ -195,13 +195,13 @@ class TomographyExperiment(BaseExperiment):
             circuits.append(circ)
         return circuits
 
-    def _additional_metadata(self):
-        meta = {}
+    def _metadata(self):
+        metadata = super()._metadata()
         if self._meas_physical_qubits:
-            meta["m_qubits"] = list(self._meas_physical_qubits)
+            metadata["m_qubits"] = list(self._meas_physical_qubits)
         if self._prep_physical_qubits:
-            meta["p_qubits"] = list(self._prep_physical_qubits)
-        return meta
+            metadata["p_qubits"] = list(self._prep_physical_qubits)
+        return metadata
 
     def _basis_indices(self):
         """Return list of basis element indices"""

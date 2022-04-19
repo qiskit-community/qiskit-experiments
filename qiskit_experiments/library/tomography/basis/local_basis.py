@@ -21,6 +21,9 @@ from qiskit.quantum_info.operators.channel.quantum_channel import QuantumChannel
 from qiskit.exceptions import QiskitError
 from .base_basis import PreparationBasis, MeasurementBasis
 
+# Typing object for POVM args of measurement basis
+POVM = Union[List[Statevector], List[DensityMatrix], QuantumChannel]
+
 
 class LocalPreparationBasis(PreparationBasis):
     """Local tensor-product preparation basis.
@@ -44,15 +47,15 @@ class LocalPreparationBasis(PreparationBasis):
                           from the :math:`|0^{\\otimes n}\\rangle` state.
             default_states: Optional, default density matrices prepared by the
                             input instructions. If None these will be determined by
-                            ideal simulation of the preparation circuits. These
-                            values will be used for any qubit args not explicitly
-                            defined in the qubit_states.
-            qubit_states: Optional, density matrices prepared by the input
-                          instructions on specified qubits. If None the default
-                          states will be used for all qubits.
+                            ideal simulation of the preparation instructions.
+            qubit_states: Optional, a dict with physical qubit keys and a list of
+                          density matrices prepared by the list of basis instructions
+                          for a specific qubit. The default states will be used for any
+                          qubits not specified in this dict.
 
         Raises:
-            QiskitError: if input states or instructions are not valid.
+            QiskitError: if input states or instructions are not valid, or no
+                         instructions or states are provided.
         """
         if instructions is None and default_states is None and qubit_states is None:
             raise QiskitError(
@@ -129,19 +132,17 @@ class LocalPreparationBasis(PreparationBasis):
             super().__eq__(value)
             and self._size == getattr(value, "_size", None)
             and self._default_dim == getattr(value, "_default_dim", None)
+            and self._custom_defaults == getattr(value, "_custom_defaults", None)
             and self._qubits == getattr(value, "_qubits", None)
             and self._qubit_dim == getattr(value, "_qubit_dim", None)
             and self._instructions == getattr(value, "_instructions", None)
         )
 
-    def index_shape(self, qubits: Sequence[int]) -> Tuple[int]:
+    def index_shape(self, qubits: Sequence[int]) -> Tuple[int, ...]:
         return len(qubits) * (self._size,)
 
-    def matrix_shape(self, qubits: Sequence[int]) -> Tuple[int]:
-        try:
-            return tuple(self._qubit_dim.get(i, self._default_dim) for i in qubits)
-        except TypeError as ex:
-            raise QiskitError("Invalid qubits for basis") from ex
+    def matrix_shape(self, qubits: Sequence[int]) -> Tuple[int, ...]:
+        return tuple(self._qubit_dim.get(i, self._default_dim) for i in qubits)
 
     def circuit(self, index: Sequence[int], qubits: Sequence[int]) -> QuantumCircuit:
         # pylint: disable = unused-argument
@@ -184,14 +185,8 @@ class LocalMeasurementBasis(MeasurementBasis):
         self,
         name: str,
         instructions: Optional[Sequence[Instruction]] = None,
-        default_povms: Optional[
-            Union[List[List[Statevector]], List[List[DensityMatrix]], List[QuantumChannel]]
-        ] = None,
-        qubit_povms: Optional[
-            Dict[
-                int, Union[List[List[Statevector]], List[List[DensityMatrix]], List[QuantumChannel]]
-            ]
-        ] = None,
+        default_povms: Optional[Sequence[POVM]] = None,
+        qubit_povms: Optional[Dict[int, Sequence[POVM]]] = None,
     ):
         """Initialize a fitter preparation basis.
 
@@ -200,18 +195,22 @@ class LocalMeasurementBasis(MeasurementBasis):
             instructions: list of instructions for rotating a desired
                           measurement basis to the standard :math:`Z^{\\otimes n}`
                           computational basis measurement.
-            default_povms: Optional, list if positive operators valued measures for
-                           of the measurement bases. A POVM can be input as a list of
-                           effects (Statevector or DensityMatrix), or as a single
-                           QuantumChannel. For the channel case the effects
+            default_povms: Optional, list if positive operators valued measures (POVM)
+                           for of the measurement basis instructions. A POVM can be
+                           input as a list of effects (Statevector or DensityMatrix)
+                           for each possible measurement outcome of that basis, or as
+                           a single QuantumChannel. For the channel case the effects
                            will be calculated by evolving the computation basis states
                            by the adjoint of the channel. If None the input instructions
                            will be used as the POVM channel.
-            qubit_qobjs: Optional, dict of POVMs list for specific qubits. If None
-                         the default_povms will be used for all qubits.
+            qubit_povms: Optional, a dict with physical qubit keys and a list of POVMs
+                         corresponding to each basis measurement instruction for the
+                         specific qubit. The default POVMs will be used for any qubits
+                         not specified in this dict.
 
         Raises:
-            QiskitError: if input states or POVMs are not valid.
+            QiskitError: if the input instructions or POVMs are not valid, or if no
+                         instructions or POVMs are provided.
         """
         if instructions is None and default_povms is None and qubit_povms is None:
             raise QiskitError(
@@ -281,7 +280,6 @@ class LocalMeasurementBasis(MeasurementBasis):
                 self._default_num_outcomes,
                 self._custom_defaults,
                 tuple(self._qubits),
-                tuple(self._qubits),
                 tuple(self._qubit_dim.values()),
                 tuple(self._qubit_num_outcomes.values()),
                 (type(i) for i in self._instructions),
@@ -300,22 +298,20 @@ class LocalMeasurementBasis(MeasurementBasis):
             and self._size == getattr(value, "_size", None)
             and self._default_dim == getattr(value, "_default_dim", None)
             and self._default_num_outcomes == getattr(value, "_default_num_outcomes", None)
+            and self._custom_defaults == getattr(value, "_custom_defaults", None)
             and self._qubit_dim == getattr(value, "_qubit_dim", None)
             and self._qubit_num_outcomes == getattr(value, "_qubit_num_outcomes", None)
             and self._qubits == getattr(value, "_qubits", None)
             and self._instructions == getattr(value, "_instructions", None)
         )
 
-    def index_shape(self, qubits: Sequence[int]) -> Tuple[int]:
+    def index_shape(self, qubits: Sequence[int]) -> Tuple[int, ...]:
         return len(qubits) * (self._size,)
 
-    def matrix_shape(self, qubits: Sequence[int]) -> Tuple[int]:
-        try:
-            return tuple(self._qubit_dim.get(i, self._default_dim) for i in qubits)
-        except TypeError as ex:
-            raise QiskitError("Invalid qubits for basis") from ex
+    def matrix_shape(self, qubits: Sequence[int]) -> Tuple[int, ...]:
+        return tuple(self._qubit_dim.get(i, self._default_dim) for i in qubits)
 
-    def outcome_shape(self, qubits: Sequence[int]) -> Tuple[int]:
+    def outcome_shape(self, qubits: Sequence[int]) -> Tuple[int, ...]:
         return tuple(self._qubit_num_outcomes.get(i, self._default_num_outcomes) for i in qubits)
 
     def circuit(self, index: Sequence[int], qubits: Sequence[int]):
@@ -335,7 +331,7 @@ class LocalMeasurementBasis(MeasurementBasis):
         return mat
 
     @functools.lru_cache(None)
-    def _outcome_indices(self, outcome: int, qubits: Tuple[int]) -> Tuple[int]:
+    def _outcome_indices(self, outcome: int, qubits: Tuple[int, ...]) -> Tuple[int, ...]:
         """Convert an outcome integer to a tuple of single-qubit outcomes"""
         num_outcomes = self._qubit_num_outcomes.get(qubits[0], self._default_num_outcomes)
         try:
@@ -373,22 +369,27 @@ def _tensor_product_circuit(
     return circuit
 
 
-def _format_instructions(instructions: Sequence[any]) -> Tuple[Instruction]:
+def _format_instructions(instructions: Sequence[any]) -> Tuple[Instruction, ...]:
     """Parse multiple input formats for list of instructions"""
     ret = tuple()
     for inst in instructions:
+        # Convert to instructions if object is not an instruction
+        # This allows converting raw unitary matrices and other operator
+        # types like Pauli or Clifford into instructions.
         if not isinstance(inst, Instruction):
             if hasattr(inst, "to_instruction"):
                 inst = inst.to_instruction()
             else:
                 inst = Operator(inst).to_instruction()
-            if inst.num_qubits != 1:
-                raise QiskitError(f"Input instruction {inst.name} is not a 1-qubit instruction.")
+
+        # Validate that instructions are single qubit
+        if inst.num_qubits != 1:
+            raise QiskitError(f"Input instruction {inst.name} is not a 1-qubit instruction.")
         ret += (inst,)
     return ret
 
 
-def _format_povms(povms: Sequence[any]) -> Tuple[Tuple[np.ndarray]]:
+def _format_povms(povms: Sequence[any]) -> Tuple[Tuple[np.ndarray, ...], ...]:
     """Format sequence of basis POVMs"""
     formatted_povms = []
     # Convert from operator/channel to POVM effects
