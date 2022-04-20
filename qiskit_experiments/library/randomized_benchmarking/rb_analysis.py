@@ -82,6 +82,10 @@ class RBAnalysis(curve.CurveAnalysis):
         )
     ]
 
+    def __init__(self):
+        super().__init__()
+        self._gate_counts_per_clifford = None
+
     @classmethod
     def _default_options(cls):
         """Default analysis options.
@@ -91,10 +95,6 @@ class RBAnalysis(curve.CurveAnalysis):
                 and error ratio values used when calculating EPG from the estimated EPC.
                 The default value will use standard gate error ratios.
                 If set to ``False`` EPG will not be calculated.
-            gate_counts_per_clifford (Union[bool, Dict[str, float]]): A dictionary
-                of gate numbers constituting a single averaged Clifford operation
-                on particular physical qubit. Usually this value is automatically
-                computed based on the circuit metadata.
             epg_1_qubit (List[DbAnalysisResultV1]): Analysis results from previous RB experiments
                 for individual single qubit gates. If this is provided, EPC of
                 2Q RB is corected to exclude the deporalization of underlying 1Q channels.
@@ -106,8 +106,7 @@ class RBAnalysis(curve.CurveAnalysis):
         )
         default_options.plot_raw_data = True
         default_options.result_parameters = ["alpha"]
-        default_options.gate_error_ratio = None
-        default_options.gate_counts_per_clifford = None
+        default_options.gate_error_ratio = "default"
         default_options.epg_1_qubit = None
 
         return default_options
@@ -219,7 +218,7 @@ class RBAnalysis(curve.CurveAnalysis):
             epc = _exclude_1q_error(
                 epc=epc,
                 qubits=self._physical_qubits,
-                gate_counts_per_clifford=self.options.gate_counts_per_clifford,
+                gate_counts_per_clifford=self._gate_counts_per_clifford,
                 extra_analyses=self.options.epg_1_qubit,
             )
             extra_entries.append(
@@ -232,12 +231,12 @@ class RBAnalysis(curve.CurveAnalysis):
             )
 
         # Calculate EPG
-        if self.options.gate_counts_per_clifford is not None and self.options.gate_error_ratio:
+        if self._gate_counts_per_clifford is not None and self.options.gate_error_ratio:
             epg_dict = _calculate_epg(
                 epc=epc,
                 qubits=self._physical_qubits,
                 gate_error_ratio=self.options.gate_error_ratio,
-                gate_counts_per_clifford=self.options.gate_counts_per_clifford,
+                gate_counts_per_clifford=self._gate_counts_per_clifford,
             )
             if epg_dict:
                 for gate, epg_val in epg_dict.items():
@@ -256,35 +255,34 @@ class RBAnalysis(curve.CurveAnalysis):
         self, experiment_data: ExperimentData
     ) -> Tuple[List[AnalysisResultData], List["pyplot.Figure"]]:
 
-        if self.options.gate_error_ratio is not False:
+        if self.options.gate_error_ratio:
             # If gate error ratio is not False, EPG analysis is enabled.
             # Here analysis prepares gate error ratio and gate counts for EPC to EPG conversion.
 
-            if self.options.gate_counts_per_clifford is None:
-                # If gate count dictionary is not set it will compute counts from circuit metadata.
-                avg_gpc = defaultdict(float)
-                n_circs = len(experiment_data.data())
-                for circ_result in experiment_data.data():
-                    try:
-                        count_ops = circ_result["metadata"]["count_ops"]
-                    except KeyError as ex:
-                        raise AnalysisError(
-                            "'count_ops' key is not found in the circuit metadata. "
-                            "This analysis cannot compute error per gates. "
-                            "Please disable this with 'gate_error_ratio=False'."
-                        ) from ex
-                    nclif = circ_result["metadata"]["xval"]
-                    for (qinds, gate), count in count_ops:
-                        formatted_key = tuple(sorted(qinds)), gate
-                        avg_gpc[formatted_key] += count / nclif / n_circs
-                self.set_options(gate_counts_per_clifford=dict(avg_gpc))
+            # If gate count dictionary is not set it will compute counts from circuit metadata.
+            avg_gpc = defaultdict(float)
+            n_circs = len(experiment_data.data())
+            for circ_result in experiment_data.data():
+                try:
+                    count_ops = circ_result["metadata"]["count_ops"]
+                except KeyError as ex:
+                    raise AnalysisError(
+                        "'count_ops' key is not found in the circuit metadata. "
+                        "This analysis cannot compute error per gates. "
+                        "Please disable this with 'gate_error_ratio=False'."
+                    ) from ex
+                nclif = circ_result["metadata"]["xval"]
+                for (qinds, gate), count in count_ops:
+                    formatted_key = tuple(sorted(qinds)), gate
+                    avg_gpc[formatted_key] += count / nclif / n_circs
+            self._gate_counts_per_clifford = dict(avg_gpc)
 
-            if self.options.gate_error_ratio is None:
+            if self.options.gate_error_ratio == "default":
                 # Gate error dict is computed for gates appearing in counts dictionary
                 # Error ratio among gates is determined based on the predefined lookup table.
                 # This is not always accurate for every quantum backends.
                 gate_error_ratio = {}
-                for qinds, gate in self.options.gate_counts_per_clifford.keys():
+                for qinds, gate in self._gate_counts_per_clifford.keys():
                     if set(qinds) != set(experiment_data.metadata["physical_qubits"]):
                         continue
                     gate_error_ratio[gate] = _lookup_epg_ratio(gate, len(qinds))
@@ -380,7 +378,7 @@ def _calculate_epg(
     gate_error_ratio: Dict[str, float],
     gate_counts_per_clifford: Dict[QubitGateTuple, float],
 ) -> Dict[str, Union[float, "UFloat"]]:
-    r"""A helper mehtod to compute EPGs of basis gates from fit EPC value.
+    """A helper mehtod to compute EPGs of basis gates from fit EPC value.
 
     Args:
         epc: Error per Clifford.
@@ -408,7 +406,7 @@ def _exclude_1q_error(
     gate_counts_per_clifford: Dict[QubitGateTuple, float],
     extra_analyses: Optional[List[DbAnalysisResultV1]],
 ) -> Union[float, "UFloat"]:
-    r"""A helper method to exclude contribution of single qubit gates from 2Q EPC.
+    """A helper method to exclude contribution of single qubit gates from 2Q EPC.
 
     Args:
         epc: EPC from 2Q RB experiment.
