@@ -188,7 +188,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
                 group_elt_gate = group_elt_circ
                 group_elt_op = Clifford(group_elt_circ)
 
-            if not isinstance(group_elt_gate, Gate):
+            if hasattr(group_elt_gate, "to_gate"):
                 group_elt_gate = group_elt_gate.to_gate()
             circ_op = circ_op.compose(group_elt_op)
             for circ in circs:

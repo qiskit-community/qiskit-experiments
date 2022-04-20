@@ -17,6 +17,7 @@ from test.base import QiskitExperimentsTestCase
 import numpy as np
 from ddt import ddt, data, unpack
 from qiskit.circuit.library import SXGate, CXGate, TGate, XGate
+from qiskit.circuit import Delay
 from qiskit.exceptions import QiskitError
 from qiskit.providers.aer import AerSimulator
 from qiskit.providers.aer.noise import NoiseModel, depolarizing_error
@@ -344,6 +345,22 @@ class TestInterleavedRB(RBTestCase):
             qubits=qubits,
             lengths=lengths,
         )
+
+    def test_interleaving_delay(self):
+        """Test delay instruction can be interleaved."""
+        # See qiskit-experiments/#727 for details
+        interleaved_element = Delay(10, unit="us")
+        exp = rb.InterleavedRB(
+            interleaved_element,
+            qubits=[0],
+            lengths=[1],
+            num_samples=1,
+        )
+        # Not raises an error
+        _, int_circ = exp.circuits()
+
+        # barrier, clifford, barrier, "delay", barrier, ...
+        self.assertEqual(int_circ.data[3][0], interleaved_element)
 
     def test_experiment_config(self):
         """Test converting to and from config works"""
