@@ -19,10 +19,8 @@ from collections import OrderedDict
 from typing import Sequence, Optional, Tuple, List, Dict, Union
 import warnings
 
-from qiskit import transpile, assemble, QuantumCircuit
-from qiskit.providers import BaseJob
-from qiskit.providers import Backend, BaseBackend
-from qiskit.providers.basebackend import BaseBackend as LegacyBackend
+from qiskit import transpile, QuantumCircuit
+from qiskit.providers import Job, Backend
 from qiskit.exceptions import QiskitError
 from qiskit.qobj.utils import MeasLevel
 from qiskit.providers.options import Options
@@ -93,7 +91,7 @@ class BaseExperiment(ABC, StoreInitArgs):
         # This should be called last in case `_set_backend` access any of the
         # attributes created during initialization
         self._backend = None
-        if isinstance(backend, (Backend, BaseBackend)):
+        if isinstance(backend, Backend):
             self._set_backend(backend)
 
     @property
@@ -131,7 +129,7 @@ class BaseExperiment(ABC, StoreInitArgs):
     @backend.setter
     def backend(self, backend: Union[Backend, None]) -> None:
         """Set the backend for the experiment"""
-        if not isinstance(backend, (Backend, BaseBackend)):
+        if not isinstance(backend, Backend):
             raise TypeError("Input is not a backend.")
         self._set_backend(backend)
 
@@ -330,7 +328,7 @@ class BaseExperiment(ABC, StoreInitArgs):
         """
         pass
 
-    def _run_jobs(self, circuits: List[QuantumCircuit], **run_options) -> List[BaseJob]:
+    def _run_jobs(self, circuits: List[QuantumCircuit], **run_options) -> List[Job]:
         """Run circuits on backend as 1 or more jobs."""
         # Run experiment jobs
         max_experiments = getattr(self.backend.configuration(), "max_experiments", None)
@@ -344,14 +342,8 @@ class BaseExperiment(ABC, StoreInitArgs):
             job_circuits = [circuits]
 
         # Run jobs
-        jobs = []
-        for circs in job_circuits:
-            if isinstance(self.backend, LegacyBackend):
-                qobj = assemble(circs, backend=self.backend, **run_options)
-                job = self.backend.run(qobj)
-            else:
-                job = self.backend.run(circs, **run_options)
-            jobs.append(job)
+        jobs = [self.backend.run(circs, **run_options) for circs in job_circuits]
+
         return jobs
 
     @abstractmethod
