@@ -530,7 +530,7 @@ class TestEPGAnalysis(QiskitExperimentsTestCase):
         analysis_2qrb = rb.RBAnalysis()
         analysis_2qrb.set_options(
             outcome="00",
-            qpg_1_qubit=result_q0.analysis_results() + result_q1.analysis_results(),
+            epg_1_qubit=result_q0.analysis_results() + result_q1.analysis_results(),
         )
         result_2qrb = analysis_2qrb.run(self.expdata_2qrb)
         self.assertExperimentDone(result_2qrb)

@@ -13,7 +13,7 @@ upgrade:
     One can skip computation of EPGs by setting ``False`` to the option.
   - |
     :class:`RBAnalysis` has been upgraded to compute corrected EPC for 2Q RB.
-    When the analysis option ``qpg_1_qubit`` is provided,
+    When the analysis option ``epg_1_qubit`` is provided,
     it returns two EPG analysis results, with and without correction for
     underlying single qubit depolarization channels.
     New result is added under the name ``EPC_corrected``.

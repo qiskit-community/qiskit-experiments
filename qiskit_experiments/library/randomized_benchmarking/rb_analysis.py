@@ -121,37 +121,6 @@ def _calculate_epg(
 ) -> Dict[str, Union[float, "UFloat"]]:
     r"""A helper mehtod to compute EPGs of basis gates from fit EPC value.
 
-    This function just distributes the measured EPC :math:`\cal E` into basis gates :math:`\{g_i\}`
-    defined in the ``gate_error_ratio`` dictionary according to the ratio
-    and gate counts.
-
-    Given we have :math:`n_i` gates with independent error :math:`e_i` per Clifford,
-    the total EPC is estimated by the composition of error from every basis gate,
-
-    .. math::
-
-        {\cal E} = 1 - \prod_{i} (1 - e_i)^{n_i} \sim \sum_{i} n_i e_i + O(e^2)
-
-    where :math:`e_i \ll 1` and the higher order terms can be ignored.
-    We cannot distinguish :math:`e_i` with single EPC value here,
-    however by defining an error ratio :math:`r_i` with respect to
-    some standard value :math:`e_0`, we can compute EPG :math:`e_i` for each basis gate.
-
-    .. math::
-
-        {\cal E} \sim e_0 \sum_{i} n_i r_i
-
-    The EPG of :math:`i` th basis gate will be
-
-    .. math::
-
-        e_i \sim r_i e_0 = \dfrac{r_i{\cal E}}{\sum_{i} n_i r_i}.
-
-    The gate errors retuned by this function is computed based on such simple assumption,
-    this is not necessary representing actual gate error on the hardware.
-    If you have multiple kinds of basis gates with unclear error ratio :math:`r_i`,
-    :class:`InterleavedRB` experiment will give you accurate error value :math:`e_i`.
-
     Args:
         epc: Error per Clifford.
         qubits: List of qubits used in the experiment.
@@ -179,49 +148,6 @@ def _exclude_1q_error(
     extra_analyses: Optional[List[DbAnalysisResultV1]],
 ) -> Union[float, "UFloat"]:
     r"""A helper method to exclude contribution of single qubit gates from 2Q EPC.
-
-    When you estimate EPC from 2Q RB experiment, this value indicates a deporalizing parameter
-    which is a composition of underlying error channels for 2Q gates and 1Q gates in each qubit.
-    Usually 1Q gate contribution is enough small and negligible, but in case when this
-    contribution is significant, we can decompose the contribution of 1Q gates [1].
-
-    .. math::
-
-        \alpha_{2Q,C} = \frac{1}{5} \left( \alpha_0^{N_1/2} + \alpha_1^{N_1/2} +
-         3 \alpha_0^{N_1/2} \alpha_1^{N_1/2} \right) \alpha_{01}^{N_2},
-
-    where :math:`\alpha_i` is the single qubit depolarizing parameter of channel :math:`i`,
-    and :math:`\alpha_{01}` is the two qubit depolarizing parameter of interest.
-    :math:`N_1` and :math:`N_2` are total count of single and two qubit gates, respectively.
-
-    Note that single qubit gate sequence of the channel :math:`i` may consist of
-    multiple kinds of primitive gates :math:`\{g_{ij}\}` with different EPG :math:`e_{ij}`.
-    Therefore the :math:`\alpha_i^{N_1/2}` is computed from estimated EPGs,
-    rather than directly using the :math:`\alpha_i`, which is usually a composition of
-    depolarizing maps of every single qubit gate, from the analysis of 1Q RB.
-
-    .. math::
-
-        \alpha_i^{N_1/2} = \alpha_{i0}^{n_{i0}} \cdot \alpha_{i1}^{n_{i1}} \cdot ...
-
-    where :math:`\alpha_{ij}^{n_{ij}}` indicates a depolarization due to
-    a particular basis gate :math:`j` in the channel :math:`i`.
-    Because EPG :math:`e_{ij}` corresponds to the depolarizing probability
-    of the map of :math:`g_{ij}`, we can express :math:`\alpha_{ij}` with EPG.
-
-    .. math::
-
-        e_{ij} = \frac{2^n - 1}{2^n} (1 - \alpha_{ij}) =  \frac{1 - \alpha_{ij}}{2},
-
-    for the single qubit channel :math:`n=1`. Thus, we can rewrite
-
-    .. math::
-
-        \alpha_i^{N_1/2} = \prod_{j} (1 - 2 e_{ij})^{n_{ij}},
-
-    as a composition of depolarization from every primitive gates per qubit.
-
-    .. ref_arxiv:: 1 1712.06550
 
     Args:
         epc: EPC from 2Q RB experiment.
@@ -276,7 +202,7 @@ class RBAnalysis(curve.CurveAnalysis):
         errors of individual gates assembling a Clifford gate.
         In computation of two-qubit EPC, this analysis can also decompose
         the contribution from the underlying single qubit depolarizing channels when
-        ``qpg_1_qubit`` analysis option is provided [1].
+        ``epg_1_qubit`` analysis option is provided [1].
 
     # section: fit_model
         .. math::
@@ -327,7 +253,7 @@ class RBAnalysis(curve.CurveAnalysis):
                 of gate numbers constituting a single averaged Clifford operation
                 on particular physical qubit. Usually this value is automatically
                 computed based on the circuit metadata.
-            qpg_1_qubit (List[DbAnalysisResultV1]): Analysis results from previous RB experiments
+            epg_1_qubit (List[DbAnalysisResultV1]): Analysis results from previous RB experiments
                 for individual single qubit gates. If this is provided, EPC of
                 2Q RB is corected to exclude the deporalization of underlying 1Q channels.
         """
@@ -340,7 +266,7 @@ class RBAnalysis(curve.CurveAnalysis):
         default_options.result_parameters = ["alpha"]
         default_options.gate_error_ratio = None
         default_options.gate_counts_per_clifford = None
-        default_options.qpg_1_qubit = None
+        default_options.epg_1_qubit = None
 
         return default_options
 
@@ -447,12 +373,12 @@ class RBAnalysis(curve.CurveAnalysis):
         )
 
         # Correction for 1Q depolarizing channel if EPGs are provided
-        if self.options.qpg_1_qubit and self._num_qubits == 2:
+        if self.options.epg_1_qubit and self._num_qubits == 2:
             epc = _exclude_1q_error(
                 epc=epc,
                 qubits=self._physical_qubits,
                 gate_counts_per_clifford=self.options.gate_counts_per_clifford,
-                extra_analyses=self.options.qpg_1_qubit,
+                extra_analyses=self.options.epg_1_qubit,
             )
             extra_entries.append(
                 AnalysisResultData(
