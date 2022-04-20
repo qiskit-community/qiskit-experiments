@@ -23,6 +23,44 @@ from qiskit_experiments.data_processing.nodes import ProjectorType
 from qiskit_experiments.data_processing import nodes
 
 
+def get_kerneled_processor(
+    dimensionality_reduction: Union[ProjectorType, str],
+    meas_return: str,
+    normalize: bool,
+    pre_node=None,
+) -> DataProcessor:
+    """Get a DataProcessor for `meas_level=MeasLevel.KERNELED` data that produces a continuous signal."""
+
+    try:
+        if isinstance(dimensionality_reduction, ProjectorType):
+            projector_name = dimensionality_reduction.name
+        else:
+            projector_name = dimensionality_reduction
+
+        projector = ProjectorType[projector_name].value
+
+    except KeyError as error:
+        raise DataProcessorError(
+            f"Invalid dimensionality reduction: {dimensionality_reduction}."
+        ) from error
+
+    if meas_return == "single":
+        if not pre_node:
+            processor = DataProcessor("memory", [nodes.AverageData(axis=1), projector()])
+        else:
+            processor = DataProcessor("memory", [pre_node, nodes.AverageData(axis=1), projector()])
+    else:
+        if not pre_node:
+            processor = DataProcessor("memory", [projector()])
+        else:
+            processor = DataProcessor("memory", [pre_node, projector()])
+
+    if normalize:
+        processor.append(nodes.MinMaxNormalize())
+
+    return processor
+
+
 def get_processor(experiment_data: ExperimentData, analysis_options: Options) -> DataProcessor:
     """Get a DataProcessor that produces a continuous signal given the options.
 
@@ -88,41 +126,3 @@ def get_processor(experiment_data: ExperimentData, analysis_options: Options) ->
         return get_kerneled_processor(dimensionality_reduction, meas_return, normalize)
 
     raise DataProcessorError(f"Unsupported measurement level {meas_level}.")
-
-
-def get_kerneled_processor(
-    dimensionality_reduction: Union[ProjectorType, str],
-    meas_return: str,
-    normalize: bool,
-    pre_node=None,
-) -> DataProcessor:
-    """Get a DataProcessor for `meas_level=MeasLevel.KERNELED` data that produces a continuous signal."""
-
-    try:
-        if isinstance(dimensionality_reduction, ProjectorType):
-            projector_name = dimensionality_reduction.name
-        else:
-            projector_name = dimensionality_reduction
-
-        projector = ProjectorType[projector_name].value
-
-    except KeyError as error:
-        raise DataProcessorError(
-            f"Invalid dimensionality reduction: {dimensionality_reduction}."
-        ) from error
-
-    if meas_return == "single":
-        if not pre_node:
-            processor = DataProcessor("memory", [nodes.AverageData(axis=1), projector()])
-        else:
-            processor = DataProcessor("memory", [pre_node, nodes.AverageData(axis=1), projector()])
-    else:
-        if not pre_node:
-            processor = DataProcessor("memory", [projector()])
-        else:
-            processor = DataProcessor("memory", [pre_node, projector()])
-
-    if normalize:
-        processor.append(nodes.MinMaxNormalize())
-
-    return processor
