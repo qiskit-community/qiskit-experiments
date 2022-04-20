@@ -1,38 +1,22 @@
 ---
-features:
-  - |
-    A helper funciton :func:`lookup_epg_ratio` has been added. 
-    This function returns predefined error ratio of given gate name for RB experiments.
-  - |
-    New function :func:`exclude_1q_error` has been added.
-    This function makes correction for single qubit channel depolarization for 2Q RB EPC.
 upgrade:
   - |
-    Implicit computation of gate error ratio in the standard RB experiment will be
-    dropped from the experiment code. This information has been used to compute 
-    error per gates (EPGs) from the estimated error per Clifford (EPC).
-    Now this should be explicitly provided as an experiment option ``gate_error_ratio``.
-    By default it computs the error ratio of basis gates with the predefined 
-    look-up table. User can set ``False`` to this option to avoid computation of EPGs
-    for speed-up. See qiskit-experiments/#762 for more details.
+    Computation of error per gates (EPGs) from EPC in :class:`RBAnalysis` has been upgraded.
+    To compute these values from a single EPC value obtained by the experiment,
+    we should provide a guess of contribution per basis gate to the depolarization.
+    This ratio has been extrated from backend properties 
+    with :meth:`RBUtils.get_error_dict_from_backend`,
+    however, this approach may result in unreproducible EPG outcomes under certain circumstances.
+    See qiskit-experiments/#762 for more details.
+    Not this error ratio is provided from hard-coded lookup table, 
+    and user can still provide custom values with analysis option ``gate_error_ratio``.
+    One can skip computation of EPGs by setting ``False`` to the option.
   - |
     :class:`RBAnalysis` has been upgraded to compute corrected EPC for 2Q RB.
     When the analysis option ``qpg_1_qubit`` is provided,
-    it internally calls :func:`exclude_1q_error` to exclude contribution of
-    single qubit channel depolarization and returns a pure EPC for 2Q channel.
-    This result is added to analysis results as ``EPC_corrected``.
+    it returns two EPG analysis results, with and without correction for
+    underlying single qubit depolarization channels.
+    New result is added under the name ``EPC_corrected``.
 deprecations:
   - |
-    Calling :meth:`RBUtils.get_error_dict_from_backend` has been deprecated and 
-    will be removed after 0.4. This method computes the ratio of basis gate errors 
-    from the fresh backend calibration, but error ratio could depend on the
-    status of previous calibration. Due to this potential instability, 
-    we eliminate the usage of this method.
-  - |
-    Calling :meth:`RBUtils.gates_per_clifford` has been deprecated and will be
-    removed after 0.4. This method compute average gate counts per Clifford
-    constituting RB sequence from count ops in the RB circuit metadata.
-    This protocol is merged into `StandardRB._transpiled_circuits` for efficiency.
-  - |
-    Calling :meth:`RBUtils.calculate_1q_epg` and :meth:`RBUtils.calculate_2q_epg`
-    have been deprecated and replaced with :func:`calculate_epg`.
+    Calling :class:`RBUtils` methods have been deprecated and will be removed after 0.4. 
