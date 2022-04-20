@@ -19,14 +19,13 @@ from datetime import datetime, timezone
 from qiskit.providers.job import JobV1 as Job
 from qiskit.providers.jobstatus import JobStatus
 from qiskit.providers.backend import BackendV1 as Backend
-from qiskit.providers import BaseBackend
 from qiskit.result import Result
 
 
 class FakeJob(Job):
     """Fake job."""
 
-    def __init__(self, backend: Union[Backend, BaseBackend], result: Optional[Result] = None):
+    def __init__(self, backend: Backend, result: Optional[Result] = None):
         """Initialize FakeJob."""
         if result:
             job_id = result.job_id
