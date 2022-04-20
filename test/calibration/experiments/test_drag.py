@@ -68,9 +68,7 @@ class TestDragEndToEnd(QiskitExperimentsTestCase):
         self.assertExperimentDone(expdata)
         result = expdata.analysis_results(1)
 
-        self.assertTrue(
-            abs(result.value.n - backend.experiment_helper.ideal_beta) < self.test_tol
-        )
+        self.assertTrue(abs(result.value.n - backend.experiment_helper.ideal_beta) < self.test_tol)
         self.assertEqual(result.quality, "good")
 
         # Small leakage will make the curves very flat, in this case one should
@@ -82,9 +80,7 @@ class TestDragEndToEnd(QiskitExperimentsTestCase):
         self.assertExperimentDone(exp_data)
         result = exp_data.analysis_results(1)
 
-        self.assertTrue(
-            abs(result.value.n - backend.experiment_helper.ideal_beta) < self.test_tol
-        )
+        self.assertTrue(abs(result.value.n - backend.experiment_helper.ideal_beta) < self.test_tol)
         self.assertEqual(result.quality, "good")
 
         # Large leakage will make the curves oscillate quickly.
@@ -100,9 +96,7 @@ class TestDragEndToEnd(QiskitExperimentsTestCase):
         meas_level = exp_data.metadata["meas_level"]
 
         self.assertEqual(meas_level, MeasLevel.CLASSIFIED)
-        self.assertTrue(
-            abs(result.value.n - backend.experiment_helper.ideal_beta) < self.test_tol
-        )
+        self.assertTrue(abs(result.value.n - backend.experiment_helper.ideal_beta) < self.test_tol)
         self.assertEqual(result.quality, "good")
 
     @data(
@@ -194,9 +188,7 @@ class TestRoughDragCalUpdate(QiskitExperimentsTestCase):
         self.assertExperimentDone(expdata)
 
         new_beta = self.cals.get_parameter_value("β", (0,), "x")
-        self.assertTrue(
-            abs(new_beta - self.backend.experiment_helper.ideal_beta) < self.test_tol
-        )
+        self.assertTrue(abs(new_beta - self.backend.experiment_helper.ideal_beta) < self.test_tol)
         self.assertTrue(abs(new_beta) > self.test_tol)
 
     def test_dragcal_experiment_config(self):

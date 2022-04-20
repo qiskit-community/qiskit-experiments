@@ -148,9 +148,7 @@ class TestEFRabi(QiskitExperimentsTestCase):
         result = expdata.analysis_results(1)
 
         self.assertEqual(result.quality, "good")
-        self.assertTrue(
-            abs(result.value.n - backend.experiment_helper.rabi_rate()) < test_tol
-        )
+        self.assertTrue(abs(result.value.n - backend.experiment_helper.rabi_rate()) < test_tol)
 
     def test_ef_rabi_circuit(self):
         """Test the EFRabi experiment end to end."""
