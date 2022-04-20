@@ -69,7 +69,7 @@ class TestDragEndToEnd(QiskitExperimentsTestCase):
         result = expdata.analysis_results(1)
 
         self.assertTrue(
-            abs(result.value.n - backend.experiment_helper_object.ideal_beta) < self.test_tol
+            abs(result.value.n - backend.experiment_helper.ideal_beta) < self.test_tol
         )
         self.assertEqual(result.quality, "good")
 
@@ -83,7 +83,7 @@ class TestDragEndToEnd(QiskitExperimentsTestCase):
         result = exp_data.analysis_results(1)
 
         self.assertTrue(
-            abs(result.value.n - backend.experiment_helper_object.ideal_beta) < self.test_tol
+            abs(result.value.n - backend.experiment_helper.ideal_beta) < self.test_tol
         )
         self.assertEqual(result.quality, "good")
 
@@ -101,7 +101,7 @@ class TestDragEndToEnd(QiskitExperimentsTestCase):
 
         self.assertEqual(meas_level, MeasLevel.CLASSIFIED)
         self.assertTrue(
-            abs(result.value.n - backend.experiment_helper_object.ideal_beta) < self.test_tol
+            abs(result.value.n - backend.experiment_helper.ideal_beta) < self.test_tol
         )
         self.assertEqual(result.quality, "good")
 
@@ -126,7 +126,7 @@ class TestDragEndToEnd(QiskitExperimentsTestCase):
         exp_data = drag.run(backend)
         self.assertExperimentDone(exp_data)
         result = exp_data.analysis_results("beta")
-        self.assertTrue(abs(result.value.n - backend.experiment_helper_object.ideal_beta) < tol)
+        self.assertTrue(abs(result.value.n - backend.experiment_helper.ideal_beta) < tol)
         self.assertEqual(result.quality, "good")
 
 
@@ -179,8 +179,7 @@ class TestRoughDragCalUpdate(QiskitExperimentsTestCase):
 
         library = FixedFrequencyTransmon()
 
-        self.drag_experiment_helper = DragHelper(gate_name="Drag(x)")
-        self.backend = MockIQBackend(self.drag_experiment_helper)
+        self.backend = MockIQBackend(DragHelper(gate_name="Drag(x)"))
         self.cals = Calibrations.from_backend(self.backend, library)
         self.test_tol = 0.05
 
@@ -196,7 +195,7 @@ class TestRoughDragCalUpdate(QiskitExperimentsTestCase):
 
         new_beta = self.cals.get_parameter_value("β", (0,), "x")
         self.assertTrue(
-            abs(new_beta - self.backend.experiment_helper_object.ideal_beta) < self.test_tol
+            abs(new_beta - self.backend.experiment_helper.ideal_beta) < self.test_tol
         )
         self.assertTrue(abs(new_beta) > self.test_tol)
 

@@ -29,7 +29,7 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
 
         exp_helper = SpectroscopyHelper(line_width=2e6)
         backend = MockIQBackend(
-            experiment_helper_object=exp_helper,
+            experiment_helper=exp_helper,
             iq_cluster_centers=[((-1.0, -1.0), (1.0, 1.0))],
             iq_cluster_width=[0.2],
         )
@@ -68,7 +68,7 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
 
         exp_helper = SpectroscopyHelper(line_width=2e6)
         backend = MockIQBackend(
-            experiment_helper_object=exp_helper,
+            experiment_helper=exp_helper,
             iq_cluster_centers=[((1.0, 1.0), (-1.0, -1.0))],
             iq_cluster_width=[0.2],
         )
@@ -111,7 +111,7 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
         """End to end test of the spectroscopy experiment with an x pulse."""
 
         backend = MockIQBackend(
-            experiment_helper_object=SpectroscopyHelper(line_width=2e6),
+            experiment_helper=SpectroscopyHelper(line_width=2e6),
             iq_cluster_centers=[((-1.0, -1.0), (1.0, 1.0))],
             iq_cluster_width=[0.2],
         )

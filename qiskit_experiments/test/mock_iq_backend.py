@@ -167,11 +167,11 @@ class MockRestlessFineAmp(MockRestlessBackend):
 
 
 class MockIQBackend(FakeOpenPulse2Q):
-    """An abstract backend for testing that can mock IQ data."""
+    """A mock backend for testing with IQ data."""
 
     def __init__(
         self,
-        experiment_helper_object: MockIQExperimentHelper,
+        experiment_helper: MockIQExperimentHelper,
         rng_seed: int = 0,
         iq_cluster_centers: Optional[List[Tuple[Tuple[float, float], Tuple[float, float]]]] = None,
         iq_cluster_width: Optional[List[float]] = None,
@@ -179,8 +179,8 @@ class MockIQBackend(FakeOpenPulse2Q):
         """
         Initialize the backend.
         Args:
-            experiment_helper_object(MockIQExperimentHelper): Experiment Helper class that contains
-            'compute_probability' function and 'iq_phase' function for the backend to execute.
+            experiment_helper(MockIQExperimentHelper): Experiment helper class that contains
+            'compute_probabilities' function and 'iq_phase' function for the backend to execute.
             rng_seed(int): The random seed value.
             iq_cluster_centers(Optional[List]): A list of tuples containing the clusters' centers in the
             IQ plane.
@@ -191,7 +191,7 @@ class MockIQBackend(FakeOpenPulse2Q):
 
         self._iq_cluster_centers = iq_cluster_centers or [((-1.0, -1.0), (1.0, 1.0))]
         self._iq_cluster_width = iq_cluster_width or [1.0 for _ in self._iq_cluster_centers]
-        self.experiment_helper_object = experiment_helper_object
+        self.experiment_helper = experiment_helper
         self._rng = np.random.default_rng(rng_seed)
 
         super().__init__()
@@ -218,7 +218,7 @@ class MockIQBackend(FakeOpenPulse2Q):
                     " don't match."
                 )
 
-    def _get_normal_samples_for_shot(self, num_qubits: int):
+    def _get_normal_samples_for_shot(self, num_qubits: int) -> np.ndarray:
         """
         Produce a list in the size of num_qubits. Each entry value is produced from normal distribution
         with expected value of '0' and standard deviation of self._iq_cluster_width.
@@ -226,7 +226,7 @@ class MockIQBackend(FakeOpenPulse2Q):
             num_qubits(int): The amount of qubits in the circuit.
 
         Returns:
-            List[float]: A list with values that were produced from normal distribution.
+            Ndarray: A numpy array with values that were produced from normal distribution.
         """
         widths = self._iq_cluster_width
         samples = [self._rng.normal(0, widths[qubit], size=1) for qubit in range(num_qubits)]
@@ -330,7 +330,7 @@ class MockIQBackend(FakeOpenPulse2Q):
                 counts[result_in_str] = num_occurrences
             run_result["counts"] = counts
         else:
-            phase = self.experiment_helper_object.iq_phase(circuit)
+            phase = self.experiment_helper.iq_phase(circuit)
             memory = self._draw_iq_shots(prob_arr, shots, output_length, phase)
             if meas_return == "avg":
                 memory = np.average(np.array(memory), axis=0).tolist()
@@ -338,8 +338,26 @@ class MockIQBackend(FakeOpenPulse2Q):
             run_result["memory"] = memory
         return run_result
 
-    def run(self, run_input: List[QuantumCircuit], **options):
-        """Run the IQ backend."""
+    def run(self, run_input: List[QuantumCircuit], **options) -> FakeJob:
+        """
+        Run the IQ backend.
+        Args:
+            run_input(List[QuantumCircuit]): A list of QuantumCircuit for which the backend will generate
+             data for.
+            **options: Experiment options. the options that are supported in this backend are
+             'meas_level' and 'meas_return'.
+                'meas_level': To generate data in the IQ plain, 'meas_level' should be assigned 1 or
+                    MeasLevel.KERNELED. If 'meas_level' is 2 or MeasLevel.CLASSIFIED, the generated data
+                    will be in the form of 'counts'.
+                'meas_return': This option will only take effect if 'meas_level' = MeasLevel.CLASSIFIED.
+                    It can get either MeasReturnType.AVERAGE or MeasReturnType.SINGLE. For the value
+                      MeasReturnType.SINGLE the data of each shot will be stored in the result. For
+                      MeasReturnType.AVERAGE, an average of all the shots will be calculated and stored
+                      in the result.
+
+        Returns:
+            FakeJob: A job that contains the simulated data.
+        """
 
         self.options.update_options(**options)
         shots = self.options.get("shots")
@@ -353,7 +371,7 @@ class MockIQBackend(FakeOpenPulse2Q):
             "success": True,
             "results": [],
         }
-        prob_list = self.experiment_helper_object.compute_probability(run_input)
+        prob_list = self.experiment_helper.compute_probabilities(run_input)
         for prob, circ in zip(prob_list, run_input):
             run_result = {
                 "shots": shots,

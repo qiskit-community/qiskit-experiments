@@ -22,7 +22,7 @@ from qiskit_experiments.test.mock_iq_backend import MockIQBackend
 from qiskit_experiments.test.mock_iq_helpers import MockIQExperimentHelper
 
 
-def compute_probability_full_output(prob_list_output: List[Dict]) -> Dict[str, float]:
+def compute_probabilities_full_output(prob_list_output: List[Dict]) -> Dict[str, float]:
     """
     A function to compute the probability for parallel experiment on two qubits.
     Args:
@@ -42,7 +42,7 @@ def compute_probability_full_output(prob_list_output: List[Dict]) -> Dict[str, f
 class MockIQReadoutAngleParallelHelper(MockIQExperimentHelper):
     """functions needed for Ramsey XY experiment on mock IQ backend"""
 
-    def compute_probability(self, circuits: List[QuantumCircuit]) -> List[Dict[str, float]]:
+    def compute_probabilities(self, circuits: List[QuantumCircuit]) -> List[Dict[str, float]]:
         """Return the probability of being in the excited state."""
         num_qubits = 2
         output_dict_list = []
@@ -52,7 +52,7 @@ class MockIQReadoutAngleParallelHelper(MockIQExperimentHelper):
                 probability_output_dict = {"1": 1 - circuit.metadata["xval"][qubit_idx]}
                 probability_output_dict["0"] = 1 - probability_output_dict["1"]
                 prob_help_list[qubit_idx] = probability_output_dict
-            output_dict_list.append(compute_probability_full_output(prob_help_list))
+            output_dict_list.append(compute_probabilities_full_output(prob_help_list))
 
         return output_dict_list
 
@@ -60,7 +60,7 @@ class MockIQReadoutAngleParallelHelper(MockIQExperimentHelper):
 class MockIQBellStateHelper(MockIQExperimentHelper):
     """functions needed for Ramsey XY experiment on mock IQ backend"""
 
-    def compute_probability(self, circuits: List[QuantumCircuit]) -> List[Dict[str, float]]:
+    def compute_probabilities(self, circuits: List[QuantumCircuit]) -> List[Dict[str, float]]:
         """Return the probability of being in the excited state."""
         output_dict_list = []
         for _ in circuits:
@@ -96,7 +96,7 @@ class TestMockIQBackend(QiskitExperimentsTestCase):
         # TODO: Check that the std is right
 
         # Circuit to create Bell state
-        backend.experiment_helper_object = MockIQBellStateHelper()
+        backend.experiment_helper = MockIQBellStateHelper()
         circ1 = QuantumCircuit(2, 2)
         circ1.h(0)
         circ1.cx(0, 1)

@@ -61,7 +61,7 @@ class TestFrequencyUpdate(QiskitExperimentsTestCase):
         qubit = 1
         peak_offset = 5.0e6
         backend = MockIQBackend(
-            experiment_helper_object=SpectroscopyHelper(freq_offset=peak_offset),
+            experiment_helper=SpectroscopyHelper(freq_offset=peak_offset),
             iq_cluster_centers=[((-1.0, -1.0), (1.0, 1.0))],
             iq_cluster_width=[0.2],
         )

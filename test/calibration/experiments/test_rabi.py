@@ -72,7 +72,7 @@ class TestRabiEndToEnd(QiskitExperimentsTestCase):
         result = expdata.analysis_results(0)
         self.assertEqual(result.quality, "good")
         self.assertAlmostEqual(
-            result.value[1], backend.experiment_helper_object.rabi_rate(), delta=test_tol
+            result.value[1], backend.experiment_helper.rabi_rate(), delta=test_tol
         )
 
         # updating 'amplitude_to_angle' parameter in the experiment helper and experiment options
@@ -84,7 +84,7 @@ class TestRabiEndToEnd(QiskitExperimentsTestCase):
         result = expdata.analysis_results(0)
         self.assertEqual(result.quality, "good")
         self.assertAlmostEqual(
-            result.value[1], backend.experiment_helper_object.rabi_rate(), delta=test_tol
+            result.value[1], backend.experiment_helper.rabi_rate(), delta=test_tol
         )
 
     def test_wrong_processor(self):
@@ -149,7 +149,7 @@ class TestEFRabi(QiskitExperimentsTestCase):
 
         self.assertEqual(result.quality, "good")
         self.assertTrue(
-            abs(result.value.n - backend.experiment_helper_object.rabi_rate()) < test_tol
+            abs(result.value.n - backend.experiment_helper.rabi_rate()) < test_tol
         )
 
     def test_ef_rabi_circuit(self):

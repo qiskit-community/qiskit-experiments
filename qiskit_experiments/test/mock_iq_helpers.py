@@ -20,10 +20,10 @@ from qiskit.providers.aer import AerSimulator
 
 
 class MockIQExperimentHelper:
-    """Abstract class for experiment tools"""
+    """Abstract class for he MockIQ helper classes"""
 
     @abstractmethod
-    def compute_probability(self, circuits: List[QuantumCircuit]) -> List[Dict[str, float]]:
+    def compute_probabilities(self, circuits: List[QuantumCircuit]) -> List[Dict[str, float]]:
         """
         A function provided by the user which is used to determine the probability of each output of the
          circuit. The function returns a list of dictionaries, each containing output binary strings and
@@ -47,12 +47,12 @@ class MockIQExperimentHelper:
             .. code-block::
 
                 @staticmethod
-                def compute_probability() -> List[Dict[str, float]]:
+                def compute_probabilities(self, circuits: List[QuantumCircuit])
+                    -> List[Dict[str, float]]:
 
                     output_dict_list = []
                     for circuit in circuits:
-                        probability_output_dict["1"] = 1
-                        probability_output_dict["0"] = 0
+                        probability_output_dict = {"1": 1, "0": 0}
                         output_dict_list.append(probability_output_dict)
                     return output_dict_list
 
@@ -70,17 +70,18 @@ class MockIQExperimentHelper:
                     c: 3/═══════╩═══╩══╩═
                                 2   0  1
 
-            The backend has a feature, that the output can include only states with probabilities
-            greater than 0. The backend will assume that if an output string isn't in the probability
-            dictionary, it's probability 0.
+            When an output string isn't in the probability dictionary, the backend will presume its
+             probability is 0.
 
             .. code-block::
 
                 @staticmethod
-                def compute_probability_3q() -> List[Dict[str, float]]:
+                def compute_probabilities(self, circuits: List[QuantumCircuit])
+                    -> List[Dict[str, float]]:
 
                     output_dict_list = []
                     for circuit in circuits:
+                        probability_output_dict = {}
                         probability_output_dict["001"] = 0.5
                         probability_output_dict["111"] = 0.5
                         output_dict_list.append(probability_output_dict)
@@ -98,7 +99,7 @@ class MockIQExperimentHelper:
 
 
 class MockIQDragHelper(MockIQExperimentHelper):
-    """functions needed for test_drag"""
+    """Functions needed for test_drag"""
 
     def __init__(
         self,
@@ -117,7 +118,7 @@ class MockIQDragHelper(MockIQExperimentHelper):
         self.max_probability = max_probability
         self.offset_probability = offset_probability
 
-    def compute_probability(self, circuits: List[QuantumCircuit]) -> List[Dict[str, float]]:
+    def compute_probabilities(self, circuits: List[QuantumCircuit]) -> List[Dict[str, float]]:
         """Returns the probability based on the beta, number of gates, and leakage."""
 
         gate_name = self.gate_name
@@ -144,12 +145,12 @@ class MockIQDragHelper(MockIQExperimentHelper):
 
 
 class MockIQFineDragHelper(MockIQExperimentHelper):
-    """functions needed for Fine Drag Experiment"""
+    """Functions needed for Fine Drag Experiment"""
 
     def __init__(self, error: float = 0.03):
         self.error = error
 
-    def compute_probability(self, circuits: List[QuantumCircuit]) -> List[Dict[str, float]]:
+    def compute_probabilities(self, circuits: List[QuantumCircuit]) -> List[Dict[str, float]]:
         """Returns the probability based on the beta, number of gates, and leakage."""
 
         error = self.error
@@ -166,12 +167,12 @@ class MockIQFineDragHelper(MockIQExperimentHelper):
 
 
 class MockIQRabiHelper(MockIQExperimentHelper):
-    """functions needed for Rabi experiment on mock IQ backend"""
+    """Functions needed for Rabi experiment on mock IQ backend"""
 
     def __init__(self, amplitude_to_angle: float = np.pi):
         self.amplitude_to_angle = amplitude_to_angle
 
-    def compute_probability(self, circuits: List[QuantumCircuit]) -> List[Dict[str, float]]:
+    def compute_probabilities(self, circuits: List[QuantumCircuit]) -> List[Dict[str, float]]:
         """Returns the probability based on the rotation angle and amplitude_to_angle."""
         amplitude_to_angle = self.amplitude_to_angle
         output_dict_list = []
@@ -191,14 +192,14 @@ class MockIQRabiHelper(MockIQExperimentHelper):
 
 
 class MockIQFineFreqHelper(MockIQExperimentHelper):
-    """functions needed for Fine Frequency experiment on mock IQ backend"""
+    """Functions needed for Fine Frequency experiment on mock IQ backend"""
 
     def __init__(self, sx_duration: float = 160, freq_shift: float = 0, dt: float = 1e-9):
         self.sx_duration = sx_duration
         self.freq_shift = freq_shift
         self.dt = dt
 
-    def compute_probability(self, circuits: List[QuantumCircuit]) -> List[Dict[str, float]]:
+    def compute_probabilities(self, circuits: List[QuantumCircuit]) -> List[Dict[str, float]]:
         """Return the probability of being in the excited state."""
         sx_duration = self.sx_duration
         freq_shift = self.freq_shift
@@ -232,14 +233,14 @@ class MockIQFineFreqHelper(MockIQExperimentHelper):
 
 
 class MockIQFineAmpHelper(MockIQExperimentHelper):
-    """functions needed for Fine Amplitude experiment on mock IQ backend"""
+    """Functions needed for Fine Amplitude experiment on mock IQ backend"""
 
     def __init__(self, angle_error: float = 0, angle_per_gate: float = 0, gate_name: str = "x"):
         self.angle_error = angle_error
         self.angle_per_gate = angle_per_gate
         self.gate_name = gate_name
 
-    def compute_probability(self, circuits: List[QuantumCircuit]) -> List[Dict[str, float]]:
+    def compute_probabilities(self, circuits: List[QuantumCircuit]) -> List[Dict[str, float]]:
         """Return the probability of being in the excited state."""
         angle_error = self.angle_error
         angle_per_gate = self.angle_per_gate
@@ -265,13 +266,13 @@ class MockIQFineAmpHelper(MockIQExperimentHelper):
 
 
 class MockIQRamseyXYHelper(MockIQExperimentHelper):
-    """functions needed for Ramsey XY experiment on mock IQ backend"""
+    """Functions needed for Ramsey XY experiment on mock IQ backend"""
 
     def __init__(self, t2ramsey: float = 100e-6, freq_shift: float = 0):
         self.t2ramsey = t2ramsey
         self.freq_shift = freq_shift
 
-    def compute_probability(self, circuits: List[QuantumCircuit]) -> List[Dict[str, float]]:
+    def compute_probabilities(self, circuits: List[QuantumCircuit]) -> List[Dict[str, float]]:
         """Return the probability of being in the excited state."""
         t2ramsey = self.t2ramsey
         freq_shift = self.freq_shift
@@ -298,13 +299,13 @@ class MockIQRamseyXYHelper(MockIQExperimentHelper):
 
 
 class MockIQResonatorSpectroscopyHelper(MockIQExperimentHelper):
-    """functions needed for Resonator Spectroscopy experiment on mock IQ backend"""
+    """Functions needed for Resonator Spectroscopy experiment on mock IQ backend"""
 
     def __init__(self, freq_offset: float = 0.0, line_width: float = 2e6):
         self.freq_offset = freq_offset
         self.line_width = line_width
 
-    def compute_probability(self, circuits: List[QuantumCircuit]) -> List[Dict[str, float]]:
+    def compute_probabilities(self, circuits: List[QuantumCircuit]) -> List[Dict[str, float]]:
         """Returns the probability based on the parameters provided."""
         freq_offset = self.freq_offset
         line_width = self.line_width
@@ -333,13 +334,13 @@ class MockIQResonatorSpectroscopyHelper(MockIQExperimentHelper):
 
 
 class MockIQSpectroscopyHelper(MockIQExperimentHelper):
-    """functions needed for Spectroscopy experiment on mock IQ backend"""
+    """Functions needed for Spectroscopy experiment on mock IQ backend"""
 
     def __init__(self, freq_offset: float = 0.0, line_width: float = 2e6):
         self.freq_offset = freq_offset
         self.line_width = line_width
 
-    def compute_probability(self, circuits: List[QuantumCircuit]) -> List[Dict[str, float]]:
+    def compute_probabilities(self, circuits: List[QuantumCircuit]) -> List[Dict[str, float]]:
         """Returns the probability based on the parameters provided."""
         freq_offset = self.freq_offset
         line_width = self.line_width
@@ -356,9 +357,9 @@ class MockIQSpectroscopyHelper(MockIQExperimentHelper):
 
 
 class MockIQReadoutAngleHelper(MockIQExperimentHelper):
-    """functions needed for Readout angle experiment on mock IQ backend"""
+    """Functions needed for Readout angle experiment on mock IQ backend"""
 
-    def compute_probability(self, circuits: List[QuantumCircuit]) -> List[Dict[str, float]]:
+    def compute_probabilities(self, circuits: List[QuantumCircuit]) -> List[Dict[str, float]]:
         """Return the probability of being in the excited state."""
         output_dict_list = []
         for circuit in circuits:
@@ -370,12 +371,12 @@ class MockIQReadoutAngleHelper(MockIQExperimentHelper):
 
 
 class MockIQHalfAngleHelper(MockIQExperimentHelper):
-    """functions needed for Half Angle experiment on mock IQ backend"""
+    """Functions needed for Half Angle experiment on mock IQ backend"""
 
     def __init__(self, error: float = 0):
         self.error = error
 
-    def compute_probability(self, circuits: List[QuantumCircuit]) -> List[Dict[str, float]]:
+    def compute_probabilities(self, circuits: List[QuantumCircuit]) -> List[Dict[str, float]]:
         """Return the probability of being in the excited state."""
         error = self.error
         output_dict_list = []
