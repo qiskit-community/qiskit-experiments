@@ -25,6 +25,7 @@ from qiskit_experiments.data_processing import nodes
 
 def get_processor(experiment_data: ExperimentData, analysis_options: Options) -> DataProcessor:
     """Get a DataProcessor that produces a continuous signal given the options.
+
     Args:
         experiment_data: The experiment data that holds all the data and metadata needed
             to determine the data processor to use to process the data for analysis.
@@ -42,12 +43,15 @@ def get_processor(experiment_data: ExperimentData, analysis_options: Options) ->
             - outcome (string): The measurement outcome that will be passed to a Probability node.
               The default value is a string of 1's where the length of the string is the number of
               qubits, e.g. '111' for three qubits.
+
     Returns:
         An instance of DataProcessor capable of processing the data for the corresponding job.
+
     Notes:
         The `physical_qubits` argument is extracted from the `experiment_data`
         metadata and is used to determine the default `outcome` to extract from
         classified data if it was not given in the analysis options.
+
     Raises:
         DataProcessorError: if the measurement level is not supported.
         DataProcessorError: if the wrong dimensionality reduction for kerneled data
