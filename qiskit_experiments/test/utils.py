@@ -13,7 +13,7 @@
 """Test utility functions."""
 
 import uuid
-from typing import Optional, Union, Dict
+from typing import Optional, Dict
 from datetime import datetime, timezone
 
 from qiskit.providers.job import JobV1 as Job
