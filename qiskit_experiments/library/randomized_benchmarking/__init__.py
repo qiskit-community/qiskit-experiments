@@ -41,13 +41,10 @@ Analysis
     :toctree: ../stubs/
 
     RBUtils
-    lookup_epg_ratio
-    calculate_epg
-    exclude_1q_error
 """
 from .rb_experiment import StandardRB
 from .interleaved_rb_experiment import InterleavedRB
 from .rb_analysis import RBAnalysis
 from .interleaved_rb_analysis import InterleavedRBAnalysis
-from .rb_utils import RBUtils, lookup_epg_ratio, calculate_epg, exclude_1q_error
+from .rb_utils import RBUtils
 from .clifford_utils import CliffordUtils

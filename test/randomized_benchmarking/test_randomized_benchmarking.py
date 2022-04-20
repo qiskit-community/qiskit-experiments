@@ -87,7 +87,7 @@ class TestStandardRB(RBTestCase):
             seed=123,
             backend=self.backend,
         )
-        exp.set_experiment_options(gate_error_ratio=False)
+        exp.analysis.set_options(gate_error_ratio=False)
         exp.set_transpile_options(**self.transpiler_options)
         self.assertAllIdentity(exp.circuits())
 
@@ -114,7 +114,7 @@ class TestStandardRB(RBTestCase):
             seed=123,
             backend=self.backend,
         )
-        exp.set_experiment_options(gate_error_ratio=False)
+        exp.analysis.set_options(gate_error_ratio=False)
         exp.set_transpile_options(**self.transpiler_options)
         self.assertAllIdentity(exp.circuits())
 
@@ -140,7 +140,7 @@ class TestStandardRB(RBTestCase):
             backend=self.backend,
             num_samples=3,
         )
-        exp1.set_experiment_options(gate_error_ratio=False)
+        exp1.analysis.set_options(gate_error_ratio=False)
         exp1.set_transpile_options(**self.transpiler_options)
         expdata1 = exp1.run()
         self.assertExperimentDone(expdata1)
@@ -152,7 +152,7 @@ class TestStandardRB(RBTestCase):
             backend=self.backend,
             num_samples=5,
         )
-        exp2.set_experiment_options(gate_error_ratio=False)
+        exp2.analysis.set_options(gate_error_ratio=False)
         exp2.set_transpile_options(**self.transpiler_options)
         expdata2 = exp2.run()
         self.assertExperimentDone(expdata2)

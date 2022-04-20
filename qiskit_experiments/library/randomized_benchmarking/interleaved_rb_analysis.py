@@ -120,6 +120,7 @@ class InterleavedRBAnalysis(RBAnalysis):
         """Default analysis options."""
         default_options = super()._default_options()
         default_options.result_parameters = ["alpha", "alpha_c"]
+        default_options.gate_error_ratio = False
         return default_options
 
     def _generate_fit_guesses(

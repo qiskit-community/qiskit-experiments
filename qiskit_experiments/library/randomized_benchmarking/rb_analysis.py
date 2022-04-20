@@ -14,15 +14,254 @@ Standard RB analysis class.
 """
 import warnings
 from collections import defaultdict
-from typing import List, Tuple, Union
+from typing import Dict, List, Sequence, Tuple, Union, Optional, TYPE_CHECKING
 
 import numpy as np
+from qiskit.exceptions import QiskitError
+
 import qiskit_experiments.curve_analysis as curve
 from qiskit_experiments.curve_analysis.data_processing import multi_mean_xy_data, data_sort
-from qiskit_experiments.framework import AnalysisResultData, ExperimentData
 from qiskit_experiments.exceptions import AnalysisError
+from qiskit_experiments.framework import AnalysisResultData, ExperimentData
+from qiskit_experiments.database_service import DbAnalysisResultV1
 
-from .rb_utils import RBUtils, QubitGateTuple, calculate_epg, exclude_1q_error
+if TYPE_CHECKING:
+    from uncertainties import UFloat
+
+# A dictionary key of qubit aware quantum instruciton; type alias for better readability
+QubitGateTuple = Tuple[Tuple[int, ...], str]
+
+
+def _lookup_epg_ratio(gate: str, n_qubits: int) -> Union[None, int]:
+    """A helper method to look-up preset gate error ratio for given basis gate name.
+
+    In the table the error ratio is defined based on the count of
+    typical assembly gate in the gate decomposition.
+    For example, "u3" gate can be decomposed into two "sx" gates.
+    In this case, the ratio of "u3" gate error becomes 2.
+
+    .. note::
+
+        This table is not aware of the actual waveform played on the hardware,
+        and the returned error ratio is just a guess.
+        To be precise, user can always set "gate_error_ratio" option of the experiment.
+
+    Args:
+        gate: Name of the gate.
+        n_qubits: Number of qubits measured in the RB experiments.
+
+    Returns:
+        Corresponding error ratio.
+
+    Raises:
+        QiskitError: When number of qubit is more than three.
+    """
+
+    # Gate count in (X, SX)-based decomposition. VZ gate contribution is ignored.
+    # Amplitude or duration modulated pulse implementation is not considered.
+    standard_1q_ratio = {
+        "u1": 0.0,
+        "u2": 1.0,
+        "u3": 2.0,
+        "u": 2.0,
+        "p": 0.0,
+        "x": 1.0,
+        "y": 1.0,
+        "z": 0.0,
+        "t": 0.0,
+        "tdg": 0.0,
+        "s": 0.0,
+        "sdg": 0.0,
+        "sx": 1.0,
+        "sxdg": 1.0,
+        "rx": 2.0,
+        "ry": 2.0,
+        "rz": 0.0,
+        "id": 0.0,
+        "h": 1.0,
+    }
+
+    # Gate count in (CX, CSX)-based decomposition, 1q gate contribution is ignored.
+    # Amplitude or duration modulated pulse implementation is not considered.
+    standard_2q_ratio = {
+        "swap": 3.0,
+        "rxx": 2.0,
+        "rzz": 2.0,
+        "cx": 1.0,
+        "cy": 1.0,
+        "cz": 1.0,
+        "ch": 1.0,
+        "crx": 2.0,
+        "cry": 2.0,
+        "crz": 2.0,
+        "csx": 1.0,
+        "cu1": 2.0,
+        "cp": 2.0,
+        "cu": 2.0,
+        "cu3": 2.0,
+    }
+
+    if n_qubits == 1:
+        return standard_1q_ratio.get(gate, None)
+
+    if n_qubits == 2:
+        return standard_2q_ratio.get(gate, None)
+
+    raise QiskitError(
+        f"Standard gate error ratio for {n_qubits} qubit RB is not provided. "
+        "Please explicitly set 'gate_error_ratio' option of the experiment."
+    )
+
+
+def _calculate_epg(
+    epc: Union[float, "UFloat"],
+    qubits: Sequence[int],
+    gate_error_ratio: Dict[str, float],
+    gate_counts_per_clifford: Dict[QubitGateTuple, float],
+) -> Dict[str, Union[float, "UFloat"]]:
+    r"""A helper mehtod to compute EPGs of basis gates from fit EPC value.
+
+    This function just distributes the measured EPC :math:`\cal E` into basis gates :math:`\{g_i\}`
+    defined in the ``gate_error_ratio`` dictionary according to the ratio
+    and gate counts.
+
+    Given we have :math:`n_i` gates with independent error :math:`e_i` per Clifford,
+    the total EPC is estimated by the composition of error from every basis gate,
+
+    .. math::
+
+        {\cal E} = 1 - \prod_{i} (1 - e_i)^{n_i} \sim \sum_{i} n_i e_i + O(e^2)
+
+    where :math:`e_i \ll 1` and the higher order terms can be ignored.
+    We cannot distinguish :math:`e_i` with single EPC value here,
+    however by defining an error ratio :math:`r_i` with respect to
+    some standard value :math:`e_0`, we can compute EPG :math:`e_i` for each basis gate.
+
+    .. math::
+
+        {\cal E} \sim e_0 \sum_{i} n_i r_i
+
+    The EPG of :math:`i` th basis gate will be
+
+    .. math::
+
+        e_i \sim r_i e_0 = \dfrac{r_i{\cal E}}{\sum_{i} n_i r_i}.
+
+    The gate errors retuned by this function is computed based on such simple assumption,
+    this is not necessary representing actual gate error on the hardware.
+    If you have multiple kinds of basis gates with unclear error ratio :math:`r_i`,
+    :class:`InterleavedRB` experiment will give you accurate error value :math:`e_i`.
+
+    Args:
+        epc: Error per Clifford.
+        qubits: List of qubits used in the experiment.
+        gate_error_ratio: A dictionary of assumed ratio of errors among basis gates.
+        gate_counts_per_clifford: Basis gate counts per Clifford gate.
+
+    Returns:
+        A dictionary of gate errors keyed on the gate name.
+    """
+    norm = 0
+    for gate, r_epg in gate_error_ratio.items():
+        formatted_key = tuple(sorted(qubits)), gate
+        norm += r_epg * gate_counts_per_clifford.get(formatted_key, 0.0)
+
+    epgs = {}
+    for gate, r_epg in gate_error_ratio.items():
+        epgs[gate] = r_epg * epc / norm
+    return epgs
+
+
+def _exclude_1q_error(
+    epc: Union[float, "UFloat"],
+    qubits: Tuple[int, int],
+    gate_counts_per_clifford: Dict[QubitGateTuple, float],
+    extra_analyses: Optional[List[DbAnalysisResultV1]],
+) -> Union[float, "UFloat"]:
+    r"""A helper method to exclude contribution of single qubit gates from 2Q EPC.
+
+    When you estimate EPC from 2Q RB experiment, this value indicates a deporalizing parameter
+    which is a composition of underlying error channels for 2Q gates and 1Q gates in each qubit.
+    Usually 1Q gate contribution is enough small and negligible, but in case when this
+    contribution is significant, we can decompose the contribution of 1Q gates [1].
+
+    .. math::
+
+        \alpha_{2Q,C} = \frac{1}{5} \left( \alpha_0^{N_1/2} + \alpha_1^{N_1/2} +
+         3 \alpha_0^{N_1/2} \alpha_1^{N_1/2} \right) \alpha_{01}^{N_2},
+
+    where :math:`\alpha_i` is the single qubit depolarizing parameter of channel :math:`i`,
+    and :math:`\alpha_{01}` is the two qubit depolarizing parameter of interest.
+    :math:`N_1` and :math:`N_2` are total count of single and two qubit gates, respectively.
+
+    Note that single qubit gate sequence of the channel :math:`i` may consist of
+    multiple kinds of primitive gates :math:`\{g_{ij}\}` with different EPG :math:`e_{ij}`.
+    Therefore the :math:`\alpha_i^{N_1/2}` is computed from estimated EPGs,
+    rather than directly using the :math:`\alpha_i`, which is usually a composition of
+    depolarizing maps of every single qubit gate, from the analysis of 1Q RB.
+
+    .. math::
+
+        \alpha_i^{N_1/2} = \alpha_{i0}^{n_{i0}} \cdot \alpha_{i1}^{n_{i1}} \cdot ...
+
+    where :math:`\alpha_{ij}^{n_{ij}}` indicates a depolarization due to
+    a particular basis gate :math:`j` in the channel :math:`i`.
+    Because EPG :math:`e_{ij}` corresponds to the depolarizing probability
+    of the map of :math:`g_{ij}`, we can express :math:`\alpha_{ij}` with EPG.
+
+    .. math::
+
+        e_{ij} = \frac{2^n - 1}{2^n} (1 - \alpha_{ij}) =  \frac{1 - \alpha_{ij}}{2},
+
+    for the single qubit channel :math:`n=1`. Thus, we can rewrite
+
+    .. math::
+
+        \alpha_i^{N_1/2} = \prod_{j} (1 - 2 e_{ij})^{n_{ij}},
+
+    as a composition of depolarization from every primitive gates per qubit.
+
+    .. ref_arxiv:: 1 1712.06550
+
+    Args:
+        epc: EPC from 2Q RB experiment.
+        qubits: Index of two qubits used for 2Q RB experiment.
+        gate_counts_per_clifford: Basis gate counts per 2Q Clifford gate.
+        extra_analyses: Analysis results containing depolarizing parameters of 1Q RB experiments.
+
+    Returns:
+        Corrected 2Q EPC.
+    """
+    # Extract EPC of non-measured qubits from previous experiments
+    epg_1qs = {}
+    for analyis_data in extra_analyses:
+        if (
+            not analyis_data.name.startswith("EPG_")
+            or len(analyis_data.device_components) > 1
+            or not str(analyis_data.device_components[0]).startswith("Q")
+        ):
+            continue
+        qind = analyis_data.device_components[0]._index
+        gate = analyis_data.name[4:]
+        formatted_key = (qind,), gate
+        epg_1qs[formatted_key] = analyis_data.value
+
+    if not epg_1qs:
+        return epc
+
+    # Convert 2Q EPC into depolarizing parameter alpha
+    alpha_c_2q = 1 - 4 / 3 * epc
+
+    # Estimate composite alpha of 1Q channels
+    alpha_i = [1.0, 1.0]
+    for q_gate_tup, epg in epg_1qs.items():
+        n_gate = gate_counts_per_clifford.get(q_gate_tup, 0.0)
+        aind = qubits.index(q_gate_tup[0][0])
+        alpha_i[aind] *= (1 - 2 * epg) ** n_gate
+    alpha_c_1q = 1 / 5 * (alpha_i[0] + alpha_i[1] + 3 * alpha_i[0] * alpha_i[1])
+
+    # Corrected 2Q channel EPC
+    return 3 / 4 * (1 - (alpha_c_2q / alpha_c_1q))
 
 
 class RBAnalysis(curve.CurveAnalysis):
@@ -32,6 +271,12 @@ class RBAnalysis(curve.CurveAnalysis):
         This analysis takes only single series.
         This series is fit by the exponential decay function.
         From the fit :math:`\alpha` value this analysis estimates the error per Clifford (EPC).
+
+        When analysis option ``gate_error_ratio`` is provided, this analysis also estimates
+        errors of individual gates assembling a Clifford gate.
+        In computation of two-qubit EPC, this analysis can also decompose
+        the contribution from the underlying single qubit depolarizing channels when
+        ``qpg_1_qubit`` analysis option is provided [1].
 
     # section: fit_model
         .. math::
@@ -54,6 +299,9 @@ class RBAnalysis(curve.CurveAnalysis):
                 second data point.
             bounds: [0, 1]
 
+    # section: reference
+        .. ref_arxiv:: 1 1712.06550
+
     """
 
     __series__ = [
@@ -71,11 +319,20 @@ class RBAnalysis(curve.CurveAnalysis):
         """Default analysis options.
 
         Analysis Options:
-            gate_error_ratio (Dict[str, float]): An estimate for the ratios
-                between errors on different gates.
+            gate_error_ratio (Optional[Dict[str, float]]): The assumption of error ratio
+                of basis gates constituting RB Clifford sequences. When this value is set,
+                the error per gate (EPG) values are computed from the estimated
+                error per Clifford (EPC) parameter in the RB analysis.
+                This value defaults to "default". When explicit gate error ratio is not provided,
+                typical error ratio is provided by :func:`~qiskit_experiments.library.\
+                randomized_benchmarking.rb_utils.lookup_epg_ratio`.
+                The dictionary is keyed on a string label of instruction.
+                Defined instructions should appear in the ``basis_gates`` in the transpile options.
+                If this value is set to ``False``, the computation of EPG values is skipped.
             gate_counts_per_clifford (Union[bool, Dict[str, float]]): A dictionary
                 of gate numbers constituting a single averaged Clifford operation
-                on particular physical qubit.
+                on particular physical qubit. Usually this value is automatically
+                computed based on the circuit metadata.
             qpg_1_qubit (List[DbAnalysisResultV1]): Analysis results from previous RB experiments
                 for individual single qubit gates. If this is provided, EPC of
                 2Q RB is corected to exclude the deporalization of underlying 1Q channels.
@@ -197,7 +454,7 @@ class RBAnalysis(curve.CurveAnalysis):
 
         # Correction for 1Q depolarizing channel if EPGs are provided
         if self.options.qpg_1_qubit and self._num_qubits == 2:
-            epc = exclude_1q_error(
+            epc = _exclude_1q_error(
                 epc=epc,
                 qubits=self._physical_qubits,
                 gate_counts_per_clifford=self.options.gate_counts_per_clifford,
@@ -214,7 +471,7 @@ class RBAnalysis(curve.CurveAnalysis):
 
         # Calculate EPG
         if self.options.gate_counts_per_clifford is not None and self.options.gate_error_ratio:
-            epg_dict = calculate_epg(
+            epg_dict = _calculate_epg(
                 epc=epc,
                 qubits=self._physical_qubits,
                 gate_error_ratio=self.options.gate_error_ratio,
@@ -236,44 +493,39 @@ class RBAnalysis(curve.CurveAnalysis):
     def _run_analysis(
         self, experiment_data: ExperimentData
     ) -> Tuple[List[AnalysisResultData], List["pyplot.Figure"]]:
-        if self.options.gate_error_ratio is None:
-            gate_error_ratio = experiment_data.metadata.get("gate_error_ratio", None)
 
-            try:
-                gate_error_ratio = dict(gate_error_ratio)
-            except TypeError:
-                pass
+        if self.options.gate_error_ratio is not False:
+            # If gate error ratio is not False, EPG analysis is enabled.
+            # Here analysis prepares gate error ratio and gate counts for EPC to EPG conversion.
 
-            if gate_error_ratio is None:
-                # For backward compatibility when loading old experiment data.
-                # This could return errorneous error ratio.
-                # Deprecation warning is triggered on RBUtils.
+            if self.options.gate_counts_per_clifford is None:
+                # If gate count dictionary is not set it will compute counts from circuit metadata.
+                avg_gpc = defaultdict(float)
+                n_circs = len(experiment_data.data())
+                for circ_result in experiment_data.data():
+                    try:
+                        count_ops = circ_result["metadata"]["count_ops"]
+                    except KeyError as ex:
+                        raise AnalysisError(
+                            "'count_ops' key is not found in the circuit metadata. "
+                            "This analysis cannot compute error per gates. "
+                            "Please disable this with 'gate_error_ratio=False'."
+                        ) from ex
+                    nclif = circ_result["metadata"]["xval"]
+                    for (qinds, gate), count in count_ops:
+                        formatted_key = tuple(sorted(qinds)), gate
+                        avg_gpc[formatted_key] += count / nclif / n_circs
+                self.set_options(gate_counts_per_clifford=dict(avg_gpc))
+
+            if self.options.gate_error_ratio is None:
+                # Gate error dict is computed for gates appearing in counts dictionary
+                # Error ratio among gates is determined based on the predefined lookup table.
+                # This is not always accurate for every quantum backends.
                 gate_error_ratio = {}
-                for q_gate_tup, ratio in RBUtils.get_error_dict_from_backend(
-                    backend=experiment_data.backend,
-                    qubits=experiment_data.metadata["physical_qubits"],
-                ).items():
-                    # Drop qubit information which is obvious
-                    gate_error_ratio[q_gate_tup[1]] = ratio
-
-            self.set_options(gate_error_ratio=gate_error_ratio)
-
-        if self.options.gate_error_ratio and self.options.gate_counts_per_clifford is None:
-            avg_gpc = defaultdict(float)
-            n_circs = len(experiment_data.data())
-            for circ_result in experiment_data.data():
-                try:
-                    count_ops = circ_result["metadata"]["count_ops"]
-                except KeyError as ex:
-                    raise AnalysisError(
-                        "'count_ops' key is not found in the result metadata. "
-                        "This analysis cannot compute error per gates. "
-                        "Please disable this with 'gate_error_ratio=False'."
-                    ) from ex
-                nclif = circ_result["metadata"]["xval"]
-                for (qubits, gate), count in count_ops:
-                    key = QubitGateTuple(*qubits, gate=gate)
-                    avg_gpc[key] += count / nclif / n_circs
-            self.set_options(gate_counts_per_clifford=dict(avg_gpc))
+                for qinds, gate in self.options.gate_counts_per_clifford.keys():
+                    if set(qinds) != set(experiment_data.metadata["physical_qubits"]):
+                        continue
+                    gate_error_ratio[gate] = _lookup_epg_ratio(gate, len(qinds))
+                self.set_options(gate_error_ratio=gate_error_ratio)
 
         return super()._run_analysis(experiment_data)

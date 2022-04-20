@@ -13,6 +13,7 @@
 Standard RB Experiment class.
 """
 import logging
+from collections import defaultdict
 from typing import Union, Iterable, Optional, List, Sequence
 
 import numpy as np
@@ -28,7 +29,6 @@ from qiskit_experiments.framework import BaseExperiment, Options
 from qiskit_experiments.framework.restless_mixin import RestlessMixin
 from .rb_analysis import RBAnalysis
 from .clifford_utils import CliffordUtils
-from .rb_utils import RBUtils, lookup_epg_ratio
 
 LOG = logging.getLogger(__name__)
 
@@ -49,17 +49,12 @@ class StandardRB(BaseExperiment, RestlessMixin):
         the ground state, fits an exponentially decaying curve, and estimates
         the Error Per Clifford (EPC), as described in Refs. [1, 2].
 
-        See :class:`RBUtils` documentation for additional information
-        on estimating the Error Per Gate (EPG) for 1-qubit and 2-qubit gates,
-        from 1-qubit and 2-qubit standard RB experiments, by Ref. [3].
-
     # section: analysis_ref
         :py:class:`RBAnalysis`
 
     # section: reference
         .. ref_arxiv:: 1 1009.3639
         .. ref_arxiv:: 2 1109.6887
-        .. ref_arxiv:: 3 1712.06550
 
     """
 
@@ -122,23 +117,12 @@ class StandardRB(BaseExperiment, RestlessMixin):
                 used to initialize ``numpy.random.default_rng`` when generating circuits.
                 The ``default_rng`` will be initialized with this seed value everytime
                 :meth:`circuits` is called.
-            gate_error_ratio (Union[str, bool, Dict[str, float]]): The assumption of error ratio
-                of basis gates constituting RB Clifford sequences. When this value is set,
-                the error per gate (EPG) values are computed from the estimated
-                error per Clifford (EPC) parameter in the RB analysis.
-                This value defaults to "default". When explicit gate error ratio is not provided,
-                typical error ratio is provided by :func:`~qiskit_experiments.library.\
-                randomized_benchmarking.rb_utils.lookup_epg_ratio`.
-                The dictionary is keyed on a string label of instruction.
-                Defined instructions should appear in the ``basis_gates`` in the transpile options.
-                If this value is set to ``False``, the computation of EPG values is skipped.
         """
         options = super()._default_experiment_options()
 
         options.lengths = None
         options.num_samples = None
         options.seed = None
-        options.gate_error_ratio = "default"
 
         return options
 
@@ -230,7 +214,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
         """Return a list of experiment circuits, transpiled."""
         transpiled = super()._transpiled_circuits()
 
-        if self.experiment_options.gate_error_ratio is False:
+        if self.analysis.options.get("gate_error_ratio", None) is False:
             # Gate errors are not computed, then counting ops is not necessary.
             return transpiled
 
@@ -238,13 +222,18 @@ class StandardRB(BaseExperiment, RestlessMixin):
         # This is probably main source of performance regression.
         # This should be integrated into transpile pass in future.
         for circ in transpiled:
-            gpc_dict = {}
-            for (qubits, instr), count in RBUtils.count_ops(circ, self.physical_qubits).items():
-                if instr in ("measure", "reset", "delay", "barrier", "snapshot"):
+            count_ops_result = defaultdict(int)
+            # This is physical circuits, i.e. qargs is physical index
+            for inst, qargs, _ in circ.data:
+                if inst.name in ("measure", "reset", "delay", "barrier", "snapshot"):
                     continue
-                # This is qubit aware count opts
-                gpc_dict[(qubits, instr)] = count
-            circ.metadata["count_ops"] = tuple(gpc_dict.items())
+                qinds = [circ.find_bit(q).index for q in qargs]
+                if not set(self.physical_qubits).issuperset(qinds):
+                    continue
+                # Not aware of multi-qubit gate direction
+                formatted_key = tuple(sorted(qinds)), inst.name
+                count_ops_result[formatted_key] += 1
+            circ.metadata["count_ops"] = tuple(count_ops_result.items())
 
         return transpiled
 
@@ -256,26 +245,4 @@ class StandardRB(BaseExperiment, RestlessMixin):
             if hasattr(self.run_options, run_opt):
                 metadata[run_opt] = getattr(self.run_options, run_opt)
 
-        # Set constraints to compute basis gates EPGs from an estimated EPC
-        gate_error_ratio = self.experiment_options.gate_error_ratio
-
-        if gate_error_ratio == "default":
-            # Extract basis gate from transpile option, then backend configuration
-            try:
-                basis_gates = self.transpile_options.get(
-                    "basis_gates", self.backend.configuration().basis_gates
-                )
-                # Do gate error ratio look-up
-                gate_error_ratio = {}
-                for basis_gate in basis_gates:
-                    r_epg = lookup_epg_ratio(basis_gate, self.num_qubits)
-                    if r_epg is None:
-                        continue
-                    gate_error_ratio[basis_gate] = r_epg
-            except AttributeError:
-                # When basis gates is not provided, disable EPG computation
-                LOG.warning("The basis gates information is not available. Cannot compute EPGs.")
-                gate_error_ratio = False
-
-        metadata["gate_error_ratio"] = gate_error_ratio
         return metadata

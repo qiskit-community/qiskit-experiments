@@ -74,7 +74,8 @@ class TestRBUtilities(QiskitExperimentsTestCase):
         rng.shuffle(gates_to_add)
         for qubits, gate in gates_to_add:
             circuit.append(self.instructions[gate], qubits)
-        counts = rb.RBUtils.count_ops(circuit)
+        with self.assertWarns(DeprecationWarning):
+            counts = rb.RBUtils.count_ops(circuit)
         self.assertDictEqual(expected_counts, counts)
 
     def test_calculate_1q_epg(self):
