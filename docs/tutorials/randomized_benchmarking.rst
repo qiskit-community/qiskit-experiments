@@ -181,6 +181,7 @@ The EPGs of two-qubit RB are analyzed with the corrected EPC if available.
     )
     expdata_1q = single_exps.run(backend).block_for_results()
 
+
 .. jupyter-execute::
 
     # Run an RB experiment on qubits 1, 4
@@ -191,8 +192,6 @@ The EPGs of two-qubit RB are analyzed with the corrected EPC if available.
     
     # Run the 2-qubit experiment
     expdata_2q = exp_2q.run(backend).block_for_results()
-
-.. jupyter-execute::
 
     # View result data
     print("Gate error ratio: %s" % expdata_2q.experiment.analysis.options.gate_error_ratio)
@@ -325,12 +324,6 @@ different qubits (see Ref. [5])
     par_exp = ParallelExperiment(exps)
     par_expdata = par_exp.run(backend).block_for_results()
     par_results = par_expdata.analysis_results()
-    
-    # View result data
-    for result in par_results:
-        print(result)
-        print("\nextra:")
-        print(result.extra)
 
 
 Viewing sub experiment data
