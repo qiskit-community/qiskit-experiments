@@ -21,6 +21,7 @@ from qiskit_experiments.data_processing.data_processor import DataProcessor
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
 from qiskit_experiments.data_processing.nodes import ProjectorType
 from qiskit_experiments.data_processing import nodes
+from qiskit_experiments.data_processing.processor_library import get_kerneled_processor
 from qiskit_experiments.framework.base_analysis import BaseAnalysis
 
 
@@ -145,34 +146,17 @@ class RestlessMixin:
             Sub-classes can override this method if they need more complex data processing.
         """
         outcome = self.analysis.options.get("outcome", "1" * self._num_qubits)
+        meas_return = self.analysis.options.get("meas_return", MeasReturnType.SINGLE)
         normalize = self.analysis.options.get("normalization", True)
         dimensionality_reduction = self.analysis.options.get(
             "dimensionality_reduction", ProjectorType.SVD
         )
-        # Todo: The following code is copied and adapted from the processor library.
-        # Todo: This could maybe be simplified.
+
         if meas_level == MeasLevel.KERNELED:
-
-            try:
-                if isinstance(dimensionality_reduction, ProjectorType):
-                    projector_name = dimensionality_reduction.name
-                else:
-                    projector_name = dimensionality_reduction
-                projector = ProjectorType[projector_name].value
-
-            except KeyError as error:
-                raise DataProcessorError(
-                    f"Invalid dimensionality reduction: {dimensionality_reduction}."
-                ) from error
-
-            processor = DataProcessor(
-                "memory", [nodes.RestlessToIQ(), nodes.AverageData(axis=1), projector()]
+            return get_kerneled_processor(
+                dimensionality_reduction, meas_return, normalize, nodes.RestlessToIQ()
             )
 
-            if normalize:
-                processor.append(nodes.MinMaxNormalize())
-
-            return processor
         else:
             return DataProcessor(
                 "memory",
