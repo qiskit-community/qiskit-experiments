@@ -16,11 +16,9 @@ import warnings
 from collections import defaultdict
 from typing import Dict, List, Sequence, Tuple, Union, Optional, TYPE_CHECKING
 
-import numpy as np
 from qiskit.exceptions import QiskitError
 
 import qiskit_experiments.curve_analysis as curve
-from qiskit_experiments.curve_analysis.data_processing import multi_mean_xy_data, data_sort
 from qiskit_experiments.exceptions import AnalysisError
 from qiskit_experiments.framework import AnalysisResultData, ExperimentData
 from qiskit_experiments.database_service import DbAnalysisResultV1
@@ -54,17 +52,15 @@ class RBAnalysis(curve.CurveAnalysis):
     # section: fit_parameters
         defpar a:
             desc: Height of decay curve.
-            init_guess: Determined by :math:`(y - b) / \alpha^x`.
+            init_guess: Determined by :math:`1 - b`.
             bounds: [0, 1]
         defpar b:
             desc: Base line.
-            init_guess: Determined by the average :math:`b` of the standard and interleaved RB.
-                Usually equivalent to :math:`(1/2)^n` where :math:`n` is number of qubit.
+            init_guess: Determined by :math:`(1/2)^n` where :math:`n` is number of qubit.
             bounds: [0, 1]
         defpar \alpha:
             desc: Depolarizing parameter.
-            init_guess: Determined by the slope of :math:`(y - b)^{-x}` of the first and the
-                second data point.
+            init_guess: Determined by :func:`~rb_decay`.
             bounds: [0, 1]
 
     # section: reference
@@ -139,34 +135,24 @@ class RBAnalysis(curve.CurveAnalysis):
             b=(0, 1),
         )
 
-        return self._initial_guess(user_opt, curve_data.x, curve_data.y, self._num_qubits)
+        b_guess = 1 / 2**self._num_qubits
+        a_guess = 1 - b_guess
+        alpha_guess = curve.guess.rb_decay(curve_data.x, curve_data.y, a=a_guess, b=b_guess)
 
-    @staticmethod
-    def _initial_guess(
-        opt: curve.FitOptions, x_values: np.ndarray, y_values: np.ndarray, num_qubits: int
-    ) -> curve.FitOptions:
-        """Create initial guess with experiment data."""
-        opt.p0.set_if_empty(b=1 / 2**num_qubits)
+        user_opt.p0.set_if_empty(
+            b=b_guess,
+            a=a_guess,
+            alpha=alpha_guess,
+        )
 
-        # Use the first two points to guess the decay param
-        dcliff = x_values[1] - x_values[0]
-        dy = (y_values[1] - opt.p0["b"]) / (y_values[0] - opt.p0["b"])
-        alpha_guess = dy ** (1 / dcliff)
-
-        opt.p0.set_if_empty(alpha=alpha_guess if alpha_guess < 1.0 else 0.99)
-
-        if y_values[0] > opt.p0["b"]:
-            opt.p0.set_if_empty(a=(y_values[0] - opt.p0["b"]) / (opt.p0["alpha"] ** x_values[0]))
-        else:
-            opt.p0.set_if_empty(a=0.95)
-
-        return opt
+        return user_opt
 
     def _format_data(self, data: curve.CurveData) -> curve.CurveData:
         """Data format with averaging with sampling strategy."""
+        # TODO Eventually move this to data processor, then create RB data processor.
 
         # take average over the same x value by regenerating sigma from variance of y values
-        series, xdata, ydata, sigma, shots = multi_mean_xy_data(
+        series, xdata, ydata, sigma, shots = curve.data_processing.multi_mean_xy_data(
             series=data.data_index,
             xdata=data.x,
             ydata=data.y,
@@ -176,7 +162,7 @@ class RBAnalysis(curve.CurveAnalysis):
         )
 
         # sort by x value in ascending order
-        series, xdata, ydata, sigma, shots = data_sort(
+        series, xdata, ydata, sigma, shots = curve.data_processing.data_sort(
             series=series,
             xdata=xdata,
             ydata=ydata,

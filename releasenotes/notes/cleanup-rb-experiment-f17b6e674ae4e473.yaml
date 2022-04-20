@@ -1,4 +1,8 @@
 ---
+features:
+  - |
+    Curve fit parameter guess function :func:`~rb_decay` has been added. 
+    This improves inital parameter estimation of randomized benchmark experiments.
 upgrade:
   - |
     Computation of error per gates (EPGs) from EPC in :class:`RBAnalysis` has been upgraded.
