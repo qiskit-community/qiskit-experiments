@@ -62,7 +62,9 @@ class TestRabiEndToEnd(QiskitExperimentsTestCase):
 
         self.assertEqual(result.quality, "good")
         # The comparison is made against the object that exists in the backend for accurate testing
-        self.assertAlmostEqual(result.value[1], rabi_experiment_helper.rabi_rate(), delta=test_tol)
+        self.assertAlmostEqual(
+            result.value[1], backend.experiment_helper.rabi_rate(), delta=test_tol
+        )
 
         # updating 'amplitude_to_angle' parameter in the experiment helper
         rabi_experiment_helper.amplitude_to_angle = np.pi / 2
@@ -136,8 +138,7 @@ class TestEFRabi(QiskitExperimentsTestCase):
         """Test the EFRabi experiment end to end."""
 
         test_tol = 0.01
-        rabi_experiment_helper = RabiHelper()
-        backend = MockIQBackend(rabi_experiment_helper)
+        backend = MockIQBackend(RabiHelper())
 
         # Note that the backend is not sophisticated enough to simulate an e-f
         # transition so we run the test with a tiny frequency shift, still driving the e-g transition.
