@@ -22,7 +22,7 @@ from qiskit_experiments.test.mock_iq_backend import MockIQBackend
 from qiskit_experiments.test.mock_iq_helpers import MockIQExperimentHelper
 
 
-def compute_probabilities_full_output(prob_list_output: List[Dict]) -> Dict[str, float]:
+def compute_probabilities_output(prob_list_output: List[Dict]) -> Dict[str, float]:
     """
     A function to compute the probability for parallel experiment on two qubits.
     Args:
@@ -52,7 +52,7 @@ class MockIQReadoutAngleParallelHelper(MockIQExperimentHelper):
                 probability_output_dict = {"1": 1 - circuit.metadata["xval"][qubit_idx]}
                 probability_output_dict["0"] = 1 - probability_output_dict["1"]
                 prob_help_list[qubit_idx] = probability_output_dict
-            output_dict_list.append(compute_probabilities_full_output(prob_help_list))
+            output_dict_list.append(compute_probabilities_output(prob_help_list))
 
         return output_dict_list
 

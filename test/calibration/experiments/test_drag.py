@@ -109,10 +109,12 @@ class TestDragEndToEnd(QiskitExperimentsTestCase):
     @unpack
     def test_nasty_data(self, freq, amp, offset, reps, betas, tol):
         """A set of tests for non-ideal data."""
-        drag_experiment_helper = DragHelper(
-            gate_name="Drag(xp)", frequency=freq, max_probability=amp, offset_probability=offset
+
+        backend = MockIQBackend(
+            DragHelper(
+                gate_name="Drag(xp)", frequency=freq, max_probability=amp, offset_probability=offset
+            )
         )
-        backend = MockIQBackend(drag_experiment_helper)
 
         drag = RoughDrag(0, self.x_plus, betas=betas)
         drag.set_experiment_options(reps=reps)
