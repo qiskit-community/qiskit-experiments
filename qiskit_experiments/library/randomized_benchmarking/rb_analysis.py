@@ -319,16 +319,10 @@ class RBAnalysis(curve.CurveAnalysis):
         """Default analysis options.
 
         Analysis Options:
-            gate_error_ratio (Optional[Dict[str, float]]): The assumption of error ratio
-                of basis gates constituting RB Clifford sequences. When this value is set,
-                the error per gate (EPG) values are computed from the estimated
-                error per Clifford (EPC) parameter in the RB analysis.
-                This value defaults to "default". When explicit gate error ratio is not provided,
-                typical error ratio is provided by :func:`~qiskit_experiments.library.\
-                randomized_benchmarking.rb_utils.lookup_epg_ratio`.
-                The dictionary is keyed on a string label of instruction.
-                Defined instructions should appear in the ``basis_gates`` in the transpile options.
-                If this value is set to ``False``, the computation of EPG values is skipped.
+            gate_error_ratio (Optional[Dict[str, float]]): A dictionary with gate name keys
+                and error ratio values used when calculating EPG from the estimated EPC.
+                The default value will use standard gate error ratios.
+                If set to ``False`` EPG will not be calculated.
             gate_counts_per_clifford (Union[bool, Dict[str, float]]): A dictionary
                 of gate numbers constituting a single averaged Clifford operation
                 on particular physical qubit. Usually this value is automatically
