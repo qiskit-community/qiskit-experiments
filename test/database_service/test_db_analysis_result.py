@@ -19,6 +19,7 @@ import json
 
 import math
 import numpy as np
+import uncertainties
 
 
 from qiskit_experiments.database_service import DbAnalysisResultV1 as DbAnalysisResult
@@ -135,6 +136,26 @@ class TestDbAnalysisResult(QiskitExperimentsTestCase):
         self.assertEqual(DbAnalysisResult._display_format(math.inf), "Infinity")
         self.assertEqual(DbAnalysisResult._display_format(-math.inf), "-Infinity")
         self.assertEqual(DbAnalysisResult._display_format(math.nan), "NaN")
+        self.assertEqual(
+            DbAnalysisResult._display_format(
+                uncertainties.ufloat(math.nan, math.nan).nominal_value
+            ),
+            "NaN",
+        )
+        self.assertEqual(
+            DbAnalysisResult._display_format(uncertainties.ufloat(math.nan, math.nan).std_dev),
+            "NaN",
+        )
+        self.assertEqual(
+            DbAnalysisResult._display_format(
+                uncertainties.ufloat(math.inf, -math.inf).nominal_value
+            ),
+            "Infinity",
+        )
+        self.assertEqual(
+            DbAnalysisResult._display_format(uncertainties.ufloat(math.inf, -math.inf).std_dev),
+            "-Infinity",
+        )
 
     def test_display_format_complex(self):
         """Test conversion of db displays"""

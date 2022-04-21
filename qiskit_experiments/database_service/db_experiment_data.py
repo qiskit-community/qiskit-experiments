@@ -31,7 +31,7 @@ import numpy as np
 
 from matplotlib import pyplot
 from qiskit import QiskitError
-from qiskit.providers import Job, BaseJob, Backend, BaseBackend, Provider
+from qiskit.providers import Job, Backend, Provider
 from qiskit.result import Result
 from qiskit.providers.jobstatus import JobStatus, JOB_FINAL_STATES
 from qiskit_experiments.framework.json import ExperimentEncoder, ExperimentDecoder
@@ -163,7 +163,7 @@ class DbExperimentDataV1(DbExperimentData):
     def __init__(
         self,
         experiment_type: Optional[str] = "Unknown",
-        backend: Optional[Union[Backend, BaseBackend]] = None,
+        backend: Optional[Backend] = None,
         service: Optional[DatabaseServiceV1] = None,
         experiment_id: Optional[str] = None,
         parent_id: Optional[str] = None,
@@ -248,7 +248,7 @@ class DbExperimentDataV1(DbExperimentData):
             self._deleted_figures.append(key)
         self._figures = ThreadSafeOrderedDict()
 
-    def _set_service_from_backend(self, backend: Union[Backend, BaseBackend]) -> None:
+    def _set_service_from_backend(self, backend: Backend) -> None:
         """Set the service to be used from the input backend.
 
         Args:
@@ -290,7 +290,7 @@ class DbExperimentDataV1(DbExperimentData):
         jobs = []
         with self._data.lock:
             for datum in data:
-                if isinstance(datum, (Job, BaseJob)):
+                if isinstance(datum, Job):
                     jobs.append(datum)
                 elif isinstance(datum, dict):
                     self._data.append(datum)
@@ -345,7 +345,7 @@ class DbExperimentDataV1(DbExperimentData):
                 "Not all analysis has finished running. Adding new jobs may "
                 "create unexpected analysis results."
             )
-        if isinstance(jobs, (Job, BaseJob)):
+        if isinstance(jobs, Job):
             jobs = [jobs]
 
         # Add futures for extracting finished job data
@@ -414,7 +414,7 @@ class DbExperimentDataV1(DbExperimentData):
 
     def _add_job_data(
         self,
-        job: Union[Job, BaseJob],
+        job: Job,
     ) -> Tuple[str, bool]:
         """Wait for a job to finish and add job result data.
 
@@ -1613,7 +1613,7 @@ class DbExperimentDataV1(DbExperimentData):
         return self._jobs.keys()
 
     @property
-    def backend(self) -> Optional[Union[BaseBackend, Backend]]:
+    def backend(self) -> Optional[Backend]:
         """Return backend.
 
         Returns:

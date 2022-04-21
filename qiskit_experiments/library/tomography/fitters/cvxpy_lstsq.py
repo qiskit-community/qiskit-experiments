@@ -142,7 +142,7 @@ def cvxpy_linear_lstsq(
     # if a different trace constraint is specified above this will
     # cause the fitter to fail.
     if trace_preserving:
-        cons += cvxpy_utils.trace_preserving_constaint(rho_r, rho_i)
+        cons += cvxpy_utils.trace_preserving_constraint(rho_r, rho_i)
 
     # OBJECTIVE FUNCTION
 
