@@ -52,6 +52,8 @@ class CalledScheduleByName(ScheduleBlock):
             channels = (channels,)
 
         self._channels = channels
+        for channel in self.channels:
+            self._parameter_manager.update_parameter_table(channel)
 
     @property
     def channels(self) -> Tuple[Channel]:
