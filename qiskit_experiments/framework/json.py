@@ -442,6 +442,8 @@ class ExperimentEncoder(json.JSONEncoder):
     def default(self, obj: Any) -> Any:  # pylint: disable=arguments-differ
         if istype(obj):
             return _serialize_type(obj)
+        if hasattr(obj, "__json_encode__"):
+            return _serialize_object(obj)
         if isinstance(obj, complex):
             return _serialize_safe_float(obj)
         if isinstance(obj, set):
@@ -464,8 +466,8 @@ class ExperimentEncoder(json.JSONEncoder):
             # during serialization. Then both can be serialized as Variable.
             # Note that UFloat doesn't have a tag.
             settings = {
-                "value": obj.nominal_value,
-                "std_dev": obj.std_dev,
+                "value": _serialize_safe_float(obj.nominal_value),
+                "std_dev": _serialize_safe_float(obj.std_dev),
                 "tag": getattr(obj, "tag", None),
             }
             cls = uncertainties.core.Variable
