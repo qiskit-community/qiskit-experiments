@@ -1694,7 +1694,7 @@ class TestSerialization(QiskitExperimentsTestCase):
         """Test serialization when initialized from a list"""
         backend = FakeBelem()
         sq_lib = FixedFrequencyTransmon(basis_gates=["sx", "x"])
-        libraries = [sq_lib, EchoedCrossResonance(sq_lib)]
+        libraries = [sq_lib, EchoedCrossResonance()]
 
         cals = Calibrations.from_backend(backend, libraries)
         cals.add_parameter_value(0.12345, "amp", 3, "x")
