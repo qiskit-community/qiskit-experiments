@@ -13,7 +13,6 @@
 """
 RB Helper functions
 """
-
 from typing import Tuple, Dict, Optional, List, Union, Sequence
 
 import numpy as np
@@ -23,6 +22,7 @@ from qiskit.providers.backend import Backend
 
 from qiskit_experiments.database_service.device_component import Qubit
 from qiskit_experiments.framework import DbAnalysisResultV1, AnalysisResultData
+from qiskit_experiments.warnings import deprecated_function
 
 
 class RBUtils:
@@ -30,6 +30,13 @@ class RBUtils:
     from randomized benchmarking experiments"""
 
     @staticmethod
+    @deprecated_function(
+        last_version="0.4",
+        msg=(
+            "This method may return errorneous error ratio. "
+            "Please directly provide known gate error ratio to the analysis option."
+        ),
+    )
     def get_error_dict_from_backend(
         backend: Backend, qubits: Sequence[int]
     ) -> Dict[Tuple[Sequence[int], str], float]:
@@ -62,6 +69,13 @@ class RBUtils:
         return error_dict
 
     @staticmethod
+    @deprecated_function(
+        last_version="0.4",
+        msg=(
+            "Now this method is integarated into 'StandardRB._transpiled_circuits' method. "
+            "You don't need to explicitly call this method."
+        ),
+    )
     def count_ops(
         circuit: QuantumCircuit, qubits: Optional[Sequence[int]] = None
     ) -> Dict[Tuple[Sequence[int], str], int]:
@@ -94,6 +108,7 @@ class RBUtils:
         return count_ops_result
 
     @staticmethod
+    @deprecated_function(last_version="0.4")
     def gates_per_clifford(
         ops_count: List,
     ) -> Dict[Tuple[Sequence[int], str], float]:
@@ -185,6 +200,10 @@ class RBUtils:
         return coherence_limit_err
 
     @staticmethod
+    @deprecated_function(
+        last_version="0.4",
+        msg="Please use calculate_epg function instead. This works regardless of qubit number.",
+    )
     def calculate_1q_epg(
         epc_1_qubit: Union[float, uncertainties.UFloat],
         qubits: Sequence[int],
@@ -218,6 +237,10 @@ class RBUtils:
         return out
 
     @staticmethod
+    @deprecated_function(
+        last_version="0.4",
+        msg="Please use calculate_epg function instead. This works regardless of qubit number.",
+    )
     def calculate_2q_epg(
         epc_2_qubit: Union[uncertainties.UFloat, float],
         qubits: Sequence[int],

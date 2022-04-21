@@ -90,6 +90,7 @@ Initial Guess
     guess.constant_sinusoidal_offset
     guess.constant_spectral_offset
     guess.exp_decay
+    guess.rb_decay
     guess.full_width_half_max
     guess.frequency
     guess.max_height
