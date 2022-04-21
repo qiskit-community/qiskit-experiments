@@ -331,7 +331,7 @@ class EchoedCrossResonance(BasisGateLibrary):
             default_values: Default values for the parameters. This dictionary can contain
                 the following keys: "duration", "amp", "amp_trg", "width", and "σ".
         """
-        self._ pulse_on_target = pulse_on_target
+        self._pulse_on_target = pulse_on_target
         super().__init__(basis_gates, default_values)
 
     @property
@@ -361,21 +361,21 @@ class EchoedCrossResonance(BasisGateLibrary):
         )
 
         cr45p_target = pulse.GaussianSquare(
-            duration=cr_duration, amp=rot_amp, sigma=cr_sigma, width=cr_width, name="cr45p_target"
+            duration=cr_duration, amp=trg_amp, sigma=cr_sigma, width=cr_width, name="cr45p_target"
         )
 
         cr45m_target = pulse.GaussianSquare(
-            duration=cr_duration, amp=-rot_amp, sigma=cr_sigma, width=cr_width, name="cr45m_target"
+            duration=cr_duration, amp=-trg_amp, sigma=cr_sigma, width=cr_width, name="cr45m_target"
         )
 
         with pulse.build(name="cr45p") as cr45p_sched:
             pulse.play(cr45p, cr_chan)
-            if self._rotary:
+            if self._pulse_on_target:
                 pulse.play(cr45p_target, target)
 
         with pulse.build(name="cr45m") as cr45m_sched:
             pulse.play(cr45m, cr_chan)
-            if self._rotary:
+            if self._pulse_on_target:
                 pulse.play(cr45m_target, target)
 
         ecr_sched = pulse.ScheduleBlock(name="ecr", alignment_context=AlignSequential())

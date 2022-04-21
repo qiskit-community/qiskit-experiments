@@ -39,15 +39,11 @@ def compare_schedule_blocks(schedule1: ScheduleBlock, schedule2: ScheduleBlock) 
 
 def has_calls(schedule: ScheduleBlock) -> bool:
     """Return True if the schedule has any call instructions in it."""
-    has_call = False
     for block in schedule.blocks:
-        if isinstance(block, ScheduleBlock):
-            has_call = has_call or has_calls(block)
-
-        if isinstance(block, Call):
+        if (isinstance(block, ScheduleBlock) and has_calls(block)) or isinstance(block, Call):
             return True
 
-    return has_call
+    return False
 
 
 def get_names_called_by_name(schedule: ScheduleBlock) -> Set[str]:
