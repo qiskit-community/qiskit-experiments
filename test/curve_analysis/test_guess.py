@@ -186,3 +186,24 @@ class TestGuesses(QiskitExperimentsTestCase):
         b0_guess = guess.constant_sinusoidal_offset(y)
 
         self.assertAlmostEqual(b0, b0_guess, delta=0.1)
+
+    @data(
+        # typical 1Q
+        [0.5, 0.5, 0.99],
+        # typical 2Q
+        [0.25, 0.75, 0.97],
+        # alpha around equation switching
+        [0.48, 0.46, 0.85],
+        # bad limit
+        [0.20, 0.36, 0.72],
+        [0.55, 0.40, 0.65],
+    )
+    @unpack
+    def test_rb_decay(self, a, b, alpha):
+        """Test of rb decay basis guess."""
+        x = np.arange(1, 100, 5)
+        y = a * alpha**x + b
+
+        alpha_guess = guess.rb_decay(x, y, a=a, b=b)
+
+        self.assertAlmostEqual(alpha, alpha_guess, delta=alpha * 0.1)
