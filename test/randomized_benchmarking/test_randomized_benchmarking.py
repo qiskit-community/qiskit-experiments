@@ -16,6 +16,7 @@ from test.base import QiskitExperimentsTestCase
 
 import numpy as np
 from ddt import ddt, data, unpack
+from qiskit.circuit import Delay, QuantumCircuit
 from qiskit.circuit.library import SXGate, CXGate, TGate, XGate
 from qiskit.exceptions import QiskitError
 from qiskit.providers.aer import AerSimulator
@@ -265,6 +266,25 @@ class TestStandardRB(RBTestCase):
 @ddt
 class TestInterleavedRB(RBTestCase):
     """Test for interleaved RB."""
+
+    def test_interleaved_element_with_delay(self):
+        """Test building RB sequence interleaved with delay or circuit with delay"""
+        exp = rb.InterleavedRB(
+            interleaved_element=Delay(10, unit="us"),
+            qubits=[0],
+            lengths=[1, 2, 3],
+            seed=123,
+            num_samples=2,
+        )
+        exp.circuits()
+
+        delay_qc = QuantumCircuit(2)
+        delay_qc.delay(10, [0, 1], "us")
+
+        exp = rb.InterleavedRB(
+            interleaved_element=delay_qc, qubits=[1, 2], lengths=[1, 2, 3], seed=123, num_samples=2
+        )
+        exp.circuits()
 
     @data([XGate(), [3], 4], [CXGate(), [4, 7], 5])
     @unpack
