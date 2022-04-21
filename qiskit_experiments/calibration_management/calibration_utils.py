@@ -101,14 +101,12 @@ def _used_in_calls(schedule_name: str, schedule: ScheduleBlock) -> bool:
     Returns:
         True if ``schedule``calls a ``ScheduleBlock`` with name ``schedule_name``.
     """
-    blocks_have_schedule = False
-
     for block in schedule.blocks:
         if isinstance(block, CalledScheduleByName):
             if block.name == schedule_name:
                 return True
 
-        if isinstance(block, ScheduleBlock):
-            blocks_have_schedule = blocks_have_schedule or _used_in_calls(schedule_name, block)
+        if isinstance(block, ScheduleBlock) and _used_in_calls(schedule_name, block):
+            return True
 
-    return blocks_have_schedule
+    return False
