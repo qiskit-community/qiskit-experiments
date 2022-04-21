@@ -22,8 +22,11 @@ from qiskit.pulse.transforms import AlignmentKind
 class CalledScheduleByName(ScheduleBlock):
     """A schedule block to reference another schedule by name.
 
-    This class allows us to uncouple template libraries that have pulse dependencies.
-    The typical example is an echoed-cross-resonance schedule where the the schedule
+    This class allows us to uncouple a template library from external dependencies.
+    Note that schedules in a library may consist of multiple pulses which 
+    is not defined within the current scope.
+    The typical example is an echoed-cross-resonance schedule where the schedule
+
     of the echoed x-gate is called. Instead of using the ``pulse.Call`` instruction
     we can call the schedule of the x-pulse by name using ``CalledScheduleByName``.
     By doing so we do not need to specify the schedule of the x-pulse. This will be resolved

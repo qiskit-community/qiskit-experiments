@@ -324,14 +324,14 @@ class EchoedCrossResonance(BasisGateLibrary):
         """Setup the schedules.
 
         Args:
-            pulse_on_target: A boolean to indicate if a rotary/cancellation tones are
+            pulse_on_target: A boolean to indicate if rotary/cancellation tones are
                 used in the CR gate. If this value is set to False then no pulse is played
                 on the target qubit during the cross-resonance pulse.
             basis_gates: The basis gates to generate.
-            default_values: Default values for the parameters this dictionary can contain
+            default_values: Default values for the parameters. This dictionary can contain
                 the following keys: "duration", "amp", "amp_trg", "width", and "σ".
         """
-        self._rotary = pulse_on_target
+        self._ pulse_on_target = pulse_on_target
         super().__init__(basis_gates, default_values)
 
     @property
@@ -347,7 +347,7 @@ class EchoedCrossResonance(BasisGateLibrary):
         cr_chan = pulse.ControlChannel(Parameter("ch0.1"))
 
         cr_amp = Parameter("amp")
-        rot_amp = Parameter("amp_trg")
+        trg_amp = Parameter("amp_trg")
         cr_sigma = Parameter("σ")
         cr_duration = Parameter("duration")
         cr_width = Parameter("width")

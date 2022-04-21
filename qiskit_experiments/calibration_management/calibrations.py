@@ -1110,7 +1110,7 @@ class Calibrations:
                 # This is done upon the final return of get_schedule
                 ret_schedule.append(
                     self.get_schedule(
-                        block.name, called_qubits, assign_params, group, cutoff_date, False
+                        block.name, called_qubits, assign_params, group, cutoff_date, check_free_params=False
                     )
                 )
             elif isinstance(block, ScheduleBlock):
