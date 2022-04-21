@@ -255,7 +255,7 @@ class TestEchoedCrossResonance(QiskitExperimentsTestCase):
     def test_cals_initialization(self, control, target, uchan):
         """Test the an instance of Calibrations can be initialized with this library."""
         sq_lib = FixedFrequencyTransmon()
-        libraries = [sq_lib, EchoedCrossResonance(sq_lib)]
+        libraries = [sq_lib, EchoedCrossResonance()]
         cals = Calibrations.from_backend(FakeBelem(), libraries)
 
         cr_sched = cals.get_schedule("ecr", (control, target))
