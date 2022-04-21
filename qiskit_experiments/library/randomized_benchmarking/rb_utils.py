@@ -69,7 +69,6 @@ class RBUtils:
         return error_dict
 
     @staticmethod
-    @staticmethod
     @deprecated_function(
         last_version="0.4",
         msg=(

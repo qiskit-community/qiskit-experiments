@@ -213,7 +213,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
         """Return a list of experiment circuits, transpiled."""
         transpiled = super()._transpiled_circuits()
 
-        if not self.analysis.options.get("gate_error_ratio", None):
+        if self.analysis.options.get("gate_error_ratio", None) is None:
             # Gate errors are not computed, then counting ops is not necessary.
             return transpiled
 

@@ -90,7 +90,8 @@ class RBAnalysis(curve.CurveAnalysis):
             gate_error_ratio (Optional[Dict[str, float]]): A dictionary with gate name keys
                 and error ratio values used when calculating EPG from the estimated EPC.
                 The default value will use standard gate error ratios.
-                If set to ``False`` EPG will not be calculated.
+                If you don't know accurate error ratio between your basis gates,
+                you can skip analysis of EPGs by setting this options to ``None``.
             epg_1_qubit (List[DbAnalysisResultV1]): Analysis results from previous RB experiments
                 for individual single qubit gates. If this is provided, EPC of
                 2Q RB is corected to exclude the deporalization of underlying 1Q channels.
@@ -241,7 +242,7 @@ class RBAnalysis(curve.CurveAnalysis):
         self, experiment_data: ExperimentData
     ) -> Tuple[List[AnalysisResultData], List["pyplot.Figure"]]:
 
-        if self.options.gate_error_ratio:
+        if self.options.gate_error_ratio is not None:
             # If gate error ratio is not False, EPG analysis is enabled.
             # Here analysis prepares gate error ratio and gate counts for EPC to EPG conversion.
 

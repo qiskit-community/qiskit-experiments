@@ -17,7 +17,6 @@ from test.base import QiskitExperimentsTestCase
 import numpy as np
 from ddt import ddt, data, unpack
 from qiskit.circuit.library import SXGate, CXGate, TGate, XGate
-from qiskit.circuit import Delay
 from qiskit.exceptions import QiskitError
 from qiskit.providers.aer import AerSimulator
 from qiskit.providers.aer.noise import NoiseModel, depolarizing_error
@@ -88,7 +87,7 @@ class TestStandardRB(RBTestCase):
             seed=123,
             backend=self.backend,
         )
-        exp.analysis.set_options(gate_error_ratio=False)
+        exp.analysis.set_options(gate_error_ratio=None)
         exp.set_transpile_options(**self.transpiler_options)
         self.assertAllIdentity(exp.circuits())
 
@@ -115,7 +114,7 @@ class TestStandardRB(RBTestCase):
             seed=123,
             backend=self.backend,
         )
-        exp.analysis.set_options(gate_error_ratio=False)
+        exp.analysis.set_options(gate_error_ratio=None)
         exp.set_transpile_options(**self.transpiler_options)
         self.assertAllIdentity(exp.circuits())
 
@@ -141,7 +140,7 @@ class TestStandardRB(RBTestCase):
             backend=self.backend,
             num_samples=3,
         )
-        exp1.analysis.set_options(gate_error_ratio=False)
+        exp1.analysis.set_options(gate_error_ratio=None)
         exp1.set_transpile_options(**self.transpiler_options)
         expdata1 = exp1.run()
         self.assertExperimentDone(expdata1)
@@ -153,7 +152,7 @@ class TestStandardRB(RBTestCase):
             backend=self.backend,
             num_samples=5,
         )
-        exp2.analysis.set_options(gate_error_ratio=False)
+        exp2.analysis.set_options(gate_error_ratio=None)
         exp2.set_transpile_options(**self.transpiler_options)
         expdata2 = exp2.run()
         self.assertExperimentDone(expdata2)
@@ -346,22 +345,6 @@ class TestInterleavedRB(RBTestCase):
             lengths=lengths,
         )
 
-    def test_interleaving_delay(self):
-        """Test delay instruction can be interleaved."""
-        # See qiskit-experiments/#727 for details
-        interleaved_element = Delay(10, unit="us")
-        exp = rb.InterleavedRB(
-            interleaved_element,
-            qubits=[0],
-            lengths=[1],
-            num_samples=1,
-        )
-        # Not raises an error
-        _, int_circ = exp.circuits()
-
-        # barrier, clifford, barrier, "delay", barrier, ...
-        self.assertEqual(int_circ.data[3][0], interleaved_element)
-
     def test_experiment_config(self):
         """Test converting to and from config works"""
         exp = rb.InterleavedRB(
@@ -491,7 +474,7 @@ class TestEPGAnalysis(QiskitExperimentsTestCase):
     def test_no_epg(self):
         """Calculate no EPGs."""
         analysis = rb.RBAnalysis()
-        analysis.set_options(outcome="0", gate_error_ratio=False)
+        analysis.set_options(outcome="0", gate_error_ratio=None)
         result = analysis.run(self.expdata_1qrb_q0, replace_results=False)
         self.assertExperimentDone(result)
 
