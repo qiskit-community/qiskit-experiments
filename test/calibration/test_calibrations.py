@@ -1459,9 +1459,7 @@ class TestInstructionScheduleMap(QiskitExperimentsTestCase):
         cals = Calibrations.from_backend(
             FakeArmonk(),
             libraries=[
-                FixedFrequencyTransmon(
-                    basis_gates=["x", "sx"], default_values={"duration": 320}
-                )
+                FixedFrequencyTransmon(basis_gates=["x", "sx"], default_values={"duration": 320})
             ],
         )
 
