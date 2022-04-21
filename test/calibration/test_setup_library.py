@@ -245,7 +245,7 @@ class TestEchoedCrossResonance(QiskitExperimentsTestCase):
 
     def test_library(self):
         """Basic test of the library."""
-        self.assertTrue("ecr" in EchoedCrossResonance(FixedFrequencyTransmon()))
+        self.assertTrue("ecr" in EchoedCrossResonance())
 
     @data(
         (1, 2, 2),
