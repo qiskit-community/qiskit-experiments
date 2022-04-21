@@ -187,14 +187,14 @@ class DragCalAnalysis(curve.CurveAnalysis):
 
     def _run_curve_fit(
         self,
-        curve_data: CurveData,
-        series: List[SeriesDef],
-    ) -> Union[None, FitData]:
+        curve_data: curve.CurveData,
+        series: List[curve.SeriesDef],
+    ) -> Union[None, curve.FitData]:
         r"""Perform curve fitting on given data collection and fit models.
 
         .. note::
 
-            This class performs post-process the fit result from a Drag analysis.
+            This class post-processes the fit result from a Drag analysis.
 
             The Drag analysis should return the beta value that is closest to zero.
             Since the oscillating term is of the form

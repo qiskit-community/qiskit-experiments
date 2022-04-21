@@ -41,24 +41,24 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
     """Abstract superclass of curve analysis base classes.
 
     Note that this class doesn't define :meth:`_run_analysis` method,
-    and no actual fitting protocol is implemented by itself.
+    and no actual fitting protocol is implemented in this base class.
     However, this class defines several common methods that can be reused.
     A curve analysis subclass can construct proper fitting protocol
     by combining following methods, i.e. sub-routines.
 
     .. rubric:: _generate_fit_guesses
 
-    An abstract method to create initial guees.
+    An abstract method to create initial guesses for the fit parameters.
     This should be implemented by subclass.
 
     .. rubric:: _format_data
 
-    A method to format curve data. By default this method takes y value average
+    A method to format curve data. By default, this method takes the average of y values
     over the same x values and then sort the entire data by x values.
 
     .. rubric:: _evaluate_quality
 
-    A method to evaluate quality of fitting from fit outcome.
+    A method to evaluate the quality of the fit based on the fit result.
     This returns "good" when reduced chi-squared is less than 3.0.
     This criterion can be updated by subclass.
 
@@ -71,6 +71,8 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
 
     A method to perform fitting with predefined fit models and formatted data.
     This method internally calls :meth:`_generate_fit_guesses`.
+    Note that this is a core functionality of the :meth:`_run_analysis` method,
+    that creates fit result object from the processed curve data.
 
     .. rubric:: _create_analysis_results
 
@@ -96,7 +98,7 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
     @property
     @abstractmethod
     def parameters(self) -> List[str]:
-        """Return parameters of this curve analysis."""
+        """Return parameters estimated by this analysis."""
 
     @property
     def drawer(self) -> BaseCurveDrawer:
@@ -111,17 +113,18 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
             curve_plotter (BaseCurveDrawer): A curve drawer instance to visualize
                 the analysis result.
             plot_raw_data (bool): Set ``True`` to draw un-formatted data points on canvas.
-                This is ``True`` by default.
-            plot (bool): Set ``True`` to create figure for fit result.
                 This is ``False`` by default.
+            plot (bool): Set ``True`` to create figure for fit result.
+                This is ``True`` by default.
             return_fit_parameters (bool): Set ``True`` to return all fit model parameters
                 with details of the fit outcome. Default to ``True``.
-            return_data_points (bool): Set ``True`` to return formatted data points.
-                Default to ``False``.
+            return_data_points (bool): Set ``True`` to include in the analysis result
+                the formatted data points given to the fitter. Default to ``False``.
             data_processor (Callable): A callback function to format experiment data.
                 This can be a :class:`~qiskit_experiments.data_processing.DataProcessor`
                 instance that defines the `self.__call__` method.
             normalization (bool) : Set ``True`` to normalize y values within range [-1, 1].
+                Default to ``False``.
             p0 (Dict[str, float]): Array-like or dictionary
                 of initial parameters.
             bounds (Dict[str, Tuple[float, float]]): Array-like or dictionary
@@ -304,7 +307,7 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
             series: List of series definition defining filtering condition.
 
         Returns:
-            Un-formatted data collection.
+            Collection of curve data extracted from the experiment result.
 
         Raises:
             DataProcessorError: When key for x values is not found in the metadata.
