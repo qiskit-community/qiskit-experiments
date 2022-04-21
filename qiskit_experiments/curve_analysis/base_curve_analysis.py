@@ -17,15 +17,19 @@ Base class of curve analysis.
 import warnings
 
 from abc import ABC, abstractmethod
-from typing import List, Dict, Union, Optional
+from typing import List, Dict, Union
 
+import numpy as np
 from uncertainties import unumpy as unp
 
 from qiskit_experiments.framework import BaseAnalysis, AnalysisResultData, Options, ExperimentData
 from qiskit_experiments.data_processing import DataProcessor
+from qiskit_experiments.data_processing.processor_library import get_processor
+from qiskit_experiments.data_processing.exceptions import DataProcessorError
 from qiskit_experiments.exceptions import AnalysisError
 
 from .curve_data import CurveData, SeriesDef, FitData, ParameterRepr, FitOptions
+from .data_processing import multi_mean_xy_data, data_sort
 from .curve_fit import multi_curve_fit
 from .visualization import MplCurveDrawer, BaseCurveDrawer
 
@@ -42,43 +46,50 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
     A curve analysis subclass can construct proper fitting protocol
     by combining following methods, i.e. sub-routines.
 
-    _generate_fit_guesses
+    .. rubric:: _generate_fit_guesses
 
-        An abstract method to create initial guees.
-        This should be implemented by subclass.
+    An abstract method to create initial guees.
+    This should be implemented by subclass.
 
-    _format_data
+    .. rubric:: _format_data
 
-        A method to format curve data. By default this method takes y value average
-        over the same x values and then sort the entire data by x values.
+    A method to format curve data. By default this method takes y value average
+    over the same x values and then sort the entire data by x values.
 
-    _evaluate_quality
+    .. rubric:: _evaluate_quality
 
-        A method to evaluate quality of fitting from fit outcome.
-        This returns "good" when reduced chi-squared is less than 3.0.
-        This criterion can be updated by subclass.
+    A method to evaluate quality of fitting from fit outcome.
+    This returns "good" when reduced chi-squared is less than 3.0.
+    This criterion can be updated by subclass.
 
-    _run_data_processing
+    .. rubric:: _run_data_processing
 
-        A method to perform data processing, i.e. create data arrays from
-        a list of experiment data payload.
+    A method to perform data processing, i.e. create data arrays from
+    a list of experiment data payload.
 
-    _run_curve_fit
+    .. rubric:: _run_curve_fit
 
-        A method to perform fitting with predefined fit models and formatted data.
-        This method internally calls :meth:`_generate_fit_guesses`.
+    A method to perform fitting with predefined fit models and formatted data.
+    This method internally calls :meth:`_generate_fit_guesses`.
 
-    _create_analysis_results
+    .. rubric:: _create_analysis_results
 
-        A method to create analysis results for important fit parameters
-        that might be defined by analysis options ``result_parameters``.
-        In addition, another entry for all fit parameters is created when
-        the analysis option ``return_fit_parameters`` is ``True``.
+    A method to create analysis results for important fit parameters
+    that might be defined by analysis options ``result_parameters``.
+    In addition, another entry for all fit parameters is created when
+    the analysis option ``return_fit_parameters`` is ``True``.
 
-    _preparation
+    .. rubric:: _create_curve_data
 
-        A method that should be called before other methods are called.
-        This method initializes analysis options against input experiment data.
+    A method to create analysis results for data points used for the fitting.
+    Entries are created when the analysis option ``return_data_points`` is ``True``.
+    If analysis consists of multiple series, analysis result is created for
+    each curve data in the series.
+
+    .. rubric:: _preparation
+
+    A method that should be called before other methods are called.
+    This method initializes analysis options against input experiment data.
 
     """
 
@@ -107,8 +118,6 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
                 with details of the fit outcome. Default to ``True``.
             return_data_points (bool): Set ``True`` to return formatted data points.
                 Default to ``False``.
-            curve_fitter (Callable): A callback function to perform fitting with formatted data.
-                See :func:`~qiskit_experiments.analysis.multi_curve_fit` for example.
             data_processor (Callable): A callback function to format experiment data.
                 This can be a :class:`~qiskit_experiments.data_processing.DataProcessor`
                 instance that defines the `self.__call__` method.
@@ -132,7 +141,6 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
             fixed_parameters (Dict[str, Any]): Fitting model parameters that are fixed
                 during the curve fitting. This should be provided with default value
                 keyed on one of the parameter names in the series definition.
-            chisq_threshold (float):
         """
         options = super()._default_options()
 
@@ -141,7 +149,6 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
         options.plot = True
         options.return_fit_parameters = True
         options.return_data_points = False
-        options.curve_fitter = multi_curve_fit
         options.data_processor = None
         options.normalization = False
         options.x_key = "xval"
@@ -151,6 +158,10 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
         options.p0 = {}
         options.bounds = {}
         options.fixed_parameters = {}
+
+        # Set automatic validator for particular option values
+        options.set_validator(field="data_processor", validator_value=DataProcessor)
+        options.set_validator(field="curve_plotter", validator_value=BaseCurveDrawer)
 
         return options
 
@@ -162,7 +173,6 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
 
         Raises:
             KeyError: When removed option ``curve_fitter`` is set.
-            TypeError: When invalid drawer instance is provided.
         """
         # TODO remove this in Qiskit Experiments v0.4
         if "curve_plotter" in fields and isinstance(fields["curve_plotter"], str):
@@ -177,11 +187,15 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
             )
             fields["curve_plotter"] = MplCurveDrawer()
 
-        if "curve_plotter" in fields and not isinstance(fields["curve_plotter"], BaseCurveDrawer):
-            plotter_obj = fields["curve_plotter"]
-            raise TypeError(
-                f"'{plotter_obj.__class__.__name__}' object is not valid curve drawer instance."
+        if "curve_fitter" in fields:
+            warnings.warn(
+                "Setting curve fitter to analysis options has been deprecated and "
+                "the option has been removed. The fitter setting is dropped. "
+                "Now you can directly override '_run_curve_fit' method to apply custom fitter.",
+                DeprecationWarning,
+                stacklevel=2,
             )
+            del fields["curve_fitter"]
 
         # pylint: disable=no-member
         draw_options = set(self.drawer.options.__dict__.keys()) | {"style"}
@@ -206,11 +220,10 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
 
         super().set_options(**fields)
 
-    @abstractmethod
     def _generate_fit_guesses(
         self,
         user_opt: FitOptions,
-        curve_data: CurveData,
+        curve_data: CurveData,  # pylint: disable=unused-argument
     ) -> Union[FitOptions, List[FitOptions]]:
         """Create algorithmic guess with analysis options and curve data.
 
@@ -221,6 +234,7 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
         Returns:
             List of fit options that are passed to the fitter function.
         """
+        return user_opt
 
     def _format_data(
         self,
@@ -291,18 +305,21 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
 
         Returns:
             Un-formatted data collection.
+
+        Raises:
+            DataProcessorError: When key for x values is not found in the metadata.
         """
         x_key = self.options.x_key
 
         try:
-            xdata = np.asarray([datum["metadata"][x_key] for datum in data], dtype=float)
+            xdata = np.asarray([datum["metadata"][x_key] for datum in raw_data], dtype=float)
         except KeyError as ex:
             raise DataProcessorError(
                 f"X value key {x_key} is not defined in circuit metadata."
             ) from ex
 
-        ydata = self.options.data_processor(data)
-        shots = np.asarray([datum.get("shots", np.nan) for datum in data])
+        ydata = self.options.data_processor(raw_data)
+        shots = np.asarray([datum.get("shots", np.nan) for datum in raw_data])
 
         def _matched(metadata, **filters):
             try:
@@ -313,7 +330,7 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
         data_allocation = np.full(xdata.size, -1, dtype=int)
         for sind, series_def in enumerate(series):
             matched_inds = np.asarray(
-                [_matched(d["metadata"], **series_def.filter_kwargs) for d in data], dtype=bool
+                [_matched(d["metadata"], **series_def.filter_kwargs) for d in raw_data], dtype=bool
             )
             data_allocation[matched_inds] = sind
 
@@ -356,6 +373,7 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
                 "Update the method signature of your custom analysis class.",
                 DeprecationWarning,
             )
+            # pylint: disable=no-value-for-parameter
             fit_options = self._generate_fit_guesses(default_fit_opt)
         if isinstance(fit_options, FitOptions):
             fit_options = [fit_options]
@@ -364,9 +382,9 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
         fit_results = []
         for fit_opt in set(fit_options):
             try:
-                fit_result = self.options.curve_fitter(
+                fit_result = multi_curve_fit(
                     funcs=[sdef.fit_func for sdef in series],
-                    series=curve_data.data_index,
+                    series=curve_data.data_allocation,
                     xdata=curve_data.x,
                     ydata=curve_data.y,
                     sigma=curve_data.y_err,
@@ -414,10 +432,9 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
                 chisq=fit_data.reduced_chisq,
                 quality=quality,
                 extra={
-                    "popt_keys": fit_result.popt_keys,
-                    "dof": fit_result.dof,
-                    "covariance_mat": fit_result.pcov,
-                    "fit_models": fit_models,
+                    "popt_keys": fit_data.popt_keys,
+                    "dof": fit_data.dof,
+                    "covariance_mat": fit_data.pcov,
                     **metadata,
                 },
             )
@@ -444,13 +461,51 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
             outcome = AnalysisResultData(
                 name=p_repr,
                 value=fit_val,
-                chisq=fit_result.reduced_chisq,
+                chisq=fit_data.reduced_chisq,
                 quality=quality,
                 extra=par_metadata,
             )
             outcomes.append(outcome)
 
         return outcomes
+
+    def _create_curve_data(
+        self,
+        curve_data: CurveData,
+        series: List[SeriesDef],
+        **metadata,
+    ) -> List[AnalysisResultData]:
+        """Create analysis results for raw curve data.
+
+        Args:
+            curve_data: Full curve dataset used for the fitting.
+            series: List of series definition associated with the curve data.
+
+        Returns:
+            List of analysis result data.
+        """
+        samples = []
+
+        if not self.options.return_data_points:
+            return samples
+
+        for sdef in series:
+            s_data = curve_data.get_subset_of(sdef.name)
+            raw_datum = AnalysisResultData(
+                name=DATA_ENTRY_PREFIX + self.__class__.__name__,
+                value={
+                    "xdata": s_data.x,
+                    "ydata": s_data.y,
+                    "sigma": s_data.y_err,
+                },
+                extra={
+                    "name": sdef.name,
+                    **metadata,
+                },
+            )
+            samples.append(raw_datum)
+
+        return samples
 
     def _preparation(
         self,
@@ -469,12 +524,6 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
         # TODO move this to base analysis in follow-up
         data_processor = self.options.data_processor or get_processor(experiment_data, self.options)
 
-        if isinstance(data_processor, DataProcessor):
-            if not data_processor.is_trained:
-                data_processor.train(data=experiment_data.data())
-            self.set_options(data_processor=data_processor)
-        else:
-            raise AnalysisError(
-                f"'{repr(data_processor)}' is not valid data processor. "
-                "Please provide DataProcessor subclass in the analysis option."
-            )
+        if not data_processor.is_trained:
+            data_processor.train(data=experiment_data.data())
+        self.set_options(data_processor=data_processor)

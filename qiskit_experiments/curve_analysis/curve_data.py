@@ -85,7 +85,7 @@ class CurveData:
     # List of curve names
     labels: List[str]
 
-    def get_subset_of(self, index: Union[str, int]) -> CurveData:
+    def get_subset_of(self, index: Union[str, int]) -> "CurveData":
         """Filter data by series name or index.
 
         Args:
@@ -96,15 +96,19 @@ class CurveData:
         """
         if isinstance(index, int):
             inds = self.data_allocation == index
+            name = self.labels[index]
         else:
             inds = self.data_allocation == self.labels.index(index)
+            name = index
         return CurveData(
             x=self.x[inds],
             y=self.y[inds],
             y_err=self.y_err[inds],
             shots=self.shots[inds],
+            data_allocation=np.full(np.count_nonzero(inds), index),
             labels=[name],
         )
+
 
 @dataclasses.dataclass(frozen=True)
 class FitData:
