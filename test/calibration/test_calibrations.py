@@ -34,6 +34,7 @@ import qiskit.pulse as pulse
 from qiskit.test.mock import FakeArmonk, FakeBelem
 
 from qiskit_experiments.calibration_management.calibrations import Calibrations, ParameterKey
+from qiskit_experiments.calibration_management.calibration_utils import get_names_called_by_name
 from qiskit_experiments.calibration_management.parameter_value import ParameterValue
 from qiskit_experiments.calibration_management.called_schedule_by_name import CalledScheduleByName
 from qiskit_experiments.calibration_management.basis_gate_library import (
@@ -783,14 +784,15 @@ class TestRegistering(QiskitExperimentsTestCase):
             self.assertEqual(error.message, "xp is not a ScheduleBlock.")
 
     def test_calls_and_libraries(self):
-        """This tests that called schedules are the same as the ones already registered."""
+        """Test Calibrations creation from the ecr library and that there are no calls by name."""
 
-        # This should succeed as the libraries are properly configured.
         sq_lib = FixedFrequencyTransmon()
         lib_ecr = EchoedCrossResonance()
         cals = Calibrations.from_backend(backend=FakeBelem(), library=[sq_lib, lib_ecr])
 
-        self.assertTrue(isinstance(cals.get_schedule("ecr", (0, 1)), pulse.ScheduleBlock))
+        ecr = cals.get_schedule("ecr", (0, 1))
+        self.assertTrue(isinstance(ecr, pulse.ScheduleBlock))
+        self.assertSetEqual(get_names_called_by_name(ecr), set())  # Called by name are removed.
 
     def test_unique_names(self):
         """Test that we cannot register a schedule where parameters have the same names."""
