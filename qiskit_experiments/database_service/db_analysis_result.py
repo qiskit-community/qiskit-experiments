@@ -338,6 +338,15 @@ class DbAnalysisResultV1(DbAnalysisResult):
         """
         return self._device_components
 
+    @device_components.setter
+    def device_components(self, components: List[Union[DeviceComponent, str]]):
+        """Set the device components"""
+        self._device_components = []
+        for comp in components:
+            if isinstance(comp, str):
+                comp = to_component(comp)
+            self._device_components.append(comp)
+
     @property
     def result_id(self) -> str:
         """Return analysis result ID.

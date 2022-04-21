@@ -59,14 +59,11 @@ class CurveAnalysis(BaseCurveAnalysis):
                 p: self.options.get(p, None) for p in self.__fixed_parameters__
             }
 
-        #: Dict[str, Any]: Experiment metadata
-        self.__experiment_metadata = None
-
         #: List[CurveData]: Processed experiment data set.
         self.__processed_data_set = list()
 
-        #: Backend: backend object used for experimentation
-        self.__backend = None
+        #: List[int]: Index of physical qubits
+        self._physical_qubits = None
 
     @classmethod
     def _fit_params(cls) -> List[str]:
@@ -215,6 +212,10 @@ class CurveAnalysis(BaseCurveAnalysis):
             return data
         return data.get_subset_of(series_name)
 
+    @property
+    def _num_qubits(self) -> int:
+        return len(self._physical_qubits)
+
     def _run_analysis(
         self, experiment_data: ExperimentData
     ) -> Tuple[List[AnalysisResultData], List["pyplot.Figure"]]:
@@ -242,15 +243,8 @@ class CurveAnalysis(BaseCurveAnalysis):
 
         # get experiment metadata
         try:
-            self.__experiment_metadata = experiment_data.metadata
-
-        except AttributeError:
-            pass
-
-        # get backend
-        try:
-            self.__backend = experiment_data.backend
-        except AttributeError:
+            self._physical_qubits = experiment_data.metadata["physical_qubits"]
+        except KeyError:
             pass
 
         # Prepare for fitting
@@ -298,35 +292,35 @@ class CurveAnalysis(BaseCurveAnalysis):
                 for s in self.__series__:
                     interp_x = np.linspace(*fit_result.x_range, 100)
 
-                    params = {}
-                    for fitpar in s.signature:
-                        if fitpar in self.options.fixed_parameters:
-                            params[fitpar] = self.options.fixed_parameters[fitpar]
-                        else:
-                            params[fitpar] = fit_result.fitval(fitpar)
+                params = {}
+                for fitpar in s.signature:
+                    if fitpar in self.options.fixed_parameters:
+                        params[fitpar] = self.options.fixed_parameters[fitpar]
+                    else:
+                        params[fitpar] = fit_result.fitval(fitpar)
 
-                    y_data_with_uncertainty = s.fit_func(interp_x, **params)
-                    y_mean = unp.nominal_values(y_data_with_uncertainty)
-                    y_std = unp.std_devs(y_data_with_uncertainty)
-                    # Draw fit line
-                    self.drawer.draw_fit_line(
-                        x_data=interp_x,
-                        y_data=y_mean,
-                        ax_index=s.canvas,
-                        color=s.plot_color,
-                    )
-                    # Draw confidence intervals with different n_sigma
-                    sigmas = unp.std_devs(y_data_with_uncertainty)
-                    if np.isfinite(sigmas).all():
-                        for n_sigma, alpha in self.drawer.options.plot_sigma:
-                            self.drawer.draw_confidence_interval(
-                                x_data=interp_x,
-                                y_ub=y_mean + n_sigma * y_std,
-                                y_lb=y_mean - n_sigma * y_std,
-                                ax_index=s.canvas,
-                                alpha=alpha,
-                                color=s.plot_color,
-                            )
+                y_data_with_uncertainty = s.fit_func(interp_x, **params)
+                y_mean = unp.nominal_values(y_data_with_uncertainty)
+                y_std = unp.std_devs(y_data_with_uncertainty)
+                # Draw fit line
+                self.drawer.draw_fit_line(
+                    x_data=interp_x,
+                    y_data=y_mean,
+                    ax_index=s.canvas,
+                    color=s.plot_color,
+                )
+                # Draw confidence intervals with different n_sigma
+                sigmas = unp.std_devs(y_data_with_uncertainty)
+                if np.isfinite(sigmas).all():
+                    for n_sigma, alpha in self.drawer.options.plot_sigma:
+                        self.drawer.draw_confidence_interval(
+                            x_data=interp_x,
+                            y_ub=y_mean + n_sigma * y_std,
+                            y_lb=y_mean - n_sigma * y_std,
+                            ax_index=s.canvas,
+                            alpha=alpha,
+                            color=s.plot_color,
+                        )
 
                 # Write fitting report
                 report_description = ""
