@@ -388,7 +388,7 @@ def rb_decay(
     Args:
         x: Array of x values.
         y: Array of y values.
-        a: Coefficient of decay function. If not provided this is detemined so that
+        a: Coefficient of decay function. If not provided this is defaults to :math:`1-b`.
             :math:`y(0) = 1.0`.
         b: Asymptote of decay function.
 
