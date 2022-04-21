@@ -22,7 +22,6 @@ from numpy.random.bit_generator import BitGenerator, SeedSequence
 
 from qiskit import QuantumCircuit, QiskitError
 from qiskit.quantum_info import Clifford
-from qiskit.circuit import Gate
 from qiskit.providers.backend import Backend
 
 from qiskit_experiments.framework import BaseExperiment, Options
