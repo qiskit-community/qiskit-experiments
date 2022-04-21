@@ -1092,19 +1092,16 @@ class Calibrations:
 
         for block in schedule.blocks:
             if isinstance(block, CalledScheduleByName):
-
                 # Down-select the qubits to those of the called instruction.
                 called_qubits = []
                 for ch in block.channels:
-                    # Ignore ControlChannels as their index does not map to a qubit index.
+                    index = self._get_channel_index(qubits, ch)
                     if not isinstance(ch, ControlChannel):
-                        called_qubits.append(self._get_channel_index(qubits, ch))
+                        called_qubits.append(index)
+                    else:
+                        called_qubits.extend(self._controls_config_r[ControlChannel(index)])
 
                     called_qubits = tuple(called_qubits)
-
-                # If no qubits were down-selected then use all the qubits.
-                if len(called_qubits) == 0:
-                    called_qubits = qubits
 
                 # Avoid the free-parameter count check at the end.
                 # This is done upon the final return of get_schedule
