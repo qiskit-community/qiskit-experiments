@@ -21,7 +21,6 @@ import numpy as np
 import qiskit_experiments.curve_analysis as curve
 
 import qiskit_experiments.data_processing as dp
-from qiskit_experiments.database_service.device_component import Qubit
 from qiskit_experiments.framework import AnalysisResultData
 
 

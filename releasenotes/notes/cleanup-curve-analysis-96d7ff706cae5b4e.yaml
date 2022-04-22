@@ -1,0 +1,31 @@
+---
+developer:
+  - |
+    :class:`CurveAnalysis` is now a subclass of :class:`BaseCurveAnalysis`.
+    This change has been made to introduce multi-grouped curve analysis,
+    see qiskit-experiments/#737 for details.
+    
+    According to this update, several protected methods that are
+    originally designed to be overridden by subclass have been deprecated or upgraded.
+    Check the following list of changes you may need to upgrade your analysis subclass.
+    
+    - :meth:`CurveAnalysis._generate_fit_guesses`
+    
+    The signature of method has been upgraded. Now this method should be called with
+    ``curve_data`` and calling ``self._data()`` to get curve data has been deprecated.
+    
+    - :meth:`CurveAnalysis._data`
+    
+    This method has been deprecated. 
+    
+    - :meth:`CurveAnalysis._extra_database_entry`
+    
+    This method has been deprecated. You can directly override 
+    new method :meth:`CurveAnalysis._create_analysis_results`.
+    
+    - :class:`FitData`
+    
+    Fit data dataclass is now created with :attr:`x_data` and :attr:`y_data`
+    so that you can retrieve the data used for the fitting along with the outcome parameters.
+
+    See :ref:`curve_analysis_overview` for the overview of new curve analysis base class.

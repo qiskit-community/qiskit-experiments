@@ -59,9 +59,6 @@ class CurveAnalysis(BaseCurveAnalysis):
         #: List[CurveData]: Processed experiment data set. For backward compatibility.
         self.__processed_data_set = {}
 
-        #: List[int]: Index of physical qubits
-        self._physical_qubits = None
-
     @classmethod
     def _fit_params(cls) -> List[str]:
         """Return a list of fitting parameters.
@@ -200,9 +197,7 @@ class CurveAnalysis(BaseCurveAnalysis):
             quality = self._evaluate_quality(fit_data)
 
             # Create analysis results
-            analysis_results.extend(
-                self._create_analysis_results(fit_data, quality, **metadata)
-            )
+            analysis_results.extend(self._create_analysis_results(fit_data, quality, **metadata))
             # calling old extra entry method for backward compatibility
             if hasattr(self, "_extra_database_entry"):
                 warnings.warn(
@@ -331,6 +326,9 @@ def analysis_result_to_repr(result: AnalysisResultData) -> str:
 
     Returns:
         String representation of the data.
+
+    Raises:
+        AnalysisError: When the result data is not likely fit parameter.
     """
     if not isinstance(result.value, (float, UFloat)):
         raise AnalysisError(f"Result data {result.name} is not a valid fit parameter data type.")

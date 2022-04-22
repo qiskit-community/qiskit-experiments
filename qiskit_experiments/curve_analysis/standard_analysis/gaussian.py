@@ -127,10 +127,10 @@ class GaussianAnalysis(curve.CurveAnalysis):
         fit_a = fit_data.fitval("a")
         fit_b = fit_data.fitval("b")
         fit_freq = fit_data.fitval("freq")
-        fit_kappa = fit_data.fitval("kappa")
+        fit_sigma = fit_data.fitval("sigma")
 
         snr = abs(fit_a.n) / np.sqrt(abs(np.median(fit_data.y_data) - fit_b.n))
-        fit_width_ratio = fit_kappa.n / np.ptp(fit_data.x_data)
+        fit_width_ratio = fit_sigma.n / np.ptp(fit_data.x_data)
 
         criteria = [
             fit_data.x_range[0] <= fit_freq.n <= fit_data.x_range[1],

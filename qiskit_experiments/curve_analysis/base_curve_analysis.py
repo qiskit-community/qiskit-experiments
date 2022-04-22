@@ -135,10 +135,13 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
                 instance that defines the `self.__call__` method.
             normalization (bool) : Set ``True`` to normalize y values within range [-1, 1].
                 Default to ``False``.
-            p0 (Dict[str, float]): Array-like or dictionary
-                of initial parameters.
-            bounds (Dict[str, Tuple[float, float]]): Array-like or dictionary
-                of (min, max) tuple of fit parameter boundaries.
+            p0 (Dict[str, float]): Initial guesses for the fit parameters.
+                The dictionary is keyed on the fit parameter names.
+            bounds (Dict[str, Tuple[float, float]]): Boundary of fit parameters.
+                The dictionary is keyed on the fit parameter names and
+                values are the tuples of (min, max) of each parameter.
+            curve_fitter_options (Dict[str, Any]) Options that are passed to the
+                scipy curve fit which performs the least square fitting on the experiment results.
             x_key (str): Circuit metadata key representing a scanned value.
             result_parameters (List[Union[str, ParameterRepr]): Parameters reported in the
                 database as a dedicated entry. This is a list of parameter representation
@@ -149,8 +152,6 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
                 Representation should be printable in standard output, i.e. no latex syntax.
             extra (Dict[str, Any]): A dictionary that is appended to all database entries
                 as extra information.
-            curve_fitter_options (Dict[str, Any]) Options that are passed to the
-                specified curve fitting function.
             fixed_parameters (Dict[str, Any]): Fitting model parameters that are fixed
                 during the curve fitting. This should be provided with default value
                 keyed on one of the parameter names in the series definition.

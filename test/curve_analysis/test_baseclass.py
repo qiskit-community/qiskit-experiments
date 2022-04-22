@@ -81,6 +81,7 @@ class TestCurveAnalysisUnit(QiskitExperimentsTestCase):
 
     class TestAnalysis(CurveAnalysis):
         """Fake analysis class for unittest."""
+
         __series__ = [
             SeriesDef(
                 name="curve1",
@@ -136,9 +137,7 @@ class TestCurveAnalysisUnit(QiskitExperimentsTestCase):
         xvalues = np.linspace(1.0, 5.0, 10)
 
         analysis = self.TestAnalysis()
-        analysis.set_options(
-            data_processor=DataProcessor("counts", [Probability("1")])
-        )
+        analysis.set_options(data_processor=DataProcessor("counts", [Probability("1")]))
 
         # data to analyze
         test_data0 = simulate_output_data(
@@ -171,9 +170,7 @@ class TestCurveAnalysisUnit(QiskitExperimentsTestCase):
         xvalues = np.linspace(1.0, 5.0, 10)
 
         analysis = self.TestAnalysis()
-        analysis.set_options(
-            data_processor=DataProcessor("counts", [Probability("1")])
-        )
+        analysis.set_options(data_processor=DataProcessor("counts", [Probability("1")]))
 
         # data to analyze
         test_data0 = simulate_output_data(
@@ -257,6 +254,7 @@ class TestCurveAnalysisUnit(QiskitExperimentsTestCase):
 
         class InvalidClass:
             """Dummy class."""
+
             pass
 
         with self.assertRaises(TypeError):

@@ -298,7 +298,6 @@ or elimination of outliers for better fitting.
 Curve analysis calls :meth:`_run_curve_fit` method which is the core functionality of the fitting.
 The another method :meth:`_generate_fit_guesses` is internally called to
 prepare the initial guess and parameter boundary with respect to the formatted data.
-See :ref:`curve_analysis_init_guess` for details.
 A developer usually override this method to provide better initial guess
 tailored to the defined fit model or type of the associated experiment.
 See :ref:`curve_analysis_init_guess` for more details.
