@@ -113,15 +113,16 @@ class Calibrations:
             backend_version: The version of the backend that these calibrations are attached to.
 
         Raises:
-            NotImplementedError: if a list of libraries is given. This will be implemented in
-                the future.
+            CalibrationError: if both library and libraries are given. Note that library will be
+                removed in future versions.
+
         """
         self._backend_name = backend_name
         self._backend_version = backend_version
 
         if library:
             warnings.warn(
-                f"library has been deprecated, please provide libraries instead."
+                "library has been deprecated, please provide libraries instead."
                 "This warning will be removed with backport in Qiskit Experiments 0.4.",
                 DeprecationWarning,
                 stacklevel=2,
@@ -291,7 +292,7 @@ class Calibrations:
     def library(self) -> Optional[List[BasisGateLibrary]]:
         """Return the libraries used to initialize the calibrations."""
         warnings.warn(
-            f"library has been deprecated, use libraries instead."
+            "library has been deprecated, use libraries instead."
             "This warning will be removed with backport in Qiskit Experiments 0.4.",
             DeprecationWarning,
             stacklevel=2,
