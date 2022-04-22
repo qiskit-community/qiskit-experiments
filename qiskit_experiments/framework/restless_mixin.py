@@ -154,7 +154,7 @@ class RestlessMixin:
 
         if meas_level == MeasLevel.KERNELED:
             return get_kerneled_processor(
-                dimensionality_reduction, meas_return, normalize, nodes.RestlessToIQ()
+                dimensionality_reduction, meas_return, normalize, [nodes.RestlessToIQ()]
             )
 
         else:
