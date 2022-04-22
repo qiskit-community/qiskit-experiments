@@ -118,17 +118,10 @@ class RBAnalysis(curve.CurveAnalysis):
         super().set_options(**fields)
 
     def _generate_fit_guesses(
-        self, user_opt: curve.FitOptions
+        self,
+        user_opt: curve.FitOptions,
+        curve_data: curve.CurveData,
     ) -> Union[curve.FitOptions, List[curve.FitOptions]]:
-        """Compute the initial guesses.
-
-        Args:
-            user_opt: Fit options filled with user provided guess and bounds.
-
-        Returns:
-            List of fit options that are passed to the fitter function.
-        """
-        curve_data = self._data()
 
         user_opt.bounds.set_if_empty(
             a=(0, 1),
@@ -182,23 +175,26 @@ class RBAnalysis(curve.CurveAnalysis):
             labels=curve_data.labels,
         )
 
-    def _extra_database_entry(self, fit_data: curve.FitData) -> List[AnalysisResultData]:
-        """Calculate EPC."""
-        extra_entries = []
-        # pylint: disable=assignment-from-none
-        quality = self._evaluate_quality(fit_data)
+    def _create_analysis_results(
+        self,
+        fit_data: curve.FitData,
+        quality: str,
+        **metadata,
+    ) -> List[AnalysisResultData]:
+        outcomes = super()._create_analysis_results(fit_data, quality, **metadata)
 
         # Calculate EPC
         alpha = fit_data.fitval("alpha")
         scale = (2**self._num_qubits - 1) / (2**self._num_qubits)
         epc = scale * (1 - alpha)
 
-        extra_entries.append(
+        outcomes.append(
             AnalysisResultData(
                 name="EPC",
                 value=epc,
                 chisq=fit_data.reduced_chisq,
                 quality=quality,
+                extra=metadata,
             )
         )
 
@@ -210,12 +206,13 @@ class RBAnalysis(curve.CurveAnalysis):
                 gate_counts_per_clifford=self._gate_counts_per_clifford,
                 extra_analyses=self.options.epg_1_qubit,
             )
-            extra_entries.append(
+            outcomes.append(
                 AnalysisResultData(
                     name="EPC_corrected",
                     value=epc,
                     chisq=fit_data.reduced_chisq,
                     quality=quality,
+                    extra=metadata,
                 )
             )
 
@@ -229,20 +226,23 @@ class RBAnalysis(curve.CurveAnalysis):
             )
             if epg_dict:
                 for gate, epg_val in epg_dict.items():
-                    extra_entries.append(
+                    outcomes.append(
                         AnalysisResultData(
                             name=f"EPG_{gate}",
                             value=epg_val,
                             chisq=fit_data.reduced_chisq,
                             quality=quality,
+                            extra=metadata,
                         )
                     )
 
-        return extra_entries
+        return outcomes
 
-    def _run_analysis(
-        self, experiment_data: ExperimentData
-    ) -> Tuple[List[AnalysisResultData], List["pyplot.Figure"]]:
+    def _preparation(
+        self,
+        experiment_data: ExperimentData,
+    ):
+        super()._preparation(experiment_data)
 
         if self.options.gate_error_ratio is not None:
             # If gate error ratio is not False, EPG analysis is enabled.
@@ -276,8 +276,6 @@ class RBAnalysis(curve.CurveAnalysis):
                         continue
                     gate_error_ratio[gate] = _lookup_epg_ratio(gate, len(qinds))
                 self.set_options(gate_error_ratio=gate_error_ratio)
-
-        return super()._run_analysis(experiment_data)
 
 
 def _lookup_epg_ratio(gate: str, n_qubits: int) -> Union[None, int]:

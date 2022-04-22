@@ -197,8 +197,12 @@ class CurveAnalysis(BaseCurveAnalysis):
             metadata["fit_models"] = {
                 s.name: s.model_description or "no description" for s in self.__series__
             }
-            analysis_results.extend(self._create_analysis_results(fit_data, **metadata))
+            quality = self._evaluate_quality(fit_data)
 
+            # Create analysis results
+            analysis_results.extend(
+                self._create_analysis_results(fit_data, quality, **metadata)
+            )
             # calling old extra entry method for backward compatibility
             if hasattr(self, "_extra_database_entry"):
                 warnings.warn(

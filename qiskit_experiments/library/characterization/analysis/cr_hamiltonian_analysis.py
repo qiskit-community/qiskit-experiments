@@ -219,24 +219,19 @@ class CrossResonanceHamiltonianAnalysis(curve.CurveAnalysis):
         return default_options
 
     def _generate_fit_guesses(
-        self, user_opt: curve.FitOptions
+        self,
+        user_opt: curve.FitOptions,
+        curve_data: curve.CurveData,
     ) -> Union[curve.FitOptions, List[curve.FitOptions]]:
-        """Compute the initial guesses.
 
-        Args:
-            user_opt: Fit options filled with user provided guess and bounds.
-
-        Returns:
-            List of fit options that are passed to the fitter function.
-        """
         user_opt.bounds.set_if_empty(t_off=(0, np.inf), b=(-1, 1))
         user_opt.p0.set_if_empty(b=1e-9)
 
         guesses = defaultdict(list)
         for control in (0, 1):
-            x_data = self._data(series_name=f"x|c={control}")
-            y_data = self._data(series_name=f"y|c={control}")
-            z_data = self._data(series_name=f"z|c={control}")
+            x_data = curve_data.get_subset_of(f"x|c={control}")
+            y_data = curve_data.get_subset_of(f"y|c={control}")
+            z_data = curve_data.get_subset_of(f"z|c={control}")
 
             omega_xyz = []
             for data in (x_data, y_data, z_data):
@@ -288,20 +283,13 @@ class CrossResonanceHamiltonianAnalysis(curve.CurveAnalysis):
 
         return fit_options
 
-    def _evaluate_quality(self, fit_data: curve.FitData) -> Union[str, None]:
-        """Algorithmic criteria for whether the fit is good or bad.
-
-        A good fit has:
-            - If chi-squared value is less than 3.
-        """
-        if fit_data.reduced_chisq < 3:
-            return "good"
-
-        return "bad"
-
-    def _extra_database_entry(self, fit_data: curve.FitData) -> List[AnalysisResultData]:
-        """Calculate Hamiltonian coefficients from fit values."""
-        extra_entries = []
+    def _create_analysis_results(
+        self,
+        fit_data: curve.FitData,
+        quality: str,
+        **metadata,
+    ) -> List[AnalysisResultData]:
+        outcomes = super()._create_analysis_results(fit_data, quality, **metadata)
 
         for control in ("z", "i"):
             for target in ("x", "y", "z"):
@@ -313,14 +301,17 @@ class CrossResonanceHamiltonianAnalysis(curve.CurveAnalysis):
                 else:
                     coef_val = 0.5 * (p0_val + p1_val) / (2 * np.pi)
 
-                extra_entries.append(
+                outcomes.append(
                     AnalysisResultData(
                         name=f"omega_{control}{target}",
                         value=coef_val,
                         chisq=fit_data.reduced_chisq,
-                        device_components=[Qubit(q) for q in self._physical_qubits],
-                        extra={"unit": "Hz"},
+                        quality=quality,
+                        extra={
+                            "unit": "Hz",
+                            **metadata,
+                        },
                     )
                 )
 
-        return extra_entries
+        return outcomes

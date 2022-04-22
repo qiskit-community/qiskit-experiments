@@ -311,6 +311,7 @@ Curve analysis runs several post processings to the fit outcome.
 It calls :meth:`_create_analysis_results` to create :class:`AnalysisResultData` class
 for the fitting parameters of interest. A developer can inject a custom code to
 compute custom quantities based on the raw fit parameters.
+See :ref:`curve_analysis_results` for details.
 Afterwards, the analysis draws several curves in the Matplotlib figure.
 User can set custom drawer to the option ``curve_plotter``.
 The drawer defaults to the :class:`MplCurveDrawer`.
@@ -425,7 +426,7 @@ This can be done by overriding the :meth:`_create_analysis_results` method.
 
     from qiskit_experiments.framework import AnalysisResultData
 
-    def _create_analysis_results(self, fit_data, **metadata):
+    def _create_analysis_results(self, fit_data, quality, **metadata):
 
         outcomes = super()._create_analysis_results(fit_data, **metadata)
 
@@ -435,7 +436,8 @@ This can be done by overriding the :meth:`_create_analysis_results` method.
         extra_entry = AnalysisResultData(
             name="p01",
             value=p0 * p1,
-            extra=**metadata,
+            quality=quality,
+            extra=metadata,
         )
         outcomes.append(extra_entry)
 

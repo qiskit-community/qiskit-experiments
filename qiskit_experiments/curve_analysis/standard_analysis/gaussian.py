@@ -81,17 +81,11 @@ class GaussianAnalysis(curve.CurveAnalysis):
         return options
 
     def _generate_fit_guesses(
-        self, user_opt: curve.FitOptions
+        self,
+        user_opt: curve.FitOptions,
+        curve_data: curve.CurveData,
     ) -> Union[curve.FitOptions, List[curve.FitOptions]]:
-        """Compute the initial guesses.
 
-        Args:
-            user_opt: Fit options filled with user provided guess and bounds.
-
-        Returns:
-            List of fit options that are passed to the fitter function.
-        """
-        curve_data = self._data()
         max_abs_y, _ = curve.guess.max_height(curve_data.y, absolute=True)
 
         user_opt.bounds.set_if_empty(
@@ -128,22 +122,18 @@ class GaussianAnalysis(curve.CurveAnalysis):
               threshold of two, and
             - a standard error on the sigma of the Gaussian that is smaller than the sigma.
         """
-        curve_data = self._data()
-
-        max_freq = np.max(curve_data.x)
-        min_freq = np.min(curve_data.x)
-        freq_increment = np.mean(np.diff(curve_data.x))
+        freq_increment = np.mean(np.diff(fit_data.x_data))
 
         fit_a = fit_data.fitval("a")
         fit_b = fit_data.fitval("b")
         fit_freq = fit_data.fitval("freq")
-        fit_sigma = fit_data.fitval("sigma")
+        fit_kappa = fit_data.fitval("kappa")
 
-        snr = abs(fit_a.n) / np.sqrt(abs(np.median(curve_data.y) - fit_b.n))
-        fit_width_ratio = fit_sigma.n / (max_freq - min_freq)
+        snr = abs(fit_a.n) / np.sqrt(abs(np.median(fit_data.y_data) - fit_b.n))
+        fit_width_ratio = fit_kappa.n / np.ptp(fit_data.x_data)
 
         criteria = [
-            min_freq <= fit_freq.n <= max_freq,
+            fit_data.x_range[0] <= fit_freq.n <= fit_data.x_range[1],
             1.5 * freq_increment < fit_sigma.n,
             fit_width_ratio < 0.25,
             fit_data.reduced_chisq < 3,

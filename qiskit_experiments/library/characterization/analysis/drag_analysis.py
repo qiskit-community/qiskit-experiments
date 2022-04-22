@@ -131,18 +131,13 @@ class DragCalAnalysis(curve.CurveAnalysis):
         return default_options
 
     def _generate_fit_guesses(
-        self, user_opt: curve.FitOptions
+        self,
+        user_opt: curve.FitOptions,
+        curve_data: curve.CurveData,
     ) -> Union[curve.FitOptions, List[curve.FitOptions]]:
-        """Compute the initial guesses.
 
-        Args:
-            user_opt: Fit options filled with user provided guess and bounds.
-
-        Returns:
-            List of fit options that are passed to the fitter function.
-        """
         # Use a fast Fourier transform to guess the frequency.
-        x_data = self._data("series-0").x
+        x_data = curve_data.get_subset_of("series-0").x
         min_beta, max_beta = min(x_data), max(x_data)
 
         # Use the highest-frequency curve to estimate the oscillation frequency.
@@ -152,7 +147,7 @@ class DragCalAnalysis(curve.CurveAnalysis):
             ("series-2", "reps2"),
             key=lambda x: self.options.fixed_parameters[x[1]],
         )
-        curve_data = self._data(series_label)
+        curve_data = curve_data.get_subset_of(series_label)
         reps2 = self.options.fixed_parameters[reps_label]
         freqs_guess = curve.guess.frequency(curve_data.x, curve_data.y) / reps2
         user_opt.p0.set_if_empty(freq=freqs_guess)
@@ -161,14 +156,14 @@ class DragCalAnalysis(curve.CurveAnalysis):
         span_x = max(x_data) - min(x_data)
         beta_bound = max(5 / user_opt.p0["freq"], span_x)
 
-        ptp_y = np.ptp(self._data().y)
+        ptp_y = np.ptp(curve_data.y)
         user_opt.bounds.set_if_empty(
             amp=(-2 * ptp_y, 0),
             freq=(0, np.inf),
             beta=(avg_x - beta_bound, avg_x + beta_bound),
-            base=(min(self._data().y) - ptp_y, max(self._data().y) + ptp_y),
+            base=(min(curve_data.y) - ptp_y, max(curve_data.y) + ptp_y),
         )
-        base_guess = (max(self._data().y) - min(self._data().y)) / 2
+        base_guess = (max(curve_data.y) - min(curve_data.y)) / 2
         user_opt.p0.set_if_empty(base=(user_opt.p0["amp"] or base_guess))
 
         # Drag curves can sometimes be very flat, i.e. averages of y-data

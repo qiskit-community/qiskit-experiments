@@ -119,16 +119,11 @@ class InterleavedRBAnalysis(curve.CurveAnalysis):
         return default_options
 
     def _generate_fit_guesses(
-        self, user_opt: curve.FitOptions
+        self,
+        user_opt: curve.FitOptions,
+        curve_data: curve.CurveData,
     ) -> Union[curve.FitOptions, List[curve.FitOptions]]:
-        """Compute the initial guesses.
 
-        Args:
-            user_opt: Fit options filled with user provided guess and bounds.
-
-        Returns:
-            List of fit options that are passed to the fitter function.
-        """
         user_opt.bounds.set_if_empty(
             a=(0, 1),
             alpha=(0, 1),
@@ -140,11 +135,11 @@ class InterleavedRBAnalysis(curve.CurveAnalysis):
         a_guess = 1 - b_guess
 
         # for standard RB curve
-        std_curve = self._data(series_name="Standard")
+        std_curve = curve_data.get_subset_of("Standard")
         alpha_std = curve.guess.rb_decay(std_curve.x, std_curve.y, a=a_guess, b=b_guess)
 
         # for interleaved RB curve
-        int_curve = self._data(series_name="Interleaved")
+        int_curve = curve_data.get_subset_of("Interleaved")
         alpha_int = curve.guess.rb_decay(int_curve.x, int_curve.y, a=a_guess, b=b_guess)
 
         alpha_c = min(alpha_int / alpha_std, 1.0)
@@ -192,8 +187,14 @@ class InterleavedRBAnalysis(curve.CurveAnalysis):
             labels=curve_data.labels,
         )
 
-    def _extra_database_entry(self, fit_data: curve.FitData) -> List[AnalysisResultData]:
-        """Calculate EPC."""
+    def _create_analysis_results(
+        self,
+        fit_data: curve.FitData,
+        quality: str,
+        **metadata,
+    ) -> List[AnalysisResultData]:
+        outcomes = super()._create_analysis_results(fit_data, quality, **metadata)
+
         nrb = 2**self._num_qubits
         scale = (nrb - 1) / nrb
 
@@ -214,15 +215,18 @@ class InterleavedRBAnalysis(curve.CurveAnalysis):
         systematic_err_l = epc.n - systematic_err
         systematic_err_r = epc.n + systematic_err
 
-        extra_data = AnalysisResultData(
-            name="EPC",
-            value=epc,
-            chisq=fit_data.reduced_chisq,
-            quality=self._evaluate_quality(fit_data),
-            extra={
-                "EPC_systematic_err": systematic_err,
-                "EPC_systematic_bounds": [max(systematic_err_l, 0), systematic_err_r],
-            },
+        outcomes.append(
+            AnalysisResultData(
+                name="EPC",
+                value=epc,
+                chisq=fit_data.reduced_chisq,
+                quality=quality,
+                extra={
+                    "EPC_systematic_err": systematic_err,
+                    "EPC_systematic_bounds": [max(systematic_err_l, 0), systematic_err_r],
+                    **metadata,
+                },
+            )
         )
 
-        return [extra_data]
+        return outcomes

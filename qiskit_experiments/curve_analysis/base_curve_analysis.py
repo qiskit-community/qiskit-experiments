@@ -424,17 +424,18 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
     def _create_analysis_results(
         self,
         fit_data: FitData,
+        quality: str,
         **metadata,
     ) -> List[AnalysisResultData]:
         """Create analysis results for important fit parameters.
 
         Args:
             fit_data: Fit outcome.
+            quality: Quality of fit outcome.
 
         Returns:
             List of analysis result data.
         """
-        quality = self._evaluate_quality(fit_data=fit_data)
         outcomes = []
 
         # Create entry for all fit parameters

@@ -129,11 +129,21 @@ class FitData:
     # Degree of freedom
     dof: int
 
-    # X data range
-    x_range: Tuple[float, float]
+    # X data
+    x_data: np.ndarray
 
-    # Y data range
-    y_range: Tuple[float, float]
+    # Y data
+    y_data: np.ndarray
+
+    @property
+    def x_range(self) -> Tuple[float, float]:
+        """Return range of x values."""
+        return np.min(self.x_data), np.max(self.x_data)
+
+    @property
+    def y_range(self) -> Tuple[float, float]:
+        """Return range of y values."""
+        return np.min(self.y_data), np.max(self.y_data)
 
     def fitval(self, key: str) -> uncertainties.UFloat:
         """A helper method to get fit value object from parameter key name.
