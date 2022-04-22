@@ -13,7 +13,7 @@
 Fitter basis classes for tomography analysis.
 """
 from abc import ABC, abstractmethod
-from typing import Sequence, Tuple
+from typing import Sequence, Tuple, Optional
 import numpy as np
 from qiskit import QuantumCircuit
 
@@ -54,12 +54,16 @@ class BaseBasis(ABC):
         """
 
     @abstractmethod
-    def circuit(self, index: Sequence[int], qubits: Sequence[int]) -> QuantumCircuit:
+    def circuit(
+        self, index: Sequence[int], qubits: Optional[Sequence[int]] = None
+    ) -> QuantumCircuit:
         """Return the basis preparation circuit.
 
         Args:
             index: a list of basis elements to tensor together.
-            qubits: The physical qubit subsystems for the index.
+            qubits: Optional, the physical qubit subsystems for the index.
+                    If None this will be set to ``(0, ..., N-1)`` for a
+                    length N index.
 
         Returns:
             The logical basis circuit for the specified index and qubits.
@@ -99,7 +103,7 @@ class PreparationBasis(BaseBasis):
         """Return the shape of subsystem dimensions of a matrix element."""
 
     @abstractmethod
-    def matrix(self, index: Sequence[int], qubits: Sequence[int]) -> np.ndarray:
+    def matrix(self, index: Sequence[int], qubits: Optional[Sequence[int]] = None) -> np.ndarray:
         """Return the density matrix data array for the index and qubits.
 
         This state is used by tomography fitters for reconstruction and should
@@ -108,7 +112,9 @@ class PreparationBasis(BaseBasis):
 
         Args:
             index: a list of subsystem basis indices.
-            qubits: The physical qubit subsystems for the index.
+            qubits: Optional, the physical qubit subsystems for the index.
+                    If None this will be set to ``(0, ..., N-1)`` for a
+                    length N index.
 
         Returns:
             The density matrix prepared by the specified index and qubits.
@@ -153,7 +159,9 @@ class MeasurementBasis(BaseBasis):
         """Return the shape of subsystem dimensions of a POVM matrix element."""
 
     @abstractmethod
-    def matrix(self, index: Sequence[int], outcome: int, qubits: Sequence[int]) -> np.ndarray:
+    def matrix(
+        self, index: Sequence[int], outcome: int, qubits: Optional[Sequence[int]] = None
+    ) -> np.ndarray:
         """Return the POVM element for the basis index and outcome.
 
         This POVM element is used by tomography fitters for reconstruction and
@@ -163,7 +171,9 @@ class MeasurementBasis(BaseBasis):
         Args:
             index: a list of subsystem basis indices.
             outcome: the composite system measurement outcome.
-            qubits: The physical qubit subsystems for the index.
+            qubits: Optional, the physical qubit subsystems for the index.
+                    If None this will be set to ``(0, ..., N-1)`` for a
+                    length N index.
 
         Returns:
             The POVM matrix for the specified index and qubits.

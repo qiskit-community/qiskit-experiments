@@ -144,21 +144,31 @@ class LocalPreparationBasis(PreparationBasis):
     def matrix_shape(self, qubits: Sequence[int]) -> Tuple[int, ...]:
         return tuple(self._qubit_dim.get(i, self._default_dim) for i in qubits)
 
-    def circuit(self, index: Sequence[int], qubits: Sequence[int]) -> QuantumCircuit:
+    def circuit(
+        self, index: Sequence[int], qubits: Optional[Sequence[int]] = None
+    ) -> QuantumCircuit:
         # pylint: disable = unused-argument
         if not self._instructions:
-            raise NotImplementedError("This basis does not define circuits")
+            raise NotImplementedError(
+                f"Basis {self.name} does not define circuits so can only be "
+                " used as a fitter basis for analysis."
+            )
         return _tensor_product_circuit(self._instructions, index, self._name)
 
-    def matrix(self, index: Sequence[int], qubits: Sequence[int]):
+    def matrix(self, index: Sequence[int], qubits: Optional[Sequence[int]] = None):
+        if qubits is None:
+            qubits = tuple(range(len(index)))
         try:
-            mat = 1
+            mat = np.eye(1)
             for i, qubit in zip(index, qubits):
                 states = self._qubit_states.get(qubit, self._default_states)
                 mat = np.kron(states[i], mat)
             return mat
         except TypeError as ex:
-            raise QiskitError("Invalid qubits for basis") from ex
+            # This occurs if basis is constructed with qubit_states
+            # kwarg but no default_states or instructions and is called for
+            # a qubit not in the specified kwargs.
+            raise ValueError(f"Invalid qubits for basis {self.name}") from ex
 
     def __json_encode__(self):
         value = {
@@ -314,21 +324,32 @@ class LocalMeasurementBasis(MeasurementBasis):
     def outcome_shape(self, qubits: Sequence[int]) -> Tuple[int, ...]:
         return tuple(self._qubit_num_outcomes.get(i, self._default_num_outcomes) for i in qubits)
 
-    def circuit(self, index: Sequence[int], qubits: Sequence[int]):
+    def circuit(self, index: Sequence[int], qubits: Optional[Sequence[int]] = None):
         # pylint: disable = unused-argument
         if not self._instructions:
-            raise NotImplementedError("This basis does not define circuits")
+            raise NotImplementedError(
+                f"Basis {self.name} does not define circuits so can only be "
+                " used as a fitter basis for analysis."
+            )
         circuit = _tensor_product_circuit(self._instructions, index, self._name)
         circuit.measure_all()
         return circuit
 
-    def matrix(self, index: Sequence[int], outcome: int, qubits: Sequence[int]):
-        outcome_index = self._outcome_indices(outcome, tuple(qubits))
-        mat = 1
-        for idx, odx, qubit in zip(index, outcome_index, qubits):
-            povms = self._qubit_povms.get(qubit, self._default_povms)
-            mat = np.kron(povms[idx][odx], mat)
-        return mat
+    def matrix(self, index: Sequence[int], outcome: int, qubits: Optional[Sequence[int]] = None):
+        if qubits is None:
+            qubits = tuple(range(len(index)))
+        try:
+            outcome_index = self._outcome_indices(outcome, tuple(qubits))
+            mat = np.eye(1)
+            for idx, odx, qubit in zip(index, outcome_index, qubits):
+                povms = self._qubit_povms.get(qubit, self._default_povms)
+                mat = np.kron(povms[idx][odx], mat)
+            return mat
+        except TypeError as ex:
+            # This occurs if basis is constructed with qubit_states
+            # kwarg but no default_states or instructions and is called for
+            # a qubit not in the specified kwargs.
+            raise ValueError(f"Invalid qubits for basis {self.name}") from ex
 
     @functools.lru_cache(None)
     def _outcome_indices(self, outcome: int, qubits: Tuple[int, ...]) -> Tuple[int, ...]:
