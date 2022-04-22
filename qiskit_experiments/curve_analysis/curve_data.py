@@ -95,18 +95,20 @@ class CurveData:
             A subset of data corresponding to a particular series.
         """
         if isinstance(index, int):
-            inds = self.data_allocation == index
-            name = self.labels[index]
+            _index = index
+            _name = self.labels[index]
         else:
-            inds = self.data_allocation == self.labels.index(index)
-            name = index
+            _index = self.labels.index(index)
+            _name = index
+
+        locs = self.data_allocation == _index
         return CurveData(
-            x=self.x[inds],
-            y=self.y[inds],
-            y_err=self.y_err[inds],
-            shots=self.shots[inds],
-            data_allocation=np.full(np.count_nonzero(inds), index),
-            labels=[name],
+            x=self.x[locs],
+            y=self.y[locs],
+            y_err=self.y_err[locs],
+            shots=self.shots[locs],
+            data_allocation=np.full(np.count_nonzero(locs), _index),
+            labels=[_name],
         )
 
 

@@ -175,6 +175,9 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
         # Set automatic validator for particular option values
         options.set_validator(field="data_processor", validator_value=DataProcessor)
         options.set_validator(field="curve_plotter", validator_value=BaseCurveDrawer)
+        options.set_validator(field="p0", validator_value=dict)
+        options.set_validator(field="bounds", validator_value=dict)
+        options.set_validator(field="fixed_parameters", validator_value=dict)
 
         return options
 
