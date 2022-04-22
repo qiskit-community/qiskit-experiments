@@ -51,21 +51,17 @@ def get_kerneled_processor(
             f"Invalid dimensionality reduction: {dimensionality_reduction}."
         ) from error
 
+    nodes = pre_nodes or []
+
     if meas_return == "single":
-        if not pre_node:
-            processor = DataProcessor("memory", [nodes.AverageData(axis=1), projector()])
-        else:
-            processor = DataProcessor("memory", [pre_node, nodes.AverageData(axis=1), projector()])
-    else:
-        if not pre_node:
-            processor = DataProcessor("memory", [projector()])
-        else:
-            processor = DataProcessor("memory", [pre_node, projector()])
+        node.append(nodes.AverageData(axis=1))
+        
+    nodes.append(projector())
 
     if normalize:
-        processor.append(nodes.MinMaxNormalize())
+        nodes.append(nodes.MinMaxNormalize())
 
-    return processor
+    return DataProcessor("memory", nodes)
 
 
 def get_processor(experiment_data: ExperimentData, analysis_options: Options) -> DataProcessor:
