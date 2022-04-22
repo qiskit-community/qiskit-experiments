@@ -12,10 +12,8 @@
 
 """A collection of functions that return various data processors."""
 
-from typing import Optional, List
-
 import warnings
-from typing import Union
+from typing import Union, Optional, List
 from qiskit.qobj.utils import MeasLevel, MeasReturnType
 
 from qiskit_experiments.framework import ExperimentData, Options
@@ -32,13 +30,22 @@ def get_kerneled_processor(
     normalize: bool,
     pre_nodes: Optional[List[DataAction]] = None,
 ) -> DataProcessor:
-    """Get a DataProcessor for `meas_level=MeasLevel.KERNELED` data that returns a one-dimensional signal.
-    
+    """Get a DataProcessor for `meas_level=1` data that returns a one-dimensional signal.
+
     Args:
-        dimensionality_reduction: Type of the node that will reduce the two-dimensional data to one dimension.
+        dimensionality_reduction: Type of the node that will reduce the two-dimensional data to
+            one dimension.
         meas_return: Type of data returned by the backend, i.e., averaged data or single-shot data.
         normalize: If True then normalize the output data to the interval ``[0, 1]``.
         pre_nodes: any nodes to be applied first in the data processing chain such as restless nodes.
+
+    Returns:
+        An instance of DataProcessor capable of processing `meas_level=MeasLevel.KERNELED` data for
+        the corresponding job.
+
+    Raises:
+        DataProcessorError: if the wrong dimensionality reduction for kerneled data
+                is specified.
     """
 
     try:
@@ -54,17 +61,17 @@ def get_kerneled_processor(
             f"Invalid dimensionality reduction: {dimensionality_reduction}."
         ) from error
 
-    nodes = pre_nodes or []
+    node = pre_nodes or []
 
     if meas_return == "single":
-        nodes.append(nodes.AverageData(axis=1))
-        
-    nodes.append(projector())
+        node.append(nodes.AverageData(axis=1))
+
+    node.append(projector())
 
     if normalize:
-        nodes.append(nodes.MinMaxNormalize())
+        node.append(nodes.MinMaxNormalize())
 
-    return DataProcessor("memory", nodes)
+    return DataProcessor("memory", node)
 
 
 def get_processor(experiment_data: ExperimentData, analysis_options: Options) -> DataProcessor:
@@ -98,8 +105,6 @@ def get_processor(experiment_data: ExperimentData, analysis_options: Options) ->
 
     Raises:
         DataProcessorError: if the measurement level is not supported.
-        DataProcessorError: if the wrong dimensionality reduction for kerneled data
-            is specified.
     """
     metadata = experiment_data.metadata
     if "job_metadata" in metadata:
