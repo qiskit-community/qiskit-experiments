@@ -14,8 +14,6 @@
 Test tomography basis classes
 """
 
-from typing import Sequence
-from math import prod
 from cmath import isclose
 import itertools as it
 from test.base import QiskitExperimentsTestCase
@@ -35,7 +33,7 @@ from qiskit_experiments.library.tomography.basis import (
 class TestLocalBasis(QiskitExperimentsTestCase):
     """Test tomography basis classes"""
 
-    def _test_ideal_basis(self, basis: MeasurementBasis, qubits: Sequence[int]):
+    def _test_ideal_basis(self, basis, qubits):
         """Test an ideal basis.
 
         For preparation bases this tests that the state matrices are
@@ -65,7 +63,7 @@ class TestLocalBasis(QiskitExperimentsTestCase):
                 circ.remove_final_measurements()
                 adjoint = circ.inverse()
                 for outcome_tup in outcomes:
-                    outcome = prod(outcome_tup)
+                    outcome = self._outcome_tup_to_int(outcome_tup)
                     state = qi.Statevector.from_int(outcome, dims=2**circ.num_qubits)
                     state = state.evolve(adjoint)
                     mat = basis.matrix(index, outcome, qubits)
@@ -73,6 +71,9 @@ class TestLocalBasis(QiskitExperimentsTestCase):
                     self.assertTrue(
                         isclose(expval, 1.0), msg=f"{basis.name}, index={index}, outcome={outcome}"
                     )
+
+    def _outcome_tup_to_int(self, outcome):
+        return int("".join((str(i) for i in reversed(outcome))), 2)
 
     def test_pauli_mbasis_1q(self):
         """Test 1-qubit PauliMeasurementBasis ideal circuits and states"""
@@ -122,12 +123,17 @@ class TestLocalBasis(QiskitExperimentsTestCase):
         basis = LocalMeasurementBasis("unitary_basis", unitaries)
         self._test_ideal_basis(basis, [0, 1])
 
+    def test_local_pbasis_no_inst(self):
+        """Test circuits method raises if no instructions"""
+        default_states = [qi.random_statevector(2, seed=30 + i) for i in range(2)]
+        basis = LocalPreparationBasis("fitter_basis", default_states=default_states)
+        with self.assertRaises(NotImplementedError):
+            basis.circuit([0], [0])
+
     def test_local_pbasis_default_statevector(self):
         """Test default states kwarg"""
         default_states = [qi.random_statevector(2, seed=30 + i) for i in range(3)]
-        basis = LocalPreparationBasis("fitter_pbasis", default_states=default_states)
-        with self.assertRaises(NotImplementedError):
-            basis.circuit([0], [0])
+        basis = LocalPreparationBasis("fitter_basis", default_states=default_states)
         for i, state in enumerate(default_states):
             basis_state = qi.DensityMatrix(basis.matrix([i], [0]))
             fid = qi.state_fidelity(state, basis_state)
@@ -136,31 +142,34 @@ class TestLocalBasis(QiskitExperimentsTestCase):
     def test_local_pbasis_default_densitymatrix(self):
         """Test default states kwarg"""
         default_states = [qi.random_density_matrix(2, seed=30 + i) for i in range(3)]
-        basis = LocalPreparationBasis("fitter_pbasis", default_states=default_states)
-        with self.assertRaises(NotImplementedError):
-            basis.circuit([0], [0])
+        basis = LocalPreparationBasis("fitter_basis", default_states=default_states)
         for i, state in enumerate(default_states):
             basis_state = qi.DensityMatrix(basis.matrix([i], [0]))
             fid = qi.state_fidelity(state, basis_state)
             self.assertTrue(isclose(fid, 1))
 
+    def test_local_pbasis_qubit_states_no_default(self):
+        """Test matrix method raises for invalid qubit with no default states"""
+        size = 2
+        qubits = [0, 2]
+        qubit_states = {
+            qubits[0]: [qi.random_density_matrix(2, seed=30 + i) for i in range(size)],
+            qubits[1]: [qi.random_statevector(2, seed=40 + i) for i in range(size)],
+        }
+        basis = LocalPreparationBasis("fitter_basis", qubit_states=qubit_states)
+        # No default states so should raise an exception
+        with self.assertRaises(ValueError):
+            basis.matrix([0, 0], [0, 1])
+
     def test_local_pbasis_qubit_states(self):
-        """Test default states kwarg"""
+        """Test qubit states kwarg"""
         size = 3
         qubits = [0, 2]
         qubit_states = {
             qubits[0]: [qi.random_density_matrix(2, seed=30 + i) for i in range(size)],
             qubits[1]: [qi.random_statevector(2, seed=40 + i) for i in range(size)],
         }
-        basis = LocalPreparationBasis("fitter_pbasis", qubit_states=qubit_states)
-
-        # No instructions so should raise an exception
-        with self.assertRaises(NotImplementedError):
-            basis.circuit([0], [0])
-
-        # No default states so should raise an exception
-        with self.assertRaises(ValueError):
-            basis.matrix([0, 0], [0, 1])
+        basis = LocalPreparationBasis("fitter_basis", qubit_states=qubit_states)
 
         # Check states
         indices = it.product(range(size), repeat=2)
@@ -173,17 +182,14 @@ class TestLocalBasis(QiskitExperimentsTestCase):
             self.assertTrue(isclose(fid, 1))
 
     def test_local_pbasis_default_and_qubit_states(self):
-        """Test default states kwarg"""
+        """Test qubit states kwarg"""
         size = 3
         qubits = [2, 0]
         default_states = [qi.random_density_matrix(2, seed=20 + i) for i in range(size)]
         qubit_states = {2: [qi.random_statevector(2, seed=40 + i) for i in range(size)]}
         basis = LocalPreparationBasis(
-            "fitter_pbasis", default_states=default_states, qubit_states=qubit_states
+            "fitter_basis", default_states=default_states, qubit_states=qubit_states
         )
-        # No instructions so should raise an exception
-        with self.assertRaises(NotImplementedError):
-            basis.circuit([0], [0])
 
         # Check states
         indices = it.product(range(size), repeat=2)
@@ -194,3 +200,123 @@ class TestLocalBasis(QiskitExperimentsTestCase):
             target = qi.DensityMatrix(states0[index[0]]).expand(states1[index[1]])
             fid = qi.state_fidelity(basis_state, target)
             self.assertTrue(isclose(fid, 1))
+
+    def test_local_mbasis_no_inst(self):
+        """Test circuits method raises if no instructions"""
+        default_povms = [qi.random_unitary(2, seed=30 + i) for i in range(2)]
+        basis = LocalMeasurementBasis("fitter_basis", default_povms=default_povms)
+        with self.assertRaises(NotImplementedError):
+            basis.circuit([0], [0])
+
+    def test_local_mbasis_default_unitary(self):
+        """Test default povms kwarg"""
+        default_povms = [qi.random_unitary(2, seed=30 + i) for i in range(3)]
+        basis = LocalMeasurementBasis("fitter_basis", default_povms=default_povms)
+        for i, povm in enumerate(default_povms):
+            adjoint = povm.adjoint()
+            for outcome in range(2):
+                state = qi.Statevector.from_int(outcome, dims=2**adjoint.num_qubits)
+                state = state.evolve(adjoint)
+                basis_state = qi.DensityMatrix(basis.matrix([i], outcome, [0]))
+                fid = qi.state_fidelity(state, basis_state)
+                self.assertTrue(isclose(fid, 1))
+
+    def test_local_mbasis_default_statevector(self):
+        """Test default povms kwarg"""
+        size = 2
+        outcomes = 3
+        default_povms = [
+            [qi.random_statevector(2, seed=30 + i + j) for j in range(outcomes)]
+            for i in range(size)
+        ]
+        basis = LocalMeasurementBasis("fitter_basis", default_povms=default_povms)
+        for i, povm in enumerate(default_povms):
+            for outcome, effect in enumerate(povm):
+                basis_state = qi.DensityMatrix(basis.matrix([i], outcome, [0]))
+                fid = qi.state_fidelity(effect, basis_state)
+                self.assertTrue(isclose(fid, 1))
+
+    def test_local_mbasis_qubit_povm_no_default(self):
+        """Test matrix method raises for invalid qubit with no default states"""
+        size = 2
+        qubits = [0, 2]
+        qubit_povms = {
+            qubits[0]: [qi.random_unitary(2, seed=30 + i) for i in range(size)],
+            qubits[1]: [qi.random_unitary(2, seed=40 + i) for i in range(size)],
+        }
+        basis = LocalMeasurementBasis("fitter_basis", qubit_povms=qubit_povms)
+        # No default states so should raise an exception
+        with self.assertRaises(ValueError):
+            basis.matrix([0, 0], 0, [0, 1])
+
+    def test_local_mbasis_qubit_povms(self):
+        """Test qubit povms kwarg"""
+        size = 2
+        outcomes = 2
+        qubits = [0, 2]
+        qubit_povms = {
+            qubits[0]: [
+                [qi.random_density_matrix(2, seed=30 + i + j) for i in range(outcomes)]
+                for j in range(size)
+            ],
+            qubits[1]: [
+                [qi.random_density_matrix(2, seed=40 + i + j) for i in range(outcomes)]
+                for j in range(size)
+            ],
+        }
+        basis = LocalMeasurementBasis("fitter_basis", qubit_povms=qubit_povms)
+
+        # Check states
+        indices = it.product(range(size), repeat=len(qubits))
+        outcomes = it.product(range(outcomes), repeat=len(qubits))
+        for index in indices:
+            for outcome in outcomes:
+                basis_state = qi.DensityMatrix(
+                    basis.matrix(index, self._outcome_tup_to_int(outcome), qubits)
+                )
+                target0 = qi.DensityMatrix(qubit_povms[qubits[0]][index[0]][outcome[0]])
+                target1 = qi.DensityMatrix(qubit_povms[qubits[1]][index[1]][outcome[1]])
+                target = target0.expand(target1)
+                fid = qi.state_fidelity(basis_state, target)
+                self.assertTrue(isclose(fid, 1))
+
+    def test_local_mbasis_default_and_qubit_states(self):
+        """Test qubit and default povm kwarg"""
+        size = 3
+        outcomes = 2
+        qubits = [2, 0]
+        default_povms = (
+            [
+                [qi.random_statevector(2, seed=20 + i + j) for i in range(outcomes)]
+                for j in range(size)
+            ],
+        )
+        qubit_povms = {
+            qubits[0]: [
+                [qi.random_density_matrix(2, seed=30 + i + j) for i in range(outcomes)]
+                for j in range(size)
+            ],
+            qubits[1]: [
+                [qi.random_density_matrix(2, seed=40 + i + j) for i in range(outcomes)]
+                for j in range(size)
+            ],
+        }
+        basis = LocalMeasurementBasis(
+            "fitter_basis", default_povms=default_povms, qubit_povms=qubit_povms
+        )
+
+        # Check states
+        states0 = qubit_povms[qubits[0]] if qubits[0] in qubit_povms else default_povms
+        states1 = qubit_povms[qubits[1]] if qubits[1] in qubit_povms else default_povms
+        indices = it.product(range(size), repeat=2)
+        outcomes = it.product(range(outcomes), repeat=len(qubits))
+        for index in indices:
+            for outcome in outcomes:
+                basis_state = qi.DensityMatrix(
+                    basis.matrix(index, self._outcome_tup_to_int(outcome), qubits)
+                )
+                target0 = qi.DensityMatrix(states0[index[0]][outcome[0]])
+                target1 = qi.DensityMatrix(states1[index[1]][outcome[1]])
+                target = target0.expand(target1)
+                fid = qi.state_fidelity(basis_state, target)
+                self.assertTrue(isclose(fid, 1))

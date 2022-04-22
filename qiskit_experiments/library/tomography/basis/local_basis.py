@@ -361,7 +361,7 @@ class LocalMeasurementBasis(MeasurementBasis):
                 return value
             return value + self._outcome_indices(outcome // num_outcomes, qubits[1:])
         except TypeError as ex:
-            raise QiskitError("Invalid qubits for basis") from ex
+            raise ValueError("Invalid qubits for basis") from ex
 
     def __json_encode__(self):
         value = {
