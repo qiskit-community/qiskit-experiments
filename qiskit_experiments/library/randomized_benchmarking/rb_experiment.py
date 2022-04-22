@@ -12,6 +12,8 @@
 """
 Standard RB Experiment class.
 """
+import logging
+from collections import defaultdict
 from typing import Union, Iterable, Optional, List, Sequence
 
 import numpy as np
@@ -20,14 +22,14 @@ from numpy.random.bit_generator import BitGenerator, SeedSequence
 
 from qiskit import QuantumCircuit, QiskitError
 from qiskit.quantum_info import Clifford
-from qiskit.circuit import Gate
 from qiskit.providers.backend import Backend
 
-from qiskit_experiments.framework import BaseExperiment, ParallelExperiment, Options
+from qiskit_experiments.framework import BaseExperiment, Options
 from qiskit_experiments.framework.restless_mixin import RestlessMixin
 from .rb_analysis import RBAnalysis
 from .clifford_utils import CliffordUtils
-from .rb_utils import RBUtils
+
+LOG = logging.getLogger(__name__)
 
 
 class StandardRB(BaseExperiment, RestlessMixin):
@@ -46,17 +48,12 @@ class StandardRB(BaseExperiment, RestlessMixin):
         the ground state, fits an exponentially decaying curve, and estimates
         the Error Per Clifford (EPC), as described in Refs. [1, 2].
 
-        See :class:`RBUtils` documentation for additional information
-        on estimating the Error Per Gate (EPG) for 1-qubit and 2-qubit gates,
-        from 1-qubit and 2-qubit standard RB experiments, by Ref. [3].
-
     # section: analysis_ref
         :py:class:`RBAnalysis`
 
     # section: reference
         .. ref_arxiv:: 1 1009.3639
         .. ref_arxiv:: 2 1109.6887
-        .. ref_arxiv:: 3 1712.06550
 
     """
 
@@ -77,13 +74,11 @@ class StandardRB(BaseExperiment, RestlessMixin):
             backend: The backend to run the experiment on.
             num_samples: Number of samples to generate for each sequence length.
             seed: Optional, seed used to initialize ``numpy.random.default_rng``.
-                  when generating circuits. The ``default_rng`` will be initialized
-                  with this seed value everytime :meth:`circuits` is called.
+                when generating circuits. The ``default_rng`` will be initialized
+                with this seed value everytime :meth:`circuits` is called.
             full_sampling: If True all Cliffords are independently sampled for
-                           all lengths. If False for sample of lengths longer
-                           sequences are constructed by appending additional
-                           Clifford samples to shorter sequences.
-                           The default is False.
+                all lengths. If False for sample of lengths longer sequences are constructed by
+                appending additional Clifford samples to shorter sequences. The default is ``False``.
         """
         # Initialize base experiment
         super().__init__(qubits, analysis=RBAnalysis(), backend=backend)
@@ -192,7 +187,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
                 group_elt_gate = group_elt_circ
                 group_elt_op = Clifford(group_elt_circ)
 
-            if not isinstance(group_elt_gate, Gate):
+            if hasattr(group_elt_gate, "to_gate"):
                 group_elt_gate = group_elt_gate.to_gate()
             circ_op = circ_op.compose(group_elt_op)
             for circ in circs:
@@ -214,25 +209,31 @@ class StandardRB(BaseExperiment, RestlessMixin):
                 circuits.append(rb_circ)
         return circuits
 
-    def _get_circuit_metadata(self, circuit):
-        if circuit.metadata["experiment_type"] == self._type:
-            return circuit.metadata
-        if circuit.metadata["experiment_type"] == ParallelExperiment.__name__:
-            for meta in circuit.metadata["composite_metadata"]:
-                if meta["physical_qubits"] == self.physical_qubits:
-                    return meta
-        return None
-
     def _transpiled_circuits(self) -> List[QuantumCircuit]:
         """Return a list of experiment circuits, transpiled."""
         transpiled = super()._transpiled_circuits()
-        for c in transpiled:
-            meta = self._get_circuit_metadata(c)
-            if meta is not None:
-                c_count_ops = RBUtils.count_ops(c, self.physical_qubits)
-                circuit_length = meta["xval"]
-                count_ops = [(key, (value, circuit_length)) for key, value in c_count_ops.items()]
-                meta.update({"count_ops": count_ops})
+
+        if self.analysis.options.get("gate_error_ratio", None) is None:
+            # Gate errors are not computed, then counting ops is not necessary.
+            return transpiled
+
+        # Compute average basis gate numbers per Clifford operation
+        # This is probably main source of performance regression.
+        # This should be integrated into transpile pass in future.
+        for circ in transpiled:
+            count_ops_result = defaultdict(int)
+            # This is physical circuits, i.e. qargs is physical index
+            for inst, qargs, _ in circ.data:
+                if inst.name in ("measure", "reset", "delay", "barrier", "snapshot"):
+                    continue
+                qinds = [circ.find_bit(q).index for q in qargs]
+                if not set(self.physical_qubits).issuperset(qinds):
+                    continue
+                # Not aware of multi-qubit gate direction
+                formatted_key = tuple(sorted(qinds)), inst.name
+                count_ops_result[formatted_key] += 1
+            circ.metadata["count_ops"] = tuple(count_ops_result.items())
+
         return transpiled
 
     def _metadata(self):
@@ -242,4 +243,5 @@ class StandardRB(BaseExperiment, RestlessMixin):
         for run_opt in ["meas_level", "meas_return"]:
             if hasattr(self.run_options, run_opt):
                 metadata[run_opt] = getattr(self.run_options, run_opt)
+
         return metadata

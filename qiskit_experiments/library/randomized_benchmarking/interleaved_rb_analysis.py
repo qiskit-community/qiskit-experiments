@@ -18,10 +18,8 @@ import numpy as np
 import qiskit_experiments.curve_analysis as curve
 from qiskit_experiments.framework import AnalysisResultData
 
-from .rb_analysis import RBAnalysis
 
-
-class InterleavedRBAnalysis(RBAnalysis):
+class InterleavedRBAnalysis(curve.CurveAnalysis):
     r"""A class to analyze interleaved randomized benchmarking experiment.
 
     # section: overview
@@ -69,22 +67,20 @@ class InterleavedRBAnalysis(RBAnalysis):
     # section: fit_parameters
         defpar a:
             desc: Height of decay curve.
-            init_guess: Determined by the average :math:`a` of the standard and interleaved RB.
+            init_guess: Determined by :math:`1 - b`.
             bounds: [0, 1]
         defpar b:
             desc: Base line.
-            init_guess: Determined by the average :math:`b` of the standard and interleaved RB.
-                Usually equivalent to :math:`(1/2)^n` where :math:`n` is number of qubit.
+            init_guess: Determined by :math:`(1/2)^n` where :math:`n` is number of qubit.
             bounds: [0, 1]
         defpar \alpha:
             desc: Depolarizing parameter.
-            init_guess: Determined by the slope of :math:`(y - b)^{-x}` of the first and the
-                second data point of the standard RB.
+            init_guess: Determined by :func:`~rb_decay` with standard RB curve.
             bounds: [0, 1]
         defpar \alpha_c:
             desc: Ratio of the depolarizing parameter of interleaved RB to standard RB curve.
-            init_guess: Estimate :math:`\alpha' = \alpha_c \alpha` from the
-                interleaved RB curve, then divide this by the initial guess of :math:`\alpha`.
+            init_guess: Determined by alpha of interleaved RB curve devided by one of
+                standard RB curve. Both alpha values are estimated by :func:`~rb_decay`.
             bounds: [0, 1]
 
     # section: reference
@@ -140,26 +136,59 @@ class InterleavedRBAnalysis(RBAnalysis):
             b=(0, 1),
         )
 
+        b_guess = 1 / 2**self._num_qubits
+        a_guess = 1 - b_guess
+
         # for standard RB curve
         std_curve = self._data(series_name="Standard")
-        opt_std = user_opt.copy()
-        opt_std = self._initial_guess(opt_std, std_curve.x, std_curve.y, self._num_qubits)
+        alpha_std = curve.guess.rb_decay(std_curve.x, std_curve.y, a=a_guess, b=b_guess)
 
         # for interleaved RB curve
         int_curve = self._data(series_name="Interleaved")
-        opt_int = user_opt.copy()
-        if opt_int.p0["alpha_c"] is not None:
-            opt_int.p0["alpha"] = opt_std.p0["alpha"] * opt_int.p0["alpha_c"]
-        opt_int = self._initial_guess(opt_int, int_curve.x, int_curve.y, self._num_qubits)
+        alpha_int = curve.guess.rb_decay(int_curve.x, int_curve.y, a=a_guess, b=b_guess)
+
+        alpha_c = min(alpha_int / alpha_std, 1.0)
 
         user_opt.p0.set_if_empty(
-            a=np.mean([opt_std.p0["a"], opt_int.p0["a"]]),
-            alpha=opt_std.p0["alpha"],
-            alpha_c=min(opt_int.p0["alpha"] / opt_std.p0["alpha"], 1),
-            b=np.mean([opt_std.p0["b"], opt_int.p0["b"]]),
+            b=b_guess,
+            a=a_guess,
+            alpha=alpha_std,
+            alpha_c=alpha_c,
         )
 
         return user_opt
+
+    def _format_data(self, data: curve.CurveData) -> curve.CurveData:
+        """Data format with averaging with sampling strategy."""
+        # TODO Eventually move this to data processor, then create RB data processor.
+
+        # take average over the same x value by regenerating sigma from variance of y values
+        series, xdata, ydata, sigma, shots = curve.data_processing.multi_mean_xy_data(
+            series=data.data_index,
+            xdata=data.x,
+            ydata=data.y,
+            sigma=data.y_err,
+            shots=data.shots,
+            method="sample",
+        )
+
+        # sort by x value in ascending order
+        series, xdata, ydata, sigma, shots = curve.data_processing.data_sort(
+            series=series,
+            xdata=xdata,
+            ydata=ydata,
+            sigma=sigma,
+            shots=shots,
+        )
+
+        return curve.CurveData(
+            label="fit_ready",
+            x=xdata,
+            y=ydata,
+            y_err=sigma,
+            shots=shots,
+            data_index=series,
+        )
 
     def _extra_database_entry(self, fit_data: curve.FitData) -> List[AnalysisResultData]:
         """Calculate EPC."""
