@@ -44,12 +44,14 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
     and no actual fitting protocol is implemented in this base class.
     However, this class defines several common methods that can be reused.
     A curve analysis subclass can construct proper fitting protocol
-    by combining following methods, i.e. sub-routines.
+    by combining following methods, i.e. subroutines.
+    See :ref:`curve_analysis_workflow` for how these subroutines are called.
 
     .. rubric:: _generate_fit_guesses
 
     An abstract method to create initial guesses for the fit parameters.
     This should be implemented by subclass.
+    See :ref:`curve_analysis_init_guess` for details.
 
     .. rubric:: _format_data
 
@@ -60,6 +62,7 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
 
     A method to evaluate the quality of the fit based on the fit result.
     This returns "good" when reduced chi-squared is less than 3.0.
+    Usually it returns string "good" or "bad" according to the evaluation.
     This criterion can be updated by subclass.
 
     .. rubric:: _run_data_processing
@@ -94,6 +97,13 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
     This method initializes analysis options against input experiment data.
 
     """
+
+    def __init__(self):
+        """Initialize data fields that are privately accessed by methods."""
+        super().__init__()
+
+        #: List[int]: Index of physical qubits
+        self._physical_qubits = None
 
     @property
     @abstractmethod
@@ -530,3 +540,9 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
         if not data_processor.is_trained:
             data_processor.train(data=experiment_data.data())
         self.set_options(data_processor=data_processor)
+
+        # get experiment metadata
+        try:
+            self._physical_qubits = experiment_data.metadata["physical_qubits"]
+        except KeyError:
+            pass

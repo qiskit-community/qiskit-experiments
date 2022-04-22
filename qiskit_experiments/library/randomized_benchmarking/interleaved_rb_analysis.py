@@ -158,23 +158,25 @@ class InterleavedRBAnalysis(curve.CurveAnalysis):
 
         return user_opt
 
-    def _format_data(self, data: curve.CurveData) -> curve.CurveData:
-        """Data format with averaging with sampling strategy."""
+    def _format_data(
+        self,
+        curve_data: curve.CurveData,
+    ) -> curve.CurveData:
         # TODO Eventually move this to data processor, then create RB data processor.
 
-        # take average over the same x value by regenerating sigma from variance of y values
-        series, xdata, ydata, sigma, shots = curve.data_processing.multi_mean_xy_data(
-            series=data.data_index,
-            xdata=data.x,
-            ydata=data.y,
-            sigma=data.y_err,
-            shots=data.shots,
+        # take average over the same x value by keeping sigma
+        data_allocation, xdata, ydata, sigma, shots = curve.data_processing.multi_mean_xy_data(
+            series=curve_data.data_allocation,
+            xdata=curve_data.x,
+            ydata=curve_data.y,
+            sigma=curve_data.y_err,
+            shots=curve_data.shots,
             method="sample",
         )
 
         # sort by x value in ascending order
-        series, xdata, ydata, sigma, shots = curve.data_processing.data_sort(
-            series=series,
+        data_allocation, xdata, ydata, sigma, shots = curve.data_processing.data_sort(
+            series=data_allocation,
             xdata=xdata,
             ydata=ydata,
             sigma=sigma,
@@ -182,12 +184,12 @@ class InterleavedRBAnalysis(curve.CurveAnalysis):
         )
 
         return curve.CurveData(
-            label="fit_ready",
             x=xdata,
             y=ydata,
             y_err=sigma,
             shots=shots,
-            data_index=series,
+            data_allocation=data_allocation,
+            labels=curve_data.labels,
         )
 
     def _extra_database_entry(self, fit_data: curve.FitData) -> List[AnalysisResultData]:

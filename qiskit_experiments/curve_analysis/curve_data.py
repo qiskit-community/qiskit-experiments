@@ -49,7 +49,7 @@ class SeriesDef:
     canvas: Optional[int] = None
 
     # Automatically extracted signature of the fit function
-    signature: List[str] = dataclasses.field(init=False)
+    signature: Tuple[str] = dataclasses.field(init=False)
 
     def __post_init__(self):
         """Parse the fit function signature to extract the names of the variables.
@@ -57,7 +57,7 @@ class SeriesDef:
         Fit functions take arguments F(x, p0, p1, p2, ...) thus the first value should be excluded.
         """
         signature = list(inspect.signature(self.fit_func).parameters.keys())
-        fitparams = signature[1:]
+        fitparams = tuple(signature[1:])
 
         # Note that this dataclass is frozen
         object.__setattr__(self, "signature", fitparams)

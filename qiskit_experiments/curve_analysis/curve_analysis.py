@@ -82,7 +82,7 @@ class CurveAnalysis(BaseCurveAnalysis):
                 "different function signature. They should receive "
                 "the same parameter set for multi-objective function fit."
             )
-        return list(next(iter(fsigs)).parameters.keys())
+        return list(next(iter(fsigs)))
 
     @property
     def parameters(self) -> List[str]:
@@ -154,12 +154,6 @@ class CurveAnalysis(BaseCurveAnalysis):
                 assigned_series.append(SeriesDef(**dict_def))
             self.__series__ = assigned_series
 
-        # get experiment metadata
-        try:
-            self._physical_qubits = experiment_data.metadata["physical_qubits"]
-        except KeyError:
-            pass
-
         # Prepare for fitting
         self._preparation(experiment_data)
         analysis_results = []
@@ -214,7 +208,7 @@ class CurveAnalysis(BaseCurveAnalysis):
                     DeprecationWarning,
                 )
                 deprecated_method = getattr(self, "_extra_database_entry")
-                analysis_results.extend(deprecated_method(self, fit_data))
+                analysis_results.extend(deprecated_method(fit_data))
 
             # Draw fit curves and report
             if self.options.plot:
@@ -335,7 +329,7 @@ def analysis_result_to_repr(result: AnalysisResultData) -> str:
         String representation of the data.
     """
     if not isinstance(result.value, (float, UFloat)):
-        return AnalysisError(f"Result data {result.name} is not a valid fit parameter data type.")
+        raise AnalysisError(f"Result data {result.name} is not a valid fit parameter data type.")
 
     unit = result.extra.get("unit", None)
 
