@@ -12,12 +12,15 @@
 
 """A collection of functions that return various data processors."""
 
+from typing import Optional, List
+
 import warnings
 from typing import Union
 from qiskit.qobj.utils import MeasLevel, MeasReturnType
 
 from qiskit_experiments.framework import ExperimentData, Options
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
+from qiskit_experiments.data_processing.data_action import DataAction
 from qiskit_experiments.data_processing.data_processor import DataProcessor
 from qiskit_experiments.data_processing.nodes import ProjectorType
 from qiskit_experiments.data_processing import nodes
@@ -27,7 +30,7 @@ def get_kerneled_processor(
     dimensionality_reduction: Union[ProjectorType, str],
     meas_return: str,
     normalize: bool,
-    pre_node: Optional[List[DataAction]] = None,
+    pre_nodes: Optional[List[DataAction]] = None,
 ) -> DataProcessor:
     """Get a DataProcessor for `meas_level=MeasLevel.KERNELED` data that returns a one-dimensional signal.
     
@@ -35,7 +38,7 @@ def get_kerneled_processor(
         dimensionality_reduction: Type of the node that will reduce the two-dimensional data to one dimension.
         meas_return: Type of data returned by the backend, i.e., averaged data or single-shot data.
         normalize: If True then normalize the output data to the interval ``[0, 1]``.
-        pre_node: any nodes to be applied first in the data processing chain such as restless nodes.
+        pre_nodes: any nodes to be applied first in the data processing chain such as restless nodes.
     """
 
     try:
@@ -54,7 +57,7 @@ def get_kerneled_processor(
     nodes = pre_nodes or []
 
     if meas_return == "single":
-        node.append(nodes.AverageData(axis=1))
+        nodes.append(nodes.AverageData(axis=1))
         
     nodes.append(projector())
 
