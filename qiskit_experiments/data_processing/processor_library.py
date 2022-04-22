@@ -27,7 +27,7 @@ def get_kerneled_processor(
     dimensionality_reduction: Union[ProjectorType, str],
     meas_return: str,
     normalize: bool,
-    pre_node=None,
+    pre_node: Optional[List[DataAction]] = None,
 ) -> DataProcessor:
     """Get a DataProcessor for `meas_level=MeasLevel.KERNELED` data that returns a one-dimensional signal.
     
