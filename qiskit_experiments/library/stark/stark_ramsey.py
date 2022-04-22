@@ -21,7 +21,7 @@ from qiskit import pulse, circuit
 from qiskit.providers.backend import Backend
 from qiskit.pulse import GaussianSquare
 
-from qiskit_experiments.framework import BaseExperiment, Options
+from qiskit_experiments.framework import BaseExperiment, Options, BatchExperiment
 from qiskit_experiments.library.characterization.analysis.t2ramsey_analysis import T2RamseyAnalysis
 
 
@@ -132,4 +132,35 @@ class StarkRamsey(BaseExperiment):
             }
             circs.append(circ)
         return circs
+
+class StarkRamseyAmplitudeScan(BatchExperiment):
+    def __init__(
+            self,
+            qubit: int,
+            delays: Sequence[float],
+            stark_amps: Sequence[float],
+            stark_freq_offset: float,
+            stark_channel: Optional[pulse.channels.PulseChannel] = None,
+            backend: Optional[Backend] = None,
+            **kwargs,
+    ):
+
+        stark_experiments = [
+            StarkRamsey(
+                qubit=qubit,
+                delays=delays,
+                stark_amp=stark_amp,
+                stark_freq_offset=stark_freq_offset,
+                stark_channel=stark_channel,
+                backend=backend,
+                **kwargs,
+            )
+            for stark_amp in stark_amps
+        ]
+
+        super().__init__(stark_experiments, backend=backend)
+
+    def set_experiment_options(self, **fields):
+        for exp in self.component_experiment():
+            exp.set_experiment_options(**fields)
 
