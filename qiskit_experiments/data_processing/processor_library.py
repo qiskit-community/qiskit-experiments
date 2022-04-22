@@ -29,7 +29,14 @@ def get_kerneled_processor(
     normalize: bool,
     pre_node=None,
 ) -> DataProcessor:
-    """Get a DataProcessor for `meas_level=MeasLevel.KERNELED` data that produces a continuous signal."""
+    """Get a DataProcessor for `meas_level=MeasLevel.KERNELED` data that returns a one-dimensional signal.
+    
+    Args:
+        dimensionality_reduction: Type of the node that will reduce the two-dimensional data to one dimension.
+        meas_return: Type of data returned by the backend, i.e., averaged data or single-shot data.
+        normalize: If True then normalize the output data to the interval ``[0, 1]``.
+        pre_node: any nodes to be applied first in the data processing chain such as restless nodes.
+    """
 
     try:
         if isinstance(dimensionality_reduction, ProjectorType):
