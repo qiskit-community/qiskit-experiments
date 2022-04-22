@@ -213,33 +213,37 @@ class RBUtils:
         r"""
         The error per gate (1 - average_gate_fidelity) given by the T1,T2 limit
         assuming qubit-wise gate-independent amplitude damping error
-        (or thermal relaxation error with no excitation).
+        (i.e. thermal relaxation error with no excitation).
 
-        That means, suppose the gate length $t$, the Choi matrix of the amplitude damping channel
-        $\Lambda_q$ for a single qubit $q$ with $T_1$ and $T_2$ is give by
-        $$
-        \begin{bmatrix}
-            1 & 0 & 0 & e^{-\frac{t}{T_2}} \\
-            0 & 0 & 0 & 0 \\
-            0 & 0 & 1-e^{-\frac{t}{T_1}} & 0 \\
-            e^{-\frac{t}{T_2}} & 0 & 0 & e^{-\frac{t}{T_1}} \\
-        \end{bmatrix}
-        $$.
-        The coherence limit error computed by this function is $1 - F_{\text{ave}}(\mathcal{E}, U)$
-        where
-        And the following equality holds.
-        $$
+        That means, suppose the gate length $t$, we are considering a quantum error channel
+        whose Choi matrix representation for a single qubit with $T_1$ and $T_2$ is give by
+
+        .. math::
+
+            \begin{bmatrix}
+                1 & 0 & 0 & e^{-\frac{t}{T_2}} \\
+                0 & 0 & 0 & 0 \\
+                0 & 0 & 1-e^{-\frac{t}{T_1}} & 0 \\
+                e^{-\frac{t}{T_2}} & 0 & 0 & e^{-\frac{t}{T_1}} \\
+            \end{bmatrix}
+
+        The coherence limit error computed by this function is
+        :math:`1 - F_{\text{avg}}(\mathcal{E}, U)` and the following equalities hold for tha value.
+
+        .. math::
+
              \begin{align}
-             1 - F_{\text{ave}}(\mathcal{E}, U)
+             1 - F_{\text{avg}}(\mathcal{E}, U)
                     &= \frac{d}{d+1} \left(1 - F_{\text{pro}}(\mathcal{E}, U)\right) \\
                     &= \frac{d}{d+1} \left(1 - \frac{Tr[S_U^\dagger S_{\mathcal{E}}]}{d^2}\right) \\
                     &= \frac{d}{d+1} \left(1 - \frac{Tr[S_{\Lambda}]}{d^2}\right)
              \end{align}
-        $$
-        where $F_{\text{avg}}(\mathcal{E}, U)$ and $F_{\text{pro}}(\mathcal{E}, U)$ are
-        the average gate fidelity and the process fidelity of a quantum channel $\mathcal{E}$
-        with a target unitary $U$, respectively, and $d$ is the dimension of Hilbert space of
-        the considering qubit system.
+
+        where :math:`F_{\text{avg}}(\mathcal{E}, U)` and :math:`F_{\text{pro}}(\mathcal{E}, U)` are
+        the average gate fidelity and the process fidelity of a quantum channel :math:`\mathcal{E}`
+        with a target unitary $U$ such that :math:`\mathcal{E}=\Lambda(U)`, respectively,
+        $d$ is the dimension of Hilbert space of the considering qubit system, and
+        :math:`S_{\Lambda}` is the Liouville Superoperator representation of a channel :math:`\Lambda`.
 
         Args:
             num_qubits: Number of qubits.
