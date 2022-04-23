@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Add support to allow :class:`~qiskit_experiments.library.randomized_benchmarking.InterleavedRB`
+    to accept a delay (``Delay``) or a circuit with delays as an instruction to be interleaved.
