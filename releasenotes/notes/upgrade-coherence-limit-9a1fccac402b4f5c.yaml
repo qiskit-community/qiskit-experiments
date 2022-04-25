@@ -1,0 +1,8 @@
+---
+upgrade:
+  - |
+    A function computing the coherence limit error is renamed to
+    :meth:`.RBUtils.coherence_limit_error` and upgraded so that it can compute
+    the error of gates with three or more qubits. Note that the order of arguments
+    is slightly changed from the original function :meth:`.RBUtils.coherence_limit`,
+    which is now deprecated.
