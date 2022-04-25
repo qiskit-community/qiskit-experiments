@@ -196,7 +196,7 @@ class CrossResonanceHamiltonianAnalysis(curve.CurveAnalysis):
     def _default_options(cls):
         """Return the default analysis options."""
         default_options = super()._default_options()
-        default_options.curve_plotter.set_options(
+        default_options.curve_drawer.set_options(
             subplots=(3, 1),
             xlabel="Flat top width",
             ylabel=[

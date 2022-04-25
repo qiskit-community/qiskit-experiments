@@ -27,7 +27,7 @@ from qiskit_experiments.exceptions import AnalysisError
 class SeriesDef:
     """A dataclass to describe the definition of the curve.
 
-    Args:
+    Attributes:
         fit_func: A callable that defines the fit model of this curve. The argument names
             in the callable are parsed to create the fit parameter list, which will appear
             in the analysis results. The first argument should be ``x`` that represents
@@ -78,7 +78,7 @@ class CurveData:
     This dataset can consist of X, Y values from multiple series.
     To extract curve data of the particular series, :meth:`get_subset_of` can be used.
 
-    Args:
+    Attributes:
         x: X-values that experiment sweeps.
         y: Y-values that observed and processed by the data processor.
         y_err: Uncertainty of the Y-values which is created by the data processor.
@@ -130,7 +130,7 @@ class CurveData:
 class FitData:
     """A dataclass to store the outcome of the fitting.
 
-    Args:
+    Attributes:
         popt: List of optimal parameter values with uncertainties if available.
         popt_keys: List of parameter names being fit.
         pcov: Covariance matrix from the least square fitting.
@@ -182,7 +182,7 @@ class FitData:
 class ParameterRepr:
     """Detailed description of fitting parameter.
 
-    Args:
+    Attributes:
         name: Original name of the fit parameter being defined in the fit model.
         repr: Optional. Human-readable parameter name shown in the analysis result and in the figure.
         unit: Optional. Physical unit of this parameter if applicable.

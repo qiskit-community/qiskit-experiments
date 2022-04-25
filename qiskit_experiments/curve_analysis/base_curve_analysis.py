@@ -111,14 +111,14 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
     @property
     def drawer(self) -> BaseCurveDrawer:
         """A short-cut for curve drawer instance."""
-        return self._options.curve_plotter
+        return self._options.curve_drawer
 
     @classmethod
     def _default_options(cls) -> Options:
         """Return default analysis options.
 
         Analysis Options:
-            curve_plotter (BaseCurveDrawer): A curve drawer instance to visualize
+            curve_drawer (BaseCurveDrawer): A curve drawer instance to visualize
                 the analysis result.
             plot_raw_data (bool): Set ``True`` to draw processed data points,
                 dataset without formatting, on canvas. This is ``False`` by default.
@@ -156,7 +156,7 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
         """
         options = super()._default_options()
 
-        options.curve_plotter = MplCurveDrawer()
+        options.curve_drawer = MplCurveDrawer()
         options.plot_raw_data = False
         options.plot = True
         options.return_fit_parameters = True
@@ -173,7 +173,7 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
 
         # Set automatic validator for particular option values
         options.set_validator(field="data_processor", validator_value=DataProcessor)
-        options.set_validator(field="curve_plotter", validator_value=BaseCurveDrawer)
+        options.set_validator(field="curve_drawer", validator_value=BaseCurveDrawer)
 
         return options
 
@@ -187,23 +187,25 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
             KeyError: When removed option ``curve_fitter`` is set.
         """
         # TODO remove this in Qiskit Experiments v0.4
-        if "curve_plotter" in fields and isinstance(fields["curve_plotter"], str):
-            plotter_str = fields["curve_plotter"]
+        if "curve_plotter" in fields:
             warnings.warn(
-                f"The curve plotter '{plotter_str}' has been deprecated. "
-                "The option is replaced with 'MplCurveDrawer' instance. "
+                f"The analysis option 'curve_plotter' has been deprecated. "
+                "The option is replaced with 'curve_drawer' that takes 'MplCurveDrawer' instance. "
                 "If this is a loaded analysis, please save this instance again to update option value. "
-                "This warning will be removed with backport in Qiskit Experiments 0.4.",
+                "The 'curve_plotter' argument along with this warning will be removed "
+                "in Qiskit Experiments 0.4.",
                 DeprecationWarning,
                 stacklevel=2,
             )
-            fields["curve_plotter"] = MplCurveDrawer()
+            del fields["curve_plotter"]
 
         if "curve_fitter" in fields:
             warnings.warn(
                 "Setting curve fitter to analysis options has been deprecated and "
                 "the option has been removed. The fitter setting is dropped. "
-                "Now you can directly override '_run_curve_fit' method to apply custom fitter.",
+                "Now you can directly override '_run_curve_fit' method to apply custom fitter. "
+                "The `curve_fitter` argument along with this warning will be removed "
+                "in Qiskit Experiments 0.4.",
                 DeprecationWarning,
                 stacklevel=2,
             )
@@ -217,7 +219,8 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
                 f"Option(s) {deprecated} have been moved to draw_options and will be removed soon. "
                 "Use self.drawer.set_options instead. "
                 "If this is a loaded analysis, please save this instance again to update option value. "
-                "This warning will be removed with backport in Qiskit Experiments 0.4.",
+                "These arguments along with this warning will be removed "
+                "in Qiskit Experiments 0.4.",
                 DeprecationWarning,
                 stacklevel=2,
             )

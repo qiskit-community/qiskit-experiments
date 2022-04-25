@@ -120,7 +120,7 @@ class DragCalAnalysis(curve.CurveAnalysis):
         descriptions of analysis options.
         """
         default_options = super()._default_options()
-        default_options.curve_plotter.set_options(
+        default_options.curve_drawer.set_options(
             xlabel="Beta",
             ylabel="Signal (arb. units)",
         )
