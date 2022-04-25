@@ -123,7 +123,7 @@ class Calibrations:
         if library:
             warnings.warn(
                 "library has been deprecated, please provide libraries instead."
-                "This warning will be removed with backport in Qiskit Experiments 0.4.",
+                'The "library" argument along with this warning will be removed in Qiskit Experiments 0.4.',
                 DeprecationWarning,
                 stacklevel=2,
             )
