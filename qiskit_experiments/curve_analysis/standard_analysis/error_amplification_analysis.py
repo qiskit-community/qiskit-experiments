@@ -76,9 +76,6 @@ class ErrorAmplificationAnalysis(curve.CurveAnalysis):
                 often correspond to symmetry points of the fit function. Furthermore,
                 this type of analysis is intended for values of :math:`d\theta` close to zero.
 
-    # section: note
-
-        Different analysis classes may subclass this class to fix some of the fit parameters.
     """
 
     __series__ = [
@@ -124,7 +121,15 @@ class ErrorAmplificationAnalysis(curve.CurveAnalysis):
         user_opt: curve.FitOptions,
         curve_data: curve.CurveData,
     ) -> Union[curve.FitOptions, List[curve.FitOptions]]:
+        """Create algorithmic guess with analysis options and curve data.
 
+        Args:
+            user_opt: Fit options filled with user provided guess and bounds.
+            curve_data: Formatted data collection to fit.
+
+        Returns:
+            List of fit options that are passed to the fitter function.
+        """
         fixed_params = self.options.fixed_parameters
 
         max_abs_y, _ = curve.guess.max_height(curve_data.y, absolute=True)

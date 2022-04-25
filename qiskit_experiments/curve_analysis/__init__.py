@@ -34,7 +34,7 @@ different sets of experiment results. A single experiment can define sub-experim
 consisting of multiple circuits which are tagged with common metadata,
 and curve analysis sorts the experiment results based on the circuit metadata.
 
-This is an example of showing the abstract data structure of typical cuve analysis experiment:
+This is an example of showing the abstract data structure of typical curve analysis experiment:
 
 .. code-block:: none
     :emphasize-lines: 1,10,19
@@ -62,12 +62,12 @@ This is an example of showing the abstract data structure of typical cuve analys
         - "series_B": y_B = f_B(x_B; p0, p1, p2)
         - fixed parameters {p1: v}
 
-Here the experiment runs two sebset of experiments, namely, series A and series B.
+Here the experiment runs two subset of experiments, namely, series A and series B.
 The analysis defines corresponding fit models :math:`f_A(x_A)` and :math:`f_B(x_B)`.
 Data extraction function in the analysis creates two datasets, :math:`(x_A, y_A)`
 for the series A and :math:`(x_B, y_B)` for the series B, from the experiment data.
 Optionally, the curve analysis can fix certain parameters during the fitting.
-In this exampel, :math:`p_1 = v` remains unchanged during the fitting.
+In this example, :math:`p_1 = v` remains unchanged during the fitting.
 
 The curve analysis aims at solving the following optimization problem:
 
@@ -75,7 +75,7 @@ The curve analysis aims at solving the following optimization problem:
 
     \Theta_{\mbox{opt}} = \arg\min_{\Theta_{\rm fit}} \sigma^{-2} (F(X, \Theta)-Y)^2,
 
-where :math:`F` is the composite fit function defined on the full experiment data
+where :math:`F` is the composite objective function defined on the full experiment data
 :math:`(X, Y)`, where :math:`X = x_A \oplus x_B` and :math:`Y = y_A \oplus y_B`.
 This objective function can be described by two fit functions as follows.
 
@@ -95,7 +95,7 @@ Thus, :math:`\Theta = \{ p_0, p_1, p_2 \}`.
 Experiment for each series can perform individual parameter sweep for :math:`x_A` and :math:`x_B`,
 and experiment data yield outcomes :math:`y_A` and :math:`y_B`, which might be different size.
 Data processing function may also compute :math:`\sigma_A` and :math:`\sigma_B` which are
-the uncertainty of outcomes araising from the sampling error or measurement error.
+the uncertainty of outcomes arising from the sampling error or measurement error.
 
 More specifically, the curve analysis defines following data model.
 
@@ -306,7 +306,7 @@ custom fitting algorithms. This method must return :class:`FitData` dataclass.
 
 4. Post processing
 
-Curve analysis runs several post processings to the fit outcome.
+Curve analysis runs several postprocessing against to the fit outcome.
 It calls :meth:`_create_analysis_results` to create :class:`AnalysisResultData` class
 for the fitting parameters of interest. A developer can inject a custom code to
 compute custom quantities based on the raw fit parameters.
@@ -314,7 +314,7 @@ See :ref:`curve_analysis_results` for details.
 Afterwards, the analysis draws several curves in the Matplotlib figure.
 User can set custom drawer to the option ``curve_plotter``.
 The drawer defaults to the :class:`MplCurveDrawer`.
-Finally it returns the list of created analysis results and Matplotlib figure.
+Finally, it returns the list of created analysis results and Matplotlib figure.
 
 
 .. _curve_analysis_init_guess:
@@ -383,7 +383,7 @@ Evaluate Fit Quality
 ====================
 
 A subclass can override :meth:`_evaluate_quality` method to
-to provide an algorithm to evaluate quality of the fitting.
+provide an algorithm to evaluate quality of the fitting.
 This method is called with the :class:`FitData` object which contains
 fit parameters and the reduced chi-squared value.
 Qiskit Experiments often uses the empirical criterion chi-squared < 3 as a good fitting.

@@ -37,6 +37,8 @@ class CurveAnalysis(BaseCurveAnalysis):
 
     The fit parameters from the series defined under the analysis class are all shared
     and the analysis performs a single multi-objective function optimization.
+
+    See :class:`BaseCurveAnalysis` for overridable method documentation.
     """
 
     #: List[SeriesDef]: List of mapping representing a data series
@@ -130,7 +132,7 @@ class CurveAnalysis(BaseCurveAnalysis):
     ) -> Tuple[List[AnalysisResultData], List["pyplot.Figure"]]:
 
         # Update all fit functions in the series definitions if fixed parameter is defined.
-        # These lines will be removed once data model is implemented.
+        # These lines will be removed once proper fit model class is implemented.
         assigned_params = self.options.fixed_parameters
         if assigned_params:
             # Check if all parameters are assigned.

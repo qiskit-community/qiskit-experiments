@@ -81,7 +81,7 @@ class RBAnalysis(curve.CurveAnalysis):
     def __init__(self):
         super().__init__()
         self._gate_counts_per_clifford = None
-        self._num_qubits = None
+        self._physical_qubits = None
 
     @classmethod
     def _default_options(cls):
@@ -123,14 +123,22 @@ class RBAnalysis(curve.CurveAnalysis):
         user_opt: curve.FitOptions,
         curve_data: curve.CurveData,
     ) -> Union[curve.FitOptions, List[curve.FitOptions]]:
+        """Create algorithmic guess with analysis options and curve data.
 
+        Args:
+            user_opt: Fit options filled with user provided guess and bounds.
+            curve_data: Formatted data collection to fit.
+
+        Returns:
+            List of fit options that are passed to the fitter function.
+        """
         user_opt.bounds.set_if_empty(
             a=(0, 1),
             alpha=(0, 1),
             b=(0, 1),
         )
 
-        b_guess = 1 / 2**self._num_qubits
+        b_guess = 1 / 2 ** len(self._physical_qubits)
         a_guess = 1 - b_guess
         alpha_guess = curve.guess.rb_decay(curve_data.x, curve_data.y, a=a_guess, b=b_guess)
 
@@ -146,6 +154,14 @@ class RBAnalysis(curve.CurveAnalysis):
         self,
         curve_data: curve.CurveData,
     ) -> curve.CurveData:
+        """Postprocessing for the processed dataset.
+
+        Args:
+            curve_data: Processed dataset created from experiment results.
+
+        Returns:
+            Formatted data.
+        """
         # TODO Eventually move this to data processor, then create RB data processor.
 
         # take average over the same x value by keeping sigma
@@ -182,11 +198,21 @@ class RBAnalysis(curve.CurveAnalysis):
         quality: str,
         **metadata,
     ) -> List[AnalysisResultData]:
+        """Create analysis results for important fit parameters.
+
+        Args:
+            fit_data: Fit outcome.
+            quality: Quality of fit outcome.
+
+        Returns:
+            List of analysis result data.
+        """
         outcomes = super()._create_analysis_results(fit_data, quality, **metadata)
+        num_qubits = len(self._physical_qubits)
 
         # Calculate EPC
         alpha = fit_data.fitval("alpha")
-        scale = (2**self._num_qubits - 1) / (2**self._num_qubits)
+        scale = (2**num_qubits - 1) / (2**num_qubits)
         epc = scale * (1 - alpha)
 
         outcomes.append(
@@ -200,7 +226,7 @@ class RBAnalysis(curve.CurveAnalysis):
         )
 
         # Correction for 1Q depolarizing channel if EPGs are provided
-        if self.options.epg_1_qubit and self._num_qubits == 2:
+        if self.options.epg_1_qubit and num_qubits == 2:
             epc = _exclude_1q_error(
                 epc=epc,
                 qubits=self._physical_qubits,
@@ -243,6 +269,16 @@ class RBAnalysis(curve.CurveAnalysis):
         self,
         experiment_data: ExperimentData,
     ):
+        """Initialize curve analysis with experiment data.
+
+        This method is called ahead of other processing.
+
+        Args:
+            experiment_data: Experiment data to analyze.
+
+        Raises:
+            AnalysisError: When circuit metadata for ops count is missing.
+        """
         super()._initialize(experiment_data)
 
         if self.options.gate_error_ratio is not None:
@@ -279,7 +315,7 @@ class RBAnalysis(curve.CurveAnalysis):
                 self.set_options(gate_error_ratio=gate_error_ratio)
 
         # Get qubit number
-        self._num_qubits = len(experiment_data.metadata["physical_qubits"])
+        self._physical_qubits = experiment_data.metadata["physical_qubits"]
 
 
 def _lookup_epg_ratio(gate: str, n_qubits: int) -> Union[None, int]:

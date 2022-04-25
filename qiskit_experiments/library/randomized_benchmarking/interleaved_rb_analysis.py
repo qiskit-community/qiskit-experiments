@@ -16,7 +16,7 @@ from typing import List, Union
 
 import numpy as np
 import qiskit_experiments.curve_analysis as curve
-from qiskit_experiments.framework import AnalysisResultData
+from qiskit_experiments.framework import AnalysisResultData, ExperimentData
 
 
 class InterleavedRBAnalysis(curve.CurveAnalysis):
@@ -88,6 +88,10 @@ class InterleavedRBAnalysis(curve.CurveAnalysis):
 
     """
 
+    def __init__(self):
+        super().__init__()
+        self._num_qubits = None
+
     __series__ = [
         curve.SeriesDef(
             name="Standard",
@@ -123,7 +127,15 @@ class InterleavedRBAnalysis(curve.CurveAnalysis):
         user_opt: curve.FitOptions,
         curve_data: curve.CurveData,
     ) -> Union[curve.FitOptions, List[curve.FitOptions]]:
+        """Create algorithmic guess with analysis options and curve data.
 
+        Args:
+            user_opt: Fit options filled with user provided guess and bounds.
+            curve_data: Formatted data collection to fit.
+
+        Returns:
+            List of fit options that are passed to the fitter function.
+        """
         user_opt.bounds.set_if_empty(
             a=(0, 1),
             alpha=(0, 1),
@@ -157,6 +169,14 @@ class InterleavedRBAnalysis(curve.CurveAnalysis):
         self,
         curve_data: curve.CurveData,
     ) -> curve.CurveData:
+        """Postprocessing for the processed dataset.
+
+        Args:
+            curve_data: Processed dataset created from experiment results.
+
+        Returns:
+            Formatted data.
+        """
         # TODO Eventually move this to data processor, then create RB data processor.
 
         # take average over the same x value by keeping sigma
@@ -193,6 +213,15 @@ class InterleavedRBAnalysis(curve.CurveAnalysis):
         quality: str,
         **metadata,
     ) -> List[AnalysisResultData]:
+        """Create analysis results for important fit parameters.
+
+        Args:
+            fit_data: Fit outcome.
+            quality: Quality of fit outcome.
+
+        Returns:
+            List of analysis result data.
+        """
         outcomes = super()._create_analysis_results(fit_data, quality, **metadata)
 
         nrb = 2**self._num_qubits
@@ -230,3 +259,19 @@ class InterleavedRBAnalysis(curve.CurveAnalysis):
         )
 
         return outcomes
+
+    def _initialize(
+        self,
+        experiment_data: ExperimentData,
+    ):
+        """Initialize curve analysis with experiment data.
+
+        This method is called ahead of other processing.
+
+        Args:
+            experiment_data: Experiment data to analyze.
+        """
+        super()._initialize(experiment_data)
+
+        # Get qubit number
+        self._num_qubits = len(experiment_data.metadata["physical_qubits"])

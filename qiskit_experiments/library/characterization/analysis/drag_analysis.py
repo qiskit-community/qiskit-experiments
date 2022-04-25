@@ -135,7 +135,15 @@ class DragCalAnalysis(curve.CurveAnalysis):
         user_opt: curve.FitOptions,
         curve_data: curve.CurveData,
     ) -> Union[curve.FitOptions, List[curve.FitOptions]]:
+        """Create algorithmic guess with analysis options and curve data.
 
+        Args:
+            user_opt: Fit options filled with user provided guess and bounds.
+            curve_data: Formatted data collection to fit.
+
+        Returns:
+            List of fit options that are passed to the fitter function.
+        """
         # Use a fast Fourier transform to guess the frequency.
         x_data = curve_data.get_subset_of("series-0").x
         min_beta, max_beta = min(x_data), max(x_data)
@@ -210,6 +218,13 @@ class DragCalAnalysis(curve.CurveAnalysis):
             .. math::
 
                 \beta = \beta_\text{fit} + n_\text{min} / {\rm freq}.
+
+        Args:
+            curve_data: Formatted data to fit.
+            series: A list of fit models.
+
+        Returns:
+            The best fitting outcome with minimum reduced chi-squared value.
         """
         fit_result = super()._run_curve_fit(curve_data, series)
         beta = fit_result.popt[2]

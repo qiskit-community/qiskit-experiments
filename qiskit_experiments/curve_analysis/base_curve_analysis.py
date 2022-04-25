@@ -103,10 +103,6 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
 
     """
 
-    def __init__(self):
-        """Initialize data fields that are privately accessed by methods."""
-        super().__init__()
-
     @property
     @abstractmethod
     def parameters(self) -> List[str]:
@@ -256,10 +252,10 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
         self,
         curve_data: CurveData,
     ) -> CurveData:
-        """Post-processing for fit data collection.
+        """Postprocessing for the processed dataset.
 
         Args:
-            curve_data: Processed data collection created from experiment results.
+            curve_data: Processed dataset created from experiment results.
 
         Returns:
             Formatted data.
