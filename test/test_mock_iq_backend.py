@@ -77,33 +77,39 @@ class TestMockIQBackend(QiskitExperimentsTestCase):
         """
         Test readout angle experiment using a simulator.
         """
-
+        num_qubits = 2
+        num_shot = 10000
         backend = MockIQBackend(
             MockIQReadoutAngleParallelHelper(),
             iq_cluster_centers=[((-5.0, 4.0), (-5.0, -4.0)), ((3.0, 1.0), (5.0, -3.0))],
             iq_cluster_width=[1.0, 2.0],
         )
-        circ0 = QuantumCircuit(2, 2)
+        circ0 = QuantumCircuit(num_qubits, num_qubits)
         circ0.x(1)
         circ0.measure(0, 0)
         circ0.measure(1, 1)
 
         circ0.metadata = {"qubits": [0, 1], "xval": [0, 1]}
 
-        job = backend.run([circ0], shots=10000, meas_level=MeasLevel.KERNELED, meas_return="avg")
+        # Here meas_return is 'avg' so it will average on the results for each qubit.
+        job = backend.run([circ0], shots=num_shot, meas_level=MeasLevel.KERNELED, meas_return="avg")
         res = job.result()
-        print(res)
-        # TODO: Check that the std is right
+        self.assertEqual(len(res.results[0].data.memory), num_qubits)
 
         # Circuit to create Bell state
         backend.experiment_helper = MockIQBellStateHelper()
-        circ1 = QuantumCircuit(2, 2)
+        circ1 = QuantumCircuit(num_qubits, num_qubits)
         circ1.h(0)
         circ1.cx(0, 1)
         circ1.measure(0, 0)
         circ1.measure(1, 1)
 
-        job = backend.run([circ1], shots=10000, meas_level=MeasLevel.KERNELED, meas_return="single")
+        # Now meas_return will be 'single' so it is expected that the number of results will be as
+        # the number of shots.
+        job = backend.run(
+            [circ1], shots=num_shot, meas_level=MeasLevel.KERNELED, meas_return="single"
+        )
         res = job.result()
-        # TODO: Check that the mean is right
-        print(res)
+        self.assertEqual(len(res.results[0].data.memory), num_shot)
+        for data in res.results[0].data.memory:
+            self.assertEqual(len(data), num_qubits)
