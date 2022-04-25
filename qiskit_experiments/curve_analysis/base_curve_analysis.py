@@ -122,8 +122,8 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
         Analysis Options:
             curve_plotter (BaseCurveDrawer): A curve drawer instance to visualize
                 the analysis result.
-            plot_raw_data (bool): Set ``True`` to draw un-formatted data points on canvas.
-                This is ``False`` by default.
+            plot_raw_data (bool): Set ``True`` to draw processed data points,
+                dataset without formatting, on canvas. This is ``False`` by default.
             plot (bool): Set ``True`` to create figure for fit result.
                 This is ``True`` by default.
             return_fit_parameters (bool): Set ``True`` to return all fit model parameters
@@ -257,7 +257,7 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
         """Post-processing for fit data collection.
 
         Args:
-            curve_data: Raw data collection created from experiment results.
+            curve_data: Processed data collection created from experiment results.
 
         Returns:
             Formatted data.
@@ -318,7 +318,7 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
             series: List of series definition defining filtering condition.
 
         Returns:
-            Collection of curve data extracted from the experiment result.
+            Processed data that will be sent to the formatter method.
 
         Raises:
             DataProcessorError: When key for x values is not found in the metadata.
@@ -365,7 +365,7 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
         """Perform curve fitting on given data collection and fit models.
 
         Args:
-            curve_data: A formatted data collection to fit.
+            curve_data: Formatted data to fit.
             series: A list of fit models.
 
         Returns:
@@ -493,7 +493,7 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
         """Create analysis results for raw curve data.
 
         Args:
-            curve_data: Full curve dataset used for the fitting.
+            curve_data: Formatted data that is used for the fitting.
             series: List of series definition associated with the curve data.
 
         Returns:

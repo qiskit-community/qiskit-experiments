@@ -6,13 +6,13 @@ developer:
     see qiskit-experiments/#737 for details.
     
     According to this update, several protected methods that are
-    originally designed to be overridden by subclass have been deprecated or upgraded.
+    originally designed to be overridden by subclasses have been deprecated or upgraded.
     Check the following list of changes you may need to upgrade your analysis subclass.
     
     - :meth:`CurveAnalysis._generate_fit_guesses`
     
     The signature of method has been upgraded. Now this method should be called with
-    ``curve_data`` and calling ``self._data()`` to get curve data has been deprecated.
+    ``curve_data`` to get the curve data instead of calling ``self._data()`` which has been deprecated.
     
     - :meth:`CurveAnalysis._data`
     

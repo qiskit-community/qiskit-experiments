@@ -33,7 +33,11 @@ from .curve_data import CurveData, SeriesDef
 
 
 class CurveAnalysis(BaseCurveAnalysis):
-    """Base class for curve analyis."""
+    """Base class for curve analysis with single curve group.
+
+    The fit parameters from the series defined under the analysis class are all shared
+    and the analysis performs a single multi-objective function optimization.
+    """
 
     #: List[SeriesDef]: List of mapping representing a data series
     __series__ = list()
@@ -156,37 +160,37 @@ class CurveAnalysis(BaseCurveAnalysis):
         analysis_results = []
 
         # Run data processing
-        raw_curve_data = self._run_data_processing(experiment_data.data(), self.__series__)
+        processed_data = self._run_data_processing(experiment_data.data(), self.__series__)
 
         if self.options.plot and self.options.plot_raw_data:
             for s in self.__series__:
-                raw_data = raw_curve_data.get_subset_of(s.name)
+                sub_data = processed_data.get_subset_of(s.name)
                 self.drawer.draw_raw_data(
-                    x_data=raw_data.x,
-                    y_data=raw_data.y,
+                    x_data=sub_data.x,
+                    y_data=sub_data.y,
                     ax_index=s.canvas,
                 )
         # for backward compatibility, will be removed in 0.4.
-        self.__processed_data_set["raw_data"] = raw_curve_data
+        self.__processed_data_set["raw_data"] = processed_data
 
         # Format data
-        formatted_curve_data = self._format_data(raw_curve_data)
+        formatted_data = self._format_data(processed_data)
         if self.options.plot:
             for s in self.__series__:
                 self.drawer.draw_formatted_data(
-                    x_data=formatted_curve_data.x,
-                    y_data=formatted_curve_data.y,
-                    y_err_data=formatted_curve_data.y_err,
+                    x_data=formatted_data.x,
+                    y_data=formatted_data.y,
+                    y_err_data=formatted_data.y_err,
                     name=s.name,
                     ax_index=s.canvas,
                     color=s.plot_color,
                     marker=s.plot_symbol,
                 )
         # for backward compatibility, will be removed in 0.4.
-        self.__processed_data_set["fit_ready"] = formatted_curve_data
+        self.__processed_data_set["fit_ready"] = formatted_data
 
         # Run fitting
-        fit_data = self._run_curve_fit(formatted_curve_data, self.__series__)
+        fit_data = self._run_curve_fit(formatted_data, self.__series__)
 
         # Create figure and result data
         if fit_data:
@@ -252,7 +256,7 @@ class CurveAnalysis(BaseCurveAnalysis):
                     self.drawer.draw_fit_report(description=report_description)
 
         # Add raw data points
-        analysis_results.extend(self._create_curve_data(formatted_curve_data, self.__series__))
+        analysis_results.extend(self._create_curve_data(formatted_data, self.__series__))
 
         # Finalize plot
         if self.options.plot:
