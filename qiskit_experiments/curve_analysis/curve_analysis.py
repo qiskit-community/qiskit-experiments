@@ -90,11 +90,6 @@ class CurveAnalysis(BaseCurveAnalysis):
         """Return parameters of this curve analysis."""
         return [s for s in self._fit_params() if s not in self.options.fixed_parameters]
 
-    @property
-    def _num_qubits(self) -> int:
-        """Getter for qubit number."""
-        return len(self._physical_qubits)
-
     # pylint: disable=bad-docstring-quotes
     @deprecated_function(
         last_version="0.4",
@@ -156,7 +151,7 @@ class CurveAnalysis(BaseCurveAnalysis):
             self.__series__ = assigned_series
 
         # Prepare for fitting
-        self._preparation(experiment_data)
+        self._initialize(experiment_data)
         analysis_results = []
 
         # Run data processing

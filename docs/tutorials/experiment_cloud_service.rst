@@ -19,9 +19,9 @@ experiment database.
 
     from qiskit_experiments.library.characterization import T1
     import numpy as np
-    
+
     t1_delays = np.arange(1e-6, 600e-6, 50e-6)
-    
+
     # Create an experiment for qubit 0,
     # setting the unit to microseconds,
     # with the specified time intervals
@@ -158,7 +158,7 @@ on by default at the experiment service level.
 .. jupyter-execute::
 
     exp = T1(qubit=0, delays=t1_delays)
-    
+
     t1_expdata = exp.run(backend=backend, shots=1000)
     t1_expdata.auto_save = True
     t1_expdata.block_for_results()
@@ -189,7 +189,7 @@ Tags and notes can be added to experiments to help identify specific experiments
 For example, an experiment can be tagged and made public with the following code.
 
 .. jupyter-execute::
-   
+
    t1_expdata.tags = ['tag1', 'tag2']
    t1_expdata.share_level = "public"
    t1_expdata.notes = "Example note."
@@ -201,7 +201,7 @@ These fields can also be updated in the web interface from the menu on the right
 
 .. |web_tags_share.png| image:: ./experiment_cloud_service/web_tags_share.png
 
-For more information about using the cloud database interface, please take a look at its `documentation <https://quantum-computing.ibm.com/lab/docs/iql/manage/experiments/>`__. 
+For more information about using the cloud database interface, please take a look at its `documentation <https://quantum-computing.ibm.com/lab/docs/iql/manage/experiments/>`__.
 
 Randomized Benchmarking experiment
 ----------------------------------
@@ -211,11 +211,11 @@ Let’s now do a standard RB experiment and save the results to ResultsDB.
 .. jupyter-execute::
 
     from qiskit_experiments.library import randomized_benchmarking as rb
-    
+
     lengths = list(range(1, 1000, 200))
     num_samples = 10
     seed = 1010
-    
+
     rb_exp = rb.StandardRB([0], lengths, num_samples=num_samples, seed=seed)
     rb_expdata = rb_exp.run(backend).block_for_results()
     rb_expdata.save()
@@ -242,15 +242,15 @@ Let’s do state tomography on a Hadamard state.
 
     from qiskit_experiments.library import StateTomography
     import qiskit
-    
+
     # Construct state by applying H gate
     qc_h = qiskit.QuantumCircuit(1)
     qc_h.h(0)
-    
+
     qstexp = StateTomography(qc_h)
     qst_expdata = qstexp.run(backend).block_for_results()
     qst_expdata.save()
-    
+
     for result in qst_expdata.analysis_results():
         print(result)
 
@@ -262,7 +262,7 @@ graphical interface, but the other analysis parameters are:
 .. image:: ./experiment_cloud_service/tomo_experiment.png
 
 |
-	   
+
 .. jupyter-execute::
 
     import qiskit.tools.jupyter

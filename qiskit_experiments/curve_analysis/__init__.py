@@ -272,13 +272,13 @@ Cureve Analysis Workflow
 Typically curve analysis performs fitting as follows.
 This workflow is defined in the method :meth:`CurveAnalysis._run_analysis`.
 
-1. Preparation
+1. Initialization
 
-Curve analysis calls :meth:`_preparation` method where it initializes
+Curve analysis calls :meth:`_initialization` method where it initializes
 some internal states and optionally populate analysis options
 with the input experiment data.
 In some case it may train the data processor with fresh outcomes.
-A developer can override this method to perform extra preparation.
+A developer can override this method to perform initialization of analysis-specific variables.
 
 2. Data processing
 

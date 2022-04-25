@@ -81,6 +81,7 @@ class RBAnalysis(curve.CurveAnalysis):
     def __init__(self):
         super().__init__()
         self._gate_counts_per_clifford = None
+        self._num_qubits = None
 
     @classmethod
     def _default_options(cls):
@@ -238,11 +239,11 @@ class RBAnalysis(curve.CurveAnalysis):
 
         return outcomes
 
-    def _preparation(
+    def _initialize(
         self,
         experiment_data: ExperimentData,
     ):
-        super()._preparation(experiment_data)
+        super()._initialize(experiment_data)
 
         if self.options.gate_error_ratio is not None:
             # If gate error ratio is not False, EPG analysis is enabled.
@@ -276,6 +277,9 @@ class RBAnalysis(curve.CurveAnalysis):
                         continue
                     gate_error_ratio[gate] = _lookup_epg_ratio(gate, len(qinds))
                 self.set_options(gate_error_ratio=gate_error_ratio)
+
+        # Get qubit number
+        self._num_qubits = len(experiment_data.metadata["physical_qubits"])
 
 
 def _lookup_epg_ratio(gate: str, n_qubits: int) -> Union[None, int]:

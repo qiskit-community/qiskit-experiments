@@ -49,61 +49,63 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
 
     .. rubric:: _generate_fit_guesses
 
-    An abstract method to create initial guesses for the fit parameters.
-    This should be implemented by subclass.
+    This method creates initial guesses for the fit parameters.
+    This might be overridden by subclass.
     See :ref:`curve_analysis_init_guess` for details.
 
     .. rubric:: _format_data
 
-    A method to format curve data. By default, this method takes the average of y values
-    over the same x values and then sort the entire data by x values.
+    This method consumes the processed dataset and outputs the formatted dataset.
+    By default, this method takes the average of y values over
+    the same x values and then sort the entire data by x values.
 
     .. rubric:: _evaluate_quality
 
-    A method to evaluate the quality of the fit based on the fit result.
+    This method evaluates the quality of the fit based on the fit result.
     This returns "good" when reduced chi-squared is less than 3.0.
     Usually it returns string "good" or "bad" according to the evaluation.
     This criterion can be updated by subclass.
 
     .. rubric:: _run_data_processing
 
-    A method to perform data processing, i.e. create data arrays from
-    a list of experiment data payload.
+    This method performs data processing and returns the processed dataset.
+    By default, it internally calls :class:`DataProcessor` instance from the analysis options
+    and processes experiment data payload to create Y data with uncertainty.
+    X data and other metadata are generated within this method by inspecting the
+    circuit metadata. The series classification is also performed by based upon the
+    matching of circuit metadata and :attr:`SeriesDef.filter_kwargs`.
 
     .. rubric:: _run_curve_fit
 
-    A method to perform fitting with predefined fit models and formatted data.
-    This method internally calls :meth:`_generate_fit_guesses`.
+    This method performs the fitting with predefined fit models and the formatted dataset.
+    This method internally calls :meth:`_generate_fit_guesses` method.
     Note that this is a core functionality of the :meth:`_run_analysis` method,
-    that creates fit result object from the processed curve data.
+    that creates fit result object from the formatted dataset.
 
     .. rubric:: _create_analysis_results
 
-    A method to create analysis results for important fit parameters
+    This method to creates analysis results for important fit parameters
     that might be defined by analysis options ``result_parameters``.
     In addition, another entry for all fit parameters is created when
     the analysis option ``return_fit_parameters`` is ``True``.
 
     .. rubric:: _create_curve_data
 
-    A method to create analysis results for data points used for the fitting.
+    This method to creates analysis results for the formatted dataset, i.e. data used for the fitting.
     Entries are created when the analysis option ``return_data_points`` is ``True``.
     If analysis consists of multiple series, analysis result is created for
-    each curve data in the series.
+    each curve data in the series definitions.
 
-    .. rubric:: _preparation
+    .. rubric:: _initialize
 
-    A method that should be called before other methods are called.
     This method initializes analysis options against input experiment data.
+    Usually this method is called before other methods are called.
 
     """
 
     def __init__(self):
         """Initialize data fields that are privately accessed by methods."""
         super().__init__()
-
-        #: List[int]: Index of physical qubits
-        self._physical_qubits = None
 
     @property
     @abstractmethod
@@ -522,11 +524,13 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
 
         return samples
 
-    def _preparation(
+    def _initialize(
         self,
         experiment_data: ExperimentData,
     ):
-        """Prepare for curve analysis. This method is called ahead of other processing.
+        """Initialize curve analysis with experiment data.
+
+        This method is called ahead of other processing.
 
         Args:
             experiment_data: Experiment data to analyze.
@@ -542,9 +546,3 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
         if not data_processor.is_trained:
             data_processor.train(data=experiment_data.data())
         self.set_options(data_processor=data_processor)
-
-        # get experiment metadata
-        try:
-            self._physical_qubits = experiment_data.metadata["physical_qubits"]
-        except KeyError:
-            pass
