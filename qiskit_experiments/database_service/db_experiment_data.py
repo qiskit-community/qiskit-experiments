@@ -516,25 +516,37 @@ class DbExperimentDataV1(DbExperimentData):
         # If not ready cancel the callback before running
         if cancel:
             self._analysis_callbacks[callback_id].status = AnalysisStatus.CANCELLED
-            LOG.warning("Cancelled analysis callback [Analysis ID: %s]", callback_id)
+            LOG.info(
+                "Cancelled analysis callback [Experiment ID: %s][Analysis Callback ID: %s]",
+                self.experiment_id,
+                callback_id,
+            )
             return callback_id, False
 
         # Run callback function
         self._analysis_callbacks[callback_id].status = AnalysisStatus.RUNNING
         try:
             LOG.debug(
-                "Running analysis callback '%s' [Analysis ID: %s]",
+                "Running analysis callback '%s' [Experiment ID: %s][Analysis Callback ID: %s]",
                 self._analysis_callbacks[callback_id].name,
+                self.experiment_id,
                 callback_id,
             )
             callback(self, **kwargs)
             self._analysis_callbacks[callback_id].status = AnalysisStatus.DONE
-            LOG.debug("Analysis callback finished [Analysis ID: %s]", callback_id)
+            LOG.debug(
+                "Analysis callback finished [Experiment ID: %s][Analysis Callback ID: %s]",
+                self.experiment_id,
+                callback_id,
+            )
             return callback_id, True
         except Exception as ex:  # pylint: disable=broad-except
             self._analysis_callbacks[callback_id].status = AnalysisStatus.ERROR
             tb_text = "".join(traceback.format_exception(type(ex), ex, ex.__traceback__))
-            error_msg = f"Analysis callback failed [Analysis ID: {callback_id}]:\n{tb_text}"
+            error_msg = (
+                f"Analysis callback failed [Experiment ID: {self.experiment_id}]"
+                f"[Analysis Callback ID: {callback_id}]:\n{tb_text}"
+            )
             self._analysis_callbacks[callback_id].error_msg = error_msg
             LOG.warning(error_msg)
             return callback_id, False
@@ -1172,7 +1184,12 @@ class DbExperimentDataV1(DbExperimentData):
                 # Check for running callback that can't be cancelled
                 if callback.status == AnalysisStatus.RUNNING:
                     all_cancelled = False
-                    LOG.warning("Unable to cancel running analysis callback [Analysis ID: %s]", cid)
+                    LOG.warning(
+                        "Unable to cancel running analysis callback [Experiment ID: %s]"
+                        "[Analysis Callback ID: %s]",
+                        self.experiment_id,
+                        cid,
+                    )
                 else:
                     not_running.append(cid)
 
@@ -1467,7 +1484,7 @@ class DbExperimentDataV1(DbExperimentData):
         # Get any callback errors
         for cid, callback in self._analysis_callbacks.items():
             if callback.status == AnalysisStatus.ERROR:
-                errors.append(f"\n[Analysis ID: {cid}]: {callback.error_msg}")
+                errors.append(f"\n[Analysis Callback ID: {cid}]: {callback.error_msg}")
 
         return "".join(errors)
 
