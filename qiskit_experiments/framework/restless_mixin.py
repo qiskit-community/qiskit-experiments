@@ -139,7 +139,7 @@ class RestlessMixin:
                 f"a smaller repetition delay for the restless experiment."
             )
 
-    def _get_restless_processor(self, meas_level: int = 2) -> DataProcessor:
+    def _get_restless_processor(self, meas_level: int = MeasLevel.CLASSIFIED) -> DataProcessor:
         """Returns the restless experiments data processor.
 
         Notes:
