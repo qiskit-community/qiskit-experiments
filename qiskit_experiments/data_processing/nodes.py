@@ -211,7 +211,9 @@ class SVD(TrainableDataAction):
 
         Returns:
             A Tuple of 1D arrays of the result of the SVD and the associated error. Each entry
-            is the real part of the averaged IQ data of a qubit.
+            is the real part of the averaged IQ data of a qubit. The data has the shape
+            n_circuits x n_slots for averaged data and n_circuits x n_shots x n_slots for
+            single-shot data.
 
         Raises:
             DataProcessorError: If the SVD has not been previously trained on data.
@@ -232,13 +234,23 @@ class SVD(TrainableDataAction):
         for idx in range(self._n_slots):
             scale = self.parameters.scales[idx]
             # error propagation is computed from data if any std error exists
+
+            # Center the data by removing the mean
             centered = np.array(
                 [
                     data[..., idx, 0] - self.parameters.i_means[idx],
                     data[..., idx, 1] - self.parameters.q_means[idx],
                 ]
             )
-            projected_data[..., idx] = (self.parameters.main_axes[idx] @ centered) / scale
+
+            # Reduce dimensionality using einsum to implement the matrix multiplication.
+            if self._n_shots == 0:
+                subscripts = "i,ij"  # centered data has dimension 2 x circuits
+            else:
+                subscripts = "i,ijk"  # centered data has dimension 2 x circuits x shots
+
+            axis = self.parameters.main_axes[idx]
+            projected_data[..., idx] = np.einsum(subscripts, axis, centered) / scale
 
         return projected_data
 
