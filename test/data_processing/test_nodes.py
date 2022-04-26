@@ -120,7 +120,7 @@ class TestAveraging(BaseDataProcessorTest):
         )
         iq_std = np.full_like(iq_data, np.nan)
 
-        self.create_experiment(unp.uarray(iq_data, iq_std), single_shot=True)
+        self.create_experiment_data(unp.uarray(iq_data, iq_std), single_shot=True)
 
         avg_iq = AverageData(axis=0)
         processed_data = avg_iq(data=np.asarray(self.iq_experiment.data(0)["memory"]))
@@ -231,7 +231,7 @@ class TestSVD(BaseDataProcessorTest):
         """
         iq_data = [[[0.0, 0.0], [0.0, 0.0]], [[1.0, 1.0], [-1.0, 1.0]], [[-1.0, -1.0], [1.0, -1.0]]]
 
-        self.create_experiment(iq_data)
+        self.create_experiment_data(iq_data)
 
         iq_svd = SVD()
         iq_svd.train(np.asarray([datum["memory"] for datum in self.iq_experiment.data()]))
@@ -267,11 +267,11 @@ class TestSVD(BaseDataProcessorTest):
             np.array([[0, 0]]),
         )
 
-    def test_svd(self):
+    def test_svd_on_averaged(self):
         """Use IQ data gathered from the hardware."""
         # This data is primarily oriented along the real axis with a slight tilt.
         # There is a large offset in the imaginary dimension when comparing qubits
-        # 0 and 1.
+        # 0 and 1. The data below is averaged IQ data on two qubits.
         iq_data = [
             [[-6.20601501e14, -1.33257051e15], [-1.70921324e15, -4.05881657e15]],
             [[-5.80546502e14, -1.33492509e15], [-1.65094637e15, -4.05926942e15]],
@@ -285,7 +285,7 @@ class TestSVD(BaseDataProcessorTest):
             [[7.63169115e14, -1.20797552e15], [2.03772603e15, -3.74653863e15]],
         ]
 
-        self.create_experiment(iq_data)
+        self.create_experiment_data(iq_data)
 
         iq_svd = SVD()
         iq_svd.train(np.asarray([datum["memory"] for datum in self.iq_experiment.data()]))
@@ -296,6 +296,44 @@ class TestSVD(BaseDataProcessorTest):
         np.testing.assert_array_almost_equal(
             iq_svd.parameters.main_axes[1], np.array([-0.99627747, -0.0862044])
         )
+
+    def test_on_single_shot(self):
+        """Test the SVD node on single shot data."""
+
+        # The data has the shape
+        iq_data = [
+            # Circuit no. 1, 5 shots
+            [
+                [[-84858304.0, -111158232.0]],
+                [[-92671216.0, -74032944.0]],
+                [[-74049176.0, -22372804.0]],
+                [[-87495592.0, -72437616.0]],
+                [[-52787048.0, -63746976.0]]
+            ],
+            # Circuit no. 2, 5 shots
+            [
+                [[-70452328.0, -91318008.0]],
+                [[-82281464.0, -72478736.0]],
+                [[-107760368.0, -77817680.0]],
+                [[-47410012.0, -48451952.0]],
+                [[68308432.0, -72074976.0]]
+            ],
+            # Circuit no. 3, 5 shots
+            [
+                [[47855768.0, -52185604.0]],
+                [[-64009220.0, -79507104.0]],
+                [[51899032.0, -80737864.0]],
+                [[118873272.0, -43621036.0]],
+                [[24438894.0, -84970704.0]]
+            ]
+        ]
+
+        self.create_experiment_data(iq_data, single_shot=True)
+
+        iq_svd = SVD()
+        iq_svd.train(np.asarray([datum["memory"] for datum in self.iq_experiment.data()]))
+
+        iq_svd(np.array(iq_data))
 
     def test_svd_error(self):
         """Test the error formula of the SVD."""
