@@ -1,5 +1,5 @@
 ---
 fixes:
   - |
-    Add support to allow :class:`~qiskit_experiments.library.randomized_benchmarking.InterleavedRB`
+    Fixes a bug in the :class:`.InterleavedRB` experiment where a :class:`.Delay` instruction, or a Clifford circuit containing delay instructions, could not be used as the interleaved element.
     to accept a delay (``Delay``) or a circuit with delays as an instruction to be interleaved.
