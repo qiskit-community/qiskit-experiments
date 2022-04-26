@@ -365,12 +365,19 @@ class TestInterleavedRB(RBTestCase):
     def test_interleaving_circuit_with_delay(self):
         """Test circuit with delay can be interleaved."""
         delay_qc = QuantumCircuit(2)
-        delay_qc.delay(10, [0, 1], "us")
+        delay_qc.delay(10, [0], unit="us")
+        delay_qc.x(1)
 
         exp = rb.InterleavedRB(
-            interleaved_element=delay_qc, qubits=[1, 2], lengths=[1, 2, 3], seed=123, num_samples=2
+            interleaved_element=delay_qc, qubits=[1, 2], lengths=[1], seed=123, num_samples=1
         )
-        exp.circuits()
+        _, int_circ = exp.circuits()
+
+        qc = QuantumCircuit(2)
+        qc.x(1)
+        expected_inversion = Clifford(int_circ.data[1][0]).compose(qc).adjoint()
+        # barrier, clifford, barrier, "interleaved circuit", barrier, inversion, ...
+        self.assertEqual(expected_inversion, Clifford(int_circ.data[5][0]))
 
     def test_experiment_config(self):
         """Test converting to and from config works"""
