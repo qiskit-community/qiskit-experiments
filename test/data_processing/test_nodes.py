@@ -27,6 +27,7 @@ from qiskit_experiments.data_processing.nodes import (
     MarginalizeCounts,
     RestlessToCounts,
 )
+from qiskit_experiments.data_processing import DataProcessor
 from qiskit_experiments.framework.json import ExperimentDecoder, ExperimentEncoder
 from . import BaseDataProcessorTest
 
@@ -333,7 +334,23 @@ class TestSVD(BaseDataProcessorTest):
         iq_svd = SVD()
         iq_svd.train(np.asarray([datum["memory"] for datum in self.iq_experiment.data()]))
 
-        iq_svd(np.array(iq_data))
+        processed_data = iq_svd(np.array(iq_data))
+
+        # Test the output of the axis
+        self.assertEqual(len(iq_svd.parameters.main_axes), 1)
+        self.assertTrue(np.allclose(iq_svd.parameters.main_axes[0], [0.92727304, 0.37438577]))
+
+        # Test the output data
+        self.assertEqual(processed_data.shape, (3, 5, 1))
+        test_values = processed_data[0].flatten()
+        expected = [-0.4982860, -0.4383349, -0.10852355, -0.38971727, -0.07045186]
+        self.assertTrue(np.allclose(test_values, expected, atol=1e-06))
+
+        # Test in a data processor, will catch, e.g., unumpy issues
+        data_processor = DataProcessor("memory", [SVD()])
+        data_processor.train(self.iq_experiment.data())
+        processed_data = data_processor(self.iq_experiment.data())
+        self.assertEqual(processed_data.shape, (3, 5, 1))
 
     def test_svd_error(self):
         """Test the error formula of the SVD."""
