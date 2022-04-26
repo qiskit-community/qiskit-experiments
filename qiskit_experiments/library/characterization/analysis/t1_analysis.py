@@ -30,7 +30,7 @@ class T1Analysis(curve.DecayAnalysis):
     def _default_options(cls) -> Options:
         """Default analysis options."""
         options = super()._default_options()
-        options.curve_plotter.set_options(
+        options.curve_drawer.set_options(
             xlabel="Delay",
             ylabel="P(1)",
             xval_unit="s",

@@ -16,7 +16,7 @@ from typing import List, Union
 
 import numpy as np
 import qiskit_experiments.curve_analysis as curve
-from qiskit_experiments.framework import AnalysisResultData
+from qiskit_experiments.framework import AnalysisResultData, ExperimentData
 
 
 class InterleavedRBAnalysis(curve.CurveAnalysis):
@@ -88,6 +88,10 @@ class InterleavedRBAnalysis(curve.CurveAnalysis):
 
     """
 
+    def __init__(self):
+        super().__init__()
+        self._num_qubits = None
+
     __series__ = [
         curve.SeriesDef(
             name="Standard",
@@ -119,12 +123,15 @@ class InterleavedRBAnalysis(curve.CurveAnalysis):
         return default_options
 
     def _generate_fit_guesses(
-        self, user_opt: curve.FitOptions
+        self,
+        user_opt: curve.FitOptions,
+        curve_data: curve.CurveData,
     ) -> Union[curve.FitOptions, List[curve.FitOptions]]:
-        """Compute the initial guesses.
+        """Create algorithmic guess with analysis options and curve data.
 
         Args:
             user_opt: Fit options filled with user provided guess and bounds.
+            curve_data: Formatted data collection to fit.
 
         Returns:
             List of fit options that are passed to the fitter function.
@@ -140,11 +147,11 @@ class InterleavedRBAnalysis(curve.CurveAnalysis):
         a_guess = 1 - b_guess
 
         # for standard RB curve
-        std_curve = self._data(series_name="Standard")
+        std_curve = curve_data.get_subset_of("Standard")
         alpha_std = curve.guess.rb_decay(std_curve.x, std_curve.y, a=a_guess, b=b_guess)
 
         # for interleaved RB curve
-        int_curve = self._data(series_name="Interleaved")
+        int_curve = curve_data.get_subset_of("Interleaved")
         alpha_int = curve.guess.rb_decay(int_curve.x, int_curve.y, a=a_guess, b=b_guess)
 
         alpha_c = min(alpha_int / alpha_std, 1.0)
@@ -158,23 +165,33 @@ class InterleavedRBAnalysis(curve.CurveAnalysis):
 
         return user_opt
 
-    def _format_data(self, data: curve.CurveData) -> curve.CurveData:
-        """Data format with averaging with sampling strategy."""
+    def _format_data(
+        self,
+        curve_data: curve.CurveData,
+    ) -> curve.CurveData:
+        """Postprocessing for the processed dataset.
+
+        Args:
+            curve_data: Processed dataset created from experiment results.
+
+        Returns:
+            Formatted data.
+        """
         # TODO Eventually move this to data processor, then create RB data processor.
 
-        # take average over the same x value by regenerating sigma from variance of y values
-        series, xdata, ydata, sigma, shots = curve.data_processing.multi_mean_xy_data(
-            series=data.data_index,
-            xdata=data.x,
-            ydata=data.y,
-            sigma=data.y_err,
-            shots=data.shots,
+        # take average over the same x value by keeping sigma
+        data_allocation, xdata, ydata, sigma, shots = curve.data_processing.multi_mean_xy_data(
+            series=curve_data.data_allocation,
+            xdata=curve_data.x,
+            ydata=curve_data.y,
+            sigma=curve_data.y_err,
+            shots=curve_data.shots,
             method="sample",
         )
 
         # sort by x value in ascending order
-        series, xdata, ydata, sigma, shots = curve.data_processing.data_sort(
-            series=series,
+        data_allocation, xdata, ydata, sigma, shots = curve.data_processing.data_sort(
+            series=data_allocation,
             xdata=xdata,
             ydata=ydata,
             sigma=sigma,
@@ -182,16 +199,31 @@ class InterleavedRBAnalysis(curve.CurveAnalysis):
         )
 
         return curve.CurveData(
-            label="fit_ready",
             x=xdata,
             y=ydata,
             y_err=sigma,
             shots=shots,
-            data_index=series,
+            data_allocation=data_allocation,
+            labels=curve_data.labels,
         )
 
-    def _extra_database_entry(self, fit_data: curve.FitData) -> List[AnalysisResultData]:
-        """Calculate EPC."""
+    def _create_analysis_results(
+        self,
+        fit_data: curve.FitData,
+        quality: str,
+        **metadata,
+    ) -> List[AnalysisResultData]:
+        """Create analysis results for important fit parameters.
+
+        Args:
+            fit_data: Fit outcome.
+            quality: Quality of fit outcome.
+
+        Returns:
+            List of analysis result data.
+        """
+        outcomes = super()._create_analysis_results(fit_data, quality, **metadata)
+
         nrb = 2**self._num_qubits
         scale = (nrb - 1) / nrb
 
@@ -212,15 +244,34 @@ class InterleavedRBAnalysis(curve.CurveAnalysis):
         systematic_err_l = epc.n - systematic_err
         systematic_err_r = epc.n + systematic_err
 
-        extra_data = AnalysisResultData(
-            name="EPC",
-            value=epc,
-            chisq=fit_data.reduced_chisq,
-            quality=self._evaluate_quality(fit_data),
-            extra={
-                "EPC_systematic_err": systematic_err,
-                "EPC_systematic_bounds": [max(systematic_err_l, 0), systematic_err_r],
-            },
+        outcomes.append(
+            AnalysisResultData(
+                name="EPC",
+                value=epc,
+                chisq=fit_data.reduced_chisq,
+                quality=quality,
+                extra={
+                    "EPC_systematic_err": systematic_err,
+                    "EPC_systematic_bounds": [max(systematic_err_l, 0), systematic_err_r],
+                    **metadata,
+                },
+            )
         )
 
-        return [extra_data]
+        return outcomes
+
+    def _initialize(
+        self,
+        experiment_data: ExperimentData,
+    ):
+        """Initialize curve analysis with experiment data.
+
+        This method is called ahead of other processing.
+
+        Args:
+            experiment_data: Experiment data to analyze.
+        """
+        super()._initialize(experiment_data)
+
+        # Get qubit number
+        self._num_qubits = len(experiment_data.metadata["physical_qubits"])
