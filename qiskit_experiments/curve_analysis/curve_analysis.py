@@ -96,8 +96,8 @@ class CurveAnalysis(BaseCurveAnalysis):
     @deprecated_function(
         last_version="0.4",
         msg=(
-            "CurveAnalysis will also drop internal chache of processed data after 0.4. "
-            "Relevant method signature has been updated to directly recieve curve data "
+            "CurveAnalysis will also drop internal cache of processed data after 0.4. "
+            "Relevant method signature has been updated to directly receive curve data "
             "rather than accessing data with this method."
         ),
     )
@@ -110,7 +110,7 @@ class CurveAnalysis(BaseCurveAnalysis):
 
         Args:
             series_name: Series name to search for.
-            label: Label attached to data set. By default it returns "fit_ready" data.
+            label: Label attached to data set. By default, it returns "fit_ready" data.
 
         Returns:
             Filtered curve data set.
