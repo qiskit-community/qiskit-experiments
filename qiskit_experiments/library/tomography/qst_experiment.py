@@ -50,7 +50,7 @@ class StateTomography(TomographyExperiment):
     def __init__(
         self,
         circuit: Union[QuantumCircuit, Instruction, BaseOperator, Statevector],
-        measurement_basis: basis.BaseTomographyMeasurementBasis = basis.PauliMeasurementBasis(),
+        measurement_basis: basis.MeasurementBasis = basis.PauliMeasurementBasis(),
         measurement_qubits: Optional[Sequence[int]] = None,
         basis_indices: Optional[Iterable[List[int]]] = None,
         qubits: Optional[Sequence[int]] = None,

@@ -209,7 +209,7 @@ class TestFineAmplitudeCal(QiskitExperimentsTestCase):
         library = FixedFrequencyTransmon()
 
         self.backend = MockFineAmp(-np.pi * 0.07, np.pi, "xp")
-        self.cals = Calibrations.from_backend(self.backend, library)
+        self.cals = Calibrations.from_backend(self.backend, libraries=[library])
 
     def test_cal_options(self):
         """Test that the options are properly propagated."""
