@@ -73,22 +73,25 @@ class Calibrations:
         coupling_map: Optional[List[List[int]]] = None,
         control_channel_map: Optional[Dict[Tuple[int, ...], List[ControlChannel]]] = None,
         library: Optional[Union[BasisGateLibrary, List[BasisGateLibrary]]] = None,
+        libraries: Optional[List[BasisGateLibrary]] = None,
         add_parameter_defaults: bool = True,
         backend_name: Optional[str] = None,
         backend_version: Optional[str] = None,
     ):
         """Initialize the calibrations.
 
-        Calibrations can be initialized from a basis gate library, i.e. a subclass of
+        Calibrations can be initialized from a list of basis gate libraries, i.e. a subclass of
         :class:`BasisGateLibrary`. As example consider the following code:
 
         .. code-block:: python
 
             cals = Calibrations(
-                    library=FixedFrequencyTransmon(
-                        basis_gates=["x", "sx"],
-                        default_values={duration: 320}
-                    )
+                    libraries=[
+                        FixedFrequencyTransmon(
+                            basis_gates=["x", "sx"],
+                            default_values={duration: 320}
+                        )
+                    ]
                 )
 
         Args:
@@ -99,26 +102,40 @@ class Calibrations:
                 keys are tuples of qubits and the values are a list of ControlChannels
                 that correspond to the qubits in the keys. If a control_channel_map is given
                 then the qubits must be in the coupling_map.
-            library: A library instance from which to get template schedules to register as well
-                as default parameter values.
+            library (deprecated): A library instance from which to get template schedules to
+                register as well as default parameter values.
+            libraries: A list of library instance from which to get template schedules to register
+                as well as default parameter values.
             add_parameter_defaults: A boolean to indicate weather the default parameter values of
-                the given library should be used to populate the calibrations. By default this
+                the given libraries should be used to populate the calibrations. By default this
                 value is True but can be set to false when deserializing a calibrations object.
             backend_name: The name of the backend that these calibrations are attached to.
             backend_version: The version of the backend that these calibrations are attached to.
 
         Raises:
-            NotImplementedError: if a list of libraries is given. This will be implemented in
-                the future.
+            CalibrationError: if both library and libraries are given. Note that library will be
+                removed in future versions.
+
         """
         self._backend_name = backend_name
         self._backend_version = backend_version
 
-        if isinstance(library, list):
-            raise NotImplementedError(
-                "Passing a list of libraries from which to instantiate "
-                "will be supported in future releases."
+        if library:
+            warnings.warn(
+                "library has been deprecated, please provide `libraries` instead."
+                "The `library` argument along with this warning will be removed "
+                "in Qiskit Experiments 0.4.",
+                DeprecationWarning,
+                stacklevel=2,
             )
+
+            if libraries:
+                raise CalibrationError("Cannot supply both library and libraries.")
+
+            if not isinstance(library, list):
+                libraries = [library]
+            else:
+                libraries = library
 
         # Mapping between qubits and their control channels.
         self._control_channel_map = control_channel_map if control_channel_map else {}
@@ -149,18 +166,18 @@ class Calibrations:
         self._hash_to_counter_map = {}
         self._parameter_counter = 0
 
-        self._library = None
-        if library is not None:
-            self._library = library
+        self._libraries = libraries
+        if libraries is not None:
+            for lib in libraries:
 
-            # Add the basis gates
-            for gate in library.basis_gates:
-                self.add_schedule(library[gate], num_qubits=library.num_qubits(gate))
+                # Add the basis gates
+                for gate in lib.basis_gates:
+                    self.add_schedule(lib[gate], num_qubits=lib.num_qubits(gate))
 
-            # Add the default values
-            if add_parameter_defaults:
-                for param_conf in library.default_values():
-                    self.add_parameter_value(*param_conf, update_inst_map=False)
+                # Add the default values
+                if add_parameter_defaults:
+                    for param_conf in lib.default_values():
+                        self.add_parameter_value(*param_conf, update_inst_map=False)
 
         # This internal parameter is False so that if a schedule is added after the
         # init it will be set to True and serialization will raise an error.
@@ -220,6 +237,7 @@ class Calibrations:
         cls,
         backend: Backend,
         library: Optional[BasisGateLibrary] = None,
+        libraries: Optional[List[BasisGateLibrary]] = None,
         add_parameter_defaults: bool = True,
     ) -> "Calibrations":
         """Create an instance of Calibrations from a backend.
@@ -228,8 +246,10 @@ class Calibrations:
             backend: A backend instance from which to extract the qubit and readout frequencies
                 (which will be added as first guesses for the corresponding parameters) as well
                 as the coupling map.
-            library: A library instance from which to get template schedules to register as well
-                as default parameter values.
+            library: A library or list thereof from which to get template schedules to register as
+                well as default parameter values.
+            libraries: A list of libraries from which to get template schedules to register as
+                well as default parameter values.
             add_parameter_defaults: A boolean to indicate whether the default parameter values of
                 the given library should be used to populate the calibrations. By default this
                 value is ``True``.
@@ -246,6 +266,7 @@ class Calibrations:
             getattr(backend.configuration(), "coupling_map", []),
             getattr(backend.configuration(), "control_channels", None),
             library,
+            libraries,
             add_parameter_defaults,
             backend_name,
             getattr(backend, "version", None),
@@ -264,9 +285,20 @@ class Calibrations:
         return cals
 
     @property
-    def library(self) -> Optional[BasisGateLibrary]:
-        """Return the name of the library, e.g. for experiment metadata."""
-        return self._library
+    def libraries(self) -> Optional[List[BasisGateLibrary]]:
+        """Return the libraries used to initialize the calibrations."""
+        return self._libraries
+
+    @property
+    def library(self) -> Optional[List[BasisGateLibrary]]:
+        """Return the libraries used to initialize the calibrations."""
+        warnings.warn(
+            "library has been deprecated, use libraries instead."
+            "This warning will be removed with backport in Qiskit Experiments 0.4.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return self._libraries
 
     def _get_operated_qubits(self) -> Dict[int, List[int]]:
         """Get a dict describing qubit couplings.
@@ -1609,7 +1641,7 @@ class Calibrations:
         - The backends have the same name.
         - The backends have the same version.
         - The calibrations contain the same schedules.
-        - The stored paramters have the same values.
+        - The stored parameters have the same values.
         """
         if self.backend_name != other.backend_name:
             return False
@@ -1654,7 +1686,7 @@ class Calibrations:
         kwargs = {
             "coupling_map": self._coupling_map,
             "control_channel_map": ControlChannelMap(self._control_channel_map),
-            "library": self.library,
+            "libraries": self.libraries,
             "add_parameter_defaults": False,  # the parameters will be added outside of the init
             "backend_name": self._backend_name,
             "backend_version": self._backend_version,
