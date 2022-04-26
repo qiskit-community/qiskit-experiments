@@ -239,7 +239,10 @@ class SVD(TrainableDataAction):
 
             if self._n_shots != 0:
                 for circ_idx in range(self._n_circs):
-                    centered =[data[circ_idx, :, idx, 0] - mean_i, data[circ_idx, :, idx, 1] - mean_q]
+                    centered = [
+                        data[circ_idx, :, idx, 0] - mean_i,
+                        data[circ_idx, :, idx, 1] - mean_q,
+                    ]
                     projected_data[circ_idx, :, idx] = axis @ np.array(centered) / scale
             else:
                 centered = [data[:, idx, 0] - mean_i, data[:, idx, 1] - mean_q]
