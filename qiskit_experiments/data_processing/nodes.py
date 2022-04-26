@@ -233,24 +233,17 @@ class SVD(TrainableDataAction):
 
         for idx in range(self._n_slots):
             scale = self.parameters.scales[idx]
-            # error propagation is computed from data if any std error exists
-
-            # Center the data by removing the mean
-            centered = np.array(
-                [
-                    data[..., idx, 0] - self.parameters.i_means[idx],
-                    data[..., idx, 1] - self.parameters.q_means[idx],
-                ]
-            )
-
-            # Reduce dimensionality using einsum to implement the matrix multiplication.
-            if self._n_shots == 0:
-                subscripts = "i,ij"  # centered data has dimension 2 x circuits
-            else:
-                subscripts = "i,ijk"  # centered data has dimension 2 x circuits x shots
-
             axis = self.parameters.main_axes[idx]
-            projected_data[..., idx] = np.einsum(subscripts, axis, centered) / scale
+            mean_i = self.parameters.i_means[idx]
+            mean_q = self.parameters.q_means[idx]
+
+            if self._n_shots != 0:
+                for circ_idx in range(self._n_circs):
+                    centered =[data[circ_idx, :, idx, 0] - mean_i, data[circ_idx, :, idx, 1] - mean_q]
+                    projected_data[circ_idx, :, idx] = axis @ np.array(centered) / scale
+            else:
+                centered = [data[:, idx, 0] - mean_i, data[:, idx, 1] - mean_q]
+                projected_data[:, idx] = axis @ np.array(centered) / scale
 
         return projected_data
 
