@@ -774,25 +774,6 @@ class RestlessNode(DataAction, ABC):
         else:
             return unordered_data.flatten()
 
-    def _reorder_iq(self, unordered_data: np.ndarray) -> np.ndarray:
-        """Reorder IQ data according to the measurement sequence."""
-
-        if unordered_data is None:
-            return unordered_data
-
-        ordered_data = []
-
-        if self._memory_allocation == ShotOrder.circuit_first:
-            for shot_idx in range(self._n_shots):
-                for circ_idx in range(self._n_circuits):
-                    ordered_data.append(unordered_data[circ_idx][shot_idx])
-        else:
-            for circ_idx in range(self._n_circuits):
-                for shot_idx in range(self._n_shots):
-                    ordered_data.append(unordered_data[circ_idx][shot_idx])
-
-        return np.array(ordered_data)
-
 
 class RestlessToCounts(RestlessNode):
     """Post-process restless data and convert restless memory to counts.
@@ -927,3 +908,25 @@ class RestlessToIQ(RestlessNode):
             iq_memory[idx % self._n_circuits].append(iq_point)
 
         return np.array(iq_memory)
+
+    def _reorder_iq(self, unordered_data: np.ndarray) -> np.ndarray:
+        """Reorder IQ data according to the measurement sequence."""
+
+        if unordered_data is None:
+            return unordered_data
+
+        ordered_data = [None] * self._n_shots * self._n_circuits
+
+        count = 0
+        if self._memory_allocation == ShotOrder.circuit_first:
+            for shot_idx in range(self._n_shots):
+                for circ_idx in range(self._n_circuits):
+                    ordered_data[count] = unordered_data[circ_idx][shot_idx]
+                    count += 1
+        else:
+            for circ_idx in range(self._n_circuits):
+                for shot_idx in range(self._n_shots):
+                    ordered_data[count] = unordered_data[circ_idx][shot_idx]
+                    count += 1
+
+        return np.array(ordered_data)
