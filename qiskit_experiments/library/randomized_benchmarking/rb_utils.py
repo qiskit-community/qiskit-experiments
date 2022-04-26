@@ -228,7 +228,7 @@ class RBUtils:
             \end{bmatrix}
 
         The coherence limit error computed by this function is
-        :math:`1 - F_{\text{avg}}(\mathcal{E}, U)` and the following equalities hold for tha value.
+        :math:`1 - F_{\text{avg}}(\mathcal{E}, U)` and the following equalities hold for the value.
 
         .. math::
 
