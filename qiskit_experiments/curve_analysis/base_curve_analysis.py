@@ -189,7 +189,7 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
         # TODO remove this in Qiskit Experiments v0.4
         if "curve_plotter" in fields:
             warnings.warn(
-                f"The analysis option 'curve_plotter' has been deprecated. "
+                "The analysis option 'curve_plotter' has been deprecated. "
                 "The option is replaced with 'curve_drawer' that takes 'MplCurveDrawer' instance. "
                 "If this is a loaded analysis, please save this instance again to update option value. "
                 "The 'curve_plotter' argument along with this warning will be removed "

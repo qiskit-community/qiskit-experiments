@@ -261,7 +261,7 @@ class TestCurveAnalysisUnit(QiskitExperimentsTestCase):
             analysis.set_options(data_processor=InvalidClass())
 
         with self.assertRaises(TypeError):
-            analysis.set_options(curve_plotter=InvalidClass())
+            analysis.set_options(curve_drawer=InvalidClass())
 
 
 class TestCurveAnalysisIntegration(QiskitExperimentsTestCase):
