@@ -104,18 +104,21 @@ class TestAveraging(BaseDataProcessorTest):
     def test_iq_averaging(self):
         """Test averaging of IQ-data."""
 
+        # This data represents IQ data for a single quantum circuit with 10 shots and 2 slots.
         iq_data = np.array(
             [
-                [[-6.20601501e14, -1.33257051e15], [-1.70921324e15, -4.05881657e15]],
-                [[-5.80546502e14, -1.33492509e15], [-1.65094637e15, -4.05926942e15]],
-                [[-4.04649069e14, -1.33191056e15], [-1.29680377e15, -4.03604815e15]],
-                [[-2.22203874e14, -1.30291309e15], [-8.57663429e14, -3.97784973e15]],
-                [[-2.92074029e13, -1.28578530e15], [-9.78824053e13, -3.92071056e15]],
-                [[1.98056981e14, -1.26883024e15], [3.77157017e14, -3.87460328e15]],
-                [[4.29955888e14, -1.25022995e15], [1.02340118e15, -3.79508679e15]],
-                [[6.38981344e14, -1.25084614e15], [1.68918514e15, -3.78961044e15]],
-                [[7.09988897e14, -1.21906634e15], [1.91914171e15, -3.73670664e15]],
-                [[7.63169115e14, -1.20797552e15], [2.03772603e15, -3.74653863e15]],
+                [
+                    [[-6.20601501e14, -1.33257051e15], [-1.70921324e15, -4.05881657e15]],
+                    [[-5.80546502e14, -1.33492509e15], [-1.65094637e15, -4.05926942e15]],
+                    [[-4.04649069e14, -1.33191056e15], [-1.29680377e15, -4.03604815e15]],
+                    [[-2.22203874e14, -1.30291309e15], [-8.57663429e14, -3.97784973e15]],
+                    [[-2.92074029e13, -1.28578530e15], [-9.78824053e13, -3.92071056e15]],
+                    [[1.98056981e14, -1.26883024e15], [3.77157017e14, -3.87460328e15]],
+                    [[4.29955888e14, -1.25022995e15], [1.02340118e15, -3.79508679e15]],
+                    [[6.38981344e14, -1.25084614e15], [1.68918514e15, -3.78961044e15]],
+                    [[7.09988897e14, -1.21906634e15], [1.91914171e15, -3.73670664e15]],
+                    [[7.63169115e14, -1.20797552e15], [2.03772603e15, -3.74653863e15]],
+                ]
             ],
             dtype=float,
         )
@@ -239,12 +242,12 @@ class TestSVD(BaseDataProcessorTest):
 
         # qubit 0 IQ data is oriented along (1,1)
         np.testing.assert_array_almost_equal(
-            iq_svd.parameters.main_axes[0], np.array([-1, -1]) / np.sqrt(2)
+            iq_svd.parameters.main_axes[0], np.array([1, 1]) / np.sqrt(2)
         )
 
         # qubit 1 IQ data is oriented along (1, -1)
         np.testing.assert_array_almost_equal(
-            iq_svd.parameters.main_axes[1], np.array([-1, 1]) / np.sqrt(2)
+            iq_svd.parameters.main_axes[1], np.array([1, -1]) / np.sqrt(2)
         )
 
         # This is n_circuit = 1, n_slot = 2, the input shape should be [1, 2, 2]
@@ -252,13 +255,13 @@ class TestSVD(BaseDataProcessorTest):
         processed_data = iq_svd(np.array([[[1, 1], [1, -1]]]))
         np.testing.assert_array_almost_equal(
             unp.nominal_values(processed_data),
-            np.array([[-1, -1]]) / np.sqrt(2),
+            np.array([[1, 1]]) / np.sqrt(2),
         )
 
         processed_data = iq_svd(np.array([[[2, 2], [2, -2]]]))
         np.testing.assert_array_almost_equal(
             unp.nominal_values(processed_data),
-            2 * np.array([[-1, -1]]) / np.sqrt(2),
+            2 * np.array([[1, 1]]) / np.sqrt(2),
         )
 
         # Check that orthogonal data gives 0.
@@ -292,10 +295,10 @@ class TestSVD(BaseDataProcessorTest):
         iq_svd.train(np.asarray([datum["memory"] for datum in self.iq_experiment.data()]))
 
         np.testing.assert_array_almost_equal(
-            iq_svd.parameters.main_axes[0], np.array([-0.99633018, -0.08559302])
+            iq_svd.parameters.main_axes[0], np.array([0.99633018, 0.08559302])
         )
         np.testing.assert_array_almost_equal(
-            iq_svd.parameters.main_axes[1], np.array([-0.99627747, -0.0862044])
+            iq_svd.parameters.main_axes[1], np.array([0.99627747, 0.0862044])
         )
 
     def test_on_single_shot(self):
@@ -342,8 +345,8 @@ class TestSVD(BaseDataProcessorTest):
 
         # Test the output data
         self.assertEqual(processed_data.shape, (3, 5, 1))
-        test_values = processed_data[0].flatten()
-        expected = [-0.4982860, -0.4383349, -0.10852355, -0.38971727, -0.07045186]
+        test_values = np.array(processed_data[0].flatten(), dtype=float)
+        expected = np.array([-0.4982860, -0.4383349, -0.10852355, -0.38971727, -0.07045186], dtype=float)
         self.assertTrue(np.allclose(test_values, expected, atol=1e-06))
 
         # Test in a data processor, will catch, e.g., unumpy issues

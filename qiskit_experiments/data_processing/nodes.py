@@ -294,7 +294,10 @@ class SVD(TrainableDataAction):
             datums[1, :] = datums[1, :] - mean_q
 
             mat_u, mat_s, _ = np.linalg.svd(datums)
-            main_axes.append(mat_u[:, 0])
+
+            # There is an arbitrary sign in the direction of the matrix which we fix to
+            # positive to make the SVD node more reliable in tests and real settings.
+            main_axes.append(np.sign(mat_u[0, 0]) * mat_u[:, 0])
             scales.append(mat_s[0])
 
         self.set_parameters(
