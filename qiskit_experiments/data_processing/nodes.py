@@ -245,6 +245,7 @@ class SVD(TrainableDataAction):
                     ]
                     projected_data[circ_idx, :, idx] = axis @ np.array(centered) / scale
             else:
+                # Averaged
                 centered = [data[:, idx, 0] - mean_i, data[:, idx, 1] - mean_q]
                 projected_data[:, idx] = axis @ np.array(centered) / scale
 
