@@ -1,14 +1,11 @@
 # Contributing Guide
 
-To contribute to Qiskit Experiments, first read the overall project contributing
-guidelines. These are included in the qiskit documentation:
-
-https://qiskit.org/documentation/contributing_to_qiskit.html
+To contribute to Qiskit Experiments, first read the overall [Qiskit project contributing
+guidelines](https://qiskit.org/documentation/contributing_to_qiskit.html). 
 
 ## Contributing to Qiskit Experiments
 
-In addition to the general guidelines, the specific guidelines for contributing to
-Qiskit Experiments are documented below.
+In addition to the general guidelines, the specific guidelines for contributing to Qiskit Experiments are documented below.
 
 ### Contents
 
@@ -141,15 +138,15 @@ tox -epy37 -- -n test.python.test_examples.TestPythonExamples.test_all_examples
 #### STDOUT/STDERR and logging capture
 
 When running tests in parallel using `stestr` either via tox, the Makefile (`make
-test_ci`), or in CI we set the env variable `QISKIT_TEST_CAPTURE_STREAMS` which will
+test_ci`), or in CI, we set the env variable `QISKIT_TEST_CAPTURE_STREAMS`, which will
 capture any text written to stdout, stderr, and log messages and add them as attachments
 to the tests run so output can be associated with the test case it originated from.
-However, if you run tests with `stestr` outside of these mechanisms by default the
-streams are not captured. To enable stream capture just set the
+However, if you run tests with `stestr` outside of these mechanisms, by default the
+streams are not captured. To enable stream capture, just set the
 `QISKIT_TEST_CAPTURE_STREAMS` env variable to `1`. If this environment variable is set
-outside of running with `stestr` the streams (STDOUT, STDERR, and logging) will still be
+outside of running with `stestr`, the streams (STDOUT, STDERR, and logging) will still be
 captured but **not** displayed in the test runners output. If you are using the stdlib
-unittest runner a similar result can be accomplished by using the
+unittest runner, a similar result can be accomplished by using the
 [`--buffer`](https://docs.python.org/3/library/unittest.html#command-line-options)
 option (e.g. `python -m unittest discover --buffer ./test/python`).
 
@@ -163,7 +160,7 @@ merge) and checks if that PR had a `Changelog:` label on it. If there is a label
 add the git commit message summary line from the git log for the release to the
 changelog.
 
-If there are multiple `Changelog:` tags on a PR the git commit message summary line from
+If there are multiple `Changelog:` tags on a PR, the git commit message summary line from
 the git log will be used for each changelog category tagged.
 
 The current categories for each label are as follows:
@@ -188,9 +185,9 @@ they should be able to read the release notes, understand if they need to update
 program which uses qiskit, and how they would go about doing that. It ideally should
 explain why they need to make this change too, to provide the necessary context.
 
-To make sure we don't forget a release note or if the details of user facing changes
-over a release cycle, we require that all user facing changes include documentation at
-the same time as the code. To accomplish this we use the
+To make sure we don't forget a release note or the details of user facing changes
+over a release cycle, we require that all user facing changes include documentation
+describing the changes along with the code. To accomplish this, we use the
 [reno](https://docs.openstack.org/reno/latest/) tool which enables a git based workflow
 for writing and compiling release notes.
 
