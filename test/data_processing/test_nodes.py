@@ -346,7 +346,9 @@ class TestSVD(BaseDataProcessorTest):
         # Test the output data
         self.assertEqual(processed_data.shape, (3, 5, 1))
         test_values = np.array(processed_data[0].flatten(), dtype=float)
-        expected = np.array([-0.4982860, -0.4383349, -0.10852355, -0.38971727, -0.07045186], dtype=float)
+        expected = np.array(
+            [-0.4982860, -0.4383349, -0.10852355, -0.38971727, -0.07045186], dtype=float
+        )
         self.assertTrue(np.allclose(test_values, expected, atol=1e-06))
 
         # Test in a data processor, will catch, e.g., unumpy issues
