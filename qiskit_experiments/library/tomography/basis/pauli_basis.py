@@ -15,10 +15,10 @@ Pauli preparation and measurement tomography bases.
 
 from qiskit.circuit import QuantumCircuit
 from qiskit.circuit.library import HGate, XGate, ZGate, SGate, SdgGate
-from .tomography_basis import TomographyMeasurementBasis, TomographyPreparationBasis
+from .local_basis import LocalMeasurementBasis, LocalPreparationBasis
 
 
-class PauliMeasurementBasis(TomographyMeasurementBasis):
+class PauliMeasurementBasis(LocalMeasurementBasis):
     r"""Standard Pauli measurement basis.
 
     This basis has 3 indices each with with 2 measurement outcomes. The
@@ -56,10 +56,14 @@ class PauliMeasurementBasis(TomographyMeasurementBasis):
         meas_y = QuantumCircuit(1, name="PauliMeasY")
         meas_y.append(SdgGate(), [0])
         meas_y.append(HGate(), [0])
-        super().__init__([meas_z, meas_x, meas_y])
+        super().__init__("PauliMeasurementBasis", [meas_z, meas_x, meas_y])
+
+    def __json_encode__(self):
+        # Override LocalMeasurementBasis's encoder
+        return {}
 
 
-class PauliPreparationBasis(TomographyPreparationBasis):
+class PauliPreparationBasis(LocalPreparationBasis):
     """Minimal 4-element Pauli measurement basis.
 
     This is a minimal size 4 preparation basis where each qubit
@@ -96,10 +100,14 @@ class PauliPreparationBasis(TomographyPreparationBasis):
         prep_yp = QuantumCircuit(1, name="PauliPrepYp")
         prep_yp.append(HGate(), [0])
         prep_yp.append(SGate(), [0])
-        super().__init__([prep_zp, prep_zm, prep_xp, prep_yp])
+        super().__init__("PauliPreparationBasis", [prep_zp, prep_zm, prep_xp, prep_yp])
+
+    def __json_encode__(self):
+        # Override LocalPreparationBasis's encoder
+        return {}
 
 
-class Pauli6PreparationBasis(TomographyPreparationBasis):
+class Pauli6PreparationBasis(LocalPreparationBasis):
     """Over-complete 6-element Pauli preparation basis.
 
     This is an over-complete size 6 preparation basis where each qubit
@@ -147,6 +155,7 @@ class Pauli6PreparationBasis(TomographyPreparationBasis):
         prep_ym.append(HGate(), [0])
         prep_ym.append(SdgGate(), [0])
         super().__init__(
+            "Pauli6PreparationBasis",
             [
                 prep_zp,
                 prep_zm,
@@ -154,5 +163,9 @@ class Pauli6PreparationBasis(TomographyPreparationBasis):
                 prep_xm,
                 prep_yp,
                 prep_ym,
-            ]
+            ],
         )
+
+    def __json_encode__(self):
+        # Override LocalPreparationBasis's encoder
+        return {}

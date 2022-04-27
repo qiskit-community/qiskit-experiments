@@ -172,7 +172,7 @@ class TestRoughDragCalUpdate(QiskitExperimentsTestCase):
         library = FixedFrequencyTransmon()
 
         self.backend = DragBackend(gate_name="Drag(x)")
-        self.cals = Calibrations.from_backend(self.backend, library)
+        self.cals = Calibrations.from_backend(self.backend, libraries=[library])
         self.test_tol = 0.05
 
     def test_update(self):

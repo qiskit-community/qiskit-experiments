@@ -97,7 +97,7 @@ class TestFineDragCal(QiskitExperimentsTestCase):
         library = FixedFrequencyTransmon()
 
         self.backend = FineDragTestBackend()
-        self.cals = Calibrations.from_backend(self.backend, library)
+        self.cals = Calibrations.from_backend(self.backend, libraries=[library])
 
     def test_experiment_config(self):
         """Test converting to and from config works"""
