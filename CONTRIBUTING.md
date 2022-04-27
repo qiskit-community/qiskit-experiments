@@ -12,19 +12,22 @@ contributing to Qiskit Experiments are documented below.
 
 ### Contents
 
+  + [Choose an issue to work on](#choose-an-issue-to-work-on)
   + [Pull request checklist](#pull-request-checklist)
+  + [Code style](#code-style)
+  + [Test your code](#test-your-code)
+    - [STDOUT/STDERR and logging capture](#stdout-stderr-and-logging-capture)
   + [Changelog generation](#changelog-generation)
-  + [Release Notes](#release-notes)
+  + [Release notes](#release-notes)
     - [Adding a new release note](#adding-a-new-release-note)
       * [Linking to issues](#linking-to-issues)
-    - [Generating the release notes](#generating-the-release-notes)
-    - [Building release notes locally](#building-release-notes-locally)
-  + [Test](#test)
-      * [STDOUT/STDERR and logging capture](#stdout-stderr-and-logging-capture)
-  + [Code style](#code-style)
-  + [Development Cycle](#development-cycle)
+    - [Generating release notes](#generating-release-notes)
+  + [Documentation](#documentation)
+  + [Adding deprecation warnings](#adding-deprecation-warnings)
+  + [Development cycle](#development-cycle)
   + [Branches](#branches)
   + [Release cycle](#release-cycle)
+  + [Proposing a new experiment](#proposing-a-new-experiment)
 
 ### Choose an issue to work on
 We use the following labels to help non-maintainers find issues best suited to their interests and experience level:
@@ -118,7 +121,7 @@ to run a method:
 tox -epy37 -- -n test.python.test_examples.TestPythonExamples.test_all_examples
 ```
 
-##### STDOUT/STDERR and logging capture
+#### STDOUT/STDERR and logging capture
 
 When running tests in parallel using `stestr` either via tox, the Makefile
 (`make test_ci`), or in CI we set the env variable
@@ -159,7 +162,7 @@ The current categories for each label are as follows:
 | Changelog: Removal     | Removed            |
 | Changelog: Bugfix      | Fixed              |
 
-### Release Notes
+### Release notes
 
 All end user facing changes have to be documented with each release of Qiskit Experiments. 
 The expectation is that if your code contribution has user facing changes that you will write
@@ -265,7 +268,7 @@ fixes:
     details.
 ```
 
-#### Generating the release notes
+#### Generating release notes
 
 After adding your release note, you should generate it to check that the output
 looks as expected. In general, the output from reno that we'll get is a `.rst`
@@ -305,21 +308,8 @@ To build release notes and API docs without building the Jupyter cells in the `.
 which is a relatively slow process, you can run `tox -edocsnorst` instead.
 
 
-## Adding deprecation warnings
-The qiskit-terra code is part of Qiskit and, therefore, the [Qiskit Deprecation Policy](https://qiskit.org/documentation/contributing_to_qiskit.html#deprecation-policy) fully applies here. Additionally, qiskit-terra does not allow `DeprecationWarning`s in its testsuite. If you are deprecating code, you should add a test to use the new/non-deprecated method (most of the time based on the existing test of the deprecated method) and alter the existing test to check that the deprecated method still works as expected, [using `assertWarns`](https://docs.python.org/3/library/unittest.html#unittest.TestCase.assertWarns). The `assertWarns` context will silence the deprecation warning while checking that it raises.
-
-For example, if `Obj.method1` is being deprecated in favour of `Obj.method2`, the existing test (or tests) for `method1` might look like this:
-
-```python
-def test_method1(self):
-   result = Obj.method1()
-   self.assertEqual(result, <expected>)
-```
-
-Deprecating `method1` means that `Obj.method1()` now raises a deprecation warning and the test will not pass. The existing test should be updated and a new test added for `method2`:
-
-
-We have a deprecation decorator for showing deprecation warnings. To deprecate a function:
+### Adding deprecation warnings
+Qiskit Experiments is part of Qiskit and, therefore, the [Qiskit Deprecation Policy](https://qiskit.org/documentation/contributing_to_qiskit.html#deprecation-policy) fully applies here. We have a deprecation decorator for showing deprecation warnings. To deprecate a function:
 
 ```python
   @deprecated_function(last_version="0.3", msg="Use new_function instead.")
@@ -339,11 +329,10 @@ To deprecate a class:
       pass
 ```
 
-You can learn more by 
+This will inform the user which version of Qiskit Experiments will remove the 
+deprecated class or function.
 
-
-
-### Development Cycle
+### Development cycle
 
 The development cycle for Qiskit Experiments is all handled in the open using project boards in Github for project management. We use milestones
 in Github to track work for specific releases. Features or other changes
@@ -352,10 +341,9 @@ that we want to include in a release will be tagged and discussed in Github.
 ### Branches
 
 * `main`:
-
 The main branch is used for development of the next version of qiskit-experiments.
 It will be updated frequently and should not be considered stable. The API
-can and will change on master as we introduce and refine new features.
+can and will change on main as we introduce and refine new features.
 
 * `stable/*` branches:
 Branches under `stable/*` are used to maintain released versions of qiskit-experiments.
@@ -384,6 +372,11 @@ the following steps:
 The `stable/*` branches should only receive changes in the form of bug
 fixes.
 
-#### Proposing a new experiment
+### Proposing a new experiment
 
-If there is an experiment you would like to see as part of this package, you can write a new experiment proposal by creating an issue 
+If there is an experiment you would like to see as part of this package, you can 
+write a new experiment proposal by creating a new experiment proposal issue. The 
+issue template will ask you to fill in details about the experiment type, protocol, 
+analysis, and implementation, which will give us the necessary information to decide
+whether the experiment is feasible to implement and useful to include in the package 
+library.
