@@ -95,7 +95,7 @@ class RamseyXYAnalysis(curve.CurveAnalysis):
         descriptions of analysis options.
         """
         default_options = super()._default_options()
-        default_options.curve_plotter.set_options(
+        default_options.curve_drawer.set_options(
             xlabel="Delay",
             ylabel="Signal (arb. units)",
             xval_unit="s",
@@ -105,17 +105,20 @@ class RamseyXYAnalysis(curve.CurveAnalysis):
         return default_options
 
     def _generate_fit_guesses(
-        self, user_opt: curve.FitOptions
+        self,
+        user_opt: curve.FitOptions,
+        curve_data: curve.CurveData,
     ) -> Union[curve.FitOptions, List[curve.FitOptions]]:
-        """Compute the initial guesses.
+        """Create algorithmic guess with analysis options and curve data.
 
         Args:
             user_opt: Fit options filled with user provided guess and bounds.
+            curve_data: Formatted data collection to fit.
 
         Returns:
             List of fit options that are passed to the fitter function.
         """
-        max_abs_y, _ = curve.guess.max_height(self._data().y, absolute=True)
+        max_abs_y, _ = curve.guess.max_height(curve_data.y, absolute=True)
 
         user_opt.bounds.set_if_empty(
             amp=(-2 * max_abs_y, 2 * max_abs_y),
@@ -127,7 +130,7 @@ class RamseyXYAnalysis(curve.CurveAnalysis):
         # Default guess values
         freq_guesses, base_guesses = [], []
         for series in ["X", "Y"]:
-            data = self._data(series)
+            data = curve_data.get_subset_of(series)
             freq_guesses.append(curve.guess.frequency(data.x, data.y))
             base_guesses.append(curve.guess.constant_sinusoidal_offset(data.y))
 
@@ -135,8 +138,8 @@ class RamseyXYAnalysis(curve.CurveAnalysis):
         user_opt.p0.set_if_empty(base=np.average(base_guesses))
 
         # Guess the exponential decay by combining both curves
-        data_x = self._data("X")
-        data_y = self._data("Y")
+        data_x = curve_data.get_subset_of("X")
+        data_y = curve_data.get_subset_of("Y")
         decay_data = (data_x.y - user_opt.p0["base"]) ** 2 + (data_y.y - user_opt.p0["base"]) ** 2
 
         user_opt.p0.set_if_empty(

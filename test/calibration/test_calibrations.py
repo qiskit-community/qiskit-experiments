@@ -1434,7 +1434,7 @@ class TestSavingAndLoading(CrossResonanceTest):
 
         library = FixedFrequencyTransmon()
         backend = FakeArmonk()
-        cals = Calibrations.from_backend(backend, library)
+        cals = Calibrations.from_backend(backend, libraries=[library])
 
         cals.parameters_table()
 
@@ -1458,9 +1458,9 @@ class TestInstructionScheduleMap(QiskitExperimentsTestCase):
 
         cals = Calibrations.from_backend(
             FakeArmonk(),
-            library=FixedFrequencyTransmon(
-                basis_gates=["x", "sx"], default_values={"duration": 320}
-            ),
+            libraries=[
+                FixedFrequencyTransmon(basis_gates=["x", "sx"], default_values={"duration": 320})
+            ],
         )
 
         # Check the x gate
@@ -1482,7 +1482,7 @@ class TestInstructionScheduleMap(QiskitExperimentsTestCase):
 
         cals = Calibrations.from_backend(
             backend,
-            library=FixedFrequencyTransmon(basis_gates=["sx"]),
+            libraries=[FixedFrequencyTransmon(basis_gates=["sx"])],
         )
 
         u_chan = pulse.ControlChannel(Parameter("ch0.1"))
@@ -1508,7 +1508,7 @@ class TestInstructionScheduleMap(QiskitExperimentsTestCase):
 
         cals = Calibrations.from_backend(
             FakeArmonk(),
-            library=FixedFrequencyTransmon(basis_gates=["x"]),
+            libraries=[FixedFrequencyTransmon(basis_gates=["x"])],
         )
 
         param = Parameter("amp")
@@ -1558,7 +1558,7 @@ class TestInstructionScheduleMap(QiskitExperimentsTestCase):
 
         cals = Calibrations.from_backend(
             FakeBelem(),
-            library=FixedFrequencyTransmon(basis_gates=["sx", "x"]),
+            libraries=[FixedFrequencyTransmon(basis_gates=["sx", "x"])],
         )
 
         # Test the schedules before the update.
@@ -1656,9 +1656,9 @@ class TestInstructionScheduleMap(QiskitExperimentsTestCase):
         backend = FakeBelem()
         library = FixedFrequencyTransmon(basis_gates=["sx", "x"])
 
-        cals1 = Calibrations.from_backend(backend, library)
+        cals1 = Calibrations.from_backend(backend, libraries=[library])
         cals2 = Calibrations(
-            library=library,
+            libraries=[library],
             control_channel_map=backend.configuration().control_channels,
             coupling_map=backend.configuration().coupling_map,
         )
@@ -1675,7 +1675,7 @@ class TestSerialization(QiskitExperimentsTestCase):
         backend = FakeBelem()
         library = FixedFrequencyTransmon(basis_gates=["sx", "x"])
 
-        cals = Calibrations.from_backend(backend, library)
+        cals = Calibrations.from_backend(backend, libraries=[library])
         cals.add_parameter_value(0.12345, "amp", 3, "x")
 
         self.assertRoundTripSerializable(cals, self.json_equiv)
@@ -1685,8 +1685,12 @@ class TestSerialization(QiskitExperimentsTestCase):
         backend = FakeBelem()
         library = FixedFrequencyTransmon(basis_gates=["sx", "x"])
 
-        cals1 = Calibrations.from_backend(backend, library, add_parameter_defaults=False)
-        cals2 = Calibrations.from_backend(backend, library, add_parameter_defaults=False)
+        cals1 = Calibrations.from_backend(
+            backend, libraries=[library], add_parameter_defaults=False
+        )
+        cals2 = Calibrations.from_backend(
+            backend, libraries=[library], add_parameter_defaults=False
+        )
         self.assertTrue(cals1 == cals2)
 
         date_time = datetime.now(timezone.utc).astimezone()
@@ -1702,7 +1706,9 @@ class TestSerialization(QiskitExperimentsTestCase):
         self.assertFalse(cals1 == cals2)
 
         # The two objects are different due to missing parameter value
-        cals3 = Calibrations.from_backend(backend, library, add_parameter_defaults=False)
+        cals3 = Calibrations.from_backend(
+            backend, libraries=[library], add_parameter_defaults=False
+        )
         self.assertFalse(cals1 == cals3)
 
         # The two objects are identical due to time stamps
@@ -1711,13 +1717,17 @@ class TestSerialization(QiskitExperimentsTestCase):
 
         # The schedules contained in the cals are different.
         library2 = FixedFrequencyTransmon(basis_gates=["sx", "x", "y"])
-        cals1 = Calibrations.from_backend(backend, library)
-        cals2 = Calibrations.from_backend(backend, library2)
+        cals1 = Calibrations.from_backend(backend, libraries=[library])
+        cals2 = Calibrations.from_backend(backend, libraries=[library2])
         self.assertFalse(cals1 == cals2)
 
         # Ensure that the equality is not sensitive to parameter adding order.
-        cals1 = Calibrations.from_backend(backend, library, add_parameter_defaults=False)
-        cals2 = Calibrations.from_backend(backend, library, add_parameter_defaults=False)
+        cals1 = Calibrations.from_backend(
+            backend, libraries=[library], add_parameter_defaults=False
+        )
+        cals2 = Calibrations.from_backend(
+            backend, libraries=[library], add_parameter_defaults=False
+        )
         param_val1 = ParameterValue(0.54321, date_time=date_time)
         param_val2 = ParameterValue(0.12345, date_time=date_time - timedelta(seconds=1))
 
