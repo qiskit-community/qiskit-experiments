@@ -295,14 +295,15 @@ tagged):
 At release time, ``reno report`` is used to generate the release notes for the release,
 and the output will be submitted as a pull request to the documentation repository's
 [release notes file](
-https://github.com/Qiskit/qiskit/blob/master/docs/release_notes.rst)
+https://github.com/Qiskit/qiskit-experiments/blob/main/docs/release_notes.rst).
 
 ### Documentation
 
 Your contribution should be fully documented in the relevant module, class, and method
 docstrings, and anything that would change an existing tutorial or a new feature that
-requires a tutorial should be updated correspondingly. Experiment classes should Please
-consult the docstring styles in
+requires a tutorial should be updated correspondingly. The documentation docstring for
+experiment classes should contain, at a minimum, an overview section and appropriate
+references. Please consult the docstring styles in
 [example_experiment.py](docs/_ext/custom_styles/example/example_experiment.py) for how
 to document appropriately.
 
