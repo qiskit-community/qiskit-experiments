@@ -540,7 +540,7 @@ class TestAveragingAndSVD(BaseDataProcessorTest):
                 [[0.9, 0.9], [-1.1, 1.0]],
             ]
         )
-        self._sig_gs = np.array([1.0, -1.0]) / np.sqrt(2.0)
+        self._sig_gs = np.array([-1.0, 1.0]) / np.sqrt(2.0)
 
         circ_gs = ExperimentResultData(
             memory=[
@@ -550,7 +550,7 @@ class TestAveragingAndSVD(BaseDataProcessorTest):
                 [[-0.9, -0.9], [1.1, -1.0]],
             ]
         )
-        self._sig_es = np.array([-1.0, 1.0]) / np.sqrt(2.0)
+        self._sig_es = np.array([1.0, -1.0]) / np.sqrt(2.0)
 
         circ_x90p = ExperimentResultData(
             memory=[
@@ -570,7 +570,7 @@ class TestAveragingAndSVD(BaseDataProcessorTest):
                 [[1.0, 1.0], [-1.0, 1.0]],
             ]
         )
-        self._sig_x45 = np.array([0.5, -0.5]) / np.sqrt(2.0)
+        self._sig_x45 = np.array([-0.5, 0.5]) / np.sqrt(2.0)
 
         res_es = ExperimentResult(
             shots=4,
@@ -735,7 +735,7 @@ class TestAveragingAndSVD(BaseDataProcessorTest):
         processed = processor(self.data.data())
         np.testing.assert_array_almost_equal(
             unp.nominal_values(processed),
-            np.array([[0.0, 1.0], [1.0, 0.0], [0.5, 0.5], [0.75, 0.25]]),
+            np.array([[1.0, 0.0], [0.0, 1.0], [0.5, 0.5], [0.25, 0.75]]),
         )
 
     def test_distorted_iq_data(self):
