@@ -13,13 +13,13 @@
 Test T1 experiment..
 """
 
-from test.fake_service import FakeService
 from test.base import QiskitExperimentsTestCase
 import numpy as np
 from qiskit_experiments.framework import ExperimentData, ParallelExperiment
 from qiskit_experiments.library import T1
 from qiskit_experiments.library.characterization import T1Analysis
 from qiskit_experiments.test.t1_backend import T1Backend
+from qiskit_experiments.test.fake_service import FakeService
 
 
 class TestT1(QiskitExperimentsTestCase):
@@ -44,18 +44,22 @@ class TestT1(QiskitExperimentsTestCase):
         exp = T1(0, delays)
         exp.analysis.set_options(p0={"amp": 1, "tau": t1, "base": 0})
         exp_data = exp.run(backend, shots=10000)
+        self.assertExperimentDone(exp_data)
+        self.assertRoundTripSerializable(exp_data, check_func=self.experiment_data_equiv)
+        self.assertRoundTripPickle(exp_data, check_func=self.experiment_data_equiv)
         res = exp_data.analysis_results("T1")
-        fitval = res.value
         self.assertEqual(res.quality, "good")
-        self.assertAlmostEqual(fitval.value, t1, delta=3)
-        self.assertEqual(fitval.unit, "s")
+        self.assertAlmostEqual(res.value.n, t1, delta=3)
+        self.assertEqual(res.extra["unit"], "s")
 
         exp_data.service = FakeService()
         exp_data.save()
         loaded_data = ExperimentData.load(exp_data.experiment_id, exp_data.service)
-        self.assertEqual(
-            repr(exp_data.analysis_results("T1")), repr(loaded_data.analysis_results("T1"))
-        )
+        exp_res = exp_data.analysis_results()
+        load_res = loaded_data.analysis_results()
+        repr1 = sorted([repr(res) for res in exp_res])
+        repr2 = sorted([repr(res) for res in load_res])
+        self.assertEqual(repr1, repr2)
 
     def test_t1_parallel(self):
         """
@@ -68,12 +72,13 @@ class TestT1(QiskitExperimentsTestCase):
         exp0 = T1(0, delays)
         exp2 = T1(2, delays)
         par_exp = ParallelExperiment([exp0, exp2])
-        res = par_exp.run(T1Backend([t1[0], None, t1[1]])).block_for_results()
+        res = par_exp.run(T1Backend([t1[0], None, t1[1]]))
+        self.assertExperimentDone(res)
 
         for i in range(2):
             sub_res = res.child_data(i).analysis_results("T1")
             self.assertEqual(sub_res.quality, "good")
-            self.assertAlmostEqual(sub_res.value.value, t1[i], delta=3)
+            self.assertAlmostEqual(sub_res.value.n, t1[i], delta=3)
 
         res.service = FakeService()
         res.save()
@@ -99,14 +104,15 @@ class TestT1(QiskitExperimentsTestCase):
         exp1.analysis.set_options(p0={"tau": 1000000})
 
         par_exp = ParallelExperiment([exp0, exp1])
-        res = par_exp.run(T1Backend([t1, t1])).block_for_results()
+        res = par_exp.run(T1Backend([t1, t1]))
+        self.assertExperimentDone(res)
 
         sub_res = []
         for i in range(2):
             sub_res.append(res.child_data(i).analysis_results("T1"))
 
         self.assertEqual(sub_res[0].quality, "good")
-        self.assertAlmostEqual(sub_res[0].value.value, t1, delta=3)
+        self.assertAlmostEqual(sub_res[0].value.n, t1, delta=3)
         self.assertEqual(sub_res[1].quality, "bad")
 
     def test_t1_analysis(self):
@@ -115,13 +121,7 @@ class TestT1(QiskitExperimentsTestCase):
         """
 
         data = ExperimentData()
-        data._metadata = {
-            "job_metadata": [
-                {
-                    "run_options": {"meas_level": 2},
-                },
-            ]
-        }
+        data._metadata = {"meas_level": 2}
 
         numbers = [750, 1800, 2750, 3550, 4250, 4850, 5450, 5900, 6400, 6800, 7000, 7350, 7700]
 
@@ -141,7 +141,7 @@ class TestT1(QiskitExperimentsTestCase):
         res, _ = T1Analysis()._run_analysis(data)
         result = res[1]
         self.assertEqual(result.quality, "good")
-        self.assertAlmostEqual(result.value.value, 25e-9, delta=3)
+        self.assertAlmostEqual(result.value.nominal_value, 25e-9, delta=3)
 
     def test_t1_metadata(self):
         """
@@ -172,13 +172,7 @@ class TestT1(QiskitExperimentsTestCase):
         """
 
         data = ExperimentData()
-        data._metadata = {
-            "job_metadata": [
-                {
-                    "run_options": {"meas_level": 2},
-                },
-            ]
-        }
+        data._metadata = {"meas_level": 2}
 
         for i in range(10):
             data.add_data(
@@ -197,17 +191,53 @@ class TestT1(QiskitExperimentsTestCase):
         result = res[1]
         self.assertEqual(result.quality, "bad")
 
+    def test_t1_parallel_exp_transpile(self):
+        """Test parallel transpile options for T1 experiment"""
+        num_qubits = 5
+        instruction_durations = []
+        for i in range(num_qubits):
+            instruction_durations += [
+                ("rx", [i], (i + 1) * 10, "ns"),
+                ("measure", [i], (i + 1) * 1000, "ns"),
+            ]
+        coupling_map = [[i - 1, i] for i in range(1, num_qubits)]
+        basis_gates = ["rx", "delay"]
+
+        exp1 = T1(1, delays=[50e-9, 100e-9, 160e-9])
+        exp2 = T1(3, delays=[40e-9, 80e-9, 190e-9])
+        parexp = ParallelExperiment([exp1, exp2])
+        parexp.set_transpile_options(
+            basis_gates=basis_gates,
+            instruction_durations=instruction_durations,
+            coupling_map=coupling_map,
+            scheduling_method="alap",
+        )
+
+        circs = parexp.circuits()
+        for circ in circs:
+            self.assertEqual(circ.num_qubits, 2)
+            op_counts = circ.count_ops()
+            self.assertEqual(op_counts.get("rx"), 2)
+            self.assertEqual(op_counts.get("delay"), 2)
+
+        tcircs = parexp._transpiled_circuits()
+        for circ in tcircs:
+            self.assertEqual(circ.num_qubits, num_qubits)
+            op_counts = circ.count_ops()
+            self.assertEqual(op_counts.get("rx"), 2)
+            self.assertGreater(op_counts.get("delay"), num_qubits - 1)
+
     def test_experiment_config(self):
         """Test converting to and from config works"""
         exp = T1(0, [1, 2, 3, 4, 5])
         loaded_exp = T1.from_config(exp.config())
         self.assertNotEqual(exp, loaded_exp)
-        self.assertTrue(self.experiments_equiv(exp, loaded_exp))
+        self.assertTrue(self.json_equiv(exp, loaded_exp))
 
     def test_roundtrip_serializable(self):
         """Test round trip JSON serialization"""
         exp = T1(0, [1, 2, 3, 4, 5])
-        self.assertRoundTripSerializable(exp, self.experiments_equiv)
+        self.assertRoundTripSerializable(exp, self.json_equiv)
 
     def test_analysis_config(self):
         """ "Test converting analysis to and from config works"""

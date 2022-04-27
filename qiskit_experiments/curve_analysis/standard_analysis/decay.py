@@ -57,26 +57,23 @@ class DecayAnalysis(curve.CurveAnalysis):
             ),
             plot_color="blue",
             model_description=r"amp \exp(-x/tau) + base",
-            plot_fit_uncertainty=True,
         )
     ]
 
     def _generate_fit_guesses(
-        self, user_opt: curve.FitOptions
+        self,
+        user_opt: curve.FitOptions,
+        curve_data: curve.CurveData,
     ) -> Union[curve.FitOptions, List[curve.FitOptions]]:
-        """Compute the initial guesses.
+        """Create algorithmic guess with analysis options and curve data.
 
         Args:
             user_opt: Fit options filled with user provided guess and bounds.
+            curve_data: Formatted data collection to fit.
 
         Returns:
             List of fit options that are passed to the fitter function.
-
-        Raises:
-            AnalysisError: When the y data is likely constant.
         """
-        curve_data = self._data()
-
         user_opt.p0.set_if_empty(base=curve.guess.min_height(curve_data.y)[0])
 
         alpha = curve.guess.exp_decay(curve_data.x, curve_data.y)
@@ -106,7 +103,7 @@ class DecayAnalysis(curve.CurveAnalysis):
 
         criteria = [
             fit_data.reduced_chisq < 3,
-            tau.stderr is None or tau.stderr < tau.value,
+            curve.is_error_not_significant(tau),
         ]
 
         if all(criteria):

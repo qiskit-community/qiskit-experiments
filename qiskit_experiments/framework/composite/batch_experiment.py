@@ -18,7 +18,9 @@ from collections import OrderedDict
 
 from qiskit import QuantumCircuit
 from qiskit.providers.backend import Backend
+
 from .composite_experiment import CompositeExperiment, BaseExperiment
+from .composite_analysis import CompositeAnalysis
 
 
 class BatchExperiment(CompositeExperiment):
@@ -40,12 +42,27 @@ class BatchExperiment(CompositeExperiment):
     documentation for additional information.
     """
 
-    def __init__(self, experiments: List[BaseExperiment], backend: Optional[Backend] = None):
+    def __init__(
+        self,
+        experiments: List[BaseExperiment],
+        backend: Optional[Backend] = None,
+        flatten_results: bool = False,
+        analysis: Optional[CompositeAnalysis] = None,
+    ):
         """Initialize a batch experiment.
 
         Args:
             experiments: a list of experiments.
             backend: Optional, the backend to run the experiment on.
+            flatten_results: If True flatten all component experiment results
+                             into a single ExperimentData container, including
+                             nested composite experiments. If False save each
+                             component experiment results as a separate child
+                             ExperimentData container. This kwarg is ignored
+                             if the analysis kwarg is used.
+            analysis: Optional, the composite analysis class to use. If not
+                      provided this will be initialized automatically from the
+                      supplied experiments.
         """
 
         # Generate qubit map
@@ -57,19 +74,38 @@ class BatchExperiment(CompositeExperiment):
                     self._qubit_map[physical_qubit] = logical_qubit
                     logical_qubit += 1
         qubits = tuple(self._qubit_map.keys())
-        super().__init__(experiments, qubits, backend=backend)
+        super().__init__(
+            experiments, qubits, backend=backend, analysis=analysis, flatten_results=flatten_results
+        )
 
     def circuits(self):
+        return self._batch_circuits(to_transpile=False)
 
+    def _transpiled_circuits(self):
+        return self._batch_circuits(to_transpile=True)
+
+    def _batch_circuits(self, to_transpile=False):
         batch_circuits = []
 
         # Generate data for combination
         for index, expr in enumerate(self._experiments):
-            if self.physical_qubits == expr.physical_qubits:
+            if self.physical_qubits == expr.physical_qubits or to_transpile:
                 qubit_mapping = None
             else:
                 qubit_mapping = [self._qubit_map[qubit] for qubit in expr.physical_qubits]
-            for circuit in expr.circuits():
+
+            if isinstance(expr, BatchExperiment):
+                # Batch experiments don't contain their own native circuits.
+                # If to_trasnpile is True then the circuits will be transpiled at the non-batch
+                # experiments.
+                # Fetch the circuits from the sub-experiments.
+                expr_circuits = expr._batch_circuits(to_transpile)
+            elif to_transpile:
+                expr_circuits = expr._transpiled_circuits()
+            else:
+                expr_circuits = expr.circuits()
+
+            for circuit in expr_circuits:
                 # Update metadata
                 circuit.metadata = {
                     "experiment_type": self._type,
@@ -80,6 +116,7 @@ class BatchExperiment(CompositeExperiment):
                 if qubit_mapping:
                     circuit = self._remap_qubits(circuit, qubit_mapping)
                 batch_circuits.append(circuit)
+
         return batch_circuits
 
     def _remap_qubits(self, circuit, qubit_mapping):

@@ -19,10 +19,9 @@ from typing import List, Union
 import numpy as np
 
 import qiskit_experiments.curve_analysis as curve
+
 import qiskit_experiments.data_processing as dp
-from qiskit_experiments.database_service.device_component import Qubit
-from qiskit_experiments.exceptions import AnalysisError
-from qiskit_experiments.framework import AnalysisResultData, FitVal
+from qiskit_experiments.framework import AnalysisResultData
 
 
 # pylint: disable=line-too-long
@@ -197,69 +196,49 @@ class CrossResonanceHamiltonianAnalysis(curve.CurveAnalysis):
     def _default_options(cls):
         """Return the default analysis options."""
         default_options = super()._default_options()
+        default_options.curve_drawer.set_options(
+            subplots=(3, 1),
+            xlabel="Flat top width",
+            ylabel=[
+                r"$\langle$X(t)$\rangle$",
+                r"$\langle$Y(t)$\rangle$",
+                r"$\langle$Z(t)$\rangle$",
+            ],
+            xval_unit="s",
+            figsize=(8, 10),
+            legend_loc="lower right",
+            fit_report_rpos=(0.28, -0.10),
+            ylim=(-1, 1),
+        )
         default_options.data_processor = dp.DataProcessor(
             input_key="counts",
             data_actions=[dp.Probability("1"), dp.BasisExpectationValue()],
         )
-        default_options.curve_plotter = "mpl_multiv_canvas"
-        default_options.xlabel = "Flat top width"
-        default_options.ylabel = "<X(t)>,<Y(t)>,<Z(t)>"
-        default_options.xval_unit = "s"
-        default_options.style = curve.visualization.PlotterStyle(
-            figsize=(8, 10),
-            legend_loc="lower right",
-            fit_report_rpos=(0.28, -0.10),
-        )
-        default_options.ylim = (-1, 1)
 
         return default_options
 
-    def _t_off_initial_guess(self) -> float:
-        """Return initial guess for time offset.
-
-        This method assumes the :py:class:`~qiskit.pulse.library.parametric_pulses.GaussianSquare`
-        envelope with the Gaussian rising and falling edges with the parameter ``sigma``.
-
-        This is intended to be overridden by a child class so that rest of the analysis class
-        logic can be reused for the fitting that assumes other pulse envelopes.
-
-        Returns:
-            An initial guess for time offset parameter ``t_off`` in SI units.
-
-        Raises:
-            AnalysisError: When the backend doesn't report the time resolution of waveforms.
-        """
-        n_pulses = self._extra_metadata().get("n_cr_pulses", 1)
-        sigma = self._experiment_options().get("sigma", 0)
-
-        # Convert sigma unit into SI
-        try:
-            prefactor = self._backend.configuration().dt
-        except AttributeError as ex:
-            raise AnalysisError("Backend configuration does not provide time resolution.") from ex
-
-        return np.sqrt(2 * np.pi) * prefactor * sigma * n_pulses
-
     def _generate_fit_guesses(
-        self, user_opt: curve.FitOptions
+        self,
+        user_opt: curve.FitOptions,
+        curve_data: curve.CurveData,
     ) -> Union[curve.FitOptions, List[curve.FitOptions]]:
-        """Compute the initial guesses.
+        """Create algorithmic guess with analysis options and curve data.
 
         Args:
             user_opt: Fit options filled with user provided guess and bounds.
+            curve_data: Formatted data collection to fit.
 
         Returns:
             List of fit options that are passed to the fitter function.
         """
         user_opt.bounds.set_if_empty(t_off=(0, np.inf), b=(-1, 1))
-
-        user_opt.p0.set_if_empty(t_off=self._t_off_initial_guess(), b=1e-9)
+        user_opt.p0.set_if_empty(b=1e-9)
 
         guesses = defaultdict(list)
         for control in (0, 1):
-            x_data = self._data(series_name=f"x|c={control}")
-            y_data = self._data(series_name=f"y|c={control}")
-            z_data = self._data(series_name=f"z|c={control}")
+            x_data = curve_data.get_subset_of(f"x|c={control}")
+            y_data = curve_data.get_subset_of(f"y|c={control}")
+            z_data = curve_data.get_subset_of(f"z|c={control}")
 
             omega_xyz = []
             for data in (x_data, y_data, z_data):
@@ -311,20 +290,22 @@ class CrossResonanceHamiltonianAnalysis(curve.CurveAnalysis):
 
         return fit_options
 
-    def _evaluate_quality(self, fit_data: curve.FitData) -> Union[str, None]:
-        """Algorithmic criteria for whether the fit is good or bad.
+    def _create_analysis_results(
+        self,
+        fit_data: curve.FitData,
+        quality: str,
+        **metadata,
+    ) -> List[AnalysisResultData]:
+        """Create analysis results for important fit parameters.
 
-        A good fit has:
-            - If chi-squared value is less than 3.
+        Args:
+            fit_data: Fit outcome.
+            quality: Quality of fit outcome.
+
+        Returns:
+            List of analysis result data.
         """
-        if fit_data.reduced_chisq < 3:
-            return "good"
-
-        return "bad"
-
-    def _extra_database_entry(self, fit_data: curve.FitData) -> List[AnalysisResultData]:
-        """Calculate Hamiltonian coefficients from fit values."""
-        extra_entries = []
+        outcomes = super()._create_analysis_results(fit_data, quality, **metadata)
 
         for control in ("z", "i"):
             for target in ("x", "y", "z"):
@@ -332,19 +313,21 @@ class CrossResonanceHamiltonianAnalysis(curve.CurveAnalysis):
                 p1_val = fit_data.fitval(f"p{target}1")
 
                 if control == "z":
-                    coef_val = 0.5 * (p0_val.value - p1_val.value) / (2 * np.pi)
+                    coef_val = 0.5 * (p0_val - p1_val) / (2 * np.pi)
                 else:
-                    coef_val = 0.5 * (p0_val.value + p1_val.value) / (2 * np.pi)
+                    coef_val = 0.5 * (p0_val + p1_val) / (2 * np.pi)
 
-                coef_err = 0.5 * np.sqrt(p0_val.stderr ** 2 + p1_val.stderr ** 2) / (2 * np.pi)
-
-                extra_entries.append(
+                outcomes.append(
                     AnalysisResultData(
                         name=f"omega_{control}{target}",
-                        value=FitVal(value=coef_val, stderr=coef_err, unit="Hz"),
+                        value=coef_val,
                         chisq=fit_data.reduced_chisq,
-                        device_components=[Qubit(q) for q in self._physical_qubits],
+                        quality=quality,
+                        extra={
+                            "unit": "Hz",
+                            **metadata,
+                        },
                     )
                 )
 
-        return extra_entries
+        return outcomes

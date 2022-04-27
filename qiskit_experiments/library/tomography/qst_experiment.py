@@ -16,7 +16,8 @@ Quantum State Tomography experiment
 from typing import Union, Optional, Iterable, List, Sequence
 from qiskit.circuit import QuantumCircuit, Instruction
 from qiskit.quantum_info.operators.base_operator import BaseOperator
-from qiskit.quantum_info import Statevector
+from qiskit.quantum_info import Statevector, DensityMatrix, partial_trace
+from qiskit_experiments.exceptions import QiskitError
 from .tomography_experiment import TomographyExperiment
 from .qst_analysis import StateTomographyAnalysis
 from . import basis
@@ -49,7 +50,7 @@ class StateTomography(TomographyExperiment):
     def __init__(
         self,
         circuit: Union[QuantumCircuit, Instruction, BaseOperator, Statevector],
-        measurement_basis: basis.BaseTomographyMeasurementBasis = basis.PauliMeasurementBasis(),
+        measurement_basis: basis.MeasurementBasis = basis.PauliMeasurementBasis(),
         measurement_qubits: Optional[Sequence[int]] = None,
         basis_indices: Optional[Iterable[List[int]]] = None,
         qubits: Optional[Sequence[int]] = None,
@@ -87,5 +88,36 @@ class StateTomography(TomographyExperiment):
             measurement_qubits=measurement_qubits,
             basis_indices=basis_indices,
             qubits=qubits,
+            analysis=StateTomographyAnalysis(),
         )
-        self.analysis = StateTomographyAnalysis()
+
+        # Set target quantum state
+        self.analysis.set_options(target=self._target_quantum_state())
+
+    def _target_quantum_state(self) -> Union[Statevector, DensityMatrix]:
+        """Return the state tomography target"""
+        # Check if circuit contains measure instructions
+        # If so we cannot return target state
+        circuit_ops = self._circuit.count_ops()
+        if "measure" in circuit_ops:
+            return None
+
+        try:
+            circuit = self._permute_circuit()
+            if "reset" in circuit_ops or "kraus" in circuit_ops or "superop" in circuit_ops:
+                state = DensityMatrix(circuit)
+            else:
+                state = Statevector(circuit)
+        except QiskitError:
+            # Circuit couldn't be simulated
+            return None
+
+        if self._meas_qubits is None:
+            return state
+
+        non_meas_qargs = list(range(len(self._meas_qubits), self._circuit.num_qubits))
+        if non_meas_qargs:
+            # Trace over non-measured qubits
+            state = partial_trace(state, non_meas_qargs)
+
+        return state

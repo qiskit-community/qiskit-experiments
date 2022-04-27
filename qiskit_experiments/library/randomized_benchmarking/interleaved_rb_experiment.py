@@ -23,7 +23,6 @@ from qiskit.quantum_info import Clifford
 from qiskit.exceptions import QiskitError
 from qiskit.providers.backend import Backend
 
-import qiskit_experiments.data_processing as dp
 from .rb_experiment import StandardRB
 from .interleaved_rb_analysis import InterleavedRBAnalysis
 
@@ -87,12 +86,7 @@ class InterleavedRB(StandardRB):
             full_sampling=full_sampling,
         )
         self.analysis = InterleavedRBAnalysis()
-        self.analysis.set_options(
-            data_processor=dp.DataProcessor(
-                input_key="counts",
-                data_actions=[dp.Probability(outcome="0" * self.num_qubits)],
-            )
-        )
+        self.analysis.set_options(outcome="0" * self.num_qubits)
 
     def _sample_circuits(self, lengths, rng):
         circuits = []

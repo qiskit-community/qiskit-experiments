@@ -170,10 +170,10 @@ allow configuring various experiment and execution options
   method :meth:`BaseAnalysis._default_options` instead of this method except in the
   case where the experiment requires different defaults to the used analysis class.
 
-- :meth:`BaseExperiment._post_process_transpiled_circuits`
-  to implement any post-processing of the transpiled circuits before execution.
+- :meth:`BaseExperiment._transpiled_circuits`
+  to override the default transpilation of circuits before execution.
 
-- :meth:`BaseExperiment._additional_metadata`
+- :meth:`BaseExperiment._metadata`
   to add any experiment metadata to the result data.
 
 Analysis Subclasses
@@ -203,7 +203,9 @@ Experiment Data Classes
     :toctree: ../stubs/
 
     ExperimentData
-    FitVal
+    ExperimentStatus
+    JobStatus
+    AnalysisStatus
     AnalysisResultData
     ExperimentConfig
     AnalysisConfig
@@ -234,7 +236,11 @@ Base Classes
 """
 from qiskit.providers.options import Options
 from qiskit_experiments.database_service.db_analysis_result import DbAnalysisResultV1
-from qiskit_experiments.database_service.db_fitval import FitVal
+from qiskit_experiments.database_service.db_experiment_data import (
+    ExperimentStatus,
+    JobStatus,
+    AnalysisStatus,
+)
 from .base_analysis import BaseAnalysis
 from .base_experiment import BaseExperiment
 from .configs import ExperimentConfig, AnalysisConfig

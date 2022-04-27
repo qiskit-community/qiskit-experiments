@@ -16,13 +16,11 @@ Base Experiment class.
 from abc import ABC, abstractmethod
 import copy
 from collections import OrderedDict
-from typing import Sequence, Optional, Tuple, List, Dict, Union, Any
+from typing import Sequence, Optional, Tuple, List, Dict, Union
 import warnings
 
-from qiskit import transpile, assemble, QuantumCircuit
-from qiskit.providers import BaseJob
-from qiskit.providers import Backend, BaseBackend
-from qiskit.providers.basebackend import BaseBackend as LegacyBackend
+from qiskit import transpile, QuantumCircuit
+from qiskit.providers import Job, Backend
 from qiskit.exceptions import QiskitError
 from qiskit.qobj.utils import MeasLevel
 from qiskit.providers.options import Options
@@ -46,6 +44,7 @@ class BaseExperiment(ABC, StoreInitArgs):
 
         Args:
             qubits: list of physical qubits for the experiment.
+            analysis: Optional, the analysis to use for the experiment.
             backend: Optional, the backend to run the experiment on.
             experiment_type: Optional, the experiment type string.
 
@@ -89,10 +88,10 @@ class BaseExperiment(ABC, StoreInitArgs):
             self.analysis = analysis_cls()  # pylint: disable = not-callable
 
         # Set backend
-        # This should be called last incase `_set_backend` access any of the
+        # This should be called last in case `_set_backend` access any of the
         # attributes created during initialization
         self._backend = None
-        if isinstance(backend, (Backend, BaseBackend)):
+        if isinstance(backend, Backend):
             self._set_backend(backend)
 
     @property
@@ -130,7 +129,7 @@ class BaseExperiment(ABC, StoreInitArgs):
     @backend.setter
     def backend(self, backend: Union[Backend, None]) -> None:
         """Set the backend for the experiment"""
-        if not isinstance(backend, (Backend, BaseBackend)):
+        if not isinstance(backend, Backend):
             raise TypeError("Input is not a backend.")
         self._set_backend(backend)
 
@@ -199,6 +198,7 @@ class BaseExperiment(ABC, StoreInitArgs):
         self,
         backend: Optional[Backend] = None,
         analysis: Optional[Union[BaseAnalysis, None]] = "default",
+        timeout: Optional[float] = None,
         **run_options,
     ) -> ExperimentData:
         """Run an experiment and perform analysis.
@@ -211,6 +211,8 @@ class BaseExperiment(ABC, StoreInitArgs):
                       analysis. If None analysis will not be run. If ``"default"``
                       the experiments :meth:`analysis` instance will be used if
                       it contains one.
+            timeout: Time to wait for experiment jobs to finish running before
+                     cancelling.
             run_options: backend runtime options used for circuit execution.
 
         Returns:
@@ -241,41 +243,40 @@ class BaseExperiment(ABC, StoreInitArgs):
                     stacklevel=2,
                 )
 
-        if backend is not None or analysis != "default":
+        if backend is not None or analysis != "default" or run_options:
             # Make a copy to update analysis or backend if one is provided at runtime
             experiment = self.copy()
             if backend:
                 experiment._set_backend(backend)
             if isinstance(analysis, BaseAnalysis):
                 experiment.analysis = analysis
+            if run_options:
+                experiment.set_run_options(**run_options)
         else:
             experiment = self
 
         if experiment.backend is None:
             raise QiskitError("Cannot run experiment, no backend has been set.")
 
+        # Finalize experiment before executions
+        experiment._finalize()
+
+        # Generate and transpile circuits
+        transpiled_circuits = experiment._transpiled_circuits()
+
         # Initialize result container
         experiment_data = experiment._initialize_experiment_data()
 
         # Run options
-        run_opts = copy.copy(experiment.run_options)
-        run_opts.update_options(**run_options)
-        run_opts = run_opts.__dict__
-
-        # Generate and transpile circuits
-        transpile_opts = copy.copy(experiment.transpile_options.__dict__)
-        transpile_opts["initial_layout"] = list(experiment.physical_qubits)
-        circuits = transpile(experiment.circuits(), experiment.backend, **transpile_opts)
-        experiment._postprocess_transpiled_circuits(circuits, **run_options)
+        run_opts = experiment.run_options.__dict__
 
         # Run jobs
-        jobs = experiment._run_jobs(circuits, **run_opts)
-        experiment_data.add_data(jobs)
-        experiment._add_job_metadata(experiment_data.metadata, jobs, **run_opts)
+        jobs = experiment._run_jobs(transpiled_circuits, **run_opts)
+        experiment_data.add_jobs(jobs, timeout=timeout)
 
         # Optionally run analysis
         if analysis and experiment.analysis:
-            return self.analysis.run(experiment_data)
+            return experiment.analysis.run(experiment_data)
         else:
             return experiment_data
 
@@ -318,7 +319,16 @@ class BaseExperiment(ABC, StoreInitArgs):
         )
         return self.analysis.run(experiment_data, replace_results=replace_results, **options)
 
-    def _run_jobs(self, circuits: List[QuantumCircuit], **run_options) -> List[BaseJob]:
+    def _finalize(self):
+        """Finalize experiment object before running jobs.
+
+        Subclasses can override this method to set any final option
+        values derived from other options or attributes of the
+        experiment before `_run` is called.
+        """
+        pass
+
+    def _run_jobs(self, circuits: List[QuantumCircuit], **run_options) -> List[Job]:
         """Run circuits on backend as 1 or more jobs."""
         # Run experiment jobs
         max_experiments = getattr(self.backend.configuration(), "max_experiments", None)
@@ -332,14 +342,8 @@ class BaseExperiment(ABC, StoreInitArgs):
             job_circuits = [circuits]
 
         # Run jobs
-        jobs = []
-        for circs in job_circuits:
-            if isinstance(self.backend, LegacyBackend):
-                qobj = assemble(circs, backend=self.backend, **run_options)
-                job = self.backend.run(qobj)
-            else:
-                job = self.backend.run(circs, **run_options)
-            jobs.append(job)
+        jobs = [self.backend.run(circs, **run_options) for circs in job_circuits]
+
         return jobs
 
     @abstractmethod
@@ -355,8 +359,29 @@ class BaseExperiment(ABC, StoreInitArgs):
             are obtained via the :meth:`transpiled_circuits` method.
         """
         # NOTE: Subclasses should override this method using the `options`
-        # values for any explicit experiment options that effect circuit
+        # values for any explicit experiment options that affect circuit
         # generation
+
+    def _transpiled_circuits(self) -> List[QuantumCircuit]:
+        """Return a list of experiment circuits, transpiled.
+
+        This function can be overridden to define custom transpilation.
+        """
+        transpile_opts = copy.copy(self.transpile_options.__dict__)
+        transpile_opts["initial_layout"] = list(self.physical_qubits)
+        transpiled = transpile(self.circuits(), self.backend, **transpile_opts)
+
+        # TODO remove this deprecation after 0.3.0 release
+        if hasattr(self, "_postprocess_transpiled_circuits"):
+            warnings.warn(
+                "`BaseExperiment._postprocess_transpiled_circuits` is deprecated as of "
+                "qiskit-experiments 0.3.0 and will be removed in the 0.4.0 release."
+                " Use `BaseExperiment._transpile` instead.",
+                DeprecationWarning,
+            )
+            self._postprocess_transpiled_circuits(transpiled)  # pylint: disable=no-member
+
+        return transpiled
 
     @classmethod
     def _default_experiment_options(cls) -> Options:
@@ -475,53 +500,14 @@ class BaseExperiment(ABC, StoreInitArgs):
         )
         self.analysis.options.update_options(**fields)
 
-    def _postprocess_transpiled_circuits(self, circuits: List[QuantumCircuit], **run_options):
-        """Additional post-processing of transpiled circuits before running on backend"""
-        pass
-
     def _metadata(self) -> Dict[str, any]:
         """Return experiment metadata for ExperimentData.
 
-        The :meth:`_add_job_metadata` method will be called for each
-        experiment execution to append job metadata, including current
-        option values, to the ``job_metadata`` list.
+        Subclasses can override this method to add custom experiment
+        metadata to the returned experiment result data.
         """
-        metadata = {
-            "experiment_type": self._type,
-            "num_qubits": self.num_qubits,
-            "physical_qubits": list(self.physical_qubits),
-        }
-        # Add additional metadata if subclasses specify it
-        for key, val in self._additional_metadata().items():
-            metadata[key] = val
+        metadata = {"physical_qubits": list(self.physical_qubits)}
         return metadata
-
-    def _additional_metadata(self) -> Dict[str, any]:
-        """Add additional subclass experiment metadata.
-
-        Subclasses can override this method if it is necessary to store
-        additional experiment metadata in ExperimentData.
-        """
-        return {}
-
-    def _add_job_metadata(self, metadata: Dict[str, Any], jobs: BaseJob, **run_options):
-        """Add runtime job metadata to ExperimentData.
-
-        Args:
-            metadata: the metadata dict to update with job data.
-            jobs: the job objects.
-            run_options: backend run options for the job.
-        """
-        values = {
-            "job_ids": [job.job_id() for job in jobs],
-            "experiment_options": copy.copy(self.experiment_options.__dict__),
-            "transpile_options": copy.copy(self.transpile_options.__dict__),
-            "run_options": copy.copy(run_options),
-        }
-        if self.analysis is not None:
-            values["analysis_options"] = copy.copy(self.analysis.options.__dict__)
-
-        metadata["job_metadata"] = [values]
 
     def __json_encode__(self):
         """Convert to format that can be JSON serialized"""

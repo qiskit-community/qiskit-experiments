@@ -110,6 +110,16 @@ class TestGuesses(QiskitExperimentsTestCase):
 
         self.assertAlmostEqualAbsolute(alpha_guess, alpha)
 
+    def test_exp_decay_with_invalid_y(self):
+        """Test when invalid y data is input to exp curve init guess."""
+        x = np.array([9.0e-06, 1.9e-05, 2.9e-05, 3.9e-05])
+        y = np.array([0.16455749, 0.07045296, 0.02702439, -0.00135192])
+
+        # The last point is excluded. This point might be some artifact due to filtering.
+        alpha_guess = guess.exp_decay(x, y)
+
+        np.testing.assert_almost_equal(alpha_guess, -90326, decimal=0)
+
     @data([1.2, 1.4], [-0.6, 2.5], [0.1, 2.3], [3.5, 1.1], [-4.1, 6.5], [3.0, 1.2])
     @unpack
     def test_exp_osci_decay(self, alpha, freq):
@@ -134,7 +144,7 @@ class TestGuesses(QiskitExperimentsTestCase):
         """Test of linewidth of peaks."""
         x = np.linspace(-1, 1, 100)
         sigma = fwhm / np.sqrt(8 * np.log(2))
-        y = a * np.exp(-((x - x[idx]) ** 2) / (2 * sigma ** 2))
+        y = a * np.exp(-((x - x[idx]) ** 2) / (2 * sigma**2))
 
         lw_guess = guess.full_width_half_max(x, y, idx)
 
@@ -153,7 +163,7 @@ class TestGuesses(QiskitExperimentsTestCase):
         """Test of baseline of peaks."""
         x = np.linspace(-1, 1, 100)
         sigma = fwhm / np.sqrt(8 * np.log(2))
-        y = a * np.exp(-((x - x0) ** 2) / (2 * sigma ** 2)) + b0
+        y = a * np.exp(-((x - x0) ** 2) / (2 * sigma**2)) + b0
 
         b0_guess = guess.constant_spectral_offset(y)
 
@@ -176,3 +186,24 @@ class TestGuesses(QiskitExperimentsTestCase):
         b0_guess = guess.constant_sinusoidal_offset(y)
 
         self.assertAlmostEqual(b0, b0_guess, delta=0.1)
+
+    @data(
+        # typical 1Q
+        [0.5, 0.5, 0.99],
+        # typical 2Q
+        [0.25, 0.75, 0.97],
+        # alpha around equation switching
+        [0.48, 0.46, 0.85],
+        # bad limit
+        [0.20, 0.36, 0.72],
+        [0.55, 0.40, 0.65],
+    )
+    @unpack
+    def test_rb_decay(self, a, b, alpha):
+        """Test of rb decay basis guess."""
+        x = np.arange(1, 100, 5)
+        y = a * alpha**x + b
+
+        alpha_guess = guess.rb_decay(x, y, a=a, b=b)
+
+        self.assertAlmostEqual(alpha, alpha_guess, delta=alpha * 0.1)

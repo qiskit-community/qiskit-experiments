@@ -66,17 +66,19 @@ class OscillationAnalysis(curve.CurveAnalysis):
     ]
 
     def _generate_fit_guesses(
-        self, user_opt: curve.FitOptions
+        self,
+        user_opt: curve.FitOptions,
+        curve_data: curve.CurveData,
     ) -> Union[curve.FitOptions, List[curve.FitOptions]]:
-        """Compute the initial guesses.
+        """Create algorithmic guess with analysis options and curve data.
 
         Args:
             user_opt: Fit options filled with user provided guess and bounds.
+            curve_data: Formatted data collection to fit.
 
         Returns:
             List of fit options that are passed to the fitter function.
         """
-        curve_data = self._data()
         max_abs_y, _ = curve.guess.max_height(curve_data.y, absolute=True)
 
         user_opt.bounds.set_if_empty(
@@ -110,13 +112,12 @@ class OscillationAnalysis(curve.CurveAnalysis):
             - less than 10 full periods, and
             - an error on the fit frequency lower than the fit frequency.
         """
-        fit_freq = fit_data.fitval("freq").value
-        fit_freq_err = fit_data.fitval("freq").stderr
+        fit_freq = fit_data.fitval("freq")
 
         criteria = [
             fit_data.reduced_chisq < 3,
-            1.0 / 4.0 < fit_freq < 10.0,
-            (fit_freq_err is None or (fit_freq_err < fit_freq)),
+            1.0 / 4.0 < fit_freq.nominal_value < 10.0,
+            curve.is_error_not_significant(fit_freq),
         ]
 
         if all(criteria):
@@ -183,18 +184,19 @@ class DumpedOscillationAnalysis(curve.CurveAnalysis):
     ]
 
     def _generate_fit_guesses(
-        self, user_opt: curve.FitOptions
+        self,
+        user_opt: curve.FitOptions,
+        curve_data: curve.CurveData,
     ) -> Union[curve.FitOptions, List[curve.FitOptions]]:
-        """Compute the initial guesses.
+        """Create algorithmic guess with analysis options and curve data.
 
         Args:
             user_opt: Fit options filled with user provided guess and bounds.
+            curve_data: Formatted data collection to fit.
 
         Returns:
             List of fit options that are passed to the fitter function.
         """
-        curve_data = self._data()
-
         user_opt.p0.set_if_empty(
             amp=0.5,
             base=curve.guess.constant_sinusoidal_offset(curve_data.y),
@@ -264,8 +266,8 @@ class DumpedOscillationAnalysis(curve.CurveAnalysis):
 
         criteria = [
             fit_data.reduced_chisq < 3,
-            tau.stderr is None or tau.stderr < tau.value,
-            freq.stderr is None or freq.stderr < freq.value,
+            curve.is_error_not_significant(tau),
+            curve.is_error_not_significant(freq),
         ]
 
         if all(criteria):

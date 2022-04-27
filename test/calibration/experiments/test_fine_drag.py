@@ -34,7 +34,7 @@ class FineDragTestBackend(DragBackend):
         """Returns the probability based on the beta, number of gates, and leakage."""
         n_gates = circuit.count_ops().get("rz", 0) // 2
 
-        return 0.5 * np.sin(n_gates * self._error) + 0.5
+        return 0.5 * np.sin(n_gates * self._freq) + 0.5
 
 
 class TestFineDrag(QiskitExperimentsTestCase):
@@ -66,6 +66,7 @@ class TestFineDrag(QiskitExperimentsTestCase):
         drag.set_experiment_options(schedule=self.schedule)
         drag.set_transpile_options(basis_gates=["rz", "Drag", "sx"])
         exp_data = drag.run(FineDragTestBackend())
+        self.assertExperimentDone(exp_data)
 
         self.assertEqual(exp_data.analysis_results(0).quality, "good")
 
@@ -73,6 +74,7 @@ class TestFineDrag(QiskitExperimentsTestCase):
         """Test that we can run without a schedule."""
 
         exp_data = FineXDrag(0).run(FineDragTestBackend())
+        self.assertExperimentDone(exp_data)
 
         self.assertEqual(exp_data.analysis_results(0).quality, "good")
 
@@ -95,7 +97,7 @@ class TestFineDragCal(QiskitExperimentsTestCase):
         library = FixedFrequencyTransmon()
 
         self.backend = FineDragTestBackend()
-        self.cals = Calibrations.from_backend(self.backend, library)
+        self.cals = Calibrations.from_backend(self.backend, libraries=[library])
 
     def test_experiment_config(self):
         """Test converting to and from config works"""
@@ -114,7 +116,9 @@ class TestFineDragCal(QiskitExperimentsTestCase):
 
         transpile_opts = copy.copy(drag_cal.transpile_options.__dict__)
         transpile_opts["initial_layout"] = list(drag_cal.physical_qubits)
-        circs = transpile(drag_cal.circuits(), **transpile_opts)
+        circs = transpile(
+            drag_cal.circuits(), inst_map=self.cals.default_inst_map, **transpile_opts
+        )
 
         with pulse.build(name="x") as expected_x:
             pulse.play(pulse.Drag(160, 0.5, 40, 0), pulse.DriveChannel(0))
@@ -127,14 +131,17 @@ class TestFineDragCal(QiskitExperimentsTestCase):
 
         # run the calibration experiment. This should update the beta parameter of x which we test.
         exp_data = drag_cal.run(self.backend)
-        d_theta = exp_data.analysis_results(1).value.value
+        self.assertExperimentDone(exp_data)
+        d_theta = exp_data.analysis_results(1).value.n
         sigma = 40
         target_angle = np.pi
-        new_beta = -np.sqrt(np.pi) * d_theta * sigma / target_angle ** 2
+        new_beta = -np.sqrt(np.pi) * d_theta * sigma / target_angle**2
 
         transpile_opts = copy.copy(drag_cal.transpile_options.__dict__)
         transpile_opts["initial_layout"] = list(drag_cal.physical_qubits)
-        circs = transpile(drag_cal.circuits(), **transpile_opts)
+        circs = transpile(
+            drag_cal.circuits(), inst_map=self.cals.default_inst_map, **transpile_opts
+        )
 
         x_cal = circs[5].calibrations["x"][((0,), ())]
 

@@ -54,6 +54,7 @@ Some experiments may be also used for gate calibration.
 
     ~characterization.T1
     ~characterization.T2Ramsey
+    ~characterization.Tphi
     ~characterization.QubitSpectroscopy
     ~characterization.EFSpectroscopy
     ~characterization.CrossResonanceHamiltonian
@@ -66,11 +67,15 @@ Some experiments may be also used for gate calibration.
     ~characterization.FineAmplitude
     ~characterization.FineXAmplitude
     ~characterization.FineSXAmplitude
+    ~characterization.FineZXAmplitude
     ~characterization.Rabi
     ~characterization.EFRabi
     ~characterization.RamseyXY
     ~characterization.FineFrequency
     ~characterization.ReadoutAngle
+    ~characterization.LocalReadoutError
+    ~characterization.CorrelatedReadoutError
+    ~characterization.ResonatorSpectroscopy
 
 
 .. _calibration:
@@ -121,6 +126,7 @@ from .calibration import (
 from .characterization import (
     T1,
     T2Ramsey,
+    Tphi,
     QubitSpectroscopy,
     EFSpectroscopy,
     CrossResonanceHamiltonian,
@@ -135,9 +141,13 @@ from .characterization import (
     FineAmplitude,
     FineXAmplitude,
     FineSXAmplitude,
+    FineZXAmplitude,
     RamseyXY,
     FineFrequency,
     ReadoutAngle,
+    ResonatorSpectroscopy,
+    LocalReadoutError,
+    CorrelatedReadoutError,
 )
 from .randomized_benchmarking import StandardRB, InterleavedRB
 from .tomography import StateTomography, ProcessTomography
