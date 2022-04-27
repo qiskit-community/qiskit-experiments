@@ -16,6 +16,7 @@ from test.base import QiskitExperimentsTestCase
 
 import numpy as np
 from ddt import ddt, data, unpack
+from qiskit.circuit import Delay, QuantumCircuit
 from qiskit.circuit.library import SXGate, CXGate, TGate, XGate
 from qiskit.exceptions import QiskitError
 from qiskit.providers.aer import AerSimulator
@@ -344,6 +345,39 @@ class TestInterleavedRB(RBTestCase):
             qubits=qubits,
             lengths=lengths,
         )
+
+    def test_interleaving_delay(self):
+        """Test delay instruction can be interleaved."""
+        # See qiskit-experiments/#727 for details
+        interleaved_element = Delay(10, unit="us")
+        exp = rb.InterleavedRB(
+            interleaved_element,
+            qubits=[0],
+            lengths=[1],
+            num_samples=1,
+        )
+        # Not raises an error
+        _, int_circ = exp.circuits()
+
+        # barrier, clifford, barrier, "delay", barrier, ...
+        self.assertEqual(int_circ.data[3][0], interleaved_element)
+
+    def test_interleaving_circuit_with_delay(self):
+        """Test circuit with delay can be interleaved."""
+        delay_qc = QuantumCircuit(2)
+        delay_qc.delay(10, [0], unit="us")
+        delay_qc.x(1)
+
+        exp = rb.InterleavedRB(
+            interleaved_element=delay_qc, qubits=[1, 2], lengths=[1], seed=123, num_samples=1
+        )
+        _, int_circ = exp.circuits()
+
+        qc = QuantumCircuit(2)
+        qc.x(1)
+        expected_inversion = Clifford(int_circ.data[1][0]).compose(qc).adjoint()
+        # barrier, clifford, barrier, "interleaved circuit", barrier, inversion, ...
+        self.assertEqual(expected_inversion, Clifford(int_circ.data[5][0]))
 
     def test_experiment_config(self):
         """Test converting to and from config works"""
