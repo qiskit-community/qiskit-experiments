@@ -21,6 +21,7 @@ from numpy.random import Generator, default_rng
 from numpy.random.bit_generator import BitGenerator, SeedSequence
 
 from qiskit import QuantumCircuit, QiskitError
+from qiskit.circuit import Instruction
 from qiskit.quantum_info import Clifford
 from qiskit.providers.backend import Backend
 
@@ -28,6 +29,7 @@ from qiskit_experiments.framework import BaseExperiment, Options
 from qiskit_experiments.framework.restless_mixin import RestlessMixin
 from .rb_analysis import RBAnalysis
 from .clifford_utils import CliffordUtils
+
 
 LOG = logging.getLogger(__name__)
 
@@ -187,8 +189,8 @@ class StandardRB(BaseExperiment, RestlessMixin):
                 group_elt_gate = group_elt_circ
                 group_elt_op = Clifford(group_elt_circ)
 
-            if hasattr(group_elt_gate, "to_gate"):
-                group_elt_gate = group_elt_gate.to_gate()
+            if not isinstance(group_elt_gate, Instruction):
+                group_elt_gate = group_elt_gate.to_instruction()
             circ_op = circ_op.compose(group_elt_op)
             for circ in circs:
                 circ.append(group_elt_gate, qubits)
