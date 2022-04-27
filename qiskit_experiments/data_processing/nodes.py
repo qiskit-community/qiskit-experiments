@@ -238,6 +238,7 @@ class SVD(TrainableDataAction):
             mean_q = self.parameters.q_means[idx]
 
             if self._n_shots != 0:
+                # Single shot
                 for circ_idx in range(self._n_circs):
                     centered = [
                         data[circ_idx, :, idx, 0] - mean_i,
