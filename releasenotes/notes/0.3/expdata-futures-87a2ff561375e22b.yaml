@@ -1,10 +1,10 @@
 ---
 features:
   - |
-    Improves handling of job and analysis processes in :meth:`.ExperimentData`.
+    Improved handling of job and analysis processes in :meth:`.ExperimentData`.
     Verbose logging information on execution of analysis callbacks in an
     experiment can enabled by setting the ``qiskit_experiments`` log level
-    to DEBUG.
+    to ``DEBUG``.
   - |
     Adds :meth:`.ExperimentData.jobs` method for returning a list of
     Qiskit Jobs for a running or finished experiment.
@@ -28,7 +28,7 @@ features:
     when used will automatically cancel all non-finished jobs that exceed the
     alloted time.
   - |
-    Added enum classes for experiment, job, and analysis status
+    Added enum classes for experiment, job, and analysis status.
 upgrade:
   - |
     The value returned by :meth:`.ExperimentData.status` has been changed from

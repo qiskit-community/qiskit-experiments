@@ -1,5 +1,5 @@
 ---
-feature:
+features:
   - |
     The :class:`qiskit_experiments.data_processing.Probability`
     data processing node has been enhanced to compute the estimated mean and
@@ -8,7 +8,7 @@ feature:
     The default prior is an uninformative prior. The user can also provide a custom
     prior for the probability distribution.
 fixes:
-  -|
+  - |
     The :class:`qiskit_experiments.data_processing.Probability` data processing
     node will no longer return exactly 0 or 1 for a probability estimate. This
     fixes an issue where this could cause division by 0 when computing weights
