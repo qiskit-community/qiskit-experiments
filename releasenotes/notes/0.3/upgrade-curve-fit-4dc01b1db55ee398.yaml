@@ -22,7 +22,7 @@ upgrade:
 
     Now ``fit_t1`` value is an ``uncertainties.ufloat`` instance with
     new properties :attr:`.nominal_value` and :attr:`.std_dev`,
-    and you can directly apply methematical operation to this object.
+    and you can directly apply mathematical operation to this object.
     The new error value is predicted by linear error propagation theory.
     Note that you no longer need to separately compute the standard error.
 

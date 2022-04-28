@@ -7,11 +7,11 @@ prelude: >
     now be run restlessly without resetting.
 
     There are also numerous changes and improvements to the :class:`.BaseExperiment`,  
-    :class:`.ExperimentData`, and composite experiment classes to improve JSON serialization, 
-     handling of metadata, accessing the status of jobs and experiments, and the 
+    :class:`.ExperimentData`, :class:`.CurveAnalysis`, and composite experiment classes to improve JSON serialization, 
+    handling of metadata, accessing the status of jobs and experiments, and the 
     storing and loading of experiments to and from the IBM experiment database service.
 features:
   - |
-    Adds an analysis kwarg to :class:`.CompositeExperiment`, :class:`.BatchExperiment` 
+    Adds an ``analysis`` kwarg to :class:`.CompositeExperiment`, :class:`.BatchExperiment` 
     and :class:`.ParallelExperiment` to allow a user to supply a custom 
     :class:`.CompositeAnalysis` instance.
