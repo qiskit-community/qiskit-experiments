@@ -1,5 +1,6 @@
 ---
 upgrade:
+  - |
     :class:`.BaseCurveAnalysis` class has been added as a superclass of :class:`.CurveAnalysis`.
     The new base class doesn't define the :meth:`_run_analysis` abstract method
     and it cannot conduct analysis by itself, however it defines several subroutines 
@@ -9,7 +10,7 @@ upgrade:
     See also `Issue 737 <https://github.com/Qiskit/qiskit-experiments/issues/737>` for discussion.
   - |
     The method :meth:`CurveAnalysis._generate_fit_guesses` has been upgraded with
-    new method signature. Now this method is called with ``curve_data`` argument
+    a new method signature. Now this method is called with ``curve_data`` argument
     that provides dataset which is used for curve fitting.
     If you define custom :class:`.CurveAnalysis` subclass in your codestack,
     you may need to upgrade the method. See :class:`.BaseCurveAnalysis` for details.

@@ -7,4 +7,4 @@ developer:
     This function calls :meth:`block_for_results` and then checks if the experiment
     status returns ``DONE`` after execution. It is `highly recommended` to use this test
     right after each experiment execution to detect program malfunction,
-    which is paticularly relevant to python multi-threading in multi-platform.
+    which is particularly relevant to python multi-threading in multi-platform.

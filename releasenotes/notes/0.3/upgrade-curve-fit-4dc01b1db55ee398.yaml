@@ -20,11 +20,11 @@ upgrade:
       new_value = fit_t1 / 2
       new_value.std_dev  # show new standard error value
 
-    Now ``fit_t1`` value is ``uncertainties.ufloat`` instance with
+    Now ``fit_t1`` value is an ``uncertainties.ufloat`` instance with
     new properties :attr:`.nominal_value` and :attr:`.std_dev`,
     and you can directly apply methematical operation to this object.
-    New error value is predicted by linear error propagation theory.
-    Note that you no longer need to separately compute standard error.
+    The new error value is predicted by linear error propagation theory.
+    Note that you no longer need to separately compute the standard error.
 
     This computation is offered by the `uncertainties <https://pythonhosted.org/uncertainties/>`__
     package which is a requirement since from Qiskit Experiments v0.2.
