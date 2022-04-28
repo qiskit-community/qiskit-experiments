@@ -13,8 +13,8 @@ upgrade:
     been upgraded to be instances of the new tomography bases classes
     :class:`.LocalMeasurementBasis` and :class:`.LocalPreparationBasis`.
   - |
-    Changed the signature of the :meth:`~.MeasurementBasis.circuit`` and
-    :meth:`~.MeasurementBasis.matrix`` methods of tomography basis classes
+    Changed the signature of the :meth:`~.MeasurementBasis.circuit` and
+    :meth:`~.MeasurementBasis.matrix` methods of tomography basis classes
     to require a ``qubits`` kwarg for specifying the specific physical qubits
     that the basis is being applied to.
 developer:

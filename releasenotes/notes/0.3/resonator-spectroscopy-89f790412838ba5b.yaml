@@ -14,15 +14,15 @@ fixes:
     where :code:`GaussianAnalysis` is imported from ``curve_analysis``.
 features:
   - |
-    This change introduces the new experiment
+    Added a new experiment
     :py:class:`~qiskit_experiments.library.ResonatorSpectroscopy` to run spectroscopy
     on readout resonators. This is done by attaching a custom pulse-schedule to
     the measure instruction. Note that the resonator spectroscopy experiment may
     cause errors on backends that do not support circuit instructions with measurement
     schedules attached to them.
   - |
-    Furthermore, a new data processing node
-    :py:class`~qiskit_experiments.data_processing.nodes.ToAbs` is introduced to
-    take the absolute value of the IQ points. This node is needed to analyse readout
+    A new data processing node
+    :py:class:`~qiskit_experiments.data_processing.nodes.ToAbs` is introduced to
+    take the absolute value of IQ points. This node is needed to analyse readout
     resonator spectroscopy IQ data since it rotates around in the IQ plane but can
     also be used in other contexts.
