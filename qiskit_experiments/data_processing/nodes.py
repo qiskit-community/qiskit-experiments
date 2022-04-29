@@ -895,25 +895,13 @@ class RestlessToIQ(RestlessNode):
         # Step 1. Reorder the data.
         memory = self._reorder_iq(data)
 
-        # Set up a new memory that will contain the post-processed data (see
-        # step 2). The first element is the first element of the reordered memory
-        # from step 1.
-        post_processed_memory = [
-            [[memory[0][sub_idx][0], memory[0][sub_idx][1]] for sub_idx in range(len(memory[0]))]
-        ]
-
         # Step 2. Subtract and take absolute value of consecutive IQ points in
         # the reordered memory.
-        for idx in range(1, len(memory)):
-            post_processed_memory.append(
-                [
-                    [
-                        np.abs(memory[idx][sub_idx][0] - memory[idx - 1][sub_idx][0]),
-                        np.abs(memory[idx][sub_idx][1] - memory[idx - 1][sub_idx][1]),
-                    ]
-                    for sub_idx in range(len(memory[0]))
-                ]
-            )
+        post_processed_memory = np.abs(np.diff(memory, axis=0))
+
+        # The first element of the post-processed data is the first element
+        # of the reordered memory from step 1.
+        post_processed_memory = np.insert(post_processed_memory, 0, memory[0], axis=0)
 
         # Step 3. Order post-processed IQ points by circuit.
         iq_memory = [[] for _ in range(self._n_circuits)]
