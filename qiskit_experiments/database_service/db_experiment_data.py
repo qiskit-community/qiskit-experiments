@@ -1864,8 +1864,11 @@ class DbExperimentDataV1(DbExperimentData):
             # the attribute self._service in charge of the connection and communication with the
             #  experiment db. It doesn't have meaning in the json format so there is no need to serialize
             #  it.
-            LOG.warning(f"Experiment was saved using {type(service_value)} service which cannot be "
-                        f"automatically loaded. Please reset service attribute if required")
+            LOG.warning(
+                "Experiment was saved using %s service which cannot be automatically loaded. "
+                "Please reset service attribute if required",
+                str(type(service_value)),
+            )
             json_value["_service"] = None
 
         return json_value
