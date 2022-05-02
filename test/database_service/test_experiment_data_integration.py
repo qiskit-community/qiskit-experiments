@@ -36,7 +36,7 @@ from qiskit_experiments.database_service.exceptions import DbExperimentEntryNotF
 from ..decorators import requires_provider, requires_device
 
 
-@skipIf(not os.environ.get("QISKIT_IBM_USE_STAGING_CREDENTIALS", ""), "Only runs on staging")
+# @skipIf(not os.environ.get("QISKIT_IBM_USE_STAGING_CREDENTIALS", ""), "Only runs on staging")
 class TestExperimentDataIntegration(QiskitTestCase):
     """Test experiment service with experiment data."""
 
@@ -45,6 +45,7 @@ class TestExperimentDataIntegration(QiskitTestCase):
         """Initial class level setup."""
         # pylint: disable=arguments-differ
         super().setUpClass()
+        print(os.environ)
         cls.provider = cls._setup_provider()  # pylint: disable=no-value-for-parameter
         if not cls.provider.has_service("experiment"):
             raise SkipTest("Not authorized to use experiment service.")

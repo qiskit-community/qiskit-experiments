@@ -11,6 +11,9 @@ jobs:
   tests:
     name: tests-python${{ matrix.python-version }}-${{ matrix.os }}
     runs-on: ${{ matrix.os }}
+    env:
+      QISKIT_IBM_STAGING_DEVICE: "ibmq_qasm_simulator"
+      QISKIT_IBM_USE_STAGING_CREDENTIALS: True
     strategy:
       matrix:
         python-version: [3.7, 3.8, 3.9]
