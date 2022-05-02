@@ -135,6 +135,15 @@ class TestCrossResonanceHamiltonian(QiskitExperimentsTestCase):
         # Not raise an error
         expr.circuits()
 
+    def test_instance_with_backend_without_cr_gate(self):
+        """Calling set backend method without setting cr gate."""
+        # not raise an error
+        cr_hamiltonian.CrossResonanceHamiltonian(
+            qubits=(0, 1),
+            flat_top_widths=[1000],
+            backend=FakeBogota(),
+        )
+
     @data(
         [1e6, 2e6, 1e3, -3e6, -2e6, 1e4],
         [-1e6, -2e6, 1e3, 3e6, 2e6, 1e4],
