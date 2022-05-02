@@ -136,12 +136,12 @@ def curve_fit(
             "scipy.optimize.curve_fit failed with error: {}".format(str(ex))
         ) from ex
 
-    if np.isfinite(pcov).all():
+    try:
         # Keep parameter correlations in following analysis steps
         fit_params = uncertainties.correlated_values(
             nom_values=popt, covariance_mat=pcov, tags=param_keys
         )
-    else:
+    except Exception:  # pylint: disable=broad-except
         # Ignore correlations, add standard error if finite.
         fit_params = [
             uncertainties.ufloat(nominal_value=n, std_dev=s if np.isfinite(s) else np.nan)
