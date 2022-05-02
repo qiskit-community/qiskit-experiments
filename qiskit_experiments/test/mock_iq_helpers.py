@@ -20,7 +20,7 @@ from qiskit.providers.aer import AerSimulator
 
 
 class MockIQExperimentHelper:
-    """Abstract class for he MockIQ helper classes"""
+    """Abstract class for the MockIQ helper classes"""
 
     @abstractmethod
     def compute_probabilities(self, circuits: List[QuantumCircuit]) -> List[Dict[str, float]]:

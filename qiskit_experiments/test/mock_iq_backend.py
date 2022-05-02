@@ -190,7 +190,7 @@ class MockIQBackend(FakeOpenPulse2Q):
         """
 
         self._iq_cluster_centers = iq_cluster_centers or [((-1.0, -1.0), (1.0, 1.0))]
-        self._iq_cluster_width = iq_cluster_width or [1.0 for _ in self._iq_cluster_centers]
+        self._iq_cluster_width = iq_cluster_width or [1.0] * len(self._iq_cluster_centers)
         self.experiment_helper = experiment_helper
         self._rng = np.random.default_rng(rng_seed)
 
@@ -223,7 +223,7 @@ class MockIQBackend(FakeOpenPulse2Q):
         Produce a list in the size of num_qubits. Each entry value is produced from normal distribution
         with expected value of '0' and standard deviation of self._iq_cluster_width.
         Args:
-            num_qubits(int): The amount of qubits in the circuit.
+            num_qubits(int): The number of qubits in the circuit.
 
         Returns:
             Ndarray: A numpy array with values that were produced from normal distribution.

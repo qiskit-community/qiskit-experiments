@@ -88,7 +88,6 @@ class TestFineDragCal(QiskitExperimentsTestCase):
         self.backend = MockIQBackend(FineDragHelper())
         self.cals = Calibrations.from_backend(self.backend, libraries=[library])
 
-
     def test_experiment_config(self):
         """Test converting to and from config works"""
         exp = FineDragCal(0, self.cals, schedule_name="x")
