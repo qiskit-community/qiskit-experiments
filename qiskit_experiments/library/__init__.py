@@ -126,7 +126,6 @@ from .calibration import (
 from .characterization import (
     T1,
     T2Ramsey,
-    T2Hahn,
     Tphi,
     QubitSpectroscopy,
     EFSpectroscopy,
