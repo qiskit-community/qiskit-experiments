@@ -43,7 +43,7 @@ class BaseDataProcessorTest(QiskitExperimentsTestCase):
             metadata={"experiment_type": "fake_test_experiment"},
         )
 
-    def create_experiment(self, iq_data: List[Any], single_shot: bool = False):
+    def create_experiment_data(self, iq_data: List[Any], single_shot: bool = False):
         """Populate avg_iq_data to use it for testing.
 
         Args:
@@ -63,15 +63,16 @@ class BaseDataProcessorTest(QiskitExperimentsTestCase):
                 )
                 results.append(res)
         else:
-            res = ExperimentResult(
-                success=True,
-                meas_level=1,
-                meas_return="single",
-                data=ExperimentResultData(memory=iq_data),
-                header=self.header,
-                shots=1024,
-            )
-            results.append(res)
+            for circ_data in iq_data:
+                res = ExperimentResult(
+                    success=True,
+                    meas_level=1,
+                    meas_return="single",
+                    data=ExperimentResultData(memory=circ_data),
+                    header=self.header,
+                    shots=1024,
+                )
+                results.append(res)
 
         # pylint: disable=attribute-defined-outside-init
         self.iq_experiment = ExperimentData(FakeExperiment())

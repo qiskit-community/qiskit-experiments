@@ -61,7 +61,7 @@ class TestRoughFrequency(QiskitExperimentsTestCase):
         backend.defaults().qubit_freq_est = [freq01, freq01]
 
         library = FixedFrequencyTransmon(basis_gates=["x", "sx"])
-        cals = Calibrations.from_backend(FakeArmonk(), library=library)
+        cals = Calibrations.from_backend(FakeArmonk(), libraries=[library])
 
         prev_freq = cals.get_parameter_value(cals.__drive_freq_parameter__, (0,))
         self.assertEqual(prev_freq, freq01)

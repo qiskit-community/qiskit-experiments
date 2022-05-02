@@ -25,31 +25,39 @@ from qiskit_experiments.exceptions import AnalysisError
 
 @dataclasses.dataclass(frozen=True)
 class SeriesDef:
-    """Description of curve."""
+    """A dataclass to describe the definition of the curve.
 
-    # Arbitrary callback to define the fit function. First argument should be x.
+    Attributes:
+        fit_func: A callable that defines the fit model of this curve. The argument names
+            in the callable are parsed to create the fit parameter list, which will appear
+            in the analysis results. The first argument should be ``x`` that represents
+            X-values that the experiment sweeps.
+        filter_kwargs: Optional. Dictionary of properties that uniquely identifies this series.
+            This dictionary is used for data processing.
+            This must be provided when the curve analysis consists of multiple series.
+        name: Optional. Name of this series.
+        plot_color: Optional. String representation of the color that is used to draw fit data
+            and data points in the output figure. This depends on the drawer class
+            being set to the curve analysis options. Usually this conforms to the
+            Matplotlib color names.
+        plot_symbol: Optional. String representation of the marker shape that is used to draw
+            data points in the output figure. This depends on the drawer class
+            being set to the curve analysis options. Usually this conforms to the
+            Matplotlib symbol names.
+        canvas: Optional. Index of sub-axis in the output figure that draws this curve.
+            This option is valid only when the drawer instance provides multi-axis drawing.
+        model_description: Optional. Arbitrary string representation of this fit model.
+            This string will appear in the analysis results as a part of metadata.
+    """
+
     fit_func: Callable
-
-    # Keyword dictionary to define the series with circuit metadata
     filter_kwargs: Dict[str, Any] = dataclasses.field(default_factory=dict)
-
-    # Name of this series. This name will appear in the figure and raw x-y value report.
     name: str = "Series-0"
-
-    # Color of this line.
     plot_color: str = "black"
-
-    # Symbol to represent data points of this line.
     plot_symbol: str = "o"
-
-    # Latex description of this fit model
-    model_description: Optional[str] = None
-
-    # Index of canvas if the result figure is multi-panel
     canvas: Optional[int] = None
-
-    # Automatically extracted signature of the fit function
-    signature: List[str] = dataclasses.field(init=False)
+    model_description: Optional[str] = None
+    signature: Tuple[str, ...] = dataclasses.field(init=False)
 
     def __post_init__(self):
         """Parse the fit function signature to extract the names of the variables.
@@ -57,7 +65,7 @@ class SeriesDef:
         Fit functions take arguments F(x, p0, p1, p2, ...) thus the first value should be excluded.
         """
         signature = list(inspect.signature(self.fit_func).parameters.keys())
-        fitparams = signature[1:]
+        fitparams = tuple(signature[1:])
 
         # Note that this dataclass is frozen
         object.__setattr__(self, "signature", fitparams)
@@ -65,54 +73,90 @@ class SeriesDef:
 
 @dataclasses.dataclass(frozen=True)
 class CurveData:
-    """Set of extracted experiment data."""
+    """A dataclass that manages the multiple arrays comprising the dataset for fitting.
 
-    # Name of this data set
-    label: str
+    This dataset can consist of X, Y values from multiple series.
+    To extract curve data of the particular series, :meth:`get_subset_of` can be used.
 
-    # X data
+    Attributes:
+        x: X-values that experiment sweeps.
+        y: Y-values that observed and processed by the data processor.
+        y_err: Uncertainty of the Y-values which is created by the data processor.
+            Usually this assumes standard error.
+        shots: Number of shots used in the experiment to obtain the Y-values.
+        data_allocation: List with identical size with other arrays.
+            The value indicates the series index of the corresponding element.
+            This is classified based upon the matching of :attr:`SeriesDef.filter_kwargs`
+            with the circuit metadata of the corresponding data index.
+            If metadata doesn't match with any series definition, element is filled with ``-1``.
+        labels: List of curve labels. The list index corresponds to the series index.
+    """
+
     x: np.ndarray
-
-    # Y data (measured data)
     y: np.ndarray
-
-    # Error bar
     y_err: np.ndarray
-
-    # Shots number
     shots: np.ndarray
+    data_allocation: np.ndarray
+    labels: List[str]
 
-    # Maping of data index to series index
-    data_index: Union[np.ndarray, int]
+    def get_subset_of(self, index: Union[str, int]) -> "CurveData":
+        """Filter data by series name or index.
 
-    # Metadata associated with each data point. Generated from the circuit metadata.
-    metadata: np.ndarray = None
+        Args:
+            index: Series index of name.
+
+        Returns:
+            A subset of data corresponding to a particular series.
+        """
+        if isinstance(index, int):
+            _index = index
+            _name = self.labels[index]
+        else:
+            _index = self.labels.index(index)
+            _name = index
+
+        locs = self.data_allocation == _index
+        return CurveData(
+            x=self.x[locs],
+            y=self.y[locs],
+            y_err=self.y_err[locs],
+            shots=self.shots[locs],
+            data_allocation=np.full(np.count_nonzero(locs), _index),
+            labels=[_name],
+        )
 
 
 @dataclasses.dataclass(frozen=True)
 class FitData:
-    """Set of data generated by the fit function."""
+    """A dataclass to store the outcome of the fitting.
 
-    # Order sensitive fit parameter values
+    Attributes:
+        popt: List of optimal parameter values with uncertainties if available.
+        popt_keys: List of parameter names being fit.
+        pcov: Covariance matrix from the least square fitting.
+        reduced_chisq: Reduced Chi-squared value for the fit curve.
+        dof: Degree of freedom in this fit model.
+        x_data: X-values provided to the fitter.
+        y_data: Y-values provided to the fitter.
+    """
+
     popt: List[uncertainties.UFloat]
-
-    # Order sensitive parameter name list
     popt_keys: List[str]
-
-    # Covariance matrix
     pcov: np.ndarray
-
-    # Reduced Chi-squared value of fit curve
     reduced_chisq: float
-
-    # Degree of freedom
     dof: int
+    x_data: np.ndarray
+    y_data: np.ndarray
 
-    # X data range
-    x_range: Tuple[float, float]
+    @property
+    def x_range(self) -> Tuple[float, float]:
+        """Range of x values."""
+        return np.min(self.x_data), np.max(self.x_data)
 
-    # Y data range
-    y_range: Tuple[float, float]
+    @property
+    def y_range(self) -> Tuple[float, float]:
+        """Range of y values."""
+        return np.min(self.y_data), np.max(self.y_data)
 
     def fitval(self, key: str) -> uncertainties.UFloat:
         """A helper method to get fit value object from parameter key name.
@@ -136,7 +180,13 @@ class FitData:
 
 @dataclasses.dataclass
 class ParameterRepr:
-    """Detailed description of fitting parameter."""
+    """Detailed description of fitting parameter.
+
+    Attributes:
+        name: Original name of the fit parameter being defined in the fit model.
+        repr: Optional. Human-readable parameter name shown in the analysis result and in the figure.
+        unit: Optional. Physical unit of this parameter if applicable.
+    """
 
     # Fitter argument name
     name: str

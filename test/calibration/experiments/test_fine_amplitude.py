@@ -210,7 +210,7 @@ class TestFineAmplitudeCal(QiskitExperimentsTestCase):
         self.backend = MockIQBackend(FineAmpHelper(-np.pi * 0.07, np.pi, "xp"))
         self.backend.configuration().basis_gates.append("sx")
         self.backend.configuration().basis_gates.append("x")
-        self.cals = Calibrations.from_backend(self.backend, library)
+        self.cals = Calibrations.from_backend(self.backend, libraries=[library])
 
     def test_cal_options(self):
         """Test that the options are properly propagated."""

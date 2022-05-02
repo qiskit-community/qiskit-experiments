@@ -32,7 +32,7 @@ class TestRamseyXY(QiskitExperimentsTestCase):
         super().setUp()
 
         library = FixedFrequencyTransmon()
-        self.cals = Calibrations.from_backend(FakeArmonk(), library)
+        self.cals = Calibrations.from_backend(FakeArmonk(), libraries=[library])
 
     def test_end_to_end(self):
         """Test that we can run on a mock backend and perform a fit.
