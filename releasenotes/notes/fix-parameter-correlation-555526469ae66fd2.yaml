@@ -1,0 +1,5 @@
+---
+fixes:
+  - |
+    Computation for the correlation of curve fit parameter uncertainty has been updated
+    to capture unintional exception from uncertainties package.
