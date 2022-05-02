@@ -65,6 +65,7 @@ Data Processing Nodes
     SVD
     AverageData
     BasisExpectationValue
+    MinMaxNormalize
 """
 
 from .data_action import DataAction, TrainableDataAction
@@ -76,6 +77,7 @@ from .nodes import (
     SVD,
     AverageData,
     BasisExpectationValue,
+    MinMaxNormalize,
 )
 
 from .data_processor import DataProcessor

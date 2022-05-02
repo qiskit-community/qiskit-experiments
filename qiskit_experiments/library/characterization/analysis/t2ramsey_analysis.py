@@ -30,7 +30,7 @@ class T2RamseyAnalysis(curve.DumpedOscillationAnalysis):
     def _default_options(cls) -> Options:
         """Default analysis options."""
         options = super()._default_options()
-        options.curve_plotter.set_options(
+        options.curve_drawer.set_options(
             xlabel="Delay",
             ylabel="P(0)",
             xval_unit="s",

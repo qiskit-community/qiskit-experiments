@@ -345,3 +345,67 @@ def constant_sinusoidal_offset(y: np.ndarray) -> float:
     minv, _ = min_height(y, percentile=5)
 
     return 0.5 * (maxv + minv)
+
+
+def rb_decay(
+    x: np.ndarray,
+    y: np.ndarray,
+    b: float = 0.5,
+    a: Optional[float] = None,
+) -> float:
+    r"""Get base of exponential decay function which is assumed to be close to 1.
+
+    This assumes following model:
+
+    .. math::
+
+        y(x) = a \alpha^x + b.
+
+    This model can be often seen in randomized benchmarking analysis.
+    Now we assume :math:`\alpha \simeq 1` and replace it with :math:`\alpha = 1 - p`
+    where :math:`p \ll 1`. Then, above function can be approximated to
+
+    .. math::
+
+        y(x) = a \left(1 - px + \frac{x(x-1)}{2} p^2 + ...\right) + b,
+
+    here we assume :math:`px \ll 1` to ignore higher order terms of :math:`p`.
+    Likely parameter :math:`p` of interest can be solved as
+
+    .. math::
+
+        p(x) = \frac{a + b - y(x)}{ax}.
+
+    The :math:`p(x)` is averaged with the weight of :math:`1/x`.
+    When estimated :math:`\alpha = 1-p < 0.9`, this calcualtes following value instead.
+
+    .. math::
+
+        \alpha \simeq dy ^ {1 / dx},
+
+    where :math:`dx = x[1] - x[0]` and :math:`dy = (y[1] - b) / (y[0] - b)`.
+
+    Args:
+        x: Array of x values.
+        y: Array of y values.
+        a: Coefficient of decay function. If not provided this is defaults to :math:`1-b`.
+            :math:`y(0) = 1.0`.
+        b: Asymptote of decay function.
+
+    Returns:
+         Base of decay function.
+    """
+    if a is None:
+        a = 1 - b
+
+    a_guess_tmp = np.average(1 - (a + b - y) / (a * x), weights=1 / x)
+
+    if a_guess_tmp > 0.9:
+        return a_guess_tmp
+
+    # Violate assumption, then switch to the conventional method
+    # Use the first two points to guess the decay param
+    dx = x[1] - x[0]
+    dy = (y[1] - b) / (y[0] - b)
+
+    return dy ** (1 / dx)
