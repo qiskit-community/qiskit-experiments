@@ -87,7 +87,7 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
     def test_spectroscopy_end2end_kerneled(self):
         """End to end test of the spectroscopy experiment on IQ data."""
 
-        backend = SpectroscopyBackend(line_width=2e6, iq_cluster_centers=(-1, -1, 1, 1))
+        backend = SpectroscopyBackend(line_width=2e6, iq_cluster_centers=(1, 1, -1, -1))
         qubit = 0
         freq01 = backend.defaults().qubit_freq_est[qubit]
         frequencies = np.linspace(freq01 - 10.0e6, freq01 + 10.0e6, 21)

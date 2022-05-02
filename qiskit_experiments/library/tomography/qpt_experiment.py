@@ -52,9 +52,9 @@ class ProcessTomography(TomographyExperiment):
     def __init__(
         self,
         circuit: Union[QuantumCircuit, Instruction, BaseOperator],
-        measurement_basis: basis.BaseTomographyMeasurementBasis = basis.PauliMeasurementBasis(),
+        measurement_basis: basis.MeasurementBasis = basis.PauliMeasurementBasis(),
         measurement_qubits: Optional[Sequence[int]] = None,
-        preparation_basis: basis.BaseTomographyPreparationBasis = basis.PauliPreparationBasis(),
+        preparation_basis: basis.PreparationBasis = basis.PauliPreparationBasis(),
         preparation_qubits: Optional[Sequence[int]] = None,
         basis_indices: Optional[Iterable[Tuple[List[int], List[int]]]] = None,
         qubits: Optional[Sequence[int]] = None,

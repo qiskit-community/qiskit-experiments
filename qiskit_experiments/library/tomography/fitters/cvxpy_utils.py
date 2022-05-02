@@ -141,15 +141,15 @@ def complex_matrix_variable(
     cons = []
 
     if hermitian:
-        cons += hermitian_constaint(mat_r, mat_i)
+        cons += hermitian_constraint(mat_r, mat_i)
     if trace is not None:
-        cons += trace_constaint(mat_r, mat_i, trace)
+        cons += trace_constraint(mat_r, mat_i, trace)
     if psd:
-        cons += psd_constaint(mat_r, mat_i)
+        cons += psd_constraint(mat_r, mat_i)
     return mat_r, mat_i, cons
 
 
-def hermitian_constaint(mat_r: Variable, mat_i: Variable) -> List[Constraint]:
+def hermitian_constraint(mat_r: Variable, mat_i: Variable) -> List[Constraint]:
     """Return CVXPY constraint for a Hermitian matrix variable.
 
     Args:
@@ -162,7 +162,7 @@ def hermitian_constaint(mat_r: Variable, mat_i: Variable) -> List[Constraint]:
     return [mat_r == mat_r.T, mat_i == -mat_i.T]
 
 
-def psd_constaint(mat_r: Variable, mat_i: Variable) -> List[Constraint]:
+def psd_constraint(mat_r: Variable, mat_i: Variable) -> List[Constraint]:
     """Return CVXPY Hermitian constraints for a complex matrix.
 
     Args:
@@ -176,7 +176,7 @@ def psd_constaint(mat_r: Variable, mat_i: Variable) -> List[Constraint]:
     return [bmat >> 0]
 
 
-def trace_constaint(mat_r: Variable, mat_i: Variable, trace: complex) -> List[Constraint]:
+def trace_constraint(mat_r: Variable, mat_i: Variable, trace: complex) -> List[Constraint]:
     """Return CVXPY trace constraints for a complex matrix.
 
     Args:
@@ -190,7 +190,7 @@ def trace_constaint(mat_r: Variable, mat_i: Variable, trace: complex) -> List[Co
     return [cvxpy.trace(mat_r) == cvxpy.real(trace), cvxpy.trace(mat_i) == cvxpy.imag(trace)]
 
 
-def trace_preserving_constaint(mat_r: Variable, mat_i: Variable) -> List[Constraint]:
+def trace_preserving_constraint(mat_r: Variable, mat_i: Variable) -> List[Constraint]:
     """Return CVXPY trace preserving constraints for a complex matrix.
 
     Args:
