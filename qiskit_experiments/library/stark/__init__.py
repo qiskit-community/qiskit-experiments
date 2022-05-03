@@ -10,5 +10,6 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Fixed frequency qubit tuning with Stark drive."""
+"""Spectroscopy-type experiment on the fixed frequency qubits using Stark tone."""
+
 from .stark_ramsey import StarkRamsey, StarkRamseyAmplitudeScan

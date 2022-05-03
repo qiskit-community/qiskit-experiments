@@ -20,9 +20,11 @@ import numpy as np
 from qiskit import pulse, circuit
 from qiskit.providers.backend import Backend
 from qiskit.pulse import GaussianSquare
+from qiskit.exceptions import QiskitError
 
 from qiskit_experiments.framework import BaseExperiment, Options, BatchExperiment
-from qiskit_experiments.library.characterization.analysis.t2ramsey_analysis import T2RamseyAnalysis
+
+from .analysis import StarkRamseyAnalysis
 
 
 class StarkRamsey(BaseExperiment):
@@ -38,7 +40,11 @@ class StarkRamsey(BaseExperiment):
             backend: Optional[Backend] = None,
             **kwargs,
     ):
-        super().__init__(qubits=[qubit], analysis=T2RamseyAnalysis(), backend=backend)
+        # backend parameters required to run this experiment
+        self._dt = 1
+        self._granularity = 1
+
+        super().__init__(qubits=[qubit], analysis=StarkRamseyAnalysis(), backend=backend)
         self.set_experiment_options(
             delays=delays,
             stark_channel=stark_channel or pulse.DriveChannel(qubit),
@@ -56,9 +62,6 @@ class StarkRamsey(BaseExperiment):
             stark_sigma (float): blah
             stark_risefall (float): blah
             stark_channel (PulseChannel): blah
-            qubit_freq (float): blah
-            dt (float): blah
-            granularity (float): blah
         """
         options = super()._default_experiment_options()
         options.stark_amp = 0.0
@@ -66,72 +69,82 @@ class StarkRamsey(BaseExperiment):
         options.stark_sigma = 64
         options.stark_risefall = 2
         options.stark_channel = None
-        options.qubit_freq = 0
-        options.dt = 1e-9
-        options.granularity = 1
         options.delays = None
         return options
 
     def _set_backend(self, backend: Backend):
-        try:
-            dt = backend.configuration().dt
-        except AttributeError:
-            dt = self.experiment_options.dt
-        try:
-            granularity = backend.configuration().timing_constraints["granularity"]
-        except (AttributeError, KeyError):
-            granularity = self.experiment_options.granularity
-        try:
-            qubit_freq = backend.defaults().qubit_freq_est[self.physical_qubits[0]]
-        except (AttributeError, IndexError):
-            qubit_freq = self.experiment_options.qubit_freq
-
-        self.set_experiment_options(dt=dt, granularity=granularity, qubit_freq=qubit_freq)
         super()._set_backend(backend)
+        try:
+            self._dt = backend.configuration().dt
+        except AttributeError:
+            raise QiskitError(
+                f"{backend.name()} doesn't provide system time resolution dt. "
+                "This value is necessary to convert provided delays in SI unit into samples.",
+            )
+        try:
+            self._granularity = backend.configuration().timing_constraints["granularity"]
+        except (AttributeError, KeyError):
+            pass
 
     def circuits(self) -> List[circuit.QuantumCircuit]:
+        if self._backend is None:
+            raise QiskitError(
+                f"Backend must be set before generating {self.__class__.__name__} circuit. "
+            )
+
         opt = self.experiment_options
+        min_delay = 2 * opt.stark_risefall * opt.stark_sigma
 
         circs = []
         for delay_sec in self.experiment_options.delays:
-            delay_dt = opt.granularity * int(delay_sec / opt.dt / opt.granularity)
+            delay_dt = self._granularity * int(delay_sec / self._dt / self._granularity)
+            if delay_dt < min_delay:
+                raise ValueError(
+                    f"Minimum Ramsey delay must be longer than {min_delay * self._dt: .3e} sec. "
+                    "This value corresponds to the rising and falling edges of pulsed Stark tone "
+                    "implemented as a flat-topped Gaussian pulse."
+                )
 
             stark_gate = circuit.Gate("StarkDelay", 1, [delay_dt])
+
+            # Use abstract amplitude:
+            # Stark shift has quadratic dependency on the drive amplitude.
+            # This means negative and positive amplitude yield the same Stark shift.
+            # Since we may want to scan amplitude from positive to negative value,
+            # i.e. choosing amplitude as a control parameter rather than detuning,
+            # we conventionally flip the sign of frequency detuning
+            # if negative drive amplitude is set.
             stark_freq = np.sign(opt.stark_amp) * opt.stark_freq_offset
 
             with pulse.build() as stark_tone:
                 with pulse.frequency_offset(stark_freq, opt.stark_channel):
-                    pulse.play(GaussianSquare(duration=delay_dt, amp=np.abs(opt.stark_amp), sigma=opt.stark_sigma,
-                                              risefall_sigma_ratio=opt.stark_risefall), opt.stark_channel)
-                    pulse_len = delay_dt
-
-                    # pulse_len = play_chunked_gaussian_square(
-                    #    duration=delay_dt,
-                    #    amp=np.abs(opt.stark_amp),
-                    #    sigma=opt.stark_sigma,
-                    #    risefall_sigma_ratio=opt.stark_risefall,
-                    #    channel=opt.stark_channel)
+                    pulse.play(
+                        GaussianSquare(
+                            duration=delay_dt,
+                            amp=np.abs(opt.stark_amp),
+                            sigma=opt.stark_sigma,
+                            risefall_sigma_ratio=opt.stark_risefall
+                        ),
+                        opt.stark_channel,
+                    )
 
             circ = circuit.QuantumCircuit(1, 1)
             circ.add_calibration(stark_gate, self.physical_qubits, stark_tone)
 
             circ.sx(0)
-
             circ.append(stark_gate, [0])
-
-            circ.barrier(0)
             circ.sx(0)
-            circ.barrier(0)
             circ.measure(0, 0)
 
             circ.metadata = {
                 "experiment_type": self._type,
                 "qubit": self.physical_qubits[0],
                 "unit": "s",
-                "xval": pulse_len * opt.dt
+                "xval": delay_dt * self._dt
             }
             circs.append(circ)
         return circs
+
 
 class StarkRamseyAmplitudeScan(BatchExperiment):
     def __init__(
