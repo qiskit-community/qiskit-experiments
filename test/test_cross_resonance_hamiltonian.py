@@ -137,12 +137,25 @@ class TestCrossResonanceHamiltonian(QiskitExperimentsTestCase):
 
     def test_instance_with_backend_without_cr_gate(self):
         """Calling set backend method without setting cr gate."""
+        backend = FakeBogota()
+        setattr(
+            backend.configuration(),
+            "timing_constraints",
+            {"granularity": 16},
+        )
+
         # not raise an error
-        cr_hamiltonian.CrossResonanceHamiltonian(
+        exp = cr_hamiltonian.CrossResonanceHamiltonian(
             qubits=(0, 1),
             flat_top_widths=[1000],
-            backend=FakeBogota(),
+            backend=backend,
         )
+        ref_config = backend.configuration()
+        self.assertEqual(exp._dt, ref_config.dt)
+
+        # These properties are set when cr_gate is not provided
+        self.assertEqual(exp._cr_channel, ref_config.control((0, 1))[0].index)
+        self.assertEqual(exp._granularity, ref_config.timing_constraints["granularity"])
 
     @data(
         [1e6, 2e6, 1e3, -3e6, -2e6, 1e4],
