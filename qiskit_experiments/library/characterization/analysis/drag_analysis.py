@@ -25,48 +25,49 @@ class DragCalAnalysis(curve.CurveAnalysis):
 
     # section: fit_model
 
-        Analyse a Drag calibration experiment by fitting three series each to a cosine function.
-        The three functions share the phase parameter (i.e. beta) but each have their own amplitude,
-        baseline, and frequency parameters (which therefore depend on the number of repetitions of
-        xp-xm). Several initial guesses are tried if the user does not provide one.
+        Analyse a Drag calibration experiment by fitting three series each to a cosine
+        function. The three functions share the phase parameter (i.e. beta), amplitude, and
+        baseline. The frequencies of the oscillations are related through the number of
+        repetitions of the Drag gates. Several initial guesses are tried if the user
+        does not provide one. The fit function is
 
         .. math::
 
-            y_i = {\rm amp} \cos\left(2 \pi\cdot {\rm freq}_i\cdot x -
-            2 \pi\cdot {\rm freq}_i\cdot \beta\right) + {\rm base}
+            y_i = {\rm amp} \cos\left(2 \pi\cdot {\rm reps}_i \cdot {\rm freq}\cdot x -
+            2 \pi\cdot {\rm reps}_i \cdot {\rm freq}\cdot \beta\right) + {\rm base}
 
-        Note that the aim of the Drag calibration is to find the :math:`\beta` that minimizes the
-        phase shifts. This implies that the optimal :math:`\beta` occurs when all three :math:`y`
-        curves are minimum, i.e. they produce the ground state. Therefore,
+        Here, the fit parameter :math:`freq` is the frequency of the oscillation of a
+        single pair of Drag plus and minus rotations and :math:`{\rm reps}_i` is the number
+        of times that the Drag plus and minus rotations are repeated in curve :math:`i`.
+        Note that the aim of the Drag calibration is to find the :math:`\beta` that
+        minimizes the phase shifts. This implies that the optimal :math:`\beta` occurs when
+        all three :math:`y` curves are minimum, i.e. they produce the ground state. This
+        occurs when
 
         .. math::
 
-            y_i = 0 \quad \Longrightarrow \quad -{\rm amp} \cos(2 \pi\cdot X_i) = {\rm base}
+            {\rm reps}_i * {\rm freq} * (x - \beta) = N
 
-        Here, we abbreviated :math:`{\rm freq}_i\cdot x - {\rm freq}_i\cdot \beta` by :math:`X_i`.
-        For a signal between 0 and 1 the :math:`{\rm base}` will typically fit to 0.5. However, the
-        equation has an ambiguity if the amplitude is not properly bounded. Indeed,
-
-        - if :math:`{\rm amp} < 0` then we require :math:`2 \pi\cdot X_i = 0` mod :math:`2\pi`, and
-        - if :math:`{\rm amp} > 0` then we require :math:`2 \pi\cdot X_i = \pi` mod :math:`2\pi`.
-
-        This will result in an ambiguity in :math:`\beta` which we avoid by bounding the amplitude
-        from above by 0.
+        is satisfied with :math:`N` an integer. Note, however, that this condition
+        produces a minimum only when the amplitude is negative. To ensure this is
+        the case, we bound the amplitude to be less than 0.
 
     # section: fit_parameters
         defpar \rm amp:
             desc: Amplitude of all series.
-            init_guess: The maximum y value less the minimum y value. 0.5 is also tried.
-            bounds: [-2, 2] scaled to the maximum signal value.
+            init_guess: The maximum y value scaled by -1, -0.5, and -0.25.
+            bounds: [-2, 0] scaled to the maximum signal value.
 
         defpar \rm base:
             desc: Base line of all series.
-            init_guess: The average of the data. 0.5 is also tried.
-            bounds: [-1, 1] scaled to the maximum signal value.
+            init_guess: Half the maximum y-value of the data.
+            bounds: [-1, 1] scaled to the maximum y-value.
 
-        defpar {\rm freq}_i:
-            desc: Frequency of the :math:`i` th oscillation.
-            init_guess: The frequency with the highest power spectral density.
+        defpar {\rm freq}:
+            desc: Frequency of oscillation as a function of :math:`\beta` for a single pair
+                of DRAG plus and minus pulses.
+            init_guess: For the curve with the most Drag pulse repetitions, the peak frequency
+                of the power spectral density is found and then divided by the number of repetitions.
             bounds: [0, inf].
 
         defpar \beta:
@@ -77,37 +78,37 @@ class DragCalAnalysis(curve.CurveAnalysis):
 
     __series__ = [
         curve.SeriesDef(
-            fit_func=lambda x, amp, freq0, freq1, freq2, beta, base: cos(
-                x, amp=amp, freq=freq0, phase=-2 * np.pi * freq0 * beta, baseline=base
+            fit_func=lambda x, amp, freq, reps0, reps1, reps2, beta, base: cos(
+                x, amp=amp, freq=reps0 * freq, phase=-2 * np.pi * reps0 * freq * beta, baseline=base
             ),
             plot_color="blue",
             name="series-0",
             filter_kwargs={"series": 0},
             plot_symbol="o",
-            model_description=r"{\rm amp} \cos\left(2 \pi\cdot {\rm freq}_0\cdot x "
-            r"- 2 \pi\cdot {\rm freq}_0\cdot \beta\right) + {\rm base}",
+            model_description=r"{\rm amp} \cos\left(2 \pi\cdot {\rm reps}_0\cdot {\rm freq} [x "
+            r"- \beta]\right) + {\rm base}",
         ),
         curve.SeriesDef(
-            fit_func=lambda x, amp, freq0, freq1, freq2, beta, base: cos(
-                x, amp=amp, freq=freq1, phase=-2 * np.pi * freq1 * beta, baseline=base
+            fit_func=lambda x, amp, freq, reps0, reps1, reps2, beta, base: cos(
+                x, amp=amp, freq=reps1 * freq, phase=-2 * np.pi * reps1 * freq * beta, baseline=base
             ),
             plot_color="green",
             name="series-1",
             filter_kwargs={"series": 1},
             plot_symbol="^",
-            model_description=r"{\rm amp} \cos\left(2 \pi\cdot {\rm freq}_1\cdot x "
-            r"- 2 \pi\cdot {\rm freq}_1\cdot \beta\right) + {\rm base}",
+            model_description=r"{\rm amp} \cos\left(2 \pi\cdot {\rm reps}_1\cdot {\rm freq} [x "
+            r"- \beta]\right) + {\rm base}",
         ),
         curve.SeriesDef(
-            fit_func=lambda x, amp, freq0, freq1, freq2, beta, base: cos(
-                x, amp=amp, freq=freq2, phase=-2 * np.pi * freq2 * beta, baseline=base
+            fit_func=lambda x, amp, freq, reps0, reps1, reps2, beta, base: cos(
+                x, amp=amp, freq=reps2 * freq, phase=-2 * np.pi * reps2 * freq * beta, baseline=base
             ),
             plot_color="red",
             name="series-2",
             filter_kwargs={"series": 2},
             plot_symbol="v",
-            model_description=r"{\rm amp} \cos\left(2 \pi\cdot {\rm freq}_2\cdot x "
-            r"- 2 \pi\cdot {\rm freq}_2\cdot \beta\right) + {\rm base}",
+            model_description=r"{\rm amp} \cos\left(2 \pi\cdot {\rm reps}_2\cdot {\rm freq} [x "
+            r"- \beta]\right) + {\rm base}",
         ),
     ]
 
@@ -119,45 +120,59 @@ class DragCalAnalysis(curve.CurveAnalysis):
         descriptions of analysis options.
         """
         default_options = super()._default_options()
+        default_options.curve_drawer.set_options(
+            xlabel="Beta",
+            ylabel="Signal (arb. units)",
+        )
         default_options.result_parameters = ["beta"]
-        default_options.xlabel = "Beta"
-        default_options.ylabel = "Signal (arb. units)"
+        default_options.fixed_parameters = {"reps0": 1, "reps1": 3, "reps2": 5}
+        default_options.normalization = True
 
         return default_options
 
     def _generate_fit_guesses(
-        self, user_opt: curve.FitOptions
+        self,
+        user_opt: curve.FitOptions,
+        curve_data: curve.CurveData,
     ) -> Union[curve.FitOptions, List[curve.FitOptions]]:
-        """Compute the initial guesses.
+        """Create algorithmic guess with analysis options and curve data.
 
         Args:
             user_opt: Fit options filled with user provided guess and bounds.
+            curve_data: Formatted data collection to fit.
 
         Returns:
             List of fit options that are passed to the fitter function.
         """
         # Use a fast Fourier transform to guess the frequency.
-        x_data = self._data("series-0").x
+        x_data = curve_data.get_subset_of("series-0").x
         min_beta, max_beta = min(x_data), max(x_data)
 
-        freqs_guesses = {}
-        for i in range(3):
-            curve_data = self._data(f"series-{i}")
-            freqs_guesses[f"freq{i}"] = curve.guess.frequency(curve_data.x, curve_data.y)
-        user_opt.p0.set_if_empty(**freqs_guesses)
-
-        max_abs_y, _ = curve.guess.max_height(self._data().y, absolute=True)
-        freq_bound = max(10 / user_opt.p0["freq0"], max(x_data))
-
-        user_opt.bounds.set_if_empty(
-            amp=(-2 * max_abs_y, 0),
-            freq0=(0, np.inf),
-            freq1=(0, np.inf),
-            freq2=(0, np.inf),
-            beta=(-freq_bound, freq_bound),
-            base=(-max_abs_y, max_abs_y),
+        # Use the highest-frequency curve to estimate the oscillation frequency.
+        series_label, reps_label = max(
+            ("series-0", "reps0"),
+            ("series-1", "reps1"),
+            ("series-2", "reps2"),
+            key=lambda x: self.options.fixed_parameters[x[1]],
         )
-        user_opt.p0.set_if_empty(base=0.5)
+        curve_data = curve_data.get_subset_of(series_label)
+        reps2 = self.options.fixed_parameters[reps_label]
+        freqs_guess = curve.guess.frequency(curve_data.x, curve_data.y) / reps2
+        user_opt.p0.set_if_empty(freq=freqs_guess)
+
+        avg_x = (max(x_data) + min(x_data)) / 2
+        span_x = max(x_data) - min(x_data)
+        beta_bound = max(5 / user_opt.p0["freq"], span_x)
+
+        ptp_y = np.ptp(curve_data.y)
+        user_opt.bounds.set_if_empty(
+            amp=(-2 * ptp_y, 0),
+            freq=(0, np.inf),
+            beta=(avg_x - beta_bound, avg_x + beta_bound),
+            base=(min(curve_data.y) - ptp_y, max(curve_data.y) + ptp_y),
+        )
+        base_guess = (max(curve_data.y) - min(curve_data.y)) / 2
+        user_opt.p0.set_if_empty(base=(user_opt.p0["amp"] or base_guess))
 
         # Drag curves can sometimes be very flat, i.e. averages of y-data
         # and min-max do not always make good initial guesses. We therefore add
@@ -165,13 +180,58 @@ class DragCalAnalysis(curve.CurveAnalysis):
         # becomes +1 at zero phase, i.e. optimal beta, in which y data should become zero
         # in discriminated measurement level.
         options = []
-        for amp_guess in (0.5, -0.5):
+        for amp_factor in (-1, -0.5, -0.25):
             for beta_guess in np.linspace(min_beta, max_beta, 20):
                 new_opt = user_opt.copy()
-                new_opt.p0.set_if_empty(amp=amp_guess, beta=beta_guess)
+                new_opt.p0.set_if_empty(amp=ptp_y * amp_factor, beta=beta_guess)
                 options.append(new_opt)
 
         return options
+
+    def _run_curve_fit(
+        self,
+        curve_data: curve.CurveData,
+        series: List[curve.SeriesDef],
+    ) -> Union[None, curve.FitData]:
+        r"""Perform curve fitting on given data collection and fit models.
+
+        .. note::
+
+            This class post-processes the fit result from a Drag analysis.
+
+            The Drag analysis should return the beta value that is closest to zero.
+            Since the oscillating term is of the form
+
+            .. math::
+
+                \cos(2 \pi\cdot {\rm reps}_i \cdot {\rm freq}\cdot [x - \beta])
+
+            There is a periodicity in beta. This post processing finds the beta that is
+            closest to zero by performing the minimization using the modulo function.
+
+            .. math::
+
+                n_\text{min} = \min_{n}|\beta_\text{fit} + n / {\rm freq}|
+
+            and assigning the new beta value to
+
+            .. math::
+
+                \beta = \beta_\text{fit} + n_\text{min} / {\rm freq}.
+
+        Args:
+            curve_data: Formatted data to fit.
+            series: A list of fit models.
+
+        Returns:
+            The best fitting outcome with minimum reduced chi-squared value.
+        """
+        fit_result = super()._run_curve_fit(curve_data, series)
+        beta = fit_result.popt[2]
+        freq = fit_result.popt[1]
+        fit_result.popt[2] = ((beta + 1 / freq / 2) % (1 / freq)) - 1 / freq / 2
+
+        return fit_result
 
     def _evaluate_quality(self, fit_data: curve.FitData) -> Union[str, None]:
         """Algorithmic criteria for whether the fit is good or bad.
@@ -182,11 +242,11 @@ class DragCalAnalysis(curve.CurveAnalysis):
             - an error on the drag beta smaller than the beta.
         """
         fit_beta = fit_data.fitval("beta")
-        fit_freq0 = fit_data.fitval("freq0")
+        fit_freq = fit_data.fitval("freq")
 
         criteria = [
             fit_data.reduced_chisq < 3,
-            fit_beta.nominal_value < 1 / fit_freq0.nominal_value,
+            abs(fit_beta.nominal_value) < 1 / fit_freq.nominal_value / 2,
             curve.is_error_not_significant(fit_beta),
         ]
 

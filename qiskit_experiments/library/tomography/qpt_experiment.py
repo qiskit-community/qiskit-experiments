@@ -17,7 +17,7 @@ from typing import Union, Optional, Iterable, List, Tuple, Sequence
 import numpy as np
 from qiskit.circuit import QuantumCircuit, Instruction
 from qiskit.quantum_info.operators.base_operator import BaseOperator
-from qiskit.quantum_info import Choi, Operator, Statevector, partial_trace
+from qiskit.quantum_info import Choi, Operator, Statevector, DensityMatrix, partial_trace
 from qiskit_experiments.exceptions import QiskitError
 from .tomography_experiment import TomographyExperiment
 from .qpt_analysis import ProcessTomographyAnalysis
@@ -52,9 +52,9 @@ class ProcessTomography(TomographyExperiment):
     def __init__(
         self,
         circuit: Union[QuantumCircuit, Instruction, BaseOperator],
-        measurement_basis: basis.BaseTomographyMeasurementBasis = basis.PauliMeasurementBasis(),
+        measurement_basis: basis.MeasurementBasis = basis.PauliMeasurementBasis(),
         measurement_qubits: Optional[Sequence[int]] = None,
-        preparation_basis: basis.BaseTomographyPreparationBasis = basis.PauliPreparationBasis(),
+        preparation_basis: basis.PreparationBasis = basis.PauliPreparationBasis(),
         preparation_qubits: Optional[Sequence[int]] = None,
         basis_indices: Optional[Iterable[Tuple[List[int], List[int]]]] = None,
         qubits: Optional[Sequence[int]] = None,
@@ -104,37 +104,44 @@ class ProcessTomography(TomographyExperiment):
         circuit_ops = self._circuit.count_ops()
         if "measure" in circuit_ops:
             return None
-        perm_circ = self._permute_circuit()
+
         try:
+            circuit = self._permute_circuit()
             if "reset" in circuit_ops or "kraus" in circuit_ops or "superop" in circuit_ops:
-                channel = Choi(perm_circ)
+                channel = Choi(circuit)
             else:
-                channel = Operator(perm_circ)
+                channel = Operator(circuit)
         except QiskitError:
             # Circuit couldn't be simulated
             return None
 
         total_qubits = self._circuit.num_qubits
-        if self._meas_qubits:
-            num_meas = len(self._meas_qubits)
-        else:
-            num_meas = total_qubits
-        if self._prep_qubits:
-            num_prep = len(self._prep_qubits)
-        else:
-            num_prep = total_qubits
+        num_meas = total_qubits if self._meas_qubits is None else len(self._meas_qubits)
+        num_prep = total_qubits if self._prep_qubits is None else len(self._prep_qubits)
 
-        if num_prep == total_qubits and num_meas == total_qubits:
+        # If all qubits are prepared or measurement we are done
+        if num_meas == total_qubits and num_prep == total_qubits:
             return channel
 
-        # Trace out non-measurement subsystems
-        tr_qargs = []
-        if self._prep_qubits:
-            tr_qargs += list(range(num_prep, total_qubits))
-        if self._meas_qubits:
-            tr_qargs += list(range(total_qubits + num_meas, 2 * total_qubits))
+        # Convert channel to a state to project and trace out non-tomography
+        # input and output qubits
+        if isinstance(channel, Operator):
+            chan_state = Statevector(np.ravel(channel, order="F"))
+        else:
+            chan_state = DensityMatrix(channel.data)
 
-        chan_state = Statevector(np.ravel(channel, order="F"))
-        chan_state = partial_trace(chan_state, tr_qargs) / 2 ** (total_qubits - num_meas)
+        # Get qargs for non measured and prepared subsystems
+        non_meas_qargs = list(range(num_meas, total_qubits))
+        non_prep_qargs = list(range(total_qubits + num_prep, 2 * total_qubits))
+
+        # Project non-prepared subsystems on to the zero state
+        if non_prep_qargs:
+            proj0 = Operator([[1, 0], [0, 0]])
+            for qarg in non_prep_qargs:
+                chan_state = chan_state.evolve(proj0, [qarg])
+
+        # Trace out indices to remove
+        tr_qargs = non_meas_qargs + non_prep_qargs
+        chan_state = partial_trace(chan_state, tr_qargs)
         channel = Choi(chan_state.data, input_dims=[2] * num_prep, output_dims=[2] * num_meas)
         return channel

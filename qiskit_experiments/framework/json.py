@@ -30,7 +30,7 @@ from typing import Any, Dict, Type, Optional, Union, Callable
 import numpy as np
 import scipy.sparse as sps
 import uncertainties
-from qiskit.circuit import ParameterExpression, QuantumCircuit, qpy_serialization
+from qiskit.circuit import ParameterExpression, QuantumCircuit, qpy_serialization, Instruction
 from qiskit.circuit.library import BlueprintCircuit
 from qiskit.quantum_info import DensityMatrix
 from qiskit.quantum_info.operators.channel.quantum_channel import QuantumChannel
@@ -442,6 +442,8 @@ class ExperimentEncoder(json.JSONEncoder):
     def default(self, obj: Any) -> Any:  # pylint: disable=arguments-differ
         if istype(obj):
             return _serialize_type(obj)
+        if hasattr(obj, "__json_encode__"):
+            return _serialize_object(obj)
         if isinstance(obj, complex):
             return _serialize_safe_float(obj)
         if isinstance(obj, set):
@@ -464,8 +466,8 @@ class ExperimentEncoder(json.JSONEncoder):
             # during serialization. Then both can be serialized as Variable.
             # Note that UFloat doesn't have a tag.
             settings = {
-                "value": obj.nominal_value,
-                "std_dev": obj.std_dev,
+                "value": _serialize_safe_float(obj.nominal_value),
+                "std_dev": _serialize_safe_float(obj.std_dev),
                 "tag": getattr(obj, "tag", None),
             }
             cls = uncertainties.core.Variable
@@ -477,6 +479,14 @@ class ExperimentEncoder(json.JSONEncoder):
                     "version": get_object_version(cls),
                 },
             }
+        if isinstance(obj, Instruction):
+            # Serialize gate by storing it in a circuit.
+            circuit = QuantumCircuit(obj.num_qubits, obj.num_clbits)
+            circuit.append(obj, range(obj.num_qubits), range(obj.num_clbits))
+            value = _serialize_and_encode(
+                data=circuit, serializer=lambda buff, data: qpy_serialization.dump(data, buff)
+            )
+            return {"__type__": "Instruction", "__value__": value}
         if isinstance(obj, QuantumCircuit):
             # TODO Remove the decompose when terra 6713 is released.
             if isinstance(obj, BlueprintCircuit):
@@ -555,6 +565,11 @@ class ExperimentDecoder(json.JSONDecoder):
                 return _deserialize_bytes(obj_val)
             if obj_type == "set":
                 return set(obj_val)
+            if obj_type == "Instruction":
+                circuit = _decode_and_deserialize(
+                    obj_val, qpy_serialization.load, name="QuantumCircuit"
+                )[0]
+                return circuit.data[0][0]
             if obj_type == "QuantumCircuit":
                 return _decode_and_deserialize(obj_val, qpy_serialization.load, name=obj_type)[0]
             if obj_type == "ParameterExpression":

@@ -45,9 +45,9 @@ copyright = "2021, Qiskit Development Team"  # pylint: disable=redefined-builtin
 author = "Qiskit Development Team"
 
 # The short X.Y version
-version = "0.3"
+version = "0.4"
 # The full version, including alpha/beta/rc tags
-release = "0.3.0"
+release = "0.4.0"
 
 rst_prolog = """
 .. raw:: html
@@ -100,6 +100,7 @@ extensions = [
     "autoref",
     "autodoc_experiment",
     "autodoc_analysis",
+    "jupyter-execute-checkenv",
 ]
 html_static_path = ["_static"]
 templates_path = ["_templates"]
@@ -182,8 +183,14 @@ html_theme_options = {
     "style_external_links": True,
 }
 
-autoclass_content = "both"
-intersphinx_mapping = {"matplotlib": ("https://matplotlib.org/stable/", None)}
+
+autoclass_content = 'both'
+intersphinx_mapping = {
+    'matplotlib': ('https://matplotlib.org/stable/', None),
+    'qiskit': ('https://qiskit.org/documentation/', None),
+}
+
+
 # Current scipy hosted docs are missing the object.inv file so leaving this
 # commented out until the missing file is added back.
 #                       'scipy': ('https://docs.scipy.org/doc/scipy/reference/', None)}

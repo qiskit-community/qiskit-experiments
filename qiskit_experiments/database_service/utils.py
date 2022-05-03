@@ -223,6 +223,27 @@ class ThreadSafeContainer(ABC):
         with self.lock:
             self._container.clear()
 
+    def __json_encode__(self):
+        cpy = self.copy_object()
+        return {"_container": cpy._container}
+
+    @classmethod
+    def __json_decode__(cls, value):
+        ret = cls()
+        ret._container = value["_container"]
+        return ret
+
+    def __getstate__(self):
+        state = self.__dict__.copy()
+        # Remove non-pickleable attribute
+        del state["_lock"]
+        return state
+
+    def __setstate__(self, state):
+        self.__dict__.update(state)
+        # Initialize non-pickleable attribute
+        self._lock = threading.RLock()
+
 
 class ThreadSafeOrderedDict(ThreadSafeContainer):
     """Thread safe OrderedDict."""

@@ -44,7 +44,7 @@ class TestFineFreqEndToEnd(QiskitExperimentsTestCase):
 
         self.inst_map.add("sx", 0, sx_sched)
 
-        self.cals = Calibrations.from_backend(FakeArmonk(), FixedFrequencyTransmon())
+        self.cals = Calibrations.from_backend(FakeArmonk(), libraries=[FixedFrequencyTransmon()])
 
     @data(-0.5e6, -0.1e6, 0.1e6, 0.5e6)
     def test_end_to_end(self, freq_shift):
@@ -86,7 +86,7 @@ class TestFineFreqEndToEnd(QiskitExperimentsTestCase):
         freq_after = self.cals.get_parameter_value(self.cals.__drive_freq_parameter__, 0)
 
         # Test equality up to 10kHz on a 100 kHz shift
-        self.assertAlmostEqual(freq_after, armonk_freq - freq_shift, delta=1e4)
+        self.assertAlmostEqual(freq_after, armonk_freq + freq_shift, delta=1e4)
 
     def test_experiment_config(self):
         """Test converting to and from config works"""

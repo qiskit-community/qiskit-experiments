@@ -46,7 +46,7 @@ we compute the results for :math:`T_\varphi.`
     exp = Tphi(qubit=0, delays_t1=delays_t1, delays_t2=delays_t2, osc_freq=1e5)
     
     tphi_analysis = TphiAnalysis([T1Analysis(), T2RamseyAnalysis()])
-    expdata = exp.run(backend=backend, analysis=tphi_analysis).block_for_results()
+    expdata = exp.run(backend=backend, analysis=tphi_analysis, seed_simulator=101).block_for_results()
     result = expdata.analysis_results("T_phi")
 
 .. jupyter-execute::
@@ -63,21 +63,21 @@ we compute the results for :math:`T_\varphi.`
 
 .. jupyter-execute::
 
-    print(expdata.child_data(0).analysis_results("T1"))
+    print(expdata.analysis_results("T1"))
 
 .. jupyter-execute::
 
-    display(expdata.child_data(0).figure(0))
-
-
-.. jupyter-execute::
-
-    print(expdata.child_data(1).analysis_results("T2star"))
+    display(expdata.figure(0))
 
 
 .. jupyter-execute::
 
-    display(expdata.child_data(1).figure(0))
+    print(expdata.analysis_results("T2star"))
+
+
+.. jupyter-execute::
+
+    display(expdata.figure(1))
 
 .. jupyter-execute::
 

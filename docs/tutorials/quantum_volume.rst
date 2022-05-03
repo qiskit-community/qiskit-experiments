@@ -59,7 +59,7 @@ backend and on an ideal simulator:
    ``AerSimulator`` is not installed ``qiskit.quantum_info.Statevector``
    will be used).
 
-**Note:** In some cases, 100 trails are not enough to obtain a QV
+**Note:** In some cases, 100 trials are not enough to obtain a QV
 greater than 1 for the specified number of qubits. In this case, adding
 more trials may reduce the error bars to allow passing the threshold.
 
@@ -82,7 +82,7 @@ Extra data included in the analysis results includes
 
 .. jupyter-execute::
 
-    qubits = range(4) # Can use specific qubits. for example [2, 4, 7, 10]
+    qubits = tuple(range(4)) # Can use specific qubits. for example [2, 4, 7, 10]
     
     qv_exp = QuantumVolume(qubits, seed=42)
     # Transpile options like optimization_level affect only the real device run and not the simulation run
@@ -111,7 +111,7 @@ Extra data included in the analysis results includes
 
 
 Adding trials
-~~~~~~~~~~~~~
+-------------
 
 Adding more trials may reduce the error bars to allow passing the
 threshold (beside the error bars - QV experiment must have at least 100
@@ -133,7 +133,7 @@ re-running the experiment.
 
 
 Calculating Quantum Volume using a batch experiment
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+---------------------------------------------------
 
 Run the QV experiment with an increasing number of qubits to check what
 is the maximum Quantum Volume for the specific device. To reach the real
@@ -142,7 +142,8 @@ enhancements might be required (See Ref. [2] for details).
 
 .. jupyter-execute::
 
-    exps = [QuantumVolume(range(i), trials=200) for i in range(3, 6)]
+    exps = [QuantumVolume(tuple(range(i)), trials=200) for i in range(3, 6)]
+
     batch_exp = BatchExperiment(exps)
     batch_exp.set_transpile_options(optimization_level=3)
     
@@ -171,7 +172,7 @@ Extracting the maximum Quantum Volume.
             print(result)
 
 References
-~~~~~~~~~~
+----------
 
 [1] Andrew W. Cross, Lev S. Bishop, Sarah Sheldon, Paul D. Nation, and
 Jay M. Gambetta, Validating quantum computers using randomized model

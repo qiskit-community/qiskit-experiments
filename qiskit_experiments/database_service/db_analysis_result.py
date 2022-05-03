@@ -338,6 +338,15 @@ class DbAnalysisResultV1(DbAnalysisResult):
         """
         return self._device_components
 
+    @device_components.setter
+    def device_components(self, components: List[Union[DeviceComponent, str]]):
+        """Set the device components"""
+        self._device_components = []
+        for comp in components:
+            if isinstance(comp, str):
+                comp = to_component(comp)
+            self._device_components.append(comp)
+
     @property
     def result_id(self) -> str:
         """Return analysis result ID.
@@ -526,3 +535,19 @@ class DbAnalysisResultV1(DbAnalysisResult):
             out += f", {key}={repr(val)}"
         out += ")"
         return out
+
+    def __json_encode__(self):
+        return {
+            "name": self._name,
+            "value": self._value,
+            "device_components": self._device_components,
+            "experiment_id": self._experiment_id,
+            "result_id": self._id,
+            "chisq": self._chisq,
+            "quality": self._quality,
+            "extra": self._extra,
+            "verified": self._quality_verified,
+            "tags": self._tags,
+            "service": self._service,
+            "source": self._source,
+        }

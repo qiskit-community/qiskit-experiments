@@ -50,7 +50,7 @@ class StateTomography(TomographyExperiment):
     def __init__(
         self,
         circuit: Union[QuantumCircuit, Instruction, BaseOperator, Statevector],
-        measurement_basis: basis.BaseTomographyMeasurementBasis = basis.PauliMeasurementBasis(),
+        measurement_basis: basis.MeasurementBasis = basis.PauliMeasurementBasis(),
         measurement_qubits: Optional[Sequence[int]] = None,
         basis_indices: Optional[Iterable[List[int]]] = None,
         qubits: Optional[Sequence[int]] = None,
@@ -102,24 +102,22 @@ class StateTomography(TomographyExperiment):
         if "measure" in circuit_ops:
             return None
 
-        perm_circ = self._permute_circuit()
         try:
+            circuit = self._permute_circuit()
             if "reset" in circuit_ops or "kraus" in circuit_ops or "superop" in circuit_ops:
-                state = DensityMatrix(perm_circ)
+                state = DensityMatrix(circuit)
             else:
-                state = Statevector(perm_circ)
+                state = Statevector(circuit)
         except QiskitError:
             # Circuit couldn't be simulated
             return None
 
-        total_qubits = self._circuit.num_qubits
-        if self._meas_qubits:
-            num_meas = len(self._meas_qubits)
-        else:
-            num_meas = total_qubits
-        if num_meas == total_qubits:
+        if self._meas_qubits is None:
             return state
 
-        # Trace out non-measurement qubits
-        tr_qargs = range(num_meas, total_qubits)
-        return partial_trace(state, tr_qargs)
+        non_meas_qargs = list(range(len(self._meas_qubits), self._circuit.num_qubits))
+        if non_meas_qargs:
+            # Trace over non-measured qubits
+            state = partial_trace(state, non_meas_qargs)
+
+        return state

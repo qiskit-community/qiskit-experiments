@@ -32,7 +32,7 @@ class TestBaseCalibrationClass(QiskitExperimentsTestCase):
 
             def __init__(self):
                 """A dummy class for parent order testing."""
-                super().__init__(Calibrations(), 0, [0, 1, 2])
+                super().__init__(Calibrations(coupling_map=[]), 0, [0, 1, 2])
 
         CorrectOrder()
 
@@ -44,4 +44,4 @@ class TestBaseCalibrationClass(QiskitExperimentsTestCase):
 
                 def __init__(self):
                     """A dummy class for parent order testing."""
-                    super().__init__(Calibrations(), 0, [0, 1, 2])
+                    super().__init__(Calibrations(coupling_map=[]), 0, [0, 1, 2])

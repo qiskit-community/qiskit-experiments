@@ -17,7 +17,7 @@ from typing import List, Sequence, Optional, Union
 from abc import abstractmethod
 import warnings
 from qiskit.providers.backend import Backend
-from qiskit_experiments.framework import BaseExperiment, ExperimentData
+from qiskit_experiments.framework import BaseExperiment
 from qiskit_experiments.framework.base_analysis import BaseAnalysis
 from .composite_analysis import CompositeAnalysis
 
@@ -31,6 +31,8 @@ class CompositeExperiment(BaseExperiment):
         qubits: Sequence[int],
         backend: Optional[Backend] = None,
         experiment_type: Optional[str] = None,
+        flatten_results: bool = False,
+        analysis: Optional[CompositeAnalysis] = None,
     ):
         """Initialize the composite experiment object.
 
@@ -39,10 +41,26 @@ class CompositeExperiment(BaseExperiment):
             qubits: list of physical qubits for the experiment.
             backend: Optional, the backend to run the experiment on.
             experiment_type: Optional, composite experiment subclass name.
+            flatten_results: If True flatten all component experiment results
+                             into a single ExperimentData container, including
+                             nested composite experiments. If False save each
+                             component experiment results as a separate child
+                             ExperimentData container. This kwarg is ignored
+                             if the analysis kwarg is used.
+            analysis: Optional, the composite analysis class to use. If not
+                      provided this will be initialized automatically from the
+                      supplied experiments.
+
+        Raises:
+            QiskitError: if the provided analysis class is not a CompositeAnalysis
+                         instance.
         """
         self._experiments = experiments
         self._num_experiments = len(experiments)
-        analysis = CompositeAnalysis([exp.analysis for exp in self._experiments])
+        if analysis is None:
+            analysis = CompositeAnalysis(
+                [exp.analysis for exp in self._experiments], flatten_results=flatten_results
+            )
         super().__init__(
             qubits,
             analysis=analysis,
@@ -53,6 +71,12 @@ class CompositeExperiment(BaseExperiment):
     @abstractmethod
     def circuits(self):
         pass
+
+    def set_transpile_options(self, **fields):
+        super().set_transpile_options(**fields)
+        # Recursively set transpile options of component experiments
+        for exp in self._experiments:
+            exp.set_transpile_options(**fields)
 
     @property
     def num_experiments(self):
@@ -82,6 +106,18 @@ class CompositeExperiment(BaseExperiment):
         )
         return self.analysis.component_analysis(index)
 
+    @property
+    def analysis(self) -> Union[CompositeAnalysis, None]:
+        """Return the analysis instance for the experiment"""
+        return self._analysis
+
+    @analysis.setter
+    def analysis(self, analysis: Union[CompositeAnalysis, None]) -> None:
+        """Set the analysis instance for the experiment"""
+        if analysis is not None and not isinstance(analysis, CompositeAnalysis):
+            raise TypeError("Input is not a None or a CompositeAnalysis subclass.")
+        self._analysis = analysis
+
     def copy(self) -> "BaseExperiment":
         """Return a copy of the experiment"""
         ret = super().copy()
@@ -98,45 +134,57 @@ class CompositeExperiment(BaseExperiment):
                     ret.analysis._analyses[i] = ret._experiments[i].analysis
         return ret
 
+    def set_run_options(self, **fields):
+        super().set_run_options(**fields)
+        for subexp in self._experiments:
+            subexp.set_run_options(**fields)
+
     def _set_backend(self, backend):
         super()._set_backend(backend)
         for subexp in self._experiments:
             subexp._set_backend(backend)
 
-    def _initialize_experiment_data(self):
-        """Initialize the return data container for the experiment run"""
-        experiment_data = ExperimentData(experiment=self)
-        # Initialize child experiment data
-        for sub_exp in self._experiments:
-            sub_data = sub_exp._initialize_experiment_data()
-            experiment_data.add_child_data(sub_data)
-        experiment_data.metadata["component_child_index"] = list(range(self.num_experiments))
-        return experiment_data
+    def _finalize(self):
+        # NOTE: When CompositeAnalysis is updated to support level-1
+        # measurements this method should be updated to validate that all
+        # sub-experiments have the same meas level and meas return types,
+        # and update the composite experiment run option to that value.
 
-    def _additional_metadata(self):
-        """Add component experiment metadata"""
-        return {
-            "component_metadata": [sub_exp._metadata() for sub_exp in self.component_experiment()]
-        }
+        for i, subexp in enumerate(self._experiments):
+            # Validate set and default run options in component experiment
+            # against and component experiment run options and raise a
+            # warning if any are different and will be overridden
+            overridden_keys = []
+            sub_vals = []
+            comp_vals = []
+            for key, sub_val in subexp.run_options.__dict__.items():
+                comp_val = getattr(self.run_options, key, None)
+                if sub_val != comp_val:
+                    overridden_keys.append(key)
+                    sub_vals.append(sub_val)
+                    comp_vals.append(comp_val)
 
-    def _add_job_metadata(self, metadata, jobs, **run_options):
-        super()._add_job_metadata(metadata, jobs, **run_options)
-        # Add sub-experiment options
-        for sub_metadata, sub_exp in zip(
-            metadata["component_metadata"], self.component_experiment()
-        ):
-            # Run and transpile options are always overridden
-            if (
-                sub_exp.run_options != sub_exp._default_run_options()
-                or sub_exp.transpile_options != sub_exp._default_transpile_options()
-            ):
+            if overridden_keys:
                 warnings.warn(
-                    "Sub-experiment run and transpile options"
-                    " are overridden by composite experiment options."
+                    f"Component {i} {subexp.experiment_type} experiment run options"
+                    f" {overridden_keys} values {sub_vals} will be overridden with"
+                    f" {self.experiment_type} values {comp_vals}.",
+                    UserWarning,
                 )
-            sub_exp._add_job_metadata(sub_metadata, jobs, **run_options)
+                # Update sub-experiment options with actual run option values so
+                # they can be used by that sub experiments _finalize method.
+                subexp.set_run_options(**dict(zip(overridden_keys, comp_vals)))
 
-    def _postprocess_transpiled_circuits(self, circuits, **run_options):
-        for expr in self._experiments:
-            if not isinstance(expr, CompositeExperiment):
-                expr._postprocess_transpiled_circuits(circuits, **run_options)
+            # Call sub-experiments finalize method
+            subexp._finalize()
+
+    def _metadata(self):
+        """Add component experiment metadata"""
+        metadata = super()._metadata()
+        metadata["component_types"] = [
+            sub_exp.experiment_type for sub_exp in self.component_experiment()
+        ]
+        metadata["component_metadata"] = [
+            sub_exp._metadata() for sub_exp in self.component_experiment()
+        ]
+        return metadata

@@ -13,21 +13,19 @@
 """Test utility functions."""
 
 import uuid
-from typing import Optional, Union, Dict
+from typing import Optional, Dict
 from datetime import datetime, timezone
-import time
 
 from qiskit.providers.job import JobV1 as Job
 from qiskit.providers.jobstatus import JobStatus
 from qiskit.providers.backend import BackendV1 as Backend
-from qiskit.providers import BaseBackend
 from qiskit.result import Result
 
 
 class FakeJob(Job):
     """Fake job."""
 
-    def __init__(self, backend: Union[Backend, BaseBackend], result: Optional[Result] = None):
+    def __init__(self, backend: Backend, result: Optional[Result] = None):
         """Initialize FakeJob."""
         if result:
             job_id = result.job_id
@@ -38,7 +36,6 @@ class FakeJob(Job):
 
     def result(self):
         """Return job result."""
-        time.sleep(3)
         return self._result
 
     def submit(self):

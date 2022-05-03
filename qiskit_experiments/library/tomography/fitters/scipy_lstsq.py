@@ -13,25 +13,27 @@
 Linear least-square MLE tomography fitter.
 """
 
-from typing import Optional, Dict, List, Tuple
+from typing import Optional, Dict, Tuple
 import numpy as np
 import scipy.linalg as la
 
 from qiskit_experiments.exceptions import AnalysisError
 from qiskit_experiments.library.tomography.basis import (
-    BaseFitterMeasurementBasis,
-    BaseFitterPreparationBasis,
+    MeasurementBasis,
+    PreparationBasis,
 )
-from . import fitter_utils
+from . import lstsq_utils
 
 
 def scipy_linear_lstsq(
-    outcome_data: List[np.ndarray],
+    outcome_data: np.ndarray,
     shot_data: np.ndarray,
     measurement_data: np.ndarray,
     preparation_data: np.ndarray,
-    measurement_basis: BaseFitterMeasurementBasis,
-    preparation_basis: Optional[BaseFitterPreparationBasis] = None,
+    measurement_basis: Optional[MeasurementBasis] = None,
+    preparation_basis: Optional[PreparationBasis] = None,
+    measurement_qubits: Optional[Tuple[int, ...]] = None,
+    preparation_qubits: Optional[Tuple[int, ...]] = None,
     weights: Optional[np.ndarray] = None,
     **kwargs,
 ) -> Tuple[np.ndarray, Dict]:
@@ -67,12 +69,18 @@ def scipy_linear_lstsq(
         fitter function.
 
     Args:
-        outcome_data: list of outcome frequency data.
+        outcome_data: measurement outcome frequency data.
         shot_data: basis measurement total shot data.
         measurement_data: measurement basis indice data.
         preparation_data: preparation basis indice data.
-        measurement_basis: measurement matrix basis.
+        measurement_basis: Optional, measurement matrix basis.
         preparation_basis: Optional, preparation matrix basis.
+        measurement_qubits: Optional, the physical qubits that were measured.
+                            If None they are assumed to be ``[0, ..., M-1]`` for
+                            M measured qubits.
+        preparation_qubits: Optional, the physical qubits that were prepared.
+                            If None they are assumed to be ``[0, ..., N-1]`` for
+                            N preparated qubits.
         weights: Optional array of weights for least squares objective.
         kwargs: additional kwargs for :func:`scipy.linalg.lstsq`.
 
@@ -82,13 +90,15 @@ def scipy_linear_lstsq(
     Returns:
         The fitted matrix rho that maximizes the least-squares likelihood function.
     """
-    basis_matrix, probability_data = fitter_utils.lstsq_data(
+    basis_matrix, probability_data = lstsq_utils.lstsq_data(
         outcome_data,
         shot_data,
         measurement_data,
         preparation_data,
-        measurement_basis,
+        measurement_basis=measurement_basis,
         preparation_basis=preparation_basis,
+        measurement_qubits=measurement_qubits,
+        preparation_qubits=preparation_qubits,
     )
 
     if weights is not None:
@@ -112,12 +122,14 @@ def scipy_linear_lstsq(
 
 
 def scipy_gaussian_lstsq(
-    outcome_data: List[np.ndarray],
+    outcome_data: np.ndarray,
     shot_data: np.ndarray,
     measurement_data: np.ndarray,
     preparation_data: np.ndarray,
-    measurement_basis: BaseFitterMeasurementBasis,
-    preparation_basis: Optional[BaseFitterPreparationBasis] = None,
+    measurement_basis: Optional[MeasurementBasis] = None,
+    preparation_basis: Optional[PreparationBasis] = None,
+    measurement_qubits: Optional[Tuple[int, ...]] = None,
+    preparation_qubits: Optional[Tuple[int, ...]] = None,
     **kwargs,
 ) -> Dict:
     r"""Gaussian linear least-squares tomography fitter.
@@ -152,12 +164,18 @@ def scipy_gaussian_lstsq(
         :math:`K=2^m` the number of measurement outcomes for each basis measurement.
 
     Args:
-        outcome_data: list of outcome frequency data.
+        outcome_data: measurement outcome frequency data.
         shot_data: basis measurement total shot data.
         measurement_data: measurement basis indice data.
         preparation_data: preparation basis indice data.
-        measurement_basis: measurement matrix basis.
+        measurement_basis: Optional, measurement matrix basis.
         preparation_basis: Optional, preparation matrix basis.
+        measurement_qubits: Optional, the physical qubits that were measured.
+                            If None they are assumed to be ``[0, ..., M-1]`` for
+                            M measured qubits.
+        preparation_qubits: Optional, the physical qubits that were prepared.
+                            If None they are assumed to be ``[0, ..., N-1]`` for
+                            N preparated qubits.
         kwargs: additional kwargs for :func:`scipy.linalg.lstsq`.
 
     Raises:
@@ -166,15 +184,16 @@ def scipy_gaussian_lstsq(
     Returns:
         The fitted matrix rho that maximizes the least-squares likelihood function.
     """
-    num_outcomes = [measurement_basis.num_outcomes(i) for i in measurement_data]
-    weights = fitter_utils.binomial_weights(outcome_data, shot_data, num_outcomes, beta=0.5)
+    weights = lstsq_utils.binomial_weights(outcome_data, shot_data, beta=0.5)
     return scipy_linear_lstsq(
         outcome_data,
         shot_data,
         measurement_data,
         preparation_data,
-        measurement_basis,
+        measurement_basis=measurement_basis,
         preparation_basis=preparation_basis,
+        measurement_qubits=measurement_qubits,
+        preparation_qubits=preparation_qubits,
         weights=weights,
         **kwargs,
     )

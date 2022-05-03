@@ -19,11 +19,13 @@ from qiskit import QuantumCircuit
 from qiskit.circuit import Gate
 from qiskit.circuit.library import XGate, SXGate
 from qiskit.providers.backend import Backend
+from qiskit_experiments.data_processing import DataProcessor, nodes
 from qiskit_experiments.framework import BaseExperiment, Options
+from qiskit_experiments.framework.restless_mixin import RestlessMixin
 from qiskit_experiments.library.characterization.analysis import FineAmplitudeAnalysis
 
 
-class FineAmplitude(BaseExperiment):
+class FineAmplitude(BaseExperiment, RestlessMixin):
     r"""Error amplifying fine amplitude calibration experiment.
 
     # section: overview
@@ -124,10 +126,16 @@ class FineAmplitude(BaseExperiment):
             qubits: The qubit(s) on which to run the fine amplitude calibration experiment.
             gate: The gate that will be repeated.
             backend: Optional, the backend to run the experiment on.
+            measurement_qubits: The qubits in the given physical qubits that need to
+                be measured.
         """
         super().__init__(qubits, analysis=FineAmplitudeAnalysis(), backend=backend)
         self.set_experiment_options(gate=gate)
-        self._measurement_qubits = measurement_qubits or qubits
+
+        if measurement_qubits is not None:
+            self._measurement_qubits = [self.physical_qubits.index(q) for q in measurement_qubits]
+        else:
+            self._measurement_qubits = range(self.num_qubits)
 
     def _spam_cal_circuits(self, meas_circuit: QuantumCircuit) -> List[QuantumCircuit]:
         """This method returns the calibration circuits.
@@ -232,6 +240,15 @@ class FineAmplitude(BaseExperiment):
 
         return circuits
 
+    def _metadata(self):
+        metadata = super()._metadata()
+        # Store measurement level and meas return if they have been
+        # set for the experiment
+        for run_opt in ["meas_level", "meas_return"]:
+            if hasattr(self.run_options, run_opt):
+                metadata[run_opt] = getattr(self.run_options, run_opt)
+        return metadata
+
 
 class FineXAmplitude(FineAmplitude):
     r"""A fine amplitude experiment with all the options set for the :math:`\pi`-rotation.
@@ -247,9 +264,10 @@ class FineXAmplitude(FineAmplitude):
         super().__init__([qubit], XGate(), backend=backend)
         # Set default analysis options
         self.analysis.set_options(
-            angle_per_gate=np.pi,
-            phase_offset=np.pi / 2,
-            amp=1,
+            fixed_parameters={
+                "angle_per_gate": np.pi,
+                "phase_offset": np.pi / 2,
+            }
         )
 
     @classmethod
@@ -284,8 +302,10 @@ class FineSXAmplitude(FineAmplitude):
         super().__init__([qubit], SXGate(), backend=backend)
         # Set default analysis options
         self.analysis.set_options(
-            angle_per_gate=np.pi / 2,
-            phase_offset=np.pi,
+            fixed_parameters={
+                "angle_per_gate": np.pi / 2,
+                "phase_offset": np.pi,
+            }
         )
 
     @classmethod
@@ -344,12 +364,13 @@ class FineZXAmplitude(FineAmplitude):
         # Failing to do so causes issues with QuantumCircuit.calibrations.
         gate = Gate("szx", 2, [])
 
-        super().__init__(qubits, gate, backend=backend, measurement_qubits=[1])
+        super().__init__(qubits, gate, backend=backend, measurement_qubits=[qubits[1]])
         # Set default analysis options
         self.analysis.set_options(
-            angle_per_gate=np.pi / 2,
-            phase_offset=np.pi,
-            amp=1,
+            fixed_parameters={
+                "angle_per_gate": np.pi / 2,
+                "phase_offset": np.pi,
+            },
             outcome="1",
         )
 
@@ -383,3 +404,27 @@ class FineZXAmplitude(FineAmplitude):
         options.basis_gates = ["szx"]
         options.inst_map = None
         return options
+
+    def enable_restless(
+        self, rep_delay: Optional[float] = None, override_processor_by_restless: bool = True
+    ):
+        """Enable restless measurements.
+
+        We wrap the method of the :class:`RestlessMixin` to readout both qubits. This forces
+        the control qubit to be in either the 0 or 1 state before the next circuit starts
+        since restless measurements do not reset qubits.
+        """
+        self.analysis.set_options(outcome="11")
+        super().enable_restless(rep_delay, override_processor_by_restless)
+        self._measurement_qubits = range(self.num_qubits)
+
+    def _get_restless_processor(self) -> DataProcessor:
+        """Marginalize the counts after the restless shot reordering."""
+        return DataProcessor(
+            "memory",
+            [
+                nodes.RestlessToCounts(self._num_qubits),
+                nodes.MarginalizeCounts({1}),  # keep only the target.
+                nodes.Probability("1"),
+            ],
+        )

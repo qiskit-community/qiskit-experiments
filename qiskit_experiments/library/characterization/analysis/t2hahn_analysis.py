@@ -34,6 +34,11 @@ class T2HahnAnalysis(curve.DecayAnalysis):
     def _default_options(cls) -> Options:
         """Default analysis options."""
         options = super()._default_options()
+        options.curve_drawer.set_options(
+            xlabel="Delay",
+            ylabel="P(0)",
+            xval_unit="s",
+        )
         options.data_processor = DataProcessor(
             input_key="counts", data_actions=[Probability(outcome="0")]
         )
@@ -42,9 +47,6 @@ class T2HahnAnalysis(curve.DecayAnalysis):
             "tau": (0.0, np.inf),
             "base": (0.0, 1.0),
         }
-        options.xlabel = "Delay"
-        options.ylabel = "P(0)"
-        options.xval_unit = "s"
         options.result_parameters = [curve.ParameterRepr("tau", "T2", "s")]
 
         return options

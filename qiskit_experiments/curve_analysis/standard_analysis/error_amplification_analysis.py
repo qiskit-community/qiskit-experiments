@@ -76,9 +76,6 @@ class ErrorAmplificationAnalysis(curve.CurveAnalysis):
                 often correspond to symmetry points of the fit function. Furthermore,
                 this type of analysis is intended for values of :math:`d\theta` close to zero.
 
-    # section: note
-
-        Different analysis classes may subclass this class to fix some of the fit parameters.
     """
 
     __series__ = [
@@ -105,42 +102,36 @@ class ErrorAmplificationAnalysis(curve.CurveAnalysis):
         descriptions of analysis options.
 
         Analysis Options:
-            angle_per_gate (float): The ideal angle per repeated gate.
-                The user must set this option as it defaults to None.
-            phase_offset (float): A phase offset for the analysis. This phase offset will be
-                :math:`\pi/2` if the square-root of X gate is added before the repeated gates.
-                This is decided for the user in :meth:`set_schedule` depending on whether the
-                sx gate is included in the experiment.
             max_good_angle_error (float): The maximum angle error for which the fit is
                 considered as good. Defaults to :math:`\pi/2`.
         """
         default_options = super()._default_options()
+        default_options.curve_drawer.set_options(
+            xlabel="Number of gates (n)",
+            ylabel="Population",
+            ylim=(0, 1.0),
+        )
         default_options.result_parameters = ["d_theta"]
-        default_options.xlabel = "Number of gates (n)"
-        default_options.ylabel = "Population"
-        default_options.angle_per_gate = None
-        default_options.phase_offset = 0.0
         default_options.max_good_angle_error = np.pi / 2
-        default_options.amp = 1.0
-        default_options.ylim = [0, 1.0]
 
         return default_options
 
     def _generate_fit_guesses(
-        self, user_opt: curve.FitOptions
+        self,
+        user_opt: curve.FitOptions,
+        curve_data: curve.CurveData,
     ) -> Union[curve.FitOptions, List[curve.FitOptions]]:
-        """Compute the initial guesses.
+        """Create algorithmic guess with analysis options and curve data.
 
         Args:
             user_opt: Fit options filled with user provided guess and bounds.
+            curve_data: Formatted data collection to fit.
 
         Returns:
             List of fit options that are passed to the fitter function.
-
-        Raises:
-            CalibrationError: When ``angle_per_gate`` is missing.
         """
-        curve_data = self._data()
+        fixed_params = self.options.fixed_parameters
+
         max_abs_y, _ = curve.guess.max_height(curve_data.y, absolute=True)
         max_y, min_y = np.max(curve_data.y), np.min(curve_data.y)
 
@@ -152,16 +143,19 @@ class ErrorAmplificationAnalysis(curve.CurveAnalysis):
         if "amp" in user_opt.p0:
             user_opt.p0.set_if_empty(amp=max_y - min_y)
             user_opt.bounds.set_if_empty(amp=(0, 2 * max_abs_y))
+            amp = user_opt.p0["amp"]
+        else:
+            # Fixed parameter
+            amp = fixed_params.get("amp", 1.0)
 
         # Base the initial guess on the intended angle_per_gate and phase offset.
-        apg = self.options.angle_per_gate
-        phi = self.options.phase_offset
+        apg = user_opt.p0.get("angle_per_gate", fixed_params.get("angle_per_gate", 0.0))
+        phi = user_opt.p0.get("phase_offset", fixed_params.get("phase_offset", 0.0))
 
         # Prepare logical guess for specific condition (often satisfied)
         d_theta_guesses = []
 
         offsets = apg * curve_data.x + phi
-        amp = user_opt.p0.get("amp", self.options.amp)
         for i in range(curve_data.x.size):
             xi = curve_data.x[i]
             yi = curve_data.y[i]
