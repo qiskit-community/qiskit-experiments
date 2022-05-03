@@ -13,6 +13,7 @@
 """Experiment integration tests."""
 
 import os
+import unittest
 from unittest import mock, SkipTest, skipIf
 import contextlib
 import numpy as np
@@ -21,8 +22,9 @@ from qiskit import transpile
 from qiskit.providers import JobStatus
 from qiskit.test.reference_circuits import ReferenceCircuits
 
+from qiskit_ibm_experiment import IBMExperimentService
 from qiskit.providers.ibmq.experiment import (
-    IBMExperimentService,
+#    IBMExperimentService,
     ResultQuality,
     IBMExperimentEntryNotFound,
 )
@@ -46,15 +48,13 @@ class TestExperimentDataIntegration(QiskitTestCase):
         # pylint: disable=arguments-differ
         super().setUpClass()
         cls.provider = cls._setup_provider()  # pylint: disable=no-value-for-parameter
-        if not cls.provider.has_service("experiment"):
-            raise SkipTest("Not authorized to use experiment service.")
+        cls.service = IBMExperimentService(url=os.getenv("QISKIT_IBM_STAGING_API_URL"), token=os.getenv("QISKIT_IBM_STAGING_API_TOKEN"))
 
         cls.backend = cls._setup_backend()  # pylint: disable=no-value-for-parameter
-        cls.device_components = cls.provider.experiment.device_components(cls.backend.name())
-        if not cls.device_components:
-            raise SkipTest("No device components found.")
+        cls.device_components = cls.service.device_components(cls.backend.name())
+        if not cls.device_components or len(cls.device_components) == 0:
+            print("WARNING: No device components found.")
         cls.circuit = transpile(ReferenceCircuits.bell(), cls.backend)
-        cls.experiment = cls.provider.experiment
 
     @classmethod
     @requires_provider
@@ -503,3 +503,6 @@ class TestExperimentDataIntegration(QiskitTestCase):
         job = self.backend.run(circuit, shots=1)
         self.jobs_to_cancel.append(job)
         return job
+
+if __name__ == "__main__":
+    unittest.main()
