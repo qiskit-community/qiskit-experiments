@@ -5,7 +5,8 @@ guidelines](https://qiskit.org/documentation/contributing_to_qiskit.html).
 
 ## Contributing to Qiskit Experiments
 
-In addition to the general guidelines, the specific guidelines for contributing to Qiskit Experiments are documented below.
+In addition to the general guidelines, the specific guidelines for contributing to
+Qiskit Experiments are documented below.
 
 ### Contents
 
@@ -21,6 +22,11 @@ In addition to the general guidelines, the specific guidelines for contributing 
       * [Linking to issues](#linking-to-issues)
     - [Generating release notes](#generating-release-notes)
   + [Documentation](#documentation)
+    + [Experiment class documentation](#experiment-class-documenation)
+    + [Analysis class documentation](#analysis-class-documentation)
+    + [Populating the table of contents](#populating-the-table-of-contents)
+    + [Updating the tutorials](#updating-the-tutorials)
+    + [Building documentation locally](#building-documentation-locally)
   + [Adding deprecation warnings](#adding-deprecation-warnings)
   + [Development cycle](#development-cycle)
   + [Branches](#branches)
@@ -34,8 +40,7 @@ or equivalent source, with a use case that is of interest to the Qiskit and quan
 experimentalist community.
 
 If there is an experiment you would like to see added, you can propose it by creating a
-[new experiment proposal issue](https://github.com/Qiskit/qiskit-experiments/issues/new?assignees=&labels=enhancement&template=NEW_EXPERIMENT.md&title=)
- in GitHub. The issue template will ask you to fill in
+[new experiment proposal issue](https://github.com/Qiskit/qiskit-experiments/issues/new?assignees=&labels=enhancement&template=NEW_EXPERIMENT.md&title=) in GitHub. The issue template will ask you to fill in
 details about the experiment type, protocol, analysis, and implementation, which will
 give us the necessary information to decide whether the experiment is feasible to
 implement and useful to include in our package library.
@@ -44,13 +49,11 @@ implement and useful to include in our package library.
 We use the following labels to help non-maintainers find issues best suited to their
 interests and experience level:
 
-* [good first
-  issue](https://github.com/Qiskit/qiskit-experiments/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22)
+* [good first issue](https://github.com/Qiskit/qiskit-experiments/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22)
   - these issues are typically the simplest available to work on, perfect for newcomers.
   They should already be fully scoped, with a clear approach outlined in the
   descriptions.
-* [help
-  wanted](https://github.com/Qiskit/qiskit-experiments/issues?q=is%3Aopen+is%3Aissue+label%3A%22help+wanted%22)
+* [help wanted](https://github.com/Qiskit/qiskit-experiments/issues?q=is%3Aopen+is%3Aissue+label%3A%22help+wanted%22)
   - these issues are generally more complex than good first issues. They typically cover
   work that core maintainers don't currently have capacity to implement and may require
   more investigation/discussion. These are a great option for experienced contributors
@@ -62,11 +65,9 @@ When submitting a pull request for review, please ensure that:
 
 1. The code follows the code style of the project and successfully passes the tests.
 2. The API documentation has been updated accordingly.
-3. You have updated the relevant tutorial or write a new one. Read these [tutorial
-    guidelines](docs/tutorials/GUIDELINES.md) for further details.
-
-   In case the PR needs to be merged without delay (e.g. for a high priority fix), open
-   an issue for updating or adding the tutorial later.
+3. You have updated the relevant tutorial or write a new one. In case the PR needs to be
+   merged without delay (e.g. for a high priority fix), open an issue for updating or
+   adding the tutorial later.
 4. You've added tests that cover the changes you've made, if relevant.
 5. If your change has an end user facing impact (new feature, deprecation, removal,
    etc.), you've added or updated a reno release note for that change and tagged the PR
@@ -538,8 +539,8 @@ here the reference start with `~`. We only add experiment classes to the table o
 
 Any change that would affect an existing tutorial or a new feature that requires a
 tutorial should be updated correspondingly. Before updating a tutorial, review the
-(existing tutorials)[https://qiskit.org/documentation/experiments/tutorials/index.html]
-for their style and content.
+[existing tutorials](https://qiskit.org/documentation/experiments/tutorials/index.html) for their style and content, and read the [tutorial guidelines](docs/tutorials/GUIDELINES.md)
+ for further details.
 
 Tutorials are written in reStructuredText format and then built into Jupyter notebooks.
 Code cells can be written using `jupyter-execute` blocks, which will be automatically
