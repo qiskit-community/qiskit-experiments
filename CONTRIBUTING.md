@@ -34,7 +34,8 @@ or equivalent source, with a use case that is of interest to the Qiskit and quan
 experimentalist community.
 
 If there is an experiment you would like to see added, you can propose it by creating a
-new experiment proposal issue in GitHub. The issue template will ask you to fill in
+[new experiment proposal issue](https://github.com/Qiskit/qiskit-experiments/issues/new?assignees=&labels=enhancement&template=NEW_EXPERIMENT.md&title=)
+ in GitHub. The issue template will ask you to fill in
 details about the experiment type, protocol, analysis, and implementation, which will
 give us the necessary information to decide whether the experiment is feasible to
 implement and useful to include in our package library.
@@ -177,19 +178,26 @@ The current categories for each label are as follows:
 
 All end user facing changes have to be documented with each release of Qiskit
 Experiments. The expectation is that if your code contribution has user facing changes
-that you will write the release documentation for these changes. This documentation must
-explain what was changed, why it was changed, and how users can either use or adapt to
-the change. The idea behind release documentation is that when a naive user with limited
-internal knowledge of the project is upgrading from the previous release to the new one,
-they should be able to read the release notes, understand if they need to update their
-program which uses qiskit, and how they would go about doing that. It ideally should
+that you will write the release documentation for these changes in the form of a release
+note. This note must explain what was changed, why it was changed, and how users can
+either use or adapt to the change. When a naive user with limited internal knowledge of
+the project is upgrading from the previous release to the new one, they should be able
+to read the release notes, understand if they need to update their existing code which
+uses Qiskit Experiments, and how they would go about doing that. It ideally should
 explain why they need to make this change too, to provide the necessary context.
 
-To make sure we don't forget a release note or the details of user facing changes
-over a release cycle, we require that all user facing changes include documentation
+To make sure we don't forget a release note or the details of user facing changes over a
+release cycle, we require that all pull requests with user facing changes include a note
 describing the changes along with the code. To accomplish this, we use the
 [reno](https://docs.openstack.org/reno/latest/) tool which enables a git based workflow
 for writing and compiling release notes.
+
+Note that these notes are meant to document a release, not individual pull requests. So
+if your pull request updates or reverts a change made in a previous pull request in the
+same release, you should update the corresponding release note that already exists
+instead of writing a new one, which would be confusing to users. You can use `git blame`
+to see which previous pull requests(s) are relevant to the part of the code you're
+editing, and see whether they are tagged with the milestone of the current release.
 
 #### Adding a new release note
 
