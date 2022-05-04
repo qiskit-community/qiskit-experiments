@@ -12,6 +12,7 @@
 
 """Spectroscopy tests."""
 from test.base import QiskitExperimentsTestCase
+import unittest
 import numpy as np
 
 from qiskit.qobj.utils import MeasLevel
@@ -69,7 +70,7 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
         exp_helper = SpectroscopyHelper(line_width=2e6)
         backend = MockIQBackend(
             experiment_helper=exp_helper,
-            iq_cluster_centers=[((1.0, 1.0), (-1.0, -1.0))],
+            iq_cluster_centers=[((-1.0, -1.0), (1.0, 1.0))],
             iq_cluster_width=[0.2],
         )
         backend._configuration.basis_gates = ["x"]
@@ -89,6 +90,8 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
         self.assertEqual(result.quality, "good")
 
         exp_helper.freq_offset = 5.0e6
+        backend._iq_cluster_centers = [((1.0, 1.0), (-1.0, -1.0))]
+
         spec = QubitSpectroscopy(qubit, frequencies)
         expdata = spec.run(backend)
         self.assertExperimentDone(expdata)
@@ -150,3 +153,7 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
         """Test round trip JSON serialization"""
         exp = QubitSpectroscopy(1, np.linspace(int(100e6), int(150e6), int(20e6)))
         self.assertRoundTripSerializable(exp, self.json_equiv)
+
+
+if __name__ == "__main__":
+    unittest.main()
