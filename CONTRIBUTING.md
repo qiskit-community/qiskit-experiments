@@ -414,9 +414,11 @@ https://github.com/Qiskit/qiskit/blob/master/docs/release_notes.rst)
 
 Building The release notes are part of the standard qiskit-experiments documentation
 builds. To check what the rendered html output of the release notes will look
-like for the current state of the repo you can run: `tox -edocs` which will
+like for the current state of the repo you can run: `tox -edocs`, which will
 build all the documentation into `docs/_build/html` and the release notes in
-particular will be located at `docs/_build/html/release_notes.html`
+particular will be located at `docs/_build/html/release_notes.html`. To build release
+notes and docs without building the Jupyter cells in .rst files under `tutorials/`, 
+which is a relatively slow process, you can run `tox -edocsnorst` instead.
 
 ### Test
 
@@ -496,6 +498,12 @@ If there is a code formatting issue identified by black you can just run
 ``black`` locally to fix this (or ``tox -eblack`` which will install it and
 run it).
 
+Because `pylint` analysis can be slow, there is also a `tox -elint-incr` target,
+which only applies `pylint` to files which have changed from the source github.
+On rare occasions this will miss some issues that would have been caught by
+checking the complete source tree, but makes up for this by being much faster
+(and those rare oversights will still be caught by the CI after you open a pull
+request).
 
 ### Development Cycle
 

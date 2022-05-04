@@ -13,9 +13,12 @@
 """Base class for calibration-type experiments."""
 
 from abc import ABC
+import copy
+import logging
 from typing import List, Optional, Type, Union
 import warnings
 
+from qiskit import QuantumCircuit, transpile
 from qiskit.providers.backend import Backend
 from qiskit.pulse import ScheduleBlock
 
@@ -25,6 +28,8 @@ from qiskit_experiments.framework.base_analysis import BaseAnalysis
 from qiskit_experiments.framework.base_experiment import BaseExperiment
 from qiskit_experiments.framework.experiment_data import ExperimentData
 from qiskit_experiments.exceptions import CalibrationError
+
+LOG = logging.getLogger(__name__)
 
 
 class BaseCalibrationExperiment(BaseExperiment, ABC):
@@ -217,10 +222,44 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
         """
         pass
 
+    def _metadata(self):
+        metadata = super()._metadata()
+        # Store measurement level and meas return if they have been
+        # set for the experiment
+        for run_opt in ["meas_level", "meas_return"]:
+            if hasattr(self.run_options, run_opt):
+                metadata[run_opt] = getattr(self.run_options, run_opt)
+        return metadata
+
+    def _transpiled_circuits(self) -> List[QuantumCircuit]:
+        """Override the transpiled circuits method to bring in the inst_map.
+
+        The calibrated schedules are transpiled into the circuits using the instruction
+        schedule map. Since instances of :class:`InstructionScheduleMap` are not serializable
+        they should not be in the transpile options. Only instances of :class:`Calibrations`
+        need to be serialized. Here, we pass the instruction schedule map of the calibrations
+        to the transpiler.
+
+        Returns:
+            A list of transpiled circuits.
+        """
+        transpile_opts = copy.copy(self.transpile_options.__dict__)
+        if "inst_map" in transpile_opts:
+            LOG.warning(
+                "Instruction schedule maps should not be present in calibration "
+                "experiments. Overriding with the inst. map of the calibrations."
+            )
+
+        transpile_opts["inst_map"] = self.calibrations.default_inst_map
+        transpile_opts["initial_layout"] = list(self.physical_qubits)
+
+        return transpile(self.circuits(), self.backend, **transpile_opts)
+
     def run(
         self,
         backend: Optional[Backend] = None,
         analysis: Optional[Union[BaseAnalysis, None]] = "default",
+        timeout: Optional[float] = None,
         **run_options,
     ) -> ExperimentData:
         """Run an experiment, perform analysis, and update any calibrations.
@@ -233,12 +272,16 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
                       analysis. If None analysis will not be run. If ``"default"``
                       the experiments :meth:`analysis` instance will be used if
                       it contains one.
+            timeout: Time to wait for experiment jobs to finish running before
+                     cancelling.
             run_options: backend runtime options used for circuit execution.
 
         Returns:
             The experiment data object.
         """
-        experiment_data = super().run(backend, analysis, **run_options)
+        experiment_data = super().run(
+            backend=backend, analysis=analysis, timeout=timeout, **run_options
+        )
 
         self._add_cal_metadata(experiment_data)
 

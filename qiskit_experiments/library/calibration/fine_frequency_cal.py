@@ -76,8 +76,6 @@ class FineFrequencyCal(BaseCalibrationExperiment, FineFrequency):
             auto_update=auto_update,
         )
 
-        self.set_transpile_options(inst_map=calibrations.default_inst_map)
-
         if self.backend is not None:
             self.set_experiment_options(dt=getattr(self.backend.configuration(), "dt", None))
 
@@ -140,7 +138,7 @@ class FineFrequencyCal(BaseCalibrationExperiment, FineFrequency):
         dt = experiment_data.metadata["dt"]
 
         d_theta = BaseUpdater.get_value(experiment_data, "d_theta", result_index)
-        new_freq = prev_freq - d_theta / (2 * np.pi * tau * dt)
+        new_freq = prev_freq + d_theta / (2 * np.pi * tau * dt)
 
         BaseUpdater.add_parameter_value(
             self._cals, experiment_data, new_freq, self._param_name, self._sched_name, group

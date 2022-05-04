@@ -15,7 +15,6 @@ T1 Analysis class.
 from typing import Union
 
 import qiskit_experiments.curve_analysis as curve
-
 from qiskit_experiments.framework import Options
 
 
@@ -31,9 +30,11 @@ class T1Analysis(curve.DecayAnalysis):
     def _default_options(cls) -> Options:
         """Default analysis options."""
         options = super()._default_options()
-        options.xlabel = "Delay"
-        options.ylabel = "P(1)"
-        options.xval_unit = "s"
+        options.curve_drawer.set_options(
+            xlabel="Delay",
+            ylabel="P(1)",
+            xval_unit="s",
+        )
         options.result_parameters = [curve.ParameterRepr("tau", "T1", "s")]
 
         return options
@@ -55,11 +56,11 @@ class T1Analysis(curve.DecayAnalysis):
 
         criteria = [
             fit_data.reduced_chisq < 3,
-            abs(amp.value - 1.0) < 0.1,
-            abs(base.value) < 0.1,
-            amp.stderr is None or amp.stderr < 0.1,
-            tau.stderr is None or tau.stderr < tau.value,
-            base.stderr is None or base.stderr < 0.1,
+            abs(amp.nominal_value - 1.0) < 0.1,
+            abs(base.nominal_value) < 0.1,
+            curve.is_error_not_significant(amp, absolute=0.1),
+            curve.is_error_not_significant(tau),
+            curve.is_error_not_significant(base, absolute=0.1),
         ]
 
         if all(criteria):

@@ -16,12 +16,14 @@
 
 from test.fake_experiment import FakeExperiment
 
+import json
 import numpy as np
 from uncertainties import unumpy as unp, ufloat
 from qiskit.result.models import ExperimentResultData, ExperimentResult
 from qiskit.result import Result
 
 from qiskit_experiments.framework import ExperimentData
+from qiskit_experiments.framework.json import ExperimentDecoder, ExperimentEncoder
 from qiskit_experiments.data_processing.data_processor import DataProcessor
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
 from qiskit_experiments.data_processing.nodes import (
@@ -36,7 +38,7 @@ from qiskit_experiments.data_processing.nodes import (
 from . import BaseDataProcessorTest
 
 
-class DataProcessorTest(BaseDataProcessorTest):
+class TestDataProcessor(BaseDataProcessorTest):
     """Class to test DataProcessor."""
 
     def setUp(self):
@@ -381,6 +383,46 @@ class DataProcessorTest(BaseDataProcessorTest):
             with self.assertRaises(error):
                 processor({"counts": [0, 1, 2]})
 
+    def test_json_single_node(self):
+        """Check if the data processor is serializable."""
+        node = MinMaxNormalize()
+        processor = DataProcessor("counts", [node])
+        self.assertRoundTripSerializable(processor, check_func=self.json_equiv)
+
+    def test_json_multi_node(self):
+        """Check if the data processor with multiple nodes is serializable."""
+        node1 = MinMaxNormalize()
+        node2 = AverageData(axis=2)
+        processor = DataProcessor("counts", [node1, node2])
+        self.assertRoundTripSerializable(processor, check_func=self.json_equiv)
+
+    def test_json_trained(self):
+        """Check if trained data processor is serializable and still work."""
+        test_data = {"memory": [[1, 1]]}
+
+        node = SVD()
+        node.set_parameters(
+            main_axes=np.array([[1, 0]]), scales=[1.0], i_means=[0.0], q_means=[0.0]
+        )
+        processor = DataProcessor("memory", data_actions=[node])
+        self.assertRoundTripSerializable(processor, check_func=self.json_equiv)
+
+        serialized = json.dumps(processor, cls=ExperimentEncoder)
+        loaded_processor = json.loads(serialized, cls=ExperimentDecoder)
+
+        ref_out = processor(data=test_data)
+        loaded_out = loaded_processor(data=test_data)
+
+        np.testing.assert_array_almost_equal(
+            unp.nominal_values(ref_out),
+            unp.nominal_values(loaded_out),
+        )
+
+        np.testing.assert_array_almost_equal(
+            unp.std_devs(ref_out),
+            unp.std_devs(loaded_out),
+        )
+
 
 class TestIQSingleAvg(BaseDataProcessorTest):
     """Test the IQ data processing nodes single and average."""
@@ -498,7 +540,7 @@ class TestAveragingAndSVD(BaseDataProcessorTest):
                 [[0.9, 0.9], [-1.1, 1.0]],
             ]
         )
-        self._sig_gs = np.array([1.0, -1.0]) / np.sqrt(2.0)
+        self._sig_gs = np.array([-1.0, 1.0]) / np.sqrt(2.0)
 
         circ_gs = ExperimentResultData(
             memory=[
@@ -508,7 +550,7 @@ class TestAveragingAndSVD(BaseDataProcessorTest):
                 [[-0.9, -0.9], [1.1, -1.0]],
             ]
         )
-        self._sig_es = np.array([-1.0, 1.0]) / np.sqrt(2.0)
+        self._sig_es = np.array([1.0, -1.0]) / np.sqrt(2.0)
 
         circ_x90p = ExperimentResultData(
             memory=[
@@ -528,7 +570,7 @@ class TestAveragingAndSVD(BaseDataProcessorTest):
                 [[1.0, 1.0], [-1.0, 1.0]],
             ]
         )
-        self._sig_x45 = np.array([0.5, -0.5]) / np.sqrt(2.0)
+        self._sig_x45 = np.array([-0.5, 0.5]) / np.sqrt(2.0)
 
         res_es = ExperimentResult(
             shots=4,
@@ -693,7 +735,7 @@ class TestAveragingAndSVD(BaseDataProcessorTest):
         processed = processor(self.data.data())
         np.testing.assert_array_almost_equal(
             unp.nominal_values(processed),
-            np.array([[0.0, 1.0], [1.0, 0.0], [0.5, 0.5], [0.75, 0.25]]),
+            np.array([[1.0, 0.0], [0.0, 1.0], [0.5, 0.5], [0.25, 0.75]]),
         )
 
     def test_distorted_iq_data(self):
@@ -703,9 +745,9 @@ class TestAveragingAndSVD(BaseDataProcessorTest):
         have the same mean and same variance but squeezed along different axis.
         """
         svd_node = SVD()
-        svd_node._scales = [1.0]
-        svd_node._main_axes = [np.array([1, 0])]
-        svd_node._means = [(0.0, 0.0)]
+        svd_node.set_parameters(
+            main_axes=np.array([[1, 0]]), scales=[1.0], i_means=[0.0], q_means=[0.0]
+        )
 
         processor = DataProcessor("memory", [AverageData(axis=1), svd_node])
 
@@ -797,5 +839,5 @@ class TestAvgDataAndSVD(BaseDataProcessorTest):
         processed = processor(self.data.data())
         np.testing.assert_array_almost_equal(
             unp.nominal_values(processed),
-            np.array([[0.0, 1.0], [1.0, 0.0], [0.5, 0.5], [0.75, 0.25]]),
+            np.array([[1.0, 0.0], [0.0, 1.0], [0.5, 0.5], [0.25, 0.75]]),
         )

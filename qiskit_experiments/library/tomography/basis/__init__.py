@@ -12,15 +12,6 @@
 
 """Tomography experiment basis classes."""
 
-# Abstract base classes for bases
-from .base_basis import (
-    BaseFitterMeasurementBasis,
-    BaseFitterPreparationBasis,
-    BaseTomographyMeasurementBasis,
-    BaseTomographyPreparationBasis,
-)
-
-# Tensor product bases classes
-from .fitter_basis import FitterMeasurementBasis, FitterPreparationBasis
-from .tomography_basis import TomographyMeasurementBasis, TomographyPreparationBasis
+from .base_basis import MeasurementBasis, PreparationBasis
+from .local_basis import LocalPreparationBasis, LocalMeasurementBasis
 from .pauli_basis import PauliMeasurementBasis, PauliPreparationBasis, Pauli6PreparationBasis

@@ -12,6 +12,8 @@
 
 """Fine half angle calibration analysis."""
 
+import warnings
+
 import numpy as np
 from qiskit_experiments.framework import Options
 from qiskit_experiments.curve_analysis import ErrorAmplificationAnalysis, ParameterRepr
@@ -30,6 +32,16 @@ class FineHalfAngleAnalysis(ErrorAmplificationAnalysis):
     """
 
     __fixed_parameters__ = ["angle_per_gate", "phase_offset", "amp"]
+
+    def __init__(self):
+        super().__init__()
+
+        warnings.warn(
+            f"{self.__class__.__name__} has been deprecated. Use ErrorAmplificationAnalysis "
+            "instance with the analysis options involving the fixed_parameters.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
 
     @classmethod
     def _default_options(cls) -> Options:
