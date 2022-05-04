@@ -13,7 +13,7 @@ In addition to the general guidelines, the specific guidelines for contributing 
   + [Choosing an issue to work on](#choosing-an-issue-to-work-on)
   + [Pull request checklist](#pull-request-checklist)
   + [Code style](#code-style)
-  + [Testing your code](#test-your-code)
+  + [Testing your code](#testing-your-code)
     - [STDOUT/STDERR and logging capture](#stdout-stderr-and-logging-capture)
   + [Changelog generation](#changelog-generation)
   + [Release notes](#release-notes)
@@ -58,20 +58,21 @@ interests and experience level:
 
 ### Pull request checklist
 
-When submitting a pull request and you feel it is ready for review, please ensure that:
+When submitting a pull request for review, please ensure that:
 
 1. The code follows the code style of the project and successfully passes the tests.
-2. The documentation has been updated accordingly. In particular, if a function or class
-   has been modified during the PR, please update the *docstring* accordingly.
-3. You update the relevant tutorial or write a new one. Read these [tutorial
+2. The API documentation has been updated accordingly.
+3. You have updated the relevant tutorial or write a new one. Read these [tutorial
     guidelines](docs/tutorials/GUIDELINES.md) for further details.
 
    In case the PR needs to be merged without delay (e.g. for a high priority fix), open
    an issue for updating or adding the tutorial later.
 4. You've added tests that cover the changes you've made, if relevant.
 5. If your change has an end user facing impact (new feature, deprecation, removal,
-   etc.), you must add a reno release note for that change and that the PR is tagged for
-   the changelog.
+   etc.), you've added or updated a reno release note for that change and tagged the PR
+   for the changelog.
+
+The sections below go into more detail on the guidelines for each point.
 
 ### Code style
 
@@ -301,16 +302,266 @@ At release time, ``reno report`` is used to generate the release notes for the r
 and the output will be submitted as a pull request to the documentation repository's
 [release notes file](
 https://github.com/Qiskit/qiskit-experiments/blob/main/docs/release_notes.rst).
-
 ### Documentation
 
-Your contribution should be fully documented in the relevant module, class, and method
-docstrings, and anything that would change an existing tutorial or a new feature that
-requires a tutorial should be updated correspondingly. The documentation docstring for
-experiment classes should contain, at a minimum, an overview section and appropriate
-references. Please consult the docstring styles in
-[example_experiment.py](docs/_ext/custom_styles/example/example_experiment.py) for how
-to document appropriately.
+The [Qiskit Experiments documentation](https://qiskit.org/documentation/experiments/) is
+rendered from experiment and analysis class docstrings into HTML files. We provide a
+special syntax and macros as [Sphinx](https://www.sphinx-doc.org/en/master/) extensions
+to format these docstrings. If you implement a new experiment or analysis or update how
+an existing one functions, you should use following style so that the documentation is
+formatted in the same manner throughout our experiment library. You can use standard
+[reStructuredText](https://www.sphinx-doc.org/en/master/usage/restructuredtext/index.html)
+directives along with our syntax.
+
+#### Experiment class documenation
+
+You should complete or update the class documentation and method documentation for
+`_default_experiment_options`. You can use several predefined sections for the class docstring.
+
+```buildoutcfg
+   """One line simple summary of this experiment.
+   
+   You can add more information after line feed. The first line will be shown in an 
+   automatically generated table of contents on the module's top page. 
+   This text block is not shown so you can keep the table clean.
+   
+   You can use following sections. The text within a section should be indented.
+   
+   # section: overview
+       Overview of the experiment. This information SHOULD be provided for every experiment. 
+       This section covers technical aspect of experiment and explains how the experiment works.
+       
+       A diagram of typical quantum circuit that the experiment generates may help readers 
+       to grasp the behavior of this experiment.
+   
+   # section: analysis_ref
+       You MUST provide a reference to the default analysis class in the base class. 
+       This section is recursively referred by child classes if not explicitly given there.
+       Note that this is NOT reference nor import path of the class. 
+       You should write the pass to the docstring, i.e.
+       
+       :py:class:`~qiskit_experiments.framework.BaseAnalysis`
+   
+   # section: warning
+       If user must take special care when using the experiment (e.g. API is not stabilized) 
+       you should clarify in this section. 
+   
+   # section: note
+       Optional. This comment is shown in a box so that the message is stood out.
+   
+   # section: example
+       Optional. You can write code example here. For example,
+       
+       .. code-block:: python
+       
+           exp = MyExperiment(qubits=[0, 1], backend=backend)
+           exp.run()
+       
+       This is effective especially when your experiment has complicated options.
+   
+   # section: reference
+       Optional. You can write reference to article or external website.
+       To write a reference to an arXiv work, you can use convenient macro.
+       
+       .. ref_arxiv:: Auth2020a 21xx.01xxx
+       
+       This collects the latest article information from web and automatically 
+       generates a nicely formatted citation from the arXiv ID.
+       
+       For referring to the website,
+       
+       .. ref_website:: Qiskit Experiment Github, https://github.com/Qiskit/qiskit-experiments
+       
+       you can use the above macro, where you can provide a string for the hyperlink and 
+       the destination location separated by single comma.
+   
+   # section: tutorial
+       Optional. Link to tutorial of this experiment if one exists.
+   
+   # section: see_also
+       Optional. You can list relevant experiment or module.
+       Here you cannot write any comments. 
+       You just need to list absolute paths to relevant API documents, i.e.
+       
+       qiskit_experiments.framework.BaseExperiment
+       qiskit_experiments.framework.BaseAnalysis
+   """
+```
+
+You also need to provide the experiment option description in the `_default_experiment_options` method 
+if you add new options. This description will be automatically propagated through child classes, 
+so you don't need to manually copy documentation.
+Of course, you can override documentation in the child class if it behaves differently there.
+
+```buildoutcfg
+    """Default experiment options.
+    
+    Experiment Options:
+        opt1 (int): Description of opt1.
+        opt2 (float): Description of opt2.
+        opt3 (List[SomeClass]): Description of opt3.
+    """
+```
+
+Note that you should use the [Google docstring style](https://sphinxcontrib-napoleon.readthedocs.io/en/latest/example_google.html).
+Numpy or other docstring styles cannot be parsed by our Sphinx extension, 
+and the section header should be named `Experiment Options` (NOT `Args`).
+Since this is a private method, any other documentation besides option descriptions
+are not rendered in the HTML documentation. Documentation for options are 
+automatically formatted and inserted into the class documentation.
+
+#### Analysis class documentation
+
+You can use the same syntax and section headers for the analysis class documentation. In addition, you can use extra sections, `fit_model` and `fit_parameters`, if needed.
+
+```buildoutcfg
+   """One line simple summary of this analysis.
+   
+   # section: overview
+       Overview of this analysis.
+   
+   # section: fit_model
+       Optional. If this analysis fits something, probably it is worth describing 
+       the fit model. You can use math mode where latex commands are available.
+       
+       .. math::
+       
+           F(x) = a\exp(x) + b
+       
+       It is recommended to omit `*` symbols for multiplication (looks ugly in math mode), 
+       and you should carefully choose the parameter name so that symbols matches with
+       variable names shown in analysis results. You can write symbol :math:`a` here too.
+   
+   # section: fit_parameters
+       Optional. Description for fit parametres in the model.
+       You can also write how initial guess is generated and how fit bound is determined.
+       
+       defpar a:
+           desc: Amplitude.
+           init_guess: This is how :math:`a` is generated. No line feed.
+           bounds: [-1, 1]
+       
+       defpar b:
+           desc: Offset.
+           init_guess: This is how :math:`b` is generated. No line feed.
+           bounds: (0, 1]
+        
+       The defpar syntax is parsed and formatted nicely.
+   """
+```
+
+You also need to provide description for analysis class options in `_default_options` method.
+
+```buildoutcfg
+    """Default analysis options.
+    
+    Analysis Options:
+        opt1 (int): Description of opt1.
+        opt2 (float): Description of opt2.
+        opt3 (List[SomeClass]): Description of opt3.
+    """
+```
+
+This is the same syntax with experiment options in the experiment class.
+Note that header should be named `Analysis Options` to be parsed correctly.
+
+#### Populating the table of contents
+
+After you complete documentation of your classes, you must add documentation to the
+toctree so that it can be rendered as the API documentation. In Qiskit Experiments, we
+have a separate tables of contents for each experiment module (e.g. [characterization
+experiments](https://qiskit.org/documentation/experiments/apidocs/mod_characterization.html))
+and for the [entire
+library](https://qiskit.org/documentation/experiments/apidocs/library.html). Thus we
+should add document to the tree of a particular module and then reference it to the
+entire module.
+
+As an example, when writing the characterization experiment and analysis, first add your
+documentation to the table of contents of the module.
+
+```buildoutcfg
+qiskit_experiments/library/characterization/__init__.py
+    """
+   .. currentmodule:: qiskit_experiments.library.characterization
+   
+   Experiments
+   ===========
+   .. autosummary::
+       :toctree: ../stubs/
+       :template: autosummary/experiment.rst
+       
+       MyExperiment1
+       MyExperiment2
+    
+   Analysis
+   ========
+   
+   .. autosummary::
+       :toctree: ../stubs/
+       :template: autosummary/analysis.rst
+
+   ...
+   """
+   
+   from my_experiment import MyExperiment1, MyExperiment2
+   from my_analysis import MyAnalysis
+```
+
+Note that there are different stylesheets, `experiment.rst` and `analysis.rst`, for the
+experiment class and analysis class, respectively. Take care to place your documentation
+under the correct stylesheet, otherwise it may not be rendered properly. Then the table
+for the entire library should be written like this:
+
+```buildoutcfg
+qiskit_experiments/library/__init__.py
+
+    """
+    .. currentmodule:: qiskit_experiments.library
+    
+    Characterization Experiments
+    ============================
+   .. autosummary::
+       :toctree: ../stubs/
+       :template: autosummary/experiment.rst
+   
+       ~characterization.MyExperiment1    
+       ~characterization.MyExperiment2    
+    """
+    
+    from .characterization import MyExperiment1, MyExperiment2
+    from . import characterization
+```
+
+here the reference start with `~`. We only add experiment classes to the table of the entire library.
+
+#### Updating the tutorials
+
+Any change that would affect an existing tutorial or a new feature that requires a
+tutorial should be updated correspondingly. Before updating a tutorial, review the
+(existing tutorials)[https://qiskit.org/documentation/experiments/tutorials/index.html]
+for their style and content.
+
+Tutorials are written in reStructuredText format and then built into Jupyter notebooks.
+Code cells can be written using `jupyter-execute` blocks, which will be automatically
+executed, with both code and output shown to the user:
+
+    .. jupyter-execute::
+
+        # write Python code here
+
+Your code should use the appropriate mock backend to show what expected experiment
+results might look like for the user. To instantiate a mock backend without exposing it
+to the user, use the `:hide-code:` and `:hide-output:` directives:
+
+    .. jupyter-execute::
+        :hide-code:
+        :hide-output:
+
+        from qiskit.test.ibmq_mock import mock_get_backend
+        backend = mock_get_backend('FakeArmonk')
+
+To ignore an error from a Jupyter cell block, use the `:raises:` directive.
+#### Building documentation locally
 
 To check what the rendered html output of the API documentation, tutorials, and release
 notes will look like for the current state of the repo, run:
@@ -322,12 +573,15 @@ This will build all the documentation into `docs/_build/html`. The main page
 manually:
 
 * `apidocs/`:  Contains the API docs automatically compiled from module docstrings.
-* `tutorials/`: Contains the `.rst` tutorials with automatically executed Jupyter cells.
+* `tutorials/`: Contains the executed tutorials built from `.rst` files.
 * `release_notes.html`: Contains the release notes.
 
 To build release notes and API docs without building the Jupyter cells in the `.rst`
-files under `tutorials/`, which is a relatively slow process, you can run `tox
--edocsnorst` instead.
+files under `tutorials/`, which is a relatively slow process, you can run
+
+    tox -edocsnorst
+    
+instead.
 
 ### Adding deprecation warnings
 Qiskit Experiments is part of Qiskit and, therefore, the [Qiskit Deprecation
