@@ -252,4 +252,3 @@ from .composite import (
     CompositeAnalysis,
 )
 from .json import ExperimentEncoder, ExperimentDecoder
-from .restless_mixin import RestlessMixin
