@@ -15,7 +15,7 @@ Qiskit Experiments are documented below.
   + [Pull request checklist](#pull-request-checklist)
   + [Code style](#code-style)
   + [Testing your code](#testing-your-code)
-    - [STDOUT/STDERR and logging capture](#stdout-stderr-and-logging-capture)
+    - [STDOUT/STDERR and logging capture](#stdoutstderr-and-logging-capture)
   + [Changelog generation](#changelog-generation)
   + [Release notes](#release-notes)
     - [Adding a new release note](#adding-a-new-release-note)
@@ -117,23 +117,21 @@ bare `--`. To see all the options on test selection you can refer to the stestr 
 https://stestr.readthedocs.io/en/stable/MANUAL.html#test-selection
 
 If you want to run a single test module, test class, or individual test method you can
-do this faster with the `-n`/`--no-discover` option. For example:
-
-to run a module:
+do this faster with the `-n`/`--no-discover` option. For example, to run a module:
 ```
 tox -epy37 -- -n test.python.test_examples
 ```
-or to run the same module by path:
+Or to run the same module by path:
 
 ```
 tox -epy37 -- -n test/python/test_examples.py
 ```
-to run a class:
+To run a class:
 
 ```
 tox -epy37 -- -n test.python.test_examples.TestPythonExamples
 ```
-to run a method:
+To run a method:
 ```
 tox -epy37 -- -n test.python.test_examples.TestPythonExamples.test_all_examples
 ```
@@ -451,7 +449,8 @@ You can use the same syntax and section headers for the analysis class documenta
    """
 ```
 
-You also need to provide description for analysis class options in `_default_options` method.
+You also need to provide a description for analysis class options in the
+`_default_options` method.
 
 ```buildoutcfg
     """Default analysis options.
@@ -478,7 +477,7 @@ should add document to the tree of a particular module and then reference it to 
 entire module.
 
 As an example, when writing the characterization experiment and analysis, first add your
-documentation to the table of contents of the module.
+documentation to the table of contents of the module:
 
 ```buildoutcfg
 qiskit_experiments/library/characterization/__init__.py
@@ -533,7 +532,8 @@ qiskit_experiments/library/__init__.py
     from . import characterization
 ```
 
-here the reference start with `~`. We only add experiment classes to the table of the entire library.
+Here the reference start with `~`. We only add experiment classes to the table of the
+entire library.
 
 #### Updating the tutorials
 
