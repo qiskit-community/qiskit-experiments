@@ -31,7 +31,234 @@ please ensure that:
    deprecation, removal etc) that you have added a reno release note for that
    change and that the PR is tagged for the changelog.
 
+### API documentation
 
+Qiskit Experiments provides a special syntax and macros as [Sphinx](https://www.sphinx-doc.org/en/master/) extensions
+to format experiment and analysis class docstring. If you implement new experiment or analysis,
+you should use following style so that documentations are formatted in the same manner throughout our experiment library.
+You can use standard [reStructuredText](https://www.sphinx-doc.org/en/master/usage/restructuredtext/index.html)
+directives along with our syntax.
+
+#### Experiment class documenation
+
+You should complete the class documentation and method documentation for
+`_default_experiment_options`. You can use several predefined sections for the class docstring.
+
+```buildoutcfg
+   """One line simple summary of this experiment.
+   
+   You can add more information after line feed. The first line will be shown in an 
+   automatically generated table of contents on the module's top page. 
+   This text block is not shown so you can keep the table clean.
+   
+   You can use following sections. The text within a section should be indented.
+   
+   # section: overview
+       Overview of the experiment. This information SHOULD be provided for every experiment. 
+       This section covers technical aspect of experiment and explains how the experiment works.
+       
+       A diagram of typical quantum circuit that the experiment generates may help readers 
+       to grasp the behavior of this experiment.
+   
+   # section: analysis_ref
+       You MUST provide a reference to the default analysis class in the base class. 
+       This section is recursively referred by child classes if not explicitly given there.
+       Note that this is NOT reference nor import path of the class. 
+       You should write the pass to the docstring, i.e.
+       
+       :py:class:`~qiskit_experiments.framework.BaseAnalysis`
+   
+   # section: warning
+       If user must take special care of the experiment (e.g. API is not stabilized) 
+       you should write this section. 
+   
+   # section: note
+       Optional. This comment is shown in a box so that the message is stood out.
+   
+   # section: example
+       Optional. You can write code example here. For example,
+       
+       .. code-block:: python
+       
+           exp = MyExperiment(qubits=[0, 1], backend=backend)
+           exp.run()
+       
+       This is effective especially when your experiment has complicated options.
+   
+   # section: reference
+       Optional. You can write reference to article or external website.
+       To write reference in ArXiv you can use convenient macro.
+       
+       .. ref_arxiv:: Auth2020a 21xx.01xxx
+       
+       This collects the latest article information from web and automatically 
+       generates nicely formatted citation. You just need to provide ArXiv ID.
+       
+       For referring to the website
+       
+       .. ref_website:: Qiskit Experiment Github, https://github.com/Qiskit/qiskit-experiments
+       
+       you can use above macro, where you can provide a string for the hyperlink and 
+       the destination location separated by single comma.
+   
+   # section: tutorial
+       Optional. Link to tutorial of this experiment if exist.
+   
+   # section: see_also
+       Optional. You can list relevant experiment or module.
+       Here you cannot write any comment. 
+       You just need to list absolute paths to relevant API documents, i.e.
+       
+       qiskit_experiments.framework.BaseExperiment
+       qiskit_experiments.framework.BaseAnalysis
+   """
+```
+
+You also need to provide the experiment option description in the `_default_experiment_options` method 
+if you add new options. This description will be automatically propagated through child classes, 
+so you don't need to manualy copy documentation.
+Of course you can override documentation in the child class if it behaves differently there.
+
+```buildoutcfg
+    """Default experiment options.
+    
+    Experiment Options:
+        opt1 (int): Description of opt1.
+        opt2 (float): Description of opt2.
+        opt3 (List[SomeClass]): Description of opt3.
+    """
+```
+
+Note that you should use [Google docstring style](https://sphinxcontrib-napoleon.readthedocs.io/en/latest/example_google.html).
+Numpy nor other docstring styles cannot be not parsed by our Sphinx extension, 
+and the section header should be named `Experiment Options` (NOT `Args`).
+Since this is a private method, any other documentation except for option descriptions
+is not rendered in the web page. Documentation for options are 
+automatically formatted and inserted into the class documentation.
+
+#### Analysis class documentation
+
+You can use the same syntax and section headers for the analysis class documentation.
+In addition to them, we can use extra sections, `fit_model` and `fit_parameters`, if needed.
+
+```buildoutcfg
+   """One line simple summary of this analysis.
+   
+   # section: overview
+       Overview of this analysis.
+   
+   # section: fit_model
+       Optional. If this analysis fits something, probably it is worth describing 
+       the fit model. You can use math mode where latex commands are available.
+       
+       .. math::
+       
+           F(x) = a\exp(x) + b
+       
+       It is recommended to remove `*` symbol for multiplication (looks ugly in math mode), 
+       and you should carefully choose parameter name so that symbols matches with
+       variable names shown in analysis results. You can write symbol :math:`a` here too.
+   
+   # section: fit_parameters
+       Optional. Description for fit parametres in the model.
+       You can also write how initial guess is generated and how fit bound is determined.
+       
+       defpar a:
+           desc: Amplitude.
+           init_guess: This is how :math:`a` is generated. No line feed.
+           bounds: [-1, 1]
+       
+       defpar b:
+           desc: Offset.
+           init_guess: This is how :math:`b` is generated. No line feed.
+           bounds: (0, 1]
+        
+       The defpar syntax is parsed and formatted nicely.
+   """
+```
+
+You also need to provide description for analysis class options in `_default_options` method.
+
+```buildoutcfg
+    """Default analysis options.
+    
+    Analysis Options:
+        opt1 (int): Description of opt1.
+        opt2 (float): Description of opt2.
+        opt3 (List[SomeClass]): Description of opt3.
+    """
+```
+
+This is the same syntax with experiment options in the experiment class.
+Note that header should be named `Analysis Options` to be parsed correctly.
+
+#### Rendering
+
+After you complete documentation of your classes, you must add documentation to the toctree 
+so that it can be rendered as the API documentation.
+In Qiskit Experiments, we have different tables of contents per 
+experiment module (e.g. [characterization](https://qiskit.org/documentation/experiments/apidocs/mod_characterization.html)) 
+and for the [entire library](https://qiskit.org/documentation/experiments/apidocs/library.html).
+Thus we should add document to the tree of the paticular module and then add reference
+of it to the entire module.
+
+In case of writing the characterization experiment and analysis, first you add your documentation
+to the table of the module.
+
+```buildoutcfg
+qiskit_experiments/library/characterization/__init__.py
+    """
+   .. currentmodule:: qiskit_experiments.library.characterization
+   
+   Experiments
+   ===========
+   .. autosummary::
+       :toctree: ../stubs/
+       :template: autosummary/experiment.rst
+       
+       MyExperiment1
+       MyExperiment2
+    
+   Analysis
+   ========
+   
+   .. autosummary::
+       :toctree: ../stubs/
+       :template: autosummary/analysis.rst
+
+   ...
+   """
+   
+   from my_experiment import MyExperiment1, MyExperiment2
+   from my_analysis import MyAnalysis
+```
+
+Note that there are different stylesheets `experiment.rst` and `analysis.rst` for
+experiment class and analysis class, respectively.
+You need to take care to place your documentation under the correct stylesheet
+otherwise it may not be rendered properly. Then for the table of the entire library,
+
+```buildoutcfg
+qiskit_experiments/library/__init__.py
+
+    """
+    .. currentmodule:: qiskit_experiments.library
+    
+    Characterization Experiments
+    ============================
+   .. autosummary::
+       :toctree: ../stubs/
+       :template: autosummary/experiment.rst
+   
+       ~characterization.MyExperiment1    
+       ~characterization.MyExperiment2    
+    """
+    
+    from .characterization import MyExperiment1, MyExperiment2
+    from . import characterization
+```
+
+here the reference start with `~`. We only add experiment classes to the table of entire library.
 
 ### Changelog generation
 
