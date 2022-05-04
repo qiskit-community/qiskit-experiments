@@ -16,6 +16,7 @@ Composite Experiment Analysis class.
 from typing import List, Dict, Union, Optional, Tuple
 import numpy as np
 from qiskit.result import marginal_counts
+from qiskit.result.postprocess import format_counts_memory
 from qiskit_experiments.framework import BaseAnalysis, ExperimentData
 from qiskit_experiments.framework.analysis_result_data import AnalysisResultData
 from qiskit_experiments.framework.base_analysis import _requires_copy
@@ -111,7 +112,7 @@ class CompositeAnalysis(BaseAnalysis):
 
     def _run_analysis(self, experiment_data: ExperimentData):
         # Return list of experiment data containers for each component experiment
-        # containing the marginalied data from the composite experiment
+        # containing the marginalized data from the composite experiment
         component_expdata = self._component_experiment_data(experiment_data)
 
         # Run the component analysis on each component data
@@ -206,9 +207,24 @@ class CompositeAnalysis(BaseAnalysis):
                         sub_data["counts"] = datum["counts"]
                 if "memory" in datum:
                     if composite_clbits is not None:
-                        sub_data["memory"] = (
-                            np.array(datum["memory"])[composite_clbits[i]]
-                        ).tolist()
+                        # level 2
+                        if isinstance(datum["memory"][0], str):
+                            num_cbits = 1 + max(
+                                cbit for cbit_list in composite_clbits for cbit in cbit_list
+                            )
+                            header = {"memory_slots": num_cbits}
+                            marginalized_memory = []
+                            for shot in datum["memory"]:
+                                shot = format_counts_memory(shot, header)[::-1]
+                                marginalized_memory.append(
+                                    "".join(shot[idx] for idx in composite_clbits[i])[::-1]
+                                )
+                            sub_data["memory"] = marginalized_memory
+                        # level 1
+                        else:
+                            sub_data["memory"] = (
+                                np.array(datum["memory"])[composite_clbits[i]]
+                            ).tolist()
                     else:
                         sub_data["memory"] = datum["memory"]
                 marginalized_data[index].append(sub_data)

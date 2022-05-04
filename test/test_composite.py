@@ -33,6 +33,7 @@ from qiskit_experiments.framework import (
     BaseExperiment,
     BaseAnalysis,
     AnalysisResultData,
+    CompositeAnalysis,
 )
 
 # pylint: disable=missing-raises-doc
@@ -572,6 +573,50 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
         # Check this is reflected in parallel experiment
         self.assertEqual(par_exp.analysis.component_analysis(0).options.option1, opt1_val)
         self.assertEqual(par_exp.analysis.component_analysis(1).options.option2, opt2_val)
+
+    def test_composite_count_memory_marginalization(self):
+        """Test the marginalization of level two memory."""
+        test_data = ExperimentData()
+
+        # Simplified experimental data
+        datum = {
+            "counts": {"0 0": 4, "0 1": 1, "1 0": 2, "1 1": 3},
+            "memory": ["0x0", "0x2", "0x3", "0x0", "0x0", "0x1", "0x3", "0x0", "0x2", "0x3"],
+            "metadata": {
+                "experiment_type": "ParallelExperiment",
+                "composite_index": [0, 1],
+                "composite_metadata": [
+                    {"experiment_type": "FineXAmplitude", "qubits": [0]},
+                    {"experiment_type": "FineXAmplitude", "qubits": [1]},
+                ],
+                "composite_qubits": [[0], [1]],
+                "composite_clbits": [[0], [1]],
+            },
+            "shots": 10,
+            "meas_level": 2,
+        }
+
+        test_data.add_data(datum)
+
+        sub_data = CompositeAnalysis([])._marginalized_component_data(test_data.data())
+        expected = [
+            [
+                {
+                    "metadata": {"experiment_type": "FineXAmplitude", "qubits": [0]},
+                    "counts": {"0": 6, "1": 4},
+                    "memory": ["0", "0", "1", "0", "0", "1", "1", "0", "0", "1"],
+                }
+            ],
+            [
+                {
+                    "metadata": {"experiment_type": "FineXAmplitude", "qubits": [1]},
+                    "counts": {"0": 5, "1": 5},
+                    "memory": ["0", "1", "1", "0", "0", "0", "1", "0", "1", "1"],
+                }
+            ],
+        ]
+
+        self.assertListEqual(sub_data, expected)
 
 
 class TestBatchTranspileOptions(QiskitExperimentsTestCase):
