@@ -176,11 +176,6 @@ allow configuring various experiment and execution options
 - :meth:`BaseExperiment._metadata`
   to add any experiment metadata to the result data.
 
-Furthermore, some characterization and calibration experiments can be run with restless
-measurements, i.e. measurements where the qubits are not reset and circuits are executed
-immediately after the previous measurement. Here, the :class:`.RestlessMixin` can help
-to set the appropriate run options and data processing chain.
-
 Analysis Subclasses
 *******************
 
