@@ -19,7 +19,7 @@ from ddt import ddt, data
 from qiskit_experiments.library import ResonatorSpectroscopy
 from qiskit_experiments.test.mock_iq_backend import MockIQBackend
 from qiskit_experiments.test.mock_iq_helpers import (
-    MockIQResonatorSpectroscopyHelper as ResonatorSpectroscopyHelper,
+    MockIQSpectroscopyHelper as ResonatorSpectroscopyHelper,
 )
 
 
@@ -33,7 +33,7 @@ class TestResonatorSpectroscopy(QiskitExperimentsTestCase):
 
         qubit = 1
         backend = MockIQBackend(
-            experiment_helper=ResonatorSpectroscopyHelper(freq_offset=freq_shift),
+            experiment_helper=ResonatorSpectroscopyHelper(gate_name="Spec", freq_offset=freq_shift),
             iq_cluster_centers=[((0.0, 0.0), (-1.0, 0.0))],
             iq_cluster_width=[0.2],
         )

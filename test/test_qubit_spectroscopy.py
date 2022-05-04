@@ -12,7 +12,6 @@
 
 """Spectroscopy tests."""
 from test.base import QiskitExperimentsTestCase
-import unittest
 import numpy as np
 
 from qiskit.qobj.utils import MeasLevel
@@ -153,7 +152,3 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
         """Test round trip JSON serialization"""
         exp = QubitSpectroscopy(1, np.linspace(int(100e6), int(150e6), int(20e6)))
         self.assertRoundTripSerializable(exp, self.json_equiv)
-
-
-if __name__ == "__main__":
-    unittest.main()
