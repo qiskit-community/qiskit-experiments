@@ -331,7 +331,7 @@ class MockIQSpectroscopyHelper(MockIQExperimentHelper):
     """Functions needed for Spectroscopy experiment on mock IQ backend"""
 
     def __init__(
-        self, gate_name: str = "measure", freq_offset: float = 0.0, line_width: float = 2e6
+        self, gate_name: str = "Spec", freq_offset: float = 0.0, line_width: float = 2e6
     ):
         """
         Args:
