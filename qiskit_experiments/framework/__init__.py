@@ -232,14 +232,6 @@ Base Classes
     BaseExperiment
     BaseAnalysis
 
-Mix-ins
-*******
-
-.. autosummary::
-    :toctree: ../stubs/
-
-    RestlessMixin
-
 .. _create-experiment:
 """
 from qiskit.providers.options import Options
