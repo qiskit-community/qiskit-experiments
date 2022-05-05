@@ -213,8 +213,10 @@ class CompositeAnalysis(BaseAnalysis):
                     if composite_clbits is not None:
                         # level 2
                         if f_memory is not None:
-                            idx = slice(composite_clbits[i][0], composite_clbits[i][-1] + 1)
-                            sub_data["memory"] = [shot[::-1][idx][::-1] for shot in f_memory]
+                            idx = slice(
+                                -1 - composite_clbits[i][-1], -composite_clbits[i][0] or None
+                            )
+                            sub_data["memory"] = [shot[idx] for shot in f_memory]
                         # level 1
                         else:
                             mem = np.array(datum["memory"])
