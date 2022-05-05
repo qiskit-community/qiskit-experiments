@@ -14,6 +14,7 @@
 
 import copy
 import uuid
+from ddt import ddt, data
 
 from test.fake_experiment import FakeExperiment, FakeAnalysis
 from test.base import QiskitExperimentsTestCase
@@ -140,6 +141,7 @@ class TestComposite(QiskitExperimentsTestCase):
         self.assertRoundTripSerializable(exp, self.json_equiv)
 
 
+@ddt
 class TestCompositeExperimentData(QiskitExperimentsTestCase):
     """
     Test operations on objects of composite ExperimentData
@@ -574,14 +576,18 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
         self.assertEqual(par_exp.analysis.component_analysis(0).options.option1, opt1_val)
         self.assertEqual(par_exp.analysis.component_analysis(1).options.option2, opt2_val)
 
-    def test_composite_count_memory_marginalization(self):
+    @data(
+        ["0x0", "0x2", "0x3", "0x0", "0x0", "0x1", "0x3", "0x0", "0x2", "0x3"],
+        ["00", "10", "11", "00", "00", "01", "11", "00", "10", "11"],
+    )
+    def test_composite_count_memory_marginalization(self, memory):
         """Test the marginalization of level two memory."""
         test_data = ExperimentData()
 
         # Simplified experimental data
         datum = {
             "counts": {"0 0": 4, "0 1": 1, "1 0": 2, "1 1": 3},
-            "memory": ["0x0", "0x2", "0x3", "0x0", "0x0", "0x1", "0x3", "0x0", "0x2", "0x3"],
+            "memory": memory,
             "metadata": {
                 "experiment_type": "ParallelExperiment",
                 "composite_index": [0, 1],
