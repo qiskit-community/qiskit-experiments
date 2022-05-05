@@ -16,6 +16,7 @@ Composite Experiment Analysis class.
 from typing import List, Dict, Union, Optional, Tuple
 import numpy as np
 from qiskit.result import marginal_counts
+from qiskit.result.postprocess import format_counts_memory
 from qiskit_experiments.framework import BaseAnalysis, ExperimentData
 from qiskit_experiments.framework.analysis_result_data import AnalysisResultData
 from qiskit_experiments.framework.base_analysis import _requires_copy
@@ -111,7 +112,7 @@ class CompositeAnalysis(BaseAnalysis):
 
     def _run_analysis(self, experiment_data: ExperimentData):
         # Return list of experiment data containers for each component experiment
-        # containing the marginalied data from the composite experiment
+        # containing the marginalized data from the composite experiment
         component_expdata = self._component_experiment_data(experiment_data)
 
         # Run the component analysis on each component data
@@ -194,6 +195,10 @@ class CompositeAnalysis(BaseAnalysis):
                 composite_clbits = metadata["composite_clbits"]
             else:
                 composite_clbits = None
+
+            # Pre-process the memory if any to avoid redundant calls to format_counts_memory
+            f_memory = self._format_memory(datum, composite_clbits)
+
             for i, index in enumerate(metadata["composite_index"]):
                 if index not in marginalized_data:
                     # Initialize data list for marginalized
@@ -206,15 +211,43 @@ class CompositeAnalysis(BaseAnalysis):
                         sub_data["counts"] = datum["counts"]
                 if "memory" in datum:
                     if composite_clbits is not None:
-                        sub_data["memory"] = (
-                            np.array(datum["memory"])[composite_clbits[i]]
-                        ).tolist()
+                        # level 2
+                        if f_memory is not None:
+                            idx = slice(
+                                -1 - composite_clbits[i][-1], -composite_clbits[i][0] or None
+                            )
+                            sub_data["memory"] = [shot[idx] for shot in f_memory]
+                        # level 1
+                        else:
+                            mem = np.array(datum["memory"])
+
+                            # Averaged level 1 data
+                            if len(mem.shape) == 2:
+                                sub_data["memory"] = mem[composite_clbits[i]].tolist()
+                            # Single-shot level 1 data
+                            if len(mem.shape) == 3:
+                                sub_data["memory"] = mem[:, composite_clbits[i]].tolist()
                     else:
                         sub_data["memory"] = datum["memory"]
                 marginalized_data[index].append(sub_data)
 
         # Sort by index
         return [marginalized_data[i] for i in sorted(marginalized_data.keys())]
+
+    @staticmethod
+    def _format_memory(datum: Dict, composite_clbits: List):
+        """A helper method to convert level 2 memory (if it exists) to bit-string format."""
+        f_memory = None
+        if (
+            "memory" in datum
+            and composite_clbits is not None
+            and isinstance(datum["memory"][0], str)
+        ):
+            num_cbits = 1 + max(cbit for cbit_list in composite_clbits for cbit in cbit_list)
+            header = {"memory_slots": num_cbits}
+            f_memory = list(format_counts_memory(shot, header) for shot in datum["memory"])
+
+        return f_memory
 
     def _add_child_data(self, experiment_data: ExperimentData):
         """Save empty component experiment data as child data.
