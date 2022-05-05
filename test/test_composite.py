@@ -14,10 +14,10 @@
 
 import copy
 import uuid
-from ddt import ddt, data
 
 from test.fake_experiment import FakeExperiment, FakeAnalysis
 from test.base import QiskitExperimentsTestCase
+from ddt import ddt, data
 
 from qiskit import QuantumCircuit, Aer
 from qiskit.providers.aer import noise
@@ -623,6 +623,87 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
         ]
 
         self.assertListEqual(sub_data, expected)
+
+    def test_composite_single_kerneled_memory_marginalization(self):
+        """Test the marginalization of level 1 data."""
+        test_data = ExperimentData()
+
+        datum = {
+            "memory": [
+                # qubit 0,   qubit 1,    qubit 2
+                [[0.0, 0.0], [1.0, 1.0], [2.0, 2.0]],  # shot 1
+                [[0.1, 0.1], [1.1, 1.1], [2.1, 2.1]],  # shot 2
+                [[0.2, 0.2], [1.2, 1.2], [2.2, 2.2]],  # shot 3
+                [[0.3, 0.3], [1.3, 1.3], [2.3, 2.3]],  # shot 4
+                [[0.4, 0.4], [1.4, 1.4], [2.4, 2.4]],  # shot 5
+            ],
+            "metadata": {
+                "experiment_type": "ParallelExperiment",
+                "composite_index": [0, 1, 2],
+                "composite_metadata": [
+                    {"experiment_type": "FineXAmplitude", "qubits": [0]},
+                    {"experiment_type": "FineXAmplitude", "qubits": [1]},
+                    {"experiment_type": "FineXAmplitude", "qubits": [2]},
+                ],
+                "composite_qubits": [[0], [1], [2]],
+                "composite_clbits": [[0], [1], [2]],
+            },
+            "shots": 5,
+            "meas_level": 1,
+        }
+
+        test_data.add_data(datum)
+
+        all_sub_data = CompositeAnalysis([])._marginalized_component_data(test_data.data())
+        for idx, sub_data in enumerate(all_sub_data):
+            expected = {
+                "metadata": {"experiment_type": "FineXAmplitude", "qubits": [idx]},
+                "memory": [
+                    [[idx + 0.0, idx + 0.0]],
+                    [[idx + 0.1, idx + 0.1]],
+                    [[idx + 0.2, idx + 0.2]],
+                    [[idx + 0.3, idx + 0.3]],
+                    [[idx + 0.4, idx + 0.4]],
+                ],
+            }
+
+            self.assertEqual(expected, sub_data[0])
+
+    def test_composite_avg_kerneled_memory_marginalization(self):
+        """The the marginalization of level 1 averaged data."""
+        test_data = ExperimentData()
+
+        datum = {
+            "memory": [
+                [0.0, 0.1],  # qubit 0
+                [1.0, 1.1],  # qubit 1
+                [2.0, 2.1],  # qubit 2
+            ],
+            "metadata": {
+                "experiment_type": "ParallelExperiment",
+                "composite_index": [0, 1, 2],
+                "composite_metadata": [
+                    {"experiment_type": "FineXAmplitude", "qubits": [0]},
+                    {"experiment_type": "FineXAmplitude", "qubits": [1]},
+                    {"experiment_type": "FineXAmplitude", "qubits": [2]},
+                ],
+                "composite_qubits": [[0], [1], [2]],
+                "composite_clbits": [[0], [1], [2]],
+            },
+            "shots": 5,
+            "meas_level": 1,
+        }
+
+        test_data.add_data(datum)
+
+        all_sub_data = CompositeAnalysis([])._marginalized_component_data(test_data.data())
+        for idx, sub_data in enumerate(all_sub_data):
+            expected = {
+                "metadata": {"experiment_type": "FineXAmplitude", "qubits": [idx]},
+                "memory": [[idx + 0.0, idx + 0.1]],
+            }
+
+            self.assertEqual(expected, sub_data[0])
 
 
 class TestBatchTranspileOptions(QiskitExperimentsTestCase):

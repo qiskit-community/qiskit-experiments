@@ -217,9 +217,14 @@ class CompositeAnalysis(BaseAnalysis):
                             sub_data["memory"] = [shot[::-1][idx][::-1] for shot in f_memory]
                         # level 1
                         else:
-                            sub_data["memory"] = (
-                                np.array(datum["memory"])[composite_clbits[i]]
-                            ).tolist()
+                            mem = np.array(datum["memory"])
+
+                            # Averaged level 1 data
+                            if len(mem.shape) == 2:
+                                sub_data["memory"] = mem[composite_clbits[i]].tolist()
+                            # Single-shot level 1 data
+                            if len(mem.shape) == 3:
+                                sub_data["memory"] = mem[:, composite_clbits[i]].tolist()
                     else:
                         sub_data["memory"] = datum["memory"]
                 marginalized_data[index].append(sub_data)
@@ -230,6 +235,7 @@ class CompositeAnalysis(BaseAnalysis):
     @staticmethod
     def _format_memory(datum: Dict, composite_clbits: List):
         """A helper method to convert level 2 memory (if it exists) to bit-string format."""
+        f_memory = None
         if (
             "memory" in datum
             and composite_clbits is not None
@@ -237,7 +243,9 @@ class CompositeAnalysis(BaseAnalysis):
         ):
             num_cbits = 1 + max(cbit for cbit_list in composite_clbits for cbit in cbit_list)
             header = {"memory_slots": num_cbits}
-            return list(format_counts_memory(shot, header) for shot in datum["memory"])
+            f_memory = list(format_counts_memory(shot, header) for shot in datum["memory"])
+
+        return f_memory
 
     def _add_child_data(self, experiment_data: ExperimentData):
         """Save empty component experiment data as child data.
