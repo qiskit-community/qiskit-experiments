@@ -195,6 +195,10 @@ class CompositeAnalysis(BaseAnalysis):
                 composite_clbits = metadata["composite_clbits"]
             else:
                 composite_clbits = None
+
+            # Pre-process the memory if any to avoid redundant calls to format_counts_memory
+            f_memory = self._format_memory(datum, composite_clbits)
+
             for i, index in enumerate(metadata["composite_index"]):
                 if index not in marginalized_data:
                     # Initialize data list for marginalized
@@ -208,18 +212,9 @@ class CompositeAnalysis(BaseAnalysis):
                 if "memory" in datum:
                     if composite_clbits is not None:
                         # level 2
-                        if isinstance(datum["memory"][0], str):
-                            num_cbits = 1 + max(
-                                cbit for cbit_list in composite_clbits for cbit in cbit_list
-                            )
-                            header = {"memory_slots": num_cbits}
-                            marginalized_memory = []
-                            for shot in datum["memory"]:
-                                shot = format_counts_memory(shot, header)[::-1]
-                                marginalized_memory.append(
-                                    "".join(shot[idx] for idx in composite_clbits[i])[::-1]
-                                )
-                            sub_data["memory"] = marginalized_memory
+                        if f_memory is not None:
+                            idx = slice(composite_clbits[i][0], composite_clbits[i][-1] + 1)
+                            sub_data["memory"] = [shot[::-1][idx][::-1] for shot in f_memory]
                         # level 1
                         else:
                             sub_data["memory"] = (
@@ -231,6 +226,18 @@ class CompositeAnalysis(BaseAnalysis):
 
         # Sort by index
         return [marginalized_data[i] for i in sorted(marginalized_data.keys())]
+
+    @staticmethod
+    def _format_memory(datum: Dict, composite_clbits: List):
+        """A helper method to convert level 2 memory (if it exists) to bit-string format."""
+        if (
+            "memory" in datum
+            and composite_clbits is not None
+            and isinstance(datum["memory"][0], str)
+        ):
+            num_cbits = 1 + max(cbit for cbit_list in composite_clbits for cbit in cbit_list)
+            header = {"memory_slots": num_cbits}
+            return list(format_counts_memory(shot, header) for shot in datum["memory"])
 
     def _add_child_data(self, experiment_data: ExperimentData):
         """Save empty component experiment data as child data.
