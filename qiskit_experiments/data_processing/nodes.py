@@ -764,7 +764,7 @@ class RestlessNode(DataAction, ABC):
         self._n_circuits = len(data)
 
         if self._validate:
-            if data.shape != (self._n_circuits, self._n_shots):
+            if data.shape[:2] != (self._n_circuits, self._n_shots):
                 raise DataProcessorError(
                     f"The datum given to {self.__class__.__name__} does not convert "
                     "of an array with dimension (number of circuit, number of shots)."
@@ -861,3 +861,73 @@ class RestlessToCounts(RestlessNode):
             restless_adjusted_bits.append("0" if bit == prev_shot[idx] else "1")
 
         return "".join(restless_adjusted_bits)
+
+
+class RestlessToIQ(RestlessNode):
+    """Post-process restless data and convert restless memory to IQ data.
+
+    This node first orders the measured restless IQ point (measurement level 1) data
+    according to the measurement sequence and then subtracts an IQ point from the previous
+    one, i.e. :math:`(I_2 - I_1) + i(Q_2 - Q_1)` for consecutively measured IQ points
+    :math:`I_1 + iQ_1` and :math:`I_2 + iQ_2`. Following this, it takes the absolute
+    value of the in-phase and quadrature component and returns a sequence of circuit-
+    ordered IQ values, e.g. containing :math:`\abs{(I_2 - I_1)} + i\abs{(Q_2 - Q_1)}`.
+    This procedure is based on M. Werninghaus, et al., PRX Quantum 2, 020324 (2021).
+    """
+
+    def __init__(self, validate: bool = True):
+        """
+        Args:
+            validate: If set to False the DataAction will not validate its input.
+        """
+        super().__init__(validate)
+
+    def _process(self, data: np.ndarray) -> np.ndarray:
+        """Reorder the IQ shots and assign values to them based on the previous outcome.
+
+        Args:
+            data: An array representing the memory.
+
+        Returns:
+            An array of arrays of IQ shots processed according to the restless methodology.
+        """
+
+        # Step 1. Reorder the data.
+        memory = self._reorder_iq(data)
+
+        # Step 2. Subtract and take absolute value of consecutive IQ points in
+        # the reordered memory.
+        post_processed_memory = np.abs(np.diff(memory, axis=0))
+
+        # The first element of the post-processed data is the first element
+        # of the reordered memory from step 1.
+        post_processed_memory = np.insert(post_processed_memory, 0, memory[0], axis=0)
+
+        # Step 3. Order post-processed IQ points by circuit.
+        iq_memory = [[] for _ in range(self._n_circuits)]
+        for idx, iq_point in enumerate(post_processed_memory):
+            iq_memory[idx % self._n_circuits].append(iq_point)
+
+        return np.array(iq_memory)
+
+    def _reorder_iq(self, unordered_data: np.ndarray) -> np.ndarray:
+        """Reorder IQ data according to the measurement sequence."""
+
+        if unordered_data is None:
+            return unordered_data
+
+        ordered_data = [None] * self._n_shots * self._n_circuits
+
+        count = 0
+        if self._memory_allocation == ShotOrder.circuit_first:
+            for shot_idx in range(self._n_shots):
+                for circ_idx in range(self._n_circuits):
+                    ordered_data[count] = unordered_data[circ_idx][shot_idx]
+                    count += 1
+        else:
+            for circ_idx in range(self._n_circuits):
+                for shot_idx in range(self._n_shots):
+                    ordered_data[count] = unordered_data[circ_idx][shot_idx]
+                    count += 1
+
+        return np.array(ordered_data)
