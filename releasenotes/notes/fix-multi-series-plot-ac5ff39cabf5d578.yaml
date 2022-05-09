@@ -1,0 +1,5 @@
+---
+fixes:
+  - |
+    Fix broken curve analysis output figure when multi canvas mode is enabled.
+    It has been plotting all series data in the same canvas due to the bug.
