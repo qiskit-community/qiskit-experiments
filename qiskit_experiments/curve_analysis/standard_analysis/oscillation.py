@@ -54,16 +54,10 @@ class OscillationAnalysis(curve.CurveAnalysis):
             bounds: [-pi, pi].
     """
 
-    __series__ = [
-        curve.SeriesDef(
-            fit_func=lambda x, amp, freq, phase, base: curve.fit_function.cos(
-                x, amp=amp, freq=freq, phase=phase, baseline=base
-            ),
-            plot_color="blue",
-            model_description=r"{\rm amp} \cos\left(2 \pi\cdot {\rm freq}\cdot x "
-            r"+ {\rm phase}\right) + {\rm base}",
+    def __init__(self):
+        super().__init__(
+            series_defs=[curve.SeriesDef(fit_func="amp * cos(2 * pi * freq * x + phase) + base")]
         )
-    ]
 
     def _generate_fit_guesses(
         self,
@@ -103,7 +97,7 @@ class OscillationAnalysis(curve.CurveAnalysis):
 
         return options
 
-    def _evaluate_quality(self, fit_data: curve.FitData) -> Union[str, None]:
+    def _evaluate_quality(self, fit_data: curve.SolverResult) -> Union[str, None]:
         """Algorithmic criteria for whether the fit is good or bad.
 
         A good fit has:
@@ -112,12 +106,12 @@ class OscillationAnalysis(curve.CurveAnalysis):
             - less than 10 full periods, and
             - an error on the fit frequency lower than the fit frequency.
         """
-        fit_freq = fit_data.fitval("freq")
+        fit_freq = fit_data.ufloat_params["freq"]
 
         criteria = [
             fit_data.reduced_chisq < 3,
             1.0 / 4.0 < fit_freq.nominal_value < 10.0,
-            curve.is_error_not_significant(fit_freq),
+            curve.utils.is_error_not_significant(fit_freq),
         ]
 
         if all(criteria):
@@ -168,20 +162,14 @@ class DumpedOscillationAnalysis(curve.CurveAnalysis):
             bounds: [-pi, pi]
     """
 
-    __series__ = [
-        curve.SeriesDef(
-            fit_func=lambda x, amp, base, tau, freq, phi: curve.fit_function.cos_decay(
-                x,
-                amp=amp,
-                tau=tau,
-                freq=freq,
-                phase=phi,
-                baseline=base,
-            ),
-            plot_color="blue",
-            model_description=r"amp \exp(-x/tau) \cos(2pi freq x + phi) + base",
+    def __init__(self):
+        super().__init__(
+            series_defs=[
+                curve.SeriesDef(
+                    fit_func="amp * exp(-x / tau) * cos(2 * pi * freq * x + phi) + base"
+                )
+            ]
         )
-    ]
 
     def _generate_fit_guesses(
         self,
@@ -253,7 +241,7 @@ class DumpedOscillationAnalysis(curve.CurveAnalysis):
 
         return options
 
-    def _evaluate_quality(self, fit_data: curve.FitData) -> Union[str, None]:
+    def _evaluate_quality(self, fit_data: curve.SolverResult) -> Union[str, None]:
         """Algorithmic criteria for whether the fit is good or bad.
 
         A good fit has:
@@ -261,13 +249,13 @@ class DumpedOscillationAnalysis(curve.CurveAnalysis):
             - relative error of tau is less than its value
             - relative error of freq is less than its value
         """
-        tau = fit_data.fitval("tau")
-        freq = fit_data.fitval("freq")
+        tau = fit_data.ufloat_params["tau"]
+        freq = fit_data.ufloat_params["freq"]
 
         criteria = [
             fit_data.reduced_chisq < 3,
-            curve.is_error_not_significant(tau),
-            curve.is_error_not_significant(freq),
+            curve.utils.is_error_not_significant(tau),
+            curve.utils.is_error_not_significant(freq),
         ]
 
         if all(criteria):

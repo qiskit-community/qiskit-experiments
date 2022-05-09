@@ -429,8 +429,8 @@ This can be done by overriding the :meth:`_create_analysis_results` method.
 
         outcomes = super()._create_analysis_results(fit_data, **metadata)
 
-        p0 = fit_data.fitval("p0")
-        p1 = fit_data.fitval("p1")
+        p0 = fit_data.ufloat_params["p0"]
+        p1 = fit_data.ufloat_params["p1"]
 
         extra_entry = AnalysisResultData(
             name="p01",
@@ -470,8 +470,9 @@ Data Classes
     :toctree: ../stubs/
 
     SeriesDef
+    CurveModel
+    CurveSolver
     CurveData
-    FitData
     ParameterRepr
     FitOptions
 
@@ -534,20 +535,25 @@ Utilities
 .. autosummary::
     :toctree: ../stubs/
 
-    is_error_not_significant
+    utils.is_error_not_significant
+    utils.analysis_result_to_repr
+    utils.colors10
+    utils.symbols10
 """
 from .base_curve_analysis import BaseCurveAnalysis
-from .curve_analysis import CurveAnalysis, is_error_not_significant
-from .curve_data import CurveData, SeriesDef, FitData, ParameterRepr, FitOptions
+from .curve_analysis import CurveAnalysis
+from .curve_data import CurveData, SeriesDef, FitData, ParameterRepr, FitOptions, SolverResult
 from .curve_fit import (
     curve_fit,
     multi_curve_fit,
     process_curve_data,
     process_multi_curve_data,
 )
+from .models import CurveModel, CurveSolver
 from .visualization import BaseCurveDrawer, MplCurveDrawer
 from . import guess
 from . import fit_function
+from . import utils
 
 # standard analysis
 from .standard_analysis import (

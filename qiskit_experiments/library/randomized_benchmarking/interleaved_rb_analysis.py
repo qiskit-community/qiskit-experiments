@@ -89,31 +89,25 @@ class InterleavedRBAnalysis(curve.CurveAnalysis):
     """
 
     def __init__(self):
-        super().__init__()
+        super().__init__(
+            series_defs=[
+                curve.SeriesDef(
+                    fit_func="a * alpha ** x + b",
+                    name="Standard",
+                    filter_kwargs={"interleaved": False},
+                    plot_color="red",
+                    plot_symbol=".",
+                ),
+                curve.SeriesDef(
+                    fit_func="a * (alpha_c * alpha) ** x + b",
+                    name="Interleaved",
+                    filter_kwargs={"interleaved": True},
+                    plot_color="orange",
+                    plot_symbol="^",
+                ),
+            ]
+        )
         self._num_qubits = None
-
-    __series__ = [
-        curve.SeriesDef(
-            name="Standard",
-            fit_func=lambda x, a, alpha, alpha_c, b: curve.fit_function.exponential_decay(
-                x, amp=a, lamb=-1.0, base=alpha, baseline=b
-            ),
-            filter_kwargs={"interleaved": False},
-            plot_color="red",
-            plot_symbol=".",
-            model_description=r"a \alpha^{x} + b",
-        ),
-        curve.SeriesDef(
-            name="Interleaved",
-            fit_func=lambda x, a, alpha, alpha_c, b: curve.fit_function.exponential_decay(
-                x, amp=a, lamb=-1.0, base=alpha * alpha_c, baseline=b
-            ),
-            filter_kwargs={"interleaved": True},
-            plot_color="orange",
-            plot_symbol="^",
-            model_description=r"a (\alpha_c\alpha)^{x} + b",
-        ),
-    ]
 
     @classmethod
     def _default_options(cls):
@@ -209,7 +203,7 @@ class InterleavedRBAnalysis(curve.CurveAnalysis):
 
     def _create_analysis_results(
         self,
-        fit_data: curve.FitData,
+        fit_data: curve.SolverResult,
         quality: str,
         **metadata,
     ) -> List[AnalysisResultData]:
@@ -227,8 +221,8 @@ class InterleavedRBAnalysis(curve.CurveAnalysis):
         nrb = 2**self._num_qubits
         scale = (nrb - 1) / nrb
 
-        alpha = fit_data.fitval("alpha")
-        alpha_c = fit_data.fitval("alpha_c")
+        alpha = fit_data.ufloat_params["alpha"]
+        alpha_c = fit_data.ufloat_params["alpha_c"]
 
         # Calculate epc_est (=r_c^est) - Eq. (4):
         epc = scale * (1 - alpha_c)

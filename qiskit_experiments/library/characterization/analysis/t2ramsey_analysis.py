@@ -45,7 +45,7 @@ class T2RamseyAnalysis(curve.DumpedOscillationAnalysis):
 
         return options
 
-    def _evaluate_quality(self, fit_data: curve.FitData) -> Union[str, None]:
+    def _evaluate_quality(self, fit_data: curve.SolverResult) -> Union[str, None]:
         """Algorithmic criteria for whether the fit is good or bad.
 
         A good fit has:
@@ -54,15 +54,15 @@ class T2RamseyAnalysis(curve.DumpedOscillationAnalysis):
             - relative error of tau is less than 10 percent
             - relative error of freq is less than 10 percent
         """
-        amp = fit_data.fitval("amp")
-        tau = fit_data.fitval("tau")
-        freq = fit_data.fitval("freq")
+        amp = fit_data.ufloat_params["amp"]
+        tau = fit_data.ufloat_params["tau"]
+        freq = fit_data.ufloat_params["freq"]
 
         criteria = [
             fit_data.reduced_chisq < 3,
-            curve.is_error_not_significant(amp, fraction=0.1),
-            curve.is_error_not_significant(tau, fraction=0.1),
-            curve.is_error_not_significant(freq, fraction=0.1),
+            curve.utils.is_error_not_significant(amp, fraction=0.1),
+            curve.utils.is_error_not_significant(tau, fraction=0.1),
+            curve.utils.is_error_not_significant(freq, fraction=0.1),
         ]
 
         if all(criteria):

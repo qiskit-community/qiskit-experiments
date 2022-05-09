@@ -249,6 +249,9 @@ class MplCurveDrawer(BaseCurveDrawer):
         draw_ops.update(**options)
         if name:
             draw_ops["label"] = name
+
+        if not np.all(np.isfinite(y_err_data)):
+            y_err_data = None
         self._get_axis(ax_index).errorbar(x_data, y_data, yerr=y_err_data, **draw_ops)
 
     def draw_fit_line(

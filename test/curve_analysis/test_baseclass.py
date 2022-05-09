@@ -63,7 +63,8 @@ def create_new_analysis(series: List[SeriesDef], fixed_params: List[str] = None)
     class TestAnalysis(CurveAnalysis):
         """A mock analysis class to test."""
 
-        __series__ = series
+        def __init__(self):
+            super().__init__(series_defs=series)
 
         @classmethod
         def _default_options(cls):
@@ -82,32 +83,32 @@ class TestCurveAnalysisUnit(QiskitExperimentsTestCase):
     class TestAnalysis(CurveAnalysis):
         """Fake analysis class for unittest."""
 
-        __series__ = [
-            SeriesDef(
-                name="curve1",
-                fit_func=lambda x, par0, par1, par2, par3, par4: fit_function.exponential_decay(
-                    x, amp=par0, lamb=par1, baseline=par4
-                ),
-                filter_kwargs={"op1": 1, "op2": True},
-                model_description=r"p_0 * \exp(p_1 x) + p4",
-            ),
-            SeriesDef(
-                name="curve2",
-                fit_func=lambda x, par0, par1, par2, par3, par4: fit_function.exponential_decay(
-                    x, amp=par0, lamb=par2, baseline=par4
-                ),
-                filter_kwargs={"op1": 2, "op2": True},
-                model_description=r"p_0 * \exp(p_2 x) + p4",
-            ),
-            SeriesDef(
-                name="curve3",
-                fit_func=lambda x, par0, par1, par2, par3, par4: fit_function.exponential_decay(
-                    x, amp=par0, lamb=par3, baseline=par4
-                ),
-                filter_kwargs={"op1": 3, "op2": True},
-                model_description=r"p_0 * \exp(p_3 x) + p4",
-            ),
-        ]
+        def __init__(self):
+            super().__init__(
+                series_defs=[
+                    SeriesDef(
+                        name="curve1",
+                        fit_func=lambda x, par0, par1, par2, par3, par4: fit_function.exponential_decay(
+                            x, amp=par0, lamb=par1, baseline=par4
+                        ),
+                        filter_kwargs={"op1": 1, "op2": True},
+                    ),
+                    SeriesDef(
+                        name="curve2",
+                        fit_func=lambda x, par0, par1, par2, par3, par4: fit_function.exponential_decay(
+                            x, amp=par0, lamb=par2, baseline=par4
+                        ),
+                        filter_kwargs={"op1": 2, "op2": True},
+                    ),
+                    SeriesDef(
+                        name="curve3",
+                        fit_func=lambda x, par0, par1, par2, par3, par4: fit_function.exponential_decay(
+                            x, amp=par0, lamb=par3, baseline=par4
+                        ),
+                        filter_kwargs={"op1": 3, "op2": True},
+                    ),
+                ]
+            )
 
     def test_parsed_fit_params(self):
         """Test parsed fit params."""
@@ -281,7 +282,6 @@ class TestCurveAnalysisIntegration(QiskitExperimentsTestCase):
                     fit_func=lambda x, par0, par1, par2, par3: fit_function.exponential_decay(
                         x, amp=par0, lamb=par1, x0=par2, baseline=par3
                     ),
-                    model_description=r"p_0 \exp(p_1 x + p_2) + p_3",
                 )
             ],
         )

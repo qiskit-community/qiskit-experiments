@@ -12,13 +12,10 @@
 
 """Fine Amplitude calibration analysis."""
 
-import numpy as np
-
 import qiskit_experiments.curve_analysis as curve
-from qiskit_experiments.curve_analysis import ErrorAmplificationAnalysis
 
 
-class FineAmplitudeAnalysis(ErrorAmplificationAnalysis):
+class FineAmplitudeAnalysis(curve.ErrorAmplificationAnalysis):
     r"""An analysis class for fine amplitude calibrations to define the fixed parameters.
 
     # section: note
@@ -30,31 +27,24 @@ class FineAmplitudeAnalysis(ErrorAmplificationAnalysis):
           :math:`\pi/2` if a square-root of X gate is added before the repeated gates.
     """
 
-    # The intended angle per gat of the gate being calibrated, e.g. pi for a pi-pulse.
+    # pylint: disable=super-init-not-called
+    def __init__(self):
 
-    __series__ = [
-        curve.SeriesDef(
-            # pylint: disable=line-too-long
-            fit_func=lambda x, amp, d_theta, phase_offset, base, angle_per_gate: base
-            + 0.5 * amp * (2 * x - 1),
-            plot_color="green",
-            model_description=r"{\rm base} + \frac{{\rm amp}}{2} * (2 * x - 1)",
-            name="spam cal.",
-            filter_kwargs={"series": "spam-cal"},
-        ),
-        curve.SeriesDef(
-            # pylint: disable=line-too-long
-            fit_func=lambda x, amp, d_theta, phase_offset, base, angle_per_gate: curve.fit_function.cos(
-                x,
-                amp=0.5 * amp,
-                freq=(d_theta + angle_per_gate) / (2 * np.pi),
-                phase=-phase_offset,
-                baseline=base,
-            ),
-            plot_color="blue",
-            model_description=r"\frac{{\rm amp}}{2}\cos\left(x[{\rm d}\theta + {\rm apg} ] "
-            r"+ {\rm phase\_offset}\right)+{\rm base}",
-            name="fine amp.",
-            filter_kwargs={"series": 1},
-        ),
-    ]
+        # pylint: disable=non-parent-init-called
+        curve.CurveAnalysis.__init__(
+            self,
+            series_defs=[
+                curve.SeriesDef(
+                    fit_func="amp / 2 * (2 * x - 1) + base",
+                    name="smap cal.",
+                    filter_kwargs={"series": "spam-cal"},
+                    plot_color="green",
+                ),
+                curve.SeriesDef(
+                    fit_func="amp / 2 * cos((d_theta + angle_per_gate) * x - phase_offset) + base",
+                    name="fine amp.",
+                    filter_kwargs={"series": 1},
+                    plot_color="blue",
+                ),
+            ],
+        )

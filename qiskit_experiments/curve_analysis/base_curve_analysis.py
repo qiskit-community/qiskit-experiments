@@ -26,11 +26,10 @@ from qiskit_experiments.framework import BaseAnalysis, AnalysisResultData, Optio
 from qiskit_experiments.data_processing import DataProcessor
 from qiskit_experiments.data_processing.processor_library import get_processor
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
-from qiskit_experiments.exceptions import AnalysisError
 
-from .curve_data import CurveData, SeriesDef, FitData, ParameterRepr, FitOptions
+from .curve_data import CurveData, ParameterRepr, FitOptions, SolverResult
 from .data_processing import multi_mean_xy_data, data_sort
-from .curve_fit import multi_curve_fit
+from .models import CurveModel, CurveSolver
 from .visualization import MplCurveDrawer, BaseCurveDrawer
 
 PARAMS_ENTRY_PREFIX = "@Parameters_"
@@ -293,7 +292,7 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
 
     def _evaluate_quality(
         self,
-        fit_data: FitData,
+        fit_data: SolverResult,
     ) -> Union[str, None]:
         """Evaluate quality of the fit result.
 
@@ -310,13 +309,13 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
     def _run_data_processing(
         self,
         raw_data: List[Dict],
-        series: List[SeriesDef],
+        model: CurveModel,
     ) -> CurveData:
         """Perform data processing from the experiment result payload.
 
         Args:
             raw_data: Payload in the experiment data.
-            series: List of series definition defining filtering condition.
+            model: Curve fitting model.
 
         Returns:
             Processed data that will be sent to the formatter method.
@@ -343,11 +342,13 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
                 return False
 
         data_allocation = np.full(xdata.size, -1, dtype=int)
-        for sind, series_def in enumerate(series):
+        for idx, series_def in enumerate(model.definitions):
+            if series_def.filter_kwargs is None:
+                continue
             matched_inds = np.asarray(
                 [_matched(d["metadata"], **series_def.filter_kwargs) for d in raw_data], dtype=bool
             )
-            data_allocation[matched_inds] = sind
+            data_allocation[matched_inds] = idx
 
         return CurveData(
             x=xdata,
@@ -355,30 +356,34 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
             y_err=unp.std_devs(ydata),
             shots=shots,
             data_allocation=data_allocation,
-            labels=[s.name for s in series],
+            labels=[series_def.name for series_def in model.definitions],
         )
 
     def _run_curve_fit(
         self,
         curve_data: CurveData,
-        series: List[SeriesDef],
-    ) -> Union[None, FitData]:
+        model: CurveModel,
+    ) -> Union[None, SolverResult]:
         """Perform curve fitting on given data collection and fit models.
 
         Args:
             curve_data: Formatted data to fit.
-            series: A list of fit models.
+            model: Curve fitting model.
 
         Returns:
             The best fitting outcome with minimum reduced chi-squared value.
         """
         # Create a list of initial guess
         default_fit_opt = FitOptions(
-            parameters=self.parameters,
+            parameters=model.param_names,
             default_p0=self.options.p0,
             default_bounds=self.options.bounds,
             **self.options.curve_fitter_options,
         )
+        # Bind fixed parameters if not empty
+        if self.options.fixed_parameters:
+            default_fit_opt.p0.set_if_empty(**self.options.fixed_parameters)
+
         try:
             fit_options = self._generate_fit_guesses(default_fit_opt, curve_data)
         except TypeError:
@@ -394,38 +399,48 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
             fit_options = [fit_options]
 
         # Run fit for each configuration
-        fit_results = []
-        for fit_opt in set(fit_options):
-            try:
-                fit_result = multi_curve_fit(
-                    funcs=[sdef.fit_func for sdef in series],
-                    series=curve_data.data_allocation,
-                    xdata=curve_data.x,
-                    ydata=curve_data.y,
-                    sigma=curve_data.y_err,
-                    **fit_opt.options,
-                )
-                fit_results.append(fit_result)
-            except AnalysisError:
-                # Some guesses might be too far from the true parameters and may thus fail.
-                # We ignore initial guesses that fail and continue with the next fit candidate.
-                pass
+        fit_result = None
 
-        # Find best value with chi-squared value
-        if len(fit_results) == 0:
+        for fit_option in fit_options:
+            # Setup parameter configuration, i.e. init value, bounds
+            params = model.make_params(**fit_option.p0)
+            for pname, pobj in params.items():
+                if fit_option.bounds[pname]:
+                    pobj.min = fit_option.bounds[pname][0]
+                    pobj.max = fit_option.bounds[pname][1]
+
+                if pname in self.options.fixed_parameters:
+                    # This parameter remains unchanged during the fitting
+                    pobj.vary = False
+
+            # Run fit, keep result if reduced chisqared value is better than before.
+            solver = CurveSolver(model=model, params=params, **fit_option.fitter_opts)
+
+            new_result = solver.fit(
+                x=curve_data.x,
+                y=curve_data.y,
+                sigma=curve_data.y_err,
+                allocation=curve_data.data_allocation,
+            )
+            if new_result is None or not new_result.success:
+                continue
+
+            if not fit_result or fit_result.reduced_chisq > new_result.reduced_chisq:
+                fit_result = new_result
+
+        if fit_result is None:
             warnings.warn(
-                "All initial guesses and parameter boundaries failed to fit the data. "
+                "All initial guess and parameter boundaries failed to fit the data "
+                f"within the reduced chi-squared value of {self.options.chisq_threshold}. "
                 "Please provide better initial guesses or fit parameter boundaries.",
                 UserWarning,
             )
-            # at least return raw data points rather than terminating
-            return None
 
-        return sorted(fit_results, key=lambda r: r.reduced_chisq)[0]
+        return fit_result
 
     def _create_analysis_results(
         self,
-        fit_data: FitData,
+        fit_data: SolverResult,
         quality: str,
         **metadata,
     ) -> List[AnalysisResultData]:
@@ -444,15 +459,10 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
         if self.options.return_fit_parameters:
             fit_parameters = AnalysisResultData(
                 name=PARAMS_ENTRY_PREFIX + self.__class__.__name__,
-                value=[p.nominal_value for p in fit_data.popt],
+                value=fit_data,
                 chisq=fit_data.reduced_chisq,
                 quality=quality,
-                extra={
-                    "popt_keys": fit_data.popt_keys,
-                    "dof": fit_data.dof,
-                    "covariance_mat": fit_data.pcov,
-                    **metadata,
-                },
+                extra=metadata,
             )
             outcomes.append(fit_parameters)
 
@@ -467,7 +477,6 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
                 p_repr = param_repr
                 unit = None
 
-            fit_val = fit_data.fitval(p_name)
             if unit:
                 par_metadata = metadata.copy()
                 par_metadata["unit"] = unit
@@ -476,7 +485,7 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
 
             outcome = AnalysisResultData(
                 name=p_repr,
-                value=fit_val,
+                value=fit_data.ufloat_params[p_name],
                 chisq=fit_data.reduced_chisq,
                 quality=quality,
                 extra=par_metadata,
@@ -488,14 +497,14 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
     def _create_curve_data(
         self,
         curve_data: CurveData,
-        series: List[SeriesDef],
+        model: CurveModel,
         **metadata,
     ) -> List[AnalysisResultData]:
         """Create analysis results for raw curve data.
 
         Args:
             curve_data: Formatted data that is used for the fitting.
-            series: List of series definition associated with the curve data.
+            model: Curve fitting model.
 
         Returns:
             List of analysis result data.
@@ -505,17 +514,17 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
         if not self.options.return_data_points:
             return samples
 
-        for sdef in series:
-            s_data = curve_data.get_subset_of(sdef.name)
+        for series_def in model.definitions:
+            sub_data = curve_data.get_subset_of(series_def.name)
             raw_datum = AnalysisResultData(
                 name=DATA_ENTRY_PREFIX + self.__class__.__name__,
                 value={
-                    "xdata": s_data.x,
-                    "ydata": s_data.y,
-                    "sigma": s_data.y_err,
+                    "xdata": sub_data.x,
+                    "ydata": sub_data.y,
+                    "sigma": sub_data.y_err,
                 },
                 extra={
-                    "name": sdef.name,
+                    "name": series_def.name,
                     **metadata,
                 },
             )

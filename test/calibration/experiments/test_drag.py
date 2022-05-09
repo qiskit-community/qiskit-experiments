@@ -24,7 +24,6 @@ import qiskit.pulse as pulse
 from qiskit.qobj.utils import MeasLevel
 from qiskit import transpile
 
-from qiskit_experiments.exceptions import CalibrationError
 from qiskit_experiments.library import RoughDrag, RoughDragCal
 from qiskit_experiments.test.mock_iq_backend import DragBackend
 from qiskit_experiments.calibration_management.basis_gate_library import FixedFrequencyTransmon
@@ -46,14 +45,6 @@ class TestDragEndToEnd(QiskitExperimentsTestCase):
 
         self.x_plus = xp
         self.test_tol = 0.1
-
-    def test_reps(self):
-        """Test that setting reps raises and error if reps is not of length three."""
-
-        drag = RoughDrag(0, self.x_plus)
-
-        with self.assertRaises(CalibrationError):
-            drag.set_experiment_options(reps=[1, 2, 3, 4])
 
     def test_end_to_end(self):
         """Test the drag experiment end to end."""

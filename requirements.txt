@@ -4,3 +4,5 @@ qiskit-terra>=0.20.1
 qiskit-ibmq-provider>=0.16.0
 matplotlib>=3.4
 uncertainties
+lmfit
+asteval

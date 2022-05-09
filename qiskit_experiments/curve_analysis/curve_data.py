@@ -15,12 +15,13 @@ Curve data classes.
 """
 
 import dataclasses
-import inspect
-from typing import Any, Dict, Callable, Union, List, Tuple, Optional, Iterable
+import itertools
+from typing import Any, Dict, Union, List, Tuple, Optional, Iterable
 
 import numpy as np
 import uncertainties
 from qiskit_experiments.exceptions import AnalysisError
+from qiskit_experiments.warnings import deprecated_function, deprecated_class
 
 
 @dataclasses.dataclass(frozen=True)
@@ -46,29 +47,14 @@ class SeriesDef:
             Matplotlib symbol names.
         canvas: Optional. Index of sub-axis in the output figure that draws this curve.
             This option is valid only when the drawer instance provides multi-axis drawing.
-        model_description: Optional. Arbitrary string representation of this fit model.
-            This string will appear in the analysis results as a part of metadata.
     """
 
-    fit_func: Callable
+    fit_func: str
     filter_kwargs: Dict[str, Any] = dataclasses.field(default_factory=dict)
     name: str = "Series-0"
-    plot_color: str = "black"
+    plot_color: str = "blue"
     plot_symbol: str = "o"
     canvas: Optional[int] = None
-    model_description: Optional[str] = None
-    signature: Tuple[str, ...] = dataclasses.field(init=False)
-
-    def __post_init__(self):
-        """Parse the fit function signature to extract the names of the variables.
-
-        Fit functions take arguments F(x, p0, p1, p2, ...) thus the first value should be excluded.
-        """
-        signature = list(inspect.signature(self.fit_func).parameters.keys())
-        fitparams = tuple(signature[1:])
-
-        # Note that this dataclass is frozen
-        object.__setattr__(self, "signature", fitparams)
 
 
 @dataclasses.dataclass(frozen=True)
@@ -126,6 +112,153 @@ class CurveData:
         )
 
 
+@dataclasses.dataclass(frozen=True)
+class SolverResult:
+    """A data class to store the fitting results from the curve solver.
+
+    Attributes:
+        method: A name of fitting algorithm used for the curve fitting.
+        model_repr: String representation of fit functions of each curve.
+        success: True when the fitting is successfully performed.
+        nfev: Number of fit function evaluation until the solution is obtained.
+        message: Any message from the fitting software.
+        dof: Degree of freedom in this fitting, i.e. number of free parameters.
+        chisq: Chi-squared value.
+        reduced_chisq: Reduced Chi-squared value.
+        aic: Akaike's information criterion.
+        bic: Bayesian information criterion.
+        params: Estimated fitting parameters keyed on the parameter names in the fit function.
+        var_names: Name of variables, i.e. fixed parameters are excluded from the list.
+        x_data: X values used for the fitting.
+        y_data: Y values used for the fitting.
+        covar: Covariance matrix of fitting variables.
+        correl: Correlation matrix of fitting variable. This is automatically computed
+            from the ``self.covar`` when it is available.
+        ufloat_params: Parameters in the UFloat format for error propagation.
+            This is automatically computed from the ``self.params`` and ``self.covar``
+            when these are available.
+    """
+
+    method: str
+    model_repr: Dict[str, str]
+    success: bool
+    nfev: int
+    message: str
+    dof: float
+    chisq: float
+    reduced_chisq: float
+    aic: float
+    bic: float
+    params: Dict[str, float]
+    var_names: List[str]
+    x_data: np.ndarray
+    y_data: np.ndarray
+    covar: np.ndarray
+    correl: np.ndarray = dataclasses.field(init=False, repr=False)
+    ufloat_params: Dict[str, uncertainties.UFloat] = dataclasses.field(init=False, repr=False)
+
+    def __post_init__(self):
+        # Dynamically compute correlated parameters from values and covariance.
+        # This avoids serialization issue of correlated UFloat parameters.
+
+        if self.covar is not None and np.all(np.isfinite(self.covar)):
+            ufloat_fitvals = dict(
+                zip(
+                    self.var_names,
+                    uncertainties.correlated_values(
+                        nom_values=[self.params[name] for name in self.var_names],
+                        covariance_mat=self.covar,
+                    ),
+                )
+            )
+            # This is how uncertainties computes correlation matrix
+            stdevs = np.sqrt(np.diag(self.covar))
+            correl = self.covar / stdevs / stdevs[:, np.newaxis]
+        else:
+            ufloat_fitvals = {
+                name: uncertainties.ufloat(
+                    nominal_value=self.params[name],
+                    std_dev=np.nan,
+                )
+                for name in self.var_names
+            }
+            correl = None
+
+        ufloat_params = {}
+        for name in self.params.keys():
+            if name not in self.var_names:
+                # fixed parameters
+                ufloat_params[name] = uncertainties.ufloat(self.params[name], std_dev=0.0)
+            else:
+                ufloat_params[name] = ufloat_fitvals[name]
+
+        object.__setattr__(self, "correl", correl)
+        object.__setattr__(self, "ufloat_params", ufloat_params)
+
+    @property
+    def x_range(self) -> Tuple[float, float]:
+        """Range of X values."""
+        return min(self.x_data), max(self.x_data)
+
+    @property
+    def y_range(self) -> Tuple[float, float]:
+        """Range of Y values."""
+        return min(self.y_data), max(self.y_data)
+
+    @deprecated_function("0.5", "Use '.ufloat_params' which returns a dictionary instead.")
+    def fitval(self, key: str) -> uncertainties.UFloat:
+        """Deprecated. Return UFloat parameter specified by the key."""
+        return self.ufloat_params[key]
+
+    def __json_encode__(self):
+        # Remove auto-initialized parameters
+        data_dict = dataclasses.asdict(self)
+        del data_dict["correl"]
+        del data_dict["ufloat_params"]
+
+        return data_dict
+
+    @classmethod
+    def __json_decode__(cls, value):
+        return cls(**value)
+
+    def __str__(self):
+        ret = "Solver Result:"
+        ret += f"\n - fitting method: {self.method}"
+        ret += f"\n - number of sub-models: {len(self.model_repr)}"
+        for model_name, model_expr in self.model_repr.items():
+            if len(model_expr) > 60:
+                model_expr = f"{model_expr[:60]}..."
+            ret += f"\n  * F_{model_name}(x) = {model_expr}"
+        ret += f"\n - success: {self.success}"
+        ret += f"\n - number of function evals: {self.nfev}"
+        ret += f"\n - degree of freedom: {self.dof}"
+        ret += f"\n - chi-square: {self.chisq}"
+        ret += f"\n - reduced chi-square: {self.reduced_chisq}"
+        ret += f"\n - Akaike info crit.: {self.aic}"
+        ret += f"\n - Bayesian info crit.: {self.bic}"
+        ret += "\n - fit params:"
+        for name, param in self.ufloat_params.items():
+            if np.isfinite(param.std_dev):
+                ret += f"\n  * {name} = {param.nominal_value} ± {param.std_dev}"
+            else:
+                ret += f"\n  * {name} = {param.nominal_value}"
+        ret += "\n - correlations:"
+        if self.correl is not None:
+            correlated = {}
+            for pi, pj in itertools.combinations(range(len(self.var_names)), 2):
+                correlated[(pi, pj)] = self.correl[pi, pj]
+            for (pi, pj), corr in sorted(correlated.items(), key=lambda item: item[1]):
+                ret += f"\n  * ({self.var_names[pi]}, {self.var_names[pj]}) = {corr}"
+        else:
+            ret += "\n  * Correlation matrix is not available."
+
+        return ret
+
+
+@deprecated_class(
+    "0.5", msg="Fit data is stored in new dataclass 'SolverResult' with more rich context."
+)
 @dataclasses.dataclass(frozen=True)
 class FitData:
     """A dataclass to store the outcome of the fitting.
@@ -389,6 +522,11 @@ class FitOptions:
     def bounds(self) -> Boundaries:
         """Return bounds dictionary."""
         return self.__bounds
+
+    @property
+    def fitter_opts(self) -> Boundaries:
+        """Return fitter options dictionary."""
+        return self.__extra
 
     @property
     def options(self):

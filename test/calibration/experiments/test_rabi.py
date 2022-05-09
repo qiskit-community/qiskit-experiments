@@ -59,7 +59,7 @@ class TestRabiEndToEnd(QiskitExperimentsTestCase):
         result = expdata.analysis_results(0)
 
         self.assertEqual(result.quality, "good")
-        self.assertAlmostEqual(result.value[1], backend.rabi_rate, delta=test_tol)
+        self.assertAlmostEqual(result.value.params["freq"], backend.rabi_rate, delta=test_tol)
 
         backend = RabiBackend(amplitude_to_angle=np.pi / 2)
 
@@ -69,7 +69,7 @@ class TestRabiEndToEnd(QiskitExperimentsTestCase):
         self.assertExperimentDone(expdata)
         result = expdata.analysis_results(0)
         self.assertEqual(result.quality, "good")
-        self.assertAlmostEqual(result.value[1], backend.rabi_rate, delta=test_tol)
+        self.assertAlmostEqual(result.value.params["freq"], backend.rabi_rate, delta=test_tol)
 
         backend = RabiBackend(amplitude_to_angle=2.5 * np.pi)
 
@@ -79,7 +79,7 @@ class TestRabiEndToEnd(QiskitExperimentsTestCase):
         self.assertExperimentDone(expdata)
         result = expdata.analysis_results(0)
         self.assertEqual(result.quality, "good")
-        self.assertAlmostEqual(result.value[1], backend.rabi_rate, delta=test_tol)
+        self.assertAlmostEqual(result.value.params["freq"], backend.rabi_rate, delta=test_tol)
 
     def test_wrong_processor(self):
         """Test that we can override the data processing by giving a faulty data processor."""
@@ -280,7 +280,7 @@ class TestRabiAnalysis(QiskitExperimentsTestCase):
         )
         result = experiment_data.analysis_results(0)
         self.assertEqual(result.quality, "good")
-        self.assertAlmostEqual(result.value[1], expected_rate, delta=test_tol)
+        self.assertAlmostEqual(result.value.params["freq"], expected_rate, delta=test_tol)
 
     def test_bad_analysis(self):
         """Test the Rabi analysis."""

@@ -17,7 +17,7 @@ from typing import List, Union
 import numpy as np
 
 import qiskit_experiments.curve_analysis as curve
-from qiskit_experiments.curve_analysis.fit_function import cos
+from qiskit_experiments.framework import ExperimentData
 
 
 class DragCalAnalysis(curve.CurveAnalysis):
@@ -25,8 +25,8 @@ class DragCalAnalysis(curve.CurveAnalysis):
 
     # section: fit_model
 
-        Analyse a Drag calibration experiment by fitting three series each to a cosine
-        function. The three functions share the phase parameter (i.e. beta), amplitude, and
+        Analyse a Drag calibration experiment by fitting multiple series each to a cosine
+        function. All functions share the phase parameter (i.e. beta), amplitude, and
         baseline. The frequencies of the oscillations are related through the number of
         repetitions of the Drag gates. Several initial guesses are tried if the user
         does not provide one. The fit function is
@@ -41,8 +41,7 @@ class DragCalAnalysis(curve.CurveAnalysis):
         of times that the Drag plus and minus rotations are repeated in curve :math:`i`.
         Note that the aim of the Drag calibration is to find the :math:`\beta` that
         minimizes the phase shifts. This implies that the optimal :math:`\beta` occurs when
-        all three :math:`y` curves are minimum, i.e. they produce the ground state. This
-        occurs when
+        all :math:`y` curves are minimum, i.e. they produce the ground state. This occurs when
 
         .. math::
 
@@ -76,42 +75,6 @@ class DragCalAnalysis(curve.CurveAnalysis):
             bounds: [-min scan range, max scan range].
     """
 
-    __series__ = [
-        curve.SeriesDef(
-            fit_func=lambda x, amp, freq, reps0, reps1, reps2, beta, base: cos(
-                x, amp=amp, freq=reps0 * freq, phase=-2 * np.pi * reps0 * freq * beta, baseline=base
-            ),
-            plot_color="blue",
-            name="series-0",
-            filter_kwargs={"series": 0},
-            plot_symbol="o",
-            model_description=r"{\rm amp} \cos\left(2 \pi\cdot {\rm reps}_0\cdot {\rm freq} [x "
-            r"- \beta]\right) + {\rm base}",
-        ),
-        curve.SeriesDef(
-            fit_func=lambda x, amp, freq, reps0, reps1, reps2, beta, base: cos(
-                x, amp=amp, freq=reps1 * freq, phase=-2 * np.pi * reps1 * freq * beta, baseline=base
-            ),
-            plot_color="green",
-            name="series-1",
-            filter_kwargs={"series": 1},
-            plot_symbol="^",
-            model_description=r"{\rm amp} \cos\left(2 \pi\cdot {\rm reps}_1\cdot {\rm freq} [x "
-            r"- \beta]\right) + {\rm base}",
-        ),
-        curve.SeriesDef(
-            fit_func=lambda x, amp, freq, reps0, reps1, reps2, beta, base: cos(
-                x, amp=amp, freq=reps2 * freq, phase=-2 * np.pi * reps2 * freq * beta, baseline=base
-            ),
-            plot_color="red",
-            name="series-2",
-            filter_kwargs={"series": 2},
-            plot_symbol="v",
-            model_description=r"{\rm amp} \cos\left(2 \pi\cdot {\rm reps}_2\cdot {\rm freq} [x "
-            r"- \beta]\right) + {\rm base}",
-        ),
-    ]
-
     @classmethod
     def _default_options(cls):
         """Return the default analysis options.
@@ -125,8 +88,8 @@ class DragCalAnalysis(curve.CurveAnalysis):
             ylabel="Signal (arb. units)",
         )
         default_options.result_parameters = ["beta"]
-        default_options.fixed_parameters = {"reps0": 1, "reps1": 3, "reps2": 5}
         default_options.normalization = True
+        default_options.reps = [1, 3, 5]
 
         return default_options
 
@@ -144,20 +107,15 @@ class DragCalAnalysis(curve.CurveAnalysis):
         Returns:
             List of fit options that are passed to the fitter function.
         """
-        # Use a fast Fourier transform to guess the frequency.
-        x_data = curve_data.get_subset_of("series-0").x
+        # Use the highest-frequency curve to estimate the oscillation frequency.
+        max_series = list(self._model.definitions)[-1]
+        max_rep = max_series.filter_kwargs["nrep"]
+        curve_data = curve_data.get_subset_of(max_series.name)
+
+        x_data = curve_data.x
         min_beta, max_beta = min(x_data), max(x_data)
 
-        # Use the highest-frequency curve to estimate the oscillation frequency.
-        series_label, reps_label = max(
-            ("series-0", "reps0"),
-            ("series-1", "reps1"),
-            ("series-2", "reps2"),
-            key=lambda x: self.options.fixed_parameters[x[1]],
-        )
-        curve_data = curve_data.get_subset_of(series_label)
-        reps2 = self.options.fixed_parameters[reps_label]
-        freqs_guess = curve.guess.frequency(curve_data.x, curve_data.y) / reps2
+        freqs_guess = curve.guess.frequency(curve_data.x, curve_data.y) / max_rep
         user_opt.p0.set_if_empty(freq=freqs_guess)
 
         avg_x = (max(x_data) + min(x_data)) / 2
@@ -191,8 +149,8 @@ class DragCalAnalysis(curve.CurveAnalysis):
     def _run_curve_fit(
         self,
         curve_data: curve.CurveData,
-        series: List[curve.SeriesDef],
-    ) -> Union[None, curve.FitData]:
+        model: curve.CurveModel,
+    ) -> Union[None, curve.SolverResult]:
         r"""Perform curve fitting on given data collection and fit models.
 
         .. note::
@@ -221,19 +179,26 @@ class DragCalAnalysis(curve.CurveAnalysis):
 
         Args:
             curve_data: Formatted data to fit.
-            series: A list of fit models.
+            model: Curve fitting model.
 
         Returns:
             The best fitting outcome with minimum reduced chi-squared value.
         """
-        fit_result = super()._run_curve_fit(curve_data, series)
-        beta = fit_result.popt[2]
-        freq = fit_result.popt[1]
-        fit_result.popt[2] = ((beta + 1 / freq / 2) % (1 / freq)) - 1 / freq / 2
+        fit_result = super()._run_curve_fit(curve_data, model)
+
+        if fit_result:
+            # covert into dict since dataclass is frozen
+            data_dict = fit_result.__json_encode__()
+            params = data_dict["params"]
+            beta = params["beta"]
+            freq = params["freq"]
+            min_beta = ((beta + 1 / freq / 2) % (1 / freq)) - 1 / freq / 2
+            data_dict["params"]["beta"] = min_beta
+            return curve.SolverResult.__json_decode__(data_dict)
 
         return fit_result
 
-    def _evaluate_quality(self, fit_data: curve.FitData) -> Union[str, None]:
+    def _evaluate_quality(self, fit_data: curve.SolverResult) -> Union[str, None]:
         """Algorithmic criteria for whether the fit is good or bad.
 
         A good fit has:
@@ -241,16 +206,36 @@ class DragCalAnalysis(curve.CurveAnalysis):
             - a DRAG parameter value within the first period of the lowest number of repetitions,
             - an error on the drag beta smaller than the beta.
         """
-        fit_beta = fit_data.fitval("beta")
-        fit_freq = fit_data.fitval("freq")
+        fit_beta = fit_data.ufloat_params["beta"]
+        fit_freq = fit_data.ufloat_params["freq"]
 
         criteria = [
             fit_data.reduced_chisq < 3,
             abs(fit_beta.nominal_value) < 1 / fit_freq.nominal_value / 2,
-            curve.is_error_not_significant(fit_beta),
+            curve.utils.is_error_not_significant(fit_beta),
         ]
 
         if all(criteria):
             return "good"
 
         return "bad"
+
+    def _initialize(
+        self,
+        experiment_data: ExperimentData,
+    ):
+        super()._initialize(experiment_data)
+
+        # Model is initialized at runtime because
+        # the experiment option "reps" can be changed before experiment run.
+        series_defs = [
+            curve.SeriesDef(
+                fit_func=f"amp * cos(2 * pi * {nrep} * freq * (x - beta)) + base",
+                name=f"nrep={nrep}",
+                filter_kwargs={"nrep": nrep},
+                plot_symbol=curve.utils.symbols10(i),
+                plot_color=curve.utils.colors10(i),
+            )
+            for i, nrep in enumerate(sorted(self.options.reps))
+        ]
+        self._model = curve.CurveModel(self.__class__.__name__, series_defs)
