@@ -1835,7 +1835,6 @@ class DbExperimentDataV1(DbExperimentData):
         for att in [
             "_metadata",
             "_source",
-            "_backend",
             "_id",
             "_parent_id",
             "_type",
@@ -1859,17 +1858,15 @@ class DbExperimentDataV1(DbExperimentData):
 
         # Handle non-serializable objects
         json_value["_jobs"] = self._safe_serialize_jobs()
-        service_value = getattr(self, "_service")
-        if service_value:
-            # the attribute self._service in charge of the connection and communication with the
-            #  experiment db. It doesn't have meaning in the json format so there is no need to serialize
-            #  it.
-            LOG.warning(
-                "Experiment was saved using %s service which cannot be automatically loaded. "
-                "Please reset service attribute if required",
-                str(type(service_value)),
-            )
-            json_value["_service"] = None
+
+        # the attribute self._service in charge of the connection and communication with the
+        #  experiment db. It doesn't have meaning in the json format so there is no need to serialize
+        #  it.
+        for att in ["_service", "_backend"]:
+            json_value[att] = None
+            value = getattr(self, att)
+            if value is not None:
+                LOG.info("%s cannot be JSON serialized", str(type(value)))
 
         return json_value
 
