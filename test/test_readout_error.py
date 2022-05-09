@@ -15,7 +15,6 @@ A Tester for the Readout error experiment
 """
 
 
-import unittest
 import json
 from test.base import QiskitExperimentsTestCase
 import numpy as np
@@ -181,7 +180,3 @@ class TestRedoutError(QiskitExperimentsTestCase):
         serialized = json.dumps(mitigator, cls=ExperimentEncoder)
         loaded = json.loads(serialized, cls=ExperimentDecoder)
         self.assertTrue(matrix_equal(mitigator.assignment_matrix(), loaded.assignment_matrix()))
-
-
-if __name__ == "__main__":
-    unittest.main()
