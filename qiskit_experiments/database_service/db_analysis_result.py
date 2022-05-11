@@ -30,7 +30,7 @@ from .db_fitval import FitVal
 from .device_component import DeviceComponent, to_component
 from .exceptions import DbExperimentDataError
 from .utils import save_data, qiskit_version
-
+from qiskit_ibm_experiment import AnalysisResultData
 LOG = logging.getLogger(__name__)
 
 
@@ -94,21 +94,21 @@ class DbAnalysisResultV1(DbAnalysisResult):
                 experiment service.
         """
         # Data to be stored in DB.
-        self._experiment_id = experiment_id
-        self._id = result_id or str(uuid.uuid4())
-        self._name = name
-        self._value = copy.deepcopy(value)
-        self._extra = copy.deepcopy(extra or {})
-        self._device_components = []
+        self._data = AnalysisResultData(experiment_id=experiment_id,
+                                        result_id=result_id or str(uuid.uuid4()),
+                                        result_type=name,
+                                        chisq=chisq,
+                                        quality=quality,
+                                        verified=verified,
+                                        tags=tags or []
+                                        )
+        self._data.result_data = self.format_result_data(value, extra, chisq, source)
+        # self._value = copy.deepcopy(value)
+        # self._extra = copy.deepcopy(extra or {})
         for comp in device_components:
             if isinstance(comp, str):
                 comp = to_component(comp)
-            self._device_components.append(comp)
-
-        self._chisq = chisq
-        self._quality = quality
-        self._quality_verified = verified
-        self._tags = tags or []
+            self._data.device_components.append(comp)
 
         # Other attributes.
         self._service = service
@@ -126,6 +126,40 @@ class DbAnalysisResultV1(DbAnalysisResult):
                 "data_version": self._data_version,
                 "qiskit_version": qiskit_version(),
             }
+
+    @staticmethod
+    def format_result_data(value, extra, chisq, source):
+        result_data = {
+            "_value": copy.deepcopy(value),
+            "_chisq": chisq,
+            "_extra": copy.deepcopy(extra or {}),
+            "_source": source,
+        }
+
+        # Format special DB display fields
+        if isinstance(value, FitVal):
+            db_value = DbAnalysisResultV1._display_format(value.value)
+            if db_value is not None:
+                result_data["value"] = db_value
+            if isinstance(value.stderr, (int, float)):
+                result_data["variance"] = DbAnalysisResultV1._display_format(
+                    value.stderr ** 2)
+            if isinstance(value.unit, str):
+                result_data["unit"] = value.unit
+        elif isinstance(value, uncertainties.UFloat):
+            db_value = DbAnalysisResultV1._display_format(value.nominal_value)
+            if db_value is not None:
+                result_data["value"] = db_value
+            if isinstance(value.std_dev, (int, float)):
+                result_data["variance"] = DbAnalysisResultV1._display_format(
+                    value.std_dev ** 2)
+            if "unit" in extra:
+                result_data["unit"] = extra["unit"]
+        else:
+            db_value = DbAnalysisResultV1._display_format(value)
+            if db_value is not None:
+                result_data["value"] = db_value
+        return result_data
 
     @classmethod
     def load(cls, result_id: str, service: DatabaseServiceV1) -> "DbAnalysisResultV1":
@@ -178,27 +212,27 @@ class DbAnalysisResultV1(DbAnalysisResult):
             "_source": self.source,
         }
 
-        # Format special DB display fields
-        if isinstance(value, FitVal):
-            db_value = self._display_format(value.value)
-            if db_value is not None:
-                result_data["value"] = db_value
-            if isinstance(value.stderr, (int, float)):
-                result_data["variance"] = self._display_format(value.stderr**2)
-            if isinstance(value.unit, str):
-                result_data["unit"] = value.unit
-        elif isinstance(value, uncertainties.UFloat):
-            db_value = self._display_format(value.nominal_value)
-            if db_value is not None:
-                result_data["value"] = db_value
-            if isinstance(value.std_dev, (int, float)):
-                result_data["variance"] = self._display_format(value.std_dev**2)
-            if "unit" in self.extra:
-                result_data["unit"] = self.extra["unit"]
-        else:
-            db_value = self._display_format(value)
-            if db_value is not None:
-                result_data["value"] = db_value
+        # # Format special DB display fields
+        # if isinstance(value, FitVal):
+        #     db_value = self._display_format(value.value)
+        #     if db_value is not None:
+        #         result_data["value"] = db_value
+        #     if isinstance(value.stderr, (int, float)):
+        #         result_data["variance"] = self._display_format(value.stderr**2)
+        #     if isinstance(value.unit, str):
+        #         result_data["unit"] = value.unit
+        # elif isinstance(value, uncertainties.UFloat):
+        #     db_value = self._display_format(value.nominal_value)
+        #     if db_value is not None:
+        #         result_data["value"] = db_value
+        #     if isinstance(value.std_dev, (int, float)):
+        #         result_data["variance"] = self._display_format(value.std_dev**2)
+        #     if "unit" in self.extra:
+        #         result_data["unit"] = self.extra["unit"]
+        # else:
+        #     db_value = self._display_format(value)
+        #     if db_value is not None:
+        #         result_data["value"] = db_value
 
         new_data = {
             "experiment_id": self.experiment_id,
@@ -207,9 +241,9 @@ class DbAnalysisResultV1(DbAnalysisResult):
         }
 
         update_data = {
-            "result_id": self.result_id,
-            "result_data": result_data,
-            "tags": self.tags,
+            "result_id": self._data.result_id,
+            "result_data": self._data.result_data,
+            "tags": self._data.tags,
             "chisq": self._display_format(self.chisq),
             "quality": self.quality,
             "verified": self.verified,

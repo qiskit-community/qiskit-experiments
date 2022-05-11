@@ -23,11 +23,7 @@ from qiskit.providers import JobStatus
 from qiskit.test.reference_circuits import ReferenceCircuits
 
 from qiskit_ibm_experiment import IBMExperimentService
-from qiskit.providers.ibmq.experiment import (
-#    IBMExperimentService,
-    ResultQuality,
-    IBMExperimentEntryNotFound,
-)
+from qiskit_ibm_experiment import ResultQuality
 
 from qiskit.test import QiskitTestCase
 from qiskit_experiments.database_service import DbExperimentDataV1 as DbExperimentData
@@ -504,5 +500,13 @@ class TestExperimentDataIntegration(QiskitTestCase):
         self.jobs_to_cancel.append(job)
         return job
 
-if __name__ == "__main__":
-    unittest.main()
+# if __name__ == "__main__":
+#     unittest.main()
+def suite():
+    suite = unittest.TestSuite()
+    suite.addTest(TestExperimentDataIntegration('test_add_analysis_results'))
+    return suite
+
+if __name__ == '__main__':
+    runner = unittest.TextTestRunner()
+    runner.run(suite())
