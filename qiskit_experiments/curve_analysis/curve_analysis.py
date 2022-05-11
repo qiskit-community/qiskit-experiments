@@ -174,10 +174,11 @@ class CurveAnalysis(BaseCurveAnalysis):
         formatted_data = self._format_data(processed_data)
         if self.options.plot:
             for s in self.__series__:
+                sub_data = formatted_data.get_subset_of(s.name)
                 self.drawer.draw_formatted_data(
-                    x_data=formatted_data.x,
-                    y_data=formatted_data.y,
-                    y_err_data=formatted_data.y_err,
+                    x_data=sub_data.x,
+                    y_data=sub_data.y,
+                    y_err_data=sub_data.y_err,
                     name=s.name,
                     ax_index=s.canvas,
                     color=s.plot_color,
@@ -244,13 +245,14 @@ class CurveAnalysis(BaseCurveAnalysis):
                                 alpha=alpha,
                                 color=s.plot_color,
                             )
-                    # Write fitting report
-                    report_description = ""
-                    for res in analysis_results:
-                        if isinstance(res.value, (float, UFloat)):
-                            report_description += f"{analysis_result_to_repr(res)}\n"
-                    report_description += r"Fit $\chi^2$ = " + f"{fit_data.reduced_chisq: .4g}"
-                    self.drawer.draw_fit_report(description=report_description)
+
+                # Write fitting report
+                report_description = ""
+                for res in analysis_results:
+                    if isinstance(res.value, (float, UFloat)):
+                        report_description += f"{analysis_result_to_repr(res)}\n"
+                report_description += r"Fit $\chi^2$ = " + f"{fit_data.reduced_chisq: .4g}"
+                self.drawer.draw_fit_report(description=report_description)
 
         # Add raw data points
         analysis_results.extend(self._create_curve_data(formatted_data, self.__series__))
