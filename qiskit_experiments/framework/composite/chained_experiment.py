@@ -29,7 +29,15 @@ from qiskit_experiments.exceptions import AnalysisError
 
 
 class BaseTransitionCallable(ABC):
-    """A method to determine how to transition between experiments."""
+    """A class that holds a method to determine how to transition between experiments.
+
+    Developers can create arbitrary logic to transition between experiments based on the
+    result of the previously run experiments. To do this the :meth:`__call__` method
+    must be implemented. This method return an int that determines by how many
+    sub-experiments we move in the chain of experiments. For example, if the returned
+    value is 0 we repeat the current experiment and if it is 1 we run the next experiment
+    in the chain.
+    """
 
     @abstractmethod
     def __call__(
@@ -43,6 +51,10 @@ class BaseTransitionCallable(ABC):
             experiment_data: The experiment data. Typically, the children will contain the
                 experiment data of the sub-experiments.
             kwargs: Additional keyword arguments.
+
+        Returns:
+            An integer that tells the :class:`ChainedExperiment` by how much it can increment
+            the experiment index.
         """
 
     def __eq__(self, other):
@@ -51,7 +63,11 @@ class BaseTransitionCallable(ABC):
 
 
 class GoodExperimentTransition(BaseTransitionCallable):
-    """A simple experiment transition callable."""
+    """An experiment transition callable that transitions on good results.
+
+    If the quality of the previous experiment is ``good`` then we transition to the next
+    experiment, i.e. return 1 otherwise we return 0, i.e. repeat the current experiment.
+    """
 
     def __call__(self, experiment_data: ExperimentData, **kwargs) -> int:
         """A simple experiment transition callback based on the quality of the last result."""
@@ -63,7 +79,7 @@ class GoodExperimentTransition(BaseTransitionCallable):
 
 
 class AlwaysTransition(BaseTransitionCallable):
-    """A simple experiment transition callable."""
+    """A simple experiment transition callable that always transitions to the next experiment."""
 
     def __call__(self, experiment_data: ExperimentData, **kwargs) -> int:
         """An experiment transition callback that always moves to the next experiment."""
