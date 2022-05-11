@@ -12,7 +12,6 @@
 
 """Rough frequency calibration tests."""
 from test.base import QiskitExperimentsTestCase
-from test.test_qubit_spectroscopy import SpectroscopyBackend
 
 import numpy as np
 
@@ -21,6 +20,8 @@ from qiskit.test.mock import FakeArmonk
 from qiskit_experiments.library import RoughFrequencyCal
 from qiskit_experiments.calibration_management import Calibrations
 from qiskit_experiments.calibration_management.basis_gate_library import FixedFrequencyTransmon
+from qiskit_experiments.test.mock_iq_backend import MockIQBackend
+from qiskit_experiments.test.mock_iq_helpers import MockIQSpectroscopyHelper as SpectroscopyHelper
 
 
 class TestRoughFrequency(QiskitExperimentsTestCase):
@@ -49,7 +50,14 @@ class TestRoughFrequency(QiskitExperimentsTestCase):
 
         freq01 = FakeArmonk().defaults().qubit_freq_est[0]
 
-        backend = SpectroscopyBackend(freq_offset=5e6, line_width=2e6)
+        backend = MockIQBackend(
+            experiment_helper=SpectroscopyHelper(freq_offset=5e6, line_width=2e6),
+            iq_cluster_centers=[((-1.0, -1.0), (1.0, 1.0))],
+            iq_cluster_width=[0.2],
+        )
+        backend._configuration.basis_gates = ["x"]
+        backend._configuration.timing_constraints = {"granularity": 16}
+
         backend.defaults().qubit_freq_est = [freq01, freq01]
 
         library = FixedFrequencyTransmon(basis_gates=["x", "sx"])

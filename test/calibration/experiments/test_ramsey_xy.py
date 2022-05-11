@@ -20,7 +20,8 @@ from qiskit_experiments.calibration_management.calibrations import Calibrations
 from qiskit_experiments.calibration_management.basis_gate_library import FixedFrequencyTransmon
 from qiskit_experiments.framework import AnalysisStatus, BaseAnalysis
 from qiskit_experiments.library import RamseyXY, FrequencyCal
-from qiskit_experiments.test.mock_iq_backend import MockRamseyXY
+from qiskit_experiments.test.mock_iq_backend import MockIQBackend
+from qiskit_experiments.test.mock_iq_helpers import MockIQRamseyXYHelper as RamseyXYHelper
 
 
 class TestRamseyXY(QiskitExperimentsTestCase):
@@ -40,11 +41,12 @@ class TestRamseyXY(QiskitExperimentsTestCase):
         """
 
         test_tol = 0.01
-
+        exp_helper = RamseyXYHelper()
         ramsey = RamseyXY(0)
-
+        ramsey.backend = MockIQBackend(exp_helper)
         for freq_shift in [2e6, -3e6]:
-            test_data = ramsey.run(MockRamseyXY(freq_shift=freq_shift))
+            exp_helper.freq_shift = freq_shift
+            test_data = ramsey.run()
             self.assertExperimentDone(test_data)
             meas_shift = test_data.analysis_results(1).value.n
             self.assertTrue((meas_shift - freq_shift) < abs(test_tol * freq_shift))
@@ -63,7 +65,9 @@ class TestRamseyXY(QiskitExperimentsTestCase):
 
         freq_shift = 4e6
         osc_shift = 2e6
-        backend = MockRamseyXY(freq_shift=freq_shift + osc_shift)  # oscillation with 6 MHz
+
+        # oscillation with 6 MHz
+        backend = MockIQBackend(RamseyXYHelper(freq_shift=freq_shift + osc_shift))
         expdata = FrequencyCal(0, self.cals, backend, osc_freq=osc_shift).run()
         self.assertExperimentDone(expdata)
 
@@ -79,7 +83,7 @@ class TestRamseyXY(QiskitExperimentsTestCase):
         or hang indefinitely. Since there are no analysis results, we expect
         that the calibration update will result in an ERROR status.
         """
-        backend = MockRamseyXY(freq_shift=0)
+        backend = MockIQBackend(RamseyXYHelper(freq_shift=0))
 
         class NoResults(BaseAnalysis):
             """Simple analysis class that generates no results"""

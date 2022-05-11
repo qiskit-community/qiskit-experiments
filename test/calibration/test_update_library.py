@@ -12,7 +12,6 @@
 
 """Test the calibration update library."""
 from test.base import QiskitExperimentsTestCase
-from test.test_qubit_spectroscopy import SpectroscopyBackend
 import numpy as np
 
 from qiskit.circuit import Parameter
@@ -23,6 +22,8 @@ from qiskit.test.mock import FakeAthens
 from qiskit_experiments.library import QubitSpectroscopy
 from qiskit_experiments.calibration_management.calibrations import Calibrations
 from qiskit_experiments.calibration_management.update_library import Frequency
+from qiskit_experiments.test.mock_iq_backend import MockIQBackend
+from qiskit_experiments.test.mock_iq_helpers import MockIQSpectroscopyHelper as SpectroscopyHelper
 
 
 class TestAmplitudeUpdate(QiskitExperimentsTestCase):
@@ -59,7 +60,14 @@ class TestFrequencyUpdate(QiskitExperimentsTestCase):
 
         qubit = 1
         peak_offset = 5.0e6
-        backend = SpectroscopyBackend(line_width=2e6, freq_offset=peak_offset)
+        backend = MockIQBackend(
+            experiment_helper=SpectroscopyHelper(freq_offset=peak_offset),
+            iq_cluster_centers=[((-1.0, -1.0), (1.0, 1.0))],
+            iq_cluster_width=[0.2],
+        )
+        backend._configuration.basis_gates = ["x"]
+        backend._configuration.timing_constraints = {"granularity": 16}
+
         freq01 = backend.defaults().qubit_freq_est[qubit]
         frequencies = np.linspace(freq01 - 10.0e6, freq01 + 10.0e6, 21)
 
