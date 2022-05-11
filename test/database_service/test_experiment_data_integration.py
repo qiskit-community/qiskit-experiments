@@ -478,7 +478,7 @@ class TestExperimentDataIntegration(QiskitTestCase):
 
     def _create_experiment_data(self):
         """Create an experiment data."""
-        exp_data = DbExperimentData(backend=self.backend, experiment_type="qiskit_test")
+        exp_data = DbExperimentData(backend=self.backend, experiment_type="qiskit_test", verbose=False)
         exp_data.save()
         self.services_to_delete.append(exp_data.experiment_id)
         return exp_data

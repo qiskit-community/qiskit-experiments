@@ -153,7 +153,6 @@ class DbExperimentDataV1(DbExperimentData):
     """
 
     version = 1
-    verbose = True  # Whether to print messages to the standard output.
     _metadata_version = 1
     _job_executor = futures.ThreadPoolExecutor()
 
@@ -173,6 +172,7 @@ class DbExperimentDataV1(DbExperimentData):
         metadata: Optional[Dict] = None,
         figure_names: Optional[List[str]] = None,
         notes: Optional[str] = None,
+        verbose: Optional[bool] = True,
         **kwargs,
     ):
         """Initializes the DbExperimentData instance.
@@ -235,6 +235,7 @@ class DbExperimentDataV1(DbExperimentData):
         self._deleted_analysis_results = deque()
 
         self._created_in_db = False
+        self.verbose = verbose
         self._extra_data = kwargs
 
     def _clear_results(self):
