@@ -43,7 +43,9 @@ class TestChained(QiskitExperimentsTestCase):
         """Setup the test."""
         super().setUp()
 
-        self.cals = Calibrations.from_backend(backend=FakeBelem(), library=FixedFrequencyTransmon())
+        self.cals = Calibrations.from_backend(
+            backend=FakeBelem(), libraries=[FixedFrequencyTransmon()]
+        )
 
         self.drag_backend = MockIQBackend(DragHelper(gate_name="Drag(x)"))
         self.amp_backend = MockIQBackend(FineAmpHelper(0.05 * np.pi, np.pi, "x"))
@@ -174,6 +176,7 @@ class TestChained(QiskitExperimentsTestCase):
                 return 0
 
         chain_exp = ChainedExperiment([experiment1, experiment2], DefectiveTransitionCallable())
+        chain_exp.set_experiment_options(max_runs=5)
 
         msg = "The maximum allowed number of runs has been exceeded."
         with self.assertRaisesRegex(AssertionError, expected_regex=msg):
