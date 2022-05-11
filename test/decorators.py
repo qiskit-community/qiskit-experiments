@@ -285,7 +285,7 @@ def _get_credentials():
         # load them from different environment variables. This assumes they
         # will always be in place, as is used by the Travis setup.
         return Credentials(
-            os.getenv("QISKIT_IBM_STAGING_API_TOKEN"), os.getenv("QISKIT_IBM_STAGING_API_URL") + "/v2"
+            os.getenv("QISKIT_IBM_STAGING_API_TOKEN"), os.getenv("QISKIT_IBM_STAGING_API_URL")
         )
 
     # Attempt to read the standard credentials.

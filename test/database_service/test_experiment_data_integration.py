@@ -71,7 +71,7 @@ class TestExperimentDataIntegration(QiskitTestCase):
     def setUp(self) -> None:
         """Test level setup."""
         super().setUp()
-        self.experiments_to_delete = []
+        self.services_to_delete = []
         self.results_to_delete = []
         self.jobs_to_cancel = []
 
@@ -80,13 +80,13 @@ class TestExperimentDataIntegration(QiskitTestCase):
         for result_uuid in self.results_to_delete:
             try:
                 with mock.patch("builtins.input", lambda _: "y"):
-                    self.experiment.delete_analysis_result(result_uuid)
+                    self.service.delete_analysis_result(result_uuid)
             except Exception as err:  # pylint: disable=broad-except
                 self.log.info("Unable to delete analysis result %s: %s", result_uuid, err)
-        for expr_uuid in self.experiments_to_delete:
+        for expr_uuid in self.services_to_delete:
             try:
                 with mock.patch("builtins.input", lambda _: "y"):
-                    self.experiment.delete_experiment(expr_uuid)
+                    self.service.delete_experiment(expr_uuid)
             except Exception as err:  # pylint: disable=broad-except
                 self.log.info("Unable to delete experiment %s: %s", expr_uuid, err)
         for job in self.jobs_to_cancel:
@@ -128,10 +128,10 @@ class TestExperimentDataIntegration(QiskitTestCase):
             job_ids.append(job.job_id())
 
         exp_data.save()
-        self.experiments_to_delete.append(exp_data.experiment_id)
+        self.services_to_delete.append(exp_data.experiment_id)
 
         credentials = self.backend.provider().credentials
-        rexp = DbExperimentData.load(exp_data.experiment_id, self.experiment)
+        rexp = DbExperimentData.load(exp_data.experiment_id, self.service)
         self._verify_experiment_data(exp_data, rexp)
         self.assertEqual(credentials.hub, rexp.hub)  # pylint: disable=no-member
         self.assertEqual(credentials.group, rexp.group)  # pylint: disable=no-member
@@ -149,7 +149,7 @@ class TestExperimentDataIntegration(QiskitTestCase):
         exp_data.notes = "some notes"
         exp_data.save()
 
-        rexp = DbExperimentData.load(exp_data.experiment_id, self.experiment)
+        rexp = DbExperimentData.load(exp_data.experiment_id, self.service)
         self._verify_experiment_data(exp_data, rexp)
 
     def _verify_experiment_data(self, expected, actual):
@@ -175,12 +175,12 @@ class TestExperimentDataIntegration(QiskitTestCase):
             quality=ResultQuality.GOOD,
             verified=True,
             tags=["foo", "bar"],
-            service=self.experiment,
+            service=self.service
         )
         exp_data.add_analysis_results(aresult)
         exp_data.save()
 
-        rresult = AnalysisResult.load(aresult.result_id, self.experiment)
+        rresult = AnalysisResult.load(aresult.result_id, self.service)
         self.assertEqual(exp_data.experiment_id, rresult.experiment_id)
         self._verify_analysis_result(aresult, rresult)
 
@@ -195,7 +195,7 @@ class TestExperimentDataIntegration(QiskitTestCase):
         aresult.tags = ["foo", "bar"]
         aresult.save()
 
-        rexp = DbExperimentData.load(exp_data.experiment_id, self.experiment)
+        rexp = DbExperimentData.load(exp_data.experiment_id, self.service)
         rresult = rexp.analysis_results(0)
         self._verify_analysis_result(aresult, rresult)
 
@@ -219,10 +219,10 @@ class TestExperimentDataIntegration(QiskitTestCase):
         with mock.patch("builtins.input", lambda _: "y"):
             exp_data.delete_analysis_result(0)
             exp_data.save()
-        rexp = DbExperimentData.load(exp_data.experiment_id, self.experiment)
+        rexp = DbExperimentData.load(exp_data.experiment_id, self.service)
         self.assertRaises(DbExperimentEntryNotFound, rexp.analysis_results, aresult.result_id)
         self.assertRaises(
-            IBMExperimentEntryNotFound, self.experiment.analysis_result, aresult.result_id
+            IBMExperimentEntryNotFound, self.service.analysis_result, aresult.result_id
         )
 
     def test_add_figures(self):
@@ -237,7 +237,7 @@ class TestExperimentDataIntegration(QiskitTestCase):
                 exp_data.add_figures(
                     figures=hello_bytes, figure_names=figure_name, save_figure=True
                 )
-                rexp = DbExperimentData.load(exp_data.experiment_id, self.experiment)
+                rexp = DbExperimentData.load(exp_data.experiment_id, self.service)
                 self.assertEqual(rexp.figure(idx), hello_bytes)
 
     def test_add_figures_plot(self):
@@ -250,7 +250,7 @@ class TestExperimentDataIntegration(QiskitTestCase):
         exp_data = self._create_experiment_data()
         exp_data.add_figures(figure, save_figure=True)
 
-        rexp = DbExperimentData.load(exp_data.experiment_id, self.experiment)
+        rexp = DbExperimentData.load(exp_data.experiment_id, self.service)
         self.assertTrue(rexp.figure(0))
 
     def test_add_figures_file(self):
@@ -263,7 +263,7 @@ class TestExperimentDataIntegration(QiskitTestCase):
             file.write(hello_bytes)
 
         exp_data.add_figures(figures=file_name, save_figure=True)
-        rexp = DbExperimentData.load(exp_data.experiment_id, self.experiment)
+        rexp = DbExperimentData.load(exp_data.experiment_id, self.service)
         self.assertEqual(rexp.figure(0), hello_bytes)
 
     def test_update_figure(self):
@@ -279,7 +279,7 @@ class TestExperimentDataIntegration(QiskitTestCase):
         exp_data.add_figures(
             figures=friend_bytes, figure_names=figure_name, overwrite=True, save_figure=True
         )
-        rexp = DbExperimentData.load(exp_data.experiment_id, self.experiment)
+        rexp = DbExperimentData.load(exp_data.experiment_id, self.service)
         self.assertEqual(rexp.figure(0), friend_bytes)
         self.assertEqual(rexp.figure(figure_name), friend_bytes)
 
@@ -294,10 +294,10 @@ class TestExperimentDataIntegration(QiskitTestCase):
             exp_data.delete_figure(0)
             exp_data.save()
 
-        rexp = DbExperimentData.load(exp_data.experiment_id, self.experiment)
+        rexp = DbExperimentData.load(exp_data.experiment_id, self.service)
         self.assertRaises(IBMExperimentEntryNotFound, rexp.figure, figure_name)
         self.assertRaises(
-            IBMExperimentEntryNotFound, self.experiment.figure, exp_data.experiment_id, figure_name
+            IBMExperimentEntryNotFound, self.service.figure, exp_data.experiment_id, figure_name
         )
 
     def test_save_all(self):
@@ -315,7 +315,7 @@ class TestExperimentDataIntegration(QiskitTestCase):
         exp_data.add_figures(hello_bytes, figure_names="hello.svg")
         exp_data.save()
 
-        rexp = DbExperimentData.load(exp_data.experiment_id, self.experiment)
+        rexp = DbExperimentData.load(exp_data.experiment_id, self.service)
         # Experiment tag order is not necessarily preserved
         # so compare tags with a predictable sort order.
         self.assertEqual(["bar", "foo"], sorted(rexp.tags))
@@ -327,7 +327,7 @@ class TestExperimentDataIntegration(QiskitTestCase):
         with mock.patch("builtins.input", lambda _: "y"):
             exp_data.save()
 
-        rexp = DbExperimentData.load(exp_data.experiment_id, self.experiment)
+        rexp = DbExperimentData.load(exp_data.experiment_id, self.service)
         self.assertRaises(IBMExperimentEntryNotFound, rexp.figure, "hello.svg")
         self.assertRaises(DbExperimentEntryNotFound, rexp.analysis_results, aresult.result_id)
 
@@ -337,9 +337,9 @@ class TestExperimentDataIntegration(QiskitTestCase):
         job = self._run_circuit()
         exp_data.add_jobs(job)
         exp_data.save()
-        self.experiments_to_delete.append(exp_data.experiment_id)
+        self.services_to_delete.append(exp_data.experiment_id)
 
-        rexp = self.experiment.experiment(exp_data.experiment_id)
+        rexp = self.service.experiment(exp_data.experiment_id)
         self.assertEqual([job.job_id()], rexp["job_ids"])
 
     def test_auto_save_experiment(self):
@@ -480,7 +480,7 @@ class TestExperimentDataIntegration(QiskitTestCase):
         """Create an experiment data."""
         exp_data = DbExperimentData(backend=self.backend, experiment_type="qiskit_test")
         exp_data.save()
-        self.experiments_to_delete.append(exp_data.experiment_id)
+        self.services_to_delete.append(exp_data.experiment_id)
         return exp_data
 
     def _create_analysis_result(self):
