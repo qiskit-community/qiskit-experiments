@@ -14,13 +14,14 @@
 
 import copy
 from typing import List
+
+from test.base import QiskitExperimentsTestCase
+from test.fake_experiment import FakeExperiment
 import numpy as np
 
 from qiskit.circuit import QuantumCircuit
 from qiskit.test.mock import FakeBelem
 
-from test.base import QiskitExperimentsTestCase
-from test.fake_experiment import FakeExperiment
 from qiskit_experiments.test.fake_backend import FakeBackend
 from qiskit_experiments.framework.composite.chained_experiment import (
     ChainedExperiment,
@@ -30,7 +31,9 @@ from qiskit_experiments.framework.composite.chained_experiment import (
 from qiskit_experiments.calibration_management.calibrations import Calibrations
 from qiskit_experiments.calibration_management.basis_gate_library import FixedFrequencyTransmon
 from qiskit_experiments.library.calibration import FineXAmplitudeCal, RoughDragCal
-from qiskit_experiments.test.mock_iq_backend import MockFineAmp, DragBackend
+from qiskit_experiments.test.mock_iq_backend import MockIQBackend
+from qiskit_experiments.test.mock_iq_helpers import MockIQFineAmpHelper as FineAmpHelper
+from qiskit_experiments.test.mock_iq_helpers import MockIQDragHelper as DragHelper
 
 
 class TestChained(QiskitExperimentsTestCase):
@@ -42,8 +45,8 @@ class TestChained(QiskitExperimentsTestCase):
 
         self.cals = Calibrations.from_backend(backend=FakeBelem(), library=FixedFrequencyTransmon())
 
-        self.drag_backend = DragBackend(gate_name="Drag(x)")
-        self.amp_backend = MockFineAmp(0.05 * np.pi, np.pi, "x")
+        self.drag_backend = MockIQBackend(DragHelper(gate_name="Drag(x)"))
+        self.amp_backend = MockIQBackend(FineAmpHelper(0.05 * np.pi, np.pi, "x"))
 
     def test_single_experiment(self):
         """Test the chained experiment with a single experiment."""
@@ -69,6 +72,7 @@ class TestChained(QiskitExperimentsTestCase):
 
             def _transpiled_circuits(self) -> List[QuantumCircuit]:
                 """Wrap the transpile step to save the inst map for tests."""
+                # pylint: disable=attribute-defined-outside-init
                 self.inst_map = copy.deepcopy(self.calibrations.default_inst_map)
                 return super()._transpiled_circuits()
 
@@ -92,7 +96,7 @@ class TestChained(QiskitExperimentsTestCase):
 
         # Check the update of the drag experiment.
         new_beta = self.cals.get_parameter_value("β", 0, "x")
-        self.assertAlmostEqual(new_beta, self.drag_backend.ideal_beta, places=1)
+        self.assertAlmostEqual(new_beta, self.drag_backend.experiment_helper.ideal_beta, places=1)
         self.assertEqual(len(self.cals.parameters_table(parameters=["β"])["data"]), 3)
 
         # Check that the fine amplitude experiment ran with the updated beta

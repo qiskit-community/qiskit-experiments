@@ -16,8 +16,7 @@ from abc import ABC, abstractmethod
 from typing import List, Optional, Union
 
 from qiskit import QuantumCircuit
-from qiskit.providers import Backend
-from qiskit.providers import BaseJob
+from qiskit.providers import Backend, Job
 from qiskit.providers.options import Options
 
 from qiskit_experiments.framework.base_experiment import (
@@ -61,6 +60,14 @@ class GoodExperimentTransition(BaseTransitionCallable):
             return 1
         else:
             return 0
+
+
+class AlwaysTransition(BaseTransitionCallable):
+    """A simple experiment transition callable."""
+
+    def __call__(self, experiment_data: ExperimentData, **kwargs) -> int:
+        """An experiment transition callback that always moves to the next experiment."""
+        return 1
 
 
 class ChainedExperiment(CompositeExperiment):
@@ -150,21 +157,6 @@ class ChainedExperiment(CompositeExperiment):
         """Update the options of the transition callable."""
         self._transition_options.update_options(**fields)
 
-    def set_run_options(self, experiment_index: int = None, **fields):
-        """Set the run options of the sub-experiments.
-
-        Args:
-            experiment_index: If this value is provided then only the experiment at the
-                specified index will be updated. Otherwise, all experiments will be
-                updated.
-            fields: The fields of the options to update.
-        """
-        if experiment_index:
-            self.component_experiment(experiment_index).set_run_options(**fields)
-        else:
-            for exp in self._experiments:
-                exp.set_run_options(**fields)
-
     def run(
         self,
         backend: Optional[Backend] = None,
@@ -183,7 +175,7 @@ class ChainedExperiment(CompositeExperiment):
         """Nothing to do as run options can differ from one experiment to the next."""
         pass
 
-    def _run_jobs(self, circuits: List[QuantumCircuit], **run_options) -> List[BaseJob]:
+    def _run_jobs(self, circuits: List[QuantumCircuit], **run_options) -> List[Job]:
         """Do not run anything yet."""
         return []
 
