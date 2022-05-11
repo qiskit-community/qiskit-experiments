@@ -27,14 +27,12 @@ class ExperimentDocumenter(ClassDocumenter):
     """Sphinx extension for the custom documentation of the standard experiment class."""
 
     objtype = "experiment"
-    directivetype = 'class'
+    directivetype = "class"
     priority = 10 + ClassDocumenter.priority
     option_spec = dict(ClassDocumenter.option_spec)
 
     @classmethod
-    def can_document_member(
-        cls, member: Any, membername: str, isattr: bool, parent: Any
-    ) -> bool:
+    def can_document_member(cls, member: Any, membername: str, isattr: bool, parent: Any) -> bool:
         return isinstance(member, BaseExperiment)
 
     def add_content(self, more_content: Any, no_docstring: bool = False) -> None:
