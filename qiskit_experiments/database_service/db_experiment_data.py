@@ -1820,6 +1820,20 @@ class DbExperimentDataV1(DbExperimentData):
                     figures[name] = figure
         return figures
 
+    def _safe_serialize_data(self):
+        """Return serializable object for the experiment data"""
+        data_list = ThreadSafeList()
+        with self._data.lock:
+            for circuit_run_data_dict in self.data():
+                data = {}
+                for data_key, data_value in circuit_run_data_dict.items():
+                    if data_key == "counts":
+                        data[data_key] = {key: value.item() for key, value in data_value.items()}
+                    else:
+                        data[data_key] = data_value
+                data_list.append(data)
+        return data_list
+
     def __json_encode__(self):
         if any(not fut.done() for fut in self._job_futures.values()):
             raise QiskitError(
@@ -1841,7 +1855,6 @@ class DbExperimentDataV1(DbExperimentData):
             "_tags",
             "_share_level",
             "_notes",
-            "_data",
             "_analysis_results",
             "_analysis_callbacks",
             "_deleted_figures",
@@ -1858,6 +1871,7 @@ class DbExperimentDataV1(DbExperimentData):
 
         # Handle non-serializable objects
         json_value["_jobs"] = self._safe_serialize_jobs()
+        json_value["_data"] = self._safe_serialize_data()
 
         # the attribute self._service in charge of the connection and communication with the
         #  experiment db. It doesn't have meaning in the json format so there is no need to serialize
