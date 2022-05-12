@@ -20,11 +20,8 @@ import warnings
 from qiskit.exceptions import QiskitError
 from qiskit.providers.backend import Backend
 from qiskit_experiments.database_service import DbExperimentDataV1 as DbExperimentData
-from qiskit_experiments.database_service.database_service import (
-    DatabaseServiceV1 as DatabaseService,
-)
 from qiskit_experiments.database_service.utils import ThreadSafeOrderedDict
-
+from qiskit_ibm_experiment import IBMExperimentService
 if TYPE_CHECKING:
     # There is a cyclical dependency here, but the name needs to exist for
     # Sphinx on Python 3.9+ to link type hints correctly.  The gating on
@@ -160,7 +157,7 @@ class ExperimentData(DbExperimentData):
         super()._save_experiment_metadata()
 
     @classmethod
-    def load(cls, experiment_id: str, service: DatabaseService) -> ExperimentData:
+    def load(cls, experiment_id: str, service: IBMExperimentService) -> ExperimentData:
         expdata = DbExperimentData.load(experiment_id, service)
         expdata.__class__ = ExperimentData
         expdata._experiment = None
@@ -189,7 +186,7 @@ class ExperimentData(DbExperimentData):
         for data in child_data:
             self.add_child_data(data)
 
-    def _set_service(self, service: DatabaseService) -> None:
+    def _set_service(self, service: IBMExperimentService) -> None:
         """Set the service to be used for storing experiment data,
            to this experiment itself and its descendants.
 

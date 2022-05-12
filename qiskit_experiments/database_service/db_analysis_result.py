@@ -16,6 +16,7 @@ import copy
 import logging
 import math
 import uuid
+import traceback
 from typing import Optional, List, Union, Dict, Any
 
 import uncertainties
@@ -25,12 +26,12 @@ from qiskit_experiments.framework.json import (
     _serialize_safe_float,
 )
 
-from .database_service import DatabaseServiceV1
 from .db_fitval import FitVal
 from .device_component import DeviceComponent, to_component
 from .exceptions import DbExperimentDataError
 from .utils import save_data, qiskit_version
-from qiskit_ibm_experiment import AnalysisResultData
+from qiskit_ibm_experiment import IBMExperimentService, AnalysisResultData
+
 LOG = logging.getLogger(__name__)
 
 
@@ -61,7 +62,29 @@ class DbAnalysisResultV1(DbAnalysisResult):
     _extra_data = {}
 
     def __init__(
-        self,
+        self, data: AnalysisResultData,
+        service: Optional[IBMExperimentService] = None,
+    ):
+        """AnalysisResult constructor.
+
+        Args:
+            data: analysis data
+            service: Experiment service to be used to store result in database.
+        """
+        # Data to be stored in DB.
+        self._data = data
+        self._service = service
+        self._created_in_db = False
+        self._auto_save = False
+        if self._service:
+            try:
+                self.auto_save = self._service.preferences["auto_save"]
+            except AttributeError:
+                pass
+
+    @classmethod
+    def from_values(
+        cls,
         name: str,
         value: Any,
         device_components: List[Union[DeviceComponent, str]],
@@ -72,7 +95,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
         extra: Optional[Dict[str, Any]] = None,
         verified: bool = False,
         tags: Optional[List[str]] = None,
-        service: Optional[DatabaseServiceV1] = None,
+        service: Optional[IBMExperimentService] = None,
         source: Optional[Dict[str, str]] = None,
     ):
         """AnalysisResult constructor.
@@ -94,38 +117,26 @@ class DbAnalysisResultV1(DbAnalysisResult):
                 experiment service.
         """
         # Data to be stored in DB.
-        self._data = AnalysisResultData(experiment_id=experiment_id,
-                                        result_id=result_id or str(uuid.uuid4()),
-                                        result_type=name,
-                                        chisq=chisq,
-                                        quality=quality,
-                                        verified=verified,
-                                        tags=tags or []
-                                        )
-        self._data.result_data = self.format_result_data(value, extra, chisq, source)
-        # self._value = copy.deepcopy(value)
-        # self._extra = copy.deepcopy(extra or {})
+        data = AnalysisResultData(experiment_id=experiment_id,
+                                    result_id=result_id or str(uuid.uuid4()),
+                                    result_type=name,
+                                    chisq=chisq,
+                                    quality=quality,
+                                    verified=verified,
+                                    tags=tags or []
+                                    )
+        if source is None:
+            source = {
+                "class": f"{cls.__module__}.{cls.__name__}",
+                "data_version": cls._data_version,
+                "qiskit_version": qiskit_version(),
+            }
+        data.result_data = cls.format_result_data(value, extra, chisq, source)
         for comp in device_components:
             if isinstance(comp, str):
                 comp = to_component(comp)
-            self._data.device_components.append(comp)
-
-        # Other attributes.
-        self._service = service
-        self._source = source
-        self._created_in_db = False
-        self._auto_save = False
-        if self._service:
-            try:
-                self.auto_save = self._service.preferences["auto_save"]
-            except AttributeError:
-                pass
-        if self._source is None:
-            self._source = {
-                "class": f"{self.__class__.__module__}.{self.__class__.__name__}",
-                "data_version": self._data_version,
-                "qiskit_version": qiskit_version(),
-            }
+            data.device_components.append(comp)
+        return cls(data, service)
 
     @staticmethod
     def format_result_data(value, extra, chisq, source):
@@ -162,7 +173,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
         return result_data
 
     @classmethod
-    def load(cls, result_id: str, service: DatabaseServiceV1) -> "DbAnalysisResultV1":
+    def load(cls, result_id: str, service: IBMExperimentService) -> "DbAnalysisResultV1":
         """Load a saved analysis result from a database service.
 
         Args:
@@ -173,8 +184,8 @@ class DbAnalysisResultV1(DbAnalysisResult):
             The loaded analysis result.
         """
         # Load data from the service
-        service_data = service.analysis_result(result_id, json_decoder=cls._json_decoder)
-        result = cls._from_service_data(service_data)
+        data = service.analysis_result(result_id, json_decoder=cls._json_decoder)
+        result = cls(data)
         result._created_in_db = True
         return result
 
@@ -189,6 +200,30 @@ class DbAnalysisResultV1(DbAnalysisResult):
                 "Analysis result cannot be saved because no experiment service is available."
             )
             return
+        attempts = 0
+        success = False
+        is_new = not self._created_in_db
+        try:
+            while attempts < 3 and not success:
+                if is_new:
+                    try:
+                        self.service.create_analysis_result(self._data, json_encoder=self._json_encoder)
+                        success = True
+                        self._created_in_db = True
+                    except tuple(dup_entry_exception):
+                        is_new = False
+                else:
+                    try:
+                        self.service.update_analysis_result(self._data, json_encoder=self._json_encoder)
+                        success = True
+                    except tuple(no_entry_exception):
+                        is_new = True
+        except Exception:  # pylint: disable=broad-except
+            # Don't fail the experiment just because its data cannot be saved.
+            LOG.error("Unable to save the experiment data: %s", traceback.format_exc())
+
+        if not success:
+            LOG.error("Unable to save the experiment data:")
 
         # The next code sections construct the result_data dictionary.
         # Eventually it will contain:
@@ -204,13 +239,13 @@ class DbAnalysisResultV1(DbAnalysisResult):
         #
         # Below, in the `update_data` dictionary, there is an item named `chisq`, which is the
         #     formatted version of chisq.
-        value = self.value
-        result_data = {
-            "_value": value,
-            "_chisq": self.chisq,
-            "_extra": self.extra,
-            "_source": self.source,
-        }
+        # value = self.value
+        # result_data = {
+        #     "_value": value,
+        #     "_chisq": self.chisq,
+        #     "_extra": self.extra,
+        #     "_source": self.source,
+        # }
 
         # # Format special DB display fields
         # if isinstance(value, FitVal):
@@ -234,29 +269,29 @@ class DbAnalysisResultV1(DbAnalysisResult):
         #     if db_value is not None:
         #         result_data["value"] = db_value
 
-        new_data = {
-            "experiment_id": self.experiment_id,
-            "result_type": self.name,
-            "device_components": self.device_components,
-        }
-
-        update_data = {
-            "result_id": self._data.result_id,
-            "result_data": self._data.result_data,
-            "tags": self._data.tags,
-            "chisq": self._display_format(self.chisq),
-            "quality": self.quality,
-            "verified": self.verified,
-        }
-
-        self._created_in_db, _ = save_data(
-            is_new=(not self._created_in_db),
-            new_func=self._service.create_analysis_result,
-            update_func=self._service.update_analysis_result,
-            new_data=new_data,
-            update_data=update_data,
-            json_encoder=self._json_encoder,
-        )
+        # new_data = {
+        #     "experiment_id": self.experiment_id,
+        #     "result_type": self.name,
+        #     "device_components": self.device_components,
+        # }
+        #
+        # update_data = {
+        #     "result_id": self._data.result_id,
+        #     "result_data": self._data.result_data,
+        #     "tags": self._data.tags,
+        #     "chisq": self._display_format(self.chisq),
+        #     "quality": self.quality,
+        #     "verified": self.verified,
+        # }
+        #
+        # self._created_in_db, _ = save_data(
+        #     is_new=(not self._created_in_db),
+        #     new_func=self._service.create_analysis_result,
+        #     update_func=self._service.update_analysis_result,
+        #     new_data=new_data,
+        #     update_data=update_data,
+        #     json_encoder=self._json_encoder,
+        # )
 
     def copy(self) -> "DbAnalysisResultV1":
         """Return a copy of the result with a new result ID"""
@@ -274,50 +309,6 @@ class DbAnalysisResultV1(DbAnalysisResult):
             source=self.source,
         )
 
-    @classmethod
-    def _from_service_data(cls, service_data: Dict) -> "DbAnalysisResultV1":
-        """Construct an analysis result from saved database service data.
-
-        Args:
-            service_data: Analysis result data.
-
-        Returns:
-            The loaded analysis result.
-        """
-        # Parse serialized data
-        result_data = service_data.pop("result_data")
-        value = result_data.pop("_value")
-        chisq = result_data.pop("_chisq", None)
-        extra = result_data.pop("_extra", {})
-        source = result_data.pop("_source", None)
-
-        # For backward compatibility
-        # If loaded value is FitVal which may be typecasted into UFloat,
-        # the loader will copy unit in deprecated attribute to metadata for re-saving.
-        if isinstance(value, uncertainties.UFloat):
-            unit = getattr(value, "tag", None)
-            if unit:
-                extra["unit"] = unit
-
-        # Initialize the result object
-        obj = cls(
-            name=service_data.pop("result_type"),
-            value=value,
-            device_components=service_data.pop("device_components"),
-            experiment_id=service_data.pop("experiment_id"),
-            result_id=service_data.pop("result_id"),
-            quality=service_data.pop("quality"),
-            extra=extra,
-            chisq=chisq,
-            verified=service_data.pop("verified"),
-            tags=service_data.pop("tags"),
-            service=service_data.pop("service"),
-            source=source,
-        )
-        for key, val in service_data.items():
-            setattr(obj, key, val)
-        return obj
-
     @property
     def name(self) -> str:
         """Return analysis result name.
@@ -325,7 +316,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
         Returns:
             Analysis result name.
         """
-        return self._name
+        return self._data.result_type
 
     @property
     def value(self) -> Any:
@@ -334,7 +325,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
         Returns:
             Analysis result value.
         """
-        return self._value
+        return self._data.result_data['_value']
 
     @value.setter
     def value(self, new_value: Any) -> None:
@@ -370,7 +361,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
         Returns:
             Target device components.
         """
-        return self._device_components
+        return self._data.device_components
 
     @device_components.setter
     def device_components(self, components: List[Union[DeviceComponent, str]]):
@@ -388,7 +379,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
         Returns:
             ID for this analysis result.
         """
-        return self._id
+        return self._data.result_id
 
     @property
     def experiment_id(self) -> str:
@@ -397,12 +388,12 @@ class DbAnalysisResultV1(DbAnalysisResult):
         Returns:
             ID of experiment associated with this analysis result.
         """
-        return self._experiment_id
+        return self._data.experiment_id
 
     @property
     def chisq(self) -> Optional[float]:
         """Return the reduced χ² of this analysis."""
-        return self._chisq
+        return self._data.chisq
 
     @chisq.setter
     def chisq(self, new_chisq: float) -> None:
@@ -418,7 +409,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
         Returns:
             Quality of this analysis.
         """
-        return self._quality
+        return self._data.quality
 
     @quality.setter
     def quality(self, new_quality: str) -> None:
@@ -441,7 +432,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
         Returns:
             Whether the quality has been verified.
         """
-        return self._quality_verified
+        return self._data.verified
 
     @verified.setter
     def verified(self, verified: bool) -> None:
@@ -457,7 +448,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
     @property
     def tags(self):
         """Return tags associated with this result."""
-        return self._tags
+        return self._data.tags
 
     @tags.setter
     def tags(self, new_tags: List[str]) -> None:
@@ -471,7 +462,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
             self.save()
 
     @property
-    def service(self) -> Optional[DatabaseServiceV1]:
+    def service(self) -> Optional[IBMExperimentService]:
         """Return the database service.
 
         Returns:
@@ -481,7 +472,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
         return self._service
 
     @service.setter
-    def service(self, service: DatabaseServiceV1) -> None:
+    def service(self, service: IBMExperimentService) -> None:
         """Set the service to be used for storing result data in a database.
 
         Args:

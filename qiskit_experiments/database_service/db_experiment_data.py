@@ -36,7 +36,6 @@ from qiskit.result import Result
 from qiskit.providers.jobstatus import JobStatus, JOB_FINAL_STATES
 from qiskit_experiments.framework.json import ExperimentEncoder, ExperimentDecoder
 
-from .database_service import DatabaseServiceV1
 from .exceptions import DbExperimentDataError, DbExperimentEntryNotFound, DbExperimentEntryExists
 from .db_analysis_result import DbAnalysisResultV1 as DbAnalysisResult
 from .utils import (
@@ -46,7 +45,7 @@ from .utils import (
     ThreadSafeOrderedDict,
     ThreadSafeList,
 )
-
+from qiskit_ibm_experiment import IBMExperimentService
 LOG = logging.getLogger(__name__)
 
 
@@ -163,7 +162,7 @@ class DbExperimentDataV1(DbExperimentData):
         self,
         experiment_type: Optional[str] = "Unknown",
         backend: Optional[Backend] = None,
-        service: Optional[DatabaseServiceV1] = None,
+        service: Optional[IBMExperimentService] = None,
         experiment_id: Optional[str] = None,
         parent_id: Optional[str] = None,
         tags: Optional[List[str]] = None,
@@ -949,7 +948,7 @@ class DbExperimentDataV1(DbExperimentData):
             This method does not save analysis results nor figures.
             Use :meth:`save` for general saving of all experiment data.
 
-            See :meth:`qiskit.providers.experiment.DatabaseServiceV1.create_experiment`
+            See :meth:`qiskit.providers.experiment.IBMExperimentService.create_experiment`
             for fields that are saved.
         """
         self._save_experiment_metadata()
@@ -961,7 +960,7 @@ class DbExperimentDataV1(DbExperimentData):
             This method does not save analysis results nor figures.
             Use :meth:`save` for general saving of all experiment data.
 
-            See :meth:`qiskit.providers.experiment.DatabaseServiceV1.create_experiment`
+            See :meth:`qiskit.providers.experiment.IBMExperimentService.create_experiment`
             for fields that are saved.
         """
         if not self._service:
@@ -1072,7 +1071,7 @@ class DbExperimentDataV1(DbExperimentData):
                 )
 
     @classmethod
-    def load(cls, experiment_id: str, service: DatabaseServiceV1) -> "DbExperimentDataV1":
+    def load(cls, experiment_id: str, service: IBMExperimentService) -> "DbExperimentDataV1":
         """Load a saved experiment data from a database service.
 
         Args:
@@ -1701,7 +1700,7 @@ class DbExperimentDataV1(DbExperimentData):
             self.save_metadata()
 
     @property
-    def service(self) -> Optional[DatabaseServiceV1]:
+    def service(self) -> Optional[IBMExperimentService]:
         """Return the database service.
 
         Returns:
@@ -1710,7 +1709,7 @@ class DbExperimentDataV1(DbExperimentData):
         return self._service
 
     @service.setter
-    def service(self, service: DatabaseServiceV1) -> None:
+    def service(self, service: IBMExperimentService) -> None:
         """Set the service to be used for storing experiment data
 
         Args:
@@ -1721,7 +1720,7 @@ class DbExperimentDataV1(DbExperimentData):
         """
         self._set_service(service)
 
-    def _set_service(self, service: DatabaseServiceV1) -> None:
+    def _set_service(self, service: IBMExperimentService) -> None:
         """Set the service to be used for storing experiment data,
            to this experiment only and not to its descendants
 

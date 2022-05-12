@@ -91,5 +91,4 @@ Exceptions
 
 from .db_experiment_data import DbExperimentData, DbExperimentDataV1
 from .db_analysis_result import DbAnalysisResult, DbAnalysisResultV1
-from .database_service import DatabaseService, DatabaseServiceV1
 from .exceptions import DbExperimentDataError, DbExperimentEntryExists, DbExperimentEntryNotFound

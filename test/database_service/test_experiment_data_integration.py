@@ -163,7 +163,7 @@ class TestExperimentDataIntegration(QiskitTestCase):
         """Test adding an analysis result."""
         exp_data = self._create_experiment_data()
         result_data = {"complex": 2 + 3j, "numpy": np.zeros(2)}
-        aresult = AnalysisResult(
+        aresult = AnalysisResult.from_values(
             name="qiskit_test",
             value=result_data,
             device_components=self.device_components,
@@ -300,7 +300,7 @@ class TestExperimentDataIntegration(QiskitTestCase):
         """Test saving all."""
         exp_data = self._create_experiment_data()
         exp_data.tags = ["foo", "bar"]
-        aresult = AnalysisResult(
+        aresult = AnalysisResult.from_values(
             value={},
             name="qiskit_test",
             device_components=self.device_components,
@@ -407,7 +407,7 @@ class TestExperimentDataIntegration(QiskitTestCase):
         """Test auto saving analysis result."""
         exp_data = self._create_experiment_data()
         exp_data.auto_save = True
-        aresult = AnalysisResult(
+        aresult = AnalysisResult.from_values(
             value={},
             name="qiskit_test",
             device_components=self.device_components,
@@ -482,7 +482,7 @@ class TestExperimentDataIntegration(QiskitTestCase):
     def _create_analysis_result(self):
         """Create a simple analysis result."""
         exp_data = self._create_experiment_data()
-        aresult = AnalysisResult(
+        aresult = AnalysisResult.from_values(
             value={},
             name="qiskit_test",
             device_components=self.device_components,
@@ -500,13 +500,5 @@ class TestExperimentDataIntegration(QiskitTestCase):
         self.jobs_to_cancel.append(job)
         return job
 
-# if __name__ == "__main__":
-#     unittest.main()
-def suite():
-    suite = unittest.TestSuite()
-    suite.addTest(TestExperimentDataIntegration('test_add_analysis_results'))
-    return suite
-
-if __name__ == '__main__':
-    runner = unittest.TextTestRunner()
-    runner.run(suite())
+if __name__ == "__main__":
+    unittest.main()
