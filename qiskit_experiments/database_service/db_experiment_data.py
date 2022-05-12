@@ -1828,7 +1828,7 @@ class DbExperimentDataV1(DbExperimentData):
                 data = {}
                 for data_key, data_value in circuit_run_data_dict.items():
                     if data_key == "counts":
-                        data[data_key] = {key: value.item() for key, value in data_value.items()}
+                        data[data_key] = {key: int(value) for key, value in data_value.items()}
                     else:
                         data[data_key] = data_value
                 data_list.append(data)
