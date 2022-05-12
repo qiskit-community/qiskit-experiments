@@ -50,6 +50,20 @@ experiment data, which consists of the following:
     * Figures. Some analysis functions also generate figures, which can also be
       saved in the database.
 
+:class:`DatabaseServiceV1` provides low-level abstract interface for accessing the
+database, such as :meth:`DatabaseServiceV1.create_experiment` for creating a
+new experiment entry and :meth:`DatabaseServiceV1.update_experiment` for
+updating an existing entry. :class:`DbExperimentDataV1` has methods that wrap
+around some of these low-level database methods. For example,
+:meth:`DbExperimentDataV1.save` calls :meth:`DatabaseServiceV1.create_experiment`
+under the cover to save experiment related data. The low-level methods are only
+expected to be used when you want to interact with the database directly - for
+example, to retrieve a saved analysis result.
+
+Currently only IBM Quantum provides this database service. See
+the :mod:`Experiment <qiskit.providers.ibmq.experiment>` module in the IBM
+Quantum provider for more details.
+
 Classes
 =======
 
@@ -60,6 +74,8 @@ Classes
    DbExperimentDataV1
    DbAnalysisResult
    DbAnalysisResultV1
+   DatabaseService
+   DatabaseServiceV1
 
 
 Exceptions
@@ -73,4 +89,6 @@ Exceptions
    DbExperimentEntryNotFound
 """
 
+from .db_experiment_data import DbExperimentData, DbExperimentDataV1
+from .db_analysis_result import DbAnalysisResult, DbAnalysisResultV1
 from .exceptions import DbExperimentDataError, DbExperimentEntryExists, DbExperimentEntryNotFound

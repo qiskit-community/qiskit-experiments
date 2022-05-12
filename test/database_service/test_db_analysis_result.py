@@ -25,6 +25,7 @@ from qiskit_ibm_experiment import IBMExperimentService, ExperimentData
 from qiskit_experiments.framework import AnalysisResult
 from qiskit_experiments.database_service.device_component import Qubit, Resonator, to_component
 from qiskit_experiments.database_service.exceptions import DbExperimentDataError
+from qiskit_ibm_experiment import IBMExperimentService
 
 
 class TestAnalysisResult(QiskitExperimentsTestCase):
