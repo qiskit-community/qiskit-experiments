@@ -16,7 +16,7 @@ from abc import abstractmethod
 from abc import ABC
 from enum import Enum
 from numbers import Number
-from typing import Union, Sequence, Set
+from typing import Any, Union, Sequence, Set
 from collections import defaultdict
 
 import numpy as np
@@ -321,6 +321,10 @@ class IQPart(DataAction):
         """
         self.scale = scale
         super().__init__(validate)
+        self._n_circs = 0
+        self._n_shots = 0
+        self._n_slots = 0
+        self._n_iq = 0
 
     @abstractmethod
     def _process(self, data: np.ndarray) -> np.ndarray:
@@ -349,6 +353,24 @@ class IQPart(DataAction):
         Raises:
             DataProcessorError: When input data is not likely IQ data.
         """
+        self._n_circs = 0
+        self._n_shots = 0
+        self._n_slots = 0
+        self._n_iq = 0
+
+        # identify shape
+        try:
+            # level1 single-shot data
+            self._n_circs, self._n_shots, self._n_slots, self._n_iq = data.shape
+        except ValueError:
+            try:
+                # level1 data averaged over shots
+                self._n_circs, self._n_slots, self._n_iq = data.shape
+            except ValueError as ex:
+                raise DataProcessorError(
+                    f"Data given to {self.__class__.__name__} is not likely level1 data."
+                ) from ex
+
         if self._validate:
             if data.shape[-1] != 2:
                 raise DataProcessorError(
@@ -409,6 +431,92 @@ class ToAbs(IQPart):
         """
         # pylint: disable=no-member
         return unp.sqrt(data[..., 0] ** 2 + data[..., 1] ** 2) * self.scale
+
+
+class Discriminator(IQPart):
+    """A class to discriminate level 1 data, e.g., IQ data, to produce counts.
+
+    This node can be seen as a wrapper for a discriminator object such as a Sklearn classifier.
+    The wrapped discriminator object must have a method :meth:`predict` that takes as input
+    a list of lists and returns a list of labels as do most Sklearn classifiers.
+    """
+
+    def __init__(self, discriminator: Any, validate: bool = True):
+        """Initialize the node with an object that can discriminate.
+
+        Args:
+            discriminator: The entity that will perform the discrimination. This needs to
+                be an object with a :meth:`predict` method that takes as input a list of
+                lists and returns a list of labels.
+        """
+        super().__init__(1.0, validate)
+        self._discriminator = discriminator
+
+    def _process(self, data: np.ndarray) -> np.ndarray:
+        """Discriminate the data.
+
+        Args:
+            data: The IQ data as a list of points to discriminate. This data should have
+                the shape dim_1 x dim_2 x ... x dim_k x 2.
+
+        Returns:
+            The discriminated data as a list of labels with shape dim_1 x ... x dim_k.
+        """
+
+        # Reshape the IQ data to an array of size n x 2
+        shape = data.shape
+        data_length = 1
+        for dim in shape[0:-1]:
+            data_length *= dim
+
+        data = data.reshape(data_length, 2)  # the last dim is guaranteed by _process
+
+        # Classify the data using the discriminator and reshape it to dim_1 x ... x dim_k
+        classified = np.array(self._discriminator.predict(data)).reshape(shape[0:-1])
+
+        # Concatenate the bit-strings together.
+        # Averaged data
+        if self._n_shots == 0:
+            # ::-1 for Qiskit's convention, e.g. in "001" qubit 0 is in state "1".
+            labeled_data = ["".join(classified[idx, :][::-1]) for idx in range(self._n_circs)]
+            return np.array(labeled_data).reshape(self._n_circs, 1)
+        # Single-shot data
+        else:
+            labeled_data = []
+            for idx in range(self._n_circs):
+                labeled_data.append(
+                    ["".join(classified[idx, jdx, :][::-1]) for jdx in range(self._n_shots)]
+                )
+
+            return np.array(labeled_data).reshape(self._n_circs, self._n_shots)
+
+
+class MemoryToCounts(DataAction):
+    """A data action that takes discriminated data and transforms it into a counts dict.
+
+    This node is intended to be used after the :class:`.Discriminator` node. It will convert
+    the classified memory into a list of count dictionaries wrapped in a numpy array.
+    """
+
+    def _process(self, data: np.ndarray) -> np.ndarray:
+        """
+        Args:
+            data: The classified data to format into a counts dictionary. The first dimension
+                is assumed to correspond to the different circuit executions.
+
+        Returns:
+            A list of dictionaries where each dict is a count dictionary over the labels of
+            the input data.
+        """
+        all_counts = []
+        for datum in data:
+            counts = {}
+            for bit_string in set(datum):
+                counts[bit_string] = sum(datum == bit_string)
+
+            all_counts.append(counts)
+
+        return np.array(all_counts)
 
 
 class CountsAction(DataAction):

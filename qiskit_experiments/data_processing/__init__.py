@@ -63,6 +63,8 @@ Data Processing Nodes
     ToImag
     ToReal
     SVD
+    Discriminator
+    MemoryToCounts
     AverageData
     BasisExpectationValue
     MinMaxNormalize
@@ -75,6 +77,8 @@ from .nodes import (
     ToImag,
     ToReal,
     SVD,
+    Discriminator,
+    MemoryToCounts,
     AverageData,
     BasisExpectationValue,
     MinMaxNormalize,
