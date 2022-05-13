@@ -16,7 +16,7 @@ from abc import abstractmethod
 from abc import ABC
 from enum import Enum
 from numbers import Number
-from typing import Any, Union, Sequence, Set
+from typing import Any, List, Union, Sequence, Set
 from collections import defaultdict
 
 import numpy as np
@@ -438,19 +438,37 @@ class Discriminator(IQPart):
 
     This node can be seen as a wrapper for a discriminator object such as a Sklearn classifier.
     The wrapped discriminator object must have a method :meth:`predict` that takes as input
-    a list of lists and returns a list of labels as do most Sklearn classifiers.
+    a list of lists and returns a list of labels as do most Sklearn classifiers. Crucially,
+    this node can be initialized with a single discriminator which applies to each memory
+    slot or it can be initialized with a list of discriminators, i.e. one for each slot.
     """
 
-    def __init__(self, discriminator: Any, validate: bool = True):
+    def __init__(self, discriminator: Union[Any, List[Any]], validate: bool = True):
         """Initialize the node with an object that can discriminate.
 
         Args:
             discriminator: The entity that will perform the discrimination. This needs to
-                be an object with a :meth:`predict` method that takes as input a list of
-                lists and returns a list of labels.
+                be an object or a list of objects with a :meth:`predict` method that takes
+                as input a list of lists and returns a list of labels. If a list of
+                discriminators is given then there should be as many discriminators as there
+                will be slots in the memory.
         """
         super().__init__(1.0, validate)
         self._discriminator = discriminator
+
+    def _format_data(self, data: np.ndarray) -> np.ndarray:
+        """Check that there are as many discriminators as there are slots."""
+        data = super()._format_data(data)
+
+        if self._validate:
+            if isinstance(self._discriminator, List):
+                if self._n_slots != len(self._discriminator):
+                    raise DataProcessorError(
+                        f"The Discriminator node has {len(self._discriminator)} which does "
+                        f"not match the {self._n_slots} slots in the data."
+                    )
+
+        return data
 
     def _process(self, data: np.ndarray) -> np.ndarray:
         """Discriminate the data.
@@ -462,24 +480,37 @@ class Discriminator(IQPart):
         Returns:
             The discriminated data as a list of labels with shape dim_1 x ... x dim_k.
         """
+        # Case where one discriminator is applied to all the data.
+        if not isinstance(self._discriminator, List):
+            # Reshape the IQ data to an array of size n x 2
+            shape, data_length = data.shape, 1
+            for dim in shape[0:-1]:
+                data_length *= dim
 
-        # Reshape the IQ data to an array of size n x 2
-        shape = data.shape
-        data_length = 1
-        for dim in shape[0:-1]:
-            data_length *= dim
+            data = data.reshape((data_length, 2))  # the last dim is guaranteed by _process
 
-        data = data.reshape(data_length, 2)  # the last dim is guaranteed by _process
+            # Classify the data using the discriminator and reshape it to dim_1 x ... x dim_k
+            classified = np.array(self._discriminator.predict(data)).reshape(shape[0:-1])
 
-        # Classify the data using the discriminator and reshape it to dim_1 x ... x dim_k
-        classified = np.array(self._discriminator.predict(data)).reshape(shape[0:-1])
+        # case where a discriminator is applied to each slot.
+        else:
+            classified = []
+            for idx, discriminator in self._discriminator:
+                if self._n_shots == 0:
+                    sub_data = data[:, idx, :].reshape((self._n_circs, 2))
+                else:
+                    sub_data = data[:, :, idx, :].reshape((self._n_circs * self._n_shots, 2))
+                sub_classified = discriminator.predict(sub_data)  # has len n_circs * n_shots
+                classified.append(sub_classified)  # has shape n_slots, n_circs * n_shots
+
+            classified = np.array(classified).reshape((self._n_circs, self._n_shots, self._n_slots))
 
         # Concatenate the bit-strings together.
         # Averaged data
         if self._n_shots == 0:
             # ::-1 for Qiskit's convention, e.g. in "001" qubit 0 is in state "1".
             labeled_data = ["".join(classified[idx, :][::-1]) for idx in range(self._n_circs)]
-            return np.array(labeled_data).reshape(self._n_circs, 1)
+            return np.array(labeled_data).reshape((self._n_circs, 1))
         # Single-shot data
         else:
             labeled_data = []
@@ -488,7 +519,7 @@ class Discriminator(IQPart):
                     ["".join(classified[idx, jdx, :][::-1]) for jdx in range(self._n_shots)]
                 )
 
-            return np.array(labeled_data).reshape(self._n_circs, self._n_shots)
+            return np.array(labeled_data).reshape((self._n_circs, self._n_shots))
 
 
 class MemoryToCounts(DataAction):
