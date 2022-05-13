@@ -26,6 +26,7 @@ from qiskit_experiments.data_processing.nodes import (
     Probability,
     MarginalizeCounts,
     RestlessToCounts,
+    RestlessToIQ,
 )
 from qiskit_experiments.data_processing import DataProcessor
 from qiskit_experiments.framework.json import ExperimentDecoder, ExperimentEncoder
@@ -519,4 +520,37 @@ class TestRestless(QiskitExperimentsTestCase):
         # time-ordered data: ["11", "11", "01", "01", "10", "10", "00", "00"]
         # classification: ["11", "00", "10", "00", "11", "00", "10", "00"]
         expected_data = np.array([{"10": 2, "11": 2}, {"00": 4}])
+        self.assertTrue(processed_data.all() == expected_data.all())
+
+    def test_restless_iq_process(self):
+        """Test restless IQ data processing."""
+        node = RestlessToIQ()
+
+        # The shape of the IQ data is (2, 2, 1, 2) corresponding to
+        # 2 circuits, 2 shots, 1 qubit and the respective IQ-point [I, Q].
+        data = [[[[1, -2]], [[1, 3]]], [[[6, -4]], [[-3, 1]]]]
+        # time-ordered data: [[[1, -2]], [[6, -4]], [[1, 3]], [[-3, 1]]]
+        # subtraction: [[[1, -2]], [[5, -2]], [[-5, 7]], [[-4, -2]]]
+        # absolute value: [[[1, -2]], [[5, 2]], [[5, 7]], [[4, 2]]]
+        # sorted by circuit: [[[[1, -2]], [[5, 7]]], [[[5, 2]], [[4, 2]]]]
+        expected_data = np.array([[[[1, -2]], [[5, 7]]], [[[5, 2]], [[4, 2]]]])
+        processed_data = node(data=np.array(data))
+        self.assertTrue(processed_data.all() == expected_data.all())
+
+    def test_restless_iq_process_2q(self):
+        """Test two-qubit restless IQ data processing."""
+        node = RestlessToIQ()
+
+        # The shape of the IQ data is (2, 2, 2, 2) corresponding to
+        # 2 circuits, 2 shots, 2 qubits and the respective IQ-point [I, Q].
+        data = [[[[1, -2], [2, 5]], [[1, 3], [4, 2]]], [[[6, -4], [-8, 2]], [[-3, 1], [0, 3]]]]
+        # time-ordered data: [[[1, -2], [2, 5]], [[6, -4], [-8, 2]], [[1, 3], [4, 2]], [[-3, 1], [0, 3]]]
+        # subtraction: [[[1, -2], [2, 5]], [[5, -2], [-10, -3]], [[-5, 7], [12, 0]], [[-4, -2], [-4, 1]]]
+        # absolute value: [[[1, -2], [2, 5]], [[5, 2], [10, 3]], [[5, 7], [12, 0]], [[4, 2], [4, 1]]]
+        # sorted by circuit: [[[[1, -2], [2, 5]], [[5, 7], [12, 0]]],
+        # [[[5, 2], [10, 3]], [[4, 2], [12, 0]]]]
+        expected_data = np.array(
+            [[[[1, -2], [2, 5]], [[5, 7], [12, 0]]], [[[5, 2], [10, 3]], [[4, 2], [12, 0]]]]
+        )
+        processed_data = node(data=np.array(data))
         self.assertTrue(processed_data.all() == expected_data.all())

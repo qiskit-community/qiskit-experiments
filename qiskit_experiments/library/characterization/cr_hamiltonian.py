@@ -157,22 +157,21 @@ class CrossResonanceHamiltonian(BaseExperiment):
         Raises:
             QiskitError: When ``qubits`` length is not 2.
         """
-        super().__init__(qubits, analysis=CrossResonanceHamiltonianAnalysis(), backend=backend)
-
-        if len(qubits) != 2:
-            raise QiskitError(
-                "Length of qubits is not 2. Please provide index for control and target qubit."
-            )
-
-        self.set_experiment_options(flat_top_widths=flat_top_widths, **kwargs)
-        self._cr_gate = cr_gate
-
         # backend parameters required to run this experiment
         # random values are populated here but these are immediately updated after backend is set
         # this is to keep capability of generating circuits just for checking
         self._dt = 1
         self._cr_channel = 0
         self._granularity = 1
+        self._cr_gate = cr_gate
+
+        if len(qubits) != 2:
+            raise QiskitError(
+                "Length of qubits is not 2. Please provide index for control and target qubit."
+            )
+
+        super().__init__(qubits, analysis=CrossResonanceHamiltonianAnalysis(), backend=backend)
+        self.set_experiment_options(flat_top_widths=flat_top_widths, **kwargs)
 
     @classmethod
     def _default_experiment_options(cls) -> Options:
