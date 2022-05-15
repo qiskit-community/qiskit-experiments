@@ -461,7 +461,7 @@ class Discriminator(IQPart):
         data = super()._format_data(data)
 
         if self._validate:
-            if isinstance(self._discriminator, List):
+            if isinstance(self._discriminator, list):
                 if self._n_slots != len(self._discriminator):
                     raise DataProcessorError(
                         f"The Discriminator node has {len(self._discriminator)} which does "
@@ -481,7 +481,7 @@ class Discriminator(IQPart):
             The discriminated data as a list of labels with shape dim_1 x ... x dim_k.
         """
         # Case where one discriminator is applied to all the data.
-        if not isinstance(self._discriminator, List):
+        if not isinstance(self._discriminator, list):
             # Reshape the IQ data to an array of size n x 2
             shape, data_length = data.shape, 1
             for dim in shape[0:-1]:
@@ -494,16 +494,20 @@ class Discriminator(IQPart):
 
         # case where a discriminator is applied to each slot.
         else:
-            classified = []
-            for idx, discriminator in self._discriminator:
-                if self._n_shots == 0:
+            if self._n_shots == 0:
+                classified = np.empty((self._n_circs, self._n_slots), dtype=str)
+                for idx, discriminator in enumerate(self._discriminator):
                     sub_data = data[:, idx, :].reshape((self._n_circs, 2))
-                else:
-                    sub_data = data[:, :, idx, :].reshape((self._n_circs * self._n_shots, 2))
-                sub_classified = discriminator.predict(sub_data)  # has len n_circs * n_shots
-                classified.append(sub_classified)  # has shape n_slots, n_circs * n_shots
+                    sub_classified = discriminator.predict(sub_data)
+                    classified[:, idx] = sub_classified
 
-            classified = np.array(classified).reshape((self._n_circs, self._n_shots, self._n_slots))
+            else:
+                classified = np.empty((self._n_circs, self._n_shots, self._n_slots), dtype=str)
+                for idx, discriminator in enumerate(self._discriminator):
+                    sub_data = data[:, :, idx, :].reshape((self._n_circs * self._n_shots, 2))
+                    sub_classified = np.array(discriminator.predict(sub_data))
+                    sub_classified = sub_classified.reshape((self._n_circs, self._n_shots))
+                    classified[:, :, idx] = sub_classified
 
         # Concatenate the bit-strings together.
         # Averaged data

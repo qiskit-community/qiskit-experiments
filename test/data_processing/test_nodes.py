@@ -521,6 +521,55 @@ class TestDiscriminator(BaseDataProcessorTest):
         for idx, counts_dict in enumerate(counts):
             self.assertDictEqual(counts_dict, expected[idx])
 
+    def test_discriminator_list(self):
+        """Test that we can discriminate using a list of discriminators.
+
+        Here, the first discriminator will always return 1, the second one will give either 0
+        or 1 and the last one with a threshold of 10 will always return 0.
+        """
+
+        # The data has the shape
+        iq_data = [
+            # Circuit no. 1, 5 shots, 3 qubits
+            [
+                [[0.8, -1.1], [0.1, 0.3], [-0.3, 0.4]],
+                [[0.2, -1.0], [-0.5, 0.3], [-0.2, 0.4]],
+                [[-0.8, -1.0], [-0.1, 0.3], [-0.3, 0.4]],
+                [[-0.5, -1.0], [-0.2, 0.3], [-0.9, 0.4]],
+                [[-0.8, -1.0], [0.2, 0.3], [0.3, 0.4]],
+            ],
+            # Circuit no. 2, 5 shots, 3 qubits
+            [
+                [[-0.3, -1.0], [0.1, 0.3], [0.9, 0.4]],
+                [[0.8, -1.2], [0.9, 0.3], [0.3, 0.4]],
+                [[-0.7, -1.0], [0.1, 0.3], [0.1, 0.4]],
+                [[-0.8, -1.0], [0.7, 0.3], [0.3, 0.4]],
+                [[-0.8, -1.0], [-0.1, 0.3], [0.2, 0.4]],
+            ],
+            # Circuit no. 3, 5 shots, 3 qubits
+            [
+                [[-0.8, -1.0], [0.1, 0.3], [-0.2, 0.4]],
+                [[0.2, -1.0], [0.1, 0.3], [0.1, 0.4]],
+                [[-0.8, -1.0], [0.1, 0.3], [-0.3, 0.4]],
+                [[0.8, -1.0], [-0.1, 0.3], [0.2, 0.4]],
+                [[0.8, -1.0], [-0.1, 0.3], [-0.3, 0.4]],
+            ],
+        ]
+
+        self.create_experiment_data(iq_data, single_shot=True)
+        data = np.asarray([datum["memory"] for datum in self.iq_experiment.data()])
+        thresholds = [-10, 0, 10]
+        discriminator = Discriminator([FakeDiscriminator(threshold) for threshold in thresholds])
+        classified = discriminator(data)
+
+        expected = [
+            ["011", "001", "001", "001", "011"],  # Circuit no. 1
+            ["011", "011", "011", "011", "001"],  # Circuit no. 2
+            ["011", "011", "011", "001", "001"],  # Circuit no. 3
+        ]
+
+        self.assertListEqual(classified.tolist(), expected)
+
     def test_qutrit(self):
         """Test a qutrit discriminator."""
 
