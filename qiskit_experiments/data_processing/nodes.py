@@ -443,7 +443,9 @@ class Discriminator(IQPart):
     slot or it can be initialized with a list of discriminators, i.e. one for each slot.
     """
 
-    def __init__(self, discriminator: Union[Any, List[Any]], validate: bool = True):
+    def __init__(
+        self, discriminator: Union[Any, List[Any]], validate: bool = True, no_ufloat: bool = True
+    ):
         """Initialize the node with an object that can discriminate.
 
         Args:
@@ -452,9 +454,12 @@ class Discriminator(IQPart):
                 as input a list of lists and returns a list of labels. If a list of
                 discriminators is given then there should be as many discriminators as there
                 will be slots in the memory.
+            no_ufloat: A boolean which if set to True, i.e., the default, will cause the node
+                to convert the data from uncertainties to regular floats.
         """
         super().__init__(1.0, validate)
         self._discriminator = discriminator
+        self._no_ufloat = no_ufloat
 
     def _format_data(self, data: np.ndarray) -> np.ndarray:
         """Check that there are as many discriminators as there are slots."""
@@ -467,6 +472,9 @@ class Discriminator(IQPart):
                         f"The Discriminator node has {len(self._discriminator)} which does "
                         f"not match the {self._n_slots} slots in the data."
                     )
+
+        if self._no_ufloat:
+            data = unp.nominal_values(data)
 
         return data
 
