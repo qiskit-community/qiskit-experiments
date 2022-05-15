@@ -112,4 +112,8 @@ class TestFramework(QiskitExperimentsTestCase):
         analysis = FakeAnalysis()
         analysis.set_options(**opts)
         analysis.run(ExperimentData(), **run_opts)
-        self.assertEqual(analysis.options.__dict__, opts)
+        # add also the default 'figure_names' option
+        target_opts = opts.copy()
+        target_opts["figure_names"] = None
+
+        self.assertEqual(analysis.options.__dict__, target_opts)
