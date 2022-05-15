@@ -27,6 +27,7 @@ class JupyterCellCheckEnv(JupyterCell):
         [cell] = super().run()
         if os.getenv("QISKIT_DOCS_SKIP_RST", False):
             cell["execute"] = False
+            cell["hide_code"] = False
         return [cell]
 
 

@@ -176,6 +176,11 @@ allow configuring various experiment and execution options
 - :meth:`BaseExperiment._metadata`
   to add any experiment metadata to the result data.
 
+Furthermore, some characterization and calibration experiments can be run with restless
+measurements, i.e. measurements where the qubits are not reset and circuits are executed
+immediately after the previous measurement. Here, the :class:`.RestlessMixin` can help
+to set the appropriate run options and data processing chain.
+
 Analysis Subclasses
 *******************
 
@@ -232,6 +237,14 @@ Base Classes
     BaseExperiment
     BaseAnalysis
 
+Mix-ins
+*******
+
+.. autosummary::
+    :toctree: ../stubs/
+
+    RestlessMixin
+
 .. _create-experiment:
 """
 from qiskit.providers.options import Options
@@ -252,3 +265,4 @@ from .composite import (
     CompositeAnalysis,
 )
 from .json import ExperimentEncoder, ExperimentDecoder
+from .restless_mixin import RestlessMixin

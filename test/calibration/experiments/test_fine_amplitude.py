@@ -29,7 +29,8 @@ from qiskit_experiments.library import (
 )
 from qiskit_experiments.calibration_management.basis_gate_library import FixedFrequencyTransmon
 from qiskit_experiments.calibration_management import Calibrations
-from qiskit_experiments.test.mock_iq_backend import MockFineAmp
+from qiskit_experiments.test.mock_iq_backend import MockIQBackend
+from qiskit_experiments.test.mock_iq_helpers import MockIQFineAmpHelper as FineAmpHelper
 
 
 @ddt
@@ -44,7 +45,7 @@ class TestFineAmpEndToEnd(QiskitExperimentsTestCase):
         amp_exp.set_transpile_options(basis_gates=["x", "sx"])
 
         error = -np.pi * pi_ratio
-        backend = MockFineAmp(error, np.pi, "x")
+        backend = MockIQBackend(FineAmpHelper(error, np.pi, "x"))
 
         expdata = amp_exp.run(backend)
         self.assertExperimentDone(expdata)
@@ -64,8 +65,7 @@ class TestFineAmpEndToEnd(QiskitExperimentsTestCase):
         amp_exp.set_transpile_options(basis_gates=["x", "sx"])
 
         error = np.pi * pi_ratio
-        backend = MockFineAmp(error, np.pi, "x")
-
+        backend = MockIQBackend(FineAmpHelper(error, np.pi, "x"))
         expdata = amp_exp.run(backend)
         self.assertExperimentDone(expdata)
         result = expdata.analysis_results(1)
@@ -85,10 +85,9 @@ class TestFineZXAmpEndToEnd(QiskitExperimentsTestCase):
     def test_end_to_end(self, pi_ratio):
         """Test the experiment end to end."""
 
-        amp_exp = FineZXAmplitude((0, 1))
-
         error = -np.pi * pi_ratio
-        backend = MockFineAmp(error, np.pi / 2, "szx")
+        amp_exp = FineZXAmplitude((0, 1))
+        backend = MockIQBackend(FineAmpHelper(error, np.pi / 2, "szx"))
 
         expdata = amp_exp.run(backend)
         self.assertExperimentDone(expdata)
@@ -208,8 +207,10 @@ class TestFineAmplitudeCal(QiskitExperimentsTestCase):
 
         library = FixedFrequencyTransmon()
 
-        self.backend = MockFineAmp(-np.pi * 0.07, np.pi, "xp")
-        self.cals = Calibrations.from_backend(self.backend, library)
+        self.backend = MockIQBackend(FineAmpHelper(-np.pi * 0.07, np.pi, "xp"))
+        self.backend.configuration().basis_gates.append("sx")
+        self.backend.configuration().basis_gates.append("x")
+        self.cals = Calibrations.from_backend(self.backend, libraries=[library])
 
     def test_cal_options(self):
         """Test that the options are properly propagated."""
@@ -296,7 +297,7 @@ class TestFineAmplitudeCal(QiskitExperimentsTestCase):
         self.assertEqual(circs[5].calibrations["sx"][((0,), ())], expected_sx)
 
         # run the calibration experiment. This should update the amp parameter of x which we test.
-        exp_data = amp_cal.run(MockFineAmp(-np.pi * 0.07, np.pi / 2, "sx"))
+        exp_data = amp_cal.run(MockIQBackend(FineAmpHelper(-np.pi * 0.07, np.pi / 2, "sx")))
         self.assertExperimentDone(exp_data)
         d_theta = exp_data.analysis_results(1).value.n
         new_amp = init_amp * (np.pi / 2) / (np.pi / 2 + d_theta)

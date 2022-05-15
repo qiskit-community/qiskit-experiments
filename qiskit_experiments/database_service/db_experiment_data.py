@@ -30,7 +30,7 @@ import numpy as np
 
 from matplotlib import pyplot
 from qiskit import QiskitError
-from qiskit.providers import Job, BaseJob, Backend, BaseBackend, Provider
+from qiskit.providers import Job, Backend, Provider
 from qiskit.result import Result
 from qiskit.providers.jobstatus import JobStatus, JOB_FINAL_STATES
 from qiskit_experiments.framework.json import ExperimentEncoder, ExperimentDecoder
@@ -162,7 +162,7 @@ class DbExperimentDataV1(DbExperimentData):
     def __init__(
         self,
         experiment_type: Optional[str] = "Unknown",
-        backend: Optional[Union[Backend, BaseBackend]] = None,
+        backend: Optional[Backend] = None,
         service: Optional[DatabaseServiceV1] = None,
         experiment_id: Optional[str] = None,
         parent_id: Optional[str] = None,
@@ -247,7 +247,7 @@ class DbExperimentDataV1(DbExperimentData):
             self._deleted_figures.append(key)
         self._figures = ThreadSafeOrderedDict()
 
-    def _set_service_from_backend(self, backend: Union[Backend, BaseBackend]) -> None:
+    def _set_service_from_backend(self, backend: Backend) -> None:
         """Set the service to be used from the input backend.
 
         Args:
@@ -289,7 +289,7 @@ class DbExperimentDataV1(DbExperimentData):
         jobs = []
         with self._data.lock:
             for datum in data:
-                if isinstance(datum, (Job, BaseJob)):
+                if isinstance(datum, Job):
                     jobs.append(datum)
                 elif isinstance(datum, dict):
                     self._data.append(datum)
@@ -344,7 +344,7 @@ class DbExperimentDataV1(DbExperimentData):
                 "Not all analysis has finished running. Adding new jobs may "
                 "create unexpected analysis results."
             )
-        if isinstance(jobs, (Job, BaseJob)):
+        if isinstance(jobs, Job):
             jobs = [jobs]
 
         # Add futures for extracting finished job data
@@ -413,7 +413,7 @@ class DbExperimentDataV1(DbExperimentData):
 
     def _add_job_data(
         self,
-        job: Union[Job, BaseJob],
+        job: Job,
     ) -> Tuple[str, bool]:
         """Wait for a job to finish and add job result data.
 
@@ -515,25 +515,37 @@ class DbExperimentDataV1(DbExperimentData):
         # If not ready cancel the callback before running
         if cancel:
             self._analysis_callbacks[callback_id].status = AnalysisStatus.CANCELLED
-            LOG.warning("Cancelled analysis callback [Analysis ID: %s]", callback_id)
+            LOG.info(
+                "Cancelled analysis callback [Experiment ID: %s][Analysis Callback ID: %s]",
+                self.experiment_id,
+                callback_id,
+            )
             return callback_id, False
 
         # Run callback function
         self._analysis_callbacks[callback_id].status = AnalysisStatus.RUNNING
         try:
             LOG.debug(
-                "Running analysis callback '%s' [Analysis ID: %s]",
+                "Running analysis callback '%s' [Experiment ID: %s][Analysis Callback ID: %s]",
                 self._analysis_callbacks[callback_id].name,
+                self.experiment_id,
                 callback_id,
             )
             callback(self, **kwargs)
             self._analysis_callbacks[callback_id].status = AnalysisStatus.DONE
-            LOG.debug("Analysis callback finished [Analysis ID: %s]", callback_id)
+            LOG.debug(
+                "Analysis callback finished [Experiment ID: %s][Analysis Callback ID: %s]",
+                self.experiment_id,
+                callback_id,
+            )
             return callback_id, True
         except Exception as ex:  # pylint: disable=broad-except
             self._analysis_callbacks[callback_id].status = AnalysisStatus.ERROR
             tb_text = "".join(traceback.format_exception(type(ex), ex, ex.__traceback__))
-            error_msg = f"Analysis callback failed [Analysis ID: {callback_id}]:\n{tb_text}"
+            error_msg = (
+                f"Analysis callback failed [Experiment ID: {self.experiment_id}]"
+                f"[Analysis Callback ID: {callback_id}]:\n{tb_text}"
+            )
             self._analysis_callbacks[callback_id].error_msg = error_msg
             LOG.warning(error_msg)
             return callback_id, False
@@ -1168,7 +1180,12 @@ class DbExperimentDataV1(DbExperimentData):
                 # Check for running callback that can't be cancelled
                 if callback.status == AnalysisStatus.RUNNING:
                     all_cancelled = False
-                    LOG.warning("Unable to cancel running analysis callback [Analysis ID: %s]", cid)
+                    LOG.warning(
+                        "Unable to cancel running analysis callback [Experiment ID: %s]"
+                        "[Analysis Callback ID: %s]",
+                        self.experiment_id,
+                        cid,
+                    )
                 else:
                     not_running.append(cid)
 
@@ -1463,7 +1480,7 @@ class DbExperimentDataV1(DbExperimentData):
         # Get any callback errors
         for cid, callback in self._analysis_callbacks.items():
             if callback.status == AnalysisStatus.ERROR:
-                errors.append(f"\n[Analysis ID: {cid}]: {callback.error_msg}")
+                errors.append(f"\n[Analysis Callback ID: {cid}]: {callback.error_msg}")
 
         return "".join(errors)
 
@@ -1609,7 +1626,7 @@ class DbExperimentDataV1(DbExperimentData):
         return self._jobs.keys()
 
     @property
-    def backend(self) -> Optional[Union[BaseBackend, Backend]]:
+    def backend(self) -> Optional[Backend]:
         """Return backend.
 
         Returns:

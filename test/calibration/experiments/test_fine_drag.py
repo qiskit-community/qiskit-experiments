@@ -17,24 +17,15 @@ import copy
 import numpy as np
 
 from qiskit import transpile
-from qiskit.circuit import QuantumCircuit, Gate
+from qiskit.circuit import Gate
 from qiskit.test.mock import FakeArmonk
 import qiskit.pulse as pulse
 
 from qiskit_experiments.library import FineDrag, FineXDrag, FineDragCal
-from qiskit_experiments.test.mock_iq_backend import DragBackend
+from qiskit_experiments.test.mock_iq_backend import MockIQBackend
+from qiskit_experiments.test.mock_iq_helpers import MockIQFineDragHelper as FineDragHelper
 from qiskit_experiments.calibration_management import Calibrations
 from qiskit_experiments.calibration_management.basis_gate_library import FixedFrequencyTransmon
-
-
-class FineDragTestBackend(DragBackend):
-    """A simple and primitive backend, to be run by the rough drag tests."""
-
-    def _compute_probability(self, circuit: QuantumCircuit) -> float:
-        """Returns the probability based on the beta, number of gates, and leakage."""
-        n_gates = circuit.count_ops().get("rz", 0) // 2
-
-        return 0.5 * np.sin(n_gates * self._freq) + 0.5
 
 
 class TestFineDrag(QiskitExperimentsTestCase):
@@ -65,15 +56,14 @@ class TestFineDrag(QiskitExperimentsTestCase):
         drag = FineDrag(0, Gate("Drag", num_qubits=1, params=[]))
         drag.set_experiment_options(schedule=self.schedule)
         drag.set_transpile_options(basis_gates=["rz", "Drag", "sx"])
-        exp_data = drag.run(FineDragTestBackend())
+        exp_data = drag.run(MockIQBackend(FineDragHelper()))
         self.assertExperimentDone(exp_data)
 
         self.assertEqual(exp_data.analysis_results(0).quality, "good")
 
     def test_end_to_end_no_schedule(self):
         """Test that we can run without a schedule."""
-
-        exp_data = FineXDrag(0).run(FineDragTestBackend())
+        exp_data = FineXDrag(0).run(MockIQBackend(FineDragHelper()))
         self.assertExperimentDone(exp_data)
 
         self.assertEqual(exp_data.analysis_results(0).quality, "good")
@@ -95,9 +85,8 @@ class TestFineDragCal(QiskitExperimentsTestCase):
         super().setUp()
 
         library = FixedFrequencyTransmon()
-
-        self.backend = FineDragTestBackend()
-        self.cals = Calibrations.from_backend(self.backend, library)
+        self.backend = MockIQBackend(FineDragHelper())
+        self.cals = Calibrations.from_backend(self.backend, libraries=[library])
 
     def test_experiment_config(self):
         """Test converting to and from config works"""

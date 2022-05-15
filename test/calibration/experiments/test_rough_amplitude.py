@@ -23,7 +23,8 @@ from qiskit.test.mock import FakeArmonk
 from qiskit_experiments.calibration_management.basis_gate_library import FixedFrequencyTransmon
 from qiskit_experiments.calibration_management import Calibrations
 from qiskit_experiments.library import EFRoughXSXAmplitudeCal, RoughXSXAmplitudeCal
-from qiskit_experiments.test.mock_iq_backend import RabiBackend
+from qiskit_experiments.test.mock_iq_backend import MockIQBackend
+from qiskit_experiments.test.mock_iq_helpers import MockIQRabiHelper as RabiHelper
 
 
 class TestRoughAmpCal(QiskitExperimentsTestCase):
@@ -35,7 +36,7 @@ class TestRoughAmpCal(QiskitExperimentsTestCase):
         library = FixedFrequencyTransmon()
 
         self.backend = FakeArmonk()
-        self.cals = Calibrations.from_backend(self.backend, library)
+        self.cals = Calibrations.from_backend(self.backend, libraries=[library])
 
     def test_circuits(self):
         """Test the quantum circuits."""
@@ -60,7 +61,7 @@ class TestRoughAmpCal(QiskitExperimentsTestCase):
         self.assertTrue(np.allclose(self.cals.get_parameter_value("amp", 0, "sx"), 0.25))
 
         rabi_ef = RoughXSXAmplitudeCal(0, self.cals)
-        expdata = rabi_ef.run(RabiBackend(amplitude_to_angle=np.pi * 1.5))
+        expdata = rabi_ef.run(MockIQBackend(RabiHelper(amplitude_to_angle=np.pi * 1.5)))
         self.assertExperimentDone(expdata)
 
         tol = 0.002
@@ -86,7 +87,7 @@ class TestSpecializations(QiskitExperimentsTestCase):
         library = FixedFrequencyTransmon()
 
         self.backend = FakeArmonk()
-        self.cals = Calibrations.from_backend(self.backend, library)
+        self.cals = Calibrations.from_backend(self.backend, libraries=[library])
 
         # Add some pulses on the 1-2 transition.
         d0 = pulse.DriveChannel(0)
@@ -134,7 +135,7 @@ class TestSpecializations(QiskitExperimentsTestCase):
         self.assertTrue(np.allclose(self.cals.get_parameter_value("amp", 0, "sx12"), 0.2))
 
         rabi_ef = EFRoughXSXAmplitudeCal(0, self.cals)
-        expdata = rabi_ef.run(RabiBackend(amplitude_to_angle=np.pi * 1.5))
+        expdata = rabi_ef.run(MockIQBackend(RabiHelper(amplitude_to_angle=np.pi * 1.5)))
         self.assertExperimentDone(expdata)
 
         tol = 0.002

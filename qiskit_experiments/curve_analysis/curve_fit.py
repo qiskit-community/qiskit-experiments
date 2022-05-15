@@ -155,18 +155,14 @@ def curve_fit(
         residues = residues / (sigma**2)
     reduced_chisq = np.sum(residues) / dof
 
-    # Compute data range for fit
-    xdata_range = np.min(xdata), np.max(xdata)
-    ydata_range = np.min(ydata), np.max(ydata)
-
     return FitData(
         popt=list(fit_params),
         popt_keys=list(param_keys),
         pcov=pcov,
         reduced_chisq=reduced_chisq,
         dof=dof,
-        x_range=xdata_range,
-        y_range=ydata_range,
+        x_data=xdata,
+        y_data=ydata,
     )
 
 

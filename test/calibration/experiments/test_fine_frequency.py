@@ -25,7 +25,8 @@ from qiskit_experiments.library import (
 )
 from qiskit_experiments.calibration_management.basis_gate_library import FixedFrequencyTransmon
 from qiskit_experiments.calibration_management import Calibrations
-from qiskit_experiments.test.mock_iq_backend import MockFineFreq
+from qiskit_experiments.test.mock_iq_backend import MockIQBackend
+from qiskit_experiments.test.mock_iq_helpers import MockIQFineFreqHelper as FineFreqHelper
 
 
 @ddt
@@ -44,13 +45,14 @@ class TestFineFreqEndToEnd(QiskitExperimentsTestCase):
 
         self.inst_map.add("sx", 0, sx_sched)
 
-        self.cals = Calibrations.from_backend(FakeArmonk(), FixedFrequencyTransmon())
+        self.cals = Calibrations.from_backend(FakeArmonk(), libraries=[FixedFrequencyTransmon()])
 
     @data(-0.5e6, -0.1e6, 0.1e6, 0.5e6)
     def test_end_to_end(self, freq_shift):
         """Test the experiment end to end."""
-
-        backend = MockFineFreq(freq_shift, sx_duration=self.sx_duration)
+        exp_helper = FineFreqHelper(sx_duration=self.sx_duration, freq_shift=freq_shift)
+        backend = MockIQBackend(exp_helper)
+        exp_helper.dt = backend.configuration().dt
 
         freq_exp = FineFrequency(0, 160, backend)
         freq_exp.set_transpile_options(inst_map=self.inst_map)
@@ -70,8 +72,9 @@ class TestFineFreqEndToEnd(QiskitExperimentsTestCase):
     def test_calibration_version(self):
         """Test the calibration version of the experiment."""
 
-        freq_shift = 0.1e6
-        backend = MockFineFreq(freq_shift, sx_duration=self.sx_duration)
+        exp_helper = FineFreqHelper(sx_duration=self.sx_duration, freq_shift=0.1e6)
+        backend = MockIQBackend(exp_helper)
+        exp_helper.dt = backend.configuration().dt
 
         fine_freq = FineFrequencyCal(0, self.cals, backend)
         armonk_freq = FakeArmonk().defaults().qubit_freq_est[0]
@@ -86,7 +89,7 @@ class TestFineFreqEndToEnd(QiskitExperimentsTestCase):
         freq_after = self.cals.get_parameter_value(self.cals.__drive_freq_parameter__, 0)
 
         # Test equality up to 10kHz on a 100 kHz shift
-        self.assertAlmostEqual(freq_after, armonk_freq + freq_shift, delta=1e4)
+        self.assertAlmostEqual(freq_after, armonk_freq + exp_helper.freq_shift, delta=1e4)
 
     def test_experiment_config(self):
         """Test converting to and from config works"""
