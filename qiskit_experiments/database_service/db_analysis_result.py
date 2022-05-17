@@ -31,6 +31,7 @@ from .device_component import DeviceComponent, to_component
 from .exceptions import DbExperimentDataError
 from .utils import save_data, qiskit_version
 from qiskit_ibm_experiment import IBMExperimentService, AnalysisResultData
+from qiskit_ibm_experiment import ResultQuality
 from qiskit_ibm_experiment.exceptions import IBMExperimentEntryExists, IBMExperimentEntryNotFound
 LOG = logging.getLogger(__name__)
 
@@ -91,7 +92,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
         experiment_id: str,
         result_id: Optional[str] = None,
         chisq: Optional[float] = None,
-        quality: Optional[str] = None,
+        quality: Optional[ResultQuality] = ResultQuality.UNKNOWN,
         extra: Optional[Dict[str, Any]] = None,
         verified: bool = False,
         tags: Optional[List[str]] = None,
@@ -330,7 +331,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
     @value.setter
     def value(self, new_value: Any) -> None:
         """Set the analysis result value."""
-        self._value = new_value
+        self._data.result_data['_value'] = new_value
         if self.auto_save:
             self.save()
 
@@ -366,11 +367,11 @@ class DbAnalysisResultV1(DbAnalysisResult):
     @device_components.setter
     def device_components(self, components: List[Union[DeviceComponent, str]]):
         """Set the device components"""
-        self._device_components = []
+        self._data.device_components = []
         for comp in components:
             if isinstance(comp, str):
                 comp = to_component(comp)
-            self._device_components.append(comp)
+            self._data.device_components.append(comp)
 
     @property
     def result_id(self) -> str:
@@ -398,7 +399,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
     @chisq.setter
     def chisq(self, new_chisq: float) -> None:
         """Set the reduced χ² of this analysis."""
-        self._chisq = new_chisq
+        self._data.chisq = new_chisq
         if self.auto_save:
             self.save()
 
@@ -418,7 +419,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
         Args:
             new_quality: New analysis quality.
         """
-        self._quality = new_quality
+        self._data.quality = new_quality
         if self.auto_save:
             self.save()
 
@@ -441,7 +442,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
         Args:
             verified: Whether the quality is verified.
         """
-        self._quality_verified = verified
+        self._data.verified = verified
         if self.auto_save:
             self.save()
 
@@ -457,7 +458,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
             raise DbExperimentDataError(
                 f"The `tags` field of {type(self).__name__} must be a list."
             )
-        self._tags = new_tags
+        self._data.tags = new_tags
         if self.auto_save:
             self.save()
 
