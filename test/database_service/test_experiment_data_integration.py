@@ -503,13 +503,13 @@ class TestExperimentDataIntegration(QiskitTestCase):
         self.jobs_to_cancel.append(job)
         return job
 
-# if __name__ == "__main__":
-#     unittest.main()
-def suite():
-    suite = unittest.TestSuite()
-    suite.addTest(TestExperimentDataIntegration('test_set_service_job'))
-    return suite
-
-if __name__ == '__main__':
-    runner = unittest.TextTestRunner()
-    runner.run(suite())
+if __name__ == "__main__":
+    unittest.main()
+# def suite():
+#     suite = unittest.TestSuite()
+#     suite.addTest(TestExperimentDataIntegration('test_set_service_job'))
+#     return suite
+#
+# if __name__ == '__main__':
+#     runner = unittest.TextTestRunner()
+#     runner.run(suite())

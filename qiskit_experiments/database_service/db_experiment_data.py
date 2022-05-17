@@ -1569,6 +1569,76 @@ class DbExperimentDataV1(DbExperimentData):
         return self._data.metadata
 
     @property
+    def creation_datetime(self) -> datetime:
+        """Return the creation datetime of this experiment data.
+
+        Returns:
+            The creation datetime of this experiment data.
+
+        """
+        return self._data.creation_datetime
+
+    @property
+    def start_datetime(self) -> datetime:
+        """Return the start datetime of this experiment data.
+
+        Returns:
+            The start datetime of this experiment data.
+
+        """
+        return self._data.end_datetime
+
+    @property
+    def updated_datetime(self) -> datetime:
+        """Return the update datetime of this experiment data.
+
+        Returns:
+            The update datetime of this experiment data.
+
+        """
+        return self._data.updated_datetime
+
+    @property
+    def end_datetime(self) -> datetime:
+        """Return the end datetime of this experiment data.
+
+        Returns:
+            The end datetime of this experiment data.
+
+        """
+        return self._data.end_datetime
+
+    @property
+    def hub(self) -> str:
+        """Return the hub of this experiment data.
+
+        Returns:
+            The hub of this experiment data.
+
+        """
+        return self._data.hub
+
+    @property
+    def group(self) -> str:
+        """Return the group of this experiment data.
+
+        Returns:
+            The group of this experiment data.
+
+        """
+        return self._data.group
+
+    @property
+    def project(self) -> str:
+        """Return the project of this experiment data.
+
+        Returns:
+            The project of this experiment data.
+
+        """
+        return self._data.project
+
+    @property
     def _provider(self) -> Optional[Provider]:
         """Return the provider.
 
@@ -1596,7 +1666,7 @@ class DbExperimentDataV1(DbExperimentData):
         Returns:
             Parent ID.
         """
-        return self._data._parent_id
+        return self._data.parent_id
 
     @property
     def job_ids(self) -> List[str]:
@@ -1622,7 +1692,7 @@ class DbExperimentDataV1(DbExperimentData):
         Returns:
             Experiment type.
         """
-        return self._data._type
+        return self._data.type
 
     @property
     def figure_names(self) -> List[str]:
@@ -1640,7 +1710,7 @@ class DbExperimentDataV1(DbExperimentData):
         Returns:
             Experiment share level.
         """
-        return self._data._share_level
+        return self._data.share_level
 
     @share_level.setter
     def share_level(self, new_level: str) -> None:
@@ -1652,7 +1722,7 @@ class DbExperimentDataV1(DbExperimentData):
                 specified. For example, IBM Quantum experiment service allows
                 "public", "hub", "group", "project", and "private".
         """
-        self._data._share_level = new_level
+        self._data.share_level = new_level
         if self.auto_save:
             self.save_metadata()
 
@@ -1663,7 +1733,7 @@ class DbExperimentDataV1(DbExperimentData):
         Returns:
             Experiment notes.
         """
-        return self._data._notes
+        return self._data.notes
 
     @notes.setter
     def notes(self, new_notes: str) -> None:
@@ -1672,7 +1742,7 @@ class DbExperimentDataV1(DbExperimentData):
         Args:
             new_notes: New experiment notes.
         """
-        self._data._notes = new_notes
+        self._data.notes = new_notes
         if self.auto_save:
             self.save_metadata()
 
