@@ -457,8 +457,8 @@ class TestExperimentDataIntegration(QiskitTestCase):
                 ) as mocked:
                     setattr(aresult, attr, value)
                     mocked.assert_called_once()
-                    _, kwargs = mocked.call_args
-                    self.assertEqual(aresult.result_id, kwargs["result_id"])
+                    data = mocked.call_args[0][0]
+                    self.assertEqual(aresult.result_id, data.result_id)
                     mocked.reset_mock()
 
     def test_block_for_results(self):
@@ -506,7 +506,8 @@ class TestExperimentDataIntegration(QiskitTestCase):
 def suite():
     suite = unittest.TestSuite()
     # suite.addTest(TestExperimentDataIntegration('test_add_analysis_results'))
-    suite.addTest(TestExperimentDataIntegration('test_update_analysis_result'))
+    # suite.addTest(TestExperimentDataIntegration('test_update_analysis_result'))
+    suite.addTest(TestExperimentDataIntegration('test_auto_save_analysis_result_update'))
     return suite
 
 if __name__ == '__main__':
