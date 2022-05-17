@@ -24,12 +24,14 @@ from qiskit.test.reference_circuits import ReferenceCircuits
 
 from qiskit_ibm_experiment import IBMExperimentService
 from qiskit_ibm_experiment import ResultQuality
+from qiskit_ibm_experiment.exceptions import IBMExperimentEntryNotFound
 
 from qiskit.test import QiskitTestCase
 from qiskit_experiments.database_service import DbExperimentDataV1 as DbExperimentData
 from qiskit_experiments.database_service import DbAnalysisResultV1 as AnalysisResult
 from qiskit_experiments.database_service.db_experiment_data import ExperimentStatus
 from qiskit_experiments.database_service.exceptions import DbExperimentEntryNotFound
+
 
 from ..decorators import requires_provider, requires_device
 
@@ -337,7 +339,7 @@ class TestExperimentDataIntegration(QiskitTestCase):
         self.services_to_delete.append(exp_data.experiment_id)
 
         rexp = self.service.experiment(exp_data.experiment_id)
-        self.assertEqual([job.job_id()], rexp["job_ids"])
+        self.assertEqual([job.job_id()], rexp.job_ids)
 
     def test_auto_save_experiment(self):
         """Test auto save."""
@@ -366,8 +368,8 @@ class TestExperimentDataIntegration(QiskitTestCase):
                 ) as mocked:
                     func(*params)
                     mocked.assert_called_once()
-                    _, kwargs = mocked.call_args
-                    self.assertEqual(exp_data.experiment_id, kwargs["experiment_id"])
+                    data = mocked.call_args[0][0]
+                    self.assertEqual(exp_data.experiment_id, data.experiment_id)
                     mocked.reset_mock()
 
     def test_auto_save_figure(self):
@@ -505,9 +507,7 @@ class TestExperimentDataIntegration(QiskitTestCase):
 #     unittest.main()
 def suite():
     suite = unittest.TestSuite()
-    # suite.addTest(TestExperimentDataIntegration('test_add_analysis_results'))
-    # suite.addTest(TestExperimentDataIntegration('test_update_analysis_result'))
-    suite.addTest(TestExperimentDataIntegration('test_auto_save_analysis_result_update'))
+    suite.addTest(TestExperimentDataIntegration('test_set_service_job'))
     return suite
 
 if __name__ == '__main__':
