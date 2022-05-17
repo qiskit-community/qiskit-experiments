@@ -895,8 +895,9 @@ class DbExperimentDataV1(DbExperimentData):
                 experiment_id=self.experiment_id, limit=None, json_decoder=self._json_decoder
             )
             for result in retrieved_results:
-                result_id = result["result_id"]
-                self._analysis_results[result_id] = DbAnalysisResult._from_service_data(result)
+                result_id = result.result_id
+                self._analysis_results[result_id] = DbAnalysisResult(data=result, service=self.service)
+                self._analysis_results[result_id]._created_in_db = True
 
     def analysis_results(
         self,
@@ -1134,28 +1135,8 @@ class DbExperimentDataV1(DbExperimentData):
         Returns:
             The loaded experiment data.
         """
-        service_data = service.experiment(experiment_id, json_decoder=cls._json_decoder)
-
-        # Parse serialized metadata
-        metadata = service_data.metadata
-
-        # Initialize container
-        expdata = DbExperimentDataV1(
-            experiment_type=service_data.pop("experiment_type"),
-            backend=service_data.pop("backend"),
-            experiment_id=service_data.pop("experiment_id"),
-            parent_id=service_data.pop("parent_id", None),
-            tags=service_data.pop("tags"),
-            job_ids=service_data.pop("job_ids"),
-            share_level=service_data.pop("share_level"),
-            metadata=metadata,
-            figure_names=service_data.pop("figure_names"),
-            notes=service_data.pop("notes"),
-            **service_data,
-        )
-
-        if expdata.service is None:
-            expdata.service = service
+        data = service.experiment(experiment_id, json_decoder=cls._json_decoder)
+        expdata = cls(data=data, service=service)
 
         # Retrieve data and analysis results
         # Maybe this isn't necessary but the repr of the class should
