@@ -162,7 +162,9 @@ class DbExperimentDataV1(DbExperimentData):
     def __init__(
         self, data: ExperimentData,
         backend: Optional[Backend] = None,
-        service: Optional[IBMExperimentService] = None
+        service: Optional[IBMExperimentService] = None,
+        verbose: Optional[bool] = True,
+        **kwargs
     ):
         """Initializes the DbExperimentData instance.
 
@@ -178,7 +180,7 @@ class DbExperimentDataV1(DbExperimentData):
         self._backend = backend
         self._auto_save = False
 
-        self._jobs = ThreadSafeOrderedDict(job_ids or [])
+        self._jobs = ThreadSafeOrderedDict(data.job_ids)
         self._job_futures = ThreadSafeOrderedDict()
         self._analysis_callbacks = ThreadSafeOrderedDict()
         self._analysis_futures = ThreadSafeOrderedDict()
@@ -189,8 +191,8 @@ class DbExperimentDataV1(DbExperimentData):
         self._analysis_executor = futures.ThreadPoolExecutor(max_workers=2)
         self._monitor_executor = futures.ThreadPoolExecutor()
 
-        self._data = ThreadSafeList()
-        self._figures = ThreadSafeOrderedDict(figure_names or [])
+        self._result_data = ThreadSafeList()
+        self._figures = ThreadSafeOrderedDict(data.figure_names)
         self._analysis_results = ThreadSafeOrderedDict()
 
         self._deleted_figures = deque()
@@ -243,8 +245,11 @@ class DbExperimentDataV1(DbExperimentData):
                 "qiskit_version": qiskit_version(),
             },
         )
+        metadata["_source"] = source
         experiment_id = experiment_id or str(uuid.uuid4())
         notes = notes or ""
+        job_ids = job_ids or []
+        figure_names = figure_names or []
         data = ExperimentData(experiment_id=experiment_id,
             parent_id=parent_id,
             experiment_type=experiment_type,
@@ -254,9 +259,9 @@ class DbExperimentDataV1(DbExperimentData):
             share_level=share_level,
             metadata=metadata,
             figure_names=figure_names,
-            notes=notes
+            notes=notes,
         )
-        return cls(data, backend, service)
+        return cls(data=data, backend=backend, service=service, verbose=verbose, **kwargs)
 
     def _clear_results(self):
         """Delete all currently stored analysis results and figures"""
@@ -299,12 +304,12 @@ class DbExperimentDataV1(DbExperimentData):
 
         # Extract job data (Deprecated) and directly add non-job data
         jobs = []
-        with self._data.lock:
+        with self._result_data.lock:
             for datum in data:
                 if isinstance(datum, Job):
                     jobs.append(datum)
                 elif isinstance(datum, dict):
-                    self._data.append(datum)
+                    self._result_data.append(datum)
                 elif isinstance(datum, Result):
                     self._add_result_data(datum)
                 else:
@@ -570,7 +575,7 @@ class DbExperimentDataV1(DbExperimentData):
         """
         if result.job_id not in self._jobs:
             self._jobs[result.job_id] = None
-        with self._data.lock:
+        with self._result_data.lock:
             # Lock data while adding all result data
             for i, _ in enumerate(result.results):
                 data = result.data(i)
@@ -585,11 +590,11 @@ class DbExperimentDataV1(DbExperimentData):
                 data["meas_level"] = expr_result.meas_level
                 if hasattr(expr_result, "meas_return"):
                     data["meas_return"] = expr_result.meas_return
-                self._data.append(data)
+                self._result_data.append(data)
 
     def _retrieve_data(self):
         """Retrieve job data if missing experiment data."""
-        if self._data or not self._backend:
+        if self._result_data or not self._backend:
             return
         # Get job results if missing experiment data.
         retrieved_jobs = {}
@@ -638,11 +643,11 @@ class DbExperimentDataV1(DbExperimentData):
         """
         self._retrieve_data()
         if index is None:
-            return self._data.copy()
+            return self._result_data.copy()
         if isinstance(index, (int, slice)):
-            return self._data[index]
+            return self._result_data[index]
         if isinstance(index, str):
-            return [data for data in self._data if data.get("job_id") == index]
+            return [data for data in self._result_data if data.get("job_id") == index]
         raise TypeError(f"Invalid index type {type(index)}.")
 
     @do_auto_save
@@ -1353,7 +1358,7 @@ class DbExperimentDataV1(DbExperimentData):
         if all(
             len(container) == 0
             for container in [
-                self._data,
+                self._result_data,
                 self._jobs,
                 self._job_futures,
                 self._analysis_callbacks,
@@ -1551,8 +1556,8 @@ class DbExperimentDataV1(DbExperimentData):
         new_instance._extra_data = self._extra_data
 
         # Copy circuit result data and jobs
-        with self._data.lock:  # Hold the lock so no new data can be added.
-            new_instance._data = self._data.copy_object()
+        with self._result_data.lock:  # Hold the lock so no new data can be added.
+            new_instance._data = self._result_data.copy_object()
             for jid, fut in self._job_futures.items():
                 if not fut.done():
                     new_instance._add_job_future(new_instance._jobs[jid])
@@ -1581,7 +1586,7 @@ class DbExperimentDataV1(DbExperimentData):
             A list of tags assigned to this experiment data.
 
         """
-        return self._tags
+        return self._data.tags
 
     @tags.setter
     def tags(self, new_tags: List[str]) -> None:
@@ -1590,7 +1595,7 @@ class DbExperimentDataV1(DbExperimentData):
             raise DbExperimentDataError(
                 f"The `tags` field of {type(self).__name__} must be a list."
             )
-        self._tags = np.unique(new_tags).tolist()
+        self._data.tags = np.unique(new_tags).tolist()
         if self.auto_save:
             self.save_metadata()
 
@@ -1601,7 +1606,7 @@ class DbExperimentDataV1(DbExperimentData):
         Returns:
             Experiment metadata.
         """
-        return self._metadata
+        return self._data.metadata
 
     @property
     def _provider(self) -> Optional[Provider]:
@@ -1621,7 +1626,8 @@ class DbExperimentDataV1(DbExperimentData):
         Returns:
             Experiment ID.
         """
-        return self._id
+
+        return self._data.experiment_id
 
     @property
     def parent_id(self) -> str:
@@ -1630,7 +1636,7 @@ class DbExperimentDataV1(DbExperimentData):
         Returns:
             Parent ID.
         """
-        return self._parent_id
+        return self._data._parent_id
 
     @property
     def job_ids(self) -> List[str]:
@@ -1656,7 +1662,7 @@ class DbExperimentDataV1(DbExperimentData):
         Returns:
             Experiment type.
         """
-        return self._type
+        return self._data._type
 
     @property
     def figure_names(self) -> List[str]:
@@ -1674,7 +1680,7 @@ class DbExperimentDataV1(DbExperimentData):
         Returns:
             Experiment share level.
         """
-        return self._share_level
+        return self._data._share_level
 
     @share_level.setter
     def share_level(self, new_level: str) -> None:
@@ -1686,7 +1692,7 @@ class DbExperimentDataV1(DbExperimentData):
                 specified. For example, IBM Quantum experiment service allows
                 "public", "hub", "group", "project", and "private".
         """
-        self._share_level = new_level
+        self._data._share_level = new_level
         if self.auto_save:
             self.save_metadata()
 
@@ -1697,7 +1703,7 @@ class DbExperimentDataV1(DbExperimentData):
         Returns:
             Experiment notes.
         """
-        return self._notes
+        return self._data._notes
 
     @notes.setter
     def notes(self, new_notes: str) -> None:
@@ -1706,7 +1712,7 @@ class DbExperimentDataV1(DbExperimentData):
         Args:
             new_notes: New experiment notes.
         """
-        self._notes = new_notes
+        self._data._notes = new_notes
         if self.auto_save:
             self.save_metadata()
 
@@ -1776,7 +1782,7 @@ class DbExperimentDataV1(DbExperimentData):
     @property
     def source(self) -> Dict:
         """Return the class name and version."""
-        return self._source
+        return self._data.metadata["_source"]
 
     def __repr__(self):
         out = f"{type(self).__name__}({self.experiment_type}"
