@@ -92,7 +92,7 @@ class TestExperimentDataIntegration(QiskitTestCase):
 
     def test_add_data_job(self):
         """Test add job to experiment data."""
-        exp_data = DbExperimentData.from_values(backend=self.backend, experiment_type="qiskit_test")
+        exp_data = DbExperimentData.from_values(backend=self.backend, experiment_type="qiskit_test", service=self.service)
         transpiled = transpile(ReferenceCircuits.bell(), self.backend)
         transpiled.metadata = {"foo": "bar"}
         job = self._run_circuit(transpiled)
@@ -109,6 +109,7 @@ class TestExperimentDataIntegration(QiskitTestCase):
         """Test creating a new experiment data."""
         metadata = {"complex": 2 + 3j, "numpy": np.zeros(2)}
         exp_data = DbExperimentData.from_values(
+            service=self.service,
             backend=self.backend,
             experiment_type="qiskit_test",
             tags=["foo", "bar"],
@@ -329,7 +330,7 @@ class TestExperimentDataIntegration(QiskitTestCase):
 
     def test_set_service_job(self):
         """Test setting service with a job."""
-        exp_data = DbExperimentData.from_values(experiment_type="qiskit_test")
+        exp_data = DbExperimentData.from_values(experiment_type="qiskit_test", service=self.service)
         job = self._run_circuit()
         exp_data.add_jobs(job)
         exp_data.save()
@@ -462,7 +463,7 @@ class TestExperimentDataIntegration(QiskitTestCase):
 
     def test_block_for_results(self):
         """Test blocking for jobs"""
-        exp_data = DbExperimentData.from_values(backend=self.backend, experiment_type="qiskit_test")
+        exp_data = DbExperimentData.from_values(backend=self.backend, experiment_type="qiskit_test", service=self.service)
         jobs = []
         for _ in range(2):
             job = self._run_circuit()
@@ -474,7 +475,7 @@ class TestExperimentDataIntegration(QiskitTestCase):
 
     def _create_experiment_data(self):
         """Create an experiment data."""
-        exp_data = DbExperimentData.from_values(backend=self.backend, experiment_type="qiskit_test", verbose=False)
+        exp_data = DbExperimentData.from_values(backend=self.backend, experiment_type="qiskit_test", verbose=False, service=self.service)
         exp_data.save()
         self.services_to_delete.append(exp_data.experiment_id)
         return exp_data
