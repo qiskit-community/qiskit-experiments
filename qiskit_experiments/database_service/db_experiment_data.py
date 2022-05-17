@@ -46,6 +46,7 @@ from .utils import (
     ThreadSafeList,
 )
 from qiskit_ibm_experiment import IBMExperimentService
+from qiskit_ibm_experiment import ExperimentData
 LOG = logging.getLogger(__name__)
 
 
@@ -159,61 +160,23 @@ class DbExperimentDataV1(DbExperimentData):
     _json_decoder = ExperimentDecoder
 
     def __init__(
-        self,
-        experiment_type: Optional[str] = "Unknown",
+        self, data: ExperimentData,
         backend: Optional[Backend] = None,
-        service: Optional[IBMExperimentService] = None,
-        experiment_id: Optional[str] = None,
-        parent_id: Optional[str] = None,
-        tags: Optional[List[str]] = None,
-        job_ids: Optional[List[str]] = None,
-        share_level: Optional[str] = None,
-        metadata: Optional[Dict] = None,
-        figure_names: Optional[List[str]] = None,
-        notes: Optional[str] = None,
-        verbose: Optional[bool] = True,
-        **kwargs,
+        service: Optional[IBMExperimentService] = None
     ):
         """Initializes the DbExperimentData instance.
 
         Args:
-            experiment_type: Experiment type.
+            data: The experiment data
+            service: The service that stores the experiment results to the database
             backend: Backend the experiment runs on.
-            experiment_id: Experiment ID. One will be generated if not supplied.
-            parent_id: The experiment ID of the parent experiment.
-            tags: Tags to be associated with the experiment.
-            job_ids: IDs of jobs submitted for the experiment.
-            share_level: Whether this experiment can be shared with others. This
-                is applicable only if the database service supports sharing. See
-                the specific service provider's documentation on valid values.
-            metadata: Additional experiment metadata.
-            figure_names: Name of figures associated with this experiment.
-            notes: Freeform notes about the experiment.
-            **kwargs: Additional experiment attributes.
         """
-        metadata = metadata or {}
-        self._metadata = copy.deepcopy(metadata)
-        self._source = self._metadata.pop(
-            "_source",
-            {
-                "class": f"{self.__class__.__module__}.{self.__class__.__name__}",
-                "metadata_version": self._metadata_version,
-                "qiskit_version": qiskit_version(),
-            },
-        )
-
+        self._data = copy.deepcopy(data)
         self._service = service
-        if self.service is None:
-            self._set_service_from_backend(backend)
+        # if self.service is None:
+        #     self._set_service_from_backend(backend)
         self._backend = backend
         self._auto_save = False
-
-        self._id = experiment_id or str(uuid.uuid4())
-        self._parent_id = parent_id
-        self._type = experiment_type
-        self._tags = tags or []
-        self._share_level = share_level
-        self._notes = notes or ""
 
         self._jobs = ThreadSafeOrderedDict(job_ids or [])
         self._job_futures = ThreadSafeOrderedDict()
@@ -237,6 +200,64 @@ class DbExperimentDataV1(DbExperimentData):
         self.verbose = verbose
         self._extra_data = kwargs
 
+    @classmethod
+    def from_values(
+            cls,
+            experiment_type: Optional[str] = "Unknown",
+            backend: Optional[Backend] = None,
+            service: Optional[IBMExperimentService] = None,
+            experiment_id: Optional[str] = None,
+            parent_id: Optional[str] = None,
+            tags: Optional[List[str]] = None,
+            job_ids: Optional[List[str]] = None,
+            share_level: Optional[str] = None,
+            metadata: Optional[Dict] = None,
+            figure_names: Optional[List[str]] = None,
+            notes: Optional[str] = None,
+            verbose: Optional[bool] = True,
+            **kwargs,
+    ):
+        """Initializes the DbExperimentData instance from the given values.
+
+        Args:
+            experiment_type: Experiment type.
+            backend: Backend the experiment runs on.
+            experiment_id: Experiment ID. One will be generated if not supplied.
+            parent_id: The experiment ID of the parent experiment.
+            tags: Tags to be associated with the experiment.
+            job_ids: IDs of jobs submitted for the experiment.
+            share_level: Whether this experiment can be shared with others. This
+                is applicable only if the database service supports sharing. See
+                the specific service provider's documentation on valid values.
+            metadata: Additional experiment metadata.
+            figure_names: Name of figures associated with this experiment.
+            notes: Freeform notes about the experiment.
+            **kwargs: Additional experiment attributes.
+        """
+        metadata = copy.deepcopy(metadata) or {}
+        source = metadata.pop(
+            "_source",
+            {
+                "class": f"{cls.__module__}.{cls.__name__}",
+                "metadata_version": cls._metadata_version,
+                "qiskit_version": qiskit_version(),
+            },
+        )
+        experiment_id = experiment_id or str(uuid.uuid4())
+        notes = notes or ""
+        data = ExperimentData(experiment_id=experiment_id,
+            parent_id=parent_id,
+            experiment_type=experiment_type,
+            backend=backend.name(),
+            tags=tags,
+            job_ids=job_ids,
+            share_level=share_level,
+            metadata=metadata,
+            figure_names=figure_names,
+            notes=notes
+        )
+        return cls(data, backend, service)
+
     def _clear_results(self):
         """Delete all currently stored analysis results and figures"""
         # Schedule existing analysis results for deletion next save call
@@ -247,16 +268,6 @@ class DbExperimentDataV1(DbExperimentData):
         for key in self._figures.keys():
             self._deleted_figures.append(key)
         self._figures = ThreadSafeOrderedDict()
-
-    def _set_service_from_backend(self, backend: Backend) -> None:
-        """Set the service to be used from the input backend.
-
-        Args:
-            backend: Backend whose provider may offer experiment service.
-        """
-        with contextlib.suppress(Exception):
-            self._service = backend.provider().service("experiment")
-            self._auto_save = self._service.preferences.get("auto_save", False)
 
     def add_data(
         self,
@@ -1084,7 +1095,7 @@ class DbExperimentDataV1(DbExperimentData):
         service_data = service.experiment(experiment_id, json_decoder=cls._json_decoder)
 
         # Parse serialized metadata
-        metadata = service_data.pop("metadata")
+        metadata = service_data.metadata
 
         # Initialize container
         expdata = DbExperimentDataV1(

@@ -31,7 +31,7 @@ from .device_component import DeviceComponent, to_component
 from .exceptions import DbExperimentDataError
 from .utils import save_data, qiskit_version
 from qiskit_ibm_experiment import IBMExperimentService, AnalysisResultData
-
+from qiskit_ibm_experiment.exceptions import IBMExperimentEntryExists, IBMExperimentEntryNotFound
 LOG = logging.getLogger(__name__)
 
 
@@ -72,7 +72,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
             service: Experiment service to be used to store result in database.
         """
         # Data to be stored in DB.
-        self._data = data
+        self._data = copy.deepcopy(data)
         self._service = service
         self._created_in_db = False
         self._auto_save = False
@@ -210,13 +210,13 @@ class DbAnalysisResultV1(DbAnalysisResult):
                         self.service.create_analysis_result(self._data, json_encoder=self._json_encoder)
                         success = True
                         self._created_in_db = True
-                    except tuple(dup_entry_exception):
+                    except IBMExperimentEntryExists:
                         is_new = False
                 else:
                     try:
                         self.service.update_analysis_result(self._data, json_encoder=self._json_encoder)
                         success = True
-                    except tuple(no_entry_exception):
+                    except IBMExperimentEntryNotFound:
                         is_new = True
         except Exception:  # pylint: disable=broad-except
             # Don't fail the experiment just because its data cannot be saved.
