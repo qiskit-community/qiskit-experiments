@@ -47,6 +47,7 @@ from .utils import (
 )
 from qiskit_ibm_experiment import IBMExperimentService
 from qiskit_ibm_experiment import ExperimentData
+from qiskit_ibm_experiment.exceptions import IBMExperimentEntryExists, IBMExperimentEntryNotFound
 LOG = logging.getLogger(__name__)
 
 
@@ -175,9 +176,10 @@ class DbExperimentDataV1(DbExperimentData):
         """
         self._data = copy.deepcopy(data)
         self._service = service
-        # if self.service is None:
-        #     self._set_service_from_backend(backend)
         self._backend = backend
+        if self._backend:
+            self._data.backend = self._backend.name()
+        self._set_hgp_from_backend()
         self._auto_save = False
 
         self._jobs = ThreadSafeOrderedDict(data.job_ids)
@@ -253,27 +255,28 @@ class DbExperimentDataV1(DbExperimentData):
         notes = notes or ""
         job_ids = job_ids or []
         figure_names = figure_names or []
-        if backend is not None and backend.provider() is not None:
-            hub = hub or backend.provider().credentials.hub
-            group = group or backend.provider().credentials.group
-            project = project or backend.provider().credentials.project
-
         data = ExperimentData(
             experiment_id=experiment_id,
             parent_id=parent_id,
             experiment_type=experiment_type,
-            backend=backend.name(),
             tags=tags,
             job_ids=job_ids,
             share_level=share_level,
             metadata=metadata,
             figure_names=figure_names,
             notes=notes,
-            hub=hub,
-            group=group,
-            project=project
         )
         return cls(data=data, backend=backend, service=service, verbose=verbose, **kwargs)
+
+    def _set_hgp_from_backend(self):
+        if self.backend is not None and self.backend.provider() is not None:
+            creds = self.backend.provider().credentials
+            hub = self._data.hub or creds.hub
+            group = self._data.group or creds.group
+            project = self._data.project or creds.project
+            self._data.hub = hub
+            self._data.group = group
+            self._data.project = project
 
     def _clear_results(self):
         """Delete all currently stored analysis results and figures"""
@@ -285,66 +288,6 @@ class DbExperimentDataV1(DbExperimentData):
         for key in self._figures.keys():
             self._deleted_figures.append(key)
         self._figures = ThreadSafeOrderedDict()
-
-    def add_data(
-        self,
-        data: Union[Result, List[Result], Job, List[Job], Dict, List[Dict]],
-        timeout: Optional[float] = None,
-    ) -> None:
-        """Add experiment data.
-
-        Args:
-            data: Experiment data to add. Several types are accepted for convenience
-                * Result: Add data from this ``Result`` object.
-                * List[Result]: Add data from the ``Result`` objects.
-                * Dict: Add this data.
-                * List[Dict]: Add this list of data.
-                * Job: (Deprecated) Add data from the job result.
-                * List[Job]: (Deprecated) Add data from the job results.
-            timeout: (Deprecated) Timeout waiting for job to finish, if `data` is a ``Job``.
-
-        Raises:
-            TypeError: If the input data type is invalid.
-        """
-        if any(not future.done() for future in self._analysis_futures.values()):
-            LOG.warning(
-                "Not all analysis has finished running. Adding new data may "
-                "create unexpected analysis results."
-            )
-        if not isinstance(data, list):
-            data = [data]
-
-        # Extract job data (Deprecated) and directly add non-job data
-        jobs = []
-        with self._result_data.lock:
-            for datum in data:
-                if isinstance(datum, Job):
-                    jobs.append(datum)
-                elif isinstance(datum, dict):
-                    self._result_data.append(datum)
-                elif isinstance(datum, Result):
-                    self._add_result_data(datum)
-                else:
-                    raise TypeError(f"Invalid data type {type(datum)}.")
-
-        # Remove after deprecation is finished
-        if jobs:
-            warnings.warn(
-                "Passing Jobs to the `add_data` method is deprecated as of "
-                "qiskit-experiments 0.3.0 and will be removed in the 0.4.0 release. "
-                "Use the `add_jobs` method to add jobs instead.",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-            if timeout is not None:
-                warnings.warn(
-                    "The `timeout` kwarg of is deprecated as of "
-                    "qiskit-experiments 0.3.0 and will be removed in the 0.4.0 release. "
-                    "Use the `add_jobs` method to add jobs with timeout.",
-                    DeprecationWarning,
-                    stacklevel=2,
-                )
-            self.add_jobs(jobs, timeout=timeout)
 
     def add_jobs(
         self,
@@ -389,15 +332,14 @@ class DbExperimentDataV1(DbExperimentData):
                     job.backend(),
                     self.backend,
                 )
-            self._backend = job.backend()
-            if not self._service:
-                self._set_service_from_backend(self._backend)
+            self.backend = job.backend()
 
             if jid in self._jobs:
                 LOG.warning(
                     "Skipping duplicate job, a job with this ID already exists [Job ID: %s]", jid
                 )
             else:
+                self._data.job_ids.append(jid)
                 self._jobs[jid] = job
                 if jid in self._job_futures:
                     LOG.warning("Job future has already been submitted [Job ID: %s]", jid)
@@ -1662,7 +1604,7 @@ class DbExperimentDataV1(DbExperimentData):
 
         Returns: IDs of jobs submitted for this experiment.
         """
-        return self._jobs.keys()
+        return self._data.job_ids
 
     @property
     def backend(self) -> Optional[Backend]:
@@ -1731,6 +1673,28 @@ class DbExperimentDataV1(DbExperimentData):
             new_notes: New experiment notes.
         """
         self._data._notes = new_notes
+        if self.auto_save:
+            self.save_metadata()
+
+    @property
+    def backend(self) -> Backend:
+        """Return backend.
+
+        Returns:
+            Backend.
+        """
+        return self._backend
+
+    @backend.setter
+    def backend(self, new_backend: Backend) -> None:
+        """Update backend.
+
+        Args:
+            new_backend: New backend.
+        """
+        self._backend = new_backend
+        self._data.backend = new_backend.name()
+        self._set_hgp_from_backend()
         if self.auto_save:
             self.save_metadata()
 
