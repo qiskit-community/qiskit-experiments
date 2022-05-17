@@ -216,6 +216,9 @@ class DbExperimentDataV1(DbExperimentData):
             metadata: Optional[Dict] = None,
             figure_names: Optional[List[str]] = None,
             notes: Optional[str] = None,
+            hub: Optional[str] = None,
+            group: Optional[str] = None,
+            project: Optional[str] = None,
             verbose: Optional[bool] = True,
             **kwargs,
     ):
@@ -250,7 +253,13 @@ class DbExperimentDataV1(DbExperimentData):
         notes = notes or ""
         job_ids = job_ids or []
         figure_names = figure_names or []
-        data = ExperimentData(experiment_id=experiment_id,
+        if backend is not None and backend.provider() is not None:
+            hub = hub or backend.provider().credentials.hub
+            group = group or backend.provider().credentials.group
+            project = project or backend.provider().credentials.project
+
+        data = ExperimentData(
+            experiment_id=experiment_id,
             parent_id=parent_id,
             experiment_type=experiment_type,
             backend=backend.name(),
@@ -260,6 +269,9 @@ class DbExperimentDataV1(DbExperimentData):
             metadata=metadata,
             figure_names=figure_names,
             notes=notes,
+            hub=hub,
+            group=group,
+            project=project
         )
         return cls(data=data, backend=backend, service=service, verbose=verbose, **kwargs)
 
@@ -987,38 +999,63 @@ class DbExperimentDataV1(DbExperimentData):
             )
             return
 
-        if not self._backend:
-            LOG.warning("Experiment cannot be saved because backend is missing.")
-            return
+        attempts = 0
+        success = False
+        is_new = not self._created_in_db
+        try:
+            while attempts < 3 and not success:
+                if is_new:
+                    try:
+                        self.service.create_experiment(self._data, json_encoder=self._json_encoder)
+                        success = True
+                        self._created_in_db = True
+                    except IBMExperimentEntryExists:
+                        is_new = False
+                else:
+                    try:
+                        self.service.update_experiment(self._data, json_encoder=self._json_encoder)
+                        success = True
+                    except IBMExperimentEntryNotFound:
+                        is_new = True
+        except Exception:  # pylint: disable=broad-except
+            # Don't fail the experiment just because its data cannot be saved.
+            LOG.error("Unable to save the experiment data: %s", traceback.format_exc())
 
-        metadata = copy.deepcopy(self._metadata)
-        metadata["_source"] = self._source
+        if not success:
+            LOG.error("Unable to save the experiment data:")
 
-        update_data = {
-            "experiment_id": self._id,
-            "metadata": metadata,
-            "job_ids": self.job_ids,
-            "tags": self.tags,
-            "notes": self.notes,
-        }
-        new_data = {
-            "experiment_type": self._type,
-            "backend_name": self._backend.name(),
-            "provider": self._provider,
-        }
-        if self.share_level:
-            update_data["share_level"] = self.share_level
-        if self.parent_id:
-            update_data["parent_id"] = self.parent_id
-
-        self._created_in_db, _ = save_data(
-            is_new=(not self._created_in_db),
-            new_func=self._service.create_experiment,
-            update_func=self._service.update_experiment,
-            new_data=new_data,
-            update_data=update_data,
-            json_encoder=self._json_encoder,
-        )
+        # if not self._backend:
+        #     LOG.warning("Experiment cannot be saved because backend is missing.")
+        #     return
+        #
+        # metadata = copy.deepcopy(self._metadata)
+        # metadata["_source"] = self._source
+        #
+        # update_data = {
+        #     "experiment_id": self._id,
+        #     "metadata": metadata,
+        #     "job_ids": self.job_ids,
+        #     "tags": self.tags,
+        #     "notes": self.notes,
+        # }
+        # new_data = {
+        #     "experiment_type": self._type,
+        #     "backend_name": self._backend.name(),
+        #     "provider": self._provider,
+        # }
+        # if self.share_level:
+        #     update_data["share_level"] = self.share_level
+        # if self.parent_id:
+        #     update_data["parent_id"] = self.parent_id
+        #
+        # self._created_in_db, _ = save_data(
+        #     is_new=(not self._created_in_db),
+        #     new_func=self._service.create_experiment,
+        #     update_func=self._service.update_experiment,
+        #     new_data=new_data,
+        #     update_data=update_data,
+        #     json_encoder=self._json_encoder,
+        # )
 
     def save(self) -> None:
         """Save the experiment data to a database service.
