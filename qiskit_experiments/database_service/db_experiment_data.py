@@ -26,7 +26,6 @@ from functools import wraps
 import traceback
 import contextlib
 from collections import deque
-from datetime import datetime
 import numpy as np
 
 from matplotlib import pyplot
@@ -664,19 +663,15 @@ class DbExperimentDataV1(DbExperimentData):
                 and `overwrite=True` is not specified.
             ValueError: If an input parameter has an invalid value.
         """
-        if (
-            isinstance(figures, list)
-            and figure_names is not None
-            and (not isinstance(figure_names, list) or len(figures) != len(figure_names))
-        ):
+        if figure_names is not None and not isinstance(figure_names, list):
+            figure_names = [figure_names]
+        if not isinstance(figures, list):
+            figures = [figures]
+        if figure_names is not None and len(figures) != len(figure_names):
             raise ValueError(
                 "The parameter figure_names must be None or a list of "
                 "the same size as the parameter figures."
             )
-        if not isinstance(figures, list):
-            figures = [figures]
-        if figure_names is not None and not isinstance(figure_names, list):
-            figure_names = [figure_names]
 
         added_figs = []
         for idx, figure in enumerate(figures):
@@ -685,8 +680,9 @@ class DbExperimentDataV1(DbExperimentData):
                     fig_name = figure
                 else:
                     fig_name = (
-                        f"figure_{self.experiment_id[:8]}_"
-                        f"{datetime.now().isoformat()}_{len(self._figures)}.svg"
+                        f"{self.experiment_type}_"
+                        f"Fig-{len(self._figures)}_"
+                        f"Exp-{self.experiment_id[:8]}.svg"
                     )
             else:
                 fig_name = figure_names[idx]
