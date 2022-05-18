@@ -88,7 +88,12 @@ class BaseAnalysis(ABC, StoreInitArgs):
 
     @classmethod
     def _default_options(cls) -> Options:
-        return Options()
+        """Default analysis options common to all analyzes."""
+        options = Options()
+        # figure names can be set for each analysis by calling
+        # experiment_obj.analysis.set_options(figure_names=FIGURE_NAMES)
+        options.figure_names = None
+        return options
 
     @property
     def options(self) -> Options:
@@ -167,7 +172,7 @@ class BaseAnalysis(ABC, StoreInitArgs):
             if analysis_results:
                 expdata.add_analysis_results(analysis_results)
             if figures:
-                expdata.add_figures(figures)
+                expdata.add_figures(figures, figure_names=self.options.figure_names)
 
         experiment_data.add_analysis_callback(run_analysis)
 
