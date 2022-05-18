@@ -26,9 +26,6 @@ instead call a simulator internally.
     :toctree: ../stubs/
 
     MockIQBackend
-    MockRamseyXY
-    MockFineAmp
-    DragBackend
     T1Backend
     T2RamseyBackend
     FakeJob
@@ -37,7 +34,7 @@ instead call a simulator internally.
 """
 
 from .utils import FakeJob
-from .mock_iq_backend import MockIQBackend, MockRamseyXY, MockFineAmp, DragBackend
+from .mock_iq_backend import MockIQBackend
 from .t1_backend import T1Backend
 from .t2ramsey_backend import T2RamseyBackend
 from .fake_service import FakeService
