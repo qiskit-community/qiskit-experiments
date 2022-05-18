@@ -505,11 +505,3 @@ class TestExperimentDataIntegration(QiskitTestCase):
 
 if __name__ == "__main__":
     unittest.main()
-# def suite():
-#     suite = unittest.TestSuite()
-#     suite.addTest(TestExperimentDataIntegration('test_set_service_job'))
-#     return suite
-#
-# if __name__ == '__main__':
-#     runner = unittest.TextTestRunner()
-#     runner.run(suite())
