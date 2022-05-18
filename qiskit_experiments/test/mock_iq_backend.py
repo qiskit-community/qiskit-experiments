@@ -24,7 +24,7 @@ from qiskit.qobj.utils import MeasLevel
 from qiskit_experiments.framework import Options
 from qiskit_experiments.test.utils import FakeJob
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
-from qiskit_experiments.test.mock_iq_helpers import MockIQExperimentHelper
+from qiskit_experiments.test.mock_iq_helpers import MockIQExperimentHelper, MockIQParallelExperimentHelper
 
 
 class MockRestlessBackend(FakeOpenPulse2Q):
@@ -371,8 +371,8 @@ class MockIQBackend(FakeOpenPulse2Q):
             "success": True,
             "results": [],
         }
-        prob_list = self.experiment_helper.compute_probabilities(run_input)
-        for prob, circ in zip(prob_list, run_input):
+        prob_exp_list = self.experiment_helper.compute_probabilities(run_input)
+        for prob, circ in zip(prob_exp_list, run_input):
             run_result = {
                 "shots": shots,
                 "success": True,
@@ -384,3 +384,94 @@ class MockIQBackend(FakeOpenPulse2Q):
             result["results"].append(run_result)
 
         return FakeJob(self, Result.from_dict(result))
+
+
+class MockIQParallelBackend(MockIQBackend):
+    """"""
+
+    #TODO: change the following __init__
+    def __init__(
+        self,
+        experiment_helper: MockIQParallelExperimentHelper,
+        rng_seed: int = 0,
+        iq_cluster_centers: Optional[List[Tuple[Tuple[float, float], Tuple[float, float]]]] = None,
+        iq_cluster_width: Optional[List[float]] = None,
+    ):
+        """
+        Initialize the backend.
+        Args:
+            experiment_helper(MockIQExperimentHelper): Experiment helper class that contains
+            'compute_probabilities' function and 'iq_phase' function for the backend to execute.
+            rng_seed(int): The random seed value.
+            iq_cluster_centers(Optional[List]): A list of tuples containing the clusters' centers in the
+            IQ plane.
+            There are different centers for different logical values of the qubit.
+            iq_cluster_width(Optional[List]): A list of standard deviation values for the sampling of
+            each qubit.
+        """
+        
+        self._iq_cluster_centers = iq_cluster_centers or [((-1.0, -1.0), (1.0, 1.0))]
+        self._iq_cluster_width = iq_cluster_width or [1.0] * len(self._iq_cluster_centers)
+        self.experiment_helper = experiment_helper
+        self._rng = np.random.default_rng(rng_seed)
+
+        super().__init__()
+
+
+    def _draw_iq_shots(
+        self, prob: List[float], shots: int, output_length: int, phase: float = 0.0
+    ) -> List[List[List[Union[float, complex]]]]:
+        """
+        Produce an IQ shot.
+        Args:
+            prob(List): A list of probabilities for each output.
+            shots(int): The number of times the circuit will run.
+            output_length(int): The number of qubits in the circuit.
+
+        Returns:
+            List[List[Tuple[float, float]]]: A list of shots. Each shot consists of a list of qubits.
+            The qubits are tuples with two values [I,Q].
+            The output structure is  - List[shot index][qubit index] = [I,Q]
+        """
+        # Randomize samples
+        qubits_iq_rand = [np.nan] * shots
+        for shot in range(shots):
+            rand_i = self._get_normal_samples_for_shot(output_length)
+            rand_q = self._get_normal_samples_for_shot(output_length)
+            qubits_iq_rand[shot] = np.array([rand_i, rand_q], dtype="float").T
+
+        memory = []
+        shot_num = 0
+        iq_centers = self._iq_cluster_centers
+
+        for output_number, number_of_occurrences in enumerate(
+            self._rng.multinomial(shots, prob, size=1)[0]
+        ):
+            state_str = str(format(output_number, "b").zfill(output_length))
+            for _ in range(number_of_occurrences):
+                shot_memory = []
+                # the iteration on the string variable state_str starts from the MSB. For readability,
+                # we will reverse the string so the loop will run from the LSB to MSB.
+                for iq_center, qubit_iq_rand_sample, char_qubit in zip(
+                    iq_centers, qubits_iq_rand[shot_num], state_str[::-1]
+                ):
+                    # The structure of iq_centers is [qubit_number][logic_result][I/Q].
+                    i_center = iq_center[int(char_qubit)][0]
+                    q_center = iq_center[int(char_qubit)][1]
+
+                    point_i = i_center + qubit_iq_rand_sample[0]
+                    point_q = q_center + qubit_iq_rand_sample[1]
+
+                    # Adding phase if not 0.0
+                    if not np.allclose(phase, 0.0):
+                        complex_iq = (point_i + 1.0j * point_q) * np.exp(1.0j * phase)
+                        point_i, point_q = np.real(complex_iq), np.imag(complex_iq)
+
+                    shot_memory.append([point_i, point_q])
+                # We proceed to the next occurrence - meaning it's a new shot.
+                memory.append(shot_memory)
+                shot_num += 1
+
+        return memory
+
+
