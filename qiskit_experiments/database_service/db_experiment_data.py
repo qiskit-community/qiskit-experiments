@@ -31,7 +31,7 @@ import numpy as np
 
 from matplotlib import pyplot
 from qiskit import QiskitError
-from qiskit.providers import Job, Backend, Provider
+from qiskit.providers import Job, BaseJob, Backend, BaseBackend, Provider
 from qiskit.result import Result
 from qiskit.providers.jobstatus import JobStatus, JOB_FINAL_STATES
 from qiskit_experiments.framework.json import ExperimentEncoder, ExperimentDecoder
@@ -289,6 +289,66 @@ class DbExperimentDataV1(DbExperimentData):
             self._deleted_figures.append(key)
         self._figures = ThreadSafeOrderedDict()
 
+    def add_data(
+        self,
+        data: Union[Result, List[Result], Job, List[Job], Dict, List[Dict]],
+        timeout: Optional[float] = None,
+    ) -> None:
+        """Add experiment data.
+
+        Args:
+            data: Experiment data to add. Several types are accepted for convenience
+                * Result: Add data from this ``Result`` object.
+                * List[Result]: Add data from the ``Result`` objects.
+                * Dict: Add this data.
+                * List[Dict]: Add this list of data.
+                * Job: (Deprecated) Add data from the job result.
+                * List[Job]: (Deprecated) Add data from the job results.
+            timeout: (Deprecated) Timeout waiting for job to finish, if `data` is a ``Job``.
+
+        Raises:
+            TypeError: If the input data type is invalid.
+        """
+        if any(not future.done() for future in self._analysis_futures.values()):
+            LOG.warning(
+                "Not all analysis has finished running. Adding new data may "
+                "create unexpected analysis results."
+            )
+        if not isinstance(data, list):
+            data = [data]
+
+        # Extract job data (Deprecated) and directly add non-job data
+        jobs = []
+        with self._result_data.lock:
+            for datum in data:
+                if isinstance(datum, (Job, BaseJob)):
+                    jobs.append(datum)
+                elif isinstance(datum, dict):
+                    self._result_data.append(datum)
+                elif isinstance(datum, Result):
+                    self._add_result_data(datum)
+                else:
+                    raise TypeError(f"Invalid data type {type(datum)}.")
+
+        # Remove after deprecation is finished
+        if jobs:
+            warnings.warn(
+                "Passing Jobs to the `add_data` method is deprecated as of "
+                "qiskit-experiments 0.3.0 and will be removed in the 0.4.0 release. "
+                "Use the `add_jobs` method to add jobs instead.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            if timeout is not None:
+                warnings.warn(
+                    "The `timeout` kwarg of is deprecated as of "
+                    "qiskit-experiments 0.3.0 and will be removed in the 0.4.0 release. "
+                    "Use the `add_jobs` method to add jobs with timeout.",
+                    DeprecationWarning,
+                    stacklevel=2,
+                )
+            self.add_jobs(jobs, timeout=timeout)
+
     def add_jobs(
         self,
         jobs: Union[Job, List[Job]],
@@ -339,7 +399,7 @@ class DbExperimentDataV1(DbExperimentData):
                     "Skipping duplicate job, a job with this ID already exists [Job ID: %s]", jid
                 )
             else:
-                self._data.job_ids.append(jid)
+                self._result_data.job_ids.append(jid)
                 self._jobs[jid] = job
                 if jid in self._job_futures:
                     LOG.warning("Job future has already been submitted [Job ID: %s]", jid)
@@ -1660,6 +1720,16 @@ class DbExperimentDataV1(DbExperimentData):
         return self._data.experiment_id
 
     @property
+    def experiment_type(self) -> str:
+        """Return experiment type
+
+        Returns:
+            Experiment type.
+        """
+
+        return self._data.experiment_type
+
+    @property
     def parent_id(self) -> str:
         """Return parent experiment ID
 
@@ -1684,15 +1754,6 @@ class DbExperimentDataV1(DbExperimentData):
             Backend this experiment is for, or ``None`` if backend is unknown.
         """
         return self._backend
-
-    @property
-    def experiment_type(self) -> str:
-        """Return experiment type.
-
-        Returns:
-            Experiment type.
-        """
-        return self._data.type
 
     @property
     def figure_names(self) -> List[str]:
@@ -1839,16 +1900,16 @@ class DbExperimentDataV1(DbExperimentData):
     def __repr__(self):
         out = f"{type(self).__name__}({self.experiment_type}"
         out += f", {self.experiment_id}"
-        if self._parent_id:
-            out += f", parent_id={self._parent_id}"
-        if self._tags:
-            out += f", tags={self._tags}"
+        if self.parent_id:
+            out += f", parent_id={self.parent_id}"
+        if self.tags:
+            out += f", tags={self.tags}"
         if self.job_ids:
             out += f", job_ids={self.job_ids}"
-        if self._share_level:
-            out += f", share_level={self._share_level}"
-        if self._metadata:
-            out += f", metadata=<{len(self._metadata)} items>"
+        if self.share_level:
+            out += f", share_level={self.share_level}"
+        if self.metadata:
+            out += f", metadata=<{len(self.metadata)} items>"
         if self.figure_names:
             out += f", figure_names={self.figure_names}"
         if self.notes:
