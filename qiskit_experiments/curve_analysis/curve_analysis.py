@@ -41,7 +41,13 @@ class CurveAnalysis(BaseCurveAnalysis):
     """
 
     def __init__(self, series_defs: Optional[List[SeriesDef]] = None):
-        """Initialize data fields that are privately accessed by methods."""
+        """Initialize data fields that are privately accessed by methods.
+
+        Args:
+            series_defs: List of series definitions that defines properties of curves.
+                If not specified, a protected member ``self._model`` must be
+                separately initialized before running curve fitting.
+        """
         super().__init__()
 
         if hasattr(self, "__fixed_parameters__"):

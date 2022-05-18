@@ -128,47 +128,41 @@ You can intuitively write the definition of a new series, as shown below:
 
 .. code-block:: python3
 
-    from qiskit_experiments.curve_analysis import SeriesDef, fit_function
+    from qiskit_experiments.curve_analysis import SeriesDef
 
-    SeriesDef(
-        fit_func=lambda x, p0, p1, p2: fit_function.exponential_decay(
-            x, amp=p0, lamb=p1, baseline=p2
-        ),
-        model_description="p0 * exp(-p1 * x) + p2",
-    )
+    series_defs = [SeriesDef(fit_func="p0 * exp(-p1 * x) + p2")]
 
-The minimum field you must fill with is the ``fit_func``, which is a callback function used
-with the optimization solver. Here you must call one of the fit functions from the module
-:mod:`qiskit_experiments.curve_analysis.fit_function` because they implement
-special logic to compute error propagation.
-Note that argument name of the fit function is important because
-the signature of the provided fit function is inspected behind the scenes and
-used as a parameter name of the analysis result instance.
-This name may be used to populate your experiment database with the result.
+The minimum field you must fill with is the ``fit_func``, which is a string
+representation of fit function. You can use mathematical function or constant name
+defined in the Python's math module or in NumPy.
+Note that ``x`` is the reserved name by the definition to represent a parameter
+that is scanned during the experiment. In above example, the fit function
+consists of three parameters (``p0``, ``p1``, ``p2``), and ``exp`` indicates
+a universal function in Python's math module.
+Once initialized with definitions, the :class:`CurveAnalysis` instance parses
+all string ``fit_func`` with `ASTEVAL`_ to create callable fit functions,
+and :class:`.CurveModel` instance is internally created to manage
+the composite fit function to perform multi-objective optimization described above.
 
-Optionally you can set ``model_description`` which is a string representation of your
-fitting model that will be passed to the analysis result as a part of metadata.
-This instance should be set to :attr:`CurveAnalysis.__series__` as a python list.
+The argument names of the fit function is important because
+parsed parameter names are used in the analysis result.
+This name may be used to populate your experiment database with the fit result.
 
 Here is another example how to implement multi-objective optimization task:
 
 .. code-block:: python3
 
-    [
+    series_defs = [
         SeriesDef(
             name="my_experiment1",
-            fit_func=lambda x, p0, p1, p2, p3: fit_function.exponential_decay(
-                x, amp=p0, lamb=p1, baseline=p3
-            ),
+            fit_func = p0 * exp(-p1 * x) + p3,
             filter_kwargs={"tag": 1},
             plot_color="red",
             plot_symbol="^",
         ),
         SeriesDef(
             name="my_experiment2",
-            fit_func=lambda x, p0, p1, p2, p3: fit_function.exponential_decay(
-                x, amp=p0, lamb=p2, baseline=p3
-            ),
+            fit_func = p0 * exp(-p2 * x) + p3,
             filter_kwargs={"tag": 2},
             plot_color="blue",
             plot_symbol="o",
@@ -179,8 +173,8 @@ Note that now you also need to provide ``name`` and ``filter_kwargs`` to
 distinguish the entries and filter the corresponding dataset from the experiment data.
 Optionally, you can provide ``plot_color`` and ``plot_symbol`` to visually
 separate two curves in the plot. In this model, you have 4 parameters ``[p0, p1, p2, p3]``
-and the two curves share ``p0`` (``p3``) for ``amp`` (``baseline``) of
-the :func:`exponential_decay` fit function.
+and the two curves share ``p0`` (``p3``) for the amplitude (baseline) in
+the exponential decay function.
 Here one should expect the experiment data will have two classes of data with metadata
 ``"tag": 1`` and ``"tag": 2`` for ``my_experiment1`` and ``my_experiment2``, respectively.
 
@@ -188,21 +182,17 @@ By using this model, one can flexibly set up your fit model. Here is another exa
 
 .. code-block:: python3
 
-    [
+    series_defs = [
         SeriesDef(
             name="my_experiment1",
-            fit_func=lambda x, p0, p1, p2, p3: fit_function.cos(
-                x, amp=p0, freq=p1, phase=p2, baseline=p3
-            ),
+            fit_func="p0 * cos(2 * pi * p1 * x + p2) + p3",
             filter_kwargs={"tag": 1},
             plot_color="red",
             plot_symbol="^",
         ),
         SeriesDef(
             name="my_experiment2",
-            fit_func=lambda x, p0, p1, p2, p3: fit_function.sin(
-                x, amp=p0, freq=p1, phase=p2, baseline=p3
-            ),
+            fit_func="p0 * sin(2 * pi * p1 * x + p2) + p3",
             filter_kwargs={"tag": 2},
             plot_color="blue",
             plot_symbol="o",
@@ -212,6 +202,7 @@ By using this model, one can flexibly set up your fit model. Here is another exa
 You have the same set of fit parameters for two curves, but now you fit two datasets
 with different trigonometric functions.
 
+.. _ASTEVAL: https://asteval.readthedocs.io/en/latest/
 
 .. _curve_analysis_fixed_param:
 
@@ -227,13 +218,10 @@ a particular analysis class.
 
     class AnalysisA(CurveAnalysis):
 
-        __series__ = [
-            SeriesDef(
-                fit_func=lambda x, p0, p1, p2: fit_function.exponential_decay(
-                    x, amp=p0, lamb=p1, baseline=p2
-                ),
-            ),
-        ]
+        def __init__(self):
+            super().__init__(
+                series_defs=[SeriesDef(fit_func="p0 * exp(-p1 * x) + p2")]
+            )
 
     class AnalysisB(AnalysisA):
 
@@ -244,20 +232,17 @@ a particular analysis class.
 
             return options
 
-The parameter specified in ``fixed_parameters`` is exluded from the fitting.
+The parameter specified in ``fixed_parameters`` is excluded from the fitting.
 This code will give you identical fit model to the one defined in the following class:
 
 .. code-block:: python3
 
     class AnalysisB(CurveAnalysis):
 
-        __series__ = [
-            SeriesDef(
-                fit_func=lambda x, p1, p2: fit_function.exponential_decay(
-                    x, amp=3.0, lamb=p1, baseline=p2
-                ),
-            ),
-        ]
+        def __init__(self):
+            super().__init__(
+                series_defs=[SeriesDef(fit_func="3.0 * exp(-p1 * x) + p2")]
+            )
 
 However, note that you can also inherit other features, e.g. the algorithm to
 generate initial guesses for parameters, from the :class:`AnalysisA` in the first example.
@@ -277,7 +262,8 @@ This workflow is defined in the method :meth:`CurveAnalysis._run_analysis`.
 Curve analysis calls :meth:`_initialization` method where it initializes
 some internal states and optionally populate analysis options
 with the input experiment data.
-In some case it may train the data processor with fresh outcomes.
+In some case it may train the data processor with fresh outcomes,
+or dynamically generate the fit model (``self._model``) with fresh analysis options.
 A developer can override this method to perform initialization of analysis-specific variables.
 
 2. Data processing
@@ -302,7 +288,7 @@ A developer usually override this method to provide better initial guess
 tailored to the defined fit model or type of the associated experiment.
 See :ref:`curve_analysis_init_guess` for more details.
 A developer can also override the entire :meth:`_run_curve_fit` method to apply
-custom fitting algorithms. This method must return :class:`FitData` dataclass.
+custom fitting algorithms. This method must return :class:`SolverResult` dataclass.
 
 4. Post processing
 
@@ -384,8 +370,9 @@ Evaluate Fit Quality
 
 A subclass can override :meth:`_evaluate_quality` method to
 provide an algorithm to evaluate quality of the fitting.
-This method is called with the :class:`FitData` object which contains
-fit parameters and the reduced chi-squared value.
+This method is called with the :class:`SolverResult` object which contains
+fit parameters and the reduced chi-squared value,
+in addition to the several statistics on the fitting.
 Qiskit Experiments often uses the empirical criterion chi-squared < 3 as a good fitting.
 
 
@@ -395,9 +382,7 @@ Curve Analysis Results
 ======================
 
 Once the best fit parameters are found, the :meth:`_create_analysis_results` method is
-called with the same :class:`FitData` object.
-By default :class:`CurveAnalysis` only creates a single entry ``@Parameters_<name_of_analysis>``.
-This entry consists of fit parameter values with statistical information of the fitting.
+called with the same :class:`SolverResult` object.
 
 If you want to create an analysis result entry for the particular parameter,
 you can override the analysis options ``result_parameters``.
@@ -442,7 +427,7 @@ This can be done by overriding the :meth:`_create_analysis_results` method.
 
         return outcomes
 
-Note that both ``p0`` and ``p1`` are `ufloat`_ object consisting of
+Note that both ``p0`` and ``p1`` are `UFloat`_ object consisting of
 a nominal value and an error value which assumes the standard deviation.
 Since this object natively supports error propagation,
 you don't need to manually recompute the error of new value.
@@ -471,8 +456,9 @@ Data Classes
 
     SeriesDef
     CurveModel
-    CurveSolver
     CurveData
+    CurveSolver
+    SolverResult
     ParameterRepr
     FitOptions
 
