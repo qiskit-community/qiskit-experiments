@@ -20,6 +20,7 @@ from typing import Callable, Union
 
 import numpy as np
 from uncertainties import unumpy as unp, UFloat
+from qiskit_experiments.warnings import deprecated_function
 
 
 def typecast_float(fit_func: Callable) -> Callable:
@@ -45,6 +46,7 @@ def typecast_float(fit_func: Callable) -> Callable:
     return _wrapper
 
 
+@deprecated_function("0.5", "Now fit function can be defined with Python string.")
 @typecast_float
 def cos(
     x: np.ndarray,
@@ -62,6 +64,7 @@ def cos(
     return amp * unp.cos(2 * np.pi * freq * x + phase) + baseline
 
 
+@deprecated_function("0.5", "Now fit function can be defined with Python string.")
 @typecast_float
 def sin(
     x: np.ndarray,
@@ -79,6 +82,7 @@ def sin(
     return amp * unp.sin(2 * np.pi * freq * x + phase) + baseline
 
 
+@deprecated_function("0.5", "Now fit function can be defined with Python string.")
 @typecast_float
 def exponential_decay(
     x: np.ndarray,
@@ -96,6 +100,7 @@ def exponential_decay(
     return amp * base ** (-lamb * x + x0) + baseline
 
 
+@deprecated_function("0.5", "Now fit function can be defined with Python string.")
 @typecast_float
 def gaussian(
     x: np.ndarray, amp: float = 1.0, sigma: float = 1.0, x0: float = 0.0, baseline: float = 0.0
@@ -108,6 +113,7 @@ def gaussian(
     return amp * unp.exp(-((x - x0) ** 2) / (2 * sigma**2)) + baseline
 
 
+@deprecated_function("0.5", "Now fit function can be defined with Python string.")
 @typecast_float
 def sqrt_lorentzian(
     x: np.ndarray, amp: float = 1.0, kappa: float = 1.0, x0: float = 0.0, baseline: float = 0.0
@@ -120,6 +126,7 @@ def sqrt_lorentzian(
     return amp * np.abs(kappa) / unp.sqrt(kappa**2 + 4 * (x - x0) ** 2) + baseline
 
 
+@deprecated_function("0.5", "Now fit function can be defined with Python string.")
 @typecast_float
 def cos_decay(
     x: np.ndarray,
@@ -138,6 +145,7 @@ def cos_decay(
     return exponential_decay(x, lamb=1 / tau) * cos(x, amp=amp, freq=freq, phase=phase) + baseline
 
 
+@deprecated_function("0.5", "Now fit function can be defined with Python string.")
 @typecast_float
 def sin_decay(
     x: np.ndarray,
@@ -156,6 +164,7 @@ def sin_decay(
     return exponential_decay(x, lamb=1 / tau) * sin(x, amp=amp, freq=freq, phase=phase) + baseline
 
 
+@deprecated_function("0.5", "Now fit function can be defined with Python string.")
 @typecast_float
 def bloch_oscillation_x(
     x: np.ndarray, px: float = 0.0, py: float = 0.0, pz: float = 0.0, baseline: float = 0.0
@@ -174,6 +183,7 @@ def bloch_oscillation_x(
     return (-pz * px + pz * px * unp.cos(w * x) + w * py * unp.sin(w * x)) / (w**2) + baseline
 
 
+@deprecated_function("0.5", "Now fit function can be defined with Python string.")
 @typecast_float
 def bloch_oscillation_y(
     x: np.ndarray, px: float = 0.0, py: float = 0.0, pz: float = 0.0, baseline: float = 0.0
@@ -192,6 +202,7 @@ def bloch_oscillation_y(
     return (pz * py - pz * py * unp.cos(w * x) - w * px * unp.sin(w * x)) / (w**2) + baseline
 
 
+@deprecated_function("0.5", "Now fit function can be defined with Python string.")
 @typecast_float
 def bloch_oscillation_z(
     x: np.ndarray, px: float = 0.0, py: float = 0.0, pz: float = 0.0, baseline: float = 0.0
