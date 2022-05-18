@@ -166,8 +166,30 @@ class TestT2Hahn(QiskitExperimentsTestCase):
 
     def test_roundtrip_serializable(self):
         """Test round trip JSON serialization"""
-        exp = T2Hahn(0, [1, 2, 3, 4, 5])
+
+        delays0 = list(range(1, 60, 2))
+
+        exp = T2Hahn(0, delays0)
         self.assertRoundTripSerializable(exp, self.json_equiv)
+
+        osc_freq = 0.08
+        estimated_t2hahn = 30
+        backend = T2HahnBackend(
+            t2hahn=[estimated_t2hahn],
+            frequency=[osc_freq],
+            initialization_error=[0.0],
+            readout0to1=[0.02],
+            readout1to0=[0.02],
+        )
+        exp.analysis.set_options(p0={"amp": 0.5, "tau": estimated_t2hahn, "base": 0.5}, plot=False)
+        expdata = exp.run(backend=backend, shots=1000).block_for_results()
+        self.assertExperimentDone(expdata)
+
+        # Checking serialization of the experiment data
+        self.assertRoundTripSerializable(expdata, self.experiment_data_equiv)
+
+        # Checking serialization of the analysis
+        self.assertRoundTripSerializable(expdata.analysis_results(1), self.analysis_result_equiv)
 
     def test_analysis_config(self):
         """ "Test converting analysis to and from config works"""

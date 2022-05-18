@@ -456,6 +456,8 @@ class ExperimentEncoder(json.JSONEncoder):
             return {"__type__": "spmatrix", "__value__": value}
         if isinstance(obj, bytes):
             return _serialize_bytes(obj)
+        if isinstance(obj, np.number):
+            return obj.item()
         if dataclasses.is_dataclass(obj):
             return _serialize_object(obj, settings=dataclasses.asdict(obj))
         if isinstance(obj, uncertainties.UFloat):
