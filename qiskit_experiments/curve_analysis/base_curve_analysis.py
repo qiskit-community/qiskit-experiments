@@ -372,6 +372,9 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
 
         Returns:
             The best fitting outcome with minimum reduced chi-squared value.
+
+        Raises:
+            When fixed parameter is not involved in the model.
         """
         # Create a list of initial guess
         default_fit_opt = FitOptions(
@@ -382,7 +385,12 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
         )
         # Bind fixed parameters if not empty
         if self.options.fixed_parameters:
-            default_fit_opt.p0.set_if_empty(**self.options.fixed_parameters)
+            fixed_parameters = {
+                k: v for k, v in self.options.fixed_parameters.items() if k in model.param_names
+            }
+            default_fit_opt.p0.set_if_empty(**fixed_parameters)
+        else:
+            fixed_parameters = {}
 
         try:
             fit_options = self._generate_fit_guesses(default_fit_opt, curve_data)
@@ -399,8 +407,7 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
             fit_options = [fit_options]
 
         # Run fit for each configuration
-        fit_result = None
-
+        res = None
         for fit_option in fit_options:
             # Setup parameter configuration, i.e. init value, bounds
             params = model.make_params(**fit_option.p0)
@@ -409,34 +416,27 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
                     pobj.min = fit_option.bounds[pname][0]
                     pobj.max = fit_option.bounds[pname][1]
 
-                if pname in self.options.fixed_parameters:
+                if pname in fixed_parameters:
                     # This parameter remains unchanged during the fitting
                     pobj.vary = False
 
-            # Run fit, keep result if reduced chisqared value is better than before.
             solver = CurveSolver(model=model, params=params, **fit_option.fitter_opts)
-
-            new_result = solver.fit(
+            new = solver.fit(
                 x=curve_data.x,
                 y=curve_data.y,
                 sigma=curve_data.y_err,
                 allocation=curve_data.data_allocation,
             )
-            if new_result is None or not new_result.success:
+            if res is None or not res.success:
+                # Keep if result is not exist or not yet succeeded
+                res = new
                 continue
 
-            if not fit_result or fit_result.reduced_chisq > new_result.reduced_chisq:
-                fit_result = new_result
+            if new.success and res.reduced_chisq > new.reduced_chisq:
+                # Keep if chisq value is better than before
+                res = new
 
-        if fit_result is None:
-            warnings.warn(
-                "All initial guess and parameter boundaries failed to fit the data "
-                f"within the reduced chi-squared value of {self.options.chisq_threshold}. "
-                "Please provide better initial guesses or fit parameter boundaries.",
-                UserWarning,
-            )
-
-        return fit_result
+        return res
 
     def _create_analysis_results(
         self,
@@ -454,17 +454,6 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
             List of analysis result data.
         """
         outcomes = []
-
-        # Create entry for all fit parameters
-        if self.options.return_fit_parameters:
-            fit_parameters = AnalysisResultData(
-                name=PARAMS_ENTRY_PREFIX + self.__class__.__name__,
-                value=fit_data,
-                chisq=fit_data.reduced_chisq,
-                quality=quality,
-                extra=metadata,
-            )
-            outcomes.append(fit_parameters)
 
         # Create entries for important parameters
         for param_repr in self.options.result_parameters:

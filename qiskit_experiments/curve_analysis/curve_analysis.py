@@ -25,7 +25,7 @@ from qiskit_experiments.exceptions import AnalysisError
 from qiskit_experiments.framework import ExperimentData, AnalysisResultData, AnalysisConfig
 from qiskit_experiments.warnings import deprecated_function
 
-from .base_curve_analysis import BaseCurveAnalysis
+from .base_curve_analysis import BaseCurveAnalysis, PARAMS_ENTRY_PREFIX
 from .curve_data import CurveData, SeriesDef
 from .models import CurveModel
 from .utils import analysis_result_to_repr
@@ -162,9 +162,24 @@ class CurveAnalysis(BaseCurveAnalysis):
         # Run fitting
         fit_data = self._run_curve_fit(formatted_data, self._model)
 
-        # Create figure and result data
-        if fit_data:
+        if fit_data.success:
             quality = self._evaluate_quality(fit_data)
+        else:
+            quality = "bad"
+
+        if self.options.return_fit_parameters:
+            # Store fit status entry regardless of success.
+            # This is sometime useful to debugging the fitting code.
+            fit_parameters = AnalysisResultData(
+                name=PARAMS_ENTRY_PREFIX + self.__class__.__name__,
+                value=fit_data,
+                quality=quality,
+                extra=self.options.extra,
+            )
+            analysis_results.append(fit_parameters)
+
+        # Create figure and result data
+        if fit_data.success:
 
             # Create analysis results
             analysis_results.extend(

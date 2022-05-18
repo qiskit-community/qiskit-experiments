@@ -287,10 +287,17 @@ class CurveSolver(Minimizer):
 
         try:
             minimizer_result = self.minimize(method=self.method)
-        except ValueError:
+        except ValueError as ex:
             # We assume the solver is scipy least_squares.
             # This raises ValueError when it fails due to wrong guesses or bounds.
-            return None
+            return SolverResult(
+                method=self.method,
+                model_repr=self.model_repr,
+                success=False,
+                message=str(ex),
+                x_data=x,
+                y_data=y,
+            )
 
         if not hasattr(minimizer_result, "covar") or not minimizer_result.errorbars:
             # This is how scipy computes a covariance matrix from Jacobian.

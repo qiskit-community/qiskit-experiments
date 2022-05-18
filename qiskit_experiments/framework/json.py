@@ -457,7 +457,11 @@ class ExperimentEncoder(json.JSONEncoder):
         if isinstance(obj, bytes):
             return _serialize_bytes(obj)
         if dataclasses.is_dataclass(obj):
-            return _serialize_object(obj, settings=dataclasses.asdict(obj))
+            # Note that dataclass.asdict recursively convert nested dataclass into dictionary.
+            # Thus inter dataclass is unintentionally decoded as dictionary.
+            # obj.__dict__ doesn't convert inter dataclass thus serialization
+            # is offloaded to usual json serialization mechanism.
+            return _serialize_object(obj, settings=obj.__dict__)
         if isinstance(obj, uncertainties.UFloat):
             # This could be UFloat (AffineScalarFunc) or Variable.
             # UFloat is a base class of Variable that contains parameter correlation.

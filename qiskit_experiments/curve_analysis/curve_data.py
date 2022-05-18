@@ -20,6 +20,7 @@ from typing import Any, Dict, Union, List, Tuple, Optional, Iterable
 
 import numpy as np
 import uncertainties
+from uncertainties.unumpy import uarray
 from qiskit_experiments.exceptions import AnalysisError
 from qiskit_experiments.warnings import deprecated_function, deprecated_class
 
@@ -139,61 +140,27 @@ class SolverResult:
             when these are available.
     """
 
-    method: str
-    model_repr: Dict[str, str]
-    success: bool
-    nfev: int
-    message: str
-    dof: float
-    chisq: float
-    reduced_chisq: float
-    aic: float
-    bic: float
-    params: Dict[str, float]
-    var_names: List[str]
-    x_data: np.ndarray
-    y_data: np.ndarray
-    covar: np.ndarray
+    method: str = None
+    model_repr: Dict[str, str] = None
+    success: bool = True
+    nfev: int = None
+    message: str = ""
+    dof: float = None
+    chisq: float = None
+    reduced_chisq: float = None
+    aic: float = None
+    bic: float = None
+    params: Dict[str, float] = None
+    var_names: List[str] = None
+    x_data: np.ndarray = None
+    y_data: np.ndarray = None
+    covar: np.ndarray = None
     correl: np.ndarray = dataclasses.field(init=False, repr=False)
     ufloat_params: Dict[str, uncertainties.UFloat] = dataclasses.field(init=False, repr=False)
 
     def __post_init__(self):
-        # Dynamically compute correlated parameters from values and covariance.
-        # This avoids serialization issue of correlated UFloat parameters.
-
-        if self.covar is not None and np.all(np.isfinite(self.covar)):
-            ufloat_fitvals = dict(
-                zip(
-                    self.var_names,
-                    uncertainties.correlated_values(
-                        nom_values=[self.params[name] for name in self.var_names],
-                        covariance_mat=self.covar,
-                    ),
-                )
-            )
-            # This is how uncertainties computes correlation matrix
-            stdevs = np.sqrt(np.diag(self.covar))
-            correl = self.covar / stdevs / stdevs[:, np.newaxis]
-        else:
-            ufloat_fitvals = {
-                name: uncertainties.ufloat(
-                    nominal_value=self.params[name],
-                    std_dev=np.nan,
-                )
-                for name in self.var_names
-            }
-            correl = None
-
-        ufloat_params = {}
-        for name in self.params.keys():
-            if name not in self.var_names:
-                # fixed parameters
-                ufloat_params[name] = uncertainties.ufloat(self.params[name], std_dev=0.0)
-            else:
-                ufloat_params[name] = ufloat_fitvals[name]
-
-        object.__setattr__(self, "correl", correl)
-        object.__setattr__(self, "ufloat_params", ufloat_params)
+        self._set_correlation_matrix(self.covar)
+        self._set_ufloat_params(self.covar)
 
     @property
     def x_range(self) -> Tuple[float, float]:
@@ -210,6 +177,48 @@ class SolverResult:
         """Deprecated. Return UFloat parameter specified by the key."""
         return self.ufloat_params[key]
 
+    def _set_ufloat_params(self, covar: np.ndarray):
+        """A helper function to compute ufloat parameters from covariance matrix."""
+        if self.params is None:
+            object.__setattr__(self, "ufloat_params", None)
+            return
+
+        if covar is not None and np.all(np.isfinite(covar)) and np.all(np.diag(covar) > 0):
+            ufloat_fitvals = uncertainties.correlated_values(
+                nom_values=[self.params[name] for name in self.var_names],
+                covariance_mat=covar,
+                tags=self.var_names,
+            )
+        else:
+            # Invalid covariance matrix. Std dev is set to nan.
+            ufloat_fitvals = uarray(
+                nominal_values=[self.params[name] for name in self.var_names],
+                std_devs=np.full(len(self.var_names), np.nan),
+            )
+
+        # Combine fixed params and fitting variables into a single dictionary
+        # Fixed parameter has zero std_dev
+        ufloat_params = {}
+        for name in self.params.keys():
+            try:
+                uind = self.var_names.index(name)
+                ufloat_params[name] = ufloat_fitvals[uind]
+            except ValueError:
+                ufloat_params[name] = uncertainties.ufloat(self.params[name], std_dev=0.0)
+
+        object.__setattr__(self, "ufloat_params", ufloat_params)
+
+    def _set_correlation_matrix(self, covar: np.ndarray):
+        """A helper function to compute correlation matrix from covariance matrix."""
+        if covar is not None and np.all(np.isfinite(covar)) and np.all(np.diag(covar) > 0):
+            # This is how uncertainties computes correlation matrix
+            stdevs = np.sqrt(np.diag(covar))
+            correl = covar / stdevs / stdevs[:, np.newaxis]
+        else:
+            correl = None
+
+        object.__setattr__(self, "correl", correl)
+
     def __json_encode__(self):
         # Remove auto-initialized parameters
         data_dict = dataclasses.asdict(self)
@@ -221,6 +230,21 @@ class SolverResult:
     @classmethod
     def __json_decode__(cls, value):
         return cls(**value)
+
+    def __copy__(self):
+        instance = SolverResult(**self.__json_encode__())
+        # Copying ufloat invalidate parameter correlation.
+        # Note that ufloat object has `self._linear_part.linear_combo` dictionary
+        # to store parameter correlation keyed on the ufloat objects.
+        # Copying the ufloat object may change object id, which is the identifier
+        # of ufloat value, thus it invalidates the `linear_combo` dictionary.
+        # To avoid missing correlation, ufloat object is regenerated per copy.
+        instance._set_ufloat_params(self.covar)
+
+        return instance
+
+    def __deepcopy__(self, memo):
+        return self.__copy__()
 
     def __str__(self):
         ret = "Solver Result:"
@@ -237,21 +261,20 @@ class SolverResult:
         ret += f"\n - reduced chi-square: {self.reduced_chisq}"
         ret += f"\n - Akaike info crit.: {self.aic}"
         ret += f"\n - Bayesian info crit.: {self.bic}"
-        ret += "\n - fit params:"
-        for name, param in self.ufloat_params.items():
-            if np.isfinite(param.std_dev):
-                ret += f"\n  * {name} = {param.nominal_value} ± {param.std_dev}"
-            else:
-                ret += f"\n  * {name} = {param.nominal_value}"
-        ret += "\n - correlations:"
+        if self.ufloat_params is not None:
+            ret += "\n - fit params:"
+            for name, param in self.ufloat_params.items():
+                if np.isfinite(param.std_dev):
+                    ret += f"\n  * {name} = {param.nominal_value} ± {param.std_dev}"
+                else:
+                    ret += f"\n  * {name} = {param.nominal_value}"
         if self.correl is not None:
+            ret += "\n - correlations:"
             correlated = {}
             for pi, pj in itertools.combinations(range(len(self.var_names)), 2):
                 correlated[(pi, pj)] = self.correl[pi, pj]
             for (pi, pj), corr in sorted(correlated.items(), key=lambda item: item[1]):
                 ret += f"\n  * ({self.var_names[pi]}, {self.var_names[pj]}) = {corr}"
-        else:
-            ret += "\n  * Correlation matrix is not available."
 
         return ret
 
