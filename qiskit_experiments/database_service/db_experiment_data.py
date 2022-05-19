@@ -174,7 +174,8 @@ class DbExperimentDataV1(DbExperimentData):
             service: The service that stores the experiment results to the database
             backend: Backend the experiment runs on.
         """
-        self._data = copy.deepcopy(data)
+        # self._data = copy.deepcopy(data)
+        self._data = data.copy()
         self._service = service
         self._backend = backend
         if self._backend:
@@ -399,7 +400,7 @@ class DbExperimentDataV1(DbExperimentData):
                     "Skipping duplicate job, a job with this ID already exists [Job ID: %s]", jid
                 )
             else:
-                self._result_data.job_ids.append(jid)
+                self._data.job_ids.append(jid)
                 self._jobs[jid] = job
                 if jid in self._job_futures:
                     LOG.warning("Job future has already been submitted [Job ID: %s]", jid)
@@ -1556,7 +1557,9 @@ class DbExperimentDataV1(DbExperimentData):
             This method can not be called from an analysis callback. It waits
             for analysis callbacks to complete before copying analysis results.
         """
-        new_instance = self.__class__()
+        new_instance = self.__class__(self._data, self.backend, self.service, self.verbose) # data will be deep copied
+        new_instance._data.experiment_id = str(uuid.uuid4()) # different id for copied experiment
+
         LOG.debug(
             "Copying experiment data [Experiment ID: %s]: %s",
             self.experiment_id,
@@ -1564,20 +1567,14 @@ class DbExperimentDataV1(DbExperimentData):
         )
 
         # Copy basic properties and metadata
-        new_instance._type = self.experiment_type
-        new_instance._backend = self._backend
-        new_instance._tags = self._tags
+
         new_instance._jobs = self._jobs.copy_object()
-        new_instance._share_level = self._share_level
-        new_instance._metadata = copy.deepcopy(self._metadata)
-        new_instance._notes = self._notes
         new_instance._auto_save = self._auto_save
-        new_instance._service = self._service
         new_instance._extra_data = self._extra_data
 
         # Copy circuit result data and jobs
         with self._result_data.lock:  # Hold the lock so no new data can be added.
-            new_instance._data = self._result_data.copy_object()
+            new_instance._result_data = self._result_data.copy_object()
             for jid, fut in self._job_futures.items():
                 if not fut.done():
                     new_instance._add_job_future(new_instance._jobs[jid])
