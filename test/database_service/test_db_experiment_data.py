@@ -278,11 +278,11 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         ax.plot([1, 2, 3])
 
         service = self._set_mock_service()
-        exp_data = DbExperimentData.from_values(backend=self.backend, experiment_type="qiskit_test")
+        exp_data = DbExperimentData.from_values(backend=self.backend, experiment_type="qiskit_test", service=service)
         exp_data.add_figures(figure, save_figure=True)
-        self.assertEqual(figure, exp_data.figure(0).figure)
-        service.create_figure.assert_called_once()
-        _, kwargs = service.create_figure.call_args
+        self.assertEqual(figure, exp_data.figure(0))
+        service.create_or_update_figure.assert_called_once()
+        _, kwargs = service.create_or_update_figure.call_args
         self.assertIsInstance(kwargs["figure"], bytes)
 
     def test_add_figures(self):
@@ -477,12 +477,12 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         exp_data.service = service
         exp_data.save_metadata()
         service.create_experiment.assert_called_once()
-        _, kwargs = service.create_experiment.call_args
-        self.assertEqual(exp_data.experiment_id, kwargs["experiment_id"])
+        data = service.create_experiment.call_args[0][0]
+        self.assertEqual(exp_data.experiment_id, data.experiment_id)
         exp_data.save_metadata()
         service.update_experiment.assert_called_once()
-        _, kwargs = service.update_experiment.call_args
-        self.assertEqual(exp_data.experiment_id, kwargs["experiment_id"])
+        data = service.update_experiment.call_args[0][0]
+        self.assertEqual(exp_data.experiment_id, data.experiment_id)
 
     def test_save(self):
         """Test saving all experiment related data."""
@@ -1092,12 +1092,3 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
 
 if __name__ == "__main__":
     unittest.main()
-
-# def suite():
-#     suite = unittest.TestSuite()
-#     suite.addTest(TestDbExperimentData('test_copy_metadata_pending_job'))
-#     return suite
-#
-# if __name__ == '__main__':
-#     runner = unittest.TextTestRunner()
-#     runner.run(suite())
