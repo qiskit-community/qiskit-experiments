@@ -206,6 +206,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
         is_new = not self._created_in_db
         try:
             while attempts < 3 and not success:
+                attempts += 1
                 if is_new:
                     try:
                         self.service.create_analysis_result(self._data, json_encoder=self._json_encoder)

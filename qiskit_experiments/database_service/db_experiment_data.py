@@ -590,6 +590,7 @@ class DbExperimentDataV1(DbExperimentData):
         """
         if result.job_id not in self._jobs:
             self._jobs[result.job_id] = None
+            self._data.job_ids.append(result.job_id)
         with self._result_data.lock:
             # Lock data while adding all result data
             for i, _ in enumerate(result.results):
@@ -744,20 +745,11 @@ class DbExperimentDataV1(DbExperimentData):
             if save and self._service:
                 if isinstance(figure, pyplot.Figure):
                     figure = plot_to_svg_bytes(figure)
-                data = {
-                    "experiment_id": self.experiment_id,
-                    "figure": figure,
-                    "figure_name": fig_name,
-                }
-                save_data(
-                    is_new=(not existing_figure),
-                    new_func=self._service.create_figure,
-                    update_func=self._service.update_figure,
-                    new_data={},
-                    update_data=data,
-                )
+                self._service.create_or_update_figure(experiment_id=self.experiment_id,
+                                                      figure=figure,
+                                                      figure_name=fig_name,
+                                                      create=not existing_figure)
             added_figs.append(fig_name)
-
         return added_figs if len(added_figs) != 1 else added_figs[0]
 
     @do_auto_save
@@ -1008,6 +1000,7 @@ class DbExperimentDataV1(DbExperimentData):
         is_new = not self._created_in_db
         try:
             while attempts < 3 and not success:
+                attempts += 1
                 if is_new:
                     try:
                         self.service.create_experiment(self._data, json_encoder=self._json_encoder)
