@@ -24,7 +24,6 @@ from asteval import Interpreter, get_ast_names
 from lmfit.minimizer import Minimizer
 from lmfit.model import Model
 from lmfit.parameter import Parameters
-from scipy import linalg
 
 from qiskit_experiments.curve_analysis.curve_data import SeriesDef, SolverResult
 from qiskit_experiments.exceptions import AnalysisError
@@ -299,24 +298,11 @@ class CurveSolver(Minimizer):
                 y_data=y,
             )
 
-        if not hasattr(minimizer_result, "covar") or not minimizer_result.errorbars:
-            # This is how scipy computes a covariance matrix from Jacobian.
-            # LMFIT uses a simple model of Inv(J^T·J) which is not quite robust to numerical error.
-            # Sometimes it computes covariance matrix with negative diagonal element,
-            # yielding ill standard errors of fit parameters, i.e. errorbars = False.
-            try:
-                jacobian = getattr(minimizer_result, "jac")
-                _, sing_vals, vt = linalg.svd(jacobian, full_matrices=False)
-                threshold = np.finfo(float).eps * max(jacobian.shape) * sing_vals[0]
-                sing_vals = sing_vals[sing_vals > threshold]
-                vt = vt[: sing_vals.size]
-                covariance_mat = np.dot(vt.T / sing_vals**2, vt)
-            except AttributeError:
-                # Jacobian is not available. Fitting completely failed, or not expected solver.
-                covariance_mat = None
-        else:
-            # Likely covariance matrix is computed correctly.
-            covariance_mat = getattr(minimizer_result, "covar")
+        if hasattr(minimizer_result, "covar") and any(np.diag(minimizer_result.covar) < 0):
+            # Diagonal element of covariance matrix should be positive.
+            # However, when residual is significant, i.e. bad quality,
+            # sometimes it computes ill-covariance matrix with negative diagonals.
+            delattr(minimizer_result, "covar")
 
         outcome = SolverResult(
             method=self.method,
@@ -333,7 +319,7 @@ class CurveSolver(Minimizer):
             var_names=minimizer_result.var_names,
             x_data=x,
             y_data=y,
-            covar=covariance_mat,
+            covar=getattr(minimizer_result, "covar", None),
         )
 
         return outcome

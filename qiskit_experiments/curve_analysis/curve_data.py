@@ -183,14 +183,14 @@ class SolverResult:
             object.__setattr__(self, "ufloat_params", None)
             return
 
-        if covar is not None and np.all(np.isfinite(covar)) and np.all(np.diag(covar) > 0):
+        if covar is not None:
             ufloat_fitvals = uncertainties.correlated_values(
                 nom_values=[self.params[name] for name in self.var_names],
                 covariance_mat=covar,
                 tags=self.var_names,
             )
         else:
-            # Invalid covariance matrix. Std dev is set to nan.
+            # Invalid covariance matrix. Std dev is set to nan, i.e. not computed.
             ufloat_fitvals = uarray(
                 nominal_values=[self.params[name] for name in self.var_names],
                 std_devs=np.full(len(self.var_names), np.nan),
@@ -210,7 +210,7 @@ class SolverResult:
 
     def _set_correlation_matrix(self, covar: np.ndarray):
         """A helper function to compute correlation matrix from covariance matrix."""
-        if covar is not None and np.all(np.isfinite(covar)) and np.all(np.diag(covar) > 0):
+        if covar is not None:
             # This is how uncertainties computes correlation matrix
             stdevs = np.sqrt(np.diag(covar))
             correl = covar / stdevs / stdevs[:, np.newaxis]
