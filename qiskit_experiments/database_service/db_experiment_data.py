@@ -1093,14 +1093,7 @@ class DbExperimentDataV1(DbExperimentData):
                     continue
                 if isinstance(figure, pyplot.Figure):
                     figure = plot_to_svg_bytes(figure)
-                data = {"experiment_id": self.experiment_id, "figure": figure, "figure_name": name}
-                save_data(
-                    is_new=True,
-                    new_func=self._service.create_figure,
-                    update_func=self._service.update_figure,
-                    new_data={},
-                    update_data=data,
-                )
+                self._service.create_or_update_figure(experiment_id=self.experiment_id, figure=figure, figure_name=name)
 
         for name in self._deleted_figures.copy():
             with service_exception_to_warning():

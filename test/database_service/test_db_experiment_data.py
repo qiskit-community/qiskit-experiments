@@ -453,7 +453,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         exp_data.service = service
         exp_data.save()
         service.create_experiment.assert_called_once()
-        service.create_figure.assert_called_once()
+        service.create_or_update_figure.assert_called_once()
         analysis_result.save.assert_called_once()
 
     def test_save_delete(self):
@@ -1020,12 +1020,3 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
 
 if __name__ == "__main__":
     unittest.main()
-
-# def suite():
-#     suite = unittest.TestSuite()
-#     suite.addTest(TestDbExperimentData('test_set_service_direct'))
-#     return suite
-#
-# if __name__ == '__main__':
-#     runner = unittest.TextTestRunner()
-#     runner.run(suite())
