@@ -74,6 +74,8 @@ class DbAnalysisResultV1(DbAnalysisResult):
         """
         # Data to be stored in DB.
         self._data = copy.deepcopy(data)
+        if self.source is None:
+            self._data.result_data['_source'] = self.default_source()
         self._service = service
         self._created_in_db = False
         self._auto_save = False
@@ -126,12 +128,6 @@ class DbAnalysisResultV1(DbAnalysisResult):
                                     verified=verified,
                                     tags=tags or []
                                     )
-        if source is None:
-            source = {
-                "class": f"{cls.__module__}.{cls.__name__}",
-                "data_version": cls._data_version,
-                "qiskit_version": qiskit_version(),
-            }
         data.result_data = cls.format_result_data(value, extra, chisq, source)
         for comp in device_components:
             if isinstance(comp, str):
@@ -139,8 +135,18 @@ class DbAnalysisResultV1(DbAnalysisResult):
             data.device_components.append(comp)
         return cls(data, service)
 
+    @classmethod
+    def default_source(cls):
+        return {
+            "class": f"{cls.__module__}.{cls.__name__}",
+            "data_version": cls._data_version,
+            "qiskit_version": qiskit_version(),
+            }
+
     @staticmethod
     def format_result_data(value, extra, chisq, source):
+        if source is None:
+            source = DbAnalysisResultV1.default_source()
         result_data = {
             "_value": copy.deepcopy(value),
             "_chisq": chisq,
@@ -490,7 +496,9 @@ class DbAnalysisResultV1(DbAnalysisResult):
     @property
     def source(self) -> Dict:
         """Return the class name and version."""
-        return self._source
+        if '_source' in self._data.result_data:
+            return self._data.result_data['_source']
+        return None
 
     @property
     def auto_save(self) -> bool:

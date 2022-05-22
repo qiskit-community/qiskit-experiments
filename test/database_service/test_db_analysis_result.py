@@ -14,6 +14,7 @@
 
 """Test AnalysisResult."""
 from test.base import QiskitExperimentsTestCase
+import unittest
 from unittest import mock
 import json
 
@@ -41,7 +42,7 @@ class TestDbAnalysisResult(QiskitExperimentsTestCase):
             "quality": "Good",
             "verified": False,
         }
-        result = DbAnalysisResult(value={"foo": "bar"}, tags=["tag1", "tag2"], **attrs)
+        result = DbAnalysisResult.from_values(value={"foo": "bar"}, tags=["tag1", "tag2"], **attrs)
         self.assertEqual({"foo": "bar"}, result.value)
         self.assertEqual(["tag1", "tag2"], result.tags)
         for key, val in attrs.items():
@@ -118,7 +119,7 @@ class TestDbAnalysisResult(QiskitExperimentsTestCase):
     def test_data_serialization(self):
         """Test result data serialization."""
         result = self._new_analysis_result(value={"complex": 2 + 3j, "numpy": np.zeros(2)})
-        serialized = json.dumps(result._value, cls=result._json_encoder)
+        serialized = json.dumps(result.value, cls=result._json_encoder)
         self.assertIsInstance(serialized, str)
         self.assertTrue(json.loads(serialized))
 
@@ -181,7 +182,7 @@ class TestDbAnalysisResult(QiskitExperimentsTestCase):
             "experiment_id": "1234",
         }
         values.update(kwargs)
-        return DbAnalysisResult(**values)
+        return DbAnalysisResult.from_values(**values)
 
 
 class TestDeviceComponent(QiskitExperimentsTestCase):
@@ -202,3 +203,6 @@ class TestDeviceComponent(QiskitExperimentsTestCase):
         r1 = to_component("R1")
         self.assertIsInstance(r1, Resonator)
         self.assertEqual("R1", str(r1))
+
+if __name__ == "__main__":
+    unittest.main()
