@@ -471,17 +471,6 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         service.delete_figure.assert_called_once()
         service.delete_analysis_result.assert_called_once()
 
-    def test_set_service_job(self):
-        """Test setting service via adding a job."""
-        mock_service = self._set_mock_service()
-        job = mock.create_autospec(Job, instance=True)
-        job.backend.return_value = self.backend
-        job.status.return_value = JobStatus.DONE
-        exp_data = DbExperimentData.from_values(experiment_type="qiskit_test")
-        self.assertIsNone(exp_data.service)
-        exp_data.add_jobs(job)
-        self.assertEqual(mock_service, exp_data.service)
-
     def test_set_service_direct(self):
         """Test setting service directly."""
         exp_data = DbExperimentData.from_values(experiment_type="qiskit_test")
@@ -1034,7 +1023,7 @@ if __name__ == "__main__":
 
 # def suite():
 #     suite = unittest.TestSuite()
-#     suite.addTest(TestDbExperimentData('test_auto_save'))
+#     suite.addTest(TestDbExperimentData('test_set_service_direct'))
 #     return suite
 #
 # if __name__ == '__main__':
