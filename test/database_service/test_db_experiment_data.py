@@ -471,12 +471,6 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         service.delete_figure.assert_called_once()
         service.delete_analysis_result.assert_called_once()
 
-    def test_set_service_backend(self):
-        """Test setting service via backend."""
-        mock_service = self._set_mock_service()
-        exp_data = DbExperimentData.from_values(backend=self.backend, experiment_type="qiskit_test")
-        self.assertEqual(mock_service, exp_data.service)
-
     def test_set_service_job(self):
         """Test setting service via adding a job."""
         mock_service = self._set_mock_service()
