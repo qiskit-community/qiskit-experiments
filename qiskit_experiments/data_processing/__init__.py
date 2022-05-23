@@ -68,6 +68,14 @@ Data Processing Nodes
     AverageData
     BasisExpectationValue
     MinMaxNormalize
+
+
+Discriminators
+==============
+.. autosummary::
+    :toctree: ../stubs/
+
+    LDA
 """
 
 from .data_action import DataAction, TrainableDataAction
@@ -85,3 +93,4 @@ from .nodes import (
 )
 
 from .data_processor import DataProcessor
+from .discriminator import LDA
