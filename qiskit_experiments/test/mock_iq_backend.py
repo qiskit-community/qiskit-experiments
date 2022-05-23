@@ -371,8 +371,8 @@ class MockIQBackend(FakeOpenPulse2Q):
             "success": True,
             "results": [],
         }
-        prob_exp_list = self.experiment_helper.compute_probabilities(run_input)
-        for prob, circ in zip(prob_exp_list, run_input):
+        prob_list = self.experiment_helper.compute_probabilities(run_input)
+        for prob, circ in zip(prob_list, run_input):
             run_result = {
                 "shots": shots,
                 "success": True,
@@ -410,28 +410,33 @@ class MockIQParallelBackend(MockIQBackend):
             each qubit.
         """
         
-        self._iq_cluster_centers = iq_cluster_centers or [((-1.0, -1.0), (1.0, 1.0))]
-        self._iq_cluster_width = iq_cluster_width or [1.0] * len(self._iq_cluster_centers)
-        self.experiment_helper = experiment_helper
-        self._rng = np.random.default_rng(rng_seed)
+        # self._iq_cluster_centers = iq_cluster_centers or [((-1.0, -1.0), (1.0, 1.0))]
+        # self._iq_cluster_width = iq_cluster_width or [1.0] * len(self._iq_cluster_centers)
+        # self.experiment_helper = experiment_helper
+        # self._rng = np.random.default_rng(rng_seed)
+        super().__init__(experiment_helper, rng_seed, iq_cluster_centers, iq_cluster_width)
 
-        super().__init__()
 
-
-    def _draw_iq_shots(
-        self, prob: List[float], shots: int, output_length: int, phase: float = 0.0
+    def _draw_iq_shots2(
+        self, list_exp_dict: List[Dict[str, Union[List, int]]], shots: int, output_length: int, circ_idx: int, phase: float = 0.0
     ) -> List[List[List[Union[float, complex]]]]:
         """
         Produce an IQ shot.
         Args:
-            prob(List): A list of probabilities for each output.
+            list_exp_dict(list): A list of
             shots(int): The number of times the circuit will run.
             output_length(int): The number of qubits in the circuit.
+            circ_idx(int):
+            phase(float):
 
         Returns:
             List[List[Tuple[float, float]]]: A list of shots. Each shot consists of a list of qubits.
             The qubits are tuples with two values [I,Q].
             The output structure is  - List[shot index][qubit index] = [I,Q]
+
+
+        Args:
+            prob(List): A list of probabilities for each output.
         """
         # Randomize samples
         qubits_iq_rand = [np.nan] * shots
@@ -440,38 +445,162 @@ class MockIQParallelBackend(MockIQBackend):
             rand_q = self._get_normal_samples_for_shot(output_length)
             qubits_iq_rand[shot] = np.array([rand_i, rand_q], dtype="float").T
 
-        memory = []
+        memory = [[0] * output_length for _ in range(shots)]
         shot_num = 0
         iq_centers = self._iq_cluster_centers
 
-        for output_number, number_of_occurrences in enumerate(
-            self._rng.multinomial(shots, prob, size=1)[0]
-        ):
-            state_str = str(format(output_number, "b").zfill(output_length))
-            for _ in range(number_of_occurrences):
-                shot_memory = []
-                # the iteration on the string variable state_str starts from the MSB. For readability,
-                # we will reverse the string so the loop will run from the LSB to MSB.
-                for iq_center, qubit_iq_rand_sample, char_qubit in zip(
-                    iq_centers, qubits_iq_rand[shot_num], state_str[::-1]
-                ):
+        for exp_idx, exp_dict in enumerate(list_exp_dict):
+            # skipping experiments that don't need data generation for this circuit.
+            if exp_dict["num_circuits"] <= circ_idx:
+                continue
+
+            child_experiment_len = len(exp_dict["physical_qubits"])
+            prob = self._probability_dict_to_probability_array(exp_dict["prob"][circ_idx], child_experiment_len)
+
+            for output_number, number_of_occurrences in enumerate(self._rng.multinomial(shots, prob, size=1)[0]):
+                state_str = str(format(output_number, "b").zfill(child_experiment_len))
+                for _ in range(number_of_occurrences):
+                    # the iteration on the string variable state_str starts from the MSB. For readability,
+                    # we will reverse the string so the loop will run from the LSB to MSB.
+                    for iq_center, qubit_iq_rand_sample, char_qubit in zip(
+                            iq_centers, qubits_iq_rand[shot_num], state_str[::-1]
+                    ):
+
+
+
+
+
+
+
+                for qubit_idx in exp_dict["physical_qubits"]:
+
+
                     # The structure of iq_centers is [qubit_number][logic_result][I/Q].
-                    i_center = iq_center[int(char_qubit)][0]
-                    q_center = iq_center[int(char_qubit)][1]
+                    i_center = iq_centers[qubit_idx][0]
+                    q_center = iq_centers[qubit_idx][1]
 
                     point_i = i_center + qubit_iq_rand_sample[0]
                     point_q = q_center + qubit_iq_rand_sample[1]
 
-                    # Adding phase if not 0.0
-                    if not np.allclose(phase, 0.0):
-                        complex_iq = (point_i + 1.0j * point_q) * np.exp(1.0j * phase)
-                        point_i, point_q = np.real(complex_iq), np.imag(complex_iq)
-
-                    shot_memory.append([point_i, point_q])
-                # We proceed to the next occurrence - meaning it's a new shot.
-                memory.append(shot_memory)
-                shot_num += 1
 
         return memory
 
+    def _generate_classified_data(
+            self, list_exp_dict: List[Dict[str, Union[List, int]]], circuit: QuantumCircuit, circ_idx: int):
 
+        circ_num = circ_idx + 1
+        for exp_dict in list_exp_dict:
+            if exp_dict["circuit_length"] < circ_num:
+                counts = {}
+                shots = self.options.get("shots")
+                prob_arr = self._probability_dict_to_probability_array(exp_dict["prob"][circ_idx]["0"], len(exp_dict["physical_qubits"]))
+                results = self._rng.multinomial(shots, prob_arr, size=1)[0]
+                for result, num_occurrences in enumerate(results):
+                    result_in_str = str(format(result, "b").zfill(output_length))
+                    counts[result_in_str] = num_occurrences
+                run_result["counts"] = counts
+
+    def _generate_kerneled_data(
+            self, list_exp_dict: List[Dict[str, Union[List, int]]], circuit: QuantumCircuit, circ_idx: int):
+
+        circ_num = circ_idx + 1
+        for exp_dict in list_exp_dict:
+            if exp_dict["circuit_length"] < circ_num:
+                counts = {}
+                shots = self.options.get("shots")
+                prob_arr = self._probability_dict_to_probability_array(exp_dict["prob"][circ_idx]["0"], len(exp_dict["physical_qubits"]))
+                results = self._rng.multinomial(shots, prob_arr, size=1)[0]
+                for result, num_occurrences in enumerate(results):
+                    result_in_str = str(format(result, "b").zfill(output_length))
+                    counts[result_in_str] = num_occurrences
+                run_result["counts"] = counts
+
+    def _generate_data2(
+        self, list_exp_dict: List[Dict[str, Union[List, int]]], circuit: QuantumCircuit, circ_idx: int
+    ) -> Dict[str, Any]:
+        """
+        Generate data for the circuit.
+        Args:
+            list_exp_dict(List): A List of dictionaries, each dictionary contains data of an experiment.
+            circuit(QuantumCircuit): The circuit that needs to be simulated.
+            circ_idx(int): The circuit number we simulate.
+        Returns:
+            A dictionary that's filled with the simulated data. The output format is different between
+            measurement level 1 and measurement level 2.
+        """
+        # The output is proportional to the number of classical bit.
+        output_length = int(np.sum([creg.size for creg in circuit.cregs]))
+        self._verify_parameters(output_length, prob_dict)
+        shots = self.options.get("shots")
+        meas_level = self.options.get("meas_level")
+        meas_return = self.options.get("meas_return")
+        run_result = {}
+
+        if meas_level == MeasLevel.CLASSIFIED:
+            counts = {}
+            #TODO: Change here
+            results = self._rng.multinomial(shots, prob_arr, size=1)[0]
+            for result, num_occurrences in enumerate(results):
+                result_in_str = str(format(result, "b").zfill(output_length))
+                counts[result_in_str] = num_occurrences
+            run_result["counts"] = counts
+        else:
+            phase = self.experiment_helper.iq_phase(circuit)
+            # memory = self._draw_iq_shots(prob_arr, shots, output_length, phase)
+            memory = self._draw_iq_shots2(list_exp_dict, shots, circ_idx, output_length, phase)
+            if meas_return == "avg":
+                memory = np.average(np.array(memory), axis=0).tolist()
+
+            run_result["memory"] = memory
+        return run_result
+
+    def run(self, run_input: List[QuantumCircuit], **options) -> FakeJob:
+        """
+        Run the IQ backend.
+        Args:
+            run_input(List[QuantumCircuit]): A list of QuantumCircuit for which the backend will generate
+             data for.
+            **options: Experiment options. the options that are supported in this backend are
+             'meas_level' and 'meas_return'.
+                'meas_level': To generate data in the IQ plain, 'meas_level' should be assigned 1 or
+                    MeasLevel.KERNELED. If 'meas_level' is 2 or MeasLevel.CLASSIFIED, the generated data
+                    will be in the form of 'counts'.
+                'meas_return': This option will only take effect if 'meas_level' = MeasLevel.CLASSIFIED.
+                    It can get either MeasReturnType.AVERAGE or MeasReturnType.SINGLE. For the value
+                      MeasReturnType.SINGLE the data of each shot will be stored in the result. For
+                      MeasReturnType.AVERAGE, an average of all the shots will be calculated and stored
+                      in the result.
+
+        Returns:
+            FakeJob: A job that contains the simulated data.
+        """
+
+        self.options.update_options(**options)
+        shots = self.options.get("shots")
+        meas_level = self.options.get("meas_level")
+
+        # number of circuits that will be run. We will use it to know
+        # if an experiment was done or not
+
+        result = {
+            "backend_name": f"{self.__class__.__name__}",
+            "backend_version": "0",
+            "qobj_id": "0",
+            "job_id": "0",
+            "success": True,
+            "results": [],
+        }
+
+        experiment_data_list = self.experiment_helper.compute_probabilities(run_input)
+        for circ_idx, circ in enumerate(run_input):
+            run_result = {
+                "shots": shots,
+                "success": True,
+                "header": {"metadata": circ.metadata},
+                "meas_level": meas_level,
+            }
+
+            run_result["data"] = self._generate_data2(experiment_data_list, circ, circ_idx)
+            result["results"].append(run_result)
+
+        return FakeJob(self, Result.from_dict(result))

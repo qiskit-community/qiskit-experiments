@@ -13,7 +13,7 @@
 """Probability and phase functions for the mock IQ backend."""
 
 from abc import abstractmethod
-from typing import Dict, List
+from typing import Dict, List, Union
 import numpy as np
 from qiskit import QuantumCircuit
 from qiskit.providers.aer import AerSimulator
@@ -24,7 +24,7 @@ class MockIQExperimentHelper:
     """Abstract class for the MockIQ helper classes"""
 
     @abstractmethod
-    def compute_probabilities(self, circuits: List[QuantumCircuit]) -> List[Dict[str, float]]:
+    def compute_probabilities(self, circuits: List[QuantumCircuit]) -> List[Dict[str, Union[float, List, int]]]:
         """
         A function provided by the user which is used to determine the probability of each output of the
         circuit. The function returns a list of dictionaries, each containing output binary strings and
@@ -100,6 +100,8 @@ class MockIQExperimentHelper:
 
 
 class MockIQParallelExperimentHelper(MockIQExperimentHelper):
+    """ Helper for Parallel experiment"""
+
     def __init__(
         self,
         exp_list: List[CompositeExperiment],
@@ -138,8 +140,16 @@ class MockIQParallelExperimentHelper(MockIQExperimentHelper):
                 output_dict[output_str] = prob_list_output[0][str(i)] * prob_list_output[1][str(j)]
         return output_dict
 
-    def compute_probabilities(self, circuits: List[QuantumCircuit]) -> List[Dict[str, float]]:
-        """Run the compute_probabilities for each helper"""
+    def compute_probabilities(self, circuits: List[QuantumCircuit]) -> List[Dict[str, Union[float, List, int]]]:
+        """
+        Run the compute_probabilities for each helper
+        Args:
+            circuits:
+
+        Returns:
+            List: A list of dictionaries, each dictionary contains data about qubits, probability and
+            length of the corresponding experiment.
+        """
         number_of_experiments = len(self._exp_helper_list)
         if number_of_experiments == 0 or self._exp_helper_list is None:
             raise ValueError("The experiment helper list cannot be empty.")
@@ -148,11 +158,11 @@ class MockIQParallelExperimentHelper(MockIQExperimentHelper):
         for exp_helper, experiment, idx in zip(
             self._exp_helper_list, self._exp_list, range(number_of_experiments)
         ):
-            circuits = experiment.circuits()
+            exp_circuits = experiment.circuits()
             prob_help_list[idx] = {
                 "physical_qubits": experiment.physical_qubits,
-                "prob": exp_helper.compute_probabilities(circuits),
-                "circuit_length": len(circuits),
+                "prob": exp_helper.compute_probabilities(exp_circuits),
+                "num_circuits": len(exp_circuits),
             }
 
         # return self.compute_probabilities_output(prob_help_list)
