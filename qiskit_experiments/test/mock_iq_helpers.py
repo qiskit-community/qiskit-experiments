@@ -400,3 +400,18 @@ class MockIQHalfAngleHelper(MockIQExperimentHelper):
             output_dict_list.append(probability_output_dict)
 
         return output_dict_list
+
+
+class MockIQDiscriminatorHelper(MockIQExperimentHelper):
+    """A helper for discriminator experiments on the mock IQ backend."""
+
+    def compute_probabilities(self, circuits: List[QuantumCircuit]) -> List[Dict[str, float]]:
+        """Return the probability of being in the excited state."""
+        output_dict_list = []
+        for circuit in circuits:
+            probability_output_dict = {}
+            probability_output_dict["1"] = int(circuit.data[0][0].name == "barrier")
+            probability_output_dict["0"] = 1 - probability_output_dict["1"]
+            output_dict_list.append(probability_output_dict)
+
+        return output_dict_list

@@ -107,6 +107,13 @@ See :doc:`/tutorials/calibrating_armonk` for example.
     ~calibration.RoughXSXAmplitudeCal
     ~calibration.EFRoughXSXAmplitudeCal
 
+.. _measurement:
+
+Measurement Experiments
+=======================
+
+Experiments for discriminating level 1 data.
+
 """
 from .calibration import (
     RoughDragCal,
@@ -152,6 +159,7 @@ from .characterization import (
 from .randomized_benchmarking import StandardRB, InterleavedRB
 from .tomography import StateTomography, ProcessTomography
 from .quantum_volume import QuantumVolume
+from .measurement import Discriminator
 
 # Experiment Sub-modules
 from . import calibration
@@ -159,3 +167,4 @@ from . import characterization
 from . import randomized_benchmarking
 from . import tomography
 from . import quantum_volume
+from . import measurement

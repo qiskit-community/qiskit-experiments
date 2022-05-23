@@ -184,3 +184,41 @@ def plot_errorbar(
     ax.tick_params(labelsize=labelsize)
     ax.grid(grid)
     return ax
+
+
+def plot_contourf(
+    xdata: np.ndarray,
+    ydata: np.ndarray,
+    zdata: np.ndarray,
+    ax=None,
+    labelsize: int = 14,
+    grid: bool = True,
+    **kwargs,
+):
+    """Generate a contour plot of xyz data.
+    Wraps :func:`matplotlib.pyplot.contourf`.
+    Args:
+        xdata: xdata used for plotting
+        ydata: ydata used for plotting
+        zdata: zdata used for plotting
+        ax (matplotlib.axes.Axes): Optional, a matplotlib axes to add the plot to.
+        labelsize: label size for plot
+        grid: Show grid on plot.
+        **kwargs: Additional options for :func:`matplotlib.pyplot.contourf`
+    Returns:
+        matplotlib.axes.Axes: the matplotlib axes containing the plot.
+    """
+    if ax is None:
+        figure = pyplot.figure()
+        ax = figure.subplots()
+
+    # Default plot options
+    plot_opts = kwargs.copy()
+
+    # Plot data
+    ax.contourf(xdata, ydata, zdata, **plot_opts)
+
+    # Formatting
+    ax.tick_params(labelsize=labelsize)
+    ax.grid(grid)
+    return ax
