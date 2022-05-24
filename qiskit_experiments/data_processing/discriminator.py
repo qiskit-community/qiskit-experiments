@@ -19,6 +19,7 @@ from qiskit_experiments.data_processing.exceptions import DataProcessorError
 
 try:
     from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
+
     HAS_SKLEARN = True
 except ImportError:
     HAS_SKLEARN = False
@@ -33,6 +34,15 @@ class BaseDiscriminator:
     @abstractmethod
     def predict(self, data):
         """The function used to predict the labels of the data."""
+
+    @property
+    def discriminator(self) -> Any:
+        """Return the discriminator object that is wrapped.
+
+        Sub-classes may not need to implement this method but can chose to
+        if they are wrapping an object capable of discrimination.
+        """
+        return None
 
     @abstractmethod
     def config(self) -> Dict[str, Any]:
@@ -67,7 +77,7 @@ class LDA(BaseDiscriminator):
             )
 
         self._lda = lda
-        self.attrs = [
+        self.attributes = [
             "coef_",
             "intercept_",
             "covariance_",
@@ -78,8 +88,13 @@ class LDA(BaseDiscriminator):
             "xbar_",
             "classes_",
             "n_features_in_",
-            "feature_names_in_"
+            "feature_names_in_",
         ]
+
+    @property
+    def discriminator(self) -> Any:
+        """Return then SKLearn object."""
+        return self._lda
 
     def predict(self, data):
         """Wrap the predict method of the LDA."""
@@ -96,7 +111,7 @@ class LDA(BaseDiscriminator):
 
     def config(self) -> Dict[str, Any]:
         """Return the configuration of the LDA."""
-        attr_conf = {attr: getattr(self._lda, attr, None) for attr in self.attrs}
+        attr_conf = {attr: getattr(self._lda, attr, None) for attr in self.attributes}
         return {"params": self._lda.get_params(), "attributes": attr_conf}
 
     @classmethod
@@ -104,9 +119,7 @@ class LDA(BaseDiscriminator):
         """Deserialize from an object."""
 
         if not HAS_SKLEARN:
-            raise DataProcessorError(
-                f"SKlearn is needed to initialize an {self.__class__.__name__}."
-            )
+            raise DataProcessorError(f"SKlearn is needed to initialize an {cls.__name__}.")
 
         lda = LinearDiscriminantAnalysis()
         lda.set_params(**config["params"])
