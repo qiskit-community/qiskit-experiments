@@ -25,6 +25,7 @@ from uncertainties import unumpy as unp, ufloat
 from qiskit.result.postprocess import format_counts_memory
 from qiskit_experiments.data_processing.data_action import DataAction, TrainableDataAction
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
+from qiskit_experiments.data_processing.discriminator import BaseDiscriminator
 from qiskit_experiments.framework import Options
 
 
@@ -436,24 +437,28 @@ class ToAbs(IQPart):
 class Discriminator(IQPart):
     """A class to discriminate level 1 data, e.g., IQ data, to produce counts.
 
-    This node can be seen as a wrapper for a discriminator object such as a Sklearn classifier.
-    The wrapped discriminator object must have a method :meth:`predict` that takes as input
-    a list of lists and returns a list of labels as do most Sklearn classifiers. Crucially,
-    this node can be initialized with a single discriminator which applies to each memory
-    slot or it can be initialized with a list of discriminators, i.e. one for each slot.
+    This node integrates into the data processing chain a serializable discriminator object
+    which must have a :meth:`predict` method that takes as input a list of lists and returns
+    a list of labels. Crucially, this node can be initialized with a single discriminator which
+    applies to each memory slot or it can be initialized with a list of discriminators, i.e.,
+    one for each slot.
     """
 
     def __init__(
-        self, discriminator: Union[Any, List[Any]], validate: bool = True, no_ufloat: bool = True
+        self,
+        discriminator: Union[BaseDiscriminator, List[BaseDiscriminator]],
+        validate: bool = True,
+        no_ufloat: bool = True,
     ):
         """Initialize the node with an object that can discriminate.
 
         Args:
             discriminator: The entity that will perform the discrimination. This needs to
-                be an object or a list of objects with a :meth:`predict` method that takes
+                be a :class:`.BaseDiscriminator` or a list thereof that takes
                 as input a list of lists and returns a list of labels. If a list of
                 discriminators is given then there should be as many discriminators as there
                 will be slots in the memory.
+            validate: If set to False the DataAction will not validate its input.
             no_ufloat: A boolean which if set to True, i.e., the default, will cause the node
                 to convert the data from uncertainties to regular floats.
         """
