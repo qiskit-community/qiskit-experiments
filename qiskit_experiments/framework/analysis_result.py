@@ -31,7 +31,9 @@ from .device_component import DeviceComponent, to_component
 from .exceptions import DbExperimentDataError
 from .utils import save_data, qiskit_version
 from qiskit_ibm_experiment import IBMExperimentService, AnalysisResultData
+from qiskit_ibm_experiment import ResultQuality
 from qiskit_ibm_experiment.exceptions import IBMExperimentEntryExists, IBMExperimentEntryNotFound
+
 LOG = logging.getLogger(__name__)
 
 
@@ -62,7 +64,8 @@ class DbAnalysisResultV1(DbAnalysisResult):
     _extra_data = {}
 
     def __init__(
-        self, data: AnalysisResultData,
+        self,
+        data: AnalysisResultData,
         service: Optional[IBMExperimentService] = None,
     ):
         """AnalysisResult constructor.
@@ -73,6 +76,8 @@ class DbAnalysisResultV1(DbAnalysisResult):
         """
         # Data to be stored in DB.
         self._data = copy.deepcopy(data)
+        if self.source is None:
+            self._data.result_data["_source"] = self.default_source()
         self._service = service
         self._created_in_db = False
         self._auto_save = False
@@ -91,7 +96,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
         experiment_id: str,
         result_id: Optional[str] = None,
         chisq: Optional[float] = None,
-        quality: Optional[str] = None,
+        quality: Optional[ResultQuality] = ResultQuality.UNKNOWN,
         extra: Optional[Dict[str, Any]] = None,
         verified: bool = False,
         tags: Optional[List[str]] = None,
@@ -117,20 +122,15 @@ class DbAnalysisResultV1(DbAnalysisResult):
                 experiment service.
         """
         # Data to be stored in DB.
-        data = AnalysisResultData(experiment_id=experiment_id,
-                                    result_id=result_id or str(uuid.uuid4()),
-                                    result_type=name,
-                                    chisq=chisq,
-                                    quality=quality,
-                                    verified=verified,
-                                    tags=tags or []
-                                    )
-        if source is None:
-            source = {
-                "class": f"{cls.__module__}.{cls.__name__}",
-                "data_version": cls._data_version,
-                "qiskit_version": qiskit_version(),
-            }
+        data = AnalysisResultData(
+            experiment_id=experiment_id,
+            result_id=result_id or str(uuid.uuid4()),
+            result_type=name,
+            chisq=chisq,
+            quality=quality,
+            verified=verified,
+            tags=tags or [],
+        )
         data.result_data = cls.format_result_data(value, extra, chisq, source)
         for comp in device_components:
             if isinstance(comp, str):
@@ -138,8 +138,18 @@ class DbAnalysisResultV1(DbAnalysisResult):
             data.device_components.append(comp)
         return cls(data, service)
 
+    @classmethod
+    def default_source(cls):
+        return {
+            "class": f"{cls.__module__}.{cls.__name__}",
+            "data_version": cls._data_version,
+            "qiskit_version": qiskit_version(),
+        }
+
     @staticmethod
     def format_result_data(value, extra, chisq, source):
+        if source is None:
+            source = DbAnalysisResultV1.default_source()
         result_data = {
             "_value": copy.deepcopy(value),
             "_chisq": chisq,
@@ -153,8 +163,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
             if db_value is not None:
                 result_data["value"] = db_value
             if isinstance(value.stderr, (int, float)):
-                result_data["variance"] = DbAnalysisResultV1._display_format(
-                    value.stderr ** 2)
+                result_data["variance"] = DbAnalysisResultV1._display_format(value.stderr**2)
             if isinstance(value.unit, str):
                 result_data["unit"] = value.unit
         elif isinstance(value, uncertainties.UFloat):
@@ -162,8 +171,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
             if db_value is not None:
                 result_data["value"] = db_value
             if isinstance(value.std_dev, (int, float)):
-                result_data["variance"] = DbAnalysisResultV1._display_format(
-                    value.std_dev ** 2)
+                result_data["variance"] = DbAnalysisResultV1._display_format(value.std_dev**2)
             if "unit" in extra:
                 result_data["unit"] = extra["unit"]
         else:
@@ -208,14 +216,18 @@ class DbAnalysisResultV1(DbAnalysisResult):
                 attempts += 1
                 if is_new:
                     try:
-                        self.service.create_analysis_result(self._data, json_encoder=self._json_encoder)
+                        self.service.create_analysis_result(
+                            self._data, json_encoder=self._json_encoder
+                        )
                         success = True
                         self._created_in_db = True
                     except IBMExperimentEntryExists:
                         is_new = False
                 else:
                     try:
-                        self.service.update_analysis_result(self._data, json_encoder=self._json_encoder)
+                        self.service.update_analysis_result(
+                            self._data, json_encoder=self._json_encoder
+                        )
                         success = True
                     except IBMExperimentEntryNotFound:
                         is_new = True
@@ -225,74 +237,6 @@ class DbAnalysisResultV1(DbAnalysisResult):
 
         if not success:
             LOG.error("Unable to save the experiment data:")
-
-        # The next code sections construct the result_data dictionary.
-        # Eventually it will contain:
-        # - _value - value in its raw form, as given in self.value, which can be of type FitVal.
-        # - value (not prefixed by an underscore) - a formatted version of the nominal value
-        #     (self.value.value if self.value is of type FitVal). By "formatted" we mean that
-        #     edge cases like strings representing infinity are handled to allow proper
-        #     display (see DbAnalysisResult._display_format for details).
-        # - variance - a formatted version of the variance (self.value.variance if self.value is of
-        #     type FitVal).
-        # - unit - self.value.unit if self.value is of type FitVal.
-        # - _chisq - chisq in its raw form, as given in self.chisq, without formatting.
-        #
-        # Below, in the `update_data` dictionary, there is an item named `chisq`, which is the
-        #     formatted version of chisq.
-        # value = self.value
-        # result_data = {
-        #     "_value": value,
-        #     "_chisq": self.chisq,
-        #     "_extra": self.extra,
-        #     "_source": self.source,
-        # }
-
-        # # Format special DB display fields
-        # if isinstance(value, FitVal):
-        #     db_value = self._display_format(value.value)
-        #     if db_value is not None:
-        #         result_data["value"] = db_value
-        #     if isinstance(value.stderr, (int, float)):
-        #         result_data["variance"] = self._display_format(value.stderr**2)
-        #     if isinstance(value.unit, str):
-        #         result_data["unit"] = value.unit
-        # elif isinstance(value, uncertainties.UFloat):
-        #     db_value = self._display_format(value.nominal_value)
-        #     if db_value is not None:
-        #         result_data["value"] = db_value
-        #     if isinstance(value.std_dev, (int, float)):
-        #         result_data["variance"] = self._display_format(value.std_dev**2)
-        #     if "unit" in self.extra:
-        #         result_data["unit"] = self.extra["unit"]
-        # else:
-        #     db_value = self._display_format(value)
-        #     if db_value is not None:
-        #         result_data["value"] = db_value
-
-        # new_data = {
-        #     "experiment_id": self.experiment_id,
-        #     "result_type": self.name,
-        #     "device_components": self.device_components,
-        # }
-        #
-        # update_data = {
-        #     "result_id": self._data.result_id,
-        #     "result_data": self._data.result_data,
-        #     "tags": self._data.tags,
-        #     "chisq": self._display_format(self.chisq),
-        #     "quality": self.quality,
-        #     "verified": self.verified,
-        # }
-        #
-        # self._created_in_db, _ = save_data(
-        #     is_new=(not self._created_in_db),
-        #     new_func=self._service.create_analysis_result,
-        #     update_func=self._service.update_analysis_result,
-        #     new_data=new_data,
-        #     update_data=update_data,
-        #     json_encoder=self._json_encoder,
-        # )
 
     def copy(self) -> "DbAnalysisResultV1":
         """Return a copy of the result with a new result ID"""
@@ -326,12 +270,12 @@ class DbAnalysisResultV1(DbAnalysisResult):
         Returns:
             Analysis result value.
         """
-        return self._data.result_data['_value']
+        return self._data.result_data["_value"]
 
     @value.setter
     def value(self, new_value: Any) -> None:
         """Set the analysis result value."""
-        self._value = new_value
+        self._data.result_data["_value"] = new_value
         if self.auto_save:
             self.save()
 
@@ -367,11 +311,11 @@ class DbAnalysisResultV1(DbAnalysisResult):
     @device_components.setter
     def device_components(self, components: List[Union[DeviceComponent, str]]):
         """Set the device components"""
-        self._device_components = []
+        self._data.device_components = []
         for comp in components:
             if isinstance(comp, str):
                 comp = to_component(comp)
-            self._device_components.append(comp)
+            self._data.device_components.append(comp)
 
     @property
     def result_id(self) -> str:
@@ -399,7 +343,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
     @chisq.setter
     def chisq(self, new_chisq: float) -> None:
         """Set the reduced χ² of this analysis."""
-        self._chisq = new_chisq
+        self._data.chisq = new_chisq
         if self.auto_save:
             self.save()
 
@@ -419,7 +363,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
         Args:
             new_quality: New analysis quality.
         """
-        self._quality = new_quality
+        self._data.quality = new_quality
         if self.auto_save:
             self.save()
 
@@ -442,7 +386,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
         Args:
             verified: Whether the quality is verified.
         """
-        self._quality_verified = verified
+        self._data.verified = verified
         if self.auto_save:
             self.save()
 
@@ -458,7 +402,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
             raise DbExperimentDataError(
                 f"The `tags` field of {type(self).__name__} must be a list."
             )
-        self._tags = new_tags
+        self._data.tags = new_tags
         if self.auto_save:
             self.save()
 
@@ -489,7 +433,9 @@ class DbAnalysisResultV1(DbAnalysisResult):
     @property
     def source(self) -> Dict:
         """Return the class name and version."""
-        return self._source
+        if "_source" in self._data.result_data:
+            return self._data.result_data["_source"]
+        return None
 
     @property
     def auto_save(self) -> bool:
