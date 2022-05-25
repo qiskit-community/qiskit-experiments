@@ -433,6 +433,10 @@ class FakeDiscriminator(BaseDiscriminator):
         """Config method."""
         return {}
 
+    def is_trained(self) -> bool:
+        """This test discriminator is always trained."""
+        return True
+
 
 class FakeQutritDiscriminator(BaseDiscriminator):
     """A fake qutrit discriminator class for testing."""
@@ -451,6 +455,10 @@ class FakeQutritDiscriminator(BaseDiscriminator):
     def config(self) -> Dict[str, Any]:
         """Config method."""
         return {}
+
+    def is_trained(self) -> bool:
+        """This test discriminator is always trained."""
+        return True
 
 
 class TestDiscriminator(BaseDataProcessorTest):

@@ -12,9 +12,8 @@
 
 """Tests for the serializable discriminator objects."""
 
-import numpy as np
-
 from test.base import QiskitExperimentsTestCase
+import numpy as np
 
 from qiskit_experiments.data_processing import LDA
 

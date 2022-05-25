@@ -29,10 +29,18 @@ class BaseDiscriminator:
     """An abstract base class for serializable discriminators.
 
     ``BaseDiscriminators`` are used in the :class:`.Discriminator` data action nodes.
+    This class allows developers to implement their own discriminators or wrap discriminators
+    from external libraries which therefore ensures that the discriminator fits in
+    the data processing chain. This class defines an interface for discriminator objects.
+    Subclasses must implement the following methods:
+    - :meth:`predict`: called in the :class:`.Discriminator` data-action class to predict
+      labels from the input level-one data.
+    - :meth:`config`: produces the config file to serialize and deserialize the discriminator.
+    - :meth:`is_trained`: indicates if the discriminator is trained, i.e., fit to training data.
     """
 
     @abstractmethod
-    def predict(self, data):
+    def predict(self, data: List):
         """The function used to predict the labels of the data."""
 
     @property
@@ -74,6 +82,9 @@ class LDA(BaseDiscriminator):
         Args:
             lda: The sklearn linear discriminant analysis. This may be a trained or an
                 untrained discriminator.
+
+        Raises:
+            DataProcessorError: if SKlearn could not be imported.
         """
         if not HAS_SKLEARN:
             raise DataProcessorError(
@@ -104,7 +115,7 @@ class LDA(BaseDiscriminator):
         """Return True if the discriminator has been trained on data."""
         return not getattr(self._lda, "classes_", None) is None
 
-    def predict(self, data):
+    def predict(self, data: List):
         """Wrap the predict method of the LDA."""
         return self._lda.predict(data)
 

@@ -439,6 +439,8 @@ class Discriminator(DataAction):
     a list of labels. Crucially, this node can be initialized with a single discriminator which
     applies to each memory slot or it can be initialized with a list of discriminators, i.e.,
     one for each slot.
+
+    Note: future versions may see this class become a sub-class of TrainableDataAction.
     """
 
     def __init__(
