@@ -321,7 +321,8 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
 
         Args:
             raw_data: Payload in the experiment data.
-            models: LMFIT model.
+            models: A list of LMFIT models that provide the model name and
+                optionally data sorting keys.
 
         Returns:
             Processed data that will be sent to the formatter method.
@@ -386,13 +387,11 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
 
         Args:
             curve_data: Formatted data to fit.
-            models: LMFIT model.
+            models: A list of LMFIT models that are used to build a cost function
+                for the LMFIT minimizer.
 
         Returns:
             The best fitting outcome with minimum reduced chi-squared value.
-
-        Raises:
-            When fixed parameter is not involved in the model.
         """
         unite_parameter_names = []
         for model in models:
@@ -438,7 +437,6 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
         if isinstance(fit_options, FitOptions):
             fit_options = [fit_options]
 
-        # Prepare default fitting arguments (can be overridden by fit options)
         valid_uncertainty = np.all(np.isfinite(curve_data.y_err))
 
         # Objective function for minimize. This computes composite residuals of sub models.
@@ -483,12 +481,10 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
                 continue
 
             if res is None or not res.success:
-                # Keep if result is not exist or not yet succeeded
                 res = new
                 continue
 
             if new.success and res.redchi > new.redchi:
-                # Keep if chisq value is better than before
                 res = new
 
         return convert_lmfit_result(res, models, curve_data.x, curve_data.y)
@@ -548,7 +544,8 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
 
         Args:
             curve_data: Formatted data that is used for the fitting.
-            models: LMFIT model.
+            models: A list of LMFIT models that provides model names
+                to extract subsets of experiment data.
 
         Returns:
             List of analysis result data.

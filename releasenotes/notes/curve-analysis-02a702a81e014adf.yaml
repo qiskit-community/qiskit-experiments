@@ -3,23 +3,21 @@ prelude: >
     To be written.
 features:
   - |
-    Curve model class :class:`.CurveModel` is introduced.
-    This class is a wrapper of the ``Model`` object in LMFIT package that collects 
-    fit functions and parameters to provider better framework of
-    preparation for fitting.
+    :class:`CurveAnalysis` delegates the core fitting functionality to the LMFIT package.
+    Analysis class author can flexibly define new analysis instance
+    with LMFIT ``Model`` objects. In addition, new analysis option ``fit_method`` is added
+    so that user can perform fit with several algorithms offered by the LMFIT minimizer.
+    See LMFIT documentation for user guide.
   - |
-    New curve fit solver :class:`.CurveSolver` is introduced.
-    This class is a wrapper of the ``Minimizer`` object in LMFIT package that 
-    performs curve fit with the SciPy ``least_squares`` solver.
-  - |
-    New dataclass :class:`.SolverResult` is introduced. This dataclass stores
+    New dataclass :class:`.CurveFitResult` is introduced. This dataclass includes
     rich context of curve fitting status with several extra statistics.
-    Fit parameters in UFloat representation are also stored while keeping
+    This is a wrapper class of LMFIT ``MinimizerResult`` with some extention.
+    Fit parameters in UFloat representation are stored while keeping
     correlation between them, which are accessible with the ``.ufloat_params`` attribute.
-    Note that the value of the first analysis result entry of ``@Parameters_*`` 
-    has been replaced with this dataclass. This entry has been a list of fit values 
+    Note that the value of the first analysis result entry titled with ``@Parameters_*`` 
+    has been replaced with this dataclass. This entry has been just a list of fit values 
     in Python float format with covariance matrix separately stored in ``.extra`` metadata.
-    New object provides a better experience for investigating the analysis outcome.
+    New object provides users with a better experience for understanding the analysis outcome.
   - |
     New curve drawer option ``figure_title`` is added. This allows user to show
     an arbitrary string in the output figure title. See the example code below
@@ -31,15 +29,7 @@ features:
       exp.analysis.drawer.set_options(figure_title="Qubit0")
     
     Note that ``.analysis`` should be a subclass of :class:`.BaseCurveAnalysis`.
-
 upgrade:
-  - |
-    :class:`.SeriesDef` now takes ``.fit_func`` in string rather than callable.
-    This allows curve fit framework to avoid several serialization issues,
-    and also enables analysis class authors to dynamically configure the
-    fit function since ``__series__`` is no longer the class attribute.
-    :class:`CurveAnalysis` is now instantiated with a list of :class:`SeriesDef` 
-    dataclass.
   - |
     :class:`DragCalAnalysis` can take more than three curves with different number of
     cycle repetitions. The corresponding fit model is dynamically generated
@@ -50,8 +40,12 @@ deprecations:
     Curve fit solver :func:`.curve_fit` and :func:`.multi_curve_fit` have 
     been deprecated.
   - |
-    Dataclass of the curve fit result :func:`.FitData` has been deprecated.
+    Dataclass of the curve fit result :func:`.FitData` has been deprecated
+    and replaced with :class:`.CurveFitResult`.
+  - |
+    Dataclass of the curve definition :func:`.SeriesDef` has been deprecated
+    and replaced with LMFIT models.
   - |
     Special fit functions for curve analysis :mod:`~qiskit_experiments.curve_analysis.fit_function`
-    has been deprecated. Now curve analysis author can define arbitrary fit functions
-    in Python string, not limited to functions in this module.
+    have been deprecated. Now curve analysis author can define arbitrary fit functions
+    with LMFIT models, not limited to functions in this module.

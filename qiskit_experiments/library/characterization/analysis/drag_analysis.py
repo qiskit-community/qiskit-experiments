@@ -181,7 +181,8 @@ class DragCalAnalysis(curve.CurveAnalysis):
 
         Args:
             curve_data: Formatted data to fit.
-            models: LMFIT model.
+            models: A list of LMFIT models that are used to build a cost function
+                for the LMFIT minimizer.
 
         Returns:
             The best fitting outcome with minimum reduced chi-squared value.

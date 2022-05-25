@@ -197,7 +197,7 @@ class CurveAnalysis(BaseCurveAnalysis):
 
         if self.options.return_fit_parameters:
             # Store fit status entry regardless of success.
-            # This is sometime useful to debugging the fitting code.
+            # This is sometime useful when debugging the fitting code.
             fit_parameters = AnalysisResultData(
                 name=PARAMS_ENTRY_PREFIX + self.__class__.__name__,
                 value=fit_data,
