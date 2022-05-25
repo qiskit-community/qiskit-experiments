@@ -15,6 +15,7 @@
 from typing import List, Union
 
 import numpy as np
+from lmfit.models import ExpressionModel
 
 import qiskit_experiments.curve_analysis as curve
 
@@ -80,9 +81,10 @@ class ErrorAmplificationAnalysis(curve.CurveAnalysis):
 
     def __init__(self):
         super().__init__(
-            series_defs=[
-                curve.SeriesDef(
-                    fit_func="amp / 2 * cos((d_theta + angle_per_gate) * x - phase_offset) + base"
+            models=[
+                ExpressionModel(
+                    expr="amp / 2 * cos((d_theta + angle_per_gate) * x - phase_offset) + base",
+                    name="ping_pong",
                 )
             ]
         )
@@ -175,7 +177,7 @@ class ErrorAmplificationAnalysis(curve.CurveAnalysis):
 
         return options
 
-    def _evaluate_quality(self, fit_data: curve.SolverResult) -> Union[str, None]:
+    def _evaluate_quality(self, fit_data: curve.CurveFitResult) -> Union[str, None]:
         """Algorithmic criteria for whether the fit is good or bad.
 
         A good fit has:

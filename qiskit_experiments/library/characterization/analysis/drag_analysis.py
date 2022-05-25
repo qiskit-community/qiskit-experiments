@@ -15,6 +15,8 @@
 from typing import List, Union
 
 import numpy as np
+from lmfit.model import Model
+from lmfit.models import ExpressionModel
 
 import qiskit_experiments.curve_analysis as curve
 from qiskit_experiments.framework import ExperimentData
@@ -108,9 +110,9 @@ class DragCalAnalysis(curve.CurveAnalysis):
             List of fit options that are passed to the fitter function.
         """
         # Use the highest-frequency curve to estimate the oscillation frequency.
-        max_series = list(self._model.definitions)[-1]
-        max_rep = max_series.filter_kwargs["nrep"]
-        curve_data = curve_data.get_subset_of(max_series.name)
+        max_rep_model = self._models[-1]
+        max_rep = max_rep_model.opts["data_sort_key"]["nrep"]
+        curve_data = curve_data.get_subset_of(max_rep_model._name)
 
         x_data = curve_data.x
         min_beta, max_beta = min(x_data), max(x_data)
@@ -149,8 +151,8 @@ class DragCalAnalysis(curve.CurveAnalysis):
     def _run_curve_fit(
         self,
         curve_data: curve.CurveData,
-        model: curve.CurveModel,
-    ) -> Union[None, curve.SolverResult]:
+        models: List[Model],
+    ) -> curve.CurveFitResult:
         r"""Perform curve fitting on given data collection and fit models.
 
         .. note::
@@ -179,12 +181,12 @@ class DragCalAnalysis(curve.CurveAnalysis):
 
         Args:
             curve_data: Formatted data to fit.
-            model: Curve fitting model.
+            models: LMFIT model.
 
         Returns:
             The best fitting outcome with minimum reduced chi-squared value.
         """
-        fit_result = super()._run_curve_fit(curve_data, model)
+        fit_result = super()._run_curve_fit(curve_data, models)
 
         if fit_result:
             # covert into dict since dataclass is frozen
@@ -194,11 +196,11 @@ class DragCalAnalysis(curve.CurveAnalysis):
             freq = params["freq"]
             min_beta = ((beta + 1 / freq / 2) % (1 / freq)) - 1 / freq / 2
             data_dict["params"]["beta"] = min_beta
-            return curve.SolverResult.__json_decode__(data_dict)
+            return curve.CurveFitResult.__json_decode__(data_dict)
 
         return fit_result
 
-    def _evaluate_quality(self, fit_data: curve.SolverResult) -> Union[str, None]:
+    def _evaluate_quality(self, fit_data: curve.CurveFitResult) -> Union[str, None]:
         """Algorithmic criteria for whether the fit is good or bad.
 
         A good fit has:
@@ -228,14 +230,19 @@ class DragCalAnalysis(curve.CurveAnalysis):
 
         # Model is initialized at runtime because
         # the experiment option "reps" can be changed before experiment run.
-        series_defs = [
-            curve.SeriesDef(
-                fit_func=f"amp * cos(2 * pi * {nrep} * freq * (x - beta)) + base",
-                name=f"nrep={nrep}",
-                filter_kwargs={"nrep": nrep},
-                plot_symbol=curve.utils.symbols10(i),
-                plot_color=curve.utils.colors10(i),
+        plot_options = {}
+        for i, nrep in enumerate(sorted(self.options.reps)):
+            name = f"nrep={nrep}"
+            self._models.append(
+                ExpressionModel(
+                    expr=f"amp * cos(2 * pi * {nrep} * freq * (x - beta)) + base",
+                    name=name,
+                    data_sort_key={"nrep": nrep},
+                )
             )
-            for i, nrep in enumerate(sorted(self.options.reps))
-        ]
-        self._model = curve.CurveModel(self.__class__.__name__, series_defs)
+            plot_options[name] = {
+                "color": curve.utils.colors10(i),
+                "symbol": curve.utils.symbols10(i),
+            }
+
+        self.options.curve_drawer.set_options(plot_options=plot_options)

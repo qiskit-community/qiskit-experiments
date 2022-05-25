@@ -12,6 +12,8 @@
 
 """Fine Amplitude calibration analysis."""
 
+from lmfit.models import ExpressionModel
+
 import qiskit_experiments.curve_analysis as curve
 
 
@@ -33,18 +35,28 @@ class FineAmplitudeAnalysis(curve.ErrorAmplificationAnalysis):
         # pylint: disable=non-parent-init-called
         curve.CurveAnalysis.__init__(
             self,
-            series_defs=[
-                curve.SeriesDef(
-                    fit_func="amp / 2 * (2 * x - 1) + base",
+            models=[
+                ExpressionModel(
+                    expr="amp / 2 * (2 * x - 1) + base",
                     name="smap cal.",
-                    filter_kwargs={"series": "spam-cal"},
-                    plot_color="green",
+                    data_sort_key={"series": "spam-cal"},
                 ),
-                curve.SeriesDef(
-                    fit_func="amp / 2 * cos((d_theta + angle_per_gate) * x - phase_offset) + base",
+                ExpressionModel(
+                    expr="amp / 2 * cos((d_theta + angle_per_gate) * x - phase_offset) + base",
                     name="fine amp.",
-                    filter_kwargs={"series": 1},
-                    plot_color="blue",
+                    data_sort_key={"series": 1},
                 ),
             ],
         )
+
+    @classmethod
+    def _default_options(cls):
+        """Return the default analysis options."""
+        default_options = super()._default_options()
+        default_options.curve_drawer.set_options(
+            plot_options={
+                "smap cal.": {"color": "green"},
+                "fine amp.": {"color": "blue"},
+            }
+        )
+        return default_options

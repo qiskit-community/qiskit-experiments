@@ -16,6 +16,7 @@ import warnings
 from collections import defaultdict
 from typing import Dict, List, Sequence, Tuple, Union, Optional, TYPE_CHECKING
 
+from lmfit.models import ExpressionModel
 from qiskit.exceptions import QiskitError
 
 import qiskit_experiments.curve_analysis as curve
@@ -69,7 +70,14 @@ class RBAnalysis(curve.CurveAnalysis):
     """
 
     def __init__(self):
-        super().__init__(series_defs=[curve.SeriesDef(fit_func="a * alpha ** x + b")])
+        super().__init__(
+            models=[
+                ExpressionModel(
+                    expr="a * alpha ** x + b",
+                    name="rb_decay",
+                )
+            ]
+        )
         self._gate_counts_per_clifford = None
         self._physical_qubits = None
 
@@ -184,7 +192,7 @@ class RBAnalysis(curve.CurveAnalysis):
 
     def _create_analysis_results(
         self,
-        fit_data: curve.SolverResult,
+        fit_data: curve.CurveFitResult,
         quality: str,
         **metadata,
     ) -> List[AnalysisResultData]:

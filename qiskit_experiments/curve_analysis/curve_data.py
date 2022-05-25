@@ -16,7 +16,8 @@ Curve data classes.
 
 import dataclasses
 import itertools
-from typing import Any, Dict, Union, List, Tuple, Optional, Iterable
+import inspect
+from typing import Any, Dict, Union, List, Tuple, Optional, Iterable, Callable
 
 import numpy as np
 import uncertainties
@@ -25,10 +26,10 @@ from qiskit_experiments.exceptions import AnalysisError
 from qiskit_experiments.warnings import deprecated_function, deprecated_class
 
 
+@deprecated_class("0.5", msg="SeriesDef is now replaced with LMFIT Model.")
 @dataclasses.dataclass(frozen=True)
 class SeriesDef:
     """A dataclass to describe the definition of the curve.
-
     Attributes:
         fit_func: A callable that defines the fit model of this curve. The argument names
             in the callable are parsed to create the fit parameter list, which will appear
@@ -48,14 +49,28 @@ class SeriesDef:
             Matplotlib symbol names.
         canvas: Optional. Index of sub-axis in the output figure that draws this curve.
             This option is valid only when the drawer instance provides multi-axis drawing.
+        model_description: Optional. Arbitrary string representation of this fit model.
+            This string will appear in the analysis results as a part of metadata.
     """
 
-    fit_func: str
+    fit_func: Callable
     filter_kwargs: Dict[str, Any] = dataclasses.field(default_factory=dict)
     name: str = "Series-0"
-    plot_color: str = "blue"
+    plot_color: str = "black"
     plot_symbol: str = "o"
     canvas: Optional[int] = None
+    model_description: Optional[str] = None
+    signature: Tuple[str, ...] = dataclasses.field(init=False)
+
+    def __post_init__(self):
+        """Parse the fit function signature to extract the names of the variables.
+        Fit functions take arguments F(x, p0, p1, p2, ...) thus the first value should be excluded.
+        """
+        signature = list(inspect.signature(self.fit_func).parameters.keys())
+        fitparams = tuple(signature[1:])
+
+        # Note that this dataclass is frozen
+        object.__setattr__(self, "signature", fitparams)
 
 
 @dataclasses.dataclass(frozen=True)
@@ -114,7 +129,7 @@ class CurveData:
 
 
 @dataclasses.dataclass(frozen=True)
-class SolverResult:
+class CurveFitResult:
     """A data class to store the fitting results from the curve solver.
 
     Attributes:
@@ -232,7 +247,7 @@ class SolverResult:
         return cls(**value)
 
     def __copy__(self):
-        instance = SolverResult(**self.__json_encode__())
+        instance = CurveFitResult(**self.__json_encode__())
         # Copying ufloat invalidate parameter correlation.
         # Note that ufloat object has `self._linear_part.linear_combo` dictionary
         # to store parameter correlation keyed on the ufloat objects.
@@ -280,7 +295,7 @@ class SolverResult:
 
 
 @deprecated_class(
-    "0.5", msg="Fit data is stored in new dataclass 'SolverResult' with more rich context."
+    "0.5", msg="Fit data is replaced with 'CurveFitResult' based on LMFIT minimizer result."
 )
 @dataclasses.dataclass(frozen=True)
 class FitData:

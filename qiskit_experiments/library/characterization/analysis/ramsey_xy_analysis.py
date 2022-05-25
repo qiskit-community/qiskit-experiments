@@ -15,6 +15,7 @@
 from typing import List, Union
 
 import numpy as np
+from lmfit.models import ExpressionModel
 
 import qiskit_experiments.curve_analysis as curve
 
@@ -63,20 +64,16 @@ class RamseyXYAnalysis(curve.CurveAnalysis):
 
     def __init__(self):
         super().__init__(
-            series_defs=[
-                curve.SeriesDef(
-                    fit_func="amp * exp(-x / tau) * cos(2 * pi * freq * x + phase) + base",
+            models=[
+                ExpressionModel(
+                    expr="amp * exp(-x / tau) * cos(2 * pi * freq * x + phase) + base",
                     name="X",
-                    filter_kwargs={"series": "X"},
-                    plot_symbol="o",
-                    plot_color="blue",
+                    data_sort_key={"series": "X"},
                 ),
-                curve.SeriesDef(
-                    fit_func="amp * exp(-x / tau) * sin(2 * pi * freq * x + phase) + base",
+                ExpressionModel(
+                    expr="amp * exp(-x / tau) * sin(2 * pi * freq * x + phase) + base",
                     name="Y",
-                    filter_kwargs={"series": "Y"},
-                    plot_symbol="^",
-                    plot_color="green",
+                    data_sort_key={"series": "Y"},
                 ),
             ]
         )
@@ -93,6 +90,10 @@ class RamseyXYAnalysis(curve.CurveAnalysis):
             xlabel="Delay",
             ylabel="Signal (arb. units)",
             xval_unit="s",
+            plot_options={
+                "X": {"color": "blue", "symbol": "o"},
+                "Y": {"color": "green", "symbol": "^"},
+            },
         )
         default_options.result_parameters = ["freq"]
 
@@ -150,7 +151,7 @@ class RamseyXYAnalysis(curve.CurveAnalysis):
 
         return [opt_fp, opt_fm]
 
-    def _evaluate_quality(self, fit_data: curve.SolverResult) -> Union[str, None]:
+    def _evaluate_quality(self, fit_data: curve.CurveFitResult) -> Union[str, None]:
         """Algorithmic criteria for whether the fit is good or bad.
 
         A good fit has:

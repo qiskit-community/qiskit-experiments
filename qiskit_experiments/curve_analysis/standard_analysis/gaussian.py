@@ -15,6 +15,7 @@
 from typing import List, Union
 
 import numpy as np
+from lmfit.models import ExpressionModel
 
 import qiskit_experiments.curve_analysis as curve
 from qiskit_experiments.framework import Options
@@ -60,7 +61,12 @@ class GaussianAnalysis(curve.CurveAnalysis):
 
     def __init__(self):
         super().__init__(
-            series_defs=[curve.SeriesDef(fit_func="a * exp(-(x-f)**2 / (2*sigma**2)) + b")]
+            models=[
+                ExpressionModel(
+                    expr="a * exp(-(x-freq)**2 / (2*sigma**2)) + b",
+                    name="gaussian",
+                )
+            ]
         )
 
     @classmethod
@@ -112,7 +118,7 @@ class GaussianAnalysis(curve.CurveAnalysis):
 
         return user_opt
 
-    def _evaluate_quality(self, fit_data: curve.SolverResult) -> Union[str, None]:
+    def _evaluate_quality(self, fit_data: curve.CurveFitResult) -> Union[str, None]:
         """Algorithmic criteria for whether the fit is good or bad.
 
         A good fit has:

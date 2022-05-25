@@ -16,322 +16,21 @@
 from test.base import QiskitExperimentsTestCase
 from test.fake_experiment import FakeExperiment
 
-import pickle
-
 import numpy as np
-import uncertainties
-from ddt import ddt, data, unpack
+
+from lmfit.models import ExpressionModel
 from qiskit.qobj.utils import MeasLevel
-from uncertainties import unumpy
 
 from qiskit_experiments.curve_analysis import CurveAnalysis, fit_function
 from qiskit_experiments.curve_analysis.curve_data import (
     SeriesDef,
-    SolverResult,
+    CurveFitResult,
     ParameterRepr,
     FitOptions,
 )
-from qiskit_experiments.curve_analysis.models import CurveModel, CurveSolver
 from qiskit_experiments.data_processing import DataProcessor, Probability
 from qiskit_experiments.exceptions import AnalysisError
 from qiskit_experiments.framework import ExperimentData, AnalysisResultData, CompositeAnalysis
-
-
-@ddt
-class TestCurveModel(QiskitExperimentsTestCase):
-    """A collection of test for CurveModel object."""
-
-    def test_single_function(self):
-        """A simple testcase for having only single fit function."""
-        model = CurveModel(
-            name="test",
-            series_defs=[SeriesDef(fit_func="par0 * exp(-x / par1) + par2")],
-        )
-
-        self.assertListEqual(model.param_names, ["par0", "par1", "par2"])
-        self.assertEqual(model.name, "Model(test)")
-
-        x = np.linspace(0, 1, 10)
-        par0 = 1.2
-        par1 = 2.3
-        par2 = 4.5
-        ref_y = par0 * np.exp(-x / par1) + par2
-        test_y = model.eval(par0=1.2, par1=2.3, par2=4.5, x=x, allocation=np.full(x.size, 0))
-        np.testing.assert_array_almost_equal(ref_y, test_y)
-
-    def test_multiple_functions(self):
-        """A simple testcase for having two fit functions."""
-        model = CurveModel(
-            name="test",
-            series_defs=[
-                SeriesDef(fit_func="par0 * cos(par1 * x) + par2"),
-                SeriesDef(fit_func="par0 * sin(par1 * x) + par2"),
-            ],
-        )
-
-        self.assertListEqual(model.param_names, ["par0", "par1", "par2"])
-
-        x1 = np.linspace(0, 1, 10)
-        x2 = np.linspace(0, 1, 15)
-        x_composed = np.concatenate((x1, x2))
-        par0 = 1.2
-        par1 = 2.3
-        par2 = 4.5
-
-        ref_y1 = par0 * np.cos(par1 * x1) + par2
-        ref_y2 = par0 * np.sin(par1 * x2) + par2
-        ref_y_composed = np.concatenate((ref_y1, ref_y2))
-        allocation = np.concatenate((np.full(x1.size, 0), np.full(x2.size, 1)))
-        test_y = model.eval(par0=1.2, par1=2.3, par2=4.5, x=x_composed, allocation=allocation)
-        np.testing.assert_array_almost_equal(ref_y_composed, test_y)
-
-    def test_fit_func_serializable(self):
-        """A testcase for computing values with pickled model."""
-        model = CurveModel(
-            name="test",
-            series_defs=[SeriesDef(fit_func="par0 * exp(-x / par1) + par2")],
-        )
-
-        x = np.linspace(0, 1, 10)
-        y_raw = model.eval(par0=1.2, par1=2.3, par2=4.5, x=x, allocation=np.full(x.size, 0))
-
-        model_roundtrip = pickle.loads(pickle.dumps(model))
-        y_rt = model_roundtrip.eval(
-            par0=1.2, par1=2.3, par2=4.5, x=x, allocation=np.full(x.size, 0)
-        )
-
-        np.testing.assert_array_almost_equal(y_raw, y_rt)
-
-    def test_error_propagation(self):
-        """A test case for computing values with parameters with uncertainties."""
-        model = CurveModel(
-            name="test",
-            series_defs=[SeriesDef(fit_func="par0 * exp(-x / par1) + par2")],
-        )
-
-        x = np.linspace(0, 1, 10)
-        par0 = uncertainties.ufloat(nominal_value=1.2, std_dev=0.3)
-        par1 = uncertainties.ufloat(nominal_value=2.3, std_dev=0.4)
-        par2 = uncertainties.ufloat(nominal_value=4.5, std_dev=0.5)
-        ref_y = par0 * unumpy.exp(-x / par1) + par2  # pylint: disable=no-member
-
-        test_y = model.eval_with_uncertainties(
-            x=x,
-            params={"par0": par0, "par1": par1, "par2": par2},
-            model_index=0,
-        )
-
-        np.testing.assert_array_almost_equal(
-            unumpy.nominal_values(ref_y), unumpy.nominal_values(test_y)
-        )
-        np.testing.assert_array_almost_equal(unumpy.std_devs(ref_y), unumpy.std_devs(test_y))
-
-    @data(
-        [1.2, 0.5, 0.1],
-        [-0.7, 0.1, -0.1],
-        [2.1, 0.8, 1.2],
-    )
-    @unpack
-    def test_fit_model_of_single_function(self, par0, par1, par2):
-        """A testcase for performing a fitting with single objective function."""
-        model = CurveModel(
-            name="test",
-            series_defs=[SeriesDef(fit_func="par0 * exp(-x / par1) + par2", name="s1")],
-        )
-        rng = np.random.default_rng(123)
-
-        x = np.linspace(0, 1, 100)
-        ref_y = par0 * np.exp(-x / par1) + par2 + rng.normal(scale=0.1, size=x.size)
-        sigma = np.full(x.size, np.nan)
-
-        params = model.make_params(par0=par0, par1=par1, par2=par2)
-        solver = CurveSolver(model, params=params)
-
-        result = solver.fit(
-            x=x,
-            y=ref_y,
-            sigma=sigma,
-            allocation=np.full(x.size, 0),
-        )
-        self.assertTrue(result.success)
-        self.assertAlmostEqual(result.params["par0"], par0, delta=0.03)
-        self.assertAlmostEqual(result.params["par1"], par1, delta=0.03)
-        self.assertAlmostEqual(result.params["par2"], par2, delta=0.03)
-        self.assertDictEqual(result.model_repr, {"s1": "par0 * exp(-x / par1) + par2"})
-        self.assertEqual(result.dof, 97)
-        self.assertListEqual(result.var_names, ["par0", "par1", "par2"])
-        self.assertTrue(np.all(np.isfinite(result.covar)))
-        self.assertGreater(result.ufloat_params["par0"].std_dev, 0.0)
-        self.assertGreater(result.ufloat_params["par1"].std_dev, 0.0)
-        self.assertGreater(result.ufloat_params["par2"].std_dev, 0.0)
-
-    @data(
-        [1.2, 0.5, 0.1],
-        [-0.7, 0.1, -0.1],
-        [2.1, 0.8, 1.2],
-    )
-    @unpack
-    def test_fit_model_of_single_function_with_error(self, par0, par1, par2):
-        """A testcase for performing a fitting with single objective function with uncertainty."""
-        model = CurveModel(
-            name="test",
-            series_defs=[SeriesDef(fit_func="par0 * exp(-x / par1) + par2", name="s1")],
-        )
-        rng = np.random.default_rng(123)
-
-        x = np.linspace(0, 1, 100)
-        ref_y = par0 * np.exp(-x / par1) + par2 + rng.normal(scale=0.1, size=x.size)
-        sigma = np.full(x.size, 0.1)
-
-        params = model.make_params(par0=par0, par1=par1, par2=par2)
-        solver = CurveSolver(model, params=params)
-
-        result = solver.fit(
-            x=x,
-            y=ref_y,
-            sigma=sigma,
-            allocation=np.full(x.size, 0),
-        )
-        self.assertTrue(result.success)
-        self.assertAlmostEqual(result.params["par0"], par0, delta=0.03)
-        self.assertAlmostEqual(result.params["par1"], par1, delta=0.03)
-        self.assertAlmostEqual(result.params["par2"], par2, delta=0.03)
-        self.assertTrue(np.all(np.isfinite(result.covar)))
-        self.assertGreater(result.ufloat_params["par0"].std_dev, 0.0)
-        self.assertGreater(result.ufloat_params["par1"].std_dev, 0.0)
-        self.assertGreater(result.ufloat_params["par2"].std_dev, 0.0)
-
-    @data(
-        [1.5, 1.6, 0.2],
-        [-0.5, 3.2, -0.1],
-        [1.0, 0.5, 0.2],
-    )
-    @unpack
-    def test_fit_model_of_multi_function(self, par0, par1, par2):
-        """A testcase for performing a fitting with multiple objective function."""
-        model = CurveModel(
-            name="test",
-            series_defs=[
-                SeriesDef(fit_func="par0 * cos(par1 * x) + par2", name="s1"),
-                SeriesDef(fit_func="par0 * sin(par1 * x) + par2", name="s2"),
-            ],
-        )
-        rng = np.random.default_rng(123)
-
-        x1 = np.linspace(0, 1, 100)
-        x2 = np.linspace(0, 2, 100)
-        ref_y1 = par0 * np.cos(par1 * x1) + par2 + rng.normal(scale=0.1, size=x1.size)
-        ref_y2 = par0 * np.sin(par1 * x2) + par2 + rng.normal(scale=0.1, size=x2.size)
-        x_composed = np.concatenate((x1, x2))
-        y_composed = np.concatenate((ref_y1, ref_y2))
-        allocation = np.concatenate((np.full(x1.size, 0), np.full(x2.size, 1)))
-        sigma = np.full(y_composed.size, 0.1)
-
-        params = model.make_params(par0=par0, par1=par1, par2=par2)
-        solver = CurveSolver(model, params=params)
-
-        result = solver.fit(
-            x=x_composed,
-            y=y_composed,
-            sigma=sigma,
-            allocation=allocation,
-        )
-        self.assertTrue(result.success)
-        self.assertAlmostEqual(result.params["par0"], par0, delta=0.03)
-        self.assertAlmostEqual(result.params["par1"], par1, delta=0.03)
-        self.assertAlmostEqual(result.params["par2"], par2, delta=0.03)
-        self.assertDictEqual(
-            result.model_repr,
-            {"s1": "par0 * cos(par1 * x) + par2", "s2": "par0 * sin(par1 * x) + par2"},
-        )
-        self.assertEqual(result.dof, 197)
-        self.assertListEqual(result.var_names, ["par0", "par1", "par2"])
-        self.assertTrue(np.all(np.isfinite(result.covar)))
-        self.assertGreater(result.ufloat_params["par0"].std_dev, 0.0)
-        self.assertGreater(result.ufloat_params["par1"].std_dev, 0.0)
-        self.assertGreater(result.ufloat_params["par2"].std_dev, 0.0)
-
-    @data(
-        [1.2, 0.5, 0.1],
-        [-0.7, 0.1, -0.1],
-        [2.1, 0.8, 1.2],
-    )
-    @unpack
-    def test_fit_model_of_single_function_fixed_param(self, par0, par1, par2):
-        """A testcase for performing a fitting with fixed parameter."""
-        model = CurveModel(
-            name="test",
-            series_defs=[SeriesDef(fit_func="par0 * exp(-x / par1) + par2", name="s1")],
-        )
-        rng = np.random.default_rng(123)
-
-        x = np.linspace(0, 1, 100)
-        ref_y = par0 * np.exp(-x / par1) + par2 + rng.normal(scale=0.1, size=x.size)
-        sigma = np.full(x.size, 0.1)
-
-        params = model.make_params(par0=par0, par1=par1, par2=par2)
-
-        # Fix parameter of par0
-        params["par0"].vary = False
-        solver = CurveSolver(model, params=params)
-
-        result = solver.fit(
-            x=x,
-            y=ref_y,
-            sigma=sigma,
-            allocation=np.full(x.size, 0),
-        )
-        self.assertTrue(result.success)
-        self.assertEqual(result.params["par0"], par0)
-        self.assertAlmostEqual(result.params["par1"], par1, delta=0.03)
-        self.assertAlmostEqual(result.params["par2"], par2, delta=0.03)
-        self.assertEqual(result.dof, 98)
-        self.assertListEqual(result.var_names, ["par1", "par2"])
-        self.assertEqual(result.covar.shape, (2, 2))
-        self.assertEqual(result.ufloat_params["par0"].std_dev, 0.0)
-        self.assertGreater(result.ufloat_params["par1"].std_dev, 0.0)
-        self.assertGreater(result.ufloat_params["par2"].std_dev, 0.0)
-
-    def test_fit_with_invalid_bound(self):
-        """A testcase for failing fitting with invalid bounds."""
-        model = CurveModel(
-            name="test",
-            series_defs=[SeriesDef(fit_func="par0 * exp(-x / par1) + par2", name="s1")],
-        )
-        rng = np.random.default_rng(123)
-
-        par0 = 1.3
-        par1 = 0.5
-        par2 = 1.2
-
-        x = np.linspace(0, 1, 100)
-        ref_y = par0 * np.exp(-x / par1) + par2 + rng.normal(scale=0.1, size=x.size)
-        sigma = np.full(x.size, 0.1)
-
-        params = model.make_params(par0=par0, par1=par1, par2=par2)
-
-        # Impossible to fit
-        params["par1"].min = -2
-        params["par1"].max = -1
-        solver = CurveSolver(model, params=params)
-
-        # No crash with raises
-        result = solver.fit(
-            x=x,
-            y=ref_y,
-            sigma=sigma,
-            allocation=np.full(x.size, 0),
-        )
-        self.assertFalse(result.success)
-
-    def test_injecting_invalid_equation(self):
-        """A testcase for failing evaluation with invalid input equation."""
-        model = CurveModel(
-            name="test",
-            series_defs=[SeriesDef(fit_func="import os; x")],
-        )
-        with self.assertRaises(NotImplementedError):
-            model.eval(x=np.array([0]), allocation=np.array([0]))
 
 
 class CurveAnalysisTestCase(QiskitExperimentsTestCase):
@@ -386,12 +85,12 @@ class TestCurveAnalysis(CurveAnalysisTestCase):
 
     def test_roundtrip_serialize(self):
         """A testcase for serializing analysis instance."""
-        analysis = CurveAnalysis(series_defs=[SeriesDef(fit_func="par0 * x + par1")])
+        analysis = CurveAnalysis(models=[ExpressionModel(expr="par0 * x + par1", name="test")])
         self.assertRoundTripSerializable(analysis, check_func=self.json_equiv)
 
     def test_parameters(self):
         """A testcase for getting fit parameters with attribute."""
-        analysis = CurveAnalysis(series_defs=[SeriesDef(fit_func="par0 * x + par1")])
+        analysis = CurveAnalysis(models=[ExpressionModel(expr="par0 * x + par1", name="test")])
         self.assertListEqual(analysis.parameters, ["par0", "par1"])
 
         analysis.set_options(fixed_parameters={"par0": 1.0})
@@ -400,9 +99,9 @@ class TestCurveAnalysis(CurveAnalysisTestCase):
     def test_combine_funcs_with_different_parameters(self):
         """A testcase for composing two objectives with different signature."""
         analysis = CurveAnalysis(
-            series_defs=[
-                SeriesDef(fit_func="par0 * x + par1"),
-                SeriesDef(fit_func="par2 * x + par1"),
+            models=[
+                ExpressionModel(expr="par0 * x + par1", name="test1"),
+                ExpressionModel(expr="par2 * x + par1", name="test2"),
             ]
         )
         self.assertListEqual(analysis.parameters, ["par0", "par1", "par2"])
@@ -416,16 +115,26 @@ class TestCurveAnalysis(CurveAnalysisTestCase):
         expdata2 = self.single_sampler(x, y2, shots=1000000, series=2)
 
         analysis = CurveAnalysis(
-            series_defs=[
-                SeriesDef(fit_func="par0 * x + par1", filter_kwargs={"series": 1}, name="s1"),
-                SeriesDef(fit_func="par2 * x + par3", filter_kwargs={"series": 2}, name="s2"),
+            models=[
+                ExpressionModel(
+                    expr="par0 * x + par1",
+                    name="s1",
+                    data_sort_key={"series": 1},
+                ),
+                ExpressionModel(
+                    expr="par2 * x + par3",
+                    name="s2",
+                    data_sort_key={"series": 2},
+                ),
             ]
         )
-        analysis.set_options(data_processor=DataProcessor("counts", [Probability("1")]))
+        analysis.set_options(
+            data_processor=DataProcessor("counts", [Probability("1")]),
+        )
 
         curve_data = analysis._run_data_processing(
             raw_data=expdata1.data() + expdata2.data(),
-            model=analysis._model,
+            models=analysis._models,
         )
         self.assertListEqual(curve_data.labels, ["s1", "s2"])
 
@@ -445,14 +154,14 @@ class TestCurveAnalysis(CurveAnalysisTestCase):
 
     def test_create_result(self):
         """A testcase for creating analysis result data from fit data."""
-        analysis = CurveAnalysis(series_defs=[SeriesDef(fit_func="par0 * x + par1", name="s1")])
+        analysis = CurveAnalysis(models=[ExpressionModel(expr="par0 * x + par1", name="s1")])
         analysis.set_options(
             result_parameters=["par0", ParameterRepr("par1", "Param1", "SomeUnit")]
         )
 
         covar = np.diag([0.1**2, 0.2**2])
 
-        fit_data = SolverResult(
+        fit_data = CurveFitResult(
             method="some_method",
             model_repr={"s1": "par0 * x + par1"},
             success=True,
@@ -500,7 +209,7 @@ class TestCurveAnalysis(CurveAnalysisTestCase):
 
     def test_end_to_end_single_function(self):
         """Integration test for single function."""
-        analysis = CurveAnalysis(series_defs=[SeriesDef(fit_func="amp * exp(-x/tau)")])
+        analysis = CurveAnalysis(models=[ExpressionModel(expr="amp * exp(-x/tau)", name="test")])
         analysis.set_options(
             data_processor=DataProcessor(input_key="counts", data_actions=[Probability("1")]),
             p0={"amp": 0.5, "tau": 0.3},
@@ -519,9 +228,55 @@ class TestCurveAnalysis(CurveAnalysisTestCase):
         self.assertAlmostEqual(result.analysis_results("amp").value.nominal_value, 0.5, delta=0.1)
         self.assertAlmostEqual(result.analysis_results("tau").value.nominal_value, 0.3, delta=0.1)
 
+    def test_end_to_end_multi_objective(self):
+        """Integration test for multi objective function."""
+        analysis = CurveAnalysis(
+            models=[
+                ExpressionModel(
+                    expr="amp * cos(2 * pi * freq * x + phi) + base",
+                    name="m1",
+                    data_sort_key={"series": "cos"},
+                ),
+                ExpressionModel(
+                    expr="amp * sin(2 * pi * freq * x + phi) + base",
+                    name="m2",
+                    data_sort_key={"series": "sin"},
+                ),
+            ]
+        )
+        analysis.set_options(
+            data_processor=DataProcessor(input_key="counts", data_actions=[Probability("1")]),
+            p0={"amp": 0.5, "freq": 2.1, "phi": 0.3, "base": 0.1},
+            result_parameters=["amp", "freq", "phi", "base"],
+            plot=False,
+        )
+        amp = 0.3
+        freq = 2.1
+        phi = 0.3
+        base = 0.4
+
+        x = np.linspace(0, 1, 100)
+        y1 = amp * np.cos(2 * np.pi * freq * x + phi) + base
+        y2 = amp * np.sin(2 * np.pi * freq * x + phi) + base
+
+        test_data1 = self.single_sampler(x, y1, series="cos")
+        test_data2 = self.single_sampler(x, y2, series="sin")
+
+        expdata = ExperimentData(experiment=FakeExperiment())
+        expdata.add_data(test_data1.data())
+        expdata.add_data(test_data2.data())
+        expdata.metadata["meas_level"] = MeasLevel.CLASSIFIED
+
+        result = analysis.run(expdata).block_for_results()
+
+        self.assertAlmostEqual(result.analysis_results("amp").value.nominal_value, amp, delta=0.1)
+        self.assertAlmostEqual(result.analysis_results("freq").value.nominal_value, freq, delta=0.1)
+        self.assertAlmostEqual(result.analysis_results("phi").value.nominal_value, phi, delta=0.1)
+        self.assertAlmostEqual(result.analysis_results("base").value.nominal_value, base, delta=0.1)
+
     def test_end_to_end_single_function_with_fixed_parameter(self):
         """Integration test for fitting with fixed parameter."""
-        analysis = CurveAnalysis(series_defs=[SeriesDef(fit_func="amp * exp(-x/tau)")])
+        analysis = CurveAnalysis(models=[ExpressionModel(expr="amp * exp(-x/tau)", name="test")])
         analysis.set_options(
             data_processor=DataProcessor(input_key="counts", data_actions=[Probability("1")]),
             p0={"tau": 0.3},
@@ -549,7 +304,7 @@ class TestCurveAnalysis(CurveAnalysisTestCase):
             """Custom analysis class to override result generation."""
 
             def __init__(self):
-                super().__init__(series_defs=[SeriesDef(fit_func="amp * exp(-x/tau)")])
+                super().__init__(models=[ExpressionModel(expr="amp * exp(-x/tau)", name="test")])
 
             def _create_analysis_results(self, fit_data, quality, **metadata):
                 results = super()._create_analysis_results(fit_data, quality, **metadata)
@@ -608,12 +363,12 @@ class TestCurveAnalysis(CurveAnalysisTestCase):
                 super()._initialize(experiment_data)
 
                 # Generate model with `model_var` option
-                self._model = CurveModel(
-                    name="test",
-                    series_defs=[
-                        SeriesDef(fit_func=f"{self.options.model_var} * amp * exp(-x/tau)")
-                    ],
-                )
+                self._models = [
+                    ExpressionModel(
+                        expr=f"{self.options.model_var} * amp * exp(-x/tau)",
+                        name="test",
+                    )
+                ]
 
         analysis = CustomAnalysis()
         analysis.set_options(
@@ -638,7 +393,7 @@ class TestCurveAnalysis(CurveAnalysisTestCase):
     def test_end_to_end_parallel_analysis(self):
         """Integration test for running two curve analyses in parallel."""
 
-        analysis1 = CurveAnalysis(series_defs=[SeriesDef(fit_func="amp * exp(-x/tau)")])
+        analysis1 = CurveAnalysis(models=[ExpressionModel(expr="amp * exp(-x/tau)", name="test")])
         analysis1.set_options(
             data_processor=DataProcessor(input_key="counts", data_actions=[Probability("1")]),
             p0={"amp": 0.5, "tau": 0.3},
@@ -646,7 +401,7 @@ class TestCurveAnalysis(CurveAnalysisTestCase):
             plot=False,
         )
 
-        analysis2 = CurveAnalysis(series_defs=[SeriesDef(fit_func="amp * exp(-x/tau)")])
+        analysis2 = CurveAnalysis(models=[ExpressionModel(expr="amp * exp(-x/tau)", name="test")])
         analysis2.set_options(
             data_processor=DataProcessor(input_key="counts", data_actions=[Probability("1")]),
             p0={"amp": 0.7, "tau": 0.5},
@@ -675,30 +430,6 @@ class TestCurveAnalysis(CurveAnalysisTestCase):
 
         self.assertAlmostEqual(taus[0].value.nominal_value, tau1, delta=0.1)
         self.assertAlmostEqual(taus[1].value.nominal_value, tau2, delta=0.1)
-
-    def test_end_to_end_fit_fail(self):
-        """Integration test for failing in fitting with status reported."""
-
-        analysis = CurveAnalysis(series_defs=[SeriesDef(fit_func="amp * exp(-x/tau)")])
-        analysis.set_options(
-            data_processor=DataProcessor(input_key="counts", data_actions=[Probability("1")]),
-            p0={"tau": 0.3},
-            bounds={"amp": (-0.5, 0.0)},  # infeasible parameter bound
-            result_parameters=["amp", "tau"],
-            plot=False,
-        )
-        amp = 0.5
-        tau = 0.3
-
-        x = np.linspace(0, 1, 100)
-        y = amp * np.exp(-x / tau)
-
-        test_data = self.single_sampler(x, y)
-        result = analysis.run(test_data).block_for_results()
-
-        status = result.analysis_results(0).value
-        self.assertFalse(status.success)
-        self.assertEqual(status.message, "`x0` is infeasible.")
 
 
 class TestFitOptions(QiskitExperimentsTestCase):
@@ -919,23 +650,25 @@ class TestBackwardCompatibility(QiskitExperimentsTestCase):
     def test_old_fixed_param_attributes(self):
         """Test if old class structure for fixed param is still supported."""
 
-        class _DeprecatedAnalysis(CurveAnalysis):
-            __series__ = [
-                SeriesDef(
-                    fit_func=lambda x, par0, par1, par2, par3: fit_function.exponential_decay(
-                        x, amp=par0, lamb=par1, x0=par2, baseline=par3
-                    ),
-                )
-            ]
+        with self.assertWarns(DeprecationWarning):
 
-            __fixed_parameters__ = ["par1"]
+            class _DeprecatedAnalysis(CurveAnalysis):
+                __series__ = [
+                    SeriesDef(
+                        fit_func=lambda x, par0, par1, par2, par3: fit_function.exponential_decay(
+                            x, amp=par0, lamb=par1, x0=par2, baseline=par3
+                        ),
+                    )
+                ]
 
-            @classmethod
-            def _default_options(cls):
-                opts = super()._default_options()
-                opts.par1 = 2
+                __fixed_parameters__ = ["par1"]
 
-                return opts
+                @classmethod
+                def _default_options(cls):
+                    opts = super()._default_options()
+                    opts.par1 = 2
+
+                    return opts
 
         with self.assertWarns(DeprecationWarning):
             instance = _DeprecatedAnalysis()
@@ -945,14 +678,16 @@ class TestBackwardCompatibility(QiskitExperimentsTestCase):
     def test_loading_data_with_deprecated_fixed_param(self):
         """Test loading old data with fixed parameters as standalone options."""
 
-        class _DeprecatedAnalysis(CurveAnalysis):
-            __series__ = [
-                SeriesDef(
-                    fit_func=lambda x, par0, par1, par2, par3: fit_function.exponential_decay(
-                        x, amp=par0, lamb=par1, x0=par2, baseline=par3
-                    ),
-                )
-            ]
+        with self.assertWarns(DeprecationWarning):
+
+            class _DeprecatedAnalysis(CurveAnalysis):
+                __series__ = [
+                    SeriesDef(
+                        fit_func=lambda x, par0, par1, par2, par3: fit_function.exponential_decay(
+                            x, amp=par0, lamb=par1, x0=par2, baseline=par3
+                        ),
+                    )
+                ]
 
         with self.assertWarns(DeprecationWarning):
             # old option data structure, i.e. fixed param as a standalone option
@@ -964,10 +699,12 @@ class TestBackwardCompatibility(QiskitExperimentsTestCase):
     def test_instantiating_series_def_in_old_format(self):
         """Test instantiating curve analysis with old series def format."""
 
-        class _DeprecatedAnalysis(CurveAnalysis):
-            __series__ = [
-                SeriesDef(fit_func=lambda x, par0: fit_function.exponential_decay(x, amp=par0))
-            ]
+        with self.assertWarns(DeprecationWarning):
+
+            class _DeprecatedAnalysis(CurveAnalysis):
+                __series__ = [
+                    SeriesDef(fit_func=lambda x, par0: fit_function.exponential_decay(x, amp=par0))
+                ]
 
         with self.assertWarns(DeprecationWarning):
             instance = _DeprecatedAnalysis()

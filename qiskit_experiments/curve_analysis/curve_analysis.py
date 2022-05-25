@@ -19,16 +19,15 @@ import warnings
 from typing import Dict, List, Tuple, Union, Optional
 
 import numpy as np
+from lmfit.model import Model
 from uncertainties import unumpy as unp, UFloat
 
 from qiskit_experiments.exceptions import AnalysisError
 from qiskit_experiments.framework import ExperimentData, AnalysisResultData, AnalysisConfig
 from qiskit_experiments.warnings import deprecated_function
-
 from .base_curve_analysis import BaseCurveAnalysis, PARAMS_ENTRY_PREFIX
-from .curve_data import CurveData, SeriesDef
-from .models import CurveModel
-from .utils import analysis_result_to_repr
+from .curve_data import CurveData
+from .utils import analysis_result_to_repr, eval_with_uncertainties
 
 
 class CurveAnalysis(BaseCurveAnalysis):
@@ -40,13 +39,18 @@ class CurveAnalysis(BaseCurveAnalysis):
     See :class:`BaseCurveAnalysis` for overridable method documentation.
     """
 
-    def __init__(self, series_defs: Optional[List[SeriesDef]] = None):
+    def __init__(self, models: Optional[List[Model]] = None):
         """Initialize data fields that are privately accessed by methods.
 
         Args:
-            series_defs: List of series definitions that defines properties of curves.
-                If not specified, a protected member ``self._model`` must be
-                separately initialized before running curve fitting.
+            models: List of LMFIT ``Model`` class to define fitting functions and
+                parameters. If multiple models are provided, the analysis performs
+                multi-objective optimization where the parameters with the same name
+                are shared among provided models. The model can be initialized with
+                the keyword ``data_sort_key`` which is a dictionary to specify the
+                circuit metadata that is associated with the model.
+                Usually multiple models must be provided with this keyword to
+                classify the experiment data into subgroups of fit model.
         """
         super().__init__()
 
@@ -74,14 +78,24 @@ class CurveAnalysis(BaseCurveAnalysis):
                 stacklevel=2,
             )
             # pylint: disable=no-member
-            series_defs = self.__series__
+            models = []
+            plot_options = {}
+            for series_def in self.__series__:
+                models.append(
+                    Model(
+                        name=series_def.name,
+                        func=series_def.fit_func,
+                        data_sort_key=series_def.filter_kwargs,
+                    )
+                )
+                plot_options[series_def.name] = {
+                    "color": series_def.plot_color,
+                    "symbol": series_def.plot_symbol,
+                    "canvas": series_def.canvas,
+                }
+            self.drawer.set_options(plot_options=plot_options)
 
-        if series_defs is not None:
-            self._model = CurveModel(self.__class__.__name__, series_defs)
-        else:
-            # Model can be initialized at run time in _initialize.
-            # Series definitions could be dynamically generated with analysis options.
-            self._model = None
+        self._models = models or []
 
         #: List[CurveData]: Processed experiment data set. For backward compatibility.
         self.__processed_data_set = {}
@@ -89,7 +103,12 @@ class CurveAnalysis(BaseCurveAnalysis):
     @property
     def parameters(self) -> List[str]:
         """Return parameters of this curve analysis."""
-        return [p for p in self._model.param_names if p not in self.options.fixed_parameters]
+        unite_params = []
+        for model in self._models:
+            for name in model.param_names:
+                if name not in unite_params and name not in self.options.fixed_parameters:
+                    unite_params.append(name)
+        return unite_params
 
     # pylint: disable=bad-docstring-quotes
     @deprecated_function(
@@ -135,15 +154,18 @@ class CurveAnalysis(BaseCurveAnalysis):
         analysis_results = []
 
         # Run data processing
-        processed_data = self._run_data_processing(experiment_data.data(), self._model)
+        processed_data = self._run_data_processing(
+            raw_data=experiment_data.data(),
+            models=self._models,
+        )
 
         if self.options.plot and self.options.plot_raw_data:
-            for series_def in self._model.definitions:
-                sub_data = processed_data.get_subset_of(series_def.name)
+            for model in self._models:
+                sub_data = processed_data.get_subset_of(model._name)
                 self.drawer.draw_raw_data(
                     x_data=sub_data.x,
                     y_data=sub_data.y,
-                    ax_index=series_def.canvas,
+                    name=model._name,
                 )
         # for backward compatibility, will be removed in 0.4.
         self.__processed_data_set["raw_data"] = processed_data
@@ -151,22 +173,22 @@ class CurveAnalysis(BaseCurveAnalysis):
         # Format data
         formatted_data = self._format_data(processed_data)
         if self.options.plot:
-            for series_def in self._model.definitions:
-                sub_data = formatted_data.get_subset_of(series_def.name)
+            for model in self._models:
+                sub_data = formatted_data.get_subset_of(model._name)
                 self.drawer.draw_formatted_data(
                     x_data=sub_data.x,
                     y_data=sub_data.y,
                     y_err_data=sub_data.y_err,
-                    name=series_def.name,
-                    ax_index=series_def.canvas,
-                    color=series_def.plot_color,
-                    marker=series_def.plot_symbol,
+                    name=model._name,
                 )
         # for backward compatibility, will be removed in 0.4.
         self.__processed_data_set["fit_ready"] = formatted_data
 
         # Run fitting
-        fit_data = self._run_curve_fit(formatted_data, self._model)
+        fit_data = self._run_curve_fit(
+            curve_data=formatted_data,
+            models=self._models,
+        )
 
         if fit_data.success:
             quality = self._evaluate_quality(fit_data)
@@ -207,19 +229,18 @@ class CurveAnalysis(BaseCurveAnalysis):
             # Draw fit curves and report
             if self.options.plot:
                 interp_x = np.linspace(*fit_data.x_range, 100)
-                for s_ind, series_def in enumerate(self._model.definitions):
-                    y_data_with_uncertainty = self._model.eval_with_uncertainties(
+                for model in self._models:
+                    y_data_with_uncertainty = eval_with_uncertainties(
                         x=interp_x,
+                        model=model,
                         params=fit_data.ufloat_params,
-                        model_index=s_ind,
                     )
                     y_mean = unp.nominal_values(y_data_with_uncertainty)
                     # Draw fit line
                     self.drawer.draw_fit_line(
                         x_data=interp_x,
                         y_data=y_mean,
-                        ax_index=series_def.canvas,
-                        color=series_def.plot_color,
+                        name=model._name,
                     )
                     if fit_data.covar is not None:
                         # Draw confidence intervals with different n_sigma
@@ -230,9 +251,8 @@ class CurveAnalysis(BaseCurveAnalysis):
                                     x_data=interp_x,
                                     y_ub=y_mean + n_sigma * sigmas,
                                     y_lb=y_mean - n_sigma * sigmas,
-                                    ax_index=series_def.canvas,
+                                    name=model._name,
                                     alpha=alpha,
-                                    color=series_def.plot_color,
                                 )
 
                 # Write fitting report
@@ -244,7 +264,9 @@ class CurveAnalysis(BaseCurveAnalysis):
                 self.drawer.draw_fit_report(description=report_description)
 
         # Add raw data points
-        analysis_results.extend(self._create_curve_data(formatted_data, self._model))
+        analysis_results.extend(
+            self._create_curve_data(curve_data=formatted_data, models=self._models)
+        )
 
         # Finalize plot
         if self.options.plot:
@@ -252,6 +274,23 @@ class CurveAnalysis(BaseCurveAnalysis):
             return analysis_results, [self.drawer.figure]
 
         return analysis_results, []
+
+    def __getstate__(self):
+        state = self.__dict__.copy()
+        # Convert models into JSON str.
+        # This object includes local function and cannot be pickled.
+        source = [m.dumps() for m in state["_models"]]
+        state["_models"] = source
+        return state
+
+    def __setstate__(self, state):
+        model_objs = []
+        for source in state.pop("_models"):
+            tmp_mod = Model(func=None)
+            mod = tmp_mod.loads(s=source)
+            model_objs.append(mod)
+        self.__dict__.update(state)
+        self._models = model_objs
 
     @classmethod
     def from_config(cls, config: Union[AnalysisConfig, Dict]) -> "CurveAnalysis":

@@ -17,6 +17,7 @@ from itertools import product
 from typing import List, Union
 
 import numpy as np
+from lmfit.models import ExpressionModel
 
 import qiskit_experiments.curve_analysis as curve
 
@@ -137,26 +138,23 @@ class CrossResonanceHamiltonianAnalysis(curve.CurveAnalysis):
             "z": "(pz**2 + (px**2 + py**2) * cos(W * X)) / W**2 + b",
         }
 
-        series_defs = []
-        for state, color, symbol in zip((0, 1), ("red", "blue"), ("o", "^")):
-            for canvas, (axis, temp_eq) in enumerate(eqr_temps.items()):
+        models = []
+        for state in (0, 1):
+            for axis, temp_eq in eqr_temps.items():
                 eq = temp_eq
                 for op in ("px", "py", "pz"):
                     eq = eq.replace(op, f"{op}{state}")
                 eq = eq.replace("W", f"sqrt(px{state}**2 + py{state}**2 + pz{state}**2)")
                 eq = eq.replace("X", "(x + t_off)")
-                series_defs.append(
-                    curve.SeriesDef(
-                        fit_func=eq,
+                models.append(
+                    ExpressionModel(
+                        expr=eq,
                         name=f"{axis}|c={state}",
-                        filter_kwargs={"control_state": state, "meas_basis": axis},
-                        plot_color=color,
-                        plot_symbol=symbol,
-                        canvas=canvas,
+                        data_sort_key={"control_state": state, "meas_basis": axis},
                     )
                 )
 
-        super().__init__(series_defs=series_defs)
+        super().__init__(models=models)
 
     @classmethod
     def _default_options(cls):
@@ -175,6 +173,14 @@ class CrossResonanceHamiltonianAnalysis(curve.CurveAnalysis):
             legend_loc="lower right",
             fit_report_rpos=(0.28, -0.10),
             ylim=(-1, 1),
+            plot_options={
+                "x|c=0": {"color": "blue", "symbol": "o", "canvas": 0},
+                "y|c=0": {"color": "blue", "symbol": "o", "canvas": 1},
+                "z|c=0": {"color": "blue", "symbol": "o", "canvas": 2},
+                "x|c=1": {"color": "red", "symbol": "^", "canvas": 0},
+                "y|c=1": {"color": "red", "symbol": "^", "canvas": 1},
+                "z|c=1": {"color": "red", "symbol": "^", "canvas": 2},
+            },
         )
         default_options.data_processor = dp.DataProcessor(
             input_key="counts",
@@ -258,7 +264,7 @@ class CrossResonanceHamiltonianAnalysis(curve.CurveAnalysis):
 
     def _create_analysis_results(
         self,
-        fit_data: curve.SolverResult,
+        fit_data: curve.CurveFitResult,
         quality: str,
         **metadata,
     ) -> List[AnalysisResultData]:

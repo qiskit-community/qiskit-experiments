@@ -15,6 +15,7 @@
 from typing import List, Union
 
 import numpy as np
+from lmfit.models import ExpressionModel
 
 import qiskit_experiments.curve_analysis as curve
 
@@ -56,7 +57,12 @@ class OscillationAnalysis(curve.CurveAnalysis):
 
     def __init__(self):
         super().__init__(
-            series_defs=[curve.SeriesDef(fit_func="amp * cos(2 * pi * freq * x + phase) + base")]
+            models=[
+                ExpressionModel(
+                    expr="amp * cos(2 * pi * freq * x + phase) + base",
+                    name="cos",
+                )
+            ]
         )
 
     def _generate_fit_guesses(
@@ -97,7 +103,7 @@ class OscillationAnalysis(curve.CurveAnalysis):
 
         return options
 
-    def _evaluate_quality(self, fit_data: curve.SolverResult) -> Union[str, None]:
+    def _evaluate_quality(self, fit_data: curve.CurveFitResult) -> Union[str, None]:
         """Algorithmic criteria for whether the fit is good or bad.
 
         A good fit has:
@@ -164,9 +170,10 @@ class DumpedOscillationAnalysis(curve.CurveAnalysis):
 
     def __init__(self):
         super().__init__(
-            series_defs=[
-                curve.SeriesDef(
-                    fit_func="amp * exp(-x / tau) * cos(2 * pi * freq * x + phi) + base"
+            models=[
+                ExpressionModel(
+                    expr="amp * exp(-x / tau) * cos(2 * pi * freq * x + phi) + base",
+                    name="cos_decay",
                 )
             ]
         )
@@ -241,7 +248,7 @@ class DumpedOscillationAnalysis(curve.CurveAnalysis):
 
         return options
 
-    def _evaluate_quality(self, fit_data: curve.SolverResult) -> Union[str, None]:
+    def _evaluate_quality(self, fit_data: curve.CurveFitResult) -> Union[str, None]:
         """Algorithmic criteria for whether the fit is good or bad.
 
         A good fit has:

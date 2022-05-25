@@ -14,6 +14,7 @@
 from typing import List, Union
 
 import numpy as np
+from lmfit.models import ExpressionModel
 
 import qiskit_experiments.curve_analysis as curve
 
@@ -48,7 +49,14 @@ class DecayAnalysis(curve.CurveAnalysis):
     """
 
     def __init__(self):
-        super().__init__(series_defs=[curve.SeriesDef(fit_func="amp * exp(-x/tau) + base")])
+        super().__init__(
+            models=[
+                ExpressionModel(
+                    expr="amp * exp(-x/tau) + base",
+                    name="exp_decay",
+                )
+            ]
+        )
 
     def _generate_fit_guesses(
         self,
@@ -82,7 +90,7 @@ class DecayAnalysis(curve.CurveAnalysis):
             )
         return user_opt
 
-    def _evaluate_quality(self, fit_data: curve.SolverResult) -> Union[str, None]:
+    def _evaluate_quality(self, fit_data: curve.CurveFitResult) -> Union[str, None]:
         """Algorithmic criteria for whether the fit is good or bad.
 
         A good fit has:

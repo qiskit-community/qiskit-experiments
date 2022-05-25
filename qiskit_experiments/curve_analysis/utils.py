@@ -12,12 +12,15 @@
 
 """Utils in curve analysis."""
 
-from typing import Union, Optional
+from typing import Union, Optional, List, Dict
 
 import numpy as np
 from qiskit.utils import detach_prefix
-from uncertainties import UFloat
+from uncertainties import UFloat, wrap as wrap_function
+from lmfit.minimizer import MinimizerResult
+from lmfit.model import Model
 
+from qiskit_experiments.curve_analysis.curve_data import CurveFitResult
 from qiskit_experiments.exceptions import AnalysisError
 from qiskit_experiments.framework import AnalysisResultData
 
@@ -148,3 +151,86 @@ def analysis_result_to_repr(result: AnalysisResultData) -> str:
             value_repr = n_repr + n_unit
 
     return f"{result.name} = {value_repr}"
+
+
+def convert_lmfit_result(
+    result: MinimizerResult,
+    models: List[Model],
+    xdata: np.ndarray,
+    ydata: np.ndarray,
+) -> CurveFitResult:
+    """A helper function to convert LMFIT ``MinimizerResult`` into :class:`.CurveFitResult`.
+
+    :class:`.CurveFitResult` is a dataclass that can be serialized with the experiment JSON decoder.
+    In addition, this class converts LMFIT ``Parameter`` objects into ufloats so that
+    extra parameter computation in the analysis post-processing can perform
+    accurate error propagation with parameter correlation.
+
+    Args:
+        result: Output from LMFIT ``minimize``.
+        models: Model used for the fitting. Function description is extracted.
+        xdata: X values used for the fitting.
+        ydata: Y values used for the fitting.
+
+    Returns:
+        QiskitExperiments :class:`.CurveFitResult` object.
+    """
+    model_descriptions = {}
+    for model in models:
+        if hasattr(model, "expr"):
+            func_repr = model.expr
+        else:
+            signature = ", ".join(model.independent_vars + model.param_names)
+            func_repr = f"F({signature})"
+        model_descriptions[model._name] = func_repr
+
+    if result is None:
+        return CurveFitResult(
+            model_repr=model_descriptions,
+            success=False,
+            x_data=xdata,
+            y_data=ydata,
+        )
+
+    covar = getattr(result, "covar", None)
+    if covar is not None and np.any(np.diag(covar) < 0):
+        covar = None
+
+    return CurveFitResult(
+        method=result.method,
+        model_repr=model_descriptions,
+        success=result.success,
+        nfev=result.nfev,
+        message=result.message,
+        dof=result.nfree,
+        chisq=result.chisqr,
+        reduced_chisq=result.redchi,
+        aic=result.aic,
+        bic=result.bic,
+        params={name: param.value for name, param in result.params.items()},
+        var_names=result.var_names,
+        x_data=xdata,
+        y_data=ydata,
+        covar=covar,
+    )
+
+
+def eval_with_uncertainties(
+    x: np.ndarray,
+    model: Model,
+    params: Dict[str, UFloat],
+) -> np.ndarray:
+    """Compute Y values with error propagation.
+
+    Args:
+        x: X values.
+        model: LMFIT model.
+        params: Fitter parameters in correlated ufloats.
+
+    Returns:
+        Y values with uncertainty (uarray).
+    """
+    sub_params = {name: params[name] for name in model.param_names}
+    wrapfunc = np.vectorize(wrap_function(model.func))
+
+    return wrapfunc(x=x, **sub_params)

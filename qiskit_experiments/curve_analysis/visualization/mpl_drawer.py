@@ -219,9 +219,12 @@ class MplCurveDrawer(BaseCurveDrawer):
         self,
         x_data: Sequence[float],
         y_data: Sequence[float],
-        ax_index: Optional[int] = None,
+        name: Optional[str] = None,
         **options,
     ):
+        curve_opts = self.options.plot_options.get(name, {})
+        axis = curve_opts.get("canvas", None)
+
         draw_options = {
             "color": "grey",
             "marker": "x",
@@ -229,7 +232,7 @@ class MplCurveDrawer(BaseCurveDrawer):
             "zorder": 2,
         }
         draw_options.update(**options)
-        self._get_axis(ax_index).scatter(x_data, y_data, **draw_options)
+        self._get_axis(axis).scatter(x_data, y_data, **draw_options)
 
     def draw_formatted_data(
         self,
@@ -237,10 +240,16 @@ class MplCurveDrawer(BaseCurveDrawer):
         y_data: Sequence[float],
         y_err_data: Sequence[float],
         name: Optional[str] = None,
-        ax_index: Optional[int] = None,
         **options,
     ):
+        curve_opts = self.options.plot_options.get(name, {})
+        axis = curve_opts.get("canvas", None)
+        color = curve_opts.get("color", self.options.default_color)
+        marker = curve_opts.get("symbol", self.options.default_symbol)
+
         draw_ops = {
+            "color": color,
+            "marker": marker,
             "markersize": 9,
             "alpha": 0.8,
             "zorder": 4,
@@ -252,38 +261,47 @@ class MplCurveDrawer(BaseCurveDrawer):
 
         if not np.all(np.isfinite(y_err_data)):
             y_err_data = None
-        self._get_axis(ax_index).errorbar(x_data, y_data, yerr=y_err_data, **draw_ops)
+        self._get_axis(axis).errorbar(x_data, y_data, yerr=y_err_data, **draw_ops)
 
     def draw_fit_line(
         self,
         x_data: Sequence[float],
         y_data: Sequence[float],
-        ax_index: Optional[int] = None,
+        name: Optional[str] = None,
         **options,
     ):
+        curve_opts = self.options.plot_options.get(name, {})
+        axis = curve_opts.get("canvas", None)
+        color = curve_opts.get("color", self.options.default_color)
+
         draw_ops = {
+            "color": color,
             "zorder": 5,
             "linestyle": "-",
             "linewidth": 2,
         }
         draw_ops.update(**options)
-        self._get_axis(ax_index).plot(x_data, y_data, **draw_ops)
+        self._get_axis(axis).plot(x_data, y_data, **draw_ops)
 
     def draw_confidence_interval(
         self,
         x_data: Sequence[float],
         y_ub: Sequence[float],
         y_lb: Sequence[float],
-        ax_index: Optional[int] = None,
+        name: Optional[str] = None,
         **options,
     ):
+        curve_opts = self.options.plot_options.get(name, {})
+        axis = curve_opts.get("canvas", None)
+        color = curve_opts.get("color", self.options.default_color)
+
         draw_ops = {
             "zorder": 3,
             "alpha": 0.1,
-            "color": "black",
+            "color": color,
         }
         draw_ops.update(**options)
-        self._get_axis(ax_index).fill_between(x_data, y1=y_lb, y2=y_ub, **draw_ops)
+        self._get_axis(axis).fill_between(x_data, y1=y_lb, y2=y_ub, **draw_ops)
 
     def draw_fit_report(
         self,

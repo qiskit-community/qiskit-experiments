@@ -528,14 +528,13 @@ Utilities
 """
 from .base_curve_analysis import BaseCurveAnalysis
 from .curve_analysis import CurveAnalysis
-from .curve_data import CurveData, SeriesDef, FitData, ParameterRepr, FitOptions, SolverResult
+from .curve_data import CurveData, SeriesDef, FitData, ParameterRepr, FitOptions, CurveFitResult
 from .curve_fit import (
     curve_fit,
     multi_curve_fit,
     process_curve_data,
     process_multi_curve_data,
 )
-from .models import CurveModel, CurveSolver
 from .visualization import BaseCurveDrawer, MplCurveDrawer
 from . import guess
 from . import fit_function

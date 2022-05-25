@@ -15,6 +15,8 @@ Interleaved RB analysis class.
 from typing import List, Union
 
 import numpy as np
+from lmfit.models import ExpressionModel
+
 import qiskit_experiments.curve_analysis as curve
 from qiskit_experiments.framework import AnalysisResultData, ExperimentData
 
@@ -90,20 +92,16 @@ class InterleavedRBAnalysis(curve.CurveAnalysis):
 
     def __init__(self):
         super().__init__(
-            series_defs=[
-                curve.SeriesDef(
-                    fit_func="a * alpha ** x + b",
-                    name="Standard",
-                    filter_kwargs={"interleaved": False},
-                    plot_color="red",
-                    plot_symbol=".",
+            models=[
+                ExpressionModel(
+                    expr="a * alpha ** x + b",
+                    name="standard",
+                    data_sort_key={"interleaved": False},
                 ),
-                curve.SeriesDef(
-                    fit_func="a * (alpha_c * alpha) ** x + b",
-                    name="Interleaved",
-                    filter_kwargs={"interleaved": True},
-                    plot_color="orange",
-                    plot_symbol="^",
+                ExpressionModel(
+                    expr="a * (alpha_c * alpha) ** x + b",
+                    name="interleaved",
+                    data_sort_key={"interleaved": True},
                 ),
             ]
         )
@@ -114,6 +112,12 @@ class InterleavedRBAnalysis(curve.CurveAnalysis):
         """Default analysis options."""
         default_options = super()._default_options()
         default_options.result_parameters = ["alpha", "alpha_c"]
+        default_options.curve_drawer.set_options(
+            plot_options={
+                "standard": {"color": "red", "symbol": "."},
+                "interleaved": {"color": "orange", "symbol": "^"},
+            }
+        )
         return default_options
 
     def _generate_fit_guesses(
@@ -141,11 +145,11 @@ class InterleavedRBAnalysis(curve.CurveAnalysis):
         a_guess = 1 - b_guess
 
         # for standard RB curve
-        std_curve = curve_data.get_subset_of("Standard")
+        std_curve = curve_data.get_subset_of("standard")
         alpha_std = curve.guess.rb_decay(std_curve.x, std_curve.y, a=a_guess, b=b_guess)
 
         # for interleaved RB curve
-        int_curve = curve_data.get_subset_of("Interleaved")
+        int_curve = curve_data.get_subset_of("interleaved")
         alpha_int = curve.guess.rb_decay(int_curve.x, int_curve.y, a=a_guess, b=b_guess)
 
         alpha_c = min(alpha_int / alpha_std, 1.0)
@@ -203,7 +207,7 @@ class InterleavedRBAnalysis(curve.CurveAnalysis):
 
     def _create_analysis_results(
         self,
-        fit_data: curve.SolverResult,
+        fit_data: curve.CurveFitResult,
         quality: str,
         **metadata,
     ) -> List[AnalysisResultData]:

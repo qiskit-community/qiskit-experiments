@@ -21,6 +21,7 @@ from typing import Any, Callable, Optional
 
 import numpy as np
 import uncertainties
+from lmfit import Model
 from qiskit.test import QiskitTestCase
 from qiskit_experiments.data_processing import DataAction, DataProcessor
 from qiskit_experiments.database_service.db_experiment_data import ExperimentStatus
@@ -130,6 +131,8 @@ class QiskitExperimentsTestCase(QiskitTestCase):
             return all(cls.json_equiv(e1, e2) for e1, e2 in zip(data1, data2))
         elif isinstance(data1, uncertainties.UFloat) and isinstance(data2, uncertainties.UFloat):
             return cls.ufloat_equiv(data1, data2)
+        elif isinstance(data1, Model) and isinstance(data2, Model):
+            return cls.json_equiv(data1.dumps(), data2.dumps())
         elif isinstance(data1, compare_repr) and isinstance(data2, compare_repr):
             # otherwise compare instance representation
             return repr(data1) == repr(data2)
