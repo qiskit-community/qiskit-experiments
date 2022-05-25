@@ -448,7 +448,6 @@ class Discriminator(IQPart):
         self,
         discriminator: Union[BaseDiscriminator, List[BaseDiscriminator]],
         validate: bool = True,
-        no_ufloat: bool = True,
     ):
         """Initialize the node with an object that can discriminate.
 
@@ -459,12 +458,9 @@ class Discriminator(IQPart):
                 discriminators is given then there should be as many discriminators as there
                 will be slots in the memory.
             validate: If set to False the DataAction will not validate its input.
-            no_ufloat: A boolean which if set to True, i.e., the default, will cause the node
-                to convert the data from uncertainties to regular floats.
         """
         super().__init__(1.0, validate)
         self._discriminator = discriminator
-        self._no_ufloat = no_ufloat
 
     def _format_data(self, data: np.ndarray) -> np.ndarray:
         """Check that there are as many discriminators as there are slots."""
@@ -478,10 +474,7 @@ class Discriminator(IQPart):
                         f"not match the {self._n_slots} slots in the data."
                     )
 
-        if self._no_ufloat:
-            data = unp.nominal_values(data)
-
-        return data
+        return unp.nominal_values(data)
 
     def _process(self, data: np.ndarray) -> np.ndarray:
         """Discriminate the data.
