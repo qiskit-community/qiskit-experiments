@@ -48,6 +48,7 @@ from .utils import (
 from qiskit_ibm_experiment import IBMExperimentService
 from qiskit_ibm_experiment import ExperimentData
 from qiskit_ibm_experiment.exceptions import IBMExperimentEntryExists, IBMExperimentEntryNotFound
+
 LOG = logging.getLogger(__name__)
 
 
@@ -161,11 +162,12 @@ class DbExperimentDataV1(DbExperimentData):
     _json_decoder = ExperimentDecoder
 
     def __init__(
-        self, data: ExperimentData,
+        self,
+        data: ExperimentData,
         backend: Optional[Backend] = None,
         service: Optional[IBMExperimentService] = None,
         verbose: Optional[bool] = True,
-        **kwargs
+        **kwargs,
     ):
         """Initializes the DbExperimentData instance.
 
@@ -207,23 +209,23 @@ class DbExperimentDataV1(DbExperimentData):
 
     @classmethod
     def from_values(
-            cls,
-            experiment_type: Optional[str] = "Unknown",
-            backend: Optional[Backend] = None,
-            service: Optional[IBMExperimentService] = None,
-            experiment_id: Optional[str] = None,
-            parent_id: Optional[str] = None,
-            tags: Optional[List[str]] = None,
-            job_ids: Optional[List[str]] = None,
-            share_level: Optional[str] = None,
-            metadata: Optional[Dict] = None,
-            figure_names: Optional[List[str]] = None,
-            notes: Optional[str] = None,
-            hub: Optional[str] = None,
-            group: Optional[str] = None,
-            project: Optional[str] = None,
-            verbose: Optional[bool] = True,
-            **kwargs,
+        cls,
+        experiment_type: Optional[str] = "Unknown",
+        backend: Optional[Backend] = None,
+        service: Optional[IBMExperimentService] = None,
+        experiment_id: Optional[str] = None,
+        parent_id: Optional[str] = None,
+        tags: Optional[List[str]] = None,
+        job_ids: Optional[List[str]] = None,
+        share_level: Optional[str] = None,
+        metadata: Optional[Dict] = None,
+        figure_names: Optional[List[str]] = None,
+        notes: Optional[str] = None,
+        hub: Optional[str] = None,
+        group: Optional[str] = None,
+        project: Optional[str] = None,
+        verbose: Optional[bool] = True,
+        **kwargs,
     ):
         """Initializes the DbExperimentData instance from the given values.
 
@@ -745,10 +747,12 @@ class DbExperimentDataV1(DbExperimentData):
             if save and self._service:
                 if isinstance(figure, pyplot.Figure):
                     figure = plot_to_svg_bytes(figure)
-                self._service.create_or_update_figure(experiment_id=self.experiment_id,
-                                                      figure=figure,
-                                                      figure_name=fig_name,
-                                                      create=not existing_figure)
+                self._service.create_or_update_figure(
+                    experiment_id=self.experiment_id,
+                    figure=figure,
+                    figure_name=fig_name,
+                    create=not existing_figure,
+                )
             added_figs.append(fig_name)
         return added_figs if len(added_figs) != 1 else added_figs[0]
 
@@ -891,7 +895,9 @@ class DbExperimentDataV1(DbExperimentData):
             )
             for result in retrieved_results:
                 result_id = result.result_id
-                self._analysis_results[result_id] = DbAnalysisResult(data=result, service=self.service)
+                self._analysis_results[result_id] = DbAnalysisResult(
+                    data=result, service=self.service
+                )
                 self._analysis_results[result_id]._created_in_db = True
 
     def analysis_results(
@@ -1060,7 +1066,9 @@ class DbExperimentDataV1(DbExperimentData):
                     continue
                 if isinstance(figure, pyplot.Figure):
                     figure = plot_to_svg_bytes(figure)
-                self._service.create_or_update_figure(experiment_id=self.experiment_id, figure=figure, figure_name=name)
+                self._service.create_or_update_figure(
+                    experiment_id=self.experiment_id, figure=figure, figure_name=name
+                )
 
         for name in self._deleted_figures.copy():
             with service_exception_to_warning():
@@ -1510,8 +1518,10 @@ class DbExperimentDataV1(DbExperimentData):
             This method can not be called from an analysis callback. It waits
             for analysis callbacks to complete before copying analysis results.
         """
-        new_instance = self.__class__(self._data, self.backend, self.service, self.verbose) # data will be deep copied
-        new_instance._data.experiment_id = str(uuid.uuid4()) # different id for copied experiment
+        new_instance = self.__class__(
+            self._data, self.backend, self.service, self.verbose
+        )  # data will be deep copied
+        new_instance._data.experiment_id = str(uuid.uuid4())  # different id for copied experiment
 
         LOG.debug(
             "Copying experiment data [Experiment ID: %s]: %s",

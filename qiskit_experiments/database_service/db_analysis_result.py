@@ -33,6 +33,7 @@ from .utils import save_data, qiskit_version
 from qiskit_ibm_experiment import IBMExperimentService, AnalysisResultData
 from qiskit_ibm_experiment import ResultQuality
 from qiskit_ibm_experiment.exceptions import IBMExperimentEntryExists, IBMExperimentEntryNotFound
+
 LOG = logging.getLogger(__name__)
 
 
@@ -63,7 +64,8 @@ class DbAnalysisResultV1(DbAnalysisResult):
     _extra_data = {}
 
     def __init__(
-        self, data: AnalysisResultData,
+        self,
+        data: AnalysisResultData,
         service: Optional[IBMExperimentService] = None,
     ):
         """AnalysisResult constructor.
@@ -75,7 +77,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
         # Data to be stored in DB.
         self._data = copy.deepcopy(data)
         if self.source is None:
-            self._data.result_data['_source'] = self.default_source()
+            self._data.result_data["_source"] = self.default_source()
         self._service = service
         self._created_in_db = False
         self._auto_save = False
@@ -120,14 +122,15 @@ class DbAnalysisResultV1(DbAnalysisResult):
                 experiment service.
         """
         # Data to be stored in DB.
-        data = AnalysisResultData(experiment_id=experiment_id,
-                                    result_id=result_id or str(uuid.uuid4()),
-                                    result_type=name,
-                                    chisq=chisq,
-                                    quality=quality,
-                                    verified=verified,
-                                    tags=tags or []
-                                    )
+        data = AnalysisResultData(
+            experiment_id=experiment_id,
+            result_id=result_id or str(uuid.uuid4()),
+            result_type=name,
+            chisq=chisq,
+            quality=quality,
+            verified=verified,
+            tags=tags or [],
+        )
         data.result_data = cls.format_result_data(value, extra, chisq, source)
         for comp in device_components:
             if isinstance(comp, str):
@@ -141,7 +144,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
             "class": f"{cls.__module__}.{cls.__name__}",
             "data_version": cls._data_version,
             "qiskit_version": qiskit_version(),
-            }
+        }
 
     @staticmethod
     def format_result_data(value, extra, chisq, source):
@@ -160,8 +163,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
             if db_value is not None:
                 result_data["value"] = db_value
             if isinstance(value.stderr, (int, float)):
-                result_data["variance"] = DbAnalysisResultV1._display_format(
-                    value.stderr ** 2)
+                result_data["variance"] = DbAnalysisResultV1._display_format(value.stderr**2)
             if isinstance(value.unit, str):
                 result_data["unit"] = value.unit
         elif isinstance(value, uncertainties.UFloat):
@@ -169,8 +171,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
             if db_value is not None:
                 result_data["value"] = db_value
             if isinstance(value.std_dev, (int, float)):
-                result_data["variance"] = DbAnalysisResultV1._display_format(
-                    value.std_dev ** 2)
+                result_data["variance"] = DbAnalysisResultV1._display_format(value.std_dev**2)
             if "unit" in extra:
                 result_data["unit"] = extra["unit"]
         else:
@@ -215,14 +216,18 @@ class DbAnalysisResultV1(DbAnalysisResult):
                 attempts += 1
                 if is_new:
                     try:
-                        self.service.create_analysis_result(self._data, json_encoder=self._json_encoder)
+                        self.service.create_analysis_result(
+                            self._data, json_encoder=self._json_encoder
+                        )
                         success = True
                         self._created_in_db = True
                     except IBMExperimentEntryExists:
                         is_new = False
                 else:
                     try:
-                        self.service.update_analysis_result(self._data, json_encoder=self._json_encoder)
+                        self.service.update_analysis_result(
+                            self._data, json_encoder=self._json_encoder
+                        )
                         success = True
                     except IBMExperimentEntryNotFound:
                         is_new = True
@@ -265,12 +270,12 @@ class DbAnalysisResultV1(DbAnalysisResult):
         Returns:
             Analysis result value.
         """
-        return self._data.result_data['_value']
+        return self._data.result_data["_value"]
 
     @value.setter
     def value(self, new_value: Any) -> None:
         """Set the analysis result value."""
-        self._data.result_data['_value'] = new_value
+        self._data.result_data["_value"] = new_value
         if self.auto_save:
             self.save()
 
@@ -428,8 +433,8 @@ class DbAnalysisResultV1(DbAnalysisResult):
     @property
     def source(self) -> Dict:
         """Return the class name and version."""
-        if '_source' in self._data.result_data:
-            return self._data.result_data['_source']
+        if "_source" in self._data.result_data:
+            return self._data.result_data["_source"]
         return None
 
     @property

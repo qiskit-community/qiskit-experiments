@@ -204,5 +204,6 @@ class TestDeviceComponent(QiskitExperimentsTestCase):
         self.assertIsInstance(r1, Resonator)
         self.assertEqual("R1", str(r1))
 
+
 if __name__ == "__main__":
     unittest.main()

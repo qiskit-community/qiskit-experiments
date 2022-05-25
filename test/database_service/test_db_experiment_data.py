@@ -48,6 +48,7 @@ from qiskit_experiments.database_service.db_experiment_data import (
 from qiskit_experiments.framework.matplotlib import get_non_gui_ax
 from qiskit_ibm_experiment import IBMExperimentService
 
+
 class TestDbExperimentData(QiskitExperimentsTestCase):
     """Test the DbExperimentData class."""
 
@@ -75,7 +76,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         self.assertEqual(exp_data.experiment_type, "qiskit_test")
         self.assertEqual(exp_data.experiment_id, "1234")
         self.assertEqual(exp_data.tags, ["tag1", "tag2"])
-        self.assertEqual(exp_data.metadata['foo'], "bar")
+        self.assertEqual(exp_data.metadata["foo"], "bar")
         for key, val in attrs.items():
             self.assertEqual(getattr(exp_data, key), val)
 
@@ -268,7 +269,9 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
 
         for name, figure, figure_name in sub_tests:
             with self.subTest(name=name):
-                exp_data = DbExperimentData.from_values(backend=self.backend, experiment_type="qiskit_test")
+                exp_data = DbExperimentData.from_values(
+                    backend=self.backend, experiment_type="qiskit_test"
+                )
                 fn = exp_data.add_figures(figure, figure_name)
                 self.assertEqual(hello_bytes, exp_data.figure(fn))
 
@@ -278,7 +281,9 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         ax.plot([1, 2, 3])
 
         service = self._set_mock_service()
-        exp_data = DbExperimentData.from_values(backend=self.backend, experiment_type="qiskit_test", service=service)
+        exp_data = DbExperimentData.from_values(
+            backend=self.backend, experiment_type="qiskit_test", service=service
+        )
         exp_data.add_figures(figure, save_figure=True)
         self.assertEqual(figure, exp_data.figure(0))
         service.create_or_update_figure.assert_called_once()
@@ -302,7 +307,9 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
 
         for name, figures, figure_names in sub_tests:
             with self.subTest(name=name):
-                exp_data = DbExperimentData.from_values(backend=self.backend, experiment_type="qiskit_test")
+                exp_data = DbExperimentData.from_values(
+                    backend=self.backend, experiment_type="qiskit_test"
+                )
                 added_names = exp_data.add_figures(figures, figure_names)
                 for idx, added_fn in enumerate(added_names):
                     self.assertEqual(hello_bytes[idx], exp_data.figure(added_fn))
@@ -324,7 +331,9 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         """Test saving a figure in the database."""
         hello_bytes = str.encode("hello world")
         service = self._set_mock_service()
-        exp_data = DbExperimentData.from_values(backend=self.backend, experiment_type="qiskit_test", service=service)
+        exp_data = DbExperimentData.from_values(
+            backend=self.backend, experiment_type="qiskit_test", service=service
+        )
         exp_data.add_figures(hello_bytes, save_figure=True)
         service.create_or_update_figure.assert_called_once()
         _, kwargs = service.create_or_update_figure.call_args
@@ -485,7 +494,9 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
     def test_auto_save(self):
         """Test auto save."""
         service = self._set_mock_service()
-        exp_data = DbExperimentData.from_values(backend=self.backend, experiment_type="qiskit_test", service=service)
+        exp_data = DbExperimentData.from_values(
+            backend=self.backend, experiment_type="qiskit_test", service=service
+        )
         exp_data.auto_save = True
         mock_result = mock.MagicMock()
 
@@ -1017,6 +1028,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         mock_service = mock.create_autospec(IBMExperimentService, instance=True)
         mock_provider.service.return_value = mock_service
         return mock_service
+
 
 if __name__ == "__main__":
     unittest.main()

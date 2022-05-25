@@ -46,7 +46,10 @@ class TestExperimentDataIntegration(QiskitTestCase):
         # pylint: disable=arguments-differ
         super().setUpClass()
         cls.provider = cls._setup_provider()  # pylint: disable=no-value-for-parameter
-        cls.service = IBMExperimentService(url=os.getenv("QISKIT_IBM_STAGING_API_URL"), token=os.getenv("QISKIT_IBM_STAGING_API_TOKEN"))
+        cls.service = IBMExperimentService(
+            url=os.getenv("QISKIT_IBM_STAGING_API_URL"),
+            token=os.getenv("QISKIT_IBM_STAGING_API_TOKEN"),
+        )
 
         cls.backend = cls._setup_backend()  # pylint: disable=no-value-for-parameter
         cls.device_components = cls.service.device_components(cls.backend.name())
@@ -94,7 +97,9 @@ class TestExperimentDataIntegration(QiskitTestCase):
 
     def test_add_data_job(self):
         """Test add job to experiment data."""
-        exp_data = DbExperimentData.from_values(backend=self.backend, experiment_type="qiskit_test", service=self.service)
+        exp_data = DbExperimentData.from_values(
+            backend=self.backend, experiment_type="qiskit_test", service=self.service
+        )
         transpiled = transpile(ReferenceCircuits.bell(), self.backend)
         transpiled.metadata = {"foo": "bar"}
         job = self._run_circuit(transpiled)
@@ -174,7 +179,7 @@ class TestExperimentDataIntegration(QiskitTestCase):
             quality=ResultQuality.GOOD,
             verified=True,
             tags=["foo", "bar"],
-            service=self.service
+            service=self.service,
         )
         exp_data.add_analysis_results(aresult)
         exp_data.save()
@@ -465,7 +470,9 @@ class TestExperimentDataIntegration(QiskitTestCase):
 
     def test_block_for_results(self):
         """Test blocking for jobs"""
-        exp_data = DbExperimentData.from_values(backend=self.backend, experiment_type="qiskit_test", service=self.service)
+        exp_data = DbExperimentData.from_values(
+            backend=self.backend, experiment_type="qiskit_test", service=self.service
+        )
         jobs = []
         for _ in range(2):
             job = self._run_circuit()
@@ -477,7 +484,9 @@ class TestExperimentDataIntegration(QiskitTestCase):
 
     def _create_experiment_data(self):
         """Create an experiment data."""
-        exp_data = DbExperimentData.from_values(backend=self.backend, experiment_type="qiskit_test", verbose=False, service=self.service)
+        exp_data = DbExperimentData.from_values(
+            backend=self.backend, experiment_type="qiskit_test", verbose=False, service=self.service
+        )
         exp_data.save()
         self.services_to_delete.append(exp_data.experiment_id)
         return exp_data
@@ -502,6 +511,7 @@ class TestExperimentDataIntegration(QiskitTestCase):
         job = self.backend.run(circuit, shots=1)
         self.jobs_to_cancel.append(job)
         return job
+
 
 if __name__ == "__main__":
     unittest.main()
