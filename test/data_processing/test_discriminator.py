@@ -40,6 +40,7 @@ class TestDiscriminator(QiskitExperimentsTestCase):
 
             lda = LDA(sk_lda)
 
+            self.assertTrue(lda.is_trained())
             self.assertTrue(lda.predict([[1.1, 0]])[0], 1)
 
             def check_lda(lda1, lda2):

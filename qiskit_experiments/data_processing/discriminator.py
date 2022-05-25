@@ -48,6 +48,10 @@ class BaseDiscriminator:
     def config(self) -> Dict[str, Any]:
         """Return the configuration of the discriminator."""
 
+    @abstractmethod
+    def is_trained(self) -> bool:
+        """Return True if this discriminator has been trained on data."""
+
     @classmethod
     def from_config(cls, config: Dict[str, Any]) -> "BaseDiscriminator":
         """Create a discriminator from the configuration."""
@@ -95,6 +99,10 @@ class LDA(BaseDiscriminator):
     def discriminator(self) -> Any:
         """Return then SKLearn object."""
         return self._lda
+
+    def is_trained(self) -> bool:
+        """Return True if the discriminator has been trained on data."""
+        return not getattr(self._lda, "classes_", None) is None
 
     def predict(self, data):
         """Wrap the predict method of the LDA."""
