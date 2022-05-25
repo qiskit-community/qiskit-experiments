@@ -20,6 +20,18 @@ features:
     has been replaced with this dataclass. This entry has been a list of fit values 
     in Python float format with covariance matrix separately stored in ``.extra`` metadata.
     New object provides a better experience for investigating the analysis outcome.
+  - |
+    New curve drawer option ``figure_title`` is added. This allows user to show
+    an arbitrary string in the output figure title. See the example code below
+    to learn how to set the option.
+    
+    .. code-block:: python
+    
+      exp = MyExperiment(...)
+      exp.analysis.drawer.set_options(figure_title="Qubit0")
+    
+    Note that ``.analysis`` should be a subclass of :class:`.BaseCurveAnalysis`.
+
 upgrade:
   - |
     :class:`.SeriesDef` now takes ``.fit_func`` in string rather than callable.

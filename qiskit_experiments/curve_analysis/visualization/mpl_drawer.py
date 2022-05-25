@@ -192,6 +192,13 @@ class MplCurveDrawer(BaseCurveDrawer):
                 all_axes[0].get_shared_y_axes().join(*all_axes)
                 all_axes[0].set_ylim(lim)
 
+        # Add title
+        if self.options.figure_title is not None:
+            self._axis.set_title(
+                label=self.options.figure_title,
+                fontsize=self.options.axis_label_size,
+            )
+
     def _get_axis(self, index: Optional[int] = None) -> Axes:
         """A helper method to get inset axis.
 

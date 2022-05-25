@@ -143,6 +143,7 @@ class BaseCurveDrawer(ABC):
                 color of the curve, and "symbol" is the marker style of the curve for scatter plots.
             default_color (str): String representation of default plot color.
             default_symbol (str): String representation of default plot symbol of scatter plots.
+            figure_title (str): Title of the figure. Defaults to None, i.e. nothing is shown.
         """
         return Options(
             axis=None,
@@ -163,6 +164,7 @@ class BaseCurveDrawer(ABC):
             plot_options={},
             default_color="blue",
             default_symbol="o",
+            figure_title=None,
         )
 
     def set_options(self, **fields):
