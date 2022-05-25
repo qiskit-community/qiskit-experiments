@@ -1021,39 +1021,6 @@ class DbExperimentDataV1(DbExperimentData):
         if not success:
             LOG.error("Unable to save the experiment data:")
 
-        # if not self._backend:
-        #     LOG.warning("Experiment cannot be saved because backend is missing.")
-        #     return
-        #
-        # metadata = copy.deepcopy(self._metadata)
-        # metadata["_source"] = self._source
-        #
-        # update_data = {
-        #     "experiment_id": self._id,
-        #     "metadata": metadata,
-        #     "job_ids": self.job_ids,
-        #     "tags": self.tags,
-        #     "notes": self.notes,
-        # }
-        # new_data = {
-        #     "experiment_type": self._type,
-        #     "backend_name": self._backend.name(),
-        #     "provider": self._provider,
-        # }
-        # if self.share_level:
-        #     update_data["share_level"] = self.share_level
-        # if self.parent_id:
-        #     update_data["parent_id"] = self.parent_id
-        #
-        # self._created_in_db, _ = save_data(
-        #     is_new=(not self._created_in_db),
-        #     new_func=self._service.create_experiment,
-        #     update_func=self._service.update_experiment,
-        #     new_data=new_data,
-        #     update_data=update_data,
-        #     json_encoder=self._json_encoder,
-        # )
-
     def save(self) -> None:
         """Save the experiment data to a database service.
 
