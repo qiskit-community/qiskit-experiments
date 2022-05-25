@@ -354,10 +354,7 @@ class IQPart(DataAction):
         Raises:
             DataProcessorError: When input data is not likely IQ data.
         """
-        self._n_circs = 0
         self._n_shots = 0
-        self._n_slots = 0
-        self._n_iq = 0
 
         # identify shape
         try:
@@ -434,7 +431,7 @@ class ToAbs(IQPart):
         return unp.sqrt(data[..., 0] ** 2 + data[..., 1] ** 2) * self.scale
 
 
-class Discriminator(IQPart):
+class Discriminator(DataAction):
     """A class to discriminate level 1 data, e.g., IQ data, to produce counts.
 
     This node integrates into the data processing chain a serializable discriminator object
@@ -459,12 +456,38 @@ class Discriminator(IQPart):
                 will be slots in the memory.
             validate: If set to False the DataAction will not validate its input.
         """
-        super().__init__(1.0, validate)
+        super().__init__(validate)
         self._discriminator = discriminator
+        self._n_circs = 0
+        self._n_shots = 0
+        self._n_slots = 0
+        self._n_iq = 0
 
     def _format_data(self, data: np.ndarray) -> np.ndarray:
         """Check that there are as many discriminators as there are slots."""
-        data = super()._format_data(data)
+        self._n_shots = 0
+
+        # identify shape
+        try:
+            # level1 single-shot data
+            self._n_circs, self._n_shots, self._n_slots, self._n_iq = data.shape
+        except ValueError:
+            try:
+                # level1 data averaged over shots
+                self._n_circs, self._n_slots, self._n_iq = data.shape
+            except ValueError as ex:
+                raise DataProcessorError(
+                    f"Data given to {self.__class__.__name__} is not likely level1 data."
+                ) from ex
+
+        if self._validate:
+            if data.shape[-1] != 2:
+                raise DataProcessorError(
+                    f"IQ data given to {self.__class__.__name__} must be a multi-dimensional array"
+                    "of dimension [d0, d1, ..., 2] in which the last dimension "
+                    "corresponds to IQ elements."
+                    f"Input data contains element with length {data.shape[-1]} != 2."
+                )
 
         if self._validate:
             if isinstance(self._discriminator, list):
