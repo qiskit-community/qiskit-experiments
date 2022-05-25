@@ -11,7 +11,7 @@
 # that they have been altered from the originals.
 
 """A mock IQ backend for testing."""
-
+import warnings
 from abc import abstractmethod
 from typing import List, Tuple, Dict, Union, Any, Optional
 import numpy as np
@@ -24,7 +24,10 @@ from qiskit.qobj.utils import MeasLevel
 from qiskit_experiments.framework import Options
 from qiskit_experiments.test.utils import FakeJob
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
-from qiskit_experiments.test.mock_iq_helpers import MockIQExperimentHelper, MockIQParallelExperimentHelper
+from qiskit_experiments.test.mock_iq_helpers import (
+    MockIQExperimentHelper,
+    MockIQParallelExperimentHelper,
+)
 
 
 class MockRestlessBackend(FakeOpenPulse2Q):
@@ -218,7 +221,7 @@ class MockIQBackend(FakeOpenPulse2Q):
                     " don't match."
                 )
 
-    def _get_normal_samples_for_shot(self, num_qubits: int) -> np.ndarray:
+    def _get_normal_samples_for_shot(self, qubits: List[int]) -> np.ndarray:
         """
         Produce a list in the size of num_qubits. Each entry value is produced from normal distribution
         with expected value of '0' and standard deviation of self._iq_cluster_width.
@@ -229,7 +232,7 @@ class MockIQBackend(FakeOpenPulse2Q):
             Ndarray: A numpy array with values that were produced from normal distribution.
         """
         widths = self._iq_cluster_width
-        samples = [self._rng.normal(0, widths[qubit], size=1) for qubit in range(num_qubits)]
+        samples = [self._rng.normal(0, widths[qubit], size=1) for qubit in qubits]
         # we squeeze the second dimension because samples is List[qubit_number][0][0\1] = I\Q
         # and we want to change it to be List[qubit_number][0\1]
         return np.squeeze(np.array(samples), axis=1)
@@ -244,7 +247,7 @@ class MockIQBackend(FakeOpenPulse2Q):
         return prob_list
 
     def _draw_iq_shots(
-        self, prob: List[float], shots: int, output_length: int, phase: float = 0.0
+        self, prob: List[float], shots: int, circ_qubits: List[int], phase: float = 0.0
     ) -> List[List[List[Union[float, complex]]]]:
         """
         Produce an IQ shot.
@@ -261,8 +264,8 @@ class MockIQBackend(FakeOpenPulse2Q):
         # Randomize samples
         qubits_iq_rand = [np.nan] * shots
         for shot in range(shots):
-            rand_i = self._get_normal_samples_for_shot(output_length)
-            rand_q = self._get_normal_samples_for_shot(output_length)
+            rand_i = self._get_normal_samples_for_shot(circ_qubits)
+            rand_q = self._get_normal_samples_for_shot(circ_qubits)
             qubits_iq_rand[shot] = np.array([rand_i, rand_q], dtype="float").T
 
         memory = []
@@ -272,7 +275,7 @@ class MockIQBackend(FakeOpenPulse2Q):
         for output_number, number_of_occurrences in enumerate(
             self._rng.multinomial(shots, prob, size=1)[0]
         ):
-            state_str = str(format(output_number, "b").zfill(output_length))
+            state_str = str(format(output_number, "b").zfill(len(circ_qubits)))
             for _ in range(number_of_occurrences):
                 shot_memory = []
                 # the iteration on the string variable state_str starts from the MSB. For readability,
@@ -330,8 +333,10 @@ class MockIQBackend(FakeOpenPulse2Q):
                 counts[result_in_str] = num_occurrences
             run_result["counts"] = counts
         else:
-            phase = self.experiment_helper.iq_phase(circuit)
-            memory = self._draw_iq_shots(prob_arr, shots, output_length, phase)
+            # TODO: fix the phase
+            phase = self.experiment_helper.iq_phase([circuit])[0]
+            # 'circ_qubits' get a list of all the qubits
+            memory = self._draw_iq_shots(prob_arr, shots, [_ for _ in range(output_length)], phase)
             if meas_return == "avg":
                 memory = np.average(np.array(memory), axis=0).tolist()
 
@@ -389,7 +394,7 @@ class MockIQBackend(FakeOpenPulse2Q):
 class MockIQParallelBackend(MockIQBackend):
     """"""
 
-    #TODO: change the following __init__
+    # TODO: change the following __init__
     def __init__(
         self,
         experiment_helper: MockIQParallelExperimentHelper,
@@ -400,8 +405,8 @@ class MockIQParallelBackend(MockIQBackend):
         """
         Initialize the backend.
         Args:
-            experiment_helper(MockIQExperimentHelper): Experiment helper class that contains
-            'compute_probabilities' function and 'iq_phase' function for the backend to execute.
+            experiment_helper(MockIQExperimentHelper): Parallel experiment helper class that contains
+            helper classes for each experiment.
             rng_seed(int): The random seed value.
             iq_cluster_centers(Optional[List]): A list of tuples containing the clusters' centers in the
             IQ plane.
@@ -409,16 +414,19 @@ class MockIQParallelBackend(MockIQBackend):
             iq_cluster_width(Optional[List]): A list of standard deviation values for the sampling of
             each qubit.
         """
-        
+
         # self._iq_cluster_centers = iq_cluster_centers or [((-1.0, -1.0), (1.0, 1.0))]
         # self._iq_cluster_width = iq_cluster_width or [1.0] * len(self._iq_cluster_centers)
         # self.experiment_helper = experiment_helper
         # self._rng = np.random.default_rng(rng_seed)
         super().__init__(experiment_helper, rng_seed, iq_cluster_centers, iq_cluster_width)
 
-
-    def _draw_iq_shots2(
-        self, list_exp_dict: List[Dict[str, Union[List, int]]], shots: int, output_length: int, circ_idx: int, phase: float = 0.0
+    def _parallel_draw_iq_shots(
+        self,
+        list_exp_dict: List[Dict[str, Union[List, int]]],
+        shots: int,
+        circ_qubits: List[int],
+        circ_idx: int,
     ) -> List[List[List[Union[float, complex]]]]:
         """
         Produce an IQ shot.
@@ -426,8 +434,7 @@ class MockIQParallelBackend(MockIQBackend):
             list_exp_dict(list): A list of
             shots(int): The number of times the circuit will run.
             output_length(int): The number of qubits in the circuit.
-            circ_idx(int):
-            phase(float):
+            circ_idx(int): The circuit index.
 
         Returns:
             List[List[Tuple[float, float]]]: A list of shots. Each shot consists of a list of qubits.
@@ -441,82 +448,55 @@ class MockIQParallelBackend(MockIQBackend):
         # Randomize samples
         qubits_iq_rand = [np.nan] * shots
         for shot in range(shots):
-            rand_i = self._get_normal_samples_for_shot(output_length)
-            rand_q = self._get_normal_samples_for_shot(output_length)
+            rand_i = self._get_normal_samples_for_shot(circ_qubits)
+            rand_q = self._get_normal_samples_for_shot(circ_qubits)
             qubits_iq_rand[shot] = np.array([rand_i, rand_q], dtype="float").T
 
-        memory = [[0] * output_length for _ in range(shots)]
-        shot_num = 0
+        memory = [[] for _ in range(shots)]
         iq_centers = self._iq_cluster_centers
 
-        for exp_idx, exp_dict in enumerate(list_exp_dict):
+        for exp_dict in list_exp_dict:
             # skipping experiments that don't need data generation for this circuit.
             if exp_dict["num_circuits"] <= circ_idx:
                 continue
 
-            child_experiment_len = len(exp_dict["physical_qubits"])
-            prob = self._probability_dict_to_probability_array(exp_dict["prob"][circ_idx], child_experiment_len)
+            qubits = list(exp_dict["physical_qubits"])
+            prob = self._probability_dict_to_probability_array(
+                exp_dict["prob"][circ_idx], len(qubits)
+            )
+            phase = exp_dict["phase"][circ_idx]
+            shot_num = 0
 
-            for output_number, number_of_occurrences in enumerate(self._rng.multinomial(shots, prob, size=1)[0]):
-                state_str = str(format(output_number, "b").zfill(child_experiment_len))
+            for output_number, number_of_occurrences in enumerate(
+                self._rng.multinomial(shots, prob, size=1)[0]
+            ):
+                state_str = str(format(output_number, "b").zfill(len(qubits)))
                 for _ in range(number_of_occurrences):
                     # the iteration on the string variable state_str starts from the MSB. For readability,
                     # we will reverse the string so the loop will run from the LSB to MSB.
-                    for iq_center, qubit_iq_rand_sample, char_qubit in zip(
-                            iq_centers, qubits_iq_rand[shot_num], state_str[::-1]
-                    ):
+                    for qubit_idx, char_qubit in zip(qubits, state_str[::-1]):
 
+                        i_center = iq_centers[qubit_idx][int(char_qubit)][0]
+                        q_center = iq_centers[qubit_idx][int(char_qubit)][1]
 
+                        point_i = i_center + qubits_iq_rand[shot_num][qubit_idx][0]
+                        point_q = q_center + qubits_iq_rand[shot_num][qubit_idx][1]
 
+                        # Adding phase if not 0.0
+                        if not np.allclose(phase, 0.0):
+                            complex_iq = (point_i + 1.0j * point_q) * np.exp(1.0j * phase)
+                            point_i, point_q = np.real(complex_iq), np.imag(complex_iq)
 
-
-
-
-                for qubit_idx in exp_dict["physical_qubits"]:
-
-
-                    # The structure of iq_centers is [qubit_number][logic_result][I/Q].
-                    i_center = iq_centers[qubit_idx][0]
-                    q_center = iq_centers[qubit_idx][1]
-
-                    point_i = i_center + qubit_iq_rand_sample[0]
-                    point_q = q_center + qubit_iq_rand_sample[1]
-
+                        memory[shot_num].append([point_i, point_q])
+                    shot_num += 1
 
         return memory
 
-    def _generate_classified_data(
-            self, list_exp_dict: List[Dict[str, Union[List, int]]], circuit: QuantumCircuit, circ_idx: int):
-
-        circ_num = circ_idx + 1
-        for exp_dict in list_exp_dict:
-            if exp_dict["circuit_length"] < circ_num:
-                counts = {}
-                shots = self.options.get("shots")
-                prob_arr = self._probability_dict_to_probability_array(exp_dict["prob"][circ_idx]["0"], len(exp_dict["physical_qubits"]))
-                results = self._rng.multinomial(shots, prob_arr, size=1)[0]
-                for result, num_occurrences in enumerate(results):
-                    result_in_str = str(format(result, "b").zfill(output_length))
-                    counts[result_in_str] = num_occurrences
-                run_result["counts"] = counts
-
-    def _generate_kerneled_data(
-            self, list_exp_dict: List[Dict[str, Union[List, int]]], circuit: QuantumCircuit, circ_idx: int):
-
-        circ_num = circ_idx + 1
-        for exp_dict in list_exp_dict:
-            if exp_dict["circuit_length"] < circ_num:
-                counts = {}
-                shots = self.options.get("shots")
-                prob_arr = self._probability_dict_to_probability_array(exp_dict["prob"][circ_idx]["0"], len(exp_dict["physical_qubits"]))
-                results = self._rng.multinomial(shots, prob_arr, size=1)[0]
-                for result, num_occurrences in enumerate(results):
-                    result_in_str = str(format(result, "b").zfill(output_length))
-                    counts[result_in_str] = num_occurrences
-                run_result["counts"] = counts
-
-    def _generate_data2(
-        self, list_exp_dict: List[Dict[str, Union[List, int]]], circuit: QuantumCircuit, circ_idx: int
+    def _parallel_generate_data(
+        self,
+        list_exp_dict: List[Dict[str, Union[List, int]]],
+        circuit: QuantumCircuit,
+        circ_idx: int,
     ) -> Dict[str, Any]:
         """
         Generate data for the circuit.
@@ -530,28 +510,27 @@ class MockIQParallelBackend(MockIQBackend):
         """
         # The output is proportional to the number of classical bit.
         output_length = int(np.sum([creg.size for creg in circuit.cregs]))
-        self._verify_parameters(output_length, prob_dict)
+
+        circ_qubit_list = []
+        for exp_dict in list_exp_dict:
+            if circ_idx < exp_dict["num_circuits"]:
+                circ_qubit_list = circ_qubit_list + [_ for _ in exp_dict["physical_qubits"]]
+
+
         shots = self.options.get("shots")
         meas_level = self.options.get("meas_level")
         meas_return = self.options.get("meas_return")
         run_result = {}
 
-        if meas_level == MeasLevel.CLASSIFIED:
-            counts = {}
-            #TODO: Change here
-            results = self._rng.multinomial(shots, prob_arr, size=1)[0]
-            for result, num_occurrences in enumerate(results):
-                result_in_str = str(format(result, "b").zfill(output_length))
-                counts[result_in_str] = num_occurrences
-            run_result["counts"] = counts
-        else:
-            phase = self.experiment_helper.iq_phase(circuit)
-            # memory = self._draw_iq_shots(prob_arr, shots, output_length, phase)
-            memory = self._draw_iq_shots2(list_exp_dict, shots, circ_idx, output_length, phase)
+        if meas_level == MeasLevel.KERNELED:
+            memory = self._parallel_draw_iq_shots(list_exp_dict, shots, circ_qubit_list, circ_idx)
             if meas_return == "avg":
                 memory = np.average(np.array(memory), axis=0).tolist()
 
             run_result["memory"] = memory
+        else:
+            warnings.warn("Classified data generator isn't supported for this backend")
+            run_result["counts"] = []
         return run_result
 
     def run(self, run_input: List[QuantumCircuit], **options) -> FakeJob:
@@ -600,7 +579,7 @@ class MockIQParallelBackend(MockIQBackend):
                 "meas_level": meas_level,
             }
 
-            run_result["data"] = self._generate_data2(experiment_data_list, circ, circ_idx)
+            run_result["data"] = self._parallel_generate_data(experiment_data_list, circ, circ_idx)
             result["results"].append(run_result)
 
         return FakeJob(self, Result.from_dict(result))

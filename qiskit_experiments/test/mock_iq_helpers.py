@@ -90,13 +90,13 @@ class MockIQExperimentHelper:
         """
 
     # pylint: disable=unused-argument
-    def iq_phase(self, circuit: QuantumCircuit) -> float:
+    def iq_phase(self, circuits: List[QuantumCircuit]) -> List[float]:
         """Sub-classes can override this method to introduce a phase in the IQ plan.
 
         This is needed, to test the resonator spectroscopy where the point in the IQ
         plan has a frequency-dependent phase rotation.
         """
-        return 0.0
+        return [0.0] * len(circuits)
 
 
 class MockIQParallelExperimentHelper(MockIQExperimentHelper):
@@ -122,24 +122,6 @@ class MockIQParallelExperimentHelper(MockIQExperimentHelper):
         self._exp_helper_list = exp_helper_list
         self._exp_list = exp_list
 
-    # TODO: Change this function
-    @staticmethod
-    def compute_probabilities_output(prob_list_output: List[Dict]) -> Dict[str, float]:
-        """
-        A function to compute the probability for parallel experiment on two qubits.
-        Args:
-            prob_list_output(List[Dict]): List of probability dictionaries.
-
-        Returns:
-            Dict: A dictionary for output strings and their probability.
-        """
-        output_dict = {}
-        for i in range(2):
-            for j in range(2):
-                output_str = str(i) + str(j)
-                output_dict[output_str] = prob_list_output[0][str(i)] * prob_list_output[1][str(j)]
-        return output_dict
-
     def compute_probabilities(self, circuits: List[QuantumCircuit]) -> List[Dict[str, Union[float, List, int]]]:
         """
         Run the compute_probabilities for each helper
@@ -154,7 +136,7 @@ class MockIQParallelExperimentHelper(MockIQExperimentHelper):
         if number_of_experiments == 0 or self._exp_helper_list is None:
             raise ValueError("The experiment helper list cannot be empty.")
 
-        prob_help_list = [] * number_of_experiments
+        prob_help_list = [{} for _ in range(number_of_experiments)]
         for exp_helper, experiment, idx in zip(
             self._exp_helper_list, self._exp_list, range(number_of_experiments)
         ):
@@ -162,6 +144,7 @@ class MockIQParallelExperimentHelper(MockIQExperimentHelper):
             prob_help_list[idx] = {
                 "physical_qubits": experiment.physical_qubits,
                 "prob": exp_helper.compute_probabilities(exp_circuits),
+                "phase": exp_helper.iq_phase(exp_circuits),
                 "num_circuits": len(exp_circuits),
             }
 
@@ -433,6 +416,21 @@ class MockIQSpectroscopyHelper(MockIQExperimentHelper):
             probability_output_dict["0"] = 1 - probability_output_dict["1"]
             output_dict_list.append(probability_output_dict)
         return output_dict_list
+
+    def iq_phase(self, circuits: List[QuantumCircuit]) -> List[float]:
+        """Add a phase to the IQ point depending on how far we are from the resonance.
+        This will cause the IQ points to rotate around in the IQ plane when we approach the
+        resonance which introduces and extra complication that the data processor needs to
+        properly handle.
+        """
+        delta_freq_list = [0.0] * len(circuits)
+        if self.gate_name == "measure":
+
+            for circ_idx, circ in enumerate(circuits):
+                freq_shift = next(iter(circ.calibrations["measure"].values())).blocks[0].frequency
+                delta_freq_list[circ_idx] = freq_shift - self.freq_offset
+        phase = [delta_freq / self.line_width for delta_freq in delta_freq_list]
+        return phase
 
 
 class MockIQReadoutAngleHelper(MockIQExperimentHelper):
