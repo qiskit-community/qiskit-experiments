@@ -16,7 +16,7 @@ from abc import abstractmethod
 from abc import ABC
 from enum import Enum
 from numbers import Number
-from typing import Any, List, Union, Sequence, Set
+from typing import List, Union, Sequence, Set
 from collections import defaultdict
 
 import numpy as np
@@ -471,14 +471,11 @@ class Discriminator(DataAction):
         try:
             # level1 single-shot data
             self._n_circs, self._n_shots, self._n_slots, self._n_iq = data.shape
-        except ValueError:
-            try:
-                # level1 data averaged over shots
-                self._n_circs, self._n_slots, self._n_iq = data.shape
-            except ValueError as ex:
-                raise DataProcessorError(
-                    f"Data given to {self.__class__.__name__} is not likely level1 data."
-                ) from ex
+        except ValueError as ex:
+            raise DataProcessorError(
+                f"The data given to {self.__class__.__name__} does not have the shape of "
+                "single-shot IQ data; expecting a 4D array."
+            ) from ex
 
         if self._validate:
             if data.shape[-1] != 2:
@@ -523,36 +520,21 @@ class Discriminator(DataAction):
 
         # case where a discriminator is applied to each slot.
         else:
-            if self._n_shots == 0:
-                classified = np.empty((self._n_circs, self._n_slots), dtype=str)
-                for idx, discriminator in enumerate(self._discriminator):
-                    sub_data = data[:, idx, :].reshape((self._n_circs, 2))
-                    sub_classified = discriminator.predict(sub_data)
-                    classified[:, idx] = sub_classified
-
-            else:
-                classified = np.empty((self._n_circs, self._n_shots, self._n_slots), dtype=str)
-                for idx, discriminator in enumerate(self._discriminator):
-                    sub_data = data[:, :, idx, :].reshape((self._n_circs * self._n_shots, 2))
-                    sub_classified = np.array(discriminator.predict(sub_data))
-                    sub_classified = sub_classified.reshape((self._n_circs, self._n_shots))
-                    classified[:, :, idx] = sub_classified
+            classified = np.empty((self._n_circs, self._n_shots, self._n_slots), dtype=str)
+            for idx, discriminator in enumerate(self._discriminator):
+                sub_data = data[:, :, idx, :].reshape((self._n_circs * self._n_shots, 2))
+                sub_classified = np.array(discriminator.predict(sub_data))
+                sub_classified = sub_classified.reshape((self._n_circs, self._n_shots))
+                classified[:, :, idx] = sub_classified
 
         # Concatenate the bit-strings together.
-        # Averaged data
-        if self._n_shots == 0:
-            # ::-1 for Qiskit's convention, e.g. in "001" qubit 0 is in state "1".
-            labeled_data = ["".join(classified[idx, :][::-1]) for idx in range(self._n_circs)]
-            return np.array(labeled_data).reshape((self._n_circs, 1))
-        # Single-shot data
-        else:
-            labeled_data = []
-            for idx in range(self._n_circs):
-                labeled_data.append(
-                    ["".join(classified[idx, jdx, :][::-1]) for jdx in range(self._n_shots)]
-                )
+        labeled_data = []
+        for idx in range(self._n_circs):
+            labeled_data.append(
+                ["".join(classified[idx, jdx, :][::-1]) for jdx in range(self._n_shots)]
+            )
 
-            return np.array(labeled_data).reshape((self._n_circs, self._n_shots))
+        return np.array(labeled_data).reshape((self._n_circs, self._n_shots))
 
 
 class MemoryToCounts(DataAction):
