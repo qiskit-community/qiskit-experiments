@@ -11,7 +11,6 @@
 # that they have been altered from the originals.
 
 """A mock IQ backend for testing."""
-import warnings
 from abc import abstractmethod
 from typing import List, Tuple, Dict, Union, Any, Optional
 import numpy as np
@@ -337,7 +336,7 @@ class MockIQBackend(FakeOpenPulse2Q):
             # Phase has meaning only for IQ shot, so we calculate it here
             phase = self.experiment_helper.iq_phase([circuit])[0]
             # 'circ_qubits' get a list of all the qubits
-            memory = self._draw_iq_shots(prob_arr, shots, [_ for _ in range(output_length)], phase)
+            memory = self._draw_iq_shots(prob_arr, shots, list(range(output_length)), phase)
             if meas_return == "avg":
                 memory = np.average(np.array(memory), axis=0).tolist()
 
@@ -394,7 +393,6 @@ class MockIQBackend(FakeOpenPulse2Q):
 
 class MockIQParallelBackend(MockIQBackend):
     """A mock backend for testing parallel experiments with IQ data."""
-
 
     def __init__(
         self,
@@ -473,15 +471,21 @@ class MockIQParallelBackend(MockIQBackend):
                 for _ in range(number_of_occurrences):
                     # the iteration on the string variable state_str starts from the MSB. For
                     # readability, we will reverse the string so the loop will run from the LSB to MSB.
-                    for qubit_idx, qubit, char_qubit in zip(range(len(qubits)), qubits, state_str[::-1]):
+                    for qubit_idx, qubit, char_qubit in zip(
+                        range(len(qubits)), qubits, state_str[::-1]
+                    ):
 
                         i_center = iq_centers[qubit][int(char_qubit)][0]
                         q_center = iq_centers[qubit][int(char_qubit)][1]
 
                         # we use 'sample_idx_shift' to take the sample corresponding to the current qubit
                         # in 'qubits_iq_rand[shot_num]'.
-                        point_i = i_center + qubits_iq_rand[shot_num][qubit_idx+sample_idx_shift][0]
-                        point_q = q_center + qubits_iq_rand[shot_num][qubit_idx+sample_idx_shift][1]
+                        point_i = (
+                            i_center + qubits_iq_rand[shot_num][qubit_idx + sample_idx_shift][0]
+                        )
+                        point_q = (
+                            q_center + qubits_iq_rand[shot_num][qubit_idx + sample_idx_shift][1]
+                        )
 
                         # Adding phase if not 0.0
                         if not np.allclose(phase, 0.0):
@@ -497,23 +501,25 @@ class MockIQParallelBackend(MockIQBackend):
     def _parallel_generate_data(
         self,
         list_exp_dict: List[Dict[str, Union[List, int]]],
-        circuit: QuantumCircuit,
         circ_idx: int,
     ) -> Dict[str, Any]:
         """
         Generate data for the circuit.
         Args:
-            list_exp_dict(List): A List of dictionaries, each dictionary contains data of an experiment.
-            circuit(QuantumCircuit): The circuit that needs to be simulated.
-            circ_idx(int): The circuit number we simulate.
+            list_exp_dict (List): A List of dictionaries, each dictionary contains data of an experiment.
+            circ_idx (int): The circuit number we simulate.
+
         Returns:
             A dictionary that's filled with the simulated data. The output format is different between
             measurement level 1 and measurement level 2.
+
+        Raises:
+            QiskitError: if 'meas_level = MeasLevel.CLASSIFIED'.
         """
         circ_qubit_list = []
         for exp_dict in list_exp_dict:
             if circ_idx < exp_dict["num_circuits"]:
-                circ_qubit_list = circ_qubit_list + [_ for _ in exp_dict["physical_qubits"]]
+                circ_qubit_list = circ_qubit_list + list(exp_dict["physical_qubits"])
 
         shots = self.options.get("shots")
         meas_level = self.options.get("meas_level")
@@ -575,7 +581,7 @@ class MockIQParallelBackend(MockIQBackend):
                 "meas_level": meas_level,
             }
 
-            run_result["data"] = self._parallel_generate_data(experiment_data_list, circ, circ_idx)
+            run_result["data"] = self._parallel_generate_data(experiment_data_list, circ_idx)
             result["results"].append(run_result)
 
         return FakeJob(self, Result.from_dict(result))
