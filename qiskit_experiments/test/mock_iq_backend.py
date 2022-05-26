@@ -254,8 +254,8 @@ class MockIQBackend(FakeOpenPulse2Q):
         Args:
             prob(List): A list of probabilities for each output.
             shots(int): The number of times the circuit will run.
-            output_length(int): The number of qubits in the circuit.
-
+            circ_qubits(List[int]): The number of qubits in the circuit.
+            phase(float): The added phase needed to apply to the shot data.
         Returns:
             List[List[Tuple[float, float]]]: A list of shots. Each shot consists of a list of qubits.
             The qubits are tuples with two values [I,Q].
