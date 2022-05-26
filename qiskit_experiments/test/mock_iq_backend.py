@@ -21,6 +21,7 @@ from qiskit.result import Result
 from qiskit.test.mock import FakeOpenPulse2Q
 
 from qiskit.qobj.utils import MeasLevel
+from qiskit_experiments.exceptions import QiskitError
 from qiskit_experiments.framework import Options
 from qiskit_experiments.test.utils import FakeJob
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
@@ -333,7 +334,7 @@ class MockIQBackend(FakeOpenPulse2Q):
                 counts[result_in_str] = num_occurrences
             run_result["counts"] = counts
         else:
-            # TODO: fix the phase
+            # Phase has meaning only for IQ shot, so we calculate it here
             phase = self.experiment_helper.iq_phase([circuit])[0]
             # 'circ_qubits' get a list of all the qubits
             memory = self._draw_iq_shots(prob_arr, shots, [_ for _ in range(output_length)], phase)
@@ -392,9 +393,9 @@ class MockIQBackend(FakeOpenPulse2Q):
 
 
 class MockIQParallelBackend(MockIQBackend):
-    """"""
+    """A mock backend for testing parallel experiments with IQ data."""
 
-    # TODO: change the following __init__
+
     def __init__(
         self,
         experiment_helper: MockIQParallelExperimentHelper,
@@ -414,11 +415,6 @@ class MockIQParallelBackend(MockIQBackend):
             iq_cluster_width(Optional[List]): A list of standard deviation values for the sampling of
             each qubit.
         """
-
-        # self._iq_cluster_centers = iq_cluster_centers or [((-1.0, -1.0), (1.0, 1.0))]
-        # self._iq_cluster_width = iq_cluster_width or [1.0] * len(self._iq_cluster_centers)
-        # self.experiment_helper = experiment_helper
-        # self._rng = np.random.default_rng(rng_seed)
         super().__init__(experiment_helper, rng_seed, iq_cluster_centers, iq_cluster_width)
 
     def _parallel_draw_iq_shots(
@@ -433,17 +429,13 @@ class MockIQParallelBackend(MockIQBackend):
         Args:
             list_exp_dict(list): A list of
             shots(int): The number of times the circuit will run.
-            output_length(int): The number of qubits in the circuit.
+            circ_qubits(List[int]): List of qubits that are used in this circuit.
             circ_idx(int): The circuit index.
 
         Returns:
             List[List[Tuple[float, float]]]: A list of shots. Each shot consists of a list of qubits.
             The qubits are tuples with two values [I,Q].
             The output structure is  - List[shot index][qubit index] = [I,Q]
-
-
-        Args:
-            prob(List): A list of probabilities for each output.
         """
         # Randomize samples
         qubits_iq_rand = [np.nan] * shots
@@ -455,6 +447,13 @@ class MockIQParallelBackend(MockIQBackend):
         memory = [[] for _ in range(shots)]
         iq_centers = self._iq_cluster_centers
 
+        # The use of idx_shift is to sample 'qubits_iq_rand' correctly
+        sample_idx_shift = 0
+
+        # The code generate data as following:
+        # for each experiment, it firstly checks if it needs to generate data for it. If it does, the
+        # multinomial probability function draw lots for all the shots, and we store it in the
+        # corresponding place in the output list. After that we move on to the next experiment.
         for exp_dict in list_exp_dict:
             # skipping experiments that don't need data generation for this circuit.
             if exp_dict["num_circuits"] <= circ_idx:
@@ -472,15 +471,17 @@ class MockIQParallelBackend(MockIQBackend):
             ):
                 state_str = str(format(output_number, "b").zfill(len(qubits)))
                 for _ in range(number_of_occurrences):
-                    # the iteration on the string variable state_str starts from the MSB. For readability,
-                    # we will reverse the string so the loop will run from the LSB to MSB.
-                    for qubit_idx, char_qubit in zip(qubits, state_str[::-1]):
+                    # the iteration on the string variable state_str starts from the MSB. For
+                    # readability, we will reverse the string so the loop will run from the LSB to MSB.
+                    for qubit_idx, qubit, char_qubit in zip(range(len(qubits)), qubits, state_str[::-1]):
 
-                        i_center = iq_centers[qubit_idx][int(char_qubit)][0]
-                        q_center = iq_centers[qubit_idx][int(char_qubit)][1]
+                        i_center = iq_centers[qubit][int(char_qubit)][0]
+                        q_center = iq_centers[qubit][int(char_qubit)][1]
 
-                        point_i = i_center + qubits_iq_rand[shot_num][qubit_idx][0]
-                        point_q = q_center + qubits_iq_rand[shot_num][qubit_idx][1]
+                        # we use 'sample_idx_shift' to take the sample corresponding to the current qubit
+                        # in 'qubits_iq_rand[shot_num]'.
+                        point_i = i_center + qubits_iq_rand[shot_num][qubit_idx+sample_idx_shift][0]
+                        point_q = q_center + qubits_iq_rand[shot_num][qubit_idx+sample_idx_shift][1]
 
                         # Adding phase if not 0.0
                         if not np.allclose(phase, 0.0):
@@ -490,6 +491,7 @@ class MockIQParallelBackend(MockIQBackend):
                         memory[shot_num].append([point_i, point_q])
                     shot_num += 1
 
+            sample_idx_shift = sample_idx_shift + len(qubits)
         return memory
 
     def _parallel_generate_data(
@@ -508,14 +510,10 @@ class MockIQParallelBackend(MockIQBackend):
             A dictionary that's filled with the simulated data. The output format is different between
             measurement level 1 and measurement level 2.
         """
-        # The output is proportional to the number of classical bit.
-        output_length = int(np.sum([creg.size for creg in circuit.cregs]))
-
         circ_qubit_list = []
         for exp_dict in list_exp_dict:
             if circ_idx < exp_dict["num_circuits"]:
                 circ_qubit_list = circ_qubit_list + [_ for _ in exp_dict["physical_qubits"]]
-
 
         shots = self.options.get("shots")
         meas_level = self.options.get("meas_level")
@@ -529,8 +527,9 @@ class MockIQParallelBackend(MockIQBackend):
 
             run_result["memory"] = memory
         else:
-            warnings.warn("Classified data generator isn't supported for this backend")
-            run_result["counts"] = []
+            # The backend doesn't currently support 'meas_level = MeasLevel.CLASSIFIED'.
+            raise QiskitError("Classified data generator isn't supported for this backend")
+
         return run_result
 
     def run(self, run_input: List[QuantumCircuit], **options) -> FakeJob:
@@ -557,9 +556,6 @@ class MockIQParallelBackend(MockIQBackend):
         self.options.update_options(**options)
         shots = self.options.get("shots")
         meas_level = self.options.get("meas_level")
-
-        # number of circuits that will be run. We will use it to know
-        # if an experiment was done or not
 
         result = {
             "backend_name": f"{self.__class__.__name__}",
