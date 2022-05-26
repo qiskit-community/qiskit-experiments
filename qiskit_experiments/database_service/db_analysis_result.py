@@ -20,6 +20,11 @@ import traceback
 from typing import Optional, List, Union, Dict, Any
 
 import uncertainties
+
+from qiskit_ibm_experiment import IBMExperimentService, AnalysisResultData
+from qiskit_ibm_experiment import ResultQuality
+from qiskit_ibm_experiment.exceptions import IBMExperimentEntryExists, IBMExperimentEntryNotFound
+
 from qiskit_experiments.framework.json import (
     ExperimentEncoder,
     ExperimentDecoder,
@@ -29,10 +34,7 @@ from qiskit_experiments.framework.json import (
 from .db_fitval import FitVal
 from .device_component import DeviceComponent, to_component
 from .exceptions import DbExperimentDataError
-from .utils import save_data, qiskit_version
-from qiskit_ibm_experiment import IBMExperimentService, AnalysisResultData
-from qiskit_ibm_experiment import ResultQuality
-from qiskit_ibm_experiment.exceptions import IBMExperimentEntryExists, IBMExperimentEntryNotFound
+from .utils import qiskit_version
 
 LOG = logging.getLogger(__name__)
 
@@ -139,7 +141,8 @@ class DbAnalysisResultV1(DbAnalysisResult):
         return cls(data, service)
 
     @classmethod
-    def default_source(cls):
+    def default_source(cls) -> Dict[str, str]:
+        """The default source dictionary to generate"""
         return {
             "class": f"{cls.__module__}.{cls.__name__}",
             "data_version": cls._data_version,
@@ -148,6 +151,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
 
     @staticmethod
     def format_result_data(value, extra, chisq, source):
+        """Formats the result data from the given arguments"""
         if source is None:
             source = DbAnalysisResultV1.default_source()
         result_data = {
@@ -241,17 +245,8 @@ class DbAnalysisResultV1(DbAnalysisResult):
     def copy(self) -> "DbAnalysisResultV1":
         """Return a copy of the result with a new result ID"""
         return DbAnalysisResultV1(
-            name=self.name,
-            value=self.value,
-            device_components=self.device_components,
-            experiment_id=self.experiment_id,
-            chisq=self.chisq,
-            quality=self.quality,
-            extra=self.extra,
-            verified=self.verified,
-            tags=self.tags,
-            service=self.service,
-            source=self.source,
+            data=self._data.copy(),
+            service=self.service
         )
 
     @property
@@ -510,16 +505,16 @@ class DbAnalysisResultV1(DbAnalysisResult):
 
     def __json_encode__(self):
         return {
-            "name": self._name,
-            "value": self._value,
-            "device_components": self._device_components,
-            "experiment_id": self._experiment_id,
-            "result_id": self._id,
-            "chisq": self._chisq,
-            "quality": self._quality,
-            "extra": self._extra,
-            "verified": self._quality_verified,
-            "tags": self._tags,
-            "service": self._service,
-            "source": self._source,
+            "data": {
+                "name": self._data.name,
+                "value": self._data.value,
+                "device_components": self._data.device_components,
+                "experiment_id": self._data.experiment_id,
+                "result_id": self._data.result_id,
+                "chisq": self._data.chisq,
+                "quality": self._data.quality,
+                "extra": self._data.extra,
+                "verified": self._data.verified,
+                "tags": self._data.tags,
+            }
         }
