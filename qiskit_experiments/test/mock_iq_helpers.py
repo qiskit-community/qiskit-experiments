@@ -24,7 +24,9 @@ class MockIQExperimentHelper:
     """Abstract class for the MockIQ helper classes"""
 
     @abstractmethod
-    def compute_probabilities(self, circuits: List[QuantumCircuit]) -> List[Dict[str, Union[float, List, int]]]:
+    def compute_probabilities(
+        self, circuits: List[QuantumCircuit]
+    ) -> List[Dict[str, Union[float, List, int]]]:
         """
         A function provided by the user which is used to determine the probability of each output of the
         circuit. The function returns a list of dictionaries, each containing output binary strings and
@@ -100,7 +102,7 @@ class MockIQExperimentHelper:
 
 
 class MockIQParallelExperimentHelper(MockIQExperimentHelper):
-    """ Helper for Parallel experiment"""
+    """Helper for Parallel experiment"""
 
     def __init__(
         self,
@@ -115,6 +117,9 @@ class MockIQParallelExperimentHelper(MockIQExperimentHelper):
             exp_list(List): List of experiments.
             exp_helper_list(List): Ordered list of `MockIQExperimentHelper` corresponding to the
              experiments in `exp_list`.
+
+        Raises:
+            ValueError: if the number of helpers are not the same as the number of experiments.
         """
 
         if len(exp_list) != len(exp_helper_list):
@@ -122,15 +127,11 @@ class MockIQParallelExperimentHelper(MockIQExperimentHelper):
         self._exp_helper_list = exp_helper_list
         self._exp_list = exp_list
 
-    def compute_probabilities(self, circuits: List[QuantumCircuit]) -> List[Dict[str, Union[float, List, int]]]:
+    def compute_probabilities(
+        self, circuits: List[QuantumCircuit]
+    ) -> List[Dict[str, Union[float, List, int]]]:
         """
         Run the compute_probabilities for each helper
-        Args:
-            circuits:
-
-        Returns:
-            List: A list of dictionaries, each dictionary contains data about qubits, probability and
-            length of the corresponding experiment.
         """
         number_of_experiments = len(self._exp_helper_list)
         if number_of_experiments == 0 or self._exp_helper_list is None:
@@ -148,8 +149,23 @@ class MockIQParallelExperimentHelper(MockIQExperimentHelper):
                 "num_circuits": len(exp_circuits),
             }
 
-        # return self.compute_probabilities_output(prob_help_list)
         return prob_help_list
+
+    @property
+    def exp_helper_list(self):
+        """Get the experiment helper list"""
+        return self._exp_helper_list
+
+    @exp_helper_list.setter
+    def exp_helper_list(self, value: List[MockIQExperimentHelper]):
+        """Set the experiment helper list"""
+        if len(self._exp_list) != len(value):
+            raise ValueError(
+                "The number of helpers {} and the number of experiment {} don't match.".format(
+                    len(value), len(self._exp_list)
+                )
+            )
+        self._exp_helper_list = value
 
 
 class MockIQDragHelper(MockIQExperimentHelper):
