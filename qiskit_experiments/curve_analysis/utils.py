@@ -13,16 +13,22 @@
 """Utils in curve analysis."""
 
 from typing import Union, Optional, List, Dict
+import time
 
+import asteval
 import numpy as np
 from qiskit.utils import detach_prefix
 from uncertainties import UFloat, wrap as wrap_function
+from uncertainties import unumpy
 from lmfit.minimizer import MinimizerResult
 from lmfit.model import Model
 
 from qiskit_experiments.curve_analysis.curve_data import CurveFitResult
 from qiskit_experiments.exceptions import AnalysisError
 from qiskit_experiments.framework import AnalysisResultData
+
+
+UNUMPY_FUNCS = {fn: getattr(unumpy, fn) for fn in unumpy.__all__}
 
 
 def colors10(index: int) -> str:
@@ -231,6 +237,36 @@ def eval_with_uncertainties(
         Y values with uncertainty (uarray).
     """
     sub_params = {name: params[name] for name in model.param_names}
-    wrapfunc = np.vectorize(wrap_function(model.func))
 
+    if hasattr(model, "expr"):
+        # If the model has string expression, we regenerate unumpy fit function.
+        # Note that propagating the error through the function requires computation of
+        # derivatives, which is done by uncertainties.wrap (or perhaps manually).
+        # However, usually computation of derivative is heavy computing overhead,
+        # and it is better to use hard-coded derivative functions if it is known.
+        # The unumpy functions provide such derivatives, and it's much faster.
+        # Here we parse the expression with ASTEVAL, and replace the mapping to
+        # the functions in Python's math or numpy with one in unumpy module.
+        # Benchmarking with RamseyXY experiment with 100 data points,
+        # this yields roughly 60% computation time reduction.
+        interpreter = asteval.Interpreter()
+        astcode = interpreter.parse(model.expr.strip())
+
+        # Replace function with unumpy version
+        interpreter.symtable.update(UNUMPY_FUNCS)
+        # Add parameters
+        interpreter.symtable.update(sub_params)
+        # Add x values
+        interpreter.symtable["x"] = x
+
+        interpreter.start_time = time.time()
+        try:
+            return interpreter.run(astcode)
+        except Exception:  # pylint: disable=broad-except
+            # User provided function does not support ufloats.
+            # Likely using not defined function in unumpy.
+            # This falls into normal derivative computation.
+            pass
+
+    wrapfunc = np.vectorize(wrap_function(model.func))
     return wrapfunc(x=x, **sub_params)
