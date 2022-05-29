@@ -30,7 +30,7 @@ from qiskit_experiments.framework import BaseExperiment, Options
 from qiskit_experiments.framework.restless_mixin import RestlessMixin
 from .rb_analysis import RBAnalysis
 from .clifford_utils import CliffordUtils
-from .fast_rb import create_rb_transpiled_circuits, generate_all_transpiled_clifford_circuits
+from .fast_rb import generate_all_transpiled_clifford_circuits, build_rb_circuits
 
 LOG = logging.getLogger(__name__)
 
@@ -64,7 +64,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
         qubits: Sequence[int],
         lengths: Iterable[int],
         backend: Optional[Backend] = None,
-        num_samples: int = 1,
+        num_samples: int = 10,
         seed: Optional[Union[int, SeedSequence, BitGenerator, Generator]] = None,
         full_sampling: Optional[bool] = False,
     ):
@@ -140,10 +140,12 @@ class StandardRB(BaseExperiment, RestlessMixin):
         start = time.time()
         rng = default_rng(seed=self.experiment_options.seed)
         for _ in range(self.experiment_options.num_samples):
-            circuits = create_rb_transpiled_circuits(self.experiment_options.lengths,
-                                                     self._all_clifford_circuits,rng)
+            circuits = build_rb_circuits(self.experiment_options.lengths,
+                                         self._all_clifford_circuits, rng)
         end = time.time()
         print("time for circuits = " + str(end - start))
+        #for c in circuits:
+            #print(c)
         return circuits
 
     def _sample_circuits(self, lengths: Iterable[int], rng: Generator) -> List[QuantumCircuit]:
