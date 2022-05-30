@@ -198,7 +198,7 @@ class BaseAnalysis(ABC, StoreInitArgs):
             data._experiment_id = experiment_id
             return data
 
-        return DbAnalysisResultV1(
+        return DbAnalysisResultV1.from_values(
             name=data.name,
             value=data.value,
             device_components=device_components,

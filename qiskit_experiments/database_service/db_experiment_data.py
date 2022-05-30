@@ -226,12 +226,13 @@ class DbExperimentDataV1(DbExperimentData):
         project: Optional[str] = None,
         verbose: Optional[bool] = True,
         **kwargs,
-    ) -> DbExperimentDataV1:
+    ) -> "DbExperimentDataV1":
         """Initializes the DbExperimentData instance from the given values.
 
         Args:
             experiment_type: Experiment type.
             backend: Backend the experiment runs on.
+            service: The database service used by the class
             experiment_id: Experiment ID. One will be generated if not supplied.
             parent_id: The experiment ID of the parent experiment.
             tags: Tags to be associated with the experiment.
