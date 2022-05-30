@@ -244,10 +244,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
 
     def copy(self) -> "DbAnalysisResultV1":
         """Return a copy of the result with a new result ID"""
-        return DbAnalysisResultV1(
-            data=self._data.copy(),
-            service=self.service
-        )
+        return DbAnalysisResultV1(data=self._data.copy(), service=self.service)
 
     @property
     def name(self) -> str:

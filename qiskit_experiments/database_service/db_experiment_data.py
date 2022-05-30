@@ -1589,7 +1589,7 @@ class DbExperimentDataV1(DbExperimentData):
         return self._data.metadata
 
     @property
-    def creation_datetime(self) -> datetime:
+    def creation_datetime(self) -> "datetime":
         """Return the creation datetime of this experiment data.
 
         Returns:
@@ -1599,7 +1599,7 @@ class DbExperimentDataV1(DbExperimentData):
         return self._data.creation_datetime
 
     @property
-    def start_datetime(self) -> datetime:
+    def start_datetime(self) -> "datetime":
         """Return the start datetime of this experiment data.
 
         Returns:
@@ -1609,7 +1609,7 @@ class DbExperimentDataV1(DbExperimentData):
         return self._data.end_datetime
 
     @property
-    def updated_datetime(self) -> datetime:
+    def updated_datetime(self) -> "datetime":
         """Return the update datetime of this experiment data.
 
         Returns:
@@ -1619,7 +1619,7 @@ class DbExperimentDataV1(DbExperimentData):
         return self._data.updated_datetime
 
     @property
-    def end_datetime(self) -> datetime:
+    def end_datetime(self) -> "datetime":
         """Return the end datetime of this experiment data.
 
         Returns:
