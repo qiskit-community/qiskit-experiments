@@ -104,7 +104,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
         tags: Optional[List[str]] = None,
         service: Optional[IBMExperimentService] = None,
         source: Optional[Dict[str, str]] = None,
-    ):
+    ) -> DbAnalysisResultV1:
         """AnalysisResult constructor.
 
         Args:
@@ -122,6 +122,8 @@ class DbAnalysisResultV1(DbAnalysisResult):
             service: Experiment service to be used to store result in database.
             source: Class and qiskit version information when loading from an
                 experiment service.
+        Returns:
+            The Analysis result object
         """
         # Data to be stored in DB.
         data = AnalysisResultData(
