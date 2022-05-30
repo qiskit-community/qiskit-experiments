@@ -104,7 +104,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
         tags: Optional[List[str]] = None,
         service: Optional[IBMExperimentService] = None,
         source: Optional[Dict[str, str]] = None,
-    ) -> DbAnalysisResultV1:
+    ) -> "DbAnalysisResultV1":
         """AnalysisResult constructor.
 
         Args:

@@ -24,7 +24,7 @@ from qiskit_experiments.framework.store_init_args import StoreInitArgs
 from qiskit_experiments.framework.experiment_data import ExperimentData
 from qiskit_experiments.framework.configs import AnalysisConfig
 from qiskit_experiments.framework.analysis_result_data import AnalysisResultData
-from qiskit_experiments.framework.analysis_result import AnalysisResult
+from qiskit_experiments.database_service import DbAnalysisResultV1
 
 
 class BaseAnalysis(ABC, StoreInitArgs):
@@ -197,13 +197,13 @@ class BaseAnalysis(ABC, StoreInitArgs):
         elif experiment_components:
             device_components = experiment_components
 
-        if isinstance(data, AnalysisResult):
+        if isinstance(data, DbAnalysisResultV1):
             # Update device components and experiment id
             data.device_components = device_components
             data._experiment_id = experiment_id
             return data
 
-        return AnalysisResult(
+        return DbAnalysisResultV1.from_values(
             name=data.name,
             value=data.value,
             device_components=device_components,

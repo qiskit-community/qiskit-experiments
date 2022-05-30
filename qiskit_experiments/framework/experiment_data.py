@@ -19,9 +19,11 @@ from datetime import datetime
 import warnings
 from qiskit.exceptions import QiskitError
 from qiskit.providers.backend import Backend
+from qiskit_ibm_experiment import IBMExperimentService
+from qiskit_ibm_experiment import ExperimentData as ExperimentDataclass
 from qiskit_experiments.database_service import DbExperimentDataV1 as DbExperimentData
 from qiskit_experiments.database_service.utils import ThreadSafeOrderedDict
-from qiskit_ibm_experiment import IBMExperimentService
+
 
 if TYPE_CHECKING:
     # There is a cyclical dependency here, but the name needs to exist for
@@ -61,13 +63,14 @@ class ExperimentData(DbExperimentData):
             experiment_type = None
 
         self._experiment = experiment
-        super().__init__(
+        data = ExperimentDataclass(
             experiment_type=experiment_type,
             backend=backend,
             parent_id=parent_id,
             job_ids=job_ids,
             metadata=experiment._metadata() if experiment else {},
         )
+        super().__init__(data)
 
         # Add component data and set parent ID to current container
         self._child_data = ThreadSafeOrderedDict()
