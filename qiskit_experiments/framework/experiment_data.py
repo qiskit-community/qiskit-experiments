@@ -72,7 +72,7 @@ class ExperimentData(DbExperimentData):
             job_ids=job_ids,
             metadata=experiment._metadata() if experiment else {},
         )
-        super().__init__(db_data)
+        super().__init__(db_data, backend=backend)
 
         # Add component data and set parent ID to current container
         self._child_data = ThreadSafeOrderedDict()
