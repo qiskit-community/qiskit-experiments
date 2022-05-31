@@ -441,14 +441,14 @@ class Discriminator(DataAction):
     discriminators, i.e., one for each slot.
 
     .. notes::
-    
+
         Future versions may see this class become a sub-class of :class:`.TrainableDataAction`.
 
     .. notes::
-    
-        This node will drop uncertainty from unclassified nodes. 
+
+        This node will drop uncertainty from unclassified nodes.
         Returned labels don't have uncertainty.
-        
+
     """
 
     def __init__(
