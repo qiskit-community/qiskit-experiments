@@ -70,8 +70,7 @@ def generate_all_transpiled_clifford_circuits():
 
     for i, circ in enumerate(circs):
         transpiled_circ = transpile(circ, backend, optimization_level=1, basis_gates=['sx','rz'])
-        new_circ = transpiled_circ.copy() # do we need the copy?
-        new_circs.append(new_circ)
+        new_circs.append(transpiled_circ)
         #print(i)
         #print(new_circ)
     return new_circs
