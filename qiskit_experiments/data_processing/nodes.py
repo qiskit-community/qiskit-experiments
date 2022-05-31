@@ -512,7 +512,7 @@ class Discriminator(DataAction):
         if not isinstance(self._discriminator, list):
             # Reshape the IQ data to an array of size n x 2
             shape, data_length = data.shape, 1
-            for dim in shape[0:-1]:
+            for dim in shape[:-1]:
                 data_length *= dim
 
             data = data.reshape((data_length, 2))  # the last dim is guaranteed by _process
