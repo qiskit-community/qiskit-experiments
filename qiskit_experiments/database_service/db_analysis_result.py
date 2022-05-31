@@ -280,7 +280,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
         Returns:
             Additional analysis result data.
         """
-        return self._data.result_data['_extra']
+        return self._data.result_data["_extra"]
 
     @extra.setter
     def extra(self, new_value: Dict[str, Any]) -> None:
@@ -289,7 +289,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
             raise DbExperimentDataError(
                 f"The `extra` field of {type(self).__name__} must be a dict."
             )
-        self._data.result_data['_extra'] = new_value
+        self._data.result_data["_extra"] = new_value
         if self.auto_save:
             self.save()
 
