@@ -432,7 +432,7 @@ class ToAbs(IQPart):
 
 
 class Discriminator(DataAction):
-    """A class to discriminate level 1 data, e.g., IQ data, to produce counts.
+    """A class to discriminate kerneled data, e.g., IQ data, to produce counts.
 
     This node integrates into the data processing chain a serializable :class:`.BaseDiscriminator` subclass
     instance which must have a :meth:`predict` method that takes as input a list of lists and returns
