@@ -61,7 +61,8 @@ class ExperimentData(DbExperimentData):
             experiment_type = experiment.experiment_type
         else:
             experiment_type = None
-
+        if job_ids is None:
+            job_ids = []
         self._experiment = experiment
         data = ExperimentDataclass(
             experiment_type=experiment_type,
