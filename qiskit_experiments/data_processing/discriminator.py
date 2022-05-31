@@ -28,7 +28,8 @@ except ImportError:
 class BaseDiscriminator:
     """An abstract base class for serializable discriminators.
 
-    ``BaseDiscriminators`` are used in the :class:`.Discriminator` data action nodes.
+    ``BaseDiscriminator``s are used in the :class:`.Discriminator` data action nodes.
+
     This class allows developers to implement their own discriminators or wrap discriminators
     from external libraries which therefore ensures that the discriminator fits in
     the data processing chain. This class defines an interface for discriminator objects.
