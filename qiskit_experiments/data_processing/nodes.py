@@ -555,6 +555,16 @@ class MemoryToCounts(DataAction):
     the classified memory into a list of count dictionaries wrapped in a numpy array.
     """
 
+    def _format_data(self, data: np.ndarray) -> np.ndarray:
+        """Validate the input data."""
+        if self._validate:
+            if len(data.shape) <= 1:
+                raise DataProcessorError(
+                    "The data should be an array with at least two dimensions."
+                )
+
+        return data
+
     def _process(self, data: np.ndarray) -> np.ndarray:
         """
         Args:

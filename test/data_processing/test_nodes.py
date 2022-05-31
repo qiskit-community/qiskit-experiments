@@ -600,6 +600,25 @@ class TestDiscriminator(BaseDataProcessorTest):
         self.assertListEqual(classified.tolist(), expected)
 
 
+class TestMemoryToCounts(QiskitExperimentsTestCase):
+    """The test data formatting."""
+
+    def test_memory_to_counts_format(self):
+        """Test that an error is raised if the data has length one."""
+
+        node = MemoryToCounts()
+        with self.assertRaises(DataProcessorError):
+            node(np.array(["0", "1", "1", "0", "0"]))
+
+    def test_memory_to_counts(self):
+        """Test  simple counting."""
+
+        node = MemoryToCounts()
+        output = node(np.array([["0", "0", "1"], ["10", "11", "11"]]))
+        self.assertEqual(output[0], {"0": 2, "1": 1})
+        self.assertEqual(output[1], {"10": 1, "11": 2})
+
+
 class TestMarginalize(QiskitExperimentsTestCase):
     """Test the marginalization node."""
 
