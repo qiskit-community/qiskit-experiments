@@ -177,10 +177,8 @@ class DbExperimentDataV1(DbExperimentData):
         """
         self._data = data.copy()
         self._service = service
-        self._backend = backend
-        if self._backend:
-            self._data.backend = self._backend.name()
-        self._set_hgp_from_backend()
+        if backend is not None:
+            self.set_backend(backend)
         self._auto_save = False
 
         self._jobs = ThreadSafeOrderedDict(data.job_ids)
@@ -394,7 +392,7 @@ class DbExperimentDataV1(DbExperimentData):
         timeout_ids = []
         for job in jobs:
             jid = job.job_id()
-            if self.backend and self.backend.name() != job.backend().name():
+            if self.backend is not None and self.backend.name() != job.backend().name():
                 LOG.warning(
                     "Adding a job from a backend (%s) that is different "
                     "than the current backend (%s). "
@@ -1779,15 +1777,24 @@ class DbExperimentDataV1(DbExperimentData):
         Args:
             new_backend: New backend.
         """
+        self.set_backend(new_backend)
+        if self.auto_save:
+            self.save_metadata()
+
+    def set_backend(self, new_backend: Backend) -> None:
+        """Set backend.
+        Args:
+            new_backend: New backend.
+        """
+        # defined independently from the setter to enable setting without autosave
+
         self._backend = new_backend
-        if hasattr(new_backend, 'name'):
+        if hasattr(new_backend, "name"):
             self._data.backend = new_backend.name()
         else:
             self._data.backend = str(new_backend)
-        if hasattr(new_backend, 'provider'):
+        if hasattr(new_backend, "provider"):
             self._set_hgp_from_backend()
-        if self.auto_save:
-            self.save_metadata()
 
     @property
     def service(self) -> Optional[IBMExperimentService]:
@@ -1923,22 +1930,24 @@ class DbExperimentDataV1(DbExperimentData):
             )
         a = [self.metadata, self._data]
         print(self.metadata)
-        json_value = {"metadata": self.metadata,
-                      "source": self.source,
-                      "experiment_id": self.experiment_id,
-                      "parent_id": self.parent_id,
-                      "experiment_type": self.experiment_type,
-                      "tags": self.tags, "share_level": self.share_level,
-                      "notes": self.notes,
-                      "_analysis_results": self._analysis_results,
-                      "_analysis_callbacks": self._analysis_callbacks,
-                      "_deleted_figures": self._deleted_figures,
-                      "_deleted_analysis_results": self._deleted_analysis_results,
-                      "_result_data": self._result_data,
-                      "_extra_data": self._extra_data,
-                      "_created_in_db": self._created_in_db,
-                      "_figures": self._safe_serialize_figures(), # Convert figures to SVG
-                      "_jobs": self._safe_serialize_jobs(), # Handle non-serializable objects
+        json_value = {
+            "metadata": self.metadata,
+            "source": self.source,
+            "experiment_id": self.experiment_id,
+            "parent_id": self.parent_id,
+            "experiment_type": self.experiment_type,
+            "tags": self.tags,
+            "share_level": self.share_level,
+            "notes": self.notes,
+            "_analysis_results": self._analysis_results,
+            "_analysis_callbacks": self._analysis_callbacks,
+            "_deleted_figures": self._deleted_figures,
+            "_deleted_analysis_results": self._deleted_analysis_results,
+            "_result_data": self._result_data,
+            "_extra_data": self._extra_data,
+            "_created_in_db": self._created_in_db,
+            "_figures": self._safe_serialize_figures(),  # Convert figures to SVG
+            "_jobs": self._safe_serialize_jobs(),  # Handle non-serializable objects
         }
 
         # the attribute self._service in charge of the connection and communication with the
