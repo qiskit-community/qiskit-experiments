@@ -15,7 +15,7 @@
 from test.base import QiskitExperimentsTestCase
 import numpy as np
 
-from qiskit_experiments.data_processing import LDA
+from qiskit_experiments.data_processing import SkLDA
 
 try:
     from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
@@ -37,7 +37,7 @@ class TestDiscriminator(QiskitExperimentsTestCase):
 
             self.assertTrue(sk_lda.predict([[1.1, 0]])[0], 1)
 
-            lda = LDA(sk_lda)
+            lda = SkLDA(sk_lda)
 
             self.assertTrue(lda.is_trained())
             self.assertTrue(lda.predict([[1.1, 0]])[0], 1)

@@ -75,7 +75,7 @@ class BaseDiscriminator:
         return cls.from_config(value)
 
 
-class LDA(BaseDiscriminator):
+class SkLDA(BaseDiscriminator):
     """A wrapper for the SKlearn linear discriminant analysis."""
 
     def __init__(self, lda: "LinearDiscriminantAnalysis"):
@@ -135,7 +135,7 @@ class LDA(BaseDiscriminator):
         return {"params": self._lda.get_params(), "attributes": attr_conf}
 
     @classmethod
-    def from_config(cls, config: Dict[str, Any]) -> "LDA":
+    def from_config(cls, config: Dict[str, Any]) -> "SkLDA":
         """Deserialize from an object."""
 
         if not HAS_SKLEARN:
@@ -148,4 +148,4 @@ class LDA(BaseDiscriminator):
             if value is not None:
                 setattr(lda, name, value)
 
-        return LDA(lda)
+        return SkLDA(lda)
