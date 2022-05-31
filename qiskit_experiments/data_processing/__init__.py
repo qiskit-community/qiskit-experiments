@@ -93,4 +93,4 @@ from .nodes import (
 )
 
 from .data_processor import DataProcessor
-from .discriminator import SkLDA
+from .sklearn_discriminators import SkLDA
