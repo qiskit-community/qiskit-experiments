@@ -434,11 +434,11 @@ class ToAbs(IQPart):
 class Discriminator(DataAction):
     """A class to discriminate kerneled data, e.g., IQ data, to produce counts.
 
-    This node integrates into the data processing chain a serializable :class:`.BaseDiscriminator` subclass
-    instance which must have a :meth:`predict` method that takes as input a list of lists and returns
-    a list of labels. Crucially, this node can be initialized with a single discriminator which
-    applies to each memory slot or it can be initialized with a list of discriminators, i.e.,
-    one for each slot.
+    This node integrates into the data processing chain a serializable :class:`.BaseDiscriminator`
+    subclass instance which must have a :meth:`predict` method that takes as input a list of lists
+    and returns a list of labels. Crucially, this node can be initialized with a single
+    discriminator which applies to each memory slot or it can be initialized with a list of
+    discriminators, i.e., one for each slot.
 
     .. notes::
     
@@ -459,15 +459,16 @@ class Discriminator(DataAction):
         """Initialize the node with an object that can discriminate.
 
         Args:
-            discriminator: The entity that will perform the discrimination. This needs to
+            discriminators: The entity that will perform the discrimination. This needs to
                 be a :class:`.BaseDiscriminator` or a list thereof that takes
                 as input a list of lists and returns a list of labels. If a list of
                 discriminators is given then there should be as many discriminators as there
-                will be slots in the memory.
+                will be slots in the memory. The discriminator at the i-th index will be applied
+                to the i-th memory slot.
             validate: If set to False the DataAction will not validate its input.
         """
         super().__init__(validate)
-        self._discriminator = discriminator
+        self._discriminator = discriminators
         self._n_circs = 0
         self._n_shots = 0
         self._n_slots = 0
