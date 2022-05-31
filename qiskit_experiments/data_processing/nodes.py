@@ -445,7 +445,7 @@ class Discriminator(DataAction):
 
     def __init__(
         self,
-        discriminator: Union[BaseDiscriminator, List[BaseDiscriminator]],
+        discriminators: Union[BaseDiscriminator, List[BaseDiscriminator]],
         validate: bool = True,
     ):
         """Initialize the node with an object that can discriminate.
