@@ -440,7 +440,15 @@ class Discriminator(DataAction):
     applies to each memory slot or it can be initialized with a list of discriminators, i.e.,
     one for each slot.
 
-    Note: future versions may see this class become a sub-class of TrainableDataAction.
+    .. notes::
+    
+        Future versions may see this class become a sub-class of :class:`.TrainableDataAction`.
+
+    .. notes::
+    
+        This node will drop uncertainty from unclassified nodes. 
+        Returned labels don't have uncertainty.
+        
     """
 
     def __init__(
