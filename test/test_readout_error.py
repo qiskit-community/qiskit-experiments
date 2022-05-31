@@ -54,7 +54,7 @@ class TestRedoutError(QiskitExperimentsTestCase):
         run_meta = {"physical_qubits": qubits}
         expdata = ExperimentData()
         expdata.add_data(run_data)
-        expdata._metadata = run_meta
+        expdata.metadata.update(run_meta)
         exp = LocalReadoutError(qubits)
         result = exp.analysis.run(expdata)
         mitigator = result.analysis_results(0).value
@@ -124,7 +124,7 @@ class TestRedoutError(QiskitExperimentsTestCase):
         run_meta = {"physical_qubits": qubits}
         expdata = ExperimentData()
         expdata.add_data(run_data)
-        expdata._metadata = run_meta
+        expdata.metadata.update(run_meta)
         exp = CorrelatedReadoutError(qubits)
         result = exp.analysis.run(expdata)
         mitigator = result.analysis_results(0).value

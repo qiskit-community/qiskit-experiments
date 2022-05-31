@@ -175,7 +175,6 @@ class DbExperimentDataV1(DbExperimentData):
             service: The service that stores the experiment results to the database
             backend: Backend the experiment runs on.
         """
-        # self._data = copy.deepcopy(data)
         self._data = data.copy()
         self._service = service
         self._backend = backend
@@ -1781,8 +1780,12 @@ class DbExperimentDataV1(DbExperimentData):
             new_backend: New backend.
         """
         self._backend = new_backend
-        self._data.backend = new_backend.name()
-        self._set_hgp_from_backend()
+        if hasattr(new_backend, 'name'):
+            self._data.backend = new_backend.name()
+        else:
+            self._data.backend = str(new_backend)
+        if hasattr(new_backend, 'provider'):
+            self._set_hgp_from_backend()
         if self.auto_save:
             self.save_metadata()
 
@@ -1918,33 +1921,25 @@ class DbExperimentDataV1(DbExperimentData):
                 "Not all experiment analysis has finished. Analysis must be "
                 "cancelled or done to serialize experiment data."
             )
-        json_value = {}
-        for att in [
-            "_metadata",
-            "_source",
-            "_id",
-            "_parent_id",
-            "_type",
-            "_tags",
-            "_share_level",
-            "_notes",
-            "_data",
-            "_analysis_results",
-            "_analysis_callbacks",
-            "_deleted_figures",
-            "_deleted_analysis_results",
-            "_created_in_db",
-            "_extra_data",
-        ]:
-            value = getattr(self, att)
-            if value:
-                json_value[att] = value
-
-        # Convert figures to SVG
-        json_value["_figures"] = self._safe_serialize_figures()
-
-        # Handle non-serializable objects
-        json_value["_jobs"] = self._safe_serialize_jobs()
+        a = [self.metadata, self._data]
+        print(self.metadata)
+        json_value = {"metadata": self.metadata,
+                      "source": self.source,
+                      "experiment_id": self.experiment_id,
+                      "parent_id": self.parent_id,
+                      "experiment_type": self.experiment_type,
+                      "tags": self.tags, "share_level": self.share_level,
+                      "notes": self.notes,
+                      "_analysis_results": self._analysis_results,
+                      "_analysis_callbacks": self._analysis_callbacks,
+                      "_deleted_figures": self._deleted_figures,
+                      "_deleted_analysis_results": self._deleted_analysis_results,
+                      "_result_data": self._result_data,
+                      "_extra_data": self._extra_data,
+                      "_created_in_db": self._created_in_db,
+                      "_figures": self._safe_serialize_figures(), # Convert figures to SVG
+                      "_jobs": self._safe_serialize_jobs(), # Handle non-serializable objects
+        }
 
         # the attribute self._service in charge of the connection and communication with the
         #  experiment db. It doesn't have meaning in the json format so there is no need to serialize
