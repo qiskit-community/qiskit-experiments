@@ -63,14 +63,16 @@ class ExperimentData(DbExperimentData):
             experiment_type = None
 
         self._experiment = experiment
-        data = ExperimentDataclass(
+
+        # we want to take advantage of the way DbExperimentData initializes things in from_values()
+        db_data = DbExperimentData.from_values(
             experiment_type=experiment_type,
             backend=backend,
             parent_id=parent_id,
             job_ids=job_ids,
             metadata=experiment._metadata() if experiment else {},
         )
-        super().__init__(data)
+        super().__init__(db_data)
 
         # Add component data and set parent ID to current container
         self._child_data = ThreadSafeOrderedDict()
