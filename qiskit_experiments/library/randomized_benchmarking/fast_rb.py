@@ -9,7 +9,9 @@ import time
 def build_rb_circuits(lengths, circuits, rng):
     start = time.time()
     all_clifford_circuits = []
-    rand = rng.integers(0, 23)
+    random_samples = rng.integers(24, size=lengths[-1])
+    rand = random_samples[0]
+    index = 1
     # choose random clifford for first element
     circ = circuits[rand].copy()
     circ.barrier(0)
@@ -31,9 +33,10 @@ def build_rb_circuits(lengths, circuits, rng):
     prev_length = 2
     for length in lengths:
         for i in range(prev_length, length+1):
-            rand = rng.integers(0, 23)
+            rand = random_samples[index]
             # choose random clifford
             next_circ = circuits[rand]
+            index += 1
             circ.compose(next_circ,  inplace=True)
             circ.barrier(0)
             clifford_as_num = CLIFF_COMPOSE_DATA[(clifford_as_num, rand)]
