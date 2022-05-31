@@ -13,6 +13,8 @@
 """Tests for the serializable discriminator objects."""
 
 from test.base import QiskitExperimentsTestCase
+from functools import wraps
+from unittest import SkipTest
 import numpy as np
 
 from qiskit_experiments.data_processing import SkLDA
@@ -25,43 +27,56 @@ except ImportError:
     HAS_SKLEARN = False
 
 
+def requires_sklearn(func):
+    """Decorator to check for SKLearn."""
+
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        if not HAS_SKLEARN:
+            raise SkipTest("SKLearn is required for test.")
+
+        func(*args, **kwargs)
+
+    return wrapper
+
+
 class TestDiscriminator(QiskitExperimentsTestCase):
     """Tests for the discriminator."""
 
+    @requires_sklearn
     def test_lda_serialization(self):
         """Test the serialization of a lda."""
 
-        if HAS_SKLEARN:
-            sk_lda = LinearDiscriminantAnalysis()
-            sk_lda.fit([[-1, 0], [1, 0], [-1.1, 0], [0.9, 0.1]], [0, 1, 0, 1])
+        sk_lda = LinearDiscriminantAnalysis()
+        sk_lda.fit([[-1, 0], [1, 0], [-1.1, 0], [0.9, 0.1]], [0, 1, 0, 1])
 
-            self.assertTrue(sk_lda.predict([[1.1, 0]])[0], 1)
+        self.assertTrue(sk_lda.predict([[1.1, 0]])[0], 1)
 
-            lda = SkLDA(sk_lda)
+        lda = SkLDA(sk_lda)
 
-            self.assertTrue(lda.is_trained())
-            self.assertTrue(lda.predict([[1.1, 0]])[0], 1)
+        self.assertTrue(lda.is_trained())
+        self.assertTrue(lda.predict([[1.1, 0]])[0], 1)
 
-            def check_lda(lda1, lda2):
-                test_data = [[1.1, 0], [0.1, 0], [-2, 0]]
+        def check_lda(lda1, lda2):
+            test_data = [[1.1, 0], [0.1, 0], [-2, 0]]
 
-                lda1_y = lda1.predict(test_data)
-                lda2_y = lda2.predict(test_data)
+            lda1_y = lda1.predict(test_data)
+            lda2_y = lda2.predict(test_data)
 
-                if len(lda1_y) != len(lda2_y):
+            if len(lda1_y) != len(lda2_y):
+                return False
+
+            for idx, y_val1 in enumerate(lda1_y):
+                if lda2_y[idx] != y_val1:
                     return False
 
-                for idx, y_val1 in enumerate(lda1_y):
-                    if lda2_y[idx] != y_val1:
-                        return False
+            for attribute in lda1.attributes:
+                if not np.allclose(
+                    getattr(lda1.discriminator, attribute, np.array([])),
+                    getattr(lda2.discriminator, attribute, np.array([])),
+                ):
+                    return False
 
-                for attribute in lda1.attributes:
-                    if not np.allclose(
-                        getattr(lda1.discriminator, attribute, np.array([])),
-                        getattr(lda2.discriminator, attribute, np.array([])),
-                    ):
-                        return False
+            return True
 
-                return True
-
-            self.assertRoundTripSerializable(lda, check_lda)
+        self.assertRoundTripSerializable(lda, check_lda)
