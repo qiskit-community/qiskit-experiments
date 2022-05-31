@@ -22,11 +22,10 @@ import math
 import numpy as np
 import uncertainties
 
-
+from qiskit_ibm_experiment import IBMExperimentService
 from qiskit_experiments.database_service import DbAnalysisResultV1 as DbAnalysisResult
 from qiskit_experiments.database_service.device_component import Qubit, Resonator, to_component
 from qiskit_experiments.database_service.exceptions import DbExperimentDataError
-from qiskit_ibm_experiment import IBMExperimentService
 
 
 class TestDbAnalysisResult(QiskitExperimentsTestCase):

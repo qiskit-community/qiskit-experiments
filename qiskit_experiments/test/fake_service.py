@@ -120,6 +120,9 @@ class FakeService(DatabaseServiceV1):
         json_encoder: Type[json.JSONEncoder] = json.JSONEncoder,
         **kwargs: Any,
     ) -> str:
+        """Creates a new experiment"""
+        # currently not using json_encoder; this should be changed
+        # pylint: disable = unused-argument
         if experiment_id is None:
             experiment_id = uuid.uuid4()
 
@@ -184,6 +187,7 @@ class FakeService(DatabaseServiceV1):
         tags: Optional[List[str]] = None,
         **kwargs: Any,
     ) -> None:
+        """Updates an existing experiment"""
         if experiment_id not in self.exps.experiment_id.values:
             raise DbExperimentEntryNotFound("Attempt to update a non-existing experiment")
 
@@ -204,6 +208,8 @@ class FakeService(DatabaseServiceV1):
     def experiment(
         self, experiment_id: str, json_decoder: Type[json.JSONDecoder] = json.JSONDecoder
     ) -> Dict:
+        """Returns an experiment by experiment_id"""
+        # pylint: disable = unused-argument
         if experiment_id not in self.exps.experiment_id.values:
             raise DbExperimentEntryNotFound("Experiment does not exist")
 
@@ -221,6 +227,8 @@ class FakeService(DatabaseServiceV1):
         tags_operator: Optional[str] = "OR",
         **filters: Any,
     ) -> List[Dict]:
+        """Returns a list of experiments filtered by given criteria"""
+        # pylint: disable = unused-argument
         df = self.exps
 
         if experiment_type is not None:
@@ -287,6 +295,7 @@ class FakeService(DatabaseServiceV1):
         return df.to_dict("records")
 
     def delete_experiment(self, experiment_id: str) -> None:
+        """Deletes an experiment"""
         if experiment_id not in self.exps.experiment_id.values:
             return
 
@@ -306,6 +315,8 @@ class FakeService(DatabaseServiceV1):
         json_encoder: Type[json.JSONEncoder] = json.JSONEncoder,
         **kwargs: Any,
     ) -> str:
+        """Creates an analysis result"""
+        # pylint: disable = unused-argument
         if result_id is None:
             result_id = uuid.uuid4()
 
@@ -371,6 +382,7 @@ class FakeService(DatabaseServiceV1):
         verified: bool = None,
         **kwargs: Any,
     ) -> None:
+        """Updates an analysis result"""
         if result_id not in self.results.result_id.values:
             raise DbExperimentEntryNotFound("Attempt to update a non-existing analysis result")
 
@@ -389,6 +401,8 @@ class FakeService(DatabaseServiceV1):
     def analysis_result(
         self, result_id: str, json_decoder: Type[json.JSONDecoder] = json.JSONDecoder
     ) -> Dict:
+        """Gets an analysis result by result_id"""
+        # pylint: disable = unused-argument
         if result_id not in self.results.result_id.values:
             raise DbExperimentEntryNotFound("Analysis result does not exist")
 
@@ -410,6 +424,8 @@ class FakeService(DatabaseServiceV1):
         tags_operator: Optional[str] = "OR",
         **filters: Any,
     ) -> List[Dict]:
+        """Returns a list of analysis results filtered by the given criteria"""
+        # pylint: disable = unused-argument
         df = self.results
 
         # TODO: skipping device components for now until we conslidate more with the provider service
@@ -467,6 +483,7 @@ class FakeService(DatabaseServiceV1):
         return df.to_dict("records")
 
     def delete_analysis_result(self, result_id: str) -> None:
+        """Deletes an anylsis result"""
         if result_id not in self.results.result_id.values:
             return
 
@@ -476,16 +493,19 @@ class FakeService(DatabaseServiceV1):
     def create_figure(
         self, experiment_id: str, figure: Union[str, bytes], figure_name: Optional[str]
     ) -> Tuple[str, int]:
+        """Creates a figure"""
         pass
 
     def update_figure(
         self, experiment_id: str, figure: Union[str, bytes], figure_name: str
     ) -> Tuple[str, int]:
+        """Updates a figure"""
         pass
 
     def figure(
         self, experiment_id: str, figure_name: str, file_name: Optional[str] = None
     ) -> Union[int, bytes]:
+        """Returns a figure by experiment id and figure name"""
         pass
 
     def delete_figure(
@@ -493,8 +513,10 @@ class FakeService(DatabaseServiceV1):
         experiment_id: str,
         figure_name: str,
     ) -> None:
+        """Deletes a figure"""
         pass
 
     @property
     def preferences(self) -> Dict:
+        """Returns the db service prefrences"""
         return {"auto_save": False}

@@ -32,7 +32,7 @@ from qiskit.test.mock import FakeMelbourne
 from qiskit.result import Result
 from qiskit.providers import JobV1 as Job
 from qiskit.providers import JobStatus
-
+from qiskit_ibm_experiment import IBMExperimentService
 from qiskit_experiments.database_service import DbExperimentDataV1 as DbExperimentData
 from qiskit_experiments.database_service import DbAnalysisResultV1 as DbAnalysisResult
 from qiskit_experiments.database_service.exceptions import (
@@ -46,7 +46,6 @@ from qiskit_experiments.database_service.db_experiment_data import (
     ExperimentStatus,
 )
 from qiskit_experiments.framework.matplotlib import get_non_gui_ax
-from qiskit_ibm_experiment import IBMExperimentService
 
 
 class TestDbExperimentData(QiskitExperimentsTestCase):
