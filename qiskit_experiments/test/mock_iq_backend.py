@@ -12,7 +12,7 @@
 
 """A mock IQ backend for testing."""
 from abc import abstractmethod
-from typing import List, Tuple, Dict, Union, Any, Optional
+from typing import Sequence, List, Tuple, Dict, Union, Any, Optional
 import numpy as np
 
 from qiskit import QuantumCircuit
@@ -221,12 +221,12 @@ class MockIQBackend(FakeOpenPulse2Q):
                     " don't match."
                 )
 
-    def _get_normal_samples_for_shot(self, qubits: List[int]) -> np.ndarray:
+    def _get_normal_samples_for_shot(self, qubits: Sequence[int]) -> np.ndarray:
         """
         Produce a list in the size of num_qubits. Each entry value is produced from normal distribution
         with expected value of '0' and standard deviation of self._iq_cluster_width.
         Args:
-            num_qubits(int): The number of qubits in the circuit.
+            num_qubits: The number of qubits in the circuit.
 
         Returns:
             Ndarray: A numpy array with values that were produced from normal distribution.
@@ -247,15 +247,15 @@ class MockIQBackend(FakeOpenPulse2Q):
         return prob_list
 
     def _draw_iq_shots(
-        self, prob: List[float], shots: int, circ_qubits: List[int], phase: float = 0.0
+        self, prob: List[float], shots: int, circ_qubits: Sequence[int], phase: float = 0.0
     ) -> List[List[List[Union[float, complex]]]]:
         """
         Produce an IQ shot.
         Args:
-            prob(List): A list of probabilities for each output.
-            shots(int): The number of times the circuit will run.
-            circ_qubits(List[int]): The number of qubits in the circuit.
-            phase(float): The added phase needed to apply to the shot data.
+            prob: A list of probabilities for each output.
+            shots: The number of times the circuit will run.
+            circ_qubits: The qubits of the circuit.
+            phase: The added phase needed to apply to the shot data.
         Returns:
             List[List[Tuple[float, float]]]: A list of shots. Each shot consists of a list of qubits.
             The qubits are tuples with two values [I,Q].
@@ -308,9 +308,9 @@ class MockIQBackend(FakeOpenPulse2Q):
         """
         Generate data for the circuit.
         Args:
-            prob_dict(dict): A dictionary whose keys are strings representing the output vectors and
+            prob_dict: A dictionary whose keys are strings representing the output vectors and
             their values are the probability to get the output in this circuit.
-            circuit(QuantumCircuit): The circuit that needs to be simulated.
+            circuit: The circuit that needs to be simulated.
 
         Returns:
             A dictionary that's filled with the simulated data. The output format is different between
@@ -347,11 +347,11 @@ class MockIQBackend(FakeOpenPulse2Q):
         """
         Run the IQ backend.
         Args:
-            run_input(List[QuantumCircuit]): A list of QuantumCircuit for which the backend will generate
+            run_input: A list of QuantumCircuit for which the backend will generate
              data for.
             **options: Experiment options. the options that are supported in this backend are
              'meas_level' and 'meas_return'.
-                'meas_level': To generate data in the IQ plain, 'meas_level' should be assigned 1 or
+                'meas_level': To generate data in the IQ plane, 'meas_level' should be assigned 1 or
                     MeasLevel.KERNELED. If 'meas_level' is 2 or MeasLevel.CLASSIFIED, the generated data
                     will be in the form of 'counts'.
                 'meas_return': This option will only take effect if 'meas_level' = MeasLevel.CLASSIFIED.
@@ -404,13 +404,13 @@ class MockIQParallelBackend(MockIQBackend):
         """
         Initialize the backend.
         Args:
-            experiment_helper(MockIQExperimentHelper): Parallel experiment helper class that contains
+            experiment_helper: Parallel experiment helper class that contains
             helper classes for each experiment.
-            rng_seed(int): The random seed value.
-            iq_cluster_centers(Optional[List]): A list of tuples containing the clusters' centers in the
+            rng_seed: The random seed value.
+            iq_cluster_centers: A list of tuples containing the clusters' centers in the
             IQ plane.
             There are different centers for different logical values of the qubit.
-            iq_cluster_width(Optional[List]): A list of standard deviation values for the sampling of
+            iq_cluster_width: A list of standard deviation values for the sampling of
             each qubit.
         """
         super().__init__(experiment_helper, rng_seed, iq_cluster_centers, iq_cluster_width)
@@ -425,10 +425,10 @@ class MockIQParallelBackend(MockIQBackend):
         """
         Produce an IQ shot.
         Args:
-            list_exp_dict(list): A list of
-            shots(int): The number of times the circuit will run.
-            circ_qubits(List[int]): List of qubits that are used in this circuit.
-            circ_idx(int): The circuit index.
+            list_exp_dict: A list of
+            shots: The number of times the circuit will run.
+            circ_qubits: List of qubits that are used in this circuit.
+            circ_idx: The circuit index.
 
         Returns:
             List[List[Tuple[float, float]]]: A list of shots. Each shot consists of a list of qubits.
@@ -448,7 +448,7 @@ class MockIQParallelBackend(MockIQBackend):
         # The use of idx_shift is to sample 'qubits_iq_rand' correctly
         sample_idx_shift = 0
 
-        # The code generate data as following:
+        # The code generates data as following:
         # for each experiment, it firstly checks if it needs to generate data for it. If it does, the
         # multinomial probability function draw lots for all the shots, and we store it in the
         # corresponding place in the output list. After that we move on to the next experiment.
@@ -542,11 +542,11 @@ class MockIQParallelBackend(MockIQBackend):
         """
         Run the IQ backend.
         Args:
-            run_input(List[QuantumCircuit]): A list of QuantumCircuit for which the backend will generate
-             data for.
+            run_input: A list of QuantumCircuit for which the backend will generate
+             data.
             **options: Experiment options. the options that are supported in this backend are
              'meas_level' and 'meas_return'.
-                'meas_level': To generate data in the IQ plain, 'meas_level' should be assigned 1 or
+                'meas_level': To generate data in the IQ plane, 'meas_level' should be assigned 1 or
                     MeasLevel.KERNELED. If 'meas_level' is 2 or MeasLevel.CLASSIFIED, the generated data
                     will be in the form of 'counts'.
                 'meas_return': This option will only take effect if 'meas_level' = MeasLevel.CLASSIFIED.

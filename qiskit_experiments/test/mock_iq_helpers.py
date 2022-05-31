@@ -16,7 +16,9 @@ from abc import abstractmethod
 from typing import Dict, List, Union
 import numpy as np
 from qiskit import QuantumCircuit
+from qiskit.exceptions import QiskitError
 from qiskit.providers.aer import AerSimulator
+from qiskit_experiments.framework import BaseExperiment
 from qiskit_experiments.framework.composite.composite_experiment import CompositeExperiment
 
 
@@ -106,7 +108,7 @@ class MockIQParallelExperimentHelper(MockIQExperimentHelper):
 
     def __init__(
         self,
-        exp_list: List[CompositeExperiment],
+        exp_list: List[BaseExperiment] = None,
         exp_helper_list: List[MockIQExperimentHelper] = None,
     ):
         """
@@ -117,15 +119,10 @@ class MockIQParallelExperimentHelper(MockIQExperimentHelper):
             exp_list(List): List of experiments.
             exp_helper_list(List): Ordered list of `MockIQExperimentHelper` corresponding to the
              experiments in `exp_list`.
-
-        Raises:
-            ValueError: if the number of helpers are not the same as the number of experiments.
         """
 
-        if len(exp_list) != len(exp_helper_list):
-            raise ValueError("The lengths of `exp_list` and `exp_helper_list` don't match.")
-        self._exp_helper_list = exp_helper_list
-        self._exp_list = exp_list
+        self.exp_helper_list = exp_helper_list
+        self.exp_list = exp_list
 
     def compute_probabilities(
         self, circuits: List[QuantumCircuit]
@@ -133,13 +130,14 @@ class MockIQParallelExperimentHelper(MockIQExperimentHelper):
         """
         Run the compute_probabilities for each helper
         """
-        number_of_experiments = len(self._exp_helper_list)
-        if number_of_experiments == 0 or self._exp_helper_list is None:
-            raise ValueError("The experiment helper list cannot be empty.")
+        # check parameters
+        self._verify_parameters()
 
+        parallel_circ_list = self._parallel_exp_circ_splitter(circuits, self.exp_list)
+        number_of_experiments = len(self.exp_helper_list)
         prob_help_list = [{} for _ in range(number_of_experiments)]
         for exp_helper, experiment, idx in zip(
-            self._exp_helper_list, self._exp_list, range(number_of_experiments)
+            self.exp_helper_list, self.exp_list, range(number_of_experiments)
         ):
             exp_circuits = experiment.circuits()
             prob_help_list[idx] = {
@@ -151,22 +149,72 @@ class MockIQParallelExperimentHelper(MockIQExperimentHelper):
 
         return prob_help_list
 
-    @property
-    def exp_helper_list(self):
-        """Get the experiment helper list"""
-        return self._exp_helper_list
+    def _verify_parameters(self):
+        """Check parameters before computing probability"""
+        if self.exp_helper_list is None:
+            raise ValueError("Please set the experiment helper list.")
+        if self.exp_list is None:
+            raise ValueError("Please set the experiment list.")
 
-    @exp_helper_list.setter
-    def exp_helper_list(self, value: List[MockIQExperimentHelper]):
-        """Set the experiment helper list"""
-        if len(self._exp_list) != len(value):
+        number_of_experiments = len(self.exp_list)
+        number_of_helpers = len(self.exp_helper_list)
+
+        if number_of_experiments == 0:
+            raise ValueError("The experiment list cannot be empty.")
+        if number_of_helpers == 0:
+            raise ValueError("The experiment helper list cannot be empty.")
+
+        if number_of_experiments != number_of_helpers:
             raise ValueError(
                 "The number of helpers {} and the number of experiment {} don't match.".format(
-                    len(value), len(self._exp_list)
-                )
+                    number_of_experiments, number_of_helpers)
             )
-        self._exp_helper_list = value
 
+    def _parallel_exp_circ_splitter(self, qc: QuantumCircuit, exp_list: List[]):
+        """
+        Splits a quantum circuits to its parallel components.
+        Args:
+            qc ():
+            exp_list ():
+
+        Returns:
+
+        """
+        qubit_exp_map = self._create_qubit_exp_map(exp_list)
+        circuit_list = [QuantumCircuit(qc.num_qubits) for _ in exp_list]
+        # exp-idx_map is to connect between experiment and circuit in the circuit list output
+        exp_idx_map = {}
+        for exp_idx, exp in enumerate(exp_list):
+            exp_idx_map[exp] = exp_idx
+
+        for inst, qarg, carg in qc.data:
+            exp = qubit_exp_map[qarg[0].index]
+            qubit_indexes = [qr.index for qr in qarg]
+            if set(qubit_indexes).issubset(set(exp.physical_qubits)):
+                circuit_list[exp_idx_map[exp]].append(inst, qarg, carg)
+            else:
+                raise QiskitError("A gate operate on two qubits which aren't under the same experiment.")
+
+        return circuit_list
+
+    def _create_qubit_exp_map(self, experiment_list: List[CompositeExperiment]) -> Dict[int, BaseExperiment]:
+        """
+        Creating a dictionary that connect qubits to their respective experiments.
+        Args:
+            experiment_list: List of parallel experiments.
+
+        Returns:
+            Dict: A dictionary in the form {num: experiment} where num in experiment.physical_qubits
+        """
+        qubit_experiment_mapping = {}
+        for exp in experiment_list:
+            for qubit in exp.physical_qubits:
+                if qubit not in qubit_experiment_mapping.keys():
+                    qubit_experiment_mapping[qubit] = exp
+                else:
+                    raise QiskitError("There are duplication of qubits between parallel experiments")
+
+        return qubit_experiment_mapping
 
 class MockIQDragHelper(MockIQExperimentHelper):
     """Functions needed for test_drag"""
