@@ -20,7 +20,6 @@ import uuid
 
 from qiskit_experiments.test.fake_backend import FakeBackend
 
-from qiskit_experiments.database_service import DatabaseServiceV1
 from qiskit_experiments.database_service.device_component import DeviceComponent
 from qiskit_experiments.database_service.exceptions import (
     DbExperimentEntryExists,
@@ -63,7 +62,7 @@ def requires_pandas(func: Callable) -> Callable:
     return decorated_func
 
 
-class FakeService(DatabaseServiceV1):
+class FakeService():
     """
     This extremely simple database is designated for testing and as a playground for developers.
     It does not support multi-threading.
