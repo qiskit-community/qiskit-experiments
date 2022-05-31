@@ -1524,7 +1524,7 @@ class DbExperimentDataV1(DbExperimentData):
             This method can not be called from an analysis callback. It waits
             for analysis callbacks to complete before copying analysis results.
         """
-        new_instance = self.__class__(
+        new_instance = DbExperimentDataV1(
             self._data, self.backend, self.service, self.verbose
         )  # data will be deep copied
         new_instance._data.experiment_id = str(uuid.uuid4())  # different id for copied experiment
