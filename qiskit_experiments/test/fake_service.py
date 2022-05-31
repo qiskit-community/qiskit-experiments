@@ -62,7 +62,7 @@ def requires_pandas(func: Callable) -> Callable:
     return decorated_func
 
 
-class FakeService():
+class FakeService:
     """
     This extremely simple database is designated for testing and as a playground for developers.
     It does not support multi-threading.
