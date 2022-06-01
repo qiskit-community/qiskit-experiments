@@ -20,7 +20,9 @@ from qiskit_experiments.framework import ParallelExperiment
 from qiskit_experiments.library import QubitSpectroscopy, EFSpectroscopy
 from qiskit_experiments.test.mock_iq_backend import MockIQBackend, MockIQParallelBackend
 from qiskit_experiments.test.mock_iq_helpers import MockIQSpectroscopyHelper as SpectroscopyHelper
-from qiskit_experiments.test.mock_iq_helpers import MockIQParallelExperimentHelper as ParallelExperimentHelper
+from qiskit_experiments.test.mock_iq_helpers import (
+    MockIQParallelExperimentHelper as ParallelExperimentHelper,
+)
 
 
 class TestQubitSpectroscopy(QiskitExperimentsTestCase):
@@ -238,12 +240,15 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
         frequencies1 = np.linspace(freq01 - 10.0e6, freq01 + 10.0e6, 23)
         frequencies2 = np.linspace(freq02 - 10.0e6, freq02 + 10.0e6, 21)
 
-        exp_list = [QubitSpectroscopy(qubit1, frequencies1), QubitSpectroscopy(qubit2, frequencies2)]
+        exp_list = [
+            QubitSpectroscopy(qubit1, frequencies1),
+            QubitSpectroscopy(qubit2, frequencies2),
+        ]
         parallel_helper.exp_list = exp_list
 
         # initializing parallel experiment
         par_experiment = ParallelExperiment(exp_list, backend=parallel_backend)
-        par_experiment.set_run_options(meas_level=MeasLevel.KERNELED, meas_return='single')
+        par_experiment.set_run_options(meas_level=MeasLevel.KERNELED, meas_return="single")
 
         par_data = par_experiment.run().block_for_results()
         self.assertExperimentDone(par_data)

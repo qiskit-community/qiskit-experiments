@@ -23,7 +23,7 @@ from qiskit_experiments.library import ResonatorSpectroscopy
 from qiskit_experiments.test.mock_iq_backend import MockIQBackend, MockIQParallelBackend
 from qiskit_experiments.test.mock_iq_helpers import (
     MockIQSpectroscopyHelper as ResonatorSpectroscopyHelper,
-    MockIQParallelExperimentHelper as ParallelExperimentHelper
+    MockIQParallelExperimentHelper as ParallelExperimentHelper,
 )
 
 
@@ -109,7 +109,10 @@ class TestResonatorSpectroscopy(QiskitExperimentsTestCase):
         ]
 
         freq_shift = [-5e6, 3e6]
-        exp_helper_list = [ResonatorSpectroscopyHelper(gate_name="measure", freq_offset=freq_shift[0]), ResonatorSpectroscopyHelper(gate_name="measure", freq_offset=freq_shift[1])]
+        exp_helper_list = [
+            ResonatorSpectroscopyHelper(gate_name="measure", freq_offset=freq_shift[0]),
+            ResonatorSpectroscopyHelper(gate_name="measure", freq_offset=freq_shift[1]),
+        ]
         parallel_helper = ParallelExperimentHelper(exp_helper_list=exp_helper_list)
 
         parallel_backend = MockIQParallelBackend(
@@ -128,15 +131,19 @@ class TestResonatorSpectroscopy(QiskitExperimentsTestCase):
         frequencies1 = np.linspace(res_freq1 - 20e6, res_freq1 + 20e6, 51)
         frequencies2 = np.linspace(res_freq2 - 20e6, res_freq2 + 20e6, 53)
 
-        res_spect1 = ResonatorSpectroscopy(qubit1, backend=parallel_backend, frequencies=frequencies1)
-        res_spect2 = ResonatorSpectroscopy(qubit2, backend=parallel_backend, frequencies=frequencies2)
+        res_spect1 = ResonatorSpectroscopy(
+            qubit1, backend=parallel_backend, frequencies=frequencies1
+        )
+        res_spect2 = ResonatorSpectroscopy(
+            qubit2, backend=parallel_backend, frequencies=frequencies2
+        )
 
         exp_list = [res_spect1, res_spect2]
         # updating the experiment helper list
         parallel_helper.exp_list = exp_list
 
         par_experiment = ParallelExperiment(exp_list, backend=parallel_backend)
-        par_experiment.set_run_options(meas_level=MeasLevel.KERNELED, meas_return='single')
+        par_experiment.set_run_options(meas_level=MeasLevel.KERNELED, meas_return="single")
 
         par_data = par_experiment.run().block_for_results()
         self.assertExperimentDone(par_data)

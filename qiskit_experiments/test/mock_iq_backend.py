@@ -352,8 +352,8 @@ class MockIQBackend(FakeOpenPulse2Q):
             **options: Experiment options. the options that are supported in this backend are
              'meas_level' and 'meas_return'.
                 'meas_level': To generate data in the IQ plane, 'meas_level' should be assigned 1 or
-                    MeasLevel.KERNELED. If 'meas_level' is 2 or MeasLevel.CLASSIFIED, the generated data
-                    will be in the form of 'counts'.
+                    MeasLevel.KERNELED. The backend currently doesn't support 'meas_level' = 2  or
+                    MeasLevel.CLASSIFIED.
                 'meas_return': This option will only take effect if 'meas_level' = MeasLevel.CLASSIFIED.
                     It can get either MeasReturnType.AVERAGE or MeasReturnType.SINGLE. For the value
                       MeasReturnType.SINGLE the data of each shot will be stored in the result. For
