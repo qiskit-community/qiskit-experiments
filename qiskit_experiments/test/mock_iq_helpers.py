@@ -19,7 +19,6 @@ from qiskit import QuantumCircuit
 from qiskit.exceptions import QiskitError
 from qiskit.providers.aer import AerSimulator
 from qiskit_experiments.framework import BaseExperiment
-from qiskit_experiments.framework.composite.composite_experiment import CompositeExperiment
 
 
 class MockIQExperimentHelper:
@@ -133,18 +132,18 @@ class MockIQParallelExperimentHelper(MockIQExperimentHelper):
         # check parameters
         self._verify_parameters()
 
-        parallel_circ_list = self._parallel_exp_circ_splitter(circuits, self.exp_list)
+        parallel_circ_list = self._parallel_exp_circ_splitter(circuits)
         number_of_experiments = len(self.exp_helper_list)
         prob_help_list = [{} for _ in range(number_of_experiments)]
-        for exp_helper, experiment, idx in zip(
-            self.exp_helper_list, self.exp_list, range(number_of_experiments)
+
+        for exp_helper, experiment, experiment_circuits, idx in zip(
+            self.exp_helper_list, self.exp_list, parallel_circ_list, range(number_of_experiments)
         ):
-            exp_circuits = experiment.circuits()
             prob_help_list[idx] = {
                 "physical_qubits": experiment.physical_qubits,
-                "prob": exp_helper.compute_probabilities(exp_circuits),
-                "phase": exp_helper.iq_phase(exp_circuits),
-                "num_circuits": len(exp_circuits),
+                "prob": exp_helper.compute_probabilities(experiment_circuits),
+                "phase": exp_helper.iq_phase(experiment_circuits),
+                "num_circuits": len(experiment_circuits),
             }
 
         return prob_help_list
@@ -167,54 +166,91 @@ class MockIQParallelExperimentHelper(MockIQExperimentHelper):
         if number_of_experiments != number_of_helpers:
             raise ValueError(
                 "The number of helpers {} and the number of experiment {} don't match.".format(
-                    number_of_experiments, number_of_helpers)
+                    number_of_experiments, number_of_helpers
+                )
             )
 
-    def _parallel_exp_circ_splitter(self, qc: QuantumCircuit, exp_list: List[]):
+    def _parallel_exp_circ_splitter(self, qc_list: List[QuantumCircuit]):
         """
         Splits a quantum circuits to its parallel components.
         Args:
-            qc ():
-            exp_list ():
+            qc_list ():
 
         Returns:
+            List: A List for each experiment. each entry is a list of quantum circuits relevant to
+            the same experiment.
 
+        Raises:
+            QiskitError: If an instruction is apllied with qubits that aren't under the same experiment.
         """
-        qubit_exp_map = self._create_qubit_exp_map(exp_list)
-        circuit_list = [QuantumCircuit(qc.num_qubits) for _ in exp_list]
-        # exp-idx_map is to connect between experiment and circuit in the circuit list output
+        # exp_idx_map is to connect between experiment and its circuit in the output.
         exp_idx_map = {}
-        for exp_idx, exp in enumerate(exp_list):
+        for exp_idx, exp in enumerate(self.exp_list):
             exp_idx_map[exp] = exp_idx
 
-        for inst, qarg, carg in qc.data:
-            exp = qubit_exp_map[qarg[0].index]
-            qubit_indexes = [qr.index for qr in qarg]
-            if set(qubit_indexes).issubset(set(exp.physical_qubits)):
-                circuit_list[exp_idx_map[exp]].append(inst, qarg, carg)
-            else:
-                raise QiskitError("A gate operate on two qubits which aren't under the same experiment.")
+        qubit_exp_map = self._create_qubit_exp_map()
 
-        return circuit_list
+        exp_circuits_list = [[] for _ in self.exp_list]
 
-    def _create_qubit_exp_map(self, experiment_list: List[CompositeExperiment]) -> Dict[int, BaseExperiment]:
+        for qc in qc_list:
+            # initialize quantum circuit for each experiment for this instance of circuit to fill
+            # with instructions.
+            for exp_circuit in exp_circuits_list:
+                qcirc = qc.copy()
+                qcirc.data.clear()
+                qcirc.metadata.clear()
+                exp_circuit.append(qcirc)
+
+            # fixing metadata
+            for exp_metadata in qc.metadata["composite_metadata"]:
+                qubit = qubit_exp_map[exp_metadata["qubits"][0]]
+                exp_circuits_list[exp_idx_map[qubit]][-1].metadata = exp_metadata.copy()
+            # sorting instructions by qubits indexes and inserting them into a circuit of the relevant
+            # experiment
+            for inst, qarg, carg in qc.data:
+                # getting the experiment from the one of the qubits - need to change due to deprication
+                exp = qubit_exp_map[qarg[0].index]
+                # making a list from the qubits the instruction affect - need to change due to
+                # deprivation.
+                qubit_indexes = [qr.index for qr in qarg]
+                # check that the instruction is part of the experiment
+                if set(qubit_indexes).issubset(set(exp.physical_qubits)):
+                    # appending exp_circuits_list[experiment_index][last_circuit]
+                    exp_circuits_list[exp_idx_map[exp]][-1].append(inst, qarg, carg)
+                else:
+                    raise QiskitError(
+                        "A gate operate on two qubits which aren't under the same experiment."
+                    )
+
+            # deleting empty circuits
+            for exp_circuits in exp_circuits_list:
+                # 'exp_circuits' is a list of circuits of a specific experiment
+                if not exp_circuits[-1].data:
+                    exp_circuits.pop()
+
+        return exp_circuits_list
+
+    def _create_qubit_exp_map(self) -> Dict[int, BaseExperiment]:
         """
         Creating a dictionary that connect qubits to their respective experiments.
-        Args:
-            experiment_list: List of parallel experiments.
-
         Returns:
             Dict: A dictionary in the form {num: experiment} where num in experiment.physical_qubits
+
+        Raises:
+            QiskitError: If a qubit belong to two experiments.
         """
         qubit_experiment_mapping = {}
-        for exp in experiment_list:
+        for exp in self.exp_list:
             for qubit in exp.physical_qubits:
                 if qubit not in qubit_experiment_mapping.keys():
                     qubit_experiment_mapping[qubit] = exp
                 else:
-                    raise QiskitError("There are duplication of qubits between parallel experiments")
+                    raise QiskitError(
+                        "There are duplication of qubits between parallel experiments"
+                    )
 
         return qubit_experiment_mapping
+
 
 class MockIQDragHelper(MockIQExperimentHelper):
     """Functions needed for test_drag"""
