@@ -487,7 +487,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         exp_data.service = mock_service
         self.assertEqual(mock_service, exp_data.service)
 
-        with self.assertRaises(ExperimentDataError):
+        with self.assertRaises(DbExperimentDataError):
             exp_data.service = mock_service
 
     def test_auto_save(self):
@@ -552,7 +552,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         job2.status.return_value = JobStatus.ERROR
 
         exp_data = ExperimentData(experiment_type="qiskit_test")
-        with self.assertLogs(logger="qiskit_experiments.database_service", level="WARN") as cm:
+        with self.assertLogs(logger="qiskit_experiments.framework", level="WARN") as cm:
             exp_data.add_jobs([job1, job2])
         self.assertIn("Adding a job from a backend", ",".join(cm.output))
         self.assertEqual(ExperimentStatus.ERROR, exp_data.status())
@@ -602,7 +602,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
 
         exp_data = ExperimentData(experiment_type="qiskit_test")
         exp_data.add_jobs(job)
-        with self.assertLogs(logger="qiskit_experiments.database_service", level="WARN") as cm:
+        with self.assertLogs(logger="qiskit_experiments.framework", level="WARN") as cm:
             exp_data.add_jobs(job)
             exp_data.add_analysis_callback(_post_processing)
             exp_data.block_for_results()
@@ -824,7 +824,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         job2.job_id.return_value = "5678"
 
         exp_data = ExperimentData(experiment_type="qiskit_test")
-        with self.assertLogs(logger="qiskit_experiments.database_service", level="WARN") as cm:
+        with self.assertLogs(logger="qiskit_experiments.framework", level="WARN") as cm:
             exp_data.add_jobs(job1)
             exp_data.add_analysis_callback(_post_processing)
             exp_data.add_jobs(job2)
@@ -861,7 +861,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         def callback1(exp_data):
             """Callback function that call add_analysis_callback"""
             exp_data.add_analysis_callback(callback2)
-            result = DbAnalysisResult("result_name", 0, [Qubit(0)], "experiment_id")
+            result = DbAnalysisResult.from_values("result_name", 0, [Qubit(0)], "experiment_id")
             exp_data.add_analysis_results(result)
             figure = get_non_gui_ax().get_figure()
             exp_data.add_figures(figure, "figure.svg")
@@ -900,7 +900,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
             """Callback function that call add_analysis_callback"""
             time.sleep(1)
             exp_data.add_analysis_callback(callback2)
-            result = DbAnalysisResult("RESULT1", True, ["Q0"], exp_data.experiment_id)
+            result = DbAnalysisResult.from_values("RESULT1", True, ["Q0"], exp_data.experiment_id)
             exp_data.add_analysis_results(result)
 
         def callback2(exp_data):
@@ -912,7 +912,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         def callback3(exp_data):
             """Callback function that exercises status lookups"""
             time.sleep(1)
-            result = DbAnalysisResult("RESULT2", True, ["Q0"], exp_data.experiment_id)
+            result = DbAnalysisResult.from_values("RESULT2", True, ["Q0"], exp_data.experiment_id)
             exp_data.add_analysis_results(result)
 
         exp_data = ExperimentData(experiment_type="qiskit_test")
@@ -1031,3 +1031,12 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+# def suite():
+#     suite = unittest.TestSuite()
+#     suite.addTest(TestDbExperimentData('test_save_metadata'))
+#     return suite
+#
+# if __name__ == '__main__':
+#     runner = unittest.TextTestRunner()
+#     runner.run(suite())

@@ -91,6 +91,7 @@ class ExperimentData:
         self,
         experiment: Optional["BaseExperiment"] = None,
         backend: Optional[Backend] = None,
+        service: Optional[IBMExperimentService] = None,
         parent_id: Optional[str] = None,
         job_ids: Optional[List[str]] = None,
         child_data: Optional[List[ExperimentData]] = None,
@@ -102,6 +103,7 @@ class ExperimentData:
         Args:
             experiment: Optional, experiment object that generated the data.
             backend: Optional, Backend the experiment runs on.
+            service: The service that stores the experiment results to the database
             parent_id: Optional, ID of the parent experiment data
                 in the setting of a composite experiment
             job_ids: Optional, IDs of jobs submitted for the experiment.
@@ -145,6 +147,7 @@ class ExperimentData:
                 setattr(self._db_data, key, value)
 
         # general data related
+        self._service = service
         self._backend = None
         if backend is not None:
             self._set_backend(backend)
@@ -1203,6 +1206,8 @@ class ExperimentData:
             for fields that are saved.
         """
         self._save_experiment_metadata()
+        for data in self.child_data():
+            data.save_metadata()
 
     def _save_experiment_metadata(self) -> None:
         """Save this experiments metadata to a database service.
@@ -1230,14 +1235,14 @@ class ExperimentData:
                 attempts += 1
                 if is_new:
                     try:
-                        self.service.create_experiment(self._data, json_encoder=self._json_encoder)
+                        self.service.create_experiment(self._db_data, json_encoder=self._json_encoder)
                         success = True
                         self._created_in_db = True
                     except IBMExperimentEntryExists:
                         is_new = False
                 else:
                     try:
-                        self.service.update_experiment(self._data, json_encoder=self._json_encoder)
+                        self.service.update_experiment(self._db_data, json_encoder=self._json_encoder)
                         success = True
                     except IBMExperimentEntryNotFound:
                         is_new = True
@@ -1308,6 +1313,12 @@ class ExperimentData:
                     "You can view the experiment online at "
                     f"https://quantum-computing.ibm.com/experiments/{self.experiment_id}"
                 )
+        # handle children, but without additional prints
+        for data in self._child_data.values():
+            original_verbose = data.verbose
+            data.verbose = False
+            data.save()
+            data.verbose = original_verbose
 
     @classmethod
     def load(cls, experiment_id: str, service: IBMExperimentService) -> "DbExperimentDataV1":
@@ -1766,25 +1777,6 @@ class ExperimentData:
         )
         return self.child_data(index)
 
-    def save(self) -> None:
-        super().save()
-        for data in self._child_data.values():
-            original_verbose = data.verbose
-            data.verbose = False
-            data.save()
-            data.verbose = original_verbose
-
-    def save_metadata(self) -> None:
-        super().save_metadata()
-        for data in self.child_data():
-            data.save_metadata()
-
-    def _save_experiment_metadata(self):
-        # Copy child experiment IDs to metadata
-        if self._child_data:
-            self._metadata["child_data_ids"] = self._child_data.keys()
-        super()._save_experiment_metadata()
-
     @classmethod
     def load(cls, experiment_id: str, service: IBMExperimentService) -> ExperimentData:
         expdata = DbExperimentData.load(experiment_id, service)
@@ -1795,17 +1787,84 @@ class ExperimentData:
         expdata._set_child_data(child_data)
         return expdata
 
-    def copy(self, copy_results=True) -> "ExperimentData":
-        new_instance = super().copy(copy_results=copy_results)
+    def copy(self, copy_results: bool = True) -> "ExperimentData":
+        """Make a copy of the experiment data with a new experiment ID.
 
-        # Copy additional attributes not in base class
+        Args:
+            copy_results: If True copy the analysis results and figures
+                          into the returned container, along with the
+                          experiment data and metadata. If False only copy
+                          the experiment data and metadata.
+
+        Returns:
+            A copy of the experiment data object with the same data
+            but different IDs.
+
+        .. note:
+            If analysis results and figures are copied they will also have
+            new result IDs and figure names generated for the copies.
+
+            This method can not be called from an analysis callback. It waits
+            for analysis callbacks to complete before copying analysis results.
+        """
+        experiment: Optional["BaseExperiment"] = None,
+        backend: Optional[Backend] = None,
+        service: Optional[IBMExperimentService] = None,
+        parent_id: Optional[str] = None,
+        job_ids: Optional[List[str]] = None,
+        child_data: Optional[List[ExperimentData]] = None,
+        verbose: Optional[bool] = True,
+
+        new_instance = ExperimentData(
+            backend=self.backend,
+            service=self.service,
+            parent_id=self.parent_id,
+            job_ids=self.job_ids,
+            child_data=self._child_data,
+            verbose=self.verbose,
+        )  # data will be deep copied
+        new_instance._db_data.experiment_id = str(uuid.uuid4())  # different id for copied experiment
         if self.experiment is None:
             new_instance._experiment = None
         else:
             new_instance._experiment = self.experiment.copy()
 
+        LOG.debug(
+            "Copying experiment data [Experiment ID: %s]: %s",
+            self.experiment_id,
+            new_instance.experiment_id,
+        )
+
+        # Copy basic properties and metadata
+
+        new_instance._jobs = self._jobs.copy_object()
+        new_instance._auto_save = self._auto_save
+        new_instance._extra_data = self._extra_data
+
+        # Copy circuit result data and jobs
+        with self._result_data.lock:  # Hold the lock so no new data can be added.
+            new_instance._result_data = self._result_data.copy_object()
+            for jid, fut in self._job_futures.items():
+                if not fut.done():
+                    new_instance._add_job_future(new_instance._jobs[jid])
+
+        # If not copying results return the object
+        if not copy_results:
+            return new_instance
+
+        # Copy results and figures.
+        # This requires analysis callbacks to finish
+        self._wait_for_futures(self._analysis_futures.values(), name="analysis")
+        with self._analysis_results.lock:
+            new_instance._analysis_results = ThreadSafeOrderedDict()
+            new_instance.add_analysis_results([result.copy() for result in self.analysis_results()])
+        with self._figures.lock:
+            new_instance._figures = ThreadSafeOrderedDict()
+            new_instance.add_figures(self._figures.values())
+
         # Recursively copy child data
-        child_data = [data.copy(copy_results=copy_results) for data in self.child_data()]
+        child_data = [data.copy(copy_results=copy_results) for data in
+                      self.child_data()]
         new_instance._set_child_data(child_data)
         return new_instance
 
@@ -1814,10 +1873,11 @@ class ExperimentData:
         self._child_data = ThreadSafeOrderedDict()
         for data in child_data:
             self.add_child_data(data)
+        self._db_data.metadata["child_data_ids"] = self._child_data.keys()
 
     def _set_service(self, service: IBMExperimentService) -> None:
         """Set the service to be used for storing experiment data,
-           to this experiment itself and its descendants.
+           to this experiment only and not to its descendants
 
         Args:
             service: Service to be used.
@@ -1825,7 +1885,14 @@ class ExperimentData:
         Raises:
             DbExperimentDataError: If an experiment service is already being used.
         """
-        super()._set_service(service)
+        if self._service:
+            raise DbExperimentDataError(
+                "An experiment service is already being used.")
+        self._service = service
+        for result in self._analysis_results.values():
+            result.service = service
+        with contextlib.suppress(Exception):
+            self.auto_save = self._service.options.get("auto_save", False)
         for data in self.child_data():
             data._set_service(service)
 
@@ -1894,12 +1961,12 @@ class ExperimentData:
         out += ")"
         return out
 
-    # def __getattr__(self, name: str) -> Any:
-    #     try:
-    #         return self._extra_data[name]
-    #     except KeyError:
-    #         # pylint: disable=raise-missing-from
-    #         raise AttributeError("Attribute %s is not defined" % name)
+    def __getattr__(self, name: str) -> Any:
+        try:
+            return self._extra_data[name]
+        except KeyError:
+            # pylint: disable=raise-missing-from
+            raise AttributeError("Attribute %s is not defined" % name)
 
     def _safe_serialize_jobs(self):
         """Return serializable object for stored jobs"""
