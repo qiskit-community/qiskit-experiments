@@ -20,7 +20,7 @@ import numpy as np
 from uncertainties import unumpy as unp, ufloat
 
 from qiskit_experiments.data_processing.nodes import (
-    Discriminator,
+    DiscriminatorNode,
     MemoryToCounts,
     SVD,
     ToAbs,
@@ -471,7 +471,7 @@ class TestDiscriminator(BaseDataProcessorTest):
 
         self.create_experiment_data(iq_data)
 
-        discriminator = Discriminator(FakeDiscriminator(0.1))
+        discriminator = DiscriminatorNode(FakeDiscriminator(0.1))
         data = np.asarray([datum["memory"] for datum in self.iq_experiment.data()])
         with self.assertRaises(DataProcessorError):
             discriminator(data)
@@ -509,7 +509,7 @@ class TestDiscriminator(BaseDataProcessorTest):
 
         self.create_experiment_data(iq_data, single_shot=True)
         data = np.asarray([datum["memory"] for datum in self.iq_experiment.data()])
-        discriminator = Discriminator(FakeDiscriminator(0.0))
+        discriminator = DiscriminatorNode(FakeDiscriminator(0.0))
         classified = discriminator(data)
 
         expected = [
@@ -571,7 +571,7 @@ class TestDiscriminator(BaseDataProcessorTest):
         self.create_experiment_data(iq_data, single_shot=True)
         data = np.asarray([datum["memory"] for datum in self.iq_experiment.data()])
         thresholds = [-10, 0, 10]
-        discriminator = Discriminator([FakeDiscriminator(threshold) for threshold in thresholds])
+        discriminator = DiscriminatorNode([FakeDiscriminator(threshold) for threshold in thresholds])
         classified = discriminator(data)
 
         expected = [
@@ -595,7 +595,7 @@ class TestDiscriminator(BaseDataProcessorTest):
 
         self.create_experiment_data(iq_data, single_shot=True)
         data = np.asarray([datum["memory"] for datum in self.iq_experiment.data()])
-        discriminator = Discriminator(FakeQutritDiscriminator())
+        discriminator = DiscriminatorNode(FakeQutritDiscriminator())
         classified = discriminator(data)
         self.assertListEqual(classified.tolist(), expected)
 

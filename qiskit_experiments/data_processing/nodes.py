@@ -431,7 +431,7 @@ class ToAbs(IQPart):
         return unp.sqrt(data[..., 0] ** 2 + data[..., 1] ** 2) * self.scale
 
 
-class Discriminator(DataAction):
+class DiscriminatorNode(DataAction):
     """A class to discriminate kerneled data, e.g., IQ data, to produce counts.
 
     This node integrates into the data processing chain a serializable :class:`.BaseDiscriminator`
