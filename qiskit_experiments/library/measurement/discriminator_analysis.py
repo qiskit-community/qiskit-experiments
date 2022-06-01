@@ -18,8 +18,10 @@ from sklearn.discriminant_analysis import LinearDiscriminantAnalysis, QuadraticD
 from sklearn.mixture import GaussianMixture
 from qiskit_experiments.framework import AnalysisResultData, ExperimentData
 
+from qiskit_experiments.framework.matplotlib import get_non_gui_ax
 from qiskit_experiments.curve_analysis.visualization import plot_contourf, plot_scatter
 from qiskit_experiments.framework import BaseAnalysis, Options, AnalysisResultData
+from qiskit_experiments.framework.sklearn import requires_sklearn
 
 
 class DiscriminatorAnalysis(BaseAnalysis):
@@ -35,6 +37,11 @@ class DiscriminatorAnalysis(BaseAnalysis):
         options.discriminator_type = "LDA"
 
         return options
+
+    # @requires_sklearn
+    # def LDA(self, xdata, ydata):
+    #     discriminator.
+    #     return analysis_results
 
     def _run_analysis(
         self, experiment_data: ExperimentData
@@ -55,7 +62,6 @@ class DiscriminatorAnalysis(BaseAnalysis):
         """
         data = experiment_data.data()
 
-        # qubit = data[0]["metadata"]["qubit"]
         _xdata, _ydata = self._process_data(data)
 
         if self.options.discriminator_type == "LDA":
@@ -63,9 +69,13 @@ class DiscriminatorAnalysis(BaseAnalysis):
         elif self.options.discriminator_type == "QDA":
             discriminator = QuadraticDiscriminantAnalysis()
         elif self.options.discriminator_type == "GaussianMixture":
+            centers = []
+            for level in np.unique(_xdata):
+                ix = np.where(_xdata == level)
+                centers.append(np.average(_ydata[ix], axis=0))
             discriminator = GaussianMixture(
-                n_components=2, covariance_type="spherical"
-            )  # to update
+                n_components=2, covariance_type="spherical", means_init=centers
+            )
         else:
             raise AttributeError("Unsupported discriminator type")
 
@@ -73,24 +83,34 @@ class DiscriminatorAnalysis(BaseAnalysis):
         score = discriminator.score(_ydata, _xdata)
 
         if self.options.plot:
+            spacing_x = (max(_ydata[:, 0]) - min(_ydata[:, 0])) / 10
+            spacing_y = (max(_ydata[:, 1]) - min(_ydata[:, 1])) / 10
             xx, yy = np.meshgrid(
                 np.arange(
-                    min(_ydata[:, 0]),
-                    max(_ydata[:, 0]),
+                    min(_ydata[:, 0]) - spacing_x,
+                    max(_ydata[:, 0]) + spacing_x,
                     (max(_ydata[:, 0]) - min(_ydata[:, 0])) / 500,
                 ),
                 np.arange(
-                    min(_ydata[:, 1]),
-                    max(_ydata[:, 1]),
+                    min(_ydata[:, 1]) - spacing_y,
+                    max(_ydata[:, 1]) + spacing_y,
                     (max(_ydata[:, 1]) - min(_ydata[:, 1])) / 500,
                 ),
             )
-            ax = plot_scatter(_ydata[:, 0], _ydata[:, 1], c=_xdata)
+
+            if self.options.ax is None:
+                ax = get_non_gui_ax()
+            else:
+                ax = self.options.ax
+            for level in np.unique(_xdata):
+                ix = np.where(_xdata == level)
+                ax.scatter(_ydata[ix, 0], _ydata[ix, 1], label=f"|{level}>", marker="x")
             zz = discriminator.predict(np.c_[xx.ravel(), yy.ravel()])
             zz = np.array(zz).astype(float).reshape(xx.shape)
             ax = plot_contourf(xx, yy, zz, ax, alpha=0.2)
             ax.set_xlabel("I data")
             ax.set_ylabel("Q data")
+            ax.legend()
             figures = [ax.get_figure()]
         else:
             figures = None
@@ -103,11 +123,11 @@ class DiscriminatorAnalysis(BaseAnalysis):
                 ),
                 AnalysisResultData(
                     "coef",
-                    value=discriminator.coef_,
+                    value=str(discriminator.coef_),
                 ),
                 AnalysisResultData(
                     "intercept",
-                    value=discriminator.intercept_,
+                    value=str(discriminator.intercept_),
                 ),
                 AnalysisResultData(
                     "score",
@@ -137,11 +157,11 @@ class DiscriminatorAnalysis(BaseAnalysis):
                 ),
                 AnalysisResultData(
                     "means",
-                    value=discriminator.means_,
+                    value=str(discriminator.means_),
                 ),
                 AnalysisResultData(
                     "covariances",
-                    value=discriminator.covariances_,
+                    value=str(np.sqrt(discriminator.covariances_)),
                 ),
             ]
         return analysis_results, figures
