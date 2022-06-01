@@ -27,6 +27,7 @@ import warnings
 import copy
 import uuid
 import enum
+import time
 import traceback
 import numpy as np
 from matplotlib import pyplot
@@ -57,7 +58,6 @@ if TYPE_CHECKING:
     from . import BaseExperiment
 
 LOG = logging.getLogger(__name__)
-LOG = logging.getLogger(__name__)
 
 
 def do_auto_save(func: Callable):
@@ -81,6 +81,7 @@ class ExperimentData:
     3. Saving/Loading data from the result database
     """
 
+    _metadata_version = 1
     _job_executor = futures.ThreadPoolExecutor()
 
     _json_encoder = ExperimentEncoder
@@ -118,7 +119,9 @@ class ExperimentData:
         self._experiment = experiment
 
         # data stored in the database
-        metadata = copy.deepcopy(experiment._metadata()) if experiment else {},
+        metadata = dict()
+        if experiment is not None:
+            metadata = copy.deepcopy(experiment._metadata())
         source = metadata.pop(
             "_source",
             {
@@ -128,7 +131,7 @@ class ExperimentData:
             },
         )
         metadata["_source"] = source
-        experiment_id = kwargs.get('experiment_id',str(uuid.uuid4()))
+        experiment_id = kwargs.get('experiment_id', str(uuid.uuid4()))
         self._db_data = ExperimentDataclass(
             experiment_id=experiment_id,
             experiment_type=experiment_type,
@@ -137,7 +140,12 @@ class ExperimentData:
             metadata=metadata,
         )
 
+        for key, value in kwargs.items():
+            if hasattr(self._db_data, key):
+                setattr(self._db_data, key, value)
+
         # general data related
+        self._backend = None
         if backend is not None:
             self._set_backend(backend)
         self._auto_save = False
@@ -159,7 +167,7 @@ class ExperimentData:
 
         # data storage
         self._result_data = ThreadSafeList()
-        self._figures = ThreadSafeOrderedDict()
+        self._figures = ThreadSafeOrderedDict(self._db_data.figure_names)
         self._analysis_results = ThreadSafeOrderedDict()
 
         self._deleted_figures = deque()
@@ -616,7 +624,7 @@ class ExperimentData:
                     "Skipping duplicate job, a job with this ID already exists [Job ID: %s]", jid
                 )
             else:
-                self._data.job_ids.append(jid)
+                self.job_ids.append(jid)
                 self._jobs[jid] = job
                 if jid in self._job_futures:
                     LOG.warning("Job future has already been submitted [Job ID: %s]", jid)
@@ -806,7 +814,7 @@ class ExperimentData:
         """
         if result.job_id not in self._jobs:
             self._jobs[result.job_id] = None
-            self._data.job_ids.append(result.job_id)
+            self.job_ids.append(result.job_id)
         with self._result_data.lock:
             # Lock data while adding all result data
             for i, _ in enumerate(result.results):
@@ -1325,6 +1333,392 @@ class ExperimentData:
         expdata._created_in_db = True
         return expdata
 
+    def jobs(self) -> List[Job]:
+        """Return a list of jobs for the experiment"""
+        return self._jobs.values()
+
+    def cancel_jobs(self, ids: Optional[Union[str, List[str]]] = None) -> bool:
+        """Cancel any running jobs.
+
+        Args:
+            ids: Job(s) to cancel. If None all non-finished jobs will be cancelled.
+
+        Returns:
+            True if the specified jobs were successfully cancelled
+            otherwise false.
+        """
+        if isinstance(ids, str):
+            ids = [ids]
+
+        with self._jobs.lock:
+            all_cancelled = True
+            for jid, job in reversed(self._jobs.items()):
+                if ids and jid not in ids:
+                    # Skip cancelling this callback
+                    continue
+                if job and job.status() not in JOB_FINAL_STATES:
+                    try:
+                        job.cancel()
+                        LOG.warning("Cancelled job [Job ID: %s]", jid)
+                    except Exception as err:  # pylint: disable=broad-except
+                        all_cancelled = False
+                        LOG.warning("Unable to cancel job [Job ID: %s]:\n%s", jid, err)
+                        continue
+
+                # Remove done or cancelled job futures
+                if jid in self._job_futures:
+                    del self._job_futures[jid]
+
+        return all_cancelled
+
+    def cancel_analysis(self, ids: Optional[Union[str, List[str]]] = None) -> bool:
+        """Cancel any queued analysis callbacks.
+
+        .. note::
+            A currently running analysis callback cannot be cancelled.
+
+        Args:
+            ids: Analysis callback(s) to cancel. If None all non-finished
+                 analysis will be cancelled.
+
+        Returns:
+            True if the specified analysis callbacks were successfully
+            cancelled otherwise false.
+        """
+        if isinstance(ids, str):
+            ids = [ids]
+
+        # Lock analysis futures so we can't add more while trying to cancel
+        with self._analysis_futures.lock:
+            all_cancelled = True
+            not_running = []
+            for cid, callback in reversed(self._analysis_callbacks.items()):
+                if ids and cid not in ids:
+                    # Skip cancelling this callback
+                    continue
+
+                # Set event to cancel callback
+                callback.event.set()
+
+                # Check for running callback that can't be cancelled
+                if callback.status == AnalysisStatus.RUNNING:
+                    all_cancelled = False
+                    LOG.warning(
+                        "Unable to cancel running analysis callback [Experiment ID: %s]"
+                        "[Analysis Callback ID: %s]",
+                        self.experiment_id,
+                        cid,
+                    )
+                else:
+                    not_running.append(cid)
+
+            # Wait for completion of other futures cancelled via event.set
+            waited = futures.wait([self._analysis_futures[cid] for cid in not_running], timeout=1)
+            # Get futures that didn't raise exception
+            for fut in waited.done:
+                if fut.done() and not fut.exception():
+                    cid = fut.result()[0]
+                    if cid in self._analysis_futures:
+                        del self._analysis_futures[cid]
+
+        return all_cancelled
+
+    def cancel(self) -> bool:
+        """Attempt to cancel any running jobs and queued analysis callbacks.
+
+        .. note::
+            A running analysis callback cannot be cancelled.
+
+        Returns:
+            True if all jobs and analysis are successfully cancelled, otherwise false.
+        """
+        # Cancel analysis first since it is queued on jobs, then cancel jobs
+        # otherwise there can be a race issue when analysis starts running
+        # as soon as jobs are cancelled
+        analysis_cancelled = self.cancel_analysis()
+        jobs_cancelled = self.cancel_jobs()
+        return analysis_cancelled and jobs_cancelled
+
+    def block_for_results(self, timeout: Optional[float] = None) -> "DbExperimentDataV1":
+        """Block until all pending jobs and analysis callbacks finish.
+
+        Args:
+            timeout: Timeout in seconds for waiting for results.
+
+        Returns:
+            The experiment data with finished jobs and post-processing.
+        """
+        start_time = time.time()
+        with self._job_futures.lock and self._analysis_futures.lock:
+            # Lock threads to get all current job and analysis futures
+            # at the time of function call and then release the lock
+            job_ids = self._job_futures.keys()
+            job_futs = self._job_futures.values()
+            analysis_ids = self._analysis_futures.keys()
+            analysis_futs = self._analysis_futures.values()
+
+        # Wait for futures
+        self._wait_for_futures(job_futs + analysis_futs, name="jobs and analysis", timeout=timeout)
+
+        # Clean up done job futures
+        num_jobs = len(job_ids)
+        for jid, fut in zip(job_ids, job_futs):
+            if (fut.done() and not fut.exception()) or fut.cancelled():
+                if jid in self._job_futures:
+                    del self._job_futures[jid]
+                    num_jobs -= 1
+
+        # Clean up done analysis futures
+        num_analysis = len(analysis_ids)
+        for cid, fut in zip(analysis_ids, analysis_futs):
+            if (fut.done() and not fut.exception()) or fut.cancelled():
+                if cid in self._analysis_futures:
+                    del self._analysis_futures[cid]
+                    num_analysis -= 1
+
+        # Check if more futures got added while this function was running
+        # and block recursively. This could happen if an analysis callback
+        # spawns another callback or creates more jobs
+        if len(self._job_futures) > num_jobs or len(self._analysis_futures) > num_analysis:
+            time_taken = time.time() - start_time
+            if timeout is not None:
+                timeout = max(0, timeout - time_taken)
+            return self.block_for_results(timeout=timeout)
+
+        return self
+
+    def _wait_for_futures(
+        self, futs: List[futures.Future], name: str = "futures", timeout: Optional[float] = None
+    ) -> bool:
+        """Wait for jobs to finish running.
+
+        Args:
+            futs: Job or analysis futures to wait for.
+            name: type name for future for logger messages.
+            timeout: The length of time to wait for all jobs
+                     before returning False.
+
+        Returns:
+            True if all jobs finished. False if timeout time was reached
+            or any jobs were cancelled or had an exception.
+        """
+        waited = futures.wait(futs, timeout=timeout)
+        value = True
+
+        # Log futures still running after timeout
+        if waited.not_done:
+            LOG.info(
+                "Waiting for %s timed out before completion [Experiment ID: %s].",
+                name,
+                self.experiment_id,
+            )
+            value = False
+
+        # Check for futures that were cancelled or errorred
+        excepts = ""
+        for fut in waited.done:
+            ex = fut.exception()
+            if ex:
+                excepts += "\n".join(traceback.format_exception(type(ex), ex, ex.__traceback__))
+                value = False
+            elif fut.cancelled():
+                LOG.debug(
+                    "%s was cancelled before completion [Experiment ID: %s]",
+                    name,
+                    self.experiment_id,
+                )
+        if excepts:
+            LOG.error(
+                "%s raised exceptions [Experiment ID: %s]:%s", name, self.experiment_id, excepts
+            )
+
+        return value
+
+    def status(self) -> ExperimentStatus:
+        """Return the experiment status.
+
+        Possible return values for :class:`.ExperimentStatus` are
+
+        * :attr:`~.ExperimentStatus.EMPTY` - experiment data is empty
+        * :attr:`~.ExperimentStatus.INITIALIZING` - experiment jobs are being initialized
+        * :attr:`~.ExperimentStatus.QUEUED` - experiment jobs are queued
+        * :attr:`~.ExperimentStatus.RUNNING` - experiment jobs is actively running
+        * :attr:`~.ExperimentStatus.CANCELLED` - experiment jobs or analysis has been cancelled
+        * :attr:`~.ExperimentStatus.POST_PROCESSING` - experiment analysis is actively running
+        * :attr:`~.ExperimentStatus.DONE` - experiment jobs and analysis have successfully run
+        * :attr:`~.ExperimentStatus.ERROR` - experiment jobs or analysis incurred an error
+
+        .. note::
+
+            If an experiment has status :attr:`~.ExperimentStatus.ERROR`
+            there may still be pending or running jobs. In these cases it
+            may be beneficial to call :meth:`cancel_jobs` to terminate these
+            remaining jobs.
+
+        Returns:
+            The experiment status.
+        """
+        if all(
+            len(container) == 0
+            for container in [
+                self._result_data,
+                self._jobs,
+                self._job_futures,
+                self._analysis_callbacks,
+                self._analysis_futures,
+                self._figures,
+                self._analysis_results,
+            ]
+        ):
+            return ExperimentStatus.EMPTY
+
+        # Return job status is job is not DONE
+        try:
+            return {
+                JobStatus.INITIALIZING: ExperimentStatus.INITIALIZING,
+                JobStatus.QUEUED: ExperimentStatus.QUEUED,
+                JobStatus.VALIDATING: ExperimentStatus.VALIDATING,
+                JobStatus.RUNNING: ExperimentStatus.RUNNING,
+                JobStatus.CANCELLED: ExperimentStatus.CANCELLED,
+                JobStatus.ERROR: ExperimentStatus.ERROR,
+            }[self.job_status()]
+        except KeyError:
+            pass
+
+        # Return analysis status if Done, cancelled or error
+        try:
+            return {
+                AnalysisStatus.DONE: ExperimentStatus.DONE,
+                AnalysisStatus.CANCELLED: ExperimentStatus.CANCELLED,
+                AnalysisStatus.ERROR: ExperimentStatus.ERROR,
+            }[self.analysis_status()]
+        except KeyError:
+            return ExperimentStatus.POST_PROCESSING
+
+    def job_status(self) -> JobStatus:
+        """Return the experiment job execution status.
+
+        Possible return values for :class:`.JobStatus` are
+
+        * :attr:`~.JobStatus.ERROR` - if any job incurred an error
+        * :attr:`~.JobStatus.CANCELLED` - if any job is cancelled.
+        * :attr:`~.JobStatus.RUNNING` - if any job is still running.
+        * :attr:`~.JobStatus.QUEUED` - if any job is queued.
+        * :attr:`~.JobStatus.VALIDATING` - if any job is being validated.
+        * :attr:`~.JobStatus.INITIALIZING` - if any job is being initialized.
+        * :attr:`~.JobStatus.DONE` - if all jobs are finished.
+
+        .. note::
+
+            If an experiment has status :attr:`~.JobStatus.ERROR` or
+            :attr:`~.JobStatus.CANCELLED` there may still be pending or
+            running jobs. In these cases it may be beneficial to call
+            :meth:`cancel_jobs` to terminate these remaining jobs.
+
+        Returns:
+            The job execution status.
+        """
+        statuses = set()
+        with self._jobs.lock:
+
+            # No jobs present
+            if not self._jobs:
+                return JobStatus.DONE
+
+            statuses = set()
+            for job in self._jobs.values():
+                if job:
+                    statuses.add(job.status())
+
+        # If any jobs are in non-DONE state return that state
+        for stat in [
+            JobStatus.ERROR,
+            JobStatus.CANCELLED,
+            JobStatus.RUNNING,
+            JobStatus.QUEUED,
+            JobStatus.VALIDATING,
+            JobStatus.INITIALIZING,
+        ]:
+            if stat in statuses:
+                return stat
+
+        return JobStatus.DONE
+
+    def analysis_status(self) -> AnalysisStatus:
+        """Return the data analysis post-processing status.
+
+        Possible return values for :class:`.AnalysisStatus` are
+
+        * :attr:`~.AnalysisStatus.ERROR` - if any analysis callback incurred an error
+        * :attr:`~.AnalysisStatus.CANCELLED` - if any analysis callback is cancelled.
+        * :attr:`~.AnalysisStatus.RUNNING` - if any analysis callback is actively running.
+        * :attr:`~.AnalysisStatus.QUEUED` - if any analysis callback is queued.
+        * :attr:`~.AnalysisStatus.DONE` - if all analysis callbacks have successfully run.
+
+        Returns:
+            Then analysis status.
+        """
+        statuses = set()
+        for status in self._analysis_callbacks.values():
+            statuses.add(status.status)
+
+        for stat in [
+            AnalysisStatus.ERROR,
+            AnalysisStatus.CANCELLED,
+            AnalysisStatus.RUNNING,
+            AnalysisStatus.QUEUED,
+        ]:
+            if stat in statuses:
+                return stat
+
+        return AnalysisStatus.DONE
+
+    def job_errors(self) -> str:
+        """Return any errors encountered in job execution."""
+        errors = []
+
+        # Get any job errors
+        for job in self._jobs.values():
+            if job and job.status() == JobStatus.ERROR:
+                if hasattr(job, "error_message"):
+                    error_msg = job.error_message()
+                else:
+                    error_msg = ""
+                errors.append(f"\n[Job ID: {job.job_id()}]: {error_msg}")
+
+        # Get any job futures errors:
+        for jid, fut in self._job_futures.items():
+            if fut and fut.done() and fut.exception():
+                ex = fut.exception()
+                errors.append(
+                    f"[Job ID: {jid}]"
+                    "\n".join(traceback.format_exception(type(ex), ex, ex.__traceback__))
+                )
+        return "".join(errors)
+
+    def analysis_errors(self) -> str:
+        """Return any errors encountered during analysis callbacks."""
+        errors = []
+
+        # Get any callback errors
+        for cid, callback in self._analysis_callbacks.items():
+            if callback.status == AnalysisStatus.ERROR:
+                errors.append(f"\n[Analysis Callback ID: {cid}]: {callback.error_msg}")
+
+        return "".join(errors)
+
+    def errors(self) -> str:
+        """Return errors encountered during job and analysis execution.
+
+        .. note::
+            To display only job or analysis errors use the
+            :meth:`job_errors` or :meth:`analysis_errors` methods.
+
+        Returns:
+            Experiment errors.
+        """
+        return self.job_errors() + self.analysis_errors()
+
     # Children handling
 
     def add_child_data(self, experiment_data: ExperimentData):
@@ -1435,7 +1829,7 @@ class ExperimentData:
         for data in self.child_data():
             data._set_service(service)
 
-    @ExperimentData.share_level.setter
+    @share_level.setter
     def share_level(self, new_level: str) -> None:
         """Set the experiment share level,
            to this experiment itself and its descendants.
@@ -1500,12 +1894,12 @@ class ExperimentData:
         out += ")"
         return out
 
-    def __getattr__(self, name: str) -> Any:
-        try:
-            return self._extra_data[name]
-        except KeyError:
-            # pylint: disable=raise-missing-from
-            raise AttributeError("Attribute %s is not defined" % name)
+    # def __getattr__(self, name: str) -> Any:
+    #     try:
+    #         return self._extra_data[name]
+    #     except KeyError:
+    #         # pylint: disable=raise-missing-from
+    #         raise AttributeError("Attribute %s is not defined" % name)
 
     def _safe_serialize_jobs(self):
         """Return serializable object for stored jobs"""
@@ -1664,6 +2058,25 @@ def service_exception_to_warning():
     except Exception:  # pylint: disable=broad-except
         LOG.warning("Experiment service operation failed: %s", traceback.format_exc())
 
+class ExperimentStatus(enum.Enum):
+    """Class for experiment status enumerated type."""
+
+    EMPTY = "experiment data is empty"
+    INITIALIZING = "experiment jobs are being initialized"
+    VALIDATING = "experiment jobs are validating"
+    QUEUED = "experiment jobs are queued"
+    RUNNING = "experiment jobs is actively running"
+    CANCELLED = "experiment jobs or analysis has been cancelled"
+    POST_PROCESSING = "experiment analysis is actively running"
+    DONE = "experiment jobs and analysis have successfully run"
+    ERROR = "experiment jobs or analysis incurred an error"
+
+    def __json_encode__(self):
+        return self.name
+
+    @classmethod
+    def __json_decode__(cls, value):
+        return cls.__members__[value]  # pylint: disable=unsubscriptable-object
 
 class AnalysisStatus(enum.Enum):
     """Class for analysis callback status enumerated type."""
