@@ -33,7 +33,7 @@ from qiskit.result import Result
 from qiskit.providers import JobV1 as Job
 from qiskit.providers import JobStatus
 from qiskit_ibm_experiment import IBMExperimentService
-from qiskit_experiments.database_service import DbExperimentDataV1 as DbExperimentData
+from qiskit_experiments.framework import ExperimentData
 from qiskit_experiments.database_service import DbAnalysisResultV1 as DbAnalysisResult
 from qiskit_experiments.database_service.exceptions import (
     DbExperimentDataError,
@@ -49,7 +49,7 @@ from qiskit_experiments.framework.matplotlib import get_non_gui_ax
 
 
 class TestDbExperimentData(QiskitExperimentsTestCase):
-    """Test the DbExperimentData class."""
+    """Test the ExperimentData class."""
 
     def setUp(self):
         super().setUp()
@@ -63,7 +63,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
             "figure_names": ["figure1"],
             "notes": "some notes",
         }
-        exp_data = DbExperimentData.from_values(
+        exp_data = ExperimentData.from_values(
             backend=self.backend,
             experiment_type="qiskit_test",
             experiment_id="1234",
@@ -81,7 +81,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
 
     def test_add_data_dict(self):
         """Test add data in dictionary."""
-        exp_data = DbExperimentData.from_values(backend=self.backend, experiment_type="qiskit_test")
+        exp_data = ExperimentData.from_values(backend=self.backend, experiment_type="qiskit_test")
         a_dict = {"counts": {"01": 518}}
         dicts = [{"counts": {"00": 284}}, {"counts": {"00": 14}}]
 
@@ -91,7 +91,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
 
     def test_add_data_result(self):
         """Test add result data."""
-        exp_data = DbExperimentData.from_values(backend=self.backend, experiment_type="qiskit_test")
+        exp_data = ExperimentData.from_values(backend=self.backend, experiment_type="qiskit_test")
         a_result = self._get_job_result(1)
         results = [self._get_job_result(2), self._get_job_result(3)]
 
@@ -106,7 +106,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
 
     def test_add_data_result_metadata(self):
         """Test add result metadata."""
-        exp_data = DbExperimentData.from_values(backend=self.backend, experiment_type="qiskit_test")
+        exp_data = ExperimentData.from_values(backend=self.backend, experiment_type="qiskit_test")
         result1 = self._get_job_result(1, has_metadata=False)
         result2 = self._get_job_result(1, has_metadata=True)
 
@@ -130,7 +130,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         for job in jobs:
             expected.extend(job.result().get_counts())
 
-        exp_data = DbExperimentData.from_values(backend=self.backend, experiment_type="qiskit_test")
+        exp_data = ExperimentData.from_values(backend=self.backend, experiment_type="qiskit_test")
         exp_data.add_jobs(a_job)
         self.assertExperimentDone(exp_data)
         exp_data.add_jobs(jobs)
@@ -142,7 +142,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         """Test add job data with callback."""
 
         def _callback(_exp_data):
-            self.assertIsInstance(_exp_data, DbExperimentData)
+            self.assertIsInstance(_exp_data, ExperimentData)
             self.assertEqual(
                 [dat["counts"] for dat in _exp_data.data()], a_job.result().get_counts()
             )
@@ -156,7 +156,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         a_job.status.return_value = JobStatus.DONE
 
         called_back = False
-        exp_data = DbExperimentData.from_values(backend=self.backend, experiment_type="qiskit_test")
+        exp_data = ExperimentData.from_values(backend=self.backend, experiment_type="qiskit_test")
         exp_data.add_jobs(a_job)
         exp_data.add_analysis_callback(_callback)
         self.assertExperimentDone(exp_data)
@@ -166,7 +166,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         """Test add data with callback."""
 
         def _callback(_exp_data):
-            self.assertIsInstance(_exp_data, DbExperimentData)
+            self.assertIsInstance(_exp_data, ExperimentData)
             nonlocal called_back_count, expected_data, subtests
             expected_data.extend(subtests[called_back_count][1])
             self.assertEqual([dat["counts"] for dat in _exp_data.data()], expected_data)
@@ -186,7 +186,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
 
         called_back_count = 0
         expected_data = []
-        exp_data = DbExperimentData.from_values(backend=self.backend, experiment_type="qiskit_test")
+        exp_data = ExperimentData.from_values(backend=self.backend, experiment_type="qiskit_test")
 
         for data, _ in subtests:
             with self.subTest(data=data):
@@ -200,7 +200,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         """Test add job data with callback and additional arguments."""
 
         def _callback(_exp_data, **kwargs):
-            self.assertIsInstance(_exp_data, DbExperimentData)
+            self.assertIsInstance(_exp_data, ExperimentData)
             self.assertEqual({"foo": callback_kwargs}, kwargs)
             nonlocal called_back
             called_back = True
@@ -211,7 +211,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
 
         called_back = False
         callback_kwargs = "foo"
-        exp_data = DbExperimentData.from_values(backend=self.backend, experiment_type="qiskit_test")
+        exp_data = ExperimentData.from_values(backend=self.backend, experiment_type="qiskit_test")
         exp_data.add_jobs(a_job)
         exp_data.add_analysis_callback(_callback, foo=callback_kwargs)
         self.assertExperimentDone(exp_data)
@@ -230,7 +230,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         event = threading.Event()
         self.addCleanup(event.set)
 
-        exp_data = DbExperimentData.from_values(experiment_type="qiskit_test")
+        exp_data = ExperimentData.from_values(experiment_type="qiskit_test")
         exp_data.add_analysis_callback(_callback, event=event)
         exp_data.add_jobs(a_job)
         with self.assertLogs("qiskit_experiments", "WARNING"):
@@ -243,7 +243,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
             data1.append({"counts": {"00": randrange(1024)}})
         results = self._get_job_result(3)
 
-        exp_data = DbExperimentData.from_values(experiment_type="qiskit_test")
+        exp_data = ExperimentData.from_values(experiment_type="qiskit_test")
         exp_data.add_data(data1)
         exp_data.add_data(results)
         self.assertEqual(data1[1], exp_data.data(1))
@@ -268,7 +268,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
 
         for name, figure, figure_name in sub_tests:
             with self.subTest(name=name):
-                exp_data = DbExperimentData.from_values(
+                exp_data = ExperimentData.from_values(
                     backend=self.backend, experiment_type="qiskit_test"
                 )
                 fn = exp_data.add_figures(figure, figure_name)
@@ -280,7 +280,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         ax.plot([1, 2, 3])
 
         service = self._set_mock_service()
-        exp_data = DbExperimentData.from_values(
+        exp_data = ExperimentData.from_values(
             backend=self.backend, experiment_type="qiskit_test", service=service
         )
         exp_data.add_figures(figure, save_figure=True)
@@ -306,7 +306,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
 
         for name, figures, figure_names in sub_tests:
             with self.subTest(name=name):
-                exp_data = DbExperimentData.from_values(
+                exp_data = ExperimentData.from_values(
                     backend=self.backend, experiment_type="qiskit_test"
                 )
                 added_names = exp_data.add_figures(figures, figure_names)
@@ -318,7 +318,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         hello_bytes = str.encode("hello world")
         friend_bytes = str.encode("hello friend!")
 
-        exp_data = DbExperimentData.from_values(backend=self.backend, experiment_type="qiskit_test")
+        exp_data = ExperimentData.from_values(backend=self.backend, experiment_type="qiskit_test")
         fn = exp_data.add_figures(hello_bytes)
         with self.assertRaises(DbExperimentEntryExists):
             exp_data.add_figures(friend_bytes, fn)
@@ -330,7 +330,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         """Test saving a figure in the database."""
         hello_bytes = str.encode("hello world")
         service = self._set_mock_service()
-        exp_data = DbExperimentData.from_values(
+        exp_data = ExperimentData.from_values(
             backend=self.backend, experiment_type="qiskit_test", service=service
         )
         exp_data.add_figures(hello_bytes, save_figure=True)
@@ -341,12 +341,12 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
 
     def test_add_figure_bad_input(self):
         """Test adding figures with bad input."""
-        exp_data = DbExperimentData.from_values(backend=self.backend, experiment_type="qiskit_test")
+        exp_data = ExperimentData.from_values(backend=self.backend, experiment_type="qiskit_test")
         self.assertRaises(ValueError, exp_data.add_figures, ["foo", "bar"], ["name"])
 
     def test_get_figure(self):
         """Test getting figure."""
-        exp_data = DbExperimentData.from_values(experiment_type="qiskit_test")
+        exp_data = ExperimentData.from_values(experiment_type="qiskit_test")
         figure_template = "hello world {}"
         name_template = "figure_{}.svg"
         for idx in range(3):
@@ -366,7 +366,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
 
     def test_delete_figure(self):
         """Test deleting a figure."""
-        exp_data = DbExperimentData.from_values(experiment_type="qiskit_test")
+        exp_data = ExperimentData.from_values(experiment_type="qiskit_test")
         id_template = "figure_{}.svg"
         for idx in range(3):
             exp_data.add_figures(str.encode("hello world"), id_template.format(idx))
@@ -380,7 +380,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
 
     def test_delayed_backend(self):
         """Test initializing experiment data without a backend."""
-        exp_data = DbExperimentData.from_values(experiment_type="qiskit_test")
+        exp_data = ExperimentData.from_values(experiment_type="qiskit_test")
         self.assertIsNone(exp_data.backend)
         exp_data.save_metadata()
         a_job = mock.create_autospec(Job, instance=True)
@@ -389,7 +389,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
 
     def test_different_backend(self):
         """Test setting a different backend."""
-        exp_data = DbExperimentData.from_values(backend=self.backend, experiment_type="qiskit_test")
+        exp_data = ExperimentData.from_values(backend=self.backend, experiment_type="qiskit_test")
         a_job = mock.create_autospec(Job, instance=True)
         self.assertNotEqual(exp_data.backend, a_job.backend())
         with self.assertLogs("qiskit_experiments", "WARNING"):
@@ -397,7 +397,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
 
     def test_add_get_analysis_result(self):
         """Test adding and getting analysis results."""
-        exp_data = DbExperimentData.from_values(experiment_type="qiskit_test")
+        exp_data = ExperimentData.from_values(experiment_type="qiskit_test")
         results = []
         for idx in range(5):
             res = mock.MagicMock()
@@ -412,7 +412,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
 
     def test_add_get_analysis_results(self):
         """Test adding and getting a list of analysis results."""
-        exp_data = DbExperimentData.from_values(experiment_type="qiskit_test")
+        exp_data = ExperimentData.from_values(experiment_type="qiskit_test")
         results = []
         for idx in range(5):
             res = mock.MagicMock()
@@ -424,7 +424,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
 
     def test_delete_analysis_result(self):
         """Test deleting analysis result."""
-        exp_data = DbExperimentData.from_values(experiment_type="qiskit_test")
+        exp_data = ExperimentData.from_values(experiment_type="qiskit_test")
         id_template = "result_{}"
         for idx in range(3):
             res = mock.MagicMock()
@@ -439,7 +439,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
 
     def test_save_metadata(self):
         """Test saving experiment metadata."""
-        exp_data = DbExperimentData.from_values(backend=self.backend, experiment_type="qiskit_test")
+        exp_data = ExperimentData.from_values(backend=self.backend, experiment_type="qiskit_test")
         service = mock.create_autospec(IBMExperimentService, instance=True)
         exp_data.service = service
         exp_data.save_metadata()
@@ -453,7 +453,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
 
     def test_save(self):
         """Test saving all experiment related data."""
-        exp_data = DbExperimentData.from_values(backend=self.backend, experiment_type="qiskit_test")
+        exp_data = ExperimentData.from_values(backend=self.backend, experiment_type="qiskit_test")
         service = mock.create_autospec(IBMExperimentService, instance=True)
         exp_data.add_figures(str.encode("hello world"))
         analysis_result = mock.MagicMock()
@@ -466,7 +466,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
 
     def test_save_delete(self):
         """Test saving all deletion."""
-        exp_data = DbExperimentData.from_values(backend=self.backend, experiment_type="qiskit_test")
+        exp_data = ExperimentData.from_values(backend=self.backend, experiment_type="qiskit_test")
         service = mock.create_autospec(IBMExperimentService, instance=True)
         exp_data.add_figures(str.encode("hello world"))
         exp_data.add_analysis_results(mock.MagicMock())
@@ -481,19 +481,19 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
 
     def test_set_service_direct(self):
         """Test setting service directly."""
-        exp_data = DbExperimentData.from_values(experiment_type="qiskit_test")
+        exp_data = ExperimentData.from_values(experiment_type="qiskit_test")
         self.assertIsNone(exp_data.service)
         mock_service = mock.MagicMock()
         exp_data.service = mock_service
         self.assertEqual(mock_service, exp_data.service)
 
-        with self.assertRaises(DbExperimentDataError):
+        with self.assertRaises(ExperimentDataError):
             exp_data.service = mock_service
 
     def test_auto_save(self):
         """Test auto save."""
         service = self._set_mock_service()
-        exp_data = DbExperimentData.from_values(
+        exp_data = ExperimentData.from_values(
             backend=self.backend, experiment_type="qiskit_test", service=service
         )
         exp_data.auto_save = True
@@ -529,7 +529,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         job2.status = lambda: JobStatus.CANCELLED if event.is_set() else JobStatus.RUNNING
         self.addCleanup(event.set)
 
-        exp_data = DbExperimentData.from_values(experiment_type="qiskit_test")
+        exp_data = ExperimentData.from_values(experiment_type="qiskit_test")
         exp_data.add_jobs(job1)
         exp_data.add_jobs(job2)
         exp_data.add_analysis_callback(lambda *args, **kwargs: event.wait(timeout=15))
@@ -551,7 +551,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         job2 = mock.create_autospec(Job, instance=True)
         job2.status.return_value = JobStatus.ERROR
 
-        exp_data = DbExperimentData.from_values(experiment_type="qiskit_test")
+        exp_data = ExperimentData.from_values(experiment_type="qiskit_test")
         with self.assertLogs(logger="qiskit_experiments.database_service", level="WARN") as cm:
             exp_data.add_jobs([job1, job2])
         self.assertIn("Adding a job from a backend", ",".join(cm.output))
@@ -566,7 +566,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         event = threading.Event()
         self.addCleanup(event.set)
 
-        exp_data = DbExperimentData.from_values(experiment_type="qiskit_test")
+        exp_data = ExperimentData.from_values(experiment_type="qiskit_test")
         exp_data.add_jobs(job)
         exp_data.add_analysis_callback((lambda *args, **kwargs: event.wait(timeout=15)))
         status = exp_data.status()
@@ -581,7 +581,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         event = threading.Event()
         self.addCleanup(event.set)
 
-        exp_data = DbExperimentData.from_values(experiment_type="qiskit_test")
+        exp_data = ExperimentData.from_values(experiment_type="qiskit_test")
         exp_data.add_jobs(job)
         exp_data.add_analysis_callback((lambda *args, **kwargs: event.wait(timeout=2)))
         # Add second callback because the first can't be cancelled once it has started
@@ -600,7 +600,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         job.result.return_value = self._get_job_result(3)
         job.status.return_value = JobStatus.DONE
 
-        exp_data = DbExperimentData.from_values(experiment_type="qiskit_test")
+        exp_data = ExperimentData.from_values(experiment_type="qiskit_test")
         exp_data.add_jobs(job)
         with self.assertLogs(logger="qiskit_experiments.database_service", level="WARN") as cm:
             exp_data.add_jobs(job)
@@ -614,7 +614,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         job = mock.create_autospec(Job, instance=True)
         job.result.return_value = self._get_job_result(3)
         job.status.return_value = JobStatus.DONE
-        exp_data = DbExperimentData.from_values(experiment_type="qiskit_test")
+        exp_data = ExperimentData.from_values(experiment_type="qiskit_test")
         exp_data.add_jobs(job)
         exp_data.add_jobs(job)
         self.assertExperimentDone(exp_data)
@@ -622,7 +622,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
 
     def test_set_tags(self):
         """Test updating experiment tags."""
-        exp_data = DbExperimentData.from_values(experiment_type="qiskit_test", tags=["foo"])
+        exp_data = ExperimentData.from_values(experiment_type="qiskit_test", tags=["foo"])
         self.assertEqual(["foo"], exp_data.tags)
         exp_data.tags = ["bar"]
         self.assertEqual(["bar"], exp_data.tags)
@@ -641,7 +641,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
             cancel_count += 1
             event.set()
 
-        exp_data = DbExperimentData.from_values(experiment_type="qiskit_test")
+        exp_data = ExperimentData.from_values(experiment_type="qiskit_test")
         event = threading.Event()
         self.addCleanup(event.set)
         job = mock.create_autospec(Job, instance=True)
@@ -675,7 +675,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         job.result = _job_result
         job.status = lambda: JobStatus.DONE if event.is_set() else JobStatus.RUNNING
 
-        exp_data = DbExperimentData.from_values(experiment_type="qiskit_test")
+        exp_data = ExperimentData.from_values(experiment_type="qiskit_test")
         exp_data.add_jobs(job)
         exp_data.add_analysis_callback(_analysis)
         exp_data.cancel_analysis()
@@ -711,7 +711,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         job.result = _job_result
         job.status = lambda: JobStatus.DONE if event.is_set() else JobStatus.RUNNING
 
-        exp_data = DbExperimentData.from_values(experiment_type="qiskit_test")
+        exp_data = ExperimentData.from_values(experiment_type="qiskit_test")
         exp_data.add_jobs(job)
         exp_data.add_analysis_callback(_analysis, name=1, timeout=1)
         exp_data.add_analysis_callback(_analysis, name=2, timeout=30)
@@ -763,7 +763,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         job.cancel = event.set
         job.status = _status
 
-        exp_data = DbExperimentData.from_values(experiment_type="qiskit_test")
+        exp_data = ExperimentData.from_values(experiment_type="qiskit_test")
         exp_data.add_jobs(job)
         exp_data.add_analysis_callback(_analysis)
         exp_data.cancel()
@@ -789,7 +789,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         job.cancel = event.set
         job.status = lambda: JobStatus.CANCELLED if event.is_set() else JobStatus.RUNNING
 
-        exp_data = DbExperimentData.from_values(experiment_type="qiskit_test")
+        exp_data = ExperimentData.from_values(experiment_type="qiskit_test")
         exp_data.add_jobs(job, timeout=0.5)
 
         with self.assertLogs("qiskit_experiments", "WARNING"):
@@ -800,7 +800,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
     def test_metadata_serialization(self):
         """Test experiment metadata serialization."""
         metadata = {"complex": 2 + 3j, "numpy": np.zeros(2)}
-        exp_data = DbExperimentData.from_values(experiment_type="qiskit_test", metadata=metadata)
+        exp_data = ExperimentData.from_values(experiment_type="qiskit_test", metadata=metadata)
         serialized = json.dumps(exp_data.metadata, cls=exp_data._json_encoder)
         self.assertIsInstance(serialized, str)
         self.assertTrue(json.loads(serialized))
@@ -823,7 +823,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         job2.status.return_value = JobStatus.ERROR
         job2.job_id.return_value = "5678"
 
-        exp_data = DbExperimentData.from_values(experiment_type="qiskit_test")
+        exp_data = ExperimentData.from_values(experiment_type="qiskit_test")
         with self.assertLogs(logger="qiskit_experiments.database_service", level="WARN") as cm:
             exp_data.add_jobs(job1)
             exp_data.add_analysis_callback(_post_processing)
@@ -836,7 +836,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
     def test_simple_methods_from_callback(self):
         """Test that simple methods used in call back function don't hang
 
-        This test runs through many of the public methods of DbExperimentData
+        This test runs through many of the public methods of ExperimentData
         from analysis callbacks to make sure that they do not raise exceptions
         or hang the analysis thread. Hangs have occurred in the past when one
         of these methods blocks waiting for analysis to complete.
@@ -886,7 +886,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
             exp_data.job_errors()
             exp_data.analysis_errors()
 
-        exp_data = DbExperimentData.from_values(experiment_type="qiskit_test")
+        exp_data = ExperimentData.from_values(experiment_type="qiskit_test")
 
         exp_data.add_analysis_callback(callback1)
         exp_data.block_for_results(timeout=3)
@@ -915,7 +915,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
             result = DbAnalysisResult.from_values("RESULT2", True, ["Q0"], exp_data.experiment_id)
             exp_data.add_analysis_results(result)
 
-        exp_data = DbExperimentData.from_values(experiment_type="qiskit_test")
+        exp_data = ExperimentData.from_values(experiment_type="qiskit_test")
         exp_data.add_analysis_callback(callback1)
         exp_data.block_for_results(timeout=10)
         results = exp_data.analysis_results(block=False)
@@ -926,8 +926,8 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
 
     def test_source(self):
         """Test getting experiment source."""
-        exp_data = DbExperimentData.from_values(experiment_type="qiskit_test")
-        self.assertIn("DbExperimentDataV1", exp_data.source["class"])
+        exp_data = ExperimentData.from_values(experiment_type="qiskit_test")
+        self.assertIn("ExperimentData", exp_data.source["class"])
         self.assertTrue(exp_data.source["qiskit_version"])
 
     def test_block_for_jobs(self):
@@ -942,7 +942,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         sleep_count = 0
         job = mock.create_autospec(Job, instance=True)
         job.result = _sleeper
-        exp_data = DbExperimentData.from_values(experiment_type="qiskit_test")
+        exp_data = ExperimentData.from_values(experiment_type="qiskit_test")
         exp_data.add_jobs(job)
         exp_data.add_analysis_callback(_sleeper)
         self.assertExperimentDone(exp_data)
@@ -950,12 +950,12 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
 
     def test_additional_attr(self):
         """Test additional experiment attributes."""
-        exp_data = DbExperimentData.from_values(experiment_type="qiskit_test", foo="foo")
+        exp_data = ExperimentData.from_values(experiment_type="qiskit_test", foo="foo")
         self.assertEqual("foo", exp_data.foo)
 
     def test_copy_metadata(self):
         """Test copy metadata."""
-        exp_data = DbExperimentData.from_values(experiment_type="qiskit_test")
+        exp_data = ExperimentData.from_values(experiment_type="qiskit_test")
         exp_data.add_data(self._get_job_result(1))
         result = mock.MagicMock()
         exp_data.add_analysis_results(result)
@@ -978,7 +978,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
             event.wait(timeout=15)
             return job_results2
 
-        exp_data = DbExperimentData.from_values(experiment_type="qiskit_test")
+        exp_data = ExperimentData.from_values(experiment_type="qiskit_test")
         job = mock.create_autospec(Job, instance=True)
         job.result = _job1_result
         exp_data.add_jobs(job)
