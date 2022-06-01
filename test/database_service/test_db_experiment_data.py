@@ -1031,12 +1031,3 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
 
 if __name__ == "__main__":
     unittest.main()
-
-# def suite():
-#     suite = unittest.TestSuite()
-#     suite.addTest(TestDbExperimentData('test_save_metadata'))
-#     return suite
-#
-# if __name__ == '__main__':
-#     runner = unittest.TextTestRunner()
-#     runner.run(suite())

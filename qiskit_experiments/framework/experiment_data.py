@@ -96,6 +96,7 @@ class ExperimentData:
         job_ids: Optional[List[str]] = None,
         child_data: Optional[List[ExperimentData]] = None,
         verbose: Optional[bool] = True,
+        db_data: Optional[ExperimentDataclass] = None,
         **kwargs,
     ):
         """Initialize experiment data.
@@ -109,6 +110,7 @@ class ExperimentData:
             job_ids: Optional, IDs of jobs submitted for the experiment.
             child_data: Optional, list of child experiment data.
             verbose: Optional, whether to print messages
+            db_data: Optional, a prepared ExperimentDataclass of the experiment info; overrides other db parameters.
         """
         if experiment is not None:
             backend = backend or experiment.backend
@@ -134,13 +136,16 @@ class ExperimentData:
         )
         metadata["_source"] = source
         experiment_id = kwargs.get('experiment_id', str(uuid.uuid4()))
-        self._db_data = ExperimentDataclass(
-            experiment_id=experiment_id,
-            experiment_type=experiment_type,
-            parent_id=parent_id,
-            job_ids=job_ids,
-            metadata=metadata,
-        )
+        if db_data is None:
+            self._db_data = ExperimentDataclass(
+                experiment_id=experiment_id,
+                experiment_type=experiment_type,
+                parent_id=parent_id,
+                job_ids=job_ids,
+                metadata=metadata,
+            )
+        else:
+            self._db_data = db_data
 
         for key, value in kwargs.items():
             if hasattr(self._db_data, key):
@@ -372,7 +377,7 @@ class ExperimentData:
     @share_level.setter
     def share_level(self, new_level: str) -> None:
         """Set the experiment share level,
-           only to this experiment and not to its descendants.
+           to this experiment itself and its descendants.
 
         Args:
             new_level: New experiment share level. Valid share levels are provider-
@@ -380,6 +385,11 @@ class ExperimentData:
                 "public", "hub", "group", "project", and "private".
         """
         self._db_data.share_level = new_level
+        for data in self._child_data.values():
+            original_auto_save = data.auto_save
+            data.auto_save = False
+            data.share_level = new_level
+            data.auto_save = original_auto_save
         if self.auto_save:
             self.save_metadata()
 
@@ -1320,30 +1330,6 @@ class ExperimentData:
             data.save()
             data.verbose = original_verbose
 
-    @classmethod
-    def load(cls, experiment_id: str, service: IBMExperimentService) -> "DbExperimentDataV1":
-        """Load a saved experiment data from a database service.
-
-        Args:
-            experiment_id: Experiment ID.
-            service: the database service.
-
-        Returns:
-            The loaded experiment data.
-        """
-        data = service.experiment(experiment_id, json_decoder=cls._json_decoder)
-        expdata = cls(data=data, service=service)
-
-        # Retrieve data and analysis results
-        # Maybe this isn't necessary but the repr of the class should
-        # be updated to show correct number of results including remote ones
-        expdata._retrieve_data()
-        expdata._retrieve_analysis_results()
-
-        # mark it as existing in the DB
-        expdata._created_in_db = True
-        return expdata
-
     def jobs(self) -> List[Job]:
         """Return a list of jobs for the experiment"""
         return self._jobs.values()
@@ -1778,13 +1764,34 @@ class ExperimentData:
         return self.child_data(index)
 
     @classmethod
-    def load(cls, experiment_id: str, service: IBMExperimentService) -> ExperimentData:
-        expdata = DbExperimentData.load(experiment_id, service)
-        expdata.__class__ = ExperimentData
-        expdata._experiment = None
+    def load(cls, experiment_id: str,
+             service: IBMExperimentService) -> "DbExperimentDataV1":
+        """Load a saved experiment data from a database service.
+
+        Args:
+            experiment_id: Experiment ID.
+            service: the database service.
+
+        Returns:
+            The loaded experiment data.
+        """
+        data = service.experiment(experiment_id, json_decoder=cls._json_decoder)
+        expdata = cls(service=service, db_data=data)
+
+        # Retrieve data and analysis results
+        # Maybe this isn't necessary but the repr of the class should
+        # be updated to show correct number of results including remote ones
+        expdata._retrieve_data()
+        expdata._retrieve_analysis_results()
+
+        # mark it as existing in the DB
+        expdata._created_in_db = True
+
         child_data_ids = expdata.metadata.pop("child_data_ids", [])
-        child_data = [ExperimentData.load(child_id, service) for child_id in child_data_ids]
+        child_data = [ExperimentData.load(child_id, service) for child_id in
+                      child_data_ids]
         expdata._set_child_data(child_data)
+
         return expdata
 
     def copy(self, copy_results: bool = True) -> "ExperimentData":
@@ -1895,25 +1902,6 @@ class ExperimentData:
             self.auto_save = self._service.options.get("auto_save", False)
         for data in self.child_data():
             data._set_service(service)
-
-    @share_level.setter
-    def share_level(self, new_level: str) -> None:
-        """Set the experiment share level,
-           to this experiment itself and its descendants.
-
-        Args:
-            new_level: New experiment share level. Valid share levels are provider-
-                specified. For example, IBM Quantum experiment service allows
-                "public", "hub", "group", "project", and "private".
-        """
-        self._share_level = new_level
-        for data in self._child_data.values():
-            original_auto_save = data.auto_save
-            data.auto_save = False
-            data.share_level = new_level
-            data.auto_save = original_auto_save
-        if self.auto_save:
-            self.save_metadata()
 
     def add_tags_recursive(self, tags2add: List[str]) -> None:
         """Add tags to this experiment itself and its descendants
