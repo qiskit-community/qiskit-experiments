@@ -571,7 +571,9 @@ class TestDiscriminator(BaseDataProcessorTest):
         self.create_experiment_data(iq_data, single_shot=True)
         data = np.asarray([datum["memory"] for datum in self.iq_experiment.data()])
         thresholds = [-10, 0, 10]
-        discriminator = DiscriminatorNode([FakeDiscriminator(threshold) for threshold in thresholds])
+        discriminator = DiscriminatorNode(
+            [FakeDiscriminator(threshold) for threshold in thresholds]
+        )
         classified = discriminator(data)
 
         expected = [
