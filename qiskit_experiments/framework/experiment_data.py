@@ -12,17 +12,42 @@
 """
 Experiment Data class
 """
+
 from __future__ import annotations
 import logging
-from typing import Dict, Optional, List, Union, TYPE_CHECKING
+import dataclasses
+from typing import Dict, Optional, List, Union, Any, Callable, Tuple, TYPE_CHECKING
 from datetime import datetime
+from concurrent import futures
+from threading import Event
+from functools import wraps
+from collections import deque
+import contextlib
 import warnings
+import copy
+import uuid
+import enum
+import traceback
+import numpy as np
+from matplotlib import pyplot
+from qiskit.result import Result
+from qiskit.providers.jobstatus import JobStatus, JOB_FINAL_STATES
+from qiskit_ibm_experiment import ExperimentData
+from qiskit_ibm_experiment.exceptions import IBMExperimentEntryExists, IBMExperimentEntryNotFound
+
 from qiskit.exceptions import QiskitError
-from qiskit.providers.backend import Backend
+from qiskit.providers import Job, BaseJob, Backend, Provider
 from qiskit_ibm_experiment import IBMExperimentService
 from qiskit_ibm_experiment import ExperimentData as ExperimentDataclass
-from qiskit_experiments.database_service.utils import ThreadSafeOrderedDict
-
+from qiskit_experiments.framework.json import ExperimentEncoder, ExperimentDecoder
+from qiskit_experiments.database_service.utils import (
+    qiskit_version,
+    plot_to_svg_bytes,
+    ThreadSafeOrderedDict,
+    ThreadSafeList,
+)
+from qiskit_experiments.database_service.db_analysis_result import DbAnalysisResultV1 as DbAnalysisResult
+from qiskit_experiments.database_service.exceptions import DbExperimentDataError, DbExperimentEntryNotFound, DbExperimentEntryExists
 
 if TYPE_CHECKING:
     # There is a cyclical dependency here, but the name needs to exist for
@@ -32,7 +57,20 @@ if TYPE_CHECKING:
     from . import BaseExperiment
 
 LOG = logging.getLogger(__name__)
+LOG = logging.getLogger(__name__)
 
+
+def do_auto_save(func: Callable):
+    """Decorate the input function to auto save data."""
+
+    @wraps(func)
+    def _wrapped(self, *args, **kwargs):
+        return_val = func(self, *args, **kwargs)
+        if self.auto_save:
+            self.save_metadata()
+        return return_val
+
+    return _wrapped
 
 class ExperimentData:
     """Qiskit Experiments Data container class.
@@ -84,13 +122,13 @@ class ExperimentData:
         source = metadata.pop(
             "_source",
             {
-                "class": f"{cls.__module__}.{cls.__name__}",
-                "metadata_version": cls._metadata_version,
+                "class": f"{self.__class__.__module__}.{self.__class__.__name__}",
+                "metadata_version": self.__class__._metadata_version,
                 "qiskit_version": qiskit_version(),
             },
         )
         metadata["_source"] = source
-        experiment_id = experiment_id or str(uuid.uuid4())
+        experiment_id = kwargs.get('experiment_id',str(uuid.uuid4()))
         self._db_data = ExperimentDataclass(
             experiment_id=experiment_id,
             experiment_type=experiment_type,
@@ -108,7 +146,7 @@ class ExperimentData:
         self.verbose = verbose
 
         # job handling related
-        self._jobs = ThreadSafeOrderedDict(data.job_ids)
+        self._jobs = ThreadSafeOrderedDict(job_ids)
         self._job_futures = ThreadSafeOrderedDict()
         self._analysis_callbacks = ThreadSafeOrderedDict()
         self._analysis_futures = ThreadSafeOrderedDict()
@@ -121,7 +159,7 @@ class ExperimentData:
 
         # data storage
         self._result_data = ThreadSafeList()
-        self._figures = ThreadSafeOrderedDict(data.figure_names)
+        self._figures = ThreadSafeOrderedDict()
         self._analysis_results = ThreadSafeOrderedDict()
 
         self._deleted_figures = deque()
@@ -1397,7 +1435,7 @@ class ExperimentData:
         for data in self.child_data():
             data._set_service(service)
 
-    @DbExperimentData.share_level.setter
+    @ExperimentData.share_level.setter
     def share_level(self, new_level: str) -> None:
         """Set the experiment share level,
            to this experiment itself and its descendants.
@@ -1617,3 +1655,49 @@ class ExperimentData:
     #     return json_value
     #
     #
+
+@contextlib.contextmanager
+def service_exception_to_warning():
+    """Convert an exception raised by experiment service to a warning."""
+    try:
+        yield
+    except Exception:  # pylint: disable=broad-except
+        LOG.warning("Experiment service operation failed: %s", traceback.format_exc())
+
+
+class AnalysisStatus(enum.Enum):
+    """Class for analysis callback status enumerated type."""
+
+    QUEUED = "analysis callback is queued"
+    RUNNING = "analysis callback is actively running"
+    CANCELLED = "analysis callback has been cancelled"
+    DONE = "analysis callback has successfully run"
+    ERROR = "analysis callback incurred an error"
+
+    def __json_encode__(self):
+        return self.name
+
+    @classmethod
+    def __json_decode__(cls, value):
+        return cls.__members__[value]  # pylint: disable=unsubscriptable-object
+
+
+@dataclasses.dataclass
+class AnalysisCallback:
+    """Dataclass for analysis callback status"""
+
+    name: str = ""
+    callback_id: str = ""
+    status: AnalysisStatus = AnalysisStatus.QUEUED
+    error_msg: Optional[str] = None
+    event: Event = dataclasses.field(default_factory=Event)
+
+    def __getstate__(self):
+        # We need to remove the Event object from state when pickling
+        # since events are not pickleable
+        state = self.__dict__
+        state["event"] = None
+        return state
+
+    def __json_encode__(self):
+        return self.__getstate__()
