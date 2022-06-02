@@ -34,7 +34,6 @@ from qiskit.providers import Job, Backend, Provider
 from qiskit.result import Result
 from qiskit.providers.jobstatus import JobStatus, JOB_FINAL_STATES
 from qiskit_experiments.framework.json import ExperimentEncoder, ExperimentDecoder
-
 from .database_service import DatabaseServiceV1
 from .exceptions import DbExperimentDataError, DbExperimentEntryNotFound, DbExperimentEntryExists
 from .db_analysis_result import DbAnalysisResultV1 as DbAnalysisResult
@@ -129,6 +128,11 @@ class AnalysisCallback:
     def __json_encode__(self):
         return self.__getstate__()
 
+class FigureData():
+    def __init__(self, figure, name = None, metadata = None):
+        self.figure = figure
+        self.name = name
+        self.metadata = metadata if metadata is not None else {}
 
 class DbExperimentData:
     """Base common type for all versioned DbExperimentData classes.
@@ -703,7 +707,12 @@ class DbExperimentDataV1(DbExperimentData):
                 with open(figure, "rb") as file:
                     figure = file.read()
 
-            self._figures[fig_name] = figure
+            figure_metadata = {
+                'qubits': self.metadata.get("physical_qubits")
+            }
+            print(f"Adding figure {fig_name} with metadata {figure_metadata}")
+            figure_data = FigureData(figure=figure, name=fig_name, metadata=figure_metadata)
+            self._figures[fig_name] = figure_data
 
             save = save_figure if save_figure is not None else self.auto_save
             if save and self._service:
@@ -760,6 +769,7 @@ class DbExperimentDataV1(DbExperimentData):
         self,
         figure_key: Union[str, int],
         file_name: Optional[str] = None,
+        image_only: Optional[bool] = True,
     ) -> Union[int, bytes]:
         """Retrieve the specified experiment figure.
 
@@ -767,10 +777,12 @@ class DbExperimentDataV1(DbExperimentData):
             figure_key: Name or index of the figure.
             file_name: Name of the local file to save the figure to. If ``None``,
                 the content of the figure is returned instead.
+            image_only: Return only the image and not the `FigureData` object
 
         Returns:
             The size of the figure if `file_name` is specified. Otherwise the
-            content of the figure in bytes.
+            content of the figure in bytes if `image_only` is `True`, and
+            the `FigureData` object if `False`.
 
         Raises:
             DbExperimentEntryNotFound: If the figure cannot be found.
@@ -780,9 +792,10 @@ class DbExperimentDataV1(DbExperimentData):
 
         figure_data = self._figures.get(figure_key, None)
         if figure_data is None and self.service:
-            figure_data = self.service.figure(
+            figure = self.service.figure(
                 experiment_id=self.experiment_id, figure_name=figure_key
             )
+            figure_data = FigureData(figure=figure, name=figure_key)
             self._figures[figure_key] = figure_data
 
         if figure_data is None:
@@ -792,6 +805,8 @@ class DbExperimentDataV1(DbExperimentData):
             with open(file_name, "wb") as output:
                 num_bytes = output.write(figure_data)
                 return num_bytes
+        if image_only:
+            return figure_data.figure
         return figure_data
 
     @do_auto_save
