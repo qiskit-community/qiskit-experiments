@@ -1817,7 +1817,8 @@ class ExperimentData:
             job_ids=self.job_ids,
             child_data=self._child_data,
             verbose=self.verbose,
-        )  # data will be deep copied
+        )
+        new_instance._db_data = self._db_data.copy()
         new_instance._db_data.experiment_id = str(uuid.uuid4())  # different id for copied experiment
         if self.experiment is None:
             new_instance._experiment = None
