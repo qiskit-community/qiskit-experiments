@@ -224,7 +224,7 @@ class AnalysisResult():
 
     def copy(self) -> "AnalysisResult":
         """Return a copy of the result with a new result ID"""
-        new_instance = AnalysisResult()
+        new_instance = AnalysisResult(name=self.name, value=self.value, device_components=self.device_components, experiment_id=self.experiment_id)
         new_instance._db_data = self._db_data.copy()
         new_instance._db_data.result_id = str(uuid.uuid4())
         return new_instance

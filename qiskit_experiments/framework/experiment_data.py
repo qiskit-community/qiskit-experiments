@@ -1817,7 +1817,7 @@ class ExperimentData:
             service=self.service,
             parent_id=self.parent_id,
             job_ids=self.job_ids,
-            child_data=self._child_data,
+            child_data=list(self._child_data.values()),
             verbose=self.verbose,
         )
         new_instance._db_data = self._db_data.copy()

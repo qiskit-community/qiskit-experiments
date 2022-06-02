@@ -443,7 +443,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         service = mock.create_autospec(IBMExperimentService, instance=True)
         exp_data.service = service
         exp_data.save_metadata()
-        ervice.create_or_update_experiment.assert_called_once()
+        service.create_or_update_experiment.assert_called_once()
         data = service.create_experiment.call_args[0][0]
         self.assertEqual(exp_data.experiment_id, data.experiment_id)
         exp_data.save_metadata()
