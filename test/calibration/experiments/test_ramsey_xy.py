@@ -18,7 +18,8 @@ from qiskit.test.mock import FakeArmonk
 
 from qiskit_experiments.calibration_management.calibrations import Calibrations
 from qiskit_experiments.calibration_management.basis_gate_library import FixedFrequencyTransmon
-from qiskit_experiments.framework import AnalysisStatus, BaseAnalysis
+from qiskit_experiments.framework import BaseAnalysis
+from qiskit_experiments.framework.experiment_data import AnalysisStatus
 from qiskit_experiments.library import RamseyXY, FrequencyCal
 from qiskit_experiments.test.mock_iq_backend import MockIQBackend
 from qiskit_experiments.test.mock_iq_helpers import MockIQRamseyXYHelper as RamseyXYHelper
