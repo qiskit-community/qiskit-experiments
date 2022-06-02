@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Figures added to `ExperimentData` are now wrapped with a `FigureData` class
+    capable of storing metadata (e.g. qubits). This object can be returned using
+    the `figure` method with the additional parameter `image_only=False`.
