@@ -802,7 +802,7 @@ class DbExperimentDataV1(DbExperimentData):
 
         if file_name:
             with open(file_name, "wb") as output:
-                num_bytes = output.write(figure_data)
+                num_bytes = output.write(figure_data.figure)
                 return num_bytes
         if image_only:
             return figure_data.figure
