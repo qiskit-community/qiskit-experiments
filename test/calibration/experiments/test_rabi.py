@@ -30,7 +30,7 @@ from qiskit_experiments.data_processing.data_processor import DataProcessor
 from qiskit_experiments.data_processing.nodes import Probability
 from qiskit_experiments.test.mock_iq_backend import MockIQBackend
 from qiskit_experiments.test.mock_iq_helpers import MockIQRabiHelper as RabiHelper
-from qiskit_experiments.database_service.db_experiment_data import ExperimentStatus
+from qiskit_experiments.framework.experiment_data import ExperimentStatus
 
 
 class TestRabiEndToEnd(QiskitExperimentsTestCase):
