@@ -128,11 +128,15 @@ class AnalysisCallback:
     def __json_encode__(self):
         return self.__getstate__()
 
-class FigureData():
-    def __init__(self, figure, name = None, metadata = None):
+
+class FigureData:
+    """Wrapper for figures and figure metadata"""
+
+    def __init__(self, figure, name=None, metadata=None):
         self.figure = figure
         self.name = name
         self.metadata = metadata if metadata is not None else {}
+
 
 class DbExperimentData:
     """Base common type for all versioned DbExperimentData classes.
@@ -707,10 +711,7 @@ class DbExperimentDataV1(DbExperimentData):
                 with open(figure, "rb") as file:
                     figure = file.read()
 
-            figure_metadata = {
-                'qubits': self.metadata.get("physical_qubits")
-            }
-            print(f"Adding figure {fig_name} with metadata {figure_metadata}")
+            figure_metadata = {"qubits": self.metadata.get("physical_qubits")}
             figure_data = FigureData(figure=figure, name=fig_name, metadata=figure_metadata)
             self._figures[fig_name] = figure_data
 
@@ -792,9 +793,7 @@ class DbExperimentDataV1(DbExperimentData):
 
         figure_data = self._figures.get(figure_key, None)
         if figure_data is None and self.service:
-            figure = self.service.figure(
-                experiment_id=self.experiment_id, figure_name=figure_key
-            )
+            figure = self.service.figure(experiment_id=self.experiment_id, figure_name=figure_key)
             figure_data = FigureData(figure=figure, name=figure_key)
             self._figures[figure_key] = figure_data
 
