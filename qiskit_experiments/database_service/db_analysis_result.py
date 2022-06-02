@@ -505,8 +505,8 @@ class DbAnalysisResultV1(DbAnalysisResult):
     def __json_encode__(self):
         return {
             "data": {
-                "name": self._data.name,
-                "value": self._data.value,
+                "name": self._data.result_type,
+                "value": self._data.result_data['_value'],
                 "device_components": self._data.device_components,
                 "experiment_id": self._data.experiment_id,
                 "result_id": self._data.result_id,

@@ -450,13 +450,30 @@ class ExperimentData:
 
     def _set_hgp_from_backend(self):
         if self.backend is not None and self.backend.provider() is not None:
-            creds = self.backend.provider().credentials
-            hub = self._db_data.hub or creds.hub
-            group = self._db_data.group or creds.group
-            project = self._db_data.project or creds.project
-            self._db_data.hub = hub
-            self._db_data.group = group
-            self._db_data.project = project
+            try:
+                creds = self.backend.provider().credentials
+                hub = self._db_data.hub or creds.hub
+                group = self._db_data.group or creds.group
+                project = self._db_data.project or creds.project
+                self._db_data.hub = hub
+                self._db_data.group = group
+                self._db_data.project = project
+            except AttributeError:
+                LOG.warning(
+                    "Unable to set hub/group/project backend %s ",
+                    self.backend,
+                )
+    def _clear_results(self):
+        """Delete all currently stored analysis results and figures"""
+        # Schedule existing analysis results for deletion next save call
+        for key in self._analysis_results.keys():
+            self._deleted_analysis_results.append(key)
+        self._analysis_results = ThreadSafeOrderedDict()
+        # Schedule existing figures for deletion next save call
+        for key in self._figures.keys():
+            self._deleted_figures.append(key)
+        self._figures = ThreadSafeOrderedDict()
+
     @property
     def service(self) -> Optional[IBMExperimentService]:
         """Return the database service.
@@ -1236,32 +1253,11 @@ class ExperimentData:
                 "when using an IBM Quantum backend."
             )
             return
-
-        attempts = 0
-        success = False
-        is_new = not self._created_in_db
         try:
-            while attempts < 3 and not success:
-                attempts += 1
-                if is_new:
-                    try:
-                        self.service.create_experiment(self._db_data, json_encoder=self._json_encoder)
-                        success = True
-                        self._created_in_db = True
-                    except IBMExperimentEntryExists:
-                        is_new = False
-                else:
-                    try:
-                        self.service.update_experiment(self._db_data, json_encoder=self._json_encoder)
-                        success = True
-                    except IBMExperimentEntryNotFound:
-                        is_new = True
+            self.service.create_or_update_eperiment(self._db_data, json_encoder=self._json_encoder, create=not self._created_in_db)
         except Exception:  # pylint: disable=broad-except
             # Don't fail the experiment just because its data cannot be saved.
             LOG.error("Unable to save the experiment data: %s", traceback.format_exc())
-
-        if not success:
-            LOG.error("Unable to save the experiment data:")
 
     def save(self) -> None:
         """Save the experiment data to a database service.
@@ -1814,14 +1810,6 @@ class ExperimentData:
             This method can not be called from an analysis callback. It waits
             for analysis callbacks to complete before copying analysis results.
         """
-        experiment: Optional["BaseExperiment"] = None,
-        backend: Optional[Backend] = None,
-        service: Optional[IBMExperimentService] = None,
-        parent_id: Optional[str] = None,
-        job_ids: Optional[List[str]] = None,
-        child_data: Optional[List[ExperimentData]] = None,
-        verbose: Optional[bool] = True,
-
         new_instance = ExperimentData(
             backend=self.backend,
             service=self.service,
@@ -1990,8 +1978,6 @@ class ExperimentData:
                 "Not all experiment analysis has finished. Analysis must be "
                 "cancelled or done to serialize experiment data."
             )
-        a = [self.metadata, self._data]
-        print(self.metadata)
         json_value = {
             "metadata": self.metadata,
             "source": self.source,
@@ -2025,7 +2011,7 @@ class ExperimentData:
 
     @classmethod
     def __json_decode__(cls, value):
-        ret = cls.from_values(value)
+        ret = cls(**value)
         return ret
 
     def __getstate__(self):

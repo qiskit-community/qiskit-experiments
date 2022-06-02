@@ -443,7 +443,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         service = mock.create_autospec(IBMExperimentService, instance=True)
         exp_data.service = service
         exp_data.save_metadata()
-        service.create_experiment.assert_called_once()
+        ervice.create_or_update_experiment.assert_called_once()
         data = service.create_experiment.call_args[0][0]
         self.assertEqual(exp_data.experiment_id, data.experiment_id)
         exp_data.save_metadata()
@@ -460,7 +460,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         exp_data.add_analysis_results(analysis_result)
         exp_data.service = service
         exp_data.save()
-        service.create_experiment.assert_called_once()
+        ervice.create_or_update_experiment.assert_called_once()
         service.create_or_update_figure.assert_called_once()
         analysis_result.save.assert_called_once()
 
@@ -475,7 +475,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         exp_data.service = service
 
         exp_data.save()
-        service.create_experiment.assert_called_once()
+        service.create_or_update_experiment.assert_called_once()
         service.delete_figure.assert_called_once()
         service.delete_analysis_result.assert_called_once()
 
