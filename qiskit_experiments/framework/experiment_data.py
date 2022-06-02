@@ -47,7 +47,7 @@ from qiskit_experiments.database_service.utils import (
     ThreadSafeOrderedDict,
     ThreadSafeList,
 )
-from qiskit_experiments.database_service.db_analysis_result import DbAnalysisResultV1 as DbAnalysisResult
+from qiskit_experiments.framework.analysis_result import AnalysisResult
 from qiskit_experiments.database_service.exceptions import DbExperimentDataError, DbExperimentEntryNotFound, DbExperimentEntryExists
 
 if TYPE_CHECKING:
@@ -1077,7 +1077,7 @@ class ExperimentData:
     @do_auto_save
     def add_analysis_results(
         self,
-        results: Union[DbAnalysisResult, List[DbAnalysisResult]],
+        results: Union[AnalysisResult, List[AnalysisResult]],
     ) -> None:
         """Save the analysis result.
 
@@ -1144,9 +1144,11 @@ class ExperimentData:
             )
             for result in retrieved_results:
                 result_id = result.result_id
-                self._analysis_results[result_id] = DbAnalysisResult(
-                    data=result, service=self.service
+
+                self._analysis_results[result_id] = AnalysisResult(
+                    service=self.service
                 )
+                self._analysis_results[result_id].set_data(result)
                 self._analysis_results[result_id]._created_in_db = True
 
     def analysis_results(
@@ -1155,7 +1157,7 @@ class ExperimentData:
         refresh: bool = False,
         block: bool = True,
         timeout: Optional[float] = None,
-    ) -> Union[DbAnalysisResult, List[DbAnalysisResult]]:
+    ) -> Union[AnalysisResult, List[AnalysisResult]]:
         """Return analysis results associated with this experiment.
 
         Args:

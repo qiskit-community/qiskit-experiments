@@ -23,13 +23,13 @@ import numpy as np
 import uncertainties
 
 from qiskit_ibm_experiment import IBMExperimentService
-from qiskit_experiments.database_service import DbAnalysisResultV1 as DbAnalysisResult
+from qiskit_experiments.framework import AnalysisResult
 from qiskit_experiments.database_service.device_component import Qubit, Resonator, to_component
 from qiskit_experiments.database_service.exceptions import DbExperimentDataError
 
 
-class TestDbAnalysisResult(QiskitExperimentsTestCase):
-    """Test the DbAnalysisResult class."""
+class TestAnalysisResult(QiskitExperimentsTestCase):
+    """Test the AnalysisResult class."""
 
     def test_analysis_result_attributes(self):
         """Test analysis result attributes."""
@@ -41,7 +41,7 @@ class TestDbAnalysisResult(QiskitExperimentsTestCase):
             "quality": "Good",
             "verified": False,
         }
-        result = DbAnalysisResult.from_values(value={"foo": "bar"}, tags=["tag1", "tag2"], **attrs)
+        result = AnalysisResult(value={"foo": "bar"}, tags=["tag1", "tag2"], **attrs)
         self.assertEqual({"foo": "bar"}, result.value)
         self.assertEqual(["tag1", "tag2"], result.tags)
         for key, val in attrs.items():
@@ -125,51 +125,51 @@ class TestDbAnalysisResult(QiskitExperimentsTestCase):
     def test_source(self):
         """Test getting analysis result source."""
         result = self._new_analysis_result()
-        self.assertIn("DbAnalysisResultV1", result.source["class"])
+        self.assertIn("AnalysisResult", result.source["class"])
         self.assertTrue(result.source["qiskit_version"])
 
     def test_display_format_inf(self):
         """Test conversion of inf for display value"""
-        self.assertEqual(DbAnalysisResult._display_format(np.inf), "Infinity")
-        self.assertEqual(DbAnalysisResult._display_format(-np.inf), "-Infinity")
-        self.assertEqual(DbAnalysisResult._display_format(np.nan), "NaN")
-        self.assertEqual(DbAnalysisResult._display_format(math.inf), "Infinity")
-        self.assertEqual(DbAnalysisResult._display_format(-math.inf), "-Infinity")
-        self.assertEqual(DbAnalysisResult._display_format(math.nan), "NaN")
+        self.assertEqual(AnalysisResult._display_format(np.inf), "Infinity")
+        self.assertEqual(AnalysisResult._display_format(-np.inf), "-Infinity")
+        self.assertEqual(AnalysisResult._display_format(np.nan), "NaN")
+        self.assertEqual(AnalysisResult._display_format(math.inf), "Infinity")
+        self.assertEqual(AnalysisResult._display_format(-math.inf), "-Infinity")
+        self.assertEqual(AnalysisResult._display_format(math.nan), "NaN")
         self.assertEqual(
-            DbAnalysisResult._display_format(
+            AnalysisResult._display_format(
                 uncertainties.ufloat(math.nan, math.nan).nominal_value
             ),
             "NaN",
         )
         self.assertEqual(
-            DbAnalysisResult._display_format(uncertainties.ufloat(math.nan, math.nan).std_dev),
+            AnalysisResult._display_format(uncertainties.ufloat(math.nan, math.nan).std_dev),
             "NaN",
         )
         self.assertEqual(
-            DbAnalysisResult._display_format(
+            AnalysisResult._display_format(
                 uncertainties.ufloat(math.inf, -math.inf).nominal_value
             ),
             "Infinity",
         )
         self.assertEqual(
-            DbAnalysisResult._display_format(uncertainties.ufloat(math.inf, -math.inf).std_dev),
+            AnalysisResult._display_format(uncertainties.ufloat(math.inf, -math.inf).std_dev),
             "-Infinity",
         )
 
     def test_display_format_complex(self):
         """Test conversion of db displays"""
-        value = DbAnalysisResult._display_format(1e-10j)
+        value = AnalysisResult._display_format(1e-10j)
         self.assertIsInstance(value, str)
 
     def test_display_format_list(self):
         """Test conversion of db displays"""
-        value = DbAnalysisResult._display_format(list(range(5)))
+        value = AnalysisResult._display_format(list(range(5)))
         self.assertEqual(value, "(list)")
 
     def test_display_format_array(self):
         """Test conversion of db displays"""
-        value = DbAnalysisResult._display_format(np.arange(5))
+        value = AnalysisResult._display_format(np.arange(5))
         self.assertEqual(value, "(ndarray)")
 
     def _new_analysis_result(self, **kwargs):
@@ -181,7 +181,7 @@ class TestDbAnalysisResult(QiskitExperimentsTestCase):
             "experiment_id": "1234",
         }
         values.update(kwargs)
-        return DbAnalysisResult.from_values(**values)
+        return AnalysisResult(**values)
 
 
 class TestDeviceComponent(QiskitExperimentsTestCase):

@@ -31,10 +31,10 @@ from qiskit_experiments.framework.json import (
     _serialize_safe_float,
 )
 
-from .db_fitval import FitVal
-from .device_component import DeviceComponent, to_component
-from .exceptions import DbExperimentDataError
-from .utils import qiskit_version
+from qiskit_experiments.database_service.db_fitval import FitVal
+from qiskit_experiments.database_service.device_component import DeviceComponent, to_component
+from qiskit_experiments.database_service.exceptions import DbExperimentDataError
+from qiskit_experiments.database_service.utils import qiskit_version
 
 LOG = logging.getLogger(__name__)
 
@@ -116,6 +116,10 @@ class AnalysisResult():
             except AttributeError:
                 pass
 
+    def set_data(self, data: AnalysisResultData):
+        """Sets the analysis data stored in the class"""
+        self._db_data = data
+
     @classmethod
     def default_source(cls) -> Dict[str, str]:
         """The default source dictionary to generate"""
@@ -129,7 +133,7 @@ class AnalysisResult():
     def format_result_data(value, extra, chisq, source):
         """Formats the result data from the given arguments"""
         if source is None:
-            source = DbAnalysisResultV1.default_source()
+            source = AnalysisResult.default_source()
         result_data = {
             "_value": copy.deepcopy(value),
             "_chisq": chisq,
@@ -139,29 +143,29 @@ class AnalysisResult():
 
         # Format special DB display fields
         if isinstance(value, FitVal):
-            db_value = DbAnalysisResultV1._display_format(value.value)
+            db_value = AnalysisResult._display_format(value.value)
             if db_value is not None:
                 result_data["value"] = db_value
             if isinstance(value.stderr, (int, float)):
-                result_data["variance"] = DbAnalysisResultV1._display_format(value.stderr**2)
+                result_data["variance"] = AnalysisResult._display_format(value.stderr**2)
             if isinstance(value.unit, str):
                 result_data["unit"] = value.unit
         elif isinstance(value, uncertainties.UFloat):
-            db_value = DbAnalysisResultV1._display_format(value.nominal_value)
+            db_value = AnalysisResult._display_format(value.nominal_value)
             if db_value is not None:
                 result_data["value"] = db_value
             if isinstance(value.std_dev, (int, float)):
-                result_data["variance"] = DbAnalysisResultV1._display_format(value.std_dev**2)
+                result_data["variance"] = AnalysisResult._display_format(value.std_dev**2)
             if "unit" in extra:
                 result_data["unit"] = extra["unit"]
         else:
-            db_value = DbAnalysisResultV1._display_format(value)
+            db_value = AnalysisResult._display_format(value)
             if db_value is not None:
                 result_data["value"] = db_value
         return result_data
 
     @classmethod
-    def load(cls, result_id: str, service: IBMExperimentService) -> "DbAnalysisResultV1":
+    def load(cls, result_id: str, service: IBMExperimentService) -> "AnalysisResult":
         """Load a saved analysis result from a database service.
 
         Args:
@@ -197,7 +201,7 @@ class AnalysisResult():
                 if is_new:
                     try:
                         self.service.create_analysis_result(
-                            self._data, json_encoder=self._json_encoder
+                            self._db_data, json_encoder=self._json_encoder
                         )
                         success = True
                         self._created_in_db = True
@@ -206,7 +210,7 @@ class AnalysisResult():
                 else:
                     try:
                         self.service.update_analysis_result(
-                            self._data, json_encoder=self._json_encoder
+                            self._db_data, json_encoder=self._json_encoder
                         )
                         success = True
                     except IBMExperimentEntryNotFound:
@@ -232,7 +236,7 @@ class AnalysisResult():
         Returns:
             Analysis result name.
         """
-        return self._data.result_type
+        return self._db_data.result_type
 
     @property
     def value(self) -> Any:
@@ -241,12 +245,12 @@ class AnalysisResult():
         Returns:
             Analysis result value.
         """
-        return self._data.result_data["_value"]
+        return self._db_data.result_data["_value"]
 
     @value.setter
     def value(self, new_value: Any) -> None:
         """Set the analysis result value."""
-        self._data.result_data["_value"] = new_value
+        self._db_data.result_data["_value"] = new_value
         if self.auto_save:
             self.save()
 
@@ -257,7 +261,7 @@ class AnalysisResult():
         Returns:
             Additional analysis result data.
         """
-        return self._data.result_data["_extra"]
+        return self._db_data.result_data["_extra"]
 
     @extra.setter
     def extra(self, new_value: Dict[str, Any]) -> None:
@@ -266,7 +270,7 @@ class AnalysisResult():
             raise DbExperimentDataError(
                 f"The `extra` field of {type(self).__name__} must be a dict."
             )
-        self._data.result_data["_extra"] = new_value
+        self._db_data.result_data["_extra"] = new_value
         if self.auto_save:
             self.save()
 
@@ -277,16 +281,16 @@ class AnalysisResult():
         Returns:
             Target device components.
         """
-        return self._data.device_components
+        return self._db_data.device_components
 
     @device_components.setter
     def device_components(self, components: List[Union[DeviceComponent, str]]):
         """Set the device components"""
-        self._data.device_components = []
+        self._db_data.device_components = []
         for comp in components:
             if isinstance(comp, str):
                 comp = to_component(comp)
-            self._data.device_components.append(comp)
+            self._db_data.device_components.append(comp)
 
     @property
     def result_id(self) -> str:
@@ -295,7 +299,7 @@ class AnalysisResult():
         Returns:
             ID for this analysis result.
         """
-        return self._data.result_id
+        return self._db_data.result_id
 
     @property
     def experiment_id(self) -> str:
@@ -304,17 +308,17 @@ class AnalysisResult():
         Returns:
             ID of experiment associated with this analysis result.
         """
-        return self._data.experiment_id
+        return self._db_data.experiment_id
 
     @property
     def chisq(self) -> Optional[float]:
         """Return the reduced χ² of this analysis."""
-        return self._data.chisq
+        return self._db_data.chisq
 
     @chisq.setter
     def chisq(self, new_chisq: float) -> None:
         """Set the reduced χ² of this analysis."""
-        self._data.chisq = new_chisq
+        self._db_data.chisq = new_chisq
         if self.auto_save:
             self.save()
 
@@ -325,7 +329,7 @@ class AnalysisResult():
         Returns:
             Quality of this analysis.
         """
-        return self._data.quality
+        return self._db_data.quality
 
     @quality.setter
     def quality(self, new_quality: str) -> None:
@@ -334,7 +338,7 @@ class AnalysisResult():
         Args:
             new_quality: New analysis quality.
         """
-        self._data.quality = new_quality
+        self._db_data.quality = new_quality
         if self.auto_save:
             self.save()
 
@@ -348,7 +352,7 @@ class AnalysisResult():
         Returns:
             Whether the quality has been verified.
         """
-        return self._data.verified
+        return self._db_data.verified
 
     @verified.setter
     def verified(self, verified: bool) -> None:
@@ -357,14 +361,14 @@ class AnalysisResult():
         Args:
             verified: Whether the quality is verified.
         """
-        self._data.verified = verified
+        self._db_data.verified = verified
         if self.auto_save:
             self.save()
 
     @property
     def tags(self):
         """Return tags associated with this result."""
-        return self._data.tags
+        return self._db_data.tags
 
     @tags.setter
     def tags(self, new_tags: List[str]) -> None:
@@ -373,7 +377,7 @@ class AnalysisResult():
             raise DbExperimentDataError(
                 f"The `tags` field of {type(self).__name__} must be a list."
             )
-        self._data.tags = new_tags
+        self._db_data.tags = new_tags
         if self.auto_save:
             self.save()
 
@@ -404,8 +408,8 @@ class AnalysisResult():
     @property
     def source(self) -> Dict:
         """Return the class name and version."""
-        if "_source" in self._data.result_data:
-            return self._data.result_data["_source"]
+        if "_source" in self._db_data.result_data:
+            return self._db_data.result_data["_source"]
         return None
 
     @property
@@ -481,14 +485,14 @@ class AnalysisResult():
 
     def __json_encode__(self):
         return {
-                "name": self._data.result_type,
-                "value": self._data.result_data['_value'],
-                "device_components": self._data.device_components,
-                "experiment_id": self._data.experiment_id,
-                "result_id": self._data.result_id,
-                "chisq": self._data.chisq,
-                "quality": self._data.quality,
+                "name": self._db_data.result_type,
+                "value": self._db_data.result_data['_value'],
+                "device_components": self._db_data.device_components,
+                "experiment_id": self._db_data.experiment_id,
+                "result_id": self._db_data.result_id,
+                "chisq": self._db_data.chisq,
+                "quality": self._db_data.quality,
                 "extra": self.extra,
-                "verified": self._data.verified,
-                "tags": self._data.tags,
+                "verified": self._db_data.verified,
+                "tags": self._db_data.tags,
         }
