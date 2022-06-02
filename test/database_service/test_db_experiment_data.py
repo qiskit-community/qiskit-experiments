@@ -34,7 +34,7 @@ from qiskit.providers import JobV1 as Job
 from qiskit.providers import JobStatus
 from qiskit_ibm_experiment import IBMExperimentService
 from qiskit_experiments.framework import ExperimentData
-from qiskit_experiments.database_service import DbAnalysisResultV1 as DbAnalysisResult
+from qiskit_experiments.framework import AnalysisResult
 from qiskit_experiments.database_service.exceptions import (
     DbExperimentDataError,
     DbExperimentEntryNotFound,
@@ -861,7 +861,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         def callback1(exp_data):
             """Callback function that call add_analysis_callback"""
             exp_data.add_analysis_callback(callback2)
-            result = DbAnalysisResult.from_values("result_name", 0, [Qubit(0)], "experiment_id")
+            result = AnalysisResult("result_name", 0, [Qubit(0)], "experiment_id")
             exp_data.add_analysis_results(result)
             figure = get_non_gui_ax().get_figure()
             exp_data.add_figures(figure, "figure.svg")
@@ -900,7 +900,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
             """Callback function that call add_analysis_callback"""
             time.sleep(1)
             exp_data.add_analysis_callback(callback2)
-            result = DbAnalysisResult.from_values("RESULT1", True, ["Q0"], exp_data.experiment_id)
+            result = AnalysisResult("RESULT1", True, ["Q0"], exp_data.experiment_id)
             exp_data.add_analysis_results(result)
 
         def callback2(exp_data):
@@ -912,7 +912,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         def callback3(exp_data):
             """Callback function that exercises status lookups"""
             time.sleep(1)
-            result = DbAnalysisResult.from_values("RESULT2", True, ["Q0"], exp_data.experiment_id)
+            result = AnalysisResult("RESULT2", True, ["Q0"], exp_data.experiment_id)
             exp_data.add_analysis_results(result)
 
         exp_data = ExperimentData(experiment_type="qiskit_test")

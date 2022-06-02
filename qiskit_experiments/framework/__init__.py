@@ -247,7 +247,7 @@ Mix-ins
 
 .. _create-experiment:
 """
-
+from qiskit.providers.options import Options
 from qiskit_experiments.framework.analysis_result import AnalysisResult
 
 from .base_analysis import BaseAnalysis

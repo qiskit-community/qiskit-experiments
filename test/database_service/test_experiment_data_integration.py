@@ -28,7 +28,7 @@ from qiskit_ibm_experiment.exceptions import IBMExperimentEntryNotFound
 # from qiskit_experiments.database_service import DbExperimentDataV1 as DbExperimentData
 from qiskit_experiments.framework import ExperimentData
 from qiskit_experiments.framework.experiment_data import ExperimentStatus
-from qiskit_experiments.database_service import DbAnalysisResultV1 as AnalysisResult
+from qiskit_experiments.framework import AnalysisResult
 from qiskit_experiments.database_service.exceptions import DbExperimentEntryNotFound
 
 
