@@ -14,22 +14,21 @@
 
 import os
 import unittest
-from unittest import mock, SkipTest, skipIf
+from unittest import mock, skipIf
 import contextlib
 import numpy as np
 
 from qiskit import transpile
 from qiskit.providers import JobStatus
 from qiskit.test.reference_circuits import ReferenceCircuits
-
+from qiskit.test import QiskitTestCase
 from qiskit_ibm_experiment import IBMExperimentService
 from qiskit_ibm_experiment import ResultQuality
 from qiskit_ibm_experiment.exceptions import IBMExperimentEntryNotFound
-
-from qiskit.test import QiskitTestCase
-from qiskit_experiments.database_service import DbExperimentDataV1 as DbExperimentData
-from qiskit_experiments.database_service import DbAnalysisResultV1 as AnalysisResult
-from qiskit_experiments.database_service.db_experiment_data import ExperimentStatus
+# from qiskit_experiments.database_service import DbExperimentDataV1 as DbExperimentData
+from qiskit_experiments.framework import ExperimentData
+from qiskit_experiments.framework.experiment_data import ExperimentStatus
+from qiskit_experiments.framework import AnalysisResult
 from qiskit_experiments.database_service.exceptions import DbExperimentEntryNotFound
 
 
@@ -97,7 +96,7 @@ class TestExperimentDataIntegration(QiskitTestCase):
 
     def test_add_data_job(self):
         """Test add job to experiment data."""
-        exp_data = DbExperimentData.from_values(
+        exp_data = ExperimentData(
             backend=self.backend, experiment_type="qiskit_test", service=self.service
         )
         transpiled = transpile(ReferenceCircuits.bell(), self.backend)
@@ -115,7 +114,7 @@ class TestExperimentDataIntegration(QiskitTestCase):
     def test_new_experiment_data(self):
         """Test creating a new experiment data."""
         metadata = {"complex": 2 + 3j, "numpy": np.zeros(2)}
-        exp_data = DbExperimentData.from_values(
+        exp_data = ExperimentData(
             service=self.service,
             backend=self.backend,
             experiment_type="qiskit_test",
@@ -135,7 +134,7 @@ class TestExperimentDataIntegration(QiskitTestCase):
         self.services_to_delete.append(exp_data.experiment_id)
 
         credentials = self.backend.provider().credentials
-        rexp = DbExperimentData.load(exp_data.experiment_id, self.service)
+        rexp = ExperimentData.load(exp_data.experiment_id, self.service)
         self._verify_experiment_data(exp_data, rexp)
         self.assertEqual(credentials.hub, rexp.hub)  # pylint: disable=no-member
         self.assertEqual(credentials.group, rexp.group)  # pylint: disable=no-member
@@ -153,7 +152,7 @@ class TestExperimentDataIntegration(QiskitTestCase):
         exp_data.notes = "some notes"
         exp_data.save()
 
-        rexp = DbExperimentData.load(exp_data.experiment_id, self.service)
+        rexp = ExperimentData.load(exp_data.experiment_id, self.service)
         self._verify_experiment_data(exp_data, rexp)
 
     def _verify_experiment_data(self, expected, actual):
@@ -199,7 +198,7 @@ class TestExperimentDataIntegration(QiskitTestCase):
         aresult.tags = ["foo", "bar"]
         aresult.save()
 
-        rexp = DbExperimentData.load(exp_data.experiment_id, self.service)
+        rexp = ExperimentData.load(exp_data.experiment_id, self.service)
         rresult = rexp.analysis_results(0)
         self._verify_analysis_result(aresult, rresult)
 
@@ -223,7 +222,7 @@ class TestExperimentDataIntegration(QiskitTestCase):
         with mock.patch("builtins.input", lambda _: "y"):
             exp_data.delete_analysis_result(0)
             exp_data.save()
-        rexp = DbExperimentData.load(exp_data.experiment_id, self.service)
+        rexp = ExperimentData.load(exp_data.experiment_id, self.service)
         self.assertRaises(DbExperimentEntryNotFound, rexp.analysis_results, aresult.result_id)
         self.assertRaises(
             IBMExperimentEntryNotFound, self.service.analysis_result, aresult.result_id
@@ -241,7 +240,7 @@ class TestExperimentDataIntegration(QiskitTestCase):
                 exp_data.add_figures(
                     figures=hello_bytes, figure_names=figure_name, save_figure=True
                 )
-                rexp = DbExperimentData.load(exp_data.experiment_id, self.service)
+                rexp = ExperimentData.load(exp_data.experiment_id, self.service)
                 self.assertEqual(rexp.figure(idx), hello_bytes)
 
     def test_add_figures_plot(self):
@@ -254,7 +253,7 @@ class TestExperimentDataIntegration(QiskitTestCase):
         exp_data = self._create_experiment_data()
         exp_data.add_figures(figure, save_figure=True)
 
-        rexp = DbExperimentData.load(exp_data.experiment_id, self.service)
+        rexp = ExperimentData.load(exp_data.experiment_id, self.service)
         self.assertTrue(rexp.figure(0))
 
     def test_add_figures_file(self):
@@ -267,7 +266,7 @@ class TestExperimentDataIntegration(QiskitTestCase):
             file.write(hello_bytes)
 
         exp_data.add_figures(figures=file_name, save_figure=True)
-        rexp = DbExperimentData.load(exp_data.experiment_id, self.service)
+        rexp = ExperimentData.load(exp_data.experiment_id, self.service)
         self.assertEqual(rexp.figure(0), hello_bytes)
 
     def test_update_figure(self):
@@ -283,7 +282,7 @@ class TestExperimentDataIntegration(QiskitTestCase):
         exp_data.add_figures(
             figures=friend_bytes, figure_names=figure_name, overwrite=True, save_figure=True
         )
-        rexp = DbExperimentData.load(exp_data.experiment_id, self.service)
+        rexp = ExperimentData.load(exp_data.experiment_id, self.service)
         self.assertEqual(rexp.figure(0), friend_bytes)
         self.assertEqual(rexp.figure(figure_name), friend_bytes)
 
@@ -298,7 +297,7 @@ class TestExperimentDataIntegration(QiskitTestCase):
             exp_data.delete_figure(0)
             exp_data.save()
 
-        rexp = DbExperimentData.load(exp_data.experiment_id, self.service)
+        rexp = ExperimentData.load(exp_data.experiment_id, self.service)
         self.assertRaises(IBMExperimentEntryNotFound, rexp.figure, figure_name)
         self.assertRaises(
             IBMExperimentEntryNotFound, self.service.figure, exp_data.experiment_id, figure_name
@@ -319,7 +318,7 @@ class TestExperimentDataIntegration(QiskitTestCase):
         exp_data.add_figures(hello_bytes, figure_names="hello.svg")
         exp_data.save()
 
-        rexp = DbExperimentData.load(exp_data.experiment_id, self.service)
+        rexp = ExperimentData.load(exp_data.experiment_id, self.service)
         # Experiment tag order is not necessarily preserved
         # so compare tags with a predictable sort order.
         self.assertEqual(["bar", "foo"], sorted(rexp.tags))
@@ -331,13 +330,13 @@ class TestExperimentDataIntegration(QiskitTestCase):
         with mock.patch("builtins.input", lambda _: "y"):
             exp_data.save()
 
-        rexp = DbExperimentData.load(exp_data.experiment_id, self.service)
+        rexp = ExperimentData.load(exp_data.experiment_id, self.service)
         self.assertRaises(IBMExperimentEntryNotFound, rexp.figure, "hello.svg")
         self.assertRaises(DbExperimentEntryNotFound, rexp.analysis_results, aresult.result_id)
 
     def test_set_service_job(self):
         """Test setting service with a job."""
-        exp_data = DbExperimentData.from_values(experiment_type="qiskit_test", service=self.service)
+        exp_data = ExperimentData(experiment_type="qiskit_test", service=self.service)
         job = self._run_circuit()
         exp_data.add_jobs(job)
         exp_data.save()
@@ -470,7 +469,7 @@ class TestExperimentDataIntegration(QiskitTestCase):
 
     def test_block_for_results(self):
         """Test blocking for jobs"""
-        exp_data = DbExperimentData.from_values(
+        exp_data = ExperimentData(
             backend=self.backend, experiment_type="qiskit_test", service=self.service
         )
         jobs = []
@@ -484,7 +483,7 @@ class TestExperimentDataIntegration(QiskitTestCase):
 
     def _create_experiment_data(self):
         """Create an experiment data."""
-        exp_data = DbExperimentData.from_values(
+        exp_data = ExperimentData(
             backend=self.backend, experiment_type="qiskit_test", verbose=False, service=self.service
         )
         exp_data.save()
