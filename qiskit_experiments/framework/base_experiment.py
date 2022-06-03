@@ -59,8 +59,8 @@ class BaseExperiment(ABC, StoreInitArgs):
 
         # Circuit parameters
         self._num_qubits = len(device_qubits)
-        self._physical_qubits = tuple(device_qubits)
-        if self._num_qubits != len(set(self._physical_qubits)):
+        self._device_qubits = tuple(device_qubits)
+        if self._num_qubits != len(set(self._device_qubits)):
             raise QiskitError("Duplicate qubits in device_qubits value.")
 
         # Experiment options
@@ -111,7 +111,7 @@ class BaseExperiment(ABC, StoreInitArgs):
     @property
     def device_qubits(self) -> Tuple[int, ...]:
         """Return the device qubits for the experiment."""
-        return self._physical_qubits
+        return self._device_qubits
 
     @property
     def num_qubits(self) -> int:
@@ -377,7 +377,7 @@ class BaseExperiment(ABC, StoreInitArgs):
         This function can be overridden to define custom transpilation.
         """
         transpile_opts = copy.copy(self.transpile_options.__dict__)
-        transpile_opts["initial_layout"] = list(self.physical_qubits)
+        transpile_opts["initial_layout"] = list(self.device_qubits)
         transpiled = transpile(self.circuits(), self.backend, **transpile_opts)
 
         # TODO remove this deprecation after 0.3.0 release
@@ -515,7 +515,7 @@ class BaseExperiment(ABC, StoreInitArgs):
         Subclasses can override this method to add custom experiment
         metadata to the returned experiment result data.
         """
-        metadata = {"physical_qubits": list(self.physical_qubits)}
+        metadata = {"physical_qubits": list(self.device_qubits)}
         return metadata
 
     def __json_encode__(self):

@@ -122,7 +122,7 @@ class T1(BaseExperiment):
 
             circ.metadata = {
                 "experiment_type": self._type,
-                "qubit": self.physical_qubits[0],
+                "qubit": self.device_qubits[0],
                 "unit": "s",
             }
             if dt_unit:

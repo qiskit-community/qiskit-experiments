@@ -170,7 +170,7 @@ class QuantumVolume(BaseExperiment):
                 "experiment_type": self._type,
                 "depth": depth,
                 "trial": trial,
-                "qubits": self.physical_qubits,
+                "qubits": self.device_qubits,
                 "ideal_probabilities": self._get_ideal_data(qv_circ),
             }
             circuits.append(qv_circ)

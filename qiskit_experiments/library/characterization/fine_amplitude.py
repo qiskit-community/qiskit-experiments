@@ -133,7 +133,7 @@ class FineAmplitude(BaseExperiment, RestlessMixin):
         self.set_experiment_options(gate=gate)
 
         if measurement_qubits is not None:
-            self._measurement_qubits = [self.physical_qubits.index(q) for q in measurement_qubits]
+            self._measurement_qubits = [self.device_qubits.index(q) for q in measurement_qubits]
         else:
             self._measurement_qubits = range(self.num_qubits)
 
@@ -163,7 +163,7 @@ class FineAmplitude(BaseExperiment, RestlessMixin):
 
             circ.metadata = {
                 "experiment_type": self._type,
-                "qubits": self.physical_qubits,
+                "qubits": self.device_qubits,
                 "xval": add_x,
                 "unit": "gate number",
                 "series": "spam-cal",
@@ -230,7 +230,7 @@ class FineAmplitude(BaseExperiment, RestlessMixin):
 
             circuit.metadata = {
                 "experiment_type": self._type,
-                "qubits": self.physical_qubits,
+                "qubits": self.device_qubits,
                 "xval": repetition,
                 "unit": "gate number",
                 "series": 1,

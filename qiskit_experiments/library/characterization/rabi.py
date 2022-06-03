@@ -140,7 +140,7 @@ class Rabi(BaseExperiment, RestlessMixin):
         circuit = self._pre_circuit()
         circuit.append(gate, (0,))
         circuit.measure_active()
-        circuit.add_calibration(gate, self._physical_qubits, sched, params=[param])
+        circuit.add_calibration(gate, self.device_qubits, sched, params=[param])
 
         return circuit, param
 
@@ -162,7 +162,7 @@ class Rabi(BaseExperiment, RestlessMixin):
             assigned_circ = circuit.assign_parameters({param: amp}, inplace=False)
             assigned_circ.metadata = {
                 "experiment_type": self._type,
-                "qubits": self.physical_qubits,
+                "qubits": self.device_qubits,
                 "xval": amp,
                 "unit": "arb. unit",
                 "amplitude": amp,

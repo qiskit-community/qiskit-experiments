@@ -104,7 +104,7 @@ class TestFineDragCal(QiskitExperimentsTestCase):
         drag_cal = FineDragCal(0, self.cals, "x", self.backend)
 
         transpile_opts = copy.copy(drag_cal.transpile_options.__dict__)
-        transpile_opts["initial_layout"] = list(drag_cal.physical_qubits)
+        transpile_opts["initial_layout"] = list(drag_cal.device_qubits)
         circs = transpile(
             drag_cal.circuits(), inst_map=self.cals.default_inst_map, **transpile_opts
         )
@@ -127,7 +127,7 @@ class TestFineDragCal(QiskitExperimentsTestCase):
         new_beta = -np.sqrt(np.pi) * d_theta * sigma / target_angle**2
 
         transpile_opts = copy.copy(drag_cal.transpile_options.__dict__)
-        transpile_opts["initial_layout"] = list(drag_cal.physical_qubits)
+        transpile_opts["initial_layout"] = list(drag_cal.device_qubits)
         circs = transpile(
             drag_cal.circuits(), inst_map=self.cals.default_inst_map, **transpile_opts
         )

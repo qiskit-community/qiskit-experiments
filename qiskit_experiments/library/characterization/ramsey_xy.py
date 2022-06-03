@@ -163,7 +163,7 @@ class RamseyXY(BaseExperiment, RestlessMixin):
         # Create the X and Y circuits.
         metadata = {
             "experiment_type": self._type,
-            "qubits": self.physical_qubits,
+            "qubits": self.device_qubits,
             "osc_freq": self.experiment_options.osc_freq,
             "unit": "s",
         }

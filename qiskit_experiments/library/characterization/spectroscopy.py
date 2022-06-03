@@ -128,7 +128,7 @@ class Spectroscopy(BaseExperiment, ABC):
 
         circuit.metadata = {
             "experiment_type": self._type,
-            "qubits": self.physical_qubits,
+            "qubits": self.device_qubits,
             "xval": np.round(freq, decimals=3),
             "unit": "Hz",
             "schedule": str(sched),

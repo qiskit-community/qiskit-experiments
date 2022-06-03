@@ -133,7 +133,7 @@ class RoughAmplitudeCal(BaseCalibrationExperiment, Rabi):
         for angle, param_name, schedule_name, _ in self.experiment_options.angles_schedules:
             param_val = self._cals.get_parameter_value(
                 param_name,
-                self._physical_qubits,
+                self.device_qubits,
                 schedule_name,
                 group=self.experiment_options.group,
             )

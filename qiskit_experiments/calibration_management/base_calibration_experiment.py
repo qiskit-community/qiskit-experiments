@@ -251,7 +251,7 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
             )
 
         transpile_opts["inst_map"] = self.calibrations.default_inst_map
-        transpile_opts["initial_layout"] = list(self.physical_qubits)
+        transpile_opts["initial_layout"] = list(self.device_qubits)
 
         return transpile(self.circuits(), self.backend, **transpile_opts)
 

@@ -104,7 +104,7 @@ class FineFrequencyCal(BaseCalibrationExperiment, FineFrequency):
 
         param_val = self._cals.get_parameter_value(
             self._param_name,
-            self.physical_qubits,
+            self.device_qubits,
             group=self.experiment_options.group,
         )
 

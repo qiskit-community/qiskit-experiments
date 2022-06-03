@@ -128,7 +128,7 @@ class FineFrequency(BaseExperiment):
 
             circuit.metadata = {
                 "experiment_type": self._type,
-                "qubits": self.physical_qubits,
+                "qubits": self.device_qubits,
                 "xval": repetition,
                 "unit": "Number of delays",
             }

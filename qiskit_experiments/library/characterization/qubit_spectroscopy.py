@@ -60,7 +60,7 @@ class QubitSpectroscopy(Spectroscopy):
         if self.backend is None:
             raise QiskitError("backend not set. Cannot determine the center frequency.")
 
-        return self.backend.defaults().qubit_freq_est[self.physical_qubits[0]]
+        return self.backend.defaults().qubit_freq_est[self.device_qubits[0]]
 
     def _template_circuit(self, freq_param) -> QuantumCircuit:
         """Return the template quantum circuit."""
@@ -81,7 +81,7 @@ class QubitSpectroscopy(Spectroscopy):
         width = granularity * (self.experiment_options.width / dt // granularity)
 
         with pulse.build(backend=self.backend, name="spectroscopy") as schedule:
-            pulse.shift_frequency(freq_param, pulse.DriveChannel(self.physical_qubits[0]))
+            pulse.shift_frequency(freq_param, pulse.DriveChannel(self.device_qubits[0]))
             pulse.play(
                 pulse.GaussianSquare(
                     duration=duration,
@@ -89,9 +89,9 @@ class QubitSpectroscopy(Spectroscopy):
                     sigma=sigma,
                     width=width,
                 ),
-                pulse.DriveChannel(self.physical_qubits[0]),
+                pulse.DriveChannel(self.device_qubits[0]),
             )
-            pulse.shift_frequency(-freq_param, pulse.DriveChannel(self.physical_qubits[0]))
+            pulse.shift_frequency(-freq_param, pulse.DriveChannel(self.device_qubits[0]))
 
         return schedule, freq_param
 
@@ -109,7 +109,7 @@ class QubitSpectroscopy(Spectroscopy):
         sched, freq_param = self._schedule()
         circuit = self._template_circuit(freq_param)
         circuit.add_calibration(
-            self.__spec_gate_name__, self.physical_qubits, sched, params=[freq_param]
+            self.__spec_gate_name__, self.device_qubits, sched, params=[freq_param]
         )
 
         # Create the circuits to run

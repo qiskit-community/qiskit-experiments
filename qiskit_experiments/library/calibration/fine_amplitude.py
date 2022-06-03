@@ -96,7 +96,7 @@ class FineAmplitudeCal(BaseCalibrationExperiment, FineAmplitude):
 
         param_val = self._cals.get_parameter_value(
             self._param_name,
-            self.physical_qubits,
+            self.device_qubits,
             self._sched_name,
             group=self.experiment_options.group,
         )

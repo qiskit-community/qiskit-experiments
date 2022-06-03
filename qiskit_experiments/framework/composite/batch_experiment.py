@@ -69,7 +69,7 @@ class BatchExperiment(CompositeExperiment):
         self._qubit_map = OrderedDict()
         logical_qubit = 0
         for expr in experiments:
-            for physical_qubit in expr.physical_qubits:
+            for physical_qubit in expr.device_qubits:
                 if physical_qubit not in self._qubit_map:
                     self._qubit_map[physical_qubit] = logical_qubit
                     logical_qubit += 1
@@ -89,10 +89,10 @@ class BatchExperiment(CompositeExperiment):
 
         # Generate data for combination
         for index, expr in enumerate(self._experiments):
-            if self.physical_qubits == expr.physical_qubits or to_transpile:
+            if self.device_qubits == expr.device_qubits or to_transpile:
                 qubit_mapping = None
             else:
-                qubit_mapping = [self._qubit_map[qubit] for qubit in expr.physical_qubits]
+                qubit_mapping = [self._qubit_map[qubit] for qubit in expr.device_qubits]
 
             if isinstance(expr, BatchExperiment):
                 # Batch experiments don't contain their own native circuits.

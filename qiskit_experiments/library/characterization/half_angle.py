@@ -132,7 +132,7 @@ class HalfAngle(BaseExperiment):
 
             circuit.metadata = {
                 "experiment_type": self._type,
-                "qubits": self.physical_qubits,
+                "qubits": self.device_qubits,
                 "xval": repetition,
                 "unit": "repetition number",
             }

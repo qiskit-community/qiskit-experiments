@@ -105,7 +105,7 @@ class TomographyExperiment(BaseExperiment):
         if measurement_qubits:
             # Convert logical qubits to physical qubits
             self._meas_qubits = tuple(measurement_qubits)
-            self._meas_physical_qubits = tuple(self.physical_qubits[i] for i in self._meas_qubits)
+            self._meas_physical_qubits = tuple(self.device_qubits[i] for i in self._meas_qubits)
             for qubit in self._meas_qubits:
                 if qubit not in range(self.num_qubits):
                     raise QiskitError(
@@ -114,7 +114,7 @@ class TomographyExperiment(BaseExperiment):
                     )
         elif measurement_basis:
             self._meas_qubits = tuple(range(self.num_qubits))
-            self._meas_physical_qubits = self.physical_qubits
+            self._meas_physical_qubits = self.device_qubits
         else:
             self._meas_qubits = tuple()
             self._meas_physical_qubits = tuple()
@@ -123,7 +123,7 @@ class TomographyExperiment(BaseExperiment):
         self._prep_circ_basis = preparation_basis
         if preparation_qubits:
             self._prep_qubits = tuple(preparation_qubits)
-            self._prep_physical_qubits = tuple(self.physical_qubits[i] for i in self._prep_qubits)
+            self._prep_physical_qubits = tuple(self.device_qubits[i] for i in self._prep_qubits)
             for qubit in self._prep_qubits:
                 if qubit not in range(self.num_qubits):
                     raise QiskitError(
@@ -132,7 +132,7 @@ class TomographyExperiment(BaseExperiment):
                     )
         elif preparation_basis:
             self._prep_qubits = tuple(range(self.num_qubits))
-            self._prep_physical_qubits = self.physical_qubits
+            self._prep_physical_qubits = self.device_qubits
         else:
             self._prep_qubits = tuple()
             self._prep_physical_qubits = tuple()

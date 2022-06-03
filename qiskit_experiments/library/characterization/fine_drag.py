@@ -213,14 +213,14 @@ class FineDrag(BaseExperiment, RestlessMixin):
             if schedule is not None:
                 circuit.add_calibration(
                     self.experiment_options.gate.name,
-                    self.physical_qubits,
+                    self.device_qubits,
                     schedule,
                     params=[],
                 )
 
             circuit.metadata = {
                 "experiment_type": self._type,
-                "qubits": self.physical_qubits,
+                "qubits": self.device_qubits,
                 "xval": repetition,
                 "unit": "gate number",
             }

@@ -94,7 +94,7 @@ class ReadoutAngle(BaseExperiment):
         for i, circ in enumerate([circ0, circ1]):
             circ.metadata = {
                 "experiment_type": self._type,
-                "qubit": self.physical_qubits[0],
+                "qubit": self.device_qubits[0],
                 "xval": i,
             }
 

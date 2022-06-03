@@ -88,7 +88,7 @@ class RoughDragCal(BaseCalibrationExperiment, RoughDrag):
         """
 
         prev_beta = self._cals.get_parameter_value(
-            self._param_name, self.physical_qubits, self._sched_name, self.experiment_options.group
+            self._param_name, self.device_qubits, self._sched_name, self.experiment_options.group
         )
 
         experiment_data.metadata["cal_param_value"] = prev_beta

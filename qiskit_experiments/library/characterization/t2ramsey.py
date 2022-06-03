@@ -148,7 +148,7 @@ class T2Ramsey(BaseExperiment):
 
             circ.metadata = {
                 "experiment_type": self._type,
-                "qubit": self.physical_qubits[0],
+                "qubit": self.device_qubits[0],
                 "xval": real_delay_in_sec,
                 "osc_freq": self.experiment_options.osc_freq,
                 "unit": "s",

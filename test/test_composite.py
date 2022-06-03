@@ -475,7 +475,7 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
                 self._ncircs = num_circs
 
             def circuits(self):
-                nqubits = len(self._physical_qubits)
+                nqubits = len(self.device_qubits)
                 circs = []
                 for _ in range(self._ncircs):
                     circ = QuantumCircuit(nqubits, nqubits)

@@ -205,7 +205,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
                     "experiment_type": self._type,
                     "xval": current_length + 1,
                     "group": "Clifford",
-                    "physical_qubits": self.physical_qubits,
+                    "physical_qubits": self.device_qubits,
                 }
                 rb_circ.measure_all()
                 circuits.append(rb_circ)
@@ -229,7 +229,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
                 if inst.name in ("measure", "reset", "delay", "barrier", "snapshot"):
                     continue
                 qinds = [circ.find_bit(q).index for q in qargs]
-                if not set(self.physical_qubits).issuperset(qinds):
+                if not set(self.device_qubits).issuperset(qinds):
                     continue
                 # Not aware of multi-qubit gate direction
                 formatted_key = tuple(sorted(qinds)), inst.name

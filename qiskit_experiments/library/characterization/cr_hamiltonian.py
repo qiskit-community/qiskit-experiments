@@ -204,7 +204,7 @@ class CrossResonanceHamiltonian(BaseExperiment):
 
             # Extract control channel index
             try:
-                cr_channels = backend.configuration().control(self.physical_qubits)
+                cr_channels = backend.configuration().control(self.device_qubits)
                 self._cr_channel = cr_channels[0].index
             except AttributeError:
                 warnings.warn(
@@ -279,13 +279,13 @@ class CrossResonanceHamiltonian(BaseExperiment):
                         sigma=opt.sigma,
                         width=flat_top_width,
                     ),
-                    pulse.DriveChannel(self.physical_qubits[1]),
+                    pulse.DriveChannel(self.device_qubits[1]),
                 )
             else:
-                pulse.delay(valid_duration, pulse.DriveChannel(self.physical_qubits[1]))
+                pulse.delay(valid_duration, pulse.DriveChannel(self.device_qubits[1]))
 
             # place holder for empty drive channels. this is necessary due to known pulse gate bug.
-            pulse.delay(valid_duration, pulse.DriveChannel(self.physical_qubits[0]))
+            pulse.delay(valid_duration, pulse.DriveChannel(self.device_qubits[0]))
 
         return cross_resonance
 
@@ -332,7 +332,7 @@ class CrossResonanceHamiltonian(BaseExperiment):
 
                     tomo_circ.metadata = {
                         "experiment_type": self.experiment_type,
-                        "qubits": self.physical_qubits,
+                        "qubits": self.device_qubits,
                         "xval": flat_top_width * self._dt,  # in units of sec
                         "control_state": control_state,
                         "meas_basis": meas_basis,
@@ -341,7 +341,7 @@ class CrossResonanceHamiltonian(BaseExperiment):
                         # Attach calibration if this is bare pulse gate
                         tomo_circ.add_calibration(
                             gate=cr_gate,
-                            qubits=self.physical_qubits,
+                            qubits=self.device_qubits,
                             schedule=cr_schedule,
                         )
 

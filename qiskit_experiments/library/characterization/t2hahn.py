@@ -183,7 +183,7 @@ class T2Hahn(BaseExperiment):
             circ.measure(0, 0)  # measure
             circ.metadata = {
                 "experiment_type": self._type,
-                "qubit": self.physical_qubits[0],
+                "qubit": self.device_qubits[0],
                 "xval": total_delay,
                 "unit": "s",
             }

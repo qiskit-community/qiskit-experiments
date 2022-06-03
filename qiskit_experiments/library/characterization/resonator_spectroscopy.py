@@ -156,7 +156,7 @@ class ResonatorSpectroscopy(Spectroscopy):
         if self.backend is None:
             raise QiskitError("backend not set. Cannot call center_frequency.")
 
-        return self.backend.defaults().meas_freq_est[self.physical_qubits[0]]
+        return self.backend.defaults().meas_freq_est[self.device_qubits[0]]
 
     def _template_circuit(self) -> QuantumCircuit:
         """Return the template quantum circuit."""
@@ -174,7 +174,7 @@ class ResonatorSpectroscopy(Spectroscopy):
         sigma = granularity * (self.experiment_options.sigma / dt // granularity)
         width = granularity * (self.experiment_options.width / dt // granularity)
 
-        qubit = self.physical_qubits[0]
+        qubit = self.device_qubits[0]
 
         freq_param = Parameter("frequency")
 
@@ -212,7 +212,7 @@ class ResonatorSpectroscopy(Spectroscopy):
             sched_ = sched.assign_parameters({freq_param: freq_shift}, inplace=False)
 
             circuit = self._template_circuit()
-            circuit.add_calibration("measure", self.physical_qubits, sched_)
+            circuit.add_calibration("measure", self.device_qubits, sched_)
             self._add_metadata(circuit, freq, sched)
 
             circs.append(circuit)

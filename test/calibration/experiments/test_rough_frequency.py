@@ -40,7 +40,7 @@ class TestRoughFrequency(QiskitExperimentsTestCase):
             qubit, cals, frequencies, auto_update=auto_update, absolute=absolute
         )
 
-        self.assertEqual(freq.physical_qubits, (qubit,))
+        self.assertEqual(freq.device_qubits, (qubit,))
         self.assertEqual(freq._frequencies, frequencies)
         self.assertEqual(freq._absolute, False)
         self.assertEqual(freq.auto_update, False)

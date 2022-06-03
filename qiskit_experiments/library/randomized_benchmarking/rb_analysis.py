@@ -81,7 +81,7 @@ class RBAnalysis(curve.CurveAnalysis):
     def __init__(self):
         super().__init__()
         self._gate_counts_per_clifford = None
-        self._physical_qubits = None
+        self._device_qubits = None
 
     @classmethod
     def _default_options(cls):
@@ -138,7 +138,7 @@ class RBAnalysis(curve.CurveAnalysis):
             b=(0, 1),
         )
 
-        b_guess = 1 / 2 ** len(self._physical_qubits)
+        b_guess = 1 / 2 ** len(self._device_qubits)
         a_guess = 1 - b_guess
         alpha_guess = curve.guess.rb_decay(curve_data.x, curve_data.y, a=a_guess, b=b_guess)
 
@@ -208,7 +208,7 @@ class RBAnalysis(curve.CurveAnalysis):
             List of analysis result data.
         """
         outcomes = super()._create_analysis_results(fit_data, quality, **metadata)
-        num_qubits = len(self._physical_qubits)
+        num_qubits = len(self._device_qubits)
 
         # Calculate EPC
         alpha = fit_data.fitval("alpha")
@@ -229,7 +229,7 @@ class RBAnalysis(curve.CurveAnalysis):
         if self.options.epg_1_qubit and num_qubits == 2:
             epc = _exclude_1q_error(
                 epc=epc,
-                qubits=self._physical_qubits,
+                qubits=self._device_qubits,
                 gate_counts_per_clifford=self._gate_counts_per_clifford,
                 extra_analyses=self.options.epg_1_qubit,
             )
@@ -247,7 +247,7 @@ class RBAnalysis(curve.CurveAnalysis):
         if self._gate_counts_per_clifford is not None and self.options.gate_error_ratio:
             epg_dict = _calculate_epg(
                 epc=epc,
-                qubits=self._physical_qubits,
+                qubits=self._device_qubits,
                 gate_error_ratio=self.options.gate_error_ratio,
                 gate_counts_per_clifford=self._gate_counts_per_clifford,
             )
@@ -315,7 +315,7 @@ class RBAnalysis(curve.CurveAnalysis):
                 self.set_options(gate_error_ratio=gate_error_ratio)
 
         # Get qubit number
-        self._physical_qubits = experiment_data.metadata["physical_qubits"]
+        self._device_qubits = experiment_data.metadata["physical_qubits"]
 
 
 def _lookup_epg_ratio(gate: str, n_qubits: int) -> Union[None, int]:

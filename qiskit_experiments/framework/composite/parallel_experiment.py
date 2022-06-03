@@ -64,7 +64,7 @@ class ParallelExperiment(CompositeExperiment):
         """
         qubits = []
         for exp in experiments:
-            qubits += exp.physical_qubits
+            qubits += exp.device_qubits
         super().__init__(
             experiments, qubits, backend=backend, analysis=analysis, flatten_results=flatten_results
         )
@@ -92,7 +92,7 @@ class ParallelExperiment(CompositeExperiment):
             sub_qubits.append(qubits)
             # Construct mapping for the sub-experiments logical qubits to physical qubits
             # in the full combined circuits
-            sub_maps.append({q: qubits[i] for i, q in enumerate(sub_exp.physical_qubits)})
+            sub_maps.append({q: qubits[i] for i, q in enumerate(sub_exp.device_qubits)})
             num_qubits += sub_exp.num_qubits
 
         # Generate empty joint circuits

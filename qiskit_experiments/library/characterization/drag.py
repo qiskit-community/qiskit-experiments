@@ -192,7 +192,7 @@ class RoughDrag(BaseExperiment, RestlessMixin):
             circuit.measure_active()
 
             circuit.add_calibration(
-                "Drag(" + schedule.name + ")", self.physical_qubits, schedule, params=[beta]
+                "Drag(" + schedule.name + ")", self.device_qubits, schedule, params=[beta]
             )
 
             for beta_val in self.experiment_options.betas:
@@ -202,7 +202,7 @@ class RoughDrag(BaseExperiment, RestlessMixin):
 
                 assigned_circuit.metadata = {
                     "experiment_type": self._type,
-                    "qubits": self.physical_qubits,
+                    "qubits": self.device_qubits,
                     "xval": beta_val,
                     "series": idx,
                 }
