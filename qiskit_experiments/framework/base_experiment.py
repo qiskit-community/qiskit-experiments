@@ -24,18 +24,21 @@ from qiskit.providers import Job, Backend
 from qiskit.exceptions import QiskitError
 from qiskit.qobj.utils import MeasLevel
 from qiskit.providers.options import Options
+from qiskit.utils import deprecate_arguments
 from qiskit_experiments.framework.store_init_args import StoreInitArgs
 from qiskit_experiments.framework.base_analysis import BaseAnalysis
 from qiskit_experiments.framework.experiment_data import ExperimentData
 from qiskit_experiments.framework.configs import ExperimentConfig
+from qiskit_experiments.warnings import deprecated_function
 
 
 class BaseExperiment(ABC, StoreInitArgs):
     """Abstract base class for experiments."""
 
+    @deprecate_arguments({"qubits": "device_qubits"})
     def __init__(
         self,
-        qubits: Sequence[int],
+        device_qubits: Optional[Sequence[int]] = None,
         analysis: Optional[BaseAnalysis] = None,
         backend: Optional[Backend] = None,
         experiment_type: Optional[str] = None,
@@ -43,7 +46,7 @@ class BaseExperiment(ABC, StoreInitArgs):
         """Initialize the experiment object.
 
         Args:
-            qubits: list of physical qubits for the experiment.
+            device_qubits: list of device qubits for the experiment.
             analysis: Optional, the analysis to use for the experiment.
             backend: Optional, the backend to run the experiment on.
             experiment_type: Optional, the experiment type string.
@@ -55,10 +58,10 @@ class BaseExperiment(ABC, StoreInitArgs):
         self._type = experiment_type if experiment_type else type(self).__name__
 
         # Circuit parameters
-        self._num_qubits = len(qubits)
-        self._physical_qubits = tuple(qubits)
+        self._num_qubits = len(device_qubits)
+        self._physical_qubits = tuple(device_qubits)
         if self._num_qubits != len(set(self._physical_qubits)):
-            raise QiskitError("Duplicate qubits in physical qubits list.")
+            raise QiskitError("Duplicate qubits in device_qubits value.")
 
         # Experiment options
         self._experiment_options = self._default_experiment_options()
@@ -100,7 +103,13 @@ class BaseExperiment(ABC, StoreInitArgs):
         return self._type
 
     @property
+    @deprecated_function("0.4.0", "It has been renamed to 'device_qubits'")
     def physical_qubits(self) -> Tuple[int, ...]:
+        """Return the device qubits for the experiment."""
+        return self.device_qubits
+
+    @property
+    def device_qubits(self) -> Tuple[int, ...]:
         """Return the device qubits for the experiment."""
         return self._physical_qubits
 
