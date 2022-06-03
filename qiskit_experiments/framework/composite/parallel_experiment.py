@@ -13,8 +13,10 @@
 Parallel Experiment class.
 """
 from typing import List, Optional
+import numpy as np
 
-from qiskit import QuantumCircuit, ClassicalRegister
+from qiskit import QuantumCircuit, ClassicalRegister, transpile
+from qiskit.circuit import Clbit
 from qiskit.providers.backend import Backend
 from qiskit_experiments.exceptions import QiskitError
 from .composite_experiment import CompositeExperiment, BaseExperiment
@@ -70,95 +72,111 @@ class ParallelExperiment(CompositeExperiment):
         )
 
     def circuits(self):
+        return self._combined_circuits(device_layout=False)
 
-        sub_circuits = []
-        sub_qubits = []
-        sub_maps = []
-        sub_size = []
-        num_qubits = 0
+    def _transpiled_circuits(self) -> List[QuantumCircuit]:
+        circuits = self._combined_circuits(device_layout=True)
 
-        # Generate data for combination
-        for sub_exp in self._experiments:
+        # We may need to re-schedule the combined circuits
+        # NOTE: In the future this should be replaced with a minimal
+        # pass manager that only needs to run relevent scheduling passes
+        scheduling_method = getattr(self.transpile_options, "scheduling_method", None)
+        if scheduling_method not in {None, "asap", "as_soon_as_possible"}:
+            circuits = transpile(circuits, self.backend, **self.transpile_options.__dict__)
 
-            # Generate transpiled subcircuits
-            circuits = sub_exp._transpiled_circuits()
+        return circuits
 
-            # Add subcircuits
-            sub_circuits.append(circuits)
-            sub_size.append(len(circuits))
+    def _combined_circuits(self, device_layout: bool) -> List[QuantumCircuit]:
+        """Generate combined parallel circuits from transpiled subcircuits."""
+        if not device_layout:
+            # Num qubits will be computed from sub experiments
+            num_qubits = len(self.physical_qubits)
+        else:
+            # Work around for backend coupling map circuit inflation
+            if self.backend:
+                coupling_map = self.backend.configuration().coupling_map
+            else:
+                coupling_map = None
+            if coupling_map is not None:
+                num_qubits = 1 + np.max(coupling_map)
+            else:
+                num_qubits = 1 + max(self.physical_qubits)
 
-            # Sub experiment logical qubits in the combined circuits full qubits
-            qubits = list(range(num_qubits, num_qubits + sub_exp.num_qubits))
-            sub_qubits.append(qubits)
-            # Construct mapping for the sub-experiments logical qubits to physical qubits
-            # in the full combined circuits
-            sub_maps.append({q: qubits[i] for i, q in enumerate(sub_exp.physical_qubits)})
-            num_qubits += sub_exp.num_qubits
-
-        # Generate empty joint circuits
-        num_circuits = max(sub_size)
         joint_circuits = []
-        for circ_idx in range(num_circuits):
-            # Create joint circuit
-            circuit = QuantumCircuit(self.num_qubits, name=f"parallel_exp_{circ_idx}")
-            circuit.metadata = {
-                "experiment_type": self._type,
-                "composite_index": [],
-                "composite_metadata": [],
-                "composite_qubits": [],
-                "composite_clbits": [],
-            }
-            for exp_idx in range(self._num_experiments):
-                if circ_idx < sub_size[exp_idx]:
-                    # Add subcircuits to joint circuit
-                    sub_circ = sub_circuits[exp_idx][circ_idx]
-                    num_clbits = circuit.num_clbits
-                    qubits = sub_qubits[exp_idx]
-                    qargs_map = sub_maps[exp_idx]
-                    clbits = list(range(num_clbits, num_clbits + sub_circ.num_clbits))
-                    circuit.add_register(ClassicalRegister(sub_circ.num_clbits))
+        sub_qubits = 0
+        for exp_idx, sub_exp in enumerate(self._experiments):
+            # Generate transpiled subcircuits
+            sub_circuits = sub_exp._transpiled_circuits()
 
-                    # Apply transpiled subcircuit
-                    # Note that this assumes the circuit was not expanded to use
-                    # any qubits outside the specified physical qubits
-                    for inst, qargs, cargs in sub_circ.data:
-                        try:
-                            mapped_qargs = [
-                                circuit.qubits[qargs_map[sub_circ.find_bit(i).index]] for i in qargs
-                            ]
-                        except KeyError as ex:
-                            # Instruction is outside physical qubits for the component
-                            # experiment.
-                            # This could legitimately happen if the subcircuit was
-                            # explicitly scheduled during transpilation which would
-                            # insert delays on all auxillary device qubits.
-                            # We skip delay instructions to allow for this.
-                            if inst.name == "delay":
-                                continue
-                            raise QiskitError(
-                                "Component experiment has been transpiled outside of the "
-                                "allowed physical qubits for that component. Check the "
-                                "experiment is valid on the backends coupling map."
-                            ) from ex
-                        mapped_cargs = [
-                            circuit.clbits[clbits[sub_circ.find_bit(i).index]] for i in cargs
+            # Qubit remapping for non-transpiled circuits
+            if not device_layout:
+                qubits = list(range(sub_qubits, sub_qubits + sub_exp.num_qubits))
+                qargs_map = {q: qubits[i] for i, q in enumerate(sub_exp.physical_qubits)}
+                sub_qubits += sub_exp.num_qubits
+            else:
+                qubits = list(sub_exp.physical_qubits)
+                qargs_map = {q: q for q in sub_exp.physical_qubits}
+
+            for circ_idx, sub_circ in enumerate(sub_circuits):
+                if circ_idx >= len(joint_circuits):
+                    # Initialize new joint circuit or extract
+                    # existing circuit if already initialized
+                    new_circuit = QuantumCircuit(num_qubits, name=f"parallel_exp_{circ_idx}")
+                    new_circuit.metadata = {
+                        "experiment_type": self._type,
+                        "composite_index": [],
+                        "composite_metadata": [],
+                        "composite_qubits": [],
+                        "composite_clbits": [],
+                    }
+                    joint_circuits.append(new_circuit)
+
+                # Add classical registers required by subcircuit
+                circuit = joint_circuits[circ_idx]
+                num_clbits = circuit.num_clbits
+                sub_clbits = sub_circ.num_clbits
+                clbits = list(range(num_clbits, num_clbits + sub_clbits))
+                if sub_clbits:
+                    creg = ClassicalRegister(sub_clbits)
+                    sub_cargs = [Clbit(creg, i) for i in range(sub_clbits)]
+                    circuit.add_register(creg)
+                else:
+                    sub_cargs = []
+
+                # Apply transpiled subcircuit
+                # Note that this assumes the circuit was not expanded to use
+                # any qubits outside the specified physical qubits
+                for inst, qargs, cargs in sub_circ.data:
+                    mapped_cargs = [sub_cargs[sub_circ.find_bit(i).index] for i in cargs]
+                    try:
+                        mapped_qargs = [
+                            circuit.qubits[qargs_map[sub_circ.find_bit(i).index]] for i in qargs
                         ]
-                        circuit._append(inst, mapped_qargs, mapped_cargs)
+                    except KeyError as ex:
+                        # Instruction is outside physical qubits for the component
+                        # experiment.
+                        # This could legitimately happen if the subcircuit was
+                        # explicitly scheduled during transpilation which would
+                        # insert delays on all auxillary device qubits.
+                        # We skip delay instructions to allow for this.
+                        if inst.name == "delay":
+                            continue
+                        raise QiskitError(
+                            "Component experiment has been transpiled outside of the "
+                            "allowed physical qubits for that component. Check the "
+                            "experiment is valid on the backends coupling map."
+                        ) from ex
+                    circuit._append(inst, mapped_qargs, mapped_cargs)
 
-                    # Add subcircuit metadata
-                    circuit.metadata["composite_index"].append(exp_idx)
-                    circuit.metadata["composite_metadata"].append(sub_circ.metadata)
-                    circuit.metadata["composite_qubits"].append(qubits)
-                    circuit.metadata["composite_clbits"].append(clbits)
+                # Add subcircuit metadata
+                circuit.metadata["composite_index"].append(exp_idx)
+                circuit.metadata["composite_metadata"].append(sub_circ.metadata)
+                circuit.metadata["composite_qubits"].append(qubits)
+                circuit.metadata["composite_clbits"].append(clbits)
 
-                    # Add the calibrations
-                    for gate, cals in sub_circ.calibrations.items():
-                        for key, sched in cals.items():
-                            circuit.add_calibration(
-                                gate, qubits=key[0], schedule=sched, params=key[1]
-                            )
-
-            # Add joint circuit to returned list
-            joint_circuits.append(circuit)
+                # Add the calibrations
+                for gate, cals in sub_circ.calibrations.items():
+                    for key, sched in cals.items():
+                        circuit.add_calibration(gate, qubits=key[0], schedule=sched, params=key[1])
 
         return joint_circuits
