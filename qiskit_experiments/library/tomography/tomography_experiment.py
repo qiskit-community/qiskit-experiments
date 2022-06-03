@@ -105,7 +105,7 @@ class TomographyExperiment(BaseExperiment):
         if measurement_qubits:
             # Convert logical qubits to device qubits
             self._meas_qubits = tuple(measurement_qubits)
-            self._meas_physical_qubits = tuple(self.device_qubits[i] for i in self._meas_qubits)
+            self._meas_device_qubits = tuple(self.device_qubits[i] for i in self._meas_qubits)
             for qubit in self._meas_qubits:
                 if qubit not in range(self.num_qubits):
                     raise QiskitError(
@@ -114,16 +114,16 @@ class TomographyExperiment(BaseExperiment):
                     )
         elif measurement_basis:
             self._meas_qubits = tuple(range(self.num_qubits))
-            self._meas_physical_qubits = self.device_qubits
+            self._meas_device_qubits = self.device_qubits
         else:
             self._meas_qubits = tuple()
-            self._meas_physical_qubits = tuple()
+            self._meas_device_qubits = tuple()
 
         # Preparation basis and qubits
         self._prep_circ_basis = preparation_basis
         if preparation_qubits:
             self._prep_qubits = tuple(preparation_qubits)
-            self._prep_physical_qubits = tuple(self.device_qubits[i] for i in self._prep_qubits)
+            self._prep_device_qubits = tuple(self.device_qubits[i] for i in self._prep_qubits)
             for qubit in self._prep_qubits:
                 if qubit not in range(self.num_qubits):
                     raise QiskitError(
@@ -132,10 +132,10 @@ class TomographyExperiment(BaseExperiment):
                     )
         elif preparation_basis:
             self._prep_qubits = tuple(range(self.num_qubits))
-            self._prep_physical_qubits = self.device_qubits
+            self._prep_device_qubits = self.device_qubits
         else:
             self._prep_qubits = tuple()
-            self._prep_physical_qubits = tuple()
+            self._prep_device_qubits = tuple()
 
         # Configure experiment options
         if basis_indices:
@@ -174,7 +174,7 @@ class TomographyExperiment(BaseExperiment):
 
             if prep_element:
                 # Add tomography preparation
-                prep_circ = self._prep_circ_basis.circuit(prep_element, self._prep_physical_qubits)
+                prep_circ = self._prep_circ_basis.circuit(prep_element, self._prep_device_qubits)
                 circ.reset(self._prep_qubits)
                 circ.compose(prep_circ, self._prep_qubits, inplace=True)
                 circ.barrier(self._prep_qubits)
@@ -186,7 +186,7 @@ class TomographyExperiment(BaseExperiment):
 
             # Add tomography measurement
             if meas_element:
-                meas_circ = self._meas_circ_basis.circuit(meas_element, self._meas_physical_qubits)
+                meas_circ = self._meas_circ_basis.circuit(meas_element, self._meas_device_qubits)
                 circ.barrier(self._meas_qubits)
                 circ.compose(meas_circ, self._meas_qubits, meas_clbits, inplace=True)
 
@@ -197,10 +197,10 @@ class TomographyExperiment(BaseExperiment):
 
     def _metadata(self):
         metadata = super()._metadata()
-        if self._meas_physical_qubits:
-            metadata["m_qubits"] = list(self._meas_physical_qubits)
-        if self._prep_physical_qubits:
-            metadata["p_qubits"] = list(self._prep_physical_qubits)
+        if self._meas_device_qubits:
+            metadata["m_qubits"] = list(self._meas_device_qubits)
+        if self._prep_device_qubits:
+            metadata["p_qubits"] = list(self._prep_device_qubits)
         return metadata
 
     def _basis_indices(self):
@@ -209,12 +209,12 @@ class TomographyExperiment(BaseExperiment):
         if basis_indices is not None:
             return basis_indices
         if self._meas_circ_basis:
-            meas_shape = self._meas_circ_basis.index_shape(self._meas_physical_qubits)
+            meas_shape = self._meas_circ_basis.index_shape(self._meas_device_qubits)
             meas_elements = product(*[range(i) for i in meas_shape])
         else:
             meas_elements = [None]
         if self._prep_circ_basis:
-            prep_shape = self._prep_circ_basis.index_shape(self._prep_physical_qubits)
+            prep_shape = self._prep_circ_basis.index_shape(self._prep_device_qubits)
             prep_elements = product(*[range(i) for i in prep_shape])
         else:
             prep_elements = [None]

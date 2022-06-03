@@ -55,7 +55,7 @@ class RestlessMixin:
     _default_run_options: Options()
     set_run_options: Callable
     _backend: Backend
-    _physical_qubits: Sequence[int]
+    _device_qubits: Sequence[int]
     _num_qubits: int
 
     def enable_restless(

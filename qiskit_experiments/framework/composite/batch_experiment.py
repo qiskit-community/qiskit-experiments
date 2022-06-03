@@ -69,9 +69,9 @@ class BatchExperiment(CompositeExperiment):
         self._qubit_map = OrderedDict()
         logical_qubit = 0
         for expr in experiments:
-            for physical_qubit in expr.device_qubits:
-                if physical_qubit not in self._qubit_map:
-                    self._qubit_map[physical_qubit] = logical_qubit
+            for device_qubit in expr.device_qubits:
+                if device_qubit not in self._qubit_map:
+                    self._qubit_map[device_qubit] = logical_qubit
                     logical_qubit += 1
         qubits = tuple(self._qubit_map.keys())
         super().__init__(

@@ -21,6 +21,7 @@ import warnings
 from qiskit import QuantumCircuit, transpile
 from qiskit.providers.backend import Backend
 from qiskit.pulse import ScheduleBlock
+from qiskit.utils import deprecate_arguments
 
 from qiskit_experiments.calibration_management.calibrations import Calibrations
 from qiskit_experiments.calibration_management.update_library import BaseUpdater
@@ -175,7 +176,8 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
                 schedule=self._sched_name,
             )
 
-    def _validate_channels(self, schedule: ScheduleBlock, physical_qubits: List[int]):
+    @deprecate_arguments({"physical_qubits": "device_qubits"})
+    def _validate_channels(self, schedule: ScheduleBlock, device_qubits: List[int]):
         """Check that the device qubits are contained in the schedule.
 
         This is a helper method that experiment developers can call in their implementation
@@ -183,12 +185,12 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
 
         Args:
             schedule: The schedule for which to check the qubits.
-            physical_qubits: The qubits that should be included in the schedule.
+            device_qubits: The qubits that should be included in the schedule.
 
         Raises:
             CalibrationError: If a device qubit is not contained in the channels schedule.
         """
-        for qubit in physical_qubits:
+        for qubit in device_qubits:
             if qubit not in set(ch.index for ch in schedule.channels):
                 raise CalibrationError(
                     f"Schedule {schedule.name} does not contain a channel "
