@@ -17,6 +17,7 @@ from abc import ABC, abstractmethod
 import copy
 from collections import OrderedDict
 from typing import Sequence, Optional, Tuple, List, Dict, Union
+from functools import wraps
 import warnings
 
 from qiskit import transpile, QuantumCircuit
@@ -28,6 +29,33 @@ from qiskit_experiments.framework.store_init_args import StoreInitArgs
 from qiskit_experiments.framework.base_analysis import BaseAnalysis
 from qiskit_experiments.framework.experiment_data import ExperimentData
 from qiskit_experiments.framework.configs import ExperimentConfig
+
+
+def cached_method(method):
+    """Decorator to cache the return value of a BaseExperiment method.
+
+    This stores the output of a method in the experiment object instance
+    in a `_cache` dict attribute. Note that the value is cached only on
+    the object instance method name, not any values of its arguments.
+
+    The cache can be cleared by calling :meth:`.BaseExperiment.cache_clear`.
+    """
+
+    @wraps(method)
+    def wrapped_method(self, *args, **kwargs):
+        name = f"{type(self).__name__}.{method.__name__}"
+        # Check for cached value
+        cached = self._cache.get(name, None)
+        if cached is not None:
+            return cached
+
+        # Call method and cache output
+        cached = method(self, *args, **kwargs)
+        self._cache[name] = cached
+
+        return cached
+
+    return wrapped_method
 
 
 class BaseExperiment(ABC, StoreInitArgs):
@@ -53,6 +81,9 @@ class BaseExperiment(ABC, StoreInitArgs):
         """
         # Experiment identification metadata
         self._type = experiment_type if experiment_type else type(self).__name__
+
+        # Initialize cache
+        self._cache = {}
 
         # Circuit parameters
         self._num_qubits = len(qubits)
@@ -362,6 +393,7 @@ class BaseExperiment(ABC, StoreInitArgs):
         # values for any explicit experiment options that affect circuit
         # generation
 
+    @cached_method
     def _transpiled_circuits(self) -> List[QuantumCircuit]:
         """Return a list of experiment circuits, transpiled.
 
@@ -380,7 +412,6 @@ class BaseExperiment(ABC, StoreInitArgs):
                 DeprecationWarning,
             )
             self._postprocess_transpiled_circuits(transpiled)  # pylint: disable=no-member
-
         return transpiled
 
     @classmethod
@@ -407,6 +438,7 @@ class BaseExperiment(ABC, StoreInitArgs):
         Raises:
             AttributeError: If the field passed in is not a supported options
         """
+        self.cache_clear()
         for field in fields:
             if not hasattr(self._experiment_options, field):
                 raise AttributeError(
@@ -437,6 +469,7 @@ class BaseExperiment(ABC, StoreInitArgs):
         Raises:
             QiskitError: if `initial_layout` is one of the fields.
         """
+        self.cache_clear()
         if "initial_layout" in fields:
             raise QiskitError(
                 "Initial layout cannot be specified as a transpile option"
@@ -499,6 +532,10 @@ class BaseExperiment(ABC, StoreInitArgs):
             DeprecationWarning,
         )
         self.analysis.options.update_options(**fields)
+
+    def cache_clear(self):
+        """Clear all cached method outputs."""
+        self._cache = {}
 
     def _metadata(self) -> Dict[str, any]:
         """Return experiment metadata for ExperimentData.
