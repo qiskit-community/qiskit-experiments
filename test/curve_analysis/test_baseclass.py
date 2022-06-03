@@ -431,6 +431,32 @@ class TestCurveAnalysis(CurveAnalysisTestCase):
         self.assertAlmostEqual(taus[0].value.nominal_value, tau1, delta=0.1)
         self.assertAlmostEqual(taus[1].value.nominal_value, tau2, delta=0.1)
 
+    def test_get_init_params(self):
+        """Integration test for getting initial parameter from overview entry."""
+
+        analysis = CurveAnalysis(models=[ExpressionModel(expr="amp * exp(-x/tau)", name="test")])
+        analysis.set_options(
+            data_processor=DataProcessor(input_key="counts", data_actions=[Probability("1")]),
+            p0={"amp": 0.45, "tau": 0.25},
+            plot=False,
+        )
+        amp = 0.5
+        tau = 0.3
+
+        x = np.linspace(0, 1, 100)
+        y_true = amp * np.exp(-x / tau)
+
+        test_data = self.single_sampler(x, y_true)
+        result = analysis.run(test_data).block_for_results()
+
+        overview = result.analysis_results(0).value
+
+        self.assertDictEqual(overview.init_params, {"amp": 0.45, "tau": 0.25})
+
+        y_ref = 0.45 * np.exp(-x / 0.25)
+        y_reproduced = analysis.models[0].eval(x=x, **overview.init_params)
+        np.testing.assert_array_almost_equal(y_ref, y_reproduced)
+
 
 class TestFitOptions(QiskitExperimentsTestCase):
     """Unittest for fit option object."""

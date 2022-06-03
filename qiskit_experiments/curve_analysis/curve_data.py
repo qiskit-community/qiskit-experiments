@@ -139,6 +139,7 @@ class CurveFitResult:
         nfev: Number of fit function evaluation until the solution is obtained.
         message: Any message from the fitting software.
         dof: Degree of freedom in this fitting, i.e. number of free parameters.
+        init_params: Initial parameters provided to the fitter.
         chisq: Chi-squared value.
         reduced_chisq: Reduced Chi-squared value.
         aic: Akaike's information criterion.
@@ -161,6 +162,7 @@ class CurveFitResult:
     nfev: int = None
     message: str = ""
     dof: float = None
+    init_params: Dict[str, float] = None
     chisq: float = None
     reduced_chisq: float = None
     aic: float = None
@@ -276,6 +278,10 @@ class CurveFitResult:
         ret += f"\n - reduced chi-square: {self.reduced_chisq}"
         ret += f"\n - Akaike info crit.: {self.aic}"
         ret += f"\n - Bayesian info crit.: {self.bic}"
+        if self.init_params is not None:
+            ret += "\n - init params:"
+            for name, value in self.init_params.items():
+                ret += f"\n  * {name} = {value}"
         if self.ufloat_params is not None:
             ret += "\n - fit params:"
             for name, param in self.ufloat_params.items():

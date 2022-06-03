@@ -110,6 +110,11 @@ class CurveAnalysis(BaseCurveAnalysis):
                     unite_params.append(name)
         return unite_params
 
+    @property
+    def models(self) -> List[Model]:
+        """Return fit models."""
+        return self._models
+
     # pylint: disable=bad-docstring-quotes
     @deprecated_function(
         last_version="0.4",
