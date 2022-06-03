@@ -44,7 +44,7 @@ To run the QV experiment we need need to provide the following QV
 parameters, in order to generate the QV circuits and run them on a
 backend and on an ideal simulator:
 
--  ``qubits``: The number of qubits or list of physical qubits for the
+-  ``qubits``: The number of qubits or list of device qubits for the
    experiment.
 
 -  ``trials``: The number of trials to run the quantum volume circuit

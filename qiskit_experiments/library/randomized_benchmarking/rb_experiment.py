@@ -71,7 +71,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
         """Initialize a standard randomized benchmarking experiment.
 
         Args:
-            qubits: list of physical qubits for the experiment.
+            qubits: list of device qubits for the experiment.
             lengths: A list of RB sequences lengths.
             backend: The backend to run the experiment on.
             num_samples: Number of samples to generate for each sequence length.

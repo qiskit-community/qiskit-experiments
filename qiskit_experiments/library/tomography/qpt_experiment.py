@@ -81,7 +81,7 @@ class ProcessTomography(TomographyExperiment):
                 preparation basis index, and ``m[i]`` is the measurement basis index
                 for qubit-i. If not specified full tomography for all indices of the
                 preparation and measurement bases will be performed.
-            qubits: Optional, the physical qubits for the initial state circuit.
+            qubits: Optional, the device qubits for the initial state circuit.
         """
         super().__init__(
             circuit,

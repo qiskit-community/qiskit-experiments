@@ -61,7 +61,7 @@ class BaseBasis(ABC):
 
         Args:
             index: a list of basis elements to tensor together.
-            qubits: Optional, the physical qubit subsystems for the index.
+            qubits: Optional, the device qubit subsystems for the index.
                     If None this will be set to ``(0, ..., N-1)`` for a
                     length N index.
 
@@ -71,7 +71,7 @@ class BaseBasis(ABC):
         .. note::
 
             This returns a logical circuit on the specified number of qubits
-            and should be remapped to the corresponding physical qubits
+            and should be remapped to the corresponding device qubits
             during experiment transpilation.
         """
 
@@ -85,7 +85,7 @@ class PreparationBasis(BaseBasis):
     * The :meth:`circuit` method which returns the logical preparation
       :class:`.QuantumCircuit` for basis element index on the specified
       qubits. This circuit should be a logical circuit on the specified
-      number of qubits and will be remapped to the corresponding physical
+      number of qubits and will be remapped to the corresponding device
       qubits during transpilation.
 
     * The :meth:`matrix` method which returns the density matrix prepared
@@ -112,7 +112,7 @@ class PreparationBasis(BaseBasis):
 
         Args:
             index: a list of subsystem basis indices.
-            qubits: Optional, the physical qubit subsystems for the index.
+            qubits: Optional, the device qubit subsystems for the index.
                     If None this will be set to ``(0, ..., N-1)`` for a
                     length N index.
 
@@ -129,9 +129,9 @@ class MeasurementBasis(BaseBasis):
 
     * The :meth:`circuit` method which returns the logical measurement
       :class:`.QuantumCircuit` for basis element index on the specified
-      physical qubits. This circuit should be a logical circuit on the
+      device qubits. This circuit should be a logical circuit on the
       specified number of qubits and will be remapped to the corresponding
-      physical qubits during transpilation. It should include classical
+      device qubits during transpilation. It should include classical
       bits and the measure instructions for the basis measurement storing
       the outcome value in these bits.
 
@@ -171,7 +171,7 @@ class MeasurementBasis(BaseBasis):
         Args:
             index: a list of subsystem basis indices.
             outcome: the composite system measurement outcome.
-            qubits: Optional, the physical qubit subsystems for the index.
+            qubits: Optional, the device qubit subsystems for the index.
                     If None this will be set to ``(0, ..., N-1)`` for a
                     length N index.
 

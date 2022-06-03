@@ -176,7 +176,7 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
             )
 
     def _validate_channels(self, schedule: ScheduleBlock, physical_qubits: List[int]):
-        """Check that the physical qubits are contained in the schedule.
+        """Check that the device qubits are contained in the schedule.
 
         This is a helper method that experiment developers can call in their implementation
         of :meth:`validate_schedules` when checking the schedules.
@@ -186,13 +186,13 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
             physical_qubits: The qubits that should be included in the schedule.
 
         Raises:
-            CalibrationError: If a physical qubit is not contained in the channels schedule.
+            CalibrationError: If a device qubit is not contained in the channels schedule.
         """
         for qubit in physical_qubits:
             if qubit not in set(ch.index for ch in schedule.channels):
                 raise CalibrationError(
                     f"Schedule {schedule.name} does not contain a channel "
-                    f"for the physical qubit {qubit}."
+                    f"for the device qubit {qubit}."
                 )
 
     def _validate_parameters(self, schedule: ScheduleBlock, n_expected_parameters: int):

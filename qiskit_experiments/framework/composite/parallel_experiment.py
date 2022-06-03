@@ -90,7 +90,7 @@ class ParallelExperiment(CompositeExperiment):
             # Sub experiment logical qubits in the combined circuits full qubits
             qubits = list(range(num_qubits, num_qubits + sub_exp.num_qubits))
             sub_qubits.append(qubits)
-            # Construct mapping for the sub-experiments logical qubits to physical qubits
+            # Construct mapping for the sub-experiments logical qubits to device qubits
             # in the full combined circuits
             sub_maps.append({q: qubits[i] for i, q in enumerate(sub_exp.device_qubits)})
             num_qubits += sub_exp.num_qubits
@@ -120,14 +120,14 @@ class ParallelExperiment(CompositeExperiment):
 
                     # Apply transpiled subcircuit
                     # Note that this assumes the circuit was not expanded to use
-                    # any qubits outside the specified physical qubits
+                    # any qubits outside the specified device qubits
                     for inst, qargs, cargs in sub_circ.data:
                         try:
                             mapped_qargs = [
                                 circuit.qubits[qargs_map[sub_circ.find_bit(i).index]] for i in qargs
                             ]
                         except KeyError as ex:
-                            # Instruction is outside physical qubits for the component
+                            # Instruction is outside device qubits for the component
                             # experiment.
                             # This could legitimately happen if the subcircuit was
                             # explicitly scheduled during transpilation which would
@@ -137,7 +137,7 @@ class ParallelExperiment(CompositeExperiment):
                                 continue
                             raise QiskitError(
                                 "Component experiment has been transpiled outside of the "
-                                "allowed physical qubits for that component. Check the "
+                                "allowed device qubits for that component. Check the "
                                 "experiment is valid on the backends coupling map."
                             ) from ex
                         mapped_cargs = [

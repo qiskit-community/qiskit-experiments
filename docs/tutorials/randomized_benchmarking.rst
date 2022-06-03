@@ -30,7 +30,7 @@ Standard RB experiment
 To run the RB experiment we need to provide the following RB parameters,
 in order to generate the RB circuits and run them on a backend:
 
--  ``qubits``: The number of qubits or list of physical qubits for the
+-  ``qubits``: The number of qubits or list of device qubits for the
    experiment
 
 -  ``lengths``: A list of RB sequences lengths

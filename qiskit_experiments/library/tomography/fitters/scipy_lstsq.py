@@ -75,10 +75,10 @@ def scipy_linear_lstsq(
         preparation_data: preparation basis indice data.
         measurement_basis: Optional, measurement matrix basis.
         preparation_basis: Optional, preparation matrix basis.
-        measurement_qubits: Optional, the physical qubits that were measured.
+        measurement_qubits: Optional, the device qubits that were measured.
                             If None they are assumed to be ``[0, ..., M-1]`` for
                             M measured qubits.
-        preparation_qubits: Optional, the physical qubits that were prepared.
+        preparation_qubits: Optional, the device qubits that were prepared.
                             If None they are assumed to be ``[0, ..., N-1]`` for
                             N preparated qubits.
         weights: Optional array of weights for least squares objective.
@@ -170,10 +170,10 @@ def scipy_gaussian_lstsq(
         preparation_data: preparation basis indice data.
         measurement_basis: Optional, measurement matrix basis.
         preparation_basis: Optional, preparation matrix basis.
-        measurement_qubits: Optional, the physical qubits that were measured.
+        measurement_qubits: Optional, the device qubits that were measured.
                             If None they are assumed to be ``[0, ..., M-1]`` for
                             M measured qubits.
-        preparation_qubits: Optional, the physical qubits that were prepared.
+        preparation_qubits: Optional, the device qubits that were prepared.
                             If None they are assumed to be ``[0, ..., N-1]`` for
                             N preparated qubits.
         kwargs: additional kwargs for :func:`scipy.linalg.lstsq`.

@@ -91,10 +91,10 @@ def linear_inversion(
         preparation_data: preparation basis indice data.
         measurement_basis: the tomography measurement basis.
         preparation_basis: the tomography preparation basis.
-        measurement_qubits: Optional, the physical qubits that were measured.
+        measurement_qubits: Optional, the device qubits that were measured.
                             If None they are assumed to be [0, ..., M-1] for
                             M measured qubits.
-        preparation_qubits: Optional, the physical qubits that were prepared.
+        preparation_qubits: Optional, the device qubits that were prepared.
                             If None they are assumed to be [0, ..., N-1] for
                             N preparated qubits.
 

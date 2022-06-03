@@ -38,7 +38,7 @@ class CompositeExperiment(BaseExperiment):
 
         Args:
             experiments: a list of experiment objects.
-            qubits: list of physical qubits for the experiment.
+            qubits: list of device qubits for the experiment.
             backend: Optional, the backend to run the experiment on.
             experiment_type: Optional, composite experiment subclass name.
             flatten_results: If True flatten all component experiment results

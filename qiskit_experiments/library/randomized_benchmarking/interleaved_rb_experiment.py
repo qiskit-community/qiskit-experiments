@@ -63,7 +63,7 @@ class InterleavedRB(StandardRB):
         Args:
             interleaved_element: The element to interleave,
                     given either as a group element or as an instruction/circuit
-            qubits: list of physical qubits for the experiment.
+            qubits: list of device qubits for the experiment.
             lengths: A list of RB sequences lengths.
             backend: The backend to run the experiment on.
             num_samples: Number of samples to generate for each

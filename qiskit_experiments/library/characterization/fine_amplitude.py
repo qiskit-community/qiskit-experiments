@@ -126,7 +126,7 @@ class FineAmplitude(BaseExperiment, RestlessMixin):
             qubits: The qubit(s) on which to run the fine amplitude calibration experiment.
             gate: The gate that will be repeated.
             backend: Optional, the backend to run the experiment on.
-            measurement_qubits: The qubits in the given physical qubits that need to
+            measurement_qubits: The qubits in the given device qubits that need to
                 be measured.
         """
         super().__init__(qubits, analysis=FineAmplitudeAnalysis(), backend=backend)

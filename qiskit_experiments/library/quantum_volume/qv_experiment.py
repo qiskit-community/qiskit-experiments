@@ -81,7 +81,7 @@ class QuantumVolume(BaseExperiment):
         """Initialize a quantum volume experiment.
 
         Args:
-            qubits: list of physical qubits for the experiment.
+            qubits: list of device qubits for the experiment.
             backend: Optional, the backend to run the experiment on.
             trials: The number of trials to run the quantum volume circuit.
             seed: Optional, seed used to initialize ``numpy.random.default_rng``

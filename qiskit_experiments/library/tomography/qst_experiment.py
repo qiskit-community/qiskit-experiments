@@ -70,7 +70,7 @@ class StateTomography(TomographyExperiment):
                 measurement basis configurations ``[m[0], m[1], ...]`` where ``m[i]``
                 is the measurement basis index for qubit-i. If not specified full
                 tomography for all indices of the measurement basis will be performed.
-            qubits: Optional, the physical qubits for the initial state circuit.
+            qubits: Optional, the device qubits for the initial state circuit.
         """
         if isinstance(circuit, Statevector):
             # Convert to circuit using initialize instruction

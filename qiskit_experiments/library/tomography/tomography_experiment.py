@@ -76,7 +76,7 @@ class TomographyExperiment(BaseExperiment):
                 to the logical qubits in the process circuit.
             basis_indices: Optional, the basis elements to be measured. If None
                 All basis elements will be measured.
-            qubits: Optional, the physical qubits for the initial state circuit.
+            qubits: Optional, the device qubits for the initial state circuit.
             analysis: Optional, analysis class to use for experiment. If None the default
                 tomography analysis will be used.
 
@@ -103,7 +103,7 @@ class TomographyExperiment(BaseExperiment):
         # Measurement basis and qubits
         self._meas_circ_basis = measurement_basis
         if measurement_qubits:
-            # Convert logical qubits to physical qubits
+            # Convert logical qubits to device qubits
             self._meas_qubits = tuple(measurement_qubits)
             self._meas_physical_qubits = tuple(self.device_qubits[i] for i in self._meas_qubits)
             for qubit in self._meas_qubits:

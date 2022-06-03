@@ -145,7 +145,7 @@ To create an experiment subclass
   the experiment payload.
 
 - Call the :meth:`BaseExperiment.__init__` method during the subclass
-  constructor with a list of physical qubits. The length of this list must
+  constructor with a list of device qubits. The length of this list must
   be equal to the number of qubits in each circuit and is used to map these
   circuits to this layout during execution.
   Arguments in the constructor can be overridden so that a subclass can

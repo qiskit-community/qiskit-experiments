@@ -81,7 +81,7 @@ class RestlessMixin:
             DataProcessorError: if the experiment analysis does not have the data_processor
                 option.
             DataProcessorError: if the rep_delay is equal to or greater than the
-                T1 time of one of the physical qubits in the experiment.
+                T1 time of one of the device qubits in the experiment.
         """
         try:
             if not rep_delay:
@@ -167,7 +167,7 @@ class RestlessMixin:
             )
 
     def _t1_check(self, rep_delay: float) -> bool:
-        """Check that repetition delay < T1 of the physical qubits in the experiment.
+        """Check that repetition delay < T1 of the device qubits in the experiment.
 
         Args:
             rep_delay: The repetition delay. This is the delay between a measurement

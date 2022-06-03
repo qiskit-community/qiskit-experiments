@@ -34,7 +34,7 @@ experiment data, which consists of the following:
       class only for convenience.
 
     * Experiment metadata. This is a freeform keyword-value dictionary. You can
-      use this to save extra information, such as the physical qubits the experiment
+      use this to save extra information, such as the device qubits the experiment
       operated on, in the database. :meth:`DbExperimentDataV1.set_metadata` and
       :meth:`DbExperimentDataV1.metadata` are methods to set and retrieve metadata,
       respectively.

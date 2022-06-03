@@ -364,7 +364,7 @@ class BaseExperiment(ABC, StoreInitArgs):
 
         .. note::
             These circuits should be on qubits ``[0, .., N-1]`` for an
-            *N*-qubit experiment. The circuits mapped to physical qubits
+            *N*-qubit experiment. The circuits mapped to device qubits
             are obtained via the :meth:`transpiled_circuits` method.
         """
         # NOTE: Subclasses should override this method using the `options`
@@ -449,7 +449,7 @@ class BaseExperiment(ABC, StoreInitArgs):
         if "initial_layout" in fields:
             raise QiskitError(
                 "Initial layout cannot be specified as a transpile option"
-                " as it is determined by the experiment physical qubits."
+                " as it is determined by the experiment device qubits."
             )
         self._transpile_options.update_options(**fields)
         self._set_transpile_options = self._set_transpile_options.union(fields)

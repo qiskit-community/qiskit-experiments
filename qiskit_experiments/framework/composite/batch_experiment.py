@@ -120,7 +120,7 @@ class BatchExperiment(CompositeExperiment):
         return batch_circuits
 
     def _remap_qubits(self, circuit, qubit_mapping):
-        """Remap qubits if physical qubit layout is different to batch layout"""
+        """Remap qubits if device qubit layout is different to batch layout"""
         num_qubits = self.num_qubits
         num_clbits = circuit.num_clbits
         new_circuit = QuantumCircuit(num_qubits, num_clbits, name="batch_" + circuit.name)

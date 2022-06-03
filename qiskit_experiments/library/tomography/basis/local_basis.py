@@ -48,7 +48,7 @@ class LocalPreparationBasis(PreparationBasis):
             default_states: Optional, default density matrices prepared by the
                             input instructions. If None these will be determined by
                             ideal simulation of the preparation instructions.
-            qubit_states: Optional, a dict with physical qubit keys and a list of
+            qubit_states: Optional, a dict with device qubit keys and a list of
                           density matrices prepared by the list of basis instructions
                           for a specific qubit. The default states will be used for any
                           qubits not specified in this dict.
@@ -213,7 +213,7 @@ class LocalMeasurementBasis(MeasurementBasis):
                            will be calculated by evolving the computation basis states
                            by the adjoint of the channel. If None the input instructions
                            will be used as the POVM channel.
-            qubit_povms: Optional, a dict with physical qubit keys and a list of POVMs
+            qubit_povms: Optional, a dict with device qubit keys and a list of POVMs
                          corresponding to each basis measurement instruction for the
                          specific qubit. The default POVMs will be used for any qubits
                          not specified in this dict.
