@@ -1256,7 +1256,7 @@ class ExperimentData:
             )
             return
         try:
-            self.service.create_or_update_eperiment(self._db_data, json_encoder=self._json_encoder, create=not self._created_in_db)
+            self.service.create_or_update_experiment(self._db_data, json_encoder=self._json_encoder, create=not self._created_in_db)
         except Exception:  # pylint: disable=broad-except
             # Don't fail the experiment just because its data cannot be saved.
             LOG.error("Unable to save the experiment data: %s", traceback.format_exc())
