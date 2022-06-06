@@ -711,8 +711,13 @@ class DbExperimentDataV1(DbExperimentData):
                 with open(figure, "rb") as file:
                     figure = file.read()
 
-            figure_metadata = {"qubits": self.metadata.get("physical_qubits")}
-            figure_data = FigureData(figure=figure, name=fig_name, metadata=figure_metadata)
+            # check whether the figure is already wrapped, meaning it came from a sub-experiment
+            if isinstance(figure, FigureData):
+                figure_data = figure
+            else:
+                figure_metadata = {"qubits": self.metadata.get("physical_qubits")}
+                figure_data = FigureData(figure=figure, name=fig_name, metadata=figure_metadata)
+
             self._figures[fig_name] = figure_data
 
             save = save_figure if save_figure is not None else self.auto_save
