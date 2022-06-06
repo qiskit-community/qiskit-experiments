@@ -1763,7 +1763,7 @@ class ExperimentData:
 
     @classmethod
     def load(cls, experiment_id: str,
-             service: IBMExperimentService) -> "DbExperimentDataV1":
+             service: IBMExperimentService) -> "ExperimentData":
         """Load a saved experiment data from a database service.
 
         Args:
@@ -1982,14 +1982,7 @@ class ExperimentData:
                 "cancelled or done to serialize experiment data."
             )
         json_value = {
-            "metadata": self.metadata,
-            "source": self.source,
-            "experiment_id": self.experiment_id,
-            "parent_id": self.parent_id,
-            "experiment_type": self.experiment_type,
-            "tags": self.tags,
-            "share_level": self.share_level,
-            "notes": self.notes,
+            "_db_data": self._db_data,
             "_analysis_results": self._analysis_results,
             "_analysis_callbacks": self._analysis_callbacks,
             "_deleted_figures": self._deleted_figures,
@@ -1999,8 +1992,9 @@ class ExperimentData:
             "_created_in_db": self._created_in_db,
             "_figures": self._safe_serialize_figures(),  # Convert figures to SVG
             "_jobs": self._safe_serialize_jobs(),  # Handle non-serializable objects
+            "_experiment": self._experiment,
+            "_child_data": self._child_data,
         }
-
         # the attribute self._service in charge of the connection and communication with the
         #  experiment db. It doesn't have meaning in the json format so there is no need to serialize
         #  it.
@@ -2014,7 +2008,9 @@ class ExperimentData:
 
     @classmethod
     def __json_decode__(cls, value):
-        ret = cls(**value)
+        ret = cls()
+        for att, att_val in value.items():
+            setattr(ret, att, att_val)
         return ret
 
     def __getstate__(self):
@@ -2084,15 +2080,7 @@ class ExperimentData:
     #     ret += f"\nFigures: {len(self._figures)}"
     #     return ret
     #
-    # def __json_encode__(self):
-    #     json_value = super().__json_encode__()
-    #     if self._experiment:
-    #         json_value["_experiment"] = self._experiment
-    #     if self._child_data:
-    #         json_value["_child_data"] = self._child_data
-    #     return json_value
-    #
-    #
+
 
 @contextlib.contextmanager
 def service_exception_to_warning():
