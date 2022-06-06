@@ -14,8 +14,8 @@
 
 from typing import List, Union
 
+import lmfit
 import numpy as np
-from lmfit.models import ExpressionModel
 
 import qiskit_experiments.curve_analysis as curve
 
@@ -65,12 +65,12 @@ class RamseyXYAnalysis(curve.CurveAnalysis):
     def __init__(self):
         super().__init__(
             models=[
-                ExpressionModel(
+                lmfit.models.ExpressionModel(
                     expr="amp * exp(-x / tau) * cos(2 * pi * freq * x + phase) + base",
                     name="X",
                     data_sort_key={"series": "X"},
                 ),
-                ExpressionModel(
+                lmfit.models.ExpressionModel(
                     expr="amp * exp(-x / tau) * sin(2 * pi * freq * x + phase) + base",
                     name="Y",
                     data_sort_key={"series": "Y"},

@@ -19,9 +19,9 @@ import warnings
 from abc import ABC, abstractmethod
 from typing import List, Dict, Union
 
+import lmfit
 import numpy as np
 from uncertainties import unumpy as unp
-from lmfit import Model, Parameters, minimize
 
 from qiskit_experiments.framework import BaseAnalysis, AnalysisResultData, Options, ExperimentData
 from qiskit_experiments.data_processing import DataProcessor
@@ -142,7 +142,7 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
                 Default to ``least_squares`` method which implements the
                 Trust Region Reflective algorithm to solve the minimization problem.
                 See LMFIT documentation for available options.
-            curve_fitter_options (Dict[str, Any]) Options that are passed to the
+            lmfit_options (Dict[str, Any]): Options that are passed to the
                 LMFIT minimizer. Acceptable options depend on fit_method.
             x_key (str): Circuit metadata key representing a scanned value.
             result_parameters (List[Union[str, ParameterRepr]): Parameters reported in the
@@ -171,7 +171,7 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
         options.result_parameters = []
         options.extra = {}
         options.fit_method = "least_squares"
-        options.curve_fitter_options = {}
+        options.lmfit_options = {}
         options.p0 = {}
         options.bounds = {}
         options.fixed_parameters = {}
@@ -215,6 +215,15 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
                 stacklevel=2,
             )
             del fields["curve_fitter"]
+
+        if "curve_fitter_options" in fields:
+            warnings.warn(
+                "The option 'curve_fitter_options' is replaced with 'lmfit_options.' "
+                "This option will be removed in Qiskit Experiments 0.5.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            fields["lmfit_options"] = fields.pop("curve_fitter_options")
 
         # pylint: disable=no-member
         draw_options = set(self.drawer.options.__dict__.keys()) | {"style"}
@@ -315,7 +324,7 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
     def _run_data_processing(
         self,
         raw_data: List[Dict],
-        models: List[Model],
+        models: List[lmfit.Model],
     ) -> CurveData:
         """Perform data processing from the experiment result payload.
 
@@ -381,7 +390,7 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
     def _run_curve_fit(
         self,
         curve_data: CurveData,
-        models: List[Model],
+        models: List[lmfit.Model],
     ) -> CurveFitResult:
         """Perform curve fitting on given data collection and fit models.
 
@@ -412,7 +421,7 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
             parameters=unite_parameter_names,
             default_p0=self.options.p0,
             default_bounds=self.options.bounds,
-            **self.options.curve_fitter_options,
+            **self.options.lmfit_options,
         )
         # Bind fixed parameters if not empty
         if self.options.fixed_parameters:
@@ -457,7 +466,7 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
         res = None
         for fit_option in fit_options:
             # Setup parameter configuration, i.e. init value, bounds
-            guess_params = Parameters()
+            guess_params = lmfit.Parameters()
             for name in unite_parameter_names:
                 bounds = fit_option.bounds[name] or (-np.inf, np.inf)
                 guess_params.add(
@@ -469,7 +478,7 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
                 )
 
             try:
-                new = minimize(
+                new = lmfit.minimize(
                     fcn=_objective,
                     params=guess_params,
                     method=self.options.fit_method,
@@ -537,7 +546,7 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
     def _create_curve_data(
         self,
         curve_data: CurveData,
-        models: List[Model],
+        models: List[lmfit.Model],
         **metadata,
     ) -> List[AnalysisResultData]:
         """Create analysis results for raw curve data.

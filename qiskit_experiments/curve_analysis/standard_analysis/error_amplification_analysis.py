@@ -14,8 +14,8 @@
 
 from typing import List, Union
 
+import lmfit
 import numpy as np
-from lmfit.models import ExpressionModel
 
 import qiskit_experiments.curve_analysis as curve
 
@@ -82,7 +82,7 @@ class ErrorAmplificationAnalysis(curve.CurveAnalysis):
     def __init__(self):
         super().__init__(
             models=[
-                ExpressionModel(
+                lmfit.models.ExpressionModel(
                     expr="amp / 2 * cos((d_theta + angle_per_gate) * x - phase_offset) + base",
                     name="ping_pong",
                 )

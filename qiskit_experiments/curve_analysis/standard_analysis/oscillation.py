@@ -14,8 +14,8 @@
 
 from typing import List, Union
 
+import lmfit
 import numpy as np
-from lmfit.models import ExpressionModel
 
 import qiskit_experiments.curve_analysis as curve
 
@@ -58,7 +58,7 @@ class OscillationAnalysis(curve.CurveAnalysis):
     def __init__(self):
         super().__init__(
             models=[
-                ExpressionModel(
+                lmfit.models.ExpressionModel(
                     expr="amp * cos(2 * pi * freq * x + phase) + base",
                     name="cos",
                 )
@@ -171,7 +171,7 @@ class DumpedOscillationAnalysis(curve.CurveAnalysis):
     def __init__(self):
         super().__init__(
             models=[
-                ExpressionModel(
+                lmfit.models.ExpressionModel(
                     expr="amp * exp(-x / tau) * cos(2 * pi * freq * x + phi) + base",
                     name="cos_decay",
                 )

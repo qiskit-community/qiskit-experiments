@@ -14,8 +14,8 @@
 
 from typing import List, Union
 
+import lmfit
 import numpy as np
-from lmfit.models import ExpressionModel
 
 import qiskit_experiments.curve_analysis as curve
 from qiskit_experiments.framework import Options
@@ -62,7 +62,7 @@ class GaussianAnalysis(curve.CurveAnalysis):
     def __init__(self):
         super().__init__(
             models=[
-                ExpressionModel(
+                lmfit.models.ExpressionModel(
                     expr="a * exp(-(x-freq)**2 / (2*sigma**2)) + b",
                     name="gaussian",
                 )

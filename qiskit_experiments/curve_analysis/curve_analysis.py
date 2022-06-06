@@ -18,8 +18,8 @@ Analysis class for curve fitting.
 import warnings
 from typing import Dict, List, Tuple, Union, Optional
 
+import lmfit
 import numpy as np
-from lmfit.model import Model
 from uncertainties import unumpy as unp, UFloat
 
 from qiskit_experiments.exceptions import AnalysisError
@@ -39,7 +39,7 @@ class CurveAnalysis(BaseCurveAnalysis):
     See :class:`BaseCurveAnalysis` for overridable method documentation.
     """
 
-    def __init__(self, models: Optional[List[Model]] = None):
+    def __init__(self, models: Optional[List[lmfit.Model]] = None):
         """Initialize data fields that are privately accessed by methods.
 
         Args:
@@ -82,7 +82,7 @@ class CurveAnalysis(BaseCurveAnalysis):
             plot_options = {}
             for series_def in self.__series__:
                 models.append(
-                    Model(
+                    lmfit.Model(
                         name=series_def.name,
                         func=series_def.fit_func,
                         data_sort_key=series_def.filter_kwargs,
@@ -111,7 +111,7 @@ class CurveAnalysis(BaseCurveAnalysis):
         return unite_params
 
     @property
-    def models(self) -> List[Model]:
+    def models(self) -> List[lmfit.Model]:
         """Return fit models."""
         return self._models
 
@@ -291,7 +291,7 @@ class CurveAnalysis(BaseCurveAnalysis):
     def __setstate__(self, state):
         model_objs = []
         for source in state.pop("_models"):
-            tmp_mod = Model(func=None)
+            tmp_mod = lmfit.Model(func=None)
             mod = tmp_mod.loads(s=source)
             model_objs.append(mod)
         self.__dict__.update(state)

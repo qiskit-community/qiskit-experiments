@@ -16,8 +16,8 @@ from collections import defaultdict
 from itertools import product
 from typing import List, Union
 
+import lmfit
 import numpy as np
-from lmfit.models import ExpressionModel
 
 import qiskit_experiments.curve_analysis as curve
 
@@ -147,7 +147,7 @@ class CrossResonanceHamiltonianAnalysis(curve.CurveAnalysis):
                 eq = eq.replace("W", f"sqrt(px{state}**2 + py{state}**2 + pz{state}**2)")
                 eq = eq.replace("X", "(x + t_off)")
                 models.append(
-                    ExpressionModel(
+                    lmfit.models.ExpressionModel(
                         expr=eq,
                         name=f"{axis}|c={state}",
                         data_sort_key={"control_state": state, "meas_basis": axis},

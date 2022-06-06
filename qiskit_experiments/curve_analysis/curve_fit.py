@@ -25,7 +25,7 @@ from qiskit_experiments.curve_analysis.curve_data import FitData
 from qiskit_experiments.warnings import deprecated_function
 
 
-@deprecated_function("0.5", "This function is no longer used.")
+@deprecated_function("0.5", "This function has been replaced with the LMFIT library.")
 def curve_fit(
     func: Callable,
     xdata: np.ndarray,
@@ -168,7 +168,7 @@ def curve_fit(
     )
 
 
-@deprecated_function("0.5", "This function is no longer used.")
+@deprecated_function("0.5", "This function has been replaced with the LMFIT library.")
 def multi_curve_fit(
     funcs: List[Callable],
     series: np.ndarray,

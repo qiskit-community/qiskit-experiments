@@ -12,12 +12,14 @@
 
 """Curve drawer for matplotlib backend."""
 
-from typing import Sequence, Optional
+from typing import Sequence, Optional, Tuple
 
 import numpy as np
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
 from matplotlib.ticker import ScalarFormatter, Formatter
+from matplotlib.cm import tab10
+from matplotlib.markers import MarkerStyle
 
 from qiskit.utils import detach_prefix
 from qiskit_experiments.framework.matplotlib import get_non_gui_ax
@@ -27,6 +29,9 @@ from .base_drawer import BaseCurveDrawer
 
 class MplCurveDrawer(BaseCurveDrawer):
     """Curve drawer for MatplotLib backend."""
+
+    DefaultMarkers = MarkerStyle().filled_markers
+    DefaultColors = tab10.colors
 
     class PrefixFormatter(Formatter):
         """Matplotlib axis formatter to detach prefix.
@@ -222,6 +227,36 @@ class MplCurveDrawer(BaseCurveDrawer):
         else:
             return self._axis
 
+    def _get_default_color(self, name: str) -> Tuple[float, ...]:
+        """A helper method to get default color for the curve.
+
+        Args:
+            name: Name of the curve.
+
+        Returns:
+            Default color available in matplotlib.
+        """
+        if name not in self._curves:
+            self._curves.append(name)
+
+        ind = self._curves.index(name) % len(self.DefaultColors)
+        return self.DefaultColors[ind]
+
+    def _get_default_marker(self, name: str) -> str:
+        """A helper method to get default marker for the scatter plot.
+
+        Args:
+            name: Name of the curve.
+
+        Returns:
+            Default marker available in matplotlib.
+        """
+        if name not in self._curves:
+            self._curves.append(name)
+
+        ind = self._curves.index(name) % len(self.DefaultMarkers)
+        return self.DefaultMarkers[ind]
+
     def draw_raw_data(
         self,
         x_data: Sequence[float],
@@ -230,11 +265,12 @@ class MplCurveDrawer(BaseCurveDrawer):
         **options,
     ):
         curve_opts = self.options.plot_options.get(name, {})
+        marker = curve_opts.get("symbol", self._get_default_marker(name))
         axis = curve_opts.get("canvas", None)
 
         draw_options = {
             "color": "grey",
-            "marker": "x",
+            "marker": marker,
             "alpha": 0.8,
             "zorder": 2,
         }
@@ -251,8 +287,8 @@ class MplCurveDrawer(BaseCurveDrawer):
     ):
         curve_opts = self.options.plot_options.get(name, {})
         axis = curve_opts.get("canvas", None)
-        color = curve_opts.get("color", self.options.default_color)
-        marker = curve_opts.get("symbol", self.options.default_symbol)
+        color = curve_opts.get("color", self._get_default_color(name))
+        marker = curve_opts.get("symbol", self._get_default_marker(name))
 
         draw_ops = {
             "color": color,
@@ -279,7 +315,7 @@ class MplCurveDrawer(BaseCurveDrawer):
     ):
         curve_opts = self.options.plot_options.get(name, {})
         axis = curve_opts.get("canvas", None)
-        color = curve_opts.get("color", self.options.default_color)
+        color = curve_opts.get("color", self._get_default_color(name))
 
         draw_ops = {
             "color": color,
@@ -300,7 +336,7 @@ class MplCurveDrawer(BaseCurveDrawer):
     ):
         curve_opts = self.options.plot_options.get(name, {})
         axis = curve_opts.get("canvas", None)
-        color = curve_opts.get("color", self.options.default_color)
+        color = curve_opts.get("color", self._get_default_color(name))
 
         draw_ops = {
             "zorder": 3,

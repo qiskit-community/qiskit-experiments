@@ -131,10 +131,10 @@ You can intuitively write the definition of model, as shown below:
 
 .. code-block:: python3
 
-    from lmfit.models import ExpressionModel
+    import lmfit
 
     models = [
-        ExpressionModel(
+        lmfit.models.ExpressionModel(
             expr="amp * exp(-alpha * x) + base",
             name="exp_decay",
         )
@@ -148,15 +148,15 @@ Alternatively, you can take a callable to define the model object.
 
 .. code-block:: python3
 
-    from lmfit.model import Model
+    import lmfit
     import numpy as np
 
     def exp_decay(x, amp, alpha, base):
         return amp * np.exp(-alpha * x) + base
 
-    models = [Model(func=exp_decay)]
+    models = [lmfit.Model(func=exp_decay)]
 
-See LMFIT documentation for detailed user guide. They also provide preset models.
+See `LMFIT`_ documentation for detailed user guide. They also provide preset models.
 
 If the :class:`.CurveAnalysis` is instantiated with multiple models,
 it internally builds a cost function to simultaneously minimize the residuals of
@@ -168,15 +168,15 @@ Here is another example how to implement multi-objective optimization task:
 
 .. code-block:: python3
 
-    from lmfit.models import ExpressionModel
+    import lmfit
 
     models = [
-        ExpressionModel(
+        lmfit.models.ExpressionModel(
             expr="amp * exp(-alpha1 * x) + base",
             name="my_experiment1",
             data_sort_key={"tag": 1},
         ),
-        ExpressionModel(
+        lmfit.models.ExpressionModel(
             expr="amp * exp(-alpha2 * x) + base",
             name="my_experiment2",
             data_sort_key={"tag": 2},
@@ -197,15 +197,15 @@ By using this model, one can flexibly set up your fit model. Here is another exa
 
 .. code-block:: python3
 
-    from lmfit.models import ExpressionModel
+    import lmfit
 
     models = [
-        ExpressionModel(
+        lmfit.models.ExpressionModel(
             expr="amp * cos(2 * pi * freq * x + phi) + base",
             name="my_experiment1",
             data_sort_key={"tag": 1},
         ),
-        ExpressionModel(
+        lmfit.models.ExpressionModel(
             expr="amp * sin(2 * pi * freq * x + phi) + base",
             name="my_experiment2",
             data_sort_key={"tag": 2},
@@ -234,7 +234,7 @@ a particular analysis class.
         def __init__(self):
             super().__init__(
                 models=[
-                    ExpressionModel(
+                    lmfit.models.ExpressionModel(
                         expr="amp * exp(-alpha * x) + base", name="my_model"
                     )
                 ]
@@ -258,7 +258,7 @@ This code will give you identical fit model to the one defined in the following 
 
         super().__init__(
             models=[
-                ExpressionModel(
+                lmfit.models.ExpressionModel(
                     expr="3.0 * exp(-alpha * x) + base", name="my_model"
                 )
             ]
@@ -503,8 +503,8 @@ Standard Analysis Library
     GaussianAnalysis
     ErrorAmplificationAnalysis
 
-Fit Functions (Deprecated)
-**************************
+Fit Functions
+*************
 .. autosummary::
     :toctree: ../stubs/
 

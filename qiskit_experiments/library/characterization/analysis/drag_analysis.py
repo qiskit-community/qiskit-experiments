@@ -14,9 +14,8 @@
 
 from typing import List, Union
 
+import lmfit
 import numpy as np
-from lmfit.model import Model
-from lmfit.models import ExpressionModel
 
 import qiskit_experiments.curve_analysis as curve
 from qiskit_experiments.framework import ExperimentData
@@ -151,7 +150,7 @@ class DragCalAnalysis(curve.CurveAnalysis):
     def _run_curve_fit(
         self,
         curve_data: curve.CurveData,
-        models: List[Model],
+        models: List[lmfit.Model],
     ) -> curve.CurveFitResult:
         r"""Perform curve fitting on given data collection and fit models.
 
@@ -189,15 +188,11 @@ class DragCalAnalysis(curve.CurveAnalysis):
         """
         fit_result = super()._run_curve_fit(curve_data, models)
 
-        if fit_result:
-            # covert into dict since dataclass is frozen
-            data_dict = fit_result.__json_encode__()
-            params = data_dict["params"]
-            beta = params["beta"]
-            freq = params["freq"]
+        if fit_result and fit_result.params is not None:
+            beta = fit_result.params["beta"]
+            freq = fit_result.params["freq"]
             min_beta = ((beta + 1 / freq / 2) % (1 / freq)) - 1 / freq / 2
-            data_dict["params"]["beta"] = min_beta
-            return curve.CurveFitResult.__json_decode__(data_dict)
+            fit_result.params["beta"] = min_beta
 
         return fit_result
 
@@ -231,19 +226,12 @@ class DragCalAnalysis(curve.CurveAnalysis):
 
         # Model is initialized at runtime because
         # the experiment option "reps" can be changed before experiment run.
-        plot_options = {}
-        for i, nrep in enumerate(sorted(self.options.reps)):
+        for nrep in sorted(self.options.reps):
             name = f"nrep={nrep}"
             self._models.append(
-                ExpressionModel(
+                lmfit.models.ExpressionModel(
                     expr=f"amp * cos(2 * pi * {nrep} * freq * (x - beta)) + base",
                     name=name,
                     data_sort_key={"nrep": nrep},
                 )
             )
-            plot_options[name] = {
-                "color": curve.utils.colors10(i),
-                "symbol": curve.utils.symbols10(i),
-            }
-
-        self.options.curve_drawer.set_options(plot_options=plot_options)

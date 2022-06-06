@@ -16,7 +16,7 @@ import warnings
 from collections import defaultdict
 from typing import Dict, List, Sequence, Tuple, Union, Optional, TYPE_CHECKING
 
-from lmfit.models import ExpressionModel
+import lmfit
 from qiskit.exceptions import QiskitError
 
 import qiskit_experiments.curve_analysis as curve
@@ -72,7 +72,7 @@ class RBAnalysis(curve.CurveAnalysis):
     def __init__(self):
         super().__init__(
             models=[
-                ExpressionModel(
+                lmfit.models.ExpressionModel(
                     expr="a * alpha ** x + b",
                     name="rb_decay",
                 )

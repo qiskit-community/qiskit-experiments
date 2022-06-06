@@ -16,12 +16,11 @@ from typing import Union, Optional, List, Dict
 import time
 
 import asteval
+import lmfit
 import numpy as np
 from qiskit.utils import detach_prefix
 from uncertainties import UFloat, wrap as wrap_function
 from uncertainties import unumpy
-from lmfit.minimizer import MinimizerResult
-from lmfit.model import Model
 
 from qiskit_experiments.curve_analysis.curve_data import CurveFitResult
 from qiskit_experiments.exceptions import AnalysisError
@@ -29,56 +28,6 @@ from qiskit_experiments.framework import AnalysisResultData
 
 
 UNUMPY_FUNCS = {fn: getattr(unumpy, fn) for fn in unumpy.__all__}
-
-
-def colors10(index: int) -> str:
-    """Return color code for given index.
-
-    Args:
-        index: Color index.
-
-    Returns:
-        Color code.
-    """
-    cycle_ind = index % 10
-    color_list = [
-        "blue",
-        "orange",
-        "green",
-        "red",
-        "purple",
-        "brown",
-        "pink",
-        "gray",
-        "olive",
-        "cyan",
-    ]
-    return color_list[cycle_ind]
-
-
-def symbols10(index: int) -> str:
-    """Return marker symbol code for given index.
-
-    Args:
-        index: Marker index.
-
-    Returns:
-        Marker symbol code.
-    """
-    cycle_ind = index % 10
-    symbols_list = [
-        "o",
-        "^",
-        "x",
-        "v",
-        "*",
-        "D",
-        "s",
-        "+",
-        "<",
-        ">",
-    ]
-    return symbols_list[cycle_ind]
 
 
 def is_error_not_significant(
@@ -160,8 +109,8 @@ def analysis_result_to_repr(result: AnalysisResultData) -> str:
 
 
 def convert_lmfit_result(
-    result: MinimizerResult,
-    models: List[Model],
+    result: lmfit.minimizer.MinimizerResult,
+    models: List[lmfit.Model],
     xdata: np.ndarray,
     ydata: np.ndarray,
 ) -> CurveFitResult:
@@ -224,7 +173,7 @@ def convert_lmfit_result(
 
 def eval_with_uncertainties(
     x: np.ndarray,
-    model: Model,
+    model: lmfit.Model,
     params: Dict[str, UFloat],
 ) -> np.ndarray:
     """Compute Y values with error propagation.

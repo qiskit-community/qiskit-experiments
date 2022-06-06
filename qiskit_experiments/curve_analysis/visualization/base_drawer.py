@@ -82,6 +82,7 @@ class BaseCurveDrawer(ABC):
         self._options = self._default_options()
         self._set_options = set()
         self._axis = None
+        self._curves = list()
 
     @property
     def options(self) -> Options:
@@ -141,8 +142,6 @@ class BaseCurveDrawer(ABC):
                 following three configurations, "canvas", "color", and "symbol"; "canvas" is the
                 integer index of axis (when multi-canvas plot is set), "color" is the
                 color of the curve, and "symbol" is the marker style of the curve for scatter plots.
-            default_color (str): String representation of default plot color.
-            default_symbol (str): String representation of default plot symbol of scatter plots.
             figure_title (str): Title of the figure. Defaults to None, i.e. nothing is shown.
         """
         return Options(
@@ -162,8 +161,6 @@ class BaseCurveDrawer(ABC):
             fit_report_text_size=14,
             plot_sigma=[(1.0, 0.7), (3.0, 0.3)],
             plot_options={},
-            default_color="blue",
-            default_symbol="o",
             figure_title=None,
         )
 

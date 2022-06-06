@@ -27,10 +27,10 @@ from functools import lru_cache
 from types import FunctionType, MethodType
 from typing import Any, Dict, Type, Optional, Union, Callable
 
+import lmfit
 import numpy as np
 import scipy.sparse as sps
 import uncertainties
-from lmfit.model import Model
 from qiskit.circuit import ParameterExpression, QuantumCircuit, qpy_serialization, Instruction
 from qiskit.circuit.library import BlueprintCircuit
 from qiskit.quantum_info import DensityMatrix
@@ -484,10 +484,10 @@ class ExperimentEncoder(json.JSONEncoder):
                     "version": get_object_version(cls),
                 },
             }
-        if isinstance(obj, Model):
+        if isinstance(obj, lmfit.Model):
             # LMFIT Model object. Delegate serialization to LMFIT.
             return {
-                "__type__": "Model",
+                "__type__": "LMFIT.Model",
                 "__value__": obj.dumps(),
             }
         if isinstance(obj, Instruction):
@@ -576,8 +576,8 @@ class ExperimentDecoder(json.JSONDecoder):
                 return _deserialize_bytes(obj_val)
             if obj_type == "set":
                 return set(obj_val)
-            if obj_type == "Model":
-                tmp = Model(func=None)
+            if obj_type == "LMFIT.Model":
+                tmp = lmfit.Model(func=None)
                 load_obj = tmp.loads(s=obj_val)
                 return load_obj
             if obj_type == "Instruction":

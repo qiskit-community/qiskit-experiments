@@ -12,7 +12,7 @@
 
 """Fine Amplitude calibration analysis."""
 
-from lmfit.models import ExpressionModel
+import lmfit
 
 import qiskit_experiments.curve_analysis as curve
 
@@ -36,12 +36,12 @@ class FineAmplitudeAnalysis(curve.ErrorAmplificationAnalysis):
         curve.CurveAnalysis.__init__(
             self,
             models=[
-                ExpressionModel(
+                lmfit.models.ExpressionModel(
                     expr="amp / 2 * (2 * x - 1) + base",
                     name="smap cal.",
                     data_sort_key={"series": "spam-cal"},
                 ),
-                ExpressionModel(
+                lmfit.models.ExpressionModel(
                     expr="amp / 2 * cos((d_theta + angle_per_gate) * x - phase_offset) + base",
                     name="fine amp.",
                     data_sort_key={"series": 1},

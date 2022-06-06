@@ -14,8 +14,8 @@ Interleaved RB analysis class.
 """
 from typing import List, Union
 
+import lmfit
 import numpy as np
-from lmfit.models import ExpressionModel
 
 import qiskit_experiments.curve_analysis as curve
 from qiskit_experiments.framework import AnalysisResultData, ExperimentData
@@ -93,12 +93,12 @@ class InterleavedRBAnalysis(curve.CurveAnalysis):
     def __init__(self):
         super().__init__(
             models=[
-                ExpressionModel(
+                lmfit.models.ExpressionModel(
                     expr="a * alpha ** x + b",
                     name="standard",
                     data_sort_key={"interleaved": False},
                 ),
-                ExpressionModel(
+                lmfit.models.ExpressionModel(
                     expr="a * (alpha_c * alpha) ** x + b",
                     name="interleaved",
                     data_sort_key={"interleaved": True},
