@@ -460,7 +460,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         exp_data.add_analysis_results(analysis_result)
         exp_data.service = service
         exp_data.save()
-        ervice.create_or_update_experiment.assert_called_once()
+        service.create_or_update_experiment.assert_called_once()
         service.create_or_update_figure.assert_called_once()
         analysis_result.save.assert_called_once()
 
@@ -505,9 +505,9 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
             (exp_data.add_figures, (str.encode("hello world"),), service.create_or_update_figure),
             (exp_data.delete_figure, (0,), service.delete_figure),
             (exp_data.delete_analysis_result, (0,), service.delete_analysis_result),
-            (setattr, (exp_data, "tags", ["foo"]), service.update_experiment),
-            (setattr, (exp_data, "notes", "foo"), service.update_experiment),
-            (setattr, (exp_data, "share_level", "hub"), service.update_experiment),
+            (setattr, (exp_data, "tags", ["foo"]), service.create_or_update_experiment),
+            (setattr, (exp_data, "notes", "foo"), service.create_or_update_experiment),
+            (setattr, (exp_data, "share_level", "hub"), service.create_or_update_experiment),
         ]
 
         for func, params, called in subtests:
