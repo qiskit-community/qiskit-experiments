@@ -103,7 +103,7 @@ class MockIQExperimentHelper:
 
 
 class MockIQParallelExperimentHelper(MockIQExperimentHelper):
-    """Helper for Parallel experiment"""
+    """Helper for Parallel experiment."""
 
     def __init__(
         self,
@@ -118,6 +118,58 @@ class MockIQParallelExperimentHelper(MockIQExperimentHelper):
             exp_list(List): List of experiments.
             exp_helper_list(List): Ordered list of `MockIQExperimentHelper` corresponding to the
              experiments in `exp_list`.
+
+        Examples:
+
+            **Parallel experiment for Resonator Spectroscopy**
+
+            To run parallel experiment of Resonator Spectroscopy on two qubits we will need to create
+            two instances of `SpectroscopyHelper` objects (for each experiment) and to create instance of
+            `ParallelExperimentHelper` with them.
+            After that, We will need to configure the `MockIQParallelBackend` using
+            `ParallelExperimentHelper`. After we finished to configure out backend, we need to use
+            `ParallelExperiment` with the `MockIQParallelBackend` as the backend.
+
+            .. code-block::
+
+                iq_cluster_centers = [
+                    ((-1.0, 0.0), (1.0, 0.0)),
+                    ((0.0, -1.0), (0.0, 1.0)),
+                    ((3.0, 0.0), (5.0, 0.0)),
+                    ]
+
+                exp_helper_list = [SpectroscopyHelper(), SpectroscopyHelper()]
+                parallel_helper = ParallelExperimentHelper(exp_helper_list=exp_helper_list)
+
+                parallel_backend = MockIQParallelBackend(
+                    experiment_helper=parallel_helper,
+                    iq_cluster_centers=iq_cluster_centers,
+                    rng_seed=0,
+                )
+                parallel_backend._configuration.basis_gates = ["x"]
+                parallel_backend._configuration.timing_constraints = {"granularity": 16}
+
+                # experiment hyper parameters
+                qubit1 = 0
+                qubit2 = 1
+                freq01 = parallel_backend.defaults().qubit_freq_est[qubit1]
+                freq02 = parallel_backend.defaults().qubit_freq_est[qubit2]
+
+                # experiments initialization
+                frequencies1 = np.linspace(freq01 - 10.0e6, freq01 + 10.0e6, 23)
+                frequencies2 = np.linspace(freq02 - 10.0e6, freq02 + 10.0e6, 21)
+
+                exp_list = [
+                    QubitSpectroscopy(qubit1, frequencies1),
+                    QubitSpectroscopy(qubit2, frequencies2),
+                ]
+                parallel_helper.exp_list = exp_list
+
+                # initializing parallel experiment
+                par_experiment = ParallelExperiment(exp_list, backend=parallel_backend)
+                par_experiment.set_run_options(meas_level=MeasLevel.KERNELED, meas_return="single")
+
+                par_data = par_experiment.run().block_for_results()
         """
 
         self.exp_helper_list = exp_helper_list
@@ -132,6 +184,7 @@ class MockIQParallelExperimentHelper(MockIQExperimentHelper):
         # check parameters
         self._verify_parameters()
 
+        # Splitting the circuit
         parallel_circ_list = self._parallel_exp_circ_splitter(circuits)
         number_of_experiments = len(self.exp_helper_list)
         prob_help_list = [{} for _ in range(number_of_experiments)]
@@ -174,25 +227,25 @@ class MockIQParallelExperimentHelper(MockIQExperimentHelper):
         """
         Splits a quantum circuits to its parallel components.
         Args:
-            qc_list ():
+            qc_list: The list of quantum circuit the backend get as input.
 
         Returns:
             List: A List for each experiment. each entry is a list of quantum circuits relevant to
             the same experiment.
 
         Raises:
-            QiskitError: If an instruction is apllied with qubits that aren't under the same experiment.
+            QiskitError: If an instruction is applied with qubits that aren't under the same experiment.
         """
         # exp_idx_map is to connect between experiment and its circuit in the output.
-        exp_idx_map = {}
-        for exp_idx, exp in enumerate(self.exp_list):
-            exp_idx_map[exp] = exp_idx
-
+        exp_idx_map = {exp: exp_idx for exp_idx, exp in enumerate(self.exp_list)}
         qubit_exp_map = self._create_qubit_exp_map()
 
         exp_circuits_list = [[] for _ in self.exp_list]
 
         for qc in qc_list:
+            # Quantum Register to qubit mapping
+            qubit_indices = {bit: idx for idx, bit in enumerate(qc.qubits)}
+
             # initialize quantum circuit for each experiment for this instance of circuit to fill
             # with instructions.
             for exp_circuit in exp_circuits_list:
@@ -203,16 +256,17 @@ class MockIQParallelExperimentHelper(MockIQExperimentHelper):
 
             # fixing metadata
             for exp_metadata in qc.metadata["composite_metadata"]:
+                # getting a qubit of one of the experiment that we ran in parallel
                 qubit = qubit_exp_map[exp_metadata["qubits"][0]]
+                # using the qubit to access the experiment. Then, we go to the last circuit in
+                # `exp_circuit` of the corresponding experiment, and we overwrite the metadata.
                 exp_circuits_list[exp_idx_map[qubit]][-1].metadata = exp_metadata.copy()
             # sorting instructions by qubits indexes and inserting them into a circuit of the relevant
             # experiment
             for inst, qarg, carg in qc.data:
-                # getting the experiment from the one of the qubits - need to change due to deprication
-                exp = qubit_exp_map[qarg[0].index]
-                # making a list from the qubits the instruction affect - need to change due to
-                # deprivation.
-                qubit_indexes = [qr.index for qr in qarg]
+                exp = qubit_exp_map[qubit_indices[qarg[0]]]
+                # making a list from the qubits the instruction affect
+                qubit_indexes = [qubit_indices[qr] for qr in qarg]
                 # check that the instruction is part of the experiment
                 if set(qubit_indexes).issubset(set(exp.physical_qubits)):
                     # appending exp_circuits_list[experiment_index][last_circuit]
