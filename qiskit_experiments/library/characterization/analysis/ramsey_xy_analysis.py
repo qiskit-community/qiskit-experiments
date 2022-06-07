@@ -90,10 +90,6 @@ class RamseyXYAnalysis(curve.CurveAnalysis):
             xlabel="Delay",
             ylabel="Signal (arb. units)",
             xval_unit="s",
-            plot_options={
-                "X": {"color": "blue", "symbol": "o"},
-                "Y": {"color": "green", "symbol": "^"},
-            },
         )
         default_options.result_parameters = ["freq"]
 

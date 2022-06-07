@@ -53,10 +53,4 @@ class FineAmplitudeAnalysis(curve.ErrorAmplificationAnalysis):
     def _default_options(cls):
         """Return the default analysis options."""
         default_options = super()._default_options()
-        default_options.curve_drawer.set_options(
-            plot_options={
-                "smap cal.": {"color": "green"},
-                "fine amp.": {"color": "blue"},
-            }
-        )
         return default_options

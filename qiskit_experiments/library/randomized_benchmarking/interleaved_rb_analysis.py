@@ -112,12 +112,6 @@ class InterleavedRBAnalysis(curve.CurveAnalysis):
         """Default analysis options."""
         default_options = super()._default_options()
         default_options.result_parameters = ["alpha", "alpha_c"]
-        default_options.curve_drawer.set_options(
-            plot_options={
-                "standard": {"color": "red", "symbol": "."},
-                "interleaved": {"color": "orange", "symbol": "^"},
-            }
-        )
         return default_options
 
     def _generate_fit_guesses(
