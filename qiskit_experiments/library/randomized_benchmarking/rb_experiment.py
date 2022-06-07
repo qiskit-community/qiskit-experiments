@@ -19,6 +19,7 @@ from typing import Union, Iterable, Optional, List, Sequence
 import numpy as np
 from numpy.random import Generator, default_rng
 from numpy.random.bit_generator import BitGenerator, SeedSequence
+import time
 
 from qiskit import QuantumCircuit, QiskitError
 from qiskit.circuit import Instruction
@@ -29,10 +30,9 @@ from qiskit_experiments.framework import BaseExperiment, Options
 from qiskit_experiments.framework.restless_mixin import RestlessMixin
 from .rb_analysis import RBAnalysis
 from .clifford_utils import CliffordUtils
-
+from .fast_rb import generate_all_transpiled_clifford_circuits, build_rb_circuits
 
 LOG = logging.getLogger(__name__)
-
 
 class StandardRB(BaseExperiment, RestlessMixin):
     """Standard randomized benchmarking experiment.
@@ -64,7 +64,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
         qubits: Sequence[int],
         lengths: Iterable[int],
         backend: Optional[Backend] = None,
-        num_samples: int = 3,
+        num_samples: int = 10,
         seed: Optional[Union[int, SeedSequence, BitGenerator, Generator]] = None,
         full_sampling: Optional[bool] = False,
     ):
@@ -93,6 +93,10 @@ class StandardRB(BaseExperiment, RestlessMixin):
         # Set fixed options
         self._full_sampling = full_sampling
         self._clifford_utils = CliffordUtils()
+        start = time.time()
+        self._all_clifford_circuits = generate_all_transpiled_clifford_circuits()
+        end = time.time()
+        print("time for generate_all_transpiled_clifford_circuits="+str(end-start))
 
     def _verify_parameters(self, lengths, num_samples):
         """Verify input correctness, raise QiskitError if needed"""
@@ -133,10 +137,15 @@ class StandardRB(BaseExperiment, RestlessMixin):
         Returns:
             A list of :class:`QuantumCircuit`.
         """
+        start = time.time()
         rng = default_rng(seed=self.experiment_options.seed)
-        circuits = []
         for _ in range(self.experiment_options.num_samples):
-            circuits += self._sample_circuits(self.experiment_options.lengths, rng)
+            circuits = build_rb_circuits(self.experiment_options.lengths,
+                                         self._all_clifford_circuits, rng)
+        end = time.time()
+        print("time for circuits = " + str(end - start))
+        #for c in circuits:
+            #print(c)
         return circuits
 
     def _sample_circuits(self, lengths: Iterable[int], rng: Generator) -> List[QuantumCircuit]:
@@ -213,7 +222,8 @@ class StandardRB(BaseExperiment, RestlessMixin):
 
     def _transpiled_circuits(self) -> List[QuantumCircuit]:
         """Return a list of experiment circuits, transpiled."""
-        transpiled = super()._transpiled_circuits()
+        print("fast rb")
+        transpiled = self.circuits()
 
         if self.analysis.options.get("gate_error_ratio", None) is None:
             # Gate errors are not computed, then counting ops is not necessary.
