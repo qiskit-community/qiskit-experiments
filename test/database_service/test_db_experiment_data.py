@@ -333,7 +333,6 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
 
     def test_add_figure_metadata(self):
         hello_bytes = str.encode("hello world")
-        service = self._set_mock_service()
         qubits = [0, 1, 2]
         exp_data = DbExperimentData(
             backend=self.backend,
