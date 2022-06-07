@@ -134,8 +134,14 @@ class FigureData:
 
     def __init__(self, figure, name=None, metadata=None):
         self.figure = figure
-        self.name = name
+        self._name = name
         self.metadata = metadata if metadata is not None else {}
+
+    # name is read only
+    @property
+    def name(self):
+        """The name of the figure"""
+        return self._name
 
 
 class DbExperimentData:
@@ -1056,6 +1062,9 @@ class DbExperimentDataV1(DbExperimentData):
             for name, figure in self._figures.items():
                 if figure is None:
                     continue
+                # currently only the figure and its name are stored in the database
+                if isinstance(figure, FigureData):
+                    figure = figure.figure
                 if isinstance(figure, pyplot.Figure):
                     figure = plot_to_svg_bytes(figure)
                 data = {"experiment_id": self.experiment_id, "figure": figure, "figure_name": name}
