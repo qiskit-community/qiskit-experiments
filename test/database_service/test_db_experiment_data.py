@@ -331,6 +331,30 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         self.assertEqual(kwargs["figure"], hello_bytes)
         self.assertEqual(kwargs["experiment_id"], exp_data.experiment_id)
 
+    def test_add_figure_metadata(self):
+        hello_bytes = str.encode("hello world")
+        service = self._set_mock_service()
+        qubits = [0, 1, 2]
+        exp_data = DbExperimentData(backend=self.backend, experiment_type="qiskit_test", metadata={'physical_qubits': qubits})
+        exp_data.add_figures(hello_bytes)
+        exp_data.figure(0, image_only=False).metadata['foo'] = 'bar'
+        figure_data = exp_data.figure(0, image_only=False)
+
+        self.assertEqual(figure_data.metadata['qubits'], qubits)
+        self.assertEqual(figure_data.metadata['foo'], 'bar')
+        expected_name_prefix = "qiskit_test_Fig-0_Exp-"
+        self.assertEqual(figure_data.name[:len(expected_name_prefix)], expected_name_prefix)
+
+        exp_data2 = DbExperimentData(backend=self.backend, experiment_type="qiskit_test", metadata={'physical_qubits': [1,2,3,4]})
+        exp_data2.add_figures(figure_data, "new_name.svg")
+        figure_data = exp_data2.figure("new_name.svg", image_only=False)
+
+        # metadata should not change when adding to new ExperimentData
+        self.assertEqual(figure_data.metadata['qubits'], qubits)
+        self.assertEqual(figure_data.metadata['foo'], 'bar')
+        # name should change
+        self.assertEqual(figure_data.name, "new_name.svg")
+
     def test_add_figure_bad_input(self):
         """Test adding figures with bad input."""
         exp_data = DbExperimentData(backend=self.backend, experiment_type="qiskit_test")
@@ -1050,3 +1074,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         mock_service = mock.create_autospec(DatabaseServiceV1, instance=True)
         mock_provider.service.return_value = mock_service
         return mock_service
+
+import unittest
+if __name__ == "__main__":
+    unittest.main()
