@@ -133,6 +133,7 @@ class FigureData:
     """Wrapper for figures and figure metadata"""
 
     def __init__(self, figure, name=None, metadata=None):
+        """Creates a new figure data object"""
         self.figure = figure
         self._name = name
         self.metadata = metadata if metadata is not None else {}
@@ -142,6 +143,25 @@ class FigureData:
     def name(self):
         """The name of the figure"""
         return self._name
+
+    def copy(self, new_name: Optional[str] = None):
+        """Creates a deep copy of the figure data"""
+        name = new_name if new_name is not None else self.name
+        return FigureData(figure=self.figure, name=name, metadata=copy.deepcopy(self.metadata))
+
+    def __json_encode__(self) -> Dict[str, Any]:
+        """Return the json reresentation of the figure data"""
+        return {
+            'figure': self.figure,
+            'name': self.name,
+            'metadata': self.metadata
+        }
+
+    @classmethod
+    def __json_decode__(cls, args: Dict[str, Any]) -> "FigureData":
+        """Initialize a figure data from the json representation"""
+        return cls(**args)
+
 
 
 class DbExperimentData:
@@ -719,7 +739,8 @@ class DbExperimentDataV1(DbExperimentData):
 
             # check whether the figure is already wrapped, meaning it came from a sub-experiment
             if isinstance(figure, FigureData):
-                figure_data = figure
+                figure_data = figure.copy(new_name = fig_name)
+
             else:
                 figure_metadata = {"qubits": self.metadata.get("physical_qubits")}
                 figure_data = FigureData(figure=figure, name=fig_name, metadata=figure_metadata)
