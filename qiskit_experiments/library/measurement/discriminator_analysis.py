@@ -22,6 +22,14 @@ from qiskit_experiments.framework.matplotlib import get_non_gui_ax
 from qiskit_experiments.curve_analysis.visualization import plot_contourf, plot_scatter
 from qiskit_experiments.framework import BaseAnalysis, Options, AnalysisResultData
 from qiskit_experiments.framework.sklearn import requires_sklearn
+import matplotlib as mpl
+
+try:
+    from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
+
+    HAS_SKLEARN = True
+except ImportError:
+    HAS_SKLEARN = False
 
 
 class DiscriminatorAnalysis(BaseAnalysis):
@@ -37,11 +45,6 @@ class DiscriminatorAnalysis(BaseAnalysis):
         options.discriminator_type = "LDA"
 
         return options
-
-    # @requires_sklearn
-    # def LDA(self, xdata, ydata):
-    #     discriminator.
-    #     return analysis_results
 
     def _run_analysis(
         self, experiment_data: ExperimentData
@@ -60,6 +63,39 @@ class DiscriminatorAnalysis(BaseAnalysis):
                 AnalysisResult objects, and ``figures`` may be
                 None, a single figure, or a list of figures.
         """
+
+        def make_ellipses(gmm, ax):
+            """Draws gaussian mixture ellipses from fitted data.
+            Args:
+                gmm: gaussian mixture classifier.
+                ax: plot axes."""
+            for n in range(len(gmm.means_)):
+                if gmm.covariance_type == "full":
+                    covariances = gmm.covariances_[n][:2, :2]
+                elif gmm.covariance_type == "tied":
+                    covariances = gmm.covariances_[:2, :2]
+                elif gmm.covariance_type == "diag":
+                    covariances = np.diag(gmm.covariances_[n][:2])
+                elif gmm.covariance_type == "spherical":
+                    covariances = np.eye(gmm.means_.shape[1]) * gmm.covariances_[n]
+                v, w = np.linalg.eigh(covariances)
+                u = w[0] / np.linalg.norm(w[0])
+                angle = np.arctan2(u[1], u[0])
+                angle = 180 * angle / np.pi  # convert to degrees
+                v = 2.0 * np.sqrt(2.0) * np.sqrt(v)
+                for i in range(1, 3):
+                    ell = mpl.patches.Ellipse(
+                        gmm.means_[n, :2],
+                        v[0] * i,
+                        v[1] * i,
+                        180 + angle,
+                        edgecolor="k",
+                        facecolor="none",
+                        alpha=1 - (i - 1) / 2,
+                    )
+                    ell.set_clip_box(ax.bbox)
+                    ax.add_artist(ell)
+
         data = experiment_data.data()
 
         _xdata, _ydata = self._process_data(data)
@@ -74,7 +110,7 @@ class DiscriminatorAnalysis(BaseAnalysis):
                 ix = np.where(_xdata == level)
                 centers.append(np.average(_ydata[ix], axis=0))
             discriminator = GaussianMixture(
-                n_components=2, covariance_type="spherical", means_init=centers
+                n_components=2, covariance_type="full", means_init=centers
             )
         else:
             raise AttributeError("Unsupported discriminator type")
@@ -83,35 +119,77 @@ class DiscriminatorAnalysis(BaseAnalysis):
         score = discriminator.score(_ydata, _xdata)
 
         if self.options.plot:
-            spacing_x = (max(_ydata[:, 0]) - min(_ydata[:, 0])) / 10
-            spacing_y = (max(_ydata[:, 1]) - min(_ydata[:, 1])) / 10
-            xx, yy = np.meshgrid(
-                np.arange(
-                    min(_ydata[:, 0]) - spacing_x,
-                    max(_ydata[:, 0]) + spacing_x,
-                    (max(_ydata[:, 0]) - min(_ydata[:, 0])) / 500,
-                ),
-                np.arange(
-                    min(_ydata[:, 1]) - spacing_y,
-                    max(_ydata[:, 1]) + spacing_y,
-                    (max(_ydata[:, 1]) - min(_ydata[:, 1])) / 500,
-                ),
-            )
+            minxy = np.amin(_ydata)
+            maxxy = np.amax(_ydata)
+
+            spacing = (maxxy - minxy) / 20
+
+            side = np.arange(minxy - spacing, maxxy + spacing, (maxxy - minxy) / 500)
+
+            xx, yy = np.meshgrid(side, side)
 
             if self.options.ax is None:
                 ax = get_non_gui_ax()
             else:
                 ax = self.options.ax
-            for level in np.unique(_xdata):
-                ix = np.where(_xdata == level)
-                ax.scatter(_ydata[ix, 0], _ydata[ix, 1], label=f"|{level}>", marker="x")
+
             zz = discriminator.predict(np.c_[xx.ravel(), yy.ravel()])
             zz = np.array(zz).astype(float).reshape(xx.shape)
-            ax = plot_contourf(xx, yy, zz, ax, alpha=0.2)
+            fig = ax.get_figure()
+            fig.set_size_inches(5, 5)
+            ax.axis("off")
+            ax.set_title(f"Qubit {experiment_data._metadata['physical_qubits']}")
+
+            gs = fig.add_gridspec(
+                2,
+                2,
+                width_ratios=(7, 2),
+                height_ratios=(2, 7),
+                left=0.1,
+                right=0.85,
+                bottom=0.1,
+                top=0.85,
+                wspace=0.15,
+                hspace=0.15,
+            )
+            ax = fig.add_subplot(gs[1, 0])
+
+            ax_histx = fig.add_subplot(gs[0, 0], sharex=ax)
+            ax_histy = fig.add_subplot(gs[1, 1], sharey=ax)
+
             ax.set_xlabel("I data")
             ax.set_ylabel("Q data")
+
+            ax_histx.tick_params(axis="x", labelbottom=False)
+            ax_histy.tick_params(axis="y", labelleft=False)
+
+            ax.margins(0)
+            ax = plot_contourf(xx, yy, zz, ax, alpha=0.2)
+            ax.margins(0)
+            for level in np.unique(_xdata):
+                ix = np.where(_xdata == level)
+                ax.scatter(
+                    _ydata[ix, 0], _ydata[ix, 1], label=f"|{level}>", marker=".", s=5, alpha=0.6
+                )
+
+                xymax = max(np.max(np.abs(_ydata[ix, 0])), np.max(np.abs(_ydata[ix, 1])))
+                binwidth = xymax / 50
+                lim = (int(xymax / binwidth) + 1) * binwidth
+
+                bins = np.arange(-lim, lim + binwidth, binwidth)
+                ax_histx.hist(_ydata[ix, 0][0], bins=bins, histtype="step", log=True)
+                ax_histy.hist(
+                    _ydata[ix, 1][0], bins=bins, histtype="step", orientation="horizontal", log=True
+                )
+
             ax.legend()
-            figures = [ax.get_figure()]
+            ax.tick_params(labelsize=10)
+            ax.set_xlim([minxy - spacing, maxxy + spacing])
+            ax.set_ylim([minxy - spacing, maxxy + spacing])
+            if self.options.discriminator_type == "GaussianMixture":
+                make_ellipses(discriminator, ax)
+
+            figures = [fig]
         else:
             figures = None
 
@@ -161,7 +239,7 @@ class DiscriminatorAnalysis(BaseAnalysis):
                 ),
                 AnalysisResultData(
                     "covariances",
-                    value=str(np.sqrt(discriminator.covariances_)),
+                    value=str(discriminator.covariances_),
                 ),
             ]
         return analysis_results, figures
