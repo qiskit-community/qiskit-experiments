@@ -151,17 +151,12 @@ class FigureData:
 
     def __json_encode__(self) -> Dict[str, Any]:
         """Return the json reresentation of the figure data"""
-        return {
-            'figure': self.figure,
-            'name': self.name,
-            'metadata': self.metadata
-        }
+        return {"figure": self.figure, "name": self.name, "metadata": self.metadata}
 
     @classmethod
     def __json_decode__(cls, args: Dict[str, Any]) -> "FigureData":
         """Initialize a figure data from the json representation"""
         return cls(**args)
-
 
 
 class DbExperimentData:
@@ -739,7 +734,7 @@ class DbExperimentDataV1(DbExperimentData):
 
             # check whether the figure is already wrapped, meaning it came from a sub-experiment
             if isinstance(figure, FigureData):
-                figure_data = figure.copy(new_name = fig_name)
+                figure_data = figure.copy(new_name=fig_name)
 
             else:
                 figure_metadata = {"qubits": self.metadata.get("physical_qubits")}
