@@ -18,6 +18,7 @@ from uncertainties import unumpy as unp
 
 from qiskit_experiments.curve_analysis.curve_data import FitData
 from qiskit_experiments.framework.matplotlib import get_non_gui_ax
+from matplotlib.patches import Ellipse
 
 
 def plot_curve_fit(
@@ -198,19 +199,18 @@ def plot_contourf(
     """Generate a contour plot of xyz data.
     Wraps :func:`matplotlib.pyplot.contourf`.
     Args:
-        xdata: xdata used for plotting
-        ydata: ydata used for plotting
-        zdata: zdata used for plotting
+        xdata: xdata used for plotting.
+        ydata: ydata used for plotting.
+        zdata: zdata used for plotting.
         ax (matplotlib.axes.Axes): Optional, a matplotlib axes to add the plot to.
-        labelsize: label size for plot
+        labelsize: label size for plot.
         grid: Show grid on plot.
         **kwargs: Additional options for :func:`matplotlib.pyplot.contourf`
     Returns:
         matplotlib.axes.Axes: the matplotlib axes containing the plot.
     """
     if ax is None:
-        figure = pyplot.figure()
-        ax = figure.subplots()
+        ax = get_non_gui_ax()
 
     # Default plot options
     plot_opts = kwargs.copy()
@@ -221,4 +221,42 @@ def plot_contourf(
     # Formatting
     ax.tick_params(labelsize=labelsize)
     ax.grid(grid)
+    return ax
+
+
+def plot_ellipse(
+    xy: Tuple[float, float],
+    width: float,
+    height: float,
+    angle: float = 0,
+    ax=None,
+    **kwargs,
+):
+    """Plots an ellipse.
+    Wraps :func:`matplotlib.patches.Ellipse`.
+    Args:
+        xy: xy coordinates of the ellipse center.
+        width: diameter of the horizontal axis.
+        height: diameter of the vertical axis.
+        angle: degrees counterclockwise to rotate. Defaults to 0.
+        ax (matplotlib.axes.Axes): Optional, a matplotlib axes to add the plot to.
+        **kwargs: Additional options for :func:`matplotlib.patches.Ellipse`.
+    Returns:
+        matplotlib.axes.Axes: the matplotlib axes containing the plot.
+    """
+    if ax is None:
+        ax = get_non_gui_ax()
+
+    # Default plot options
+    plot_opts = kwargs.copy()
+    if "edgecolor" not in plot_opts:
+        plot_opts["edgecolor"] = "black"
+    if "facecolor" not in plot_opts:
+        plot_opts["facecolor"] = "none"
+    if "alpha" not in plot_opts:
+        plot_opts["alpha"] = 0.8
+    ell = Ellipse(xy, width, height, angle, **plot_opts)
+    ell.set_clip_box(ax.bbox)
+    ax.add_artist(ell)
+
     return ax

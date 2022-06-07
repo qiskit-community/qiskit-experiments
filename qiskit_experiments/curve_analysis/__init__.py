@@ -565,5 +565,6 @@ from .visualization import (
     plot_errorbar,
     plot_scatter,
     plot_contourf,
+    plot_ellipse,
     FitResultPlotters,
 )

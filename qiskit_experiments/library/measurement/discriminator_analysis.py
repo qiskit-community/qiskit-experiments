@@ -16,13 +16,18 @@ from typing import List, Optional, Tuple
 import numpy as np
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis, QuadraticDiscriminantAnalysis
 from sklearn.mixture import GaussianMixture
+
 from qiskit_experiments.framework import AnalysisResultData, ExperimentData
 
 from qiskit_experiments.framework.matplotlib import get_non_gui_ax
-from qiskit_experiments.curve_analysis.visualization import plot_contourf, plot_scatter
+from qiskit_experiments.curve_analysis.visualization import (
+    plot_contourf,
+    plot_scatter,
+    plot_ellipse,
+)
 from qiskit_experiments.framework import BaseAnalysis, Options, AnalysisResultData
 from qiskit_experiments.framework.sklearn import requires_sklearn
-import matplotlib as mpl
+
 
 try:
     from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
@@ -46,6 +51,54 @@ class DiscriminatorAnalysis(BaseAnalysis):
 
         return options
 
+    def gaussian_analysis(self, gmm, ax):
+        angles = []
+        diameters = []
+        for n in range(len(gmm.means_)):
+            if gmm.covariance_type == "full":
+                covariances = gmm.covariances_[n][:2, :2]
+            elif gmm.covariance_type == "tied":
+                covariances = gmm.covariances_[:2, :2]
+            elif gmm.covariance_type == "diag":
+                covariances = np.diag(gmm.covariances_[n][:2])
+            elif gmm.covariance_type == "spherical":
+                covariances = np.eye(gmm.means_.shape[1]) * gmm.covariances_[n]
+            v, w = np.linalg.eigh(covariances)
+            u = w[0] / np.linalg.norm(w[0])
+            angle = np.arctan2(u[1], u[0])
+            angle = 180 * angle / np.pi  # convert to degrees
+            v = 2.0 * np.sqrt(2.0) * np.sqrt(v)
+            # plot 1- and 2-sigma ellipses
+            for i in range(1, 3):
+                ax = plot_ellipse(
+                    gmm.means_[n, :2],
+                    v[0] * i,
+                    v[1] * i,
+                    180 + angle,
+                    ax,
+                    alpha=1 - (i - 1) / 2,
+                )
+            diameters.append(v)
+            angles.append(angle + 180)
+
+        analysis_results = [
+            AnalysisResultData(
+                "discriminator",
+                value=gmm,
+            ),
+            AnalysisResultData(
+                "centers",
+                value=str(gmm.means_),
+            ),
+            AnalysisResultData(
+                "covariances",
+                value=str(gmm.covariances_),
+            ),
+            AnalysisResultData("diameters", value=str(diameters)),
+            AnalysisResultData("angle", value=str(angles)),
+        ]
+        return ax, analysis_results
+
     def _run_analysis(
         self, experiment_data: ExperimentData
     ) -> Tuple[AnalysisResultData, List["matplotlib.figure.Figure"]]:
@@ -63,38 +116,6 @@ class DiscriminatorAnalysis(BaseAnalysis):
                 AnalysisResult objects, and ``figures`` may be
                 None, a single figure, or a list of figures.
         """
-
-        def make_ellipses(gmm, ax):
-            """Draws gaussian mixture ellipses from fitted data.
-            Args:
-                gmm: gaussian mixture classifier.
-                ax: plot axes."""
-            for n in range(len(gmm.means_)):
-                if gmm.covariance_type == "full":
-                    covariances = gmm.covariances_[n][:2, :2]
-                elif gmm.covariance_type == "tied":
-                    covariances = gmm.covariances_[:2, :2]
-                elif gmm.covariance_type == "diag":
-                    covariances = np.diag(gmm.covariances_[n][:2])
-                elif gmm.covariance_type == "spherical":
-                    covariances = np.eye(gmm.means_.shape[1]) * gmm.covariances_[n]
-                v, w = np.linalg.eigh(covariances)
-                u = w[0] / np.linalg.norm(w[0])
-                angle = np.arctan2(u[1], u[0])
-                angle = 180 * angle / np.pi  # convert to degrees
-                v = 2.0 * np.sqrt(2.0) * np.sqrt(v)
-                for i in range(1, 3):
-                    ell = mpl.patches.Ellipse(
-                        gmm.means_[n, :2],
-                        v[0] * i,
-                        v[1] * i,
-                        180 + angle,
-                        edgecolor="k",
-                        facecolor="none",
-                        alpha=1 - (i - 1) / 2,
-                    )
-                    ell.set_clip_box(ax.bbox)
-                    ax.add_artist(ell)
 
         data = experiment_data.data()
 
@@ -168,10 +189,26 @@ class DiscriminatorAnalysis(BaseAnalysis):
             ax.margins(0)
             for level in np.unique(_xdata):
                 ix = np.where(_xdata == level)
-                ax.scatter(
-                    _ydata[ix, 0], _ydata[ix, 1], label=f"|{level}>", marker=".", s=5, alpha=0.6
-                )
 
+                # plot in two layers so higher levels don't cover up lower
+                tophalf = ax.scatter(
+                    np.array_split(_ydata[ix, 0], 2, 1)[0],
+                    np.array_split(_ydata[ix, 1], 2, 1)[0],
+                    label=f"|{level}>",
+                    marker=".",
+                    s=5,
+                    alpha=0.6,
+                    zorder=level,
+                )
+                ax.scatter(
+                    np.array_split(_ydata[ix, 0], 2, 1)[1],
+                    np.array_split(_ydata[ix, 1], 2, 1)[1],
+                    marker=".",
+                    s=5,
+                    alpha=0.6,
+                    color=tophalf.get_facecolors()[0],
+                    zorder=-level,
+                )
                 xymax = max(np.max(np.abs(_ydata[ix, 0])), np.max(np.abs(_ydata[ix, 1])))
                 binwidth = xymax / 50
                 lim = (int(xymax / binwidth) + 1) * binwidth
@@ -187,7 +224,7 @@ class DiscriminatorAnalysis(BaseAnalysis):
             ax.set_xlim([minxy - spacing, maxxy + spacing])
             ax.set_ylim([minxy - spacing, maxxy + spacing])
             if self.options.discriminator_type == "GaussianMixture":
-                make_ellipses(discriminator, ax)
+                ax, analysis_results = self.gaussian_analysis(discriminator, ax)
 
             figures = [fig]
         else:
@@ -227,21 +264,7 @@ class DiscriminatorAnalysis(BaseAnalysis):
                     value=score,
                 ),
             ]
-        elif self.options.discriminator_type == "GaussianMixture":
-            analysis_results = [
-                AnalysisResultData(
-                    "discriminator",
-                    value=discriminator,
-                ),
-                AnalysisResultData(
-                    "means",
-                    value=str(discriminator.means_),
-                ),
-                AnalysisResultData(
-                    "covariances",
-                    value=str(discriminator.covariances_),
-                ),
-            ]
+
         return analysis_results, figures
 
     def _process_data(self, data):
