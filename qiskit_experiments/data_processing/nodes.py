@@ -16,7 +16,7 @@ from abc import abstractmethod
 from abc import ABC
 from enum import Enum
 from numbers import Number
-from typing import Any, List, Union, Sequence, Set
+from typing import List, Union, Sequence, Set
 from collections import defaultdict
 
 import numpy as np
@@ -25,6 +25,7 @@ from uncertainties import unumpy as unp, ufloat
 from qiskit.result.postprocess import format_counts_memory
 from qiskit_experiments.data_processing.data_action import DataAction, TrainableDataAction
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
+from qiskit_experiments.data_processing.discriminator import BaseDiscriminator
 from qiskit_experiments.framework import Options
 
 
@@ -353,10 +354,7 @@ class IQPart(DataAction):
         Raises:
             DataProcessorError: When input data is not likely IQ data.
         """
-        self._n_circs = 0
         self._n_shots = 0
-        self._n_slots = 0
-        self._n_iq = 0
 
         # identify shape
         try:
@@ -433,37 +431,71 @@ class ToAbs(IQPart):
         return unp.sqrt(data[..., 0] ** 2 + data[..., 1] ** 2) * self.scale
 
 
-class Discriminator(IQPart):
-    """A class to discriminate level 1 data, e.g., IQ data, to produce counts.
+class DiscriminatorNode(DataAction):
+    """A class to discriminate kerneled data, e.g., IQ data, to produce counts.
 
-    This node can be seen as a wrapper for a discriminator object such as a Sklearn classifier.
-    The wrapped discriminator object must have a method :meth:`predict` that takes as input
-    a list of lists and returns a list of labels as do most Sklearn classifiers. Crucially,
-    this node can be initialized with a single discriminator which applies to each memory
-    slot or it can be initialized with a list of discriminators, i.e. one for each slot.
+    This node integrates into the data processing chain a serializable :class:`.BaseDiscriminator`
+    subclass instance which must have a :meth:`predict` method that takes as input a list of lists
+    and returns a list of labels. Crucially, this node can be initialized with a single
+    discriminator which applies to each memory slot or it can be initialized with a list of
+    discriminators, i.e., one for each slot.
+
+    .. notes::
+
+        Future versions may see this class become a sub-class of :class:`.TrainableDataAction`.
+
+    .. notes::
+
+        This node will drop uncertainty from unclassified nodes.
+        Returned labels don't have uncertainty.
+
     """
 
     def __init__(
-        self, discriminator: Union[Any, List[Any]], validate: bool = True, no_ufloat: bool = True
+        self,
+        discriminators: Union[BaseDiscriminator, List[BaseDiscriminator]],
+        validate: bool = True,
     ):
         """Initialize the node with an object that can discriminate.
 
         Args:
-            discriminator: The entity that will perform the discrimination. This needs to
-                be an object or a list of objects with a :meth:`predict` method that takes
+            discriminators: The entity that will perform the discrimination. This needs to
+                be a :class:`.BaseDiscriminator` or a list thereof that takes
                 as input a list of lists and returns a list of labels. If a list of
                 discriminators is given then there should be as many discriminators as there
-                will be slots in the memory.
-            no_ufloat: A boolean which if set to True, i.e., the default, will cause the node
-                to convert the data from uncertainties to regular floats.
+                will be slots in the memory. The discriminator at the i-th index will be applied
+                to the i-th memory slot.
+            validate: If set to False the DataAction will not validate its input.
         """
-        super().__init__(1.0, validate)
-        self._discriminator = discriminator
-        self._no_ufloat = no_ufloat
+        super().__init__(validate)
+        self._discriminator = discriminators
+        self._n_circs = 0
+        self._n_shots = 0
+        self._n_slots = 0
+        self._n_iq = 0
 
     def _format_data(self, data: np.ndarray) -> np.ndarray:
         """Check that there are as many discriminators as there are slots."""
-        data = super()._format_data(data)
+        self._n_shots = 0
+
+        # identify shape
+        try:
+            # level1 single-shot data
+            self._n_circs, self._n_shots, self._n_slots, self._n_iq = data.shape
+        except ValueError as ex:
+            raise DataProcessorError(
+                f"The data given to {self.__class__.__name__} does not have the shape of "
+                "single-shot IQ data; expecting a 4D array."
+            ) from ex
+
+        if self._validate:
+            if data.shape[-1] != 2:
+                raise DataProcessorError(
+                    f"IQ data given to {self.__class__.__name__} must be a multi-dimensional array"
+                    "of dimension [d0, d1, ..., 2] in which the last dimension "
+                    "corresponds to IQ elements."
+                    f"Input data contains element with length {data.shape[-1]} != 2."
+                )
 
         if self._validate:
             if isinstance(self._discriminator, list):
@@ -473,10 +505,7 @@ class Discriminator(IQPart):
                         f"not match the {self._n_slots} slots in the data."
                     )
 
-        if self._no_ufloat:
-            data = unp.nominal_values(data)
-
-        return data
+        return unp.nominal_values(data)
 
     def _process(self, data: np.ndarray) -> np.ndarray:
         """Discriminate the data.
@@ -492,7 +521,7 @@ class Discriminator(IQPart):
         if not isinstance(self._discriminator, list):
             # Reshape the IQ data to an array of size n x 2
             shape, data_length = data.shape, 1
-            for dim in shape[0:-1]:
+            for dim in shape[:-1]:
                 data_length *= dim
 
             data = data.reshape((data_length, 2))  # the last dim is guaranteed by _process
@@ -502,36 +531,21 @@ class Discriminator(IQPart):
 
         # case where a discriminator is applied to each slot.
         else:
-            if self._n_shots == 0:
-                classified = np.empty((self._n_circs, self._n_slots), dtype=str)
-                for idx, discriminator in enumerate(self._discriminator):
-                    sub_data = data[:, idx, :].reshape((self._n_circs, 2))
-                    sub_classified = discriminator.predict(sub_data)
-                    classified[:, idx] = sub_classified
-
-            else:
-                classified = np.empty((self._n_circs, self._n_shots, self._n_slots), dtype=str)
-                for idx, discriminator in enumerate(self._discriminator):
-                    sub_data = data[:, :, idx, :].reshape((self._n_circs * self._n_shots, 2))
-                    sub_classified = np.array(discriminator.predict(sub_data))
-                    sub_classified = sub_classified.reshape((self._n_circs, self._n_shots))
-                    classified[:, :, idx] = sub_classified
+            classified = np.empty((self._n_circs, self._n_shots, self._n_slots), dtype=str)
+            for idx, discriminator in enumerate(self._discriminator):
+                sub_data = data[:, :, idx, :].reshape((self._n_circs * self._n_shots, 2))
+                sub_classified = np.array(discriminator.predict(sub_data))
+                sub_classified = sub_classified.reshape((self._n_circs, self._n_shots))
+                classified[:, :, idx] = sub_classified
 
         # Concatenate the bit-strings together.
-        # Averaged data
-        if self._n_shots == 0:
-            # ::-1 for Qiskit's convention, e.g. in "001" qubit 0 is in state "1".
-            labeled_data = ["".join(classified[idx, :][::-1]) for idx in range(self._n_circs)]
-            return np.array(labeled_data).reshape((self._n_circs, 1))
-        # Single-shot data
-        else:
-            labeled_data = []
-            for idx in range(self._n_circs):
-                labeled_data.append(
-                    ["".join(classified[idx, jdx, :][::-1]) for jdx in range(self._n_shots)]
-                )
+        labeled_data = []
+        for idx in range(self._n_circs):
+            labeled_data.append(
+                ["".join(classified[idx, jdx, :][::-1]) for jdx in range(self._n_shots)]
+            )
 
-            return np.array(labeled_data).reshape((self._n_circs, self._n_shots))
+        return np.array(labeled_data).reshape((self._n_circs, self._n_shots))
 
 
 class MemoryToCounts(DataAction):
@@ -540,6 +554,16 @@ class MemoryToCounts(DataAction):
     This node is intended to be used after the :class:`.Discriminator` node. It will convert
     the classified memory into a list of count dictionaries wrapped in a numpy array.
     """
+
+    def _format_data(self, data: np.ndarray) -> np.ndarray:
+        """Validate the input data."""
+        if self._validate:
+            if len(data.shape) <= 1:
+                raise DataProcessorError(
+                    "The data should be an array with at least two dimensions."
+                )
+
+        return data
 
     def _process(self, data: np.ndarray) -> np.ndarray:
         """
