@@ -59,7 +59,10 @@ class RestlessMixin:
     _num_qubits: int
 
     def enable_restless(
-        self, rep_delay: Optional[float] = None, override_processor_by_restless: bool = True
+        self,
+        rep_delay: Optional[float] = None,
+        override_processor_by_restless: bool = True,
+        ignore_t1_check: bool = False,
     ):
         """Enables a restless experiment by setting the restless run options and the
         restless data processor.
@@ -73,6 +76,8 @@ class RestlessMixin:
             override_processor_by_restless: If False, a data processor that is specified in the
                 analysis options of the experiment is not overridden by the restless data
                 processor. The default is True.
+            ignore_t1_check: If True, the default is False, then the ``rep_delay`` will not be
+                checked against the T1 times of the qubits.
 
         Raises:
             DataProcessorError: if the attribute rep_delay_range is not defined for the backend.
@@ -93,12 +98,39 @@ class RestlessMixin:
                 "and a minimum rep_delay can not be set."
             ) from error
 
+        # Check the rep_delay compared to the T1 time.
+        if not ignore_t1_check and not self._t1_check(rep_delay):
+            raise DataProcessorError(
+                f"The specified repetition delay {rep_delay} is equal to or greater "
+                f"than the T1 time of one of the physical qubits"
+                f"{self._physical_qubits} in the experiment. Consider choosing "
+                f"a smaller repetition delay for the restless experiment."
+            )
+
         # The excited state promotion readout analysis option is set to
         # False because it is not compatible with a restless experiment.
-        if self._t1_check(rep_delay):
-            meas_level = self._default_run_options().get("meas_level", MeasLevel.CLASSIFIED)
-            meas_return = self._default_run_options().get("meas_return", MeasReturnType.SINGLE)
-            if not self.analysis.options.get("data_processor", None):
+        meas_level = self._default_run_options().get("meas_level", MeasLevel.CLASSIFIED)
+        meas_return = self._default_run_options().get("meas_return", MeasReturnType.SINGLE)
+        if not self.analysis.options.get("data_processor", None):
+            self.set_run_options(
+                rep_delay=rep_delay,
+                init_qubits=False,
+                memory=True,
+                meas_level=meas_level,
+                meas_return=meas_return,
+                use_measure_esp=False,
+            )
+            if hasattr(self.analysis.options, "data_processor"):
+                self.analysis.set_options(
+                    data_processor=self._get_restless_processor(meas_level=meas_level)
+                )
+            else:
+                raise DataProcessorError(
+                    "The restless data processor can not be set since the experiment analysis"
+                    "does not have the data_processor option."
+                )
+        else:
+            if not override_processor_by_restless:
                 self.set_run_options(
                     rep_delay=rep_delay,
                     init_qubits=False,
@@ -107,37 +139,11 @@ class RestlessMixin:
                     meas_return=meas_return,
                     use_measure_esp=False,
                 )
-                if hasattr(self.analysis.options, "data_processor"):
-                    self.analysis.set_options(
-                        data_processor=self._get_restless_processor(meas_level=meas_level)
-                    )
-                else:
-                    raise DataProcessorError(
-                        "The restless data processor can not be set since the experiment analysis"
-                        "does not have the data_processor option."
-                    )
             else:
-                if not override_processor_by_restless:
-                    self.set_run_options(
-                        rep_delay=rep_delay,
-                        init_qubits=False,
-                        memory=True,
-                        meas_level=meas_level,
-                        meas_return=meas_return,
-                        use_measure_esp=False,
-                    )
-                else:
-                    raise DataProcessorError(
-                        "Cannot enable restless. Data processor has already been set and "
-                        "override_processor_by_restless is True."
-                    )
-        else:
-            raise DataProcessorError(
-                f"The specified repetition delay {rep_delay} is equal to or greater "
-                f"than the T1 time of one of the physical qubits"
-                f"{self._physical_qubits} in the experiment. Consider choosing "
-                f"a smaller repetition delay for the restless experiment."
-            )
+                raise DataProcessorError(
+                    "Cannot enable restless. Data processor has already been set and "
+                    "override_processor_by_restless is True."
+                )
 
     def _get_restless_processor(self, meas_level: int = MeasLevel.CLASSIFIED) -> DataProcessor:
         """Returns the restless experiments data processor.
