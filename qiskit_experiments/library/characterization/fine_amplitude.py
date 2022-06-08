@@ -406,16 +406,19 @@ class FineZXAmplitude(FineAmplitude):
         return options
 
     def enable_restless(
-        self, rep_delay: Optional[float] = None, override_processor_by_restless: bool = True
+        self,
+        rep_delay: Optional[float] = None,
+        override_processor_by_restless: bool = True,
+        ignore_t1_check: bool = False,
     ):
         """Enable restless measurements.
 
-        We wrap the method of the :class:`RestlessMixin` to readout both qubits. This forces
+        We wrap the method of the :class:`.RestlessMixin` to readout both qubits. This forces
         the control qubit to be in either the 0 or 1 state before the next circuit starts
         since restless measurements do not reset qubits.
         """
         self.analysis.set_options(outcome="11")
-        super().enable_restless(rep_delay, override_processor_by_restless)
+        super().enable_restless(rep_delay, override_processor_by_restless, ignore_t1_check)
         self._measurement_qubits = range(self.num_qubits)
 
     def _get_restless_processor(self, meas_level: int = 2) -> DataProcessor:
