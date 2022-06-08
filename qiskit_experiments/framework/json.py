@@ -457,6 +457,8 @@ class ExperimentEncoder(json.JSONEncoder):
             return {"__type__": "spmatrix", "__value__": value}
         if isinstance(obj, bytes):
             return _serialize_bytes(obj)
+        if isinstance(obj, np.number):
+            return obj.item()
         if dataclasses.is_dataclass(obj):
             # Note that dataclass.asdict recursively convert nested dataclass into dictionary.
             # Thus inter dataclass is unintentionally decoded as dictionary.

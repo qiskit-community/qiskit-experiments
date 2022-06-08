@@ -65,3 +65,32 @@ class TestResonatorSpectroscopy(QiskitExperimentsTestCase):
         """Test round trip JSON serialization"""
         exp = ResonatorSpectroscopy(1, frequencies=np.linspace(int(100e6), int(150e6), int(20e6)))
         self.assertRoundTripSerializable(exp, self.json_equiv)
+
+    @data(-5e6, 0, 3e6)
+    def test_kerneled_expdata_serialization(self, freq_shift):
+        """Test experiment data and analysis data JSON serialization"""
+        qubit = 1
+        backend = MockIQBackend(
+            experiment_helper=ResonatorSpectroscopyHelper(
+                gate_name="measure", freq_offset=freq_shift
+            ),
+            iq_cluster_centers=[((0.0, 0.0), (-1.0, 0.0))],
+            iq_cluster_width=[0.2],
+        )
+        backend._configuration.timing_constraints = {"granularity": 16}
+
+        res_freq = backend.defaults().meas_freq_est[qubit]
+
+        frequencies = np.linspace(res_freq - 20e6, res_freq + 20e6, 51)
+        exp = ResonatorSpectroscopy(qubit, backend=backend, frequencies=frequencies)
+
+        expdata = exp.run(backend).block_for_results()
+        self.assertExperimentDone(expdata)
+
+        # since under _experiment in kwargs there is an argument of the backend which isn't serializable.
+        expdata._experiment = None
+        # Checking serialization of the experiment data
+        self.assertRoundTripSerializable(expdata, self.experiment_data_equiv)
+
+        # Checking serialization of the analysis
+        self.assertRoundTripSerializable(expdata.analysis_results(1), self.analysis_result_equiv)
