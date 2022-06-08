@@ -409,7 +409,7 @@ class FineZXAmplitude(FineAmplitude):
         self,
         rep_delay: Optional[float] = None,
         override_processor_by_restless: bool = True,
-        ignore_t1_check: bool = False,
+        suppress_t1_error: bool = False,
     ):
         """Enable restless measurements.
 
@@ -418,7 +418,7 @@ class FineZXAmplitude(FineAmplitude):
         since restless measurements do not reset qubits.
         """
         self.analysis.set_options(outcome="11")
-        super().enable_restless(rep_delay, override_processor_by_restless, ignore_t1_check)
+        super().enable_restless(rep_delay, override_processor_by_restless, suppress_t1_error)
         self._measurement_qubits = range(self.num_qubits)
 
     def _get_restless_processor(self, meas_level: int = 2) -> DataProcessor:

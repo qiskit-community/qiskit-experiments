@@ -65,7 +65,7 @@ class RestlessMixin:
         self,
         rep_delay: Optional[float] = None,
         override_processor_by_restless: bool = True,
-        ignore_t1_check: bool = False,
+        suppress_t1_error: bool = False,
     ):
         """Enables a restless experiment by setting the restless run options and the
         restless data processor.
@@ -79,8 +79,9 @@ class RestlessMixin:
             override_processor_by_restless: If False, a data processor that is specified in the
                 analysis options of the experiment is not overridden by the restless data
                 processor. The default is True.
-            ignore_t1_check: If True, the default is False, then the ``rep_delay`` will not be
-                checked against the T1 times of the qubits.
+            suppress_t1_error: If True, the default is False, then no error will be raised when
+                ``rep_delay`` is larger than the T1 times of the qubits. Instead, a warning will
+                be logged as restless measurements may have a large amount of noise.
 
         Raises:
             DataProcessorError: if the attribute rep_delay_range is not defined for the backend.
@@ -111,7 +112,7 @@ class RestlessMixin:
                 f"a smaller repetition delay for the restless experiment."
             )
 
-            if ignore_t1_check:
+            if suppress_t1_error:
                 LOG.warning(msg)
             else:
                 raise DataProcessorError(msg)

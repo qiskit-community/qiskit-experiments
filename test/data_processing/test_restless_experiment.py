@@ -42,7 +42,7 @@ class TestFineAmpEndToEndRestless(QiskitExperimentsTestCase):
             FineXAmplitude(0, backend).enable_restless(rep_delay=2.0)
 
         amp_exp = FineXAmplitude(0, backend)
-        amp_exp.enable_restless(rep_delay=2.0, ignore_t1_check=True)
+        amp_exp.enable_restless(rep_delay=2.0, suppress_t1_error=True)
 
         self.assertTrue(
             amp_exp.run_options,
