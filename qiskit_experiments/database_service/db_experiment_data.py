@@ -150,7 +150,7 @@ class FigureData:
         return FigureData(figure=self.figure, name=name, metadata=copy.deepcopy(self.metadata))
 
     def __json_encode__(self) -> Dict[str, Any]:
-        """Return the json reresentation of the figure data"""
+        """Return the json representation of the figure data"""
         return {"figure": self.figure, "name": self.name, "metadata": self.metadata}
 
     @classmethod
