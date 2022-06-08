@@ -23,7 +23,6 @@ features:
       exp = MyExperiment(...)
       exp.analysis.drawer.set_options(figure_title="Qubit0")
     
-    Note that ``.analysis`` should be a subclass of :class:`.BaseCurveAnalysis`.
 upgrade:
   - |
     A new result class :class:`.CurveFitResult` is introduced. 
