@@ -14,7 +14,7 @@ features:
     so that user can perform fit with several algorithms offered by the LMFIT minimizer.
     See LMFIT documentation for user guide.
   - |
-    A new curve drawer option ``figure_title`` has been added. This allows user to show
+    A new :class:`.CurveAnaysis` curve drawer option ``figure_title`` has been added. This allows user to show
     an arbitrary string in the output figure title. See the example code below
     to learn how to set the option.
     
