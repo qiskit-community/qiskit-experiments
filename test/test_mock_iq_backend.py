@@ -106,9 +106,7 @@ class TestMockIQBackend(QiskitExperimentsTestCase):
 
         # Now meas_return will be 'single' so it is expected that the number of results will be as
         # the number of shots.
-        job = backend.run(
-            [circ1], shots=num_shot, meas_level=MeasLevel.KERNELED, meas_return="single"
-        )
+        job = backend.run([circ1], shots=num_shot, meas_level=MeasLevel.KERNELED, meas_return="single")
         res = job.result()
         self.assertEqual(len(res.results[0].data.memory), num_shot)
         for data in res.results[0].data.memory:

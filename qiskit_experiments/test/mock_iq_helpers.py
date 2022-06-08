@@ -13,7 +13,7 @@
 """Probability and phase functions for the mock IQ backend."""
 
 from abc import abstractmethod
-from typing import Dict, List, Union
+from typing import Dict, List, Any
 import numpy as np
 from qiskit import QuantumCircuit
 from qiskit.exceptions import QiskitError
@@ -25,9 +25,7 @@ class MockIQExperimentHelper:
     """Abstract class for the MockIQ helper classes"""
 
     @abstractmethod
-    def compute_probabilities(
-        self, circuits: List[QuantumCircuit]
-    ) -> List[Dict[str, Union[float, List, int]]]:
+    def compute_probabilities(self, circuits: List[QuantumCircuit]) -> List[Dict[str, Any]]:
         """
         A function provided by the user which is used to determine the probability of each output of the
         circuit. The function returns a list of dictionaries, each containing output binary strings and
@@ -123,12 +121,10 @@ class MockIQParallelExperimentHelper(MockIQExperimentHelper):
 
             **Parallel experiment for Resonator Spectroscopy**
 
-            To run parallel experiment of Resonator Spectroscopy on two qubits we will need to create
-            two instances of `SpectroscopyHelper` objects (for each experiment) and to create instance of
+            To run a parallel experiment of Resonator Spectroscopy on two qubits we will create two
+            instances of `SpectroscopyHelper` objects (for each experiment) and an instance of
             `ParallelExperimentHelper` with them.
-            After that, We will need to configure the `MockIQParallelBackend` using
-            `ParallelExperimentHelper`. After we finished to configure out backend, we need to use
-            `ParallelExperiment` with the `MockIQParallelBackend` as the backend.
+
 
             .. code-block::
 
@@ -149,7 +145,7 @@ class MockIQParallelExperimentHelper(MockIQExperimentHelper):
                 parallel_backend._configuration.basis_gates = ["x"]
                 parallel_backend._configuration.timing_constraints = {"granularity": 16}
 
-                # experiment hyper parameters
+                # experiment parameters
                 qubit1 = 0
                 qubit2 = 1
                 freq01 = parallel_backend.defaults().qubit_freq_est[qubit1]
@@ -165,7 +161,7 @@ class MockIQParallelExperimentHelper(MockIQExperimentHelper):
                 ]
                 parallel_helper.exp_list = exp_list
 
-                # initializing parallel experiment
+                # initializing the parallel experiment
                 par_experiment = ParallelExperiment(exp_list, backend=parallel_backend)
                 par_experiment.set_run_options(meas_level=MeasLevel.KERNELED, meas_return="single")
 
@@ -175,9 +171,7 @@ class MockIQParallelExperimentHelper(MockIQExperimentHelper):
         self.exp_helper_list = exp_helper_list
         self.exp_list = exp_list
 
-    def compute_probabilities(
-        self, circuits: List[QuantumCircuit]
-    ) -> List[Dict[str, Union[float, List, int]]]:
+    def compute_probabilities(self, circuits: List[QuantumCircuit]) -> List[Dict[str, Any]]:
         """
         Run the compute_probabilities for each helper
         """
@@ -189,9 +183,8 @@ class MockIQParallelExperimentHelper(MockIQExperimentHelper):
         number_of_experiments = len(self.exp_helper_list)
         prob_help_list = [{} for _ in range(number_of_experiments)]
 
-        for exp_helper, experiment, experiment_circuits, idx in zip(
-            self.exp_helper_list, self.exp_list, parallel_circ_list, range(number_of_experiments)
-        ):
+        for idx, (exp_helper, experiment, experiment_circuits) in enumerate(zip(
+                self.exp_helper_list, self.exp_list, parallel_circ_list)):
             prob_help_list[idx] = {
                 "physical_qubits": experiment.physical_qubits,
                 "prob": exp_helper.compute_probabilities(experiment_circuits),

@@ -343,28 +343,29 @@ class MockIQBackend(FakeOpenPulse2Q):
             run_result["memory"] = memory
         return run_result
 
-    def run(self, run_input: List[QuantumCircuit], **options) -> FakeJob:
+    def run(self, run_input: List[QuantumCircuit], **run_options) -> FakeJob:
         """
         Run the IQ backend.
         Args:
             run_input: A list of QuantumCircuit for which the backend will generate
-             data for.
-            **options: Experiment options. the options that are supported in this backend are
-             'meas_level' and 'meas_return'.
+             data.
+            **run_options: Experiment running options. The options that are supported in this backend are
+             'meas_level', 'meas_return' and 'shots'.
                 'meas_level': To generate data in the IQ plane, 'meas_level' should be assigned 1 or
-                    MeasLevel.KERNELED. The backend currently doesn't support 'meas_level' = 2  or
-                    MeasLevel.CLASSIFIED.
+                    MeasLevel.KERNELED. If 'meas_level' is 2 or MeasLevel.CLASSIFIED, the generated data
+                    will be in the form of 'counts'.
                 'meas_return': This option will only take effect if 'meas_level' = MeasLevel.CLASSIFIED.
                     It can get either MeasReturnType.AVERAGE or MeasReturnType.SINGLE. For the value
                       MeasReturnType.SINGLE the data of each shot will be stored in the result. For
                       MeasReturnType.AVERAGE, an average of all the shots will be calculated and stored
                       in the result.
+                'shots': The number of times the circuit will run.
 
         Returns:
             FakeJob: A job that contains the simulated data.
         """
 
-        self.options.update_options(**options)
+        self.options.update_options(**run_options)
         shots = self.options.get("shots")
         meas_level = self.options.get("meas_level")
 
@@ -538,28 +539,29 @@ class MockIQParallelBackend(MockIQBackend):
 
         return run_result
 
-    def run(self, run_input: List[QuantumCircuit], **options) -> FakeJob:
+    def run(self, run_input: List[QuantumCircuit], **run_options) -> FakeJob:
         """
         Run the IQ backend.
         Args:
             run_input: A list of QuantumCircuit for which the backend will generate
              data.
-            **options: Experiment options. the options that are supported in this backend are
-             'meas_level' and 'meas_return'.
+            **run_options: Experiment running options. The options that are supported in this backend are
+             'meas_level', 'meas_return' and 'shots'.
                 'meas_level': To generate data in the IQ plane, 'meas_level' should be assigned 1 or
-                    MeasLevel.KERNELED. If 'meas_level' is 2 or MeasLevel.CLASSIFIED, the generated data
-                    will be in the form of 'counts'.
+                    MeasLevel.KERNELED. The backend currently doesn't support 'meas_level' = 2  or
+                    MeasLevel.CLASSIFIED.
                 'meas_return': This option will only take effect if 'meas_level' = MeasLevel.CLASSIFIED.
                     It can get either MeasReturnType.AVERAGE or MeasReturnType.SINGLE. For the value
                       MeasReturnType.SINGLE the data of each shot will be stored in the result. For
                       MeasReturnType.AVERAGE, an average of all the shots will be calculated and stored
                       in the result.
+                'shots': The number of times the circuit will run.
 
         Returns:
             FakeJob: A job that contains the simulated data.
         """
 
-        self.options.update_options(**options)
+        self.options.update_options(**run_options)
         shots = self.options.get("shots")
         meas_level = self.options.get("meas_level")
 
