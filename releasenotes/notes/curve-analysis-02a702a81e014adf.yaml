@@ -6,23 +6,44 @@ features:
     `LMFIT Model <https://lmfit.github.io/lmfit-py/model.html#>`_ objects. For multi-curve fitting
     a list of models can be used.
     
-    A new analysis option ``fit_method`` has been added to allow a user to select the fitting algorithm used
-    by the LMFit `minimizer <https://lmfit.github.io/lmfit-py/fitting.html>`_.
+    A new analysis option ``fit_method`` has been added to allow a user to select the fitting 
+    algorithm used by the LMFit `minimizer <https://lmfit.github.io/lmfit-py/fitting.html>`_.
     The default fit method is ``"least_squares"``.
     Analysis class author can flexibly define new analysis instance
-    with LMFIT ``Model`` objects. In addition, new analysis option ``fit_method`` is added
-    so that user can perform fit with several algorithms offered by the LMFIT minimizer.
-    See LMFIT documentation for user guide.
+    with LMFIT ``Model`` objects. See LMFIT documentation for user guide.
   - |
-    A new :class:`.CurveAnaysis` curve drawer option ``figure_title`` has been added. This allows user to show
-    an arbitrary string in the output figure title. See the example code below
-    to learn how to set the option.
+    New options have been added to to the :class:`.CurveAnaysis` curve drawer.
     
-    .. code-block:: python
-    
-      exp = MyExperiment(...)
-      exp.analysis.drawer.set_options(figure_title="Qubit0")
-    
+    -|
+      ``figure_title`` has been added. This allows user to show an arbitrary string 
+      in the output figure title. See the example code below to learn how to set the option.
+      
+      .. code-block:: python
+      
+        exp = MyExperiment(...)
+        exp.analysis.drawer.set_options(figure_title="Qubit0")
+
+    - |
+      ``plot_options`` has been added. This was conventionally included
+      in the :class:`SeriesDef` dataclass, which was static and not configurable. 
+      Now end-user can update visual representation of curves through this option.
+      This option is a dictionary that defines three properties, for example,
+      
+      .. code-block:: python
+      
+        exp = MyExperiment(...)
+        exp.analysis.drawer.set_options(
+          plot_option={
+            "curve1": {"color": "r", "symbol": "o", "canvas": 0},
+            "curve2": {"color": "b", "symbol": "x", "canvas": 1},
+          }
+        )  
+      
+      The dictionary is keyed on the curve name that should match with the ``name`` property
+      of the LMFIT models provided to the curve analysis. ``color`` and ``symbol`` are the
+      color and marker of the curves and the scatter plots, respectively. 
+      ``canvas`` specifies the sub-axis index, which is available when multi-axis plot is enabled.
+
 upgrade:
   - |
     A new result class :class:`.CurveFitResult` is introduced. 
@@ -42,26 +63,6 @@ upgrade:
     more than three curves. The corresponding fit model is dynamically generated
     based on new fit option ``reps`` in the associated analysis :class:`DragCalAnalysis`.
     This may sometimes provide better accuracy for estimating the DRAG ``beta`` parameter.
-  - |
-    New curve drawer option ``plot_options`` has been added. This was conventionally included
-    in the :class:`SeriesDef` dataclass, which was static and not configurable. 
-    Now end-user can update visual representation of curves through this option.
-    This option is a dictionary that defines three properties, for example,
-    
-    .. code-block:: python
-    
-      exp = MyExperiment(...)
-      exp.analysis.drawer.set_options(
-        plot_option={
-          "curve1": {"color": "r", "symbol": "o", "canvas": 0},
-          "curve2": {"color": "b", "symbol": "x", "canvas": 1},
-        }
-      )  
-    
-    The dictionary is keyed on the curve name that should match with the ``name`` property
-    of the LMFIT models provided to the curve analysis. ``color`` and ``symbol`` are the
-    color and marker of the curves and the scatter plots, respectively. 
-    ``canvas`` specifies the sub-axis index, which is available when multi-axis plot is enabled.
 deprecations:
   - |
     Multiple methods, classes and functions in curve analysis have been deprecated and
