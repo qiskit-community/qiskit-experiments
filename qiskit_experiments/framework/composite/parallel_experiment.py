@@ -15,7 +15,7 @@ Parallel Experiment class.
 from typing import List, Optional
 import numpy as np
 
-from qiskit import QuantumCircuit, ClassicalRegister, transpile
+from qiskit import QuantumCircuit, ClassicalRegister
 from qiskit.circuit import Clbit
 from qiskit.providers.backend import Backend
 from qiskit_experiments.exceptions import QiskitError
