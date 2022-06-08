@@ -183,8 +183,9 @@ class MockIQParallelExperimentHelper(MockIQExperimentHelper):
         number_of_experiments = len(self.exp_helper_list)
         prob_help_list = [{} for _ in range(number_of_experiments)]
 
-        for idx, (exp_helper, experiment, experiment_circuits) in enumerate(zip(
-                self.exp_helper_list, self.exp_list, parallel_circ_list)):
+        for idx, (exp_helper, experiment, experiment_circuits) in enumerate(
+            zip(self.exp_helper_list, self.exp_list, parallel_circ_list)
+        ):
             prob_help_list[idx] = {
                 "physical_qubits": experiment.physical_qubits,
                 "prob": exp_helper.compute_probabilities(experiment_circuits),
