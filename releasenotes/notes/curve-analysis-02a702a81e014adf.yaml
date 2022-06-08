@@ -1,7 +1,14 @@
 ---
 features:
   - |
-    :class:`CurveAnalysis` delegates the core fitting functionality to the LMFIT package.
+    The :class:`.CurveAnalysis` has been modified to delegate the core fitting functionality to the
+    `LMFIT <https://lmfit.github.io/lmfit-py/>`_ package. Fit curves are specified using
+    `LMFIT Model <https://lmfit.github.io/lmfit-py/model.html#>`_ objects. For multi-curve fitting
+    a list of models can be used.
+    
+    A new analysis option ``fit_method`` has been added to allow a user to select the fitting algorithm used
+    by the LMFit `minimizer <https://lmfit.github.io/lmfit-py/fitting.html>`_.
+    The default fit method is ``"least_squares"``.
     Analysis class author can flexibly define new analysis instance
     with LMFIT ``Model`` objects. In addition, new analysis option ``fit_method`` is added
     so that user can perform fit with several algorithms offered by the LMFIT minimizer.
