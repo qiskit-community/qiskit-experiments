@@ -98,7 +98,7 @@ class ParallelExperiment(CompositeExperiment):
             else:
                 coupling_map = None
             if coupling_map is not None:
-                num_qubits = 1 + np.max(coupling_map)
+                num_qubits = 1 + max(*self.physical_qubits, np.max(coupling_map))
             else:
                 num_qubits = 1 + max(self.physical_qubits)
 
