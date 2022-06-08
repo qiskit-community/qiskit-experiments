@@ -12,6 +12,7 @@
 
 """Restless mixin class."""
 
+import logging
 from typing import Callable, Sequence, Optional
 from qiskit.qobj.utils import MeasLevel, MeasReturnType
 
@@ -23,6 +24,8 @@ from qiskit_experiments.data_processing.nodes import ProjectorType
 from qiskit_experiments.data_processing import nodes
 from qiskit_experiments.data_processing.processor_library import get_kerneled_processor
 from qiskit_experiments.framework.base_analysis import BaseAnalysis
+
+LOG = logging.getLogger(__name__)
 
 
 class RestlessMixin:
@@ -86,7 +89,8 @@ class RestlessMixin:
             DataProcessorError: if the experiment analysis does not have the data_processor
                 option.
             DataProcessorError: if the rep_delay is equal to or greater than the
-                T1 time of one of the physical qubits in the experiment.
+                T1 time of one of the physical qubits in the experiment and the flag
+                ``ignore_t1_check`` is False.
         """
         try:
             if not rep_delay:
@@ -99,13 +103,16 @@ class RestlessMixin:
             ) from error
 
         # Check the rep_delay compared to the T1 time.
-        if not ignore_t1_check and not self._t1_check(rep_delay):
-            raise DataProcessorError(
-                f"The specified repetition delay {rep_delay} is equal to or greater "
-                f"than the T1 time of one of the physical qubits"
-                f"{self._physical_qubits} in the experiment. Consider choosing "
-                f"a smaller repetition delay for the restless experiment."
-            )
+        if not self._t1_check(rep_delay):
+            msg = f"The specified repetition delay {rep_delay} is equal to or greater " \
+                  f"than the T1 time of one of the physical qubits" \
+                  f"{self._physical_qubits} in the experiment. Consider choosing " \
+                  f"a smaller repetition delay for the restless experiment."
+
+            if ignore_t1_check:
+                LOG.warning(msg)
+            else:
+                raise DataProcessorError(msg)
 
         # The excited state promotion readout analysis option is set to
         # False because it is not compatible with a restless experiment.
