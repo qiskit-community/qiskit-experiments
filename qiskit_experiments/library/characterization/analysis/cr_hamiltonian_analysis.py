@@ -16,6 +16,7 @@ from collections import defaultdict
 from itertools import product
 from typing import List, Union
 
+import lmfit
 import numpy as np
 
 import qiskit_experiments.curve_analysis as curve
@@ -129,68 +130,31 @@ class CrossResonanceHamiltonianAnalysis(curve.CurveAnalysis):
 
     """
 
-    __series__ = [
-        curve.SeriesDef(
-            name="x|c=0",
-            fit_func=lambda x, t_off, px0, px1, py0, py1, pz0, pz1, b: curve.fit_function.bloch_oscillation_x(
-                x + t_off, px=px0, py=py0, pz=pz0, baseline=b
-            ),
-            filter_kwargs={"control_state": 0, "meas_basis": "x"},
-            plot_color="blue",
-            plot_symbol="o",
-            canvas=0,
-        ),
-        curve.SeriesDef(
-            name="y|c=0",
-            fit_func=lambda x, t_off, px0, px1, py0, py1, pz0, pz1, b: curve.fit_function.bloch_oscillation_y(
-                x + t_off, px=px0, py=py0, pz=pz0, baseline=b
-            ),
-            filter_kwargs={"control_state": 0, "meas_basis": "y"},
-            plot_color="blue",
-            plot_symbol="o",
-            canvas=1,
-        ),
-        curve.SeriesDef(
-            name="z|c=0",
-            fit_func=lambda x, t_off, px0, px1, py0, py1, pz0, pz1, b: curve.fit_function.bloch_oscillation_z(
-                x + t_off, px=px0, py=py0, pz=pz0, baseline=b
-            ),
-            filter_kwargs={"control_state": 0, "meas_basis": "z"},
-            plot_color="blue",
-            plot_symbol="o",
-            canvas=2,
-        ),
-        curve.SeriesDef(
-            name="x|c=1",
-            fit_func=lambda x, t_off, px0, px1, py0, py1, pz0, pz1, b: curve.fit_function.bloch_oscillation_x(
-                x + t_off, px=px1, py=py1, pz=pz1, baseline=b
-            ),
-            filter_kwargs={"control_state": 1, "meas_basis": "x"},
-            plot_color="red",
-            plot_symbol="^",
-            canvas=0,
-        ),
-        curve.SeriesDef(
-            name="y|c=1",
-            fit_func=lambda x, t_off, px0, px1, py0, py1, pz0, pz1, b: curve.fit_function.bloch_oscillation_y(
-                x + t_off, px=px1, py=py1, pz=pz1, baseline=b
-            ),
-            filter_kwargs={"control_state": 1, "meas_basis": "y"},
-            plot_color="red",
-            plot_symbol="^",
-            canvas=1,
-        ),
-        curve.SeriesDef(
-            name="z|c=1",
-            fit_func=lambda x, t_off, px0, px1, py0, py1, pz0, pz1, b: curve.fit_function.bloch_oscillation_z(
-                x + t_off, px=px1, py=py1, pz=pz1, baseline=b
-            ),
-            filter_kwargs={"control_state": 1, "meas_basis": "z"},
-            plot_color="red",
-            plot_symbol="^",
-            canvas=2,
-        ),
-    ]
+    def __init__(self):
+
+        eqr_temps = {
+            "x": "(-pz * px + pz * px * cos(W * X) + W * py * sin(W * X)) / W**2 + b",
+            "y": "(pz * py - pz * py * cos(W * X) - W * px * sin(W * X)) / W**2 + b",
+            "z": "(pz**2 + (px**2 + py**2) * cos(W * X)) / W**2 + b",
+        }
+
+        models = []
+        for state in (0, 1):
+            for axis, temp_eq in eqr_temps.items():
+                eq = temp_eq
+                for op in ("px", "py", "pz"):
+                    eq = eq.replace(op, f"{op}{state}")
+                eq = eq.replace("W", f"sqrt(px{state}**2 + py{state}**2 + pz{state}**2)")
+                eq = eq.replace("X", "(x + t_off)")
+                models.append(
+                    lmfit.models.ExpressionModel(
+                        expr=eq,
+                        name=f"{axis}|c={state}",
+                        data_sort_key={"control_state": state, "meas_basis": axis},
+                    )
+                )
+
+        super().__init__(models=models)
 
     @classmethod
     def _default_options(cls):
@@ -209,6 +173,14 @@ class CrossResonanceHamiltonianAnalysis(curve.CurveAnalysis):
             legend_loc="lower right",
             fit_report_rpos=(0.28, -0.10),
             ylim=(-1, 1),
+            plot_options={
+                "x|c=0": {"color": "blue", "symbol": "o", "canvas": 0},
+                "y|c=0": {"color": "blue", "symbol": "o", "canvas": 1},
+                "z|c=0": {"color": "blue", "symbol": "o", "canvas": 2},
+                "x|c=1": {"color": "red", "symbol": "^", "canvas": 0},
+                "y|c=1": {"color": "red", "symbol": "^", "canvas": 1},
+                "z|c=1": {"color": "red", "symbol": "^", "canvas": 2},
+            },
         )
         default_options.data_processor = dp.DataProcessor(
             input_key="counts",
@@ -292,7 +264,7 @@ class CrossResonanceHamiltonianAnalysis(curve.CurveAnalysis):
 
     def _create_analysis_results(
         self,
-        fit_data: curve.FitData,
+        fit_data: curve.CurveFitResult,
         quality: str,
         **metadata,
     ) -> List[AnalysisResultData]:
@@ -309,8 +281,8 @@ class CrossResonanceHamiltonianAnalysis(curve.CurveAnalysis):
 
         for control in ("z", "i"):
             for target in ("x", "y", "z"):
-                p0_val = fit_data.fitval(f"p{target}0")
-                p1_val = fit_data.fitval(f"p{target}1")
+                p0_val = fit_data.ufloat_params[f"p{target}0"]
+                p1_val = fit_data.ufloat_params[f"p{target}1"]
 
                 if control == "z":
                     coef_val = 0.5 * (p0_val - p1_val) / (2 * np.pi)

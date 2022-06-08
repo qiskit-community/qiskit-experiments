@@ -19,6 +19,7 @@ import warnings
 from abc import ABC, abstractmethod
 from typing import List, Dict, Union
 
+import lmfit
 import numpy as np
 from uncertainties import unumpy as unp
 
@@ -26,12 +27,11 @@ from qiskit_experiments.framework import BaseAnalysis, AnalysisResultData, Optio
 from qiskit_experiments.data_processing import DataProcessor
 from qiskit_experiments.data_processing.processor_library import get_processor
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
-from qiskit_experiments.exceptions import AnalysisError
 
-from .curve_data import CurveData, SeriesDef, FitData, ParameterRepr, FitOptions
+from .curve_data import CurveData, ParameterRepr, FitOptions, CurveFitResult
 from .data_processing import multi_mean_xy_data, data_sort
-from .curve_fit import multi_curve_fit
 from .visualization import MplCurveDrawer, BaseCurveDrawer
+from .utils import convert_lmfit_result
 
 PARAMS_ENTRY_PREFIX = "@Parameters_"
 DATA_ENTRY_PREFIX = "@Data_"
@@ -138,8 +138,12 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
             bounds (Dict[str, Tuple[float, float]]): Boundary of fit parameters.
                 The dictionary is keyed on the fit parameter names and
                 values are the tuples of (min, max) of each parameter.
-            curve_fitter_options (Dict[str, Any]) Options that are passed to the
-                scipy curve fit which performs the least square fitting on the experiment results.
+            fit_method (str): Fit method that LMFIT minimizer uses.
+                Default to ``least_squares`` method which implements the
+                Trust Region Reflective algorithm to solve the minimization problem.
+                See LMFIT documentation for available options.
+            lmfit_options (Dict[str, Any]): Options that are passed to the
+                LMFIT minimizer. Acceptable options depend on fit_method.
             x_key (str): Circuit metadata key representing a scanned value.
             result_parameters (List[Union[str, ParameterRepr]): Parameters reported in the
                 database as a dedicated entry. This is a list of parameter representation
@@ -166,7 +170,8 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
         options.x_key = "xval"
         options.result_parameters = []
         options.extra = {}
-        options.curve_fitter_options = {}
+        options.fit_method = "least_squares"
+        options.lmfit_options = {}
         options.p0 = {}
         options.bounds = {}
         options.fixed_parameters = {}
@@ -210,6 +215,15 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
                 stacklevel=2,
             )
             del fields["curve_fitter"]
+
+        if "curve_fitter_options" in fields:
+            warnings.warn(
+                "The option 'curve_fitter_options' is replaced with 'lmfit_options.' "
+                "This option will be removed in Qiskit Experiments 0.5.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            fields["lmfit_options"] = fields.pop("curve_fitter_options")
 
         # pylint: disable=no-member
         draw_options = set(self.drawer.options.__dict__.keys()) | {"style"}
@@ -293,7 +307,7 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
 
     def _evaluate_quality(
         self,
-        fit_data: FitData,
+        fit_data: CurveFitResult,
     ) -> Union[str, None]:
         """Evaluate quality of the fit result.
 
@@ -310,18 +324,21 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
     def _run_data_processing(
         self,
         raw_data: List[Dict],
-        series: List[SeriesDef],
+        models: List[lmfit.Model],
     ) -> CurveData:
         """Perform data processing from the experiment result payload.
 
         Args:
             raw_data: Payload in the experiment data.
-            series: List of series definition defining filtering condition.
+            models: A list of LMFIT models that provide the model name and
+                optionally data sorting keys.
 
         Returns:
             Processed data that will be sent to the formatter method.
 
         Raises:
+            DataProcessorError: When model is multi-objective function but
+                data sorting option is not provided.
             DataProcessorError: When key for x values is not found in the metadata.
         """
         x_key = self.options.x_key
@@ -342,12 +359,24 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
             except KeyError:
                 return False
 
-        data_allocation = np.full(xdata.size, -1, dtype=int)
-        for sind, series_def in enumerate(series):
-            matched_inds = np.asarray(
-                [_matched(d["metadata"], **series_def.filter_kwargs) for d in raw_data], dtype=bool
-            )
-            data_allocation[matched_inds] = sind
+        if len(models) == 1:
+            # all data belongs to the single model
+            data_allocation = np.full(xdata.size, 0, dtype=int)
+        else:
+            data_allocation = np.full(xdata.size, -1, dtype=int)
+            for idx, sub_model in enumerate(models):
+                try:
+                    tags = sub_model.opts["data_sort_key"]
+                except KeyError as ex:
+                    raise DataProcessorError(
+                        f"Data sort options for model {sub_model.name} is not defined."
+                    ) from ex
+                if tags is None:
+                    continue
+                matched_inds = np.asarray(
+                    [_matched(d["metadata"], **tags) for d in raw_data], dtype=bool
+                )
+                data_allocation[matched_inds] = idx
 
         return CurveData(
             x=xdata,
@@ -355,30 +384,54 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
             y_err=unp.std_devs(ydata),
             shots=shots,
             data_allocation=data_allocation,
-            labels=[s.name for s in series],
+            labels=[sub_model._name for sub_model in models],
         )
 
     def _run_curve_fit(
         self,
         curve_data: CurveData,
-        series: List[SeriesDef],
-    ) -> Union[None, FitData]:
+        models: List[lmfit.Model],
+    ) -> CurveFitResult:
         """Perform curve fitting on given data collection and fit models.
 
         Args:
             curve_data: Formatted data to fit.
-            series: A list of fit models.
+            models: A list of LMFIT models that are used to build a cost function
+                for the LMFIT minimizer.
 
         Returns:
             The best fitting outcome with minimum reduced chi-squared value.
         """
-        # Create a list of initial guess
+        unite_parameter_names = []
+        for model in models:
+            # Seems like this is not efficient looping, but using set operation sometimes
+            # yields bad fit. Not sure if this is an edge case, but
+            # `TestRamseyXY` unittest failed due to the significant chisq value
+            # in which the least_square fitter terminates with `xtol` rather than `ftol`
+            # condition, i.e. `ftol` condition indicates termination by cost function.
+            # This code respects the ordering of parameters so that it matches with
+            # the signature of fit function and it is backward compatible.
+            # In principle this should not matter since LMFIT maps them with names
+            # rather than index. Need more careful investigation.
+            for name in model.param_names:
+                if name not in unite_parameter_names:
+                    unite_parameter_names.append(name)
+
         default_fit_opt = FitOptions(
-            parameters=self.parameters,
+            parameters=unite_parameter_names,
             default_p0=self.options.p0,
             default_bounds=self.options.bounds,
-            **self.options.curve_fitter_options,
+            **self.options.lmfit_options,
         )
+        # Bind fixed parameters if not empty
+        if self.options.fixed_parameters:
+            fixed_parameters = {
+                k: v for k, v in self.options.fixed_parameters.items() if k in unite_parameter_names
+            }
+            default_fit_opt.p0.set_if_empty(**fixed_parameters)
+        else:
+            fixed_parameters = {}
+
         try:
             fit_options = self._generate_fit_guesses(default_fit_opt, curve_data)
         except TypeError:
@@ -393,39 +446,61 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
         if isinstance(fit_options, FitOptions):
             fit_options = [fit_options]
 
-        # Run fit for each configuration
-        fit_results = []
-        for fit_opt in set(fit_options):
-            try:
-                fit_result = multi_curve_fit(
-                    funcs=[sdef.fit_func for sdef in series],
-                    series=curve_data.data_allocation,
-                    xdata=curve_data.x,
-                    ydata=curve_data.y,
-                    sigma=curve_data.y_err,
-                    **fit_opt.options,
+        valid_uncertainty = np.all(np.isfinite(curve_data.y_err))
+
+        # Objective function for minimize. This computes composite residuals of sub models.
+        def _objective(_params):
+            ys = []
+            for model in models:
+                sub_data = curve_data.get_subset_of(model._name)
+                yi = model._residual(
+                    params=_params,
+                    data=sub_data.y,
+                    weights=1.0 / sub_data.y_err if valid_uncertainty else None,
+                    x=sub_data.x,
                 )
-                fit_results.append(fit_result)
-            except AnalysisError:
-                # Some guesses might be too far from the true parameters and may thus fail.
-                # We ignore initial guesses that fail and continue with the next fit candidate.
-                pass
+                ys.append(yi)
+            return np.concatenate(ys)
 
-        # Find best value with chi-squared value
-        if len(fit_results) == 0:
-            warnings.warn(
-                "All initial guesses and parameter boundaries failed to fit the data. "
-                "Please provide better initial guesses or fit parameter boundaries.",
-                UserWarning,
-            )
-            # at least return raw data points rather than terminating
-            return None
+        # Run fit for each configuration
+        res = None
+        for fit_option in fit_options:
+            # Setup parameter configuration, i.e. init value, bounds
+            guess_params = lmfit.Parameters()
+            for name in unite_parameter_names:
+                bounds = fit_option.bounds[name] or (-np.inf, np.inf)
+                guess_params.add(
+                    name=name,
+                    value=fit_option.p0[name],
+                    min=bounds[0],
+                    max=bounds[1],
+                    vary=name not in fixed_parameters,
+                )
 
-        return sorted(fit_results, key=lambda r: r.reduced_chisq)[0]
+            try:
+                new = lmfit.minimize(
+                    fcn=_objective,
+                    params=guess_params,
+                    method=self.options.fit_method,
+                    scale_covar=not valid_uncertainty,
+                    nan_policy="omit",
+                    **fit_option.fitter_opts,
+                )
+            except Exception:  # pylint: disable=broad-except
+                continue
+
+            if res is None or not res.success:
+                res = new
+                continue
+
+            if new.success and res.redchi > new.redchi:
+                res = new
+
+        return convert_lmfit_result(res, models, curve_data.x, curve_data.y)
 
     def _create_analysis_results(
         self,
-        fit_data: FitData,
+        fit_data: CurveFitResult,
         quality: str,
         **metadata,
     ) -> List[AnalysisResultData]:
@@ -440,22 +515,6 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
         """
         outcomes = []
 
-        # Create entry for all fit parameters
-        if self.options.return_fit_parameters:
-            fit_parameters = AnalysisResultData(
-                name=PARAMS_ENTRY_PREFIX + self.__class__.__name__,
-                value=[p.nominal_value for p in fit_data.popt],
-                chisq=fit_data.reduced_chisq,
-                quality=quality,
-                extra={
-                    "popt_keys": fit_data.popt_keys,
-                    "dof": fit_data.dof,
-                    "covariance_mat": fit_data.pcov,
-                    **metadata,
-                },
-            )
-            outcomes.append(fit_parameters)
-
         # Create entries for important parameters
         for param_repr in self.options.result_parameters:
             if isinstance(param_repr, ParameterRepr):
@@ -467,7 +526,6 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
                 p_repr = param_repr
                 unit = None
 
-            fit_val = fit_data.fitval(p_name)
             if unit:
                 par_metadata = metadata.copy()
                 par_metadata["unit"] = unit
@@ -476,7 +534,7 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
 
             outcome = AnalysisResultData(
                 name=p_repr,
-                value=fit_val,
+                value=fit_data.ufloat_params[p_name],
                 chisq=fit_data.reduced_chisq,
                 quality=quality,
                 extra=par_metadata,
@@ -488,14 +546,15 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
     def _create_curve_data(
         self,
         curve_data: CurveData,
-        series: List[SeriesDef],
+        models: List[lmfit.Model],
         **metadata,
     ) -> List[AnalysisResultData]:
         """Create analysis results for raw curve data.
 
         Args:
             curve_data: Formatted data that is used for the fitting.
-            series: List of series definition associated with the curve data.
+            models: A list of LMFIT models that provides model names
+                to extract subsets of experiment data.
 
         Returns:
             List of analysis result data.
@@ -505,17 +564,17 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
         if not self.options.return_data_points:
             return samples
 
-        for sdef in series:
-            s_data = curve_data.get_subset_of(sdef.name)
+        for model in models:
+            sub_data = curve_data.get_subset_of(model._name)
             raw_datum = AnalysisResultData(
                 name=DATA_ENTRY_PREFIX + self.__class__.__name__,
                 value={
-                    "xdata": s_data.x,
-                    "ydata": s_data.y,
-                    "sigma": s_data.y_err,
+                    "xdata": sub_data.x,
+                    "ydata": sub_data.y,
+                    "sigma": sub_data.y_err,
                 },
                 extra={
-                    "name": sdef.name,
+                    "name": model._name,
                     **metadata,
                 },
             )
