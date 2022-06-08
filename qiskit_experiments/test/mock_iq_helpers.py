@@ -92,10 +92,10 @@ class MockIQExperimentHelper:
 
     # pylint: disable=unused-argument
     def iq_phase(self, circuits: List[QuantumCircuit]) -> List[float]:
-        """Sub-classes can override this method to introduce a phase in the IQ plan.
+        """Sub-classes can override this method to introduce a phase in the IQ plane.
 
         This is needed, to test the resonator spectroscopy where the point in the IQ
-        plan has a frequency-dependent phase rotation.
+        plane has a frequency-dependent phase rotation.
         """
         return [0.0] * len(circuits)
 
@@ -218,18 +218,19 @@ class MockIQParallelExperimentHelper(MockIQExperimentHelper):
 
     def _parallel_exp_circ_splitter(self, qc_list: List[QuantumCircuit]):
         """
-        Splits a quantum circuits to its parallel components.
+        Splits quantum circuits to their parallel components.
         Args:
-            qc_list: The list of quantum circuit the backend get as input.
+            qc_list: The list of quantum circuits the backend gets as input.
 
         Returns:
-            List: A List for each experiment. each entry is a list of quantum circuits relevant to
-            the same experiment.
+            List: A list for each experiment. Each entry is a list of quantum circuits corresponding to
+            that experiment.
 
         Raises:
-            QiskitError: If an instruction is applied with qubits that aren't under the same experiment.
+            QiskitError: If an instruction is applied with qubits that don't belong to the same
+            experiment.
         """
-        # exp_idx_map is to connect between experiment and its circuit in the output.
+        # exp_idx_map connects an experiment to its circuit in the output.
         exp_idx_map = {exp: exp_idx for exp_idx, exp in enumerate(self.exp_list)}
         qubit_exp_map = self._create_qubit_exp_map()
 
@@ -249,16 +250,16 @@ class MockIQParallelExperimentHelper(MockIQExperimentHelper):
 
             # fixing metadata
             for exp_metadata in qc.metadata["composite_metadata"]:
-                # getting a qubit of one of the experiment that we ran in parallel
-                qubit = qubit_exp_map[exp_metadata["qubits"][0]]
+                # getting a qubit of one of the experiments that we ran in parallel
+                exp = qubit_exp_map[exp_metadata["qubits"][0]]
                 # using the qubit to access the experiment. Then, we go to the last circuit in
                 # `exp_circuit` of the corresponding experiment, and we overwrite the metadata.
-                exp_circuits_list[exp_idx_map[qubit]][-1].metadata = exp_metadata.copy()
+                exp_circuits_list[exp_idx_map[exp]][-1].metadata = exp_metadata.copy()
             # sorting instructions by qubits indexes and inserting them into a circuit of the relevant
             # experiment
             for inst, qarg, carg in qc.data:
                 exp = qubit_exp_map[qubit_indices[qarg[0]]]
-                # making a list from the qubits the instruction affect
+                # making a list from the qubits the instruction affects
                 qubit_indexes = [qubit_indices[qr] for qr in qarg]
                 # check that the instruction is part of the experiment
                 if set(qubit_indexes).issubset(set(exp.physical_qubits)):
@@ -266,7 +267,7 @@ class MockIQParallelExperimentHelper(MockIQExperimentHelper):
                     exp_circuits_list[exp_idx_map[exp]][-1].append(inst, qarg, carg)
                 else:
                     raise QiskitError(
-                        "A gate operate on two qubits which aren't under the same experiment."
+                        "A gate operates on two qubits that don't belong to the same experiment."
                     )
 
             # deleting empty circuits
@@ -293,7 +294,7 @@ class MockIQParallelExperimentHelper(MockIQExperimentHelper):
                     qubit_experiment_mapping[qubit] = exp
                 else:
                     raise QiskitError(
-                        "There are duplication of qubits between parallel experiments"
+                        "There are duplications of qubits between parallel experiments"
                     )
 
         return qubit_experiment_mapping
@@ -567,7 +568,7 @@ class MockIQSpectroscopyHelper(MockIQExperimentHelper):
     def iq_phase(self, circuits: List[QuantumCircuit]) -> List[float]:
         """Add a phase to the IQ point depending on how far we are from the resonance.
         This will cause the IQ points to rotate around in the IQ plane when we approach the
-        resonance which introduces and extra complication that the data processor needs to
+        resonance, introducing extra complication that the data processor has to
         properly handle.
         """
         delta_freq_list = [0.0] * len(circuits)

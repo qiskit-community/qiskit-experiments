@@ -451,8 +451,8 @@ class MockIQParallelBackend(MockIQBackend):
 
         # The code generates data as following:
         # for each experiment, it firstly checks if it needs to generate data for it. If it does, the
-        # multinomial probability function draw lots for all the shots, and we store it in the
-        # corresponding place in the output list. After that we move on to the next experiment.
+        # multinomial probability function draws lots for all the shots, and we store it in the
+        # corresponding position in the output list. After that we move on to the next experiment.
         for exp_dict in list_exp_dict:
             # skipping experiments that don't need data generation for this circuit.
             if exp_dict["num_circuits"] <= circ_idx:
@@ -511,11 +511,10 @@ class MockIQParallelBackend(MockIQBackend):
             circ_idx (int): The circuit number we simulate.
 
         Returns:
-            A dictionary that's filled with the simulated data. The output format is different between
-            measurement level 1 and measurement level 2.
+            A dictionary that's filled with the simulated data.
 
         Raises:
-            QiskitError: if 'meas_level = MeasLevel.CLASSIFIED'.
+            QiskitError: Raising an error if classified data is requested.
         """
         circ_qubit_list = []
         for exp_dict in list_exp_dict:
