@@ -74,17 +74,8 @@ class ParallelExperiment(CompositeExperiment):
     def circuits(self):
         return self._combined_circuits(device_layout=False)
 
-    def _transpiled_circuits(self) -> List[QuantumCircuit]:
-        circuits = self._combined_circuits(device_layout=True)
-
-        # We may need to re-schedule the combined circuits
-        # NOTE: In the future this should be replaced with a minimal
-        # pass manager that only needs to run relevent scheduling passes
-        scheduling_method = getattr(self.transpile_options, "scheduling_method", None)
-        if scheduling_method not in {None, "asap", "as_soon_as_possible"}:
-            circuits = transpile(circuits, self.backend, **self.transpile_options.__dict__)
-
-        return circuits
+    def _transpiled_circuits(self):
+        return self._combined_circuits(device_layout=True)
 
     def _combined_circuits(self, device_layout: bool) -> List[QuantumCircuit]:
         """Generate combined parallel circuits from transpiled subcircuits."""
