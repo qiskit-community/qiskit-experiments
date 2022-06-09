@@ -193,6 +193,7 @@ class CurveAnalysis(BaseCurveAnalysis):
         fit_data = self._run_curve_fit(
             curve_data=formatted_data,
             models=self._models,
+            init_guesses=self.options.p0,
         )
 
         if fit_data.success:
@@ -201,15 +202,15 @@ class CurveAnalysis(BaseCurveAnalysis):
             quality = "bad"
 
         if self.options.return_fit_parameters:
-            # Store fit status entry regardless of success.
+            # Store fit status overview entry regardless of success.
             # This is sometime useful when debugging the fitting code.
-            fit_parameters = AnalysisResultData(
+            overview = AnalysisResultData(
                 name=PARAMS_ENTRY_PREFIX + self.__class__.__name__,
                 value=fit_data,
                 quality=quality,
                 extra=self.options.extra,
             )
-            analysis_results.append(fit_parameters)
+            analysis_results.append(overview)
 
         # Create figure and result data
         if fit_data.success:

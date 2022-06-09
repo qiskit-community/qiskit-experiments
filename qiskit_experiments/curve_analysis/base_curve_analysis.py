@@ -86,8 +86,6 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
 
     This method to creates analysis results for important fit parameters
     that might be defined by analysis options ``result_parameters``.
-    In addition, another entry for all fit parameters is created when
-    the analysis option ``return_fit_parameters`` is ``True``.
 
     .. rubric:: _create_curve_data
 
@@ -391,6 +389,7 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
         self,
         curve_data: CurveData,
         models: List[lmfit.Model],
+        init_guesses: Dict[str, float],
     ) -> CurveFitResult:
         """Perform curve fitting on given data collection and fit models.
 
@@ -398,6 +397,8 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
             curve_data: Formatted data to fit.
             models: A list of LMFIT models that are used to build a cost function
                 for the LMFIT minimizer.
+            init_guesses: Dictionary of fit parameter initial guesses keyed on the
+                fit parameter name.
 
         Returns:
             The best fitting outcome with minimum reduced chi-squared value.
@@ -419,10 +420,11 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
 
         default_fit_opt = FitOptions(
             parameters=unite_parameter_names,
-            default_p0=self.options.p0,
+            default_p0=init_guesses,
             default_bounds=self.options.bounds,
             **self.options.lmfit_options,
         )
+
         # Bind fixed parameters if not empty
         if self.options.fixed_parameters:
             fixed_parameters = {

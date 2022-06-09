@@ -12,6 +12,14 @@ features:
     Analysis class author can flexibly define new analysis instance
     with LMFIT ``Model`` objects. See LMFIT documentation for user guide.
   - |
+    New curve analysis baseclass :class:`.MultiGroupCurveAnalysis` has been added.
+    This curve analysis variant offers a framework to fit multiple indenepdent datasets 
+    with the consistent fit model. For example, if you define an experiment scanning 
+    a parameter with different conditions, e.g. with different control qubit states
+    in some two-qubit gate experiment, the multi-group curve analysis can implement 
+    its analysis with simpler code comparing with writing a batch experment.
+    See class documentation for more details.
+  - |
     New options have been added to to the :class:`.CurveAnaysis` curve drawer.
     
     -|

@@ -12,7 +12,7 @@
 
 """DRAG pulse calibration experiment."""
 
-from typing import List, Union
+from typing import List, Union, Dict
 
 import lmfit
 import numpy as np
@@ -151,6 +151,7 @@ class DragCalAnalysis(curve.CurveAnalysis):
         self,
         curve_data: curve.CurveData,
         models: List[lmfit.Model],
+        init_guesses: Dict[str, float],
     ) -> curve.CurveFitResult:
         r"""Perform curve fitting on given data collection and fit models.
 
@@ -182,11 +183,13 @@ class DragCalAnalysis(curve.CurveAnalysis):
             curve_data: Formatted data to fit.
             models: A list of LMFIT models that are used to build a cost function
                 for the LMFIT minimizer.
+            init_guesses: Dictionary of fit parameter initial guesses keyed on the
+                fit parameter name.
 
         Returns:
             The best fitting outcome with minimum reduced chi-squared value.
         """
-        fit_result = super()._run_curve_fit(curve_data, models)
+        fit_result = super()._run_curve_fit(curve_data, models, init_guesses)
 
         if fit_result and fit_result.params is not None:
             beta = fit_result.params["beta"]

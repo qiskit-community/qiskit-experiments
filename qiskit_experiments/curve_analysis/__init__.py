@@ -467,6 +467,7 @@ Base Classes
 
     BaseCurveAnalysis
     CurveAnalysis
+    MultiGroupCurveAnalysis
 
 Data Classes
 ============
@@ -548,6 +549,7 @@ Utilities
 """
 from .base_curve_analysis import BaseCurveAnalysis
 from .curve_analysis import CurveAnalysis
+from .grouped_curve_analysis import MultiGroupCurveAnalysis
 from .curve_data import (
     CurveData,
     CurveFitResult,
