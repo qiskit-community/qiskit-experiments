@@ -793,13 +793,3 @@ class TestBatchTranspileOptions(QiskitExperimentsTestCase):
         self.assertEqual(expdata.child_data(0).analysis_results(0).value, 8)
         self.assertEqual(expdata.child_data(1).child_data(0).analysis_results(0).value, 16)
         self.assertEqual(expdata.child_data(1).child_data(1).analysis_results(0).value, 4)
-
-import  unittest
-def suite():
-    suite = unittest.TestSuite()
-    suite.addTest(TestCompositeExperimentData('test_composite_save_load'))
-    return suite
-
-if __name__ == '__main__':
-    runner = unittest.TextTestRunner()
-    runner.run(suite())

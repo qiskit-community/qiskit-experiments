@@ -21,10 +21,10 @@ import numpy as np
 from qiskit.quantum_info.operators.predicates import matrix_equal
 from qiskit.providers.aer import AerSimulator
 from qiskit.test.mock import FakeParis
+from qiskit_ibm_experiment import IBMExperimentService
 from qiskit_experiments.library.characterization import LocalReadoutError, CorrelatedReadoutError
 from qiskit_experiments.framework import ExperimentData
 from qiskit_experiments.framework import ParallelExperiment
-from qiskit_experiments.test.fake_service import FakeService
 from qiskit_experiments.framework.json import ExperimentEncoder, ExperimentDecoder
 
 
@@ -161,7 +161,7 @@ class TestRedoutError(QiskitExperimentsTestCase):
         backend = AerSimulator.from_backend(FakeParis())
         exp = LocalReadoutError(qubits)
         exp_data = exp.run(backend).block_for_results()
-        exp_data.service = FakeService()
+        exp_data.service = IBMExperimentService(local=True)
         exp_data.save()
         loaded_data = ExperimentData.load(exp_data.experiment_id, exp_data.service)
         exp_res = exp_data.analysis_results()

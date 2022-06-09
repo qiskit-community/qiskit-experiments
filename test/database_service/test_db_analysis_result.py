@@ -70,6 +70,7 @@ class TestAnalysisResult(QiskitExperimentsTestCase):
         mock_service = mock.create_autospec(IBMExperimentService)
         result = self._new_analysis_result(service=mock_service)
         result.auto_save = True
+        mock_service.reset_mock() # since setting auto_save = True initiated save
 
         subtests = [
             # update function, update parameters, service called
@@ -82,7 +83,7 @@ class TestAnalysisResult(QiskitExperimentsTestCase):
         for func, params in subtests:
             with self.subTest(func=func):
                 func(*params)
-                mock_service.update_analysis_result.assert_called_once()
+                mock_service.create_or_update_analysis_result.assert_called_once()
                 mock_service.reset_mock()
 
     def test_set_service_init(self):
