@@ -397,7 +397,7 @@ class MockIQParallelBackend(MockIQBackend):
 
     def __init__(
         self,
-        experiment_helper: MockIQParallelExperimentHelper,
+        experiment_helper: MockIQParallelExperimentHelper = None,
         rng_seed: int = 0,
         iq_cluster_centers: Optional[List[Tuple[Tuple[float, float], Tuple[float, float]]]] = None,
         iq_cluster_width: Optional[List[float]] = None,
@@ -560,7 +560,15 @@ class MockIQParallelBackend(MockIQBackend):
 
         Returns:
             FakeJob: A job that contains the simulated data.
+
+        Raises:
+            QiskitError: Raised if the user try to run the experiment without setting a helper.
         """
+
+        if not self.experiment_helper or isinstance(
+            self.experiment_helper, MockIQParallelExperimentHelper
+        ):
+            raise QiskitError("The backend `experiment_helper` attribute cannot be 'None'.")
 
         self.options.update_options(**run_options)
         shots = self.options.get("shots")

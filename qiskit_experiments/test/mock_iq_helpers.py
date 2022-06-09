@@ -105,8 +105,8 @@ class MockIQParallelExperimentHelper(MockIQExperimentHelper):
 
     def __init__(
         self,
-        exp_list: List[BaseExperiment] = None,
-        exp_helper_list: List[MockIQExperimentHelper] = None,
+        exp_list: List[BaseExperiment],
+        exp_helper_list: List[MockIQExperimentHelper],
     ):
         """
         Parallel Experiment Helper initializer. The class assumes `exp_helper_list` is ordered to
@@ -115,7 +115,11 @@ class MockIQParallelExperimentHelper(MockIQExperimentHelper):
         Args:
             exp_list(List): List of experiments.
             exp_helper_list(List): Ordered list of `MockIQExperimentHelper` corresponding to the
-             experiments in `exp_list`.
+             experiments in `exp_list`. Nested parallel experiment aren't supported currently.
+
+        Raises:
+            ValueError: Raised if the list are empty or if they don't have the same length.
+            QiskitError: Raised if the is `MockIQParallelExperimentHelper` object in `exp_helper_list`.
 
         Examples:
 
@@ -168,6 +172,9 @@ class MockIQParallelExperimentHelper(MockIQExperimentHelper):
                 par_data = par_experiment.run().block_for_results()
         """
 
+        # check parameters
+        self._verify_parameters(exp_list, exp_helper_list)
+
         self.exp_helper_list = exp_helper_list
         self.exp_list = exp_list
 
@@ -175,8 +182,8 @@ class MockIQParallelExperimentHelper(MockIQExperimentHelper):
         """
         Run the compute_probabilities for each helper
         """
-        # check parameters
-        self._verify_parameters()
+        # checking for legal parameters before computing output.
+        self._verify_parameters(self.exp_list, self.exp_helper_list)
 
         # Splitting the circuit
         parallel_circ_list = self._parallel_exp_circ_splitter(circuits)
@@ -195,15 +202,19 @@ class MockIQParallelExperimentHelper(MockIQExperimentHelper):
 
         return prob_help_list
 
-    def _verify_parameters(self):
+    def _verify_parameters(
+        self,
+        exp_list: List[BaseExperiment] = None,
+        exp_helper_list: List[MockIQExperimentHelper] = None,
+    ):
         """Check parameters before computing probability"""
-        if self.exp_helper_list is None:
+        if exp_helper_list is None:
             raise ValueError("Please set the experiment helper list.")
-        if self.exp_list is None:
+        if exp_list is None:
             raise ValueError("Please set the experiment list.")
 
-        number_of_experiments = len(self.exp_list)
-        number_of_helpers = len(self.exp_helper_list)
+        number_of_experiments = len(exp_list)
+        number_of_helpers = len(exp_helper_list)
 
         if number_of_experiments == 0:
             raise ValueError("The experiment list cannot be empty.")
@@ -216,6 +227,11 @@ class MockIQParallelExperimentHelper(MockIQExperimentHelper):
                     number_of_experiments, number_of_helpers
                 )
             )
+
+        for helper in exp_helper_list:
+            # checking there is no nested parallel experiment.
+            if isinstance(helper, MockIQParallelExperimentHelper):
+                raise QiskitError("Nested parallel experiments aren't currently supported.")
 
     def _parallel_exp_circ_splitter(self, qc_list: List[QuantumCircuit]):
         """
@@ -244,6 +260,8 @@ class MockIQParallelExperimentHelper(MockIQExperimentHelper):
             # initialize quantum circuit for each experiment for this instance of circuit to fill
             # with instructions.
             for exp_circuit in exp_circuits_list:
+                # we copy the circuit to ensure that the circuit properties (e.g. calibration and qubits
+                # frequencies) are the same in the new circuit.
                 qcirc = qc.copy()
                 qcirc.data.clear()
                 qcirc.metadata.clear()
