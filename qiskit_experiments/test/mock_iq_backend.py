@@ -565,9 +565,7 @@ class MockIQParallelBackend(MockIQBackend):
             QiskitError: Raised if the user try to run the experiment without setting a helper.
         """
 
-        if not self.experiment_helper or isinstance(
-            self.experiment_helper, MockIQParallelExperimentHelper
-        ):
+        if not self.experiment_helper:
             raise QiskitError("The backend `experiment_helper` attribute cannot be 'None'.")
 
         self.options.update_options(**run_options)
