@@ -14,7 +14,9 @@ Interleaved RB analysis class.
 """
 from typing import List, Union
 
+import lmfit
 import numpy as np
+
 import qiskit_experiments.curve_analysis as curve
 from qiskit_experiments.framework import AnalysisResultData, ExperimentData
 
@@ -89,31 +91,21 @@ class InterleavedRBAnalysis(curve.CurveAnalysis):
     """
 
     def __init__(self):
-        super().__init__()
+        super().__init__(
+            models=[
+                lmfit.models.ExpressionModel(
+                    expr="a * alpha ** x + b",
+                    name="standard",
+                    data_sort_key={"interleaved": False},
+                ),
+                lmfit.models.ExpressionModel(
+                    expr="a * (alpha_c * alpha) ** x + b",
+                    name="interleaved",
+                    data_sort_key={"interleaved": True},
+                ),
+            ]
+        )
         self._num_qubits = None
-
-    __series__ = [
-        curve.SeriesDef(
-            name="Standard",
-            fit_func=lambda x, a, alpha, alpha_c, b: curve.fit_function.exponential_decay(
-                x, amp=a, lamb=-1.0, base=alpha, baseline=b
-            ),
-            filter_kwargs={"interleaved": False},
-            plot_color="red",
-            plot_symbol=".",
-            model_description=r"a \alpha^{x} + b",
-        ),
-        curve.SeriesDef(
-            name="Interleaved",
-            fit_func=lambda x, a, alpha, alpha_c, b: curve.fit_function.exponential_decay(
-                x, amp=a, lamb=-1.0, base=alpha * alpha_c, baseline=b
-            ),
-            filter_kwargs={"interleaved": True},
-            plot_color="orange",
-            plot_symbol="^",
-            model_description=r"a (\alpha_c\alpha)^{x} + b",
-        ),
-    ]
 
     @classmethod
     def _default_options(cls):
@@ -147,11 +139,11 @@ class InterleavedRBAnalysis(curve.CurveAnalysis):
         a_guess = 1 - b_guess
 
         # for standard RB curve
-        std_curve = curve_data.get_subset_of("Standard")
+        std_curve = curve_data.get_subset_of("standard")
         alpha_std = curve.guess.rb_decay(std_curve.x, std_curve.y, a=a_guess, b=b_guess)
 
         # for interleaved RB curve
-        int_curve = curve_data.get_subset_of("Interleaved")
+        int_curve = curve_data.get_subset_of("interleaved")
         alpha_int = curve.guess.rb_decay(int_curve.x, int_curve.y, a=a_guess, b=b_guess)
 
         alpha_c = min(alpha_int / alpha_std, 1.0)
@@ -209,7 +201,7 @@ class InterleavedRBAnalysis(curve.CurveAnalysis):
 
     def _create_analysis_results(
         self,
-        fit_data: curve.FitData,
+        fit_data: curve.CurveFitResult,
         quality: str,
         **metadata,
     ) -> List[AnalysisResultData]:
@@ -227,8 +219,8 @@ class InterleavedRBAnalysis(curve.CurveAnalysis):
         nrb = 2**self._num_qubits
         scale = (nrb - 1) / nrb
 
-        alpha = fit_data.fitval("alpha")
-        alpha_c = fit_data.fitval("alpha_c")
+        alpha = fit_data.ufloat_params["alpha"]
+        alpha_c = fit_data.ufloat_params["alpha_c"]
 
         # Calculate epc_est (=r_c^est) - Eq. (4):
         epc = scale * (1 - alpha_c)
