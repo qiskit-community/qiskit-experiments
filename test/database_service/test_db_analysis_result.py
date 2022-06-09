@@ -14,7 +14,6 @@
 
 """Test AnalysisResult."""
 from test.base import QiskitExperimentsTestCase
-import unittest
 from unittest import mock
 import json
 
@@ -63,6 +62,7 @@ class TestAnalysisResult(QiskitExperimentsTestCase):
         result.service = service
         result.save()
         loaded_result = AnalysisResult.load(result_id=result.result_id, service=service)
+
         self.assertEqual(repr(result), repr(loaded_result))
 
     def test_auto_save(self):
@@ -213,7 +213,3 @@ class TestDeviceComponent(QiskitExperimentsTestCase):
         r1 = to_component("R1")
         self.assertIsInstance(r1, Resonator)
         self.assertEqual("R1", str(r1))
-
-
-if __name__ == "__main__":
-    unittest.main()

@@ -67,7 +67,7 @@ class AnalysisResult():
         experiment_id: str = None,
         result_id: Optional[str] = None,
         chisq: Optional[float] = None,
-        quality: Optional[ResultQuality] = ResultQuality.UNKNOWN,
+        quality: Optional[ResultQuality] = RESULT_QUALITY_TO_TEXT[ResultQuality.UNKNOWN],
         extra: Optional[Dict[str, Any]] = None,
         verified: bool = False,
         tags: Optional[List[str]] = None,

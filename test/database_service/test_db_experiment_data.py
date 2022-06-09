@@ -444,11 +444,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         exp_data.service = service
         exp_data.save_metadata()
         service.create_or_update_experiment.assert_called_once()
-        data = service.create_experiment.call_args[0][0]
-        self.assertEqual(exp_data.experiment_id, data.experiment_id)
-        exp_data.save_metadata()
-        service.update_experiment.assert_called_once()
-        data = service.update_experiment.call_args[0][0]
+        data = service.create_or_update_experiment.call_args[0][0]
         self.assertEqual(exp_data.experiment_id, data.experiment_id)
 
     def test_save(self):
@@ -1027,7 +1023,3 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         mock_service = mock.create_autospec(IBMExperimentService, instance=True)
         mock_provider.service.return_value = mock_service
         return mock_service
-
-
-if __name__ == "__main__":
-    unittest.main()
