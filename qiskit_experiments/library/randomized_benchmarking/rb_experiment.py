@@ -15,6 +15,7 @@ Standard RB Experiment class.
 import logging
 from collections import defaultdict
 from typing import Union, Iterable, Optional, List, Sequence
+import copy
 
 import numpy as np
 from numpy.random import Generator, default_rng
@@ -30,7 +31,7 @@ from qiskit_experiments.framework import BaseExperiment, Options
 from qiskit_experiments.framework.restless_mixin import RestlessMixin
 from .rb_analysis import RBAnalysis
 from .clifford_utils import CliffordUtils
-from .fast_rb import generate_all_transpiled_clifford_circuits, build_rb_circuits
+from .clifford_data import CLIFF_COMPOSE_DATA, CLIFF_INVERSE_DATA
 
 LOG = logging.getLogger(__name__)
 
@@ -94,7 +95,8 @@ class StandardRB(BaseExperiment, RestlessMixin):
         self._full_sampling = full_sampling
         self._clifford_utils = CliffordUtils()
         start = time.time()
-        self._all_clifford_circuits = generate_all_transpiled_clifford_circuits()
+        basis_gates = ["rz", "sx"]
+        self._all_rb_circuits = CliffordUtils.generate_1q_transpiled_clifford_circuits(basis_gates=basis_gates)
         end = time.time()
         print("time for generate_all_transpiled_clifford_circuits="+str(end-start))
 
@@ -131,6 +133,62 @@ class StandardRB(BaseExperiment, RestlessMixin):
 
         return options
 
+    def build_rb_circuits(self, lengths, circuits, rng):
+        start = time.time()
+        all_rb_circuits = []
+        for length in lengths if self._full_sampling else [lengths[-1]]:
+            random_samples = rng.integers(24, size=length)
+        rand = random_samples[0]
+        index = 1
+        # choose random clifford for first element
+        circ = circuits[rand].copy()
+        circ.barrier(0)
+        clifford_as_num = rand
+
+        if lengths[0] == 1:
+            rb_circ = circ.copy()
+            inverse_num = CLIFF_INVERSE_DATA[rand]
+            inverse_circ = circuits[inverse_num]
+            rb_circ.compose(inverse_circ, inplace=True)
+            rb_circ.measure_all()
+            rb_circ.metadata = {
+                "experiment_type": "rb",
+                "xval": 2,
+                "group": "Clifford",
+                "physical_qubits": 0,
+            }
+
+        prev_length = 2
+        for length in lengths:
+            for i in range(prev_length, length + 1):
+                rand = random_samples[index]
+                # choose random clifford
+                next_circ = circuits[rand]
+                index += 1
+                circ.compose(next_circ, inplace=True)
+                circ.barrier(0)
+                clifford_as_num = CLIFF_COMPOSE_DATA[(clifford_as_num, rand)]
+                if i == length:
+                    rb_circ = circ.copy()
+                    inverse_clifford_num = CLIFF_INVERSE_DATA[clifford_as_num]
+                    # append the inverse
+                    rb_circ.compose(circuits[inverse_clifford_num], inplace=True)
+                    rb_circ.measure_all()
+
+                    rb_circ.metadata = {
+                        "experiment_type": "rb",
+                        "xval": length + 1,
+                        "group": "Clifford",
+                        "physical_qubits": 0,
+                    }
+
+                prev_length = i + 1
+            all_rb_circuits.append(rb_circ)
+            # print(rb_circ)
+        end = time.time()
+        print(" time for build_rb_circuits = " + str(end - start))
+        return all_rb_circuits
+
     def circuits(self) -> List[QuantumCircuit]:
         """Return a list of RB circuits.
 
@@ -140,8 +198,11 @@ class StandardRB(BaseExperiment, RestlessMixin):
         start = time.time()
         rng = default_rng(seed=self.experiment_options.seed)
         for _ in range(self.experiment_options.num_samples):
-            circuits = build_rb_circuits(self.experiment_options.lengths,
-                                         self._all_clifford_circuits, rng)
+            if self.num_qubits == 1:
+                circuits = self.build_rb_circuits(self.experiment_options.lengths,
+                                                  self._all_rb_circuits, rng)
+            else:
+                circuits += self._sample_circuits(self.experiment_options.lengths, rng)
         end = time.time()
         print("time for circuits = " + str(end - start))
         #for c in circuits:
@@ -222,8 +283,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
 
     def _transpiled_circuits(self) -> List[QuantumCircuit]:
         """Return a list of experiment circuits, transpiled."""
-        print("fast rb")
-        transpiled = self.circuits()
+        transpiled = super()._transpiled_circuits()
 
         if self.analysis.options.get("gate_error_ratio", None) is None:
             # Gate errors are not computed, then counting ops is not necessary.
@@ -257,3 +317,4 @@ class StandardRB(BaseExperiment, RestlessMixin):
                 metadata[run_opt] = getattr(self.run_options, run_opt)
 
         return metadata
+

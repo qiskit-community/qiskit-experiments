@@ -13,13 +13,15 @@
 Utilities for using the Clifford group in randomized benchmarking
 """
 
-from typing import Optional, Union
+from typing import Optional, Union, List
 from functools import lru_cache
 from numpy.random import Generator, default_rng
 from qiskit import QuantumCircuit, QuantumRegister
 from qiskit.circuit import Gate
 from qiskit.circuit.library import SdgGate, HGate, SGate, SXdgGate
 from qiskit.quantum_info import Clifford, random_clifford
+from qiskit.compiler import transpile
+from qiskit.providers.aer import AerSimulator
 
 
 class VGate(Gate):
@@ -219,3 +221,18 @@ class CliffordUtils:
                 return [i] + self._unpack_num(num, sig)
             num -= sig_size
         return None
+
+    def generate_1q_transpiled_clifford_circuits(basis_gates : List[str]):
+        utils = CliffordUtils()
+        circs = []
+        for num in range(0, 24):
+            circ = utils.clifford_1_qubit_circuit(num=num)
+            circs.append(circ)
+
+        backend = AerSimulator()
+        transpiled_circs = []
+
+        for i, circ in enumerate(circs):
+            transpiled_circ = transpile(circ, backend, optimization_level=1, basis_gates=basis_gates)
+            transpiled_circs.append(transpiled_circ)
+        return transpiled_circs
