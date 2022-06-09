@@ -348,6 +348,11 @@ class ExperimentData:
         """
         return self._db_data.parent_id
 
+    @parent_id.setter
+    def parent_id(self, new_id: str) -> None:
+        """Sets the parent id"""
+        self._db_data.parent_id = new_id
+
     @property
     def job_ids(self) -> List[str]:
         """Return experiment job IDs.
@@ -1724,7 +1729,7 @@ class ExperimentData:
 
     def add_child_data(self, experiment_data: ExperimentData):
         """Add child experiment data to the current experiment data"""
-        experiment_data._parent_id = self.experiment_id
+        experiment_data.parent_id = self.experiment_id
         self._child_data[experiment_data.experiment_id] = experiment_data
         self.metadata["child_data_ids"] = self._child_data.keys()
 
