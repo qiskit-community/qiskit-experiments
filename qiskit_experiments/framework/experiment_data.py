@@ -1310,7 +1310,7 @@ class ExperimentData:
                 self._service.delete_figure(experiment_id=self.experiment_id, figure_name=name)
             self._deleted_figures.remove(name)
 
-        if self.verbose:
+        if not self.service.local and self.verbose:
             # this field will be implemented in the new service package
             if hasattr(self._service, "web_interface_link"):
                 print(
