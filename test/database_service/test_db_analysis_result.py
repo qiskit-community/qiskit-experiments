@@ -22,7 +22,7 @@ import math
 import numpy as np
 import uncertainties
 
-from qiskit_ibm_experiment import IBMExperimentService
+from qiskit_ibm_experiment import IBMExperimentService, ExperimentData
 from qiskit_experiments.framework import AnalysisResult
 from qiskit_experiments.database_service.device_component import Qubit, Resonator, to_component
 from qiskit_experiments.database_service.exceptions import DbExperimentDataError
@@ -53,7 +53,17 @@ class TestAnalysisResult(QiskitExperimentsTestCase):
         result = self._new_analysis_result()
         result.service = mock_service
         result.save()
-        mock_service.create_analysis_result.assert_called_once()
+        mock_service.create_or_update_analysis_result.assert_called_once()
+
+    def test_load(self):
+        """Test loading analysis result."""
+        service = IBMExperimentService(local=True)
+        result = self._new_analysis_result()
+        service.create_experiment(ExperimentData(experiment_id=result.experiment_id))
+        result.service = service
+        result.save()
+        loaded_result = AnalysisResult.load(result_id=result.result_id, service=service)
+        self.assertEqual(result.__repr__(), loaded_result.__repr__())
 
     def test_auto_save(self):
         """Test auto saving."""

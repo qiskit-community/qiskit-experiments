@@ -180,8 +180,10 @@ class AnalysisResult():
         """
         # Load data from the service
         data = service.analysis_result(result_id, json_decoder=cls._json_decoder)
-        result = cls(data)
+        result = cls()
+        result.set_data(data)
         result._created_in_db = True
+        result.service = service
         return result
 
     def save(self) -> None:
@@ -457,7 +459,7 @@ class AnalysisResult():
         out += f", verified={self.verified}"
         out += f", extra={repr(self.extra)}"
         out += f", tags={self.tags}"
-        out += f", service={repr(self.experiment_id)}"
+        out += f", experiment id={repr(self.experiment_id)}"
         for key, val in self._extra_data.items():
             out += f", {key}={repr(val)}"
         out += ")"
