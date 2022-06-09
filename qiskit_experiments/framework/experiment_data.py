@@ -1260,6 +1260,7 @@ class ExperimentData:
         except Exception:  # pylint: disable=broad-except
             # Don't fail the experiment just because its data cannot be saved.
             LOG.error("Unable to save the experiment data: %s", traceback.format_exc())
+        self._created_in_db = True
 
     def save(self) -> None:
         """Save the experiment data to a database service.

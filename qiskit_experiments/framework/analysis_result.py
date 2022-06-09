@@ -55,10 +55,10 @@ class AnalysisResult():
 
     def __init__(
         self,
-        name: str,
-        value: Any,
-        device_components: List[Union[DeviceComponent, str]],
-        experiment_id: str,
+        name: str = None,
+        value: Any = None,
+        device_components: List[Union[DeviceComponent, str]] = None,
+        experiment_id: str = None,
         result_id: Optional[str] = None,
         chisq: Optional[float] = None,
         quality: Optional[ResultQuality] = ResultQuality.UNKNOWN,
@@ -99,10 +99,11 @@ class AnalysisResult():
             tags=tags or [],
         )
         self._db_data.result_data = self.format_result_data(value, extra, chisq, source)
-        for comp in device_components:
-            if isinstance(comp, str):
-                comp = to_component(comp)
-            self._db_data.device_components.append(comp)
+        if device_components is not None:
+            for comp in device_components:
+                if isinstance(comp, str):
+                    comp = to_component(comp)
+                self._db_data.device_components.append(comp)
 
 
         if self.source is None:
@@ -119,6 +120,8 @@ class AnalysisResult():
     def set_data(self, data: AnalysisResultData):
         """Sets the analysis data stored in the class"""
         self._db_data = data
+        new_device_components = [to_component(comp) for comp in self._db_data.device_components]
+        self._db_data.device_components = new_device_components
 
     @classmethod
     def default_source(cls) -> Dict[str, str]:
