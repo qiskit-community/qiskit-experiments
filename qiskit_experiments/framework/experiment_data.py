@@ -1721,6 +1721,7 @@ class ExperimentData:
         """Add child experiment data to the current experiment data"""
         experiment_data._parent_id = self.experiment_id
         self._child_data[experiment_data.experiment_id] = experiment_data
+        self.metadata["child_data_ids"] = self._child_data.keys()
 
     def child_data(
         self, index: Optional[Union[int, slice, str]] = None
