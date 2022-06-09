@@ -414,6 +414,11 @@ class ExperimentData:
             self.save_metadata()
 
     @property
+    def backend_name(self) -> str:
+        """Return the backend's name"""
+        return self._db_data.backend
+
+    @property
     def backend(self) -> Backend:
         """Return backend.
 
