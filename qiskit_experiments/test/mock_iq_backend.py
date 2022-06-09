@@ -426,7 +426,8 @@ class MockIQParallelBackend(MockIQBackend):
         """
         Produce an IQ shot.
         Args:
-            list_exp_dict: A list of
+            list_exp_dict: A list of dictionaries for each experiment. It is determined by the
+            'MockIQParallelExperimentHelper' object provided to the backend.
             shots: The number of times the circuit will run.
             circ_qubits: List of qubits that are used in this circuit.
             circ_idx: The circuit index.
@@ -514,7 +515,8 @@ class MockIQParallelBackend(MockIQBackend):
             A dictionary that's filled with the simulated data.
 
         Raises:
-            QiskitError: Raising an error if classified data is requested.
+            QiskitError: Raising an error if in the experiment running option, classified data is
+            requested.
         """
         circ_qubit_list = []
         for exp_dict in list_exp_dict:
