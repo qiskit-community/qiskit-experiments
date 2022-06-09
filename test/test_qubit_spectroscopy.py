@@ -219,11 +219,8 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
             ((3.0, 0.0), (5.0, 0.0)),
         ]
 
-        exp_helper_list = [SpectroscopyHelper(), SpectroscopyHelper()]
-        parallel_helper = ParallelExperimentHelper(exp_helper_list=exp_helper_list)
-
         parallel_backend = MockIQParallelBackend(
-            experiment_helper=parallel_helper,
+            experiment_helper=None,
             iq_cluster_centers=iq_cluster_centers,
             rng_seed=0,
         )
@@ -244,7 +241,11 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
             QubitSpectroscopy(qubit1, frequencies1),
             QubitSpectroscopy(qubit2, frequencies2),
         ]
-        parallel_helper.exp_list = exp_list
+
+        exp_helper_list = [SpectroscopyHelper(), SpectroscopyHelper()]
+        parallel_helper = ParallelExperimentHelper(exp_list, exp_helper_list)
+
+        parallel_backend.experiment_helper = parallel_helper
 
         # initializing parallel experiment
         par_experiment = ParallelExperiment(exp_list, backend=parallel_backend)

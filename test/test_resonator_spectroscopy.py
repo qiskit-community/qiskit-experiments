@@ -113,10 +113,9 @@ class TestResonatorSpectroscopy(QiskitExperimentsTestCase):
             ResonatorSpectroscopyHelper(gate_name="measure", freq_offset=freq_shift[0]),
             ResonatorSpectroscopyHelper(gate_name="measure", freq_offset=freq_shift[1]),
         ]
-        parallel_helper = ParallelExperimentHelper(exp_helper_list=exp_helper_list)
 
         parallel_backend = MockIQParallelBackend(
-            experiment_helper=parallel_helper,
+            experiment_helper=None,
             iq_cluster_centers=iq_cluster_centers,
             rng_seed=0,
         )
@@ -139,6 +138,13 @@ class TestResonatorSpectroscopy(QiskitExperimentsTestCase):
         )
 
         exp_list = [res_spect1, res_spect2]
+
+        # Initializing parallel helper
+        parallel_helper = ParallelExperimentHelper(exp_list, exp_helper_list)
+
+        # setting the helper into the backend
+        parallel_backend.experiment_helper = parallel_helper
+
         # updating the experiment helper list
         parallel_helper.exp_list = exp_list
 
