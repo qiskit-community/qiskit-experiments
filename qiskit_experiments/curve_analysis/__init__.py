@@ -99,17 +99,14 @@ the uncertainty of outcomes arising from the sampling error or measurement error
 
 More specifically, the curve analysis defines following data model.
 
-- Series: Definition of the single curve. Every series may define unique
-  filter keyword arguments for data sorting, a fit function with parameters,
-  and preferred style for fit outcome visualization.
+- Model: Definition of a single curve that is a function of reserved parameter "x".
 
-- Group: List of series. Fit functions defined under the group must share the
+- Group: List of models. Fit functions defined under the same group must share the
   fit parameters. Fit functions in the group are simultaneously fit to
   generate a single fit result.
 
-To manage this structure, curve analysis provides a special dataclass :class:`SeriesDef`
-that represents a model configuration for a single curve data.
-Based on this information, the curve analysis automatically builds the optimization routine.
+Once the group is assigned, a curve analysis instance internally builds
+a proper optimization routine.
 Finally, the analysis outputs a set of :class:`AnalysisResultData` entries
 for important fit outcomes along with a single Matplotlib figure of the fit curves
 with the measured data points.
@@ -119,68 +116,80 @@ various curve analyses subclass and one can quickly write up
 the analysis code for a particular experiment.
 
 
-.. _curve_analysis_define_series:
+.. _curve_analysis_define_group:
 
-Defining New Series
-===================
+Defining New Group
+==================
 
-You can intuitively write the definition of a new series, as shown below:
+The fit model is defined by the `LMFIT`_ ``Model``.
+If you are familiar with this package, you can skip this section.
+The LMFIT package manages complicated fit function and offers several algorithms
+to solve non-linear least-square problems.
+Basically the Qiskit curve analysis delegates the core fitting functionality to this package.
+
+You can intuitively write the definition of model, as shown below:
 
 .. code-block:: python3
 
-    from qiskit_experiments.curve_analysis import SeriesDef, fit_function
+    import lmfit
 
-    SeriesDef(
-        fit_func=lambda x, p0, p1, p2: fit_function.exponential_decay(
-            x, amp=p0, lamb=p1, baseline=p2
-        ),
-        model_description="p0 * exp(-p1 * x) + p2",
-    )
+    models = [
+        lmfit.models.ExpressionModel(
+            expr="amp * exp(-alpha * x) + base",
+            name="exp_decay",
+        )
+    ]
 
-The minimum field you must fill with is the ``fit_func``, which is a callback function used
-with the optimization solver. Here you must call one of the fit functions from the module
-:mod:`qiskit_experiments.curve_analysis.fit_function` because they implement
-special logic to compute error propagation.
-Note that argument name of the fit function is important because
-the signature of the provided fit function is inspected behind the scenes and
-used as a parameter name of the analysis result instance.
-This name may be used to populate your experiment database with the result.
+Note that ``x`` is the reserved name to represent a parameter
+that is scanned during the experiment. In above example, the fit function
+consists of three parameters (``amp``, ``alpha``, ``base``), and ``exp`` indicates
+a universal function in Python's math module.
+Alternatively, you can take a callable to define the model object.
 
-Optionally you can set ``model_description`` which is a string representation of your
-fitting model that will be passed to the analysis result as a part of metadata.
-This instance should be set to :attr:`CurveAnalysis.__series__` as a python list.
+.. code-block:: python3
+
+    import lmfit
+    import numpy as np
+
+    def exp_decay(x, amp, alpha, base):
+        return amp * np.exp(-alpha * x) + base
+
+    models = [lmfit.Model(func=exp_decay)]
+
+See `LMFIT`_ documentation for detailed user guide. They also provide preset models.
+
+If the :class:`.CurveAnalysis` is instantiated with multiple models,
+it internally builds a cost function to simultaneously minimize the residuals of
+all fit functions.
+The names of the parameters in the fit function are important since they are used
+in the analysis result, and potentially in your experiment database as a fit result.
 
 Here is another example how to implement multi-objective optimization task:
 
 .. code-block:: python3
 
-    [
-        SeriesDef(
+    import lmfit
+
+    models = [
+        lmfit.models.ExpressionModel(
+            expr="amp * exp(-alpha1 * x) + base",
             name="my_experiment1",
-            fit_func=lambda x, p0, p1, p2, p3: fit_function.exponential_decay(
-                x, amp=p0, lamb=p1, baseline=p3
-            ),
-            filter_kwargs={"tag": 1},
-            plot_color="red",
-            plot_symbol="^",
+            data_sort_key={"tag": 1},
         ),
-        SeriesDef(
+        lmfit.models.ExpressionModel(
+            expr="amp * exp(-alpha2 * x) + base",
             name="my_experiment2",
-            fit_func=lambda x, p0, p1, p2, p3: fit_function.exponential_decay(
-                x, amp=p0, lamb=p2, baseline=p3
-            ),
-            filter_kwargs={"tag": 2},
-            plot_color="blue",
-            plot_symbol="o",
+            data_sort_key={"tag": 2},
         ),
     ]
 
-Note that now you also need to provide ``name`` and ``filter_kwargs`` to
-distinguish the entries and filter the corresponding dataset from the experiment data.
-Optionally, you can provide ``plot_color`` and ``plot_symbol`` to visually
-separate two curves in the plot. In this model, you have 4 parameters ``[p0, p1, p2, p3]``
-and the two curves share ``p0`` (``p3``) for ``amp`` (``baseline``) of
-the :func:`exponential_decay` fit function.
+Note that now you need to provide ``data_sort_key`` which is unique argument to
+Qiskit curve analysis. This specifies the metadata of your experiment circuit
+that is tied to the fit model. If multiple models are provided without this option,
+the curve fitter cannot prepare data to fit.
+In this model, you have four parameters (``amp``, ``alpha1``, ``alpha2``, ``base``)
+and the two curves share ``amp`` (``base``) for the amplitude (baseline) in
+the exponential decay function.
 Here one should expect the experiment data will have two classes of data with metadata
 ``"tag": 1`` and ``"tag": 2`` for ``my_experiment1`` and ``my_experiment2``, respectively.
 
@@ -188,30 +197,25 @@ By using this model, one can flexibly set up your fit model. Here is another exa
 
 .. code-block:: python3
 
-    [
-        SeriesDef(
+    import lmfit
+
+    models = [
+        lmfit.models.ExpressionModel(
+            expr="amp * cos(2 * pi * freq * x + phi) + base",
             name="my_experiment1",
-            fit_func=lambda x, p0, p1, p2, p3: fit_function.cos(
-                x, amp=p0, freq=p1, phase=p2, baseline=p3
-            ),
-            filter_kwargs={"tag": 1},
-            plot_color="red",
-            plot_symbol="^",
+            data_sort_key={"tag": 1},
         ),
-        SeriesDef(
+        lmfit.models.ExpressionModel(
+            expr="amp * sin(2 * pi * freq * x + phi) + base",
             name="my_experiment2",
-            fit_func=lambda x, p0, p1, p2, p3: fit_function.sin(
-                x, amp=p0, freq=p1, phase=p2, baseline=p3
-            ),
-            filter_kwargs={"tag": 2},
-            plot_color="blue",
-            plot_symbol="o",
+            data_sort_key={"tag": 2},
         ),
     ]
 
-You have the same set of fit parameters for two curves, but now you fit two datasets
+You have the same set of fit parameters in two models, but now you fit two datasets
 with different trigonometric functions.
 
+.. _LMFIT: https://lmfit.github.io/lmfit-py/intro.html
 
 .. _curve_analysis_fixed_param:
 
@@ -227,37 +231,38 @@ a particular analysis class.
 
     class AnalysisA(CurveAnalysis):
 
-        __series__ = [
-            SeriesDef(
-                fit_func=lambda x, p0, p1, p2: fit_function.exponential_decay(
-                    x, amp=p0, lamb=p1, baseline=p2
-                ),
-            ),
-        ]
+        def __init__(self):
+            super().__init__(
+                models=[
+                    lmfit.models.ExpressionModel(
+                        expr="amp * exp(-alpha * x) + base", name="my_model"
+                    )
+                ]
+            )
 
     class AnalysisB(AnalysisA):
 
         @classmethod
         def _default_options(cls) -> Options:
             options = super()._default_options()
-            options.fixed_parameters = {"p0": 3.0}
+            options.fixed_parameters = {"amp": 3.0}
 
             return options
 
-The parameter specified in ``fixed_parameters`` is exluded from the fitting.
+The parameter specified in ``fixed_parameters`` is excluded from the fitting.
 This code will give you identical fit model to the one defined in the following class:
 
 .. code-block:: python3
 
     class AnalysisB(CurveAnalysis):
 
-        __series__ = [
-            SeriesDef(
-                fit_func=lambda x, p1, p2: fit_function.exponential_decay(
-                    x, amp=3.0, lamb=p1, baseline=p2
-                ),
-            ),
-        ]
+        super().__init__(
+            models=[
+                lmfit.models.ExpressionModel(
+                    expr="3.0 * exp(-alpha * x) + base", name="my_model"
+                )
+            ]
+        )
 
 However, note that you can also inherit other features, e.g. the algorithm to
 generate initial guesses for parameters, from the :class:`AnalysisA` in the first example.
@@ -277,7 +282,8 @@ This workflow is defined in the method :meth:`CurveAnalysis._run_analysis`.
 Curve analysis calls :meth:`_initialization` method where it initializes
 some internal states and optionally populate analysis options
 with the input experiment data.
-In some case it may train the data processor with fresh outcomes.
+In some case it may train the data processor with fresh outcomes,
+or dynamically generate the fit models (``self._models``) with fresh analysis options.
 A developer can override this method to perform initialization of analysis-specific variables.
 
 2. Data processing
@@ -302,7 +308,7 @@ A developer usually override this method to provide better initial guess
 tailored to the defined fit model or type of the associated experiment.
 See :ref:`curve_analysis_init_guess` for more details.
 A developer can also override the entire :meth:`_run_curve_fit` method to apply
-custom fitting algorithms. This method must return :class:`FitData` dataclass.
+custom fitting algorithms. This method must return :class:`.CurveFitResult` dataclass.
 
 4. Post processing
 
@@ -332,7 +338,7 @@ Each boundary value can be a tuple of float representing min and max value.
 
 Apart from user provided guesses, the analysis can systematically generate
 those values with the method :meth:`_generate_fit_guesses` which is called with
-:class:`CurveData` dataclass. If the analysis contains multiple series definitions,
+:class:`CurveData` dataclass. If the analysis contains multiple models definitions,
 we can get the subset of curve data with :meth:`CurveData.get_subset_of` with
 the name of the series.
 A developer can implement the algorithm to generate initial guesses and boundaries
@@ -384,8 +390,9 @@ Evaluate Fit Quality
 
 A subclass can override :meth:`_evaluate_quality` method to
 provide an algorithm to evaluate quality of the fitting.
-This method is called with the :class:`FitData` object which contains
-fit parameters and the reduced chi-squared value.
+This method is called with the :class:`.CurveFitResult` object which contains
+fit parameters and the reduced chi-squared value,
+in addition to the several statistics on the fitting.
 Qiskit Experiments often uses the empirical criterion chi-squared < 3 as a good fitting.
 
 
@@ -395,9 +402,7 @@ Curve Analysis Results
 ======================
 
 Once the best fit parameters are found, the :meth:`_create_analysis_results` method is
-called with the same :class:`FitData` object.
-By default :class:`CurveAnalysis` only creates a single entry ``@Parameters_<name_of_analysis>``.
-This entry consists of fit parameter values with statistical information of the fitting.
+called with the same :class:`.CurveFitResult` object.
 
 If you want to create an analysis result entry for the particular parameter,
 you can override the analysis options ``result_parameters``.
@@ -429,8 +434,8 @@ This can be done by overriding the :meth:`_create_analysis_results` method.
 
         outcomes = super()._create_analysis_results(fit_data, **metadata)
 
-        p0 = fit_data.fitval("p0")
-        p1 = fit_data.fitval("p1")
+        p0 = fit_data.ufloat_params["p0"]
+        p1 = fit_data.ufloat_params["p1"]
 
         extra_entry = AnalysisResultData(
             name="p01",
@@ -442,7 +447,7 @@ This can be done by overriding the :meth:`_create_analysis_results` method.
 
         return outcomes
 
-Note that both ``p0`` and ``p1`` are `ufloat`_ object consisting of
+Note that both ``p0`` and ``p1`` are `UFloat`_ object consisting of
 a nominal value and an error value which assumes the standard deviation.
 Since this object natively supports error propagation,
 you don't need to manually recompute the error of new value.
@@ -471,7 +476,7 @@ Data Classes
 
     SeriesDef
     CurveData
-    FitData
+    CurveFitResult
     ParameterRepr
     FitOptions
 
@@ -534,11 +539,23 @@ Utilities
 .. autosummary::
     :toctree: ../stubs/
 
-    is_error_not_significant
+    utils.is_error_not_significant
+    utils.analysis_result_to_repr
+    utils.colors10
+    utils.symbols10
+    utils.convert_lmfit_result
+    utils.eval_with_uncertainties
 """
 from .base_curve_analysis import BaseCurveAnalysis
-from .curve_analysis import CurveAnalysis, is_error_not_significant
-from .curve_data import CurveData, SeriesDef, FitData, ParameterRepr, FitOptions
+from .curve_analysis import CurveAnalysis
+from .curve_data import (
+    CurveData,
+    CurveFitResult,
+    FitData,
+    FitOptions,
+    ParameterRepr,
+    SeriesDef,
+)
 from .curve_fit import (
     curve_fit,
     multi_curve_fit,
@@ -548,6 +565,7 @@ from .curve_fit import (
 from .visualization import BaseCurveDrawer, MplCurveDrawer
 from . import guess
 from . import fit_function
+from . import utils
 
 # standard analysis
 from .standard_analysis import (

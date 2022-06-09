@@ -14,6 +14,7 @@
 
 from typing import List, Union
 
+import lmfit
 import numpy as np
 
 import qiskit_experiments.curve_analysis as curve
@@ -78,21 +79,15 @@ class ErrorAmplificationAnalysis(curve.CurveAnalysis):
 
     """
 
-    __series__ = [
-        curve.SeriesDef(
-            # pylint: disable=line-too-long
-            fit_func=lambda x, amp, d_theta, phase_offset, base, angle_per_gate: curve.fit_function.cos(
-                x,
-                amp=0.5 * amp,
-                freq=(d_theta + angle_per_gate) / (2 * np.pi),
-                phase=-phase_offset,
-                baseline=base,
-            ),
-            plot_color="blue",
-            model_description=r"\frac{{\rm amp}}{2}\cos\left(x[{\rm d}\theta + {\rm apg} ] "
-            r"+ {\rm phase\_offset}\right)+{\rm base}",
+    def __init__(self):
+        super().__init__(
+            models=[
+                lmfit.models.ExpressionModel(
+                    expr="amp / 2 * cos((d_theta + angle_per_gate) * x - phase_offset) + base",
+                    name="ping_pong",
+                )
+            ]
         )
-    ]
 
     @classmethod
     def _default_options(cls):
@@ -182,7 +177,7 @@ class ErrorAmplificationAnalysis(curve.CurveAnalysis):
 
         return options
 
-    def _evaluate_quality(self, fit_data: curve.FitData) -> Union[str, None]:
+    def _evaluate_quality(self, fit_data: curve.CurveFitResult) -> Union[str, None]:
         """Algorithmic criteria for whether the fit is good or bad.
 
         A good fit has:
@@ -190,7 +185,7 @@ class ErrorAmplificationAnalysis(curve.CurveAnalysis):
             - a measured angle error that is smaller than the allowed maximum good angle error.
               This quantity is set in the analysis options.
         """
-        fit_d_theta = fit_data.fitval("d_theta")
+        fit_d_theta = fit_data.ufloat_params["d_theta"]
 
         criteria = [
             fit_data.reduced_chisq < 3,
