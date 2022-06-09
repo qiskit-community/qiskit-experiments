@@ -15,11 +15,12 @@ Test T1 experiment
 
 from test.base import QiskitExperimentsTestCase
 import numpy as np
+from qiskit_ibm_experiment import IBMExperimentService
 from qiskit_experiments.framework import ExperimentData, ParallelExperiment
 from qiskit_experiments.library import T1
 from qiskit_experiments.library.characterization import T1Analysis
 from qiskit_experiments.test.t1_backend import T1Backend
-from qiskit_experiments.test.fake_service import FakeService
+
 
 
 class TestT1(QiskitExperimentsTestCase):
@@ -52,7 +53,7 @@ class TestT1(QiskitExperimentsTestCase):
         self.assertAlmostEqual(res.value.n, t1, delta=3)
         self.assertEqual(res.extra["unit"], "s")
 
-        exp_data.service = FakeService()
+        exp_data.service = IBMExperimentService(local=True)
         exp_data.save()
         loaded_data = ExperimentData.load(exp_data.experiment_id, exp_data.service)
         exp_res = exp_data.analysis_results()
@@ -80,7 +81,7 @@ class TestT1(QiskitExperimentsTestCase):
             self.assertEqual(sub_res.quality, "good")
             self.assertAlmostEqual(sub_res.value.n, t1[i], delta=3)
 
-        res.service = FakeService()
+        res.service = IBMExperimentService(local=True)
         res.save()
         loaded_data = ExperimentData.load(res.experiment_id, res.service)
 

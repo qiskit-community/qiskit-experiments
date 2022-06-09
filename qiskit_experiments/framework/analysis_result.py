@@ -53,6 +53,12 @@ class AnalysisResult():
 
     _extra_data = {}
 
+    RESULT_QUALITY_TO_TEXT = {
+        ResultQuality.GOOD: "good",
+        ResultQuality.BAD: "bad",
+        ResultQuality.UNKNOWN: "unknown",
+    }
+
     def __init__(
         self,
         name: str = None,
@@ -122,6 +128,7 @@ class AnalysisResult():
         self._db_data = data
         new_device_components = [to_component(comp) for comp in self._db_data.device_components]
         self._db_data.device_components = new_device_components
+        self._db_data.quality = self.RESULT_QUALITY_TO_TEXT.get(self._db_data.quality, "unknown")
 
     @classmethod
     def default_source(cls) -> Dict[str, str]:

@@ -63,7 +63,7 @@ class TestAnalysisResult(QiskitExperimentsTestCase):
         result.service = service
         result.save()
         loaded_result = AnalysisResult.load(result_id=result.result_id, service=service)
-        self.assertEqual(result.__repr__(), loaded_result.__repr__())
+        self.assertEqual(repr(result), repr(loaded_result))
 
     def test_auto_save(self):
         """Test auto saving."""
