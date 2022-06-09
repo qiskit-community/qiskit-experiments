@@ -195,35 +195,12 @@ class AnalysisResult():
                 "Analysis result cannot be saved because no experiment service is available."
             )
             return
-        attempts = 0
-        success = False
-        is_new = not self._created_in_db
         try:
-            while attempts < 3 and not success:
-                attempts += 1
-                if is_new:
-                    try:
-                        self.service.create_analysis_result(
-                            self._db_data, json_encoder=self._json_encoder
-                        )
-                        success = True
-                        self._created_in_db = True
-                    except IBMExperimentEntryExists:
-                        is_new = False
-                else:
-                    try:
-                        self.service.update_analysis_result(
-                            self._db_data, json_encoder=self._json_encoder
-                        )
-                        success = True
-                    except IBMExperimentEntryNotFound:
-                        is_new = True
+            self.service.create_or_update_analysis_result(self._db_data, json_encoder=self._json_encoder, create=not self._created_in_db)
         except Exception:  # pylint: disable=broad-except
             # Don't fail the experiment just because its data cannot be saved.
             LOG.error("Unable to save the experiment data: %s", traceback.format_exc())
-
-        if not success:
-            LOG.error("Unable to save the experiment data:")
+        self._created_in_db = True
 
     def copy(self) -> "AnalysisResult":
         """Return a copy of the result with a new result ID"""
