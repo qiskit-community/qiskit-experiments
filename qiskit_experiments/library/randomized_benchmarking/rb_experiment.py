@@ -135,11 +135,12 @@ class StandardRB(BaseExperiment, RestlessMixin):
 
     def _build_rb_circuits_full_sampling(self, lengths, rng):
         all_rb_circuits = []
-
         for length in lengths:
-            rb_circ = QuantumCircuit(1)
+            # We define the circuit size here, for the layout that will
+            # be created later
+            max_qubit = max(self.physical_qubits) + 1
+            rb_circ = QuantumCircuit(max_qubit)
             random_samples = rng.integers(24, size=length)
-            print(random_samples)
 
             clifford_as_num = 0
             for i in range(length):
@@ -176,17 +177,17 @@ class StandardRB(BaseExperiment, RestlessMixin):
             """
         if self._full_sampling:
             return self._build_rb_circuits_full_sampling(lengths, rng)
+        print("not full sampling")
         all_rb_circuits = []
-        # length = lengths[-1] if self._full_sampling else sum(lengths)
         random_samples = rng.integers(24, size=lengths[-1])
         rand = random_samples[0]
         rand_index = 1
-
         # We define the circuit size here, for the layout that will
         # be created later
         max_qubit = max(self.physical_qubits) + 1
         circ = QuantumCircuit(max_qubit)
         # choose random clifford for the first element of the rb circuit
+
         circ.compose(self._transpiled_cliff_circuits[rand])
         circ.barrier(0)
         clifford_as_num = rand
@@ -331,6 +332,10 @@ class StandardRB(BaseExperiment, RestlessMixin):
                 circuits.append(rb_circ)
         return circuits
 
+    # This method does a quick layout to avoid calling 'transpile()' which is
+    # very costly in performance
+    # We simply copy the circuit to a new circuit where we define the mapping
+    # of the qubit to the single physical qubit that was requested by the user
     def _layout_for_rb_single_qubit(self):
         circuits = self.circuits()
         transpiled = []

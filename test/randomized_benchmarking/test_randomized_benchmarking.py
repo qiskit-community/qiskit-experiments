@@ -197,6 +197,7 @@ class TestStandardRB(RBTestCase):
         exp1 = rb.StandardRB(
             qubits=(0,),
             lengths=[10, 20, 30],
+            num_samples = 1,
             seed=123,
             backend=self.backend,
             full_sampling=False,
@@ -204,6 +205,7 @@ class TestStandardRB(RBTestCase):
         exp2 = rb.StandardRB(
             qubits=(0,),
             lengths=[10, 20, 30],
+            num_samples=1,
             seed=123,
             backend=self.backend,
             full_sampling=True,
