@@ -192,7 +192,32 @@ class TestStandardRB(RBTestCase):
         self.assertEqual(circs1[1].decompose(), circs2[1].decompose())
         self.assertEqual(circs1[2].decompose(), circs2[2].decompose())
 
-    def test_full_sampling(self):
+    def test_full_sampling_single_qubit(self):
+        """Test if full sampling generates different circuits."""
+        exp1 = rb.StandardRB(
+            qubits=(0,),
+            lengths=[10, 20, 30],
+            seed=123,
+            backend=self.backend,
+            full_sampling=False,
+        )
+        exp2 = rb.StandardRB(
+            qubits=(0,),
+            lengths=[10, 20, 30],
+            seed=123,
+            backend=self.backend,
+            full_sampling=True,
+        )
+        circs1 = exp1.circuits()
+        circs2 = exp2.circuits()
+
+        self.assertEqual(circs1[0].decompose(), circs2[0].decompose())
+
+        # fully sampled circuits are regenerated while other is just built on top of previous length
+        self.assertNotEqual(circs1[1].decompose(), circs2[1].decompose())
+        self.assertNotEqual(circs1[2].decompose(), circs2[2].decompose())
+
+    def test_full_sampling_2_qubits(self):
         """Test if full sampling generates different circuits."""
         exp1 = rb.StandardRB(
             qubits=(0, 1),
