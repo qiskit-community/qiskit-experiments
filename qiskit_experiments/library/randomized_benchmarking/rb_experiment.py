@@ -65,7 +65,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
         qubits: Sequence[int],
         lengths: Iterable[int],
         backend: Optional[Backend] = None,
-        num_samples: int = 3,
+        num_samples: int = 1,
         seed: Optional[Union[int, SeedSequence, BitGenerator, Generator]] = None,
         full_sampling: Optional[bool] = False,
     ):
@@ -135,11 +135,11 @@ class StandardRB(BaseExperiment, RestlessMixin):
 
     def _build_rb_circuits_full_sampling(self, lengths, rng):
         all_rb_circuits = []
+        max_qubit = max(self.physical_qubits) + 1
         for length in lengths:
             # We define the circuit size here, for the layout that will
             # be created later
-            max_qubit = max(self.physical_qubits) + 1
-            rb_circ = QuantumCircuit(max_qubit)
+            rb_circ = QuantumCircuit(max_qubit, 1)
             random_samples = rng.integers(24, size=length)
 
             clifford_as_num = 0
@@ -155,13 +155,13 @@ class StandardRB(BaseExperiment, RestlessMixin):
             inverse_clifford_num = CLIFF_INVERSE_DATA[clifford_as_num]
             # append the inverse
             rb_circ.compose(self._transpiled_cliff_circuits[inverse_clifford_num], inplace=True)
-            rb_circ.measure_all()
+            rb_circ.measure(0, 0)
 
             rb_circ.metadata = {
                 "experiment_type": "rb",
-                "xval": length + 1,
+                "xval": length,
                 "group": "Clifford",
-                "physical_qubits": 0,
+                "physical_qubits": self.physical_qubits,
             }
             all_rb_circuits.append(rb_circ)
         return all_rb_circuits
@@ -180,64 +180,34 @@ class StandardRB(BaseExperiment, RestlessMixin):
         print("not full sampling")
         all_rb_circuits = []
         random_samples = rng.integers(24, size=lengths[-1])
-        rand = random_samples[0]
-        rand_index = 1
-        # We define the circuit size here, for the layout that will
-        # be created later
         max_qubit = max(self.physical_qubits) + 1
-        circ = QuantumCircuit(max_qubit)
-        # choose random clifford for the first element of the rb circuit
-
-        circ.compose(self._transpiled_cliff_circuits[rand])
-        circ.barrier(0)
-        clifford_as_num = rand
-
-        prev_length = 2
-        if lengths[0] == 1:
-            # rb_circ will be the final circuit of length 1
-            # If full_sampling==False:
-            #    - circ will be used as the prefix of the next circuits
-            #    - prev_lengths indicates how many Cliffords were in the previous rb_circ
-
-            rb_circ = circ.copy()
-            inverse_num = CLIFF_INVERSE_DATA[rand]
-            inverse_circ = self._transpiled_cliff_circuits[inverse_num]
-            rb_circ.compose(inverse_circ, inplace=True)
-            rb_circ.measure_all()
-            rb_circ.metadata = {
-                "experiment_type": "rb",
-                "xval": 2,
-                "group": "Clifford",
-                "physical_qubits": 0,
-            }
+        circ = QuantumCircuit(max_qubit, 1)
+        clifford_as_num = 0   # 0 is the Clifford that is Id
+        prev_length = 0
 
         for length in lengths:
-            for i in range(prev_length, length + 1):
-                if i == 0:
-                    circ = QuantumCircuit(1)
-                rand = random_samples[rand_index]
+            for i in range(prev_length, length):
+                rand = random_samples[i]
                 # choose random clifford
                 next_circ = self._transpiled_cliff_circuits[rand]
-                rand_index += 1
                 circ.compose(next_circ, inplace=True)
                 circ.barrier(0)
                 clifford_as_num = CLIFF_COMPOSE_DATA[(clifford_as_num, rand)]
-                if i == length:
+                if i == length-1:
                     rb_circ = circ.copy()    # circ is used as the prefix of the next circuit
                     inverse_clifford_num = CLIFF_INVERSE_DATA[clifford_as_num]
                     # append the inverse
                     rb_circ.compose(self._transpiled_cliff_circuits[inverse_clifford_num], inplace=True)
-                    rb_circ.measure_all()
+                    rb_circ.measure(0, 0)
 
                     rb_circ.metadata = {
                         "experiment_type": "rb",
-                        "xval": length + 1,
+                        "xval": length,
                         "group": "Clifford",
-                        "physical_qubits": 0,
+                        "physical_qubits": self.physical_qubits,
                     }
-
+                    all_rb_circuits.append(rb_circ)
                 prev_length = i + 1
-            all_rb_circuits.append(rb_circ)
         return all_rb_circuits
 
     def circuits(self) -> List[QuantumCircuit]:
