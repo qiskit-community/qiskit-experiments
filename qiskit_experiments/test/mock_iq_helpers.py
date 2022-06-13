@@ -119,7 +119,9 @@ class MockIQParallelExperimentHelper(MockIQExperimentHelper):
 
         Raises:
             ValueError: Raised if the list are empty or if they don't have the same length.
-            QiskitError: Raised if the is `MockIQParallelExperimentHelper` object in `exp_helper_list`.
+            QiskitError: Raised if `exp_helper_list` contains an object of type
+                `MockIQParallelExperimentHelper`, because the parallel mock backend currently does not
+                support parallel sub-experiments.`.
 
         Examples:
 
@@ -261,7 +263,7 @@ class MockIQParallelExperimentHelper(MockIQExperimentHelper):
             # initialize quantum circuit for each experiment for this instance of circuit to fill
             # with instructions.
             for exp_circuit in exp_circuits_list:
-                # we copy the circuit to ensure that the circuit properties (e.g. calibration and qubits
+                # we copy the circuit to ensure that the circuit properties (e.g. calibrations and qubit
                 # frequencies) are the same in the new circuit.
                 qcirc = qc.copy()
                 qcirc.data.clear()

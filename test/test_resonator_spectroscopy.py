@@ -145,9 +145,6 @@ class TestResonatorSpectroscopy(QiskitExperimentsTestCase):
         # setting the helper into the backend
         parallel_backend.experiment_helper = parallel_helper
 
-        # updating the experiment helper list
-        parallel_helper.exp_list = exp_list
-
         par_experiment = ParallelExperiment(exp_list, backend=parallel_backend)
         par_experiment.set_run_options(meas_level=MeasLevel.KERNELED, meas_return="single")
 

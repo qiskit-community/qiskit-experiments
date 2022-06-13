@@ -174,7 +174,7 @@ class MockIQBackend(FakeOpenPulse2Q):
 
     def __init__(
         self,
-        experiment_helper: MockIQExperimentHelper,
+        experiment_helper: MockIQExperimentHelper = None,
         rng_seed: int = 0,
         iq_cluster_centers: Optional[List[Tuple[Tuple[float, float], Tuple[float, float]]]] = None,
         iq_cluster_width: Optional[List[float]] = None,
@@ -194,7 +194,7 @@ class MockIQBackend(FakeOpenPulse2Q):
 
         self._iq_cluster_centers = iq_cluster_centers or [((-1.0, -1.0), (1.0, 1.0))]
         self._iq_cluster_width = iq_cluster_width or [1.0] * len(self._iq_cluster_centers)
-        self.experiment_helper = experiment_helper
+        self._experiment_helper = experiment_helper
         self._rng = np.random.default_rng(rng_seed)
 
         super().__init__()
@@ -206,6 +206,30 @@ class MockIQBackend(FakeOpenPulse2Q):
             meas_level=MeasLevel.KERNELED,
             meas_return="single",
         )
+
+    @property
+    def experiment_helper(self):
+        """return the 'experiment_helper' attribute"""
+        return self._experiment_helper
+
+    @experiment_helper.setter
+    def experiment_helper(self, value):
+        """
+        Setter for the experiment helper.
+        Args:
+            value(MockIQExperimentHelper): The helper for the backend to use for generating IQ shots.
+
+        Raises:
+            ValueError: Raised if the value to set is not of type `MockIQExperimentHelper`
+        """
+        cls = MockIQExperimentHelper
+        if not isinstance(value, cls):
+            raise ValueError(
+                "The input type is <{}> while the type expected type is <{}>.".format(
+                    str(type(value)), str(type(cls()))
+                )
+            )
+        self._experiment_helper = value
 
     @staticmethod
     def _verify_parameters(output_length: int, prob_dict: Dict[str, float]):
@@ -363,7 +387,13 @@ class MockIQBackend(FakeOpenPulse2Q):
 
         Returns:
             FakeJob: A job that contains the simulated data.
+
+        Raises:
+            QiskitError: Raised if the user try to run the experiment without setting a helper.
         """
+
+        if not self.experiment_helper:
+            raise QiskitError("The backend `experiment_helper` attribute cannot be 'None'.")
 
         self.options.update_options(**run_options)
         shots = self.options.get("shots")
@@ -415,6 +445,31 @@ class MockIQParallelBackend(MockIQBackend):
             each qubit.
         """
         super().__init__(experiment_helper, rng_seed, iq_cluster_centers, iq_cluster_width)
+
+    @property
+    def experiment_helper(self):
+        """return the 'experiment_helper' attribute"""
+        return self._experiment_helper
+
+    @experiment_helper.setter
+    def experiment_helper(self, value):
+        """
+        Setter for the experiment helper.
+        Args:
+            value(MockIQParallelExperimentHelper): The helper for the backend to use for generating IQ
+             shots.
+
+        Raises:
+            ValueError: Raised if the value to set is not of type `MockIQExperimentHelper`
+        """
+        cls = MockIQParallelExperimentHelper
+        if not isinstance(value, cls):
+            raise ValueError(
+                "The input type is <{}> while the type expected type is <{}>.".format(
+                    str(type(value)), str(cls)
+                )
+            )
+        self._experiment_helper = value
 
     def _parallel_draw_iq_shots(
         self,
