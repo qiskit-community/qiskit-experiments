@@ -25,6 +25,7 @@ from qiskit_experiments.test.mock_iq_backend import MockRestlessFineAmp
 from qiskit_experiments.data_processing.data_processor import DataProcessor
 from qiskit_experiments.data_processing.nodes import Probability
 from qiskit_experiments.framework import Options
+from qiskit_experiments.data_processing.exceptions import DataProcessorError
 
 
 @ddt
@@ -37,13 +38,16 @@ class TestFineAmpEndToEndRestless(QiskitExperimentsTestCase):
         error = -np.pi * 0.01
         backend = MockRestlessFineAmp(error, np.pi, "x")
 
+        with self.assertRaises(DataProcessorError):
+            FineXAmplitude(0, backend).enable_restless(rep_delay=2.0)
+
         amp_exp = FineXAmplitude(0, backend)
-        amp_exp.enable_restless(rep_delay=2e-6)
+        amp_exp.enable_restless(rep_delay=2.0, suppress_t1_error=True)
 
         self.assertTrue(
             amp_exp.run_options,
             Options(
-                meas_level=2, rep_delay=2e-6, init_qubits=False, memory=True, use_measure_esp=False
+                meas_level=2, rep_delay=2.0, init_qubits=False, memory=True, use_measure_esp=False
             ),
         )
 
@@ -66,7 +70,7 @@ class TestFineAmpEndToEndRestless(QiskitExperimentsTestCase):
         self.assertEqual(result.quality, "good")
 
         # check that the fit amplitude is almost 1 as expected.
-        amp_fit = expdata.analysis_results(0).value[0]
+        amp_fit = expdata.analysis_results(0).value.params["amp"]
         self.assertAlmostEqual(amp_fit, 1.0, delta=0.02)
 
     @data(-0.02, 0.04)
@@ -91,5 +95,5 @@ class TestFineAmpEndToEndRestless(QiskitExperimentsTestCase):
         self.assertTrue(abs(d_theta - error) > 0.01)
 
         # check that the fit amplitude is much smaller than 1.
-        amp_fit = expdata.analysis_results(0).value[0]
+        amp_fit = expdata.analysis_results(0).value.params["amp"]
         self.assertTrue(amp_fit < 0.05)

@@ -14,10 +14,10 @@
 
 from typing import List, Union
 
+import lmfit
 import numpy as np
 
 import qiskit_experiments.curve_analysis as curve
-from qiskit_experiments.curve_analysis import fit_function
 
 
 class RamseyXYAnalysis(curve.CurveAnalysis):
@@ -62,30 +62,21 @@ class RamseyXYAnalysis(curve.CurveAnalysis):
             bounds: [-min scan range, max scan range].
     """
 
-    __series__ = [
-        curve.SeriesDef(
-            fit_func=lambda x, amp, tau, freq, base, phase: fit_function.cos_decay(
-                x, amp=amp, tau=tau, freq=freq, phase=phase, baseline=base
-            ),
-            plot_color="blue",
-            name="X",
-            filter_kwargs={"series": "X"},
-            plot_symbol="o",
-            model_description=r"{\rm amp} e^{-x/\tau} \cos\left(2 \pi\cdot {\rm freq}\cdot x "
-            r"+ {\rm phase}) + {\rm base}",
-        ),
-        curve.SeriesDef(
-            fit_func=lambda x, amp, tau, freq, base, phase: fit_function.sin_decay(
-                x, amp=amp, tau=tau, freq=freq, phase=phase, baseline=base
-            ),
-            plot_color="green",
-            name="Y",
-            filter_kwargs={"series": "Y"},
-            plot_symbol="^",
-            model_description=r"{\rm amp} e^{-x/\tau} \sin\left(2 \pi\cdot {\rm freq}\cdot x "
-            r"+ {\rm phase}\right) + {\rm base}",
-        ),
-    ]
+    def __init__(self):
+        super().__init__(
+            models=[
+                lmfit.models.ExpressionModel(
+                    expr="amp * exp(-x / tau) * cos(2 * pi * freq * x + phase) + base",
+                    name="X",
+                    data_sort_key={"series": "X"},
+                ),
+                lmfit.models.ExpressionModel(
+                    expr="amp * exp(-x / tau) * sin(2 * pi * freq * x + phase) + base",
+                    name="Y",
+                    data_sort_key={"series": "Y"},
+                ),
+            ]
+        )
 
     @classmethod
     def _default_options(cls):
@@ -156,18 +147,18 @@ class RamseyXYAnalysis(curve.CurveAnalysis):
 
         return [opt_fp, opt_fm]
 
-    def _evaluate_quality(self, fit_data: curve.FitData) -> Union[str, None]:
+    def _evaluate_quality(self, fit_data: curve.CurveFitResult) -> Union[str, None]:
         """Algorithmic criteria for whether the fit is good or bad.
 
         A good fit has:
             - a reduced chi-squared lower than three,
             - an error on the frequency smaller than the frequency.
         """
-        fit_freq = fit_data.fitval("freq")
+        fit_freq = fit_data.ufloat_params["freq"]
 
         criteria = [
             fit_data.reduced_chisq < 3,
-            curve.is_error_not_significant(fit_freq),
+            curve.utils.is_error_not_significant(fit_freq),
         ]
 
         if all(criteria):

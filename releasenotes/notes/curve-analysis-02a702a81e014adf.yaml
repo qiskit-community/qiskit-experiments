@@ -1,0 +1,78 @@
+---
+features:
+  - |
+    The :class:`.CurveAnalysis` has been modified to delegate the core fitting functionality to the
+    `LMFIT <https://lmfit.github.io/lmfit-py/>`_ package. Fit curves are specified using
+    `LMFIT Model <https://lmfit.github.io/lmfit-py/model.html#>`_ objects. For multi-curve fitting
+    a list of models can be used.
+    
+    A new analysis option ``fit_method`` has been added to allow a user to select the fitting 
+    algorithm used by the LMFit `minimizer <https://lmfit.github.io/lmfit-py/fitting.html>`_.
+    The default fit method is ``"least_squares"``.
+    Analysis class author can flexibly define new analysis instance
+    with LMFIT ``Model`` objects. See LMFIT documentation for user guide.
+  - |
+    New options have been added to to the :class:`.CurveAnaysis` curve drawer.
+    
+    -|
+      ``figure_title`` has been added. This allows user to show an arbitrary string 
+      in the output figure title. See the example code below to learn how to set the option.
+      
+      .. code-block:: python
+      
+        exp = MyExperiment(...)
+        exp.analysis.drawer.set_options(figure_title="Qubit0")
+
+    - |
+      ``plot_options`` has been added. This was conventionally included
+      in the :class:`SeriesDef` dataclass, which was static and not configurable. 
+      Now end-user can update visual representation of curves through this option.
+      This option is a dictionary that defines three properties, for example,
+      
+      .. code-block:: python
+      
+        exp = MyExperiment(...)
+        exp.analysis.drawer.set_options(
+          plot_option={
+            "curve1": {"color": "r", "symbol": "o", "canvas": 0},
+            "curve2": {"color": "b", "symbol": "x", "canvas": 1},
+          }
+        )  
+      
+      The dictionary is keyed on the curve name that should match with the ``name`` property
+      of the LMFIT models provided to the curve analysis. ``color`` and ``symbol`` are the
+      color and marker of the curves and the scatter plots, respectively. 
+      ``canvas`` specifies the sub-axis index, which is available when multi-axis plot is enabled.
+
+upgrade:
+  - |
+    A new result class :class:`.CurveFitResult` is introduced. 
+    This class stores a richer context of curve fitting overview with several extra statistics.
+    This is the minimum attributes of the LMFIT ``MinimizerResult`` with some extention.
+    Fit parameters in UFloat representation are also stored while keeping
+    the correlation information, which is accessible with the ``.ufloat_params`` property.
+    Note that the value of the first analysis result entry titled with ``@Parameters_*`` 
+    has been replaced with this data format. This entry had been just a list of fit values 
+    in Python float format with covariance matrix separately stored in ``.extra`` metadata.
+    Comparing with the conventional data, new class :class:`.CurveFitResult` provides users with 
+    a better understanding of the analysis outcome. New object has prettyprint mechanism.
+  - |
+    :class:`RoughDrag` characterization experiment has been upgraded with more flexibility.
+    This experiment combines multiple DRAG parameter scans (curves) for different unit sequence
+    reptitions. Conventionally this number is limited to three curves, however, now we can define
+    more than three curves. The corresponding fit model is dynamically generated
+    based on new fit option ``reps`` in the associated analysis :class:`DragCalAnalysis`.
+    This may sometimes provide better accuracy for estimating the DRAG ``beta`` parameter.
+deprecations:
+  - |
+    Multiple methods, classes and functions in curve analysis have been deprecated and
+    replaced with using functionality of the LMFIT library. These include:
+    - |
+      Curve fit solver :func:`.curve_fit` and :func:`.multi_curve_fit`
+    - |
+      Dataclass of the curve fit result :func:`.FitData`
+    - |
+      Some fit functions dedicated to a particular curve analysis in the module
+      :mod:`~qiskit_experiments.curve_analysis.fit_function`.
+      Now curve analysis author can define arbitrary fit functions callable or string
+      with LMFIT models, not limited to functions in this module.
