@@ -136,13 +136,26 @@ class FigureData:
         """Creates a new figure data object"""
         self.figure = figure
         self._name = name
-        self.metadata = metadata if metadata is not None else {}
+        self.metadata = metadata or {}
 
     # name is read only
     @property
-    def name(self):
+    def name(self) -> str:
         """The name of the figure"""
         return self._name
+
+    @property
+    def metadata(self) -> dict:
+        """The metadata dictionary stored with the figure"""
+        return self._metadata
+
+    @metadata.setter
+    def metadata(self, new_metadata: dict):
+        """Set the metadata to new value; must be a dictionary"""
+        if not isinstance(new_metadata, dict):
+            raise ValueError("figure metadata must be a dictionary")
+        self._metadata = new_metadata
+
 
     def copy(self, new_name: Optional[str] = None):
         """Creates a deep copy of the figure data"""

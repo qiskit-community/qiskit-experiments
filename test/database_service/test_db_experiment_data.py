@@ -362,6 +362,14 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         # name should change
         self.assertEqual(figure_data.name, "new_name.svg")
 
+        # can set the metadata to new dictionary
+        figure_data.metadata = {"bar": "foo"}
+        self.assertEqual(figure_data.metadata['bar'], 'foo')
+
+        # cannot set the metadata to something other than dictionary
+        with self.assertRaises(ValueError):
+            figure_data.metadata = ["foo", "bar"]
+
     def test_add_figure_bad_input(self):
         """Test adding figures with bad input."""
         exp_data = DbExperimentData(backend=self.backend, experiment_type="qiskit_test")
