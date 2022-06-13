@@ -159,8 +159,8 @@ class FigureData:
 
     def copy(self, new_name: Optional[str] = None):
         """Creates a deep copy of the figure data"""
-        name = new_name if new_name is not None else self.name
-        return FigureData(figure=self.figure, name=name, metadata=copy.deepcopy(self.metadata))
+        name = new_name or self.name
+        return FigureData(figure=copy.deepcopy(self.figure), name=name, metadata=copy.deepcopy(self.metadata))
 
     def __json_encode__(self) -> Dict[str, Any]:
         """Return the json representation of the figure data"""
