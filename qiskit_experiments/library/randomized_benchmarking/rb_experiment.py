@@ -133,83 +133,6 @@ class StandardRB(BaseExperiment, RestlessMixin):
 
         return options
 
-    def _build_rb_circuits_full_sampling(self, lengths, rng):
-        all_rb_circuits = []
-        max_qubit = max(self.physical_qubits) + 1
-        for length in lengths:
-            # We define the circuit size here, for the layout that will
-            # be created later
-            rb_circ = QuantumCircuit(max_qubit, 1)
-            random_samples = rng.integers(24, size=length)
-
-            clifford_as_num = 0
-            for i in range(length):
-                # choose random clifford
-                rand = random_samples[i]
-                next_circ = self._transpiled_cliff_circuits[rand].copy()
-
-                rb_circ.compose(next_circ, inplace=True)
-                rb_circ.barrier(0)
-                clifford_as_num = CLIFF_COMPOSE_DATA[(clifford_as_num, rand)]
-
-            inverse_clifford_num = CLIFF_INVERSE_DATA[clifford_as_num]
-            # append the inverse
-            rb_circ.compose(self._transpiled_cliff_circuits[inverse_clifford_num], inplace=True)
-            rb_circ.measure(0, 0)
-
-            rb_circ.metadata = {
-                "experiment_type": "rb",
-                "xval": length,
-                "group": "Clifford",
-                "physical_qubits": self.physical_qubits,
-            }
-            all_rb_circuits.append(rb_circ)
-        return all_rb_circuits
-
-    def build_rb_circuits(self, lengths, rng):
-        """
-            build_rb_circuits
-            Args:
-                    qubits: list of physical qubits for the experiment.
-                    lengths: A list of RB sequence lengths. We create random circuits
-                             where the number of cliffords in each is in lengths.
-                    backend: The backend to run the experiment on.
-            """
-        if self._full_sampling:
-            return self._build_rb_circuits_full_sampling(lengths, rng)
-        print("not full sampling")
-        all_rb_circuits = []
-        random_samples = rng.integers(24, size=lengths[-1])
-        max_qubit = max(self.physical_qubits) + 1
-        circ = QuantumCircuit(max_qubit, 1)
-        clifford_as_num = 0   # 0 is the Clifford that is Id
-        prev_length = 0
-
-        for length in lengths:
-            for i in range(prev_length, length):
-                rand = random_samples[i]
-                # choose random clifford
-                next_circ = self._transpiled_cliff_circuits[rand]
-                circ.compose(next_circ, inplace=True)
-                circ.barrier(0)
-                clifford_as_num = CLIFF_COMPOSE_DATA[(clifford_as_num, rand)]
-                if i == length-1:
-                    rb_circ = circ.copy()    # circ is used as the prefix of the next circuit
-                    inverse_clifford_num = CLIFF_INVERSE_DATA[clifford_as_num]
-                    # append the inverse
-                    rb_circ.compose(self._transpiled_cliff_circuits[inverse_clifford_num], inplace=True)
-                    rb_circ.measure(0, 0)
-
-                    rb_circ.metadata = {
-                        "experiment_type": "rb",
-                        "xval": length,
-                        "group": "Clifford",
-                        "physical_qubits": self.physical_qubits,
-                    }
-                    all_rb_circuits.append(rb_circ)
-                prev_length = i + 1
-        return all_rb_circuits
-
     def circuits(self) -> List[QuantumCircuit]:
         """Return a list of RB circuits.
 
@@ -221,7 +144,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
         circuits = []
         for _ in range(self.experiment_options.num_samples):
             if self.num_qubits == 1:
-                circuits = self.build_rb_circuits(self.experiment_options.lengths, rng)
+                circuits = self._build_rb_circuits(self.experiment_options.lengths, rng)
             else:
                 circuits += self._sample_circuits(self.experiment_options.lengths, rng)
         end = time.time()
@@ -302,10 +225,96 @@ class StandardRB(BaseExperiment, RestlessMixin):
                 circuits.append(rb_circ)
         return circuits
 
+    def _build_rb_circuits(self, lengths, rng):
+        """
+            build_rb_circuits
+            Args:
+                    lengths: A list of RB sequence lengths. We create random circuits
+                             where the number of cliffords in each is in lengths.
+                    rng: Generator object for random number generation.
+                         If None, default_rng will be used.
+            To create the RB circuit, we use a mapping between Cliffords and integers
+            defined in the file clifford_data.py. The operations compose and inverse  are much faster
+            when performed on the integers rather than on the Cliffords.
+            """
+        if self._full_sampling:
+            return self._build_rb_circuits_full_sampling(lengths, rng)
+        print("not full sampling")
+        all_rb_circuits = []
+        random_samples = rng.integers(24, size=lengths[-1])
+        max_qubit = max(self.physical_qubits) + 1
+
+        # When full_sampling==False, each circuit is the prefix of the next circuit (without the
+        # inverse Clifford at the end of the circuit. The variable 'circ' will contain the growing circuit.
+        # When each circuit reaches its length, we copy it to rb_circ, append the inverse,
+        # and add it to the list of circuits.
+        circ = QuantumCircuit(max_qubit, 1)
+        clifford_as_num = 0   # 0 is the Clifford that is Id
+        prev_length = 0
+
+        for length in lengths:
+            for i in range(prev_length, length):
+                rand = random_samples[i]
+                # choose random clifford
+                next_circ = self._transpiled_cliff_circuits[rand]
+                circ.compose(next_circ, inplace=True)
+                circ.barrier(0)
+                clifford_as_num = CLIFF_COMPOSE_DATA[(clifford_as_num, rand)]
+                if i == length-1:
+                    rb_circ = circ.copy()    # circ is used as the prefix of the next circuit
+                    inverse_clifford_num = CLIFF_INVERSE_DATA[clifford_as_num]
+                    # append the inverse
+                    rb_circ.compose(self._transpiled_cliff_circuits[inverse_clifford_num], inplace=True)
+                    rb_circ.measure(0, 0)
+
+                    rb_circ.metadata = {
+                        "experiment_type": "rb",
+                        "xval": length,
+                        "group": "Clifford",
+                        "physical_qubits": self.physical_qubits,
+                    }
+                    all_rb_circuits.append(rb_circ)
+                prev_length = i + 1
+        return all_rb_circuits
+
+    def _build_rb_circuits_full_sampling(self, lengths, rng):
+        all_rb_circuits = []
+        max_qubit = max(self.physical_qubits) + 1
+        for length in lengths:
+            # We define the circuit size here, for the layout that will
+            # be created later
+            rb_circ = QuantumCircuit(max_qubit, 1)
+            random_samples = rng.integers(24, size=length)
+            # For full_sampling, we create each circuit independently.
+            clifford_as_num = 0
+            for i in range(length):
+                # choose random clifford
+                rand = random_samples[i]
+                next_circ = self._transpiled_cliff_circuits[rand].copy()
+
+                rb_circ.compose(next_circ, inplace=True)
+                rb_circ.barrier(0)
+                clifford_as_num = CLIFF_COMPOSE_DATA[(clifford_as_num, rand)]
+
+            inverse_clifford_num = CLIFF_INVERSE_DATA[clifford_as_num]
+            # append the inverse
+            rb_circ.compose(self._transpiled_cliff_circuits[inverse_clifford_num], inplace=True)
+            rb_circ.measure(0, 0)
+
+            rb_circ.metadata = {
+                "experiment_type": "rb",
+                "xval": length,
+                "group": "Clifford",
+                "physical_qubits": self.physical_qubits,
+            }
+            all_rb_circuits.append(rb_circ)
+        return all_rb_circuits
+
     # This method does a quick layout to avoid calling 'transpile()' which is
     # very costly in performance
     # We simply copy the circuit to a new circuit where we define the mapping
     # of the qubit to the single physical qubit that was requested by the user
+    # This is a hack, and would be better if transpile() implemented it.
     def _layout_for_rb_single_qubit(self):
         circuits = self.circuits()
         transpiled = []
