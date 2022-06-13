@@ -26,6 +26,7 @@ from qiskit.quantum_info import Clifford
 
 from qiskit_experiments.library import randomized_benchmarking as rb
 from qiskit_experiments.database_service.exceptions import DbExperimentEntryNotFound
+from qiskit_experiments.framework.composite import ParallelExperiment
 
 
 class RBTestCase(QiskitExperimentsTestCase):
@@ -88,7 +89,6 @@ class TestStandardRB(RBTestCase):
             seed=123,
             backend=self.backend,
         )
-
         exp.analysis.set_options(gate_error_ratio=None)
         exp.set_transpile_options(**self.transpiler_options)
         #self.assertAllIdentity(exp.circuits())
@@ -108,8 +108,7 @@ class TestStandardRB(RBTestCase):
         print("epc = " + str(epc))
 
         epc_expected = 1 - (1 - 1 / 2 * self.p1q) ** 1.0
-        print("epc expected = " + str(epc_expected))
-        #self.assertAlmostEqual(epc.value.n, epc_expected, delta=0.1 * epc_expected)
+        self.assertAlmostEqual(epc.value.n, epc_expected, delta=0.1 * epc_expected)
         end = time.time()
         print("time for test_single_qubit = " + str(end - start))
 
@@ -290,6 +289,29 @@ class TestStandardRB(RBTestCase):
         self.assertRoundTripSerializable(expdata, check_func=self.experiment_data_equiv)
         self.assertRoundTripPickle(expdata, check_func=self.experiment_data_equiv)
 
+    def test_single_qubit_parallel(self):
+        """Test single qubit RB in parallel."""
+        qubits = [0, 2]
+        lengths = list(range(30, 301, 30))
+        exps = []
+        for qubit in qubits:
+            exp = rb.StandardRB(
+                qubits=[qubit],
+                lengths=lengths,
+                seed=123,
+                backend=self.backend,
+            )
+            exp.analysis.set_options(gate_error_ratio=None, plot_raw_data=False)
+            exps.append(exp)
+
+        par_exp = ParallelExperiment(exps)
+        par_exp.set_transpile_options(optimization_level=1)
+
+        par_expdata = par_exp.run(backend=self.backend)
+        epc_expected = 1 - (1 - 1 / 2 * self.p1q) ** 1.0
+        for i in range(2):
+            epc = par_expdata.child_data(i).analysis_results("EPC")
+            self.assertAlmostEqual(epc.value.n, epc_expected, delta=0.1 * epc_expected)
 
 @ddt
 class TestInterleavedRB(RBTestCase):
