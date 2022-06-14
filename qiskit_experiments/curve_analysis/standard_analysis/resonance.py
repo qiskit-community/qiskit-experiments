@@ -14,6 +14,7 @@
 
 from typing import List, Union
 
+import lmfit
 import numpy as np
 
 import qiskit_experiments.curve_analysis as curve
@@ -58,15 +59,15 @@ class ResonanceAnalysis(curve.CurveAnalysis):
 
     """
 
-    __series__ = [
-        curve.SeriesDef(
-            fit_func=lambda x, a, kappa, freq, b: curve.fit_function.sqrt_lorentzian(
-                x, amp=a, kappa=kappa, x0=freq, baseline=b
-            ),
-            plot_color="blue",
-            model_description=r"a |\kappa| / sqrt(kappa^2 + 4 * (x - x_0)^2) + b",
+    def __init__(self):
+        super().__init__(
+            models=[
+                lmfit.models.ExpressionModel(
+                    expr="a * abs(kappa) / sqrt(kappa**2 + 4 * (x - freq)**2) + b",
+                    name="lorentzian",
+                )
+            ]
         )
-    ]
 
     @classmethod
     def _default_options(cls) -> Options:
@@ -117,7 +118,7 @@ class ResonanceAnalysis(curve.CurveAnalysis):
 
         return user_opt
 
-    def _evaluate_quality(self, fit_data: curve.FitData) -> Union[str, None]:
+    def _evaluate_quality(self, fit_data: curve.CurveFitResult) -> Union[str, None]:
         """Algorithmic criteria for whether the fit is good or bad.
 
         A good fit has:
@@ -132,10 +133,10 @@ class ResonanceAnalysis(curve.CurveAnalysis):
         """
         freq_increment = np.mean(np.diff(fit_data.x_data))
 
-        fit_a = fit_data.fitval("a")
-        fit_b = fit_data.fitval("b")
-        fit_freq = fit_data.fitval("freq")
-        fit_kappa = fit_data.fitval("kappa")
+        fit_a = fit_data.ufloat_params["a"]
+        fit_b = fit_data.ufloat_params["b"]
+        fit_freq = fit_data.ufloat_params["freq"]
+        fit_kappa = fit_data.ufloat_params["kappa"]
 
         snr = abs(fit_a.n) / np.sqrt(abs(np.median(fit_data.y_data) - fit_b.n))
         fit_width_ratio = fit_kappa.n / np.ptp(fit_data.x_data)
@@ -145,7 +146,7 @@ class ResonanceAnalysis(curve.CurveAnalysis):
             1.5 * freq_increment < fit_kappa.n,
             fit_width_ratio < 0.25,
             fit_data.reduced_chisq < 3,
-            curve.is_error_not_significant(fit_kappa),
+            curve.utils.is_error_not_significant(fit_kappa),
             snr > 2,
         ]
 
