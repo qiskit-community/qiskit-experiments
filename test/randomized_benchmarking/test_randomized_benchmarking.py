@@ -88,6 +88,7 @@ class TestStandardRB(RBTestCase):
             lengths=list(range(1, 300, 30)),
             seed=123,
             backend=self.backend,
+            new_rb=True
         )
         exp.analysis.set_options(gate_error_ratio=None)
         exp.set_transpile_options(**self.transpiler_options)

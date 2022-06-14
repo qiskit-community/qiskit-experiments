@@ -176,7 +176,7 @@ class CurveAnalysis(BaseCurveAnalysis):
         self.__processed_data_set["raw_data"] = processed_data
 
         # Format data
-        formatted_data = self._format_data(processed_data)
+        formatted_data = self.format_data(processed_data)
         if self.options.plot:
             for model in self._models:
                 sub_data = formatted_data.get_subset_of(model._name)

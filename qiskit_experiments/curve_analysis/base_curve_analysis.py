@@ -265,7 +265,7 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
         """
         return user_opt
 
-    def _format_data(
+    def format_data(
         self,
         curve_data: CurveData,
     ) -> CurveData:

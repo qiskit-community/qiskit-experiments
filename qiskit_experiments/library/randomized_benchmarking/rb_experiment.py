@@ -68,6 +68,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
         num_samples: int = 1,
         seed: Optional[Union[int, SeedSequence, BitGenerator, Generator]] = None,
         full_sampling: Optional[bool] = False,
+        new_rb: Optional[bool] = True
     ):
         """Initialize a standard randomized benchmarking experiment.
 
@@ -93,12 +94,11 @@ class StandardRB(BaseExperiment, RestlessMixin):
 
         # Set fixed options
         self._full_sampling = full_sampling
+        self._new_rb = new_rb
         self._clifford_utils = CliffordUtils()
         start = time.time()
         basis_gates = ["rz", "sx"]
         self._transpiled_cliff_circuits = CliffordUtils.generate_1q_transpiled_clifford_circuits(basis_gates=basis_gates)
-        end = time.time()
-        print("time for generate_all_transpiled_clifford_circuits="+str(end-start))
 
     def _verify_parameters(self, lengths, num_samples):
         """Verify input correctness, raise QiskitError if needed"""
@@ -139,18 +139,13 @@ class StandardRB(BaseExperiment, RestlessMixin):
         Returns:
             A list of :class:`QuantumCircuit`.
         """
-        start = time.time()
         rng = default_rng(seed=self.experiment_options.seed)
         circuits = []
         for _ in range(self.experiment_options.num_samples):
-            if self.num_qubits == 1:
+            if self.num_qubits == 1 and self._new_rb:
                 circuits = self._build_rb_circuits(self.experiment_options.lengths, rng)
             else:
                 circuits += self._sample_circuits(self.experiment_options.lengths, rng)
-        end = time.time()
-        print("time for circuits = " + str(end - start))
-        #for c in circuits:
-            #print(c)
         return circuits
 
     def _sample_circuits(self, lengths: Iterable[int], rng: Generator) -> List[QuantumCircuit]:
@@ -337,7 +332,10 @@ class StandardRB(BaseExperiment, RestlessMixin):
 
     def _transpiled_circuits(self) -> List[QuantumCircuit]:
         """Return a list of experiment circuits, transpiled."""
-        transpiled = self._layout_for_rb_single_qubit()
+        if self.num_qubits==1 and self._new_rb:
+            transpiled = self._layout_for_rb_single_qubit()
+        else:
+            transpiled = super()._transpiled_circuits()
 
         if self.analysis.options.get("gate_error_ratio", None) is None:
             # Gate errors are not computed, then counting ops is not necessary.
