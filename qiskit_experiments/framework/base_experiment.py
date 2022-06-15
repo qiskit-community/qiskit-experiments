@@ -18,7 +18,6 @@ import copy
 from collections import OrderedDict
 from typing import Sequence, Optional, Tuple, List, Dict, Union
 import warnings
-import time
 
 from qiskit import transpile, QuantumCircuit
 from qiskit.providers import Job, Backend
@@ -264,6 +263,7 @@ class BaseExperiment(ABC, StoreInitArgs):
 
         # Generate and transpile circuits
         transpiled_circuits = experiment._transpiled_circuits()
+        
         # Initialize result container
         experiment_data = experiment._initialize_experiment_data()
 
