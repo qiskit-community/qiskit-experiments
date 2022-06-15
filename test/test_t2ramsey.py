@@ -21,7 +21,7 @@ from qiskit import QuantumCircuit
 from qiskit.providers.aer import AerSimulator
 from qiskit.providers.backend import Backend
 from qiskit.providers.aer.noise.passes import RelaxationNoisePass
-from qiskit.circuit import Instruction, Delay
+from qiskit.circuit import Delay
 
 from qiskit_experiments.framework import ParallelExperiment
 from qiskit_experiments.library import T2Ramsey
