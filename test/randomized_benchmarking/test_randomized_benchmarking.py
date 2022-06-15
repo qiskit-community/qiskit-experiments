@@ -193,7 +193,6 @@ class TestStandardRB(RBTestCase):
         exp1 = rb.StandardRB(
             qubits=(0,),
             lengths=[10, 20, 30],
-            num_samples = 1,
             seed=123,
             backend=self.backend,
             full_sampling=False,
@@ -201,7 +200,6 @@ class TestStandardRB(RBTestCase):
         exp2 = rb.StandardRB(
             qubits=(0,),
             lengths=[10, 20, 30],
-            num_samples=1,
             seed=123,
             backend=self.backend,
             full_sampling=True,
@@ -305,6 +303,7 @@ class TestStandardRB(RBTestCase):
         par_exp.set_transpile_options(optimization_level=1)
 
         par_expdata = par_exp.run(backend=self.backend)
+        self.assertExperimentDone(par_expdata)
         epc_expected = 1 - (1 - 1 / 2 * self.p1q) ** 1.0
         for i in range(2):
             epc = par_expdata.child_data(i).analysis_results("EPC")
