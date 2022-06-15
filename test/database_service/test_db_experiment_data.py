@@ -15,7 +15,6 @@
 """Test ExperimentData."""
 from test.base import QiskitExperimentsTestCase
 import os
-import unittest
 from unittest import mock
 import copy
 from random import randrange
@@ -268,9 +267,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
 
         for name, figure, figure_name in sub_tests:
             with self.subTest(name=name):
-                exp_data = ExperimentData(
-                    backend=self.backend, experiment_type="qiskit_test"
-                )
+                exp_data = ExperimentData(backend=self.backend, experiment_type="qiskit_test")
                 fn = exp_data.add_figures(figure, figure_name)
                 self.assertEqual(hello_bytes, exp_data.figure(fn).figure)
 
@@ -306,9 +303,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
 
         for name, figures, figure_names in sub_tests:
             with self.subTest(name=name):
-                exp_data = ExperimentData(
-                    backend=self.backend, experiment_type="qiskit_test"
-                )
+                exp_data = ExperimentData(backend=self.backend, experiment_type="qiskit_test")
                 added_names = exp_data.add_figures(figures, figure_names)
                 for idx, added_fn in enumerate(added_names):
                     self.assertEqual(hello_bytes[idx], exp_data.figure(added_fn).figure)
