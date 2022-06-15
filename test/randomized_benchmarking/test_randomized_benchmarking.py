@@ -16,13 +16,12 @@ from test.base import QiskitExperimentsTestCase
 
 import numpy as np
 from ddt import ddt, data, unpack
-import time
 from qiskit.circuit import Delay, QuantumCircuit
 from qiskit.circuit.library import SXGate, CXGate, TGate, XGate
 from qiskit.exceptions import QiskitError
 from qiskit.providers.aer import AerSimulator
 from qiskit.providers.aer.noise import NoiseModel, depolarizing_error
-from qiskit.quantum_info import Clifford
+from qiskit.quantum_info import Clifford, Operator
 
 from qiskit_experiments.library import randomized_benchmarking as rb
 from qiskit_experiments.database_service.exceptions import DbExperimentEntryNotFound
@@ -69,12 +68,9 @@ class RBTestCase(QiskitExperimentsTestCase):
         """Test if all experiment circuits are identity."""
         for circ in circuits:
             num_qubits = circ.num_qubits
-            iden = Clifford(np.eye(2 * num_qubits, dtype=bool))
+            qc_iden = QuantumCircuit(num_qubits)
             circ.remove_final_measurements()
-            self.assertEqual(
-                Clifford(circ), iden, f"Circuit {circ.name} doesn't result in the identity matrix."
-            )
-
+            assert (Operator(circ).equiv(Operator(qc_iden)))
 
 @ddt
 class TestStandardRB(RBTestCase):
@@ -87,11 +83,11 @@ class TestStandardRB(RBTestCase):
             lengths=list(range(1, 300, 30)),
             seed=123,
             backend=self.backend,
-            new_rb=True
+            new_rb=False
         )
         exp.analysis.set_options(gate_error_ratio=None)
         exp.set_transpile_options(**self.transpiler_options)
-        #self.assertAllIdentity(exp.circuits())
+        self.assertAllIdentity(exp.circuits())
 
         expdata = exp.run()
 
