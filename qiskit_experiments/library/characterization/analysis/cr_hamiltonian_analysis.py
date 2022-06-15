@@ -87,17 +87,17 @@ class CrossResonanceHamiltonianAnalysis(curve.MultiGroupCurveAnalysis):
             bounds: [0, None]
 
         defpar p_x:
-            desc: Fit parameter of oscillations.
+            desc: Fit parameter of oscillations of the X observable.
             init_guess: See fit model section.
             bounds: None
 
         defpar p_y:
-            desc: Fit parameter of oscillations.
+            desc: Fit parameter of oscillations of the Y observable.
             init_guess: See fit model section.
             bounds: None
 
         defpar p_z:
-            desc: Fit parameter of oscillations.
+            desc: Fit parameter of oscillations of the Z observable.
             init_guess: See fit model section.
             bounds: None
 

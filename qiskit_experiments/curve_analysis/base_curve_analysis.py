@@ -84,7 +84,7 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
 
     .. rubric:: _create_analysis_results
 
-    This method to creates analysis results for important fit parameters
+    This method creates analysis results for important fit parameters
     that might be defined by analysis options ``result_parameters``.
 
     .. rubric:: _create_curve_data

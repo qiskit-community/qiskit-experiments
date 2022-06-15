@@ -31,7 +31,7 @@ from .utils import analysis_result_to_repr, eval_with_uncertainties
 
 
 class MultiGroupCurveAnalysis(BaseCurveAnalysis):
-    r"""Curve analysis with multiple independent groups.
+    r"""Curve analysis with multiple independent groups of experiments.
 
     The :class:`.MultiGroupCurveAnalysis` provides a fitting framework for the case
 
@@ -39,17 +39,25 @@ class MultiGroupCurveAnalysis(BaseCurveAnalysis):
 
         \Theta_{i, \mbox{opt}} = \arg\min_{\Theta_{i, \mbox{fit}}} (F(X_i, \Theta_i)-Y_i)^2,
 
-    where :math:`F` is a common fit model for multiple independent dataset :math:`(X_i, Y_i)`.
+    where :math:`F` is a fit model common to multiple independent datasets :math:`(X_i, Y_i)`.
     The fit generates multiple fit outcomes :math:`\Theta_{i, \mbox{opt}}` for each dataset.
 
     Each experiment circuit must have metadata of data sorting keys for model mapping and
-    group mapping. For example, if the experiment has two experiment conditions "A" and "B"
+    group mapping. For example, if the experiment has two experiment settings "A" and "B"
     while fitting the outcomes with three models "X", "Y", "Z", then the metadata must consist
-    of the condition and model, e.g. ``{"condition": "A", "model": "X"}``.
+    of the setting and model, e.g. ``{"setting": "A", "model": "X"}``.
 
-    In this example, "condition" should be defined in the ``group_data_sort_key``
+    In this example, "setting" should be defined in the ``group_data_sort_key``
     of the :class:`.MultiGroupCurveAnalysis`, and "model" should be defined in
     the ``data_sort_key`` for each LMFIT model.
+
+    For example, if you are characterizing some two-qubit interaction,
+    you often use a technique that repeats the same experiment circuits with
+    different control qubit states ("setting"), while measuring multiple outcomes
+    in different measurement basis ("model") for each setting.
+    :class:`MultiGroupCurveAnalysis` class is convenient to write a fit model for such experiment.
+
+    Here is an example code to define a :class:`.MultiGroupCurveAnalysis` instance.
 
     .. code-block:: python
 
@@ -58,7 +66,7 @@ class MultiGroupCurveAnalysis(BaseCurveAnalysis):
 
         analysis = MultiGroupCurveAnalysis(
             groups=["groupA", "groupB"],
-            group_data_sort_key=[{"condition": "A"}, {"condition": "B"}],
+            group_data_sort_key=[{"setting": "A"}, {"setting": "B"}],
             models=[
                 lmfit.Model(fit_func_x, name="curve_X", data_sort_key={"model": "X"}),
                 lmfit.Model(fit_func_y, name="curve_Y", data_sort_key={"model": "Y"}),
@@ -66,7 +74,7 @@ class MultiGroupCurveAnalysis(BaseCurveAnalysis):
             ]
         )
 
-    In above setting, each fit curve will appear in the output figure with unique name
+    In above configuration, each fit curve will appear in the output figure with unique name
     in the form of ``{group name}_{model name}``, e.g. ``groupA_curve_X``.
 
     A subclass can implement the following extra method.
@@ -144,6 +152,9 @@ class MultiGroupCurveAnalysis(BaseCurveAnalysis):
         **metadata,
     ) -> List[AnalysisResultData]:
         """Create new analysis data from combination of all fit outcomes.
+
+        This method computes new quantities by taking all fit outcomes and
+        store the new values in the analysis results.
 
         Args:
             fit_dataset: Fit outcomes. The ordering of data corresponds to the
