@@ -68,7 +68,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
         num_samples: int = 3,
         seed: Optional[Union[int, SeedSequence, BitGenerator, Generator]] = None,
         full_sampling: Optional[bool] = False,
-        new_rb: Optional[bool] = True
+        transpiled_rb: Optional[bool] = False
     ):
         """Initialize a standard randomized benchmarking experiment.
 
@@ -94,7 +94,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
 
         # Set fixed options
         self._full_sampling = full_sampling
-        self._new_rb = new_rb
+        self._transpiled_rb = transpiled_rb
         self._clifford_utils = CliffordUtils()
         start = time.time()
         basis_gates = ["rz", "sx", "cx"]
@@ -142,7 +142,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
         rng = default_rng(seed=self.experiment_options.seed)
         circuits = []
         for _ in range(self.experiment_options.num_samples):
-            if self.num_qubits == 1 and self._new_rb:
+            if self.num_qubits == 1 and self._transpiled_rb:
                 circuits += self._build_rb_circuits(self.experiment_options.lengths, rng)
             else:
                 circuits += self._sample_circuits(self.experiment_options.lengths, rng)
@@ -332,7 +332,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
 
     def _transpiled_circuits(self) -> List[QuantumCircuit]:
         """Return a list of experiment circuits, transpiled."""
-        if self.num_qubits==1 and self._new_rb:
+        if self.num_qubits==1 and self._transpiled_rb:
             transpiled = self._layout_for_rb_single_qubit()
         else:
             transpiled = super()._transpiled_circuits()

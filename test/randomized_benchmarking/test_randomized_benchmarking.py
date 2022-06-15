@@ -83,7 +83,7 @@ class TestStandardRB(RBTestCase):
             lengths=list(range(1, 300, 30)),
             seed=123,
             backend=self.backend,
-            new_rb=False
+            transpiled_rb=True
         )
         exp.analysis.set_options(gate_error_ratio=None)
         exp.set_transpile_options(**self.transpiler_options)
@@ -192,6 +192,7 @@ class TestStandardRB(RBTestCase):
             seed=123,
             backend=self.backend,
             full_sampling=False,
+            transpiled_rb=True
         )
         exp2 = rb.StandardRB(
             qubits=(0,),
@@ -199,6 +200,7 @@ class TestStandardRB(RBTestCase):
             seed=123,
             backend=self.backend,
             full_sampling=True,
+            transpiled_rb=True
         )
         circs1 = exp1.circuits()
         circs2 = exp2.circuits()
@@ -249,14 +251,14 @@ class TestStandardRB(RBTestCase):
 
     def test_experiment_config(self):
         """Test converting to and from config works"""
-        exp = rb.StandardRB(qubits=(0,), lengths=[10, 20, 30], seed=123)
+        exp = rb.StandardRB(qubits=(0,), lengths=[10, 20, 30], seed=123, transpiled_rb=True)
         loaded_exp = rb.StandardRB.from_config(exp.config())
         self.assertNotEqual(exp, loaded_exp)
         self.assertTrue(self.json_equiv(exp, loaded_exp))
 
     def test_roundtrip_serializable(self):
         """Test round trip JSON serialization"""
-        exp = rb.StandardRB(qubits=(0,), lengths=[10, 20, 30], seed=123)
+        exp = rb.StandardRB(qubits=(0,), lengths=[10, 20, 30], seed=123, transpiled_rb=True)
         self.assertRoundTripSerializable(exp, self.json_equiv)
 
     def test_analysis_config(self):
@@ -273,6 +275,7 @@ class TestStandardRB(RBTestCase):
             lengths=list(range(1, 200, 50)),
             seed=123,
             backend=self.backend,
+            transpiled_rb=True
         )
         exp.set_transpile_options(**self.transpiler_options)
         expdata = exp.run()
@@ -291,6 +294,7 @@ class TestStandardRB(RBTestCase):
                 lengths=lengths,
                 seed=123,
                 backend=self.backend,
+                transpiled_rb=True
             )
             exp.analysis.set_options(gate_error_ratio=None, plot_raw_data=False)
             exps.append(exp)
