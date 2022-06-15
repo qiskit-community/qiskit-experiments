@@ -214,7 +214,7 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
         Verify that saving and loading restores the original composite experiment data object
         """
 
-        self.rootdata.service = IBMExperimentService(local=True)
+        self.rootdata.service = IBMExperimentService(local=True, local_save=False)
         self.rootdata.save()
         loaded_data = ExperimentData.load(self.rootdata.experiment_id, self.rootdata.service)
         self.check_if_equal(loaded_data, self.rootdata, is_a_copy=False)
@@ -223,7 +223,7 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
         """
         Verify that saving metadata and loading restores the original composite experiment data object
         """
-        self.rootdata.service = IBMExperimentService(local=True)
+        self.rootdata.service = IBMExperimentService(local=True, local_save=False)
         self.rootdata.save_metadata()
         loaded_data = ExperimentData.load(self.rootdata.experiment_id, self.rootdata.service)
 

@@ -56,7 +56,7 @@ class TestAnalysisResult(QiskitExperimentsTestCase):
 
     def test_load(self):
         """Test loading analysis result."""
-        service = IBMExperimentService(local=True)
+        service = IBMExperimentService(local=True, local_save=False)
         result = self._new_analysis_result()
         service.create_experiment(ExperimentData(experiment_id=result.experiment_id))
         result.service = service

@@ -53,7 +53,7 @@ class TestT1(QiskitExperimentsTestCase):
         self.assertAlmostEqual(res.value.n, t1, delta=3)
         self.assertEqual(res.extra["unit"], "s")
 
-        exp_data.service = IBMExperimentService(local=True)
+        exp_data.service = IBMExperimentService(local=True, local_save=False)
         exp_data.save()
         loaded_data = ExperimentData.load(exp_data.experiment_id, exp_data.service)
         exp_res = exp_data.analysis_results()
@@ -80,7 +80,7 @@ class TestT1(QiskitExperimentsTestCase):
             self.assertEqual(sub_res.quality, "good")
             self.assertAlmostEqual(sub_res.value.n, t1[i], delta=3)
 
-        res.service = IBMExperimentService(local=True)
+        res.service = IBMExperimentService(local=True, local_save=False)
         res.save()
         loaded_data = ExperimentData.load(res.experiment_id, res.service)
 
@@ -245,3 +245,13 @@ class TestT1(QiskitExperimentsTestCase):
         loaded = T1Analysis.from_config(analysis.config())
         self.assertNotEqual(analysis, loaded)
         self.assertEqual(analysis.config(), loaded.config())
+
+import unittest
+def suite():
+    suite = unittest.TestSuite()
+    suite.addTest(TestT1('test_t1_parallel'))
+    return suite
+
+if __name__ == '__main__':
+    runner = unittest.TextTestRunner()
+    runner.run(suite())

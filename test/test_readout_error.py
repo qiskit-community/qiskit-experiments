@@ -161,7 +161,7 @@ class TestRedoutError(QiskitExperimentsTestCase):
         backend = AerSimulator.from_backend(FakeParis())
         exp = LocalReadoutError(qubits)
         exp_data = exp.run(backend).block_for_results()
-        exp_data.service = IBMExperimentService(local=True)
+        exp_data.service = IBMExperimentService(local=True, local_save=False)
         exp_data.save()
         loaded_data = ExperimentData.load(exp_data.experiment_id, exp_data.service)
         exp_res = exp_data.analysis_results()
