@@ -33,11 +33,9 @@ import numpy as np
 from matplotlib import pyplot
 from qiskit.result import Result
 from qiskit.providers.jobstatus import JobStatus, JOB_FINAL_STATES
-from qiskit_ibm_experiment import ExperimentData
-from qiskit_ibm_experiment.exceptions import IBMExperimentEntryExists, IBMExperimentEntryNotFound
-
 from qiskit.exceptions import QiskitError
 from qiskit.providers import Job, BaseJob, Backend, Provider
+
 from qiskit_ibm_experiment import IBMExperimentService
 from qiskit_ibm_experiment import ExperimentData as ExperimentDataclass
 from qiskit_experiments.framework.json import ExperimentEncoder, ExperimentDecoder
@@ -48,7 +46,11 @@ from qiskit_experiments.database_service.utils import (
     ThreadSafeList,
 )
 from qiskit_experiments.framework.analysis_result import AnalysisResult
-from qiskit_experiments.database_service.exceptions import DbExperimentDataError, DbExperimentEntryNotFound, DbExperimentEntryExists
+from qiskit_experiments.database_service.exceptions import (
+    DbExperimentDataError,
+    DbExperimentEntryNotFound,
+    DbExperimentEntryExists,
+)
 
 if TYPE_CHECKING:
     # There is a cyclical dependency here, but the name needs to exist for
@@ -72,11 +74,13 @@ def do_auto_save(func: Callable):
 
     return _wrapped
 
+
 class ExperimentData:
     """Qiskit Experiments Data container class.
 
     This class handles the following:
-    1. Storing the data related to an experiment - the experiment's metadata, the analysis results and the figures
+    1. Storing the data related to an experiment - the experiment's metadata,
+       the analysis results and the figures
     2. Manaing jobs and adding data from jobs automatically
     3. Saving/Loading data from the result database
     """
@@ -110,7 +114,8 @@ class ExperimentData:
             job_ids: Optional, IDs of jobs submitted for the experiment.
             child_data: Optional, list of child experiment data.
             verbose: Optional, whether to print messages
-            db_data: Optional, a prepared ExperimentDataclass of the experiment info; overrides other db parameters.
+            db_data: Optional, a prepared ExperimentDataclass of the experiment info;
+            overrides other db parameters.
         """
         if experiment is not None:
             backend = backend or experiment.backend
@@ -135,7 +140,7 @@ class ExperimentData:
             },
         )
         metadata["_source"] = source
-        experiment_id = kwargs.get('experiment_id', str(uuid.uuid4()))
+        experiment_id = kwargs.get("experiment_id", str(uuid.uuid4()))
         if db_data is None:
             self._db_data = ExperimentDataclass(
                 experiment_id=experiment_id,
@@ -473,6 +478,7 @@ class ExperimentData:
                     "Unable to set hub/group/project backend %s ",
                     self.backend,
                 )
+
     def _clear_results(self):
         """Delete all currently stored analysis results and figures"""
         # Schedule existing analysis results for deletion next save call
@@ -504,24 +510,6 @@ class ExperimentData:
             DbExperimentDataError: If an experiment service is already being used.
         """
         self._set_service(service)
-
-    def _set_service(self, service: IBMExperimentService) -> None:
-        """Set the service to be used for storing experiment data,
-           to this experiment only and not to its descendants
-
-        Args:
-            service: Service to be used.
-
-        Raises:
-            DbExperimentDataError: If an experiment service is already being used.
-        """
-        if self._service:
-            raise DbExperimentDataError("An experiment service is already being used.")
-        self._service = service
-        for result in self._analysis_results.values():
-            result.service = service
-        with contextlib.suppress(Exception):
-            self.auto_save = self._service.options.get("auto_save", False)
 
     @property
     def auto_save(self) -> bool:
@@ -1155,9 +1143,7 @@ class ExperimentData:
             for result in retrieved_results:
                 result_id = result.result_id
 
-                self._analysis_results[result_id] = AnalysisResult(
-                    service=self.service
-                )
+                self._analysis_results[result_id] = AnalysisResult(service=self.service)
                 self._analysis_results[result_id].set_data(result)
                 self._analysis_results[result_id]._created_in_db = True
 
@@ -1266,7 +1252,9 @@ class ExperimentData:
             )
             return
         try:
-            self.service.create_or_update_experiment(self._db_data, json_encoder=self._json_encoder, create=not self._created_in_db)
+            self.service.create_or_update_experiment(
+                self._db_data, json_encoder=self._json_encoder, create=not self._created_in_db
+            )
         except Exception:  # pylint: disable=broad-except
             # Don't fail the experiment just because its data cannot be saved.
             LOG.error("Unable to save the experiment data: %s", traceback.format_exc())
@@ -1774,8 +1762,7 @@ class ExperimentData:
         return self.child_data(index)
 
     @classmethod
-    def load(cls, experiment_id: str,
-             service: IBMExperimentService) -> "ExperimentData":
+    def load(cls, experiment_id: str, service: IBMExperimentService) -> "ExperimentData":
         """Load a saved experiment data from a database service.
 
         Args:
@@ -1798,8 +1785,7 @@ class ExperimentData:
         expdata._created_in_db = True
 
         child_data_ids = expdata.metadata.pop("child_data_ids", [])
-        child_data = [ExperimentData.load(child_id, service) for child_id in
-                      child_data_ids]
+        child_data = [ExperimentData.load(child_id, service) for child_id in child_data_ids]
         expdata._set_child_data(child_data)
 
         return expdata
@@ -1833,7 +1819,9 @@ class ExperimentData:
             verbose=self.verbose,
         )
         new_instance._db_data = self._db_data.copy()
-        new_instance._db_data.experiment_id = str(uuid.uuid4())  # different id for copied experiment
+        new_instance._db_data.experiment_id = str(
+            uuid.uuid4()
+        )  # different id for copied experiment
         if self.experiment is None:
             new_instance._experiment = None
         else:
@@ -1873,8 +1861,7 @@ class ExperimentData:
             new_instance.add_figures(self._figures.values())
 
         # Recursively copy child data
-        child_data = [data.copy(copy_results=copy_results) for data in
-                      self.child_data()]
+        child_data = [data.copy(copy_results=copy_results) for data in self.child_data()]
         new_instance._set_child_data(child_data)
         return new_instance
 
@@ -1896,8 +1883,7 @@ class ExperimentData:
             DbExperimentDataError: If an experiment service is already being used.
         """
         if self._service:
-            raise DbExperimentDataError(
-                "An experiment service is already being used.")
+            raise DbExperimentDataError("An experiment service is already being used.")
         self._service = service
         for result in self._analysis_results.values():
             result.service = service
@@ -1925,7 +1911,6 @@ class ExperimentData:
         self.tags = [x for x in self.tags if x not in tags2remove]
         for data in self._child_data.values():
             data.remove_tags_recursive(tags2remove)
-
 
     # represetnation and serialization
 
@@ -2058,40 +2043,29 @@ class ExperimentData:
         self._analysis_futures = ThreadSafeOrderedDict()
         self._analysis_executor = futures.ThreadPoolExecutor(max_workers=1)
 
-    #
-    # def __repr__(self):
-    #     out = (
-    #         f"<ExperimentData[{self.experiment_type}]"
-    #         f", backend: {self.backend}"
-    #         f", status: {self.status()}"
-    #         f", experiment_id: {self.experiment_id}>"
-    #     )
-    #     return out
-    #
-    # def __str__(self):
-    #     line = 51 * "-"
-    #     n_res = len(self._analysis_results)
-    #     status = self.status()
-    #     ret = line
-    #     ret += f"\nExperiment: {self.experiment_type}"
-    #     ret += f"\nExperiment ID: {self.experiment_id}"
-    #     if self._parent_id:
-    #         ret += f"\nParent ID: {self._parent_id}"
-    #     if self._child_data:
-    #         ret += f"\nChild Experiment Data: {len(self._child_data)}"
-    #     ret += f"\nStatus: {status}"
-    #     if status == "ERROR":
-    #         ret += "\n  "
-    #         ret += "\n  ".join(self._errors)
-    #     if self.backend:
-    #         ret += f"\nBackend: {self.backend}"
-    #     if self.tags:
-    #         ret += f"\nTags: {self.tags}"
-    #     ret += f"\nData: {len(self._data)}"
-    #     ret += f"\nAnalysis Results: {n_res}"
-    #     ret += f"\nFigures: {len(self._figures)}"
-    #     return ret
-    #
+    def __str__(self):
+        line = 51 * "-"
+        n_res = len(self._analysis_results)
+        status = self.status()
+        ret = line
+        ret += f"\nExperiment: {self.experiment_type}"
+        ret += f"\nExperiment ID: {self.experiment_id}"
+        if self._db_data.parent_id:
+            ret += f"\nParent ID: {self._db_data.parent_id}"
+        if self._child_data:
+            ret += f"\nChild Experiment Data: {len(self._child_data)}"
+        ret += f"\nStatus: {status}"
+        if status == "ERROR":
+            ret += "\n  "
+            ret += "\n  ".join(self._errors)
+        if self.backend:
+            ret += f"\nBackend: {self.backend}"
+        if self.tags:
+            ret += f"\nTags: {self.tags}"
+        ret += f"\nData: {len(self._result_data)}"
+        ret += f"\nAnalysis Results: {n_res}"
+        ret += f"\nFigures: {len(self._figures)}"
+        return ret
 
 
 @contextlib.contextmanager
@@ -2101,6 +2075,7 @@ def service_exception_to_warning():
         yield
     except Exception:  # pylint: disable=broad-except
         LOG.warning("Experiment service operation failed: %s", traceback.format_exc())
+
 
 class ExperimentStatus(enum.Enum):
     """Class for experiment status enumerated type."""
@@ -2121,6 +2096,7 @@ class ExperimentStatus(enum.Enum):
     @classmethod
     def __json_decode__(cls, value):
         return cls.__members__[value]  # pylint: disable=unsubscriptable-object
+
 
 class AnalysisStatus(enum.Enum):
     """Class for analysis callback status enumerated type."""

@@ -70,7 +70,7 @@ class TestAnalysisResult(QiskitExperimentsTestCase):
         mock_service = mock.create_autospec(IBMExperimentService)
         result = self._new_analysis_result(service=mock_service)
         result.auto_save = True
-        mock_service.reset_mock() # since setting auto_save = True initiated save
+        mock_service.reset_mock()  # since setting auto_save = True initiated save
 
         subtests = [
             # update function, update parameters, service called
@@ -148,9 +148,7 @@ class TestAnalysisResult(QiskitExperimentsTestCase):
         self.assertEqual(AnalysisResult._display_format(-math.inf), "-Infinity")
         self.assertEqual(AnalysisResult._display_format(math.nan), "NaN")
         self.assertEqual(
-            AnalysisResult._display_format(
-                uncertainties.ufloat(math.nan, math.nan).nominal_value
-            ),
+            AnalysisResult._display_format(uncertainties.ufloat(math.nan, math.nan).nominal_value),
             "NaN",
         )
         self.assertEqual(
@@ -158,9 +156,7 @@ class TestAnalysisResult(QiskitExperimentsTestCase):
             "NaN",
         )
         self.assertEqual(
-            AnalysisResult._display_format(
-                uncertainties.ufloat(math.inf, -math.inf).nominal_value
-            ),
+            AnalysisResult._display_format(uncertainties.ufloat(math.inf, -math.inf).nominal_value),
             "Infinity",
         )
         self.assertEqual(

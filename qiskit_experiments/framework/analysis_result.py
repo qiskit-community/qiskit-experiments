@@ -23,7 +23,6 @@ import uncertainties
 
 from qiskit_ibm_experiment import IBMExperimentService, AnalysisResultData
 from qiskit_ibm_experiment import ResultQuality
-from qiskit_ibm_experiment.exceptions import IBMExperimentEntryExists, IBMExperimentEntryNotFound
 
 from qiskit_experiments.framework.json import (
     ExperimentEncoder,
@@ -39,7 +38,7 @@ from qiskit_experiments.database_service.utils import qiskit_version
 LOG = logging.getLogger(__name__)
 
 
-class AnalysisResult():
+class AnalysisResult:
     """Class representing an analysis result for an experiment.
 
     Analysis results can also be stored in a database.
@@ -110,7 +109,6 @@ class AnalysisResult():
                 if isinstance(comp, str):
                     comp = to_component(comp)
                 self._db_data.device_components.append(comp)
-
 
         if self.source is None:
             self._db_data.result_data["_source"] = self.default_source()
@@ -205,7 +203,9 @@ class AnalysisResult():
             )
             return
         try:
-            self.service.create_or_update_analysis_result(self._db_data, json_encoder=self._json_encoder, create=not self._created_in_db)
+            self.service.create_or_update_analysis_result(
+                self._db_data, json_encoder=self._json_encoder, create=not self._created_in_db
+            )
         except Exception:  # pylint: disable=broad-except
             # Don't fail the experiment just because its data cannot be saved.
             LOG.error("Unable to save the experiment data: %s", traceback.format_exc())
@@ -213,7 +213,12 @@ class AnalysisResult():
 
     def copy(self) -> "AnalysisResult":
         """Return a copy of the result with a new result ID"""
-        new_instance = AnalysisResult(name=self.name, value=self.value, device_components=self.device_components, experiment_id=self.experiment_id)
+        new_instance = AnalysisResult(
+            name=self.name,
+            value=self.value,
+            device_components=self.device_components,
+            experiment_id=self.experiment_id,
+        )
         new_instance._db_data = self._db_data.copy()
         new_instance._db_data.result_id = str(uuid.uuid4())
         return new_instance
@@ -474,14 +479,14 @@ class AnalysisResult():
 
     def __json_encode__(self):
         return {
-                "name": self._db_data.result_type,
-                "value": self._db_data.result_data['_value'],
-                "device_components": self._db_data.device_components,
-                "experiment_id": self._db_data.experiment_id,
-                "result_id": self._db_data.result_id,
-                "chisq": self._db_data.chisq,
-                "quality": self._db_data.quality,
-                "extra": self.extra,
-                "verified": self._db_data.verified,
-                "tags": self._db_data.tags,
+            "name": self._db_data.result_type,
+            "value": self._db_data.result_data["_value"],
+            "device_components": self._db_data.device_components,
+            "experiment_id": self._db_data.experiment_id,
+            "result_id": self._db_data.result_id,
+            "chisq": self._db_data.chisq,
+            "quality": self._db_data.quality,
+            "extra": self.extra,
+            "verified": self._db_data.verified,
+            "tags": self._db_data.tags,
         }

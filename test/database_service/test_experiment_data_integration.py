@@ -25,6 +25,7 @@ from qiskit.test import QiskitTestCase
 from qiskit_ibm_experiment import IBMExperimentService
 from qiskit_ibm_experiment import ResultQuality
 from qiskit_ibm_experiment.exceptions import IBMExperimentEntryNotFound
+
 # from qiskit_experiments.database_service import DbExperimentDataV1 as DbExperimentData
 from qiskit_experiments.framework import ExperimentData
 from qiskit_experiments.framework.experiment_data import ExperimentStatus
@@ -170,7 +171,7 @@ class TestExperimentDataIntegration(QiskitTestCase):
         """Test adding an analysis result."""
         exp_data = self._create_experiment_data()
         result_data = {"complex": 2 + 3j, "numpy": np.zeros(2)}
-        aresult = AnalysisResult.from_values(
+        aresult = AnalysisResult(
             name="qiskit_test",
             value=result_data,
             device_components=self.device_components,
@@ -307,7 +308,7 @@ class TestExperimentDataIntegration(QiskitTestCase):
         """Test saving all."""
         exp_data = self._create_experiment_data()
         exp_data.tags = ["foo", "bar"]
-        aresult = AnalysisResult.from_values(
+        aresult = AnalysisResult(
             value={},
             name="qiskit_test",
             device_components=self.device_components,
@@ -414,7 +415,7 @@ class TestExperimentDataIntegration(QiskitTestCase):
         """Test auto saving analysis result."""
         exp_data = self._create_experiment_data()
         exp_data.auto_save = True
-        aresult = AnalysisResult.from_values(
+        aresult = AnalysisResult(
             value={},
             name="qiskit_test",
             device_components=self.device_components,
@@ -493,7 +494,7 @@ class TestExperimentDataIntegration(QiskitTestCase):
     def _create_analysis_result(self):
         """Create a simple analysis result."""
         exp_data = self._create_experiment_data()
-        aresult = AnalysisResult.from_values(
+        aresult = AnalysisResult(
             value={},
             name="qiskit_test",
             device_components=self.device_components,

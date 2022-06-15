@@ -22,7 +22,6 @@ from qiskit_experiments.library.characterization import T1Analysis
 from qiskit_experiments.test.t1_backend import T1Backend
 
 
-
 class TestT1(QiskitExperimentsTestCase):
     """
     Test measurement of T1
@@ -245,13 +244,3 @@ class TestT1(QiskitExperimentsTestCase):
         loaded = T1Analysis.from_config(analysis.config())
         self.assertNotEqual(analysis, loaded)
         self.assertEqual(analysis.config(), loaded.config())
-
-import unittest
-def suite():
-    suite = unittest.TestSuite()
-    suite.addTest(TestT1('test_t1_parallel'))
-    return suite
-
-if __name__ == '__main__':
-    runner = unittest.TextTestRunner()
-    runner.run(suite())
