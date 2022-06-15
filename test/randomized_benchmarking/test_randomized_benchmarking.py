@@ -82,7 +82,6 @@ class TestStandardRB(RBTestCase):
 
     def test_single_qubit(self):
         """Test single qubit RB."""
-        start = time.time()
         exp = rb.StandardRB(
             qubits=(0,),
             lengths=list(range(1, 300, 30)),
@@ -106,12 +105,9 @@ class TestStandardRB(RBTestCase):
         # from 0 to 2, i.e. arbitrary U gate can be decomposed into up to 2 SX with RZs.
         # We may want to expect the average number of SX is (0 + 1 + 2) / 3 = 1.0.
         epc = expdata.analysis_results("EPC")
-        print("epc = " + str(epc))
 
         epc_expected = 1 - (1 - 1 / 2 * self.p1q) ** 1.0
         self.assertAlmostEqual(epc.value.n, epc_expected, delta=0.1 * epc_expected)
-        end = time.time()
-        print("time for test_single_qubit = " + str(end - start))
 
     def test_two_qubit(self):
         """Test two qubit RB."""
@@ -293,7 +289,7 @@ class TestStandardRB(RBTestCase):
     def test_single_qubit_parallel(self):
         """Test single qubit RB in parallel."""
         qubits = [0, 2]
-        lengths = list(range(30, 301, 30))
+        lengths = list(range(1, 300, 30))
         exps = []
         for qubit in qubits:
             exp = rb.StandardRB(

@@ -65,7 +65,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
         qubits: Sequence[int],
         lengths: Iterable[int],
         backend: Optional[Backend] = None,
-        num_samples: int = 1,
+        num_samples: int = 3,
         seed: Optional[Union[int, SeedSequence, BitGenerator, Generator]] = None,
         full_sampling: Optional[bool] = False,
         new_rb: Optional[bool] = True
@@ -97,7 +97,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
         self._new_rb = new_rb
         self._clifford_utils = CliffordUtils()
         start = time.time()
-        basis_gates = ["rz", "sx"]
+        basis_gates = ["rz", "sx", "cx"]
         self._transpiled_cliff_circuits = CliffordUtils.generate_1q_transpiled_clifford_circuits(basis_gates=basis_gates)
 
     def _verify_parameters(self, lengths, num_samples):
@@ -143,7 +143,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
         circuits = []
         for _ in range(self.experiment_options.num_samples):
             if self.num_qubits == 1 and self._new_rb:
-                circuits = self._build_rb_circuits(self.experiment_options.lengths, rng)
+                circuits += self._build_rb_circuits(self.experiment_options.lengths, rng)
             else:
                 circuits += self._sample_circuits(self.experiment_options.lengths, rng)
         return circuits
@@ -225,16 +225,16 @@ class StandardRB(BaseExperiment, RestlessMixin):
             build_rb_circuits
             Args:
                     lengths: A list of RB sequence lengths. We create random circuits
-                             where the number of cliffords in each is in lengths.
+                             where the number of cliffords in each is defined in lengths.
                     rng: Generator object for random number generation.
                          If None, default_rng will be used.
             To create the RB circuit, we use a mapping between Cliffords and integers
             defined in the file clifford_data.py. The operations compose and inverse  are much faster
-            when performed on the integers rather than on the Cliffords.
+            when performed on the integers rather than on the Cliffords themselves.
             """
         if self._full_sampling:
             return self._build_rb_circuits_full_sampling(lengths, rng)
-        print("not full sampling")
+
         all_rb_circuits = []
         random_samples = rng.integers(24, size=lengths[-1])
         max_qubit = max(self.physical_qubits) + 1

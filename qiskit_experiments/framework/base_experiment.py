@@ -263,10 +263,7 @@ class BaseExperiment(ABC, StoreInitArgs):
         experiment._finalize()
 
         # Generate and transpile circuits
-        start = time.time()
         transpiled_circuits = experiment._transpiled_circuits()
-        end = time.time()
-        print("time for transpiled_circuits = " + str(end-start))
         # Initialize result container
         experiment_data = experiment._initialize_experiment_data()
 
