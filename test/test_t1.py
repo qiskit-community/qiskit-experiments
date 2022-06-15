@@ -58,9 +58,8 @@ class TestT1(QiskitExperimentsTestCase):
         loaded_data = ExperimentData.load(exp_data.experiment_id, exp_data.service)
         exp_res = exp_data.analysis_results()
         load_res = loaded_data.analysis_results()
-        repr1 = sorted([repr(res) for res in exp_res])
-        repr2 = sorted([repr(res) for res in load_res])
-        self.assertEqual(repr1, repr2)
+        for exp_res, load_res in zip(exp_res, load_res):
+            self.analysis_result_equiv(exp_res, load_res)
 
     def test_t1_parallel(self):
         """
@@ -226,7 +225,7 @@ class TestT1(QiskitExperimentsTestCase):
             self.assertEqual(circ.num_qubits, num_qubits)
             op_counts = circ.count_ops()
             self.assertEqual(op_counts.get("rx"), 2)
-            self.assertGreater(op_counts.get("delay"), num_qubits - 1)
+            self.assertEqual(op_counts.get("delay"), 2)
 
     def test_experiment_config(self):
         """Test converting to and from config works"""

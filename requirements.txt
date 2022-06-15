@@ -5,3 +5,4 @@ qiskit-ibmq-provider>=0.16.0
 qiskit-ibm-experiment>=0.2.1
 matplotlib>=3.4
 uncertainties
+lmfit

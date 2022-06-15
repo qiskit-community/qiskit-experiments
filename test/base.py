@@ -21,6 +21,7 @@ from typing import Any, Callable, Optional
 
 import numpy as np
 import uncertainties
+from lmfit import Model
 from qiskit.test import QiskitTestCase
 from qiskit_experiments.data_processing import DataAction, DataProcessor
 from qiskit_experiments.framework.experiment_data import ExperimentStatus
@@ -32,6 +33,7 @@ from qiskit_experiments.framework import (
     BaseAnalysis,
 )
 from qiskit_experiments.curve_analysis.visualization.base_drawer import BaseCurveDrawer
+from qiskit_experiments.curve_analysis.curve_data import CurveFitResult
 
 
 class QiskitExperimentsTestCase(QiskitTestCase):
@@ -130,6 +132,10 @@ class QiskitExperimentsTestCase(QiskitTestCase):
             return all(cls.json_equiv(e1, e2) for e1, e2 in zip(data1, data2))
         elif isinstance(data1, uncertainties.UFloat) and isinstance(data2, uncertainties.UFloat):
             return cls.ufloat_equiv(data1, data2)
+        elif isinstance(data1, Model) and isinstance(data2, Model):
+            return cls.json_equiv(data1.dumps(), data2.dumps())
+        elif isinstance(data1, CurveFitResult) and isinstance(data2, CurveFitResult):
+            return cls.curve_fit_data_equiv(data1, data2)
         elif isinstance(data1, compare_repr) and isinstance(data2, compare_repr):
             # otherwise compare instance representation
             return repr(data1) == repr(data2)
@@ -160,6 +166,31 @@ class QiskitExperimentsTestCase(QiskitTestCase):
             "source",
         ]:
             if not cls.json_equiv(getattr(result1, att), getattr(result2, att)):
+                return False
+        return True
+
+    @classmethod
+    def curve_fit_data_equiv(cls, data1, data2):
+        """Test two curve fit result are equivalent."""
+        for att in [
+            "method",
+            "model_repr",
+            "success",
+            "nfev",
+            "message",
+            "dof",
+            "init_params",
+            "chisq",
+            "reduced_chisq",
+            "aic",
+            "bic",
+            "params",
+            "var_names",
+            "x_data",
+            "y_data",
+            "covar",
+        ]:
+            if not cls.json_equiv(getattr(data1, att), getattr(data2, att)):
                 return False
         return True
 

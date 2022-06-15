@@ -39,7 +39,7 @@ class T1Analysis(curve.DecayAnalysis):
 
         return options
 
-    def _evaluate_quality(self, fit_data: curve.FitData) -> Union[str, None]:
+    def _evaluate_quality(self, fit_data: curve.CurveFitResult) -> Union[str, None]:
         """Algorithmic criteria for whether the fit is good or bad.
 
         A good fit has:
@@ -50,17 +50,17 @@ class T1Analysis(curve.DecayAnalysis):
             - tau error is less than its value
             - base error is less than 0.1
         """
-        amp = fit_data.fitval("amp")
-        tau = fit_data.fitval("tau")
-        base = fit_data.fitval("base")
+        amp = fit_data.ufloat_params["amp"]
+        tau = fit_data.ufloat_params["tau"]
+        base = fit_data.ufloat_params["base"]
 
         criteria = [
             fit_data.reduced_chisq < 3,
             abs(amp.nominal_value - 1.0) < 0.1,
             abs(base.nominal_value) < 0.1,
-            curve.is_error_not_significant(amp, absolute=0.1),
-            curve.is_error_not_significant(tau),
-            curve.is_error_not_significant(base, absolute=0.1),
+            curve.utils.is_error_not_significant(amp, absolute=0.1),
+            curve.utils.is_error_not_significant(tau),
+            curve.utils.is_error_not_significant(base, absolute=0.1),
         ]
 
         if all(criteria):

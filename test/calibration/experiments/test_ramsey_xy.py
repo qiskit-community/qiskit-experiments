@@ -50,7 +50,7 @@ class TestRamseyXY(QiskitExperimentsTestCase):
             test_data = ramsey.run()
             self.assertExperimentDone(test_data)
             meas_shift = test_data.analysis_results(1).value.n
-            self.assertTrue((meas_shift - freq_shift) < abs(test_tol * freq_shift))
+            self.assertLess(abs(meas_shift - freq_shift), abs(test_tol * freq_shift))
 
     def test_update_calibrations(self):
         """Test that the calibration version of the experiment updates the cals."""
@@ -75,7 +75,7 @@ class TestRamseyXY(QiskitExperimentsTestCase):
         # Check that qubit frequency after running the cal is shifted by freq_shift, i.e. 4 MHz.
         f01 = self.cals.get_parameter_value(freq_name, 0)
         self.assertTrue(len(self.cals.parameters_table(parameters=[freq_name])["data"]), 2)
-        self.assertTrue(abs(f01 - (freq_shift + FakeArmonk().defaults().qubit_freq_est[0])) < tol)
+        self.assertLess(abs(f01 - (freq_shift + FakeArmonk().defaults().qubit_freq_est[0])), tol)
 
     def test_update_with_failed_analysis(self):
         """Test that calibration update handles analysis producing no results

@@ -12,6 +12,7 @@
 
 """Data processor tests."""
 
+from typing import Any, Dict, List
 from test.base import QiskitExperimentsTestCase
 
 import json
@@ -19,6 +20,8 @@ import numpy as np
 from uncertainties import unumpy as unp, ufloat
 
 from qiskit_experiments.data_processing.nodes import (
+    DiscriminatorNode,
+    MemoryToCounts,
     SVD,
     ToAbs,
     AverageData,
@@ -29,6 +32,8 @@ from qiskit_experiments.data_processing.nodes import (
     RestlessToIQ,
 )
 from qiskit_experiments.data_processing import DataProcessor
+from qiskit_experiments.data_processing.exceptions import DataProcessorError
+from qiskit_experiments.data_processing.discriminator import BaseDiscriminator
 from qiskit_experiments.framework.json import ExperimentDecoder, ExperimentEncoder
 from . import BaseDataProcessorTest
 
@@ -408,6 +413,212 @@ class TestSVD(BaseDataProcessorTest):
 
         loaded_node = json.loads(json.dumps(node, cls=ExperimentEncoder), cls=ExperimentDecoder)
         self.assertTrue(loaded_node.is_trained)
+
+
+class FakeDiscriminator(BaseDiscriminator):
+    """A fake discriminator class for testing."""
+
+    def __init__(self, threshold: float):
+        """
+        Args:
+            threshold: The I threshold above which a shot is a 1.
+        """
+        self._threshold = threshold
+
+    def predict(self, data: List[List[float]]) -> List[str]:
+        """Discriminate the data"""
+        return ["1" if iq[0] > self._threshold else "0" for iq in data]
+
+    def config(self) -> Dict[str, Any]:
+        """Config method."""
+        return {}
+
+    def is_trained(self) -> bool:
+        """This test discriminator is always trained."""
+        return True
+
+
+class FakeQutritDiscriminator(BaseDiscriminator):
+    """A fake qutrit discriminator class for testing."""
+
+    def predict(self, data: List[List[float]]) -> List[str]:
+        """Discriminate the data. I < 0 then |0>"""
+        labels = []
+        for iq in data:
+            if iq[0] < 0:
+                labels.append("0")
+            else:
+                labels.append("1" if iq[1] > 0 else "2")
+
+        return labels
+
+    def config(self) -> Dict[str, Any]:
+        """Config method."""
+        return {}
+
+    def is_trained(self) -> bool:
+        """This test discriminator is always trained."""
+        return True
+
+
+class TestDiscriminator(BaseDataProcessorTest):
+    """Test the discriminator node."""
+
+    def test_averaged_data(self):
+        """Test that an error is raised when we try to discriminate averaged data."""
+        # IQ data with dimension 3, 2, 2, i.e. 3 circuits, 2 qubits, and IQ point.
+        iq_data = [[[0.2, 0.0], [0.0, 0.0]], [[1.0, 1.0], [1.0, 1.0]], [[-1.0, -1.0], [1.0, -1.0]]]
+
+        self.create_experiment_data(iq_data)
+
+        discriminator = DiscriminatorNode(FakeDiscriminator(0.1))
+        data = np.asarray([datum["memory"] for datum in self.iq_experiment.data()])
+        with self.assertRaises(DataProcessorError):
+            discriminator(data)
+
+    def test_single_shot_data(self):
+        """Test that we can discriminate single-shot data."""
+
+        # The data has the shape
+        iq_data = [
+            # Circuit no. 1, 5 shots, 3 qubits
+            [
+                [[0.8, -1.0], [0.1, 0.3], [-0.3, 0.4]],
+                [[0.2, -1.0], [-0.5, 0.3], [-0.2, 0.4]],
+                [[-0.8, -1.0], [-0.1, 0.3], [-0.3, 0.4]],
+                [[-0.5, -1.0], [-0.2, 0.3], [-0.9, 0.4]],
+                [[-0.8, -1.0], [0.2, 0.3], [0.3, 0.4]],
+            ],
+            # Circuit no. 2, 5 shots, 3 qubits
+            [
+                [[-0.3, -1.0], [0.1, 0.3], [0.9, 0.4]],
+                [[0.8, -1.0], [0.9, 0.3], [0.3, 0.4]],
+                [[-0.7, -1.0], [0.1, 0.3], [0.1, 0.4]],
+                [[-0.8, -1.0], [0.7, 0.3], [0.3, 0.4]],
+                [[-0.8, -1.0], [-0.1, 0.3], [0.2, 0.4]],
+            ],
+            # Circuit no. 3, 5 shots, 3 qubits
+            [
+                [[-0.8, -1.0], [0.1, 0.3], [-0.2, 0.4]],
+                [[0.2, -1.0], [0.1, 0.3], [0.1, 0.4]],
+                [[-0.8, -1.0], [0.1, 0.3], [-0.3, 0.4]],
+                [[0.8, -1.0], [-0.1, 0.3], [0.2, 0.4]],
+                [[0.8, -1.0], [-0.1, 0.3], [-0.3, 0.4]],
+            ],
+        ]
+
+        self.create_experiment_data(iq_data, single_shot=True)
+        data = np.asarray([datum["memory"] for datum in self.iq_experiment.data()])
+        discriminator = DiscriminatorNode(FakeDiscriminator(0.0))
+        classified = discriminator(data)
+
+        expected = [
+            ["011", "001", "000", "000", "110"],  # Circuit no. 1
+            ["110", "111", "110", "110", "100"],  # Circuit no. 2
+            ["010", "111", "010", "101", "001"],  # Circuit no. 3
+        ]
+
+        self.assertListEqual(classified.tolist(), expected)
+
+        # Now test the follow-on node that converts to count dicts.
+        make_counts = MemoryToCounts()
+        counts = make_counts(classified)
+        expected = np.array(
+            [
+                {"011": 1, "001": 1, "000": 2, "110": 1},
+                {"110": 3, "111": 1, "100": 1},
+                {"010": 2, "111": 1, "101": 1, "001": 1},
+            ]
+        )
+        for idx, counts_dict in enumerate(counts):
+            self.assertDictEqual(counts_dict, expected[idx])
+
+    def test_discriminator_list(self):
+        """Test that we can discriminate using a list of discriminators.
+
+        Here, the first discriminator will always return 1, the second one will give either 0
+        or 1 and the last one with a threshold of 10 will always return 0.
+        """
+
+        # The data has the shape
+        iq_data = [
+            # Circuit no. 1, 5 shots, 3 qubits
+            [
+                [[0.8, -1.1], [0.1, 0.3], [-0.3, 0.4]],
+                [[0.2, -1.0], [-0.5, 0.3], [-0.2, 0.4]],
+                [[-0.8, -1.0], [-0.1, 0.3], [-0.3, 0.4]],
+                [[-0.5, -1.0], [-0.2, 0.3], [-0.9, 0.4]],
+                [[-0.8, -1.0], [0.2, 0.3], [0.3, 0.4]],
+            ],
+            # Circuit no. 2, 5 shots, 3 qubits
+            [
+                [[-0.3, -1.0], [0.1, 0.3], [0.9, 0.4]],
+                [[0.8, -1.2], [0.9, 0.3], [0.3, 0.4]],
+                [[-0.7, -1.0], [0.1, 0.3], [0.1, 0.4]],
+                [[-0.8, -1.0], [0.7, 0.3], [0.3, 0.4]],
+                [[-0.8, -1.0], [-0.1, 0.3], [0.2, 0.4]],
+            ],
+            # Circuit no. 3, 5 shots, 3 qubits
+            [
+                [[-0.8, -1.0], [0.1, 0.3], [-0.2, 0.4]],
+                [[0.2, -1.0], [0.1, 0.3], [0.1, 0.4]],
+                [[-0.8, -1.0], [0.1, 0.3], [-0.3, 0.4]],
+                [[0.8, -1.0], [-0.1, 0.3], [0.2, 0.4]],
+                [[0.8, -1.0], [-0.1, 0.3], [-0.3, 0.4]],
+            ],
+        ]
+
+        self.create_experiment_data(iq_data, single_shot=True)
+        data = np.asarray([datum["memory"] for datum in self.iq_experiment.data()])
+        thresholds = [-10, 0, 10]
+        discriminator = DiscriminatorNode(
+            [FakeDiscriminator(threshold) for threshold in thresholds]
+        )
+        classified = discriminator(data)
+
+        expected = [
+            ["011", "001", "001", "001", "011"],  # Circuit no. 1
+            ["011", "011", "011", "011", "001"],  # Circuit no. 2
+            ["011", "011", "011", "001", "001"],  # Circuit no. 3
+        ]
+
+        self.assertListEqual(classified.tolist(), expected)
+
+    def test_qutrit(self):
+        """Test a qutrit discriminator."""
+
+        iq_data = [
+            [[[0.8, -1.0]], [[0.2, -1.0]], [[-0.8, -1.0]]],  # Circuit no. 1, 3 shots, 1 qutrit
+            [[[-0.3, -1.0]], [[0.8, -1.0]], [[-0.7, -1.0]]],  # Circuit no. 2, 3 shots, 3 qubits
+            [[[-0.8, -1.0]], [[0.2, -1.0]], [[0.8, 1.0]]],  # Circuit no. 3, 3 shots, 3 qubits
+        ]
+
+        expected = [["2", "2", "0"], ["0", "2", "0"], ["0", "2", "1"]]
+
+        self.create_experiment_data(iq_data, single_shot=True)
+        data = np.asarray([datum["memory"] for datum in self.iq_experiment.data()])
+        discriminator = DiscriminatorNode(FakeQutritDiscriminator())
+        classified = discriminator(data)
+        self.assertListEqual(classified.tolist(), expected)
+
+
+class TestMemoryToCounts(QiskitExperimentsTestCase):
+    """The test data formatting."""
+
+    def test_memory_to_counts_format(self):
+        """Test that an error is raised if the data has length one."""
+
+        node = MemoryToCounts()
+        with self.assertRaises(DataProcessorError):
+            node(np.array(["0", "1", "1", "0", "0"]))
+
+    def test_memory_to_counts(self):
+        """Test  simple counting."""
+
+        node = MemoryToCounts()
+        output = node(np.array([["0", "0", "1"], ["10", "11", "11"]]))
+        self.assertEqual(output[0], {"0": 2, "1": 1})
+        self.assertEqual(output[1], {"10": 1, "11": 2})
 
 
 class TestMarginalize(QiskitExperimentsTestCase):

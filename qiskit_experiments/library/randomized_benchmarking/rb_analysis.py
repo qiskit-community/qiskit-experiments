@@ -16,6 +16,7 @@ import warnings
 from collections import defaultdict
 from typing import Dict, List, Sequence, Tuple, Union, Optional, TYPE_CHECKING
 
+import lmfit
 from qiskit.exceptions import QiskitError
 
 import qiskit_experiments.curve_analysis as curve
@@ -68,18 +69,15 @@ class RBAnalysis(curve.CurveAnalysis):
 
     """
 
-    __series__ = [
-        curve.SeriesDef(
-            fit_func=lambda x, a, alpha, b: curve.fit_function.exponential_decay(
-                x, amp=a, lamb=-1.0, base=alpha, baseline=b
-            ),
-            plot_color="blue",
-            model_description=r"a \alpha^x + b",
-        )
-    ]
-
     def __init__(self):
-        super().__init__()
+        super().__init__(
+            models=[
+                lmfit.models.ExpressionModel(
+                    expr="a * alpha ** x + b",
+                    name="rb_decay",
+                )
+            ]
+        )
         self._gate_counts_per_clifford = None
         self._physical_qubits = None
 
@@ -194,7 +192,7 @@ class RBAnalysis(curve.CurveAnalysis):
 
     def _create_analysis_results(
         self,
-        fit_data: curve.FitData,
+        fit_data: curve.CurveFitResult,
         quality: str,
         **metadata,
     ) -> List[AnalysisResultData]:
@@ -211,7 +209,7 @@ class RBAnalysis(curve.CurveAnalysis):
         num_qubits = len(self._physical_qubits)
 
         # Calculate EPC
-        alpha = fit_data.fitval("alpha")
+        alpha = fit_data.ufloat_params["alpha"]
         scale = (2**num_qubits - 1) / (2**num_qubits)
         epc = scale * (1 - alpha)
 
