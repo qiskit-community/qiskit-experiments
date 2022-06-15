@@ -135,14 +135,14 @@ class T2Ramsey(BaseExperiment):
             rotation_angle = 2 * np.pi * self.experiment_options.osc_freq * real_delay_in_sec
 
             circ = qiskit.QuantumCircuit(1, 1)
-            circ.h(0)
+            circ.sx(0)  # Brings the qubit to the X Axis
             if dt_unit:
                 circ.delay(delay_dt, 0, "dt")
             else:
                 circ.delay(delay, 0, "s")
             circ.rz(rotation_angle, 0)
             circ.barrier(0)
-            circ.h(0)
+            circ.sx(0)
             circ.barrier(0)
             circ.measure(0, 0)
 

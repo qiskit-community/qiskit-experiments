@@ -197,7 +197,7 @@ class TestT2Ramsey(QiskitExperimentsTestCase):
                 res_freq.quality, "good", "Result quality bad for experiment on qubit " + str(i)
             )
 
-    def _test_t2ramsey_concat_2_experiments(self):
+    def test_t2ramsey_concat_2_experiments(self):
         """
         Concatenate the data from 2 separate experiments
         """
@@ -260,19 +260,19 @@ class TestT2Ramsey(QiskitExperimentsTestCase):
         self.assertLessEqual(res_t2star_1.value.s, res_t2star_0.value.s)
         self.assertEqual(len(expdata1.data()), len(delays0) + len(delays1))
 
-    def _test_experiment_config(self):
+    def test_experiment_config(self):
         """Test converting to and from config works"""
         exp = T2Ramsey(0, [1, 2, 3, 4, 5])
         loaded_exp = T2Ramsey.from_config(exp.config())
         self.assertNotEqual(exp, loaded_exp)
         self.assertTrue(self.json_equiv(exp, loaded_exp))
 
-    def _test_roundtrip_serializable(self):
+    def test_roundtrip_serializable(self):
         """Test round trip JSON serialization"""
         exp = T2Ramsey(0, [1, 2, 3, 4, 5])
         self.assertRoundTripSerializable(exp, self.json_equiv)
 
-    def _test_analysis_config(self):
+    def test_analysis_config(self):
         """ "Test converting analysis to and from config works"""
         analysis = T2RamseyAnalysis()
         loaded = T2RamseyAnalysis.from_config(analysis.config())
