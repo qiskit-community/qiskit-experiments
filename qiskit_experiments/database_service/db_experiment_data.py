@@ -20,6 +20,7 @@ import enum
 import time
 from typing import Optional, List, Any, Union, Callable, Dict, Tuple
 import copy
+import io
 from concurrent import futures
 from threading import Event
 from functools import wraps
@@ -29,6 +30,7 @@ from collections import deque
 import numpy as np
 
 from matplotlib import pyplot
+from matplotlib.figure import Figure as MatplotlibFigure
 from qiskit import QiskitError
 from qiskit.providers import Job, Backend, Provider
 from qiskit.result import Result
@@ -160,7 +162,7 @@ class FigureData:
     def copy(self, new_name: Optional[str] = None):
         """Creates a deep copy of the figure data"""
         name = new_name or self.name
-        return FigureData(figure=copy.deepcopy(self.figure), name=name, metadata=copy.deepcopy(self.metadata))
+        return FigureData(figure=self.figure, name=name, metadata=copy.deepcopy(self.metadata))
 
     def __json_encode__(self) -> Dict[str, Any]:
         """Return the json representation of the figure data"""
@@ -170,6 +172,22 @@ class FigureData:
     def __json_decode__(cls, args: Dict[str, Any]) -> "FigureData":
         """Initialize a figure data from the json representation"""
         return cls(**args)
+
+    def _repr_png_(self):
+        if isinstance(self.figure, MatplotlibFigure):
+            b = io.BytesIO()
+            self.figure.savefig(b, format="png", bbox_inches="tight")
+            png = b.getvalue()
+            return png
+        else:
+            return None
+
+    def _repr_svg_(self):
+        if isinstance(self.figure, str):
+            return self.figure
+        if isinstance(self.figure, bytes):
+            return str(self.figure)
+        return None
 
 
 class DbExperimentData:
@@ -810,7 +828,6 @@ class DbExperimentDataV1(DbExperimentData):
         self,
         figure_key: Union[str, int],
         file_name: Optional[str] = None,
-        image_only: Optional[bool] = True,
     ) -> Union[int, bytes]:
         """Retrieve the specified experiment figure.
 
@@ -818,12 +835,10 @@ class DbExperimentDataV1(DbExperimentData):
             figure_key: Name or index of the figure.
             file_name: Name of the local file to save the figure to. If ``None``,
                 the content of the figure is returned instead.
-            image_only: Return only the image and not the `FigureData` object
 
         Returns:
-            The size of the figure if `file_name` is specified. Otherwise the
-            content of the figure in bytes if `image_only` is `True`, and
-            the `FigureData` object if `False`.
+            The size of the figure if `file_name` is specified.
+            Otherwise the `FigureData`.
 
         Raises:
             DbExperimentEntryNotFound: If the figure cannot be found.
@@ -844,8 +859,6 @@ class DbExperimentDataV1(DbExperimentData):
             with open(file_name, "wb") as output:
                 num_bytes = output.write(figure_data.figure)
                 return num_bytes
-        if image_only:
-            return figure_data.figure
         return figure_data
 
     @do_auto_save
