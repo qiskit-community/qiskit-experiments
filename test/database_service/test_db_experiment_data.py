@@ -340,8 +340,8 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
             metadata={"physical_qubits": qubits},
         )
         exp_data.add_figures(hello_bytes)
-        exp_data.figure(0, image_only=False).metadata["foo"] = "bar"
-        figure_data = exp_data.figure(0, image_only=False)
+        exp_data.figure(0).metadata["foo"] = "bar"
+        figure_data = exp_data.figure(0)
 
         self.assertEqual(figure_data.metadata["qubits"], qubits)
         self.assertEqual(figure_data.metadata["foo"], "bar")
@@ -354,7 +354,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
             metadata={"physical_qubits": [1, 2, 3, 4]},
         )
         exp_data2.add_figures(figure_data, "new_name.svg")
-        figure_data = exp_data2.figure("new_name.svg", image_only=False)
+        figure_data = exp_data2.figure("new_name.svg")
 
         # metadata should not change when adding to new ExperimentData
         self.assertEqual(figure_data.metadata["qubits"], qubits)
