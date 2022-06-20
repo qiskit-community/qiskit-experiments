@@ -270,7 +270,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
             with self.subTest(name=name):
                 exp_data = DbExperimentData(backend=self.backend, experiment_type="qiskit_test")
                 fn = exp_data.add_figures(figure, figure_name)
-                self.assertEqual(hello_bytes, exp_data.figure(fn))
+                self.assertEqual(hello_bytes, exp_data.figure(fn).figure)
 
     def test_add_figure_plot(self):
         """Test adding a matplotlib figure."""
@@ -280,7 +280,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         service = self._set_mock_service()
         exp_data = DbExperimentData(backend=self.backend, experiment_type="qiskit_test")
         exp_data.add_figures(figure, save_figure=True)
-        self.assertEqual(figure, exp_data.figure(0))
+        self.assertEqual(figure, exp_data.figure(0).figure)
         service.create_figure.assert_called_once()
         _, kwargs = service.create_figure.call_args
         self.assertIsInstance(kwargs["figure"], bytes)
@@ -305,7 +305,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
                 exp_data = DbExperimentData(backend=self.backend, experiment_type="qiskit_test")
                 added_names = exp_data.add_figures(figures, figure_names)
                 for idx, added_fn in enumerate(added_names):
-                    self.assertEqual(hello_bytes[idx], exp_data.figure(added_fn))
+                    self.assertEqual(hello_bytes[idx], exp_data.figure(added_fn).figure)
 
     def test_add_figure_overwrite(self):
         """Test updating an existing figure."""
@@ -318,7 +318,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
             exp_data.add_figures(friend_bytes, fn)
 
         exp_data.add_figures(friend_bytes, fn, overwrite=True)
-        self.assertEqual(friend_bytes, exp_data.figure(fn))
+        self.assertEqual(friend_bytes, exp_data.figure(fn).figure)
 
     def test_add_figure_save(self):
         """Test saving a figure in the database."""
@@ -386,8 +386,8 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
             )
         idx = randrange(3)
         expected_figure = str.encode(figure_template.format(idx))
-        self.assertEqual(expected_figure, exp_data.figure(name_template.format(idx)))
-        self.assertEqual(expected_figure, exp_data.figure(idx))
+        self.assertEqual(expected_figure, exp_data.figure(name_template.format(idx)).figure)
+        self.assertEqual(expected_figure, exp_data.figure(idx).figure)
 
         file_name = uuid.uuid4().hex
         self.addCleanup(os.remove, file_name)
