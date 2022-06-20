@@ -364,7 +364,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
 
         # can set the metadata to new dictionary
         figure_data.metadata = {"bar": "foo"}
-        self.assertEqual(figure_data.metadata['bar'], 'foo')
+        self.assertEqual(figure_data.metadata["bar"], "foo")
 
         # cannot set the metadata to something other than dictionary
         with self.assertRaises(ValueError):

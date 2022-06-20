@@ -158,7 +158,6 @@ class FigureData:
             raise ValueError("figure metadata must be a dictionary")
         self._metadata = new_metadata
 
-
     def copy(self, new_name: Optional[str] = None):
         """Creates a deep copy of the figure data"""
         name = new_name or self.name
