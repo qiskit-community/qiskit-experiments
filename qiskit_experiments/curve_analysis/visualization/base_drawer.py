@@ -82,6 +82,7 @@ class BaseCurveDrawer(ABC):
         self._options = self._default_options()
         self._set_options = set()
         self._axis = None
+        self._curves = list()
 
     @property
     def options(self) -> Options:
@@ -136,6 +137,12 @@ class BaseCurveDrawer(ABC):
                 The first argument is the relative sigma (n_sigma), and the second argument is
                 the transparency of the interval plot in ``[0, 1]``.
                 Multiple n_sigma intervals can be drawn for the single curve.
+            plot_options (Dict[str, Dict[str, Any]]): A dictionary of plot options for each curve.
+                This is keyed on the model name for each curve. Sub-dictionary is expected to have
+                following three configurations, "canvas", "color", and "symbol"; "canvas" is the
+                integer index of axis (when multi-canvas plot is set), "color" is the
+                color of the curve, and "symbol" is the marker style of the curve for scatter plots.
+            figure_title (str): Title of the figure. Defaults to None, i.e. nothing is shown.
         """
         return Options(
             axis=None,
@@ -153,6 +160,8 @@ class BaseCurveDrawer(ABC):
             fit_report_rpos=(0.6, 0.95),
             fit_report_text_size=14,
             plot_sigma=[(1.0, 0.7), (3.0, 0.3)],
+            plot_options={},
+            figure_title=None,
         )
 
     def set_options(self, **fields):
@@ -176,7 +185,7 @@ class BaseCurveDrawer(ABC):
         self,
         x_data: Sequence[float],
         y_data: Sequence[float],
-        ax_index: Optional[int] = None,
+        name: Optional[str] = None,
         **options,
     ):
         """Draw raw data.
@@ -184,7 +193,7 @@ class BaseCurveDrawer(ABC):
         Args:
             x_data: X values.
             y_data: Y values.
-            ax_index: Index of canvas if multiple inset axis exist.
+            name: Name of this curve.
             options: Valid options for the drawer backend API.
         """
 
@@ -195,7 +204,6 @@ class BaseCurveDrawer(ABC):
         y_data: Sequence[float],
         y_err_data: Sequence[float],
         name: Optional[str] = None,
-        ax_index: Optional[int] = None,
         **options,
     ):
         """Draw the formatted data that is used for fitting.
@@ -205,7 +213,6 @@ class BaseCurveDrawer(ABC):
             y_data: Y values.
             y_err_data: Standard deviation of Y values.
             name: Name of this curve.
-            ax_index: Index of canvas if multiple inset axis exist.
             options: Valid options for the drawer backend API.
         """
 
@@ -214,7 +221,7 @@ class BaseCurveDrawer(ABC):
         self,
         x_data: Sequence[float],
         y_data: Sequence[float],
-        ax_index: Optional[int] = None,
+        name: Optional[str] = None,
         **options,
     ):
         """Draw fit line.
@@ -222,7 +229,7 @@ class BaseCurveDrawer(ABC):
         Args:
             x_data: X values.
             y_data: Fit Y values.
-            ax_index: Index of canvas if multiple inset axis exist.
+            name: Name of this curve.
             options: Valid options for the drawer backend API.
         """
 
@@ -232,7 +239,7 @@ class BaseCurveDrawer(ABC):
         x_data: Sequence[float],
         y_ub: Sequence[float],
         y_lb: Sequence[float],
-        ax_index: Optional[int] = None,
+        name: Optional[str] = None,
         **options,
     ):
         """Draw cofidence interval.
@@ -241,7 +248,7 @@ class BaseCurveDrawer(ABC):
             x_data: X values.
             y_ub: The upper boundary of Y values.
             y_lb: The lower boundary of Y values.
-            ax_index: Index of canvas if multiple inset axis exist.
+            name: Name of this curve.
             options: Valid options for the drawer backend API.
         """
 

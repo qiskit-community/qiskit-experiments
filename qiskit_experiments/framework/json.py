@@ -27,6 +27,7 @@ from functools import lru_cache
 from types import FunctionType, MethodType
 from typing import Any, Dict, Type, Optional, Union, Callable
 
+import lmfit
 import numpy as np
 import scipy.sparse as sps
 import uncertainties
@@ -459,7 +460,11 @@ class ExperimentEncoder(json.JSONEncoder):
         if isinstance(obj, np.number):
             return obj.item()
         if dataclasses.is_dataclass(obj):
-            return _serialize_object(obj, settings=dataclasses.asdict(obj))
+            # Note that dataclass.asdict recursively convert nested dataclass into dictionary.
+            # Thus inter dataclass is unintentionally decoded as dictionary.
+            # obj.__dict__ doesn't convert inter dataclass thus serialization
+            # is offloaded to usual json serialization mechanism.
+            return _serialize_object(obj, settings=obj.__dict__)
         if isinstance(obj, uncertainties.UFloat):
             # This could be UFloat (AffineScalarFunc) or Variable.
             # UFloat is a base class of Variable that contains parameter correlation.
@@ -480,6 +485,12 @@ class ExperimentEncoder(json.JSONEncoder):
                     "settings": settings,
                     "version": get_object_version(cls),
                 },
+            }
+        if isinstance(obj, lmfit.Model):
+            # LMFIT Model object. Delegate serialization to LMFIT.
+            return {
+                "__type__": "LMFIT.Model",
+                "__value__": obj.dumps(),
             }
         if isinstance(obj, Instruction):
             # Serialize gate by storing it in a circuit.
@@ -567,6 +578,10 @@ class ExperimentDecoder(json.JSONDecoder):
                 return _deserialize_bytes(obj_val)
             if obj_type == "set":
                 return set(obj_val)
+            if obj_type == "LMFIT.Model":
+                tmp = lmfit.Model(func=None)
+                load_obj = tmp.loads(s=obj_val)
+                return load_obj
             if obj_type == "Instruction":
                 circuit = _decode_and_deserialize(
                     obj_val, qpy_serialization.load, name="QuantumCircuit"
