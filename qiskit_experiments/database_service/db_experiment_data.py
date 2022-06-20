@@ -1107,6 +1107,7 @@ class DbExperimentDataV1(DbExperimentData):
                 # currently only the figure and its name are stored in the database
                 if isinstance(figure, FigureData):
                     figure = figure.figure
+                    LOG.warning("Figure metadata is currently not saved to the database")
                 if isinstance(figure, pyplot.Figure):
                     figure = plot_to_svg_bytes(figure)
                 data = {"experiment_id": self.experiment_id, "figure": figure, "figure_name": name}
