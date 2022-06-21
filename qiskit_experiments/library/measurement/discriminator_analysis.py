@@ -51,9 +51,46 @@ class DiscriminatorAnalysis(BaseAnalysis):
 
         return options
 
+    def fisher_ibm(self, dist, sigma0, sigma1):
+        """The definition for the linear fisher discriminant as defined by IBM, "Reducing Spontaneous
+        Emission in Circuit QED by a Combined Readout and Filter Technique, N Bronn et. al." uses a
+        slightly different definition which takes the mean value of the two populations' noise. It is
+        related to SNR and R_wiki by: R_ibm = 2 * R_wiki = 4 * SNR.
+        """
+        power_signal = ((dist)) ** 2
+        power_noise = ((sigma0 + sigma1) / 2) ** 2
+        return power_signal / power_noise
+
+    def projected_ellipse(self, a, b, angle):
+        """Calculates the ellipse length along the axis with given angle in degrees."""
+        angle = angle * np.pi / 180
+        return np.sqrt(
+            (a ** 2 + b ** 2 + a ** 2 * b ** 2 * np.tan(angle) ** 2)
+            / (b ** 2 + a ** 2 * np.tan(angle) ** 2)
+        )
+
+    def to_polar(self, cart_c):
+        """Converts Cartesian to polar coordinates."""
+        x = cart_c[0]
+        y = cart_c[1]
+        rho = np.sqrt(x ** 2 + y ** 2)
+        phi = np.arctan2(y, x) * 180 / np.pi
+        return (rho, phi)
+
     def gaussian_analysis(self, gmm, ax):
+        """Plotting and analysis for gaussian mixture discriminators."""
         angles = []
         diameters = []
+        eccentricities = []
+        sigmas = []
+
+        center_dist = np.sqrt(
+            (gmm.means_[1][1] - gmm.means_[0][1]) ** 2 + (gmm.means_[1][0] - gmm.means_[0][0]) ** 2
+        )
+
+        polar_centers = [self.to_polar(i) for i in gmm.means_]
+        center_angle = polar_centers[1][1] - polar_centers[0][1]
+
         for n in range(len(gmm.means_)):
             if gmm.covariance_type == "full":
                 covariances = gmm.covariances_[n][:2, :2]
@@ -80,11 +117,36 @@ class DiscriminatorAnalysis(BaseAnalysis):
                 )
             diameters.append(v)
             angles.append(angle + 180)
+            semimaj = max(v[0], v[1]) / 2
+            semimin = min(v[0], v[1]) / 2
+            eccentricities.append(np.sqrt(semimaj ** 2 - semimin ** 2) / semimaj)
+
+            sigmas.append(self.projected_ellipse(semimaj, semimin, center_angle - (angle + 180)))
 
         analysis_results = [
             AnalysisResultData(
                 "discriminator",
                 value=gmm,
+            ),
+            AnalysisResultData(
+                "sigmas",
+                value=str(sigmas),
+            ),
+            AnalysisResultData(
+                "center_dist",
+                value=str(center_dist),
+            ),
+            AnalysisResultData(
+                "fisher_discriminant",
+                value=self.fisher_ibm(center_dist, sigmas[0], sigmas[1]),
+            ),
+            AnalysisResultData(
+                "eccentricities",
+                value=str(eccentricities),
+            ),
+            AnalysisResultData(
+                "polar_centers",
+                value=str(polar_centers),
             ),
             AnalysisResultData(
                 "centers",
@@ -94,8 +156,8 @@ class DiscriminatorAnalysis(BaseAnalysis):
                 "covariances",
                 value=str(gmm.covariances_),
             ),
-            AnalysisResultData("diameters", value=str(diameters)),
-            AnalysisResultData("angle", value=str(angles)),
+            AnalysisResultData("ellipse_diameters", value=str(diameters)),
+            AnalysisResultData("ellipse_angles", value=str(angles)),
         ]
         return ax, analysis_results
 
@@ -137,7 +199,9 @@ class DiscriminatorAnalysis(BaseAnalysis):
             raise AttributeError("Unsupported discriminator type")
 
         discriminator.fit(_ydata, _xdata)
-        score = discriminator.score(_ydata, _xdata)
+        score = np.split(discriminator.predict(_ydata), 2)
+        score_0 = sum(score[0]) / len(score[0])
+        score_1 = (len(score[1]) - sum(score[1])) / len(score[1])
 
         if self.options.plot:
             minxy = np.amin(_ydata)
@@ -264,6 +328,13 @@ class DiscriminatorAnalysis(BaseAnalysis):
                     value=score,
                 ),
             ]
+
+        analysis_results.append(
+            AnalysisResultData(
+                "prep_error",
+                value=str([score_0, score_1]),
+            )
+        )
 
         return analysis_results, figures
 
