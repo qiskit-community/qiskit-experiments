@@ -159,7 +159,7 @@ class FigureData:
         self._metadata = new_metadata
 
     def copy(self, new_name: Optional[str] = None):
-        """Creates a deep copy of the figure data"""
+        """Creates a copy of the figure data"""
         name = new_name or self.name
         return FigureData(figure=self.figure, name=name, metadata=copy.deepcopy(self.metadata))
 
