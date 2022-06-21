@@ -18,10 +18,11 @@ from functools import lru_cache
 from numpy.random import Generator, default_rng
 from qiskit import QuantumCircuit, QuantumRegister
 from qiskit.circuit import Gate
-from qiskit.circuit.library import SdgGate, HGate, SGate, SXdgGate
+from qiskit.circuit.library import SdgGate, HGate, SGate, SXdgGate, XGate, YGate, ZGate
 from qiskit.quantum_info import Clifford, random_clifford
 from qiskit.compiler import transpile
 from qiskit.providers.aer import AerSimulator
+from qiskit.exceptions import QiskitError
 
 
 class VGate(Gate):
@@ -236,3 +237,27 @@ class CliffordUtils:
             transpiled_circ = transpile(circ, backend, optimization_level=1, basis_gates=basis_gates)
             transpiled_circs.append(transpiled_circ)
         return transpiled_circs
+
+
+    def num_from_1_qubit_clifford(self, name):
+        """
+        This method does the reverse of clifford_1_qubit_circuit -
+        given a clifford, it returns the corresponding integer.
+        """
+        if name == "H" or name == "h":
+            return 1
+        if name == "SXdg" or name == "sxdg":
+            return 2
+        if name == "S" or name == "s":
+            return 4
+        if name == "X" or name == "x":
+            return 6
+        if name == "SX" or name == "sx":
+            return 8
+        if name == "Y" or name == "y":
+            return 12
+        if name == "Z" or name == "z":
+            return 18
+        raise QiskitError(
+            "Instruction {} could not be converted to Clifford gate".format(name)
+            )

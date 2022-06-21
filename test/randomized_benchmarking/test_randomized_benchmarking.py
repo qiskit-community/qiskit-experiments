@@ -17,7 +17,7 @@ from test.base import QiskitExperimentsTestCase
 import numpy as np
 from ddt import ddt, data, unpack
 from qiskit.circuit import Delay, QuantumCircuit
-from qiskit.circuit.library import SXGate, CXGate, TGate, XGate
+from qiskit.circuit.library import SXGate, CXGate, TGate, XGate, YGate, ZGate, HGate, SGate
 from qiskit.exceptions import QiskitError
 from qiskit.providers.aer import AerSimulator
 from qiskit.providers.aer.noise import NoiseModel, depolarizing_error
@@ -360,6 +360,7 @@ class TestInterleavedRB(RBTestCase):
             lengths=list(range(1, 300, 30)),
             seed=123,
             backend=self.backend,
+            transpiled_rb=True,
         )
         exp.set_transpile_options(**self.transpiler_options)
         self.assertAllIdentity(exp.circuits())
@@ -414,6 +415,7 @@ class TestInterleavedRB(RBTestCase):
             qubits=[0],
             lengths=[1],
             num_samples=1,
+            transpiled_rb=True
         )
         # Not raises an error
         _, int_circ = exp.circuits()
@@ -428,7 +430,7 @@ class TestInterleavedRB(RBTestCase):
         delay_qc.x(1)
 
         exp = rb.InterleavedRB(
-            interleaved_element=delay_qc, qubits=[1, 2], lengths=[1], seed=123, num_samples=1
+            interleaved_element=delay_qc, qubits=[1, 2], lengths=[1], seed=123, num_samples=1, transpiled_rb=True
         )
         _, int_circ = exp.circuits()
 
@@ -441,7 +443,7 @@ class TestInterleavedRB(RBTestCase):
     def test_experiment_config(self):
         """Test converting to and from config works"""
         exp = rb.InterleavedRB(
-            interleaved_element=SXGate(), qubits=(0,), lengths=[10, 20, 30], seed=123
+            interleaved_element=SXGate(), qubits=(0,), lengths=[10, 20, 30], seed=123, transpiled_rb=True
         )
         loaded_exp = rb.InterleavedRB.from_config(exp.config())
         self.assertNotEqual(exp, loaded_exp)
@@ -469,6 +471,7 @@ class TestInterleavedRB(RBTestCase):
             lengths=list(range(1, 200, 50)),
             seed=123,
             backend=self.backend,
+            transpiled_rb=True
         )
         exp.set_transpile_options(**self.transpiler_options)
         expdata = exp.run()
