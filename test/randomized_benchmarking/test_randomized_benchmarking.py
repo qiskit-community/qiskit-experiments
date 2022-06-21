@@ -320,29 +320,37 @@ class TestInterleavedRB(RBTestCase):
         identical to the original circuit up to additions of
         barrier and interleaved element between any two Cliffords.
         """
-        exp = rb.InterleavedRB(
-            interleaved_element=interleaved_element, qubits=qubits, lengths=[length], num_samples=1
-        )
+        full_sampling =[True, False]
+        for val in full_sampling:
+            exp = rb.InterleavedRB(
+                interleaved_element=interleaved_element, qubits=qubits, lengths=[length],
+                num_samples=1, full_sampling=val, transpiled_rb=True
+            )
 
-        circuits = exp.circuits()
-        c_std = circuits[0]
-        c_int = circuits[1]
-        if c_std.metadata["interleaved"]:
-            c_std, c_int = c_int, c_std
-        num_cliffords = c_std.metadata["xval"]
-        std_idx = 0
-        int_idx = 0
-        for _ in range(num_cliffords):
-            # barrier
-            self.assertEqual(c_std[std_idx][0].name, "barrier")
-            self.assertEqual(c_int[int_idx][0].name, "barrier")
-            # clifford
-            self.assertEqual(c_std[std_idx + 1], c_int[int_idx + 1])
-            # for interleaved circuit: barrier + interleaved element
-            self.assertEqual(c_int[int_idx + 2][0].name, "barrier")
-            self.assertEqual(c_int[int_idx + 3][0].name, interleaved_element.name)
-            std_idx += 2
-            int_idx += 4
+            circuits = exp.circuits()
+            c_std = circuits[0]
+            c_int = circuits[1]
+            if c_std.metadata["interleaved"]:
+                c_std, c_int = c_int, c_std
+            num_cliffords = c_std.metadata["xval"]
+            std_idx = 0
+            int_idx = 0
+            for _ in range(num_cliffords):
+                # barrier
+                self.assertEqual(c_std[std_idx][0].name, "barrier")
+                self.assertEqual(c_int[int_idx][0].name, "barrier")
+                # clifford
+                std_idx += 1
+                int_idx += 1
+                while c_std[std_idx][0].name != "barrier":
+                    self.assertEqual(c_std[std_idx], c_int[int_idx])
+                    std_idx += 1
+                    int_idx += 1
+                # for interleaved circuit: barrier + interleaved element
+                self.assertEqual(c_int[int_idx][0].name, "barrier")
+                int_idx += 1
+                self.assertEqual(c_int[int_idx][0].name, interleaved_element.name)
+                int_idx += 1
 
     def test_single_qubit(self):
         """Test single qubit IRB."""

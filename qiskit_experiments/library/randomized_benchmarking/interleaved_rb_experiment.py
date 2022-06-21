@@ -14,7 +14,7 @@ Interleaved RB Experiment class.
 """
 from typing import Union, Iterable, Optional, List, Sequence
 
-from numpy.random import Generator
+from numpy.random import Generator, default_rng
 from numpy.random.bit_generator import BitGenerator, SeedSequence
 
 from qiskit import QuantumCircuit
@@ -57,6 +57,7 @@ class InterleavedRB(StandardRB):
         num_samples: int = 3,
         seed: Optional[Union[int, SeedSequence, BitGenerator, Generator]] = None,
         full_sampling: bool = False,
+        transpiled_rb = False
     ):
         """Initialize an interleaved randomized benchmarking experiment.
 
@@ -84,9 +85,30 @@ class InterleavedRB(StandardRB):
             num_samples=num_samples,
             seed=seed,
             full_sampling=full_sampling,
+            transpiled_rb=transpiled_rb
         )
         self.analysis = InterleavedRBAnalysis()
         self.analysis.set_options(outcome="0" * self.num_qubits)
+
+    def circuits(self) -> List[QuantumCircuit]:
+        """Return a list of RB circuits.
+
+        Returns:
+            A list of :class:`QuantumCircuit`.
+        """
+        rng = default_rng(seed=self.experiment_options.seed)
+        circuits = []
+
+        for _ in range(self.experiment_options.num_samples):
+            if self.num_qubits == 1 and self._transpiled_rb:
+                std_circuits, int_circuits = self._build_rb_circuits(self.experiment_options.lengths, rng,
+                                                    is_interleaved=True,
+                                                    interleaved_element=self._interleaved_element)
+                circuits += std_circuits
+                circuits += int_circuits
+            else:
+                circuits += self._sample_circuits(self.experiment_options.lengths, rng)
+        return circuits
 
     def _sample_circuits(self, lengths, rng):
         circuits = []
