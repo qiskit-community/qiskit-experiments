@@ -1088,7 +1088,7 @@ class DbExperimentDataV1(DbExperimentData):
 
         self._save_experiment_metadata()
         if not self._created_in_db:
-            LOG.warning("Could not save experiment metadata to DB, aborting experiment save")
+            LOG.debug("Could not save experiment metadata to DB, aborting experiment save")
             return
 
         for result in self._analysis_results.values():
