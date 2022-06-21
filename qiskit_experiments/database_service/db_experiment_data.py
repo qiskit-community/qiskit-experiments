@@ -837,7 +837,7 @@ class DbExperimentDataV1(DbExperimentData):
 
         Returns:
             The size of the figure if `file_name` is specified.
-            Otherwise the `FigureData`.
+            Otherwise the :class:`.FigureData`.
 
         Raises:
             DbExperimentEntryNotFound: If the figure cannot be found.
