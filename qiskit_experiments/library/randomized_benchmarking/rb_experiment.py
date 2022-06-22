@@ -100,7 +100,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
         start = time.time()
         basis_gates = ["rz", "sx", "cx"]
         self._transpiled_cliff_circuits = CliffordUtils.generate_1q_transpiled_clifford_circuits(basis_gates=basis_gates)
-     
+
     def _verify_parameters(self, lengths, num_samples):
         """Verify input correctness, raise QiskitError if needed"""
         if any(length <= 0 for length in lengths):
@@ -144,7 +144,8 @@ class StandardRB(BaseExperiment, RestlessMixin):
         circuits = []
         for _ in range(self.experiment_options.num_samples):
             if self.num_qubits == 1 and self._transpiled_rb:
-                circuits += self._build_rb_circuits(self.experiment_options.lengths, rng)
+                rb_circuits, _ = self._build_rb_circuits(self.experiment_options.lengths, rng)
+                circuits += rb_circuits
             else:
                 circuits += self._sample_circuits(self.experiment_options.lengths, rng)
         return circuits
