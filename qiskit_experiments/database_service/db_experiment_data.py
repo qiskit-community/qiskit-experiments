@@ -1088,7 +1088,7 @@ class DbExperimentDataV1(DbExperimentData):
 
         self._save_experiment_metadata()
         if not self._created_in_db:
-            LOG.debug("Could not save experiment metadata to DB, aborting experiment save")
+            LOG.warning("Could not save experiment metadata to DB, aborting experiment save")
             return
 
         for result in self._analysis_results.values():
@@ -1106,7 +1106,7 @@ class DbExperimentDataV1(DbExperimentData):
                 # currently only the figure and its name are stored in the database
                 if isinstance(figure, FigureData):
                     figure = figure.figure
-                    LOG.warning("Figure metadata is currently not saved to the database")
+                    LOG.debug("Figure metadata is currently not saved to the database")
                 if isinstance(figure, pyplot.Figure):
                     figure = plot_to_svg_bytes(figure)
                 data = {"experiment_id": self.experiment_id, "figure": figure, "figure_name": name}
