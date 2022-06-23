@@ -23,7 +23,6 @@ import time
 
 from qiskit import QuantumCircuit, QuantumRegister, QiskitError
 from qiskit.circuit import Instruction
-#from qiskit.circuit.library import XGate
 from qiskit.circuit.quantumregister import Qubit
 from qiskit.quantum_info import Clifford
 from qiskit.providers.backend import Backend
@@ -244,8 +243,10 @@ class StandardRB(BaseExperiment, RestlessMixin):
         if is_interleaved:
             all_rb_interleaved_circuits = []
             interleaved_elem_num = \
-                self._clifford_utils.num_from_1_qubit_clifford(interleaved_element[0],
-                                                               self.transpile_options.__dict__["basis_gates"])
+                CliffordUtils.num_from_1_qubit_clifford_single_gate(
+                    interleaved_element[0],
+                    self.transpile_options.__dict__["basis_gates"]
+                )
         else:
             all_rb_interleaved_circuits = None
 
@@ -324,8 +325,10 @@ class StandardRB(BaseExperiment, RestlessMixin):
         if is_interleaved:
             all_rb_interleaved_circuits = []
             interleaved_elem_num = \
-                self._clifford_utils.num_from_1_qubit_clifford(interleaved_element[0],
-                                                               self.transpile_options.__dict__["basis_gates"])
+                CliffordUtils.num_from_1_qubit_clifford_single_gate(
+                    interleaved_element[0],
+                    self.transpile_options.__dict__["basis_gates"]
+                )
         else:
             all_rb_interleaved_circuits = None
 

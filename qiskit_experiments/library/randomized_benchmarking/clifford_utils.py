@@ -17,12 +17,14 @@ from typing import Optional, Union, List
 from functools import lru_cache
 import numpy as np
 from numpy.random import Generator, default_rng
+from math import isclose
 from qiskit import QuantumCircuit, QuantumRegister
 from qiskit.circuit import Gate
 from qiskit.circuit.library import SdgGate, HGate, SGate, SXdgGate
 from qiskit.quantum_info import Clifford, random_clifford
 from qiskit.compiler import transpile
 from qiskit.providers.aer import AerSimulator
+from .clifford_data import CLIFF_COMPOSE_DATA, CLIFF_INVERSE_DATA
 from qiskit.exceptions import QiskitError
 
 
@@ -237,14 +239,9 @@ class CliffordUtils:
         for i, circ in enumerate(circs):
             transpiled_circ = transpile(circ, backend, optimization_level=1, basis_gates=basis_gates)
             transpiled_circs.append(transpiled_circ)
-            print(i)
-            print(circ)
-            print(transpiled_circ)
-            print()
         return transpiled_circs
 
-
-    def num_from_1_qubit_clifford(self, inst, basis_gates):
+    def num_from_1_qubit_clifford_single_gate(inst, basis_gates):
         """
         This method does the reverse of clifford_1_qubit_circuit -
         given a clifford, it returns the corresponding integer, with the mapping
@@ -271,15 +268,22 @@ class CliffordUtils:
             if name == "rz":
                 # The next two are identical up to a phase, which makes no difference
                 # for the associated Cliffords
-                if inst.params == [np.pi] or inst.params == [-np.pi]:
+                if isclose(inst.params[0], np.pi) or isclose(inst.params[0], -np.pi):
                     return 18
-                if inst.params == [np.pi / 2]:
+                if isclose(inst.params[0], np.pi / 2):
                     return 4
-                if inst.params == [-np.pi / 2]:
+                if isclose(inst.params[0], -np.pi / 2):
                     return 22
                 else:
-                    print("wrong param" + str(inst.params))
+                    raise QiskitError("wrong param {} for rz in clifford".format(inst.params[0]))
 
         raise QiskitError(
             "Instruction {} could not be converted to Clifford gate".format(name)
             )
+
+    def num_from_1_qubit_clifford(qc, basis_gates):
+        composed_num = 0
+        for inst in qc:
+            num = CliffordUtils.num_from_1_qubit_clifford_single_gate(inst[0], basis_gates)
+            composed_num = CLIFF_COMPOSE_DATA[(composed_num, num)]
+        return composed_num

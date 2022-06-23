@@ -1019,17 +1019,16 @@ class TestRBUtilities(QiskitExperimentsTestCase):
                     self.assertNotEqual(phase, other_phase)
                 phases.append(phase)
 
-    def test_number_to_clifford_mapping(self):
+    def test_number_to_clifford_mapping_single_gate(self):
         """ Testing that the methods num_from_1_qubit_clifford and
             clifford_1_qubit_circuit perform the reverse operations from
             each other"""
         transpiled_cliff_list = [SXGate(), RZGate(np.pi), RZGate(-np.pi),
                                  RZGate(np.pi/2), RZGate(-np.pi/2)]
         transpiled_cliff_names = [gate.name for gate in transpiled_cliff_list]
-        utils = CliffordUtils()
         for inst in transpiled_cliff_list:
-            num = utils.num_from_1_qubit_clifford(inst, transpiled_cliff_names)
-            qc_from_num = utils.clifford_1_qubit_circuit(num=num)
+            num = CliffordUtils.num_from_1_qubit_clifford_single_gate(inst, transpiled_cliff_names)
+            qc_from_num = CliffordUtils.clifford_1_qubit_circuit(num=num)
             qr = QuantumRegister(1)
             qc_from_inst = QuantumCircuit(qr)
             qc_from_inst._append(inst, [qr[0]], [])
@@ -1038,9 +1037,18 @@ class TestRBUtilities(QiskitExperimentsTestCase):
         general_cliff_list = [IGate(), HGate(), SdgGate(), SGate(), XGate(), SXGate(), YGate(), ZGate()]
         general_cliff_names = [gate.name for gate in general_cliff_list]
         for inst in general_cliff_list:
-            num = utils.num_from_1_qubit_clifford(inst, general_cliff_names)
-            qc_from_num = utils.clifford_1_qubit_circuit(num=num)
+            num = CliffordUtils.num_from_1_qubit_clifford(inst, general_cliff_names)
+            qc_from_num = CliffordUtils.clifford_1_qubit_circuit(num=num)
             qr = QuantumRegister(1)
             qc_from_inst = QuantumCircuit(qr)
             qc_from_inst._append(inst, [qr[0]], [])
             assert (Operator(qc_from_num).equiv(Operator(qc_from_inst)))
+
+    def test_number_to_clifford_mapping(self):
+        transpiled_cliff_list = [SXGate(), RZGate(np.pi), RZGate(-np.pi),
+                                 RZGate(np.pi / 2), RZGate(-np.pi / 2)]
+        transpiled_cliff_names = [gate.name for gate in transpiled_cliff_list]
+        all_transpiled_circuits = CliffordUtils.generate_1q_transpiled_clifford_circuits(transpiled_cliff_names)
+        for index, qc in enumerate(all_transpiled_circuits):
+            num = CliffordUtils.num_from_1_qubit_clifford(qc, transpiled_cliff_names)
+            assert(num == index)
