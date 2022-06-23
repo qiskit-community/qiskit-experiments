@@ -467,7 +467,7 @@ Base Classes
 
     BaseCurveAnalysis
     CurveAnalysis
-    MultiGroupCurveAnalysis
+    CompositeCurveAnalysis
 
 Data Classes
 ============
@@ -497,6 +497,7 @@ Standard Analysis Library
     :toctree: ../stubs/
     :template: autosummary/analysis.rst
 
+    BlochTrajectoryAnalysis
     DecayAnalysis
     DumpedOscillationAnalysis
     OscillationAnalysis
@@ -549,7 +550,7 @@ Utilities
 """
 from .base_curve_analysis import BaseCurveAnalysis
 from .curve_analysis import CurveAnalysis
-from .grouped_curve_analysis import MultiGroupCurveAnalysis
+from .composite_curve_analysis import CompositeCurveAnalysis
 from .curve_data import (
     CurveData,
     CurveFitResult,
@@ -577,6 +578,7 @@ from .standard_analysis import (
     ResonanceAnalysis,
     GaussianAnalysis,
     ErrorAmplificationAnalysis,
+    BlochTrajectoryAnalysis,
 )
 
 # deprecated

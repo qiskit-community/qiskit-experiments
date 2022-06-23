@@ -39,7 +39,11 @@ class CurveAnalysis(BaseCurveAnalysis):
     See :class:`BaseCurveAnalysis` for overridable method documentation.
     """
 
-    def __init__(self, models: Optional[List[lmfit.Model]] = None):
+    def __init__(
+        self,
+        models: Optional[List[lmfit.Model]] = None,
+        name: Optional[str] = None,
+    ):
         """Initialize data fields that are privately accessed by methods.
 
         Args:
@@ -51,6 +55,7 @@ class CurveAnalysis(BaseCurveAnalysis):
                 circuit metadata that is associated with the model.
                 Usually multiple models must be provided with this keyword to
                 classify the experiment data into subgroups of fit model.
+            name: Optional. Name of this analysis.
         """
         super().__init__()
 
@@ -96,9 +101,15 @@ class CurveAnalysis(BaseCurveAnalysis):
             self.drawer.set_options(plot_options=plot_options)
 
         self._models = models or []
+        self._name = name or self.__class__.__name__
 
         #: List[CurveData]: Processed experiment data set. For backward compatibility.
         self.__processed_data_set = {}
+
+    @property
+    def name(self) -> str:
+        """Return name of this analysis."""
+        return self._name
 
     @property
     def parameters(self) -> List[str]:
@@ -158,6 +169,10 @@ class CurveAnalysis(BaseCurveAnalysis):
         self._initialize(experiment_data)
         analysis_results = []
 
+        # Initialize canvas
+        if self.options.plot:
+            self.drawer.initialize_canvas()
+
         # Run data processing
         processed_data = self._run_data_processing(
             raw_data=experiment_data.data(),
@@ -193,7 +208,6 @@ class CurveAnalysis(BaseCurveAnalysis):
         fit_data = self._run_curve_fit(
             curve_data=formatted_data,
             models=self._models,
-            init_guesses=self.options.p0,
         )
 
         if fit_data.success:
@@ -205,7 +219,7 @@ class CurveAnalysis(BaseCurveAnalysis):
             # Store fit status overview entry regardless of success.
             # This is sometime useful when debugging the fitting code.
             overview = AnalysisResultData(
-                name=PARAMS_ENTRY_PREFIX + self.__class__.__name__,
+                name=PARAMS_ENTRY_PREFIX + self.name,
                 value=fit_data,
                 quality=quality,
                 extra=self.options.extra,
@@ -270,9 +284,10 @@ class CurveAnalysis(BaseCurveAnalysis):
                 self.drawer.draw_fit_report(description=report_description)
 
         # Add raw data points
-        analysis_results.extend(
-            self._create_curve_data(curve_data=formatted_data, models=self._models)
-        )
+        if self.options.return_data_points:
+            analysis_results.extend(
+                self._create_curve_data(curve_data=formatted_data, models=self._models)
+            )
 
         # Finalize plot
         if self.options.plot:

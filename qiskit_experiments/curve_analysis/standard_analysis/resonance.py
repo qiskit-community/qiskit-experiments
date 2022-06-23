@@ -12,7 +12,7 @@
 
 """Resonance analysis class."""
 
-from typing import List, Union
+from typing import List, Union, Optional
 
 import lmfit
 import numpy as np
@@ -59,14 +59,18 @@ class ResonanceAnalysis(curve.CurveAnalysis):
 
     """
 
-    def __init__(self):
+    def __init__(
+        self,
+        name: Optional[str] = None,
+    ):
         super().__init__(
             models=[
                 lmfit.models.ExpressionModel(
                     expr="a * abs(kappa) / sqrt(kappa**2 + 4 * (x - freq)**2) + b",
                     name="lorentzian",
                 )
-            ]
+            ],
+            name=name,
         )
 
     @classmethod

@@ -107,6 +107,16 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
         """Return parameters estimated by this analysis."""
 
     @property
+    @abstractmethod
+    def name(self) -> str:
+        """Return name of this analysis."""
+
+    @property
+    @abstractmethod
+    def models(self) -> List[lmfit.Model]:
+        """Return fit models."""
+
+    @property
     def drawer(self) -> BaseCurveDrawer:
         """A short-cut for curve drawer instance."""
         return self._options.curve_drawer
@@ -155,6 +165,10 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
             fixed_parameters (Dict[str, Any]): Fitting model parameters that are fixed
                 during the curve fitting. This should be provided with default value
                 keyed on one of the parameter names in the series definition.
+            filter_data (Dict[str, Any]): Dictionary of experiment data metadata to filter.
+                Experiment outcomes with metadata that matches with this dictionary
+                are used in the analysis. If not specified, all experiment data are
+                input to the curve fitter. By default no filtering condition is set.
         """
         options = super()._default_options()
 
@@ -173,6 +187,7 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
         options.p0 = {}
         options.bounds = {}
         options.fixed_parameters = {}
+        options.filter_data = {}
 
         # Set automatic validator for particular option values
         options.set_validator(field="data_processor", validator_value=DataProcessor)
@@ -339,23 +354,31 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
                 data sorting option is not provided.
             DataProcessorError: When key for x values is not found in the metadata.
         """
-        x_key = self.options.x_key
-
-        try:
-            xdata = np.asarray([datum["metadata"][x_key] for datum in raw_data], dtype=float)
-        except KeyError as ex:
-            raise DataProcessorError(
-                f"X value key {x_key} is not defined in circuit metadata."
-            ) from ex
-
-        ydata = self.options.data_processor(raw_data)
-        shots = np.asarray([datum.get("shots", np.nan) for datum in raw_data])
 
         def _matched(metadata, **filters):
             try:
                 return all(metadata[key] == val for key, val in filters.items())
             except KeyError:
                 return False
+
+        if not self.options.filter_data:
+            analyzed_data = raw_data
+        else:
+            analyzed_data = [
+                d for d in raw_data if _matched(d["metadata"], **self.options.filter_data)
+            ]
+
+        x_key = self.options.x_key
+
+        try:
+            xdata = np.asarray([datum["metadata"][x_key] for datum in analyzed_data], dtype=float)
+        except KeyError as ex:
+            raise DataProcessorError(
+                f"X value key {x_key} is not defined in circuit metadata."
+            ) from ex
+
+        ydata = self.options.data_processor(analyzed_data)
+        shots = np.asarray([datum.get("shots", np.nan) for datum in analyzed_data])
 
         if len(models) == 1:
             # all data belongs to the single model
@@ -372,7 +395,7 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
                 if tags is None:
                     continue
                 matched_inds = np.asarray(
-                    [_matched(d["metadata"], **tags) for d in raw_data], dtype=bool
+                    [_matched(d["metadata"], **tags) for d in analyzed_data], dtype=bool
                 )
                 data_allocation[matched_inds] = idx
 
@@ -389,7 +412,6 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
         self,
         curve_data: CurveData,
         models: List[lmfit.Model],
-        init_guesses: Dict[str, float],
     ) -> CurveFitResult:
         """Perform curve fitting on given data collection and fit models.
 
@@ -397,8 +419,6 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
             curve_data: Formatted data to fit.
             models: A list of LMFIT models that are used to build a cost function
                 for the LMFIT minimizer.
-            init_guesses: Dictionary of fit parameter initial guesses keyed on the
-                fit parameter name.
 
         Returns:
             The best fitting outcome with minimum reduced chi-squared value.
@@ -420,7 +440,7 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
 
         default_fit_opt = FitOptions(
             parameters=unite_parameter_names,
-            default_p0=init_guesses,
+            default_p0=self.options.p0,
             default_bounds=self.options.bounds,
             **self.options.lmfit_options,
         )
@@ -563,9 +583,6 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
         """
         samples = []
 
-        if not self.options.return_data_points:
-            return samples
-
         for model in models:
             sub_data = curve_data.get_subset_of(model._name)
             raw_datum = AnalysisResultData(
@@ -595,10 +612,6 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
         Args:
             experiment_data: Experiment data to analyze.
         """
-        # Initialize canvas
-        if self.options.plot:
-            self.drawer.initialize_canvas()
-
         # Initialize data processor
         # TODO move this to base analysis in follow-up
         data_processor = self.options.data_processor or get_processor(experiment_data, self.options)
