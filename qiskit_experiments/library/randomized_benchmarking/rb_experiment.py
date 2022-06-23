@@ -243,7 +243,9 @@ class StandardRB(BaseExperiment, RestlessMixin):
         all_rb_circuits = []
         if is_interleaved:
             all_rb_interleaved_circuits = []
-            interleaved_elem_num = self._clifford_utils.num_from_1_qubit_clifford(interleaved_element[0].name)
+            interleaved_elem_num = \
+                self._clifford_utils.num_from_1_qubit_clifford(interleaved_element[0],
+                                                               self.transpile_options.__dict__["basis_gates"])
         else:
             all_rb_interleaved_circuits = None
 
@@ -321,7 +323,9 @@ class StandardRB(BaseExperiment, RestlessMixin):
         all_rb_circuits = []
         if is_interleaved:
             all_rb_interleaved_circuits = []
-            interleaved_elem_num = self._clifford_utils.num_from_1_qubit_clifford(interleaved_element[0].name)
+            interleaved_elem_num = \
+                self._clifford_utils.num_from_1_qubit_clifford(interleaved_element[0],
+                                                               self.transpile_options.__dict__["basis_gates"])
         else:
             all_rb_interleaved_circuits = None
 

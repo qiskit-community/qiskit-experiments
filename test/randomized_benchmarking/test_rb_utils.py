@@ -18,7 +18,8 @@ import numpy as np
 from uncertainties import ufloat
 from ddt import ddt, data, unpack
 
-from qiskit import QuantumCircuit
+from qiskit import QuantumCircuit, QuantumRegister
+from qiskit.quantum_info import Operator
 from qiskit.circuit.library import (
     IGate,
     XGate,
@@ -27,13 +28,16 @@ from qiskit.circuit.library import (
     HGate,
     SGate,
     SdgGate,
+    SXGate,
     CXGate,
     CZGate,
     SwapGate,
+    RZGate,
 )
 from qiskit.quantum_info import Clifford
 import qiskit_experiments.library.randomized_benchmarking as rb
 from qiskit_experiments.framework import AnalysisResultData
+from qiskit_experiments.library.randomized_benchmarking.clifford_utils import CliffordUtils
 
 
 @ddt
@@ -1014,3 +1018,29 @@ class TestRBUtilities(QiskitExperimentsTestCase):
                 for other_phase in phases:
                     self.assertNotEqual(phase, other_phase)
                 phases.append(phase)
+
+    def test_number_to_clifford_mapping(self):
+        """ Testing that the methods num_from_1_qubit_clifford and
+            clifford_1_qubit_circuit perform the reverse operations from
+            each other"""
+        transpiled_cliff_list = [SXGate(), RZGate(np.pi), RZGate(-np.pi),
+                                 RZGate(np.pi/2), RZGate(-np.pi/2)]
+        transpiled_cliff_names = [gate.name for gate in transpiled_cliff_list]
+        utils = CliffordUtils()
+        for inst in transpiled_cliff_list:
+            num = utils.num_from_1_qubit_clifford(inst, transpiled_cliff_names)
+            qc_from_num = utils.clifford_1_qubit_circuit(num=num)
+            qr = QuantumRegister(1)
+            qc_from_inst = QuantumCircuit(qr)
+            qc_from_inst._append(inst, [qr[0]], [])
+            assert (Operator(qc_from_num).equiv(Operator(qc_from_inst)))
+
+        general_cliff_list = [IGate(), HGate(), SdgGate(), SGate(), XGate(), SXGate(), YGate(), ZGate()]
+        general_cliff_names = [gate.name for gate in general_cliff_list]
+        for inst in general_cliff_list:
+            num = utils.num_from_1_qubit_clifford(inst, general_cliff_names)
+            qc_from_num = utils.clifford_1_qubit_circuit(num=num)
+            qr = QuantumRegister(1)
+            qc_from_inst = QuantumCircuit(qr)
+            qc_from_inst._append(inst, [qr[0]], [])
+            assert (Operator(qc_from_num).equiv(Operator(qc_from_inst)))

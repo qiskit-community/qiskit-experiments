@@ -15,10 +15,11 @@ Utilities for using the Clifford group in randomized benchmarking
 
 from typing import Optional, Union, List
 from functools import lru_cache
+import numpy as np
 from numpy.random import Generator, default_rng
 from qiskit import QuantumCircuit, QuantumRegister
 from qiskit.circuit import Gate
-from qiskit.circuit.library import SdgGate, HGate, SGate, SXdgGate, XGate, YGate, ZGate
+from qiskit.circuit.library import SdgGate, HGate, SGate, SXdgGate
 from qiskit.quantum_info import Clifford, random_clifford
 from qiskit.compiler import transpile
 from qiskit.providers.aer import AerSimulator
@@ -236,28 +237,49 @@ class CliffordUtils:
         for i, circ in enumerate(circs):
             transpiled_circ = transpile(circ, backend, optimization_level=1, basis_gates=basis_gates)
             transpiled_circs.append(transpiled_circ)
+            print(i)
+            print(circ)
+            print(transpiled_circ)
+            print()
         return transpiled_circs
 
 
-    def num_from_1_qubit_clifford(self, name):
+    def num_from_1_qubit_clifford(self, inst, basis_gates):
         """
         This method does the reverse of clifford_1_qubit_circuit -
-        given a clifford, it returns the corresponding integer.
+        given a clifford, it returns the corresponding integer, with the mapping
+        defined in the above method.
+        The mapping is in the context of the basis_gates. Therefore, we define here
+        the possible supersets of basis gates, and verify that the given inst belong to
+        one of these sets.
         """
-        if name == "H" or name == "h":
-            return 1
-        if name == "SXdg" or name == "sxdg":
-            return 2
-        if name == "S" or name == "s":
-            return 4
-        if name == "X" or name == "x":
-            return 6
-        if name == "SX" or name == "sx":
-            return 8
-        if name == "Y" or name == "y":
-            return 12
-        if name == "Z" or name == "z":
-            return 18
+        name = inst.name
+        general_cliff_list = ["id", "h", "sdg", "s", "x", "sx", "y", "z"]
+        transpiled_cliff_list = ["sx", "rz", "cx"]
+
+        if not name in basis_gates:
+            raise QiskitError(
+            "Instruction {} is not in the basis gates".format(inst.name)
+            )
+        if(set(basis_gates).issubset(set(general_cliff_list))):
+            num_dict = {"id":0, "h":1, "sxdg":2, "s":4, "x":6, "sx":8, "y":12, "z":18, "sdg":22}
+            return num_dict[inst.name]
+
+        if (set(basis_gates).issubset(set(transpiled_cliff_list))):
+            if name == "sx":
+                return 8
+            if name == "rz":
+                # The next two are identical up to a phase, which makes no difference
+                # for the associated Cliffords
+                if inst.params == [np.pi] or inst.params == [-np.pi]:
+                    return 18
+                if inst.params == [np.pi / 2]:
+                    return 4
+                if inst.params == [-np.pi / 2]:
+                    return 22
+                else:
+                    print("wrong param" + str(inst.params))
+
         raise QiskitError(
             "Instruction {} could not be converted to Clifford gate".format(name)
             )
