@@ -20,6 +20,7 @@ import enum
 import time
 from typing import Optional, List, Any, Union, Callable, Dict, Tuple
 import copy
+import io
 from concurrent import futures
 from threading import Event
 from functools import wraps
@@ -29,12 +30,12 @@ from collections import deque
 import numpy as np
 
 from matplotlib import pyplot
+from matplotlib.figure import Figure as MatplotlibFigure
 from qiskit import QiskitError
 from qiskit.providers import Job, Backend, Provider
 from qiskit.result import Result
 from qiskit.providers.jobstatus import JobStatus, JOB_FINAL_STATES
 from qiskit_experiments.framework.json import ExperimentEncoder, ExperimentDecoder
-
 from .database_service import DatabaseServiceV1
 from .exceptions import DbExperimentDataError, DbExperimentEntryNotFound, DbExperimentEntryExists
 from .db_analysis_result import DbAnalysisResultV1 as DbAnalysisResult
@@ -128,6 +129,64 @@ class AnalysisCallback:
 
     def __json_encode__(self):
         return self.__getstate__()
+
+
+class FigureData:
+    """Wrapper for figures and figure metadata"""
+
+    def __init__(self, figure, name=None, metadata=None):
+        """Creates a new figure data object"""
+        self.figure = figure
+        self._name = name
+        self.metadata = metadata or {}
+
+    # name is read only
+    @property
+    def name(self) -> str:
+        """The name of the figure"""
+        return self._name
+
+    @property
+    def metadata(self) -> dict:
+        """The metadata dictionary stored with the figure"""
+        return self._metadata
+
+    @metadata.setter
+    def metadata(self, new_metadata: dict):
+        """Set the metadata to new value; must be a dictionary"""
+        if not isinstance(new_metadata, dict):
+            raise ValueError("figure metadata must be a dictionary")
+        self._metadata = new_metadata
+
+    def copy(self, new_name: Optional[str] = None):
+        """Creates a copy of the figure data"""
+        name = new_name or self.name
+        return FigureData(figure=self.figure, name=name, metadata=copy.deepcopy(self.metadata))
+
+    def __json_encode__(self) -> Dict[str, Any]:
+        """Return the json representation of the figure data"""
+        return {"figure": self.figure, "name": self.name, "metadata": self.metadata}
+
+    @classmethod
+    def __json_decode__(cls, args: Dict[str, Any]) -> "FigureData":
+        """Initialize a figure data from the json representation"""
+        return cls(**args)
+
+    def _repr_png_(self):
+        if isinstance(self.figure, MatplotlibFigure):
+            b = io.BytesIO()
+            self.figure.savefig(b, format="png", bbox_inches="tight")
+            png = b.getvalue()
+            return png
+        else:
+            return None
+
+    def _repr_svg_(self):
+        if isinstance(self.figure, str):
+            return self.figure
+        if isinstance(self.figure, bytes):
+            return str(self.figure)
+        return None
 
 
 class DbExperimentData:
@@ -703,7 +762,15 @@ class DbExperimentDataV1(DbExperimentData):
                 with open(figure, "rb") as file:
                     figure = file.read()
 
-            self._figures[fig_name] = figure
+            # check whether the figure is already wrapped, meaning it came from a sub-experiment
+            if isinstance(figure, FigureData):
+                figure_data = figure.copy(new_name=fig_name)
+
+            else:
+                figure_metadata = {"qubits": self.metadata.get("physical_qubits")}
+                figure_data = FigureData(figure=figure, name=fig_name, metadata=figure_metadata)
+
+            self._figures[fig_name] = figure_data
 
             save = save_figure if save_figure is not None else self.auto_save
             if save and self._service:
@@ -769,8 +836,8 @@ class DbExperimentDataV1(DbExperimentData):
                 the content of the figure is returned instead.
 
         Returns:
-            The size of the figure if `file_name` is specified. Otherwise the
-            content of the figure in bytes.
+            The size of the figure if `file_name` is specified.
+            Otherwise the :class:`.FigureData`.
 
         Raises:
             DbExperimentEntryNotFound: If the figure cannot be found.
@@ -780,9 +847,8 @@ class DbExperimentDataV1(DbExperimentData):
 
         figure_data = self._figures.get(figure_key, None)
         if figure_data is None and self.service:
-            figure_data = self.service.figure(
-                experiment_id=self.experiment_id, figure_name=figure_key
-            )
+            figure = self.service.figure(experiment_id=self.experiment_id, figure_name=figure_key)
+            figure_data = FigureData(figure=figure, name=figure_key)
             self._figures[figure_key] = figure_data
 
         if figure_data is None:
@@ -790,7 +856,7 @@ class DbExperimentDataV1(DbExperimentData):
 
         if file_name:
             with open(file_name, "wb") as output:
-                num_bytes = output.write(figure_data)
+                num_bytes = output.write(figure_data.figure)
                 return num_bytes
         return figure_data
 
@@ -1037,6 +1103,10 @@ class DbExperimentDataV1(DbExperimentData):
             for name, figure in self._figures.items():
                 if figure is None:
                     continue
+                # currently only the figure and its name are stored in the database
+                if isinstance(figure, FigureData):
+                    figure = figure.figure
+                    LOG.debug("Figure metadata is currently not saved to the database")
                 if isinstance(figure, pyplot.Figure):
                     figure = plot_to_svg_bytes(figure)
                 data = {"experiment_id": self.experiment_id, "figure": figure, "figure_name": name}
