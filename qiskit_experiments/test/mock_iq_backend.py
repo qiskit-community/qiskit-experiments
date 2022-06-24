@@ -18,7 +18,7 @@ import numpy as np
 
 from qiskit import QuantumCircuit
 from qiskit.result import Result
-from qiskit.test.mock import FakeOpenPulse2Q
+from qiskit.providers.fake_provider import FakeOpenPulse2Q
 
 from qiskit.qobj.utils import MeasLevel
 from qiskit_experiments.framework import Options
