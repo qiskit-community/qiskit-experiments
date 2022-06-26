@@ -19,7 +19,7 @@ import numpy as np
 from numpy.random import Generator, default_rng
 from math import isclose
 from qiskit import QuantumCircuit, QuantumRegister
-from qiskit.circuit import Gate
+from qiskit.circuit import Gate, Instruction
 from qiskit.circuit.library import SdgGate, HGate, SGate, SXdgGate
 from qiskit.quantum_info import Clifford, random_clifford
 from qiskit.compiler import transpile
@@ -226,13 +226,16 @@ class CliffordUtils:
             num -= sig_size
         return None
 
+    def transpile_single_clifford(cliff_circ, basis_gates : List[str]):
+        backend = AerSimulator()
+        return transpile(cliff_circ, backend, optimization_level=1, basis_gates=basis_gates)
+
     def generate_1q_transpiled_clifford_circuits(basis_gates : List[str]):
         utils = CliffordUtils()
         circs = []
         for num in range(0, 24):
             circ = utils.clifford_1_qubit_circuit(num=num)
             circs.append(circ)
-
         backend = AerSimulator()
         transpiled_circs = []
 
@@ -260,7 +263,7 @@ class CliffordUtils:
             )
         if(set(basis_gates).issubset(set(general_cliff_list))):
             num_dict = {"id":0, "h":1, "sxdg":2, "s":4, "x":6, "sx":8, "y":12, "z":18, "sdg":22}
-            return num_dict[inst.name]
+            return num_dict[name]
 
         if (set(basis_gates).issubset(set(transpiled_cliff_list))):
             if name == "sx":
@@ -281,7 +284,8 @@ class CliffordUtils:
             "Instruction {} could not be converted to Clifford gate".format(name)
             )
 
-    def num_from_1_qubit_clifford(qc, basis_gates):
+    def num_from_1_qubit_clifford(qc: QuantumCircuit,
+                                  basis_gates: List[str]) -> int:
         composed_num = 0
         for inst in qc:
             num = CliffordUtils.num_from_1_qubit_clifford_single_gate(inst[0], basis_gates)

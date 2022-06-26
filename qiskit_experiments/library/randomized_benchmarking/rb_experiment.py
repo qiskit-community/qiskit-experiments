@@ -96,7 +96,6 @@ class StandardRB(BaseExperiment, RestlessMixin):
         self._full_sampling = full_sampling
         self._transpiled_rb = transpiled_rb
         self._clifford_utils = CliffordUtils()
-        start = time.time()
         basis_gates = ["rz", "sx", "cx"]
         self._transpiled_cliff_circuits = CliffordUtils.generate_1q_transpiled_clifford_circuits(basis_gates=basis_gates)
 
@@ -243,9 +242,9 @@ class StandardRB(BaseExperiment, RestlessMixin):
         if is_interleaved:
             all_rb_interleaved_circuits = []
             interleaved_elem_num = \
-                CliffordUtils.num_from_1_qubit_clifford_single_gate(
-                    interleaved_element[0],
-                    self.transpile_options.__dict__["basis_gates"]
+                CliffordUtils.num_from_1_qubit_clifford(
+                    interleaved_element,
+                    self.transpile_options.basis_gates,
                 )
         else:
             all_rb_interleaved_circuits = None
@@ -281,7 +280,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
                     interleaved_circ.compose(next_circ, inplace=True)
                     composed_interleaved_num = CLIFF_COMPOSE_DATA[(composed_interleaved_num, rand)]
                     interleaved_circ.barrier(0)
-                    interleaved_circ.append(interleaved_element[0], [0])
+                    interleaved_circ.compose(interleaved_element, inplace=True)
                     composed_interleaved_num = CLIFF_COMPOSE_DATA[(composed_interleaved_num, interleaved_elem_num)]
                     interleaved_circ.barrier(0)
 
@@ -325,9 +324,9 @@ class StandardRB(BaseExperiment, RestlessMixin):
         if is_interleaved:
             all_rb_interleaved_circuits = []
             interleaved_elem_num = \
-                CliffordUtils.num_from_1_qubit_clifford_single_gate(
-                    interleaved_element[0],
-                    self.transpile_options.__dict__["basis_gates"]
+                CliffordUtils.num_from_1_qubit_clifford(
+                    interleaved_element,
+                    self.transpile_options.basis_gates
                 )
         else:
             all_rb_interleaved_circuits = None
@@ -359,7 +358,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
                     rb_interleaved_circ.compose(next_circ, inplace=True)
                     composed_interleaved_num = CLIFF_COMPOSE_DATA[(composed_interleaved_num, rand)]
                     rb_interleaved_circ.barrier(0)
-                    rb_interleaved_circ.append(interleaved_element[0], [0])
+                    rb_interleaved_circ.compose(interleaved_element, inplace=True)
                     composed_interleaved_num = CLIFF_COMPOSE_DATA[(composed_interleaved_num, interleaved_elem_num)]
                     rb_interleaved_circ.barrier(0)
 

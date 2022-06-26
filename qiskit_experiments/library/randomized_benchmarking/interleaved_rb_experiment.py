@@ -22,7 +22,9 @@ from qiskit.circuit import Instruction
 from qiskit.quantum_info import Clifford
 from qiskit.exceptions import QiskitError
 from qiskit.providers.backend import Backend
+from qiskit.compiler import transpile
 
+from .clifford_utils import CliffordUtils
 from .rb_experiment import StandardRB
 from .interleaved_rb_analysis import InterleavedRBAnalysis
 
@@ -77,7 +79,7 @@ class InterleavedRB(StandardRB):
                            sequences are constructed by appending additional
                            Clifford samples to shorter sequences.
         """
-        self._set_interleaved_element(interleaved_element)
+
         super().__init__(
             qubits,
             lengths,
@@ -87,6 +89,7 @@ class InterleavedRB(StandardRB):
             full_sampling=full_sampling,
             transpiled_rb=transpiled_rb
         )
+        self._set_interleaved_element(interleaved_element)
         self.analysis = InterleavedRBAnalysis()
         self.analysis.set_options(outcome="0" * self.num_qubits)
 
@@ -98,12 +101,12 @@ class InterleavedRB(StandardRB):
         """
         rng = default_rng(seed=self.experiment_options.seed)
         circuits = []
-
         for _ in range(self.experiment_options.num_samples):
             if self.num_qubits == 1 and self._transpiled_rb:
+                self._set_transpiled_interleaved_element()
                 std_circuits, int_circuits = self._build_rb_circuits(self.experiment_options.lengths, rng,
                                                     is_interleaved=True,
-                                                    interleaved_element=self._interleaved_element)
+                                                    interleaved_element=self._transpiled_interleaved_elem)
                 circuits += std_circuits
                 circuits += int_circuits
             else:
@@ -138,6 +141,7 @@ class InterleavedRB(StandardRB):
         Returns:
             The new list with the element interleaved.
         """
+
         new_element_list = []
         for element in element_list:
             new_element_list.append(element)
@@ -163,3 +167,23 @@ class InterleavedRB(StandardRB):
                     interleaved_element.name
                 )
             ) from error
+
+    def _set_transpiled_interleaved_element(self):
+        """
+        Create the transpiled interleaved element. If it is a single gate,
+        create a circuit comprising this gate.
+        """
+        if not isinstance(self._interleaved_element, QuantumCircuit):
+            qc_interleaved = QuantumCircuit(1)
+            qc_interleaved.append(self._interleaved_element[0], [0], [])
+            self._transpiled_interleaved_elem = self._interleaved_element
+        else:
+            qc_interleaved = self._interleaved_element
+        if hasattr(self.transpile_options, "basis_gates"):
+            basis_gates = self.transpile_options.basis_gates
+        else:
+            basis_gates = None
+        self._transpiled_interleaved_elem = CliffordUtils.transpile_single_clifford(
+            qc_interleaved,
+            basis_gates = basis_gates
+        )

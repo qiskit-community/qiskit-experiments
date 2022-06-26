@@ -15,6 +15,7 @@
 from test.base import QiskitExperimentsTestCase
 
 import numpy as np
+import random
 from ddt import ddt, data, unpack
 from qiskit.circuit import Delay, QuantumCircuit
 from qiskit.circuit.library import SXGate, CXGate, TGate, XGate, YGate, ZGate, HGate, SGate
@@ -24,6 +25,7 @@ from qiskit.providers.aer.noise import NoiseModel, depolarizing_error
 from qiskit.quantum_info import Clifford, Operator
 
 from qiskit_experiments.library import randomized_benchmarking as rb
+from qiskit_experiments.library.randomized_benchmarking import CliffordUtils
 from qiskit_experiments.database_service.exceptions import DbExperimentEntryNotFound
 from qiskit_experiments.framework.composite import ParallelExperiment
 
@@ -313,7 +315,7 @@ class TestStandardRB(RBTestCase):
 class TestInterleavedRB(RBTestCase):
     """Test for interleaved RB."""
 
-    @data([XGate(), [3], 4], [CXGate(), [4, 7], 5])
+    @data([SXGate(), [3], 4], [CXGate(), [4, 7], 5])
     @unpack
     def test_interleaved_structure(self, interleaved_element, qubits, length):
         """Verifies that when generating an interleaved circuit, it will be
@@ -326,7 +328,8 @@ class TestInterleavedRB(RBTestCase):
                 interleaved_element=interleaved_element, qubits=qubits, lengths=[length],
                 num_samples=1, full_sampling=val, transpiled_rb=True
             )
-
+            exp.set_transpile_options(**self.transpiler_options)
+            exp.set_transpile_options(basis_gates=self.basis_gates)
             circuits = exp.circuits()
             c_std = circuits[0]
             c_int = circuits[1]
@@ -353,25 +356,42 @@ class TestInterleavedRB(RBTestCase):
                 int_idx += 1
 
     def test_single_qubit(self):
-        """Test single qubit IRB."""
-        exp = rb.InterleavedRB(
-            interleaved_element=SXGate(),
-            qubits=(0,),
-            lengths=list(range(1, 300, 30)),
-            seed=123,
-            backend=self.backend,
-            transpiled_rb=True,
-        )
-        exp.set_transpile_options(**self.transpiler_options)
-        self.assertAllIdentity(exp.circuits())
+        """Test single qubit IRB, once with an interleaved gate, once with an interleaved
+        Clifford circuit.
+        """
+        interleaved_gate = SXGate()
+        utils = CliffordUtils()
+        random.seed(123)
+        num = random.randint(0, 23)
+        interleaved_clifford = utils.clifford_1_qubit_circuit(num)
+        # The circuit created for interleaved_clifford is:
+        # qc = QuantumCircuit(1)
+        # qc.rz(np.pi/2, 0)
+        # qc.sx(0)
+        # qc.rz(np.pi/2, 0)
+        # Since there is a single sx per interleaved_element,
+        # therefore epc_expected is the same as for when interleaved_element = SXGate()
+        for interleaved_element in [interleaved_gate, interleaved_clifford]:
+            exp = rb.InterleavedRB(
+                interleaved_element=interleaved_element,
+                qubits=(0,),
+                lengths=list(range(1, 300, 30)),
+                seed=123,
+                backend=self.backend,
+                transpiled_rb=True,
+            )
+            exp.set_transpile_options(**self.transpiler_options)
+            exp.set_transpile_options(basis_gates=self.basis_gates)
 
-        expdata = exp.run()
-        self.assertExperimentDone(expdata)
+            self.assertAllIdentity(exp.circuits())
+
+            expdata = exp.run()
+            self.assertExperimentDone(expdata)
 
         # Since this is interleaved, we can directly compare values, i.e. n_gpc = 1
-        epc = expdata.analysis_results("EPC")
-        epc_expected = 1 / 2 * self.p1q
-        self.assertAlmostEqual(epc.value.n, epc_expected, delta=0.1 * epc_expected)
+            epc = expdata.analysis_results("EPC")
+            epc_expected = 1 / 2 * self.p1q
+            self.assertAlmostEqual(epc.value.n, epc_expected, delta=0.1 * epc_expected)
 
     def test_two_qubit(self):
         """Test two qubit IRB."""
