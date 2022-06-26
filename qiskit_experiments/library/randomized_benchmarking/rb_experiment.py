@@ -367,25 +367,24 @@ class StandardRB(BaseExperiment, RestlessMixin):
             # append the inverse
             rb_circ.compose(self._transpiled_cliff_circuits[inverse_clifford_num], inplace=True)
             rb_circ.measure(0, 0)
-            if is_interleaved:
-                inverse_interleaved_num = CLIFF_INVERSE_DATA[composed_interleaved_num]
-                rb_interleaved_circ.compose(self._transpiled_cliff_circuits[inverse_interleaved_num], inplace=True)
-                rb_interleaved_circ.measure(0, 0)
-
             rb_circ.metadata = {
                 "experiment_type": "rb",
                 "xval": length,
                 "group": "Clifford",
                 "physical_qubits": self.physical_qubits,
-                "interleaved" : False,
+                "interleaved": False,
             }
-            rb_interleaved_circ.metadata = {
-                "experiment_type": "rb",
-                "xval": length,
-                "group": "Clifford",
-                "physical_qubits": self.physical_qubits,
-                "interleaved" : True,
-            }
+            if is_interleaved:
+                inverse_interleaved_num = CLIFF_INVERSE_DATA[composed_interleaved_num]
+                rb_interleaved_circ.compose(self._transpiled_cliff_circuits[inverse_interleaved_num], inplace=True)
+                rb_interleaved_circ.measure(0, 0)
+                rb_interleaved_circ.metadata = {
+                    "experiment_type": "rb",
+                    "xval": length,
+                    "group": "Clifford",
+                    "physical_qubits": self.physical_qubits,
+                    "interleaved" : True,
+                }
             all_rb_circuits.append(rb_circ)
             if is_interleaved:
                 all_rb_interleaved_circuits.append(rb_interleaved_circ)
