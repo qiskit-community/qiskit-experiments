@@ -13,10 +13,12 @@
 """MockIQBackend tests."""
 
 from test.base import QiskitExperimentsTestCase
-from typing import Dict, List
+from typing import Dict, List, Tuple
 from qiskit import QuantumCircuit
+import numpy as np
+from itertools import product
 
-from qiskit.qobj.utils import MeasLevel
+from qiskit.qobj.utils import MeasLevel, MeasReturnType
 
 from qiskit_experiments.test.mock_iq_backend import MockIQBackend
 from qiskit_experiments.test.mock_iq_helpers import MockIQExperimentHelper
@@ -70,6 +72,50 @@ class MockIQBellStateHelper(MockIQExperimentHelper):
         return output_dict_list
 
 
+class MockIQReadoutAmplitudeHelper(MockIQExperimentHelper):
+    """functions needed for readout-amplitude experiment on mock IQ Backend"""
+
+    def __init__(
+        self,
+        alter_centers=True,
+        alter_widths=True,
+    ) -> None:
+        """Construct a MockIQReadoutAmplitudeHelper instance.
+
+        Args:
+            alter_centers (bool, optional): Whether to alter the centers of the IQ clusters based on the circuit 'xval'. Defaults to True.
+            alter_widths (bool, optional): Whether to alter the widths of the IQ clusters based on the circuit 'xval'. Defaults to True.
+        """
+        self.alter_centers = alter_centers
+        self.alter_widths = alter_widths
+
+    def compute_probabilities(self, circuits: List[QuantumCircuit]) -> List[Dict[str, float]]:
+        probabilities = []
+        for circ in circuits:
+            probabilities.append({circ.metadata["prep"]: 1.0})
+        return probabilities
+
+    def iq_clusters(
+        self,
+        circuit: QuantumCircuit,
+        centers: List[Tuple[Tuple[float, float], Tuple[float, float]]],
+        widths: List[float],
+    ) -> Tuple[List[Tuple[Tuple[float, float], Tuple[float, float]]], List[float]]:
+        """Multiplies the cluster centers by the circuit 'xval' value."""
+        if hasattr(circuit, "metadata") and "xval" in circuit.metadata.keys():
+            xval = circuit.metadata["xval"]
+        else:
+            xval = 1.0
+
+        new_centers = np.array(centers)
+        new_widths = np.array(widths)
+        if self.alter_centers:
+            new_centers = new_centers * xval
+        if self.alter_widths:
+            new_widths = new_widths * xval
+        return new_centers, new_widths
+
+
 class TestMockIQBackend(QiskitExperimentsTestCase):
     """Test the mock IQ backend"""
 
@@ -113,3 +159,164 @@ class TestMockIQBackend(QiskitExperimentsTestCase):
         self.assertEqual(len(res.results[0].data.memory), num_shot)
         for data in res.results[0].data.memory:
             self.assertEqual(len(data), num_qubits)
+
+    def test_iq_helper_iq_centers(self):
+        """
+        Test IQ centroid centers and widths are modified by MockIQExperimentHelper.
+        """
+        delta = 0.005
+
+        num_qubits = 1
+        num_shots = 10000
+        bare_centers = [[(0, -1), (1, 1)]]
+        backend = MockIQBackend(
+            MockIQReadoutAmplitudeHelper(alter_widths=False),
+            iq_cluster_centers=bare_centers,
+            iq_cluster_width=[0.1, 0.1],
+        )
+
+        # Create template circuits
+        circ_prep_0 = QuantumCircuit(1, 1)
+        circ_prep_0.measure(0, 0)
+        circ_prep_0.metadata = {"prep": "0"}
+        circ_prep_1 = QuantumCircuit(1, 1)
+        circ_prep_1.x(0)
+        circ_prep_1.measure(0, 0)
+        circ_prep_1.metadata = {"prep": "1"}
+
+        # Create list of circuits with different xvals and preps
+        circuits = []
+        xvals = [0.0, 0.5, 1.0]
+        for xval, _circ in product(xvals, [circ_prep_0, circ_prep_1]):
+            circ = _circ.copy()
+            circ.metadata["xval"] = xval
+            circuits.append(circ)
+
+        # Run circuits on mock backend
+        job = backend.run(
+            circuits,
+            shots=num_shots,
+            meas_level=MeasLevel.KERNELED,
+            meas_return=MeasReturnType.SINGLE,
+        )
+        res = job.result()
+
+        # Verify the number of circuits
+        self.assertEqual(
+            len(res.results),
+            len(xvals) * 2,
+            # message=f"Number of circuits does not match 2 * # xvals: {len(res.results)} instead of {len(xvals)*2}.",
+        )
+
+        # Verify the number of shots
+        for i_xval, i_prep in product(range(len(xvals)), range(2)):
+            num_shots_for_i = len(res.results[i_xval * 2 + i_prep].data.memory)
+            self.assertEqual(
+                num_shots_for_i,
+                num_shots,
+                # message=f"Number of shots for xval={xvals[i_xval]} and prep={i_prep} is not as expected: {num_shots_for_i} vs {num_shots}.",
+            )
+
+        # Verify the centers of the clusters
+        expected_centers_per_xval_and_prep = []
+        for xval in xvals:
+            # Add qubit 0 center for prepared state 0
+            expected_centers_per_xval_and_prep.append(np.array(bare_centers[0][0]) * xval)
+            # Add qubit 0 center for prepared state 1
+            expected_centers_per_xval_and_prep.append(np.array(bare_centers[0][1]) * xval)
+
+        for i, (expected_centers, data) in enumerate(
+            zip(expected_centers_per_xval_and_prep, res.results)
+        ):
+            memory = np.array(data.data.memory)
+            centers = np.squeeze(np.mean(memory, axis=0))
+            # For I and Q values
+            for axis, x, expected_x in zip(
+                ["Real", "Imag"], centers.flatten(), expected_centers.flatten()
+            ):
+                self.assertAlmostEqual(
+                    x,
+                    expected_x,
+                    msg=f"{axis} value was not correct for i={i} and xval={xvals[int(i/2)]}: {x} instead of {expected_x}.\nExpected center = {expected_centers}\nActual center = {centers}",
+                    delta=delta,
+                )
+
+    def test_iq_helper_iq_widths(self):
+        """
+        Test IQ centroid centers and widths are modified by MockIQExperimentHelper.
+        """
+        delta = 0.005
+
+        num_qubits = 1
+        num_shots = 10000
+        bare_widths = [0.1, 0.2]
+        backend = MockIQBackend(
+            MockIQReadoutAmplitudeHelper(alter_centers=False),
+            iq_cluster_centers=[[(0, -1), (1, 1)]],
+            iq_cluster_width=bare_widths,
+        )
+
+        # Create template circuits
+        circ_prep_0 = QuantumCircuit(1, 1)
+        circ_prep_0.measure(0, 0)
+        circ_prep_0.metadata = {"prep": "0"}
+        circ_prep_1 = QuantumCircuit(1, 1)
+        circ_prep_1.x(0)
+        circ_prep_1.measure(0, 0)
+        circ_prep_1.metadata = {"prep": "1"}
+
+        # Create list of circuits with different xvals and preps
+        circuits = []
+        xvals = [0.0, 0.5, 1.0]
+        for xval, _circ in product(xvals, [circ_prep_0, circ_prep_1]):
+            circ = _circ.copy()
+            circ.metadata["xval"] = xval
+            circuits.append(circ)
+
+        # Run circuits on mock backend
+        job = backend.run(
+            circuits,
+            shots=num_shots,
+            meas_level=MeasLevel.KERNELED,
+            meas_return=MeasReturnType.SINGLE,
+        )
+        res = job.result()
+
+        # Verify the number of circuits
+        self.assertEqual(
+            len(res.results),
+            len(xvals) * 2,
+            # message=f"Number of circuits does not match 2 * # xvals: {len(res.results)} instead of {len(xvals)*2}.",
+        )
+
+        # Verify the number of shots
+        for i_xval, i_prep in product(range(len(xvals)), range(2)):
+            num_shots_for_i = len(res.results[i_xval * 2 + i_prep].data.memory)
+            self.assertEqual(
+                num_shots_for_i,
+                num_shots,
+                # message=f"Number of shots for xval={xvals[i_xval]} and prep={i_prep} is not as expected: {num_shots_for_i} vs {num_shots}.",
+            )
+
+        # Create list of expected widths per xval and prepared state
+        expected_widths_per_xval_and_prep = []
+        for xval, prep in product(xvals, [0, 1]):
+            # Add qubit 0 width for prepared state prep and xval
+            expected_widths_per_xval_and_prep.append(bare_widths[0] * xval)
+
+        # Check the width for each circuit run (in data)
+        for i, (expected_width, data) in enumerate(
+            zip(expected_widths_per_xval_and_prep, res.results)
+        ):
+            # Get the actual width (I and Q)
+            memory = np.array(data.data.memory)
+            actual_widths = np.squeeze(np.std(memory, axis=0))
+
+            # For the width in each dimension (I & Q)
+            for axis, width in zip(["real", "imag"], actual_widths):
+                self.assertAlmostEqual(
+                    width,
+                    expected_width,
+                    msg=f"Width (std) along {axis} axis was not correct for i={i} and xval={xvals[int(i/2)]}: {width} instead of {expected_width}.",
+                    delta=delta,
+                )
