@@ -46,9 +46,9 @@ class CompositeCurveAnalysis(BaseCurveAnalysis):
     This mapping is usually done with the analysis option ``filter_data`` dictionary.
     Otherwise, all analyses are performed on the same set of outcomes.
 
-    .. example::
+    Examples:
 
-        In this example, we set up a composite analysis consisting of two oscillation
+        In this example, we write up a composite analysis consisting of two oscillation
         analysis instances, assuming two Rabi experiments in 1-2 subspace
         starting with different initial states :math:`\in \{|0\rangle, |1\rangle\}`.
         This is a typical procedure to measure the thermal population of the qubit.
@@ -66,12 +66,12 @@ class CompositeCurveAnalysis(BaseCurveAnalysis):
                 )
             analysis = CompositeCurveAnalysis(analyses=analyses)
 
-        This analysis returns two analysis result data for the fit parameter "freq"
-        for the experiment with initial state :math:`|0\rangle` and :math:`|1\rangle`.
+        This ``analysis`` will return two analysis result data for the fit parameter "freq"
+        for experiments with the initial state :math:`|0\rangle` and :math:`|1\rangle`.
         The experimental circuits starting with different initial states must be
         distinguished by the circuit metadata ``{"init_state": 0}`` or ``{"init_state": 1}``,
         along with the "xval" in the same dictionary.
-        If you want to compute another quantity using two "freq" values, you can
+        If you want to compute another quantity using two fitting outcomes, you can
         override :meth:`CompositeCurveAnalysis._create_curve_data` in subclass.
 
     :class:`.CompositeCurveAnalysis` may override following methods.
@@ -301,7 +301,7 @@ class CompositeCurveAnalysis(BaseCurveAnalysis):
 
     def set_options(self, **fields):
         for field in fields:
-            if field not in self.options:
+            if not hasattr(self.options, field):
                 warnings.warn(
                     f"Specified option {field} doesn't exist in this analysis instance. "
                     f"Note that {self.__class__.__name__} is a composite curve analysis instance, "

@@ -21,7 +21,7 @@ import numpy as np
 from lmfit.models import ExpressionModel
 from qiskit.qobj.utils import MeasLevel
 
-from qiskit_experiments.curve_analysis import CurveAnalysis, MultiGroupCurveAnalysis, fit_function
+from qiskit_experiments.curve_analysis import CurveAnalysis, CompositeCurveAnalysis, fit_function
 from qiskit_experiments.curve_analysis.curve_data import (
     SeriesDef,
     CurveFitResult,
@@ -457,28 +457,41 @@ class TestCurveAnalysis(CurveAnalysisTestCase):
         y_reproduced = analysis.models[0].eval(x=x, **overview.init_params)
         np.testing.assert_array_almost_equal(y_ref, y_reproduced)
 
-    def test_multi_group_curve_analysis(self):
-        """Integration test for multi group curve analysis."""
+    def test_multi_composite_curve_analysis(self):
+        """Integration test for composite curve analysis.
 
-        analysis = MultiGroupCurveAnalysis(
-            groups=["group_A", "group_B"],
-            group_data_sort_key=[{"cond": 0}, {"cond": 1}],
-            models=[
-                ExpressionModel(
-                    expr="amp * cos(2 * pi * freq * x) + b",
-                    data_sort_key={"type": "cos"},
-                ),
-                ExpressionModel(
-                    expr="amp * sin(2 * pi * freq * x) + b",
-                    data_sort_key={"type": "sin"},
-                ),
-            ],
-        )
-        analysis.set_options(
-            p0=[{"amp": 0.3, "freq": 2.1, "b": 0.5}, {"amp": 0.5, "freq": 3.2, "b": 0.5}],
-            result_parameters=["amp"],
-            plot=False,
-        )
+        This analysis consists of two curve fittings for cos and sin series.
+        This experiment is executed twice for different setups of "A" and "B".
+        """
+        analyses = []
+
+        group_names = ["group_A", "group_B"]
+        setups = ["setup_A", "setup_B"]
+        for group_name, setup in zip(group_names, setups):
+            analysis = CurveAnalysis(
+                models=[
+                    ExpressionModel(
+                        expr="amp * cos(2 * pi * freq * x) + b",
+                        data_sort_key={"type": "cos"},
+                    ),
+                    ExpressionModel(
+                        expr="amp * sin(2 * pi * freq * x) + b",
+                        data_sort_key={"type": "sin"},
+                    ),
+                ],
+                name=group_name,
+            )
+            analysis.set_options(
+                filter_data={"setup": setup},
+                result_parameters=["amp"],
+                data_processor=DataProcessor(input_key="counts", data_actions=[Probability("1")]),
+            )
+            analyses.append(analysis)
+
+        group_analysis = CompositeCurveAnalysis(analyses)
+        group_analysis.analyses("group_A").set_options(p0={"amp": 0.3, "freq": 2.1, "b": 0.5})
+        group_analysis.analyses("group_B").set_options(p0={"amp": 0.5, "freq": 3.2, "b": 0.5})
+        group_analysis.set_options(plot=False)
 
         amp1 = 0.2
         amp2 = 0.4
@@ -493,10 +506,11 @@ class TestCurveAnalysis(CurveAnalysisTestCase):
         y1b = amp2 * np.cos(2 * np.pi * freq2 * x) + b2
         y2b = amp2 * np.sin(2 * np.pi * freq2 * x) + b2
 
-        test_data1a = self.single_sampler(x, y1a, type="cos", cond=0)
-        test_data2a = self.single_sampler(x, y2a, type="sin", cond=0)
-        test_data1b = self.single_sampler(x, y1b, type="cos", cond=1)
-        test_data2b = self.single_sampler(x, y2b, type="sin", cond=1)
+        # metadata must contain key for filtering, specified in filter_data option.
+        test_data1a = self.single_sampler(x, y1a, type="cos", setup="setup_A")
+        test_data2a = self.single_sampler(x, y2a, type="sin", setup="setup_A")
+        test_data1b = self.single_sampler(x, y1b, type="cos", setup="setup_B")
+        test_data2b = self.single_sampler(x, y2b, type="sin", setup="setup_B")
 
         expdata = ExperimentData(experiment=FakeExperiment())
         expdata.add_data(test_data1a.data())
@@ -505,7 +519,7 @@ class TestCurveAnalysis(CurveAnalysisTestCase):
         expdata.add_data(test_data2b.data())
         expdata.metadata["meas_level"] = MeasLevel.CLASSIFIED
 
-        result = analysis.run(expdata).block_for_results()
+        result = group_analysis.run(expdata).block_for_results()
         amps = result.analysis_results("amp")
 
         # two entries are generated for group A and group B

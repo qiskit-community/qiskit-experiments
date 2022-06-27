@@ -24,7 +24,7 @@ class CrossResonanceHamiltonianAnalysis(curve.CompositeCurveAnalysis):
 
     # section: fit_model
 
-        This analysis performs :class:`.BlochAnalysis` on the target qubit
+        This analysis performs :class:`.BlochTrajectoryAnalysis` on the target qubit
         with the control qubit states in :math:`\in \{ |0\rangle, |1\rangle \}`.
 
         Based on the fit result, cross resonance Hamiltonian coefficients can be determined by
@@ -38,8 +38,8 @@ class CrossResonanceHamiltonianAnalysis(curve.CompositeCurveAnalysis):
             IY &= \frac{p_{y, |0\rangle} + p_{y, |1\rangle}}{2}, \\
             IZ &= \frac{p_{z, |0\rangle} + p_{z, |1\rangle}}{2},
 
-        where :math:`p_{\beta, |j\rangle}` is a fit parameter of :class:`.BlochAnalysis`
-        of the projection axis :math:`\beta` with control qubit state :math:`|j\rangle`.
+        where :math:`p_{\beta, |j\rangle}` is a fit parameter of :class:`.BlochTrajectoryAnalysis`
+        for the projection axis :math:`\beta` with the control qubit state :math:`|j\rangle`.
 
     # section: see_also
 
