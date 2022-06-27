@@ -13,7 +13,7 @@
 """Probability and phase functions for the mock IQ backend."""
 
 from abc import abstractmethod
-from typing import Dict, List
+from typing import Dict, List, Tuple
 import numpy as np
 from qiskit import QuantumCircuit
 from qiskit.providers.aer import AerSimulator
@@ -96,6 +96,33 @@ class MockIQExperimentHelper:
         plan has a frequency-dependent phase rotation.
         """
         return 0.0
+
+    # pylint: disable=unused-argument
+    def iq_clusters(
+        self,
+        circuit: QuantumCircuit,
+        centers: List[Tuple[Tuple[float, float], Tuple[float, float]]],
+        widths: List[float],
+    ) -> Tuple[List[Tuple[Tuple[float, float], Tuple[float, float]]], List[float]]:
+        """Returns circuit-specific IQ cluster centers and widths in the IQ plane.
+
+        Subclasses can override this function to modify the centers and widths of IQ clusters based
+        on the circuit being simulated by a :py:class:`MockIQBackend`. The parameters `centers` and
+        `widths` are the IQ cluster centers and standard deviations (widths) defined for a
+        :py:class:`MockIQBackend. `iq_clusters` can modify these based on `circuit` so that the
+        position and width of the clusters is circuit-dependent. The default behaviour for
+        :py:class:`MockIQExperimentHelper` is to return the centers and widths unmodified, meaning
+        that all circuits will use the clusters defined by the :py:class:`MockQIBackend` instance.
+
+        Args:
+            circuit (QuantumCircuit): The quantum circuit for which the clusters should be modified.
+            centers (List): The base list of tuples containing the clusters' centers in the IQ plane.
+            widths (List): The base list of standard deviation values for the sampling of each qubit.
+
+        Returns:
+            Tuple: A tuple containing the circuit-specific IQ centers and widths for the provided circuit.
+        """
+        return centers, widths
 
 
 class MockIQDragHelper(MockIQExperimentHelper):

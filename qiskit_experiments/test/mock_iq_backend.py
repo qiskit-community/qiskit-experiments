@@ -218,17 +218,17 @@ class MockIQBackend(FakeOpenPulse2Q):
                     " don't match."
                 )
 
-    def _get_normal_samples_for_shot(self, num_qubits: int) -> np.ndarray:
+    def _get_normal_samples_for_shot(self, num_qubits: int, widths: List[float]) -> np.ndarray:
         """
         Produce a list in the size of num_qubits. Each entry value is produced from normal distribution
-        with expected value of '0' and standard deviation of self._iq_cluster_width.
+        with expected value of '0' and standard deviation of widths.
         Args:
             num_qubits(int): The number of qubits in the circuit.
+            widths (List): A list of standard deviation values for the sampling of each qubit.
 
         Returns:
             Ndarray: A numpy array with values that were produced from normal distribution.
         """
-        widths = self._iq_cluster_width
         samples = [self._rng.normal(0, widths[qubit], size=1) for qubit in range(num_qubits)]
         # we squeeze the second dimension because samples is List[qubit_number][0][0\1] = I\Q
         # and we want to change it to be List[qubit_number][0\1]
@@ -244,7 +244,13 @@ class MockIQBackend(FakeOpenPulse2Q):
         return prob_list
 
     def _draw_iq_shots(
-        self, prob: List[float], shots: int, output_length: int, phase: float = 0.0
+        self,
+        prob: List[float],
+        shots: int,
+        output_length: int,
+        iq_cluster_centers: Optional[List[Tuple[Tuple[float, float], Tuple[float, float]]]],
+        iq_cluster_width: Optional[List[float]],
+        phase: float = 0.0,
     ) -> List[List[List[Union[float, complex]]]]:
         """
         Produce an IQ shot.
@@ -252,7 +258,11 @@ class MockIQBackend(FakeOpenPulse2Q):
             prob(List): A list of probabilities for each output.
             shots(int): The number of times the circuit will run.
             output_length(int): The number of qubits in the circuit.
-
+            iq_cluster_centers(List): A list of tuples containing the clusters'
+                centers in the IQ plane.
+                There are different centers for different logical values of the qubit.
+            iq_cluster_width(List): A list of standard deviation values for the sampling of
+                each qubit.
         Returns:
             List[List[Tuple[float, float]]]: A list of shots. Each shot consists of a list of qubits.
             The qubits are tuples with two values [I,Q].
@@ -261,13 +271,12 @@ class MockIQBackend(FakeOpenPulse2Q):
         # Randomize samples
         qubits_iq_rand = [np.nan] * shots
         for shot in range(shots):
-            rand_i = self._get_normal_samples_for_shot(output_length)
-            rand_q = self._get_normal_samples_for_shot(output_length)
+            rand_i = self._get_normal_samples_for_shot(output_length, iq_cluster_width)
+            rand_q = self._get_normal_samples_for_shot(output_length, iq_cluster_width)
             qubits_iq_rand[shot] = np.array([rand_i, rand_q], dtype="float").T
 
         memory = []
         shot_num = 0
-        iq_centers = self._iq_cluster_centers
 
         for output_number, number_of_occurrences in enumerate(
             self._rng.multinomial(shots, prob, size=1)[0]
@@ -278,9 +287,9 @@ class MockIQBackend(FakeOpenPulse2Q):
                 # the iteration on the string variable state_str starts from the MSB. For readability,
                 # we will reverse the string so the loop will run from the LSB to MSB.
                 for iq_center, qubit_iq_rand_sample, char_qubit in zip(
-                    iq_centers, qubits_iq_rand[shot_num], state_str[::-1]
+                    iq_cluster_centers, qubits_iq_rand[shot_num], state_str[::-1]
                 ):
-                    # The structure of iq_centers is [qubit_number][logic_result][I/Q].
+                    # The structure of iq_cluster_centers is [qubit_number][logic_result][I/Q].
                     i_center = iq_center[int(char_qubit)][0]
                     q_center = iq_center[int(char_qubit)][1]
 
@@ -331,7 +340,12 @@ class MockIQBackend(FakeOpenPulse2Q):
             run_result["counts"] = counts
         else:
             phase = self.experiment_helper.iq_phase(circuit)
-            memory = self._draw_iq_shots(prob_arr, shots, output_length, phase)
+            iq_cluster_centers, iq_cluster_widths = self.experiment_helper.iq_clusters(
+                circuit, self._iq_cluster_centers, self._iq_cluster_width
+            )
+            memory = self._draw_iq_shots(
+                prob_arr, shots, output_length, iq_cluster_centers, iq_cluster_widths, phase
+            )
             if meas_return == "avg":
                 memory = np.average(np.array(memory), axis=0).tolist()
 
