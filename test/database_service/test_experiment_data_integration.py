@@ -273,7 +273,7 @@ class TestExperimentDataIntegration(QiskitTestCase):
         figure_name = "hello.svg"
 
         exp_data.add_figures(figures=hello_bytes, figure_names=figure_name, save_figure=True)
-        self.assertEqual(exp_data.figure(0), hello_bytes)
+        self.assertEqual(exp_data.figure(0).figure, hello_bytes)
 
         friend_bytes = str.encode("hello friend")
         exp_data.add_figures(
