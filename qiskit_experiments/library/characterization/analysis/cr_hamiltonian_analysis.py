@@ -12,7 +12,7 @@
 
 """Cross resonance Hamiltonian tomography experiment analysis."""
 
-from typing import List
+from typing import List, Dict
 import numpy as np
 
 import qiskit_experiments.curve_analysis as curve
@@ -87,7 +87,7 @@ class CrossResonanceHamiltonianAnalysis(curve.CompositeCurveAnalysis):
 
     def _create_analysis_results(
         self,
-        fit_data: List[curve.CurveFitResult],
+        fit_data: Dict[str, curve.CurveFitResult],
         quality: str,
         **metadata,
     ) -> List[AnalysisResultData]:
@@ -95,8 +95,8 @@ class CrossResonanceHamiltonianAnalysis(curve.CompositeCurveAnalysis):
 
         for control in ("z", "i"):
             for target in ("x", "y", "z"):
-                p0_val = fit_data[0].ufloat_params[f"p{target}"]
-                p1_val = fit_data[1].ufloat_params[f"p{target}"]
+                p0_val = fit_data["ctrl0"].ufloat_params[f"p{target}"]
+                p1_val = fit_data["ctrl1"].ufloat_params[f"p{target}"]
 
                 if control == "z":
                     coef_val = 0.5 * (p0_val - p1_val) / (2 * np.pi)

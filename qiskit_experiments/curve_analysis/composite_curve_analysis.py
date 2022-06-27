@@ -178,18 +178,18 @@ class CompositeCurveAnalysis(BaseCurveAnalysis):
 
     def _evaluate_quality(
         self,
-        fit_data: List[CurveFitResult],
+        fit_data: Dict[str, CurveFitResult],
     ) -> Union[str, None]:
         """Evaluate quality of the fit result.
 
         Args:
-            fit_data: Fit outcome.
+            fit_data: Fit outcome keyed on the analysis name.
 
         Returns:
             String that represents fit result quality. Usually "good" or "bad".
         """
-        for fit_datum, analysis in zip(fit_data, self._analyses):
-            if analysis._evaluate_quality(fit_datum) != "good":
+        for analysis in self._analyses:
+            if analysis._evaluate_quality(fit_data[analysis.name]) != "good":
                 return "bad"
         return "good"
 
@@ -236,14 +236,14 @@ class CompositeCurveAnalysis(BaseCurveAnalysis):
 
     def _create_analysis_results(
         self,
-        fit_data: List[CurveFitResult],
+        fit_data: Dict[str, CurveFitResult],
         quality: str,
         **metadata,
     ) -> List[AnalysisResultData]:
         """Create analysis results based on all analysis outcomes.
 
         Args:
-            fit_data: Fit outcome.
+            fit_data: Fit outcome keyed on the analysis name.
             quality: Quality of fit outcome.
 
         Returns:
@@ -325,7 +325,7 @@ class CompositeCurveAnalysis(BaseCurveAnalysis):
         if self.options.plot:
             self.drawer.initialize_canvas()
 
-        fit_dataset = []
+        fit_dataset = {}
         for analysis in self._analyses:
             metadata = analysis.options.extra.copy()
             metadata["group"] = analysis.name
@@ -421,7 +421,7 @@ class CompositeCurveAnalysis(BaseCurveAnalysis):
                     analysis._create_curve_data(curve_data=formatted_data, models=analysis.models)
                 )
 
-            fit_dataset.append(fit_data)
+            fit_dataset[analysis.name] = fit_data
 
         total_quality = self._evaluate_quality(fit_dataset)
 
@@ -439,10 +439,8 @@ class CompositeCurveAnalysis(BaseCurveAnalysis):
                 if isinstance(res.value, (float, UFloat)):
                     report += f"{analysis_result_to_repr(res)}\n"
             chisqs = []
-            for analysis, fit_data in zip(self._analyses, fit_dataset):
-                chisqs.append(
-                    r"reduced-$\chi^2$ = " + f"{fit_data.reduced_chisq: .4g} ({analysis.name})"
-                )
+            for group, fit_data in fit_dataset.items():
+                chisqs.append(r"reduced-$\chi^2$ = " + f"{fit_data.reduced_chisq: .4g} ({group})")
             report += "\n".join(chisqs)
             self.drawer.draw_fit_report(description=report)
 
