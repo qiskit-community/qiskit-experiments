@@ -83,7 +83,6 @@ class BaseCurveDrawer(ABC):
         self._set_options = set()
         self._axis = None
         self._curves = list()
-        self.lock = False
 
     @property
     def options(self) -> Options:
