@@ -424,6 +424,7 @@ class TestInterleavedRB(RBTestCase):
             interleaved_element=interleaved_element,
             qubits=qubits,
             lengths=lengths,
+            transpiled_rb=True
         )
 
     def test_interleaving_delay(self):
@@ -458,7 +459,12 @@ class TestInterleavedRB(RBTestCase):
         delay_qc.x(1)
 
         exp = rb.InterleavedRB(
-            interleaved_element=delay_qc, qubits=[1, 2], lengths=[1], seed=123, num_samples=1, transpiled_rb=False
+            interleaved_element=delay_qc,
+            qubits=[1, 2],
+            lengths=[1],
+            seed=123,
+            num_samples=1,
+            transpiled_rb=True
         )
         _, int_circ = exp.circuits()
 
@@ -509,9 +515,9 @@ class TestInterleavedRB(RBTestCase):
 
 
 class TestEPGAnalysis(QiskitExperimentsTestCase):
-    """Test case for EPG colculation from EPC.
+    """Test case for EPG calculation from EPC.
 
-    EPG and depplarizing probability p are assumed to have following relationship
+    EPG and depolarizing probability p are assumed to have following relationship
 
         EPG = (2^n - 1) / 2^n · p
 
@@ -551,15 +557,16 @@ class TestEPGAnalysis(QiskitExperimentsTestCase):
             lengths=[1, 10, 30, 50, 80, 120, 150, 200],
             seed=123,
             backend=backend,
+            transpiled_rb=True
         )
         exp_1qrb_q0.set_transpile_options(**transpiler_options)
         expdata_1qrb_q0 = exp_1qrb_q0.run(analysis=None).block_for_results(timeout=300)
-
         exp_1qrb_q1 = rb.StandardRB(
             qubits=(1,),
             lengths=[1, 10, 30, 50, 80, 120, 150, 200],
             seed=123,
             backend=backend,
+            transpiled_rb=True
         )
         exp_1qrb_q1.set_transpile_options(**transpiler_options)
         expdata_1qrb_q1 = exp_1qrb_q1.run(analysis=None).block_for_results(timeout=300)
