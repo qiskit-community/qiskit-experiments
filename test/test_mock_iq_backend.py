@@ -13,7 +13,7 @@
 """MockIQBackend tests."""
 
 from test.base import QiskitExperimentsTestCase
-from typing import Dict, List, Tuple
+from typing import Dict, List, Optional, Tuple
 from qiskit import QuantumCircuit
 import numpy as np
 from itertools import product
@@ -77,14 +77,16 @@ class MockIQReadoutAmplitudeHelper(MockIQExperimentHelper):
 
     def __init__(
         self,
-        alter_centers=True,
-        alter_widths=True,
+        alter_centers: Optional[bool] = True,
+        alter_widths: Optional[bool] = True,
     ) -> None:
         """Construct a MockIQReadoutAmplitudeHelper instance.
 
         Args:
-            alter_centers (bool, optional): Whether to alter the centers of the IQ clusters based on the circuit 'xval'. Defaults to True.
-            alter_widths (bool, optional): Whether to alter the widths of the IQ clusters based on the circuit 'xval'. Defaults to True.
+            alter_centers: Whether to alter the centers of the IQ clusters based on
+                the circuit 'xval'. Defaults to True.
+            alter_widths: Whether to alter the widths of the IQ clusters based on
+                the circuit 'xval'. Defaults to True.
         """
         self.alter_centers = alter_centers
         self.alter_widths = alter_widths
