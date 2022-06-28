@@ -14,12 +14,10 @@
 
 from test.base import QiskitExperimentsTestCase
 from typing import Dict, List, Optional, Tuple
-from qiskit import QuantumCircuit
-import numpy as np
 from itertools import product
-
+import numpy as np
+from qiskit import QuantumCircuit
 from qiskit.qobj.utils import MeasLevel, MeasReturnType
-
 from qiskit_experiments.test.mock_iq_backend import MockIQBackend
 from qiskit_experiments.test.mock_iq_helpers import MockIQExperimentHelper
 
@@ -168,7 +166,6 @@ class TestMockIQBackend(QiskitExperimentsTestCase):
         """
         delta = 0.005
 
-        num_qubits = 1
         num_shots = 10000
         bare_centers = [[(0, -1), (1, 1)]]
         backend = MockIQBackend(
@@ -207,7 +204,8 @@ class TestMockIQBackend(QiskitExperimentsTestCase):
         self.assertEqual(
             len(res.results),
             len(xvals) * 2,
-            # message=f"Number of circuits does not match 2 * # xvals: {len(res.results)} instead of {len(xvals)*2}.",
+            msg=f"Number of circuits does not match 2 * # xvals: {len(res.results)} instead of"
+            f"{len(xvals)*2}.",
         )
 
         # Verify the number of shots
@@ -216,20 +214,19 @@ class TestMockIQBackend(QiskitExperimentsTestCase):
             self.assertEqual(
                 num_shots_for_i,
                 num_shots,
-                # message=f"Number of shots for xval={xvals[i_xval]} and prep={i_prep} is not as expected: {num_shots_for_i} vs {num_shots}.",
+                msg=f"Number of shots for xval={xvals[i_xval]} and prep={i_prep} is not as expected:"
+                f"{num_shots_for_i} vs {num_shots}.",
             )
 
         # Verify the centers of the clusters
-        expected_centers_per_xval_and_prep = []
+        expected_centers_per_xval = []
         for xval in xvals:
             # Add qubit 0 center for prepared state 0
-            expected_centers_per_xval_and_prep.append(np.array(bare_centers[0][0]) * xval)
+            expected_centers_per_xval.append(np.array(bare_centers[0][0]) * xval)
             # Add qubit 0 center for prepared state 1
-            expected_centers_per_xval_and_prep.append(np.array(bare_centers[0][1]) * xval)
+            expected_centers_per_xval.append(np.array(bare_centers[0][1]) * xval)
 
-        for i, (expected_centers, data) in enumerate(
-            zip(expected_centers_per_xval_and_prep, res.results)
-        ):
+        for i, (expected_centers, data) in enumerate(zip(expected_centers_per_xval, res.results)):
             memory = np.array(data.data.memory)
             centers = np.squeeze(np.mean(memory, axis=0))
             # For I and Q values
@@ -239,7 +236,9 @@ class TestMockIQBackend(QiskitExperimentsTestCase):
                 self.assertAlmostEqual(
                     x,
                     expected_x,
-                    msg=f"{axis} value was not correct for i={i} and xval={xvals[int(i/2)]}: {x} instead of {expected_x}.\nExpected center = {expected_centers}\nActual center = {centers}",
+                    msg=f"{axis} value was not correct for i={i} and xval={xvals[int(i/2)]}: {x} instead"
+                    f" of {expected_x}.\nExpected center = {expected_centers}\nActual center ="
+                    f"{centers}",
                     delta=delta,
                 )
 
@@ -249,7 +248,6 @@ class TestMockIQBackend(QiskitExperimentsTestCase):
         """
         delta = 0.005
 
-        num_qubits = 1
         num_shots = 10000
         bare_widths = [0.1, 0.2]
         backend = MockIQBackend(
@@ -288,7 +286,8 @@ class TestMockIQBackend(QiskitExperimentsTestCase):
         self.assertEqual(
             len(res.results),
             len(xvals) * 2,
-            # message=f"Number of circuits does not match 2 * # xvals: {len(res.results)} instead of {len(xvals)*2}.",
+            msg=f"Number of circuits does not match 2 * # xvals: {len(res.results)} instead of"
+            f"{len(xvals)*2}.",
         )
 
         # Verify the number of shots
@@ -297,19 +296,18 @@ class TestMockIQBackend(QiskitExperimentsTestCase):
             self.assertEqual(
                 num_shots_for_i,
                 num_shots,
-                # message=f"Number of shots for xval={xvals[i_xval]} and prep={i_prep} is not as expected: {num_shots_for_i} vs {num_shots}.",
+                msg=f"Number of shots for xval={xvals[i_xval]} and prep={i_prep} is not as expected:"
+                f"{num_shots_for_i} vs {num_shots}.",
             )
 
         # Create list of expected widths per xval and prepared state
-        expected_widths_per_xval_and_prep = []
-        for xval, prep in product(xvals, [0, 1]):
+        expected_widths_per_xval = []
+        for xval, _ in product(xvals, [0, 1]):
             # Add qubit 0 width for prepared state prep and xval
-            expected_widths_per_xval_and_prep.append(bare_widths[0] * xval)
+            expected_widths_per_xval.append(bare_widths[0] * xval)
 
         # Check the width for each circuit run (in data)
-        for i, (expected_width, data) in enumerate(
-            zip(expected_widths_per_xval_and_prep, res.results)
-        ):
+        for i, (expected_width, data) in enumerate(zip(expected_widths_per_xval, res.results)):
             # Get the actual width (I and Q)
             memory = np.array(data.data.memory)
             actual_widths = np.squeeze(np.std(memory, axis=0))
@@ -319,6 +317,7 @@ class TestMockIQBackend(QiskitExperimentsTestCase):
                 self.assertAlmostEqual(
                     width,
                     expected_width,
-                    msg=f"Width (std) along {axis} axis was not correct for i={i} and xval={xvals[int(i/2)]}: {width} instead of {expected_width}.",
+                    msg=f"Width (std) along {axis} axis was not correct for i={i} and"
+                    f"xval={xvals[int(i/2)]}: {width} instead of {expected_width}.",
                     delta=delta,
                 )

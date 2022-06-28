@@ -120,7 +120,8 @@ class MockIQExperimentHelper:
             widths (List): The base list of standard deviation values for the sampling of each qubit.
 
         Returns:
-            Tuple: A tuple containing the circuit-specific IQ centers and widths for the provided circuit.
+            Tuple: A tuple containing the circuit-specific IQ centers and widths for the provided
+                circuit.
         """
         return centers, widths
 
