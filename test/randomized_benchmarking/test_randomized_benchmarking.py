@@ -435,13 +435,21 @@ class TestInterleavedRB(RBTestCase):
             qubits=[0],
             lengths=[1],
             num_samples=1,
+            seed=1234,   # This seed gives a 2-gate clifford
             transpiled_rb=True
         )
-        # Not raises an error
-        _, int_circ = exp.circuits()
+        exp.set_transpile_options(**self.transpiler_options)
+        exp.set_transpile_options(basis_gates=self.basis_gates)
+        # Does not raise an error
+        _, int_circs = exp.circuits()
 
-        # barrier, clifford, barrier, "delay", barrier, ...
-        self.assertEqual(int_circ.data[3][0], interleaved_element)
+        # barrier, 2-gate clifford, barrier, "delay", barrier, ...
+        self.assertEqual(int_circs.data[4][0].name, interleaved_element.name)
+
+        # Transpiled delay duration is represented in seconds, so must convert from us
+        self.assertEqual(int_circs.data[4][0].unit, "s")
+        self.assertAlmostEqual(int_circs.data[4][0].params[0], interleaved_element.params[0] * 1e-6)
+        self.assertAllIdentity([int_circs])
 
     def test_interleaving_circuit_with_delay(self):
         """Test circuit with delay can be interleaved."""
@@ -450,7 +458,7 @@ class TestInterleavedRB(RBTestCase):
         delay_qc.x(1)
 
         exp = rb.InterleavedRB(
-            interleaved_element=delay_qc, qubits=[1, 2], lengths=[1], seed=123, num_samples=1, transpiled_rb=True
+            interleaved_element=delay_qc, qubits=[1, 2], lengths=[1], seed=123, num_samples=1, transpiled_rb=False
         )
         _, int_circ = exp.circuits()
 

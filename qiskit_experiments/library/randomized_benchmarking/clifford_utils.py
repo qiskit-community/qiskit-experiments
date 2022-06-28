@@ -257,17 +257,21 @@ class CliffordUtils:
         general_cliff_list = ["id", "h", "sdg", "s", "x", "sx", "y", "z"]
         transpiled_cliff_list = ["sx", "rz", "cx"]
 
-        if not name in basis_gates:
+        gates_with_delay = basis_gates.copy()
+        gates_with_delay.append("delay")
+        if not name in gates_with_delay:
             raise QiskitError(
             "Instruction {} is not in the basis gates".format(inst.name)
             )
         if(set(basis_gates).issubset(set(general_cliff_list))):
-            num_dict = {"id":0, "h":1, "sxdg":2, "s":4, "x":6, "sx":8, "y":12, "z":18, "sdg":22}
+            num_dict = {"id":0, "h":1, "sxdg":2, "s":4, "x":6, "sx":8, "y":12, "z":18, "sdg":22, "delay":0}
             return num_dict[name]
 
         if (set(basis_gates).issubset(set(transpiled_cliff_list))):
             if name == "sx":
                 return 8
+            if name == "delay":
+                return 0
             if name == "rz":
                 # The next two are identical up to a phase, which makes no difference
                 # for the associated Cliffords
