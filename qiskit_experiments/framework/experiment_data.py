@@ -1368,6 +1368,10 @@ class ExperimentData:
             for name, figure in self._figures.items():
                 if figure is None:
                     continue
+                # currently only the figure and its name are stored in the database
+                    if isinstance(figure, FigureData):
+                        figure = figure.figure
+                        LOG.debug("Figure metadata is currently not saved to the database")
                 if isinstance(figure, pyplot.Figure):
                     figure = plot_to_svg_bytes(figure)
                 self._service.create_or_update_figure(
