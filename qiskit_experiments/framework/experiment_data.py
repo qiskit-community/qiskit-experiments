@@ -74,6 +74,62 @@ def do_auto_save(func: Callable):
 
     return _wrapped
 
+class FigureData:
+    """Wrapper for figures and figure metadata"""
+
+    def __init__(self, figure, name=None, metadata=None):
+        """Creates a new figure data object"""
+        self.figure = figure
+        self._name = name
+        self.metadata = metadata or {}
+
+    # name is read only
+    @property
+    def name(self) -> str:
+        """The name of the figure"""
+        return self._name
+
+    @property
+    def metadata(self) -> dict:
+        """The metadata dictionary stored with the figure"""
+        return self._metadata
+
+    @metadata.setter
+    def metadata(self, new_metadata: dict):
+        """Set the metadata to new value; must be a dictionary"""
+        if not isinstance(new_metadata, dict):
+            raise ValueError("figure metadata must be a dictionary")
+        self._metadata = new_metadata
+
+    def copy(self, new_name: Optional[str] = None):
+        """Creates a copy of the figure data"""
+        name = new_name or self.name
+        return FigureData(figure=self.figure, name=name, metadata=copy.deepcopy(self.metadata))
+
+    def __json_encode__(self) -> Dict[str, Any]:
+        """Return the json representation of the figure data"""
+        return {"figure": self.figure, "name": self.name, "metadata": self.metadata}
+
+    @classmethod
+    def __json_decode__(cls, args: Dict[str, Any]) -> "FigureData":
+        """Initialize a figure data from the json representation"""
+        return cls(**args)
+
+    def _repr_png_(self):
+        if isinstance(self.figure, MatplotlibFigure):
+            b = io.BytesIO()
+            self.figure.savefig(b, format="png", bbox_inches="tight")
+            png = b.getvalue()
+            return png
+        else:
+            return None
+
+    def _repr_svg_(self):
+        if isinstance(self.figure, str):
+            return self.figure
+        if isinstance(self.figure, bytes):
+            return str(self.figure)
+        return None
 
 class ExperimentData:
     """Qiskit Experiments Data container class.
@@ -988,7 +1044,15 @@ class ExperimentData:
                 with open(figure, "rb") as file:
                     figure = file.read()
 
-            self._figures[fig_name] = figure
+            # check whether the figure is already wrapped, meaning it came from a sub-experiment
+            if isinstance(figure, FigureData):
+                figure_data = figure.copy(new_name=fig_name)
+
+            else:
+                figure_metadata = {"qubits": self.metadata.get("physical_qubits")}
+                figure_data = FigureData(figure=figure, name=fig_name, metadata=figure_metadata)
+
+            self._figures[fig_name] = figure_data
 
             save = save_figure if save_figure is not None else self.auto_save
             if save and self._service:
@@ -1001,6 +1065,7 @@ class ExperimentData:
                     create=not existing_figure,
                 )
             added_figs.append(fig_name)
+
         return added_figs if len(added_figs) != 1 else added_figs[0]
 
     @do_auto_save
@@ -1068,7 +1133,7 @@ class ExperimentData:
 
         if file_name:
             with open(file_name, "wb") as output:
-                num_bytes = output.write(figure_data)
+                num_bytes = output.write(figure_data.figure)
                 return num_bytes
         return figure_data
 

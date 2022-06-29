@@ -281,7 +281,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
             backend=self.backend, experiment_type="qiskit_test", service=service
         )
         exp_data.add_figures(figure, save_figure=True)
-        self.assertEqual(figure, exp_data.figure(0))
+        self.assertEqual(figure, exp_data.figure(0).figure)
         service.create_or_update_figure.assert_called_once()
         _, kwargs = service.create_or_update_figure.call_args
         self.assertIsInstance(kwargs["figure"], bytes)
@@ -337,7 +337,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
     def test_add_figure_metadata(self):
         hello_bytes = str.encode("hello world")
         qubits = [0, 1, 2]
-        exp_data = DbExperimentData(
+        exp_data = ExperimentData(
             backend=self.backend,
             experiment_type="qiskit_test",
             metadata={"physical_qubits": qubits},
@@ -351,7 +351,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         expected_name_prefix = "qiskit_test_Fig-0_Exp-"
         self.assertEqual(figure_data.name[: len(expected_name_prefix)], expected_name_prefix)
 
-        exp_data2 = DbExperimentData(
+        exp_data2 = ExperimentData(
             backend=self.backend,
             experiment_type="qiskit_test",
             metadata={"physical_qubits": [1, 2, 3, 4]},
@@ -477,12 +477,8 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         service = mock.create_autospec(IBMExperimentService, instance=True)
         exp_data.service = service
         exp_data.save_metadata()
-        service.create_experiment.assert_called_once()
-        data = service.create_experiment.call_args[0][0]
-        self.assertEqual(exp_data.experiment_id, data.experiment_id)
-        exp_data.save_metadata()
-        service.update_experiment.assert_called_once()
-        data = service.update_experiment.call_args[0][0]
+        service.create_or_update_experiment.assert_called_once()
+        data = service.create_or_update_experiment.call_args[0][0]
         self.assertEqual(exp_data.experiment_id, data.experiment_id)
 
     def test_save(self):
@@ -494,7 +490,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         exp_data.add_analysis_results(analysis_result)
         exp_data.service = service
         exp_data.save()
-        service.create_experiment.assert_called_once()
+        service.create_or_update_experiment.assert_called_once()
         service.create_or_update_figure.assert_called_once()
         analysis_result.save.assert_called_once()
 
@@ -509,7 +505,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         exp_data.service = service
 
         exp_data.save()
-        service.create_experiment.assert_called_once()
+        service.create_or_update_experiment.assert_called_once()
         service.delete_figure.assert_called_once()
         service.delete_analysis_result.assert_called_once()
 
@@ -539,9 +535,9 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
             (exp_data.add_figures, (str.encode("hello world"),), service.create_or_update_figure),
             (exp_data.delete_figure, (0,), service.delete_figure),
             (exp_data.delete_analysis_result, (0,), service.delete_analysis_result),
-            (setattr, (exp_data, "tags", ["foo"]), service.update_experiment),
-            (setattr, (exp_data, "notes", "foo"), service.update_experiment),
-            (setattr, (exp_data, "share_level", "hub"), service.update_experiment),
+            (setattr, (exp_data, "tags", ["foo"]), service.create_or_update_experiment),
+            (setattr, (exp_data, "notes", "foo"), service.create_or_update_experiment),
+            (setattr, (exp_data, "share_level", "hub"), service.create_or_update_experiment),
         ]
 
         for func, params, called in subtests:
@@ -1062,15 +1058,6 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         mock_provider.service.return_value = mock_service
         return mock_service
 
-
-if __name__ == "__main__":
+import unittest
+if __name__ == '__main__':
     unittest.main()
-
-# def suite():
-#     suite = unittest.TestSuite()
-#     suite.addTest(TestDbExperimentData('test_save_metadata'))
-#     return suite
-#
-# if __name__ == '__main__':
-#     runner = unittest.TextTestRunner()
-#     runner.run(suite())

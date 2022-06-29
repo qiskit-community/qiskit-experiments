@@ -249,10 +249,9 @@ Mix-ins
 .. _create-experiment:
 """
 from qiskit.providers.options import Options
-from qiskit_experiments.database_service.db_analysis_result import DbAnalysisResultV1
-from qiskit_experiments.database_service.db_experiment_data import (
+from qiskit_experiments.framework.analysis_result import AnalysisResult
+from qiskit_experiments.framework.experiment_data import (
     ExperimentStatus,
-    JobStatus,
     AnalysisStatus,
     FigureData,
 )
