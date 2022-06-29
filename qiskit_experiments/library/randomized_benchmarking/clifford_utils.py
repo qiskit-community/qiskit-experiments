@@ -226,21 +226,15 @@ class CliffordUtils:
             num -= sig_size
         return None
 
-    def transpile_single_clifford(cliff_circ, basis_gates : List[str]):
+    def transpile_single_clifford(self, cliff_circ : QuantumCircuit, basis_gates : List[str]):
         backend = AerSimulator()
         return transpile(cliff_circ, backend, optimization_level=1, basis_gates=basis_gates)
 
-    def generate_1q_transpiled_clifford_circuits(basis_gates : List[str]):
-        utils = CliffordUtils()
-        circs = []
-        for num in range(0, 24):
-            circ = utils.clifford_1_qubit_circuit(num=num)
-            circs.append(circ)
-        backend = AerSimulator()
+    def generate_1q_transpiled_clifford_circuits(self, basis_gates : List[str]):
         transpiled_circs = []
-
-        for i, circ in enumerate(circs):
-            transpiled_circ = transpile(circ, backend, optimization_level=1, basis_gates=basis_gates)
+        for num in range(0, 24):
+            circ = self.clifford_1_qubit_circuit(num=num)
+            transpiled_circ = self.transpile_single_clifford(circ, basis_gates)
             transpiled_circs.append(transpiled_circ)
         return transpiled_circs
 
@@ -254,7 +248,7 @@ class CliffordUtils:
         one of these sets.
         """
         name = inst.name
-        general_cliff_list = ["id", "h", "sdg", "s", "x", "sx", "y", "z"]
+        general_cliff_list = ["id", "h", "sdg", "s", "x", "sx", "sxdg", "y", "z"]
         transpiled_cliff_list = ["sx", "rz", "cx"]
 
         gates_with_delay = basis_gates.copy()

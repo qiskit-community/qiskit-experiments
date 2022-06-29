@@ -139,9 +139,10 @@ class StandardRB(BaseExperiment, RestlessMixin):
         """
         rng = default_rng(seed=self.experiment_options.seed)
         circuits = []
+        utils = CliffordUtils()
         if self._transpiled_rb and self._transpiled_cliff_circuits == None:
             self._transpiled_cliff_circuits = \
-                CliffordUtils.generate_1q_transpiled_clifford_circuits(basis_gates=self.transpile_options.basis_gates)
+                utils.generate_1q_transpiled_clifford_circuits(basis_gates=self.transpile_options.basis_gates)
         for _ in range(self.experiment_options.num_samples):
             if self.num_qubits == 1 and self._transpiled_rb:
                 rb_circuits, _ = self._build_rb_circuits(self.experiment_options.lengths, rng)

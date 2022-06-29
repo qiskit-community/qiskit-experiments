@@ -196,6 +196,7 @@ class TestStandardRB(RBTestCase):
             full_sampling=False,
             transpiled_rb=True
         )
+        exp1.set_transpile_options(**self.transpiler_options)
         exp2 = rb.StandardRB(
             qubits=(0,),
             lengths=[10, 20, 30],
@@ -204,6 +205,7 @@ class TestStandardRB(RBTestCase):
             full_sampling=True,
             transpiled_rb=True
         )
+        exp2.set_transpile_options(**self.transpiler_options)
         circs1 = exp1.circuits()
         circs2 = exp2.circuits()
 
@@ -302,7 +304,7 @@ class TestStandardRB(RBTestCase):
             exps.append(exp)
 
         par_exp = ParallelExperiment(exps)
-        par_exp.set_transpile_options(optimization_level=1)
+        par_exp.set_transpile_options(**self.transpiler_options)
 
         par_expdata = par_exp.run(backend=self.backend)
         self.assertExperimentDone(par_expdata)
@@ -329,7 +331,6 @@ class TestInterleavedRB(RBTestCase):
                 num_samples=1, full_sampling=val, transpiled_rb=True
             )
             exp.set_transpile_options(**self.transpiler_options)
-            exp.set_transpile_options(basis_gates=self.basis_gates)
             circuits = exp.circuits()
             c_std = circuits[0]
             c_int = circuits[1]
@@ -381,7 +382,6 @@ class TestInterleavedRB(RBTestCase):
                 transpiled_rb=True,
             )
             exp.set_transpile_options(**self.transpiler_options)
-            exp.set_transpile_options(basis_gates=self.basis_gates)
 
             self.assertAllIdentity(exp.circuits())
 
@@ -440,7 +440,7 @@ class TestInterleavedRB(RBTestCase):
             transpiled_rb=True
         )
         exp.set_transpile_options(**self.transpiler_options)
-        exp.set_transpile_options(basis_gates=self.basis_gates)
+
         # Does not raise an error
         _, int_circs = exp.circuits()
 
@@ -464,7 +464,6 @@ class TestInterleavedRB(RBTestCase):
             lengths=[1],
             seed=123,
             num_samples=1,
-            transpiled_rb=True
         )
         _, int_circ = exp.circuits()
 
