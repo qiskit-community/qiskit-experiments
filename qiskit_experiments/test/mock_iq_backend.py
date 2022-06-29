@@ -225,9 +225,8 @@ class MockIQBackend(FakeOpenPulse2Q):
         cls = MockIQExperimentHelper
         if not isinstance(value, cls):
             raise ValueError(
-                "The input type is <{}> while the type expected type is <{}>.".format(
-                    str(type(value)), str(type(cls()))
-                )
+                f"The input type is {str(type(value))} while the type expected type is "
+                f"<{str(type(cls()))}>."
             )
         self._experiment_helper = value
 
@@ -465,9 +464,7 @@ class MockIQParallelBackend(MockIQBackend):
         cls = MockIQParallelExperimentHelper
         if not isinstance(value, cls):
             raise ValueError(
-                "The input type is <{}> while the type expected type is <{}>.".format(
-                    str(type(value)), str(cls)
-                )
+                f"The input type is {str(type(value))} while the type expected type is <{str(cls)}>."
             )
         self._experiment_helper = value
 
