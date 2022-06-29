@@ -74,6 +74,7 @@ def do_auto_save(func: Callable):
 
     return _wrapped
 
+
 class FigureData:
     """Wrapper for figures and figure metadata"""
 
@@ -130,6 +131,7 @@ class FigureData:
         if isinstance(self.figure, bytes):
             return str(self.figure)
         return None
+
 
 class ExperimentData:
     """Qiskit Experiments Data container class.
