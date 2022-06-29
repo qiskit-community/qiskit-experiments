@@ -505,9 +505,9 @@ class MockIQParallelBackend(MockIQBackend):
         # The use of idx_shift is to sample 'qubits_iq_rand' correctly
         sample_idx_shift = 0
 
-        # The code generates data as following:
-        # for each experiment, it firstly checks if it needs to generate data for it. If it does, the
-        # multinomial probability function draws lots for all the shots, and we store it in the
+        # The code generates data as follows:
+        # for each experiment, it first checks if it needs to generate data for it. If it does, then the
+        # multinomial probability function draws lots for all the shots, and we store this data in the
         # corresponding position in the output list. After that we move on to the next experiment.
         for exp_dict in list_exp_dict:
             # skipping experiments that don't need data generation for this circuit.
