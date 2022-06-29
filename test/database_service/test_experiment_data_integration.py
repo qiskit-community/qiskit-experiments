@@ -264,7 +264,7 @@ class TestExperimentDataIntegration(QiskitTestCase):
 
         exp_data.add_figures(figures=file_name, save_figure=True)
         rexp = DbExperimentData.load(exp_data.experiment_id, self.experiment)
-        self.assertEqual(rexp.figure(0), hello_bytes)
+        self.assertEqual(rexp.figure(0).figure, hello_bytes)
 
     def test_update_figure(self):
         """Test updating a figure."""
@@ -273,7 +273,7 @@ class TestExperimentDataIntegration(QiskitTestCase):
         figure_name = "hello.svg"
 
         exp_data.add_figures(figures=hello_bytes, figure_names=figure_name, save_figure=True)
-        self.assertEqual(exp_data.figure(0), hello_bytes)
+        self.assertEqual(exp_data.figure(0).figure, hello_bytes)
 
         friend_bytes = str.encode("hello friend")
         exp_data.add_figures(
@@ -320,7 +320,7 @@ class TestExperimentDataIntegration(QiskitTestCase):
         # so compare tags with a predictable sort order.
         self.assertEqual(["bar", "foo"], sorted(rexp.tags))
         self.assertEqual(aresult.result_id, rexp.analysis_results(0).result_id)
-        self.assertEqual(hello_bytes, rexp.figure(0))
+        self.assertEqual(hello_bytes, rexp.figure(0).figure)
 
         exp_data.delete_analysis_result(0)
         exp_data.delete_figure(0)
