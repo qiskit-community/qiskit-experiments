@@ -1123,7 +1123,9 @@ class ExperimentData:
             DbExperimentEntryNotFound: If the figure cannot be found.
         """
         if isinstance(figure_key, int):
-            figure_key = self._figures.keys().get(figure_key, None)
+            if figure_key < 0 or figure_key >= len(self._figures.keys()):
+                raise DbExperimentEntryNotFound(f"Figure {figure_key} not found.")
+            figure_key = self._figures.keys()[figure_key]
 
         figure_data = self._figures.get(figure_key, None)
         if figure_data is None and self.service:
