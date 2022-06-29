@@ -28,9 +28,11 @@ import copy
 import uuid
 import enum
 import time
+import io
 import traceback
 import numpy as np
 from matplotlib import pyplot
+from matplotlib.figure import Figure as MatplotlibFigure
 from qiskit.result import Result
 from qiskit.providers.jobstatus import JobStatus, JOB_FINAL_STATES
 from qiskit.exceptions import QiskitError
@@ -1121,7 +1123,7 @@ class ExperimentData:
             DbExperimentEntryNotFound: If the figure cannot be found.
         """
         if isinstance(figure_key, int):
-            figure_key = self._figures.keys()[figure_key]
+            figure_key = self._figures.keys().get(figure_key, None)
 
         figure_data = self._figures.get(figure_key, None)
         if figure_data is None and self.service:

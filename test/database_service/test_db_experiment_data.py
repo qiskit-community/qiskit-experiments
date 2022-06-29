@@ -1057,9 +1057,3 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         mock_service = mock.create_autospec(IBMExperimentService, instance=True)
         mock_provider.service.return_value = mock_service
         return mock_service
-
-
-import unittest
-
-if __name__ == "__main__":
-    unittest.main()

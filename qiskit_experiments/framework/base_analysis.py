@@ -203,7 +203,7 @@ class BaseAnalysis(ABC, StoreInitArgs):
             data._experiment_id = experiment_id
             return data
 
-        return AnalysisResult.from_values(
+        return AnalysisResult(
             name=data.name,
             value=data.value,
             device_components=device_components,
