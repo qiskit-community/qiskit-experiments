@@ -226,9 +226,8 @@ class MockIQParallelExperimentHelper(MockIQExperimentHelper):
 
         if number_of_experiments != number_of_helpers:
             raise ValueError(
-                "The number of helpers {} and the number of experiment {} don't match.".format(
-                    number_of_experiments, number_of_helpers
-                )
+                f"The number of helpers {number_of_experiments} and the number of "
+                f"experiment {number_of_helpers} don't match."
             )
 
         for helper in exp_helper_list:
@@ -579,7 +578,7 @@ class MockIQSpectroscopyHelper(MockIQExperimentHelper):
             elif self.gate_name == "Spec":
                 freq_shift = next(iter(circuit.calibrations[self.gate_name]))[1][0]
             else:
-                raise ValueError("The gate name {} isn't supported.".format(str(self.gate_name)))
+                raise ValueError(f"The gate name {str(self.gate_name)} isn't supported.")
             delta_freq = freq_shift - freq_offset
 
             probability_output_dict["1"] = np.abs(1 / (1 + 2.0j * delta_freq / line_width))
