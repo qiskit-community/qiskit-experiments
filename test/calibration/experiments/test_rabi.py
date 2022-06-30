@@ -47,6 +47,7 @@ class TestRabiEndToEnd(QiskitExperimentsTestCase):
 
         self.sched = sched
 
+    # pylint: disable=no-member
     def test_rabi_end_to_end(self):
         """Test the Rabi experiment end to end."""
 
@@ -135,6 +136,7 @@ class TestEFRabi(QiskitExperimentsTestCase):
 
         self.sched = sched
 
+    # pylint: disable=no-member
     def test_ef_rabi_end_to_end(self):
         """Test the EFRabi experiment end to end."""
 
@@ -335,3 +337,7 @@ class TestCompositeExperiment(QiskitExperimentsTestCase):
 
             self.assertEqual(cal_key[0], (qubit,))
             self.assertTrue(cal_key in par_circ.calibrations["Rabi"])
+
+
+if __name__=="__main__":
+    unittest.main()
