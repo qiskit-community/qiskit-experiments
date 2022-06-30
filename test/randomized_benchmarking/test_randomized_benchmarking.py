@@ -361,10 +361,9 @@ class TestInterleavedRB(RBTestCase):
         Clifford circuit.
         """
         interleaved_gate = SXGate()
-        utils = CliffordUtils()
         random.seed(123)
         num = random.randint(0, 23)
-        interleaved_clifford = utils.clifford_1_qubit_circuit(num)
+        interleaved_clifford = CliffordUtils.clifford_1_qubit_circuit(num)
         # The circuit created for interleaved_clifford is:
         # qc = QuantumCircuit(1)
         # qc.rz(np.pi/2, 0)

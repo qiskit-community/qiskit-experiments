@@ -73,20 +73,23 @@ class CliffordUtils:
     general_cliff_list = ["id", "h", "sdg", "s", "x", "sx", "sxdg", "y", "z", "cx"]
     transpiled_cliff_list = ["sx", "rz", "cx"]
 
-    def clifford_1_qubit(self, num):
+    @classmethod
+    def clifford_1_qubit(cls, num):
         """Return the 1-qubit clifford element corresponding to `num`
         where `num` is between 0 and 23.
         """
-        return Clifford(self.clifford_1_qubit_circuit(num), validate=False)
+        return Clifford(cls.clifford_1_qubit_circuit(num), validate=False)
 
-    def clifford_2_qubit(self, num):
+    @classmethod
+    def clifford_2_qubit(cls, num):
         """Return the 2-qubit clifford element corresponding to `num`
         where `num` is between 0 and 11519.
         """
-        return Clifford(self.clifford_2_qubit_circuit(num), validate=False)
+        return Clifford(cls.clifford_2_qubit_circuit(num), validate=False)
 
+    @classmethod
     def random_cliffords(
-        self, num_qubits: int, size: int = 1, rng: Optional[Union[int, Generator]] = None
+        cls, num_qubits: int, size: int = 1, rng: Optional[Union[int, Generator]] = None
     ):
         """Generate a list of random clifford elements"""
         if num_qubits > 2:
@@ -100,13 +103,14 @@ class CliffordUtils:
 
         if num_qubits == 1:
             samples = rng.integers(24, size=size)
-            return [Clifford(self.clifford_1_qubit_circuit(i), validate=False) for i in samples]
+            return [Clifford(cls.clifford_1_qubit_circuit(i), validate=False) for i in samples]
         else:
             samples = rng.integers(11520, size=size)
-            return [Clifford(self.clifford_2_qubit_circuit(i), validate=False) for i in samples]
+            return [Clifford(cls.clifford_2_qubit_circuit(i), validate=False) for i in samples]
 
+    @classmethod
     def random_clifford_circuits(
-        self, num_qubits: int, size: int = 1, rng: Optional[Union[int, Generator]] = None
+        cls, num_qubits: int, size: int = 1, rng: Optional[Union[int, Generator]] = None
     ):
         """Generate a list of random clifford circuits"""
         if num_qubits > 2:
@@ -120,19 +124,20 @@ class CliffordUtils:
 
         if num_qubits == 1:
             samples = rng.integers(24, size=size)
-            return [self.clifford_1_qubit_circuit(i) for i in samples]
+            return [cls.clifford_1_qubit_circuit(i) for i in samples]
         else:
             samples = rng.integers(11520, size=size)
-            return [self.clifford_2_qubit_circuit(i) for i in samples]
+            return [cls.clifford_2_qubit_circuit(i) for i in samples]
 
+    @classmethod
     @lru_cache(maxsize=24)
-    def clifford_1_qubit_circuit(self, num):
+    def clifford_1_qubit_circuit(cls, num):
         """Return the 1-qubit clifford circuit corresponding to `num`
         where `num` is between 0 and 23.
         """
         # pylint: disable=unbalanced-tuple-unpacking
         # This is safe since `_unpack_num` returns list the size of the sig
-        (i, j, p) = self._unpack_num(num, self.CLIFFORD_1_QUBIT_SIG)
+        (i, j, p) = cls._unpack_num(num, cls.CLIFFORD_1_QUBIT_SIG)
         qr = QuantumRegister(1)
         qc = QuantumCircuit(qr)
         if i == 1:
@@ -149,12 +154,13 @@ class CliffordUtils:
             qc.z(0)
         return qc
 
+    @classmethod
     @lru_cache(maxsize=11520)
-    def clifford_2_qubit_circuit(self, num):
+    def clifford_2_qubit_circuit(cls, num):
         """Return the 2-qubit clifford circuit corresponding to `num`
         where `num` is between 0 and 11519.
         """
-        vals = self._unpack_num_multi_sigs(num, self.CLIFFORD_2_QUBIT_SIGS)
+        vals = cls._unpack_num_multi_sigs(num, cls.CLIFFORD_2_QUBIT_SIGS)
         qr = QuantumRegister(2)
         qc = QuantumCircuit(qr)
         if vals[0] == 0 or vals[0] == 3:
@@ -203,7 +209,8 @@ class CliffordUtils:
             qc.z(1)
         return qc
 
-    def _unpack_num(self, num, sig):
+    @classmethod
+    def _unpack_num(cls, num, sig):
         r"""Returns a tuple :math:`(a_1, \ldots, a_n)` where
         :math:`0 \le a_i \le \sigma_i` where
         sig=:math:`(\sigma_1, \ldots, \sigma_n)` and num is the sequential
@@ -215,7 +222,8 @@ class CliffordUtils:
             num //= k
         return res
 
-    def _unpack_num_multi_sigs(self, num, sigs):
+    @classmethod
+    def _unpack_num_multi_sigs(cls, num, sigs):
         """Returns the result of `_unpack_num` on one of the
         signatures in `sigs`
         """
@@ -224,23 +232,26 @@ class CliffordUtils:
             for k in sig:
                 sig_size *= k
             if num < sig_size:
-                return [i] + self._unpack_num(num, sig)
+                return [i] + cls._unpack_num(num, sig)
             num -= sig_size
         return None
 
-    def transpile_single_clifford(self, cliff_circ : QuantumCircuit, basis_gates : List[str]):
+    @classmethod
+    def transpile_single_clifford(cls, cliff_circ : QuantumCircuit, basis_gates : List[str]):
         backend = AerSimulator()
         return transpile(cliff_circ, backend, optimization_level=1, basis_gates=basis_gates)
 
-    def generate_1q_transpiled_clifford_circuits(self, basis_gates : List[str]):
+    @classmethod
+    def generate_1q_transpiled_clifford_circuits(cls, basis_gates : List[str]):
         transpiled_circs = []
         for num in range(0, 24):
-            circ = self.clifford_1_qubit_circuit(num=num)
-            transpiled_circ = self.transpile_single_clifford(circ, basis_gates)
+            circ = cls.clifford_1_qubit_circuit(num=num)
+            transpiled_circ = cls.transpile_single_clifford(circ, basis_gates)
             transpiled_circs.append(transpiled_circ)
         return transpiled_circs
 
-    def num_from_1_qubit_clifford_single_gate(self, inst, basis_gates):
+    @classmethod
+    def num_from_1_qubit_clifford_single_gate(cls, inst, basis_gates):
         """
         This method does the reverse of clifford_1_qubit_circuit -
         given a clifford, it returns the corresponding integer, with the mapping
@@ -250,8 +261,6 @@ class CliffordUtils:
         one of these sets.
         """
         name = inst.name
-        #general_cliff_list = ["id", "h", "sdg", "s", "x", "sx", "sxdg", "y", "z"]
-        #transpiled_cliff_list = ["sx", "rz", "cx"]
 
         gates_with_delay = basis_gates.copy()
         gates_with_delay.append("delay")
@@ -259,11 +268,11 @@ class CliffordUtils:
             raise QiskitError(
             "Instruction {} is not in the basis gates".format(inst.name)
             )
-        if(set(basis_gates).issubset(set(self.general_cliff_list))):
+        if(set(basis_gates).issubset(set(cls.general_cliff_list))):
             num_dict = {"id":0, "h":1, "sxdg":2, "s":4, "x":6, "sx":8, "y":12, "z":18, "sdg":22, "delay":0}
             return num_dict[name]
 
-        if (set(basis_gates).issubset(set(self.transpiled_cliff_list))):
+        if (set(basis_gates).issubset(set(cls.transpiled_cliff_list))):
             if name == "sx":
                 return 8
             if name == "delay":
@@ -284,9 +293,12 @@ class CliffordUtils:
             "Instruction {} could not be converted to Clifford gate".format(name)
             )
 
-    def compose_num_with_clifford(self, composed_num, qc,
+    @classmethod
+    def compose_num_with_clifford(cls, composed_num, qc,
                                   basis_gates) -> int:
+        #    MAP_CLIFFORD_NUM_TO_ARRAY_INDEX = {0:0, 1:1, 2:2, 4:3, 6:4, 8:5, 12:6, 18:7, 22:8}
         for inst in qc:
-            num = CliffordUtils().num_from_1_qubit_clifford_single_gate(inst=inst[0], basis_gates=basis_gates)
+            num = cls.num_from_1_qubit_clifford_single_gate(inst=inst[0], basis_gates=basis_gates)
             composed_num = CLIFF_COMPOSE_DATA[composed_num, num]
         return composed_num
+

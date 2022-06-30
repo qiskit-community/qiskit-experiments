@@ -2,13 +2,11 @@
 from qiskit_experiments.library.randomized_benchmarking.clifford_utils import CliffordUtils
 
 def create_compose_map():
-    utils = CliffordUtils()
-
     num_to_cliff = {}
     cliff_to_num = {}
 
     for i in range(24):
-        cliff = utils.clifford_1_qubit(i)
+        cliff = CliffordUtils.clifford_1_qubit(i)
         num_to_cliff[i] = cliff
         cliff_to_num[cliff.__repr__()] = i
 

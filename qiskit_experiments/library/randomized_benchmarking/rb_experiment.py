@@ -95,7 +95,6 @@ class StandardRB(BaseExperiment, RestlessMixin):
         # Set fixed options
         self._full_sampling = full_sampling
         self._transpiled_rb = transpiled_rb
-        self._clifford_utils = CliffordUtils()
         self._transpiled_cliff_circuits = None
 
     def _verify_parameters(self, lengths, num_samples):
@@ -141,7 +140,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
         circuits = []
         if self._transpiled_rb and self._transpiled_cliff_circuits == None:
             self._transpiled_cliff_circuits = \
-            self._clifford_utils.generate_1q_transpiled_clifford_circuits(basis_gates=self.transpile_options.basis_gates)
+            CliffordUtils.generate_1q_transpiled_clifford_circuits(basis_gates=self.transpile_options.basis_gates)
         for _ in range(self.experiment_options.num_samples):
             if self.num_qubits == 1 and self._transpiled_rb:
                 rb_circuits, _ = self._build_rb_circuits(self.experiment_options.lengths, rng)
@@ -163,7 +162,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
         """
         circuits = []
         for length in lengths if self._full_sampling else [lengths[-1]]:
-            elements = self._clifford_utils.random_clifford_circuits(self.num_qubits, length, rng)
+            elements = CliffordUtils.random_clifford_circuits(self.num_qubits, length, rng)
             element_lengths = [len(elements)] if self._full_sampling else lengths
             circuits += self._generate_circuit(elements, element_lengths)
         return circuits
@@ -270,16 +269,16 @@ class StandardRB(BaseExperiment, RestlessMixin):
                 # choose random clifford
                 next_circ = self._transpiled_cliff_circuits[rand]
                 circ.compose(next_circ, inplace=True)
-                composed_cliff_num = self._clifford_utils.compose_num_with_clifford(composed_cliff_num, next_circ,
+                composed_cliff_num = CliffordUtils.compose_num_with_clifford(composed_cliff_num, next_circ,
                                                                             self.transpile_options.basis_gates)
                 circ.barrier(0)
                 if is_interleaved:
                     interleaved_circ.compose(next_circ, inplace=True)
-                    composed_interleaved_num = self._clifford_utils.compose_num_with_clifford(composed_interleaved_num, next_circ,
+                    composed_interleaved_num = CliffordUtils.compose_num_with_clifford(composed_interleaved_num, next_circ,
                                                                                               self.transpile_options.basis_gates)
                     interleaved_circ.barrier(0)
                     interleaved_circ.compose(interleaved_element, inplace=True)
-                    composed_interleaved_num = self._clifford_utils.compose_num_with_clifford(composed_interleaved_num,
+                    composed_interleaved_num = CliffordUtils.compose_num_with_clifford(composed_interleaved_num,
                                                                                               interleaved_element,
                                                                                               self.transpile_options.basis_gates)
                     interleaved_circ.barrier(0)
@@ -349,18 +348,18 @@ class StandardRB(BaseExperiment, RestlessMixin):
                 rb_circ.compose(next_circ, inplace=True)
 
                 composed_cliff_num = \
-                    self._clifford_utils.compose_num_with_clifford(composed_num=composed_cliff_num, qc=next_circ,
+                    CliffordUtils.compose_num_with_clifford(composed_num=composed_cliff_num, qc=next_circ,
                                                                    basis_gates=self.transpile_options.basis_gates)
                 rb_circ.barrier(0)
                 if is_interleaved:
                     rb_interleaved_circ.compose(next_circ, inplace=True)
                     composed_interleaved_num = \
-                        self._clifford_utils.compose_num_with_clifford(composed_num=composed_interleaved_num, qc=next_circ,
+                        CliffordUtils.compose_num_with_clifford(composed_num=composed_interleaved_num, qc=next_circ,
                                                                 basis_gates=self.transpile_options.basis_gates)
                     rb_interleaved_circ.barrier(0)
                     rb_interleaved_circ.compose(interleaved_element, inplace=True)
                     composed_interleaved_num = \
-                        self._clifford_utils.compose_num_with_clifford(composed_interleaved_num, interleaved_element,
+                        CliffordUtils.compose_num_with_clifford(composed_interleaved_num, interleaved_element,
                                                                   self.transpile_options.basis_gates)
                     rb_interleaved_circ.barrier(0)
 

@@ -103,7 +103,7 @@ class InterleavedRB(StandardRB):
         circuits = []
         if self._transpiled_rb and self._transpiled_cliff_circuits == None:
             self._transpiled_cliff_circuits = \
-                self._clifford_utils.generate_1q_transpiled_clifford_circuits(basis_gates=self.transpile_options.basis_gates)
+                CliffordUtils.generate_1q_transpiled_clifford_circuits(basis_gates=self.transpile_options.basis_gates)
         for _ in range(self.experiment_options.num_samples):
             if self.num_qubits == 1 and self._transpiled_rb:
                 self._set_transpiled_interleaved_element()
@@ -118,7 +118,7 @@ class InterleavedRB(StandardRB):
     def _sample_circuits(self, lengths, rng):
         circuits = []
         for length in lengths if self._full_sampling else [lengths[-1]]:
-            elements = self._clifford_utils.random_clifford_circuits(self.num_qubits, length, rng)
+            elements = CliffordUtils.random_clifford_circuits(self.num_qubits, length, rng)
             element_lengths = [len(elements)] if self._full_sampling else lengths
             std_circuits = self._generate_circuit(elements, element_lengths)
             for circuit in std_circuits:
@@ -185,7 +185,7 @@ class InterleavedRB(StandardRB):
             basis_gates = self.transpile_options.basis_gates
         else:
             basis_gates = None
-        self._transpiled_interleaved_elem = self._clifford_utils.transpile_single_clifford(
+        self._transpiled_interleaved_elem = CliffordUtils.transpile_single_clifford(
             qc_interleaved,
             basis_gates = basis_gates
         )
