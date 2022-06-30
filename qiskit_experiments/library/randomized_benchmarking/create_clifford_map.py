@@ -12,14 +12,15 @@ def create_compose_map():
         num_to_cliff[i] = cliff
         cliff_to_num[cliff.__repr__()] = i
 
-    prods = {}
+    products = {}
 
+    single_gate_clifford_mapping = {"id":0, "h":1, "sxdg":2, "s":4, "x":6, "sx":8, "y":12, "z":18, "sdg":22}
     for i in range(24):
         cliff1 = num_to_cliff[i]
-        for j in range(24):
-            cliff2 = num_to_cliff[j]
+        for gate in single_gate_clifford_mapping.keys():
+            cliff2 = num_to_cliff[single_gate_clifford_mapping[gate]]
             cliff = cliff1.compose(cliff2)
-            prods[i, j] = cliff_to_num[cliff.__repr__()]
+            products[i, single_gate_clifford_mapping[gate]] = cliff_to_num[cliff.__repr__()]
 
     invs = {}
     for i in range(24):
@@ -28,15 +29,15 @@ def create_compose_map():
         invs[i] = cliff_to_num[cliff.__repr__()]
 
     print("CLIFF_COMPOSE_DATA = {")
-    for i in prods:
-        print(f" {i}: {prods[i]},")
-    #print(prods)
+    for i in products:
+        print(f" {i}:{products[i]},")
     print(" }")
+    print()
 
-    print("CLIFF_INVERSE_DATA = {")
-    #print(invs)
+    print("CLIFF_INVERSE_DATA = [")
     for i in invs:
-        print(f" {i}: {invs[i]},")
-    print(" }")
+        print(f" {invs[i]},")
+    print(" ]")
+    print()
 
 create_compose_map()

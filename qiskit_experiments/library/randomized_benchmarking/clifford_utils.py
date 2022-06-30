@@ -70,6 +70,8 @@ class CliffordUtils:
         (2, 2, 3, 3, 3, 3, 4, 4),
         (2, 2, 3, 3, 4, 4),
     ]
+    general_cliff_list = ["id", "h", "sdg", "s", "x", "sx", "sxdg", "y", "z", "cx"]
+    transpiled_cliff_list = ["sx", "rz", "cx"]
 
     def clifford_1_qubit(self, num):
         """Return the 1-qubit clifford element corresponding to `num`
@@ -238,7 +240,7 @@ class CliffordUtils:
             transpiled_circs.append(transpiled_circ)
         return transpiled_circs
 
-    def num_from_1_qubit_clifford_single_gate(inst, basis_gates):
+    def num_from_1_qubit_clifford_single_gate(self, inst, basis_gates):
         """
         This method does the reverse of clifford_1_qubit_circuit -
         given a clifford, it returns the corresponding integer, with the mapping
@@ -248,8 +250,8 @@ class CliffordUtils:
         one of these sets.
         """
         name = inst.name
-        general_cliff_list = ["id", "h", "sdg", "s", "x", "sx", "sxdg", "y", "z"]
-        transpiled_cliff_list = ["sx", "rz", "cx"]
+        #general_cliff_list = ["id", "h", "sdg", "s", "x", "sx", "sxdg", "y", "z"]
+        #transpiled_cliff_list = ["sx", "rz", "cx"]
 
         gates_with_delay = basis_gates.copy()
         gates_with_delay.append("delay")
@@ -257,11 +259,11 @@ class CliffordUtils:
             raise QiskitError(
             "Instruction {} is not in the basis gates".format(inst.name)
             )
-        if(set(basis_gates).issubset(set(general_cliff_list))):
+        if(set(basis_gates).issubset(set(self.general_cliff_list))):
             num_dict = {"id":0, "h":1, "sxdg":2, "s":4, "x":6, "sx":8, "y":12, "z":18, "sdg":22, "delay":0}
             return num_dict[name]
 
-        if (set(basis_gates).issubset(set(transpiled_cliff_list))):
+        if (set(basis_gates).issubset(set(self.transpiled_cliff_list))):
             if name == "sx":
                 return 8
             if name == "delay":
@@ -282,10 +284,9 @@ class CliffordUtils:
             "Instruction {} could not be converted to Clifford gate".format(name)
             )
 
-    def num_from_1_qubit_clifford(qc: QuantumCircuit,
-                                  basis_gates: List[str]) -> int:
-        composed_num = 0
+    def compose_num_with_clifford(self, composed_num, qc,
+                                  basis_gates) -> int:
         for inst in qc:
-            num = CliffordUtils.num_from_1_qubit_clifford_single_gate(inst[0], basis_gates)
-            composed_num = CLIFF_COMPOSE_DATA[(composed_num, num)]
+            num = CliffordUtils().num_from_1_qubit_clifford_single_gate(inst=inst[0], basis_gates=basis_gates)
+            composed_num = CLIFF_COMPOSE_DATA[composed_num, num]
         return composed_num
