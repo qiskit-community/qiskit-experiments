@@ -208,14 +208,12 @@ class TestRBUtilities(QiskitExperimentsTestCase):
             {"stabilizer": ["-Y"], "destabilizer": ["+Z"]},
         ]
         cliffords = [Clifford.from_dict(i) for i in clifford_dicts]
-        utils = rb.CliffordUtils()
         for n in range(24):
-            clifford = utils.clifford_1_qubit(n)
+            clifford = CliffordUtils.clifford_1_qubit(n)
             self.assertEqual(clifford, cliffords[n])
 
     def test_clifford_2_qubit_generation(self):
         """Verify 2-qubit clifford indeed generates the correct group"""
-        utils = rb.CliffordUtils()
         pauli_free_elements = [
             0,
             1,
@@ -940,7 +938,7 @@ class TestRBUtilities(QiskitExperimentsTestCase):
         ]
         cliffords = []
         for n in pauli_free_elements:
-            clifford = utils.clifford_2_qubit(n)
+            clifford = CliffordUtils.clifford_2_qubit(n)
             phase = clifford.table.phase
             for i in range(4):
                 self.assertFalse(phase[i])
@@ -1009,7 +1007,7 @@ class TestRBUtilities(QiskitExperimentsTestCase):
             phases = []
             table = None
             for n in pauli_check_elements:
-                clifford = utils.clifford_2_qubit(n)
+                clifford = CliffordUtils.clifford_2_qubit(n)
                 if table is None:
                     table = clifford.table.array
                 else:
@@ -1020,7 +1018,7 @@ class TestRBUtilities(QiskitExperimentsTestCase):
                 phases.append(phase)
 
     def test_number_to_clifford_mapping_single_gate(self):
-        """ Testing that the methods num_from_1_qubit_clifford and
+        """ Testing that the methods num_from_1_qubit_clifford_single_gate and
             clifford_1_qubit_circuit perform the reverse operations from
             each other"""
         transpiled_cliff_list = [SXGate(), RZGate(np.pi), RZGate(-np.pi),
@@ -1037,7 +1035,7 @@ class TestRBUtilities(QiskitExperimentsTestCase):
         general_cliff_list = [IGate(), HGate(), SdgGate(), SGate(), XGate(), SXGate(), YGate(), ZGate()]
         general_cliff_names = [gate.name for gate in general_cliff_list]
         for inst in general_cliff_list:
-            num = CliffordUtils.num_from_1_qubit_clifford(inst, general_cliff_names)
+            num = CliffordUtils.num_from_1_qubit_clifford_single_gate(inst, general_cliff_names)
             qc_from_num = CliffordUtils.clifford_1_qubit_circuit(num=num)
             qr = QuantumRegister(1)
             qc_from_inst = QuantumCircuit(qr)
@@ -1050,5 +1048,5 @@ class TestRBUtilities(QiskitExperimentsTestCase):
         transpiled_cliff_names = [gate.name for gate in transpiled_cliff_list]
         all_transpiled_circuits = CliffordUtils.generate_1q_transpiled_clifford_circuits(transpiled_cliff_names)
         for index, qc in enumerate(all_transpiled_circuits):
-            num = CliffordUtils.num_from_1_qubit_clifford(qc, transpiled_cliff_names)
+            num = CliffordUtils.compose_num_with_clifford(0, qc, transpiled_cliff_names)
             assert(num == index)
