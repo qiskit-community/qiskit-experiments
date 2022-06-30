@@ -26,10 +26,10 @@ def create_compose_map():
         cliff = cliff1.adjoint()
         invs[i] = cliff_to_num[cliff.__repr__()]
 
-    print("CLIFF_COMPOSE_DATA = {")
+    print("CLIFF_COMPOSE_DATA = [")
     for i in products:
-        print(f" {i}:{products[i]},")
-    print(" }")
+        print(f" {products[i]},")
+    print(" ]")
     print()
 
     print("CLIFF_INVERSE_DATA = [")

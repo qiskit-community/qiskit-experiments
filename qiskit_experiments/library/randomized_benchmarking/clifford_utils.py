@@ -70,8 +70,9 @@ class CliffordUtils:
         (2, 2, 3, 3, 3, 3, 4, 4),
         (2, 2, 3, 3, 4, 4),
     ]
-    general_cliff_list = ["id", "h", "sdg", "s", "x", "sx", "sxdg", "y", "z", "cx"]
-    transpiled_cliff_list = ["sx", "rz", "cx"]
+    GENERAL_CLIFF_LIST = ["id", "h", "sdg", "s", "x", "sx", "sxdg", "y", "z", "cx"]
+    TRANSPILED_CLIFF_LIST = ["sx", "rz", "cx"]
+    NUM_SINGLE_GATE_1_QUBIT_CLIFF = 9
 
     @classmethod
     def clifford_1_qubit(cls, num):
@@ -268,11 +269,11 @@ class CliffordUtils:
             raise QiskitError(
             "Instruction {} is not in the basis gates".format(inst.name)
             )
-        if(set(basis_gates).issubset(set(cls.general_cliff_list))):
+        if(set(basis_gates).issubset(set(cls.GENERAL_CLIFF_LIST))):
             num_dict = {"id":0, "h":1, "sxdg":2, "s":4, "x":6, "sx":8, "y":12, "z":18, "sdg":22, "delay":0}
             return num_dict[name]
 
-        if (set(basis_gates).issubset(set(cls.transpiled_cliff_list))):
+        if (set(basis_gates).issubset(set(cls.TRANSPILED_CLIFF_LIST))):
             if name == "sx":
                 return 8
             if name == "delay":
@@ -296,9 +297,10 @@ class CliffordUtils:
     @classmethod
     def compose_num_with_clifford(cls, composed_num, qc,
                                   basis_gates) -> int:
-        #    MAP_CLIFFORD_NUM_TO_ARRAY_INDEX = {0:0, 1:1, 2:2, 4:3, 6:4, 8:5, 12:6, 18:7, 22:8}
+        MAP_CLIFFORD_NUM_TO_ARRAY_INDEX = {0:0, 1:1, 2:2, 4:3, 6:4, 8:5, 12:6, 18:7, 22:8}
         for inst in qc:
             num = cls.num_from_1_qubit_clifford_single_gate(inst=inst[0], basis_gates=basis_gates)
-            composed_num = CLIFF_COMPOSE_DATA[composed_num, num]
+            index = cls.NUM_SINGLE_GATE_1_QUBIT_CLIFF * composed_num + MAP_CLIFFORD_NUM_TO_ARRAY_INDEX[num]
+            composed_num = CLIFF_COMPOSE_DATA[index]
         return composed_num
 
