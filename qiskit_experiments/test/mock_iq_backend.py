@@ -245,22 +245,64 @@ class MockIQBackend(FakeOpenPulse2Q):
                 )
 
     def _get_normal_samples_for_shot(
-        self, qubits: Sequence[int], widths: List[float]
+        self,
+        qubits: Sequence[int],
     ) -> np.ndarray:
         """
         Produce a list in the size of num_qubits. Each entry value is produced from normal distribution
-        with expected value of '0' and standard deviation of widths.
+        with expected value of '0' and standard deviation of 1. The intention is that these samples are
+        scaled by :py:func:`_scale_samples_for_widths` for various circuits, experiments, and their IQ
+        widths; removing the need to query a RNG for each new width list.
+
+        Example:
+            .. code-block::
+                # Generate template data
+                template_iq_data = [np.nan] * shots
+                for i_shot in range(n_shots):
+                    real_data = self._get_normal_samples_for_shot(qubits)
+                    imag_data = self._get_normal_samples_for_shot(qubits)
+                    template_iq_data[i_shot] = np.array([real_data, imag_data], dtype="float").T
+
+                # Scale template data to separate widths iq_data_1 =
+                self._scale_samples_for_widths(template_iq_data,widths_1) iq_data_2 =
+                self._scale_samples_for_widths(template_iq_data,widths_2)
+
+                # IQ data should then be indexed randomly so that repeated usage does not give the same #
+                order of samples. iq_data_circuit_1 = iq_data_1[random_indices_1] iq_data_circuit_2a =
+                iq_data_2[random_indices_2a] iq_data_circuit_2b = iq_data_2[random_indices_2b]
+
         Args:
             num_qubits: The number of qubits in the circuit.
-            widths (List): A list of standard deviation values for the sampling of each qubit.
 
         Returns:
             Ndarray: A numpy array with values that were produced from normal distribution.
         """
-        samples = [self._rng.normal(0, widths[qubit], size=1) for qubit in qubits]
+        samples = [self._rng.normal(0, 1, size=1) for qubit in qubits]
         # we squeeze the second dimension because samples is List[qubit_number][0][0\1] = I\Q
         # and we want to change it to be List[qubit_number][0\1]
         return np.squeeze(np.array(samples), axis=1)
+
+    def _scale_samples_for_widths(
+        self, samples: List[np.ndarray], widths: List[float]
+    ) -> List[np.ndarray]:
+        """Scales `samples`, with width=1, by `widths` so that the data has the necessary std-dev.
+
+        `samples` contains `n_shots` elements, each being :math:`n\times{}2` float values, representing
+        the I and Q values for :math:`n` qubits. `widths` is a list of :math:`n` standard-deviations for
+        each qubit. The IQ values for each list element in `samples` is scaled by the values in `widths`,
+        for their respective qubits.
+
+        Args:
+            samples: List of np.ndarrays containing random IQ samples for n qubits.
+            widths: List of widths/standard-deviations to scale the data by.
+
+        Returns:
+            List: A list of samples with standard-deviations matching `widths`.
+        """
+        print(f"samples.shape={np.array(samples).shape}")
+        print(f"widths.shape={np.array(widths).shape}")
+        print(f"widths_tiled.shape={np.tile(widths,(2,1)).T.shape}")
+        return [circ_samples * np.tile(widths, (2, 1)).T for circ_samples in samples]
 
     def _probability_dict_to_probability_array(
         self, prob_dict: Dict[str, float], num_qubits: int
@@ -295,12 +337,16 @@ class MockIQBackend(FakeOpenPulse2Q):
             The qubits are tuples with two values [I,Q].
             The output structure is  - List[shot index][qubit index] = [I,Q]
         """
-        # Randomize samples
-        qubits_iq_rand = [np.nan] * shots
+        # Randomize samples (width=1)
+        qubits_iq_template_rand = [np.nan] * shots
         for shot in range(shots):
-            rand_i = self._get_normal_samples_for_shot(circ_qubits, iq_cluster_width)
-            rand_q = self._get_normal_samples_for_shot(circ_qubits, iq_cluster_width)
-            qubits_iq_rand[shot] = np.array([rand_i, rand_q], dtype="float").T
+            rand_i = self._get_normal_samples_for_shot(circ_qubits)
+            rand_q = self._get_normal_samples_for_shot(circ_qubits)
+            qubits_iq_template_rand[shot] = np.array([rand_i, rand_q], dtype="float").T
+
+        # Scale samples to use iq_cluster_width.
+        exp_widths = [iq_cluster_width[i_qubit] for i_qubit in circ_qubits]
+        qubits_iq_rand = self._scale_samples_for_widths(qubits_iq_template_rand, exp_widths)
 
         memory = []
         shot_num = 0
@@ -510,15 +556,15 @@ class MockIQParallelBackend(MockIQBackend):
             The qubits are tuples with two values [I,Q].
             The output structure is  - List[shot index][qubit index] = [I,Q]
         """
-        # Randomize samples
-        qubits_iq_rand = [np.nan] * shots
+        # Randomize samples (width=1)
+        qubits_iq_template_rand = [np.nan] * shots
         for shot in range(shots):
             rand_i = self._get_normal_samples_for_shot(circ_qubits)
             rand_q = self._get_normal_samples_for_shot(circ_qubits)
-            qubits_iq_rand[shot] = np.array([rand_i, rand_q], dtype="float").T
+            qubits_iq_template_rand[shot] = np.array([rand_i, rand_q], dtype="float").T
+        print(f"circ_qubits={circ_qubits}")
 
         memory = [[] for _ in range(shots)]
-        iq_centers = self._iq_cluster_centers
 
         # The use of idx_shift is to sample 'qubits_iq_rand' correctly
         sample_idx_shift = 0
@@ -537,6 +583,13 @@ class MockIQParallelBackend(MockIQBackend):
                 exp_dict["prob"][circ_idx], len(qubits)
             )
             phase = exp_dict["phase"][circ_idx]
+            iq_centers = exp_dict["centers"][circ_idx]
+            iq_widths = exp_dict["widths"][circ_idx]
+            exp_widths = [iq_widths[i_qubit] for i_qubit in circ_qubits]
+
+            # Rescale samples to appropriate width for the given parallel circuits
+            qubits_iq_rand = self._scale_samples_for_widths(qubits_iq_template_rand, exp_widths)
+
             shot_num = 0
 
             for output_number, number_of_occurrences in enumerate(
@@ -654,7 +707,9 @@ class MockIQParallelBackend(MockIQBackend):
             "results": [],
         }
 
-        experiment_data_list = self.experiment_helper.compute_probabilities(run_input)
+        experiment_data_list = self.experiment_helper.compute_probabilities(
+            run_input, self._iq_cluster_centers, self._iq_cluster_width
+        )
         for circ_idx, circ in enumerate(run_input):
             run_result = {
                 "shots": shots,

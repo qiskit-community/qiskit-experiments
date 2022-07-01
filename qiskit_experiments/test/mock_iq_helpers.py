@@ -99,33 +99,33 @@ class MockIQExperimentHelper:
         """
         return [0.0] * len(circuits)
 
-    # pylint: disable=unused-argument
     def iq_clusters(
         self,
-        circuit: QuantumCircuit,
+        circuits: List[QuantumCircuit],
         centers: List[Tuple[Tuple[float, float], Tuple[float, float]]],
         widths: List[float],
-    ) -> Tuple[List[Tuple[Tuple[float, float], Tuple[float, float]]], List[float]]:
+    ) -> List[Tuple[List[Tuple[Tuple[float, float], Tuple[float, float]]], List[float]]]:
         """Returns circuit-specific IQ cluster centers and widths in the IQ plane.
 
-        Subclasses can override this function to modify the centers and widths of IQ clusters based
-        on the circuit being simulated by a :py:class:`MockIQBackend`. The parameters `centers` and
+        Subclasses can override this function to modify the centers and widths of IQ clusters based on
+        the circuits being simulated by a :py:class:`MockIQBackend`. The parameters `centers` and
         `widths` are the IQ cluster centers and standard deviations (widths) defined for a
-        :py:class:`MockIQBackend. `iq_clusters` can modify these based on `circuit` so that the
-        position and width of the clusters is circuit-dependent. The default behaviour for
-        :py:class:`MockIQExperimentHelper` is to return the centers and widths unmodified, meaning
-        that all circuits will use the clusters defined by the :py:class:`MockQIBackend` instance.
+        :py:class:`MockIQBackend. `iq_clusters` can modify these based on `circuits` so that the position
+        and width of the clusters is circuit-dependent. The default behaviour for
+        :py:class:`MockIQExperimentHelper` is to return the centers and widths unmodified for each
+        circuit in `circuits`, meaning that all circuits will use the clusters defined by the
+        :py:class:`MockQIBackend` instance.
 
         Args:
-            circuit (QuantumCircuit): The quantum circuit for which the clusters should be modified.
-            centers (List): The base list of tuples containing the clusters' centers in the IQ plane.
-            widths (List): The base list of standard deviation values for the sampling of each qubit.
+            circuits: The quantum circuits for which the clusters should be modified.
+            centers: The base list of tuples containing the clusters' centers in the IQ plane.
+            widths: The base list of standard deviation values for the sampling of each qubit.
 
         Returns:
-            Tuple: A tuple containing the circuit-specific IQ centers and widths for the provided
-                circuit.
+            List: A list of tuples containing the circuit-specific IQ centers and widths for the
+                provided circuits.
         """
-        return centers, widths
+        return [(centers, widths)] * len(circuits)
 
 
 class MockIQParallelExperimentHelper(MockIQExperimentHelper):
@@ -209,9 +209,24 @@ class MockIQParallelExperimentHelper(MockIQExperimentHelper):
         self.exp_helper_list = exp_helper_list
         self.exp_list = exp_list
 
-    def compute_probabilities(self, circuits: List[QuantumCircuit]) -> List[Dict[str, Any]]:
+    # pylint: disable=arguments-differ
+    def compute_probabilities(
+        self,
+        circuits: List[QuantumCircuit],
+        centers: List[Tuple[Tuple[float, float], Tuple[float, float]]],
+        widths: List[float],
+    ) -> List[Dict[str, Any]]:
         """
-        Run the compute_probabilities for each helper
+        Run the compute_probabilities for each helper.
+
+        Args:
+            circuits: The quantum circuits for which the probabilities should be computed.
+            centers: The IQ centers for the clusters. Passed on to :py:func:`iq_clusters`.
+            widths: The IQ standard-deviations for the clusters. Passed on to :py:func:`iq_clusters`.
+
+        Returns:
+            List: A list of dictionaries containing computed probabilities and data for the given
+                circuits.
         """
         # checking for legal parameters before computing output.
         self._verify_parameters(self.exp_list, self.exp_helper_list)
@@ -224,10 +239,17 @@ class MockIQParallelExperimentHelper(MockIQExperimentHelper):
         for idx, (exp_helper, experiment, experiment_circuits) in enumerate(
             zip(self.exp_helper_list, self.exp_list, parallel_circ_list)
         ):
+            # Get centers and widths for experiment_circuits and split into centers and widths lists.
+            centers_and_widths = exp_helper.iq_clusters(experiment_circuits, centers, widths)
+            exp_centers = [c_and_w[0] for c_and_w in centers_and_widths]
+            exp_widths = [c_and_w[1] for c_and_w in centers_and_widths]
+
             prob_help_list[idx] = {
                 "physical_qubits": experiment.physical_qubits,
                 "prob": exp_helper.compute_probabilities(experiment_circuits),
                 "phase": exp_helper.iq_phase(experiment_circuits),
+                "centers": exp_centers,
+                "widths": exp_widths,
                 "num_circuits": len(experiment_circuits),
             }
 

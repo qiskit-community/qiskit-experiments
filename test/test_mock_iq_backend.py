@@ -97,23 +97,26 @@ class MockIQReadoutAmplitudeHelper(MockIQExperimentHelper):
 
     def iq_clusters(
         self,
-        circuit: QuantumCircuit,
+        circuits: List[QuantumCircuit],
         centers: List[Tuple[Tuple[float, float], Tuple[float, float]]],
         widths: List[float],
     ) -> Tuple[List[Tuple[Tuple[float, float], Tuple[float, float]]], List[float]]:
-        """Multiplies the cluster centers by the circuit 'xval' value."""
-        if hasattr(circuit, "metadata") and "xval" in circuit.metadata.keys():
-            xval = circuit.metadata["xval"]
-        else:
-            xval = 1.0
+        """Multiplies the cluster centers by the circuits' 'xval' values."""
+        output = []
+        for circuit in circuits:
+            if hasattr(circuit, "metadata") and "xval" in circuit.metadata.keys():
+                xval = circuit.metadata["xval"]
+            else:
+                xval = 1.0
 
-        new_centers = np.array(centers)
-        new_widths = np.array(widths)
-        if self.alter_centers:
-            new_centers = new_centers * xval
-        if self.alter_widths:
-            new_widths = new_widths * xval
-        return new_centers, new_widths
+            new_centers = np.array(centers)
+            new_widths = np.array(widths)
+            if self.alter_centers:
+                new_centers = new_centers * xval
+            if self.alter_widths:
+                new_widths = new_widths * xval
+            output.append((new_centers, new_widths))
+        return output
 
 
 class TestMockIQBackend(QiskitExperimentsTestCase):
