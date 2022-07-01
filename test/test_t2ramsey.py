@@ -16,6 +16,7 @@ Test T2Ramsey experiment
 from test.base import QiskitExperimentsTestCase
 from typing import List, Union, Optional
 import numpy as np
+import unittest
 
 from qiskit import QuantumCircuit
 from qiskit.providers.aer import AerSimulator
@@ -27,6 +28,7 @@ from qiskit_experiments.framework import ParallelExperiment
 from qiskit_experiments.library import T2Ramsey
 from qiskit_experiments.library.characterization import T2RamseyAnalysis
 from qiskit_experiments.test.t2ramsey_backend import T2RamseyBackend
+from qiskit_experiments.test.Mock_Aer_backend import NoisyAerBackend
 
 
 class T2RamseyTestExp(T2Ramsey):
@@ -95,7 +97,8 @@ class TestT2Ramsey(QiskitExperimentsTestCase):
         Run the T2Ramsey backend
         """
         osc_freq = 0.1
-        estimated_t2ramsey = 20
+        estimated_t2ramsey = [20]
+        t1 = [2 * _ for _ in estimated_t2ramsey]
 
         # induce error
         estimated_freq = osc_freq * 1.001
@@ -107,16 +110,21 @@ class TestT2Ramsey(QiskitExperimentsTestCase):
             (np.linspace(16.0, 45.0, num=59)).astype(float),
         )
 
-        exp = T2RamseyTestExp(qubit, delays, estimated_t2ramsey, osc_freq=osc_freq)
+        # backend = AerSimulator()
+        backend = NoisyAerBackend(t1, estimated_t2ramsey)
+
+        # exp = T2RamseyTestExp(qubit, delays, estimated_t2ramsey, osc_freq=osc_freq)
+        exp = T2Ramsey(qubit, delays, osc_freq=osc_freq, backend=backend)
+
         default_p0 = {
             "amp": 0.5,
-            "tau": estimated_t2ramsey,
+            "tau": estimated_t2ramsey[0],
             "freq": estimated_freq,
             "phi": 0,
             "base": 0.5,
         }
 
-        backend = AerSimulator()
+
 
         for user_p0 in [default_p0, dict()]:
             exp.analysis.set_options(p0=user_p0)
@@ -128,7 +136,7 @@ class TestT2Ramsey(QiskitExperimentsTestCase):
             result = expdata.analysis_results("T2star")
             self.assertAlmostEqual(
                 result.value.n,
-                estimated_t2ramsey,
+                estimated_t2ramsey[0],
                 delta=TestT2Ramsey.__tolerance__ * result.value.n,
             )
             self.assertEqual(result.quality, "good", "Result quality bad")
@@ -144,15 +152,28 @@ class TestT2Ramsey(QiskitExperimentsTestCase):
         """
         Test parallel experiments of T2Ramsey using a simulator.
         """
-        t2ramsey = [30.0, 25.0]
-        estimated_freq = [0.1, 0.12]
+        t2ramsey = [30.0, 35.0, 25.0]
+        t1 = [2*_ for _ in t2ramsey]
+        estimated_freq = [0.1, 0.14, 0.12]
         delays = [list(range(1, 61)), list(range(1, 51))]
 
-        osc_freq = [0.11, 0.11]
+        osc_freq = [0.11, 0.11, 0.11]
 
-        exp0 = T2RamseyTestExp(0, delays[0], t2ramsey[0], osc_freq=osc_freq[0])
-        exp2 = T2RamseyTestExp(2, delays[1], t2ramsey[1], osc_freq=osc_freq[1])
+        quibits_exp0 = 0
+        quibits_exp2 = 2
+
+        backend = NoisyAerBackend(t1, t2ramsey)
+
+        # exp0 = T2RamseyTestExp(0, delays[0], t2ramsey[0], osc_freq=osc_freq[0])
+        # exp2 = T2RamseyTestExp(2, delays[1], t2ramsey[1], osc_freq=osc_freq[1])
+
+        exp0 = T2Ramsey(quibits_exp0, delays[0], osc_freq=osc_freq[quibits_exp0], backend=backend)
+        exp2 = T2Ramsey(quibits_exp2, delays[1], osc_freq=osc_freq[quibits_exp2], backend=backend)
+
         par_exp = ParallelExperiment([exp0, exp2])
+
+        # exp = T2RamseyTestExp(qubit, delays, estimated_t2ramsey, osc_freq=osc_freq)
+
 
         exp0_p0 = {
             "A": 0.5,
@@ -278,3 +299,7 @@ class TestT2Ramsey(QiskitExperimentsTestCase):
         loaded = T2RamseyAnalysis.from_config(analysis.config())
         self.assertNotEqual(analysis, loaded)
         self.assertEqual(analysis.config(), loaded.config())
+
+
+if __name__ == "__main__":
+     unittest.main()
