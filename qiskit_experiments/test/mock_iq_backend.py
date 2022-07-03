@@ -299,9 +299,6 @@ class MockIQBackend(FakeOpenPulse2Q):
         Returns:
             List: A list of samples with standard-deviations matching `widths`.
         """
-        print(f"samples.shape={np.array(samples).shape}")
-        print(f"widths.shape={np.array(widths).shape}")
-        print(f"widths_tiled.shape={np.tile(widths,(2,1)).T.shape}")
         return [circ_samples * np.tile(widths, (2, 1)).T for circ_samples in samples]
 
     def _probability_dict_to_probability_array(
@@ -562,7 +559,6 @@ class MockIQParallelBackend(MockIQBackend):
             rand_i = self._get_normal_samples_for_shot(circ_qubits)
             rand_q = self._get_normal_samples_for_shot(circ_qubits)
             qubits_iq_template_rand[shot] = np.array([rand_i, rand_q], dtype="float").T
-        print(f"circ_qubits={circ_qubits}")
 
         memory = [[] for _ in range(shots)]
 
