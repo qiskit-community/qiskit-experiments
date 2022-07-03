@@ -56,6 +56,7 @@ class NoisyAerBackend(AerSimulator):
         time_unit = 's'
 
         us = 1e-9
+
         self._instruction_durations = instruction_durations or [
             ('x', [0], 50*us, time_unit),
             ('sx', [0], 25*us, time_unit),
@@ -83,7 +84,7 @@ class NoisyAerBackend(AerSimulator):
         noisy_circuits = []
         for circ in run_input:
             sched_qc = transpile(circ, basis_gates=self._basis_gates,
-                scheduling_method='asap', instruction_durations=self._instruction_durations, optimization_level=optimization_level)
+                scheduling_method='asap', instruction_durations=self._instruction_durations, optimization_level=0)
             noisy_circuits.append(relax_pass(sched_qc))
 
         # Return "options" to its previous state
