@@ -1129,9 +1129,10 @@ class ExperimentData:
 
         figure_data = self._figures.get(figure_key, None)
         if figure_data is None and self.service:
-            figure_data = self.service.figure(
+            figure = self.service.figure(
                 experiment_id=self.experiment_id, figure_name=figure_key
             )
+            figure_data = FigureData(figure=figure, name=figure_key)
             self._figures[figure_key] = figure_data
 
         if figure_data is None:
@@ -1369,9 +1370,9 @@ class ExperimentData:
                 if figure is None:
                     continue
                 # currently only the figure and its name are stored in the database
-                    if isinstance(figure, FigureData):
-                        figure = figure.figure
-                        LOG.debug("Figure metadata is currently not saved to the database")
+                if isinstance(figure, FigureData):
+                    figure = figure.figure
+                    LOG.debug("Figure metadata is currently not saved to the database")
                 if isinstance(figure, pyplot.Figure):
                     figure = plot_to_svg_bytes(figure)
                 self._service.create_or_update_figure(

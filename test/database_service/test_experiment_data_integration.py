@@ -176,7 +176,7 @@ class TestExperimentDataIntegration(QiskitTestCase):
             value=result_data,
             device_components=self.device_components,
             experiment_id=exp_data.experiment_id,
-            quality=ResultQuality.GOOD,
+            quality="good",
             verified=True,
             tags=["foo", "bar"],
             service=self.service,
@@ -194,7 +194,7 @@ class TestExperimentDataIntegration(QiskitTestCase):
 
         rdata = {"complex": 2 + 3j, "numpy": np.zeros(2)}
         aresult.value = rdata
-        aresult.quality = ResultQuality.GOOD
+        aresult.quality = "good"
         aresult.verified = True
         aresult.tags = ["foo", "bar"]
         aresult.save()
@@ -268,7 +268,7 @@ class TestExperimentDataIntegration(QiskitTestCase):
 
         exp_data.add_figures(figures=file_name, save_figure=True)
         rexp = ExperimentData.load(exp_data.experiment_id, self.service)
-        self.assertEqual(rexp.figure(0), hello_bytes)
+        self.assertEqual(rexp.figure(0).figure, hello_bytes)
 
     def test_update_figure(self):
         """Test updating a figure."""
@@ -277,7 +277,7 @@ class TestExperimentDataIntegration(QiskitTestCase):
         figure_name = "hello.svg"
 
         exp_data.add_figures(figures=hello_bytes, figure_names=figure_name, save_figure=True)
-        self.assertEqual(exp_data.figure(0), hello_bytes)
+        self.assertEqual(exp_data.figure(0).figure, hello_bytes)
 
         friend_bytes = str.encode("hello friend")
         exp_data.add_figures(
@@ -324,7 +324,7 @@ class TestExperimentDataIntegration(QiskitTestCase):
         # so compare tags with a predictable sort order.
         self.assertEqual(["bar", "foo"], sorted(rexp.tags))
         self.assertEqual(aresult.result_id, rexp.analysis_results(0).result_id)
-        self.assertEqual(hello_bytes, rexp.figure(0))
+        self.assertEqual(hello_bytes, rexp.figure(0).figure)
 
         exp_data.delete_analysis_result(0)
         exp_data.delete_figure(0)
@@ -368,8 +368,8 @@ class TestExperimentDataIntegration(QiskitTestCase):
             with self.subTest(func=func):
                 with mock.patch.object(
                     IBMExperimentService,
-                    "update_experiment",
-                    wraps=exp_data.service.update_experiment,
+                    "create_or_update_experiment",
+                    wraps=exp_data.service.create_or_update_experiment,
                 ) as mocked:
                     func(*params)
                     mocked.assert_called_once()
@@ -459,8 +459,8 @@ class TestExperimentDataIntegration(QiskitTestCase):
             with self.subTest(attr=attr):
                 with mock.patch.object(
                     IBMExperimentService,
-                    "update_analysis_result",
-                    wraps=exp_data.service.update_analysis_result,
+                    "create_or_update_analysis_result",
+                    wraps=exp_data.service.create_or_update_analysis_result,
                 ) as mocked:
                     setattr(aresult, attr, value)
                     mocked.assert_called_once()
