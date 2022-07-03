@@ -47,6 +47,7 @@ class TestDragEndToEnd(QiskitExperimentsTestCase):
         self.x_plus = xp
         self.test_tol = 0.1
 
+    # pylint: disable=no-member
     def test_end_to_end(self):
         """Test the drag experiment end to end."""
 
@@ -113,6 +114,7 @@ class TestDragEndToEnd(QiskitExperimentsTestCase):
         exp_data = drag.run(backend)
         self.assertExperimentDone(exp_data)
         result = exp_data.analysis_results("beta")
+        # pylint: disable=no-member
         self.assertTrue(abs(result.value.n - backend.experiment_helper.ideal_beta) < tol)
         self.assertEqual(result.quality, "good")
 
@@ -170,6 +172,7 @@ class TestRoughDragCalUpdate(QiskitExperimentsTestCase):
         self.cals = Calibrations.from_backend(self.backend, libraries=[library])
         self.test_tol = 0.05
 
+    # pylint: disable=no-member
     def test_update(self):
         """Test that running RoughDragCal updates the calibrations."""
 

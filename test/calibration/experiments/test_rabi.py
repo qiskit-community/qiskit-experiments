@@ -47,6 +47,7 @@ class TestRabiEndToEnd(QiskitExperimentsTestCase):
 
         self.sched = sched
 
+    # pylint: disable=no-member
     def test_rabi_end_to_end(self):
         """Test the Rabi experiment end to end."""
 
@@ -135,6 +136,7 @@ class TestEFRabi(QiskitExperimentsTestCase):
 
         self.sched = sched
 
+    # pylint: disable=no-member
     def test_ef_rabi_end_to_end(self):
         """Test the EFRabi experiment end to end."""
 

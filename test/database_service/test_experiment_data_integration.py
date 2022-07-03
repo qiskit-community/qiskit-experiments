@@ -242,7 +242,7 @@ class TestExperimentDataIntegration(QiskitTestCase):
                     figures=hello_bytes, figure_names=figure_name, save_figure=True
                 )
                 rexp = ExperimentData.load(exp_data.experiment_id, self.service)
-                self.assertEqual(rexp.figure(idx), hello_bytes)
+                self.assertEqual(rexp.figure(idx).figure, hello_bytes)
 
     def test_add_figures_plot(self):
         """Test adding a matplotlib figure."""
@@ -284,8 +284,8 @@ class TestExperimentDataIntegration(QiskitTestCase):
             figures=friend_bytes, figure_names=figure_name, overwrite=True, save_figure=True
         )
         rexp = ExperimentData.load(exp_data.experiment_id, self.service)
-        self.assertEqual(rexp.figure(0), friend_bytes)
-        self.assertEqual(rexp.figure(figure_name), friend_bytes)
+        self.assertEqual(rexp.figure(0).figure, friend_bytes)
+        self.assertEqual(rexp.figure(figure_name).figure, friend_bytes)
 
     def test_delete_figure(self):
         """Test deleting a figure."""
