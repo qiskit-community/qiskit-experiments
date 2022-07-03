@@ -217,10 +217,13 @@ class ExperimentData:
                 setattr(self._db_data, key, value)
 
         # general data related
-        self._service = service
         self._backend = None
         if backend is not None:
             self._set_backend(backend)
+        if service is not None:
+            self._service = service
+        else:
+            self._service = self.get_service_from_backend(backend)
         self._auto_save = False
         self._created_in_db = False
         self._extra_data = kwargs
@@ -2111,6 +2114,18 @@ class ExperimentData:
         state["_jobs"] = self._safe_serialize_jobs()
 
         return state
+
+    @staticmethod
+    def get_service_from_backend(backend):
+        db_url = "https://auth.quantum-computing.ibm.com/api"
+        try:
+            credentials = backend._provider.credentials
+            service = IBMExperimentService(token=credentials.token, url=db_url)
+            return service
+        except Exception as error:
+            return None
+
+
 
     def __setstate__(self, state):
         self.__dict__.update(state)
