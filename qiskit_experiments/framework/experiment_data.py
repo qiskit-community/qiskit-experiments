@@ -36,7 +36,7 @@ from matplotlib.figure import Figure as MatplotlibFigure
 from qiskit.result import Result
 from qiskit.providers.jobstatus import JobStatus, JOB_FINAL_STATES
 from qiskit.exceptions import QiskitError
-from qiskit.providers import Job, BaseJob, Backend, Provider
+from qiskit.providers import Job, Backend, Provider
 
 from qiskit_ibm_experiment import IBMExperimentService
 from qiskit_ibm_experiment import ExperimentData as ExperimentDataclass
@@ -634,7 +634,7 @@ class ExperimentData:
         jobs = []
         with self._result_data.lock:
             for datum in data:
-                if isinstance(datum, (Job, BaseJob)):
+                if isinstance(datum, Job):
                     jobs.append(datum)
                 elif isinstance(datum, dict):
                     self._result_data.append(datum)
