@@ -21,8 +21,8 @@ from numpy.random import Generator, default_rng
 from numpy.random.bit_generator import BitGenerator, SeedSequence
 import time
 
-from qiskit import QuantumCircuit, QuantumRegister, QiskitError
-from qiskit.circuit import Instruction
+from qiskit import QuantumCircuit, QuantumRegister, ClassicalRegister, QiskitError
+from qiskit.circuit import Instruction, Clbit
 from qiskit.circuit.quantumregister import Qubit
 from qiskit.quantum_info import Clifford
 from qiskit.providers.backend import Backend
@@ -395,24 +395,39 @@ class StandardRB(BaseExperiment, RestlessMixin):
     # We simply copy the circuit to a new circuit where we define the mapping
     # of the qubit to the single physical qubit that was requested by the user
     # This is a hack, and would be better if transpile() implemented it.
+    # Something similar is done in ParallelExperiment._combined_circuits
     def _layout_for_rb_single_qubit(self):
-        circuits = self.circuits()
         transpiled = []
-        for c in circuits:
-            qr = QuantumRegister(c.num_qubits, name='q')
+        qargs_map = {0: self.physical_qubits[0]}
+        for circ in self.circuits():
+            qr = QuantumRegister(circ.num_qubits, name='q')
             qubit = Qubit(qr, self.physical_qubits[0])
-            c_new = QuantumCircuit(
-                *c.qregs,
-                *c.cregs,
-                name=c.name,
-                global_phase=c.global_phase,
-                metadata=c.metadata
+            new_circ = QuantumCircuit(
+                *circ.qregs,
+                name=circ.name,
+                global_phase=circ.global_phase,
+                metadata=circ.metadata.copy()
             )
-            new_data = []
-            for inst, qargs, cargs in c.data:
-                new_data.append((inst, [qubit], cargs))
-            c_new.data = new_data
-            transpiled.append(c_new)
+            clbits = circ.num_clbits
+            if clbits:
+                creg = ClassicalRegister(clbits)
+                new_cargs = [Clbit(creg, i) for i in range(clbits)]
+                new_circ.add_register(creg)
+            else:
+                cargs = []
+
+            for inst, qargs, cargs in circ.data:
+                mapped_cargs = [new_cargs[circ.find_bit(clbit).index] for clbit in cargs]
+                mapped_qargs = [
+                    circ.qubits[qargs_map[circ.find_bit(i).index]] for i in qargs
+                ]
+                new_circ.data.append((inst, mapped_qargs, mapped_cargs))
+                # Add the calibrations
+                for gate, cals in circ.calibrations.items():
+                    for key, sched in cals.items():
+                        new_circ.add_calibration(gate, qubits=key[0], schedule=sched, params=key[1])
+
+            transpiled.append(new_circ)
         return transpiled
 
     def _transpiled_circuits(self) -> List[QuantumCircuit]:
