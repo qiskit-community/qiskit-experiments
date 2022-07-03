@@ -14,11 +14,10 @@
 
 from test.base import QiskitExperimentsTestCase
 
-import numpy as np
 import random
 from ddt import ddt, data, unpack
 from qiskit.circuit import Delay, QuantumCircuit
-from qiskit.circuit.library import SXGate, CXGate, TGate, XGate, YGate, ZGate, HGate, SGate
+from qiskit.circuit.library import SXGate, CXGate, TGate
 from qiskit.exceptions import QiskitError
 from qiskit.providers.aer import AerSimulator
 from qiskit.providers.aer.noise import NoiseModel, depolarizing_error
@@ -72,7 +71,8 @@ class RBTestCase(QiskitExperimentsTestCase):
             num_qubits = circ.num_qubits
             qc_iden = QuantumCircuit(num_qubits)
             circ.remove_final_measurements()
-            assert (Operator(circ).equiv(Operator(qc_iden)))
+            assert Operator(circ).equiv(Operator(qc_iden))
+
 
 @ddt
 class TestStandardRB(RBTestCase):
@@ -85,7 +85,7 @@ class TestStandardRB(RBTestCase):
             lengths=list(range(1, 300, 30)),
             seed=123,
             backend=self.backend,
-            transpiled_rb=True
+            transpiled_rb=True,
         )
         exp.analysis.set_options(gate_error_ratio=None)
         exp.set_transpile_options(**self.transpiler_options)
@@ -194,7 +194,7 @@ class TestStandardRB(RBTestCase):
             seed=123,
             backend=self.backend,
             full_sampling=False,
-            transpiled_rb=True
+            transpiled_rb=True,
         )
         exp1.set_transpile_options(**self.transpiler_options)
         exp2 = rb.StandardRB(
@@ -203,7 +203,7 @@ class TestStandardRB(RBTestCase):
             seed=123,
             backend=self.backend,
             full_sampling=True,
-            transpiled_rb=True
+            transpiled_rb=True,
         )
         exp2.set_transpile_options(**self.transpiler_options)
         circs1 = exp1.circuits()
@@ -279,7 +279,7 @@ class TestStandardRB(RBTestCase):
             lengths=list(range(1, 200, 50)),
             seed=123,
             backend=self.backend,
-            transpiled_rb=True
+            transpiled_rb=True,
         )
         exp.set_transpile_options(**self.transpiler_options)
         expdata = exp.run()
@@ -294,11 +294,7 @@ class TestStandardRB(RBTestCase):
         exps = []
         for qubit in qubits:
             exp = rb.StandardRB(
-                qubits=[qubit],
-                lengths=lengths,
-                seed=123,
-                backend=self.backend,
-                transpiled_rb=True
+                qubits=[qubit], lengths=lengths, seed=123, backend=self.backend, transpiled_rb=True
             )
             exp.analysis.set_options(gate_error_ratio=None, plot_raw_data=False)
             exps.append(exp)
@@ -313,6 +309,7 @@ class TestStandardRB(RBTestCase):
             epc = par_expdata.child_data(i).analysis_results("EPC")
             self.assertAlmostEqual(epc.value.n, epc_expected, delta=0.1 * epc_expected)
 
+
 @ddt
 class TestInterleavedRB(RBTestCase):
     """Test for interleaved RB."""
@@ -324,11 +321,15 @@ class TestInterleavedRB(RBTestCase):
         identical to the original circuit up to additions of
         barrier and interleaved element between any two Cliffords.
         """
-        full_sampling =[True, False]
+        full_sampling = [True, False]
         for val in full_sampling:
             exp = rb.InterleavedRB(
-                interleaved_element=interleaved_element, qubits=qubits, lengths=[length],
-                num_samples=1, full_sampling=val, transpiled_rb=True
+                interleaved_element=interleaved_element,
+                qubits=qubits,
+                lengths=[length],
+                num_samples=1,
+                full_sampling=val,
+                transpiled_rb=True,
             )
             exp.set_transpile_options(**self.transpiler_options)
             circuits = exp.circuits()
@@ -387,7 +388,7 @@ class TestInterleavedRB(RBTestCase):
             expdata = exp.run()
             self.assertExperimentDone(expdata)
 
-        # Since this is interleaved, we can directly compare values, i.e. n_gpc = 1
+            # Since this is interleaved, we can directly compare values, i.e. n_gpc = 1
             epc = expdata.analysis_results("EPC")
             epc_expected = 1 / 2 * self.p1q
             self.assertAlmostEqual(epc.value.n, epc_expected, delta=0.1 * epc_expected)
@@ -423,7 +424,7 @@ class TestInterleavedRB(RBTestCase):
             interleaved_element=interleaved_element,
             qubits=qubits,
             lengths=lengths,
-            transpiled_rb=True
+            transpiled_rb=True,
         )
 
     def test_interleaving_delay(self):
@@ -435,8 +436,8 @@ class TestInterleavedRB(RBTestCase):
             qubits=[0],
             lengths=[1],
             num_samples=1,
-            seed=1234,   # This seed gives a 2-gate clifford
-            transpiled_rb=True
+            seed=1234,  # This seed gives a 2-gate clifford
+            transpiled_rb=True,
         )
         exp.set_transpile_options(**self.transpiler_options)
 
@@ -475,7 +476,11 @@ class TestInterleavedRB(RBTestCase):
     def test_experiment_config(self):
         """Test converting to and from config works"""
         exp = rb.InterleavedRB(
-            interleaved_element=SXGate(), qubits=(0,), lengths=[10, 20, 30], seed=123, transpiled_rb=True
+            interleaved_element=SXGate(),
+            qubits=(0,),
+            lengths=[10, 20, 30],
+            seed=123,
+            transpiled_rb=True,
         )
         loaded_exp = rb.InterleavedRB.from_config(exp.config())
         self.assertNotEqual(exp, loaded_exp)
@@ -503,7 +508,7 @@ class TestInterleavedRB(RBTestCase):
             lengths=list(range(1, 200, 50)),
             seed=123,
             backend=self.backend,
-            transpiled_rb=True
+            transpiled_rb=True,
         )
         exp.set_transpile_options(**self.transpiler_options)
         expdata = exp.run()
@@ -555,7 +560,7 @@ class TestEPGAnalysis(QiskitExperimentsTestCase):
             lengths=[1, 10, 30, 50, 80, 120, 150, 200],
             seed=123,
             backend=backend,
-            transpiled_rb=True
+            transpiled_rb=True,
         )
         exp_1qrb_q0.set_transpile_options(**transpiler_options)
         expdata_1qrb_q0 = exp_1qrb_q0.run(analysis=None).block_for_results(timeout=300)
@@ -564,7 +569,7 @@ class TestEPGAnalysis(QiskitExperimentsTestCase):
             lengths=[1, 10, 30, 50, 80, 120, 150, 200],
             seed=123,
             backend=backend,
-            transpiled_rb=True
+            transpiled_rb=True,
         )
         exp_1qrb_q1.set_transpile_options(**transpiler_options)
         expdata_1qrb_q1 = exp_1qrb_q1.run(analysis=None).block_for_results(timeout=300)

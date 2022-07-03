@@ -22,7 +22,6 @@ from qiskit.circuit import Instruction
 from qiskit.quantum_info import Clifford
 from qiskit.exceptions import QiskitError
 from qiskit.providers.backend import Backend
-from qiskit.compiler import transpile
 
 from .clifford_utils import CliffordUtils
 from .rb_experiment import StandardRB
@@ -59,7 +58,7 @@ class InterleavedRB(StandardRB):
         num_samples: int = 3,
         seed: Optional[Union[int, SeedSequence, BitGenerator, Generator]] = None,
         full_sampling: bool = False,
-        transpiled_rb = False
+        transpiled_rb=False,
     ):
         """Initialize an interleaved randomized benchmarking experiment.
 
@@ -87,9 +86,10 @@ class InterleavedRB(StandardRB):
             num_samples=num_samples,
             seed=seed,
             full_sampling=full_sampling,
-            transpiled_rb=transpiled_rb
+            transpiled_rb=transpiled_rb,
         )
         self._set_interleaved_element(interleaved_element)
+        self._transpiled_interleaved_elem = None
         self.analysis = InterleavedRBAnalysis()
         self.analysis.set_options(outcome="0" * self.num_qubits)
 
@@ -101,14 +101,20 @@ class InterleavedRB(StandardRB):
         """
         rng = default_rng(seed=self.experiment_options.seed)
         circuits = []
-        if self._transpiled_rb and self._transpiled_cliff_circuits == None:
-            self._transpiled_cliff_circuits = \
-                CliffordUtils.generate_1q_transpiled_clifford_circuits(basis_gates=self.transpile_options.basis_gates)
+        if self._transpiled_rb and self._transpiled_cliff_circuits is None:
+            self._transpiled_cliff_circuits = (
+                CliffordUtils.generate_1q_transpiled_clifford_circuits(
+                    basis_gates=self.transpile_options.basis_gates
+                )
+            )
         for _ in range(self.experiment_options.num_samples):
             if self.num_qubits == 1 and self._transpiled_rb:
                 self._set_transpiled_interleaved_element()
-                std_circuits, int_circuits = self._build_rb_circuits(self.experiment_options.lengths, rng,
-                                                    interleaved_element=self._transpiled_interleaved_elem)
+                std_circuits, int_circuits = self._build_rb_circuits(
+                    self.experiment_options.lengths,
+                    rng,
+                    interleaved_element=self._transpiled_interleaved_elem,
+                )
                 circuits += std_circuits
                 circuits += int_circuits
             else:
@@ -186,6 +192,5 @@ class InterleavedRB(StandardRB):
         else:
             basis_gates = None
         self._transpiled_interleaved_elem = CliffordUtils.transpile_single_clifford(
-            qc_interleaved,
-            basis_gates = basis_gates
+            qc_interleaved, basis_gates=basis_gates
         )
