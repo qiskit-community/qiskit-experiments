@@ -51,10 +51,7 @@ class NoisyAerBackend(AerSimulator):
 
         self._op_types = op_types or [Delay]
 
-        # time_unit = 'dt' if self._dt_unit else 's'
-        # time_unit = 'dt'
         time_unit = 's'
-
         us = 1e-9
 
         self._instruction_durations = instruction_durations or [
@@ -76,20 +73,19 @@ class NoisyAerBackend(AerSimulator):
 
         """
         optimization_level = options.get("optimization_level") or 0
-        options["optimization_level"] = 0
-        self.options.update_options(**options)
-
         relax_pass = RelaxationNoisePass(self._t1, self._t2, dt=self._dt_factor, op_types=self._op_types)
 
         noisy_circuits = []
         for circ in run_input:
             sched_qc = transpile(circ, basis_gates=self._basis_gates,
-                scheduling_method='asap', instruction_durations=self._instruction_durations, optimization_level=0)
+                scheduling_method='asap', instruction_durations=self._instruction_durations, optimization_level=optimization_level)
             noisy_circuits.append(relax_pass(sched_qc))
 
+        options["optimization_level"] = 0
+        self.options.update_options(**options)
         # Return "options" to its previous state
-        if optimization_level != 0:
-            options["optimization_level"] = optimization_level
-            self.options.update_options(**options)
+        # if optimization_level != 0:
+        #     options["optimization_level"] = optimization_level
+        #     self.options.update_options(**options)
 
         return super().run(noisy_circuits, **options)
