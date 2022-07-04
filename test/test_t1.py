@@ -14,74 +14,14 @@ Test T1 experiment
 """
 
 from test.base import QiskitExperimentsTestCase
-from typing import List, Union, Optional
 import numpy as np
 
-from qiskit import QuantumCircuit
-from qiskit.providers.aer import AerSimulator
-from qiskit.providers.backend import Backend
-from qiskit.providers.aer.noise.passes import RelaxationNoisePass
-from qiskit.circuit import Delay
-
+from qiskit_experiments.test.noisy_delay_aer_simulator import NoisyDelayAerBackend
 from qiskit_experiments.framework import ExperimentData, ParallelExperiment
 from qiskit_experiments.library import T1
 from qiskit_experiments.library.characterization import T1Analysis
 from qiskit_experiments.test.t1_backend import T1Backend
 from qiskit_experiments.test.fake_service import FakeService
-
-
-class T1TestExp(T1):
-    """T2Ramsey Experiment class for testing"""
-
-    def __init__(
-        self,
-        qubit: int,
-        delays: Union[List[float], np.array],
-        t1: float,
-        t2: float = None,
-        dt: float = 1e-9,
-        backend: Optional[Backend] = None,
-    ):
-        """
-        Initialize T1 experiment with noise after delay gates.
-        Args:
-            qubit: The qubit the experiment on.
-            delays: List of delays.
-            t1: T1 parameter for the noise.
-            t2: T2 parameter for the noise
-            dt: Time interval for the backend.
-            backend: The backend the experiment run on.
-        """
-        super().__init__(qubit, delays, backend)
-        self._t1 = t1
-        self._t2 = t2 or (2 * t1)
-
-        if backend and hasattr(backend.configuration(), "dt"):
-            self._dt_unit = True
-            self._dt_factor = backend.configuration().dt
-        else:
-            self._dt_unit = False
-            self._dt_factor = dt
-
-        self._op_types = [Delay]
-
-    def circuits(self) -> List[QuantumCircuit]:
-        """Return a list of experiment circuits.
-
-        Each circuit consists of a Hadamard gate, followed by a fixed delay,
-        a phase gate (with a linear phase), and an additional Hadamard gate.
-
-        Returns:
-            The experiment circuits
-        """
-
-        circuits = super().circuits()
-        delay_pass = RelaxationNoisePass([self._t1], [self._t2], dt=1e-9, op_types=self._op_types)
-        noisy_circuits = []
-        for circuit in circuits:
-            noisy_circuits.append(delay_pass(circuit))
-
-        return noisy_circuits
 
 
 class TestT1(QiskitExperimentsTestCase):
@@ -100,13 +40,10 @@ class TestT1(QiskitExperimentsTestCase):
             readout0to1=[0.02],
             readout1to0=[0.02],
         )
-        backend = AerSimulator()
+        backend = NoisyDelayAerBackend([t1], [t1 / 2])
 
         delays = np.arange(1e-6, 40e-6, 3e-6)
-        qubit = 0
-
-        # exp = T1(0, delays)
-        exp = T1TestExp(qubit=qubit, delays=delays, t1=t1)
+        exp = T1(0, delays)
 
         exp.analysis.set_options(p0={"amp": 1, "tau": t1, "base": 0})
         exp_data = exp.run(backend, shots=10000, seed_simulator=1).block_for_results()
@@ -131,22 +68,45 @@ class TestT1(QiskitExperimentsTestCase):
         Test parallel experiments of T1 using a simulator.
         """
 
-        t1 = [25, 15]
+        t1 = [25, 20, 15]
+        t2 = [value / 2 for value in t1]
         delays = list(range(1, 40, 3))
         qubit0 = 0
         qubit2 = 2
 
-        exp0 = T1TestExp(qubit=qubit0, delays=delays, t1=t1[0])
-        exp2 = T1TestExp(qubit=qubit2, delays=delays, t1=t1[1])
+        num_qubits = 3
+        quantum_bit = [qubit0, qubit2]
+
+        # units definition
+        time_unit = "s"
+        us = 1e-9
+
+        # instruction duration for all qubits
+        instruction_durations = []
+        for qubit in range(num_qubits):
+            instruction_duration = [
+                ("x", [qubit], 50 * us, time_unit),
+                ("sx", [qubit], 25 * us, time_unit),
+                ("id", [qubit], 25 * us, time_unit),
+                ("rz", [qubit], 0, time_unit),
+                ("measure", [qubit], 0, time_unit),
+            ]
+            for qubit_instruction_duration in instruction_duration:
+                instruction_durations.append(qubit_instruction_duration)
+
+        backend = NoisyDelayAerBackend(t1, t2)
+
+        exp0 = T1(qubit=qubit0, delays=delays)
+        exp2 = T1(qubit=qubit2, delays=delays)
 
         par_exp = ParallelExperiment([exp0, exp2])
-        res = par_exp.run(AerSimulator(), seed_simulator=1).block_for_results()
+        res = par_exp.run(backend=backend, shots=10000, seed_simulator=1).block_for_results()
         self.assertExperimentDone(res)
 
         for i in range(2):
             sub_res = res.child_data(i).analysis_results("T1")
             self.assertEqual(sub_res.quality, "good")
-            self.assertAlmostEqual(sub_res.value.n, t1[i], delta=3)
+            self.assertAlmostEqual(sub_res.value.n, t1[quantum_bit[i]], delta=3)
 
         res.service = FakeService()
         res.save()
@@ -163,22 +123,21 @@ class TestT1(QiskitExperimentsTestCase):
         the sub-experiments have different analysis options
         """
 
-        t1 = 25
-        delays = list(range(1, 40, 3))
-        qubit0 = 0
-        qubit1 = 1
+        t1 = [25, 25]
+        t2 = [value / 2 for value in t1]
 
-        # exp0 = T1(0, delays)
-        exp0 = T1TestExp(qubit=qubit0, delays=delays, t1=t1)
+        backend = NoisyDelayAerBackend(t1, t2)
+
+        delays = list(range(1, 40, 3))
+
+        exp0 = T1(0, delays)
         exp0.analysis.set_options(p0={"tau": 30})
 
-        # exp1 = T1(1, delays)
-        exp1 = T1TestExp(qubit=qubit1, delays=delays, t1=t1)
+        exp1 = T1(1, delays)
         exp1.analysis.set_options(p0={"tau": 1000000})
 
         par_exp = ParallelExperiment([exp0, exp1])
-        # res = par_exp.run(T1Backend([t1, t1]))
-        res = par_exp.run(AerSimulator(), seed_simulator=1)
+        res = par_exp.run(backend=backend, seed_simulator=4)
         self.assertExperimentDone(res)
 
         sub_res = []
@@ -186,7 +145,7 @@ class TestT1(QiskitExperimentsTestCase):
             sub_res.append(res.child_data(i).analysis_results("T1"))
 
         self.assertEqual(sub_res[0].quality, "good")
-        self.assertAlmostEqual(sub_res[0].value.n, t1, delta=3)
+        self.assertAlmostEqual(sub_res[0].value.n, t1[0], delta=3)
         self.assertEqual(sub_res[1].quality, "bad")
 
     def test_t1_analysis(self):
