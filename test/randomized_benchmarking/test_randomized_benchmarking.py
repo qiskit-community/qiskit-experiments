@@ -91,7 +91,6 @@ class TestStandardRB(RBTestCase):
         self.assertAllIdentity(exp.circuits())
 
         expdata = exp.run()
-
         self.assertExperimentDone(expdata)
 
         # Given we have gate number per Clifford n_gpc, we can compute EPC as
@@ -553,6 +552,7 @@ class TestEPGAnalysis(QiskitExperimentsTestCase):
         )
         exp_1qrb_q0.set_transpile_options(**transpiler_options)
         expdata_1qrb_q0 = exp_1qrb_q0.run(analysis=None).block_for_results(timeout=300)
+
         exp_1qrb_q1 = rb.StandardRB(
             qubits=(1,),
             lengths=[1, 10, 30, 50, 80, 120, 150, 200],

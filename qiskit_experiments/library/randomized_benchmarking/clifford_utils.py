@@ -20,14 +20,13 @@ import numpy as np
 from numpy.random import Generator, default_rng
 
 from qiskit import QuantumCircuit, QuantumRegister
-from qiskit.circuit import Gate
+from qiskit.circuit import Gate, Instruction
 from qiskit.circuit.library import SdgGate, HGate, SGate, SXdgGate
 from qiskit.quantum_info import Clifford, random_clifford
 from qiskit.compiler import transpile
 from qiskit.providers.aer import AerSimulator
 from qiskit.exceptions import QiskitError
 from .clifford_data import CLIFF_COMPOSE_DATA
-
 
 class VGate(Gate):
     """V Gate used in Clifford synthesis."""
@@ -104,7 +103,7 @@ class CliffordUtils:
             rng = default_rng(rng)
 
         if num_qubits == 1:
-            samples = rng.integers(24, size=size)
+            samples = rng.integers(cls.NUM_CLIFFORD_1_QUBIT, size=size)
             return [Clifford(cls.clifford_1_qubit_circuit(i), validate=False) for i in samples]
         else:
             samples = rng.integers(11520, size=size)
@@ -125,7 +124,7 @@ class CliffordUtils:
             rng = default_rng(rng)
 
         if num_qubits == 1:
-            samples = rng.integers(24, size=size)
+            samples = rng.integers(cls.NUM_CLIFFORD_1_QUBIT, size=size)
             return [cls.clifford_1_qubit_circuit(i) for i in samples]
         else:
             samples = rng.integers(11520, size=size)
@@ -248,14 +247,15 @@ class CliffordUtils:
     def generate_1q_transpiled_clifford_circuits(cls, basis_gates: List[str]):
         """Generate all transpiled clifford circuits"""
         transpiled_circs = []
-        for num in range(0, 24):
+        for num in range(0, cls.NUM_CLIFFORD_1_QUBIT):
             circ = cls.clifford_1_qubit_circuit(num=num)
             transpiled_circ = cls.transpile_single_clifford(circ, basis_gates)
             transpiled_circs.append(transpiled_circ)
         return transpiled_circs
 
     @classmethod
-    def num_from_1_qubit_clifford_single_gate(cls, inst, basis_gates):
+    def num_from_1_qubit_clifford_single_gate(cls, inst: Instruction,
+                                              basis_gates: List[str]) -> int:
         """
         This method does the reverse of clifford_1_qubit_circuit -
         given a clifford, it returns the corresponding integer, with the mapping
@@ -312,7 +312,7 @@ class CliffordUtils:
         number that represents the resulting Clifford."""
 
         # The numbers corresponding to single gate Cliffords are not in sequence -
-        # see num_from_1_qubit_clifford_single_gate. In order to compute the index in
+        # see num_from_1_qubit_clifford_single_gate. To compute the index in
         # the array CLIFF_COMPOSE_DATA, we map the numbers to [0, 8].
         map_clifford_num_to_array_index = {0: 0, 1: 1, 2: 2, 4: 3, 6: 4, 8: 5, 12: 6, 18: 7, 22: 8}
         for inst in qc:

@@ -14,13 +14,12 @@ This is a script used to create the data in clifford_data.py.
 """
 from qiskit_experiments.library.randomized_benchmarking.clifford_utils import CliffordUtils
 
-
 def create_compose_map():
     """Creates the data in CLIFF_COMPOSE_DATA and CLIFF_INVERSE_DATA"""
     num_to_cliff = {}
     cliff_to_num = {}
 
-    for i in range(24):
+    for i in range(CliffordUtils.NUM_CLIFFORD_1_QUBIT):
         cliff = CliffordUtils.clifford_1_qubit(i)
         num_to_cliff[i] = cliff
         cliff_to_num[cliff.__repr__()] = i
@@ -39,7 +38,7 @@ def create_compose_map():
         "sdg": 22,
     }
 
-    for i in range(24):
+    for i in range(CliffordUtils.NUM_CLIFFORD_1_QUBIT):
         cliff1 = num_to_cliff[i]
         # for gate in single_gate_clifford_mapping.keys():
         for gate in single_gate_clifford_mapping:
@@ -48,7 +47,7 @@ def create_compose_map():
             products[i, single_gate_clifford_mapping[gate]] = cliff_to_num[cliff.__repr__()]
 
     invs = {}
-    for i in range(24):
+    for i in range(CliffordUtils.NUM_CLIFFORD_1_QUBIT):
         cliff1 = num_to_cliff[i]
         cliff = cliff1.adjoint()
         invs[i] = cliff_to_num[cliff.__repr__()]
@@ -64,6 +63,5 @@ def create_compose_map():
         print(f"    {invs[i]},")
     print("]")
     print()
-
 
 create_compose_map()

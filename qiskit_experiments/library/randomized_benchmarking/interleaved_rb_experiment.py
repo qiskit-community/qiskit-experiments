@@ -147,7 +147,6 @@ class InterleavedRB(StandardRB):
         Returns:
             The new list with the element interleaved.
         """
-
         new_element_list = []
         for element in element_list:
             new_element_list.append(element)
