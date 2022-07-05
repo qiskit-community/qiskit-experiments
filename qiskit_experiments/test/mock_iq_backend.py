@@ -263,13 +263,15 @@ class MockIQBackend(FakeOpenPulse2Q):
                     imag_data = self._get_normal_samples_for_shot(qubits)
                     template_iq_data[i_shot] = np.array([real_data, imag_data], dtype="float").T
 
-                # Scale template data to separate widths iq_data_1 =
-                self._scale_samples_for_widths(template_iq_data,widths_1) iq_data_2 =
-                self._scale_samples_for_widths(template_iq_data,widths_2)
+                # Scale template data to separate widths
+                iq_data_1 = self._scale_samples_for_widths(template_iq_data,widths_1)
+                iq_data_2 = self._scale_samples_for_widths(template_iq_data,widths_2)
 
                 # IQ data should then be indexed randomly so that repeated usage does not give the same #
-                order of samples. iq_data_circuit_1 = iq_data_1[random_indices_1] iq_data_circuit_2a =
-                iq_data_2[random_indices_2a] iq_data_circuit_2b = iq_data_2[random_indices_2b]
+                # order of samples.
+                iq_data_circuit_1 = iq_data_1[random_indices_1]
+                iq_data_circuit_2a = iq_data_2[random_indices_2a]
+                iq_data_circuit_2b = iq_data_2[random_indices_2b]
 
         Args:
             num_qubits: The number of qubits in the circuit.
@@ -285,12 +287,12 @@ class MockIQBackend(FakeOpenPulse2Q):
     def _scale_samples_for_widths(
         self, samples: List[np.ndarray], widths: List[float]
     ) -> List[np.ndarray]:
-        """Scales `samples`, with width=1, by `widths` so that the data has the necessary std-dev.
+        """Scales `samples` by `widths` so that the data has the necessary std-dev.
 
         `samples` contains `n_shots` elements, each being :math:`n\times{}2` float values, representing
         the I and Q values for :math:`n` qubits. `widths` is a list of :math:`n` standard-deviations for
         each qubit. The IQ values for each list element in `samples` is scaled by the values in `widths`,
-        for their respective qubits.
+        for their respective qubits. It is assumed that the standard deviation of `samples` is :math:`1`.
 
         Args:
             samples: List of np.ndarrays containing random IQ samples for n qubits.

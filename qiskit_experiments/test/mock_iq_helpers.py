@@ -104,7 +104,7 @@ class MockIQExperimentHelper:
         circuits: List[QuantumCircuit],
         centers: List[Tuple[Tuple[float, float], Tuple[float, float]]],
         widths: List[float],
-    ) -> List[Tuple[List[Tuple[Tuple[float, float], Tuple[float, float]]], List[float]]]:
+    ) -> List[Tuple[List[Tuple]], List[float]]:
         """Returns circuit-specific IQ cluster centers and widths in the IQ plane.
 
         Subclasses can override this function to modify the centers and widths of IQ clusters based on
@@ -115,6 +115,12 @@ class MockIQExperimentHelper:
         :py:class:`MockIQExperimentHelper` is to return the centers and widths unmodified for each
         circuit in `circuits`, meaning that all circuits will use the clusters defined by the
         :py:class:`MockQIBackend` instance.
+
+        The returned list contains a tuple per element in `circuits`. Each tuple contains the IQ centers
+        and widths in the same format as `centers` and `widths`, passed as arguments to
+        :py:func:`iq_clusters`. The format of the centers and widths lists, in the argument list and in
+        the returned tuples, must match the format of `iq_cluster_centers` and `iq_cluster_widths` in
+        :py:func:`qiskit_experiments.test.MockIQBackend.__init__`.
 
         Args:
             circuits: The quantum circuits for which the clusters should be modified.
