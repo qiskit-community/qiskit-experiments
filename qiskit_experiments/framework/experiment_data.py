@@ -1388,17 +1388,10 @@ class ExperimentData:
             self._deleted_figures.remove(name)
 
         if not self.service.local and self.verbose:
-            # this field will be implemented in the new service package
-            if hasattr(self._service, "web_interface_link"):
-                print(
-                    "You can view the experiment online at "
-                    f"{self._service.web_interface_link}/{self.experiment_id}"
-                )
-            else:
-                print(
-                    "You can view the experiment online at "
-                    f"https://quantum-computing.ibm.com/experiments/{self.experiment_id}"
-                )
+            print(
+                "You can view the experiment online at "
+                f"https://quantum-computing.ibm.com/experiments/{self.experiment_id}"
+            )
         # handle children, but without additional prints
         for data in self._child_data.values():
             original_verbose = data.verbose
