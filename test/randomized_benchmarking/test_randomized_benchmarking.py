@@ -85,7 +85,6 @@ class TestStandardRB(RBTestCase):
             lengths=list(range(1, 300, 30)),
             seed=123,
             backend=self.backend,
-            transpiled_rb=True,
         )
         exp.analysis.set_options(gate_error_ratio=None)
         exp.set_transpile_options(**self.transpiler_options)
@@ -194,7 +193,6 @@ class TestStandardRB(RBTestCase):
             seed=123,
             backend=self.backend,
             full_sampling=False,
-            transpiled_rb=True,
         )
         exp1.set_transpile_options(**self.transpiler_options)
         exp2 = rb.StandardRB(
@@ -203,7 +201,6 @@ class TestStandardRB(RBTestCase):
             seed=123,
             backend=self.backend,
             full_sampling=True,
-            transpiled_rb=True,
         )
         exp2.set_transpile_options(**self.transpiler_options)
         circs1 = exp1.circuits()
@@ -255,14 +252,14 @@ class TestStandardRB(RBTestCase):
 
     def test_experiment_config(self):
         """Test converting to and from config works"""
-        exp = rb.StandardRB(qubits=(0,), lengths=[10, 20, 30], seed=123, transpiled_rb=True)
+        exp = rb.StandardRB(qubits=(0,), lengths=[10, 20, 30], seed=123)
         loaded_exp = rb.StandardRB.from_config(exp.config())
         self.assertNotEqual(exp, loaded_exp)
         self.assertTrue(self.json_equiv(exp, loaded_exp))
 
     def test_roundtrip_serializable(self):
         """Test round trip JSON serialization"""
-        exp = rb.StandardRB(qubits=(0,), lengths=[10, 20, 30], seed=123, transpiled_rb=True)
+        exp = rb.StandardRB(qubits=(0,), lengths=[10, 20, 30], seed=123)
         self.assertRoundTripSerializable(exp, self.json_equiv)
 
     def test_analysis_config(self):
@@ -279,7 +276,6 @@ class TestStandardRB(RBTestCase):
             lengths=list(range(1, 200, 50)),
             seed=123,
             backend=self.backend,
-            transpiled_rb=True,
         )
         exp.set_transpile_options(**self.transpiler_options)
         expdata = exp.run()
@@ -294,7 +290,7 @@ class TestStandardRB(RBTestCase):
         exps = []
         for qubit in qubits:
             exp = rb.StandardRB(
-                qubits=[qubit], lengths=lengths, seed=123, backend=self.backend, transpiled_rb=True
+                qubits=[qubit], lengths=lengths, seed=123, backend=self.backend
             )
             exp.analysis.set_options(gate_error_ratio=None, plot_raw_data=False)
             exps.append(exp)
@@ -329,7 +325,6 @@ class TestInterleavedRB(RBTestCase):
                 lengths=[length],
                 num_samples=1,
                 full_sampling=val,
-                transpiled_rb=True,
             )
             exp.set_transpile_options(**self.transpiler_options)
             circuits = exp.circuits()
@@ -379,7 +374,6 @@ class TestInterleavedRB(RBTestCase):
                 lengths=list(range(1, 300, 30)),
                 seed=123,
                 backend=self.backend,
-                transpiled_rb=True,
             )
             exp.set_transpile_options(**self.transpiler_options)
 
@@ -424,7 +418,6 @@ class TestInterleavedRB(RBTestCase):
             interleaved_element=interleaved_element,
             qubits=qubits,
             lengths=lengths,
-            transpiled_rb=True,
         )
 
     def test_interleaving_delay(self):
@@ -437,7 +430,6 @@ class TestInterleavedRB(RBTestCase):
             lengths=[1],
             num_samples=1,
             seed=1234,  # This seed gives a 2-gate clifford
-            transpiled_rb=True,
         )
         exp.set_transpile_options(**self.transpiler_options)
 
@@ -480,7 +472,6 @@ class TestInterleavedRB(RBTestCase):
             qubits=(0,),
             lengths=[10, 20, 30],
             seed=123,
-            transpiled_rb=True,
         )
         loaded_exp = rb.InterleavedRB.from_config(exp.config())
         self.assertNotEqual(exp, loaded_exp)
@@ -508,7 +499,6 @@ class TestInterleavedRB(RBTestCase):
             lengths=list(range(1, 200, 50)),
             seed=123,
             backend=self.backend,
-            transpiled_rb=True,
         )
         exp.set_transpile_options(**self.transpiler_options)
         expdata = exp.run()
@@ -560,7 +550,6 @@ class TestEPGAnalysis(QiskitExperimentsTestCase):
             lengths=[1, 10, 30, 50, 80, 120, 150, 200],
             seed=123,
             backend=backend,
-            transpiled_rb=True,
         )
         exp_1qrb_q0.set_transpile_options(**transpiler_options)
         expdata_1qrb_q0 = exp_1qrb_q0.run(analysis=None).block_for_results(timeout=300)
@@ -569,7 +558,6 @@ class TestEPGAnalysis(QiskitExperimentsTestCase):
             lengths=[1, 10, 30, 50, 80, 120, 150, 200],
             seed=123,
             backend=backend,
-            transpiled_rb=True,
         )
         exp_1qrb_q1.set_transpile_options(**transpiler_options)
         expdata_1qrb_q1 = exp_1qrb_q1.run(analysis=None).block_for_results(timeout=300)
