@@ -124,11 +124,11 @@ class TestT2Ramsey(QiskitExperimentsTestCase):
         expdata = par_exp.run(backend=backend, shots=2000, seed_simulator=1).block_for_results()
         self.assertExperimentDone(expdata)
 
-        for i in range(2):
+        for i, qb in enumerate(par_exp_qubits):
             res_t2star = expdata.child_data(i).analysis_results("T2star")
             self.assertAlmostEqual(
                 res_t2star.value.n,
-                t2ramsey[par_exp_qubits[i]],
+                t2ramsey[qb],
                 delta=TestT2Ramsey.__tolerance__ * res_t2star.value.n,
             )
             self.assertEqual(
@@ -137,7 +137,7 @@ class TestT2Ramsey(QiskitExperimentsTestCase):
             res_freq = expdata.child_data(i).analysis_results("Frequency")
             self.assertAlmostEqual(
                 res_freq.value.n,
-                estimated_freq[par_exp_qubits[i]],
+                estimated_freq[qb],
                 delta=TestT2Ramsey.__tolerance__ * res_freq.value.n,
             )
             self.assertEqual(
@@ -177,7 +177,6 @@ class TestT2Ramsey(QiskitExperimentsTestCase):
         exp1.analysis.set_options(p0=default_p0)
         expdata1 = exp1.run(backend=backend, analysis=None, shots=1000, seed_simulator=1)
         self.assertExperimentDone(expdata1)
-        exp1.analysis.run(expdata1)
 
         expdata1.add_data(expdata0.data())
         exp1.analysis.run(expdata1)

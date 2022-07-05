@@ -20,7 +20,6 @@ from qiskit_experiments.test.noisy_delay_aer_simulator import NoisyDelayAerBacke
 from qiskit_experiments.framework import ExperimentData, ParallelExperiment
 from qiskit_experiments.library import T1
 from qiskit_experiments.library.characterization import T1Analysis
-from qiskit_experiments.test.t1_backend import T1Backend
 from qiskit_experiments.test.fake_service import FakeService
 
 
@@ -34,12 +33,6 @@ class TestT1(QiskitExperimentsTestCase):
         Test T1 experiment using a simulator.
         """
         t1 = 25e-6
-        backend = T1Backend(
-            [t1],
-            initial_prob1=[0.02],
-            readout0to1=[0.02],
-            readout1to0=[0.02],
-        )
         backend = NoisyDelayAerBackend([t1], [t1 / 2])
 
         delays = np.arange(1e-6, 40e-6, 3e-6)
@@ -74,25 +67,7 @@ class TestT1(QiskitExperimentsTestCase):
         qubit0 = 0
         qubit2 = 2
 
-        num_qubits = 3
         quantum_bit = [qubit0, qubit2]
-
-        # units definition
-        time_unit = "s"
-        us = 1e-9
-
-        # instruction duration for all qubits
-        instruction_durations = []
-        for qubit in range(num_qubits):
-            instruction_duration = [
-                ("x", [qubit], 50 * us, time_unit),
-                ("sx", [qubit], 25 * us, time_unit),
-                ("id", [qubit], 25 * us, time_unit),
-                ("rz", [qubit], 0, time_unit),
-                ("measure", [qubit], 0, time_unit),
-            ]
-            for qubit_instruction_duration in instruction_duration:
-                instruction_durations.append(qubit_instruction_duration)
 
         backend = NoisyDelayAerBackend(t1, t2)
 
@@ -103,10 +78,10 @@ class TestT1(QiskitExperimentsTestCase):
         res = par_exp.run(backend=backend, shots=10000, seed_simulator=1).block_for_results()
         self.assertExperimentDone(res)
 
-        for i in range(2):
+        for i, qb in enumerate(quantum_bit):
             sub_res = res.child_data(i).analysis_results("T1")
             self.assertEqual(sub_res.quality, "good")
-            self.assertAlmostEqual(sub_res.value.n, t1[quantum_bit[i]], delta=3)
+            self.assertAlmostEqual(sub_res.value.n, t1[qb], delta=3)
 
         res.service = FakeService()
         res.save()

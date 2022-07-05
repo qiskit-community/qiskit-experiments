@@ -33,7 +33,7 @@ class NoisyDelayAerBackend(AerSimulator):
         backend=None,
         **backend_options,
     ):
-        """configure backend noise and gates durations"""
+        """configure backend noise"""
 
         super().__init__(**backend_options)
         self._t2 = t2 or [1e-4]
@@ -53,7 +53,7 @@ class NoisyDelayAerBackend(AerSimulator):
         """
         Add noise pass to all circuits and then run the circuits.
         Args:
-            run_input: run_input: List of circuit to run.
+            run_input: List of circuit to run.
             run_options (kwargs): additional run time backend options.
 
         Returns:
