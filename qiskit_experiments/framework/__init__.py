@@ -216,6 +216,7 @@ Experiment Data Classes
     AnalysisConfig
     ExperimentEncoder
     ExperimentDecoder
+    FigureData
 
 .. _composite-experiment:
 
@@ -253,6 +254,7 @@ from qiskit_experiments.database_service.db_experiment_data import (
     ExperimentStatus,
     JobStatus,
     AnalysisStatus,
+    FigureData,
 )
 from .base_analysis import BaseAnalysis
 from .base_experiment import BaseExperiment
