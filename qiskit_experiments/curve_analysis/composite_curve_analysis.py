@@ -83,7 +83,7 @@ class CompositeCurveAnalysis(BaseCurveAnalysis):
     This returns "good" when all fit outcomes are evaluated as "good",
     otherwise it returns "bad".
 
-    .. rubric:: _create_curve_data
+    .. rubric:: _create_analysis_results
 
     This method is passed all the group fit outcomes and can return a list of
     new values to be stored in the analysis results.
@@ -319,8 +319,6 @@ class CompositeCurveAnalysis(BaseCurveAnalysis):
 
         analysis_results = []
 
-        self.drawer.initialize_canvas()
-
         # Initialize canvas
         if self.options.plot:
             self.drawer.initialize_canvas()
@@ -444,8 +442,7 @@ class CompositeCurveAnalysis(BaseCurveAnalysis):
             report += "\n".join(chisqs)
             self.drawer.draw_fit_report(description=report)
 
-        # Finalize plot
-        if self.options.plot:
+            # Finalize canvas
             self.drawer.format_canvas()
             return analysis_results, [self.drawer.figure]
 

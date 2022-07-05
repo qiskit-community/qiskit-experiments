@@ -27,7 +27,7 @@ features:
     metadata, originating in the experiment circuit metadata, and the measure outcomes with
     matched metadata are only used for the fitting.
   - |
-    New options have been added to the :class:`.CurveAnaysis` curve drawer.
+    New options have been added to the :class:`.CurveAnalysis` curve drawer.
     
     -|
       ``figure_title`` has been added. This allows user to show an arbitrary string 

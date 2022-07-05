@@ -22,7 +22,7 @@ import qiskit_experiments.data_processing as dp
 
 
 class BlochTrajectoryAnalysis(curve.CurveAnalysis):
-    r"""A class to analyze a trajectory of Bloch vector on a single qubit.
+    r"""A class to analyze a trajectory of the Bloch vector of a single qubit.
 
     # section: fit_model
 
