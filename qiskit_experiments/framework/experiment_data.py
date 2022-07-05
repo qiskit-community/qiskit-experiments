@@ -1327,13 +1327,28 @@ class ExperimentData:
             )
             return
         try:
+            handle_metadata_separately = self._metadata_too_large()
+            if handle_metadata_separately:
+                metadata = self._db_data.metadata
+                self._db_data.metadata = {}
+
             self.service.create_or_update_experiment(
                 self._db_data, json_encoder=self._json_encoder, create=not self._created_in_db
             )
+
+            if handle_metadata_separately:
+                self.service.file_upload(self._db_data.experiment_id, "metadata.json", metadata)
+                self._db_data.metadata = metadata
+
         except Exception:  # pylint: disable=broad-except
             # Don't fail the experiment just because its data cannot be saved.
             LOG.error("Unable to save the experiment data: %s", traceback.format_exc())
         self._created_in_db = True
+
+    def _metadata_too_large(self):
+        """Determines whether the metadata should be stored in a separate file"""
+        # TODO: detemine the relevant sizes and the best way to check the relevant metadata size
+        return True
 
     def save(self) -> None:
         """Save the experiment data to a database service.
@@ -1833,6 +1848,15 @@ class ExperimentData:
         )
         return self.child_data(index)
 
+    @staticmethod
+    def experiment_has_metadata_file(experiment_id: str, service: IBMExperimentService) -> bool:
+        """Determine whether an experiment has a metadata.json file"""
+        files = service.files(experiment_id)['files']
+        for file_data in files:
+            if file_data['Key'] == "metadata.json":
+                return True
+        return False
+
     @classmethod
     def load(cls, experiment_id: str, service: IBMExperimentService) -> "ExperimentData":
         """Load a saved experiment data from a database service.
@@ -1845,6 +1869,9 @@ class ExperimentData:
             The loaded experiment data.
         """
         data = service.experiment(experiment_id, json_decoder=cls._json_decoder)
+        if cls.experiment_has_metadata_file(experiment_id, service):
+            metadata = service.file_download(experiment_id, "metadata.json")
+            data.metadata.update(metadata)
         expdata = cls(service=service, db_data=data)
 
         # Retrieve data and analysis results
