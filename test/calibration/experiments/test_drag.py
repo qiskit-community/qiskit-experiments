@@ -60,9 +60,8 @@ class TestDragEndToEnd(QiskitExperimentsTestCase):
         self.assertExperimentDone(expdata)
         result = expdata.analysis_results(1)
 
-        self.assertTrue(
-            abs(result.value.n - backend.experiment_helper.ideal_beta) < self.test_tol
-        )  # pylint: disable=no-member
+        # pylint: disable=no-member
+        self.assertTrue(abs(result.value.n - backend.experiment_helper.ideal_beta) < self.test_tol)
         self.assertEqual(result.quality, "good")
 
         # Small leakage will make the curves very flat, in this case one should
@@ -74,9 +73,8 @@ class TestDragEndToEnd(QiskitExperimentsTestCase):
         self.assertExperimentDone(exp_data)
         result = exp_data.analysis_results(1)
 
-        self.assertTrue(
-            abs(result.value.n - backend.experiment_helper.ideal_beta) < self.test_tol
-        )  # pylint: disable=no-member
+        # pylint: disable=no-member
+        self.assertTrue(abs(result.value.n - backend.experiment_helper.ideal_beta) < self.test_tol)
         self.assertEqual(result.quality, "good")
 
         # Large leakage will make the curves oscillate quickly.
