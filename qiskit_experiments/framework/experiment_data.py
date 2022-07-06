@@ -151,6 +151,8 @@ class ExperimentData:
     _json_encoder = ExperimentEncoder
     _json_decoder = ExperimentDecoder
 
+    _metadata_filename = "metadata.json"
+
     def __init__(
         self,
         experiment: Optional["BaseExperiment"] = None,
@@ -1337,7 +1339,7 @@ class ExperimentData:
             )
 
             if handle_metadata_separately:
-                self.service.file_upload(self._db_data.experiment_id, "metadata.json", metadata)
+                self.service.file_upload(self._db_data.experiment_id, self._metadata_filename, metadata)
                 self._db_data.metadata = metadata
 
         except Exception:  # pylint: disable=broad-except
@@ -1848,15 +1850,6 @@ class ExperimentData:
         )
         return self.child_data(index)
 
-    @staticmethod
-    def experiment_has_metadata_file(experiment_id: str, service: IBMExperimentService) -> bool:
-        """Determine whether an experiment has a metadata.json file"""
-        files = service.files(experiment_id)['files']
-        for file_data in files:
-            if file_data['Key'] == "metadata.json":
-                return True
-        return False
-
     @classmethod
     def load(cls, experiment_id: str, service: IBMExperimentService) -> "ExperimentData":
         """Load a saved experiment data from a database service.
@@ -1869,8 +1862,8 @@ class ExperimentData:
             The loaded experiment data.
         """
         data = service.experiment(experiment_id, json_decoder=cls._json_decoder)
-        if cls.experiment_has_metadata_file(experiment_id, service):
-            metadata = service.file_download(experiment_id, "metadata.json")
+        if service.experiment_has_file(experiment_id, cls._metadata_filename):
+            metadata = service.file_download(experiment_id, cls._metadata_filename)
             data.metadata.update(metadata)
         expdata = cls(service=service, db_data=data)
 
