@@ -1134,9 +1134,7 @@ class ExperimentData:
 
         figure_data = self._figures.get(figure_key, None)
         if figure_data is None and self.service:
-            figure = self.service.figure(
-                experiment_id=self.experiment_id, figure_name=figure_key
-            )
+            figure = self.service.figure(experiment_id=self.experiment_id, figure_name=figure_key)
             figure_data = FigureData(figure=figure, name=figure_key)
             self._figures[figure_key] = figure_data
 
@@ -1339,7 +1337,9 @@ class ExperimentData:
             )
 
             if handle_metadata_separately:
-                self.service.file_upload(self._db_data.experiment_id, self._metadata_filename, metadata)
+                self.service.file_upload(
+                    self._db_data.experiment_id, self._metadata_filename, metadata
+                )
                 self._db_data.metadata = metadata
 
         except Exception:  # pylint: disable=broad-except
@@ -2137,8 +2137,6 @@ class ExperimentData:
             return service
         except Exception as error:
             return None
-
-
 
     def __setstate__(self, state):
         self.__dict__.update(state)
