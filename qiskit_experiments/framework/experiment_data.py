@@ -2136,7 +2136,7 @@ class ExperimentData:
             credentials = backend._provider.credentials
             service = IBMExperimentService(token=credentials.token, url=db_url)
             return service
-        except Exception: # pylint: disable=broad-except
+        except Exception:  # pylint: disable=broad-except
             return None
 
     def __setstate__(self, state):
