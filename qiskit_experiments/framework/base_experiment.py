@@ -20,7 +20,7 @@ from typing import Sequence, Optional, Tuple, List, Dict, Union
 import warnings
 
 from qiskit import transpile, QuantumCircuit
-from qiskit.providers import Job, Backend
+from qiskit.providers import Job, Backend, BackendV1
 from qiskit.exceptions import QiskitError
 from qiskit.qobj.utils import MeasLevel
 from qiskit.providers.options import Options
@@ -331,7 +331,10 @@ class BaseExperiment(ABC, StoreInitArgs):
     def _run_jobs(self, circuits: List[QuantumCircuit], **run_options) -> List[Job]:
         """Run circuits on backend as 1 or more jobs."""
         # Run experiment jobs
-        max_experiments = getattr(self.backend.configuration(), "max_experiments", None)
+        if isinstance(self.backend, BackendV1):
+            max_experiments = getattr(self.backend.configuration(), "max_experiments", None)
+        else:  # BackendV2
+            max_experiments = self.backend.max_circuits
         if max_experiments and len(circuits) > max_experiments:
             # Split jobs for backends that have a maximum job size
             job_circuits = [

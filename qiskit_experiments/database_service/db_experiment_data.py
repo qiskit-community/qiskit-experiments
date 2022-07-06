@@ -32,7 +32,7 @@ import numpy as np
 from matplotlib import pyplot
 from matplotlib.figure import Figure as MatplotlibFigure
 from qiskit import QiskitError
-from qiskit.providers import Job, Backend, Provider
+from qiskit.providers import Job, Backend, BackendV1, Provider
 from qiskit.result import Result
 from qiskit.providers.jobstatus import JobStatus, JOB_FINAL_STATES
 from qiskit_experiments.framework.json import ExperimentEncoder, ExperimentDecoder
@@ -410,7 +410,15 @@ class DbExperimentDataV1(DbExperimentData):
         timeout_ids = []
         for job in jobs:
             jid = job.job_id()
-            if self.backend and self.backend.name() != job.backend().name():
+            if isinstance(self.backend, BackendV1):
+                backend_name = self.backend.name()
+            else:
+                backend_name = self.backend.name
+            if isinstance(job.backend, BackendV1):
+                job_backend_name = job.backend().name()
+            else:
+                job_backend_name = job.backend().name
+            if self.backend and backend_name != job_backend_name:
                 LOG.warning(
                     "Adding a job from a backend (%s) that is different "
                     "than the current backend (%s). "
