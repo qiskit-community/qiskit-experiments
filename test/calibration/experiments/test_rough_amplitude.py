@@ -18,7 +18,7 @@ import numpy as np
 from qiskit import transpile
 import qiskit.pulse as pulse
 from qiskit.circuit import Parameter
-from qiskit.test.mock import FakeArmonk
+from qiskit.providers.fake_provider import FakeArmonk
 
 from qiskit_experiments.calibration_management.basis_gate_library import FixedFrequencyTransmon
 from qiskit_experiments.calibration_management import Calibrations
