@@ -130,7 +130,7 @@ class OscillationAnalysis(curve.CurveAnalysis):
         return "bad"
 
 
-class DumpedOscillationAnalysis(curve.CurveAnalysis):
+class DampedOscillationAnalysis(curve.CurveAnalysis):
     r"""A class to analyze general exponential decay curve with sinusoidal oscillation.
 
     # section: fit_model
