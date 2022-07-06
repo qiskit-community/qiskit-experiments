@@ -58,7 +58,6 @@ class InterleavedRB(StandardRB):
         num_samples: int = 3,
         seed: Optional[Union[int, SeedSequence, BitGenerator, Generator]] = None,
         full_sampling: bool = False,
-        transpiled_rb=False,
     ):
         """Initialize an interleaved randomized benchmarking experiment.
 
@@ -86,7 +85,6 @@ class InterleavedRB(StandardRB):
             num_samples=num_samples,
             seed=seed,
             full_sampling=full_sampling,
-            transpiled_rb=transpiled_rb,
         )
         self._set_interleaved_element(interleaved_element)
         self._transpiled_interleaved_elem = None
@@ -102,13 +100,13 @@ class InterleavedRB(StandardRB):
         rng = default_rng(seed=self.experiment_options.seed)
         circuits = []
         if self.num_qubits == 1 and self._transpiled_cliff_circuits_1q is None:
-            self._transpiled_cliff_circuits = (
+            self._transpiled_cliff_circuits_1q = (
                 CliffordUtils.generate_1q_transpiled_clifford_circuits(
                     basis_gates=self.transpile_options.basis_gates
                 )
             )
         for _ in range(self.experiment_options.num_samples):
-            if self.num_qubits == 1 and self._transpiled_rb:
+            if self.num_qubits == 1:
                 self._set_transpiled_interleaved_element()
                 std_circuits, int_circuits = self._build_rb_circuits(
                     self.experiment_options.lengths,
@@ -149,7 +147,6 @@ class InterleavedRB(StandardRB):
         Returns:
             The new list with the element interleaved.
         """
-
         new_element_list = []
         for element in element_list:
             new_element_list.append(element)

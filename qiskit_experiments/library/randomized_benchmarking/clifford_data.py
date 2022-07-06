@@ -14,10 +14,10 @@
 This file contains the Clifford group represented as integers.
 In CLIFF_COMPOSE_DATA, (i, j): k represents Clifford(i).compose(clifford(j)) = Clifford(k).
 Since retrieving a value from an array is more efficient than from a dict, therefore
-we store only the results in an array. The index is computed in c
-CliffordUtils.compose_num_with_clifford().
-Note that for the pairs (i, j), i can be any clifford, j represents only the
-1-gate cliffords, as listed in CliffordUtils.general_cliff_list
+we store only the results (k) in the array CLIFF_COMPOSE_DATA.
+The index is computed in CliffordUtils.compose_num_with_clifford().
+Note that for the pairs (i, j), i can be any clifford, and j represents only the
+1-gate Cliffords, as listed in CliffordUtils.general_cliff_list
 """
 
 CLIFF_COMPOSE_DATA = [
@@ -239,7 +239,8 @@ CLIFF_COMPOSE_DATA = [
     19,
 ]
 
-# In CLIFF_INVERSE_DATA, i: j represents Clifford(i).inverse = Clifford(j)
+# In CLIFF_INVERSE_DATA, i: j represents Clifford(i).inverse = Clifford(j).
+# Here too, we store only the inverse (j) in the array CLIFF_INVERSE_DATA.
 CLIFF_INVERSE_DATA = [
     0,
     1,
