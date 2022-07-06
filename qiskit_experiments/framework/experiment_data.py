@@ -2130,12 +2130,13 @@ class ExperimentData:
 
     @staticmethod
     def get_service_from_backend(backend):
+        """Initializes the server from the backend data"""
         db_url = "https://auth.quantum-computing.ibm.com/api"
         try:
             credentials = backend._provider.credentials
             service = IBMExperimentService(token=credentials.token, url=db_url)
             return service
-        except Exception as error:
+        except Exception: # pylint: disable=broad-except
             return None
 
     def __setstate__(self, state):

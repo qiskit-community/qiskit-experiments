@@ -23,7 +23,6 @@ from qiskit.providers import JobStatus
 from qiskit.test.reference_circuits import ReferenceCircuits
 from qiskit.test import QiskitTestCase
 from qiskit_ibm_experiment import IBMExperimentService
-from qiskit_ibm_experiment import ResultQuality
 from qiskit_ibm_experiment.exceptions import IBMExperimentEntryNotFound
 
 # from qiskit_experiments.database_service import DbExperimentDataV1 as DbExperimentData
