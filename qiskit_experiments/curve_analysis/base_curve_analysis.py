@@ -52,7 +52,7 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
     .. rubric:: _format_data
 
     This method consumes the processed dataset and outputs the formatted dataset.
-    Usually, this may include averaging Y values over the same X data points.
+    For example, this may include averaging Y values over the same X data points.
 
     .. rubric:: _run_curve_fit
 
@@ -61,7 +61,7 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
     that creates fit result object from the formatted dataset.
 
 
-    Optionally, the subclass may override following method.
+    Optionally, the subclass may override following methods.
     These methods have default implementation, as described below.
 
     .. rubric:: _evaluate_quality
