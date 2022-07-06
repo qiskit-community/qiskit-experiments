@@ -66,7 +66,7 @@ they use always starts with the qubits in the ground state.
         FixedFrequencyTransmon,
     )
     from qiskit_experiments.data_processing.data_processor import DataProcessor
-    from qiskit.test.mock import FakeBogota
+    from qiskit.providers.fake_provider import FakeBogota
 
     # replace this lines with an IBM Quantum backend to run the experiment.
     backend = FakeBogota()

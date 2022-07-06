@@ -20,7 +20,7 @@ for an explanation on the RB method, which is based on Ref. [1, 2].
     
     # For simulation
     from qiskit.providers.aer import AerSimulator
-    from qiskit.test.mock import FakeParis
+    from qiskit.providers.fake_provider import FakeParis
     
     backend = AerSimulator.from_backend(FakeParis())
 
