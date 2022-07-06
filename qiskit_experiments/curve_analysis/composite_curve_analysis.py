@@ -24,7 +24,7 @@ from uncertainties import unumpy as unp, UFloat
 from qiskit_experiments.framework import ExperimentData, AnalysisResultData, Options
 from .base_curve_analysis import BaseCurveAnalysis, PARAMS_ENTRY_PREFIX
 from .curve_data import CurveFitResult
-from .curve_data import FitOptions, CurveData
+from .curve_data import CurveData
 from .utils import analysis_result_to_repr, eval_with_uncertainties
 from .visualization import MplCurveDrawer, BaseCurveDrawer
 
@@ -143,23 +143,6 @@ class CompositeCurveAnalysis(BaseCurveAnalysis):
             num_index = group_names.index(index)
             return self._analyses[num_index]
         return self._analyses[index]
-
-    def _generate_fit_guesses(
-        self,
-        user_opt: FitOptions,
-        curve_data: CurveData,  # pylint: disable=unused-argument
-    ) -> Union[FitOptions, List[FitOptions]]:
-        """Create algorithmic guess with analysis options and curve data.
-
-        Args:
-            user_opt: Fit options filled with user provided guess and bounds.
-            curve_data: Formatted data collection to fit.
-
-        Returns:
-            List of fit options that are passed to the fitter function.
-        """
-        # This method is delegated to self.analyses
-        return NotImplemented
 
     def _format_data(
         self,

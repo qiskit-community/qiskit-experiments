@@ -15,23 +15,16 @@ Base class of curve analysis.
 """
 
 import warnings
-
 from abc import ABC, abstractmethod
 from typing import List, Dict, Union
 
 import lmfit
-import numpy as np
-from uncertainties import unumpy as unp
 
-from qiskit_experiments.framework import BaseAnalysis, AnalysisResultData, Options, ExperimentData
 from qiskit_experiments.data_processing import DataProcessor
 from qiskit_experiments.data_processing.processor_library import get_processor
-from qiskit_experiments.data_processing.exceptions import DataProcessorError
-
-from .curve_data import CurveData, ParameterRepr, FitOptions, CurveFitResult
-from .data_processing import multi_mean_xy_data, data_sort
+from qiskit_experiments.framework import BaseAnalysis, AnalysisResultData, Options, ExperimentData
+from .curve_data import CurveData, ParameterRepr, CurveFitResult
 from .visualization import MplCurveDrawer, BaseCurveDrawer
-from .utils import convert_lmfit_result
 
 PARAMS_ENTRY_PREFIX = "@Parameters_"
 DATA_ENTRY_PREFIX = "@Data_"
@@ -47,17 +40,29 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
     by combining following methods, i.e. subroutines.
     See :ref:`curve_analysis_workflow` for how these subroutines are called.
 
-    .. rubric:: _generate_fit_guesses
 
-    This method creates initial guesses for the fit parameters.
-    This might be overridden by subclass.
-    See :ref:`curve_analysis_init_guess` for details.
+    Subclass must implement following methods.
+
+    .. rubric:: _run_data_processing
+
+    This method performs data processing and returns the processed dataset.
+    Input data is a list of dictionaries, where each entry represents an outcome
+    of circuit sampling along with the metadata attached to it.
 
     .. rubric:: _format_data
 
     This method consumes the processed dataset and outputs the formatted dataset.
-    By default, this method takes the average of y values over
-    the same x values and then sort the entire data by x values.
+    Usually, this may include averaging Y values over the same X data points.
+
+    .. rubric:: _run_curve_fit
+
+    This method performs the fitting with predefined fit models and the formatted dataset.
+    This is a core functionality of the :meth:`_run_analysis` method,
+    that creates fit result object from the formatted dataset.
+
+
+    Optionally, the subclass may override following method.
+    These methods have default implementation, as described below.
 
     .. rubric:: _evaluate_quality
 
@@ -65,15 +70,6 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
     This returns "good" when reduced chi-squared is less than 3.0.
     Usually it returns string "good" or "bad" according to the evaluation.
     This criterion can be updated by subclass.
-
-    .. rubric:: _run_data_processing
-
-    This method performs data processing and returns the processed dataset.
-    By default, it internally calls :class:`DataProcessor` instance from the analysis options
-    and processes experiment data payload to create Y data with uncertainty.
-    X data and other metadata are generated within this method by inspecting the
-    circuit metadata. The series classification is also performed by based upon the
-    matching of circuit metadata and :attr:`SeriesDef.filter_kwargs`.
 
     .. rubric:: _run_curve_fit
 
@@ -262,78 +258,7 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
 
         super().set_options(**fields)
 
-    def _generate_fit_guesses(
-        self,
-        user_opt: FitOptions,
-        curve_data: CurveData,  # pylint: disable=unused-argument
-    ) -> Union[FitOptions, List[FitOptions]]:
-        """Create algorithmic guess with analysis options and curve data.
-
-        Args:
-            user_opt: Fit options filled with user provided guess and bounds.
-            curve_data: Formatted data collection to fit.
-
-        Returns:
-            List of fit options that are passed to the fitter function.
-        """
-        return user_opt
-
-    def _format_data(
-        self,
-        curve_data: CurveData,
-    ) -> CurveData:
-        """Postprocessing for the processed dataset.
-
-        Args:
-            curve_data: Processed dataset created from experiment results.
-
-        Returns:
-            Formatted data.
-        """
-        # take average over the same x value by keeping sigma
-        data_allocation, xdata, ydata, sigma, shots = multi_mean_xy_data(
-            series=curve_data.data_allocation,
-            xdata=curve_data.x,
-            ydata=curve_data.y,
-            sigma=curve_data.y_err,
-            shots=curve_data.shots,
-            method="shots_weighted",
-        )
-
-        # sort by x value in ascending order
-        data_allocation, xdata, ydata, sigma, shots = data_sort(
-            series=data_allocation,
-            xdata=xdata,
-            ydata=ydata,
-            sigma=sigma,
-            shots=shots,
-        )
-
-        return CurveData(
-            x=xdata,
-            y=ydata,
-            y_err=sigma,
-            shots=shots,
-            data_allocation=data_allocation,
-            labels=curve_data.labels,
-        )
-
-    def _evaluate_quality(
-        self,
-        fit_data: CurveFitResult,
-    ) -> Union[str, None]:
-        """Evaluate quality of the fit result.
-
-        Args:
-            fit_data: Fit outcome.
-
-        Returns:
-            String that represents fit result quality. Usually "good" or "bad".
-        """
-        if fit_data.reduced_chisq < 3.0:
-            return "good"
-        return "bad"
-
+    @abstractmethod
     def _run_data_processing(
         self,
         raw_data: List[Dict],
@@ -355,59 +280,21 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
             DataProcessorError: When key for x values is not found in the metadata.
         """
 
-        def _matched(metadata, **filters):
-            try:
-                return all(metadata[key] == val for key, val in filters.items())
-            except KeyError:
-                return False
+    @abstractmethod
+    def _format_data(
+        self,
+        curve_data: CurveData,
+    ) -> CurveData:
+        """Postprocessing for the processed dataset.
 
-        if not self.options.filter_data:
-            analyzed_data = raw_data
-        else:
-            analyzed_data = [
-                d for d in raw_data if _matched(d["metadata"], **self.options.filter_data)
-            ]
+        Args:
+            curve_data: Processed dataset created from experiment results.
 
-        x_key = self.options.x_key
+        Returns:
+            Formatted data.
+        """
 
-        try:
-            xdata = np.asarray([datum["metadata"][x_key] for datum in analyzed_data], dtype=float)
-        except KeyError as ex:
-            raise DataProcessorError(
-                f"X value key {x_key} is not defined in circuit metadata."
-            ) from ex
-
-        ydata = self.options.data_processor(analyzed_data)
-        shots = np.asarray([datum.get("shots", np.nan) for datum in analyzed_data])
-
-        if len(models) == 1:
-            # all data belongs to the single model
-            data_allocation = np.full(xdata.size, 0, dtype=int)
-        else:
-            data_allocation = np.full(xdata.size, -1, dtype=int)
-            for idx, sub_model in enumerate(models):
-                try:
-                    tags = sub_model.opts["data_sort_key"]
-                except KeyError as ex:
-                    raise DataProcessorError(
-                        f"Data sort options for model {sub_model.name} is not defined."
-                    ) from ex
-                if tags is None:
-                    continue
-                matched_inds = np.asarray(
-                    [_matched(d["metadata"], **tags) for d in analyzed_data], dtype=bool
-                )
-                data_allocation[matched_inds] = idx
-
-        return CurveData(
-            x=xdata,
-            y=unp.nominal_values(ydata),
-            y_err=unp.std_devs(ydata),
-            shots=shots,
-            data_allocation=data_allocation,
-            labels=[sub_model._name for sub_model in models],
-        )
-
+    @abstractmethod
     def _run_curve_fit(
         self,
         curve_data: CurveData,
@@ -423,102 +310,22 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
         Returns:
             The best fitting outcome with minimum reduced chi-squared value.
         """
-        unite_parameter_names = []
-        for model in models:
-            # Seems like this is not efficient looping, but using set operation sometimes
-            # yields bad fit. Not sure if this is an edge case, but
-            # `TestRamseyXY` unittest failed due to the significant chisq value
-            # in which the least_square fitter terminates with `xtol` rather than `ftol`
-            # condition, i.e. `ftol` condition indicates termination by cost function.
-            # This code respects the ordering of parameters so that it matches with
-            # the signature of fit function and it is backward compatible.
-            # In principle this should not matter since LMFIT maps them with names
-            # rather than index. Need more careful investigation.
-            for name in model.param_names:
-                if name not in unite_parameter_names:
-                    unite_parameter_names.append(name)
 
-        default_fit_opt = FitOptions(
-            parameters=unite_parameter_names,
-            default_p0=self.options.p0,
-            default_bounds=self.options.bounds,
-            **self.options.lmfit_options,
-        )
+    def _evaluate_quality(
+        self,
+        fit_data: CurveFitResult,
+    ) -> Union[str, None]:
+        """Evaluate quality of the fit result.
 
-        # Bind fixed parameters if not empty
-        if self.options.fixed_parameters:
-            fixed_parameters = {
-                k: v for k, v in self.options.fixed_parameters.items() if k in unite_parameter_names
-            }
-            default_fit_opt.p0.set_if_empty(**fixed_parameters)
-        else:
-            fixed_parameters = {}
+        Args:
+            fit_data: Fit outcome.
 
-        try:
-            fit_options = self._generate_fit_guesses(default_fit_opt, curve_data)
-        except TypeError:
-            warnings.warn(
-                "Calling '_generate_fit_guesses' method without curve data has been "
-                "deprecated and will be prohibited after 0.4. "
-                "Update the method signature of your custom analysis class.",
-                DeprecationWarning,
-            )
-            # pylint: disable=no-value-for-parameter
-            fit_options = self._generate_fit_guesses(default_fit_opt)
-        if isinstance(fit_options, FitOptions):
-            fit_options = [fit_options]
-
-        valid_uncertainty = np.all(np.isfinite(curve_data.y_err))
-
-        # Objective function for minimize. This computes composite residuals of sub models.
-        def _objective(_params):
-            ys = []
-            for model in models:
-                sub_data = curve_data.get_subset_of(model._name)
-                yi = model._residual(
-                    params=_params,
-                    data=sub_data.y,
-                    weights=1.0 / sub_data.y_err if valid_uncertainty else None,
-                    x=sub_data.x,
-                )
-                ys.append(yi)
-            return np.concatenate(ys)
-
-        # Run fit for each configuration
-        res = None
-        for fit_option in fit_options:
-            # Setup parameter configuration, i.e. init value, bounds
-            guess_params = lmfit.Parameters()
-            for name in unite_parameter_names:
-                bounds = fit_option.bounds[name] or (-np.inf, np.inf)
-                guess_params.add(
-                    name=name,
-                    value=fit_option.p0[name],
-                    min=bounds[0],
-                    max=bounds[1],
-                    vary=name not in fixed_parameters,
-                )
-
-            try:
-                new = lmfit.minimize(
-                    fcn=_objective,
-                    params=guess_params,
-                    method=self.options.fit_method,
-                    scale_covar=not valid_uncertainty,
-                    nan_policy="omit",
-                    **fit_option.fitter_opts,
-                )
-            except Exception:  # pylint: disable=broad-except
-                continue
-
-            if res is None or not res.success:
-                res = new
-                continue
-
-            if new.success and res.redchi > new.redchi:
-                res = new
-
-        return convert_lmfit_result(res, models, curve_data.x, curve_data.y)
+        Returns:
+            String that represents fit result quality. Usually "good" or "bad".
+        """
+        if fit_data.reduced_chisq < 3.0:
+            return "good"
+        return "bad"
 
     def _create_analysis_results(
         self,
