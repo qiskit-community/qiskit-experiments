@@ -26,6 +26,7 @@ from qiskit.quantum_info import Clifford, random_clifford
 from qiskit.compiler import transpile
 from qiskit.providers.aer import AerSimulator
 from qiskit.exceptions import QiskitError
+
 from .clifford_data import CLIFF_COMPOSE_DATA
 
 
@@ -243,16 +244,6 @@ class CliffordUtils:
         """Transpile a single clifford circuit using basis_gates."""
         backend = AerSimulator()
         return transpile(cliff_circ, backend, optimization_level=1, basis_gates=basis_gates)
-
-    @classmethod
-    def generate_1q_transpiled_clifford_circuits(cls, basis_gates: List[str]):
-        """Generate all transpiled clifford circuits"""
-        transpiled_circs = []
-        for num in range(0, 24):
-            circ = cls.clifford_1_qubit_circuit(num=num)
-            transpiled_circ = cls.transpile_single_clifford(circ, basis_gates)
-            transpiled_circs.append(transpiled_circ)
-        return transpiled_circs
 
     @classmethod
     def num_from_1_qubit_clifford_single_gate(cls, inst, basis_gates):

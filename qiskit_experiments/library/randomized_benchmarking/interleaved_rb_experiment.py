@@ -101,7 +101,7 @@ class InterleavedRB(StandardRB):
         """
         rng = default_rng(seed=self.experiment_options.seed)
         circuits = []
-        if self._transpiled_rb and self._transpiled_cliff_circuits is None:
+        if self.num_qubits == 1 and self._transpiled_cliff_circuits_1q is None:
             self._transpiled_cliff_circuits = (
                 CliffordUtils.generate_1q_transpiled_clifford_circuits(
                     basis_gates=self.transpile_options.basis_gates
