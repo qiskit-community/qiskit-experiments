@@ -20,7 +20,7 @@ from test.base import QiskitExperimentsTestCase
 import numpy as np
 from qiskit.quantum_info.operators.predicates import matrix_equal
 from qiskit.providers.aer import AerSimulator
-from qiskit.test.mock import FakeParis
+from qiskit.providers.fake_provider import FakeParis
 from qiskit_ibm_experiment import IBMExperimentService
 from qiskit_experiments.library.characterization import LocalReadoutError, CorrelatedReadoutError
 from qiskit_experiments.framework import ExperimentData
