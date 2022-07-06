@@ -33,7 +33,7 @@ z_value = 2), and at least 100 trials have been ran.
     from qiskit.providers.aer import AerSimulator
     
     # For simulation
-    from qiskit.test.mock import FakeSydney
+    from qiskit.providers.fake_provider import FakeSydney
     
     backend = AerSimulator.from_backend(FakeSydney())
 

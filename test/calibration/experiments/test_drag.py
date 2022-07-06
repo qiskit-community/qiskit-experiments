@@ -60,6 +60,7 @@ class TestDragEndToEnd(QiskitExperimentsTestCase):
         self.assertExperimentDone(expdata)
         result = expdata.analysis_results(1)
 
+        # pylint: disable=no-member
         self.assertTrue(abs(result.value.n - backend.experiment_helper.ideal_beta) < self.test_tol)
         self.assertEqual(result.quality, "good")
 
@@ -72,6 +73,7 @@ class TestDragEndToEnd(QiskitExperimentsTestCase):
         self.assertExperimentDone(exp_data)
         result = exp_data.analysis_results(1)
 
+        # pylint: disable=no-member
         self.assertTrue(abs(result.value.n - backend.experiment_helper.ideal_beta) < self.test_tol)
         self.assertEqual(result.quality, "good")
 
