@@ -151,10 +151,11 @@ class StandardRB(BaseExperiment, RestlessMixin):
                     self._transpiled_cliff_circuits_1q = qpy.load(fd)
         if self.num_qubits == 2 and self._transpiled_cliff_circuits_2q is None:
             transpiled_circs_2q_file = ROOT_DIR + "/transpiled_circs_2q.qpy"
+            print("file = " + str(transpiled_circs_2q_file))
             if os.path.isfile(transpiled_circs_2q_file):
                 with open(transpiled_circs_2q_file, 'rb') as fd:
                     self._transpiled_cliff_circuits_2q = qpy.load(fd)
-        print("num circs = " + len(self._transpiled_cliff_circuits_2q))
+        print("num circs = " + str(len(self._transpiled_cliff_circuits_2q)))
         print(self._transpiled_cliff_circuits_2q[2])
         print(self._transpiled_cliff_circuits_2q[3])
 
