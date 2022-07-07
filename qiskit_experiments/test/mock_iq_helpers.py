@@ -38,6 +38,20 @@ class MockIQExperimentHelper:
         standard-deviations for each qubit in a :py:class:`MockIQBackend` instance. These are used by
         :py:meth:`iq_clusters` by default. Subclasses can override :py:meth:`iq_clusters` to return a
         modified version of :py:attr:`iq_cluster_centers` and :py:attr:`iq_cluster_width`.
+        `iq_cluster_centers` is a list of tuples. For a given qubit `i_qbt` and computational state
+        `i_state` (either `0` or `1`), the centers of the IQ clusters are found by indexing
+        `iq_cluster_centers` as follows:
+
+        .. code-block:: python
+            iq_center = helper.iq_cluster_centers[i_qbt][i_state]
+            center_inphase = iq_center[0]
+            center_quadrature = iq_center[1]
+
+        `iq_cluster_width` is indexed similarly except that there is only one width per qubit: i.e., the
+        standard-deviation of the IQ cluster for qubit `i_qbt` is
+
+        .. code-block:: python
+            iq_width = helper.iq_cluster_width[i_qbt]
 
         Subclasses must call `super().__init__(iq_cluster_centers,iq_cluster_width)` so that these
         properties are stored appropriately.
@@ -162,15 +176,14 @@ class MockIQExperimentHelper:
         the circuits being simulated by a :py:class:`MockIQBackend`. The base centers and widths are
         stored internally within the helper object, and can be set in :py:meth:`__init__` or by modifying
         :py:attr:`iq_cluster_centers` and :py:attr:`iq_cluster_width`. The default behaviour for
-        :py:class:`MockIQExperimentHelper` is to return the centers and widths unmodified for each
-        circuit in `circuits`. Subclasses may return different centers and widths based on the circuits
-        provided.
+        :py:meth:`iq_clusters` is to return the centers and widths unmodified for each circuit in
+        `circuits`. Subclasses may return different centers and widths based on the circuits provided.
 
         The returned list contains a tuple per circuit. Each tuple contains the IQ centers and widths in
-        the same format as :py:attr:`iq_cluster_centers` and :py:attr`iq_cluster_widths`, passed as
+        the same format as :py:attr:`iq_cluster_centers` and :py:attr:`iq_cluster_width`, passed as
         arguments to :py:meth:`__init__`. The format of the centers and widths lists, in the argument
         list and in the returned tuples, must match the format of `iq_cluster_centers` and
-        `iq_cluster_width` in :py:func:`qiskit_experiments.test.MockIQBackend.__init__`.
+        `iq_cluster_width` in :py:func:`qiskit_experiments.test.MockIQExperimentHelper.__init__`.
 
         Args:
             circuits: The quantum circuits for which the clusters should be modified.
