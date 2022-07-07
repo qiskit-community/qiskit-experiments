@@ -18,7 +18,7 @@ import numpy as np
 
 from qiskit import transpile
 from qiskit.circuit import Gate
-from qiskit.test.mock import FakeArmonk
+from qiskit.providers.fake_provider import FakeArmonk
 import qiskit.pulse as pulse
 
 from qiskit_experiments.library import FineDrag, FineXDrag, FineDragCal
