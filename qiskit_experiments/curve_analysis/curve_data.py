@@ -13,20 +13,22 @@
 """
 Curve data classes.
 """
-
 import dataclasses
+import itertools
 import inspect
-from typing import Any, Dict, Callable, Union, List, Tuple, Optional, Iterable
+from typing import Any, Dict, Union, List, Tuple, Optional, Iterable, Callable
 
 import numpy as np
 import uncertainties
+from uncertainties.unumpy import uarray
 from qiskit_experiments.exceptions import AnalysisError
+from qiskit_experiments.warnings import deprecated_function, deprecated_class
 
 
+@deprecated_class("0.5", msg="SeriesDef is now replaced with LMFIT Model.")
 @dataclasses.dataclass(frozen=True)
 class SeriesDef:
     """A dataclass to describe the definition of the curve.
-
     Attributes:
         fit_func: A callable that defines the fit model of this curve. The argument names
             in the callable are parsed to create the fit parameter list, which will appear
@@ -61,7 +63,6 @@ class SeriesDef:
 
     def __post_init__(self):
         """Parse the fit function signature to extract the names of the variables.
-
         Fit functions take arguments F(x, p0, p1, p2, ...) thus the first value should be excluded.
         """
         signature = list(inspect.signature(self.fit_func).parameters.keys())
@@ -126,6 +127,209 @@ class CurveData:
         )
 
 
+class CurveFitResult:
+    """Result of Qiskit Experiment curve analysis."""
+
+    def __init__(
+        self,
+        method: Optional[str] = None,
+        model_repr: Optional[Dict[str, str]] = None,
+        success: Optional[bool] = True,
+        nfev: Optional[int] = None,
+        message: Optional[str] = "",
+        dof: Optional[float] = None,
+        init_params: Optional[Dict[str, float]] = None,
+        chisq: Optional[float] = None,
+        reduced_chisq: Optional[float] = None,
+        aic: Optional[float] = None,
+        bic: Optional[float] = None,
+        params: Optional[Dict[str, float]] = None,
+        var_names: Optional[List[str]] = None,
+        x_data: Optional[np.ndarray] = None,
+        y_data: Optional[np.ndarray] = None,
+        covar: Optional[np.ndarray] = None,
+    ):
+        """Create new Qiskit curve analysis result object.
+
+        Args:
+            method: A name of fitting algorithm used for the curve fitting.
+            model_repr: String representation of fit functions of each curve.
+            success: True when the fitting is successfully performed.
+            nfev: Number of fit function evaluation until the solution is obtained.
+            message: Any message from the fitting software.
+            dof: Degree of freedom in this fitting, i.e. number of free parameters.
+            init_params: Initial parameters provided to the fitter.
+            chisq: Chi-squared value.
+            reduced_chisq: Reduced Chi-squared value.
+            aic: Akaike's information criterion.
+            bic: Bayesian information criterion.
+            params: Estimated fitting parameters keyed on the parameter names in the fit function.
+            var_names: Name of variables, i.e. fixed parameters are excluded from the list.
+            x_data: X values used for the fitting.
+            y_data: Y values used for the fitting.
+            covar: Covariance matrix of fitting variables.
+        """
+        self.method = method
+        self.model_repr = model_repr
+        self.success = success
+        self.nfev = nfev
+        self.message = message
+        self.dof = dof
+        self.init_params = init_params
+        self.chisq = chisq
+        self.reduced_chisq = reduced_chisq
+        self.aic = aic
+        self.bic = bic
+        self.params = params
+        self.var_names = var_names
+        self.x_data = x_data
+        self.y_data = y_data
+        self.covar = covar
+
+    @property
+    def x_range(self) -> Tuple[float, float]:
+        """Range of x_data values."""
+        return min(self.x_data), max(self.x_data)
+
+    @property
+    def y_range(self) -> Tuple[float, float]:
+        """Range of y_data values."""
+        return min(self.y_data), max(self.y_data)
+
+    @property
+    def ufloat_params(self) -> Dict[str, uncertainties.UFloat]:
+        """UFloat representation of fit parameters."""
+        if hasattr(self, "_ufloat_params"):
+            # Return cache
+            return getattr(self, "_ufloat_params")
+
+        if self.params is None:
+            ufloat_params = None
+        else:
+            if self.covar is not None:
+                ufloat_fitvals = uncertainties.correlated_values(
+                    nom_values=[self.params[name] for name in self.var_names],
+                    covariance_mat=self.covar,
+                    tags=self.var_names,
+                )
+            else:
+                # Invalid covariance matrix. Std dev is set to nan, i.e. not computed.
+                ufloat_fitvals = uarray(
+                    nominal_values=[self.params[name] for name in self.var_names],
+                    std_devs=np.full(len(self.var_names), np.nan),
+                )
+            # Combine fixed params and fitting variables into a single dictionary
+            # Fixed parameter has zero std_dev
+            ufloat_params = {}
+            for name in self.params.keys():
+                try:
+                    uind = self.var_names.index(name)
+                    ufloat_params[name] = ufloat_fitvals[uind]
+                except ValueError:
+                    ufloat_params[name] = uncertainties.ufloat(self.params[name], std_dev=0.0)
+
+        setattr(self, "_ufloat_params", ufloat_params)
+        return ufloat_params
+
+    @property
+    def correl(self):
+        """Correlation matrix of fit parameters."""
+        if hasattr(self, "_correl"):
+            # Return cache
+            return getattr(self, "_correl")
+
+        if self.covar is not None:
+            # This is how uncertainties computes correlation matrix
+            stdevs = np.sqrt(np.diag(self.covar))
+            correl = self.covar / stdevs / stdevs[:, np.newaxis]
+        else:
+            correl = None
+
+        setattr(self, "_correl", correl)
+        return correl
+
+    @deprecated_function("0.5", "Use '.ufloat_params' which returns a dictionary instead.")
+    def fitval(self, key: str) -> uncertainties.UFloat:
+        """Deprecated. Return UFloat parameter specified by the key."""
+        return self.ufloat_params[key]
+
+    def __str__(self):
+        ret = "CurveFitResult:"
+        ret += f"\n - fitting method: {self.method}"
+        ret += f"\n - number of sub-models: {len(self.model_repr)}"
+        for model_name, model_expr in self.model_repr.items():
+            if len(model_expr) > 60:
+                model_expr = f"{model_expr[:60]}..."
+            ret += f"\n  * F_{model_name}(x) = {model_expr}"
+        ret += f"\n - success: {self.success}"
+        ret += f"\n - number of function evals: {self.nfev}"
+        ret += f"\n - degree of freedom: {self.dof}"
+        ret += f"\n - chi-square: {self.chisq}"
+        ret += f"\n - reduced chi-square: {self.reduced_chisq}"
+        ret += f"\n - Akaike info crit.: {self.aic}"
+        ret += f"\n - Bayesian info crit.: {self.bic}"
+        if self.init_params is not None:
+            ret += "\n - init params:"
+            for name, value in self.init_params.items():
+                ret += f"\n  * {name} = {value}"
+        if self.ufloat_params is not None:
+            ret += "\n - fit params:"
+            for name, param in self.ufloat_params.items():
+                if np.isfinite(param.std_dev):
+                    ret += f"\n  * {name} = {param.nominal_value} ± {param.std_dev}"
+                else:
+                    ret += f"\n  * {name} = {param.nominal_value}"
+        if self.correl is not None:
+            ret += "\n - correlations:"
+            correlated = {}
+            for pi, pj in itertools.combinations(range(len(self.var_names)), 2):
+                correlated[(pi, pj)] = self.correl[pi, pj]
+            for (pi, pj), corr in sorted(correlated.items(), key=lambda item: item[1]):
+                ret += f"\n  * ({self.var_names[pi]}, {self.var_names[pj]}) = {corr}"
+
+        return ret
+
+    def __copy__(self):
+        instance = CurveFitResult(**self.__json_encode__())
+        # Copying ufloat invalidate parameter correlation.
+        # Note that ufloat object has `self._linear_part.linear_combo` dictionary
+        # to store parameter correlation keyed on the ufloat objects.
+        # Copying the ufloat object may change object id, which is the identifier
+        # of ufloat value, thus it invalidates the `linear_combo` dictionary.
+        # To avoid missing correlation, the copy invalidate ufloat parameter object cache.
+        return instance
+
+    def __deepcopy__(self, memo):
+        return self.__copy__()
+
+    def __json_encode__(self):
+        return {
+            "method": self.method,
+            "model_repr": self.model_repr,
+            "success": self.success,
+            "nfev": self.nfev,
+            "message": self.message,
+            "dof": self.dof,
+            "init_params": self.init_params,
+            "chisq": self.chisq,
+            "reduced_chisq": self.reduced_chisq,
+            "aic": self.aic,
+            "bic": self.bic,
+            "params": self.params,
+            "var_names": self.var_names,
+            "x_data": self.x_data,
+            "y_data": self.y_data,
+            "covar": self.covar,
+        }
+
+    @classmethod
+    def __json_decode__(cls, value):
+        return cls(**value)
+
+
+@deprecated_class(
+    "0.5", msg="Fit data is replaced with 'CurveFitResult' based on LMFIT minimizer result."
+)
 @dataclasses.dataclass(frozen=True)
 class FitData:
     """A dataclass to store the outcome of the fitting.
@@ -389,6 +593,11 @@ class FitOptions:
     def bounds(self) -> Boundaries:
         """Return bounds dictionary."""
         return self.__bounds
+
+    @property
+    def fitter_opts(self) -> Boundaries:
+        """Return fitter options dictionary."""
+        return self.__extra
 
     @property
     def options(self):

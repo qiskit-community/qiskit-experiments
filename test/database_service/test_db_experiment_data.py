@@ -27,7 +27,7 @@ import uuid
 import matplotlib.pyplot as plt
 import numpy as np
 
-from qiskit.test.mock import FakeMelbourne
+from qiskit.providers.fake_provider import FakeMelbourne
 from qiskit.result import Result
 from qiskit.providers import JobV1 as Job
 from qiskit.providers import JobStatus
@@ -270,7 +270,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
             with self.subTest(name=name):
                 exp_data = DbExperimentData(backend=self.backend, experiment_type="qiskit_test")
                 fn = exp_data.add_figures(figure, figure_name)
-                self.assertEqual(hello_bytes, exp_data.figure(fn))
+                self.assertEqual(hello_bytes, exp_data.figure(fn).figure)
 
     def test_add_figure_plot(self):
         """Test adding a matplotlib figure."""
@@ -280,7 +280,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         service = self._set_mock_service()
         exp_data = DbExperimentData(backend=self.backend, experiment_type="qiskit_test")
         exp_data.add_figures(figure, save_figure=True)
-        self.assertEqual(figure, exp_data.figure(0))
+        self.assertEqual(figure, exp_data.figure(0).figure)
         service.create_figure.assert_called_once()
         _, kwargs = service.create_figure.call_args
         self.assertIsInstance(kwargs["figure"], bytes)
@@ -305,7 +305,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
                 exp_data = DbExperimentData(backend=self.backend, experiment_type="qiskit_test")
                 added_names = exp_data.add_figures(figures, figure_names)
                 for idx, added_fn in enumerate(added_names):
-                    self.assertEqual(hello_bytes[idx], exp_data.figure(added_fn))
+                    self.assertEqual(hello_bytes[idx], exp_data.figure(added_fn).figure)
 
     def test_add_figure_overwrite(self):
         """Test updating an existing figure."""
@@ -318,7 +318,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
             exp_data.add_figures(friend_bytes, fn)
 
         exp_data.add_figures(friend_bytes, fn, overwrite=True)
-        self.assertEqual(friend_bytes, exp_data.figure(fn))
+        self.assertEqual(friend_bytes, exp_data.figure(fn).figure)
 
     def test_add_figure_save(self):
         """Test saving a figure in the database."""
@@ -330,6 +330,45 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         _, kwargs = service.create_figure.call_args
         self.assertEqual(kwargs["figure"], hello_bytes)
         self.assertEqual(kwargs["experiment_id"], exp_data.experiment_id)
+
+    def test_add_figure_metadata(self):
+        hello_bytes = str.encode("hello world")
+        qubits = [0, 1, 2]
+        exp_data = DbExperimentData(
+            backend=self.backend,
+            experiment_type="qiskit_test",
+            metadata={"physical_qubits": qubits},
+        )
+        exp_data.add_figures(hello_bytes)
+        exp_data.figure(0).metadata["foo"] = "bar"
+        figure_data = exp_data.figure(0)
+
+        self.assertEqual(figure_data.metadata["qubits"], qubits)
+        self.assertEqual(figure_data.metadata["foo"], "bar")
+        expected_name_prefix = "qiskit_test_Fig-0_Exp-"
+        self.assertEqual(figure_data.name[: len(expected_name_prefix)], expected_name_prefix)
+
+        exp_data2 = DbExperimentData(
+            backend=self.backend,
+            experiment_type="qiskit_test",
+            metadata={"physical_qubits": [1, 2, 3, 4]},
+        )
+        exp_data2.add_figures(figure_data, "new_name.svg")
+        figure_data = exp_data2.figure("new_name.svg")
+
+        # metadata should not change when adding to new ExperimentData
+        self.assertEqual(figure_data.metadata["qubits"], qubits)
+        self.assertEqual(figure_data.metadata["foo"], "bar")
+        # name should change
+        self.assertEqual(figure_data.name, "new_name.svg")
+
+        # can set the metadata to new dictionary
+        figure_data.metadata = {"bar": "foo"}
+        self.assertEqual(figure_data.metadata["bar"], "foo")
+
+        # cannot set the metadata to something other than dictionary
+        with self.assertRaises(ValueError):
+            figure_data.metadata = ["foo", "bar"]
 
     def test_add_figure_bad_input(self):
         """Test adding figures with bad input."""
@@ -347,8 +386,8 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
             )
         idx = randrange(3)
         expected_figure = str.encode(figure_template.format(idx))
-        self.assertEqual(expected_figure, exp_data.figure(name_template.format(idx)))
-        self.assertEqual(expected_figure, exp_data.figure(idx))
+        self.assertEqual(expected_figure, exp_data.figure(name_template.format(idx)).figure)
+        self.assertEqual(expected_figure, exp_data.figure(idx).figure)
 
         file_name = uuid.uuid4().hex
         self.addCleanup(os.remove, file_name)

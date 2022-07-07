@@ -11,20 +11,23 @@
 # that they have been altered from the originals.
 
 """A mock IQ backend for testing."""
-
 from abc import abstractmethod
-from typing import List, Tuple, Dict, Union, Any, Optional
+from typing import Sequence, List, Tuple, Dict, Union, Any, Optional
 import numpy as np
 
 from qiskit import QuantumCircuit
 from qiskit.result import Result
-from qiskit.test.mock import FakeOpenPulse2Q
+from qiskit.providers.fake_provider import FakeOpenPulse2Q
 
 from qiskit.qobj.utils import MeasLevel
+from qiskit_experiments.exceptions import QiskitError
 from qiskit_experiments.framework import Options
 from qiskit_experiments.test.utils import FakeJob
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
-from qiskit_experiments.test.mock_iq_helpers import MockIQExperimentHelper
+from qiskit_experiments.test.mock_iq_helpers import (
+    MockIQExperimentHelper,
+    MockIQParallelExperimentHelper,
+)
 
 
 class MockRestlessBackend(FakeOpenPulse2Q):
@@ -171,7 +174,7 @@ class MockIQBackend(FakeOpenPulse2Q):
 
     def __init__(
         self,
-        experiment_helper: MockIQExperimentHelper,
+        experiment_helper: MockIQExperimentHelper = None,
         rng_seed: int = 0,
         iq_cluster_centers: Optional[List[Tuple[Tuple[float, float], Tuple[float, float]]]] = None,
         iq_cluster_width: Optional[List[float]] = None,
@@ -191,7 +194,7 @@ class MockIQBackend(FakeOpenPulse2Q):
 
         self._iq_cluster_centers = iq_cluster_centers or [((-1.0, -1.0), (1.0, 1.0))]
         self._iq_cluster_width = iq_cluster_width or [1.0] * len(self._iq_cluster_centers)
-        self.experiment_helper = experiment_helper
+        self._experiment_helper = experiment_helper
         self._rng = np.random.default_rng(rng_seed)
 
         super().__init__()
@@ -203,6 +206,29 @@ class MockIQBackend(FakeOpenPulse2Q):
             meas_level=MeasLevel.KERNELED,
             meas_return="single",
         )
+
+    @property
+    def experiment_helper(self):
+        """return the 'experiment_helper' attribute"""
+        return self._experiment_helper
+
+    @experiment_helper.setter
+    def experiment_helper(self, value):
+        """
+        Setter for the experiment helper.
+        Args:
+            value(MockIQExperimentHelper): The helper for the backend to use for generating IQ shots.
+
+        Raises:
+            ValueError: Raised if the value to set is not of type `MockIQExperimentHelper`
+        """
+        cls = MockIQExperimentHelper
+        if not isinstance(value, cls):
+            raise ValueError(
+                f"The input type is {str(type(value))} while the type expected type is "
+                f"<{str(type(cls()))}>."
+            )
+        self._experiment_helper = value
 
     @staticmethod
     def _verify_parameters(output_length: int, prob_dict: Dict[str, float]):
@@ -218,18 +244,18 @@ class MockIQBackend(FakeOpenPulse2Q):
                     " don't match."
                 )
 
-    def _get_normal_samples_for_shot(self, num_qubits: int) -> np.ndarray:
+    def _get_normal_samples_for_shot(self, qubits: Sequence[int]) -> np.ndarray:
         """
         Produce a list in the size of num_qubits. Each entry value is produced from normal distribution
         with expected value of '0' and standard deviation of self._iq_cluster_width.
         Args:
-            num_qubits(int): The number of qubits in the circuit.
+            num_qubits: The number of qubits in the circuit.
 
         Returns:
             Ndarray: A numpy array with values that were produced from normal distribution.
         """
         widths = self._iq_cluster_width
-        samples = [self._rng.normal(0, widths[qubit], size=1) for qubit in range(num_qubits)]
+        samples = [self._rng.normal(0, widths[qubit], size=1) for qubit in qubits]
         # we squeeze the second dimension because samples is List[qubit_number][0][0\1] = I\Q
         # and we want to change it to be List[qubit_number][0\1]
         return np.squeeze(np.array(samples), axis=1)
@@ -244,15 +270,15 @@ class MockIQBackend(FakeOpenPulse2Q):
         return prob_list
 
     def _draw_iq_shots(
-        self, prob: List[float], shots: int, output_length: int, phase: float = 0.0
+        self, prob: List[float], shots: int, circ_qubits: Sequence[int], phase: float = 0.0
     ) -> List[List[List[Union[float, complex]]]]:
         """
         Produce an IQ shot.
         Args:
-            prob(List): A list of probabilities for each output.
-            shots(int): The number of times the circuit will run.
-            output_length(int): The number of qubits in the circuit.
-
+            prob: A list of probabilities for each output.
+            shots: The number of times the circuit will run.
+            circ_qubits: The qubits of the circuit.
+            phase: The added phase needed to apply to the shot data.
         Returns:
             List[List[Tuple[float, float]]]: A list of shots. Each shot consists of a list of qubits.
             The qubits are tuples with two values [I,Q].
@@ -261,8 +287,8 @@ class MockIQBackend(FakeOpenPulse2Q):
         # Randomize samples
         qubits_iq_rand = [np.nan] * shots
         for shot in range(shots):
-            rand_i = self._get_normal_samples_for_shot(output_length)
-            rand_q = self._get_normal_samples_for_shot(output_length)
+            rand_i = self._get_normal_samples_for_shot(circ_qubits)
+            rand_q = self._get_normal_samples_for_shot(circ_qubits)
             qubits_iq_rand[shot] = np.array([rand_i, rand_q], dtype="float").T
 
         memory = []
@@ -272,7 +298,7 @@ class MockIQBackend(FakeOpenPulse2Q):
         for output_number, number_of_occurrences in enumerate(
             self._rng.multinomial(shots, prob, size=1)[0]
         ):
-            state_str = str(format(output_number, "b").zfill(output_length))
+            state_str = str(format(output_number, "b").zfill(len(circ_qubits)))
             for _ in range(number_of_occurrences):
                 shot_memory = []
                 # the iteration on the string variable state_str starts from the MSB. For readability,
@@ -305,9 +331,9 @@ class MockIQBackend(FakeOpenPulse2Q):
         """
         Generate data for the circuit.
         Args:
-            prob_dict(dict): A dictionary whose keys are strings representing the output vectors and
+            prob_dict: A dictionary whose keys are strings representing the output vectors and
             their values are the probability to get the output in this circuit.
-            circuit(QuantumCircuit): The circuit that needs to be simulated.
+            circuit: The circuit that needs to be simulated.
 
         Returns:
             A dictionary that's filled with the simulated data. The output format is different between
@@ -330,23 +356,25 @@ class MockIQBackend(FakeOpenPulse2Q):
                 counts[result_in_str] = num_occurrences
             run_result["counts"] = counts
         else:
-            phase = self.experiment_helper.iq_phase(circuit)
-            memory = self._draw_iq_shots(prob_arr, shots, output_length, phase)
+            # Phase has meaning only for IQ shot, so we calculate it here
+            phase = self.experiment_helper.iq_phase([circuit])[0]
+            # 'circ_qubits' get a list of all the qubits
+            memory = self._draw_iq_shots(prob_arr, shots, list(range(output_length)), phase)
             if meas_return == "avg":
                 memory = np.average(np.array(memory), axis=0).tolist()
 
             run_result["memory"] = memory
         return run_result
 
-    def run(self, run_input: List[QuantumCircuit], **options) -> FakeJob:
+    def run(self, run_input: List[QuantumCircuit], **run_options) -> FakeJob:
         """
         Run the IQ backend.
         Args:
-            run_input(List[QuantumCircuit]): A list of QuantumCircuit for which the backend will generate
-             data for.
-            **options: Experiment options. the options that are supported in this backend are
-             'meas_level' and 'meas_return'.
-                'meas_level': To generate data in the IQ plain, 'meas_level' should be assigned 1 or
+            run_input: A list of QuantumCircuit for which the backend will generate
+             data.
+            **run_options: Experiment running options. The options that are supported in this backend are
+             'meas_level', 'meas_return' and 'shots'.
+                'meas_level': To generate data in the IQ plane, 'meas_level' should be assigned 1 or
                     MeasLevel.KERNELED. If 'meas_level' is 2 or MeasLevel.CLASSIFIED, the generated data
                     will be in the form of 'counts'.
                 'meas_return': This option will only take effect if 'meas_level' = MeasLevel.CLASSIFIED.
@@ -354,12 +382,19 @@ class MockIQBackend(FakeOpenPulse2Q):
                       MeasReturnType.SINGLE the data of each shot will be stored in the result. For
                       MeasReturnType.AVERAGE, an average of all the shots will be calculated and stored
                       in the result.
+                'shots': The number of times the circuit will run.
 
         Returns:
             FakeJob: A job that contains the simulated data.
+
+        Raises:
+            QiskitError: Raised if the user try to run the experiment without setting a helper.
         """
 
-        self.options.update_options(**options)
+        if not self.experiment_helper:
+            raise QiskitError("The backend `experiment_helper` attribute cannot be 'None'.")
+
+        self.options.update_options(**run_options)
         shots = self.options.get("shots")
         meas_level = self.options.get("meas_level")
 
@@ -381,6 +416,233 @@ class MockIQBackend(FakeOpenPulse2Q):
             }
 
             run_result["data"] = self._generate_data(prob, circ)
+            result["results"].append(run_result)
+
+        return FakeJob(self, Result.from_dict(result))
+
+
+class MockIQParallelBackend(MockIQBackend):
+    """A mock backend for testing parallel experiments with IQ data."""
+
+    def __init__(
+        self,
+        experiment_helper: MockIQParallelExperimentHelper = None,
+        rng_seed: int = 0,
+        iq_cluster_centers: Optional[List[Tuple[Tuple[float, float], Tuple[float, float]]]] = None,
+        iq_cluster_width: Optional[List[float]] = None,
+    ):
+        """
+        Initialize the backend.
+        Args:
+            experiment_helper: Parallel experiment helper class that contains
+            helper classes for each experiment.
+            rng_seed: The random seed value.
+            iq_cluster_centers: A list of tuples containing the clusters' centers in the
+            IQ plane.
+            There are different centers for different logical values of the qubit.
+            iq_cluster_width: A list of standard deviation values for the sampling of
+            each qubit.
+        """
+        super().__init__(experiment_helper, rng_seed, iq_cluster_centers, iq_cluster_width)
+
+    @property
+    def experiment_helper(self):
+        """return the 'experiment_helper' attribute"""
+        return self._experiment_helper
+
+    @experiment_helper.setter
+    def experiment_helper(self, value):
+        """
+        Setter for the experiment helper.
+        Args:
+            value(MockIQParallelExperimentHelper): The helper for the backend to use for generating IQ
+             shots.
+
+        Raises:
+            ValueError: Raised if the value to set is not of type `MockIQExperimentHelper`
+        """
+        cls = MockIQParallelExperimentHelper
+        if not isinstance(value, cls):
+            raise ValueError(
+                f"The input type is {str(type(value))} while the type expected type is <{str(cls)}>."
+            )
+        self._experiment_helper = value
+
+    def _parallel_draw_iq_shots(
+        self,
+        list_exp_dict: List[Dict[str, Union[List, int]]],
+        shots: int,
+        circ_qubits: List[int],
+        circ_idx: int,
+    ) -> List[List[List[Union[float, complex]]]]:
+        """
+        Produce an IQ shot.
+        Args:
+            list_exp_dict: A list of dictionaries for each experiment. It is determined by the
+            'MockIQParallelExperimentHelper' object provided to the backend.
+            shots: The number of times the circuit will run.
+            circ_qubits: List of qubits that are used in this circuit.
+            circ_idx: The circuit index.
+
+        Returns:
+            List[List[Tuple[float, float]]]: A list of shots. Each shot consists of a list of qubits.
+            The qubits are tuples with two values [I,Q].
+            The output structure is  - List[shot index][qubit index] = [I,Q]
+        """
+        # Randomize samples
+        qubits_iq_rand = [np.nan] * shots
+        for shot in range(shots):
+            rand_i = self._get_normal_samples_for_shot(circ_qubits)
+            rand_q = self._get_normal_samples_for_shot(circ_qubits)
+            qubits_iq_rand[shot] = np.array([rand_i, rand_q], dtype="float").T
+
+        memory = [[] for _ in range(shots)]
+        iq_centers = self._iq_cluster_centers
+
+        # The use of idx_shift is to sample 'qubits_iq_rand' correctly
+        sample_idx_shift = 0
+
+        # The code generates data as follows:
+        # for each experiment, it first checks if it needs to generate data for it. If it does, then the
+        # multinomial probability function draws lots for all the shots, and we store this data in the
+        # corresponding position in the output list. After that we move on to the next experiment.
+        for exp_dict in list_exp_dict:
+            # skipping experiments that don't need data generation for this circuit.
+            if exp_dict["num_circuits"] <= circ_idx:
+                continue
+
+            qubits = list(exp_dict["physical_qubits"])
+            prob = self._probability_dict_to_probability_array(
+                exp_dict["prob"][circ_idx], len(qubits)
+            )
+            phase = exp_dict["phase"][circ_idx]
+            shot_num = 0
+
+            for output_number, number_of_occurrences in enumerate(
+                self._rng.multinomial(shots, prob, size=1)[0]
+            ):
+                state_str = str(format(output_number, "b").zfill(len(qubits)))
+                for _ in range(number_of_occurrences):
+                    # the iteration on the string variable state_str starts from the MSB. For
+                    # readability, we will reverse the string so the loop will run from the LSB to MSB.
+                    for qubit_idx, qubit, char_qubit in zip(
+                        range(len(qubits)), qubits, state_str[::-1]
+                    ):
+
+                        i_center = iq_centers[qubit][int(char_qubit)][0]
+                        q_center = iq_centers[qubit][int(char_qubit)][1]
+
+                        # we use 'sample_idx_shift' to take the sample corresponding to the current qubit
+                        # in 'qubits_iq_rand[shot_num]'.
+                        point_i = (
+                            i_center + qubits_iq_rand[shot_num][qubit_idx + sample_idx_shift][0]
+                        )
+                        point_q = (
+                            q_center + qubits_iq_rand[shot_num][qubit_idx + sample_idx_shift][1]
+                        )
+
+                        # Adding phase if not 0.0
+                        if not np.allclose(phase, 0.0):
+                            complex_iq = (point_i + 1.0j * point_q) * np.exp(1.0j * phase)
+                            point_i, point_q = np.real(complex_iq), np.imag(complex_iq)
+
+                        memory[shot_num].append([point_i, point_q])
+                    shot_num += 1
+
+            sample_idx_shift = sample_idx_shift + len(qubits)
+        return memory
+
+    def _parallel_generate_data(
+        self,
+        list_exp_dict: List[Dict[str, Union[List, int]]],
+        circ_idx: int,
+    ) -> Dict[str, Any]:
+        """
+        Generate data for the circuit.
+        Args:
+            list_exp_dict (List): A List of dictionaries, each dictionary contains data of an experiment.
+            circ_idx (int): The circuit number we simulate.
+
+        Returns:
+            A dictionary that's filled with the simulated data.
+
+        Raises:
+            QiskitError: Raising an error if in the experiment running option, classified data is
+            requested.
+        """
+        circ_qubit_list = []
+        for exp_dict in list_exp_dict:
+            if circ_idx < exp_dict["num_circuits"]:
+                circ_qubit_list = circ_qubit_list + list(exp_dict["physical_qubits"])
+
+        shots = self.options.get("shots")
+        meas_level = self.options.get("meas_level")
+        meas_return = self.options.get("meas_return")
+        run_result = {}
+
+        if meas_level == MeasLevel.KERNELED:
+            memory = self._parallel_draw_iq_shots(list_exp_dict, shots, circ_qubit_list, circ_idx)
+            if meas_return == "avg":
+                memory = np.average(np.array(memory), axis=0).tolist()
+
+            run_result["memory"] = memory
+        else:
+            # The backend doesn't currently support 'meas_level = MeasLevel.CLASSIFIED'.
+            raise QiskitError("Classified data generator isn't supported for this backend")
+
+        return run_result
+
+    def run(self, run_input: List[QuantumCircuit], **run_options) -> FakeJob:
+        """
+        Run the IQ backend.
+        Args:
+            run_input: A list of QuantumCircuit for which the backend will generate
+             data.
+            **run_options: Experiment running options. The options that are supported in this backend are
+             'meas_level', 'meas_return' and 'shots'.
+                'meas_level': To generate data in the IQ plane, 'meas_level' should be assigned 1 or
+                    MeasLevel.KERNELED. The backend currently doesn't support 'meas_level' = 2  or
+                    MeasLevel.CLASSIFIED.
+                'meas_return': This option will only take effect if 'meas_level' = MeasLevel.CLASSIFIED.
+                    It can get either MeasReturnType.AVERAGE or MeasReturnType.SINGLE. For the value
+                      MeasReturnType.SINGLE the data of each shot will be stored in the result. For
+                      MeasReturnType.AVERAGE, an average of all the shots will be calculated and stored
+                      in the result.
+                'shots': The number of times the circuit will run.
+
+        Returns:
+            FakeJob: A job that contains the simulated data.
+
+        Raises:
+            QiskitError: Raised if the user try to run the experiment without setting a helper.
+        """
+
+        if not self.experiment_helper:
+            raise QiskitError("The backend `experiment_helper` attribute cannot be 'None'.")
+
+        self.options.update_options(**run_options)
+        shots = self.options.get("shots")
+        meas_level = self.options.get("meas_level")
+
+        result = {
+            "backend_name": f"{self.__class__.__name__}",
+            "backend_version": "0",
+            "qobj_id": "0",
+            "job_id": "0",
+            "success": True,
+            "results": [],
+        }
+
+        experiment_data_list = self.experiment_helper.compute_probabilities(run_input)
+        for circ_idx, circ in enumerate(run_input):
+            run_result = {
+                "shots": shots,
+                "success": True,
+                "header": {"metadata": circ.metadata},
+                "meas_level": meas_level,
+            }
+
+            run_result["data"] = self._parallel_generate_data(experiment_data_list, circ_idx)
             result["results"].append(run_result)
 
         return FakeJob(self, Result.from_dict(result))

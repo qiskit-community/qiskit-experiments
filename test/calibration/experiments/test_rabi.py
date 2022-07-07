@@ -47,6 +47,7 @@ class TestRabiEndToEnd(QiskitExperimentsTestCase):
 
         self.sched = sched
 
+    # pylint: disable=no-member
     def test_rabi_end_to_end(self):
         """Test the Rabi experiment end to end."""
 
@@ -63,7 +64,7 @@ class TestRabiEndToEnd(QiskitExperimentsTestCase):
         self.assertEqual(result.quality, "good")
         # The comparison is made against the object that exists in the backend for accurate testing
         self.assertAlmostEqual(
-            result.value[1], backend.experiment_helper.rabi_rate(), delta=test_tol
+            result.value.params["freq"], backend.experiment_helper.rabi_rate(), delta=test_tol
         )
 
         # updating 'amplitude_to_angle' parameter in the experiment helper
@@ -74,7 +75,7 @@ class TestRabiEndToEnd(QiskitExperimentsTestCase):
         result = expdata.analysis_results(0)
         self.assertEqual(result.quality, "good")
         self.assertAlmostEqual(
-            result.value[1], backend.experiment_helper.rabi_rate(), delta=test_tol
+            result.value.params["freq"], backend.experiment_helper.rabi_rate(), delta=test_tol
         )
 
         # updating 'amplitude_to_angle' parameter in the experiment helper and experiment options
@@ -86,7 +87,7 @@ class TestRabiEndToEnd(QiskitExperimentsTestCase):
         result = expdata.analysis_results(0)
         self.assertEqual(result.quality, "good")
         self.assertAlmostEqual(
-            result.value[1], backend.experiment_helper.rabi_rate(), delta=test_tol
+            result.value.params["freq"], backend.experiment_helper.rabi_rate(), delta=test_tol
         )
 
     def test_wrong_processor(self):
@@ -135,6 +136,7 @@ class TestEFRabi(QiskitExperimentsTestCase):
 
         self.sched = sched
 
+    # pylint: disable=no-member
     def test_ef_rabi_end_to_end(self):
         """Test the EFRabi experiment end to end."""
 
@@ -285,7 +287,7 @@ class TestRabiAnalysis(QiskitExperimentsTestCase):
         )
         result = experiment_data.analysis_results(0)
         self.assertEqual(result.quality, "good")
-        self.assertAlmostEqual(result.value[1], expected_rate, delta=test_tol)
+        self.assertAlmostEqual(result.value.params["freq"], expected_rate, delta=test_tol)
 
     def test_bad_analysis(self):
         """Test the Rabi analysis."""
