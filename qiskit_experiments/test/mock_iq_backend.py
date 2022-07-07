@@ -176,24 +176,16 @@ class MockIQBackend(FakeOpenPulse2Q):
         self,
         experiment_helper: MockIQExperimentHelper = None,
         rng_seed: int = 0,
-        iq_cluster_centers: Optional[List[Tuple[Tuple[float, float], Tuple[float, float]]]] = None,
-        iq_cluster_width: Optional[List[float]] = None,
     ):
         """
         Initialize the backend.
+
         Args:
             experiment_helper(MockIQExperimentHelper): Experiment helper class that contains
-            'compute_probabilities' function and 'iq_phase' function for the backend to execute.
+                'compute_probabilities' function and 'iq_phase' function for the backend to execute.
             rng_seed(int): The random seed value.
-            iq_cluster_centers(Optional[List]): A list of tuples containing the clusters' centers in the
-            IQ plane.
-            There are different centers for different logical values of the qubit.
-            iq_cluster_width(Optional[List]): A list of standard deviation values for the sampling of
-            each qubit.
         """
 
-        self._iq_cluster_centers = iq_cluster_centers or [((-1.0, -1.0), (1.0, 1.0))]
-        self._iq_cluster_width = iq_cluster_width or [1.0] * len(self._iq_cluster_centers)
         self._experiment_helper = experiment_helper
         self._rng = np.random.default_rng(rng_seed)
 
@@ -328,7 +320,7 @@ class MockIQBackend(FakeOpenPulse2Q):
             shots: The number of times the circuit will run.
             circ_qubits: The qubits of the circuit.
             iq_cluster_centers: A list of tuples containing the clusters' centers in the IQ plane. There
-                are different centers for different logical values of the qubit.
+            are different centers for different logical values of the qubit.
             iq_cluster_width: A list of standard deviation values for the sampling of each qubit.
             phase: The added phase needed to apply to the shot data.
         Returns:
@@ -413,9 +405,7 @@ class MockIQBackend(FakeOpenPulse2Q):
         else:
             # Phase has meaning only for IQ shot, so we calculate it here
             phase = self.experiment_helper.iq_phase([circuit])[0]
-            iq_cluster_centers, iq_cluster_widths = self.experiment_helper.iq_clusters(
-                [circuit], self._iq_cluster_centers, self._iq_cluster_width
-            )[0]
+            iq_cluster_centers, iq_cluster_width = self.experiment_helper.iq_clusters([circuit])[0]
 
             # 'circ_qubits' get a list of all the qubits
             memory = self._draw_iq_shots(
@@ -423,7 +413,7 @@ class MockIQBackend(FakeOpenPulse2Q):
                 shots,
                 list(range(output_length)),
                 iq_cluster_centers,
-                iq_cluster_widths,
+                iq_cluster_width,
                 phase,
             )
             if meas_return == "avg":
@@ -494,8 +484,6 @@ class MockIQParallelBackend(MockIQBackend):
         self,
         experiment_helper: MockIQParallelExperimentHelper = None,
         rng_seed: int = 0,
-        iq_cluster_centers: Optional[List[Tuple[Tuple[float, float], Tuple[float, float]]]] = None,
-        iq_cluster_width: Optional[List[float]] = None,
     ):
         """
         Initialize the backend.
@@ -503,13 +491,8 @@ class MockIQParallelBackend(MockIQBackend):
             experiment_helper: Parallel experiment helper class that contains
             helper classes for each experiment.
             rng_seed: The random seed value.
-            iq_cluster_centers: A list of tuples containing the clusters' centers in the
-            IQ plane.
-            There are different centers for different logical values of the qubit.
-            iq_cluster_width: A list of standard deviation values for the sampling of
-            each qubit.
         """
-        super().__init__(experiment_helper, rng_seed, iq_cluster_centers, iq_cluster_width)
+        super().__init__(experiment_helper, rng_seed)
 
     @property
     def experiment_helper(self):
@@ -705,9 +688,7 @@ class MockIQParallelBackend(MockIQBackend):
             "results": [],
         }
 
-        experiment_data_list = self.experiment_helper.compute_probabilities(
-            run_input, self._iq_cluster_centers, self._iq_cluster_width
-        )
+        experiment_data_list = self.experiment_helper.compute_probabilities(run_input)
         for circ_idx, circ in enumerate(run_input):
             run_result = {
                 "shots": shots,

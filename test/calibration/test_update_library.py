@@ -61,9 +61,11 @@ class TestFrequencyUpdate(QiskitExperimentsTestCase):
         qubit = 1
         peak_offset = 5.0e6
         backend = MockIQBackend(
-            experiment_helper=SpectroscopyHelper(freq_offset=peak_offset),
-            iq_cluster_centers=[((-1.0, -1.0), (1.0, 1.0))],
-            iq_cluster_width=[0.2],
+            experiment_helper=SpectroscopyHelper(
+                freq_offset=peak_offset,
+                iq_cluster_centers=[((-1.0, -1.0), (1.0, 1.0))],
+                iq_cluster_width=[0.2],
+            ),
         )
         backend._configuration.basis_gates = ["x"]
         backend._configuration.timing_constraints = {"granularity": 16}

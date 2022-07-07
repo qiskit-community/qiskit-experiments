@@ -21,6 +21,9 @@ from qiskit.qobj.utils import MeasLevel, MeasReturnType
 from qiskit_experiments.test.mock_iq_backend import MockIQBackend
 from qiskit_experiments.test.mock_iq_helpers import MockIQExperimentHelper
 
+# Define an IQ point typing class.
+IQPoint = Tuple[float, float]
+
 
 def compute_probabilities_output(prob_list_output: List[Dict]) -> Dict[str, float]:
     """
@@ -77,6 +80,8 @@ class MockIQReadoutAmplitudeHelper(MockIQExperimentHelper):
         self,
         alter_centers: Optional[bool] = True,
         alter_widths: Optional[bool] = True,
+        iq_cluster_centers: Optional[List[Tuple[IQPoint, IQPoint]]] = None,
+        iq_cluster_width: Optional[List[float]] = None,
     ) -> None:
         """Construct a MockIQReadoutAmplitudeHelper instance.
 
@@ -85,7 +90,11 @@ class MockIQReadoutAmplitudeHelper(MockIQExperimentHelper):
                 the circuit 'xval'. Defaults to True.
             alter_widths: Whether to alter the widths of the IQ clusters based on
                 the circuit 'xval'. Defaults to True.
+            iq_cluster_centers: A list of tuples containing the clusters' centers in the IQ plane. There
+                are different centers for different logical values of the qubit.
+            iq_cluster_width: A list of standard deviation values for the sampling of each qubit.
         """
+        super().__init__(iq_cluster_centers, iq_cluster_width)
         self.alter_centers = alter_centers
         self.alter_widths = alter_widths
 
@@ -98,9 +107,7 @@ class MockIQReadoutAmplitudeHelper(MockIQExperimentHelper):
     def iq_clusters(
         self,
         circuits: List[QuantumCircuit],
-        centers: List[Tuple[Tuple[float, float], Tuple[float, float]]],
-        widths: List[float],
-    ) -> Tuple[List[Tuple[Tuple[float, float], Tuple[float, float]]], List[float]]:
+    ) -> Tuple[List[Tuple[IQPoint, IQPoint]], List[float]]:
         """Multiplies the cluster centers by the circuits' 'xval' values."""
         output = []
         for circuit in circuits:
@@ -109,8 +116,8 @@ class MockIQReadoutAmplitudeHelper(MockIQExperimentHelper):
             else:
                 xval = 1.0
 
-            new_centers = np.array(centers)
-            new_widths = np.array(widths)
+            new_centers = np.array(self.iq_cluster_centers)
+            new_widths = np.array(self.iq_cluster_width)
             if self.alter_centers:
                 new_centers = new_centers * xval
             if self.alter_widths:
@@ -128,10 +135,13 @@ class TestMockIQBackend(QiskitExperimentsTestCase):
         """
         num_qubits = 2
         num_shot = 10000
+        iq_cluster_centers = [((-5.0, 4.0), (-5.0, -4.0)), ((3.0, 1.0), (5.0, -3.0))]
+        iq_cluster_width = [1.0, 2.0]
         backend = MockIQBackend(
-            MockIQReadoutAngleParallelHelper(),
-            iq_cluster_centers=[((-5.0, 4.0), (-5.0, -4.0)), ((3.0, 1.0), (5.0, -3.0))],
-            iq_cluster_width=[1.0, 2.0],
+            MockIQReadoutAngleParallelHelper(
+                iq_cluster_centers=iq_cluster_centers,
+                iq_cluster_width=iq_cluster_width,
+            ),
         )
         circ0 = QuantumCircuit(num_qubits, num_qubits)
         circ0.x(1)
@@ -146,7 +156,10 @@ class TestMockIQBackend(QiskitExperimentsTestCase):
         self.assertEqual(len(res.results[0].data.memory), num_qubits)
 
         # Circuit to create Bell state
-        backend.experiment_helper = MockIQBellStateHelper()
+        backend.experiment_helper = MockIQBellStateHelper(
+            iq_cluster_centers=iq_cluster_centers,
+            iq_cluster_width=iq_cluster_width,
+        )
         circ1 = QuantumCircuit(num_qubits, num_qubits)
         circ1.h(0)
         circ1.cx(0, 1)
@@ -172,9 +185,11 @@ class TestMockIQBackend(QiskitExperimentsTestCase):
         num_shots = 10000
         bare_centers = [[(0, -1), (1, 1)]]
         backend = MockIQBackend(
-            MockIQReadoutAmplitudeHelper(alter_widths=False),
-            iq_cluster_centers=bare_centers,
-            iq_cluster_width=[0.1, 0.1],
+            MockIQReadoutAmplitudeHelper(
+                alter_widths=False,
+                iq_cluster_centers=bare_centers,
+                iq_cluster_width=[0.1, 0.1],
+            ),
         )
 
         # Create template circuits
@@ -254,9 +269,11 @@ class TestMockIQBackend(QiskitExperimentsTestCase):
         num_shots = 10000
         bare_widths = [0.1, 0.2]
         backend = MockIQBackend(
-            MockIQReadoutAmplitudeHelper(alter_centers=False),
-            iq_cluster_centers=[[(0, -1), (1, 1)]],
-            iq_cluster_width=bare_widths,
+            MockIQReadoutAmplitudeHelper(
+                alter_centers=False,
+                iq_cluster_centers=[[(0, -1), (1, 1)]],
+                iq_cluster_width=bare_widths,
+            ),
         )
 
         # Create template circuits
