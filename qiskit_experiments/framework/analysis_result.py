@@ -259,9 +259,7 @@ class AnalysisResult:
     def extra(self, new_value: Dict[str, Any]) -> None:
         """Set the analysis result value."""
         if not isinstance(new_value, dict):
-            raise ExperimentDataError(
-                f"The `extra` field of {type(self).__name__} must be a dict."
-            )
+            raise ExperimentDataError(f"The `extra` field of {type(self).__name__} must be a dict.")
         self._db_data.result_data["_extra"] = new_value
         if self.auto_save:
             self.save()
@@ -366,9 +364,7 @@ class AnalysisResult:
     def tags(self, new_tags: List[str]) -> None:
         """Set tags for this result."""
         if not isinstance(new_tags, list):
-            raise ExperimentDataError(
-                f"The `tags` field of {type(self).__name__} must be a list."
-            )
+            raise ExperimentDataError(f"The `tags` field of {type(self).__name__} must be a list.")
         self._db_data.tags = new_tags
         if self.auto_save:
             self.save()
@@ -487,5 +483,5 @@ class AnalysisResult:
             "extra": self.extra,
             "verified": self._db_data.verified,
             "tags": self._db_data.tags,
-            "source": self.source
+            "source": self.source,
         }

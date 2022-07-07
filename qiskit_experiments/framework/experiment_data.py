@@ -294,9 +294,7 @@ class ExperimentData:
     def tags(self, new_tags: List[str]) -> None:
         """Set tags for this experiment."""
         if not isinstance(new_tags, list):
-            raise ExperimentDataError(
-                f"The `tags` field of {type(self).__name__} must be a list."
-            )
+            raise ExperimentDataError(f"The `tags` field of {type(self).__name__} must be a list.")
         self._db_data.tags = np.unique(new_tags).tolist()
         if self.auto_save:
             self.save_metadata()
@@ -1352,7 +1350,6 @@ class ExperimentData:
         except Exception:  # pylint: disable=broad-except
             # Don't fail the experiment just because its data cannot be saved.
             LOG.error("Unable to save the experiment data: %s", traceback.format_exc())
-
 
     def _metadata_too_large(self):
         """Determines whether the metadata should be stored in a separate file"""
