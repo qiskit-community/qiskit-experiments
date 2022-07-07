@@ -22,8 +22,8 @@ from qiskit_experiments.test.fake_backend import FakeBackend
 
 from qiskit_experiments.database_service.device_component import DeviceComponent
 from qiskit_experiments.database_service.exceptions import (
-    DbExperimentEntryExists,
-    DbExperimentEntryNotFound,
+    ExperimentEntryExists,
+    ExperimentEntryNotFound,
 )
 
 
@@ -126,7 +126,7 @@ class FakeService:
             experiment_id = uuid.uuid4()
 
         if experiment_id in self.exps.experiment_id.values:
-            raise DbExperimentEntryExists("Cannot add experiment with existing id")
+            raise ExperimentEntryExists("Cannot add experiment with existing id")
 
         # Clarifications about some of the columns:
         # share_level - not a parameter of `DatabaseService.create_experiment` but a parameter of
@@ -188,7 +188,7 @@ class FakeService:
     ) -> None:
         """Updates an existing experiment"""
         if experiment_id not in self.exps.experiment_id.values:
-            raise DbExperimentEntryNotFound("Attempt to update a non-existing experiment")
+            raise ExperimentEntryNotFound("Attempt to update a non-existing experiment")
 
         row = self.exps.experiment_id == experiment_id
         if metadata is not None:
@@ -210,7 +210,7 @@ class FakeService:
         """Returns an experiment by experiment_id"""
         # pylint: disable = unused-argument
         if experiment_id not in self.exps.experiment_id.values:
-            raise DbExperimentEntryNotFound("Experiment does not exist")
+            raise ExperimentEntryNotFound("Experiment does not exist")
 
         return self.exps.loc[self.exps.experiment_id == experiment_id].to_dict("records")[0]
 
@@ -320,7 +320,7 @@ class FakeService:
             result_id = uuid.uuid4()
 
         if result_id in self.results.result_id.values:
-            raise DbExperimentEntryExists("Cannot add analysis result with existing id")
+            raise ExperimentEntryExists("Cannot add analysis result with existing id")
 
         # Clarifications about some of the columns:
         # backend_name - taken from the experiment.
@@ -383,7 +383,7 @@ class FakeService:
     ) -> None:
         """Updates an analysis result"""
         if result_id not in self.results.result_id.values:
-            raise DbExperimentEntryNotFound("Attempt to update a non-existing analysis result")
+            raise ExperimentEntryNotFound("Attempt to update a non-existing analysis result")
 
         row = self.results.result_id == result_id
         if result_data is not None:
@@ -403,7 +403,7 @@ class FakeService:
         """Gets an analysis result by result_id"""
         # pylint: disable = unused-argument
         if result_id not in self.results.result_id.values:
-            raise DbExperimentEntryNotFound("Analysis result does not exist")
+            raise ExperimentEntryNotFound("Analysis result does not exist")
 
         # The `experiment` method implements special handling of the backend, we skip it here.
         # It's a bit strange, so, if not required by `DbExperimentData` then we'd better skip.

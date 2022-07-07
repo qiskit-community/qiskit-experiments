@@ -35,9 +35,9 @@ from qiskit_ibm_experiment import IBMExperimentService
 from qiskit_experiments.framework import ExperimentData
 from qiskit_experiments.framework import AnalysisResult
 from qiskit_experiments.database_service.exceptions import (
-    DbExperimentDataError,
-    DbExperimentEntryNotFound,
-    DbExperimentEntryExists,
+    ExperimentDataError,
+    ExperimentEntryNotFound,
+    ExperimentEntryExists,
 )
 from qiskit_experiments.database_service.device_component import Qubit
 from qiskit_experiments.framework.experiment_data import (
@@ -315,7 +315,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
 
         exp_data = ExperimentData(backend=self.backend, experiment_type="qiskit_test")
         fn = exp_data.add_figures(hello_bytes)
-        with self.assertRaises(DbExperimentEntryExists):
+        with self.assertRaises(ExperimentEntryExists):
             exp_data.add_figures(friend_bytes, fn)
 
         exp_data.add_figures(friend_bytes, fn, overwrite=True)
@@ -410,7 +410,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         for del_key, figure_name in sub_tests:
             with self.subTest(del_key=del_key):
                 exp_data.delete_figure(del_key)
-                self.assertRaises(DbExperimentEntryNotFound, exp_data.figure, figure_name)
+                self.assertRaises(ExperimentEntryNotFound, exp_data.figure, figure_name)
 
     def test_delayed_backend(self):
         """Test initializing experiment data without a backend."""
@@ -469,7 +469,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         for del_key, res_id in subtests:
             with self.subTest(del_key=del_key):
                 exp_data.delete_analysis_result(del_key)
-                self.assertRaises(DbExperimentEntryNotFound, exp_data.analysis_results, res_id)
+                self.assertRaises(ExperimentEntryNotFound, exp_data.analysis_results, res_id)
 
     def test_save_metadata(self):
         """Test saving experiment metadata."""
@@ -517,7 +517,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         exp_data.service = mock_service
         self.assertEqual(mock_service, exp_data.service)
 
-        with self.assertRaises(DbExperimentDataError):
+        with self.assertRaises(ExperimentDataError):
             exp_data.service = mock_service
 
     def test_auto_save(self):

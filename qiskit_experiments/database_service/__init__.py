@@ -84,9 +84,9 @@ Exceptions
 .. autosummary::
    :toctree: ../stubs/
 
-   DbExperimentDataError
-   DbExperimentEntryExists
-   DbExperimentEntryNotFound
+   ExperimentDataError
+   ExperimentEntryExists
+   ExperimentEntryNotFound
 """
 
-from .exceptions import DbExperimentDataError, DbExperimentEntryExists, DbExperimentEntryNotFound
+from .exceptions import ExperimentDataError, ExperimentEntryExists, ExperimentEntryNotFound

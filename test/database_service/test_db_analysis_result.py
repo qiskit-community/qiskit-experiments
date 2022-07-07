@@ -24,7 +24,7 @@ import uncertainties
 from qiskit_ibm_experiment import IBMExperimentService, ExperimentData
 from qiskit_experiments.framework import AnalysisResult
 from qiskit_experiments.database_service.device_component import Qubit, Resonator, to_component
-from qiskit_experiments.database_service.exceptions import DbExperimentDataError
+from qiskit_experiments.database_service.exceptions import ExperimentDataError
 
 
 class TestAnalysisResult(QiskitExperimentsTestCase):
@@ -99,7 +99,7 @@ class TestAnalysisResult(QiskitExperimentsTestCase):
         result.service = mock_service
         self.assertEqual(mock_service, result.service)
 
-        with self.assertRaises(DbExperimentDataError):
+        with self.assertRaises(ExperimentDataError):
             result.service = mock_service
 
     def test_set_data(self):

@@ -49,9 +49,9 @@ from qiskit_experiments.database_service.utils import (
 )
 from qiskit_experiments.framework.analysis_result import AnalysisResult
 from qiskit_experiments.database_service.exceptions import (
-    DbExperimentDataError,
-    DbExperimentEntryNotFound,
-    DbExperimentEntryExists,
+    ExperimentDataError,
+    ExperimentEntryNotFound,
+    ExperimentEntryExists,
 )
 
 if TYPE_CHECKING:
@@ -141,7 +141,7 @@ class ExperimentData:
     This class handles the following:
     1. Storing the data related to an experiment - the experiment's metadata,
        the analysis results and the figures
-    2. Manaing jobs and adding data from jobs automatically
+    2. Managing jobs and adding data from jobs automatically
     3. Saving/Loading data from the result database
     """
 
@@ -217,6 +217,8 @@ class ExperimentData:
         for key, value in kwargs.items():
             if hasattr(self._db_data, key):
                 setattr(self._db_data, key, value)
+            else:
+                LOG.warning("Key '%s' not stored in the database", key)
 
         # general data related
         self._backend = None
@@ -292,7 +294,7 @@ class ExperimentData:
     def tags(self, new_tags: List[str]) -> None:
         """Set tags for this experiment."""
         if not isinstance(new_tags, list):
-            raise DbExperimentDataError(
+            raise ExperimentDataError(
                 f"The `tags` field of {type(self).__name__} must be a list."
             )
         self._db_data.tags = np.unique(new_tags).tolist()
@@ -510,6 +512,8 @@ class ExperimentData:
             new_backend: New backend.
         """
         self._set_backend(new_backend)
+        for data in self.child_data():
+            data.backend = new_backend
         if self.auto_save:
             self.save_metadata()
 
@@ -572,7 +576,7 @@ class ExperimentData:
             service: Service to be used.
 
         Raises:
-            DbExperimentDataError: If an experiment service is already being used.
+            ExperimentDataError: If an experiment service is already being used.
         """
         self._set_service(service)
 
@@ -599,6 +603,8 @@ class ExperimentData:
             # Setting private variable directly to avoid duplicate save. This
             # can be removed when we start tracking changes.
             res._auto_save = save_val
+        for data in self.child_data():
+            data.auto_save(save_val)
 
     @property
     def source(self) -> Dict:
@@ -1009,7 +1015,7 @@ class ExperimentData:
                 Figure names.
 
         Raises:
-            DbExperimentEntryExists: If the figure with the same name already exists,
+            ExperimentEntryExists: If the figure with the same name already exists,
                 and `overwrite=True` is not specified.
             ValueError: If an input parameter has an invalid value.
         """
@@ -1043,7 +1049,7 @@ class ExperimentData:
 
             existing_figure = fig_name in self._figures
             if existing_figure and not overwrite:
-                raise DbExperimentEntryExists(
+                raise ExperimentEntryExists(
                     f"A figure with the name {fig_name} for this experiment "
                     f"already exists. Specify overwrite=True if you "
                     f"want to overwrite it."
@@ -1091,12 +1097,12 @@ class ExperimentData:
             Figure name.
 
         Raises:
-            DbExperimentEntryNotFound: If the figure is not found.
+            ExperimentEntryNotFound: If the figure is not found.
         """
         if isinstance(figure_key, int):
             figure_key = self._figures.keys()[figure_key]
         elif figure_key not in self._figures:
-            raise DbExperimentEntryNotFound(f"Figure {figure_key} not found.")
+            raise ExperimentEntryNotFound(f"Figure {figure_key} not found.")
 
         del self._figures[figure_key]
         self._deleted_figures.append(figure_key)
@@ -1125,11 +1131,11 @@ class ExperimentData:
             content of the figure in bytes.
 
         Raises:
-            DbExperimentEntryNotFound: If the figure cannot be found.
+            ExperimentEntryNotFound: If the figure cannot be found.
         """
         if isinstance(figure_key, int):
             if figure_key < 0 or figure_key >= len(self._figures.keys()):
-                raise DbExperimentEntryNotFound(f"Figure {figure_key} not found.")
+                raise ExperimentEntryNotFound(f"Figure {figure_key} not found.")
             figure_key = self._figures.keys()[figure_key]
 
         figure_data = self._figures.get(figure_key, None)
@@ -1139,7 +1145,7 @@ class ExperimentData:
             self._figures[figure_key] = figure_data
 
         if figure_data is None:
-            raise DbExperimentEntryNotFound(f"Figure {figure_key} not found.")
+            raise ExperimentEntryNotFound(f"Figure {figure_key} not found.")
 
         if file_name:
             with open(file_name, "wb") as output:
@@ -1163,7 +1169,7 @@ class ExperimentData:
         for result in results:
             self._analysis_results[result.result_id] = result
 
-            with contextlib.suppress(DbExperimentDataError):
+            with contextlib.suppress(ExperimentDataError):
                 result.service = self.service
                 result.auto_save = self.auto_save
 
@@ -1184,7 +1190,7 @@ class ExperimentData:
             Analysis result ID.
 
         Raises:
-            DbExperimentEntryNotFound: If analysis result not found.
+            ExperimentEntryNotFound: If analysis result not found.
         """
 
         if isinstance(result_key, int):
@@ -1249,7 +1255,7 @@ class ExperimentData:
 
         Raises:
             TypeError: If the input `index` has an invalid type.
-            DbExperimentEntryNotFound: If the entry cannot be found.
+            ExperimentEntryNotFound: If the entry cannot be found.
         """
         if block:
             self._wait_for_futures(
@@ -1269,12 +1275,12 @@ class ExperimentData:
 
         if isinstance(index, int):
             if index >= len(self._analysis_results.values()):
-                raise DbExperimentEntryNotFound(_make_not_found_message(index))
+                raise ExperimentEntryNotFound(_make_not_found_message(index))
             return self._analysis_results.values()[index]
         if isinstance(index, slice):
             results = self._analysis_results.values()[index]
             if not results:
-                raise DbExperimentEntryNotFound(_make_not_found_message(index))
+                raise ExperimentEntryNotFound(_make_not_found_message(index))
             return results
         if isinstance(index, str):
             # Check by result ID
@@ -1285,7 +1291,7 @@ class ExperimentData:
                 result for result in self._analysis_results.values() if result.name == index
             ]
             if not filtered:
-                raise DbExperimentEntryNotFound(_make_not_found_message(index))
+                raise ExperimentEntryNotFound(_make_not_found_message(index))
             if len(filtered) == 1:
                 return filtered[0]
             else:
@@ -1335,6 +1341,7 @@ class ExperimentData:
             self.service.create_or_update_experiment(
                 self._db_data, json_encoder=self._json_encoder, create=not self._created_in_db
             )
+            self._created_in_db = True
 
             if handle_metadata_separately:
                 self.service.file_upload(
@@ -1345,7 +1352,7 @@ class ExperimentData:
         except Exception:  # pylint: disable=broad-except
             # Don't fail the experiment just because its data cannot be saved.
             LOG.error("Unable to save the experiment data: %s", traceback.format_exc())
-        self._created_in_db = True
+
 
     def _metadata_too_large(self):
         """Determines whether the metadata should be stored in a separate file"""
@@ -1522,7 +1529,7 @@ class ExperimentData:
         jobs_cancelled = self.cancel_jobs()
         return analysis_cancelled and jobs_cancelled
 
-    def block_for_results(self, timeout: Optional[float] = None) -> "DbExperimentDataV1":
+    def block_for_results(self, timeout: Optional[float] = None) -> "ExperimentData":
         """Block until all pending jobs and analysis callbacks finish.
 
         Args:
@@ -1966,16 +1973,16 @@ class ExperimentData:
 
     def _set_service(self, service: IBMExperimentService) -> None:
         """Set the service to be used for storing experiment data,
-           to this experiment only and not to its descendants
+           to this experiment itself and its descendants.
 
         Args:
             service: Service to be used.
 
         Raises:
-            DbExperimentDataError: If an experiment service is already being used.
+            ExperimentDataError: If an experiment service is already being used.
         """
         if self._service:
-            raise DbExperimentDataError("An experiment service is already being used.")
+            raise ExperimentDataError("An experiment service is already being used.")
         self._service = service
         for result in self._analysis_results.values():
             result.service = service

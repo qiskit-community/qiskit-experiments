@@ -32,7 +32,7 @@ from qiskit_experiments.framework.json import (
 
 from qiskit_experiments.database_service.db_fitval import FitVal
 from qiskit_experiments.database_service.device_component import DeviceComponent, to_component
-from qiskit_experiments.database_service.exceptions import DbExperimentDataError
+from qiskit_experiments.database_service.exceptions import ExperimentDataError
 from qiskit_experiments.database_service.utils import qiskit_version
 
 LOG = logging.getLogger(__name__)
@@ -193,7 +193,7 @@ class AnalysisResult:
         """Save this analysis result in the database.
 
         Raises:
-            DbExperimentDataError: If the analysis result contains invalid data.
+            ExperimentDataError: If the analysis result contains invalid data.
         """
         if not self.service:
             LOG.warning(
@@ -259,7 +259,7 @@ class AnalysisResult:
     def extra(self, new_value: Dict[str, Any]) -> None:
         """Set the analysis result value."""
         if not isinstance(new_value, dict):
-            raise DbExperimentDataError(
+            raise ExperimentDataError(
                 f"The `extra` field of {type(self).__name__} must be a dict."
             )
         self._db_data.result_data["_extra"] = new_value
@@ -366,7 +366,7 @@ class AnalysisResult:
     def tags(self, new_tags: List[str]) -> None:
         """Set tags for this result."""
         if not isinstance(new_tags, list):
-            raise DbExperimentDataError(
+            raise ExperimentDataError(
                 f"The `tags` field of {type(self).__name__} must be a list."
             )
         self._db_data.tags = new_tags
@@ -391,10 +391,10 @@ class AnalysisResult:
             service: Service to be used.
 
         Raises:
-            DbExperimentDataError: If an experiment service is already being used.
+            ExperimentDataError: If an experiment service is already being used.
         """
         if self._service:
-            raise DbExperimentDataError("An experiment service is already being used.")
+            raise ExperimentDataError("An experiment service is already being used.")
         self._service = service
 
     @property

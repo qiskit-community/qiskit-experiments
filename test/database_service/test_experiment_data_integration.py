@@ -29,7 +29,7 @@ from qiskit_ibm_experiment.exceptions import IBMExperimentEntryNotFound
 from qiskit_experiments.framework import ExperimentData
 from qiskit_experiments.framework.experiment_data import ExperimentStatus
 from qiskit_experiments.framework import AnalysisResult
-from qiskit_experiments.database_service.exceptions import DbExperimentEntryNotFound
+from qiskit_experiments.database_service.exceptions import ExperimentEntryNotFound
 
 
 from ..decorators import requires_provider, requires_device
@@ -223,7 +223,7 @@ class TestExperimentDataIntegration(QiskitTestCase):
             exp_data.delete_analysis_result(0)
             exp_data.save()
         rexp = ExperimentData.load(exp_data.experiment_id, self.service)
-        self.assertRaises(DbExperimentEntryNotFound, rexp.analysis_results, aresult.result_id)
+        self.assertRaises(ExperimentEntryNotFound, rexp.analysis_results, aresult.result_id)
         self.assertRaises(
             IBMExperimentEntryNotFound, self.service.analysis_result, aresult.result_id
         )
@@ -332,7 +332,7 @@ class TestExperimentDataIntegration(QiskitTestCase):
 
         rexp = ExperimentData.load(exp_data.experiment_id, self.service)
         self.assertRaises(IBMExperimentEntryNotFound, rexp.figure, "hello.svg")
-        self.assertRaises(DbExperimentEntryNotFound, rexp.analysis_results, aresult.result_id)
+        self.assertRaises(ExperimentEntryNotFound, rexp.analysis_results, aresult.result_id)
 
     def test_set_service_job(self):
         """Test setting service with a job."""
