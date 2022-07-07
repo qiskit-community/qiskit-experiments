@@ -12,7 +12,7 @@
 
 """Rough drag calibration experiment."""
 
-from typing import Iterable, Optional
+from typing import Dict, Iterable, Optional
 
 from qiskit.circuit import Parameter
 from qiskit.providers.backend import Backend
@@ -77,7 +77,7 @@ class RoughDragCal(BaseCalibrationExperiment, RoughDrag):
             auto_update=auto_update,
         )
 
-    def _add_cal_metadata(self, experiment_data: ExperimentData):
+    def _metadata(self) -> Dict[str, any]:
         """Add metadata to the experiment data making it more self contained.
 
         The following keys are added to each experiment's metadata:
@@ -86,15 +86,11 @@ class RoughDragCal(BaseCalibrationExperiment, RoughDrag):
             cal_schedule: The name of the schedule in the calibrations.
             cal_group: The calibration group to which the parameter belongs.
         """
-
-        prev_beta = self._cals.get_parameter_value(
+        metadata = super()._metadata()
+        metadata["cal_param_value"] = self._cals.get_parameter_value(
             self._param_name, self.physical_qubits, self._sched_name, self.experiment_options.group
         )
-
-        experiment_data.metadata["cal_param_value"] = prev_beta
-        experiment_data.metadata["cal_param_name"] = self._param_name
-        experiment_data.metadata["cal_schedule"] = self._sched_name
-        experiment_data.metadata["cal_group"] = self.experiment_options.group
+        return metadata
 
     def update_calibrations(self, experiment_data: ExperimentData):
         """Update the beta using the value directly reported from the fit.
