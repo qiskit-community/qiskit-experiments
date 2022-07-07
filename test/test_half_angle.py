@@ -16,7 +16,7 @@ from test.base import QiskitExperimentsTestCase
 import copy
 
 from qiskit import transpile
-from qiskit.test.mock import FakeAthens
+from qiskit.providers.fake_provider import FakeAthens
 import qiskit.pulse as pulse
 from qiskit.pulse import InstructionScheduleMap
 

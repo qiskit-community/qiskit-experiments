@@ -16,7 +16,7 @@ from test.base import QiskitExperimentsTestCase
 import numpy as np
 from ddt import ddt, data
 
-from qiskit.test.mock import FakeArmonk
+from qiskit.providers.fake_provider import FakeArmonk
 import qiskit.pulse as pulse
 
 from qiskit_experiments.library import (

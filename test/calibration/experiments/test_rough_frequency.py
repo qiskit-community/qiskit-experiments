@@ -15,7 +15,7 @@ from test.base import QiskitExperimentsTestCase
 
 import numpy as np
 
-from qiskit.test.mock import FakeArmonk
+from qiskit.providers.fake_provider import FakeArmonk
 
 from qiskit_experiments.library import RoughFrequencyCal
 from qiskit_experiments.calibration_management import Calibrations
