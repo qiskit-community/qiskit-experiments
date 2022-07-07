@@ -143,6 +143,13 @@ class ExperimentData:
        the analysis results and the figures
     2. Managing jobs and adding data from jobs automatically
     3. Saving/Loading data from the result database
+
+    The field `db_data` is a dataclass (`ExperimentDataclass`) containing
+    all the data that can be stored in the database and loaded from it, and
+    as such is subject to strict conventions.
+
+    Other data fields can be added and used freely, but they won't be saved
+    to the database.
     """
 
     _metadata_version = 1
