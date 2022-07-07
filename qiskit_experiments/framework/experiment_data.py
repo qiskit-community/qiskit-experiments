@@ -602,7 +602,7 @@ class ExperimentData:
             # can be removed when we start tracking changes.
             res._auto_save = save_val
         for data in self.child_data():
-            data.auto_save(save_val)
+            data.auto_save = save_val
 
     @property
     def source(self) -> Dict:
