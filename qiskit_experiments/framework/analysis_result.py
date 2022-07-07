@@ -66,7 +66,7 @@ class AnalysisResult:
         experiment_id: str = None,
         result_id: Optional[str] = None,
         chisq: Optional[float] = None,
-        quality: Optional[ResultQuality] = RESULT_QUALITY_TO_TEXT[ResultQuality.UNKNOWN],
+        quality: Optional[str] = RESULT_QUALITY_TO_TEXT[ResultQuality.UNKNOWN],
         extra: Optional[Dict[str, Any]] = None,
         verified: bool = False,
         tags: Optional[List[str]] = None,
@@ -110,8 +110,6 @@ class AnalysisResult:
                     comp = to_component(comp)
                 self._db_data.device_components.append(comp)
 
-        if self.source is None:
-            self._db_data.result_data["_source"] = self.default_source()
         self._service = service
         self._created_in_db = False
         self._auto_save = False
@@ -206,10 +204,10 @@ class AnalysisResult:
             self.service.create_or_update_analysis_result(
                 self._db_data, json_encoder=self._json_encoder, create=not self._created_in_db
             )
+            self._created_in_db = True
         except Exception:  # pylint: disable=broad-except
             # Don't fail the experiment just because its data cannot be saved.
             LOG.error("Unable to save the experiment data: %s", traceback.format_exc())
-        self._created_in_db = True
 
     def copy(self) -> "AnalysisResult":
         """Return a copy of the result with a new result ID"""
@@ -480,7 +478,7 @@ class AnalysisResult:
     def __json_encode__(self):
         return {
             "name": self._db_data.result_type,
-            "value": self._db_data.result_data["_value"],
+            "value": self._db_data.result_data.get("_value", None),
             "device_components": self._db_data.device_components,
             "experiment_id": self._db_data.experiment_id,
             "result_id": self._db_data.result_id,
@@ -489,4 +487,5 @@ class AnalysisResult:
             "extra": self.extra,
             "verified": self._db_data.verified,
             "tags": self._db_data.tags,
+            "source": self.source
         }
