@@ -20,8 +20,6 @@ from qiskit_experiments.test.noisy_delay_aer_simulator import NoisyDelayAerBacke
 from qiskit_experiments.framework import ExperimentData, ParallelExperiment
 from qiskit_experiments.library import T1
 from qiskit_experiments.library.characterization import T1Analysis
-from qiskit_experiments.test.t1_backend import T1Backend
-from qiskit_experiments.test.fake_service import FakeService
 
 
 class TestT1(QiskitExperimentsTestCase):
