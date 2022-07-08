@@ -158,8 +158,8 @@ class NonlocalCXDepError(TransformationPass):
             subdags.append(graph)
 
         err_dag = dag.copy_empty_like()
-        for i in range(len(subdags)):
-            err_dag.compose(subdags[i])
+        for subdag in subdags:
+            err_dag.compose(subdag)
 
         return err_dag
 
@@ -416,8 +416,8 @@ class TestMirrorRB(RBTestCase):
         circs1 = exp1.circuits()
         circs2 = exp2.circuits()
 
-        for i in range(len(circs1)):
-            self.assertEqual(circs1[i].decompose(), circs2[i].decompose())
+        for circ1, circ2 in zip(circs1, circs2):
+            self.assertEqual(circ1.decompose(), circ2.decompose())
 
     def test_full_sampling(self):
         """Test if full sampling generates different circuits."""
