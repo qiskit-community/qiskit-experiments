@@ -74,29 +74,24 @@ class QuantumVolume(BaseExperiment):
         self,
         qubits: Sequence[int],
         backend: Optional[Backend] = None,
-        trials: Optional[int] = 100,
-        seed: Optional[Union[int, SeedSequence, BitGenerator, Generator]] = None,
         simulation_backend: Optional[Backend] = None,
+        **experiment_options,
     ):
         """Initialize a quantum volume experiment.
 
         Args:
             qubits: list of physical qubits for the experiment.
             backend: Optional, the backend to run the experiment on.
-            trials: The number of trials to run the quantum volume circuit.
-            seed: Optional, seed used to initialize ``numpy.random.default_rng``
-                  when generating circuits. The ``default_rng`` will be initialized
-                  with this seed value everytime :meth:`circuits` is called.
             simulation_backend: The simulator backend to use to generate
                 the expected results. the simulator must have a 'save_probabilities'
                 method. If None :class:`AerSimulator` simulator will be used
                 (in case :class:`AerSimulator` is not
                 installed :class:`qiskit.quantum_info.Statevector` will be used).
-        """
-        super().__init__(qubits, analysis=QuantumVolumeAnalysis(), backend=backend)
+            experiment_options: A catch-all for any experiment options. See
+                :py:meth:`_default_experiment_options` for valid parameters.
 
-        # Set configurable options
-        self.set_experiment_options(trials=trials, seed=seed)
+        """
+        super().__init__(qubits, analysis=QuantumVolumeAnalysis(), backend=backend,**experiment_options,)
 
         if not simulation_backend and HAS_SIMULATION_BACKEND:
             self._simulation_backend = Aer.get_backend("aer_simulator")
