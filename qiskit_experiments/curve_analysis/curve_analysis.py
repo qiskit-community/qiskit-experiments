@@ -39,15 +39,16 @@ class CurveAnalysis(BaseCurveAnalysis):
     The fit parameters from the series defined under the analysis class are all shared
     and the analysis performs a single multi-objective function optimization.
 
-    Subclass may override these methods to customize the fit workflow.
+    A subclass may override these methods to customize the fit workflow.
 
     .. rubric:: _run_data_processing
 
     This method performs data processing and returns the processed dataset.
-    By default, it internally calls :class:`DataProcessor` instance from the analysis options
-    and processes experiment data payload to create Y data with uncertainty.
+    By default, it internally calls the :class:`DataProcessor` instance from
+    the `data_processor` analysis option and processes the experiment data payload
+    to create Y data with uncertainty.
     X data and other metadata are generated within this method by inspecting the
-    circuit metadata. The series classification is also performed by based upon the
+    circuit metadata. The series classification is also performed based upon the
     matching of circuit metadata and :attr:`SeriesDef.filter_kwargs`.
 
     .. rubric:: _format_data
@@ -59,22 +60,20 @@ class CurveAnalysis(BaseCurveAnalysis):
     .. rubric:: _generate_fit_guesses
 
     This method creates initial guesses for the fit parameters.
-    This might be overridden by subclass.
     See :ref:`curve_analysis_init_guess` for details.
 
     .. rubric:: _run_curve_fit
 
     This method performs the fitting with predefined fit models and the formatted dataset.
-    This method internally calls :meth:`_generate_fit_guesses` method.
+    This method internally calls the :meth:`_generate_fit_guesses` method.
     Note that this is a core functionality of the :meth:`_run_analysis` method,
-    that creates fit result object from the formatted dataset.
+    that creates fit result objects from the formatted dataset.
 
     .. rubric:: _evaluate_quality
 
     This method evaluates the quality of the fit based on the fit result.
     This returns "good" when reduced chi-squared is less than 3.0.
     Usually it returns string "good" or "bad" according to the evaluation.
-    This criterion can be updated by subclass.
 
     .. rubric:: _create_analysis_results
 
@@ -83,10 +82,11 @@ class CurveAnalysis(BaseCurveAnalysis):
 
     .. rubric:: _create_curve_data
 
-    This method to creates analysis results for the formatted dataset, i.e. data used for the fitting.
+    This method creates analysis results containing the formatted dataset,
+    i.e. data used for the fitting.
     Entries are created when the analysis option ``return_data_points`` is ``True``.
-    If analysis consists of multiple series, analysis result is created for
-    each curve data in the series definitions.
+    If analysis consists of multiple series, an analysis result is created for
+    each series definition.
 
     .. rubric:: _initialize
 
@@ -233,7 +233,7 @@ class CurveAnalysis(BaseCurveAnalysis):
             Processed data that will be sent to the formatter method.
 
         Raises:
-            DataProcessorError: When model is multi-objective function but
+            DataProcessorError: When model is a multi-objective function but
                 data sorting option is not provided.
             DataProcessorError: When key for x values is not found in the metadata.
         """
@@ -336,7 +336,7 @@ class CurveAnalysis(BaseCurveAnalysis):
         user_opt: FitOptions,
         curve_data: CurveData,  # pylint: disable=unused-argument
     ) -> Union[FitOptions, List[FitOptions]]:
-        """Create algorithmic guess with analysis options and curve data.
+        """Create algorithmic initial fit guess from analysis options and curve data.
 
         Args:
             user_opt: Fit options filled with user provided guess and bounds.

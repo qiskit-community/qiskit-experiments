@@ -35,13 +35,13 @@ class CompositeCurveAnalysis(BaseCurveAnalysis):
     The :class:`.CompositeCurveAnalysis` takes multiple curve analysis instances
     and performs each analysis on the same experimental results.
     These analyses are performed independently, thus fit parameters have no correlation.
-    Note that this is different from :class:`.CompositeAnalysis` which assumes
-    analyzing the outcome of composite experiment, in which multiple different
+    Note that this is different from :class:`.CompositeAnalysis` which
+    analyses the outcome of a composite experiment, in which multiple different
     experiments are performed.
     The :class:`.CompositeCurveAnalysis` is attached to a single experiment instance,
     which may execute similar circuits with slightly different settings.
     Experiments with different settings might be distinguished by the circuit
-    metadata, and outcomes of the same set of experiments are assigned to a
+    metadata. The outcomes of the same set of experiments are assigned to a
     specific analysis instance in the composite curve analysis.
     This mapping is usually done with the analysis option ``filter_data`` dictionary.
     Otherwise, all analyses are performed on the same set of outcomes.
@@ -89,9 +89,6 @@ class CompositeCurveAnalysis(BaseCurveAnalysis):
     new values to be stored in the analysis results.
 
     """
-
-    # TODO move example to curve analysis user guide. This is too specific to be written in
-    #  the API documentation of general framework.
 
     def __init__(
         self,
@@ -150,14 +147,17 @@ class CompositeCurveAnalysis(BaseCurveAnalysis):
     ) -> CurveData:
         """Postprocessing for the processed dataset.
 
+        .. note::
+
+            This method is delegated to self.analyses for now.
+
         Args:
             curve_data: Processed dataset created from experiment results.
 
         Returns:
             Formatted data.
         """
-        # This method is delegated to self.analyses
-        return NotImplemented
+        raise NotImplementedError
 
     def _evaluate_quality(
         self,
@@ -183,6 +183,10 @@ class CompositeCurveAnalysis(BaseCurveAnalysis):
     ) -> CurveData:
         """Perform data processing from the experiment result payload.
 
+        .. note::
+
+            This method is delegated to self.analyses for now.
+
         Args:
             raw_data: Payload in the experiment data.
             models: A list of LMFIT models that provide the model name and
@@ -196,8 +200,7 @@ class CompositeCurveAnalysis(BaseCurveAnalysis):
                 data sorting option is not provided.
             DataProcessorError: When key for x values is not found in the metadata.
         """
-        # This method is delegated to self.analyses
-        return NotImplemented
+        raise NotImplementedError
 
     def _run_curve_fit(
         self,
@@ -205,6 +208,10 @@ class CompositeCurveAnalysis(BaseCurveAnalysis):
         models: List[lmfit.Model],
     ) -> CurveFitResult:
         """Perform curve fitting on given data collection and fit models.
+
+        .. note::
+
+            This method is delegated to self.analyses for now.
 
         Args:
             curve_data: Formatted data to fit.
@@ -214,8 +221,7 @@ class CompositeCurveAnalysis(BaseCurveAnalysis):
         Returns:
             The best fitting outcome with minimum reduced chi-squared value.
         """
-        # This method is delegated to self.analyses
-        return NotImplemented
+        raise NotImplementedError
 
     def _create_analysis_results(
         self,
@@ -242,6 +248,10 @@ class CompositeCurveAnalysis(BaseCurveAnalysis):
     ) -> List[AnalysisResultData]:
         """Create analysis results for raw curve data.
 
+        .. note::
+
+            This method is delegated to self.analyses for now.
+
         Args:
             curve_data: Formatted data that is used for the fitting.
             models: A list of LMFIT models that provides model names
@@ -250,8 +260,7 @@ class CompositeCurveAnalysis(BaseCurveAnalysis):
         Returns:
             List of analysis result data.
         """
-        # This method is delegated to self.analyses
-        return NotImplemented
+        raise NotImplementedError
 
     def _initialize(
         self,

@@ -56,13 +56,13 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
 
     .. rubric:: _run_curve_fit
 
-    This method performs the fitting with predefined fit models and the formatted dataset.
-    This is a core functionality of the :meth:`_run_analysis` method,
-    that creates fit result object from the formatted dataset.
+    This method performs the fitting with the predefined fit models and the formatted dataset.
+    This is a core functionality of the :meth:`_run_analysis` method
+    that creates fit result objects from the formatted dataset.
 
+    Optionally, a subclass may override following methods.
+    These methods have default implementations as described below.
 
-    Optionally, the subclass may override following methods.
-    These methods have default implementation, as described below.
 
     .. rubric:: _evaluate_quality
 

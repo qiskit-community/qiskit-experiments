@@ -79,7 +79,7 @@ upgrade:
     based on new fit option ``reps`` in the associated analysis :class:`DragCalAnalysis`.
     This may sometimes provide better accuracy for estimating the DRAG ``beta`` parameter.
   - |
-    Implementation of several methods in :class:`.BaseCurveAnalysis` has been moved to
+    The implementations of several methods in :class:`.BaseCurveAnalysis` have been moved to
     its subclass :class:`.CurveAnalysis`. :meth:`.BaseCurveAnalysis._run_data_processing`,
     :meth:`.BaseCurveAnalysis._format_data`, and :meth:`.BaseCurveAnalysis._run_curve_fit`,
     have been turned into abstract method, and :meth:`.BaseCurveAnalysis._generate_fit_guesses`

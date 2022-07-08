@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Bloch trajectory analysis of single qubit."""
+"""Bloch trajectory analysis of a single qubit."""
 
 from typing import List, Union, Optional
 
@@ -42,7 +42,7 @@ class BlochTrajectoryAnalysis(curve.CurveAnalysis):
             \end{align}
 
         where :math:`t' = t + t_{\rm offset}` with :math:`t` is pulse duration to scan
-        and :math:`t_{\rm offset}` is an extra fit parameter that may represent the edge effect.
+        and :math:`t_{\rm offset}` is an extra fit parameter that may represent an edge effect.
         Note that this analysis assumes a microwave drive with the flat top Gaussian envelope.
         :math:`p_x, p_y, p_z, b` are fit parameters, and :math:`\Omega = \sqrt{p_x^2+p_y^2+p_z^2}`.
         The fit functions :math:`F_x, F_y, F_z` approximate the Pauli expectation
@@ -146,7 +146,7 @@ class BlochTrajectoryAnalysis(curve.CurveAnalysis):
         user_opt: curve.FitOptions,
         curve_data: curve.CurveData,
     ) -> Union[curve.FitOptions, List[curve.FitOptions]]:
-        """Create algorithmic guess with analysis options and curve data.
+        """Create algorithmic initial fit guess from analysis options and curve data.
 
         Args:
             user_opt: Fit options filled with user provided guess and bounds.
