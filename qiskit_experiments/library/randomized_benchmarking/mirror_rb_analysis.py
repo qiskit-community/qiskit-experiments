@@ -19,19 +19,19 @@ import lmfit
 from qiskit.exceptions import QiskitError
 
 import numpy as np
-from uncertainties import unumpy as unp
+from scipy.spatial.distance import hamming
+
 import qiskit_experiments.curve_analysis as curve
 from qiskit_experiments.exceptions import AnalysisError
 from qiskit_experiments.framework import AnalysisResultData, ExperimentData
-from scipy.spatial.distance import hamming
-from qiskit_experiments.curve_analysis.curve_data import CurveData, SeriesDef
 from qiskit_experiments.database_service import DbAnalysisResultV1
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
+from uncertainties import unumpy as unp  # pylint: disable=wrong-import-order
 
 if TYPE_CHECKING:
     from uncertainties import UFloat
 
-# A dictionary key of qubit aware quantum instruciton; type alias for better readability
+# A dictionary key of qubit aware quantum instruction; type alias for better readability
 QubitGateTuple = Tuple[Tuple[int, ...], str]
 
 
@@ -169,7 +169,8 @@ class MirrorRBAnalysis(curve.CurveAnalysis):
                 "Effective Polarization",
             ]:
                 raise QiskitError(
-                    'y_axis must be one of "Success Probability", "Adjusted Success Probability", or "Effective Polarization"'
+                    'y_axis must be one of "Success Probability", "Adjusted Success Probability", '
+                    'or "Effective Polarization"'
                 )
         super().set_options(**fields)
 
@@ -191,7 +192,6 @@ class MirrorRBAnalysis(curve.CurveAnalysis):
 
         # Initialize guess for baseline and amplitude based on infidelity type
         b_guess = 1 / 4**self._num_qubits
-        # For some reason this 1 / 2**n guess sometimes results in a baseline that is a lot higher than expected
         if self.options.y_axis == "Success Probability":
             b_guess = 1 / 2**self._num_qubits
         a_guess = 1 - b_guess
@@ -265,16 +265,16 @@ class MirrorRBAnalysis(curve.CurveAnalysis):
         num_qubits = len(self._physical_qubits)
 
         # nrb is calculated for both EPC and EI per the equations in the docstring
-        EI_nrb = 4**self._num_qubits
-        EI_scale = (EI_nrb - 1) / EI_nrb
-        EPC_nrb = 2**self._num_qubits
-        EPC_scale = (EPC_nrb - 1) / EPC_nrb
+        ei_nrb = 4**self._num_qubits
+        ei_scale = (ei_nrb - 1) / ei_nrb
+        epc_nrb = 2**self._num_qubits
+        epc_scale = (epc_nrb - 1) / epc_nrb
 
         alpha = fit_data.ufloat_params["alpha"]
 
         # Calculate EPC and EI per the equations in the docstring
-        epc = EPC_scale * (1 - alpha)
-        ei = EI_scale * (1 - alpha)
+        epc = epc_scale * (1 - alpha)
+        ei = ei_scale * (1 - alpha)
 
         outcomes.append(
             AnalysisResultData(
@@ -327,15 +327,23 @@ class MirrorRBAnalysis(curve.CurveAnalysis):
 
         return outcomes
 
-    def _run_data_processing(self, raw_data: List[Dict], models: List[lmfit.Model]) -> CurveData:
+    def _run_data_processing(
+        self, raw_data: List[Dict], models: List[lmfit.Model]
+    ) -> curve.CurveData:
         """Manual data processing
 
         Args:
-            raw_data: List of raw results for each circuit
-            series: List of series
+            raw_data: Payload in the experiment data.
+            models: A list of LMFIT models that provide the model name and
+                optionally data sorting keys.
 
         Returns:
-            CurveData
+            Processed data that will be sent to the formatter method.
+
+        Raises:
+            DataProcessorError: When model is multi-objective function but
+                data sorting option is not provided.
+            DataProcessorError: When key for x values is not found in the metadata.
         """
         x_key = self.options.x_key
 
@@ -374,7 +382,7 @@ class MirrorRBAnalysis(curve.CurveAnalysis):
                 )
                 data_allocation[matched_inds] = idx
 
-        return CurveData(
+        return curve.CurveData(
             x=xdata,
             y=unp.nominal_values(ydata),
             y_err=unp.std_devs(ydata),
@@ -383,47 +391,7 @@ class MirrorRBAnalysis(curve.CurveAnalysis):
             labels=[sub_model._name for sub_model in models],
         )
 
-        # y_data = self._compute_polarizations_and_probabilities(raw_data)
-
-        # # adjusted success probabilities and uncertainties from qiskit experiments data
-        # y_data_vals = unp.nominal_values(y_data)
-        # y_data_uncs = unp.std_devs(y_data)
-
-        # # get lengths from qiskit experiments data
-        # x_data = []
-        # for datum in raw_data:
-        #     if "metadata" in datum:
-        #         x_data.append(datum.get("metadata").get("xval", np.nan))
-        #     else:
-        #         x_data.append(np.nan)
-
-        # def _matched(metadata, **filters):
-        #     try:
-        #         return all(metadata[key] == val for key, val in filters.items())
-        #     except KeyError:
-        #         return False
-
-        # # get data allocation for qiskit experiments data
-        # data_allocation = np.full(len(x_data), -1, dtype=int)
-        # for sind, series_def in enumerate(models):
-        #     matched_inds = np.asarray(
-        #         [_matched(d["metadata"], **series_def.filter_kwargs) for d in raw_data], dtype=bool
-        #     )
-        #     data_allocation[matched_inds] = sind
-
-        # x_data = np.asarray(x_data)
-        # shots = np.asarray([datum.get("shots", np.nan) for datum in raw_data])
-
-        # return CurveData(
-        #     x=x_data,
-        #     y=y_data_vals,
-        #     y_err=y_data_uncs,
-        #     shots=shots,
-        #     data_allocation=data_allocation,
-        #     labels=[s.name for s in series],
-        # )
-
-    def _compute_polarizations_and_probabilities(self, raw_data: List[Dict]):
+    def _compute_polarizations_and_probabilities(self, raw_data: List[Dict]) -> unp.uarray:
         """Compute success probabilities, adjusted success probabilities, and
         polarizations from raw results
 
@@ -432,7 +400,7 @@ class MirrorRBAnalysis(curve.CurveAnalysis):
 
         Returns:
             Unp array of either success probabiltiies, adjusted success probabilities,
-            or polarizations as specified by the user
+            or polarizations as specified by the user.
         """
 
         # Arrays to store the y-axis data and uncertainties
@@ -446,7 +414,7 @@ class MirrorRBAnalysis(curve.CurveAnalysis):
                 target_bs = circ_result["metadata"]["target"]
 
             # h[k] = proportion of shots that are Hamming distance k away from target bitstring
-            h = np.zeros(self._num_qubits + 1)
+            hamming_dists = np.zeros(self._num_qubits + 1)
             for bitstring, count in circ_result["counts"].items():
                 # Compute success probability
                 success_prob = 0.0
@@ -465,17 +433,19 @@ class MirrorRBAnalysis(curve.CurveAnalysis):
                 target_bs_to_list = [int(char) for char in target_bs]
                 actual_bs_to_list = [int(char) for char in bitstring]
                 k = round(hamming(target_bs_to_list, actual_bs_to_list) * self._num_qubits)
-                h[k] += count / circ_result.get("shots", sum(circ_result["counts"].values()))
+                hamming_dists[k] += count / circ_result.get(
+                    "shots", sum(circ_result["counts"].values())
+                )
 
             # Compute hamming distance uncertainties
-            h_unc = np.sqrt(h * (1 - h))
+            hamming_dist_unc = np.sqrt(hamming_dists * (1 - hamming_dists))
 
-            # Compute adjusted success probability and standard deviation (PyGSTi)
+            # Compute adjusted success probability and standard deviation
             adjusted_success_prob = 0.0
             adjusted_success_prob_unc = 0.0
             for k in range(self._num_qubits + 1):
-                adjusted_success_prob += (-0.5) ** k * h[k]
-                adjusted_success_prob_unc += (0.5) ** k * h_unc[k] ** 2
+                adjusted_success_prob += (-0.5) ** k * hamming_dists[k]
+                adjusted_success_prob_unc += (0.5) ** k * hamming_dist_unc[k] ** 2
             adjusted_success_prob_unc = np.sqrt(adjusted_success_prob_unc)
             circ_result["metadata"]["adjusted_success_probability"] = adjusted_success_prob
             circ_result["metadata"][
