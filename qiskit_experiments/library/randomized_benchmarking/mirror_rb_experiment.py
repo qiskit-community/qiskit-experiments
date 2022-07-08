@@ -148,11 +148,11 @@ class MirrorRB(StandardRB):
             lengths: List of lengths to run Mirror RB
             rng: Generator seed
 
-        Raises:
-            QiskitError: if backend does not have a coupling map
-
         Returns:
             List of QuantumCircuits
+
+        Raises:
+            QiskitError: if backend without a coupling map is provided
         """
 
         # Backend must have a coupling map
