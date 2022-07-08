@@ -19,13 +19,13 @@ for an explanation on the RB method, which is based on Ref. [1, 2].
 .. jupyter-execute::
 
     import numpy as np
-    from qiskit_experiments.library import StandardRB, InterleavedRB
+    from qiskit_experiments.library import StandardRB, InterleavedRB, MirrorRB
     from qiskit_experiments.framework import ParallelExperiment, BatchExperiment
     import qiskit.circuit.library as circuits
     
     # For simulation
     from qiskit.providers.aer import AerSimulator
-    from qiskit.test.mock import FakeParis
+    from qiskit.providers.fake_provider import FakeParis
     
     backend = AerSimulator.from_backend(FakeParis())
 
@@ -423,7 +423,7 @@ layer will have approximately :math:`n \xi` CXs on average.
     # Two-qubit circuit example
     exp_2q_circ = MirrorRB((0,1), lengths=[4], backend=backend, num_samples=1, seed=1010, two_qubit_gate_density=.4)
     qc2 = exp_2q_circ.circuits()[0].decompose()#gates_to_decompose=['Clifford*','circuit*'])
-    qc2.draw('mpl')
+    qc2.draw()
 
 .. jupyter-execute::
 

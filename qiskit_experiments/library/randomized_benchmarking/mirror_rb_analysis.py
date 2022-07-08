@@ -194,10 +194,10 @@ class MirrorRBAnalysis(curve.CurveAnalysis):
         b_guess = 1 / 4**self._num_qubits
         if self.options.y_axis == "Success Probability":
             b_guess = 1 / 2**self._num_qubits
-        a_guess = 1 - b_guess
 
         mirror_curve = curve_data.get_subset_of("mirror")
-        alpha_mirror = curve.guess.rb_decay(mirror_curve.x, mirror_curve.y, a=a_guess, b=b_guess)
+        alpha_mirror = curve.guess.rb_decay(mirror_curve.x, mirror_curve.y, b=b_guess)
+        a_guess = (curve_data.y[0] - b_guess) / (alpha_mirror ** curve_data.x[0])
 
         user_opt.p0.set_if_empty(b=b_guess, a=a_guess, alpha=alpha_mirror)
 
