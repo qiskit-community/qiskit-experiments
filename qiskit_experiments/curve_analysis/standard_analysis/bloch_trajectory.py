@@ -43,7 +43,13 @@ class BlochTrajectoryAnalysis(curve.CurveAnalysis):
 
         where :math:`t' = t + t_{\rm offset}` with :math:`t` is pulse duration to scan
         and :math:`t_{\rm offset}` is an extra fit parameter that may represent an edge effect.
-        Note that this analysis assumes a microwave drive with the flat top Gaussian envelope.
+        Note that this analysis assumes a microwave drive with the flat top Gaussian envelope,
+        where the amplitude of edges, namely Hamiltonian coefficients of interest,
+        is time dependent and smaller than the flat top part.
+        The edge effect indicates the total net interaction that might be induced
+        by the comparable square drive pulse of duration :math:`t_{\rm offset}`,
+        which is usually smaller than the actual edge durations.
+
         :math:`p_x, p_y, p_z, b` are fit parameters, and :math:`\Omega = \sqrt{p_x^2+p_y^2+p_z^2}`.
         The fit functions :math:`F_x, F_y, F_z` approximate the Pauli expectation
         values :math:`\langle \sigma_x (t) \rangle, \langle \sigma_y (t) \rangle,
