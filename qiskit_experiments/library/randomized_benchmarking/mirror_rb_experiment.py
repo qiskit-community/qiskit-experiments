@@ -121,13 +121,6 @@ class MirrorRB(StandardRB):
             full_sampling=full_sampling,
         )
 
-        # Backend must have a coupling map
-        if not self._backend or not self._backend.configuration().coupling_map:
-            raise QiskitError(
-                "Must provide a backend with a coupling map or provide "
-                + "coupling map if using a simulator"
-            )
-
         self._local_clifford = local_clifford
         self._pauli_randomize = pauli_randomize
         self._two_qubit_gate_density = two_qubit_gate_density
@@ -155,9 +148,19 @@ class MirrorRB(StandardRB):
             lengths: List of lengths to run Mirror RB
             rng: Generator seed
 
+        Raises:
+            QiskitError: if backend does not have a coupling map
+
         Returns:
             List of QuantumCircuits
         """
+
+        # Backend must have a coupling map
+        if not self._backend or not self._backend.configuration().coupling_map:
+            raise QiskitError(
+                "Must provide a backend with a coupling map or provide "
+                + "coupling map if using a simulator"
+            )
 
         circuits = []
         lengths_half = [length // 2 for length in lengths]
