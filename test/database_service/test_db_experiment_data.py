@@ -27,7 +27,7 @@ import uuid
 import matplotlib.pyplot as plt
 import numpy as np
 
-from qiskit.test.mock import FakeMelbourne
+from qiskit.providers.fake_provider import FakeMelbourne
 from qiskit.result import Result
 from qiskit.providers import JobV1 as Job
 from qiskit.providers import JobStatus

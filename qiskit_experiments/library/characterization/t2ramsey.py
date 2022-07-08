@@ -20,7 +20,7 @@ import numpy as np
 import qiskit
 from qiskit import QuantumCircuit
 from qiskit.providers.backend import Backend
-from qiskit.test.mock import FakeBackend
+from qiskit.providers.fake_provider import FakeBackend
 
 from qiskit_experiments.framework import BaseExperiment, Options
 from qiskit_experiments.library.characterization.analysis.t2ramsey_analysis import T2RamseyAnalysis
