@@ -606,13 +606,6 @@ class TestMirrorRB(RBTestCase):
         {
             "qubits": [0, 1],
             "lengths": [2, 4, 6, 8, 10],
-            "num_samples": 2,
-            "seed": 100,
-            "backend": AerSimulator(),
-        },  # backend w/o coupling map
-        {
-            "qubits": [0, 1],
-            "lengths": [2, 4, 6, 8, 10],
             "num_samples": 1,
             "seed": 100,
             "two_qubit_gate_density": -0.1,
@@ -622,6 +615,20 @@ class TestMirrorRB(RBTestCase):
     def test_invalid_configuration(self, configs):
         """Test raise error when creating experiment with invalid configs."""
         self.assertRaises(QiskitError, rb.MirrorRB, **configs)
+
+    @data(
+        {
+            "qubits": [0, 1],
+            "lengths": [2, 4, 6, 8, 10],
+            "num_samples": 1,
+            "seed": 100,
+            "backend": AerSimulator(),
+        },  # no backend
+    )
+    def test_no_backend(self, configs):
+        """Test raise error when no backend is provided for sampling circuits."""
+        mirror_exp = rb.MirrorRB(**configs)
+        self.assertRaises(QiskitError, mirror_exp.run)
 
     @data(
         {
@@ -641,7 +648,7 @@ class TestMirrorRB(RBTestCase):
         },  # High two-qubit gate density warning
     )
     def test_warnings(self, configs):
-        """Test raise error when creating experiment with invalid configs."""
+        """Test raise warnings when creating experiment."""
         mirror_exp = rb.MirrorRB(**configs)
         self.assertWarns(Warning, mirror_exp.run)
 
@@ -652,10 +659,10 @@ class TestMirrorRB(RBTestCase):
         self.assertNotEqual(exp, loaded_exp)
         self.assertTrue(self.json_equiv(exp, loaded_exp))
 
-    # def test_roundtrip_serializable(self):
-    #     """Test round trip JSON serialization"""
-    #     exp = rb.MirrorRB(qubits=(0,), lengths=[10, 20, 30], seed=123, backend=self.backend)
-    #     self.assertRoundTripSerializable(exp, self.json_equiv)
+    def test_roundtrip_serializable(self):
+        """Test round trip JSON serialization"""
+        exp = rb.MirrorRB(qubits=(0,), lengths=[10, 20, 30], seed=123)
+        self.assertRoundTripSerializable(exp, self.json_equiv)
 
     def test_analysis_config(self):
         """ "Test converting analysis to and from config works"""
