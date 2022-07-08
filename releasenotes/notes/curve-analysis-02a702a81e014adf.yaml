@@ -76,3 +76,9 @@ deprecations:
       :mod:`~qiskit_experiments.curve_analysis.fit_function`.
       Now curve analysis author can define arbitrary fit functions callable or string
       with LMFIT models, not limited to functions in this module.
+fixes:
+  - |
+    The ``.init_params`` value of the :class:`.CurveFitResult` has been fixed.
+    This value was copied from the LMFIT ``MinimizerResult.init_values``,
+    however this is not the initial parameters set to the solver.
+    Now correct initial parameters are set to :attr:`.CurveFitResult.init_params`.
