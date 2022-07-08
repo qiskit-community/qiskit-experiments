@@ -186,6 +186,7 @@ class CliffordUtils:
                     # remove these qubits from put_1_qubit_clifford
                     put_1_qubit_clifford = np.setdiff1d(put_1_qubit_clifford, edge)
             for q in put_1_qubit_clifford:
+                # pylint: disable=unbalanced-tuple-unpacking
                 # copied from clifford_1_qubit_circuit() below
                 (i, j, p) = self._unpack_num(rng.integers(24), self.CLIFFORD_1_QUBIT_SIG)
                 if i == 1:
@@ -306,7 +307,7 @@ class CliffordUtils:
             num -= sig_size
         return None
 
-    def compute_target_bitstring(self, circuit: QuantumCircuit):
+    def compute_target_bitstring(self, circuit: QuantumCircuit) -> str:
         """For a Clifford circuit C, compute C|0>.
 
         Args:
