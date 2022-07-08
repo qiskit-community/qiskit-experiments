@@ -398,6 +398,11 @@ def rb_decay(
     y = y[valid_inds]
     x = x[valid_inds]
 
+    if len(x) < 2:
+        # If number of element is 1, assume y(0) = 1.0 and directly compute alpha.
+        a = 1.0 - b
+        return ((y[0] - b) / a) ** (1 / x[0])
+
     ry = (y[1:] - b) / (y[:-1] - b)
     dx = np.diff(x)
 
