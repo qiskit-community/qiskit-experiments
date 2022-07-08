@@ -13,7 +13,6 @@
 T2Ramsey Experiment class.
 """
 from typing import Union
-from qiskit_experiments.data_processing import DataProcessor, Probability
 import qiskit_experiments.curve_analysis as curve
 from qiskit_experiments.framework import Options
 
@@ -32,12 +31,10 @@ class T2RamseyAnalysis(curve.DumpedOscillationAnalysis):
         options = super()._default_options()
         options.curve_drawer.set_options(
             xlabel="Delay",
-            ylabel="P(0)",
+            ylabel="P(1)",
             xval_unit="s",
         )
-        options.data_processor = DataProcessor(
-            input_key="counts", data_actions=[Probability(outcome="0")]
-        )
+
         options.result_parameters = [
             curve.ParameterRepr("freq", "Frequency", "Hz"),
             curve.ParameterRepr("tau", "T2star", "s"),
