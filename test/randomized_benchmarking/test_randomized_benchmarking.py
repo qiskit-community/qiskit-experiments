@@ -621,7 +621,7 @@ class TestMirrorRB(RBTestCase):
     )
     def test_invalid_configuration(self, configs):
         """Test raise error when creating experiment with invalid configs."""
-        self.assertRaises(QiskitError, MirrorRB, **configs)
+        self.assertRaises(QiskitError, rb.MirrorRB, **configs)
 
     @data(
         {
