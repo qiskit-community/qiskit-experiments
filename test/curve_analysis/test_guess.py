@@ -204,6 +204,6 @@ class TestGuesses(QiskitExperimentsTestCase):
         x = np.arange(1, 100, 5)
         y = a * alpha**x + b
 
-        alpha_guess = guess.rb_decay(x, y, a=a, b=b)
+        alpha_guess = guess.rb_decay(x, y, b=b)
 
         self.assertAlmostEqual(alpha, alpha_guess, delta=alpha * 0.1)

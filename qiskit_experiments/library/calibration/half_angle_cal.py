@@ -12,7 +12,7 @@
 
 """Half angle calibration."""
 
-from typing import Optional
+from typing import Dict, Optional
 import numpy as np
 
 from qiskit.providers.backend import Backend
@@ -63,7 +63,7 @@ class HalfAngleCal(BaseCalibrationExperiment, HalfAngle):
             auto_update=auto_update,
         )
 
-    def _add_cal_metadata(self, experiment_data: ExperimentData):
+    def _metadata(self) -> Dict[str, any]:
         """Add metadata to the experiment data making it more self contained.
 
         The following keys are added to the experiment's metadata:
@@ -73,18 +73,15 @@ class HalfAngleCal(BaseCalibrationExperiment, HalfAngle):
             cal_schedule: The name of the schedule in the calibrations.
             cal_group: The calibration group to which the parameter belongs.
         """
-
-        param_val = self._cals.get_parameter_value(
+        metadata = super()._metadata()
+        metadata["cal_param_value"] = self._cals.get_parameter_value(
             self._param_name,
             self._physical_qubits,
             self._sched_name,
             group=self.experiment_options.group,
         )
 
-        experiment_data.metadata["cal_param_value"] = param_val
-        experiment_data.metadata["cal_param_name"] = self._param_name
-        experiment_data.metadata["cal_schedule"] = self._sched_name
-        experiment_data.metadata["cal_group"] = self.experiment_options.group
+        return metadata
 
     def update_calibrations(self, experiment_data: ExperimentData):
         r"""Update the value of the parameter in the calibrations.
