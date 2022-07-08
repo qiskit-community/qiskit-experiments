@@ -139,7 +139,7 @@ class CrossResonanceHamiltonian(BaseExperiment):
         flat_top_widths: Iterable[float],
         backend: Optional[Backend] = None,
         cr_gate: Optional[Type[circuit.Gate]] = None,
-        **kwargs,
+        **experiment_options,
     ):
         """Create a new experiment.
 
@@ -151,8 +151,8 @@ class CrossResonanceHamiltonian(BaseExperiment):
                 falling edges is implicitly computed with experiment parameters ``sigma`` and
                 ``risefall``.
             backend: Optional, the backend to run the experiment on.
-            cr_gate: Optional, circuit gate instruction of cross resonance pulse.
-            kwargs: Pulse parameters. See :meth:`experiment_options` for details.
+            experiment_options: A catch-all for all experiment options. See
+                :py:meth:`_default_experiment_options` for valid parameters.
 
         Raises:
             QiskitError: When ``qubits`` length is not 2.
@@ -170,8 +170,14 @@ class CrossResonanceHamiltonian(BaseExperiment):
                 "Length of qubits is not 2. Please provide index for control and target qubit."
             )
 
-        super().__init__(qubits, analysis=CrossResonanceHamiltonianAnalysis(), backend=backend)
-        self.set_experiment_options(flat_top_widths=flat_top_widths, **kwargs)
+        experiment_options["flat_top_widths"] = flat_top_widths
+
+        super().__init__(
+            qubits,
+            analysis=CrossResonanceHamiltonianAnalysis(),
+            backend=backend,
+            **experiment_options,
+        )
 
     @classmethod
     def _default_experiment_options(cls) -> Options:
