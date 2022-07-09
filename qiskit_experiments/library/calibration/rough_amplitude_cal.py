@@ -13,7 +13,7 @@
 """Rough amplitude calibration using Rabi."""
 
 from collections import namedtuple
-from typing import Iterable, Optional
+from typing import Dict, Iterable, Optional
 import numpy as np
 
 from qiskit import QuantumCircuit
@@ -118,7 +118,7 @@ class RoughAmplitudeCal(BaseCalibrationExperiment, Rabi):
 
         return options
 
-    def _add_cal_metadata(self, experiment_data: ExperimentData):
+    def _metadata(self) -> Dict[str, any]:
         """Add metadata to the experiment data making it more self contained.
 
         The following keys are added to each circuit's metadata:
@@ -128,7 +128,7 @@ class RoughAmplitudeCal(BaseCalibrationExperiment, Rabi):
                 parameter to update, and the previous value of the amplitude parameter to update.
             cal_group: The calibration group to which the amplitude parameters belong.
         """
-
+        metadata = super()._metadata()
         param_values = []
         for angle, param_name, schedule_name, _ in self.experiment_options.angles_schedules:
             param_val = self._cals.get_parameter_value(
@@ -147,8 +147,9 @@ class RoughAmplitudeCal(BaseCalibrationExperiment, Rabi):
                 )
             )
 
-        experiment_data.metadata["angles_schedules"] = param_values
-        experiment_data.metadata["cal_group"] = self.experiment_options.group
+        metadata["angles_schedules"] = param_values
+
+        return metadata
 
     def update_calibrations(self, experiment_data: ExperimentData):
         r"""Update the amplitude of one or several schedules.

@@ -12,7 +12,7 @@
 
 """Ramsey XY frequency calibration experiment."""
 
-from typing import List, Optional
+from typing import Dict, List, Optional
 
 from qiskit.providers.backend import Backend
 
@@ -62,18 +62,17 @@ class FrequencyCal(BaseCalibrationExperiment, RamseyXY):
             auto_update=auto_update,
         )
 
-    def _add_cal_metadata(self, experiment_data: ExperimentData):
+    def _metadata(self) -> Dict[str, any]:
         """Add the oscillation frequency of the experiment to the metadata."""
-
-        param_val = self._cals.get_parameter_value(
+        metadata = super()._metadata()
+        metadata["osc_freq"] = self.experiment_options.osc_freq
+        metadata["cal_param_value"] = self._cals.get_parameter_value(
             self._param_name,
             self.physical_qubits,
             group=self.experiment_options.group,
         )
 
-        experiment_data.metadata["cal_param_value"] = param_val
-        experiment_data.metadata["cal_group"] = self.experiment_options.group
-        experiment_data.metadata["osc_freq"] = self.experiment_options.osc_freq
+        return metadata
 
     def update_calibrations(self, experiment_data: ExperimentData):
         """Update the frequency using the reported frequency less the imparted oscillation."""

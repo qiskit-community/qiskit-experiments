@@ -15,7 +15,7 @@ Test T2Ramsey experiment
 
 from test.base import QiskitExperimentsTestCase
 from qiskit_experiments.library import Tphi
-from qiskit_experiments.test.tphi_backend import TphiBackend
+from qiskit_experiments.test.noisy_delay_aer_simulator import NoisyDelayAerBackend
 from qiskit_experiments.library.characterization.analysis.tphi_analysis import TphiAnalysis
 
 
@@ -34,8 +34,8 @@ class TestTphi(QiskitExperimentsTestCase):
 
         t1 = 20
         t2ramsey = 25
-        backend = TphiBackend(t1=t1, t2ramsey=t2ramsey, freq=0.1)
-        expdata = exp.run(backend=backend)
+        backend = NoisyDelayAerBackend([t1], [t2ramsey])
+        expdata = exp.run(backend=backend, seed_simulator=1)
         self.assertExperimentDone(expdata)
         self.assertRoundTripSerializable(expdata, check_func=self.experiment_data_equiv)
         self.assertRoundTripPickle(expdata, check_func=self.experiment_data_equiv)
@@ -59,8 +59,8 @@ class TestTphi(QiskitExperimentsTestCase):
 
         t1 = 20
         t2ramsey = 25
-        backend = TphiBackend(t1=t1, t2ramsey=t2ramsey, freq=0.1)
-        expdata = exp.run(backend=backend)
+        backend = NoisyDelayAerBackend([t1], [t2ramsey])
+        expdata = exp.run(backend=backend, seed_simulator=1)
         self.assertExperimentDone(expdata)
 
         # Extract x values from metadata
@@ -82,7 +82,7 @@ class TestTphi(QiskitExperimentsTestCase):
         exp.set_experiment_options(
             delays_t1=new_delays_t1, delays_t2=new_delays_t2, osc_freq=new_osc_freq
         )
-        expdata = exp.run(backend=backend)
+        expdata = exp.run(backend=backend, seed_simulator=1)
         self.assertExperimentDone(expdata)
 
         # Extract x values from metadata
