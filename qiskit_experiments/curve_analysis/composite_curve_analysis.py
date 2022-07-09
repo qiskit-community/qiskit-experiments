@@ -21,15 +21,14 @@ import lmfit
 import numpy as np
 from uncertainties import unumpy as unp, UFloat
 
-from qiskit_experiments.framework import ExperimentData, AnalysisResultData, Options
+from qiskit_experiments.framework import BaseAnalysis, ExperimentData, AnalysisResultData, Options
 from .base_curve_analysis import BaseCurveAnalysis, PARAMS_ENTRY_PREFIX
 from .curve_data import CurveFitResult
-from .curve_data import CurveData
 from .utils import analysis_result_to_repr, eval_with_uncertainties
 from .visualization import MplCurveDrawer, BaseCurveDrawer
 
 
-class CompositeCurveAnalysis(BaseCurveAnalysis):
+class CompositeCurveAnalysis(BaseAnalysis):
     r"""Composite Curve Analysis.
 
     The :class:`.CompositeCurveAnalysis` takes multiple curve analysis instances
@@ -74,7 +73,7 @@ class CompositeCurveAnalysis(BaseCurveAnalysis):
         If you want to compute another quantity using two fitting outcomes, you can
         override :meth:`CompositeCurveAnalysis._create_curve_data` in subclass.
 
-    :class:`.CompositeCurveAnalysis` may override following methods.
+    :class:`.CompositeCurveAnalysis` subclass may override following methods.
 
     .. rubric:: _evaluate_quality
 
@@ -101,11 +100,6 @@ class CompositeCurveAnalysis(BaseCurveAnalysis):
         self._name = name or self.__class__.__name__
 
     @property
-    def name(self) -> str:
-        """Return name of this analysis."""
-        return self._name
-
-    @property
     def parameters(self) -> List[str]:
         """Return parameters of this curve analysis."""
         unite_params = []
@@ -117,14 +111,26 @@ class CompositeCurveAnalysis(BaseCurveAnalysis):
         return unite_params
 
     @property
-    def models(self) -> Dict[str, lmfit.Model]:
+    def name(self) -> str:
+        """Return name of this analysis."""
+        return self._name
+
+    @property
+    def models(self) -> Dict[str, List[lmfit.Model]]:
         """Return fit models."""
         models = {}
         for analysis in self._analyses:
             models[analysis.name] = analysis.models
         return models
 
-    def analyses(self, index: Optional[Union[str, int]] = None) -> BaseCurveAnalysis:
+    @property
+    def drawer(self) -> BaseCurveDrawer:
+        """A short-cut for curve drawer instance."""
+        return self._options.curve_drawer
+
+    def analyses(
+        self, index: Optional[Union[str, int]] = None
+    ) -> Union[BaseCurveAnalysis, List[BaseCurveAnalysis]]:
         """Return curve analysis instance.
 
         Args:
@@ -140,24 +146,6 @@ class CompositeCurveAnalysis(BaseCurveAnalysis):
             num_index = group_names.index(index)
             return self._analyses[num_index]
         return self._analyses[index]
-
-    def _format_data(
-        self,
-        curve_data: CurveData,
-    ) -> CurveData:
-        """Postprocessing for the processed dataset.
-
-        .. note::
-
-            This method is delegated to self.analyses for now.
-
-        Args:
-            curve_data: Processed dataset created from experiment results.
-
-        Returns:
-            Formatted data.
-        """
-        raise NotImplementedError
 
     def _evaluate_quality(
         self,
@@ -176,53 +164,7 @@ class CompositeCurveAnalysis(BaseCurveAnalysis):
                 return "bad"
         return "good"
 
-    def _run_data_processing(
-        self,
-        raw_data: List[Dict],
-        models: List[lmfit.Model],
-    ) -> CurveData:
-        """Perform data processing from the experiment result payload.
-
-        .. note::
-
-            This method is delegated to self.analyses for now.
-
-        Args:
-            raw_data: Payload in the experiment data.
-            models: A list of LMFIT models that provide the model name and
-                optionally data sorting keys.
-
-        Returns:
-            Processed data that will be sent to the formatter method.
-
-        Raises:
-            DataProcessorError: When model is multi-objective function but
-                data sorting option is not provided.
-            DataProcessorError: When key for x values is not found in the metadata.
-        """
-        raise NotImplementedError
-
-    def _run_curve_fit(
-        self,
-        curve_data: CurveData,
-        models: List[lmfit.Model],
-    ) -> CurveFitResult:
-        """Perform curve fitting on given data collection and fit models.
-
-        .. note::
-
-            This method is delegated to self.analyses for now.
-
-        Args:
-            curve_data: Formatted data to fit.
-            models: A list of LMFIT models that are used to build a cost function
-                for the LMFIT minimizer.
-
-        Returns:
-            The best fitting outcome with minimum reduced chi-squared value.
-        """
-        raise NotImplementedError
-
+    # pylint: disable=unused-argument
     def _create_analysis_results(
         self,
         fit_data: Dict[str, CurveFitResult],
@@ -240,51 +182,30 @@ class CompositeCurveAnalysis(BaseCurveAnalysis):
         """
         return []
 
-    def _create_curve_data(
-        self,
-        curve_data: CurveData,
-        models: List[lmfit.Model],
-        **metadata,
-    ) -> List[AnalysisResultData]:
-        """Create analysis results for raw curve data.
-
-        .. note::
-
-            This method is delegated to self.analyses for now.
-
-        Args:
-            curve_data: Formatted data that is used for the fitting.
-            models: A list of LMFIT models that provides model names
-                to extract subsets of experiment data.
-
-        Returns:
-            List of analysis result data.
-        """
-        raise NotImplementedError
-
-    def _initialize(
-        self,
-        experiment_data: ExperimentData,
-    ):
-        """Initialize curve analysis with experiment data.
-
-        This method is called ahead of other processing.
-
-        Args:
-            experiment_data: Experiment data to analyze.
-        """
-        for analysis in self._analyses:
-            analysis._initialize(experiment_data)
-
     @classmethod
     def _default_options(cls) -> Options:
-        """Default analysis options."""
-        options = BaseCurveAnalysis._default_options()
-        options.curve_drawer = MplCurveDrawer()
-        options.plot_raw_data = False
-        options.plot = True
-        options.return_fit_parameters = True
-        options.return_data_points = False
+        """Default analysis options.
+
+        Analysis Options:
+            curve_drawer (BaseCurveDrawer): A curve drawer instance to visualize
+                the analysis result.
+            plot (bool): Set ``True`` to create figure for fit result.
+                This is ``True`` by default.
+            return_fit_parameters (bool): Set ``True`` to return all fit model parameters
+                with details of the fit outcome. Default to ``True``.
+            return_data_points (bool): Set ``True`` to include in the analysis result
+                the formatted data points given to the fitter. Default to ``False``.
+            extra (Dict[str, Any]): A dictionary that is appended to all database entries
+                as extra information.
+        """
+        options = super()._default_options()
+        options.update_options(
+            curve_drawer=MplCurveDrawer(),
+            plot=True,
+            return_fit_parameters=True,
+            return_data_points=False,
+            extra={},
+        )
 
         # Set automatic validator for particular option values
         options.set_validator(field="curve_drawer", validator_value=BaseCurveDrawer)
@@ -317,6 +238,8 @@ class CompositeCurveAnalysis(BaseCurveAnalysis):
 
         fit_dataset = {}
         for analysis in self._analyses:
+            analysis._initialize(experiment_data)
+
             metadata = analysis.options.extra.copy()
             metadata["group"] = analysis.name
 
@@ -325,7 +248,7 @@ class CompositeCurveAnalysis(BaseCurveAnalysis):
                 models=analysis.models,
             )
 
-            if self.options.plot and self.options.plot_raw_data:
+            if self.options.plot and analysis.options.plot_raw_data:
                 for model in analysis.models:
                     sub_data = processed_data.get_subset_of(model._name)
                     self.drawer.draw_raw_data(
