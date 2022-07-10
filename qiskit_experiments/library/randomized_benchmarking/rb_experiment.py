@@ -64,7 +64,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
         self,
         qubits: Sequence[int],
         lengths: Iterable[int],
-        backend: Optional[Backend] = None,
+        backend: Backend = None,
         num_samples: int = 3,
         seed: Optional[Union[int, SeedSequence, BitGenerator, Generator]] = None,
         full_sampling: Optional[bool] = False,
@@ -143,18 +143,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
         if not hasattr(self.transpile_options, "basis_gates"):
             raise QiskitError("transpile_options.basis_gates must be set for rb_experiment")
 
-        ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
-        if self.num_qubits==1 and self._transpiled_cliff_circuits_1q is None:
-            transpiled_circs_file = ROOT_DIR + "/transpiled_circs_1q.qpy"
-            if os.path.isfile(transpiled_circs_file):
-                with open(transpiled_circs_file, 'rb') as fd:
-                    self._transpiled_cliff_circuits_1q = qpy.load(fd)
-        if self.num_qubits == 2 and self._transpiled_cliff_circuits_2q is None:
-            transpiled_circs_2q_file = ROOT_DIR + "/transpiled_circs_2q.qpy"
-            if os.path.isfile(transpiled_circs_2q_file):
-                with open(transpiled_circs_2q_file, 'rb') as fd:
-                    self._transpiled_cliff_circuits_2q = qpy.load(fd)
-
+        self.load_transpiled_cliff_circuits()
         for _ in range(self.experiment_options.num_samples):
             if self.num_qubits == 1:
                 rb_circuits, _ = self._build_rb_circuits(self.experiment_options.lengths, rng)
@@ -234,6 +223,19 @@ class StandardRB(BaseExperiment, RestlessMixin):
                 rb_circ.measure_all()
                 circuits.append(rb_circ)
         return circuits
+
+    def load_transpiled_cliff_circuits(self):
+        ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
+        if self.num_qubits == 1 and self._transpiled_cliff_circuits_1q is None:
+            transpiled_circs_file = ROOT_DIR + "/transpiled_circs_1q.qpy"
+            if os.path.isfile(transpiled_circs_file):
+                with open(transpiled_circs_file, 'rb') as fd:
+                    self._transpiled_cliff_circuits_1q = qpy.load(fd)
+        if self.num_qubits == 2 and self._transpiled_cliff_circuits_2q is None:
+            transpiled_circs_file = ROOT_DIR + "/transpiled_circs_2q.qpy"
+            if os.path.isfile(transpiled_circs_file):
+                with open(transpiled_circs_file, 'rb') as fd:
+                    self._transpiled_cliff_circuits_2q = qpy.load(fd)
 
     def _build_rb_circuits(
         self, lengths: List[int], rng: Generator, interleaved_element: QuantumCircuit = None

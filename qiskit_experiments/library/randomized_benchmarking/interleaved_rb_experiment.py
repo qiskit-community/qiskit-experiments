@@ -99,12 +99,10 @@ class InterleavedRB(StandardRB):
         """
         rng = default_rng(seed=self.experiment_options.seed)
         circuits = []
-        if self.num_qubits == 1 and self._transpiled_cliff_circuits_1q is None:
-            self._transpiled_cliff_circuits_1q = (
-                CliffordUtils.generate_1q_transpiled_clifford_circuits(
-                    basis_gates=self.transpile_options.basis_gates
-                )
-            )
+        if not hasattr(self.transpile_options, "basis_gates"):
+            raise QiskitError("transpile_options.basis_gates must be set for rb_experiment")
+
+        self.load_transpiled_cliff_circuits()
         for _ in range(self.experiment_options.num_samples):
             if self.num_qubits == 1:
                 self._set_transpiled_interleaved_element()
