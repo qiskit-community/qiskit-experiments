@@ -232,11 +232,9 @@ class ExperimentData:
         self._backend = None
         if backend is not None:
             self._set_backend(backend, recursive=False)
-        if service is not None:
-            self._service = service
-        else:
-            if backend is not None:
-                self._service = self.get_service_from_backend(backend)
+        self._service = service
+        if self._service is None and self.backend is not None:
+            self._service = self.get_service_from_backend(self.backend)
         self._auto_save = False
         self._created_in_db = False
         self._extra_data = kwargs
