@@ -176,7 +176,8 @@ class ExperimentData:
 
         Args:
             experiment: Optional, experiment object that generated the data.
-            backend: Optional, Backend the experiment runs on; overrides the backend in the experiment object
+            backend: Optional, Backend the experiment runs on; overrides the
+            backend in the experiment object
             service: The service that stores the experiment results to the database
             parent_id: Optional, ID of the parent experiment data
                 in the setting of a composite experiment
@@ -230,7 +231,7 @@ class ExperimentData:
         # general data related
         self._backend = None
         if backend is not None:
-            self._set_backend(backend)
+            self._set_backend(backend, recursive=False)
         if service is not None:
             self._service = service
         else:
@@ -521,10 +522,11 @@ class ExperimentData:
         if self.auto_save:
             self.save_metadata()
 
-    def _set_backend(self, new_backend: Backend) -> None:
+    def _set_backend(self, new_backend: Backend, recursive: bool = True) -> None:
         """Set backend.
         Args:
             new_backend: New backend.
+            recursive: should set the backend for children as well
         """
         # defined independently from the setter to enable setting without autosave
 
@@ -535,8 +537,9 @@ class ExperimentData:
             self._db_data.backend = str(new_backend)
         if hasattr(new_backend, "provider"):
             self._set_hgp_from_backend()
-        for data in self.child_data():
-            data._set_backend(new_backend)
+        if recursive:
+            for data in self.child_data():
+                data._set_backend(new_backend)
 
     def _set_hgp_from_backend(self):
         if self.backend is not None and self.backend.provider() is not None:
