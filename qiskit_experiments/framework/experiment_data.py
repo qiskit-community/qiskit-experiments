@@ -176,7 +176,7 @@ class ExperimentData:
 
         Args:
             experiment: Optional, experiment object that generated the data.
-            backend: Optional, Backend the experiment runs on.
+            backend: Optional, Backend the experiment runs on; overrides the backend in the experiment object
             service: The service that stores the experiment results to the database
             parent_id: Optional, ID of the parent experiment data
                 in the setting of a composite experiment
@@ -234,7 +234,8 @@ class ExperimentData:
         if service is not None:
             self._service = service
         else:
-            self._service = self.get_service_from_backend(backend)
+            if backend is not None:
+                self._service = self.get_service_from_backend(backend)
         self._auto_save = False
         self._created_in_db = False
         self._extra_data = kwargs
@@ -517,8 +518,6 @@ class ExperimentData:
             new_backend: New backend.
         """
         self._set_backend(new_backend)
-        for data in self.child_data():
-            data.backend = new_backend
         if self.auto_save:
             self.save_metadata()
 
@@ -536,6 +535,8 @@ class ExperimentData:
             self._db_data.backend = str(new_backend)
         if hasattr(new_backend, "provider"):
             self._set_hgp_from_backend()
+        for data in self.child_data():
+            data._set_backend(new_backend)
 
     def _set_hgp_from_backend(self):
         if self.backend is not None and self.backend.provider() is not None:

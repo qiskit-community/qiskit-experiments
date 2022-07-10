@@ -52,6 +52,21 @@ class AnalysisResult:
 
     Note that the `result_data` field of the dataclass is by itself a dictioary
     capable of holding arbitrary values (in a dictionary indexed by a string)
+
+    The data fields in the `db_data` dataclass are:
+    * `experiment_id`: `str`
+    * `result_id`: `str`
+    * `result_type`: `str`
+    * `device_components`: `list` of `str`
+    * `quality`: `str`
+    * `verified`: `bool`
+    * `tags`: `list` of `str`
+    * `backend_name`: `str`
+    * `chisq`: `float`
+    * `result_data`: `dict` with `str` keys and unrestricted values
+
+    Analysis data that does not fit into the other fields should be added to
+    the `result_data` dict, e.g. curve parameters in experiments doing a curve fit.
     """
 
     version = 1
