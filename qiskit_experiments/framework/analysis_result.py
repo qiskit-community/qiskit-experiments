@@ -51,7 +51,7 @@ class AnalysisResult:
     to the database.
 
     Note that the `result_data` field of the dataclass is by itself a dictioary
-    capable of holding arbitrary values (in a dictionary indexed by a string)
+    capable of holding arbitrary values (in a dictionary indexed by a string).
 
     The data fields in the `db_data` dataclass are:
     * `experiment_id`: `str`

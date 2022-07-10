@@ -163,6 +163,30 @@ class TestStandardRB(RBTestCase):
             expdata1.analysis_results("EPC").value.s,
         )
 
+    def test_poor_experiment_result(self):
+        """Test edge case that tail of decay is not sampled.
+
+        This is a special case that fit outcome is very sensitive to initial guess.
+        Perhaps generated initial guess is close to a local minima.
+        """
+        from qiskit.providers.fake_provider import FakeVigo
+
+        backend = AerSimulator.from_backend(FakeVigo(), seed_simulator=123)
+        exp = rb.StandardRB(
+            qubits=(0,),
+            lengths=[100, 200, 300, 400],
+            seed=123,
+            backend=backend,
+            num_samples=5,
+        )
+        exp.set_transpile_options(basis_gates=["x", "sx", "rz"], optimization_level=1)
+        expdata = exp.run()
+        self.assertExperimentDone(expdata)
+
+        overview = expdata.analysis_results(0).value
+        # This yields bad fit due to poor data points, but still fit is not completely off.
+        self.assertLess(overview.reduced_chisq, 10)
+
     def test_return_same_circuit(self):
         """Test if setting the same seed returns the same circuits."""
         exp1 = rb.StandardRB(
