@@ -19,7 +19,7 @@ import functools
 import numpy as np
 from ddt import ddt, data, unpack
 from qiskit import QuantumCircuit, pulse, quantum_info as qi
-from qiskit.providers.fake_provider import FakeBogota
+from qiskit.providers.fake_provider import FakeBogotaV2
 from qiskit.extensions.hamiltonian_gate import HamiltonianGate
 from qiskit.providers.aer import AerSimulator
 from qiskit_experiments.library.characterization import cr_hamiltonian
@@ -47,7 +47,7 @@ class TestCrossResonanceHamiltonian(QiskitExperimentsTestCase):
 
     def test_circuit_generation(self):
         """Test generated circuits."""
-        backend = FakeBogota()
+        backend = FakeBogotaV2()
 
         # Add granularity to check duration optimization logic
         setattr(
@@ -137,7 +137,7 @@ class TestCrossResonanceHamiltonian(QiskitExperimentsTestCase):
 
     def test_instance_with_backend_without_cr_gate(self):
         """Calling set backend method without setting cr gate."""
-        backend = FakeBogota()
+        backend = FakeBogotaV2()
         setattr(
             backend.configuration(),
             "timing_constraints",
@@ -238,3 +238,7 @@ class TestCrossResonanceHamiltonian(QiskitExperimentsTestCase):
             risefall=2,
         )
         self.assertRoundTripSerializable(exp, self.json_equiv)
+
+import unittest
+if __name__ == '__main__':
+    unittest.main()
