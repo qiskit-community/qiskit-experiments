@@ -13,8 +13,10 @@
 Utilities for using the Clifford group in randomized benchmarking
 """
 
-from typing import Optional, Union
+import warnings
+from typing import Optional, Union, Sequence
 from functools import lru_cache
+import numpy as np
 from numpy.random import Generator, default_rng
 from qiskit import QuantumCircuit, QuantumRegister
 from qiskit.circuit import Gate
@@ -116,6 +118,91 @@ class CliffordUtils:
         else:
             samples = rng.integers(11520, size=size)
             return [self.clifford_2_qubit_circuit(i) for i in samples]
+
+    def random_edgegrab_clifford_circuits(
+        self,
+        qubits: Sequence[int],
+        coupling_map: list,
+        two_qubit_gate_density: float = 0.25,
+        size: int = 1,
+        rng: Optional[Union[int, Generator]] = None,
+    ):
+        """Generate a list of random Clifford circuits sampled using the edgegrab algorithm
+
+        Ref: arXiv:2008.11294v2
+        """
+        num_qubits = len(qubits)
+        # if circuit has one qubit, call random_clifford_circuits()
+        if num_qubits == 1:
+            return self.random_clifford_circuits(num_qubits, size, rng)
+
+        if rng is None:
+            rng = default_rng()
+
+        if isinstance(rng, int):
+            rng = default_rng(rng)
+
+        qc_list = []
+        for i in list(range(size)):
+            all_edges = coupling_map[:]  # make copy of coupling map from which we pop edges
+            selected_edges = []
+            while all_edges:
+                rand_edge = all_edges.pop(rng.integers(len(all_edges)))
+                selected_edges.append(rand_edge)  # move random edge from B to A
+                old_all_edges = all_edges[:]
+                all_edges = []
+                # only keep edges in B that do not share a vertex with rand_edge
+                for edge in old_all_edges:
+                    if rand_edge[0] not in edge and rand_edge[1] not in edge:
+                        all_edges.append(edge)
+
+            # A is reduced version of coupling map where each vertex appears maximally once
+            qr = QuantumRegister(num_qubits)
+            qc = QuantumCircuit(qr)
+            two_qubit_prob = 0
+            try:
+                two_qubit_prob = num_qubits * two_qubit_gate_density / len(selected_edges)
+            except ZeroDivisionError:
+                warnings.warn(
+                    "Device has no connectivity. All cliffords will be single-qubit Cliffords"
+                )
+            if two_qubit_prob > 1:
+                warnings.warn(
+                    "Mean number of two-qubit gates is higher than number of selected edges for CNOTs. "
+                    + "Actual density of two-qubit gates will likely be lower than input density"
+                )
+            selected_edges_logical = [
+                [np.where(q == np.asarray(qubits))[0][0] for q in edge] for edge in selected_edges
+            ]
+            # A_logical is A with logical qubit labels rather than physical ones:
+            # Example: qubits = (8,4,5,3,7), A = [[4,8],[7,5]] ==> A_logical = [[1,0],[4,2]]
+            put_1_qubit_clifford = np.arange(num_qubits)
+            # put_1_qubit_clifford is a list of qubits that aren't assigned to a 2-qubit Clifford
+            # 1-qubit Clifford will be assigned to these edges
+            for edge in selected_edges_logical:
+                if rng.random() < two_qubit_prob:
+                    # with probability two_qubit_prob, place CNOT on edge in A
+                    qc.cx(edge[0], edge[1])
+                    # remove these qubits from put_1_qubit_clifford
+                    put_1_qubit_clifford = np.setdiff1d(put_1_qubit_clifford, edge)
+            for q in put_1_qubit_clifford:
+                # pylint: disable=unbalanced-tuple-unpacking
+                # copied from clifford_1_qubit_circuit() below
+                (i, j, p) = self._unpack_num(rng.integers(24), self.CLIFFORD_1_QUBIT_SIG)
+                if i == 1:
+                    qc.h(q)
+                if j == 1:
+                    qc._append(SXdgGate(), [qr[q]], [])
+                if j == 2:
+                    qc._append(SGate(), [qr[q]], [])
+                if p == 1:
+                    qc.x(q)
+                if p == 2:
+                    qc.y(q)
+                if p == 3:
+                    qc.z(q)
+            qc_list.append(qc)
+        return qc_list
 
     @lru_cache(maxsize=24)
     def clifford_1_qubit_circuit(self, num):
@@ -219,3 +306,21 @@ class CliffordUtils:
                 return [i] + self._unpack_num(num, sig)
             num -= sig_size
         return None
+
+    def compute_target_bitstring(self, circuit: QuantumCircuit) -> str:
+        """For a Clifford circuit C, compute C|0>.
+
+        Args:
+            circuit: A Clifford QuantumCircuit
+
+        Returns:
+            Target bit string
+        """
+
+        # convert circuit to Boolean phase vector of stabilizer table
+        phase_vector = Clifford(circuit).table.phase
+        n = circuit.num_qubits
+
+        # target string has a 1 for each True in the stabilizer half of the phase vector
+        target = "".join(["1" if phase else "0" for phase in phase_vector[n:][::-1]])
+        return target
