@@ -217,7 +217,7 @@ class MirrorRB(StandardRB):
                 target = circuit.metadata["target"]
                 label = "".join(["X" if char == "1" else "I" for char in target])
                 circuit.remove_final_measurements()
-                circuit.append(Pauli(label=label), list(range(self._num_qubits)))
+                circuit.append(Pauli(label), list(range(self._num_qubits)))
                 circuit.measure_all()
 
         return circuits
@@ -331,47 +331,6 @@ class MirrorRB(StandardRB):
                 rb_circ.measure_all()
                 circuits.append(rb_circ)
         return circuits
-
-
-# This class will probably be deleted. It just uses the StandardRB analysis,
-# which was for bug-tracking purposes
-
-# class MirrorRBWithInverse(MirrorRB):
-
-#     def __init__(
-#         self,
-#         qubits: Sequence[int],
-#         lengths: Iterable[int],
-#         local_clifford: bool = True,
-#         pauli_randomize: bool = True,
-#         two_qubit_gate_density: float = 0.2,
-#         backend: Optional[Backend] = None,
-#         num_samples: int = 3,
-#         seed: Optional[Union[int, SeedSequence, BitGenerator, Generator]] = None,
-#         full_sampling: bool = False
-#     ):
-#         super().__init__(qubits,
-#                         lengths,
-#                         local_clifford=local_clifford,
-#                         pauli_randomize=pauli_randomize,
-#                         two_qubit_gate_density=two_qubit_gate_density,
-#                         backend=backend,
-#                         num_samples=num_samples,
-#                         seed=seed,
-#                         full_sampling=full_sampling)
-
-#         self.analysis = RBAnalysis()
-#         self.analysis.set_options(outcome="0" * self.num_qubits)
-
-#     def _sample_circuits(self, lengths, rng):
-#         mirror_circuits = super()._sample_circuits(lengths, rng)
-#         for circuit in mirror_circuits:
-#             target = circuit.metadata["target"]
-#             label = "".join(['X' if char=='1' else 'I' for char in target])
-#             circuit.remove_final_measurements()
-#             circuit.append(Pauli(label=label), list(range(self._num_qubits)))
-#             circuit.measure_all()
-#         return mirror_circuits
 
 
 class MirrorRBPyGSTi(MirrorRB):
