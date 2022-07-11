@@ -15,9 +15,10 @@ Utilities for using the Clifford group in randomized benchmarking
 
 import itertools
 import os
+import warnings
 from functools import lru_cache
 from numbers import Integral
-from typing import Optional, Union, Tuple, Sequence
+from typing import Optional, Union, Tuple, Sequence, List
 
 import numpy as np
 import scipy.sparse
@@ -248,11 +249,24 @@ class CliffordUtils:
         self,
         qubits: Sequence[int],
         coupling_map: list,
-        two_qubit_gate_density: float = 0.25,
+        two_qubit_gate_density: float = 0.2,
         size: int = 1,
         rng: Optional[Union[int, Generator]] = None,
-    ):
+    ) -> List[QuantumCircuit]:
         """Generate a list of random Clifford circuits sampled using the edgegrab algorithm
+
+        Args:
+            qubits: Sequence of integers representing the physical qubits
+            coupling_map: List of edges, where an edge is a list of 2 integers
+            two_qubit_gate_density: :math:`1/2` times the expected fraction of qubits with CX gates
+            size: length of RB sequence
+            rng: Random seed
+
+        Raises:
+            Warning: If device has no connectivity or two_qubit_gate_density is too high
+
+        Returns:
+            List of QuantumCircuits
 
         Ref: arXiv:2008.11294v2
         """
@@ -273,15 +287,16 @@ class CliffordUtils:
             selected_edges = []
             while all_edges:
                 rand_edge = all_edges.pop(rng.integers(len(all_edges)))
-                selected_edges.append(rand_edge)  # move random edge from B to A
+                selected_edges.append(
+                    rand_edge
+                )  # move random edge from all_edges to selected_edges
                 old_all_edges = all_edges[:]
                 all_edges = []
-                # only keep edges in B that do not share a vertex with rand_edge
+                # only keep edges in all_edges that do not share a vertex with rand_edge
                 for edge in old_all_edges:
                     if rand_edge[0] not in edge and rand_edge[1] not in edge:
                         all_edges.append(edge)
 
-            # A is reduced version of coupling map where each vertex appears maximally once
             qr = QuantumRegister(num_qubits)
             qc = QuantumCircuit(qr)
             two_qubit_prob = 0
@@ -299,14 +314,15 @@ class CliffordUtils:
             selected_edges_logical = [
                 [np.where(q == np.asarray(qubits))[0][0] for q in edge] for edge in selected_edges
             ]
-            # A_logical is A with logical qubit labels rather than physical ones:
-            # Example: qubits = (8,4,5,3,7), A = [[4,8],[7,5]] ==> A_logical = [[1,0],[4,2]]
+            # selected_edges_logical is selected_edges with logical qubit labels rather than physical
+            # ones. Example: qubits = (8,4,5,3,7), selected_edges = [[4,8],[7,5]]
+            # ==> selected_edges_logical = [[1,0],[4,2]]
             put_1_qubit_clifford = np.arange(num_qubits)
             # put_1_qubit_clifford is a list of qubits that aren't assigned to a 2-qubit Clifford
             # 1-qubit Clifford will be assigned to these edges
             for edge in selected_edges_logical:
                 if rng.random() < two_qubit_prob:
-                    # with probability two_qubit_prob, place CNOT on edge in A
+                    # with probability two_qubit_prob, place CNOT on edge in selected_edges
                     qc.cx(edge[0], edge[1])
                     # remove these qubits from put_1_qubit_clifford
                     put_1_qubit_clifford = np.setdiff1d(put_1_qubit_clifford, edge)

@@ -37,7 +37,6 @@ Experiments for verification and validation of quantum devices.
     ~randomized_benchmarking.StandardRB
     ~randomized_benchmarking.InterleavedRB
     ~randomized_benchmarking.MirrorRB
-    ~randomized_benchmarking.MirrorRBPyGSTi
     ~tomography.StateTomography
     ~tomography.ProcessTomography
     ~tomography.MitigatedStateTomography

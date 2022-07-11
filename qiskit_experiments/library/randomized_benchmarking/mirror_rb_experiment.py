@@ -106,8 +106,7 @@ class MirrorRB(StandardRB):
                                    possibly a global phase)
 
         Raises:
-            QiskitError: if an odd length or a negative two qubit gate density is
-            provided
+            QiskitError: if an odd length or a negative two qubit gate density is provided
         """
         # All lengths must be even
         if not all(length % 2 == 0 for length in lengths):
