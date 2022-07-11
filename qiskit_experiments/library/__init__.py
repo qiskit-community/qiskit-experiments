@@ -157,7 +157,7 @@ from .characterization import (
     ZZRamsey,
     MultiStateDiscrimination,
 )
-from .randomized_benchmarking import StandardRB, InterleavedRB
+from .randomized_benchmarking import StandardRB, InterleavedRB, MirrorRB, MirrorRBPyGSTi
 from .tomography import (
     StateTomography,
     ProcessTomography,
