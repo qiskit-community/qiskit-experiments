@@ -129,10 +129,7 @@ class MirrorRB(StandardRB):
         self._inverting_pauli_layer = inverting_pauli_layer
 
         # Set analysis options
-        if inverting_pauli_layer:
-            self.analysis = RBAnalysis()
-        else:
-            self.analysis = MirrorRBAnalysis()
+        self.analysis = MirrorRBAnalysis()
         self.analysis.set_options(outcome="0" * self.num_qubits)
 
     def _sample_circuits(self, lengths, rng) -> List[QuantumCircuit]:
