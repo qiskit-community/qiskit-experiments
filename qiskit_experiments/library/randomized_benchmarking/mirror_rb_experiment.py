@@ -377,12 +377,12 @@ class MirrorRBPyGSTi(MirrorRB):
             inverting_pauli_layer: If True, a layer of Pauli gates is appended at the
                                 end of the circuit to set all qubits to 0 (with
                                 possibly a global phase)
+
+        Raises:
+            ImportError: if user does not have pyGSTi installed
         """
         if not HAS_PYGSTI:
-            raise ImportError(
-                "MirrorRBPyGSTi requires pyGSTi to generate circuits."
-                ' Run "pip install pygsti" before.'
-            )
+            raise ImportError("MirrorRBPyGSTi requires pyGSTi to generate circuits.")
 
         super().__init__(
             qubits,
