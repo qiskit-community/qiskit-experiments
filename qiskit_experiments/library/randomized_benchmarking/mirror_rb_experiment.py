@@ -18,6 +18,16 @@ from numpy.random.bit_generator import BitGenerator, SeedSequence
 
 import numpy as np
 
+try:
+    import pygsti
+    from pygsti.processors import QubitProcessorSpec as QPS
+    from pygsti.processors import CliffordCompilationRules as CCR
+    from pygsti.baseobjs import QubitGraph as QG
+
+    HAS_PYGSTI = True
+except ImportError:
+    HAS_PYGSTI = False
+
 from qiskit import QuantumCircuit, QiskitError
 from qiskit.circuit import Instruction
 from qiskit.quantum_info import Clifford, random_pauli, random_clifford
@@ -26,7 +36,6 @@ from qiskit.providers.backend import Backend
 
 from .rb_experiment import StandardRB
 from .mirror_rb_analysis import MirrorRBAnalysis
-from .pygsti import requires_pygsti
 
 
 class MirrorRB(StandardRB):
@@ -330,7 +339,6 @@ class MirrorRBPyGSTi(MirrorRB):
     """Mirror RB experiment that uses pyGSTi's circuit generation. This subclass
     is primarily used for testing."""
 
-    # @requires_pygsti
     def __init__(
         self,
         qubits: Sequence[int],
@@ -370,6 +378,12 @@ class MirrorRBPyGSTi(MirrorRB):
                                 end of the circuit to set all qubits to 0 (with
                                 possibly a global phase)
         """
+        if not HAS_PYGSTI:
+            raise ImportError(
+                "MirrorRBPyGSTi requires pyGSTi to generate circuits."
+                ' Run "pip install pygsti" before.'
+            )
+
         super().__init__(
             qubits,
             lengths,
