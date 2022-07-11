@@ -25,6 +25,8 @@ Experiments
 
     StandardRB
     InterleavedRB
+    MirrorRB
+    MirrorRBPyGSTi
 
 
 Analysis
@@ -36,6 +38,7 @@ Analysis
 
     RBAnalysis
     InterleavedRBAnalysis
+    MirrorRBAnalysis
 
 .. autosummary::
     :toctree: ../stubs/
