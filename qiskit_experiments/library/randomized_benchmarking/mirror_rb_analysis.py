@@ -118,19 +118,6 @@ class MirrorRBAnalysis(curve.CurveAnalysis):
         self._physical_qubits = None
         self._num_qubits = None
 
-    # __series__ = [
-    #     curve.SeriesDef(
-    #         name="Mirror",
-    #         fit_func=lambda x, a, alpha, b: curve.fit_function.exponential_decay(
-    #             x, amp=a, lamb=-1.0, base=alpha, baseline=b
-    #         ),
-    #         filter_kwargs={"mirror": True},
-    #         plot_color="blue",
-    #         plot_symbol="^",
-    #         model_description=r"a \alpha^{x} + b",
-    #     )
-    # ]
-
     @classmethod
     def _default_options(cls):
         """Default analysis options."""
