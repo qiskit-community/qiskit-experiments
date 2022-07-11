@@ -12,7 +12,7 @@
 
 """Fine drag calibration experiment."""
 
-from typing import Optional
+from typing import Dict, Optional
 import numpy as np
 
 from qiskit.circuit import Gate
@@ -83,7 +83,7 @@ class FineDragCal(BaseCalibrationExperiment, FineDrag):
         options.target_angle = np.pi
         return options
 
-    def _add_cal_metadata(self, experiment_data: ExperimentData):
+    def _metadata(self) -> Dict[str, any]:
         """Add metadata to the experiment data making it more self contained.
 
         The following keys are added to each experiment's metadata:
@@ -94,19 +94,16 @@ class FineDragCal(BaseCalibrationExperiment, FineDrag):
             target_angle: The target angle of the gate.
             cal_group: The calibration group to which the parameter belongs.
         """
-
-        param_val = self._cals.get_parameter_value(
+        metadata = super()._metadata()
+        metadata["target_angle"] = self.experiment_options.target_angle
+        metadata["cal_param_value"] = self._cals.get_parameter_value(
             self._param_name,
             self.physical_qubits,
             self._sched_name,
             group=self.experiment_options.group,
         )
 
-        experiment_data.metadata["cal_param_value"] = param_val
-        experiment_data.metadata["cal_param_name"] = self._param_name
-        experiment_data.metadata["cal_schedule"] = self._sched_name
-        experiment_data.metadata["target_angle"] = self.experiment_options.target_angle
-        experiment_data.metadata["cal_group"] = self.experiment_options.group
+        return metadata
 
     def update_calibrations(self, experiment_data: ExperimentData):
         """Update the drag parameter of the pulse in the calibrations."""

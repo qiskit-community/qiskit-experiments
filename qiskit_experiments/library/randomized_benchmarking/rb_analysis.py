@@ -137,8 +137,8 @@ class RBAnalysis(curve.CurveAnalysis):
         )
 
         b_guess = 1 / 2 ** len(self._physical_qubits)
-        a_guess = 1 - b_guess
-        alpha_guess = curve.guess.rb_decay(curve_data.x, curve_data.y, a=a_guess, b=b_guess)
+        alpha_guess = curve.guess.rb_decay(curve_data.x, curve_data.y, b=b_guess)
+        a_guess = (curve_data.y[0] - b_guess) / (alpha_guess ** curve_data.x[0])
 
         user_opt.p0.set_if_empty(
             b=b_guess,
