@@ -209,7 +209,6 @@ class TestMirrorRB(RBTestCase):
         # which is 2 for X and Y gates and 0 for I and Z gates (average = 1.0). So the
         # formula should be EPC = 1 - (1 - r)^(n_gpc + n_gpp) = 1 - (1 - r)^2
         epc = expdata.analysis_results("EPC")
-
         epc_expected = 1 - (1 - 1 / 2 * self.p1q) ** 2.0
         self.assertAlmostEqual(epc.value.n, epc_expected, delta=0.1 * epc_expected)
 
@@ -520,7 +519,7 @@ class TestMirrorRB(RBTestCase):
 
     def test_pauli_randomize(self):
         """Test that the number of layers is correct depending on whether
-        local_clifford is set to True or False by counting the number of barriers."""
+        pauli_randomize is set to True or False by counting the number of barriers."""
         exp = rb.MirrorRB(
             qubits=(0,),
             lengths=[2],

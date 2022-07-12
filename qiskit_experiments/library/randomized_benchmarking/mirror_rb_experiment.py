@@ -164,13 +164,16 @@ class MirrorRB(StandardRB):
 
         circuits = []
         lengths_half = [length // 2 for length in lengths]
+
+        # Get backend coupling map and create coupling map for physical qubits
+        coupling_map = self._backend.configuration().coupling_map
+        experiment_coupling_map = []
+        for edge in coupling_map:
+            if edge[0] in self.physical_qubits and edge[1] in self.physical_qubits:
+                experiment_coupling_map.append(edge)
+
         for length in lengths_half if self._full_sampling else [lengths_half[-1]]:
             # Sample Clifford layer elements for first half of mirror circuit
-            coupling_map = self._backend.configuration().coupling_map
-            experiment_coupling_map = []
-            for edge in coupling_map:
-                if edge[0] in self.physical_qubits and edge[1] in self.physical_qubits:
-                    experiment_coupling_map.append(edge)
             elements = self._clifford_utils.random_edgegrab_clifford_circuits(
                 self.physical_qubits,
                 experiment_coupling_map,
@@ -179,11 +182,8 @@ class MirrorRB(StandardRB):
                 rng,
             )
 
-            # Copy Clifford layer elements in first half of circuit
-            elements_without_inv = elements[:]
-
             # Append inverses of Clifford elements to second half of circuit
-            for element in elements_without_inv[::-1]:
+            for element in elements[::-1]:
                 elements.append(element.inverse())
             element_lengths = [len(elements)] if self._full_sampling else lengths
 
@@ -191,10 +191,6 @@ class MirrorRB(StandardRB):
             if self._pauli_randomize:
                 elements = self._pauli_dress(elements, rng)
                 element_lengths = [length * 2 + 1 for length in element_lengths]
-                int_circuits = self._generate_mirror(elements, element_lengths)
-                for circuit in int_circuits:
-                    circuit.metadata["mirror"] = True
-                    circuit.metadata["xval"] = (circuit.metadata["xval"] - 1) // 2
 
             # Add start and end local cliffords if set by user
             if self._local_clifford:
@@ -214,7 +210,12 @@ class MirrorRB(StandardRB):
         # Append inverting Pauli layer at end of circuit if set by user
         if self._inverting_pauli_layer:
             for circuit in circuits:
+                # Get target bitstring (ideal bitstring outputted by the circuit)
                 target = circuit.metadata["target"]
+
+                # Pauli gates to apply to each qubit to reset each to the state 0.
+                # E.g., if the ideal bitstring is 01001, the Pauli label is IXIIX,
+                # which sets all qubits to 0 (up to a global phase)
                 label = "".join(["X" if char == "1" else "I" for char in target])
                 circuit.remove_final_measurements()
                 circuit.append(Pauli(label), list(range(self._num_qubits)))
