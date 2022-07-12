@@ -209,8 +209,6 @@ class TestMirrorRB(RBTestCase):
         # which is 2 for X and Y gates and 0 for I and Z gates (average = 1.0). So the
         # formula should be EPC = 1 - (1 - r)^(n_gpc + n_gpp) = 1 - (1 - r)^2
         epc = expdata.analysis_results("EPC")
-        epg_sx = expdata.analysis_results("EPG_sx")
-
         epc_expected = 1 - (1 - 1 / 2 * self.p1q) ** 2.0
         self.assertAlmostEqual(epc.value.n, epc_expected, delta=0.1 * epc_expected)
 
