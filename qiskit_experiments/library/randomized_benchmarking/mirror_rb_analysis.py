@@ -66,7 +66,7 @@ class MirrorRBAnalysis(curve.CurveAnalysis):
 
         .. math::
 
-            p_0 = \sum_{k = 0}^n (-\frac{1}{2})^k h_k
+            p_0 = \sum_{k = 0}^n \left(-\frac{1}{2}\right)^k h_k
 
         where :math:`h_k` is the probability of observing a bitstring of Hamming distance of k from the
         correct bitstring
@@ -75,7 +75,7 @@ class MirrorRBAnalysis(curve.CurveAnalysis):
 
         .. math::
 
-            S = \frac{4^n}{4^n - 1}\sum_{k = 0}^n (-\frac{1}{2})^k h_k - \frac{1}{4^n - 1}
+            S = \frac{4^n}{4^n-1}\left(\sum_{k=0}^n\left(-\frac{1}{2}\right)^k h_k\right)-\frac{1}{4^n-1}
 
     # section: fit_model
         The fit is based on the following decay functions:
@@ -117,19 +117,6 @@ class MirrorRBAnalysis(curve.CurveAnalysis):
         self._gate_counts_per_clifford = None
         self._physical_qubits = None
         self._num_qubits = None
-
-    # __series__ = [
-    #     curve.SeriesDef(
-    #         name="Mirror",
-    #         fit_func=lambda x, a, alpha, b: curve.fit_function.exponential_decay(
-    #             x, amp=a, lamb=-1.0, base=alpha, baseline=b
-    #         ),
-    #         filter_kwargs={"mirror": True},
-    #         plot_color="blue",
-    #         plot_symbol="^",
-    #         model_description=r"a \alpha^{x} + b",
-    #     )
-    # ]
 
     @classmethod
     def _default_options(cls):

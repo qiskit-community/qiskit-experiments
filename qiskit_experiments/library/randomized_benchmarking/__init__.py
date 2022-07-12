@@ -38,6 +38,7 @@ Analysis
 
     RBAnalysis
     InterleavedRBAnalysis
+    MirrorRBAnalysis
 
 .. autosummary::
     :toctree: ../stubs/

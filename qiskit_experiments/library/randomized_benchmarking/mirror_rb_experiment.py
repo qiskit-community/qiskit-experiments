@@ -106,8 +106,7 @@ class MirrorRB(StandardRB):
                                    possibly a global phase)
 
         Raises:
-            QiskitError: if an odd length or a negative two qubit gate density is
-            provided
+            QiskitError: if an odd length or a negative two qubit gate density is provided
         """
         # All lengths must be even
         if not all(length % 2 == 0 for length in lengths):
@@ -135,7 +134,6 @@ class MirrorRB(StandardRB):
 
         # Set analysis options
         self.analysis = MirrorRBAnalysis()
-        self.analysis.set_options(outcome="0" * self.num_qubits)
 
     def _sample_circuits(self, lengths, rng) -> List[QuantumCircuit]:
         """Sample Mirror RB circuits.
