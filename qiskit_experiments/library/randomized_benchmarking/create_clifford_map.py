@@ -51,7 +51,10 @@ def generate_nums_for_single_gate_cliffs_1q():
         repr = Clifford(cliff)
         if repr.__repr__() in cliff_to_num_1q.keys():
             num = cliff_to_num_1q[repr.__repr__()]
-            clifford_single_gate_to_num[gate.name] = num
+            # qubit_as_str is not really necessary. It is only added to be consistent
+            # with the representation for 2 qubits
+            qubit_as_str = '[0]'
+            clifford_single_gate_to_num[(gate.name, qubit_as_str)] = num
         else:
             print("not found")
     file.write(f"CLIFF_SINGLE_GATE_MAP_1Q = {clifford_single_gate_to_num}\n")
@@ -72,7 +75,10 @@ def generate_nums_for_single_gate_cliffs_2q():
         repr = Clifford(cliff)
         if repr.__repr__() in cliff_to_num_2q:
             num = cliff_to_num_2q[repr.__repr__()]
-            clifford_single_gate_to_num[(gate.name, qubit)] = num
+            # qubit_as_str is not really necessary. It is only added to be consistent
+            # with the representation for 2 qubits
+            qubit_as_str = '['+ str(qubit) +']'
+            clifford_single_gate_to_num[(gate.name, qubit_as_str)] = num
         else:
             print("not found")
 
@@ -98,7 +104,6 @@ def create_compose_map_1q():
         for gate in single_gate_clifford_map_1q:
             cliff2 = num_to_cliff_1q[single_gate_clifford_map_1q[gate]]
             cliff = cliff1.compose(cliff2)
-            #products[(i, single_gate_clifford_map_1q[gate])] = cliff_to_num_1q[cliff.__repr__()]
             products[(i, gate)] = cliff_to_num_1q[cliff.__repr__()]
 
     invs = {}

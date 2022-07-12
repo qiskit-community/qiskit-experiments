@@ -246,7 +246,7 @@ class CliffordUtils:
     @classmethod
     def num_from_clifford_single_gate(cls, inst, qubits, rb_num_qubits, basis_gates):
         """
-        This method does the reverse of clifford_1_qubit_circuit -
+        This method does the reverse of clifford_1_qubit_circuit and clifford_2_qubit_circuit -
         given a clifford, it returns the corresponding integer, with the mapping
         defined in the above method.
         The mapping is in the context of the basis_gates. Therefore, we define here
@@ -256,7 +256,6 @@ class CliffordUtils:
         name = inst.name
         gates_with_delay = basis_gates.copy()
         gates_with_delay.append("delay")
-        num_qubits = len(qubits)
         single_gate_map = CLIFF_SINGLE_GATE_MAP_1Q if rb_num_qubits == 1 else CLIFF_SINGLE_GATE_MAP_2Q
 
         if not name in gates_with_delay:
@@ -267,7 +266,6 @@ class CliffordUtils:
         if set(basis_gates).issubset(set(cls.TRANSPILED_CLIFF_LIST)):
             if name in {"sx", "cx"}:
                 map_index = name
-                # return single_gate_map["sx"]
             elif name == "delay":
                 return 0
             elif name == "rz":
@@ -284,13 +282,7 @@ class CliffordUtils:
             else:
                 raise QiskitError("Instruction {} could not be converted to Clifford gate".format(name))
 
-        if rb_num_qubits == 1:
-            return single_gate_map[map_index]
-        else:
-            if num_qubits == 1:
-                return single_gate_map[(map_index, qubits[0])]
-            else:
-                return single_gate_map[(map_index, str(qubits))]
+        return single_gate_map[(map_index, str(qubits))]
 
     @classmethod
     def compose_num_with_clifford(
