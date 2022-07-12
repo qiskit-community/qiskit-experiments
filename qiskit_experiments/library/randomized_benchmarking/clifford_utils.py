@@ -156,7 +156,7 @@ class CliffordUtils:
             rng = default_rng(rng)
 
         qc_list = []
-        for i in list(range(size)):
+        for _ in list(range(size)):
             all_edges = coupling_map[:]  # make copy of coupling map from which we pop edges
             selected_edges = []
             while all_edges:
@@ -201,21 +201,10 @@ class CliffordUtils:
                     # remove these qubits from put_1_qubit_clifford
                     put_1_qubit_clifford = np.setdiff1d(put_1_qubit_clifford, edge)
             for q in put_1_qubit_clifford:
-                # pylint: disable=unbalanced-tuple-unpacking
-                # copied from clifford_1_qubit_circuit() below
-                (i, j, p) = self._unpack_num(rng.integers(24), self.CLIFFORD_1_QUBIT_SIG)
-                if i == 1:
-                    qc.h(q)
-                if j == 1:
-                    qc._append(SXdgGate(), [qr[q]], [])
-                if j == 2:
-                    qc._append(SGate(), [qr[q]], [])
-                if p == 1:
-                    qc.x(q)
-                if p == 2:
-                    qc.y(q)
-                if p == 3:
-                    qc.z(q)
+                clifford1q = self.clifford_1_qubit_circuit(rng.integers(24))
+                insts = [datum[0] for datum in clifford1q.data]
+                for inst in insts:
+                    qc.compose(inst, [q], inplace=True)
             qc_list.append(qc)
         return qc_list
 
