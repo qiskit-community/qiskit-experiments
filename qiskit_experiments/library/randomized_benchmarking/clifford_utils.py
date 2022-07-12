@@ -27,7 +27,9 @@ from qiskit.providers.aer import AerSimulator
 from qiskit.exceptions import QiskitError
 from qiskit.quantum_info import Clifford, random_clifford
 
-from .clifford_data import CLIFF_SINGLE_GATE_MAP_1Q, CLIFF_SINGLE_GATE_MAP_2Q, CLIFF_COMPOSE_DATA_1Q, CLIFF_COMPOSE_DATA_2Q
+from .clifford_data import CLIFF_SINGLE_GATE_MAP_1Q, \
+    CLIFF_SINGLE_GATE_MAP_2Q, CLIFF_COMPOSE_DATA_1Q, \
+    CLIFF_COMPOSE_DATA_2Q, CLIFF_INVERSE_DATA_1Q, CLIFF_INVERSE_DATA_2Q
 
 class VGate(Gate):
     """V Gate used in Clifford synthesis."""
@@ -317,3 +319,10 @@ class CliffordUtils:
                 index = num_single_gate_cliffs * composed_num + map_clifford_num_to_array_index[num]
                 composed_num = cliff_compose_data[index]
         return  composed_num
+
+    @classmethod
+    def clifford_inverse_by_num(cls, num, num_qubits):
+        if num_qubits == 1:
+            return CLIFF_INVERSE_DATA_1Q[num]
+        else:
+            return CLIFF_INVERSE_DATA_2Q[num]
