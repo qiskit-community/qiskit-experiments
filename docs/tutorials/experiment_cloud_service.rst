@@ -104,6 +104,7 @@ experiment <https://quantum-computing.ibm.com/experiments/96b86d51-5200-4270-8ac
 which we’ve made public by editing the ``Share level`` field:
 
 .. jupyter-execute::
+
     from qiskit_ibm_experiment import IBMExperimentService
     from qiskit_experiments.framework.experiment_data import ExperimentData
     service = IBMExperimentService()
