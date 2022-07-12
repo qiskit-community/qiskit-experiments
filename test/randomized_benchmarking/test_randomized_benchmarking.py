@@ -210,10 +210,8 @@ class TestMirrorRB(RBTestCase):
         # formula should be EPC = 1 - (1 - r)^(n_gpc + n_gpp) = 1 - (1 - r)^2
         epc = expdata.analysis_results("EPC")
         epg_sx = expdata.analysis_results("EPG_sx")
-        print(f"epg_sx: {epg_sx}")
 
         epc_expected = 1 - (1 - 1 / 2 * self.p1q) ** 2.0
-        print(f"epc: {epc}, epc_expected: {epc_expected}")
         self.assertAlmostEqual(epc.value.n, epc_expected, delta=0.1 * epc_expected)
 
     def test_two_qubit(self):

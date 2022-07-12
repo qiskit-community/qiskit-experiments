@@ -325,9 +325,9 @@ randomized Clifford mirror circuit consists of
 - a layer of uniformly random one-qubit Cliffords at the beginning and the end 
   of the circuit.
 
-Unlike other RB experiments in Qiskit Experiments, the backend must be specified
-when the experiment is instantiated because :math:`\Omega` depends on the 
-backend's connectivity. Additionally, :math:`\mathbb{L}`
+Even though a `MirrorRB` experiment can be instantiated without a backend, the 
+backend must be specified when the circuits are sampled because :math:`\Omega` 
+depends on the backend's connectivity. 
 
 In standard and interleaved RB, $n$-qubit circuits of varying lengths 
 :math:`\ell` that compose to the identity are run on a device, and the 
@@ -362,15 +362,14 @@ effective polarizations to find entanglement infidelities.
 
 In Qiskit Experiments, mirror RB analysis results include the following:
 
-- ``alpha``: the depolarizing parameter. The user can select which of 
-             :math:`P, P_0, S` to fit, and the corresponding :math:`\alpha` 
-             will be provided.
+- ``alpha``: the depolarizing parameter. The user can select which of :math:`P, P_0, S` 
+  to fit, and the corresponding :math:`\alpha` will be provided.
 
 - ``EPC``: the expectation of the average gate infidelity of a layer sampled 
-           according to :math:`\Omega`.
+  according to :math:`\Omega`.
 
 - ``EI``: the expectation of the entanglement infidelity of a layer sampled 
-          according to :math:`\Omega`. 
+  according to :math:`\Omega`. 
 
 Note that the ``EPC`` :math:`\epsilon_a` and the ``EI`` :math:`\epsilon_e` are 
 related by 
