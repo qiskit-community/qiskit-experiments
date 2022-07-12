@@ -169,8 +169,8 @@ class MirrorRB(StandardRB):
         coupling_map = self._backend.configuration().coupling_map
         experiment_coupling_map = []
         for edge in coupling_map:
-                if edge[0] in self.physical_qubits and edge[1] in self.physical_qubits:
-                    experiment_coupling_map.append(edge)
+            if edge[0] in self.physical_qubits and edge[1] in self.physical_qubits:
+                experiment_coupling_map.append(edge)
 
         for length in lengths_half if self._full_sampling else [lengths_half[-1]]:
             # Sample Clifford layer elements for first half of mirror circuit
