@@ -25,6 +25,8 @@ Experiments
 
     StandardRB
     InterleavedRB
+    MirrorRB
+    MirrorRBPyGSTi
 
 
 Analysis

@@ -154,7 +154,7 @@ class MirrorRBAnalysis(curve.CurveAnalysis):
         # By default, EPG for single qubits aren't set
         default_options.epg_1_qubit = None
 
-        # By default, effective polarization (see Tim Proctor paper) is plotted. We can
+        # By default, effective polarization is plotted (see arXiv:2112.09853). We can
         # also plot success probability or adjusted success probability (see PyGSTi).
         # Do this by setting options to "Success Probability" or "Adjusted Success Probability"
         default_options.y_axis = "Effective Polarization"
