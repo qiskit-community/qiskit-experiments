@@ -1030,8 +1030,12 @@ class TestRBUtilities(QiskitExperimentsTestCase):
             RZGate(-np.pi / 2),
         ]
         transpiled_cliff_names = [gate.name for gate in transpiled_cliff_list]
+        qubits = [0]
         for inst in transpiled_cliff_list:
-            num = CliffordUtils.num_from_1q_clifford_single_gate(inst, transpiled_cliff_names, num_qubits=1)
+            num = CliffordUtils.num_from_clifford_single_gate(inst,
+                                                              qubits,
+                                                              rb_num_qubits=1,
+                                                              basis_gates=transpiled_cliff_names)
             qc_from_num = CliffordUtils.clifford_1_qubit_circuit(num=num)
             qr = QuantumRegister(1)
             qc_from_inst = QuantumCircuit(qr)
@@ -1050,7 +1054,7 @@ class TestRBUtilities(QiskitExperimentsTestCase):
         ]
         general_cliff_names = [gate.name for gate in general_cliff_list]
         for inst in general_cliff_list:
-            num = CliffordUtils.num_from_1q_clifford_single_gate(inst, general_cliff_names, num_qubits=1)
+            num = CliffordUtils.num_from_clifford_single_gate(inst, qubits, rb_num_qubits=1, basis_gates=general_cliff_names)
             qc_from_num = CliffordUtils.clifford_1_qubit_circuit(num=num)
             qr = QuantumRegister(1)
             qc_from_inst = QuantumCircuit(qr)
@@ -1071,7 +1075,7 @@ class TestRBUtilities(QiskitExperimentsTestCase):
         transpiled_cliff_names = [gate.name for gate in transpiled_cliff_list]
         ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
         transpiled_circs_file = \
-            ROOT_DIR + "/../../qiskit_experiments/library/randomized_benchmarking/transpiled_circs_1q.qpy"
+            ROOT_DIR + "/../../qiskit_experiments/library/randomized_benchmarking/transpiled_circs_1q_rz_sx.qpy"
         if os.path.isfile(transpiled_circs_file):
             with open(transpiled_circs_file, 'rb') as fd:
                 all_transpiled_circuits = qpy.load(fd)
@@ -1079,7 +1083,10 @@ class TestRBUtilities(QiskitExperimentsTestCase):
             raise QiskitError(f"Data file {transpiled_circs_file} was not found")
 
         for index, qc in enumerate(all_transpiled_circuits):
-            num = CliffordUtils.compose_num_with_clifford_1q(0, qc, transpiled_cliff_names)
+            num = CliffordUtils.compose_num_with_clifford(num_qubits=1,
+                                                          composed_num=0,
+                                                          qc=qc,
+                                                          basis_gates=transpiled_cliff_names)
             assert num == index
 
     def test_number_to_clifford_mapping_2q(self):
@@ -1103,7 +1110,7 @@ class TestRBUtilities(QiskitExperimentsTestCase):
         transpiled_cliff_names = [gate.name for gate in transpiled_cliff_list]
         ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
         transpiled_circs_file = \
-            ROOT_DIR + "/../../qiskit_experiments/library/randomized_benchmarking/transpiled_circs_2q.qpy"
+            ROOT_DIR + "/../../qiskit_experiments/library/randomized_benchmarking/transpiled_circs_2q_rz_sx_cx.qpy"
         if os.path.isfile(transpiled_circs_file):
             with open(transpiled_circs_file, 'rb') as fd:
                 all_transpiled_circuits = qpy.load(fd)
@@ -1112,5 +1119,8 @@ class TestRBUtilities(QiskitExperimentsTestCase):
 
         for index, qc in enumerate(all_transpiled_circuits):
             qc = all_transpiled_circuits[index]
-            num = CliffordUtils.compose_num_with_clifford_2q(composed_num=0, qc=qc, basis_gates=transpiled_cliff_names)
+            num = CliffordUtils.compose_num_with_clifford(num_qubits=2,
+                                                          composed_num=0,
+                                                          qc=qc,
+                                                          basis_gates=transpiled_cliff_names)
             assert num == index
