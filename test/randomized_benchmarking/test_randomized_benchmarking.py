@@ -177,6 +177,8 @@ class TestStandardRB(RBTestCase):
             backend=self.backend,
         )
 
+        exp1.set_transpile_options(**self.transpiler_options)
+        exp2.set_transpile_options(**self.transpiler_options)
         circs1 = exp1.circuits()
         circs2 = exp2.circuits()
 
@@ -220,6 +222,7 @@ class TestStandardRB(RBTestCase):
             backend=self.backend,
             full_sampling=False,
         )
+        exp1.set_transpile_options(**self.transpiler_options)
 
         exp2 = rb.StandardRB(
             qubits=(0, 1),
@@ -228,6 +231,7 @@ class TestStandardRB(RBTestCase):
             backend=self.backend,
             full_sampling=True,
         )
+        exp2.set_transpile_options(**self.transpiler_options)
 
         circs1 = exp1.circuits()
         circs2 = exp2.circuits()
@@ -456,6 +460,7 @@ class TestInterleavedRB(RBTestCase):
             seed=123,
             num_samples=1,
         )
+        exp.set_transpile_options(**self.transpiler_options)
         _, int_circ = exp.circuits()
 
         qc = QuantumCircuit(2)
