@@ -74,7 +74,9 @@ The result of running an experiment is an :class:`ExperimentData` container
 which contains the analysis results, any figures generated during analysis,
 and the raw measurement data. These can each be accessed using the
 :meth:`ExperimentData.analysis_results`, :meth:`ExperimentData.figure`
-and :meth:`ExperimentData.data` methods respectively.
+and :meth:`ExperimentData.data` methods respectively. Additional metadata
+for the experiment itself can be added via :meth:`ExperimentData.metadata`.
+
 
 Analysis/plotting is done in a separate child thread, so it doesn't block the
 main thread. Since matplotlib doesn't support GUI mode in a child threads, the
