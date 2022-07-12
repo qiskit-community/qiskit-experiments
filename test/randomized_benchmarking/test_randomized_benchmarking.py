@@ -523,7 +523,7 @@ class TestMirrorRB(RBTestCase):
 
     def test_pauli_randomize(self):
         """Test that the number of layers is correct depending on whether
-        local_clifford is set to True or False by counting the number of barriers."""
+        pauli_randomize is set to True or False by counting the number of barriers."""
         exp = rb.MirrorRB(
             qubits=(0,),
             lengths=[2],
