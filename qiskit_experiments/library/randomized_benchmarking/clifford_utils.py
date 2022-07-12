@@ -25,6 +25,7 @@ from qiskit.circuit.library import SdgGate, HGate, SGate, SXdgGate
 from qiskit.compiler import transpile
 from qiskit.providers.aer import AerSimulator
 from qiskit.exceptions import QiskitError
+from qiskit.quantum_info import Clifford, random_clifford
 
 from .clifford_data import CLIFF_SINGLE_GATE_MAP_1Q, CLIFF_SINGLE_GATE_MAP_2Q, CLIFF_COMPOSE_DATA_1Q, CLIFF_COMPOSE_DATA_2Q
 
@@ -358,9 +359,13 @@ class CliffordUtils:
         result_num = composed_num
         for inst in qc:
             if inst[0].num_qubits == 2:
-                qubits = [inst[1][0].index, inst[1][1].index]
+                qubits1 = [inst[1][0].index, inst[1][1].index]
+                qubits = [inst[1][0].register, inst[1][1].register]
+                assert(qubits == qubits1)
             else:
-                qubits = qubits=inst[1][0].index
+                qubits1 = qubits=inst[1][0].index
+                qubits1 = qubits = inst[1][0].register
+                assert(qubits== qubits1)
             num = cls.num_from_2q_clifford_single_gate(inst=inst[0], qubits=qubits, basis_gates=basis_gates)
             index = num_single_gate_cliffs * result_num + map_clifford_num_to_array_index[num]
             result_num = CLIFF_COMPOSE_DATA_2Q[index]

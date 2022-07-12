@@ -2,7 +2,8 @@ from typing import List
 from qiskit import qpy
 from qiskit_experiments.library.randomized_benchmarking import CliffordUtils
 
-basis_gates=["rz", "sx", "cx"]
+#basis_gates=["rz", "sx", "cx"]
+basis_gates=["x", "h", "s", "cx"]
 
 def generate_1q_transpiled_clifford_circuits(basis_gates: List[str]):
     """Generate all transpiled clifford circuits"""
@@ -11,7 +12,7 @@ def generate_1q_transpiled_clifford_circuits(basis_gates: List[str]):
         circ = CliffordUtils.clifford_1_qubit_circuit(num=num)
         transpiled_circ = CliffordUtils.transpile_single_clifford(circ, basis_gates)
         transpiled_circs.append(transpiled_circ)
-    with open('transpiled_circs_1q.qpy', 'wb') as fd:
+    with open('transpiled_circs_1q_x_h_s.qpy', 'wb') as fd:
         qpy.dump(transpiled_circs, fd)
 
 def generate_2q_transpiled_clifford_circuits(basis_gates: List[str]):
@@ -21,7 +22,7 @@ def generate_2q_transpiled_clifford_circuits(basis_gates: List[str]):
         circ = CliffordUtils.clifford_2_qubit_circuit(num=num)
         transpiled_circ = CliffordUtils.transpile_single_clifford(circ, basis_gates)
         transpiled_circs.append(transpiled_circ)
-    with open('transpiled_circs_2q.qpy', 'wb') as fd:
+    with open('transpiled_circs_2q_x_h_s_cx.qpy', 'wb') as fd:
         qpy.dump(transpiled_circs, fd)
 
 generate_1q_transpiled_clifford_circuits(basis_gates=basis_gates)
