@@ -134,7 +134,6 @@ class MirrorRB(StandardRB):
 
         # Set analysis options
         self.analysis = MirrorRBAnalysis()
-        self.analysis.set_options(outcome="0" * self.num_qubits)
 
     def _sample_circuits(self, lengths, rng) -> List[QuantumCircuit]:
         """Sample Mirror RB circuits.
