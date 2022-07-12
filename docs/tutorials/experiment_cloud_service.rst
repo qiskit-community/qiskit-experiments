@@ -105,9 +105,8 @@ which we’ve made public by editing the ``Share level`` field:
 
 .. jupyter-execute::
 
-    from qiskit_ibm_experiment import IBMExperimentService
     from qiskit_experiments.framework.experiment_data import ExperimentData
-    service = IBMExperimentService()
+    service = ExperimentData.get_service_from_backend(backend)
     load_exp = ExperimentData.load("96b86d51-5200-4270-8ac1-ce4c20188ab9", service)
 
 To display the figure, which is serialized into a string, we need the
