@@ -238,7 +238,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
                 file = "/transpiled_circs_1q_x_h_s.qpy"
             else:
                 raise QiskitError(
-                    "Transpiled circuits file for {basis_gates} does not exist. "
+                    f"Transpiled circuits file for {basis_gates_set} does not exist. "
                     "Use generate_transpile_circuits.py to generate this file"
                 )
         if self.num_qubits == 2:
@@ -248,7 +248,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
                 file = "/transpiled_circs_2q_x_h_s_cx.qpy"
             else:
                 raise QiskitError(
-                    "Transpiled circuits file for {basis_gates} does not exist. "
+                    f"Transpiled circuits file for {basis_gates_set} does not exist. "
                     "Use generate_transpile_circuits.py to generate this file"
                 )
         ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -260,7 +260,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
                     self._transpiled_cliff_circuits[n] = qpy.load(fd)
             else:
                 raise QiskitError(
-                    "File for {transpiled_circs_file} does not exist. "
+                    f"File for {transpiled_circs_file} does not exist. "
                     "Use generate_transpile_circuits.py to generate this file"
                 )
 
