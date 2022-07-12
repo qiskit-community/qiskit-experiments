@@ -125,6 +125,7 @@ SVG library:
 We’ve also retrieved the full analysis results from the database:
 
 .. jupyter-execute::
+    :raises:
 
     for result in load_exp.analysis_results():
         print(result)
