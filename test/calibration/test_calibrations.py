@@ -271,6 +271,15 @@ class TestCalibrationsBasic(QiskitExperimentsTestCase):
             self.cals.get_parameter_value("amp", "(1, a)", "xp")
 
 
+    def test_from_backend(self):
+        """Test that when generating calibrations from backend
+        the data is passed correctly"""
+        backend = FakeBelemV2()
+        cals = Calibrations.from_backend(backend)
+        config_args = cals.config()['kwargs']
+        control_channel_map_size = len(config_args['control_channel_map'].chan_map)
+        self.assertEqual(control_channel_map_size, )
+
 class TestOverrideDefaults(QiskitExperimentsTestCase):
     """
     Test that we can override defaults. For example, this means that all qubits may have a
@@ -1450,6 +1459,8 @@ class TestSavingAndLoading(CrossResonanceTest):
         )
 
 
+
+
 class TestInstructionScheduleMap(QiskitExperimentsTestCase):
     """Class to test the functionality of a Calibrations"""
 
@@ -1738,3 +1749,14 @@ class TestSerialization(QiskitExperimentsTestCase):
         cals2.add_parameter_value(param_val2, "amp", 3, "x")
 
         self.assertTrue(cals1 == cals2)
+
+import unittest
+def suite():
+    suite = unittest.TestSuite()
+    suite.addTest(TestCalibrationsBasic('test_from_backend'))
+    return suite
+
+if __name__ == '__main__':
+    runner = unittest.TextTestRunner()
+    runner.run(suite())
+
