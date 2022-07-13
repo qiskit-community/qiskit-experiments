@@ -23,6 +23,7 @@ import uncertainties
 
 from qiskit_ibm_experiment import IBMExperimentService, AnalysisResultData
 from qiskit_ibm_experiment import ResultQuality
+from qiskit.exceptions import QiskitError
 
 from qiskit_experiments.framework.json import (
     ExperimentEncoder,
@@ -214,11 +215,14 @@ class AnalysisResult:
         result.service = service
         return result
 
-    def save(self) -> None:
+    def save(self, suppress_errors: bool = True) -> None:
         """Save this analysis result in the database.
-
+        Args:
+            suppress_errors: should the method catch exceptions (true) or
+            pass them on, potentially aborting the experiemnt (false)
         Raises:
             ExperimentDataError: If the analysis result contains invalid data.
+            QiskitError: If the save to the database failed
         """
         if not self.service:
             LOG.warning(
@@ -230,9 +234,12 @@ class AnalysisResult:
                 self._db_data, json_encoder=self._json_encoder, create=not self._created_in_db
             )
             self._created_in_db = True
-        except Exception:  # pylint: disable=broad-except
-            # Don't fail the experiment just because its data cannot be saved.
+        except Exception as ex:  # pylint: disable=broad-except
+            # Don't automatically fail the experiment just because its data cannot be saved.
             LOG.error("Unable to save the experiment data: %s", traceback.format_exc())
+            if not suppress_errors:
+                raise QiskitError(
+                    f"Analysis result save failed\nError Message:\n{str(ex)}") from ex
 
     def copy(self) -> "AnalysisResult":
         """Return a copy of the result with a new result ID"""

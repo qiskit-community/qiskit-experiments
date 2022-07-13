@@ -1323,8 +1323,11 @@ class ExperimentData:
         for data in self.child_data():
             data.save_metadata()
 
-    def _save_experiment_metadata(self) -> None:
+    def _save_experiment_metadata(self, suppress_errors: bool = True) -> None:
         """Save this experiments metadata to a database service.
+        Args:
+            suppress_errors: should the method catch exceptions (true) or
+            pass them on, potentially aborting the experiemnt (false)
 
         .. note::
             This method does not save analysis results nor figures.
@@ -1357,18 +1360,26 @@ class ExperimentData:
                 )
                 self._db_data.metadata = metadata
 
-        except Exception:  # pylint: disable=broad-except
-            # Don't fail the experiment just because its data cannot be saved.
+        except Exception as ex:  # pylint: disable=broad-except
+            # Don't automatically fail the experiment just because its data cannot be saved.
             LOG.error("Unable to save the experiment data: %s", traceback.format_exc())
+            if not suppress_errors:
+                raise QiskitError(
+                    f"Experiment data save failed\nError Message:\n{str(ex)}") from ex
+
+
 
     def _metadata_too_large(self):
         """Determines whether the metadata should be stored in a separate file"""
         # currently the entire POST JSON request body is limited by default to 100kb
         return sys.getsizeof(self.metadata) > 10000
 
-    def save(self) -> None:
+    def save(self, suppress_errors: bool = True) -> None:
         """Save the experiment data to a database service.
 
+        Args:
+            suppress_errors: should the method catch exceptions (true) or
+            pass them on, potentially aborting the experiemnt (false)
         .. note::
             This saves the experiment metadata, all analysis results, and all
             figures. Depending on the number of figures and analysis results this
@@ -1386,13 +1397,13 @@ class ExperimentData:
             )
             return
 
-        self._save_experiment_metadata()
+        self._save_experiment_metadata(suppress_errors=suppress_errors)
         if not self._created_in_db:
             LOG.warning("Could not save experiment metadata to DB, aborting experiment save")
             return
 
         for result in self._analysis_results.values():
-            result.save()
+            result.save(suppress_errors=suppress_errors)
 
         for result in self._deleted_analysis_results.copy():
             with service_exception_to_warning():
