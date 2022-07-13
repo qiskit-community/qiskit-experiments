@@ -31,7 +31,7 @@ from qiskit.pulse import (
 from qiskit import transpile, QuantumCircuit
 from qiskit.pulse.transforms import inline_subroutines, block_to_schedule
 import qiskit.pulse as pulse
-from qiskit.providers.fake_provider import FakeArmonkV2, FakeBelemV2
+from qiskit.providers.fake_provider import FakeArmonkV2, FakeBelemV2, FakeBelem
 from qiskit_experiments.calibration_management.calibrations import Calibrations, ParameterKey
 from qiskit_experiments.calibration_management.parameter_value import ParameterValue
 from qiskit_experiments.calibration_management.basis_gate_library import FixedFrequencyTransmon
@@ -281,6 +281,8 @@ class TestCalibrationsBasic(QiskitExperimentsTestCase):
         coupling_map_size = len(config_args['coupling_map'])
         self.assertEqual(control_channel_map_size, 8)
         self.assertEqual(coupling_map_size, 8)
+        self.assertEqual(cals.get_parameter_value('drive_freq',0), 5090167234.445013)
+        self.assertEqual(cals.get_parameter_value('meas_freq', 0), 7301661824.000001)
 
 class TestOverrideDefaults(QiskitExperimentsTestCase):
     """
