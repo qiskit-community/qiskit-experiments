@@ -1328,7 +1328,8 @@ class ExperimentData:
         Args:
             suppress_errors: should the method catch exceptions (true) or
             pass them on, potentially aborting the experiemnt (false)
-
+        Raises:
+            QiskitError: If the save to the database failed
         .. note::
             This method does not save analysis results nor figures.
             Use :meth:`save` for general saving of all experiment data.
