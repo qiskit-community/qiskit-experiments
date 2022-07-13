@@ -238,8 +238,7 @@ class AnalysisResult:
             # Don't automatically fail the experiment just because its data cannot be saved.
             LOG.error("Unable to save the experiment data: %s", traceback.format_exc())
             if not suppress_errors:
-                raise QiskitError(
-                    f"Analysis result save failed\nError Message:\n{str(ex)}") from ex
+                raise QiskitError(f"Analysis result save failed\nError Message:\n{str(ex)}") from ex
 
     def copy(self) -> "AnalysisResult":
         """Return a copy of the result with a new result ID"""

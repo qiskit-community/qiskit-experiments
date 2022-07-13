@@ -1364,10 +1364,7 @@ class ExperimentData:
             # Don't automatically fail the experiment just because its data cannot be saved.
             LOG.error("Unable to save the experiment data: %s", traceback.format_exc())
             if not suppress_errors:
-                raise QiskitError(
-                    f"Experiment data save failed\nError Message:\n{str(ex)}") from ex
-
-
+                raise QiskitError(f"Experiment data save failed\nError Message:\n{str(ex)}") from ex
 
     def _metadata_too_large(self):
         """Determines whether the metadata should be stored in a separate file"""
