@@ -37,7 +37,7 @@ from qiskit.pulse import (
 )
 from qiskit.pulse.channels import PulseChannel
 from qiskit.circuit import Parameter, ParameterExpression
-from qiskit.providers.backend import BackendV1 as Backend
+from qiskit.providers.backend import Backend, BackendV1, BackendV2
 
 from qiskit_experiments.exceptions import CalibrationError
 from qiskit_experiments.calibration_management.basis_gate_library import BasisGateLibrary
@@ -257,27 +257,44 @@ class Calibrations:
         Returns:
             An instance of Calibrations instantiated from a backend.
         """
-        if hasattr(backend, "name") and hasattr(backend.name, "__call__"):
+        if isinstance(backend, BackendV1):
             backend_name = backend.name()
+            coupling_map = getattr(backend.configuration(), "coupling_map", [])
+            control_channels = getattr(backend.configuration(), "control_channels", None)
+            version = getattr(backend, "version", None)
+            qubit_freq_est = getattr(backend.defaults(), "qubit_freq_est", [])
+            meas_freq_est = getattr(backend.defaults(), "meas_freq_est", [])
+
+        elif isinstance(backend, BackendV2):
+            backend_name = backend.name
+            coupling_map = backend.coupling_map.get_edges()
+            control_channels = backend.control_channels
+            version = backend.version
+            qubit_freq_est = []
+            meas_freq_est = []
         else:
             backend_name = None
+            coupling_map = []
+            control_channels = None
+            version = None
+            qubit_freq_est = []
+            meas_freq_est = []
 
 
-        cals = Calibrations(
-            getattr(backend.configuration(), "coupling_map", []),
-            getattr(backend.configuration(), "control_channels", None),
+
+        cals = Calibrations(coupling_map, control_channels,
             library,
             libraries,
             add_parameter_defaults,
             backend_name,
-            getattr(backend, "version", None),
+            version
         )
 
         if add_parameter_defaults:
-            for qubit, freq in enumerate(getattr(backend.defaults(), "qubit_freq_est", [])):
+            for qubit, freq in enumerate(qubit_freq_est):
                 cals.add_parameter_value(freq, cals.drive_freq, qubit, update_inst_map=False)
 
-            for meas, freq in enumerate(getattr(backend.defaults(), "meas_freq_est", [])):
+            for meas, freq in enumerate(meas_freq_est):
                 cals.add_parameter_value(freq, cals.meas_freq, meas, update_inst_map=False)
 
         # Update the instruction schedule map after adding all parameter values.

@@ -278,7 +278,9 @@ class TestCalibrationsBasic(QiskitExperimentsTestCase):
         cals = Calibrations.from_backend(backend)
         config_args = cals.config()['kwargs']
         control_channel_map_size = len(config_args['control_channel_map'].chan_map)
-        self.assertEqual(control_channel_map_size, )
+        coupling_map_size = len(config_args['coupling_map'])
+        self.assertEqual(control_channel_map_size, 8)
+        self.assertEqual(coupling_map_size, 8)
 
 class TestOverrideDefaults(QiskitExperimentsTestCase):
     """
