@@ -29,6 +29,7 @@ import uuid
 import enum
 import time
 import io
+import sys
 import traceback
 import numpy as np
 from matplotlib import pyplot
@@ -1362,8 +1363,8 @@ class ExperimentData:
 
     def _metadata_too_large(self):
         """Determines whether the metadata should be stored in a separate file"""
-        # TODO: detemine the relevant sizes and the best way to check the relevant metadata size
-        return True
+        # currently the entire POST JSON request body is limited by default to 100kb
+        return sys.getsizeof(self.metadata) > 10000
 
     def save(self) -> None:
         """Save the experiment data to a database service.
