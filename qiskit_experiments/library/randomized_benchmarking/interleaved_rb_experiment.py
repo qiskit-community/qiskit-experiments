@@ -104,7 +104,7 @@ class InterleavedRB(StandardRB):
 
         self.load_transpiled_cliff_circuits()
         for _ in range(self.experiment_options.num_samples):
-            if self.num_qubits == 1:
+            if self.num_qubits == 1 or self.num_qubits==2:
                 self._set_transpiled_interleaved_element()
                 std_circuits, int_circuits = self._build_rb_circuits(
                     self.experiment_options.lengths,
@@ -177,8 +177,14 @@ class InterleavedRB(StandardRB):
         create a circuit comprising this gate.
         """
         if not isinstance(self._interleaved_element, QuantumCircuit):
-            qc_interleaved = QuantumCircuit(1)
-            qc_interleaved.append(self._interleaved_element[0], [0], [])
+            if self.num_qubits == 1:
+                qc_interleaved = QuantumCircuit(1, 1)
+                qubits = [0]
+            else:
+                qc_interleaved = QuantumCircuit(2, 2)
+                qubits = [0, 1]
+
+            qc_interleaved.append(self._interleaved_element[0], qubits)
             self._transpiled_interleaved_elem = self._interleaved_element
         else:
             qc_interleaved = self._interleaved_element

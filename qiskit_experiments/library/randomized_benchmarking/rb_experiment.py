@@ -305,7 +305,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
         clbits  = list(range(n))
 
         if is_interleaved:
-            interleaved_circ = QuantumCircuit(max_qubit, 1)
+            interleaved_circ = QuantumCircuit(max_qubit, n)
             interleaved_circ.barrier(qubits)
         else:
             interleaved_circ = None
