@@ -106,6 +106,7 @@ experiment <https://quantum-computing.ibm.com/experiments/9640736e-d797-4321-b06
 which we’ve made public by editing the ``Share level`` field:
 
 .. jupyter-execute::
+    :hide-output:
     :raises:
 
     from qiskit_experiments.framework.experiment_data import ExperimentData
@@ -127,6 +128,7 @@ To display the figure, which is serialized into a string, we need the
 The analysis results have been retrieved as well:
 
 .. jupyter-execute::
+    :hide-output:
     :raises:
 
     for result in load_expdata.analysis_results():
@@ -135,7 +137,7 @@ The analysis results have been retrieved as well:
 .. jupyter-execute::
     :hide-code:
 
-    print ("""AnalysisResult
+    print("""AnalysisResult
     - name: T1
     - value: 0.0001040+/-0.0000028
     - χ²: 0.8523786276663019
