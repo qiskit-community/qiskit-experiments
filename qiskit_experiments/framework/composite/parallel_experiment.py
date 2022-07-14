@@ -17,7 +17,7 @@ import numpy as np
 
 from qiskit import QuantumCircuit, ClassicalRegister
 from qiskit.circuit import Clbit
-from qiskit.providers.backend import Backend
+from qiskit.providers.backend import Backend, BackendV1, BackendV2
 from qiskit_experiments.exceptions import QiskitError
 from .composite_experiment import CompositeExperiment, BaseExperiment
 from .composite_analysis import CompositeAnalysis
@@ -86,7 +86,10 @@ class ParallelExperiment(CompositeExperiment):
             # Work around for backend coupling map circuit inflation
             coupling_map = getattr(self.transpile_options, "coupling_map", None)
             if coupling_map is None and self.backend:
-                coupling_map = self.backend.configuration().coupling_map
+                if isinstance(self.backend, BackendV1):
+                    coupling_map = self.backend.configuration().coupling_map
+                if isinstance(self.backend, BackendV2):
+                    coupling_map = self.backend.coupling_map.get_edges()
             if coupling_map is not None:
                 num_qubits = 1 + max(*self.physical_qubits, np.max(coupling_map))
             else:
