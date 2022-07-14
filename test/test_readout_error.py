@@ -20,7 +20,7 @@ from test.base import QiskitExperimentsTestCase
 import numpy as np
 from qiskit.quantum_info.operators.predicates import matrix_equal
 from qiskit.providers.aer import AerSimulator
-from qiskit.providers.fake_provider import FakeParis
+from qiskit.providers.fake_provider import FakeParisV2
 from qiskit_experiments.library.characterization import LocalReadoutError, CorrelatedReadoutError
 from qiskit_experiments.framework import ExperimentData
 from qiskit_experiments.framework import ParallelExperiment
@@ -144,7 +144,7 @@ class TestRedoutError(QiskitExperimentsTestCase):
 
     def test_parallel_running(self):
         """Test that parallel experiments work for this experiment"""
-        backend = AerSimulator.from_backend(FakeParis())
+        backend = FakeParisV2()
         exp1 = CorrelatedReadoutError([0, 2])
         exp2 = CorrelatedReadoutError([1, 3])
         exp = ParallelExperiment([exp1, exp2])
@@ -158,7 +158,7 @@ class TestRedoutError(QiskitExperimentsTestCase):
     def test_database_save_and_load(self):
         """Tests saving and loading the mitigator from the DB"""
         qubits = [0, 1]
-        backend = AerSimulator.from_backend(FakeParis())
+        backend = FakeParisV2()
         exp = LocalReadoutError(qubits)
         exp_data = exp.run(backend).block_for_results()
         exp_data.service = FakeService()
@@ -173,7 +173,7 @@ class TestRedoutError(QiskitExperimentsTestCase):
     def test_json_serialization(self):
         """Verifies that mitigators can be serialized for DB storage"""
         qubits = [0, 1]
-        backend = AerSimulator.from_backend(FakeParis())
+        backend = FakeParisV2()
         exp = LocalReadoutError(qubits)
         exp_data = exp.run(backend).block_for_results()
         mitigator = exp_data.analysis_results(0).value
