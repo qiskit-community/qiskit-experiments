@@ -22,7 +22,7 @@ from qiskit.exceptions import QiskitError
 import qiskit_experiments.curve_analysis as curve
 from qiskit_experiments.exceptions import AnalysisError
 from qiskit_experiments.framework import AnalysisResultData, ExperimentData
-from qiskit_experiments.database_service import DbAnalysisResultV1
+from qiskit_experiments.framework.analysis_result import AnalysisResult
 
 if TYPE_CHECKING:
     from uncertainties import UFloat
@@ -91,7 +91,7 @@ class RBAnalysis(curve.CurveAnalysis):
                 The default value will use standard gate error ratios.
                 If you don't know accurate error ratio between your basis gates,
                 you can skip analysis of EPGs by setting this options to ``None``.
-            epg_1_qubit (List[DbAnalysisResultV1]): Analysis results from previous RB experiments
+            epg_1_qubit (List[AnalysisResult]): Analysis results from previous RB experiments
                 for individual single qubit gates. If this is provided, EPC of
                 2Q RB is corected to exclude the deporalization of underlying 1Q channels.
         """
@@ -429,7 +429,7 @@ def _exclude_1q_error(
     epc: Union[float, "UFloat"],
     qubits: Tuple[int, int],
     gate_counts_per_clifford: Dict[QubitGateTuple, float],
-    extra_analyses: Optional[List[DbAnalysisResultV1]],
+    extra_analyses: Optional[List[AnalysisResult]],
 ) -> Union[float, "UFloat"]:
     """A helper method to exclude contribution of single qubit gates from 2Q EPC.
 
