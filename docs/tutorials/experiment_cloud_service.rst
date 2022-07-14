@@ -3,7 +3,7 @@ Saving Experiment Data to the Cloud
 
 Qiskit Experiments is designed to work with Qiskit’s `online experiment
 database <https://quantum-computing.ibm.com/experiments>`__, where you
-can view and share results of experiments you’ve run as ``DbExperimentData`` 
+can view and share results of experiments you’ve run as ``ExperimentData`` 
 objects. This tutorial shows how to save your experimental results to the 
 database. You will need to have ``qiskit-ibmq-provider`` installed locally 
 and an account in the Qiskit cloud service. We will use the ``ibmq_lima`` backend
@@ -86,7 +86,7 @@ analysis results, which for the :math:`T_1` experiment is the fitted
 
 .. image:: ./experiment_cloud_service/t1_experiment.png
 
-The metadata field shows experiment metadata included in the ``DbExperimentData`` object.
+The metadata field shows experiment metadata included in the ``ExperimentData`` object.
 
 .. image:: ./experiment_cloud_service/metadata.png
 
@@ -100,7 +100,7 @@ human to determine whether the result is acceptable.
 Loading an experiment from the database
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-You can also retrieve the full ``DbExperimentData`` object from the database service.
+You can also retrieve the full ``ExperimentData`` object from the database service.
 Let’s load a `previous T1
 experiment <https://quantum-computing.ibm.com/experiments/9640736e-d797-4321-b063-d503f8e98571>`__,
 which we’ve made public by editing the ``Share level`` field:
