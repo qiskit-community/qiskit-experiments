@@ -24,7 +24,7 @@ from qiskit.providers.aer.noise import NoiseModel, depolarizing_error
 from qiskit.quantum_info import Clifford
 
 from qiskit_experiments.library import randomized_benchmarking as rb
-from qiskit_experiments.database_service.exceptions import DbExperimentEntryNotFound
+from qiskit_experiments.database_service.exceptions import ExperimentEntryNotFound
 
 
 class RBTestCase(QiskitExperimentsTestCase):
@@ -536,13 +536,13 @@ class TestEPGAnalysis(QiskitExperimentsTestCase):
         result = analysis.run(self.expdata_1qrb_q0, replace_results=False)
         self.assertExperimentDone(result)
 
-        with self.assertRaises(DbExperimentEntryNotFound):
+        with self.assertRaises(ExperimentEntryNotFound):
             result.analysis_results("EPG_s")
 
-        with self.assertRaises(DbExperimentEntryNotFound):
+        with self.assertRaises(ExperimentEntryNotFound):
             result.analysis_results("EPG_h")
 
-        with self.assertRaises(DbExperimentEntryNotFound):
+        with self.assertRaises(ExperimentEntryNotFound):
             result.analysis_results("EPG_x")
 
     def test_with_custom_epg_ratio(self):

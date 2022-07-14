@@ -102,13 +102,15 @@ Loading an experiment from the database
 
 You can also retrieve the full ``DbExperimentData`` object from the database service.
 Let’s load a `previous T1
-experiment <https://quantum-computing.ibm.com/experiments/10a43cb0-7cb9-41db-ad74-18ea6cf63704>`__,
+experiment <https://quantum-computing.ibm.com/experiments/9640736e-d797-4321-b063-d503f8e98571>`__,
 which we’ve made public by editing the ``Share level`` field:
 
 .. jupyter-execute::
+    :raises:
 
-    from qiskit_experiments.database_service import DbExperimentDataV1 as DbExperimentData
-    load_expdata = DbExperimentData.load("10a43cb0-7cb9-41db-ad74-18ea6cf63704", provider.service("experiment"))
+    from qiskit_experiments.framework.experiment_data import ExperimentData
+    service = ExperimentData.get_service_from_backend(backend)
+    load_expdata = ExperimentData.load("9640736e-d797-4321-b063-d503f8e98571", service)
 
 To display the figure, which is serialized into a string, we need the
 ``SVG`` library:
@@ -125,6 +127,7 @@ To display the figure, which is serialized into a string, we need the
 The analysis results have been retrieved as well:
 
 .. jupyter-execute::
+    :raises:
 
     for result in load_expdata.analysis_results():
         print(result)
@@ -132,40 +135,40 @@ The analysis results have been retrieved as well:
 .. jupyter-execute::
     :hide-code:
 
-    print("""DbAnalysisResultV1
+    print ("""AnalysisResult
     - name: T1
-    - value: 0.000162+/-0.000005
-    - χ²: 2.020963116936679
-    - quality: ResultQuality.GOOD
+    - value: 0.0001040+/-0.0000028
+    - χ²: 0.8523786276663019
+    - quality: good
     - extra: <1 items>
     - device_components: ['Q0']
     - verified: False
-    DbAnalysisResultV1
+    AnalysisResult
     - name: @Parameters_T1Analysis
     - value: CurveFitResult:
     - fitting method: least_squares
     - number of sub-models: 1
     * F_exp_decay(x) = amp * exp(-x/tau) + base
     - success: True
-    - number of function evals: 10
+    - number of function evals: 9
     - degree of freedom: 9
-    - chi-square: 18.188668052430113
-    - reduced chi-square: 2.020963116936679
-    - Akaike info crit.: 10.990705390746495
-    - Bayesian info crit.: 12.445425340110496
+    - chi-square: 7.671407648996717
+    - reduced chi-square: 0.8523786276663019
+    - Akaike info crit.: 0.6311217041870707
+    - Bayesian info crit.: 2.085841653551072
     - init params:
-    * amp = 0.8911088911088911
-    * tau = 0.00022052162420775344
-    * base = 0.06543456543456544
+    * amp = 0.923076923076923
+    * tau = 0.00016946294665316433
+    * base = 0.033466533466533464
     - fit params:
-    * amp = 0.9078934346857626 ± 0.009298235255993204
-    * tau = 0.00016238463394317357 ± 5.464979264458155e-06
-    * base = 0.05229457605196883 ± 0.008070216567481955
+    * amp = 0.9266620487665083 ± 0.007096409569790425
+    * tau = 0.00010401411623191737 ± 2.767679521974391e-06
+    * base = 0.036302726197354626 ± 0.0037184540724124844
     - correlations:
-    * (tau, base) = -0.8540561060875552
-    * (amp, base) = -0.7410110596164996
-    * (amp, tau) = 0.5103732401743298
-    - quality: ResultQuality.GOOD
+    * (tau, base) = -0.6740808746060173
+    * (amp, base) = -0.4231810882291163
+    * (amp, tau) = 0.09302612202500576
+    - quality: good
     - device_components: ['Q0']
     - verified: False""")
 
