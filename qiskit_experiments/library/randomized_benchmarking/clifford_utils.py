@@ -263,6 +263,8 @@ class CliffordUtils:
         if not name in gates_with_delay:
             raise QiskitError("Instruction {} is not in the basis gates".format(inst.name))
         if set(basis_gates).issubset(set(cls.GENERAL_CLIFF_LIST)):
+            if name == "delay":
+                return 0
             map_index = name
 
         if set(basis_gates).issubset(set(cls.TRANSPILED_CLIFF_LIST)):
