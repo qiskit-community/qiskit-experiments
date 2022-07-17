@@ -331,6 +331,11 @@ class AnalysisResult:
         """
         return self._db_data.experiment_id
 
+    @experiment_id.setter
+    def experiment_id(self, new_id: str) -> None:
+        """Sets the experiment id"""
+        self._db_data.experiment_id = new_id
+
     @property
     def chisq(self) -> Optional[float]:
         """Return the reduced χ² of this analysis."""
