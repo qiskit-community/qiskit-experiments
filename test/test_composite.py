@@ -706,6 +706,23 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
 
             self.assertEqual(expected, sub_data[0])
 
+    def test_composite_properties_setting(self):
+        """Test whether DB-critical properties are being set in the
+        subexperiment data"""
+        exp1 = FakeExperiment([0])
+        exp1.analysis = FakeAnalysis()
+        exp2 = FakeExperiment([1])
+        exp2.analysis = FakeAnalysis()
+        batch_exp = BatchExperiment([exp1, exp2], flatten_results=True)
+        exp_data = batch_exp.run(backend=self.backend).block_for_results()
+        # when flattening, individual analysis result share exp id
+        for result in exp_data.analysis_results():
+            self.assertEqual(result.experiment_id, exp_data.experiment_id)
+        batch_exp = BatchExperiment([exp1, exp2], flatten_results=False)
+        exp_data = batch_exp.run(backend=self.backend).block_for_results()
+        self.assertEqual(exp_data.child_data(0).experiment_type, exp1.experiment_type)
+        self.assertEqual(exp_data.child_data(1).experiment_type, exp2.experiment_type)
+
 
 class TestBatchTranspileOptions(QiskitExperimentsTestCase):
     """

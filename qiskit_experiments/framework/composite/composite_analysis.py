@@ -300,7 +300,7 @@ class CompositeAnalysis(BaseAnalysis):
         component_expdata = []
         for i, _ in enumerate(self._analyses):
             subdata = ExperimentData(backend=experiment_data.backend)
-            subdata._type = experiment_types[i]
+            subdata.experiment_type = experiment_types[i]
             subdata.metadata.update(component_metadata[i])
 
             if self._flatten_results:
