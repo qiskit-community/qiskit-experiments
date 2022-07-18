@@ -16,7 +16,7 @@ from test.base import QiskitExperimentsTestCase
 import numpy as np
 from ddt import ddt, data
 
-from qiskit.providers.fake_provider import FakeArmonk
+from qiskit.providers.fake_provider import FakeArmonkV2
 import qiskit.pulse as pulse
 
 from qiskit_experiments.library import (
@@ -45,7 +45,7 @@ class TestFineFreqEndToEnd(QiskitExperimentsTestCase):
 
         self.inst_map.add("sx", 0, sx_sched)
 
-        self.cals = Calibrations.from_backend(FakeArmonk(), libraries=[FixedFrequencyTransmon()])
+        self.cals = Calibrations.from_backend(FakeArmonkV2(), libraries=[FixedFrequencyTransmon()])
 
     @data(-0.5e6, -0.1e6, 0.1e6, 0.5e6)
     def test_end_to_end(self, freq_shift):
@@ -77,7 +77,7 @@ class TestFineFreqEndToEnd(QiskitExperimentsTestCase):
         exp_helper.dt = backend.configuration().dt
 
         fine_freq = FineFrequencyCal(0, self.cals, backend)
-        armonk_freq = FakeArmonk().defaults().qubit_freq_est[0]
+        armonk_freq = FakeArmonkV2().defaults().qubit_freq_est[0]
 
         freq_before = self.cals.get_parameter_value(self.cals.__drive_freq_parameter__, 0)
 
