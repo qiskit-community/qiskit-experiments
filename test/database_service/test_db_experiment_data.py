@@ -27,7 +27,8 @@ import uuid
 import matplotlib.pyplot as plt
 import numpy as np
 
-from qiskit.providers.fake_provider import FakeMelbourne
+from qiskit.providers.backend import BackendV1, BackendV2
+from qiskit.providers.fake_provider import FakeMelbourneV2
 from qiskit.result import Result
 from qiskit.providers import JobV1 as Job
 from qiskit.providers import JobStatus
@@ -52,7 +53,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
 
     def setUp(self):
         super().setUp()
-        self.backend = FakeMelbourne()
+        self.backend = FakeMelbourneV2()
 
     def test_db_experiment_data_attributes(self):
         """Test DB experiment data attributes."""
@@ -70,7 +71,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
             metadata={"foo": "bar"},
             **attrs,
         )
-        self.assertEqual(exp_data.backend.name(), self.backend.name())
+        self.assertEqual(exp_data.backend.name, self.backend.name)
         self.assertEqual(exp_data.experiment_type, "qiskit_test")
         self.assertEqual(exp_data.experiment_id, "1234")
         self.assertEqual(exp_data.tags, ["tag1", "tag2"])
@@ -1030,8 +1031,12 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
 
     def _get_job_result(self, circ_count, has_metadata=False):
         """Return a job result with random counts."""
+        if isinstance(self.backend, BackendV1):
+            backend_name = self.backend.name()
+        if isinstance(self.backend, BackendV2):
+            backend_name = self.backend.name
         job_result = {
-            "backend_name": self.backend.name(),
+            "backend_name": backend_name,
             "backend_version": "1.1.1",
             "qobj_id": "1234",
             "job_id": "some_job_id",
@@ -1057,3 +1062,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         mock_service = mock.create_autospec(IBMExperimentService, instance=True)
         mock_provider.service.return_value = mock_service
         return mock_service
+
+import unittest
+if __name__ == '__main__':
+    unittest.main()

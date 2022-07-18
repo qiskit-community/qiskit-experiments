@@ -37,7 +37,7 @@ from matplotlib.figure import Figure as MatplotlibFigure
 from qiskit.result import Result
 from qiskit.providers.jobstatus import JobStatus, JOB_FINAL_STATES
 from qiskit.exceptions import QiskitError
-from qiskit.providers import Job, Backend, BackendV1, Provider
+from qiskit.providers import Job, Backend, BackendV1, BackendV2, Provider
 
 from qiskit_ibm_experiment import IBMExperimentService
 from qiskit_ibm_experiment import ExperimentData as ExperimentDataclass
@@ -535,8 +535,10 @@ class ExperimentData:
         # defined independently from the setter to enable setting without autosave
 
         self._backend = new_backend
-        if hasattr(new_backend, "name"):
+        if isinstance(new_backend, BackendV1):
             self._db_data.backend = new_backend.name()
+        elif isinstance(new_backend, BackendV2):
+            self._db_data.backend = new_backend.name
         else:
             self._db_data.backend = str(new_backend)
         if hasattr(new_backend, "provider"):
@@ -546,9 +548,15 @@ class ExperimentData:
                 data._set_backend(new_backend)
 
     def _set_hgp_from_backend(self):
-        if self.backend is not None and self.backend.provider() is not None:
+        if self.backend is not None:
+            if isinstance(self.backend, BackendV1):
+                provider = self.backend.provider()
+            elif isinstance(self.backend, BackendV2):
+                provider = self.backend.provider
+            else:
+                return
             try:
-                creds = self.backend.provider().credentials
+                creds = provider.credentials
                 hub = self._db_data.hub or creds.hub
                 group = self._db_data.group or creds.group
                 project = self._db_data.project or creds.project
@@ -557,7 +565,7 @@ class ExperimentData:
                 self._db_data.project = project
             except AttributeError:
                 LOG.warning(
-                    "Unable to set hub/group/project backend %s ",
+                    "Unable to set hub/group/project from backend %s ",
                     self.backend,
                 )
 
@@ -719,23 +727,24 @@ class ExperimentData:
         # Add futures for extracting finished job data
         timeout_ids = []
         for job in jobs:
-            if isinstance(self.backend, BackendV1):
-                backend_name = self.backend.name()
-            else:
-                backend_name = self.backend.name
-            if isinstance(job.backend, BackendV1):
-                job_backend_name = job.backend().name()
-            else:
-                job_backend_name = job.backend().name
-            if self.backend and backend_name != job_backend_name:
-                LOG.warning(
-                    "Adding a job from a backend (%s) that is different "
-                    "than the current backend (%s). "
-                    "The new backend will be used, but "
-                    "service is not changed if one already exists.",
-                    job.backend(),
-                    self.backend,
-                )
+            if self.backend is not None:
+                if isinstance(self.backend, BackendV1):
+                    backend_name = self.backend.name()
+                else:
+                    backend_name = self.backend.name
+                if isinstance(job.backend, BackendV1):
+                    job_backend_name = job.backend().name()
+                else:
+                    job_backend_name = job.backend().name
+                if self.backend and backend_name != job_backend_name:
+                    LOG.warning(
+                        "Adding a job from a backend (%s) that is different "
+                        "than the current backend (%s). "
+                        "The new backend will be used, but "
+                        "service is not changed if one already exists.",
+                        job.backend(),
+                        self.backend,
+                    )
             self.backend = job.backend()
 
             jid = job.job_id()
