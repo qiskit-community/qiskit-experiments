@@ -198,7 +198,7 @@ class TestCrossResonanceHamiltonian(QiskitExperimentsTestCase):
         expr.backend = backend
 
         exp_data = expr.run()
-        self.assertExperimentDone(exp_data, timeout=600)
+        self.assertExperimentDone(exp_data, timeout=1000)
 
         self.assertEqual(exp_data.analysis_results(0).quality, "good")
 

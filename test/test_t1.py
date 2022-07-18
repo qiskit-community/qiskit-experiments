@@ -15,11 +15,11 @@ Test T1 experiment
 
 from test.base import QiskitExperimentsTestCase
 import numpy as np
+from qiskit_ibm_experiment import IBMExperimentService
+from qiskit_experiments.test.noisy_delay_aer_simulator import NoisyDelayAerBackend
 from qiskit_experiments.framework import ExperimentData, ParallelExperiment
 from qiskit_experiments.library import T1
 from qiskit_experiments.library.characterization import T1Analysis
-from qiskit_experiments.test.t1_backend import T1Backend
-from qiskit_experiments.test.fake_service import FakeService
 
 
 class TestT1(QiskitExperimentsTestCase):
@@ -32,18 +32,13 @@ class TestT1(QiskitExperimentsTestCase):
         Test T1 experiment using a simulator.
         """
         t1 = 25e-6
-        backend = T1Backend(
-            [t1],
-            initial_prob1=[0.02],
-            readout0to1=[0.02],
-            readout1to0=[0.02],
-        )
+        backend = NoisyDelayAerBackend([t1], [t1 / 2])
 
         delays = np.arange(1e-6, 40e-6, 3e-6)
-
         exp = T1(0, delays)
+
         exp.analysis.set_options(p0={"amp": 1, "tau": t1, "base": 0})
-        exp_data = exp.run(backend, shots=10000)
+        exp_data = exp.run(backend, shots=10000, seed_simulator=1).block_for_results()
         self.assertExperimentDone(exp_data)
         self.assertRoundTripSerializable(exp_data, check_func=self.experiment_data_equiv)
         self.assertRoundTripPickle(exp_data, check_func=self.experiment_data_equiv)
@@ -52,7 +47,7 @@ class TestT1(QiskitExperimentsTestCase):
         self.assertAlmostEqual(res.value.n, t1, delta=3)
         self.assertEqual(res.extra["unit"], "s")
 
-        exp_data.service = FakeService()
+        exp_data.service = IBMExperimentService(local=True, local_save=False)
         exp_data.save()
         loaded_data = ExperimentData.load(exp_data.experiment_id, exp_data.service)
         exp_res = exp_data.analysis_results()
@@ -65,21 +60,29 @@ class TestT1(QiskitExperimentsTestCase):
         Test parallel experiments of T1 using a simulator.
         """
 
-        t1 = [25, 15]
+        t1 = [25, 20, 15]
+        t2 = [value / 2 for value in t1]
         delays = list(range(1, 40, 3))
+        qubit0 = 0
+        qubit2 = 2
 
-        exp0 = T1(0, delays)
-        exp2 = T1(2, delays)
+        quantum_bit = [qubit0, qubit2]
+
+        backend = NoisyDelayAerBackend(t1, t2)
+
+        exp0 = T1(qubit=qubit0, delays=delays)
+        exp2 = T1(qubit=qubit2, delays=delays)
+
         par_exp = ParallelExperiment([exp0, exp2])
-        res = par_exp.run(T1Backend([t1[0], None, t1[1]]))
+        res = par_exp.run(backend=backend, shots=10000, seed_simulator=1).block_for_results()
         self.assertExperimentDone(res)
 
-        for i in range(2):
+        for i, qb in enumerate(quantum_bit):
             sub_res = res.child_data(i).analysis_results("T1")
             self.assertEqual(sub_res.quality, "good")
-            self.assertAlmostEqual(sub_res.value.n, t1[i], delta=3)
+            self.assertAlmostEqual(sub_res.value.n, t1[qb], delta=3)
 
-        res.service = FakeService()
+        res.service = IBMExperimentService(local=True, local_save=False)
         res.save()
         loaded_data = ExperimentData.load(res.experiment_id, res.service)
 
@@ -94,16 +97,21 @@ class TestT1(QiskitExperimentsTestCase):
         the sub-experiments have different analysis options
         """
 
-        t1 = 25
+        t1 = [25, 25]
+        t2 = [value / 2 for value in t1]
+
+        backend = NoisyDelayAerBackend(t1, t2)
+
         delays = list(range(1, 40, 3))
 
         exp0 = T1(0, delays)
         exp0.analysis.set_options(p0={"tau": 30})
+
         exp1 = T1(1, delays)
         exp1.analysis.set_options(p0={"tau": 1000000})
 
         par_exp = ParallelExperiment([exp0, exp1])
-        res = par_exp.run(T1Backend([t1, t1]))
+        res = par_exp.run(backend=backend, seed_simulator=4)
         self.assertExperimentDone(res)
 
         sub_res = []
@@ -111,7 +119,7 @@ class TestT1(QiskitExperimentsTestCase):
             sub_res.append(res.child_data(i).analysis_results("T1"))
 
         self.assertEqual(sub_res[0].quality, "good")
-        self.assertAlmostEqual(sub_res[0].value.n, t1, delta=3)
+        self.assertAlmostEqual(sub_res[0].value.n, t1[0], delta=3)
         self.assertEqual(sub_res[1].quality, "bad")
 
     def test_t1_analysis(self):
@@ -120,7 +128,7 @@ class TestT1(QiskitExperimentsTestCase):
         """
 
         data = ExperimentData()
-        data._metadata = {"meas_level": 2}
+        data.metadata.update({"meas_level": 2})
 
         numbers = [750, 1800, 2750, 3550, 4250, 4850, 5450, 5900, 6400, 6800, 7000, 7350, 7700]
 
@@ -171,7 +179,7 @@ class TestT1(QiskitExperimentsTestCase):
         """
 
         data = ExperimentData()
-        data._metadata = {"meas_level": 2}
+        data.metadata.update({"meas_level": 2})
 
         for i in range(10):
             data.add_data(

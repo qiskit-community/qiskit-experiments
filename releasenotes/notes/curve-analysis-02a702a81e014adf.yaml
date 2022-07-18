@@ -12,7 +12,22 @@ features:
     Analysis class author can flexibly define new analysis instance
     with LMFIT ``Model`` objects. See LMFIT documentation for user guide.
   - |
-    New options have been added to to the :class:`.CurveAnaysis` curve drawer.
+    New curve analysis baseclass :class:`.CompositeCurveAnalysis` has been added.
+    This curve analysis variant offers a framework to fit experiment outcomes
+    with different independent fit models. 
+    For example, if you define an experiment scanning a parameter with different conditions, 
+    e.g. with different control qubit states in some two-qubit gate experiment, 
+    the composite curve analysis can implement the experiment with simpler code 
+    compared with writing a conventional batch experment.
+    See class documentation for more details.
+  - |
+    New options ``filter_data`` has been added to the :class:`.CurveAnaysis` and its subclass.
+    This dictionary provides a set of required metadata so that the analysis can filter
+    experiment results input to the fitter. Curve analysis checks experiment result
+    metadata, originating in the experiment circuit metadata, and the measure outcomes with
+    matched metadata are only used for the fitting.
+  - |
+    New options have been added to the :class:`.CurveAnalysis` curve drawer.
     
     -|
       ``figure_title`` has been added. This allows user to show an arbitrary string 
@@ -63,6 +78,13 @@ upgrade:
     more than three curves. The corresponding fit model is dynamically generated
     based on new fit option ``reps`` in the associated analysis :class:`DragCalAnalysis`.
     This may sometimes provide better accuracy for estimating the DRAG ``beta`` parameter.
+  - |
+    The implementations of several methods in :class:`.BaseCurveAnalysis` have been moved to
+    its subclass :class:`.CurveAnalysis`. :meth:`.BaseCurveAnalysis._run_data_processing`,
+    :meth:`.BaseCurveAnalysis._format_data`, and :meth:`.BaseCurveAnalysis._run_curve_fit`,
+    have been turned into abstract method, and :meth:`.BaseCurveAnalysis._generate_fit_guesses`
+    has been moved to :class:`CurveAnalysis`. There is no net upgrade on the behavior of
+    curve analysis subclasses, since :class:`.BaseCurveAnalysis` is an abstract class.
 deprecations:
   - |
     Multiple methods, classes and functions in curve analysis have been deprecated and
@@ -76,3 +98,9 @@ deprecations:
       :mod:`~qiskit_experiments.curve_analysis.fit_function`.
       Now curve analysis author can define arbitrary fit functions callable or string
       with LMFIT models, not limited to functions in this module.
+fixes:
+  - |
+    The ``.init_params`` value of the :class:`.CurveFitResult` has been fixed.
+    This value was copied from the LMFIT ``MinimizerResult.init_values``,
+    however this is not the initial parameters set to the solver.
+    Now correct initial parameters are set to :attr:`.CurveFitResult.init_params`.
