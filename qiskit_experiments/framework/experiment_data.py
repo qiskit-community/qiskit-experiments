@@ -564,10 +564,7 @@ class ExperimentData:
                 self._db_data.group = group
                 self._db_data.project = project
             except AttributeError:
-                LOG.warning(
-                    "Unable to set hub/group/project from backend %s ",
-                    self.backend,
-                )
+                return
 
     def _clear_results(self):
         """Delete all currently stored analysis results and figures"""
