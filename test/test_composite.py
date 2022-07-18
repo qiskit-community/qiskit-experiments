@@ -707,7 +707,7 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
             self.assertEqual(expected, sub_data[0])
 
     def test_composite_properties_setting(self):
-        """Test whether DB-critical are properties being set in the
+        """Test whether DB-critical properties are being set in the
         subexperiment data"""
         exp1 = FakeExperiment([0])
         exp1.analysis = FakeAnalysis()
