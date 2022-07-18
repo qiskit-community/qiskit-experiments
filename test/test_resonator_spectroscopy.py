@@ -38,10 +38,11 @@ class TestResonatorSpectroscopy(QiskitExperimentsTestCase):
         qubit = 1
         backend = MockIQBackend(
             experiment_helper=ResonatorSpectroscopyHelper(
-                gate_name="measure", freq_offset=freq_shift
+                gate_name="measure",
+                freq_offset=freq_shift,
+                iq_cluster_centers=[((0.0, 0.0), (-1.0, 0.0))],
+                iq_cluster_width=[0.2],
             ),
-            iq_cluster_centers=[((0.0, 0.0), (-1.0, 0.0))],
-            iq_cluster_width=[0.2],
         )
         backend._configuration.timing_constraints = {"granularity": 16}
 
@@ -76,10 +77,11 @@ class TestResonatorSpectroscopy(QiskitExperimentsTestCase):
         qubit = 1
         backend = MockIQBackend(
             experiment_helper=ResonatorSpectroscopyHelper(
-                gate_name="measure", freq_offset=freq_shift
+                gate_name="measure",
+                freq_offset=freq_shift,
+                iq_cluster_centers=[((0.0, 0.0), (-1.0, 0.0))],
+                iq_cluster_width=[0.2],
             ),
-            iq_cluster_centers=[((0.0, 0.0), (-1.0, 0.0))],
-            iq_cluster_width=[0.2],
         )
         backend._configuration.timing_constraints = {"granularity": 16}
 
@@ -110,13 +112,20 @@ class TestResonatorSpectroscopy(QiskitExperimentsTestCase):
 
         freq_shift = [-5e6, 3e6]
         exp_helper_list = [
-            ResonatorSpectroscopyHelper(gate_name="measure", freq_offset=freq_shift[0]),
-            ResonatorSpectroscopyHelper(gate_name="measure", freq_offset=freq_shift[1]),
+            ResonatorSpectroscopyHelper(
+                gate_name="measure",
+                freq_offset=freq_shift[0],
+                iq_cluster_centers=iq_cluster_centers,
+            ),
+            ResonatorSpectroscopyHelper(
+                gate_name="measure",
+                freq_offset=freq_shift[1],
+                iq_cluster_centers=iq_cluster_centers,
+            ),
         ]
 
         parallel_backend = MockIQParallelBackend(
             experiment_helper=None,
-            iq_cluster_centers=iq_cluster_centers,
             rng_seed=0,
         )
         parallel_backend._configuration.timing_constraints = {"granularity": 16}

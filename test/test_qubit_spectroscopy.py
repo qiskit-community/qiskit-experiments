@@ -31,11 +31,13 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
     def test_spectroscopy_end2end_classified(self):
         """End to end test of the spectroscopy experiment."""
 
-        exp_helper = SpectroscopyHelper(line_width=2e6)
-        backend = MockIQBackend(
-            experiment_helper=exp_helper,
+        exp_helper = SpectroscopyHelper(
+            line_width=2e6,
             iq_cluster_centers=[((-1.0, -1.0), (1.0, 1.0))],
             iq_cluster_width=[0.2],
+        )
+        backend = MockIQBackend(
+            experiment_helper=exp_helper,
         )
         backend._configuration.basis_gates = ["x"]
         backend._configuration.timing_constraints = {"granularity": 16}
@@ -70,11 +72,13 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
     def test_spectroscopy_end2end_kerneled(self):
         """End to end test of the spectroscopy experiment on IQ data."""
 
-        exp_helper = SpectroscopyHelper(line_width=2e6)
-        backend = MockIQBackend(
-            experiment_helper=exp_helper,
+        exp_helper = SpectroscopyHelper(
+            line_width=2e6,
             iq_cluster_centers=[((-1.0, -1.0), (1.0, 1.0))],
             iq_cluster_width=[0.2],
+        )
+        backend = MockIQBackend(
+            experiment_helper=exp_helper,
         )
         backend._configuration.basis_gates = ["x"]
         backend._configuration.timing_constraints = {"granularity": 16}
@@ -93,7 +97,7 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
         self.assertEqual(result.quality, "good")
 
         exp_helper.freq_offset = 5.0e6
-        backend._iq_cluster_centers = [((1.0, 1.0), (-1.0, -1.0))]
+        exp_helper.iq_cluster_centers = [((1.0, 1.0), (-1.0, -1.0))]
 
         spec = QubitSpectroscopy(qubit, frequencies)
         expdata = spec.run(backend)
@@ -117,9 +121,11 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
         """End to end test of the spectroscopy experiment with an x pulse."""
 
         backend = MockIQBackend(
-            experiment_helper=SpectroscopyHelper(line_width=2e6),
-            iq_cluster_centers=[((-1.0, -1.0), (1.0, 1.0))],
-            iq_cluster_width=[0.2],
+            experiment_helper=SpectroscopyHelper(
+                line_width=2e6,
+                iq_cluster_centers=[((-1.0, -1.0), (1.0, 1.0))],
+                iq_cluster_width=[0.2],
+            ),
         )
         backend._configuration.basis_gates = ["x"]
         backend._configuration.timing_constraints = {"granularity": 16}
@@ -160,11 +166,13 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
 
     def test_expdata_serialization(self):
         """Test experiment data and analysis data JSON serialization"""
-        exp_helper = SpectroscopyHelper(line_width=2e6)
-        backend = MockIQBackend(
-            experiment_helper=exp_helper,
+        exp_helper = SpectroscopyHelper(
+            line_width=2e6,
             iq_cluster_centers=[((-1.0, -1.0), (1.0, 1.0))],
             iq_cluster_width=[0.2],
+        )
+        backend = MockIQBackend(
+            experiment_helper=exp_helper,
         )
         backend._configuration.basis_gates = ["x"]
         backend._configuration.timing_constraints = {"granularity": 16}
@@ -186,11 +194,13 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
 
     def test_kerneled_expdata_serialization(self):
         """Test experiment data and analysis data JSON serialization"""
-        exp_helper = SpectroscopyHelper(line_width=2e6)
-        backend = MockIQBackend(
-            experiment_helper=exp_helper,
+        exp_helper = SpectroscopyHelper(
+            line_width=2e6,
             iq_cluster_centers=[((-1.0, -1.0), (1.0, 1.0))],
             iq_cluster_width=[0.2],
+        )
+        backend = MockIQBackend(
+            experiment_helper=exp_helper,
         )
         backend._configuration.basis_gates = ["x"]
         backend._configuration.timing_constraints = {"granularity": 16}
@@ -221,7 +231,6 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
 
         parallel_backend = MockIQParallelBackend(
             experiment_helper=None,
-            iq_cluster_centers=iq_cluster_centers,
             rng_seed=0,
         )
         parallel_backend._configuration.basis_gates = ["x"]
@@ -238,11 +247,20 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
         frequencies2 = np.linspace(freq02 - 10.0e6, freq02 + 10.0e6, 21)
 
         exp_list = [
-            QubitSpectroscopy(qubit1, frequencies1),
-            QubitSpectroscopy(qubit2, frequencies2),
+            QubitSpectroscopy(
+                qubit1,
+                frequencies1,
+            ),
+            QubitSpectroscopy(
+                qubit2,
+                frequencies2,
+            ),
         ]
 
-        exp_helper_list = [SpectroscopyHelper(), SpectroscopyHelper()]
+        exp_helper_list = [
+            SpectroscopyHelper(iq_cluster_centers=iq_cluster_centers),
+            SpectroscopyHelper(iq_cluster_centers=iq_cluster_centers),
+        ]
         parallel_helper = ParallelExperimentHelper(exp_list, exp_helper_list)
 
         parallel_backend.experiment_helper = parallel_helper
