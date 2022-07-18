@@ -25,7 +25,11 @@ IQPoint = Tuple[float, float]
 
 
 class MockIQExperimentHelper:
-    """Abstract class for the MockIQ helper classes"""
+    """Abstract class for the MockIQ helper classes
+
+    Different tests will use experiment specific helper classes which define the pattern
+    of the IQ data that is then analyzed.
+    """
 
     def __init__(
         self,
@@ -58,8 +62,10 @@ class MockIQExperimentHelper:
 
         Args:
             iq_cluster_centers: A list of tuples containing the clusters' centers in the IQ plane. There
-                are different centers for different logical values of the qubit.
+                are different centers for different logical values of the qubit. Defaults to a single
+                qubit with clusters in quadrants 1 and 3.
             iq_cluster_width: A list of standard deviation values for the sampling of each qubit.
+                Defaults to widths of 1.0 for each qubit in `iq_cluster_centers`.
 
         """
         self._iq_cluster_centers = (

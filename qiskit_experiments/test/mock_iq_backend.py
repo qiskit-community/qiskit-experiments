@@ -27,6 +27,7 @@ from qiskit_experiments.data_processing.exceptions import DataProcessorError
 from qiskit_experiments.test.mock_iq_helpers import (
     MockIQExperimentHelper,
     MockIQParallelExperimentHelper,
+    IQPoint,
 )
 
 
@@ -256,10 +257,10 @@ class MockIQBackend(FakeOpenPulse2Q):
                     template_iq_data[i_shot] = np.array([real_data, imag_data], dtype="float").T
 
                 # Scale template data to separate widths
-                iq_data_1 = self._scale_samples_for_widths(template_iq_data,widths_1)
-                iq_data_2 = self._scale_samples_for_widths(template_iq_data,widths_2)
+                iq_data_1 = self._scale_samples_for_widths(template_iq_data, widths_1)
+                iq_data_2 = self._scale_samples_for_widths(template_iq_data, widths_2)
 
-                # IQ data should then be indexed randomly so that repeated usage does not give the same #
+                # IQ data should then be indexed randomly so that repeated usage does not give the same
                 # order of samples.
                 iq_data_circuit_1 = iq_data_1[random_indices_1]
                 iq_data_circuit_2a = iq_data_2[random_indices_2a]
@@ -309,7 +310,7 @@ class MockIQBackend(FakeOpenPulse2Q):
         prob: List[float],
         shots: int,
         circ_qubits: Sequence[int],
-        iq_cluster_centers: Optional[List[Tuple[Tuple[float, float], Tuple[float, float]]]],
+        iq_cluster_centers: Optional[List[Tuple[IQPoint, IQPoint]]],
         iq_cluster_width: Optional[List[float]],
         phase: float = 0.0,
     ) -> List[List[List[Union[float, complex]]]]:
