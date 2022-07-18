@@ -37,7 +37,7 @@ from matplotlib.figure import Figure as MatplotlibFigure
 from qiskit.result import Result
 from qiskit.providers.jobstatus import JobStatus, JOB_FINAL_STATES
 from qiskit.exceptions import QiskitError
-from qiskit.providers import Job, Backend, Provider
+from qiskit.providers import Job, Backend, BackendV1, Provider
 
 from qiskit_ibm_experiment import IBMExperimentService
 from qiskit_ibm_experiment import ExperimentData as ExperimentDataclass
@@ -719,8 +719,15 @@ class ExperimentData:
         # Add futures for extracting finished job data
         timeout_ids = []
         for job in jobs:
-            jid = job.job_id()
-            if self.backend is not None and self.backend.name() != job.backend().name():
+            if isinstance(self.backend, BackendV1):
+                backend_name = self.backend.name()
+            else:
+                backend_name = self.backend.name
+            if isinstance(job.backend, BackendV1):
+                job_backend_name = job.backend().name()
+            else:
+                job_backend_name = job.backend().name
+            if self.backend and backend_name != job_backend_name:
                 LOG.warning(
                     "Adding a job from a backend (%s) that is different "
                     "than the current backend (%s). "
@@ -731,6 +738,7 @@ class ExperimentData:
                 )
             self.backend = job.backend()
 
+            jid = job.job_id()
             if jid in self._jobs:
                 LOG.warning(
                     "Skipping duplicate job, a job with this ID already exists [Job ID: %s]", jid
