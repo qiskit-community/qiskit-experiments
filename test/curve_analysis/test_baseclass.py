@@ -21,7 +21,7 @@ import numpy as np
 from lmfit.models import ExpressionModel
 from qiskit.qobj.utils import MeasLevel
 
-from qiskit_experiments.curve_analysis import CurveAnalysis, fit_function
+from qiskit_experiments.curve_analysis import CurveAnalysis, CompositeCurveAnalysis, fit_function
 from qiskit_experiments.curve_analysis.curve_data import (
     SeriesDef,
     CurveFitResult,
@@ -456,6 +456,78 @@ class TestCurveAnalysis(CurveAnalysisTestCase):
         y_ref = 0.45 * np.exp(-x / 0.25)
         y_reproduced = analysis.models[0].eval(x=x, **overview.init_params)
         np.testing.assert_array_almost_equal(y_ref, y_reproduced)
+
+    def test_multi_composite_curve_analysis(self):
+        """Integration test for composite curve analysis.
+
+        This analysis consists of two curve fittings for cos and sin series.
+        This experiment is executed twice for different setups of "A" and "B".
+        """
+        analyses = []
+
+        group_names = ["group_A", "group_B"]
+        setups = ["setup_A", "setup_B"]
+        for group_name, setup in zip(group_names, setups):
+            analysis = CurveAnalysis(
+                models=[
+                    ExpressionModel(
+                        expr="amp * cos(2 * pi * freq * x) + b",
+                        data_sort_key={"type": "cos"},
+                    ),
+                    ExpressionModel(
+                        expr="amp * sin(2 * pi * freq * x) + b",
+                        data_sort_key={"type": "sin"},
+                    ),
+                ],
+                name=group_name,
+            )
+            analysis.set_options(
+                filter_data={"setup": setup},
+                result_parameters=["amp"],
+                data_processor=DataProcessor(input_key="counts", data_actions=[Probability("1")]),
+            )
+            analyses.append(analysis)
+
+        group_analysis = CompositeCurveAnalysis(analyses)
+        group_analysis.analyses("group_A").set_options(p0={"amp": 0.3, "freq": 2.1, "b": 0.5})
+        group_analysis.analyses("group_B").set_options(p0={"amp": 0.5, "freq": 3.2, "b": 0.5})
+        group_analysis.set_options(plot=False)
+
+        amp1 = 0.2
+        amp2 = 0.4
+        b1 = 0.5
+        b2 = 0.5
+        freq1 = 2.1
+        freq2 = 3.2
+
+        x = np.linspace(0, 1, 100)
+        y1a = amp1 * np.cos(2 * np.pi * freq1 * x) + b1
+        y2a = amp1 * np.sin(2 * np.pi * freq1 * x) + b1
+        y1b = amp2 * np.cos(2 * np.pi * freq2 * x) + b2
+        y2b = amp2 * np.sin(2 * np.pi * freq2 * x) + b2
+
+        # metadata must contain key for filtering, specified in filter_data option.
+        test_data1a = self.single_sampler(x, y1a, type="cos", setup="setup_A")
+        test_data2a = self.single_sampler(x, y2a, type="sin", setup="setup_A")
+        test_data1b = self.single_sampler(x, y1b, type="cos", setup="setup_B")
+        test_data2b = self.single_sampler(x, y2b, type="sin", setup="setup_B")
+
+        expdata = ExperimentData(experiment=FakeExperiment())
+        expdata.add_data(test_data1a.data())
+        expdata.add_data(test_data2a.data())
+        expdata.add_data(test_data1b.data())
+        expdata.add_data(test_data2b.data())
+        expdata.metadata["meas_level"] = MeasLevel.CLASSIFIED
+
+        result = group_analysis.run(expdata).block_for_results()
+        amps = result.analysis_results("amp")
+
+        # two entries are generated for group A and group B
+        self.assertEqual(len(amps), 2)
+        self.assertEqual(amps[0].extra["group"], "group_A")
+        self.assertEqual(amps[1].extra["group"], "group_B")
+        self.assertAlmostEqual(amps[0].value.n, 0.2, delta=0.1)
+        self.assertAlmostEqual(amps[1].value.n, 0.4, delta=0.1)
 
 
 class TestFitOptions(QiskitExperimentsTestCase):

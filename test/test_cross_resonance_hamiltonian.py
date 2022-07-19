@@ -19,7 +19,7 @@ import functools
 import numpy as np
 from ddt import ddt, data, unpack
 from qiskit import QuantumCircuit, pulse, quantum_info as qi
-from qiskit.test.mock import FakeBogota
+from qiskit.providers.fake_provider import FakeBogota
 from qiskit.extensions.hamiltonian_gate import HamiltonianGate
 from qiskit.providers.aer import AerSimulator
 from qiskit_experiments.library.characterization import cr_hamiltonian
@@ -198,7 +198,7 @@ class TestCrossResonanceHamiltonian(QiskitExperimentsTestCase):
         expr.backend = backend
 
         exp_data = expr.run()
-        self.assertExperimentDone(exp_data, timeout=600)
+        self.assertExperimentDone(exp_data, timeout=1000)
 
         self.assertEqual(exp_data.analysis_results(0).quality, "good")
 

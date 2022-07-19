@@ -15,7 +15,7 @@ from test.base import QiskitExperimentsTestCase
 
 import numpy as np
 
-from qiskit.test.mock import FakeArmonk
+from qiskit.providers.fake_provider import FakeArmonk
 
 from qiskit_experiments.library import RoughFrequencyCal
 from qiskit_experiments.calibration_management import Calibrations
@@ -51,9 +51,12 @@ class TestRoughFrequency(QiskitExperimentsTestCase):
         freq01 = FakeArmonk().defaults().qubit_freq_est[0]
 
         backend = MockIQBackend(
-            experiment_helper=SpectroscopyHelper(freq_offset=5e6, line_width=2e6),
-            iq_cluster_centers=[((-1.0, -1.0), (1.0, 1.0))],
-            iq_cluster_width=[0.2],
+            experiment_helper=SpectroscopyHelper(
+                freq_offset=5e6,
+                line_width=2e6,
+                iq_cluster_centers=[((-1.0, -1.0), (1.0, 1.0))],
+                iq_cluster_width=[0.2],
+            ),
         )
         backend._configuration.basis_gates = ["x"]
         backend._configuration.timing_constraints = {"granularity": 16}

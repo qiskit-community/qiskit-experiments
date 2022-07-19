@@ -12,7 +12,7 @@
 
 """Resonance analysis class based on a Gaussian fit."""
 
-from typing import List, Union
+from typing import List, Union, Optional
 
 import lmfit
 import numpy as np
@@ -59,14 +59,18 @@ class GaussianAnalysis(curve.CurveAnalysis):
 
     """
 
-    def __init__(self):
+    def __init__(
+        self,
+        name: Optional[str] = None,
+    ):
         super().__init__(
             models=[
                 lmfit.models.ExpressionModel(
                     expr="a * exp(-(x-freq)**2 / (2*sigma**2)) + b",
                     name="gaussian",
                 )
-            ]
+            ],
+            name=name,
         )
 
     @classmethod
@@ -86,7 +90,7 @@ class GaussianAnalysis(curve.CurveAnalysis):
         user_opt: curve.FitOptions,
         curve_data: curve.CurveData,
     ) -> Union[curve.FitOptions, List[curve.FitOptions]]:
-        """Create algorithmic guess with analysis options and curve data.
+        """Create algorithmic initial fit guess from analysis options and curve data.
 
         Args:
             user_opt: Fit options filled with user provided guess and bounds.

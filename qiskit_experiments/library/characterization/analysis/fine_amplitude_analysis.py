@@ -38,7 +38,7 @@ class FineAmplitudeAnalysis(curve.ErrorAmplificationAnalysis):
             models=[
                 lmfit.models.ExpressionModel(
                     expr="amp / 2 * (2 * x - 1) + base",
-                    name="smap cal.",
+                    name="spam cal.",
                     data_sort_key={"series": "spam-cal"},
                 ),
                 lmfit.models.ExpressionModel(

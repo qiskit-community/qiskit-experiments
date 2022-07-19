@@ -104,9 +104,11 @@ experiment <https://quantum-computing.ibm.com/experiments/96b86d51-5200-4270-8ac
 which we’ve made public by editing the ``Share level`` field:
 
 .. jupyter-execute::
+    :raises:
 
-    from qiskit_experiments.database_service import DbExperimentDataV1 as DbExperimentData
-    load_exp = DbExperimentData.load("96b86d51-5200-4270-8ac1-ce4c20188ab9", provider.service("experiment"))
+    from qiskit_experiments.framework.experiment_data import ExperimentData
+    service = ExperimentData.get_service_from_backend(backend)
+    load_exp = ExperimentData.load("96b86d51-5200-4270-8ac1-ce4c20188ab9", service)
 
 To display the figure, which is serialized into a string, we need the
 SVG library:
@@ -123,6 +125,7 @@ SVG library:
 We’ve also retrieved the full analysis results from the database:
 
 .. jupyter-execute::
+    :raises:
 
     for result in load_exp.analysis_results():
         print(result)
@@ -130,7 +133,7 @@ We’ve also retrieved the full analysis results from the database:
 .. jupyter-execute::
     :hide-code:
 
-    print ("""DbAnalysisResultV1
+    print ("""AnalysisResult
     - name: T1
     - value: 0.000168+/-0.000006
     - χ²: 1.3178510503089684
@@ -138,7 +141,7 @@ We’ve also retrieved the full analysis results from the database:
     - extra: <1 items>
     - device_components: ['Q0']
     - verified: False
-    DbAnalysisResultV1
+    AnalysisResult
     - name: @Parameters_T1Analysis
     - value: [0.9211991764658336, 0.035243060640676796, 0.00016807035946402193]
     - χ²: 1.3178510503089684
