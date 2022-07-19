@@ -460,14 +460,13 @@ class TestInterleavedRB(RBTestCase):
             seed=123,
             num_samples=1,
         )
-        exp.set_transpile_options(**self.transpiler_options)
+        transpiler_options = {
+            "basis_gates": ["h", "x", "s", "cx"],
+            "optimization_level": 1,
+        }
+        exp.set_transpile_options(**transpiler_options)
         _, int_circ = exp.circuits()
-
-        qc = QuantumCircuit(2)
-        qc.x(1)
-        expected_inversion = Clifford(int_circ.data[1][0]).compose(qc).adjoint()
-        # barrier, clifford, barrier, "interleaved circuit", barrier, inversion, ...
-        self.assertEqual(expected_inversion, Clifford(int_circ.data[5][0]))
+        self.assertAllIdentity([int_circ])
 
     def test_experiment_config(self):
         """Test converting to and from config works"""
