@@ -93,7 +93,7 @@ class RBAnalysis(curve.CurveAnalysis):
                 you can skip analysis of EPGs by setting this options to ``None``.
             epg_1_qubit (List[DbAnalysisResultV1]): Analysis results from previous RB experiments
                 for individual single qubit gates. If this is provided, EPC of
-                2Q RB is corected to exclude the deporalization of underlying 1Q channels.
+                2Q RB is corrected to exclude the depolarization of underlying 1Q channels.
         """
         default_options = super()._default_options()
         default_options.curve_drawer.set_options(
@@ -423,7 +423,6 @@ def _calculate_epg(
     for gate, r_epg in gate_error_ratio.items():
         epgs[gate] = r_epg * epc / norm
     return epgs
-
 
 def _exclude_1q_error(
     epc: Union[float, "UFloat"],

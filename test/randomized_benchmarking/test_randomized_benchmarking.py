@@ -568,7 +568,7 @@ class TestEPGAnalysis(QiskitExperimentsTestCase):
 
         exp_2qrb = rb.StandardRB(
             qubits=(0, 1),
-            lengths=[1, 3, 5, 10, 15, 20, 30, 50],
+            lengths=[1, 3, 5, 10, 15, 20, 30, 50, 70, 90],
             seed=123,
             backend=backend,
         )
