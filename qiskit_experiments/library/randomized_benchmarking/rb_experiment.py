@@ -510,7 +510,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
     # of the qubit to the single physical qubit that was requested by the user
     # This is a hack, and would be better if transpile() implemented it.
     # Something similar is done in ParallelExperiment._combined_circuits
-    def _layout_for_rb_single_qubit(self):
+    def _layout_for_rb(self):
         transpiled = []
         qargs_map = {0: self.physical_qubits[0]} if self.num_qubits==1 else {0: self.physical_qubits[0], 1:self.physical_qubits[1]}
         for circ in self.circuits():
@@ -543,7 +543,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
     def _transpiled_circuits(self) -> List[QuantumCircuit]:
         """Return a list of experiment circuits, transpiled."""
         if self.num_qubits == 1 or self.num_qubits == 2:
-            transpiled = self._layout_for_rb_single_qubit()
+            transpiled = self._layout_for_rb()
         else:
             transpiled = super()._transpiled_circuits()
 
