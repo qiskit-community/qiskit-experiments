@@ -177,10 +177,8 @@ The analysis results have been retrieved as well:
 Auto-saving an experiment
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The ``auto_save`` feature saves the data of an
-experiment preemptively before it runs. In the future, you will be able to set
-``provider.experiment.set_option(auto_save=True)`` to turn ``auto_save``
-on by default at the experiment service level.
+The ``auto_save`` feature automatically saves changes to the `ExperimentData` object to 
+the cloud service whenever it's updated.
 
 .. jupyter-execute::
     :hide-output:
