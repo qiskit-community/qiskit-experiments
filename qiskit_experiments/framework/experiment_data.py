@@ -417,6 +417,11 @@ class ExperimentData:
 
         return self._db_data.experiment_type
 
+    @experiment_type.setter
+    def experiment_type(self, new_type: str) -> None:
+        """Sets the parent id"""
+        self._db_data.experiment_type = new_type
+
     @property
     def parent_id(self) -> str:
         """Return parent experiment ID

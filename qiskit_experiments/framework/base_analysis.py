@@ -200,7 +200,7 @@ class BaseAnalysis(ABC, StoreInitArgs):
         if isinstance(data, AnalysisResult):
             # Update device components and experiment id
             data.device_components = device_components
-            data._experiment_id = experiment_id
+            data.experiment_id = experiment_id
             return data
 
         return AnalysisResult(
