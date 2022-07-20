@@ -117,7 +117,8 @@ class RamseyXY(BaseExperiment, RestlessMixin):
         """
         super().__init__([qubit], analysis=RamseyXYAnalysis(), backend=backend)
 
-        delays = delays or self.experiment_options.delays
+        if delays is None:
+            delays = self.experiment_options.delays
         self.set_experiment_options(delays=delays, osc_freq=osc_freq)
 
     def _set_backend(self, backend: Backend):
