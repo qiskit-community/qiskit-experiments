@@ -21,11 +21,10 @@ from qiskit.circuit.library import SXGate, CXGate, TGate
 from qiskit.exceptions import QiskitError
 from qiskit.providers.aer import AerSimulator
 from qiskit.providers.aer.noise import NoiseModel, depolarizing_error
-from qiskit.quantum_info import Clifford, Operator
+from qiskit.quantum_info import Operator
 
 from qiskit_experiments.library import randomized_benchmarking as rb
 from qiskit_experiments.library.randomized_benchmarking import CliffordUtils
-from qiskit_experiments.database_service.exceptions import ExperimentEntryNotFound
 from qiskit_experiments.framework.composite import ParallelExperiment
 from qiskit_experiments.database_service.exceptions import ExperimentEntryNotFound
 
@@ -317,9 +316,7 @@ class TestStandardRB(RBTestCase):
         lengths = list(range(1, 300, 30))
         exps = []
         for qubit in qubits:
-            exp = rb.StandardRB(
-                qubits=[qubit], lengths=lengths, seed=123, backend=self.backend
-            )
+            exp = rb.StandardRB(qubits=[qubit], lengths=lengths, seed=123, backend=self.backend)
             exp.analysis.set_options(gate_error_ratio=None, plot_raw_data=False)
             exps.append(exp)
 
