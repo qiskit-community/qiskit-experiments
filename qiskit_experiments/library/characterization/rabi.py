@@ -47,7 +47,7 @@ class Rabi(BaseExperiment, RestlessMixin):
         free parameter, i.e. the amplitude to scan and a drive channel which matches the qubit.
 
     # section: tutorial
-        :doc:`/tutorials/calibrating_armonk`
+        :doc:`/tutorials/calibrating_real_device`
 
         See also `Qiskit Textbook <https://qiskit.org/textbook/ch-quantum-hardware/\
         calibrating-qubits-pulse.html>`_
