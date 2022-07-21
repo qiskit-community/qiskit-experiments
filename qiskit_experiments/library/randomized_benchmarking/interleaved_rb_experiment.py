@@ -96,15 +96,21 @@ class InterleavedRB(StandardRB):
 
         Returns:
             A list of :class:`QuantumCircuit`.
+
+        Raises:
+            QiskitError: if basis_gates is not set in transpile_options nor in backend configuration.
         """
         rng = default_rng(seed=self.experiment_options.seed)
         circuits = []
         if not hasattr(self.transpile_options, "basis_gates"):
-            raise QiskitError("transpile_options.basis_gates must be set for rb_experiment")
+            if self.backend.configuration.basis_gates:
+                self.set_transpile_options(basis_gates=self.backend.configuration.basis_gates)
+            else:
+                raise QiskitError("transpile_options.basis_gates must be set for rb_experiment")
 
         self.load_transpiled_cliff_circuits()
         for _ in range(self.experiment_options.num_samples):
-            if self.num_qubits == 1 or self.num_qubits==2:
+            if self.num_qubits == 1 or self.num_qubits == 2:
                 self._set_transpiled_interleaved_element()
                 std_circuits, int_circuits = self._build_rb_circuits(
                     self.experiment_options.lengths,

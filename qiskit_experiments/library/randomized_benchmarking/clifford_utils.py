@@ -20,16 +20,22 @@ import numpy as np
 from numpy.random import Generator, default_rng
 
 from qiskit import QuantumCircuit, QuantumRegister
-from qiskit.circuit import Gate, Instruction
+from qiskit.circuit import Gate
 from qiskit.circuit.library import SdgGate, HGate, SGate, SXdgGate
 from qiskit.compiler import transpile
 from qiskit.providers.aer import AerSimulator
 from qiskit.exceptions import QiskitError
 from qiskit.quantum_info import Clifford, random_clifford
 
-from .clifford_data import CLIFF_SINGLE_GATE_MAP_1Q, \
-    CLIFF_SINGLE_GATE_MAP_2Q, CLIFF_COMPOSE_DATA_1Q, \
-    CLIFF_COMPOSE_DATA_2Q, CLIFF_INVERSE_DATA_1Q, CLIFF_INVERSE_DATA_2Q
+from .clifford_data import (
+    CLIFF_SINGLE_GATE_MAP_1Q,
+    CLIFF_SINGLE_GATE_MAP_2Q,
+    CLIFF_COMPOSE_DATA_1Q,
+    CLIFF_COMPOSE_DATA_2Q,
+    CLIFF_INVERSE_DATA_1Q,
+    CLIFF_INVERSE_DATA_2Q,
+)
+
 
 class VGate(Gate):
     """V Gate used in Clifford synthesis."""
@@ -258,7 +264,9 @@ class CliffordUtils:
         name = inst.name
         gates_with_delay = basis_gates.copy()
         gates_with_delay.append("delay")
-        single_gate_map = CLIFF_SINGLE_GATE_MAP_1Q if rb_num_qubits == 1 else CLIFF_SINGLE_GATE_MAP_2Q
+        single_gate_map = (
+            CLIFF_SINGLE_GATE_MAP_1Q if rb_num_qubits == 1 else CLIFF_SINGLE_GATE_MAP_2Q
+        )
 
         if not name in gates_with_delay:
             raise QiskitError("Instruction {} is not in the basis gates".format(inst.name))
@@ -284,7 +292,9 @@ class CliffordUtils:
                 else:
                     raise QiskitError("wrong param {} for rz in clifford".format(inst.params[0]))
             else:
-                raise QiskitError("Instruction {} could not be converted to Clifford gate".format(name))
+                raise QiskitError(
+                    "Instruction {} could not be converted to Clifford gate".format(name)
+                )
 
         return single_gate_map[(map_index, str(qubits))]
 
@@ -299,31 +309,37 @@ class CliffordUtils:
         # see num_from_1q_clifford_single_gate. To compute the index in
         # the array CLIFF_COMPOSE_DATA_1Q, we map the numbers to [0, 8].
         n = num_qubits
-        single_gate_map = CLIFF_SINGLE_GATE_MAP_1Q if n==1 else CLIFF_SINGLE_GATE_MAP_2Q
-        cliff_compose_data = CLIFF_COMPOSE_DATA_1Q if n==1 else CLIFF_COMPOSE_DATA_2Q
+        single_gate_map = CLIFF_SINGLE_GATE_MAP_1Q if n == 1 else CLIFF_SINGLE_GATE_MAP_2Q
+        cliff_compose_data = CLIFF_COMPOSE_DATA_1Q if n == 1 else CLIFF_COMPOSE_DATA_2Q
         map_clifford_num_to_array_index = {}
         num_single_gate_cliffs = len(single_gate_map)
         for k in list(single_gate_map):
-            map_clifford_num_to_array_index[single_gate_map[k]] = \
-                list(single_gate_map.keys()).index(k)
-        if n==1:
-            for inst, qargs, cargs in qc:
-                num = cls.num_from_clifford_single_gate(inst=inst, qubits=[0], rb_num_qubits=1, basis_gates=basis_gates)
+            map_clifford_num_to_array_index[single_gate_map[k]] = list(
+                single_gate_map.keys()
+            ).index(k)
+        if n == 1:
+            for inst, qargs, _ in qc:
+                num = cls.num_from_clifford_single_gate(
+                    inst=inst, qubits=[0], rb_num_qubits=1, basis_gates=basis_gates
+                )
                 index = num_single_gate_cliffs * composed_num + map_clifford_num_to_array_index[num]
                 composed_num = cliff_compose_data[index]
         else:
-            for inst, qargs, cargs in qc:
+            for inst, qargs, _ in qc:
                 if inst.num_qubits == 2:
                     qubits = [qc.find_bit(qargs[0]).index, qc.find_bit(qargs[1]).index]
                 else:
                     qubits = [qc.find_bit(qargs[0]).index]
-                num = cls.num_from_clifford_single_gate(inst=inst, qubits=qubits, rb_num_qubits=2, basis_gates=basis_gates)
+                num = cls.num_from_clifford_single_gate(
+                    inst=inst, qubits=qubits, rb_num_qubits=2, basis_gates=basis_gates
+                )
                 index = num_single_gate_cliffs * composed_num + map_clifford_num_to_array_index[num]
                 composed_num = cliff_compose_data[index]
-        return  composed_num
+        return composed_num
 
     @classmethod
-    def clifford_inverse_by_num(cls, num, num_qubits):
+    def clifford_inverse_by_num(cls, num: int, num_qubits: int):
+        """Return the number of the inverse Clifford to the input num"""
         if num_qubits == 1:
             return CLIFF_INVERSE_DATA_1Q[num]
         else:

@@ -424,6 +424,7 @@ def _calculate_epg(
         epgs[gate] = r_epg * epc / norm
     return epgs
 
+
 def _exclude_1q_error(
     epc: Union[float, "UFloat"],
     qubits: Tuple[int, int],
