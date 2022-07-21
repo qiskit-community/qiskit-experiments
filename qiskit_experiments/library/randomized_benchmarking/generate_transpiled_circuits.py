@@ -17,8 +17,8 @@ from typing import List
 from qiskit import qpy
 from qiskit_experiments.library.randomized_benchmarking import CliffordUtils
 
-basis_gates_to_generate = ["rz", "sx", "cx"]
-# basis_gates_to_generate = ["x", "h", "s", "cx"]
+# basis_gates_to_generate = ["rz", "sx", "cx"]
+basis_gates_to_generate = ["x", "h", "s", "cx"]
 
 
 def generate_1q_transpiled_cliffs(basis_gates: List[str]):
@@ -28,10 +28,7 @@ def generate_1q_transpiled_cliffs(basis_gates: List[str]):
         circ = CliffordUtils.clifford_1_qubit_circuit(num=num)
         transpiled_circ = CliffordUtils.transpile_single_clifford(circ, basis_gates)
         transpiled_circs.append(transpiled_circ)
-    suffix = ""
-    for n in basis_gates_to_generate[0:-1]:
-        suffix += "_" + n
-    file_name = "transpiled_circs_1q" + suffix + ".qpy"
+    file_name = CliffordUtils.file_name(num_qubits=1, basis_gates=basis_gates)
     with open(file_name, "wb") as fd:
         qpy.dump(transpiled_circs, fd)
 
@@ -43,10 +40,7 @@ def generate_2q_transpiled_cliffs(basis_gates: List[str]):
         circ = CliffordUtils.clifford_2_qubit_circuit(num=num)
         transpiled_circ = CliffordUtils.transpile_single_clifford(circ, basis_gates)
         transpiled_circs.append(transpiled_circ)
-    suffix = ""
-    for n in basis_gates_to_generate:
-        suffix += "_" + n
-    file_name = "transpiled_circs_2q" + suffix + ".qpy"
+    file_name = CliffordUtils.file_name(num_qubits=2, basis_gates=basis_gates)
     with open(file_name, "wb") as fd:
         qpy.dump(transpiled_circs, fd)
 

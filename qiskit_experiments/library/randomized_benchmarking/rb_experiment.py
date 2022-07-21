@@ -16,13 +16,11 @@ import logging
 from collections import defaultdict
 from typing import Union, Iterable, Optional, List, Sequence
 import os
-import numpy as np
 from numpy.random import Generator, default_rng
 from numpy.random.bit_generator import BitGenerator, SeedSequence
 
 from qiskit import QuantumCircuit, ClassicalRegister, QiskitError
-from qiskit.circuit import Instruction, Clbit
-from qiskit.quantum_info import Clifford
+from qiskit.circuit import Clbit
 from qiskit.providers.backend import Backend
 from qiskit import qpy
 
@@ -149,98 +147,15 @@ class StandardRB(BaseExperiment, RestlessMixin):
 
         self.load_transpiled_cliff_circuits()
         for _ in range(self.experiment_options.num_samples):
-            if self.num_qubits == 1 or self.num_qubits == 2:
-                rb_circuits, _ = self._build_rb_circuits(self.experiment_options.lengths, rng)
-                circuits += rb_circuits
-            else:
-                circuits += self._sample_circuits(self.experiment_options.lengths, rng)
-        return circuits
-
-    def _sample_circuits(self, lengths: Iterable[int], rng: Generator) -> List[QuantumCircuit]:
-        """Return a list RB circuits for the given lengths.
-
-        Args:
-            lengths: A list of RB sequences lengths.
-            seed: Seed or generator object for random number
-                  generation. If None default_rng will be used.
-
-        Returns:
-            A list of :class:`QuantumCircuit`.
-        """
-        circuits = []
-        for length in lengths if self._full_sampling else [lengths[-1]]:
-            elements = CliffordUtils.random_clifford_circuits(self.num_qubits, length, rng)
-            element_lengths = [len(elements)] if self._full_sampling else lengths
-            circuits += self._generate_circuit(elements, element_lengths)
-        return circuits
-
-    def _generate_circuit(
-        self, elements: Iterable[Clifford], lengths: Iterable[int]
-    ) -> List[QuantumCircuit]:
-        """Return the RB circuits constructed from the given element list.
-
-        Args:
-            elements: A list of Clifford elements
-            lengths: A list of RB sequences lengths.
-
-        Returns:
-            A list of :class:`QuantumCircuit`s.
-
-        Additional information:
-            The circuits are constructed iteratively; each circuit is obtained
-            by extending the previous circuit (without the inversion and measurement gates)
-        """
-        qubits = list(range(self.num_qubits))
-        circuits = []
-
-        circs = [QuantumCircuit(self.num_qubits) for _ in range(len(lengths))]
-        for circ in circs:
-            circ.barrier(qubits)
-        circ_op = Clifford(np.eye(2 * self.num_qubits))
-
-        for current_length, group_elt_circ in enumerate(elements):
-            if isinstance(group_elt_circ, tuple):
-                group_elt_gate = group_elt_circ[0]
-                group_elt_op = group_elt_circ[1]
-            else:
-                group_elt_gate = group_elt_circ
-                group_elt_op = Clifford(group_elt_circ)
-
-            if not isinstance(group_elt_gate, Instruction):
-                group_elt_gate = group_elt_gate.to_instruction()
-            circ_op = circ_op.compose(group_elt_op)
-            for circ in circs:
-                circ.append(group_elt_gate, qubits)
-                circ.barrier(qubits)
-            if current_length + 1 in lengths:
-                # copy circuit and add inverse
-                inv = circ_op.adjoint()
-                rb_circ = circs.pop()
-                rb_circ.append(inv, qubits)
-                rb_circ.barrier(qubits)
-                rb_circ.metadata = {
-                    "experiment_type": self._type,
-                    "xval": current_length + 1,
-                    "group": "Clifford",
-                    "physical_qubits": self.physical_qubits,
-                }
-                rb_circ.measure_all()
-                circuits.append(rb_circ)
+            rb_circuits, _ = self._build_rb_circuits(self.experiment_options.lengths, rng)
+            circuits += rb_circuits
         return circuits
 
     def load_transpiled_cliff_circuits(self):
         """Load the transpiled clifford circuits from the file into an array of quantum circuits"""
-        suffix = ""
-        for n in self.transpile_options.basis_gates:
-            suffix += "_" + n
-        file_name = (
-            "transpiled_circs_1q" + suffix + ".qpy"
-            if self.num_qubits == 1
-            else "transpiled_circs_2q" + suffix + ".qpy"
+        transpiled_circs_file = CliffordUtils.file_name(
+            self.num_qubits, self.transpile_options.basis_gates
         )
-
-        root_dir = os.path.dirname(os.path.abspath(__file__))
-        transpiled_circs_file = root_dir + file_name
         n = self.num_qubits
         if self._transpiled_cliff_circuits[n] is None:
             if os.path.isfile(transpiled_circs_file):

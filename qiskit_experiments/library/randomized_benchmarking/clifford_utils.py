@@ -13,6 +13,7 @@
 Utilities for using the Clifford group in randomized benchmarking
 """
 
+import os
 from typing import Optional, Union, List
 from functools import lru_cache
 from math import isclose
@@ -344,3 +345,16 @@ class CliffordUtils:
             return CLIFF_INVERSE_DATA_1Q[num]
         else:
             return CLIFF_INVERSE_DATA_2Q[num]
+
+    @classmethod
+    def file_name(cls, num_qubits, basis_gates):
+        """Return the name of the file containing the transpiled Cliffords"""
+        suffix = ""
+        for n in basis_gates[0:-1]:
+            suffix += "_" + n
+        if num_qubits == 2:
+            suffix += "_" + basis_gates[-1]
+        file_name = "/transpiled_circs_" + str(num_qubits) + "q" + suffix + ".qpy"
+        root_dir = os.path.dirname(os.path.abspath(__file__))
+        transpiled_circs_file = root_dir + file_name
+        return transpiled_circs_file
