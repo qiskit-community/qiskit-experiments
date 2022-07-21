@@ -1,0 +1,9 @@
+---
+other:
+  - |
+   Implemented a new algorithm for rb_experiment. This algorithm transpiles all
+   the Cliffords in advance, and stores them in a file. The rb circuits are 
+   constructed from the transpiled Cliffords, and so we can avoid tranpiling
+   the full circuits. In addition, compose and inverse operations are 
+   computed using a mapping between Cliffords and numbers, making these 
+   operations much faster. The mapping is also stored in a file.
