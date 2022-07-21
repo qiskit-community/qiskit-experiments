@@ -42,7 +42,7 @@ class RBTestCase(QiskitExperimentsTestCase):
         self.pvz = 0.0
 
         # basis gates
-        self.basis_gates = ["sx", "rz", "cx"]
+        self.basis_gates = ["rz", "sx", "cx"]
 
         # setup noise model
         sx_error = depolarizing_error(self.p1q, 1)
@@ -483,7 +483,7 @@ class TestInterleavedRB(RBTestCase):
             num_samples=1,
         )
         transpiler_options = {
-            "basis_gates": ["h", "x", "s", "cx"],
+            "basis_gates": ["x", "h", "s", "cx"],
             "optimization_level": 1,
         }
         exp.set_transpile_options(**transpiler_options)

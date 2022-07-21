@@ -110,52 +110,15 @@ class InterleavedRB(StandardRB):
 
         self.load_transpiled_cliff_circuits()
         for _ in range(self.experiment_options.num_samples):
-            if self.num_qubits == 1 or self.num_qubits == 2:
-                self._set_transpiled_interleaved_element()
-                std_circuits, int_circuits = self._build_rb_circuits(
-                    self.experiment_options.lengths,
-                    rng,
-                    interleaved_element=self._transpiled_interleaved_elem,
-                )
-                circuits += std_circuits
-                circuits += int_circuits
-            else:
-                circuits += self._sample_circuits(self.experiment_options.lengths, rng)
-        return circuits
-
-    def _sample_circuits(self, lengths, rng):
-        circuits = []
-        for length in lengths if self._full_sampling else [lengths[-1]]:
-            elements = CliffordUtils.random_clifford_circuits(self.num_qubits, length, rng)
-            element_lengths = [len(elements)] if self._full_sampling else lengths
-            std_circuits = self._generate_circuit(elements, element_lengths)
-            for circuit in std_circuits:
-                circuit.metadata["interleaved"] = False
+            self._set_transpiled_interleaved_element()
+            std_circuits, int_circuits = self._build_rb_circuits(
+                self.experiment_options.lengths,
+                rng,
+                interleaved_element=self._transpiled_interleaved_elem,
+            )
             circuits += std_circuits
-
-            int_elements = self._interleave(elements)
-            int_elements_lengths = [length * 2 for length in element_lengths]
-            int_circuits = self._generate_circuit(int_elements, int_elements_lengths)
-            for circuit in int_circuits:
-                circuit.metadata["interleaved"] = True
-                circuit.metadata["xval"] = circuit.metadata["xval"] // 2
             circuits += int_circuits
         return circuits
-
-    def _interleave(self, element_list: List) -> List:
-        """Interleaving the interleaved element inside the element list.
-
-        Args:
-            element_list: The list of elements we add the interleaved element to.
-
-        Returns:
-            The new list with the element interleaved.
-        """
-        new_element_list = []
-        for element in element_list:
-            new_element_list.append(element)
-            new_element_list.append(self._interleaved_element)
-        return new_element_list
 
     def _set_interleaved_element(self, interleaved_element):
         """Handle the various types of the interleaved element
