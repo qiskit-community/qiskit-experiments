@@ -457,11 +457,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
 
     def _transpiled_circuits(self) -> List[QuantumCircuit]:
         """Return a list of experiment circuits, transpiled."""
-        if self.num_qubits == 1 or self.num_qubits == 2:
-            transpiled = self._layout_for_rb()
-        else:
-            transpiled = super()._transpiled_circuits()
-
+        transpiled = self._layout_for_rb()
         if self.analysis.options.get("gate_error_ratio", None) is None:
             # Gate errors are not computed, then counting ops is not necessary.
             return transpiled
