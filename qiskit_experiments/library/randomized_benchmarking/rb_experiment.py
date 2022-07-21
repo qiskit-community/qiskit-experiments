@@ -140,8 +140,8 @@ class StandardRB(BaseExperiment, RestlessMixin):
         rng = default_rng(seed=self.experiment_options.seed)
         circuits = []
         if not hasattr(self.transpile_options, "basis_gates"):
-            if self.backend.configuration.basis_gates:
-                self.set_transpile_options(basis_gates=self.backend.configuration.basis_gates)
+            if self.backend.configuration().basis_gates:
+                self.set_transpile_options(basis_gates=self.backend.configuration().basis_gates)
             else:
                 raise QiskitError("transpile_options.basis_gates must be set for rb_experiment")
 
