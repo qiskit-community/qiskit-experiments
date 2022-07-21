@@ -13,13 +13,16 @@
 """
 RB Helper functions
 """
+import functools
+import operator
 from typing import Tuple, Dict, Optional, List, Union, Sequence
 
 import numpy as np
 import uncertainties
+
+import qiskit.quantum_info as qi
 from qiskit import QiskitError, QuantumCircuit
 from qiskit.providers.backend import Backend
-
 from qiskit_experiments.database_service.device_component import Qubit
 from qiskit_experiments.framework import AnalysisResultData
 from qiskit_experiments.warnings import deprecated_function
@@ -138,6 +141,10 @@ class RBUtils:
         return {key: value[0] / value[1] for (key, value) in result.items()}
 
     @staticmethod
+    @deprecated_function(
+        last_version="0.4",
+        msg="Please use coherence_limit_error function that can handle three or more qubits instead.",
+    )
     def coherence_limit(nQ=2, T1_list=None, T2_list=None, gatelen=0.1):
         """
         The error per gate (1-average_gate_fidelity) given by the T1,T2 limit.
@@ -198,6 +205,83 @@ class RBUtils:
             raise ValueError("Not a valid number of qubits")
 
         return coherence_limit_err
+
+    @staticmethod
+    def coherence_limit_error(
+        num_qubits: int, gate_length: float, t1s: Sequence, t2s: Optional[Sequence] = None
+    ):
+        r"""
+        The error per gate (1 - average_gate_fidelity) given by the T1,T2 limit
+        assuming qubit-wise gate-independent amplitude damping error
+        (i.e. thermal relaxation error with no excitation).
+
+        That means, suppose the gate length $t$, we are considering a quantum error channel
+        whose Choi matrix representation for a single qubit with $T_1$ and $T_2$ is give by
+
+        .. math::
+
+            \begin{bmatrix}
+                1 & 0 & 0 & e^{-\frac{t}{T_2}} \\
+                0 & 0 & 0 & 0 \\
+                0 & 0 & 1-e^{-\frac{t}{T_1}} & 0 \\
+                e^{-\frac{t}{T_2}} & 0 & 0 & e^{-\frac{t}{T_1}} \\
+            \end{bmatrix}
+
+        The coherence limit error computed by this function is
+        :math:`1 - F_{\text{avg}}(\mathcal{E}, U)` and the following equalities hold for the value.
+
+        .. math::
+
+             \begin{align}
+             1 - F_{\text{avg}}(\mathcal{E}, U)
+                    &= \frac{d}{d+1} \left(1 - F_{\text{pro}}(\mathcal{E}, U)\right) \\
+                    &= \frac{d}{d+1} \left(1 - \frac{Tr[S_U^\dagger S_{\mathcal{E}}]}{d^2}\right) \\
+                    &= \frac{d}{d+1} \left(1 - \frac{Tr[S_{\Lambda}]}{d^2}\right)
+             \end{align}
+
+        where :math:`F_{\text{avg}}(\mathcal{E}, U)` and :math:`F_{\text{pro}}(\mathcal{E}, U)` are
+        the average gate fidelity and the process fidelity of a quantum channel :math:`\mathcal{E}`
+        with a target unitary $U$ such that :math:`\mathcal{E}=\Lambda(U)`, respectively,
+        $d$ is the dimension of Hilbert space of the considering qubit system, and
+        :math:`S_{\Lambda}` is the Liouville Superoperator representation of a channel :math:`\Lambda`.
+
+        Args:
+            num_qubits: Number of qubits.
+            gate_length: Duration of the gate in seconds.
+            t1s: List of T1's from qubit 0 to num_qubits-1.
+            t2s: List of T2's (as measured, not Tphi). If not given, assume T2 = 2 * T1.
+                 Each T2 value is truncated down to 2 * T1 if T2 > 2 * T1.
+
+        Returns:
+            float: coherence limited error per gate.
+        Raises:
+            ValueError: if there are invalid inputs
+        """
+        t1s = np.array(t1s)
+        if t2s is None:
+            t2s = 2 * t1s
+        else:
+            t2s = np.array([min(t2, 2 * t1) for t1, t2 in zip(t1s, t2s)])
+
+        if len(t1s) != num_qubits or len(t2s) != num_qubits:
+            raise ValueError("Length of t1s/t2s must equal num_qubits")
+
+        def amplitude_damping_choi(t1, t2, time):
+            return qi.Choi(
+                np.array(
+                    [
+                        [1, 0, 0, np.exp(-time / t2)],
+                        [0, 0, 0, 0],
+                        [0, 0, 1 - np.exp(-time / t1), 0],
+                        [np.exp(-time / t2), 0, 0, np.exp(-time / t1)],
+                    ]
+                )
+            )
+
+        chois = [amplitude_damping_choi(t1, t2, gate_length) for t1, t2 in zip(t1s, t2s)]
+        traces = [np.real(np.trace(np.array(qi.SuperOp(choi)))) for choi in chois]
+        d = 2**num_qubits
+        return d / (d + 1) * (1 - functools.reduce(operator.mul, traces) / (d * d))
 
     @staticmethod
     @deprecated_function(

@@ -1,0 +1,15 @@
+---
+upgrade:
+  - |
+    A function to compute the coherence limit error, :meth:`.RBUtils.coherence_limit_error`,
+    is added and now it can take any number of qubits. It replaces the deprecated
+    :meth:`.RBUtils.coherence_limit`, which can take only one or two qubits.
+    Note that the names and order of the arguments have also changed.
+
+    .. code-block:: python
+
+      # New function
+      RBUtils.coherence_limit_error(num_qubits=num_qubits, gate_length=gate_length, t1s=t1s, t2s=t2s)
+
+      # Deprecated method
+      # RBUtils.coherence_limit(nQ=num_qubits, T1_list=t1s, T2_list=t2s, gatelen=gate_length)

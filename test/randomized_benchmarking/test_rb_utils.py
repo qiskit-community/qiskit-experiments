@@ -167,13 +167,51 @@ class TestRBUtilities(QiskitExperimentsTestCase):
         t2 = 100.0
         gate_2_qubits = 0.5
         gate_1_qubit = 0.1
-        twoq_coherence_err = rb.RBUtils.coherence_limit(2, [t1, t1], [t2, t2], gate_2_qubits)
 
-        oneq_coherence_err = rb.RBUtils.coherence_limit(1, [t1], [t2], gate_1_qubit)
+        with self.assertWarns(DeprecationWarning):
+            oneq_coherence_err = rb.RBUtils.coherence_limit(1, [t1], [t2], gate_1_qubit)
+            twoq_coherence_err = rb.RBUtils.coherence_limit(2, [t1, t1], [t2, t2], gate_2_qubits)
+            # random test to ensure ole and new coherence_limit yield the same value for 1q and 2q cases
+            import random
+
+            random.seed(123)
+            for num_qubits in [1, 2]:
+                for _ in range(100):
+                    t1s = [random.randint(100, 200) for _ in range(num_qubits)]
+                    t2s = [random.randint(100, 200) for _ in range(num_qubits)]
+                    time = random.randint(1, 10)
+                    self.assertAlmostEqual(
+                        rb.RBUtils.coherence_limit(num_qubits, t1s, t2s, time),
+                        rb.RBUtils.coherence_limit_error(num_qubits, time, t1s, t2s),
+                    )
 
         self.assertAlmostEqual(oneq_coherence_err, 0.00049975, 6, "Error: 1Q Coherence Limit")
-
         self.assertAlmostEqual(twoq_coherence_err, 0.00597, 5, "Error: 2Q Coherence Limit")
+
+    def test_coherence_limit_error(self):
+        """Test coherence_limit_error."""
+        t1 = 100.0
+        t2 = 150.0
+        coherence_err_1q = rb.RBUtils.coherence_limit_error(1, 0.1, [t1], [t2])
+        coherence_err_2q = rb.RBUtils.coherence_limit_error(2, 0.5, [t1] * 2, [t2] * 2)
+        coherence_err_9q = rb.RBUtils.coherence_limit_error(9, 0.9, [t1] * 9, [t2] * 9)
+        self.assertAlmostEqual(coherence_err_1q, 0.00038873, 6, "Error: 1Q Coherence Limit")
+        self.assertAlmostEqual(coherence_err_2q, 0.00465046, 6, "Error: 2Q Coherence Limit")
+        self.assertAlmostEqual(coherence_err_9q, 0.04601531, 6, "Error: 9Q Coherence Limit")
+
+        self.assertAlmostEqual(
+            rb.RBUtils.coherence_limit_error(num_qubits=1, gate_length=0.1, t1s=[10], t2s=[50]),
+            rb.RBUtils.coherence_limit_error(num_qubits=1, gate_length=0.1, t1s=[10], t2s=[20]),
+            "T2 value must be truncated down to 2 * T1",
+        )
+        self.assertAlmostEqual(
+            rb.RBUtils.coherence_limit_error(num_qubits=1, gate_length=0.1, t1s=[10]),
+            rb.RBUtils.coherence_limit_error(num_qubits=1, gate_length=0.1, t1s=[10], t2s=[20]),
+            "If T2 values are not given, assume 2 * T1",
+        )
+
+        with self.assertRaises(ValueError):
+            rb.RBUtils.coherence_limit_error(num_qubits=2, gate_length=0.1, t1s=[10])
 
     def test_clifford_1_qubit_generation(self):
         """Verify 1-qubit clifford indeed generates the correct group"""
