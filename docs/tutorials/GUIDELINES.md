@@ -25,7 +25,7 @@ Below are more concrete guidelines pertaining to various tutorial aspects:
 * For sub titles of how-to steps - use present progressive. E.e. "Saving exp data to the DB" (instead of "Save exp data to the DB")
 * Use math notation as much as possible (e.g. use $\frac{\pi}{2}$ instead of pi-half or pi/2)
 * Use headers, subheaders, subsubheaders etc. for hierarchical text organization. No need to number the headers
-* Use device names as shown in the IBM Quantum Services dashboard, e.g. ibmq_armonk instead of IBMQ Armonk
+* Use device names as shown in the IBM Quantum Services dashboard, e.g. ibmq_lima instead of IBMQ Lima
 * put identifier names (e.g. osc_freq) in code blocks using backticks, i.e. `osc_freq` 
  
 ## Content guidelines 
