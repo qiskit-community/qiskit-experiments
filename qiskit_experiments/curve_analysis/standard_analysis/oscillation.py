@@ -18,6 +18,7 @@ import lmfit
 import numpy as np
 
 import qiskit_experiments.curve_analysis as curve
+from qiskit_experiments.warnings import deprecated_class
 
 
 class OscillationAnalysis(curve.CurveAnalysis):
@@ -129,8 +130,9 @@ class OscillationAnalysis(curve.CurveAnalysis):
 
         return "bad"
 
+@deprecated_class("0.5","DumpedOscillationAnalysis is now replaced with DampedOscillationAnalysis")
 
-class DampedOscillationAnalysis(curve.CurveAnalysis):
+class DumpedOscillationAnalysis(curve.CurveAnalysis):
     r"""A class to analyze general exponential decay curve with sinusoidal oscillation.
 
     # section: fit_model
