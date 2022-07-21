@@ -282,7 +282,6 @@ class TestCalibrationsBasic(QiskitExperimentsTestCase):
         self.assertEqual(control_channel_map_size, 8)
         self.assertEqual(coupling_map_size, 8)
         self.assertEqual(cals.get_parameter_value('drive_freq',0), 5090167234.445013)
-        self.assertEqual(cals.get_parameter_value('meas_freq', 0), 7301661824.000001)
 
 class TestOverrideDefaults(QiskitExperimentsTestCase):
     """
@@ -1753,14 +1752,3 @@ class TestSerialization(QiskitExperimentsTestCase):
         cals2.add_parameter_value(param_val2, "amp", 3, "x")
 
         self.assertTrue(cals1 == cals2)
-
-import unittest
-def suite():
-    suite = unittest.TestSuite()
-    suite.addTest(TestCalibrationsBasic('test_from_backend'))
-    return suite
-
-if __name__ == '__main__':
-    runner = unittest.TextTestRunner()
-    runner.run(suite())
-

@@ -270,7 +270,8 @@ class Calibrations:
             coupling_map = backend.coupling_map.get_edges()
             control_channels = backend.control_channels
             version = backend.version
-            qubit_freq_est = []
+            qubit_freq_est = [property.frequency for property in backend.target.qubit_properties]
+            # meas_freq_est is currently not part of the BackendV2
             meas_freq_est = []
         else:
             backend_name = None
@@ -279,8 +280,6 @@ class Calibrations:
             version = None
             qubit_freq_est = []
             meas_freq_est = []
-
-
 
         cals = Calibrations(coupling_map, control_channels,
             library,
