@@ -281,12 +281,14 @@ class Calibrations:
             qubit_freq_est = []
             meas_freq_est = []
 
-        cals = Calibrations(coupling_map, control_channels,
+        cals = Calibrations(
+            coupling_map,
+            control_channels,
             library,
             libraries,
             add_parameter_defaults,
             backend_name,
-            version
+            version,
         )
 
         if add_parameter_defaults:

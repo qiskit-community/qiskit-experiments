@@ -270,18 +270,18 @@ class TestCalibrationsBasic(QiskitExperimentsTestCase):
         with self.assertRaises(CalibrationError):
             self.cals.get_parameter_value("amp", "(1, a)", "xp")
 
-
     def test_from_backend(self):
         """Test that when generating calibrations from backend
         the data is passed correctly"""
         backend = FakeBelemV2()
         cals = Calibrations.from_backend(backend)
-        config_args = cals.config()['kwargs']
-        control_channel_map_size = len(config_args['control_channel_map'].chan_map)
-        coupling_map_size = len(config_args['coupling_map'])
+        config_args = cals.config()["kwargs"]
+        control_channel_map_size = len(config_args["control_channel_map"].chan_map)
+        coupling_map_size = len(config_args["coupling_map"])
         self.assertEqual(control_channel_map_size, 8)
         self.assertEqual(coupling_map_size, 8)
-        self.assertEqual(cals.get_parameter_value('drive_freq',0), 5090167234.445013)
+        self.assertEqual(cals.get_parameter_value("drive_freq", 0), 5090167234.445013)
+
 
 class TestOverrideDefaults(QiskitExperimentsTestCase):
     """
@@ -1460,8 +1460,6 @@ class TestSavingAndLoading(CrossResonanceTest):
             cals.get_parameter_value("drive_freq", (0,)),
             backend.defaults().qubit_freq_est[0],
         )
-
-
 
 
 class TestInstructionScheduleMap(QiskitExperimentsTestCase):

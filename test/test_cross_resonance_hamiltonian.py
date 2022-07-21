@@ -238,7 +238,3 @@ class TestCrossResonanceHamiltonian(QiskitExperimentsTestCase):
             risefall=2,
         )
         self.assertRoundTripSerializable(exp, self.json_equiv)
-
-import unittest
-if __name__ == '__main__':
-    unittest.main()
