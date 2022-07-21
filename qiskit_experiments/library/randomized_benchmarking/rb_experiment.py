@@ -152,7 +152,14 @@ class StandardRB(BaseExperiment, RestlessMixin):
         return circuits
 
     def load_transpiled_cliff_circuits(self):
-        """Load the transpiled clifford circuits from the file into an array of quantum circuits"""
+        """
+        Load the transpiled clifford circuits from the file into an array of
+        quantum circuits
+
+        Raises:
+            QiskitError: if the file with transpiled cliffords does not exist.
+
+        """
         transpiled_circs_file = CliffordUtils.file_name(
             self.num_qubits, self.transpile_options.basis_gates
         )
@@ -162,10 +169,9 @@ class StandardRB(BaseExperiment, RestlessMixin):
                 with open(transpiled_circs_file, "rb") as fd:
                     self._transpiled_cliff_circuits[n] = qpy.load(fd)
             else:
-                raise QiskitError(
-                    f"File for {transpiled_circs_file} does not exist.\
+                error_message = "File for " + transpiled_circs_file + "does not exist.\
                     Use generate_transpile_circuits.py to generate this file"
-                )
+                raise QiskitError(error_message)
 
     def _build_rb_circuits(
         self, lengths: List[int], rng: Generator, interleaved_element: QuantumCircuit = None
