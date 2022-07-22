@@ -15,6 +15,7 @@ Standard RB Experiment class.
 import logging
 from collections import defaultdict
 from typing import Union, Iterable, Optional, List, Sequence
+import os
 from numpy.random import Generator, default_rng
 from numpy.random.bit_generator import BitGenerator, SeedSequence
 
@@ -164,14 +165,14 @@ class StandardRB(BaseExperiment, RestlessMixin):
         )
         n = self.num_qubits
         if self._transpiled_cliff_circuits[n] is None:
-            try:
+            if os.path.isfile(transpiled_circs_file):
                 with open(transpiled_circs_file, "rb") as fd:
                     self._transpiled_cliff_circuits[n] = qpy.load(fd)
-            except QiskitError as error:
+            else:
                 raise QiskitError(
-                    f"File {transpiled_circs_file} does not exist.\
-                    Use generate_transpile_circuits.py to generate this file"
-                ) from error
+                    f"File for {transpiled_circs_file} does not exist. "
+                    "Use generate_transpile_circuits.py to generate this file"
+                )
 
     def _build_rb_circuits(
         self, lengths: List[int], rng: Generator, interleaved_element: QuantumCircuit = None

@@ -354,7 +354,7 @@ class CliffordUtils:
             suffix += "_" + n
         if num_qubits == 2:
             suffix += "_" + basis_gates[-1]
-        file_name = "/transpiled_circs_" + str(num_qubits) + "q" + suffix + ".qpy"
+        circs_file_name = "/transpiled_circs_" + str(num_qubits) + "q" + suffix + ".qpy"
         root_dir = os.path.dirname(os.path.abspath(__file__))
-        transpiled_circs_file = root_dir + file_name
+        transpiled_circs_file = root_dir + circs_file_name
         return transpiled_circs_file
