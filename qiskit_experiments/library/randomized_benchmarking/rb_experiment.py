@@ -140,10 +140,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
         rng = default_rng(seed=self.experiment_options.seed)
         circuits = []
         if not hasattr(self.transpile_options, "basis_gates"):
-            if self.backend.configuration().basis_gates:
-                self.set_transpile_options(basis_gates=self.backend.configuration().basis_gates)
-            else:
-                raise QiskitError("transpile_options.basis_gates must be set for rb_experiment")
+            raise QiskitError("transpile_options.basis_gates must be set for rb_experiment")
 
         self.load_transpiled_cliff_circuits()
         for _ in range(self.experiment_options.num_samples):
@@ -170,7 +167,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
                     self._transpiled_cliff_circuits[n] = qpy.load(fd)
             else:
                 raise QiskitError(
-                    "Transpiled cliff file does not exist. "
+                    f"File {transpiled_circs_file} does not exist. "
                     "Use generate_transpile_circuits.py to generate this file"
                 )
 
