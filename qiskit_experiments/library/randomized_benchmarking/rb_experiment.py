@@ -170,7 +170,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
                     self._transpiled_cliff_circuits[n] = qpy.load(fd)
             else:
                 raise QiskitError(
-                    f"File for {transpiled_circs_file} does not exist. "
+                    f"Transpiled cliff file does not exist. "
                     "Use generate_transpile_circuits.py to generate this file"
                 )
 
