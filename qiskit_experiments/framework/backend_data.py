@@ -84,7 +84,7 @@ class BackendData:
         if isinstance(backend, BackendV1):
             return getattr(backend.configuration(), "coupling_map", [])
         elif isinstance(backend, BackendV2):
-            return backend.coupling_map.get_edges()
+            return list(backend.coupling_map.get_edges())
         return []
 
     @staticmethod
@@ -133,3 +133,13 @@ class BackendData:
             # meas_freq_est is currently not part of the BackendV2
             return []
         return []
+
+    @staticmethod
+    def num_qubits(backend):
+        """Returns the backend's number of qubits"""
+        if isinstance(backend, BackendV1):
+            return backend.configuration().num_qubits
+        elif isinstance(backend, BackendV2):
+            # meas_freq_est is currently not part of the BackendV2
+            return backend.num_qubits
+        return None

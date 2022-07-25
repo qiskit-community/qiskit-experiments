@@ -32,6 +32,7 @@ from qiskit import transpile, QuantumCircuit
 from qiskit.pulse.transforms import inline_subroutines, block_to_schedule
 import qiskit.pulse as pulse
 from qiskit.providers.fake_provider import FakeArmonkV2, FakeBelemV2
+from qiskit_experiments.framework import BackendData
 from qiskit_experiments.calibration_management.calibrations import Calibrations, ParameterKey
 from qiskit_experiments.calibration_management.parameter_value import ParameterValue
 from qiskit_experiments.calibration_management.basis_gate_library import FixedFrequencyTransmon
@@ -1458,7 +1459,7 @@ class TestSavingAndLoading(CrossResonanceTest):
         self.assertEqual(cals.get_parameter_value("amp", (0,), "x"), 0.5)
         self.assertEqual(
             cals.get_parameter_value("drive_freq", (0,)),
-            backend.defaults().qubit_freq_est[0],
+            BackendData.qubit_freq_est(backend)[0],
         )
 
 
@@ -1504,12 +1505,12 @@ class TestInstructionScheduleMap(QiskitExperimentsTestCase):
         cals.add_schedule(cr, num_qubits=2)
         cals.update_inst_map({"cr"})
 
-        for qubit in range(backend.configuration().num_qubits):
+        for qubit in range(BackendData.num_qubits(backend)):
             self.assertTrue(cals.default_inst_map.has("sx", (qubit,)))
 
         # based on coupling map of Belem to keep the test robust.
         expected_pairs = [(0, 1), (1, 0), (1, 2), (2, 1), (1, 3), (3, 1), (3, 4), (4, 3)]
-        coupling_map = set(tuple(pair) for pair in backend.configuration().coupling_map)
+        coupling_map = set(tuple(pair) for pair in BackendData.coupling_map(backend))
 
         for pair in expected_pairs:
             self.assertTrue(pair in coupling_map)
@@ -1671,8 +1672,8 @@ class TestInstructionScheduleMap(QiskitExperimentsTestCase):
         cals1 = Calibrations.from_backend(backend, libraries=[library])
         cals2 = Calibrations(
             libraries=[library],
-            control_channel_map=backend.configuration().control_channels,
-            coupling_map=backend.configuration().coupling_map,
+            control_channel_map=BackendData.control_channels(backend),
+            coupling_map=BackendData.coupling_map(backend),
         )
 
         self.assertEqual(str(cals1.get_schedule("x", 1)), str(cals2.get_schedule("x", 1)))
