@@ -15,8 +15,8 @@ A Tester for the Clifford utilities
 """
 from test.base import QiskitExperimentsTestCase
 import os
-import random
 import numpy as np
+from numpy.random import default_rng
 from ddt import ddt
 
 from qiskit import QuantumCircuit, QuantumRegister, QiskitError
@@ -964,11 +964,11 @@ class TestCliffordUtils(QiskitExperimentsTestCase):
         """Compare compose using num and Clifford to compose using two Cliffords, for
         a single qubit"""
         num_tests = 50
-        random.seed = self.seed
+        rng = default_rng(seed=self.seed)
         for _ in range(num_tests):
-            num1 = random.randint(0, CliffordUtils.NUM_CLIFFORD_1_QUBIT - 1)
+            num1 = rng.integers(0, CliffordUtils.NUM_CLIFFORD_1_QUBIT - 1)
             cliff1_qc = CliffordUtils.clifford_1_qubit_circuit(num1)
-            num2 = random.randint(0, CliffordUtils.NUM_CLIFFORD_1_QUBIT - 1)
+            num2 = rng.integers(0, CliffordUtils.NUM_CLIFFORD_1_QUBIT - 1)
             cliff2_qc = CliffordUtils.clifford_1_qubit_circuit(num2)
             transpiled_qc2 = CliffordUtils.transpile_single_clifford(
                 cliff2_qc, basis_gates=self.basis_gates
@@ -984,11 +984,11 @@ class TestCliffordUtils(QiskitExperimentsTestCase):
         """Compare compose using num and Clifford to compose using two Cliffords, for
         two qubits"""
         num_tests = 100
-        random.seed = self.seed
+        rng = default_rng(seed=self.seed)
         for _ in range(num_tests):
-            num1 = random.randint(0, CliffordUtils.NUM_CLIFFORD_2_QUBIT - 1)
+            num1 = rng.integers(0, CliffordUtils.NUM_CLIFFORD_2_QUBIT - 1)
             cliff1_qc = CliffordUtils.clifford_2_qubit_circuit(num1)
-            num2 = random.randint(0, CliffordUtils.NUM_CLIFFORD_2_QUBIT - 1)
+            num2 = rng.integers(0, CliffordUtils.NUM_CLIFFORD_2_QUBIT - 1)
             cliff2_qc = CliffordUtils.clifford_2_qubit_circuit(num2)
             transpiled_qc2 = CliffordUtils.transpile_single_clifford(
                 cliff2_qc, basis_gates=self.basis_gates
@@ -1003,9 +1003,9 @@ class TestCliffordUtils(QiskitExperimentsTestCase):
     def test_inverse_by_num_1q(self):
         """Compare inverse using num to inverse using Clifford"""
         num_tests = 10
-        random.seed = self.seed
+        rng = default_rng(seed=self.seed)
         for _ in range(num_tests):
-            num = random.randint(0, CliffordUtils.NUM_CLIFFORD_1_QUBIT - 1)
+            num = rng.integers(0, CliffordUtils.NUM_CLIFFORD_1_QUBIT - 1)
             cliff_qc = CliffordUtils.clifford_1_qubit_circuit(num)
             inverse_num = CliffordUtils.clifford_inverse_by_num(num, num_qubits=1)
             inverse_by_num = CliffordUtils.clifford_1_qubit_circuit(inverse_num)
@@ -1015,9 +1015,9 @@ class TestCliffordUtils(QiskitExperimentsTestCase):
     def test_inverse_by_num_2q(self):
         """Compare inverse using num to inverse using Clifford"""
         num_tests = 100
-        random.seed = self.seed
+        rng = default_rng(seed=self.seed)
         for _ in range(num_tests):
-            num = random.randint(0, CliffordUtils.NUM_CLIFFORD_2_QUBIT - 1)
+            num = rng.integers(0, CliffordUtils.NUM_CLIFFORD_2_QUBIT - 1)
             cliff_qc = CliffordUtils.clifford_2_qubit_circuit(num)
             inverse_num = CliffordUtils.clifford_inverse_by_num(num, num_qubits=2)
             inverse_by_num = CliffordUtils.clifford_2_qubit_circuit(inverse_num)
