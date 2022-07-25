@@ -19,11 +19,11 @@ import functools
 import numpy as np
 from ddt import ddt, data, unpack
 from qiskit import QuantumCircuit, pulse, quantum_info as qi
-from qiskit.providers import BackendV1, BackendV2
-from qiskit.providers.fake_provider import FakeBogotaV2, FakeBogota
+from qiskit.providers.fake_provider import FakeBogotaV2
 from qiskit.extensions.hamiltonian_gate import HamiltonianGate
 from qiskit.providers.aer import AerSimulator
 from qiskit_experiments.library.characterization import cr_hamiltonian
+from qiskit_experiments.framework import BackendData
 
 
 class SimulatableCRGate(HamiltonianGate):
@@ -51,14 +51,7 @@ class TestCrossResonanceHamiltonian(QiskitExperimentsTestCase):
         backend = FakeBogotaV2()
 
         # Add granularity to check duration optimization logic
-        if isinstance(backend, BackendV1):
-            setattr(
-                backend.configuration(),
-                "timing_constraints",
-                {"granularity": 16},
-            )
-        if isinstance(backend, BackendV2):
-            backend.target.granularity = 16
+        BackendData.set_granularity(backend, 16)
 
         expr = cr_hamiltonian.CrossResonanceHamiltonian(
             qubits=(0, 1),
@@ -142,14 +135,7 @@ class TestCrossResonanceHamiltonian(QiskitExperimentsTestCase):
     def test_instance_with_backend_without_cr_gate(self):
         """Calling set backend method without setting cr gate."""
         backend = FakeBogotaV2()
-        if isinstance(backend, BackendV1):
-            setattr(
-                backend.configuration(),
-                "timing_constraints",
-                {"granularity": 16},
-            )
-        if isinstance(backend, BackendV2):
-            backend.target.granularity = 16
+        BackendData.set_granularity(backend, 16)
 
         # not raise an error
         exp = cr_hamiltonian.CrossResonanceHamiltonian(
@@ -157,20 +143,14 @@ class TestCrossResonanceHamiltonian(QiskitExperimentsTestCase):
             flat_top_widths=[1000],
             backend=backend,
         )
-        if isinstance(backend, BackendV1):
-            ref_config = backend.configuration()
-            ref_dt = ref_config.dt
-            ref_cr_channel = ref_config.control((0, 1))[0].index
-            ref_granularity = ref_config.timing_constraints["granularity"]
 
-        if isinstance(backend, BackendV2):
-            ref_dt = backend.dt
-            ref_cr_channel = backend.control_channel((0,1))[0].index
-            ref_granularity = backend.target.granularity
+        ref_dt = BackendData.dt(backend)
         self.assertEqual(exp._dt, ref_dt)
 
         # These properties are set when cr_gate is not provided
+        ref_cr_channel = BackendData.control_channel(backend,(0,1))[0].index
         self.assertEqual(exp._cr_channel, ref_cr_channel)
+        ref_granularity = BackendData.granularity(backend)
         self.assertEqual(exp._granularity, ref_granularity)
 
     @data(

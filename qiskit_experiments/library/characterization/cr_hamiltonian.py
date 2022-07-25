@@ -20,7 +20,7 @@ import numpy as np
 from qiskit import pulse, circuit, QuantumCircuit
 from qiskit.circuit.parameterexpression import ParameterValueType
 from qiskit.exceptions import QiskitError
-from qiskit.providers import Backend, BackendV1, BackendV2
+from qiskit.providers import Backend
 from qiskit_experiments.framework import BaseExperiment, Options, BackendData
 from qiskit_experiments.library.characterization.analysis import CrossResonanceHamiltonianAnalysis
 

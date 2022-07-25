@@ -27,7 +27,6 @@ import uuid
 import matplotlib.pyplot as plt
 import numpy as np
 
-from qiskit.providers.backend import BackendV1, BackendV2
 from qiskit.providers.fake_provider import FakeMelbourneV2
 from qiskit.result import Result
 from qiskit.providers import JobV1 as Job
@@ -35,6 +34,7 @@ from qiskit.providers import JobStatus
 from qiskit_ibm_experiment import IBMExperimentService
 from qiskit_experiments.framework import ExperimentData
 from qiskit_experiments.framework import AnalysisResult
+from qiskit_experiments.framework import BackendData
 from qiskit_experiments.database_service.exceptions import (
     ExperimentDataError,
     ExperimentEntryNotFound,
@@ -1031,12 +1031,8 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
 
     def _get_job_result(self, circ_count, has_metadata=False):
         """Return a job result with random counts."""
-        if isinstance(self.backend, BackendV1):
-            backend_name = self.backend.name()
-        if isinstance(self.backend, BackendV2):
-            backend_name = self.backend.name
         job_result = {
-            "backend_name": backend_name,
+            "backend_name": BackendData.name(self.backend),
             "backend_version": "1.1.1",
             "qobj_id": "1234",
             "job_id": "some_job_id",

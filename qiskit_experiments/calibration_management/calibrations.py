@@ -37,7 +37,7 @@ from qiskit.pulse import (
 )
 from qiskit.pulse.channels import PulseChannel
 from qiskit.circuit import Parameter, ParameterExpression
-from qiskit.providers.backend import Backend, BackendV1, BackendV2
+from qiskit.providers.backend import Backend
 
 from qiskit_experiments.exceptions import CalibrationError
 from qiskit_experiments.calibration_management.basis_gate_library import BasisGateLibrary
@@ -49,6 +49,7 @@ from qiskit_experiments.calibration_management.calibration_key_types import (
     ParameterValueType,
     ScheduleKey,
 )
+from qiskit_experiments.framework import BackendData
 
 
 class Calibrations:
@@ -257,29 +258,11 @@ class Calibrations:
         Returns:
             An instance of Calibrations instantiated from a backend.
         """
-        if isinstance(backend, BackendV1):
-            backend_name = backend.name()
-            coupling_map = getattr(backend.configuration(), "coupling_map", [])
-            control_channels = getattr(backend.configuration(), "control_channels", None)
-            version = getattr(backend, "version", None)
-            qubit_freq_est = getattr(backend.defaults(), "qubit_freq_est", [])
-            meas_freq_est = getattr(backend.defaults(), "meas_freq_est", [])
-
-        elif isinstance(backend, BackendV2):
-            backend_name = backend.name
-            coupling_map = backend.coupling_map.get_edges()
-            control_channels = backend.control_channels
-            version = backend.version
-            qubit_freq_est = [property.frequency for property in backend.target.qubit_properties]
-            # meas_freq_est is currently not part of the BackendV2
-            meas_freq_est = []
-        else:
-            backend_name = None
-            coupling_map = []
-            control_channels = None
-            version = None
-            qubit_freq_est = []
-            meas_freq_est = []
+        backend_name = BackendData.name(backend)
+        coupling_map = BackendData.coupling_map(backend)
+        control_channels = BackendData.control_channels(backend)
+        qubit_freq_est = BackendData.qubit_freq_est(backend)
+        meas_freq_est = BackendData.meas_freq_est(backend)
 
         cals = Calibrations(
             coupling_map,
