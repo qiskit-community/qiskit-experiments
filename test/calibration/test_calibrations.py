@@ -31,7 +31,7 @@ from qiskit.pulse import (
 from qiskit import transpile, QuantumCircuit
 from qiskit.pulse.transforms import inline_subroutines, block_to_schedule
 import qiskit.pulse as pulse
-from qiskit.providers.fake_provider import FakeArmonkV2, FakeBelemV2, FakeBelem
+from qiskit.providers.fake_provider import FakeArmonkV2, FakeBelemV2
 from qiskit_experiments.calibration_management.calibrations import Calibrations, ParameterKey
 from qiskit_experiments.calibration_management.parameter_value import ParameterValue
 from qiskit_experiments.calibration_management.basis_gate_library import FixedFrequencyTransmon

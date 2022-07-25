@@ -15,8 +15,9 @@ from test.base import QiskitExperimentsTestCase
 
 import numpy as np
 
-from qiskit.providers.fake_provider import FakeArmonk
+from qiskit.providers.fake_provider import FakeArmonkV2
 
+from qiskit_experiments.framework import BackendData
 from qiskit_experiments.library import RoughFrequencyCal
 from qiskit_experiments.calibration_management import Calibrations
 from qiskit_experiments.calibration_management.basis_gate_library import FixedFrequencyTransmon
@@ -31,7 +32,7 @@ class TestRoughFrequency(QiskitExperimentsTestCase):
         """Test that initialization."""
 
         qubit = 1
-        cals = Calibrations.from_backend(FakeArmonk())
+        cals = Calibrations.from_backend(FakeArmonkV2())
         frequencies = [1000, 2000, 3000]
         auto_update = False
         absolute = False
@@ -48,7 +49,7 @@ class TestRoughFrequency(QiskitExperimentsTestCase):
     def test_update_calibrations(self):
         """Test that we can properly update an instance of Calibrations."""
 
-        freq01 = FakeArmonk().defaults().qubit_freq_est[0]
+        freq01 = BackendData.qubit_freq_est(FakeArmonkV2())[0]
 
         backend = MockIQBackend(
             experiment_helper=SpectroscopyHelper(
@@ -64,7 +65,7 @@ class TestRoughFrequency(QiskitExperimentsTestCase):
         backend.defaults().qubit_freq_est = [freq01, freq01]
 
         library = FixedFrequencyTransmon(basis_gates=["x", "sx"])
-        cals = Calibrations.from_backend(FakeArmonk(), libraries=[library])
+        cals = Calibrations.from_backend(FakeArmonkV2(), libraries=[library])
 
         prev_freq = cals.get_parameter_value(cals.__drive_freq_parameter__, (0,))
         self.assertEqual(prev_freq, freq01)
@@ -80,7 +81,7 @@ class TestRoughFrequency(QiskitExperimentsTestCase):
 
     def test_experiment_config(self):
         """Test converting to and from config works"""
-        cals = Calibrations.from_backend(FakeArmonk())
+        cals = Calibrations.from_backend(FakeArmonkV2())
         frequencies = [1, 2, 3]
         exp = RoughFrequencyCal(0, cals, frequencies)
         loaded_exp = RoughFrequencyCal.from_config(exp.config())

@@ -251,6 +251,7 @@ Mix-ins
 .. _create-experiment:
 """
 from qiskit.providers.options import Options
+from .backend_data import BackendData
 from qiskit_experiments.framework.analysis_result import AnalysisResult
 from qiskit_experiments.framework.experiment_data import (
     ExperimentStatus,
@@ -269,4 +270,3 @@ from .composite import (
 )
 from .json import ExperimentEncoder, ExperimentDecoder
 from .restless_mixin import RestlessMixin
-from .backend_data import BackendData
