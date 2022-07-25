@@ -67,7 +67,7 @@ def gen_nums_single_gate_cliffs_1q():
     The mapping actually looks like {(gate, '[0]'): num}, where [0] represents qubit 0.
     The qubit is added to be consistent with the format for 2 qubits.
     """
-    for i in range(24):
+    for i in range(CliffordUtils.NUM_CLIFFORD_1_QUBIT):
         cliff = CliffordUtils.clifford_1_qubit(i)
         num_to_cliff_1q[i] = cliff
         cliff_to_num_1q[cliff.__repr__()] = i

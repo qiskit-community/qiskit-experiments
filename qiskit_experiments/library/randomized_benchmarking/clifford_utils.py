@@ -14,11 +14,10 @@ Utilities for using the Clifford group in randomized benchmarking
 """
 
 import os
-from typing import Optional, Union, List
+from typing import List
 from functools import lru_cache
 from math import isclose
 import numpy as np
-from numpy.random import Generator, default_rng
 
 from qiskit import QuantumCircuit, QuantumRegister
 from qiskit.circuit import Gate
@@ -26,7 +25,7 @@ from qiskit.circuit.library import SdgGate, HGate, SGate, SXdgGate
 from qiskit.compiler import transpile
 from qiskit.providers.aer import AerSimulator
 from qiskit.exceptions import QiskitError
-from qiskit.quantum_info import Clifford, random_clifford
+from qiskit.quantum_info import Clifford
 
 from .clifford_data import (
     CLIFF_SINGLE_GATE_MAP_1Q,
@@ -96,48 +95,6 @@ class CliffordUtils:
         where `num` is between 0 and 11519.
         """
         return Clifford(cls.clifford_2_qubit_circuit(num), validate=False)
-
-    @classmethod
-    def random_cliffords(
-        cls, num_qubits: int, size: int = 1, rng: Optional[Union[int, Generator]] = None
-    ):
-        """Generate a list of random clifford elements"""
-        if num_qubits > 2:
-            return random_clifford(num_qubits, seed=rng)
-
-        if rng is None:
-            rng = default_rng()
-
-        if isinstance(rng, int):
-            rng = default_rng(rng)
-
-        if num_qubits == 1:
-            samples = rng.integers(cls.NUM_CLIFFORD_1_QUBIT, size=size)
-            return [Clifford(cls.clifford_1_qubit_circuit(i), validate=False) for i in samples]
-        else:
-            samples = rng.integers(11520, size=size)
-            return [Clifford(cls.clifford_2_qubit_circuit(i), validate=False) for i in samples]
-
-    @classmethod
-    def random_clifford_circuits(
-        cls, num_qubits: int, size: int = 1, rng: Optional[Union[int, Generator]] = None
-    ):
-        """Generate a list of random clifford circuits"""
-        if num_qubits > 2:
-            return [random_clifford(num_qubits, seed=rng).to_circuit() for _ in range(size)]
-
-        if rng is None:
-            rng = default_rng()
-
-        if isinstance(rng, int):
-            rng = default_rng(rng)
-
-        if num_qubits == 1:
-            samples = rng.integers(cls.NUM_CLIFFORD_1_QUBIT, size=size)
-            return [cls.clifford_1_qubit_circuit(i) for i in samples]
-        else:
-            samples = rng.integers(11520, size=size)
-            return [cls.clifford_2_qubit_circuit(i) for i in samples]
 
     @classmethod
     @lru_cache(maxsize=24)
