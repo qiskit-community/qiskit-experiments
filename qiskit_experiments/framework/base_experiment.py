@@ -31,7 +31,6 @@ from qiskit_experiments.framework.experiment_data import ExperimentData
 from qiskit_experiments.framework.configs import ExperimentConfig
 
 
-
 class BaseExperiment(ABC, StoreInitArgs):
     """Abstract base class for experiments."""
 

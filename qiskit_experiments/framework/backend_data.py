@@ -17,9 +17,13 @@ class unifies data access for various data fields.
 """
 from qiskit.providers import BackendV1, BackendV2
 
-class BackendData():
+
+class BackendData:
+    """Class for providing joint interface for accessing backend data"""
+
     @staticmethod
     def name(backend):
+        """Returns the backend name"""
         if isinstance(backend, BackendV1):
             return backend.name()
         elif isinstance(backend, BackendV2):
@@ -28,6 +32,7 @@ class BackendData():
 
     @staticmethod
     def control_channel(backend, qubits):
+        """Returns the backend control channels"""
         if isinstance(backend, BackendV1):
             return backend.configuration().control(qubits)
         elif isinstance(backend, BackendV2):
@@ -36,6 +41,7 @@ class BackendData():
 
     @staticmethod
     def granularity(backend):
+        """Returns the backend's time constraint granularity"""
         if isinstance(backend, BackendV1):
             return backend.configuration().timing_constraints.get("granularity", None)
         elif isinstance(backend, BackendV2):
@@ -44,6 +50,7 @@ class BackendData():
 
     @staticmethod
     def set_granularity(backend, value):
+        """Sets the backend's time constraint granularity"""
         if isinstance(backend, BackendV1):
             setattr(
                 backend.configuration(),
@@ -55,6 +62,7 @@ class BackendData():
 
     @staticmethod
     def dt(backend):
+        """Returns the backend's input time resolution"""
         if isinstance(backend, BackendV1):
             return backend.configuration().dt
         elif isinstance(backend, BackendV2):
@@ -63,6 +71,7 @@ class BackendData():
 
     @staticmethod
     def max_experiments(backend):
+        """Returns the backend's max experiments value"""
         if isinstance(backend, BackendV1):
             return getattr(backend.configuration(), "max_experiments", None)
         elif isinstance(backend, BackendV2):
@@ -71,6 +80,7 @@ class BackendData():
 
     @staticmethod
     def coupling_map(backend):
+        """Returns the backend's coupling map"""
         if isinstance(backend, BackendV1):
             return getattr(backend.configuration(), "coupling_map", [])
         elif isinstance(backend, BackendV2):
@@ -79,6 +89,7 @@ class BackendData():
 
     @staticmethod
     def control_channels(backend):
+        """Returns the backend's control channels"""
         if isinstance(backend, BackendV1):
             return getattr(backend.configuration(), "control_channels", None)
         elif isinstance(backend, BackendV2):
@@ -87,6 +98,7 @@ class BackendData():
 
     @staticmethod
     def version(backend):
+        """Returns the backend's version"""
         if isinstance(backend, BackendV1):
             return getattr(backend, "version", None)
         elif isinstance(backend, BackendV2):
@@ -95,6 +107,7 @@ class BackendData():
 
     @staticmethod
     def provider(backend):
+        """Returns the backend's provider"""
         if isinstance(backend, BackendV1):
             return getattr(backend, "provider", None)
         elif isinstance(backend, BackendV2):
@@ -103,19 +116,20 @@ class BackendData():
 
     @staticmethod
     def qubit_freq_est(backend):
+        """Returns the backend's qubit frequency estimation"""
         if isinstance(backend, BackendV1):
             return getattr(backend.defaults(), "qubit_freq_est", [])
         elif isinstance(backend, BackendV2):
-            return  [property.frequency for property in
-                      backend.target.qubit_properties]
+            return [property.frequency for property in backend.target.qubit_properties]
         return []
 
     @staticmethod
     def meas_freq_est(backend):
+        """Returns the backend's measurement frequency estimation.
+        Note: currently BackendV2 does not have access to this data"""
         if isinstance(backend, BackendV1):
             return getattr(backend.defaults(), "meas_freq_est", [])
         elif isinstance(backend, BackendV2):
             # meas_freq_est is currently not part of the BackendV2
             return []
         return []
-

@@ -148,7 +148,7 @@ class TestCrossResonanceHamiltonian(QiskitExperimentsTestCase):
         self.assertEqual(exp._dt, ref_dt)
 
         # These properties are set when cr_gate is not provided
-        ref_cr_channel = BackendData.control_channel(backend,(0,1))[0].index
+        ref_cr_channel = BackendData.control_channel(backend, (0, 1))[0].index
         self.assertEqual(exp._cr_channel, ref_cr_channel)
         ref_granularity = BackendData.granularity(backend)
         self.assertEqual(exp._granularity, ref_granularity)
