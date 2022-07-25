@@ -20,7 +20,7 @@ import numpy as np
 from ddt import ddt
 
 from qiskit import QuantumCircuit, QuantumRegister, QiskitError
-from qiskit.quantum_info import Operator
+from qiskit.quantum_info import Operator, Clifford
 from qiskit import qpy
 from qiskit.circuit.library import (
     IGate,
@@ -33,7 +33,6 @@ from qiskit.circuit.library import (
     SXGate,
     RZGate,
 )
-from qiskit.quantum_info import Clifford
 from qiskit_experiments.library.randomized_benchmarking.clifford_utils import CliffordUtils
 
 
@@ -1000,3 +999,27 @@ class TestCliffordUtils(QiskitExperimentsTestCase):
             clifford_from_num = CliffordUtils.clifford_2_qubit_circuit(result_by_num)
             clifford_from_compose = cliff1_qc.compose(cliff2_qc)
             assert Operator(clifford_from_num).equiv(Operator(clifford_from_compose))
+
+    def test_inverse_by_num_1q(self):
+        """Compare inverse using num to inverse using Clifford"""
+        num_tests = 10
+        random.seed = self.seed
+        for _ in range(num_tests):
+            num = random.randint(0, CliffordUtils.NUM_CLIFFORD_1_QUBIT - 1)
+            cliff_qc = CliffordUtils.clifford_1_qubit_circuit(num)
+            inverse_num = CliffordUtils.clifford_inverse_by_num(num, num_qubits=1)
+            inverse_by_num = CliffordUtils.clifford_1_qubit_circuit(inverse_num)
+            inverse_cliff = Clifford(cliff_qc).adjoint()
+            assert (Operator(inverse_by_num)).equiv(Operator(inverse_cliff))
+
+    def test_inverse_by_num_2q(self):
+        """Compare inverse using num to inverse using Clifford"""
+        num_tests = 100
+        random.seed = self.seed
+        for _ in range(num_tests):
+            num = random.randint(0, CliffordUtils.NUM_CLIFFORD_2_QUBIT - 1)
+            cliff_qc = CliffordUtils.clifford_2_qubit_circuit(num)
+            inverse_num = CliffordUtils.clifford_inverse_by_num(num, num_qubits=2)
+            inverse_by_num = CliffordUtils.clifford_2_qubit_circuit(inverse_num)
+            inverse_cliff = Clifford(cliff_qc).adjoint()
+            assert (Operator(inverse_by_num)).equiv(Operator(inverse_cliff))
