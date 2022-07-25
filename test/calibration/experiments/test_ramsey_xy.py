@@ -18,7 +18,7 @@ from qiskit.providers.fake_provider import FakeArmonkV2
 
 from qiskit_experiments.calibration_management.calibrations import Calibrations
 from qiskit_experiments.calibration_management.basis_gate_library import FixedFrequencyTransmon
-from qiskit_experiments.framework import BaseAnalysis, AnalysisStatus
+from qiskit_experiments.framework import BaseAnalysis, AnalysisStatus, BackendData
 from qiskit_experiments.library import RamseyXY, FrequencyCal
 from qiskit_experiments.test.mock_iq_backend import MockIQBackend
 from qiskit_experiments.test.mock_iq_helpers import MockIQRamseyXYHelper as RamseyXYHelper
@@ -61,7 +61,7 @@ class TestRamseyXY(QiskitExperimentsTestCase):
         # Check qubit frequency before running the cal
         f01 = self.cals.get_parameter_value(freq_name, 0)
         self.assertTrue(len(self.cals.parameters_table(parameters=[freq_name])["data"]), 1)
-        self.assertEqual(f01, FakeArmonkV2().defaults().qubit_freq_est[0])
+        self.assertEqual(f01, BackendData.qubit_freq_est(FakeArmonkV2())[0])
 
         freq_shift = 4e6
         osc_shift = 2e6
@@ -74,7 +74,7 @@ class TestRamseyXY(QiskitExperimentsTestCase):
         # Check that qubit frequency after running the cal is shifted by freq_shift, i.e. 4 MHz.
         f01 = self.cals.get_parameter_value(freq_name, 0)
         self.assertTrue(len(self.cals.parameters_table(parameters=[freq_name])["data"]), 2)
-        self.assertLess(abs(f01 - (freq_shift + FakeArmonkV2().defaults().qubit_freq_est[0])), tol)
+        self.assertLess(abs(f01 - (freq_shift + BackendData.qubit_freq_est(FakeArmonkV2())[0])), tol)
 
     def test_update_with_failed_analysis(self):
         """Test that calibration update handles analysis producing no results
