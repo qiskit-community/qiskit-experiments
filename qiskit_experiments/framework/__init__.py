@@ -251,7 +251,7 @@ Mix-ins
 .. _create-experiment:
 """
 from qiskit.providers.options import Options
-from .backend_data import BackendData
+from qiskit_experiments.framework.backend_data import BackendData
 from qiskit_experiments.framework.analysis_result import AnalysisResult
 from qiskit_experiments.framework.experiment_data import (
     ExperimentStatus,
