@@ -37,7 +37,7 @@ from matplotlib.figure import Figure as MatplotlibFigure
 from qiskit.result import Result
 from qiskit.providers.jobstatus import JobStatus, JOB_FINAL_STATES
 from qiskit.exceptions import QiskitError
-from qiskit.providers import Job, Backend, BackendV1, BackendV2, Provider
+from qiskit.providers import Job, Backend, Provider
 
 from qiskit_ibm_experiment import IBMExperimentService
 from qiskit_ibm_experiment import ExperimentData as ExperimentDataclass
@@ -49,6 +49,7 @@ from qiskit_experiments.database_service.utils import (
     ThreadSafeList,
 )
 from qiskit_experiments.framework.analysis_result import AnalysisResult
+from qiskit_experiments.framework import BackendData
 from qiskit_experiments.database_service.exceptions import (
     ExperimentDataError,
     ExperimentEntryNotFound,
@@ -535,36 +536,27 @@ class ExperimentData:
         # defined independently from the setter to enable setting without autosave
 
         self._backend = new_backend
-        if isinstance(new_backend, BackendV1):
-            self._db_data.backend = new_backend.name()
-        elif isinstance(new_backend, BackendV2):
-            self._db_data.backend = new_backend.name
-        else:
+        self._db_data.backend = BackendData.name(new_backend)
+        if self._db_data.backend is None:
             self._db_data.backend = str(new_backend)
-        if hasattr(new_backend, "provider"):
-            self._set_hgp_from_backend()
+        provider = BackendData.provider(new_backend)
+        if provider is not None:
+            self._set_hgp_from_provider(provider)
         if recursive:
             for data in self.child_data():
                 data._set_backend(new_backend)
 
-    def _set_hgp_from_backend(self):
-        if self.backend is not None:
-            if isinstance(self.backend, BackendV1):
-                provider = self.backend.provider()
-            elif isinstance(self.backend, BackendV2):
-                provider = self.backend.provider
-            else:
-                return
-            try:
-                creds = provider.credentials
-                hub = self._db_data.hub or creds.hub
-                group = self._db_data.group or creds.group
-                project = self._db_data.project or creds.project
-                self._db_data.hub = hub
-                self._db_data.group = group
-                self._db_data.project = project
-            except AttributeError:
-                return
+    def _set_hgp_from_provider(self, provider):
+        try:
+            creds = provider.credentials
+            hub = self._db_data.hub or creds.hub
+            group = self._db_data.group or creds.group
+            project = self._db_data.project or creds.project
+            self._db_data.hub = hub
+            self._db_data.group = group
+            self._db_data.project = project
+        except AttributeError:
+            return
 
     def _clear_results(self):
         """Delete all currently stored analysis results and figures"""
@@ -725,14 +717,8 @@ class ExperimentData:
         timeout_ids = []
         for job in jobs:
             if self.backend is not None:
-                if isinstance(self.backend, BackendV1):
-                    backend_name = self.backend.name()
-                else:
-                    backend_name = self.backend.name
-                if isinstance(job.backend, BackendV1):
-                    job_backend_name = job.backend().name()
-                else:
-                    job_backend_name = job.backend().name
+                backend_name = BackendData.name(self.backend)
+                job_backend_name = BackendData.name(job.backend())
                 if self.backend and backend_name != job_backend_name:
                     LOG.warning(
                         "Adding a job from a backend (%s) that is different "

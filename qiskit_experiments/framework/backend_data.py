@@ -94,6 +94,14 @@ class BackendData():
         return None
 
     @staticmethod
+    def provider(backend):
+        if isinstance(backend, BackendV1):
+            return getattr(backend, "provider", None)
+        elif isinstance(backend, BackendV2):
+            return backend.provider
+        return None
+
+    @staticmethod
     def qubit_freq_est(backend):
         if isinstance(backend, BackendV1):
             return getattr(backend.defaults(), "qubit_freq_est", [])
