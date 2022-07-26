@@ -1,0 +1,8 @@
+---
+deprecations:
+  - |
+    The ``scipy_linear_lstsq`` and ``scipy_gaussian_lstsq`` fitters of the
+    :class:`.StateTomographyAnalysis` and :class:`.ProcessTomographyAnalysis`
+    classes have been deprecated. The ``linear_inversion``, 
+    ``cvxpy_linear_lstsq`` or ``cvxpy_gaussian_lstsq`` fitters should be used
+    instead.
