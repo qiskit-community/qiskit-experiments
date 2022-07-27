@@ -61,7 +61,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
         self,
         qubits: Sequence[int],
         lengths: Iterable[int],
-        backend: Backend = None,
+        backend: Optional[Backend] = None,
         num_samples: int = 3,
         seed: Optional[Union[int, SeedSequence, BitGenerator, Generator]] = None,
         full_sampling: Optional[bool] = False,
