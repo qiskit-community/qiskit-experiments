@@ -400,7 +400,17 @@ class MockIQParallelExperimentHelper(MockIQExperimentHelper):
             # fixing metadata
             for exp_metadata in qc.metadata["composite_metadata"]:
                 # getting a qubit of one of the experiments that we ran in parallel
-                exp = qubit_exp_map[exp_metadata["qubits"][0]]
+                qubit_metadata = exp_metadata.get("qubit") if exp_metadata.get("qubit") is not None \
+                    else exp_metadata.get("qubits")
+                if isinstance(qubit_metadata, tuple):
+                    exp = qubit_exp_map[qubit_metadata[0]]
+                elif isinstance(qubit_metadata, int):
+                    exp = qubit_exp_map[qubit_metadata]
+                else:
+                    raise ValueError(
+                        f"The qubit information in the metadata is of type {type(qubit_metadata)}."
+                        f" The format that are supported are `tuple` and `int`"
+                    )
                 # using the qubit to access the experiment. Then, we go to the last circuit in
                 # `exp_circuit` of the corresponding experiment, and we overwrite the metadata.
                 exp_circuits_list[exp_idx_map[exp]][-1].metadata = exp_metadata.copy()
@@ -817,6 +827,41 @@ class MockIQHalfAngleHelper(MockIQExperimentHelper):
             probability_output_dict["1"] = (
                 0.5 * np.sin((-1) ** (n_gates + 1) * n_gates * error) + 0.5
             )
+            probability_output_dict["0"] = 1 - probability_output_dict["1"]
+            output_dict_list.append(probability_output_dict)
+
+        return output_dict_list
+
+
+class MockIQT1Helper(MockIQExperimentHelper):
+    """Functions needed for T1 experiment on mock IQ backend"""
+
+    def __init__(
+        self,
+        t1: List[float] = None,
+        iq_cluster_centers: Optional[List[Tuple[IQPoint, IQPoint]]] = None,
+        iq_cluster_width: Optional[List[float]] = None,
+    ):
+        super().__init__(iq_cluster_centers, iq_cluster_width)
+        self._t1 = t1 or [90e-6]
+
+    # def __init__(self, t1: List[float] = None):
+    #     self._t1 = t1 or [90e-6]
+
+    def compute_probabilities(self, circuits: List[QuantumCircuit]) -> List[Dict[str, float]]:
+        """Return the probability of being in the excited state."""
+        output_dict_list = []
+        for circuit in circuits:
+            probability_output_dict = {}
+
+            # extracting information from the circuit.
+            qubit_idx = circuit.metadata["qubit"]
+            delay = circuit.metadata["xval"]
+
+            # creating a probability dict.
+            if qubit_idx >= len(self._t1):
+                raise QiskitError(f"There is no 'T1' value for qubit index {qubit_idx}.")
+            probability_output_dict["1"] = np.exp(-delay / self._t1[qubit_idx])
             probability_output_dict["0"] = 1 - probability_output_dict["1"]
             output_dict_list.append(probability_output_dict)
 
