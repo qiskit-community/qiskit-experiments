@@ -30,7 +30,6 @@ from qiskit_experiments.data_processing.nodes import (
     SVD,
     MinMaxNormalize,
 )
-import unittest
 
 
 class TestT1(QiskitExperimentsTestCase):
@@ -38,7 +37,7 @@ class TestT1(QiskitExperimentsTestCase):
     Test measurement of T1
     """
 
-    def _test_t1_end2end(self):
+    def test_t1_end2end(self):
         """
         Test T1 experiment using a simulator.
         """
@@ -66,7 +65,7 @@ class TestT1(QiskitExperimentsTestCase):
         for exp_res, load_res in zip(exp_res, load_res):
             self.analysis_result_equiv(exp_res, load_res)
 
-    def _test_t1_measurement_level_1(self):
+    def test_t1_measurement_level_1(self):
         """
         Test T1 experiment using a simulator.
         """
@@ -83,34 +82,41 @@ class TestT1(QiskitExperimentsTestCase):
 
         num_shots = 2048
         backend = MockIQBackend(
-            MockIQT1Helper(t1=t1, iq_cluster_centers=[((-5.0, -4.0), (-5.0, 4.0)),
-                                                      ((3.0, 1.0), (5.0, -3.0))],
-                           iq_cluster_width=[1.0, 2.0])
+            MockIQT1Helper(
+                t1=t1,
+                iq_cluster_centers=[((-5.0, -4.0), (-5.0, 4.0)), ((3.0, 1.0), (5.0, -3.0))],
+                iq_cluster_width=[1.0, 2.0],
+            )
         )
 
         # Experiment initialization and analysis options
         exp0 = T1(0, delays)
         exp0.analysis.set_options(p0={"amp": 1, "tau": t1[0], "base": 0})
-        expdata0 = exp0.run(backend=backend, meas_return="avg", analysis=None,
-                            meas_level=MeasLevel.KERNELED,
-                            shots=num_shots).block_for_results()
+        expdata0 = exp0.run(
+            backend=backend,
+            meas_return="avg",
+            analysis=None,
+            meas_level=MeasLevel.KERNELED,
+            shots=num_shots,
+        ).block_for_results()
         self.assertExperimentDone(expdata0)
-        
+
         data_processor = DataProcessor("memory", [SVD(), MinMaxNormalize()])
         data_processor.train(expdata0.data())
 
-        analysis = exp0.analysis.run(expdata0, data_processor=data_processor,
-                                     replace_results=True).block_for_results()
+        analysis = exp0.analysis.run(
+            expdata0, data_processor=data_processor, replace_results=True
+        ).block_for_results()
 
         self.assertRoundTripSerializable(expdata0, check_func=self.experiment_data_equiv)
-        self.assertRoundTripPickle(expdata0, check_func=self.experiment_data_equiv)        
+        self.assertRoundTripPickle(expdata0, check_func=self.experiment_data_equiv)
 
         res = analysis.analysis_results("T1")
         self.assertEqual(res.quality, "good")
         self.assertAlmostEqual(res.value.n, t1[0], delta=3)
         self.assertEqual(res.extra["unit"], "s")
 
-    def _test_t1_parallel(self):
+    def test_t1_parallel(self):
         """
         Test parallel experiments of T1 using a simulator.
         """
@@ -176,25 +182,42 @@ class TestT1(QiskitExperimentsTestCase):
         par_exp = ParallelExperiment([exp0, exp2])
 
         # Helpers
-        exp_helper = [MockIQT1Helper(t1=t1, iq_cluster_centers=[((-5.0, -4.0), (-5.0, 4.0)),
-                                                                ((-1.0, -1.0), (1.0, 1.0)),
-                                                                ((4.0, 1.0), (6.0, -3.0))],
-                                     iq_cluster_width=[1.0, 2.0, 1.0]) for _ in par_exp_list]
-        par_helper = MockIQParallelExperimentHelper(exp_list=par_exp_list, exp_helper_list=exp_helper)
+        exp_helper = [
+            MockIQT1Helper(
+                t1=t1,
+                iq_cluster_centers=[
+                    ((-5.0, -4.0), (-5.0, 4.0)),
+                    ((-1.0, -1.0), (1.0, 1.0)),
+                    ((4.0, 1.0), (6.0, -3.0)),
+                ],
+                iq_cluster_width=[1.0, 2.0, 1.0],
+            )
+            for _ in par_exp_list
+        ]
+        par_helper = MockIQParallelExperimentHelper(
+            exp_list=par_exp_list, exp_helper_list=exp_helper
+        )
 
         # Backend
         backend = MockIQParallelBackend(par_helper, rng_seed=1)
-        # expdata0 = exp0.run(backend=backend, meas_return="avg", meas_level=MeasLevel.KERNELED,
-        #                     analysis=None, shots = num_shots).block_for_results()
 
-        res = par_exp.run(backend=backend, shots=4096, rng_seed=1, meas_level=MeasLevel.KERNELED, meas_return="avg").block_for_results()
+        # Running experiment
+        res = par_exp.run(
+            backend=backend,
+            shots=4096,
+            rng_seed=1,
+            meas_level=MeasLevel.KERNELED,
+            meas_return="avg",
+        ).block_for_results()
         self.assertExperimentDone(res)
 
+        # Checking analysis
         for i, qb in enumerate(quantum_bit):
             data_processor = DataProcessor("memory", [SVD(), MinMaxNormalize()])
             data_processor.train(res.child_data(i).data())
-            analysis = exp0.analysis.run(res.child_data(i), data_processor=data_processor,
-                                         replace_results=True).block_for_results() 
+            analysis = exp0.analysis.run(
+                res.child_data(i), data_processor=data_processor, replace_results=True
+            ).block_for_results()
             sub_res = res.child_data(i).analysis_results("T1")
             self.assertEqual(sub_res.quality, "good")
             self.assertAlmostEqual(sub_res.value.n, t1[qb], delta=3)
@@ -208,7 +231,7 @@ class TestT1(QiskitExperimentsTestCase):
             sub_loaded = loaded_data.child_data(i).analysis_results("T1")
             self.assertEqual(repr(sub_res), repr(sub_loaded))
 
-    def _test_t1_parallel_different_analysis_options(self):
+    def test_t1_parallel_different_analysis_options(self):
         """
         Test parallel experiments of T1 using a simulator, for the case where
         the sub-experiments have different analysis options
@@ -239,7 +262,7 @@ class TestT1(QiskitExperimentsTestCase):
         self.assertAlmostEqual(sub_res[0].value.n, t1[0], delta=3)
         self.assertEqual(sub_res[1].quality, "bad")
 
-    def _test_t1_analysis(self):
+    def test_t1_analysis(self):
         """
         Test T1Analysis
         """
@@ -267,7 +290,7 @@ class TestT1(QiskitExperimentsTestCase):
         self.assertEqual(result.quality, "good")
         self.assertAlmostEqual(result.value.nominal_value, 25e-9, delta=3)
 
-    def _test_t1_metadata(self):
+    def test_t1_metadata(self):
         """
         Test the circuits metadata
         """
@@ -290,7 +313,7 @@ class TestT1(QiskitExperimentsTestCase):
                 },
             )
 
-    def _test_t1_low_quality(self):
+    def test_t1_low_quality(self):
         """
         A test where the fit's quality will be low
         """
@@ -315,7 +338,7 @@ class TestT1(QiskitExperimentsTestCase):
         result = res[1]
         self.assertEqual(result.quality, "bad")
 
-    def _test_t1_parallel_exp_transpile(self):
+    def test_t1_parallel_exp_transpile(self):
         """Test parallel transpile options for T1 experiment"""
         num_qubits = 5
         instruction_durations = []
@@ -351,25 +374,21 @@ class TestT1(QiskitExperimentsTestCase):
             self.assertEqual(op_counts.get("rx"), 2)
             self.assertEqual(op_counts.get("delay"), 2)
 
-    def _test_experiment_config(self):
+    def test_experiment_config(self):
         """Test converting to and from config works"""
         exp = T1(0, [1, 2, 3, 4, 5])
         loaded_exp = T1.from_config(exp.config())
         self.assertNotEqual(exp, loaded_exp)
         self.assertTrue(self.json_equiv(exp, loaded_exp))
 
-    def _test_roundtrip_serializable(self):
+    def test_roundtrip_serializable(self):
         """Test round trip JSON serialization"""
         exp = T1(0, [1, 2, 3, 4, 5])
         self.assertRoundTripSerializable(exp, self.json_equiv)
 
-    def _test_analysis_config(self):
+    def test_analysis_config(self):
         """ "Test converting analysis to and from config works"""
         analysis = T1Analysis()
         loaded = T1Analysis.from_config(analysis.config())
         self.assertNotEqual(analysis, loaded)
         self.assertEqual(analysis.config(), loaded.config())
-
-
-if __name__ == "__main__":
-    unittest.main()
