@@ -9,6 +9,7 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
+"""Backend timing helper functions"""
 
 import math
 from typing import Union
@@ -17,11 +18,13 @@ from qiskit import QiskitError
 
 
 class BackendTimingMixin:
-    """Mixin class for ``BaseExperiment`` to provide timing helper methods
+    """Mixin class  to provide timing helper methods
 
     The methods and properties provided by this class help with calculating
     delay and pulse timing that depends on the timing constraints of the
     backend. They abstract away the necessary accessing of the backend object.
+    This class is intended as a mixin for
+    :meth:`~qiskit_experiments.framework.BaseExperiment`.
 
     .. note::
 
