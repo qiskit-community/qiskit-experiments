@@ -169,4 +169,4 @@ class BackendTimingMixin:
         Returns:
             The realizable pulse time in seconds
         """
-        return self._dt * self._n_pulse(time)
+        return self._dt * self._pulse_duration(time)
