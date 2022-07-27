@@ -22,8 +22,8 @@ from qiskit.circuit import Instruction
 from qiskit.quantum_info import Clifford
 from qiskit.exceptions import QiskitError
 from qiskit.providers.backend import Backend
+from qiskit.compiler import transpile
 
-from .clifford_utils import CliffordUtils
 from .rb_experiment import StandardRB
 from .interleaved_rb_analysis import InterleavedRBAnalysis
 
@@ -161,6 +161,6 @@ class InterleavedRB(StandardRB):
             basis_gates = self.transpile_options.basis_gates
         else:
             basis_gates = None
-        self._transpiled_interleaved_elem = CliffordUtils.transpile_single_clifford(
-            qc_interleaved, basis_gates=basis_gates
+        self._transpiled_interleaved_elem = transpile(
+            circuits=qc_interleaved, optimization_level=1, basis_gates=basis_gates
         )

@@ -22,8 +22,6 @@ import numpy as np
 from qiskit import QuantumCircuit, QuantumRegister
 from qiskit.circuit import Gate
 from qiskit.circuit.library import SdgGate, HGate, SGate, SXdgGate
-from qiskit.compiler import transpile
-from qiskit.providers.aer import AerSimulator
 from qiskit.exceptions import QiskitError
 from qiskit.quantum_info import Clifford
 
@@ -202,12 +200,6 @@ class CliffordUtils:
                 return [i] + cls._unpack_num(num, sig)
             num -= sig_size
         return None
-
-    @classmethod
-    def transpile_single_clifford(cls, cliff_circ: QuantumCircuit, basis_gates: List[str]):
-        """Transpile a single clifford circuit using basis_gates."""
-        backend = AerSimulator()
-        return transpile(cliff_circ, backend, optimization_level=1, basis_gates=basis_gates)
 
     @classmethod
     def num_from_clifford_single_gate(cls, inst, qubits, rb_num_qubits, basis_gates):

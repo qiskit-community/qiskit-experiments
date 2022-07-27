@@ -15,6 +15,7 @@ the basis set to use for transpilation. The Cliffords are stored in a .qpy file.
 """
 from typing import List
 from qiskit import qpy
+from qiskit.compiler import transpile
 from qiskit_experiments.library.randomized_benchmarking import CliffordUtils
 
 # basis_gates_to_generate = ["rz", "sx", "cx"]
@@ -26,7 +27,7 @@ def generate_1q_transpiled_cliffs(basis_gates: List[str]):
     transpiled_circs = []
     for num in range(0, CliffordUtils.NUM_CLIFFORD_1_QUBIT):
         circ = CliffordUtils.clifford_1_qubit_circuit(num=num)
-        transpiled_circ = CliffordUtils.transpile_single_clifford(circ, basis_gates)
+        transpiled_circ = transpile(circuits=circ, optimization_level=1, basis_gates=basis_gates)
         transpiled_circs.append(transpiled_circ)
     file_name = CliffordUtils.file_name(num_qubits=1, basis_gates=basis_gates)
     with open(file_name, "wb") as fd:
@@ -38,7 +39,7 @@ def generate_2q_transpiled_cliffs(basis_gates: List[str]):
     transpiled_circs = []
     for num in range(0, CliffordUtils.NUM_CLIFFORD_2_QUBIT):
         circ = CliffordUtils.clifford_2_qubit_circuit(num=num)
-        transpiled_circ = CliffordUtils.transpile_single_clifford(circ, basis_gates)
+        transpiled_circ = transpile(circuits=circ, optimization_level=1, basis_gates=basis_gates)
         transpiled_circs.append(transpiled_circ)
     file_name = CliffordUtils.file_name(num_qubits=2, basis_gates=basis_gates)
     with open(file_name, "wb") as fd:

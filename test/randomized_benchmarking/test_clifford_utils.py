@@ -20,6 +20,7 @@ from numpy.random import default_rng
 from ddt import ddt
 
 from qiskit import QuantumCircuit, QuantumRegister, QiskitError
+from qiskit.compiler import transpile
 from qiskit.quantum_info import Operator, Clifford
 from qiskit import qpy
 from qiskit.circuit.library import (
@@ -970,8 +971,8 @@ class TestCliffordUtils(QiskitExperimentsTestCase):
             cliff1_qc = CliffordUtils.clifford_1_qubit_circuit(num1)
             num2 = rng.integers(0, CliffordUtils.NUM_CLIFFORD_1_QUBIT - 1)
             cliff2_qc = CliffordUtils.clifford_1_qubit_circuit(num2)
-            transpiled_qc2 = CliffordUtils.transpile_single_clifford(
-                cliff2_qc, basis_gates=self.basis_gates
+            transpiled_qc2 = transpile(
+                cliff2_qc, optimization_level=1, basis_gates=self.basis_gates
             )
             result_by_num = CliffordUtils.compose_num_with_clifford(
                 1, num1, transpiled_qc2, self.basis_gates
@@ -990,8 +991,8 @@ class TestCliffordUtils(QiskitExperimentsTestCase):
             cliff1_qc = CliffordUtils.clifford_2_qubit_circuit(num1)
             num2 = rng.integers(0, CliffordUtils.NUM_CLIFFORD_2_QUBIT - 1)
             cliff2_qc = CliffordUtils.clifford_2_qubit_circuit(num2)
-            transpiled_qc2 = CliffordUtils.transpile_single_clifford(
-                cliff2_qc, basis_gates=self.basis_gates
+            transpiled_qc2 = transpile(
+                cliff2_qc, optimization_level=1, basis_gates=self.basis_gates
             )
             result_by_num = CliffordUtils.compose_num_with_clifford(
                 2, num1, transpiled_qc2, self.basis_gates
