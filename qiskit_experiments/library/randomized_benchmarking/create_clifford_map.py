@@ -70,15 +70,15 @@ def gen_nums_single_gate_cliffs_1q():
     for i in range(CliffordUtils.NUM_CLIFFORD_1_QUBIT):
         cliff = CliffordUtils.clifford_1_qubit(i)
         num_to_cliff_1q[i] = cliff
-        cliff_to_num_1q[cliff.__repr__()] = i
+        cliff_to_num_1q[repr(cliff)] = i
     clifford_single_gate_to_num = {}
 
     for gate in gate_list_1q:
         qc = QuantumCircuit(1)
         qc.append(gate, [0])
         cliff = Clifford(qc)
-        if cliff.__repr__() in cliff_to_num_1q.keys():
-            num = cliff_to_num_1q[cliff.__repr__()]
+        if repr(cliff) in cliff_to_num_1q.keys():
+            num = cliff_to_num_1q[repr(cliff)]
             # qubit_as_str is not really necessary. It is only added to be consistent
             # with the representation for 2 qubits
             qubit_as_str = "[0]"
@@ -98,15 +98,15 @@ def gen_nums_single_gate_cliffs_2q():
     for i in range(CliffordUtils.NUM_CLIFFORD_2_QUBIT):
         cliff = CliffordUtils.clifford_2_qubit(i)
         num_to_cliff_2q[i] = cliff
-        cliff_to_num_2q[cliff.__repr__()] = i
+        cliff_to_num_2q[repr(cliff)] = i
 
     clifford_single_gate_to_num = {}
     for gate, qubit in itertools.product(gate_list_1q, [0, 1]):
         qc = QuantumCircuit(2)
         qc.append(gate, [qubit])
         cliff = Clifford(qc)
-        if cliff.__repr__() in cliff_to_num_2q:
-            num = cliff_to_num_2q[cliff.__repr__()]
+        if repr(cliff) in cliff_to_num_2q:
+            num = cliff_to_num_2q[repr(cliff)]
             # qubit_as_str is not really necessary. It is only added to be consistent
             # with the representation for 2 qubits
             qubit_as_str = "[" + str(qubit) + "]"
@@ -118,8 +118,8 @@ def gen_nums_single_gate_cliffs_2q():
         qc = QuantumCircuit(2)
         qc.append(CXGate(), qubits)
         cliff = Clifford(qc)
-        if cliff.__repr__() in cliff_to_num_2q.keys():
-            num = cliff_to_num_2q[cliff.__repr__()]
+        if repr(cliff) in cliff_to_num_2q.keys():
+            num = cliff_to_num_2q[repr(cliff)]
         else:
             print("not found")
         direction = "[0, 1]" if qubits == [0, 1] else "[1, 0]"
@@ -137,13 +137,13 @@ def create_compose_map_1q():
         for gate in single_gate_clifford_map_1q:
             cliff2 = num_to_cliff_1q[single_gate_clifford_map_1q[gate]]
             cliff = cliff1.compose(cliff2)
-            products[(i, gate)] = cliff_to_num_1q[cliff.__repr__()]
+            products[(i, gate)] = cliff_to_num_1q[repr(cliff)]
 
     invs = {}
     for i in range(CliffordUtils.NUM_CLIFFORD_1_QUBIT):
         cliff1 = num_to_cliff_1q[i]
         cliff = cliff1.adjoint()
-        invs[i] = cliff_to_num_1q[cliff.__repr__()]
+        invs[i] = cliff_to_num_1q[repr(cliff)]
 
     file.write("CLIFF_COMPOSE_DATA_1Q = [")
     for i in products:
@@ -166,13 +166,13 @@ def create_compose_map_2q():
         for gate in single_gate_clifford_map_2q:
             cliff2 = num_to_cliff_2q[single_gate_clifford_map_2q[gate]]
             cliff = cliff1.compose(cliff2)
-            products[(i, gate)] = cliff_to_num_2q[cliff.__repr__()]
+            products[(i, gate)] = cliff_to_num_2q[repr(cliff)]
 
     invs = {}
     for i in range(CliffordUtils.NUM_CLIFFORD_2_QUBIT):
         cliff1 = num_to_cliff_2q[i]
         cliff = cliff1.adjoint()
-        invs[i] = cliff_to_num_2q[cliff.__repr__()]
+        invs[i] = cliff_to_num_2q[repr(cliff)]
 
     file.write("CLIFF_COMPOSE_DATA_2Q = [")
     for i in products:
