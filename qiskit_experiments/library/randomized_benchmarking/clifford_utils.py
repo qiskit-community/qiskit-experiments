@@ -79,6 +79,9 @@ class CliffordUtils:
     ]
     GENERAL_CLIFF_LIST = ["id", "h", "sdg", "s", "x", "sx", "sxdg", "y", "z", "cx"]
     TRANSPILED_CLIFF_LIST = ["sx", "rz", "cx"]
+    CLIFF_SINGLE_GATE_MAP = {1: CLIFF_SINGLE_GATE_MAP_1Q, 2: CLIFF_SINGLE_GATE_MAP_2Q}
+    CLIFF_COMPOSE_DATA = {1: CLIFF_COMPOSE_DATA_1Q, 2: CLIFF_COMPOSE_DATA_2Q}
+    CLIFF_INVERSE_DATA = {1: CLIFF_INVERSE_DATA_1Q, 2: CLIFF_INVERSE_DATA_2Q}
 
     @classmethod
     def clifford_1_qubit(cls, num):
@@ -174,8 +177,8 @@ class CliffordUtils:
             qc.z(1)
         return qc
 
-    @classmethod
-    def _unpack_num(cls, num, sig):
+    @staticmethod
+    def _unpack_num(num, sig):
         r"""Returns a tuple :math:`(a_1, \ldots, a_n)` where
         :math:`0 \le a_i \le \sigma_i` where
         sig=:math:`(\sigma_1, \ldots, \sigma_n)` and num is the sequential
@@ -214,9 +217,6 @@ class CliffordUtils:
         name = inst.name
         gates_with_delay = basis_gates.copy()
         gates_with_delay.append("delay")
-        single_gate_map = (
-            CLIFF_SINGLE_GATE_MAP_1Q if rb_num_qubits == 1 else CLIFF_SINGLE_GATE_MAP_2Q
-        )
 
         if not name in gates_with_delay:
             raise QiskitError("Instruction {} is not in the basis gates".format(inst.name))
@@ -246,7 +246,7 @@ class CliffordUtils:
                     "Instruction {} could not be converted to Clifford gate".format(name)
                 )
 
-        return single_gate_map[(map_index, str(qubits))]
+        return cls.CLIFF_SINGLE_GATE_MAP[rb_num_qubits][(map_index, str(qubits))]
 
     @classmethod
     def compose_num_with_clifford(
@@ -258,22 +258,19 @@ class CliffordUtils:
         # The numbers corresponding to single gate Cliffords are not in sequence -
         # see num_from_1q_clifford_single_gate. To compute the index in
         # the array CLIFF_COMPOSE_DATA_1Q, we map the numbers to [0, 8].
-        n = num_qubits
-        single_gate_map = CLIFF_SINGLE_GATE_MAP_1Q if n == 1 else CLIFF_SINGLE_GATE_MAP_2Q
-        cliff_compose_data = CLIFF_COMPOSE_DATA_1Q if n == 1 else CLIFF_COMPOSE_DATA_2Q
         map_clifford_num_to_array_index = {}
-        num_single_gate_cliffs = len(single_gate_map)
-        for k in list(single_gate_map):
-            map_clifford_num_to_array_index[single_gate_map[k]] = list(
-                single_gate_map.keys()
+        num_single_gate_cliffs = len(cls.CLIFF_SINGLE_GATE_MAP[num_qubits])
+        for k in list(cls.CLIFF_SINGLE_GATE_MAP[num_qubits]):
+            map_clifford_num_to_array_index[cls.CLIFF_SINGLE_GATE_MAP[num_qubits][k]] = list(
+                cls.CLIFF_SINGLE_GATE_MAP[num_qubits].keys()
             ).index(k)
-        if n == 1:
+        if num_qubits == 1:
             for inst, qargs, _ in qc:
                 num = cls.num_from_clifford_single_gate(
                     inst=inst, qubits=[0], rb_num_qubits=1, basis_gates=basis_gates
                 )
                 index = num_single_gate_cliffs * composed_num + map_clifford_num_to_array_index[num]
-                composed_num = cliff_compose_data[index]
+                composed_num = cls.CLIFF_COMPOSE_DATA[num_qubits][index]
         else:
             for inst, qargs, _ in qc:
                 if inst.num_qubits == 2:
@@ -284,19 +281,16 @@ class CliffordUtils:
                     inst=inst, qubits=qubits, rb_num_qubits=2, basis_gates=basis_gates
                 )
                 index = num_single_gate_cliffs * composed_num + map_clifford_num_to_array_index[num]
-                composed_num = cliff_compose_data[index]
+                composed_num = cls.CLIFF_COMPOSE_DATA[num_qubits][index]
         return composed_num
 
     @classmethod
     def clifford_inverse_by_num(cls, num: int, num_qubits: int):
         """Return the number of the inverse Clifford to the input num"""
-        if num_qubits == 1:
-            return CLIFF_INVERSE_DATA_1Q[num]
-        else:
-            return CLIFF_INVERSE_DATA_2Q[num]
+        return cls.CLIFF_INVERSE_DATA[num_qubits][num]
 
-    @classmethod
-    def file_name(cls, num_qubits, basis_gates):
+    @staticmethod
+    def file_name(num_qubits, basis_gates):
         """Return the name of the file containing the transpiled Cliffords"""
         suffix = ""
         for n in basis_gates[0:-1]:
