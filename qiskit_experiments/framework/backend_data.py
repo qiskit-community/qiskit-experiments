@@ -45,7 +45,7 @@ class BackendData:
             return self._backend.name()
         elif self._v2:
             return self._backend.name
-        return ""
+        return str(self._backend)
 
     def control_channel(self, qubits):
         """Returns the backend control channels"""

@@ -718,9 +718,8 @@ class ExperimentData:
         timeout_ids = []
         for job in jobs:
             if self.backend is not None:
-                backend_name = self._backend_data.name
-                job_backend_data = BackendData(job.backend())
-                job_backend_name = job_backend_data.name
+                backend_name = BackendData(self.backend).name
+                job_backend_name = BackendData(job.backend()).name
                 if self.backend and backend_name != job_backend_name:
                     LOG.warning(
                         "Adding a job from a backend (%s) that is different "
