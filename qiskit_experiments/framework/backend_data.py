@@ -110,10 +110,10 @@ class BackendData:
             try:
                 return self._backend.configuration().dt
             except AttributeError:
-                return 1
+                return None
         elif self._v2:
             return self._backend.dt
-        return 1
+        return None
 
     @property
     def max_circuits(self):
