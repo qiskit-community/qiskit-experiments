@@ -51,7 +51,7 @@ class BackendData:
         elif self._v2:
             try:
                 return self._backend.control_channel(qubits)
-            except AttributeError:
+            except (AttributeError, NotImplementedError):
                 return self._pulse_conf.control_channels[qubits]
         return None
 
