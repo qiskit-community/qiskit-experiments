@@ -83,7 +83,7 @@ class T1(BaseExperiment):
         super()._set_backend(backend)
 
         # Scheduling parameters
-        if not self._backend_data.is_simulator(backend):
+        if not self._backend_data.is_simulator:
             timing_constraints = getattr(self.transpile_options, "timing_constraints", {})
             if "acquire_alignment" not in timing_constraints:
                 timing_constraints["acquire_alignment"] = 16
@@ -101,7 +101,7 @@ class T1(BaseExperiment):
         """
         dt_unit = False
         if self.backend:
-            dt_factor = self._backend_data.dt(self.backend)
+            dt_factor = self._backend_data.dt
             dt_unit = dt_factor is not None
 
         circuits = []

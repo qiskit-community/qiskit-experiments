@@ -201,8 +201,7 @@ class BackendData:
             if self._backend.configuration().simulator or isinstance(self._backend, FakeBackend):
                 return True
         if self._v2:
-            if isinstance(self._backend, FakeBackendV2) or isinstance(
-                self._backend, fake_backend.FakeBackendV2
-            ):
+            if isinstance(self._backend, (FakeBackendV2, fake_backend.FakeBackendV2)):
                 return True
+
         return False
