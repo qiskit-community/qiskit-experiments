@@ -15,6 +15,7 @@ Backend data access helper class
 Since `BackendV1` and `BackendV2` do not share the same interface, this
 class unifies data access for various data fields.
 """
+from qiskit.providers.models import PulseBackendConfiguration
 from qiskit.providers import BackendV1, BackendV2
 from qiskit.providers.fake_provider import fake_backend, FakeBackendV2, FakeBackend
 
@@ -23,9 +24,16 @@ class BackendData:
     """Class for providing joint interface for accessing backend data"""
 
     def __init__(self, backend):
+        """Inits the backend and verifies version"""
         self._backend = backend
         self._v1 = isinstance(backend, BackendV1)
         self._v2 = isinstance(backend, BackendV2)
+        if self._v2:
+            self._parse_additional_data()
+
+    def _parse_additional_data(self):
+        # data specific parsing not done yet in qiskit-terra
+        self._pulse_conf = PulseBackendConfiguration.from_dict(self._backend._conf_dict)
 
     @property
     def name(self):
@@ -41,7 +49,10 @@ class BackendData:
         if self._v1:
             return self._backend.configuration().control(qubits)
         elif self._v2:
-            return self._backend.control_channel(qubits)
+            try:
+                return self._backend.control_channel(qubits)
+            except AttributeError:
+                return self._pulse_conf.control_channels[qubits]
         return None
 
     @property
@@ -128,7 +139,10 @@ class BackendData:
         if self._v1:
             return getattr(self._backend.configuration(), "control_channels", None)
         elif self._v2:
-            return self._backend.control_channels
+            try:
+                return self._backend.control_channels
+            except AttributeError:
+                return self._pulse_conf.control_channels
         return None
 
     @property
