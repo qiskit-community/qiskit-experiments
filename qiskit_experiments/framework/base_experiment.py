@@ -332,11 +332,11 @@ class BaseExperiment(ABC, StoreInitArgs):
     def _run_jobs(self, circuits: List[QuantumCircuit], **run_options) -> List[Job]:
         """Run circuits on backend as 1 or more jobs."""
         # Run experiment jobs
-        max_experiments = BackendData.max_experiments(self.backend)
-        if max_experiments and len(circuits) > max_experiments:
+        max_circuits = BackendData.max_circuits(self.backend)
+        if max_circuits and len(circuits) > max_circuits:
             # Split jobs for backends that have a maximum job size
             job_circuits = [
-                circuits[i : i + max_experiments] for i in range(0, len(circuits), max_experiments)
+                circuits[i : i + max_circuits] for i in range(0, len(circuits), max_circuits)
             ]
         else:
             # Run as single job
