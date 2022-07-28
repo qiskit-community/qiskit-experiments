@@ -279,6 +279,3 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
 
         for child_data in par_data.child_data():
             self.assertRoundTripSerializable(child_data, self.experiment_data_equiv)
-import unittest
-if __name__ == '__main__':
-    unittest.main()
