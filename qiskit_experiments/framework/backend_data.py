@@ -49,18 +49,6 @@ class BackendData:
         return None
 
     @staticmethod
-    def set_granularity(backend, value):
-        """Sets the backend's time constraint granularity"""
-        if isinstance(backend, BackendV1):
-            setattr(
-                backend.configuration(),
-                "timing_constraints",
-                {"granularity": value},
-            )
-        elif isinstance(backend, BackendV2):
-            backend.target.granularity = 16
-
-    @staticmethod
     def dt(backend):
         """Returns the backend's input time resolution"""
         if isinstance(backend, BackendV1):

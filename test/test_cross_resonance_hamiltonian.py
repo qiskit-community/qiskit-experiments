@@ -50,9 +50,6 @@ class TestCrossResonanceHamiltonian(QiskitExperimentsTestCase):
         """Test generated circuits."""
         backend = FakeBogotaV2()
 
-        # Add granularity to check duration optimization logic
-        BackendData.set_granularity(backend, 16)
-
         expr = cr_hamiltonian.CrossResonanceHamiltonian(
             qubits=(0, 1),
             flat_top_widths=[1000],
@@ -62,20 +59,20 @@ class TestCrossResonanceHamiltonian(QiskitExperimentsTestCase):
         )
         expr.backend = backend
 
-        nearlest_16 = 1248
+        duration = 1256
 
         with pulse.build(default_alignment="left", name="cr") as ref_cr_sched:
             pulse.play(
                 pulse.GaussianSquare(
-                    nearlest_16,
+                    duration,
                     amp=0.1,
                     sigma=64,
                     width=1000,
                 ),
                 pulse.ControlChannel(0),
             )
-            pulse.delay(nearlest_16, pulse.DriveChannel(0))
-            pulse.delay(nearlest_16, pulse.DriveChannel(1))
+            pulse.delay(duration, pulse.DriveChannel(0))
+            pulse.delay(duration, pulse.DriveChannel(1))
 
         cr_gate = cr_hamiltonian.CrossResonanceHamiltonian.CRPulseGate(width=1000)
         expr_circs = expr.circuits()
@@ -135,7 +132,6 @@ class TestCrossResonanceHamiltonian(QiskitExperimentsTestCase):
     def test_instance_with_backend_without_cr_gate(self):
         """Calling set backend method without setting cr gate."""
         backend = FakeBogotaV2()
-        BackendData.set_granularity(backend, 16)
 
         # not raise an error
         exp = cr_hamiltonian.CrossResonanceHamiltonian(
