@@ -42,13 +42,52 @@ class BackendData:
     @staticmethod
     def granularity(backend):
         """Returns the backend's time constraint granularity"""
-        if isinstance(backend, BackendV1):
-            try:
-                return backend.configuration().timing_constraints.get("granularity", None)
-            except AttributeError:
-                return 1
-        elif isinstance(backend, BackendV2):
-            return backend.target.granularity
+        try:
+            if isinstance(backend, BackendV1):
+                return backend.configuration().timing_constraints.get(
+                    "granularity", 1)
+            elif isinstance(backend, BackendV2):
+                return backend.target.granularity
+        except AttributeError:
+            return 1
+        return 1
+
+    @staticmethod
+    def min_length(backend):
+        """Returns the backend's time constraint minimum duration"""
+        try:
+            if isinstance(backend, BackendV1):
+                return backend.configuration().timing_constraints.get("min_length", 0)
+            elif isinstance(backend, BackendV2):
+                return backend.target.min_length
+        except AttributeError:
+            return 0
+        return 0
+
+    @staticmethod
+    def pulse_alignment(backend):
+        """Returns the backend's time constraint pulse alignment"""
+        try:
+            if isinstance(backend, BackendV1):
+                return backend.configuration().timing_constraints.get(
+                    "pulse_alignment", 1)
+            elif isinstance(backend, BackendV2):
+                return backend.target.pulse_alignment
+        except AttributeError:
+            return 1
+        return 1
+
+    @staticmethod
+    def aquire_alignment(backend):
+        """Returns the backend's time constraint acquire alignment"""
+        try:
+            if isinstance(backend, BackendV1):
+                return backend.configuration().timing_constraints.get(
+                    "aquire_alignment", 1)
+            elif isinstance(backend, BackendV2):
+                return backend.target.aquire_alignment
+        except AttributeError:
+            return 1
         return 1
 
     @staticmethod
