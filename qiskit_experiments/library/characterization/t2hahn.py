@@ -137,11 +137,10 @@ class T2Hahn(BaseExperiment):
             The experiment circuits.
         """
 
-        if self.backend and hasattr(self.backend.configuration(), "dt"):
-            dt_unit = True
-            dt_factor = self.backend.configuration().dt
-        else:
-            dt_unit = False
+        dt_unit = False
+        if self.backend:
+            dt_factor = self._backend_data.dt
+            dt_unit = dt_factor is not None
 
         circuits = []
         for delay_gate in np.asarray(self.experiment_options.delays, dtype=float):
