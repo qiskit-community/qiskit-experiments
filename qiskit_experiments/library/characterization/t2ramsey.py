@@ -100,7 +100,7 @@ class T2Ramsey(BaseExperiment):
         super()._set_backend(backend)
 
         # Scheduling parameters
-        if not self._backend.configuration().simulator and not isinstance(backend, FakeBackend):
+        if not self._backend_data.is_simulator:
             timing_constraints = getattr(self.transpile_options, "timing_constraints", {})
             if "acquire_alignment" not in timing_constraints:
                 timing_constraints["acquire_alignment"] = 16
