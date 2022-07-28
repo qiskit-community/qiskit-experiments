@@ -43,10 +43,13 @@ class BackendData:
     def granularity(backend):
         """Returns the backend's time constraint granularity"""
         if isinstance(backend, BackendV1):
-            return backend.configuration().timing_constraints.get("granularity", None)
+            try:
+                return backend.configuration().timing_constraints.get("granularity", None)
+            except AttributeError:
+                return 1
         elif isinstance(backend, BackendV2):
             return backend.target.granularity
-        return None
+        return 1
 
     @staticmethod
     def dt(backend):
