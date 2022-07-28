@@ -141,6 +141,7 @@ class BaseExperiment(ABC, StoreInitArgs):
         properties from the supplied backend if required.
         """
         self._backend = backend
+        self._backend_data = BackendData(backend)
 
     def copy(self) -> "BaseExperiment":
         """Return a copy of the experiment"""
@@ -332,7 +333,7 @@ class BaseExperiment(ABC, StoreInitArgs):
     def _run_jobs(self, circuits: List[QuantumCircuit], **run_options) -> List[Job]:
         """Run circuits on backend as 1 or more jobs."""
         # Run experiment jobs
-        max_circuits = BackendData.max_circuits(self.backend)
+        max_circuits = self._backend_data.max_circuits
         if max_circuits and len(circuits) > max_circuits:
             # Split jobs for backends that have a maximum job size
             job_circuits = [

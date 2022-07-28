@@ -1459,7 +1459,7 @@ class TestSavingAndLoading(CrossResonanceTest):
         self.assertEqual(cals.get_parameter_value("amp", (0,), "x"), 0.5)
         self.assertEqual(
             cals.get_parameter_value("drive_freq", (0,)),
-            BackendData.drive_freqs(backend)[0],
+            BackendData(backend).drive_freqs[0],
         )
 
 
@@ -1505,12 +1505,12 @@ class TestInstructionScheduleMap(QiskitExperimentsTestCase):
         cals.add_schedule(cr, num_qubits=2)
         cals.update_inst_map({"cr"})
 
-        for qubit in range(BackendData.num_qubits(backend)):
+        for qubit in range(BackendData(backend).num_qubits):
             self.assertTrue(cals.default_inst_map.has("sx", (qubit,)))
 
         # based on coupling map of Belem to keep the test robust.
         expected_pairs = [(0, 1), (1, 0), (1, 2), (2, 1), (1, 3), (3, 1), (3, 4), (4, 3)]
-        coupling_map = set(tuple(pair) for pair in BackendData.coupling_map(backend))
+        coupling_map = set(tuple(pair) for pair in BackendData(backend).coupling_map)
 
         for pair in expected_pairs:
             self.assertTrue(pair in coupling_map)
@@ -1672,8 +1672,8 @@ class TestInstructionScheduleMap(QiskitExperimentsTestCase):
         cals1 = Calibrations.from_backend(backend, libraries=[library])
         cals2 = Calibrations(
             libraries=[library],
-            control_channel_map=BackendData.control_channels(backend),
-            coupling_map=BackendData.coupling_map(backend),
+            control_channel_map=BackendData(backend).control_channels,
+            coupling_map=BackendData(backend).coupling_map,
         )
 
         self.assertEqual(str(cals1.get_schedule("x", 1)), str(cals2.get_schedule("x", 1)))

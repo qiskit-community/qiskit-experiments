@@ -49,7 +49,7 @@ class TestRoughFrequency(QiskitExperimentsTestCase):
     def test_update_calibrations(self):
         """Test that we can properly update an instance of Calibrations."""
 
-        freq01 = BackendData.drive_freqs(FakeArmonkV2())[0]
+        freq01 = BackendData(FakeArmonkV2()).drive_freqs[0]
 
         backend = MockIQBackend(
             experiment_helper=SpectroscopyHelper(

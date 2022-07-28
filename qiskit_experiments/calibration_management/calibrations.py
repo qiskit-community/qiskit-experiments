@@ -258,28 +258,23 @@ class Calibrations:
         Returns:
             An instance of Calibrations instantiated from a backend.
         """
-        backend_name = BackendData.name(backend)
-        coupling_map = BackendData.coupling_map(backend)
-        control_channels = BackendData.control_channels(backend)
-        qubit_freq_est = BackendData.drive_freqs(backend)
-        meas_freq_est = BackendData.meas_freqs(backend)
-        version = BackendData.version(backend)
+        backend_data = BackendData(backend)
 
         cals = Calibrations(
-            coupling_map,
-            control_channels,
+            backend_data.coupling_map,
+            backend_data.control_channels,
             library,
             libraries,
             add_parameter_defaults,
-            backend_name,
-            version,
+            backend_data.name,
+            backend_data.version,
         )
 
         if add_parameter_defaults:
-            for qubit, freq in enumerate(qubit_freq_est):
+            for qubit, freq in enumerate(backend_data.drive_freqs):
                 cals.add_parameter_value(freq, cals.drive_freq, qubit, update_inst_map=False)
 
-            for meas, freq in enumerate(meas_freq_est):
+            for meas, freq in enumerate(backend_data.meas_freqs):
                 cals.add_parameter_value(freq, cals.meas_freq, meas, update_inst_map=False)
 
         # Update the instruction schedule map after adding all parameter values.

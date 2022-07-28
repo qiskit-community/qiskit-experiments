@@ -18,174 +18,177 @@ class unifies data access for various data fields.
 from qiskit.providers import BackendV1, BackendV2
 from qiskit.providers.fake_provider import fake_backend, FakeBackendV2, FakeBackend
 
+
 class BackendData:
     """Class for providing joint interface for accessing backend data"""
 
-    @staticmethod
-    def name(backend):
+    def __init__(self, backend):
+        self._backend = backend
+        self._v1 = isinstance(backend, BackendV1)
+        self._v2 = isinstance(backend, BackendV2)
+
+    @property
+    def name(self):
         """Returns the backend name"""
-        if isinstance(backend, BackendV1):
-            return backend.name()
-        elif isinstance(backend, BackendV2):
-            return backend.name
+        if self._v1:
+            return self._backend.name()
+        elif self._v2:
+            return self._backend.name
         return ""
 
-    @staticmethod
-    def control_channel(backend, qubits):
+    def control_channel(self, qubits):
         """Returns the backend control channels"""
-        if isinstance(backend, BackendV1):
-            return backend.configuration().control(qubits)
-        elif isinstance(backend, BackendV2):
-            return backend.control_channel(qubits)
+        if self._v1:
+            return self._backend.configuration().control(qubits)
+        elif self._v2:
+            return self._backend.control_channel(qubits)
         return None
 
-    @staticmethod
-    def granularity(backend):
+    @property
+    def granularity(self):
         """Returns the backend's time constraint granularity"""
         try:
-            if isinstance(backend, BackendV1):
-                return backend.configuration().timing_constraints.get(
-                    "granularity", 1)
-            elif isinstance(backend, BackendV2):
-                return backend.target.granularity
+            if self._v1:
+                return self._backend.configuration().timing_constraints.get("granularity", 1)
+            elif self._v2:
+                return self._backend.target.granularity
         except AttributeError:
             return 1
         return 1
 
-    @staticmethod
-    def min_length(backend):
+    @property
+    def min_length(self):
         """Returns the backend's time constraint minimum duration"""
         try:
-            if isinstance(backend, BackendV1):
-                return backend.configuration().timing_constraints.get("min_length", 0)
-            elif isinstance(backend, BackendV2):
-                return backend.target.min_length
+            if self._v1:
+                return self._backend.configuration().timing_constraints.get("min_length", 0)
+            elif self._v2:
+                return self._backend.target.min_length
         except AttributeError:
             return 0
         return 0
 
-    @staticmethod
-    def pulse_alignment(backend):
+    @property
+    def pulse_alignment(self):
         """Returns the backend's time constraint pulse alignment"""
         try:
-            if isinstance(backend, BackendV1):
-                return backend.configuration().timing_constraints.get(
-                    "pulse_alignment", 1)
-            elif isinstance(backend, BackendV2):
-                return backend.target.pulse_alignment
+            if self._v1:
+                return self._backend.configuration().timing_constraints.get("pulse_alignment", 1)
+            elif self._v2:
+                return self._backend.target.pulse_alignment
         except AttributeError:
             return 1
         return 1
 
-    @staticmethod
-    def aquire_alignment(backend):
+    @property
+    def aquire_alignment(self):
         """Returns the backend's time constraint acquire alignment"""
         try:
-            if isinstance(backend, BackendV1):
-                return backend.configuration().timing_constraints.get(
-                    "aquire_alignment", 1)
-            elif isinstance(backend, BackendV2):
-                return backend.target.aquire_alignment
+            if self._v1:
+                return self._backend.configuration().timing_constraints.get("aquire_alignment", 1)
+            elif self._v2:
+                return self._backend.target.aquire_alignment
         except AttributeError:
             return 1
         return 1
 
-    @staticmethod
-    def dt(backend):
+    @property
+    def dt(self):
         """Returns the backend's input time resolution"""
-        if isinstance(backend, BackendV1):
+        if self._v1:
             try:
-                return backend.configuration().dt
+                return self._backend.configuration().dt
             except AttributeError:
                 return 1
-        elif isinstance(backend, BackendV2):
-            return backend.dt
+        elif self._v2:
+            return self._backend.dt
         return 1
 
-    @staticmethod
-    def max_circuits(backend):
+    @property
+    def max_circuits(self):
         """Returns the backend's max experiments value"""
-        if isinstance(backend, BackendV1):
-            return getattr(backend.configuration(), "max_experiments", None)
-        elif isinstance(backend, BackendV2):
-            return backend.max_circuits
+        if self._v1:
+            return getattr(self._backend.configuration(), "max_experiments", None)
+        elif self._v2:
+            return self._backend.max_circuits
         return None
 
-    @staticmethod
-    def coupling_map(backend):
+    @property
+    def coupling_map(self):
         """Returns the backend's coupling map"""
-        if isinstance(backend, BackendV1):
-            return getattr(backend.configuration(), "coupling_map", [])
-        elif isinstance(backend, BackendV2):
-            return list(backend.coupling_map.get_edges())
+        if self._v1:
+            return getattr(self._backend.configuration(), "coupling_map", [])
+        elif self._v2:
+            return list(self._backend.coupling_map.get_edges())
         return []
 
-    @staticmethod
-    def control_channels(backend):
+    @property
+    def control_channels(self):
         """Returns the backend's control channels"""
-        if isinstance(backend, BackendV1):
-            return getattr(backend.configuration(), "control_channels", None)
-        elif isinstance(backend, BackendV2):
-            return backend.control_channels
+        if self._v1:
+            return getattr(self._backend.configuration(), "control_channels", None)
+        elif self._v2:
+            return self._backend.control_channels
         return None
 
-    @staticmethod
-    def version(backend):
+    @property
+    def version(self):
         """Returns the backend's version"""
-        if isinstance(backend, BackendV1):
-            return getattr(backend, "version", None)
-        elif isinstance(backend, BackendV2):
-            return backend.version
+        if self._v1:
+            return getattr(self._backend, "version", None)
+        elif self._v2:
+            return self._backend.version
         return None
 
-    @staticmethod
-    def provider(backend):
+    @property
+    def provider(self):
         """Returns the backend's provider"""
-        if isinstance(backend, BackendV1):
-            return getattr(backend, "provider", None)
-        elif isinstance(backend, BackendV2):
-            return backend.provider
+        if self._v1:
+            return getattr(self._backend, "provider", None)
+        elif self._v2:
+            return self._backend.provider
         return None
 
-    @staticmethod
-    def drive_freqs(backend):
+    @property
+    def drive_freqs(self):
         """Returns the backend's qubit frequency estimation"""
-        if isinstance(backend, BackendV1):
-            return getattr(backend.defaults(), "qubit_freq_est", [])
-        elif isinstance(backend, BackendV2):
-            return [property.frequency for property in backend.target.qubit_properties]
+        if self._v1:
+            return getattr(self._backend.defaults(), "qubit_freq_est", [])
+        elif self._v2:
+            return [property.frequency for property in self._backend.target.qubit_properties]
         return []
 
-    @staticmethod
-    def meas_freqs(backend):
+    @property
+    def meas_freqs(self):
         """Returns the backend's measurement frequency estimation.
         Note: currently BackendV2 does not have access to this data"""
-        if isinstance(backend, BackendV1):
-            return getattr(backend.defaults(), "meas_freq_est", [])
-        elif isinstance(backend, BackendV2):
+        if self._v1:
+            return getattr(self._backend.defaults(), "meas_freq_est", [])
+        elif self._v2:
             # meas_freq_est is currently not part of the BackendV2
             return []
         return []
 
-    @staticmethod
-    def num_qubits(backend):
+    @property
+    def num_qubits(self):
         """Returns the backend's number of qubits"""
-        if isinstance(backend, BackendV1):
-            return backend.configuration().num_qubits
-        elif isinstance(backend, BackendV2):
+        if self._v1:
+            return self._backend.configuration().num_qubits
+        elif self._v2:
             # meas_freq_est is currently not part of the BackendV2
-            return backend.num_qubits
+            return self._backend.num_qubits
         return None
 
-    @staticmethod
-    def is_simulator(backend):
+    @property
+    def is_simulator(self):
         """Returns True given an indication the backend is a simulator
         Note: for `BackendV2` we sometimes cannot be sure"""
-        if isinstance(backend, BackendV1):
-            if backend.configuration().simulator or isinstance(
-            backend, FakeBackend):
+        if self._v1:
+            if self._backend.configuration().simulator or isinstance(self._backend, FakeBackend):
                 return True
-        if isinstance(backend, BackendV2):
-            if isinstance(backend, FakeBackendV2) or isinstance(backend, fake_backend.FakeBackendV2):
+        if self._v2:
+            if isinstance(self._backend, FakeBackendV2) or isinstance(
+                self._backend, fake_backend.FakeBackendV2
+            ):
                 return True
         return False

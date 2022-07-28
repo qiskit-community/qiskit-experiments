@@ -18,7 +18,7 @@ import numpy as np
 
 from qiskit import QuantumCircuit
 from qiskit.providers.backend import Backend
-from qiskit_experiments.framework import BaseExperiment, Options, BackendData
+from qiskit_experiments.framework import BaseExperiment, Options
 from qiskit_experiments.library.characterization.analysis.t1_analysis import T1Analysis
 
 
@@ -83,7 +83,7 @@ class T1(BaseExperiment):
         super()._set_backend(backend)
 
         # Scheduling parameters
-        if not BackendData.is_simulator(backend):
+        if not self._backend_data.is_simulator(backend):
             timing_constraints = getattr(self.transpile_options, "timing_constraints", {})
             if "acquire_alignment" not in timing_constraints:
                 timing_constraints["acquire_alignment"] = 16
@@ -101,8 +101,8 @@ class T1(BaseExperiment):
         """
         dt_unit = False
         if self.backend:
-            dt_factor = BackendData.dt(self.backend)
-            dt_unit = (dt_factor is not None)
+            dt_factor = self._backend_data.dt(self.backend)
+            dt_unit = dt_factor is not None
 
         circuits = []
         for delay in self.experiment_options.delays:

@@ -21,7 +21,7 @@ from qiskit import pulse, circuit, QuantumCircuit
 from qiskit.circuit.parameterexpression import ParameterValueType
 from qiskit.exceptions import QiskitError
 from qiskit.providers import Backend
-from qiskit_experiments.framework import BaseExperiment, Options, BackendData
+from qiskit_experiments.framework import BaseExperiment, Options
 from qiskit_experiments.library.characterization.analysis import CrossResonanceHamiltonianAnalysis
 
 
@@ -203,24 +203,24 @@ class CrossResonanceHamiltonian(BaseExperiment):
             # This falls into CRPulseGate which requires pulse schedule
 
             # Extract control channel index
-            cr_channels = BackendData.control_channel(backend, self.physical_qubits)
+            cr_channels = self._backend_data.control_channel(self.physical_qubits)
             if cr_channels is not None:
                 self._cr_channel = cr_channels[0].index
             else:
                 warnings.warn(
-                    f"{BackendData.name(backend)} doesn't provide cr channel mapping. "
+                    f"{self._backend_data.name} doesn't provide cr channel mapping. "
                     "Cannot find proper channel index to play the cross resonance pulse.",
                     UserWarning,
                 )
 
             # Extract pulse granularity
-            self._granularity = BackendData.granularity(backend)
+            self._granularity = self._backend_data.granularity
 
         # Extract time resolution, this is anyways required for xvalue conversion
-        self._dt = BackendData.dt(backend)
+        self._dt = self._backend_data.dt
         if self._dt is None:
             warnings.warn(
-                f"{BackendData.name(backend)} doesn't provide system time resolution dt. "
+                f"{self._backend_data.name} doesn't provide system time resolution dt. "
                 "Cannot estimate Hamiltonian coefficients in SI units.",
                 UserWarning,
             )

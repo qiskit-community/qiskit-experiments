@@ -40,7 +40,7 @@ class NoisyDelayAerBackend(AerSimulator):
         self._t2 = t2 or [1e-4]
         self._t1 = t1 or [2e-4]
         if backend:
-            dt = BackendData.dt(backend)
+            dt = BackendData(backend).dt
         if dt is not None:
             self._dt_unit = True
             self._dt_factor = dt

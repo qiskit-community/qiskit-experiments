@@ -1032,7 +1032,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
     def _get_job_result(self, circ_count, has_metadata=False):
         """Return a job result with random counts."""
         job_result = {
-            "backend_name": BackendData.name(self.backend),
+            "backend_name": BackendData(self.backend).name,
             "backend_version": "1.1.1",
             "qobj_id": "1234",
             "job_id": "some_job_id",

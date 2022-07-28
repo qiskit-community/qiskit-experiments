@@ -536,10 +536,11 @@ class ExperimentData:
         # defined independently from the setter to enable setting without autosave
 
         self._backend = new_backend
-        self._db_data.backend = BackendData.name(new_backend)
+        self._backend_data = BackendData(new_backend)
+        self._db_data.backend = self._backend_data.name
         if self._db_data.backend is None:
             self._db_data.backend = str(new_backend)
-        provider = BackendData.provider(new_backend)
+        provider = self._backend_data.provider
         if provider is not None:
             self._set_hgp_from_provider(provider)
         if recursive:
@@ -717,8 +718,9 @@ class ExperimentData:
         timeout_ids = []
         for job in jobs:
             if self.backend is not None:
-                backend_name = BackendData.name(self.backend)
-                job_backend_name = BackendData.name(job.backend())
+                backend_name = self._backend_data.name
+                job_backend_data = BackendData(job.backend())
+                job_backend_name = job_backend_data.name
                 if self.backend and backend_name != job_backend_name:
                     LOG.warning(
                         "Adding a job from a backend (%s) that is different "
