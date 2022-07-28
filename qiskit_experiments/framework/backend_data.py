@@ -33,7 +33,10 @@ class BackendData:
 
     def _parse_additional_data(self):
         # data specific parsing not done yet in qiskit-terra
-        self._pulse_conf = PulseBackendConfiguration.from_dict(self._backend._conf_dict)
+        if self._backend._conf_dict["open_pulse"]:
+            if "u_channel_lo" not in self._backend._conf_dict:
+                self._backend._conf_dict["u_channel_lo"] = [] # to avoid terra bug
+            self._pulse_conf = PulseBackendConfiguration.from_dict(self._backend._conf_dict)
 
     @property
     def name(self):
