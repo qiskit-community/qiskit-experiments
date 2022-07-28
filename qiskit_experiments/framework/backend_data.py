@@ -58,10 +58,10 @@ class BackendData:
             try:
                 return backend.configuration().dt
             except AttributeError:
-                return None
+                return 1
         elif isinstance(backend, BackendV2):
             return backend.dt
-        return None
+        return 1
 
     @staticmethod
     def max_experiments(backend):
