@@ -18,7 +18,6 @@ import numpy as np
 
 from qiskit import QuantumCircuit, QiskitError
 from qiskit.providers.backend import Backend
-from qiskit.providers.fake_provider import FakeBackend
 
 from qiskit_experiments.framework import BaseExperiment, Options
 from qiskit_experiments.library.characterization.analysis.t2hahn_analysis import T2HahnAnalysis

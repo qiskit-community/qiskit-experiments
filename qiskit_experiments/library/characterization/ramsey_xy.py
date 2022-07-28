@@ -18,7 +18,6 @@ import numpy as np
 from qiskit import QuantumCircuit
 from qiskit.circuit import Parameter
 from qiskit.providers.backend import Backend
-from qiskit.providers.fake_provider import FakeBackend
 
 from qiskit_experiments.framework import BaseExperiment
 from qiskit_experiments.framework.restless_mixin import RestlessMixin
