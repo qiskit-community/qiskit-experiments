@@ -46,7 +46,7 @@ class TestResonatorSpectroscopy(QiskitExperimentsTestCase):
         )
         backend._configuration.timing_constraints = {"granularity": 16}
 
-        res_freq = backend.defaults().meas_freq_est[qubit]
+        res_freq = backend.defaults().meas_freqs[qubit]
 
         frequencies = np.linspace(res_freq - 20e6, res_freq + 20e6, 51)
         spec = ResonatorSpectroscopy(qubit, backend=backend, frequencies=frequencies)
@@ -85,7 +85,7 @@ class TestResonatorSpectroscopy(QiskitExperimentsTestCase):
         )
         backend._configuration.timing_constraints = {"granularity": 16}
 
-        res_freq = backend.defaults().meas_freq_est[qubit]
+        res_freq = backend.defaults().meas_freqs[qubit]
 
         frequencies = np.linspace(res_freq - 20e6, res_freq + 20e6, 51)
         exp = ResonatorSpectroscopy(qubit, backend=backend, frequencies=frequencies)
@@ -133,8 +133,8 @@ class TestResonatorSpectroscopy(QiskitExperimentsTestCase):
         qubit1 = 0
         qubit2 = 1
 
-        res_freq1 = parallel_backend.defaults().meas_freq_est[qubit1]
-        res_freq2 = parallel_backend.defaults().meas_freq_est[qubit2]
+        res_freq1 = parallel_backend.defaults().meas_freqs[qubit1]
+        res_freq2 = parallel_backend.defaults().meas_freqs[qubit2]
 
         frequencies1 = np.linspace(res_freq1 - 20e6, res_freq1 + 20e6, 51)
         frequencies2 = np.linspace(res_freq2 - 20e6, res_freq2 + 20e6, 53)

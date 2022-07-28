@@ -43,7 +43,7 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
         backend._configuration.timing_constraints = {"granularity": 16}
 
         qubit = 1
-        freq01 = backend.defaults().qubit_freq_est[qubit]
+        freq01 = backend.defaults().drive_freqs[qubit]
         frequencies = np.linspace(freq01 - 10.0e6, freq01 + 10.0e6, 21)
 
         spec = QubitSpectroscopy(qubit, frequencies)
@@ -84,7 +84,7 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
         backend._configuration.timing_constraints = {"granularity": 16}
 
         qubit = 0
-        freq01 = backend.defaults().qubit_freq_est[qubit]
+        freq01 = backend.defaults().drive_freqs[qubit]
         frequencies = np.linspace(freq01 - 10.0e6, freq01 + 10.0e6, 21)
 
         spec = QubitSpectroscopy(qubit, frequencies)
@@ -130,7 +130,7 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
         backend._configuration.basis_gates = ["x"]
         backend._configuration.timing_constraints = {"granularity": 16}
         qubit = 0
-        freq01 = backend.defaults().qubit_freq_est[qubit]
+        freq01 = backend.defaults().drive_freqs[qubit]
         frequencies = np.linspace(freq01 - 10.0e6, freq01 + 10.0e6, 21)
 
         # Note that the backend is not sophisticated enough to simulate an e-f
@@ -178,7 +178,7 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
         backend._configuration.timing_constraints = {"granularity": 16}
 
         qubit = 1
-        freq01 = backend.defaults().qubit_freq_est[qubit]
+        freq01 = backend.defaults().drive_freqs[qubit]
         frequencies = np.linspace(freq01 - 10.0e6, freq01 + 10.0e6, 21)
         exp = QubitSpectroscopy(qubit, frequencies)
 
@@ -206,7 +206,7 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
         backend._configuration.timing_constraints = {"granularity": 16}
 
         qubit = 1
-        freq01 = backend.defaults().qubit_freq_est[qubit]
+        freq01 = backend.defaults().drive_freqs[qubit]
         frequencies = np.linspace(freq01 - 10.0e6, freq01 + 10.0e6, 21)
         exp = QubitSpectroscopy(qubit, frequencies)
 
@@ -239,8 +239,8 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
         # experiment hyper parameters
         qubit1 = 0
         qubit2 = 1
-        freq01 = parallel_backend.defaults().qubit_freq_est[qubit1]
-        freq02 = parallel_backend.defaults().qubit_freq_est[qubit2]
+        freq01 = parallel_backend.defaults().drive_freqs[qubit1]
+        freq02 = parallel_backend.defaults().drive_freqs[qubit2]
 
         # experiments initialization
         frequencies1 = np.linspace(freq01 - 10.0e6, freq01 + 10.0e6, 23)

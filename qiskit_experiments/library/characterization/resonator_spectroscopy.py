@@ -138,7 +138,7 @@ class ResonatorSpectroscopy(Spectroscopy):
                         "Cannot automatically compute absolute frequencies without a backend."
                     )
 
-                center_freq = backend.defaults().meas_freq_est[qubit]
+                center_freq = backend.defaults().meas_freqs[qubit]
                 frequencies += center_freq
 
         super().__init__(qubit, frequencies, backend, absolute, analysis, **experiment_options)
@@ -156,7 +156,7 @@ class ResonatorSpectroscopy(Spectroscopy):
         if self.backend is None:
             raise QiskitError("backend not set. Cannot call center_frequency.")
 
-        return self.backend.defaults().meas_freq_est[self.physical_qubits[0]]
+        return self.backend.defaults().meas_freqs[self.physical_qubits[0]]
 
     def _template_circuit(self) -> QuantumCircuit:
         """Return the template quantum circuit."""

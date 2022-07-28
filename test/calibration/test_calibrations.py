@@ -1459,7 +1459,7 @@ class TestSavingAndLoading(CrossResonanceTest):
         self.assertEqual(cals.get_parameter_value("amp", (0,), "x"), 0.5)
         self.assertEqual(
             cals.get_parameter_value("drive_freq", (0,)),
-            BackendData.qubit_freq_est(backend)[0],
+            BackendData.drive_freqs(backend)[0],
         )
 
 

@@ -261,8 +261,8 @@ class Calibrations:
         backend_name = BackendData.name(backend)
         coupling_map = BackendData.coupling_map(backend)
         control_channels = BackendData.control_channels(backend)
-        qubit_freq_est = BackendData.qubit_freq_est(backend)
-        meas_freq_est = BackendData.meas_freq_est(backend)
+        qubit_freq_est = BackendData.drive_freqs(backend)
+        meas_freq_est = BackendData.meas_freqs(backend)
         version = BackendData.version(backend)
 
         cals = Calibrations(

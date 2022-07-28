@@ -49,7 +49,7 @@ class TestRoughFrequency(QiskitExperimentsTestCase):
     def test_update_calibrations(self):
         """Test that we can properly update an instance of Calibrations."""
 
-        freq01 = BackendData.qubit_freq_est(FakeArmonkV2())[0]
+        freq01 = BackendData.drive_freqs(FakeArmonkV2())[0]
 
         backend = MockIQBackend(
             experiment_helper=SpectroscopyHelper(
@@ -62,7 +62,7 @@ class TestRoughFrequency(QiskitExperimentsTestCase):
         backend._configuration.basis_gates = ["x"]
         backend._configuration.timing_constraints = {"granularity": 16}
 
-        backend.defaults().qubit_freq_est = [freq01, freq01]
+        backend.defaults().drive_freqs = [freq01, freq01]
 
         library = FixedFrequencyTransmon(basis_gates=["x", "sx"])
         cals = Calibrations.from_backend(FakeArmonkV2(), libraries=[library])

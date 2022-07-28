@@ -70,7 +70,7 @@ class TestFrequencyUpdate(QiskitExperimentsTestCase):
         backend._configuration.basis_gates = ["x"]
         backend._configuration.timing_constraints = {"granularity": 16}
 
-        freq01 = backend.defaults().qubit_freq_est[qubit]
+        freq01 = backend.defaults().drive_freqs[qubit]
         frequencies = np.linspace(freq01 - 10.0e6, freq01 + 10.0e6, 21)
 
         spec = QubitSpectroscopy(qubit, frequencies)

@@ -78,7 +78,7 @@ class TestFineFreqEndToEnd(QiskitExperimentsTestCase):
         exp_helper.dt = backend.configuration().dt
 
         fine_freq = FineFrequencyCal(0, self.cals, backend)
-        armonk_freq = BackendData.qubit_freq_est(FakeArmonkV2())[0]
+        armonk_freq = BackendData.drive_freqs(FakeArmonkV2())[0]
 
         freq_before = self.cals.get_parameter_value(self.cals.__drive_freq_parameter__, 0)
 

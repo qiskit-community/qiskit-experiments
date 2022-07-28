@@ -103,7 +103,7 @@ class BackendData:
         return 1
 
     @staticmethod
-    def max_experiments(backend):
+    def max_circuits(backend):
         """Returns the backend's max experiments value"""
         if isinstance(backend, BackendV1):
             return getattr(backend.configuration(), "max_experiments", None)
@@ -148,7 +148,7 @@ class BackendData:
         return None
 
     @staticmethod
-    def qubit_freq_est(backend):
+    def drive_freqs(backend):
         """Returns the backend's qubit frequency estimation"""
         if isinstance(backend, BackendV1):
             return getattr(backend.defaults(), "qubit_freq_est", [])
@@ -157,7 +157,7 @@ class BackendData:
         return []
 
     @staticmethod
-    def meas_freq_est(backend):
+    def meas_freqs(backend):
         """Returns the backend's measurement frequency estimation.
         Note: currently BackendV2 does not have access to this data"""
         if isinstance(backend, BackendV1):
