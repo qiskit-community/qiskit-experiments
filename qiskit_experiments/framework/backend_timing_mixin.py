@@ -135,9 +135,6 @@ class BackendTimingMixin:
         samples = int(round(time / self._dt / granularity)) * granularity
         samples = max(samples, min_length)
 
-        if min_length % granularity != 0:
-            raise QiskitError("Backend timing does not match assumptions!")
-
         return samples
 
     def _delay_time(self, time: float, next_instruction: str = "pulse") -> float:
