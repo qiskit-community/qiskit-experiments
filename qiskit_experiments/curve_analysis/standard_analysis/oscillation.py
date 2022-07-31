@@ -130,9 +130,7 @@ class OscillationAnalysis(curve.CurveAnalysis):
 
         return "bad"
 
-@deprecated_class("0.5","DumpedOscillationAnalysis is now replaced with DampedOscillationAnalysis")
-
-class DumpedOscillationAnalysis(curve.CurveAnalysis):
+class DampedOscillationAnalysis(curve.CurveAnalysis):
     r"""A class to analyze general exponential decay curve with sinusoidal oscillation.
 
     # section: fit_model
@@ -279,3 +277,8 @@ class DumpedOscillationAnalysis(curve.CurveAnalysis):
             return "good"
 
         return "bad"
+
+@deprecated_class("0.5", new_cls=DampedOscillationAnalysis)
+
+class DumpedOscillationAnalysis:
+    pass
