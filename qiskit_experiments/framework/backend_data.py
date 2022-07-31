@@ -177,8 +177,11 @@ class BackendData:
 
     @property
     def meas_freqs(self):
-        """Returns the backend's measurement frequency estimation.
-        Note: currently BackendV2 does not have access to this data"""
+        """Returns the backend's measurement stimulus frequencies.
+        
+        .. note::
+            Currently BackendV2 does not have access to this data.
+        """
         if self._v1:
             return getattr(self._backend.defaults(), "meas_freq_est", [])
         elif self._v2:
