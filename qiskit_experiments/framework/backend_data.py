@@ -168,7 +168,7 @@ class BackendData:
 
     @property
     def drive_freqs(self):
-        """Returns the backend's qubit frequency estimation"""
+        """Returns the backend's qubit drive frequencies"""
         if self._v1:
             return getattr(self._backend.defaults(), "qubit_freq_est", [])
         elif self._v2:
