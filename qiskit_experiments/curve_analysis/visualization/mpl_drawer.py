@@ -367,6 +367,7 @@ class MplCurveDrawer(BaseCurveDrawer):
             va="top",
             size=self.options.fit_report_text_size,
             transform=self._axis.transAxes,
+            zorder=6,
         )
         report_handler.set_bbox(bbox_props)
 
