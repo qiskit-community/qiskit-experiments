@@ -95,12 +95,15 @@ class BackendData:
         return 1
 
     @property
-    def aquire_alignment(self):
+    def acquire_alignment(self):
         """Returns the backend's time constraint acquire alignment"""
         try:
             if self._v1:
-                return self._backend.configuration().timing_constraints.get("aquire_alignment", 1)
+                return self._backend.configuration().timing_constraints.get("acquire_alignment", 1)
             elif self._v2:
+                # currently has a typo in terra
+                if hasattr(self._backend.target, "acquire_alignment"):
+                    return self._backend.target.acquire_alignment
                 return self._backend.target.aquire_alignment
         except AttributeError:
             return 1
@@ -178,7 +181,7 @@ class BackendData:
     @property
     def meas_freqs(self):
         """Returns the backend's measurement stimulus frequencies.
-        
+
         .. note::
             Currently BackendV2 does not have access to this data.
         """
