@@ -24,7 +24,7 @@ import uncertainties
 from lmfit import Model
 from qiskit.test import QiskitTestCase
 from qiskit_experiments.data_processing import DataAction, DataProcessor
-from qiskit_experiments.database_service.db_experiment_data import ExperimentStatus
+from qiskit_experiments.framework.experiment_data import ExperimentStatus
 from qiskit_experiments.framework import (
     ExperimentDecoder,
     ExperimentEncoder,

@@ -559,7 +559,7 @@ to the user, use the `:hide-code:` and `:hide-output:` directives:
         :hide-output:
 
         from qiskit.test.ibmq_mock import mock_get_backend
-        backend = mock_get_backend('FakeArmonk')
+        backend = mock_get_backend('FakeLima')
 
 To ignore an error from a Jupyter cell block, use the `:raises:` directive.
 #### Building documentation locally
