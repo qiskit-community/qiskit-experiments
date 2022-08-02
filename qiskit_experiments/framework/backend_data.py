@@ -205,7 +205,12 @@ class BackendData:
     @property
     def is_simulator(self):
         """Returns True given an indication the backend is a simulator
-        Note: for `BackendV2` we sometimes cannot be sure"""
+        .. note::
+            Note: for `BackendV2` we sometimes cannot be sure, because it lacks
+            a `simulator` field, as was present in `BackendV1`'s configuration.
+            We still check whether the backend inherits `FakeBackendV2`, for
+            either of its existing implementations in Terra.
+        """
         if self._v1:
             if self._backend.configuration().simulator or isinstance(self._backend, FakeBackend):
                 return True
