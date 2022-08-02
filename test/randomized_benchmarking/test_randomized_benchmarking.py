@@ -443,9 +443,9 @@ class TestInterleavedRB(RBTestCase):
 
 
 class TestEPGAnalysis(QiskitExperimentsTestCase):
-    """Test case for EPG colculation from EPC.
+    """Test case for EPG calculation from EPC.
 
-    EPG and depplarizing probability p are assumed to have following relationship
+    EPG and depolarizing probability p are assumed to have following relationship
 
         EPG = (2^n - 1) / 2^n · p
 

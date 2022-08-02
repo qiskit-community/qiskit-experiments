@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """
-Contrained convex least-squares tomography fitter.
+Constrained convex least-squares tomography fitter.
 """
 
 from typing import Optional, Dict, Tuple
@@ -57,11 +57,11 @@ def cvxpy_linear_lstsq(
         subject to
 
         - *Positive-semidefinite* (``psd=True``): :math:`\rho \gg 0` is constrained
-          to be a postive-semidefinite matrix.
-        - *Trace* (``trace=t``): :math:`\mbox{Tr}(\rho) = t` is constained to have
+          to be a positive-semidefinite matrix.
+        - *Trace* (``trace=t``): :math:`\mbox{Tr}(\rho) = t` is constrained to have
           the specified trace.
         - *Trace preserving* (``trace_preserving=True``): When performing process
-          tomography the Choi-state :math:`\rho` represents is contstained to be
+          tomography the Choi-state :math:`\rho` represents is constrained to be
           trace preserving.
 
         where

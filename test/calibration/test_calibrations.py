@@ -1347,7 +1347,7 @@ class TestFiltering(QiskitExperimentsTestCase):
         self.assertTrue(table["data"][0]["value"], 0.2)
 
     def test_get_parameter_value(self):
-        """Test that getting parameter values funcions properly."""
+        """Test that getting parameter values functions properly."""
 
         amp = self.cals.get_parameter_value(self.amp, (0,), "xp")
         self.assertEqual(amp, 0.2)
@@ -1601,8 +1601,8 @@ class TestInstructionScheduleMap(QiskitExperimentsTestCase):
         We use FakeBelem which has a linear coupling map and will restrict ourselves to
         qubits 0, 1, and 2. The Cals will define a template schedule for CX and CZ. We will
         mock this with GaussianSquare and Gaussian pulses since the nature of the schedules
-        is irrelevant here. The parameters for CX will only have values for qubis 0 and 1 while
-        the parameters for CZ will only have values for qubis 1 and 2. We therefore will have
+        is irrelevant here. The parameters for CX will only have values for qubits 0 and 1 while
+        the parameters for CZ will only have values for qubits 1 and 2. We therefore will have
         a CX on qubits 0, 1 in the inst. map and a CZ on qubits 1, 2.
         """
 

@@ -216,7 +216,7 @@ class RBUtils:
         Args:
             epc_1_qubit: The error per clifford rate obtained via experiment
             qubits: The qubits for which to compute epg
-            gate_error_ratio: Estiamte for the ratios between errors on different gates
+            gate_error_ratio: Estimate for the ratios between errors on different gates
             gates_per_clifford: The computed gates per clifford data
         Returns:
             A dictionary of the form (qubits, gate) -> value where value
@@ -256,7 +256,7 @@ class RBUtils:
         Args:
             epc_2_qubit: The error per clifford rate obtained via experiment
             qubits: The qubits for which to compute epg
-            gate_error_ratio: Estiamte for the ratios between errors on different gates
+            gate_error_ratio: Estimate for the ratios between errors on different gates
             gates_per_clifford: The computed gates per clifford data
             epg_1_qubit: analysis results containing EPG for the 1-qubits gate involved,
                 assumed to have been obtained from previous experiments

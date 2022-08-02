@@ -239,7 +239,7 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
         self.assertEqual(new_instance.parent_id, None)
 
     def test_composite_copy_analysis_ref(self):
-        """Test copy of composite expeirment preserves component analysis refs"""
+        """Test copy of composite experiment preserves component analysis refs"""
 
         class Analysis(FakeAnalysis):
             """Fake analysis class with options"""
@@ -441,7 +441,7 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
 
         class Backend(FakeBackend):
             """
-            Bacekend to be used in test_composite_subexp_data
+            Backend to be used in test_composite_subexp_data
             """
 
             def run(self, run_input, **options):
@@ -796,7 +796,7 @@ class TestBatchTranspileOptions(QiskitExperimentsTestCase):
 
     def test_batch_transpile_options_integrated(self):
         """
-        The goal is to verify that not only `_trasnpiled_circuits` works well
+        The goal is to verify that not only `_transpiled_circuits` works well
         (`test_batch_transpiled_circuits` takes care of it) but that it's correctly called within
         the entire flow of `BaseExperiment.run`.
         """

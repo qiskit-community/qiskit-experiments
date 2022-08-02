@@ -51,7 +51,7 @@ def linear_inversion(
         * :math:`A = \sum_j |j \rangle\!\langle\!\langle E_j|` is the matrix of measured
           basis elements.
         * :math:`y = \sum_j \hat{p}_j |j\rangle` is the vector of estimated measurement
-          outcome probabilites for each basis element.
+          outcome probabilities for each basis element.
         * :math:`x = |\rho\rangle\!\rangle` is the vectorized density matrix.
 
     Additional Details
