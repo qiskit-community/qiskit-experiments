@@ -104,7 +104,7 @@ class TestComposite(QiskitExperimentsTestCase):
         )
         expdata = comp_exp.run(FakeBackend())
         self.assertExperimentDone(expdata)
-        # Check out experiment wasnt flattened
+        # Check out experiment wasn't flattened
         self.assertEqual(len(expdata.child_data()), 2)
         self.assertEqual(len(expdata.analysis_results()), 0)
 

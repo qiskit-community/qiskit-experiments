@@ -427,8 +427,8 @@ class FakeService:
         # pylint: disable = unused-argument
         df = self.results
 
-        # TODO: skipping device components for now until we conslidate more with the provider service
-        # (in the qiskit-experiments service there is no opertor for device components,
+        # TODO: skipping device components for now until we consolidate more with the provider service
+        # (in the qiskit-experiments service there is no operator for device components,
         # so the specification for filtering is not clearly defined)
 
         if experiment_id is not None:

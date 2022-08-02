@@ -33,7 +33,7 @@ class RBUtils:
     @deprecated_function(
         last_version="0.4",
         msg=(
-            "This method may return errorneous error ratio. "
+            "This method may return erroneous error ratio. "
             "Please directly provide known gate error ratio to the analysis option."
         ),
     )
@@ -72,7 +72,7 @@ class RBUtils:
     @deprecated_function(
         last_version="0.4",
         msg=(
-            "Now this method is integarated into 'StandardRB._transpiled_circuits' method. "
+            "Now this method is integrated into 'StandardRB._transpiled_circuits' method. "
             "You don't need to explicitly call this method."
         ),
     )

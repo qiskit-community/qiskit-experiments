@@ -29,7 +29,7 @@ class SimulatableCRGate(HamiltonianGate):
     """Cross resonance unitary that can be simulated with Aer simulator."""
 
     def __init__(self, width, t_off, wix, wiy, wiz, wzx, wzy, wzz, dt=1e-9):
-        # Note that Qiskit is Little endien, i.e. [q1, q0]
+        # Note that Qiskit is Little endian, i.e. [q1, q0]
         hamiltonian = (
             wix * qi.Operator.from_label("XI") / 2
             + wiy * qi.Operator.from_label("YI") / 2
@@ -65,20 +65,20 @@ class TestCrossResonanceHamiltonian(QiskitExperimentsTestCase):
         )
         expr.backend = backend
 
-        nearlest_16 = 1248
+        nearest_16 = 1248
 
         with pulse.build(default_alignment="left", name="cr") as ref_cr_sched:
             pulse.play(
                 pulse.GaussianSquare(
-                    nearlest_16,
+                    nearest_16,
                     amp=0.1,
                     sigma=64,
                     width=1000,
                 ),
                 pulse.ControlChannel(0),
             )
-            pulse.delay(nearlest_16, pulse.DriveChannel(0))
-            pulse.delay(nearlest_16, pulse.DriveChannel(1))
+            pulse.delay(nearest_16, pulse.DriveChannel(0))
+            pulse.delay(nearest_16, pulse.DriveChannel(1))
 
         cr_gate = cr_hamiltonian.CrossResonanceHamiltonian.CRPulseGate(width=1000)
         expr_circs = expr.circuits()

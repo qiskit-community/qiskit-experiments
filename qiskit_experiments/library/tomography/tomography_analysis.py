@@ -501,7 +501,7 @@ def _int_outcome_function(outcome_shape: Tuple[int, ...]) -> Callable:
         base = outcome_shape[0]
         return lambda outcome: int(outcome, base)
 
-    # General function where each dit could be a differnet base
+    # General function where each dit could be a different base
     @functools.lru_cache(2048)
     def _int_outcome_general(outcome: str):
         """Convert a general dit-string outcome to integer"""

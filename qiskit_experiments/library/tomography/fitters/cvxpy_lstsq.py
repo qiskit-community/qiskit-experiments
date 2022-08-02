@@ -139,7 +139,7 @@ def cvxpy_linear_lstsq(
         probability_data = weights * probability_data
 
     # Since CVXPY only works with real variables we must specify the real
-    # and imaginary parts of rho seperately: rho = rho_r + 1j * rho_i
+    # and imaginary parts of rho separately: rho = rho_r + 1j * rho_i
 
     dim = int(np.sqrt(basis_matrix.shape[1]))
     rho_r, rho_i, cons = cvxpy_utils.complex_matrix_variable(
@@ -147,7 +147,7 @@ def cvxpy_linear_lstsq(
     )
 
     # Trace preserving constraint when fitting Choi-matrices for
-    # quantum process tomography. Note that this adds an implicity
+    # quantum process tomography. Note that this adds an implicitly
     # trace constraint of trace(rho) = sqrt(len(rho)) = dim
     # if a different trace constraint is specified above this will
     # cause the fitter to fail.
