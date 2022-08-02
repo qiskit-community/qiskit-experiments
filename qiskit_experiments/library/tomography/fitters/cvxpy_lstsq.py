@@ -105,7 +105,7 @@ def cvxpy_linear_lstsq(
                             M measured qubits.
         preparation_qubits: Optional, the physical qubits that were prepared.
                             If None they are assumed to be ``[0, ..., N-1]`` for
-                            N preparated qubits.
+                            N prepared qubits.
         psd: If True rescale the eigenvalues of fitted matrix to be positive
              semidefinite (default: True)
         trace_preserving: Enforce the fitted matrix to be
@@ -243,7 +243,7 @@ def cvxpy_gaussian_lstsq(
                             M measured qubits.
         preparation_qubits: Optional, the physical qubits that were prepared.
                             If None they are assumed to be ``[0, ..., N-1]`` for
-                            N preparated qubits.
+                            N prepared qubits.
         psd: If True rescale the eigenvalues of fitted matrix to be positive
              semidefinite (default: True)
         trace_preserving: Enforce the fitted matrix to be

@@ -96,7 +96,7 @@ def linear_inversion(
                             M measured qubits.
         preparation_qubits: Optional, the physical qubits that were prepared.
                             If None they are assumed to be [0, ..., N-1] for
-                            N preparated qubits.
+                            N prepared qubits.
 
     Raises:
         AnalysisError: If the fitted vector is not a square matrix
