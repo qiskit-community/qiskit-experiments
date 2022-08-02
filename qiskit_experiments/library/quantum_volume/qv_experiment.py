@@ -13,9 +13,8 @@
 Quantum Volume Experiment class.
 """
 
-from typing import Union, Sequence, Optional, List
-from numpy.random import Generator, default_rng
-from numpy.random.bit_generator import BitGenerator, SeedSequence
+from typing import Sequence, Optional, List
+from numpy.random import default_rng
 
 try:
     from qiskit import Aer
@@ -91,7 +90,12 @@ class QuantumVolume(BaseExperiment):
                 :py:meth:`_default_experiment_options` for valid parameters.
 
         """
-        super().__init__(qubits, analysis=QuantumVolumeAnalysis(), backend=backend,**experiment_options,)
+        super().__init__(
+            qubits,
+            analysis=QuantumVolumeAnalysis(),
+            backend=backend,
+            **experiment_options,
+        )
 
         if not simulation_backend and HAS_SIMULATION_BACKEND:
             self._simulation_backend = Aer.get_backend("aer_simulator")
