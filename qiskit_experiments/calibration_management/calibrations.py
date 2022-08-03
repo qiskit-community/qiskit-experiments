@@ -260,9 +260,13 @@ class Calibrations:
         """
         backend_data = BackendData(backend)
 
+        control_channel_map = {}
+        for qargs in backend_data.coupling_map:
+            control_channel_map[tuple(qargs)] = backend_data.control_channel(qargs)
+
         cals = Calibrations(
             backend_data.coupling_map,
-            backend_data.control_channels,
+            control_channel_map,
             library,
             libraries,
             add_parameter_defaults,

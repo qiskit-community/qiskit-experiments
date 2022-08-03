@@ -140,18 +140,6 @@ class BackendData:
         return []
 
     @property
-    def control_channels(self):
-        """Returns the backend's control channels"""
-        if self._v1:
-            return getattr(self._backend.configuration(), "control_channels", None)
-        elif self._v2:
-            try:
-                return self._backend.control_channels
-            except AttributeError:
-                return self._pulse_conf.control_channels
-        return None
-
-    @property
     def version(self):
         """Returns the backend's version"""
         if self._v1:

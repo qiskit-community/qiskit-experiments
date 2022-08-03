@@ -1669,11 +1669,16 @@ class TestInstructionScheduleMap(QiskitExperimentsTestCase):
         backend = FakeBelemV2()
         library = FixedFrequencyTransmon(basis_gates=["sx", "x"])
 
+        backend_data = BackendData(backend)
+        control_channel_map = {}
+        for qargs in backend_data.coupling_map:
+            control_channel_map[tuple(qargs)] = backend_data.control_channel(qargs)
+
         cals1 = Calibrations.from_backend(backend, libraries=[library])
         cals2 = Calibrations(
             libraries=[library],
-            control_channel_map=BackendData(backend).control_channels,
-            coupling_map=BackendData(backend).coupling_map,
+            control_channel_map=control_channel_map,
+            coupling_map=backend_data.coupling_map,
         )
 
         self.assertEqual(str(cals1.get_schedule("x", 1)), str(cals2.get_schedule("x", 1)))
