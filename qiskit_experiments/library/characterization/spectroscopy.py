@@ -101,9 +101,8 @@ class Spectroscopy(BaseExperiment, ABC):
         """Set the backend for the experiment and extract config information."""
         super()._set_backend(backend)
 
-        self._dt = getattr(self.backend.configuration(), "dt", None)
-        constraints = getattr(self.backend.configuration(), "timing_constraints", {})
-        self._granularity = constraints.get("granularity", None)
+        self._dt = self._backend_data.dt
+        self._granularity = self._backend_data.granularity
 
         if self._dt is None or self._granularity is None:
             raise QiskitError(f"{self.__class__.__name__} needs both dt and sample granularity.")

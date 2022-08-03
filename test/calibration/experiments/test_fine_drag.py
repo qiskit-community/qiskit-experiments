@@ -18,7 +18,7 @@ import numpy as np
 
 from qiskit import transpile
 from qiskit.circuit import Gate
-from qiskit.providers.fake_provider import FakeArmonk
+from qiskit.providers.fake_provider import FakeArmonkV2
 import qiskit.pulse as pulse
 
 from qiskit_experiments.library import FineDrag, FineXDrag, FineDragCal
@@ -45,7 +45,7 @@ class TestFineDrag(QiskitExperimentsTestCase):
 
         drag = FineDrag(0, Gate("Drag", num_qubits=1, params=[]))
         drag.set_experiment_options(schedule=self.schedule)
-        drag.backend = FakeArmonk()
+        drag.backend = FakeArmonkV2()
         for circuit in drag.circuits()[1:]:
             for idx, name in enumerate(["Drag", "rz", "Drag", "rz"]):
                 self.assertEqual(circuit.data[idx][0].name, name)
