@@ -654,37 +654,15 @@ class ExperimentData:
         if not isinstance(data, list):
             data = [data]
 
-        # Extract job data (Deprecated) and directly add non-job data
-        jobs = []
+        # Directly add non-job data
         with self._result_data.lock:
             for datum in data:
-                if isinstance(datum, Job):
-                    jobs.append(datum)
-                elif isinstance(datum, dict):
+                if isinstance(datum, dict):
                     self._result_data.append(datum)
                 elif isinstance(datum, Result):
                     self._add_result_data(datum)
                 else:
                     raise TypeError(f"Invalid data type {type(datum)}.")
-
-        # Remove after deprecation is finished
-        if jobs:
-            warnings.warn(
-                "Passing Jobs to the `add_data` method is deprecated as of "
-                "qiskit-experiments 0.3.0 and will be removed in the 0.4.0 release. "
-                "Use the `add_jobs` method to add jobs instead.",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-            if timeout is not None:
-                warnings.warn(
-                    "The `timeout` kwarg of is deprecated as of "
-                    "qiskit-experiments 0.3.0 and will be removed in the 0.4.0 release. "
-                    "Use the `add_jobs` method to add jobs with timeout.",
-                    DeprecationWarning,
-                    stacklevel=2,
-                )
-            self.add_jobs(jobs, timeout=timeout)
 
     def add_jobs(
         self,
