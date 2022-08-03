@@ -86,7 +86,7 @@ class ParallelExperiment(CompositeExperiment):
             # Work around for backend coupling map circuit inflation
             coupling_map = getattr(self.transpile_options, "coupling_map", None)
             if coupling_map is None and self.backend:
-                coupling_map = self.backend.configuration().coupling_map
+                coupling_map = self._backend_data.coupling_map
             if coupling_map is not None:
                 num_qubits = 1 + max(*self.physical_qubits, np.max(coupling_map))
             else:

@@ -18,7 +18,6 @@ import numpy as np
 from qiskit import QuantumCircuit
 from qiskit.circuit import Parameter
 from qiskit.providers.backend import Backend
-from qiskit.providers.fake_provider import FakeBackend
 
 from qiskit_experiments.framework import BaseExperiment
 from qiskit_experiments.framework.restless_mixin import RestlessMixin
@@ -125,7 +124,7 @@ class RamseyXY(BaseExperiment, RestlessMixin):
         super()._set_backend(backend)
 
         # Scheduling parameters
-        if not self._backend.configuration().simulator and not isinstance(backend, FakeBackend):
+        if not self._backend_data.is_simulator:
             timing_constraints = getattr(self.transpile_options, "timing_constraints", {})
             if "acquire_alignment" not in timing_constraints:
                 timing_constraints["acquire_alignment"] = 16
@@ -148,11 +147,10 @@ class RamseyXY(BaseExperiment, RestlessMixin):
         Returns:
             A list of circuits with a variable delay.
         """
-        if self.backend and hasattr(self.backend.configuration(), "dt"):
-            dt_unit = True
-            dt_factor = self.backend.configuration().dt
-        else:
-            dt_unit = False
+        dt_unit = False
+        if self.backend:
+            dt_factor = self._backend_data.dt
+            dt_unit = dt_factor is not None
 
         # Compute the rz rotation angle to add a modulation.
         p_delay_sec = Parameter("delay_sec")
