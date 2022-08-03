@@ -53,7 +53,10 @@ class BackendData:
             if self._v1:
                 return self._backend.configuration().control(qubits)
             elif self._v2:
-                return self._pulse_conf.control(qubits)
+                if not isinstance(self._backend, FakeBackendV2):
+                    return self._backend.control_channel(qubits)
+                else:
+                    return self._pulse_conf.control(qubits)
         except (AttributeError, NotImplementedError):
             return None
         return None
