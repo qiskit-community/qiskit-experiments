@@ -130,6 +130,7 @@ class OscillationAnalysis(curve.CurveAnalysis):
 
         return "bad"
 
+
 class DampedOscillationAnalysis(curve.CurveAnalysis):
     r"""A class to analyze general exponential decay curve with sinusoidal oscillation.
 
@@ -278,7 +279,9 @@ class DampedOscillationAnalysis(curve.CurveAnalysis):
 
         return "bad"
 
-@deprecated_class("0.5", new_cls=DampedOscillationAnalysis)
 
+@deprecated_class("0.5", new_cls=DampedOscillationAnalysis)
 class DumpedOscillationAnalysis:
+    """Deprecated."""
+
     pass
