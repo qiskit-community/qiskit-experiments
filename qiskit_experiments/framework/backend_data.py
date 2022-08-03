@@ -53,11 +53,11 @@ class BackendData:
             if self._v1:
                 return self._backend.configuration().control(qubits)
             elif self._v2:
-                if not isinstance(self._backend, FakeBackendV2):
+                try:
                     return self._backend.control_channel(qubits)
-                else:
+                except NotImplementedError:
                     return self._pulse_conf.control(qubits)
-        except (AttributeError, NotImplementedError):
+        except AttributeError:
             return None
         return None
 
@@ -67,8 +67,11 @@ class BackendData:
             if self._v1:
                 return self._backend.configuration().drive(qubit)
             elif self._v2:
-                return self._pulse_conf.drive(qubit)
-        except (AttributeError, NotImplementedError):
+                try:
+                    return self._backend.drive_channel(qubit)
+                except NotImplementedError:
+                    return self._pulse_conf.drive(qubit)
+        except AttributeError:
             return None
         return None
 
@@ -78,8 +81,11 @@ class BackendData:
             if self._v1:
                 return self._backend.configuration().measure(qubit)
             elif self._v2:
-                return self._pulse_conf.measure(qubit)
-        except (AttributeError, NotImplementedError):
+                try:
+                    return self._backend.measure_channel(qubit)
+                except NotImplementedError:
+                    return self._pulse_conf.measure(qubit)
+        except AttributeError:
             return None
         return None
 
@@ -89,8 +95,11 @@ class BackendData:
             if self._v1:
                 return self._backend.configuration().acquire(qubit)
             elif self._v2:
-                return self._pulse_conf.acquire(qubit)
-        except (AttributeError, NotImplementedError):
+                try:
+                    return self._backend.acquire_channel(qubit)
+                except NotImplementedError:
+                    return self._pulse_conf.acquire(qubit)
+        except AttributeError:
             return None
         return None
 
