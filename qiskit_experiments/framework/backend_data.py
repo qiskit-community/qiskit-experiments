@@ -33,7 +33,7 @@ class BackendData:
 
     def _parse_additional_data(self):
         # data specific parsing not done yet in qiskit-terra
-        if self._backend._conf_dict["open_pulse"]:
+        if hasattr(self._backend, "_conf_dict") and self._backend._conf_dict["open_pulse"]:
             if "u_channel_lo" not in self._backend._conf_dict:
                 self._backend._conf_dict["u_channel_lo"] = []  # to avoid terra bug
             self._pulse_conf = PulseBackendConfiguration.from_dict(self._backend._conf_dict)
@@ -48,15 +48,44 @@ class BackendData:
         return str(self._backend)
 
     def control_channel(self, qubits):
-        """Returns the backend control channels"""
-        if self._v1:
-            return self._backend.configuration().control(qubits)
-        elif self._v2:
-            try:
-                return self._backend.control_channel(qubits)
-            except (AttributeError, NotImplementedError):
-                return self._pulse_conf.control_channels[qubits]
-        return None
+        """Returns the backend control channel for the given qubits"""
+        try:
+            if self._v1:
+                return self._backend.configuration().control(qubits)
+            elif self._v2:
+                return self._pulse_conf.control(qubits)
+        except (AttributeError, NotImplementedError):
+            return None
+
+    def drive_channel(self, qubit):
+        """Returns the backend drive channel for the given qubit"""
+        try:
+            if self._v1:
+                return self._backend.configuration().drive(qubit)
+            elif self._v2:
+                return self._pulse_conf.drive(qubit)
+        except (AttributeError, NotImplementedError):
+            return None
+
+    def measure_channel(self, qubit):
+        """Returns the backend measure channel for the given qubit"""
+        try:
+            if self._v1:
+                return self._backend.configuration().measure(qubit)
+            elif self._v2:
+                return self._pulse_conf.measure(qubit)
+        except (AttributeError, NotImplementedError):
+            return None
+
+    def acquire_channel(self, qubit):
+        """Returns the backend acquire channel for the given qubit"""
+        try:
+            if self._v1:
+                return self._backend.configuration().acquire(qubit)
+            elif self._v2:
+                return self._pulse_conf.acquire(qubit)
+        except (AttributeError, NotImplementedError):
+            return None
 
     @property
     def granularity(self):
