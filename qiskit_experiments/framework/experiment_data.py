@@ -629,7 +629,6 @@ class ExperimentData:
     def add_data(
         self,
         data: Union[Result, List[Result], Job, List[Job], Dict, List[Dict]],
-        timeout: Optional[float] = None,
     ) -> None:
         """Add experiment data.
 
@@ -641,7 +640,6 @@ class ExperimentData:
                 * List[Dict]: Add this list of data.
                 * Job: (Deprecated) Add data from the job result.
                 * List[Job]: (Deprecated) Add data from the job results.
-            timeout: (Deprecated) Timeout waiting for job to finish, if `data` is a ``Job``.
 
         Raises:
             TypeError: If the input data type is invalid.
