@@ -56,6 +56,7 @@ class BackendData:
                 return self._pulse_conf.control(qubits)
         except (AttributeError, NotImplementedError):
             return None
+        return None
 
     def drive_channel(self, qubit):
         """Returns the backend drive channel for the given qubit"""
@@ -66,6 +67,7 @@ class BackendData:
                 return self._pulse_conf.drive(qubit)
         except (AttributeError, NotImplementedError):
             return None
+        return None
 
     def measure_channel(self, qubit):
         """Returns the backend measure channel for the given qubit"""
@@ -76,6 +78,7 @@ class BackendData:
                 return self._pulse_conf.measure(qubit)
         except (AttributeError, NotImplementedError):
             return None
+        return None
 
     def acquire_channel(self, qubit):
         """Returns the backend acquire channel for the given qubit"""
@@ -86,6 +89,7 @@ class BackendData:
                 return self._pulse_conf.acquire(qubit)
         except (AttributeError, NotImplementedError):
             return None
+        return None
 
     @property
     def granularity(self):
