@@ -21,23 +21,22 @@ import qiskit_experiments.curve_analysis as curve
 
 
 class RamseyXYAnalysis(curve.CurveAnalysis):
-    r"""The Ramsey XY analysis is based on a fit to a cosine function and a sine function.
+    r"""Ramsey XY analysis based on a fit to a cosine function and a sine function.
 
     # section: fit_model
 
-        Analyse a Ramsey XY experiment by fitting the X and Y series to a cosine and sine
-        function, respectively. The two functions share the frequency and amplitude parameters
-        (i.e. beta).
+        Analyze a Ramsey XY experiment by fitting the X and Y series to a cosine and sine
+        function, respectively. The two functions share the frequency and amplitude parameters.
 
         .. math::
 
-            y_X = {\rm amp}e^{x/\tau}\cos\left(2\pi\cdot{\rm freq}_i\cdot x\right) + {\rm base}
-            y_Y = {\rm amp}e^{x/\tau}\sin\left(2\pi\cdot{\rm freq}_i\cdot x\right) + {\rm base}
+            y_X = {\rm amp}e^{-x/\tau}\cos\left(2\pi\cdot{\rm freq}_i\cdot x\right) + {\rm base} \\
+            y_Y = {\rm amp}e^{-x/\tau}\sin\left(2\pi\cdot{\rm freq}_i\cdot x\right) + {\rm base}
 
     # section: fit_parameters
         defpar \rm amp:
             desc: Amplitude of both series.
-            init_guess: The maximum y value less the minimum y value. 0.5 is also tried.
+            init_guess: Half of the maximum y value less the minimum y value.
             bounds: [-2, 2] scaled to the maximum signal value.
 
         defpar \tau:
@@ -48,18 +47,18 @@ class RamseyXYAnalysis(curve.CurveAnalysis):
 
         defpar \rm base:
             desc: Base line of both series.
-            init_guess: The average of the data. 0.5 is also tried.
-            bounds: [-1, 1] scaled to the maximum signal value.
+            init_guess: Roughly the average of the data.
+            bounds: [minimum Y data, maximum Y data]
 
         defpar \rm freq:
             desc: Frequency of both series. This is the parameter of interest.
             init_guess: The frequency with the highest power spectral density.
-            bounds: [0, inf].
+            bounds: [-inf, inf].
 
         defpar \rm phase:
             desc: Common phase offset.
-            init_guess: Linearly spaced between the maximum and minimum scanned beta.
-            bounds: [-min scan range, max scan range].
+            init_guess: 0
+            bounds: [-pi, pi].
     """
 
     def __init__(self):
@@ -109,12 +108,14 @@ class RamseyXYAnalysis(curve.CurveAnalysis):
         Returns:
             List of fit options that are passed to the fitter function.
         """
-        max_abs_y, _ = curve.guess.max_height(curve_data.y, absolute=True)
+        y_max = np.max(curve_data.y)
+        y_min = np.min(curve_data.y)
+        y_ptp = y_max - y_min
 
         user_opt.bounds.set_if_empty(
-            amp=(-2 * max_abs_y, 2 * max_abs_y),
+            amp=(0, y_ptp),
             tau=(0, np.inf),
-            base=(-max_abs_y, max_abs_y),
+            base=(y_min, y_max),
             phase=(-np.pi, np.pi),
         )
 
@@ -135,7 +136,7 @@ class RamseyXYAnalysis(curve.CurveAnalysis):
 
         user_opt.p0.set_if_empty(
             tau=-curve.guess.exp_decay(data_x.x, decay_data),
-            amp=0.5,
+            amp=0.5 * y_ptp,
             phase=0.0,
         )
 

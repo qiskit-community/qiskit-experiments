@@ -52,13 +52,13 @@ class RamseyXY(BaseExperiment, RestlessMixin):
             measure: 1/════════════════════════════════════════════╩═
                                                                    0
 
-        The first and second circuits measure the expectation value along the X and Y axis,
-        respectively. This experiment therefore draws the dynamics of the Bloch vector as a
-        Lissajous figure. Since the control electronics tracks the frame of qubit at the
-        reference frequency, which differs from the true qubit frequency by :math:`\Delta\omega`,
-        we can describe the dynamics of two circuits as follows. The Hamiltonian during the
+        The first and second circuits measure the expectation value along the -Y and X axes,
+        respectively. This experiment therefore tracks the dynamics of the Bloch vector
+        around the equator. The drive frequency of the control electronics defines a reference frame,
+        which differs from the true qubit frequency by :math:`\Delta\omega`.
+        The Hamiltonian during the
         ``Delay`` instruction is :math:`H^R = - \frac{1}{2} \Delta\omega` in the rotating frame,
-        and the propagator will be :math:`U(\tau) = \exp(-iH^R\tau)` where :math:`\tau` is the
+        and the propagator will be :math:`U(\tau) = \exp(-iH^R\tau / \hbar)` where :math:`\tau` is the
         duration of the delay. By scanning this duration, we can get
 
         .. math::
@@ -74,7 +74,7 @@ class RamseyXY(BaseExperiment, RestlessMixin):
         difference of these two outcomes :math:`{\cal E}_x, {\cal E}_y` depends on the sign and
         the magnitude of the frequency offset :math:`\Delta\omega`. By contrast, the measured
         data in the standard Ramsey experiment does not depend on the sign of :math:`\Delta\omega`,
-        i.e. :math:`\cos(-\Delta\omega\tau) = \cos(\Delta\omega\tau)`.
+        because :math:`\cos(-\Delta\omega\tau) = \cos(\Delta\omega\tau)`.
 
         The experiment also allows users to add a small frequency offset to better resolve
         any oscillations. This is implemented by a virtual Z rotation in the circuits. In the
