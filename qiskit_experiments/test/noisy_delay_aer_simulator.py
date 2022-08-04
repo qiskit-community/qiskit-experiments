@@ -20,6 +20,7 @@ from qiskit.providers.aer import AerSimulator
 from qiskit.providers.aer.jobs.aerjob import AerJob
 from qiskit.providers.aer.noise.passes import RelaxationNoisePass
 from qiskit.circuit import Delay
+from qiskit_experiments.framework import BackendData
 
 
 class NoisyDelayAerBackend(AerSimulator):
@@ -38,10 +39,11 @@ class NoisyDelayAerBackend(AerSimulator):
         super().__init__(**backend_options)
         self._t2 = t2 or [1e-4]
         self._t1 = t1 or [2e-4]
-
-        if backend and hasattr(backend.configuration(), "dt"):
+        if backend:
+            dt = BackendData(backend).dt
+        if dt is not None:
             self._dt_unit = True
-            self._dt_factor = backend.configuration().dt
+            self._dt_factor = dt
         else:
             self._dt_unit = False
             self._dt_factor = dt or 1e-9

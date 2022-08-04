@@ -167,9 +167,9 @@ class TestStandardRB(RBTestCase):
         This is a special case that fit outcome is very sensitive to initial guess.
         Perhaps generated initial guess is close to a local minima.
         """
-        from qiskit.providers.fake_provider import FakeVigo
+        from qiskit.providers.fake_provider import FakeVigoV2
 
-        backend = AerSimulator.from_backend(FakeVigo(), seed_simulator=123)
+        backend = FakeVigoV2()
         exp = rb.StandardRB(
             qubits=(0,),
             lengths=[100, 200, 300, 400],
