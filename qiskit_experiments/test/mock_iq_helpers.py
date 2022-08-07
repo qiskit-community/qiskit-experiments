@@ -399,7 +399,8 @@ class MockIQParallelExperimentHelper(MockIQExperimentHelper):
 
             # fixing metadata
             for exp_metadata in qc.metadata["composite_metadata"]:
-                # getting a qubit of one of the experiments that we ran in parallel
+                # getting a qubit of one of the experiments that we ran in parallel. The key in the
+                # metadata is diffrent for different experiments.
                 qubit_metadata = exp_metadata.get("qubit") if exp_metadata.get("qubit") is not None \
                     else exp_metadata.get("qubits")
                 if isinstance(qubit_metadata, tuple):
