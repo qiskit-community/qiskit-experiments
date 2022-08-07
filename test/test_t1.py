@@ -15,21 +15,15 @@ Test T1 experiment
 
 from test.base import QiskitExperimentsTestCase
 import numpy as np
+from qiskit.qobj.utils import MeasLevel
 from qiskit_ibm_experiment import IBMExperimentService
+
 from qiskit_experiments.test.noisy_delay_aer_simulator import NoisyDelayAerBackend
 from qiskit_experiments.framework import ExperimentData, ParallelExperiment
 from qiskit_experiments.library import T1
-from qiskit_experiments.library.characterization import T1Analysis
-
-from qiskit.qobj.utils import MeasLevel
+from qiskit_experiments.library.characterization import T1Analysis, T1KerneledAnalysis
 from qiskit_experiments.test.mock_iq_backend import MockIQBackend, MockIQParallelBackend
 from qiskit_experiments.test.mock_iq_helpers import MockIQT1Helper, MockIQParallelExperimentHelper
-
-from qiskit_experiments.data_processing.data_processor import DataProcessor
-from qiskit_experiments.data_processing.nodes import (
-    SVD,
-    MinMaxNormalize,
-)
 
 
 class TestT1(QiskitExperimentsTestCase):
@@ -91,27 +85,21 @@ class TestT1(QiskitExperimentsTestCase):
 
         # Experiment initialization and analysis options
         exp0 = T1(0, delays)
+        exp0.analysis = T1KerneledAnalysis()
+
         exp0.analysis.set_options(p0={"amp": 1, "tau": t1[0], "base": 0})
         expdata0 = exp0.run(
             backend=backend,
             meas_return="avg",
-            analysis=None,
             meas_level=MeasLevel.KERNELED,
             shots=num_shots,
         ).block_for_results()
         self.assertExperimentDone(expdata0)
 
-        data_processor = DataProcessor("memory", [SVD(), MinMaxNormalize()])
-        data_processor.train(expdata0.data())
-
-        analysis = exp0.analysis.run(
-            expdata0, data_processor=data_processor, replace_results=True
-        ).block_for_results()
-
         self.assertRoundTripSerializable(expdata0, check_func=self.experiment_data_equiv)
         self.assertRoundTripPickle(expdata0, check_func=self.experiment_data_equiv)
 
-        res = analysis.analysis_results("T1")
+        res = expdata0.analysis_results("T1")
         self.assertEqual(res.quality, "good")
         self.assertAlmostEqual(res.value.n, t1[0], delta=3)
         self.assertEqual(res.extra["unit"], "s")
@@ -160,8 +148,7 @@ class TestT1(QiskitExperimentsTestCase):
         ns = 1e-9
         mu = 1e-6
         t1 = [25 * mu, 20 * mu, 15 * mu]
-        t2 = [value / 2 for value in t1]
-        num_shots = 2048
+        num_shots = 4096
 
         # qubits
         qubit0 = 0
@@ -177,7 +164,11 @@ class TestT1(QiskitExperimentsTestCase):
 
         # Experiments
         exp0 = T1(qubit=qubit0, delays=delays)
+        exp0.analysis = T1KerneledAnalysis()
+
         exp2 = T1(qubit=qubit2, delays=delays)
+        exp2.analysis = T1KerneledAnalysis()
+
         par_exp_list = [exp0, exp2]
         par_exp = ParallelExperiment([exp0, exp2])
 
@@ -204,7 +195,7 @@ class TestT1(QiskitExperimentsTestCase):
         # Running experiment
         res = par_exp.run(
             backend=backend,
-            shots=4096,
+            shots=num_shots,
             rng_seed=1,
             meas_level=MeasLevel.KERNELED,
             meas_return="avg",
@@ -213,11 +204,6 @@ class TestT1(QiskitExperimentsTestCase):
 
         # Checking analysis
         for i, qb in enumerate(quantum_bit):
-            data_processor = DataProcessor("memory", [SVD(), MinMaxNormalize()])
-            data_processor.train(res.child_data(i).data())
-            analysis = exp0.analysis.run(
-                res.child_data(i), data_processor=data_processor, replace_results=True
-            ).block_for_results()
             sub_res = res.child_data(i).analysis_results("T1")
             self.assertEqual(sub_res.quality, "good")
             self.assertAlmostEqual(sub_res.value.n, t1[qb], delta=3)
