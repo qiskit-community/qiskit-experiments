@@ -16,8 +16,8 @@ Test T1 experiment
 from test.base import QiskitExperimentsTestCase
 import numpy as np
 from qiskit.qobj.utils import MeasLevel
-from qiskit_ibm_experiment import IBMExperimentService
 from qiskit.providers.fake_provider import FakeAthensV2
+from qiskit_ibm_experiment import IBMExperimentService
 from qiskit_experiments.test.noisy_delay_aer_simulator import NoisyDelayAerBackend
 from qiskit_experiments.framework import ExperimentData, ParallelExperiment
 from qiskit_experiments.library import T1
