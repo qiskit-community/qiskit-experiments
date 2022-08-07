@@ -145,7 +145,7 @@ option to normalize the output.
     num_shots = 2048
 
     backend = MockIQBackend(
-        MockIQT1HelperTemp(t1=t1, iq_cluster_centers=[((-5.0, -4.0), (-5.0, 4.0)), ((3.0, 1.0), (5.0, -3.0))]
+        MockIQT1Helper(t1=t1, iq_cluster_centers=[((-5.0, -4.0), (-5.0, 4.0)), ((3.0, 1.0), (5.0, -3.0))]
                            , iq_cluster_width=[1.0, 2.0])
     )
 
