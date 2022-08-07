@@ -203,28 +203,24 @@ class CrossResonanceHamiltonian(BaseExperiment):
             # This falls into CRPulseGate which requires pulse schedule
 
             # Extract control channel index
-            try:
-                cr_channels = backend.configuration().control(self.physical_qubits)
+            cr_channels = self._backend_data.control_channel(self.physical_qubits)
+            if cr_channels is not None:
                 self._cr_channel = cr_channels[0].index
-            except AttributeError:
+            else:
                 warnings.warn(
-                    f"{backend.name()} doesn't provide cr channel mapping. "
+                    f"{self._backend_data.name} doesn't provide cr channel mapping. "
                     "Cannot find proper channel index to play the cross resonance pulse.",
                     UserWarning,
                 )
+
             # Extract pulse granularity
-            try:
-                self._granularity = backend.configuration().timing_constraints["granularity"]
-            except (AttributeError, KeyError):
-                # Probably no chunk size restriction on waveform memory.
-                pass
+            self._granularity = self._backend_data.granularity
 
         # Extract time resolution, this is anyways required for xvalue conversion
-        try:
-            self._dt = backend.configuration().dt
-        except AttributeError:
+        self._dt = self._backend_data.dt
+        if self._dt is None:
             warnings.warn(
-                f"{backend.name()} doesn't provide system time resolution dt. "
+                f"{self._backend_data.name} doesn't provide system time resolution dt. "
                 "Cannot estimate Hamiltonian coefficients in SI units.",
                 UserWarning,
             )

@@ -17,7 +17,7 @@ from test.base import QiskitExperimentsTestCase
 import numpy as np
 from qiskit.qobj.utils import MeasLevel
 from qiskit_ibm_experiment import IBMExperimentService
-
+from qiskit.providers.fake_provider import FakeAthensV2
 from qiskit_experiments.test.noisy_delay_aer_simulator import NoisyDelayAerBackend
 from qiskit_experiments.framework import ExperimentData, ParallelExperiment
 from qiskit_experiments.library import T1
@@ -378,3 +378,26 @@ class TestT1(QiskitExperimentsTestCase):
         loaded = T1Analysis.from_config(analysis.config())
         self.assertNotEqual(analysis, loaded)
         self.assertEqual(analysis.config(), loaded.config())
+
+    def test_circuits_with_backend(self):
+        """
+        Test the circuits metadata when passing backend
+        """
+        backend = FakeAthensV2()
+        delays = np.arange(1e-3, 40e-3, 3e-3)
+        exp = T1(0, delays, backend=backend)
+        circs = exp.circuits()
+
+        self.assertEqual(len(circs), len(delays))
+
+        for delay, circ in zip(delays, circs):
+            xval = circ.metadata.pop("xval")
+            self.assertAlmostEqual(xval, delay)
+            self.assertEqual(
+                circ.metadata,
+                {
+                    "experiment_type": "T1",
+                    "qubit": 0,
+                    "unit": "s",
+                },
+            )
