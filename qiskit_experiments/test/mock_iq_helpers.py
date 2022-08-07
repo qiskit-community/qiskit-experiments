@@ -376,6 +376,7 @@ class MockIQParallelExperimentHelper(MockIQExperimentHelper):
         Raises:
             QiskitError: If an instruction is applied with qubits that don't belong to the same
             experiment.
+            TypeError: The data type provided doesn't match the expected type (`tuple` and `int`).
         """
         # exp_idx_map connects an experiment to its circuit in the output.
         exp_idx_map = {exp: exp_idx for exp_idx, exp in enumerate(self.exp_list)}
@@ -401,14 +402,17 @@ class MockIQParallelExperimentHelper(MockIQExperimentHelper):
             for exp_metadata in qc.metadata["composite_metadata"]:
                 # getting a qubit of one of the experiments that we ran in parallel. The key in the
                 # metadata is diffrent for different experiments.
-                qubit_metadata = exp_metadata.get("qubit") if exp_metadata.get("qubit") is not None \
+                qubit_metadata = (
+                    exp_metadata.get("qubit")
+                    if exp_metadata.get("qubit") is not None
                     else exp_metadata.get("qubits")
+                )
                 if isinstance(qubit_metadata, tuple):
                     exp = qubit_exp_map[qubit_metadata[0]]
                 elif isinstance(qubit_metadata, int):
                     exp = qubit_exp_map[qubit_metadata]
                 else:
-                    raise ValueError(
+                    raise TypeError(
                         f"The qubit information in the metadata is of type {type(qubit_metadata)}."
                         f" The format that are supported are `tuple` and `int`"
                     )
