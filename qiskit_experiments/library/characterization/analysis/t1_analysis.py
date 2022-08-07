@@ -67,3 +67,25 @@ class T1Analysis(curve.DecayAnalysis):
             return "good"
 
         return "bad"
+
+
+class T1KerneledAnalysis(T1Analysis):
+    r"""A class to analyze T1 experiments with .
+
+    # section: see_also
+        qiskit_experiments.curve_analysis.standard_analysis.decay.DecayAnalysis
+
+    """
+
+    @classmethod
+    def _default_options(cls) -> Options:
+        """Default analysis options."""
+        options = super()._default_options()
+        options.curve_drawer.set_options(
+            xlabel="Delay",
+            ylabel="Normalized Projection on the Main Axis",
+            xval_unit="s",
+        )
+        options.update_options(normalization=True)
+
+        return options
