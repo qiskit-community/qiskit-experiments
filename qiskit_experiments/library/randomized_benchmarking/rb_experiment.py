@@ -12,6 +12,7 @@
 """
 Standard RB Experiment class.
 """
+
 import logging
 from collections import defaultdict
 from typing import Union, Iterable, Optional, List, Sequence
@@ -56,6 +57,10 @@ class StandardRB(BaseExperiment, RestlessMixin):
         .. ref_arxiv:: 2 1109.6887
 
     """
+    # transpiled clifford circuits for 1 and 2 qubits respectively
+    _transpiled_cliff_circuits = {}
+    _transpiled_cliff_circuits[1] = None
+    _transpiled_cliff_circuits[2] = None
 
     def __init__(
         self,
@@ -90,10 +95,6 @@ class StandardRB(BaseExperiment, RestlessMixin):
 
         # Set fixed options
         self._full_sampling = full_sampling
-        self._transpiled_cliff_circuits = {}
-        # transpiled clifford circuits for 1 and 2 qubits respectively
-        self._transpiled_cliff_circuits[1] = None
-        self._transpiled_cliff_circuits[2] = None
 
     def _verify_parameters(self, lengths, num_samples):
         """Verify input correctness, raise QiskitError if needed"""
