@@ -218,6 +218,7 @@ Experiment Data Classes
     AnalysisConfig
     ExperimentEncoder
     ExperimentDecoder
+    BackendData
     FigureData
 
 .. _composite-experiment:
