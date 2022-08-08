@@ -29,35 +29,35 @@ features:
   - |
     New options have been added to the :class:`.CurveAnalysis` curve drawer.
     
-    -|
-      ``figure_title`` has been added. This allows user to show an arbitrary string 
-      in the output figure title. See the example code below to learn how to set the option.
-      
-      .. code-block:: python
-      
-        exp = MyExperiment(...)
-        exp.analysis.drawer.set_options(figure_title="Qubit0")
+  - |
+    The ``figure_title`` option has been added. This allows user to show an arbitrary string 
+    in the output figure title. See the example code below to learn how to set the option.
+    
+    .. code-block:: python
+    
+      exp = MyExperiment(...)
+      exp.analysis.drawer.set_options(figure_title="Qubit0")
 
-    - |
-      ``plot_options`` has been added. This was conventionally included
-      in the :class:`SeriesDef` dataclass, which was static and not configurable. 
-      Now end-user can update visual representation of curves through this option.
-      This option is a dictionary that defines three properties, for example,
-      
-      .. code-block:: python
-      
-        exp = MyExperiment(...)
-        exp.analysis.drawer.set_options(
-          plot_option={
-            "curve1": {"color": "r", "symbol": "o", "canvas": 0},
-            "curve2": {"color": "b", "symbol": "x", "canvas": 1},
-          }
-        )  
-      
-      The dictionary is keyed on the curve name that should match with the ``name`` property
-      of the LMFIT models provided to the curve analysis. ``color`` and ``symbol`` are the
-      color and marker of the curves and the scatter plots, respectively. 
-      ``canvas`` specifies the sub-axis index, which is available when multi-axis plot is enabled.
+  - |
+    ``plot_options`` has been added. This was conventionally included
+    in the :class:`SeriesDef` dataclass, which was static and not configurable. 
+    Now end-user can update visual representation of curves through this option.
+    This option is a dictionary that defines three properties, for example,
+    
+    .. code-block:: python
+    
+      exp = MyExperiment(...)
+      exp.analysis.drawer.set_options(
+        plot_options={
+          "curve1": {"color": "r", "symbol": "o", "canvas": 0},
+          "curve2": {"color": "b", "symbol": "x", "canvas": 1},
+        }
+      )  
+    
+    The dictionary is keyed on the curve name that should match with the ``name`` property
+    of the LMFIT models provided to the curve analysis. ``color`` and ``symbol`` are the
+    color and marker of the curves and the scatter plots, respectively. 
+    ``canvas`` specifies the sub-axis index, which is available when multi-axis plot is enabled.
 
 upgrade:
   - |

@@ -1,0 +1,6 @@
+---
+prelude: >
+    The Qiskit Experiments 0.4 release includes several bug fixes and
+    improvements. The database service has switched to the
+    `qiskit-ibm-experiment` provider. Several new data processing nodes
+    have been added.
