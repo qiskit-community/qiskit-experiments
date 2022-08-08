@@ -213,6 +213,7 @@ Experiment Data Classes
     ExperimentStatus
     JobStatus
     AnalysisStatus
+    AnalysisResult
     AnalysisResultData
     ExperimentConfig
     AnalysisConfig

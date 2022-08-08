@@ -55,6 +55,7 @@ class AnalysisResult:
     capable of holding arbitrary values (in a dictionary indexed by a string).
 
     The data fields in the `db_data` dataclass are:
+
     * `experiment_id`: `str`
     * `result_id`: `str`
     * `result_type`: `str`

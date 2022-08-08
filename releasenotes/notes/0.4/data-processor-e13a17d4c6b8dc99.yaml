@@ -1,7 +1,7 @@
 ---
 features:
   - |
-    A new data processing node :class:`.data_processing.DiscriminatorNode` is added. This node
+    A new data processing node :class:`.DiscriminatorNode` is added. This node
     wraps a pre-trained discriminator so that discrimination can be built
     into the data processing chain. The discriminator node is initialialized
     from a discriminator or list thereof which are objects that must have a
@@ -10,8 +10,8 @@ features:
     each point.
     
   - |
-    A new data processing node :class:`.data_processing.RestlessToIQ` is added to 
+    A new data processing node :class:`.RestlessToIQ` is added to 
     process restless level one data, i.e., IQ data, in addition to the existing abstract
-    :class:`.data_processing.RestlessNode` and :class:`.data_processing.RestlessToCounts`
+    class :class:`.RestlessNode` and :class:`.RestlessToCounts`
     for processing restless counts.
 

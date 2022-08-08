@@ -316,6 +316,7 @@ class MockIQBackend(FakeOpenPulse2Q):
     ) -> List[List[List[Union[float, complex]]]]:
         """
         Produce an IQ shot.
+
         Args:
             prob: A list of probabilities for each output.
             shots: The number of times the circuit will run.
@@ -378,6 +379,7 @@ class MockIQBackend(FakeOpenPulse2Q):
     ) -> Dict[str, Any]:
         """
         Generate data for the circuit.
+
         Args:
             prob_dict: A dictionary whose keys are strings representing the output vectors and
             their values are the probability to get the output in this circuit.
@@ -426,20 +428,21 @@ class MockIQBackend(FakeOpenPulse2Q):
     def run(self, run_input: List[QuantumCircuit], **run_options) -> FakeJob:
         """
         Run the IQ backend.
+
         Args:
             run_input: A list of QuantumCircuit for which the backend will generate
-             data.
+                data.
             **run_options: Experiment running options. The options that are supported in this backend are
-             'meas_level', 'meas_return' and 'shots'.
-                'meas_level': To generate data in the IQ plane, 'meas_level' should be assigned 1 or
-                    MeasLevel.KERNELED. If 'meas_level' is 2 or MeasLevel.CLASSIFIED, the generated data
-                    will be in the form of 'counts'.
-                'meas_return': This option will only take effect if 'meas_level' = MeasLevel.CLASSIFIED.
-                    It can get either MeasReturnType.AVERAGE or MeasReturnType.SINGLE. For the value
-                      MeasReturnType.SINGLE the data of each shot will be stored in the result. For
-                      MeasReturnType.AVERAGE, an average of all the shots will be calculated and stored
-                      in the result.
-                'shots': The number of times the circuit will run.
+                `meas_level`, `meas_return` and `shots`.
+            meas_level: To generate data in the IQ plane, `meas_level` should be assigned 1 or
+                ``MeasLevel.KERNELED``. If `meas_level` is 2 or ``MeasLevel.CLASSIFIED``, the generated data
+                will be in the form of `counts`.
+            meas_return: This option will only take effect if `meas_level` = ``MeasLevel.CLASSIFIED``.
+                It can get either MeasReturnType.AVERAGE or MeasReturnType.SINGLE. For the value
+                MeasReturnType.SINGLE the data of each shot will be stored in the result. For
+                MeasReturnType.AVERAGE, an average of all the shots will be calculated and stored
+                in the result.
+            shots: The number of times the circuit will run.
 
         Returns:
             FakeJob: A job that contains the simulated data.
@@ -488,9 +491,10 @@ class MockIQParallelBackend(MockIQBackend):
     ):
         """
         Initialize the backend.
+
         Args:
             experiment_helper: Parallel experiment helper class that contains
-            helper classes for each experiment.
+                helper classes for each experiment.
             rng_seed: The random seed value.
         """
         super().__init__(experiment_helper, rng_seed)
@@ -504,6 +508,7 @@ class MockIQParallelBackend(MockIQBackend):
     def experiment_helper(self, value):
         """
         Setter for the experiment helper.
+
         Args:
             value(MockIQParallelExperimentHelper): The helper for the backend to use for generating IQ
              shots.
@@ -529,7 +534,7 @@ class MockIQParallelBackend(MockIQBackend):
         Produce an IQ shot.
         Args:
             list_exp_dict: A list of dictionaries for each experiment. It is determined by the
-            'MockIQParallelExperimentHelper' object provided to the backend.
+                'MockIQParallelExperimentHelper' object provided to the backend.
             shots: The number of times the circuit will run.
             circ_qubits: List of qubits that are used in this circuit.
             circ_idx: The circuit index.
@@ -651,20 +656,21 @@ class MockIQParallelBackend(MockIQBackend):
     def run(self, run_input: List[QuantumCircuit], **run_options) -> FakeJob:
         """
         Run the IQ backend.
+
         Args:
             run_input: A list of QuantumCircuit for which the backend will generate
-             data.
+                data.
             **run_options: Experiment running options. The options that are supported in this backend are
-             'meas_level', 'meas_return' and 'shots'.
-                'meas_level': To generate data in the IQ plane, 'meas_level' should be assigned 1 or
-                    MeasLevel.KERNELED. The backend currently doesn't support 'meas_level' = 2  or
-                    MeasLevel.CLASSIFIED.
-                'meas_return': This option will only take effect if 'meas_level' = MeasLevel.CLASSIFIED.
-                    It can get either MeasReturnType.AVERAGE or MeasReturnType.SINGLE. For the value
-                      MeasReturnType.SINGLE the data of each shot will be stored in the result. For
-                      MeasReturnType.AVERAGE, an average of all the shots will be calculated and stored
-                      in the result.
-                'shots': The number of times the circuit will run.
+                `meas_level`, `meas_return` and `shots`.
+            meas_level: To generate data in the IQ plane, `meas_level` should be assigned 1 or
+                ``MeasLevel.KERNELED``. If `meas_level` is 2 or ``MeasLevel.CLASSIFIED``, the generated data
+                will be in the form of `counts`.
+            meas_return: This option will only take effect if `meas_level` = ``MeasLevel.CLASSIFIED``.
+                It can get either MeasReturnType.AVERAGE or MeasReturnType.SINGLE. For the value
+                MeasReturnType.SINGLE the data of each shot will be stored in the result. For
+                MeasReturnType.AVERAGE, an average of all the shots will be calculated and stored
+                in the result.
+            shots: The number of times the circuit will run.
 
         Returns:
             FakeJob: A job that contains the simulated data.
