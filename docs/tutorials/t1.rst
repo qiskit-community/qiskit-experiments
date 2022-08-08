@@ -110,14 +110,13 @@ using ``child_data``
 
 :math:`T_1` experiments with kerneled measurement
 ---------------------------------------------------
-:math:`T_1` experiment can also be done with kerneled measurement.
-If we will set the running option `meas_level=MeasLevel.KERNELED`, the
-job will not discriminate the data and will not label it. In T1 experiment,
-as we know that in :math:`P(1|t=0)=1`, we will add measurement for delay=0
-and for extreme delay. In this configuration we know that the data starts from
+:math:`T_1` experiments can also be done with kerneled measurements.
+If we set the run option `meas_level=MeasLevel.KERNELED`, the job
+will not discriminate the data and will not label it. In the T1 experiment,
+since we know that in :math:`P(1|t=0)=1`, we will add a circuit with delay=0,
+and another circuit with a very large delay. In this configuration we know that the data starts from
 a point [I,Q] that is close to a logical value '1' and ends at a point [I,Q]
-that is close to a logical value '0'. Beside that, We will need to use analysis
-option to normalize the output.
+that is close to a logical value '0'.
 
 
 .. jupyter-execute::
@@ -135,11 +134,12 @@ option to normalize the output.
 
     # We use log space for the delays because of the noise properties
     delays = np.logspace(1, 11, num=20, base=np.exp(1))
-    delays = [delay * ns for delay in delays]
+    delays *= ns
 
-    # adding to the circuit 0 delay and long delays to help the curve fitting
+    # Adding circuits with delay=0 and long delays so the centers in the IQ plane won't be misplaced.
+    # Without this, the fitting can provide wrong results.
     delays = np.insert(delays, 0, 0)
-    delays = np.append(delays, [t1[0]*2, t1[0]*3, t1[0]*4, t1[0]*5])
+    delays = np.append(delays, [t1[0]*2])
 
     num_qubits = 2
     num_shots = 2048

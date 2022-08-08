@@ -376,7 +376,7 @@ class MockIQParallelExperimentHelper(MockIQExperimentHelper):
         Raises:
             QiskitError: If an instruction is applied with qubits that don't belong to the same
             experiment.
-            TypeError: The data type provided doesn't match the expected type (`tuple` and `int`).
+            TypeError: The data type provided doesn't match the expected type (`tuple` or `int`).
         """
         # exp_idx_map connects an experiment to its circuit in the output.
         exp_idx_map = {exp: exp_idx for exp_idx, exp in enumerate(self.exp_list)}
@@ -401,7 +401,7 @@ class MockIQParallelExperimentHelper(MockIQExperimentHelper):
             # fixing metadata
             for exp_metadata in qc.metadata["composite_metadata"]:
                 # getting a qubit of one of the experiments that we ran in parallel. The key in the
-                # metadata is diffrent for different experiments.
+                # metadata is different for different experiments.
                 qubit_metadata = (
                     exp_metadata.get("qubit")
                     if exp_metadata.get("qubit") is not None
@@ -414,7 +414,7 @@ class MockIQParallelExperimentHelper(MockIQExperimentHelper):
                 else:
                     raise TypeError(
                         f"The qubit information in the metadata is of type {type(qubit_metadata)}."
-                        f" The format that are supported are `tuple` and `int`"
+                        f" Supported formats are `tuple` and `int`"
                     )
                 # using the qubit to access the experiment. Then, we go to the last circuit in
                 # `exp_circuit` of the corresponding experiment, and we overwrite the metadata.
@@ -849,9 +849,6 @@ class MockIQT1Helper(MockIQExperimentHelper):
     ):
         super().__init__(iq_cluster_centers, iq_cluster_width)
         self._t1 = t1 or [90e-6]
-
-    # def __init__(self, t1: List[float] = None):
-    #     self._t1 = t1 or [90e-6]
 
     def compute_probabilities(self, circuits: List[QuantumCircuit]) -> List[Dict[str, float]]:
         """Return the probability of being in the excited state."""
