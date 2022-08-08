@@ -44,17 +44,12 @@ class BaseExperiment(ABC, StoreInitArgs):
     ):
         """Initialize the experiment object.
 
-        `experiment_options` catches all keyword arguments not explicitly defined in `__init__`. As this
-        is the base class, `experiment_options` should be an empty dictionary. If it is not empty, then a
-        keyword argument provided to a subclass was not consumed and is thus not used.
-        :py:class:`BaseExperiment` gives a warning in this case.
-
         Args:
             qubits: list of physical qubits for the experiment.
             analysis: Optional, the analysis to use for the experiment.
             backend: Optional, the backend to run the experiment on.
             experiment_type: Optional, the experiment type string.
-            experiment_options: Catch-all for experiment options.
+            experiment_options: kwargs for experiment options.
 
         Raises:
             QiskitError: if qubits contains duplicates.

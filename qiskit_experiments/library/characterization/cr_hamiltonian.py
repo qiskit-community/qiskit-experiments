@@ -151,8 +151,8 @@ class CrossResonanceHamiltonian(BaseExperiment):
                 falling edges is implicitly computed with experiment parameters ``sigma`` and
                 ``risefall``.
             backend: Optional, the backend to run the experiment on.
-            experiment_options: A catch-all for all experiment options. See
-                :py:meth:`_default_experiment_options` for valid parameters.
+            experiment_options: kwargs for experiment options. See
+                :py:attr:`experiment_options` for valid parameters.
 
         Raises:
             QiskitError: When ``qubits`` length is not 2.
