@@ -619,7 +619,7 @@ class TestMirrorRB(RBTestCase):
             "lengths": [2, 4, 6, 8, 10],
             "num_samples": 1,
             "seed": 100,
-            "backend": AerSimulator(),
+            "backend": None,
         },  # no backend
     )
     def test_no_backend(self, configs):
