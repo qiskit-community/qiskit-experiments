@@ -70,7 +70,7 @@ class T1Analysis(curve.DecayAnalysis):
 
 
 class T1KerneledAnalysis(T1Analysis):
-    r"""A class to analyze T1 experiments with .
+    r"""A class to analyze T1 experiments with kerneled data.
 
     # section: see_also
         qiskit_experiments.curve_analysis.standard_analysis.decay.DecayAnalysis
