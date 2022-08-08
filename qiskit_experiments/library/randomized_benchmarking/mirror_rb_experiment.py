@@ -13,6 +13,7 @@
 Mirror RB Experiment class.
 """
 from typing import Union, Iterable, Optional, List, Sequence
+from itertools import permutations
 from numpy.random import Generator
 from numpy.random.bit_generator import BitGenerator, SeedSequence
 
@@ -156,17 +157,17 @@ class MirrorRB(StandardRB):
         """
 
         # Backend must have a coupling map
-        if not self._backend or not self._backend.configuration().coupling_map:
-            raise QiskitError(
-                "Must provide a backend with a coupling map or provide "
-                + "coupling map if using a simulator"
-            )
+        if not self._backend:
+            raise QiskitError("Must provide a backend")
 
         circuits = []
         lengths_half = [length // 2 for length in lengths]
 
-        # Get backend coupling map and create coupling map for physical qubits
-        coupling_map = self._backend.configuration().coupling_map
+        # Coupling map is full connectivity by default. If backend has a coupling map,
+        # get backend coupling map and create coupling map for physical qubits
+        coupling_map = list(permutations(np.arange(max(self.physical_qubits) + 1), 2))
+        if self._backend.configuration().coupling_map:
+            coupling_map = self._backend.configuration().coupling_map
         experiment_coupling_map = []
         for edge in coupling_map:
             if edge[0] in self.physical_qubits and edge[1] in self.physical_qubits:
