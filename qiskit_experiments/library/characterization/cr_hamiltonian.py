@@ -152,7 +152,7 @@ class CrossResonanceHamiltonian(BaseExperiment):
                 ``risefall``.
             backend: Optional, the backend to run the experiment on.
             cr_gate: Optional, circuit gate instruction of cross resonance pulse.
-            experiment_options: kwargs for experiment options. See
+            experiment_options: kwargs for experiment options to set on initialization. See
                 :py:attr:`experiment_options` for valid parameters.
 
         Raises:

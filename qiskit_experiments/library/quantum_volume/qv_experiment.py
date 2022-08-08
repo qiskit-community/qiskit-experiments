@@ -86,8 +86,8 @@ class QuantumVolume(BaseExperiment):
                 method. If None :class:`AerSimulator` simulator will be used
                 (in case :class:`AerSimulator` is not
                 installed :class:`qiskit.quantum_info.Statevector` will be used).
-            experiment_options: kwargs for experiment options. See
-                :py:attr:`experiment_options` for valid parameters.
+            experiment_options: kwargs for experiment options to set on initialization.
+                See :py:attr:`experiment_options` for valid parameters.
 
         """
         super().__init__(

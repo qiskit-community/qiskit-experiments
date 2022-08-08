@@ -49,7 +49,7 @@ class BaseExperiment(ABC, StoreInitArgs):
             analysis: Optional, the analysis to use for the experiment.
             backend: Optional, the backend to run the experiment on.
             experiment_type: Optional, the experiment type string.
-            experiment_options: kwargs for experiment options.
+            experiment_options: kwargs for experiment options to set on initialization.
 
         Raises:
             QiskitError: if qubits contains duplicates.
