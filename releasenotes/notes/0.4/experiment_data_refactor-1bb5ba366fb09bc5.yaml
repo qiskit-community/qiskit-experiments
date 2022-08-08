@@ -2,8 +2,10 @@
 features:
   - |
     The handling of communication with the database has been transferred to the
-    new `qiskit-ibm-experiment` package and does not rely on the soon to be
-    deprecated `qiskit-ibmq` package. In addition, The `ExperimentData` and
-    `DbExprimentData` classes were merged, and the inner handling of experiment
+    new `qiskit-ibm-experiment <https://github.com/Qiskit/qiskit-ibm-experiment>`_ 
+    package and does not rely on the soon to be deprecated 
+    `qiskit-ibmq-provider <https://github.com/Qiskit/qiskit-ibmq-provider>`_ package. 
+    In addition, The :class:`.ExperimentData` and
+    :class:`.DbExperimentData` classes were merged, and the inner handling of experiment
     data was somewhat simplified. This should not have any effect on the current
-    codebase and its usage of `ExperimentData`.
+    codebase and its usage of :class:`.ExperimentData`.

@@ -1,0 +1,10 @@
+---
+features:
+  - |
+    The class :class:`~MockIQBackend` for testing has been updated to support
+    multiple qubits. It now takes lists of IQ cluster centers and widths as input,
+    and specific backends are now defined as subclasses of
+    :class:`.MockIQExperimentHelper`.
+  - |
+    Adds two new classes, :class:`.MockIQParallelExperimentHelper` and :class:`.MockIQParallelBackend`
+    for running parallel experiments on the mock IQ backend.
