@@ -151,6 +151,7 @@ class CrossResonanceHamiltonian(BaseExperiment):
                 falling edges is implicitly computed with experiment parameters ``sigma`` and
                 ``risefall``.
             backend: Optional, the backend to run the experiment on.
+            cr_gate: Optional, circuit gate instruction of cross resonance pulse.
             experiment_options: kwargs for experiment options. See
                 :py:attr:`experiment_options` for valid parameters.
 
