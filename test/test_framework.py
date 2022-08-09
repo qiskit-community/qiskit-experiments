@@ -17,7 +17,15 @@ from test.base import QiskitExperimentsTestCase
 import ddt
 
 from qiskit import QuantumCircuit
-from qiskit_experiments.framework import ExperimentData
+from qiskit.providers.aer import AerSimulator, AerJob
+from qiskit.providers.jobstatus import JobStatus
+
+from qiskit_experiments.framework import (
+    ExperimentData,
+    BaseExperiment,
+    BaseAnalysis,
+    AnalysisResultData,
+)
 from qiskit_experiments.test.fake_backend import FakeBackend
 
 
@@ -117,3 +125,46 @@ class TestFramework(QiskitExperimentsTestCase):
         target_opts["figure_names"] = None
 
         self.assertEqual(analysis.options.__dict__, target_opts)
+
+    def test_after_job_fail(self):
+        """Verify that analysis is cancelled in case of job failure"""
+
+        class MyExp(BaseExperiment):
+            def __init__(self, qubits):
+                super().__init__(qubits)
+                self.analysis = MyAnalysis()
+
+            def circuits(self, backend):
+                circ = QuantumCircuit(1, 1)
+                circ.measure(0, 0)
+                return [circ]
+
+            def _transpiled_circuits(self):
+                return self.circuits(self.backend)
+
+        class MyAnalysis(BaseAnalysis):
+            def _run_analysis(self, expdata):
+                res = AnalysisResultData(name="should not run", value="blaaaaaaa")
+                return [res], []
+
+        class MyBackend(AerSimulator):
+            def run(self, run_input, **options):
+                job = super().run(run_input, **options)
+                job.__class__ = MyJob
+                return job
+
+        class MyJob(AerJob):
+            def result(self, timeout=None):
+                raise QiskitError
+
+            def status(self):
+                return JobStatus.ERROR
+
+            def error_message(self):
+                return "You're dealing with the wrong job, man"
+
+        backend = MyBackend()
+        exp = MyExp([0])
+        expdata = exp.run(backend=backend)
+        res = expdata.analysis_results(0)
+        self.assertNotEqual(res.value, "blaaaaaaa")
