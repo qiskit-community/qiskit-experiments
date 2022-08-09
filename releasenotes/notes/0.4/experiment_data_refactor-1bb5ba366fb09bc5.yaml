@@ -1,5 +1,5 @@
 ---
-features:
+upgrade:
   - |
     The handling of communication with the database has been transferred to the
     new `qiskit-ibm-experiment <https://github.com/Qiskit/qiskit-ibm-experiment>`_ 

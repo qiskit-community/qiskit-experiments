@@ -228,7 +228,7 @@ class MockIQParallelExperimentHelper(MockIQExperimentHelper):
         Raises:
             ValueError: Raised if the list are empty or if they don't have the same length.
             QiskitError: Raised if `exp_helper_list` contains an object of type
-                `MockIQParallelExperimentHelper`, because the parallel mock backend currently does not
+                ``MockIQParallelExperimentHelper``, because the parallel mock backend currently does not
                 support parallel sub-experiments.`.
 
         Examples:
