@@ -4,8 +4,3 @@ prelude: >
     class and other bug fixes and improvements. The database service has switched to the
     `qiskit-ibm-experiment <https://github.com/Qiskit/qiskit-ibm-experiment>`_ provider.
     Several new data processing nodes have been added.
-fixes:
-  - |
-    Fixes a bug with JSON serialization of :class:`.ExperimentData` due to
-    Qiskit ``backend`` and ``service`` objects not being JSON serializable. These
-    properties are now set to ``None`` in the serialized experiment data.

@@ -1,7 +1,0 @@
----
-fixes:
-  - |
-    The marginalization of kerneled and discriminated memory in
-    :class:`.CompositeAnalysis` has been fixed. This fixes
-    :class:`.ParallelExperiment` not working correctly for level-1 measurement
-    data.
