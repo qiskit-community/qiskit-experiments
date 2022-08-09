@@ -1639,6 +1639,10 @@ class ExperimentData:
                     name,
                     self.experiment_id,
                 )
+                value = False
+            elif not fut.result()[1]:
+                LOG.debug("An error occurred for %s [Experiment ID: %s]", name, self.experiment_id)
+                value = False
         if excepts:
             LOG.error(
                 "%s raised exceptions [Experiment ID: %s]:%s", name, self.experiment_id, excepts

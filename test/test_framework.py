@@ -166,5 +166,5 @@ class TestFramework(QiskitExperimentsTestCase):
         backend = MyBackend()
         exp = MyExp([0])
         expdata = exp.run(backend=backend)
-        res = expdata.analysis_results(0)
-        self.assertNotEqual(res.value, "blaaaaaaa")
+        res = expdata.analysis_results()
+        self.assertEqual(len(res), 0)
