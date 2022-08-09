@@ -72,9 +72,9 @@ class TestT1(QiskitExperimentsTestCase):
         delays = np.logspace(1, 11, num=20, base=np.exp(1))
         delays *= ns
         delays = np.insert(delays, 0, 0)
-        delays = np.append(delays, [t1[0] * 2])
+        delays = np.append(delays, [t1[0] * 2, t1[0] * 3])
 
-        num_shots = 2048
+        num_shots = 4096
         backend = MockIQBackend(
             MockIQT1Helper(
                 t1=t1,
