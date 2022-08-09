@@ -748,9 +748,10 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         exp_data.add_analysis_callback(_analysis, name=2, timeout=30)
         cancel_id = exp_data._analysis_callbacks.keys()[-1]
         exp_data.add_analysis_callback(_analysis, name=3, timeout=1)
+        consequent_cancel_id =  exp_data._analysis_callbacks.keys()[-1]
         exp_data.cancel_analysis(cancel_id)
 
-        # Test status while job still running
+        # Test status while job is still running
         self.assertEqual(exp_data.job_status(), JobStatus.RUNNING)
         self.assertEqual(exp_data.analysis_status(), AnalysisStatus.CANCELLED)
         self.assertEqual(exp_data.status(), ExperimentStatus.RUNNING)
@@ -763,9 +764,9 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
 
         # Check that correct analysis callback was cancelled
         exp_data.block_for_results()
-        self.assertEqual(run_analysis, [1, 3])
+        self.assertEqual(run_analysis, [1])
         for cid, analysis in exp_data._analysis_callbacks.items():
-            if cid == cancel_id:
+            if cid in [cancel_id, consequent_cancel_id]:
                 self.assertEqual(analysis.status, AnalysisStatus.CANCELLED)
             else:
                 self.assertEqual(analysis.status, AnalysisStatus.DONE)
@@ -928,7 +929,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         """Test handling of excepting callbacks"""
 
         def callback1(exp_data):
-            """Callback function that call add_analysis_callback"""
+            """Callback function that calls add_analysis_callback"""
             time.sleep(1)
             exp_data.add_analysis_callback(callback2)
             result = AnalysisResult("RESULT1", True, ["Q0"], exp_data.experiment_id)
@@ -953,7 +954,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
 
         self.assertEqual(exp_data.analysis_status(), AnalysisStatus.ERROR)
         self.assertTrue("RuntimeError: YOU FAIL" in exp_data.analysis_errors())
-        self.assertEqual(len(results), 2)
+        self.assertEqual(len(results), 1)
 
     def test_source(self):
         """Test getting experiment source."""
