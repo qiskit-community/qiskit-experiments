@@ -432,17 +432,20 @@ class MockIQBackend(FakeOpenPulse2Q):
         Args:
             run_input: A list of QuantumCircuit for which the backend will generate
                 data.
-            **run_options: Experiment running options. The options that are supported in this backend are
-                `meas_level`, `meas_return` and `shots`.
-            meas_level: To generate data in the IQ plane, `meas_level` should be assigned 1 or
-                ``MeasLevel.KERNELED``. If `meas_level` is 2 or ``MeasLevel.CLASSIFIED``, the generated data
-                will be in the form of `counts`.
-            meas_return: This option will only take effect if `meas_level` = ``MeasLevel.CLASSIFIED``.
-                It can get either MeasReturnType.AVERAGE or MeasReturnType.SINGLE. For the value
-                MeasReturnType.SINGLE the data of each shot will be stored in the result. For
-                MeasReturnType.AVERAGE, an average of all the shots will be calculated and stored
-                in the result.
-            shots: The number of times the circuit will run.
+            **run_options: Experiment running options. The options that are supported
+                in this backend are `meas_level`, `meas_return` and `shots`:
+
+                * meas_level: To generate data in the IQ plane, `meas_level` should be
+                  assigned 1 or ``MeasLevel.KERNELED``. If `meas_level` is 2 or
+                  ``MeasLevel.CLASSIFIED``, the generated data will be in the form
+                  of `counts`.
+                * meas_return: This option will only take effect if `meas_level` =
+                  ``MeasLevel.CLASSIFIED``. It can get either
+                  ``MeasReturnType.AVERAGE`` or ``MeasReturnType.SINGLE``. For
+                  ``MeasReturnType.SINGLE``, the data of each shot will be stored in
+                  the result. For ``MeasReturnType.AVERAGE``, an average of all the
+                  shots will be calculated and stored in the result.
+                * shots: The number of times the circuit will run.
 
         Returns:
             FakeJob: A job that contains the simulated data.
@@ -660,17 +663,20 @@ class MockIQParallelBackend(MockIQBackend):
         Args:
             run_input: A list of QuantumCircuit for which the backend will generate
                 data.
-            **run_options: Experiment running options. The options that are supported in this backend are
-                `meas_level`, `meas_return` and `shots`.
-            meas_level: To generate data in the IQ plane, `meas_level` should be assigned 1 or
-                ``MeasLevel.KERNELED``. If `meas_level` is 2 or ``MeasLevel.CLASSIFIED``, the generated data
-                will be in the form of `counts`.
-            meas_return: This option will only take effect if `meas_level` = ``MeasLevel.CLASSIFIED``.
-                It can get either MeasReturnType.AVERAGE or MeasReturnType.SINGLE. For the value
-                MeasReturnType.SINGLE the data of each shot will be stored in the result. For
-                MeasReturnType.AVERAGE, an average of all the shots will be calculated and stored
-                in the result.
-            shots: The number of times the circuit will run.
+            **run_options: Experiment running options. The options that are supported
+                in this backend are `meas_level`, `meas_return` and `shots`:
+
+                * meas_level: To generate data in the IQ plane, `meas_level` should be
+                  assigned 1 or ``MeasLevel.KERNELED``. If `meas_level` is 2 or
+                  ``MeasLevel.CLASSIFIED``, the generated data will be in the form
+                  of `counts`.
+                * meas_return: This option will only take effect if `meas_level` =
+                  ``MeasLevel.CLASSIFIED``. It can get either
+                  ``MeasReturnType.AVERAGE`` or ``MeasReturnType.SINGLE``. For
+                  ``MeasReturnType.SINGLE``, the data of each shot will be stored in
+                  the result. For ``MeasReturnType.AVERAGE``, an average of all the
+                  shots will be calculated and stored in the result.
+                * shots: The number of times the circuit will run.
 
         Returns:
             FakeJob: A job that contains the simulated data.
