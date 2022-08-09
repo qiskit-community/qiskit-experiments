@@ -19,6 +19,7 @@ import ddt
 from qiskit import QuantumCircuit
 from qiskit.providers.aer import AerSimulator, AerJob
 from qiskit.providers.jobstatus import JobStatus
+from qiskit.exceptions import QiskitError
 
 from qiskit_experiments.framework import (
     ExperimentData,
@@ -130,30 +131,34 @@ class TestFramework(QiskitExperimentsTestCase):
         """Verify that analysis is cancelled in case of job failure"""
 
         class MyExp(BaseExperiment):
+            """Some arbitraty experiment"""
             def __init__(self, qubits):
                 super().__init__(qubits)
                 self.analysis = MyAnalysis()
 
-            def circuits(self, backend):
+            def circuits(self):
                 circ = QuantumCircuit(1, 1)
                 circ.measure(0, 0)
                 return [circ]
 
-            def _transpiled_circuits(self):
-                return self.circuits(self.backend)
-
         class MyAnalysis(BaseAnalysis):
-            def _run_analysis(self, expdata):
+            """Analysis that is supposed to be cancelled, because of job failure"""
+            def _run_analysis(self, experiment_data):
                 res = AnalysisResultData(name="should not run", value="blaaaaaaa")
                 return [res], []
 
         class MyBackend(AerSimulator):
-            def run(self, run_input, **options):
-                job = super().run(run_input, **options)
+            """A backend that works with `MyJob`"""
+            def run(self, circuits,
+                    validate=False,
+                    parameter_binds=None,
+                    **run_options):
+                job = super().run(circuits, **run_options)
                 job.__class__ = MyJob
                 return job
 
         class MyJob(AerJob):
+            """A job with status ERROR, that errors when the result is queried"""
             def result(self, timeout=None):
                 raise QiskitError
 
@@ -161,6 +166,7 @@ class TestFramework(QiskitExperimentsTestCase):
                 return JobStatus.ERROR
 
             def error_message(self):
+                """Job's error message"""
                 return "You're dealing with the wrong job, man"
 
         backend = MyBackend()
