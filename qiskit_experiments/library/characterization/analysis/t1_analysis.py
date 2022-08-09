@@ -69,7 +69,7 @@ class T1Analysis(curve.DecayAnalysis):
         return "bad"
 
 
-class T1KerneledAnalysis(T1Analysis):
+class T1KerneledAnalysis(curve.DecayAnalysis):
     r"""A class to analyze T1 experiments with kerneled data.
 
     # section: see_also
@@ -86,6 +86,50 @@ class T1KerneledAnalysis(T1Analysis):
             ylabel="Normalized Projection on the Main Axis",
             xval_unit="s",
         )
+        options.result_parameters = [curve.ParameterRepr("tau", "T1", "s")]
         options.update_options(normalization=True)
 
         return options
+
+    def _evaluate_quality(self, fit_data: curve.CurveFitResult) -> Union[str, None]:
+        """Algorithmic criteria for whether the fit is good or bad.
+
+        A good fit has:
+            - a reduced chi-squared lower than three
+            - absolute amp is within [0.9, 1.1]
+            - base is less than 0.1
+            - amp error is less than 0.1
+            - tau error is less than its value
+            - base error is less than 0.1
+        """
+        amp = fit_data.ufloat_params["amp"]
+        tau = fit_data.ufloat_params["tau"]
+        base = fit_data.ufloat_params["base"]
+
+        if amp.nominal_value > 0:
+            criteria = [
+                fit_data.reduced_chisq < 3,
+                abs(amp.nominal_value - 1.0) < 0.1,
+                abs(base.nominal_value) < 0.1,
+                curve.utils.is_error_not_significant(amp, absolute=0.1),
+                curve.utils.is_error_not_significant(tau),
+                curve.utils.is_error_not_significant(base, absolute=0.1),
+            ]
+        else:
+            # In SVD decomposition, the main vector is determined up to its sign.Therefore, two graphs
+            # can fit our data. The fit could either be `a*exp(-t/tau)+b` or `1-a*exp(-t/tau)+b` where
+            # a=1 and b=0. for the second one, we can alternatively fit it to `a*exp(-t/tau)+b` with
+            # a=-1 and b=1.
+            criteria = [
+                fit_data.reduced_chisq < 3,
+                abs(amp.nominal_value + 1.0) < 0.1,
+                abs(base.nominal_value - 1) < 0.1,
+                curve.utils.is_error_not_significant(amp, absolute=0.1),
+                curve.utils.is_error_not_significant(tau),
+                curve.utils.is_error_not_significant(base, absolute=0.1),
+            ]
+
+        if all(criteria):
+            return "good"
+
+        return "bad"
