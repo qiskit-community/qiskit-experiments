@@ -186,6 +186,30 @@ class TestStandardRB(RBTestCase):
         self.assertEqual(circs1[1].decompose(), circs2[1].decompose())
         self.assertEqual(circs1[2].decompose(), circs2[2].decompose())
 
+    def test_experiment_cache(self):
+        """Test experiment transpiled circuit cache"""
+        exp0 = rb.StandardRB(
+            qubits=(0, 1),
+            lengths=[10, 20, 30],
+            seed=123,
+            backend=self.backend,
+        )
+        exp0.set_transpile_options(**self.transpiler_options)
+
+        # calling a method with '@cached_method' decorator
+        exp0_transpiled_circ = exp0._transpiled_circuits()
+
+        # calling the method again returns cached circuit
+        exp0_transpiled_cache = exp0._transpiled_circuits()
+
+        self.assertEqual(exp0_transpiled_circ[0].decompose(), exp0_transpiled_cache[0].decompose())
+        self.assertEqual(exp0_transpiled_circ[1].decompose(), exp0_transpiled_cache[1].decompose())
+        self.assertEqual(exp0_transpiled_circ[2].decompose(), exp0_transpiled_cache[2].decompose())
+
+        # Checking that the cache is cleared when setting options
+        exp0.set_experiment_options(lengths=[10, 20, 30, 40])
+        self.assertEqual(exp0._cache, {})
+
     def test_full_sampling(self):
         """Test if full sampling generates different circuits."""
         exp1 = rb.StandardRB(
@@ -332,6 +356,29 @@ class TestInterleavedRB(RBTestCase):
         epc = expdata.analysis_results("EPC")
         epc_expected = 3 / 4 * self.p2q
         self.assertAlmostEqual(epc.value.n, epc_expected, delta=0.1 * epc_expected)
+
+    def test_interleaved_cache(self):
+        """Test two qubit IRB."""
+        exp = rb.InterleavedRB(
+            interleaved_element=CXGate(),
+            qubits=(0, 1),
+            lengths=list(range(1, 30, 3)),
+            seed=123,
+            backend=self.backend,
+        )
+        exp.set_transpile_options(**self.transpiler_options)
+
+        # calling a method with '@cached_method' decorator
+        exp_transpiled_circ = exp._transpiled_circuits()
+
+        # calling the method again returns cached circuit
+        exp_transpiled_cache = exp._transpiled_circuits()
+        for circ, cached_circ in zip(exp_transpiled_circ, exp_transpiled_cache):
+            self.assertEqual(circ.decompose(), cached_circ.decompose())
+
+        # Checking that the cache is cleared when setting options
+        exp.set_experiment_options(lengths=[10, 20, 30, 40])
+        self.assertEqual(exp._cache, {})
 
     def test_non_clifford_interleaved_element(self):
         """Verifies trying to run interleaved RB with non Clifford element throws an exception"""
