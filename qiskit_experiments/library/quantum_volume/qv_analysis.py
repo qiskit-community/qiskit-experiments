@@ -117,7 +117,7 @@ class QuantumVolumeAnalysis(BaseAnalysis):
         Calculate the probability of measuring heavy output string in the data
 
         Args:
-            data (dict): the result of the circuit exectution
+            data (dict): the result of the circuit execution
             heavy_outputs (list): the bit strings of the heavy output from the ideal simulation
 
         Returns:
@@ -140,7 +140,7 @@ class QuantumVolumeAnalysis(BaseAnalysis):
             sigma (float): standard deviation
 
         Returns:
-            float: z_value in standard normal distibution.
+            float: z_value in standard normal distribution.
         """
 
         if sigma == 0:
@@ -161,7 +161,7 @@ class QuantumVolumeAnalysis(BaseAnalysis):
         where z = (X - mu)/sigma = (hmean - 2/3)/sigma
 
         Args:
-            z_value (float): z value in in standard normal distibution.
+            z_value (float): z value in in standard normal distribution.
 
         Returns:
             float: confidence level in decimal (not percentage).

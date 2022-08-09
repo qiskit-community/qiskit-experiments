@@ -22,7 +22,7 @@ Qiskit Experiments are documented below.
       * [Linking to issues](#linking-to-issues)
     - [Generating release notes](#generating-release-notes)
   + [Documentation](#documentation)
-    + [Experiment class documentation](#experiment-class-documenation)
+    + [Experiment class documentation](#experiment-class-documentation)
     + [Analysis class documentation](#analysis-class-documentation)
     + [Populating the table of contents](#populating-the-table-of-contents)
     + [Updating the tutorials](#updating-the-tutorials)
@@ -312,7 +312,7 @@ formatted in the same manner throughout our experiment library. You can use stan
 [reStructuredText](https://www.sphinx-doc.org/en/master/usage/restructuredtext/index.html)
 directives along with our syntax.
 
-#### Experiment class documenation
+#### Experiment class documentation
 
 You should complete or update the class documentation and method documentation for
 `_default_experiment_options`. You can use several predefined sections for the class docstring.
@@ -432,7 +432,7 @@ You can use the same syntax and section headers for the analysis class documenta
        variable names shown in analysis results. You can write symbol :math:`a` here too.
    
    # section: fit_parameters
-       Optional. Description for fit parametres in the model.
+       Optional. Description for fit parameters in the model.
        You can also write how initial guess is generated and how fit bound is determined.
        
        defpar a:
