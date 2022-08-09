@@ -132,6 +132,7 @@ class TestFramework(QiskitExperimentsTestCase):
 
         class MyExp(BaseExperiment):
             """Some arbitraty experiment"""
+
             def __init__(self, qubits):
                 super().__init__(qubits)
                 self.analysis = MyAnalysis()
@@ -143,22 +144,22 @@ class TestFramework(QiskitExperimentsTestCase):
 
         class MyAnalysis(BaseAnalysis):
             """Analysis that is supposed to be cancelled, because of job failure"""
+
             def _run_analysis(self, experiment_data):
                 res = AnalysisResultData(name="should not run", value="blaaaaaaa")
                 return [res], []
 
         class MyBackend(AerSimulator):
             """A backend that works with `MyJob`"""
-            def run(self, circuits,
-                    validate=False,
-                    parameter_binds=None,
-                    **run_options):
+
+            def run(self, circuits, validate=False, parameter_binds=None, **run_options):
                 job = super().run(circuits, **run_options)
                 job.__class__ = MyJob
                 return job
 
         class MyJob(AerJob):
             """A job with status ERROR, that errors when the result is queried"""
+
             def result(self, timeout=None):
                 raise QiskitError
 
