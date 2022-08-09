@@ -748,7 +748,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         exp_data.add_analysis_callback(_analysis, name=2, timeout=30)
         cancel_id = exp_data._analysis_callbacks.keys()[-1]
         exp_data.add_analysis_callback(_analysis, name=3, timeout=1)
-        consequent_cancel_id =  exp_data._analysis_callbacks.keys()[-1]
+        consequent_cancel_id = exp_data._analysis_callbacks.keys()[-1]
         exp_data.cancel_analysis(cancel_id)
 
         # Test status while job is still running
