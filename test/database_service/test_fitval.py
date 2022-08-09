@@ -29,7 +29,7 @@ from qiskit_experiments.framework import ExperimentDecoder
 class TestFitVal(QiskitExperimentsTestCase):
     """Test for serialization."""
 
-    __signle_value__ = [
+    __signal_value__ = [
         [3.0123, 0.001, "s"],
         [2, 0, "m"],
         [-5.678, 0.02, "g"],
@@ -45,7 +45,7 @@ class TestFitVal(QiskitExperimentsTestCase):
 
         self.assertIsInstance(instance, uncertainties.core.Variable)
 
-    @data(*__signle_value__)
+    @data(*__signal_value__)
     def test_can_load(self, val):
         """Test if we can still load cache data from old Qiskit Experiments."""
         value, stderr, unit = val
@@ -84,7 +84,7 @@ class TestFitVal(QiskitExperimentsTestCase):
         self.assertEqual(loaded_val.std_dev, stderr)
         self.assertEqual(loaded_val.tag, unit)
 
-    @data(*__signle_value__)
+    @data(*__signal_value__)
     def test_can_access(self, val):
         """Test if we can still use old properties."""
         with self.assertWarns(FutureWarning):

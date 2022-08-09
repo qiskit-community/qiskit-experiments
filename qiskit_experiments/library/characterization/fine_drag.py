@@ -67,7 +67,7 @@ class FineDrag(BaseExperiment, RestlessMixin):
         Here, the :math:`s` terms are coefficients of the expansion of an operator :math:`S(t)`
         that generates a transformation that keeps the qubit sub-space isolated from the
         higher-order states. :math:`t_g` is the gate time, :math:`\Omega_x(t)` is the pulse envelope
-        on the in-phase component of the drive and :math:`\lambda_1` is a parmeter of the Hamiltonian.
+        on the in-phase component of the drive and :math:`\lambda_1` is a parameter of the Hamiltonian.
         For additional details please see Ref. [2].
         As in Ref. [2] we now set :math:`s^{(1)}_{x,0,1}` and :math:`s^{(1)}_{z,1}` to zero
         and set :math:`s^{(1)}_{y,0,1}` to :math:`-\lambda_1^2 t_g\Omega_x(t)/8`. This
