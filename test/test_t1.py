@@ -160,7 +160,7 @@ class TestT1(QiskitExperimentsTestCase):
         delays = np.logspace(1, 9, num=20, base=np.exp(1))
         delays *= ns
         delays = np.insert(delays, 0, 0)
-        delays = np.append(delays, [t1[0] * 2])
+        delays = np.append(delays, [t1[0] * 2, t1[0] * 3])
 
         # Experiments
         exp0 = T1(qubit=qubit0, delays=delays)
