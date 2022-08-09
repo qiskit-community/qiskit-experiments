@@ -593,7 +593,7 @@ class MockIQFineFreqHelper(MockIQExperimentHelper):
         """
         Args:
             sx_duration: duration of the single-qubit sx gate.
-            freq_shift: the detunning from the ideal frequency that this mock backend will mimic.
+            freq_shift: the detuning from the ideal frequency that this mock backend will mimic.
             dt: duration of a sample.
         """
         super().__init__(iq_cluster_centers, iq_cluster_width)
