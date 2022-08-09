@@ -16,7 +16,7 @@ Base Experiment class.
 from abc import ABC, abstractmethod
 import copy
 from collections import OrderedDict
-from typing import Sequence, Optional, Tuple, List, Dict, Union
+from typing import Sequence, Optional, Tuple, List, Dict, Union, Hashable
 from functools import wraps
 import warnings
 
@@ -44,14 +44,36 @@ def cached_method(method):
     @wraps(method)
     def wrapped_method(self, *args, **kwargs):
         name = f"{type(self).__name__}.{method.__name__}"
+
+        # making a tuple from the options value.
+        options_dict = vars(self.experiment_options)
+        cache_key = tuple(options_dict.values()) + tuple([name])
+        for key, val in options_dict.items():
+            if isinstance(val, list):  # pylint: disable=isinstance-second-argument-not-valid-type
+                val = tuple(val)
+                options_dict[key] = val
+                cache_key = tuple(options_dict.values()) + tuple([name])
+            if isinstance(  # pylint: disable=isinstance-second-argument-not-valid-type
+                val, Hashable
+            ):
+                continue
+            # if one of the values in option isn't hashable, we raise a warning and we use the name as
+            # the key of the cached circuit
+            warnings.warn(
+                f"The value of the option {key!r} is not hashable. This can make the cached "
+                f"transpiled circuit to not match the options."
+            )
+            cache_key = (name,)
+            break
+
         # Check for cached value
-        cached = self._cache.get(name, None)
+        cached = self._cache.get(cache_key, None)
         if cached is not None:
             return cached
 
         # Call method and cache output
         cached = method(self, *args, **kwargs)
-        self._cache[name] = cached
+        self._cache[cache_key] = cached
 
         return cached
 
