@@ -29,9 +29,9 @@ from . import lstsq_utils
 
 # pylint: disable = bad-docstring-quotes
 @deprecate_function(
-    "The scipy lstsq tomography fitters have been deprecated and will "
-    "be removed in the 0.5.0 release. Use the `linear_lstsq`, "
-    "`cvxpy_linear_lstsq`, or `cvxpy_gaussian_lstsq` fitter instead."
+    "The scipy lstsq tomography fitters are deprecated as of 0.4 and will "
+    "be removed after the 0.5 release. Use the `linear_lstsq`, "
+    "`cvxpy_linear_lstsq`, or `cvxpy_gaussian_lstsq` fitters instead."
 )
 def scipy_linear_lstsq(
     outcome_data: np.ndarray,
