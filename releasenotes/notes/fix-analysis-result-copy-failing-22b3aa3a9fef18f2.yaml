@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    Fix a bug when copying `AnalysisResult` (and thus copying `ExperimentData` and
+    re-running some analyses) where an exception, regarding the `extra`
+    attribute of the `AnalysisResult` instance, would be thrown.
