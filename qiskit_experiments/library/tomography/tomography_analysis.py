@@ -15,6 +15,7 @@ Quantum process tomography analysis
 
 
 from typing import List, Dict, Tuple, Union, Optional, Callable
+import warnings
 import functools
 import time
 import numpy as np
@@ -94,6 +95,22 @@ class TomographyAnalysis(BaseAnalysis):
         options.rescale_trace = True
         options.target = None
         return options
+
+    def set_options(self, **fields):
+        if fields.get("fitter", None) in [
+            "scipy_linear_lstsq",
+            "scipy_gaussian_lstsq",
+            scipy_linear_lstsq,
+            scipy_gaussian_lstsq,
+        ]:
+            warnings.warn(
+                "The scipy lstsq tomography fitters are deprecated as of 0.4 and will "
+                "be removed after the 0.5 release. Use the `linear_lstsq`, "
+                "`cvxpy_linear_lstsq`, or `cvxpy_gaussian_lstsq` fitter instead.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+        super().set_options(**fields)
 
     @classmethod
     def _get_fitter(cls, fitter: Union[str, Callable]) -> Callable:
