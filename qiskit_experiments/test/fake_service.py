@@ -132,7 +132,7 @@ class FakeService:
         # share_level - not a parameter of `DatabaseService.create_experiment` but a parameter of
         #    `IBMExperimentService.create_experiment`. It must be supported because it is used
         #    in `DbExperimentData`.
-        # device_components - the user speicifies the device components when adding a result
+        # device_components - the user specifies the device components when adding a result
         #    (this is not a local decision of the fake service but the interface of DatabaseService
         #    and IBMExperimentService). The components of the different results of the same
         #    experiment are aggregated here in the device_components column.
@@ -145,7 +145,7 @@ class FakeService:
         # figure_names - the fake service currently does not support figures. The column
         #    (degenerated to []) is required to prevent a flaw in the work with DbExperimentData.
         # backend - the query methods `experiment` and `experiments` are supposed to return an
-        #    an instansiated backend object, and not only the backend name. We assume that the fake
+        #    an instantiated backend object, and not only the backend name. We assume that the fake
         #    service works with the fake backend (class FakeBackend).
         self.exps = pd.concat(
             [
@@ -427,8 +427,8 @@ class FakeService:
         # pylint: disable = unused-argument
         df = self.results
 
-        # TODO: skipping device components for now until we conslidate more with the provider service
-        # (in the qiskit-experiments service there is no opertor for device components,
+        # TODO: skipping device components for now until we consolidate more with the provider service
+        # (in the qiskit-experiments service there is no operator for device components,
         # so the specification for filtering is not clearly defined)
 
         if experiment_id is not None:
@@ -482,7 +482,7 @@ class FakeService:
         return df.to_dict("records")
 
     def delete_analysis_result(self, result_id: str) -> None:
-        """Deletes an anylsis result"""
+        """Deletes an analysis result"""
         if result_id not in self.results.result_id.values:
             return
 
@@ -517,5 +517,5 @@ class FakeService:
 
     @property
     def preferences(self) -> Dict:
-        """Returns the db service prefrences"""
+        """Returns the db service preferences"""
         return {"auto_save": False}
