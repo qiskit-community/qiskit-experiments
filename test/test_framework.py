@@ -26,6 +26,7 @@ from qiskit_experiments.framework import (
     BaseExperiment,
     BaseAnalysis,
     AnalysisResultData,
+    AnalysisStatus
 )
 from qiskit_experiments.test.fake_backend import FakeBackend
 
@@ -175,3 +176,4 @@ class TestFramework(QiskitExperimentsTestCase):
         expdata = exp.run(backend=backend)
         res = expdata.analysis_results()
         self.assertEqual(len(res), 0)
+        self.assertEqual(expdata.analysis_status(), AnalysisStatus.CANCELLED)
