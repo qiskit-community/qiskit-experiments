@@ -30,7 +30,7 @@ class SimulatableCRGate(HamiltonianGate):
     """Cross resonance unitary that can be simulated with Aer simulator."""
 
     def __init__(self, width, t_off, wix, wiy, wiz, wzx, wzy, wzz, dt=1e-9):
-        # Note that Qiskit is Little endien, i.e. [q1, q0]
+        # Note that Qiskit is Little endian, i.e. [q1, q0]
         hamiltonian = (
             wix * qi.Operator.from_label("XI") / 2
             + wiy * qi.Operator.from_label("YI") / 2

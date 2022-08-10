@@ -213,18 +213,18 @@ total delay time.
         readout0to1=[0.02],
         readout1to0=[0.02],)
     
-    # Analysis for Hahn Echo experiemnt with 0 echoes.
+    # Analysis for Hahn Echo experiment with 0 echoes.
     expdata2_0echoes = exp2_0echoes.run(backend=backend2, shots=2000, seed_simulator=101)
     expdata2_0echoes.block_for_results()  # Wait for job/analysis to finish.
     
-    # Analysis for Hahn Echo experiemnt with 1 echo
+    # Analysis for Hahn Echo experiment with 1 echo
     expdata2_1echoes = exp2_1echoes.run(backend=backend2, shots=2000, seed_simulator=101)
     expdata2_1echoes.block_for_results()  # Wait for job/analysis to finish.
     
     # Display the figure
     print("Hahn Echo with 0 echoes:")
     display(expdata2_0echoes.figure(0))
-    print("Hahn Echo with 1 echoe:")
+    print("Hahn Echo with 1 echo:")
     display(expdata2_1echoes.figure(0))
 
 

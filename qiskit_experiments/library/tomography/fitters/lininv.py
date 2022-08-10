@@ -51,7 +51,7 @@ def linear_inversion(
         * :math:`A = \sum_j |j \rangle\!\langle\!\langle E_j|` is the matrix of measured
           basis elements.
         * :math:`y = \sum_j \hat{p}_j |j\rangle` is the vector of estimated measurement
-          outcome probabilites for each basis element.
+          outcome probabilities for each basis element.
         * :math:`x = |\rho\rangle\!\rangle` is the vectorized density matrix.
 
     Additional Details
@@ -96,7 +96,7 @@ def linear_inversion(
                             M measured qubits.
         preparation_qubits: Optional, the physical qubits that were prepared.
                             If None they are assumed to be [0, ..., N-1] for
-                            N preparated qubits.
+                            N prepared qubits.
 
     Raises:
         AnalysisError: If the fitted vector is not a square matrix

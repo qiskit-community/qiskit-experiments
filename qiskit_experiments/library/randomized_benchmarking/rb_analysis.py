@@ -27,7 +27,7 @@ from qiskit_experiments.framework.analysis_result import AnalysisResult
 if TYPE_CHECKING:
     from uncertainties import UFloat
 
-# A dictionary key of qubit aware quantum instruciton; type alias for better readability
+# A dictionary key of qubit aware quantum instruction; type alias for better readability
 QubitGateTuple = Tuple[Tuple[int, ...], str]
 
 
@@ -93,7 +93,7 @@ class RBAnalysis(curve.CurveAnalysis):
                 you can skip analysis of EPGs by setting this options to ``None``.
             epg_1_qubit (List[AnalysisResult]): Analysis results from previous RB experiments
                 for individual single qubit gates. If this is provided, EPC of
-                2Q RB is corected to exclude the deporalization of underlying 1Q channels.
+                2Q RB is corrected to exclude the depolarization of underlying 1Q channels.
         """
         default_options = super()._default_options()
         default_options.curve_drawer.set_options(
@@ -403,7 +403,7 @@ def _calculate_epg(
     gate_error_ratio: Dict[str, float],
     gate_counts_per_clifford: Dict[QubitGateTuple, float],
 ) -> Dict[str, Union[float, "UFloat"]]:
-    """A helper mehtod to compute EPGs of basis gates from fit EPC value.
+    """A helper method to compute EPGs of basis gates from fit EPC value.
 
     Args:
         epc: Error per Clifford.
@@ -444,17 +444,17 @@ def _exclude_1q_error(
     """
     # Extract EPC of non-measured qubits from previous experiments
     epg_1qs = {}
-    for analyis_data in extra_analyses:
+    for analysis_data in extra_analyses:
         if (
-            not analyis_data.name.startswith("EPG_")
-            or len(analyis_data.device_components) > 1
-            or not str(analyis_data.device_components[0]).startswith("Q")
+            not analysis_data.name.startswith("EPG_")
+            or len(analysis_data.device_components) > 1
+            or not str(analysis_data.device_components[0]).startswith("Q")
         ):
             continue
-        qind = analyis_data.device_components[0]._index
-        gate = analyis_data.name[4:]
+        qind = analysis_data.device_components[0]._index
+        gate = analysis_data.name[4:]
         formatted_key = (qind,), gate
-        epg_1qs[formatted_key] = analyis_data.value
+        epg_1qs[formatted_key] = analysis_data.value
 
     if not epg_1qs:
         return epc
