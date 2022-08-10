@@ -71,7 +71,7 @@ class TomographyAnalysis(BaseAnalysis):
                 supply a custom fitter function. See the `Fitter Functions` section for
                 additional information.
             fitter_options (dict): Any addition kwarg options to be supplied to the fitter
-                function. For documentation of available kargs refer to the fitter function
+                function. For documentation of available kwargs refer to the fitter function
                 documentation.
             rescale_positive (bool): If True rescale the state returned by the fitter
                 to be positive-semidefinite. See the `PSD Rescaling` section for
@@ -130,7 +130,7 @@ class TomographyAnalysis(BaseAnalysis):
         if measurement_qubits is None:
             measurement_qubits = tuple(range(measurement_data.shape[1]))
 
-        # Get dimension of the preparation and measurement qubits subystems
+        # Get dimension of the preparation and measurement qubits subsystems
         prep_dims = (1,)
         if preparation_qubits:
             prep_dims = preparation_basis.matrix_shape(preparation_qubits)
@@ -501,7 +501,7 @@ def _int_outcome_function(outcome_shape: Tuple[int, ...]) -> Callable:
         base = outcome_shape[0]
         return lambda outcome: int(outcome, base)
 
-    # General function where each dit could be a differnet base
+    # General function where each dit could be a different base
     @functools.lru_cache(2048)
     def _int_outcome_general(outcome: str):
         """Convert a general dit-string outcome to integer"""

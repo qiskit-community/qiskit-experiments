@@ -196,10 +196,13 @@ class BackendData:
     @property
     def provider(self):
         """Returns the backend's provider"""
-        if self._v1:
-            return getattr(self._backend, "provider", None)
-        elif self._v2:
-            return self._backend.provider
+        try:
+            if self._v1:
+                return self._backend.provider()
+            elif self._v2:
+                return self._backend.provider
+        except AttributeError:
+            return None
         return None
 
     @property
