@@ -26,7 +26,7 @@ from qiskit_experiments.framework import (
     BaseExperiment,
     BaseAnalysis,
     AnalysisResultData,
-    AnalysisStatus
+    AnalysisStatus,
 )
 from qiskit_experiments.test.fake_backend import FakeBackend
 
