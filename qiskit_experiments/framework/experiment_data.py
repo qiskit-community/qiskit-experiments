@@ -49,6 +49,7 @@ from qiskit_experiments.database_service.utils import (
     ThreadSafeList,
 )
 from qiskit_experiments.framework.analysis_result import AnalysisResult
+from qiskit_experiments.framework import BackendData
 from qiskit_experiments.database_service.exceptions import (
     ExperimentDataError,
     ExperimentEntryNotFound,
@@ -535,31 +536,28 @@ class ExperimentData:
         # defined independently from the setter to enable setting without autosave
 
         self._backend = new_backend
-        if hasattr(new_backend, "name"):
-            self._db_data.backend = new_backend.name()
-        else:
+        self._backend_data = BackendData(new_backend)
+        self._db_data.backend = self._backend_data.name
+        if self._db_data.backend is None:
             self._db_data.backend = str(new_backend)
-        if hasattr(new_backend, "provider"):
-            self._set_hgp_from_backend()
+        provider = self._backend_data.provider
+        if provider is not None:
+            self._set_hgp_from_provider(provider)
         if recursive:
             for data in self.child_data():
                 data._set_backend(new_backend)
 
-    def _set_hgp_from_backend(self):
-        if self.backend is not None and self.backend.provider() is not None:
-            try:
-                creds = self.backend.provider().credentials
-                hub = self._db_data.hub or creds.hub
-                group = self._db_data.group or creds.group
-                project = self._db_data.project or creds.project
-                self._db_data.hub = hub
-                self._db_data.group = group
-                self._db_data.project = project
-            except AttributeError:
-                LOG.warning(
-                    "Unable to set hub/group/project backend %s ",
-                    self.backend,
-                )
+    def _set_hgp_from_provider(self, provider):
+        try:
+            creds = provider.credentials
+            hub = self._db_data.hub or creds.hub
+            group = self._db_data.group or creds.group
+            project = self._db_data.project or creds.project
+            self._db_data.hub = hub
+            self._db_data.group = group
+            self._db_data.project = project
+        except AttributeError:
+            return
 
     def _clear_results(self):
         """Delete all currently stored analysis results and figures"""
@@ -695,18 +693,21 @@ class ExperimentData:
         # Add futures for extracting finished job data
         timeout_ids = []
         for job in jobs:
-            jid = job.job_id()
-            if self.backend is not None and self.backend.name() != job.backend().name():
-                LOG.warning(
-                    "Adding a job from a backend (%s) that is different "
-                    "than the current backend (%s). "
-                    "The new backend will be used, but "
-                    "service is not changed if one already exists.",
-                    job.backend(),
-                    self.backend,
-                )
+            if self.backend is not None:
+                backend_name = BackendData(self.backend).name
+                job_backend_name = BackendData(job.backend()).name
+                if self.backend and backend_name != job_backend_name:
+                    LOG.warning(
+                        "Adding a job from a backend (%s) that is different "
+                        "than the current backend (%s). "
+                        "The new backend will be used, but "
+                        "service is not changed if one already exists.",
+                        job.backend(),
+                        self.backend,
+                    )
             self.backend = job.backend()
 
+            jid = job.job_id()
             if jid in self._jobs:
                 LOG.warning(
                     "Skipping duplicate job, a job with this ID already exists [Job ID: %s]", jid

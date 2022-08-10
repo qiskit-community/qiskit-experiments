@@ -24,6 +24,7 @@ from qiskit.providers import Job, Backend
 from qiskit.exceptions import QiskitError
 from qiskit.qobj.utils import MeasLevel
 from qiskit.providers.options import Options
+from qiskit_experiments.framework import BackendData
 from qiskit_experiments.framework.store_init_args import StoreInitArgs
 from qiskit_experiments.framework.base_analysis import BaseAnalysis
 from qiskit_experiments.framework.experiment_data import ExperimentData
@@ -140,6 +141,7 @@ class BaseExperiment(ABC, StoreInitArgs):
         properties from the supplied backend if required.
         """
         self._backend = backend
+        self._backend_data = BackendData(backend)
 
     def copy(self) -> "BaseExperiment":
         """Return a copy of the experiment"""
@@ -276,11 +278,11 @@ class BaseExperiment(ABC, StoreInitArgs):
     def _run_jobs(self, circuits: List[QuantumCircuit], **run_options) -> List[Job]:
         """Run circuits on backend as 1 or more jobs."""
         # Run experiment jobs
-        max_experiments = getattr(self.backend.configuration(), "max_experiments", None)
-        if max_experiments and len(circuits) > max_experiments:
+        max_circuits = self._backend_data.max_circuits
+        if max_circuits and len(circuits) > max_circuits:
             # Split jobs for backends that have a maximum job size
             job_circuits = [
-                circuits[i : i + max_experiments] for i in range(0, len(circuits), max_experiments)
+                circuits[i : i + max_circuits] for i in range(0, len(circuits), max_circuits)
             ]
         else:
             # Run as single job

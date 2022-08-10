@@ -20,7 +20,6 @@ import numpy as np
 import qiskit
 from qiskit import QuantumCircuit
 from qiskit.providers.backend import Backend
-from qiskit.providers.fake_provider import FakeBackend
 
 from qiskit_experiments.framework import BaseExperiment, Options
 from qiskit_experiments.library.characterization.analysis.t2ramsey_analysis import T2RamseyAnalysis
@@ -100,7 +99,7 @@ class T2Ramsey(BaseExperiment):
         super()._set_backend(backend)
 
         # Scheduling parameters
-        if not self._backend.configuration().simulator and not isinstance(backend, FakeBackend):
+        if not self._backend_data.is_simulator:
             timing_constraints = getattr(self.transpile_options, "timing_constraints", {})
             if "acquire_alignment" not in timing_constraints:
                 timing_constraints["acquire_alignment"] = 16
@@ -118,11 +117,10 @@ class T2Ramsey(BaseExperiment):
         Returns:
             The experiment circuits
         """
-        if self.backend and hasattr(self.backend.configuration(), "dt"):
-            dt_unit = True
-            dt_factor = self.backend.configuration().dt
-        else:
-            dt_unit = False
+        dt_unit = False
+        if self.backend:
+            dt_factor = self._backend_data.dt
+            dt_unit = dt_factor is not None
 
         circuits = []
         for delay in self.experiment_options.delays:
