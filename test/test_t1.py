@@ -69,10 +69,10 @@ class TestT1(QiskitExperimentsTestCase):
         t1 = [45 * mu, 45 * mu]
 
         # delays
-        delays = np.logspace(1, 11, num=20, base=np.exp(1))
+        delays = np.logspace(1, 11, num=23, base=np.exp(1))
         delays *= ns
         delays = np.insert(delays, 0, 0)
-        delays = np.append(delays, [t1[0] * 2, t1[0] * 3])
+        delays = np.append(delays, [t1[0] * 3])
 
         num_shots = 4096
         backend = MockIQBackend(
@@ -157,10 +157,10 @@ class TestT1(QiskitExperimentsTestCase):
         quantum_bit = [qubit0, qubit2]
 
         # Delays
-        delays = np.logspace(1, 9, num=20, base=np.exp(1))
+        delays = np.logspace(1, 11, num=23, base=np.exp(1))
         delays *= ns
         delays = np.insert(delays, 0, 0)
-        delays = np.append(delays, [t1[0] * 2, t1[0] * 3])
+        delays = np.append(delays, [t1[0] * 3])
 
         # Experiments
         exp0 = T1(qubit=qubit0, delays=delays)
