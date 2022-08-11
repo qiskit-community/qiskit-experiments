@@ -92,6 +92,7 @@ class BaseExperiment(ABC, StoreInitArgs):
         # This should be called last in case `_set_backend` access any of the
         # attributes created during initialization
         self._backend = None
+        self._backend_data = None
         if isinstance(backend, Backend):
             self._set_backend(backend)
 

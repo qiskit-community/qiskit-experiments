@@ -12,7 +12,7 @@
 
 """
 =================================================================
-Qiskit Experiments Test Utilties (:mod:`qiskit_experiments.test`)
+Qiskit Experiments Test Utilities (:mod:`qiskit_experiments.test`)
 =================================================================
 
 .. currentmodule:: qiskit_experiments.test
