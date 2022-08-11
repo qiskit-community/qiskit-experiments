@@ -14,8 +14,11 @@ T1 Analysis class.
 """
 from typing import Union
 
+import numpy as np
+
 import qiskit_experiments.curve_analysis as curve
 from qiskit_experiments.framework import Options
+from qiskit_experiments.curve_analysis.curve_data import CurveData
 
 
 class T1Analysis(curve.DecayAnalysis):
@@ -87,7 +90,7 @@ class T1KerneledAnalysis(curve.DecayAnalysis):
             xval_unit="s",
         )
         options.result_parameters = [curve.ParameterRepr("tau", "T1", "s")]
-        options.update_options(normalization=True)
+        options.normalization = True
 
         return options
 
@@ -106,30 +109,69 @@ class T1KerneledAnalysis(curve.DecayAnalysis):
         tau = fit_data.ufloat_params["tau"]
         base = fit_data.ufloat_params["base"]
 
-        if amp.nominal_value > 0:
-            criteria = [
-                fit_data.reduced_chisq < 3,
-                abs(amp.nominal_value - 1.0) < 0.1,
-                abs(base.nominal_value) < 0.1,
-                curve.utils.is_error_not_significant(amp, absolute=0.1),
-                curve.utils.is_error_not_significant(tau),
-                curve.utils.is_error_not_significant(base, absolute=0.1),
-            ]
-        else:
-            # In SVD decomposition, the main vector is determined up to its sign.Therefore, two graphs
-            # can fit our data. The fit could either be `a*exp(-t/tau)+b` or `1-a*exp(-t/tau)+b` where
-            # a=1 and b=0. for the second one, we can alternatively fit it to `a*exp(-t/tau)+b` with
-            # a=-1 and b=1.
-            criteria = [
-                fit_data.reduced_chisq < 3,
-                abs(amp.nominal_value + 1.0) < 0.1,
-                abs(base.nominal_value - 1) < 0.1,
-                curve.utils.is_error_not_significant(amp, absolute=0.1),
-                curve.utils.is_error_not_significant(tau),
-                curve.utils.is_error_not_significant(base, absolute=0.1),
-            ]
+        criteria = [
+            fit_data.reduced_chisq < 3,
+            abs(amp.nominal_value - 1.0) < 0.1,
+            abs(base.nominal_value) < 0.1,
+            curve.utils.is_error_not_significant(amp, absolute=0.1),
+            curve.utils.is_error_not_significant(tau),
+            curve.utils.is_error_not_significant(base, absolute=0.1),
+        ]
+
+        # if amp.nominal_value > 0:
+        #     criteria = [
+        #         fit_data.reduced_chisq < 3,
+        #         abs(amp.nominal_value - 1.0) < 0.1,
+        #         abs(base.nominal_value) < 0.1,
+        #         curve.utils.is_error_not_significant(amp, absolute=0.1),
+        #         curve.utils.is_error_not_significant(tau),
+        #         curve.utils.is_error_not_significant(base, absolute=0.1),
+        #     ]
+        # else:
+        #     # In SVD decomposition, the main vector is determined up to its sign.Therefore, two graphs
+        #     # can fit our data. The fit could either be `a*exp(-t/tau)+b` or `1-a*exp(-t/tau)+b` where
+        #     # a=1 and b=0. for the second one, we can alternatively fit it to `a*exp(-t/tau)+b` with
+        #     # a=-1 and b=1.
+        #     criteria = [
+        #         fit_data.reduced_chisq < 3,
+        #         abs(amp.nominal_value + 1.0) < 0.1,
+        #         abs(base.nominal_value - 1) < 0.1,
+        #         curve.utils.is_error_not_significant(amp, absolute=0.1),
+        #         curve.utils.is_error_not_significant(tau),
+        #         curve.utils.is_error_not_significant(base, absolute=0.1),
+        #     ]
 
         if all(criteria):
             return "good"
 
         return "bad"
+
+    def _format_data(
+        self,
+        curve_data: curve.CurveData,
+    ) -> curve.CurveData:
+        """Postprocessing for the processed dataset.
+
+        Args:
+            curve_data: Processed dataset created from experiment results.
+
+        Returns:
+            Formatted data.
+        """
+        # check if the SVD decomposition categorized 0 as 1
+        if curve_data.y[-1] == 1:
+            new_y_data = np.zeros(curve_data.y.shape)
+            for idx, y_data in enumerate(curve_data.y):
+                new_y_data[idx] = 1 - (y_data - curve_data.y[1])
+
+            new_curve_data = CurveData(
+                x=curve_data.x,
+                y=new_y_data,
+                y_err=curve_data.y_err,
+                shots=curve_data.shots,
+                data_allocation=curve_data.data_allocation,
+                labels=curve_data.labels,
+            )
+
+            return super()._format_data(new_curve_data)
+        return super()._format_data(curve_data)
