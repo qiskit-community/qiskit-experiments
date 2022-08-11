@@ -16,12 +16,13 @@ import warnings
 from collections import defaultdict
 from typing import Dict, List, Sequence, Tuple, Union, Optional, TYPE_CHECKING
 
+import lmfit
 from qiskit.exceptions import QiskitError
 
 import qiskit_experiments.curve_analysis as curve
 from qiskit_experiments.exceptions import AnalysisError
 from qiskit_experiments.framework import AnalysisResultData, ExperimentData
-from qiskit_experiments.database_service import DbAnalysisResultV1
+from qiskit_experiments.framework.analysis_result import AnalysisResult
 
 if TYPE_CHECKING:
     from uncertainties import UFloat
@@ -68,18 +69,15 @@ class RBAnalysis(curve.CurveAnalysis):
 
     """
 
-    __series__ = [
-        curve.SeriesDef(
-            fit_func=lambda x, a, alpha, b: curve.fit_function.exponential_decay(
-                x, amp=a, lamb=-1.0, base=alpha, baseline=b
-            ),
-            plot_color="blue",
-            model_description=r"a \alpha^x + b",
-        )
-    ]
-
     def __init__(self):
-        super().__init__()
+        super().__init__(
+            models=[
+                lmfit.models.ExpressionModel(
+                    expr="a * alpha ** x + b",
+                    name="rb_decay",
+                )
+            ]
+        )
         self._gate_counts_per_clifford = None
         self._physical_qubits = None
 
@@ -93,7 +91,7 @@ class RBAnalysis(curve.CurveAnalysis):
                 The default value will use standard gate error ratios.
                 If you don't know accurate error ratio between your basis gates,
                 you can skip analysis of EPGs by setting this options to ``None``.
-            epg_1_qubit (List[DbAnalysisResultV1]): Analysis results from previous RB experiments
+            epg_1_qubit (List[AnalysisResult]): Analysis results from previous RB experiments
                 for individual single qubit gates. If this is provided, EPC of
                 2Q RB is corected to exclude the deporalization of underlying 1Q channels.
         """
@@ -123,7 +121,7 @@ class RBAnalysis(curve.CurveAnalysis):
         user_opt: curve.FitOptions,
         curve_data: curve.CurveData,
     ) -> Union[curve.FitOptions, List[curve.FitOptions]]:
-        """Create algorithmic guess with analysis options and curve data.
+        """Create algorithmic initial fit guess from analysis options and curve data.
 
         Args:
             user_opt: Fit options filled with user provided guess and bounds.
@@ -139,8 +137,8 @@ class RBAnalysis(curve.CurveAnalysis):
         )
 
         b_guess = 1 / 2 ** len(self._physical_qubits)
-        a_guess = 1 - b_guess
-        alpha_guess = curve.guess.rb_decay(curve_data.x, curve_data.y, a=a_guess, b=b_guess)
+        alpha_guess = curve.guess.rb_decay(curve_data.x, curve_data.y, b=b_guess)
+        a_guess = (curve_data.y[0] - b_guess) / (alpha_guess ** curve_data.x[0])
 
         user_opt.p0.set_if_empty(
             b=b_guess,
@@ -194,7 +192,7 @@ class RBAnalysis(curve.CurveAnalysis):
 
     def _create_analysis_results(
         self,
-        fit_data: curve.FitData,
+        fit_data: curve.CurveFitResult,
         quality: str,
         **metadata,
     ) -> List[AnalysisResultData]:
@@ -211,7 +209,7 @@ class RBAnalysis(curve.CurveAnalysis):
         num_qubits = len(self._physical_qubits)
 
         # Calculate EPC
-        alpha = fit_data.fitval("alpha")
+        alpha = fit_data.ufloat_params["alpha"]
         scale = (2**num_qubits - 1) / (2**num_qubits)
         epc = scale * (1 - alpha)
 
@@ -431,7 +429,7 @@ def _exclude_1q_error(
     epc: Union[float, "UFloat"],
     qubits: Tuple[int, int],
     gate_counts_per_clifford: Dict[QubitGateTuple, float],
-    extra_analyses: Optional[List[DbAnalysisResultV1]],
+    extra_analyses: Optional[List[AnalysisResult]],
 ) -> Union[float, "UFloat"]:
     """A helper method to exclude contribution of single qubit gates from 2Q EPC.
 

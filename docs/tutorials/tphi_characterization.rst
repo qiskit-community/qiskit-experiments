@@ -22,7 +22,7 @@ we compute the results for :math:`T_\varphi.`
 .. jupyter-execute::
 
     # An Aer simulator
-    from qiskit.test.mock import FakeVigo
+    from qiskit.providers.fake_provider import FakeVigo
     from qiskit.providers.aer import AerSimulator
     from qiskit.providers.aer.noise import NoiseModel
     

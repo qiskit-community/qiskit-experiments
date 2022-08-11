@@ -11,8 +11,9 @@
 # that they have been altered from the originals.
 """Decay analysis class."""
 
-from typing import List, Union
+from typing import List, Union, Optional
 
+import lmfit
 import numpy as np
 
 import qiskit_experiments.curve_analysis as curve
@@ -47,25 +48,26 @@ class DecayAnalysis(curve.CurveAnalysis):
 
     """
 
-    __series__ = [
-        curve.SeriesDef(
-            fit_func=lambda x, amp, base, tau: curve.fit_function.exponential_decay(
-                x,
-                amp=amp,
-                lamb=1 / tau,
-                baseline=base,
-            ),
-            plot_color="blue",
-            model_description=r"amp \exp(-x/tau) + base",
+    def __init__(
+        self,
+        name: Optional[str] = None,
+    ):
+        super().__init__(
+            models=[
+                lmfit.models.ExpressionModel(
+                    expr="amp * exp(-x/tau) + base",
+                    name="exp_decay",
+                )
+            ],
+            name=name,
         )
-    ]
 
     def _generate_fit_guesses(
         self,
         user_opt: curve.FitOptions,
         curve_data: curve.CurveData,
     ) -> Union[curve.FitOptions, List[curve.FitOptions]]:
-        """Create algorithmic guess with analysis options and curve data.
+        """Create algorithmic initial fit guess from analysis options and curve data.
 
         Args:
             user_opt: Fit options filled with user provided guess and bounds.
@@ -92,18 +94,18 @@ class DecayAnalysis(curve.CurveAnalysis):
             )
         return user_opt
 
-    def _evaluate_quality(self, fit_data: curve.FitData) -> Union[str, None]:
+    def _evaluate_quality(self, fit_data: curve.CurveFitResult) -> Union[str, None]:
         """Algorithmic criteria for whether the fit is good or bad.
 
         A good fit has:
             - a reduced chi-squared lower than three
             - tau error is less than its value
         """
-        tau = fit_data.fitval("tau")
+        tau = fit_data.ufloat_params["tau"]
 
         criteria = [
             fit_data.reduced_chisq < 3,
-            curve.is_error_not_significant(tau),
+            curve.utils.is_error_not_significant(tau),
         ]
 
         if all(criteria):

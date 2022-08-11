@@ -12,12 +12,14 @@
 
 """Curve drawer for matplotlib backend."""
 
-from typing import Sequence, Optional
+from typing import Sequence, Optional, Tuple
 
 import numpy as np
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
 from matplotlib.ticker import ScalarFormatter, Formatter
+from matplotlib.cm import tab10
+from matplotlib.markers import MarkerStyle
 
 from qiskit.utils import detach_prefix
 from qiskit_experiments.framework.matplotlib import get_non_gui_ax
@@ -27,6 +29,9 @@ from .base_drawer import BaseCurveDrawer
 
 class MplCurveDrawer(BaseCurveDrawer):
     """Curve drawer for MatplotLib backend."""
+
+    DefaultMarkers = MarkerStyle().filled_markers
+    DefaultColors = tab10.colors
 
     class PrefixFormatter(Formatter):
         """Matplotlib axis formatter to detach prefix.
@@ -192,6 +197,13 @@ class MplCurveDrawer(BaseCurveDrawer):
                 all_axes[0].get_shared_y_axes().join(*all_axes)
                 all_axes[0].set_ylim(lim)
 
+        # Add title
+        if self.options.figure_title is not None:
+            self._axis.set_title(
+                label=self.options.figure_title,
+                fontsize=self.options.axis_label_size,
+            )
+
     def _get_axis(self, index: Optional[int] = None) -> Axes:
         """A helper method to get inset axis.
 
@@ -215,21 +227,55 @@ class MplCurveDrawer(BaseCurveDrawer):
         else:
             return self._axis
 
+    def _get_default_color(self, name: str) -> Tuple[float, ...]:
+        """A helper method to get default color for the curve.
+
+        Args:
+            name: Name of the curve.
+
+        Returns:
+            Default color available in matplotlib.
+        """
+        if name not in self._curves:
+            self._curves.append(name)
+
+        ind = self._curves.index(name) % len(self.DefaultColors)
+        return self.DefaultColors[ind]
+
+    def _get_default_marker(self, name: str) -> str:
+        """A helper method to get default marker for the scatter plot.
+
+        Args:
+            name: Name of the curve.
+
+        Returns:
+            Default marker available in matplotlib.
+        """
+        if name not in self._curves:
+            self._curves.append(name)
+
+        ind = self._curves.index(name) % len(self.DefaultMarkers)
+        return self.DefaultMarkers[ind]
+
     def draw_raw_data(
         self,
         x_data: Sequence[float],
         y_data: Sequence[float],
-        ax_index: Optional[int] = None,
+        name: Optional[str] = None,
         **options,
     ):
+        curve_opts = self.options.plot_options.get(name, {})
+        marker = curve_opts.get("symbol", self._get_default_marker(name))
+        axis = curve_opts.get("canvas", None)
+
         draw_options = {
             "color": "grey",
-            "marker": "x",
+            "marker": marker,
             "alpha": 0.8,
             "zorder": 2,
         }
         draw_options.update(**options)
-        self._get_axis(ax_index).scatter(x_data, y_data, **draw_options)
+        self._get_axis(axis).scatter(x_data, y_data, **draw_options)
 
     def draw_formatted_data(
         self,
@@ -237,10 +283,16 @@ class MplCurveDrawer(BaseCurveDrawer):
         y_data: Sequence[float],
         y_err_data: Sequence[float],
         name: Optional[str] = None,
-        ax_index: Optional[int] = None,
         **options,
     ):
+        curve_opts = self.options.plot_options.get(name, {})
+        axis = curve_opts.get("canvas", None)
+        color = curve_opts.get("color", self._get_default_color(name))
+        marker = curve_opts.get("symbol", self._get_default_marker(name))
+
         draw_ops = {
+            "color": color,
+            "marker": marker,
             "markersize": 9,
             "alpha": 0.8,
             "zorder": 4,
@@ -249,38 +301,50 @@ class MplCurveDrawer(BaseCurveDrawer):
         draw_ops.update(**options)
         if name:
             draw_ops["label"] = name
-        self._get_axis(ax_index).errorbar(x_data, y_data, yerr=y_err_data, **draw_ops)
+
+        if not np.all(np.isfinite(y_err_data)):
+            y_err_data = None
+        self._get_axis(axis).errorbar(x_data, y_data, yerr=y_err_data, **draw_ops)
 
     def draw_fit_line(
         self,
         x_data: Sequence[float],
         y_data: Sequence[float],
-        ax_index: Optional[int] = None,
+        name: Optional[str] = None,
         **options,
     ):
+        curve_opts = self.options.plot_options.get(name, {})
+        axis = curve_opts.get("canvas", None)
+        color = curve_opts.get("color", self._get_default_color(name))
+
         draw_ops = {
+            "color": color,
             "zorder": 5,
             "linestyle": "-",
             "linewidth": 2,
         }
         draw_ops.update(**options)
-        self._get_axis(ax_index).plot(x_data, y_data, **draw_ops)
+        self._get_axis(axis).plot(x_data, y_data, **draw_ops)
 
     def draw_confidence_interval(
         self,
         x_data: Sequence[float],
         y_ub: Sequence[float],
         y_lb: Sequence[float],
-        ax_index: Optional[int] = None,
+        name: Optional[str] = None,
         **options,
     ):
+        curve_opts = self.options.plot_options.get(name, {})
+        axis = curve_opts.get("canvas", None)
+        color = curve_opts.get("color", self._get_default_color(name))
+
         draw_ops = {
             "zorder": 3,
             "alpha": 0.1,
-            "color": "black",
+            "color": color,
         }
         draw_ops.update(**options)
-        self._get_axis(ax_index).fill_between(x_data, y1=y_lb, y2=y_ub, **draw_ops)
+        self._get_axis(axis).fill_between(x_data, y1=y_lb, y2=y_ub, **draw_ops)
 
     def draw_fit_report(
         self,
@@ -303,6 +367,7 @@ class MplCurveDrawer(BaseCurveDrawer):
             va="top",
             size=self.options.fit_report_text_size,
             transform=self._axis.transAxes,
+            zorder=6,
         )
         report_handler.set_bbox(bbox_props)
 

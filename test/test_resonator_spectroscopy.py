@@ -16,10 +16,14 @@ from test.base import QiskitExperimentsTestCase
 import numpy as np
 from ddt import ddt, data
 
+from qiskit.qobj.utils import MeasLevel
+from qiskit_experiments.framework import ParallelExperiment
+
 from qiskit_experiments.library import ResonatorSpectroscopy
-from qiskit_experiments.test.mock_iq_backend import MockIQBackend
+from qiskit_experiments.test.mock_iq_backend import MockIQBackend, MockIQParallelBackend
 from qiskit_experiments.test.mock_iq_helpers import (
     MockIQSpectroscopyHelper as ResonatorSpectroscopyHelper,
+    MockIQParallelExperimentHelper as ParallelExperimentHelper,
 )
 
 
@@ -34,10 +38,11 @@ class TestResonatorSpectroscopy(QiskitExperimentsTestCase):
         qubit = 1
         backend = MockIQBackend(
             experiment_helper=ResonatorSpectroscopyHelper(
-                gate_name="measure", freq_offset=freq_shift
+                gate_name="measure",
+                freq_offset=freq_shift,
+                iq_cluster_centers=[((0.0, 0.0), (-1.0, 0.0))],
+                iq_cluster_width=[0.2],
             ),
-            iq_cluster_centers=[((0.0, 0.0), (-1.0, 0.0))],
-            iq_cluster_width=[0.2],
         )
         backend._configuration.timing_constraints = {"granularity": 16}
 
@@ -72,10 +77,11 @@ class TestResonatorSpectroscopy(QiskitExperimentsTestCase):
         qubit = 1
         backend = MockIQBackend(
             experiment_helper=ResonatorSpectroscopyHelper(
-                gate_name="measure", freq_offset=freq_shift
+                gate_name="measure",
+                freq_offset=freq_shift,
+                iq_cluster_centers=[((0.0, 0.0), (-1.0, 0.0))],
+                iq_cluster_width=[0.2],
             ),
-            iq_cluster_centers=[((0.0, 0.0), (-1.0, 0.0))],
-            iq_cluster_width=[0.2],
         )
         backend._configuration.timing_constraints = {"granularity": 16}
 
@@ -94,3 +100,72 @@ class TestResonatorSpectroscopy(QiskitExperimentsTestCase):
 
         # Checking serialization of the analysis
         self.assertRoundTripSerializable(expdata.analysis_results(1), self.analysis_result_equiv)
+
+    def test_parallel_experiment(self):
+        """Test for parallel experiment"""
+        # backend initialization
+        iq_cluster_centers = [
+            ((-1.0, 0.0), (1.0, 0.0)),
+            ((0.0, -1.0), (0.0, 1.0)),
+            ((3.0, 0.0), (5.0, 0.0)),
+        ]
+
+        freq_shift = [-5e6, 3e6]
+        exp_helper_list = [
+            ResonatorSpectroscopyHelper(
+                gate_name="measure",
+                freq_offset=freq_shift[0],
+                iq_cluster_centers=iq_cluster_centers,
+            ),
+            ResonatorSpectroscopyHelper(
+                gate_name="measure",
+                freq_offset=freq_shift[1],
+                iq_cluster_centers=iq_cluster_centers,
+            ),
+        ]
+
+        parallel_backend = MockIQParallelBackend(
+            experiment_helper=None,
+            rng_seed=0,
+        )
+        parallel_backend._configuration.timing_constraints = {"granularity": 16}
+
+        qubit1 = 0
+        qubit2 = 1
+
+        res_freq1 = parallel_backend.defaults().meas_freq_est[qubit1]
+        res_freq2 = parallel_backend.defaults().meas_freq_est[qubit2]
+
+        frequencies1 = np.linspace(res_freq1 - 20e6, res_freq1 + 20e6, 51)
+        frequencies2 = np.linspace(res_freq2 - 20e6, res_freq2 + 20e6, 53)
+
+        res_spect1 = ResonatorSpectroscopy(
+            qubit1, backend=parallel_backend, frequencies=frequencies1
+        )
+        res_spect2 = ResonatorSpectroscopy(
+            qubit2, backend=parallel_backend, frequencies=frequencies2
+        )
+
+        exp_list = [res_spect1, res_spect2]
+
+        # Initializing parallel helper
+        parallel_helper = ParallelExperimentHelper(exp_list, exp_helper_list)
+
+        # setting the helper into the backend
+        parallel_backend.experiment_helper = parallel_helper
+
+        par_experiment = ParallelExperiment(exp_list, backend=parallel_backend)
+        par_experiment.set_run_options(meas_level=MeasLevel.KERNELED, meas_return="single")
+
+        par_data = par_experiment.run().block_for_results()
+        self.assertExperimentDone(par_data)
+
+        # since under _experiment in kwargs there is an argument of the backend which isn't serializable.
+        par_data._experiment = None
+        # Checking serialization of the experiment data
+        self.assertRoundTripSerializable(par_data, self.experiment_data_equiv)
+
+        for child_data in par_data.child_data():
+            self.assertRoundTripSerializable(child_data, self.experiment_data_equiv)
+            for analysis_result in child_data.analysis_results():
+                self.assertRoundTripSerializable(analysis_result, self.analysis_result_equiv)

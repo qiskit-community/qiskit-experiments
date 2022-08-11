@@ -74,7 +74,9 @@ The result of running an experiment is an :class:`ExperimentData` container
 which contains the analysis results, any figures generated during analysis,
 and the raw measurement data. These can each be accessed using the
 :meth:`ExperimentData.analysis_results`, :meth:`ExperimentData.figure`
-and :meth:`ExperimentData.data` methods respectively.
+and :meth:`ExperimentData.data` methods respectively. Additional metadata
+for the experiment itself can be added via :meth:`ExperimentData.metadata`.
+
 
 Analysis/plotting is done in a separate child thread, so it doesn't block the
 main thread. Since matplotlib doesn't support GUI mode in a child threads, the
@@ -216,6 +218,7 @@ Experiment Data Classes
     AnalysisConfig
     ExperimentEncoder
     ExperimentDecoder
+    FigureData
 
 .. _composite-experiment:
 
@@ -248,11 +251,12 @@ Mix-ins
 .. _create-experiment:
 """
 from qiskit.providers.options import Options
-from qiskit_experiments.database_service.db_analysis_result import DbAnalysisResultV1
-from qiskit_experiments.database_service.db_experiment_data import (
+from qiskit_experiments.framework.backend_data import BackendData
+from qiskit_experiments.framework.analysis_result import AnalysisResult
+from qiskit_experiments.framework.experiment_data import (
     ExperimentStatus,
-    JobStatus,
     AnalysisStatus,
+    FigureData,
 )
 from .base_analysis import BaseAnalysis
 from .base_experiment import BaseExperiment

@@ -24,7 +24,6 @@ import qiskit.pulse as pulse
 from qiskit.qobj.utils import MeasLevel
 from qiskit import transpile
 
-from qiskit_experiments.exceptions import CalibrationError
 from qiskit_experiments.library import RoughDrag, RoughDragCal
 from qiskit_experiments.test.mock_iq_backend import MockIQBackend
 from qiskit_experiments.test.mock_iq_helpers import MockIQDragHelper as DragHelper
@@ -48,14 +47,7 @@ class TestDragEndToEnd(QiskitExperimentsTestCase):
         self.x_plus = xp
         self.test_tol = 0.1
 
-    def test_reps(self):
-        """Test that setting reps raises and error if reps is not of length three."""
-
-        drag = RoughDrag(0, self.x_plus)
-
-        with self.assertRaises(CalibrationError):
-            drag.set_experiment_options(reps=[1, 2, 3, 4])
-
+    # pylint: disable=no-member
     def test_end_to_end(self):
         """Test the drag experiment end to end."""
 
@@ -68,6 +60,7 @@ class TestDragEndToEnd(QiskitExperimentsTestCase):
         self.assertExperimentDone(expdata)
         result = expdata.analysis_results(1)
 
+        # pylint: disable=no-member
         self.assertTrue(abs(result.value.n - backend.experiment_helper.ideal_beta) < self.test_tol)
         self.assertEqual(result.quality, "good")
 
@@ -80,6 +73,7 @@ class TestDragEndToEnd(QiskitExperimentsTestCase):
         self.assertExperimentDone(exp_data)
         result = exp_data.analysis_results(1)
 
+        # pylint: disable=no-member
         self.assertTrue(abs(result.value.n - backend.experiment_helper.ideal_beta) < self.test_tol)
         self.assertEqual(result.quality, "good")
 
@@ -122,6 +116,7 @@ class TestDragEndToEnd(QiskitExperimentsTestCase):
         exp_data = drag.run(backend)
         self.assertExperimentDone(exp_data)
         result = exp_data.analysis_results("beta")
+        # pylint: disable=no-member
         self.assertTrue(abs(result.value.n - backend.experiment_helper.ideal_beta) < tol)
         self.assertEqual(result.quality, "good")
 
@@ -179,6 +174,7 @@ class TestRoughDragCalUpdate(QiskitExperimentsTestCase):
         self.cals = Calibrations.from_backend(self.backend, libraries=[library])
         self.test_tol = 0.05
 
+    # pylint: disable=no-member
     def test_update(self):
         """Test that running RoughDragCal updates the calibrations."""
 

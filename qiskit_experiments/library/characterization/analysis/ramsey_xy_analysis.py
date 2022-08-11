@@ -14,30 +14,29 @@
 
 from typing import List, Union
 
+import lmfit
 import numpy as np
 
 import qiskit_experiments.curve_analysis as curve
-from qiskit_experiments.curve_analysis import fit_function
 
 
 class RamseyXYAnalysis(curve.CurveAnalysis):
-    r"""The Ramsey XY analysis is based on a fit to a cosine function and a sine function.
+    r"""Ramsey XY analysis based on a fit to a cosine function and a sine function.
 
     # section: fit_model
 
-        Analyse a Ramsey XY experiment by fitting the X and Y series to a cosine and sine
-        function, respectively. The two functions share the frequency and amplitude parameters
-        (i.e. beta).
+        Analyze a Ramsey XY experiment by fitting the X and Y series to a cosine and sine
+        function, respectively. The two functions share the frequency and amplitude parameters.
 
         .. math::
 
-            y_X = {\rm amp}e^{x/\tau}\cos\left(2\pi\cdot{\rm freq}_i\cdot x\right) + {\rm base}
-            y_Y = {\rm amp}e^{x/\tau}\sin\left(2\pi\cdot{\rm freq}_i\cdot x\right) + {\rm base}
+            y_X = {\rm amp}e^{-x/\tau}\cos\left(2\pi\cdot{\rm freq}_i\cdot x\right) + {\rm base} \\
+            y_Y = {\rm amp}e^{-x/\tau}\sin\left(2\pi\cdot{\rm freq}_i\cdot x\right) + {\rm base}
 
     # section: fit_parameters
         defpar \rm amp:
             desc: Amplitude of both series.
-            init_guess: The maximum y value less the minimum y value. 0.5 is also tried.
+            init_guess: Half of the maximum y value less the minimum y value.
             bounds: [-2, 2] scaled to the maximum signal value.
 
         defpar \tau:
@@ -48,44 +47,35 @@ class RamseyXYAnalysis(curve.CurveAnalysis):
 
         defpar \rm base:
             desc: Base line of both series.
-            init_guess: The average of the data. 0.5 is also tried.
-            bounds: [-1, 1] scaled to the maximum signal value.
+            init_guess: Roughly the average of the data.
+            bounds: [minimum Y data, maximum Y data]
 
         defpar \rm freq:
             desc: Frequency of both series. This is the parameter of interest.
             init_guess: The frequency with the highest power spectral density.
-            bounds: [0, inf].
+            bounds: [-inf, inf].
 
         defpar \rm phase:
             desc: Common phase offset.
-            init_guess: Linearly spaced between the maximum and minimum scanned beta.
-            bounds: [-min scan range, max scan range].
+            init_guess: 0
+            bounds: [-pi, pi].
     """
 
-    __series__ = [
-        curve.SeriesDef(
-            fit_func=lambda x, amp, tau, freq, base, phase: fit_function.cos_decay(
-                x, amp=amp, tau=tau, freq=freq, phase=phase, baseline=base
-            ),
-            plot_color="blue",
-            name="X",
-            filter_kwargs={"series": "X"},
-            plot_symbol="o",
-            model_description=r"{\rm amp} e^{-x/\tau} \cos\left(2 \pi\cdot {\rm freq}\cdot x "
-            r"+ {\rm phase}) + {\rm base}",
-        ),
-        curve.SeriesDef(
-            fit_func=lambda x, amp, tau, freq, base, phase: fit_function.sin_decay(
-                x, amp=amp, tau=tau, freq=freq, phase=phase, baseline=base
-            ),
-            plot_color="green",
-            name="Y",
-            filter_kwargs={"series": "Y"},
-            plot_symbol="^",
-            model_description=r"{\rm amp} e^{-x/\tau} \sin\left(2 \pi\cdot {\rm freq}\cdot x "
-            r"+ {\rm phase}\right) + {\rm base}",
-        ),
-    ]
+    def __init__(self):
+        super().__init__(
+            models=[
+                lmfit.models.ExpressionModel(
+                    expr="amp * exp(-x / tau) * cos(2 * pi * freq * x + phase) + base",
+                    name="X",
+                    data_sort_key={"series": "X"},
+                ),
+                lmfit.models.ExpressionModel(
+                    expr="amp * exp(-x / tau) * sin(2 * pi * freq * x + phase) + base",
+                    name="Y",
+                    data_sort_key={"series": "Y"},
+                ),
+            ]
+        )
 
     @classmethod
     def _default_options(cls):
@@ -109,7 +99,7 @@ class RamseyXYAnalysis(curve.CurveAnalysis):
         user_opt: curve.FitOptions,
         curve_data: curve.CurveData,
     ) -> Union[curve.FitOptions, List[curve.FitOptions]]:
-        """Create algorithmic guess with analysis options and curve data.
+        """Create algorithmic initial fit guess from analysis options and curve data.
 
         Args:
             user_opt: Fit options filled with user provided guess and bounds.
@@ -118,12 +108,14 @@ class RamseyXYAnalysis(curve.CurveAnalysis):
         Returns:
             List of fit options that are passed to the fitter function.
         """
-        max_abs_y, _ = curve.guess.max_height(curve_data.y, absolute=True)
+        y_max = np.max(curve_data.y)
+        y_min = np.min(curve_data.y)
+        y_ptp = y_max - y_min
 
         user_opt.bounds.set_if_empty(
-            amp=(-2 * max_abs_y, 2 * max_abs_y),
+            amp=(0, y_ptp),
             tau=(0, np.inf),
-            base=(-max_abs_y, max_abs_y),
+            base=(y_min, y_max),
             phase=(-np.pi, np.pi),
         )
 
@@ -144,7 +136,7 @@ class RamseyXYAnalysis(curve.CurveAnalysis):
 
         user_opt.p0.set_if_empty(
             tau=-curve.guess.exp_decay(data_x.x, decay_data),
-            amp=0.5,
+            amp=0.5 * y_ptp,
             phase=0.0,
         )
 
@@ -156,18 +148,18 @@ class RamseyXYAnalysis(curve.CurveAnalysis):
 
         return [opt_fp, opt_fm]
 
-    def _evaluate_quality(self, fit_data: curve.FitData) -> Union[str, None]:
+    def _evaluate_quality(self, fit_data: curve.CurveFitResult) -> Union[str, None]:
         """Algorithmic criteria for whether the fit is good or bad.
 
         A good fit has:
             - a reduced chi-squared lower than three,
             - an error on the frequency smaller than the frequency.
         """
-        fit_freq = fit_data.fitval("freq")
+        fit_freq = fit_data.ufloat_params["freq"]
 
         criteria = [
             fit_data.reduced_chisq < 3,
-            curve.is_error_not_significant(fit_freq),
+            curve.utils.is_error_not_significant(fit_freq),
         ]
 
         if all(criteria):

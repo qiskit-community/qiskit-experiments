@@ -31,7 +31,8 @@ from qiskit.pulse import (
 from qiskit import transpile, QuantumCircuit
 from qiskit.pulse.transforms import inline_subroutines, block_to_schedule
 import qiskit.pulse as pulse
-from qiskit.test.mock import FakeArmonk, FakeBelem
+from qiskit.providers.fake_provider import FakeArmonkV2, FakeBelemV2
+from qiskit_experiments.framework import BackendData
 from qiskit_experiments.calibration_management.calibrations import Calibrations, ParameterKey
 from qiskit_experiments.calibration_management.parameter_value import ParameterValue
 from qiskit_experiments.calibration_management.basis_gate_library import FixedFrequencyTransmon
@@ -269,6 +270,18 @@ class TestCalibrationsBasic(QiskitExperimentsTestCase):
 
         with self.assertRaises(CalibrationError):
             self.cals.get_parameter_value("amp", "(1, a)", "xp")
+
+    def test_from_backend(self):
+        """Test that when generating calibrations from backend
+        the data is passed correctly"""
+        backend = FakeBelemV2()
+        cals = Calibrations.from_backend(backend)
+        config_args = cals.config()["kwargs"]
+        control_channel_map_size = len(config_args["control_channel_map"].chan_map)
+        coupling_map_size = len(config_args["coupling_map"])
+        self.assertEqual(control_channel_map_size, 8)
+        self.assertEqual(coupling_map_size, 8)
+        self.assertEqual(cals.get_parameter_value("drive_freq", 0), 5090167234.445013)
 
 
 class TestOverrideDefaults(QiskitExperimentsTestCase):
@@ -1433,7 +1446,7 @@ class TestSavingAndLoading(CrossResonanceTest):
         """
 
         library = FixedFrequencyTransmon()
-        backend = FakeArmonk()
+        backend = FakeArmonkV2()
         cals = Calibrations.from_backend(backend, libraries=[library])
 
         cals.parameters_table()
@@ -1446,7 +1459,7 @@ class TestSavingAndLoading(CrossResonanceTest):
         self.assertEqual(cals.get_parameter_value("amp", (0,), "x"), 0.5)
         self.assertEqual(
             cals.get_parameter_value("drive_freq", (0,)),
-            backend.defaults().qubit_freq_est[0],
+            BackendData(backend).drive_freqs[0],
         )
 
 
@@ -1457,7 +1470,7 @@ class TestInstructionScheduleMap(QiskitExperimentsTestCase):
         """Test that we can setup with a library."""
 
         cals = Calibrations.from_backend(
-            FakeArmonk(),
+            FakeArmonkV2(),
             libraries=[
                 FixedFrequencyTransmon(basis_gates=["x", "sx"], default_values={"duration": 320})
             ],
@@ -1478,7 +1491,7 @@ class TestInstructionScheduleMap(QiskitExperimentsTestCase):
     def test_instruction_schedule_map_export(self):
         """Test that exporting the inst map works as planned."""
 
-        backend = FakeBelem()
+        backend = FakeBelemV2()
 
         cals = Calibrations.from_backend(
             backend,
@@ -1492,12 +1505,12 @@ class TestInstructionScheduleMap(QiskitExperimentsTestCase):
         cals.add_schedule(cr, num_qubits=2)
         cals.update_inst_map({"cr"})
 
-        for qubit in range(backend.configuration().num_qubits):
+        for qubit in range(BackendData(backend).num_qubits):
             self.assertTrue(cals.default_inst_map.has("sx", (qubit,)))
 
         # based on coupling map of Belem to keep the test robust.
         expected_pairs = [(0, 1), (1, 0), (1, 2), (2, 1), (1, 3), (3, 1), (3, 4), (4, 3)]
-        coupling_map = set(tuple(pair) for pair in backend.configuration().coupling_map)
+        coupling_map = set(tuple(pair) for pair in BackendData(backend).coupling_map)
 
         for pair in expected_pairs:
             self.assertTrue(pair in coupling_map)
@@ -1507,7 +1520,7 @@ class TestInstructionScheduleMap(QiskitExperimentsTestCase):
         """Test that we can use the inst_map to inject the cals into the circuit."""
 
         cals = Calibrations.from_backend(
-            FakeArmonk(),
+            FakeArmonkV2(),
             libraries=[FixedFrequencyTransmon(basis_gates=["x"])],
         )
 
@@ -1557,7 +1570,7 @@ class TestInstructionScheduleMap(QiskitExperimentsTestCase):
         """Test that updating a parameter will force an inst map update."""
 
         cals = Calibrations.from_backend(
-            FakeBelem(),
+            FakeBelemV2(),
             libraries=[FixedFrequencyTransmon(basis_gates=["sx", "x"])],
         )
 
@@ -1606,7 +1619,7 @@ class TestInstructionScheduleMap(QiskitExperimentsTestCase):
         a CX on qubits 0, 1 in the inst. map and a CZ on qubits 1, 2.
         """
 
-        cals = Calibrations.from_backend(FakeBelem())
+        cals = Calibrations.from_backend(FakeBelemV2())
 
         sig = Parameter("σ")
         dur = Parameter("duration")
@@ -1653,14 +1666,19 @@ class TestInstructionScheduleMap(QiskitExperimentsTestCase):
     def test_alternate_initialization(self):
         """Test that we can initialize without a backend object."""
 
-        backend = FakeBelem()
+        backend = FakeBelemV2()
         library = FixedFrequencyTransmon(basis_gates=["sx", "x"])
+
+        backend_data = BackendData(backend)
+        control_channel_map = {}
+        for qargs in backend_data.coupling_map:
+            control_channel_map[tuple(qargs)] = backend_data.control_channel(qargs)
 
         cals1 = Calibrations.from_backend(backend, libraries=[library])
         cals2 = Calibrations(
             libraries=[library],
-            control_channel_map=backend.configuration().control_channels,
-            coupling_map=backend.configuration().coupling_map,
+            control_channel_map=control_channel_map,
+            coupling_map=backend_data.coupling_map,
         )
 
         self.assertEqual(str(cals1.get_schedule("x", 1)), str(cals2.get_schedule("x", 1)))
@@ -1672,7 +1690,7 @@ class TestSerialization(QiskitExperimentsTestCase):
     def test_serialization(self):
         """Test the serialization."""
 
-        backend = FakeBelem()
+        backend = FakeBelemV2()
         library = FixedFrequencyTransmon(basis_gates=["sx", "x"])
 
         cals = Calibrations.from_backend(backend, libraries=[library])
@@ -1682,7 +1700,7 @@ class TestSerialization(QiskitExperimentsTestCase):
 
     def test_equality(self):
         """Test the equal method on calibrations."""
-        backend = FakeBelem()
+        backend = FakeBelemV2()
         library = FixedFrequencyTransmon(basis_gates=["sx", "x"])
 
         cals1 = Calibrations.from_backend(
