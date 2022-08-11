@@ -19,7 +19,8 @@ from collections import OrderedDict
 from qiskit import QuantumCircuit
 from qiskit.providers.backend import Backend
 
-from .composite_experiment import CompositeExperiment, BaseExperiment
+from qiskit_experiments.framework.base_experiment import BaseExperiment, cached_method
+from .composite_experiment import CompositeExperiment
 from .composite_analysis import CompositeAnalysis
 
 
@@ -81,6 +82,7 @@ class BatchExperiment(CompositeExperiment):
     def circuits(self):
         return self._batch_circuits(to_transpile=False)
 
+    @cached_method
     def _transpiled_circuits(self):
         return self._batch_circuits(to_transpile=True)
 

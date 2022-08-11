@@ -18,6 +18,7 @@ import ddt
 
 from qiskit import QuantumCircuit
 from qiskit_experiments.framework import ExperimentData
+from qiskit_experiments.framework.base_experiment import cached_method
 from qiskit_experiments.test.fake_backend import FakeBackend
 
 
@@ -117,3 +118,37 @@ class TestFramework(QiskitExperimentsTestCase):
         target_opts["figure_names"] = None
 
         self.assertEqual(analysis.options.__dict__, target_opts)
+
+    def test_cached_method(self):
+        """Test cached method decorator"""
+
+        class Experiment(FakeExperiment):
+            """Test experiment"""
+
+            @cached_method
+            def custom_method(self):
+                """Cached method"""
+                return [1, 2, 3]
+
+        exp = Experiment([0])
+        value1 = exp.custom_method()
+        value2 = exp.custom_method()
+        self.assertIn("Experiment.custom_method", exp._cache)
+        self.assertTrue(value1 is value2)
+
+    def test_cached_transpiled_circuits(self):
+        """Test transpiled circuits are cached"""
+        exp = FakeExperiment([0])
+        value1 = exp._transpiled_circuits()
+        value2 = exp._transpiled_circuits()
+        self.assertIn("FakeExperiment._transpiled_circuits", exp._cache)
+        self.assertTrue(value1 is value2)
+
+    def test_cache_clear(self):
+        """Test cache_clear method"""
+        exp = FakeExperiment([0])
+        value1 = exp._transpiled_circuits()
+        exp.cache_clear()
+        self.assertNotIn("FakeExperiment._transpiled_circuits", exp._cache)
+        value2 = exp._transpiled_circuits()
+        self.assertFalse(value1 is value2)

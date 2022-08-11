@@ -25,7 +25,7 @@ from qiskit.circuit import Instruction
 from qiskit.quantum_info import Clifford
 from qiskit.providers.backend import Backend
 
-from qiskit_experiments.framework import BaseExperiment, Options
+from qiskit_experiments.framework.base_experiment import BaseExperiment, Options, cached_method
 from qiskit_experiments.framework.restless_mixin import RestlessMixin
 from .rb_analysis import RBAnalysis
 from .clifford_utils import CliffordUtils
@@ -211,6 +211,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
                 circuits.append(rb_circ)
         return circuits
 
+    @cached_method
     def _transpiled_circuits(self) -> List[QuantumCircuit]:
         """Return a list of experiment circuits, transpiled."""
         transpiled = super()._transpiled_circuits()

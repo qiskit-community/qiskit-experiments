@@ -1,0 +1,13 @@
+---
+features:
+  - |
+    Adds caching of transpiled circuit generation to :class:`.BaseExperiment`
+    so that repeated calls of :class:`~.BaseExperiment.run` will avoid
+    repeated circuit generation and transpilation costs if no experiment options
+    are changed between run calls.
+
+    Changing experiment or transpilation options with the
+    :meth:`~.BaseExperiment.set_experiment_options` or
+    :meth:`~.BaseExperiment.set_transpilation_options` will clear the
+    cached circuits. The cache can also be manually cleared by calling the
+    :meth:`~.BaseExperiment.cache_clear` method.

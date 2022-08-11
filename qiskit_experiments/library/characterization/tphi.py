@@ -16,8 +16,8 @@ Tphi Experiment class.
 from typing import List, Optional, Union
 import numpy as np
 
-from qiskit import QiskitError
 from qiskit.providers import Backend
+from qiskit_experiments.framework import Options
 from qiskit_experiments.framework.composite.batch_experiment import BatchExperiment
 from qiskit_experiments.library.characterization import (
     T1,
@@ -51,6 +51,14 @@ class Tphi(BatchExperiment):
         :doc:`/tutorials/tphi_characterization`
     """
 
+    @classmethod
+    def _default_experiment_options(cls):
+        return Options(
+            delays_t1=None,
+            delays_t2=None,
+            osc_freq=0.0,
+        )
+
     def set_experiment_options(self, **fields):
         """Set the experiment options.
         Args:
@@ -59,16 +67,14 @@ class Tphi(BatchExperiment):
         Raises:
              QiskitError : Error for invalid input option.
         """
+        super().set_experiment_options(**fields)
         # propagate options to the sub-experiments.
-        for key in fields:
-            if key == "delays_t1":
-                self.component_experiment(0).set_experiment_options(delays=fields["delays_t1"])
-            elif key == "delays_t2":
-                self.component_experiment(1).set_experiment_options(delays=fields["delays_t2"])
-            elif key == "osc_freq":
-                self.component_experiment(1).set_experiment_options(osc_freq=fields["osc_freq"])
-            else:
-                raise QiskitError(f"Tphi experiment does not support option {key}")
+        if "delays_t1" in fields:
+            self.component_experiment(0).set_experiment_options(delays=fields["delays_t1"])
+        if "delays_t2" in fields:
+            self.component_experiment(1).set_experiment_options(delays=fields["delays_t2"])
+        if "osc_freq" in fields:
+            self.component_experiment(1).set_experiment_options(osc_freq=fields["osc_freq"])
 
     def __init__(
         self,
@@ -99,4 +105,4 @@ class Tphi(BatchExperiment):
 
         # Create batch experiment
         super().__init__([exp_t1, exp_t2], backend=backend, analysis=analysis)
-        self.set_experiment_options(delays_t1=delays_t1, delays_t2=delays_t2)
+        self.set_experiment_options(delays_t1=delays_t1, delays_t2=delays_t2, osc_freq=osc_freq)
