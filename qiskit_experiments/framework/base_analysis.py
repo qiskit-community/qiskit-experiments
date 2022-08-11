@@ -16,6 +16,7 @@ Base analysis class.
 from abc import ABC, abstractmethod
 import copy
 from collections import OrderedDict
+import logging
 from typing import List, Tuple, Union, Dict
 
 from qiskit_experiments.database_service.device_component import Qubit
@@ -25,6 +26,8 @@ from qiskit_experiments.framework.experiment_data import ExperimentData
 from qiskit_experiments.framework.configs import AnalysisConfig
 from qiskit_experiments.framework.analysis_result_data import AnalysisResultData
 from qiskit_experiments.framework.analysis_result import AnalysisResult
+
+LOG = logging.getLogger(__name__)
 
 
 class BaseAnalysis(ABC, StoreInitArgs):
@@ -159,7 +162,15 @@ class BaseAnalysis(ABC, StoreInitArgs):
             analysis.set_options(**options)
 
         def run_analysis(expdata):
-            results, figures = analysis._run_analysis(expdata)
+            try:
+                results, figures = analysis._run_analysis(expdata)
+            except Exception as ex:
+                LOG.error(
+                    "ERROR: %s encountered an exception during analysis and results were not added.",
+                    type(self).__name__,
+                )
+                raise ex
+
             # Add components
             analysis_results = [
                 analysis._format_analysis_result(

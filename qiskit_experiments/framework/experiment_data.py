@@ -798,23 +798,19 @@ class ExperimentData:
         jid = job.job_id()
         try:
             job_result = job.result()
-            self._add_result_data(job_result)
-            LOG.debug("Job data added [Job ID: %s]", jid)
-            return jid, True
+            return self._add_result_data(job_result)
         except Exception as ex:  # pylint: disable=broad-except
             # Handle cancelled jobs
             status = job.status()
             if status == JobStatus.CANCELLED:
-                LOG.warning("Job was cancelled before completion [Job ID: %s]", jid)
+                LOG.warning("WARNING: Job was cancelled before completion [Job ID: %s]", jid)
                 return jid, False
             if status == JobStatus.ERROR:
-                LOG.error(
-                    "Job data not added for errorred job [Job ID: %s]" "\nError message: %s",
-                    jid,
-                    job.error_message(),
-                )
+                LOG.error("ERROR: Job data not added for errorred job [Job ID: %s]", jid)
+                LOG.info("INFO:\n%s", job.error_message())
                 return jid, False
-            LOG.warning("Adding data from job failed [Job ID: %s]", job.job_id())
+            LOG.error("ERROR: Job failed [Job ID: %s]", job.job_id())
+            LOG.info("INFO: %s", traceback.format_exc())
             raise ex
 
     def add_analysis_callback(self, callback: Callable, **kwargs: Any):
@@ -909,22 +905,34 @@ class ExperimentData:
             )
             return callback_id, True
         except Exception as ex:  # pylint: disable=broad-except
-            self._analysis_callbacks[callback_id].status = AnalysisStatus.ERROR
             tb_text = "".join(traceback.format_exception(type(ex), ex, ex.__traceback__))
+            self._analysis_callbacks[callback_id].status = AnalysisStatus.ERROR
             error_msg = (
                 f"Analysis callback failed [Experiment ID: {self.experiment_id}]"
-                f"[Analysis Callback ID: {callback_id}]:\n{tb_text}"
+                f"[Analysis Callback ID: {callback_id}]."
             )
-            self._analysis_callbacks[callback_id].error_msg = error_msg
-            LOG.warning(error_msg)
+            LOG.warning("WARNING: %s", error_msg)
+            LOG.info("INFO: %s", tb_text)
+            self._analysis_callbacks[callback_id].error_msg = f"{error_msg}:\n{tb_text}"
             return callback_id, False
 
-    def _add_result_data(self, result: Result) -> None:
+    def _add_result_data(self, result: Result) -> Tuple[str, bool]:
         """Add data from a Result object
 
         Args:
             result: Result object containing data to be added.
+
+        Returns:
+            A tuple (str, bool) of the job id and bool of if the result data was added.
         """
+        if not result.success:
+            LOG.error(
+                "ERROR: Result data not added for unsuccessful job result [Job ID: %s]",
+                result.job_id,
+            )
+            LOG.info("Result status: %s", result.status)
+            return result.job_id, False
+
         if result.job_id not in self._jobs:
             self._jobs[result.job_id] = None
             self.job_ids.append(result.job_id)
@@ -944,6 +952,9 @@ class ExperimentData:
                 if hasattr(expr_result, "meas_return"):
                     data["meas_return"] = expr_result.meas_return
                 self._result_data.append(data)
+
+        LOG.debug("Result data added [Job ID: %s]", result.job_id)
+        return result.job_id, True
 
     def _retrieve_data(self):
         """Retrieve job data if missing experiment data."""
@@ -1369,7 +1380,8 @@ class ExperimentData:
 
         except Exception as ex:  # pylint: disable=broad-except
             # Don't automatically fail the experiment just because its data cannot be saved.
-            LOG.error("Unable to save the experiment data: %s", traceback.format_exc())
+            LOG.error("Unable to save the experiment data")
+            LOG.info(traceback.format_exc())
             if not suppress_errors:
                 raise QiskitError(f"Experiment data save failed\nError Message:\n{str(ex)}") from ex
 
@@ -1640,10 +1652,8 @@ class ExperimentData:
                     self.experiment_id,
                 )
         if excepts:
-            LOG.error(
-                "%s raised exceptions [Experiment ID: %s]:%s", name, self.experiment_id, excepts
-            )
-
+            LOG.error("%s raised exceptions [Experiment ID: %s]", name, self.experiment_id)
+            LOG.info(excepts)
         return value
 
     def status(self) -> ExperimentStatus:
@@ -1791,12 +1801,18 @@ class ExperimentData:
 
         # Get any job errors
         for job in self._jobs.values():
-            if job and job.status() == JobStatus.ERROR:
+            if not job:
+                continue
+            if job.status() == JobStatus.ERROR:
                 if hasattr(job, "error_message"):
                     error_msg = job.error_message()
                 else:
                     error_msg = ""
                 errors.append(f"\n[Job ID: {job.job_id()}]: {error_msg}")
+            elif job.status() == JobStatus.DONE:
+                result = job.result()
+                if not result.success:
+                    errors.append(f"\n[Job ID: {job.job_id()}]: {result.status}")
 
         # Get any job futures errors:
         for jid, fut in self._job_futures.items():
