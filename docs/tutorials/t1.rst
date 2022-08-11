@@ -113,7 +113,7 @@ using ``child_data``
 :math:`T_1` experiments can also be done with kerneled measurements.
 If we set the run option `meas_level=MeasLevel.KERNELED`, the job
 will not discriminate the data and will not label it. In the T1 experiment,
-since we know that in :math:`P(1|t=0)=1`, we will add a circuit with delay=0,
+since we know that :math:`P(1|t=0)=1`, we will add a circuit with delay=0,
 and another circuit with a very large delay. In this configuration we know that the data starts from
 a point [I,Q] that is close to a logical value '1' and ends at a point [I,Q]
 that is close to a logical value '0'.
@@ -133,13 +133,13 @@ that is close to a logical value '0'.
     t1_estimated_shift = t1[0]/10
 
     # We use log space for the delays because of the noise properties
-    delays = np.logspace(1, 11, num=20, base=np.exp(1))
+    delays = np.logspace(1, 11, num=23, base=np.exp(1))
     delays *= ns
 
     # Adding circuits with delay=0 and long delays so the centers in the IQ plane won't be misplaced.
     # Without this, the fitting can provide wrong results.
     delays = np.insert(delays, 0, 0)
-    delays = np.append(delays, [t1[0]*2])
+    delays = np.append(delays, [t1[0]*3])
 
     num_qubits = 2
     num_shots = 2048
