@@ -28,12 +28,11 @@ import sys
 
 sys.path.insert(0, os.path.abspath("."))
 sys.path.append(os.path.abspath("./_ext"))
+sys.path.append(os.path.abspath(".."))
 
 """
 Sphinx documentation builder
 """
-
-import os
 
 # Set env flag so that we can doc functions that may otherwise not be loaded
 # see for example interactive visualizations in qiskit.visualization.
