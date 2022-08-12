@@ -1,3 +1,14 @@
+# This code is part of Qiskit.
+#
+# (C) Copyright IBM 2021.
+#
+# This code is licensed under the Apache License, Version 2.0. You may
+# obtain a copy of this license in the LICENSE.txt file in the root directory
+# of this source tree or at http://www.apache.org/licenses/LICENSE-2.0.
+#
+# Any modifications or derivative works of this code must retain this
+# copyright notice, and modified files need to carry a notice indicating
+# that they have been altered from the originals.
 """
 Utilities for sampling layers in randomized benchmarking experiments
 """
@@ -17,7 +28,6 @@ from qiskit.circuit.library import (
     ZGate,
     CXGate,
     CYGate,
-    ZGate,
     SGate,
     SdgGate,
     SXGate,
@@ -25,8 +35,8 @@ from qiskit.circuit.library import (
 )
 from qiskit.quantum_info import random_unitary, random_clifford, Pauli
 from qiskit.extensions import UnitaryGate
-from qiskit_experiment_extension.clifford_utils import CliffordUtils
 from qiskit.converters import circuit_to_dag
+from .clifford_utils import CliffordUtils
 
 
 CZGate = ZGate().control(1)
@@ -69,11 +79,11 @@ class SamplingUtils:
 
         Raises:
             QiskitError: If gate_set is not "clifford" or "su2" / "su(2)" / "haar"
-        
+
         Returns:
             List of QuantumCircuits
         """
-        if type(gate_set) == list or not (
+        if isinstance(gate_set, list) or not (
             gate_set.casefold() in ["clifford", "su2", "su(2)", "haar"]
         ):
             raise QiskitError("gate_set must be one of 'clifford', 'su2', 'su(2)', 'haar'")
@@ -129,6 +139,7 @@ class SamplingUtils:
             rng: Random seed
 
         Raises:
+            QiskitError: If invalid one qubit gate set is provided
             Warning: If device has no connectivity or two_qubit_gate_density is too high
 
         Returns:
@@ -136,14 +147,14 @@ class SamplingUtils:
 
         Ref: arXiv:2008.11294v2
         """
-        if type(one_qubit_gate_set) == list or not (
+        if isinstance(one_qubit_gate_set, list) or not (
             one_qubit_gate_set.casefold() in ["clifford", "su2", "su(2)", "haar"]
         ):
             raise QiskitError(
                 "one_qubit_gate_set must be one of 'clifford', 'su2', 'su(2)', 'haar'"
             )
 
-        if type(two_qubit_gate_set) == str:
+        if isinstance(two_qubit_gate_set, str):
             two_qubit_gate_set = gate_set_dict[two_qubit_gate_set.casefold()]
         if len(two_qubit_gate_set) == 1:
             two_qubit_gate = two_qubit_gate_set[0]
@@ -223,14 +234,14 @@ class SamplingUtils:
                 qc_list += qc_1q
         return qc_list
 
-    def should_invert_cp(self, pc: str, pt: str, axis2q: str) -> bool:
+    def should_invert_cp(self, pcontrol: str, ptarget: str, axis2q: str) -> bool:
         """Returns Boolean, whether CP(theta) or CP(-theta) should be added to T
         (see arXiv:2207.07272), p. 4, col. 2, 3(b).
         Note: The cited protocol is currently incorrect as of 08/08/22, but the one here is correct.
 
         Args:
-            pc: Pauli on the control bit
-            pt: Pauli on the target bit
+            pcontrol: Pauli on the control bit
+            ptarget: Pauli on the target bit
             axis2q: Pauli axis about which the two-qubit gate, CP, rotates
                     (e.g., if CP = Sdg, axis2q = Z)
 
@@ -238,21 +249,21 @@ class SamplingUtils:
             True, if CP(-theta) should be in T, and False, if CP(theta) should be in T
 
         Raises:
-            QiskitError: if pc is not a Pauli"""
+            QiskitError: if pcontrol is not a Pauli"""
 
-        pt_pauli = Pauli(data=pt.upper())
+        pt_pauli = Pauli(data=ptarget.upper())
         axis2q_pauli = Pauli(data=axis2q.upper())
-        if pc.casefold() in ["i", "z"]:
+        if pcontrol.casefold() in ["i", "z"]:
             return not pt_pauli.commutes(axis2q_pauli)
-        elif pc.casefold() in ["x", "y"]:
+        elif pcontrol.casefold() in ["x", "y"]:
             return pt_pauli.commutes(axis2q_pauli)
         else:
             raise QiskitError("pc is not a Pauli")
 
-    def commute_paulis_through_cp(self, p1: str, p2: str, cp: str) -> Tuple[np.array, Gate]:
+    def commute_paulis_through_cp(self, pauli1: str, pauli2: str, cp: str) -> Tuple[np.array, Gate]:
         """Compute the Pauli-axis rotations that should be placed after a controlled Pauli-axis
-        rotation cp to correct for p1 and p2. Specifically, the gates Pc and Pt returned by this
-        method satisfy
+        rotation cp to correct for pauli1 and pauli2. Specifically, the gates Pc and Pt returned
+        by this method satisfy
 
                   ┌───┐     ┌───┐┌───┐
         ──■──     ┤ P1├──■──┤ Pc├┤ P1├
@@ -261,16 +272,19 @@ class SamplingUtils:
         └───┘     └───┘└───┘└───┘└───┘
 
         Args:
-            p1: Pauli before control bit
-            p2: Pauli before target bit
+            pauli1: Pauli before control bit
+            pauli2: Pauli before target bit
             cp: controlled Pauli-axis rotation gate
+
+        Raises:
+            QiskitError: If controlled pauli axis rotation is invalid
 
         Returns:
             control_gate: Pauli-axis rotation after control bit
             target_gate: Pauli-axis rotation after target bit
         """
-        p1_pauli = Pauli(data=p1.upper())
-        p2_pauli = Pauli(data=p2.upper())
+        p1_pauli = Pauli(data=pauli1.upper())
+        p2_pauli = Pauli(data=pauli2.upper())
 
         # Get cp_matrix and rotation axis from cp
         if cp[0].casefold() == "c":
@@ -295,7 +309,7 @@ class SamplingUtils:
                 "Your cp has not yet been implemented or is not a controlled Pauli-axis rotation gate"
             )
 
-        should_invert = self.should_invert_cp(p1.upper(), p2.upper(), axis2q)
+        should_invert = self.should_invert_cp(pauli1.upper(), pauli2.upper(), axis2q)
         cp_gate_dict = {
             "x": CXGate(),
             "y": CYGate(),
@@ -316,7 +330,7 @@ class SamplingUtils:
         else:  # sxdg
             new_cp_gate = cp_gate_dict["sx"] if should_invert else cp_gate_dict["sxdg"]
 
-        if p1.casefold() in ["i", "z"]:
+        if pauli1.casefold() in ["i", "z"]:
             # Compute the right-hand side of (10) in arXiv:2207.07272,
             #
             # (P1 ⊗ P2) (|0><0| ⊗ I + |1><1| ⊗ P^α) (P1 ⊗ P2) (|0><0| ⊗ I + |1><1| ⊗ P^±α) (*).
@@ -328,7 +342,7 @@ class SamplingUtils:
             coeff0 = p1_pauli.to_matrix()[0, 0] * np.outer(
                 p1_pauli.to_matrix()[:, 0], np.asarray([1, 0])
             )
-            if self.should_invert_cp(p1, p2, axis2q):  # cp(-theta) goes in T
+            if self.should_invert_cp(pauli1, pauli2, axis2q):  # cp(-theta) goes in T
                 product = p2_pauli.to_matrix() @ cp_matrix @ p2_pauli.to_matrix() @ cp_matrix
             else:  # cp(theta) goes in T
                 product = p2_pauli.to_matrix() @ cp_matrix @ p2_pauli.to_matrix() @ cp_matrix.H
@@ -357,18 +371,19 @@ class SamplingUtils:
             elif cp in ["z", "s", "sdg"]:
                 phase = product[0, 0]
             elif cp == "sxdg":
-                if self.should_invert_cp(p1.upper(), p2.upper(), axis2q):
+                if self.should_invert_cp(pauli1.upper(), pauli2.upper(), axis2q):
                     phase = product[0, 0] * 2.0 / (1.0 - 1.0j)
                 else:
                     phase = product[0, 0] * 2.0 / (1.0 + 1.0j)
             elif cp == "sx":
-                if self.should_invert_cp(p1.upper(), p2.upper(), axis2q):
+                if self.should_invert_cp(pauli1.upper(), pauli2.upper(), axis2q):
                     phase = product[0, 0] * 2.0 / (1.0 + 1.0j)
                 else:
                     phase = product[0, 0] * 2.0 / (1.0 - 1.0j)
             else:
                 raise QiskitError(
-                    "Your cp has not yet been implemented or is not a controlled Pauli-axis rotation gate"
+                    "Your cp has not yet been implemented or is not a controlled "
+                    "Pauli-axis rotation gate"
                 )
             coeff1 = (
                 phase
@@ -386,7 +401,7 @@ class SamplingUtils:
             "sx": SXGate(),
             "sxdg": SXdgGate(),
         }
-        if p1.casefold() in ["i", "z"]:
+        if pauli1.casefold() in ["i", "z"]:
             target_gate = IGate()
         else:
             if cp[0] == "s" and not should_invert:  # not pure controlled Pauli
@@ -401,7 +416,7 @@ class SamplingUtils:
 
     def which_pauli_power(self, matrix: np.array) -> Tuple[Gate, float]:
         """Converts a matrix to a power of a Pauli and a global phase
-        
+
         Args:
             matrix: matrix to be converted to a gate (up to a global phase)
 
@@ -412,6 +427,7 @@ class SamplingUtils:
         Returns:
             Tuple of gate and a float representing the global phase
         """
+        gate, phase = None, None
         if (
             np.abs(matrix[0, 0]) == 1.0
             and matrix[1, 1] != 0
@@ -420,13 +436,13 @@ class SamplingUtils:
         ):
             ratio = matrix[1, 1] / matrix[0, 0]
             if ratio == 1.0:
-                return IGate(), matrix[0, 0]
+                gate, phase = IGate(), matrix[0, 0]
             elif ratio == -1.0:
-                return ZGate(), matrix[0, 0]
+                gate, phase = ZGate(), matrix[0, 0]
             elif ratio == 1.0j:
-                return SGate(), matrix[0, 0]
+                gate, phase = SGate(), matrix[0, 0]
             elif ratio == -1.0j:
-                return SdgGate(), matrix[0, 0]
+                gate, phase = SdgGate(), matrix[0, 0]
             else:
                 raise QiskitError("not a Pauli or has not been implemented yet")
         elif (
@@ -437,9 +453,9 @@ class SamplingUtils:
         ):
             ratio = matrix[1, 0] / matrix[0, 1]
             if ratio == 1.0:
-                return XGate(), matrix[1, 0]
+                gate, phase = XGate(), matrix[1, 0]
             elif ratio == -1.0:
-                return YGate(), matrix[1, 0] * -1.0j
+                gate, phase = YGate(), matrix[1, 0] * -1.0j
             else:
                 raise QiskitError("not a Pauli or has not been implemented yet")
         elif matrix[0, 0] * matrix[0, 1] * matrix[1, 0] * matrix[1, 1] != 0:
@@ -448,12 +464,13 @@ class SamplingUtils:
             ratio12 = matrix[0, 1] / matrix[0, 0]
             if ratio14 != 1.0 or ratio23 != 1.0 or ratio12 not in [1.0j, -1.0j]:
                 raise QiskitError("not a Pauli or has not been implemented yet")
-            elif ratio12 == 1.0j:
-                return SXGate(), matrix[0, 0] * 2.0 / (1.0 + 1.0j)
+            if ratio12 == 1.0j:
+                gate, phase = SXGate(), matrix[0, 0] * 2.0 / (1.0 + 1.0j)
             else:
-                return SXdgGate(), matrix[0, 0] * 2.0 / (1.0 - 1.0j)
+                gate, phase = SXdgGate(), matrix[0, 0] * 2.0 / (1.0 - 1.0j)
         else:
             raise QiskitError("not a Pauli or has not been implemented yet")
+        return gate, phase
 
     def generate_correction(
         self,
@@ -490,7 +507,7 @@ class SamplingUtils:
             paulis_by_qubit[node.qargs[0].index] = node.name
 
         two_qubit_gate_pairs = {}
-        for i in range(len(control_qubits)):
+        for i, _ in enumerate(control_qubits):
             control_qubit = control_qubits[i]
             target_qubit = target_qubits[i]
             two_qubit_gate_pairs[(control_qubit, target_qubit)] = (
@@ -502,7 +519,7 @@ class SamplingUtils:
         # [Pauli on control, Pauli on target, new_cp_gate, phase]}
 
         commuted_gates = {}
-        for control, target in two_qubit_gate_pairs:
+        for control, target in two_qubit_gate_pairs.items():
             p1, p2, cp = two_qubit_gate_pairs[control, target]
             p_matrix, p_char, new_cp_gate = self.commute_paulis_through_cp(p1, p2, cp)
             matrix_to_char, phase = self.which_pauli_power(p_matrix)
@@ -512,7 +529,7 @@ class SamplingUtils:
         rc_data = []
         new_two_qubit_layer = QuantumCircuit(pauli_layer.num_qubits)
         ntql_data = []
-        for qubits in commuted_gates.keys():
+        for qubits in commuted_gates:
             gate_list = commuted_gates[qubits]
             rc_data.append((gate_list[0], [qubits[0]], []))
             rc_data.append((gate_list[1], [qubits[1]], []))

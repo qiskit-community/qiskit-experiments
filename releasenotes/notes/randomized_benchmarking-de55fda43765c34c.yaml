@@ -4,9 +4,10 @@ features:
     A new experiment class :class:`qiskit_experiments.library.MirrorRB` is 
     introduced. This class implements mirror randomized benchmarking (RB), a version 
     of RB that uses mirror circuits. It is more scalable than other RB protocols and
-    can consequently be used to detect crosstalk errors. A similar class 
-    :class:`qiskit_experiments.library.MirrorRBPyGSTi` is also introduced that uses
-    ``pyGSTi`` circuit generation; it is primarily used for testing. 
+    can consequently be used to detect crosstalk errors. 
+  - |
+    In the new experiment class :class:`qiskit_experiments.library.MirrorRB`, circuits
+    with non-Clifford gates can now be constructed and run in the experiment
 
 fixes:
   - |

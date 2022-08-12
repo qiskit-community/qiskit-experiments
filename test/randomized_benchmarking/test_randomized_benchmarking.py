@@ -409,11 +409,33 @@ class TestMirrorRB(RBTestCase):
             backend=self.backend,
         )
 
+        new_circ_exp1 = rb.MirrorRB(
+            qubits=(0, 1),
+            lengths=lengths,
+            seed=123,
+            backend=self.backend,
+            old_sampling=False,
+            full_sampling=True,
+        )
+
+        new_circ_exp2 = rb.MirrorRB(
+            qubits=(0, 1),
+            lengths=lengths,
+            seed=123,
+            backend=self.backend,
+            old_sampling=False,
+            full_sampling=True,
+        )
+
         circs1 = exp1.circuits()
         circs2 = exp2.circuits()
 
-        for circ1, circ2 in zip(circs1, circs2):
-            self.assertEqual(circ1.decompose(), circ2.decompose())
+        new_circs1 = new_circ_exp1.circuits()
+        new_circs2 = new_circ_exp2.circuits()
+
+        for i, _ in enumerate(circs1):
+            self.assertEqual(circs1[i].decompose(), circs2[i].decompose())
+            self.assertEqual(new_circs1[i].decompose(), new_circs2[i].decompose())
 
     def test_full_sampling(self):
         """Test if full sampling generates different circuits."""
@@ -459,6 +481,28 @@ class TestMirrorRB(RBTestCase):
         actual_tb = "110010110"
         self.assertEqual(expected_tb, actual_tb)
 
+        new_circ_exp = rb.MirrorRB(
+            qubits=(0, 1, 2, 3, 4, 5, 6, 7, 8),
+            lengths=[2],
+            seed=124,
+            one_qubit_gate_set="haar",
+            backend=self.backend,
+            num_samples=1,
+            two_qubit_gate_density=0,
+            old_sampling=False,
+            full_sampling=True,
+        )
+        new_circ = new_circ_exp.circuits()[0]
+        simulator = AerSimulator()
+
+        from qiskit import transpile
+
+        circ = transpile(new_circ, simulator)
+        result = simulator.run(circ).result()
+        new_circ_expected_tb = list(result.get_counts(circ).keys())[0]
+        new_circ_actual_tb = new_circ_exp.circuits()[0].metadata["target"]
+        self.assertEqual(new_circ_expected_tb, new_circ_actual_tb)
+
     def test_zero_2q_gate_density(self):
         """Test that there are no two-qubit gates when the two-qubit gate
         density is set to 0."""
@@ -470,8 +514,22 @@ class TestMirrorRB(RBTestCase):
             num_samples=1,
             two_qubit_gate_density=0,
         )
+        new_circ_exp = rb.MirrorRB(
+            qubits=(0, 1),
+            lengths=[40],
+            seed=124,
+            backend=self.backend,
+            num_samples=1,
+            two_qubit_gate_density=0,
+            old_sampling=False,
+            full_sampling=True,
+        )
         circ = exp.circuits()[0].decompose()
+        new_circ = new_circ_exp.circuits()[0].decompose()
         for datum in circ.data:
+            inst_name = datum[0].name
+            self.assertNotEqual("cx", inst_name)
+        for datum in new_circ.data:
             inst_name = datum[0].name
             self.assertNotEqual("cx", inst_name)
 
@@ -489,12 +547,29 @@ class TestMirrorRB(RBTestCase):
             num_samples=1,
             two_qubit_gate_density=0.5,
         )
+        new_circ_exp = rb.MirrorRB(
+            qubits=(0, 1, 2, 3),
+            lengths=[40],
+            old_sampling=False,
+            full_sampling=True,
+            seed=125,
+            backend=backend,
+            num_samples=1,
+            two_qubit_gate_density=0.5,
+        )
         circ = exp.circuits()[0].decompose()
+        new_circ = new_circ_exp.circuits()[0].decompose()
         num_cxs = 0
+        new_circ_num_cxs = 0
+        print(f"new_circ.data: {new_circ.data}")
         for datum in circ.data:
             if datum[0].name == "cx":
                 num_cxs += 1
+        for datum in new_circ.data:
+            if datum[0].name == "cx":
+                new_circ_num_cxs += 1
         self.assertEqual(80, num_cxs)
+        self.assertEqual(80, new_circ_num_cxs)
 
     def test_local_clifford(self):
         """Test that the number of layers is correct depending on whether
@@ -607,6 +682,36 @@ class TestMirrorRB(RBTestCase):
             "two_qubit_gate_density": -0.1,
             "backend": AerSimulator(coupling_map=[[0, 1], [1, 0]]),
         },  # negative two-qubit gate density
+        {
+            "qubits": [0, 1],
+            "lengths": [2, 4, 6, 8, 10],
+            "old_sampling": True,
+            "one_qubit_gate_set": "haar",
+            "num_samples": 1,
+            "seed": 100,
+            "two_qubit_gate_density": -0.1,
+            "backend": AerSimulator(coupling_map=[[0, 1], [1, 0]]),
+        },  # non-Clifford SU(2) with old sampling
+        {
+            "qubits": [0, 1],
+            "lengths": [2, 4, 6, 8, 10],
+            "old_sampling": True,
+            "two_qubit_gate_set": "cs",
+            "num_samples": 1,
+            "seed": 100,
+            "two_qubit_gate_density": -0.1,
+            "backend": AerSimulator(coupling_map=[[0, 1], [1, 0]]),
+        },  # non-Clifford two-qubit gate set with old sampling
+        {
+            "qubits": [0, 1],
+            "lengths": [2, 4, 6, 8, 10],
+            "old_sampling": False,
+            "num_samples": 1,
+            "seed": 100,
+            "two_qubit_gate_density": -0.1,
+            "backend": AerSimulator(coupling_map=[[0, 1], [1, 0]]),
+            "full_sampling": False,
+        },  # new sampling without full sampling
     )
     def test_invalid_configuration(self, configs):
         """Test raise error when creating experiment with invalid configs."""

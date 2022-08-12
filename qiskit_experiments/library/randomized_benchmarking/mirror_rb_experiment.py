@@ -19,16 +19,6 @@ from numpy.random.bit_generator import BitGenerator, SeedSequence
 
 import numpy as np
 
-try:
-    import pygsti
-    from pygsti.processors import QubitProcessorSpec as QPS
-    from pygsti.processors import CliffordCompilationRules as CCR
-    from pygsti.baseobjs import QubitGraph as QG
-
-    HAS_PYGSTI = True
-except ImportError:
-    HAS_PYGSTI = False
-
 from qiskit import QuantumCircuit, QiskitError
 from qiskit.circuit import Instruction
 from qiskit.quantum_info import (
@@ -193,6 +183,10 @@ class MirrorRB(StandardRB):
         Args:
             lengths: List of lengths to run Mirror RB
             rng: Generator seed
+
+        Raises:
+            QiskitError: If no backend is provided
+
         Returns:
             List of QuantumCircuits
         """
@@ -252,23 +246,24 @@ class MirrorRB(StandardRB):
 
             mirror_circuits = []
             if not self._old_sampling:
-                # The design of the current implementation of the randomized compilation 
+                # The design of the current implementation of the randomized compilation
                 # in Ref. [4] needs to be improved. Currently, if the two-qubit gate is
                 # a Clifford gate, the code calls _randomized_compilation, which follows
                 # the algorithm implemented in PyGSTi. However, the PyGSTi's algorithm
-                # algorithm for non-Clifford two-qubit gates is incorrect, so in that 
-                # case we follow the algorithm in Ref. [4] more directly. In the future, 
+                # algorithm for non-Clifford two-qubit gates is incorrect, so in that
+                # case we follow the algorithm in Ref. [4] more directly. In the future,
                 # we should follow the algorithm in Ref. [4] for Clifford two-qubit gates
                 # as well.
+                target_bitstring = ""
                 if self._two_qubit_gate_set not in ["cs", "csx"]:
                     elements, net_pauli_str = self._randomized_compilation(elements, rng)
                 else:
                     elements, target_bitstring = self._algebraic_randomized_compilation(
                         elements, rng
                     )
-                
+
                 # Need to reverse and then un-reverse to avoid characters for the phase like - and i
-                if not self._two_qubit_gate_set not in ["cs", "csx"]:
+                if self._two_qubit_gate_set not in ["cs", "csx"]:
                     target_bitstring = "".join(
                         [
                             "1" if op in ["X", "Y"] else "0"
@@ -294,7 +289,7 @@ class MirrorRB(StandardRB):
                 if self._pauli_randomize:
                     elements = self._pauli_dress(elements, rng)
                     element_lengths = [length * 2 + 1 for length in element_lengths]
-                
+
                 # Add start and end local cliffords if set by user
                 if self._local_clifford:
                     element_lengths = [length + 2 for length in element_lengths]
@@ -543,9 +538,10 @@ class MirrorRB(StandardRB):
             rand_pauli_circ = rand_pauli_circ.decompose()
             new_element_list.append(rand_pauli_circ)
             new_element_list_flags.append(0)
-            
+
             # new_element_list is of the form
-            # 1 P | 2 | C P 1 P | 2 C P ... 1 P | 2 | C P 1 P | 2 (empty) | P 1 P | 2 | C P ... 1 P | 2 C P 1 P
+            # 1 P | 2 | C P 1 P | 2 C P ...
+            # ... 1 P | 2 | C P 1 P | 2 (empty) | P 1 P | 2 | C P ... 1 P | 2 C P 1 P
             # compile gates together
             compiled_element_list = []
             curr_elt = QuantumCircuit(self._num_qubits)
@@ -628,7 +624,10 @@ class MirrorRB(StandardRB):
         return [tensor_circ] + elements + [tensor_circ.inverse()]
 
     def _generate_mirror(
-        self, elements: Iterable[Clifford], lengths: Iterable[int]
+        self,
+        elements: Iterable[Clifford],
+        lengths: Iterable[int],
+        target_bitstring: str = None,
     ) -> List[QuantumCircuit]:
         """Return the RB circuits constructed from the given element list with the second
            half as the inverse of the first half
@@ -636,6 +635,7 @@ class MirrorRB(StandardRB):
         Args:
             elements: A list of Clifford elements
             lengths: A list of RB sequences lengths.
+            target_bitstring: String representing the target bitstring if already computed
 
         Returns:
             A list of :class:`QuantumCircuit`s.
@@ -649,6 +649,7 @@ class MirrorRB(StandardRB):
 
         circs = [QuantumCircuit(self.num_qubits) for _ in range(len(lengths))]
 
+        # Iterate through first half of circuit elements, excluding the middle Pauli layer if it exists
         for current_length, group_elt_circ in enumerate(elements[: (len(elements) // 2)]):
             if isinstance(group_elt_circ, tuple):
                 group_elt_gate = group_elt_circ[0]
@@ -664,8 +665,25 @@ class MirrorRB(StandardRB):
             double_current_length = (
                 (current_length + 1) * 2 + 1 if len(elements) % 2 == 1 else (current_length + 1) * 2
             )
+
+            # print(f"double current length: {double_current_length}")
+            # print(f"lengths: {lengths}")
+
+            # If we have reached the middle of one of the circuits, start appending the inverse of that
+            # circuit
             if double_current_length in lengths:
                 rb_circ = circs.pop()
+
+                # Starting index for the inverse of the circuit. E.g., for a circuit with odd length
+                # for the first half, start appending from the middle Pauli layer--if there are 11
+                # elements and we are making a length 7 circuit (2 local cliffords, 2 clifford layers,
+                # 3 pauli layers), then once current_length reaches 2 (meaning we've appended 3 layers),
+                # we start adding the inverse starting with index inv_start = -4, which is a Pauli layer.
+                # For a circuit with even length for the first half, start appending from the first
+                # inverted Clifford layer--if there are 6 elements and we are making a length 4 circuit
+                # (2 local cliffords, 2 clifford layers), then once current_length reaches 1 (we've
+                # appended 2 layers), we start adding the inverse starting with index inv_start = -2,
+                # which appends the correct inverted layers.
                 inv_start = (
                     (-(current_length + 1) - 1) if len(elements) % 2 == 1 else -(current_length + 1)
                 )
@@ -679,202 +697,19 @@ class MirrorRB(StandardRB):
                         group_elt_gate = group_elt_gate.to_instruction()
                     rb_circ.barrier(qubits)
                     rb_circ.append(group_elt_gate, qubits)
+                target = (
+                    target_bitstring
+                    if target_bitstring
+                    else self._clifford_utils.compute_target_bitstring(rb_circ)
+                )
                 rb_circ.metadata = {
                     "experiment_type": self._type,
                     "xval": double_current_length,
                     "group": "Clifford",
                     "physical_qubits": self.physical_qubits,
-                    "target": self._clifford_utils.compute_target_bitstring(rb_circ),
+                    "target": target,
                     "inverting_pauli_layer": self._inverting_pauli_layer,
                 }
                 rb_circ.measure_all()
                 circuits.append(rb_circ)
-        return circuits
-
-
-class MirrorRBPyGSTi(MirrorRB):
-    """Mirror RB experiment that uses pyGSTi's circuit generation. This subclass
-    is primarily used for testing."""
-
-    def __init__(
-        self,
-        qubits: Sequence[int],
-        lengths: Iterable[int],
-        local_clifford: bool = True,
-        pauli_randomize: bool = True,
-        two_qubit_gate_density: float = 0.2,
-        backend: Optional[Backend] = None,
-        num_samples: int = 3,
-        seed: Optional[Union[int, SeedSequence, BitGenerator, Generator]] = None,
-        full_sampling: bool = False,
-        inverting_pauli_layer: bool = False,
-    ):
-        """Initialize a mirror randomized benchmarking experiment that uses
-        pyGSTi's circuit generation.
-
-        Args:
-            qubits: A list of physical qubits for the experiment.
-            lengths: A list of RB sequences lengths.
-            local_clifford: If True, begin the circuit with uniformly random 1-qubit
-                            Cliffords and end the circuit with their inverses.
-            pauli_randomize: If True, surround each inner Clifford layer with
-                            uniformly random Paulis.
-            two_qubit_gate_density: Expected proportion of qubits with CNOTs based on
-                                    the backend coupling map.
-            backend: The backend to run the experiment on.
-            num_samples: Number of samples to generate for each
-                        sequence length.
-            seed: Optional, seed used to initialize ``numpy.random.default_rng``.
-                when generating circuits. The ``default_rng`` will be initialized
-                with this seed value everytime :meth:`circuits` is called.
-            full_sampling: If True all Cliffords are independently sampled for
-                        all lengths. If False for sample of lengths longer
-                        sequences are constructed by appending additional
-                        Clifford samples to shorter sequences.
-            inverting_pauli_layer: If True, a layer of Pauli gates is appended at the
-                                end of the circuit to set all qubits to 0 (with
-                                possibly a global phase)
-
-        Raises:
-            ImportError: if user does not have pyGSTi installed
-        """
-        if not HAS_PYGSTI:
-            raise ImportError("MirrorRBPyGSTi requires pyGSTi to generate circuits.")
-
-        super().__init__(
-            qubits,
-            lengths,
-            local_clifford=local_clifford,
-            pauli_randomize=pauli_randomize,
-            two_qubit_gate_density=two_qubit_gate_density,
-            backend=backend,
-            num_samples=num_samples,
-            seed=seed,
-            full_sampling=full_sampling,
-            inverting_pauli_layer=inverting_pauli_layer,
-        )
-
-        self.analysis = MirrorRBAnalysis()
-        self._lengths = lengths
-        self._num_samples = num_samples
-        self._seed = seed
-        self.analysis.set_options(outcome="0" * self.num_qubits)
-
-    def _transpiled_circuits(self) -> List[QuantumCircuit]:
-        """Return a list of experiment circuits, transpiled, with transpiled
-        circuits stored as metadata."""
-        transpiled = super()._transpiled_circuits()
-
-        # Store transpiled circuits in metadata
-        for circ in transpiled:
-            circ.metadata["transpiled_qiskit_circ"] = circ
-
-        return transpiled
-
-    def circuits(self) -> List[QuantumCircuit]:
-        """Return a list of RB circuits generated with PyGSTi.
-
-        Returns:
-            A list of :class:`QuantumCircuit`.
-        """
-        # Number of qubits to perform MRB on
-        n_qubits = self._num_qubits
-
-        # Maximum number of qubits in device
-        max_qubits = self._backend.configuration().n_qubits
-        qubit_labels = ["Q" + str(i) for i in range(max_qubits)]
-
-        # List of gates to construct circuits with (CNOT and the 24 one-qubit Cliffords)
-        gate_names = ["Gcnot"] + [f"Gc{i}" for i in range(24)]
-
-        # Construct connectivity map of backend
-        backend_edge_list = [list(edge) for edge in self._backend.configuration().coupling_map]
-        connectivity = np.zeros((max_qubits, max_qubits))
-        for edge in backend_edge_list:
-            connectivity[edge[0]][edge[1]] = 1
-        connectivity = np.array(connectivity, dtype=bool)
-
-        # Define CNOT availability in backend
-        availability = {"Gcnot": []}
-        for i in range(max_qubits):
-            for j in range(i + 1, max_qubits):
-                if connectivity[i][j]:
-                    availability["Gcnot"].append(("Q" + str(i), "Q" + str(j)))
-
-        # Initialize graph and quantum processor spec
-        graph = QG(qubit_labels=qubit_labels, initial_connectivity=connectivity)
-        pspec = QPS(
-            max_qubits,
-            gate_names,
-            availability=availability,
-            qubit_labels=qubit_labels,
-            geometry=graph,
-        )
-
-        # Compilation rules for how to combine (or not) random Pauli gates
-        compilations = {
-            "absolute": CCR.create_standard(
-                pspec, "absolute", ("paulis", "1Qcliffords"), verbosity=0
-            ),
-            "paulieq": CCR.create_standard(
-                pspec, "paulieq", ("1Qcliffords", "allcnots"), verbosity=0
-            ),
-        }
-
-        # Depths to run MRB
-        depths = self._lengths
-
-        # Number of samples at each depth
-        num_samples = self._num_samples
-
-        # Random circuit sampler algorithm and the average density of 2Q gate per layer
-        sampler = "edgegrab"
-        samplerargs = [2 * self._two_qubit_gate_density]
-
-        # Create pyGSTi experiment design
-        mrb_design = pygsti.protocols.MirrorRBDesign(
-            pspec,
-            depths,
-            num_samples,
-            qubit_labels=tuple(qubit_labels[:n_qubits]),
-            sampler=sampler,
-            clifford_compilations=compilations,
-            samplerargs=samplerargs,
-            seed=self._seed,
-        )
-
-        # Create list of circuits to run and analyze using Qiskit Experiments framework
-        circuits = []
-        for idx, d in enumerate(depths):
-            for sample in range(num_samples):
-                # Convert PyGSTi circuits to qasm object and then to QuantumCircuit object
-                qasm = mrb_design.all_circuits_needing_data[
-                    idx * num_samples + sample
-                ].convert_to_openqasm()
-                rb_circ = QuantumCircuit.from_qasm_str(qasm)
-
-                # Store metadata, such as target bitstring and experiment design, to the circuits
-                rb_circ.metadata = {
-                    "experiment_type": self._type,
-                    "xval": d,
-                    "group": "Clifford",
-                    "physical_qubits": self.physical_qubits,
-                    "target": mrb_design.idealout_lists[idx][sample][0][::-1],
-                    "pygsti_circ": mrb_design,
-                    "inverting_pauli_layer": self._inverting_pauli_layer,
-                    "mirror": True,
-                }
-
-                circuits.append(rb_circ)
-
-        # Add final layer of inverting Pauli gates if specified by user
-        if self._inverting_pauli_layer:
-            for i, circuit in enumerate(circuits):
-                target = circuit.metadata["target"]
-                label = "".join(["X" if char == "1" else "I" for char in target])
-                circuit.remove_final_measurements()
-                circuit.barrier(list(range(self._num_qubits)))
-                circuit.append(Pauli(label=label), list(range(n_qubits)))
-                circuit.measure_all()
-
         return circuits
