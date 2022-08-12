@@ -141,7 +141,7 @@ numfig_format = {"table": "Table %s"}
 #
 # This is also used if you do content translation via gettext catalogs.
 # Usually you set "language" from the command line for these cases.
-language = None
+language = "en"
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
@@ -184,10 +184,10 @@ html_theme_options = {
 }
 
 
-autoclass_content = 'both'
+autoclass_content = "both"
 intersphinx_mapping = {
-    'matplotlib': ('https://matplotlib.org/stable/', None),
-    'qiskit': ('https://qiskit.org/documentation/', None),
+    "matplotlib": ("https://matplotlib.org/stable/", None),
+    "qiskit": ("https://qiskit.org/documentation/", None),
 }
 
 
