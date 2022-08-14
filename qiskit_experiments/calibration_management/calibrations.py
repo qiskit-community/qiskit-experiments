@@ -20,7 +20,6 @@ import csv
 import dataclasses
 import json
 import warnings
-import re
 
 from qiskit.pulse import (
     ScheduleBlock,
@@ -42,6 +41,7 @@ from qiskit.providers.backend import BackendV1 as Backend
 from qiskit_experiments.exceptions import CalibrationError
 from qiskit_experiments.calibration_management.basis_gate_library import BasisGateLibrary
 from qiskit_experiments.calibration_management.parameter_value import ParameterValue
+from qiskit_experiments.calibration_management.utils import validate_channels
 from qiskit_experiments.calibration_management.control_channel_map import ControlChannelMap
 from qiskit_experiments.calibration_management.calibration_utils import used_in_calls
 from qiskit_experiments.calibration_management.calibration_key_types import (
@@ -64,9 +64,6 @@ class Calibrations:
 
     # The name of the parameter under which the readout frequencies are registered.
     __readout_freq_parameter__ = "meas_freq"
-
-    # The channel indices need to be parameterized following this regex.
-    __channel_pattern__ = r"^ch\d[\.\d]*\${0,1}[\d]*$"
 
     def __init__(
         self,
@@ -551,9 +548,7 @@ class Calibrations:
 
         Raises:
             CalibrationError: If schedule is not an instance of :class:`ScheduleBlock`.
-            CalibrationError: If the parameterized channel index is not formatted properly.
             CalibrationError: If several parameters in the same schedule have the same name.
-            CalibrationError: If a channel is parameterized by more than one parameter.
             CalibrationError: If the schedule name starts with the prefix of ScheduleBlock.
             CalibrationError: If the schedule calls subroutines that have not been registered.
             CalibrationError: If a :class:`Schedule` is Called instead of a :class:`ScheduleBlock`.
@@ -591,17 +586,7 @@ class Calibrations:
                 f"unintended consequences. Please define a meaningful and unique schedule name."
             )
 
-        param_indices = set()
-        for ch in schedule.channels:
-            if isinstance(ch.index, Parameter):
-                if len(ch.index.parameters) != 1:
-                    raise CalibrationError(f"Channel {ch} can only have one parameter.")
-
-                param_indices.add(ch.index)
-                if re.compile(self.__channel_pattern__).match(ch.index.name) is None:
-                    raise CalibrationError(
-                        f"Parameterized channel must correspond to {self.__channel_pattern__}"
-                    )
+        param_indices = validate_channels(schedule)
 
         # Check that subroutines are present.
         for block in schedule.blocks:
@@ -1104,6 +1089,21 @@ class Calibrations:
             schedule = self._schedules[ScheduleKey(name, ())]
         else:
             raise CalibrationError(f"Schedule {name} is not defined for qubits {qubits}.")
+
+        # assign any references
+        referenced_schedules = {}
+        for ref in schedule.references:
+            ref_name, qubits_str = ref[0], ref[1:]
+            # convert the qubit references to ints, e.g., ("q12", "q0") to (12, 0)
+            ref_indices = tuple(int(qubit[1:]) for qubit in qubits_str)
+
+            # get the qubit indices for which we are getting the schedules
+            ref_qubits = tuple(qubits[idx] for idx in ref_indices)
+
+            # TODO we could do self.get_schedule(ref_name, ref_qubits, assign_params[ref_name])
+            referenced_schedules[ref] = self.get_schedule(ref_name, ref_qubits)
+
+        schedule = schedule.assign_references(referenced_schedules, inplace=False)
 
         # Retrieve the channel indices based on the qubits and bind them.
         binding_dict = {}

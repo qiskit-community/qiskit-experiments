@@ -133,7 +133,8 @@ class BasisGateLibrary(ABC, Mapping):
         to the :meth:`__init__` method.
 
         Args:
-            basis_gates: The set of basis gates to build.
+            basis_gates: The set of basis gates to build. These will be the supported gates or
+                a subset thereof.
 
         Returns:
             A dictionary where the keys are the names of the schedules/basis gates and the values
@@ -289,3 +290,87 @@ class FixedFrequencyTransmon(BasisGateLibrary):
                     defaults.append(DefaultCalValue(value, param.name, tuple(), name))
 
         return defaults
+
+
+class EchoCrossResonance(BasisGateLibrary):
+    """A library for echoed cross-resonance gates."""
+
+    __default_values__ = {"tamp": 0.0, "amp": 0.5, "σ": 64, "w": 912, "duration": 1168}
+
+    def __init__(
+        self,
+        basis_gates: Optional[List[str]] = None,
+        default_values: Optional[Dict] = None,
+        rotaries: bool = True,
+    ):
+        """Setup the library.
+
+        Args:
+            basis_gates: The basis gates to generate.
+            default_values: A dictionary to override library default parameter values.
+            rotaries: If True (the default) then drives will be added to the target qubit
+                during the CR tones on the control qubit.
+        """
+        self._rotaries = rotaries
+        super().__init__(basis_gates, default_values)
+
+    @property
+    def __supported_gates__(self) -> Dict[str, int]:
+        """The supported gates of the library are two-qubit pulses for the ecr gate."""
+        return {"cr45p": 2, "cr45m": 2, "ecr": 2}
+
+    def default_values(self) -> List[DefaultCalValue]:
+        """The default values of the CR library."""
+        defaults = []
+        for name, schedule in self.items():
+            for param in schedule.parameters:
+                if "ch" not in param.name:
+                    value = self._default_values[param.name]
+                    defaults.append(DefaultCalValue(value, param.name, tuple(), name))
+
+        return defaults
+
+    def _build_schedules(self, basis_gates: Set[str]) -> Dict[str, ScheduleBlock]:
+        """Build the schedules of the CR library."""
+
+        schedules = dict()
+
+        rot_amp = Parameter("tamp")
+        sigma = Parameter("σ")
+        cr_amp = Parameter("amp")
+        cr_dur = Parameter("duration")
+        cr_width = Parameter("w")
+        t_chan_idx = Parameter("ch1")
+        u_chan_idx = Parameter("ch0.1")
+        t_chan = pulse.DriveChannel(t_chan_idx)
+        u_chan = pulse.ControlChannel(u_chan_idx)
+
+        if "cr45p" in basis_gates:
+            with pulse.build(name="cr45p") as cr45p:
+                pulse.play(pulse.GaussianSquare(cr_dur, cr_amp, width=cr_width, sigma=sigma), u_chan)
+
+                if self._rotaries:
+                    pulse.play(pulse.GaussianSquare(cr_dur, rot_amp, width=cr_width, sigma=sigma), t_chan)
+
+            schedules["cr45p"] = cr45p
+
+        if "cr45m" in basis_gates:
+            with pulse.build(name="cr45m") as cr45m:
+                pulse.play(pulse.GaussianSquare(cr_dur, -cr_amp, width=cr_width, sigma=sigma), u_chan)
+
+                if self._rotaries:
+                    pulse.play(pulse.GaussianSquare(cr_dur, -rot_amp, width=cr_width, sigma=sigma), t_chan)
+
+            schedules["cr45m"] = cr45m
+
+        if "ecr" in basis_gates:
+            with pulse.build(name="ecr") as ecr:
+                with pulse.align_sequential():
+                    pulse.reference("cr45p", "q0", "q1")
+                    pulse.reference("x", "q0")
+                    pulse.reference("cr45m", "q0", "q1")
+                    pulse.reference("x", "q0")
+
+            schedules["ecr"] = ecr
+
+        return schedules
