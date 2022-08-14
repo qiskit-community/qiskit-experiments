@@ -17,7 +17,7 @@ from test.base import QiskitExperimentsTestCase
 import ddt
 
 from qiskit import QuantumCircuit
-from qiskit.providers.aer import AerSimulator, AerJob
+from qiskit.providers.fake_provider import FakeVigoV2, FakeJob
 from qiskit.providers.jobstatus import JobStatus
 from qiskit.exceptions import QiskitError
 
@@ -150,15 +150,13 @@ class TestFramework(QiskitExperimentsTestCase):
                 res = AnalysisResultData(name="should not run", value="blaaaaaaa")
                 return [res], []
 
-        class MyBackend(AerSimulator):
+        class MyBackend(FakeVigoV2):
             """A backend that works with `MyJob`"""
 
-            def run(self, circuits, validate=False, parameter_binds=None, **run_options):
-                job = super().run(circuits, **run_options)
-                job.__class__ = MyJob
-                return job
+            def run(self, run_input, **options):
+                return MyJob(self, "jobid", None)
 
-        class MyJob(AerJob):
+        class MyJob(FakeJob):
             """A job with status ERROR, that errors when the result is queried"""
 
             def result(self, timeout=None):
