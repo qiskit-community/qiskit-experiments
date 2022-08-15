@@ -23,8 +23,9 @@ from qiskit import QuantumCircuit, Aer
 from qiskit.providers.aer import noise
 from qiskit.result import Result
 
+from qiskit_ibm_experiment import IBMExperimentService
+
 from qiskit_experiments.test.utils import FakeJob
-from qiskit_experiments.test import FakeService
 from qiskit_experiments.test.fake_backend import FakeBackend
 from qiskit_experiments.framework import (
     ParallelExperiment,
@@ -103,7 +104,7 @@ class TestComposite(QiskitExperimentsTestCase):
         )
         expdata = comp_exp.run(FakeBackend())
         self.assertExperimentDone(expdata)
-        # Check out experiment wasnt flattened
+        # Check out experiment wasn't flattened
         self.assertEqual(len(expdata.child_data()), 2)
         self.assertEqual(len(expdata.analysis_results()), 0)
 
@@ -151,7 +152,7 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
         super().setUp()
 
         self.backend = FakeBackend()
-        self.share_level = "hey"
+        self.share_level = "public"
 
         exp1 = FakeExperiment([0, 2])
         exp2 = FakeExperiment([1, 3])
@@ -181,7 +182,7 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
         """
         Recursively traverse the tree and check equality of expdata1 and expdata2
         """
-        self.assertEqual(expdata1.backend.name(), expdata2.backend.name())
+        self.assertEqual(expdata1.backend_name, expdata2.backend_name)
         self.assertEqual(expdata1.tags, expdata2.tags)
         self.assertEqual(expdata1.experiment_type, expdata2.experiment_type)
         self.assertEqual(expdata1.share_level, expdata2.share_level)
@@ -213,7 +214,7 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
         Verify that saving and loading restores the original composite experiment data object
         """
 
-        self.rootdata.service = FakeService()
+        self.rootdata.service = IBMExperimentService(local=True, local_save=False)
         self.rootdata.save()
         loaded_data = ExperimentData.load(self.rootdata.experiment_id, self.rootdata.service)
         self.check_if_equal(loaded_data, self.rootdata, is_a_copy=False)
@@ -222,7 +223,7 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
         """
         Verify that saving metadata and loading restores the original composite experiment data object
         """
-        self.rootdata.service = FakeService()
+        self.rootdata.service = IBMExperimentService(local=True, local_save=False)
         self.rootdata.save_metadata()
         loaded_data = ExperimentData.load(self.rootdata.experiment_id, self.rootdata.service)
 
@@ -238,7 +239,7 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
         self.assertEqual(new_instance.parent_id, None)
 
     def test_composite_copy_analysis_ref(self):
-        """Test copy of composite expeirment preserves component analysis refs"""
+        """Test copy of composite experiment preserves component analysis refs"""
 
         class Analysis(FakeAnalysis):
             """Fake analysis class with options"""
@@ -440,7 +441,7 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
 
         class Backend(FakeBackend):
             """
-            Bacekend to be used in test_composite_subexp_data
+            Backend to be used in test_composite_subexp_data
             """
 
             def run(self, run_input, **options):
@@ -705,6 +706,23 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
 
             self.assertEqual(expected, sub_data[0])
 
+    def test_composite_properties_setting(self):
+        """Test whether DB-critical properties are being set in the
+        subexperiment data"""
+        exp1 = FakeExperiment([0])
+        exp1.analysis = FakeAnalysis()
+        exp2 = FakeExperiment([1])
+        exp2.analysis = FakeAnalysis()
+        batch_exp = BatchExperiment([exp1, exp2], flatten_results=True)
+        exp_data = batch_exp.run(backend=self.backend).block_for_results()
+        # when flattening, individual analysis result share exp id
+        for result in exp_data.analysis_results():
+            self.assertEqual(result.experiment_id, exp_data.experiment_id)
+        batch_exp = BatchExperiment([exp1, exp2], flatten_results=False)
+        exp_data = batch_exp.run(backend=self.backend).block_for_results()
+        self.assertEqual(exp_data.child_data(0).experiment_type, exp1.experiment_type)
+        self.assertEqual(exp_data.child_data(1).experiment_type, exp2.experiment_type)
+
 
 class TestBatchTranspileOptions(QiskitExperimentsTestCase):
     """
@@ -778,7 +796,7 @@ class TestBatchTranspileOptions(QiskitExperimentsTestCase):
 
     def test_batch_transpile_options_integrated(self):
         """
-        The goal is to verify that not only `_trasnpiled_circuits` works well
+        The goal is to verify that not only `_transpiled_circuits` works well
         (`test_batch_transpiled_circuits` takes care of it) but that it's correctly called within
         the entire flow of `BaseExperiment.run`.
         """

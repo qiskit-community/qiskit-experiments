@@ -12,12 +12,13 @@
 
 """Analyze oscillating data such as a Rabi amplitude experiment."""
 
-from typing import List, Union
+from typing import List, Union, Optional
 
 import lmfit
 import numpy as np
 
 import qiskit_experiments.curve_analysis as curve
+from qiskit_experiments.warnings import deprecated_class
 
 
 class OscillationAnalysis(curve.CurveAnalysis):
@@ -55,14 +56,18 @@ class OscillationAnalysis(curve.CurveAnalysis):
             bounds: [-pi, pi].
     """
 
-    def __init__(self):
+    def __init__(
+        self,
+        name: Optional[str] = None,
+    ):
         super().__init__(
             models=[
                 lmfit.models.ExpressionModel(
                     expr="amp * cos(2 * pi * freq * x + phase) + base",
                     name="cos",
                 )
-            ]
+            ],
+            name=name,
         )
 
     def _generate_fit_guesses(
@@ -70,7 +75,7 @@ class OscillationAnalysis(curve.CurveAnalysis):
         user_opt: curve.FitOptions,
         curve_data: curve.CurveData,
     ) -> Union[curve.FitOptions, List[curve.FitOptions]]:
-        """Create algorithmic guess with analysis options and curve data.
+        """Create algorithmic initial fit guess from analysis options and curve data.
 
         Args:
             user_opt: Fit options filled with user provided guess and bounds.
@@ -126,7 +131,7 @@ class OscillationAnalysis(curve.CurveAnalysis):
         return "bad"
 
 
-class DumpedOscillationAnalysis(curve.CurveAnalysis):
+class DampedOscillationAnalysis(curve.CurveAnalysis):
     r"""A class to analyze general exponential decay curve with sinusoidal oscillation.
 
     # section: fit_model
@@ -168,14 +173,18 @@ class DumpedOscillationAnalysis(curve.CurveAnalysis):
             bounds: [-pi, pi]
     """
 
-    def __init__(self):
+    def __init__(
+        self,
+        name: Optional[str] = None,
+    ):
         super().__init__(
             models=[
                 lmfit.models.ExpressionModel(
                     expr="amp * exp(-x / tau) * cos(2 * pi * freq * x + phi) + base",
                     name="cos_decay",
                 )
-            ]
+            ],
+            name=name,
         )
 
     def _generate_fit_guesses(
@@ -183,7 +192,7 @@ class DumpedOscillationAnalysis(curve.CurveAnalysis):
         user_opt: curve.FitOptions,
         curve_data: curve.CurveData,
     ) -> Union[curve.FitOptions, List[curve.FitOptions]]:
-        """Create algorithmic guess with analysis options and curve data.
+        """Create algorithmic initial fit guess from analysis options and curve data.
 
         Args:
             user_opt: Fit options filled with user provided guess and bounds.
@@ -269,3 +278,10 @@ class DumpedOscillationAnalysis(curve.CurveAnalysis):
             return "good"
 
         return "bad"
+
+
+@deprecated_class("0.5", new_cls=DampedOscillationAnalysis)
+class DumpedOscillationAnalysis:
+    """Deprecated."""
+
+    pass

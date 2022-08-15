@@ -40,7 +40,7 @@ class TphiAnalysis(CompositeAnalysis):
             or not isinstance(analyses[1], T2RamseyAnalysis)
         ):
             raise QiskitError(
-                "Invlaid component analyses for T2phi, analyses must be a pair of "
+                "Invalid component analyses for T2phi, analyses must be a pair of "
                 "T1Analysis and T2RamseyAnalysis instances."
             )
         super().__init__(analyses, flatten_results=True)

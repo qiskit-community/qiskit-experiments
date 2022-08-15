@@ -33,7 +33,7 @@ class TestReadoutAngle(QiskitExperimentsTestCase):
         """
 
         backend = MockIQBackend(
-            MockIQReadoutAngleHelper(), iq_cluster_centers=[((-3.0, 3.0), (5.0, 5.0))]
+            MockIQReadoutAngleHelper(iq_cluster_centers=[((-3.0, 3.0), (5.0, 5.0))]),
         )
         exp = ReadoutAngle(0)
         expdata = exp.run(backend, shots=100000)
@@ -42,7 +42,7 @@ class TestReadoutAngle(QiskitExperimentsTestCase):
         self.assertAlmostEqual(res.value % (2 * np.pi), np.pi / 2, places=2)
 
         backend = MockIQBackend(
-            MockIQReadoutAngleHelper(), iq_cluster_centers=[((0, -3.0), (5.0, 5.0))]
+            MockIQReadoutAngleHelper(iq_cluster_centers=[((0, -3.0), (5.0, 5.0))]),
         )
         exp = ReadoutAngle(0)
         expdata = exp.run(backend, shots=100000)
@@ -53,7 +53,7 @@ class TestReadoutAngle(QiskitExperimentsTestCase):
     def test_kerneled_expdata_serialization(self):
         """Test experiment data and analysis data JSON serialization"""
         backend = MockIQBackend(
-            MockIQReadoutAngleHelper(), iq_cluster_centers=[((-3.0, 3.0), (5.0, 5.0))]
+            MockIQReadoutAngleHelper(iq_cluster_centers=[((-3.0, 3.0), (5.0, 5.0))]),
         )
 
         exp = ReadoutAngle(0)

@@ -13,16 +13,89 @@
 """Probability and phase functions for the mock IQ backend."""
 
 from abc import abstractmethod
-from typing import Dict, List, Any
+from typing import Any, Dict, List, Optional, Tuple
 import numpy as np
 from qiskit import QuantumCircuit
 from qiskit.exceptions import QiskitError
 from qiskit.providers.aer import AerSimulator
 from qiskit_experiments.framework import BaseExperiment
 
+# Define an IQ point typing class.
+IQPoint = Tuple[float, float]
+
 
 class MockIQExperimentHelper:
-    """Abstract class for the MockIQ helper classes"""
+    """Abstract class for the MockIQ helper classes
+
+    Different tests will use experiment specific helper classes which define the pattern
+    of the IQ data that is then analyzed.
+    """
+
+    def __init__(
+        self,
+        iq_cluster_centers: Optional[List[Tuple[IQPoint, IQPoint]]] = None,
+        iq_cluster_width: Optional[List[float]] = None,
+    ):
+        """Create a MockIQBackend helper object to define how the backend functions.
+
+        `iq_cluster_centers` and `iq_cluster_width` define the base IQ cluster centers and
+        standard-deviations for each qubit in a :py:class:`MockIQBackend` instance. These are used by
+        :py:meth:`iq_clusters` by default. Subclasses can override :py:meth:`iq_clusters` to return a
+        modified version of :py:attr:`iq_cluster_centers` and :py:attr:`iq_cluster_width`.
+        `iq_cluster_centers` is a list of tuples. For a given qubit `i_qbt` and computational state
+        `i_state` (either `0` or `1`), the centers of the IQ clusters are found by indexing
+        `iq_cluster_centers` as follows:
+
+        .. code-block:: python
+            iq_center = helper.iq_cluster_centers[i_qbt][i_state]
+            center_inphase = iq_center[0]
+            center_quadrature = iq_center[1]
+
+        `iq_cluster_width` is indexed similarly except that there is only one width per qubit: i.e., the
+        standard-deviation of the IQ cluster for qubit `i_qbt` is
+
+        .. code-block:: python
+            iq_width = helper.iq_cluster_width[i_qbt]
+
+        Subclasses must call `super().__init__(iq_cluster_centers,iq_cluster_width)` so that these
+        properties are stored appropriately.
+
+        Args:
+            iq_cluster_centers: A list of tuples containing the clusters' centers in the IQ plane. There
+                are different centers for different logical values of the qubit. Defaults to a single
+                qubit with clusters in quadrants 1 and 3.
+            iq_cluster_width: A list of standard deviation values for the sampling of each qubit.
+                Defaults to widths of 1.0 for each qubit in `iq_cluster_centers`.
+
+        """
+        self._iq_cluster_centers = (
+            iq_cluster_centers if iq_cluster_centers is not None else [((-1.0, -1.0), (1.0, 1.0))]
+        )
+        self._iq_cluster_width = (
+            iq_cluster_width
+            if iq_cluster_width is not None
+            else [1.0] * len(self._iq_cluster_centers)
+        )
+
+    @property
+    def iq_cluster_centers(self) -> List[Tuple[IQPoint, IQPoint]]:
+        """The base cluster centers in the IQ plane."""
+        return self._iq_cluster_centers
+
+    @iq_cluster_centers.setter
+    def iq_cluster_centers(self, iq_cluster_centers: List[Tuple[IQPoint, IQPoint]]):
+        """Set the base cluster centers in the IQ plane."""
+        self._iq_cluster_centers = iq_cluster_centers
+
+    @property
+    def iq_cluster_width(self) -> List[float]:
+        """The base cluster widths in the IQ plane."""
+        return self._iq_cluster_width
+
+    @iq_cluster_width.setter
+    def iq_cluster_width(self, iq_cluster_width: List[float]):
+        """Set the base cluster widths."""
+        self._iq_cluster_width = iq_cluster_width
 
     @abstractmethod
     def compute_probabilities(self, circuits: List[QuantumCircuit]) -> List[Dict[str, Any]]:
@@ -99,6 +172,34 @@ class MockIQExperimentHelper:
         """
         return [0.0] * len(circuits)
 
+    def iq_clusters(
+        self,
+        circuits: List[QuantumCircuit],
+    ) -> List[Tuple[List[Tuple[IQPoint, IQPoint]], List[float]]]:
+        """Returns circuit-specific IQ cluster centers and widths in the IQ plane.
+
+        Subclasses can override this function to modify the centers and widths of IQ clusters based on
+        the circuits being simulated by a :py:class:`MockIQBackend`. The base centers and widths are
+        stored internally within the helper object, and can be set in :py:meth:`__init__` or by modifying
+        :py:attr:`iq_cluster_centers` and :py:attr:`iq_cluster_width`. The default behaviour for
+        :py:meth:`iq_clusters` is to return the centers and widths unmodified for each circuit in
+        `circuits`. Subclasses may return different centers and widths based on the circuits provided.
+
+        The returned list contains a tuple per circuit. Each tuple contains the IQ centers and widths in
+        the same format as :py:attr:`iq_cluster_centers` and :py:attr:`iq_cluster_width`, passed as
+        arguments to :py:meth:`__init__`. The format of the centers and widths lists, in the argument
+        list and in the returned tuples, must match the format of `iq_cluster_centers` and
+        `iq_cluster_width` in :py:func:`qiskit_experiments.test.MockIQExperimentHelper.__init__`.
+
+        Args:
+            circuits: The quantum circuits for which the clusters should be modified.
+
+        Returns:
+            List: A list of tuples containing the circuit-specific IQ centers and widths for the
+                provided circuits.
+        """
+        return [(self.iq_cluster_centers, self.iq_cluster_width)] * len(circuits)
+
 
 class MockIQParallelExperimentHelper(MockIQExperimentHelper):
     """Helper for Parallel experiment."""
@@ -111,6 +212,11 @@ class MockIQParallelExperimentHelper(MockIQExperimentHelper):
         """
         Parallel Experiment Helper initializer. The class assumes `exp_helper_list` is ordered to
         match the corresponding experiment in `exp_list`.
+
+        Note that :py:meth:`__init__` does not have `iq_cluster_centers` and `iq_cluster_width` as in
+        :py:func:`MockIQExperimentHelper.__init__`. This is because the centers and widths for
+        :py:class:`MockIQParallelBackend` are stored in multiple experiment helpers in the list
+        `exp_helper_list`.
 
         Args:
             exp_list(List): List of experiments.
@@ -142,7 +248,6 @@ class MockIQParallelExperimentHelper(MockIQExperimentHelper):
 
                 parallel_backend = MockIQParallelBackend(
                     experiment_helper=None,
-                    iq_cluster_centers=iq_cluster_centers,
                     rng_seed=0,
                 )
                 parallel_backend._configuration.basis_gates = ["x"]
@@ -163,7 +268,10 @@ class MockIQParallelExperimentHelper(MockIQExperimentHelper):
                     QubitSpectroscopy(qubit2, frequencies2),
                 ]
 
-                exp_helper_list = [SpectroscopyHelper(), SpectroscopyHelper()]
+                exp_helper_list = [
+                    SpectroscopyHelper(iq_cluster_centers=iq_cluster_centers,),
+                    SpectroscopyHelper(iq_cluster_centers=iq_cluster_centers,),
+                ]
                 parallel_helper = ParallelExperimentHelper(exp_list, exp_helper_list)
 
                 parallel_backend.experiment_helper = parallel_helper
@@ -174,6 +282,9 @@ class MockIQParallelExperimentHelper(MockIQExperimentHelper):
 
                 par_data = par_experiment.run().block_for_results()
         """
+        # Set ParallelExperimentHelper iq_cluster_[centers,widths] to None as exp_helper_list contains
+        # the necessary IQ cluster information.
+        super().__init__(None, None)
 
         # check parameters
         self._verify_parameters(exp_list, exp_helper_list)
@@ -181,9 +292,19 @@ class MockIQParallelExperimentHelper(MockIQExperimentHelper):
         self.exp_helper_list = exp_helper_list
         self.exp_list = exp_list
 
-    def compute_probabilities(self, circuits: List[QuantumCircuit]) -> List[Dict[str, Any]]:
+    def compute_probabilities(
+        self,
+        circuits: List[QuantumCircuit],
+    ) -> List[Dict[str, Any]]:
         """
-        Run the compute_probabilities for each helper
+        Run the compute_probabilities for each helper.
+
+        Args:
+            circuits: The quantum circuits for which the probabilities should be computed.
+
+        Returns:
+            List: A list of dictionaries containing computed probabilities and data for the given
+                circuits.
         """
         # checking for legal parameters before computing output.
         self._verify_parameters(self.exp_list, self.exp_helper_list)
@@ -196,10 +317,17 @@ class MockIQParallelExperimentHelper(MockIQExperimentHelper):
         for idx, (exp_helper, experiment, experiment_circuits) in enumerate(
             zip(self.exp_helper_list, self.exp_list, parallel_circ_list)
         ):
+            # Get centers and widths for experiment_circuits and split into centers and widths lists.
+            centers_and_widths = exp_helper.iq_clusters(experiment_circuits)
+            exp_centers = [c_and_w[0] for c_and_w in centers_and_widths]
+            exp_widths = [c_and_w[1] for c_and_w in centers_and_widths]
+
             prob_help_list[idx] = {
                 "physical_qubits": experiment.physical_qubits,
                 "prob": exp_helper.compute_probabilities(experiment_circuits),
                 "phase": exp_helper.iq_phase(experiment_circuits),
+                "centers": exp_centers,
+                "widths": exp_widths,
                 "num_circuits": len(experiment_circuits),
             }
 
@@ -331,6 +459,8 @@ class MockIQDragHelper(MockIQExperimentHelper):
         frequency: float = 0.02,
         max_probability: float = 1.0,
         offset_probability: float = 0.0,
+        iq_cluster_centers: Optional[List[Tuple[IQPoint, IQPoint]]] = None,
+        iq_cluster_width: Optional[List[float]] = None,
     ):
         """
         Args:
@@ -342,9 +472,13 @@ class MockIQDragHelper(MockIQExperimentHelper):
             allow tests to factor in non-ideal situations.
             offset_probability: a constant offset applied to all probabilities to reflect non-ideal
             measurement situations.
+            iq_cluster_centers: A list of tuples containing the clusters' centers in the IQ plane. There
+            are different centers for different logical values of the qubit.
+            iq_cluster_width: A list of standard deviation values for the sampling of each qubit.
         Raises:
             ValueError: if probability value is ot valid.
         """
+        super().__init__(iq_cluster_centers, iq_cluster_width)
         if max_probability + offset_probability > 1:
             raise ValueError("Probabilities need to be between 0 and 1.")
 
@@ -383,7 +517,13 @@ class MockIQDragHelper(MockIQExperimentHelper):
 class MockIQFineDragHelper(MockIQExperimentHelper):
     """Functions needed for Fine Drag Experiment"""
 
-    def __init__(self, error: float = 0.03):
+    def __init__(
+        self,
+        error: float = 0.03,
+        iq_cluster_centers: Optional[List[Tuple[IQPoint, IQPoint]]] = None,
+        iq_cluster_width: Optional[List[float]] = None,
+    ):
+        super().__init__(iq_cluster_centers, iq_cluster_width)
         self.error = error
 
     def compute_probabilities(self, circuits: List[QuantumCircuit]) -> List[Dict[str, float]]:
@@ -405,11 +545,17 @@ class MockIQFineDragHelper(MockIQExperimentHelper):
 class MockIQRabiHelper(MockIQExperimentHelper):
     """Functions needed for Rabi experiment on mock IQ backend"""
 
-    def __init__(self, amplitude_to_angle: float = np.pi):
+    def __init__(
+        self,
+        amplitude_to_angle: float = np.pi,
+        iq_cluster_centers: Optional[List[Tuple[IQPoint, IQPoint]]] = None,
+        iq_cluster_width: Optional[List[float]] = None,
+    ):
         """
         Args:
             amplitude_to_angle: maps a pulse amplitude to a rotation angle.
         """
+        super().__init__(iq_cluster_centers, iq_cluster_width)
         self.amplitude_to_angle = amplitude_to_angle
 
     def compute_probabilities(self, circuits: List[QuantumCircuit]) -> List[Dict[str, float]]:
@@ -434,13 +580,21 @@ class MockIQRabiHelper(MockIQExperimentHelper):
 class MockIQFineFreqHelper(MockIQExperimentHelper):
     """Functions needed for Fine Frequency experiment on mock IQ backend"""
 
-    def __init__(self, sx_duration: float = 160, freq_shift: float = 0, dt: float = 1e-9):
+    def __init__(
+        self,
+        sx_duration: float = 160,
+        freq_shift: float = 0,
+        dt: float = 1e-9,
+        iq_cluster_centers: Optional[List[Tuple[IQPoint, IQPoint]]] = None,
+        iq_cluster_width: Optional[List[float]] = None,
+    ):
         """
         Args:
             sx_duration: duration of the single-qubit sx gate.
-            freq_shift: the detunning from the ideal frequency that this mock backend will mimic.
+            freq_shift: the detuning from the ideal frequency that this mock backend will mimic.
             dt: duration of a sample.
         """
+        super().__init__(iq_cluster_centers, iq_cluster_width)
         self.sx_duration = sx_duration
         self.freq_shift = freq_shift
         self.dt = dt
@@ -481,13 +635,21 @@ class MockIQFineFreqHelper(MockIQExperimentHelper):
 class MockIQFineAmpHelper(MockIQExperimentHelper):
     """Functions needed for Fine Amplitude experiment on mock IQ backend"""
 
-    def __init__(self, angle_error: float = 0, angle_per_gate: float = 0, gate_name: str = "x"):
+    def __init__(
+        self,
+        angle_error: float = 0,
+        angle_per_gate: float = 0,
+        gate_name: str = "x",
+        iq_cluster_centers: Optional[List[Tuple[IQPoint, IQPoint]]] = None,
+        iq_cluster_width: Optional[List[float]] = None,
+    ):
         """
         Args:
             angle_error: rotation angle error per gate.
             angle_per_gate: the intended rotation angle per gate.
             gate_name: name of the gate that will be counted to determine the total rotation.
         """
+        super().__init__(iq_cluster_centers, iq_cluster_width)
         self.angle_error = angle_error
         self.angle_per_gate = angle_per_gate
         self.gate_name = gate_name
@@ -520,7 +682,14 @@ class MockIQFineAmpHelper(MockIQExperimentHelper):
 class MockIQRamseyXYHelper(MockIQExperimentHelper):
     """Functions needed for Ramsey XY experiment on mock IQ backend"""
 
-    def __init__(self, t2ramsey: float = 100e-6, freq_shift: float = 0):
+    def __init__(
+        self,
+        t2ramsey: float = 100e-6,
+        freq_shift: float = 0,
+        iq_cluster_centers: Optional[List[Tuple[IQPoint, IQPoint]]] = None,
+        iq_cluster_width: Optional[List[float]] = None,
+    ):
+        super().__init__(iq_cluster_centers, iq_cluster_width)
         self.t2ramsey = t2ramsey
         self.freq_shift = freq_shift
 
@@ -553,13 +722,21 @@ class MockIQRamseyXYHelper(MockIQExperimentHelper):
 class MockIQSpectroscopyHelper(MockIQExperimentHelper):
     """Functions needed for Spectroscopy experiment on mock IQ backend"""
 
-    def __init__(self, gate_name: str = "Spec", freq_offset: float = 0.0, line_width: float = 2e6):
+    def __init__(
+        self,
+        gate_name: str = "Spec",
+        freq_offset: float = 0.0,
+        line_width: float = 2e6,
+        iq_cluster_centers: Optional[List[Tuple[IQPoint, IQPoint]]] = None,
+        iq_cluster_width: Optional[List[float]] = None,
+    ):
         """
         Args:
             gate_name: the gate name to look for when calculating frequency shift.
             freq_offset: frequency offset from resonance that this mock backend will mimic.
             line_width: line width of the resonance of the spectroscopy signal.
         """
+        super().__init__(iq_cluster_centers, iq_cluster_width)
         self.freq_offset = freq_offset
         self.line_width = line_width
         self.gate_name = gate_name
@@ -619,7 +796,13 @@ class MockIQReadoutAngleHelper(MockIQExperimentHelper):
 class MockIQHalfAngleHelper(MockIQExperimentHelper):
     """Functions needed for Half Angle experiment on mock IQ backend"""
 
-    def __init__(self, error: float = 0):
+    def __init__(
+        self,
+        error: float = 0,
+        iq_cluster_centers: Optional[List[Tuple[IQPoint, IQPoint]]] = None,
+        iq_cluster_width: Optional[List[float]] = None,
+    ):
+        super().__init__(iq_cluster_centers, iq_cluster_width)
         self.error = error
 
     def compute_probabilities(self, circuits: List[QuantumCircuit]) -> List[Dict[str, float]]:

@@ -15,12 +15,12 @@ Test T1 experiment
 
 from test.base import QiskitExperimentsTestCase
 import numpy as np
-
+from qiskit_ibm_experiment import IBMExperimentService
+from qiskit.providers.fake_provider import FakeAthensV2
 from qiskit_experiments.test.noisy_delay_aer_simulator import NoisyDelayAerBackend
 from qiskit_experiments.framework import ExperimentData, ParallelExperiment
 from qiskit_experiments.library import T1
 from qiskit_experiments.library.characterization import T1Analysis
-from qiskit_experiments.test.fake_service import FakeService
 
 
 class TestT1(QiskitExperimentsTestCase):
@@ -48,7 +48,7 @@ class TestT1(QiskitExperimentsTestCase):
         self.assertAlmostEqual(res.value.n, t1, delta=3)
         self.assertEqual(res.extra["unit"], "s")
 
-        exp_data.service = FakeService()
+        exp_data.service = IBMExperimentService(local=True, local_save=False)
         exp_data.save()
         loaded_data = ExperimentData.load(exp_data.experiment_id, exp_data.service)
         exp_res = exp_data.analysis_results()
@@ -83,7 +83,7 @@ class TestT1(QiskitExperimentsTestCase):
             self.assertEqual(sub_res.quality, "good")
             self.assertAlmostEqual(sub_res.value.n, t1[qb], delta=3)
 
-        res.service = FakeService()
+        res.service = IBMExperimentService(local=True, local_save=False)
         res.save()
         loaded_data = ExperimentData.load(res.experiment_id, res.service)
 
@@ -129,7 +129,7 @@ class TestT1(QiskitExperimentsTestCase):
         """
 
         data = ExperimentData()
-        data._metadata = {"meas_level": 2}
+        data.metadata.update({"meas_level": 2})
 
         numbers = [750, 1800, 2750, 3550, 4250, 4850, 5450, 5900, 6400, 6800, 7000, 7350, 7700]
 
@@ -180,7 +180,7 @@ class TestT1(QiskitExperimentsTestCase):
         """
 
         data = ExperimentData()
-        data._metadata = {"meas_level": 2}
+        data.metadata.update({"meas_level": 2})
 
         for i in range(10):
             data.add_data(
@@ -253,3 +253,26 @@ class TestT1(QiskitExperimentsTestCase):
         loaded = T1Analysis.from_config(analysis.config())
         self.assertNotEqual(analysis, loaded)
         self.assertEqual(analysis.config(), loaded.config())
+
+    def test_circuits_with_backend(self):
+        """
+        Test the circuits metadata when passing backend
+        """
+        backend = FakeAthensV2()
+        delays = np.arange(1e-3, 40e-3, 3e-3)
+        exp = T1(0, delays, backend=backend)
+        circs = exp.circuits()
+
+        self.assertEqual(len(circs), len(delays))
+
+        for delay, circ in zip(delays, circs):
+            xval = circ.metadata.pop("xval")
+            self.assertAlmostEqual(xval, delay)
+            self.assertEqual(
+                circ.metadata,
+                {
+                    "experiment_type": "T1",
+                    "qubit": 0,
+                    "unit": "s",
+                },
+            )

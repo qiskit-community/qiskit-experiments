@@ -81,7 +81,7 @@ class InterleavedRBAnalysis(curve.CurveAnalysis):
             bounds: [0, 1]
         defpar \alpha_c:
             desc: Ratio of the depolarizing parameter of interleaved RB to standard RB curve.
-            init_guess: Determined by alpha of interleaved RB curve devided by one of
+            init_guess: Determined by alpha of interleaved RB curve divided by one of
                 standard RB curve. Both alpha values are estimated by :func:`~rb_decay`.
             bounds: [0, 1]
 
@@ -119,7 +119,7 @@ class InterleavedRBAnalysis(curve.CurveAnalysis):
         user_opt: curve.FitOptions,
         curve_data: curve.CurveData,
     ) -> Union[curve.FitOptions, List[curve.FitOptions]]:
-        """Create algorithmic guess with analysis options and curve data.
+        """Create algorithmic initial fit guess from analysis options and curve data.
 
         Args:
             user_opt: Fit options filled with user provided guess and bounds.
@@ -136,21 +136,22 @@ class InterleavedRBAnalysis(curve.CurveAnalysis):
         )
 
         b_guess = 1 / 2**self._num_qubits
-        a_guess = 1 - b_guess
 
         # for standard RB curve
         std_curve = curve_data.get_subset_of("standard")
-        alpha_std = curve.guess.rb_decay(std_curve.x, std_curve.y, a=a_guess, b=b_guess)
+        alpha_std = curve.guess.rb_decay(std_curve.x, std_curve.y, b=b_guess)
+        a_std = (std_curve.y[0] - b_guess) / (alpha_std ** std_curve.x[0])
 
         # for interleaved RB curve
         int_curve = curve_data.get_subset_of("interleaved")
-        alpha_int = curve.guess.rb_decay(int_curve.x, int_curve.y, a=a_guess, b=b_guess)
+        alpha_int = curve.guess.rb_decay(int_curve.x, int_curve.y, b=b_guess)
+        a_int = (int_curve.y[0] - b_guess) / (alpha_int ** int_curve.x[0])
 
         alpha_c = min(alpha_int / alpha_std, 1.0)
 
         user_opt.p0.set_if_empty(
             b=b_guess,
-            a=a_guess,
+            a=np.mean([a_std, a_int]),
             alpha=alpha_std,
             alpha_c=alpha_c,
         )
