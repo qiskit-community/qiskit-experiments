@@ -70,7 +70,7 @@ class RoughDrag(BaseExperiment, RestlessMixin):
         .. ref_arxiv:: 3 1509.05470
 
     # section: tutorial
-        :doc:`/tutorials/calibrating_armonk`
+        :doc:`/tutorials/calibrating_real_device`
 
     """
 
