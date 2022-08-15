@@ -1,5 +1,5 @@
 ---
 upgrade:
   - |
-    ``DumpedOscillationAnalysis`` class has been deprecated and will be removed soon. Use
-    the :class:`~qiskit_experiments.DampedOscillationAnalysis` class going forward.
+    The ``DumpedOscillationAnalysis`` class has been deprecated and will be removed soon. Use
+    the :class:`.DampedOscillationAnalysis` class going forward.

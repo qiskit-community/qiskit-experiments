@@ -6,7 +6,7 @@ features:
     `LMFIT Model <https://lmfit.github.io/lmfit-py/model.html#>`_ objects. For multi-curve fitting
     a list of models can be used.
 
-    |
+  - |
     A new analysis option ``fit_method`` has been added to allow a user to select the fitting 
     algorithm used by the LMFIT `minimizer <https://lmfit.github.io/lmfit-py/fitting.html>`_.
     The default fit method is ``"least_squares"``.
