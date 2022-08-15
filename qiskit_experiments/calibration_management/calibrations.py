@@ -41,9 +41,12 @@ from qiskit.providers.backend import BackendV1 as Backend
 from qiskit_experiments.exceptions import CalibrationError
 from qiskit_experiments.calibration_management.basis_gate_library import BasisGateLibrary
 from qiskit_experiments.calibration_management.parameter_value import ParameterValue
-from qiskit_experiments.calibration_management.utils import validate_channels
 from qiskit_experiments.calibration_management.control_channel_map import ControlChannelMap
-from qiskit_experiments.calibration_management.calibration_utils import used_in_calls
+from qiskit_experiments.calibration_management.calibration_utils import (
+    used_in_calls,
+    validate_channels,
+    standardize_assign_params,
+)
 from qiskit_experiments.calibration_management.calibration_key_types import (
     ParameterKey,
     ParameterValueType,
@@ -1070,17 +1073,7 @@ class Calibrations:
         qubits = self._to_tuple(qubits)
 
         # Standardize the input in the assignment dictionary
-        if assign_params:
-            assign_params_ = dict()
-            for assign_param, value in assign_params.items():
-                if isinstance(assign_param, str):
-                    assign_params_[ParameterKey(assign_param, qubits, name)] = value
-                else:
-                    assign_params_[ParameterKey(*assign_param)] = value
-
-            assign_params = assign_params_
-        else:
-            assign_params = dict()
+        assign_params, ref_assign_params = standardize_assign_params(assign_params, qubits, name)
 
         # Get the template schedule
         if (name, qubits) in self._schedules:
@@ -1100,8 +1093,11 @@ class Calibrations:
             # get the qubit indices for which we are getting the schedules
             ref_qubits = tuple(qubits[idx] for idx in ref_indices)
 
-            # TODO we could do self.get_schedule(ref_name, ref_qubits, assign_params[ref_name])
-            referenced_schedules[ref] = self.get_schedule(ref_name, ref_qubits)
+            referenced_schedules[ref] = self.get_schedule(
+                ref_name,
+                ref_qubits,
+                assign_params=ref_assign_params.get((ref_name, ref_qubits), {}),
+            )
 
         schedule = schedule.assign_references(referenced_schedules, inplace=False)
 

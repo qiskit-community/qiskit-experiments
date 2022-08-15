@@ -19,7 +19,7 @@ import qiskit.pulse as pulse
 
 from qiskit_experiments.exceptions import CalibrationError
 from qiskit_experiments.calibration_management import EchoCrossResonance
-from qiskit_experiments.calibration_management.utils import validate_channels
+from qiskit_experiments.calibration_management.calibration_utils import validate_channels
 
 
 class TestValidateChannels(QiskitExperimentsTestCase):
