@@ -1615,6 +1615,11 @@ class ExperimentData:
                     name,
                     self.experiment_id,
                 )
+                value = False
+            elif not fut.result()[1]:
+                # The job/analysis did not succeed, and the failure reflects in the second
+                # returned value of _add_job_data/_run_analysis_callback. See details in Issue #866.
+                value = False
         if excepts:
             LOG.error(
                 "%s raised exceptions [Experiment ID: %s]:%s", name, self.experiment_id, excepts

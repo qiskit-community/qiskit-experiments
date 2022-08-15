@@ -179,8 +179,8 @@ class AnalysisResult:
                 result_data["value"] = db_value
             if isinstance(value.std_dev, (int, float)):
                 result_data["variance"] = AnalysisResult._display_format(value.std_dev**2)
-            if "unit" in extra:
-                result_data["unit"] = extra["unit"]
+            if "unit" in result_data["_extra"]:
+                result_data["unit"] = result_data["_extra"]["unit"]
         else:
             db_value = AnalysisResult._display_format(value)
             if db_value is not None:
