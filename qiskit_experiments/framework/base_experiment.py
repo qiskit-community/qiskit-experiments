@@ -92,6 +92,7 @@ class BaseExperiment(ABC, StoreInitArgs):
         # This should be called last in case `_set_backend` access any of the
         # attributes created during initialization
         self._backend = None
+        self._backend_data = None
         if isinstance(backend, Backend):
             self._set_backend(backend)
 
@@ -224,26 +225,6 @@ class BaseExperiment(ABC, StoreInitArgs):
             QiskitError: if experiment is run with an incompatible existing
                          ExperimentData container.
         """
-        # Handle deprecated analysis kwarg values
-        if isinstance(analysis, bool):
-            if analysis:
-                analysis = "default"
-                warnings.warn(
-                    "Setting analysis=True in BaseExperiment.run is deprecated as of "
-                    "qiskit-experiments 0.2.0 and will be removed in the 0.3.0 release."
-                    " Use analysis='default' instead.",
-                    DeprecationWarning,
-                    stacklevel=2,
-                )
-            else:
-                analysis = None
-                warnings.warn(
-                    "Setting analysis=False in BaseExperiment.run is deprecated as of "
-                    "qiskit-experiments 0.2.0 and will be removed in the 0.3.0 release."
-                    " Use analysis=None instead.",
-                    DeprecationWarning,
-                    stacklevel=2,
-                )
 
         if backend is not None or analysis != "default" or run_options:
             # Make a copy to update analysis or backend if one is provided at runtime
@@ -285,41 +266,6 @@ class BaseExperiment(ABC, StoreInitArgs):
     def _initialize_experiment_data(self) -> ExperimentData:
         """Initialize the return data container for the experiment run"""
         return ExperimentData(experiment=self)
-
-    def run_analysis(
-        self, experiment_data: ExperimentData, replace_results: bool = False, **options
-    ) -> ExperimentData:
-        """Run analysis and update ExperimentData with analysis result.
-
-        See :meth:`BaseAnalysis.run` for additional information.
-
-        .. deprecated:: 0.2.0
-            This is replaced by calling ``experiment.analysis.run`` using
-            the :meth:`analysis` property and
-            :meth:`~qiskit_experiments.framework.BaseAnalysis.run` method.
-
-        Args:
-            experiment_data: the experiment data to analyze.
-            replace_results: if True clear any existing analysis results and
-                             figures in the experiment data and replace with
-                             new results.
-            options: additional analysis options. Any values set here will
-                     override the value from :meth:`analysis_options`
-                     for the current run.
-
-        Returns:
-            An experiment data object containing the analysis results and figures.
-
-        Raises:
-            QiskitError: if experiment_data container is not valid for analysis.
-        """
-        warnings.warn(
-            "`BaseExperiment.run_analysis` is deprecated as of qiskit-experiments"
-            " 0.2.0 and will be removed in the 0.3.0 release."
-            " Use `experiment.analysis.run` instead",
-            DeprecationWarning,
-        )
-        return self.analysis.run(experiment_data, replace_results=replace_results, **options)
 
     def _finalize(self):
         """Finalize experiment object before running jobs.
@@ -372,16 +318,6 @@ class BaseExperiment(ABC, StoreInitArgs):
         transpile_opts = copy.copy(self.transpile_options.__dict__)
         transpile_opts["initial_layout"] = list(self.physical_qubits)
         transpiled = transpile(self.circuits(), self.backend, **transpile_opts)
-
-        # TODO remove this deprecation after 0.3.0 release
-        if hasattr(self, "_postprocess_transpiled_circuits"):
-            warnings.warn(
-                "`BaseExperiment._postprocess_transpiled_circuits` is deprecated as of "
-                "qiskit-experiments 0.3.0 and will be removed in the 0.4.0 release."
-                " Use `BaseExperiment._transpile` instead.",
-                DeprecationWarning,
-            )
-            self._postprocess_transpiled_circuits(transpiled)  # pylint: disable=no-member
 
         return transpiled
 
@@ -482,25 +418,6 @@ class BaseExperiment(ABC, StoreInitArgs):
             DeprecationWarning,
         )
         return self.analysis.options
-
-    def set_analysis_options(self, **fields):
-        """Set the analysis options for :meth:`run` method.
-
-        Args:
-            fields: The fields to update the options
-
-        .. deprecated:: 0.2.0
-            This is replaced by calling ``experiment.analysis.set_options`` using
-            the :meth:`analysis` property and
-            :meth:`~qiskit_experiments.framework.BaseAnalysis.set_options` method.
-        """
-        warnings.warn(
-            "`BaseExperiment.set_analysis_options` is deprecated as of qiskit-experiments"
-            " 0.2.0 and will be removed in the 0.3.0 release."
-            " Use `experiment.analysis.set_options instead",
-            DeprecationWarning,
-        )
-        self.analysis.options.update_options(**fields)
 
     def _metadata(self) -> Dict[str, any]:
         """Return experiment metadata for ExperimentData.

@@ -17,11 +17,11 @@ import qiskit_experiments.curve_analysis as curve
 from qiskit_experiments.framework import Options
 
 
-class T2RamseyAnalysis(curve.DumpedOscillationAnalysis):
+class T2RamseyAnalysis(curve.DampedOscillationAnalysis):
     """T2 Ramsey result analysis class.
 
     # section: see_also
-        qiskit_experiments.curve_analysis.standard_analysis.oscillation.DumpedOscillationAnalysis
+        qiskit_experiments.curve_analysis.standard_analysis.oscillation.DampedOscillationAnalysis
 
     """
 

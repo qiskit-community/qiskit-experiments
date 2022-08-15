@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """
-Contrained convex least-squares tomography fitter.
+Constrained convex least-squares tomography fitter.
 """
 
 from typing import Optional, Dict, Tuple
@@ -57,11 +57,11 @@ def cvxpy_linear_lstsq(
         subject to
 
         - *Positive-semidefinite* (``psd=True``): :math:`\rho \gg 0` is constrained
-          to be a postive-semidefinite matrix.
-        - *Trace* (``trace=t``): :math:`\mbox{Tr}(\rho) = t` is constained to have
+          to be a positive-semidefinite matrix.
+        - *Trace* (``trace=t``): :math:`\mbox{Tr}(\rho) = t` is constrained to have
           the specified trace.
         - *Trace preserving* (``trace_preserving=True``): When performing process
-          tomography the Choi-state :math:`\rho` represents is contstained to be
+          tomography the Choi-state :math:`\rho` represents is constrained to be
           trace preserving.
 
         where
@@ -105,7 +105,7 @@ def cvxpy_linear_lstsq(
                             M measured qubits.
         preparation_qubits: Optional, the physical qubits that were prepared.
                             If None they are assumed to be ``[0, ..., N-1]`` for
-                            N preparated qubits.
+                            N prepared qubits.
         psd: If True rescale the eigenvalues of fitted matrix to be positive
              semidefinite (default: True)
         trace_preserving: Enforce the fitted matrix to be
@@ -139,7 +139,7 @@ def cvxpy_linear_lstsq(
         probability_data = weights * probability_data
 
     # Since CVXPY only works with real variables we must specify the real
-    # and imaginary parts of rho seperately: rho = rho_r + 1j * rho_i
+    # and imaginary parts of rho separately: rho = rho_r + 1j * rho_i
 
     dim = int(np.sqrt(basis_matrix.shape[1]))
     rho_r, rho_i, cons = cvxpy_utils.complex_matrix_variable(
@@ -147,7 +147,7 @@ def cvxpy_linear_lstsq(
     )
 
     # Trace preserving constraint when fitting Choi-matrices for
-    # quantum process tomography. Note that this adds an implicity
+    # quantum process tomography. Note that this adds an implicitly
     # trace constraint of trace(rho) = sqrt(len(rho)) = dim
     # if a different trace constraint is specified above this will
     # cause the fitter to fail.
@@ -243,7 +243,7 @@ def cvxpy_gaussian_lstsq(
                             M measured qubits.
         preparation_qubits: Optional, the physical qubits that were prepared.
                             If None they are assumed to be ``[0, ..., N-1]`` for
-                            N preparated qubits.
+                            N prepared qubits.
         psd: If True rescale the eigenvalues of fitted matrix to be positive
              semidefinite (default: True)
         trace_preserving: Enforce the fitted matrix to be

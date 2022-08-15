@@ -56,7 +56,7 @@ class TestFramework(QiskitExperimentsTestCase):
         self.assertExperimentDone(expdata)
         job_ids = expdata.job_ids
 
-        # Comptue expected number of jobs
+        # Compute expected number of jobs
         if max_experiments is None:
             num_jobs = 1
         else:

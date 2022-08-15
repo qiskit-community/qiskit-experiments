@@ -31,7 +31,6 @@ from qiskit_experiments.framework.json import (
     _serialize_safe_float,
 )
 
-from qiskit_experiments.database_service.db_fitval import FitVal
 from qiskit_experiments.database_service.device_component import DeviceComponent, to_component
 from qiskit_experiments.database_service.exceptions import ExperimentDataError
 from qiskit_experiments.database_service.utils import qiskit_version
@@ -174,15 +173,7 @@ class AnalysisResult:
         }
 
         # Format special DB display fields
-        if isinstance(value, FitVal):
-            db_value = AnalysisResult._display_format(value.value)
-            if db_value is not None:
-                result_data["value"] = db_value
-            if isinstance(value.stderr, (int, float)):
-                result_data["variance"] = AnalysisResult._display_format(value.stderr**2)
-            if isinstance(value.unit, str):
-                result_data["unit"] = value.unit
-        elif isinstance(value, uncertainties.UFloat):
+        if isinstance(value, uncertainties.UFloat):
             db_value = AnalysisResult._display_format(value.nominal_value)
             if db_value is not None:
                 result_data["value"] = db_value
