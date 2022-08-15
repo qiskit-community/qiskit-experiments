@@ -170,7 +170,7 @@ class CompositeAnalysis(BaseAnalysis):
         # results of child containers in this step
         for sub_expdata, sub_data in zip(component_expdata, marginalized_data):
             # Clear any previously stored data and add marginalized data
-            sub_expdata._data.clear()
+            sub_expdata._result_data.clear()
             sub_expdata.add_data(sub_data)
 
         return component_expdata
@@ -300,7 +300,7 @@ class CompositeAnalysis(BaseAnalysis):
         component_expdata = []
         for i, _ in enumerate(self._analyses):
             subdata = ExperimentData(backend=experiment_data.backend)
-            subdata._type = experiment_types[i]
+            subdata.experiment_type = experiment_types[i]
             subdata.metadata.update(component_metadata[i])
 
             if self._flatten_results:

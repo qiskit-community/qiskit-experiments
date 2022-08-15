@@ -36,7 +36,7 @@ from qiskit.pulse import (
 )
 from qiskit.pulse.channels import PulseChannel
 from qiskit.circuit import Parameter, ParameterExpression
-from qiskit.providers.backend import BackendV1 as Backend
+from qiskit.providers.backend import Backend
 
 from qiskit_experiments.exceptions import CalibrationError
 from qiskit_experiments.calibration_management.basis_gate_library import BasisGateLibrary
@@ -52,6 +52,7 @@ from qiskit_experiments.calibration_management.calibration_key_types import (
     ParameterValueType,
     ScheduleKey,
 )
+from qiskit_experiments.framework import BackendData
 
 
 class Calibrations:
@@ -257,26 +258,27 @@ class Calibrations:
         Returns:
             An instance of Calibrations instantiated from a backend.
         """
-        if hasattr(backend, "name") and hasattr(backend.name, "__call__"):
-            backend_name = backend.name()
-        else:
-            backend_name = None
+        backend_data = BackendData(backend)
+
+        control_channel_map = {}
+        for qargs in backend_data.coupling_map:
+            control_channel_map[tuple(qargs)] = backend_data.control_channel(qargs)
 
         cals = Calibrations(
-            getattr(backend.configuration(), "coupling_map", []),
-            getattr(backend.configuration(), "control_channels", None),
+            backend_data.coupling_map,
+            control_channel_map,
             library,
             libraries,
             add_parameter_defaults,
-            backend_name,
-            getattr(backend, "version", None),
+            backend_data.name,
+            backend_data.version,
         )
 
         if add_parameter_defaults:
-            for qubit, freq in enumerate(getattr(backend.defaults(), "qubit_freq_est", [])):
+            for qubit, freq in enumerate(backend_data.drive_freqs):
                 cals.add_parameter_value(freq, cals.drive_freq, qubit, update_inst_map=False)
 
-            for meas, freq in enumerate(getattr(backend.defaults(), "meas_freq_est", [])):
+            for meas, freq in enumerate(backend_data.meas_freqs):
                 cals.add_parameter_value(freq, cals.meas_freq, meas, update_inst_map=False)
 
         # Update the instruction schedule map after adding all parameter values.

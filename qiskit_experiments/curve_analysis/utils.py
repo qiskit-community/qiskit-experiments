@@ -158,7 +158,7 @@ def convert_lmfit_result(
         nfev=result.nfev,
         message=result.message,
         dof=result.nfree,
-        init_params=getattr(result, "init_values", None),
+        init_params={name: param.init_value for name, param in result.params.items()},
         chisq=result.chisqr,
         reduced_chisq=result.redchi,
         aic=result.aic,
