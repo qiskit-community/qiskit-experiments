@@ -110,7 +110,7 @@ the standard data processor by providing it to the analysis options and telling
     standard_processor = DataProcessor("counts", [Probability("1")])
 
     cal_drag = RoughDragCal(qubit, cals, schedule_name='sx', backend=backend)
-    cal_drag.set_analysis_options(data_processor=standard_processor)
+    cal_drag.analysis.set_options(data_processor=standard_processor)
 
     # enable restless mode and set override_processor_by_restless to False.
     cal_drag.enable_restless(rep_delay=1e-6, override_processor_by_restless=False)
