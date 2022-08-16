@@ -12,22 +12,25 @@
 
 """Calibration helper functions"""
 
-from typing import Dict, List, Set, Tuple
+from typing import Dict, List, Optional, Set, Tuple
 import regex as re
 
 from qiskit.circuit import ParameterExpression, Parameter
 from qiskit.pulse import ScheduleBlock, Call
 
 from qiskit_experiments.exceptions import CalibrationError
-from qiskit_experiments.calibration_management.calibration_key_types import ParameterKey
+from qiskit_experiments.calibration_management.calibration_key_types import (
+    ParameterKey,
+    ParameterValueType,
+)
 
 
-def used_in_calls(schedule_name: str, schedules: List[ScheduleBlock]) -> Set[str]:
-    """Find the schedules in the given list that call a given schedule by name.
+def used_in_references(schedule_name: str, schedules: List[ScheduleBlock]) -> Set[str]:
+    """Find the schedules in the given list that reference a given schedule by name.
 
     Args:
-        schedule_name: The name of the callee to identify.
-        schedules: A list of potential caller schedules to search.
+        schedule_name: The name of the referencer to identify.
+        schedules: A list of potential referencer schedules to search.
 
     Returns:
         A set of schedule names that call the given schedule.
@@ -35,7 +38,7 @@ def used_in_calls(schedule_name: str, schedules: List[ScheduleBlock]) -> Set[str
     caller_names = set()
 
     for schedule in schedules:
-        if _used_in_calls(schedule_name, schedule):
+        if schedule_name in set(ref[0] for ref in schedule.references):
             caller_names.add(schedule.name)
 
     return caller_names
@@ -43,6 +46,8 @@ def used_in_calls(schedule_name: str, schedules: List[ScheduleBlock]) -> Set[str
 
 def _used_in_calls(schedule_name: str, schedule: ScheduleBlock) -> bool:
     """Recursively find if the schedule calls a schedule with name ``schedule_name``.
+
+    TODO Remove?
 
     Args:
         schedule_name: The name of the callee to identify.
@@ -115,12 +120,8 @@ def standardize_assign_params(
     assign_params: Dict,
     qubits: Tuple[int, ...],
     schedule_name: str,
-) -> Tuple[Dict, Dict]:
+) -> Dict[ParameterKey, ParameterValueType]:
     """Standardize the format of manually specified parameter assignments.
-
-    This method is used in the ``get_schedule`` method of the :class:`.Calibrations` class.
-    It standardizes the input of the ``assign_params`` variable and provides support
-    for the edge case in which parameters in referenced schedules are assigned.
 
     Args:
         assign_params: The dictionary that specifies how to assign parameters.
@@ -128,13 +129,7 @@ def standardize_assign_params(
         schedule_name: The name of the schedule in which the parameters can be found.
 
     Returns:
-        Two dictionaries: the first dict is for parameters that are in the schedule
-        under consideration by ``get_schedule`` and that are not contained in any
-        referenced schedule. This dict has :class:`.ParameterKey`s as keys and
-        :class:`.ParameterValueType`s as values. The second dict enables the
-        assignment of values to parameters in referenced schedules. Its keys are a tuple
-        of referenced schedule name (a str) and the referenced qubits (a tuple).
-        The values are a dictionary.
+        A dict with :class:`.ParameterKey`s as keys and :class:`.ParameterValueType`s as values.
 
     Raises:
         CalibrationError: If the assign_params contains parameter assignments for
@@ -142,35 +137,49 @@ def standardize_assign_params(
             corresponding qubits.
     """
     assign_params_ = dict()  # keys: ParameterKey, values: ParameterValueType
-    ref_assign_params_ = dict()  # keys: Tuple[str, Tuple]: values: Dict[str, any]
 
     if assign_params:
-
         for param, value in assign_params.items():
-            # This corresponds to a parameter assignment for a referenced schedule.
-            if isinstance(value, dict):
-                if not isinstance(param, tuple) and len(param) != 2:
-                    raise CalibrationError(
-                        "When assigning parameter values to referenced schedules the key "
-                        "must be a tuple of length 2."
-                    )
-
-                ref_sched_name, ref_qubits = param[0], param[1]
-                if not isinstance(ref_sched_name, str) and not isinstance(ref_qubits, tuple):
-                    raise CalibrationError(
-                        "Parameter reference assignment should be tuple of reference name "
-                        f"and qubits. Found {param}"
-                    )
-
-                # Change the values
-                ref_assign_params_[param] = dict()
-                for ref_param_name, ref_param_value in value.items():
-                    ref_assign_params_[param][ref_param_name] = ref_param_value
-
-            # Parameters that are not contained in a referenced schedule.
-            elif isinstance(param, str):
+            if isinstance(param, str):
                 assign_params_[ParameterKey(param, qubits, schedule_name)] = value
             else:
                 assign_params_[ParameterKey(*param)] = value
 
-    return assign_params_, ref_assign_params_
+    return assign_params_
+
+
+def reference_info(
+    reference: Tuple[str, ...],
+    qubits: Optional[Tuple[int, ...]] = None,
+) -> Tuple[str, Tuple[int, ...]]:
+    """Extract reference information from the reference tuple.
+
+    Args:
+        reference: The reference of a Reference instruction in a ScheduleBlock.
+        qubits: Optional argument to reorder the references.
+
+    Returns:
+        A string corresponding to the name of the referenced schedule and the qubits that
+        this schedule applies to.
+    """
+    if not isinstance(reference, tuple):
+        raise CalibrationError(f"A schedule reference must be a tuple. Found {reference}.")
+
+    ref_schedule_name, ref_qubits = reference[0], reference[1:]
+
+    # Convert a single-qubit reference to a tuple type.
+    if isinstance(ref_qubits, str):
+        ref_qubits = (ref_qubits, )
+
+    if not isinstance(ref_schedule_name, str) and not isinstance(ref_qubits, tuple):
+        raise CalibrationError(
+            f"A schedule reference is a name and qubits tuple. Found {reference}"
+        )
+
+    ref_qubits = tuple(int(qubit[1:]) for qubit in ref_qubits)
+
+    # get the qubit indices for which we are getting the schedules
+    if qubits is not None and qubits != ():
+        ref_qubits = tuple(qubits[idx] for idx in ref_qubits)
+
+    return ref_schedule_name, ref_qubits

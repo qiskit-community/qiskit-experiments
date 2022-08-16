@@ -27,7 +27,6 @@ from qiskit.pulse import (
     ControlChannel,
     MeasureChannel,
     Call,
-    Instruction,
     AcquireChannel,
     RegisterSlot,
     MemorySlot,
@@ -43,8 +42,9 @@ from qiskit_experiments.calibration_management.basis_gate_library import BasisGa
 from qiskit_experiments.calibration_management.parameter_value import ParameterValue
 from qiskit_experiments.calibration_management.control_channel_map import ControlChannelMap
 from qiskit_experiments.calibration_management.calibration_utils import (
-    used_in_calls,
+    used_in_references,
     validate_channels,
+    reference_info,
     standardize_assign_params,
 )
 from qiskit_experiments.calibration_management.calibration_key_types import (
@@ -553,6 +553,7 @@ class Calibrations:
 
         Raises:
             CalibrationError: If schedule is not an instance of :class:`ScheduleBlock`.
+            CalibrationError: If a schedule has assigned references.
             CalibrationError: If several parameters in the same schedule have the same name.
             CalibrationError: If the schedule name starts with the prefix of ScheduleBlock.
             CalibrationError: If the schedule calls subroutines that have not been registered.
@@ -572,6 +573,12 @@ class Calibrations:
 
         if not isinstance(schedule, ScheduleBlock):
             raise CalibrationError(f"{schedule.name} is not a ScheduleBlock.")
+
+        if len(schedule.references) != len(schedule.references.unassigned()):
+            raise CalibrationError(
+                f"Cannot add {schedule} with assigned references. {self.__class__.__name__} only "
+                "accepts schedules without references or schedules with references by name."
+            )
 
         sched_key = ScheduleKey(schedule.name, qubits)
 
@@ -594,18 +601,8 @@ class Calibrations:
         param_indices = validate_channels(schedule)
 
         # Check that subroutines are present.
-        for block in schedule.blocks:
-            if isinstance(block, Call):
-                if isinstance(block.subroutine, Schedule):
-                    raise CalibrationError(
-                        "Calling a Schedule is forbidden, call ScheduleBlock instead."
-                    )
-
-                if (block.subroutine.name, qubits) not in self._schedules:
-                    raise CalibrationError(
-                        f"Cannot register schedule block {schedule.name} with unregistered "
-                        f"subroutine {block.subroutine.name}."
-                    )
+        for reference in schedule.references:
+            self.get_template(*reference_info(reference, qubits))
 
         # Clean the parameter to schedule mapping. This is needed if we overwrite a schedule.
         self._clean_parameter_map(schedule.name, qubits)
@@ -615,43 +612,16 @@ class Calibrations:
         self._schedules_qubits[sched_key] = num_qubits
 
         # Register parameters that are not indices.
-        # Do not register parameters that are in call instructions.
         params_to_register = set()
-        for inst in self._exclude_calls(schedule, []):
-            for param in inst.parameters:
-                if param not in param_indices:
-                    params_to_register.add(param)
+        for param in schedule.parameters:
+            if param not in param_indices:
+                params_to_register.add(param)
 
         if len(params_to_register) != len(set(param.name for param in params_to_register)):
             raise CalibrationError(f"Parameter names in {schedule.name} must be unique.")
 
         for param in params_to_register:
             self._register_parameter(param, qubits, schedule)
-
-    def _exclude_calls(
-        self, schedule: ScheduleBlock, instructions: List[Instruction]
-    ) -> List[Instruction]:
-        """Return the non-Call instructions.
-
-        Recursive function to get all non-Call instructions. This will flatten all blocks
-        in a :class:`ScheduleBlock` and return the instructions of the ScheduleBlock leaving
-        out any Call instructions.
-
-        Args:
-            schedule: A :class:`ScheduleBlock` from which to extract the instructions.
-            instructions: The list of instructions that is recursively populated.
-
-        Returns:
-            The list of instructions to which all non-Call instructions have been added.
-        """
-        for block in schedule.blocks:
-            if isinstance(block, ScheduleBlock):
-                instructions = self._exclude_calls(block, instructions)
-            else:
-                if not isinstance(block, Call):
-                    instructions.append(block)
-
-        return instructions
 
     def get_template(
         self, schedule_name: str, qubits: Optional[Tuple[int, ...]] = None
@@ -802,9 +772,6 @@ class Calibrations:
         """
         qubits = self._to_tuple(qubits)
 
-        #print(self._parameter_map)
-        print("looking for", parameter_name, qubits, schedule_name)
-
         # 1) Check for qubit specific parameters.
         if ParameterKey(parameter_name, qubits, schedule_name) in self._parameter_map:
             return self._parameter_map[ParameterKey(parameter_name, qubits, schedule_name)]
@@ -863,8 +830,9 @@ class Calibrations:
             param_obj = self.calibration_parameter(param_name, qubits, sched_name)
             schedules = set(key.schedule for key in self._parameter_map_r[param_obj])
 
-            # Find schedules that may call the schedule we want to update.
-            schedules.update(used_in_calls(sched_name, list(self._schedules.values())))
+            # Find schedules that may reference the schedule we want to update.
+            # TODO this might not update properly with nested references!
+            schedules.update(used_in_references(sched_name, list(self._schedules.values())))
 
             self.update_inst_map(schedules, qubits=qubits)
 
@@ -1047,8 +1015,8 @@ class Calibrations:
             sched = cals.get_schedule("xp", 3, assign_params={"amp": Parameter("amp")})
 
             # Get an echoed-cross-resonance schedule between qubits (0, 2) where the xp echo gates
-            # are Called schedules but leave their amplitudes as parameters.
-            assign_dict = {("amp", (0,), "xp"): Parameter("my_amp")}
+            # are referenced schedules but leave their amplitudes as parameters.
+            assign_dict = {("amp", (0,), "xp"): Parameter("my_amp")} TODO?
             sched = cals.get_schedule("cr", (0, 2), assign_params=assign_dict)
 
         Args:
@@ -1077,33 +1045,24 @@ class Calibrations:
         """
         qubits = self._to_tuple(qubits)
 
-        # Standardize the input in the assignment dictionary
-        assign_params, ref_assign_params = standardize_assign_params(assign_params, qubits, name)
+        assign_params = standardize_assign_params(assign_params, qubits, name)
 
-        # Get the template schedule
-        if (name, qubits) in self._schedules:
-            schedule = self._schedules[ScheduleKey(name, qubits)]
-        elif (name, ()) in self._schedules:
-            schedule = self._schedules[ScheduleKey(name, ())]
-        else:
-            raise CalibrationError(f"Schedule {name} is not defined for qubits {qubits}.")
+        schedule = self.get_template(name, qubits)
 
         # assign any references
         referenced_schedules = {}
         for ref in schedule.references.unassigned():
-            ref_name, qubits_str = ref[0], ref[1:]
-            # convert the qubit references to ints, e.g., ("q12", "q0") to (12, 0)
-            ref_indices = tuple(int(qubit[1:]) for qubit in qubits_str)
-
-            # get the qubit indices for which we are getting the schedules
-            ref_qubits = tuple(qubits[idx] for idx in ref_indices)
+            ref_name, ref_qubits = reference_info(ref, qubits)
+            ref_assign = {}
+            for key, val in assign_params.items():
+                if key.schedule == ref_name and (key.qubits == tuple() or key.qubits == ref_qubits):
+                    ref_assign[key] = val
 
             referenced_schedules[ref] = self.get_schedule(
                 ref_name,
                 ref_qubits,
-                assign_params=ref_assign_params.get((ref_name, ref_qubits), {}),
+                assign_params=ref_assign,
             )
-
         schedule = schedule.assign_references(referenced_schedules, inplace=False)
 
         # Retrieve the channel indices based on the qubits and bind them.
@@ -1119,9 +1078,9 @@ class Calibrations:
         assigned_schedule = self._assign(schedule, qubits, assign_params, group, cutoff_date)
 
         free_params = set()
-        for param in assign_params.values():
-            if isinstance(param, ParameterExpression):
-                free_params.add(param)
+        for param_value in assign_params.values():
+            if isinstance(param_value, ParameterExpression):
+                free_params.add(param_value)
 
         if len(assigned_schedule.parameters) != len(free_params):
             raise CalibrationError(
@@ -1140,7 +1099,7 @@ class Calibrations:
         group: Optional[str] = "default",
         cutoff_date: datetime = None,
     ) -> ScheduleBlock:
-        """Recursively assign parameters in a schedule.
+        """Recursively assign parameters in a schedule. TODO
 
         The recursive behaviour is needed to handle Call instructions as the name of
         the called instruction defines the scope of the parameter. Each time a Call
@@ -1230,38 +1189,14 @@ class Calibrations:
 
         qubits_ = tuple(qubit for qubit in qubits if qubit in qubit_set)
 
-        # 2) Recursively assign the parameters in the called instructions.
-        ret_schedule = ScheduleBlock(
-            alignment_context=schedule.alignment_context,
-            name=schedule.name,
-            metadata=schedule.metadata,
-        )
-
-        for inst in schedule.blocks:
-            if isinstance(inst, Call):
-                # Check that there are no inconsistencies with the called subroutines.
-                template_subroutine = self.get_template(inst.subroutine.name, qubits_)
-                if inst.subroutine != template_subroutine:
-                    raise CalibrationError(
-                        f"The subroutine {inst.subroutine.name} called by {inst.name} does not "
-                        f"match the template schedule stored under {template_subroutine.name}."
-                    )
-
-                inst = inst.assigned_subroutine()
-
-            if isinstance(inst, ScheduleBlock):
-                inst = self._assign(inst, qubits_, assign_params, group, cutoff_date)
-
-            ret_schedule.append(inst, inplace=True)
-
         # 3) Get the parameter keys of the remaining instructions. At this point in
         #    _assign all parameters in Call instructions that are supposed to be
         #     assigned have been assigned.
         keys = set()
 
-        if ret_schedule.name in set(key.schedule for key in self._parameter_map):
-            for param in ret_schedule.parameters:
-                keys.add(ParameterKey(param.name, qubits_, ret_schedule.name))
+        if schedule.name in set(key.schedule for key in self._parameter_map):
+            for param in schedule.parameters:
+                keys.add(ParameterKey(param.name, qubits_, schedule.name))
 
         # 4) Build the parameter binding dictionary.
         binding_dict = {}
@@ -1279,18 +1214,18 @@ class Calibrations:
             elif key.qubits != qubits_:
                 continue
             param = self.calibration_parameter(*key)
-            if param in ret_schedule.parameters:
+            if param in schedule.parameters:
                 assign_okay = (
                     param not in binding_dict
-                    or key.schedule == ret_schedule.name
-                    and assignment_table[param].schedule != ret_schedule.name
+                    or key.schedule == schedule.name
+                    and assignment_table[param].schedule != schedule.name
                 )
                 if assign_okay:
                     binding_dict[param] = value
                     assignment_table[param] = key_orig
                 elif (
-                    key.schedule == ret_schedule.name
-                    or assignment_table[param].schedule != ret_schedule.name
+                    key.schedule == schedule.name
+                    or assignment_table[param].schedule != schedule.name
                 ) and binding_dict[param] != value:
                     raise CalibrationError(
                         "Ambiguous assignment: assign_params keys "
@@ -1313,7 +1248,7 @@ class Calibrations:
                     cutoff_date=cutoff_date,
                 )
 
-        return ret_schedule.assign_parameters(binding_dict, inplace=False)
+        return schedule.assign_parameters(binding_dict, inplace=False)
 
     def schedules(self) -> List[Dict[str, Any]]:
         """Return the managed schedules in a list of dictionaries.
