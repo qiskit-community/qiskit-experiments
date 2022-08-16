@@ -37,7 +37,7 @@ class RamseyXYAnalysis(curve.CurveAnalysis):
         defpar \rm amp:
             desc: Amplitude of both series.
             init_guess: Half of the maximum y value less the minimum y value.
-            bounds: [0, maximum absolute Y data]
+            bounds: [0, 2 * average y peak-to-peak]
 
         defpar \tau:
             desc: The exponential decay of the curve.
@@ -48,7 +48,7 @@ class RamseyXYAnalysis(curve.CurveAnalysis):
         defpar \rm base:
             desc: Base line of both series.
             init_guess: Roughly the average of the data.
-            bounds: [0, maximum absolute Y data]
+            bounds: [min y - average y peak-to-peak, max y + average y peak-to-peak]
 
         defpar \rm freq:
             desc: Frequency of both series. This is the parameter of interest.
@@ -111,27 +111,29 @@ class RamseyXYAnalysis(curve.CurveAnalysis):
         ramx_data = curve_data.get_subset_of("X")
         ramy_data = curve_data.get_subset_of("Y")
 
-        user_opt.bounds.set_if_empty(
-            amp=(0, np.inf),
-            tau=(0, np.inf),
-            base=(0, np.inf),
-            phase=(-np.pi, np.pi),
-        )
-
         # At very low frequency, y value of X (Y) curve stay at P=1.0 (0.5) for all x values.
         # Computing y peak-to-peak with combined data gives fake amplitude of 0.25.
         # Same for base, i.e. P=0.75 is often estimated in this case.
+        full_y_ptp = np.ptp(curve_data.y)
         avg_y_ptp = 0.5 * (np.ptp(ramx_data.y) + np.ptp(ramy_data.y))
         max_y = np.max(np.abs(curve_data.y))
+        min_y = np.min(np.abs(curve_data.y))
 
-        if avg_y_ptp < 0.1 * max_y:
-            # When peak-to-peak value is less than 10% of full data range,
-            # likely frequency is too low to estimate.
-            # In this case, Ramsey Y curve corresponds to P=0.5, i.e. base.
+        user_opt.bounds.set_if_empty(
+            amp=(0, avg_y_ptp * 2),
+            tau=(0, np.inf),
+            base=(min_y - avg_y_ptp, max_y + avg_y_ptp),
+            phase=(-np.pi, np.pi),
+        )
+
+        if avg_y_ptp < 0.5 * full_y_ptp:
+            # When X and Y curve don't oscillate, X (Y) usually stays at P(1) = 1.0 (0.5).
+            # So peak-to-peak of full data is something around P(1) = 0.75, while
+            # single curve peak-to-peak is almost zero.
             avg_x = np.average(ramx_data.y)
             avg_y = np.average(ramy_data.y)
             user_opt.p0.set_if_empty(
-                amp=avg_x - avg_y,
+                amp=np.abs(avg_x - avg_y),
                 tau=100 * np.max(curve_data.x),
                 base=avg_y,
                 phase=0.0,
@@ -139,9 +141,11 @@ class RamseyXYAnalysis(curve.CurveAnalysis):
             )
             return user_opt
 
-        base_guess = curve.guess.constant_sinusoidal_offset(curve_data.y)
+        base_guess_x = curve.guess.constant_sinusoidal_offset(ramx_data.y)
+        base_guess_y = curve.guess.constant_sinusoidal_offset(ramy_data.y)
+        base_guess = 0.5 * (base_guess_x + base_guess_y)
         user_opt.p0.set_if_empty(
-            amp=0.5 * avg_y_ptp,
+            amp=0.5 * full_y_ptp,
             base=base_guess,
             phase=0.0,
         )
@@ -150,19 +154,17 @@ class RamseyXYAnalysis(curve.CurveAnalysis):
         decay_data = (ramx_data.y - user_opt.p0["base"]) ** 2 + (
             ramy_data.y - user_opt.p0["base"]
         ) ** 2
-        if decay_data[0] - decay_data[-1] < 0.95 * 0.5 * avg_y_ptp:
+        if np.ptp(decay_data) < 0.95 * 0.5 * full_y_ptp:
             # When decay is less than 95 % of peak-to-peak value, ignore decay and
             # set large enough tau value compared with the measured x range.
             user_opt.p0.set_if_empty(tau=1000 * np.max(curve_data.x))
         else:
             user_opt.p0.set_if_empty(tau=-1 / curve.guess.exp_decay(ramx_data.x, decay_data))
 
-        # Guess the oscillation frequency
-        xyfreq_guesses = []
-        for series in (ramx_data, ramy_data):
-            # Remove offset to eliminate DC peak
-            xyfreq_guesses.append(curve.guess.frequency(series.x, series.y - base_guess))
-        freq_val = float(np.average(xyfreq_guesses))
+        # Guess the oscillation frequency, remove offset to eliminate DC peak
+        freq_guess_x = curve.guess.frequency(ramx_data.x, ramx_data.y - base_guess_x)
+        freq_guess_y = curve.guess.frequency(ramy_data.x, ramy_data.y - base_guess_y)
+        freq_val = 0.5 * (freq_guess_x + freq_guess_y)
 
         # FFT might be up to 1/2 bin off
         df = 2 * np.pi / (np.min(np.diff(ramx_data.x)) * ramx_data.x.size)
