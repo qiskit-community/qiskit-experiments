@@ -2,8 +2,8 @@
  Release Notes
 ===============
 
-.. releasenotes::
+.. release-notes::
    :earliest-version: 0.4.0
 
-.. releasenotes::
+.. release-notes::
    :branch: stable/0.3
