@@ -802,6 +802,9 @@ class Calibrations:
         """
         qubits = self._to_tuple(qubits)
 
+        #print(self._parameter_map)
+        print("looking for", parameter_name, qubits, schedule_name)
+
         # 1) Check for qubit specific parameters.
         if ParameterKey(parameter_name, qubits, schedule_name) in self._parameter_map:
             return self._parameter_map[ParameterKey(parameter_name, qubits, schedule_name)]
@@ -1087,7 +1090,7 @@ class Calibrations:
 
         # assign any references
         referenced_schedules = {}
-        for ref in schedule.references:
+        for ref in schedule.references.unassigned():
             ref_name, qubits_str = ref[0], ref[1:]
             # convert the qubit references to ints, e.g., ("q12", "q0") to (12, 0)
             ref_indices = tuple(int(qubit[1:]) for qubit in qubits_str)
