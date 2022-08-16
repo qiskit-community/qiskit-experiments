@@ -17,7 +17,17 @@ from test.base import QiskitExperimentsTestCase
 import ddt
 
 from qiskit import QuantumCircuit
-from qiskit_experiments.framework import ExperimentData
+from qiskit.providers.fake_provider import FakeVigoV2, FakeJob
+from qiskit.providers.jobstatus import JobStatus
+from qiskit.exceptions import QiskitError
+
+from qiskit_experiments.framework import (
+    ExperimentData,
+    BaseExperiment,
+    BaseAnalysis,
+    AnalysisResultData,
+    AnalysisStatus,
+)
 from qiskit_experiments.test.fake_backend import FakeBackend
 
 
@@ -117,3 +127,51 @@ class TestFramework(QiskitExperimentsTestCase):
         target_opts["figure_names"] = None
 
         self.assertEqual(analysis.options.__dict__, target_opts)
+
+    def test_after_job_fail(self):
+        """Verify that analysis is cancelled in case of job failure"""
+
+        class MyExp(BaseExperiment):
+            """Some arbitraty experiment"""
+
+            def __init__(self, qubits):
+                super().__init__(qubits)
+                self.analysis = MyAnalysis()
+
+            def circuits(self):
+                circ = QuantumCircuit(1, 1)
+                circ.measure(0, 0)
+                return [circ]
+
+        class MyAnalysis(BaseAnalysis):
+            """Analysis that is supposed to be cancelled, because of job failure"""
+
+            def _run_analysis(self, experiment_data):
+                res = AnalysisResultData(name="should not run", value="blaaaaaaa")
+                return [res], []
+
+        class MyBackend(FakeVigoV2):
+            """A backend that works with `MyJob`"""
+
+            def run(self, run_input, **options):
+                return MyJob(self, "jobid", None)
+
+        class MyJob(FakeJob):
+            """A job with status ERROR, that errors when the result is queried"""
+
+            def result(self, timeout=None):
+                raise QiskitError
+
+            def status(self):
+                return JobStatus.ERROR
+
+            def error_message(self):
+                """Job's error message"""
+                return "You're dealing with the wrong job, man"
+
+        backend = MyBackend()
+        exp = MyExp([0])
+        expdata = exp.run(backend=backend)
+        res = expdata.analysis_results()
+        self.assertEqual(len(res), 0)
+        self.assertEqual(expdata.analysis_status(), AnalysisStatus.CANCELLED)
