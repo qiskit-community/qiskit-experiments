@@ -802,9 +802,6 @@ class Calibrations:
         """
         qubits = self._to_tuple(qubits)
 
-        #print(self._parameter_map)
-        print("looking for", parameter_name, qubits, schedule_name)
-
         # 1) Check for qubit specific parameters.
         if ParameterKey(parameter_name, qubits, schedule_name) in self._parameter_map:
             return self._parameter_map[ParameterKey(parameter_name, qubits, schedule_name)]
