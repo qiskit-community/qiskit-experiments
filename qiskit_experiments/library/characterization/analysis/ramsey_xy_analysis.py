@@ -120,7 +120,7 @@ class RamseyXYAnalysis(curve.CurveAnalysis):
         min_y = np.min(np.abs(curve_data.y))
 
         user_opt.bounds.set_if_empty(
-            amp=(0, avg_y_ptp * 2),
+            amp=(0, full_y_ptp * 2),
             tau=(0, np.inf),
             base=(min_y - avg_y_ptp, max_y + avg_y_ptp),
             phase=(-np.pi, np.pi),
@@ -132,6 +132,7 @@ class RamseyXYAnalysis(curve.CurveAnalysis):
             # single curve peak-to-peak is almost zero.
             avg_x = np.average(ramx_data.y)
             avg_y = np.average(ramy_data.y)
+
             user_opt.p0.set_if_empty(
                 amp=np.abs(avg_x - avg_y),
                 tau=100 * np.max(curve_data.x),

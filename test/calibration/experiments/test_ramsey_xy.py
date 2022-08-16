@@ -14,6 +14,8 @@
 
 import unittest
 from test.base import QiskitExperimentsTestCase
+
+from ddt import ddt, data
 from qiskit.providers.fake_provider import FakeArmonkV2
 
 from qiskit_experiments.calibration_management.calibrations import Calibrations
@@ -24,6 +26,7 @@ from qiskit_experiments.test.mock_iq_backend import MockIQBackend
 from qiskit_experiments.test.mock_iq_helpers import MockIQRamseyXYHelper as RamseyXYHelper
 
 
+@ddt
 class TestRamseyXY(QiskitExperimentsTestCase):
     """Tests for the Ramsey XY experiment."""
 
@@ -34,22 +37,26 @@ class TestRamseyXY(QiskitExperimentsTestCase):
         library = FixedFrequencyTransmon()
         self.cals = Calibrations.from_backend(FakeArmonkV2(), libraries=[library])
 
-    def test_end_to_end(self):
+    @data(2e6, -3e6, 1e3, 0.0)
+    def test_end_to_end(self, freq_shift: float):
         """Test that we can run on a mock backend and perform a fit.
 
         This test also checks that we can pickup frequency shifts with different signs.
         """
-
         test_tol = 0.01
+        abs_tol = max(1e3, abs(freq_shift) * test_tol)
+
         exp_helper = RamseyXYHelper()
         ramsey = RamseyXY(0)
         ramsey.backend = MockIQBackend(exp_helper)
-        for freq_shift in [2e6, -3e6]:
-            exp_helper.freq_shift = freq_shift
-            test_data = ramsey.run()
-            self.assertExperimentDone(test_data)
-            meas_shift = test_data.analysis_results(1).value.n
-            self.assertLess(abs(meas_shift - freq_shift), abs(test_tol * freq_shift))
+
+        exp_helper.freq_shift = freq_shift
+        test_data = ramsey.run()
+        self.assertExperimentDone(test_data)
+
+        freq_est_data = test_data.analysis_results("freq")
+        self.assertAlmostEqual(freq_est_data.value.n, freq_shift, delta=abs_tol)
+        self.assertLess(freq_est_data.chisq, 3.0)
 
     def test_update_calibrations(self):
         """Test that the calibration version of the experiment updates the cals."""
