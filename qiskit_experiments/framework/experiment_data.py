@@ -80,10 +80,16 @@ def do_auto_save(func: Callable):
 
 
 class FigureData:
-    """Wrapper for figures and figure metadata"""
+    """Wrapper class for figures and figure metadata. The raw figure can be accessed with
+    the ``figure`` attribute."""
 
     def __init__(self, figure, name=None, metadata=None):
-        """Creates a new figure data object"""
+        """Creates a new figure data object.
+
+        Args:
+            figure: the raw figure itself. Can be SVG or matplotlib.Figure.
+            name: Optional, the name of the figure.
+            metadata: Optional, any metadata to be stored with the figure."""
         self.figure = figure
         self._name = name
         self.metadata = metadata or {}
