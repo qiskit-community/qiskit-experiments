@@ -1,6 +1,0 @@
----
-features:
-  - |
-    Adds two new classes, :class:`~qiskit_experiments.test.mock_iq_helpers.MockIQParallelExperimentHelper` 
-    and :class:`~qiskit_experiments.test.mock_iq_backend.MockIQParallelBackend`
-    for running parallel experiments on the mock IQ backend.
