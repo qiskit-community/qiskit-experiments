@@ -1,6 +1,6 @@
 numpy>=1.17
 scipy>=1.4
-qiskit-terra>=0.21.1
+git+https://github.com/nkanazawa1989/qiskit-terra.git@feature/call_with_name#egg=qiskit-terra
 qiskit-ibmq-provider>=0.16.0
 qiskit-ibm-experiment>=0.2.5
 matplotlib>=3.4
