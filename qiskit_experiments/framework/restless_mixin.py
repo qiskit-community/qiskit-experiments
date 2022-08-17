@@ -95,6 +95,7 @@ class RestlessMixin:
         """
         try:
             if not rep_delay:
+                # BackendV1 only; BackendV2 does not support this
                 rep_delay = self._backend.configuration().rep_delay_range[0]
         except AttributeError as error:
             raise DataProcessorError(

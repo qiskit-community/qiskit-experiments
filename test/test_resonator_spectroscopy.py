@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Spectroscopy tests for resonator spectroscop experiment."""
+"""Spectroscopy tests for resonator spectroscopy experiment."""
 
 from test.base import QiskitExperimentsTestCase
 import numpy as np

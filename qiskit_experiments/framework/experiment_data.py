@@ -49,6 +49,7 @@ from qiskit_experiments.database_service.utils import (
     ThreadSafeList,
 )
 from qiskit_experiments.framework.analysis_result import AnalysisResult
+from qiskit_experiments.framework import BackendData
 from qiskit_experiments.database_service.exceptions import (
     ExperimentDataError,
     ExperimentEntryNotFound,
@@ -79,10 +80,16 @@ def do_auto_save(func: Callable):
 
 
 class FigureData:
-    """Wrapper for figures and figure metadata"""
+    """Wrapper class for figures and figure metadata. The raw figure can be accessed with
+    the ``figure`` attribute."""
 
     def __init__(self, figure, name=None, metadata=None):
-        """Creates a new figure data object"""
+        """Creates a new figure data object.
+
+        Args:
+            figure: the raw figure itself. Can be SVG or matplotlib.Figure.
+            name: Optional, the name of the figure.
+            metadata: Optional, any metadata to be stored with the figure."""
         self.figure = figure
         self._name = name
         self.metadata = metadata or {}
@@ -535,31 +542,28 @@ class ExperimentData:
         # defined independently from the setter to enable setting without autosave
 
         self._backend = new_backend
-        if hasattr(new_backend, "name"):
-            self._db_data.backend = new_backend.name()
-        else:
+        self._backend_data = BackendData(new_backend)
+        self._db_data.backend = self._backend_data.name
+        if self._db_data.backend is None:
             self._db_data.backend = str(new_backend)
-        if hasattr(new_backend, "provider"):
-            self._set_hgp_from_backend()
+        provider = self._backend_data.provider
+        if provider is not None:
+            self._set_hgp_from_provider(provider)
         if recursive:
             for data in self.child_data():
                 data._set_backend(new_backend)
 
-    def _set_hgp_from_backend(self):
-        if self.backend is not None and self.backend.provider() is not None:
-            try:
-                creds = self.backend.provider().credentials
-                hub = self._db_data.hub or creds.hub
-                group = self._db_data.group or creds.group
-                project = self._db_data.project or creds.project
-                self._db_data.hub = hub
-                self._db_data.group = group
-                self._db_data.project = project
-            except AttributeError:
-                LOG.warning(
-                    "Unable to set hub/group/project backend %s ",
-                    self.backend,
-                )
+    def _set_hgp_from_provider(self, provider):
+        try:
+            creds = provider.credentials
+            hub = self._db_data.hub or creds.hub
+            group = self._db_data.group or creds.group
+            project = self._db_data.project or creds.project
+            self._db_data.hub = hub
+            self._db_data.group = group
+            self._db_data.project = project
+        except AttributeError:
+            return
 
     def _clear_results(self):
         """Delete all currently stored analysis results and figures"""
@@ -629,7 +633,6 @@ class ExperimentData:
     def add_data(
         self,
         data: Union[Result, List[Result], Job, List[Job], Dict, List[Dict]],
-        timeout: Optional[float] = None,
     ) -> None:
         """Add experiment data.
 
@@ -641,7 +644,6 @@ class ExperimentData:
                 * List[Dict]: Add this list of data.
                 * Job: (Deprecated) Add data from the job result.
                 * List[Job]: (Deprecated) Add data from the job results.
-            timeout: (Deprecated) Timeout waiting for job to finish, if `data` is a ``Job``.
 
         Raises:
             TypeError: If the input data type is invalid.
@@ -654,37 +656,15 @@ class ExperimentData:
         if not isinstance(data, list):
             data = [data]
 
-        # Extract job data (Deprecated) and directly add non-job data
-        jobs = []
+        # Directly add non-job data
         with self._result_data.lock:
             for datum in data:
-                if isinstance(datum, Job):
-                    jobs.append(datum)
-                elif isinstance(datum, dict):
+                if isinstance(datum, dict):
                     self._result_data.append(datum)
                 elif isinstance(datum, Result):
                     self._add_result_data(datum)
                 else:
                     raise TypeError(f"Invalid data type {type(datum)}.")
-
-        # Remove after deprecation is finished
-        if jobs:
-            warnings.warn(
-                "Passing Jobs to the `add_data` method is deprecated as of "
-                "qiskit-experiments 0.3.0 and will be removed in the 0.4.0 release. "
-                "Use the `add_jobs` method to add jobs instead.",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-            if timeout is not None:
-                warnings.warn(
-                    "The `timeout` kwarg of is deprecated as of "
-                    "qiskit-experiments 0.3.0 and will be removed in the 0.4.0 release. "
-                    "Use the `add_jobs` method to add jobs with timeout.",
-                    DeprecationWarning,
-                    stacklevel=2,
-                )
-            self.add_jobs(jobs, timeout=timeout)
 
     def add_jobs(
         self,
@@ -719,18 +699,21 @@ class ExperimentData:
         # Add futures for extracting finished job data
         timeout_ids = []
         for job in jobs:
-            jid = job.job_id()
-            if self.backend is not None and self.backend.name() != job.backend().name():
-                LOG.warning(
-                    "Adding a job from a backend (%s) that is different "
-                    "than the current backend (%s). "
-                    "The new backend will be used, but "
-                    "service is not changed if one already exists.",
-                    job.backend(),
-                    self.backend,
-                )
+            if self.backend is not None:
+                backend_name = BackendData(self.backend).name
+                job_backend_name = BackendData(job.backend()).name
+                if self.backend and backend_name != job_backend_name:
+                    LOG.warning(
+                        "Adding a job from a backend (%s) that is different "
+                        "than the current backend (%s). "
+                        "The new backend will be used, but "
+                        "service is not changed if one already exists.",
+                        job.backend(),
+                        self.backend,
+                    )
             self.backend = job.backend()
 
+            jid = job.job_id()
             if jid in self._jobs:
                 LOG.warning(
                     "Skipping duplicate job, a job with this ID already exists [Job ID: %s]", jid
@@ -1638,6 +1621,11 @@ class ExperimentData:
                     name,
                     self.experiment_id,
                 )
+                value = False
+            elif not fut.result()[1]:
+                # The job/analysis did not succeed, and the failure reflects in the second
+                # returned value of _add_job_data/_run_analysis_callback. See details in Issue #866.
+                value = False
         if excepts:
             LOG.error(
                 "%s raised exceptions [Experiment ID: %s]:%s", name, self.experiment_id, excepts

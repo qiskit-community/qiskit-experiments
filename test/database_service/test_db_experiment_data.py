@@ -27,13 +27,14 @@ import uuid
 import matplotlib.pyplot as plt
 import numpy as np
 
-from qiskit.providers.fake_provider import FakeMelbourne
+from qiskit.providers.fake_provider import FakeMelbourneV2
 from qiskit.result import Result
 from qiskit.providers import JobV1 as Job
 from qiskit.providers import JobStatus
 from qiskit_ibm_experiment import IBMExperimentService
 from qiskit_experiments.framework import ExperimentData
 from qiskit_experiments.framework import AnalysisResult
+from qiskit_experiments.framework import BackendData
 from qiskit_experiments.database_service.exceptions import (
     ExperimentDataError,
     ExperimentEntryNotFound,
@@ -52,7 +53,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
 
     def setUp(self):
         super().setUp()
-        self.backend = FakeMelbourne()
+        self.backend = FakeMelbourneV2()
 
     def test_db_experiment_data_attributes(self):
         """Test DB experiment data attributes."""
@@ -70,7 +71,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
             metadata={"foo": "bar"},
             **attrs,
         )
-        self.assertEqual(exp_data.backend.name(), self.backend.name())
+        self.assertEqual(exp_data.backend.name, self.backend.name)
         self.assertEqual(exp_data.experiment_type, "qiskit_test")
         self.assertEqual(exp_data.experiment_id, "1234")
         self.assertEqual(exp_data.tags, ["tag1", "tag2"])
@@ -747,9 +748,10 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         exp_data.add_analysis_callback(_analysis, name=2, timeout=30)
         cancel_id = exp_data._analysis_callbacks.keys()[-1]
         exp_data.add_analysis_callback(_analysis, name=3, timeout=1)
+        consequent_cancel_id = exp_data._analysis_callbacks.keys()[-1]
         exp_data.cancel_analysis(cancel_id)
 
-        # Test status while job still running
+        # Test status while job is still running
         self.assertEqual(exp_data.job_status(), JobStatus.RUNNING)
         self.assertEqual(exp_data.analysis_status(), AnalysisStatus.CANCELLED)
         self.assertEqual(exp_data.status(), ExperimentStatus.RUNNING)
@@ -762,9 +764,9 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
 
         # Check that correct analysis callback was cancelled
         exp_data.block_for_results()
-        self.assertEqual(run_analysis, [1, 3])
+        self.assertEqual(run_analysis, [1])
         for cid, analysis in exp_data._analysis_callbacks.items():
-            if cid == cancel_id:
+            if cid in [cancel_id, consequent_cancel_id]:
                 self.assertEqual(analysis.status, AnalysisStatus.CANCELLED)
             else:
                 self.assertEqual(analysis.status, AnalysisStatus.DONE)
@@ -927,7 +929,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         """Test handling of excepting callbacks"""
 
         def callback1(exp_data):
-            """Callback function that call add_analysis_callback"""
+            """Callback function that calls add_analysis_callback"""
             time.sleep(1)
             exp_data.add_analysis_callback(callback2)
             result = AnalysisResult("RESULT1", True, ["Q0"], exp_data.experiment_id)
@@ -952,7 +954,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
 
         self.assertEqual(exp_data.analysis_status(), AnalysisStatus.ERROR)
         self.assertTrue("RuntimeError: YOU FAIL" in exp_data.analysis_errors())
-        self.assertEqual(len(results), 2)
+        self.assertEqual(len(results), 1)
 
     def test_source(self):
         """Test getting experiment source."""
@@ -1031,7 +1033,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
     def _get_job_result(self, circ_count, has_metadata=False):
         """Return a job result with random counts."""
         job_result = {
-            "backend_name": self.backend.name(),
+            "backend_name": BackendData(self.backend).name,
             "backend_version": "1.1.1",
             "qobj_id": "1234",
             "job_id": "some_job_id",

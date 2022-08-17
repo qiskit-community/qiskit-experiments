@@ -1046,7 +1046,7 @@ class RestlessToIQ(RestlessNode):
     one, i.e. :math:`(I_2 - I_1) + i(Q_2 - Q_1)` for consecutively measured IQ points
     :math:`I_1 + iQ_1` and :math:`I_2 + iQ_2`. Following this, it takes the absolute
     value of the in-phase and quadrature component and returns a sequence of circuit-
-    ordered IQ values, e.g. containing :math:`\abs{(I_2 - I_1)} + i\abs{(Q_2 - Q_1)}`.
+    ordered IQ values, e.g. containing :math:`|I_2 - I_1| + i|Q_2 - Q_1|`.
     This procedure is based on M. Werninghaus, et al., PRX Quantum 2, 020324 (2021).
     """
 

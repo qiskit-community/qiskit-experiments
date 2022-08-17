@@ -169,9 +169,9 @@ class TestStandardRB(RBTestCase):
         This is a special case that fit outcome is very sensitive to initial guess.
         Perhaps generated initial guess is close to a local minima.
         """
-        from qiskit.providers.fake_provider import FakeVigo
+        from qiskit.providers.fake_provider import FakeVigoV2
 
-        backend = AerSimulator.from_backend(FakeVigo(), seed_simulator=123)
+        backend = FakeVigoV2()
         exp = rb.StandardRB(
             qubits=(0,),
             lengths=[100, 200, 300, 400],
@@ -180,6 +180,9 @@ class TestStandardRB(RBTestCase):
             num_samples=5,
         )
         exp.set_transpile_options(basis_gates=["x", "sx", "rz"], optimization_level=1)
+        # Simulator seed must be fixed. This can be set via run option with FakeBackend.
+        # pylint: disable=no-member
+        exp.set_run_options(seed_simulator=456)
         expdata = exp.run()
         self.assertExperimentDone(expdata)
 
@@ -443,9 +446,9 @@ class TestInterleavedRB(RBTestCase):
 
 
 class TestEPGAnalysis(QiskitExperimentsTestCase):
-    """Test case for EPG colculation from EPC.
+    """Test case for EPG calculation from EPC.
 
-    EPG and depplarizing probability p are assumed to have following relationship
+    EPG and depolarizing probability p are assumed to have following relationship
 
         EPG = (2^n - 1) / 2^n · p
 

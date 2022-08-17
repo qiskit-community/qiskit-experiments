@@ -213,11 +213,13 @@ Experiment Data Classes
     ExperimentStatus
     JobStatus
     AnalysisStatus
+    AnalysisResult
     AnalysisResultData
     ExperimentConfig
     AnalysisConfig
     ExperimentEncoder
     ExperimentDecoder
+    BackendData
     FigureData
 
 .. _composite-experiment:
@@ -251,6 +253,7 @@ Mix-ins
 .. _create-experiment:
 """
 from qiskit.providers.options import Options
+from qiskit_experiments.framework.backend_data import BackendData
 from qiskit_experiments.framework.analysis_result import AnalysisResult
 from qiskit_experiments.framework.experiment_data import (
     ExperimentStatus,
