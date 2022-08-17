@@ -1247,7 +1247,6 @@ class TestCoupledAssigning(QiskitExperimentsTestCase):
 
         self.assertEqual(sched, expected)
 
-    @unittest.skip("With the current implementation this will fail. This might be ok. TODO")
     def test_assign_coupled_implicitly_float(self):
         """Test that we get the proper schedules when they are coupled."""
         assign_params = {("amp", (3, 2), "cr_m"): 0.8}
@@ -1264,7 +1263,6 @@ class TestCoupledAssigning(QiskitExperimentsTestCase):
 
         self.assertEqual(sched, expected)
 
-    @unittest.skip("With the current implementation this will fail. This might be ok. TODO")
     def test_assign_coupled_implicitly(self):
         """Test that we get the proper schedules when they are coupled."""
         my_amp = Parameter("my_amp")

@@ -26,11 +26,9 @@ from qiskit.pulse import (
     DriveChannel,
     ControlChannel,
     MeasureChannel,
-    Call,
     AcquireChannel,
     RegisterSlot,
     MemorySlot,
-    Schedule,
     InstructionScheduleMap,
 )
 from qiskit.pulse.channels import PulseChannel
@@ -45,7 +43,6 @@ from qiskit_experiments.calibration_management.calibration_utils import (
     used_in_references,
     validate_channels,
     reference_info,
-    standardize_assign_params,
 )
 from qiskit_experiments.calibration_management.calibration_key_types import (
     ParameterKey,
@@ -994,6 +991,49 @@ class Calibrations:
         # 5) Return the most recent parameter.
         return max(enumerate(candidates), key=lambda x: (x[1].date_time, x[0]))[1].value
 
+    def _standardize_assign_params(
+        self,
+        assign_params: Dict,
+        qubits: Tuple[int, ...],
+        schedule_name: str,
+    ) -> Dict[ParameterKey, ParameterValueType]:
+        """Standardize the format of manually specified parameter assignments.
+
+        Users specify parameter assignment dictionaries as tuples. This function (a) converts
+        these tuples to ``ParameterKey`` instances and (b) looks up parameter links between
+        schedules and adds them to the standardized returned parameter assignment dictionary.
+
+        Args:
+            assign_params: The dictionary that specifies how to assign parameters.
+            qubits: The qubits for which to get a schedule.
+            schedule_name: The name of the schedule in which the parameters can be found.
+
+        Returns:
+            A dict with :class:`.ParameterKey`s as keys and :class:`.ParameterValueType`s as values.
+        """
+        assign_params_, linked_assign_params = dict(), dict()
+
+        if assign_params:
+            for param, value in assign_params.items():
+                if isinstance(param, str):
+                    assign_params_[ParameterKey(param, qubits, schedule_name)] = value
+                else:
+                    assign_params_[ParameterKey(*param)] = value
+
+            # Add parameter links for automatic linking.
+            for key, value in assign_params_.items():
+                linked_assign_params[key] = value
+                param = self.calibration_parameter(*key)
+                for key2 in self._parameter_map_r[param]:  # Loop over linked keys pointing to param
+                    # Link only over the same qubits.
+                    if key2.qubits == ():
+                        key2 = ParameterKey(key2.parameter, key.qubits, key2.schedule)
+
+                    if key2 not in linked_assign_params:
+                        linked_assign_params[key2] = value
+
+        return linked_assign_params
+
     def get_schedule(
         self,
         name: str,
@@ -1046,11 +1086,11 @@ class Calibrations:
         qubits = self._to_tuple(qubits)
 
         # TODO This currently skips implicit linking.
-        assign_params = standardize_assign_params(assign_params, qubits, name)
+        assign_params = self._standardize_assign_params(assign_params, qubits, name)
 
         schedule = self.get_template(name, qubits)
 
-        # assign any references
+        # assign any references using a depth first-search.
         referenced_schedules = {}
         for ref in schedule.references.unassigned():
             ref_name, ref_qubits = reference_info(ref, qubits)
