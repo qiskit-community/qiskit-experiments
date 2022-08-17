@@ -58,34 +58,31 @@ class BackendTimingMixin:
 
         raise QiskitError("Backend must be set to consider sample timing.")
 
-    def _delay_duration(self, time: float, next_instruction: str = "pulse") -> Union[int, float]:
-        """The delay duration closest to ``time`` in delay units
+    def _delay_duration(self, time: float) -> Union[int, float]:
+        """Delay duration close to ``time`` and consistent with timing constraints
 
         This method produces the value to pass for the ``duration`` of a
         ``Delay`` instruction of a ``QuantumCircuit`` so that the delay fills
-        the time until the next pulse.  This method does a little more than
-        just convert ``time`` to the closest number of samples. The pulse
-        timing constraints of the backend are considered in order to give a
-        number of samples closest to ``time`` plus however many more samples
-        are needed to get to the next valid sample for the start of a pulse in
-        a subsequent instruction.
+        the time until the next valid pulse, assuming the ``Delay`` instruction
+        begins on a sample that is also valid for pulse to begin on.
 
-        This method is useful when it is desired that a delay instruction
-        accurately reflect how long the hardware will pause between two other
-        instructions.
+        The pulse timing constraints of the backend are considered in order to
+        give a number of samples closest to ``time`` plus however many more
+        samples are needed to get to the next valid sample for the start of a
+        pulse in a subsequent instruction. The least common multiple of the
+        pulse and acquire alignment values is used in order to ensure that
+        either type of pulse will be aligned.
+
+        If :meth:`.BackendTimingMixin._delay_unit` is ``s``, ``time`` is
+        returned directly. Typically, this is the case for a simulator where
+        converting to sample number is not needed.
 
         Args:
             time: The nominal delay time to convert
-            next_instruction: Either "pulse", "acquire", or "both" to indicate
-                whether the next instruction will be a pulse, an acquire
-                instruction, or both.
 
         Returns:
-            The delay duration in samples or seconds, depending on the value of
-            :meth:`.BackendTimingMixin._delay_unit`.
-
-        Raises:
-            QiskitError: Bad value for ``next_instruction``.
+            The delay duration in samples if :meth:`.BackendTimingMixin._delay_unit`
+            is ``dt``. Other return ``time``.
         """
         if self._delay_unit == "s":
             return time
@@ -94,22 +91,11 @@ class BackendTimingMixin:
         pulse_alignment = timing_constraints.get("pulse_alignment", 1)
         acquire_alignment = timing_constraints.get("acquire_alignment", 1)
 
-        if next_instruction == "both":
-            # We round the delay values to the least common multiple of the
-            # alignment constraints so that the delay can fill all the time
-            # until a subsequent pulse satisfying the alignment constraints.
-            #
-            # Replace with math.lcm(pulse_alignment, acquire_alignment) when
-            # dropping support for Python 3.8
-            granularity = (
-                pulse_alignment * acquire_alignment // math.gcd(pulse_alignment, acquire_alignment)
-            )
-        elif next_instruction == "pulse":
-            granularity = pulse_alignment
-        elif next_instruction == "acquire":
-            granularity = acquire_alignment
-        else:
-            raise QiskitError(f"Bad value for next_instruction: {next_instruction}")
+        # Replace with math.lcm(pulse_alignment, acquire_alignment) when
+        # dropping support for Python 3.8
+        granularity = (
+            pulse_alignment * acquire_alignment // math.gcd(pulse_alignment, acquire_alignment)
+        )
 
         samples = int(round(time / self._dt / granularity) * granularity)
 
@@ -137,7 +123,7 @@ class BackendTimingMixin:
 
         return samples
 
-    def _delay_time(self, time: float, next_instruction: str = "pulse") -> float:
+    def _delay_time(self, time: float) -> float:
         """The closest actual delay time in seconds to ``time``
 
         This method uses :meth:`.BackendTimingMixin._delay_duration` and then
@@ -152,7 +138,7 @@ class BackendTimingMixin:
         if self._delay_unit == "s":
             return time
 
-        return self._dt * self._delay_duration(time, next_instruction)
+        return self._dt * self._delay_duration(time)
 
     def _pulse_time(self, time: float) -> float:
         """The closest hardware-realizable pulse duration to ``time`` in seconds
