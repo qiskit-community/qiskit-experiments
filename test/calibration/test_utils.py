@@ -32,13 +32,9 @@ class TestValidateChannels(QiskitExperimentsTestCase):
         lib = EchoCrossResonance()
 
         self.assertEqual(validate_channels(lib["ecr"]), set())
-        self.assertEqual(len(validate_channels(lib["ecr"])), 2)
 
-        with pulse.build() as schedule:
-            pulse.call(lib["ecr"])
-            pulse.call(lib["cr45p"])
-
-        self.assertEqual(len(validate_channels(schedule)), 2)
+        # Has a drive channel and a control channel that should be valid
+        self.assertEqual(len(validate_channels(lib["cr45p"])), 2)
 
     def test_raise_on_multiple_parameters(self):
         """Test that an error is raised on a sum of parameters"""
