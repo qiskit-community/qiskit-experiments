@@ -14,14 +14,17 @@ Utilities for using the Clifford group in randomized benchmarking
 """
 
 import os
-from typing import List
+from typing import List, Tuple
 from functools import lru_cache
 from math import isclose
 import numpy as np
+from numpy.random import default_rng
+import itertools
 
 from qiskit import QuantumCircuit, QuantumRegister
 from qiskit.circuit import Gate
 from qiskit.circuit.library import SdgGate, HGate, SGate, SXdgGate
+from qiskit.compiler import transpile
 from qiskit.exceptions import QiskitError
 from qiskit.quantum_info import Clifford
 
@@ -32,8 +35,9 @@ from .clifford_data import (
     CLIFF_COMPOSE_DATA_2Q,
     CLIFF_INVERSE_DATA_1Q,
     CLIFF_INVERSE_DATA_2Q,
+    CLIFF_NUM_TO_LAYERS_2Q,
+    CLIFF_LAYERS_TO_NUM_2Q
 )
-
 
 class VGate(Gate):
     """V Gate used in Clifford synthesis."""
@@ -83,6 +87,13 @@ class CliffordUtils:
     CLIFF_COMPOSE_DATA = {1: CLIFF_COMPOSE_DATA_1Q, 2: CLIFF_COMPOSE_DATA_2Q}
     CLIFF_INVERSE_DATA = {1: CLIFF_INVERSE_DATA_1Q, 2: CLIFF_INVERSE_DATA_2Q}
 
+    _transpiled_cliff_layer = {}
+    _transpiled_cliff_layer[0] = []
+    _transpiled_cliff_layer[1] = []
+    _transpiled_cliff_layer[2] = []
+    NUM_LAYER_0 = 36
+    NUM_LAYER_1 = 20
+    NUM_LAYER_2 = 16
     @classmethod
     def clifford_1_qubit(cls, num):
         """Return the 1-qubit clifford element corresponding to `num`
@@ -301,3 +312,124 @@ class CliffordUtils:
         root_dir = os.path.dirname(os.path.abspath(__file__))
         transpiled_circs_file = root_dir + circs_file_name
         return transpiled_circs_file
+
+    @classmethod
+    def transpile_cliff_layers(cls, basis_gates):
+        if cls._transpiled_cliff_layer[0] != []:
+            return
+        cls.transpile_cliff_layer_0(basis_gates)
+        cls.transpile_cliff_layer_1(basis_gates)
+        cls.transpile_cliff_layer_2(basis_gates)
+
+
+    @classmethod
+    def transpile_cliff_layer_0(cls, basis_gates):
+        """length == 36 """
+        if cls._transpiled_cliff_layer[0] != []:
+            return
+        num_h = [0, 1]
+        num_v = [0, 1, 2]
+        for h0, h1, v0, v1 in itertools.product(num_h, num_h, num_v, num_v):
+            qr = QuantumRegister(2)
+            qc = QuantumCircuit(qr)
+            for iter in range(h0):
+                qc.h(0)
+            for iter in range(h1):
+                qc.h(1)
+            for iter in range(v0):
+                qc._append(VGate(), [qr[0]], [])
+            for iter in range(v1):
+                qc._append(VGate(), [qr[1]], [])
+            transpiled = transpile(qc, optimization_level=1, basis_gates=basis_gates)
+            cls._transpiled_cliff_layer[0].append(transpiled)
+
+    @classmethod
+    def transpile_cliff_layer_1(cls, basis_gates):
+        """length == 20 """
+        if cls._transpiled_cliff_layer[1] != []:
+            return
+        index = 0
+        num_v = [0, 1, 2]
+        qr = QuantumRegister(2)
+        qc = QuantumCircuit(qr)
+        transpiled = transpile(qc, optimization_level=1, basis_gates=basis_gates)
+        cls._transpiled_cliff_layer[1].append(transpiled)
+        index += 1
+
+        for v0, v1 in itertools.product(num_v, num_v):
+            qc = QuantumCircuit(qr)
+            qc.cx(0, 1)
+            for iter in range(v0):
+                qc._append(VGate(), [qr[0]], [])
+            for iter in range(v1):
+                qc._append(VGate(), [qr[1]], [])
+            transpiled = transpile(qc, optimization_level=1, basis_gates=basis_gates)
+            cls._transpiled_cliff_layer[1].append(transpiled)
+
+            index+=1
+
+        for v0, v1 in itertools.product(num_v, num_v):
+            qc = QuantumCircuit(qr)
+            qc.cx(0, 1)
+            qc.cx(1, 0)
+            for iter in range(v0):
+                qc._append(VGate(), [qr[0]], [])
+            for iter in range(v1):
+                qc._append(VGate(), [qr[1]], [])
+            transpiled = transpile(qc, optimization_level=1, basis_gates=basis_gates)
+            cls._transpiled_cliff_layer[1].append(transpiled)
+
+        qc = QuantumCircuit(qr)
+        qc.cx(0, 1)
+        qc.cx(1, 0)
+        qc.cx(0, 1)
+        transpiled = transpile(qc, optimization_level=1, basis_gates=basis_gates)
+        cls._transpiled_cliff_layer[1].append(transpiled)
+
+
+    @classmethod
+    def transpile_cliff_layer_2(cls, basis_gates):
+        """length == 16 """
+        if cls._transpiled_cliff_layer[2] != []:
+            return
+        pauli = ["i", "x", "y", "z"]
+        for p0, p1 in itertools.product(pauli, pauli):
+            qr = QuantumRegister(2)
+            qc = QuantumCircuit(qr)
+            if p0 != "i":
+                qc._append(Gate(p0, 1, []), [qr[0]], [])
+            if p1 != "i":
+                qc._append(Gate(p1, 1, []), [qr[1]], [])
+
+            transpiled = transpile(qc, optimization_level=1, basis_gates=basis_gates)
+            cls._transpiled_cliff_layer[2].append(transpiled)
+    @classmethod
+    def create_random_clifford(cls, rng):
+        if rng is None:
+            rng = default_rng()
+
+        if isinstance(rng, int):
+            rng = default_rng(rng)
+        r1 = rng.integers(cls.NUM_LAYER_0)
+        r2 = rng.integers(cls.NUM_LAYER_1)
+        r3 = rng.integers(cls.NUM_LAYER_2)
+        return cls.clifford_from_layer_nums((r1, r2, r3))
+
+    @classmethod
+    def clifford_from_layer_nums(cls, triplet:Tuple):
+        q0 = cls._transpiled_cliff_layer[0][triplet[0]]
+        q1 = cls._transpiled_cliff_layer[1][triplet[1]]
+        q2 = cls._transpiled_cliff_layer[2][triplet[2]]
+        qc = q0.copy()
+        qc.compose(q1, inplace=True)
+        qc.compose(q2, inplace=True)
+        return qc
+
+    @classmethod
+    def num_from_layer_indices(cls, triplet:Tuple):
+        num = triplet[0]*cls.NUM_LAYER_1*cls.NUM_LAYER_2 + triplet[1]*cls.NUM_LAYER_2 + triplet[2]
+        return CLIFF_LAYERS_TO_NUM_2Q[num]
+
+    @classmethod
+    def layer_indices_from_num(cls, num):
+        return CLIFF_NUM_TO_LAYERS_2Q[num]

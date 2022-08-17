@@ -35,7 +35,16 @@ from qiskit.circuit.library import (
     RZGate,
 )
 from qiskit_experiments.library.randomized_benchmarking.clifford_utils import CliffordUtils
-
+from qiskit_experiments.library.randomized_benchmarking.clifford_data import (
+    CLIFF_SINGLE_GATE_MAP_1Q,
+    CLIFF_SINGLE_GATE_MAP_2Q,
+    CLIFF_COMPOSE_DATA_1Q,
+    CLIFF_COMPOSE_DATA_2Q,
+    CLIFF_INVERSE_DATA_1Q,
+    CLIFF_INVERSE_DATA_2Q,
+    CLIFF_NUM_TO_LAYERS_2Q,
+    CLIFF_LAYERS_TO_NUM_2Q
+)
 
 @ddt
 class TestCliffordUtils(QiskitExperimentsTestCase):
@@ -1024,3 +1033,22 @@ class TestCliffordUtils(QiskitExperimentsTestCase):
             inverse_by_num = CliffordUtils.clifford_2_qubit_circuit(inverse_num)
             inverse_cliff = Clifford(cliff_qc).adjoint()
             assert (Operator(inverse_by_num)).equiv(Operator(inverse_cliff))
+
+    def is_permutation(self, num_elements, perm):
+        all_nums = {i: False for i in range(num_elements)}
+        for n in all_nums:
+            if all_nums[perm[n]]:
+                raise QiskitError("Not a permutation")
+            else:
+                all_nums[perm[n]] = True
+        assert all(x == True for x in all_nums.values())
+
+    def test_layers_to_num(self):
+        CliffordUtils.transpile_cliff_layers(basis_gates=self.basis_gates)
+        self.is_permutation(CliffordUtils.NUM_CLIFFORD_2_QUBIT, CLIFF_LAYERS_TO_NUM_2Q)
+
+    def test_mapping_layers_to_num(self):
+        for i in range(CliffordUtils.NUM_CLIFFORD_2_QUBIT):
+            indices = CliffordUtils.layer_indices_from_num(i)
+            reverse_i = CliffordUtils.num_from_layer_indices(indices)
+            assert(i == reverse_i)

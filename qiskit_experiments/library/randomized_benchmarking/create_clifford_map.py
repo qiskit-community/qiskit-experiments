@@ -54,141 +54,169 @@ gate_list_1q = [
     ZGate(),
     SdgGate(),
 ]
-num_to_cliff_1q = {}
-cliff_to_num_1q = {}
-num_to_cliff_2q = {}
-cliff_to_num_2q = {}
 
+class CliffordNumMapping():
+    basis_gates = ["h", "s", "sdg", "x", "cx"]
+    single_gate_clifford_map_1q = []
+    single_gate_clifford_map_2q = {}
+    num_to_cliff_1q = {}
+    cliff_to_num_1q = {}
+    num_to_cliff_2q = {}
+    cliff_to_num_2q = {}
+    layers_num_to_cliff_num_2q = {}
+    cliff_num_to_layers_2q = {}
 
-def gen_nums_single_gate_cliffs_1q():
-    """
-    We generate an array mapping numbers to Cliffords and the reverse array.
-    Based on this array, we build a mapping from every single-gate-clifford to its number.
-    The mapping actually looks like {(gate, '[0]'): num}, where [0] represents qubit 0.
-    The qubit is added to be consistent with the format for 2 qubits.
-    """
-    for i in range(CliffordUtils.NUM_CLIFFORD_1_QUBIT):
-        cliff = CliffordUtils.clifford_1_qubit(i)
-        num_to_cliff_1q[i] = cliff
-        cliff_to_num_1q[repr(cliff)] = i
-    clifford_single_gate_to_num = {}
+    @classmethod
+    def gen_nums_single_gate_cliffs_1q(cls, file):
+        """
+        We generate an array mapping numbers to Cliffords and the reverse array.
+        Based on this array, we build a mapping from every single-gate-clifford to its number.
+        The mapping actually looks like {(gate, '[0]'): num}, where [0] represents qubit 0.
+        The qubit is added to be consistent with the format for 2 qubits.
+        """
+        for i in range(CliffordUtils.NUM_CLIFFORD_1_QUBIT):
+            cliff = CliffordUtils.clifford_1_qubit(i)
+            cls.num_to_cliff_1q[i] = cliff
+            cls.cliff_to_num_1q[repr(cliff)] = i
+        clifford_single_gate_to_num = {}
 
-    for gate in gate_list_1q:
-        qc = QuantumCircuit(1)
-        qc.append(gate, [0])
-        cliff = Clifford(qc)
-        if repr(cliff) in cliff_to_num_1q.keys():
-            num = cliff_to_num_1q[repr(cliff)]
-            # qubit_as_str is not really necessary. It is only added to be consistent
-            # with the representation for 2 qubits
-            qubit_as_str = "[0]"
-            clifford_single_gate_to_num[(gate.name, qubit_as_str)] = num
-        else:
-            print("not found")
-    file.write(f"CLIFF_SINGLE_GATE_MAP_1Q = {clifford_single_gate_to_num}\n")
-    return clifford_single_gate_to_num
+        for gate in gate_list_1q:
+            qc = QuantumCircuit(1)
+            qc.append(gate, [0])
+            cliff = Clifford(qc)
+            if repr(cliff) in cls.cliff_to_num_1q.keys():
+                num = cls.cliff_to_num_1q[repr(cliff)]
+                # qubit_as_str is not really necessary. It is only added to be consistent
+                # with the representation for 2 qubits
+                qubit_as_str = "[0]"
+                clifford_single_gate_to_num[(gate.name, qubit_as_str)] = num
+            else:
+                print("not found")
+        file.write(f"CLIFF_SINGLE_GATE_MAP_1Q = {clifford_single_gate_to_num}\n")
 
+    @classmethod
+    def gen_nums_single_gate_cliffs_2q(cls, file):
+        """
+        We generate an array mapping numbers to Cliffords and the reverse array.
+        Based on this array, we build a mapping from every single-gate-clifford to its number.
+        The mapping actually looks like {(gate, '[qubits]'): num}.
+        """
+        for i in range(CliffordUtils.NUM_CLIFFORD_2_QUBIT):
+            cliff = CliffordUtils.clifford_2_qubit(i)
+            cls.num_to_cliff_2q[i] = cliff
+            cls.cliff_to_num_2q[repr(cliff)] = i
 
-def gen_nums_single_gate_cliffs_2q():
-    """
-    We generate an array mapping numbers to Cliffords and the reverse array.
-    Based on this array, we build a mapping from every single-gate-clifford to its number.
-    The mapping actually looks like {(gate, '[qubits]'): num}.
-    """
-    for i in range(CliffordUtils.NUM_CLIFFORD_2_QUBIT):
-        cliff = CliffordUtils.clifford_2_qubit(i)
-        num_to_cliff_2q[i] = cliff
-        cliff_to_num_2q[repr(cliff)] = i
+        #clifford_single_gate_to_num = {}
+        for gate, qubit in itertools.product(gate_list_1q, [0, 1]):
+            qc = QuantumCircuit(2)
+            qc.append(gate, [qubit])
+            cliff = Clifford(qc)
+            if repr(cliff) in cls.cliff_to_num_2q:
+                num = cls.cliff_to_num_2q[repr(cliff)]
+                # qubit_as_str is not really necessary. It is only added to be consistent
+                # with the representation for 2 qubits
+                qubit_as_str = "[" + str(qubit) + "]"
+                cls.single_gate_clifford_map_2q[(gate.name, qubit_as_str)] = num
+            else:
+                print("not found")
 
-    clifford_single_gate_to_num = {}
-    for gate, qubit in itertools.product(gate_list_1q, [0, 1]):
-        qc = QuantumCircuit(2)
-        qc.append(gate, [qubit])
-        cliff = Clifford(qc)
-        if repr(cliff) in cliff_to_num_2q:
-            num = cliff_to_num_2q[repr(cliff)]
-            # qubit_as_str is not really necessary. It is only added to be consistent
-            # with the representation for 2 qubits
-            qubit_as_str = "[" + str(qubit) + "]"
-            clifford_single_gate_to_num[(gate.name, qubit_as_str)] = num
-        else:
-            print("not found")
+        for qubits in [[0, 1], [1, 0]]:
+            qc = QuantumCircuit(2)
+            qc.append(CXGate(), qubits)
+            cliff = Clifford(qc)
+            if repr(cliff) in cls.cliff_to_num_2q.keys():
+                num = cls.cliff_to_num_2q[repr(cliff)]
+            else:
+                print("not found")
+            direction = "[0, 1]" if qubits == [0, 1] else "[1, 0]"
+            cls.single_gate_clifford_map_2q[("cx", direction)] = num
+        file.write(f"CLIFF_SINGLE_GATE_MAP_2Q = {cls.single_gate_clifford_map_2q}\n")
 
-    for qubits in [[0, 1], [1, 0]]:
-        qc = QuantumCircuit(2)
-        qc.append(CXGate(), qubits)
-        cliff = Clifford(qc)
-        if repr(cliff) in cliff_to_num_2q.keys():
-            num = cliff_to_num_2q[repr(cliff)]
-        else:
-            print("not found")
-        direction = "[0, 1]" if qubits == [0, 1] else "[1, 0]"
-        clifford_single_gate_to_num[("cx", direction)] = num
-    file.write(f"CLIFF_SINGLE_GATE_MAP_2Q = {clifford_single_gate_to_num}\n")
-    return clifford_single_gate_to_num
+    @classmethod
+    def create_compose_map_1q(cls, file):
+        """Creates the data in compose data in CLIFF_COMPOSE_DATA and
+        the inverse data in CLIFF_INVERSE_DATA"""
+        products = {}
+        for i in range(CliffordUtils.NUM_CLIFFORD_1_QUBIT):
+            cliff1 = cls.num_to_cliff_1q[i]
+            for gate in cls.single_gate_clifford_map_1q:
+                cliff2 = cls.num_to_cliff_1q[cls.single_gate_clifford_map_1q[gate]]
+                cliff = cliff1.compose(cliff2)
+                products[(i, gate)] = cls.cliff_to_num_1q[repr(cliff)]
 
+        invs = {}
+        for i in range(CliffordUtils.NUM_CLIFFORD_1_QUBIT):
+            cliff1 = cls.num_to_cliff_1q[i]
+            cliff = cliff1.adjoint()
+            invs[i] = cls.cliff_to_num_1q[repr(cliff)]
 
-def create_compose_map_1q():
-    """Creates the data in compose data in CLIFF_COMPOSE_DATA and
-    the inverse data in CLIFF_INVERSE_DATA"""
-    products = {}
-    for i in range(CliffordUtils.NUM_CLIFFORD_1_QUBIT):
-        cliff1 = num_to_cliff_1q[i]
-        for gate in single_gate_clifford_map_1q:
-            cliff2 = num_to_cliff_1q[single_gate_clifford_map_1q[gate]]
-            cliff = cliff1.compose(cliff2)
-            products[(i, gate)] = cliff_to_num_1q[repr(cliff)]
+        file.write("CLIFF_COMPOSE_DATA_1Q = [")
+        for i in products:
+            file.write(f"{products[i]},")
+        file.write("]")
+        file.write("\n")
 
-    invs = {}
-    for i in range(CliffordUtils.NUM_CLIFFORD_1_QUBIT):
-        cliff1 = num_to_cliff_1q[i]
-        cliff = cliff1.adjoint()
-        invs[i] = cliff_to_num_1q[repr(cliff)]
+        file.write("CLIFF_INVERSE_DATA_1Q = [")
+        for i in invs:
+            file.write(f"{invs[i]},")
+        file.write("]")
+        file.write("\n")
 
-    file.write("CLIFF_COMPOSE_DATA_1Q = [")
-    for i in products:
-        file.write(f"{products[i]},")
-    file.write("]")
-    file.write("\n")
+    @classmethod
+    def create_compose_map_2q(cls, file):
+        """Creates the data in CLIFF_COMPOSE_DATA and CLIFF_INVERSE_DATA"""
+        products = {}
+        for i in range(CliffordUtils.NUM_CLIFFORD_2_QUBIT):
+            cliff1 = cls.num_to_cliff_2q[i]
+            for gate in cls.single_gate_clifford_map_2q:
+                cliff2 = cls.num_to_cliff_2q[cls.single_gate_clifford_map_2q[gate]]
+                cliff = cliff1.compose(cliff2)
+                products[(i, gate)] = cls.cliff_to_num_2q[repr(cliff)]
 
-    file.write("CLIFF_INVERSE_DATA_1Q = [")
-    for i in invs:
-        file.write(f"{invs[i]},")
-    file.write("]")
-    file.write("\n")
+        invs = {}
+        for i in range(CliffordUtils.NUM_CLIFFORD_2_QUBIT):
+            cliff1 = cls.num_to_cliff_2q[i]
+            cliff = cliff1.adjoint()
+            invs[i] = cls.cliff_to_num_2q[repr(cliff)]
 
+        file.write("CLIFF_COMPOSE_DATA_2Q = [")
+        for i in products:
+            file.write(f"{products[i]},")
+        file.write("]")
+        file.write("\n")
 
-def create_compose_map_2q():
-    """Creates the data in CLIFF_COMPOSE_DATA and CLIFF_INVERSE_DATA"""
-    products = {}
-    for i in range(CliffordUtils.NUM_CLIFFORD_2_QUBIT):
-        cliff1 = num_to_cliff_2q[i]
-        for gate in single_gate_clifford_map_2q:
-            cliff2 = num_to_cliff_2q[single_gate_clifford_map_2q[gate]]
-            cliff = cliff1.compose(cliff2)
-            products[(i, gate)] = cliff_to_num_2q[repr(cliff)]
+        file.write("CLIFF_INVERSE_DATA_2Q = [")
+        for i in invs:
+            file.write(f"{invs[i]},")
+        file.write("]")
+        file.write("\n")
 
-    invs = {}
-    for i in range(CliffordUtils.NUM_CLIFFORD_2_QUBIT):
-        cliff1 = num_to_cliff_2q[i]
-        cliff = cliff1.adjoint()
-        invs[i] = cliff_to_num_2q[repr(cliff)]
+    @classmethod
+    def map_layers_to_cliffords_2q(cls, file):
+        CliffordUtils.transpile_cliff_layers(basis_gates=cls.basis_gates)
+        length = [len(CliffordUtils._transpiled_cliff_layer[i]) for i in [0, 1, 2]]
+        for n0, n1, n2 in itertools.product(range(length[0]), range(length[1]), range(length[2])):
+            cliff = Clifford(CliffordUtils.clifford_from_layer_nums(n0, n1, n2))
+            num = cls.cliff_to_num_2q[repr(cliff)]
+            cls.layers_num_to_cliff_num_2q[(n0, n1, n2)] = num
+            cls.cliff_num_to_layers_2q[num] = (n0, n1, n2)
 
-    file.write("CLIFF_COMPOSE_DATA_2Q = [")
-    for i in products:
-        file.write(f"{products[i]},")
-    file.write("]")
-    file.write("\n")
+        file.write(f"CLIFF_LAYERS_TO_NUM_2Q = [")
+        for i in cls.layers_num_to_cliff_num_2q:
+            file.write(f"{cls.layers_num_to_cliff_num_2q[i]},")
+        file.write("]\n")
 
-    file.write("CLIFF_INVERSE_DATA_2Q = [")
-    for i in invs:
-        file.write(f"{invs[i]},")
-    file.write("]")
-    file.write("\n")
-
+        file.write(f"CLIFF_NUM_TO_LAYERS_2Q = [")
+        for i in range(len(cls.cliff_num_to_layers_2q)):
+            file.write(f"{cls.cliff_num_to_layers_2q[i]},")
+        file.write("]\n")
+    @classmethod
+    def create_clifford_data(cls, file):
+        cls.gen_nums_single_gate_cliffs_1q(file)
+        cls.gen_nums_single_gate_cliffs_2q(file)
+        cls.create_compose_map_1q(file)
+        cls.create_compose_map_2q(file)
 
 with open("clifford_data.py", "w") as file:
-    single_gate_clifford_map_1q = gen_nums_single_gate_cliffs_1q()
-    single_gate_clifford_map_2q = gen_nums_single_gate_cliffs_2q()
-    create_compose_map_1q()
-    create_compose_map_2q()
+    CliffordNumMapping.create_clifford_data(file)
+    CliffordNumMapping.map_layers_to_cliffords_2q(file)

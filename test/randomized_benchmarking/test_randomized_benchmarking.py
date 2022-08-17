@@ -115,9 +115,9 @@ class TestStandardRB(RBTestCase):
         )
         exp.analysis.set_options(gate_error_ratio=None)
         exp.set_transpile_options(**self.transpiler_options)
-        self.assertAllIdentity(exp.circuits())
 
         expdata = exp.run()
+        self.assertAllIdentity(exp.circuits())
         self.assertExperimentDone(expdata)
 
         # Given CX error is dominant and 1q error can be negligible.

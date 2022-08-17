@@ -57,10 +57,6 @@ class StandardRB(BaseExperiment, RestlessMixin):
         .. ref_arxiv:: 2 1109.6887
 
     """
-    # transpiled clifford circuits for 1 and 2 qubits respectively
-    _transpiled_cliff_circuits = {}
-    _transpiled_cliff_circuits[1] = None
-    _transpiled_cliff_circuits[2] = None
 
     def __init__(
         self,
@@ -143,34 +139,12 @@ class StandardRB(BaseExperiment, RestlessMixin):
         if not hasattr(self.transpile_options, "basis_gates"):
             raise QiskitError("transpile_options.basis_gates must be set for rb_experiment")
 
-        self.load_transpiled_cliff_circuits()
+        CliffordUtils.transpile_cliff_layers(self.transpile_options.basis_gates)
+
         for _ in range(self.experiment_options.num_samples):
             rb_circuits, _ = self._build_rb_circuits(self.experiment_options.lengths, rng)
             circuits += rb_circuits
         return circuits
-
-    def load_transpiled_cliff_circuits(self):
-        """
-        Load the transpiled clifford circuits from the file into an array of
-        quantum circuits
-
-        Raises:
-            QiskitError: if the file with transpiled cliffords does not exist.
-
-        """
-        transpiled_circs_file = CliffordUtils.file_name(
-            self.num_qubits, self.transpile_options.basis_gates
-        )
-        n = self.num_qubits
-        if self._transpiled_cliff_circuits[n] is None:
-            if os.path.isfile(transpiled_circs_file):
-                with open(transpiled_circs_file, "rb") as fd:
-                    self._transpiled_cliff_circuits[n] = qpy.load(fd)
-            else:
-                raise QiskitError(
-                    f"File {transpiled_circs_file} does not exist. "
-                    "Use generate_transpile_circuits.py to generate this file"
-                )
 
     def _build_rb_circuits(
         self, lengths: List[int], rng: Generator, interleaved_element: QuantumCircuit = None
@@ -221,7 +195,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
         num_cliffords = (
             CliffordUtils.NUM_CLIFFORD_1_QUBIT if n == 1 else CliffordUtils.NUM_CLIFFORD_2_QUBIT
         )
-        random_samples = rng.integers(num_cliffords, size=lengths[-1])
+
         circ = QuantumCircuit(max_qubit, n)
         circ.barrier(qubits)
 
@@ -233,9 +207,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
 
         for length in lengths:
             for i in range(prev_length, length):
-                rand = random_samples[i]
-                # choose random clifford
-                next_circ = self._transpiled_cliff_circuits[n][rand]
+                next_circ = CliffordUtils.create_random_clifford(rng)
                 circ.compose(next_circ, inplace=True)
                 composed_cliff_num = CliffordUtils.compose_num_with_clifford(
                     num_qubits=n,
@@ -269,10 +241,11 @@ class StandardRB(BaseExperiment, RestlessMixin):
                     inverse_clifford_num = CliffordUtils.clifford_inverse_by_num(
                         composed_cliff_num, n
                     )
+
+                    indices = CliffordUtils.layer_indices_from_num(inverse_clifford_num)
+                    inverse_cliff = CliffordUtils.clifford_from_layer_nums(indices)
                     # append the inverse
-                    rb_circ.compose(
-                        self._transpiled_cliff_circuits[n][inverse_clifford_num], inplace=True
-                    )
+                    rb_circ.compose(inverse_cliff, inplace=True)
                     rb_circ.measure(qubits, clbits)
 
                     rb_circ.metadata = {
