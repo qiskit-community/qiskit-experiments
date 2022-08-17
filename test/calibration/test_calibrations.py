@@ -523,7 +523,6 @@ class TestMeasurements(QiskitExperimentsTestCase):
         self.duration = Parameter("dur")
         self.duration_xp = Parameter("dur")
         ch0 = Parameter("ch0")
-        ch1 = Parameter("ch1")
         self.m0_ = MeasureChannel(ch0)
         self.d0_ = DriveChannel(ch0)
         self.delay = Parameter("delay")

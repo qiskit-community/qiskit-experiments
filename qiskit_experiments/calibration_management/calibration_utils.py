@@ -16,7 +16,7 @@ from typing import List, Optional, Set, Tuple
 import regex as re
 
 from qiskit.circuit import ParameterExpression, Parameter
-from qiskit.pulse import ScheduleBlock, Call
+from qiskit.pulse import ScheduleBlock
 
 from qiskit_experiments.exceptions import CalibrationError
 
@@ -38,35 +38,6 @@ def used_in_references(schedule_name: str, schedules: List[ScheduleBlock]) -> Se
             caller_names.add(schedule.name)
 
     return caller_names
-
-
-def _used_in_calls(schedule_name: str, schedule: ScheduleBlock) -> bool:
-    """Recursively find if the schedule calls a schedule with name ``schedule_name``.
-
-    TODO Remove?
-
-    Args:
-        schedule_name: The name of the callee to identify.
-        schedule: The schedule to parse.
-
-    Returns:
-        True if ``schedule``calls a ``ScheduleBlock`` with name ``schedule_name``.
-    """
-    blocks_have_schedule = False
-
-    for block in schedule.blocks:
-        if isinstance(block, Call):
-            if block.subroutine.name == schedule_name:
-                return True
-            else:
-                blocks_have_schedule = blocks_have_schedule or _used_in_calls(
-                    schedule_name, block.subroutine
-                )
-
-        if isinstance(block, ScheduleBlock):
-            blocks_have_schedule = blocks_have_schedule or _used_in_calls(schedule_name, block)
-
-    return blocks_have_schedule
 
 
 def validate_channels(schedule: ScheduleBlock) -> Set[Parameter]:

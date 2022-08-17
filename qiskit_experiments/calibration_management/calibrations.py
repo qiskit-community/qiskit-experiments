@@ -1056,7 +1056,7 @@ class Calibrations:
 
             # Get an echoed-cross-resonance schedule between qubits (0, 2) where the xp echo gates
             # are referenced schedules but leave their amplitudes as parameters.
-            assign_dict = {("amp", (0,), "xp"): Parameter("my_amp")} TODO?
+            assign_dict = {("amp", (0,), "xp"): Parameter("my_amp")}
             sched = cals.get_schedule("cr", (0, 2), assign_params=assign_dict)
 
         Args:
@@ -1076,8 +1076,7 @@ class Calibrations:
                 may be erroneous.
 
         Returns:
-            schedule: A copy of the template schedule with all parameters assigned
-            except for those specified by assign_params.
+            schedule: A copy of the template schedule with all parameters assigned.
 
         Raises:
             CalibrationError: If the name of the schedule is not known.
@@ -1085,7 +1084,6 @@ class Calibrations:
         """
         qubits = self._to_tuple(qubits)
 
-        # TODO This currently skips implicit linking.
         assign_params = self._standardize_assign_params(assign_params, qubits, name)
 
         schedule = self.get_template(name, qubits)
@@ -1160,11 +1158,10 @@ class Calibrations:
             ret_schedule: The schedule with assigned parameters.
 
         Raises:
-            CalibrationError:
-                - If a channel has not been assigned.
-                - If there is an ambiguous parameter assignment.
-                - If there are inconsistencies between a called schedule and the template
-                  schedule registered under the name of the called schedule.
+            CalibrationError: If a channel has not been assigned.
+            CalibrationError: If there is an ambiguous parameter assignment.
+            CalibrationError: If there are inconsistencies between a called schedule and the
+                template schedule registered under the name of the called schedule.
         """
         # 1) Restrict the given qubits to those in the given schedule.
         qubit_set = set()
