@@ -121,6 +121,15 @@ class BackendTimingMixin:
         samples = int(round(time / self._dt / granularity)) * granularity
         samples = max(samples, min_length)
 
+        pulse_alignment = timing_constraints.get("pulse_alignment", 1)
+        acquire_alignment = timing_constraints.get("acquire_alignment", 1)
+
+        if samples % pulse_alignment != 0:
+            raise QiskitError("Pulse duration calculation does not match pulse alignment constraints!")
+
+        if samples % acquire_alignment != 0:
+            raise QiskitError("Pulse duration calculation does not match acquire alignment constraints!")
+
         return samples
 
     def _delay_time(self, time: float) -> float:
