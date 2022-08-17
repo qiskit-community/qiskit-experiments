@@ -1045,6 +1045,7 @@ class Calibrations:
         """
         qubits = self._to_tuple(qubits)
 
+        # TODO This currently skips implicit linking.
         assign_params = standardize_assign_params(assign_params, qubits, name)
 
         schedule = self.get_template(name, qubits)
@@ -1099,55 +1100,10 @@ class Calibrations:
         group: Optional[str] = "default",
         cutoff_date: datetime = None,
     ) -> ScheduleBlock:
-        """Recursively assign parameters in a schedule. TODO
+        """Assign parameters in a schedule.
 
-        The recursive behaviour is needed to handle Call instructions as the name of
-        the called instruction defines the scope of the parameter. Each time a Call
-        is found _assign recurses on the channel-assigned subroutine of the Call
-        instruction and the qubits that are in said subroutine. This requires a
-        careful extraction of the qubits from the subroutine and in the appropriate
-        order. Next, the parameters are identified and assigned. This is needed to
-        handle situations where the same parameterized schedule is called but on
-        different channels. For example,
-
-        .. code-block:: python
-
-            ch0 = Parameter("ch0")
-            ch1 = Parameter("ch1")
-
-            with pulse.build(name="xp") as xp:
-                pulse.play(Gaussian(duration, amp, sigma), DriveChannel(ch0))
-
-            with pulse.build(name="xt_xp") as xt:
-                pulse.call(xp)
-                pulse.call(xp, value_dict={ch0: ch1})
-
-        Here, we define the xp :class:`ScheduleBlock` for all qubits as a Gaussian. Next, we define
-        a schedule where both xp schedules are called simultaneously on different channels. We now
-        explain a subtlety related to manually assigning values in the case above. In the schedule
-        above, the parameters of the Gaussian pulses are coupled, e.g. the xp pulse on ch0 and ch1
-        share the same instance of :class:`ParameterExpression`. Suppose now that both pulses have
-        a duration and sigma of 160 and 40 samples, respectively, and that the amplitudes are 0.5
-        and 0.3 for qubits 0 and 2, respectively. These values are stored in self._params. When
-        retrieving a schedule without specifying assign_params, i.e.
-
-        .. code-block:: python
-
-            cals.get_schedule("xt_xp", (0, 2))
-
-        we will obtain the expected schedule with amplitudes 0.5 and 0.3. When specifying the
-        following :code:`assign_params = {("amp", (0,), "xp"): Parameter("my_new_amp")}` we
-        will obtain a schedule where the amplitudes of the xp pulse on qubit 0 is set to
-        :code:`Parameter("my_new_amp")`. The amplitude of the xp pulse on qubit 2 is set to
-        the value stored by the calibrations, i.e. 0.3.
-
-        .. code-bloc:: python
-
-            cals.get_schedule(
-                "xt_xp",
-                (0, 2),
-                assign_params = {("amp", (0,), "xp"): Parameter("my_new_amp")}
-            )
+        This function builds the binding dictionary and ensures that manually specified parameters
+        have priority over those managed by the calibrations class.
 
         Args:
             schedule: The schedule with assigned channel indices for which we wish to
@@ -1174,12 +1130,10 @@ class Calibrations:
         qubit_set = set()
         for chan in schedule.channels:
             if isinstance(chan.index, ParameterExpression):
-                raise (
-                    CalibrationError(
-                        f"All parametric channels must be assigned before searching for "
-                        f"non-channel parameters. {chan} is parametric."
-                    )
+                raise CalibrationError(
+                    f"Parametric channels must be assigned. {chan} is parametric."
                 )
+
             if isinstance(chan, (DriveChannel, MeasureChannel)):
                 qubit_set.add(chan.index)
 
@@ -1189,16 +1143,8 @@ class Calibrations:
 
         qubits_ = tuple(qubit for qubit in qubits if qubit in qubit_set)
 
-        # 3) Get the parameter keys of the remaining instructions. At this point in
-        #    _assign all parameters in Call instructions that are supposed to be
-        #     assigned have been assigned.
-        keys = set()
-
-        if schedule.name in set(key.schedule for key in self._parameter_map):
-            for param in schedule.parameters:
-                keys.add(ParameterKey(param.name, qubits_, schedule.name))
-
-        # 4) Build the parameter binding dictionary.
+        # 2) Build the parameter binding dictionary.
+        # 2a) Handle parameter assignments that come outside of Calibrations
         binding_dict = {}
         assignment_table = {}
         for key, value in assign_params.items():
@@ -1233,20 +1179,23 @@ class Calibrations:
                         "resolve to the same parameter."
                     )
 
-        for key in keys:
-            # Get the parameter object. Since we are dealing with a schedule the name of
-            # the schedule is always defined. However, the parameter may be a default
-            # parameter for all qubits, i.e. qubits may be an empty tuple.
-            param = self.calibration_parameter(*key)
+        # 2b) Handle automatic parameter assignments managed by calibrations.
+        if schedule.name in set(key.schedule for key in self._parameter_map):  # skip references
+            for param in schedule.parameters:
+                key = ParameterKey(param.name, qubits_, schedule.name)
+                # Get the parameter object. Since we are dealing with a schedule the name of
+                # the schedule is always defined. However, the parameter may be a default
+                # parameter for all qubits, i.e. qubits may be an empty tuple.
+                param = self.calibration_parameter(*key)
 
-            if param not in binding_dict:
-                binding_dict[param] = self.get_parameter_value(
-                    key.parameter,
-                    key.qubits,
-                    key.schedule,
-                    group=group,
-                    cutoff_date=cutoff_date,
-                )
+                if param not in binding_dict:
+                    binding_dict[param] = self.get_parameter_value(
+                        key.parameter,
+                        key.qubits,
+                        key.schedule,
+                        group=group,
+                        cutoff_date=cutoff_date,
+                    )
 
         return schedule.assign_parameters(binding_dict, inplace=False)
 
