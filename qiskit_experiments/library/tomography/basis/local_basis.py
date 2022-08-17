@@ -12,17 +12,22 @@
 """
 Circuit basis for tomography preparation and measurement circuits
 """
-import functools
 from typing import Sequence, Optional, Tuple, Union, List, Dict
 import numpy as np
 from qiskit.circuit import QuantumCircuit, Instruction
-from qiskit.quantum_info import DensityMatrix, Statevector, Operator, SuperOp
+from qiskit.quantum_info.states.quantum_state import QuantumState
+from qiskit.quantum_info.operators.base_operator import BaseOperator
 from qiskit.quantum_info.operators.channel.quantum_channel import QuantumChannel
+from qiskit.quantum_info import DensityMatrix, Statevector, Operator, SuperOp
 from qiskit.exceptions import QiskitError
-from .base_basis import PreparationBasis, MeasurementBasis
 
-# Typing object for POVM args of measurement basis
-POVM = Union[List[Statevector], List[DensityMatrix], QuantumChannel]
+from .base_basis import PreparationBasis, MeasurementBasis
+from .cache_method import cache_method
+
+
+# Typing
+Povm = Union[List[Statevector], List[DensityMatrix], QuantumChannel]
+States = Union[List[QuantumState], Dict[Tuple[int, ...], QuantumState]]
 
 
 class LocalPreparationBasis(PreparationBasis):
@@ -36,8 +41,8 @@ class LocalPreparationBasis(PreparationBasis):
         self,
         name: str,
         instructions: Optional[Sequence[Instruction]] = None,
-        default_states: Optional[Sequence[Union[Statevector, DensityMatrix]]] = None,
-        qubit_states: Optional[Dict[int, Sequence[Union[Statevector, DensityMatrix]]]] = None,
+        default_states: Optional[States] = None,
+        qubit_states: Optional[Dict[Tuple[int, ...], States]] = None,
     ):
         """Initialize a fitter preparation basis.
 
@@ -63,63 +68,22 @@ class LocalPreparationBasis(PreparationBasis):
                 "default_states, or qubit_states."
             )
         super().__init__(name)
+        # POVM element variables
+        self._instructions = _format_instructions(instructions)
+        self._default_states = _format_states(default_states, (0,), self._instructions)
+        self._qubit_states = _format_qubit_states(qubit_states)
+        self._custom_defaults = bool(default_states)
 
-        # Internal variables
-        self._instructions = tuple()
-        self._size = None
-        self._default_states = None
-        self._default_dim = None
-        self._qubit_states = {}
-        self._qubit_dim = {}
+        # Other attributes derived from povms and instructions
+        # that need initializing
         self._qubits = set()
-        self._custom_defaults = True
+        self._size = None
+        self._default_dim = None
+        self._qubit_dim = {}
+        self._hash = None
 
-        # Format instructions so compatible types can be converted to
-        # Instruction instances.
-        if instructions is not None:
-            self._instructions = _format_instructions(instructions)
-            self._size = len(instructions)
-            if default_states is None:
-                default_states = self._instructions
-                self._custom_defaults = False
-
-        # Construct default states
-        if default_states is not None:
-            self._default_states = tuple(DensityMatrix(i).data for i in default_states)
-            self._default_dim = self._default_states[0].shape[0]
-            if self._size is None:
-                self._size = len(self._default_states)
-            elif len(self._default_states) != self._size:
-                raise QiskitError(
-                    "Number of instructions and number of default states must be equal."
-                )
-
-        # Construct states of specific qubits if provided
-        qubit_states = qubit_states or {}
-        for qubit, states in qubit_states.items():
-            if self._size is None:
-                self._size = len(states)
-            elif len(states) != self._size:
-                raise QiskitError("Number of instructions and number of states must be equal.")
-
-            qstates = tuple(DensityMatrix(i).data for i in states)
-            self._qubit_states[qubit] = qstates
-            self._qubit_dim[qubit] = qstates[0].shape[0]
-            self._qubits.add(qubit)
-
-        # Pseudo hash value to make basis hashable for LRU cached functions
-        self._hash = hash(
-            (
-                type(self),
-                self._name,
-                self._size,
-                self._default_dim,
-                self._custom_defaults,
-                tuple(self._qubits),
-                tuple(self._qubit_dim.values()),
-                (type(i) for i in self._instructions),
-            )
-        )
+        # Initialize attributes
+        self._initialize()
 
     def __repr__(self):
         return f"<{type(self).__name__}: {self.name}>"
@@ -142,7 +106,10 @@ class LocalPreparationBasis(PreparationBasis):
         return len(qubits) * (self._size,)
 
     def matrix_shape(self, qubits: Sequence[int]) -> Tuple[int, ...]:
-        return tuple(self._qubit_dim.get(i, self._default_dim) for i in qubits)
+        qubits = tuple(qubits)
+        if len(qubits) > 1 and qubits in self._qubit_dim:
+            return self._qubit_dim[qubits]
+        return tuple(self._qubit_dim.get((i,), self._default_dim) for i in qubits)
 
     def circuit(
         self, index: Sequence[int], qubits: Optional[Sequence[int]] = None
@@ -156,19 +123,100 @@ class LocalPreparationBasis(PreparationBasis):
         return _tensor_product_circuit(self._instructions, index, self._name)
 
     def matrix(self, index: Sequence[int], qubits: Optional[Sequence[int]] = None):
+        # Convert args to hashable tuples
         if qubits is None:
             qubits = tuple(range(len(index)))
+        else:
+            qubits = tuple(qubits)
+        index = tuple(index)
+
         try:
+            # Look for custom POVM for specified qubits
+            state = self._generate_qubits_state(index, qubits)
+            if state is not None:
+                return state.data
+
             mat = np.eye(1)
-            for i, qubit in zip(index, qubits):
-                states = self._qubit_states.get(qubit, self._default_states)
-                mat = np.kron(states[i], mat)
+            for idx, qubit in zip(index, qubits):
+                qubit_state = self._generate_qubits_state((idx,), (qubit,))
+                mat = np.kron(qubit_state, mat)
             return mat
+
         except TypeError as ex:
             # This occurs if basis is constructed with qubit_states
             # kwarg but no default_states or instructions and is called for
             # a qubit not in the specified kwargs.
             raise ValueError(f"Invalid qubits for basis {self.name}") from ex
+
+    @cache_method()
+    def _generate_qubits_state(self, index: Tuple[int, ...], qubits: Tuple[int, ...]):
+        """LRU cached function for returning POVMS"""
+        num_qubits = len(qubits)
+
+        # Check for N-qubit states
+        if qubits in self._qubit_states:
+            # Get states for specified qubits
+            # TODO: In the future we could add support for different orderings
+            #       of qubits by permuting the returned POVMS
+            states = self._qubit_states[qubits]
+            if index in states:
+                return states[index]
+
+            # Look up custom 0 init state for specified qubits
+            # TODO: Add support for noisy instuctions
+            if not self._instructions:
+                raise NotImplementedError(
+                    f"Basis {self.name} does not define circuits to construct POVMs from"
+                )
+            key0 = num_qubits * (0,)
+            if key0 in self._qubit_states:
+                circuit = _tensor_product_circuit(self._instructions, index, self._name)
+                return _generate_state(circuit, self._qubit_states[key0])
+
+        # No match, so if 1-qubit use default, otherwise return None
+        if num_qubits == 1 and self._default_states:
+            return self._default_states[index]
+        return None
+
+    def _initialize(self):
+        """Initialize dimension and num outcomes"""
+        if self._instructions:
+            self._size = len(self._instructions)
+
+        # Format default POVMs
+        if self._default_states:
+            default_state = next(iter(self._default_states.values()))
+            self._default_dim = np.prod(default_state.dims())
+            if self._size is None:
+                self._size = len(self._default_states)
+            elif len(self._default_states) != self._size:
+                raise QiskitError("Number of instructions and number of states must be equal.")
+
+        # Format qubit POVMS
+        for qubits, states in self._qubit_states.items():
+            state = next(iter(states.values()))
+            dim = np.prod(state.dims())
+
+            # Additional formatting for multi-qubit POVMs
+            num_qubits = len(qubits)
+            if num_qubits > 1:
+                dim = num_qubits * (int(dim ** (1 / num_qubits)),)
+            self._qubit_dim[qubits] = dim
+            self._qubits.update(qubits)
+
+        # Pseudo hash value to make basis hashable for LRU cached functions
+        self._hash = hash(
+            (
+                type(self),
+                self._name,
+                self._size,
+                self._default_dim,
+                self._custom_defaults,
+                tuple(self._qubits),
+                tuple(self._qubit_dim.values()),
+                (type(i) for i in self._instructions),
+            )
+        )
 
     def __json_encode__(self):
         value = {
@@ -176,7 +224,7 @@ class LocalPreparationBasis(PreparationBasis):
             "instructions": list(self._instructions) if self._instructions else None,
         }
         if self._custom_defaults:
-            value["default_states"] = list(self._default_states)
+            value["default_states"] = self._default_states
         if self._qubit_states:
             value["qubit_states"] = self._qubit_states
         return value
@@ -195,8 +243,8 @@ class LocalMeasurementBasis(MeasurementBasis):
         self,
         name: str,
         instructions: Optional[Sequence[Instruction]] = None,
-        default_povms: Optional[Sequence[POVM]] = None,
-        qubit_povms: Optional[Dict[int, Sequence[POVM]]] = None,
+        default_povms: Optional[Sequence[Povm]] = None,
+        qubit_povms: Optional[Dict[Tuple[int, ...], Sequence[Povm]]] = None,
     ):
         """Initialize a fitter preparation basis.
 
@@ -229,72 +277,24 @@ class LocalMeasurementBasis(MeasurementBasis):
             )
         super().__init__(name)
 
-        # Internal variables
-        self._instructions = tuple()
+        # POVM element variables
+        self._instructions = _format_instructions(instructions)
+        self._default_povms = _format_default_povms(default_povms, self._instructions)
+        self._qubit_povms = _format_qubit_povms(qubit_povms)
+        self._custom_defaults = bool(default_povms)
+
+        # Other attributes derived from povms and instructions
+        # that need initializing
+        self._qubits = set()
         self._size = None
-        self._default_povms = None
         self._default_num_outcomes = None
         self._default_dim = None
-        self._qubit_povms = {}
         self._qubit_num_outcomes = {}
         self._qubit_dim = {}
-        self._qubits = set()
-        self._custom_defaults = True
+        self._hash = None
 
-        # Format instructions so compatible types can be converted to
-        # Instruction instances.
-        if instructions is not None:
-            self._instructions = _format_instructions(instructions)
-            self._size = len(self._instructions)
-            if default_povms is None:
-                default_povms = instructions
-                self._custom_defaults = False
-
-        # Format default POVMs
-        if default_povms is not None:
-            self._default_povms = _format_povms(default_povms)
-            self._default_num_outcomes = len(self._default_povms[0])
-            self._default_dim = self._default_povms[0][0].shape[0]
-            if self._size is None:
-                self._size = len(self._default_povms)
-            elif len(self._default_povms) != self._size:
-                raise QiskitError("Number of instructions and number of states must be equal.")
-            if any(len(povm) != self._default_num_outcomes for povm in self._default_povms):
-                raise QiskitError(
-                    "LocalMeasurementBasis default POVM elements must all have "
-                    "the same number of outcomes."
-                )
-
-        # Format qubit POVMS
-        qubit_povms = qubit_povms or {}
-        for qubit, povms in qubit_povms.items():
-            f_povms = _format_povms(povms)
-            num_outcomes = len(f_povms[0])
-            if any(len(povm) != num_outcomes for povm in f_povms):
-                raise QiskitError(
-                    "LocalMeasurementBasis POVM elements must all have the "
-                    "same number of outcomes."
-                )
-            self._qubit_povms[qubit] = f_povms
-            self._qubit_num_outcomes[qubit] = num_outcomes
-            self._qubit_dim[qubit] = f_povms[0][0].shape[0]
-            self._qubits.add(qubit)
-
-        # Pseudo hash value to make basis hashable for LRU cached functions
-        self._hash = hash(
-            (
-                type(self),
-                self._name,
-                self._size,
-                self._default_dim,
-                self._default_num_outcomes,
-                self._custom_defaults,
-                tuple(self._qubits),
-                tuple(self._qubit_dim.values()),
-                tuple(self._qubit_num_outcomes.values()),
-                (type(i) for i in self._instructions),
-            )
-        )
+        # Initialize attributes
+        self._initialize()
 
     def __repr__(self):
         return f"<{type(self).__name__}: {self.name}>"
@@ -319,10 +319,22 @@ class LocalMeasurementBasis(MeasurementBasis):
         return len(qubits) * (self._size,)
 
     def matrix_shape(self, qubits: Sequence[int]) -> Tuple[int, ...]:
-        return tuple(self._qubit_dim.get(i, self._default_dim) for i in qubits)
+        qubits = tuple(qubits)
+        if len(qubits) > 1 and qubits in self._qubit_dim:
+            return self._qubit_dim[qubits]
+        dims = tuple()
+        for i in qubits:
+            dims += self._qubit_dim.get((i,), (self._default_dim,))
+        return dims
 
     def outcome_shape(self, qubits: Sequence[int]) -> Tuple[int, ...]:
-        return tuple(self._qubit_num_outcomes.get(i, self._default_num_outcomes) for i in qubits)
+        qubits = tuple(qubits)
+        if qubits in self._qubit_num_outcomes:
+            return self._qubit_num_outcomes[qubits]
+        shape = tuple()
+        for i in qubits:
+            shape += self._qubit_num_outcomes.get((i,), (self._default_num_outcomes,))
+        return shape
 
     def circuit(self, index: Sequence[int], qubits: Optional[Sequence[int]] = None):
         # pylint: disable = unused-argument
@@ -336,25 +348,98 @@ class LocalMeasurementBasis(MeasurementBasis):
         return circuit
 
     def matrix(self, index: Sequence[int], outcome: int, qubits: Optional[Sequence[int]] = None):
+        # Convert args to hashable tuples
         if qubits is None:
             qubits = tuple(range(len(index)))
+        else:
+            qubits = tuple(qubits)
+        index = tuple(index)
+
         try:
-            outcome_index = self._outcome_indices(outcome, tuple(qubits))
+            # Look for custom POVM for specified qubits
+            qubit_povm = self._generate_qubits_povm(index, qubits)
+            if qubit_povm:
+                return qubit_povm[outcome].data
+
+            # Otherwise construct tensor product POVM
+            outcome_index = self._outcome_indices(outcome, qubits)
             mat = np.eye(1)
             for idx, odx, qubit in zip(index, outcome_index, qubits):
-                povms = self._qubit_povms.get(qubit, self._default_povms)
-                mat = np.kron(povms[idx][odx], mat)
+                povm = self._generate_qubits_povm((idx,), (qubit,))
+                mat = np.kron(povm[odx], mat)
             return mat
+
         except TypeError as ex:
             # This occurs if basis is constructed with qubit_states
             # kwarg but no default_states or instructions and is called for
             # a qubit not in the specified kwargs.
             raise ValueError(f"Invalid qubits for basis {self.name}") from ex
 
-    @functools.lru_cache(None)
+    def _initialize(self):
+        """Initialize dimension and num outcomes"""
+        if self._instructions:
+            self._size = len(self._instructions)
+
+        # Format default POVMs
+        if self._default_povms:
+            default_povm = next(iter(self._default_povms.values()))
+            self._default_num_outcomes = len(default_povm)
+            self._default_dim = np.prod(default_povm[0].dims())
+            if self._size is None:
+                self._size = len(self._default_povms)
+            elif len(self._default_povms) != self._size:
+                raise QiskitError("Number of instructions and number of states must be equal.")
+            if any(
+                len(povm) != self._default_num_outcomes for povm in self._default_povms.values()
+            ):
+                raise QiskitError(
+                    "LocalMeasurementBasis default POVM elements must all have "
+                    "the same number of outcomes."
+                )
+
+        # Format qubit POVMS
+        for qubits, povms in self._qubit_povms.items():
+            povm = next(iter(povms.values()))
+            num_outcomes = len(povm)
+            dim = np.prod(povm[0].dims())
+            if any(len(povm) != num_outcomes for povm in povms.values()):
+                raise QiskitError(
+                    "LocalMeasurementBasis POVM elements must all have the "
+                    "same number of outcomes."
+                )
+
+            # Additional formatting for multi-qubit POVMs
+            num_qubits = len(qubits)
+            if num_qubits > 1:
+                num_outcomes = num_qubits * (int(num_outcomes ** (1 / num_qubits)),)
+                dim = num_qubits * (int(dim ** (1 / num_qubits)),)
+            else:
+                num_outcomes = (num_outcomes,)
+                dim = (dim,)
+            self._qubit_num_outcomes[qubits] = num_outcomes
+            self._qubit_dim[qubits] = dim
+            self._qubits.update(qubits)
+
+        # Pseudo hash value to make basis hashable for LRU cached functions
+        self._hash = hash(
+            (
+                type(self),
+                self._name,
+                self._size,
+                self._default_dim,
+                self._default_num_outcomes,
+                self._custom_defaults,
+                tuple(self._qubits),
+                tuple(self._qubit_dim.values()),
+                tuple(self._qubit_num_outcomes.values()),
+                (type(i) for i in self._instructions),
+            )
+        )
+
+    @cache_method()
     def _outcome_indices(self, outcome: int, qubits: Tuple[int, ...]) -> Tuple[int, ...]:
         """Convert an outcome integer to a tuple of single-qubit outcomes"""
-        num_outcomes = self._qubit_num_outcomes.get(qubits[0], self._default_num_outcomes)
+        num_outcomes = np.prod(self._qubit_num_outcomes.get(qubits[:1], self._default_num_outcomes))
         try:
             value = (outcome % num_outcomes,)
             if len(qubits) == 1:
@@ -363,13 +448,41 @@ class LocalMeasurementBasis(MeasurementBasis):
         except TypeError as ex:
             raise ValueError("Invalid qubits for basis") from ex
 
+    @cache_method()
+    def _generate_qubits_povm(self, index: Tuple[int, ...], qubits: Tuple[int, ...]):
+        """LRU cached function for returning POVMS"""
+        num_qubits = len(qubits)
+        if qubits in self._qubit_povms:
+            # Get POVMS for specified qubits
+            # TODO: In the future we could add support for different orderings
+            #       of qubits by permuting the returned POVMS
+            povms = self._qubit_povms[qubits]
+            if index in povms:
+                return povms[index]
+
+            # Look up custom Z-default POVM for specified qubits
+            # TODO: Add support for noisy instuctions
+            if not self._instructions:
+                raise NotImplementedError(
+                    f"Basis {self.name} does not define circuits to construct POVMs from"
+                )
+            key0 = num_qubits * (0,)
+            if key0 in povms:
+                circuit = _tensor_product_circuit(self._instructions, index, self._name)
+                return _generate_povm(circuit, povms[key0])
+
+        # No match, so if 1-qubit use default, otherwise return None
+        if num_qubits == 1 and self._default_povms:
+            return self._default_povms[index[0]]
+        return []
+
     def __json_encode__(self):
         value = {
             "name": self._name,
-            "instructions": list(self._instructions) if self._instructions else None,
+            "instructions": self._instructions if self._instructions else None,
         }
         if self._custom_defaults:
-            value["default_povms"] = list(self._default_povms)
+            value["default_povms"] = self._default_povms
         if self._qubit_povms:
             value["qubit_povms"] = self._qubit_povms
         return value
@@ -390,9 +503,11 @@ def _tensor_product_circuit(
     return circuit
 
 
-def _format_instructions(instructions: Sequence[any]) -> Tuple[Instruction, ...]:
+def _format_instructions(instructions: Sequence[any]) -> List[Instruction]:
     """Parse multiple input formats for list of instructions"""
-    ret = tuple()
+    ret = []
+    if instructions is None:
+        return ret
     for inst in instructions:
         # Convert to instructions if object is not an instruction
         # This allows converting raw unitary matrices and other operator
@@ -406,30 +521,201 @@ def _format_instructions(instructions: Sequence[any]) -> Tuple[Instruction, ...]
         # Validate that instructions are single qubit
         if inst.num_qubits != 1:
             raise QiskitError(f"Input instruction {inst.name} is not a 1-qubit instruction.")
-        ret += (inst,)
+        ret.append(inst)
+
     return ret
 
 
-def _format_povms(povms: Sequence[any]) -> Tuple[Tuple[np.ndarray, ...], ...]:
-    """Format sequence of basis POVMs"""
-    formatted_povms = []
-    # Convert from operator/channel to POVM effects
-    for povm in povms:
-        if isinstance(povm, (list, tuple)):
-            # POVM is already an effect
-            formatted_povms.append(povm)
-            continue
+def _generate_povm(
+    value: Union[List[DensityMatrix], Instruction, Operator, SuperOp],
+    default_z: Optional[List[DensityMatrix]] = None,
+    dims: Optional[Tuple[int, ...]] = None,
+) -> List[DensityMatrix]:
+    """Format a POVM into list of density matrix effects"""
+    # If already a list convert to DensityMatrix objects
+    if isinstance(value, (list, tuple)):
+        return [DensityMatrix(i, dims=dims) for i in value]
 
-        # Convert POVM to operator of quantum channel
-        try:
-            chan = Operator(povm)
-        except QiskitError:
-            chan = SuperOp(povm)
-        adjoint = chan.adjoint()
+    # Otherwise convert from operator/channel to POVM effects
+    try:
+        chan = Operator(value)
+    except QiskitError:
+        chan = SuperOp(value)
+    adjoint = chan.adjoint()
+    if dims is None:
         dims = adjoint.input_dims()
-        dim = np.prod(dims)
-        effects = tuple(DensityMatrix.from_int(i, dims).evolve(adjoint) for i in range(dim))
-        formatted_povms.append(effects)
 
-    # Format POVM effects to density matrix matrices
-    return tuple(tuple(DensityMatrix(effect).data for effect in povm) for povm in formatted_povms)
+    if default_z is not None:
+        z_states = [DensityMatrix(i, dims) for i in default_z]
+    else:
+        z_states = [DensityMatrix.from_int(i, dims) for i in range(np.prod(dims))]
+
+    return [state.evolve(adjoint) for state in z_states]
+
+
+def _format_default_povms(
+    default_povms: any, instructions: Optional[Sequence[Instruction]] = None
+) -> Dict[Tuple[int, ...], List[DensityMatrix]]:
+    "Format default POVM data"
+    # Parse data into a dict
+    # Legacy data handling
+    if isinstance(default_povms, (list, tuple, np.ndarray)):
+        povms = dict(enumerate(default_povms))
+    elif isinstance(default_povms, dict):
+        povms = {int(key): val for key, val in default_povms.items()}
+    elif not default_povms:
+        povms = {}
+
+    # Add instructions to POVM dict if not specified in data
+    if instructions and len(povms) < len(instructions):
+        for i, inst in enumerate(instructions):
+            if i not in povms:
+                povms[i] = inst
+
+    # Look for default POVMs for Z
+    if 0 in povms and isinstance(povms[0], (list, tuple)):
+        default_z = povms[0]
+    else:
+        default_z = None
+
+    # Format remaining POVM values and update attribute
+    return {key: _generate_povm(val, default_z) for key, val in povms.items()}
+
+
+def _format_qubit_povms(
+    qubit_povms: any,
+) -> Dict[Tuple[int, ...], Dict[Tuple[int, ...], List[DensityMatrix]]]:
+    """Format qubit POVMs dict"""
+    povms = {}
+    if not qubit_povms:
+        return povms
+
+    # Format POVM keys to be a tuple of (qubits, basis)
+    for qubits, povm in qubit_povms.items():
+        if isinstance(qubits, int):
+            qubits = (qubits,)
+
+        # Convert value to dict if not already
+        if not isinstance(povm, dict):
+            formatted_povm = {(i,): val for i, val in enumerate(povm)}
+        else:
+            # Format dict keys
+            formatted_povm = {}
+            for index, value in povm.items():
+                if isinstance(index, int):
+                    index = (index,)
+                formatted_povm[tuple(index)] = value
+
+        # Add qubit POVM dict to povms
+        povms[qubits] = formatted_povm
+
+    # Format POVM values
+    for qubits, povm in povms.items():
+
+        # Convert any Z-povm value if present
+        key0 = len(qubits) * (0,)
+        if key0 in povm and isinstance(povm[key0], (list, tuple)):
+            default_z = povm[key0]
+        else:
+            default_z = None
+
+        # Convert any values from instructions/channels
+        # By applying to Z-povm
+        for key, value in povm.items():
+            povm[key] = _generate_povm(value, default_z)
+
+    return povms
+
+
+def _generate_state(
+    value: Union[Statevector, DensityMatrix, Instruction, Operator, SuperOp],
+    init_state: Optional[QuantumState] = None,
+    dims: Optional[Tuple[int, ...]] = None,
+) -> DensityMatrix:
+    """Format a state into list of DensityMatrix"""
+    # If already a quantum state convert to a density matrix
+    if isinstance(value, DensityMatrix):
+        return value
+    if isinstance(value, (QuantumState, np.ndarray, list)):
+        return DensityMatrix(value, dims=dims)
+
+    # Otherwise convert from operator/channel to POVM effects
+    try:
+        chan = Operator(value)
+    except QiskitError:
+        chan = SuperOp(value)
+    if dims is None:
+        dims = chan.input_dims()
+
+    # Default |0> state density matrix
+    if init_state is None:
+        init_state = DensityMatrix.from_int(0, dims)
+    elif not isinstance(init_state, DensityMatrix):
+        init_state = DensityMatrix(init_state, dims)
+    return init_state.evolve(chan)
+
+
+def _format_states(
+    states: Optional[List[any]],
+    init_key: Tuple[int, ...] = (0,),
+    instructions: Optional[Sequence[Instruction]] = None,
+) -> List[DensityMatrix]:
+    "Format default state data"
+    # Parse data into dict to include legacy handling
+    states = _format_data_dict(states, instructions)
+
+    # Look for default state
+    init_val = states.get(init_key, None)
+    if isinstance(init_val, (QuantumState, np.ndarray, list)):
+        init_state = DensityMatrix(init_val)
+    else:
+        init_state = None
+
+    # Format remaining states and update attribute
+    return {key: _generate_state(val, init_state) for key, val in states.items()}
+
+
+def _format_qubit_states(
+    qubit_states: any,
+) -> Dict[Tuple[int, ...], Dict[Tuple[int, ...], DensityMatrix]]:
+    """Format qubit POVMs dict"""
+    if not qubit_states:
+        return {}
+
+    # Format POVM keys to be a tuple of (qubits, basis)
+    formatted_states = {}
+    for qubits, states in qubit_states.items():
+        if isinstance(qubits, int):
+            qubits = (qubits,)
+        else:
+            qubits = tuple(qubits)
+        init_key = len(qubits) * (0,)
+        formatted_states[qubits] = _format_states(states, init_key)
+
+    return formatted_states
+
+
+def _format_data_dict(
+    data: Optional[any], instructions: Optional[Sequence[Union[Instruction, BaseOperator]]] = None
+) -> Dict[Tuple[int, ...], any]:
+    "Format default state data"
+    # Parse data into dict to include legacy handling
+    if isinstance(data, (list, tuple, np.ndarray)):
+        iter_data = enumerate(data)
+    elif isinstance(data, dict):
+        iter_data = data.items()
+    elif not data:
+        iter_data = dict().items()
+    else:
+        iter_data = data
+
+    # Format arg to tuple keys
+    dict_data = {((key,) if isinstance(key, int) else tuple(key)): val for key, val in iter_data}
+
+    # Add instructions for unspecified data
+    if instructions and len(dict_data) < len(instructions):
+        for i, inst in enumerate(instructions):
+            if (i,) not in dict_data:
+                dict_data[(i,)] = inst
+
+    return dict_data

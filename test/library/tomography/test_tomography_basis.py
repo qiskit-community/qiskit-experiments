@@ -18,7 +18,7 @@ from cmath import isclose
 import itertools as it
 from test.base import QiskitExperimentsTestCase
 import qiskit.quantum_info as qi
-from qiskit.circuit.library import HGate, XGate, YGate
+from qiskit.circuit.library import HGate, XGate, SXGate
 from qiskit_experiments.library.tomography.basis import (
     PreparationBasis,
     MeasurementBasis,
@@ -53,7 +53,9 @@ class TestLocalBasis(QiskitExperimentsTestCase):
                 state = qi.Statevector(circ)
                 mat = basis.matrix(index, qubits)
                 expval = state.expectation_value(mat)
-                self.assertTrue(isclose(expval, 1.0))
+                self.assertTrue(
+                    isclose(expval, 1.0), msg=f"{basis.name}, index={index}, {expval} != 1"
+                )
 
         elif isinstance(basis, MeasurementBasis):
             outcome_shape = basis.outcome_shape(qubits)
@@ -69,7 +71,8 @@ class TestLocalBasis(QiskitExperimentsTestCase):
                     mat = basis.matrix(index, outcome, qubits)
                     expval = state.expectation_value(mat)
                     self.assertTrue(
-                        isclose(expval, 1.0), msg=f"{basis.name}, index={index}, outcome={outcome}"
+                        isclose(expval, 1.0),
+                        msg=f"{basis.name}, index={index}, outcome={outcome}, {expval} != 1",
                     )
 
     def _outcome_tup_to_int(self, outcome):
@@ -101,7 +104,7 @@ class TestLocalBasis(QiskitExperimentsTestCase):
 
     def test_local_pbasis_inst(self):
         """Test custom local measurement basis"""
-        basis = LocalPreparationBasis("custom_basis", [XGate(), YGate(), HGate()])
+        basis = LocalPreparationBasis("custom_basis", [XGate(), SXGate(), HGate()])
         self._test_ideal_basis(basis, [0, 1])
 
     def test_local_pbasis_unitary(self):
@@ -113,7 +116,7 @@ class TestLocalBasis(QiskitExperimentsTestCase):
 
     def test_local_mbasis_inst(self):
         """Test custom local measurement basis"""
-        basis = LocalMeasurementBasis("custom_basis", [XGate(), YGate(), HGate()])
+        basis = LocalMeasurementBasis("custom_basis", [XGate(), SXGate(), HGate()])
         self._test_ideal_basis(basis, [0, 1])
 
     def test_local_mbasis_unitary(self):
@@ -137,7 +140,7 @@ class TestLocalBasis(QiskitExperimentsTestCase):
         for i, state in enumerate(default_states):
             basis_state = qi.DensityMatrix(basis.matrix([i], [0]))
             fid = qi.state_fidelity(state, basis_state)
-            self.assertTrue(isclose(fid, 1))
+            self.assertTrue(isclose(fid, 1), msg=f"Incorrect state matrix ({i}, F = {fid})")
 
     def test_local_pbasis_default_densitymatrix(self):
         """Test default states kwarg"""
@@ -146,7 +149,7 @@ class TestLocalBasis(QiskitExperimentsTestCase):
         for i, state in enumerate(default_states):
             basis_state = qi.DensityMatrix(basis.matrix([i], [0]))
             fid = qi.state_fidelity(state, basis_state)
-            self.assertTrue(isclose(fid, 1))
+            self.assertTrue(isclose(fid, 1), msg=f"Incorrect state matrix ({i}, F = {fid})")
 
     def test_local_pbasis_qubit_states_no_default(self):
         """Test matrix method raises for invalid qubit with no default states"""
