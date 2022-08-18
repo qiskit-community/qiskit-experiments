@@ -76,6 +76,7 @@ class T2HahnBackend(BackendV1):
         """
         Initialize the list of qubits state. If initialization error is provided to the backend it will
         use it to determine the initialized state.
+
         Args:
             nqubits(int): the number of qubits in the circuit.
 
@@ -129,6 +130,7 @@ class T2HahnBackend(BackendV1):
         """
         Apply delay gate to the qubit. From the delay time we can calculate the probability
         that an error has accrued.
+
         Args:
             qubit_state(dict): The state of the qubit before operating the gate.
             delay(float): The time in which there are no operation on the qubit.
@@ -172,6 +174,7 @@ class T2HahnBackend(BackendV1):
     def _rx_gate(self, qubit_state: dict, angle: float) -> dict:
         """
         Apply Rx gate.
+
         Args:
             qubit_state(dict): The state of the qubit before operating the gate.
             angle(float): The angle of the rotation.
@@ -247,7 +250,8 @@ class T2HahnBackend(BackendV1):
 
     def _measurement_gate(self, qubit_state: dict) -> int:
         """
-        implementing measurement on qubit with read-out error.
+        Implementing measurement on qubit with read-out error.
+
         Args:
             qubit_state(dict): The state of the qubit at the end of the circuit.
 

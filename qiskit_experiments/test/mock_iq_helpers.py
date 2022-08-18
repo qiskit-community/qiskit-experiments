@@ -47,6 +47,7 @@ class MockIQExperimentHelper:
         `iq_cluster_centers` as follows:
 
         .. code-block:: python
+
             iq_center = helper.iq_cluster_centers[i_qbt][i_state]
             center_inphase = iq_center[0]
             center_quadrature = iq_center[1]
@@ -55,9 +56,10 @@ class MockIQExperimentHelper:
         standard-deviation of the IQ cluster for qubit `i_qbt` is
 
         .. code-block:: python
+
             iq_width = helper.iq_cluster_width[i_qbt]
 
-        Subclasses must call `super().__init__(iq_cluster_centers,iq_cluster_width)` so that these
+        Subclasses must call ``super().__init__(iq_cluster_centers,iq_cluster_width)`` so that these
         properties are stored appropriately.
 
         Args:
@@ -226,7 +228,7 @@ class MockIQParallelExperimentHelper(MockIQExperimentHelper):
         Raises:
             ValueError: Raised if the list are empty or if they don't have the same length.
             QiskitError: Raised if `exp_helper_list` contains an object of type
-                `MockIQParallelExperimentHelper`, because the parallel mock backend currently does not
+                ``MockIQParallelExperimentHelper``, because the parallel mock backend currently does not
                 support parallel sub-experiments.`.
 
         Examples:

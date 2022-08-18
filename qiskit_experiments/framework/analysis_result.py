@@ -31,7 +31,6 @@ from qiskit_experiments.framework.json import (
     _serialize_safe_float,
 )
 
-from qiskit_experiments.database_service.db_fitval import FitVal
 from qiskit_experiments.database_service.device_component import DeviceComponent, to_component
 from qiskit_experiments.database_service.exceptions import ExperimentDataError
 from qiskit_experiments.database_service.utils import qiskit_version
@@ -55,6 +54,7 @@ class AnalysisResult:
     capable of holding arbitrary values (in a dictionary indexed by a string).
 
     The data fields in the `db_data` dataclass are:
+
     * `experiment_id`: `str`
     * `result_id`: `str`
     * `result_type`: `str`
@@ -174,22 +174,14 @@ class AnalysisResult:
         }
 
         # Format special DB display fields
-        if isinstance(value, FitVal):
-            db_value = AnalysisResult._display_format(value.value)
-            if db_value is not None:
-                result_data["value"] = db_value
-            if isinstance(value.stderr, (int, float)):
-                result_data["variance"] = AnalysisResult._display_format(value.stderr**2)
-            if isinstance(value.unit, str):
-                result_data["unit"] = value.unit
-        elif isinstance(value, uncertainties.UFloat):
+        if isinstance(value, uncertainties.UFloat):
             db_value = AnalysisResult._display_format(value.nominal_value)
             if db_value is not None:
                 result_data["value"] = db_value
             if isinstance(value.std_dev, (int, float)):
                 result_data["variance"] = AnalysisResult._display_format(value.std_dev**2)
-            if "unit" in extra:
-                result_data["unit"] = extra["unit"]
+            if "unit" in result_data["_extra"]:
+                result_data["unit"] = result_data["_extra"]["unit"]
         else:
             db_value = AnalysisResult._display_format(value)
             if db_value is not None:

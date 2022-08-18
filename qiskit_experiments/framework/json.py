@@ -113,7 +113,7 @@ def _deprecation_warning(name: str, version: str):
     warnings.warn(
         f"Deserializated data for <{name}> stored in a deprecated serialization format."
         " Re-serialize or re-save the data to update the serialization format otherwise"
-        f" loading this data may fail in a qiskit-experiments version {version}. ",
+        f" loading this data may fail in qiskit-experiments version {version}. ",
         DeprecationWarning,
     )
 
