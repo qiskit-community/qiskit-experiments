@@ -23,7 +23,7 @@ from qiskit.quantum_info import Clifford
 from qiskit.exceptions import QiskitError
 from qiskit.providers.backend import Backend
 
-from .rb_experiment import StandardRB
+from .rb_experiment import StandardRB, GroupOperatorType
 from .interleaved_rb_analysis import InterleavedRBAnalysis
 
 
@@ -76,7 +76,17 @@ class InterleavedRB(StandardRB):
                            sequences are constructed by appending additional
                            Clifford samples to shorter sequences.
         """
-        self._set_interleaved_element(interleaved_element)
+        # TODO: Can we mitigate this condition (interleaved_element must be a Clifford group element)?
+        try:
+            Clifford(interleaved_element)
+        except QiskitError as err:
+            raise QiskitError(
+                f"Interleaved element {interleaved_element.name} could not be converted to Clifford"
+            ) from err
+        # Convert interleaved element to operation
+        self._interleaved_op = interleaved_element
+        if not isinstance(interleaved_element, Instruction):
+            self._interleaved_op = interleaved_element.to_instruction()
         super().__init__(
             qubits,
             lengths,
@@ -88,56 +98,54 @@ class InterleavedRB(StandardRB):
         self.analysis = InterleavedRBAnalysis()
         self.analysis.set_options(outcome="0" * self.num_qubits)
 
-    def _sample_circuits(self, lengths, rng):
-        circuits = []
-        for length in lengths if self._full_sampling else [lengths[-1]]:
-            elements = self._clifford_utils.random_clifford_circuits(self.num_qubits, length, rng)
-            element_lengths = [len(elements)] if self._full_sampling else lengths
-            std_circuits = self._generate_circuit(elements, element_lengths)
-            for circuit in std_circuits:
-                circuit.metadata["interleaved"] = False
-            circuits += std_circuits
-
-            int_elements = self._interleave(elements)
-            int_elements_lengths = [length * 2 for length in element_lengths]
-            int_circuits = self._generate_circuit(int_elements, int_elements_lengths)
-            for circuit in int_circuits:
-                circuit.metadata["interleaved"] = True
-                circuit.metadata["xval"] = circuit.metadata["xval"] // 2
-            circuits += int_circuits
-        return circuits
-
-    def _interleave(self, element_list: List) -> List:
-        """Interleaving the interleaved element inside the element list.
-
-        Args:
-            element_list: The list of elements we add the interleaved element to.
+    def circuits(self) -> List[QuantumCircuit]:
+        """Return a list of RB circuits.
 
         Returns:
-            The new list with the element interleaved.
+            A list of :class:`QuantumCircuit`.
         """
-        new_element_list = []
-        for element in element_list:
-            new_element_list.append(element)
-            new_element_list.append(self._interleaved_element)
-        return new_element_list
+        # Sample random group element sequences
+        sequences = self._sample_sequences()
 
-    def _set_interleaved_element(self, interleaved_element):
-        """Handle the various types of the interleaved element
+        # Convert each sequence into circuit and append the inverse to the end.
+        circuits = []
+        for seq in sequences:
+            # Build reference (standard) RB circuit
+            srb_circ = self._sequence_to_circuit(seq)
+            circuits.append(srb_circ)
+            # Build interleaved RB circuit
+            irb_circ = self._sequence_to_circuit(seq, self._interleaved_op)
+            circuits.append(irb_circ)
+        return circuits
 
-        Args:
-            interleaved_element: The element to interleave
+    def _sequence_to_circuit(
+        self, sequence: List[GroupOperatorType], interleaved_op: Optional[Instruction] = None
+    ) -> QuantumCircuit:
+        """Convert a RB sequence into circuit and append the inverse to the end.
 
-        Raises:
-            QiskitError: if there is no known conversion of interleaved_element
-            to a Clifford group element
+        Returns:
+            A RB circuit.
         """
-        try:
-            interleaved_element_op = Clifford(interleaved_element)
-            self._interleaved_element = (interleaved_element, interleaved_element_op)
-        except QiskitError as error:
-            raise QiskitError(
-                "Interleaved element {} could not be converted to Clifford element".format(
-                    interleaved_element.name
-                )
-            ) from error
+        qubits = list(range(self.num_qubits))
+        circ = QuantumCircuit(self.num_qubits)
+        circ.barrier(qubits)
+        for elem in sequence:
+            circ.compose(elem.to_circuit(), qubits, inplace=True, wrap=True)
+            circ.barrier(qubits)
+            if interleaved_op:
+                circ.compose(interleaved_op, qubits, inplace=True)
+                circ.barrier(qubits)
+        # Add inverse
+        op = self._twirling_group.generator(circ)  # avoid op.compose() for fast generation
+        inv = op.adjoint()
+        circ.compose(inv.to_circuit(), qubits, inplace=True, wrap=True)
+        circ.barrier(qubits)  # TODO: Can we remove this? (measure_all inserts one more barrier)
+        circ.measure_all()
+        circ.metadata = {
+            "experiment_type": self._type,
+            "xval": len(sequence),
+            "group": self._twirling_group.string,
+            "physical_qubits": self.physical_qubits,
+            "interleaved": True if interleaved_op else False,
+        }
+        return circ
