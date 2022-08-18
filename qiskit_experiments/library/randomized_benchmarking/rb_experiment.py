@@ -139,7 +139,10 @@ class StandardRB(BaseExperiment, RestlessMixin):
         if not hasattr(self.transpile_options, "basis_gates"):
             raise QiskitError("transpile_options.basis_gates must be set for rb_experiment")
 
-        CliffordUtils.transpile_cliff_layers(self.transpile_options.basis_gates)
+        if self.num_qubits == 1:
+            CliffordUtils.transpile_1q_cliffords(self.transpile_options.basis_gates)
+        else:
+            CliffordUtils.transpile_2q_cliff_layers(self.transpile_options.basis_gates)
 
         for _ in range(self.experiment_options.num_samples):
             rb_circuits, _ = self._build_rb_circuits(self.experiment_options.lengths, rng)
@@ -207,7 +210,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
 
         for length in lengths:
             for i in range(prev_length, length):
-                next_circ = CliffordUtils.create_random_clifford(rng)
+                next_circ = CliffordUtils.create_random_clifford(n, rng)
                 circ.compose(next_circ, inplace=True)
                 composed_cliff_num = CliffordUtils.compose_num_with_clifford(
                     num_qubits=n,
@@ -238,12 +241,8 @@ class StandardRB(BaseExperiment, RestlessMixin):
 
                 if i == length - 1:
                     rb_circ = circ.copy()  # circ is used as the prefix of the next circuit
-                    inverse_clifford_num = CliffordUtils.clifford_inverse_by_num(
-                        composed_cliff_num, n
-                    )
+                    inverse_cliff = CliffordUtils.inverse_cliff(composed_cliff_num, n)
 
-                    indices = CliffordUtils.layer_indices_from_num(inverse_clifford_num)
-                    inverse_cliff = CliffordUtils.clifford_from_layer_nums(indices)
                     # append the inverse
                     rb_circ.compose(inverse_cliff, inplace=True)
                     rb_circ.measure(qubits, clbits)
@@ -260,11 +259,10 @@ class StandardRB(BaseExperiment, RestlessMixin):
                         # interleaved_circ is used as the prefix of the next circuit
                         rb_interleaved_circ = interleaved_circ.copy()
                         # append the inverse
-                        inverse_interleaved_num = CliffordUtils.clifford_inverse_by_num(
-                            composed_interleaved_num, n
-                        )
+                        inverse_cliff = CliffordUtils.inverse_cliff(composed_interleaved_num, n)
+
                         rb_interleaved_circ.compose(
-                            self._transpiled_cliff_circuits[n][inverse_interleaved_num],
+                            inverse_cliff,
                             inplace=True,
                         )
                         rb_interleaved_circ.measure(qubits, clbits)
@@ -324,7 +322,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
             else:
                 rb_interleaved_circ = None
 
-            random_samples = rng.integers(num_cliffords, size=length)
+            #random_samples = rng.integers(num_cliffords, size=length)
             # composed_cliff_num is the number representing the composition of
             # all the Cliffords up to now
             # composed_interleaved_num is the same for an interleaved circuit
@@ -333,8 +331,8 @@ class StandardRB(BaseExperiment, RestlessMixin):
             # For full_sampling, we create each circuit independently.
             for i in range(length):
                 # choose random clifford
-                rand = random_samples[i]
-                next_circ = self._transpiled_cliff_circuits[n][rand].copy()
+                #rand = random_samples[i]
+                next_circ = CliffordUtils.create_random_clifford(n, rng)
                 rb_circ.compose(next_circ, inplace=True)
 
                 composed_cliff_num = CliffordUtils.compose_num_with_clifford(
@@ -362,9 +360,10 @@ class StandardRB(BaseExperiment, RestlessMixin):
                     )
                     rb_interleaved_circ.barrier(qubits)
 
-            inverse_clifford_num = CliffordUtils.clifford_inverse_by_num(composed_cliff_num, n)
             # append the inverse
-            rb_circ.compose(self._transpiled_cliff_circuits[n][inverse_clifford_num], inplace=True)
+            inverse_cliff = CliffordUtils.inverse_cliff(composed_cliff_num, n)
+
+            rb_circ.compose(inverse_cliff, inplace=True)
             rb_circ.measure(qubits, clbits)
             rb_circ.metadata = {
                 "experiment_type": "rb",
@@ -374,12 +373,8 @@ class StandardRB(BaseExperiment, RestlessMixin):
                 "interleaved": False,
             }
             if is_interleaved:
-                inverse_interleaved_num = CliffordUtils.clifford_inverse_by_num(
-                    composed_interleaved_num, n
-                )
-                rb_interleaved_circ.compose(
-                    self._transpiled_cliff_circuits[n][inverse_interleaved_num], inplace=True
-                )
+                inverse_cliff = CliffordUtils.inverse_cliff(composed_interleaved_num, n)
+                rb_interleaved_circ.compose(inverse_cliff, inplace=True)
                 rb_interleaved_circ.measure(qubits, clbits)
                 rb_interleaved_circ.metadata = {
                     "experiment_type": "rb",

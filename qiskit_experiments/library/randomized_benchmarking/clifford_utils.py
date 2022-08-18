@@ -87,6 +87,7 @@ class CliffordUtils:
     CLIFF_COMPOSE_DATA = {1: CLIFF_COMPOSE_DATA_1Q, 2: CLIFF_COMPOSE_DATA_2Q}
     CLIFF_INVERSE_DATA = {1: CLIFF_INVERSE_DATA_1Q, 2: CLIFF_INVERSE_DATA_2Q}
 
+    _transpiled_cliffords_1q = []
     _transpiled_cliff_layer = {}
     _transpiled_cliff_layer[0] = []
     _transpiled_cliff_layer[1] = []
@@ -314,7 +315,20 @@ class CliffordUtils:
         return transpiled_circs_file
 
     @classmethod
-    def transpile_cliff_layers(cls, basis_gates):
+    def transpile_1q_cliffords(cls, basis_gates):
+        if cls._transpiled_cliffords_1q != []:
+            return
+        for num in range(0, CliffordUtils.NUM_CLIFFORD_1_QUBIT):
+            circ = CliffordUtils.clifford_1_qubit_circuit(num=num)
+            transpiled_circ = transpile(circuits=circ, optimization_level=1, basis_gates=basis_gates)
+            cls._transpiled_cliffords_1q.append(transpiled_circ)
+
+    @classmethod
+    def transpiled_clifford_from_num_1q(cls, num):
+        return cls._transpiled_cliffords_1q[num]
+
+    @classmethod
+    def transpile_2q_cliff_layers(cls, basis_gates):
         if cls._transpiled_cliff_layer[0] != []:
             return
         cls.transpile_cliff_layer_0(basis_gates)
@@ -348,13 +362,11 @@ class CliffordUtils:
         """length == 20 """
         if cls._transpiled_cliff_layer[1] != []:
             return
-        index = 0
         num_v = [0, 1, 2]
         qr = QuantumRegister(2)
         qc = QuantumCircuit(qr)
         transpiled = transpile(qc, optimization_level=1, basis_gates=basis_gates)
         cls._transpiled_cliff_layer[1].append(transpiled)
-        index += 1
 
         for v0, v1 in itertools.product(num_v, num_v):
             qc = QuantumCircuit(qr)
@@ -365,8 +377,6 @@ class CliffordUtils:
                 qc._append(VGate(), [qr[1]], [])
             transpiled = transpile(qc, optimization_level=1, basis_gates=basis_gates)
             cls._transpiled_cliff_layer[1].append(transpiled)
-
-            index+=1
 
         for v0, v1 in itertools.product(num_v, num_v):
             qc = QuantumCircuit(qr)
@@ -404,19 +414,23 @@ class CliffordUtils:
             transpiled = transpile(qc, optimization_level=1, basis_gates=basis_gates)
             cls._transpiled_cliff_layer[2].append(transpiled)
     @classmethod
-    def create_random_clifford(cls, rng):
+    def create_random_clifford(cls, num_qubits, rng):
         if rng is None:
             rng = default_rng()
-
         if isinstance(rng, int):
             rng = default_rng(rng)
-        r1 = rng.integers(cls.NUM_LAYER_0)
-        r2 = rng.integers(cls.NUM_LAYER_1)
-        r3 = rng.integers(cls.NUM_LAYER_2)
-        return cls.clifford_from_layer_nums((r1, r2, r3))
+        if num_qubits==1:
+            rand = rng.integers(cls.NUM_CLIFFORD_1_QUBIT)
+            return cls._transpiled_cliffords_1q[rand]
+        else:     # num_qubits==2
+            rand1 = rng.integers(cls.NUM_LAYER_0)
+            rand2 = rng.integers(cls.NUM_LAYER_1)
+            rand3 = rng.integers(cls.NUM_LAYER_2)
+            return cls.transpiled_cliff_from_layer_nums((rand1, rand2, rand3))
 
     @classmethod
-    def clifford_from_layer_nums(cls, triplet:Tuple):
+    @lru_cache(NUM_CLIFFORD_2_QUBIT)
+    def transpiled_cliff_from_layer_nums(cls, triplet:Tuple):
         q0 = cls._transpiled_cliff_layer[0][triplet[0]]
         q1 = cls._transpiled_cliff_layer[1][triplet[1]]
         q2 = cls._transpiled_cliff_layer[2][triplet[2]]
@@ -433,3 +447,14 @@ class CliffordUtils:
     @classmethod
     def layer_indices_from_num(cls, num):
         return CLIFF_NUM_TO_LAYERS_2Q[num]
+
+    @classmethod
+    def inverse_cliff(cls, cliff_num, num_qubits):
+        inverse_clifford_num = CliffordUtils.clifford_inverse_by_num(
+            cliff_num, num_qubits
+        )
+        if num_qubits == 1:
+            return cls._transpiled_cliffords_1q[inverse_clifford_num]
+        else:    #num_qubits == 2
+            indices = CliffordUtils.layer_indices_from_num(inverse_clifford_num)
+            return cls.transpiled_cliff_from_layer_nums(indices)

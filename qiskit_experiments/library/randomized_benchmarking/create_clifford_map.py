@@ -57,7 +57,7 @@ gate_list_1q = [
 
 class CliffordNumMapping():
     basis_gates = ["h", "s", "sdg", "x", "cx"]
-    single_gate_clifford_map_1q = []
+    single_gate_clifford_map_1q = {}
     single_gate_clifford_map_2q = {}
     num_to_cliff_1q = {}
     cliff_to_num_1q = {}
@@ -78,7 +78,6 @@ class CliffordNumMapping():
             cliff = CliffordUtils.clifford_1_qubit(i)
             cls.num_to_cliff_1q[i] = cliff
             cls.cliff_to_num_1q[repr(cliff)] = i
-        clifford_single_gate_to_num = {}
 
         for gate in gate_list_1q:
             qc = QuantumCircuit(1)
@@ -89,10 +88,10 @@ class CliffordNumMapping():
                 # qubit_as_str is not really necessary. It is only added to be consistent
                 # with the representation for 2 qubits
                 qubit_as_str = "[0]"
-                clifford_single_gate_to_num[(gate.name, qubit_as_str)] = num
+                cls.single_gate_clifford_map_1q[(gate.name, qubit_as_str)] = num
             else:
                 print("not found")
-        file.write(f"CLIFF_SINGLE_GATE_MAP_1Q = {clifford_single_gate_to_num}\n")
+        file.write(f"CLIFF_SINGLE_GATE_MAP_1Q = {cls.single_gate_clifford_map_1q}\n")
 
     @classmethod
     def gen_nums_single_gate_cliffs_2q(cls, file):
@@ -150,6 +149,7 @@ class CliffordNumMapping():
             cliff = cliff1.adjoint()
             invs[i] = cls.cliff_to_num_1q[repr(cliff)]
 
+
         file.write("CLIFF_COMPOSE_DATA_1Q = [")
         for i in products:
             file.write(f"{products[i]},")
@@ -193,10 +193,10 @@ class CliffordNumMapping():
 
     @classmethod
     def map_layers_to_cliffords_2q(cls, file):
-        CliffordUtils.transpile_cliff_layers(basis_gates=cls.basis_gates)
+        CliffordUtils.transpile_2q_cliff_layers(basis_gates=cls.basis_gates)
         length = [len(CliffordUtils._transpiled_cliff_layer[i]) for i in [0, 1, 2]]
         for n0, n1, n2 in itertools.product(range(length[0]), range(length[1]), range(length[2])):
-            cliff = Clifford(CliffordUtils.clifford_from_layer_nums(n0, n1, n2))
+            cliff = Clifford(CliffordUtils.transpiled_cliff_from_layer_nums((n0, n1, n2)))
             num = cls.cliff_to_num_2q[repr(cliff)]
             cls.layers_num_to_cliff_num_2q[(n0, n1, n2)] = num
             cls.cliff_num_to_layers_2q[num] = (n0, n1, n2)
@@ -220,3 +220,4 @@ class CliffordNumMapping():
 with open("clifford_data.py", "w") as file:
     CliffordNumMapping.create_clifford_data(file)
     CliffordNumMapping.map_layers_to_cliffords_2q(file)
+    

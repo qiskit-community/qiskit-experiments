@@ -1044,7 +1044,7 @@ class TestCliffordUtils(QiskitExperimentsTestCase):
         assert all(x == True for x in all_nums.values())
 
     def test_layers_to_num(self):
-        CliffordUtils.transpile_cliff_layers(basis_gates=self.basis_gates)
+        CliffordUtils.transpile_2q_cliff_layers(basis_gates=self.basis_gates)
         self.is_permutation(CliffordUtils.NUM_CLIFFORD_2_QUBIT, CLIFF_LAYERS_TO_NUM_2Q)
 
     def test_mapping_layers_to_num(self):
