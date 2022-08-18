@@ -138,7 +138,7 @@ class T1KerneledAnalysis(curve.DecayAnalysis):
         """
         # check if the SVD decomposition categorized 0 as 1 by calculating the average slope
         diff_y = np.diff(unp.nominal_values(curve_data.y), axis=0)
-        avg_slope = sum(diff_y)/len(diff_y)
+        avg_slope = sum(diff_y) / len(diff_y)
         if avg_slope[0] > 0:
             new_y_data = np.zeros(curve_data.y.shape)
             for idx, y_data in enumerate(curve_data.y):
