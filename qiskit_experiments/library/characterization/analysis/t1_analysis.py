@@ -15,6 +15,7 @@ T1 Analysis class.
 from typing import Union
 
 import numpy as np
+from uncertainties import unumpy as unp
 
 import qiskit_experiments.curve_analysis as curve
 from qiskit_experiments.framework import Options
@@ -118,29 +119,6 @@ class T1KerneledAnalysis(curve.DecayAnalysis):
             curve.utils.is_error_not_significant(base, absolute=0.1),
         ]
 
-        # if amp.nominal_value > 0:
-        #     criteria = [
-        #         fit_data.reduced_chisq < 3,
-        #         abs(amp.nominal_value - 1.0) < 0.1,
-        #         abs(base.nominal_value) < 0.1,
-        #         curve.utils.is_error_not_significant(amp, absolute=0.1),
-        #         curve.utils.is_error_not_significant(tau),
-        #         curve.utils.is_error_not_significant(base, absolute=0.1),
-        #     ]
-        # else:
-        #     # In SVD decomposition, the main vector is determined up to its sign.Therefore, two graphs
-        #     # can fit our data. The fit could either be `a*exp(-t/tau)+b` or `1-a*exp(-t/tau)+b` where
-        #     # a=1 and b=0. for the second one, we can alternatively fit it to `a*exp(-t/tau)+b` with
-        #     # a=-1 and b=1.
-        #     criteria = [
-        #         fit_data.reduced_chisq < 3,
-        #         abs(amp.nominal_value + 1.0) < 0.1,
-        #         abs(base.nominal_value - 1) < 0.1,
-        #         curve.utils.is_error_not_significant(amp, absolute=0.1),
-        #         curve.utils.is_error_not_significant(tau),
-        #         curve.utils.is_error_not_significant(base, absolute=0.1),
-        #     ]
-
         if all(criteria):
             return "good"
 
@@ -158,11 +136,13 @@ class T1KerneledAnalysis(curve.DecayAnalysis):
         Returns:
             Formatted data.
         """
-        # check if the SVD decomposition categorized 0 as 1
-        if curve_data.y[-1] == 1:
+        # check if the SVD decomposition categorized 0 as 1 by calculating the average slope
+        diff_y = np.diff(unp.nominal_values(curve_data.y), axis=0)
+        avg_slope = sum(diff_y)/len(diff_y)
+        if avg_slope[0] > 0:
             new_y_data = np.zeros(curve_data.y.shape)
             for idx, y_data in enumerate(curve_data.y):
-                new_y_data[idx] = 1 - (y_data - curve_data.y[1])
+                new_y_data[idx] = 1 - y_data
 
             new_curve_data = CurveData(
                 x=curve_data.x,
