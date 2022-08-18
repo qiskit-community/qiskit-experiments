@@ -130,15 +130,15 @@ class InterleavedRB(StandardRB):
         circ = QuantumCircuit(self.num_qubits)
         circ.barrier(qubits)
         for elem in sequence:
-            circ.compose(elem.to_circuit(), qubits, inplace=True, wrap=True)
+            circ.append(self._to_instruction(elem), qubits)
             circ.barrier(qubits)
             if interleaved_op:
-                circ.compose(interleaved_op, qubits, inplace=True)
+                circ.append(interleaved_op, qubits)
                 circ.barrier(qubits)
         # Add inverse
         op = self._twirling_group.generator(circ)  # avoid op.compose() for fast generation
         inv = op.adjoint()
-        circ.compose(inv.to_circuit(), qubits, inplace=True, wrap=True)
+        circ.append(self._to_instruction(inv), qubits)
         circ.barrier(qubits)  # TODO: Can we remove this? (measure_all inserts one more barrier)
         circ.measure_all()
         circ.metadata = {

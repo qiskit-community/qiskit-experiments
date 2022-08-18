@@ -15,6 +15,7 @@ Standard RB Experiment class.
 import logging
 from collections import defaultdict
 from enum import Enum
+from functools import lru_cache
 from typing import Union, Iterable, Optional, List, Sequence, Callable
 
 from numpy.random import Generator, default_rng
@@ -159,12 +160,12 @@ class StandardRB(BaseExperiment, RestlessMixin):
             circ = QuantumCircuit(self.num_qubits)
             circ.barrier(qubits)
             for elem in seq:
-                circ.compose(elem.to_circuit(), qubits, inplace=True, wrap=True)
+                circ.append(self._to_instruction(elem), qubits)
                 circ.barrier(qubits)
             # Add inverse
             op = self._twirling_group.generator(circ)  # avoid op.compose() for fast generation
             inv = op.adjoint()
-            circ.compose(inv.to_circuit(), qubits, inplace=True, wrap=True)
+            circ.append(self._to_instruction(inv), qubits)
             circ.barrier(qubits)  # TODO: Can we remove this? (measure_all inserts one more barrier)
             circ.measure_all()
             circ.metadata = {
@@ -175,6 +176,11 @@ class StandardRB(BaseExperiment, RestlessMixin):
             }
             circuits.append(circ)
         return circuits
+
+    @staticmethod
+    @lru_cache(maxsize=11520)
+    def _to_instruction(op: GroupOperatorType):
+        return op.to_instruction()
 
     def _sample_sequences(self) -> List[List[GroupOperatorType]]:
         """Sample RB sequences
