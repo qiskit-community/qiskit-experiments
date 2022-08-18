@@ -46,6 +46,20 @@ class TwirlingGroup(Enum):
         self.sampler = sampler
         self.analysis = analysis
 
+    def __json_encode__(self):
+        return self.string
+
+    @classmethod
+    def __json_decode__(cls, value):
+        return cls(value)
+
+    @classmethod
+    def _missing_(cls, value):
+        for group in TwirlingGroup:
+            if group.string == value:
+                return group
+        raise ValueError(f"'{value}' is not a valid TwirlingGroup string")
+
 
 class StandardRB(BaseExperiment, RestlessMixin):
     """Standard randomized benchmarking experiment.
