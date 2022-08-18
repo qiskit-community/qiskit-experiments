@@ -180,6 +180,9 @@ class TestStandardRB(RBTestCase):
             num_samples=5,
         )
         exp.set_transpile_options(basis_gates=["x", "sx", "rz"], optimization_level=1)
+        # Simulator seed must be fixed. This can be set via run option with FakeBackend.
+        # pylint: disable=no-member
+        exp.set_run_options(seed_simulator=456)
         expdata = exp.run()
         self.assertExperimentDone(expdata)
 

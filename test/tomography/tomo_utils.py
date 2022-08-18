@@ -19,8 +19,6 @@ from qiskit import QuantumCircuit
 FITTERS = [
     None,
     "linear_inversion",
-    "scipy_linear_lstsq",
-    "scipy_gaussian_lstsq",
     "cvxpy_linear_lstsq",
     "cvxpy_gaussian_lstsq",
 ]

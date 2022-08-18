@@ -200,30 +200,7 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
         Raises:
             KeyError: When removed option ``curve_fitter`` is set.
         """
-        # TODO remove this in Qiskit Experiments v0.4
-        if "curve_plotter" in fields:
-            warnings.warn(
-                "The analysis option 'curve_plotter' has been deprecated. "
-                "The option is replaced with 'curve_drawer' that takes 'MplCurveDrawer' instance. "
-                "If this is a loaded analysis, please save this instance again to update option value. "
-                "The 'curve_plotter' argument along with this warning will be removed "
-                "in Qiskit Experiments 0.4.",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-            del fields["curve_plotter"]
-
-        if "curve_fitter" in fields:
-            warnings.warn(
-                "Setting curve fitter to analysis options has been deprecated and "
-                "the option has been removed. The fitter setting is dropped. "
-                "Now you can directly override '_run_curve_fit' method to apply custom fitter. "
-                "The `curve_fitter` argument along with this warning will be removed "
-                "in Qiskit Experiments 0.4.",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-            del fields["curve_fitter"]
+        # TODO remove this in Qiskit Experiments v0.5
 
         if "curve_fitter_options" in fields:
             warnings.warn(
@@ -233,28 +210,6 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
                 stacklevel=2,
             )
             fields["lmfit_options"] = fields.pop("curve_fitter_options")
-
-        # pylint: disable=no-member
-        draw_options = set(self.drawer.options.__dict__.keys()) | {"style"}
-        deprecated = draw_options & fields.keys()
-        if any(deprecated):
-            warnings.warn(
-                f"Option(s) {deprecated} have been moved to draw_options and will be removed soon. "
-                "Use self.drawer.set_options instead. "
-                "If this is a loaded analysis, please save this instance again to update option value. "
-                "These arguments along with this warning will be removed "
-                "in Qiskit Experiments 0.4.",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-            draw_options = dict()
-            for depopt in deprecated:
-                if depopt == "style":
-                    for k, v in fields.pop("style").items():
-                        draw_options[k] = v
-                else:
-                    draw_options[depopt] = fields.pop(depopt)
-            self.drawer.set_options(**draw_options)
 
         super().set_options(**fields)
 

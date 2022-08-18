@@ -126,13 +126,8 @@ class RamseyXY(BaseExperiment, RestlessMixin):
 
         # Scheduling parameters
         if not self._backend_data.is_simulator:
-            timing_constraints = getattr(self.transpile_options, "timing_constraints", {})
-            if "acquire_alignment" not in timing_constraints:
-                timing_constraints["acquire_alignment"] = 16
             scheduling_method = getattr(self.transpile_options, "scheduling_method", "alap")
-            self.set_transpile_options(
-                timing_constraints=timing_constraints, scheduling_method=scheduling_method
-            )
+            self.set_transpile_options(scheduling_method=scheduling_method)
 
     def _pre_circuit(self) -> QuantumCircuit:
         """Return a preparation circuit.
