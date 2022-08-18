@@ -36,7 +36,9 @@ class RamseyXYAnalysis(curve.CurveAnalysis):
     # section: fit_parameters
         defpar \rm amp:
             desc: Amplitude of both series.
-            init_guess: Half of the maximum y value less the minimum y value.
+            init_guess: Half of the maximum y value less the minimum y value. When the
+                oscillation frequency is low, it uses an averaged difference of
+                Ramsey X data - Ramsey Y data.
             bounds: [0, 2 * average y peak-to-peak]
 
         defpar \tau:
@@ -47,7 +49,8 @@ class RamseyXYAnalysis(curve.CurveAnalysis):
 
         defpar \rm base:
             desc: Base line of both series.
-            init_guess: Roughly the average of the data.
+            init_guess: Roughly the average of the data. When the oscillation frequency is low,
+                it uses an averaged data of Ramsey Y experiment.
             bounds: [min y - average y peak-to-peak, max y + average y peak-to-peak]
 
         defpar \rm freq:
