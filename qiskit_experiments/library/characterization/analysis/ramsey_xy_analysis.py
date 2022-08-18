@@ -116,8 +116,8 @@ class RamseyXYAnalysis(curve.CurveAnalysis):
         # Same for base, i.e. P=0.75 is often estimated in this case.
         full_y_ptp = np.ptp(curve_data.y)
         avg_y_ptp = 0.5 * (np.ptp(ramx_data.y) + np.ptp(ramy_data.y))
-        max_y = np.max(np.abs(curve_data.y))
-        min_y = np.min(np.abs(curve_data.y))
+        max_y = np.max(curve_data.y)
+        min_y = np.min(curve_data.y)
 
         user_opt.bounds.set_if_empty(
             amp=(0, full_y_ptp * 2),
@@ -152,9 +152,9 @@ class RamseyXYAnalysis(curve.CurveAnalysis):
         )
 
         # Guess the exponential decay by combining both curves
-        decay_data = (ramx_data.y - user_opt.p0["base"]) ** 2 + (
-            ramy_data.y - user_opt.p0["base"]
-        ) ** 2
+        ramx_unbiased = ramx_data.y - user_opt.p0["base"]
+        ramy_unbiased = ramy_data.y - user_opt.p0["base"]
+        decay_data = ramx_unbiased**2 + ramy_unbiased**2
         if np.ptp(decay_data) < 0.95 * 0.5 * full_y_ptp:
             # When decay is less than 95 % of peak-to-peak value, ignore decay and
             # set large enough tau value compared with the measured x range.
@@ -163,8 +163,8 @@ class RamseyXYAnalysis(curve.CurveAnalysis):
             user_opt.p0.set_if_empty(tau=-1 / curve.guess.exp_decay(ramx_data.x, decay_data))
 
         # Guess the oscillation frequency, remove offset to eliminate DC peak
-        freq_guess_x = curve.guess.frequency(ramx_data.x, ramx_data.y - base_guess_x)
-        freq_guess_y = curve.guess.frequency(ramy_data.x, ramy_data.y - base_guess_y)
+        freq_guess_x = curve.guess.frequency(ramx_data.x, ramx_unbiased)
+        freq_guess_y = curve.guess.frequency(ramy_data.x, ramy_unbiased)
         freq_val = 0.5 * (freq_guess_x + freq_guess_y)
 
         # FFT might be up to 1/2 bin off
