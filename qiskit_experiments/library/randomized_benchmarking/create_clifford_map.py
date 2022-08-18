@@ -55,7 +55,8 @@ gate_list_1q = [
     SdgGate(),
 ]
 
-class CliffordNumMapping():
+
+class CliffordNumMapping:
     basis_gates = ["h", "s", "sdg", "x", "cx"]
     single_gate_clifford_map_1q = {}
     single_gate_clifford_map_2q = {}
@@ -105,7 +106,6 @@ class CliffordNumMapping():
             cls.num_to_cliff_2q[i] = cliff
             cls.cliff_to_num_2q[repr(cliff)] = i
 
-        #clifford_single_gate_to_num = {}
         for gate, qubit in itertools.product(gate_list_1q, [0, 1]):
             qc = QuantumCircuit(2)
             qc.append(gate, [qubit])
@@ -148,7 +148,6 @@ class CliffordNumMapping():
             cliff1 = cls.num_to_cliff_1q[i]
             cliff = cliff1.adjoint()
             invs[i] = cls.cliff_to_num_1q[repr(cliff)]
-
 
         file.write("CLIFF_COMPOSE_DATA_1Q = [")
         for i in products:
@@ -210,6 +209,7 @@ class CliffordNumMapping():
         for i in range(len(cls.cliff_num_to_layers_2q)):
             file.write(f"{cls.cliff_num_to_layers_2q[i]},")
         file.write("]\n")
+
     @classmethod
     def create_clifford_data(cls, file):
         cls.gen_nums_single_gate_cliffs_1q(file)
@@ -217,7 +217,7 @@ class CliffordNumMapping():
         cls.create_compose_map_1q(file)
         cls.create_compose_map_2q(file)
 
+
 with open("clifford_data.py", "w") as file:
     CliffordNumMapping.create_clifford_data(file)
     CliffordNumMapping.map_layers_to_cliffords_2q(file)
-    

@@ -322,7 +322,6 @@ class StandardRB(BaseExperiment, RestlessMixin):
             else:
                 rb_interleaved_circ = None
 
-            #random_samples = rng.integers(num_cliffords, size=length)
             # composed_cliff_num is the number representing the composition of
             # all the Cliffords up to now
             # composed_interleaved_num is the same for an interleaved circuit
@@ -331,7 +330,6 @@ class StandardRB(BaseExperiment, RestlessMixin):
             # For full_sampling, we create each circuit independently.
             for i in range(length):
                 # choose random clifford
-                #rand = random_samples[i]
                 next_circ = CliffordUtils.create_random_clifford(n, rng)
                 rb_circ.compose(next_circ, inplace=True)
 
