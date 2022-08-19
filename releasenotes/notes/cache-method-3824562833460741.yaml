@@ -1,0 +1,5 @@
+---
+developer:
+  - |
+    Adds a ``cache_method`` decorator for caching methods in classes. This
+    can be imported from ``qiskit_experiments.framework.cache_method``.
