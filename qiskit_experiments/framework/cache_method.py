@@ -36,6 +36,8 @@ def cache_method(
     Returns:
         The decorator for caching methods.
     """
+    cache_fn = _cache_function(cache)
+    cache_key_fn = _cache_key_function(cache_args, require_hashable)
 
     def cache_method_decorator(method: Callable) -> Callable:
         """Decorator for caching method.
@@ -46,35 +48,10 @@ def cache_method(
         Returns:
             The wrapped cached method.
         """
-        # Function for returning cache key
-        cache_key_fn = _cache_key_function(cache_args, require_hashable)
-
-        # Function for returning cache dict
-        if isinstance(cache, str):
-
-            def _cache_fn(self, method):
-                if not hasattr(self, cache):
-                    setattr(self, cache, {})
-                instance_cache = getattr(self, cache)
-                name = method.__name__
-                if name not in instance_cache:
-                    instance_cache[name] = {}
-                return instance_cache[name]
-
-        else:
-
-            def _cache_fn(self, method):
-                # pylint: disable = unused-argument
-                name = method.__name__
-                if name not in cache:
-                    cache[name] = {}
-                return cache[name]
-
-        # Cached method function
 
         @functools.wraps(method)
         def _cached_method(self, *args, **kwargs):
-            meth_cache = _cache_fn(self, method)
+            meth_cache = cache_fn(self, method)
             key = cache_key_fn(*args, **kwargs)
             if key in meth_cache:
                 return meth_cache[key]
@@ -87,7 +64,7 @@ def cache_method(
     return cache_method_decorator
 
 
-def _cache_key_function(cache_args: bool = True, require_hashable: bool = True) -> Callable:
+def _cache_key_function(cache_args: bool, require_hashable: bool) -> Callable:
     """Return function for generating cache keys.
 
     Args:
@@ -131,3 +108,37 @@ def _cache_key_function(cache_args: bool = True, require_hashable: bool = True) 
             return cache_key
 
     return _cache_key
+
+
+def _cache_function(cache: Union[Dict, str]) -> Callable:
+    """Return function for initializing and accessing cache dict.
+
+    Args:
+        cache: The cache or cache attribute name to use. If a dict it will
+               be used directly, if a str a cache dict will be created under
+               that attribute name if one is not already present.
+
+    Returns:
+        The function for accessing the cache dict.
+    """
+    if isinstance(cache, str):
+
+        def _cache_fn(instance, method):
+            if not hasattr(instance, cache):
+                setattr(instance, cache, {})
+            instance_cache = getattr(instance, cache)
+            name = method.__name__
+            if name not in instance_cache:
+                instance_cache[name] = {}
+            return instance_cache[name]
+
+    else:
+
+        def _cache_fn(instance, method):
+            # pylint: disable = unused-argument
+            name = method.__name__
+            if name not in cache:
+                cache[name] = {}
+            return cache[name]
+
+    return _cache_fn
