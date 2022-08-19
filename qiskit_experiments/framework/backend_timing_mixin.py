@@ -82,6 +82,11 @@ class BackendTiming:
     def dt(self) -> float:
         """Backend dt value
 
+        This property wraps ``backend_data.dt`` in order to give a more
+        specific error message when trying to use ``dt`` with a backend that
+        does not provide it rather than just giving a ``TypeError`` about
+        ``NoneType``.
+
         Raises:
             QiskitError: The backend does not include a dt value.
         """
