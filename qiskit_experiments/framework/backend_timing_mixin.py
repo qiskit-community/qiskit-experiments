@@ -44,12 +44,15 @@ class BackendTiming:
         """
         self.experiment = experiment
 
+        self._backend: Union[Backend, None] = None
+        self._backend_data: Union[BackendData, None] = None
+
     @property
-    def backend(self) -> Backend:
-        """Backend associated with experiment
+    def backend_data(self) -> BackendData:
+        """Backend data associated with experiment
 
         Returns:
-            The backend object associated with the experiment
+            The BackendData object associated with the experiment
 
         Raises:
             QiskitError: if the backend is not set on the experiment
@@ -57,12 +60,11 @@ class BackendTiming:
         if self.experiment.backend is None:
             raise QiskitError("Backend not set on experiment!")
 
-        return self.experiment.backend
+        if self.experiment.backend != self._backend:
+            self._backend = self.experiment.backend
+            self._backend_data = BackendData(self._backend)
 
-    @property
-    def backend_data(self) -> BackendData:
-        """Backend data associated with experiment"""
-        return BackendData(self.backend)
+        return self._backend_data
 
     @property
     def delay_unit(self) -> str:
