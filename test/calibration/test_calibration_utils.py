@@ -12,8 +12,8 @@
 
 """Class to test utility functions for calibrations."""
 
-import unittest
 from test.base import QiskitExperimentsTestCase
+import retworkx as rx
 
 from qiskit.circuit import Parameter
 import qiskit.pulse as pulse
@@ -23,6 +23,7 @@ from qiskit_experiments.calibration_management import EchoCrossResonance
 from qiskit_experiments.calibration_management.calibration_utils import (
     validate_channels,
     used_in_references,
+    update_schedule_dependency,
 )
 
 
@@ -48,10 +49,14 @@ class TestUsedInReference(QiskitExperimentsTestCase):
 
     def test_used_in_references_simple(self):
         """Test that schedule identification by name with simple references."""
-        self.assertSetEqual(used_in_references("xp", [self.xp_ref]), {"ref_xp"})
-        self.assertSetEqual(used_in_references("xp", [self.xp2]), set())
+        dag = rx.PyDiGraph(check_cycle=True)
+        update_schedule_dependency(self.xp1, dag)
+        update_schedule_dependency(self.xp2, dag)
+        update_schedule_dependency(self.xp_ref, dag)
 
-    @unittest.skip("This test will fail as it is not supported yet.")
+        self.assertSetEqual(used_in_references({"xp"}, dag), {"ref_xp"})
+        self.assertSetEqual(used_in_references({"xp2"}, dag), set())
+
     def test_used_in_references_nested(self):
         """Test that schedule identification by name with nested references."""
 
@@ -59,33 +64,31 @@ class TestUsedInReference(QiskitExperimentsTestCase):
             pulse.play(pulse.Drag(160, 0.5, 40, 0.2), pulse.DriveChannel(1))
             pulse.call(self.xp_ref)
 
-        self.assertSetEqual(
-            used_in_references("xp", [self.xp_ref, xp_ref_ref]), {"ref_xp", "ref_ref_xp"}
-        )
+        dag = rx.PyDiGraph(check_cycle=True)
+        for sched in [self.xp1, self.xp_ref, xp_ref_ref]:
+            update_schedule_dependency(sched, dag)
 
-    def test_usind_in_reference_cr(self):
+        self.assertSetEqual(used_in_references({"xp"}, dag), {"ref_xp", "ref_ref_xp"})
+
+    def test_used_in_references(self):
         """Test a CR setting."""
-        with pulse.build(name="xp") as xp:
-            pulse.play(pulse.Gaussian(160, 0.5, 40), pulse.DriveChannel(2))
-
         cr_tone_p = pulse.GaussianSquare(640, 0.2, 64, 500)
-        rotary_p = pulse.GaussianSquare(640, 0.1, 64, 500)
-
         cr_tone_m = pulse.GaussianSquare(640, -0.2, 64, 500)
-        rotary_m = pulse.GaussianSquare(640, -0.1, 64, 500)
 
         with pulse.build(name="cr") as cr:
             with pulse.align_sequential():
                 with pulse.align_left():
-                    pulse.play(rotary_p, pulse.DriveChannel(3))  # Rotary tone
-                    pulse.play(cr_tone_p, pulse.ControlChannel(2))  # CR tone.
-                pulse.call(xp)
+                    pulse.play(cr_tone_p, pulse.ControlChannel(2))
+                pulse.reference(self.xp1.name, "q0")
                 with pulse.align_left():
-                    pulse.play(rotary_m, pulse.DriveChannel(3))
                     pulse.play(cr_tone_m, pulse.ControlChannel(2))
-                pulse.call(xp)
+                pulse.reference(self.xp1.name, "q0")
 
-        self.assertSetEqual(used_in_references("xp", [cr]), {"cr"})
+        dag = rx.PyDiGraph(check_cycle=True)
+        update_schedule_dependency(self.xp1, dag)
+        update_schedule_dependency(cr, dag)
+
+        self.assertSetEqual(used_in_references({"xp"}, dag), {"cr"})
 
 
 class TestValidateChannels(QiskitExperimentsTestCase):
