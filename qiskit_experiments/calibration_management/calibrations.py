@@ -20,6 +20,7 @@ import csv
 import dataclasses
 import json
 import warnings
+import retworkx as rx
 
 from qiskit.pulse import (
     ScheduleBlock,
@@ -43,6 +44,7 @@ from qiskit_experiments.calibration_management.calibration_utils import (
     used_in_references,
     validate_channels,
     reference_info,
+    update_schedule_dependency,
 )
 from qiskit_experiments.calibration_management.calibration_key_types import (
     ParameterKey,
@@ -159,6 +161,11 @@ class Calibrations:
         # Dict of the form: ScheduleKey: int (number of qubits in corresponding circuit instruction)
         self._schedules_qubits = {}
 
+        # A directed acyclic graph to manage schedule reference dependencies.
+        # Each node is a schedule and edges are schedule references.
+        # The acyclic nature prevents users from registering schedules with cyclic dependencies.
+        self._schedule_dependency = rx.PyDiGraph(check_cycle=True)
+
         # A variable to store all parameter hashes encountered and present them as ordered
         # indices to the user.
         self._hash_to_counter_map = {}
@@ -229,6 +236,11 @@ class Calibrations:
     def backend_version(self) -> str:
         """Return the version of the backend."""
         return self._backend_version
+
+    @property
+    def schedule_dependency(self) -> rx.PyDiGraph:
+        """Return the schedule dependencies in the calibrations."""
+        return self._schedule_dependency.copy()
 
     @classmethod
     def from_backend(
@@ -608,6 +620,9 @@ class Calibrations:
         self._schedules[sched_key] = schedule
         self._schedules_qubits[sched_key] = num_qubits
 
+        # Update the schedule dependency.
+        update_schedule_dependency(schedule, self._schedule_dependency)
+
         # Register parameters that are not indices.
         params_to_register = set()
         for param in schedule.parameters:
@@ -665,8 +680,21 @@ class Calibrations:
             schedule: The schedule to remove.
             qubits: The qubits for which to remove the schedules. If None is given then this
                 schedule is the default schedule for all qubits.
+
+        Raises:
+            CalibrationError: If other schedules depend on ``schedule``.
         """
         qubits = self._to_tuple(qubits)
+
+        # Remove the schedule from the schedule dependency DAG. Raise if others depend on it.
+        sched_idx = self._schedule_dependency.nodes().index(schedule.name)
+        prev_nodes = self._schedule_dependency.predecessors(sched_idx)
+        if len(prev_nodes) > 0:
+            raise CalibrationError(
+                f"Cannot remove schedule {schedule.name} as {prev_nodes} depend on it."
+            )
+
+        self._schedule_dependency.remove_node(sched_idx)
 
         sched_key = ScheduleKey(schedule.name, qubits)
         if sched_key in self._schedules:
@@ -823,14 +851,18 @@ class Calibrations:
 
         self._params[ParameterKey(param_name, qubits, sched_name)].append(value)
 
+        # When updating the inst_map we need to
+        # a) Update all the schedule that use the parameter to be updated
+        # b) Update all schedules that reference the updated schedules under a)
         if update_inst_map and schedule is not None:
             param_obj = self.calibration_parameter(param_name, qubits, sched_name)
+
+            # Take care of a) i.e. update all schedules that use the parameter.
             schedules = set(key.schedule for key in self._parameter_map_r[param_obj])
 
-            # Find schedules that may reference the schedule we want to update.
-            # TODO this might not update properly with nested references!
-            schedules.update(used_in_references(sched_name, list(self._schedules.values())))
-
+            # Take care of b) i.e. find all schedules that refer to the schedules that
+            # make use of the updated parameter.
+            schedules.update(used_in_references(schedules, self._schedule_dependency))
             self.update_inst_map(schedules, qubits=qubits)
 
     def _get_channel_index(self, qubits: Tuple[int, ...], chan: PulseChannel) -> int:

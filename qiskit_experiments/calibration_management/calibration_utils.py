@@ -12,8 +12,9 @@
 
 """Calibration helper functions"""
 
-from typing import List, Optional, Set, Tuple
+from typing import Optional, Set, Tuple
 import regex as re
+import retworkx as rx
 
 from qiskit.circuit import ParameterExpression, Parameter
 from qiskit.pulse import ScheduleBlock
@@ -21,29 +22,51 @@ from qiskit.pulse import ScheduleBlock
 from qiskit_experiments.exceptions import CalibrationError
 
 
-def used_in_references(schedule_name: str, schedules: List[ScheduleBlock]) -> Set[str]:
-    """Find the schedules in the given list that reference a given schedule by name.
+def update_schedule_dependency(schedule: ScheduleBlock, dag: rx.PyDiGraph):
+    """Update a DAG of schedule dependencies.
 
     Args:
-        schedule_name: The name of the referencer to identify.
-        schedules: A list of potential referencer schedules to search.
+        schedule: A ScheduleBlock that potential has references to other schedules
+            that are already present in the dag.
+        dag: A directed acyclic graph that encodes schedule dependencies using references.
+    """
+    parent_idx = dag.add_node(schedule.name)
+    for reference in schedule.references:
+        dag.add_edge(parent_idx, dag.nodes().index(reference[0]), None)
+
+
+def used_in_references(schedule_names: Set[str], dag: rx.PyDiGraph) -> Set[str]:
+    """Find all the schedules in the DAG that reference the given schedules.
+
+    Args:
+        schedule_names: A list of schedules to which references may exist.
+        dag: The dag that represents the dependencies between schedule references.
 
     Returns:
-        A set of schedule names that call the given schedule.
+        A set of schedules that reference the given schedules.
     """
-    caller_names = set()
+    callers = set()
 
-    for schedule in schedules:
-        if schedule_name in set(ref[0] for ref in schedule.references):
-            caller_names.add(schedule.name)
+    for name in schedule_names:
+        callers.update(_referred_by(name, dag))
 
-    return caller_names
+    return callers
+
+
+def _referred_by(schedule_name: str, dag: rx.PyDiGraph) -> Set[str]:
+    """Return all the schedules that refer to this schedule by name."""
+    referred_by = set()
+    for predecessor in dag.predecessors(dag.nodes().index(schedule_name)):
+        referred_by.add(predecessor)
+        referred_by.update(_referred_by(predecessor, dag))
+
+    return referred_by
 
 
 def validate_channels(schedule: ScheduleBlock) -> Set[Parameter]:
-    """Validate amd get the parameters in the channels of the schedule.
+    """Validate and get the parameters in the channels of the schedule.
 
-    Note that channels implicitly defined in references will be ignored.
+    Channels implicitly defined in references are ignored.
 
     Args:
         schedule: The schedule for which to get the parameters in the channels.
