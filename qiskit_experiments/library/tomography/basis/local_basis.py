@@ -12,13 +12,13 @@
 """
 Circuit basis for tomography preparation and measurement circuits
 """
-import functools
 from typing import Sequence, Optional, Tuple, Union, List, Dict
 import numpy as np
 from qiskit.circuit import QuantumCircuit, Instruction
 from qiskit.quantum_info import DensityMatrix, Statevector, Operator, SuperOp
 from qiskit.quantum_info.operators.channel.quantum_channel import QuantumChannel
 from qiskit.exceptions import QiskitError
+from qiskit_experiments.framework.cache_method import cache_method
 from .base_basis import PreparationBasis, MeasurementBasis
 
 # Typing object for POVM args of measurement basis
@@ -351,7 +351,7 @@ class LocalMeasurementBasis(MeasurementBasis):
             # a qubit not in the specified kwargs.
             raise ValueError(f"Invalid qubits for basis {self.name}") from ex
 
-    @functools.lru_cache(None)
+    @cache_method()
     def _outcome_indices(self, outcome: int, qubits: Tuple[int, ...]) -> Tuple[int, ...]:
         """Convert an outcome integer to a tuple of single-qubit outcomes"""
         num_outcomes = self._qubit_num_outcomes.get(qubits[0], self._default_num_outcomes)
