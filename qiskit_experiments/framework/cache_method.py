@@ -46,23 +46,35 @@ def cache_method(
         Returns:
             The wrapped cached method.
         """
+        # Function for returning cache key
         cache_key_fn = _cache_key_function(cache_args, require_hashable)
 
-        @functools.wraps(method)
-        def _cached_method(self, *args, **kwargs):
-            # Initialize cache if none provided
-            if isinstance(cache, str):
+        # Function for returning cache dict
+        if isinstance(cache, str):
+
+            def _cache_fn(self, method):
                 if not hasattr(self, cache):
                     setattr(self, cache, {})
                 instance_cache = getattr(self, cache)
-            else:
-                instance_cache = cache
+                name = method.__name__
+                if name not in instance_cache:
+                    instance_cache[name] = {}
+                return instance_cache[name]
 
-            name = method.__name__
-            if name not in instance_cache:
-                instance_cache[name] = {}
-            meth_cache = instance_cache[name]
+        else:
 
+            def _cache_fn(self, method):
+                # pylint: disable = unused-argument
+                name = method.__name__
+                if name not in cache:
+                    cache[name] = {}
+                return cache[name]
+
+        # Cached method function
+
+        @functools.wraps(method)
+        def _cached_method(self, *args, **kwargs):
+            meth_cache = _cache_fn(self, method)
             key = cache_key_fn(*args, **kwargs)
             if key in meth_cache:
                 return meth_cache[key]
