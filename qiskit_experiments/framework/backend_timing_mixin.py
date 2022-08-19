@@ -11,7 +11,7 @@
 # that they have been altered from the originals.
 """Backend timing helper functions"""
 
-import math
+from math import gcd
 from typing import Union
 
 from qiskit import QiskitError
@@ -19,6 +19,20 @@ from qiskit.providers.backend import Backend
 
 from qiskit_experiments.framework import BaseExperiment
 from qiskit_experiments.framework import BackendData
+
+
+def lcm(int1: int, int2: int) -> int:
+    """Least common multiple
+
+    ``math.lcm`` was added in Python 3.9. This function should be replaced with
+    ``from math import lcm`` after dropping support for Python 3.8.
+
+    .. note::
+
+        ``math.lcm`` supports an arbitrary number of arguments, but this
+        version supports exactly two.
+    """
+    return int1 * int2 // gcd(int1, int2)
 
 
 class BackendTiming:
@@ -95,7 +109,7 @@ class BackendTiming:
 
         raise QiskitError("Backend has no dt value.")
 
-    def delay_duration(self, time: float) -> Union[int, float]:
+    def instruction_delay(self, time: float) -> Union[int, float]:
         """Delay duration close to ``time`` and consistent with timing constraints
 
         This method produces the value to pass for the ``duration`` of a
@@ -115,7 +129,7 @@ class BackendTiming:
         converting to sample number is not needed.
 
         Args:
-            time: The nominal delay time to convert
+            time: The nominal delay time to convert in seconds
 
         Returns:
             The delay duration in samples if :meth:`.BackendTiming.delay_unit`
@@ -127,17 +141,13 @@ class BackendTiming:
         pulse_alignment = self.backend_data.pulse_alignment
         acquire_alignment = self.backend_data.acquire_alignment
 
-        # Replace with math.lcm(pulse_alignment, acquire_alignment) when
-        # dropping support for Python 3.8
-        granularity = (
-            pulse_alignment * acquire_alignment // math.gcd(pulse_alignment, acquire_alignment)
-        )
+        granularity = lcm(pulse_alignment, acquire_alignment)
 
         samples = int(round(time / self.dt / granularity) * granularity)
 
         return samples
 
-    def pulse_duration(self, time: float) -> int:
+    def pulse_samples(self, time: float) -> int:
         """The number of samples giving a valid pulse duration closest to ``time``
 
         Args:
@@ -182,7 +192,7 @@ class BackendTiming:
         if self.delay_unit == "s":
             return time
 
-        return self.dt * self.delay_duration(time)
+        return self.dt * self.instruction_delay(time)
 
     def pulse_time(self, time: float) -> float:
         """The closest hardware-realizable pulse duration to ``time`` in seconds
@@ -196,4 +206,4 @@ class BackendTiming:
         Returns:
             The realizable pulse time in seconds
         """
-        return self.dt * self.pulse_duration(time)
+        return self.dt * self.pulse_samples(time)
