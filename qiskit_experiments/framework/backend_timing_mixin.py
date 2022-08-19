@@ -15,16 +15,18 @@ import math
 from typing import Union
 
 from qiskit import QiskitError
+from qiskit.providers.backend import Backend
+
+from qiskit_experiments.framework import BaseExperiment
+from qiskit_experiments.framework import BackendData
 
 
-class BackendTimingMixin:
-    """Mixin class  to provide timing helper methods
+class BackendTiming:
+    """Helper for calculating pulse and delay times for an experiment
 
     The methods and properties provided by this class help with calculating
     delay and pulse timing that depends on the timing constraints of the
     backend. They abstract away the necessary accessing of the backend object.
-    This class is intended as a mixin for
-    :meth:`~qiskit_experiments.framework.BaseExperiment`.
 
     .. note::
 
@@ -34,31 +36,59 @@ class BackendTimingMixin:
         results.
     """
 
+    def __init__(self, experiment: BaseExperiment):
+        """Initialize backend timing object
+
+        Args:
+            experiment: the experiment to provide timing help for
+        """
+        self.experiment = experiment
+
     @property
-    def _delay_unit(self) -> str:
+    def backend(self) -> Backend:
+        """Backend associated with experiment
+
+        Returns:
+            The backend object associated with the experiment
+
+        Raises:
+            QiskitError: if the backend is not set on the experiment
+        """
+        if self.experiment.backend is None:
+            raise QiskitError("Backend not set on experiment!")
+
+        return self.experiment.backend
+
+    @property
+    def backend_data(self) -> BackendData:
+        """Backend data associated with experiment"""
+        return BackendData(self.backend)
+
+    @property
+    def delay_unit(self) -> str:
         """The delay unit for the current backend
 
         "dt" is used if dt is present in the backend configuration. Otherwise
         "s" is used.
         """
-        if self.backend is not None and hasattr(self.backend.configuration(), "dt"):
+        if self.backend_data.dt is not None:
             return "dt"
 
         return "s"
 
     @property
-    def _dt(self) -> float:
+    def dt(self) -> float:
         """Backend dt value
 
         Raises:
-            QiskitError: The backend is not set or does not include a dt value.
+            QiskitError: The backend does not include a dt value.
         """
-        if self.backend is not None and hasattr(self.backend.configuration(), "dt"):
-            return self.backend.configuration().dt
+        if self.backend_data.dt is not None:
+            return self.backend_data.dt
 
-        raise QiskitError("Backend must be set to consider sample timing.")
+        raise QiskitError("Backend has no dt value.")
 
-    def _delay_duration(self, time: float) -> Union[int, float]:
+    def delay_duration(self, time: float) -> Union[int, float]:
         """Delay duration close to ``time`` and consistent with timing constraints
 
         This method produces the value to pass for the ``duration`` of a
@@ -73,7 +103,7 @@ class BackendTimingMixin:
         pulse and acquire alignment values is used in order to ensure that
         either type of pulse will be aligned.
 
-        If :meth:`.BackendTimingMixin._delay_unit` is ``s``, ``time`` is
+        If :meth:`.BackendTiming.delay_unit` is ``s``, ``time`` is
         returned directly. Typically, this is the case for a simulator where
         converting to sample number is not needed.
 
@@ -81,15 +111,14 @@ class BackendTimingMixin:
             time: The nominal delay time to convert
 
         Returns:
-            The delay duration in samples if :meth:`.BackendTimingMixin._delay_unit`
+            The delay duration in samples if :meth:`.BackendTiming.delay_unit`
             is ``dt``. Other return ``time``.
         """
-        if self._delay_unit == "s":
+        if self.delay_unit == "s":
             return time
 
-        timing_constraints = getattr(self.backend.configuration(), "timing_constraints", {})
-        pulse_alignment = timing_constraints.get("pulse_alignment", 1)
-        acquire_alignment = timing_constraints.get("acquire_alignment", 1)
+        pulse_alignment = self.backend_data.pulse_alignment
+        acquire_alignment = self.backend_data.acquire_alignment
 
         # Replace with math.lcm(pulse_alignment, acquire_alignment) when
         # dropping support for Python 3.8
@@ -97,11 +126,11 @@ class BackendTimingMixin:
             pulse_alignment * acquire_alignment // math.gcd(pulse_alignment, acquire_alignment)
         )
 
-        samples = int(round(time / self._dt / granularity) * granularity)
+        samples = int(round(time / self.dt / granularity) * granularity)
 
         return samples
 
-    def _pulse_duration(self, time: float) -> int:
+    def pulse_duration(self, time: float) -> int:
         """The number of samples giving a valid pulse duration closest to ``time``
 
         Args:
@@ -114,15 +143,14 @@ class BackendTimingMixin:
             QiskitError: The backend timing constraints' min_length is not a
                 multiple of granularity
         """
-        timing_constraints = getattr(self.backend.configuration(), "timing_constraints", {})
-        granularity = timing_constraints.get("granularity", 1)
-        min_length = timing_constraints.get("min_length", 1)
+        granularity = self.backend_data.granularity
+        min_length = self.backend_data.min_length
 
-        samples = int(round(time / self._dt / granularity)) * granularity
+        samples = int(round(time / self.dt / granularity)) * granularity
         samples = max(samples, min_length)
 
-        pulse_alignment = timing_constraints.get("pulse_alignment", 1)
-        acquire_alignment = timing_constraints.get("acquire_alignment", 1)
+        pulse_alignment = self.backend_data.pulse_alignment
+        acquire_alignment = self.backend_data.acquire_alignment
 
         if samples % pulse_alignment != 0:
             raise QiskitError("Pulse duration calculation does not match pulse alignment constraints!")
@@ -132,10 +160,10 @@ class BackendTimingMixin:
 
         return samples
 
-    def _delay_time(self, time: float) -> float:
+    def delay_time(self, time: float) -> float:
         """The closest actual delay time in seconds to ``time``
 
-        This method uses :meth:`.BackendTimingMixin._delay_duration` and then
+        This method uses :meth:`.BackendTiming.delay_duration` and then
         converts back into seconds.
 
         Args:
@@ -144,15 +172,15 @@ class BackendTimingMixin:
         Returns:
             The realizable delay time in seconds
         """
-        if self._delay_unit == "s":
+        if self.delay_unit == "s":
             return time
 
-        return self._dt * self._delay_duration(time)
+        return self.dt * self.delay_duration(time)
 
-    def _pulse_time(self, time: float) -> float:
+    def pulse_time(self, time: float) -> float:
         """The closest hardware-realizable pulse duration to ``time`` in seconds
 
-        This method uses :meth:`.BackendTimingMixin._pulse_duration` and then
+        This method uses :meth:`.BackendTiming.pulse_duration` and then
         converts back into seconds.
 
         Args:
@@ -161,4 +189,4 @@ class BackendTimingMixin:
         Returns:
             The realizable pulse time in seconds
         """
-        return self._dt * self._pulse_duration(time)
+        return self.dt * self.pulse_duration(time)
