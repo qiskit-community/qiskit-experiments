@@ -33,16 +33,16 @@ class TestUsedInReference(QiskitExperimentsTestCase):
         """Setup the tests."""
         super().setUp()
 
-        with pulse.build(name="xp") as xp:
+        with pulse.build(name="xp") as xp1:
             pulse.play(pulse.Gaussian(160, 0.5, 40), pulse.DriveChannel(1))
 
         with pulse.build(name="xp2") as xp2:
             pulse.play(pulse.Gaussian(160, 0.5, 40), pulse.DriveChannel(1))
 
         with pulse.build(name="ref_xp") as xp_ref:
-            pulse.reference(xp.name, "q0")
+            pulse.reference(xp1.name, "q0")
 
-        self.xp = xp
+        self.xp1 = xp1
         self.xp2 = xp2
         self.xp_ref = xp_ref
 
