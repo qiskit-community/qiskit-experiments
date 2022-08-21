@@ -140,10 +140,7 @@ class T1KerneledAnalysis(curve.DecayAnalysis):
         diff_y = np.diff(unp.nominal_values(curve_data.y), axis=0)
         avg_slope = sum(diff_y) / len(diff_y)
         if avg_slope[0] > 0:
-            new_y_data = np.zeros(curve_data.y.shape)
-            for idx, y_data in enumerate(curve_data.y):
-                new_y_data[idx] = 1 - y_data
-
+            new_y_data = 1 - curve_data.y
             new_curve_data = CurveData(
                 x=curve_data.x,
                 y=new_y_data,
