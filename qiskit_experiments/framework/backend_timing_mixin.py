@@ -40,14 +40,18 @@ class BackendTiming:
 
     The methods and properties provided by this class help with calculating
     delay and pulse timing that depends on the timing constraints of the
-    backend. They abstract away the necessary accessing of the backend object.
+    backend.
 
     .. note::
 
         The methods in this class assume that the ``backend`` attribute is
         constant. Methods should not call methods of this class before and
         after modifying the ``backend`` attribute and expect consistent
-        results.
+        results. In particular, when the backend is not set, no ``dt`` value is
+        available and :meth:`.BackendTiming.circuit_delay` will return the
+        delay time in seconds whereas once the backend is set the value
+        returned will be in units of ``dt`` rounded according to the alignment
+        constraints.
     """
 
     def __init__(self, experiment: BaseExperiment):
@@ -59,10 +63,10 @@ class BackendTiming:
         self.experiment = experiment
 
         self._backend: Union[Backend, None] = None
-        self._backend_data: Union[BackendData, None] = None
+        self._backend_data_cached: Union[BackendData, None] = None
 
     @property
-    def backend_data(self) -> BackendData:
+    def _backend_data(self) -> BackendData:
         """Backend data associated with experiment
 
         Returns:
@@ -76,9 +80,9 @@ class BackendTiming:
 
         if self.experiment.backend != self._backend:
             self._backend = self.experiment.backend
-            self._backend_data = BackendData(self._backend)
+            self._backend_data_cached = BackendData(self._backend)
 
-        return self._backend_data
+        return self._backend_data_cached
 
     @property
     def delay_unit(self) -> str:
@@ -87,35 +91,38 @@ class BackendTiming:
         "dt" is used if dt is present in the backend configuration. Otherwise
         "s" is used.
         """
-        if self.backend_data.dt is not None:
+        if self._backend_data.dt is not None:
             return "dt"
 
         return "s"
 
     @property
-    def dt(self) -> float:
+    def _dt(self) -> float:
         """Backend dt value
 
-        This property wraps ``backend_data.dt`` in order to give a more
+        This property wraps ``_backend_data.dt`` in order to give a more
         specific error message when trying to use ``dt`` with a backend that
         does not provide it rather than just giving a ``TypeError`` about
-        ``NoneType``.
+        ``NoneType``. As this raises an exception when ``dt`` is not set, it
+        likely should not be used by external code using
+        :class:`.BackendTiming`.
 
         Raises:
             QiskitError: The backend does not include a dt value.
         """
-        if self.backend_data.dt is not None:
-            return self.backend_data.dt
+        if self._backend_data.dt is not None:
+            return float(self._backend_data.dt)
 
         raise QiskitError("Backend has no dt value.")
 
-    def instruction_delay(self, time: float) -> Union[int, float]:
+    def circuit_delay(self, time: float) -> Union[int, float]:
         """Delay duration close to ``time`` and consistent with timing constraints
 
         This method produces the value to pass for the ``duration`` of a
-        ``Delay`` instruction of a ``QuantumCircuit`` so that the delay fills
-        the time until the next valid pulse, assuming the ``Delay`` instruction
-        begins on a sample that is also valid for pulse to begin on.
+        ``Delay`` instruction of a ``QuantumCircuit`` or a pulse schedule so
+        that the delay fills the time until the next valid pulse, assuming the
+        ``Delay`` instruction begins on a sample that is also valid for a pulse
+        to begin on.
 
         The pulse timing constraints of the backend are considered in order to
         give a number of samples closest to ``time`` plus however many more
@@ -138,12 +145,15 @@ class BackendTiming:
         if self.delay_unit == "s":
             return time
 
-        pulse_alignment = self.backend_data.pulse_alignment
-        acquire_alignment = self.backend_data.acquire_alignment
+        return self.schedule_delay(time)
+
+    def schedule_delay(self, time: float) -> int
+        pulse_alignment = self._backend_data.pulse_alignment
+        acquire_alignment = self._backend_data.acquire_alignment
 
         granularity = lcm(pulse_alignment, acquire_alignment)
 
-        samples = int(round(time / self.dt / granularity) * granularity)
+        samples = int(round(time / self._dt / granularity) * granularity)
 
         return samples
 
@@ -157,17 +167,20 @@ class BackendTiming:
             The number of samples corresponding to ``time``
 
         Raises:
-            QiskitError: The backend timing constraints' min_length is not a
-                multiple of granularity
+            QiskitError: If the algorithm used to calculate the pulse length
+                produces a length that is not commensurate with the pulse or
+                acquire alignment values. This should not happen unless the
+                alignment constraints provided by the backend do not fit the
+                assumptions that the algorithm makes.
         """
-        granularity = self.backend_data.granularity
-        min_length = self.backend_data.min_length
+        granularity = self._backend_data.granularity
+        min_length = self._backend_data.min_length
 
-        samples = int(round(time / self.dt / granularity)) * granularity
+        samples = int(round(time / self._dt / granularity)) * granularity
         samples = max(samples, min_length)
 
-        pulse_alignment = self.backend_data.pulse_alignment
-        acquire_alignment = self.backend_data.acquire_alignment
+        pulse_alignment = self._backend_data.pulse_alignment
+        acquire_alignment = self._backend_data.acquire_alignment
 
         if samples % pulse_alignment != 0:
             raise QiskitError("Pulse duration calculation does not match pulse alignment constraints!")
@@ -178,9 +191,9 @@ class BackendTiming:
         return samples
 
     def delay_time(self, time: float) -> float:
-        """The closest actual delay time in seconds to ``time``
+        """The closest actual delay time in seconds greater than ``time``
 
-        This method uses :meth:`.BackendTiming.delay_duration` and then
+        This method uses :meth:`.BackendTiming.instruction_delay` and then
         converts back into seconds.
 
         Args:
@@ -192,12 +205,12 @@ class BackendTiming:
         if self.delay_unit == "s":
             return time
 
-        return self.dt * self.instruction_delay(time)
+        return self._dt * self.schedule_delay(time)
 
     def pulse_time(self, time: float) -> float:
-        """The closest hardware-realizable pulse duration to ``time`` in seconds
+        """The closest hardware-realizable pulse duration greater than ``time`` in seconds
 
-        This method uses :meth:`.BackendTiming.pulse_duration` and then
+        This method uses :meth:`.BackendTiming.pulse_samples` and then
         converts back into seconds.
 
         Args:
@@ -206,4 +219,4 @@ class BackendTiming:
         Returns:
             The realizable pulse time in seconds
         """
-        return self.dt * self.pulse_samples(time)
+        return self._dt * self.pulse_samples(time)
