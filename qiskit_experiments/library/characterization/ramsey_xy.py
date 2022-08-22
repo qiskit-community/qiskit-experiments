@@ -18,6 +18,7 @@ import numpy as np
 from qiskit import QuantumCircuit
 from qiskit.circuit import Parameter
 from qiskit.providers.backend import Backend
+from qiskit.qobj.utils import MeasLevel
 
 from qiskit_experiments.framework import BaseExperiment
 from qiskit_experiments.framework.restless_mixin import RestlessMixin
@@ -125,13 +126,8 @@ class RamseyXY(BaseExperiment, RestlessMixin):
 
         # Scheduling parameters
         if not self._backend_data.is_simulator:
-            timing_constraints = getattr(self.transpile_options, "timing_constraints", {})
-            if "acquire_alignment" not in timing_constraints:
-                timing_constraints["acquire_alignment"] = 16
             scheduling_method = getattr(self.transpile_options, "scheduling_method", "alap")
-            self.set_transpile_options(
-                timing_constraints=timing_constraints, scheduling_method=scheduling_method
-            )
+            self.set_transpile_options(scheduling_method=scheduling_method)
 
     def _pre_circuit(self) -> QuantumCircuit:
         """Return a preparation circuit.
@@ -230,6 +226,17 @@ class RamseyXY(BaseExperiment, RestlessMixin):
             circs.extend([assigned_x, assigned_y])
 
         return circs
+
+    def _finalize(self):
+        # Set initial guess for sinusoidal offset when meas level is 2.
+        # This returns probability P1 thus offset=0.5 is obvious.
+        # This guarantees reasonable fit especially when data contains only less than half cycle.
+        meas_level = self.run_options.get("meas_level", MeasLevel.CLASSIFIED)
+        if meas_level == MeasLevel.CLASSIFIED:
+            init_guess = self.analysis.options.get("p0", {})
+            if "base" not in init_guess:
+                init_guess["base"] = 0.5
+            self.analysis.set_options(p0=init_guess)
 
     def _metadata(self):
         metadata = super()._metadata()
