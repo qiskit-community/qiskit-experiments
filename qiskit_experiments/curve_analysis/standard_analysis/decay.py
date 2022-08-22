@@ -79,19 +79,11 @@ class DecayAnalysis(curve.CurveAnalysis):
         user_opt.p0.set_if_empty(base=curve.guess.min_height(curve_data.y)[0])
 
         alpha = curve.guess.exp_decay(curve_data.x, curve_data.y)
-
-        if alpha != 0.0:
-            user_opt.p0.set_if_empty(
-                tau=-1 / alpha,
-                amp=curve.guess.max_height(curve_data.y)[0] - user_opt.p0["base"],
-            )
-        else:
-            # Likely there is no slope. Cannot fit constant line with this model.
-            # Set some large enough number against to the scan range.
-            user_opt.p0.set_if_empty(
-                tau=100 * np.max(curve_data.x),
-                amp=curve.guess.max_height(curve_data.y)[0] - user_opt.p0["base"],
-            )
+        user_opt.p0.set_if_empty(
+            # alpha might be zero or positive value due to noisy outcome.
+            tau=-1 / min(alpha, -1 / (100 * max(curve_data.x))),
+            amp=curve.guess.max_height(curve_data.y)[0] - user_opt.p0["base"],
+        )
         return user_opt
 
     def _evaluate_quality(self, fit_data: curve.CurveFitResult) -> Union[str, None]:

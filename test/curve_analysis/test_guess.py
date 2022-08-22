@@ -110,24 +110,21 @@ class TestGuesses(QiskitExperimentsTestCase):
 
         self.assertAlmostEqualAbsolute(alpha_guess, alpha)
 
-    def test_exp_decay_with_invalid_y(self):
-        """Test when invalid y data is input to exp curve init guess."""
-        x = np.array([9.0e-06, 1.9e-05, 2.9e-05, 3.9e-05])
-        y = np.array([0.16455749, 0.07045296, 0.02702439, -0.00135192])
-
-        # The last point is excluded. This point might be some artifact due to filtering.
-        alpha_guess = guess.exp_decay(x, y)
-
-        np.testing.assert_almost_equal(alpha_guess, -90326, decimal=0)
-
-    @data([1.2, 1.4], [-0.6, 2.5], [0.1, 2.3], [3.5, 1.1], [-4.1, 6.5], [3.0, 1.2])
+    @data(
+        [-1.2, 1.4, 0.0],
+        [-1.6, 2.5, 0.2],
+        [-1.3, 2.3, -0.3],
+        [-3.5, 1.1, 0.5],
+        [-4.1, 6.5, 2.4],
+        [-3.0, 1.2, -0.4],
+    )
     @unpack
-    def test_exp_osci_decay(self, alpha, freq):
+    def test_exp_decay_with_oscillation(self, alpha, freq, base):
         """Test of exponential decay guess with oscillation."""
         x = np.linspace(0, 1, 100)
-        y = np.exp(alpha * x) * np.cos(2 * np.pi * freq * x)
+        y = np.exp(alpha * x) * np.cos(2 * np.pi * freq * x) + base
 
-        alpha_guess = guess.oscillation_exp_decay(x, y)
+        alpha_guess = guess.exp_decay(x, y)
 
         self.assertAlmostEqualAbsolute(alpha_guess, alpha)
 
@@ -206,4 +203,22 @@ class TestGuesses(QiskitExperimentsTestCase):
 
         alpha_guess = guess.rb_decay(x, y, b=b)
 
-        self.assertAlmostEqual(alpha, alpha_guess, delta=alpha * 0.1)
+        self.assertAlmostEqualAbsolute(alpha, alpha_guess)
+
+    @data(
+        [0.5, 0.0, 2.0, 0.0, 0.5],
+        [0.2, -0.1, 1.3, 0.3, 0.2],
+        [0.6, 0.0, 0.7, 1.5, -0.4],
+        [0.3, -0.9, 0.6, 2.3, 0.9],
+        [0.4, -0.1, 1.6, -0.3, -1.3],
+    )
+    @unpack
+    def test_sinusoidal_freq_offset_amp(self, amp, alpha, freq, phase, base):
+        """Test simulataneous freq, offset and amp guess."""
+        x = np.linspace(0, 1, 100)
+        y = amp * np.exp(alpha * x) * np.cos(2 * np.pi * freq * x + phase) + base
+
+        freq_guess, base_guess, amp_guess = guess.sinusoidal_freq_offset(x, y, 15)
+        self.assertAlmostEqualAbsolute(freq, freq_guess)
+        self.assertAlmostEqualAbsolute(base, base_guess)
+        self.assertAlmostEqualAbsolute(amp, amp_guess)

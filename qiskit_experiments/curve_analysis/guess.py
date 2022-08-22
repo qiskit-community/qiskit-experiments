@@ -22,6 +22,7 @@ import numpy as np
 from scipy import signal
 
 from qiskit_experiments.exceptions import AnalysisError
+from qiskit_experiments.warnings import deprecated_function
 
 
 def frequency(
@@ -59,27 +60,26 @@ def frequency(
         Frequency estimation of oscillation signal.
     """
     # to run FFT x interval should be identical
-    sampling_interval = np.unique(np.round(np.diff(x), decimals=20))
-
-    if len(sampling_interval) != 1:
-        # resampling with minimum xdata interval
-        sampling_interval = np.min(sampling_interval)
-        x_ = np.arange(x[0], x[-1], sampling_interval)
-        y_ = np.interp(x_, xp=x, fp=y)
-    else:
-        sampling_interval = sampling_interval[0]
+    intervals = np.unique(np.diff(x).round(decimals=4))
+    try:
+        dt = float(intervals)
         x_ = x
         y_ = y
+    except TypeError:
+        # Interpolate when data is nonuniform series.
+        dt = np.min(intervals)
+        x_ = np.arange(min(x), max(x), dt)
+        y_ = np.interp(x_, xp=x, fp=y)
 
     fft_data = np.fft.fft(y_ - np.average(y_))
-    freqs = np.fft.fftfreq(len(x_), sampling_interval)
+    freqs = np.fft.fftfreq(len(x_), dt)
 
     positive_freqs = freqs[freqs >= 0]
     positive_fft_data = fft_data[freqs >= 0]
 
     freq_guess = positive_freqs[np.argmax(np.abs(positive_fft_data))]
 
-    if freq_guess < 1.5 / (sampling_interval * len(x_)):
+    if freq_guess < 1.5 / (dt * len(x_)):
         # low frequency fit, use this mode when the estimate is near the resolution
         y_smooth = signal.savgol_filter(y_, window_length=filter_window, polyorder=filter_dim)
 
@@ -90,7 +90,7 @@ def frequency(
             # no oscillation signal
             return 0.0
 
-        freq_guess = max(np.abs(np.diff(y_smooth) / sampling_interval)) / (y_amp * 2 * np.pi)
+        freq_guess = max(np.abs(np.diff(y_smooth) / dt)) / (y_amp * 2 * np.pi)
 
     return freq_guess
 
@@ -162,38 +162,61 @@ def get_height(
 
 
 def exp_decay(x: np.ndarray, y: np.ndarray) -> float:
-    r"""Get exponential decay parameter from monotonically increasing (decreasing) curve.
+    r"""Get exponential decay parameter.
 
     This assumes following function form.
 
     .. math::
 
-        y(x) = e^{\alpha x}
+        y(x) = e^{\alpha x} F(x)
 
-    We can calculate :math:`\alpha` as
+    Where :math:`F(x)` might be a sinusoidal function or constant value.
+
+    .. note::
+
+        This function assumes the data is roughly evenly spaced and that
+        the y data goes through a few periods so that the peak to peak
+        value early in the data can be compared to the peak to peak later
+        in the data to estimate the decay constant.
+
+    This function splits the data at the middle of x data, and compare the
+    10-90 percentile peak to peak value on the
+    left-hand :math:`y_{p-p}^R` and right-hand :math:`y_{p-p}^L` side. Namely,
 
     .. math::
 
-        \alpha = \log(y(x)) / x
+        y_{p-p}^R = \exp(\alpha x_R)
+        y_{p-p}^L = \exp(\alpha x_L)
 
-    To find this number, the numpy polynomial fit with ``deg=1`` is used.
+    and the exponent :math:`\alpha` can be solved by
+
+    .. math::
+
+        \alpha = \frac{\log y_{p-p}^R / y_{p-p}^L}{x_R - x_L}
 
     Args:
         x: Array of x values.
         y: Array of y values.
 
     Returns:
-         Decay rate of signal.
+         Exponent of curve.
     """
-    inds = y > 0
-    if np.count_nonzero(inds) < 2:
-        return 0
+    x_median = np.median(x)
+    i_l = x < x_median
+    i_r = x > x_median
 
-    coeffs = np.polyfit(x[inds], np.log(y[inds]), deg=1)
+    y_l_min, y_l_max = np.percentile(y[i_l], [10, 90])
+    y_r_min, y_r_max = np.percentile(y[i_r], [10, 90])
+    dy_l = y_l_max - y_l_min
+    dy_r = y_r_max - y_r_min
 
-    return float(coeffs[0])
+    x_l = np.average(x[i_l])
+    x_r = np.average(x[i_r])
+
+    return np.log(dy_r / dy_l) / (x_r - x_l)
 
 
+@deprecated_function(last_version="0.6", msg="Use exp_decay instead.")
 def oscillation_exp_decay(
     x: np.ndarray,
     y: np.ndarray,
@@ -407,3 +430,86 @@ def rb_decay(
     dx = np.diff(x)
 
     return np.average(ry ** (1 / dx))
+
+
+def sinusoidal_freq_offset_amp(
+    x: np.ndarray,
+    y: np.ndarray,
+    delay: int,
+) -> Tuple[float, float]:
+    r"""Get frequency, offset and amplitude of sinusoidal signal.
+
+    This function simultaneously estimates the frequency and offset
+    by using two delayed data sets :math:`y(t-\lambda)` and :math:`y(t-2\lambda)`
+    generated from the input :math:`y(t)` values, where :math:`\lambda` is a
+    delay parameter specified by the function argument.
+    See the following paper for the details of the protocol.
+
+    Khac, T.; Vlasov, S. and Iureva, R. (2021).
+    Estimating the Frequency of the Sinusoidal Signal using
+    the Parameterization based on the Delay Operators.
+    DOI: 10.5220/0010536506560660
+
+    Once offset :math:`y_0` is estimated, the amplitude of the sinusoidal
+    is obtained by :math:`A = \max |y - y_0|`.
+
+    .. note::
+
+        This algorithm poorly works for y values containing only less than a half oscillation cycle.
+        When the parameter cannot be estimated, this switches to the standard FFT analysis
+        for the frequency and estimates the offset by simply averaging over y values.
+
+    Args:
+        x: X values.
+        y: Y values.
+        delay: Integer parameter to specify the delay samples. Using smaller value
+            increases (decreases) sensitivity for high (low) frequency signal.
+
+    Returns:
+        A tuple of frequency, offset and amplitude.
+    """
+    intervals = np.unique(np.diff(x).round(decimals=4))
+    try:
+        dt = float(intervals)
+        y_ = y
+    except TypeError:
+        # Interpolate when data is nonuniform series.
+        dt = np.min(intervals)
+        x_ = np.arange(min(x), max(x), dt)
+        y_ = np.interp(x_, xp=x, fp=y)
+
+    y0 = y_[2 * delay:]
+    y1 = y_[delay:-delay]
+    y2 = y_[:-2 * delay]
+
+    # Liner regression form
+    # psi = xi theta
+    xi = np.vstack((y1, np.ones_like(y1))).T
+    psi = (y0 + y2).reshape((y0.size, 1))
+
+    # Solve linear regression
+    # theta = Inv(xi^T xi) xi^T psi
+    xtx = np.dot(xi.T, xi)
+    theta = np.dot(np.dot(np.linalg.inv(xtx), xi.T), psi)
+
+    theta1 = float(theta[0])
+    theta2 = float(theta[1])
+
+    # Offset
+    if np.isclose(theta1, 2.0):
+        offset = np.average(y)
+    else:
+        offset = theta2 / (2 - theta1)
+
+    # Frequency
+    a1 = theta1 / 2.0
+    if np.abs(a1) >= 1.0:
+        # out of arc cosine domain, use FFT
+        freq = frequency(x, y - offset)
+    else:
+        freq = np.arccos(a1) / (delay * 2 * np.pi) / dt
+
+    # Amplitude
+    amp = max_height(y - offset, absolute=True)[0]
+
+    return freq, offset, amp

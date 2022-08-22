@@ -35,24 +35,25 @@ class OscillationAnalysis(curve.CurveAnalysis):
     # section: fit_parameters
         defpar \rm amp:
             desc: Amplitude of the oscillation.
-            init_guess: Calculated by :func:`~qiskit_experiments.curve_analysis.guess.max_height`.
-            bounds: [-2, 2] scaled to the maximum signal value.
+            init_guess: Calculated by :func:`~qiskit_experiments.curve_analysis.\
+            guess.sinusoidal_freq_offset_amp`.
+            bounds: [-2 * maximum Y, 2 * maximum Y].
 
         defpar \rm base:
             desc: Base line.
             init_guess: Calculated by :func:`~qiskit_experiments.curve_analysis.\
-            guess.constant_sinusoidal_offset`.
-            bounds: [-1, 1] scaled to the maximum signal value.
+            guess.sinusoidal_freq_offset_amp`.
+            bounds: [-maximum Y, maximum Y].
 
         defpar \rm freq:
             desc: Frequency of the oscillation. This is the fit parameter of interest.
             init_guess: Calculated by :func:`~qiskit_experiments.curve_analysis.\
-            guess.frequency`.
+            guess.sinusoidal_freq_offset_amp`.
             bounds: [0, inf].
 
         defpar \rm phase:
             desc: Phase of the oscillation.
-            init_guess: Zero.
+            init_guess: Multiple points between [-pi, pi].
             bounds: [-pi, pi].
     """
 
@@ -92,19 +93,18 @@ class OscillationAnalysis(curve.CurveAnalysis):
             phase=(-np.pi, np.pi),
             base=(-max_abs_y, max_abs_y),
         )
-        user_opt.p0.set_if_empty(
-            freq=curve.guess.frequency(curve_data.x, curve_data.y),
-            base=curve.guess.constant_sinusoidal_offset(curve_data.y),
-        )
-        user_opt.p0.set_if_empty(
-            amp=curve.guess.max_height(curve_data.y - user_opt.p0["base"], absolute=True)[0],
-        )
 
         options = []
-        for phase_guess in np.linspace(0, np.pi, 5):
-            new_opt = user_opt.copy()
-            new_opt.p0.set_if_empty(phase=phase_guess)
-            options.append(new_opt)
+        for delay_ratio in (0.1, 0.2, 0.3):
+            for phase_guess in np.linspace(-np.pi, np.pi, 5):
+                tmp_opt = user_opt.copy()
+                freq, base, amp = curve.guess.sinusoidal_freq_offset_amp(
+                    x=curve_data.x,
+                    y=curve_data.y,
+                    delay=int(delay_ratio * len(curve_data.x)),
+                )
+                tmp_opt.p0.set_if_empty(freq=freq, base=base, amp=amp, phase=phase_guess)
+                options.append(tmp_opt)
 
         return options
 
@@ -146,31 +146,33 @@ class DampedOscillationAnalysis(curve.CurveAnalysis):
     # section: fit_parameters
 
         defpar \rm amp:
-            desc: Amplitude. Height of the decay curve.
-            init_guess: 0.5
-            bounds: [0, 1.5],
+            desc: Amplitude of the oscillation.
+            init_guess: Calculated by :func:`~qiskit_experiments.curve_analysis.\
+            guess.sinusoidal_freq_offset_amp`.
+            bounds: [-2 * maximum Y, 2 * maximum Y].
 
         defpar \rm base:
-            desc: Offset. Base line of the decay curve.
-            init_guess: Determined by :py:func:`~qiskit_experiments.curve_analysis.\
-                guess.constant_sinusoidal_offset`
-            bounds: [0, 1.5]
+            desc: Base line.
+            init_guess: Calculated by :func:`~qiskit_experiments.curve_analysis.\
+            guess.sinusoidal_freq_offset_amp`.
+            bounds: [-maximum Y, maximum Y].
+
+        defpar \rm freq:
+            desc: Frequency of the oscillation. This is the fit parameter of interest.
+            init_guess: Calculated by :func:`~qiskit_experiments.curve_analysis.\
+            guess.sinusoidal_freq_offset_amp`.
+            bounds: [0, inf].
 
         defpar \tau:
             desc: Represents the rate of decay.
             init_guess: Determined by :py:func:`~qiskit_experiments.curve_analysis.\
-                guess.oscillation_exp_decay`
-            bounds: [0, None]
+                guess.exp_decay`
+            bounds: [0, inf]
 
-        defpar \rm freq:
-            desc: Oscillation frequency.
-            init_guess: Determined by :py:func:`~qiskit_experiments.curve_analysis.guess.frequency`
-            bounds: [0, 10 freq]
-
-        defpar \phi:
-            desc: Phase. Relative shift of the sinusoidal function from the origin.
-            init_guess: Set multiple guesses within [-pi, pi]
-            bounds: [-pi, pi]
+        defpar \rm phase:
+            desc: Phase of the oscillation.
+            init_guess: Multiple points between [-pi, pi].
+            bounds: [-pi, pi].
     """
 
     def __init__(
@@ -201,59 +203,35 @@ class DampedOscillationAnalysis(curve.CurveAnalysis):
         Returns:
             List of fit options that are passed to the fitter function.
         """
-        user_opt.p0.set_if_empty(
-            amp=0.5,
-            base=curve.guess.constant_sinusoidal_offset(curve_data.y),
-        )
-
-        # frequency resolution of this scan
-        df = 1 / ((curve_data.x[1] - curve_data.x[0]) * len(curve_data.x))
-
-        if user_opt.p0["freq"] is not None:
-            # If freq guess is provided
-            freq_guess = user_opt.p0["freq"]
-
-            freqs = [freq_guess]
-        else:
-            freq_guess = curve.guess.frequency(curve_data.x, curve_data.y - user_opt.p0["base"])
-
-            # The FFT might be up to 1/2 bin off
-            if freq_guess > df:
-                freqs = [freq_guess - df, freq_guess, freq_guess + df]
-            else:
-                freqs = [0.0, freq_guess]
-
-        # Set guess for decay parameter based on estimated frequency
-        if freq_guess > df:
-            alpha = curve.guess.oscillation_exp_decay(
-                curve_data.x, curve_data.y - user_opt.p0["base"], freq_guess=freq_guess
-            )
-        else:
-            # Very low frequency. Assume standard exponential decay
-            alpha = curve.guess.exp_decay(curve_data.x, curve_data.y)
-
-        if alpha != 0.0:
-            user_opt.p0.set_if_empty(tau=-1 / alpha)
-        else:
-            # Likely there is no slope. Cannot fit constant line with this model.
-            # Set some large enough number against to the scan range.
-            user_opt.p0.set_if_empty(tau=100 * np.max(curve_data.x))
+        max_abs_y, _ = curve.guess.max_height(curve_data.y, absolute=True)
 
         user_opt.bounds.set_if_empty(
-            amp=[0, 1.5],
-            base=[0, 1.5],
+            amp=(-2 * max_abs_y, 2 * max_abs_y),
+            freq=(0, np.inf),
             tau=(0, np.inf),
-            freq=(0, 10 * freq_guess),
-            phi=(-np.pi, np.pi),
+            phase=(-np.pi, np.pi),
+            base=(-max_abs_y, max_abs_y),
         )
+        alpha = curve.guess.exp_decay(curve_data.x, curve_data.y)
+        tau_guess = -1 / min(alpha, -1 / (100 * max(curve_data.x)))
 
-        # more robust estimation
         options = []
-        for freq in freqs:
-            for phi in np.linspace(-np.pi, np.pi, 5)[:-1]:
-                new_opt = user_opt.copy()
-                new_opt.p0.set_if_empty(freq=freq, phi=phi)
-                options.append(new_opt)
+        for delay_ratio in (0.1, 0.2, 0.3):
+            for phase_guess in np.linspace(0, np.pi, 5):
+                tmp_opt = user_opt.copy()
+                freq, base, amp = curve.guess.sinusoidal_freq_offset_amp(
+                    x=curve_data.x,
+                    y=curve_data.y,
+                    delay=int(delay_ratio * len(curve_data.x)),
+                )
+                tmp_opt.p0.set_if_empty(
+                    freq=freq,
+                    base=base,
+                    amp=amp,
+                    phase=phase_guess,
+                    tau=tau_guess,
+                )
+                options.append(tmp_opt)
 
         return options
 
