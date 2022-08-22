@@ -177,7 +177,7 @@ class BlochTrajectoryAnalysis(curve.CurveAnalysis):
                 # oscillation amplitude might be almost zero,
                 # then exclude from average because of lower SNR
                 continue
-            fft_freq = curve.guess.frequency(data.x, data.y)
+            fft_freq = curve.guess.frequency_lorentz_fit(data.x, data.y)
             omega_xyz.append(fft_freq)
         if omega_xyz:
             omega = 2 * np.pi * np.average(omega_xyz)

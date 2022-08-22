@@ -111,40 +111,48 @@ class DragCalAnalysis(curve.CurveAnalysis):
         # Use the highest-frequency curve to estimate the oscillation frequency.
         max_rep_model = self._models[-1]
         max_rep = max_rep_model.opts["data_sort_key"]["nrep"]
-        curve_data = curve_data.get_subset_of(max_rep_model._name)
+        max_rep_curve_data = curve_data.get_subset_of(max_rep_model._name)
 
-        x_data = curve_data.x
-        min_beta, max_beta = min(x_data), max(x_data)
-
-        freqs_guess = curve.guess.frequency(curve_data.x, curve_data.y) / max_rep
-        user_opt.p0.set_if_empty(freq=freqs_guess)
-
-        avg_x = (max(x_data) + min(x_data)) / 2
-        span_x = max(x_data) - min(x_data)
-        beta_bound = max(5 / user_opt.p0["freq"], span_x)
-
-        ptp_y = np.ptp(curve_data.y)
+        ptp_x = np.ptp(max_rep_curve_data.x)
+        ptp_y = np.ptp(max_rep_curve_data.y)
+        mid_x = np.min(max_rep_curve_data.x) + ptp_x / 2
+        min_beta, max_beta = min(max_rep_curve_data.x), max(max_rep_curve_data.x)
+        nyquist_freq = 1 / np.min(np.diff(max_rep_curve_data.x)) / 2
         user_opt.bounds.set_if_empty(
             amp=(-2 * ptp_y, 0),
-            freq=(0, np.inf),
-            beta=(avg_x - beta_bound, avg_x + beta_bound),
-            base=(min(curve_data.y) - ptp_y, max(curve_data.y) + ptp_y),
+            freq=(0, nyquist_freq),
+            base=(min(max_rep_curve_data.y) - ptp_y, max(max_rep_curve_data.y) + ptp_y),
         )
-        base_guess = (max(curve_data.y) - min(curve_data.y)) / 2
-        user_opt.p0.set_if_empty(base=(user_opt.p0["amp"] or base_guess))
 
-        # Drag curves can sometimes be very flat, i.e. averages of y-data
-        # and min-max do not always make good initial guesses. We therefore add
-        # 0.5 to the initial guesses. Note that we also set amp=-0.5 because the cosine function
-        # becomes +1 at zero phase, i.e. optimal beta, in which y data should become zero
-        # in discriminated measurement level.
+        try:
+            user_freq = max_rep * user_opt.p0["freq"]
+        except TypeError:
+            # Not provided.
+            user_freq = None
+
+        pre_estimate = {
+            "amp": user_opt.p0["amp"],
+            "freq": user_freq,
+            "base": user_opt.p0["base"],
+            "phase": 0.0,
+        }
+
         options = []
-        for amp_factor in (-1, -0.5, -0.25):
+        for amp, freq, base, _ in curve.guess.composite_sinusoidal_estimate(
+            x=max_rep_curve_data.x, y=max_rep_curve_data.y, **pre_estimate
+        ):
             for beta_guess in np.linspace(min_beta, max_beta, 20):
-                new_opt = user_opt.copy()
-                new_opt.p0.set_if_empty(amp=ptp_y * amp_factor, beta=beta_guess)
-                options.append(new_opt)
+                tmp_opt = user_opt.copy()
+                # amp (beta) is negative (positive) value to get P1 = 0 at optimal beta; x==beta.
+                tmp_opt.p0.set_if_empty(
+                    amp=-1 * amp, freq=freq / max_rep, base=base, beta=beta_guess
+                )
+                beta_bound = max(5 / tmp_opt.p0["freq"], ptp_x)
+                tmp_opt.bounds.set_if_empty(beta=(mid_x - beta_bound, mid_x + beta_bound))
+                options.append(tmp_opt)
 
+        if len(options) == 0:
+            return user_opt
         return options
 
     def _run_curve_fit(

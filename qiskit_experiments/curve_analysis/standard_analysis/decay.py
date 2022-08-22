@@ -14,7 +14,6 @@
 from typing import List, Union, Optional
 
 import lmfit
-import numpy as np
 
 import qiskit_experiments.curve_analysis as curve
 

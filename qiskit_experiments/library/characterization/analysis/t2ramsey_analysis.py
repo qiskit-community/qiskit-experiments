@@ -13,8 +13,11 @@
 T2Ramsey Experiment class.
 """
 from typing import Union
+
+from qiskit.qobj.utils import MeasLevel
+
 import qiskit_experiments.curve_analysis as curve
-from qiskit_experiments.framework import Options
+from qiskit_experiments.framework import Options, ExperimentData
 
 
 class T2RamseyAnalysis(curve.DampedOscillationAnalysis):
@@ -66,3 +69,17 @@ class T2RamseyAnalysis(curve.DampedOscillationAnalysis):
             return "good"
 
         return "bad"
+
+    def _initialize(
+        self,
+        experiment_data: ExperimentData,
+    ):
+        super()._initialize(experiment_data)
+
+        if experiment_data.metadata.get("meas_level", MeasLevel.CLASSIFIED) == MeasLevel.CLASSIFIED:
+            init_guess = self.options.get("p0", {})
+            bounds = self.options.get("bounds", {})
+
+            init_guess["base"] = init_guess.get("base", 0.5)
+            bounds["base"] = bounds.get("base", (0.0, 1.0))
+            self.set_options(p0=init_guess, bounds=bounds)

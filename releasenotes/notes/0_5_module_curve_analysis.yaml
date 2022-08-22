@@ -1,0 +1,31 @@
+---
+features:
+  - |
+    Several new features of initial guess algorithms for the curve fitting have been introduced.
+    
+    * The one-stop initial guess algorithm for sinusoidal signal has been introduced as
+      :func:`~qiskit_experiments.curve_analysis.guess.composite_sinusoidal_estimate`.
+      This algorithm assumes a model characterized by the fit parameters (amp, freq, base, phase),
+      and internally assembles the best fitting algorithm depending on which 
+      parameters are pre-determined. This function returns an iterator of multiple fit parameters.
+    * :func:`~qiskit_experiments.curve_analysis.guess.frequency_lorentz_fit` has been introduced. 
+      This is a drop-in replacement of :func:`~qiskit_experiments.curve_analysis.guess.frequency`.
+      New function fine tunes the frequency estimate by Lorentzian fitting around the main FFT peak.
+    * :func:`~qiskit_experiments.curve_analysis.guess.low_frequency_limit` has been introduced.
+      This function is dedicated to the frequency estimate at the lower frequency limit.
+      Usually this function gives better frequency estimate around zero frequency.
+    * :func:`~qiskit_experiments.curve_analysis.guess.sinusoidal_freq_offset` has been introduced.
+      This algorithm uses two delayed data set to simulataneously estimate frequency and offset
+      of a sinusoidal signal. Because this function doesn't use FFT, it is more robust to
+      the error of base offset estimation error.
+    * :func:`~qiskit_experiments.curve_analysis.guess.exp_decay` has been upgraded to 
+      new algorithm that allows analysis of a damped oscillation signal with finite base offset.
+
+deprecations:
+  - |
+    Several initial guess functions are merged and deprecated.
+    
+    * :func:`~qiskit_experiments.curve_analysis.guess.frequency` has been deprecated and
+      replaced with :func:`~qiskit_experiments.curve_analysis.guess.frequency_lorentz_fit`.
+    * :func:`~qiskit_experiments.curve_analysis.guess.oscillation_exp_decay` has been deprecated
+      and merged into :func:`~qiskit_experiments.curve_analysis.guess.exp_decay`.

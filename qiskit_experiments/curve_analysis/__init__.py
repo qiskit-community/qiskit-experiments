@@ -535,6 +535,10 @@ Initial Guess Estimators
     guess.max_height
     guess.min_height
     guess.oscillation_exp_decay
+    guess.frequency_lorentz_fit
+    guess.low_frequency_limit
+    guess.sinusoidal_freq_offset
+    guess.composite_sinusoidal_estimate
 
 Utilities
 *********

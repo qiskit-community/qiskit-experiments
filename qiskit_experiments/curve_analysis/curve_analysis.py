@@ -437,7 +437,6 @@ class CurveAnalysis(BaseCurveAnalysis):
                     max=bounds[1],
                     vary=name not in fixed_parameters,
                 )
-
             try:
                 new = lmfit.minimize(
                     fcn=_objective,
