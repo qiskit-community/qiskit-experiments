@@ -136,7 +136,8 @@ class InterleavedRB(StandardRB):
                 circ.append(interleaved_op, qubits)
                 circ.barrier(qubits)
         # Add inverse
-        op = self._twirling_group.generator(circ)  # avoid op.compose() for fast generation
+        # Avoid op.compose() for fast op construction TODO: revisit after terra#7483
+        op = self._twirling_group.generator(circ)
         inv = op.adjoint()
         circ.append(self._to_instruction(inv), qubits)
         circ.barrier(qubits)  # TODO: Can we remove this? (measure_all inserts one more barrier)
@@ -146,6 +147,6 @@ class InterleavedRB(StandardRB):
             "xval": len(sequence),
             "group": self._twirling_group.string,
             "physical_qubits": self.physical_qubits,
-            "interleaved": True if interleaved_op else False,
+            "interleaved": bool(interleaved_op),
         }
         return circ
