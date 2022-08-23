@@ -17,27 +17,27 @@ from typing import Union, Dict, Callable
 import functools
 
 
-def cache_method(
-    cache: Union[Dict, str] = "_cache", cache_args: bool = True, require_hashable: bool = True
-) -> Callable:
-    """Decorator for caching class instance methods.
+def cache_method(cache: Union[Dict, str] = "_cache", cache_args: bool = True) -> Callable:
+    """Decorator for caching regular methods in classes.
+
+    .. note::
+
+        When specifying a cache an existing dictionary value will be
+        used as is. A string value will be used to check for an existing
+        dict under that attribute name in the class instance.
+        If the attribute is not present a new cache dict will be created
+        and stored in that class instance.
 
     Args:
-        cache: The cache or cache attribute name to use. If a dict it will
-               be used directly, if a str a cache dict will be created under
-               that attribute name if one is not already present.
+        cache: A dictionary or attribute name string to use as cache.
         cache_args: If True include method arg and kwarg values when
-                    caching the method. If False only a single return will
-                    be cached for the method regardless of any args.
-        require_hashable: If True require all cached args and kwargs are
-                          hashable. If False un-hashable values are allowed
-                          but will be excluded from the cache key.
+                    matching cached values. These values must be hashable.
 
     Returns:
         The decorator for caching methods.
     """
     cache_fn = _cache_function(cache)
-    cache_key_fn = _cache_key_function(cache_args, require_hashable)
+    cache_key_fn = _cache_key_function(cache_args)
 
     def cache_method_decorator(method: Callable) -> Callable:
         """Decorator for caching method.
@@ -64,16 +64,14 @@ def cache_method(
     return cache_method_decorator
 
 
-def _cache_key_function(cache_args: bool, require_hashable: bool) -> Callable:
+def _cache_key_function(cache_args: bool) -> Callable:
     """Return function for generating cache keys.
 
     Args:
         cache_args: If True include method arg and kwarg values when
-                    caching the method. If False only a single return will
-                    be cached for the method regardless of any args.
-        require_hashable: If True require all cached args and kwargs are
-                          hashable. If False un-hashable values are allowed
-                          but will be excluded from the cache key.
+                    caching the method. If False all calls to the instances
+                    method will return the same cached value regardless of
+                    any arg or kwarg values.
 
     Returns:
         The functions for generating cache keys.
@@ -84,28 +82,10 @@ def _cache_key_function(cache_args: bool, require_hashable: bool) -> Callable:
             # pylint: disable = unused-argument
             return tuple()
 
-    elif require_hashable:
-
-        def _cache_key(*args, **kwargs):
-            return args + tuple(list(kwargs.items()))
-
     else:
 
         def _cache_key(*args, **kwargs):
-            cache_key = tuple()
-            for arg in args:
-                try:
-                    hash(arg)
-                except TypeError:
-                    continue
-                cache_key += (arg,)
-            for key, value in kwargs.items():
-                try:
-                    hash(value)
-                except TypeError:
-                    continue
-                cache_key += ((key, value),)
-            return cache_key
+            return args + tuple(list(kwargs.items()))
 
     return _cache_key
 
@@ -114,9 +94,9 @@ def _cache_function(cache: Union[Dict, str]) -> Callable:
     """Return function for initializing and accessing cache dict.
 
     Args:
-        cache: The cache or cache attribute name to use. If a dict it will
-               be used directly, if a str a cache dict will be created under
-               that attribute name if one is not already present.
+        cache: The dictionary or cache attribute name to use. If a dict it
+               will be used directly, if a str a cache dict will be created
+               under that attribute name if one is not already present.
 
     Returns:
         The function for accessing the cache dict.

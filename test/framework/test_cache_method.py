@@ -89,13 +89,13 @@ class TestCacheMethod(QiskitExperimentsTestCase):
             self.assertEqual(obj.method(i), ret, msg="method didn't return cached value")
         self.assertEqual(obj.method_calls, 1, msg="Cached method was not evaluated once")
 
-    def test_require_hashable_raises(self):
-        """Test require_hashable=True"""
+    def test_non_hashable_raises(self):
+        """Test non hashable args raise"""
 
         class CachedClass:
             """Class with cached method"""
 
-            @cache_method(require_hashable=True)
+            @cache_method()
             def method(self, *args, **kwargs):
                 """Test method for caching"""
                 return args, kwargs
@@ -103,64 +103,6 @@ class TestCacheMethod(QiskitExperimentsTestCase):
         obj = CachedClass()
         self.assertRaises(TypeError, obj.method, [1, 2, 3])
         self.assertRaises(TypeError, obj.method, kwarg=[1, 2, 3])
-
-    def test_require_hashable_false_args(self):
-        """Test require_hashable=False matches hashable args"""
-
-        class CachedClass:
-            """Class with cached method"""
-
-            def __init__(self):
-                self.method_calls = 0
-
-            @cache_method(require_hashable=False)
-            def method(self, *args, **kwargs):
-                """Test method for caching"""
-                self.method_calls += 1
-                return args, kwargs
-
-        obj = CachedClass()
-        hashable = [1, 2, 3]
-        non_hashable = [[i] for i in hashable]
-
-        cached_vals = [obj.method(i) for i in hashable]
-        for i, val in zip(hashable, cached_vals):
-            for j in non_hashable:
-                self.assertEqual(obj.method(i, j), val)
-        self.assertEqual(
-            obj.method_calls,
-            len(hashable),
-            msg="Cached method was not evaluated once per hashable arg",
-        )
-
-    def test_require_hashable_false_kwargs(self):
-        """Test require_hashable=False matches hashable kwargs"""
-
-        class CachedClass:
-            """Class with cached method"""
-
-            def __init__(self):
-                self.method_calls = 0
-
-            @cache_method(require_hashable=False)
-            def method(self, *args, **kwargs):
-                """Test method for caching"""
-                self.method_calls += 1
-                return args, kwargs
-
-        obj = CachedClass()
-        hashable = [1, 2, 3]
-        non_hashable = [[i] for i in hashable]
-
-        cached_vals = [obj.method(a=i) for i in hashable]
-        for i, val in zip(hashable, cached_vals):
-            for j in non_hashable:
-                self.assertEqual(obj.method(a=i, b=j), val)
-        self.assertEqual(
-            obj.method_calls,
-            len(hashable),
-            msg="Cached method was not evaluated once per hashable arg",
-        )
 
     def test_cache_name(self):
         """Test decorator with a custom cache name"""
