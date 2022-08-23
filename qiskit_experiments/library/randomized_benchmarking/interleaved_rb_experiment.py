@@ -26,6 +26,7 @@ from qiskit.compiler import transpile
 
 from .rb_experiment import StandardRB
 from .interleaved_rb_analysis import InterleavedRBAnalysis
+from .clifford_utils import CliffordUtils
 
 
 class InterleavedRB(StandardRB):
@@ -107,8 +108,9 @@ class InterleavedRB(StandardRB):
                 self.set_transpile_options(basis_gates=self.backend.configuration.basis_gates)
             else:
                 raise QiskitError("transpile_options.basis_gates must be set for rb_experiment")
+        if self._clifford_utils is None:
+            self._clifford_utils = CliffordUtils(self.num_qubits, self.transpile_options.basis_gates)
 
-        self.load_transpiled_cliff_circuits()
         for _ in range(self.experiment_options.num_samples):
             self._set_transpiled_interleaved_element()
             std_circuits, int_circuits = self._build_rb_circuits(
@@ -154,7 +156,7 @@ class InterleavedRB(StandardRB):
                 qubits = [0, 1]
 
             qc_interleaved.append(self._interleaved_element[0], qubits)
-            self._transpiled_interleaved_elem = self._interleaved_element
+            self._transpiled_interleaved_elem = qc_interleaved
         else:
             qc_interleaved = self._interleaved_element
         if hasattr(self.transpile_options, "basis_gates"):
