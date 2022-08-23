@@ -101,7 +101,7 @@ class CliffordUtils:
         self.basis_gates = basis_gates
         self._transpiled_cliffords_1q = []
         self._transpiled_cliff_layer = {}
-        if num_qubits == 1:
+        if self.num_qubits == 1:
             self.transpile_1q_cliffords()
         else:  # num_qubits == 2
             self.transpile_2q_cliff_layers()
@@ -271,7 +271,7 @@ class CliffordUtils:
         return self.CLIFF_SINGLE_GATE_MAP[rb_num_qubits][(map_index, str(qubits))]
 
     def compose_num_with_clifford(
-        self, num_qubits: int, composed_num: int, qc: QuantumCircuit
+        self, composed_num: int, qc: QuantumCircuit
     ) -> int:
         """Compose a number that represents a Clifford, with a single-gate Clifford, and return the
         number that represents the resulting Clifford."""
@@ -281,18 +281,18 @@ class CliffordUtils:
         # the array CLIFF_COMPOSE_DATA_1Q, we map the numbers to [0, 8].
 
         map_clifford_num_to_array_index = {}
-        num_single_gate_cliffs = len(self.CLIFF_SINGLE_GATE_MAP[num_qubits])
-        for k in list(self.CLIFF_SINGLE_GATE_MAP[num_qubits]):
-            map_clifford_num_to_array_index[self.CLIFF_SINGLE_GATE_MAP[num_qubits][k]] = list(
-                self.CLIFF_SINGLE_GATE_MAP[num_qubits].keys()
+        num_single_gate_cliffs = len(self.CLIFF_SINGLE_GATE_MAP[self.num_qubits])
+        for k in list(self.CLIFF_SINGLE_GATE_MAP[self.num_qubits]):
+            map_clifford_num_to_array_index[self.CLIFF_SINGLE_GATE_MAP[self.num_qubits][k]] = list(
+                self.CLIFF_SINGLE_GATE_MAP[self.num_qubits].keys()
             ).index(k)
-        if num_qubits == 1:
+        if self.num_qubits == 1:
             for inst, qargs, _ in qc:
                 num = self.num_from_clifford_single_gate(
                     inst=inst, qubits=[0], rb_num_qubits=1
                 )
                 index = num_single_gate_cliffs * composed_num + map_clifford_num_to_array_index[num]
-                composed_num = self.CLIFF_COMPOSE_DATA[num_qubits][index]
+                composed_num = self.CLIFF_COMPOSE_DATA[self.num_qubits][index]
         else:
             for inst, qargs, _ in qc:
                 if inst.num_qubits == 2:
@@ -303,26 +303,12 @@ class CliffordUtils:
                     inst=inst, qubits=qubits, rb_num_qubits=2
                 )
                 index = num_single_gate_cliffs * composed_num + map_clifford_num_to_array_index[num]
-                composed_num = self.CLIFF_COMPOSE_DATA[num_qubits][index]
+                composed_num = self.CLIFF_COMPOSE_DATA[self.num_qubits][index]
         return composed_num
 
-    @classmethod
-    def clifford_inverse_by_num(cls, num: int, num_qubits: int):
+    def clifford_inverse_by_num(self, num: int):
         """Return the number of the inverse Clifford to the input num"""
-        return cls.CLIFF_INVERSE_DATA[num_qubits][num]
-
-    # @staticmethod
-    # def file_name(num_qubits, basis_gates):
-    #     """Return the name of the file containing the transpiled Cliffords"""
-    #     suffix = ""
-    #     for n in basis_gates[0:-1]:
-    #         suffix += "_" + n
-    #     if num_qubits == 2:
-    #         suffix += "_" + basis_gates[-1]
-    #     circs_file_name = "/transpiled_circs_" + str(num_qubits) + "q" + suffix + ".qpy"
-    #     root_dir = os.path.dirname(os.path.abspath(__file__))
-    #     transpiled_circs_file = root_dir + circs_file_name
-    #     return transpiled_circs_file
+        return self.CLIFF_INVERSE_DATA[self.num_qubits][num]
 
     def transpile_1q_cliffords(self):
         if self._transpiled_cliffords_1q != []:
@@ -435,22 +421,22 @@ class CliffordUtils:
             transpiled = transpile(qc, optimization_level=1, basis_gates=self.basis_gates)
             self._transpiled_cliff_layer[2].append(transpiled)
 
-    def create_random_clifford(self, num_qubits, rng):
+    def create_random_clifford(self, rng):
         if rng is None:
             rng = default_rng()
         if isinstance(rng, int):
             rng = default_rng(rng)
-        if num_qubits == 1:
+        if self.num_qubits == 1:
             rand = rng.integers(self.NUM_CLIFFORD_1_QUBIT)
             return self._transpiled_cliffords_1q[rand]
         else:  # num_qubits==2
             rand = rng.integers(self.NUM_CLIFFORD_2_QUBIT)
-            return self.create_cliff_from_num(num_qubits=num_qubits, num=rand)
+            return self.create_cliff_from_num(num=rand)
 
-    def create_cliff_from_num(self, num_qubits, num):
-        if num_qubits == 1:
+    def create_cliff_from_num(self, num):
+        if self.num_qubits == 1:
             return self._transpiled_cliffords_1q[num]
-        else:  # num_qubits==2
+        else:  # self.num_qubits==2
             triplet = self.layer_indices_from_num(num)
             return self.transpiled_cliff_from_layer_nums(triplet)
 
@@ -477,9 +463,9 @@ class CliffordUtils:
     def layer_indices_from_num(cls, num):
         return CLIFF_NUM_TO_LAYERS_2Q[num]
 
-    def inverse_cliff(self, cliff_num, num_qubits):
-        inverse_clifford_num = CliffordUtils.clifford_inverse_by_num(cliff_num, num_qubits)
-        if num_qubits == 1:
+    def inverse_cliff(self, cliff_num):
+        inverse_clifford_num = self.clifford_inverse_by_num(cliff_num)
+        if self.num_qubits == 1:
             return self._transpiled_cliffords_1q[inverse_clifford_num]
         else:  # num_qubits == 2
             indices = CliffordUtils.layer_indices_from_num(inverse_clifford_num)
