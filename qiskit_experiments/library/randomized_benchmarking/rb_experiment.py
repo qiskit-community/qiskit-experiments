@@ -14,9 +14,8 @@ Standard RB Experiment class.
 """
 import logging
 from collections import defaultdict
-from enum import Enum
 from numbers import Integral
-from typing import Union, Iterable, Optional, List, Sequence, Callable
+from typing import Union, Iterable, Optional, List, Sequence
 
 from numpy.random import Generator, default_rng
 from numpy.random.bit_generator import BitGenerator, SeedSequence
@@ -24,8 +23,8 @@ from numpy.random.bit_generator import BitGenerator, SeedSequence
 from qiskit.circuit import QuantumCircuit, Instruction
 from qiskit.exceptions import QiskitError
 from qiskit.providers.backend import Backend
-from qiskit.quantum_info import Clifford, Pauli, CNOTDihedral
-from qiskit.quantum_info.random import random_clifford, random_pauli, random_cnotdihedral
+from qiskit.quantum_info import Clifford
+from qiskit.quantum_info.random import random_clifford
 from qiskit_experiments.framework import BaseExperiment, Options
 from qiskit_experiments.framework.restless_mixin import RestlessMixin
 from .clifford_utils import _clifford_1_qubit_instruction, _clifford_2_qubit_instruction
@@ -34,46 +33,7 @@ from .rb_analysis import RBAnalysis
 LOG = logging.getLogger(__name__)
 
 
-GroupOperatorType = Union[Pauli, Clifford, CNOTDihedral]
-SequenceElementType = Union[GroupOperatorType, Integral]
-
-
-def _random_clifford_fast(num_qubits: int, rng: Generator) -> SequenceElementType:
-    # Return integer instead of Clifford object for 1 or 2 qubit case
-    if num_qubits == 1:
-        return rng.integers(24)
-    if num_qubits == 2:
-        return rng.integers(11520)
-
-    return random_clifford(num_qubits, seed=rng)
-
-
-class TwirlingGroup(Enum):
-    """Groups available for constructing randomized benchmarking sequences."""
-
-    PAULI = ("pauli", Pauli, random_pauli, None)
-    CLIFFORD = ("clifford", Clifford, _random_clifford_fast, RBAnalysis)
-    CNOTDIHEDRAL = ("cnotdihedral", CNOTDihedral, random_cnotdihedral, None)
-
-    def __init__(self, string: str, generator: GroupOperatorType, sampler: Callable, analysis):
-        self.string = string
-        self.generator = generator
-        self.sampler = sampler
-        self.analysis = analysis
-
-    def __json_encode__(self):
-        return self.string
-
-    @classmethod
-    def __json_decode__(cls, value):
-        return cls._missing_(value)
-
-    @classmethod
-    def _missing_(cls, value):
-        for group in TwirlingGroup:
-            if group.string == value:
-                return group
-        raise ValueError(f"'{value}' is not a valid TwirlingGroup string")
+SequenceElementType = Union[Clifford, Integral]
 
 
 class StandardRB(BaseExperiment, RestlessMixin):
@@ -109,7 +69,6 @@ class StandardRB(BaseExperiment, RestlessMixin):
         num_samples: int = 3,
         seed: Optional[Union[int, SeedSequence, BitGenerator, Generator]] = None,
         full_sampling: Optional[bool] = False,
-        twirling_group: TwirlingGroup = TwirlingGroup.CLIFFORD,
     ):
         """Initialize a standard randomized benchmarking experiment.
 
@@ -121,21 +80,16 @@ class StandardRB(BaseExperiment, RestlessMixin):
             seed: Optional, seed used to initialize ``numpy.random.default_rng``.
                   when generating circuits. The ``default_rng`` will be initialized
                   with this seed value everytime :meth:`circuits` is called.
-            full_sampling: If True all twirling group elements (e.g. Cliffords) are independently
-                           sampled for all lengths. If False for sample of lengths longer
-                           sequences are constructed by appending additional
-                           samples to shorter sequences.
+            full_sampling: If True all Cliffords are independently sampled for all lengths.
+                           If False for sample of lengths longer sequences are constructed
+                           by appending additional samples to shorter sequences.
                            The default is False.
-            twirling_group: The group used to create randomized sequences. The default is CLIFFORD.
 
         Raises:
             QiskitError: if any invalid argument is supplied.
         """
-        # TODO: Remove this check after implementing analysis for other group RBs
-        if twirling_group.analysis is None:
-            raise NotImplementedError("Current implementation supports only Clifford RB")
         # Initialize base experiment
-        super().__init__(qubits, analysis=twirling_group.analysis(), backend=backend)
+        super().__init__(qubits, analysis=RBAnalysis(), backend=backend)
 
         # Verify parameters
         if any(length <= 0 for length in lengths):
@@ -155,7 +109,6 @@ class StandardRB(BaseExperiment, RestlessMixin):
 
         # Set fixed options
         self._full_sampling = full_sampling
-        self._twirling_group = twirling_group
 
     @classmethod
     def _default_experiment_options(cls) -> Options:
@@ -195,8 +148,8 @@ class StandardRB(BaseExperiment, RestlessMixin):
                 circ.append(self._to_instruction(elem), qubits)
                 circ.barrier(qubits)
             # Add inverse
-            # Avoid op.compose() for fast op construction TODO: revisit after terra#7483
-            op = self._twirling_group.generator(circ)
+            # Avoid op.compose() for fast op construction TODO: revisit after terra#7269 and #7483
+            op = Clifford.from_circuit(circ)
             inv = op.adjoint()
             circ.append(self._to_instruction(inv), qubits)
             circ.barrier(qubits)  # TODO: Can we remove this? (measure_all inserts one more barrier)
@@ -204,7 +157,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
             circ.metadata = {
                 "experiment_type": self._type,
                 "xval": len(seq),
-                "group": self._twirling_group.string,
+                "group": "Clifford",
                 "physical_qubits": self.physical_qubits,
             }
             circuits.append(circ)
@@ -212,14 +165,14 @@ class StandardRB(BaseExperiment, RestlessMixin):
 
     def _to_instruction(self, op: SequenceElementType) -> Instruction:
         # Switching for speed up
-        if self._twirling_group == TwirlingGroup.CLIFFORD and isinstance(op, Integral):
+        if isinstance(op, Integral):
             if self.num_qubits == 1:
                 return _clifford_1_qubit_instruction(op)
             if self.num_qubits == 2:
                 return _clifford_2_qubit_instruction(op)
         return op.to_instruction()
 
-    def _sample_sequences(self) -> List[List[SequenceElementType]]:
+    def _sample_sequences(self) -> List[Sequence[SequenceElementType]]:
         """Sample RB sequences
 
         Returns:
@@ -239,7 +192,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
 
         return sequences
 
-    def _sample_sequence(self, length: int, rng: Generator) -> List[SequenceElementType]:
+    def _sample_sequence(self, length: int, rng: Generator) -> Sequence[SequenceElementType]:
         """Sample a RB sequence with the given length.
 
         Args:
@@ -249,7 +202,13 @@ class StandardRB(BaseExperiment, RestlessMixin):
         Returns:
             A RB sequence.
         """
-        return [self._twirling_group.sampler(self.num_qubits, rng) for _ in range(length)]
+        # Return integer instead of Clifford object for 1 or 2 qubit case
+        if self.num_qubits == 1:
+            return rng.integers(24, size=length)
+        if self.num_qubits == 2:
+            return rng.integers(11520, size=length)
+
+        return [random_clifford(self.num_qubits, rng) for _ in range(length)]
 
     def _transpiled_circuits(self) -> List[QuantumCircuit]:
         """Return a list of experiment circuits, transpiled."""

@@ -23,7 +23,7 @@ from qiskit.quantum_info import Clifford
 from qiskit.exceptions import QiskitError
 from qiskit.providers.backend import Backend
 
-from .rb_experiment import StandardRB, GroupOperatorType
+from .rb_experiment import StandardRB, SequenceElementType
 from .interleaved_rb_analysis import InterleavedRBAnalysis
 
 
@@ -75,8 +75,10 @@ class InterleavedRB(StandardRB):
                            all lengths. If False for sample of lengths longer
                            sequences are constructed by appending additional
                            Clifford samples to shorter sequences.
+
+        Raises:
+            QiskitError: the interleaved_element is not convertible to Clifford object.
         """
-        # TODO: Can we mitigate this condition (interleaved_element must be a Clifford group element)?
         try:
             Clifford(interleaved_element)
         except QiskitError as err:
@@ -119,7 +121,7 @@ class InterleavedRB(StandardRB):
         return circuits
 
     def _sequence_to_circuit(
-        self, sequence: List[GroupOperatorType], interleaved_op: Optional[Instruction] = None
+        self, sequence: Sequence[SequenceElementType], interleaved_op: Optional[Instruction] = None
     ) -> QuantumCircuit:
         """Convert a RB sequence into circuit and append the inverse to the end.
 
@@ -136,8 +138,8 @@ class InterleavedRB(StandardRB):
                 circ.append(interleaved_op, qubits)
                 circ.barrier(qubits)
         # Add inverse
-        # Avoid op.compose() for fast op construction TODO: revisit after terra#7483
-        op = self._twirling_group.generator(circ)
+        # Avoid op.compose() for fast op construction TODO: revisit after terra#7269 and #7483
+        op = Clifford.from_circuit(circ)
         inv = op.adjoint()
         circ.append(self._to_instruction(inv), qubits)
         circ.barrier(qubits)  # TODO: Can we remove this? (measure_all inserts one more barrier)
@@ -145,7 +147,7 @@ class InterleavedRB(StandardRB):
         circ.metadata = {
             "experiment_type": self._type,
             "xval": len(sequence),
-            "group": self._twirling_group.string,
+            "group": "Clifford",
             "physical_qubits": self.physical_qubits,
             "interleaved": bool(interleaved_op),
         }
