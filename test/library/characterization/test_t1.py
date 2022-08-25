@@ -15,12 +15,15 @@ Test T1 experiment
 
 from test.base import QiskitExperimentsTestCase
 import numpy as np
-from qiskit_ibm_experiment import IBMExperimentService
+from qiskit.qobj.utils import MeasLevel
 from qiskit.providers.fake_provider import FakeAthensV2
+from qiskit_ibm_experiment import IBMExperimentService
 from qiskit_experiments.test.noisy_delay_aer_simulator import NoisyDelayAerBackend
 from qiskit_experiments.framework import ExperimentData, ParallelExperiment
 from qiskit_experiments.library import T1
-from qiskit_experiments.library.characterization import T1Analysis
+from qiskit_experiments.library.characterization import T1Analysis, T1KerneledAnalysis
+from qiskit_experiments.test.mock_iq_backend import MockIQBackend, MockIQParallelBackend
+from qiskit_experiments.test.mock_iq_helpers import MockIQT1Helper, MockIQParallelExperimentHelper
 
 
 class TestT1(QiskitExperimentsTestCase):
@@ -56,6 +59,51 @@ class TestT1(QiskitExperimentsTestCase):
         for exp_res, load_res in zip(exp_res, load_res):
             self.analysis_result_equiv(exp_res, load_res)
 
+    def test_t1_measurement_level_1(self):
+        """
+        Test T1 experiment using a simulator.
+        """
+
+        ns = 1e-9
+        mu = 1e-6
+        t1 = [45 * mu, 45 * mu]
+
+        # delays
+        delays = np.logspace(1, 11, num=23, base=np.exp(1))
+        delays *= ns
+        delays = np.insert(delays, 0, 0)
+        delays = np.append(delays, [t1[0] * 3])
+
+        num_shots = 4096
+        backend = MockIQBackend(
+            MockIQT1Helper(
+                t1=t1,
+                iq_cluster_centers=[((-5.0, -4.0), (-5.0, 4.0)), ((3.0, 1.0), (5.0, -3.0))],
+                iq_cluster_width=[1.0, 2.0],
+            )
+        )
+
+        # Experiment initialization and analysis options
+        exp0 = T1(0, delays)
+        exp0.analysis = T1KerneledAnalysis()
+
+        exp0.analysis.set_options(p0={"amp": 1, "tau": t1[0], "base": 0})
+        expdata0 = exp0.run(
+            backend=backend,
+            meas_return="avg",
+            meas_level=MeasLevel.KERNELED,
+            shots=num_shots,
+        ).block_for_results()
+        self.assertExperimentDone(expdata0)
+
+        self.assertRoundTripSerializable(expdata0, check_func=self.experiment_data_equiv)
+        self.assertRoundTripPickle(expdata0, check_func=self.experiment_data_equiv)
+
+        res = expdata0.analysis_results("T1")
+        self.assertEqual(res.quality, "good")
+        self.assertAlmostEqual(res.value.n, t1[0], delta=3)
+        self.assertEqual(res.extra["unit"], "s")
+
     def test_t1_parallel(self):
         """
         Test parallel experiments of T1 using a simulator.
@@ -78,6 +126,83 @@ class TestT1(QiskitExperimentsTestCase):
         res = par_exp.run(backend=backend, shots=10000, seed_simulator=1).block_for_results()
         self.assertExperimentDone(res)
 
+        for i, qb in enumerate(quantum_bit):
+            sub_res = res.child_data(i).analysis_results("T1")
+            self.assertEqual(sub_res.quality, "good")
+            self.assertAlmostEqual(sub_res.value.n, t1[qb], delta=3)
+
+        res.service = IBMExperimentService(local=True, local_save=False)
+        res.save()
+        loaded_data = ExperimentData.load(res.experiment_id, res.service)
+
+        for i in range(2):
+            sub_res = res.child_data(i).analysis_results("T1")
+            sub_loaded = loaded_data.child_data(i).analysis_results("T1")
+            self.assertEqual(repr(sub_res), repr(sub_loaded))
+
+    def test_t1_parallel_measurement_level_1(self):
+        """
+        Test parallel experiments of T1 using a simulator.
+        """
+
+        ns = 1e-9
+        mu = 1e-6
+        t1 = [25 * mu, 20 * mu, 15 * mu]
+        num_shots = 4096
+
+        # qubits
+        qubit0 = 0
+        qubit2 = 2
+
+        quantum_bit = [qubit0, qubit2]
+
+        # Delays
+        delays = np.logspace(1, 11, num=23, base=np.exp(1))
+        delays *= ns
+        delays = np.insert(delays, 0, 0)
+        delays = np.append(delays, [t1[0] * 3])
+
+        # Experiments
+        exp0 = T1(qubit=qubit0, delays=delays)
+        exp0.analysis = T1KerneledAnalysis()
+
+        exp2 = T1(qubit=qubit2, delays=delays)
+        exp2.analysis = T1KerneledAnalysis()
+
+        par_exp_list = [exp0, exp2]
+        par_exp = ParallelExperiment([exp0, exp2])
+
+        # Helpers
+        exp_helper = [
+            MockIQT1Helper(
+                t1=t1,
+                iq_cluster_centers=[
+                    ((-5.0, -4.0), (-5.0, 4.0)),
+                    ((-1.0, -1.0), (1.0, 1.0)),
+                    ((4.0, 1.0), (6.0, -3.0)),
+                ],
+                iq_cluster_width=[1.0, 2.0, 1.0],
+            )
+            for _ in par_exp_list
+        ]
+        par_helper = MockIQParallelExperimentHelper(
+            exp_list=par_exp_list, exp_helper_list=exp_helper
+        )
+
+        # Backend
+        backend = MockIQParallelBackend(par_helper, rng_seed=1)
+
+        # Running experiment
+        res = par_exp.run(
+            backend=backend,
+            shots=num_shots,
+            rng_seed=1,
+            meas_level=MeasLevel.KERNELED,
+            meas_return="avg",
+        ).block_for_results()
+        self.assertExperimentDone(res)
+
+        # Checking analysis
         for i, qb in enumerate(quantum_bit):
             sub_res = res.child_data(i).analysis_results("T1")
             self.assertEqual(sub_res.quality, "good")
