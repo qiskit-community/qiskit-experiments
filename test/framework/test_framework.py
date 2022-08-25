@@ -14,6 +14,7 @@
 
 from test.fake_experiment import FakeExperiment, FakeAnalysis
 from test.base import QiskitExperimentsTestCase
+import warnings
 import ddt
 
 from qiskit import QuantumCircuit
@@ -21,6 +22,7 @@ from qiskit.providers.fake_provider import FakeVigoV2, FakeJob
 from qiskit.providers.jobstatus import JobStatus
 from qiskit.exceptions import QiskitError
 
+from qiskit_experiments.exceptions import AnalysisError
 from qiskit_experiments.framework import (
     ExperimentData,
     BaseExperiment,
@@ -89,6 +91,44 @@ class TestFramework(QiskitExperimentsTestCase):
         self.assertNotEqual(expdata1, expdata2)
         self.assertNotEqual(expdata1.experiment_id, expdata2.experiment_id)
         self.assertNotEqual(expdata1.analysis_results(), expdata2.analysis_results())
+
+    def test_failed_analysis_replace_results_true(self):
+        """Test running analysis with replace_results=True"""
+
+        class FakeFailedAnalysis(FakeAnalysis):
+            """raise analysis error"""
+            def _run_analysis(self, experiment_data, **options):
+                raise AnalysisError(f"Failed analysis for testing.")
+
+        analysis = FakeAnalysis()
+        failed_analysis = FakeFailedAnalysis()
+        expdata1 = analysis.run(ExperimentData(), seed=54321)
+        self.assertExperimentDone(expdata1)
+        result_ids = [res.result_id for res in expdata1.analysis_results()]
+        with warnings.catch_warnings(record=True) as w:
+            # Cause all warnings to always be triggered.
+            warnings.simplefilter("always")
+            expdata2 = failed_analysis.run(expdata1, replace_results=True, seed=12345)
+            self.assertIn("Failed analysis for testing.", w[-1].message.args[0])
+
+    def test_failed_analysis_replace_results_false(self):
+        """Test running analysis with replace_results=False"""
+
+        class FakeFailedAnalysis(FakeAnalysis):
+            """raise analysis error"""
+            def _run_analysis(self, experiment_data, **options):
+                raise AnalysisError(f"Failed analysis for testing.")
+
+        analysis = FakeAnalysis()
+        failed_analysis = FakeFailedAnalysis()
+        expdata1 = analysis.run(ExperimentData(), seed=54321)
+        self.assertExperimentDone(expdata1)
+        result_ids = [res.result_id for res in expdata1.analysis_results()]
+        with warnings.catch_warnings(record=True) as w:
+            # Cause all warnings to always be triggered.
+            warnings.simplefilter("always")
+            expdata2 = failed_analysis.run(expdata1, replace_results=False, seed=12345)
+            self.assertIn("Failed analysis for testing.", w[-1].message.args[0])
 
     def test_analysis_config(self):
         """Test analysis config dataclass"""
