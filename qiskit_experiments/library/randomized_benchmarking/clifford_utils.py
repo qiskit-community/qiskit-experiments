@@ -27,21 +27,37 @@ from qiskit.quantum_info import Clifford, random_clifford
 
 
 @lru_cache(maxsize=24)
-def _clifford_1_qubit_instruction(
-    num: Integral, basis_gates: Optional[Tuple[str]] = None
-) -> Instruction:
-    return clifford_1_qubit_circuit(num, basis_gates).to_instruction()
+def clifford_1q_from_index(num):
+    """Return the 1-qubit clifford element corresponding to `num`
+    where `num` is between 0 and 23.
+    """
+    return Clifford(clifford_1q_index_to_circuit(num), validate=False)
 
 
 @lru_cache(maxsize=2048)
-def _clifford_2_qubit_instruction(
+def clifford_2q_from_index(num):
+    """Return the 2-qubit clifford element corresponding to `num`
+    where `num` is between 0 and 11519.
+    """
+    return Clifford(clifford_2q_index_to_circuit(num), validate=False)
+
+
+@lru_cache
+def _clifford_1q_index_to_instruction(
     num: Integral, basis_gates: Optional[Tuple[str]] = None
 ) -> Instruction:
-    return clifford_2_qubit_circuit(num, basis_gates).to_instruction()
+    return clifford_1q_index_to_circuit(num, basis_gates).to_instruction()
 
 
-@lru_cache(maxsize=24)
-def clifford_1_qubit_circuit(
+@lru_cache(maxsize=2048)
+def _clifford_2q_index_to_instruction(
+    num: Integral, basis_gates: Optional[Tuple[str]] = None
+) -> Instruction:
+    return clifford_2q_index_to_circuit(num, basis_gates).to_instruction()
+
+
+@lru_cache
+def clifford_1q_index_to_circuit(
     num: Integral, basis_gates: Optional[Tuple[str]] = None
 ) -> QuantumCircuit:
     """Return the 1-qubit clifford circuit corresponding to `num`
@@ -78,7 +94,7 @@ _CLIFFORD_2_QUBIT_SIGS = (
 
 
 @lru_cache(maxsize=2048)
-def clifford_2_qubit_circuit(
+def clifford_2q_index_to_circuit(
     num: Integral, basis_gates: Optional[Tuple[str]] = None
 ) -> QuantumCircuit:
     """Return the 2-qubit clifford circuit corresponding to `num`

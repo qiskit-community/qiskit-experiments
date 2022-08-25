@@ -17,6 +17,7 @@ from collections import defaultdict
 from numbers import Integral
 from typing import Union, Iterable, Optional, List, Sequence
 
+import numpy as np
 from numpy.random import Generator, default_rng
 from numpy.random.bit_generator import BitGenerator, SeedSequence
 
@@ -27,7 +28,12 @@ from qiskit.quantum_info import Clifford
 from qiskit.quantum_info.random import random_clifford
 from qiskit_experiments.framework import BaseExperiment, Options
 from qiskit_experiments.framework.restless_mixin import RestlessMixin
-from .clifford_utils import _clifford_1_qubit_instruction, _clifford_2_qubit_instruction
+from .clifford_utils import (
+    clifford_1q_from_index,
+    clifford_2q_from_index,
+    _clifford_1q_index_to_instruction,
+    _clifford_2q_index_to_instruction,
+)
 from .rb_analysis import RBAnalysis
 
 LOG = logging.getLogger(__name__)
@@ -140,17 +146,23 @@ class StandardRB(BaseExperiment, RestlessMixin):
         sequences = self._sample_sequences()
         # Convert each sequence into circuit and append the inverse to the end.
         circuits = []
-        for seq in sequences:
+        for i, seq in enumerate(sequences):
+            if self._full_sampling or i % len(self.experiment_options.lengths) == 0:
+                prev_elem, prev_seq = self._identity_clifford(), []
+
             qubits = list(range(self.num_qubits))
             circ = QuantumCircuit(self.num_qubits)
             circ.barrier(qubits)
             for elem in seq:
                 circ.append(self._to_instruction(elem), qubits)
                 circ.barrier(qubits)
-            # Add inverse
-            # Avoid op.compose() for fast op construction TODO: revisit after terra#7269 and #7483
-            op = Clifford.from_circuit(circ)
-            inv = op.adjoint()
+
+            # Compute inverse, compute only the difference from the previous shorter sequence
+            for elem in seq[len(prev_seq) :]:
+                prev_elem = self._clifford_compose(prev_elem, elem)
+            prev_seq = seq
+            inv = self._clifford_adjoint(prev_elem)
+
             circ.append(self._to_instruction(inv), qubits)
             circ.barrier(qubits)  # TODO: Can we remove this? (measure_all inserts one more barrier)
             circ.measure_all()
@@ -162,15 +174,6 @@ class StandardRB(BaseExperiment, RestlessMixin):
             }
             circuits.append(circ)
         return circuits
-
-    def _to_instruction(self, op: SequenceElementType) -> Instruction:
-        # Switching for speed up
-        if isinstance(op, Integral):
-            if self.num_qubits == 1:
-                return _clifford_1_qubit_instruction(op)
-            if self.num_qubits == 2:
-                return _clifford_2_qubit_instruction(op)
-        return op.to_instruction()
 
     def _sample_sequences(self) -> List[Sequence[SequenceElementType]]:
         """Sample RB sequences
@@ -210,8 +213,43 @@ class StandardRB(BaseExperiment, RestlessMixin):
 
         return [random_clifford(self.num_qubits, rng) for _ in range(length)]
 
+    def _to_instruction(self, op: SequenceElementType) -> Instruction:
+        # Switching for speed up
+        if isinstance(op, Integral):
+            if self.num_qubits == 1:
+                return _clifford_1q_index_to_instruction(op)
+            if self.num_qubits == 2:
+                return _clifford_2q_index_to_instruction(op)
+        return op.to_instruction()
+
+    def _identity_clifford(self) -> SequenceElementType:
+        if self.num_qubits <= 2:
+            return 0
+        return Clifford(np.eye(2 * self.num_qubits))
+
+    def _clifford_compose(
+        self, lop: SequenceElementType, rop: SequenceElementType
+    ) -> SequenceElementType:
+        # TODO: Speed up for 1Q (and 2Q) cases using lookup table
+        if self.num_qubits == 1:
+            if isinstance(lop, Integral):
+                lop = clifford_1q_from_index(lop)
+            if isinstance(rop, Integral):
+                rop = clifford_1q_from_index(rop)
+        if self.num_qubits == 2:
+            if isinstance(lop, Integral):
+                lop = clifford_2q_from_index(lop)
+            if isinstance(rop, Integral):
+                rop = clifford_2q_from_index(rop)
+        return lop.compose(rop)
+
+    def _clifford_adjoint(self, op: SequenceElementType) -> SequenceElementType:
+        # TODO: Speed up for 1Q and 2Q cases using lookup table
+        return op.adjoint()
+
     def _transpiled_circuits(self) -> List[QuantumCircuit]:
         """Return a list of experiment circuits, transpiled."""
+        # TODO: Custom transpilation (without calling transpile()) for 1Q and 2Q cases
         transpiled = super()._transpiled_circuits()
 
         if self.analysis.options.get("gate_error_ratio", None) is None:
