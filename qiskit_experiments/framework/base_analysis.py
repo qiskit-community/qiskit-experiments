@@ -12,13 +12,14 @@
 """
 Base analysis class.
 """
-
+import warnings
 from abc import ABC, abstractmethod
 import copy
 from collections import OrderedDict
 from typing import List, Tuple, Union, Dict
 
 from qiskit_experiments.database_service.device_component import Qubit
+from qiskit_experiments.exceptions import AnalysisError
 from qiskit_experiments.framework import Options
 from qiskit_experiments.framework.store_init_args import StoreInitArgs
 from qiskit_experiments.framework.experiment_data import ExperimentData
@@ -159,20 +160,31 @@ class BaseAnalysis(ABC, StoreInitArgs):
             analysis.set_options(**options)
 
         def run_analysis(expdata):
-            results, figures = analysis._run_analysis(expdata)
-            # Add components
-            analysis_results = [
-                analysis._format_analysis_result(
-                    result, expdata.experiment_id, experiment_components
-                )
-                for result in results
-            ]
-            # Update experiment data with analysis results
+            # Clearing previous analysis data
             experiment_data._clear_results()
-            if analysis_results:
-                expdata.add_analysis_results(analysis_results)
-            if figures:
-                expdata.add_figures(figures, figure_names=self.options.figure_names)
+
+            try:
+                # making new analysis
+                results, figures = analysis._run_analysis(expdata)
+            except AnalysisError as ex:
+                error_msg = (
+                    f"The analysis failed with the following message: {str(ex)}"
+                )
+                warnings.warn(error_msg)
+                # raise AnalysisError(f"The analysis failed with error: {str(ex)}") from ex
+            else:
+                # Add components
+                analysis_results = [
+                    analysis._format_analysis_result(
+                        result, expdata.experiment_id, experiment_components
+                    )
+                    for result in results
+                ]
+                # Update experiment data with analysis results
+                if analysis_results:
+                    expdata.add_analysis_results(analysis_results)
+                if figures:
+                    expdata.add_figures(figures, figure_names=self.options.figure_names)
 
         experiment_data.add_analysis_callback(run_analysis)
 
