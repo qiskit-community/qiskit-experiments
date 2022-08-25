@@ -18,6 +18,7 @@ from unittest import mock
 import json
 
 import math
+from ddt import ddt, data
 import numpy as np
 import uncertainties
 
@@ -27,6 +28,7 @@ from qiskit_experiments.database_service.device_component import Qubit, Resonato
 from qiskit_experiments.database_service.exceptions import ExperimentDataError
 
 
+@ddt
 class TestAnalysisResult(QiskitExperimentsTestCase):
     """Test the AnalysisResult class."""
 
@@ -178,6 +180,52 @@ class TestAnalysisResult(QiskitExperimentsTestCase):
         """Test conversion of db displays"""
         value = AnalysisResult._display_format(np.arange(5))
         self.assertEqual(value, "(ndarray)")
+
+    @data({"foo": "bar"}, uncertainties.ufloat(0.0, 0.5), 5.1e-6, 5)
+    def test_copy(self, value):
+        """Test copying of analysis result for various value types."""
+        value_type = type(value)
+        attrs = {
+            "name": "my_type",
+            "device_components": [Qubit(1), Qubit(2)],
+            "experiment_id": "1234",
+            "result_id": "5678",
+            "quality": "Good",
+            "verified": False,
+            "extra": {
+                "extra1": "value",
+                "extra2": 2.71828,
+                "extra3": [1, 1, 2, 3, 5],
+            },
+        }
+        attrs_should_differ = ["result_id"]
+        original_result = AnalysisResult(value=value, tags=["tag1", "tag2"], **attrs)
+        copied_result = original_result.copy()
+        if isinstance(value, uncertainties.UFloat):
+            # If the value is an uncertainties ufloat, compare using `ufloat_equiv`
+            self.assertTrue(
+                self.ufloat_equiv(original_result.value, copied_result.value),
+                f"{original_result.value}!={copied_result.value}",
+            )
+        else:
+            self.assertEqual(
+                original_result.value,
+                copied_result.value,
+                f"Value of type {value_type.__name__}.",
+            )
+        self.assertEqual(original_result.tags, copied_result.tags)
+        for key, _ in attrs.items():
+            if key in attrs_should_differ:
+                # experiment_id must be different
+                self.assertNotEqual(
+                    getattr(original_result, key),
+                    getattr(copied_result, key),
+                )
+            else:
+                self.assertEqual(
+                    getattr(original_result, key),
+                    getattr(copied_result, key),
+                )
 
     def _new_analysis_result(self, **kwargs):
         """Return a new analysis result."""
