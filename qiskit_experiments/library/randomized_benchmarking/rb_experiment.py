@@ -29,10 +29,10 @@ from qiskit.quantum_info.random import random_clifford
 from qiskit_experiments.framework import BaseExperiment, Options
 from qiskit_experiments.framework.restless_mixin import RestlessMixin
 from .clifford_utils import (
-    clifford_1q_from_index,
-    clifford_2q_from_index,
-    _clifford_1q_index_to_instruction,
-    _clifford_2q_index_to_instruction,
+    clifford_1q_from_int,
+    clifford_2q_from_int,
+    _clifford_1q_int_to_instruction,
+    _clifford_2q_int_to_instruction,
 )
 from .rb_analysis import RBAnalysis
 
@@ -231,9 +231,9 @@ class StandardRB(BaseExperiment, RestlessMixin):
         # Switching for speed up
         if isinstance(elem, Integral):
             if self.num_qubits == 1:
-                return _clifford_1q_index_to_instruction(elem)
+                return _clifford_1q_int_to_instruction(elem)
             if self.num_qubits == 2:
-                return _clifford_2q_index_to_instruction(elem)
+                return _clifford_2q_int_to_instruction(elem)
         return elem.to_instruction()
 
     def _identity_clifford(self) -> SequenceElementType:
@@ -247,14 +247,14 @@ class StandardRB(BaseExperiment, RestlessMixin):
         # TODO: Speed up 1Q (and 2Q) cases using lookup table
         if self.num_qubits == 1:
             if isinstance(lop, Integral):
-                lop = clifford_1q_from_index(lop)
+                lop = clifford_1q_from_int(lop)
             if isinstance(rop, Integral):
-                rop = clifford_1q_from_index(rop)
+                rop = clifford_1q_from_int(rop)
         if self.num_qubits == 2:
             if isinstance(lop, Integral):
-                lop = clifford_2q_from_index(lop)
+                lop = clifford_2q_from_int(lop)
             if isinstance(rop, Integral):
-                rop = clifford_2q_from_index(rop)
+                rop = clifford_2q_from_int(rop)
         return lop.compose(rop)
 
     def _clifford_adjoint(self, op: SequenceElementType) -> SequenceElementType:
