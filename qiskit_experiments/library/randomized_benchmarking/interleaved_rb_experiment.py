@@ -80,7 +80,7 @@ class InterleavedRB(StandardRB):
             QiskitError: the interleaved_element is not convertible to Clifford object.
         """
         try:
-            Clifford(interleaved_element)
+            self._interleaved_elem = Clifford(interleaved_element)
         except QiskitError as err:
             raise QiskitError(
                 f"Interleaved element {interleaved_element.name} could not be converted to Clifford"
@@ -106,49 +106,38 @@ class InterleavedRB(StandardRB):
         Returns:
             A list of :class:`QuantumCircuit`.
         """
-        # Sample random group element sequences
-        sequences = self._sample_sequences()
+        # Build circuits of reference sequences
+        reference_sequences = self._sample_sequences()
+        reference_circuits = self._sequences_to_circuits(reference_sequences)
+        for circ, seq in zip(reference_circuits, reference_sequences):
+            circ.metadata = {
+                "experiment_type": self._type,
+                "xval": len(seq),
+                "group": "Clifford",
+                "physical_qubits": self.physical_qubits,
+                "interleaved": False,
+            }
+        # Build circuits of interleaved sequences
+        interleaved_sequences = []
+        for seq in reference_sequences:
+            new_seq = []
+            for elem in seq:
+                new_seq.append(elem)
+                new_seq.append(self._interleaved_elem)
+            interleaved_sequences.append(new_seq)
+        interleaved_circuits = self._sequences_to_circuits(interleaved_sequences)
+        for circ, seq in zip(interleaved_circuits, reference_sequences):
+            circ.metadata = {
+                "experiment_type": self._type,
+                "xval": len(seq),  # set length of the reference sequence
+                "group": "Clifford",
+                "physical_qubits": self.physical_qubits,
+                "interleaved": True,
+            }
+        return reference_circuits + interleaved_circuits
 
-        # Convert each sequence into circuit and append the inverse to the end.
-        circuits = []
-        for seq in sequences:
-            # Build reference (standard) RB circuit
-            srb_circ = self._sequence_to_circuit(seq)
-            circuits.append(srb_circ)
-            # Build interleaved RB circuit
-            irb_circ = self._sequence_to_circuit(seq, self._interleaved_op)
-            circuits.append(irb_circ)
-        return circuits
+    def _to_instruction(self, elem: SequenceElementType) -> Instruction:
+        if elem is self._interleaved_elem:
+            return self._interleaved_op
 
-    def _sequence_to_circuit(
-        self, sequence: Sequence[SequenceElementType], interleaved_op: Optional[Instruction] = None
-    ) -> QuantumCircuit:
-        """Convert a RB sequence into circuit and append the inverse to the end.
-
-        Returns:
-            A RB circuit.
-        """
-        qubits = list(range(self.num_qubits))
-        circ = QuantumCircuit(self.num_qubits)
-        circ.barrier(qubits)
-        for elem in sequence:
-            circ.append(self._to_instruction(elem), qubits)
-            circ.barrier(qubits)
-            if interleaved_op:
-                circ.append(interleaved_op, qubits)
-                circ.barrier(qubits)
-        # Add inverse
-        # Avoid op.compose() for fast op construction TODO: revisit after terra#7269 and #7483
-        op = Clifford.from_circuit(circ)
-        inv = op.adjoint()
-        circ.append(self._to_instruction(inv), qubits)
-        circ.barrier(qubits)  # TODO: Can we remove this? (measure_all inserts one more barrier)
-        circ.measure_all()
-        circ.metadata = {
-            "experiment_type": self._type,
-            "xval": len(sequence),
-            "group": "Clifford",
-            "physical_qubits": self.physical_qubits,
-            "interleaved": bool(interleaved_op),
-        }
-        return circ
+        return super()._to_instruction(elem)

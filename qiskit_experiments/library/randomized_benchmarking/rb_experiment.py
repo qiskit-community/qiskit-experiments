@@ -142,37 +142,18 @@ class StandardRB(BaseExperiment, RestlessMixin):
         Returns:
             A list of :class:`QuantumCircuit`.
         """
-        # Sample random group operator sequences
+        # Sample random Clifford sequences
         sequences = self._sample_sequences()
         # Convert each sequence into circuit and append the inverse to the end.
-        circuits = []
-        for i, seq in enumerate(sequences):
-            if self._full_sampling or i % len(self.experiment_options.lengths) == 0:
-                prev_elem, prev_seq = self._identity_clifford(), []
-
-            qubits = list(range(self.num_qubits))
-            circ = QuantumCircuit(self.num_qubits)
-            circ.barrier(qubits)
-            for elem in seq:
-                circ.append(self._to_instruction(elem), qubits)
-                circ.barrier(qubits)
-
-            # Compute inverse, compute only the difference from the previous shorter sequence
-            for elem in seq[len(prev_seq) :]:
-                prev_elem = self._clifford_compose(prev_elem, elem)
-            prev_seq = seq
-            inv = self._clifford_adjoint(prev_elem)
-
-            circ.append(self._to_instruction(inv), qubits)
-            circ.barrier(qubits)  # TODO: Can we remove this? (measure_all inserts one more barrier)
-            circ.measure_all()
+        circuits = self._sequences_to_circuits(sequences)
+        # Add metadata for each circuit
+        for circ, seq in zip(circuits, sequences):
             circ.metadata = {
                 "experiment_type": self._type,
                 "xval": len(seq),
                 "group": "Clifford",
                 "physical_qubits": self.physical_qubits,
             }
-            circuits.append(circ)
         return circuits
 
     def _sample_sequences(self) -> List[Sequence[SequenceElementType]]:
@@ -195,6 +176,38 @@ class StandardRB(BaseExperiment, RestlessMixin):
 
         return sequences
 
+    def _sequences_to_circuits(
+        self, sequences: List[Sequence[SequenceElementType]]
+    ) -> List[QuantumCircuit]:
+        """Convert a RB sequence into circuit and append the inverse to the end.
+
+        Returns:
+            A RB circuit.
+        """
+        circuits = []
+        for i, seq in enumerate(sequences):
+            if self._full_sampling or i % len(self.experiment_options.lengths) == 0:
+                prev_elem, prev_seq = self._identity_clifford(), []
+
+            qubits = list(range(self.num_qubits))
+            circ = QuantumCircuit(self.num_qubits)
+            circ.barrier(qubits)
+            for elem in seq:
+                circ.append(self._to_instruction(elem), qubits)
+                circ.barrier(qubits)
+
+            # Compute inverse, compute only the difference from the previous shorter sequence
+            for elem in seq[len(prev_seq) :]:
+                prev_elem = self._clifford_compose(prev_elem, elem)
+            prev_seq = seq
+            inv = self._clifford_adjoint(prev_elem)
+
+            circ.append(self._to_instruction(inv), qubits)
+            circ.barrier(qubits)  # TODO: Can we remove this? (measure_all inserts one more barrier)
+            circ.measure_all()
+            circuits.append(circ)
+        return circuits
+
     def _sample_sequence(self, length: int, rng: Generator) -> Sequence[SequenceElementType]:
         """Sample a RB sequence with the given length.
 
@@ -213,14 +226,15 @@ class StandardRB(BaseExperiment, RestlessMixin):
 
         return [random_clifford(self.num_qubits, rng) for _ in range(length)]
 
-    def _to_instruction(self, op: SequenceElementType) -> Instruction:
+    def _to_instruction(self, elem: SequenceElementType) -> Instruction:
+        # TODO: basis transformation in 1Q (and 2Q) cases for speed
         # Switching for speed up
-        if isinstance(op, Integral):
+        if isinstance(elem, Integral):
             if self.num_qubits == 1:
-                return _clifford_1q_index_to_instruction(op)
+                return _clifford_1q_index_to_instruction(elem)
             if self.num_qubits == 2:
-                return _clifford_2q_index_to_instruction(op)
-        return op.to_instruction()
+                return _clifford_2q_index_to_instruction(elem)
+        return elem.to_instruction()
 
     def _identity_clifford(self) -> SequenceElementType:
         if self.num_qubits <= 2:
@@ -230,7 +244,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
     def _clifford_compose(
         self, lop: SequenceElementType, rop: SequenceElementType
     ) -> SequenceElementType:
-        # TODO: Speed up for 1Q (and 2Q) cases using lookup table
+        # TODO: Speed up 1Q (and 2Q) cases using lookup table
         if self.num_qubits == 1:
             if isinstance(lop, Integral):
                 lop = clifford_1q_from_index(lop)
@@ -244,7 +258,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
         return lop.compose(rop)
 
     def _clifford_adjoint(self, op: SequenceElementType) -> SequenceElementType:
-        # TODO: Speed up for 1Q and 2Q cases using lookup table
+        # TODO: Speed up 1Q and 2Q cases using lookup table
         return op.adjoint()
 
     def _transpiled_circuits(self) -> List[QuantumCircuit]:

@@ -65,7 +65,7 @@ def clifford_1q_index_to_circuit(
     """
     unpacked = _unpack_num(num, (2, 3, 4))
     i, j, p = unpacked[0], unpacked[1], unpacked[2]
-    qc = QuantumCircuit(1)
+    qc = QuantumCircuit(1, name=f"Clifford-1Q({num})")
     if i == 1:
         qc.h(0)
     if j == 1:
@@ -101,7 +101,7 @@ def clifford_2q_index_to_circuit(
     where `num` is between 0 and 11519.
     """
     vals = _unpack_num_multi_sigs(num, _CLIFFORD_2_QUBIT_SIGS)
-    qc = QuantumCircuit(2)
+    qc = QuantumCircuit(2, name=f"Clifford-2Q({num})")
     if vals[0] == 0 or vals[0] == 3:
         (form, i0, i1, j0, j1, p0, p1) = vals
     else:
