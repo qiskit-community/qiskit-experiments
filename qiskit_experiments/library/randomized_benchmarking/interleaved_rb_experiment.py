@@ -17,8 +17,8 @@ from typing import Union, Iterable, Optional, List, Sequence
 from numpy.random import Generator, default_rng
 from numpy.random.bit_generator import BitGenerator, SeedSequence
 
-from qiskit import QuantumCircuit
-from qiskit.circuit import Instruction
+from qiskit import QuantumCircuit, ClassicalRegister
+from qiskit.circuit import Clbit, Instruction
 from qiskit.quantum_info import Clifford
 from qiskit.exceptions import QiskitError
 from qiskit.providers.backend import Backend
@@ -116,7 +116,6 @@ class InterleavedRB(StandardRB):
             std_circuits, int_circuits = self._build_rb_circuits(
                 self.experiment_options.lengths,
                 rng,
-                interleaved_element=self._transpiled_interleaved_elem,
             )
             circuits += std_circuits
             circuits += int_circuits
@@ -166,3 +165,254 @@ class InterleavedRB(StandardRB):
         self._transpiled_interleaved_elem = transpile(
             circuits=qc_interleaved, optimization_level=1, basis_gates=basis_gates
         )
+
+    def _build_rb_circuits(
+        self, lengths: List[int], rng: Generator
+    ) -> List[QuantumCircuit]:
+        """
+        build_rb_circuits
+        Args:
+                lengths: A list of RB sequence lengths. We create random circuits
+                         where the number of cliffords in each is defined in lengths.
+                rng: Generator object for random number generation.
+                     If None, default_rng will be used.
+
+        Returns:
+                The transpiled RB circuits.
+
+        Additional information:
+            To create the RB circuit, we use a mapping between Cliffords and integers
+            defined in the file clifford_data.py. The operations compose and inverse are much faster
+            when performed on the integers rather than on the Cliffords themselves.
+        """
+        interleaved_element = self._transpiled_interleaved_elem
+        if self._full_sampling:
+            return self._build_rb_circuits_full_sampling(lengths, rng, interleaved_element)
+        is_interleaved = interleaved_element is not None
+        max_qubit = max(self.physical_qubits) + 1
+        all_rb_circuits = []
+        all_rb_interleaved_circuits = []
+
+        # When full_sampling==False, each circuit is the prefix of the next circuit (without the
+        # inverse Clifford at the end of the circuit. The variable 'circ' will contain
+        # the growing circuit.
+        # When each circuit reaches its length, we copy it to rb_circ, append the inverse,
+        # and add it to the list of circuits.
+        n = self.num_qubits
+        qubits = list(range(n))
+        clbits = list(range(n))
+
+        interleaved_circ = QuantumCircuit(max_qubit, n)
+        interleaved_circ.barrier(qubits)
+
+        circ = QuantumCircuit(max_qubit, n)
+        circ.barrier(qubits)
+
+        # composed_cliff_num is the number representing the composition of all the Cliffords up to now
+        # composed_interleaved_num is the same for an interleaved circuit
+        composed_cliff_num = 0  # 0 is the Clifford that is Id
+        composed_interleaved_num = 0
+        prev_length = 0
+
+        for length in lengths:
+            for i in range(prev_length, length):
+                next_circ = self._clifford_utils.create_random_clifford(rng)
+                circ.compose(next_circ, inplace=True)
+                composed_cliff_num = self._clifford_utils.compose_num_with_clifford(
+                    composed_num=composed_cliff_num,
+                    qc=next_circ,
+                )
+
+                circ.barrier(qubits)
+                interleaved_circ.compose(next_circ, inplace=True)
+                composed_interleaved_num = self._clifford_utils.compose_num_with_clifford(
+                    composed_num=composed_interleaved_num,
+                    qc=next_circ,
+                )
+                interleaved_circ.barrier(qubits)
+                # The interleaved element is appended after every Clifford and its barrier
+                interleaved_circ.compose(interleaved_element, inplace=True)
+                composed_interleaved_num = self._clifford_utils.compose_num_with_clifford(
+                    composed_num=composed_interleaved_num,
+                    qc=interleaved_element,
+                )
+                interleaved_circ.barrier(qubits)
+
+                if i == length - 1:
+                    rb_circ = circ.copy()  # circ is used as the prefix of the next circuit
+                    inverse_cliff = self._clifford_utils.inverse_cliff(composed_cliff_num)
+
+                    # append the inverse
+                    rb_circ.compose(inverse_cliff, inplace=True)
+                    rb_circ.measure(qubits, clbits)
+
+                    rb_circ.metadata = {
+                        "experiment_type": "rb",
+                        "xval": length,
+                        "group": "Clifford",
+                        "physical_qubits": self.physical_qubits,
+                        "interleaved": False,
+                    }
+                    all_rb_circuits.append(rb_circ)
+
+                    # interleaved_circ is used as the prefix of the next circuit
+                    rb_interleaved_circ = interleaved_circ.copy()
+                    # append the inverse
+                    inverse_cliff = self._clifford_utils.inverse_cliff(composed_interleaved_num)
+
+                    rb_interleaved_circ.compose(
+                        inverse_cliff,
+                        inplace=True,
+                    )
+                    rb_interleaved_circ.measure(qubits, clbits)
+
+                    rb_interleaved_circ.metadata = {
+                        "experiment_type": "rb",
+                        "xval": length,
+                        "group": "Clifford",
+                        "physical_qubits": self.physical_qubits,
+                        "interleaved": True,
+                    }
+                    all_rb_interleaved_circuits.append(rb_interleaved_circ)
+
+                prev_length = i + 1
+        return all_rb_circuits, all_rb_interleaved_circuits
+
+    def _build_rb_circuits_full_sampling(
+            self, lengths: List[int], rng: Generator, interleaved_element: QuantumCircuit = None
+    ) -> List[QuantumCircuit]:
+        """
+        _build_rb_circuits_full_sampling
+        Args:
+                lengths: A list of RB sequence lengths. We create random circuits
+                    where the number of cliffords in each is defined in lengths.
+                rng: Generator object for random number generation.
+                    If None, default_rng will be used.
+                interleaved_element: the interleaved element as a QuantumCircuit, if it exists.
+
+        Returns:
+                The transpiled RB circuits.
+
+        Additional information:
+            This is similar to _build_rb_circuits for the case of full_sampling.
+        """
+        is_interleaved = interleaved_element is not None
+        all_rb_circuits = []
+        if is_interleaved:
+            all_rb_interleaved_circuits = []
+        else:
+            all_rb_interleaved_circuits = None
+
+        n = self.num_qubits
+        qubits = list(range(n))
+        clbits = list(range(n))
+        max_qubit = max(self.physical_qubits) + 1
+        for length in lengths:
+            # We define the circuit size here, for the layout that will
+            # be created later
+            rb_circ = QuantumCircuit(max_qubit, n)
+            rb_circ.barrier(qubits)
+            if is_interleaved:
+                rb_interleaved_circ = QuantumCircuit(max_qubit, n)
+                rb_interleaved_circ.barrier(qubits)
+            else:
+                rb_interleaved_circ = None
+
+            # composed_cliff_num is the number representing the composition of
+            # all the Cliffords up to now
+            # composed_interleaved_num is the same for an interleaved circuit
+            composed_cliff_num = 0
+            composed_interleaved_num = 0
+            # For full_sampling, we create each circuit independently.
+            for _ in range(length):
+                # choose random clifford
+                next_circ = self._clifford_utils.create_random_clifford(rng)
+                rb_circ.compose(next_circ, inplace=True)
+
+                composed_cliff_num = self._clifford_utils.compose_num_with_clifford(
+                    composed_num=composed_cliff_num,
+                    qc=next_circ,
+                )
+                rb_circ.barrier(qubits)
+                if is_interleaved:
+                    rb_interleaved_circ.compose(next_circ, inplace=True)
+                    composed_interleaved_num = self._clifford_utils.compose_num_with_clifford(
+                        composed_num=composed_interleaved_num,
+                        qc=next_circ,
+                    )
+                    rb_interleaved_circ.barrier(qubits)
+                    rb_interleaved_circ.compose(interleaved_element, inplace=True)
+                    composed_interleaved_num = self._clifford_utils.compose_num_with_clifford(
+                        composed_num=composed_interleaved_num,
+                        qc=interleaved_element,
+                    )
+                    rb_interleaved_circ.barrier(qubits)
+
+            # append the inverse
+            inverse_cliff = self._clifford_utils.inverse_cliff(composed_cliff_num)
+
+            rb_circ.compose(inverse_cliff, inplace=True)
+            rb_circ.measure(qubits, clbits)
+            rb_circ.metadata = {
+                "experiment_type": "rb",
+                "xval": length,
+                "group": "Clifford",
+                "physical_qubits": self.physical_qubits,
+                "interleaved": False,
+            }
+            if is_interleaved:
+                inverse_cliff = self._clifford_utils.inverse_cliff(composed_interleaved_num)
+                rb_interleaved_circ.compose(inverse_cliff, inplace=True)
+                rb_interleaved_circ.measure(qubits, clbits)
+                rb_interleaved_circ.metadata = {
+                    "experiment_type": "rb",
+                    "xval": length,
+                    "group": "Clifford",
+                    "physical_qubits": self.physical_qubits,
+                    "interleaved": True,
+                }
+            all_rb_circuits.append(rb_circ)
+            if is_interleaved:
+                all_rb_interleaved_circuits.append(rb_interleaved_circ)
+        return all_rb_circuits, all_rb_interleaved_circuits
+
+        # This method does a quick layout to avoid calling 'transpile()' which is
+        # very costly in performance
+        # We simply copy the circuit to a new circuit where we define the mapping
+        # of the qubit to the single physical qubit that was requested by the user
+        # This is a hack, and would be better if transpile() implemented it.
+        # Something similar is done in ParallelExperiment._combined_circuits
+
+    def _layout_for_rb(self):
+        transpiled = []
+        qargs_map = (
+            {0: self.physical_qubits[0]}
+            if self.num_qubits == 1
+            else {0: self.physical_qubits[0], 1: self.physical_qubits[1]}
+        )
+        for circ in self.circuits():
+            new_circ = QuantumCircuit(
+                *circ.qregs,
+                name=circ.name,
+                global_phase=circ.global_phase,
+                metadata=circ.metadata.copy(),
+            )
+            clbits = circ.num_clbits
+            if clbits:
+                creg = ClassicalRegister(clbits)
+                new_cargs = [Clbit(creg, i) for i in range(clbits)]
+                new_circ.add_register(creg)
+            else:
+                cargs = []
+
+            for inst, qargs, cargs in circ.data:
+                mapped_cargs = [new_cargs[circ.find_bit(clbit).index] for clbit in cargs]
+                mapped_qargs = [circ.qubits[qargs_map[circ.find_bit(i).index]] for i in qargs]
+                new_circ.data.append((inst, mapped_qargs, mapped_cargs))
+                # Add the calibrations
+                for gate, cals in circ.calibrations.items():
+                    for key, sched in cals.items():
+                        new_circ.add_calibration(gate, qubits=key[0], schedule=sched, params=key[1])
+
+            transpiled.append(new_circ)
+        return transpiled
