@@ -82,8 +82,6 @@ class CliffordUtils:
         (2, 2, 3, 3, 3, 3, 4, 4),
         (2, 2, 3, 3, 4, 4),
     ]
-    GENERAL_CLIFF_LIST = ["id", "h", "sdg", "s", "x", "sx", "sxdg", "y", "z", "cx"]
-    TRANSPILED_CLIFF_LIST = ["sx", "rz", "cx"]
     CLIFF_SINGLE_GATE_MAP = {1: CLIFF_SINGLE_GATE_MAP_1Q, 2: CLIFF_SINGLE_GATE_MAP_2Q}
     CLIFF_COMPOSE_DATA = {1: CLIFF_COMPOSE_DATA_1Q, 2: CLIFF_COMPOSE_DATA_2Q}
     CLIFF_INVERSE_DATA = {1: CLIFF_INVERSE_DATA_1Q, 2: CLIFF_INVERSE_DATA_2Q}
@@ -237,37 +235,27 @@ class CliffordUtils:
         one of these sets.
         """
         name = inst.name
-        gates_with_delay = self.basis_gates.copy()
-        gates_with_delay.append("delay")
+        if name == "delay":
+            return 0
 
-        if not name in gates_with_delay:
-            raise QiskitError("Instruction {} is not in the basis gates".format(inst.name))
-        if set(self.basis_gates).issubset(set(self.GENERAL_CLIFF_LIST)):
-            if name == "delay":
-                return 0
-            map_index = name
-
-        if set(self.basis_gates).issubset(set(self.TRANSPILED_CLIFF_LIST)):
-            if name in {"sx", "cx"}:
-                map_index = name
-            elif name == "delay":
-                return 0
-            elif name == "rz":
-                # The next two are identical up to a phase, which makes no difference
-                # for the associated Cliffords
-                if isclose(inst.params[0], np.pi) or isclose(inst.params[0], -np.pi):
-                    map_index = "z"
-                elif isclose(inst.params[0], np.pi / 2):
-                    map_index = "s"
-                elif isclose(inst.params[0], -np.pi / 2):
-                    map_index = "sdg"
-                else:
-                    raise QiskitError("wrong param {} for rz in clifford".format(inst.params[0]))
+        clifford_gate_set = {key[0] for key in self.CLIFF_SINGLE_GATE_MAP[rb_num_qubits]}
+        if name == "rz":
+            # The next two are identical up to a phase, which makes no difference
+            # for the associated Cliffords
+            if isclose(inst.params[0], np.pi) or isclose(inst.params[0], -np.pi):
+                map_index = "z"
+            elif isclose(inst.params[0], np.pi / 2):
+                map_index = "s"
+            elif isclose(inst.params[0], -np.pi / 2):
+                map_index = "sdg"
             else:
-                raise QiskitError(
-                    "Instruction {} could not be converted to Clifford gate".format(name)
-                )
-
+                raise QiskitError("wrong param {} for rz in clifford".format(inst.params[0]))
+        elif name in clifford_gate_set:
+            map_index = name
+        else:
+            raise QiskitError(
+                "Instruction {} could not be converted to Clifford gate".format(name)
+            )
         return self.CLIFF_SINGLE_GATE_MAP[rb_num_qubits][(map_index, str(qubits))]
 
     def compose_num_with_clifford(
