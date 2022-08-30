@@ -147,9 +147,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
             circuits += rb_circuits
         return circuits
 
-    def _build_rb_circuits(
-        self, lengths: List[int], rng: Generator, interleaved_element: QuantumCircuit = None
-    ) -> List[QuantumCircuit]:
+    def _build_rb_circuits(self, lengths: List[int], rng: Generator) -> List[QuantumCircuit]:
         """
         build_rb_circuits
         Args:
@@ -167,7 +165,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
             when performed on the integers rather than on the Cliffords themselves.
         """
         if self._full_sampling:
-            return self._build_rb_circuits_full_sampling(lengths, rng, interleaved_element)
+            return self._build_rb_circuits_full_sampling(lengths, rng)
         max_qubit = max(self.physical_qubits) + 1
         all_rb_circuits = []
 
@@ -188,21 +186,13 @@ class StandardRB(BaseExperiment, RestlessMixin):
 
         for length in lengths:
             for i in range(prev_length, length):
-                next_circ = self._clifford_utils.create_random_clifford(rng)
-                circ.compose(next_circ, inplace=True)
-                composed_cliff_num = self._clifford_utils.compose_num_with_clifford(
-                    composed_num=composed_cliff_num,
-                    qc=next_circ,
+                circ, _, composed_cliff_num = self._add_random_cliff_to_circ(
+                    circ, composed_cliff_num, qubits, rng
                 )
-                circ.barrier(qubits)
 
                 if i == length - 1:
                     rb_circ = circ.copy()  # circ is used as the prefix of the next circuit
-                    inverse_cliff = self._clifford_utils.inverse_cliff(composed_cliff_num)
-
-                    # append the inverse
-                    rb_circ.compose(inverse_cliff, inplace=True)
-                    rb_circ.measure(qubits, clbits)
+                    rb_circ = self._add_inverse_to_circ(rb_circ, composed_cliff_num, qubits, clbits)
 
                     rb_circ.metadata = {
                         "experiment_type": "rb",
@@ -216,7 +206,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
         return all_rb_circuits
 
     def _build_rb_circuits_full_sampling(
-        self, lengths: List[int], rng: Generator, interleaved_element: QuantumCircuit = None
+        self, lengths: List[int], rng: Generator
     ) -> List[QuantumCircuit]:
         """
         _build_rb_circuits_full_sampling
@@ -245,26 +235,17 @@ class StandardRB(BaseExperiment, RestlessMixin):
 
             # composed_cliff_num is the number representing the composition of
             # all the Cliffords up to now
-            # composed_interleaved_num is the same for an interleaved circuit
             composed_cliff_num = 0
-            composed_interleaved_num = 0
+
             # For full_sampling, we create each circuit independently.
             for _ in range(length):
                 # choose random clifford
-                next_circ = self._clifford_utils.create_random_clifford(rng)
-                rb_circ.compose(next_circ, inplace=True)
-
-                composed_cliff_num = self._clifford_utils.compose_num_with_clifford(
-                    composed_num=composed_cliff_num,
-                    qc=next_circ,
+                rb_circ, _, composed_cliff_num = self._add_random_cliff_to_circ(
+                    rb_circ, composed_cliff_num, qubits, rng
                 )
-                rb_circ.barrier(qubits)
 
-            # append the inverse
-            inverse_cliff = self._clifford_utils.inverse_cliff(composed_cliff_num)
+            rb_circ = self._add_inverse_to_circ(rb_circ, composed_cliff_num, qubits, clbits)
 
-            rb_circ.compose(inverse_cliff, inplace=True)
-            rb_circ.measure(qubits, clbits)
             rb_circ.metadata = {
                 "experiment_type": "rb",
                 "xval": length,
@@ -275,6 +256,28 @@ class StandardRB(BaseExperiment, RestlessMixin):
 
             all_rb_circuits.append(rb_circ)
         return all_rb_circuits
+
+    def _add_random_cliff_to_circ(self, circ, composed_cliff_num, qubits, rng):
+        next_circ = self._clifford_utils.create_random_clifford(rng)
+        circ, composed_cliff_num = self._add_cliff_to_circ(
+            circ, next_circ, composed_cliff_num, qubits
+        )
+        return circ, next_circ, composed_cliff_num
+
+    def _add_cliff_to_circ(self, circ, next_circ, composed_cliff_num, qubits):
+        circ.compose(next_circ, inplace=True)
+        composed_cliff_num = self._clifford_utils.compose_num_with_clifford(
+            composed_num=composed_cliff_num,
+            qc=next_circ,
+        )
+        circ.barrier(qubits)
+        return circ, composed_cliff_num
+
+    def _add_inverse_to_circ(self, rb_circ, composed_num, qubits, clbits):
+        inverse_cliff = self._clifford_utils.inverse_cliff(composed_num)
+        rb_circ.compose(inverse_cliff, inplace=True)
+        rb_circ.measure(qubits, clbits)
+        return rb_circ
 
     # This method does a quick layout to avoid calling 'transpile()' which is
     # very costly in performance
