@@ -213,11 +213,13 @@ Experiment Data Classes
     ExperimentStatus
     JobStatus
     AnalysisStatus
+    AnalysisResult
     AnalysisResultData
     ExperimentConfig
     AnalysisConfig
     ExperimentEncoder
     ExperimentDecoder
+    BackendData
     FigureData
 
 .. _composite-experiment:

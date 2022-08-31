@@ -1,5 +1,0 @@
----
-fixes:
-  - |
-    Instantiating the :class:`.CrossResonanceHamiltonian` experiment without ``cr_gate``
-    and with ``backend`` has been raising AttributeError. The bug has been fixed.

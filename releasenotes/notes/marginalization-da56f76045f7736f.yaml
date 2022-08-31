@@ -1,5 +1,0 @@
----
-fixes:
-  - |
-    The marginalization of kerneled and discriminated memory in
-    :class:`.CompositeAnalysis` has been fixed.

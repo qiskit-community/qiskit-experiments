@@ -44,9 +44,9 @@ copyright = "2021, Qiskit Development Team"  # pylint: disable=redefined-builtin
 author = "Qiskit Development Team"
 
 # The short X.Y version
-version = "0.4"
+version = "0.5"
 # The full version, including alpha/beta/rc tags
-release = "0.4.0"
+release = "0.5.0"
 
 rst_prolog = """
 .. raw:: html
