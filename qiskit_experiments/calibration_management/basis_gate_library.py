@@ -293,7 +293,11 @@ class FixedFrequencyTransmon(BasisGateLibrary):
 
 
 class EchoCrossResonance(BasisGateLibrary):
-    """A library for echoed cross-resonance gates."""
+    """A library for echoed cross-resonance gates.
+
+    Here, the ECR gate is defined as cr45p - X - cr45m. Furthermore, the X gate is defined
+    outside of this library, see :class:`FixedFrequencyTransmon`.
+    """
 
     __default_values__ = {"tamp": 0.0, "amp": 0.5, "σ": 64, "risefall": 2, "duration": 1168}
 
@@ -348,33 +352,21 @@ class EchoCrossResonance(BasisGateLibrary):
         if "cr45p" in basis_gates:
             with pulse.build(name="cr45p") as cr45p:
                 pulse.play(
-                    pulse.GaussianSquare(
-                        cr_dur,
-                        cr_amp,
-                        risefall_sigma_ratio=cr_rf,
-                        sigma=sigma
-                    ),
-                    u_chan
+                    pulse.GaussianSquare(cr_dur, cr_amp, risefall_sigma_ratio=cr_rf, sigma=sigma),
+                    u_chan,
                 )
 
                 if self._target_pulses:
                     pulse.play(
-                        pulse.GaussianSquare(
-                            cr_dur,
-                            tamp,
-                            risefall_sigma_ratio=cr_rf,
-                            sigma=sigma
-                        ),
-                        t_chan
+                        pulse.GaussianSquare(cr_dur, tamp, risefall_sigma_ratio=cr_rf, sigma=sigma),
+                        t_chan,
                     )
 
             schedules["cr45p"] = cr45p
 
         if "cr45m" in basis_gates:
             with pulse.build(name="cr45m") as cr45m:
-                pulse.play(
-                    pulse.GaussianSquare(cr_dur, -cr_amp, width=cr_rf, sigma=sigma), u_chan
-                )
+                pulse.play(pulse.GaussianSquare(cr_dur, -cr_amp, width=cr_rf, sigma=sigma), u_chan)
 
                 if self._target_pulses:
                     pulse.play(
@@ -389,7 +381,6 @@ class EchoCrossResonance(BasisGateLibrary):
                     pulse.reference("cr45p", "q0", "q1")
                     pulse.reference("x", "q0")
                     pulse.reference("cr45m", "q0", "q1")
-                    pulse.reference("x", "q0")
 
             schedules["ecr"] = ecr
 
