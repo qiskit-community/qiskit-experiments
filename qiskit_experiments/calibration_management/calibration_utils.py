@@ -143,7 +143,7 @@ def reference_info(
     ref_qubits = tuple(int(qubit[1:]) for qubit in ref_qubits)
 
     # get the qubit indices for which we are getting the schedules
-    if qubits is not None and qubits != ():
+    if qubits is not None and len(qubits) >= len(ref_qubits):
         ref_qubits = tuple(qubits[idx] for idx in ref_qubits)
 
     return ref_schedule_name, ref_qubits
