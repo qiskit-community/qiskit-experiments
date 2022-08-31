@@ -31,12 +31,12 @@ from qiskit.pulse import (
 from qiskit import transpile, QuantumCircuit
 from qiskit.pulse.transforms import inline_subroutines, block_to_schedule
 import qiskit.pulse as pulse
-from qiskit.providers.fake_provider import FakeArmonkV2, FakeBelemV2
 from qiskit_experiments.framework import BackendData
 from qiskit_experiments.calibration_management.calibrations import Calibrations, ParameterKey
 from qiskit_experiments.calibration_management.parameter_value import ParameterValue
 from qiskit_experiments.calibration_management.basis_gate_library import FixedFrequencyTransmon
 from qiskit_experiments.exceptions import CalibrationError
+from qiskit_experiments.test.fake_pulse_backends import FakeArmonkV2Pulse, FakeBelemV2Pulse
 
 
 class TestCalibrationsBasic(QiskitExperimentsTestCase):
@@ -274,7 +274,7 @@ class TestCalibrationsBasic(QiskitExperimentsTestCase):
     def test_from_backend(self):
         """Test that when generating calibrations from backend
         the data is passed correctly"""
-        backend = FakeBelemV2()
+        backend = FakeBelemV2Pulse()
         cals = Calibrations.from_backend(backend)
         config_args = cals.config()["kwargs"]
         control_channel_map_size = len(config_args["control_channel_map"].chan_map)
@@ -1446,7 +1446,7 @@ class TestSavingAndLoading(CrossResonanceTest):
         """
 
         library = FixedFrequencyTransmon()
-        backend = FakeArmonkV2()
+        backend = FakeArmonkV2Pulse()
         cals = Calibrations.from_backend(backend, libraries=[library])
 
         cals.parameters_table()
@@ -1459,7 +1459,7 @@ class TestSavingAndLoading(CrossResonanceTest):
         self.assertEqual(cals.get_parameter_value("amp", (0,), "x"), 0.5)
         self.assertEqual(
             cals.get_parameter_value("drive_freq", (0,)),
-            BackendData(backend).drive_freqs[0],
+            backend.defaults().qubit_freq_est[0],
         )
 
 
@@ -1470,7 +1470,7 @@ class TestInstructionScheduleMap(QiskitExperimentsTestCase):
         """Test that we can setup with a library."""
 
         cals = Calibrations.from_backend(
-            FakeArmonkV2(),
+            FakeArmonkV2Pulse(),
             libraries=[
                 FixedFrequencyTransmon(basis_gates=["x", "sx"], default_values={"duration": 320})
             ],
@@ -1491,7 +1491,7 @@ class TestInstructionScheduleMap(QiskitExperimentsTestCase):
     def test_instruction_schedule_map_export(self):
         """Test that exporting the inst map works as planned."""
 
-        backend = FakeBelemV2()
+        backend = FakeBelemV2Pulse()
 
         cals = Calibrations.from_backend(
             backend,
@@ -1520,7 +1520,7 @@ class TestInstructionScheduleMap(QiskitExperimentsTestCase):
         """Test that we can use the inst_map to inject the cals into the circuit."""
 
         cals = Calibrations.from_backend(
-            FakeArmonkV2(),
+            FakeArmonkV2Pulse(),
             libraries=[FixedFrequencyTransmon(basis_gates=["x"])],
         )
 
@@ -1570,7 +1570,7 @@ class TestInstructionScheduleMap(QiskitExperimentsTestCase):
         """Test that updating a parameter will force an inst map update."""
 
         cals = Calibrations.from_backend(
-            FakeBelemV2(),
+            FakeBelemV2Pulse(),
             libraries=[FixedFrequencyTransmon(basis_gates=["sx", "x"])],
         )
 
@@ -1619,7 +1619,7 @@ class TestInstructionScheduleMap(QiskitExperimentsTestCase):
         a CX on qubits 0, 1 in the inst. map and a CZ on qubits 1, 2.
         """
 
-        cals = Calibrations.from_backend(FakeBelemV2())
+        cals = Calibrations.from_backend(FakeBelemV2Pulse())
 
         sig = Parameter("σ")
         dur = Parameter("duration")
@@ -1666,7 +1666,7 @@ class TestInstructionScheduleMap(QiskitExperimentsTestCase):
     def test_alternate_initialization(self):
         """Test that we can initialize without a backend object."""
 
-        backend = FakeBelemV2()
+        backend = FakeBelemV2Pulse()
         library = FixedFrequencyTransmon(basis_gates=["sx", "x"])
 
         backend_data = BackendData(backend)
@@ -1690,7 +1690,7 @@ class TestSerialization(QiskitExperimentsTestCase):
     def test_serialization(self):
         """Test the serialization."""
 
-        backend = FakeBelemV2()
+        backend = FakeBelemV2Pulse()
         library = FixedFrequencyTransmon(basis_gates=["sx", "x"])
 
         cals = Calibrations.from_backend(backend, libraries=[library])
@@ -1700,7 +1700,7 @@ class TestSerialization(QiskitExperimentsTestCase):
 
     def test_equality(self):
         """Test the equal method on calibrations."""
-        backend = FakeBelemV2()
+        backend = FakeBelemV2Pulse()
         library = FixedFrequencyTransmon(basis_gates=["sx", "x"])
 
         cals1 = Calibrations.from_backend(

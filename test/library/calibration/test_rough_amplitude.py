@@ -18,11 +18,11 @@ import numpy as np
 from qiskit import transpile
 import qiskit.pulse as pulse
 from qiskit.circuit import Parameter
-from qiskit.providers.fake_provider import FakeArmonkV2
 
 from qiskit_experiments.calibration_management.basis_gate_library import FixedFrequencyTransmon
 from qiskit_experiments.calibration_management import Calibrations
 from qiskit_experiments.library import EFRoughXSXAmplitudeCal, RoughXSXAmplitudeCal
+from qiskit_experiments.test.fake_pulse_backends import FakeArmonkV2Pulse
 from qiskit_experiments.test.mock_iq_backend import MockIQBackend
 from qiskit_experiments.test.mock_iq_helpers import MockIQRabiHelper as RabiHelper
 
@@ -35,7 +35,7 @@ class TestRoughAmpCal(QiskitExperimentsTestCase):
         super().setUp()
         library = FixedFrequencyTransmon()
 
-        self.backend = FakeArmonkV2()
+        self.backend = FakeArmonkV2Pulse()
         self.cals = Calibrations.from_backend(self.backend, libraries=[library])
 
     def test_circuits(self):
@@ -86,7 +86,7 @@ class TestSpecializations(QiskitExperimentsTestCase):
 
         library = FixedFrequencyTransmon()
 
-        self.backend = FakeArmonkV2()
+        self.backend = FakeArmonkV2Pulse()
         self.cals = Calibrations.from_backend(self.backend, libraries=[library])
 
         # Add some pulses on the 1-2 transition.

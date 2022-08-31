@@ -275,10 +275,10 @@ class Calibrations:
         )
 
         if add_parameter_defaults:
-            for qubit, freq in enumerate(backend_data.drive_freqs):
+            for qubit, freq in enumerate(getattr(backend.defaults(), "qubit_freq_est", [])):
                 cals.add_parameter_value(freq, cals.drive_freq, qubit, update_inst_map=False)
 
-            for meas, freq in enumerate(backend_data.meas_freqs):
+            for meas, freq in enumerate(getattr(backend.defaults(), "meas_freq_est", [])):
                 cals.add_parameter_value(freq, cals.meas_freq, meas, update_inst_map=False)
 
         # Update the instruction schedule map after adding all parameter values.

@@ -17,39 +17,13 @@ import numpy as np
 from qiskit.circuit import Parameter
 from qiskit.qobj.utils import MeasLevel
 import qiskit.pulse as pulse
-from qiskit.providers.fake_provider import FakeAthensV2
 
 from qiskit_experiments.library import QubitSpectroscopy
 from qiskit_experiments.calibration_management.calibrations import Calibrations
 from qiskit_experiments.calibration_management.update_library import Frequency
+from qiskit_experiments.test.fake_pulse_backends import FakeAthensV2Pulse
 from qiskit_experiments.test.mock_iq_backend import MockIQBackend
 from qiskit_experiments.test.mock_iq_helpers import MockIQSpectroscopyHelper as SpectroscopyHelper
-
-
-class TestAmplitudeUpdate(QiskitExperimentsTestCase):
-    """Test the update functions in the update library."""
-
-    def setUp(self):
-        """Setup amplitude values."""
-        super().setUp()
-        self.cals = Calibrations(coupling_map=[])
-        self.qubit = 1
-
-        axp = Parameter("amp")
-        chan = Parameter("ch0")
-        with pulse.build(name="xp") as xp:
-            pulse.play(pulse.Gaussian(duration=160, amp=axp, sigma=40), pulse.DriveChannel(chan))
-
-        ax90p = Parameter("amp")
-        with pulse.build(name="x90p") as x90p:
-            pulse.play(pulse.Gaussian(duration=160, amp=ax90p, sigma=40), pulse.DriveChannel(chan))
-
-        self.x90p = x90p
-
-        self.cals.add_schedule(xp, num_qubits=1)
-        self.cals.add_schedule(x90p, num_qubits=1)
-        self.cals.add_parameter_value(0.2, "amp", self.qubit, "xp")
-        self.cals.add_parameter_value(0.1, "amp", self.qubit, "x90p")
 
 
 class TestFrequencyUpdate(QiskitExperimentsTestCase):
@@ -67,8 +41,6 @@ class TestFrequencyUpdate(QiskitExperimentsTestCase):
                 iq_cluster_width=[0.2],
             ),
         )
-        backend._configuration.basis_gates = ["x"]
-        backend._configuration.timing_constraints = {"granularity": 16}
 
         freq01 = backend.defaults().qubit_freq_est[qubit]
         frequencies = np.linspace(freq01 - 10.0e6, freq01 + 10.0e6, 21)
@@ -84,7 +56,7 @@ class TestFrequencyUpdate(QiskitExperimentsTestCase):
         self.assertEqual(result.quality, "good")
 
         # Test the integration with the Calibrations
-        cals = Calibrations.from_backend(FakeAthensV2())
+        cals = Calibrations.from_backend(FakeAthensV2Pulse())
         self.assertNotEqual(cals.get_parameter_value(cals.__drive_freq_parameter__, qubit), value)
         Frequency.update(cals, exp_data)
         self.assertEqual(cals.get_parameter_value(cals.__drive_freq_parameter__, qubit), value)

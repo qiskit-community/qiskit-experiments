@@ -44,7 +44,6 @@ class TestResonatorSpectroscopy(QiskitExperimentsTestCase):
                 iq_cluster_width=[0.2],
             ),
         )
-        backend._configuration.timing_constraints = {"granularity": 16}
 
         res_freq = backend.defaults().meas_freq_est[qubit]
 
@@ -83,7 +82,6 @@ class TestResonatorSpectroscopy(QiskitExperimentsTestCase):
                 iq_cluster_width=[0.2],
             ),
         )
-        backend._configuration.timing_constraints = {"granularity": 16}
 
         res_freq = backend.defaults().meas_freq_est[qubit]
 
@@ -128,7 +126,6 @@ class TestResonatorSpectroscopy(QiskitExperimentsTestCase):
             experiment_helper=None,
             rng_seed=0,
         )
-        parallel_backend._configuration.timing_constraints = {"granularity": 16}
 
         qubit1 = 0
         qubit2 = 1

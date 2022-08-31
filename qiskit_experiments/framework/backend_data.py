@@ -206,29 +206,6 @@ class BackendData:
         return None
 
     @property
-    def drive_freqs(self):
-        """Returns the backend's qubit drive frequencies"""
-        if self._v1:
-            return getattr(self._backend.defaults(), "qubit_freq_est", [])
-        elif self._v2:
-            return [property.frequency for property in self._backend.target.qubit_properties]
-        return []
-
-    @property
-    def meas_freqs(self):
-        """Returns the backend's measurement stimulus frequencies.
-
-        .. note::
-            Currently BackendV2 does not have access to this data.
-        """
-        if self._v1:
-            return getattr(self._backend.defaults(), "meas_freq_est", [])
-        elif self._v2:
-            # meas_freq_est is currently not part of the BackendV2
-            return []
-        return []
-
-    @property
     def num_qubits(self):
         """Returns the backend's number of qubits"""
         if self._v1:
@@ -255,3 +232,10 @@ class BackendData:
                 return True
 
         return False
+
+    def qubit_t1(self, qubit: int) -> float:
+        if self._v1:
+            return self._backend.properties().qubit_property(qubit)["T1"][0]
+        if self._v2:
+            return self._backend.qubit_properties(0).t1
+        return float("nan")

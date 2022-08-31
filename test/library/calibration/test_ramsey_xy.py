@@ -22,6 +22,7 @@ from qiskit_experiments.calibration_management.calibrations import Calibrations
 from qiskit_experiments.calibration_management.basis_gate_library import FixedFrequencyTransmon
 from qiskit_experiments.framework import BaseAnalysis, AnalysisStatus, BackendData
 from qiskit_experiments.library import RamseyXY, FrequencyCal
+from qiskit_experiments.test.fake_pulse_backends import FakeArmonkV2Pulse
 from qiskit_experiments.test.mock_iq_backend import MockIQBackend
 from qiskit_experiments.test.mock_iq_helpers import MockIQRamseyXYHelper as RamseyXYHelper
 
@@ -35,7 +36,7 @@ class TestRamseyXY(QiskitExperimentsTestCase):
         super().setUp()
 
         library = FixedFrequencyTransmon()
-        self.cals = Calibrations.from_backend(FakeArmonkV2(), libraries=[library])
+        self.cals = Calibrations.from_backend(FakeArmonkV2Pulse(), libraries=[library])
 
     @data(2e6, -3e6, 1e3, 0.0, 0.2e6, 0.3e6)
     def test_end_to_end(self, freq_shift: float):
@@ -68,7 +69,7 @@ class TestRamseyXY(QiskitExperimentsTestCase):
         # Check qubit frequency before running the cal
         f01 = self.cals.get_parameter_value(freq_name, 0)
         self.assertTrue(len(self.cals.parameters_table(parameters=[freq_name])["data"]), 1)
-        self.assertEqual(f01, BackendData(FakeArmonkV2()).drive_freqs[0])
+        self.assertEqual(f01, FakeArmonkV2Pulse().defaults().qubit_freq_est[0])
 
         freq_shift = 4e6
         osc_shift = 2e6
@@ -81,7 +82,7 @@ class TestRamseyXY(QiskitExperimentsTestCase):
         # Check that qubit frequency after running the cal is shifted by freq_shift, i.e. 4 MHz.
         f01 = self.cals.get_parameter_value(freq_name, 0)
         self.assertTrue(len(self.cals.parameters_table(parameters=[freq_name])["data"]), 2)
-        self.assertLess(abs(f01 - (freq_shift + BackendData(FakeArmonkV2()).drive_freqs[0])), tol)
+        self.assertLess(abs(f01 - (freq_shift + FakeArmonkV2Pulse().defaults().qubit_freq_est[0])), tol)
 
     def test_update_with_failed_analysis(self):
         """Test that calibration update handles analysis producing no results

@@ -200,7 +200,7 @@ class RestlessMixin:
 
         try:
             t1_values = [
-                self._backend.properties().qubit_property(physical_qubit)["T1"][0]
+                self._backend_data.qubit_t1(physical_qubit)
                 for physical_qubit in self._physical_qubits
             ]
 
