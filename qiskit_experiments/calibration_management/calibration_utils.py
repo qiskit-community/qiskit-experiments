@@ -92,13 +92,14 @@ def validate_channels(schedule: ScheduleBlock) -> Set[Parameter]:
 
         return param_indices
 
+    regex = re.compile(__channel_pattern__)
     for ch in schedule.channels:
         if isinstance(ch.index, ParameterExpression):
             if len(ch.index.parameters) != 1:
                 raise CalibrationError(f"Channel {ch} can only have one parameter.")
 
             param_indices.add(ch.index)
-            if re.compile(__channel_pattern__).match(ch.index.name) is None:
+            if regex.match(ch.index.name) is None:
                 raise CalibrationError(
                     f"Parameterized channel must correspond to {__channel_pattern__}"
                 )
