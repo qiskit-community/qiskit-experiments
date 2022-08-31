@@ -301,17 +301,17 @@ class EchoCrossResonance(BasisGateLibrary):
         self,
         basis_gates: Optional[List[str]] = None,
         default_values: Optional[Dict] = None,
-        rotaries: bool = True,
+        target_pulses: bool = True,
     ):
         """Setup the library.
 
         Args:
             basis_gates: The basis gates to generate.
             default_values: A dictionary to override library default parameter values.
-            rotaries: If True (the default) then drives will be added to the target qubit
+            target_pulses: If True (the default) then drives will be added to the target qubit
                 during the CR tones on the control qubit.
         """
-        self._rotaries = rotaries
+        self._target_pulses = target_pulses
         super().__init__(basis_gates, default_values)
 
     @property
@@ -357,7 +357,7 @@ class EchoCrossResonance(BasisGateLibrary):
                     u_chan
                 )
 
-                if self._rotaries:
+                if self._target_pulses:
                     pulse.play(
                         pulse.GaussianSquare(
                             cr_dur,
@@ -376,7 +376,7 @@ class EchoCrossResonance(BasisGateLibrary):
                     pulse.GaussianSquare(cr_dur, -cr_amp, width=cr_rf, sigma=sigma), u_chan
                 )
 
-                if self._rotaries:
+                if self._target_pulses:
                     pulse.play(
                         pulse.GaussianSquare(cr_dur, -rot_amp, width=cr_rf, sigma=sigma), t_chan
                     )
