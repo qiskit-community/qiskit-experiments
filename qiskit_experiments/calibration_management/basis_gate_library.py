@@ -295,7 +295,7 @@ class FixedFrequencyTransmon(BasisGateLibrary):
 class EchoCrossResonance(BasisGateLibrary):
     """A library for echoed cross-resonance gates."""
 
-    __default_values__ = {"tamp": 0.0, "amp": 0.5, "σ": 64, "w": 912, "duration": 1168}
+    __default_values__ = {"tamp": 0.0, "amp": 0.5, "σ": 64, "risefall": 2, "duration": 1168}
 
     def __init__(
         self,
@@ -339,7 +339,7 @@ class EchoCrossResonance(BasisGateLibrary):
         sigma = Parameter("σ")
         cr_amp = Parameter("amp")
         cr_dur = Parameter("duration")
-        cr_width = Parameter("w")
+        cr_rf = Parameter("risefall")
         t_chan_idx = Parameter("ch1")
         u_chan_idx = Parameter("ch0.1")
         t_chan = pulse.DriveChannel(t_chan_idx)
@@ -348,12 +348,24 @@ class EchoCrossResonance(BasisGateLibrary):
         if "cr45p" in basis_gates:
             with pulse.build(name="cr45p") as cr45p:
                 pulse.play(
-                    pulse.GaussianSquare(cr_dur, cr_amp, width=cr_width, sigma=sigma), u_chan
+                    pulse.GaussianSquare(
+                        cr_dur,
+                        cr_amp,
+                        risefall_sigma_ratio=cr_rf,
+                        sigma=sigma
+                    ),
+                    u_chan
                 )
 
                 if self._rotaries:
                     pulse.play(
-                        pulse.GaussianSquare(cr_dur, rot_amp, width=cr_width, sigma=sigma), t_chan
+                        pulse.GaussianSquare(
+                            cr_dur,
+                            rot_amp,
+                            risefall_sigma_ratio=cr_rf,
+                            sigma=sigma
+                        ),
+                        t_chan
                     )
 
             schedules["cr45p"] = cr45p
@@ -361,12 +373,12 @@ class EchoCrossResonance(BasisGateLibrary):
         if "cr45m" in basis_gates:
             with pulse.build(name="cr45m") as cr45m:
                 pulse.play(
-                    pulse.GaussianSquare(cr_dur, -cr_amp, width=cr_width, sigma=sigma), u_chan
+                    pulse.GaussianSquare(cr_dur, -cr_amp, width=cr_rf, sigma=sigma), u_chan
                 )
 
                 if self._rotaries:
                     pulse.play(
-                        pulse.GaussianSquare(cr_dur, -rot_amp, width=cr_width, sigma=sigma), t_chan
+                        pulse.GaussianSquare(cr_dur, -rot_amp, width=cr_rf, sigma=sigma), t_chan
                     )
 
             schedules["cr45m"] = cr45m
