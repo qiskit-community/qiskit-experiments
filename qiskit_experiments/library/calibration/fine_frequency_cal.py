@@ -77,7 +77,7 @@ class FineFrequencyCal(BaseCalibrationExperiment, FineFrequency):
         )
 
         if self.backend is not None:
-            self.set_experiment_options(dt=getattr(self.backend.configuration(), "dt", None))
+            self.set_experiment_options(dt=self._backend_data.dt)
 
     @classmethod
     def _default_experiment_options(cls):

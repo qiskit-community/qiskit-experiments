@@ -24,7 +24,7 @@ import uncertainties
 from lmfit import Model
 from qiskit.test import QiskitTestCase
 from qiskit_experiments.data_processing import DataAction, DataProcessor
-from qiskit_experiments.database_service.db_experiment_data import ExperimentStatus
+from qiskit_experiments.framework.experiment_data import ExperimentStatus
 from qiskit_experiments.framework import (
     ExperimentDecoder,
     ExperimentEncoder,
@@ -109,7 +109,7 @@ class QiskitExperimentsTestCase(QiskitTestCase):
     def json_equiv(cls, data1, data2) -> bool:
         """Check if two experiments are equivalent by comparing their configs"""
         # pylint: disable = too-many-return-statements
-        configrable_type = (BaseExperiment, BaseAnalysis, BaseCurveDrawer)
+        configurable_type = (BaseExperiment, BaseAnalysis, BaseCurveDrawer)
         compare_repr = (DataAction, DataProcessor)
         list_type = (list, tuple, set)
         skipped = tuple()
@@ -117,7 +117,7 @@ class QiskitExperimentsTestCase(QiskitTestCase):
         if isinstance(data1, skipped) and isinstance(data2, skipped):
             warnings.warn(f"Equivalence check for data {data1.__class__.__name__} is skipped.")
             return True
-        elif isinstance(data1, configrable_type) and isinstance(data2, configrable_type):
+        elif isinstance(data1, configurable_type) and isinstance(data2, configurable_type):
             return cls.json_equiv(data1.config(), data2.config())
         elif dataclasses.is_dataclass(data1) and dataclasses.is_dataclass(data2):
             # not using asdict. this copies all objects.
@@ -198,7 +198,7 @@ class QiskitExperimentsTestCase(QiskitTestCase):
     def experiment_data_equiv(cls, data1, data2):
         """Check two experiment data containers are equivalent"""
 
-        # Check basic attrbiutes
+        # Check basic attributes
         # Skip non-compatible backend
         for att in [
             "experiment_id",
@@ -236,7 +236,7 @@ class QiskitExperimentsTestCase(QiskitTestCase):
         if not cls.json_equiv(data1.data(), data2.data()):
             return False
 
-        # Check analysis resultsx
+        # Check analysis results
         for result1, result2 in zip(data1.analysis_results(), data2.analysis_results()):
             if not cls.analysis_result_equiv(result1, result2):
                 return False

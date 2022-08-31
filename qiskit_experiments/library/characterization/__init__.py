@@ -57,6 +57,7 @@ Analysis
     :template: autosummary/analysis.rst
 
     T1Analysis
+    T1KerneledAnalysis
     T2RamseyAnalysis
     T2HahnAnalysis
     TphiAnalysis
@@ -81,6 +82,7 @@ from .analysis import (
     RamseyXYAnalysis,
     T2RamseyAnalysis,
     T1Analysis,
+    T1KerneledAnalysis,
     T2HahnAnalysis,
     TphiAnalysis,
     CrossResonanceHamiltonianAnalysis,

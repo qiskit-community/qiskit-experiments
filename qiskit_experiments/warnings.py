@@ -78,7 +78,7 @@ def deprecated_class(
     patch __new__ method of the class to instantiate the new class.
 
     Args:
-        last_version: The Qiskit Experiment version that this class is removed.
+        last_version: The last Qiskit Experiments version that will have this class.
         new_cls: Alternative class type.
         msg: Extra message, for example, to indicate alternative approach.
         stacklevel: Stacklevel of this warning. See Python Warnings documentation for details.
@@ -103,14 +103,14 @@ def deprecated_class(
         def new(deprecated_cls, *args, **kwargs):
             message = f"Class '{deprecated_cls.__name__}' has been deprecated"
             if new_cls:
-                message += f" and replaced with '{new_cls.__name__}'. "
+                message += f" and replaced with '{new_cls.__name__}'."
             else:
                 message += ". "
             if last_version:
-                message += f"This class will be removed after Qiskit Experiments {last_version}. "
+                message += f"This class will be removed after Qiskit Experiments {last_version}."
             else:
-                message += "This class will be removed in future release. "
-            message += f"The '{deprecated_cls.__name__}' instance cannot be loaded after removal. "
+                message += "This class will be removed in a future release."
+            message += f"The '{deprecated_cls.__name__}' instance cannot be loaded after removal."
             if msg:
                 message += msg
             warnings.warn(message, DeprecationWarning, stacklevel=stacklevel)

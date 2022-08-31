@@ -88,7 +88,7 @@ Experiments for pulse level calibration of quantum gates. These experiments
 are usually run with a
 :py:class:`~qiskit_experiments.calibration_management.Calibrations`
 class instance to manage parameters and pulse schedules.
-See :doc:`/tutorials/calibrating_armonk` for example.
+See :doc:`/tutorials/calibrating_real_device` for example.
 
 .. autosummary::
     :toctree: ../stubs/

@@ -12,7 +12,7 @@
 
 """
 =================================================================
-Qiskit Experiments Test Utilties (:mod:`qiskit_experiments.test`)
+Qiskit Experiments Test Utilities (:mod:`qiskit_experiments.test`)
 =================================================================
 
 .. currentmodule:: qiskit_experiments.test
@@ -25,16 +25,28 @@ instead call a simulator internally.
 .. autosummary::
     :toctree: ../stubs/
 
-    MockIQBackend
-    T2HahnBackend
-    NoisyDelayAerBackend
     FakeJob
     FakeService
+
+.. _backends:
+
+Fake Backends
+=============
+
+Mock backends for running simulated jobs.
+
+.. autosummary::
+    :toctree: ../stubs/
+
+    MockIQBackend
+    MockIQParallelBackend
+    T2HahnBackend
+    NoisyDelayAerBackend
 
 """
 
 from .utils import FakeJob
-from .mock_iq_backend import MockIQBackend
+from .mock_iq_backend import MockIQBackend, MockIQParallelBackend
 from .noisy_delay_aer_simulator import NoisyDelayAerBackend
 from .t2hahn_backend import T2HahnBackend
 from .fake_service import FakeService

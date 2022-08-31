@@ -15,4 +15,5 @@ ddt~=1.4.2
 qiskit-aer>=0.10.0
 pandas>=1.1.5
 cvxpy>=1.1.15
-pygsti==0.9.10.1
+pylatexenc
+

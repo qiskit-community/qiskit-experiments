@@ -21,7 +21,7 @@ from qiskit import QiskitError, QuantumCircuit
 from qiskit.providers.backend import Backend
 
 from qiskit_experiments.database_service.device_component import Qubit
-from qiskit_experiments.framework import DbAnalysisResultV1, AnalysisResultData
+from qiskit_experiments.framework import AnalysisResultData
 from qiskit_experiments.warnings import deprecated_function
 
 
@@ -33,7 +33,7 @@ class RBUtils:
     @deprecated_function(
         last_version="0.4",
         msg=(
-            "This method may return errorneous error ratio. "
+            "This method may return erroneous error ratio. "
             "Please directly provide known gate error ratio to the analysis option."
         ),
     )
@@ -72,7 +72,7 @@ class RBUtils:
     @deprecated_function(
         last_version="0.4",
         msg=(
-            "Now this method is integarated into 'StandardRB._transpiled_circuits' method. "
+            "Now this method is integrated into 'StandardRB._transpiled_circuits' method. "
             "You don't need to explicitly call this method."
         ),
     )
@@ -216,7 +216,7 @@ class RBUtils:
         Args:
             epc_1_qubit: The error per clifford rate obtained via experiment
             qubits: The qubits for which to compute epg
-            gate_error_ratio: Estiamte for the ratios between errors on different gates
+            gate_error_ratio: Estimate for the ratios between errors on different gates
             gates_per_clifford: The computed gates per clifford data
         Returns:
             A dictionary of the form (qubits, gate) -> value where value
@@ -246,7 +246,7 @@ class RBUtils:
         qubits: Sequence[int],
         gate_error_ratio: Dict[str, float],
         gates_per_clifford: Dict[Tuple[Sequence[int], str], float],
-        epg_1_qubit: Optional[List[Union[DbAnalysisResultV1, AnalysisResultData]]] = None,
+        epg_1_qubit: Optional[List[AnalysisResultData]] = None,
         gate_2_qubit_type: Optional[str] = "cx",
     ) -> Dict[int, Dict[str, uncertainties.UFloat]]:
         r"""
@@ -256,7 +256,7 @@ class RBUtils:
         Args:
             epc_2_qubit: The error per clifford rate obtained via experiment
             qubits: The qubits for which to compute epg
-            gate_error_ratio: Estiamte for the ratios between errors on different gates
+            gate_error_ratio: Estimate for the ratios between errors on different gates
             gates_per_clifford: The computed gates per clifford data
             epg_1_qubit: analysis results containing EPG for the 1-qubits gate involved,
                 assumed to have been obtained from previous experiments

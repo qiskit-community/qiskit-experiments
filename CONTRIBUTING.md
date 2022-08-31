@@ -22,7 +22,7 @@ Qiskit Experiments are documented below.
       * [Linking to issues](#linking-to-issues)
     - [Generating release notes](#generating-release-notes)
   + [Documentation](#documentation)
-    + [Experiment class documentation](#experiment-class-documenation)
+    + [Experiment class documentation](#experiment-class-documentation)
     + [Analysis class documentation](#analysis-class-documentation)
     + [Populating the table of contents](#populating-the-table-of-contents)
     + [Updating the tutorials](#updating-the-tutorials)
@@ -106,34 +106,33 @@ an isolated virtualenv for running tests. This means it does not pollute your sy
 python when running. Additionally, the environment that tox sets up matches the CI
 environment more closely and it runs the tests in parallel (resulting in much faster
 execution). To run tests on all installed supported python versions and lint/style
-checks you can simply run `tox`. Or if you just want to run the tests once run for a
-specific python version: `tox -epy37` (or replace py37 with the python version you want
-to use, py35 or py36).
+checks you can simply run `tox`. Or if you just want to run the tests once for a
+specific python version such as 3.10: `tox -epy310`.
 
 If you just want to run a subset of tests you can pass a selection regex to the test
 runner. For example, if you want to run all tests that have "dag" in the test id you can
-run: `tox -epy37 -- dag`. You can pass arguments directly to the test runner after the
+run: `tox -- dag`. You can pass arguments directly to the test runner after the
 bare `--`. To see all the options on test selection you can refer to the stestr manual:
 https://stestr.readthedocs.io/en/stable/MANUAL.html#test-selection
 
 If you want to run a single test module, test class, or individual test method you can
 do this faster with the `-n`/`--no-discover` option. For example, to run a module:
 ```
-tox -epy37 -- -n test.python.test_examples
+tox -- -n test.python.test_examples
 ```
 Or to run the same module by path:
 
 ```
-tox -epy37 -- -n test/python/test_examples.py
+tox -- -n test/python/test_examples.py
 ```
 To run a class:
 
 ```
-tox -epy37 -- -n test.python.test_examples.TestPythonExamples
+tox -- -n test.python.test_examples.TestPythonExamples
 ```
 To run a method:
 ```
-tox -epy37 -- -n test.python.test_examples.TestPythonExamples.test_all_examples
+tox -- -n test.python.test_examples.TestPythonExamples.test_all_examples
 ```
 
 #### STDOUT/STDERR and logging capture
@@ -312,7 +311,7 @@ formatted in the same manner throughout our experiment library. You can use stan
 [reStructuredText](https://www.sphinx-doc.org/en/master/usage/restructuredtext/index.html)
 directives along with our syntax.
 
-#### Experiment class documenation
+#### Experiment class documentation
 
 You should complete or update the class documentation and method documentation for
 `_default_experiment_options`. You can use several predefined sections for the class docstring.
@@ -432,7 +431,7 @@ You can use the same syntax and section headers for the analysis class documenta
        variable names shown in analysis results. You can write symbol :math:`a` here too.
    
    # section: fit_parameters
-       Optional. Description for fit parametres in the model.
+       Optional. Description for fit parameters in the model.
        You can also write how initial guess is generated and how fit bound is determined.
        
        defpar a:
@@ -559,7 +558,7 @@ to the user, use the `:hide-code:` and `:hide-output:` directives:
         :hide-output:
 
         from qiskit.test.ibmq_mock import mock_get_backend
-        backend = mock_get_backend('FakeArmonk')
+        backend = mock_get_backend('FakeLima')
 
 To ignore an error from a Jupyter cell block, use the `:raises:` directive.
 #### Building documentation locally
