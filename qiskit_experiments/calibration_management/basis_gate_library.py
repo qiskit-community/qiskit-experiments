@@ -335,7 +335,7 @@ class EchoCrossResonance(BasisGateLibrary):
 
         schedules = dict()
 
-        rot_amp = Parameter("tamp")
+        tamp = Parameter("tamp")
         sigma = Parameter("σ")
         cr_amp = Parameter("amp")
         cr_dur = Parameter("duration")
@@ -361,7 +361,7 @@ class EchoCrossResonance(BasisGateLibrary):
                     pulse.play(
                         pulse.GaussianSquare(
                             cr_dur,
-                            rot_amp,
+                            tamp,
                             risefall_sigma_ratio=cr_rf,
                             sigma=sigma
                         ),
@@ -378,7 +378,7 @@ class EchoCrossResonance(BasisGateLibrary):
 
                 if self._target_pulses:
                     pulse.play(
-                        pulse.GaussianSquare(cr_dur, -rot_amp, width=cr_rf, sigma=sigma), t_chan
+                        pulse.GaussianSquare(cr_dur, -tamp, width=cr_rf, sigma=sigma), t_chan
                     )
 
             schedules["cr45m"] = cr45m
