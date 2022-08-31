@@ -42,6 +42,74 @@ class BackendTiming:
     delay and pulse timing that depends on the timing constraints of the
     backend.
 
+    When designing qubit characterization experiments, it is often necessary to
+    deal with precise timing of pulses and delays. The fact that physical
+    backends (i.e. not simulators) only support sampling time at intervals of
+    ``dt`` complicates this process as times must be rounded. Besides the
+    sampling time, there can be additional constraints like a minimum pulse
+    length or a pulse granularity, which specifies the allowed increments of a
+    pulse length in samples (i.e. for a granularity of 16 pulse lengths of 64
+    and 80 samples are valid but not any number in between).
+
+    Here are some specific problems that can occur when dealing timing
+    constraints for pulses and delays:
+
+    - An invalid pulse length or pulse start time could result in an error from
+      the backend.
+    - An invalid delay length could be rounded by the backend, and this
+      rounding could lead to error in analysis that assumes the unrounded
+      value.
+    - An invalid delay length that requires rounding could trigger a new
+      scheduling pass of a circuit, which is a computationally expensive
+      process. Scheduling the circuit with valid timing to start out can avoid
+      this rescheduling.
+    - While there are separate alignment requirements for drive
+      (``pulse_alignment``) and for measurement (``acquire_alignment``)
+      channels, the nature of pulse and circuit instruction alignment can
+      couple the timing of different instructions, resulting in improperly
+      aligned instructions.  For example, consider this circuit:
+
+      -- code-block:: python
+
+          from qiskit import QuantumCircuit
+          qc = QuantumCircuit(1, 1)
+          qc.x(0)
+          qc.delay(delay, 0)
+          qc.x(0)
+          qc.delay(delay2, 0)
+          qc.measure(0, 0)
+
+      Because the circuit instructions are all pushed together sequentially in
+      time without extra delays, whether or not the ``measure`` instruction
+      occurs at a valid time depends on the details of the circuit. In
+      particular, since the ``x`` gates should have durations that are
+      multiples of ``acquire_alignment`` (because ``granularity`` usually is),
+      the ``measure`` start will occur at a time consistent with
+      ``acquire_alignment`` when ``delay + delay2`` is a multiple of
+      ``acquire_alignment``. Note that in the case of IBM Quantum backends,
+      when ``acquire_alignment`` is not satisfied, there is no error reported
+      by Qiskit or by the backend. Instead the measurement pulse is misaligned
+      relative to the start of the signal acquisition, resulting in an
+      incorrect phase and often an incorrect state discrimination.
+
+    To help avoid these problems, :class:`.BackendTiming` provides methods for
+    calculating pulse and delay durations in samples and seconds, for a given
+    input duration in seconds. If these values are used for all durations in a
+    circuit, the alignment constraints should always be satisfied.
+
+    .. note::
+
+        For delay duration, the least common multiple of ``pulse_alignment``
+        and ``acquire_alignment`` is used as the granularity. Thus, in the
+        ``acquire_alignment`` example above, ``delay`` and ``delay2`` are each
+        a multiple of ``acquire_alignment`` and so the sum always is. This
+        approach excludes some valid circuits (like each delay being half of
+        ``acquire_alignment``) but has the benefit of always being valid
+        without detailed analysis of the full circuit.
+
+    TODO: add example usage
+    TODO: expose to framework and documentation
+
     .. note::
 
         The methods in this class assume that the ``backend`` attribute is
