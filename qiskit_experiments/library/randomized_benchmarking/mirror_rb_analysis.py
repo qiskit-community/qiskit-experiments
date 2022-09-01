@@ -24,7 +24,7 @@ from scipy.spatial.distance import hamming
 import qiskit_experiments.curve_analysis as curve
 from qiskit_experiments.exceptions import AnalysisError
 from qiskit_experiments.framework import AnalysisResultData, ExperimentData
-from qiskit_experiments.database_service import DbAnalysisResultV1
+from qiskit_experiments.framework.analysis_result import AnalysisResult
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
 from uncertainties import unumpy as unp  # pylint: disable=wrong-import-order
 
