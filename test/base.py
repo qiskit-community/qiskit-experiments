@@ -32,7 +32,7 @@ from qiskit_experiments.framework import (
     BaseExperiment,
     BaseAnalysis,
 )
-from qiskit_experiments.curve_analysis.visualization.base_drawer import BaseCurveDrawer
+from qiskit_experiments.visualization import BaseCurveDrawer
 from qiskit_experiments.curve_analysis.curve_data import CurveFitResult
 
 
