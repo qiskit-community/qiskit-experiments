@@ -21,7 +21,7 @@ from qiskit.exceptions import QiskitError
 from qiskit.providers import Backend
 import qiskit.pulse as pulse
 
-from qiskit_experiments.framework import Options, BackendData
+from qiskit_experiments.framework import Options
 from qiskit_experiments.library.characterization.spectroscopy import Spectroscopy
 from .analysis.resonator_spectroscopy_analysis import ResonatorSpectroscopyAnalysis
 

@@ -234,6 +234,14 @@ class BackendData:
         return False
 
     def qubit_t1(self, qubit: int) -> float:
+        """Return the T1 value for a qubit from the backend properties
+
+        Args:
+            qubit: the qubit index to return T1 for
+
+        Returns:
+            The T1 value
+        """
         if self._v1:
             return self._backend.properties().qubit_property(qubit)["T1"][0]
         if self._v2:

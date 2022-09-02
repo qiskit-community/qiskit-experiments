@@ -14,9 +14,7 @@
 from test.base import QiskitExperimentsTestCase
 import numpy as np
 
-from qiskit.circuit import Parameter
 from qiskit.qobj.utils import MeasLevel
-import qiskit.pulse as pulse
 
 from qiskit_experiments.library import QubitSpectroscopy
 from qiskit_experiments.calibration_management.calibrations import Calibrations
