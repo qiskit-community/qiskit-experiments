@@ -46,7 +46,9 @@ class TestFineFreqEndToEnd(QiskitExperimentsTestCase):
 
         self.inst_map.add("sx", 0, sx_sched)
 
-        self.cals = Calibrations.from_backend(FakeArmonkV2Pulse(), libraries=[FixedFrequencyTransmon()])
+        self.cals = Calibrations.from_backend(
+            FakeArmonkV2Pulse(), libraries=[FixedFrequencyTransmon()]
+        )
 
     @data(-0.5e6, -0.1e6, 0.1e6, 0.5e6)
     def test_end_to_end(self, freq_shift):

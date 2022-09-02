@@ -26,6 +26,7 @@ class PulseDefaultsMixin:
     have a ``defs_filename`` attribute with the path to a pulse defaults json
     file.
     """
+
     _defaults = None
 
     def defaults(self):
