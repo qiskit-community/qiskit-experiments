@@ -39,6 +39,7 @@ from qiskit.circuit.library import (
     ZGate,
     SdgGate,
     CXGate,
+    CZGate
 )
 from qiskit.quantum_info.operators.symplectic import Clifford
 from qiskit_experiments.library.randomized_benchmarking.clifford_utils import CliffordUtils
@@ -53,6 +54,10 @@ gate_list_1q = [
     YGate(),
     ZGate(),
     SdgGate(),
+]
+gate_list_2q = [
+    CXGate(),
+    CZGate()
 ]
 
 
@@ -75,8 +80,9 @@ class CliffordNumMapping:
         The mapping actually looks like {(gate, '[0]'): num}, where [0] represents qubit 0.
         The qubit is added to be consistent with the format for 2 qubits.
         """
-        for i in range(CliffordUtils.NUM_CLIFFORD_1_QUBIT):
-            cliff = CliffordUtils.clifford_1_qubit(i)
+        clifford_utils = CliffordUtils(1, cls.basis_gates)
+        for i in range(clifford_utils.NUM_CLIFFORD_1_QUBIT):
+            cliff = clifford_utils.clifford_1_qubit(i)
             cls.num_to_cliff_1q[i] = cliff
             cls.cliff_to_num_1q[repr(cliff)] = i
 
@@ -101,8 +107,9 @@ class CliffordNumMapping:
         Based on this array, we build a mapping from every single-gate-clifford to its number.
         The mapping actually looks like {(gate, '[qubits]'): num}.
         """
-        for i in range(CliffordUtils.NUM_CLIFFORD_2_QUBIT):
-            cliff = CliffordUtils.clifford_2_qubit(i)
+        clifford_utils = CliffordUtils(2, cls.basis_gates)
+        for i in range(clifford_utils.NUM_CLIFFORD_2_QUBIT):
+            cliff = clifford_utils.clifford_2_qubit(i)
             cls.num_to_cliff_2q[i] = cliff
             cls.cliff_to_num_2q[repr(cliff)] = i
 
@@ -119,16 +126,16 @@ class CliffordNumMapping:
             else:
                 print("not found")
 
-        for qubits in [[0, 1], [1, 0]]:
+        for gate, qubits in itertools.product(gate_list_2q, [[0, 1], [1, 0]]):
             qc = QuantumCircuit(2)
-            qc.append(CXGate(), qubits)
+            qc.append(gate, qubits)
             cliff = Clifford(qc)
             if repr(cliff) in cls.cliff_to_num_2q.keys():
                 num = cls.cliff_to_num_2q[repr(cliff)]
             else:
                 print("not found")
             direction = "[0, 1]" if qubits == [0, 1] else "[1, 0]"
-            cls.single_gate_clifford_map_2q[("cx", direction)] = num
+            cls.single_gate_clifford_map_2q[(gate.name, direction)] = num
         file.write(f"CLIFF_SINGLE_GATE_MAP_2Q = {cls.single_gate_clifford_map_2q}\n")
 
     @classmethod
@@ -192,10 +199,11 @@ class CliffordNumMapping:
 
     @classmethod
     def map_layers_to_cliffords_2q(cls, file):
-        CliffordUtils.transpile_2q_cliff_layers(basis_gates=cls.basis_gates)
-        length = [len(CliffordUtils._transpiled_cliff_layer[i]) for i in [0, 1, 2]]
+        clifford_utils = CliffordUtils(2, cls.basis_gates)
+        clifford_utils.transpile_2q_cliff_layers()
+        length = [len(clifford_utils._transpiled_cliff_layer[i]) for i in [0, 1, 2]]
         for n0, n1, n2 in itertools.product(range(length[0]), range(length[1]), range(length[2])):
-            cliff = Clifford(CliffordUtils.transpiled_cliff_from_layer_nums((n0, n1, n2)))
+            cliff = Clifford(clifford_utils.transpiled_cliff_from_layer_nums((n0, n1, n2)))
             num = cls.cliff_to_num_2q[repr(cliff)]
             cls.layers_num_to_cliff_num_2q[(n0, n1, n2)] = num
             cls.cliff_num_to_layers_2q[num] = (n0, n1, n2)
