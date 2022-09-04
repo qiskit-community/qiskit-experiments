@@ -191,14 +191,7 @@ class TestStandardRB(RBTestCase):
         # for c in exp.circuits():
         #     print(c)
         self.assertExperimentDone(expdata)
-        print("expdata 0 = " + str(expdata.data(0)["counts"]))
-        print("expdata 1 = " + str(expdata.data(1)["counts"]))
-        print("expdata 2 = " + str(expdata.data(2)["counts"]))
-        #print("expdata 3 = " + str(expdata.data(3)["counts"]))
-        #print("expdata 4 = " + str(expdata.data(4)["counts"]))
-        print()
         overview = expdata.analysis_results(0).value
-        print(overview)
         # This yields bad fit due to poor data points, but still fit is not completely off.
         self.assertLess(overview.reduced_chisq, 10)
 

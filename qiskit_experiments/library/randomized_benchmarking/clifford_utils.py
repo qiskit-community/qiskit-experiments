@@ -25,6 +25,7 @@ from qiskit import QuantumCircuit, QuantumRegister
 from qiskit.circuit import Gate
 from qiskit.circuit.library import SdgGate, HGate, SGate, SXdgGate
 from qiskit.compiler import transpile
+from qiskit.providers.backend import Backend
 from qiskit.exceptions import QiskitError
 from qiskit.quantum_info import Clifford
 
@@ -93,12 +94,14 @@ class CliffordUtils:
     def __init__(
         self,
         num_qubits,
-        basis_gates: List[str]
+        basis_gates: List[str],
+        backend: Backend
     ):
         self.num_qubits = num_qubits
         self.basis_gates = basis_gates
         self._transpiled_cliffords_1q = []
         self._transpiled_cliff_layer = {}
+        self._backend = backend
         if self.num_qubits == 1:
             self.transpile_1q_cliffords()
         else:  # num_qubits == 2
@@ -304,7 +307,7 @@ class CliffordUtils:
         for num in range(0, CliffordUtils.NUM_CLIFFORD_1_QUBIT):
             circ = CliffordUtils.clifford_1_qubit_circuit(num=num)
             transpiled_circ = transpile(
-                circuits=circ, optimization_level=1, basis_gates=self.basis_gates
+                circuits=circ, optimization_level=1, basis_gates=self.basis_gates, backend=self._backend
             )
             self._transpiled_cliffords_1q.append(transpiled_circ)
 
@@ -354,7 +357,7 @@ class CliffordUtils:
         v_w_gates = ["i", "v", "w"]
         qr = QuantumRegister(2)
         qc = QuantumCircuit(qr)
-        transpiled = transpile(qc, optimization_level=1, basis_gates=self.basis_gates)
+        transpiled = transpile(qc, optimization_level=1, basis_gates=self.basis_gates, backend=self._backend)
         self._transpiled_cliff_layer[1].append(transpiled)
 
         for v0, v1 in itertools.product(v_w_gates, v_w_gates):
@@ -368,7 +371,7 @@ class CliffordUtils:
                 qc._append(VGate(), [qr[1]], [])
             elif v1 == "w":
                 qc._append(WGate(), [qr[1]], [])
-            transpiled = transpile(qc, optimization_level=1, basis_gates=self.basis_gates)
+            transpiled = transpile(qc, optimization_level=1, basis_gates=self.basis_gates, backend=self._backend)
             self._transpiled_cliff_layer[1].append(transpiled)
 
         for v0, v1 in itertools.product(v_w_gates, v_w_gates):
@@ -383,14 +386,14 @@ class CliffordUtils:
                 qc._append(VGate(), [qr[1]], [])
             elif v1 == "w":
                 qc._append(WGate(), [qr[1]], [])
-            transpiled = transpile(qc, optimization_level=1, basis_gates=self.basis_gates)
+            transpiled = transpile(qc, optimization_level=1, basis_gates=self.basis_gates, backend=self._backend)
             self._transpiled_cliff_layer[1].append(transpiled)
 
         qc = QuantumCircuit(qr)
         qc.cx(0, 1)
         qc.cx(1, 0)
         qc.cx(0, 1)
-        transpiled = transpile(qc, optimization_level=1, basis_gates=self.basis_gates)
+        transpiled = transpile(qc, optimization_level=1, basis_gates=self.basis_gates, backend=self._backend)
         self._transpiled_cliff_layer[1].append(transpiled)
 
     def transpile_cliff_layer_2(self):
@@ -406,7 +409,7 @@ class CliffordUtils:
             if p1 != "i":
                 qc._append(Gate(p1, 1, []), [qr[1]], [])
 
-            transpiled = transpile(qc, optimization_level=1, basis_gates=self.basis_gates)
+            transpiled = transpile(qc, optimization_level=1, basis_gates=self.basis_gates, backend=self._backend)
             self._transpiled_cliff_layer[2].append(transpiled)
 
     def create_random_clifford(self, rng):

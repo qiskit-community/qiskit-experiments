@@ -22,6 +22,7 @@ from numpy.random.bit_generator import BitGenerator, SeedSequence
 from qiskit import QuantumCircuit, ClassicalRegister, QiskitError
 from qiskit.circuit import Clbit
 from qiskit.providers.backend import Backend
+from qiskit.compiler import transpile
 
 from qiskit_experiments.framework import BaseExperiment, Options
 from qiskit_experiments.framework.restless_mixin import RestlessMixin
@@ -140,7 +141,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
 
         if self._clifford_utils is None:
             self._clifford_utils = CliffordUtils(
-                self.num_qubits, self.transpile_options.basis_gates
+                self.num_qubits, self.transpile_options.basis_gates, backend=self._backend
             )
         for _ in range(self.experiment_options.num_samples):
             rb_circuits = self._build_rb_circuits(self.experiment_options.lengths, rng)
@@ -179,6 +180,9 @@ class StandardRB(BaseExperiment, RestlessMixin):
         clbits = list(range(n))
         circ = QuantumCircuit(max_qubit, n)
         circ.barrier(qubits)
+        circ = transpile(
+            circuits=circ, optimization_level=1, basis_gates=self.transpile_options.basis_gates, backend=self._backend
+        )
 
         # composed_cliff_num is the number representing the composition of all the Cliffords up to now
         composed_cliff_num = 0  # 0 is the Clifford that is Id
@@ -232,6 +236,9 @@ class StandardRB(BaseExperiment, RestlessMixin):
             # be created later
             rb_circ = QuantumCircuit(max_qubit, n)
             rb_circ.barrier(qubits)
+            rb_circ = transpile(
+                circuits=rb_circ, optimization_level=1, basis_gates=self.transpile_options.basis_gates, backend=self._backend
+            )
 
             # composed_cliff_num is the number representing the composition of
             # all the Cliffords up to now
