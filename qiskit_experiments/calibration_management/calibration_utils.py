@@ -13,6 +13,7 @@
 """Calibration helper functions"""
 
 from typing import Optional, Set, Tuple
+from functools import lru_cache
 import regex as re
 import retworkx as rx
 
@@ -107,6 +108,7 @@ def validate_channels(schedule: ScheduleBlock) -> Set[Parameter]:
     return param_indices
 
 
+@lru_cache
 def reference_info(
     reference: Tuple[str, ...],
     qubits: Optional[Tuple[int, ...]] = None,
