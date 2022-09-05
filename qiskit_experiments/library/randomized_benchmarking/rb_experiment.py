@@ -243,7 +243,8 @@ class StandardRB(BaseExperiment, RestlessMixin):
     def __compose_clifford(
         self, lop: SequenceElementType, rop: SequenceElementType
     ) -> SequenceElementType:
-        # TODO: Speed up 1Q (and 2Q) cases using lookup table
+        # TODO: Speed up 1Q (and 2Q) cases using integer clifford composition
+        # Integer clifford composition has not yet supported
         if self.num_qubits == 1:
             if isinstance(lop, Integral):
                 lop = CliffordUtils.clifford_1_qubit(lop)
@@ -257,7 +258,13 @@ class StandardRB(BaseExperiment, RestlessMixin):
         return lop.compose(rop)
 
     def __adjoint_clifford(self, op: SequenceElementType) -> SequenceElementType:
-        # TODO: Speed up 1Q and 2Q cases using lookup table
+        # TODO: Speed up 1Q and 2Q cases using integer clifford inversion
+        # Integer clifford inversion has not yet supported
+        if isinstance(op, Integral):
+            if self.num_qubits == 1:
+                return CliffordUtils.clifford_1_qubit(op).adjoint()
+            if self.num_qubits == 2:
+                return CliffordUtils.clifford_2_qubit(op).adjoint()
         return op.adjoint()
 
     def _transpiled_circuits(self) -> List[QuantumCircuit]:
