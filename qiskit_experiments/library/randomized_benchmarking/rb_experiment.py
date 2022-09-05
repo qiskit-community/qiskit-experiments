@@ -109,11 +109,10 @@ class StandardRB(BaseExperiment, RestlessMixin):
             raise QiskitError(f"The number of samples {num_samples} should " "be positive.")
 
         # Set configurable options
-        self.set_experiment_options(lengths=sorted(lengths), num_samples=num_samples, seed=seed)
+        self.set_experiment_options(
+            lengths=sorted(lengths), num_samples=num_samples, seed=seed, full_sampling=full_sampling
+        )
         self.analysis.set_options(outcome="0" * self.num_qubits)
-
-        # Set fixed options
-        self._full_sampling = full_sampling
 
     @classmethod
     def _default_experiment_options(cls) -> Options:
@@ -128,10 +127,12 @@ class StandardRB(BaseExperiment, RestlessMixin):
                 :meth:`circuits` is called.
         """
         options = super()._default_experiment_options()
-
-        options.lengths = None
-        options.num_samples = None
-        options.seed = None
+        options.update_options(
+            lengths=None,
+            num_samples=None,
+            seed=None,
+            full_sampling=None,
+        )
 
         return options
 
@@ -163,7 +164,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
         """
         rng = default_rng(seed=self.experiment_options.seed)
         sequences = []
-        if self._full_sampling:
+        if self.experiment_options.full_sampling:
             for _ in range(self.experiment_options.num_samples):
                 for length in self.experiment_options.lengths:
                     sequences.append(self._sample_sequence(length, rng))
@@ -185,7 +186,10 @@ class StandardRB(BaseExperiment, RestlessMixin):
         """
         circuits = []
         for i, seq in enumerate(sequences):
-            if self._full_sampling or i % len(self.experiment_options.lengths) == 0:
+            if (
+                self.experiment_options.full_sampling
+                or i % len(self.experiment_options.lengths) == 0
+            ):
                 prev_elem, prev_seq = self.__identity_clifford(), []
 
             qubits = list(range(self.num_qubits))
