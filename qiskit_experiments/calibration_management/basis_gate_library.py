@@ -182,6 +182,21 @@ class FixedFrequencyTransmon(BasisGateLibrary):
 
     Note that for now this library supports single-qubit gates and will be extended
     in the future.
+
+    Provided gates:
+        - x: :math:`\pi` pulse around the x-axis.
+        - sx: :math:`\pi/2` pulse around the x-axis.
+        - y: :math:`\pi` pulse around the y-axis.
+        - sy: :math:`\pi/2` pulse around the y-axis.
+
+    Parameters:
+        - duration: Duration of the pulses.
+        - σ: Standard deviation of the pulses.
+        - amp: Amplitude of the pulses.
+        - β: DRAG parameter of the pulses.
+
+    Note that the β and amp parameters may be linked between the x and y as well as between
+    the sx and sy pulses.
     """
 
     __default_values__ = {"duration": 160, "amp": 0.5, "β": 0.0}
@@ -295,11 +310,26 @@ class FixedFrequencyTransmon(BasisGateLibrary):
 class EchoCrossResonance(BasisGateLibrary):
     """A library for echoed cross-resonance gates.
 
-    Here, the ECR gate is defined as cr45p - X - cr45m. Furthermore, the X gate is defined
-    outside of this library, see :class:`FixedFrequencyTransmon`.
+    The ``cr45p`` and ``cr45m`` include a pulse on the control qubit and optionally a pulse
+    on the target qubit.
+
+    Provided gates:
+        - cr45p: GaussianSquare cross-resonance gate for a :math:`+\pi/4` rotation.
+        - cr45m: GaussianSquare cross-resonance gate for a :math:`-\pi/4` rotation.
+        - ecr: Echoed cross-resonance gate defined as ``cr45p - x - cr45m``.
+
+    Required gates:
+        - x: the x gate is defined outside of this library, see :class:`FixedFrequencyTransmon`.
+
+    Parameters:
+        - tgt_amp: The amplitude of the pulse applied to the target qubit.
+        - σ: The standard deviation of the flanks.
+        - amp: The amplitude of the pulses applied to the control qubit.
+        - duration: The duration of the cr45p and cr45m pulses.
+        - risefall: The number of times σ is included in the flanks of the pulses.
     """
 
-    __default_values__ = {"tamp": 0.0, "amp": 0.5, "σ": 64, "risefall": 2, "duration": 1168}
+    __default_values__ = {"tgt_amp": 0.0, "amp": 0.5, "σ": 64, "risefall": 2, "duration": 1168}
 
     def __init__(
         self,
@@ -339,7 +369,7 @@ class EchoCrossResonance(BasisGateLibrary):
 
         schedules = dict()
 
-        tamp = Parameter("tamp")
+        tgt_amp = Parameter("tgt_amp")
         sigma = Parameter("σ")
         cr_amp = Parameter("amp")
         cr_dur = Parameter("duration")
@@ -358,7 +388,7 @@ class EchoCrossResonance(BasisGateLibrary):
 
                 if self._target_pulses:
                     pulse.play(
-                        pulse.GaussianSquare(cr_dur, tamp, risefall_sigma_ratio=cr_rf, sigma=sigma),
+                        pulse.GaussianSquare(cr_dur, tgt_amp, risefall_sigma_ratio=cr_rf, sigma=sigma),
                         t_chan,
                     )
 
@@ -370,7 +400,7 @@ class EchoCrossResonance(BasisGateLibrary):
 
                 if self._target_pulses:
                     pulse.play(
-                        pulse.GaussianSquare(cr_dur, -tamp, width=cr_rf, sigma=sigma), t_chan
+                        pulse.GaussianSquare(cr_dur, -tgt_amp, width=cr_rf, sigma=sigma), t_chan
                     )
 
             schedules["cr45m"] = cr45m
