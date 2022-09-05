@@ -852,7 +852,7 @@ class Calibrations:
         self._params[ParameterKey(param_name, qubits, sched_name)].append(value)
 
         # When updating the inst_map we need to
-        # a) Update all the schedule that use the parameter to be updated
+        # a) Update all the schedules that use the parameter to be updated
         # b) Update all schedules that reference the updated schedules under a)
         if update_inst_map and schedule is not None:
             param_obj = self.calibration_parameter(param_name, qubits, sched_name)
