@@ -27,7 +27,7 @@ def update_schedule_dependency(schedule: ScheduleBlock, dag: rx.PyDiGraph):
     """Update a DAG of schedule dependencies.
 
     Args:
-        schedule: A ScheduleBlock that potential has references to other schedules
+        schedule: A ScheduleBlock that potentially has references to other schedules
             that are already present in the dag.
         dag: A directed acyclic graph that encodes schedule dependencies using references.
     """
