@@ -133,10 +133,6 @@ def reference_info(
 
     ref_schedule_name, ref_qubits = reference[0], reference[1:]
 
-    # Convert a single-qubit reference to a tuple type.
-    if isinstance(ref_qubits, str):
-        ref_qubits = (ref_qubits,)
-
     if not isinstance(ref_schedule_name, str) and not isinstance(ref_qubits, tuple):
         raise CalibrationError(
             f"A schedule reference is a name and qubits tuple. Found {reference}"
