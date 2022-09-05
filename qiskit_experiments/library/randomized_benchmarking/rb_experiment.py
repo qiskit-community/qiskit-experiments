@@ -109,7 +109,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
             raise QiskitError(f"The number of samples {num_samples} should " "be positive.")
 
         # Set configurable options
-        self.set_experiment_options(lengths=list(lengths), num_samples=num_samples, seed=seed)
+        self.set_experiment_options(lengths=sorted(lengths), num_samples=num_samples, seed=seed)
         self.analysis.set_options(outcome="0" * self.num_qubits)
 
         # Set fixed options

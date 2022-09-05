@@ -83,7 +83,7 @@ class InterleavedRB(StandardRB):
             self._interleaved_elem = Clifford(interleaved_element)
         except QiskitError as err:
             raise QiskitError(
-                f"Interleaved element {interleaved_element.name} could not be converted to Clifford"
+                f"Interleaved element {interleaved_element.name} could not be converted to Clifford."
             ) from err
         # Convert interleaved element to operation
         self._interleaved_op = interleaved_element
