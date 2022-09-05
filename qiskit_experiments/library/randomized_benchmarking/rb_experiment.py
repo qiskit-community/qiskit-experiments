@@ -146,6 +146,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
         for _ in range(self.experiment_options.num_samples):
             rb_circuits = self._build_rb_circuits(self.experiment_options.lengths, rng)
             circuits += rb_circuits
+
         return circuits
 
     def _build_rb_circuits(self, lengths: List[int], rng: Generator) -> List[QuantumCircuit]:
@@ -181,7 +182,10 @@ class StandardRB(BaseExperiment, RestlessMixin):
         circ = QuantumCircuit(max_qubit, n)
         circ.barrier(qubits)
         circ = transpile(
-            circuits=circ, optimization_level=1, basis_gates=self.transpile_options.basis_gates, backend=self._backend
+            circuits=circ,
+            optimization_level=1,
+            basis_gates=self.transpile_options.basis_gates,
+            backend=self._backend,
         )
 
         # composed_cliff_num is the number representing the composition of all the Cliffords up to now
@@ -237,7 +241,10 @@ class StandardRB(BaseExperiment, RestlessMixin):
             rb_circ = QuantumCircuit(max_qubit, n)
             rb_circ.barrier(qubits)
             rb_circ = transpile(
-                circuits=rb_circ, optimization_level=1, basis_gates=self.transpile_options.basis_gates, backend=self._backend
+                circuits=rb_circ,
+                optimization_level=1,
+                basis_gates=self.transpile_options.basis_gates,
+                backend=self._backend,
             )
 
             # composed_cliff_num is the number representing the composition of
@@ -330,6 +337,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
         """Return a list of experiment circuits, transpiled."""
         transpiled = self._layout_for_rb()
         if self.analysis.options.get("gate_error_ratio", None) is None:
+
             # Gate errors are not computed, then counting ops is not necessary.
             return transpiled
 
@@ -349,7 +357,6 @@ class StandardRB(BaseExperiment, RestlessMixin):
                 formatted_key = tuple(sorted(qinds)), inst.name
                 count_ops_result[formatted_key] += 1
             circ.metadata["count_ops"] = tuple(count_ops_result.items())
-
         return transpiled
 
     def _metadata(self):
