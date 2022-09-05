@@ -129,7 +129,6 @@ class TestStandardRB(RBTestCase):
         # average number of CX gate per Clifford is 1.5.
         # Since this is two qubit RB, the dep-parameter is factored by 3/4.
         epc = expdata.analysis_results("EPC")
-
         # Allow for 50 percent tolerance since we ignore 1q gate contribution
         epc_expected = 1 - (1 - 3 / 4 * self.p2q) ** 1.5
         self.assertAlmostEqual(epc.value.n, epc_expected, delta=0.5 * epc_expected)
@@ -188,8 +187,6 @@ class TestStandardRB(RBTestCase):
         exp.set_run_options(seed_simulator=456)
 
         expdata = exp.run()
-        # for c in exp.circuits():
-        #     print(c)
         self.assertExperimentDone(expdata)
         overview = expdata.analysis_results(0).value
         # This yields bad fit due to poor data points, but still fit is not completely off.
@@ -365,7 +362,7 @@ class TestStandardRB(RBTestCase):
         # average number of CX gate per Clifford is 1.5.
         # Since this is two qubit RB, the dep-parameter is factored by 3/4.
         epc = expdata.analysis_results("EPC")
-        print(epc.value.n)
+
         # Allow for 50 percent tolerance since we ignore 1q gate contribution
         epc_expected = 1 - (1 - 3 / 4 * self.pcz) ** 1.5
         self.assertAlmostEqual(epc.value.n, epc_expected, delta=0.5 * epc_expected)
@@ -613,10 +610,14 @@ class TestEPGAnalysis(QiskitExperimentsTestCase):
 
         # Setup noise model, including more gate for complicated EPG computation
         # Note that 1Q channel error is amplified to check 1q channel correction mechanism
-        x_error = depolarizing_error(0.04, 1)
-        h_error = depolarizing_error(0.02, 1)
-        s_error = depolarizing_error(0.00, 1)
-        cx_error = depolarizing_error(0.08, 2)
+        self.px = 0.04
+        self.ph = 0.02
+        self.ps = 0.0
+        self.pcx = 0.08
+        x_error = depolarizing_error(self.px, 1)
+        h_error = depolarizing_error(self.ph, 1)
+        s_error = depolarizing_error(self.ps, 1)
+        cx_error = depolarizing_error(self.pcx, 2)
 
         noise_model = NoiseModel()
         noise_model.add_all_qubit_quantum_error(x_error, "x")
@@ -654,8 +655,8 @@ class TestEPGAnalysis(QiskitExperimentsTestCase):
 
         exp_2qrb = rb.StandardRB(
             qubits=(0, 1),
-            lengths=[1, 3, 5, 10, 15, 20, 30, 50],
-            seed=123,
+            lengths=[1, 3, 5, 10, 15, 20, 30, 50, 100, 200],
+            seed=126,
             backend=backend,
         )
         exp_2qrb.set_transpile_options(**transpiler_options)
@@ -680,8 +681,8 @@ class TestEPGAnalysis(QiskitExperimentsTestCase):
 
         # H and X gate EPG are assumed to be the same, so this underestimate X and overestimate H
         self.assertEqual(h_epg.value.n, x_epg.value.n)
-        self.assertLess(x_epg.value.n, 0.04 * 0.5)
-        self.assertGreater(h_epg.value.n, 0.02 * 0.5)
+        self.assertLess(x_epg.value.n, self.px * 0.5)
+        self.assertGreater(h_epg.value.n, self.ph * 0.5)
 
     def test_no_epg(self):
         """Calculate no EPGs."""
@@ -709,8 +710,8 @@ class TestEPGAnalysis(QiskitExperimentsTestCase):
         h_epg = result.analysis_results("EPG_h")
         x_epg = result.analysis_results("EPG_x")
 
-        self.assertAlmostEqual(x_epg.value.n, 0.04 * 0.5, delta=0.005)
-        self.assertAlmostEqual(h_epg.value.n, 0.02 * 0.5, delta=0.005)
+        self.assertAlmostEqual(x_epg.value.n, self.px * 0.5, delta=0.005)
+        self.assertAlmostEqual(h_epg.value.n, self.ph * 0.5, delta=0.005)
 
     def test_2q_epg(self):
         """Compute 2Q EPG without correction.
@@ -725,7 +726,7 @@ class TestEPGAnalysis(QiskitExperimentsTestCase):
 
         cx_epg = result.analysis_results("EPG_cx")
 
-        self.assertGreater(cx_epg.value.n, 0.08 * 0.75)
+        self.assertGreater(cx_epg.value.n, self.pcx * 0.75)
 
     def test_correct_1q_depolarization(self):
         """Compute 2Q EPG with 1Q depolarization correction."""
@@ -746,6 +747,5 @@ class TestEPGAnalysis(QiskitExperimentsTestCase):
         )
         result_2qrb = analysis_2qrb.run(self.expdata_2qrb)
         self.assertExperimentDone(result_2qrb)
-
         cx_epg = result_2qrb.analysis_results("EPG_cx")
-        self.assertAlmostEqual(cx_epg.value.n, 0.08 * 0.75, delta=0.006)
+        self.assertAlmostEqual(cx_epg.value.n, self.pcx * 0.75, delta=0.01)
