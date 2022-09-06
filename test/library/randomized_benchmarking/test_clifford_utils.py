@@ -949,7 +949,7 @@ class TestCliffordUtils(QiskitExperimentsTestCase):
 
         for index, qc in enumerate(cliff_utils._transpiled_cliffords_1q):
             num = cliff_utils.compose_num_with_clifford(
-                num_qubits=1, composed_num=0, qc=qc,
+                composed_num=0, qc=qc,
             )
             assert num == index
 
@@ -959,9 +959,9 @@ class TestCliffordUtils(QiskitExperimentsTestCase):
         """
         cliff_utils = CliffordUtils(num_qubits=2, basis_gates=self.basis_gates)
         for index in range(cliff_utils.NUM_CLIFFORD_2_QUBIT):
-            qc = cliff_utils.create_cliff_from_num(2, index)
+            qc = cliff_utils.create_cliff_from_num(index)
             num = cliff_utils.compose_num_with_clifford(
-                num_qubits=2, composed_num=0, qc=qc,
+                composed_num=0, qc=qc,
             )
             assert num == index
 
@@ -980,7 +980,7 @@ class TestCliffordUtils(QiskitExperimentsTestCase):
                 cliff2_qc, optimization_level=1, basis_gates=self.basis_gates
             )
             result_by_num = cliff_utils.compose_num_with_clifford(
-                1, num1, transpiled_qc2
+                num1, transpiled_qc2
             )
             clifford_from_num = cliff_utils.clifford_1_qubit_circuit(result_by_num)
             clifford_from_compose = cliff1_qc.compose(cliff2_qc)
@@ -1001,7 +1001,7 @@ class TestCliffordUtils(QiskitExperimentsTestCase):
                 cliff2_qc, optimization_level=1, basis_gates=self.basis_gates
             )
             result_by_num = cliff_utils.compose_num_with_clifford(
-                2, num1, transpiled_qc2
+                num1, transpiled_qc2
             )
             clifford_from_num = cliff_utils.clifford_2_qubit_circuit(result_by_num)
             clifford_from_compose = cliff1_qc.compose(cliff2_qc)
@@ -1015,7 +1015,7 @@ class TestCliffordUtils(QiskitExperimentsTestCase):
         for _ in range(num_tests):
             num = rng.integers(0, cliff_utils.NUM_CLIFFORD_1_QUBIT - 1)
             cliff_qc = cliff_utils.clifford_1_qubit_circuit(num)
-            inverse_num = cliff_utils.clifford_inverse_by_num(num, num_qubits=1)
+            inverse_num = cliff_utils.clifford_inverse_by_num(num)
             inverse_by_num = cliff_utils.clifford_1_qubit_circuit(inverse_num)
             inverse_cliff = Clifford(cliff_qc).adjoint()
             assert (Operator(inverse_by_num)).equiv(Operator(inverse_cliff))
@@ -1028,7 +1028,7 @@ class TestCliffordUtils(QiskitExperimentsTestCase):
         for _ in range(num_tests):
             num = rng.integers(0, cliff_utils.NUM_CLIFFORD_2_QUBIT - 1)
             cliff_qc = cliff_utils.clifford_2_qubit_circuit(num)
-            inverse_num = cliff_utils.clifford_inverse_by_num(num, num_qubits=2)
+            inverse_num = cliff_utils.clifford_inverse_by_num(num)
             inverse_by_num = cliff_utils.clifford_2_qubit_circuit(inverse_num)
             inverse_cliff = Clifford(cliff_qc).adjoint()
             assert (Operator(inverse_by_num)).equiv(Operator(inverse_cliff))
