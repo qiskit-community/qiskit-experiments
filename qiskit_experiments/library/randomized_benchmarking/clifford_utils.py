@@ -14,7 +14,7 @@ Utilities for using the Clifford group in randomized benchmarking
 """
 
 import os
-from typing import List, Tuple
+from typing import List, Tuple, Optional
 from functools import lru_cache
 from math import isclose
 import itertools
@@ -91,7 +91,7 @@ class CliffordUtils:
     NUM_LAYER_1 = 20
     NUM_LAYER_2 = 16
 
-    def __init__(self, num_qubits, basis_gates: List[str], backend: Backend):
+    def __init__(self, num_qubits, basis_gates: List[str], backend: Optional[Backend] =None):
         self.num_qubits = num_qubits
         self.basis_gates = basis_gates
         self._transpiled_cliffords_1q = []
@@ -250,6 +250,9 @@ class CliffordUtils:
                 raise QiskitError("wrong param {} for rz in clifford".format(inst.params[0]))
         elif name in clifford_gate_set:
             map_index = name
+            if name == "cz":
+                qubits = [min(qubits), max(qubits)]  # for cz we save only [0, 1] since
+                                                     # it is a symmetric operation
         else:
             raise QiskitError("Instruction {} could not be converted to Clifford gate".format(name))
         return self.CLIFF_SINGLE_GATE_MAP[rb_num_qubits][(map_index, str(qubits))]
@@ -273,7 +276,7 @@ class CliffordUtils:
                 num = self.num_from_clifford_single_gate(inst=inst, qubits=[0], rb_num_qubits=1)
                 index = num_single_gate_cliffs * composed_num + map_clifford_num_to_array_index[num]
                 composed_num = self.CLIFF_COMPOSE_DATA[self.num_qubits][index]
-        else:
+        else:  # num_qubits == 2
             for inst, qargs, _ in qc:
                 if inst.num_qubits == 2:
                     qubits = [qc.find_bit(qargs[0]).index, qc.find_bit(qargs[1]).index]
