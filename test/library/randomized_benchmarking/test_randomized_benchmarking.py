@@ -337,6 +337,27 @@ class TestStandardRB(RBTestCase):
             epc = par_expdata.child_data(i).analysis_results("EPC")
             self.assertAlmostEqual(epc.value.n, epc_expected, delta=0.1 * epc_expected)
 
+    def test_two_qubit_parallel(self):
+        """Test two qubit RB in parallel."""
+        qubit_pairs = [[0, 1], [2, 3]]
+        lengths = list(range(5, 100, 5))
+        exps = []
+        for pair in qubit_pairs:
+            exp = rb.StandardRB(qubits=pair, lengths=lengths, seed=123, backend=self.backend)
+            exp.analysis.set_options(gate_error_ratio=None, plot_raw_data=False)
+            exps.append(exp)
+
+        par_exp = ParallelExperiment(exps)
+        par_exp.set_transpile_options(**self.transpiler_options)
+
+        par_expdata = par_exp.run(backend=self.backend)
+        self.assertExperimentDone(par_expdata)
+        epc_expected = 1 - (1 - 3 / 4 * self.p2q) ** 1.5
+        for i in range(2):
+            epc = par_expdata.child_data(i).analysis_results("EPC")
+            # Allow for 20 percent tolerance since we ignore 1q gate contribution
+            self.assertAlmostEqual(epc.value.n, epc_expected, delta=0.2 * epc_expected)
+
     def test_two_qubit_with_cz(self):
         """Test two qubit RB."""
         transpiler_options = {
