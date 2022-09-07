@@ -150,4 +150,4 @@ which would return the default xp schedule block template for all qubits.
 from .calibrations import Calibrations
 from .parameter_value import ParameterValue
 from .base_calibration_experiment import BaseCalibrationExperiment
-from .basis_gate_library import FixedFrequencyTransmon, BasisGateLibrary, EchoCrossResonance
+from .basis_gate_library import FixedFrequencyTransmon, BasisGateLibrary, EchoedCrossResonance

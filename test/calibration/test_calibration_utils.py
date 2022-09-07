@@ -19,7 +19,7 @@ from qiskit.circuit import Parameter
 import qiskit.pulse as pulse
 
 from qiskit_experiments.exceptions import CalibrationError
-from qiskit_experiments.calibration_management import EchoCrossResonance
+from qiskit_experiments.calibration_management import EchoedCrossResonance
 from qiskit_experiments.calibration_management.calibration_utils import (
     validate_channels,
     used_in_references,
@@ -98,7 +98,7 @@ class TestValidateChannels(QiskitExperimentsTestCase):
         """Test channel validation."""
 
         # Test schedules with references.
-        lib = EchoCrossResonance()
+        lib = EchoedCrossResonance()
 
         self.assertEqual(validate_channels(lib["ecr"]), set())
 

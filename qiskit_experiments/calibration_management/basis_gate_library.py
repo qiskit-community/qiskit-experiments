@@ -307,7 +307,7 @@ class FixedFrequencyTransmon(BasisGateLibrary):
         return defaults
 
 
-class EchoCrossResonance(BasisGateLibrary):
+class EchoedCrossResonance(BasisGateLibrary):
     """A library for echoed cross-resonance gates.
 
     The ``cr45p`` and ``cr45m`` include a pulse on the control qubit and optionally a pulse
