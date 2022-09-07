@@ -14,13 +14,18 @@
 
 from typing import Optional, Set, Tuple
 from functools import lru_cache
-import regex as re
+import re
 import retworkx as rx
 
 from qiskit.circuit import ParameterExpression, Parameter
 from qiskit.pulse import ScheduleBlock
 
 from qiskit_experiments.exceptions import CalibrationError
+
+
+# The channel indices need to be parameterized following this regex.
+CHANNEL_PATTERN = r"^ch\d[\.\d]*\${0,1}[\d]*$"
+CHANNEL_PATTERN_REGEX = re.compile(CHANNEL_PATTERN)
 
 
 def update_schedule_dependency(schedule: ScheduleBlock, dag: rx.PyDiGraph):
@@ -79,10 +84,6 @@ def validate_channels(schedule: ScheduleBlock) -> Set[Parameter]:
         CalibrationError: If a channel is parameterized by more than one parameter.
         CalibrationError: If the parameterized channel index is not formatted properly.
     """
-
-    # The channel indices need to be parameterized following this regex.
-    __channel_pattern__ = r"^ch\d[\.\d]*\${0,1}[\d]*$"
-
     param_indices = set()
 
     # Schedules with references do not explicitly have channels. This needs special handling.
@@ -93,16 +94,15 @@ def validate_channels(schedule: ScheduleBlock) -> Set[Parameter]:
 
         return param_indices
 
-    regex = re.compile(__channel_pattern__)
     for ch in schedule.channels:
         if isinstance(ch.index, ParameterExpression):
             if len(ch.index.parameters) != 1:
                 raise CalibrationError(f"Channel {ch} can only have one parameter.")
 
             param_indices.add(ch.index)
-            if regex.match(ch.index.name) is None:
+            if CHANNEL_PATTERN_REGEX.match(ch.index.name) is None:
                 raise CalibrationError(
-                    f"Parameterized channel must correspond to {__channel_pattern__}"
+                    f"Parameterized channel must correspond to {CHANNEL_PATTERN}"
                 )
 
     return param_indices
