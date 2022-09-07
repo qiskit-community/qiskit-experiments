@@ -68,6 +68,9 @@ Data Processing Nodes
     AverageData
     BasisExpectationValue
     MinMaxNormalize
+    RestlessNode
+    RestlessToCounts
+    RestlessToIQ
 
 
 Discriminators
@@ -90,6 +93,9 @@ from .nodes import (
     AverageData,
     BasisExpectationValue,
     MinMaxNormalize,
+    RestlessNode,
+    RestlessToCounts,
+    RestlessToIQ,
 )
 
 from .data_processor import DataProcessor

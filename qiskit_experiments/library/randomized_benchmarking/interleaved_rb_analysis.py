@@ -81,7 +81,7 @@ class InterleavedRBAnalysis(curve.CurveAnalysis):
             bounds: [0, 1]
         defpar \alpha_c:
             desc: Ratio of the depolarizing parameter of interleaved RB to standard RB curve.
-            init_guess: Determined by alpha of interleaved RB curve devided by one of
+            init_guess: Determined by alpha of interleaved RB curve divided by one of
                 standard RB curve. Both alpha values are estimated by :func:`~rb_decay`.
             bounds: [0, 1]
 

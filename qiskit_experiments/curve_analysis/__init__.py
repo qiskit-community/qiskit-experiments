@@ -499,7 +499,7 @@ Standard Analysis Library
 
     BlochTrajectoryAnalysis
     DecayAnalysis
-    DumpedOscillationAnalysis
+    DampedOscillationAnalysis
     OscillationAnalysis
     ResonanceAnalysis
     GaussianAnalysis
@@ -573,7 +573,7 @@ from . import utils
 # standard analysis
 from .standard_analysis import (
     DecayAnalysis,
-    DumpedOscillationAnalysis,
+    DampedOscillationAnalysis,
     OscillationAnalysis,
     ResonanceAnalysis,
     GaussianAnalysis,

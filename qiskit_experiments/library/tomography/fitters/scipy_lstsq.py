@@ -16,7 +16,7 @@ Linear least-square MLE tomography fitter.
 from typing import Optional, Dict, Tuple
 import numpy as np
 import scipy.linalg as la
-
+from qiskit.utils import deprecate_function
 from qiskit_experiments.exceptions import AnalysisError
 from qiskit_experiments.library.tomography.basis import (
     MeasurementBasis,
@@ -24,7 +24,15 @@ from qiskit_experiments.library.tomography.basis import (
 )
 from . import lstsq_utils
 
+# Note this warning doesnt show up when run in analysis so we
+# also add a warning when setting the option value that calls this function
 
+# pylint: disable = bad-docstring-quotes
+@deprecate_function(
+    "The scipy lstsq tomography fitters are deprecated as of 0.4 and will "
+    "be removed after the 0.5 release. Use the `linear_lstsq`, "
+    "`cvxpy_linear_lstsq`, or `cvxpy_gaussian_lstsq` fitters instead."
+)
 def scipy_linear_lstsq(
     outcome_data: np.ndarray,
     shot_data: np.ndarray,
@@ -80,7 +88,7 @@ def scipy_linear_lstsq(
                             M measured qubits.
         preparation_qubits: Optional, the physical qubits that were prepared.
                             If None they are assumed to be ``[0, ..., N-1]`` for
-                            N preparated qubits.
+                            N prepared qubits.
         weights: Optional array of weights for least squares objective.
         kwargs: additional kwargs for :func:`scipy.linalg.lstsq`.
 
@@ -175,7 +183,7 @@ def scipy_gaussian_lstsq(
                             M measured qubits.
         preparation_qubits: Optional, the physical qubits that were prepared.
                             If None they are assumed to be ``[0, ..., N-1]`` for
-                            N preparated qubits.
+                            N prepared qubits.
         kwargs: additional kwargs for :func:`scipy.linalg.lstsq`.
 
     Raises:
