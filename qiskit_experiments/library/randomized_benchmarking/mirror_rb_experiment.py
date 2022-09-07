@@ -14,8 +14,7 @@ Mirror RB Experiment class.
 """
 from typing import Union, Iterable, Optional, List, Sequence
 from itertools import permutations
-from numpy.random import Generator
-from numpy.random.bit_generator import BitGenerator, SeedSequence
+from numpy.random import Generator, BitGenerator, SeedSequence
 
 import numpy as np
 
