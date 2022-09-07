@@ -18,12 +18,10 @@ from typing import Dict, Sequence, Optional
 from qiskit_experiments.framework import Options
 
 
-class BaseCurveDrawer(ABC):
-    """Abstract class for the serializable Qiskit Experiments curve drawer.
+class BaseDrawer(ABC):
+    """Abstract class for the serializable Qiskit Experiments drawer.
 
-    A curve drawer may be implemented by different drawing backends such as matplotlib
-    or plotly. Sub-classes that wrap these backends by subclassing `BaseCurveDrawer` must
-    implement the following abstract methods.
+    A drawer may be implemented by different drawing backends such as matplotlib or plotly. Sub-classes that wrap these backends by subclassing ``BaseDrawer`` must implement the following abstract methods.
 
     initialize_canvas
 
@@ -57,32 +55,13 @@ class BaseCurveDrawer(ABC):
         The formatted data might be averaged over the same x values,
         or smoothed by a filtering algorithm, depending on how analysis class is implemented.
         This method is called with error bars of y values and the name of the curve.
-
-    draw_fit_line
-
-        This method is called after fitting is completed and when there is valid fit outcome.
-        This method is called with the interpolated x and y values.
-
-    draw_confidence_interval
-
-        This method is called after fitting is completed and when there is valid fit outcome.
-        This method is called with the interpolated x and a pair of y values
-        that represent the upper and lower bound within certain confidence interval.
-        This might be called multiple times with different interval sizes.
-
-    draw_fit_report
-
-        This method is called after fitting is completed and when there is valid fit outcome.
-        This method is called with the list of analysis results and the reduced chi-squared values.
-        The fit report should be generated to show this information on the canvas.
-
     """
 
     def __init__(self):
         self._options = self._default_options()
         self._set_options = set()
         self._axis = None
-        self._curves = list()
+        self._series = list()
 
     @property
     def options(self) -> Options:
@@ -125,23 +104,12 @@ class BaseCurveDrawer(ABC):
                 Horizontal position can be ``right``, ``center``, ``left``.
             tick_label_size (int): Size of text representing the axis tick numbers.
             axis_label_size (int): Size of text representing the axis label.
-            fit_report_rpos (Tuple[int, int]): A tuple of numbers showing the location of
-                the fit report window. These numbers are horizontal and vertical position
-                of the top left corner of the window in the relative coordinate
-                on the output figure, i.e. ``[0, 1]``.
-                The fit report window shows the selected fit parameters and the reduced
-                chi-squared value.
-            fit_report_text_size (int): Size of text in the fit report window.
-            plot_sigma (List[Tuple[float, float]]): A list of two number tuples
-                showing the configuration to write confidence intervals for the fit curve.
-                The first argument is the relative sigma (n_sigma), and the second argument is
-                the transparency of the interval plot in ``[0, 1]``.
-                Multiple n_sigma intervals can be drawn for the single curve.
             plot_options (Dict[str, Dict[str, Any]]): A dictionary of plot options for each curve.
                 This is keyed on the model name for each curve. Sub-dictionary is expected to have
                 following three configurations, "canvas", "color", and "symbol"; "canvas" is the
                 integer index of axis (when multi-canvas plot is set), "color" is the
                 color of the curve, and "symbol" is the marker style of the curve for scatter plots.
+
             figure_title (str): Title of the figure. Defaults to None, i.e. nothing is shown.
         """
         return Options(
@@ -157,9 +125,6 @@ class BaseCurveDrawer(ABC):
             legend_loc="center right",
             tick_label_size=14,
             axis_label_size=16,
-            fit_report_rpos=(0.6, 0.95),
-            fit_report_text_size=14,
-            plot_sigma=[(1.0, 0.7), (3.0, 0.3)],
             plot_options={},
             figure_title=None,
         )
@@ -193,7 +158,7 @@ class BaseCurveDrawer(ABC):
         Args:
             x_data: X values.
             y_data: Y values.
-            name: Name of this curve.
+            name: Name of this plot.
             options: Valid options for the drawer backend API.
         """
 
@@ -212,9 +177,82 @@ class BaseCurveDrawer(ABC):
             x_data: X values.
             y_data: Y values.
             y_err_data: Standard deviation of Y values.
-            name: Name of this curve.
+            name: Name of this plot.
             options: Valid options for the drawer backend API.
         """
+
+    @property
+    @abstractmethod
+    def figure(self):
+        """Return figure object handler to be saved in the database."""
+
+    def config(self) -> Dict:
+        """Return the config dictionary for this drawing."""
+        options = dict((key, getattr(self._options, key)) for key in self._set_options)
+
+        return {"cls": type(self), "options": options}
+
+    def __json_encode__(self):
+        return self.config()
+
+    @classmethod
+    def __json_decode__(cls, value):
+        instance = cls()
+        if "options" in value:
+            instance.set_options(**value["options"])
+        return instance
+
+
+class BaseCurveDrawer(BaseDrawer):
+    """Abstract class for the serializable Qiskit Experiments curve drawer.
+
+    A curve drawer may be implemented by different drawing backends such as matplotlib
+    or plotly, the same as :py:attr`BaseDrawer`. Sub-classes that wrap these backends by subclassing
+    `BaseCurveDrawer` must implement the following abstract methods over-and-above those mandated by
+    :py:class:`BaseDrawer`.
+
+    draw_fit_line
+
+        This method is called after fitting is completed and when there is valid fit outcome.
+        This method is called with the interpolated x and y values.
+
+    draw_confidence_interval
+
+        This method is called after fitting is completed and when there is valid fit outcome.
+        This method is called with the interpolated x and a pair of y values
+        that represent the upper and lower bound within certain confidence interval.
+        This might be called multiple times with different interval sizes.
+
+    draw_fit_report
+
+        This method is called after fitting is completed and when there is valid fit outcome.
+        This method is called with the list of analysis results and the reduced chi-squared values.
+        The fit report should be generated to show this information on the canvas.
+
+    """
+
+    @classmethod
+    def _default_options(cls) -> Options:
+        """Return default draw options.
+        Draw Options:
+            fit_report_rpos (Tuple[int, int]): A tuple of numbers showing the location of
+                the fit report window. These numbers are horizontal and vertical position
+                of the top left corner of the window in the relative coordinate
+                on the output figure, i.e. ``[0, 1]``.
+                The fit report window shows the selected fit parameters and the reduced
+                chi-squared value.
+            fit_report_text_size (int): Size of text in the fit report window.
+            plot_sigma (List[Tuple[float, float]]): A list of two number tuples
+                showing the configuration to write confidence intervals for the fit curve.
+                The first argument is the relative sigma (n_sigma), and the second argument is
+                the transparency of the interval plot in ``[0, 1]``.
+                Multiple n_sigma intervals can be drawn for the single curve.
+        """
+        options = super()._default_options()
+        options.fit_report_rpos = (0.6, 0.95)
+        options.fit_report_text_size = 14
+        options.plot_sigma = [(1.0, 0.7), (3.0, 0.3)]
+        return options
 
     @abstractmethod
     def draw_fit_line(
@@ -264,24 +302,3 @@ class BaseCurveDrawer(ABC):
             description: A string to describe the fiting outcome.
             options: Valid options for the drawer backend API.
         """
-
-    @property
-    @abstractmethod
-    def figure(self):
-        """Return figure object handler to be saved in the database."""
-
-    def config(self) -> Dict:
-        """Return the config dictionary for this drawing."""
-        options = dict((key, getattr(self._options, key)) for key in self._set_options)
-
-        return {"cls": type(self), "options": options}
-
-    def __json_encode__(self):
-        return self.config()
-
-    @classmethod
-    def __json_decode__(cls, value):
-        instance = cls()
-        if "options" in value:
-            instance.set_options(**value["options"])
-        return instance
