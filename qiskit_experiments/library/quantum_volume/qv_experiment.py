@@ -14,8 +14,7 @@ Quantum Volume Experiment class.
 """
 
 from typing import Union, Sequence, Optional, List
-from numpy.random import Generator, default_rng
-from numpy.random.bit_generator import BitGenerator, SeedSequence
+from numpy.random import Generator, default_rng, BitGenerator, SeedSequence
 
 try:
     from qiskit import Aer
