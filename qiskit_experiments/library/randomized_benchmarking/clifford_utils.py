@@ -198,11 +198,9 @@ class CliffordUtils:
             if k1 == 1:  # V gate
                 qc.sdg(1)
                 qc.h(1)
-            if k1 == 2:  # W gate (replacing these with qc.h(1) + qc.s(1) causes a test failure)
-                qc.sdg(1)
+            if k1 == 2:  # W gate
                 qc.h(1)
-                qc.sdg(1)
-                qc.h(1)
+                qc.s(1)
         if p0 == 1:
             qc.x(0)
         if p0 == 2:
