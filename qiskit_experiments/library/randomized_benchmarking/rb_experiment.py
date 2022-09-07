@@ -182,7 +182,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
         """Convert a RB sequence into circuit and append the inverse to the end.
 
         Returns:
-            A RB circuit.
+            A list of RB circuits.
         """
         circuits = []
         for i, seq in enumerate(sequences):
