@@ -543,11 +543,7 @@ class TestInterleavedRB(RBTestCase):
             seed=123,
             num_samples=1,
         )
-        transpiler_options = {
-            "basis_gates": ["x", "h", "s", "cx"],
-            "optimization_level": 1,
-        }
-        exp.set_transpile_options(**transpiler_options)
+        exp.set_transpile_options(**self.transpiler_options)
         _, int_circ = exp.circuits()
         self.assertAllIdentity([int_circ])
 
@@ -655,8 +651,8 @@ class TestEPGAnalysis(QiskitExperimentsTestCase):
 
         exp_2qrb = rb.StandardRB(
             qubits=(0, 1),
-            lengths=[1, 3, 5, 10, 15, 20, 30, 50, 100, 200],
-            seed=126,
+            lengths=[1, 3, 5, 10, 15, 20, 30, 50],
+            seed=123,
             backend=backend,
         )
         exp_2qrb.set_transpile_options(**transpiler_options)
@@ -729,7 +725,8 @@ class TestEPGAnalysis(QiskitExperimentsTestCase):
         self.assertGreater(cx_epg.value.n, self.pcx * 0.75)
 
     def test_correct_1q_depolarization(self):
-        """Compute 2Q EPG with 1Q depolarization correction."""
+        """Check that 2Q EPG with 1Q depolarization correction gives a better (smaller)
+        result than without the correction."""
         analysis_1qrb_q0 = rb.RBAnalysis()
         analysis_1qrb_q0.set_options(outcome="0", gate_error_ratio={"x": 2, "h": 1, "s": 0})
         result_q0 = analysis_1qrb_q0.run(self.expdata_1qrb_q0, replace_results=False)
@@ -743,9 +740,17 @@ class TestEPGAnalysis(QiskitExperimentsTestCase):
         analysis_2qrb = rb.RBAnalysis()
         analysis_2qrb.set_options(
             outcome="00",
+        )
+        result_2qrb = analysis_2qrb.run(self.expdata_2qrb)
+        self.assertExperimentDone(result_2qrb)
+        cx_epg_raw = result_2qrb.analysis_results("EPG_cx")
+
+        analysis_2qrb = rb.RBAnalysis()
+        analysis_2qrb.set_options(
+            outcome="00",
             epg_1_qubit=result_q0.analysis_results() + result_q1.analysis_results(),
         )
         result_2qrb = analysis_2qrb.run(self.expdata_2qrb)
         self.assertExperimentDone(result_2qrb)
-        cx_epg = result_2qrb.analysis_results("EPG_cx")
-        self.assertAlmostEqual(cx_epg.value.n, self.pcx * 0.75, delta=0.01)
+        cx_epg_corrected = result_2qrb.analysis_results("EPG_cx")
+        self.assertLess(cx_epg_corrected.value.n, cx_epg_raw.value.n)
