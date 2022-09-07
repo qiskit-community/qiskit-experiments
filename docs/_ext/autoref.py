@@ -30,6 +30,7 @@ class WebSite(Directive):
         .. ref_website:: qiskit-experiments, https://github.com/Qiskit/qiskit-experiments
 
     """
+
     required_arguments = 1
     optional_arguments = 0
     final_argument_whitespace = True
@@ -67,6 +68,7 @@ class Arxiv(Directive):
     If an article is not found, no journal information will be shown.
 
     """
+
     required_arguments = 2
     optional_arguments = 0
     final_argument_whitespace = False

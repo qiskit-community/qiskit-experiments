@@ -150,7 +150,7 @@ from .characterization import (
     LocalReadoutError,
     CorrelatedReadoutError,
 )
-from .randomized_benchmarking import StandardRB, InterleavedRB, MirrorRB, MirrorRBPyGSTi
+from .randomized_benchmarking import StandardRB, InterleavedRB, MirrorRB
 from .tomography import StateTomography, ProcessTomography
 from .quantum_volume import QuantumVolume
 
