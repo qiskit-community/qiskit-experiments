@@ -174,14 +174,17 @@ class CliffordUtils:
             qc.cx(0, 1)
         if form in (1, 2):
             if k0 == 1:
-                qc._append(VGate(), [qr[0]], [])
+                qc.sdg(0)
+                qc.h(0)
             if k0 == 2:
-                qc._append(WGate(), [qr[0]], [])
+                qc.h(0)
+                qc.s(0)
             if k1 == 1:
-                qc._append(VGate(), [qr[1]], [])
+                qc.sdg(1)
+                qc.h(1)
             if k1 == 2:
-                qc._append(VGate(), [qr[1]], [])
-                qc._append(VGate(), [qr[1]], [])
+                qc.h(1)
+                qc.s(1)
         if p0 == 1:
             qc.x(0)
         if p0 == 2:
@@ -332,13 +335,17 @@ class CliffordUtils:
             for _ in range(h1):
                 qc.h(1)
             if v0 == "v":
-                qc._append(VGate(), [qr[0]], [])
+                qc.sdg(0)
+                qc.h(0)
             elif v0 == "w":
-                qc._append(WGate(), [qr[0]], [])
+                qc.h(0)
+                qc.s(0)
             if v1 == "v":
-                qc._append(VGate(), [qr[1]], [])
+                qc.sdg(1)
+                qc.h(1)
             elif v1 == "w":
-                qc._append(WGate(), [qr[1]], [])
+                qc.h(1)
+                qc.s(1)
             transpiled = transpile(qc, optimization_level=1, basis_gates=self.basis_gates)
             self._transpiled_cliff_layer[0].append(transpiled)
 
@@ -358,13 +365,17 @@ class CliffordUtils:
             qc = QuantumCircuit(qr)
             qc.cx(0, 1)
             if v0 == "v":
-                qc._append(VGate(), [qr[0]], [])
+                qc.sdg(0)
+                qc.h(0)
             elif v0 == "w":
-                qc._append(WGate(), [qr[0]], [])
+                qc.h(0)
+                qc.s(0)
             if v1 == "v":
-                qc._append(VGate(), [qr[1]], [])
+                qc.sdg(1)
+                qc.h(1)
             elif v1 == "w":
-                qc._append(WGate(), [qr[1]], [])
+                qc.h(1)
+                qc.s(1)
             transpiled = transpile(
                 qc, optimization_level=1, basis_gates=self.basis_gates, backend=self._backend
             )
@@ -375,13 +386,17 @@ class CliffordUtils:
             qc.cx(0, 1)
             qc.cx(1, 0)
             if v0 == "v":
-                qc._append(VGate(), [qr[0]], [])
+                qc.sdg(0)
+                qc.h(0)
             elif v0 == "w":
-                qc._append(WGate(), [qr[0]], [])
+                qc.h(0)
+                qc.s(0)
             if v1 == "v":
-                qc._append(VGate(), [qr[1]], [])
+                qc.sdg(1)
+                qc.h(1)
             elif v1 == "w":
-                qc._append(WGate(), [qr[1]], [])
+                qc.h(1)
+                qc.s(1)
             transpiled = transpile(
                 qc, optimization_level=1, basis_gates=self.basis_gates, backend=self._backend
             )
