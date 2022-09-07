@@ -14,8 +14,7 @@ Interleaved RB Experiment class.
 """
 from typing import Union, Iterable, Optional, List, Sequence
 
-from numpy.random import Generator
-from numpy.random.bit_generator import BitGenerator, SeedSequence
+from numpy.random import Generator, BitGenerator, SeedSequence
 
 from qiskit import QuantumCircuit
 from qiskit.circuit import Instruction

@@ -419,7 +419,7 @@ class MirrorRBAnalysis(curve.CurveAnalysis):
                 # Compute hamming distance proportions
                 target_bs_to_list = [int(char) for char in target_bs]
                 actual_bs_to_list = [int(char) for char in bitstring]
-                k = round(hamming(target_bs_to_list, actual_bs_to_list) * self._num_qubits)
+                k = int(round(hamming(target_bs_to_list, actual_bs_to_list) * self._num_qubits))
                 hamming_dists[k] += count / circ_result.get(
                     "shots", sum(circ_result["counts"].values())
                 )
@@ -621,7 +621,7 @@ def _exclude_1q_error(
     epc: Union[float, "UFloat"],
     qubits: Tuple[int, int],
     gate_counts_per_clifford: Dict[QubitGateTuple, float],
-    extra_analyses: Optional[List[DbAnalysisResultV1]],
+    extra_analyses: Optional[List[AnalysisResult]],
 ) -> Union[float, "UFloat"]:
     """A helper method to exclude contribution of single qubit gates from 2Q EPC.
 
