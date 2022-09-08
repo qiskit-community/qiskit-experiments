@@ -548,6 +548,11 @@ class CurveAnalysis(BaseCurveAnalysis):
             if self.options.plot:
                 for model in self._models:
                     sub_data = formatted_data.get_subset_of(model._name)
+                    if sub_data.x.size == 0:
+                        # If data is empty, skip drawing this model.
+                        # This is the case when fit model exist but no data to fit is provided.
+                        # For example, experiment may omit experimenting with some setting.
+                        continue
                     interp_x = np.linspace(np.min(sub_data.x), np.max(sub_data.x), num=100)
 
                     y_data_with_uncertainty = eval_with_uncertainties(
