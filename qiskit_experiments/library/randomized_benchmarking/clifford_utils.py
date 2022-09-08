@@ -90,13 +90,13 @@ class CliffordUtils:
     NUM_LAYER_0 = 36
     NUM_LAYER_1 = 20
     NUM_LAYER_2 = 16
-    _transpiled_cliffords_1q = []
-    _transpiled_cliff_layer = {}
 
     def __init__(self, num_qubits, basis_gates: List[str], backend: Optional[Backend] =None):
         self.num_qubits = num_qubits
         self.basis_gates = basis_gates
         self._backend = backend
+        self._transpiled_cliffords_1q = []
+        self._transpiled_cliff_layer = {}
         if self.num_qubits == 1:
             self.transpile_1q_cliffords()
         else:  # num_qubits == 2
