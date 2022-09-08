@@ -22,10 +22,10 @@ import numpy as np
 from uncertainties import unumpy as unp, UFloat
 
 from qiskit_experiments.framework import BaseAnalysis, ExperimentData, AnalysisResultData, Options
+from qiskit_experiments.visualization import MplCurveDrawer, BaseCurveDrawer
 from .base_curve_analysis import BaseCurveAnalysis, PARAMS_ENTRY_PREFIX
 from .curve_data import CurveFitResult
 from .utils import analysis_result_to_repr, eval_with_uncertainties
-from qiskit_experiments.visualization import MplCurveDrawer, BaseCurveDrawer
 
 
 class CompositeCurveAnalysis(BaseAnalysis):

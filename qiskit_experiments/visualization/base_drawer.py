@@ -21,7 +21,8 @@ from qiskit_experiments.framework import Options
 class BaseDrawer(ABC):
     """Abstract class for the serializable Qiskit Experiments drawer.
 
-    A drawer may be implemented by different drawing backends such as matplotlib or plotly. Sub-classes that wrap these backends by subclassing ``BaseDrawer`` must implement the following abstract methods.
+    A drawer may be implemented by different drawing backends such as matplotlib or plotly. Sub-classes
+    that wrap these backends by subclassing ``BaseDrawer`` must implement the following abstract methods.
 
     initialize_canvas
 
