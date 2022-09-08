@@ -167,10 +167,10 @@ class StandardRB(BaseExperiment, RestlessMixin):
         if self.experiment_options.full_sampling:
             for _ in range(self.experiment_options.num_samples):
                 for length in self.experiment_options.lengths:
-                    sequences.append(self._sample_sequence(length, rng))
+                    sequences.append(self.__sample_sequence(length, rng))
         else:
             for _ in range(self.experiment_options.num_samples):
-                longest_seq = self._sample_sequence(max(self.experiment_options.lengths), rng)
+                longest_seq = self.__sample_sequence(max(self.experiment_options.lengths), rng)
                 for length in self.experiment_options.lengths:
                     sequences.append(longest_seq[:length])
 
@@ -211,17 +211,9 @@ class StandardRB(BaseExperiment, RestlessMixin):
             circuits.append(circ)
         return circuits
 
-    def _sample_sequence(self, length: int, rng: Generator) -> Sequence[SequenceElementType]:
-        """Sample a RB sequence with the given length.
-
-        Args:
-            length: RB sequences length.
-            rng: Generator object for random number generation.
-
-        Returns:
-            A RB sequence.
-        """
-        # Return integer instead of Clifford object for 1 or 2 qubit case
+    def __sample_sequence(self, length: int, rng: Generator) -> Sequence[SequenceElementType]:
+        # Sample a RB sequence with the given length.
+        # Return integer instead of Clifford object for 1 or 2 qubit case for speed
         if self.num_qubits == 1:
             return rng.integers(24, size=length)
         if self.num_qubits == 2:
