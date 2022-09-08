@@ -227,7 +227,7 @@ class CliffordNumMapping:
 
         cliff_data_file.write("CLIFF_LAYERS_TO_NUM_2Q = [")
         for i in cls.layers_num_to_cliff_num_2q:
-            cliff_data_file.write("{cls.layers_num_to_cliff_num_2q[i]},")
+            cliff_data_file.write(f"{cls.layers_num_to_cliff_num_2q[i]},")
         cliff_data_file.write("]\n")
 
         cliff_data_file.write("CLIFF_NUM_TO_LAYERS_2Q = [")

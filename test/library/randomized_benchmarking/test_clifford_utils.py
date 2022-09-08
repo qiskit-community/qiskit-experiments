@@ -1043,11 +1043,13 @@ class TestCliffordUtils(QiskitExperimentsTestCase):
         assert all(x == True for x in all_nums.values())
 
     def test_layers_to_num(self):
+        """ Check that all 2 clifford numbers form a permutation over [0, 11519]"""
         cliff_utils = CliffordUtils(num_qubits=2, basis_gates=self.basis_gates)
         cliff_utils.transpile_2q_cliff_layers()
         self.is_permutation(cliff_utils.NUM_CLIFFORD_2_QUBIT, CLIFF_LAYERS_TO_NUM_2Q)
 
     def test_mapping_layers_to_num(self):
+        """ Test the mapping from numbers to layer indices"""
         cliff_utils = CliffordUtils(num_qubits=2, basis_gates=self.basis_gates)
         for i in range(cliff_utils.NUM_CLIFFORD_2_QUBIT):
             indices = cliff_utils.layer_indices_from_num(i)
