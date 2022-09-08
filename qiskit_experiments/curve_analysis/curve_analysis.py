@@ -546,8 +546,10 @@ class CurveAnalysis(BaseCurveAnalysis):
 
             # Draw fit curves and report
             if self.options.plot:
-                interp_x = np.linspace(np.min(formatted_data.x), np.max(formatted_data.x), num=100)
                 for model in self._models:
+                    sub_data = formatted_data.get_subset_of(model._name)
+                    interp_x = np.linspace(np.min(sub_data.x), np.max(sub_data.x), num=100)
+
                     y_data_with_uncertainty = eval_with_uncertainties(
                         x=interp_x,
                         model=model,
