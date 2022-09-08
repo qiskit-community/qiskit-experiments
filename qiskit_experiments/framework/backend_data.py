@@ -245,5 +245,5 @@ class BackendData:
         if self._v1:
             return self._backend.properties().qubit_property(qubit)["T1"][0]
         if self._v2:
-            return self._backend.qubit_properties(0).t1
+            return self._backend.qubit_properties(qubit).t1
         return float("nan")
