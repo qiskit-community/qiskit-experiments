@@ -206,8 +206,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
             inv = self.__adjoint_clifford(prev_elem)
 
             circ.append(self._to_instruction(inv), qubits)
-            circ.barrier(qubits)  # TODO: Can we remove this? (measure_all inserts one more barrier)
-            circ.measure_all()
+            circ.measure_all()  # includes insertion of the barrier before measurement
             circuits.append(circ)
         return circuits
 
