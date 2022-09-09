@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Drawers for matplotlib backend."""
+"""Curve drawer for matplotlib backend."""
 
 from typing import Sequence, Optional, Tuple
 
@@ -24,11 +24,11 @@ from matplotlib.markers import MarkerStyle
 from qiskit.utils import detach_prefix
 from qiskit_experiments.framework.matplotlib import get_non_gui_ax
 
-from .base_drawer import BaseDrawer, BaseCurveDrawer
+from .base_drawer import BaseCurveDrawer
 
 
-class MplDrawer(BaseDrawer):
-    """Drawer for MatplotLib backend."""
+class MplCurveDrawer(BaseCurveDrawer):
+    """Curve drawer for MatplotLib backend."""
 
     DefaultMarkers = MarkerStyle().filled_markers
     DefaultColors = tab10.colors
@@ -161,7 +161,7 @@ class MplDrawer(BaseDrawer):
                     prefix = ""
                     prefactor = 1
 
-                formatter = MplDrawer.PrefixFormatter(prefactor)
+                formatter = MplCurveDrawer.PrefixFormatter(prefactor)
                 units_str = f" [{prefix}{unit}]"
             else:
                 # Use scientific notation with 3 digits, 1000 -> 1e3
@@ -204,23 +204,6 @@ class MplDrawer(BaseDrawer):
                 fontsize=self.options.axis_label_size,
             )
 
-    @property
-    def figure(self) -> Figure:
-        """Return figure object handler to be saved in the database.
-
-        In the MatplotLib the ``Figure`` and ``Axes`` are different object.
-        User can pass a part of the figure (i.e. multi-axes) to the drawer option ``axis``.
-        For example, a user wants to combine two different experiment results in the
-        same figure, one can call ``pyplot.subplots`` with two rows and pass one of the
-        generated two axes to each experiment drawer. Once all the experiments complete,
-        the user will obtain the single figure collecting all experimental results.
-
-        Note that this method returns the entire figure object, rather than a single axis.
-        Thus, the experiment data saved in the database might have a figure
-        collecting all child axes drawings.
-        """
-        return self._axis.get_figure()
-
     def _get_axis(self, index: Optional[int] = None) -> Axes:
         """A helper method to get inset axis.
 
@@ -245,33 +228,33 @@ class MplDrawer(BaseDrawer):
             return self._axis
 
     def _get_default_color(self, name: str) -> Tuple[float, ...]:
-        """A helper method to get default color for the series.
+        """A helper method to get default color for the curve.
 
         Args:
-            name: Name of the series.
+            name: Name of the curve.
 
         Returns:
             Default color available in matplotlib.
         """
-        if name not in self._series:
-            self._series.append(name)
+        if name not in self._curves:
+            self._curves.append(name)
 
-        ind = self._series.index(name) % len(self.DefaultColors)
+        ind = self._curves.index(name) % len(self.DefaultColors)
         return self.DefaultColors[ind]
 
     def _get_default_marker(self, name: str) -> str:
         """A helper method to get default marker for the scatter plot.
 
         Args:
-            name: Name of the series.
+            name: Name of the curve.
 
         Returns:
             Default marker available in matplotlib.
         """
-        if name not in self._series:
-            self._series.append(name)
+        if name not in self._curves:
+            self._curves.append(name)
 
-        ind = self._series.index(name) % len(self.DefaultMarkers)
+        ind = self._curves.index(name) % len(self.DefaultMarkers)
         return self.DefaultMarkers[ind]
 
     def draw_raw_data(
@@ -281,9 +264,9 @@ class MplDrawer(BaseDrawer):
         name: Optional[str] = None,
         **options,
     ):
-        series_opts = self.options.plot_options.get(name, {})
-        marker = series_opts.get("symbol", self._get_default_marker(name))
-        axis = series_opts.get("canvas", None)
+        curve_opts = self.options.plot_options.get(name, {})
+        marker = curve_opts.get("symbol", self._get_default_marker(name))
+        axis = curve_opts.get("canvas", None)
 
         draw_options = {
             "color": "grey",
@@ -302,10 +285,10 @@ class MplDrawer(BaseDrawer):
         name: Optional[str] = None,
         **options,
     ):
-        series_opts = self.options.plot_options.get(name, {})
-        axis = series_opts.get("canvas", None)
-        color = series_opts.get("color", self._get_default_color(name))
-        marker = series_opts.get("symbol", self._get_default_marker(name))
+        curve_opts = self.options.plot_options.get(name, {})
+        axis = curve_opts.get("canvas", None)
+        color = curve_opts.get("color", self._get_default_color(name))
+        marker = curve_opts.get("symbol", self._get_default_marker(name))
 
         draw_ops = {
             "color": color,
@@ -322,10 +305,6 @@ class MplDrawer(BaseDrawer):
         if not np.all(np.isfinite(y_err_data)):
             y_err_data = None
         self._get_axis(axis).errorbar(x_data, y_data, yerr=y_err_data, **draw_ops)
-
-
-class MplCurveDrawer(MplDrawer, BaseCurveDrawer):
-    """Curve drawer for MatplotLib backend."""
 
     def draw_fit_line(
         self,
@@ -391,3 +370,20 @@ class MplCurveDrawer(MplDrawer, BaseCurveDrawer):
             zorder=6,
         )
         report_handler.set_bbox(bbox_props)
+
+    @property
+    def figure(self) -> Figure:
+        """Return figure object handler to be saved in the database.
+
+        In the MatplotLib the ``Figure`` and ``Axes`` are different object.
+        User can pass a part of the figure (i.e. multi-axes) to the drawer option ``axis``.
+        For example, a user wants to combine two different experiment results in the
+        same figure, one can call ``pyplot.subplots`` with two rows and pass one of the
+        generated two axes to each experiment drawer. Once all the experiments complete,
+        the user will obtain the single figure collecting all experimental results.
+
+        Note that this method returns the entire figure object, rather than a single axis.
+        Thus, the experiment data saved in the database might have a figure
+        collecting all child axes drawings.
+        """
+        return self._axis.get_figure()
