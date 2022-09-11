@@ -13,16 +13,17 @@
 This is a script used to create the data in clifford_data.py.
 Every Clifford is represented by a number. We store a list of the compositions of Cliffords represented
 as numbers. For example, if Clifford1.compose(Clifford2) == Clifford3, then we conceptually,
-we store {(1, 2) : 3}. we don't actually store the map, but only the results of the compose in an array.
-This is more efficient in performance. The result is found using the indices of the input Cliffords.
+we store {(1, 2) : 3}. We don't actually store the map, but only the results of compose in a list,
+because this is more efficient in performance. The result is found using the indices of the input
+Cliffords.
 Similarly, we store for each number representing a Clifford, the number representing the
 inverse Clifford.
 For compose, we don't actually store the full compose table of all-cliffords X all-cliffords.
-Instead, we define an array of single-gate-cliffords. This comprises all Cliffords that consist
-of a single gate. There are 8 such Cliffords for 1-qubit, and 20 such Cliffords for 2-qubits.
+Instead, we define an list of single-gate-cliffords. This comprises all Cliffords that consist
+of a single gate. There are 9 such Cliffords for 1-qubit, and 21 such Cliffords for 2-qubits.
 It is sufficient to store the compose table of all-cliffords X single-gate-cliffords,
 since for every Clifford on the right hand side, we can break it down into single gate Cliffords,
-and do the composition one at a time. This greatly reduces the storage space for the array of
+and do the composition one gate at a time. This greatly reduces the storage space for the array of
 composition results (from O(n^2) to O(n)), where n is the number of Cliffords.
 """
 import itertools

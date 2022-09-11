@@ -136,11 +136,9 @@ class StandardRB(BaseExperiment, RestlessMixin):
         Returns:
             A list of :class:`QuantumCircuit`.
 
-        Raises:
-            QiskitError: if basis_gates is not set in transpile_options nor in backend configuration.
         """
-        self.set_basis_gates()
-        self.initialize_clifford_utils()
+        self._set_basis_gates()
+        self._initialize_clifford_utils()
         rng = default_rng(seed=self.experiment_options.seed)
         circuits = []
 
@@ -159,7 +157,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
         build_rb_circuits
         Args:
                 lengths: A list of RB sequence lengths. We create random circuits
-                         where the number of cliffords in each is defined in lengths.
+                         where the number of cliffords in each is defined in 'lengths'.
                 rng: Generator object for random number generation.
                      If None, default_rng will be used.
 
@@ -186,6 +184,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
         clbits = list(range(n))
         circ = QuantumCircuit(max_qubit, n)
         circ.barrier(qubits)
+        # We transpile the empty circuit to match the backend qubits
         circ = transpile(
             circuits=circ,
             optimization_level=1,
@@ -225,7 +224,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
         _build_rb_circuits_full_sampling
         Args:
                 lengths: A list of RB sequence lengths. We create random circuits
-                    where the number of cliffords in each is defined in lengths.
+                    where the number of cliffords in each is defined in 'lengths'.
                 rng: Generator object for random number generation.
                     If None, default_rng will be used.
 
@@ -245,6 +244,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
             # be created later
             rb_circ = QuantumCircuit(max_qubit, n)
             rb_circ.barrier(qubits)
+            # We transpile the empty circuit to match the backend qubits
             rb_circ = transpile(
                 circuits=rb_circ,
                 optimization_level=1,
@@ -332,8 +332,6 @@ class StandardRB(BaseExperiment, RestlessMixin):
                 creg = ClassicalRegister(clbits)
                 new_cargs = [Clbit(creg, i) for i in range(clbits)]
                 new_circ.add_register(creg)
-            else:
-                cargs = []
 
             for inst, qargs, cargs in circ.data:
                 mapped_cargs = [new_cargs[circ.find_bit(clbit).index] for clbit in cargs]
@@ -454,7 +452,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
 
         return metadata
 
-    def initialize_clifford_utils(self):
+    def _initialize_clifford_utils(self):
         if StandardRB._clifford_utils is None or not (
             StandardRB._clifford_utils.num_qubits == self.num_qubits
             and StandardRB._clifford_utils.basis_gates == self.transpile_options.basis_gates
@@ -464,7 +462,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
                 self.num_qubits, self.transpile_options.basis_gates, backend=self._backend
             )
 
-    def set_basis_gates(self):
+    def _set_basis_gates(self):
         if not hasattr(self.transpile_options, "basis_gates"):
             if self.backend.configuration().basis_gates:
                 self.set_transpile_options(basis_gates=self.backend.configuration().basis_gates)

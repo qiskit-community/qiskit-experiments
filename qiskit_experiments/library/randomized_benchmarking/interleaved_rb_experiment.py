@@ -17,8 +17,8 @@ from typing import Union, Iterable, Optional, List, Sequence
 from numpy.random import Generator, default_rng
 from numpy.random.bit_generator import BitGenerator, SeedSequence
 
-from qiskit import QuantumCircuit, ClassicalRegister
-from qiskit.circuit import Clbit, Instruction
+from qiskit import QuantumCircuit
+from qiskit.circuit import Instruction
 from qiskit.quantum_info import Clifford
 from qiskit.exceptions import QiskitError
 from qiskit.providers.backend import Backend
@@ -26,7 +26,6 @@ from qiskit.compiler import transpile
 
 from .rb_experiment import StandardRB
 from .interleaved_rb_analysis import InterleavedRBAnalysis
-from .clifford_utils import CliffordUtils
 
 
 class InterleavedRB(StandardRB):
@@ -101,15 +100,13 @@ class InterleavedRB(StandardRB):
         Raises:
             QiskitError: if basis_gates is not set in transpile_options nor in backend configuration.
         """
-
-        self.set_basis_gates()
-        self.initialize_clifford_utils()
-        rng = default_rng(seed=self.experiment_options.seed)
-        circuits = []
-
         if self.num_qubits > 2:
             return super().circuits()
 
+        self._set_basis_gates()
+        self._initialize_clifford_utils()
+        rng = default_rng(seed=self.experiment_options.seed)
+        circuits = []
         for _ in range(self.experiment_options.num_samples):
             self._set_transpiled_interleaved_element()
             std_circuits, int_circuits = self._build_rb_circuits(
@@ -173,7 +170,7 @@ class InterleavedRB(StandardRB):
         build_rb_circuits
         Args:
                 lengths: A list of RB sequence lengths. We create random circuits
-                         where the number of cliffords in each is defined in lengths.
+                         where the number of cliffords in each is defined in 'lengths'.
                 rng: Generator object for random number generation.
                      If None, default_rng will be used.
 
@@ -205,6 +202,7 @@ class InterleavedRB(StandardRB):
 
         circ = QuantumCircuit(max_qubit, n)
         circ.barrier(qubits)
+        # We transpile the empty circuit to match the backend qubits
         circ = transpile(
             circuits=circ,
             optimization_level=1,
@@ -270,7 +268,7 @@ class InterleavedRB(StandardRB):
         _build_rb_circuits_full_sampling
         Args:
                 lengths: A list of RB sequence lengths. We create random circuits
-                    where the number of cliffords in each is defined in lengths.
+                    where the number of cliffords in each is defined in ''lengths'.
                 rng: Generator object for random number generation.
                     If None, default_rng will be used.
                 interleaved_element: the interleaved element as a QuantumCircuit.
@@ -295,6 +293,7 @@ class InterleavedRB(StandardRB):
             rb_circ.barrier(qubits)
             rb_interleaved_circ = QuantumCircuit(max_qubit, n)
             rb_interleaved_circ.barrier(qubits)
+            # We transpile the empty circuit to match the backend qubits
             rb_circ = transpile(
                 circuits=rb_circ,
                 optimization_level=1,
@@ -353,43 +352,8 @@ class InterleavedRB(StandardRB):
         # This is a hack, and would be better if transpile() implemented it.
         # Something similar is done in ParallelExperiment._combined_circuits
 
-    def _layout_for_rb(self):
-        transpiled = []
-        qargs_map = (
-            {0: self.physical_qubits[0]}
-            if self.num_qubits == 1
-            else {0: self.physical_qubits[0], 1: self.physical_qubits[1]}
-        )
-        for circ in self.circuits():
-            new_circ = QuantumCircuit(
-                *circ.qregs,
-                name=circ.name,
-                global_phase=circ.global_phase,
-                metadata=circ.metadata.copy(),
-            )
-            clbits = circ.num_clbits
-            if clbits:
-                creg = ClassicalRegister(clbits)
-                new_cargs = [Clbit(creg, i) for i in range(clbits)]
-                new_circ.add_register(creg)
-            else:
-                cargs = []
-
-            for inst, qargs, cargs in circ.data:
-                mapped_cargs = [new_cargs[circ.find_bit(clbit).index] for clbit in cargs]
-                mapped_qargs = [circ.qubits[qargs_map[circ.find_bit(i).index]] for i in qargs]
-                new_circ.data.append((inst, mapped_qargs, mapped_cargs))
-                # Add the calibrations
-                for gate, cals in circ.calibrations.items():
-                    for key, sched in cals.items():
-                        new_circ.add_calibration(gate, qubits=key[0], schedule=sched, params=key[1])
-
-            transpiled.append(new_circ)
-        return transpiled
-
     def _sample_circuits(self, lengths, rng):
         """This method is called when the number of qubits is greater than 2"""
-        circuits = []
         for length in lengths if self._full_sampling else [lengths[-1]]:
             elements = self._clifford_utils.random_clifford_circuits(length, rng)
             element_lengths = [len(elements)] if self._full_sampling else lengths
@@ -407,8 +371,10 @@ class InterleavedRB(StandardRB):
 
     def _interleave(self, element_list: List) -> List:
         """Interleaving the interleaved element inside the element list.
+
         Args:
             element_list: The list of elements we add the interleaved element to.
+
         Returns:
             The new list with the element interleaved.
         """
