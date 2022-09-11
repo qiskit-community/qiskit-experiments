@@ -245,7 +245,8 @@ class CliffordNumMapping:
 
 
 with open("clifford_data.py", "w") as cliff_data_file:
-    cliff_data_file.write("# fmt: off\n\n")
+    cliff_data_file.write("# fmt: off\n")
+    cliff_data_file.write("# pylint: skip-file\n\n")
     CliffordNumMapping.create_clifford_data()
     CliffordNumMapping.map_layers_to_cliffords_2q()
     cliff_data_file.write("\n# fmt: on\n")

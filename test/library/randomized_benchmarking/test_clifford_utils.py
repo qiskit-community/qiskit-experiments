@@ -14,7 +14,6 @@
 A Tester for the Clifford utilities
 """
 from test.base import QiskitExperimentsTestCase
-import os
 import numpy as np
 from numpy.random import default_rng
 from ddt import ddt
@@ -22,7 +21,6 @@ from ddt import ddt
 from qiskit import QuantumCircuit, QuantumRegister, QiskitError
 from qiskit.compiler import transpile
 from qiskit.quantum_info import Operator, Clifford
-from qiskit import qpy
 from qiskit.circuit.library import (
     IGate,
     XGate,
@@ -35,16 +33,8 @@ from qiskit.circuit.library import (
     RZGate,
 )
 from qiskit_experiments.library.randomized_benchmarking.clifford_utils import CliffordUtils
-from qiskit_experiments.library.randomized_benchmarking.clifford_data import (
-    CLIFF_SINGLE_GATE_MAP_1Q,
-    CLIFF_SINGLE_GATE_MAP_2Q,
-    CLIFF_COMPOSE_DATA_1Q,
-    CLIFF_COMPOSE_DATA_2Q,
-    CLIFF_INVERSE_DATA_1Q,
-    CLIFF_INVERSE_DATA_2Q,
-    CLIFF_NUM_TO_LAYERS_2Q,
-    CLIFF_LAYERS_TO_NUM_2Q
-)
+from qiskit_experiments.library.randomized_benchmarking.clifford_data import CLIFF_LAYERS_TO_NUM_2Q
+
 
 @ddt
 class TestCliffordUtils(QiskitExperimentsTestCase):
@@ -909,9 +899,7 @@ class TestCliffordUtils(QiskitExperimentsTestCase):
         qubits = [0]
         cliff_utils = CliffordUtils(num_qubits=1, basis_gates=transpiled_cliff_names)
         for inst in transpiled_cliff_list:
-            num = cliff_utils.num_from_clifford_single_gate(
-                inst, qubits, rb_num_qubits=1
-            )
+            num = cliff_utils.num_from_clifford_single_gate(inst, qubits, rb_num_qubits=1)
             qc_from_num = cliff_utils.clifford_1_qubit_circuit(num=num)
             qr = QuantumRegister(1)
             qc_from_inst = QuantumCircuit(qr)
@@ -931,9 +919,7 @@ class TestCliffordUtils(QiskitExperimentsTestCase):
         general_cliff_names = [gate.name for gate in general_cliff_list]
         cliff_utils = CliffordUtils(num_qubits=1, basis_gates=general_cliff_names)
         for inst in general_cliff_list:
-            num = cliff_utils.num_from_clifford_single_gate(
-                inst, qubits, rb_num_qubits=1
-            )
+            num = cliff_utils.num_from_clifford_single_gate(inst, qubits, rb_num_qubits=1)
             qc_from_num = cliff_utils.clifford_1_qubit_circuit(num=num)
             qr = QuantumRegister(1)
             qc_from_inst = QuantumCircuit(qr)
@@ -949,7 +935,8 @@ class TestCliffordUtils(QiskitExperimentsTestCase):
 
         for index, qc in enumerate(cliff_utils._transpiled_cliffords_1q):
             num = cliff_utils.compose_num_with_clifford(
-                composed_num=0, qc=qc,
+                composed_num=0,
+                qc=qc,
             )
             assert num == index
 
@@ -961,7 +948,8 @@ class TestCliffordUtils(QiskitExperimentsTestCase):
         for index in range(cliff_utils.NUM_CLIFFORD_2_QUBIT):
             qc = cliff_utils.create_cliff_from_num(index)
             num = cliff_utils.compose_num_with_clifford(
-                composed_num=0, qc=qc,
+                composed_num=0,
+                qc=qc,
             )
             assert num == index
 
@@ -979,9 +967,7 @@ class TestCliffordUtils(QiskitExperimentsTestCase):
             transpiled_qc2 = transpile(
                 cliff2_qc, optimization_level=1, basis_gates=self.basis_gates
             )
-            result_by_num = cliff_utils.compose_num_with_clifford(
-                num1, transpiled_qc2
-            )
+            result_by_num = cliff_utils.compose_num_with_clifford(num1, transpiled_qc2)
             clifford_from_num = cliff_utils.clifford_1_qubit_circuit(result_by_num)
             clifford_from_compose = cliff1_qc.compose(cliff2_qc)
             assert Operator(clifford_from_num).equiv(Operator(clifford_from_compose))
@@ -1000,9 +986,7 @@ class TestCliffordUtils(QiskitExperimentsTestCase):
             transpiled_qc2 = transpile(
                 cliff2_qc, optimization_level=1, basis_gates=self.basis_gates
             )
-            result_by_num = cliff_utils.compose_num_with_clifford(
-                num1, transpiled_qc2
-            )
+            result_by_num = cliff_utils.compose_num_with_clifford(num1, transpiled_qc2)
             clifford_from_num = cliff_utils.clifford_2_qubit_circuit(result_by_num)
             clifford_from_compose = cliff1_qc.compose(cliff2_qc)
             assert Operator(clifford_from_num).equiv(Operator(clifford_from_compose))
@@ -1034,24 +1018,25 @@ class TestCliffordUtils(QiskitExperimentsTestCase):
             assert (Operator(inverse_by_num)).equiv(Operator(inverse_cliff))
 
     def is_permutation(self, num_elements, perm):
+        """Check that the input list is a permutation of the numbers [0, num_elements]."""
         all_nums = {i: False for i in range(num_elements)}
         for n in all_nums:
             if all_nums[perm[n]]:
                 raise QiskitError("Not a permutation")
-            else:
-                all_nums[perm[n]] = True
-        assert all(x == True for x in all_nums.values())
+
+            all_nums[perm[n]] = True
+        assert all(x is True for x in all_nums.values())
 
     def test_layers_to_num(self):
-        """ Check that all 2 clifford numbers form a permutation over [0, 11519]"""
+        """Check that all 2 clifford numbers form a permutation over [0, 11519]"""
         cliff_utils = CliffordUtils(num_qubits=2, basis_gates=self.basis_gates)
         cliff_utils.transpile_2q_cliff_layers()
         self.is_permutation(cliff_utils.NUM_CLIFFORD_2_QUBIT, CLIFF_LAYERS_TO_NUM_2Q)
 
     def test_mapping_layers_to_num(self):
-        """ Test the mapping from numbers to layer indices"""
+        """Test the mapping from numbers to layer indices"""
         cliff_utils = CliffordUtils(num_qubits=2, basis_gates=self.basis_gates)
         for i in range(cliff_utils.NUM_CLIFFORD_2_QUBIT):
             indices = cliff_utils.layer_indices_from_num(i)
             reverse_i = cliff_utils.num_from_layer_indices(indices)
-            assert(i == reverse_i)
+            assert i == reverse_i
