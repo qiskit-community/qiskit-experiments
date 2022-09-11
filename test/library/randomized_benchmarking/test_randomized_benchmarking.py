@@ -134,6 +134,31 @@ class TestStandardRB(RBTestCase):
         epc_expected = 1 - (1 - 3 / 4 * self.p2q) ** 1.5
         self.assertAlmostEqual(epc.value.n, epc_expected, delta=0.5 * epc_expected)
 
+    def test_three_qubit(self):
+        """Test two qubit RB. Use default basis gates."""
+        exp = rb.StandardRB(
+            qubits=(0, 1, 2),
+            lengths=list(range(1, 30, 3)),
+            seed=123,
+            backend=self.backend,
+        )
+        exp.analysis.set_options(gate_error_ratio=None)
+        exp.set_transpile_options(**self.transpiler_options)
+        self.assertAllIdentity(exp.circuits())
+
+        expdata = exp.run()
+        self.assertExperimentDone(expdata)
+
+        # Given CX error is dominant and 1q error can be negligible.
+        # Arbitrary SU(8) can be decomposed with [0,...,7] CX gates, the expected
+        # average number of CX gate per Clifford is 3.5.
+        # Since this is three qubit RB, the dep-parameter is factored by 7/8.
+        epc = expdata.analysis_results("EPC")
+        print(epc)
+        # Allow for 50 percent tolerance since we ignore 1q gate contribution
+        epc_expected = 1 - (1 - 7 / 8 * self.p2q) ** 3.5
+        self.assertAlmostEqual(epc.value.n, epc_expected, delta=0.5 * epc_expected)
+
     def test_add_more_circuit_yields_lower_variance(self):
         """Test variance reduction with larger number of sampling."""
         exp1 = rb.StandardRB(
