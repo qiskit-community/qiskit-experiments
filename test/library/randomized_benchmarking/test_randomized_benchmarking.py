@@ -154,7 +154,6 @@ class TestStandardRB(RBTestCase):
         # average number of CX gate per Clifford is 3.5.
         # Since this is three qubit RB, the dep-parameter is factored by 7/8.
         epc = expdata.analysis_results("EPC")
-        print(epc)
         # Allow for 50 percent tolerance since we ignore 1q gate contribution
         epc_expected = 1 - (1 - 7 / 8 * self.p2q) ** 3.5
         self.assertAlmostEqual(epc.value.n, epc_expected, delta=0.5 * epc_expected)

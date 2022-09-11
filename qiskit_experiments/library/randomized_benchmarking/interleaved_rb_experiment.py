@@ -101,19 +101,14 @@ class InterleavedRB(StandardRB):
         Raises:
             QiskitError: if basis_gates is not set in transpile_options nor in backend configuration.
         """
-        if self.num_qubits > 2:
-            return super().circuits()
+
+        self.set_basis_gates()
+        self.initialize_clifford_utils()
         rng = default_rng(seed=self.experiment_options.seed)
         circuits = []
-        if self._clifford_utils is None:
-            self._clifford_utils = CliffordUtils(
-                self.num_qubits, self.transpile_options.basis_gates, backend=self.backend
-            )
-        if not hasattr(self.transpile_options, "basis_gates"):
-            if self.backend.configuration.basis_gates:
-                self.set_transpile_options(basis_gates=self.backend.configuration.basis_gates)
-            else:
-                self.transpile_options["basis_gates"] = self.default_basis_gates
+
+        if self.num_qubits > 2:
+            return super().circuits()
 
         for _ in range(self.experiment_options.num_samples):
             self._set_transpiled_interleaved_element()

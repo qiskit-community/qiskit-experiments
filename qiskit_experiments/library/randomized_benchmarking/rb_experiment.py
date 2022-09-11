@@ -61,6 +61,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
     """
 
     default_basis_gates = {"rz", "sx", "cx"}
+    _clifford_utils = None
 
     def __init__(
         self,
@@ -95,7 +96,6 @@ class StandardRB(BaseExperiment, RestlessMixin):
 
         # Set fixed options
         self._full_sampling = full_sampling
-        self._clifford_utils = None
 
     def _verify_parameters(self, lengths, num_samples):
         """Verify input correctness, raise QiskitError if needed"""
@@ -139,18 +139,10 @@ class StandardRB(BaseExperiment, RestlessMixin):
         Raises:
             QiskitError: if basis_gates is not set in transpile_options nor in backend configuration.
         """
-        if not hasattr(self.transpile_options, "basis_gates"):
-            if self.backend.configuration().basis_gates:
-                self.set_transpile_options(basis_gates=self.backend.configuration().basis_gates)
-            else:
-                self.transpile_options["basis_gates"] = self.default_basis_gates
-
+        self.set_basis_gates()
+        self.initialize_clifford_utils()
         rng = default_rng(seed=self.experiment_options.seed)
         circuits = []
-        if self._clifford_utils is None:
-            self._clifford_utils = CliffordUtils(
-                self.num_qubits, self.transpile_options.basis_gates, backend=self._backend
-            )
 
         if self.num_qubits < 3:
             for _ in range(self.experiment_options.num_samples):
@@ -285,7 +277,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
         return all_rb_circuits
 
     def _add_random_cliff_to_circ(self, circ, composed_cliff_num, qubits, rng):
-        next_circ = self._clifford_utils.create_random_clifford(rng)
+        next_circ = StandardRB._clifford_utils.create_random_clifford(rng)
         circ, composed_cliff_num = self._add_cliff_to_circ(
             circ, next_circ, composed_cliff_num, qubits
         )
@@ -301,7 +293,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
         """Append a Clifford to the end of a circuit. Return both the updated circuit and the updated
         number representing the circuit"""
         circ.compose(next_circ, inplace=True)
-        composed_cliff_num = self._clifford_utils.compose_num_with_clifford(
+        composed_cliff_num = StandardRB._clifford_utils.compose_num_with_clifford(
             composed_num=composed_cliff_num,
             qc=next_circ,
         )
@@ -309,8 +301,8 @@ class StandardRB(BaseExperiment, RestlessMixin):
         return circ, composed_cliff_num
 
     def _add_inverse_to_circ(self, rb_circ, composed_num, qubits, clbits):
-        """Append the inverse of a circuit to the end of the circuit"""
-        inverse_cliff = self._clifford_utils.inverse_cliff(composed_num)
+        """ Append the inverse of a circuit to the end of the circuit"""
+        inverse_cliff = StandardRB._clifford_utils.inverse_cliff(composed_num)
         rb_circ.compose(inverse_cliff, inplace=True)
         rb_circ.measure(qubits, clbits)
         return rb_circ
@@ -461,3 +453,20 @@ class StandardRB(BaseExperiment, RestlessMixin):
                 metadata[run_opt] = getattr(self.run_options, run_opt)
 
         return metadata
+
+    def initialize_clifford_utils(self):
+        if StandardRB._clifford_utils is None or not (
+                StandardRB._clifford_utils.num_qubits == self.num_qubits
+                and StandardRB._clifford_utils.basis_gates == self.transpile_options.basis_gates
+                and StandardRB._clifford_utils._backend == self._backend
+        ):
+            StandardRB._clifford_utils = CliffordUtils(
+                self.num_qubits, self.transpile_options.basis_gates, backend=self._backend
+            )
+
+    def set_basis_gates(self):
+        if not hasattr(self.transpile_options, "basis_gates"):
+            if self.backend.configuration().basis_gates:
+                self.set_transpile_options(basis_gates=self.backend.configuration().basis_gates)
+            else:
+                self.transpile_options["basis_gates"] = StandardRB.default_basis_gates
