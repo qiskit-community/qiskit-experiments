@@ -16,6 +16,7 @@ from test.base import QiskitExperimentsTestCase
 
 import random
 from ddt import ddt, data, unpack
+import numpy as np
 
 from qiskit.circuit import Delay, QuantumCircuit
 from qiskit.circuit.library import SXGate, CXGate, TGate, CZGate
@@ -653,7 +654,7 @@ class TestEPGAnalysis(QiskitExperimentsTestCase):
         self.p_x = 0.04
         self.p_h = 0.02
         self.p_s = 0.0
-        self.p_cx = 0.08
+        self.p_cx = 0.09
         x_error = depolarizing_error(self.p_x, 1)
         h_error = depolarizing_error(self.p_h, 1)
         s_error = depolarizing_error(self.p_s, 1)
@@ -797,4 +798,6 @@ class TestEPGAnalysis(QiskitExperimentsTestCase):
         result_2qrb = analysis_2qrb.run(self.expdata_2qrb)
         self.assertExperimentDone(result_2qrb)
         cx_epg_corrected = result_2qrb.analysis_results("EPG_cx")
-        self.assertLess(cx_epg_corrected.value.n, cx_epg_raw.value.n)
+        self.assertLess(
+            np.abs(cx_epg_corrected.value.n - self.p_cx * 0.75), np.abs(cx_epg_raw.value.n - self.p_cx * 0.75)
+        )

@@ -301,7 +301,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
         return circ, composed_cliff_num
 
     def _add_inverse_to_circ(self, rb_circ, composed_num, qubits, clbits):
-        """ Append the inverse of a circuit to the end of the circuit"""
+        """Append the inverse of a circuit to the end of the circuit"""
         inverse_cliff = StandardRB._clifford_utils.inverse_cliff(composed_num)
         rb_circ.compose(inverse_cliff, inplace=True)
         rb_circ.measure(qubits, clbits)
@@ -456,9 +456,9 @@ class StandardRB(BaseExperiment, RestlessMixin):
 
     def initialize_clifford_utils(self):
         if StandardRB._clifford_utils is None or not (
-                StandardRB._clifford_utils.num_qubits == self.num_qubits
-                and StandardRB._clifford_utils.basis_gates == self.transpile_options.basis_gates
-                and StandardRB._clifford_utils._backend == self._backend
+            StandardRB._clifford_utils.num_qubits == self.num_qubits
+            and StandardRB._clifford_utils.basis_gates == self.transpile_options.basis_gates
+            and StandardRB._clifford_utils._backend == self._backend
         ):
             StandardRB._clifford_utils = CliffordUtils(
                 self.num_qubits, self.transpile_options.basis_gates, backend=self._backend
