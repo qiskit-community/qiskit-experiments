@@ -289,7 +289,9 @@ class StandardRB(BaseExperiment, RestlessMixin):
         )
         return circ, next_circ, composed_cliff_num
 
-    def _add_cliff_to_circ(self, circ, next_circ, composed_cliff_num, qubits):
+    def _add_cliff_to_circ(self, circ: QuantumCircuit, next_circ: QuantumCircuit, composed_cliff_num: int, qubits: List[int]):
+        """ Append a Clifford to the end of a circuit. Return both the updated circuit and the updated
+        number representing the circuit"""
         circ.compose(next_circ, inplace=True)
         composed_cliff_num = self._clifford_utils.compose_num_with_clifford(
             composed_num=composed_cliff_num,
@@ -299,6 +301,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
         return circ, composed_cliff_num
 
     def _add_inverse_to_circ(self, rb_circ, composed_num, qubits, clbits):
+        """ Append the inverse of a circuit to the end of the circuit"""
         inverse_cliff = self._clifford_utils.inverse_cliff(composed_num)
         rb_circ.compose(inverse_cliff, inplace=True)
         rb_circ.measure(qubits, clbits)
