@@ -356,7 +356,7 @@ class CliffordUtils:
             elif v1 == "w":
                 qc.h(1)  # WGate
                 qc.s(1)
-            transpiled = transpile(qc, optimization_level=1, basis_gates=self.basis_gates)
+            transpiled = transpile(qc, optimization_level=1, basis_gates=self.basis_gates, backend=self._backend)
             self._transpiled_cliff_layer[0].append(transpiled)
 
     def _transpile_cliff_layer_1(self):
