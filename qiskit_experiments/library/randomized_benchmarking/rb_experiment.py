@@ -59,7 +59,9 @@ class StandardRB(BaseExperiment, RestlessMixin):
         .. ref_arxiv:: 2 1109.6887
 
     """
+
     default_basis_gates = {"rz", "sx", "cx"}
+
     def __init__(
         self,
         qubits: Sequence[int],
@@ -289,8 +291,14 @@ class StandardRB(BaseExperiment, RestlessMixin):
         )
         return circ, next_circ, composed_cliff_num
 
-    def _add_cliff_to_circ(self, circ: QuantumCircuit, next_circ: QuantumCircuit, composed_cliff_num: int, qubits: List[int]):
-        """ Append a Clifford to the end of a circuit. Return both the updated circuit and the updated
+    def _add_cliff_to_circ(
+        self,
+        circ: QuantumCircuit,
+        next_circ: QuantumCircuit,
+        composed_cliff_num: int,
+        qubits: List[int],
+    ):
+        """Append a Clifford to the end of a circuit. Return both the updated circuit and the updated
         number representing the circuit"""
         circ.compose(next_circ, inplace=True)
         composed_cliff_num = self._clifford_utils.compose_num_with_clifford(
@@ -301,7 +309,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
         return circ, composed_cliff_num
 
     def _add_inverse_to_circ(self, rb_circ, composed_num, qubits, clbits):
-        """ Append the inverse of a circuit to the end of the circuit"""
+        """Append the inverse of a circuit to the end of the circuit"""
         inverse_cliff = self._clifford_utils.inverse_cliff(composed_num)
         rb_circ.compose(inverse_cliff, inplace=True)
         rb_circ.measure(qubits, clbits)
@@ -394,7 +402,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
         return circuits
 
     def _generate_circuit(
-            self, elements: Iterable[Clifford], lengths: Iterable[int]
+        self, elements: Iterable[Clifford], lengths: Iterable[int]
     ) -> List[QuantumCircuit]:
         """Return the RB circuits constructed from the given element list.
         Args:

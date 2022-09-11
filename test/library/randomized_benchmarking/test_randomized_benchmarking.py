@@ -17,8 +17,8 @@ from test.base import QiskitExperimentsTestCase
 import random
 from ddt import ddt, data, unpack
 
-from qiskit.circuit import Delay, QuantumCircuit, QuantumRegister
-from qiskit.circuit.library import SXGate, CXGate, TGate, XGate, CZGate
+from qiskit.circuit import Delay, QuantumCircuit
+from qiskit.circuit.library import SXGate, CXGate, TGate, CZGate
 from qiskit.exceptions import QiskitError
 from qiskit.providers.aer import AerSimulator
 from qiskit.providers.aer.noise import NoiseModel, depolarizing_error
@@ -565,8 +565,7 @@ class TestInterleavedRB(RBTestCase):
         )
         exp.set_transpile_options(**self.transpiler_options)
 
-        # Does not raise an error
-        _, int_circs = exp.circuits()
+        int_circs = exp.circuits()[1]
 
         # barrier, 2-gate clifford, barrier, "delay", barrier, ...
         self.assertEqual(int_circs.data[4][0].name, interleaved_element.name)
@@ -590,7 +589,7 @@ class TestInterleavedRB(RBTestCase):
             num_samples=1,
         )
         exp.set_transpile_options(**self.transpiler_options)
-        _, int_circ = exp.circuits()
+        int_circ = exp.circuits()[1]
         self.assertAllIdentity([int_circ])
 
     def test_experiment_config(self):
@@ -652,14 +651,14 @@ class TestEPGAnalysis(QiskitExperimentsTestCase):
 
         # Setup noise model, including more gate for complicated EPG computation
         # Note that 1Q channel error is amplified to check 1q channel correction mechanism
-        self.px = 0.04
-        self.ph = 0.02
-        self.ps = 0.0
-        self.pcx = 0.08
-        x_error = depolarizing_error(self.px, 1)
-        h_error = depolarizing_error(self.ph, 1)
-        s_error = depolarizing_error(self.ps, 1)
-        cx_error = depolarizing_error(self.pcx, 2)
+        self.p_x = 0.04
+        self.p_h = 0.02
+        self.p_s = 0.0
+        self.p_cx = 0.08
+        x_error = depolarizing_error(self.p_x, 1)
+        h_error = depolarizing_error(self.p_h, 1)
+        s_error = depolarizing_error(self.p_s, 1)
+        cx_error = depolarizing_error(self.p_cx, 2)
 
         noise_model = NoiseModel()
         noise_model.add_all_qubit_quantum_error(x_error, "x")
@@ -723,8 +722,8 @@ class TestEPGAnalysis(QiskitExperimentsTestCase):
 
         # H and X gate EPG are assumed to be the same, so this underestimate X and overestimate H
         self.assertEqual(h_epg.value.n, x_epg.value.n)
-        self.assertLess(x_epg.value.n, self.px * 0.5)
-        self.assertGreater(h_epg.value.n, self.ph * 0.5)
+        self.assertLess(x_epg.value.n, self.p_x * 0.5)
+        self.assertGreater(h_epg.value.n, self.p_h * 0.5)
 
     def test_no_epg(self):
         """Calculate no EPGs."""
@@ -752,8 +751,8 @@ class TestEPGAnalysis(QiskitExperimentsTestCase):
         h_epg = result.analysis_results("EPG_h")
         x_epg = result.analysis_results("EPG_x")
 
-        self.assertAlmostEqual(x_epg.value.n, self.px * 0.5, delta=0.005)
-        self.assertAlmostEqual(h_epg.value.n, self.ph * 0.5, delta=0.005)
+        self.assertAlmostEqual(x_epg.value.n, self.p_x * 0.5, delta=0.005)
+        self.assertAlmostEqual(h_epg.value.n, self.p_h * 0.5, delta=0.005)
 
     def test_2q_epg(self):
         """Compute 2Q EPG without correction.
@@ -768,7 +767,7 @@ class TestEPGAnalysis(QiskitExperimentsTestCase):
 
         cx_epg = result.analysis_results("EPG_cx")
 
-        self.assertGreater(cx_epg.value.n, self.pcx * 0.75)
+        self.assertGreater(cx_epg.value.n, self.p_cx * 0.75)
 
     def test_correct_1q_depolarization(self):
         """Check that 2Q EPG with 1Q depolarization correction gives a better (smaller)

@@ -76,7 +76,7 @@ class CliffordNumMapping:
     cliff_num_to_layers_2q = {}
 
     @classmethod
-    def gen_nums_single_gate_cliffs_1q(cls, cliff_data_file):
+    def gen_nums_single_gate_cliffs_1q(cls):
         """
         Generates an array mapping numbers to Cliffords and the reverse array.
         Based on this array, we build a mapping from every single-gate-clifford to its number.
@@ -104,7 +104,7 @@ class CliffordNumMapping:
         cliff_data_file.write(f"CLIFF_SINGLE_GATE_MAP_1Q = {cls.single_gate_clifford_map_1q}\n")
 
     @classmethod
-    def gen_nums_single_gate_cliffs_2q(cls, cliff_data_file):
+    def gen_nums_single_gate_cliffs_2q(cls):
         """
         Generates an array mapping numbers to Cliffords and the reverse array.
         Based on this array, we build a mapping from every single-gate-clifford to its number.
@@ -153,7 +153,7 @@ class CliffordNumMapping:
         cliff_data_file.write(f"CLIFF_SINGLE_GATE_MAP_2Q = {cls.single_gate_clifford_map_2q}\n")
 
     @classmethod
-    def create_compose_map_1q(cls, cliff_data_file):
+    def create_compose_map_1q(cls):
         """Creates the data in compose data in CLIFF_COMPOSE_DATA and
         the inverse data in CLIFF_INVERSE_DATA"""
         products = {}
@@ -183,7 +183,7 @@ class CliffordNumMapping:
         cliff_data_file.write("\n")
 
     @classmethod
-    def create_compose_map_2q(cls, cliff_data_file):
+    def create_compose_map_2q(cls):
         """Creates the data in CLIFF_COMPOSE_DATA and CLIFF_INVERSE_DATA"""
         products = {}
         for i in range(CliffordUtils.NUM_CLIFFORD_2_QUBIT):
@@ -212,7 +212,7 @@ class CliffordNumMapping:
         cliff_data_file.write("\n")
 
     @classmethod
-    def map_layers_to_cliffords_2q(cls, cliff_data_file):
+    def map_layers_to_cliffords_2q(cls):
         """Creates a map from a triplet describing the indices in the layers, to the
         number of the corresponding Clifford"""
         clifford_utils = CliffordUtils(2, cls.basis_gates)
@@ -236,14 +236,16 @@ class CliffordNumMapping:
         cliff_data_file.write("]\n")
 
     @classmethod
-    def create_clifford_data(cls, cliff_data_file):
+    def create_clifford_data(cls):
         """Creates all the data for compose and inverse."""
-        cls.gen_nums_single_gate_cliffs_1q(cliff_data_file)
-        cls.gen_nums_single_gate_cliffs_2q(cliff_data_file)
-        cls.create_compose_map_1q(cliff_data_file)
-        cls.create_compose_map_2q(cliff_data_file)
+        cls.gen_nums_single_gate_cliffs_1q()
+        cls.gen_nums_single_gate_cliffs_2q()
+        cls.create_compose_map_1q()
+        cls.create_compose_map_2q()
 
 
 with open("clifford_data.py", "w") as cliff_data_file:
-    CliffordNumMapping.create_clifford_data(cliff_data_file=cliff_data_file)
-    CliffordNumMapping.map_layers_to_cliffords_2q(cliff_data_file=cliff_data_file)
+    cliff_data_file.write("# fmt: off\n\n")
+    CliffordNumMapping.create_clifford_data()
+    CliffordNumMapping.map_layers_to_cliffords_2q()
+    cliff_data_file.write("\n# fmt: on\n")

@@ -482,7 +482,9 @@ class CliffordUtils:
             raise QiskitError("create_cliff_from_num is not supported for more than 2 qubits")
 
     @lru_cache(NUM_CLIFFORD_2_QUBIT)
-    def transpiled_cliff_from_layer_nums(self, triplet: Tuple):
+    def transpiled_cliff_from_layer_nums(self, triplet: Tuple) -> QuantumCircuit:
+        """Given a triplet of indices to the _transpiled_cliff_layers, return the Clifford that consists
+        of composing the three."""
         q0 = self._transpiled_cliff_layer[0][triplet[0]]
         q1 = self._transpiled_cliff_layer[1][triplet[1]]
         q2 = self._transpiled_cliff_layer[2][triplet[2]]
