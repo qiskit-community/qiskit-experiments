@@ -331,7 +331,8 @@ class CliffordUtils:
         self._transpile_cliff_layer_2()
 
     def _transpile_cliff_layer_0(self):
-        """Transpile layer 0. length == 36."""
+        """Layer 0 consists of 0 or 1 H gates on each qubit, followed by 0/1/2 V gates on each qubit.
+        Number of Cliffords == 36."""
         if self._transpiled_cliff_layer[0] != []:
             return
         num_h = [0, 1]
@@ -356,11 +357,18 @@ class CliffordUtils:
             elif v1 == "w":
                 qc.h(1)  # WGate
                 qc.s(1)
-            transpiled = transpile(qc, optimization_level=1, basis_gates=self.basis_gates, backend=self._backend)
+            transpiled = transpile(
+                qc, optimization_level=1, basis_gates=self.basis_gates, backend=self._backend
+            )
             self._transpiled_cliff_layer[0].append(transpiled)
 
     def _transpile_cliff_layer_1(self):
-        """Transpile layer 1. length == 20."""
+        """Layer 1 consists of one of the following:
+        - nothing
+        - cx(0,1) followed by 0/1/2 V gates on each qubit
+        - cx(0,1), cx(1,0) followed by 0/1/2 V gates on each qubit
+        - cx(0,1), cx(1,0), cx(0,1)
+        Number of Cliffords == 20"""
         if self._transpiled_cliff_layer[1] != []:
             return
         v_w_gates = ["i", "v", "w"]
@@ -422,7 +430,8 @@ class CliffordUtils:
         self._transpiled_cliff_layer[1].append(transpiled)
 
     def _transpile_cliff_layer_2(self):
-        """Transpile layer 2. length == 16."""
+        """Layer 2 consists of a Pauli gate on each qubit {Id, X, Y, Z}.
+        Number of Cliffords == 16"""
         if self._transpiled_cliff_layer[2] != []:
             return
         pauli = ["i", "x", "y", "z"]
