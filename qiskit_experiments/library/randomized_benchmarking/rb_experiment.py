@@ -59,7 +59,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
         .. ref_arxiv:: 2 1109.6887
 
     """
-
+    default_basis_gates = {"rz", "sx", "cx"}
     def __init__(
         self,
         qubits: Sequence[int],
@@ -137,15 +137,19 @@ class StandardRB(BaseExperiment, RestlessMixin):
         Raises:
             QiskitError: if basis_gates is not set in transpile_options nor in backend configuration.
         """
+        if not hasattr(self.transpile_options, "basis_gates"):
+            if self.backend.configuration().basis_gates:
+                self.set_transpile_options(basis_gates=self.backend.configuration().basis_gates)
+            else:
+                self.transpile_options["basis_gates"] = self.default_basis_gates
+
         rng = default_rng(seed=self.experiment_options.seed)
         circuits = []
-        if not hasattr(self.transpile_options, "basis_gates"):
-            raise QiskitError("transpile_options.basis_gates must be set for rb_experiment")
-
         if self._clifford_utils is None:
             self._clifford_utils = CliffordUtils(
                 self.num_qubits, self.transpile_options.basis_gates, backend=self._backend
             )
+
         if self.num_qubits < 3:
             for _ in range(self.experiment_options.num_samples):
                 rb_circuits = self._build_rb_circuits(self.experiment_options.lengths, rng)

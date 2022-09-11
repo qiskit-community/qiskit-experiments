@@ -101,17 +101,19 @@ class InterleavedRB(StandardRB):
         Raises:
             QiskitError: if basis_gates is not set in transpile_options nor in backend configuration.
         """
+        if self.num_qubits > 2:
+            return super().circuits()
         rng = default_rng(seed=self.experiment_options.seed)
         circuits = []
-        if not hasattr(self.transpile_options, "basis_gates"):
-            if self.backend.configuration.basis_gates:
-                self.set_transpile_options(basis_gates=self.backend.configuration.basis_gates)
-            else:
-                raise QiskitError("transpile_options.basis_gates must be set for rb_experiment")
         if self._clifford_utils is None:
             self._clifford_utils = CliffordUtils(
                 self.num_qubits, self.transpile_options.basis_gates, backend=self.backend
             )
+        if not hasattr(self.transpile_options, "basis_gates"):
+            if self.backend.configuration.basis_gates:
+                self.set_transpile_options(basis_gates=self.backend.configuration.basis_gates)
+            else:
+                self.transpile_options["basis_gates"] = self.default_basis_gates
 
         for _ in range(self.experiment_options.num_samples):
             self._set_transpiled_interleaved_element()
@@ -391,9 +393,10 @@ class InterleavedRB(StandardRB):
         return transpiled
 
     def _sample_circuits(self, lengths, rng):
+        """ This method is called when the number of qubits is greater than 2 """
         circuits = []
         for length in lengths if self._full_sampling else [lengths[-1]]:
-            elements = self._clifford_utils.random_clifford_circuits(self.num_qubits, length, rng)
+            elements = self._clifford_utils.random_clifford_circuits(length, rng)
             element_lengths = [len(elements)] if self._full_sampling else lengths
             std_circuits = self._generate_circuit(elements, element_lengths)
             for circuit in std_circuits:
@@ -408,7 +411,6 @@ class InterleavedRB(StandardRB):
                 circuit.metadata["xval"] = circuit.metadata["xval"] // 2
             circuits += int_circuits
         return circuits
-
     def _interleave(self, element_list: List) -> List:
         """Interleaving the interleaved element inside the element list.
         Args:

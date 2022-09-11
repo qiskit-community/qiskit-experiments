@@ -110,7 +110,7 @@ class TestStandardRB(RBTestCase):
         self.assertAlmostEqual(epc.value.n, epc_expected, delta=0.1 * epc_expected)
 
     def test_two_qubit(self):
-        """Test two qubit RB."""
+        """Test two qubit RB. Use default basis gates."""
         exp = rb.StandardRB(
             qubits=(0, 1),
             lengths=list(range(1, 30, 3)),
@@ -118,7 +118,8 @@ class TestStandardRB(RBTestCase):
             backend=self.backend,
         )
         exp.analysis.set_options(gate_error_ratio=None)
-        exp.set_transpile_options(**self.transpiler_options)
+        transpiler_options = {"optimization_level": 1}
+        exp.set_transpile_options(**transpiler_options)
         self.assertAllIdentity(exp.circuits())
 
         expdata = exp.run()
@@ -176,7 +177,6 @@ class TestStandardRB(RBTestCase):
         exp = rb.StandardRB(
             qubits=(0,),
             lengths=[100, 200, 300, 400],
-            #lengths=[10,20,30, 40],
             seed=123,
             backend=backend,
             num_samples=5,
