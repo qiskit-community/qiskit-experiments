@@ -102,13 +102,6 @@ interleaved RB experiment will always give you accurate error value :math:`e_i`.
     
     # Run an RB experiment on qubit 0
     exp1 = StandardRB(qubits, lengths, num_samples=num_samples, seed=seed)
-
-    # basis_gates must be set for randomized benchmarking
-    transpiler_options = {
-        "basis_gates":  ["rz", "sx", "cx"],
-        "optimization_level": 1,
-        }
-    exp1.set_transpile_options(**transpiler_options)
     expdata1 = exp1.run(backend).block_for_results()
     results1 = expdata1.analysis_results()
     
@@ -186,7 +179,6 @@ The EPGs of two-qubit RB are analyzed with the corrected EPC if available.
         ],
         flatten_results=True,
     )
-    single_exps.set_transpile_options(**transpiler_options)
     expdata_1q = single_exps.run(backend).block_for_results()
 
 
@@ -194,7 +186,7 @@ The EPGs of two-qubit RB are analyzed with the corrected EPC if available.
 
     # Run an RB experiment on qubits 1, 4
     exp_2q = StandardRB(qubits, lengths_2_qubit, num_samples=num_samples, seed=seed)
-    exp_2q.set_transpile_options(**transpiler_options)
+    
     # Use the EPG data of the 1-qubit runs to ensure correct 2-qubit EPG computation
     exp_2q.analysis.set_options(epg_1_qubit=expdata_1q.analysis_results())
     
@@ -221,7 +213,6 @@ Generating an example RB circuit:
 
     # Run an RB experiment on qubit 0
     exp = StandardRB(qubits=[0], lengths=[10], num_samples=1, seed=seed)
-    exp.set_transpile_options(**transpiler_options)
     c = exp.circuits()[0]
 
 We transpile the circuit into the backend’s basis gate set:
@@ -273,8 +264,7 @@ Running a 1-qubit interleaved RB experiment
     # The interleaved gate is the x gate
     int_exp1 = InterleavedRB(
         circuits.XGate(), qubits, lengths, num_samples=num_samples, seed=seed)
-    int_exp1.set_transpile_options(**transpiler_options)
-
+    
     # Run
     int_expdata1 = int_exp1.run(backend).block_for_results()
     int_results1 = int_expdata1.analysis_results()
@@ -301,8 +291,7 @@ Running a 2-qubit interleaved RB experiment
     # The interleaved gate is the cx gate
     int_exp2 = InterleavedRB(
         circuits.CXGate(), qubits, lengths, num_samples=num_samples, seed=seed)
-    int_exp2.set_transpile_options(**transpiler_options)
-
+    
     # Run
     int_expdata2 = int_exp2.run(backend).block_for_results()
     int_results2 = int_expdata2.analysis_results()
@@ -333,7 +322,6 @@ different qubits (see Ref. [5])
     exps = [StandardRB([i], lengths, num_samples=num_samples, seed=seed + i)
             for i in qubits]
     par_exp = ParallelExperiment(exps)
-    par_exp.set_transpile_options(**transpiler_options)
     par_expdata = par_exp.run(backend).block_for_results()
     par_results = par_expdata.analysis_results()
 
