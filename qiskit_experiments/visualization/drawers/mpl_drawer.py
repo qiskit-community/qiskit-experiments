@@ -24,10 +24,10 @@ from matplotlib.markers import MarkerStyle
 from qiskit.utils import detach_prefix
 from qiskit_experiments.framework.matplotlib import get_non_gui_ax
 
-from .base_drawer import BaseCurveDrawer
+from .base_drawer import BaseDrawer
 
 
-class MplCurveDrawer(BaseCurveDrawer):
+class MplDrawer(BaseDrawer):
     """Curve drawer for MatplotLib backend."""
 
     DefaultMarkers = MarkerStyle().filled_markers
@@ -161,7 +161,7 @@ class MplCurveDrawer(BaseCurveDrawer):
                     prefix = ""
                     prefactor = 1
 
-                formatter = MplCurveDrawer.PrefixFormatter(prefactor)
+                formatter = MplDrawer.PrefixFormatter(prefactor)
                 units_str = f" [{prefix}{unit}]"
             else:
                 # Use scientific notation with 3 digits, 1000 -> 1e3

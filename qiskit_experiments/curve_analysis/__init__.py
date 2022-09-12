@@ -319,7 +319,7 @@ compute custom quantities based on the raw fit parameters.
 See :ref:`curve_analysis_results` for details.
 Afterwards, the analysis draws several curves in the Matplotlib figure.
 User can set custom drawer to the option ``curve_drawer``.
-The drawer defaults to the :class:`MplCurveDrawer`.
+The drawer defaults to the :class:`MplDrawer`.
 Finally, it returns the list of created analysis results and Matplotlib figure.
 
 

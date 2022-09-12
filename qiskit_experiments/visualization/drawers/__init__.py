@@ -11,5 +11,5 @@
 # that they have been altered from the originals.
 """Drawers submodule, defining interfaces to figure backends."""
 
-from .base_drawer import BaseCurveDrawer
-from .mpl_drawer import MplCurveDrawer
+from .base_drawer import BaseDrawer
+from .mpl_drawer import MplDrawer

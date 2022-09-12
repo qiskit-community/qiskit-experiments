@@ -22,7 +22,7 @@ import numpy as np
 from uncertainties import unumpy as unp, UFloat
 
 from qiskit_experiments.framework import BaseAnalysis, ExperimentData, AnalysisResultData, Options
-from qiskit_experiments.visualization import MplCurveDrawer, BaseCurveDrawer
+from qiskit_experiments.visualization import MplDrawer, BaseDrawer
 from .base_curve_analysis import BaseCurveAnalysis, PARAMS_ENTRY_PREFIX
 from .curve_data import CurveFitResult
 from .utils import analysis_result_to_repr, eval_with_uncertainties
@@ -124,7 +124,7 @@ class CompositeCurveAnalysis(BaseAnalysis):
         return models
 
     @property
-    def drawer(self) -> BaseCurveDrawer:
+    def drawer(self) -> BaseDrawer:
         """A short-cut for curve drawer instance."""
         return self._options.curve_drawer
 
@@ -187,7 +187,7 @@ class CompositeCurveAnalysis(BaseAnalysis):
         """Default analysis options.
 
         Analysis Options:
-            curve_drawer (BaseCurveDrawer): A curve drawer instance to visualize
+            curve_drawer (BaseDrawer): A curve drawer instance to visualize
                 the analysis result.
             plot (bool): Set ``True`` to create figure for fit result.
                 This is ``True`` by default.
@@ -200,7 +200,7 @@ class CompositeCurveAnalysis(BaseAnalysis):
         """
         options = super()._default_options()
         options.update_options(
-            curve_drawer=MplCurveDrawer(),
+            curve_drawer=MplDrawer(),
             plot=True,
             return_fit_parameters=True,
             return_data_points=False,
@@ -208,7 +208,7 @@ class CompositeCurveAnalysis(BaseAnalysis):
         )
 
         # Set automatic validator for particular option values
-        options.set_validator(field="curve_drawer", validator_value=BaseCurveDrawer)
+        options.set_validator(field="curve_drawer", validator_value=BaseDrawer)
 
         return options
 

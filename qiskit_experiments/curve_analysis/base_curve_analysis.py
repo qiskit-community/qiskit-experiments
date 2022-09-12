@@ -23,7 +23,7 @@ import lmfit
 from qiskit_experiments.data_processing import DataProcessor
 from qiskit_experiments.data_processing.processor_library import get_processor
 from qiskit_experiments.framework import BaseAnalysis, AnalysisResultData, Options, ExperimentData
-from qiskit_experiments.visualization import MplCurveDrawer, BaseCurveDrawer
+from qiskit_experiments.visualization import MplDrawer, BaseDrawer
 from .curve_data import CurveData, ParameterRepr, CurveFitResult
 
 PARAMS_ENTRY_PREFIX = "@Parameters_"
@@ -113,7 +113,7 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
         """Return fit models."""
 
     @property
-    def drawer(self) -> BaseCurveDrawer:
+    def drawer(self) -> BaseDrawer:
         """A short-cut for curve drawer instance."""
         return self._options.curve_drawer
 
@@ -122,7 +122,7 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
         """Return default analysis options.
 
         Analysis Options:
-            curve_drawer (BaseCurveDrawer): A curve drawer instance to visualize
+            curve_drawer (BaseDrawer): A curve drawer instance to visualize
                 the analysis result.
             plot_raw_data (bool): Set ``True`` to draw processed data points,
                 dataset without formatting, on canvas. This is ``False`` by default.
@@ -168,7 +168,7 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
         """
         options = super()._default_options()
 
-        options.curve_drawer = MplCurveDrawer()
+        options.curve_drawer = MplDrawer()
         options.plot_raw_data = False
         options.plot = True
         options.return_fit_parameters = True
@@ -187,7 +187,7 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
 
         # Set automatic validator for particular option values
         options.set_validator(field="data_processor", validator_value=DataProcessor)
-        options.set_validator(field="curve_drawer", validator_value=BaseCurveDrawer)
+        options.set_validator(field="curve_drawer", validator_value=BaseDrawer)
 
         return options
 
