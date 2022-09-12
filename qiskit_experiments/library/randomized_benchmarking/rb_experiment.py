@@ -467,5 +467,5 @@ class StandardRB(BaseExperiment, RestlessMixin):
             if not self.backend is None and self.backend.configuration().basis_gates:
                 self.set_transpile_options(basis_gates=self.backend.configuration().basis_gates)
             else:
-                basis_gates_option = {"basis_gates" : StandardRB.default_basis_gates}
+                basis_gates_option = {"basis_gates": StandardRB.default_basis_gates}
                 self.transpile_options.update_options(**basis_gates_option)

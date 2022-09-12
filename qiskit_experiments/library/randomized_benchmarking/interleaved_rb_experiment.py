@@ -199,6 +199,13 @@ class InterleavedRB(StandardRB):
 
         interleaved_circ = QuantumCircuit(max_qubit, n)
         interleaved_circ.barrier(qubits)
+        # We transpile the empty circuit to match the backend qubits
+        interleaved_circ = transpile(
+            circuits=interleaved_circ,
+            optimization_level=1,
+            basis_gates=self.transpile_options.basis_gates,
+            backend=self._backend,
+        )
 
         circ = QuantumCircuit(max_qubit, n)
         circ.barrier(qubits)
@@ -291,8 +298,6 @@ class InterleavedRB(StandardRB):
             # be created later
             rb_circ = QuantumCircuit(max_qubit, n)
             rb_circ.barrier(qubits)
-            rb_interleaved_circ = QuantumCircuit(max_qubit, n)
-            rb_interleaved_circ.barrier(qubits)
             # We transpile the empty circuit to match the backend qubits
             rb_circ = transpile(
                 circuits=rb_circ,
@@ -300,7 +305,14 @@ class InterleavedRB(StandardRB):
                 basis_gates=self.transpile_options.basis_gates,
                 backend=self._backend,
             )
-
+            rb_interleaved_circ = QuantumCircuit(max_qubit, n)
+            rb_interleaved_circ.barrier(qubits)
+            rb_interleaved_circ = transpile(
+                circuits=rb_interleaved_circ,
+                optimization_level=1,
+                basis_gates=self.transpile_options.basis_gates,
+                backend=self._backend,
+            )
             # composed_cliff_num is the number representing the composition of
             # all the Cliffords up to now
             # composed_interleaved_num is the same for an interleaved circuit
