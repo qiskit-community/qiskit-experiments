@@ -20,6 +20,7 @@ import qiskit.pulse as pulse
 
 from qiskit_experiments.exceptions import CalibrationError
 from qiskit_experiments.calibration_management import EchoedCrossResonance
+from qiskit_experiments.calibration_management.calibration_key_types import ScheduleKey
 from qiskit_experiments.calibration_management.calibration_utils import (
     validate_channels,
     used_in_references,
@@ -50,12 +51,12 @@ class TestUsedInReference(QiskitExperimentsTestCase):
     def test_used_in_references_simple(self):
         """Test that schedule identification by name with simple references."""
         dag = rx.PyDiGraph(check_cycle=True)
-        update_schedule_dependency(self.xp1, dag)
-        update_schedule_dependency(self.xp2, dag)
-        update_schedule_dependency(self.xp_ref, dag)
+        update_schedule_dependency(self.xp1, dag, ScheduleKey(self.xp1.name, tuple()))
+        update_schedule_dependency(self.xp2, dag, ScheduleKey(self.xp2.name, tuple()))
+        update_schedule_dependency(self.xp_ref, dag, ScheduleKey(self.xp_ref.name, tuple()))
 
-        self.assertSetEqual(used_in_references({"xp"}, dag), {"ref_xp"})
-        self.assertSetEqual(used_in_references({"xp2"}, dag), set())
+        self.assertSetEqual(used_in_references({ScheduleKey("xp", tuple())}, dag), {"ref_xp"})
+        self.assertSetEqual(used_in_references({ScheduleKey("xp2", tuple())}, dag), set())
 
     def test_used_in_references_nested(self):
         """Test that schedule identification by name with nested references."""
@@ -66,9 +67,10 @@ class TestUsedInReference(QiskitExperimentsTestCase):
 
         dag = rx.PyDiGraph(check_cycle=True)
         for sched in [self.xp1, self.xp_ref, xp_ref_ref]:
-            update_schedule_dependency(sched, dag)
+            update_schedule_dependency(sched, dag, ScheduleKey(sched.name, tuple()))
 
-        self.assertSetEqual(used_in_references({"xp"}, dag), {"ref_xp", "ref_ref_xp"})
+        expected = {"ref_xp", "ref_ref_xp"}
+        self.assertSetEqual(used_in_references({ScheduleKey("xp", tuple())}, dag), expected)
 
     def test_used_in_references(self):
         """Test a CR setting."""
@@ -85,10 +87,10 @@ class TestUsedInReference(QiskitExperimentsTestCase):
                 pulse.reference(self.xp1.name, "q0")
 
         dag = rx.PyDiGraph(check_cycle=True)
-        update_schedule_dependency(self.xp1, dag)
-        update_schedule_dependency(cr, dag)
+        update_schedule_dependency(self.xp1, dag, ScheduleKey(self.xp1.name, tuple()))
+        update_schedule_dependency(cr, dag, ScheduleKey(cr.name, tuple()))
 
-        self.assertSetEqual(used_in_references({"xp"}, dag), {"cr"})
+        self.assertSetEqual(used_in_references({ScheduleKey("xp", tuple())}, dag), {"cr"})
 
 
 class TestValidateChannels(QiskitExperimentsTestCase):

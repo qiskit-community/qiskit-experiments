@@ -162,7 +162,7 @@ class Calibrations:
         self._schedules_qubits = {}
 
         # A directed acyclic graph to manage schedule reference dependencies.
-        # Each node is a schedule and edges are schedule references.
+        # Each node is a schedule key and edges are schedule references.
         # The acyclic nature prevents users from registering schedules with cyclic dependencies.
         self._schedule_dependency = rx.PyDiGraph(check_cycle=True)
 
@@ -621,7 +621,7 @@ class Calibrations:
         self._schedules_qubits[sched_key] = num_qubits
 
         # Update the schedule dependency.
-        update_schedule_dependency(schedule, self._schedule_dependency)
+        update_schedule_dependency(schedule, self._schedule_dependency, sched_key)
 
         # Register parameters that are not indices.
         params_to_register = set()
@@ -685,9 +685,10 @@ class Calibrations:
             CalibrationError: If other schedules depend on ``schedule``.
         """
         qubits = self._to_tuple(qubits)
+        sched_key = ScheduleKey(schedule.name, qubits)
 
         # Remove the schedule from the schedule dependency DAG. Raise if others depend on it.
-        sched_idx = self._schedule_dependency.nodes().index(schedule.name)
+        sched_idx = self._schedule_dependency.nodes().index(repr(sched_key))
         prev_nodes = self._schedule_dependency.predecessors(sched_idx)
         if len(prev_nodes) > 0:
             raise CalibrationError(
@@ -696,7 +697,6 @@ class Calibrations:
 
         self._schedule_dependency.remove_node(sched_idx)
 
-        sched_key = ScheduleKey(schedule.name, qubits)
         if sched_key in self._schedules:
             del self._schedules[sched_key]
             del self._schedules_qubits[sched_key]
@@ -859,10 +859,11 @@ class Calibrations:
 
             # Take care of a) i.e. update all schedules that use the parameter.
             schedules = set(key.schedule for key in self._parameter_map_r[param_obj])
+            keys = set(ScheduleKey(sched, qubits) for sched in schedules)
 
             # Take care of b) i.e. find all schedules that refer to the schedules that
             # make use of the updated parameter.
-            schedules.update(used_in_references(schedules, self._schedule_dependency))
+            schedules.update(used_in_references(keys, self._schedule_dependency))
             self.update_inst_map(schedules, qubits=qubits)
 
     def _get_channel_index(self, qubits: Tuple[int, ...], chan: PulseChannel) -> int:

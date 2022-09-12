@@ -21,6 +21,7 @@ from qiskit.circuit import ParameterExpression, Parameter
 from qiskit.pulse import ScheduleBlock
 
 from qiskit_experiments.exceptions import CalibrationError
+from qiskit_experiments.calibration_management.calibration_key_types import ScheduleKey
 
 
 # The channel indices need to be parameterized following this regex.
@@ -28,24 +29,26 @@ CHANNEL_PATTERN = r"^ch\d[\.\d]*\${0,1}[\d]*$"
 CHANNEL_PATTERN_REGEX = re.compile(CHANNEL_PATTERN)
 
 
-def update_schedule_dependency(schedule: ScheduleBlock, dag: rx.PyDiGraph):
+def update_schedule_dependency(schedule: ScheduleBlock, dag: rx.PyDiGraph, key: ScheduleKey):
     """Update a DAG of schedule dependencies.
 
     Args:
         schedule: A ScheduleBlock that potentially has references to other schedules
             that are already present in the dag.
         dag: A directed acyclic graph that encodes schedule dependencies using references.
+        key: The schedule key which also contains the qubits.
     """
-    parent_idx = dag.add_node(schedule.name)
+    parent_idx = dag.add_node(repr(key))
     for reference in schedule.references:
-        dag.add_edge(parent_idx, dag.nodes().index(reference[0]), None)
+        ref_key = ScheduleKey(reference[0], key.qubits)
+        dag.add_edge(parent_idx, _get_node_index(ref_key, dag), None)
 
 
-def used_in_references(schedule_names: Set[str], dag: rx.PyDiGraph) -> Set[str]:
+def used_in_references(keys: Set[ScheduleKey], dag: rx.PyDiGraph) -> Set[str]:
     """Find all the schedules in the DAG that reference the given schedules.
 
     Args:
-        schedule_names: A list of schedules to which references may exist.
+        keys: A list of schedules keys to which references may exist.
         dag: The dag that represents the dependencies between schedule references.
 
     Returns:
@@ -53,20 +56,42 @@ def used_in_references(schedule_names: Set[str], dag: rx.PyDiGraph) -> Set[str]:
     """
     callers = set()
 
-    for name in schedule_names:
-        callers.update(_referred_by(name, dag))
+    for key in keys:
+        callers.update(_referred_by(key, dag))
 
-    return callers
+    return set(key.schedule for key in callers)
 
 
-def _referred_by(schedule_name: str, dag: rx.PyDiGraph) -> Set[str]:
+def _referred_by(key: ScheduleKey, dag: rx.PyDiGraph) -> Set[ScheduleKey]:
     """Return all the schedules that refer to this schedule by name."""
     referred_by = set()
-    for predecessor in dag.predecessors(dag.nodes().index(schedule_name)):
-        referred_by.add(predecessor)
-        referred_by.update(_referred_by(predecessor, dag))
+
+    for predecessor in dag.predecessors(_get_node_index(key, dag)):
+        new_key = ScheduleKey.from_repr(predecessor)
+        referred_by.add(new_key)
+        referred_by.update(_referred_by(new_key, dag))
 
     return referred_by
+
+
+def _get_node_index(key: ScheduleKey, dag: rx.PyDiGraph) -> int:
+    """A helper method to get the node index in the DAG.
+
+    If the given ScheduleKey is not found then we try and get the default schedule with the
+    same name. I.e. a key for which the qubits are an empty tuple.
+
+    Args:
+        key: The ScheduleKey for which to find a node in the DAG.
+        dag: The DAG of schedule dependencies.
+
+    Returns:
+        The index of the node in the dag corresponding to schedule key or its default.
+    """
+    try:
+        return dag.nodes().index(repr(key))
+    except ValueError:
+        default_key = ScheduleKey(key.schedule, tuple())
+        return dag.nodes().index(repr(default_key))
 
 
 def validate_channels(schedule: ScheduleBlock) -> Set[Parameter]:
