@@ -63,8 +63,7 @@
 
 from enum import Enum
 
-from .base_drawer import BaseCurveDrawer
-from .mpl_drawer import MplCurveDrawer
+from .drawers import BaseCurveDrawer, MplCurveDrawer
 
 from . import fit_result_plotters
 from .curves import plot_scatter, plot_errorbar, plot_curve_fit
