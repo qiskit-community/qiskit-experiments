@@ -40,7 +40,7 @@ from .clifford_data import (
 )
 
 
-# The classes VGate and WGate are no actually used in the code - we leave them here to give
+# The classes VGate and WGate are not actually used in the code - we leave them here to give
 # a better understanding of the composition of the layers for 2-qubit Cliffords.
 class VGate(Gate):
     """V Gate used in Clifford synthesis."""
@@ -261,8 +261,8 @@ class CliffordUtils:
         elif name in clifford_gate_set:
             map_index = name
             if name == "cz":
-                qubits = [min(qubits), max(qubits)]  # for cz we save only [0, 1] since
-                # it is a symmetric operation
+                # for cz we save only [0, 1] since it is a symmetric operation
+                qubits = [min(qubits), max(qubits)]
         else:
             raise QiskitError("Instruction {} could not be converted to Clifford gate".format(name))
         return self.CLIFF_SINGLE_GATE_MAP[rb_num_qubits][(map_index, str(qubits))]
@@ -272,8 +272,9 @@ class CliffordUtils:
         number that represents the resulting Clifford."""
 
         # The numbers corresponding to single gate Cliffords are not in sequence -
-        # see num_from_1q_clifford_single_gate. To compute the index in
+        # see CLIFF_SINGLE_GATE_MAP_1Q/2Q. To compute the index in
         # the array CLIFF_COMPOSE_DATA_1Q, we map the numbers to [0, 8].
+        # For 2 qubits, we map the numbers to [0, 21].
 
         map_clifford_num_to_array_index = {}
         num_single_gate_cliffs = len(self.CLIFF_SINGLE_GATE_MAP[self.num_qubits])
@@ -331,8 +332,8 @@ class CliffordUtils:
         self._transpile_cliff_layer_2()
 
     def _transpile_cliff_layer_0(self):
-        """Layer 0 consists of 0 or 1 H gates on each qubit, followed by 0/1/2 V gates on each qubit.
-        Number of Cliffords == 36."""
+        """ Layer 0 consists of 0 or 1 H gates on each qubit, followed by 0/1/2 V gates on each qubit.
+        Number of Cliffords == 36. """
         if self._transpiled_cliff_layer[0] != []:
             return
         num_h = [0, 1]
@@ -363,12 +364,12 @@ class CliffordUtils:
             self._transpiled_cliff_layer[0].append(transpiled)
 
     def _transpile_cliff_layer_1(self):
-        """Layer 1 consists of one of the following:
+        """ Layer 1 consists of one of the following:
         - nothing
         - cx(0,1) followed by 0/1/2 V gates on each qubit
         - cx(0,1), cx(1,0) followed by 0/1/2 V gates on each qubit
         - cx(0,1), cx(1,0), cx(0,1)
-        Number of Cliffords == 20"""
+        Number of Cliffords == 20. """
         if self._transpiled_cliff_layer[1] != []:
             return
         v_w_gates = ["i", "v", "w"]
@@ -430,8 +431,8 @@ class CliffordUtils:
         self._transpiled_cliff_layer[1].append(transpiled)
 
     def _transpile_cliff_layer_2(self):
-        """Layer 2 consists of a Pauli gate on each qubit {Id, X, Y, Z}.
-        Number of Cliffords == 16"""
+        """ Layer 2 consists of a Pauli gate on each qubit {Id, X, Y, Z}.
+        Number of Cliffords == 16. """
         if self._transpiled_cliff_layer[2] != []:
             return
         pauli = ["i", "x", "y", "z"]
@@ -449,8 +450,7 @@ class CliffordUtils:
             self._transpiled_cliff_layer[2].append(transpiled)
 
     def create_random_clifford(self, rng: Generator) -> QuantumCircuit:
-        """For 1-qubit, select a random transpiled Clifford. For 2-qubits, select 3 indices at random in
-        _transpiled_cliff_layer, and compose them to create a Clifford.
+        """For 1-qubit, select a random transpiled Clifford.
 
          Returns:
             A random Clifford represented as a :class:`QuantumCircuit`.
@@ -473,7 +473,9 @@ class CliffordUtils:
             raise QiskitError("create_random_clifford is not supported for more than 2 qubits")
 
     def create_cliff_from_num(self, num) -> QuantumCircuit:
-        """Create a Clifford corresponding to a give number.
+        """Create a Clifford corresponding to a give number. For 2-qubits, get the 3 layer indices
+        that correspond to 'num'. Retrieve them from _transpiled_cliff_layer,
+        and compose them to create a Clifford.
 
          Returns:
             A Clifford represented as a :class:`QuantumCircuit`.

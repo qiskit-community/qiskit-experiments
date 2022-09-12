@@ -464,7 +464,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
 
     def _set_basis_gates(self):
         if not hasattr(self.transpile_options, "basis_gates"):
-            if self.backend.configuration().basis_gates:
+            if not self.backend is None and self.backend.configuration().basis_gates:
                 self.set_transpile_options(basis_gates=self.backend.configuration().basis_gates)
             else:
                 self.transpile_options["basis_gates"] = StandardRB.default_basis_gates

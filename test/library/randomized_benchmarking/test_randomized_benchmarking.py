@@ -799,5 +799,6 @@ class TestEPGAnalysis(QiskitExperimentsTestCase):
         self.assertExperimentDone(result_2qrb)
         cx_epg_corrected = result_2qrb.analysis_results("EPG_cx")
         self.assertLess(
-            np.abs(cx_epg_corrected.value.n - self.p_cx * 0.75), np.abs(cx_epg_raw.value.n - self.p_cx * 0.75)
+            np.abs(cx_epg_corrected.value.n - self.p_cx * 0.75),
+            np.abs(cx_epg_raw.value.n - self.p_cx * 0.75),
         )
