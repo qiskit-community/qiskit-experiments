@@ -133,7 +133,7 @@ def validate_channels(schedule: ScheduleBlock) -> Set[Parameter]:
     return param_indices
 
 
-@lru_cache
+@lru_cache()
 def reference_info(
     reference: Tuple[str, ...],
     qubits: Optional[Tuple[int, ...]] = None,
