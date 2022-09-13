@@ -192,8 +192,9 @@ class FixedFrequencyTransmon(BasisGateLibrary):
     Parameters:
         - duration: Duration of the pulses.
         - σ: Standard deviation of the pulses.
-        - amp: Amplitude of the pulses.
         - β: DRAG parameter of the pulses.
+        - amp: Amplitude of the pulses. If the parameters linked then ``x`` and ``y``
+          share the same parameter and ``sx`` and ``sy`` share the same parameter.
 
     Note that the β and amp parameters may be linked between the x and y as well as between
     the sx and sy pulses.
