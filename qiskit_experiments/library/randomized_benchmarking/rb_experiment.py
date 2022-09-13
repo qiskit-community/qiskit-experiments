@@ -14,24 +14,31 @@ Standard RB Experiment class.
 """
 import logging
 from collections import defaultdict
+from numbers import Integral
 from typing import Union, Iterable, Optional, List, Sequence
 
 import numpy as np
 from numpy.random import Generator, default_rng
 from numpy.random.bit_generator import BitGenerator, SeedSequence
 
-from qiskit import QuantumCircuit, QiskitError
-from qiskit.circuit import Instruction
-from qiskit.quantum_info import Clifford
+from qiskit.circuit import QuantumCircuit, Instruction
+from qiskit.exceptions import QiskitError
 from qiskit.providers.backend import Backend
-
+from qiskit.quantum_info import Clifford
+from qiskit.quantum_info.random import random_clifford
 from qiskit_experiments.framework import BaseExperiment, Options
 from qiskit_experiments.framework.restless_mixin import RestlessMixin
+from .clifford_utils import (
+    CliffordUtils,
+    _clifford_1q_int_to_instruction,
+    _clifford_2q_int_to_instruction,
+)
 from .rb_analysis import RBAnalysis
-from .clifford_utils import CliffordUtils
-
 
 LOG = logging.getLogger(__name__)
+
+
+SequenceElementType = Union[Clifford, Integral]
 
 
 class StandardRB(BaseExperiment, RestlessMixin):
@@ -76,26 +83,20 @@ class StandardRB(BaseExperiment, RestlessMixin):
             backend: The backend to run the experiment on.
             num_samples: Number of samples to generate for each sequence length.
             seed: Optional, seed used to initialize ``numpy.random.default_rng``.
-                when generating circuits. The ``default_rng`` will be initialized
-                with this seed value everytime :meth:`circuits` is called.
-            full_sampling: If True all Cliffords are independently sampled for
-                all lengths. If False for sample of lengths longer sequences are constructed by
-                appending additional Clifford samples to shorter sequences. The default is ``False``.
+                  when generating circuits. The ``default_rng`` will be initialized
+                  with this seed value everytime :meth:`circuits` is called.
+            full_sampling: If True all Cliffords are independently sampled for all lengths.
+                           If False for sample of lengths longer sequences are constructed
+                           by appending additional samples to shorter sequences.
+                           The default is False.
+
+        Raises:
+            QiskitError: if any invalid argument is supplied.
         """
         # Initialize base experiment
         super().__init__(qubits, analysis=RBAnalysis(), backend=backend)
-        self._verify_parameters(lengths, num_samples)
 
-        # Set configurable options
-        self.set_experiment_options(lengths=list(lengths), num_samples=num_samples, seed=seed)
-        self.analysis.set_options(outcome="0" * self.num_qubits)
-
-        # Set fixed options
-        self._full_sampling = full_sampling
-        self._clifford_utils = CliffordUtils()
-
-    def _verify_parameters(self, lengths, num_samples):
-        """Verify input correctness, raise QiskitError if needed"""
+        # Verify parameters
         if any(length <= 0 for length in lengths):
             raise QiskitError(
                 f"The lengths list {lengths} should only contain " "positive elements."
@@ -106,6 +107,12 @@ class StandardRB(BaseExperiment, RestlessMixin):
             )
         if num_samples <= 0:
             raise QiskitError(f"The number of samples {num_samples} should " "be positive.")
+
+        # Set configurable options
+        self.set_experiment_options(
+            lengths=sorted(lengths), num_samples=num_samples, seed=seed, full_sampling=full_sampling
+        )
+        self.analysis.set_options(outcome="0" * self.num_qubits)
 
     @classmethod
     def _default_experiment_options(cls) -> Options:
@@ -120,10 +127,12 @@ class StandardRB(BaseExperiment, RestlessMixin):
                 :meth:`circuits` is called.
         """
         options = super()._default_experiment_options()
-
-        options.lengths = None
-        options.num_samples = None
-        options.seed = None
+        options.update_options(
+            lengths=None,
+            num_samples=None,
+            seed=None,
+            full_sampling=None,
+        )
 
         return options
 
@@ -133,86 +142,129 @@ class StandardRB(BaseExperiment, RestlessMixin):
         Returns:
             A list of :class:`QuantumCircuit`.
         """
+        # Sample random Clifford sequences
+        sequences = self._sample_sequences()
+        # Convert each sequence into circuit and append the inverse to the end.
+        circuits = self._sequences_to_circuits(sequences)
+        # Add metadata for each circuit
+        for circ, seq in zip(circuits, sequences):
+            circ.metadata = {
+                "experiment_type": self._type,
+                "xval": len(seq),
+                "group": "Clifford",
+                "physical_qubits": self.physical_qubits,
+            }
+        return circuits
+
+    def _sample_sequences(self) -> List[Sequence[SequenceElementType]]:
+        """Sample RB sequences
+
+        Returns:
+            A list of RB sequences.
+        """
         rng = default_rng(seed=self.experiment_options.seed)
-        circuits = []
-        for _ in range(self.experiment_options.num_samples):
-            circuits += self._sample_circuits(self.experiment_options.lengths, rng)
-        return circuits
+        sequences = []
+        if self.experiment_options.full_sampling:
+            for _ in range(self.experiment_options.num_samples):
+                for length in self.experiment_options.lengths:
+                    sequences.append(self.__sample_sequence(length, rng))
+        else:
+            for _ in range(self.experiment_options.num_samples):
+                longest_seq = self.__sample_sequence(max(self.experiment_options.lengths), rng)
+                for length in self.experiment_options.lengths:
+                    sequences.append(longest_seq[:length])
 
-    def _sample_circuits(self, lengths: Iterable[int], rng: Generator) -> List[QuantumCircuit]:
-        """Return a list RB circuits for the given lengths.
+        return sequences
 
-        Args:
-            lengths: A list of RB sequences lengths.
-            seed: Seed or generator object for random number
-                  generation. If None default_rng will be used.
-
-        Returns:
-            A list of :class:`QuantumCircuit`.
-        """
-        circuits = []
-        for length in lengths if self._full_sampling else [lengths[-1]]:
-            elements = self._clifford_utils.random_clifford_circuits(self.num_qubits, length, rng)
-            element_lengths = [len(elements)] if self._full_sampling else lengths
-            circuits += self._generate_circuit(elements, element_lengths)
-        return circuits
-
-    def _generate_circuit(
-        self, elements: Iterable[Clifford], lengths: Iterable[int]
+    def _sequences_to_circuits(
+        self, sequences: List[Sequence[SequenceElementType]]
     ) -> List[QuantumCircuit]:
-        """Return the RB circuits constructed from the given element list.
-
-        Args:
-            elements: A list of Clifford elements
-            lengths: A list of RB sequences lengths.
+        """Convert a RB sequence into circuit and append the inverse to the end.
 
         Returns:
-            A list of :class:`QuantumCircuit`s.
-
-        Additional information:
-            The circuits are constructed iteratively; each circuit is obtained
-            by extending the previous circuit (without the inversion and measurement gates)
+            A list of RB circuits.
         """
-        qubits = list(range(self.num_qubits))
         circuits = []
+        for i, seq in enumerate(sequences):
+            if (
+                self.experiment_options.full_sampling
+                or i % len(self.experiment_options.lengths) == 0
+            ):
+                prev_elem, prev_seq = self.__identity_clifford(), []
 
-        circs = [QuantumCircuit(self.num_qubits) for _ in range(len(lengths))]
-        for circ in circs:
+            qubits = list(range(self.num_qubits))
+            circ = QuantumCircuit(self.num_qubits)
             circ.barrier(qubits)
-        circ_op = Clifford(np.eye(2 * self.num_qubits))
-
-        for current_length, group_elt_circ in enumerate(elements):
-            if isinstance(group_elt_circ, tuple):
-                group_elt_gate = group_elt_circ[0]
-                group_elt_op = group_elt_circ[1]
-            else:
-                group_elt_gate = group_elt_circ
-                group_elt_op = Clifford(group_elt_circ)
-
-            if not isinstance(group_elt_gate, Instruction):
-                group_elt_gate = group_elt_gate.to_instruction()
-            circ_op = circ_op.compose(group_elt_op)
-            for circ in circs:
-                circ.append(group_elt_gate, qubits)
+            for elem in seq:
+                circ.append(self._to_instruction(elem), qubits)
                 circ.barrier(qubits)
-            if current_length + 1 in lengths:
-                # copy circuit and add inverse
-                inv = circ_op.adjoint()
-                rb_circ = circs.pop()
-                rb_circ.append(inv, qubits)
-                rb_circ.barrier(qubits)
-                rb_circ.metadata = {
-                    "experiment_type": self._type,
-                    "xval": current_length + 1,
-                    "group": "Clifford",
-                    "physical_qubits": self.physical_qubits,
-                }
-                rb_circ.measure_all()
-                circuits.append(rb_circ)
+
+            # Compute inverse, compute only the difference from the previous shorter sequence
+            for elem in seq[len(prev_seq) :]:
+                prev_elem = self.__compose_clifford(prev_elem, elem)
+            prev_seq = seq
+            inv = self.__adjoint_clifford(prev_elem)
+
+            circ.append(self._to_instruction(inv), qubits)
+            circ.measure_all()  # includes insertion of the barrier before measurement
+            circuits.append(circ)
         return circuits
+
+    def __sample_sequence(self, length: int, rng: Generator) -> Sequence[SequenceElementType]:
+        # Sample a RB sequence with the given length.
+        # Return integer instead of Clifford object for 1 or 2 qubit case for speed
+        if self.num_qubits == 1:
+            return rng.integers(24, size=length)
+        if self.num_qubits == 2:
+            return rng.integers(11520, size=length)
+
+        return [random_clifford(self.num_qubits, rng) for _ in range(length)]
+
+    def _to_instruction(self, elem: SequenceElementType) -> Instruction:
+        # TODO: basis transformation in 1Q (and 2Q) cases for speed
+        # Switching for speed up
+        if isinstance(elem, Integral):
+            if self.num_qubits == 1:
+                return _clifford_1q_int_to_instruction(elem)
+            if self.num_qubits == 2:
+                return _clifford_2q_int_to_instruction(elem)
+        return elem.to_instruction()
+
+    def __identity_clifford(self) -> SequenceElementType:
+        if self.num_qubits <= 2:
+            return 0
+        return Clifford(np.eye(2 * self.num_qubits))
+
+    def __compose_clifford(
+        self, lop: SequenceElementType, rop: SequenceElementType
+    ) -> SequenceElementType:
+        # TODO: Speed up 1Q (and 2Q) cases using integer clifford composition
+        # Integer clifford composition has not yet supported
+        if self.num_qubits == 1:
+            if isinstance(lop, Integral):
+                lop = CliffordUtils.clifford_1_qubit(lop)
+            if isinstance(rop, Integral):
+                rop = CliffordUtils.clifford_1_qubit(rop)
+        if self.num_qubits == 2:
+            if isinstance(lop, Integral):
+                lop = CliffordUtils.clifford_2_qubit(lop)
+            if isinstance(rop, Integral):
+                rop = CliffordUtils.clifford_2_qubit(rop)
+        return lop.compose(rop)
+
+    def __adjoint_clifford(self, op: SequenceElementType) -> SequenceElementType:
+        # TODO: Speed up 1Q and 2Q cases using integer clifford inversion
+        # Integer clifford inversion has not yet supported
+        if isinstance(op, Integral):
+            if self.num_qubits == 1:
+                return CliffordUtils.clifford_1_qubit(op).adjoint()
+            if self.num_qubits == 2:
+                return CliffordUtils.clifford_2_qubit(op).adjoint()
+        return op.adjoint()
 
     def _transpiled_circuits(self) -> List[QuantumCircuit]:
         """Return a list of experiment circuits, transpiled."""
+        # TODO: Custom transpilation (without calling transpile()) for 1Q and 2Q cases
         transpiled = super()._transpiled_circuits()
 
         if self.analysis.options.get("gate_error_ratio", None) is None:
