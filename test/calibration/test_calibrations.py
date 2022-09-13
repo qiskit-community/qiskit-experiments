@@ -12,7 +12,6 @@
 
 """Class to test the calibrations."""
 
-import unittest
 from test.base import QiskitExperimentsTestCase
 import os
 import uuid
