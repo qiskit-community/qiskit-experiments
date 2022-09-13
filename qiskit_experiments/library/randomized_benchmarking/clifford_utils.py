@@ -15,6 +15,7 @@ Utilities for using the Clifford group in randomized benchmarking
 
 from typing import List, Tuple, Optional, Union
 from functools import lru_cache
+from numbers import Integral
 from math import isclose
 import itertools
 import numpy as np
@@ -38,6 +39,16 @@ from .clifford_data import (
     CLIFF_NUM_TO_LAYERS_2Q,
     CLIFF_LAYERS_TO_NUM_2Q,
 )
+
+
+@lru_cache(maxsize=None)
+def _clifford_1q_int_to_instruction(num: Integral) -> Instruction:
+    return CliffordUtils.clifford_1_qubit_circuit(num).to_instruction()
+
+
+@lru_cache(maxsize=11520)
+def _clifford_2q_int_to_instruction(num: Integral) -> Instruction:
+    return CliffordUtils.clifford_2_qubit_circuit(num).to_instruction()
 
 
 # The classes VGate and WGate are not actually used in the code - we leave them here to give
@@ -104,6 +115,7 @@ class CliffordUtils:
             self.transpile_2q_cliff_layers()
 
     @classmethod
+    @lru_cache(maxsize=24)
     def clifford_1_qubit(cls, num):
         """Return the 1-qubit clifford element corresponding to `num`
         where `num` is between 0 and 23.
@@ -111,11 +123,34 @@ class CliffordUtils:
         return Clifford(cls.clifford_1_qubit_circuit(num), validate=False)
 
     @classmethod
+    @lru_cache(maxsize=11520)
     def clifford_2_qubit(cls, num):
         """Return the 2-qubit clifford element corresponding to `num`
         where `num` is between 0 and 11519.
         """
         return Clifford(cls.clifford_2_qubit_circuit(num), validate=False)
+
+    # Itoko-san - removed the method random_cliffords, because it is no used anywhere.
+    def random_clifford_circuits(
+        self, size: int = 1, rng: Optional[Union[int, Generator]] = None
+    ) -> List[QuantumCircuit]:
+        """Generate a list of random clifford circuits.
+        Used for 3 or more qubits"""
+        if self.num_qubits > 2:
+            return [random_clifford(self.num_qubits, seed=rng).to_circuit() for _ in range(size)]
+
+        if rng is None:
+            rng = default_rng()
+
+        if isinstance(rng, int):
+            rng = default_rng(rng)
+
+        if self.num_qubits == 1:
+            samples = rng.integers(CliffordUtils.NUM_CLIFFORD_1_QUBIT, size=size)
+            return [self.clifford_1_qubit_circuit(i) for i in samples]
+        else:
+            samples = rng.integers(CliffordUtils.NUM_CLIFFORD_2_QUBIT, size=size)
+            return [self.clifford_2_qubit_circuit(i) for i in samples]
 
     @classmethod
     @lru_cache(maxsize=24)
@@ -125,9 +160,9 @@ class CliffordUtils:
         """
         # pylint: disable=unbalanced-tuple-unpacking
         # This is safe since `_unpack_num` returns list the size of the sig
-        (i, j, p) = cls._unpack_num(num, cls.CLIFFORD_1_QUBIT_SIG)
-        qr = QuantumRegister(1)
-        qc = QuantumCircuit(qr)
+        unpacked = cls._unpack_num(num, cls.CLIFFORD_1_QUBIT_SIG)
+        i, j, p = unpacked[0], unpacked[1], unpacked[2]
+        qc = QuantumCircuit(1, name=f"Clifford-1Q({num})")
         if i == 1:
             qc.h(0)
         if j == 1:
@@ -140,6 +175,7 @@ class CliffordUtils:
             qc.y(0)
         if p == 3:
             qc.z(0)
+
         return qc
 
     @classmethod
@@ -149,8 +185,7 @@ class CliffordUtils:
         where `num` is between 0 and 11519.
         """
         vals = cls._unpack_num_multi_sigs(num, cls.CLIFFORD_2_QUBIT_SIGS)
-        qr = QuantumRegister(2)
-        qc = QuantumCircuit(qr)
+        qc = QuantumCircuit(2, name=f"Clifford-2Q({num})")
         if vals[0] == 0 or vals[0] == 3:
             (form, i0, i1, j0, j1, p0, p1) = vals
         else:
@@ -174,16 +209,16 @@ class CliffordUtils:
         if form == 3:
             qc.cx(0, 1)
         if form in (1, 2):
-            if k0 == 1:
+            if k0 == 1:  # V gate
                 qc.sdg(0)
                 qc.h(0)
-            if k0 == 2:
+            if k0 == 2:  # W gate
                 qc.h(0)
                 qc.s(0)
-            if k1 == 1:
+            if k1 == 1:  # V gate
                 qc.sdg(1)
                 qc.h(1)
-            if k1 == 2:
+            if k1 == 2:  # W gate
                 qc.h(1)
                 qc.s(1)
         if p0 == 1:
@@ -198,6 +233,7 @@ class CliffordUtils:
             qc.y(1)
         if p1 == 3:
             qc.z(1)
+
         return qc
 
     @staticmethod
@@ -213,8 +249,8 @@ class CliffordUtils:
             num //= k
         return res
 
-    @classmethod
-    def _unpack_num_multi_sigs(cls, num, sigs):
+    @staticmethod
+    def _unpack_num_multi_sigs(num, sigs):
         """Returns the result of `_unpack_num` on one of the
         signatures in `sigs`
         """
@@ -223,7 +259,7 @@ class CliffordUtils:
             for k in sig:
                 sig_size *= k
             if num < sig_size:
-                return [i] + cls._unpack_num(num, sig)
+                return [i] + CliffordUtils._unpack_num(num, sig)
             num -= sig_size
         return None
 
@@ -487,7 +523,7 @@ class CliffordUtils:
         if self.num_qubits == 1:
             return self._transpiled_cliffords_1q[num]
         elif self.num_qubits == 2:
-            triplet = self.layer_indices_from_num(num)
+            triplet = CliffordUtils.layer_indices_from_num(num)
             return self.transpiled_cliff_from_layer_nums(triplet)
         else:
             raise QiskitError("create_cliff_from_num is not supported for more than 2 qubits")
@@ -504,18 +540,18 @@ class CliffordUtils:
         qc.compose(q2, inplace=True)
         return qc
 
-    @classmethod
-    def num_from_layer_indices(cls, triplet: Tuple) -> int:
+    @staticmethod
+    def num_from_layer_indices(triplet: Tuple) -> int:
         """Return the clifford number corresponding to the input triplet."""
         num = (
-            triplet[0] * cls.NUM_LAYER_1 * cls.NUM_LAYER_2
-            + triplet[1] * cls.NUM_LAYER_2
+            triplet[0] * CliffordUtils.NUM_LAYER_1 * CliffordUtils.NUM_LAYER_2
+            + triplet[1] * CliffordUtils.NUM_LAYER_2
             + triplet[2]
         )
         return CLIFF_LAYERS_TO_NUM_2Q[num]
 
-    @classmethod
-    def layer_indices_from_num(cls, num: int) -> Tuple[int]:
+    @staticmethod
+    def layer_indices_from_num(num: int) -> Tuple[int]:
         """Return the triplet of layer indices corresponding to the input number."""
         return CLIFF_NUM_TO_LAYERS_2Q[num]
 
@@ -537,24 +573,3 @@ class CliffordUtils:
             return self.transpiled_cliff_from_layer_nums(indices)
         else:
             raise QiskitError("inverse_cliff is not supported for more than 2 qubits")
-
-    def random_clifford_circuits(
-        self, size: int = 1, rng: Optional[Union[int, Generator]] = None
-    ) -> List[QuantumCircuit]:
-        """Generate a list of random clifford circuits.
-        Used for 3 or more qubits"""
-        if self.num_qubits > 2:
-            return [random_clifford(self.num_qubits, seed=rng).to_circuit() for _ in range(size)]
-
-        if rng is None:
-            rng = default_rng()
-
-        if isinstance(rng, int):
-            rng = default_rng(rng)
-
-        if self.num_qubits == 1:
-            samples = rng.integers(24, size=size)
-            return [self.clifford_1_qubit_circuit(i) for i in samples]
-        else:
-            samples = rng.integers(11520, size=size)
-            return [self.clifford_2_qubit_circuit(i) for i in samples]

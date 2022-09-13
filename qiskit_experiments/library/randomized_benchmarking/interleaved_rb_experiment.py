@@ -24,7 +24,7 @@ from qiskit.exceptions import QiskitError
 from qiskit.providers.backend import Backend
 from qiskit.compiler import transpile
 
-from .rb_experiment import StandardRB
+from .rb_experiment import StandardRB, SequenceElementType
 from .interleaved_rb_analysis import InterleavedRBAnalysis
 
 
@@ -76,8 +76,20 @@ class InterleavedRB(StandardRB):
                            all lengths. If False for sample of lengths longer
                            sequences are constructed by appending additional
                            Clifford samples to shorter sequences.
-        """
 
+        Raises:
+            QiskitError: the interleaved_element is not convertible to Clifford object.
+        """
+        try:
+            self._interleaved_elem = Clifford(interleaved_element)
+        except QiskitError as err:
+            raise QiskitError(
+                f"Interleaved element {interleaved_element.name} could not be converted to Clifford."
+            ) from err
+        # Convert interleaved element to operation
+        self._interleaved_op = interleaved_element
+        if not isinstance(interleaved_element, Instruction):
+            self._interleaved_op = interleaved_element.to_instruction()
         super().__init__(
             qubits,
             lengths,
@@ -97,8 +109,6 @@ class InterleavedRB(StandardRB):
         Returns:
             A list of :class:`QuantumCircuit`.
 
-        Raises:
-            QiskitError: if basis_gates is not set in transpile_options nor in backend configuration.
         """
         if self.num_qubits > 2:
             return super().circuits()
@@ -364,23 +374,6 @@ class InterleavedRB(StandardRB):
         # This is a hack, and would be better if transpile() implemented it.
         # Something similar is done in ParallelExperiment._combined_circuits
 
-    def _sample_circuits(self, lengths, rng):
-        """This method is called when the number of qubits is greater than 2"""
-        for length in lengths if self._full_sampling else [lengths[-1]]:
-            elements = self._clifford_utils.random_clifford_circuits(length, rng)
-            element_lengths = [len(elements)] if self._full_sampling else lengths
-            std_circuits = self._generate_circuit(elements, element_lengths)
-            for circuit in std_circuits:
-                circuit.metadata["interleaved"] = False
-
-            int_elements = self._interleave(elements)
-            int_elements_lengths = [length * 2 for length in element_lengths]
-            int_circuits = self._generate_circuit(int_elements, int_elements_lengths)
-            for circuit in int_circuits:
-                circuit.metadata["interleaved"] = True
-                circuit.metadata["xval"] = circuit.metadata["xval"] // 2
-        return std_circuits, int_circuits
-
     def _interleave(self, element_list: List) -> List:
         """Interleaving the interleaved element inside the element list.
 
@@ -395,3 +388,38 @@ class InterleavedRB(StandardRB):
             new_element_list.append(element)
             new_element_list.append(self._interleaved_element)
         return new_element_list
+
+    # Itoko-san: I moved all your code from 'circuits' to '_sample_circuits',
+    # to keep circuits short, and be more consist with the code for 1-2 qubits
+    def _sample_circuits(self) -> List[QuantumCircuit]:
+        """Return a list of RB circuits.
+
+        Returns:
+            A list of :class:`QuantumCircuit`.
+        """
+        # Build circuits of reference sequences
+        reference_sequences = self._sample_sequences()
+        reference_circuits = self._sequences_to_circuits(reference_sequences)
+        # Itoko-san - I don't see why you need to update the metadata in
+        # the sequences, so I removed that
+        for circ in reference_circuits:
+            circ.metadata["interleaved"] = False
+
+        # Build circuits of interleaved sequences
+        interleaved_sequences = []
+        for seq in reference_sequences:
+            new_seq = []
+            for elem in seq:
+                new_seq.append(elem)
+                new_seq.append(self._interleaved_elem)
+            interleaved_sequences.append(new_seq)
+        interleaved_circuits = self._sequences_to_circuits(interleaved_sequences)
+        for circ in interleaved_circuits:
+            circ.metadata["interleaved"] = True
+        return reference_circuits + interleaved_circuits
+
+    def _to_instruction(self, elem: SequenceElementType) -> Instruction:
+        if elem is self._interleaved_elem:
+            return self._interleaved_op
+
+        return super()._to_instruction(elem)
