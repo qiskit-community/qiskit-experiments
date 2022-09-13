@@ -1145,30 +1145,29 @@ class TestReplaceScheduleAndCall(QiskitExperimentsTestCase):
         self.cals.add_parameter_value(160, "duration", (4,), "xp")
         self.cals.add_parameter_value(40, "σ", (), "xp")
 
-    @unittest.skip("Test fails with the new reference mechanism. I think it is no longer needed.")
-    def test_call_replaced(self):
+    def test_reference_replaced(self):
         """Test that we get an error when there is an inconsistency in subroutines."""
 
         sched = self.cals.get_schedule("call_xp", (4,))
-        sched = block_to_schedule(sched)
 
         with pulse.build(name="xp") as expected:
             pulse.play(Gaussian(160, 0.2, 40), DriveChannel(4))
 
-        expected = block_to_schedule(expected)
+        self.assertEqual(block_to_schedule(sched), block_to_schedule(expected))
 
-        self.assertEqual(sched, expected)
-
-        # Now update the xp pulse without updating the call_xp schedule and ensure that
-        # an error is raised.
+        # Now update the xp pulse without updating the call_xp schedule and ensure consistency.
         with pulse.build(name="xp") as drag:
             pulse.play(Drag(self.dur, self.amp, self.sigma, self.beta), DriveChannel(self.ch0))
 
         self.cals.add_schedule(drag, num_qubits=1)
         self.cals.add_parameter_value(10.0, "β", (4,), "xp")
 
-        with self.assertRaises(CalibrationError):
-            self.cals.get_schedule("call_xp", (4,))
+        sched = self.cals.get_schedule("call_xp", (4,))
+
+        with pulse.build(name="xp") as expected:
+            pulse.play(Drag(160, 0.2, 40, 10.0), DriveChannel(4))
+
+        self.assertEqual(block_to_schedule(sched), block_to_schedule(expected))
 
 
 class TestCoupledAssigning(QiskitExperimentsTestCase):
