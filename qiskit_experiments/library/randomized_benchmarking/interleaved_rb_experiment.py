@@ -12,19 +12,18 @@
 """
 Interleaved RB Experiment class.
 """
-from typing import Union, Iterable, Optional, List, Sequence
+from typing import Union, Iterable, Optional, List, Sequence, Tuple
 
 from numpy.random import Generator
 from numpy.random.bit_generator import BitGenerator, SeedSequence
 
-from qiskit import QuantumCircuit
-from qiskit.circuit import Instruction
-from qiskit.quantum_info import Clifford
+from qiskit.circuit import QuantumCircuit, Instruction
+from qiskit.compiler import transpile
 from qiskit.exceptions import QiskitError
 from qiskit.providers.backend import Backend
-
-from .rb_experiment import StandardRB, SequenceElementType
+from qiskit.quantum_info import Clifford
 from .interleaved_rb_analysis import InterleavedRBAnalysis
+from .rb_experiment import StandardRB, SequenceElementType
 
 
 class InterleavedRB(StandardRB):
@@ -85,10 +84,7 @@ class InterleavedRB(StandardRB):
             raise QiskitError(
                 f"Interleaved element {interleaved_element.name} could not be converted to Clifford."
             ) from err
-        # Convert interleaved element to operation
         self._interleaved_op = interleaved_element
-        if not isinstance(interleaved_element, Instruction):
-            self._interleaved_op = interleaved_element.to_instruction()
         super().__init__(
             qubits,
             lengths,
@@ -106,6 +102,29 @@ class InterleavedRB(StandardRB):
         Returns:
             A list of :class:`QuantumCircuit`.
         """
+        # Convert interleaved element to operation and store the operation for speed
+        basis_gates = self._basis_gates
+        if basis_gates:
+            interleaved_circ = None
+            if isinstance(self._interleaved_op, QuantumCircuit):
+                interleaved_circ = self._interleaved_op
+            elif isinstance(self._interleaved_op, Clifford):
+                interleaved_circ = self._interleaved_op.to_circuit()
+            else:  # Instruction
+                if self._interleaved_op.name not in basis_gates:
+                    interleaved_circ = QuantumCircuit(self.num_qubits)
+                    interleaved_circ.append(self._interleaved_op)
+            if interleaved_circ and any(
+                i.operation.name not in basis_gates for i in interleaved_circ
+            ):
+                interleaved_circ = transpile(
+                    interleaved_circ, basis_gates=list(basis_gates), optimization_level=1
+                )
+                self._interleaved_op = interleaved_circ.to_instruction()
+        else:
+            if not isinstance(self._interleaved_op, Instruction):
+                self._interleaved_op = self._interleaved_op.to_instruction()
+
         # Build circuits of reference sequences
         reference_sequences = self._sample_sequences()
         reference_circuits = self._sequences_to_circuits(reference_sequences)
@@ -136,8 +155,10 @@ class InterleavedRB(StandardRB):
             }
         return reference_circuits + interleaved_circuits
 
-    def _to_instruction(self, elem: SequenceElementType) -> Instruction:
+    def _to_instruction(
+        self, elem: SequenceElementType, basis_gates: Optional[Tuple[str]] = None
+    ) -> Instruction:
         if elem is self._interleaved_elem:
             return self._interleaved_op
 
-        return super()._to_instruction(elem)
+        return super()._to_instruction(elem, basis_gates)

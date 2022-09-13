@@ -15,24 +15,29 @@ Utilities for using the Clifford group in randomized benchmarking
 
 from functools import lru_cache
 from numbers import Integral
-from typing import Optional, Union
+from typing import Optional, Union, Tuple
 
 from numpy.random import Generator, default_rng
 
 from qiskit.circuit import Gate, Instruction
 from qiskit.circuit import QuantumCircuit, QuantumRegister
 from qiskit.circuit.library import SdgGate, HGate, SGate
+from qiskit.compiler import transpile
 from qiskit.quantum_info import Clifford, random_clifford
 
 
 @lru_cache(maxsize=None)
-def _clifford_1q_int_to_instruction(num: Integral) -> Instruction:
-    return CliffordUtils.clifford_1_qubit_circuit(num).to_instruction()
+def _clifford_1q_int_to_instruction(
+    num: Integral, basis_gates: Optional[Tuple[str]]
+) -> Instruction:
+    return CliffordUtils.clifford_1_qubit_circuit(num, basis_gates).to_instruction()
 
 
 @lru_cache(maxsize=11520)
-def _clifford_2q_int_to_instruction(num: Integral) -> Instruction:
-    return CliffordUtils.clifford_2_qubit_circuit(num).to_instruction()
+def _clifford_2q_int_to_instruction(
+    num: Integral, basis_gates: Optional[Tuple[str]]
+) -> Instruction:
+    return CliffordUtils.clifford_2_qubit_circuit(num, basis_gates).to_instruction()
 
 
 class VGate(Gate):
@@ -136,7 +141,7 @@ class CliffordUtils:
 
     @classmethod
     @lru_cache(maxsize=24)
-    def clifford_1_qubit_circuit(cls, num):
+    def clifford_1_qubit_circuit(cls, num, basis_gates: Optional[Tuple[str]] = None):
         """Return the 1-qubit clifford circuit corresponding to `num`
         where `num` is between 0 and 23.
         """
@@ -156,11 +161,14 @@ class CliffordUtils:
         if p == 3:
             qc.z(0)
 
+        if basis_gates:
+            qc = transpile(qc, basis_gates=list(basis_gates), optimization_level=1)
+
         return qc
 
     @classmethod
     @lru_cache(maxsize=11520)
-    def clifford_2_qubit_circuit(cls, num):
+    def clifford_2_qubit_circuit(cls, num, basis_gates: Optional[Tuple[str]] = None):
         """Return the 2-qubit clifford circuit corresponding to `num`
         where `num` is between 0 and 11519.
         """
@@ -213,6 +221,9 @@ class CliffordUtils:
             qc.y(1)
         if p1 == 3:
             qc.z(1)
+
+        if basis_gates:
+            qc = transpile(qc, basis_gates=list(basis_gates), optimization_level=1)
 
         return qc
 
