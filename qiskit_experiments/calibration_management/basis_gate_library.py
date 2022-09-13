@@ -388,7 +388,9 @@ class EchoedCrossResonance(BasisGateLibrary):
 
                 if self._target_pulses:
                     pulse.play(
-                        pulse.GaussianSquare(cr_dur, tgt_amp, risefall_sigma_ratio=cr_rf, sigma=sigma),
+                        pulse.GaussianSquare(
+                            cr_dur, tgt_amp, risefall_sigma_ratio=cr_rf, sigma=sigma
+                        ),
                         t_chan,
                     )
 

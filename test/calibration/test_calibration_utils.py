@@ -28,7 +28,7 @@ from qiskit_experiments.calibration_management.calibration_utils import (
 )
 
 
-class TestUsedInReference(QiskitExperimentsTestCase):
+class TestScheduleDAG(QiskitExperimentsTestCase):
     """Test the function in CalUtils."""
 
     def setUp(self):
@@ -47,16 +47,16 @@ class TestUsedInReference(QiskitExperimentsTestCase):
         self.xp1 = xp1
         self.xp2 = xp2
         self.xp_ref = xp_ref
+        self.dag = rx.PyDiGraph(check_cycle=True)
 
     def test_used_in_references_simple(self):
         """Test that schedule identification by name with simple references."""
-        dag = rx.PyDiGraph(check_cycle=True)
-        update_schedule_dependency(self.xp1, dag, ScheduleKey(self.xp1.name, tuple()))
-        update_schedule_dependency(self.xp2, dag, ScheduleKey(self.xp2.name, tuple()))
-        update_schedule_dependency(self.xp_ref, dag, ScheduleKey(self.xp_ref.name, tuple()))
+        update_schedule_dependency(self.xp1, self.dag, ScheduleKey(self.xp1.name, tuple()))
+        update_schedule_dependency(self.xp2, self.dag, ScheduleKey(self.xp2.name, tuple()))
+        update_schedule_dependency(self.xp_ref, self.dag, ScheduleKey(self.xp_ref.name, tuple()))
 
-        self.assertSetEqual(used_in_references({ScheduleKey("xp", tuple())}, dag), {"ref_xp"})
-        self.assertSetEqual(used_in_references({ScheduleKey("xp2", tuple())}, dag), set())
+        self.assertSetEqual(used_in_references({ScheduleKey("xp", tuple())}, self.dag), {"ref_xp"})
+        self.assertSetEqual(used_in_references({ScheduleKey("xp2", tuple())}, self.dag), set())
 
     def test_used_in_references_nested(self):
         """Test that schedule identification by name with nested references."""
@@ -65,12 +65,11 @@ class TestUsedInReference(QiskitExperimentsTestCase):
             pulse.play(pulse.Drag(160, 0.5, 40, 0.2), pulse.DriveChannel(1))
             pulse.call(self.xp_ref)
 
-        dag = rx.PyDiGraph(check_cycle=True)
         for sched in [self.xp1, self.xp_ref, xp_ref_ref]:
-            update_schedule_dependency(sched, dag, ScheduleKey(sched.name, tuple()))
+            update_schedule_dependency(sched, self.dag, ScheduleKey(sched.name, tuple()))
 
         expected = {"ref_xp", "ref_ref_xp"}
-        self.assertSetEqual(used_in_references({ScheduleKey("xp", tuple())}, dag), expected)
+        self.assertSetEqual(used_in_references({ScheduleKey("xp", tuple())}, self.dag), expected)
 
     def test_used_in_references(self):
         """Test a CR setting."""
@@ -86,11 +85,38 @@ class TestUsedInReference(QiskitExperimentsTestCase):
                     pulse.play(cr_tone_m, pulse.ControlChannel(2))
                 pulse.reference(self.xp1.name, "q0")
 
-        dag = rx.PyDiGraph(check_cycle=True)
-        update_schedule_dependency(self.xp1, dag, ScheduleKey(self.xp1.name, tuple()))
-        update_schedule_dependency(cr, dag, ScheduleKey(cr.name, tuple()))
+        update_schedule_dependency(self.xp1, self.dag, ScheduleKey(self.xp1.name, tuple()))
+        update_schedule_dependency(cr, self.dag, ScheduleKey(cr.name, tuple()))
 
-        self.assertSetEqual(used_in_references({ScheduleKey("xp", tuple())}, dag), {"cr"})
+        self.assertSetEqual(used_in_references({ScheduleKey("xp", tuple())}, self.dag), {"cr"})
+
+    def test_replace(self):
+        """Test that we can replace a schedule that already exists in the dag."""
+
+        with pulse.build(name="dref") as double_ref:
+            pulse.reference(self.xp1.name, "q0")
+            pulse.reference(self.xp2.name, "q0")
+
+        update_schedule_dependency(self.xp1, self.dag, ScheduleKey(self.xp1.name, tuple()))
+        update_schedule_dependency(self.xp2, self.dag, ScheduleKey(self.xp2.name, tuple()))
+        update_schedule_dependency(double_ref, self.dag, ScheduleKey(double_ref.name, tuple()))
+
+        idx_xp1 = self.dag.nodes().index(self.xp1.name + "::()")
+        idx_xp2 = self.dag.nodes().index(self.xp2.name + "::()")
+        idx_drf = self.dag.nodes().index("dref::()")
+
+        expected = {(idx_drf, idx_xp1), (idx_drf, idx_xp2)}
+        self.assertSetEqual(set(self.dag.edge_list()), expected)
+
+        # Now replace the double reference schedule to point to only one xp pulse.
+        with pulse.build(name="dref") as double_ref:
+            pulse.reference(self.xp1.name, "q0")
+            pulse.reference(self.xp1.name, "q0")
+
+        update_schedule_dependency(double_ref, self.dag, ScheduleKey(double_ref.name, tuple()))
+
+        expected = {(idx_drf, idx_xp1)}
+        self.assertSetEqual(set(self.dag.edge_list()), expected)
 
 
 class TestValidateChannels(QiskitExperimentsTestCase):

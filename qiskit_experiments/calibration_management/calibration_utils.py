@@ -38,7 +38,17 @@ def update_schedule_dependency(schedule: ScheduleBlock, dag: rx.PyDiGraph, key: 
         dag: A directed acyclic graph that encodes schedule dependencies using references.
         key: The schedule key which also contains the qubits.
     """
-    parent_idx = dag.add_node(repr(key))
+    # First, check if the node is already in the DAG.
+    try:
+        # If it already is in the DAG we remove the existing edges and add the new ones later.
+        parent_idx = dag.nodes().index(repr(key))
+        for successor in dag.successors(parent_idx):
+            dag.remove_edge(parent_idx, dag.nodes().index(successor))
+
+    except ValueError:
+        # The schedule is not in the DAG: we add a new node.
+        parent_idx = dag.add_node(repr(key))
+
     for reference in schedule.references:
         ref_key = ScheduleKey(reference[0], key.qubits)
         dag.add_edge(parent_idx, _get_node_index(ref_key, dag), None)
