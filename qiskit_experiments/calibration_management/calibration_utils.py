@@ -25,7 +25,7 @@ from qiskit_experiments.calibration_management.calibration_key_types import Sche
 
 
 # The channel indices need to be parameterized following this regex.
-CHANNEL_PATTERN = r"^ch\d[\.\d]*\${0,1}[\d]*$"
+CHANNEL_PATTERN = r"^ch\d+(\.\d+)*(\$\d+){0,1}$"
 CHANNEL_PATTERN_REGEX = re.compile(CHANNEL_PATTERN)
 
 

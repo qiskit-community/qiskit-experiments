@@ -25,6 +25,7 @@ from qiskit_experiments.calibration_management.calibration_utils import (
     validate_channels,
     used_in_references,
     update_schedule_dependency,
+    CHANNEL_PATTERN_REGEX,
 )
 
 
@@ -150,3 +151,14 @@ class TestValidateChannels(QiskitExperimentsTestCase):
 
         with self.assertRaises(CalibrationError):
             validate_channels(sched)
+
+    def test_regex(self):
+        """Test that the channel name regex is properly formulated."""
+        valid = ["ch0", "ch12", "ch12.2", "ch123.2345.2", "ch1.0$1", "ch1.2$12", "ch0.1.2$12"]
+        invalid = ["cg0", "ch1.", "ch1.2$", "ch123.23p45.2", "ch0d"]
+
+        for channel in valid:
+            self.assertTrue(CHANNEL_PATTERN_REGEX.match(channel) is not None)
+
+        for channel in invalid:
+            self.assertTrue(CHANNEL_PATTERN_REGEX.match(channel) is None)
