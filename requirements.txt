@@ -6,4 +6,3 @@ qiskit-ibm-experiment>=0.2.5
 matplotlib>=3.4
 uncertainties
 lmfit
-regex
