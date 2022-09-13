@@ -178,7 +178,7 @@ class BasisGateLibrary(ABC, Mapping):
 
 
 class FixedFrequencyTransmon(BasisGateLibrary):
-    """A library of gates for fixed-frequency superconducting qubit architectures.
+    r"""A library of gates for fixed-frequency superconducting qubit architectures.
 
     Note that for now this library supports single-qubit gates and will be extended
     in the future.
@@ -309,7 +309,7 @@ class FixedFrequencyTransmon(BasisGateLibrary):
 
 
 class EchoedCrossResonance(BasisGateLibrary):
-    """A library for echoed cross-resonance gates.
+    r"""A library for echoed cross-resonance gates.
 
     The ``cr45p`` and ``cr45m`` include a pulse on the control qubit and optionally a pulse
     on the target qubit.
