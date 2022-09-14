@@ -156,7 +156,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
         rng = default_rng(seed=self.experiment_options.seed)
         circuits = []
 
-        if self.num_qubits < 3:
+        if self.num_qubits in [1, 2]:
             for _ in range(self.experiment_options.num_samples):
                 rb_circuits = self._build_rb_circuits(self.experiment_options.lengths, rng)
                 circuits += rb_circuits

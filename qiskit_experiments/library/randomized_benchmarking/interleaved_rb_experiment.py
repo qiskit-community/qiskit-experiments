@@ -175,6 +175,52 @@ class InterleavedRB(StandardRB):
             backend=self._backend,
         )
 
+    def _interleave(self, element_list: List) -> List:
+        """Interleaving the interleaved element inside the element list.
+
+        Args:
+            element_list: The list of elements we add the interleaved element to.
+
+        Returns:
+            The new list with the element interleaved.
+        """
+        new_element_list = []
+        for element in element_list:
+            new_element_list.append(element)
+            new_element_list.append(self._interleaved_element)
+        return new_element_list
+
+    def _sample_circuits(self) -> List[QuantumCircuit]:
+        """Return a list of RB circuits.
+
+        Returns:
+            A list of :class:`QuantumCircuit`.
+        """
+        # Build circuits of reference sequences
+        reference_sequences = self._sample_sequences()
+        reference_circuits = self._sequences_to_circuits(reference_sequences)
+        for circ in reference_circuits:
+            circ.metadata["interleaved"] = False
+
+        # Build circuits of interleaved sequences
+        interleaved_sequences = []
+        for seq in reference_sequences:
+            new_seq = []
+            for elem in seq:
+                new_seq.append(elem)
+                new_seq.append(self._interleaved_elem)
+            interleaved_sequences.append(new_seq)
+        interleaved_circuits = self._sequences_to_circuits(interleaved_sequences)
+        for circ in interleaved_circuits:
+            circ.metadata["interleaved"] = True
+        return reference_circuits + interleaved_circuits
+
+    def _to_instruction(self, elem: SequenceElementType) -> Instruction:
+        if elem is self._interleaved_elem:
+            return self._interleaved_op
+
+        return super()._to_instruction(elem)
+
     def _build_rb_circuits(self, lengths: List[int], rng: Generator) -> List[QuantumCircuit]:
         """
         build_rb_circuits
@@ -366,56 +412,3 @@ class InterleavedRB(StandardRB):
             all_rb_circuits.append(rb_circ)
             all_rb_interleaved_circuits.append(rb_interleaved_circ)
         return all_rb_circuits, all_rb_interleaved_circuits
-
-        # This method does a quick layout to avoid calling 'transpile()' which is
-        # very costly in performance
-        # We simply copy the circuit to a new circuit where we define the mapping
-        # of the qubit to the single physical qubit that was requested by the user
-        # This is a hack, and would be better if transpile() implemented it.
-        # Something similar is done in ParallelExperiment._combined_circuits
-
-    def _interleave(self, element_list: List) -> List:
-        """Interleaving the interleaved element inside the element list.
-
-        Args:
-            element_list: The list of elements we add the interleaved element to.
-
-        Returns:
-            The new list with the element interleaved.
-        """
-        new_element_list = []
-        for element in element_list:
-            new_element_list.append(element)
-            new_element_list.append(self._interleaved_element)
-        return new_element_list
-
-    def _sample_circuits(self) -> List[QuantumCircuit]:
-        """Return a list of RB circuits.
-
-        Returns:
-            A list of :class:`QuantumCircuit`.
-        """
-        # Build circuits of reference sequences
-        reference_sequences = self._sample_sequences()
-        reference_circuits = self._sequences_to_circuits(reference_sequences)
-        for circ in reference_circuits:
-            circ.metadata["interleaved"] = False
-
-        # Build circuits of interleaved sequences
-        interleaved_sequences = []
-        for seq in reference_sequences:
-            new_seq = []
-            for elem in seq:
-                new_seq.append(elem)
-                new_seq.append(self._interleaved_elem)
-            interleaved_sequences.append(new_seq)
-        interleaved_circuits = self._sequences_to_circuits(interleaved_sequences)
-        for circ in interleaved_circuits:
-            circ.metadata["interleaved"] = True
-        return reference_circuits + interleaved_circuits
-
-    def _to_instruction(self, elem: SequenceElementType) -> Instruction:
-        if elem is self._interleaved_elem:
-            return self._interleaved_op
-
-        return super()._to_instruction(elem)

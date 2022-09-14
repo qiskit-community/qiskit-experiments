@@ -177,8 +177,6 @@ class CliffordUtils:
         """Return the 1-qubit clifford circuit corresponding to `num`
         where `num` is between 0 and 23.
         """
-        # pylint: disable=unbalanced-tuple-unpacking
-        # This is safe since `_unpack_num` returns list the size of the sig
         unpacked = cls._unpack_num(num, cls.CLIFFORD_1_QUBIT_SIG)
         i, j, p = unpacked[0], unpacked[1], unpacked[2]
         qc = QuantumCircuit(1, name=f"Clifford-1Q({num})")
