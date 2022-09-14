@@ -39,9 +39,7 @@ from .rb_analysis import RBAnalysis
 
 LOG = logging.getLogger(__name__)
 
-
 SequenceElementType = Union[Clifford, Integral]
-
 
 class StandardRB(BaseExperiment, RestlessMixin):
     """Standard randomized benchmarking experiment.
