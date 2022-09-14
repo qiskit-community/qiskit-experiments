@@ -33,7 +33,45 @@ from qiskit_experiments.curve_analysis.curve_data import SeriesDef, FitData, Cur
 from qiskit_experiments.framework import AnalysisResultData
 from qiskit_experiments.framework.matplotlib import get_non_gui_ax
 from .curves import plot_scatter, plot_errorbar, plot_curve_fit
-from .style import PlotterStyle
+import dataclasses
+from typing import Tuple, List
+
+
+@dataclasses.dataclass
+class PlotterStyle:
+    """A stylesheet specific for :mod:`fit_result_plotters`.
+
+    This style class is used by :mod:`fit_result_plotters`, but not by :class:`BasePlotter` or
+    :class:`BaseDrawer`. It is recommended that new code use the new :class:`BasePlotter` and
+    :class:`BaseDrawer` classes to plot figures and draw on a canvas. The
+    :mod:`qiskit_experiments.visualization` module contains a different
+    :class:`qiskit_experiments.visualization.PlottingStyle` class which is specific to
+    :class:`BasePlotter` and :class:`DrawerPlotter`.
+    """
+
+    # size of figure (width, height)
+    figsize: Tuple[int, int] = (8, 5)
+
+    # legent location (vertical, horizontal)
+    legend_loc: str = "center right"
+
+    # size of tick label
+    tick_label_size: int = 14
+
+    # size of axis label
+    axis_label_size: int = 16
+
+    # relative position of fit report
+    fit_report_rpos: Tuple[float, float] = (0.6, 0.95)
+
+    # size of fit report text
+    fit_report_text_size: int = 14
+
+    # sigma values for confidence interval, which are the tuple of (sigma, alpha).
+    # the alpha indicates the transparency of the corresponding interval plot.
+    plot_sigma: List[Tuple[float, float]] = dataclasses.field(
+        default_factory=lambda: [(1.0, 0.7), (3.0, 0.3)]
+    )
 
 
 class MplDrawSingleCanvas:

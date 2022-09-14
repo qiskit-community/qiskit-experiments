@@ -57,6 +57,7 @@
 #     :toctree: ../stubs/
 #     :template: autosummary/class.rst
 
+#     LegacyPlotterStyle
 #     PlotterStyle
 
 # """
@@ -64,11 +65,11 @@
 from enum import Enum
 
 from .drawers import BaseDrawer, MplDrawer
-from .plotters import BasePlotter,CurvePlotter
+from .plotters import BasePlotter, CurvePlotter
+from .style import PlotStyle
 
 from . import fit_result_plotters
 from .curves import plot_scatter, plot_errorbar, plot_curve_fit
-from .style import PlotterStyle
 
 
 # pylint: disable=invalid-name

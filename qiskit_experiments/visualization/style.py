@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -10,36 +10,70 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """
-Configurable stylesheet.
+Configurable stylesheet for :class:`BasePlotter` and :class:`BaseDrawer`.
 """
-import dataclasses
-from typing import Tuple, List
+from typing import Tuple
+from qiskit_experiments.framework import Options
+from copy import copy
 
 
-@dataclasses.dataclass
-class PlotterStyle:
-    """A stylesheet for curve analysis figure."""
+class PlotStyle(Options):
+    """A stylesheet for :class:`BasePlotter` and :class:`BaseDrawer`.
 
-    # size of figure (width, height)
-    figsize: Tuple[int, int] = (8, 5)
+    This style class is used by :class:`BasePlotter` and :class:`BaseDrawer`, and must not be confused
+    with :class:`~qiskit_experiments.visualization.fit_result_plotters.PlotterStyle`. The default style for Qiskit Experiments is defined in :meth:`default_style`.
+    """
 
-    # legent location (vertical, horizontal)
-    legend_loc: str = "center right"
+    @classmethod
+    def default_style(cls) -> "PlotStyle":
+        """The default style across Qiskit Experiments.
 
-    # size of tick label
-    tick_label_size: int = 14
+        Returns:
+            PlotStyle: The default plot style used by Qiskit Experiments.
+        """
+        new = cls()
+        # size of figure (width, height)
+        new.figsize: Tuple[int, int] = (8, 5)
 
-    # size of axis label
-    axis_label_size: int = 16
+        # legent location (vertical, horizontal)
+        new.legend_loc: str = "center right"
 
-    # relative position of fit report
-    fit_report_rpos: Tuple[float, float] = (0.6, 0.95)
+        # size of tick label
+        new.tick_label_size: int = 14
 
-    # size of fit report text
-    fit_report_text_size: int = 14
+        # size of axis label
+        new.axis_label_size: int = 16
 
-    # sigma values for confidence interval, which are the tuple of (sigma, alpha).
-    # the alpha indicates the transparency of the corresponding interval plot.
-    plot_sigma: List[Tuple[float, float]] = dataclasses.field(
-        default_factory=lambda: [(1.0, 0.7), (3.0, 0.3)]
-    )
+        # relative position of fit report
+        new.fit_report_rpos: Tuple[float, float] = (0.6, 0.95)
+
+        # size of fit report text
+        new.fit_report_text_size: int = 14
+
+        return new
+
+    def update(self, other_style: "PlotStyle"):
+        """Updates the plot styles fields with those set in ``other_style``.
+
+        Args:
+            other_style: The style with new field values.
+        """
+        self.update_options(**other_style._fields)
+
+    @classmethod
+    def merge(cls, style1: "PlotStyle", style2: "PlotStyle") -> "PlotStyle":
+        """Merges two PlotStyle instances.
+
+        The styles are merged such that style fields in ``style2`` have priority. i.e., a field ``foo``,
+        defined in both input styles, will have the value :code-block:`style2.foo` in the output.
+
+        Args:
+            style1: The first style.
+            style2: The second style.
+
+        Returns:
+            PlotStyle: A plot style containing the combined fields of both input styles.
+        """
+        new_style = copy(style1)
+        new_style.update(style2)
+        return new_style
