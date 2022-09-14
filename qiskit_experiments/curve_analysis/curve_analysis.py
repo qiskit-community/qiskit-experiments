@@ -154,7 +154,7 @@ class CurveAnalysis(BaseCurveAnalysis):
                     "symbol": series_def.plot_symbol,
                     "canvas": series_def.canvas,
                 }
-            self.drawer.set_options(plot_options=plot_options)
+            self.plotter.set_options(plot_options=plot_options)
 
         self._models = models or []
         self._name = name or self.__class__.__name__
@@ -467,9 +467,9 @@ class CurveAnalysis(BaseCurveAnalysis):
         self._initialize(experiment_data)
         analysis_results = []
 
-        # Initialize canvas
-        if self.options.plot:
-            self.drawer.initialize_canvas()
+        # # Initialize canvas
+        # if self.options.plot:
+        #     self.drawer.initialize_canvas()
 
         # Run data processing
         processed_data = self._run_data_processing(
@@ -480,10 +480,10 @@ class CurveAnalysis(BaseCurveAnalysis):
         if self.options.plot and self.options.plot_raw_data:
             for model in self._models:
                 sub_data = processed_data.get_subset_of(model._name)
-                self.drawer.draw_raw_data(
-                    x_data=sub_data.x,
-                    y_data=sub_data.y,
-                    name=model._name,
+                self.plotter.set_series_data(
+                    model._name,
+                    x=sub_data.x,
+                    y=sub_data.y,
                 )
         # for backward compatibility, will be removed in 0.4.
         self.__processed_data_set["raw_data"] = processed_data
@@ -493,11 +493,11 @@ class CurveAnalysis(BaseCurveAnalysis):
         if self.options.plot:
             for model in self._models:
                 sub_data = formatted_data.get_subset_of(model._name)
-                self.drawer.draw_formatted_data(
-                    x_data=sub_data.x,
-                    y_data=sub_data.y,
-                    y_err_data=sub_data.y_err,
-                    name=model._name,
+                self.plotter.set_series_data(
+                    model._name,
+                    x_formatted=sub_data.x,
+                    y_formatted=sub_data.y,
+                    y_formatted_err=sub_data.y_err,
                 )
         # for backward compatibility, will be removed in 0.4.
         self.__processed_data_set["fit_ready"] = formatted_data
@@ -555,23 +555,16 @@ class CurveAnalysis(BaseCurveAnalysis):
                     )
                     y_mean = unp.nominal_values(y_data_with_uncertainty)
                     # Draw fit line
-                    self.drawer.draw_fit_line(
-                        x_data=interp_x,
-                        y_data=y_mean,
-                        name=model._name,
+                    self.plotter.set_series_data(
+                        model._name,
+                        x_interp=interp_x,
+                        y_mean=y_mean,
                     )
                     if fit_data.covar is not None:
                         # Draw confidence intervals with different n_sigma
                         sigmas = unp.std_devs(y_data_with_uncertainty)
                         if np.isfinite(sigmas).all():
-                            for n_sigma, alpha in self.drawer.options.plot_sigma:
-                                self.drawer.draw_confidence_interval(
-                                    x_data=interp_x,
-                                    y_ub=y_mean + n_sigma * sigmas,
-                                    y_lb=y_mean - n_sigma * sigmas,
-                                    name=model._name,
-                                    alpha=alpha,
-                                )
+                            self.plotter.set_series_data(model._name,sigmas=sigmas,)
 
                 # Write fitting report
                 report_description = ""
@@ -579,7 +572,7 @@ class CurveAnalysis(BaseCurveAnalysis):
                     if isinstance(res.value, (float, UFloat)):
                         report_description += f"{analysis_result_to_repr(res)}\n"
                 report_description += r"reduced-$\chi^2$ = " + f"{fit_data.reduced_chisq: .4g}"
-                self.drawer.draw_fit_report(description=report_description)
+                self.plotter.set_figure_data(fit_report=report_description)
 
         # Add raw data points
         if self.options.return_data_points:
@@ -589,8 +582,8 @@ class CurveAnalysis(BaseCurveAnalysis):
 
         # Finalize plot
         if self.options.plot:
-            self.drawer.format_canvas()
-            return analysis_results, [self.drawer.figure]
+            # self.drawer.format_canvas()
+            return analysis_results, [self.plotter.figure()]
 
         return analysis_results, []
 

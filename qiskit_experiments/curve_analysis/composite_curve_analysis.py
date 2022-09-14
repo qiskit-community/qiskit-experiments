@@ -22,7 +22,7 @@ import numpy as np
 from uncertainties import unumpy as unp, UFloat
 
 from qiskit_experiments.framework import BaseAnalysis, ExperimentData, AnalysisResultData, Options
-from qiskit_experiments.visualization import MplDrawer, BaseDrawer
+from qiskit_experiments.visualization import MplDrawer,CurvePlotter,BasePlotter
 from .base_curve_analysis import BaseCurveAnalysis, PARAMS_ENTRY_PREFIX
 from .curve_data import CurveFitResult
 from .utils import analysis_result_to_repr, eval_with_uncertainties
@@ -124,9 +124,9 @@ class CompositeCurveAnalysis(BaseAnalysis):
         return models
 
     @property
-    def drawer(self) -> BaseDrawer:
-        """A short-cut for curve drawer instance."""
-        return self._options.curve_drawer
+    def plotter(self) -> BasePlotter:
+        """A short-cut for plotter instance."""
+        return self._options.plotter
 
     def analyses(
         self, index: Optional[Union[str, int]] = None
@@ -187,7 +187,7 @@ class CompositeCurveAnalysis(BaseAnalysis):
         """Default analysis options.
 
         Analysis Options:
-            curve_drawer (BaseDrawer): A curve drawer instance to visualize
+            plotter (BasePlotter): A plotter instance to visualize
                 the analysis result.
             plot (bool): Set ``True`` to create figure for fit result.
                 This is ``True`` by default.
@@ -200,7 +200,7 @@ class CompositeCurveAnalysis(BaseAnalysis):
         """
         options = super()._default_options()
         options.update_options(
-            curve_drawer=MplDrawer(),
+            plotter=CurvePlotter(MplDrawer()),
             plot=True,
             return_fit_parameters=True,
             return_data_points=False,
@@ -208,7 +208,7 @@ class CompositeCurveAnalysis(BaseAnalysis):
         )
 
         # Set automatic validator for particular option values
-        options.set_validator(field="curve_drawer", validator_value=BaseDrawer)
+        options.set_validator(field="plotter", validator_value=BasePlotter)
 
         return options
 
@@ -233,8 +233,8 @@ class CompositeCurveAnalysis(BaseAnalysis):
         analysis_results = []
 
         # Initialize canvas
-        if self.options.plot:
-            self.drawer.initialize_canvas()
+        # if self.options.plot:
+        #     self.drawer.initialize_canvas()
 
         fit_dataset = {}
         for analysis in self._analyses:
@@ -251,10 +251,10 @@ class CompositeCurveAnalysis(BaseAnalysis):
             if self.options.plot and analysis.options.plot_raw_data:
                 for model in analysis.models:
                     sub_data = processed_data.get_subset_of(model._name)
-                    self.drawer.draw_raw_data(
-                        x_data=sub_data.x,
-                        y_data=sub_data.y,
-                        name=model._name + f"_{analysis.name}",
+                    self.plotter.set_series_data(
+                        model._name + f"_{analysis.name}",
+                        x=sub_data.x,
+                        y=sub_data.y,
                     )
 
             # Format data
@@ -262,11 +262,11 @@ class CompositeCurveAnalysis(BaseAnalysis):
             if self.options.plot:
                 for model in analysis.models:
                     sub_data = formatted_data.get_subset_of(model._name)
-                    self.drawer.draw_formatted_data(
-                        x_data=sub_data.x,
-                        y_data=sub_data.y,
-                        y_err_data=sub_data.y_err,
-                        name=model._name + f"_{analysis.name}",
+                    self.plotter.set_series_data(
+                        model._name + f"_{analysis.name}",
+                        x_formatted=sub_data.x,
+                        y_formatted=sub_data.y,
+                        y_formatted_err=sub_data.y_err,
                     )
 
             # Run fitting
@@ -310,23 +310,16 @@ class CompositeCurveAnalysis(BaseAnalysis):
                         )
                         y_mean = unp.nominal_values(y_data_with_uncertainty)
                         # Draw fit line
-                        self.drawer.draw_fit_line(
-                            x_data=interp_x,
-                            y_data=y_mean,
-                            name=model._name + f"_{analysis.name}",
+                        self.plotter.set_series_data(
+                            model._name + f"_{analysis.name}",
+                            x_interp=interp_x,
+                            y_mean=y_mean,
                         )
                         if fit_data.covar is not None:
                             # Draw confidence intervals with different n_sigma
                             sigmas = unp.std_devs(y_data_with_uncertainty)
                             if np.isfinite(sigmas).all():
-                                for n_sigma, alpha in self.drawer.options.plot_sigma:
-                                    self.drawer.draw_confidence_interval(
-                                        x_data=interp_x,
-                                        y_ub=y_mean + n_sigma * sigmas,
-                                        y_lb=y_mean - n_sigma * sigmas,
-                                        name=model._name + f"_{analysis.name}",
-                                        alpha=alpha,
-                                    )
+                                self.plotter.set_series_data(model._name,sigmas=sigmas)
 
             # Add raw data points
             if self.options.return_data_points:
@@ -355,10 +348,10 @@ class CompositeCurveAnalysis(BaseAnalysis):
             for group, fit_data in fit_dataset.items():
                 chisqs.append(r"reduced-$\chi^2$ = " + f"{fit_data.reduced_chisq: .4g} ({group})")
             report += "\n".join(chisqs)
-            self.drawer.draw_fit_report(description=report)
+            self.plotter.set_figure_data(fit_report=report)
 
             # Finalize canvas
-            self.drawer.format_canvas()
-            return analysis_results, [self.drawer.figure]
+            # self.drawer.format_canvas()
+            return analysis_results, [self.plotter.figure()]
 
         return analysis_results, []
