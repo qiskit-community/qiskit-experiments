@@ -98,7 +98,6 @@ class InterleavedRB(StandardRB):
             seed=seed,
             full_sampling=full_sampling,
         )
-        self._set_interleaved_element(interleaved_element)
         self._transpiled_interleaved_elem = None
         self.analysis = InterleavedRBAnalysis()
         self.analysis.set_options(outcome="0" * self.num_qubits)
@@ -126,26 +125,6 @@ class InterleavedRB(StandardRB):
             circuits += std_circuits
             circuits += int_circuits
         return circuits
-
-    def _set_interleaved_element(self, interleaved_element):
-        """Handle the various types of the interleaved element
-
-        Args:
-            interleaved_element: The element to interleave
-
-        Raises:
-            QiskitError: if there is no known conversion of interleaved_element
-            to a Clifford group element
-        """
-        try:
-            interleaved_element_op = Clifford(interleaved_element)
-            self._interleaved_element = (interleaved_element, interleaved_element_op)
-        except QiskitError as error:
-            raise QiskitError(
-                "Interleaved element {} could not be converted to Clifford element".format(
-                    interleaved_element.name
-                )
-            ) from error
 
     def _set_transpiled_interleaved_element(self):
         """
