@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2022.
+# (C) Copyright IBM 2021, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -159,7 +159,6 @@ class BaseDrawer(ABC):
             axis_label_size=16,
             fit_report_rpos=(0.6, 0.95),
             fit_report_text_size=14,
-            plot_sigma=[(1.0, 0.7), (3.0, 0.3)],
             plot_options={},
             figure_title=None,
         )
