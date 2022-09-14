@@ -38,7 +38,7 @@ from .rb_analysis import RBAnalysis
 LOG = logging.getLogger(__name__)
 
 
-SequenceElementType = Union[Clifford, Integral]
+SequenceElementType = Union[Clifford, Integral, QuantumCircuit]
 
 
 class StandardRB(BaseExperiment, RestlessMixin):
@@ -200,8 +200,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
                 circ.barrier(qubits)
 
             # Compute inverse, compute only the difference from the previous shorter sequence
-            for elem in seq[len(prev_seq) :]:
-                prev_elem = self.__compose_clifford(prev_elem, elem)
+            prev_elem = self.__compose_clifford_seq(prev_elem, seq[len(prev_seq) :])
             prev_seq = seq
             inv = self.__adjoint_clifford(prev_elem)
 
@@ -212,13 +211,14 @@ class StandardRB(BaseExperiment, RestlessMixin):
 
     def __sample_sequence(self, length: int, rng: Generator) -> Sequence[SequenceElementType]:
         # Sample a RB sequence with the given length.
-        # Return integer instead of Clifford object for 1 or 2 qubit case for speed
+        # Return integer instead of Clifford object for 1 or 2 qubits case for speed
         if self.num_qubits == 1:
             return rng.integers(24, size=length)
         if self.num_qubits == 2:
             return rng.integers(11520, size=length)
-
-        return [random_clifford(self.num_qubits, rng) for _ in range(length)]
+        # Return circuit object instead of Clifford object for 3 or more qubits case for speed
+        # TODO: Revisit after terra#7269, #7483, #8585
+        return [random_clifford(self.num_qubits, rng).to_circuit() for _ in range(length)]
 
     def _to_instruction(self, elem: SequenceElementType) -> Instruction:
         # TODO: basis transformation in 1Q (and 2Q) cases for speed
@@ -234,6 +234,21 @@ class StandardRB(BaseExperiment, RestlessMixin):
         if self.num_qubits <= 2:
             return 0
         return Clifford(np.eye(2 * self.num_qubits))
+
+    def __compose_clifford_seq(
+        self, org: SequenceElementType, seq: Sequence[SequenceElementType]
+    ) -> SequenceElementType:
+        if self.num_qubits <= 2:
+            new = org
+            for elem in seq:
+                new = self.__compose_clifford(new, elem)
+            return new
+        # 3 or more qubits: compose Clifford from circuits for speed
+        # TODO: Revisit after terra#7269, #7483, #8585
+        circ = QuantumCircuit(self.num_qubits)
+        for elem in seq:
+            circ.compose(elem, inplace=True)
+        return org.compose(Clifford.from_circuit(circ))
 
     def __compose_clifford(
         self, lop: SequenceElementType, rop: SequenceElementType
@@ -260,6 +275,8 @@ class StandardRB(BaseExperiment, RestlessMixin):
                 return CliffordUtils.clifford_1_qubit(op).adjoint()
             if self.num_qubits == 2:
                 return CliffordUtils.clifford_2_qubit(op).adjoint()
+        if isinstance(op, QuantumCircuit):
+            return Clifford.from_circuit(op).adjoint()
         return op.adjoint()
 
     def _transpiled_circuits(self) -> List[QuantumCircuit]:
