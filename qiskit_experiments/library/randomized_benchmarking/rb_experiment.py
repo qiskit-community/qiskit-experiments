@@ -173,6 +173,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
 
     def _sample_sequences(self) -> List[Sequence[SequenceElementType]]:
         """Sample RB sequences
+
         Returns:
             A list of RB sequences.
         """
@@ -187,12 +188,14 @@ class StandardRB(BaseExperiment, RestlessMixin):
                 longest_seq = self.__sample_sequence(max(self.experiment_options.lengths), rng)
                 for length in self.experiment_options.lengths:
                     sequences.append(longest_seq[:length])
+
         return sequences
 
     def _sequences_to_circuits(
         self, sequences: List[Sequence[SequenceElementType]]
     ) -> List[QuantumCircuit]:
-        """Convert a RB sequence into circuit and append the inverse to the end.
+        """Convert an RB sequence into circuit and append the inverse to the end.
+
         Returns:
             A list of RB circuits.
         """
@@ -476,7 +479,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
 
     def _transpiled_circuits(self) -> List[QuantumCircuit]:
         """Return a list of experiment circuits, transpiled."""
-        if self.num_qubits < 3:
+        if self.num_qubits in [1, 2]:
             transpiled = self._layout_for_rb()
         else:
             transpiled = super()._transpiled_circuits()

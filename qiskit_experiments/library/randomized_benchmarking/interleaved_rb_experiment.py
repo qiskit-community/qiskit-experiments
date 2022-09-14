@@ -131,7 +131,7 @@ class InterleavedRB(StandardRB):
         Create the transpiled interleaved element. If it is a single gate,
         create a circuit comprising this gate.
         """
-        if not isinstance(self._interleaved_element, QuantumCircuit):
+        if not isinstance(self._interleaved_elem, QuantumCircuit):
             if self.num_qubits == 1:
                 qc_interleaved = QuantumCircuit(1, 1)
                 qubits = [0]
@@ -139,10 +139,10 @@ class InterleavedRB(StandardRB):
                 qc_interleaved = QuantumCircuit(2, 2)
                 qubits = [0, 1]
 
-            qc_interleaved.append(self._interleaved_element[0], qubits)
+            qc_interleaved.append(self._interleaved_elem[0], qubits)
             self._transpiled_interleaved_elem = qc_interleaved
         else:
-            qc_interleaved = self._interleaved_element
+            qc_interleaved = self._interleaved_elem
         if hasattr(self.transpile_options, "basis_gates"):
             basis_gates = self.transpile_options.basis_gates
         else:
