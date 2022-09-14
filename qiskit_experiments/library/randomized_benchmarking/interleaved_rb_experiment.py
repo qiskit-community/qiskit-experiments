@@ -175,21 +175,6 @@ class InterleavedRB(StandardRB):
             backend=self._backend,
         )
 
-    def _interleave(self, element_list: List) -> List:
-        """Interleaving the interleaved element inside the element list.
-
-        Args:
-            element_list: The list of elements we add the interleaved element to.
-
-        Returns:
-            The new list with the element interleaved.
-        """
-        new_element_list = []
-        for element in element_list:
-            new_element_list.append(element)
-            new_element_list.append(self._interleaved_element)
-        return new_element_list
-
     def _sample_circuits(self) -> List[QuantumCircuit]:
         """Return a list of RB circuits.
 
