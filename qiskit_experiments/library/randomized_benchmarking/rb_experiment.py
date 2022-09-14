@@ -167,9 +167,6 @@ class StandardRB(BaseExperiment, RestlessMixin):
         return circuits
 
     # The following methods are used for RB with more than 2 qubits
-    # Itoko-san: I changed the name to _sample_circuits, and added a
-    # call to _sequences_to_circuits here, instead of in circuits.
-    # I prefer to keep circuits() shorter.
     def _sample_circuits(self):
         sequences = self._sample_sequences()
         return self._sequences_to_circuits(sequences)
@@ -232,9 +229,6 @@ class StandardRB(BaseExperiment, RestlessMixin):
             circuits.append(circ)
         return circuits
 
-    # Itoko-san - In the next few methods, you separate between cases for <3 qubits
-    # and 3 or more qubits. I think this is unnecessary, because these methods will
-    # not be called for 1 or 2 qubits
     def __sample_sequence(self, length: int, rng: Generator) -> Sequence[SequenceElementType]:
         # Sample a RB sequence with the given length.
         # Return integer instead of Clifford object for 1 or 2 qubit case for speed

@@ -389,8 +389,6 @@ class InterleavedRB(StandardRB):
             new_element_list.append(self._interleaved_element)
         return new_element_list
 
-    # Itoko-san: I moved all your code from 'circuits' to '_sample_circuits',
-    # to keep circuits short, and be more consist with the code for 1-2 qubits
     def _sample_circuits(self) -> List[QuantumCircuit]:
         """Return a list of RB circuits.
 
@@ -400,8 +398,6 @@ class InterleavedRB(StandardRB):
         # Build circuits of reference sequences
         reference_sequences = self._sample_sequences()
         reference_circuits = self._sequences_to_circuits(reference_sequences)
-        # Itoko-san - I don't see why you need to update the metadata in
-        # the sequences, so I removed that
         for circ in reference_circuits:
             circ.metadata["interleaved"] = False
 

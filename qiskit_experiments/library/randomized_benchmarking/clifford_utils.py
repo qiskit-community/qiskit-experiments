@@ -130,7 +130,26 @@ class CliffordUtils:
         """
         return Clifford(cls.clifford_2_qubit_circuit(num), validate=False)
 
-    # Itoko-san - removed the method random_cliffords, because it is no used anywhere.
+    def random_cliffords(
+        self, num_qubits: int, size: int = 1, rng: Optional[Union[int, Generator]] = None
+    ):
+        """Generate a list of random clifford elements"""
+        if num_qubits > 2:
+            return random_clifford(num_qubits, seed=rng)
+
+        if rng is None:
+            rng = default_rng()
+
+        if isinstance(rng, int):
+            rng = default_rng(rng)
+
+        if num_qubits == 1:
+            samples = rng.integers(24, size=size)
+            return [Clifford(self.clifford_1_qubit_circuit(i), validate=False) for i in samples]
+        else:
+            samples = rng.integers(11520, size=size)
+            return [Clifford(self.clifford_2_qubit_circuit(i), validate=False) for i in samples]
+
     def random_clifford_circuits(
         self, size: int = 1, rng: Optional[Union[int, Generator]] = None
     ) -> List[QuantumCircuit]:
