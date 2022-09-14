@@ -79,8 +79,8 @@ class CliffordNumMapping:
     @classmethod
     def gen_nums_single_gate_cliffs_1q(cls):
         """
-        Generates an array mapping numbers to Cliffords and the reverse array.
-        Based on this array, we build a mapping from every single-gate-clifford to its number.
+        Generates a dict mapping numbers to Cliffords and the reverse dict.
+        Based on these structures, we build a mapping from every single-gate-clifford to its number.
         The mapping actually looks like {(gate, '[0]'): num}, where [0] represents qubit 0.
         The qubit is added to be consistent with the format for 2 qubits.
         """
@@ -107,8 +107,8 @@ class CliffordNumMapping:
     @classmethod
     def gen_nums_single_gate_cliffs_2q(cls):
         """
-        Generates an array mapping numbers to Cliffords and the reverse array.
-        Based on this array, we build a mapping from every single-gate-clifford to its number.
+        Generates a dict mapping numbers to Cliffords and the reverse dict.
+        Based on these structures, we build a mapping from every single-gate-clifford to its number.
         The mapping actually looks like {(gate, '[qubits]'): num}.
         """
         clifford_utils = CliffordUtils(2, cls.basis_gates)
