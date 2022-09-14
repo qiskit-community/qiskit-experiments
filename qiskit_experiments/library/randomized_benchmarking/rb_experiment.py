@@ -177,12 +177,11 @@ class StandardRB(BaseExperiment, RestlessMixin):
 
         return sequences
 
-    @property
-    def _basis_gates(self) -> Optional[Tuple[str]]:
-        """Basis gates to use in basis transformation during circuit generation.
+    def _get_basis_gates(self) -> Optional[Tuple[str]]:
+        """Get sorted basis gates to use in basis transformation during circuit generation.
 
         Returns:
-            Basis gate names.
+            Sorted basis gate names.
         """
         # Basis gates to use in basis transformation during circuit generation for 1Q/2Q cases
         basis_gates = self.transpile_options.get("basis_gates", None)
@@ -193,11 +192,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
                 basis_gates = self.backend.configuration().basis_gates
 
         if basis_gates:
-            if not isinstance(basis_gates, tuple):
-                basis_gates = tuple(basis_gates)
-            for extra_inst in ["delay", "barrier"]:
-                if extra_inst not in basis_gates:
-                    basis_gates += (extra_inst,)
+            basis_gates = tuple(sorted(basis_gates))
 
         return basis_gates
 
@@ -209,7 +204,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
         Returns:
             A list of RB circuits.
         """
-        basis_gates = self._basis_gates
+        basis_gates = self._get_basis_gates()
         # Circuit generation
         circuits = []
         for i, seq in enumerate(sequences):

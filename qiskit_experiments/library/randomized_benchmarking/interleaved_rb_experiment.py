@@ -103,8 +103,9 @@ class InterleavedRB(StandardRB):
             A list of :class:`QuantumCircuit`.
         """
         # Convert interleaved element to operation and store the operation for speed
-        basis_gates = self._basis_gates
+        basis_gates = self._get_basis_gates()
         if basis_gates:
+            basis_gates += ("delay", "barrier")
             interleaved_circ = None
             if isinstance(self._interleaved_op, QuantumCircuit):
                 interleaved_circ = self._interleaved_op
@@ -114,13 +115,13 @@ class InterleavedRB(StandardRB):
                 if self._interleaved_op.name not in basis_gates:
                     interleaved_circ = QuantumCircuit(self.num_qubits)
                     interleaved_circ.append(self._interleaved_op)
-            if interleaved_circ and any(
-                i.operation.name not in basis_gates for i in interleaved_circ
-            ):
-                interleaved_circ = transpile(
-                    interleaved_circ, basis_gates=list(basis_gates), optimization_level=1
-                )
-                self._interleaved_op = interleaved_circ.to_instruction()
+            if interleaved_circ:
+                interleaved_circ.name = "Clifford-" + interleaved_circ.name
+                if any(i.operation.name not in basis_gates for i in interleaved_circ):
+                    interleaved_circ = transpile(
+                        interleaved_circ, basis_gates=list(basis_gates), optimization_level=1
+                    )
+                    self._interleaved_op = interleaved_circ.to_instruction()
         else:
             if not isinstance(self._interleaved_op, Instruction):
                 self._interleaved_op = self._interleaved_op.to_instruction()
