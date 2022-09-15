@@ -17,6 +17,7 @@ import numpy as np
 
 import qiskit_experiments.curve_analysis as curve
 from qiskit_experiments.framework import AnalysisResultData
+from qiskit_experiments.visualization import PlotStyle
 
 
 class CrossResonanceHamiltonianAnalysis(curve.CompositeCurveAnalysis):
@@ -60,8 +61,15 @@ class CrossResonanceHamiltonianAnalysis(curve.CompositeCurveAnalysis):
     def _default_options(cls):
         """Return the default analysis options."""
         default_options = super()._default_options()
-        default_options.plotter.drawer.set_options(
+        default_options.plotter.set_options(
             subplots=(3, 1),
+            style=PlotStyle(
+                figsize=(8, 10),
+                legend_loc="lower right",
+                report_rpos=(0.28, -0.10),
+            ),
+        )
+        default_options.plotter.set_plot_options(
             xlabel="Flat top width",
             ylabel=[
                 r"$\langle$X(t)$\rangle$",
@@ -69,11 +77,8 @@ class CrossResonanceHamiltonianAnalysis(curve.CompositeCurveAnalysis):
                 r"$\langle$Z(t)$\rangle$",
             ],
             xval_unit="s",
-            figsize=(8, 10),
-            legend_loc="lower right",
-            fit_report_rpos=(0.28, -0.10),
             ylim=(-1, 1),
-            plot_options={
+            series_params={
                 "x_ctrl0": {"color": "blue", "symbol": "o", "canvas": 0},
                 "y_ctrl0": {"color": "blue", "symbol": "o", "canvas": 1},
                 "z_ctrl0": {"color": "blue", "symbol": "o", "canvas": 2},

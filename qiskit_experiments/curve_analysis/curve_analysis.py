@@ -140,7 +140,7 @@ class CurveAnalysis(BaseCurveAnalysis):
             )
             # pylint: disable=no-member
             models = []
-            plot_options = {}
+            series_params = {}
             for series_def in self.__series__:
                 models.append(
                     lmfit.Model(
@@ -149,12 +149,12 @@ class CurveAnalysis(BaseCurveAnalysis):
                         data_sort_key=series_def.filter_kwargs,
                     )
                 )
-                plot_options[series_def.name] = {
+                series_params[series_def.name] = {
                     "color": series_def.plot_color,
                     "symbol": series_def.plot_symbol,
                     "canvas": series_def.canvas,
                 }
-            self.plotter.set_options(plot_options=plot_options)
+            self.plotter.set_plot_options(series_params=series_params)
 
         self._models = models or []
         self._name = name or self.__class__.__name__
@@ -467,10 +467,6 @@ class CurveAnalysis(BaseCurveAnalysis):
         self._initialize(experiment_data)
         analysis_results = []
 
-        # # Initialize canvas
-        # if self.options.plot:
-        #     self.drawer.initialize_canvas()
-
         # Run data processing
         processed_data = self._run_data_processing(
             raw_data=experiment_data.data(),
@@ -564,7 +560,10 @@ class CurveAnalysis(BaseCurveAnalysis):
                         # Draw confidence intervals with different n_sigma
                         sigmas = unp.std_devs(y_data_with_uncertainty)
                         if np.isfinite(sigmas).all():
-                            self.plotter.set_series_data(model._name,sigmas=sigmas,)
+                            self.plotter.set_series_data(
+                                model._name,
+                                sigmas=sigmas,
+                            )
 
                 # Write fitting report
                 report_description = ""
@@ -572,7 +571,7 @@ class CurveAnalysis(BaseCurveAnalysis):
                     if isinstance(res.value, (float, UFloat)):
                         report_description += f"{analysis_result_to_repr(res)}\n"
                 report_description += r"reduced-$\chi^2$ = " + f"{fit_data.reduced_chisq: .4g}"
-                self.plotter.set_figure_data(fit_report=report_description)
+                self.plotter.set_figure_data(report_text=report_description)
 
         # Add raw data points
         if self.options.return_data_points:
@@ -582,7 +581,6 @@ class CurveAnalysis(BaseCurveAnalysis):
 
         # Finalize plot
         if self.options.plot:
-            # self.drawer.format_canvas()
             return analysis_results, [self.plotter.figure()]
 
         return analysis_results, []

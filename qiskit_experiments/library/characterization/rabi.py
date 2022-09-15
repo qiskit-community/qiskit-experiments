@@ -110,7 +110,7 @@ class Rabi(BaseExperiment, RestlessMixin):
             result_parameters=[ParameterRepr("freq", self.__outcome__)],
             normalization=True,
         )
-        self.analysis.drawer.set_options(
+        self.analysis.plotter.set_plot_options(
             xlabel="Amplitude",
             ylabel="Signal (arb. units)",
         )

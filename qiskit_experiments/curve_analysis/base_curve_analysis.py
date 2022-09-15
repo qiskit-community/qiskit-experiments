@@ -23,7 +23,7 @@ import lmfit
 from qiskit_experiments.data_processing import DataProcessor
 from qiskit_experiments.data_processing.processor_library import get_processor
 from qiskit_experiments.framework import BaseAnalysis, AnalysisResultData, Options, ExperimentData
-from qiskit_experiments.visualization import MplDrawer, BaseDrawer, BasePlotter, CurvePlotter
+from qiskit_experiments.visualization import MplDrawer, BasePlotter, CurvePlotter
 from .curve_data import CurveData, ParameterRepr, CurveFitResult
 
 PARAMS_ENTRY_PREFIX = "@Parameters_"

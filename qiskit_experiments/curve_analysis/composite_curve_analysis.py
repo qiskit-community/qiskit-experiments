@@ -22,7 +22,7 @@ import numpy as np
 from uncertainties import unumpy as unp, UFloat
 
 from qiskit_experiments.framework import BaseAnalysis, ExperimentData, AnalysisResultData, Options
-from qiskit_experiments.visualization import MplDrawer,CurvePlotter,BasePlotter
+from qiskit_experiments.visualization import MplDrawer, CurvePlotter, BasePlotter
 from .base_curve_analysis import BaseCurveAnalysis, PARAMS_ENTRY_PREFIX
 from .curve_data import CurveFitResult
 from .utils import analysis_result_to_repr, eval_with_uncertainties
@@ -232,10 +232,6 @@ class CompositeCurveAnalysis(BaseAnalysis):
 
         analysis_results = []
 
-        # Initialize canvas
-        # if self.options.plot:
-        #     self.drawer.initialize_canvas()
-
         fit_dataset = {}
         for analysis in self._analyses:
             analysis._initialize(experiment_data)
@@ -319,7 +315,7 @@ class CompositeCurveAnalysis(BaseAnalysis):
                             # Draw confidence intervals with different n_sigma
                             sigmas = unp.std_devs(y_data_with_uncertainty)
                             if np.isfinite(sigmas).all():
-                                self.plotter.set_series_data(model._name,sigmas=sigmas)
+                                self.plotter.set_series_data(model._name, sigmas=sigmas)
 
             # Add raw data points
             if self.options.return_data_points:
@@ -348,10 +344,8 @@ class CompositeCurveAnalysis(BaseAnalysis):
             for group, fit_data in fit_dataset.items():
                 chisqs.append(r"reduced-$\chi^2$ = " + f"{fit_data.reduced_chisq: .4g} ({group})")
             report += "\n".join(chisqs)
-            self.plotter.set_figure_data(fit_report=report)
+            self.plotter.set_figure_data(report_text=report)
 
-            # Finalize canvas
-            # self.drawer.format_canvas()
             return analysis_results, [self.plotter.figure()]
 
         return analysis_results, []

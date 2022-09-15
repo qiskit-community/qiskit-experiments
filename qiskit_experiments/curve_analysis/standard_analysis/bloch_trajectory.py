@@ -138,7 +138,7 @@ class BlochTrajectoryAnalysis(curve.CurveAnalysis):
             input_key="counts",
             data_actions=[dp.Probability("1"), dp.BasisExpectationValue()],
         )
-        default_options.plotter.drawer.set_options(
+        default_options.plotter.set_plot_options(
             xlabel="Flat top width",
             ylabel="Pauli expectation values",
             xval_unit="s",

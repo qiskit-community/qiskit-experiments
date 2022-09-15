@@ -76,7 +76,7 @@ class ResonanceAnalysis(curve.CurveAnalysis):
     @classmethod
     def _default_options(cls) -> Options:
         options = super()._default_options()
-        options.plotter.drawer.set_options(
+        options.plotter.set_plot_options(
             xlabel="Frequency",
             ylabel="Signal (arb. units)",
             xval_unit="Hz",

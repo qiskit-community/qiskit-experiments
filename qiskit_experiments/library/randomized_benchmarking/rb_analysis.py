@@ -96,7 +96,7 @@ class RBAnalysis(curve.CurveAnalysis):
                 2Q RB is corrected to exclude the depolarization of underlying 1Q channels.
         """
         default_options = super()._default_options()
-        default_options.plotter.drawer.set_options(
+        default_options.plotter.set_plot_options(
             xlabel="Clifford Length",
             ylabel="P(0)",
         )
