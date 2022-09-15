@@ -193,9 +193,10 @@ class FixedFrequencyTransmon(BasisGateLibrary):
         - duration: Duration of the pulses Default value: 160 samples.
         - σ: Standard deviation of the pulses Default value: ``duration / 4``.
         - β: DRAG parameter of the pulses Default value: 0.
-        - amp: Amplitude of the pulses. If the parameters linked then ``x`` and ``y``
+        - amp: Amplitude of the pulses. If the parameters are linked then ``x`` and ``y``
           share the same parameter and ``sx`` and ``sy`` share the same parameter.
-          Default value: 50% of the maximum output.
+          Default value: 50% of the maximum output for ``x`` and ``y`` and 25% of the
+          maximum output for ``sx`` and ``sy``.
 
     Note that the β and amp parameters may be linked between the x and y as well as between
     the sx and sy pulses. All pulses share the same duration and σ parameters.
