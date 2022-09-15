@@ -22,7 +22,6 @@ from numpy.random import Generator, default_rng
 from numpy.random.bit_generator import BitGenerator, SeedSequence
 
 from qiskit.circuit import QuantumCircuit, Instruction
-from qiskit.compiler import transpile
 from qiskit.exceptions import QiskitError
 from qiskit.providers.backend import Backend, BackendV2
 from qiskit.quantum_info import Clifford
@@ -34,6 +33,7 @@ from .clifford_utils import (
     _clifford_1q_int_to_instruction,
     _clifford_2q_int_to_instruction,
     _transpile_clifford_circuit,
+    _transform_clifford_circuit,
 )
 from .rb_analysis import RBAnalysis
 
@@ -254,7 +254,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
                 return _clifford_2q_int_to_instruction(elem, basis_gates)
         # TODO: to be removed after integer Clifford adjoint operation
         if basis_gates and self.num_qubits <= 2:
-            circ = transpile(elem.to_circuit(), basis_gates=list(basis_gates), optimization_level=1)
+            circ = _transform_clifford_circuit(elem.to_circuit(), basis_gates=basis_gates)
             return circ.to_instruction()
 
         return elem.to_instruction()
@@ -295,7 +295,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
         """Return a list of experiment circuits, transpiled."""
         has_custom_transpile_option = (
             any(opt != "basis_gates" for opt in vars(self.transpile_options))
-            and self.transpile_options.get("optimization_level", 0) != 1
+            and self.transpile_options.get("optimization_level", 0) != 0
         )
         if self.num_qubits <= 2 and not has_custom_transpile_option:
             transpiled = [

@@ -18,10 +18,10 @@ from numpy.random import Generator
 from numpy.random.bit_generator import BitGenerator, SeedSequence
 
 from qiskit.circuit import QuantumCircuit, Instruction
-from qiskit.compiler import transpile
 from qiskit.exceptions import QiskitError
 from qiskit.providers.backend import Backend
 from qiskit.quantum_info import Clifford
+from .clifford_utils import _transform_clifford_circuit
 from .interleaved_rb_analysis import InterleavedRBAnalysis
 from .rb_experiment import StandardRB, SequenceElementType
 
@@ -118,8 +118,8 @@ class InterleavedRB(StandardRB):
             if interleaved_circ:
                 interleaved_circ.name = "Clifford-" + interleaved_circ.name
                 if any(i.operation.name not in basis_gates for i in interleaved_circ):
-                    interleaved_circ = transpile(
-                        interleaved_circ, basis_gates=list(basis_gates), optimization_level=1
+                    interleaved_circ = _transform_clifford_circuit(
+                        interleaved_circ, basis_gates=basis_gates
                     )
                     self._interleaved_op = interleaved_circ.to_instruction()
         else:

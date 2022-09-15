@@ -43,6 +43,10 @@ def _apply_qubit_layout(circuit: QuantumCircuit, layout: Sequence[int]) -> Quant
     return res
 
 
+def _transform_clifford_circuit(circuit: QuantumCircuit, basis_gates: Tuple[str]) -> QuantumCircuit:
+    return transpile(circuit, basis_gates=list(basis_gates), optimization_level=0)
+
+
 @lru_cache(maxsize=None)
 def _clifford_1q_int_to_instruction(
     num: Integral, basis_gates: Optional[Tuple[str]]
@@ -179,7 +183,7 @@ class CliffordUtils:
             qc.z(0)
 
         if basis_gates:
-            qc = transpile(qc, basis_gates=list(basis_gates), optimization_level=1)
+            qc = _transform_clifford_circuit(qc, basis_gates)
 
         return qc
 
@@ -240,7 +244,7 @@ class CliffordUtils:
             qc.z(1)
 
         if basis_gates:
-            qc = transpile(qc, basis_gates=list(basis_gates), optimization_level=1)
+            qc = _transform_clifford_circuit(qc, basis_gates)
 
         return qc
 
