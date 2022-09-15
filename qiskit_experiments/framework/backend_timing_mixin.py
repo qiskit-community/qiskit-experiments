@@ -69,7 +69,7 @@ class BackendTiming:
       couple the timing of different instructions, resulting in improperly
       aligned instructions.  For example, consider this circuit:
 
-      -- code-block:: python
+      .. code-block:: python
 
           from qiskit import QuantumCircuit
           qc = QuantumCircuit(1, 1)
@@ -97,6 +97,75 @@ class BackendTiming:
     input duration in seconds. If these values are used for all durations in a
     circuit, the alignment constraints should always be satisfied.
 
+    As an example use-case for :class:`.BackendTiming`, consider a T1 experiment
+    where delay times are specified in seconds and a
+    :method:`.BaseExperiment.circuits`` method as follows:
+
+    .. code-block:: python
+
+        def circuits(self):
+            # Pass experiment to BackendTiming
+            timing = BackendTiming(self)
+
+            circuits = []
+            for delay in self.experiment_options.delays:
+                circ = QuantumCircuit(1, 1)
+                circ.x(0)
+                # Convert delay into appropriate units for backend and also set
+                # those units with delay_unit
+                circ.delay(timing.circuit_delay(delay), 0, timing.delay_unit)
+                circ.measure(0, 0)
+
+                # Use delay_time to get the actual value in seconds that was
+                # set on the backend for the xval rather than the delay
+                # variable's nominal value.
+                circ.metadata = {
+                    "unit": "s",
+                    "xval": timing.delay_time(delay),
+                }
+
+                circuits.append(circ)
+
+    As another example, consider a time Rabi experiment where the width of a
+    pulse in a schedule is stretched:
+
+    .. code-block:: python
+
+        from qiskit import pulse
+        from qiskit.circuit import Gate, Parameter
+
+        def circuits(self):
+            chan = pulse.DriveChannel(0)
+            dur = Paramater("duration")
+
+            with pulse.build() as sched:
+                pulse.play(pulse.Gaussina(duration=dur, amp=1, sigma=dur / 4), chan)
+
+            gate = Gate("Rabi", num_qubits=1, params=[dur])
+
+            template_circ = QuantumCircuit(1, 1)
+            template_circ.append()
+            template_circ.measure(0, 0)
+            template_circ.add_calibration(gate, (0,), sched, params=[dur])
+
+            # Pass experiment to BackendTiming
+            timing = BackendTiming(self)
+
+            circs = []
+            for duration in self.experiment_options.durations:
+                # Calculate valid sample number closest to this duration
+                circ = template_circ.assign_parameters(
+                    {dur: timing.pulse_samples(duration)},
+                    inplace=False,
+                )
+                # Track corresponding duration in seconds for the pulse
+                circ.metadata = {
+                    "xval": timing.pulse_time(duration),
+                    "unit": "s",
+                }
+
+
+
     .. note::
 
         For delay duration, the least common multiple of ``pulse_alignment``
@@ -106,9 +175,6 @@ class BackendTiming:
         approach excludes some valid circuits (like each delay being half of
         ``acquire_alignment``) but has the benefit of always being valid
         without detailed analysis of the full circuit.
-
-    TODO: add example usage
-    TODO: expose to framework and documentation
 
     .. note::
 
