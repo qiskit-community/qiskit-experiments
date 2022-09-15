@@ -21,7 +21,7 @@ import numpy as np
 from numpy.random import Generator, default_rng
 from numpy.random.bit_generator import BitGenerator, SeedSequence
 
-from qiskit.circuit import QuantumCircuit, Instruction
+from qiskit.circuit import QuantumCircuit, Instruction, Barrier
 from qiskit.exceptions import QiskitError
 from qiskit.providers.backend import Backend, BackendV2
 from qiskit.quantum_info import Clifford
@@ -215,12 +215,11 @@ class StandardRB(BaseExperiment, RestlessMixin):
             ):
                 prev_elem, prev_seq = self.__identity_clifford(), []
 
-            qubits = list(range(self.num_qubits))
             circ = QuantumCircuit(self.num_qubits)
-            circ.barrier(qubits)
+            circ.append(Barrier(self.num_qubits), circ.qubits)
             for elem in seq:
-                circ.append(self._to_instruction(elem, basis_gates), qubits)
-                circ.barrier(qubits)
+                circ.append(self._to_instruction(elem, basis_gates), circ.qubits)
+                circ.append(Barrier(self.num_qubits), circ.qubits)
 
             # Compute inverse, compute only the difference from the previous shorter sequence
             for elem in seq[len(prev_seq) :]:
@@ -228,7 +227,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
             prev_seq = seq
             inv = self.__adjoint_clifford(prev_elem)
 
-            circ.append(self._to_instruction(inv, basis_gates), qubits)
+            circ.append(self._to_instruction(inv, basis_gates), circ.qubits)
             circ.measure_all()  # includes insertion of the barrier before measurement
             circuits.append(circ)
         return circuits

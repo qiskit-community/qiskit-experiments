@@ -32,6 +32,7 @@ def _transpile_clifford_circuit(circuit: QuantumCircuit, layout: Sequence[int]) 
 
 
 def _decompose_clifford_ops(circuit: QuantumCircuit) -> QuantumCircuit:
+    # Simplified QuantumCircuit.decompose, which decomposes only Clifford ops
     res = circuit.copy_empty_like()
     for inst in circuit:
         if inst.operation.name.startswith("Clifford"):  # Decompose
@@ -57,6 +58,7 @@ def _apply_qubit_layout(circuit: QuantumCircuit, layout: Sequence[int]) -> Quant
     res.compose(circuit, qubits=layout, inplace=True)
     res.calibrations = circuit.calibrations
     res.metadata = circuit.metadata
+    res.name = circuit.name
     return res
 
 
