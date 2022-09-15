@@ -17,7 +17,6 @@ from typing import Union
 from qiskit import QiskitError
 from qiskit.providers.backend import Backend
 
-from qiskit_experiments.framework import BaseExperiment
 from qiskit_experiments.framework import BackendData
 
 
@@ -175,48 +174,22 @@ class BackendTiming:
         approach excludes some valid circuits (like each delay being half of
         ``acquire_alignment``) but has the benefit of always being valid
         without detailed analysis of the full circuit.
-
-    .. note::
-
-        The methods in this class assume that the ``backend`` attribute is
-        constant. Methods should not call methods of this class before and
-        after modifying the ``backend`` attribute and expect consistent
-        results. In particular, when the backend is not set, no ``dt`` value is
-        available and :meth:`.BackendTiming.circuit_delay` will return the
-        delay time in seconds whereas once the backend is set the value
-        returned will be in units of ``dt`` rounded according to the alignment
-        constraints.
     """
 
-    def __init__(self, experiment: BaseExperiment):
+    def __init__(self, backend: Backend):
         """Initialize backend timing object
 
         Args:
             experiment: the experiment to provide timing help for
         """
-        self.experiment = experiment
+        backend_data = BackendData(backend)
 
-        self._backend: Union[Backend, None] = None
-        self._backend_data_cached: Union[BackendData, None] = None
-
-    @property
-    def _backend_data(self) -> BackendData:
-        """Backend data associated with experiment
-
-        Returns:
-            The BackendData object associated with the experiment
-
-        Raises:
-            QiskitError: if the backend is not set on the experiment
-        """
-        if self.experiment.backend is None:
-            raise QiskitError("Backend not set on experiment!")
-
-        if self.experiment.backend != self._backend:
-            self._backend = self.experiment.backend
-            self._backend_data_cached = BackendData(self._backend)
-
-        return self._backend_data_cached
+        # Pull all the timing data from the backend
+        self._backend_data_dt = backend_data.dt
+        self._acquire_alignment = backend_data.acquire_alignment
+        self._granularity = backend_data.granularity
+        self._min_length = backend_data.min_length
+        self._pulse_alignment = backend_data.pulse_alignment
 
     @property
     def delay_unit(self) -> str:
@@ -225,7 +198,7 @@ class BackendTiming:
         "dt" is used if dt is present in the backend configuration. Otherwise
         "s" is used.
         """
-        if self._backend_data.dt is not None:
+        if self._backend_data_dt is not None:
             return "dt"
 
         return "s"
@@ -234,7 +207,7 @@ class BackendTiming:
     def _dt(self) -> float:
         """Backend dt value
 
-        This property wraps ``_backend_data.dt`` in order to give a more
+        This property wraps :code:`.BackendData.dt` in order to give a more
         specific error message when trying to use ``dt`` with a backend that
         does not provide it rather than just giving a ``TypeError`` about
         ``NoneType``. As this raises an exception when ``dt`` is not set, it
@@ -244,8 +217,8 @@ class BackendTiming:
         Raises:
             QiskitError: The backend does not include a dt value.
         """
-        if self._backend_data.dt is not None:
-            return float(self._backend_data.dt)
+        if self._backend_data_dt is not None:
+            return float(self._backend_data_dt)
 
         raise QiskitError("Backend has no dt value.")
 
@@ -281,11 +254,9 @@ class BackendTiming:
 
         return self.schedule_delay(time)
 
-    def schedule_delay(self, time: float) -> int
-        pulse_alignment = self._backend_data.pulse_alignment
-        acquire_alignment = self._backend_data.acquire_alignment
+    def schedule_delay(self, time: float) -> int:
 
-        granularity = lcm(pulse_alignment, acquire_alignment)
+        granularity = lcm(self._pulse_alignment, self._acquire_alignment)
 
         samples = int(round(time / self._dt / granularity) * granularity)
 
@@ -307,20 +278,21 @@ class BackendTiming:
                 alignment constraints provided by the backend do not fit the
                 assumptions that the algorithm makes.
         """
-        granularity = self._backend_data.granularity
-        min_length = self._backend_data.min_length
+        samples = int(round(time / self._dt / self._granularity)) * self._granularity
+        samples = max(samples, self._min_length)
 
-        samples = int(round(time / self._dt / granularity)) * granularity
-        samples = max(samples, min_length)
-
-        pulse_alignment = self._backend_data.pulse_alignment
-        acquire_alignment = self._backend_data.acquire_alignment
+        pulse_alignment = self._pulse_alignment
+        acquire_alignment = self._acquire_alignment
 
         if samples % pulse_alignment != 0:
-            raise QiskitError("Pulse duration calculation does not match pulse alignment constraints!")
+            raise QiskitError(
+                "Pulse duration calculation does not match pulse alignment constraints!"
+            )
 
         if samples % acquire_alignment != 0:
-            raise QiskitError("Pulse duration calculation does not match acquire alignment constraints!")
+            raise QiskitError(
+                "Pulse duration calculation does not match acquire alignment constraints!"
+            )
 
         return samples
 
