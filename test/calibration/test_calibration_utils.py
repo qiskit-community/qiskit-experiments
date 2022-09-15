@@ -98,13 +98,17 @@ class TestScheduleDAG(QiskitExperimentsTestCase):
             pulse.reference(self.xp1.name, "q0")
             pulse.reference(self.xp2.name, "q0")
 
-        update_schedule_dependency(self.xp1, self.dag, ScheduleKey(self.xp1.name, tuple()))
-        update_schedule_dependency(self.xp2, self.dag, ScheduleKey(self.xp2.name, tuple()))
-        update_schedule_dependency(double_ref, self.dag, ScheduleKey(double_ref.name, tuple()))
+        key1 = ScheduleKey(self.xp1.name, tuple())
+        key2 = ScheduleKey(self.xp2.name, tuple())
+        key3 = ScheduleKey(double_ref.name, tuple())
 
-        idx_xp1 = self.dag.nodes().index(self.xp1.name + "::()")
-        idx_xp2 = self.dag.nodes().index(self.xp2.name + "::()")
-        idx_drf = self.dag.nodes().index("dref::()")
+        update_schedule_dependency(self.xp1, self.dag, key1)
+        update_schedule_dependency(self.xp2, self.dag, key2)
+        update_schedule_dependency(double_ref, self.dag, key3)
+
+        idx_xp1 = self.dag.nodes().index(key1)
+        idx_xp2 = self.dag.nodes().index(key2)
+        idx_drf = self.dag.nodes().index(key3)
 
         expected = {(idx_drf, idx_xp1), (idx_drf, idx_xp2)}
         self.assertSetEqual(set(self.dag.edge_list()), expected)

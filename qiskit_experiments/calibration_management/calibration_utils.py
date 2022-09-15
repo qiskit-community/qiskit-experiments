@@ -41,13 +41,13 @@ def update_schedule_dependency(schedule: ScheduleBlock, dag: rx.PyDiGraph, key: 
     # First, check if the node is already in the DAG.
     try:
         # If it already is in the DAG we remove the existing edges and add the new ones later.
-        parent_idx = dag.nodes().index(repr(key))
+        parent_idx = dag.nodes().index(key)
         for successor in dag.successors(parent_idx):
             dag.remove_edge(parent_idx, dag.nodes().index(successor))
 
     except ValueError:
         # The schedule is not in the DAG: we add a new node.
-        parent_idx = dag.add_node(repr(key))
+        parent_idx = dag.add_node(key)
 
     for reference in schedule.references:
         ref_key = ScheduleKey(reference[0], key.qubits)
@@ -67,7 +67,7 @@ def used_in_references(keys: Set[ScheduleKey], dag: rx.PyDiGraph) -> Set[str]:
     callers = set()
 
     for key in keys:
-        callers.update(_referred_by(key, dag))
+        callers.update(dag.nodes()[idx] for idx in rx.ancestors(dag, _get_node_index(key, dag)))
 
     return set(key.schedule for key in callers)
 
@@ -98,10 +98,10 @@ def _get_node_index(key: ScheduleKey, dag: rx.PyDiGraph) -> int:
         The index of the node in the dag corresponding to schedule key or its default.
     """
     try:
-        return dag.nodes().index(repr(key))
+        return dag.nodes().index(key)
     except ValueError:
         default_key = ScheduleKey(key.schedule, tuple())
-        return dag.nodes().index(repr(default_key))
+        return dag.nodes().index(default_key)
 
 
 def validate_channels(schedule: ScheduleBlock) -> Set[Parameter]:

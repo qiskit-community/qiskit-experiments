@@ -688,7 +688,7 @@ class Calibrations:
         sched_key = ScheduleKey(schedule.name, qubits)
 
         # Remove the schedule from the schedule dependency DAG. Raise if others depend on it.
-        sched_idx = self._schedule_dependency.nodes().index(repr(sched_key))
+        sched_idx = self._schedule_dependency.nodes().index(sched_key)
         prev_nodes = self._schedule_dependency.predecessors(sched_idx)
         if len(prev_nodes) > 0:
             raise CalibrationError(
