@@ -219,7 +219,6 @@ Experiment Data Classes
     AnalysisConfig
     ExperimentEncoder
     ExperimentDecoder
-    BackendData
     FigureData
 
 .. _composite-experiment:
@@ -242,12 +241,14 @@ Base Classes
     BaseExperiment
     BaseAnalysis
 
-Mix-ins
+Experiment Configuration Helper Classes
 *******
 
 .. autosummary::
     :toctree: ../stubs/
 
+    BackendData
+    BackendTiming
     RestlessMixin
 
 .. _create-experiment:
@@ -262,6 +263,7 @@ from qiskit_experiments.framework.experiment_data import (
 )
 from .base_analysis import BaseAnalysis
 from .base_experiment import BaseExperiment
+from .backend_timing import BackendTiming
 from .configs import ExperimentConfig, AnalysisConfig
 from .analysis_result_data import AnalysisResultData
 from .experiment_data import ExperimentData
