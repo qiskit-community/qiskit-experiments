@@ -20,7 +20,7 @@ from typing import Optional, Union, Tuple, Sequence
 from numpy.random import Generator, default_rng
 
 from qiskit.circuit import Gate, Instruction
-from qiskit.circuit import QuantumCircuit, QuantumRegister
+from qiskit.circuit import QuantumCircuit, QuantumRegister, CircuitInstruction, Qubit
 from qiskit.circuit.library import SdgGate, HGate, SGate
 from qiskit.compiler import transpile
 from qiskit.quantum_info import Clifford, random_clifford
@@ -34,32 +34,58 @@ def _transpile_clifford_circuit(circuit: QuantumCircuit, layout: Sequence[int]) 
 def _decompose_clifford_ops(circuit: QuantumCircuit) -> QuantumCircuit:
     # Simplified QuantumCircuit.decompose, which decomposes only Clifford ops
     res = circuit.copy_empty_like()
+    res._parameter_table = circuit._parameter_table
     for inst in circuit:
         if inst.operation.name.startswith("Clifford"):  # Decompose
             rule = inst.operation.definition.data
             if len(rule) == 1 and len(inst.qubits) == len(rule[0].qubits):
                 if inst.operation.definition.global_phase:
                     res.global_phase += inst.operation.definition.global_phase
-                res._append(rule[0].operation, qargs=inst.qubits, cargs=inst.clbits)
-            else:
-                res.compose(
-                    inst.operation.definition,
-                    qubits=inst.qubits,
-                    clbits=inst.clbits,
-                    inplace=True,
+                res._data.append(
+                    CircuitInstruction(
+                        operation=rule[0].operation,
+                        qubits=inst.qubits,
+                        clbits=inst.clbits,
+                    )
                 )
+            else:
+                _circuit_compose(res, inst.operation.definition, qubits=inst.qubits)
         else:  # Keep the original instruction
-            res._append(inst)
+            res._data.append(inst)
     return res
 
 
 def _apply_qubit_layout(circuit: QuantumCircuit, layout: Sequence[int]) -> QuantumCircuit:
-    res = QuantumCircuit(1 + max(layout))
-    res.compose(circuit, qubits=layout, inplace=True)
-    res.calibrations = circuit.calibrations
-    res.metadata = circuit.metadata
-    res.name = circuit.name
+    res = QuantumCircuit(1 + max(layout), name=circuit.name, metadata=circuit.metadata)
+    res.add_bits(circuit.clbits)
+    for reg in circuit.cregs:
+        res.add_register(reg)
+    _circuit_compose(res, circuit, qubits=layout)
+    res._parameter_table = circuit._parameter_table
     return res
+
+
+def _circuit_compose(
+    self: QuantumCircuit, other: QuantumCircuit, qubits: Sequence[Union[Qubit, int]]
+) -> QuantumCircuit:
+    # Simplified QuantumCircuit.compose with clbits=None, front=False, inplace=True, wrap=False
+    # without any validation, parameter_table update and copy of operations
+    qubit_map = {
+        other.qubits[i]: (self.qubits[q] if isinstance(q, int) else q) for i, q in enumerate(qubits)
+    }
+    for instr in other:
+        self._data.append(
+            CircuitInstruction(
+                operation=instr.operation,
+                qubits=[qubit_map[q] for q in instr.qubits],
+                clbits=instr.clbits,
+            ),
+        )
+
+    self.global_phase += other.global_phase
+    for gate, cals in other.calibrations.items():
+        self._calibrations[gate].update(cals)
+    return self
 
 
 def _transform_clifford_circuit(circuit: QuantumCircuit, basis_gates: Tuple[str]) -> QuantumCircuit:
