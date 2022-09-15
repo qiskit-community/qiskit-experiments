@@ -209,9 +209,7 @@ class BasePlotter(ABC):
 
         # Warn if any data-keys are not expected.
         unknown_data_keys = [
-            data_key
-            for data_key in data_kwargs
-            if data_key not in self.expected_figure_data_keys()()
+            data_key for data_key in data_kwargs if data_key not in self.expected_figure_data_keys()
         ]
         for unknown_data_key in unknown_data_keys:
             warnings.warn(
