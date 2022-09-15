@@ -12,16 +12,20 @@
 """
 Configurable stylesheet for :class:`BasePlotter` and :class:`BaseDrawer`.
 """
-from typing import Tuple
-from qiskit_experiments.framework import Options
 from copy import copy
+from typing import Tuple
+
+from qiskit_experiments.framework import Options
 
 
 class PlotStyle(Options):
     """A stylesheet for :class:`BasePlotter` and :class:`BaseDrawer`.
 
     This style class is used by :class:`BasePlotter` and :class:`BaseDrawer`, and must not be confused
-    with :class:`~qiskit_experiments.visualization.fit_result_plotters.PlotterStyle`. The default style for Qiskit Experiments is defined in :meth:`default_style`.
+    with :class:`~qiskit_experiments.visualization.fit_result_plotters.PlotterStyle`. The default style
+    for Qiskit Experiments is defined in :meth:`default_style`. :class:`PlotStyle` subclasses
+    :class:`Options` and has a similar interface. Extra helper methods are included to merge and update
+    instances of :class:`PlotStyle`: :meth:`merge` and :meth:`update` respectively.
     """
 
     @classmethod
@@ -31,6 +35,9 @@ class PlotStyle(Options):
         Returns:
             PlotStyle: The default plot style used by Qiskit Experiments.
         """
+        # pylint: disable = attribute-defined-outside-init
+        # We disable attribute-defined-outside-init so we can set style parameters outside of the
+        # initialization call and thus include type hints.
         new = cls()
         # size of figure (width, height)
         new.figsize: Tuple[int, int] = (8, 5)
@@ -45,10 +52,10 @@ class PlotStyle(Options):
         new.axis_label_size: int = 16
 
         # relative position of fit report
-        new.fit_report_rpos: Tuple[float, float] = (0.6, 0.95)
+        new.report_rpos: Tuple[float, float] = (0.6, 0.95)
 
         # size of fit report text
-        new.fit_report_text_size: int = 14
+        new.report_text_size: int = 14
 
         return new
 
@@ -62,7 +69,7 @@ class PlotStyle(Options):
 
     @classmethod
     def merge(cls, style1: "PlotStyle", style2: "PlotStyle") -> "PlotStyle":
-        """Merges two PlotStyle instances.
+        """Merge two PlotStyle instances into a new instance.
 
         The styles are merged such that style fields in ``style2`` have priority. i.e., a field ``foo``,
         defined in both input styles, will have the value :code-block:`style2.foo` in the output.
@@ -73,7 +80,15 @@ class PlotStyle(Options):
 
         Returns:
             PlotStyle: A plot style containing the combined fields of both input styles.
+
+        Raises:
+            RuntimeError: If either of the input styles is not of type :class:`PlotStyle`.
         """
+        if not isinstance(style1, PlotStyle) or not isinstance(style2, PlotStyle):
+            raise RuntimeError(
+                "Incorrect style type for PlotStyle.merge: expected PlotStyle but got "
+                f"{type(style1).__name__} and {type(style2).__name__}"
+            )
         new_style = copy(style1)
         new_style.update(style2)
         return new_style

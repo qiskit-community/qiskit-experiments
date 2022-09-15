@@ -13,10 +13,11 @@
 Test visualization plotter.
 """
 
-from typing import Tuple
-from test.base import QiskitExperimentsTestCase
-from qiskit_experiments.visualization import PlotStyle
 from copy import copy
+from test.base import QiskitExperimentsTestCase
+from typing import Tuple
+
+from qiskit_experiments.visualization import PlotStyle
 
 
 class TestPlotStyle(QiskitExperimentsTestCase):
@@ -56,8 +57,8 @@ class TestPlotStyle(QiskitExperimentsTestCase):
             "legend_loc",
             "tick_label_size",
             "axis_label_size",
-            "fit_report_rpos",
-            "fit_report_text_size",
+            "report_rpos",
+            "report_text_size",
         ]
         for field in expected_not_none_fields:
             self.assertIsNotNone(getattr(default, field))
@@ -93,4 +94,6 @@ class TestPlotStyle(QiskitExperimentsTestCase):
 
         # This should throw as we haven't assigned y
         with self.assertRaises(AttributeError):
+            # Disable pointless-statement as accessing style fields can raise an exception.
+            # pylint: disable = pointless-statement
             dummy_style.y

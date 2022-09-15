@@ -28,7 +28,7 @@ from .base_drawer import BaseDrawer
 
 
 class MplDrawer(BaseDrawer):
-    """Curve drawer for MatplotLib backend."""
+    """Drawer for MatplotLib backend."""
 
     DefaultMarkers = MarkerStyle().filled_markers
     DefaultColors = tab10.colors
@@ -47,12 +47,18 @@ class MplDrawer(BaseDrawer):
         def __call__(self, x, pos=None):
             return self.fix_minus("{:.3g}".format(x * self.factor))
 
+    def __init__(self):
+        super().__init__()
+        # Used to track which series have already been plotted. Needed for _get_default_marker and
+        # _get_default_color.
+        self._series = list()
+
     def initialize_canvas(self):
         # Create axis if empty
         if not self.options.axis:
             axis = get_non_gui_ax()
             figure = axis.get_figure()
-            figure.set_size_inches(*self.options.figsize)
+            figure.set_size_inches(*self.style.figsize)
         else:
             axis = self.options.axis
 
@@ -81,34 +87,34 @@ class MplDrawer(BaseDrawer):
                         sub_ax.set_yticklabels([])
                     else:
                         # this axis locates at left, write y-label
-                        if self.options.ylabel:
-                            label = self.options.ylabel
+                        if self.plot_options.ylabel:
+                            label = self.plot_options.ylabel
                             if isinstance(label, list):
                                 # Y label can be given as a list for each sub axis
                                 label = label[i]
-                            sub_ax.set_ylabel(label, fontsize=self.options.axis_label_size)
+                            sub_ax.set_ylabel(label, fontsize=self.style.axis_label_size)
                     if i != n_rows - 1:
                         # remove x axis except for most-bottom plot
                         sub_ax.set_xticklabels([])
                     else:
                         # this axis locates at bottom, write x-label
-                        if self.options.xlabel:
-                            label = self.options.xlabel
+                        if self.plot_options.xlabel:
+                            label = self.plot_options.xlabel
                             if isinstance(label, list):
                                 # X label can be given as a list for each sub axis
                                 label = label[j]
-                            sub_ax.set_xlabel(label, fontsize=self.options.axis_label_size)
+                            sub_ax.set_xlabel(label, fontsize=self.style.axis_label_size)
                     if j == 0 or i == n_rows - 1:
                         # Set label size for outer axes where labels are drawn
-                        sub_ax.tick_params(labelsize=self.options.tick_label_size)
+                        sub_ax.tick_params(labelsize=self.style.tick_label_size)
                     sub_ax.grid()
 
             # Remove original axis frames
             axis.axis("off")
         else:
-            axis.set_xlabel(self.options.xlabel, fontsize=self.options.axis_label_size)
-            axis.set_ylabel(self.options.ylabel, fontsize=self.options.axis_label_size)
-            axis.tick_params(labelsize=self.options.tick_label_size)
+            axis.set_xlabel(self.plot_options.xlabel, fontsize=self.style.axis_label_size)
+            axis.set_ylabel(self.plot_options.ylabel, fontsize=self.style.axis_label_size)
+            axis.tick_params(labelsize=self.style.tick_label_size)
             axis.grid()
 
         self._axis = axis
@@ -124,17 +130,17 @@ class MplDrawer(BaseDrawer):
         for sub_ax in all_axes:
             _, labels = sub_ax.get_legend_handles_labels()
             if len(labels) > 1:
-                sub_ax.legend()
+                sub_ax.legend(loc=self.style.legend_loc)
 
         # Format x and y axis
         for ax_type in ("x", "y"):
             # Get axis formatter from drawing options
             if ax_type == "x":
-                lim = self.options.xlim
-                unit = self.options.xval_unit
+                lim = self.plot_options.xlim
+                unit = self.plot_options.xval_unit
             else:
-                lim = self.options.ylim
-                unit = self.options.yval_unit
+                lim = self.plot_options.ylim
+                unit = self.plot_options.yval_unit
 
             # Compute data range from auto scale
             if not lim:
@@ -198,10 +204,10 @@ class MplDrawer(BaseDrawer):
                 all_axes[0].set_ylim(lim)
 
         # Add title
-        if self.options.figure_title is not None:
+        if self.plot_options.figure_title is not None:
             self._axis.set_title(
-                label=self.options.figure_title,
-                fontsize=self.options.axis_label_size,
+                label=self.plot_options.figure_title,
+                fontsize=self.style.axis_label_size,
             )
 
     def _get_axis(self, index: Optional[int] = None) -> Axes:
@@ -228,33 +234,33 @@ class MplDrawer(BaseDrawer):
             return self._axis
 
     def _get_default_color(self, name: str) -> Tuple[float, ...]:
-        """A helper method to get default color for the curve.
+        """A helper method to get default color for the series.
 
         Args:
-            name: Name of the curve.
+            name: Name of the series.
 
         Returns:
             Default color available in matplotlib.
         """
-        if name not in self._curves:
-            self._curves.append(name)
+        if name not in self._series:
+            self._series.append(name)
 
-        ind = self._curves.index(name) % len(self.DefaultColors)
+        ind = self._series.index(name) % len(self.DefaultColors)
         return self.DefaultColors[ind]
 
     def _get_default_marker(self, name: str) -> str:
         """A helper method to get default marker for the scatter plot.
 
         Args:
-            name: Name of the curve.
+            name: Name of the series.
 
         Returns:
             Default marker available in matplotlib.
         """
-        if name not in self._curves:
-            self._curves.append(name)
+        if name not in self._series:
+            self._series.append(name)
 
-        ind = self._curves.index(name) % len(self.DefaultMarkers)
+        ind = self._series.index(name) % len(self.DefaultMarkers)
         return self.DefaultMarkers[ind]
 
     def draw_raw_data(
@@ -264,9 +270,9 @@ class MplDrawer(BaseDrawer):
         name: Optional[str] = None,
         **options,
     ):
-        curve_opts = self.options.plot_options.get(name, {})
-        marker = curve_opts.get("symbol", self._get_default_marker(name))
-        axis = curve_opts.get("canvas", None)
+        series_params = self.plot_options.series_params.get(name, {})
+        marker = series_params.get("symbol", self._get_default_marker(name))
+        axis = series_params.get("canvas", None)
 
         draw_options = {
             "color": "grey",
@@ -285,10 +291,10 @@ class MplDrawer(BaseDrawer):
         name: Optional[str] = None,
         **options,
     ):
-        curve_opts = self.options.plot_options.get(name, {})
-        axis = curve_opts.get("canvas", None)
-        color = curve_opts.get("color", self._get_default_color(name))
-        marker = curve_opts.get("symbol", self._get_default_marker(name))
+        series_params = self.plot_options.series_params.get(name, {})
+        axis = series_params.get("canvas", None)
+        color = series_params.get("color", self._get_default_color(name))
+        marker = series_params.get("symbol", self._get_default_marker(name))
 
         draw_ops = {
             "color": color,
@@ -306,16 +312,16 @@ class MplDrawer(BaseDrawer):
             y_err_data = None
         self._get_axis(axis).errorbar(x_data, y_data, yerr=y_err_data, **draw_ops)
 
-    def draw_fit_line(
+    def draw_line(
         self,
         x_data: Sequence[float],
         y_data: Sequence[float],
         name: Optional[str] = None,
         **options,
     ):
-        curve_opts = self.options.plot_options.get(name, {})
-        axis = curve_opts.get("canvas", None)
-        color = curve_opts.get("color", self._get_default_color(name))
+        series_params = self.plot_options.series_params.get(name, {})
+        axis = series_params.get("canvas", None)
+        color = series_params.get("color", self._get_default_color(name))
 
         draw_ops = {
             "color": color,
@@ -334,9 +340,9 @@ class MplDrawer(BaseDrawer):
         name: Optional[str] = None,
         **options,
     ):
-        curve_opts = self.options.plot_options.get(name, {})
-        axis = curve_opts.get("canvas", None)
-        color = curve_opts.get("color", self._get_default_color(name))
+        series_params = self.plot_options.series_params.get(name, {})
+        axis = series_params.get("canvas", None)
+        color = series_params.get("color", self._get_default_color(name))
 
         draw_ops = {
             "zorder": 3,
@@ -346,7 +352,7 @@ class MplDrawer(BaseDrawer):
         draw_ops.update(**options)
         self._get_axis(axis).fill_between(x_data, y1=y_lb, y2=y_ub, **draw_ops)
 
-    def draw_fit_report(
+    def draw_report(
         self,
         description: str,
         **options,
@@ -361,11 +367,11 @@ class MplDrawer(BaseDrawer):
         bbox_props.update(**options)
 
         report_handler = self._axis.text(
-            *self.options.fit_report_rpos,
+            *self.style.report_rpos,
             s=description,
             ha="center",
             va="top",
-            size=self.options.fit_report_text_size,
+            size=self.style.report_text_size,
             transform=self._axis.transAxes,
             zorder=6,
         )

@@ -1,17 +1,48 @@
+# This code is part of Qiskit.
+#
+# (C) Copyright IBM 2022.
+#
+# This code is licensed under the Apache License, Version 2.0. You may
+# obtain a copy of this license in the LICENSE.txt file in the root directory
+# of this source tree or at http://www.apache.org/licenses/LICENSE-2.0.
+#
+# Any modifications or derivative works of this code must retain this
+# copyright notice, and modified files need to carry a notice indicating
+# that they have been altered from the originals.
+"""Plotter for curve-fits, specifically from :class:`CurveAnalysis`."""
 from typing import List
 
 from qiskit_experiments.framework import Options
-from qiskit_experiments.visualization import BaseDrawer
 
 from .base_plotter import BasePlotter
 
 
 class CurvePlotter(BasePlotter):
-    def __init__(self, drawer: BaseDrawer):
-        super().__init__(drawer)
+    """A plotter class to plot results from :class:`CurveAnalysis`.
+
+    :class:`CurvePlotter` plots results from curve-fits, which includes:
+        Raw results as a scatter plot.
+        Processed results with standard-deviations/confidence intervals.
+        Interpolated fit-results from the curve analysis.
+        Confidence interval for the fit-results.
+        A report on the performance of the fit.
+    """
 
     @classmethod
-    def _default_series_data_keys(cls) -> List[str]:
+    def expected_series_data_keys(cls) -> List[str]:
+        """Returns the expected series data-keys supported by this plotter.
+
+        Data Keys:
+            x: X-values for raw results.
+            y: Y-values for raw results. Goes with ``x``.
+            x_formatted: X-values for processed results.
+            y_formatted: Y-values for processed results. Goes with ``x_formatted``.
+            y_formatted_err: Error in ``y_formatted``, to be plotted as error-bars.
+            x_interp: Interpolated X-values for a curve-fit.
+            y_mean: Y-values corresponding to the fit for ``x_interp`` X-values.
+            sigmas: The standard-deviations of the fit for each X-value in ``x_interp``.
+                This data-key relates to the option ``plot_sigma``.
+        """
         return [
             "x",
             "y",
@@ -21,12 +52,24 @@ class CurvePlotter(BasePlotter):
             "x_interp",
             "y_mean",
             "sigmas",
-            "fit_report",
+        ]
+
+    @classmethod
+    def expected_figure_data_keys(cls) -> List[str]:
+        """Returns the expected figures data-keys supported by this plotter.
+
+        Data Keys:
+            report_text: A string containing any fit report information to be drawn in a box.
+                The style and position of the report is controlled by ``report_rpos`` and
+                ``report_text_size`` style parameters in :class:`PlotStyle`.
+        """
+        return [
+            "report_text",
         ]
 
     @classmethod
     def _default_options(cls) -> Options:
-        """Return curve-plotter specific default plotting options.
+        """Return curve-plotter specific default plotter options.
 
         Plot Options:
             plot_sigma (List[Tuple[float, float]]): A list of two number tuples
@@ -41,6 +84,7 @@ class CurvePlotter(BasePlotter):
         return options
 
     def _plot_figure(self):
+        """Plots a curve-fit figure."""
         for ser in self.series:
             # Scatter plot
             if self.data_exists_for(ser, ["x", "y"]):
@@ -55,7 +99,7 @@ class CurvePlotter(BasePlotter):
             # Line plot for fit
             if self.data_exists_for(ser, ["x_interp", "y_mean"]):
                 x, y = self.data_for(ser, ["x_interp", "y_mean"])
-                self.drawer.draw_fit_line(x, y, ser)
+                self.drawer.draw_line(x, y, ser)
 
             # Confidence interval plot
             if self.data_exists_for(ser, ["x_interp", "y_mean", "sigmas"]):
@@ -70,6 +114,6 @@ class CurvePlotter(BasePlotter):
                     )
 
             # Fit report
-            if "fit_report" in self.figure_data:
-                fit_report_description = self.figure_data["fit_report"]
-                self.drawer.draw_fit_report(fit_report_description)
+            if "report_text" in self.figure_data:
+                report_text = self.figure_data["report_text"]
+                self.drawer.draw_report(report_text)

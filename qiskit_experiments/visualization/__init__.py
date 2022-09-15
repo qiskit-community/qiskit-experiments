@@ -9,64 +9,74 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
-# r"""
-# =========================================================
-# Visualization (:mod:`qiskit_experiments.visualization`)
-# =========================================================
+r"""
+=========================================================
+Visualization (:mod:`qiskit_experiments.visualization`)
+=========================================================
 
-# .. currentmodule:: qiskit_experiments.visualization
+.. currentmodule:: qiskit_experiments.visualization
 
-# Visualization provides plotting functionality for experiment results and analysis classes. This includes
-# drawer classes to plot data in :py:class:`CurveAnalysis` and its subclasses.
+Visualization provides plotting functionality for creating figures from experiment and analysis results.
+This includes plotter and drawer classes to plot data in :py:class:`CurveAnalysis` and its subclasses.
 
-# Drawer Library
-# ==============
+Plotter Library
+==============
 
-# .. autosummary::
-#     :toctree: ../stubs/
-#     :template: autosummary/class.rst
+.. autosummary::
+    :toctree: ../stubs/
+    :template: autosummary/class.rst
 
-#     BaseDrawer
-#     MplDrawer
+    BasePlotter
+    CurvePlotter
 
-# Plotting Functions
-# ==================
+Drawer Library
+==============
 
-# .. autosummary::
-#     :toctree: ../stubs/
+.. autosummary::
+    :toctree: ../stubs/
+    :template: autosummary/class.rst
 
-#     plot_curve_fit
-#     plot_errorbar
-#     plot_scatter
+    BaseDrawer
+    MplDrawer
 
-# Curve Fitting Helpers
-# =====================
+Plotting Style
+==============
 
-# .. autosummary::
-#     :toctree: ../stubs/
-#     :template: autosummary/class.rst
+.. autosummary::
+    :toctree: ../stubs/
+    :template: autosummary/class.rst
 
-#     FitResultPlotters
-#     fit_result_plotters.MplDrawSingleCanvas
-#     fit_result_plotters.MplDrawMultiCanvasVstack
+    PlotStyle
 
-# Plotting Style
-# ==============
+Plotting Functions
+==================
 
-# .. autosummary::
-#     :toctree: ../stubs/
-#     :template: autosummary/class.rst
+.. autosummary::
+    :toctree: ../stubs/
 
-#     LegacyPlotterStyle
-#     PlotterStyle
+    plot_curve_fit
+    plot_errorbar
+    plot_scatter
 
-# """
+Curve Fitting Helpers
+=====================
+
+.. autosummary::
+    :toctree: ../stubs/
+    :template: autosummary/class.rst
+
+    FitResultPlotters
+    fit_result_plotters.MplDrawSingleCanvas
+    fit_result_plotters.MplDrawMultiCanvasVstack
+    fit_result_plotters.PlottingStyle
+
+"""
 
 from enum import Enum
 
+from .style import PlotStyle
 from .drawers import BaseDrawer, MplDrawer
 from .plotters import BasePlotter, CurvePlotter
-from .style import PlotStyle
 
 from . import fit_result_plotters
 from .curves import plot_scatter, plot_errorbar, plot_curve_fit

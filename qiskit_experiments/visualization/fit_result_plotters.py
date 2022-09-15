@@ -21,20 +21,19 @@ Note that plotter is a class that only has a class method to draw the image.
 This is just like a function, but allows serialization via Enum.
 """
 
+import dataclasses
 from collections import defaultdict
-from typing import List, Dict, Optional
+from typing import Dict, List, Optional, Tuple
 
-import uncertainties
 import numpy as np
+import uncertainties
 from matplotlib.ticker import FuncFormatter
 from qiskit.utils import detach_prefix
-
-from qiskit_experiments.curve_analysis.curve_data import SeriesDef, FitData, CurveData
+from qiskit_experiments.curve_analysis.curve_data import CurveData, FitData, SeriesDef
 from qiskit_experiments.framework import AnalysisResultData
 from qiskit_experiments.framework.matplotlib import get_non_gui_ax
-from .curves import plot_scatter, plot_errorbar, plot_curve_fit
-import dataclasses
-from typing import Tuple, List
+
+from .curves import plot_curve_fit, plot_errorbar, plot_scatter
 
 
 @dataclasses.dataclass
@@ -61,11 +60,11 @@ class PlotterStyle:
     # size of axis label
     axis_label_size: int = 16
 
-    # relative position of fit report
-    fit_report_rpos: Tuple[float, float] = (0.6, 0.95)
+    # relative position of report
+    report_rpos: Tuple[float, float] = (0.6, 0.95)
 
-    # size of fit report text
-    fit_report_text_size: int = 14
+    # size of report text
+    report_text_size: int = 14
 
     # sigma values for confidence interval, which are the tuple of (sigma, alpha).
     # the alpha indicates the transparency of the corresponding interval plot.
@@ -157,7 +156,7 @@ class MplDrawSingleCanvas:
             report_str += r"Fit $\chi^2$ = " + f"{fit_data.reduced_chisq: .4g}"
 
             report_handler = axis.text(
-                *style.fit_report_rpos,
+                *style.report_rpos,
                 report_str,
                 ha="center",
                 va="top",
@@ -309,7 +308,7 @@ class MplDrawMultiCanvasVstack:
             report_str += r"Fit $\chi^2$ = " + f"{fit_data.reduced_chisq: .4g}"
 
             report_handler = axis.text(
-                *style.fit_report_rpos,
+                *style.report_rpos,
                 report_str,
                 ha="center",
                 va="top",
