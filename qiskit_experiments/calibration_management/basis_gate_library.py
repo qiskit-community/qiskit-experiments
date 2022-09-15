@@ -189,12 +189,13 @@ class FixedFrequencyTransmon(BasisGateLibrary):
         - y: :math:`\pi` pulse around the y-axis.
         - sy: :math:`\pi/2` pulse around the y-axis.
 
-    Parameters:
-        - duration: Duration of the pulses.
-        - σ: Standard deviation of the pulses.
-        - β: DRAG parameter of the pulses.
+    Pulse parameters:
+        - duration: Duration of the pulses Default value: 160 samples.
+        - σ: Standard deviation of the pulses Default value: ``duration / 4``.
+        - β: DRAG parameter of the pulses Default value: 0.
         - amp: Amplitude of the pulses. If the parameters linked then ``x`` and ``y``
           share the same parameter and ``sx`` and ``sy`` share the same parameter.
+          Default value: 50% of the maximum output.
 
     Note that the β and amp parameters may be linked between the x and y as well as between
     the sx and sy pulses. All pulses share the same duration and σ parameters.
@@ -322,12 +323,12 @@ class EchoedCrossResonance(BasisGateLibrary):
     Required gates:
         - x: the x gate is defined outside of this library, see :class:`FixedFrequencyTransmon`.
 
-    Parameters:
-        - tgt_amp: The amplitude of the pulse applied to the target qubit.
-        - σ: The standard deviation of the flanks.
-        - amp: The amplitude of the pulses applied to the control qubit.
-        - duration: The duration of the cr45p and cr45m pulses.
-        - risefall: The number of times σ is included in the flanks of the pulses.
+    Pulse parameters:
+        - tgt_amp: The amplitude of the pulse applied to the target qubit. Default value: 0.
+        - σ: The standard deviation of the flanks. Default value: 64 samples.
+        - amp: The amplitude of the pulses applied to the control qubit. Default value: 50%.
+        - duration: The duration of the cr45p and cr45m pulses. Default value: 1168 samples.
+        - risefall: The number of σ's in the flanks of the pulses. Default value: 2.
     """
 
     __default_values__ = {"tgt_amp": 0.0, "amp": 0.5, "σ": 64, "risefall": 2, "duration": 1168}
