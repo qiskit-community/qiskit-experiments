@@ -15,7 +15,7 @@ Utilities for using the Clifford group in randomized benchmarking
 
 from functools import lru_cache
 from numbers import Integral
-from typing import Optional, Union, Tuple
+from typing import Optional, Union, Tuple, Sequence
 
 from numpy.random import Generator, default_rng
 
@@ -24,6 +24,23 @@ from qiskit.circuit import QuantumCircuit, QuantumRegister
 from qiskit.circuit.library import SdgGate, HGate, SGate
 from qiskit.compiler import transpile
 from qiskit.quantum_info import Clifford, random_clifford
+
+
+# Transpilation utilities
+def _transpile_clifford_circuit(circuit: QuantumCircuit, layout: Sequence[int]) -> QuantumCircuit:
+    return _apply_qubit_layout(_decompose_clifford_ops(circuit), layout=layout)
+
+
+def _decompose_clifford_ops(circuit: QuantumCircuit) -> QuantumCircuit:
+    return circuit.decompose(gates_to_decompose="Clifford*")
+
+
+def _apply_qubit_layout(circuit: QuantumCircuit, layout: Sequence[int]) -> QuantumCircuit:
+    res = QuantumCircuit(1 + max(layout))
+    res.compose(circuit, qubits=layout, inplace=True)
+    res.calibrations = circuit.calibrations
+    res.metadata = circuit.metadata
+    return res
 
 
 @lru_cache(maxsize=None)

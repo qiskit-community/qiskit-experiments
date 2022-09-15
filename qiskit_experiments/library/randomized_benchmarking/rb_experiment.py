@@ -33,6 +33,7 @@ from .clifford_utils import (
     CliffordUtils,
     _clifford_1q_int_to_instruction,
     _clifford_2q_int_to_instruction,
+    _transpile_clifford_circuit,
 )
 from .rb_analysis import RBAnalysis
 
@@ -292,8 +293,15 @@ class StandardRB(BaseExperiment, RestlessMixin):
 
     def _transpiled_circuits(self) -> List[QuantumCircuit]:
         """Return a list of experiment circuits, transpiled."""
-        if self.num_qubits <= 2:
-            transpiled = [self._custom_tranpile(circ) for circ in self.circuits()]
+        has_custom_transpile_option = (
+            any(opt != "basis_gates" for opt in vars(self.transpile_options))
+            and self.transpile_options.get("optimization_level", 0) != 1
+        )
+        if self.num_qubits <= 2 and not has_custom_transpile_option:
+            transpiled = [
+                _transpile_clifford_circuit(circ, layout=self.physical_qubits)
+                for circ in self.circuits()
+            ]
         else:
             transpiled = super()._transpiled_circuits()
 
@@ -319,17 +327,6 @@ class StandardRB(BaseExperiment, RestlessMixin):
             circ.metadata["count_ops"] = tuple(count_ops_result.items())
 
         return transpiled
-
-    def _custom_tranpile(self, circuit):
-        transpled = QuantumCircuit(1 + max(self.physical_qubits))
-        # Apply initial layout
-        transpled.compose(
-            circuit.decompose(gates_to_decompose="Clifford*"),
-            qubits=self.physical_qubits,
-            inplace=True,
-        )
-        transpled.metadata = circuit.metadata
-        return transpled
 
     def _metadata(self):
         metadata = super()._metadata()
