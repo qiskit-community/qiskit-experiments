@@ -226,10 +226,10 @@ class BackendTiming:
         """Delay duration close to ``time`` and consistent with timing constraints
 
         This method produces the value to pass for the ``duration`` of a
-        ``Delay`` instruction of a ``QuantumCircuit`` or a pulse schedule so
-        that the delay fills the time until the next valid pulse, assuming the
-        ``Delay`` instruction begins on a sample that is also valid for a pulse
-        to begin on.
+        ``Delay`` instruction of a ``QuantumCircuit`` schedule so that the
+        delay fills the time until the next valid pulse, assuming the ``Delay``
+        instruction begins on a sample that is also valid for a pulse to begin
+        on.
 
         The pulse timing constraints of the backend are considered in order to
         give a number of samples closest to ``time`` plus however many more
@@ -255,6 +255,22 @@ class BackendTiming:
         return self.schedule_delay(time)
 
     def schedule_delay(self, time: float) -> int:
+        """Valid delay value in samples to use in a pulse schedule for  ``time``
+
+        The pulse timing constraints of the backend are considered in order to
+        give a number of samples closest to ``time`` plus however many more
+        samples are needed to get to the next valid sample for the start of a
+        pulse in a subsequent instruction. The least common multiple of the
+        pulse and acquire alignment values is used in order to ensure that
+        either type of pulse will be aligned.
+
+        Args:
+            time: The nominal delay time to convert in seconds
+
+        Returns:
+            The delay duration in samples to pass to a ``Delay`` instruction in
+            Qiskit pulse schedule
+        """
 
         granularity = lcm(self._pulse_alignment, self._acquire_alignment)
 
@@ -264,6 +280,10 @@ class BackendTiming:
 
     def pulse_samples(self, time: float) -> int:
         """The number of samples giving a valid pulse duration closest to ``time``
+
+        The multiple of the pulse granularity giving the time closet but higher
+        than ``time`` is used. The returned value is always at least the
+        backend's ``min_length``.
 
         Args:
             time: Pulse duration in seconds
@@ -299,8 +319,9 @@ class BackendTiming:
     def delay_time(self, time: float) -> float:
         """The closest actual delay time in seconds greater than ``time``
 
-        This method uses :meth:`.BackendTiming.instruction_delay` and then
-        converts back into seconds.
+        If the backend reports ``dt``, this method uses
+        :meth:`.BackendTiming.schedule_delay` and converts the resultback into
+        seconds. Otherwise, it just returns ``time`` directly.
 
         Args:
             time: The nominal delay time to be rounded
@@ -314,7 +335,7 @@ class BackendTiming:
         return self._dt * self.schedule_delay(time)
 
     def pulse_time(self, time: float) -> float:
-        """The closest hardware-realizable pulse duration greater than ``time`` in seconds
+        """The closest valid pulse duration greater than ``time`` in seconds
 
         This method uses :meth:`.BackendTiming.pulse_samples` and then
         converts back into seconds.
