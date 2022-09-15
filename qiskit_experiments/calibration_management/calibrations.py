@@ -1049,7 +1049,7 @@ class Calibrations:
         if assign_params:
             # Add parameter links for automatic linking.
             for param, value in assign_params.items():
-                if isinstance(key, str):
+                if isinstance(param, str):
                     key = ParameterKey(param, qubits, schedule_name)
                 else:
                     key = ParameterKey(*param)
