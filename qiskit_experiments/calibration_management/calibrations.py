@@ -1047,14 +1047,12 @@ class Calibrations:
         assign_params_, linked_assign_params = dict(), dict()
 
         if assign_params:
-            for param, value in assign_params.items():
-                if isinstance(param, str):
-                    assign_params_[ParameterKey(param, qubits, schedule_name)] = value
-                else:
-                    assign_params_[ParameterKey(*param)] = value
-
             # Add parameter links for automatic linking.
-            for key, value in assign_params_.items():
+            for param, value in assign_params.items():
+                if isinstance(key, str):
+                    key = ParameterKey(param, qubits, schedule_name)
+                else:
+                    key = ParameterKey(*param)
                 linked_assign_params[key] = value
                 param = self.calibration_parameter(*key)
                 for key2 in self._parameter_map_r[param]:  # Loop over linked keys pointing to param
