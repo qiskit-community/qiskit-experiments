@@ -32,7 +32,24 @@ def _transpile_clifford_circuit(circuit: QuantumCircuit, layout: Sequence[int]) 
 
 
 def _decompose_clifford_ops(circuit: QuantumCircuit) -> QuantumCircuit:
-    return circuit.decompose(gates_to_decompose="Clifford*")
+    res = circuit.copy_empty_like()
+    for inst in circuit:
+        if inst.operation.name.startswith("Clifford"):  # Decompose
+            rule = inst.operation.definition.data
+            if len(rule) == 1 and len(inst.qubits) == len(rule[0].qubits):
+                if inst.operation.definition.global_phase:
+                    res.global_phase += inst.operation.definition.global_phase
+                res._append(rule[0].operation, qargs=inst.qubits, cargs=inst.clbits)
+            else:
+                res.compose(
+                    inst.operation.definition,
+                    qubits=inst.qubits,
+                    clbits=inst.clbits,
+                    inplace=True,
+                )
+        else:  # Keep the original instruction
+            res._append(inst)
+    return res
 
 
 def _apply_qubit_layout(circuit: QuantumCircuit, layout: Sequence[int]) -> QuantumCircuit:
