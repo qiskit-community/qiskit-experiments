@@ -197,7 +197,7 @@ class FixedFrequencyTransmon(BasisGateLibrary):
           share the same parameter and ``sx`` and ``sy`` share the same parameter.
 
     Note that the β and amp parameters may be linked between the x and y as well as between
-    the sx and sy pulses.
+    the sx and sy pulses. All pulses share the same duration and σ parameters.
     """
 
     __default_values__ = {"duration": 160, "amp": 0.5, "β": 0.0}
