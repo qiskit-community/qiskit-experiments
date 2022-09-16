@@ -93,8 +93,9 @@ class BackendTiming:
 
     To help avoid these problems, :class:`.BackendTiming` provides methods for
     calculating pulse and delay durations in samples and seconds, for a given
-    input duration in seconds. If these values are used for all durations in a
-    circuit, the alignment constraints should always be satisfied.
+    input duration in samples or seconds. If these values are used for all
+    durations in a circuit, the alignment constraints should always be
+    satisfied.
 
     As an example use-case for :class:`.BackendTiming`, consider a T1 experiment
     where delay times are specified in seconds and a
