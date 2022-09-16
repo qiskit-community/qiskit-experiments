@@ -195,7 +195,7 @@ class MplCurveDrawer(BaseCurveDrawer):
                 # instead, but this can only be called once per axis. Here we call sharey  on all axes in
                 # a chain, which should have the same effect.
                 if len(all_axes) > 1:
-                    for ax1, ax2 in zip(all_axes[1:],all_axes[0:-1]):
+                    for ax1, ax2 in zip(all_axes[1:], all_axes[0:-1]):
                         ax1.sharex(ax2)
                 all_axes[0].set_xlim(lim)
             else:
@@ -203,7 +203,7 @@ class MplCurveDrawer(BaseCurveDrawer):
                 # instead, but this can only be called once per axis. Here we call sharey  on all axes in
                 # a chain, which should have the same effect.
                 if len(all_axes) > 1:
-                    for ax1, ax2 in zip(all_axes[1:],all_axes[0:-1]):
+                    for ax1, ax2 in zip(all_axes[1:], all_axes[0:-1]):
                         ax1.sharey(ax2)
                 all_axes[0].set_ylim(lim)
         # Add title
