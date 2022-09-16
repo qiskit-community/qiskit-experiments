@@ -1,0 +1,7 @@
+---
+fixes:
+  - |
+    Fix failing tests related to Matplotlib 3.6.0 by pinning version to >=3.4 and <3.6.
+  - |
+    Fix failing tests related to Qiskit Aer version 0.11.0 and its namespace change by pinning version to
+    >=0.10.0 and <0.11.
