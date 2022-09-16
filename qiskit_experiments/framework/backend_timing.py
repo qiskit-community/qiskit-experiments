@@ -290,6 +290,18 @@ class BackendTiming:
 
         Returns:
             The number of samples corresponding to ``time``
+        """
+        return self.round_pulse_samples(time / self._dt)
+
+    def round_pulse_samples(self, samples: Union[float, int]) -> int:
+        """Round a nominal pulse sample duration to a valid number
+
+        Args:
+            samples: Nominal pulse duration
+
+        Returns:
+            A sample duration close to ``samples`` and consistent with the
+            backend's timing constraints
 
         Raises:
             QiskitError: If the algorithm used to calculate the pulse length
@@ -298,7 +310,7 @@ class BackendTiming:
                 alignment constraints provided by the backend do not fit the
                 assumptions that the algorithm makes.
         """
-        samples = int(round(time / self._dt / self._granularity)) * self._granularity
+        samples = int(round(samples / self._granularity)) * self._granularity
         samples = max(samples, self._min_length)
 
         pulse_alignment = self._pulse_alignment
