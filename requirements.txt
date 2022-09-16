@@ -3,7 +3,6 @@ scipy>=1.4
 qiskit-terra>=0.21.1
 qiskit-ibmq-provider>=0.16.0
 qiskit-ibm-experiment>=0.2.5
-# FIXME: Remove maximum version once bugs discussed in #909, #910, #911 have been fixed.
-matplotlib>=3.4,<3.6
+matplotlib>=3.4
 uncertainties
 lmfit
