@@ -19,8 +19,8 @@ from ddt import ddt, data, unpack
 from qiskit.circuit import Delay, QuantumCircuit
 from qiskit.circuit.library import SXGate, CXGate, TGate, XGate
 from qiskit.exceptions import QiskitError
-from qiskit.providers.aer import AerSimulator
-from qiskit.providers.aer.noise import NoiseModel, depolarizing_error
+from qiskit_aer import AerSimulator
+from qiskit_aer.noise import NoiseModel, depolarizing_error
 from qiskit.quantum_info import Clifford
 
 from qiskit_experiments.library import randomized_benchmarking as rb

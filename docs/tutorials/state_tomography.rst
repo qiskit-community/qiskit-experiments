@@ -8,7 +8,7 @@ Quantum State Tomography
     from qiskit_experiments.library import StateTomography
     
     # For simulation
-    from qiskit.providers.aer import AerSimulator
+    from qiskit_aer import AerSimulator
     from qiskit.providers.fake_provider import FakeParis
     
     # Noisy simulator backend
