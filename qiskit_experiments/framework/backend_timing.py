@@ -185,11 +185,12 @@ class BackendTiming:
         backend_data = BackendData(backend)
 
         # Pull all the timing data from the backend
-        self._backend_data_dt = backend_data.dt
         self._acquire_alignment = backend_data.acquire_alignment
         self._granularity = backend_data.granularity
         self._min_length = backend_data.min_length
         self._pulse_alignment = backend_data.pulse_alignment
+        #: The backend's ``dt`` value, copied to :class:`.BackendTiming` for convenience
+        self.dt = backend_data.dt
 
     @property
     def delay_unit(self) -> str:
@@ -198,29 +199,10 @@ class BackendTiming:
         "dt" is used if dt is present in the backend configuration. Otherwise
         "s" is used.
         """
-        if self._backend_data_dt is not None:
+        if self.dt is not None:
             return "dt"
 
         return "s"
-
-    @property
-    def _dt(self) -> float:
-        """Backend dt value
-
-        This property wraps :code:`.BackendData.dt` in order to give a more
-        specific error message when trying to use ``dt`` with a backend that
-        does not provide it rather than just giving a ``TypeError`` about
-        ``NoneType``. As this raises an exception when ``dt`` is not set, it
-        likely should not be used by external code using
-        :class:`.BackendTiming`.
-
-        Raises:
-            QiskitError: The backend does not include a dt value.
-        """
-        if self._backend_data_dt is not None:
-            return float(self._backend_data_dt)
-
-        raise QiskitError("Backend has no dt value.")
 
     def circuit_delay(self, time: float) -> Union[int, float]:
         """Delay duration close to ``time`` and consistent with timing constraints
@@ -270,19 +252,24 @@ class BackendTiming:
         Returns:
             The delay duration in samples to pass to a ``Delay`` instruction in
             Qiskit pulse schedule
+
+        Raises:
+            QiskitError: The backend does not include a dt value.
         """
+        if self.dt is None:
+            raise QiskitError("Backend has no dt value.")
 
         granularity = lcm(self._pulse_alignment, self._acquire_alignment)
 
-        samples = int(round(time / self._dt / granularity) * granularity)
+        samples = int(round(time / self.dt / granularity) * granularity)
 
         return samples
 
     def pulse_samples(self, time: float) -> int:
         """The number of samples giving a valid pulse duration closest to ``time``
 
-        The multiple of the pulse granularity giving the time closet but higher
-        than ``time`` is used. The returned value is always at least the
+        The multiple of the pulse granularity giving the time closest to but
+        higher than ``time`` is used. The returned value is always at least the
         backend's ``min_length``.
 
         Args:
@@ -290,11 +277,21 @@ class BackendTiming:
 
         Returns:
             The number of samples corresponding to ``time``
+
+        Raises:
+            QiskitError: The backend does not include a dt value.
         """
-        return self.round_pulse_samples(time / self._dt)
+        if self.dt is None:
+            raise QiskitError("Backend has no dt value.")
+
+        return self.round_pulse_samples(time / self.dt)
 
     def round_pulse_samples(self, samples: Union[float, int]) -> int:
         """Round a nominal pulse sample duration to a valid number
+
+        The multiple of the pulse granularity giving the samples closest to but
+        higher than ``samples`` is used. The returned value is always at least
+        the backend's ``min_length``.
 
         Args:
             samples: Nominal pulse duration
@@ -344,7 +341,7 @@ class BackendTiming:
         if self.delay_unit == "s":
             return time
 
-        return self._dt * self.schedule_delay(time)
+        return self.dt * self.schedule_delay(time)
 
     def pulse_time(self, time: float) -> float:
         """The closest valid pulse duration greater than ``time`` in seconds
@@ -357,5 +354,11 @@ class BackendTiming:
 
         Returns:
             The realizable pulse time in seconds
+
+        Raises:
+            QiskitError: The backend does not include a dt value.
         """
-        return self._dt * self.pulse_samples(time)
+        if self.dt is None:
+            raise QiskitError("Backend has no dt value.")
+
+        return self.dt * self.pulse_samples(time)
