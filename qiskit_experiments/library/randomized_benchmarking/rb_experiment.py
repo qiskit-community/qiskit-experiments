@@ -29,9 +29,12 @@ from qiskit.quantum_info.random import random_clifford
 from qiskit_experiments.framework import BaseExperiment, Options
 from qiskit_experiments.framework.restless_mixin import RestlessMixin
 from .clifford_utils import (
-    CliffordUtils,
     _clifford_1q_int_to_instruction,
     _clifford_2q_int_to_instruction,
+    compose_1q,
+    compose_2q,
+    inverse_1q,
+    inverse_2q,
 )
 from .rb_analysis import RBAnalysis
 
@@ -238,28 +241,18 @@ class StandardRB(BaseExperiment, RestlessMixin):
     def __compose_clifford(
         self, lop: SequenceElementType, rop: SequenceElementType
     ) -> SequenceElementType:
-        # TODO: Speed up 1Q (and 2Q) cases using integer clifford composition
-        # Integer clifford composition has not yet supported
         if self.num_qubits == 1:
-            if isinstance(lop, Integral):
-                lop = CliffordUtils.clifford_1_qubit(lop)
-            if isinstance(rop, Integral):
-                rop = CliffordUtils.clifford_1_qubit(rop)
+            return compose_1q(lop, rop)
         if self.num_qubits == 2:
-            if isinstance(lop, Integral):
-                lop = CliffordUtils.clifford_2_qubit(lop)
-            if isinstance(rop, Integral):
-                rop = CliffordUtils.clifford_2_qubit(rop)
+            return compose_2q(lop, rop)
         return lop.compose(rop)
 
     def __adjoint_clifford(self, op: SequenceElementType) -> SequenceElementType:
-        # TODO: Speed up 1Q and 2Q cases using integer clifford inversion
-        # Integer clifford inversion has not yet supported
         if isinstance(op, Integral):
             if self.num_qubits == 1:
-                return CliffordUtils.clifford_1_qubit(op).adjoint()
+                return inverse_1q(op)
             if self.num_qubits == 2:
-                return CliffordUtils.clifford_2_qubit(op).adjoint()
+                return inverse_2q(op)
         return op.adjoint()
 
     def _transpiled_circuits(self) -> List[QuantumCircuit]:

@@ -12,16 +12,19 @@
 """
 Utilities for using the Clifford group in randomized benchmarking
 """
-
+import itertools
+import os
 from functools import lru_cache
 from numbers import Integral
-from typing import Optional, Union
+from typing import Optional, Union, Tuple
 
+import numpy as np
 from numpy.random import Generator, default_rng
 
 from qiskit.circuit import Gate, Instruction
 from qiskit.circuit import QuantumCircuit, QuantumRegister
-from qiskit.circuit.library import SdgGate, HGate, SGate
+from qiskit.circuit.library import SdgGate, HGate, SGate, XGate, YGate, ZGate
+from qiskit.exceptions import QiskitError
 from qiskit.quantum_info import Clifford, random_clifford
 
 
@@ -242,3 +245,346 @@ class CliffordUtils:
                 return [i] + CliffordUtils._unpack_num(num, sig)
             num -= sig_size
         return None
+
+
+NUM_CLIFFORD_1Q = 24
+NUM_CLIFFORD_2Q = 11520
+CLIFF_SINGLE_GATE_MAP_1Q = {
+    ("id", (0,)): 0,
+    ("h", (0,)): 1,
+    ("sxdg", (0,)): 2,
+    ("s", (0,)): 4,
+    ("x", (0,)): 6,
+    ("sx", (0,)): 8,
+    ("y", (0,)): 12,
+    ("z", (0,)): 18,
+    ("sdg", (0,)): 22,
+}
+CLIFF_SINGLE_GATE_MAP_2Q = {
+    ("id", (0,)): 0,
+    ("id", (1,)): 0,
+    ("h", (0,)): 1,
+    ("h", (1,)): 2,
+    ("sxdg", (0,)): 4,
+    ("sxdg", (1,)): 12,
+    ("s", (0,)): 8,
+    ("s", (1,)): 24,
+    ("x", (0,)): 36,
+    ("x", (1,)): 144,
+    ("sx", (0,)): 40,
+    ("sx", (1,)): 156,
+    ("y", (0,)): 72,
+    ("y", (1,)): 288,
+    ("z", (0,)): 108,
+    ("z", (1,)): 432,
+    ("sdg", (0,)): 116,
+    ("sdg", (1,)): 456,
+    ("cx", (0, 1)): 576,
+    ("cx", (1, 0)): 851,
+    ("cz", (0, 1)): 806,
+    ("cz", (1, 0)): 806,
+}
+
+
+########
+# Functions for 1-qubit integer Clifford operations
+def num_from_1q_gate(op: Instruction) -> int:
+    """
+    Convert a given 1-qubit clifford operation to the corresponding integer.
+    Note that supported operations are limited to ones in `CLIFF_SINGLE_GATE_MAP_1Q` or Rz gate.
+
+    Args:
+        op: operation to be converted.
+
+    Returns:
+        An integer representing a Clifford consisting of a single operation.
+
+    Raises:
+        QiskitError: if the input instruction is not a Clifford instruction.
+        QiskitError: if rz is given with a angle that is not Clifford.
+    """
+    if op.name in {"delay", "barrier"}:
+        return 0
+    try:
+        name = _deparameterized_name(op)
+        return CLIFF_SINGLE_GATE_MAP_1Q[(name, (0,))]
+    except QiskitError as err:
+        raise QiskitError(
+            f"Parameterized instruction {op.name} could not be converted to integer Clifford"
+        ) from err
+    except KeyError as err:
+        raise QiskitError(
+            f"Instruction {op.name} could not be converted to integer Clifford"
+        ) from err
+
+
+def num_from_1q_circuit(qc: QuantumCircuit) -> Integral:
+    """Convert a given 1-qubit Clifford circuit to the corresponding integer."""
+    num = 0
+    for inst in qc:
+        rhs = num_from_1q_gate(op=inst.operation)
+        num = CLIFFORD_COMPOSE_1Q[num][rhs]
+    return num
+
+
+def _hash_cliff(cliff):
+    """Produce a hashable value that is unique for each different Clifford.  This should only be
+    used internally when the classes being hashed are under our control, because classes of this
+    type are mutable."""
+    table = cliff.table
+    abits = np.packbits(table.array)
+    pbits = np.packbits(table.phase)
+    return abits.tobytes(), pbits.tobytes()
+
+
+_TO_CLIFF = {i: CliffordUtils.clifford_1_qubit(i) for i in range(NUM_CLIFFORD_1Q)}
+_TO_INT = {_hash_cliff(cliff): i for i, cliff in _TO_CLIFF.items()}
+
+
+def _create_compose_map_1q():
+    products = np.zeros((NUM_CLIFFORD_1Q, NUM_CLIFFORD_1Q), dtype=int)
+    for i in range(NUM_CLIFFORD_1Q):
+        for j in range(NUM_CLIFFORD_1Q):
+            cliff = _TO_CLIFF[i].compose(_TO_CLIFF[j])
+            products[i][j] = _TO_INT[_hash_cliff(cliff)]
+
+    return products
+
+
+def _create_inverse_map_1q():
+    invs = np.zeros(NUM_CLIFFORD_1Q, dtype=int)
+    for i in range(NUM_CLIFFORD_1Q):
+        invs[i] = _TO_INT[_hash_cliff(_TO_CLIFF[i].adjoint())]
+
+    return invs
+
+
+CLIFFORD_COMPOSE_1Q = _create_compose_map_1q()
+CLIFFORD_INVERSE_1Q = _create_inverse_map_1q()
+
+
+def compose_1q(lhs: Integral, rhs: Integral) -> Integral:
+    """Return the composition of 1-qubit clifford integers."""
+    return CLIFFORD_COMPOSE_1Q[lhs][rhs]
+
+
+def inverse_1q(num: Integral) -> Integral:
+    """Return the inverse of 1-qubit clifford integers."""
+    return CLIFFORD_INVERSE_1Q[num]
+
+
+def _deparameterized_name(inst: Instruction) -> str:
+    if inst.name == "rz":
+        if np.isclose(inst.params[0], np.pi) or np.isclose(inst.params[0], -np.pi):
+            return "z"
+        elif np.isclose(inst.params[0], np.pi / 2):
+            return "s"
+        elif np.isclose(inst.params[0], -np.pi / 2):
+            return "sdg"
+        else:
+            raise QiskitError("Wrong param {} for rz in clifford".format(inst.params[0]))
+
+    return inst.name
+
+
+########
+# Functions for 2-qubit integer Clifford operations
+def num_from_2q_gate(
+    op: Instruction, qubits: Optional[Union[Tuple[int, int], Tuple[int]]] = None
+) -> int:
+    """
+    Convert a given 1-qubit clifford operation to the corresponding integer.
+    Note that supported operations are limited to ones in `CLIFF_SINGLE_GATE_MAP_2Q` or Rz gate.
+
+    Args:
+        op: operation of instruction to be converted.
+        qubits: qubits to which the operation applies
+
+    Returns:
+        An integer representing a Clifford consisting of a single operation.
+
+    Raises:
+        QiskitError: if the input instruction is not a Clifford instruction.
+        QiskitError: if rz is given with a angle that is not Clifford.
+    """
+    if op.name in {"delay", "barrier"}:
+        return 0
+
+    qubits = qubits or (0, 1)
+    try:
+        name = _deparameterized_name(op)
+        return CLIFF_SINGLE_GATE_MAP_2Q[(name, qubits)]
+    except QiskitError as err:
+        raise QiskitError(
+            f"Parameterized instruction {op.name} could not be converted to integer Clifford"
+        ) from err
+    except KeyError as err:
+        raise QiskitError(
+            f"Instruction {op.name} on {qubits} could not be converted to integer Clifford"
+        ) from err
+
+
+def num_from_2q_circuit(qc: QuantumCircuit) -> Integral:
+    """Convert a given 2-qubit Clifford circuit to the corresponding integer."""
+    return _compose_num_with_circuit_2q(0, qc)
+
+
+def _compose_num_with_circuit_2q(num: Integral, qc: QuantumCircuit) -> Integral:
+    """Compose a number that represents a Clifford, with a Clifford circuit, and return the
+    number that represents the resulting Clifford."""
+    lhs = num
+    for inst in qc:
+        qubits = tuple(qc.find_bit(q).index for q in inst.qubits)
+        rhs = num_from_2q_gate(op=inst.operation, qubits=qubits)
+        try:
+            lhs = _CLIFFORD_COMPOSE_2Q_GATE[lhs][rhs]
+        except KeyError as err:
+            raise Exception(f"_CLIFFORD_COMPOSE_2Q_GATE[{lhs}][{rhs}]") from err
+    return lhs
+
+
+# TODO: Add explanation
+num_from_gate = {
+    1: num_from_1q_gate,
+    2: num_from_2q_gate,
+}
+num_from_circuit = {
+    1: num_from_1q_circuit,
+    2: num_from_2q_circuit,
+}
+
+
+def _append_v_w(qc, vw0, vw1):
+    if vw0 == "v":
+        qc.sdg(0)
+        qc.h(0)
+    elif vw0 == "w":
+        qc.h(0)
+        qc.s(0)
+    if vw1 == "v":
+        qc.sdg(1)
+        qc.h(1)
+    elif vw1 == "w":
+        qc.h(1)
+        qc.s(1)
+
+
+def _create_cliff_2q_layer_0():
+    """Layer 0 consists of 0 or 1 H gates on each qubit, followed by 0/1/2 V gates on each qubit.
+    Number of Cliffords == 36."""
+    circuits = []
+    num_h = [0, 1]
+    v_w_gates = ["i", "v", "w"]
+    for h0, h1, v0, v1 in itertools.product(num_h, num_h, v_w_gates, v_w_gates):
+        qc = QuantumCircuit(2)
+        for _ in range(h0):
+            qc.h(0)
+        for _ in range(h1):
+            qc.h(1)
+        _append_v_w(qc, v0, v1)
+        circuits.append(qc)
+    return circuits
+
+
+def _create_cliff_2q_layer_1():
+    """Layer 1 consists of one of the following:
+    - nothing
+    - cx(0,1) followed by 0/1/2 V gates on each qubit
+    - cx(0,1), cx(1,0) followed by 0/1/2 V gates on each qubit
+    - cx(0,1), cx(1,0), cx(0,1)
+    Number of Cliffords == 20."""
+    circuits = [QuantumCircuit(2)]  # identity at the beginning
+
+    v_w_gates = ["i", "v", "w"]
+    for v0, v1 in itertools.product(v_w_gates, v_w_gates):
+        qc = QuantumCircuit(2)
+        qc.cx(0, 1)
+        _append_v_w(qc, v0, v1)
+        circuits.append(qc)
+
+    for v0, v1 in itertools.product(v_w_gates, v_w_gates):
+        qc = QuantumCircuit(2)
+        qc.cx(0, 1)
+        qc.cx(1, 0)
+        _append_v_w(qc, v0, v1)
+        circuits.append(qc)
+
+    qc = QuantumCircuit(2)  # swap at the end
+    qc.cx(0, 1)
+    qc.cx(1, 0)
+    qc.cx(0, 1)
+    circuits.append(qc)
+    return circuits
+
+
+def _create_cliff_2q_layer_2():
+    """Layer 2 consists of a Pauli gate on each qubit {Id, X, Y, Z}.
+    Number of Cliffords == 16."""
+    circuits = []
+    pauli = ("i", XGate(), YGate(), ZGate())
+    for p0, p1 in itertools.product(pauli, pauli):
+        qc = QuantumCircuit(2)
+        if p0 != "i":
+            qc.append(p0, [0])
+        if p1 != "i":
+            qc.append(p1, [1])
+        circuits.append(qc)
+    return circuits
+
+
+def _load_clifford_compose_2q():
+    dirname = os.path.dirname(__file__)
+    data = np.load(f"{dirname}/data/clifford_compose_2q_gate.npz")
+    table = []
+    for row in data["table"]:
+        dic = {rhs: result for result, rhs in zip(row, CLIFF_SINGLE_GATE_MAP_2Q.values())}
+        table.append(dic)
+    return table
+
+
+def _load_clifford_inverse_2q():
+    dirname = os.path.dirname(__file__)
+    data = np.load(f"{dirname}/data/clifford_inverse_2q.npz")
+    return data["table"]
+
+
+_NUM_LAYER_0 = 36
+_NUM_LAYER_1 = 20
+_NUM_LAYER_2 = 16
+_CLIFFORD_LAYER = (
+    _create_cliff_2q_layer_0(),
+    _create_cliff_2q_layer_1(),
+    _create_cliff_2q_layer_2(),
+)
+
+_CLIFFORD_COMPOSE_2Q_GATE = _load_clifford_compose_2q()
+CLIFFORD_INVERSE_2Q = _load_clifford_inverse_2q()
+
+
+def compose_2q(lhs: Integral, rhs: Integral) -> Integral:
+    """Return the composition of 2-qubit clifford integers."""
+    num = lhs
+    for layour, idx in enumerate(_layer_indices_from_num(rhs)):
+        circ = _CLIFFORD_LAYER[layour][idx]
+        num = _compose_num_with_circuit_2q(num, circ)
+    return num
+
+
+def inverse_2q(num: Integral) -> Integral:
+    """Return the inverse of 2-qubit clifford integers."""
+    return CLIFFORD_INVERSE_2Q[num]
+
+
+def _num_from_layer_indices(triplet: Tuple[Integral, Integral, Integral]) -> Integral:
+    """Return the clifford number corresponding to the input triplet."""
+    num = triplet[0] * _NUM_LAYER_1 * _NUM_LAYER_2 + triplet[1] * _NUM_LAYER_2 + triplet[2]
+    return num
+
+
+def _layer_indices_from_num(num: Integral) -> Tuple[Integral, Integral, Integral]:
+    """Return the triplet of layer indices corresponding to the input number."""
+    idx2 = num % _NUM_LAYER_2
+    num = num // _NUM_LAYER_2
+    idx1 = num % _NUM_LAYER_1
+    idx0 = num // _NUM_LAYER_1
+    return idx0, idx1, idx2

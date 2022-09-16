@@ -25,6 +25,10 @@ from qiskit.providers.backend import Backend
 
 from .rb_experiment import StandardRB, SequenceElementType
 from .interleaved_rb_analysis import InterleavedRBAnalysis
+from .clifford_utils import (
+    num_from_gate,
+    num_from_circuit,
+)
 
 
 class InterleavedRB(StandardRB):
@@ -85,6 +89,18 @@ class InterleavedRB(StandardRB):
             raise QiskitError(
                 f"Interleaved element {interleaved_element.name} could not be converted to Clifford."
             ) from err
+        # Convert interleaved element to integer for speed
+        num_qubits = len(qubits)
+        if num_qubits <= 2:
+            interleaved_circ = None
+            if isinstance(interleaved_element, QuantumCircuit):
+                interleaved_circ = interleaved_element
+            elif isinstance(interleaved_element, Clifford):
+                interleaved_circ = interleaved_element.to_circuit()
+            else:  # Instruction
+                self._interleaved_elem = num_from_gate[num_qubits](interleaved_element)
+            if interleaved_circ:
+                self._interleaved_elem = num_from_circuit[num_qubits](interleaved_circ)
         # Convert interleaved element to operation
         self._interleaved_op = interleaved_element
         if not isinstance(interleaved_element, Instruction):
