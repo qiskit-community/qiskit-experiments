@@ -145,7 +145,7 @@ class BackendTiming:
             template_circ = QuantumCircuit(1, 1)
             template_circ.append(gate, [0])
             template_circ.measure(0, 0)
-            template_circ.add_calibration(gate, (0,), sched, params=[dur])
+            template_circ.add_calibration(gate, (0,), sched)
 
             # Pass experiment to BackendTiming
             timing = BackendTiming(self)
