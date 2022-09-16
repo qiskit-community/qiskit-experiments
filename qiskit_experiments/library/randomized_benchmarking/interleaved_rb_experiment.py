@@ -25,7 +25,8 @@ from qiskit.providers.backend import Backend
 from qiskit.quantum_info import Clifford
 from qiskit.transpiler.exceptions import TranspilerError
 from qiskit_experiments.framework.backend_timing import BackendTiming
-from .clifford_utils import CliffordUtils, _truncate_inactive_qubits
+from .clifford_utils import _truncate_inactive_qubits
+from .clifford_utils import num_from_circuit
 from .interleaved_rb_analysis import InterleavedRBAnalysis
 from .rb_experiment import StandardRB, SequenceElementType
 
@@ -142,10 +143,7 @@ class InterleavedRB(StandardRB):
         # Convert interleaved element to integer for speed
         if self.num_qubits <= 2:
             interleaved_circ = self._interleaved_elem.to_circuit()
-            utils = CliffordUtils(
-                self.num_qubits, basis_gates=self._get_basis_gates()
-            )  # TODO: cleanup
-            self._interleaved_elem = utils.compose_num_with_clifford(0, interleaved_circ)
+            self._interleaved_elem = num_from_circuit[self.num_qubits](interleaved_circ)
         self._interleaved_op = interleaved_element
         self.analysis = InterleavedRBAnalysis()
         self.analysis.set_options(outcome="0" * self.num_qubits)
@@ -159,11 +157,8 @@ class InterleavedRB(StandardRB):
         Raises:
             QiskitError: if failed to transpile interleaved_element.
         """
-        basis_gates = self._get_basis_gates()
-        self._cliff_utils = CliffordUtils(self.num_qubits, basis_gates=basis_gates)  # TODO: cleanup
-
         # Convert interleaved element to transpiled circuit operation and store it for speed
-        self.__set_up_interleaved_op(basis_gates)
+        self.__set_up_interleaved_op()
 
         # Build circuits of reference sequences
         reference_sequences = self._sample_sequences()
@@ -201,8 +196,9 @@ class InterleavedRB(StandardRB):
 
         return super()._to_instruction(elem, basis_gates)
 
-    def __set_up_interleaved_op(self, basis_gates: Optional[Tuple[str, ...]]) -> None:
+    def __set_up_interleaved_op(self) -> None:
         # Convert interleaved element to transpiled circuit operation and store it for speed
+        basis_gates = self._get_basis_gates()
         # Convert interleaved element to circuit
         if isinstance(self._interleaved_op, QuantumCircuit):
             interleaved_circ = self._interleaved_op

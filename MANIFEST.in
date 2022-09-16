@@ -1,3 +1,4 @@
 include LICENSE.txt
 include requirements.txt
 include qiskit_experiments/VERSION.txt
+recursive-include qiskit_experiments/library/randomized_benchmarking/data *

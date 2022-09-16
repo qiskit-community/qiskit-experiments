@@ -32,6 +32,10 @@ from qiskit_experiments.framework import BaseExperiment, Options
 from qiskit_experiments.framework.restless_mixin import RestlessMixin
 from .clifford_utils import (
     CliffordUtils,
+    compose_1q,
+    compose_2q,
+    inverse_1q,
+    inverse_2q,
     _clifford_1q_int_to_instruction,
     _clifford_2q_int_to_instruction,
     _transpile_clifford_circuit,
@@ -117,8 +121,6 @@ class StandardRB(BaseExperiment, RestlessMixin):
         )
         self.analysis.set_options(outcome="0" * self.num_qubits)
 
-        self._cliff_utils = None  # TODO: cleanup
-
     @classmethod
     def _default_experiment_options(cls) -> Options:
         """Default experiment options.
@@ -156,9 +158,6 @@ class StandardRB(BaseExperiment, RestlessMixin):
         Returns:
             A list of :class:`QuantumCircuit`.
         """
-        self._cliff_utils = CliffordUtils(
-            self.num_qubits, basis_gates=self._get_basis_gates()
-        )  # TODO: cleanup
         # Sample random Clifford sequences
         sequences = self._sample_sequences()
         # Convert each sequence into circuit and append the inverse to the end.
@@ -265,7 +264,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
         return [random_clifford(self.num_qubits, rng).to_circuit() for _ in range(length)]
 
     def _to_instruction(
-        self, elem: SequenceElementType, basis_gates: Optional[Tuple[str]] = None
+        self, elem: SequenceElementType, basis_gates: Optional[Tuple[str, ...]] = None
     ) -> Instruction:
         # Switching for speed up
         if isinstance(elem, Integral):
@@ -299,21 +298,19 @@ class StandardRB(BaseExperiment, RestlessMixin):
     def __compose_clifford(
         self, left_elem: SequenceElementType, right_elem: SequenceElementType
     ) -> SequenceElementType:
-        if self.num_qubits <= 2:
-            utils = self._cliff_utils
-            return utils.compose_num_with_clifford(
-                left_elem, utils.create_cliff_from_num(right_elem)
-            )
-
+        if self.num_qubits == 1:
+            return compose_1q(left_elem, right_elem)
+        if self.num_qubits == 2:
+            return compose_2q(left_elem, right_elem)
         return left_elem.compose(right_elem)
 
     def __adjoint_clifford(self, op: SequenceElementType) -> SequenceElementType:
-        if self.num_qubits <= 2:
-            return self._cliff_utils.inverse_cliff(op)
-
+        if self.num_qubits == 1:
+            return inverse_1q(op)
+        if self.num_qubits == 2:
+            return inverse_2q(op)
         if isinstance(op, QuantumCircuit):
             return Clifford.from_circuit(op).adjoint()
-
         return op.adjoint()
 
     def _transpiled_circuits(self) -> List[QuantumCircuit]:
