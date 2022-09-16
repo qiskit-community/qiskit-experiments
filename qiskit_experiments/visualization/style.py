@@ -13,7 +13,7 @@
 Configurable stylesheet for :class:`BasePlotter` and :class:`BaseDrawer`.
 """
 from copy import copy
-from typing import Tuple
+from typing import Dict, Tuple
 
 from qiskit_experiments.framework import Options
 
@@ -92,3 +92,27 @@ class PlotStyle(Options):
         new_style = copy(style1)
         new_style.update(style2)
         return new_style
+
+    def config(self) -> Dict:
+        """Return the config dictionary for this PlotStyle instance.
+
+        .. Note::
+            Validators are not currently supported
+
+        Returns:
+            dict: A dictionary containing the config of the plot style.
+        """
+        return {
+            "cls": type(self),
+            **self._fields,
+        }
+
+    def __json_encode__(self):
+        return self.config()
+
+    @classmethod
+    def __json_decode__(cls, value):
+        kwargs = value
+        kwargs.pop("cls")
+        inst = cls(**kwargs)
+        return inst

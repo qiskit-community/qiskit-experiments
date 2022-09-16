@@ -420,16 +420,17 @@ class BasePlotter(ABC):
 
     def config(self) -> Dict:
         """Return the config dictionary for this drawing."""
-        # FIXME: Figure out how self._drawer should be serialized?
         options = dict((key, getattr(self._options, key)) for key in self._set_options)
         plot_options = dict(
             (key, getattr(self._plot_options, key)) for key in self._set_plot_options
         )
+        drawer = self.drawer.__json_encode__()
 
         return {
             "cls": type(self),
             "options": options,
             "plot_options": plot_options,
+            "drawer": drawer,
         }
 
     def __json_encode__(self):
@@ -437,8 +438,13 @@ class BasePlotter(ABC):
 
     @classmethod
     def __json_decode__(cls, value):
-        # FIXME: Figure out how self._drawer:BaseDrawer be serialized?
-        drawer = value["drawer"]
+        ## Process drawer as it's needed to create a plotter
+        drawer_values = value["drawer"]
+        # We expect a subclass of BaseDrawer
+        drawer_cls: BaseDrawer = drawer_values["cls"]
+        drawer = drawer_cls.__json_decode__(drawer_values)
+
+        # Create plotter instance
         instance = cls(drawer)
         if "options" in value:
             instance.set_options(**value["options"])

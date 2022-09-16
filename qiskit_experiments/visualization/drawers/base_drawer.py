@@ -307,8 +307,15 @@ class BaseDrawer(ABC):
     def config(self) -> Dict:
         """Return the config dictionary for this drawer."""
         options = dict((key, getattr(self._options, key)) for key in self._set_options)
+        plot_options = dict(
+            (key, getattr(self._plot_options, key)) for key in self._set_plot_options
+        )
 
-        return {"cls": type(self), "options": options}
+        return {
+            "cls": type(self),
+            "options": options,
+            "plot_options": plot_options,
+        }
 
     def __json_encode__(self):
         return self.config()
@@ -318,4 +325,6 @@ class BaseDrawer(ABC):
         instance = cls()
         if "options" in value:
             instance.set_options(**value["options"])
+        if "plot_options" in value:
+            instance.set_plot_options(**value["plot_options"])
         return instance

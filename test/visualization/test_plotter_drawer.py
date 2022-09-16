@@ -16,18 +16,84 @@ Test integration of plotters and drawers.
 from copy import copy
 from test.base import QiskitExperimentsTestCase
 
-from qiskit_experiments.visualization import PlotStyle
+from qiskit_experiments.framework import Options
+from qiskit_experiments.visualization import BasePlotter, PlotStyle
 
 from .mock_drawer import MockDrawer
 from .mock_plotter import MockPlotter
 
 
+def dummy_plotter() -> BasePlotter:
+    """Return a MockPlotter with dummy option values.
+
+    Returns:
+        BasePlotter: A dummy plotter.
+    """
+    plotter = MockPlotter(MockDrawer())
+    # Set dummy plot options to update
+    plotter.set_plot_options(
+        xlabel="xlabel",
+        ylabel="ylabel",
+        figure_title="figure_title",
+        non_drawer_options="should not be set",
+    )
+    plotter.set_options(
+        style=PlotStyle(test_param="test_param", overwrite_param="new_overwrite_param_value")
+    )
+    return plotter
+
+
 class TestPlotterAndDrawerIntegration(QiskitExperimentsTestCase):
     """Test plotter and drawer integration."""
 
+    def assertOptionsEqual(
+        self,
+        options1: Options,
+        options2: Options,
+        msg_prefix: str = "",
+        only_assert_for_intersection=False,
+    ):
+        """Asserts that two options are the same by checking each individual option.
+
+        This method is easier to read than a standard equality assertion as individual option names are
+        printed.
+
+        Args:
+            options1: The first Options instance to check.
+            options2: The second Options instance to check.
+            msg_prefix: A prefix to add before assert messages.
+            only_assert_for_intersection: If True, will only check options that are in both Options
+                instances. Defaults to False.
+        """
+        # Get combined field names
+        if only_assert_for_intersection:
+            fields = set(options1._fields.keys()).intersection(set(options2._fields.keys()))
+        else:
+            fields = set(options1._fields.keys()).union(set(options2._fields.keys()))
+
+        # Check individual options.
+        for key in fields:
+            # Check if the option exists in both
+            self.assertTrue(
+                hasattr(options1, key),
+                msg=f"[{msg_prefix}] Expected field {key} in both, but only found in one: not in "
+                f"{options1}.",
+            )
+            self.assertTrue(
+                hasattr(options2, key),
+                msg=f"[{msg_prefix}] Expected field {key} in both, but only found in one: not in "
+                f"{options2}.",
+            )
+            self.assertEqual(
+                getattr(options1, key),
+                getattr(options2, key),
+                msg=f"[{msg_prefix}] Expected equal values for option '{key}': "
+                f"{getattr(options1, key),} vs {getattr(options2,key)}",
+            )
+
     def test_plot_options(self):
         """Test copying and passing of plot-options between plotter and drawer."""
-        plotter = MockPlotter(MockDrawer())
+        plotter = dummy_plotter()
 
         # Expected options
         expected_plot_options = copy(plotter.drawer.plot_options)
@@ -39,21 +105,11 @@ class TestPlotterAndDrawerIntegration(QiskitExperimentsTestCase):
         expected_custom_style = PlotStyle(
             test_param="test_param", overwrite_param="new_overwrite_param_value"
         )
+        plotter.set_options(style=expected_custom_style)
         expected_full_style = PlotStyle.merge(
             plotter.drawer.options.default_style, expected_custom_style
         )
         expected_plot_options.custom_style = expected_custom_style
-
-        # Set dummy plot options to update
-        plotter.set_plot_options(
-            xlabel="xlabel",
-            ylabel="ylabel",
-            figure_title="figure_title",
-            non_drawer_options="should not be set",
-        )
-        plotter.set_options(
-            style=PlotStyle(test_param="test_param", overwrite_param="new_overwrite_param_value")
-        )
 
         # Call plotter.figure() to force passing of plot_options to drawer
         plotter.figure()
@@ -62,13 +118,9 @@ class TestPlotterAndDrawerIntegration(QiskitExperimentsTestCase):
         # Check style as this is a more detailed plot-option than others.
         self.assertEqual(expected_full_style, plotter.drawer.style)
 
-        # Check individual plot-options.
-        for key, value in expected_plot_options._fields.items():
-            self.assertEqual(
-                getattr(plotter.drawer.plot_options, key),
-                value,
-                msg=f"Expected equal values for plot option '{key}'",
-            )
+        # Check individual plot-options, but only the intersection as those are the ones we expect to be
+        # updated.
+        self.assertOptionsEqual(expected_plot_options, plotter.drawer.plot_options, True)
 
         # Coarse equality check of plot_options
         self.assertEqual(
@@ -77,3 +129,31 @@ class TestPlotterAndDrawerIntegration(QiskitExperimentsTestCase):
             msg=rf"expected_plot_options = {expected_plot_options}\nactual_plot_options ="
             rf"{plotter.drawer.plot_options}",
         )
+
+    def test_serializable(self):
+        """Test that plotter is serializable."""
+        original_plotter = dummy_plotter()
+
+        def check_options(original, new):
+            """Verifies that ``new`` plotter has the same options as ``original`` plotter."""
+            self.assertOptionsEqual(original.options, new.options, "options")
+            self.assertOptionsEqual(original.plot_options, new.plot_options, "plot_options")
+            self.assertOptionsEqual(original.drawer.options, new.drawer.options, "drawer.options")
+            self.assertOptionsEqual(
+                original.drawer.plot_options, new.drawer.plot_options, "drawer.plot_options"
+            )
+
+        ## Check that plotter, BEFORE PLOTTING, survives serialization correctly.
+        # HACK: A dedicated JSON encoder and decoder class would be better.
+        # __json_<encode/decode>__ are not typically called, instead json.dumps etc. is called
+        encoded = original_plotter.__json_encode__()
+        decoded_plotter = original_plotter.__class__.__json_decode__(encoded)
+        check_options(original_plotter, decoded_plotter)
+
+        ## Check that plotter, AFTER PLOTTING, survives serialization correctly.
+        original_plotter.figure()
+        # HACK: A dedicated JSON encoder and decoder class would be better.
+        # __json_<encode/decode>__ are not typically called, instead json.dumps etc. is called
+        encoded = original_plotter.__json_encode__()
+        decoded_plotter = original_plotter.__class__.__json_decode__(encoded)
+        check_options(original_plotter, decoded_plotter)
