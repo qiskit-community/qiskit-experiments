@@ -74,7 +74,7 @@ class CliffordUtils:
     NUM_CLIFFORD_1_QUBIT = 24
     NUM_CLIFFORD_2_QUBIT = 11520
     CLIFFORD_1_QUBIT_SIG = (2, 3, 4)
-    CLIFFORD_2_QUBIT_SIGS = [
+    CLIFFORD_2_QUBIT_SIGS = [  # TODO: depracate
         (2, 2, 3, 3, 4, 4),
         (2, 2, 3, 3, 3, 3, 4, 4),
         (2, 2, 3, 3, 3, 3, 4, 4),
@@ -167,56 +167,9 @@ class CliffordUtils:
         """Return the 2-qubit clifford circuit corresponding to `num`
         where `num` is between 0 and 11519.
         """
-        vals = cls._unpack_num_multi_sigs(num, cls.CLIFFORD_2_QUBIT_SIGS)
         qc = QuantumCircuit(2, name=f"Clifford-2Q({num})")
-        if vals[0] == 0 or vals[0] == 3:
-            (form, i0, i1, j0, j1, p0, p1) = vals
-        else:
-            (form, i0, i1, j0, j1, k0, k1, p0, p1) = vals
-        if i0 == 1:
-            qc.h(0)
-        if i1 == 1:
-            qc.h(1)
-        if j0 == 1:
-            qc.sxdg(0)
-        if j0 == 2:
-            qc.s(0)
-        if j1 == 1:
-            qc.sxdg(1)
-        if j1 == 2:
-            qc.s(1)
-        if form in (1, 2, 3):
-            qc.cx(0, 1)
-        if form in (2, 3):
-            qc.cx(1, 0)
-        if form == 3:
-            qc.cx(0, 1)
-        if form in (1, 2):
-            if k0 == 1:  # V gate
-                qc.sdg(0)
-                qc.h(0)
-            if k0 == 2:  # W gate
-                qc.h(0)
-                qc.s(0)
-            if k1 == 1:  # V gate
-                qc.sdg(1)
-                qc.h(1)
-            if k1 == 2:  # W gate
-                qc.h(1)
-                qc.s(1)
-        if p0 == 1:
-            qc.x(0)
-        if p0 == 2:
-            qc.y(0)
-        if p0 == 3:
-            qc.z(0)
-        if p1 == 1:
-            qc.x(1)
-        if p1 == 2:
-            qc.y(1)
-        if p1 == 3:
-            qc.z(1)
-
+        for layer, idx in enumerate(_layer_indices_from_num(num)):
+            qc.compose(_CLIFFORD_LAYER[layer][idx], inplace=True)
         return qc
 
     @staticmethod
@@ -231,20 +184,6 @@ class CliffordUtils:
             res.append(num % k)
             num //= k
         return res
-
-    @staticmethod
-    def _unpack_num_multi_sigs(num, sigs):
-        """Returns the result of `_unpack_num` on one of the
-        signatures in `sigs`
-        """
-        for i, sig in enumerate(sigs):
-            sig_size = 1
-            for k in sig:
-                sig_size *= k
-            if num < sig_size:
-                return [i] + CliffordUtils._unpack_num(num, sig)
-            num -= sig_size
-        return None
 
 
 NUM_CLIFFORD_1Q = 24
@@ -263,26 +202,26 @@ CLIFF_SINGLE_GATE_MAP_1Q = {
 CLIFF_SINGLE_GATE_MAP_2Q = {
     ("id", (0,)): 0,
     ("id", (1,)): 0,
-    ("h", (0,)): 1,
-    ("h", (1,)): 2,
-    ("sxdg", (0,)): 4,
-    ("sxdg", (1,)): 12,
-    ("s", (0,)): 8,
-    ("s", (1,)): 24,
-    ("x", (0,)): 36,
-    ("x", (1,)): 144,
-    ("sx", (0,)): 40,
-    ("sx", (1,)): 156,
-    ("y", (0,)): 72,
-    ("y", (1,)): 288,
-    ("z", (0,)): 108,
-    ("z", (1,)): 432,
-    ("sdg", (0,)): 116,
-    ("sdg", (1,)): 456,
-    ("cx", (0, 1)): 576,
-    ("cx", (1, 0)): 851,
-    ("cz", (0, 1)): 806,
-    ("cz", (1, 0)): 806,
+    ("h", (0,)): 5760,
+    ("h", (1,)): 2880,
+    ("sxdg", (0,)): 6720,
+    ("sxdg", (1,)): 3200,
+    ("s", (0,)): 7680,
+    ("s", (1,)): 3520,
+    ("x", (0,)): 4,
+    ("x", (1,)): 1,
+    ("sx", (0,)): 6724,
+    ("sx", (1,)): 3201,
+    ("y", (0,)): 8,
+    ("y", (1,)): 2,
+    ("z", (0,)): 12,
+    ("z", (1,)): 3,
+    ("sdg", (0,)): 7692,
+    ("sdg", (1,)): 3523,
+    ("cx", (0, 1)): 16,
+    ("cx", (1, 0)): 2336,
+    ("cz", (0, 1)): 368,
+    ("cz", (1, 0)): 368,
 }
 
 
@@ -564,8 +503,8 @@ CLIFFORD_INVERSE_2Q = _load_clifford_inverse_2q()
 def compose_2q(lhs: Integral, rhs: Integral) -> Integral:
     """Return the composition of 2-qubit clifford integers."""
     num = lhs
-    for layour, idx in enumerate(_layer_indices_from_num(rhs)):
-        circ = _CLIFFORD_LAYER[layour][idx]
+    for layer, idx in enumerate(_layer_indices_from_num(rhs)):
+        circ = _CLIFFORD_LAYER[layer][idx]
         num = _compose_num_with_circuit_2q(num, circ)
     return num
 

@@ -12,14 +12,32 @@
 """
 This is a script used to create the npz files in `data` directory.
 """
+import itertools
+
 import numpy as np
 
+from qiskit.circuit import QuantumCircuit
+from qiskit.circuit.library import (
+    IGate,
+    HGate,
+    SXdgGate,
+    SGate,
+    XGate,
+    SXGate,
+    YGate,
+    ZGate,
+    SdgGate,
+    CXGate,
+    CZGate,
+)
+from qiskit.quantum_info.operators.symplectic import Clifford
 from qiskit_experiments.library.randomized_benchmarking.clifford_utils import (
     CliffordUtils,
     NUM_CLIFFORD_2Q,
     CLIFF_SINGLE_GATE_MAP_2Q,
     _hash_cliff,
 )
+from qiskit_experiments.library.randomized_benchmarking.clifford_utils import _TO_INT as _TO_INT_1Q
 
 _TO_CLIFF = {i: CliffordUtils.clifford_2_qubit(i) for i in range(NUM_CLIFFORD_2Q)}
 _TO_INT = {_hash_cliff(cliff): i for i, cliff in _TO_CLIFF.items()}
@@ -50,6 +68,61 @@ def create_clifford_compose_2q_gate():
             composed = _TO_CLIFF[lhs].compose(_TO_CLIFF[rhs])
             products[lhs][gate] = _TO_INT[_hash_cliff(composed)]
     return products
+
+
+gate_list_1q = [
+    IGate(),
+    HGate(),
+    SXdgGate(),
+    SGate(),
+    XGate(),
+    SXGate(),
+    YGate(),
+    ZGate(),
+    SdgGate(),
+]
+
+
+def create_cliff_single_1q_gate_map():
+    """
+    Generates a dict mapping numbers to 1Q Cliffords and the reverse dict.
+    Based on these structures, we build a mapping from every single-gate-clifford to its number.
+    The mapping actually looks like {(gate, (0, )): num}.
+    """
+    table = {}
+    for gate in gate_list_1q:
+        qc = QuantumCircuit(1)
+        qc.append(gate, [0])
+        num = _TO_INT_1Q[_hash_cliff(Clifford(qc))]
+        table[(gate.name, (0,))] = num
+
+    return table
+
+
+def create_cliff_single_2q_gate_map():
+    """
+    Generates a dict mapping numbers to 2Q Cliffords and the reverse dict.
+    Based on these structures, we build a mapping from every single-gate-clifford to its number.
+    The mapping actually looks like {(gate, (0, 1)): num}.
+    """
+    gate_list_2q = [
+        CXGate(),
+        CZGate(),
+    ]
+    table = {}
+    for gate, qubit in itertools.product(gate_list_1q, [0, 1]):
+        qc = QuantumCircuit(2)
+        qc.append(gate, [qubit])
+        num = _TO_INT[_hash_cliff(Clifford(qc))]
+        table[(gate.name, (qubit,))] = num
+
+    for gate, qubits in itertools.product(gate_list_2q, [(0, 1), (1, 0)]):
+        qc = QuantumCircuit(2)
+        qc.append(gate, qubits)
+        num = _TO_INT[_hash_cliff(Clifford(qc))]
+        table[(gate.name, qubits)] = num
+
+    return table
 
 
 if __name__ == "__main__":
