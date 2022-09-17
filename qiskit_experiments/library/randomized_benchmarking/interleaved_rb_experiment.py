@@ -19,16 +19,12 @@ from numpy.random.bit_generator import BitGenerator, SeedSequence
 
 from qiskit import QuantumCircuit
 from qiskit.circuit import Instruction
-from qiskit.quantum_info import Clifford
 from qiskit.exceptions import QiskitError
 from qiskit.providers.backend import Backend
-
-from .rb_experiment import StandardRB, SequenceElementType
+from qiskit.quantum_info import Clifford
+from .clifford_utils import num_from_circuit
 from .interleaved_rb_analysis import InterleavedRBAnalysis
-from .clifford_utils import (
-    num_from_gate,
-    num_from_circuit,
-)
+from .rb_experiment import StandardRB, SequenceElementType
 
 
 class InterleavedRB(StandardRB):
@@ -91,16 +87,9 @@ class InterleavedRB(StandardRB):
             ) from err
         # Convert interleaved element to integer for speed
         num_qubits = len(qubits)
-        if num_qubits <= 2:
-            interleaved_circ = None
-            if isinstance(interleaved_element, QuantumCircuit):
-                interleaved_circ = interleaved_element
-            elif isinstance(interleaved_element, Clifford):
-                interleaved_circ = interleaved_element.to_circuit()
-            else:  # Instruction
-                self._interleaved_elem = num_from_gate[num_qubits](interleaved_element)
-            if interleaved_circ:
-                self._interleaved_elem = num_from_circuit[num_qubits](interleaved_circ)
+        if len(qubits) <= 2:
+            interleaved_circ = self._interleaved_elem.to_circuit()
+            self._interleaved_elem = num_from_circuit[num_qubits](interleaved_circ)
         # Convert interleaved element to operation
         self._interleaved_op = interleaved_element
         if not isinstance(interleaved_element, Instruction):
