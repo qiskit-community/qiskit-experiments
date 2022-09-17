@@ -196,7 +196,9 @@ class FixedFrequencyTransmon(BasisGateLibrary):
         - amp: Amplitude of the pulses. If the parameters are linked then ``x`` and ``y``
           share the same parameter and ``sx`` and ``sy`` share the same parameter.
           Default value: 50% of the maximum output for ``x`` and ``y`` and 25% of the
-          maximum output for ``sx`` and ``sy``.
+          maximum output for ``sx`` and ``sy``. Note that the user provided default amplitude
+          in the ``__init__`` method sets the default amplitude of the ``x`` and ``y`` pulses.
+          The amplitude of the ``sx`` and ``sy`` pulses is half the provided value.
 
     Note that the β and amp parameters may be linked between the x and y as well as between
     the sx and sy pulses. All pulses share the same duration and σ parameters.

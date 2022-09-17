@@ -1044,7 +1044,7 @@ class Calibrations:
         Returns:
             A dict with :class:`.ParameterKey`s as keys and :class:`.ParameterValueType`s as values.
         """
-        assign_params_, linked_assign_params = dict(), dict()
+        linked_assign_params = {}
 
         if assign_params:
             # Add parameter links for automatic linking.

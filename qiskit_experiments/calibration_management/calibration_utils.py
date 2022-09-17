@@ -72,18 +72,6 @@ def used_in_references(keys: Set[ScheduleKey], dag: rx.PyDiGraph) -> Set[str]:
     return set(key.schedule for key in callers)
 
 
-def _referred_by(key: ScheduleKey, dag: rx.PyDiGraph) -> Set[ScheduleKey]:
-    """Return all the schedules that refer to this schedule by name."""
-    referred_by = set()
-
-    for predecessor in dag.predecessors(_get_node_index(key, dag)):
-        new_key = ScheduleKey.from_repr(predecessor)
-        referred_by.add(new_key)
-        referred_by.update(_referred_by(new_key, dag))
-
-    return referred_by
-
-
 def _get_node_index(key: ScheduleKey, dag: rx.PyDiGraph) -> int:
     """A helper method to get the node index in the DAG.
 
