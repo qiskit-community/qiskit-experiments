@@ -1062,6 +1062,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         return mock_service
 
     def test_getters(self):
+        """Test the getters return the expected result"""
         data = ExperimentData()
         test_time = datetime.now()
         data._db_data.creation_datetime = test_time
@@ -1115,11 +1116,14 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
 
 
 import unittest
+
+
 def suite():
     suite = unittest.TestSuite()
-    suite.addTest(TestDbExperimentData('test_getters'))
+    suite.addTest(TestDbExperimentData("test_getters"))
     return suite
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     runner = unittest.TextTestRunner()
     runner.run(suite())
