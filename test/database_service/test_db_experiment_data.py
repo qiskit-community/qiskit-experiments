@@ -23,6 +23,7 @@ import threading
 import json
 import re
 import uuid
+from datetime import datetime, timedelta
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -1059,3 +1060,66 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         mock_service = mock.create_autospec(IBMExperimentService, instance=True)
         mock_provider.service.return_value = mock_service
         return mock_service
+
+    def test_getters(self):
+        data = ExperimentData()
+        test_time = datetime.now()
+        data._db_data.creation_datetime = test_time
+        self.assertEqual(data.creation_datetime, test_time)
+        test_time = test_time + timedelta(hours=1)
+        data._db_data.start_datetime = test_time
+        self.assertEqual(data.start_datetime, test_time)
+        test_time = test_time + timedelta(hours=1)
+        data._db_data.end_datetime = test_time
+        self.assertEqual(data.end_datetime, test_time)
+        test_time = test_time + timedelta(hours=1)
+        data._db_data.updated_datetime = test_time
+        self.assertEqual(data.updated_datetime, test_time)
+
+        data._db_data.hub = "hub_name"
+        data._db_data.group = "group_name"
+        data._db_data.project = "project_name"
+        self.assertEqual(data.hub, "hub_name")
+        self.assertEqual(data.group, "group_name")
+        self.assertEqual(data.project, "project_name")
+
+        data._db_data.experiment_id = "exp_id"
+        data._db_data.experiment_type = "exp_type"
+        self.assertEqual(data.experiment_id, "exp_id")
+        self.assertEqual(data.experiment_type, "exp_type")
+
+        data.parent_id = "parent_id"
+        self.assertEqual(data.parent_id, "parent_id")
+
+        data._db_data.job_ids = ["job_id_1", "job_id_2"]
+        self.assertEqual(data.job_ids, ["job_id_1", "job_id_2"])
+
+        data._db_data.figure_names = ["figure_1", "figure_2"]
+        self.assertEqual(data.figure_names, ["figure_1", "figure_2"])
+
+        data.tags = ["tag_1", "tag_2"]
+        self.assertEqual(data.tags, ["tag_1", "tag_2"])
+
+        data.share_level = "share_level"
+        self.assertEqual(data.share_level, "share_level")
+
+        data.notes = "notes"
+        self.assertEqual(data.notes, "notes")
+
+        data._db_data.backend = "backend_name"
+        self.assertEqual(data.backend_name, "backend_name")
+
+        metadata = {"_source": "source_data"}
+        data._db_data.metadata = metadata
+        self.assertEqual(data.source, "source_data")
+
+
+import unittest
+def suite():
+    suite = unittest.TestSuite()
+    suite.addTest(TestDbExperimentData('test_getters'))
+    return suite
+
+if __name__ == '__main__':
+    runner = unittest.TextTestRunner()
+    runner.run(suite())
