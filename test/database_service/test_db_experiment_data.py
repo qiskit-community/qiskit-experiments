@@ -1113,17 +1113,3 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         metadata = {"_source": "source_data"}
         data._db_data.metadata = metadata
         self.assertEqual(data.source, "source_data")
-
-
-import unittest
-
-
-def suite():
-    suite = unittest.TestSuite()
-    suite.addTest(TestDbExperimentData("test_getters"))
-    return suite
-
-
-if __name__ == "__main__":
-    runner = unittest.TextTestRunner()
-    runner.run(suite())
