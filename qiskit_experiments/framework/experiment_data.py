@@ -341,7 +341,7 @@ class ExperimentData:
             The start datetime of this experiment data.
 
         """
-        return self._db_data.end_datetime
+        return self._db_data.start_datetime
 
     @property
     def updated_datetime(self) -> "datetime":
