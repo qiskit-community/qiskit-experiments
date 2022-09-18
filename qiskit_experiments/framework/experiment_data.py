@@ -458,7 +458,7 @@ class ExperimentData:
         Returns:
             Names of figures associated with this experiment.
         """
-        return self._figures.keys()
+        return self._db_data.figure_names
 
     @property
     def share_level(self) -> str:
@@ -1064,6 +1064,7 @@ class ExperimentData:
                 figure_data = FigureData(figure=figure, name=fig_name, metadata=figure_metadata)
 
             self._figures[fig_name] = figure_data
+            self._db_data.figure_names.append(fig_name)
 
             save = save_figure if save_figure is not None else self.auto_save
             if save and self._service:
