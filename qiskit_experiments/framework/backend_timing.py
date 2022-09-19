@@ -50,7 +50,7 @@ class BackendTiming:
     pulse length in samples (i.e. for a granularity of 16 pulse lengths of 64
     and 80 samples are valid but not any number in between).
 
-    Here are some specific problems that can occur when dealing timing
+    Here are some specific problems that can occur when dealing with timing
     constraints for pulses and delays:
 
     - An invalid pulse length or pulse start time could result in an error from
@@ -59,9 +59,9 @@ class BackendTiming:
       rounding could lead to error in analysis that assumes the unrounded
       value.
     - An invalid delay length that requires rounding could trigger a new
-      scheduling pass of a circuit, which is a computationally expensive
-      process. Scheduling the circuit with valid timing to start out can avoid
-      this rescheduling.
+      scheduling pass of a circuit during transpilation, which is a
+      computationally expensive process. Scheduling the circuit with valid
+      timing to start out can avoid this rescheduling.
     - While there are separate alignment requirements for drive
       (``pulse_alignment``) and for measurement (``acquire_alignment``)
       channels, the nature of pulse and circuit instruction alignment can
@@ -81,7 +81,7 @@ class BackendTiming:
       Because the circuit instructions are all pushed together sequentially in
       time without extra delays, whether or not the ``measure`` instruction
       occurs at a valid time depends on the details of the circuit. In
-      particular, since the ``x`` gates should have durations that are
+      particular, since the ``x`` gates typically have durations that are
       multiples of ``acquire_alignment`` (because ``granularity`` usually is),
       the ``measure`` start will occur at a time consistent with
       ``acquire_alignment`` when ``delay + delay2`` is a multiple of
@@ -92,20 +92,31 @@ class BackendTiming:
       incorrect phase and often an incorrect state discrimination.
 
     To help avoid these problems, :class:`.BackendTiming` provides methods for
-    calculating pulse and delay durations in samples and seconds, for a given
-    input duration in samples or seconds. If these values are used for all
-    durations in a circuit, the alignment constraints should always be
-    satisfied.
+    calculating pulse and delay durations. These methods work with samples and
+    seconds as appropriate. If these methods are used for all durations in a
+    circuit, the alignment constraints should always be satisfied.
+
+    .. note::
+
+        For delay duration, the least common multiple of ``pulse_alignment``
+        and ``acquire_alignment`` is used as the granularity. Thus, in the
+        example above about the coupling between ``pulse_alignment`` and
+        ``acquire_alignment`` , ``delay`` and ``delay2`` are each a multiple of
+        ``acquire_alignment`` and so the sum always is. This approach excludes
+        some valid circuits (like each delay being half of
+        ``acquire_alignment``) but has the benefit of always being valid
+        without detailed analysis of the full circuit.
 
     As an example use-case for :class:`.BackendTiming`, consider a T1 experiment
-    where delay times are specified in seconds and a
-    :method:`.BaseExperiment.circuits`` method as follows:
+    where delay times are specified in seconds in a
+    :meth:`qiskit_experiments.framework.BaseExperiment.circuits` method as
+    follows:
 
     .. code-block:: python
 
         def circuits(self):
-            # Pass experiment to BackendTiming
-            timing = BackendTiming(self)
+            # Pass backend to BackendTiming
+            timing = BackendTiming(self.backend)
 
             circuits = []
             for delay in self.experiment_options.delays:
@@ -134,6 +145,7 @@ class BackendTiming:
         from qiskit import pulse
         from qiskit.circuit import Gate, Parameter
 
+
         def circuits(self):
             chan = pulse.DriveChannel(0)
             dur = Paramater("duration")
@@ -149,7 +161,7 @@ class BackendTiming:
             template_circ.add_calibration(gate, (0,), sched)
 
             # Pass experiment to BackendTiming
-            timing = BackendTiming(self)
+            timing = BackendTiming(self.backend)
 
             circs = []
             for duration in self.experiment_options.durations:
@@ -163,18 +175,6 @@ class BackendTiming:
                     "xval": timing.pulse_time(duration),
                     "unit": "s",
                 }
-
-
-
-    .. note::
-
-        For delay duration, the least common multiple of ``pulse_alignment``
-        and ``acquire_alignment`` is used as the granularity. Thus, in the
-        ``acquire_alignment`` example above, ``delay`` and ``delay2`` are each
-        a multiple of ``acquire_alignment`` and so the sum always is. This
-        approach excludes some valid circuits (like each delay being half of
-        ``acquire_alignment``) but has the benefit of always being valid
-        without detailed analysis of the full circuit.
     """
 
     def __init__(self, backend: Backend):
@@ -206,19 +206,17 @@ class BackendTiming:
         return "s"
 
     def circuit_delay(self, time: float) -> Union[int, float]:
-        """Delay duration close to ``time`` and consistent with timing constraints
+        """Delay duration closest to ``time`` and consistent with timing constraints
 
         This method produces the value to pass for the ``duration`` of a
-        ``Delay`` instruction of a ``QuantumCircuit`` schedule so that the
-        delay fills the time until the next valid pulse, assuming the ``Delay``
-        instruction begins on a sample that is also valid for a pulse to begin
-        on.
+        ``Delay`` instruction of a ``QuantumCircuit`` so that the delay fills
+        the time until the next valid pulse, assuming the ``Delay`` instruction
+        begins on a sample that is also valid for a pulse to begin on.
 
         The pulse timing constraints of the backend are considered in order to
-        give a number of samples closest to ``time`` plus however many more
-        samples are needed to get to the next valid sample for the start of a
-        pulse in a subsequent instruction. The least common multiple of the
-        pulse and acquire alignment values is used in order to ensure that
+        give the number of samples closest to ``time`` for the start of a pulse
+        in a subsequent instruction to be valid. The least common multiple of
+        the pulse and acquire alignment values is used in order to ensure that
         either type of pulse will be aligned.
 
         If :meth:`.BackendTiming.delay_unit` is ``s``, ``time`` is
@@ -230,7 +228,7 @@ class BackendTiming:
 
         Returns:
             The delay duration in samples if :meth:`.BackendTiming.delay_unit`
-            is ``dt``. Other return ``time``.
+            is ``dt``. Otherwise return ``time``.
         """
         if self.delay_unit == "s":
             return time
@@ -238,14 +236,14 @@ class BackendTiming:
         return self.schedule_delay(time)
 
     def schedule_delay(self, time: float) -> int:
-        """Valid delay value in samples to use in a pulse schedule for  ``time``
+        """Closest valid delay in samples to ``time``
 
         The pulse timing constraints of the backend are considered in order to
-        give a number of samples closest to ``time`` plus however many more
-        samples are needed to get to the next valid sample for the start of a
-        pulse in a subsequent instruction. The least common multiple of the
-        pulse and acquire alignment values is used in order to ensure that
-        either type of pulse will be aligned.
+        give a number of samples closest to ``time`` consistent with the
+        alignment constraints, so that the start of a pulse in a subsequent
+        instruction is valid. The least common multiple of the pulse and
+        acquire alignment values is used in order to ensure that either type of
+        pulse will be aligned.
 
         Args:
             time: The nominal delay time to convert in seconds
@@ -267,11 +265,11 @@ class BackendTiming:
         return samples
 
     def pulse_samples(self, time: float) -> int:
-        """The number of samples giving a valid pulse duration closest to ``time``
+        """The number of samples giving the valid pulse duration closest to ``time``
 
-        The multiple of the pulse granularity giving the time closest to but
-        higher than ``time`` is used. The returned value is always at least the
-        backend's ``min_length``.
+        The multiple of the pulse granularity giving the time closest to
+        ``time`` is used. The returned value is always at least the backend's
+        ``min_length``.
 
         Args:
             time: Pulse duration in seconds
@@ -290,9 +288,9 @@ class BackendTiming:
     def round_pulse_samples(self, samples: Union[float, int]) -> int:
         """Round a nominal pulse sample duration to a valid number
 
-        The multiple of the pulse granularity giving the samples closest to but
-        higher than ``samples`` is used. The returned value is always at least
-        the backend's ``min_length``.
+        The multiple of the pulse granularity giving the samples closest to
+        ``samples`` is used. The returned value is always at least the
+        backend's ``min_length``.
 
         Args:
             samples: Nominal pulse duration
@@ -327,10 +325,10 @@ class BackendTiming:
         return samples
 
     def delay_time(self, time: float) -> float:
-        """The closest actual delay time in seconds greater than ``time``
+        """The closest valid delay time in seconds to ``time``
 
         If the backend reports ``dt``, this method uses
-        :meth:`.BackendTiming.schedule_delay` and converts the resultback into
+        :meth:`.BackendTiming.schedule_delay` and converts the result back into
         seconds. Otherwise, it just returns ``time`` directly.
 
         Args:
@@ -345,7 +343,7 @@ class BackendTiming:
         return self.dt * self.schedule_delay(time)
 
     def pulse_time(self, time: float) -> float:
-        """The closest valid pulse duration greater than ``time`` in seconds
+        """The closest valid pulse duration to ``time`` in seconds
 
         This method uses :meth:`.BackendTiming.pulse_samples` and then
         converts back into seconds.
