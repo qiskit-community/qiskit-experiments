@@ -51,7 +51,7 @@ class TestPlotterAndDrawerIntegration(QiskitExperimentsTestCase):
         options1: Options,
         options2: Options,
         msg_prefix: str = "",
-        only_assert_for_intersection=False,
+        only_assert_for_intersection: bool = False,
     ):
         """Asserts that two options are the same by checking each individual option.
 

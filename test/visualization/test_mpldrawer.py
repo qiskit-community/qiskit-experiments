@@ -13,7 +13,6 @@
 Test Matplotlib Drawer.
 """
 
-from copy import copy
 from test.base import QiskitExperimentsTestCase
 
 import matplotlib
