@@ -333,6 +333,11 @@ class ExperimentData:
         """
         return self._db_data.creation_datetime
 
+    @creation_datetime.setter
+    def creation_datetime(self, new_datetime) -> None:
+        """Sets the creation datetime for the experiment"""
+        self._db_data.creation_datetime = new_datetime
+
     @property
     def start_datetime(self) -> "datetime":
         """Return the start datetime of this experiment data.
@@ -342,6 +347,11 @@ class ExperimentData:
 
         """
         return self._db_data.end_datetime
+
+    @start_datetime.setter
+    def start_datetime(self, new_datetime) -> None:
+        """Sets the creation datetime for the experiment"""
+        self._db_data.start_datetime = new_datetime
 
     @property
     def updated_datetime(self) -> "datetime":
@@ -353,6 +363,11 @@ class ExperimentData:
         """
         return self._db_data.updated_datetime
 
+    @updated_datetime.setter
+    def updated_datetime(self, new_datetime) -> None:
+        """Sets the creation datetime for the experiment"""
+        self._db_data.updated_datetime = new_datetime
+
     @property
     def end_datetime(self) -> "datetime":
         """Return the end datetime of this experiment data.
@@ -362,6 +377,11 @@ class ExperimentData:
 
         """
         return self._db_data.end_datetime
+
+    @end_datetime.setter
+    def end_datetime(self, new_datetime) -> None:
+        """Sets the creation datetime for the experiment"""
+        self._db_data.end_datetime = new_datetime
 
     @property
     def hub(self) -> str:
