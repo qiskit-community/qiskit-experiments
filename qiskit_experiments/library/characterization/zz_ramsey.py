@@ -10,17 +10,16 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-import math
-from typing import List, Optional, Tuple, Union
+from typing import List, Optional, Tuple
 
 import numpy as np
 
-from qiskit import QiskitError, QuantumCircuit
+from qiskit import QuantumCircuit
 from qiskit.providers.backend import Backend
 from qiskit.circuit import Parameter
 
-from qiskit_experiments.framework import BaseExperiment, Options, BackendTiming
-from .zz_ramsey_analysis import ZZRamseyAnalysis
+from qiskit_experiments.framework import BackendTiming, BaseExperiment, Options
+from .analysis.zz_ramsey_analysis import ZZRamseyAnalysis
 
 class ZZRamsey(BaseExperiment):
     r"""Experiment to characterize the static :math:`ZZ` interaction for a qubit pair
@@ -163,14 +162,6 @@ class ZZRamsey(BaseExperiment):
             return options.delays
 
         return np.linspace(options.min_delay, options.max_delay, options.num_delays)
-
-    @property
-    def _instr_delay_to_time(self) -> float:
-        """Conversion factor from delay instruction value to seconds"""
-        if self._delay_unit == "dt":
-            return self._dt
-
-        return 1.0
 
     def _parameterized_circuits(self) -> Tuple[QuantumCircuit, QuantumCircuit]:
         """Circuits for series 0 and 1 with several parameters
