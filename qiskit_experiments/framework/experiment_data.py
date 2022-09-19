@@ -346,7 +346,7 @@ class ExperimentData:
             The start datetime of this experiment data.
 
         """
-        return self._db_data.end_datetime
+        return self._db_data.start_datetime
 
     @start_datetime.setter
     def start_datetime(self, new_datetime) -> None:

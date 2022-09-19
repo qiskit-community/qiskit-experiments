@@ -18,6 +18,7 @@ import copy
 from collections import OrderedDict
 from typing import Sequence, Optional, Tuple, List, Dict, Union
 import warnings
+from datetime import datetime
 
 from qiskit import transpile, QuantumCircuit
 from qiskit.providers import Job, Backend
@@ -52,6 +53,9 @@ class BaseExperiment(ABC, StoreInitArgs):
         Raises:
             QiskitError: if qubits contains duplicates.
         """
+
+        self._creation_datetime = datetime.now()
+
         # Experiment identification metadata
         self._type = experiment_type if experiment_type else type(self).__name__
 
@@ -254,6 +258,7 @@ class BaseExperiment(ABC, StoreInitArgs):
         run_opts = experiment.run_options.__dict__
 
         # Run jobs
+        experiment_data.start_datetime = datetime.now()
         jobs = experiment._run_jobs(transpiled_circuits, **run_opts)
         experiment_data.add_jobs(jobs, timeout=timeout)
 
@@ -265,7 +270,7 @@ class BaseExperiment(ABC, StoreInitArgs):
 
     def _initialize_experiment_data(self) -> ExperimentData:
         """Initialize the return data container for the experiment run"""
-        return ExperimentData(experiment=self)
+        return ExperimentData(experiment=self, creation_datetime=self._creation_datetime)
 
     def _finalize(self):
         """Finalize experiment object before running jobs.
