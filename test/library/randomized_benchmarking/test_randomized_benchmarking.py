@@ -289,6 +289,24 @@ class TestStandardRB(RBTestCase):
 class TestInterleavedRB(RBTestCase):
     """Test for interleaved RB."""
 
+    def test_preserve_interleaved_circuit_element(self):
+        """Interleaved RB should not change a given interleaved circuit during RB circuit generation."""
+        interleaved_circ = QuantumCircuit(2, name="bell_with_delay")
+        interleaved_circ.h(0)
+        interleaved_circ.delay(160, 0)
+        interleaved_circ.cx(0, 1)
+
+        exp = rb.InterleavedRB(
+            interleaved_element=interleaved_circ, qubits=[2, 1], lengths=[1], num_samples=1
+        )
+
+        circuits = exp.circuits()
+        # Get the first interleaved operation in the interleaved RB sequence
+        # assuming the standard sequence first and the interleaved sequence second
+        # and the interleaved element comes at 3: barrier-clifford-barrier-interleaved
+        actual = circuits[1][3].operation
+        self.assertEqual(interleaved_circ.name, actual.name)
+
     @data([XGate(), [3], 4], [CXGate(), [4, 7], 5])
     @unpack
     def test_interleaved_structure(self, interleaved_element, qubits, length):
