@@ -19,7 +19,6 @@ from qiskit.circuit import ParameterExpression
 
 
 ParameterKey = namedtuple("ParameterKey", ["parameter", "qubits", "schedule"])
-ScheduleKey = namedtuple("ScheduleKey", ["schedule", "qubits"])
 ParameterValueType = Union[ParameterExpression, float, int, complex]
 
 
@@ -30,3 +29,20 @@ class DefaultCalValue(NamedTuple):
     parameter: str
     qubits: Tuple
     schedule_name: str
+
+
+class ScheduleKey(NamedTuple):
+    """Defines the structure of a key to find a schedule."""
+
+    schedule: str  # Name of the schedule
+    qubits: Tuple  # Qubits the schedule acts on
+
+    def __repr__(self):
+        return f"{self.schedule}::{self.qubits}"
+
+    @classmethod
+    def from_repr(cls, rep_str: str) -> "ScheduleKey":
+        """Construct a key form its representation as a string."""
+        name, qubits = rep_str.split("::")
+        qubits = tuple(int(qubit) for qubit in qubits.strip("( )").split(",") if qubit != "")
+        return ScheduleKey(name, qubits)
