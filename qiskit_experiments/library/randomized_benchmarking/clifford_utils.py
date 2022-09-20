@@ -188,7 +188,7 @@ class CliffordUtils:
 
 NUM_CLIFFORD_1Q = 24
 NUM_CLIFFORD_2Q = 11520
-CLIFF_SINGLE_GATE_MAP_1Q = {
+_CLIFF_SINGLE_GATE_MAP_1Q = {
     ("id", (0,)): 0,
     ("h", (0,)): 1,
     ("sxdg", (0,)): 2,
@@ -199,7 +199,7 @@ CLIFF_SINGLE_GATE_MAP_1Q = {
     ("z", (0,)): 18,
     ("sdg", (0,)): 22,
 }
-CLIFF_SINGLE_GATE_MAP_2Q = {
+_CLIFF_SINGLE_GATE_MAP_2Q = {
     ("id", (0,)): 0,
     ("id", (1,)): 0,
     ("h", (0,)): 5760,
@@ -265,7 +265,7 @@ def _num_from_1q_gate(op: Instruction) -> int:
         return 0
     try:
         name = _deparameterized_name(op)
-        return CLIFF_SINGLE_GATE_MAP_1Q[(name, (0,))]
+        return _CLIFF_SINGLE_GATE_MAP_1Q[(name, (0,))]
     except QiskitError as err:
         raise QiskitError(
             f"Parameterized instruction {op.name} could not be converted to integer Clifford"
@@ -379,7 +379,7 @@ def _num_from_2q_gate(
     qubits = qubits or (0, 1)
     try:
         name = _deparameterized_name(op)
-        return CLIFF_SINGLE_GATE_MAP_2Q[(name, qubits)]
+        return _CLIFF_SINGLE_GATE_MAP_2Q[(name, qubits)]
     except QiskitError as err:
         raise QiskitError(
             f"Parameterized instruction {op.name} could not be converted to integer Clifford"
@@ -487,7 +487,7 @@ def _load_clifford_compose_2q():
     data = np.load(f"{dirname}/data/clifford_compose_2q_gate.npz")
     table = []
     for row in data["table"]:
-        dic = {rhs: result for result, rhs in zip(row, CLIFF_SINGLE_GATE_MAP_2Q.values())}
+        dic = {rhs: result for result, rhs in zip(row, _CLIFF_SINGLE_GATE_MAP_2Q.values())}
         table.append(dic)
     return table
 
