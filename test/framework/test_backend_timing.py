@@ -140,7 +140,9 @@ class TestBackendTiming(QiskitExperimentsTestCase):
 
         backend = FakeNairobiV2()
         timing = BackendTiming(backend)
-        self.assertAlmostEqual(timing.delay_time(samples=samples_in), time_out, delta=1e-6 * self.dt)
+        self.assertAlmostEqual(
+            timing.delay_time(samples=samples_in), time_out, delta=1e-6 * self.dt
+        )
 
     def test_delay_time_no_dt(self):
         """Test delay time calculation when dt is None"""
@@ -168,7 +170,9 @@ class TestBackendTiming(QiskitExperimentsTestCase):
 
         backend = FakeNairobiV2()
         timing = BackendTiming(backend)
-        self.assertAlmostEqual(timing.pulse_time(samples=samples_in), time_out, delta=1e-6 * self.dt)
+        self.assertAlmostEqual(
+            timing.pulse_time(samples=samples_in), time_out, delta=1e-6 * self.dt
+        )
 
     def test_round_pulse_no_dt_error(self):
         """Test methods that don't work when dt is None raise exceptions"""
