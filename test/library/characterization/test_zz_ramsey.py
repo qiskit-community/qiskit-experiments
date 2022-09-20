@@ -88,18 +88,27 @@ class TestZZRamsey(QiskitExperimentsTestCase):
         # Test setting min/max and setting exact delays give same results
         self.assertEqual(ramsey_min_max.circuits(), ramsey_with_delays.circuits())
 
+        ramsey_no_backend = ZZRamsey((0, 1), num_delays=50)
+        self.assertEqual(len(ramsey_no_backend.circuits()), 2 * 50)
+
     @idata(product([2e5, -3e5], [4, 5]))
     @unpack
     def test_end_to_end(self, zz_freq, zz_rotations):
         """Test that we can run on a mock backend and perform a fit."""
         backend = MockIQBackend(ZZRamseyHelper(zz_freq))
+        # Use a small number of shots so that chi squared is low. For large
+        # number of shots, the uncertainty in the data points is very small and
+        # gives a large chi squared.
+        backend.options.shots = 40
 
         ramsey = ZZRamsey((0, 1), backend, zz_rotations=zz_rotations)
         test_data = ramsey.run()
         self.assertExperimentDone(test_data)
 
-        meas_shift = test_data.analysis_results("zz").value.n
+        result = test_data.analysis_results("zz")
+        meas_shift = result.value.n
         self.assertLess(abs(meas_shift - zz_freq), abs(self.test_tol * zz_freq))
+        self.assertEqual(result.quality, "good")
 
     def test_experiment_config(self):
         """Test config roundtrips"""
