@@ -312,9 +312,9 @@ class ZZRamsey(BaseExperiment):
         for delay in self.delays:
             for circ in (circ0, circ1):
                 assigned = circ.assign_parameters(
-                    {circ.parameters[0]: timing.circuit_delay(delay / 2)}, inplace=False
+                    {circ.parameters[0]: timing.round_delay(time=delay / 2)}, inplace=False
                 )
-                assigned.metadata["xval"] = 2 * timing.delay_time(delay / 2)
+                assigned.metadata["xval"] = 2 * timing.delay_time(time=delay / 2)
                 circs.append(assigned)
 
         return circs
