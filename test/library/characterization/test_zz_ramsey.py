@@ -12,11 +12,13 @@
 
 """Test ZZ Phase experiments."""
 
+from itertools import product
 from typing import Dict, List
 
 from test.base import QiskitExperimentsTestCase
 
 import numpy as np
+from ddt import ddt, idata, unpack
 
 from qiskit import QuantumCircuit
 
@@ -54,22 +56,50 @@ class ZZRamseyHelper(MockIQExperimentHelper):
         return probabilities
 
 
+@ddt
 class TestZZRamsey(QiskitExperimentsTestCase):
     """Tests for the ZZ Ramsey experiment."""
 
-    def test_end_to_end(self):
+    test_tol = 0.05
+
+    def test_circuits(self):
+        """Test circuit generation"""
+        backend = MockIQBackend(ZZRamseyHelper(1e5))
+
+        t_min = 0
+        t_max = 5e-6
+        num = 50
+
+        ramsey_min_max = ZZRamsey(
+            (0, 1),
+            backend,
+            min_delay=t_min,
+            max_delay=t_max,
+            num_delays=num,
+        )
+        ramsey_with_delays = ZZRamsey(
+            (0, 1),
+            backend,
+            delays=ramsey_min_max.delays,
+        )
+
+        # Sanity check that circuits are generated
+        self.assertEqual(len(ramsey_min_max.circuits()), num * 2)
+        # Test setting min/max and setting exact delays give same results
+        self.assertEqual(ramsey_min_max.circuits(), ramsey_with_delays.circuits())
+
+    @idata(product([2e5, -3e5], [4, 5]))
+    @unpack
+    def test_end_to_end(self, zz_freq, zz_rotations):
         """Test that we can run on a mock backend and perform a fit."""
+        backend = MockIQBackend(ZZRamseyHelper(zz_freq))
 
-        test_tol = 0.05
+        ramsey = ZZRamsey((0, 1), backend, zz_rotations=zz_rotations)
+        test_data = ramsey.run()
+        self.assertExperimentDone(test_data)
 
-        ramsey = ZZRamsey((0, 1))
-
-        for zz in [2e5, -3e5]:
-            backend = MockIQBackend(ZZRamseyHelper(zz))
-            test_data = ramsey.run(backend)
-            self.assertExperimentDone(test_data)
-            meas_shift = test_data.analysis_results("zz").value.n
-            self.assertLess(abs(meas_shift - zz), abs(test_tol * zz))
+        meas_shift = test_data.analysis_results("zz").value.n
+        self.assertLess(abs(meas_shift - zz_freq), abs(self.test_tol * zz_freq))
 
     def test_experiment_config(self):
         """Test config roundtrips"""
