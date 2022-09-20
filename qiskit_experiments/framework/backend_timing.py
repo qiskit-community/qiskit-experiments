@@ -12,7 +12,7 @@
 """Backend timing helper functions"""
 
 from math import gcd
-from typing import Union
+from typing import Optional, Union
 
 from qiskit import QiskitError
 from qiskit.providers.backend import Backend
@@ -47,7 +47,7 @@ class BackendTiming:
     ``dt`` complicates this process as times must be rounded. Besides the
     sampling time, there can be additional constraints like a minimum pulse
     length or a pulse granularity, which specifies the allowed increments of a
-    pulse length in samples (i.e. for a granularity of 16 pulse lengths of 64
+    pulse length in samples (i.e., for a granularity of 16, pulse lengths of 64
     and 80 samples are valid but not any number in between).
 
     Here are some specific problems that can occur when dealing with timing
@@ -101,11 +101,12 @@ class BackendTiming:
         For delay duration, the least common multiple of ``pulse_alignment``
         and ``acquire_alignment`` is used as the granularity. Thus, in the
         example above about the coupling between ``pulse_alignment`` and
-        ``acquire_alignment`` , ``delay`` and ``delay2`` are each a multiple of
-        ``acquire_alignment`` and so the sum always is. This approach excludes
-        some valid circuits (like each delay being half of
-        ``acquire_alignment``) but has the benefit of always being valid
-        without detailed analysis of the full circuit.
+        ``acquire_alignment`` , ``delay`` and ``delay2`` would each be rounded
+        to a multiple of ``acquire_alignment`` and so the sum would always be a
+        multiple of each alignment value as well. This approach modifies  some
+        valid circuits (like each delay being half of ``acquire_alignment``)
+        but has the benefit of always being valid without detailed analysis of
+        the full circuit.
 
     As an example use-case for :class:`.BackendTiming`, consider a T1 experiment
     where delay times are specified in seconds in a
@@ -119,12 +120,13 @@ class BackendTiming:
             timing = BackendTiming(self.backend)
 
             circuits = []
+            # delays is a list of delay values in seconds
             for delay in self.experiment_options.delays:
                 circ = QuantumCircuit(1, 1)
                 circ.x(0)
                 # Convert delay into appropriate units for backend and also set
                 # those units with delay_unit
-                circ.delay(timing.circuit_delay(delay), 0, timing.delay_unit)
+                circ.delay(timing.round_delay(time=delay), 0, timing.delay_unit)
                 circ.measure(0, 0)
 
                 # Use delay_time to get the actual value in seconds that was
@@ -132,7 +134,7 @@ class BackendTiming:
                 # variable's nominal value.
                 circ.metadata = {
                     "unit": "s",
-                    "xval": timing.delay_time(delay),
+                    "xval": timing.delay_time(time=delay),
                 }
 
                 circuits.append(circ)
@@ -151,7 +153,7 @@ class BackendTiming:
             dur = Paramater("duration")
 
             with pulse.build() as sched:
-                pulse.play(pulse.Gaussina(duration=dur, amp=1, sigma=dur / 4), chan)
+                pulse.play(pulse.Gaussian(duration=dur, amp=1, sigma=dur / 4), chan)
 
             gate = Gate("Rabi", num_qubits=1, params=[dur])
 
@@ -160,19 +162,20 @@ class BackendTiming:
             template_circ.measure(0, 0)
             template_circ.add_calibration(gate, (0,), sched)
 
-            # Pass experiment to BackendTiming
+            # Pass backend to BackendTiming
             timing = BackendTiming(self.backend)
 
             circs = []
+            # durations is a list of pulse durations in seconds
             for duration in self.experiment_options.durations:
                 # Calculate valid sample number closest to this duration
                 circ = template_circ.assign_parameters(
-                    {dur: timing.pulse_samples(duration)},
+                    {dur: timing.round_pulse(time=duration)},
                     inplace=False,
                 )
-                # Track corresponding duration in seconds for the pulse
+                # Track corresponding duration for the pulse in seconds
                 circ.metadata = {
-                    "xval": timing.pulse_time(duration),
+                    "xval": timing.pulse_time(time=duration),
                     "unit": "s",
                 }
     """
@@ -205,8 +208,10 @@ class BackendTiming:
 
         return "s"
 
-    def circuit_delay(self, time: float) -> Union[int, float]:
-        """Delay duration closest to ``time`` and consistent with timing constraints
+    def round_delay(
+        self, *, time: Optional[float] = None, samples: Optional[Union[int, float]] = None
+    ) -> Union[int, float]:
+        """Delay duration closest to input and consistent with timing constraints
 
         This method produces the value to pass for the ``duration`` of a
         ``Delay`` instruction of a ``QuantumCircuit`` so that the delay fills
@@ -214,10 +219,11 @@ class BackendTiming:
         begins on a sample that is also valid for a pulse to begin on.
 
         The pulse timing constraints of the backend are considered in order to
-        give the number of samples closest to ``time`` for the start of a pulse
-        in a subsequent instruction to be valid. The least common multiple of
-        the pulse and acquire alignment values is used in order to ensure that
-        either type of pulse will be aligned.
+        give the number of samples closest to the input (either ``time`` or
+        ``samples``) for the start of a pulse in a subsequent instruction to be
+        valid. The delay value in samples is rounded to the least common
+        multiple of the pulse and acquire alignment values in order to ensure
+        that either type of pulse will be aligned.
 
         If :meth:`.BackendTiming.delay_unit` is ``s``, ``time`` is
         returned directly. Typically, this is the case for a simulator where
@@ -225,87 +231,70 @@ class BackendTiming:
 
         Args:
             time: The nominal delay time to convert in seconds
+            samples: The nominal delay time to convert in samples
 
         Returns:
             The delay duration in samples if :meth:`.BackendTiming.delay_unit`
             is ``dt``. Otherwise return ``time``.
-        """
-        if self.delay_unit == "s":
-            return time
-
-        return self.schedule_delay(time)
-
-    def schedule_delay(self, time: float) -> int:
-        """Closest valid delay in samples to ``time``
-
-        The pulse timing constraints of the backend are considered in order to
-        give a number of samples closest to ``time`` consistent with the
-        alignment constraints, so that the start of a pulse in a subsequent
-        instruction is valid. The least common multiple of the pulse and
-        acquire alignment values is used in order to ensure that either type of
-        pulse will be aligned.
-
-        Args:
-            time: The nominal delay time to convert in seconds
-
-        Returns:
-            The delay duration in samples to pass to a ``Delay`` instruction in
-            Qiskit pulse schedule
 
         Raises:
-            QiskitError: The backend does not include a dt value.
+            QiskitError: If either both ``time`` and ``samples`` are passed or
+                neither is passed.
         """
-        if self.dt is None:
-            raise QiskitError("Backend has no dt value.")
+        if time is None and samples is None:
+            raise QiskitError("Either time or samples must be a numerical value.")
+        if time is not None and samples is not None:
+            raise QiskitError("Only one of time and samples can be a numerical value.")
+
+        if self.dt is None and time is not None:
+            return time
+
+        if samples is None:
+            samples = time / self.dt
 
         granularity = lcm(self._pulse_alignment, self._acquire_alignment)
 
-        samples = int(round(time / self.dt / granularity) * granularity)
+        samples_out = int(round(samples / granularity) * granularity)
 
-        return samples
+        return samples_out
 
-    def pulse_samples(self, time: float) -> int:
-        """The number of samples giving the valid pulse duration closest to ``time``
+    def round_pulse(
+        self, *, time: Optional[float] = None, samples: Optional[Union[int, float]] = None
+    ) -> int:
+        """The number of samples giving the valid pulse duration closest to the input
 
-        The multiple of the pulse granularity giving the time closest to
-        ``time`` is used. The returned value is always at least the backend's
-        ``min_length``.
+        The multiple of the pulse granularity giving the time closest to the
+        input (either ``time`` or ``samples``) is used. The returned value is
+        always at least the backend's ``min_length``.
 
         Args:
-            time: Pulse duration in seconds
+            time: Nominal pulse duration in seconds
+            samples: Nominal pulse duration in samples
 
         Returns:
-            The number of samples corresponding to ``time``
+            The number of samples corresponding to the input
 
         Raises:
+            QiskitError: If either both ``time`` and ``samples`` are passed or
+                neither is passed.
             QiskitError: The backend does not include a dt value.
-        """
-        if self.dt is None:
-            raise QiskitError("Backend has no dt value.")
-
-        return self.round_pulse_samples(time / self.dt)
-
-    def round_pulse_samples(self, samples: Union[float, int]) -> int:
-        """Round a nominal pulse sample duration to a valid number
-
-        The multiple of the pulse granularity giving the samples closest to
-        ``samples`` is used. The returned value is always at least the
-        backend's ``min_length``.
-
-        Args:
-            samples: Nominal pulse duration
-
-        Returns:
-            A sample duration close to ``samples`` and consistent with the
-            backend's timing constraints
-
-        Raises:
             QiskitError: If the algorithm used to calculate the pulse length
                 produces a length that is not commensurate with the pulse or
                 acquire alignment values. This should not happen unless the
                 alignment constraints provided by the backend do not fit the
                 assumptions that the algorithm makes.
         """
+        if time is None and samples is None:
+            raise QiskitError("Either time or samples must be a numerical value.")
+        if time is not None and samples is not None:
+            raise QiskitError("Only one of time and samples can be a numerical value.")
+
+        if self.dt is None:
+            raise QiskitError("Backend has no dt value.")
+
+        if samples is None:
+            samples = time / self.dt
+
         samples = int(round(samples / self._granularity)) * self._granularity
         samples = max(samples, self._min_length)
 
@@ -324,40 +313,54 @@ class BackendTiming:
 
         return samples
 
-    def delay_time(self, time: float) -> float:
-        """The closest valid delay time in seconds to ``time``
+    def delay_time(
+        self, *, time: Optional[float] = None, samples: Optional[Union[int, float]] = None
+    ) -> float:
+        """The closest valid delay time in seconds to the input
 
         If the backend reports ``dt``, this method uses
-        :meth:`.BackendTiming.schedule_delay` and converts the result back into
-        seconds. Otherwise, it just returns ``time`` directly.
+        :meth:`.BackendTiming.round_delay` and converts the result back into
+        seconds. Otherwise, if ``time`` was passed, it is returned directly.
 
         Args:
-            time: The nominal delay time to be rounded
+            time: The nominal delay time to convert in seconds
+            samples: The nominal delay time to convert in samples
 
         Returns:
             The realizable delay time in seconds
+
+        Raises:
+            QiskitError: If either both ``time`` and ``samples`` are passed or
+                neither is passed.
         """
         if self.delay_unit == "s":
             return time
 
-        return self.dt * self.schedule_delay(time)
+        return self.dt * self.round_delay(time=time, samples=samples)
 
-    def pulse_time(self, time: float) -> float:
-        """The closest valid pulse duration to ``time`` in seconds
+    def pulse_time(
+        self, *, time: Optional[float] = None, samples: Optional[Union[int, float]] = None
+    ) -> float:
+        """The closest valid pulse duration to the input in seconds
 
-        This method uses :meth:`.BackendTiming.pulse_samples` and then
+        This method uses :meth:`.BackendTiming.round_pulse` and then
         converts back into seconds.
 
         Args:
-            time: The nominal pulse time to be rounded
+            time: Nominal pulse duration in seconds
+            samples: Nominal pulse duration in samples
 
         Returns:
             The realizable pulse time in seconds
 
         Raises:
+            QiskitError: If either both ``time`` and ``samples`` are passed or
+                neither is passed.
             QiskitError: The backend does not include a dt value.
+            QiskitError: If the algorithm used to calculate the pulse length
+                produces a length that is not commensurate with the pulse or
+                acquire alignment values. This should not happen unless the
+                alignment constraints provided by the backend do not fit the
+                assumptions that the algorithm makes.
         """
-        if self.dt is None:
-            raise QiskitError("Backend has no dt value.")
-
-        return self.dt * self.pulse_samples(time)
+        return self.dt * self.round_pulse(time=time, samples=samples)
