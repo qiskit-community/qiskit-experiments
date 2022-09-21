@@ -290,36 +290,16 @@ def _deparameterized_name(inst: Instruction) -> str:
     return inst.name
 
 
-def _hash_cliff(cliff):
-    """Produce a hashable value that is unique for each different Clifford.  This should only be
-    used internally when the classes being hashed are under our control, because classes of this
-    type are mutable."""
-    table = cliff.table
-    abits = np.packbits(table.array)
-    pbits = np.packbits(table.phase)
-    return abits.tobytes(), pbits.tobytes()
-
-
-_TO_CLIFF = {i: CliffordUtils.clifford_1_qubit(i) for i in range(NUM_CLIFFORD_1Q)}
-_TO_INT = {_hash_cliff(cliff): i for i, cliff in _TO_CLIFF.items()}
-
-
 def _create_compose_map_1q():
-    products = np.zeros((NUM_CLIFFORD_1Q, NUM_CLIFFORD_1Q), dtype=int)
-    for i in range(NUM_CLIFFORD_1Q):
-        for j in range(NUM_CLIFFORD_1Q):
-            cliff = _TO_CLIFF[i].compose(_TO_CLIFF[j])
-            products[i][j] = _TO_INT[_hash_cliff(cliff)]
-
-    return products
+    dirname = os.path.dirname(__file__)
+    data = np.load(f"{dirname}/data/clifford_compose_1q.npz")
+    return data["table"]
 
 
 def _create_inverse_map_1q():
-    invs = np.zeros(NUM_CLIFFORD_1Q, dtype=int)
-    for i in range(NUM_CLIFFORD_1Q):
-        invs[i] = _TO_INT[_hash_cliff(_TO_CLIFF[i].adjoint())]
-
-    return invs
+    dirname = os.path.dirname(__file__)
+    data = np.load(f"{dirname}/data/clifford_inverse_1q.npz")
+    return data["table"]
 
 
 CLIFFORD_COMPOSE_1Q = _create_compose_map_1q()
