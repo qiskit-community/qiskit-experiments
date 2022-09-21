@@ -13,16 +13,32 @@
 Utilities for using the Clifford group in randomized benchmarking
 """
 
+from typing import List, Tuple, Optional, Union
 from functools import lru_cache
 from numbers import Integral
-from typing import Optional, Union
-
+from math import isclose
+import itertools
+import numpy as np
 from numpy.random import Generator, default_rng
 
+from qiskit import QuantumCircuit, QuantumRegister
 from qiskit.circuit import Gate, Instruction
-from qiskit.circuit import QuantumCircuit, QuantumRegister
 from qiskit.circuit.library import SdgGate, HGate, SGate
+from qiskit.compiler import transpile
+from qiskit.providers.backend import Backend
+from qiskit.exceptions import QiskitError
 from qiskit.quantum_info import Clifford, random_clifford
+
+from .clifford_data import (
+    CLIFF_SINGLE_GATE_MAP_1Q,
+    CLIFF_SINGLE_GATE_MAP_2Q,
+    CLIFF_COMPOSE_DATA_1Q,
+    CLIFF_COMPOSE_DATA_2Q,
+    CLIFF_INVERSE_DATA_1Q,
+    CLIFF_INVERSE_DATA_2Q,
+    CLIFF_NUM_TO_LAYERS_2Q,
+    CLIFF_LAYERS_TO_NUM_2Q,
+)
 
 
 @lru_cache(maxsize=None)
@@ -35,6 +51,8 @@ def _clifford_2q_int_to_instruction(num: Integral) -> Instruction:
     return CliffordUtils.clifford_2_qubit_circuit(num).to_instruction()
 
 
+# The classes VGate and WGate are not actually used in the code - we leave them here to give
+# a better understanding of the composition of the layers for 2-qubit Cliffords.
 class VGate(Gate):
     """V Gate used in Clifford synthesis."""
 
@@ -77,6 +95,24 @@ class CliffordUtils:
         (2, 2, 3, 3, 3, 3, 4, 4),
         (2, 2, 3, 3, 4, 4),
     ]
+    CLIFF_SINGLE_GATE_MAP = {1: CLIFF_SINGLE_GATE_MAP_1Q, 2: CLIFF_SINGLE_GATE_MAP_2Q}
+    CLIFF_COMPOSE_DATA = {1: CLIFF_COMPOSE_DATA_1Q, 2: CLIFF_COMPOSE_DATA_2Q}
+    CLIFF_INVERSE_DATA = {1: CLIFF_INVERSE_DATA_1Q, 2: CLIFF_INVERSE_DATA_2Q}
+
+    NUM_LAYER_0 = 36
+    NUM_LAYER_1 = 20
+    NUM_LAYER_2 = 16
+
+    def __init__(self, num_qubits, basis_gates: List[str], backend: Optional[Backend] = None):
+        self.num_qubits = num_qubits
+        self.basis_gates = basis_gates
+        self._backend = backend
+        self._transpiled_cliffords_1q = []
+        self._transpiled_cliff_layer = {}
+        if self.num_qubits == 1:
+            self.transpile_1q_cliffords()
+        elif self.num_qubits == 2:
+            self.transpile_2q_cliff_layers()
 
     @classmethod
     @lru_cache(maxsize=24)
@@ -115,11 +151,12 @@ class CliffordUtils:
             return [Clifford(self.clifford_2_qubit_circuit(i), validate=False) for i in samples]
 
     def random_clifford_circuits(
-        self, num_qubits: int, size: int = 1, rng: Optional[Union[int, Generator]] = None
-    ):
-        """Generate a list of random clifford circuits"""
-        if num_qubits > 2:
-            return [random_clifford(num_qubits, seed=rng).to_circuit() for _ in range(size)]
+        self, size: int = 1, rng: Optional[Union[int, Generator]] = None
+    ) -> List[QuantumCircuit]:
+        """Generate a list of random clifford circuits.
+        Used for 3 or more qubits"""
+        if self.num_qubits > 2:
+            return [random_clifford(self.num_qubits, seed=rng).to_circuit() for _ in range(size)]
 
         if rng is None:
             rng = default_rng()
@@ -127,11 +164,11 @@ class CliffordUtils:
         if isinstance(rng, int):
             rng = default_rng(rng)
 
-        if num_qubits == 1:
-            samples = rng.integers(24, size=size)
+        if self.num_qubits == 1:
+            samples = rng.integers(CliffordUtils.NUM_CLIFFORD_1_QUBIT, size=size)
             return [self.clifford_1_qubit_circuit(i) for i in samples]
         else:
-            samples = rng.integers(11520, size=size)
+            samples = rng.integers(CliffordUtils.NUM_CLIFFORD_2_QUBIT, size=size)
             return [self.clifford_2_qubit_circuit(i) for i in samples]
 
     @classmethod
@@ -140,7 +177,7 @@ class CliffordUtils:
         """Return the 1-qubit clifford circuit corresponding to `num`
         where `num` is between 0 and 23.
         """
-        unpacked = cls._unpack_num(num, (2, 3, 4))
+        unpacked = cls._unpack_num(num, cls.CLIFFORD_1_QUBIT_SIG)
         i, j, p = unpacked[0], unpacked[1], unpacked[2]
         qc = QuantumCircuit(1, name=f"Clifford-1Q({num})")
         if i == 1:
@@ -242,3 +279,314 @@ class CliffordUtils:
                 return [i] + CliffordUtils._unpack_num(num, sig)
             num -= sig_size
         return None
+
+    def num_from_clifford_single_gate(
+        self, inst: Instruction, qubits: List[int], rb_num_qubits: int
+    ) -> int:
+        """
+        This method does the reverse of clifford_1_qubit_circuit and clifford_2_qubit_circuit -
+        given a clifford, it returns the corresponding integer, with the mapping
+        defined in the above method.
+
+         Returns:
+            An integer representing a Clifford consisting of a single gate.
+
+        Raises:
+            QiskitError: if the input instruction is not a Clifford instruction.
+            QiskitError: if rz is given with a angle that is not Clifford.
+        """
+        name = inst.name
+        if name == "delay":
+            return 0
+
+        clifford_gate_set = {key[0] for key in self.CLIFF_SINGLE_GATE_MAP[rb_num_qubits]}
+        if name == "rz":
+            # The next two are identical up to a phase, which makes no difference
+            # for the associated Cliffords
+            if isclose(inst.params[0], np.pi) or isclose(inst.params[0], -np.pi):
+                map_index = "z"
+            elif isclose(inst.params[0], np.pi / 2):
+                map_index = "s"
+            elif isclose(inst.params[0], -np.pi / 2):
+                map_index = "sdg"
+            else:
+                raise QiskitError("wrong param {} for rz in clifford".format(inst.params[0]))
+        elif name in clifford_gate_set:
+            map_index = name
+            if name == "cz":
+                # for cz we save only [0, 1] since it is a symmetric operation
+                qubits = [min(qubits), max(qubits)]
+        else:
+            raise QiskitError("Instruction {} could not be converted to Clifford gate".format(name))
+        return self.CLIFF_SINGLE_GATE_MAP[rb_num_qubits][(map_index, str(qubits))]
+
+    def compose_num_with_clifford(self, composed_num: int, qc: QuantumCircuit) -> int:
+        """Compose a number that represents a Clifford, with a single-gate Clifford, and return the
+        number that represents the resulting Clifford."""
+
+        # The numbers corresponding to single gate Cliffords are not in sequence -
+        # see CLIFF_SINGLE_GATE_MAP_1Q/2Q. To compute the index in
+        # the array CLIFF_COMPOSE_DATA_1Q, we map the numbers to [0, 8].
+        # For 2 qubits, we map the numbers to [0, 21].
+
+        map_clifford_num_to_array_index = {}
+        num_single_gate_cliffs = len(self.CLIFF_SINGLE_GATE_MAP[self.num_qubits])
+        for k in list(self.CLIFF_SINGLE_GATE_MAP[self.num_qubits]):
+            map_clifford_num_to_array_index[self.CLIFF_SINGLE_GATE_MAP[self.num_qubits][k]] = list(
+                self.CLIFF_SINGLE_GATE_MAP[self.num_qubits].keys()
+            ).index(k)
+        if self.num_qubits == 1:
+            for inst, qargs, _ in qc:
+                num = self.num_from_clifford_single_gate(inst=inst, qubits=[0], rb_num_qubits=1)
+                index = num_single_gate_cliffs * composed_num + map_clifford_num_to_array_index[num]
+                composed_num = self.CLIFF_COMPOSE_DATA[self.num_qubits][index]
+        else:  # num_qubits == 2
+            for inst, qargs, _ in qc:
+                if inst.num_qubits == 2:
+                    qubits = [qc.find_bit(qargs[0]).index, qc.find_bit(qargs[1]).index]
+                else:
+                    qubits = [qc.find_bit(qargs[0]).index]
+                num = self.num_from_clifford_single_gate(inst=inst, qubits=qubits, rb_num_qubits=2)
+                index = num_single_gate_cliffs * composed_num + map_clifford_num_to_array_index[num]
+                composed_num = self.CLIFF_COMPOSE_DATA[self.num_qubits][index]
+        return composed_num
+
+    def clifford_inverse_by_num(self, num: int):
+        """Return the number of the inverse Clifford to the input num"""
+        return self.CLIFF_INVERSE_DATA[self.num_qubits][num]
+
+    def transpile_1q_cliffords(self):
+        """Transpile all the 1-qubit Cliffords and store them in self._transpiled_cliffords_1q."""
+        if self._transpiled_cliffords_1q != []:
+            return
+        for num in range(0, CliffordUtils.NUM_CLIFFORD_1_QUBIT):
+            circ = CliffordUtils.clifford_1_qubit_circuit(num=num)
+            transpiled_circ = transpile(
+                circuits=circ,
+                optimization_level=1,
+                basis_gates=self.basis_gates,
+                backend=self._backend,
+            )
+            self._transpiled_cliffords_1q.append(transpiled_circ)
+
+    def transpiled_clifford_from_num_1q(self, num):
+        """Return the transpiled Clifford whose index is 'num'"""
+        return self._transpiled_cliffords_1q[num]
+
+    def transpile_2q_cliff_layers(self):
+        """Transpile all the 2-qubit layers and store them in self._transpiled_cliffords_layer."""
+        if self._transpiled_cliff_layer != {}:
+            return
+        self._transpiled_cliff_layer[0] = []
+        self._transpiled_cliff_layer[1] = []
+        self._transpiled_cliff_layer[2] = []
+        self._transpile_cliff_layer_0()
+        self._transpile_cliff_layer_1()
+        self._transpile_cliff_layer_2()
+
+    def _transpile_cliff_layer_0(self):
+        """Layer 0 consists of 0 or 1 H gates on each qubit, followed by 0/1/2 V gates on each qubit.
+        Number of Cliffords == 36."""
+        if self._transpiled_cliff_layer[0] != []:
+            return
+        num_h = [0, 1]
+        v_w_gates = ["i", "v", "w"]
+
+        for h0, h1, v0, v1 in itertools.product(num_h, num_h, v_w_gates, v_w_gates):
+            qr = QuantumRegister(2)
+            qc = QuantumCircuit(qr)
+            for _ in range(h0):
+                qc.h(0)
+            for _ in range(h1):
+                qc.h(1)
+            if v0 == "v":
+                qc.sdg(0)  # VGate
+                qc.h(0)
+            elif v0 == "w":
+                qc.h(0)  # WGate
+                qc.s(0)
+            if v1 == "v":
+                qc.sdg(1)  # VGate
+                qc.h(1)
+            elif v1 == "w":
+                qc.h(1)  # WGate
+                qc.s(1)
+            transpiled = transpile(
+                qc, optimization_level=1, basis_gates=self.basis_gates, backend=self._backend
+            )
+            self._transpiled_cliff_layer[0].append(transpiled)
+
+    def _transpile_cliff_layer_1(self):
+        """Layer 1 consists of one of the following:
+        - nothing
+        - cx(0,1) followed by 0/1/2 V gates on each qubit
+        - cx(0,1), cx(1,0) followed by 0/1/2 V gates on each qubit
+        - cx(0,1), cx(1,0), cx(0,1)
+        Number of Cliffords == 20."""
+        if self._transpiled_cliff_layer[1] != []:
+            return
+        v_w_gates = ["i", "v", "w"]
+        qr = QuantumRegister(2)
+        qc = QuantumCircuit(qr)
+        transpiled = transpile(
+            qc, optimization_level=1, basis_gates=self.basis_gates, backend=self._backend
+        )
+        self._transpiled_cliff_layer[1].append(transpiled)
+
+        for v0, v1 in itertools.product(v_w_gates, v_w_gates):
+            qc = QuantumCircuit(qr)
+            qc.cx(0, 1)
+            if v0 == "v":
+                qc.sdg(0)  # VGate
+                qc.h(0)
+            elif v0 == "w":
+                qc.h(0)  # WGate
+                qc.s(0)
+            if v1 == "v":
+                qc.sdg(1)  # VGate
+                qc.h(1)
+            elif v1 == "w":
+                qc.h(1)  # WGate
+                qc.s(1)
+            transpiled = transpile(
+                qc, optimization_level=1, basis_gates=self.basis_gates, backend=self._backend
+            )
+            self._transpiled_cliff_layer[1].append(transpiled)
+
+        for v0, v1 in itertools.product(v_w_gates, v_w_gates):
+            qc = QuantumCircuit(qr)
+            qc.cx(0, 1)
+            qc.cx(1, 0)
+            if v0 == "v":
+                qc.sdg(0)  # VGate
+                qc.h(0)
+            elif v0 == "w":
+                qc.h(0)  # WGate
+                qc.s(0)
+            if v1 == "v":
+                qc.sdg(1)  # VGate
+                qc.h(1)
+            elif v1 == "w":
+                qc.h(1)  # WGate
+                qc.s(1)
+            transpiled = transpile(
+                qc, optimization_level=1, basis_gates=self.basis_gates, backend=self._backend
+            )
+            self._transpiled_cliff_layer[1].append(transpiled)
+
+        qc = QuantumCircuit(qr)
+        qc.cx(0, 1)
+        qc.cx(1, 0)
+        qc.cx(0, 1)
+        transpiled = transpile(
+            qc, optimization_level=1, basis_gates=self.basis_gates, backend=self._backend
+        )
+        self._transpiled_cliff_layer[1].append(transpiled)
+
+    def _transpile_cliff_layer_2(self):
+        """Layer 2 consists of a Pauli gate on each qubit {Id, X, Y, Z}.
+        Number of Cliffords == 16."""
+        if self._transpiled_cliff_layer[2] != []:
+            return
+        pauli = ["i", "x", "y", "z"]
+        for p0, p1 in itertools.product(pauli, pauli):
+            qr = QuantumRegister(2)
+            qc = QuantumCircuit(qr)
+            if p0 != "i":
+                qc._append(Gate(p0, 1, []), [qr[0]], [])
+            if p1 != "i":
+                qc._append(Gate(p1, 1, []), [qr[1]], [])
+
+            transpiled = transpile(
+                qc, optimization_level=1, basis_gates=self.basis_gates, backend=self._backend
+            )
+            self._transpiled_cliff_layer[2].append(transpiled)
+
+    def create_random_clifford(self, rng: Generator) -> QuantumCircuit:
+        """For 1-qubit, select a random transpiled Clifford.
+
+         Returns:
+            A random Clifford represented as a :class:`QuantumCircuit`.
+
+        Raises:
+            QiskitError: if the number of qubits is greater than 2.
+
+        """
+        if rng is None:
+            rng = default_rng()
+        if isinstance(rng, int):
+            rng = default_rng(rng)
+        if self.num_qubits == 1:
+            rand = rng.integers(self.NUM_CLIFFORD_1_QUBIT)
+            return self._transpiled_cliffords_1q[rand]
+        elif self.num_qubits == 2:
+            rand = rng.integers(self.NUM_CLIFFORD_2_QUBIT)
+            return self.create_cliff_from_num(num=rand)
+        else:
+            raise QiskitError("create_random_clifford is not supported for more than 2 qubits")
+
+    def create_cliff_from_num(self, num) -> QuantumCircuit:
+        """Create a Clifford corresponding to a give number. For 2-qubits, get the 3 layer indices
+        that correspond to 'num'. Retrieve them from _transpiled_cliff_layer,
+        and compose them to create a Clifford.
+
+         Returns:
+            A Clifford represented as a :class:`QuantumCircuit`.
+
+        Raises:
+            QiskitError: if the number of qubits is greater than 2.
+
+        """
+        if self.num_qubits == 1:
+            return self._transpiled_cliffords_1q[num]
+        elif self.num_qubits == 2:
+            triplet = CliffordUtils.layer_indices_from_num(num)
+            return self.transpiled_cliff_from_layer_nums(triplet)
+        else:
+            raise QiskitError("create_cliff_from_num is not supported for more than 2 qubits")
+
+    @lru_cache(NUM_CLIFFORD_2_QUBIT)
+    def transpiled_cliff_from_layer_nums(self, triplet: Tuple) -> QuantumCircuit:
+        """Given a triplet of indices to the _transpiled_cliff_layers, return the Clifford that consists
+        of composing the three."""
+        q0 = self._transpiled_cliff_layer[0][triplet[0]]
+        q1 = self._transpiled_cliff_layer[1][triplet[1]]
+        q2 = self._transpiled_cliff_layer[2][triplet[2]]
+        qc = q0.copy()
+        qc.compose(q1, inplace=True)
+        qc.compose(q2, inplace=True)
+        return qc
+
+    @staticmethod
+    def num_from_layer_indices(triplet: Tuple) -> int:
+        """Return the clifford number corresponding to the input triplet."""
+        num = (
+            triplet[0] * CliffordUtils.NUM_LAYER_1 * CliffordUtils.NUM_LAYER_2
+            + triplet[1] * CliffordUtils.NUM_LAYER_2
+            + triplet[2]
+        )
+        return CLIFF_LAYERS_TO_NUM_2Q[num]
+
+    @staticmethod
+    def layer_indices_from_num(num: int) -> Tuple[int]:
+        """Return the triplet of layer indices corresponding to the input number."""
+        return CLIFF_NUM_TO_LAYERS_2Q[num]
+
+    def inverse_cliff(self, cliff_num: int) -> QuantumCircuit:
+        """Return the Clifford that is the inverse of the clifford corresponding to Cliff_num
+
+        Returns:
+            A Clifford represented as a :class:`QuantumCircuit`.
+
+        Raises:
+            QiskitError: if the number of qubits is greater than 2.
+
+        """
+        inverse_clifford_num = self.clifford_inverse_by_num(cliff_num)
+        if self.num_qubits == 1:
+            return self._transpiled_cliffords_1q[inverse_clifford_num]
+        elif self.num_qubits == 2:
+            indices = CliffordUtils.layer_indices_from_num(inverse_clifford_num)
+            return self.transpiled_cliff_from_layer_nums(indices)
+        else:
+            raise QiskitError("inverse_cliff is not supported for more than 2 qubits")

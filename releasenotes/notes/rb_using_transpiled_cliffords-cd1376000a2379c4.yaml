@@ -1,0 +1,10 @@
+---
+other:
+  - |
+   Implemented a new algorithm for rb_experiment. This algorithm builds Cliffords out of
+   three layers. The Cliffords in each layer are transpiled in advance.
+   To create a cClifford, a circuit is selected for each layer, and the
+   three circuits are composed.
+   In addition, compose and inverse operations are 
+   computed using a mapping between Cliffords and integers, making these 
+   operations much faster. The mapping is stored in the file 'clifford_data.py.
