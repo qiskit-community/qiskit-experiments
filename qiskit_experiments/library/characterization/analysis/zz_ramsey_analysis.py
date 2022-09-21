@@ -9,6 +9,9 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
+"""
+Analysis class for ZZ Ramsey experiment
+"""
 
 from typing import List, Tuple, Union
 
@@ -19,10 +22,11 @@ from qiskit.providers.options import Options
 
 import qiskit_experiments.curve_analysis as curve
 from qiskit_experiments.curve_analysis import CurveAnalysis, CurveData, CurveFitResult, FitOptions
-from qiskit_experiments.curve_analysis import fit_function
 
 
 class ZZRamseyAnalysis(CurveAnalysis):
+    # Disable long line check because we can't break the long math lines
+    # pylint: disable=line-too-long
     r"""The :math:`ZZ` Ramsey analysis is based on a fit to a cosine function.
 
     # section: fit_model
@@ -76,6 +80,7 @@ class ZZRamseyAnalysis(CurveAnalysis):
             init_guess: Zero
             bounds: [-pi, pi].
     """
+    # pylint: enable=line-too-long
 
     def __init__(self):
         super().__init__(
