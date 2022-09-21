@@ -14,16 +14,20 @@
 
 from test.base import QiskitExperimentsTestCase
 
-import numpy as np
+import random
 from ddt import ddt, data, unpack
+import numpy as np
+
 from qiskit.circuit import Delay, QuantumCircuit
-from qiskit.circuit.library import SXGate, CXGate, TGate, XGate
+from qiskit.circuit.library import SXGate, CXGate, TGate, CZGate
 from qiskit.exceptions import QiskitError
-from qiskit.quantum_info import Clifford
+from qiskit.quantum_info import Operator
 from qiskit_aer import AerSimulator
 from qiskit_aer.noise import NoiseModel, depolarizing_error
 
 from qiskit_experiments.library import randomized_benchmarking as rb
+from qiskit_experiments.library.randomized_benchmarking import CliffordUtils
+from qiskit_experiments.framework.composite import ParallelExperiment
 from qiskit_experiments.database_service.exceptions import ExperimentEntryNotFound
 
 
@@ -38,19 +42,22 @@ class RBTestCase(QiskitExperimentsTestCase):
         self.p1q = 0.02
         self.p2q = 0.10
         self.pvz = 0.0
+        self.pcz = 0.15
 
         # basis gates
-        self.basis_gates = ["sx", "rz", "cx"]
+        self.basis_gates = ["rz", "sx", "cx"]
 
         # setup noise model
         sx_error = depolarizing_error(self.p1q, 1)
         rz_error = depolarizing_error(self.pvz, 1)
         cx_error = depolarizing_error(self.p2q, 2)
+        cz_error = depolarizing_error(self.pcz, 2)
 
         noise_model = NoiseModel()
         noise_model.add_all_qubit_quantum_error(sx_error, "sx")
         noise_model.add_all_qubit_quantum_error(rz_error, "rz")
         noise_model.add_all_qubit_quantum_error(cx_error, "cx")
+        noise_model.add_all_qubit_quantum_error(cz_error, "cz")
 
         self.noise_model = noise_model
 
@@ -67,13 +74,9 @@ class RBTestCase(QiskitExperimentsTestCase):
         """Test if all experiment circuits are identity."""
         for circ in circuits:
             num_qubits = circ.num_qubits
-            iden = Clifford(np.eye(2 * num_qubits, dtype=bool))
-
+            qc_iden = QuantumCircuit(num_qubits)
             circ.remove_final_measurements()
-
-            self.assertEqual(
-                Clifford(circ), iden, f"Circuit {circ.name} doesn't result in the identity matrix."
-            )
+            assert Operator(circ).equiv(Operator(qc_iden))
 
 
 @ddt
@@ -108,9 +111,34 @@ class TestStandardRB(RBTestCase):
         self.assertAlmostEqual(epc.value.n, epc_expected, delta=0.1 * epc_expected)
 
     def test_two_qubit(self):
-        """Test two qubit RB."""
+        """Test two qubit RB. Use default basis gates."""
         exp = rb.StandardRB(
             qubits=(0, 1),
+            lengths=list(range(1, 30, 3)),
+            seed=123,
+            backend=self.backend,
+        )
+        exp.analysis.set_options(gate_error_ratio=None)
+        transpiler_options = {"optimization_level": 1}
+        exp.set_transpile_options(**transpiler_options)
+        self.assertAllIdentity(exp.circuits())
+
+        expdata = exp.run()
+        self.assertExperimentDone(expdata)
+
+        # Given CX error is dominant and 1q error can be negligible.
+        # Arbitrary SU(4) can be decomposed with (0, 1, 2, 3) CX gates, the expected
+        # average number of CX gate per Clifford is 1.5.
+        # Since this is two qubit RB, the dep-parameter is factored by 3/4.
+        epc = expdata.analysis_results("EPC")
+        # Allow for 50 percent tolerance since we ignore 1q gate contribution
+        epc_expected = 1 - (1 - 3 / 4 * self.p2q) ** 1.5
+        self.assertAlmostEqual(epc.value.n, epc_expected, delta=0.5 * epc_expected)
+
+    def test_three_qubit(self):
+        """Test two qubit RB. Use default basis gates."""
+        exp = rb.StandardRB(
+            qubits=(0, 1, 2),
             lengths=list(range(1, 30, 3)),
             seed=123,
             backend=self.backend,
@@ -123,13 +151,12 @@ class TestStandardRB(RBTestCase):
         self.assertExperimentDone(expdata)
 
         # Given CX error is dominant and 1q error can be negligible.
-        # Arbitrary SU(4) can be decomposed with (0, 1, 2, 3) CX gates, the expected
-        # average number of CX gate per Clifford is 1.5.
-        # Since this is two qubit RB, the dep-parameter is factored by 3/4.
+        # Arbitrary SU(8) can be decomposed with [0,...,7] CX gates, the expected
+        # average number of CX gate per Clifford is 3.5.
+        # Since this is three qubit RB, the dep-parameter is factored by 7/8.
         epc = expdata.analysis_results("EPC")
-
         # Allow for 50 percent tolerance since we ignore 1q gate contribution
-        epc_expected = 1 - (1 - 3 / 4 * self.p2q) ** 1.5
+        epc_expected = 1 - (1 - 7 / 8 * self.p2q) ** 3.5
         self.assertAlmostEqual(epc.value.n, epc_expected, delta=0.5 * epc_expected)
 
     def test_add_more_circuit_yields_lower_variance(self):
@@ -183,9 +210,9 @@ class TestStandardRB(RBTestCase):
         # Simulator seed must be fixed. This can be set via run option with FakeBackend.
         # pylint: disable=no-member
         exp.set_run_options(seed_simulator=456)
+
         expdata = exp.run()
         self.assertExperimentDone(expdata)
-
         overview = expdata.analysis_results(0).value
         # This yields bad fit due to poor data points, but still fit is not completely off.
         self.assertLess(overview.reduced_chisq, 10)
@@ -206,6 +233,8 @@ class TestStandardRB(RBTestCase):
             backend=self.backend,
         )
 
+        exp1.set_transpile_options(**self.transpiler_options)
+        exp2.set_transpile_options(**self.transpiler_options)
         circs1 = exp1.circuits()
         circs2 = exp2.circuits()
 
@@ -213,7 +242,34 @@ class TestStandardRB(RBTestCase):
         self.assertEqual(circs1[1].decompose(), circs2[1].decompose())
         self.assertEqual(circs1[2].decompose(), circs2[2].decompose())
 
-    def test_full_sampling(self):
+    def test_full_sampling_single_qubit(self):
+        """Test if full sampling generates different circuits."""
+        exp1 = rb.StandardRB(
+            qubits=(0,),
+            lengths=[10, 20, 30],
+            seed=123,
+            backend=self.backend,
+            full_sampling=False,
+        )
+        exp1.set_transpile_options(**self.transpiler_options)
+        exp2 = rb.StandardRB(
+            qubits=(0,),
+            lengths=[10, 20, 30],
+            seed=123,
+            backend=self.backend,
+            full_sampling=True,
+        )
+        exp2.set_transpile_options(**self.transpiler_options)
+        circs1 = exp1.circuits()
+        circs2 = exp2.circuits()
+
+        self.assertEqual(circs1[0].decompose(), circs2[0].decompose())
+
+        # fully sampled circuits are regenerated while other is just built on top of previous length
+        self.assertNotEqual(circs1[1].decompose(), circs2[1].decompose())
+        self.assertNotEqual(circs1[2].decompose(), circs2[2].decompose())
+
+    def test_full_sampling_2_qubits(self):
         """Test if full sampling generates different circuits."""
         exp1 = rb.StandardRB(
             qubits=(0, 1),
@@ -222,6 +278,7 @@ class TestStandardRB(RBTestCase):
             backend=self.backend,
             full_sampling=False,
         )
+        exp1.set_transpile_options(**self.transpiler_options)
 
         exp2 = rb.StandardRB(
             qubits=(0, 1),
@@ -230,6 +287,7 @@ class TestStandardRB(RBTestCase):
             backend=self.backend,
             full_sampling=True,
         )
+        exp2.set_transpile_options(**self.transpiler_options)
 
         circs1 = exp1.circuits()
         circs2 = exp2.circuits()
@@ -284,61 +342,158 @@ class TestStandardRB(RBTestCase):
         self.assertRoundTripSerializable(expdata, check_func=self.experiment_data_equiv)
         self.assertRoundTripPickle(expdata, check_func=self.experiment_data_equiv)
 
+    def test_single_qubit_parallel(self):
+        """Test single qubit RB in parallel."""
+        qubits = [0, 2]
+        lengths = list(range(1, 300, 30))
+        exps = []
+        for qubit in qubits:
+            exp = rb.StandardRB(qubits=[qubit], lengths=lengths, seed=123, backend=self.backend)
+            exp.analysis.set_options(gate_error_ratio=None, plot_raw_data=False)
+            exps.append(exp)
+
+        par_exp = ParallelExperiment(exps)
+        par_exp.set_transpile_options(**self.transpiler_options)
+
+        par_expdata = par_exp.run(backend=self.backend)
+        self.assertExperimentDone(par_expdata)
+        epc_expected = 1 - (1 - 1 / 2 * self.p1q) ** 1.0
+        for i in range(2):
+            epc = par_expdata.child_data(i).analysis_results("EPC")
+            self.assertAlmostEqual(epc.value.n, epc_expected, delta=0.1 * epc_expected)
+
+    def test_two_qubit_parallel(self):
+        """Test two qubit RB in parallel."""
+        qubit_pairs = [[0, 1], [2, 3]]
+        lengths = list(range(5, 100, 5))
+        exps = []
+        for pair in qubit_pairs:
+            exp = rb.StandardRB(qubits=pair, lengths=lengths, seed=123, backend=self.backend)
+            exp.analysis.set_options(gate_error_ratio=None, plot_raw_data=False)
+            exps.append(exp)
+
+        par_exp = ParallelExperiment(exps)
+        par_exp.set_transpile_options(**self.transpiler_options)
+
+        par_expdata = par_exp.run(backend=self.backend)
+        self.assertExperimentDone(par_expdata)
+        epc_expected = 1 - (1 - 3 / 4 * self.p2q) ** 1.5
+        for i in range(2):
+            epc = par_expdata.child_data(i).analysis_results("EPC")
+            # Allow for 20 percent tolerance since we ignore 1q gate contribution
+            self.assertAlmostEqual(epc.value.n, epc_expected, delta=0.2 * epc_expected)
+
+    def test_two_qubit_with_cz(self):
+        """Test two qubit RB."""
+        transpiler_options = {
+            "basis_gates": ["sx", "rz", "cz"],
+            "optimization_level": 1,
+        }
+
+        exp = rb.StandardRB(
+            qubits=(0, 1),
+            lengths=list(range(1, 50, 5)),
+            seed=123,
+            backend=self.backend,
+        )
+        exp.analysis.set_options(gate_error_ratio=None)
+        exp.set_transpile_options(**transpiler_options)
+
+        expdata = exp.run()
+        self.assertAllIdentity(exp.circuits())
+        self.assertExperimentDone(expdata)
+
+        # Given CX error is dominant and 1q error can be negligible.
+        # Arbitrary SU(4) can be decomposed with (0, 1, 2, 3) CX gates, the expected
+        # average number of CX gate per Clifford is 1.5.
+        # Since this is two qubit RB, the dep-parameter is factored by 3/4.
+        epc = expdata.analysis_results("EPC")
+
+        # Allow for 50 percent tolerance since we ignore 1q gate contribution
+        epc_expected = 1 - (1 - 3 / 4 * self.pcz) ** 1.5
+        self.assertAlmostEqual(epc.value.n, epc_expected, delta=0.5 * epc_expected)
+
 
 @ddt
 class TestInterleavedRB(RBTestCase):
     """Test for interleaved RB."""
 
-    @data([XGate(), [3], 4], [CXGate(), [4, 7], 5])
+    @data([SXGate(), [3], 4], [CXGate(), [4, 7], 5])
     @unpack
     def test_interleaved_structure(self, interleaved_element, qubits, length):
         """Verifies that when generating an interleaved circuit, it will be
         identical to the original circuit up to additions of
         barrier and interleaved element between any two Cliffords.
         """
-        exp = rb.InterleavedRB(
-            interleaved_element=interleaved_element, qubits=qubits, lengths=[length], num_samples=1
-        )
-
-        circuits = exp.circuits()
-        c_std = circuits[0]
-        c_int = circuits[1]
-        if c_std.metadata["interleaved"]:
-            c_std, c_int = c_int, c_std
-        num_cliffords = c_std.metadata["xval"]
-        std_idx = 0
-        int_idx = 0
-        for _ in range(num_cliffords):
-            # barrier
-            self.assertEqual(c_std[std_idx][0].name, "barrier")
-            self.assertEqual(c_int[int_idx][0].name, "barrier")
-            # clifford
-            self.assertEqual(c_std[std_idx + 1], c_int[int_idx + 1])
-            # for interleaved circuit: barrier + interleaved element
-            self.assertEqual(c_int[int_idx + 2][0].name, "barrier")
-            self.assertEqual(c_int[int_idx + 3][0].name, interleaved_element.name)
-            std_idx += 2
-            int_idx += 4
+        full_sampling = [True, False]
+        for val in full_sampling:
+            exp = rb.InterleavedRB(
+                interleaved_element=interleaved_element,
+                qubits=qubits,
+                lengths=[length],
+                num_samples=1,
+                full_sampling=val,
+            )
+            exp.set_transpile_options(**self.transpiler_options)
+            circuits = exp.circuits()
+            c_std = circuits[0]
+            c_int = circuits[1]
+            if c_std.metadata["interleaved"]:
+                c_std, c_int = c_int, c_std
+            num_cliffords = c_std.metadata["xval"]
+            std_idx = 0
+            int_idx = 0
+            for _ in range(num_cliffords):
+                # barrier
+                self.assertEqual(c_std[std_idx][0].name, "barrier")
+                self.assertEqual(c_int[int_idx][0].name, "barrier")
+                # clifford
+                std_idx += 1
+                int_idx += 1
+                while c_std[std_idx][0].name != "barrier":
+                    self.assertEqual(c_std[std_idx], c_int[int_idx])
+                    std_idx += 1
+                    int_idx += 1
+                # for interleaved circuit: barrier + interleaved element
+                self.assertEqual(c_int[int_idx][0].name, "barrier")
+                int_idx += 1
+                self.assertEqual(c_int[int_idx][0].name, interleaved_element.name)
+                int_idx += 1
 
     def test_single_qubit(self):
-        """Test single qubit IRB."""
-        exp = rb.InterleavedRB(
-            interleaved_element=SXGate(),
-            qubits=(0,),
-            lengths=list(range(1, 300, 30)),
-            seed=123,
-            backend=self.backend,
-        )
-        exp.set_transpile_options(**self.transpiler_options)
-        self.assertAllIdentity(exp.circuits())
+        """Test single qubit IRB, once with an interleaved gate, once with an interleaved
+        Clifford circuit.
+        """
+        interleaved_gate = SXGate()
+        random.seed(123)
+        num = random.randint(0, 23)
+        interleaved_clifford = CliffordUtils.clifford_1_qubit_circuit(num)
+        # The circuit created for interleaved_clifford is:
+        # qc = QuantumCircuit(1)
+        # qc.rz(np.pi/2, 0)
+        # qc.sx(0)
+        # qc.rz(np.pi/2, 0)
+        # Since there is a single sx per interleaved_element,
+        # therefore epc_expected is the same as for when interleaved_element = SXGate()
+        for interleaved_element in [interleaved_gate, interleaved_clifford]:
+            exp = rb.InterleavedRB(
+                interleaved_element=interleaved_element,
+                qubits=(0,),
+                lengths=list(range(1, 300, 30)),
+                seed=123,
+                backend=self.backend,
+            )
+            exp.set_transpile_options(**self.transpiler_options)
 
-        expdata = exp.run()
-        self.assertExperimentDone(expdata)
+            self.assertAllIdentity(exp.circuits())
 
-        # Since this is interleaved, we can directly compare values, i.e. n_gpc = 1
-        epc = expdata.analysis_results("EPC")
-        epc_expected = 1 / 2 * self.p1q
-        self.assertAlmostEqual(epc.value.n, epc_expected, delta=0.1 * epc_expected)
+            expdata = exp.run()
+            self.assertExperimentDone(expdata)
+
+            # Since this is interleaved, we can directly compare values, i.e. n_gpc = 1
+            epc = expdata.analysis_results("EPC")
+            epc_expected = 1 / 2 * self.p1q
+            self.assertAlmostEqual(epc.value.n, epc_expected, delta=0.1 * epc_expected)
 
     def test_two_qubit(self):
         """Test two qubit IRB."""
@@ -360,9 +515,33 @@ class TestInterleavedRB(RBTestCase):
         epc_expected = 3 / 4 * self.p2q
         self.assertAlmostEqual(epc.value.n, epc_expected, delta=0.1 * epc_expected)
 
+    def test_two_qubit_with_cz(self):
+        """Test two qubit IRB."""
+        transpiler_options = {
+            "basis_gates": ["sx", "rz", "cz"],
+            "optimization_level": 1,
+        }
+        exp = rb.InterleavedRB(
+            interleaved_element=CZGate(),
+            qubits=(0, 1),
+            lengths=list(range(1, 30, 3)),
+            seed=123,
+            backend=self.backend,
+        )
+        exp.set_transpile_options(**transpiler_options)
+        self.assertAllIdentity(exp.circuits())
+
+        expdata = exp.run()
+        self.assertExperimentDone(expdata)
+
+        # Since this is interleaved, we can directly compare values, i.e. n_gpc = 1
+        epc = expdata.analysis_results("EPC")
+        epc_expected = 3 / 4 * self.pcz
+        self.assertAlmostEqual(epc.value.n, epc_expected, delta=0.1 * epc_expected)
+
     def test_non_clifford_interleaved_element(self):
         """Verifies trying to run interleaved RB with non Clifford element throws an exception"""
-        qubits = 1
+        qubits = [0]
         lengths = [1, 4, 6, 9, 13, 16]
         interleaved_element = TGate()  # T gate is not Clifford, this should fail
         self.assertRaises(
@@ -382,12 +561,19 @@ class TestInterleavedRB(RBTestCase):
             qubits=[0],
             lengths=[1],
             num_samples=1,
+            seed=1234,  # This seed gives a 2-gate clifford
         )
-        # Not raises an error
-        _, int_circ = exp.circuits()
+        exp.set_transpile_options(**self.transpiler_options)
 
-        # barrier, clifford, barrier, "delay", barrier, ...
-        self.assertEqual(int_circ.data[3][0], interleaved_element)
+        int_circs = exp.circuits()[1]
+
+        # barrier, 2-gate clifford, barrier, "delay", barrier, ...
+        self.assertEqual(int_circs.data[4][0].name, interleaved_element.name)
+
+        # Transpiled delay duration is represented in seconds, so must convert from us
+        self.assertEqual(int_circs.data[4][0].unit, "s")
+        self.assertAlmostEqual(int_circs.data[4][0].params[0], interleaved_element.params[0] * 1e-6)
+        self.assertAllIdentity([int_circs])
 
     def test_interleaving_circuit_with_delay(self):
         """Test circuit with delay can be interleaved."""
@@ -396,20 +582,23 @@ class TestInterleavedRB(RBTestCase):
         delay_qc.x(1)
 
         exp = rb.InterleavedRB(
-            interleaved_element=delay_qc, qubits=[1, 2], lengths=[1], seed=123, num_samples=1
+            interleaved_element=delay_qc,
+            qubits=[1, 2],
+            lengths=[1],
+            seed=123,
+            num_samples=1,
         )
-        _, int_circ = exp.circuits()
-
-        qc = QuantumCircuit(2)
-        qc.x(1)
-        expected_inversion = Clifford(int_circ.data[1][0]).compose(qc).adjoint()
-        # barrier, clifford, barrier, "interleaved circuit", barrier, inversion, ...
-        self.assertEqual(expected_inversion, Clifford(int_circ.data[5][0]))
+        exp.set_transpile_options(**self.transpiler_options)
+        int_circ = exp.circuits()[1]
+        self.assertAllIdentity([int_circ])
 
     def test_experiment_config(self):
         """Test converting to and from config works"""
         exp = rb.InterleavedRB(
-            interleaved_element=SXGate(), qubits=(0,), lengths=[10, 20, 30], seed=123
+            interleaved_element=SXGate(),
+            qubits=(0,),
+            lengths=[10, 20, 30],
+            seed=123,
         )
         loaded_exp = rb.InterleavedRB.from_config(exp.config())
         self.assertNotEqual(exp, loaded_exp)
@@ -462,10 +651,14 @@ class TestEPGAnalysis(QiskitExperimentsTestCase):
 
         # Setup noise model, including more gate for complicated EPG computation
         # Note that 1Q channel error is amplified to check 1q channel correction mechanism
-        x_error = depolarizing_error(0.04, 1)
-        h_error = depolarizing_error(0.02, 1)
-        s_error = depolarizing_error(0.00, 1)
-        cx_error = depolarizing_error(0.08, 2)
+        self.p_x = 0.04
+        self.p_h = 0.02
+        self.p_s = 0.0
+        self.p_cx = 0.09
+        x_error = depolarizing_error(self.p_x, 1)
+        h_error = depolarizing_error(self.p_h, 1)
+        s_error = depolarizing_error(self.p_s, 1)
+        cx_error = depolarizing_error(self.p_cx, 2)
 
         noise_model = NoiseModel()
         noise_model.add_all_qubit_quantum_error(x_error, "x")
@@ -529,8 +722,8 @@ class TestEPGAnalysis(QiskitExperimentsTestCase):
 
         # H and X gate EPG are assumed to be the same, so this underestimate X and overestimate H
         self.assertEqual(h_epg.value.n, x_epg.value.n)
-        self.assertLess(x_epg.value.n, 0.04 * 0.5)
-        self.assertGreater(h_epg.value.n, 0.02 * 0.5)
+        self.assertLess(x_epg.value.n, self.p_x * 0.5)
+        self.assertGreater(h_epg.value.n, self.p_h * 0.5)
 
     def test_no_epg(self):
         """Calculate no EPGs."""
@@ -558,8 +751,8 @@ class TestEPGAnalysis(QiskitExperimentsTestCase):
         h_epg = result.analysis_results("EPG_h")
         x_epg = result.analysis_results("EPG_x")
 
-        self.assertAlmostEqual(x_epg.value.n, 0.04 * 0.5, delta=0.005)
-        self.assertAlmostEqual(h_epg.value.n, 0.02 * 0.5, delta=0.005)
+        self.assertAlmostEqual(x_epg.value.n, self.p_x * 0.5, delta=0.005)
+        self.assertAlmostEqual(h_epg.value.n, self.p_h * 0.5, delta=0.005)
 
     def test_2q_epg(self):
         """Compute 2Q EPG without correction.
@@ -574,7 +767,7 @@ class TestEPGAnalysis(QiskitExperimentsTestCase):
 
         cx_epg = result.analysis_results("EPG_cx")
 
-        self.assertGreater(cx_epg.value.n, 0.08 * 0.75)
+        self.assertGreater(cx_epg.value.n, self.p_cx * 0.75)
 
     def test_2q_epg_with_correction(self):
         """Check that 2Q EPG with 1Q depolarization correction gives a better (smaller) result than
@@ -605,7 +798,7 @@ class TestEPGAnalysis(QiskitExperimentsTestCase):
         result_2qrb = analysis_2qrb.run(self.expdata_2qrb)
         self.assertExperimentDone(result_2qrb)
         cx_epg_corrected = result_2qrb.analysis_results("EPG_cx")
-
         self.assertLess(
-            np.abs(cx_epg_corrected.value.n - 0.08 * 0.75), np.abs(cx_epg_raw.value.n - 0.08 * 0.75)
+            np.abs(cx_epg_corrected.value.n - self.p_cx * 0.75),
+            np.abs(cx_epg_raw.value.n - self.p_cx * 0.75),
         )
