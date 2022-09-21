@@ -40,7 +40,7 @@ from qiskit_experiments.library.randomized_benchmarking.clifford_utils import (
     compose_2q,
     inverse_1q,
     inverse_2q,
-    CLIFFORD_INVERSE_2Q,
+    _CLIFFORD_INVERSE_2Q,
     _num_from_layer_indices,
     _layer_indices_from_num,
     _CLIFFORD_LAYER,
@@ -189,7 +189,7 @@ class TestCliffordUtils(QiskitExperimentsTestCase):
     def test_clifford_inverse_2q_data(self):
         """Check that all 2 clifford numbers form a permutation over [0, 11519]"""
         expected = np.arange(0, CliffordUtils.NUM_CLIFFORD_2_QUBIT)
-        actual = sorted(CLIFFORD_INVERSE_2Q)
+        actual = sorted(_CLIFFORD_INVERSE_2Q)
         self.assertTrue(all(actual == expected))
 
     def test_num_layered_circuit_num_round_trip(self):

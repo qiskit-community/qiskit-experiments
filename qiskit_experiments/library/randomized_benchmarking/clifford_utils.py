@@ -186,8 +186,6 @@ class CliffordUtils:
         return res
 
 
-NUM_CLIFFORD_1Q = 24
-NUM_CLIFFORD_2Q = 11520
 _CLIFF_SINGLE_GATE_MAP_1Q = {
     ("id", (0,)): 0,
     ("h", (0,)): 1,
@@ -229,12 +227,12 @@ _CLIFF_SINGLE_GATE_MAP_2Q = {
 # Functions for 1-qubit integer Clifford operations
 def compose_1q(lhs: Integral, rhs: Integral) -> Integral:
     """Return the composition of 1-qubit clifford integers."""
-    return CLIFFORD_COMPOSE_1Q[lhs][rhs]
+    return _CLIFFORD_COMPOSE_1Q[lhs][rhs]
 
 
 def inverse_1q(num: Integral) -> Integral:
     """Return the inverse of 1-qubit clifford integers."""
-    return CLIFFORD_INVERSE_1Q[num]
+    return _CLIFFORD_INVERSE_1Q[num]
 
 
 def num_from_1q_circuit(qc: QuantumCircuit) -> Integral:
@@ -242,7 +240,7 @@ def num_from_1q_circuit(qc: QuantumCircuit) -> Integral:
     num = 0
     for inst in qc:
         rhs = _num_from_1q_gate(op=inst.operation)
-        num = CLIFFORD_COMPOSE_1Q[num][rhs]
+        num = _CLIFFORD_COMPOSE_1Q[num][rhs]
     return num
 
 
@@ -290,20 +288,20 @@ def _deparameterized_name(inst: Instruction) -> str:
     return inst.name
 
 
-def _create_compose_map_1q():
+def _load_clifford_compose_1q():
     dirname = os.path.dirname(__file__)
     data = np.load(f"{dirname}/data/clifford_compose_1q.npz")
     return data["table"]
 
 
-def _create_inverse_map_1q():
+def _load_clifford_inverse_1q():
     dirname = os.path.dirname(__file__)
     data = np.load(f"{dirname}/data/clifford_inverse_1q.npz")
     return data["table"]
 
 
-CLIFFORD_COMPOSE_1Q = _create_compose_map_1q()
-CLIFFORD_INVERSE_1Q = _create_inverse_map_1q()
+_CLIFFORD_COMPOSE_1Q = _load_clifford_compose_1q()
+_CLIFFORD_INVERSE_1Q = _load_clifford_inverse_1q()
 
 
 ########
@@ -319,7 +317,7 @@ def compose_2q(lhs: Integral, rhs: Integral) -> Integral:
 
 def inverse_2q(num: Integral) -> Integral:
     """Return the inverse of 2-qubit clifford integers."""
-    return CLIFFORD_INVERSE_2Q[num]
+    return _CLIFFORD_INVERSE_2Q[num]
 
 
 def num_from_2q_circuit(qc: QuantumCircuit) -> Integral:
@@ -333,6 +331,20 @@ num_from_circuit = {
     1: num_from_1q_circuit,
     2: num_from_2q_circuit,
 }
+
+
+def _compose_num_with_circuit_2q(num: Integral, qc: QuantumCircuit) -> Integral:
+    """Compose a number that represents a Clifford, with a Clifford circuit, and return the
+    number that represents the resulting Clifford."""
+    lhs = num
+    for inst in qc:
+        qubits = tuple(qc.find_bit(q).index for q in inst.qubits)
+        rhs = _num_from_2q_gate(op=inst.operation, qubits=qubits)
+        try:
+            lhs = _CLIFFORD_COMPOSE_2Q_GATE[lhs][rhs]
+        except KeyError as err:
+            raise Exception(f"_CLIFFORD_COMPOSE_2Q_GATE[{lhs}][{rhs}]") from err
+    return lhs
 
 
 def _num_from_2q_gate(
@@ -368,20 +380,6 @@ def _num_from_2q_gate(
         raise QiskitError(
             f"Instruction {op.name} on {qubits} could not be converted to integer Clifford"
         ) from err
-
-
-def _compose_num_with_circuit_2q(num: Integral, qc: QuantumCircuit) -> Integral:
-    """Compose a number that represents a Clifford, with a Clifford circuit, and return the
-    number that represents the resulting Clifford."""
-    lhs = num
-    for inst in qc:
-        qubits = tuple(qc.find_bit(q).index for q in inst.qubits)
-        rhs = _num_from_2q_gate(op=inst.operation, qubits=qubits)
-        try:
-            lhs = _CLIFFORD_COMPOSE_2Q_GATE[lhs][rhs]
-        except KeyError as err:
-            raise Exception(f"_CLIFFORD_COMPOSE_2Q_GATE[{lhs}][{rhs}]") from err
-    return lhs
 
 
 def _append_v_w(qc, vw0, vw1):
@@ -462,33 +460,14 @@ def _create_cliff_2q_layer_2():
     return circuits
 
 
-def _load_clifford_compose_2q():
-    dirname = os.path.dirname(__file__)
-    data = np.load(f"{dirname}/data/clifford_compose_2q_gate.npz")
-    table = []
-    for row in data["table"]:
-        dic = {rhs: result for result, rhs in zip(row, _CLIFF_SINGLE_GATE_MAP_2Q.values())}
-        table.append(dic)
-    return table
-
-
-def _load_clifford_inverse_2q():
-    dirname = os.path.dirname(__file__)
-    data = np.load(f"{dirname}/data/clifford_inverse_2q.npz")
-    return data["table"]
-
-
-_NUM_LAYER_0 = 36
-_NUM_LAYER_1 = 20
-_NUM_LAYER_2 = 16
 _CLIFFORD_LAYER = (
     _create_cliff_2q_layer_0(),
     _create_cliff_2q_layer_1(),
     _create_cliff_2q_layer_2(),
 )
-
-_CLIFFORD_COMPOSE_2Q_GATE = _load_clifford_compose_2q()
-CLIFFORD_INVERSE_2Q = _load_clifford_inverse_2q()
+_NUM_LAYER_0 = 36
+_NUM_LAYER_1 = 20
+_NUM_LAYER_2 = 16
 
 
 def _num_from_layer_indices(triplet: Tuple[Integral, Integral, Integral]) -> Integral:
@@ -504,3 +483,23 @@ def _layer_indices_from_num(num: Integral) -> Tuple[Integral, Integral, Integral
     idx1 = num % _NUM_LAYER_1
     idx0 = num // _NUM_LAYER_1
     return idx0, idx1, idx2
+
+
+def _load_clifford_compose_2q_gate():
+    dirname = os.path.dirname(__file__)
+    data = np.load(f"{dirname}/data/clifford_compose_2q_gate.npz")
+    table = []
+    for row in data["table"]:
+        dic = {rhs: result for result, rhs in zip(row, _CLIFF_SINGLE_GATE_MAP_2Q.values())}
+        table.append(dic)
+    return table
+
+
+def _load_clifford_inverse_2q():
+    dirname = os.path.dirname(__file__)
+    data = np.load(f"{dirname}/data/clifford_inverse_2q.npz")
+    return data["table"]
+
+
+_CLIFFORD_COMPOSE_2Q_GATE = _load_clifford_compose_2q_gate()
+_CLIFFORD_INVERSE_2Q = _load_clifford_inverse_2q()
