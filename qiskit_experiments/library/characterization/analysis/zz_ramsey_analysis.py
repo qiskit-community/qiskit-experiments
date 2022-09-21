@@ -38,9 +38,9 @@ class ZZRamseyAnalysis(CurveAnalysis):
 
         .. math::
 
-            y_0 = {\rm amp} e^{-x/\tau} \cos\left(2 \pi\cdot {\rm freq - zz / 2}\cdot x + {\rm phase}) + {\rm base} \\
+            y_0 = {\rm amp} \cdot e^{-x/\tau} \cos\left(2 \pi\cdot {\rm freq - zz / 2}\cdot x + {\rm phase}\right) + {\rm base} \\
 
-            y_1 = {\rm amp} e^{-x/\tau} \cos\left(2 \pi\cdot {\rm freq + zz / 2}\cdot x + {\rm phase}\right) + {\rm base}
+            y_1 = {\rm amp} \cdot e^{-x/\tau} \cos\left(2 \pi\cdot {\rm freq + zz / 2}\cdot x + {\rm phase}\right) + {\rm base}
 
         If the drive frequency of `q_0` is calibrated to be halfway between the
         frequency of `q_0` when `q_1` is in the ground state and the frequency

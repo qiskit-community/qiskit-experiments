@@ -30,48 +30,63 @@ class ZZRamsey(BaseExperiment):
 
     # section: overview
 
-        :math:`ZZ` can be expressed as the difference between the frequency of
-        a qubit q_0 when another qubit q_1 is excited and the frequency of q_0
-        when q_1 is in the ground state. Because :math:`ZZ` is symmetric in
-        qubit index, it can also be expressed with the roles of q_0 and q_1
-        reversed.  Experimentally, we measure :math:`ZZ` by performing Ramsey
-        sequences on q_0 with q_1 in the ground state and again with q_1 in the
-        excited state.
+        This experiment assumes a two qubit Hamiltonian of the form
 
-        Because we are interested in the difference in frequency between the
-        two q_1 preparations rather than the absolute frequencies of q_0 for
-        those preparations, we modify the Ramsey sequences (the circuits for
-        the modified sequences are shown below). First, we add an X gate on q_0
-        to the middle of the Ramsey delay. This would have the effect of
-        echoing out the phase accumulation of q_0 (like a Hahn echo sequence),
-        but we add a simultaneous X gate to q_1 as well. Flipping q_1 inverts
-        the sign of the :math:`ZZ` term. The net result is that q_0 continues
-        to accumulate phase proportional to :math:`ZZ` while the phase due to
-        any ZI term is canceled out. This technique allows :math:`ZZ` to be
-        measured using longer delay times that might otherwise be possible with
-        a qubit with a slow frequency drift (i.e. the measurement is not
-        sensitive to qubit frequency drift from shot to shot, only to drift
-        within a single shot).
+        .. math::
 
-        The resulting q_0 state versus delay time data exhibit slow sinusoidal
-        oscillations (assuming :math:`ZZ` is relatively small). To help with
-        distinguishing between qubit decay and a slow oscillation, an extra Z
-        rotation is applied before the final pulse on q_0. The angle of this Z
-        rotation set proportional to the delay time of the sequence so that it
-        acts like an extra rotation frequency common to the two q_1
-        preparations. By looking at the difference in frequency fitted for the
-        two cases, this common "fake" frequency (called ``f`` in the circuits
-        shown below) is removed, leaving only the :math:`ZZ` value. The value
-        of ``f`` in terms of the experiment options is ``zz_rotations /
-        (max(delays) - min(delays))``.
+            H = h \left(\frac{f_0}{2} ZI + \frac{f_1}{2} IZ + \frac{f_{ZZ}}{4} ZZ\right)
 
-        This experiment consists of following two circuits. The frequenc f is
-        chosen based on the zz_rotations experiment option and the maximum
-        delay time.
+        and measures the strength :math:`f_{ZZ}` of the :math:`ZZ` term.
+        :math:`f_{ZZ}` can be described as the difference between the frequency
+        of qubit 0 when qubit 1 is excited and the frequency of qubit 0 when
+        qubit 1 is in the ground state. Because :math:`f_{ZZ}` is symmetric in
+        qubit index, it can also be expressed with the roles of 0 and 1
+        reversed.  Experimentally, we measure :math:`f_{ZZ}` by performing
+        Ramsey sequences on qubit 0 with qubit 1 in the ground state and again
+        with qubit 1 in the excited state. The standard Ramsey experiment
+        consists of putting a qubit along the :math:`X` axis of Bloch sphere,
+        waiting for some time, and then measuring the qubit project along
+        :math:`X`. By measuring the :math:`X` projection versus time the qubit
+        frequency can be inferred. See
+        :class:`~qiskit_experiments.library.characterization.T2Ramsey` and
+        :class:`~qiskit_experiments.library.characterization.RamseyXY`.
+
+        Because we are interested in the difference in qubit 0 frequency
+        between the two qubit 1 preparations rather than the absolute
+        frequencies of qubit 0 for those preparations, we modify the Ramsey
+        sequences (the circuits for the modified sequences are shown below).
+        First, we add an X gate on qubit 0 to the middle of the Ramsey delay.
+        This would have the effect of echoing out the phase accumulation of
+        qubit 0 (like a Hahn echo sequence as used in
+        :class:`~qiskit_experiments.library.characterization.T2Hahn`), but we
+        add a simultaneous X gate to qubit 1 as well.  Flipping qubit 1 inverts
+        the sign of the :math:`f_{ZZ}` term. The net result is that qubit 0
+        continues to accumulate phase proportional to :math:`f_{ZZ}` while the
+        phase due to any ZI term is canceled out. This technique allows
+        :math:`f_{ZZ}` to be measured using longer delay times than might
+        otherwise be possible with a qubit with a slow frequency drift (i.e.
+        the measurement is not sensitive to qubit frequency drift from shot to
+        shot, only to drift within a single shot).
+
+        The resulting excited state population of qubit 0 versus delay time
+        exhibits slow sinusoidal oscillations (assuming :math:`f_{ZZ}` is
+        relatively small). To help with distinguishing between qubit decay and
+        a slow oscillation, an extra Z rotation is applied before the final
+        pulse on qubit 0. The angle of this Z rotation is set proportional to
+        the delay time of the sequence so that it acts like an extra rotation
+        frequency common to the two qubit 1 preparations. By looking at the
+        difference in frequency fitted for the two cases, this common "fake"
+        frequency (called :math:`f` in the circuits shown below) is removed,
+        leaving only the :math:`f_{ZZ}` value. The value of :math:`f` in terms of
+        the experiment options is
+        ``zz_rotations / (max(delays) - min(delays))``.
+
+        This experiment consists of following two circuits repeated with
+        different ``delay`` values.
 
         .. parsed-literal::
 
-            Modified Ramsey sequence with q_1 initially in the ground state
+            Modified Ramsey sequence with qubit 1 initially in the ground state
 
                  ┌────┐ ░ ┌─────────────────┐ ░ ┌───┐ ░ ┌─────────────────┐ ░ »
             q_0: ┤ √X ├─░─┤ Delay(delay[s]) ├─░─┤ X ├─░─┤ Delay(delay[s]) ├─░─»
@@ -88,7 +103,7 @@ class ZZRamsey(BaseExperiment):
             «c: 1/═════════════════════════════════╩═
             «                                      0
 
-            Modified Ramsey sequence with q_1 initially in the excited state
+            Modified Ramsey sequence with qubit 1 initially in the excited state
 
                  ┌────┐ ░ ┌─────────────────┐ ░ ┌───┐ ░ ┌─────────────────┐ ░ »
             q_0: ┤ √X ├─░─┤ Delay(delay[s]) ├─░─┤ X ├─░─┤ Delay(delay[s]) ├─░─»
@@ -112,18 +127,18 @@ class ZZRamsey(BaseExperiment):
 
     def __init__(
         self,
-        qubit: (int, int),
+        qubits: (int, int),
         backend: Optional[Backend] = None,
         **experiment_options,
     ):
         """Create new experiment.
 
         Args:
-            qubit: The qubits on which to run the Ramsey XY experiment.
+            qubits: The qubits on which to run the Ramsey XY experiment.
             backend: Optional, the backend to run the experiment on.
             experiment_options: experiment options to set
         """
-        super().__init__(qubits=qubit, analysis=ZZRamseyAnalysis(), backend=backend)
+        super().__init__(qubits=qubits, analysis=ZZRamseyAnalysis(), backend=backend)
         # Override the default of get_processor() which is "1" * num_qubits. We
         # only fit the probability of the target qubit.
         self.analysis.set_options(outcome="1")
@@ -139,12 +154,13 @@ class ZZRamsey(BaseExperiment):
                 evenly spaced delays between ``min_delay`` and ``max_delay``
                 are used. If ``delays`` is set, ``max_delay``, ``min_delay``,
                 and ``num_delays`` are ignored.
-            max_delay (float): Maximum delay time to use
-            min_delay (float): Minimum delay time to use
+            max_delay (float): Maximum delay time to use.
+            min_delay (float): Minimum delay time to use.
             num_delays (int): Number of circuits to use per control state
-                preparation
-            zz_rotations (float): Number of full rotations of the Bloch vector
-                if :math:`ZZ` is zero.
+                preparation.
+            zz_rotations (float): The "fake" rotation added to qubit 0 uses a
+                frequency that gives this many rotations in the case where
+                :math:`f_{ZZ}` is 0.
         """
         options = super()._default_experiment_options()
         options.delays = None
@@ -295,7 +311,7 @@ class ZZRamsey(BaseExperiment):
         return circ0, circ1
 
     def circuits(self) -> List[QuantumCircuit]:
-        """Create circuits for :math:`ZZ` Ramsey experiment
+        """Create circuits
 
         Returns:
             A list of circuits with a variable delay.
