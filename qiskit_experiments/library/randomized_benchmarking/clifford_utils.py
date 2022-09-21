@@ -19,6 +19,7 @@ from numbers import Integral
 from typing import Optional, Union, Tuple
 
 import numpy as np
+import scipy.sparse
 from numpy.random import Generator, default_rng
 
 from qiskit.circuit import Gate, Instruction
@@ -74,7 +75,7 @@ class CliffordUtils:
     NUM_CLIFFORD_1_QUBIT = 24
     NUM_CLIFFORD_2_QUBIT = 11520
     CLIFFORD_1_QUBIT_SIG = (2, 3, 4)
-    CLIFFORD_2_QUBIT_SIGS = [  # TODO: depracate
+    CLIFFORD_2_QUBIT_SIGS = [  # TODO: deprecate
         (2, 2, 3, 3, 4, 4),
         (2, 2, 3, 3, 3, 3, 4, 4),
         (2, 2, 3, 3, 3, 3, 4, 4),
@@ -227,7 +228,7 @@ _CLIFF_SINGLE_GATE_MAP_2Q = {
 # Functions for 1-qubit integer Clifford operations
 def compose_1q(lhs: Integral, rhs: Integral) -> Integral:
     """Return the composition of 1-qubit clifford integers."""
-    return _CLIFFORD_COMPOSE_1Q[lhs][rhs]
+    return _CLIFFORD_COMPOSE_1Q[lhs, rhs]
 
 
 def inverse_1q(num: Integral) -> Integral:
@@ -240,7 +241,7 @@ def num_from_1q_circuit(qc: QuantumCircuit) -> Integral:
     num = 0
     for inst in qc:
         rhs = _num_from_1q_gate(op=inst.operation)
-        num = _CLIFFORD_COMPOSE_1Q[num][rhs]
+        num = _CLIFFORD_COMPOSE_1Q[num, rhs]
     return num
 
 
@@ -341,7 +342,7 @@ def _compose_num_with_circuit_2q(num: Integral, qc: QuantumCircuit) -> Integral:
         qubits = tuple(qc.find_bit(q).index for q in inst.qubits)
         rhs = _num_from_2q_gate(op=inst.operation, qubits=qubits)
         try:
-            lhs = _CLIFFORD_COMPOSE_2Q_GATE[lhs][rhs]
+            lhs = _CLIFFORD_COMPOSE_2Q_GATE[lhs, rhs]
         except KeyError as err:
             raise Exception(f"_CLIFFORD_COMPOSE_2Q_GATE[{lhs}][{rhs}]") from err
     return lhs
@@ -487,12 +488,8 @@ def _layer_indices_from_num(num: Integral) -> Tuple[Integral, Integral, Integral
 
 def _load_clifford_compose_2q_gate():
     dirname = os.path.dirname(__file__)
-    data = np.load(f"{dirname}/data/clifford_compose_2q_gate.npz")
-    table = []
-    for row in data["table"]:
-        dic = {rhs: result for result, rhs in zip(row, _CLIFF_SINGLE_GATE_MAP_2Q.values())}
-        table.append(dic)
-    return table
+    data = scipy.sparse.load_npz(f"{dirname}/data/clifford_compose_2q_sparse.npz")
+    return data
 
 
 def _load_clifford_inverse_2q():

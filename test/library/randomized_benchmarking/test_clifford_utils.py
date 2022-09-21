@@ -40,7 +40,6 @@ from qiskit_experiments.library.randomized_benchmarking.clifford_utils import (
     compose_2q,
     inverse_1q,
     inverse_2q,
-    _CLIFFORD_INVERSE_2Q,
     _num_from_layer_indices,
     _layer_indices_from_num,
     _CLIFFORD_LAYER,
@@ -86,17 +85,6 @@ class TestCliffordUtils(QiskitExperimentsTestCase):
         for n in range(24):
             clifford = CliffordUtils.clifford_1_qubit(n)
             self.assertEqual(clifford, cliffords[n])
-
-    def test_clifford_2_qubit_generation(self):
-        """Verify 2-qubit clifford indeed generates the correct group"""
-        from qiskit_experiments.library.randomized_benchmarking.clifford_utils import _hash_cliff
-
-        hashes = set()
-        for n in range(CliffordUtils.NUM_CLIFFORD_2_QUBIT):
-            clifford = CliffordUtils.clifford_2_qubit(n)
-            new_hash = _hash_cliff(clifford)
-            self.assertFalse(new_hash in hashes)
-            hashes.add(new_hash)
 
     def test_number_to_clifford_mapping_single_gate(self):
         """Test that the methods num_from_1q_clifford_single_gate and
@@ -185,12 +173,6 @@ class TestCliffordUtils(QiskitExperimentsTestCase):
             clifford_from_circuit = Clifford(cliff.to_circuit().inverse())
             self.assertEqual(clifford_expected, clifford_from_num)
             self.assertEqual(clifford_expected, clifford_from_circuit)
-
-    def test_clifford_inverse_2q_data(self):
-        """Check that all 2 clifford numbers form a permutation over [0, 11519]"""
-        expected = np.arange(0, CliffordUtils.NUM_CLIFFORD_2_QUBIT)
-        actual = sorted(_CLIFFORD_INVERSE_2Q)
-        self.assertTrue(all(actual == expected))
 
     def test_num_layered_circuit_num_round_trip(self):
         """Test if num -> circuit with layers -> num round-trip succeeds for 2Q Cliffords."""
