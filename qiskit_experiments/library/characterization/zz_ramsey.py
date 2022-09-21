@@ -28,7 +28,7 @@ from .analysis.zz_ramsey_analysis import ZZRamseyAnalysis
 class ZZRamsey(BaseExperiment):
     r"""Experiment to characterize the static :math:`ZZ` interaction for a qubit pair
 
-    # section: Overview
+    # section: overview
 
         :math:`ZZ` can be expressed as the difference between the frequency of
         a qubit q_0 when another qubit q_1 is excited and the frequency of q_0
