@@ -40,7 +40,7 @@ experiments to generate the corresponding mitigators.
     from qiskit.visualization import plot_histogram
     from qiskit_experiments.library import LocalReadoutError, CorrelatedReadoutError
     # For simulation
-    from qiskit.providers.aer import AerSimulator
+    from qiskit_aer import AerSimulator
     from qiskit.providers.fake_provider import FakeParis
 
     from qiskit.result.mitigation.utils import (
