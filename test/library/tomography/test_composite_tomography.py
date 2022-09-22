@@ -16,7 +16,7 @@ Composite StateTomography and ProcessTomography experiment tests
 from test.base import QiskitExperimentsTestCase
 from qiskit import QuantumCircuit
 import qiskit.quantum_info as qi
-from qiskit.providers.aer import AerSimulator
+from qiskit_aer import AerSimulator
 from qiskit_experiments.framework import BatchExperiment, ParallelExperiment
 from qiskit_experiments.library import StateTomography, ProcessTomography
 from .tomo_utils import filter_results
