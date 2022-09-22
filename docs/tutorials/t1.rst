@@ -38,8 +38,8 @@ for qubit 0.
 
     # A T1 simulator
     from qiskit.providers.fake_provider import FakeVigo
-    from qiskit.providers.aer import AerSimulator
-    from qiskit.providers.aer.noise import NoiseModel
+    from qiskit_aer import AerSimulator
+    from qiskit_aer.noise import NoiseModel
 
     # A kerneled data simulator
     from qiskit_experiments.test.mock_iq_backend import MockIQBackend
