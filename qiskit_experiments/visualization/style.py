@@ -21,9 +21,8 @@ from qiskit_experiments.framework import Options
 class PlotStyle(Options):
     """A stylesheet for :class:`BasePlotter` and :class:`BaseDrawer`.
 
-    This style class is used by :class:`BasePlotter` and :class:`BaseDrawer`, and must not be confused
-    with :class:`~qiskit_experiments.visualization.fit_result_plotters.PlotterStyle`. The default style
-    for Qiskit Experiments is defined in :meth:`default_style`. :class:`PlotStyle` subclasses
+    This style class is used by :class:`BasePlotter` and :class:`BaseDrawer`. The default style for
+    Qiskit Experiments is defined in :meth:`default_style`. :class:`PlotStyle` subclasses
     :class:`Options` and has a similar interface. Extra helper methods are included to merge and update
     instances of :class:`PlotStyle`: :meth:`merge` and :meth:`update` respectively.
     """

@@ -23,7 +23,8 @@ import lmfit
 from qiskit_experiments.data_processing import DataProcessor
 from qiskit_experiments.data_processing.processor_library import get_processor
 from qiskit_experiments.framework import BaseAnalysis, AnalysisResultData, Options, ExperimentData
-from qiskit_experiments.visualization import MplDrawer, BasePlotter, CurvePlotter
+from qiskit_experiments.warnings import deprecated_function
+from qiskit_experiments.visualization import MplDrawer, BasePlotter, CurvePlotter, BaseDrawer
 from .curve_data import CurveData, ParameterRepr, CurveFitResult
 
 PARAMS_ENTRY_PREFIX = "@Parameters_"
@@ -116,6 +117,18 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
     def plotter(self) -> BasePlotter:
         """A short-cut for curve plotter instance."""
         return self._options.plotter
+
+    @property
+    @deprecated_function(
+        last_version="0.6",
+        msg="Replaced by `plotter` from the new visualization submodule.",
+    )
+    def drawer(self) -> BaseDrawer:
+        """A short-cut for curve drawer instance, if set. ``None`` otherwise."""
+        if hasattr(self._options, "curve_drawer"):
+            return self._options.curve_drawer
+        else:
+            return None
 
     @classmethod
     def _default_options(cls) -> Options:
@@ -210,6 +223,30 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
                 stacklevel=2,
             )
             fields["lmfit_options"] = fields.pop("curve_fitter_options")
+
+        # TODO remove this in Qiskit Experiments 0.6
+        if "curve_drawer" in fields:
+            warnings.warn(
+                "The option 'curve_drawer' is replaced with 'plotter'. "
+                "This option will be removed in Qiskit Experiments 0.6.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            # Set the plotter drawer to `curve_drawer`, though it needs to be a subclass of the new class
+            # `BaseDrawer` from `qiskit_experiments.visualization`.
+            if isinstance(fields["curve_drawer"], BaseDrawer):
+                plotter = self.options.plotter
+                plotter.drawer = fields.pop("curve_drawer")
+                fields["plotter"] = plotter
+            else:
+                # TODO Add usage of wrapper class for backwards compatibility during deprecation period.
+                drawer = fields["curve_drawer"]
+                warnings.warn(
+                    "Cannot set deprecated `curve_drawer` options as it is not a subclass of "
+                    f"`BaseDrawer`: got type {type(drawer).__name__}. Doing nothing.",
+                    DeprecationWarning,
+                    stacklevel=2,
+                )
 
         super().set_options(**fields)
 
