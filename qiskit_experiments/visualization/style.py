@@ -106,6 +106,11 @@ class PlotStyle(Options):
             **self._fields,
         }
 
+    @property
+    def __dict__(self) -> Dict:
+        # Needed as __dict__ is not inherited by subclasses.
+        return super().__dict__
+
     def __json_encode__(self):
         return self.config()
 

@@ -29,11 +29,11 @@ class TestMplDrawer(QiskitExperimentsTestCase):
 
         # Draw dummy data
         drawer.initialize_canvas()
-        drawer.draw_scatter([0, 1, 2], [0, 1, 2], "seriesA")
-        drawer.draw_scatter([0, 1, 2], [0, 1, 2], [0.1, 0.1, 0.1], None, "seriesA")
-        drawer.draw_line([3, 2, 1], [1, 2, 3], "seriesB")
-        drawer.draw_filled_x_area([0, 1, 2, 3], [1, 2, 1, 2], [-1, -2, -1, -2], "seriesB")
-        drawer.draw_filled_y_area([-1, 0, 1, 2], [-1, -2, -1, -2], [1, 2, 1, 2], "seriesB")
+        drawer.draw_scatter([0, 1, 2], [0, 1, 2], name="seriesA")
+        drawer.draw_scatter([0, 1, 2], [0, 1, 2], [0.1, 0.1, 0.1], None, name="seriesA")
+        drawer.draw_line([3, 2, 1], [1, 2, 3], name="seriesB")
+        drawer.draw_filled_x_area([0, 1, 2, 3], [1, 2, 1, 2], [-1, -2, -1, -2], name="seriesB")
+        drawer.draw_filled_y_area([-1, 0, 1, 2], [-1, -2, -1, -2], [1, 2, 1, 2], name="seriesB")
         drawer.draw_text_box(r"Dummy report text with LaTex $\beta$")
 
         # Get result

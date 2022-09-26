@@ -407,7 +407,7 @@ class MplDrawer(BaseDrawer):
         }
         self._update_label_in_dict(draw_ops, name, legend_entry, legend_label)
         draw_ops.update(**options)
-        self._get_axis(axis).fill_between_x(y_data, x1=x_lb, x2=x_ub, **draw_ops)
+        self._get_axis(axis).fill_betweenx(y_data, x1=x_lb, x2=x_ub, **draw_ops)
 
     def draw_text_box(
         self,

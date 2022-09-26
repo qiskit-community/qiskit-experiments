@@ -179,6 +179,12 @@ class BaseDrawer(ABC):
         Args:
             fields: The fields to update the options
         """
+        for field in fields:
+            if not hasattr(self._options, field):
+                raise AttributeError(
+                    f"Options field {field} is not valid for {type(self).__name__}"
+                )
+
         self._options.update_options(**fields)
         self._set_options = self._set_options.union(fields)
 
@@ -187,6 +193,11 @@ class BaseDrawer(ABC):
         Args:
             fields: The fields to update the plot options
         """
+        for field in fields:
+            if not hasattr(self._plot_options, field):
+                raise AttributeError(
+                    f"Plot options field {field} is not valid for {type(self).__name__}"
+                )
         self._plot_options.update_options(**fields)
         self._set_plot_options = self._set_plot_options.union(fields)
 

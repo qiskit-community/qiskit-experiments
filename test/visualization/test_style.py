@@ -57,8 +57,8 @@ class TestPlotStyle(QiskitExperimentsTestCase):
             "legend_loc",
             "tick_label_size",
             "axis_label_size",
-            "report_rpos",
-            "report_text_size",
+            "text_box_rel_pos",
+            "text_box_text_size",
         ]
         for field in expected_not_none_fields:
             self.assertIsNotNone(getattr(default, field))
@@ -97,3 +97,48 @@ class TestPlotStyle(QiskitExperimentsTestCase):
             # Disable pointless-statement as accessing style fields can raise an exception.
             # pylint: disable = pointless-statement
             dummy_style.y
+
+    def test_dict(self):
+        """Test that PlotStyle can be converted into a dictionary."""
+        dummy_style = PlotStyle(
+            a="a",
+            b=0,
+            c=[1, 2, 3],
+        )
+        expected_dict = {
+            "a": "a",
+            "b": 0,
+            "c": [1, 2, 3],
+        }
+        actual_dict = dummy_style.__dict__
+        self.assertDictEqual(actual_dict, expected_dict, msg="PlotStyle dict is not as expected.")
+
+        # Add a new variable
+        dummy_style.new_variable = 5e9
+        expected_dict["new_variable"] = 5e9
+        actual_dict = dummy_style.__dict__
+        self.assertDictEqual(
+            actual_dict,
+            expected_dict,
+            msg="PlotStyle dict is not as expected, with post-init variables.",
+        )
+
+    def test_update_dict(self):
+        """Test that PlotStyle dictionary is correct when updated."""
+        custom_1, custom_2, expected_12, expected_21 = self._dummy_styles()
+
+        # copy(...) is needed as .update() modifies the style instance
+        actual_12 = copy(custom_1)
+        actual_12.update(custom_2)
+        actual_21 = copy(custom_2)
+        actual_21.update(custom_1)
+
+        self.assertDictEqual(actual_12.__dict__, expected_12.__dict__)
+        self.assertDictEqual(actual_21.__dict__, expected_21.__dict__)
+
+    def test_merge(self):
+        """Test that PlotStyle dictionary is correct when merged."""
+        custom_1, custom_2, expected_12, expected_21 = self._dummy_styles()
+
+        self.assertDictEqual(PlotStyle.merge(custom_1, custom_2).__dict__, expected_12.__dict__)
+        self.assertDictEqual(PlotStyle.merge(custom_2, custom_1).__dict__, expected_21.__dict__)

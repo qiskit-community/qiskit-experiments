@@ -370,6 +370,11 @@ class BasePlotter(ABC):
         Args:
             fields: The fields to update in options.
         """
+        for field in fields:
+            if not hasattr(self._options, field):
+                raise AttributeError(
+                    f"Options field {field} is not valid for {type(self).__name__}"
+                )
         self._options.update_options(**fields)
         self._set_options = self._set_options.union(fields)
 
@@ -379,6 +384,11 @@ class BasePlotter(ABC):
         Args:
             fields: The fields to update in plot options.
         """
+        # Don't check if any option in fields already exists (like with `set_options`), as plot options
+        # are passed to `.drawer` which may have other plot-options. Any plot-option that isn't set in
+        # `.drawer.plot_options` won't be set anyway. Setting `.drawer.plot_options` only occurs in
+        # `.figure()`, so we can't compare to `.drawer.plot_options` now as `.drawer` may be changed
+        # between now and the call to `.figure()`.
         self._plot_options.update_options(**fields)
         self._set_plot_options = self._set_plot_options.union(fields)
 
