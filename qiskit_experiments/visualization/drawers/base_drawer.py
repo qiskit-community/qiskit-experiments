@@ -73,6 +73,20 @@ class BaseDrawer(ABC):
         This method is typically called with a list of analysis results and reduced chi-squared values
         from a curve-fit.
 
+    Options and Figure Options
+    ==========================
+
+    Drawers have both :attr:`options` and :attr:`figure_options` available to set parameters that define
+    how to drawer and what is drawn. :class:`BasePlotter` is similar in that it also has ``options`` and
+    ``figure_options`. The former contains class-specific variables that define how an instance behaves.
+    The latter contains figure-specific variables that typically contain values that are drawn on the
+    canvas, such as text. For details on the difference between the two sets of options, see the documentation for :class:`BasePlotter`.
+
+    .. note::
+        If a drawer instance is used with a plotter, then there is the potential for any figure-option
+        to be overwritten with their value from the plotter. This means that the drawer instance would
+        be modified indirectly when the :meth:`BasePlotter.figure` method is called. This must be kept
+        in mind when creating subclasses of :class:`BaseDrawer`.
     """
 
     def __init__(self):

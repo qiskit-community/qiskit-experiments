@@ -115,7 +115,7 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
 
     @property
     def plotter(self) -> BasePlotter:
-        """A short-cut for curve plotter instance."""
+        """A short-cut to the curve plotter instance."""
         return self._options.plotter
 
     @property

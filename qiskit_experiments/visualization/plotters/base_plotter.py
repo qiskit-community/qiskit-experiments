@@ -41,7 +41,70 @@ class BasePlotter(ABC):
     instead only associated with the figure. Examples include analysis reports or other text that is
     drawn onto the figure canvas.
 
-    # TODO: Add example usage and description of options and figure-options.
+    Options and Figure Options
+    ==========================
+
+    Plotters have both :attr:`options` and :attr:`figure_options` available to set parameters that define
+    how to plot and what is plotted. :class:`BaseDrawer` is similar in that it also has ``options`` and
+    ``figure_options`. The former contains class-specific variables that define how an instance behaves.
+    The latter contains figure-specific variables that typically contain values that are drawn on the
+    canvas, such as text.
+
+    For example, :class:`BasePlotter` has an ``axis`` option that can be set to the canvas on which the
+    figure should be drawn. This changes how the plotter works in that it changes where the figure is
+    drawn. :class:`BasePlotter` has an ``xlabel`` figure-option that can be set to change the text drawn
+    next to the X-axis in the final figure. As the value of this option will be drawn on the figure, it
+    is a figure-option.
+
+    As plotters need a drawer to generate a figure, and the drawer needs to know what to draw,
+    figure-options are passed to :attr:`drawer` when the :meth:`figure` method is called. Any
+    figure-options that are defined in both the plotters :attr:`figure_options` attribute and the drawers
+    ``figure_options`` attribute are copied to the drawer: i.e., :meth:`BaseDrawer.set_figure_options` is
+    called for each common figure-option, setting the value of the option to the value stored in the
+    plotter.
+
+    .. note::
+        If a figure-option called "foo" is not set in the drawers figure-options (:attr:`~BaseDrawer.
+        figure_options`), but is set in the plotters figure-options (:attr:`figure_options`), it will
+        not be copied over to the drawer when the :meth:`figure` method is called. This means that some
+        figure-options from the plotter may be unused by the drawer. :class:`BasePlotter` and its
+        subclasses filter these options before setting them in the drawer as subclasses of
+        :class:`BaseDrawer` may add additional figure-options. To make validation easier and the code
+        cleaner, the :meth:`figure` method conducts this check before setting figure-options in the
+        drawer.
+
+    Example:
+        .. code-block:: python
+            plotter = MyPlotter(MyDrawer())
+
+            # MyDrawer contains the following figure_options with default values.
+            plotter.drawer.figure_options.xlabel
+            plotter.drawer.figure_options.ylabel
+
+            # MyDrawer does NOT contain the following figure-option
+            # plotter.drawer.figure_options.unknown_variable    # Raises an error as it does not exist in
+                                                                # `plotter.drawer`.
+
+            # If we set the following figure-options, they will be set in the drawer.
+            plotter.set_figure_options(xlabel="Frequency", ylabel="Fidelity")
+
+            # During a call to `plotter.figure()`, the drawer figure-options are updated.
+            # The following values would be returned from the drawer.
+            plotter.drawer.figure_options.xlabel                # returns "Frequency"
+            plotter.drawer.figure_options.ylabel                # returns "Fidelity"
+
+            # If we set the following option and figure-option will NOT be set in the drawer.
+            plotter.set_options(plot_fit=False)                 # Example plotter option
+            plotter.set_figure_options(unknown_variable=5e9)    # Example figure-option
+
+            # As `plot_fit` is not a figure-option, it is not set in the drawer.
+            plotter.drawer.options.plot_fit     # Would raise an error if no default exists, or return a
+                                                # different value to `plotter.options.plot_fit`.
+
+            # As `unknown_variable` is not set in the drawers figure-options, it is not set during a call
+            # to the `figure()` method.
+            # plotter.drawer.figure_options.unknown_variable    # Raises an error as it does not exist
+                                                                # in `plotter.drawer.figure_options`.
     """
 
     def __init__(self, drawer: BaseDrawer):
