@@ -20,7 +20,7 @@ from typing import Optional
 import numpy as np
 import uncertainties
 from qiskit_experiments.exceptions import AnalysisError
-from qiskit_experiments.visualization import plot_scatter, plot_errorbar
+from qiskit_experiments.curve_analysis.visualization import plot_scatter, plot_errorbar
 from qiskit_experiments.framework import (
     BaseAnalysis,
     AnalysisResultData,

@@ -47,44 +47,8 @@ Plotting Style
     :template: autosummary/class.rst
 
     PlotStyle
-
-Plotting Functions
-==================
-
-.. autosummary::
-    :toctree: ../stubs/
-
-    plot_curve_fit
-    plot_errorbar
-    plot_scatter
-
-Curve Fitting Helpers
-=====================
-
-.. autosummary::
-    :toctree: ../stubs/
-    :template: autosummary/class.rst
-
-    FitResultPlotters
-    fit_result_plotters.MplDrawSingleCanvas
-    fit_result_plotters.MplDrawMultiCanvasVstack
-    fit_result_plotters.PlottingStyle
-
 """
 
-from enum import Enum
-
-from .style import PlotStyle
 from .drawers import BaseDrawer, MplDrawer
 from .plotters import BasePlotter, CurvePlotter
-
-from . import fit_result_plotters
-from .curves import plot_scatter, plot_errorbar, plot_curve_fit
-
-
-# pylint: disable=invalid-name
-class FitResultPlotters(Enum):
-    """Map the plotter name to the plotters."""
-
-    mpl_single_canvas = fit_result_plotters.MplDrawSingleCanvas
-    mpl_multiv_canvas = fit_result_plotters.MplDrawMultiCanvasVstack
+from .style import PlotStyle
