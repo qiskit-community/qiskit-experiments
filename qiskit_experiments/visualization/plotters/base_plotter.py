@@ -422,6 +422,9 @@ class BasePlotter(ABC):
 
         Args:
             fields: The fields to update in options.
+
+        Raises:
+            AttributeError: if an unknown option is encountered.
         """
         for field in fields:
             if not hasattr(self._options, field):

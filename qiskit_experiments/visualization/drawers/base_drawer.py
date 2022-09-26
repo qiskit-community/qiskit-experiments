@@ -80,7 +80,8 @@ class BaseDrawer(ABC):
     how to drawer and what is drawn. :class:`BasePlotter` is similar in that it also has ``options`` and
     ``figure_options`. The former contains class-specific variables that define how an instance behaves.
     The latter contains figure-specific variables that typically contain values that are drawn on the
-    canvas, such as text. For details on the difference between the two sets of options, see the documentation for :class:`BasePlotter`.
+    canvas, such as text. For details on the difference between the two sets of options, see the
+    documentation for :class:`BasePlotter`.
 
     .. note::
         If a drawer instance is used with a plotter, then there is the potential for any figure-option
@@ -190,8 +191,12 @@ class BaseDrawer(ABC):
 
     def set_options(self, **fields):
         """Set the drawer options.
+
         Args:
             fields: The fields to update the options
+
+        Raises:
+            AttributeError: if an unknown options is encountered.
         """
         for field in fields:
             if not hasattr(self._options, field):
@@ -204,8 +209,12 @@ class BaseDrawer(ABC):
 
     def set_figure_options(self, **fields):
         """Set the figure options.
+
         Args:
             fields: The fields to update the figure options
+
+        Raises:
+            AttributeError: if an unknown figure-option is encountered.
         """
         for field in fields:
             if not hasattr(self._figure_options, field):
@@ -220,8 +229,8 @@ class BaseDrawer(ABC):
         """The combined plot style for this drawer.
 
         The returned style instance is a combination of :attr:`options.default_style` and
-        :attr:`figure_options.custom_style`. Style parameters set in ``custom_style`` override those set in
-        ``default_style``. If ``custom_style`` is not an instance of :class:`PlotStyle`, the returned
+        :attr:`figure_options.custom_style`. Style parameters set in ``custom_style`` override those set
+        in ``default_style``. If ``custom_style`` is not an instance of :class:`PlotStyle`, the returned
         style is equivalent to ``default_style``.
 
         Returns:

@@ -136,7 +136,7 @@ class TestPlotStyle(QiskitExperimentsTestCase):
         self.assertDictEqual(actual_12.__dict__, expected_12.__dict__)
         self.assertDictEqual(actual_21.__dict__, expected_21.__dict__)
 
-    def test_merge(self):
+    def test_merge_dict(self):
         """Test that PlotStyle dictionary is correct when merged."""
         custom_1, custom_2, expected_12, expected_21 = self._dummy_styles()
 
