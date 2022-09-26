@@ -12,21 +12,27 @@
 
 """Curve drawer for matplotlib backend."""
 
-from typing import Sequence, Optional, Tuple
+from typing import Optional, Sequence, Tuple
 
 import numpy as np
 from matplotlib.axes import Axes
-from matplotlib.figure import Figure
-from matplotlib.ticker import ScalarFormatter, Formatter
 from matplotlib.cm import tab10
+from matplotlib.figure import Figure
 from matplotlib.markers import MarkerStyle
-
+from matplotlib.ticker import Formatter, ScalarFormatter
 from qiskit.utils import detach_prefix
+
 from qiskit_experiments.framework.matplotlib import get_non_gui_ax
+from qiskit_experiments.warnings import deprecated_class
 
 from .base_drawer import BaseCurveDrawer
 
 
+@deprecated_class(
+    "0.6",
+    msg="Plotting and drawing of analysis figures has been replaced with the new"
+    "`qiskit_experiments.visualization` module.",
+)
 class MplCurveDrawer(BaseCurveDrawer):
     """Curve drawer for MatplotLib backend."""
 

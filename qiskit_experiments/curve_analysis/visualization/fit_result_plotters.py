@@ -22,20 +22,28 @@ This is just like a function, but allows serialization via Enum.
 """
 
 from collections import defaultdict
-from typing import List, Dict, Optional
+from enum import Enum
+from typing import Dict, List, Optional
 
-import uncertainties
 import numpy as np
+import uncertainties
 from matplotlib.ticker import FuncFormatter
 from qiskit.utils import detach_prefix
 
-from qiskit_experiments.curve_analysis.curve_data import SeriesDef, FitData, CurveData
+from qiskit_experiments.curve_analysis.curve_data import CurveData, FitData, SeriesDef
 from qiskit_experiments.framework import AnalysisResultData
 from qiskit_experiments.framework.matplotlib import get_non_gui_ax
-from .curves import plot_scatter, plot_errorbar, plot_curve_fit
+from qiskit_experiments.warnings import deprecated_class, deprecated_function
+
+from .curves import plot_curve_fit, plot_errorbar, plot_scatter
 from .style import PlotterStyle
 
 
+@deprecated_class(
+    "0.6",
+    msg="Plotting and drawing of analysis figures has been moved to the new"
+    "`qiskit_experiments.visualization` module.",
+)
 class MplDrawSingleCanvas:
     """A plotter to draw a single canvas figure for fit result."""
 
@@ -136,6 +144,11 @@ class MplDrawSingleCanvas:
         return figure
 
 
+@deprecated_class(
+    "0.6",
+    msg="Plotting and drawing of analysis figures has been replaced with the new"
+    "`qiskit_experiments.visualization` module.",
+)
 class MplDrawMultiCanvasVstack:
     """A plotter to draw a vertically stacked multi canvas figure for fit result."""
 
@@ -288,6 +301,11 @@ class MplDrawMultiCanvasVstack:
         return figure
 
 
+@deprecated_function(
+    "0.6",
+    msg="Plotting and drawing of analysis figures has been replaced with the new"
+    "`qiskit_experiments.visualization` module.",
+)
 def draw_single_curve_mpl(
     axis: "matplotlib.axes.Axes",
     series_def: SeriesDef,
@@ -341,6 +359,11 @@ def draw_single_curve_mpl(
         )
 
 
+@deprecated_function(
+    "0.6",
+    msg="Plotting and drawing of analysis figures has been replaced with the new"
+    "`qiskit_experiments.visualization` module.",
+)
 def write_fit_report(result_entries: List[AnalysisResultData]) -> str:
     """A function that generates fit reports documentation from list of data.
 
@@ -401,3 +424,16 @@ def write_fit_report(result_entries: List[AnalysisResultData]) -> str:
             analysis_description += f"{res.name} = {value_repr}\n"
 
     return analysis_description
+
+
+# pylint: disable=invalid-name
+@deprecated_class(
+    "0.6",
+    msg="Plotting and drawing of analysis figures has been moved to the new"
+    "`qiskit_experiments.visualization` module.",
+)
+class FitResultPlotters(Enum):
+    """Map the plotter name to the plotters."""
+
+    mpl_single_canvas = MplDrawSingleCanvas
+    mpl_multiv_canvas = MplDrawMultiCanvasVstack

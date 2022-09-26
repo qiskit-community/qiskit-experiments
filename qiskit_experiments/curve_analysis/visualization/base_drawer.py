@@ -13,11 +13,17 @@
 """Curve drawer abstract class."""
 
 from abc import ABC, abstractmethod
-from typing import Dict, Sequence, Optional
+from typing import Dict, Optional, Sequence
 
 from qiskit_experiments.framework import Options
+from qiskit_experiments.warnings import deprecated_class
 
 
+@deprecated_class(
+    "0.6",
+    msg="Plotting and drawing of analysis figures has been moved to the new"
+    "`qiskit_experiments.visualization` module.",
+)
 class BaseCurveDrawer(ABC):
     """Abstract class for the serializable Qiskit Experiments curve drawer.
 
