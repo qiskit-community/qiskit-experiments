@@ -31,7 +31,7 @@ def dummy_plotter() -> BasePlotter:
     """
     plotter = MockPlotter(MockDrawer())
     # Set dummy plot options to update
-    plotter.set_plot_options(
+    plotter.set_figure_options(
         xlabel="xlabel",
         ylabel="ylabel",
         figure_title="figure_title",
@@ -91,15 +91,15 @@ class TestPlotterAndDrawerIntegration(QiskitExperimentsTestCase):
                 f"{getattr(options1, key),} vs {getattr(options2,key)}",
             )
 
-    def test_plot_options(self):
+    def test_figure_options(self):
         """Test copying and passing of plot-options between plotter and drawer."""
         plotter = dummy_plotter()
 
         # Expected options
-        expected_plot_options = copy(plotter.drawer.plot_options)
-        expected_plot_options.xlabel = "xlabel"
-        expected_plot_options.ylabel = "ylabel"
-        expected_plot_options.figure_title = "figure_title"
+        expected_figure_options = copy(plotter.drawer.figure_options)
+        expected_figure_options.xlabel = "xlabel"
+        expected_figure_options.ylabel = "ylabel"
+        expected_figure_options.figure_title = "figure_title"
 
         # Expected style
         expected_custom_style = PlotStyle(
@@ -109,9 +109,9 @@ class TestPlotterAndDrawerIntegration(QiskitExperimentsTestCase):
         expected_full_style = PlotStyle.merge(
             plotter.drawer.options.default_style, expected_custom_style
         )
-        expected_plot_options.custom_style = expected_custom_style
+        expected_figure_options.custom_style = expected_custom_style
 
-        # Call plotter.figure() to force passing of plot_options to drawer
+        # Call plotter.figure() to force passing of figure_options to drawer
         plotter.figure()
 
         ## Test values
@@ -120,14 +120,14 @@ class TestPlotterAndDrawerIntegration(QiskitExperimentsTestCase):
 
         # Check individual plot-options, but only the intersection as those are the ones we expect to be
         # updated.
-        self.assertOptionsEqual(expected_plot_options, plotter.drawer.plot_options, True)
+        self.assertOptionsEqual(expected_figure_options, plotter.drawer.figure_options, True)
 
-        # Coarse equality check of plot_options
+        # Coarse equality check of figure_options
         self.assertEqual(
-            expected_plot_options,
-            plotter.drawer.plot_options,
-            msg=rf"expected_plot_options = {expected_plot_options}\nactual_plot_options ="
-            rf"{plotter.drawer.plot_options}",
+            expected_figure_options,
+            plotter.drawer.figure_options,
+            msg=rf"expected_figure_options = {expected_figure_options}\nactual_figure_options ="
+            rf"{plotter.drawer.figure_options}",
         )
 
     def test_serializable(self):
@@ -137,10 +137,10 @@ class TestPlotterAndDrawerIntegration(QiskitExperimentsTestCase):
         def check_options(original, new):
             """Verifies that ``new`` plotter has the same options as ``original`` plotter."""
             self.assertOptionsEqual(original.options, new.options, "options")
-            self.assertOptionsEqual(original.plot_options, new.plot_options, "plot_options")
+            self.assertOptionsEqual(original.figure_options, new.figure_options, "figure_options")
             self.assertOptionsEqual(original.drawer.options, new.drawer.options, "drawer.options")
             self.assertOptionsEqual(
-                original.drawer.plot_options, new.drawer.plot_options, "drawer.plot_options"
+                original.drawer.figure_options, new.drawer.figure_options, "drawer.figure_options"
             )
 
         ## Check that plotter, BEFORE PLOTTING, survives serialization correctly.
