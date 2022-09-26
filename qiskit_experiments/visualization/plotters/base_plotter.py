@@ -129,17 +129,7 @@ class BasePlotter(ABC):
         self._set_figure_options = set()
 
         # The drawer backend to use for plotting.
-        self._drawer = drawer
-
-    @property
-    def drawer(self) -> BaseDrawer:
-        """The drawer being used by the plotter."""
-        return self._drawer
-
-    @drawer.setter
-    def drawer(self, new_drawer: BaseDrawer):
-        """Set the drawer to be used by the plotter."""
-        self._drawer = new_drawer
+        self.drawer = drawer
 
     @property
     def figure_data(self) -> Dict[str, Any]:
@@ -181,9 +171,7 @@ class BasePlotter(ABC):
             list: The list of data-keys for data in the plotter associated with the given series. If the
                 series has not been added to the plotter, an empty list is returned.
         """
-        if series_name not in self._series_data:
-            return []
-        return list(self._series_data[series_name])
+        return list(self._series_data.get(series_name, []))
 
     def data_for(self, series_name: str, data_keys: Union[str, List[str]]) -> Tuple[Optional[Any]]:
         """Returns data associated with the given series.
