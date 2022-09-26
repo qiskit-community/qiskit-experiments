@@ -154,7 +154,7 @@ class CurveAnalysis(BaseCurveAnalysis):
                     "symbol": series_def.plot_symbol,
                     "canvas": series_def.canvas,
                 }
-            self.plotter.set_plot_options(series_params=series_params)
+            self.plotter.set_figure_options(series_params=series_params)
 
         self._models = models or []
         self._name = name or self.__class__.__name__

@@ -87,8 +87,8 @@ class MplDrawer(BaseDrawer):
                         sub_ax.set_yticklabels([])
                     else:
                         # this axis locates at left, write y-label
-                        if self.plot_options.ylabel:
-                            label = self.plot_options.ylabel
+                        if self.figure_options.ylabel:
+                            label = self.figure_options.ylabel
                             if isinstance(label, list):
                                 # Y label can be given as a list for each sub axis
                                 label = label[i]
@@ -98,8 +98,8 @@ class MplDrawer(BaseDrawer):
                         sub_ax.set_xticklabels([])
                     else:
                         # this axis locates at bottom, write x-label
-                        if self.plot_options.xlabel:
-                            label = self.plot_options.xlabel
+                        if self.figure_options.xlabel:
+                            label = self.figure_options.xlabel
                             if isinstance(label, list):
                                 # X label can be given as a list for each sub axis
                                 label = label[j]
@@ -112,8 +112,8 @@ class MplDrawer(BaseDrawer):
             # Remove original axis frames
             axis.axis("off")
         else:
-            axis.set_xlabel(self.plot_options.xlabel, fontsize=self.style.axis_label_size)
-            axis.set_ylabel(self.plot_options.ylabel, fontsize=self.style.axis_label_size)
+            axis.set_xlabel(self.figure_options.xlabel, fontsize=self.style.axis_label_size)
+            axis.set_ylabel(self.figure_options.ylabel, fontsize=self.style.axis_label_size)
             axis.tick_params(labelsize=self.style.tick_label_size)
             axis.grid()
 
@@ -136,11 +136,11 @@ class MplDrawer(BaseDrawer):
         for ax_type in ("x", "y"):
             # Get axis formatter from drawing options
             if ax_type == "x":
-                lim = self.plot_options.xlim
-                unit = self.plot_options.xval_unit
+                lim = self.figure_options.xlim
+                unit = self.figure_options.xval_unit
             else:
-                lim = self.plot_options.ylim
-                unit = self.plot_options.yval_unit
+                lim = self.figure_options.ylim
+                unit = self.figure_options.yval_unit
 
             # Compute data range from auto scale
             if not lim:
@@ -213,9 +213,9 @@ class MplDrawer(BaseDrawer):
                         ax1.sharey(ax2)
                 all_axes[0].set_ylim(lim)
         # Add title
-        if self.plot_options.figure_title is not None:
+        if self.figure_options.figure_title is not None:
             self._axis.set_title(
-                label=self.plot_options.figure_title,
+                label=self.figure_options.figure_title,
                 fontsize=self.style.axis_label_size,
             )
 
@@ -308,7 +308,7 @@ class MplDrawer(BaseDrawer):
         **options,
     ):
 
-        series_params = self.plot_options.series_params.get(name, {})
+        series_params = self.figure_options.series_params.get(name, {})
         marker = series_params.get("symbol", self._get_default_marker(name))
         color = series_params.get("color", self._get_default_color(name))
         axis = series_params.get("canvas", None)
@@ -352,7 +352,7 @@ class MplDrawer(BaseDrawer):
         legend_label: Optional[str] = None,
         **options,
     ):
-        series_params = self.plot_options.series_params.get(name, {})
+        series_params = self.figure_options.series_params.get(name, {})
         axis = series_params.get("canvas", None)
         color = series_params.get("color", self._get_default_color(name))
 
@@ -375,7 +375,7 @@ class MplDrawer(BaseDrawer):
         legend_label: Optional[str] = None,
         **options,
     ):
-        series_params = self.plot_options.series_params.get(name, {})
+        series_params = self.figure_options.series_params.get(name, {})
         axis = series_params.get("canvas", None)
         color = series_params.get("color", self._get_default_color(name))
 
@@ -397,7 +397,7 @@ class MplDrawer(BaseDrawer):
         legend_label: Optional[str] = None,
         **options,
     ):
-        series_params = self.plot_options.series_params.get(name, {})
+        series_params = self.figure_options.series_params.get(name, {})
         axis = series_params.get("canvas", None)
         color = series_params.get("color", self._get_default_color(name))
 

@@ -82,11 +82,11 @@ class BaseDrawer(ABC):
         # A set of changed options for serialization.
         self._set_options = set()
 
-        # Plot options which are typically updated by a plotter instance. Plot-options include the axis
-        # labels, figure title, and a custom style instance.
-        self._plot_options = self._default_plot_options()
-        # A set of changed plot-options for serialization.
-        self._set_plot_options = set()
+        # Figure options which are typically updated by a plotter instance. Figure-options include the
+        # axis labels, figure title, and a custom style instance.
+        self._figure_options = self._default_figure_options()
+        # A set of changed figure-options for serialization.
+        self._set_figure_options = set()
 
         # The initialized axis/axes, set by `initialize_canvas`.
         self._axis = None
@@ -97,14 +97,14 @@ class BaseDrawer(ABC):
         return self._options
 
     @property
-    def plot_options(self) -> Options:
-        """Return the plot options.
+    def figure_options(self) -> Options:
+        """Return the figure options.
 
         These are typically updated by a plotter instance, and thus may change. It is recommended to set
-        plot options in a parent :class:`BasePlotter` instance that contains the :class:`BaseDrawer`
+        figure options in a parent :class:`BasePlotter` instance that contains the :class:`BaseDrawer`
         instance.
         """
-        return self._plot_options
+        return self._figure_options
 
     @classmethod
     def _default_options(cls) -> Options:
@@ -130,10 +130,10 @@ class BaseDrawer(ABC):
         return PlotStyle.default_style()
 
     @classmethod
-    def _default_plot_options(cls) -> Options:
-        """Return default plot options.
+    def _default_figure_options(cls) -> Options:
+        """Return default figure options.
 
-        Plot Options:
+        Figure Options:
             xlabel (Union[str, List[str]]): X-axis label string of the output figure.
                 If there are multiple columns in the canvas, this could be a list of labels.
             ylabel (Union[str, List[str]]): Y-axis label string of the output figure.
@@ -153,7 +153,7 @@ class BaseDrawer(ABC):
                 displayed in the scientific notation.
             yval_unit (str): Unit of y values. See ``xval_unit`` for details.
             figure_title (str): Title of the figure. Defaults to None, i.e. nothing is shown.
-            series_params (Dict[str, Dict[str, Any]]): A dictionary of plot parameters for each series.
+            series_params (Dict[str, Dict[str, Any]]): A dictionary of parameters for each series.
                 This is keyed on the name for each series. Sub-dictionary is expected to have following
                 three configurations, "canvas", "color", and "symbol"; "canvas" is the integer index of
                 axis (when multi-canvas plot is set), "color" is the color of the series, and "symbol" is
@@ -188,33 +188,33 @@ class BaseDrawer(ABC):
         self._options.update_options(**fields)
         self._set_options = self._set_options.union(fields)
 
-    def set_plot_options(self, **fields):
-        """Set the plot options.
+    def set_figure_options(self, **fields):
+        """Set the figure options.
         Args:
-            fields: The fields to update the plot options
+            fields: The fields to update the figure options
         """
         for field in fields:
-            if not hasattr(self._plot_options, field):
+            if not hasattr(self._figure_options, field):
                 raise AttributeError(
-                    f"Plot options field {field} is not valid for {type(self).__name__}"
+                    f"Figure options field {field} is not valid for {type(self).__name__}"
                 )
-        self._plot_options.update_options(**fields)
-        self._set_plot_options = self._set_plot_options.union(fields)
+        self._figure_options.update_options(**fields)
+        self._set_figure_options = self._set_figure_options.union(fields)
 
     @property
     def style(self) -> PlotStyle:
         """The combined plot style for this drawer.
 
         The returned style instance is a combination of :attr:`options.default_style` and
-        :attr:`plot_options.custom_style`. Style parameters set in ``custom_style`` override those set in
+        :attr:`figure_options.custom_style`. Style parameters set in ``custom_style`` override those set in
         ``default_style``. If ``custom_style`` is not an instance of :class:`PlotStyle`, the returned
         style is equivalent to ``default_style``.
 
         Returns:
             PlotStyle: The plot style for this drawer.
         """
-        if isinstance(self.plot_options.custom_style, PlotStyle):
-            return PlotStyle.merge(self.options.default_style, self.plot_options.custom_style)
+        if isinstance(self.figure_options.custom_style, PlotStyle):
+            return PlotStyle.merge(self.options.default_style, self.figure_options.custom_style)
         return self.options.default_style
 
     @abstractmethod
@@ -341,14 +341,14 @@ class BaseDrawer(ABC):
     def config(self) -> Dict:
         """Return the config dictionary for this drawer."""
         options = dict((key, getattr(self._options, key)) for key in self._set_options)
-        plot_options = dict(
-            (key, getattr(self._plot_options, key)) for key in self._set_plot_options
+        figure_options = dict(
+            (key, getattr(self._figure_options, key)) for key in self._set_figure_options
         )
 
         return {
             "cls": type(self),
             "options": options,
-            "plot_options": plot_options,
+            "figure_options": figure_options,
         }
 
     def __json_encode__(self):
@@ -359,6 +359,6 @@ class BaseDrawer(ABC):
         instance = cls()
         if "options" in value:
             instance.set_options(**value["options"])
-        if "plot_options" in value:
-            instance.set_plot_options(**value["plot_options"])
+        if "figure_options" in value:
+            instance.set_figure_options(**value["figure_options"])
         return instance

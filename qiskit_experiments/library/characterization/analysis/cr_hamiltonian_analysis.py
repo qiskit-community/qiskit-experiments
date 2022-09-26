@@ -69,7 +69,7 @@ class CrossResonanceHamiltonianAnalysis(curve.CompositeCurveAnalysis):
                 text_box_rel_pos=(0.28, -0.10),
             ),
         )
-        default_options.plotter.set_plot_options(
+        default_options.plotter.set_figure_options(
             xlabel="Flat top width",
             ylabel=[
                 r"$\langle$X(t)$\rangle$",

@@ -71,7 +71,7 @@ class CurvePlotter(BasePlotter):
     def _default_options(cls) -> Options:
         """Return curve-plotter specific default plotter options.
 
-        Plot Options:
+        Options:
             plot_sigma (List[Tuple[float, float]]): A list of two number tuples
                 showing the configuration to write confidence intervals for the fit curve.
                 The first argument is the relative sigma (n_sigma), and the second argument is

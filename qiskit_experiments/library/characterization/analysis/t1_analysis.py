@@ -34,7 +34,7 @@ class T1Analysis(curve.DecayAnalysis):
     def _default_options(cls) -> Options:
         """Default analysis options."""
         options = super()._default_options()
-        options.plotter.set_plot_options(
+        options.plotter.set_figure_options(
             xlabel="Delay",
             ylabel="P(1)",
             xval_unit="s",
@@ -85,7 +85,7 @@ class T1KerneledAnalysis(curve.DecayAnalysis):
     def _default_options(cls) -> Options:
         """Default analysis options."""
         options = super()._default_options()
-        options.plotter.set_plot_options(
+        options.plotter.set_figure_options(
             xlabel="Delay",
             ylabel="Normalized Projection on the Main Axis",
             xval_unit="s",

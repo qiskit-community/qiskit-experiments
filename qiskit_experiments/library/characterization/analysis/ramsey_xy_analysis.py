@@ -88,7 +88,7 @@ class RamseyXYAnalysis(curve.CurveAnalysis):
         descriptions of analysis options.
         """
         default_options = super()._default_options()
-        default_options.plotter.set_plot_options(
+        default_options.plotter.set_figure_options(
             xlabel="Delay",
             ylabel="Signal (arb. units)",
             xval_unit="s",
