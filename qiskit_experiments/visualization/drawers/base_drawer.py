@@ -13,7 +13,7 @@
 """Drawer abstract class."""
 
 from abc import ABC, abstractmethod
-from typing import Dict, Sequence, Optional
+from typing import Dict, Optional, Sequence, Tuple
 
 from qiskit_experiments.framework import Options
 from qiskit_experiments.visualization import PlotStyle
@@ -215,38 +215,27 @@ class BaseDrawer(ABC):
         """Final cleanup for the canvas appearance."""
 
     @abstractmethod
-    def draw_raw_data(
+    def draw_scatter(
         self,
         x_data: Sequence[float],
         y_data: Sequence[float],
+        x_err: Optional[Sequence[float]] = None,
+        y_err: Optional[Sequence[float]] = None,
         name: Optional[str] = None,
+        legend_entry: bool = False,
+        legend_label: Optional[str] = None,
         **options,
     ):
-        """Draw raw data.
+        """Draw scatter points, with optional error-bars.
 
         Args:
             x_data: X values.
             y_data: Y values.
+            x_err: Optional error for X values.
+            y_err: Optional error for Y values.
             name: Name of this series.
-            options: Valid options for the drawer backend API.
-        """
-
-    @abstractmethod
-    def draw_formatted_data(
-        self,
-        x_data: Sequence[float],
-        y_data: Sequence[float],
-        y_err_data: Sequence[float],
-        name: Optional[str] = None,
-        **options,
-    ):
-        """Draw the formatted data that is used for fitting.
-
-        Args:
-            x_data: X values.
-            y_data: Y values.
-            y_err_data: Standard deviation of Y values.
-            name: Name of this series.
+            legend_entry: Whether the drawn area must have a legend entry. Defaults to False.
+            legend_label: Optional legend label. ``name`` will be used if ``legend_label` is None.
             options: Valid options for the drawer backend API.
         """
 
@@ -256,6 +245,8 @@ class BaseDrawer(ABC):
         x_data: Sequence[float],
         y_data: Sequence[float],
         name: Optional[str] = None,
+        legend_entry: bool = False,
+        legend_label: Optional[str] = None,
         **options,
     ):
         """Draw fit line.
@@ -264,38 +255,70 @@ class BaseDrawer(ABC):
             x_data: X values.
             y_data: Fit Y values.
             name: Name of this series.
+            legend_entry: Whether the drawn area must have a legend entry. Defaults to False.
+            legend_label: Optional legend label. ``name`` will be used if ``legend_label` is None.
             options: Valid options for the drawer backend API.
         """
 
     @abstractmethod
-    def draw_confidence_interval(
+    def draw_filled_y_area(
         self,
         x_data: Sequence[float],
         y_ub: Sequence[float],
         y_lb: Sequence[float],
         name: Optional[str] = None,
+        legend_entry: bool = False,
+        legend_label: Optional[str] = None,
         **options,
     ):
-        """Draw confidence interval.
+        """Draw filled area as a function of x-values.
 
         Args:
             x_data: X values.
             y_ub: The upper boundary of Y values.
             y_lb: The lower boundary of Y values.
             name: Name of this series.
+            legend_entry: Whether the drawn area must have a legend entry. Defaults to False.
+            legend_label: Optional legend label. ``name`` will be used if ``legend_label` is None.
             options: Valid options for the drawer backend API.
         """
 
     @abstractmethod
-    def draw_report(
+    def draw_filled_x_area(
         self,
-        description: str,
+        x_ub: Sequence[float],
+        x_lb: Sequence[float],
+        y_data: Sequence[float],
+        name: Optional[str] = None,
+        legend_entry: bool = False,
+        legend_label: Optional[str] = None,
         **options,
     ):
-        """Draw text box that shows reports, such as fit results.
+        """Draw filled area as a function of y-values.
+
+        Args:
+            x_ub: The upper boundary of X values.
+            x_lb: The lower boundary of X values.
+            y_data: Y values.
+            name: Name of this series.
+            legend_entry: Whether the drawn area must have a legend entry. Defaults to False.
+            legend_label: Optional legend label. ``name`` will be used if ``legend_label` is None.
+            options: Valid options for the drawer backend API.
+        """
+
+    @abstractmethod
+    def draw_text_box(
+        self,
+        description: str,
+        rel_pos: Optional[Tuple[float, float]] = None,
+        **options,
+    ):
+        """Draw text box.
 
         Args:
             description: A string to be drawn inside a report box.
+            rel_pos: Relative position of the text-box. If None, the default ``text_box_rel_pos`` from
+                the style is used.
             options: Valid options for the drawer backend API.
         """
 

@@ -50,11 +50,11 @@ class PlotStyle(Options):
         # size of axis label
         new.axis_label_size: int = 16
 
-        # relative position of fit report
-        new.report_rpos: Tuple[float, float] = (0.6, 0.95)
+        # relative position of a text
+        new.text_box_rel_pos: Tuple[float, float] = (0.6, 0.95)
 
         # size of fit report text
-        new.report_text_size: int = 14
+        new.text_box_text_size: int = 14
 
         return new
 

@@ -60,8 +60,8 @@ class CurvePlotter(BasePlotter):
 
         Data Keys:
             report_text: A string containing any fit report information to be drawn in a box.
-                The style and position of the report is controlled by ``report_rpos`` and
-                ``report_text_size`` style parameters in :class:`PlotStyle`.
+                The style and position of the report is controlled by ``text_box_rel_pos`` and
+                ``text_box_text_size`` style parameters in :class:`PlotStyle`.
         """
         return [
             "report_text",
@@ -86,34 +86,52 @@ class CurvePlotter(BasePlotter):
     def _plot_figure(self):
         """Plots a curve-fit figure."""
         for ser in self.series:
+            # Scatter plot with error-bars
+            plotted_formatted_data = False
+            if self.data_exists_for(ser, ["x_formatted", "y_formatted", "y_formatted_err"]):
+                x, y, yerr = self.data_for(ser, ["x_formatted", "y_formatted", "y_formatted_err"])
+                self.drawer.draw_scatter(x, y, y_err=yerr, name=ser, zorder=2, legend_entry=True)
+                plotted_formatted_data = True
+
             # Scatter plot
             if self.data_exists_for(ser, ["x", "y"]):
                 x, y = self.data_for(ser, ["x", "y"])
-                self.drawer.draw_raw_data(x, y, ser)
-
-            # Scatter plot with error-bars
-            if self.data_exists_for(ser, ["x_formatted", "y_formatted", "y_formatted_err"]):
-                x, y, yerr = self.data_for(ser, ["x_formatted", "y_formatted", "y_formatted_err"])
-                self.drawer.draw_formatted_data(x, y, yerr, ser)
+                options = {
+                    "zorder": 1,
+                }
+                # If we plotted formatted data, differentiate scatter points by setting normal X-Y
+                # markers to gray.
+                if plotted_formatted_data:
+                    options["color"] = "gray"
+                # If we didn't plot formatted data, the X-Y markers should be used for the legend.
+                if not plotted_formatted_data:
+                    options["legend_entry"] = True
+                self.drawer.draw_scatter(
+                    x,
+                    y,
+                    name=ser,
+                    **options,
+                )
 
             # Line plot for fit
             if self.data_exists_for(ser, ["x_interp", "y_mean"]):
                 x, y = self.data_for(ser, ["x_interp", "y_mean"])
-                self.drawer.draw_line(x, y, ser)
+                self.drawer.draw_line(x, y, name=ser, zorder=3)
 
             # Confidence interval plot
             if self.data_exists_for(ser, ["x_interp", "y_mean", "sigmas"]):
                 x, y_mean, sigmas = self.data_for(ser, ["x_interp", "y_mean", "sigmas"])
                 for n_sigma, alpha in self.options.plot_sigma:
-                    self.drawer.draw_confidence_interval(
+                    self.drawer.draw_filled_y_area(
                         x,
                         y_mean + n_sigma * sigmas,
                         y_mean - n_sigma * sigmas,
-                        ser,
+                        name=ser,
                         alpha=alpha,
+                        zorder=5,
                     )
 
             # Fit report
             if "report_text" in self.figure_data:
                 report_text = self.figure_data["report_text"]
-                self.drawer.draw_report(report_text)
+                self.drawer.draw_text_box(report_text)

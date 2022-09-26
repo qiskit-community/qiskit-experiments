@@ -12,7 +12,7 @@
 
 """Curve drawer for matplotlib backend."""
 
-from typing import Optional, Sequence, Tuple
+from typing import Dict, Optional, Sequence, Tuple
 
 import numpy as np
 from matplotlib.axes import Axes
@@ -272,60 +272,84 @@ class MplDrawer(BaseDrawer):
         ind = self._series.index(name) % len(self.DefaultMarkers)
         return self.DefaultMarkers[ind]
 
-    def draw_raw_data(
+    def _update_label_in_dict(
+        self,
+        options: Dict[str, any],
+        name: Optional[str],
+        legend_entry: bool,
+        legend_label: Optional[str],
+    ):
+        """Helper function to set the label entry in ``options`` based on given arguments.
+
+        Args:
+            options: The options dictionary being modified.
+            name: A fall-back label if ``legend_label`` is None. If None, a blank string is used.
+            legend_entry: Whether to set "label" in ``options``.
+            legend_label: Optional label. If None, ``name`` is used.
+        """
+        if legend_entry:
+            if legend_label is not None:
+                label = legend_label
+            elif name is not None:
+                label = name
+            else:
+                label = ""
+            options["label"] = label
+
+    def draw_scatter(
         self,
         x_data: Sequence[float],
         y_data: Sequence[float],
+        x_err: Optional[Sequence[float]] = None,
+        y_err: Optional[Sequence[float]] = None,
         name: Optional[str] = None,
+        legend_entry: bool = False,
+        legend_label: Optional[str] = None,
         **options,
     ):
+
         series_params = self.plot_options.series_params.get(name, {})
         marker = series_params.get("symbol", self._get_default_marker(name))
+        color = series_params.get("color", self._get_default_color(name))
         axis = series_params.get("canvas", None)
 
         draw_options = {
-            "color": "grey",
+            "color": color,
             "marker": marker,
             "alpha": 0.8,
             "zorder": 2,
         }
+        self._update_label_in_dict(draw_options, name, legend_entry, legend_label)
         draw_options.update(**options)
-        self._get_axis(axis).scatter(x_data, y_data, **draw_options)
 
-    def draw_formatted_data(
-        self,
-        x_data: Sequence[float],
-        y_data: Sequence[float],
-        y_err_data: Sequence[float],
-        name: Optional[str] = None,
-        **options,
-    ):
-        series_params = self.plot_options.series_params.get(name, {})
-        axis = series_params.get("canvas", None)
-        color = series_params.get("color", self._get_default_color(name))
-        marker = series_params.get("symbol", self._get_default_marker(name))
+        if x_err is None and y_err is None:
+            self._get_axis(axis).scatter(x_data, y_data, **draw_options)
+        else:
+            # Check for invalid error values.
+            if y_err is not None and not np.all(np.isfinite(y_err)):
+                y_err = None
+            if x_err is not None and not np.all(np.isfinite(x_err)):
+                x_err = None
 
-        draw_ops = {
-            "color": color,
-            "marker": marker,
-            "markersize": 9,
-            "alpha": 0.8,
-            "zorder": 4,
-            "linestyle": "",
-        }
-        draw_ops.update(**options)
-        if name:
-            draw_ops["label"] = name
+            # `errorbar` has extra default draw_options to set, but we want to accept any overrides from
+            # `options`, and thus draw_options.
+            errorbar_options = {
+                "linestyle": "",
+                "markersize": 9,
+            }
+            errorbar_options.update(draw_options)
 
-        if not np.all(np.isfinite(y_err_data)):
-            y_err_data = None
-        self._get_axis(axis).errorbar(x_data, y_data, yerr=y_err_data, **draw_ops)
+            self._get_axis(axis).errorbar(
+                x_data, y_data, yerr=y_err, xerr=x_err, **errorbar_options
+            )
 
     def draw_line(
         self,
         x_data: Sequence[float],
         y_data: Sequence[float],
         name: Optional[str] = None,
+        legend_entry: bool = False,
+        legend_label: Optional[str] = None,
         **options,
     ):
         series_params = self.plot_options.series_params.get(name, {})
@@ -334,19 +358,21 @@ class MplDrawer(BaseDrawer):
 
         draw_ops = {
             "color": color,
-            "zorder": 5,
             "linestyle": "-",
             "linewidth": 2,
         }
+        self._update_label_in_dict(draw_ops, name, legend_entry, legend_label)
         draw_ops.update(**options)
         self._get_axis(axis).plot(x_data, y_data, **draw_ops)
 
-    def draw_confidence_interval(
+    def draw_filled_y_area(
         self,
         x_data: Sequence[float],
         y_ub: Sequence[float],
         y_lb: Sequence[float],
         name: Optional[str] = None,
+        legend_entry: bool = False,
+        legend_label: Optional[str] = None,
         **options,
     ):
         series_params = self.plot_options.series_params.get(name, {})
@@ -354,16 +380,39 @@ class MplDrawer(BaseDrawer):
         color = series_params.get("color", self._get_default_color(name))
 
         draw_ops = {
-            "zorder": 3,
             "alpha": 0.1,
             "color": color,
         }
+        self._update_label_in_dict(draw_ops, name, legend_entry, legend_label)
         draw_ops.update(**options)
         self._get_axis(axis).fill_between(x_data, y1=y_lb, y2=y_ub, **draw_ops)
 
-    def draw_report(
+    def draw_filled_x_area(
+        self,
+        x_ub: Sequence[float],
+        x_lb: Sequence[float],
+        y_data: Sequence[float],
+        name: Optional[str] = None,
+        legend_entry: bool = False,
+        legend_label: Optional[str] = None,
+        **options,
+    ):
+        series_params = self.plot_options.series_params.get(name, {})
+        axis = series_params.get("canvas", None)
+        color = series_params.get("color", self._get_default_color(name))
+
+        draw_ops = {
+            "alpha": 0.1,
+            "color": color,
+        }
+        self._update_label_in_dict(draw_ops, name, legend_entry, legend_label)
+        draw_ops.update(**options)
+        self._get_axis(axis).fill_between_x(y_data, x1=x_lb, x2=x_ub, **draw_ops)
+
+    def draw_text_box(
         self,
         description: str,
+        rel_pos: Optional[Tuple[float, float]] = None,
         **options,
     ):
         bbox_props = {
@@ -375,16 +424,19 @@ class MplDrawer(BaseDrawer):
         }
         bbox_props.update(**options)
 
-        report_handler = self._axis.text(
-            *self.style.report_rpos,
+        if rel_pos is None:
+            rel_pos = self.style.text_box_rel_pos
+
+        text_box_handler = self._axis.text(
+            *rel_pos,
             s=description,
             ha="center",
             va="top",
-            size=self.style.report_text_size,
+            size=self.style.text_box_text_size,
             transform=self._axis.transAxes,
-            zorder=6,
+            zorder=1000,  # Very large zorder to draw over other graphics.
         )
-        report_handler.set_bbox(bbox_props)
+        text_box_handler.set_bbox(bbox_props)
 
     @property
     def figure(self) -> Figure:

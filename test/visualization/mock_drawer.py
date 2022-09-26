@@ -13,7 +13,7 @@
 Mock drawer for testing.
 """
 
-from typing import Optional, Sequence
+from typing import Optional, Sequence, Tuple
 
 from qiskit_experiments.visualization import BaseDrawer, PlotStyle
 
@@ -48,22 +48,15 @@ class MockDrawer(BaseDrawer):
         """Does nothing."""
         pass
 
-    def draw_raw_data(
+    def draw_scatter(
         self,
         x_data: Sequence[float],
         y_data: Sequence[float],
+        x_err: Optional[Sequence[float]] = None,
+        y_err: Optional[Sequence[float]] = None,
         name: Optional[str] = None,
-        **options,
-    ):
-        """Does nothing."""
-        pass
-
-    def draw_formatted_data(
-        self,
-        x_data: Sequence[float],
-        y_data: Sequence[float],
-        y_err_data: Sequence[float],
-        name: Optional[str] = None,
+        legend_entry: bool = False,
+        legend_label: Optional[str] = None,
         **options,
     ):
         """Does nothing."""
@@ -74,25 +67,43 @@ class MockDrawer(BaseDrawer):
         x_data: Sequence[float],
         y_data: Sequence[float],
         name: Optional[str] = None,
+        legend_entry: bool = False,
+        legend_label: Optional[str] = None,
         **options,
     ):
         """Does nothing."""
         pass
 
-    def draw_confidence_interval(
+    def draw_filled_y_area(
         self,
         x_data: Sequence[float],
         y_ub: Sequence[float],
         y_lb: Sequence[float],
         name: Optional[str] = None,
+        legend_entry: bool = False,
+        legend_label: Optional[str] = None,
         **options,
     ):
         """Does nothing."""
         pass
 
-    def draw_report(
+    def draw_filled_x_area(
+        self,
+        x_ub: Sequence[float],
+        x_lb: Sequence[float],
+        y_data: Sequence[float],
+        name: Optional[str] = None,
+        legend_entry: bool = False,
+        legend_label: Optional[str] = None,
+        **options,
+    ):
+        """Does nothing."""
+        pass
+
+    def draw_text_box(
         self,
         description: str,
+        rel_pos: Optional[Tuple[float, float]] = None,
         **options,
     ):
         """Does nothing."""

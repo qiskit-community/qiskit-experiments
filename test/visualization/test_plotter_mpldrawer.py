@@ -16,6 +16,7 @@ Test integration of plotter with Matplotlib drawer.
 from test.base import QiskitExperimentsTestCase
 
 import matplotlib
+
 from qiskit_experiments.visualization import MplDrawer
 
 from .mock_plotter import MockPlotter
