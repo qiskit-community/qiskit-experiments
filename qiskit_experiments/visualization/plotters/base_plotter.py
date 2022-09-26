@@ -93,8 +93,9 @@ class BasePlotter(ABC):
 
         Series data includes data such as scatter points, interpolated fit values, and
         standard-deviations. Series data is grouped by series-name and then by a data-key, both strings.
-        Though series data can be accessed through :meth:`series_data`, it is recommended to use
-        :meth:`data_for` and :meth:`data_exists_for`.
+        Though series data can be accessed through :meth:`series_data`, it is recommended to access them
+        with :meth:`data_for` and :meth:`data_exists_for` as they allow for easier access to nested
+        values and can handle multiple data-keys in one query.
 
         Returns:
             dict: A dictionary containing series data.
@@ -110,7 +111,8 @@ class BasePlotter(ABC):
         """Returns a list of data-keys for the given series.
 
         Args:
-            series_name: The series name for the given series.
+            series_name: The series name for which to return the data-keys, i.e., the types of data for
+                each series.
 
         Returns:
             list: The list of data-keys for data in the plotter associated with the given series. If the
@@ -133,8 +135,8 @@ class BasePlotter(ABC):
             x, y, yerr = plotter.series_data_for("seriesA", ["x", "y", "yerr"])
             x, y, yerr = data.x, data.y, data.yerr
 
-        :meth:`data_for` is intended to be used by sub-classes of :class:`BasePlotter` when
-        plotting in :meth:`_plot_figure`.
+        :meth:`data_for` is intended to be used by sub-classes of :class:`BasePlotter` when plotting in
+        the :meth:`_plot_figure` method.
 
         Args:
             series_name: The series name for the given series.
