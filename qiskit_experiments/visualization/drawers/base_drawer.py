@@ -40,7 +40,7 @@ class BaseDrawer(ABC):
 
     format_canvas
 
-        This method should implement a protocol to format the appearance of canvas. Typically, it updates
+        This method formats the appearance of the canvas. Typically, it updates
         axis and tick labels. Note that the axis SI unit may be specified in the drawer options. In this
         case, axis numbers should be auto-scaled with the unit prefix.
 

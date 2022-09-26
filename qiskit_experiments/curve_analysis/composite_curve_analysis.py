@@ -125,7 +125,7 @@ class CompositeCurveAnalysis(BaseAnalysis):
 
     @property
     def plotter(self) -> BasePlotter:
-        """A short-cut for plotter instance."""
+        """A short-cut to the plotter instance."""
         return self._options.plotter
 
     def analyses(

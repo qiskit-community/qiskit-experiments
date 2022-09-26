@@ -76,7 +76,7 @@ class CurvePlotter(BasePlotter):
                 showing the configuration to write confidence intervals for the fit curve.
                 The first argument is the relative sigma (n_sigma), and the second argument is
                 the transparency of the interval plot in ``[0, 1]``.
-                Multiple n_sigma intervals can be drawn for the single curve.
+                Multiple n_sigma intervals can be drawn for the same curve.
 
         """
         options = super()._default_options()
