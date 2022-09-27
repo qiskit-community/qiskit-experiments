@@ -23,7 +23,8 @@ class BaseDrawer(ABC):
     """Abstract class for the serializable Qiskit Experiments figure drawer.
 
     A drawer may be implemented by different drawer backends such as matplotlib or Plotly. Sub-classes
-    that wrap these backends by subclassing `BaseDrawer` must implement the following abstract methods.
+    that wrap these backends by subclassing :class:`BaseDrawer` must implement the following abstract
+    methods.
 
     initialize_canvas
 
@@ -40,36 +41,35 @@ class BaseDrawer(ABC):
 
     format_canvas
 
-        This method formats the appearance of the canvas. Typically, it updates
-        axis and tick labels. Note that the axis SI unit may be specified in the drawer options. In this
-        case, axis numbers should be auto-scaled with the unit prefix.
+        This method formats the appearance of the canvas. Typically, it updates axis and tick labels.
+        Note that the axis SI unit may be specified in the drawer figure_options. In this case, axis
+        numbers should be auto-scaled with the unit prefix.
 
-    draw_raw_data
+    draw_scatter
 
-        This method draws raw experiment data points on the canvas, like a scatter-plot.
-
-    draw_formatted_data
-
-        This method plots data with error-bars for the y-values. The formatted data might be averaged
-        over the same x values, or smoothed by a filtering algorithm, depending on how analysis class is
-        implemented. This method is called with error bars of y values and the name of the series.
+        This method draws scatter points on the canvas, like a scatter-plot, with optional error-bars in
+        both the X and Y axes.
 
     draw_line
 
         This method plots a line from provided X and Y values. This method is typically called with
         interpolated x and y values from a curve-fit.
 
-    draw_confidence_interval
+    draw_filled_y_area
 
         This method plots a shaped region bounded by upper and lower Y-values. This method is typically
         called with interpolated x and a pair of y values that represent the upper and lower bound within
-        certain confidence interval. This might be called multiple times with different interval sizes.
-        It is normally good to set some transparency for a confidence interval so the figure has enough
-        contrast between points, lines, and the confidence-interval shape.
+        certain confidence interval. If this is called multiple times, it may be necessary to set the
+        transparency so that overlapping regions can be distinguished.
 
-    draw_report
+    draw_filled_x_area
 
-        This method draws a report on the canvas, which is a rectangular region containing some text.
+        This method plots a shaped region bounded by upper and lower X-values, as a function of Y-values.
+        This method is a rotated analogue of :meth:`draw_filled_y_area`.
+
+    draw_text_box
+
+        This method draws a text-box on the canvas, which is a rectangular region containing some text.
         This method is typically called with a list of analysis results and reduced chi-squared values
         from a curve-fit.
 
