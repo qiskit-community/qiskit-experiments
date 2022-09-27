@@ -39,6 +39,21 @@ from qiskit_experiments.curve_analysis.curve_data import CurveFitResult
 class QiskitExperimentsTestCase(QiskitTestCase):
     """Qiskit Experiments specific extra functionality for test cases."""
 
+    @classmethod
+    def setUpClass(cls):
+        """Set-up test class."""
+        super().setUpClass()
+
+        # Some functionality may be deprecated in Qiskit Experiments. If the deprecation warnings aren't
+        # filtered, the tests will fail as ``QiskitTestCase`` sets all warnings to be treated as an error
+        # by default.
+        allow_DeprecationWarning_message = [
+            # TODO: Remove in 0.6, when submodule `.curve_analysis.visualization` is removed.
+            r".*Plotting and drawing functionality has been moved",
+        ]
+        for msg in allow_DeprecationWarning_message:
+            warnings.filterwarnings("default", category=DeprecationWarning, message=msg)
+
     def assertExperimentDone(
         self,
         experiment_data: ExperimentData,

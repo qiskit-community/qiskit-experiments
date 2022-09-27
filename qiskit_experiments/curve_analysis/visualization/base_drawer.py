@@ -21,7 +21,7 @@ from qiskit_experiments.warnings import deprecated_class
 
 @deprecated_class(
     "0.6",
-    msg="Plotting and drawing of analysis figures has been moved to the new"
+    msg="Plotting and drawing of analysis figures has been moved to the new "
     "`qiskit_experiments.visualization` module.",
 )
 class BaseCurveDrawer(ABC):

@@ -24,7 +24,7 @@ from qiskit_experiments.warnings import deprecated_function
 
 @deprecated_function(
     "0.6",
-    msg="Plotting and drawing functionality has been moved to the new"
+    msg="Plotting and drawing functionality has been moved to the new "
     "`qiskit_experiments.visualization` module.",
 )
 def plot_curve_fit(
@@ -103,7 +103,7 @@ def plot_curve_fit(
 
 @deprecated_function(
     "0.6",
-    msg="Plotting and drawing functionality has been moved to the new"
+    msg="Plotting and drawing functionality has been moved to the new "
     "`qiskit_experiments.visualization` module.",
 )
 def plot_scatter(
@@ -152,7 +152,7 @@ def plot_scatter(
 
 @deprecated_function(
     "0.6",
-    msg="Plotting and drawing functionality has been moved to the new"
+    msg="Plotting and drawing functionality has been moved to the new "
     "`qiskit_experiments.visualization` module.",
 )
 def plot_errorbar(

@@ -41,7 +41,7 @@ from .style import PlotterStyle
 
 @deprecated_class(
     "0.6",
-    msg="Plotting and drawing of analysis figures has been moved to the new"
+    msg="Plotting and drawing of analysis figures has been moved to the new "
     "`qiskit_experiments.visualization` module.",
 )
 class MplDrawSingleCanvas:
@@ -429,7 +429,7 @@ def write_fit_report(result_entries: List[AnalysisResultData]) -> str:
 # pylint: disable=invalid-name
 @deprecated_class(
     "0.6",
-    msg="Plotting and drawing of analysis figures has been moved to the new"
+    msg="Plotting and drawing of analysis figures has been moved to the new "
     "`qiskit_experiments.visualization` module.",
 )
 class FitResultPlotters(Enum):
