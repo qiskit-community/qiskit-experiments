@@ -15,16 +15,29 @@ Analysis class for multi-group curve fitting.
 """
 # pylint: disable=invalid-name
 import warnings
-from typing import Dict, List, Tuple, Optional, Union
+from typing import Dict, List, Optional, Tuple, Union
 
 import lmfit
 import numpy as np
-from uncertainties import unumpy as unp, UFloat
+from uncertainties import UFloat
+from uncertainties import unumpy as unp
 
-from qiskit_experiments.framework import BaseAnalysis, ExperimentData, AnalysisResultData, Options
+from qiskit_experiments.framework import (
+    AnalysisResultData,
+    BaseAnalysis,
+    ExperimentData,
+    Options,
+)
+from qiskit_experiments.visualization import (
+    BaseDrawer,
+    BasePlotter,
+    CurvePlotter,
+    LegacyCurveCompatDrawer,
+    MplDrawer,
+)
 from qiskit_experiments.warnings import deprecated_function
-from qiskit_experiments.visualization import MplDrawer, CurvePlotter, BasePlotter, BaseDrawer
-from .base_curve_analysis import BaseCurveAnalysis, PARAMS_ENTRY_PREFIX
+
+from .base_curve_analysis import PARAMS_ENTRY_PREFIX, BaseCurveAnalysis
 from .curve_data import CurveFitResult
 from .utils import analysis_result_to_repr, eval_with_uncertainties
 
@@ -234,21 +247,18 @@ class CompositeCurveAnalysis(BaseAnalysis):
                 DeprecationWarning,
                 stacklevel=2,
             )
-            # Set the plotter drawer to `curve_drawer`, though it needs to be a subclass of the new class
-            # `BaseDrawer` from `qiskit_experiments.visualization`.
+            # Set the plotter drawer to `curve_drawer`. If `curve_drawer` is the right type, set it
+            # directly. If not, wrap it in a compatibility drawer.
             if isinstance(fields["curve_drawer"], BaseDrawer):
                 plotter = self.options.plotter
                 plotter.drawer = fields.pop("curve_drawer")
                 fields["plotter"] = plotter
             else:
-                # TODO Add usage of wrapper class for backwards compatibility during deprecation period.
                 drawer = fields["curve_drawer"]
-                warnings.warn(
-                    "Cannot set deprecated `curve_drawer` options as it is not a subclass of "
-                    f"`BaseDrawer`: got type {type(drawer).__name__}. Doing nothing.",
-                    DeprecationWarning,
-                    stacklevel=2,
-                )
+                compat_drawer = LegacyCurveCompatDrawer(drawer)
+                plotter = self.options.plotter
+                plotter.drawer = compat_drawer
+                fields["plotter"] = plotter
 
         for field in fields:
             if not hasattr(self.options, field):

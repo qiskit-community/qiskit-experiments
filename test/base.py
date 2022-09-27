@@ -47,11 +47,13 @@ class QiskitExperimentsTestCase(QiskitTestCase):
         # Some functionality may be deprecated in Qiskit Experiments. If the deprecation warnings aren't
         # filtered, the tests will fail as ``QiskitTestCase`` sets all warnings to be treated as an error
         # by default.
-        allow_DeprecationWarning_message = [
+        # pylint: disable=invalid-name
+        allow_deprecationwarning_message = [
             # TODO: Remove in 0.6, when submodule `.curve_analysis.visualization` is removed.
             r".*Plotting and drawing functionality has been moved",
+            r".*Legacy drawers from `.curve_analysis.visualization are deprecated",
         ]
-        for msg in allow_DeprecationWarning_message:
+        for msg in allow_deprecationwarning_message:
             warnings.filterwarnings("default", category=DeprecationWarning, message=msg)
 
     def assertExperimentDone(

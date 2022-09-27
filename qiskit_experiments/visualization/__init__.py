@@ -42,7 +42,8 @@ Plotter Library
     :toctree: ../stubs/
     :template: autosummary/class.rst
 
-    BasePlotter CurvePlotter
+    BasePlotter
+    CurvePlotter
 
 Drawer Library
 ==============
@@ -51,7 +52,9 @@ Drawer Library
     :toctree: ../stubs/
     :template: autosummary/class.rst
 
-    BaseDrawer MplDrawer
+    BaseDrawer
+    MplDrawer
+    LegacyCurveCompatDrawer
 
 Plotting Style
 ==============
@@ -66,5 +69,5 @@ Plotting Style
 # PlotStyle is imported by .drawers and .plotters. Skip PlotStyle import for isort to prevent circular
 # import.
 from .style import PlotStyle  # isort:skip
-from .drawers import BaseDrawer, MplDrawer
+from .drawers import BaseDrawer, LegacyCurveCompatDrawer, MplDrawer
 from .plotters import BasePlotter, CurvePlotter

@@ -16,16 +16,28 @@ Base class of curve analysis.
 
 import warnings
 from abc import ABC, abstractmethod
-from typing import List, Dict, Union
+from typing import Dict, List, Union
 
 import lmfit
 
 from qiskit_experiments.data_processing import DataProcessor
 from qiskit_experiments.data_processing.processor_library import get_processor
-from qiskit_experiments.framework import BaseAnalysis, AnalysisResultData, Options, ExperimentData
+from qiskit_experiments.framework import (
+    AnalysisResultData,
+    BaseAnalysis,
+    ExperimentData,
+    Options,
+)
+from qiskit_experiments.visualization import (
+    BaseDrawer,
+    BasePlotter,
+    CurvePlotter,
+    LegacyCurveCompatDrawer,
+    MplDrawer,
+)
 from qiskit_experiments.warnings import deprecated_function
-from qiskit_experiments.visualization import MplDrawer, BasePlotter, CurvePlotter, BaseDrawer
-from .curve_data import CurveData, ParameterRepr, CurveFitResult
+
+from .curve_data import CurveData, CurveFitResult, ParameterRepr
 
 PARAMS_ENTRY_PREFIX = "@Parameters_"
 DATA_ENTRY_PREFIX = "@Data_"
@@ -125,8 +137,8 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
     )
     def drawer(self) -> BaseDrawer:
         """A short-cut for curve drawer instance, if set. ``None`` otherwise."""
-        if hasattr(self._options, "curve_drawer"):
-            return self._options.curve_drawer
+        if isinstance(self.plotter.drawer, LegacyCurveCompatDrawer):
+            return self.plotter.drawer._curve_drawer
         else:
             return None
 
@@ -232,21 +244,18 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
                 DeprecationWarning,
                 stacklevel=2,
             )
-            # Set the plotter drawer to `curve_drawer`, though it needs to be a subclass of the new class
-            # `BaseDrawer` from `qiskit_experiments.visualization`.
+            # Set the plotter drawer to `curve_drawer`. If `curve_drawer` is the right type, set it
+            # directly. If not, wrap it in a compatibility drawer.
             if isinstance(fields["curve_drawer"], BaseDrawer):
                 plotter = self.options.plotter
                 plotter.drawer = fields.pop("curve_drawer")
                 fields["plotter"] = plotter
             else:
-                # TODO Add usage of wrapper class for backwards compatibility during deprecation period.
                 drawer = fields["curve_drawer"]
-                warnings.warn(
-                    "Cannot set deprecated `curve_drawer` options as it is not a subclass of "
-                    f"`BaseDrawer`: got type {type(drawer).__name__}. Doing nothing.",
-                    DeprecationWarning,
-                    stacklevel=2,
-                )
+                compat_drawer = LegacyCurveCompatDrawer(drawer)
+                plotter = self.options.plotter
+                plotter.drawer = compat_drawer
+                fields["plotter"] = plotter
 
         super().set_options(**fields)
 
