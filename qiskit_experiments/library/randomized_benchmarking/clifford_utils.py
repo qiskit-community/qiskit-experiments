@@ -25,7 +25,7 @@ from numpy.random import Generator, default_rng
 
 from qiskit.circuit import Gate, Instruction
 from qiskit.circuit import QuantumCircuit, QuantumRegister, CircuitInstruction, Qubit
-from qiskit.circuit.library import SdgGate, HGate, SGate
+from qiskit.circuit.library import SdgGate, HGate, SGate, XGate, YGate, ZGate
 from qiskit.compiler import transpile
 from qiskit.exceptions import QiskitError
 from qiskit.providers.backend import Backend
@@ -589,14 +589,14 @@ class CliffordUtils:
         Number of Cliffords == 16."""
         if self._transpiled_cliff_layer[2] != []:
             return
-        pauli = ["i", "x", "y", "z"]
+
+        pauli = ("i", XGate(), YGate(), ZGate())
         for p0, p1 in itertools.product(pauli, pauli):
-            qr = QuantumRegister(2)
-            qc = QuantumCircuit(qr)
+            qc = QuantumCircuit(2)
             if p0 != "i":
-                qc._append(Gate(p0, 1, []), [qr[0]], [])
+                qc.append(p0, [0])
             if p1 != "i":
-                qc._append(Gate(p1, 1, []), [qr[1]], [])
+                qc.append(p1, [1])
 
             transpiled = transpile(
                 qc, optimization_level=1, basis_gates=self.basis_gates, backend=self._backend
