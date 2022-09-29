@@ -23,6 +23,7 @@ from qiskit.exceptions import QiskitError
 from qiskit.providers.backend import Backend
 from qiskit.quantum_info import Clifford
 from qiskit.transpiler.exceptions import TranspilerError
+from qiskit_experiments.framework.backend_timing import BackendTiming
 from .clifford_utils import CliffordUtils, _truncate_inactive_qubits
 from .interleaved_rb_analysis import InterleavedRBAnalysis
 from .rb_experiment import StandardRB, SequenceElementType
@@ -66,6 +67,10 @@ class InterleavedRB(StandardRB):
                     given either as a Clifford element, gate, delay or circuit.
                     Only when the element contains any non-basis gates,
                     it will be transpiled with ``transpiled_options`` of this experiment.
+                    If it is/contains a delay, its duration and unit must comply with
+                    the timing constraints of the ``backend``.
+                    (:class:``~qiskit_experiments.framework.backend_timing.BackendTiming`
+                    is useful to obtain valid delays.)
             qubits: list of physical qubits for the experiment.
             lengths: A list of RB sequences lengths.
             backend: The backend to run the experiment on.
@@ -80,8 +85,12 @@ class InterleavedRB(StandardRB):
                            Clifford samples to shorter sequences.
 
         Raises:
-            QiskitError: the interleaved_element is invalid (e.g. not convertible to Clifford object).
+            QiskitError: if the interleaved_element is invalid:
+                * it has different number of qubits from the qubits argument
+                * it is not convertible to Clifford object
+                * it has an invalid delay (e.g. violating the timing constraints of the backend)
         """
+        # Validations of interleaved_element
         if len(qubits) != interleaved_element.num_qubits:
             raise QiskitError(
                 f"Mismatch in number of qubits between qubits ({len(qubits)})"
@@ -93,6 +102,27 @@ class InterleavedRB(StandardRB):
             raise QiskitError(
                 f"Interleaved element {interleaved_element.name} could not be converted to Clifford."
             ) from err
+        delay_ops = []
+        if isinstance(interleaved_element, Delay):
+            delay_ops = [interleaved_element]
+        elif isinstance(interleaved_element, QuantumCircuit):
+            delay_ops = [delay.operation for delay in interleaved_element.get_instructions("delay")]
+        for delay_op in delay_ops:
+            timing = BackendTiming(backend)
+            if delay_op.unit != timing.delay_unit:
+                raise QiskitError(
+                    f"Interleaved delay for backend {backend} must have time unit {timing.delay_unit}."
+                    " Use BackendTiming to set valid duration and unit for delays."
+                )
+            if timing.delay_unit == "dt":
+                valid_duration = timing.round_delay(samples=delay_op.duration)
+                if delay_op.duration != valid_duration:
+                    raise QiskitError(
+                        f"Interleaved delay duration {delay_op.duration}[dt] violates the timing"
+                        f" constraints of the backend {backend}. It could be {valid_duration}[dt]."
+                        " Use BackendTiming to set valid duration for delays."
+                    )
+
         super().__init__(
             qubits,
             lengths,
@@ -119,7 +149,7 @@ class InterleavedRB(StandardRB):
             A list of :class:`QuantumCircuit`.
 
         Raises:
-            QiskitError: if fail to transpile interleaved_element.
+            QiskitError: if failed to transpile interleaved_element.
         """
         basis_gates = self._get_basis_gates()
         self._cliff_utils = CliffordUtils(self.num_qubits, basis_gates=basis_gates)  # TODO: cleanup
@@ -130,22 +160,20 @@ class InterleavedRB(StandardRB):
             interleaved_circ = self._interleaved_op
         elif isinstance(self._interleaved_op, Clifford):
             interleaved_circ = self._interleaved_op.to_circuit()
-        else:  # Instruction
+        elif isinstance(self._interleaved_op, Gate):
             interleaved_circ = QuantumCircuit(self.num_qubits, name=self._interleaved_op.name)
             interleaved_circ.append(self._interleaved_op, list(range(self.num_qubits)))
-        interleaved_circ.name = f"Clifford-{interleaved_circ.name}"
+        else:  # Delay
+            interleaved_circ = []
         if basis_gates and any(i.operation.name not in basis_gates for i in interleaved_circ):
+            interleaved_circ.name = f"Clifford-{interleaved_circ.name}"
             # Transpile circuit with non-basis gates and remove idling qubits
             try:
                 interleaved_circ = transpile(
                     interleaved_circ, self.backend, **vars(self.transpile_options)
                 )
             except TranspilerError as err:
-                raise QiskitError(
-                    "Failed to transpile interleaved_element. Check if transpile_options is correct."
-                    " Note that using delays in dt unit satisfying timing constraints is faster"
-                    " than transpiling with scheduling_method."
-                ) from err
+                raise QiskitError("Failed to transpile interleaved_element.") from err
             interleaved_circ = _truncate_inactive_qubits(
                 interleaved_circ, active_qubits=interleaved_circ.qubits[: self.num_qubits]
             )

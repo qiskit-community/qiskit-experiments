@@ -183,7 +183,7 @@ class TestInterleavedRB(QiskitExperimentsTestCase, RBTestMixin):
                 lengths=[1, 2, 3, 5, 8, 13],
             )
 
-    @data([5, "dt"], [3.2e-7, "s"])
+    @data([5, "dt"], [1e-7, "s"], [32, "ns"])
     @unpack
     def test_interleaving_delay_with_invalid_duration(self, duration, unit):
         """Raise if delay with invalid duration is given as interleaved_element"""
@@ -192,6 +192,7 @@ class TestInterleavedRB(QiskitExperimentsTestCase, RBTestMixin):
                 interleaved_element=Delay(duration, unit=unit),
                 qubits=[0],
                 lengths=[1, 2, 3],
+                backend=self.backend_with_timing_constraint,
             )
 
     def test_experiment_config(self):
@@ -256,7 +257,7 @@ class TestInterleavedRB(QiskitExperimentsTestCase, RBTestMixin):
         """Interleaved RB should not change a given interleaved circuit during RB circuit generation."""
         interleaved_circ = QuantumCircuit(2, name="bell_with_delay")
         interleaved_circ.h(0)
-        interleaved_circ.delay(160, 0)
+        interleaved_circ.delay(1.0e-7, 0, unit="s")
         interleaved_circ.cx(0, 1)
 
         exp = rb.InterleavedRB(
@@ -271,8 +272,10 @@ class TestInterleavedRB(QiskitExperimentsTestCase, RBTestMixin):
     def test_interleaving_delay(self):
         """Test delay instruction can be interleaved."""
         # See qiskit-experiments/#727 for details
+        from qiskit_experiments.framework.backend_timing import BackendTiming
+        timing = BackendTiming(self.backend)
         exp = rb.InterleavedRB(
-            interleaved_element=Delay(100),  # TODO: Use BackendTiming
+            interleaved_element=Delay(timing.round_delay(time=1.0e-7)),
             qubits=[0],
             lengths=[1],
             num_samples=1,
