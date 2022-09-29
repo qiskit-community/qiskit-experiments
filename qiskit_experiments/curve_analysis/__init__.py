@@ -481,6 +481,15 @@ Data Classes
     ParameterRepr
     FitOptions
 
+Visualization
+=============
+
+.. autosummary::
+    :toctree: ../stubs/
+
+    BaseCurveDrawer
+    MplCurveDrawer
+
 Standard Analysis Library
 =========================
 
@@ -556,6 +565,7 @@ from .curve_fit import (
     process_curve_data,
     process_multi_curve_data,
 )
+from .visualization import BaseCurveDrawer, MplCurveDrawer
 from . import guess
 from . import fit_function
 from . import utils
@@ -570,3 +580,6 @@ from .standard_analysis import (
     ErrorAmplificationAnalysis,
     BlochTrajectoryAnalysis,
 )
+
+# deprecated
+from .visualization import plot_curve_fit, plot_errorbar, plot_scatter, FitResultPlotters
