@@ -139,9 +139,10 @@ class BaseCurveDrawer(ABC):
                 Multiple n_sigma intervals can be drawn for the single curve.
             plot_options (Dict[str, Dict[str, Any]]): A dictionary of plot options for each curve.
                 This is keyed on the model name for each curve. Sub-dictionary is expected to have
-                following three configurations, "canvas", "color", and "symbol"; "canvas" is the
-                integer index of axis (when multi-canvas plot is set), "color" is the
-                color of the curve, and "symbol" is the marker style of the curve for scatter plots.
+                following three configurations, "canvas", "color", "symbol" and "label"; "canvas"
+                is the integer index of axis (when multi-canvas plot is set), "color" is the
+                color of the curve, "symbol" is the marker style of the curve for scatter plots,
+                and "label" is a user provided curve label that appears in the legend.
             figure_title (str): Title of the figure. Defaults to None, i.e. nothing is shown.
         """
         return Options(

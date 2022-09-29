@@ -74,12 +74,42 @@ class CrossResonanceHamiltonianAnalysis(curve.CompositeCurveAnalysis):
             fit_report_rpos=(0.28, -0.10),
             ylim=(-1, 1),
             plot_options={
-                "x_ctrl0": {"color": "blue", "symbol": "o", "canvas": 0},
-                "y_ctrl0": {"color": "blue", "symbol": "o", "canvas": 1},
-                "z_ctrl0": {"color": "blue", "symbol": "o", "canvas": 2},
-                "x_ctrl1": {"color": "red", "symbol": "^", "canvas": 0},
-                "y_ctrl1": {"color": "red", "symbol": "^", "canvas": 1},
-                "z_ctrl1": {"color": "red", "symbol": "^", "canvas": 2},
+                "x_ctrl0": {
+                    "color": "blue",
+                    "symbol": "o",
+                    "canvas": 0,
+                    "label": "X (ctrl0)",
+                },
+                "y_ctrl0": {
+                    "color": "blue",
+                    "symbol": "o",
+                    "canvas": 1,
+                    "label": "Y (ctrl0)",
+                },
+                "z_ctrl0": {
+                    "color": "blue",
+                    "symbol": "o",
+                    "canvas": 2,
+                    "label": "Z (ctrl0)",
+                },
+                "x_ctrl1": {
+                    "color": "red",
+                    "symbol": "^",
+                    "canvas": 0,
+                    "label": "X (ctrl1)",
+                },
+                "y_ctrl1": {
+                    "color": "red",
+                    "symbol": "^",
+                    "canvas": 1,
+                    "label": "Y (ctrl1)",
+                },
+                "z_ctrl1": {
+                    "color": "red",
+                    "symbol": "^",
+                    "canvas": 2,
+                    "label": "Z (ctrl1)",
+                },
             },
         )
 

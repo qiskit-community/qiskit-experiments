@@ -261,12 +261,15 @@ class CompositeCurveAnalysis(BaseAnalysis):
             formatted_data = analysis._format_data(processed_data)
             if self.options.plot:
                 for model in analysis.models:
+                    m_name = model._name + f"_{analysis.name}"
                     sub_data = formatted_data.get_subset_of(model._name)
+                    label = self.drawer.options.plot_options.get(m_name, {}).get("label", m_name)
                     self.drawer.draw_formatted_data(
                         x_data=sub_data.x,
                         y_data=sub_data.y,
                         y_err_data=sub_data.y_err,
-                        name=model._name + f"_{analysis.name}",
+                        name=m_name,
+                        label=label,
                     )
 
             # Run fitting

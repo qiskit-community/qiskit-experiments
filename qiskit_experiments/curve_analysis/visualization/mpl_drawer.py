@@ -308,7 +308,7 @@ class MplCurveDrawer(BaseCurveDrawer):
             "linestyle": "",
         }
         draw_ops.update(**options)
-        if name:
+        if name and "label" not in draw_ops:
             draw_ops["label"] = name
 
         if not np.all(np.isfinite(y_err_data)):

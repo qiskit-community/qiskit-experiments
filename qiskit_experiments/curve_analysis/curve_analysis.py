@@ -153,6 +153,7 @@ class CurveAnalysis(BaseCurveAnalysis):
                     "color": series_def.plot_color,
                     "symbol": series_def.plot_symbol,
                     "canvas": series_def.canvas,
+                    "label": series_def.name,
                 }
             self.drawer.set_options(plot_options=plot_options)
 
@@ -492,12 +493,15 @@ class CurveAnalysis(BaseCurveAnalysis):
         formatted_data = self._format_data(processed_data)
         if self.options.plot:
             for model in self._models:
-                sub_data = formatted_data.get_subset_of(model._name)
+                m_name = model._name
+                sub_data = formatted_data.get_subset_of(m_name)
+                label = self.drawer.options.plot_options.get(m_name, {}).get("label", m_name)
                 self.drawer.draw_formatted_data(
                     x_data=sub_data.x,
                     y_data=sub_data.y,
                     y_err_data=sub_data.y_err,
-                    name=model._name,
+                    name=m_name,
+                    label=label,
                 )
         # for backward compatibility, will be removed in 0.4.
         self.__processed_data_set["fit_ready"] = formatted_data
