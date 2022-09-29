@@ -214,13 +214,20 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
                 f"{n_expected_parameters} parameters. Found {len(schedule.parameters)}."
             )
 
-    def _add_cal_metadata(self, experiment_data: ExperimentData):
-        """A hook to add calibration metadata to the experiment data.
+    def _metadata(self):
+        """Add standard calibration metadata."""
+        metadata = super()._metadata()
 
-        This hook allows calibration experiments to add their own meta data to the
-        experiment data if needed.
-        """
-        pass
+        metadata["cal_group"] = self.experiment_options.group
+        metadata["cal_param_name"] = self._param_name
+        metadata["cal_schedule"] = self._sched_name
+
+        # Store measurement level and meas return if they have been
+        # set for the experiment
+        for run_opt in ["meas_level", "meas_return"]:
+            if hasattr(self.run_options, run_opt):
+                metadata[run_opt] = getattr(self.run_options, run_opt)
+        return metadata
 
     def _transpiled_circuits(self) -> List[QuantumCircuit]:
         """Override the transpiled circuits method to bring in the inst_map.
@@ -273,8 +280,6 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
         experiment_data = super().run(
             backend=backend, analysis=analysis, timeout=timeout, **run_options
         )
-
-        self._add_cal_metadata(experiment_data)
 
         if self.auto_update and analysis:
             experiment_data.add_analysis_callback(self.update_calibrations)

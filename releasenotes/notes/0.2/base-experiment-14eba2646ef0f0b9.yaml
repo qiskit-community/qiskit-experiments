@@ -69,7 +69,7 @@ deprecations:
     Boolean values for the ``analysis`` kwarg in
     :meth:`qiskit_experiments.framework.BaseExperiment.run` have been deprecated.
     Use ``analysis="default"`` instead of ``analysis=True``, and
-    ``analysis=None``instead of ``analysis=False``.
+    ``analysis=None`` instead of ``analysis=False``.
   - |
     Using the ``__analysis_class__`` class attrbiute to define a default
     :class:`~qiskit_experiments.framework.BaseAnalysis` class in a

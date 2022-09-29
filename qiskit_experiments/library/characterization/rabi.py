@@ -23,10 +23,11 @@ from qiskit.pulse import ScheduleBlock
 from qiskit.exceptions import QiskitError
 
 from qiskit_experiments.framework import BaseExperiment, Options
+from qiskit_experiments.framework.restless_mixin import RestlessMixin
 from qiskit_experiments.curve_analysis import ParameterRepr, OscillationAnalysis
 
 
-class Rabi(BaseExperiment):
+class Rabi(BaseExperiment, RestlessMixin):
     """An experiment that scans a pulse amplitude to calibrate rotations between 0 and 1.
 
     # section: overview
@@ -46,7 +47,7 @@ class Rabi(BaseExperiment):
         free parameter, i.e. the amplitude to scan and a drive channel which matches the qubit.
 
     # section: tutorial
-        :doc:`/tutorials/calibrating_armonk`
+        :doc:`/tutorials/calibrating_real_device`
 
         See also `Qiskit Textbook <https://qiskit.org/textbook/ch-quantum-hardware/\
         calibrating-qubits-pulse.html>`_
@@ -57,6 +58,7 @@ class Rabi(BaseExperiment):
     """
 
     __gate_name__ = "Rabi"
+    __outcome__ = "rabi_rate"
 
     @classmethod
     def _default_run_options(cls) -> Options:
@@ -85,17 +87,6 @@ class Rabi(BaseExperiment):
 
         return options
 
-    @classmethod
-    def _default_analysis_options(cls) -> Options:
-        """Default analysis options."""
-        options = Options()
-        options.result_parameters = [ParameterRepr("freq", "rabi_rate")]
-        options.xlabel = "Amplitude"
-        options.ylabel = "Signal (arb. units)"
-        options.normalization = True
-
-        return options
-
     def __init__(
         self,
         qubit: int,
@@ -114,7 +105,15 @@ class Rabi(BaseExperiment):
             backend: Optional, the backend to run the experiment on.
         """
         super().__init__([qubit], analysis=OscillationAnalysis(), backend=backend)
-        self.analysis.set_options(**self._default_analysis_options().__dict__)
+
+        self.analysis.set_options(
+            result_parameters=[ParameterRepr("freq", self.__outcome__)],
+            normalization=True,
+        )
+        self.analysis.drawer.set_options(
+            xlabel="Amplitude",
+            ylabel="Signal (arb. units)",
+        )
 
         if amplitudes is not None:
             self.experiment_options.amplitudes = amplitudes
@@ -173,6 +172,15 @@ class Rabi(BaseExperiment):
 
         return circs
 
+    def _metadata(self):
+        metadata = super()._metadata()
+        # Store measurement level and meas return if they have been
+        # set for the experiment
+        for run_opt in ["meas_level", "meas_return"]:
+            if hasattr(self.run_options, run_opt):
+                metadata[run_opt] = getattr(self.run_options, run_opt)
+        return metadata
+
 
 class EFRabi(Rabi):
     """An experiment that scans the amplitude of a pulse inducing rotations between 1 and 2.
@@ -196,13 +204,7 @@ class EFRabi(Rabi):
 
     """
 
-    @classmethod
-    def _default_analysis_options(cls) -> Options:
-        """Default analysis options."""
-        options = super()._default_analysis_options()
-        options.result_parameters = [ParameterRepr("freq", "rabi_rate_12")]
-
-        return options
+    __outcome__ = "rabi_rate_12"
 
     def _pre_circuit(self) -> QuantumCircuit:
         """A circuit with operations to perform before the Rabi."""

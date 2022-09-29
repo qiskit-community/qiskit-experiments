@@ -16,7 +16,6 @@ Composite Experiment abstract base class.
 from typing import List, Sequence, Optional, Union
 from abc import abstractmethod
 import warnings
-from qiskit import QiskitError
 from qiskit.providers.backend import Backend
 from qiskit_experiments.framework import BaseExperiment
 from qiskit_experiments.framework.base_analysis import BaseAnalysis
@@ -32,6 +31,7 @@ class CompositeExperiment(BaseExperiment):
         qubits: Sequence[int],
         backend: Optional[Backend] = None,
         experiment_type: Optional[str] = None,
+        flatten_results: bool = False,
         analysis: Optional[CompositeAnalysis] = None,
     ):
         """Initialize the composite experiment object.
@@ -41,6 +41,12 @@ class CompositeExperiment(BaseExperiment):
             qubits: list of physical qubits for the experiment.
             backend: Optional, the backend to run the experiment on.
             experiment_type: Optional, composite experiment subclass name.
+            flatten_results: If True flatten all component experiment results
+                             into a single ExperimentData container, including
+                             nested composite experiments. If False save each
+                             component experiment results as a separate child
+                             ExperimentData container. This kwarg is ignored
+                             if the analysis kwarg is used.
             analysis: Optional, the composite analysis class to use. If not
                       provided this will be initialized automatically from the
                       supplied experiments.
@@ -52,11 +58,8 @@ class CompositeExperiment(BaseExperiment):
         self._experiments = experiments
         self._num_experiments = len(experiments)
         if analysis is None:
-            analysis = CompositeAnalysis([exp.analysis for exp in self._experiments])
-        elif not isinstance(analysis, CompositeAnalysis):
-            raise QiskitError(
-                f"{type(analysis)} is not a CompositeAnalysis instance. CompositeExperiments"
-                " require a CompositeAnalysis class or subclass for analysis."
+            analysis = CompositeAnalysis(
+                [exp.analysis for exp in self._experiments], flatten_results=flatten_results
             )
         super().__init__(
             qubits,
@@ -68,6 +71,12 @@ class CompositeExperiment(BaseExperiment):
     @abstractmethod
     def circuits(self):
         pass
+
+    def set_transpile_options(self, **fields):
+        super().set_transpile_options(**fields)
+        # Recursively set transpile options of component experiments
+        for exp in self._experiments:
+            exp.set_transpile_options(**fields)
 
     @property
     def num_experiments(self):
@@ -96,6 +105,18 @@ class CompositeExperiment(BaseExperiment):
             stacklevel=2,
         )
         return self.analysis.component_analysis(index)
+
+    @property
+    def analysis(self) -> Union[CompositeAnalysis, None]:
+        """Return the analysis instance for the experiment"""
+        return self._analysis
+
+    @analysis.setter
+    def analysis(self, analysis: Union[CompositeAnalysis, None]) -> None:
+        """Set the analysis instance for the experiment"""
+        if analysis is not None and not isinstance(analysis, CompositeAnalysis):
+            raise TypeError("Input is not a None or a CompositeAnalysis subclass.")
+        self._analysis = analysis
 
     def copy(self) -> "BaseExperiment":
         """Return a copy of the experiment"""
@@ -157,17 +178,13 @@ class CompositeExperiment(BaseExperiment):
             # Call sub-experiments finalize method
             subexp._finalize()
 
-    def _additional_metadata(self):
+    def _metadata(self):
         """Add component experiment metadata"""
-        return {
-            "component_types": [sub_exp.experiment_type for sub_exp in self.component_experiment()],
-            "component_metadata": [sub_exp._metadata() for sub_exp in self.component_experiment()],
-        }
-
-    def _add_job_metadata(self, metadata, jobs, **run_options):
-        super()._add_job_metadata(metadata, jobs, **run_options)
-        # Add sub-experiment options
-        for sub_metadata, sub_exp in zip(
-            metadata["component_metadata"], self.component_experiment()
-        ):
-            sub_exp._add_job_metadata(sub_metadata, jobs, **run_options)
+        metadata = super()._metadata()
+        metadata["component_types"] = [
+            sub_exp.experiment_type for sub_exp in self.component_experiment()
+        ]
+        metadata["component_metadata"] = [
+            sub_exp._metadata() for sub_exp in self.component_experiment()
+        ]
+        return metadata

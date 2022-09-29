@@ -21,9 +21,10 @@ from typing import Any, Callable, Optional
 
 import numpy as np
 import uncertainties
+from lmfit import Model
 from qiskit.test import QiskitTestCase
 from qiskit_experiments.data_processing import DataAction, DataProcessor
-from qiskit_experiments.database_service.db_experiment_data import ExperimentStatus
+from qiskit_experiments.framework.experiment_data import ExperimentStatus
 from qiskit_experiments.framework import (
     ExperimentDecoder,
     ExperimentEncoder,
@@ -31,6 +32,8 @@ from qiskit_experiments.framework import (
     BaseExperiment,
     BaseAnalysis,
 )
+from qiskit_experiments.curve_analysis.visualization.base_drawer import BaseCurveDrawer
+from qiskit_experiments.curve_analysis.curve_data import CurveFitResult
 
 
 class QiskitExperimentsTestCase(QiskitTestCase):
@@ -106,7 +109,7 @@ class QiskitExperimentsTestCase(QiskitTestCase):
     def json_equiv(cls, data1, data2) -> bool:
         """Check if two experiments are equivalent by comparing their configs"""
         # pylint: disable = too-many-return-statements
-        configrable_type = (BaseExperiment, BaseAnalysis)
+        configurable_type = (BaseExperiment, BaseAnalysis, BaseCurveDrawer)
         compare_repr = (DataAction, DataProcessor)
         list_type = (list, tuple, set)
         skipped = tuple()
@@ -114,7 +117,7 @@ class QiskitExperimentsTestCase(QiskitTestCase):
         if isinstance(data1, skipped) and isinstance(data2, skipped):
             warnings.warn(f"Equivalence check for data {data1.__class__.__name__} is skipped.")
             return True
-        elif isinstance(data1, configrable_type) and isinstance(data2, configrable_type):
+        elif isinstance(data1, configurable_type) and isinstance(data2, configurable_type):
             return cls.json_equiv(data1.config(), data2.config())
         elif dataclasses.is_dataclass(data1) and dataclasses.is_dataclass(data2):
             # not using asdict. this copies all objects.
@@ -129,6 +132,10 @@ class QiskitExperimentsTestCase(QiskitTestCase):
             return all(cls.json_equiv(e1, e2) for e1, e2 in zip(data1, data2))
         elif isinstance(data1, uncertainties.UFloat) and isinstance(data2, uncertainties.UFloat):
             return cls.ufloat_equiv(data1, data2)
+        elif isinstance(data1, Model) and isinstance(data2, Model):
+            return cls.json_equiv(data1.dumps(), data2.dumps())
+        elif isinstance(data1, CurveFitResult) and isinstance(data2, CurveFitResult):
+            return cls.curve_fit_data_equiv(data1, data2)
         elif isinstance(data1, compare_repr) and isinstance(data2, compare_repr):
             # otherwise compare instance representation
             return repr(data1) == repr(data2)
@@ -163,10 +170,35 @@ class QiskitExperimentsTestCase(QiskitTestCase):
         return True
 
     @classmethod
+    def curve_fit_data_equiv(cls, data1, data2):
+        """Test two curve fit result are equivalent."""
+        for att in [
+            "method",
+            "model_repr",
+            "success",
+            "nfev",
+            "message",
+            "dof",
+            "init_params",
+            "chisq",
+            "reduced_chisq",
+            "aic",
+            "bic",
+            "params",
+            "var_names",
+            "x_data",
+            "y_data",
+            "covar",
+        ]:
+            if not cls.json_equiv(getattr(data1, att), getattr(data2, att)):
+                return False
+        return True
+
+    @classmethod
     def experiment_data_equiv(cls, data1, data2):
         """Check two experiment data containers are equivalent"""
 
-        # Check basic attrbiutes
+        # Check basic attributes
         # Skip non-compatible backend
         for att in [
             "experiment_id",
@@ -204,7 +236,7 @@ class QiskitExperimentsTestCase(QiskitTestCase):
         if not cls.json_equiv(data1.data(), data2.data()):
             return False
 
-        # Check analysis resultsx
+        # Check analysis results
         for result1, result2 in zip(data1.analysis_results(), data2.analysis_results()):
             if not cls.analysis_result_equiv(result1, result2):
                 return False

@@ -2,6 +2,7 @@ black~=22.0
 stestr
 astroid==2.5
 pylint==2.7.1
+jinja2==3.0.3
 Sphinx>=1.8.3
 qiskit-sphinx-theme>=1.6
 sphinx-autodoc-typehints
@@ -11,6 +12,7 @@ sphinx-panels
 nbsphinx
 arxiv
 ddt~=1.4.2
-qiskit-aer>=0.10.0
+qiskit-aer>=0.11.0
 pandas>=1.1.5
 cvxpy>=1.1.15
+pylatexenc

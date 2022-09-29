@@ -18,8 +18,6 @@ import numpy as np
 
 from qiskit import QuantumCircuit
 from qiskit.providers.backend import Backend
-from qiskit.test.mock import FakeBackend
-
 from qiskit_experiments.framework import BaseExperiment, Options
 from qiskit_experiments.library.characterization.analysis.t1_analysis import T1Analysis
 
@@ -85,14 +83,9 @@ class T1(BaseExperiment):
         super()._set_backend(backend)
 
         # Scheduling parameters
-        if not self._backend.configuration().simulator and not isinstance(backend, FakeBackend):
-            timing_constraints = getattr(self.transpile_options, "timing_constraints", {})
-            if "acquire_alignment" not in timing_constraints:
-                timing_constraints["acquire_alignment"] = 16
+        if not self._backend_data.is_simulator:
             scheduling_method = getattr(self.transpile_options, "scheduling_method", "alap")
-            self.set_transpile_options(
-                timing_constraints=timing_constraints, scheduling_method=scheduling_method
-            )
+            self.set_transpile_options(scheduling_method=scheduling_method)
 
     def circuits(self) -> List[QuantumCircuit]:
         """
@@ -101,11 +94,10 @@ class T1(BaseExperiment):
         Returns:
             The experiment circuits
         """
-        if self.backend and hasattr(self.backend.configuration(), "dt"):
-            dt_unit = True
-            dt_factor = self.backend.configuration().dt
-        else:
-            dt_unit = False
+        dt_unit = False
+        if self.backend:
+            dt_factor = self._backend_data.dt
+            dt_unit = dt_factor is not None
 
         circuits = []
         for delay in self.experiment_options.delays:
@@ -133,3 +125,12 @@ class T1(BaseExperiment):
             circuits.append(circ)
 
         return circuits
+
+    def _metadata(self):
+        metadata = super()._metadata()
+        # Store measurement level and meas return if they have been
+        # set for the experiment
+        for run_opt in ["meas_level", "meas_return"]:
+            if hasattr(self.run_options, run_opt):
+                metadata[run_opt] = getattr(self.run_options, run_opt)
+        return metadata

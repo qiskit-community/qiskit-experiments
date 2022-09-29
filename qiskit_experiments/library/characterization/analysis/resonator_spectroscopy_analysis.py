@@ -16,14 +16,13 @@ from typing import List, Tuple
 import numpy as np
 
 import qiskit_experiments.curve_analysis as curve
-from qiskit_experiments.curve_analysis import ResonanceAnalysis
 from qiskit_experiments.framework import AnalysisResultData, ExperimentData
 from qiskit_experiments.framework.matplotlib import get_non_gui_ax
 from qiskit_experiments.data_processing.nodes import ProjectorType
 from qiskit_experiments.database_service.device_component import Resonator
 
 
-class ResonatorSpectroscopyAnalysis(ResonanceAnalysis):
+class ResonatorSpectroscopyAnalysis(curve.ResonanceAnalysis):
     """Class to analysis resonator spectroscopy."""
 
     @classmethod
@@ -50,7 +49,7 @@ class ResonatorSpectroscopyAnalysis(ResonanceAnalysis):
         if self.options.plot_iq_data:
             axis = get_non_gui_ax()
             figure = axis.get_figure()
-            figure.set_size_inches(*self.options.style.figsize)
+            figure.set_size_inches(*self.drawer.options.figsize)
 
             iqs = []
 
@@ -69,12 +68,12 @@ class ResonatorSpectroscopyAnalysis(ResonanceAnalysis):
                 iqs = np.vstack(iqs)
                 axis.scatter(iqs[:, 0], iqs[:, 1], color="b")
                 axis.set_xlabel(
-                    "In phase [arb. units]", fontsize=self.options.style.axis_label_size
+                    "In phase [arb. units]", fontsize=self.drawer.options.axis_label_size
                 )
                 axis.set_ylabel(
-                    "Quadrature [arb. units]", fontsize=self.options.style.axis_label_size
+                    "Quadrature [arb. units]", fontsize=self.drawer.options.axis_label_size
                 )
-                axis.tick_params(labelsize=self.options.style.tick_label_size)
+                axis.tick_params(labelsize=self.drawer.options.tick_label_size)
                 axis.grid(True)
 
                 figures.append(figure)

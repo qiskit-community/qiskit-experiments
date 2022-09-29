@@ -13,18 +13,17 @@
 """Rough amplitude calibration using Rabi."""
 
 from collections import namedtuple
-from typing import Iterable, Optional
+from typing import Dict, Iterable, Optional
 import numpy as np
 
 from qiskit import QuantumCircuit
 from qiskit.circuit import Parameter
 from qiskit.providers.backend import Backend
 
-from qiskit_experiments.framework import ExperimentData, Options
+from qiskit_experiments.framework import ExperimentData
 from qiskit_experiments.calibration_management import BaseCalibrationExperiment, Calibrations
 from qiskit_experiments.library.characterization import Rabi
 from qiskit_experiments.calibration_management.update_library import BaseUpdater
-from qiskit_experiments.curve_analysis import ParameterRepr
 
 AnglesSchedules = namedtuple(
     "AnglesSchedules", ["target_angle", "parameter", "schedule", "previous_value"]
@@ -84,9 +83,6 @@ class RoughAmplitudeCal(BaseCalibrationExperiment, Rabi):
             auto_update=auto_update,
         )
 
-        # Needed for subclasses that will drive other transitions than the 0<->1 transition.
-        self._analysis_param_name = "rabi_rate"
-
         # Set the pulses to update.
         prev_amp = calibrations.get_parameter_value(cal_parameter_name, qubit, schedule_name)
         self.experiment_options.group = group
@@ -122,7 +118,7 @@ class RoughAmplitudeCal(BaseCalibrationExperiment, Rabi):
 
         return options
 
-    def _add_cal_metadata(self, experiment_data: ExperimentData):
+    def _metadata(self) -> Dict[str, any]:
         """Add metadata to the experiment data making it more self contained.
 
         The following keys are added to each circuit's metadata:
@@ -132,7 +128,7 @@ class RoughAmplitudeCal(BaseCalibrationExperiment, Rabi):
                 parameter to update, and the previous value of the amplitude parameter to update.
             cal_group: The calibration group to which the amplitude parameters belong.
         """
-
+        metadata = super()._metadata()
         param_values = []
         for angle, param_name, schedule_name, _ in self.experiment_options.angles_schedules:
             param_val = self._cals.get_parameter_value(
@@ -151,8 +147,9 @@ class RoughAmplitudeCal(BaseCalibrationExperiment, Rabi):
                 )
             )
 
-        experiment_data.metadata["angles_schedules"] = param_values
-        experiment_data.metadata["cal_group"] = self.experiment_options.group
+        metadata["angles_schedules"] = param_values
+
+        return metadata
 
     def update_calibrations(self, experiment_data: ExperimentData):
         r"""Update the amplitude of one or several schedules.
@@ -177,11 +174,7 @@ class RoughAmplitudeCal(BaseCalibrationExperiment, Rabi):
         result_index = self.experiment_options.result_index
         group = experiment_data.metadata["cal_group"]
 
-        rate = (
-            2
-            * np.pi
-            * BaseUpdater.get_value(experiment_data, self._analysis_param_name, result_index)
-        )
+        rate = 2 * np.pi * BaseUpdater.get_value(experiment_data, self.__outcome__, result_index)
 
         for angle, param, schedule, prev_amp in experiment_data.metadata["angles_schedules"]:
 
@@ -232,6 +225,8 @@ class EFRoughXSXAmplitudeCal(RoughAmplitudeCal):
         qiskit_experiments.library.characterization.rabi.Rabi
     """
 
+    __outcome__ = "rabi_rate_12"
+
     def __init__(
         self,
         qubit: int,
@@ -261,7 +256,6 @@ class EFRoughXSXAmplitudeCal(RoughAmplitudeCal):
             target_angle=np.pi,
         )
 
-        self._analysis_param_name = "rabi_rate_12"
         self.experiment_options.angles_schedules = [
             AnglesSchedules(
                 target_angle=np.pi,
@@ -276,14 +270,6 @@ class EFRoughXSXAmplitudeCal(RoughAmplitudeCal):
                 previous_value=None,
             ),
         ]
-
-    @classmethod
-    def _default_analysis_options(cls) -> Options:
-        """Default analysis options."""
-        options = super()._default_analysis_options()
-        options.result_parameters = [ParameterRepr("freq", "rabi_rate_12")]
-
-        return options
 
     def _pre_circuit(self) -> QuantumCircuit:
         """A circuit with operations to perform before the Rabi."""

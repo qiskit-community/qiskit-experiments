@@ -345,3 +345,65 @@ def constant_sinusoidal_offset(y: np.ndarray) -> float:
     minv, _ = min_height(y, percentile=5)
 
     return 0.5 * (maxv + minv)
+
+
+def rb_decay(
+    x: np.ndarray,
+    y: np.ndarray,
+    b: float = 0.5,
+) -> float:
+    r"""Get base of exponential decay function which is assumed to be close to 1.
+
+    This assumes following model:
+
+    .. math::
+
+        y(x) = a \alpha^x + b.
+
+    To estimate the base of decay function :math:`\alpha`, we consider
+
+    .. math::
+
+        y'(x) = y(x) - b = a \alpha^x,
+
+    and thus,
+
+    .. math::
+
+        y'(x+dx) = a \alpha^x \alpha^dx.
+
+    By considering the ratio of y values at :math:`x+dx` to :math:`x`,
+
+    .. math::
+
+        ry = \frac{a \alpha^x \alpha^dx}{a \alpha^x} = \alpha^dx.
+
+    From this relationship, we can estimate :math:`\alpha` as
+
+    .. math::
+
+        \alpha = ry^\frac{1}{dx}.
+
+    Args:
+        x: Array of x values.
+        y: Array of y values.
+        b: Asymptote of decay function.
+
+    Returns:
+         Base of decay function.
+    """
+    valid_inds = y > b
+
+    # Remove y values below b
+    y = y[valid_inds]
+    x = x[valid_inds]
+
+    if len(x) < 2:
+        # If number of element is 1, assume y(0) = 1.0 and directly compute alpha.
+        a = 1.0 - b
+        return ((y[0] - b) / a) ** (1 / x[0])
+
+    ry = (y[1:] - b) / (y[:-1] - b)
+    dx = np.diff(x)
+
+    return np.average(ry ** (1 / dx))

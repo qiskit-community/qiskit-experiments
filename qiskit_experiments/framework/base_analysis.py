@@ -24,7 +24,7 @@ from qiskit_experiments.framework.store_init_args import StoreInitArgs
 from qiskit_experiments.framework.experiment_data import ExperimentData
 from qiskit_experiments.framework.configs import AnalysisConfig
 from qiskit_experiments.framework.analysis_result_data import AnalysisResultData
-from qiskit_experiments.database_service import DbAnalysisResultV1
+from qiskit_experiments.framework.analysis_result import AnalysisResult
 
 
 class BaseAnalysis(ABC, StoreInitArgs):
@@ -88,7 +88,12 @@ class BaseAnalysis(ABC, StoreInitArgs):
 
     @classmethod
     def _default_options(cls) -> Options:
-        return Options()
+        """Default analysis options common to all analyzes."""
+        options = Options()
+        # figure names can be set for each analysis by calling
+        # experiment_obj.analysis.set_options(figure_names=FIGURE_NAMES)
+        options.figure_names = None
+        return options
 
     @property
     def options(self) -> Options:
@@ -167,7 +172,7 @@ class BaseAnalysis(ABC, StoreInitArgs):
             if analysis_results:
                 expdata.add_analysis_results(analysis_results)
             if figures:
-                expdata.add_figures(figures)
+                expdata.add_figures(figures, figure_names=self.options.figure_names)
 
         experiment_data.add_analysis_callback(run_analysis)
 
@@ -192,7 +197,13 @@ class BaseAnalysis(ABC, StoreInitArgs):
         elif experiment_components:
             device_components = experiment_components
 
-        return DbAnalysisResultV1(
+        if isinstance(data, AnalysisResult):
+            # Update device components and experiment id
+            data.device_components = device_components
+            data.experiment_id = experiment_id
+            return data
+
+        return AnalysisResult(
             name=data.name,
             value=data.value,
             device_components=device_components,

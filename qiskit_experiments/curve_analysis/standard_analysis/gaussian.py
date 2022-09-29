@@ -12,8 +12,9 @@
 
 """Resonance analysis class based on a Gaussian fit."""
 
-from typing import List, Union
+from typing import List, Union, Optional
 
+import lmfit
 import numpy as np
 
 import qiskit_experiments.curve_analysis as curve
@@ -58,38 +59,46 @@ class GaussianAnalysis(curve.CurveAnalysis):
 
     """
 
-    __series__ = [
-        curve.SeriesDef(
-            fit_func=lambda x, a, sigma, freq, b: curve.fit_function.gaussian(
-                x, amp=a, sigma=sigma, x0=freq, baseline=b
-            ),
-            plot_color="blue",
-            model_description=r"a \exp(-(x-f)^2/(2\sigma^2)) + b",
+    def __init__(
+        self,
+        name: Optional[str] = None,
+    ):
+        super().__init__(
+            models=[
+                lmfit.models.ExpressionModel(
+                    expr="a * exp(-(x-freq)**2 / (2*sigma**2)) + b",
+                    name="gaussian",
+                )
+            ],
+            name=name,
         )
-    ]
 
     @classmethod
     def _default_options(cls) -> Options:
         options = super()._default_options()
+        options.curve_drawer.set_options(
+            xlabel="Frequency",
+            ylabel="Signal (arb. units)",
+            xval_unit="Hz",
+        )
         options.result_parameters = [curve.ParameterRepr("freq", "f01", "Hz")]
         options.normalization = True
-        options.xlabel = "Frequency"
-        options.ylabel = "Signal (arb. units)"
-        options.xval_unit = "Hz"
         return options
 
     def _generate_fit_guesses(
-        self, user_opt: curve.FitOptions
+        self,
+        user_opt: curve.FitOptions,
+        curve_data: curve.CurveData,
     ) -> Union[curve.FitOptions, List[curve.FitOptions]]:
-        """Compute the initial guesses.
+        """Create algorithmic initial fit guess from analysis options and curve data.
 
         Args:
             user_opt: Fit options filled with user provided guess and bounds.
+            curve_data: Formatted data collection to fit.
 
         Returns:
             List of fit options that are passed to the fitter function.
         """
-        curve_data = self._data()
         max_abs_y, _ = curve.guess.max_height(curve_data.y, absolute=True)
 
         user_opt.bounds.set_if_empty(
@@ -113,7 +122,7 @@ class GaussianAnalysis(curve.CurveAnalysis):
 
         return user_opt
 
-    def _evaluate_quality(self, fit_data: curve.FitData) -> Union[str, None]:
+    def _evaluate_quality(self, fit_data: curve.CurveFitResult) -> Union[str, None]:
         """Algorithmic criteria for whether the fit is good or bad.
 
         A good fit has:
@@ -126,26 +135,22 @@ class GaussianAnalysis(curve.CurveAnalysis):
               threshold of two, and
             - a standard error on the sigma of the Gaussian that is smaller than the sigma.
         """
-        curve_data = self._data()
+        freq_increment = np.mean(np.diff(fit_data.x_data))
 
-        max_freq = np.max(curve_data.x)
-        min_freq = np.min(curve_data.x)
-        freq_increment = np.mean(np.diff(curve_data.x))
+        fit_a = fit_data.ufloat_params["a"]
+        fit_b = fit_data.ufloat_params["b"]
+        fit_freq = fit_data.ufloat_params["freq"]
+        fit_sigma = fit_data.ufloat_params["sigma"]
 
-        fit_a = fit_data.fitval("a")
-        fit_b = fit_data.fitval("b")
-        fit_freq = fit_data.fitval("freq")
-        fit_sigma = fit_data.fitval("sigma")
-
-        snr = abs(fit_a.n) / np.sqrt(abs(np.median(curve_data.y) - fit_b.n))
-        fit_width_ratio = fit_sigma.n / (max_freq - min_freq)
+        snr = abs(fit_a.n) / np.sqrt(abs(np.median(fit_data.y_data) - fit_b.n))
+        fit_width_ratio = fit_sigma.n / np.ptp(fit_data.x_data)
 
         criteria = [
-            min_freq <= fit_freq.n <= max_freq,
+            fit_data.x_range[0] <= fit_freq.n <= fit_data.x_range[1],
             1.5 * freq_increment < fit_sigma.n,
             fit_width_ratio < 0.25,
             fit_data.reduced_chisq < 3,
-            curve.is_error_not_significant(fit_sigma),
+            curve.utils.is_error_not_significant(fit_sigma),
             snr > 2,
         ]
 

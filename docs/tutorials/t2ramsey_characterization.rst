@@ -64,9 +64,9 @@ pure T1/T2 relaxation noise model.
 .. jupyter-execute::
 
     # A T1 simulator
-    from qiskit.test.mock import FakeVigo
-    from qiskit.providers.aer import AerSimulator
-    from qiskit.providers.aer.noise import NoiseModel
+    from qiskit.providers.fake_provider import FakeVigo
+    from qiskit_aer import AerSimulator
+    from qiskit_aer.noise import NoiseModel
     
     # Create a pure relaxation noise model for AerSimulator
     noise_model = NoiseModel.from_backend(

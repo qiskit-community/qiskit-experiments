@@ -10,22 +10,25 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""An mock IQ backend for testing."""
-
+"""A mock IQ backend for testing."""
 from abc import abstractmethod
-from typing import List, Tuple
+from typing import Sequence, List, Tuple, Dict, Union, Any, Optional
 import numpy as np
 
 from qiskit import QuantumCircuit
 from qiskit.result import Result
-
-from qiskit.providers.aer import AerSimulator
-from qiskit.test.mock import FakeOpenPulse2Q
+from qiskit.providers.fake_provider import FakeOpenPulse2Q
 
 from qiskit.qobj.utils import MeasLevel
+from qiskit_experiments.exceptions import QiskitError
 from qiskit_experiments.framework import Options
 from qiskit_experiments.test.utils import FakeJob
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
+from qiskit_experiments.test.mock_iq_helpers import (
+    MockIQExperimentHelper,
+    MockIQParallelExperimentHelper,
+    IQPoint,
+)
 
 
 class MockRestlessBackend(FakeOpenPulse2Q):
@@ -168,19 +171,23 @@ class MockRestlessFineAmp(MockRestlessBackend):
 
 
 class MockIQBackend(FakeOpenPulse2Q):
-    """An abstract backend for testing that can mock IQ data."""
+    """A mock backend for testing with IQ data."""
 
     def __init__(
         self,
-        iq_cluster_centers: Tuple[float, float, float, float] = (1.0, 1.0, -1.0, -1.0),
-        iq_cluster_width: float = 1.0,
+        experiment_helper: MockIQExperimentHelper = None,
         rng_seed: int = 0,
     ):
         """
         Initialize the backend.
+
+        Args:
+            experiment_helper(MockIQExperimentHelper): Experiment helper class that contains
+                'compute_probabilities' function and 'iq_phase' function for the backend to execute.
+            rng_seed(int): The random seed value.
         """
-        self._iq_cluster_centers = iq_cluster_centers
-        self._iq_cluster_width = iq_cluster_width
+
+        self._experiment_helper = experiment_helper
         self._rng = np.random.default_rng(rng_seed)
 
         super().__init__()
@@ -193,60 +200,497 @@ class MockIQBackend(FakeOpenPulse2Q):
             meas_return="single",
         )
 
-    def _draw_iq_shots(self, prob, shots, phase: float = 0.0) -> List[List[List[float]]]:
-        """Produce an IQ shot."""
+    @property
+    def experiment_helper(self):
+        """return the 'experiment_helper' attribute"""
+        return self._experiment_helper
 
-        rand_i = self._rng.normal(0, self._iq_cluster_width, size=shots)
-        rand_q = self._rng.normal(0, self._iq_cluster_width, size=shots)
+    @experiment_helper.setter
+    def experiment_helper(self, value):
+        """
+        Setter for the experiment helper.
+        Args:
+            value(MockIQExperimentHelper): The helper for the backend to use for generating IQ shots.
+
+        Raises:
+            ValueError: Raised if the value to set is not of type `MockIQExperimentHelper`
+        """
+        cls = MockIQExperimentHelper
+        if not isinstance(value, cls):
+            raise ValueError(
+                f"The input type is {str(type(value))} while the type expected type is "
+                f"<{str(type(cls()))}>."
+            )
+        self._experiment_helper = value
+
+    @staticmethod
+    def _verify_parameters(output_length: int, prob_dict: Dict[str, float]):
+        if output_length < 1:
+            raise ValueError(f"The output length {output_length} is smaller than 1.")
+
+        if not np.allclose(1, sum(prob_dict.values())):
+            raise ValueError("The probabilities given don't sum up to 1.")
+        for key in prob_dict.keys():
+            if output_length is not len(key):
+                raise ValueError(
+                    "The output lengths of the circuit and the output lengths in the dictionary"
+                    " don't match."
+                )
+
+    def _get_normal_samples_for_shot(
+        self,
+        qubits: Sequence[int],
+    ) -> np.ndarray:
+        """
+        Produce a list in the size of num_qubits. Each entry value is produced from normal distribution
+        with expected value of '0' and standard deviation of 1. The intention is that these samples are
+        scaled by :py:func:`_scale_samples_for_widths` for various circuits, experiments, and their IQ
+        widths; removing the need to query a RNG for each new width list.
+
+        Example:
+            .. code-block::
+                # Generate template data
+                template_iq_data = [np.nan] * shots
+                for i_shot in range(n_shots):
+                    real_data = self._get_normal_samples_for_shot(qubits)
+                    imag_data = self._get_normal_samples_for_shot(qubits)
+                    template_iq_data[i_shot] = np.array([real_data, imag_data], dtype="float").T
+
+                # Scale template data to separate widths
+                iq_data_1 = self._scale_samples_for_widths(template_iq_data, widths_1)
+                iq_data_2 = self._scale_samples_for_widths(template_iq_data, widths_2)
+
+                # IQ data should then be indexed randomly so that repeated usage does not give the same
+                # order of samples.
+                iq_data_circuit_1 = iq_data_1[random_indices_1]
+                iq_data_circuit_2a = iq_data_2[random_indices_2a]
+                iq_data_circuit_2b = iq_data_2[random_indices_2b]
+
+        Args:
+            num_qubits: The number of qubits in the circuit.
+
+        Returns:
+            Ndarray: A numpy array with values that were produced from normal distribution.
+        """
+        samples = [self._rng.normal(0, 1, size=1) for qubit in qubits]
+        # we squeeze the second dimension because samples is List[qubit_number][0][0\1] = I\Q
+        # and we want to change it to be List[qubit_number][0\1]
+        return np.squeeze(np.array(samples), axis=1)
+
+    def _scale_samples_for_widths(
+        self, samples: List[np.ndarray], widths: List[float]
+    ) -> List[np.ndarray]:
+        """Scales `samples` by `widths` so that the data has the necessary std-dev.
+
+        `samples` contains `n_shots` elements, each being :math:`n\times{}2` float values, representing
+        the I and Q values for :math:`n` qubits. `widths` is a list of :math:`n` standard-deviations for
+        each qubit. The IQ values for each list element in `samples` is scaled by the values in `widths`,
+        for their respective qubits. It is assumed that the standard deviation of `samples` is :math:`1`.
+
+        Args:
+            samples: List of np.ndarrays containing random IQ samples for n qubits.
+            widths: List of widths/standard-deviations to scale the data by.
+
+        Returns:
+            List: A list of samples with standard-deviations matching `widths`.
+        """
+        return [circ_samples * np.tile(widths, (2, 1)).T for circ_samples in samples]
+
+    def _probability_dict_to_probability_array(
+        self, prob_dict: Dict[str, float], num_qubits: int
+    ) -> List[float]:
+        prob_list = [0] * (2**num_qubits)
+        for output_str, probability in prob_dict.items():
+            index = int(output_str, 2)
+            prob_list[index] = probability
+        return prob_list
+
+    def _draw_iq_shots(
+        self,
+        prob: List[float],
+        shots: int,
+        circ_qubits: Sequence[int],
+        iq_cluster_centers: Optional[List[Tuple[IQPoint, IQPoint]]],
+        iq_cluster_width: Optional[List[float]],
+        phase: float = 0.0,
+    ) -> List[List[List[Union[float, complex]]]]:
+        """
+        Produce an IQ shot.
+
+        Args:
+            prob: A list of probabilities for each output.
+            shots: The number of times the circuit will run.
+            circ_qubits: The qubits of the circuit.
+            iq_cluster_centers: A list of tuples containing the clusters' centers in the IQ plane. There
+            are different centers for different logical values of the qubit.
+            iq_cluster_width: A list of standard deviation values for the sampling of each qubit.
+            phase: The added phase needed to apply to the shot data.
+        Returns:
+            List[List[Tuple[float, float]]]: A list of shots. Each shot consists of a list of qubits.
+            The qubits are tuples with two values [I,Q].
+            The output structure is  - List[shot index][qubit index] = [I,Q]
+        """
+        # Randomize samples (width=1)
+        qubits_iq_template_rand = [np.nan] * shots
+        for shot in range(shots):
+            rand_i = self._get_normal_samples_for_shot(circ_qubits)
+            rand_q = self._get_normal_samples_for_shot(circ_qubits)
+            qubits_iq_template_rand[shot] = np.array([rand_i, rand_q], dtype="float").T
+
+        # Scale samples to use iq_cluster_width.
+        exp_widths = [iq_cluster_width[i_qubit] for i_qubit in circ_qubits]
+        qubits_iq_rand = self._scale_samples_for_widths(qubits_iq_template_rand, exp_widths)
 
         memory = []
-        for idx, state in enumerate(self._rng.binomial(1, prob, size=shots)):
+        shot_num = 0
 
-            if state > 0.5:
-                point_i = self._iq_cluster_centers[0] + rand_i[idx]
-                point_q = self._iq_cluster_centers[1] + rand_q[idx]
-            else:
-                point_i = self._iq_cluster_centers[2] + rand_i[idx]
-                point_q = self._iq_cluster_centers[3] + rand_q[idx]
+        for output_number, number_of_occurrences in enumerate(
+            self._rng.multinomial(shots, prob, size=1)[0]
+        ):
+            state_str = str(format(output_number, "b").zfill(len(circ_qubits)))
+            for _ in range(number_of_occurrences):
+                shot_memory = []
+                # the iteration on the string variable state_str starts from the MSB. For readability,
+                # we will reverse the string so the loop will run from the LSB to MSB.
+                for iq_center, qubit_iq_rand_sample, char_qubit in zip(
+                    iq_cluster_centers, qubits_iq_rand[shot_num], state_str[::-1]
+                ):
+                    # The structure of iq_cluster_centers is [qubit_number][logic_result][I/Q].
+                    i_center = iq_center[int(char_qubit)][0]
+                    q_center = iq_center[int(char_qubit)][1]
 
-            if not np.allclose(phase, 0.0):
-                complex_iq = (point_i + 1.0j * point_q) * np.exp(1.0j * phase)
-                point_i, point_q = np.real(complex_iq), np.imag(complex_iq)
+                    point_i = i_center + qubit_iq_rand_sample[0]
+                    point_q = q_center + qubit_iq_rand_sample[1]
 
-            memory.append([[point_i, point_q]])
+                    # Adding phase if not 0.0
+                    if not np.allclose(phase, 0.0):
+                        complex_iq = (point_i + 1.0j * point_q) * np.exp(1.0j * phase)
+                        point_i, point_q = np.real(complex_iq), np.imag(complex_iq)
+
+                    shot_memory.append([point_i, point_q])
+                # We proceed to the next occurrence - meaning it's a new shot.
+                memory.append(shot_memory)
+                shot_num += 1
 
         return memory
 
-    @abstractmethod
-    def _compute_probability(self, circuit: QuantumCircuit) -> float:
-        """Compute the probability used in the binomial distribution creating the IQ shot.
-
-        An abstract method that subclasses will implement to create a probability of
-        being in the excited state based on the received quantum circuit.
+    def _generate_data(
+        self, prob_dict: Dict[str, float], circuit: QuantumCircuit
+    ) -> Dict[str, Any]:
+        """
+        Generate data for the circuit.
 
         Args:
-            circuit: The circuit from which to compute the probability.
+            prob_dict: A dictionary whose keys are strings representing the output vectors and
+            their values are the probability to get the output in this circuit.
+            circuit: The circuit that needs to be simulated.
 
         Returns:
-             The probability that the binaomial distribution will use to generate an IQ shot.
+            A dictionary that's filled with the simulated data. The output format is different between
+            measurement level 1 and measurement level 2.
         """
-
-    # pylint: disable=unused-argument
-    def _iq_phase(self, circuit: QuantumCircuit) -> float:
-        """Sub-classes can override this method to introduce a phase in the IQ plan.
-
-        This is needed, to test the resonator spectroscopy where the point in the IQ
-        plan has a frequency-dependent phase rotation.
-        """
-        return 0.0
-
-    def run(self, run_input, **options):
-        """Run the IQ backend."""
-
-        self.options.update_options(**options)
+        # The output is proportional to the number of classical bit.
+        output_length = int(np.sum([creg.size for creg in circuit.cregs]))
+        self._verify_parameters(output_length, prob_dict)
+        prob_arr = self._probability_dict_to_probability_array(prob_dict, output_length)
         shots = self.options.get("shots")
         meas_level = self.options.get("meas_level")
         meas_return = self.options.get("meas_return")
+        run_result = {}
+
+        if meas_level == MeasLevel.CLASSIFIED:
+            counts = {}
+            results = self._rng.multinomial(shots, prob_arr, size=1)[0]
+            for result, num_occurrences in enumerate(results):
+                result_in_str = str(format(result, "b").zfill(output_length))
+                counts[result_in_str] = num_occurrences
+            run_result["counts"] = counts
+        else:
+            # Phase has meaning only for IQ shot, so we calculate it here
+            phase = self.experiment_helper.iq_phase([circuit])[0]
+            iq_cluster_centers, iq_cluster_width = self.experiment_helper.iq_clusters([circuit])[0]
+
+            # 'circ_qubits' get a list of all the qubits
+            memory = self._draw_iq_shots(
+                prob_arr,
+                shots,
+                list(range(output_length)),
+                iq_cluster_centers,
+                iq_cluster_width,
+                phase,
+            )
+            if meas_return == "avg":
+                memory = np.average(np.array(memory), axis=0).tolist()
+
+            run_result["memory"] = memory
+        return run_result
+
+    def run(self, run_input: List[QuantumCircuit], **run_options) -> FakeJob:
+        """
+        Run the IQ backend.
+
+        Args:
+            run_input: A list of QuantumCircuit for which the backend will generate
+                data.
+            **run_options: Experiment running options. The options that are supported
+                in this backend are `meas_level`, `meas_return` and `shots`:
+
+                * meas_level: To generate data in the IQ plane, `meas_level` should be
+                  assigned 1 or ``MeasLevel.KERNELED``. If `meas_level` is 2 or
+                  ``MeasLevel.CLASSIFIED``, the generated data will be in the form
+                  of `counts`.
+                * meas_return: This option will only take effect if `meas_level` =
+                  ``MeasLevel.CLASSIFIED``. It can get either
+                  ``MeasReturnType.AVERAGE`` or ``MeasReturnType.SINGLE``. For
+                  ``MeasReturnType.SINGLE``, the data of each shot will be stored in
+                  the result. For ``MeasReturnType.AVERAGE``, an average of all the
+                  shots will be calculated and stored in the result.
+                * shots: The number of times the circuit will run.
+
+        Returns:
+            FakeJob: A job that contains the simulated data.
+
+        Raises:
+            QiskitError: Raised if the user try to run the experiment without setting a helper.
+        """
+
+        if not self.experiment_helper:
+            raise QiskitError("The backend `experiment_helper` attribute cannot be 'None'.")
+
+        self.options.update_options(**run_options)
+        shots = self.options.get("shots")
+        meas_level = self.options.get("meas_level")
+
+        result = {
+            "backend_name": f"{self.__class__.__name__}",
+            "backend_version": "0",
+            "qobj_id": "0",
+            "job_id": "0",
+            "success": True,
+            "results": [],
+        }
+        prob_list = self.experiment_helper.compute_probabilities(run_input)
+        for prob, circ in zip(prob_list, run_input):
+            run_result = {
+                "shots": shots,
+                "success": True,
+                "header": {"metadata": circ.metadata},
+                "meas_level": meas_level,
+            }
+
+            run_result["data"] = self._generate_data(prob, circ)
+            result["results"].append(run_result)
+
+        return FakeJob(self, Result.from_dict(result))
+
+
+class MockIQParallelBackend(MockIQBackend):
+    """A mock backend for testing parallel experiments with IQ data."""
+
+    def __init__(
+        self,
+        experiment_helper: MockIQParallelExperimentHelper = None,
+        rng_seed: int = 0,
+    ):
+        """
+        Initialize the backend.
+
+        Args:
+            experiment_helper: Parallel experiment helper class that contains
+                helper classes for each experiment.
+            rng_seed: The random seed value.
+        """
+        super().__init__(experiment_helper, rng_seed)
+
+    @property
+    def experiment_helper(self):
+        """return the 'experiment_helper' attribute"""
+        return self._experiment_helper
+
+    @experiment_helper.setter
+    def experiment_helper(self, value):
+        """
+        Setter for the experiment helper.
+
+        Args:
+            value(MockIQParallelExperimentHelper): The helper for the backend to use for generating IQ
+             shots.
+
+        Raises:
+            ValueError: Raised if the value to set is not of type `MockIQExperimentHelper`
+        """
+        cls = MockIQParallelExperimentHelper
+        if not isinstance(value, cls):
+            raise ValueError(
+                f"The input type is {str(type(value))} while the type expected type is <{str(cls)}>."
+            )
+        self._experiment_helper = value
+
+    def _parallel_draw_iq_shots(
+        self,
+        list_exp_dict: List[Dict[str, Union[List, int]]],
+        shots: int,
+        circ_qubits: List[int],
+        circ_idx: int,
+    ) -> List[List[List[Union[float, complex]]]]:
+        """
+        Produce an IQ shot.
+        Args:
+            list_exp_dict: A list of dictionaries for each experiment. It is determined by the
+                ``MockIQParallelExperimentHelper`` object provided to the backend.
+            shots: The number of times the circuit will run.
+            circ_qubits: List of qubits that are used in this circuit.
+            circ_idx: The circuit index.
+
+        Returns:
+            List[List[Tuple[float, float]]]: A list of shots. Each shot consists of a list of qubits.
+            The qubits are tuples with two values [I,Q].
+            The output structure is  - List[shot index][qubit index] = [I,Q]
+        """
+        # Randomize samples (width=1)
+        qubits_iq_template_rand = [np.nan] * shots
+        for shot in range(shots):
+            rand_i = self._get_normal_samples_for_shot(circ_qubits)
+            rand_q = self._get_normal_samples_for_shot(circ_qubits)
+            qubits_iq_template_rand[shot] = np.array([rand_i, rand_q], dtype="float").T
+
+        memory = [[] for _ in range(shots)]
+
+        # The use of idx_shift is to sample 'qubits_iq_rand' correctly
+        sample_idx_shift = 0
+
+        # The code generates data as follows:
+        # for each experiment, it first checks if it needs to generate data for it. If it does, then the
+        # multinomial probability function draws lots for all the shots, and we store this data in the
+        # corresponding position in the output list. After that we move on to the next experiment.
+        for exp_dict in list_exp_dict:
+            # skipping experiments that don't need data generation for this circuit.
+            if exp_dict["num_circuits"] <= circ_idx:
+                continue
+
+            qubits = list(exp_dict["physical_qubits"])
+            prob = self._probability_dict_to_probability_array(
+                exp_dict["prob"][circ_idx], len(qubits)
+            )
+            phase = exp_dict["phase"][circ_idx]
+            iq_centers = exp_dict["centers"][circ_idx]
+            iq_widths = exp_dict["widths"][circ_idx]
+            exp_widths = [iq_widths[i_qubit] for i_qubit in circ_qubits]
+
+            # Rescale samples to appropriate width for the given parallel circuits
+            qubits_iq_rand = self._scale_samples_for_widths(qubits_iq_template_rand, exp_widths)
+
+            shot_num = 0
+
+            for output_number, number_of_occurrences in enumerate(
+                self._rng.multinomial(shots, prob, size=1)[0]
+            ):
+                state_str = str(format(output_number, "b").zfill(len(qubits)))
+                for _ in range(number_of_occurrences):
+                    # the iteration on the string variable state_str starts from the MSB. For
+                    # readability, we will reverse the string so the loop will run from the LSB to MSB.
+                    for qubit_idx, qubit, char_qubit in zip(
+                        range(len(qubits)), qubits, state_str[::-1]
+                    ):
+
+                        i_center = iq_centers[qubit][int(char_qubit)][0]
+                        q_center = iq_centers[qubit][int(char_qubit)][1]
+
+                        # we use 'sample_idx_shift' to take the sample corresponding to the current qubit
+                        # in 'qubits_iq_rand[shot_num]'.
+                        point_i = (
+                            i_center + qubits_iq_rand[shot_num][qubit_idx + sample_idx_shift][0]
+                        )
+                        point_q = (
+                            q_center + qubits_iq_rand[shot_num][qubit_idx + sample_idx_shift][1]
+                        )
+
+                        # Adding phase if not 0.0
+                        if not np.allclose(phase, 0.0):
+                            complex_iq = (point_i + 1.0j * point_q) * np.exp(1.0j * phase)
+                            point_i, point_q = np.real(complex_iq), np.imag(complex_iq)
+
+                        memory[shot_num].append([point_i, point_q])
+                    shot_num += 1
+
+            sample_idx_shift = sample_idx_shift + len(qubits)
+        return memory
+
+    def _parallel_generate_data(
+        self,
+        list_exp_dict: List[Dict[str, Union[List, int]]],
+        circ_idx: int,
+    ) -> Dict[str, Any]:
+        """
+        Generate data for the circuit.
+        Args:
+            list_exp_dict (List): A List of dictionaries, each dictionary contains data of an experiment.
+            circ_idx (int): The circuit number we simulate.
+
+        Returns:
+            A dictionary that's filled with the simulated data.
+
+        Raises:
+            QiskitError: Raising an error if in the experiment running option, classified data is
+            requested.
+        """
+        circ_qubit_list = []
+        for exp_dict in list_exp_dict:
+            if circ_idx < exp_dict["num_circuits"]:
+                circ_qubit_list = circ_qubit_list + list(exp_dict["physical_qubits"])
+
+        shots = self.options.get("shots")
+        meas_level = self.options.get("meas_level")
+        meas_return = self.options.get("meas_return")
+        run_result = {}
+
+        if meas_level == MeasLevel.KERNELED:
+            memory = self._parallel_draw_iq_shots(list_exp_dict, shots, circ_qubit_list, circ_idx)
+            if meas_return == "avg":
+                memory = np.average(np.array(memory), axis=0).tolist()
+
+            run_result["memory"] = memory
+        else:
+            # The backend doesn't currently support 'meas_level = MeasLevel.CLASSIFIED'.
+            raise QiskitError("Classified data generator isn't supported for this backend")
+
+        return run_result
+
+    def run(self, run_input: List[QuantumCircuit], **run_options) -> FakeJob:
+        """
+        Run the IQ backend.
+
+        Args:
+            run_input: A list of QuantumCircuit for which the backend will generate
+                data.
+            **run_options: Experiment running options. The options that are supported
+                in this backend are `meas_level`, `meas_return` and `shots`:
+
+                * meas_level: To generate data in the IQ plane, `meas_level` should be
+                  assigned 1 or ``MeasLevel.KERNELED``. If `meas_level` is 2 or
+                  ``MeasLevel.CLASSIFIED``, the generated data will be in the form
+                  of `counts`.
+                * meas_return: This option will only take effect if `meas_level` =
+                  ``MeasLevel.CLASSIFIED``. It can get either
+                  ``MeasReturnType.AVERAGE`` or ``MeasReturnType.SINGLE``. For
+                  ``MeasReturnType.SINGLE``, the data of each shot will be stored in
+                  the result. For ``MeasReturnType.AVERAGE``, an average of all the
+                  shots will be calculated and stored in the result.
+                * shots: The number of times the circuit will run.
+
+        Returns:
+            FakeJob: A job that contains the simulated data.
+
+        Raises:
+            QiskitError: Raised if the user try to run the experiment without setting a helper.
+        """
+
+        if not self.experiment_helper:
+            raise QiskitError("The backend `experiment_helper` attribute cannot be 'None'.")
+
+        self.options.update_options(**run_options)
+        shots = self.options.get("shots")
+        meas_level = self.options.get("meas_level")
 
         result = {
             "backend_name": f"{self.__class__.__name__}",
@@ -257,7 +701,8 @@ class MockIQBackend(FakeOpenPulse2Q):
             "results": [],
         }
 
-        for circ in run_input:
+        experiment_data_list = self.experiment_helper.compute_probabilities(run_input)
+        for circ_idx, circ in enumerate(run_input):
             run_result = {
                 "shots": shots,
                 "success": True,
@@ -265,172 +710,7 @@ class MockIQBackend(FakeOpenPulse2Q):
                 "meas_level": meas_level,
             }
 
-            prob = self._compute_probability(circ)
-
-            if meas_level == MeasLevel.CLASSIFIED:
-                ones = np.sum(self._rng.binomial(1, prob, size=shots))
-                run_result["data"] = {"counts": {"1": ones, "0": shots - ones}}
-            else:
-                phase = self._iq_phase(circ)
-                memory = self._draw_iq_shots(prob, shots, phase)
-
-                if meas_return == "avg":
-                    memory = np.average(np.array(memory), axis=0).tolist()
-
-                run_result["data"] = {"memory": memory}
-
+            run_result["data"] = self._parallel_generate_data(experiment_data_list, circ_idx)
             result["results"].append(run_result)
 
         return FakeJob(self, Result.from_dict(result))
-
-
-class DragBackend(MockIQBackend):
-    """A simple and primitive backend, to be run by the rough drag tests."""
-
-    def __init__(
-        self,
-        iq_cluster_centers: Tuple[float, float, float, float] = (1.0, 1.0, -1.0, -1.0),
-        iq_cluster_width: float = 1.0,
-        freq: float = 0.02,
-        ideal_beta=2.0,
-        gate_name: str = "Rp",
-        rng_seed: int = 0,
-        max_prob: float = 1.0,
-        offset_prob: float = 0.0,
-    ):
-        """Initialize the rabi backend."""
-        self._freq = freq
-        self._gate_name = gate_name
-        self.ideal_beta = ideal_beta
-
-        if max_prob + offset_prob > 1:
-            raise ValueError("Probabilities need to be between 0 and 1.")
-
-        self._max_prob = max_prob
-        self._offset_prob = offset_prob
-
-        super().__init__(iq_cluster_centers, iq_cluster_width, rng_seed=rng_seed)
-
-    def _compute_probability(self, circuit: QuantumCircuit) -> float:
-        """Returns the probability based on the beta, number of gates, and leakage."""
-        n_gates = circuit.count_ops()[self._gate_name]
-
-        beta = next(iter(circuit.calibrations[self._gate_name].keys()))[1][0]
-
-        prob = np.sin(2 * np.pi * n_gates * self._freq * (beta - self.ideal_beta) / 4) ** 2
-        rescaled_prob = self._max_prob * prob + self._offset_prob
-
-        return rescaled_prob
-
-
-class RabiBackend(MockIQBackend):
-    """A simple and primitive backend, to be run by the Rabi tests."""
-
-    def __init__(
-        self,
-        iq_cluster_centers: Tuple[float, float, float, float] = (1.0, 1.0, -1.0, -1.0),
-        iq_cluster_width: float = 1.0,
-        amplitude_to_angle: float = np.pi,
-    ):
-        """Initialize the rabi backend."""
-        self._amplitude_to_angle = amplitude_to_angle
-
-        super().__init__(iq_cluster_centers, iq_cluster_width)
-
-    @property
-    def rabi_rate(self) -> float:
-        """Returns the rabi rate."""
-        return self._amplitude_to_angle / np.pi
-
-    def _compute_probability(self, circuit: QuantumCircuit) -> float:
-        """Returns the probability based on the rotation angle and amplitude_to_angle."""
-        amp = next(iter(circuit.calibrations["Rabi"].keys()))[1][0]
-        return np.sin(self._amplitude_to_angle * amp) ** 2
-
-
-class MockFineAmp(MockIQBackend):
-    """A mock backend for fine amplitude calibration."""
-
-    def __init__(self, angle_error: float, angle_per_gate: float, gate_name: str):
-        """Setup a mock backend to test the fine amplitude calibration.
-
-        Args:
-            angle_error: The rotation error per gate.
-            gate_name: The name of the gate to find in the circuit.
-        """
-        self.angle_error = angle_error
-        self._gate_name = gate_name
-        self._angle_per_gate = angle_per_gate
-        super().__init__()
-
-        self.configuration().basis_gates.append("sx")
-        self.configuration().basis_gates.append("x")
-
-    def _compute_probability(self, circuit: QuantumCircuit) -> float:
-        """Return the probability of being in the excited state."""
-
-        n_ops = circuit.count_ops().get(self._gate_name, 0)
-        angle = n_ops * (self._angle_per_gate + self.angle_error)
-
-        if self._gate_name != "sx":
-            angle += np.pi / 2 * circuit.count_ops().get("sx", 0)
-
-        if self._gate_name != "x":
-            angle += np.pi * circuit.count_ops().get("x", 0)
-
-        return np.sin(angle / 2) ** 2
-
-
-class MockFineFreq(MockIQBackend):
-    """A mock backend for fine frequency calibration."""
-
-    def __init__(self, freq_shift: float, sx_duration: int = 160):
-        super().__init__()
-        self.freq_shift = freq_shift
-        self.dt = self.configuration().dt
-        self.sx_duration = sx_duration
-        self.simulator = AerSimulator(method="automatic")
-
-    def _compute_probability(self, circuit: QuantumCircuit) -> float:
-        """The freq shift acts as the value that will accumulate phase."""
-
-        delay = None
-        for instruction in circuit.data:
-            if instruction[0].name == "delay":
-                delay = instruction[0].duration
-
-        if delay is None:
-            return 1.0
-        else:
-            reps = delay // self.sx_duration
-
-            qc = QuantumCircuit(1)
-            qc.sx(0)
-            qc.rz(np.pi * reps / 2 + 2 * np.pi * self.freq_shift * delay * self.dt, 0)
-            qc.sx(0)
-            qc.measure_all()
-
-            counts = self.simulator.run(qc, seed_simulator=1).result().get_counts(0)
-
-            return counts.get("1", 0) / sum(counts.values())
-
-
-class MockRamseyXY(MockIQBackend):
-    """A mock backend for the RamseyXY experiment."""
-
-    def __init__(self, freq_shift: float):
-        super().__init__()
-        self.freq_shift = freq_shift
-
-    def _compute_probability(self, circuit: QuantumCircuit) -> float:
-        """Return the probability of the circuit."""
-
-        series = circuit.metadata["series"]
-        delay = circuit.metadata["xval"]
-
-        if series == "X":
-            phase_offset = 0.0
-        else:
-            phase_offset = np.pi / 2
-
-        return 0.5 * np.cos(2 * np.pi * delay * self.freq_shift - phase_offset) + 0.5

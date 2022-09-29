@@ -4,7 +4,7 @@ Randomized Benchmarking
 A randomized benchmarking (RB) experiment consists of the generation of
 random Clifford circuits on the given qubits such that the unitary
 computed by the circuits is the identity. After running the circuits,
-the number of shots resulting in an error (i.e. an output different than
+the number of shots resulting in an error (i.e. an output different than
 the ground state) are counted, and from this data one can infer error
 estimates for the quantum device, by calculating the Error Per Clifford.
 See `Qiskit
@@ -15,13 +15,12 @@ for an explanation on the RB method, which is based on Ref. [1, 2].
 
     import numpy as np
     from qiskit_experiments.library import StandardRB, InterleavedRB
-    from qiskit_experiments.framework import ParallelExperiment
-    from qiskit_experiments.library.randomized_benchmarking import RBUtils
+    from qiskit_experiments.framework import ParallelExperiment, BatchExperiment
     import qiskit.circuit.library as circuits
     
     # For simulation
-    from qiskit.providers.aer import AerSimulator
-    from qiskit.test.mock import FakeParis
+    from qiskit_aer import AerSimulator
+    from qiskit.providers.fake_provider import FakeParis
     
     backend = AerSimulator.from_backend(FakeParis())
 
@@ -47,7 +46,7 @@ in order to generate the RB circuits and run them on a backend:
    sequences are constructed by appending additional Clifford samples to
    shorter sequences. The default is ``False``
 
-The analysis results of the RB Experiment includes:
+The analysis results of the RB Experiment may include:
 
 -  ``EPC``: The estimated Error Per Clifford
 
@@ -59,6 +58,40 @@ The analysis results of the RB Experiment includes:
 
 Running a 1-qubit RB experiment
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Standard RB experiment will provide you gate errors for every basis gates
+constituting averaged Clifford gate. Note that you can only obtain a single EPC value :math:`\cal E`
+from a single RB experiment. As such, computing the error values for multiple gates :math:`\{g_i\}`
+requires some assumption of contribution of each gate to the total depolarizing error.
+This is so called ``gate_error_ratio`` option you can find in analysis options.
+
+Provided that we have :math:`n_i` gates with independent error :math:`e_i` per Clifford,
+the total EPC is estimated by the composition of error from every basis gate,
+
+.. math::
+
+    {\cal E} = 1 - \prod_{i} (1 - e_i)^{n_i} \sim \sum_{i} n_i e_i + O(e^2),
+
+where :math:`e_i \ll 1` and the higher order terms can be ignored.
+
+We cannot distinguish :math:`e_i` with a single EPC value :math:`\cal E` as explained,
+however by defining an error ratio :math:`r_i` with respect to
+some standard value :math:`e_0`, we can compute EPG :math:`e_i` for each basis gate.
+
+.. math::
+
+    {\cal E} \sim e_0 \sum_{i} n_i r_i
+
+The EPG of :math:`i` th basis gate will be
+
+.. math::
+
+    e_i \sim r_i e_0 = \dfrac{r_i{\cal E}}{\sum_{i} n_i r_i}.
+
+Because EPGs are computed based on this simple assumption,
+this is not necessary representing the true gate error on the hardware.
+If you have multiple kinds of basis gates with unclear error ratio :math:`r_i`,
+interleaved RB experiment will always give you accurate error value :math:`e_i`.
 
 .. jupyter-execute::
 
@@ -73,6 +106,7 @@ Running a 1-qubit RB experiment
     results1 = expdata1.analysis_results()
     
     # View result data
+    print("Gate error ratio: %s" % expdata1.experiment.analysis.options.gate_error_ratio)
     display(expdata1.figure(0))
     for result in results1:
         print(result)
@@ -82,55 +116,92 @@ Running a 1-qubit RB experiment
 Running a 2-qubit RB experiment
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Running a 1-qubit RB experiment and a 2-qubit RB experiment, in order to
-calculate the gate error (EPG) of the ``cx`` gate:
+In the same way we can compute EPC for two-qubit RB experiment.
+However, the EPC value obtained by the experiment indicates a depolarization
+which is a composition of underlying error channels for 2Q gates and 1Q gates in each qubit.
+Usually 1Q gate contribution is small enough to ignore, but in case this
+contribution is significant comparing to the 2Q gate error,
+we can decompose the contribution of 1Q gates [3].
+
+.. math::
+
+    \alpha_{2Q,C} = \frac{1}{5} \left( \alpha_0^{N_1/2} + \alpha_1^{N_1/2} +
+     3 \alpha_0^{N_1/2} \alpha_1^{N_1/2} \right) \alpha_{01}^{N_2},
+
+where :math:`\alpha_i` is the single qubit depolarizing parameter of channel :math:`i`,
+and :math:`\alpha_{01}` is the two qubit depolarizing parameter of interest.
+:math:`N_1` and :math:`N_2` are total count of single and two qubit gates, respectively.
+
+Note that the single qubit gate sequence in the channel :math:`i` may consist of
+multiple kinds of basis gates :math:`\{g_{ij}\}` with different EPG :math:`e_{ij}`.
+Therefore the :math:`\alpha_i^{N_1/2}` should be computed from EPGs,
+rather than directly using the :math:`\alpha_i`, which is usually a composition of
+depolarizing maps of every single qubit gate.
+As such, EPGs should be measured in the separate single-qubit RBs in advance.
+
+.. math::
+
+    \alpha_i^{N_1/2} = \alpha_{i0}^{n_{i0}} \cdot \alpha_{i1}^{n_{i1}} \cdot ...,
+
+where :math:`\alpha_{ij}^{n_{ij}}` indicates a depolarization due to
+a particular basis gate :math:`j` in the channel :math:`i`.
+Here we assume EPG :math:`e_{ij}` corresponds to the depolarizing probability
+of the map of :math:`g_{ij}`, and thus we can express :math:`\alpha_{ij}` with EPG.
+
+.. math::
+
+    e_{ij} = \frac{2^n - 1}{2^n} (1 - \alpha_{ij}) =  \frac{1 - \alpha_{ij}}{2},
+
+for the single qubit channel :math:`n=1`. Accordingly,
+
+.. math::
+
+    \alpha_i^{N_1/2} = \prod_{j} (1 - 2 e_{ij})^{n_{ij}},
+
+as a composition of depolarization from every primitive gates per qubit.
+This correction will give you two EPC values as a result of the two-qubit RB experiment.
+The corrected EPC must be closer to the outcome of of interleaved RB.
+The EPGs of two-qubit RB are analyzed with the corrected EPC if available.
 
 .. jupyter-execute::
 
-    lengths = np.arange(1, 200, 30)
+    lengths_2_qubit = np.arange(1, 200, 30)
+    lengths_1_qubit = np.arange(1, 800, 200)
     num_samples = 10
     seed = 1010
-    qubits = (1,4)
-    
-    # Run a 1-qubit RB expriment on qubits 1, 4 to determine the error-per-gate of 1-qubit gates
-    expdata_1q = {}
-    epg_1q = []
-    lengths_1_qubit = np.arange(1, 800, 200)
-    for qubit in qubits:
-        exp = StandardRB([qubit], lengths_1_qubit, num_samples=num_samples, seed=seed)
-        expdata = exp.run(backend).block_for_results()
-        expdata_1q[qubit] = expdata
-        epg_1q += expdata.analysis_results()
+    qubits = (1, 4)
+
+    # Run a 1-qubit RB experiment on qubits 1, 4 to determine the error-per-gate of 1-qubit gates
+    single_exps = BatchExperiment(
+        [
+            StandardRB([qubit], lengths_1_qubit, num_samples=num_samples, seed=seed)
+            for qubit in qubits
+        ],
+        flatten_results=True,
+    )
+    expdata_1q = single_exps.run(backend).block_for_results()
+
 
 .. jupyter-execute::
 
     # Run an RB experiment on qubits 1, 4
-    exp2 = StandardRB(qubits, lengths, num_samples=num_samples, seed=seed)
+    exp_2q = StandardRB(qubits, lengths_2_qubit, num_samples=num_samples, seed=seed)
     
     # Use the EPG data of the 1-qubit runs to ensure correct 2-qubit EPG computation
-    exp2.analysis.set_options(epg_1_qubit=epg_1q)
+    exp_2q.analysis.set_options(epg_1_qubit=expdata_1q.analysis_results())
     
     # Run the 2-qubit experiment
-    expdata2 = exp2.run(backend).block_for_results()
-    
-    # View result data
-    results2 = expdata2.analysis_results()
-
-.. jupyter-execute::
+    expdata_2q = exp_2q.run(backend).block_for_results()
 
     # View result data
-    display(expdata2.figure(0))
-    for result in results2:
+    print("Gate error ratio: %s" % expdata_2q.experiment.analysis.options.gate_error_ratio)
+    display(expdata_2q.figure(0))
+    for result in expdata_2q.analysis_results():
         print(result)
 
-.. jupyter-execute::
 
-    # Compare the computed EPG of the cx gate with the backend's recorded cx gate error:
-    expected_epg = RBUtils.get_error_dict_from_backend(backend, qubits)[(qubits, 'cx')]
-    exp2_epg = expdata2.analysis_results("EPG_cx").value
-    
-    print("Backend's reported EPG of the cx gate:", expected_epg)
-    print("Experiment computed EPG of the cx gate:", exp2_epg)
+Note that ``EPC_corrected`` value is smaller than one of raw ``EPC``, which indicates
+contribution of depolarization from single-qubit error channels.
 
 
 Displaying the RB circuits
@@ -253,12 +324,6 @@ different qubits (see Ref. [5])
     par_exp = ParallelExperiment(exps)
     par_expdata = par_exp.run(backend).block_for_results()
     par_results = par_expdata.analysis_results()
-    
-    # View result data
-    for result in par_results:
-        print(result)
-        print("\nextra:")
-        print(result.extra)
 
 
 Viewing sub experiment data

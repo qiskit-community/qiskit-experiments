@@ -1,7 +1,8 @@
 numpy>=1.17
 scipy>=1.4
-qiskit-terra>=0.19.0
+qiskit-terra @ git+https://github.com/qiskit/qiskit-terra.git@main#egg=qiskit_terra
 qiskit-ibmq-provider>=0.16.0
+qiskit-ibm-experiment>=0.2.5
 matplotlib>=3.4
 uncertainties
-
+lmfit

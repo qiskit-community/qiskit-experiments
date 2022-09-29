@@ -22,8 +22,10 @@ import scipy.optimize as opt
 from qiskit_experiments.exceptions import AnalysisError
 from qiskit_experiments.curve_analysis.data_processing import filter_data
 from qiskit_experiments.curve_analysis.curve_data import FitData
+from qiskit_experiments.warnings import deprecated_function
 
 
+@deprecated_function("0.5", "This function has been replaced with the LMFIT library.")
 def curve_fit(
     func: Callable,
     xdata: np.ndarray,
@@ -155,21 +157,18 @@ def curve_fit(
         residues = residues / (sigma**2)
     reduced_chisq = np.sum(residues) / dof
 
-    # Compute data range for fit
-    xdata_range = np.min(xdata), np.max(xdata)
-    ydata_range = np.min(ydata), np.max(ydata)
-
     return FitData(
         popt=list(fit_params),
         popt_keys=list(param_keys),
         pcov=pcov,
         reduced_chisq=reduced_chisq,
         dof=dof,
-        x_range=xdata_range,
-        y_range=ydata_range,
+        x_data=xdata,
+        y_data=ydata,
     )
 
 
+@deprecated_function("0.5", "This function has been replaced with the LMFIT library.")
 def multi_curve_fit(
     funcs: List[Callable],
     series: np.ndarray,

@@ -22,9 +22,9 @@ we compute the results for :math:`T_\varphi.`
 .. jupyter-execute::
 
     # An Aer simulator
-    from qiskit.test.mock import FakeVigo
-    from qiskit.providers.aer import AerSimulator
-    from qiskit.providers.aer.noise import NoiseModel
+    from qiskit.providers.fake_provider import FakeVigo
+    from qiskit_aer import AerSimulator
+    from qiskit_aer.noise import NoiseModel
     
     # Create a pure relaxation noise model for AerSimulator
     noise_model = NoiseModel.from_backend(
@@ -63,21 +63,21 @@ we compute the results for :math:`T_\varphi.`
 
 .. jupyter-execute::
 
-    print(expdata.child_data(0).analysis_results("T1"))
+    print(expdata.analysis_results("T1"))
 
 .. jupyter-execute::
 
-    display(expdata.child_data(0).figure(0))
-
-
-.. jupyter-execute::
-
-    print(expdata.child_data(1).analysis_results("T2star"))
+    display(expdata.figure(0))
 
 
 .. jupyter-execute::
 
-    display(expdata.child_data(1).figure(0))
+    print(expdata.analysis_results("T2star"))
+
+
+.. jupyter-execute::
+
+    display(expdata.figure(1))
 
 .. jupyter-execute::
 

@@ -16,16 +16,15 @@ Base Experiment class.
 from abc import ABC, abstractmethod
 import copy
 from collections import OrderedDict
-from typing import Sequence, Optional, Tuple, List, Dict, Union, Any
+from typing import Sequence, Optional, Tuple, List, Dict, Union
 import warnings
 
-from qiskit import transpile, assemble, QuantumCircuit
-from qiskit.providers import BaseJob
-from qiskit.providers import Backend, BaseBackend
-from qiskit.providers.basebackend import BaseBackend as LegacyBackend
+from qiskit import transpile, QuantumCircuit
+from qiskit.providers import Job, Backend
 from qiskit.exceptions import QiskitError
 from qiskit.qobj.utils import MeasLevel
 from qiskit.providers.options import Options
+from qiskit_experiments.framework import BackendData
 from qiskit_experiments.framework.store_init_args import StoreInitArgs
 from qiskit_experiments.framework.base_analysis import BaseAnalysis
 from qiskit_experiments.framework.experiment_data import ExperimentData
@@ -93,7 +92,8 @@ class BaseExperiment(ABC, StoreInitArgs):
         # This should be called last in case `_set_backend` access any of the
         # attributes created during initialization
         self._backend = None
-        if isinstance(backend, (Backend, BaseBackend)):
+        self._backend_data = None
+        if isinstance(backend, Backend):
             self._set_backend(backend)
 
     @property
@@ -131,7 +131,7 @@ class BaseExperiment(ABC, StoreInitArgs):
     @backend.setter
     def backend(self, backend: Union[Backend, None]) -> None:
         """Set the backend for the experiment"""
-        if not isinstance(backend, (Backend, BaseBackend)):
+        if not isinstance(backend, Backend):
             raise TypeError("Input is not a backend.")
         self._set_backend(backend)
 
@@ -142,6 +142,7 @@ class BaseExperiment(ABC, StoreInitArgs):
         properties from the supplied backend if required.
         """
         self._backend = backend
+        self._backend_data = BackendData(backend)
 
     def copy(self) -> "BaseExperiment":
         """Return a copy of the experiment"""
@@ -224,26 +225,6 @@ class BaseExperiment(ABC, StoreInitArgs):
             QiskitError: if experiment is run with an incompatible existing
                          ExperimentData container.
         """
-        # Handle deprecated analysis kwarg values
-        if isinstance(analysis, bool):
-            if analysis:
-                analysis = "default"
-                warnings.warn(
-                    "Setting analysis=True in BaseExperiment.run is deprecated as of "
-                    "qiskit-experiments 0.2.0 and will be removed in the 0.3.0 release."
-                    " Use analysis='default' instead.",
-                    DeprecationWarning,
-                    stacklevel=2,
-                )
-            else:
-                analysis = None
-                warnings.warn(
-                    "Setting analysis=False in BaseExperiment.run is deprecated as of "
-                    "qiskit-experiments 0.2.0 and will be removed in the 0.3.0 release."
-                    " Use analysis=None instead.",
-                    DeprecationWarning,
-                    stacklevel=2,
-                )
 
         if backend is not None or analysis != "default" or run_options:
             # Make a copy to update analysis or backend if one is provided at runtime
@@ -263,11 +244,11 @@ class BaseExperiment(ABC, StoreInitArgs):
         # Finalize experiment before executions
         experiment._finalize()
 
-        # Initialize result container
-        experiment_data = experiment._initialize_experiment_data()
-
         # Generate and transpile circuits
         transpiled_circuits = experiment._transpiled_circuits()
+
+        # Initialize result container
+        experiment_data = experiment._initialize_experiment_data()
 
         # Run options
         run_opts = experiment.run_options.__dict__
@@ -275,7 +256,6 @@ class BaseExperiment(ABC, StoreInitArgs):
         # Run jobs
         jobs = experiment._run_jobs(transpiled_circuits, **run_opts)
         experiment_data.add_jobs(jobs, timeout=timeout)
-        experiment._add_job_metadata(experiment_data.metadata, jobs, **run_opts)
 
         # Optionally run analysis
         if analysis and experiment.analysis:
@@ -287,41 +267,6 @@ class BaseExperiment(ABC, StoreInitArgs):
         """Initialize the return data container for the experiment run"""
         return ExperimentData(experiment=self)
 
-    def run_analysis(
-        self, experiment_data: ExperimentData, replace_results: bool = False, **options
-    ) -> ExperimentData:
-        """Run analysis and update ExperimentData with analysis result.
-
-        See :meth:`BaseAnalysis.run` for additional information.
-
-        .. deprecated:: 0.2.0
-            This is replaced by calling ``experiment.analysis.run`` using
-            the :meth:`analysis` property and
-            :meth:`~qiskit_experiments.framework.BaseAnalysis.run` method.
-
-        Args:
-            experiment_data: the experiment data to analyze.
-            replace_results: if True clear any existing analysis results and
-                             figures in the experiment data and replace with
-                             new results.
-            options: additional analysis options. Any values set here will
-                     override the value from :meth:`analysis_options`
-                     for the current run.
-
-        Returns:
-            An experiment data object containing the analysis results and figures.
-
-        Raises:
-            QiskitError: if experiment_data container is not valid for analysis.
-        """
-        warnings.warn(
-            "`BaseExperiment.run_analysis` is deprecated as of qiskit-experiments"
-            " 0.2.0 and will be removed in the 0.3.0 release."
-            " Use `experiment.analysis.run` instead",
-            DeprecationWarning,
-        )
-        return self.analysis.run(experiment_data, replace_results=replace_results, **options)
-
     def _finalize(self):
         """Finalize experiment object before running jobs.
 
@@ -331,28 +276,22 @@ class BaseExperiment(ABC, StoreInitArgs):
         """
         pass
 
-    def _run_jobs(self, circuits: List[QuantumCircuit], **run_options) -> List[BaseJob]:
+    def _run_jobs(self, circuits: List[QuantumCircuit], **run_options) -> List[Job]:
         """Run circuits on backend as 1 or more jobs."""
         # Run experiment jobs
-        max_experiments = getattr(self.backend.configuration(), "max_experiments", None)
-        if max_experiments and len(circuits) > max_experiments:
+        max_circuits = self._backend_data.max_circuits
+        if max_circuits and len(circuits) > max_circuits:
             # Split jobs for backends that have a maximum job size
             job_circuits = [
-                circuits[i : i + max_experiments] for i in range(0, len(circuits), max_experiments)
+                circuits[i : i + max_circuits] for i in range(0, len(circuits), max_circuits)
             ]
         else:
             # Run as single job
             job_circuits = [circuits]
 
         # Run jobs
-        jobs = []
-        for circs in job_circuits:
-            if isinstance(self.backend, LegacyBackend):
-                qobj = assemble(circs, backend=self.backend, **run_options)
-                job = self.backend.run(qobj)
-            else:
-                job = self.backend.run(circs, **run_options)
-            jobs.append(job)
+        jobs = [self.backend.run(circs, **run_options) for circs in job_circuits]
+
         return jobs
 
     @abstractmethod
@@ -379,16 +318,6 @@ class BaseExperiment(ABC, StoreInitArgs):
         transpile_opts = copy.copy(self.transpile_options.__dict__)
         transpile_opts["initial_layout"] = list(self.physical_qubits)
         transpiled = transpile(self.circuits(), self.backend, **transpile_opts)
-
-        # TODO remove this deprecation after 0.3.0 release
-        if hasattr(self, "_postprocess_transpiled_circuits"):
-            warnings.warn(
-                "`BaseExperiment._postprocess_transpiled_circuits` is deprecated as of "
-                "qiskit-experiments 0.3.0 and will be removed in the 0.4.0 release."
-                " Use `BaseExperiment._transpile` instead.",
-                DeprecationWarning,
-            )
-            self._postprocess_transpiled_circuits(transpiled)  # pylint: disable=no-member
 
         return transpiled
 
@@ -490,68 +419,14 @@ class BaseExperiment(ABC, StoreInitArgs):
         )
         return self.analysis.options
 
-    def set_analysis_options(self, **fields):
-        """Set the analysis options for :meth:`run` method.
-
-        Args:
-            fields: The fields to update the options
-
-        .. deprecated:: 0.2.0
-            This is replaced by calling ``experiment.analysis.set_options`` using
-            the :meth:`analysis` property and
-            :meth:`~qiskit_experiments.framework.BaseAnalysis.set_options` method.
-        """
-        warnings.warn(
-            "`BaseExperiment.set_analysis_options` is deprecated as of qiskit-experiments"
-            " 0.2.0 and will be removed in the 0.3.0 release."
-            " Use `experiment.analysis.set_options instead",
-            DeprecationWarning,
-        )
-        self.analysis.options.update_options(**fields)
-
     def _metadata(self) -> Dict[str, any]:
         """Return experiment metadata for ExperimentData.
 
-        The :meth:`_add_job_metadata` method will be called for each
-        experiment execution to append job metadata, including current
-        option values, to the ``job_metadata`` list.
+        Subclasses can override this method to add custom experiment
+        metadata to the returned experiment result data.
         """
-        metadata = {
-            "experiment_type": self._type,
-            "num_qubits": self.num_qubits,
-            "physical_qubits": list(self.physical_qubits),
-        }
-        # Add additional metadata if subclasses specify it
-        for key, val in self._additional_metadata().items():
-            metadata[key] = val
+        metadata = {"physical_qubits": list(self.physical_qubits)}
         return metadata
-
-    def _additional_metadata(self) -> Dict[str, any]:
-        """Add additional subclass experiment metadata.
-
-        Subclasses can override this method if it is necessary to store
-        additional experiment metadata in ExperimentData.
-        """
-        return {}
-
-    def _add_job_metadata(self, metadata: Dict[str, Any], jobs: BaseJob, **run_options):
-        """Add runtime job metadata to ExperimentData.
-
-        Args:
-            metadata: the metadata dict to update with job data.
-            jobs: the job objects.
-            run_options: backend run options for the job.
-        """
-        values = {
-            "job_ids": [job.job_id() for job in jobs],
-            "experiment_options": copy.copy(self.experiment_options.__dict__),
-            "transpile_options": copy.copy(self.transpile_options.__dict__),
-            "run_options": copy.copy(run_options),
-        }
-        if self.analysis is not None:
-            values["analysis_options"] = copy.copy(self.analysis.options.__dict__)
-
-        metadata["job_metadata"] = [values]
 
     def __json_encode__(self):
         """Convert to format that can be JSON serialized"""
