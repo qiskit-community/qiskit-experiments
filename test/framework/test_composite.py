@@ -20,8 +20,9 @@ from test.base import QiskitExperimentsTestCase
 from ddt import ddt, data
 
 from qiskit import QuantumCircuit, Aer
-from qiskit.providers.aer import noise
 from qiskit.result import Result
+
+from qiskit_aer import noise
 
 from qiskit_ibm_experiment import IBMExperimentService
 
