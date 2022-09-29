@@ -13,22 +13,23 @@
 Utilities for using the Clifford group in randomized benchmarking
 """
 
-from typing import List, Tuple, Optional, Union
-from functools import lru_cache
-from numbers import Integral
-from math import isclose
 import itertools
+from functools import lru_cache
+from math import isclose
+from numbers import Integral
+from typing import List
+from typing import Optional, Union, Tuple, Sequence
+
 import numpy as np
 from numpy.random import Generator, default_rng
 
-from qiskit import QuantumCircuit, QuantumRegister
 from qiskit.circuit import Gate, Instruction
+from qiskit.circuit import QuantumCircuit, QuantumRegister, CircuitInstruction, Qubit
 from qiskit.circuit.library import SdgGate, HGate, SGate
 from qiskit.compiler import transpile
-from qiskit.providers.backend import Backend
 from qiskit.exceptions import QiskitError
+from qiskit.providers.backend import Backend
 from qiskit.quantum_info import Clifford, random_clifford
-
 from .clifford_data import (
     CLIFF_SINGLE_GATE_MAP_1Q,
     CLIFF_SINGLE_GATE_MAP_2Q,
@@ -41,14 +42,108 @@ from .clifford_data import (
 )
 
 
+# Transpilation utilities
+def _transpile_clifford_circuit(circuit: QuantumCircuit, layout: Sequence[int]) -> QuantumCircuit:
+    return _apply_qubit_layout(_decompose_clifford_ops(circuit), layout=layout)
+
+
+def _decompose_clifford_ops(circuit: QuantumCircuit) -> QuantumCircuit:
+    # Simplified QuantumCircuit.decompose, which decomposes only Clifford ops
+    res = circuit.copy_empty_like()
+    res._parameter_table = circuit._parameter_table
+    for inst in circuit:
+        if inst.operation.name.startswith("Clifford"):  # Decompose
+            rule = inst.operation.definition.data
+            if len(rule) == 1 and len(inst.qubits) == len(rule[0].qubits):
+                if inst.operation.definition.global_phase:
+                    res.global_phase += inst.operation.definition.global_phase
+                res._data.append(
+                    CircuitInstruction(
+                        operation=rule[0].operation,
+                        qubits=inst.qubits,
+                        clbits=inst.clbits,
+                    )
+                )
+            else:
+                _circuit_compose(res, inst.operation.definition, qubits=inst.qubits)
+        else:  # Keep the original instruction
+            res._data.append(inst)
+    return res
+
+
+def _apply_qubit_layout(circuit: QuantumCircuit, layout: Sequence[int]) -> QuantumCircuit:
+    res = QuantumCircuit(1 + max(layout), name=circuit.name, metadata=circuit.metadata)
+    res.add_bits(circuit.clbits)
+    for reg in circuit.cregs:
+        res.add_register(reg)
+    _circuit_compose(res, circuit, qubits=layout)
+    res._parameter_table = circuit._parameter_table
+    return res
+
+
+def _circuit_compose(
+    self: QuantumCircuit, other: QuantumCircuit, qubits: Sequence[Union[Qubit, int]]
+) -> QuantumCircuit:
+    # Simplified QuantumCircuit.compose with clbits=None, front=False, inplace=True, wrap=False
+    # without any validation, parameter_table update and copy of operations
+    qubit_map = {
+        other.qubits[i]: (self.qubits[q] if isinstance(q, int) else q) for i, q in enumerate(qubits)
+    }
+    for instr in other:
+        self._data.append(
+            CircuitInstruction(
+                operation=instr.operation,
+                qubits=[qubit_map[q] for q in instr.qubits],
+                clbits=instr.clbits,
+            ),
+        )
+
+    self.global_phase += other.global_phase
+    for gate, cals in other.calibrations.items():
+        self._calibrations[gate].update(cals)
+    return self
+
+
+def _truncate_inactive_qubits(
+    circ: QuantumCircuit, active_qubits: Sequence[Qubit]
+) -> QuantumCircuit:
+    new_data = []
+    for inst in circ:
+        if all(q in active_qubits for q in inst.qubits):
+            new_data.append(inst)
+
+    res = QuantumCircuit(active_qubits, name=circ.name)
+    res._calibrations = circ.calibrations
+    res._data = new_data
+    res._metadata = circ.metadata
+    return res
+
+
+def _transform_clifford_circuit(circuit: QuantumCircuit, basis_gates: Tuple[str]) -> QuantumCircuit:
+    return transpile(circuit, basis_gates=list(basis_gates), optimization_level=0)
+
+
 @lru_cache(maxsize=None)
-def _clifford_1q_int_to_instruction(num: Integral) -> Instruction:
-    return CliffordUtils.clifford_1_qubit_circuit(num).to_instruction()
+def _clifford_1q_int_to_instruction(
+    num: Integral, basis_gates: Optional[Tuple[str]]
+) -> Instruction:
+    return CliffordUtils.clifford_1_qubit_circuit(num, basis_gates).to_instruction()
 
 
 @lru_cache(maxsize=11520)
-def _clifford_2q_int_to_instruction(num: Integral) -> Instruction:
-    return CliffordUtils.clifford_2_qubit_circuit(num).to_instruction()
+def _clifford_2q_int_to_instruction(
+    num: Integral, basis_gates: Optional[Tuple[str]]
+) -> Instruction:
+    utils = __get_clifford_utils_2q(basis_gates)
+    return utils.transpiled_cliff_from_layer_nums(
+        utils.layer_indices_from_num(num)
+    ).to_instruction()
+    # return CliffordUtils.clifford_2_qubit_circuit(num, basis_gates).to_instruction()
+
+
+@lru_cache(maxsize=None)
+def __get_clifford_utils_2q(basis_gates: Optional[Tuple[str]]):
+    return CliffordUtils(2, basis_gates)
 
 
 # The classes VGate and WGate are not actually used in the code - we leave them here to give
@@ -173,7 +268,7 @@ class CliffordUtils:
 
     @classmethod
     @lru_cache(maxsize=24)
-    def clifford_1_qubit_circuit(cls, num):
+    def clifford_1_qubit_circuit(cls, num, basis_gates: Optional[Tuple[str]] = None):
         """Return the 1-qubit clifford circuit corresponding to `num`
         where `num` is between 0 and 23.
         """
@@ -193,11 +288,14 @@ class CliffordUtils:
         if p == 3:
             qc.z(0)
 
+        if basis_gates:
+            qc = _transform_clifford_circuit(qc, basis_gates)
+
         return qc
 
     @classmethod
     @lru_cache(maxsize=11520)
-    def clifford_2_qubit_circuit(cls, num):
+    def clifford_2_qubit_circuit(cls, num, basis_gates: Optional[Tuple[str]] = None):
         """Return the 2-qubit clifford circuit corresponding to `num`
         where `num` is between 0 and 11519.
         """
@@ -250,6 +348,9 @@ class CliffordUtils:
             qc.y(1)
         if p1 == 3:
             qc.z(1)
+
+        if basis_gates:
+            qc = _transform_clifford_circuit(qc, basis_gates)
 
         return qc
 
@@ -555,6 +656,7 @@ class CliffordUtils:
         qc = q0.copy()
         qc.compose(q1, inplace=True)
         qc.compose(q2, inplace=True)
+        qc.name = f"Clifford-2Q({self.num_from_layer_indices(triplet)})"
         return qc
 
     @staticmethod
