@@ -63,8 +63,22 @@ Data Processing Nodes
     ToImag
     ToReal
     SVD
+    DiscriminatorNode
+    MemoryToCounts
     AverageData
     BasisExpectationValue
+    MinMaxNormalize
+    RestlessNode
+    RestlessToCounts
+    RestlessToIQ
+
+
+Discriminators
+==============
+.. autosummary::
+    :toctree: ../stubs/
+
+    SkLDA
 """
 
 from .data_action import DataAction, TrainableDataAction
@@ -74,8 +88,15 @@ from .nodes import (
     ToImag,
     ToReal,
     SVD,
+    DiscriminatorNode,
+    MemoryToCounts,
     AverageData,
     BasisExpectationValue,
+    MinMaxNormalize,
+    RestlessNode,
+    RestlessToCounts,
+    RestlessToIQ,
 )
 
 from .data_processor import DataProcessor
+from .sklearn_discriminators import SkLDA

@@ -18,7 +18,7 @@ import numpy as np
 from qiskit import QuantumCircuit
 from qiskit.circuit import Parameter
 from qiskit.providers.backend import Backend
-from qiskit.test.mock import FakeBackend
+from qiskit.qobj.utils import MeasLevel
 
 from qiskit_experiments.framework import BaseExperiment
 from qiskit_experiments.framework.restless_mixin import RestlessMixin
@@ -52,13 +52,13 @@ class RamseyXY(BaseExperiment, RestlessMixin):
             measure: 1/════════════════════════════════════════════╩═
                                                                    0
 
-        The first and second circuits measure the expectation value along the X and Y axis,
-        respectively. This experiment therefore draws the dynamics of the Bloch vector as a
-        Lissajous figure. Since the control electronics tracks the frame of qubit at the
-        reference frequency, which differs from the true qubit frequency by :math:`\Delta\omega`,
-        we can describe the dynamics of two circuits as follows. The Hamiltonian during the
+        The first and second circuits measure the expectation value along the -Y and X axes,
+        respectively. This experiment therefore tracks the dynamics of the Bloch vector
+        around the equator. The drive frequency of the control electronics defines a reference frame,
+        which differs from the true qubit frequency by :math:`\Delta\omega`.
+        The Hamiltonian during the
         ``Delay`` instruction is :math:`H^R = - \frac{1}{2} \Delta\omega` in the rotating frame,
-        and the propagator will be :math:`U(\tau) = \exp(-iH^R\tau)` where :math:`\tau` is the
+        and the propagator will be :math:`U(\tau) = \exp(-iH^R\tau / \hbar)` where :math:`\tau` is the
         duration of the delay. By scanning this duration, we can get
 
         .. math::
@@ -74,7 +74,7 @@ class RamseyXY(BaseExperiment, RestlessMixin):
         difference of these two outcomes :math:`{\cal E}_x, {\cal E}_y` depends on the sign and
         the magnitude of the frequency offset :math:`\Delta\omega`. By contrast, the measured
         data in the standard Ramsey experiment does not depend on the sign of :math:`\Delta\omega`,
-        i.e. :math:`\cos(-\Delta\omega\tau) = \cos(\Delta\omega\tau)`.
+        because :math:`\cos(-\Delta\omega\tau) = \cos(\Delta\omega\tau)`.
 
         The experiment also allows users to add a small frequency offset to better resolve
         any oscillations. This is implemented by a virtual Z rotation in the circuits. In the
@@ -117,21 +117,17 @@ class RamseyXY(BaseExperiment, RestlessMixin):
         """
         super().__init__([qubit], analysis=RamseyXYAnalysis(), backend=backend)
 
-        delays = delays or self.experiment_options.delays
+        if delays is None:
+            delays = self.experiment_options.delays
         self.set_experiment_options(delays=delays, osc_freq=osc_freq)
 
     def _set_backend(self, backend: Backend):
         super()._set_backend(backend)
 
         # Scheduling parameters
-        if not self._backend.configuration().simulator and not isinstance(backend, FakeBackend):
-            timing_constraints = getattr(self.transpile_options, "timing_constraints", {})
-            if "acquire_alignment" not in timing_constraints:
-                timing_constraints["acquire_alignment"] = 16
+        if not self._backend_data.is_simulator:
             scheduling_method = getattr(self.transpile_options, "scheduling_method", "alap")
-            self.set_transpile_options(
-                timing_constraints=timing_constraints, scheduling_method=scheduling_method
-            )
+            self.set_transpile_options(scheduling_method=scheduling_method)
 
     def _pre_circuit(self) -> QuantumCircuit:
         """Return a preparation circuit.
@@ -147,11 +143,10 @@ class RamseyXY(BaseExperiment, RestlessMixin):
         Returns:
             A list of circuits with a variable delay.
         """
-        if self.backend and hasattr(self.backend.configuration(), "dt"):
-            dt_unit = True
-            dt_factor = self.backend.configuration().dt
-        else:
-            dt_unit = False
+        dt_unit = False
+        if self.backend:
+            dt_factor = self._backend_data.dt
+            dt_unit = dt_factor is not None
 
         # Compute the rz rotation angle to add a modulation.
         p_delay_sec = Parameter("delay_sec")
@@ -231,6 +226,17 @@ class RamseyXY(BaseExperiment, RestlessMixin):
             circs.extend([assigned_x, assigned_y])
 
         return circs
+
+    def _finalize(self):
+        # Set initial guess for sinusoidal offset when meas level is 2.
+        # This returns probability P1 thus offset=0.5 is obvious.
+        # This guarantees reasonable fit especially when data contains only less than half cycle.
+        meas_level = self.run_options.get("meas_level", MeasLevel.CLASSIFIED)
+        if meas_level == MeasLevel.CLASSIFIED:
+            init_guess = self.analysis.options.get("p0", {})
+            if "base" not in init_guess:
+                init_guess["base"] = 0.5
+            self.analysis.set_options(p0=init_guess)
 
     def _metadata(self):
         metadata = super()._metadata()

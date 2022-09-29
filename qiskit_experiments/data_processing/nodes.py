@@ -16,7 +16,7 @@ from abc import abstractmethod
 from abc import ABC
 from enum import Enum
 from numbers import Number
-from typing import Union, Sequence, Set
+from typing import List, Union, Sequence, Set
 from collections import defaultdict
 
 import numpy as np
@@ -25,6 +25,7 @@ from uncertainties import unumpy as unp, ufloat
 from qiskit.result.postprocess import format_counts_memory
 from qiskit_experiments.data_processing.data_action import DataAction, TrainableDataAction
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
+from qiskit_experiments.data_processing.discriminator import BaseDiscriminator
 from qiskit_experiments.framework import Options
 
 
@@ -211,7 +212,9 @@ class SVD(TrainableDataAction):
 
         Returns:
             A Tuple of 1D arrays of the result of the SVD and the associated error. Each entry
-            is the real part of the averaged IQ data of a qubit.
+            is the real part of the averaged IQ data of a qubit. The data has the shape
+            n_circuits x n_slots for averaged data and n_circuits x n_shots x n_slots for
+            single-shot data.
 
         Raises:
             DataProcessorError: If the SVD has not been previously trained on data.
@@ -231,14 +234,22 @@ class SVD(TrainableDataAction):
 
         for idx in range(self._n_slots):
             scale = self.parameters.scales[idx]
-            # error propagation is computed from data if any std error exists
-            centered = np.array(
-                [
-                    data[..., idx, 0] - self.parameters.i_means[idx],
-                    data[..., idx, 1] - self.parameters.q_means[idx],
-                ]
-            )
-            projected_data[..., idx] = (self.parameters.main_axes[idx] @ centered) / scale
+            axis = self.parameters.main_axes[idx]
+            mean_i = self.parameters.i_means[idx]
+            mean_q = self.parameters.q_means[idx]
+
+            if self._n_shots != 0:
+                # Single shot
+                for circ_idx in range(self._n_circs):
+                    centered = [
+                        data[circ_idx, :, idx, 0] - mean_i,
+                        data[circ_idx, :, idx, 1] - mean_q,
+                    ]
+                    projected_data[circ_idx, :, idx] = axis @ np.array(centered) / scale
+            else:
+                # Averaged
+                centered = [data[:, idx, 0] - mean_i, data[:, idx, 1] - mean_q]
+                projected_data[:, idx] = axis @ np.array(centered) / scale
 
         return projected_data
 
@@ -286,7 +297,10 @@ class SVD(TrainableDataAction):
             datums[1, :] = datums[1, :] - mean_q
 
             mat_u, mat_s, _ = np.linalg.svd(datums)
-            main_axes.append(mat_u[:, 0])
+
+            # There is an arbitrary sign in the direction of the matrix which we fix to
+            # positive to make the SVD node more reliable in tests and real settings.
+            main_axes.append(np.sign(mat_u[0, 0]) * mat_u[:, 0])
             scales.append(mat_s[0])
 
         self.set_parameters(
@@ -308,6 +322,10 @@ class IQPart(DataAction):
         """
         self.scale = scale
         super().__init__(validate)
+        self._n_circs = 0
+        self._n_shots = 0
+        self._n_slots = 0
+        self._n_iq = 0
 
     @abstractmethod
     def _process(self, data: np.ndarray) -> np.ndarray:
@@ -336,6 +354,21 @@ class IQPart(DataAction):
         Raises:
             DataProcessorError: When input data is not likely IQ data.
         """
+        self._n_shots = 0
+
+        # identify shape
+        try:
+            # level1 single-shot data
+            self._n_circs, self._n_shots, self._n_slots, self._n_iq = data.shape
+        except ValueError:
+            try:
+                # level1 data averaged over shots
+                self._n_circs, self._n_slots, self._n_iq = data.shape
+            except ValueError as ex:
+                raise DataProcessorError(
+                    f"Data given to {self.__class__.__name__} is not likely level1 data."
+                ) from ex
+
         if self._validate:
             if data.shape[-1] != 2:
                 raise DataProcessorError(
@@ -396,6 +429,161 @@ class ToAbs(IQPart):
         """
         # pylint: disable=no-member
         return unp.sqrt(data[..., 0] ** 2 + data[..., 1] ** 2) * self.scale
+
+
+class DiscriminatorNode(DataAction):
+    """A class to discriminate kerneled data, e.g., IQ data, to produce counts.
+
+    This node integrates into the data processing chain a serializable :class:`.BaseDiscriminator`
+    subclass instance which must have a :meth:`predict` method that takes as input a list of lists
+    and returns a list of labels. Crucially, this node can be initialized with a single
+    discriminator which applies to each memory slot or it can be initialized with a list of
+    discriminators, i.e., one for each slot.
+
+    .. notes::
+
+        Future versions may see this class become a sub-class of :class:`.TrainableDataAction`.
+
+    .. notes::
+
+        This node will drop uncertainty from unclassified nodes.
+        Returned labels don't have uncertainty.
+
+    """
+
+    def __init__(
+        self,
+        discriminators: Union[BaseDiscriminator, List[BaseDiscriminator]],
+        validate: bool = True,
+    ):
+        """Initialize the node with an object that can discriminate.
+
+        Args:
+            discriminators: The entity that will perform the discrimination. This needs to
+                be a :class:`.BaseDiscriminator` or a list thereof that takes
+                as input a list of lists and returns a list of labels. If a list of
+                discriminators is given then there should be as many discriminators as there
+                will be slots in the memory. The discriminator at the i-th index will be applied
+                to the i-th memory slot.
+            validate: If set to False the DataAction will not validate its input.
+        """
+        super().__init__(validate)
+        self._discriminator = discriminators
+        self._n_circs = 0
+        self._n_shots = 0
+        self._n_slots = 0
+        self._n_iq = 0
+
+    def _format_data(self, data: np.ndarray) -> np.ndarray:
+        """Check that there are as many discriminators as there are slots."""
+        self._n_shots = 0
+
+        # identify shape
+        try:
+            # level1 single-shot data
+            self._n_circs, self._n_shots, self._n_slots, self._n_iq = data.shape
+        except ValueError as ex:
+            raise DataProcessorError(
+                f"The data given to {self.__class__.__name__} does not have the shape of "
+                "single-shot IQ data; expecting a 4D array."
+            ) from ex
+
+        if self._validate:
+            if data.shape[-1] != 2:
+                raise DataProcessorError(
+                    f"IQ data given to {self.__class__.__name__} must be a multi-dimensional array"
+                    "of dimension [d0, d1, ..., 2] in which the last dimension "
+                    "corresponds to IQ elements."
+                    f"Input data contains element with length {data.shape[-1]} != 2."
+                )
+
+        if self._validate:
+            if isinstance(self._discriminator, list):
+                if self._n_slots != len(self._discriminator):
+                    raise DataProcessorError(
+                        f"The Discriminator node has {len(self._discriminator)} which does "
+                        f"not match the {self._n_slots} slots in the data."
+                    )
+
+        return unp.nominal_values(data)
+
+    def _process(self, data: np.ndarray) -> np.ndarray:
+        """Discriminate the data.
+
+        Args:
+            data: The IQ data as a list of points to discriminate. This data should have
+                the shape dim_1 x dim_2 x ... x dim_k x 2.
+
+        Returns:
+            The discriminated data as a list of labels with shape dim_1 x ... x dim_k.
+        """
+        # Case where one discriminator is applied to all the data.
+        if not isinstance(self._discriminator, list):
+            # Reshape the IQ data to an array of size n x 2
+            shape, data_length = data.shape, 1
+            for dim in shape[:-1]:
+                data_length *= dim
+
+            data = data.reshape((data_length, 2))  # the last dim is guaranteed by _process
+
+            # Classify the data using the discriminator and reshape it to dim_1 x ... x dim_k
+            classified = np.array(self._discriminator.predict(data)).reshape(shape[0:-1])
+
+        # case where a discriminator is applied to each slot.
+        else:
+            classified = np.empty((self._n_circs, self._n_shots, self._n_slots), dtype=str)
+            for idx, discriminator in enumerate(self._discriminator):
+                sub_data = data[:, :, idx, :].reshape((self._n_circs * self._n_shots, 2))
+                sub_classified = np.array(discriminator.predict(sub_data))
+                sub_classified = sub_classified.reshape((self._n_circs, self._n_shots))
+                classified[:, :, idx] = sub_classified
+
+        # Concatenate the bit-strings together.
+        labeled_data = []
+        for idx in range(self._n_circs):
+            labeled_data.append(
+                ["".join(classified[idx, jdx, :][::-1]) for jdx in range(self._n_shots)]
+            )
+
+        return np.array(labeled_data).reshape((self._n_circs, self._n_shots))
+
+
+class MemoryToCounts(DataAction):
+    """A data action that takes discriminated data and transforms it into a counts dict.
+
+    This node is intended to be used after the :class:`.Discriminator` node. It will convert
+    the classified memory into a list of count dictionaries wrapped in a numpy array.
+    """
+
+    def _format_data(self, data: np.ndarray) -> np.ndarray:
+        """Validate the input data."""
+        if self._validate:
+            if len(data.shape) <= 1:
+                raise DataProcessorError(
+                    "The data should be an array with at least two dimensions."
+                )
+
+        return data
+
+    def _process(self, data: np.ndarray) -> np.ndarray:
+        """
+        Args:
+            data: The classified data to format into a counts dictionary. The first dimension
+                is assumed to correspond to the different circuit executions.
+
+        Returns:
+            A list of dictionaries where each dict is a count dictionary over the labels of
+            the input data.
+        """
+        all_counts = []
+        for datum in data:
+            counts = {}
+            for bit_string in set(datum):
+                counts[bit_string] = sum(datum == bit_string)
+
+            all_counts.append(counts)
+
+        return np.array(all_counts)
 
 
 class CountsAction(DataAction):
@@ -751,7 +939,7 @@ class RestlessNode(DataAction, ABC):
         self._n_circuits = len(data)
 
         if self._validate:
-            if data.shape != (self._n_circuits, self._n_shots):
+            if data.shape[:2] != (self._n_circuits, self._n_shots):
                 raise DataProcessorError(
                     f"The datum given to {self.__class__.__name__} does not convert "
                     "of an array with dimension (number of circuit, number of shots)."
@@ -848,3 +1036,73 @@ class RestlessToCounts(RestlessNode):
             restless_adjusted_bits.append("0" if bit == prev_shot[idx] else "1")
 
         return "".join(restless_adjusted_bits)
+
+
+class RestlessToIQ(RestlessNode):
+    """Post-process restless data and convert restless memory to IQ data.
+
+    This node first orders the measured restless IQ point (measurement level 1) data
+    according to the measurement sequence and then subtracts an IQ point from the previous
+    one, i.e. :math:`(I_2 - I_1) + i(Q_2 - Q_1)` for consecutively measured IQ points
+    :math:`I_1 + iQ_1` and :math:`I_2 + iQ_2`. Following this, it takes the absolute
+    value of the in-phase and quadrature component and returns a sequence of circuit-
+    ordered IQ values, e.g. containing :math:`|I_2 - I_1| + i|Q_2 - Q_1|`.
+    This procedure is based on M. Werninghaus, et al., PRX Quantum 2, 020324 (2021).
+    """
+
+    def __init__(self, validate: bool = True):
+        """
+        Args:
+            validate: If set to False the DataAction will not validate its input.
+        """
+        super().__init__(validate)
+
+    def _process(self, data: np.ndarray) -> np.ndarray:
+        """Reorder the IQ shots and assign values to them based on the previous outcome.
+
+        Args:
+            data: An array representing the memory.
+
+        Returns:
+            An array of arrays of IQ shots processed according to the restless methodology.
+        """
+
+        # Step 1. Reorder the data.
+        memory = self._reorder_iq(data)
+
+        # Step 2. Subtract and take absolute value of consecutive IQ points in
+        # the reordered memory.
+        post_processed_memory = np.abs(np.diff(memory, axis=0))
+
+        # The first element of the post-processed data is the first element
+        # of the reordered memory from step 1.
+        post_processed_memory = np.insert(post_processed_memory, 0, memory[0], axis=0)
+
+        # Step 3. Order post-processed IQ points by circuit.
+        iq_memory = [[] for _ in range(self._n_circuits)]
+        for idx, iq_point in enumerate(post_processed_memory):
+            iq_memory[idx % self._n_circuits].append(iq_point)
+
+        return np.array(iq_memory)
+
+    def _reorder_iq(self, unordered_data: np.ndarray) -> np.ndarray:
+        """Reorder IQ data according to the measurement sequence."""
+
+        if unordered_data is None:
+            return unordered_data
+
+        ordered_data = [None] * self._n_shots * self._n_circuits
+
+        count = 0
+        if self._memory_allocation == ShotOrder.circuit_first:
+            for shot_idx in range(self._n_shots):
+                for circ_idx in range(self._n_circuits):
+                    ordered_data[count] = unordered_data[circ_idx][shot_idx]
+                    count += 1
+        else:
+            for circ_idx in range(self._n_circuits):
+                for shot_idx in range(self._n_shots):
+                    ordered_data[count] = unordered_data[circ_idx][shot_idx]
+                    count += 1
+
+        return np.array(ordered_data)

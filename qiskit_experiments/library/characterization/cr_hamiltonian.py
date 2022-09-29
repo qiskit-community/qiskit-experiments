@@ -157,22 +157,21 @@ class CrossResonanceHamiltonian(BaseExperiment):
         Raises:
             QiskitError: When ``qubits`` length is not 2.
         """
-        super().__init__(qubits, analysis=CrossResonanceHamiltonianAnalysis(), backend=backend)
-
-        if len(qubits) != 2:
-            raise QiskitError(
-                "Length of qubits is not 2. Please provide index for control and target qubit."
-            )
-
-        self.set_experiment_options(flat_top_widths=flat_top_widths, **kwargs)
-        self._cr_gate = cr_gate
-
         # backend parameters required to run this experiment
         # random values are populated here but these are immediately updated after backend is set
         # this is to keep capability of generating circuits just for checking
         self._dt = 1
         self._cr_channel = 0
         self._granularity = 1
+        self._cr_gate = cr_gate
+
+        if len(qubits) != 2:
+            raise QiskitError(
+                "Length of qubits is not 2. Please provide index for control and target qubit."
+            )
+
+        super().__init__(qubits, analysis=CrossResonanceHamiltonianAnalysis(), backend=backend)
+        self.set_experiment_options(flat_top_widths=flat_top_widths, **kwargs)
 
     @classmethod
     def _default_experiment_options(cls) -> Options:
@@ -204,28 +203,24 @@ class CrossResonanceHamiltonian(BaseExperiment):
             # This falls into CRPulseGate which requires pulse schedule
 
             # Extract control channel index
-            try:
-                cr_channels = backend.configuration().control(self.physical_qubits)
+            cr_channels = self._backend_data.control_channel(self.physical_qubits)
+            if cr_channels is not None:
                 self._cr_channel = cr_channels[0].index
-            except AttributeError:
+            else:
                 warnings.warn(
-                    f"{backend.name()} doesn't provide cr channel mapping. "
+                    f"{self._backend_data.name} doesn't provide cr channel mapping. "
                     "Cannot find proper channel index to play the cross resonance pulse.",
                     UserWarning,
                 )
+
             # Extract pulse granularity
-            try:
-                self._granularity = backend.configuration().timing_constraints["granularity"]
-            except (AttributeError, KeyError):
-                # Probably no chunk size restriction on waveform memory.
-                pass
+            self._granularity = self._backend_data.granularity
 
         # Extract time resolution, this is anyways required for xvalue conversion
-        try:
-            self._dt = backend.configuration().dt
-        except AttributeError:
+        self._dt = self._backend_data.dt
+        if self._dt is None:
             warnings.warn(
-                f"{backend.name()} doesn't provide system time resolution dt. "
+                f"{self._backend_data.name} doesn't provide system time resolution dt. "
                 "Cannot estimate Hamiltonian coefficients in SI units.",
                 UserWarning,
             )
@@ -347,16 +342,18 @@ class CrossResonanceHamiltonian(BaseExperiment):
                         )
 
                     expr_circs.append(tomo_circ)
+        return expr_circs
 
-        # Set analysis option for initial guess that depends on experiment option values.
+    def _finalize(self):
+        """Set analysis option for initial guess that depends on experiment option values."""
         edge_duration = np.sqrt(2 * np.pi) * self.experiment_options.sigma * self.num_pulses
 
-        init_guess = self.analysis.options.p0.copy()
-        init_guess["t_off"] = edge_duration * self._dt
-
-        self.analysis.set_options(p0=init_guess)
-
-        return expr_circs
+        for analysis in self.analysis.analyses():
+            init_guess = analysis.options.p0.copy()
+            if "t_off" in init_guess:
+                continue
+            init_guess["t_off"] = edge_duration * self._dt
+            analysis.set_options(p0=init_guess)
 
     def _metadata(self):
         metadata = super()._metadata()

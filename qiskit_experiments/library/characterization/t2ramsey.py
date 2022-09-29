@@ -20,7 +20,6 @@ import numpy as np
 import qiskit
 from qiskit import QuantumCircuit
 from qiskit.providers.backend import Backend
-from qiskit.test.mock import FakeBackend
 
 from qiskit_experiments.framework import BaseExperiment, Options
 from qiskit_experiments.library.characterization.analysis.t2ramsey_analysis import T2RamseyAnalysis
@@ -100,14 +99,9 @@ class T2Ramsey(BaseExperiment):
         super()._set_backend(backend)
 
         # Scheduling parameters
-        if not self._backend.configuration().simulator and not isinstance(backend, FakeBackend):
-            timing_constraints = getattr(self.transpile_options, "timing_constraints", {})
-            if "acquire_alignment" not in timing_constraints:
-                timing_constraints["acquire_alignment"] = 16
+        if not self._backend_data.is_simulator:
             scheduling_method = getattr(self.transpile_options, "scheduling_method", "alap")
-            self.set_transpile_options(
-                timing_constraints=timing_constraints, scheduling_method=scheduling_method
-            )
+            self.set_transpile_options(scheduling_method=scheduling_method)
 
     def circuits(self) -> List[QuantumCircuit]:
         """Return a list of experiment circuits.
@@ -118,11 +112,10 @@ class T2Ramsey(BaseExperiment):
         Returns:
             The experiment circuits
         """
-        if self.backend and hasattr(self.backend.configuration(), "dt"):
-            dt_unit = True
-            dt_factor = self.backend.configuration().dt
-        else:
-            dt_unit = False
+        dt_unit = False
+        if self.backend:
+            dt_factor = self._backend_data.dt
+            dt_unit = dt_factor is not None
 
         circuits = []
         for delay in self.experiment_options.delays:
@@ -135,14 +128,14 @@ class T2Ramsey(BaseExperiment):
             rotation_angle = 2 * np.pi * self.experiment_options.osc_freq * real_delay_in_sec
 
             circ = qiskit.QuantumCircuit(1, 1)
-            circ.h(0)
+            circ.sx(0)  # Brings the qubit to the X Axis
             if dt_unit:
                 circ.delay(delay_dt, 0, "dt")
             else:
                 circ.delay(delay, 0, "s")
             circ.rz(rotation_angle, 0)
             circ.barrier(0)
-            circ.h(0)
+            circ.sx(0)
             circ.barrier(0)
             circ.measure(0, 0)
 

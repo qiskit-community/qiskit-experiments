@@ -8,8 +8,8 @@ Quantum State Tomography
     from qiskit_experiments.library import StateTomography
     
     # For simulation
-    from qiskit.providers.aer import AerSimulator
-    from qiskit.test.mock import FakeParis
+    from qiskit_aer import AerSimulator
+    from qiskit.providers.fake_provider import FakeParis
     
     # Noisy simulator backend
     backend = AerSimulator.from_backend(FakeParis())
@@ -112,8 +112,8 @@ Tomography Fitters
 
 The default fitters is ``linear_inversion``, which reconstructs the
 state using *dual basis* of the tomography basis. This will typically
-result in a non-postive reconstructed state. This state is rescaled to
-be postive-semidfinite (PSD) by computing its eigen-decomposition and
+result in a non-positive reconstructed state. This state is rescaled to
+be positive-semidefinite (PSD) by computing its eigen-decomposition and
 rescaling its eigenvalues using the approach from \*J Smolin, JM
 Gambetta, G Smith, Phys. Rev. Lett. 108, 070502 (2012), `open
 access <https://arxiv.org/abs/arXiv:1106.5458>`__.

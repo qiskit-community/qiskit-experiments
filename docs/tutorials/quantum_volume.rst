@@ -30,10 +30,10 @@ z_value = 2), and at least 100 trials have been ran.
     from qiskit_experiments.framework import BatchExperiment
     from qiskit_experiments.library import QuantumVolume
     from qiskit import Aer
-    from qiskit.providers.aer import AerSimulator
+    from qiskit_aer import AerSimulator
     
     # For simulation
-    from qiskit.test.mock import FakeSydney
+    from qiskit.providers.fake_provider import FakeSydney
     
     backend = AerSimulator.from_backend(FakeSydney())
 
@@ -78,7 +78,7 @@ Extra data included in the analysis results includes
 
 -  The number of trials and depth of the QV circuits
 
--  Whether the QV circuit was succesful
+-  Whether the QV circuit was successful
 
 .. jupyter-execute::
 
@@ -180,7 +180,7 @@ circuits, Phys. Rev. A 100, 032328 (2019).
 https://arxiv.org/pdf/1811.12926
 
 [2] Petar Jurcevic et. al. Demonstration of quantum volume 64 on
-asuperconducting quantum computing system,
+a superconducting quantum computing system,
 https://arxiv.org/pdf/2008.08571
 
 .. jupyter-execute::

@@ -16,17 +16,18 @@ import warnings
 from collections import defaultdict
 from typing import Dict, List, Sequence, Tuple, Union, Optional, TYPE_CHECKING
 
+import lmfit
 from qiskit.exceptions import QiskitError
 
 import qiskit_experiments.curve_analysis as curve
 from qiskit_experiments.exceptions import AnalysisError
 from qiskit_experiments.framework import AnalysisResultData, ExperimentData
-from qiskit_experiments.database_service import DbAnalysisResultV1
+from qiskit_experiments.framework.analysis_result import AnalysisResult
 
 if TYPE_CHECKING:
     from uncertainties import UFloat
 
-# A dictionary key of qubit aware quantum instruciton; type alias for better readability
+# A dictionary key of qubit aware quantum instruction; type alias for better readability
 QubitGateTuple = Tuple[Tuple[int, ...], str]
 
 
@@ -68,19 +69,17 @@ class RBAnalysis(curve.CurveAnalysis):
 
     """
 
-    __series__ = [
-        curve.SeriesDef(
-            fit_func=lambda x, a, alpha, b: curve.fit_function.exponential_decay(
-                x, amp=a, lamb=-1.0, base=alpha, baseline=b
-            ),
-            plot_color="blue",
-            model_description=r"a \alpha^x + b",
-        )
-    ]
-
     def __init__(self):
-        super().__init__()
+        super().__init__(
+            models=[
+                lmfit.models.ExpressionModel(
+                    expr="a * alpha ** x + b",
+                    name="rb_decay",
+                )
+            ]
+        )
         self._gate_counts_per_clifford = None
+        self._physical_qubits = None
 
     @classmethod
     def _default_options(cls):
@@ -92,12 +91,12 @@ class RBAnalysis(curve.CurveAnalysis):
                 The default value will use standard gate error ratios.
                 If you don't know accurate error ratio between your basis gates,
                 you can skip analysis of EPGs by setting this options to ``None``.
-            epg_1_qubit (List[DbAnalysisResultV1]): Analysis results from previous RB experiments
+            epg_1_qubit (List[AnalysisResult]): Analysis results from previous RB experiments
                 for individual single qubit gates. If this is provided, EPC of
-                2Q RB is corected to exclude the deporalization of underlying 1Q channels.
+                2Q RB is corrected to exclude the depolarization of underlying 1Q channels.
         """
         default_options = super()._default_options()
-        default_options.curve_plotter.set_options(
+        default_options.curve_drawer.set_options(
             xlabel="Clifford Length",
             ylabel="P(0)",
         )
@@ -118,27 +117,28 @@ class RBAnalysis(curve.CurveAnalysis):
         super().set_options(**fields)
 
     def _generate_fit_guesses(
-        self, user_opt: curve.FitOptions
+        self,
+        user_opt: curve.FitOptions,
+        curve_data: curve.CurveData,
     ) -> Union[curve.FitOptions, List[curve.FitOptions]]:
-        """Compute the initial guesses.
+        """Create algorithmic initial fit guess from analysis options and curve data.
 
         Args:
             user_opt: Fit options filled with user provided guess and bounds.
+            curve_data: Formatted data collection to fit.
 
         Returns:
             List of fit options that are passed to the fitter function.
         """
-        curve_data = self._data()
-
         user_opt.bounds.set_if_empty(
             a=(0, 1),
             alpha=(0, 1),
             b=(0, 1),
         )
 
-        b_guess = 1 / 2**self._num_qubits
-        a_guess = 1 - b_guess
-        alpha_guess = curve.guess.rb_decay(curve_data.x, curve_data.y, a=a_guess, b=b_guess)
+        b_guess = 1 / 2 ** len(self._physical_qubits)
+        alpha_guess = curve.guess.rb_decay(curve_data.x, curve_data.y, b=b_guess)
+        a_guess = (curve_data.y[0] - b_guess) / (alpha_guess ** curve_data.x[0])
 
         user_opt.p0.set_if_empty(
             b=b_guess,
@@ -148,23 +148,33 @@ class RBAnalysis(curve.CurveAnalysis):
 
         return user_opt
 
-    def _format_data(self, data: curve.CurveData) -> curve.CurveData:
-        """Data format with averaging with sampling strategy."""
+    def _format_data(
+        self,
+        curve_data: curve.CurveData,
+    ) -> curve.CurveData:
+        """Postprocessing for the processed dataset.
+
+        Args:
+            curve_data: Processed dataset created from experiment results.
+
+        Returns:
+            Formatted data.
+        """
         # TODO Eventually move this to data processor, then create RB data processor.
 
-        # take average over the same x value by regenerating sigma from variance of y values
-        series, xdata, ydata, sigma, shots = curve.data_processing.multi_mean_xy_data(
-            series=data.data_index,
-            xdata=data.x,
-            ydata=data.y,
-            sigma=data.y_err,
-            shots=data.shots,
+        # take average over the same x value by keeping sigma
+        data_allocation, xdata, ydata, sigma, shots = curve.data_processing.multi_mean_xy_data(
+            series=curve_data.data_allocation,
+            xdata=curve_data.x,
+            ydata=curve_data.y,
+            sigma=curve_data.y_err,
+            shots=curve_data.shots,
             method="sample",
         )
 
         # sort by x value in ascending order
-        series, xdata, ydata, sigma, shots = curve.data_processing.data_sort(
-            series=series,
+        data_allocation, xdata, ydata, sigma, shots = curve.data_processing.data_sort(
+            series=data_allocation,
             xdata=xdata,
             ydata=ydata,
             sigma=sigma,
@@ -172,48 +182,62 @@ class RBAnalysis(curve.CurveAnalysis):
         )
 
         return curve.CurveData(
-            label="fit_ready",
             x=xdata,
             y=ydata,
             y_err=sigma,
             shots=shots,
-            data_index=series,
+            data_allocation=data_allocation,
+            labels=curve_data.labels,
         )
 
-    def _extra_database_entry(self, fit_data: curve.FitData) -> List[AnalysisResultData]:
-        """Calculate EPC."""
-        extra_entries = []
-        # pylint: disable=assignment-from-none
-        quality = self._evaluate_quality(fit_data)
+    def _create_analysis_results(
+        self,
+        fit_data: curve.CurveFitResult,
+        quality: str,
+        **metadata,
+    ) -> List[AnalysisResultData]:
+        """Create analysis results for important fit parameters.
+
+        Args:
+            fit_data: Fit outcome.
+            quality: Quality of fit outcome.
+
+        Returns:
+            List of analysis result data.
+        """
+        outcomes = super()._create_analysis_results(fit_data, quality, **metadata)
+        num_qubits = len(self._physical_qubits)
 
         # Calculate EPC
-        alpha = fit_data.fitval("alpha")
-        scale = (2**self._num_qubits - 1) / (2**self._num_qubits)
+        alpha = fit_data.ufloat_params["alpha"]
+        scale = (2**num_qubits - 1) / (2**num_qubits)
         epc = scale * (1 - alpha)
 
-        extra_entries.append(
+        outcomes.append(
             AnalysisResultData(
                 name="EPC",
                 value=epc,
                 chisq=fit_data.reduced_chisq,
                 quality=quality,
+                extra=metadata,
             )
         )
 
         # Correction for 1Q depolarizing channel if EPGs are provided
-        if self.options.epg_1_qubit and self._num_qubits == 2:
+        if self.options.epg_1_qubit and num_qubits == 2:
             epc = _exclude_1q_error(
                 epc=epc,
                 qubits=self._physical_qubits,
                 gate_counts_per_clifford=self._gate_counts_per_clifford,
                 extra_analyses=self.options.epg_1_qubit,
             )
-            extra_entries.append(
+            outcomes.append(
                 AnalysisResultData(
                     name="EPC_corrected",
                     value=epc,
                     chisq=fit_data.reduced_chisq,
                     quality=quality,
+                    extra=metadata,
                 )
             )
 
@@ -227,20 +251,33 @@ class RBAnalysis(curve.CurveAnalysis):
             )
             if epg_dict:
                 for gate, epg_val in epg_dict.items():
-                    extra_entries.append(
+                    outcomes.append(
                         AnalysisResultData(
                             name=f"EPG_{gate}",
                             value=epg_val,
                             chisq=fit_data.reduced_chisq,
                             quality=quality,
+                            extra=metadata,
                         )
                     )
 
-        return extra_entries
+        return outcomes
 
-    def _run_analysis(
-        self, experiment_data: ExperimentData
-    ) -> Tuple[List[AnalysisResultData], List["pyplot.Figure"]]:
+    def _initialize(
+        self,
+        experiment_data: ExperimentData,
+    ):
+        """Initialize curve analysis with experiment data.
+
+        This method is called ahead of other processing.
+
+        Args:
+            experiment_data: Experiment data to analyze.
+
+        Raises:
+            AnalysisError: When circuit metadata for ops count is missing.
+        """
+        super()._initialize(experiment_data)
 
         if self.options.gate_error_ratio is not None:
             # If gate error ratio is not False, EPG analysis is enabled.
@@ -275,7 +312,8 @@ class RBAnalysis(curve.CurveAnalysis):
                     gate_error_ratio[gate] = _lookup_epg_ratio(gate, len(qinds))
                 self.set_options(gate_error_ratio=gate_error_ratio)
 
-        return super()._run_analysis(experiment_data)
+        # Get qubit number
+        self._physical_qubits = experiment_data.metadata["physical_qubits"]
 
 
 def _lookup_epg_ratio(gate: str, n_qubits: int) -> Union[None, int]:
@@ -365,7 +403,7 @@ def _calculate_epg(
     gate_error_ratio: Dict[str, float],
     gate_counts_per_clifford: Dict[QubitGateTuple, float],
 ) -> Dict[str, Union[float, "UFloat"]]:
-    """A helper mehtod to compute EPGs of basis gates from fit EPC value.
+    """A helper method to compute EPGs of basis gates from fit EPC value.
 
     Args:
         epc: Error per Clifford.
@@ -391,7 +429,7 @@ def _exclude_1q_error(
     epc: Union[float, "UFloat"],
     qubits: Tuple[int, int],
     gate_counts_per_clifford: Dict[QubitGateTuple, float],
-    extra_analyses: Optional[List[DbAnalysisResultV1]],
+    extra_analyses: Optional[List[AnalysisResult]],
 ) -> Union[float, "UFloat"]:
     """A helper method to exclude contribution of single qubit gates from 2Q EPC.
 
@@ -406,17 +444,17 @@ def _exclude_1q_error(
     """
     # Extract EPC of non-measured qubits from previous experiments
     epg_1qs = {}
-    for analyis_data in extra_analyses:
+    for analysis_data in extra_analyses:
         if (
-            not analyis_data.name.startswith("EPG_")
-            or len(analyis_data.device_components) > 1
-            or not str(analyis_data.device_components[0]).startswith("Q")
+            not analysis_data.name.startswith("EPG_")
+            or len(analysis_data.device_components) > 1
+            or not str(analysis_data.device_components[0]).startswith("Q")
         ):
             continue
-        qind = analyis_data.device_components[0]._index
-        gate = analyis_data.name[4:]
+        qind = analysis_data.device_components[0]._index
+        gate = analysis_data.name[4:]
         formatted_key = (qind,), gate
-        epg_1qs[formatted_key] = analyis_data.value
+        epg_1qs[formatted_key] = analysis_data.value
 
     if not epg_1qs:
         return epc

@@ -13,25 +13,24 @@
 """Experiment integration tests."""
 
 import os
-from unittest import mock, SkipTest, skipIf
+import unittest
+from unittest import mock, skipIf
 import contextlib
 import numpy as np
 
 from qiskit import transpile
 from qiskit.providers import JobStatus
 from qiskit.test.reference_circuits import ReferenceCircuits
-
-from qiskit.providers.ibmq.experiment import (
-    IBMExperimentService,
-    ResultQuality,
-    IBMExperimentEntryNotFound,
-)
-
 from qiskit.test import QiskitTestCase
-from qiskit_experiments.database_service import DbExperimentDataV1 as DbExperimentData
-from qiskit_experiments.database_service import DbAnalysisResultV1 as AnalysisResult
-from qiskit_experiments.database_service.db_experiment_data import ExperimentStatus
-from qiskit_experiments.database_service.exceptions import DbExperimentEntryNotFound
+from qiskit_ibm_experiment import IBMExperimentService
+from qiskit_ibm_experiment.exceptions import IBMExperimentEntryNotFound
+
+# from qiskit_experiments.database_service import DbExperimentDataV1 as DbExperimentData
+from qiskit_experiments.framework import ExperimentData
+from qiskit_experiments.framework.experiment_data import ExperimentStatus
+from qiskit_experiments.framework import AnalysisResult
+from qiskit_experiments.database_service.exceptions import ExperimentEntryNotFound
+
 
 from ..decorators import requires_provider, requires_device
 
@@ -46,15 +45,16 @@ class TestExperimentDataIntegration(QiskitTestCase):
         # pylint: disable=arguments-differ
         super().setUpClass()
         cls.provider = cls._setup_provider()  # pylint: disable=no-value-for-parameter
-        if not cls.provider.has_service("experiment"):
-            raise SkipTest("Not authorized to use experiment service.")
+        cls.service = IBMExperimentService(
+            url=os.getenv("QISKIT_IBM_STAGING_API_URL"),
+            token=os.getenv("QISKIT_IBM_STAGING_API_TOKEN"),
+        )
 
         cls.backend = cls._setup_backend()  # pylint: disable=no-value-for-parameter
-        cls.device_components = cls.provider.experiment.device_components(cls.backend.name())
-        if not cls.device_components:
-            raise SkipTest("No device components found.")
+        cls.device_components = cls.service.device_components(cls.backend.name())
+        if not cls.device_components or len(cls.device_components) == 0:
+            print("WARNING: No device components found.")
         cls.circuit = transpile(ReferenceCircuits.bell(), cls.backend)
-        cls.experiment = cls.provider.experiment
 
     @classmethod
     @requires_provider
@@ -71,7 +71,7 @@ class TestExperimentDataIntegration(QiskitTestCase):
     def setUp(self) -> None:
         """Test level setup."""
         super().setUp()
-        self.experiments_to_delete = []
+        self.services_to_delete = []
         self.results_to_delete = []
         self.jobs_to_cancel = []
 
@@ -80,13 +80,13 @@ class TestExperimentDataIntegration(QiskitTestCase):
         for result_uuid in self.results_to_delete:
             try:
                 with mock.patch("builtins.input", lambda _: "y"):
-                    self.experiment.delete_analysis_result(result_uuid)
+                    self.service.delete_analysis_result(result_uuid)
             except Exception as err:  # pylint: disable=broad-except
                 self.log.info("Unable to delete analysis result %s: %s", result_uuid, err)
-        for expr_uuid in self.experiments_to_delete:
+        for expr_uuid in self.services_to_delete:
             try:
                 with mock.patch("builtins.input", lambda _: "y"):
-                    self.experiment.delete_experiment(expr_uuid)
+                    self.service.delete_experiment(expr_uuid)
             except Exception as err:  # pylint: disable=broad-except
                 self.log.info("Unable to delete experiment %s: %s", expr_uuid, err)
         for job in self.jobs_to_cancel:
@@ -96,7 +96,9 @@ class TestExperimentDataIntegration(QiskitTestCase):
 
     def test_add_data_job(self):
         """Test add job to experiment data."""
-        exp_data = DbExperimentData(backend=self.backend, experiment_type="qiskit_test")
+        exp_data = ExperimentData(
+            backend=self.backend, experiment_type="qiskit_test", service=self.service
+        )
         transpiled = transpile(ReferenceCircuits.bell(), self.backend)
         transpiled.metadata = {"foo": "bar"}
         job = self._run_circuit(transpiled)
@@ -112,7 +114,8 @@ class TestExperimentDataIntegration(QiskitTestCase):
     def test_new_experiment_data(self):
         """Test creating a new experiment data."""
         metadata = {"complex": 2 + 3j, "numpy": np.zeros(2)}
-        exp_data = DbExperimentData(
+        exp_data = ExperimentData(
+            service=self.service,
             backend=self.backend,
             experiment_type="qiskit_test",
             tags=["foo", "bar"],
@@ -128,10 +131,10 @@ class TestExperimentDataIntegration(QiskitTestCase):
             job_ids.append(job.job_id())
 
         exp_data.save()
-        self.experiments_to_delete.append(exp_data.experiment_id)
+        self.services_to_delete.append(exp_data.experiment_id)
 
         credentials = self.backend.provider().credentials
-        rexp = DbExperimentData.load(exp_data.experiment_id, self.experiment)
+        rexp = ExperimentData.load(exp_data.experiment_id, self.service)
         self._verify_experiment_data(exp_data, rexp)
         self.assertEqual(credentials.hub, rexp.hub)  # pylint: disable=no-member
         self.assertEqual(credentials.group, rexp.group)  # pylint: disable=no-member
@@ -149,7 +152,7 @@ class TestExperimentDataIntegration(QiskitTestCase):
         exp_data.notes = "some notes"
         exp_data.save()
 
-        rexp = DbExperimentData.load(exp_data.experiment_id, self.experiment)
+        rexp = ExperimentData.load(exp_data.experiment_id, self.service)
         self._verify_experiment_data(exp_data, rexp)
 
     def _verify_experiment_data(self, expected, actual):
@@ -172,15 +175,15 @@ class TestExperimentDataIntegration(QiskitTestCase):
             value=result_data,
             device_components=self.device_components,
             experiment_id=exp_data.experiment_id,
-            quality=ResultQuality.GOOD,
+            quality="good",
             verified=True,
             tags=["foo", "bar"],
-            service=self.experiment,
+            service=self.service,
         )
         exp_data.add_analysis_results(aresult)
         exp_data.save()
 
-        rresult = AnalysisResult.load(aresult.result_id, self.experiment)
+        rresult = AnalysisResult.load(aresult.result_id, self.service)
         self.assertEqual(exp_data.experiment_id, rresult.experiment_id)
         self._verify_analysis_result(aresult, rresult)
 
@@ -190,12 +193,12 @@ class TestExperimentDataIntegration(QiskitTestCase):
 
         rdata = {"complex": 2 + 3j, "numpy": np.zeros(2)}
         aresult.value = rdata
-        aresult.quality = ResultQuality.GOOD
+        aresult.quality = "good"
         aresult.verified = True
         aresult.tags = ["foo", "bar"]
         aresult.save()
 
-        rexp = DbExperimentData.load(exp_data.experiment_id, self.experiment)
+        rexp = ExperimentData.load(exp_data.experiment_id, self.service)
         rresult = rexp.analysis_results(0)
         self._verify_analysis_result(aresult, rresult)
 
@@ -219,10 +222,10 @@ class TestExperimentDataIntegration(QiskitTestCase):
         with mock.patch("builtins.input", lambda _: "y"):
             exp_data.delete_analysis_result(0)
             exp_data.save()
-        rexp = DbExperimentData.load(exp_data.experiment_id, self.experiment)
-        self.assertRaises(DbExperimentEntryNotFound, rexp.analysis_results, aresult.result_id)
+        rexp = ExperimentData.load(exp_data.experiment_id, self.service)
+        self.assertRaises(ExperimentEntryNotFound, rexp.analysis_results, aresult.result_id)
         self.assertRaises(
-            IBMExperimentEntryNotFound, self.experiment.analysis_result, aresult.result_id
+            IBMExperimentEntryNotFound, self.service.analysis_result, aresult.result_id
         )
 
     def test_add_figures(self):
@@ -237,8 +240,8 @@ class TestExperimentDataIntegration(QiskitTestCase):
                 exp_data.add_figures(
                     figures=hello_bytes, figure_names=figure_name, save_figure=True
                 )
-                rexp = DbExperimentData.load(exp_data.experiment_id, self.experiment)
-                self.assertEqual(rexp.figure(idx), hello_bytes)
+                rexp = ExperimentData.load(exp_data.experiment_id, self.service)
+                self.assertEqual(rexp.figure(idx).figure, hello_bytes)
 
     def test_add_figures_plot(self):
         """Test adding a matplotlib figure."""
@@ -250,7 +253,7 @@ class TestExperimentDataIntegration(QiskitTestCase):
         exp_data = self._create_experiment_data()
         exp_data.add_figures(figure, save_figure=True)
 
-        rexp = DbExperimentData.load(exp_data.experiment_id, self.experiment)
+        rexp = ExperimentData.load(exp_data.experiment_id, self.service)
         self.assertTrue(rexp.figure(0))
 
     def test_add_figures_file(self):
@@ -263,8 +266,8 @@ class TestExperimentDataIntegration(QiskitTestCase):
             file.write(hello_bytes)
 
         exp_data.add_figures(figures=file_name, save_figure=True)
-        rexp = DbExperimentData.load(exp_data.experiment_id, self.experiment)
-        self.assertEqual(rexp.figure(0), hello_bytes)
+        rexp = ExperimentData.load(exp_data.experiment_id, self.service)
+        self.assertEqual(rexp.figure(0).figure, hello_bytes)
 
     def test_update_figure(self):
         """Test updating a figure."""
@@ -273,15 +276,15 @@ class TestExperimentDataIntegration(QiskitTestCase):
         figure_name = "hello.svg"
 
         exp_data.add_figures(figures=hello_bytes, figure_names=figure_name, save_figure=True)
-        self.assertEqual(exp_data.figure(0), hello_bytes)
+        self.assertEqual(exp_data.figure(0).figure, hello_bytes)
 
         friend_bytes = str.encode("hello friend")
         exp_data.add_figures(
             figures=friend_bytes, figure_names=figure_name, overwrite=True, save_figure=True
         )
-        rexp = DbExperimentData.load(exp_data.experiment_id, self.experiment)
-        self.assertEqual(rexp.figure(0), friend_bytes)
-        self.assertEqual(rexp.figure(figure_name), friend_bytes)
+        rexp = ExperimentData.load(exp_data.experiment_id, self.service)
+        self.assertEqual(rexp.figure(0).figure, friend_bytes)
+        self.assertEqual(rexp.figure(figure_name).figure, friend_bytes)
 
     def test_delete_figure(self):
         """Test deleting a figure."""
@@ -294,10 +297,10 @@ class TestExperimentDataIntegration(QiskitTestCase):
             exp_data.delete_figure(0)
             exp_data.save()
 
-        rexp = DbExperimentData.load(exp_data.experiment_id, self.experiment)
+        rexp = ExperimentData.load(exp_data.experiment_id, self.service)
         self.assertRaises(IBMExperimentEntryNotFound, rexp.figure, figure_name)
         self.assertRaises(
-            IBMExperimentEntryNotFound, self.experiment.figure, exp_data.experiment_id, figure_name
+            IBMExperimentEntryNotFound, self.service.figure, exp_data.experiment_id, figure_name
         )
 
     def test_save_all(self):
@@ -315,32 +318,32 @@ class TestExperimentDataIntegration(QiskitTestCase):
         exp_data.add_figures(hello_bytes, figure_names="hello.svg")
         exp_data.save()
 
-        rexp = DbExperimentData.load(exp_data.experiment_id, self.experiment)
+        rexp = ExperimentData.load(exp_data.experiment_id, self.service)
         # Experiment tag order is not necessarily preserved
         # so compare tags with a predictable sort order.
         self.assertEqual(["bar", "foo"], sorted(rexp.tags))
         self.assertEqual(aresult.result_id, rexp.analysis_results(0).result_id)
-        self.assertEqual(hello_bytes, rexp.figure(0))
+        self.assertEqual(hello_bytes, rexp.figure(0).figure)
 
         exp_data.delete_analysis_result(0)
         exp_data.delete_figure(0)
         with mock.patch("builtins.input", lambda _: "y"):
             exp_data.save()
 
-        rexp = DbExperimentData.load(exp_data.experiment_id, self.experiment)
+        rexp = ExperimentData.load(exp_data.experiment_id, self.service)
         self.assertRaises(IBMExperimentEntryNotFound, rexp.figure, "hello.svg")
-        self.assertRaises(DbExperimentEntryNotFound, rexp.analysis_results, aresult.result_id)
+        self.assertRaises(ExperimentEntryNotFound, rexp.analysis_results, aresult.result_id)
 
     def test_set_service_job(self):
         """Test setting service with a job."""
-        exp_data = DbExperimentData(experiment_type="qiskit_test")
+        exp_data = ExperimentData(experiment_type="qiskit_test", service=self.service)
         job = self._run_circuit()
         exp_data.add_jobs(job)
         exp_data.save()
-        self.experiments_to_delete.append(exp_data.experiment_id)
+        self.services_to_delete.append(exp_data.experiment_id)
 
-        rexp = self.experiment.experiment(exp_data.experiment_id)
-        self.assertEqual([job.job_id()], rexp["job_ids"])
+        rexp = self.service.experiment(exp_data.experiment_id)
+        self.assertEqual([job.job_id()], rexp.job_ids)
 
     def test_auto_save_experiment(self):
         """Test auto save."""
@@ -364,13 +367,13 @@ class TestExperimentDataIntegration(QiskitTestCase):
             with self.subTest(func=func):
                 with mock.patch.object(
                     IBMExperimentService,
-                    "update_experiment",
-                    wraps=exp_data.service.update_experiment,
+                    "create_or_update_experiment",
+                    wraps=exp_data.service.create_or_update_experiment,
                 ) as mocked:
                     func(*params)
                     mocked.assert_called_once()
-                    _, kwargs = mocked.call_args
-                    self.assertEqual(exp_data.experiment_id, kwargs["experiment_id"])
+                    data = mocked.call_args[0][0]
+                    self.assertEqual(exp_data.experiment_id, data.experiment_id)
                     mocked.reset_mock()
 
     def test_auto_save_figure(self):
@@ -455,18 +458,20 @@ class TestExperimentDataIntegration(QiskitTestCase):
             with self.subTest(attr=attr):
                 with mock.patch.object(
                     IBMExperimentService,
-                    "update_analysis_result",
-                    wraps=exp_data.service.update_analysis_result,
+                    "create_or_update_analysis_result",
+                    wraps=exp_data.service.create_or_update_analysis_result,
                 ) as mocked:
                     setattr(aresult, attr, value)
                     mocked.assert_called_once()
-                    _, kwargs = mocked.call_args
-                    self.assertEqual(aresult.result_id, kwargs["result_id"])
+                    data = mocked.call_args[0][0]
+                    self.assertEqual(aresult.result_id, data.result_id)
                     mocked.reset_mock()
 
     def test_block_for_results(self):
         """Test blocking for jobs"""
-        exp_data = DbExperimentData(backend=self.backend, experiment_type="qiskit_test")
+        exp_data = ExperimentData(
+            backend=self.backend, experiment_type="qiskit_test", service=self.service
+        )
         jobs = []
         for _ in range(2):
             job = self._run_circuit()
@@ -478,9 +483,11 @@ class TestExperimentDataIntegration(QiskitTestCase):
 
     def _create_experiment_data(self):
         """Create an experiment data."""
-        exp_data = DbExperimentData(backend=self.backend, experiment_type="qiskit_test")
+        exp_data = ExperimentData(
+            backend=self.backend, experiment_type="qiskit_test", verbose=False, service=self.service
+        )
         exp_data.save()
-        self.experiments_to_delete.append(exp_data.experiment_id)
+        self.services_to_delete.append(exp_data.experiment_id)
         return exp_data
 
     def _create_analysis_result(self):
@@ -503,3 +510,7 @@ class TestExperimentDataIntegration(QiskitTestCase):
         job = self.backend.run(circuit, shots=1)
         self.jobs_to_cancel.append(job)
         return job
+
+
+if __name__ == "__main__":
+    unittest.main()

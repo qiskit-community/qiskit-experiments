@@ -16,14 +16,13 @@ from typing import List, Tuple
 import numpy as np
 
 import qiskit_experiments.curve_analysis as curve
-from qiskit_experiments.curve_analysis import ResonanceAnalysis
 from qiskit_experiments.framework import AnalysisResultData, ExperimentData
 from qiskit_experiments.framework.matplotlib import get_non_gui_ax
 from qiskit_experiments.data_processing.nodes import ProjectorType
 from qiskit_experiments.database_service.device_component import Resonator
 
 
-class ResonatorSpectroscopyAnalysis(ResonanceAnalysis):
+class ResonatorSpectroscopyAnalysis(curve.ResonanceAnalysis):
     """Class to analysis resonator spectroscopy."""
 
     @classmethod
