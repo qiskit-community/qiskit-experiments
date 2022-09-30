@@ -12,6 +12,7 @@
 """
 Interleaved RB Experiment class.
 """
+import warnings
 from typing import Union, Iterable, Optional, List, Sequence, Tuple
 
 from numpy.random import Generator
@@ -91,17 +92,20 @@ class InterleavedRB(StandardRB):
                 * it has an invalid delay (e.g. violating the timing constraints of the backend)
         """
         # Validations of interleaved_element
+        # - validate number of qubits of interleaved_element
         if len(qubits) != interleaved_element.num_qubits:
             raise QiskitError(
                 f"Mismatch in number of qubits between qubits ({len(qubits)})"
                 f" and interleaved element ({interleaved_element.num_qubits})."
             )
+        # - validate if interleaved_element is Clifford
         try:
             self._interleaved_elem = Clifford(interleaved_element)
         except QiskitError as err:
             raise QiskitError(
                 f"Interleaved element {interleaved_element.name} could not be converted to Clifford."
             ) from err
+        # - validate delays in interleaved_element
         delay_ops = []
         if isinstance(interleaved_element, Delay):
             delay_ops = [interleaved_element]
@@ -122,6 +126,9 @@ class InterleavedRB(StandardRB):
                         f" constraints of the backend {backend}. It could be {valid_duration}[dt]."
                         " Use BackendTiming to set valid duration for delays."
                     )
+        # Warnings
+        if isinstance(interleaved_element, QuantumCircuit) and interleaved_element.calibrations:
+            warnings.warn("Calibrations in interleaved circuit are ignored", UserWarning)
 
         super().__init__(
             qubits,

@@ -13,13 +13,16 @@
 """Test for randomized benchmarking experiments."""
 from test.base import QiskitExperimentsTestCase
 
+import copy
+
 import numpy as np
 from ddt import ddt, data, unpack
 
 from qiskit.circuit import Delay, QuantumCircuit
 from qiskit.circuit.library import SXGate, CXGate, TGate, CZGate
 from qiskit.exceptions import QiskitError
-from qiskit.providers.fake_provider import FakeManila, FakeWashington
+from qiskit.providers.fake_provider import FakeManilaV2, FakeWashington
+from qiskit.pulse import Schedule, InstructionScheduleMap
 from qiskit.quantum_info import Operator
 from qiskit_aer import AerSimulator
 from qiskit_aer.noise import NoiseModel, depolarizing_error
@@ -47,7 +50,7 @@ class TestStandardRB(QiskitExperimentsTestCase, RBTestMixin):
     def setUp(self):
         """Setup the tests."""
         super().setUp()
-        self.backend = FakeManila()
+        self.backend = FakeManilaV2()
 
     # ### Tests for configuration ###
     @data(
@@ -162,6 +165,36 @@ class TestStandardRB(QiskitExperimentsTestCase, RBTestMixin):
         self.assertNotEqual(circs1[1].decompose(), circs2[1].decompose())
         self.assertNotEqual(circs1[2].decompose(), circs2[2].decompose())
 
+    # ### Tests for transpiled circuit generation ###
+    def test_calibrations_via_transpile_options(self):
+        """Test if calibrations given as transpile_options show up in transpiled circuits."""
+        qubits = (2,)
+        my_sched = Schedule(name="custom_sx_gate")
+        my_inst_map = InstructionScheduleMap()
+        my_inst_map.add(SXGate(), qubits, my_sched)
+
+        exp = rb.StandardRB(qubits=qubits, lengths=[3], num_samples=4, backend=self.backend)
+        exp.set_transpile_options(inst_map=my_inst_map)
+        transpiled = exp._transpiled_circuits()
+        for qc in transpiled:
+            self.assertTrue(qc.calibrations)
+            self.assertTrue(qc.has_calibration_for((SXGate(), [qc.qubits[q] for q in qubits], [])))
+            self.assertEqual(qc.calibrations["sx"][(qubits, tuple())], my_sched)
+
+    def test_calibrations_via_custom_backend(self):
+        """Test if calibrations given as custom backend show up in transpiled circuits."""
+        qubits = (2,)
+        my_sched = Schedule(name="custom_sx_gate")
+        my_backend = copy.deepcopy(self.backend)
+        my_backend.target["sx"][qubits].calibration = my_sched
+
+        exp = rb.StandardRB(qubits=qubits, lengths=[3], num_samples=4, backend=my_backend)
+        transpiled = exp._transpiled_circuits()
+        for qc in transpiled:
+            self.assertTrue(qc.calibrations)
+            self.assertTrue(qc.has_calibration_for((SXGate(), [qc.qubits[q] for q in qubits], [])))
+            self.assertEqual(qc.calibrations["sx"][(qubits, tuple())], my_sched)
+
 
 @ddt
 class TestInterleavedRB(QiskitExperimentsTestCase, RBTestMixin):
@@ -170,7 +203,7 @@ class TestInterleavedRB(QiskitExperimentsTestCase, RBTestMixin):
     def setUp(self):
         """Setup the tests."""
         super().setUp()
-        self.backend = FakeManila()
+        self.backend = FakeManilaV2()
         self.backend_with_timing_constraint = FakeWashington()
 
     # ### Tests for configuration ###
@@ -273,6 +306,7 @@ class TestInterleavedRB(QiskitExperimentsTestCase, RBTestMixin):
         """Test delay instruction can be interleaved."""
         # See qiskit-experiments/#727 for details
         from qiskit_experiments.framework.backend_timing import BackendTiming
+
         timing = BackendTiming(self.backend)
         exp = rb.InterleavedRB(
             interleaved_element=Delay(timing.round_delay(time=1.0e-7)),

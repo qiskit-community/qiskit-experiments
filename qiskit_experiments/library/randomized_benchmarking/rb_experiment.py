@@ -24,6 +24,7 @@ from numpy.random.bit_generator import BitGenerator, SeedSequence
 from qiskit.circuit import QuantumCircuit, Instruction, Barrier
 from qiskit.exceptions import QiskitError
 from qiskit.providers.backend import Backend, BackendV2
+from qiskit.pulse.instruction_schedule_map import CalibrationPublisher
 from qiskit.quantum_info import Clifford
 from qiskit.quantum_info.random import random_clifford
 from qiskit_experiments.framework import BaseExperiment, Options
@@ -138,6 +139,14 @@ class StandardRB(BaseExperiment, RestlessMixin):
         )
 
         return options
+
+    # TODO: Comment out after terra#8759 is released
+    # def _set_backend(self, backend: Backend):
+    #     """Set the backend V2 for RB experiments since RB experiments only support BackendV2.
+    #     If BackendV1 is provided, it is converted to V2 and stored.
+    #     """
+    #     self._backend = BackendV2Converter(backend)
+    #     self._backend_data = BackendData(self._backend)
 
     def circuits(self) -> List[QuantumCircuit]:
         """Return a list of RB circuits.
@@ -305,13 +314,45 @@ class StandardRB(BaseExperiment, RestlessMixin):
             )
             or self.transpile_options.get("optimization_level", 0) != 0
         )
-        if self.num_qubits <= 2 and not has_custom_transpile_option:
+        if self.num_qubits > 2 or has_custom_transpile_option:
+            transpiled = super()._transpiled_circuits()
+        else:
             transpiled = [
                 _transpile_clifford_circuit(circ, layout=self.physical_qubits)
                 for circ in self.circuits()
             ]
-        else:
-            transpiled = super()._transpiled_circuits()
+            # Set custom calibrations provided in backend
+            # TODO: Remove V2 restriction after V2 conversion in _set_backend
+            if self.backend and isinstance(self.backend, BackendV2):
+                # assert self.num_qubits <= 2
+                qargs_patterns = [self.physical_qubits]  # for self.num_qubits == 1
+                if self.num_qubits == 2:
+                    qargs_patterns = [
+                        (self.physical_qubits[0],),
+                        (self.physical_qubits[1],),
+                        self.physical_qubits,
+                        (self.physical_qubits[1], self.physical_qubits[0]),
+                    ]
+
+                instructions = []  # (op_name, qargs) for each element where qargs means qubit tuple
+                for qargs in qargs_patterns:
+                    for op_name in self.backend.target.operation_names_for_qargs(qargs):
+                        instructions.append((op_name, qargs))
+
+                common_calibrations = defaultdict(dict)
+                for op_name, qargs in instructions:
+                    inst_prop = self.backend.target[op_name][qargs]
+                    if inst_prop is None:
+                        continue
+                    schedule = inst_prop.calibration
+                    if schedule is None:
+                        continue
+                    publisher = schedule.metadata.get("publisher", CalibrationPublisher.QISKIT)
+                    if publisher != CalibrationPublisher.BACKEND_PROVIDER:
+                        common_calibrations[op_name][(qargs, tuple())] = schedule
+
+                for circ in transpiled:
+                    circ.calibrations = common_calibrations
 
         if self.analysis.options.get("gate_error_ratio", None) is None:
             # Gate errors are not computed, then counting ops is not necessary.
