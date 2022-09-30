@@ -153,6 +153,7 @@ class CurveAnalysis(BaseCurveAnalysis):
                     "color": series_def.plot_color,
                     "symbol": series_def.plot_symbol,
                     "canvas": series_def.canvas,
+                    "label": series_def.name,
                 }
             self.plotter.set_figure_options(series_params=series_params)
 

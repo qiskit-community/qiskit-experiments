@@ -88,6 +88,30 @@ class BaseDrawer(ABC):
         to be overwritten with their value from the plotter. This means that the drawer instance would
         be modified indirectly when the :meth:`BasePlotter.figure` method is called. This must be kept
         in mind when creating subclasses of :class:`BaseDrawer`.
+
+    Legends
+    =======
+
+    Legends are generated based off of drawn graphics and their labels or names. These are managed by
+    individual drawer subclasses, and generated when the :meth:`format_canvas` method is called. Legend
+    entries are created when any ``draw_*`` function is called with ``legend=True``. There are three
+    parameters in ``draw_*`` functions that are relevant to legend generation: ``name``, ``label``, and
+    ``legend``. If a user would like the graphics drawn onto a canvas, by a call to ``draw_*``, to be
+    used as the graphical component of a legend entry; they should set ``legend=True``. The legend entry
+    label can be defined in three locations: the ``label`` parameter of ``draw_*`` functions, the
+    ``"label"`` entry in ``series_params``, and the ``name`` parameter of ``draw_*`` functions. These
+    three possible label variables have a search hierarchy given by the order in the aforementioned list.
+    If one of the label variables is ``None``, the next is used. If all are ``None``, a legend entry is
+    not generated for the given series.
+
+    The recommended way to customize the legend entries is as follows:
+        1. Set the labels in the ``series_params`` option, keyed on the series names.
+        2. Initialize the canvas.
+        3. Call relevant ``draw_*`` methods to create the figure. When calling the ``draw_*`` method that
+           creates the graphic you would like to use in the legend, set ``legend=True``. For example,
+           ``drawer.draw_scatter(...,legend=True)`` would use the scatter points as the legend graphics
+           for the given series.
+        4. Format the canvas and call :meth:`figure` to get the figure.
     """
 
     def __init__(self):
@@ -169,10 +193,11 @@ class BaseDrawer(ABC):
             yval_unit (str): Unit of y values. See ``xval_unit`` for details.
             figure_title (str): Title of the figure. Defaults to None, i.e. nothing is shown.
             series_params (Dict[str, Dict[str, Any]]): A dictionary of parameters for each series.
-                This is keyed on the name for each series. Sub-dictionary is expected to have following
-                three configurations, "canvas", "color", and "symbol"; "canvas" is the integer index of
-                axis (when multi-canvas plot is set), "color" is the color of the series, and "symbol" is
-                the marker style of the series. Defaults to an empty dictionary.
+                This is keyed on the name for each series. Sub-dictionary is expected to have the
+                following three configurations, "canvas", "color", "symbol" and "label"; "canvas" is the
+                integer index of axis (when multi-canvas plot is set), "color" is the color of the drawn
+                graphics, "symbol" is the series marker style for scatter plots, and "label" is a user
+                provided series label that appears in the legend.
             custom_style (PlotStyle): The style definition to use when drawing. This overwrites style
                 parameters in ``default_style`` in :attr:`options`. Defaults to an empty PlotStyle
                 instance (i.e., :code-block:`PlotStyle()`).
@@ -248,6 +273,31 @@ class BaseDrawer(ABC):
     def format_canvas(self):
         """Final cleanup for the canvas appearance."""
 
+    def label_for(self, name: Optional[str], label: Optional[str]) -> Optional[str]:
+        """Get the legend label for the given series, with optional overrides.
+
+        This method determines the legend label for a series, with optional overrides ``label`` and the
+        ``"label"`` entry in the ``series_params`` option (see :attr:`options`). ``label`` is returned if
+        it is not ``None``, as this is the override with the highest priority. If it is ``None``, then
+        the drawer will look for a ``"label"`` entry in ``series_params`, for the series identified by
+        ``name``. If this entry doesn't exist, or is ``None``, then ``name`` is used as the label. If all
+        these options are ``None``, then ``None`` is returned; signifying that a legend entry for the
+        provided series should not be generated.
+
+        Args:
+            name: The name of the series.
+            label: Optional label override.
+
+        Returns:
+            Optional[str]: The legend entry label, or ``None``.
+        """
+        if label is not None:
+            return label
+
+        if name:
+            return self.figure_options.series_params.get(name, {}).get("label", name)
+        return None
+
     @abstractmethod
     def draw_scatter(
         self,
@@ -256,8 +306,8 @@ class BaseDrawer(ABC):
         x_err: Optional[Sequence[float]] = None,
         y_err: Optional[Sequence[float]] = None,
         name: Optional[str] = None,
-        legend_entry: bool = False,
-        legend_label: Optional[str] = None,
+        label: Optional[str] = None,
+        legend: bool = False,
         **options,
     ):
         """Draw scatter points, with optional error-bars.
@@ -268,8 +318,12 @@ class BaseDrawer(ABC):
             x_err: Optional error for X values.
             y_err: Optional error for Y values.
             name: Name of this series.
-            legend_entry: Whether the drawn area must have a legend entry. Defaults to False.
-            legend_label: Optional legend label. ``name`` will be used if ``legend_label` is None.
+            label: Optional legend label to override ``name`` and ``series_params``.
+            legend: Whether the drawn area must have a legend entry. Defaults to False.
+                The series label in the legend will be ``label`` if it is not None. If it is, then
+                ``series_params`` is searched for a "label" entry for the series identified by ``name``.
+                If this is also ``None``, then ``name`` is used as the fallback. If no ``name`` is
+                provided, then no legend entry is generated.
             options: Valid options for the drawer backend API.
         """
 
@@ -279,8 +333,8 @@ class BaseDrawer(ABC):
         x_data: Sequence[float],
         y_data: Sequence[float],
         name: Optional[str] = None,
-        legend_entry: bool = False,
-        legend_label: Optional[str] = None,
+        label: Optional[str] = None,
+        legend: bool = False,
         **options,
     ):
         """Draw fit line.
@@ -289,8 +343,12 @@ class BaseDrawer(ABC):
             x_data: X values.
             y_data: Fit Y values.
             name: Name of this series.
-            legend_entry: Whether the drawn area must have a legend entry. Defaults to False.
-            legend_label: Optional legend label. ``name`` will be used if ``legend_label` is None.
+            label: Optional legend label to override ``name`` and ``series_params``.
+            legend: Whether the drawn area must have a legend entry. Defaults to False.
+                The series label in the legend will be ``label`` if it is not None. If it is, then
+                ``series_params`` is searched for a "label" entry for the series identified by ``name``.
+                If this is also ``None``, then ``name`` is used as the fallback. If no ``name`` is
+                provided, then no legend entry is generated.
             options: Valid options for the drawer backend API.
         """
 
@@ -301,8 +359,8 @@ class BaseDrawer(ABC):
         y_ub: Sequence[float],
         y_lb: Sequence[float],
         name: Optional[str] = None,
-        legend_entry: bool = False,
-        legend_label: Optional[str] = None,
+        label: Optional[str] = None,
+        legend: bool = False,
         **options,
     ):
         """Draw filled area as a function of x-values.
@@ -312,8 +370,12 @@ class BaseDrawer(ABC):
             y_ub: The upper boundary of Y values.
             y_lb: The lower boundary of Y values.
             name: Name of this series.
-            legend_entry: Whether the drawn area must have a legend entry. Defaults to False.
-            legend_label: Optional legend label. ``name`` will be used if ``legend_label` is None.
+            label: Optional legend label to override ``name`` and ``series_params``.
+            legend: Whether the drawn area must have a legend entry. Defaults to False.
+                The series label in the legend will be ``label`` if it is not None. If it is, then
+                ``series_params`` is searched for a "label" entry for the series identified by ``name``.
+                If this is also ``None``, then ``name`` is used as the fallback. If no ``name`` is
+                provided, then no legend entry is generated.
             options: Valid options for the drawer backend API.
         """
 
@@ -324,8 +386,8 @@ class BaseDrawer(ABC):
         x_lb: Sequence[float],
         y_data: Sequence[float],
         name: Optional[str] = None,
-        legend_entry: bool = False,
-        legend_label: Optional[str] = None,
+        label: Optional[str] = None,
+        legend: bool = False,
         **options,
     ):
         """Draw filled area as a function of y-values.
@@ -335,8 +397,12 @@ class BaseDrawer(ABC):
             x_lb: The lower boundary of X values.
             y_data: Y values.
             name: Name of this series.
-            legend_entry: Whether the drawn area must have a legend entry. Defaults to False.
-            legend_label: Optional legend label. ``name`` will be used if ``legend_label` is None.
+            label: Optional legend label to override ``name`` and ``series_params``.
+            legend: Whether the drawn area must have a legend entry. Defaults to False.
+                The series label in the legend will be ``label`` if it is not None. If it is, then
+                ``series_params`` is searched for a "label" entry for the series identified by ``name``.
+                If this is also ``None``, then ``name`` is used as the fallback. If no ``name`` is
+                provided, then no legend entry is generated.
             options: Valid options for the drawer backend API.
         """
 

@@ -272,29 +272,31 @@ class MplDrawer(BaseDrawer):
         ind = self._series.index(name) % len(self.DefaultMarkers)
         return self.DefaultMarkers[ind]
 
-    def _update_label_in_dict(
+    def _update_label_in_options(
         self,
         options: Dict[str, any],
         name: Optional[str],
-        legend_entry: bool,
-        legend_label: Optional[str],
+        label: Optional[str] = None,
+        legend: bool = False,
     ):
         """Helper function to set the label entry in ``options`` based on given arguments.
 
+        This method uses :meth:`label_for` to get the label for the series identified by ``name``. If
+        :meth:`label_for` returns ``None``, then ``_update_label_in_options`` doesn't add a `"label"`
+        entry into ``options``. I.e., a label entry is added to ``options`` only if it is not ``None``.
+
         Args:
             options: The options dictionary being modified.
-            name: A fall-back label if ``legend_label`` is None. If None, a blank string is used.
-            legend_entry: Whether to set "label" in ``options``.
-            legend_label: Optional label. If None, ``name`` is used.
+            name: The name of the series being labelled. Used as a fall-back label if ``label`` is None
+                and no label exists in ``series_params`` for this series.
+            label: Optional legend label to override ``name`` and ``series_params``.
+            legend: Whether a label entry should be added to ``options``. USed as an easy toggle to
+                disable adding a label entry. Defaults to False.
         """
-        if legend_entry:
-            if legend_label is not None:
-                label = legend_label
-            elif name is not None:
-                label = name
-            else:
-                label = ""
-            options["label"] = label
+        if legend:
+            _label = self.label_for(name, label)
+            if _label:
+                options["label"] = _label
 
     def draw_scatter(
         self,
@@ -303,8 +305,8 @@ class MplDrawer(BaseDrawer):
         x_err: Optional[Sequence[float]] = None,
         y_err: Optional[Sequence[float]] = None,
         name: Optional[str] = None,
-        legend_entry: bool = False,
-        legend_label: Optional[str] = None,
+        label: Optional[str] = None,
+        legend: bool = False,
         **options,
     ):
 
@@ -319,7 +321,7 @@ class MplDrawer(BaseDrawer):
             "alpha": 0.8,
             "zorder": 2,
         }
-        self._update_label_in_dict(draw_options, name, legend_entry, legend_label)
+        self._update_label_in_options(draw_options, name, label, legend)
         draw_options.update(**options)
 
         if x_err is None and y_err is None:
@@ -348,8 +350,8 @@ class MplDrawer(BaseDrawer):
         x_data: Sequence[float],
         y_data: Sequence[float],
         name: Optional[str] = None,
-        legend_entry: bool = False,
-        legend_label: Optional[str] = None,
+        label: Optional[str] = None,
+        legend: bool = False,
         **options,
     ):
         series_params = self.figure_options.series_params.get(name, {})
@@ -361,7 +363,7 @@ class MplDrawer(BaseDrawer):
             "linestyle": "-",
             "linewidth": 2,
         }
-        self._update_label_in_dict(draw_ops, name, legend_entry, legend_label)
+        self._update_label_in_options(draw_ops, name, label, legend)
         draw_ops.update(**options)
         self._get_axis(axis).plot(x_data, y_data, **draw_ops)
 
@@ -371,8 +373,8 @@ class MplDrawer(BaseDrawer):
         y_ub: Sequence[float],
         y_lb: Sequence[float],
         name: Optional[str] = None,
-        legend_entry: bool = False,
-        legend_label: Optional[str] = None,
+        label: Optional[str] = None,
+        legend: bool = False,
         **options,
     ):
         series_params = self.figure_options.series_params.get(name, {})
@@ -383,7 +385,7 @@ class MplDrawer(BaseDrawer):
             "alpha": 0.1,
             "color": color,
         }
-        self._update_label_in_dict(draw_ops, name, legend_entry, legend_label)
+        self._update_label_in_options(draw_ops, name, label, legend)
         draw_ops.update(**options)
         self._get_axis(axis).fill_between(x_data, y1=y_lb, y2=y_ub, **draw_ops)
 
@@ -393,8 +395,8 @@ class MplDrawer(BaseDrawer):
         x_lb: Sequence[float],
         y_data: Sequence[float],
         name: Optional[str] = None,
-        legend_entry: bool = False,
-        legend_label: Optional[str] = None,
+        label: Optional[str] = None,
+        legend: bool = False,
         **options,
     ):
         series_params = self.figure_options.series_params.get(name, {})
@@ -405,7 +407,7 @@ class MplDrawer(BaseDrawer):
             "alpha": 0.1,
             "color": color,
         }
-        self._update_label_in_dict(draw_ops, name, legend_entry, legend_label)
+        self._update_label_in_options(draw_ops, name, label, legend)
         draw_ops.update(**options)
         self._get_axis(axis).fill_betweenx(y_data, x1=x_lb, x2=x_ub, **draw_ops)
 

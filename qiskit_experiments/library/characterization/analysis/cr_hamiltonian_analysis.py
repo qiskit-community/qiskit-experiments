@@ -79,12 +79,42 @@ class CrossResonanceHamiltonianAnalysis(curve.CompositeCurveAnalysis):
             xval_unit="s",
             ylim=(-1, 1),
             series_params={
-                "x_ctrl0": {"color": "blue", "symbol": "o", "canvas": 0},
-                "y_ctrl0": {"color": "blue", "symbol": "o", "canvas": 1},
-                "z_ctrl0": {"color": "blue", "symbol": "o", "canvas": 2},
-                "x_ctrl1": {"color": "red", "symbol": "^", "canvas": 0},
-                "y_ctrl1": {"color": "red", "symbol": "^", "canvas": 1},
-                "z_ctrl1": {"color": "red", "symbol": "^", "canvas": 2},
+                "x_ctrl0": {
+                    "canvas": 0,
+                    "color": "blue",
+                    "label": "X (ctrl0)",
+                    "symbol": "o",
+                },
+                "y_ctrl0": {
+                    "canvas": 1,
+                    "color": "blue",
+                    "label": "Y (ctrl0)",
+                    "symbol": "o",
+                },
+                "z_ctrl0": {
+                    "canvas": 2,
+                    "color": "blue",
+                    "label": "Z (ctrl0)",
+                    "symbol": "o",
+                },
+                "x_ctrl1": {
+                    "canvas": 0,
+                    "color": "red",
+                    "label": "X (ctrl1)",
+                    "symbol": "^",
+                },
+                "y_ctrl1": {
+                    "canvas": 1,
+                    "color": "red",
+                    "label": "Y (ctrl1)",
+                    "symbol": "^",
+                },
+                "z_ctrl1": {
+                    "canvas": 2,
+                    "color": "red",
+                    "label": "Z (ctrl1)",
+                    "symbol": "^",
+                },
             },
         )
 

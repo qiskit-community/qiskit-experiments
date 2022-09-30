@@ -90,7 +90,7 @@ class CurvePlotter(BasePlotter):
             plotted_formatted_data = False
             if self.data_exists_for(ser, ["x_formatted", "y_formatted", "y_formatted_err"]):
                 x, y, yerr = self.data_for(ser, ["x_formatted", "y_formatted", "y_formatted_err"])
-                self.drawer.draw_scatter(x, y, y_err=yerr, name=ser, zorder=2, legend_entry=True)
+                self.drawer.draw_scatter(x, y, y_err=yerr, name=ser, zorder=2, legend=True)
                 plotted_formatted_data = True
 
             # Scatter plot
@@ -103,9 +103,10 @@ class CurvePlotter(BasePlotter):
                 # markers to gray.
                 if plotted_formatted_data:
                     options["color"] = "gray"
-                # If we didn't plot formatted data, the X-Y markers should be used for the legend.
+                # If we didn't plot formatted data, the X-Y markers should be used for the legend. We add
+                # it to ``options`` so it's easier to pass to ``draw_scatter``.
                 if not plotted_formatted_data:
-                    options["legend_entry"] = True
+                    options["legend"] = True
                 self.drawer.draw_scatter(
                     x,
                     y,

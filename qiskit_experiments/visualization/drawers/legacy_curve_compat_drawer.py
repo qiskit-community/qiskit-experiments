@@ -33,6 +33,11 @@ class LegacyCurveCompatDrawer(BaseDrawer):
     new :mod:`qiskit_experiments.visualization` module. Analysis classes instead use subclasses of
     :class:`BasePlotter` to generate figures. This class wraps the legacy :class:`BaseCurveDrawer` class
     so it can be used by analysis classes, such as :class:`CurveAnalysis`, until it is removed.
+
+    .. note::
+        As :class:`BaseCurveDrawer` doesn't support customizing legend entries, the ``legend`` and
+        ``label`` parameters in ``draw_*`` methods (such as :meth:`draw_scatter`) are unsupported and
+        do nothing.
     """
 
     def __init__(self, curve_drawer: BaseCurveDrawer):
@@ -58,8 +63,8 @@ class LegacyCurveCompatDrawer(BaseDrawer):
         x_err: Optional[Sequence[float]] = None,
         y_err: Optional[Sequence[float]] = None,
         name: Optional[str] = None,
-        legend_entry: bool = False,
-        legend_label: Optional[str] = None,
+        label: Optional[str] = None,
+        legend: bool = False,
         **options,
     ):
         """Draws scatter points with optional Y errorbars.
@@ -67,14 +72,11 @@ class LegacyCurveCompatDrawer(BaseDrawer):
         Args:
             x_data: X values.
             y_data: Y values.
-            x_err: Unsupported as :class:`BaseCurveDrawer` doesn't support X
-                errorbars. Defaults to None.
+            x_err: Unsupported as :class:`BaseCurveDrawer` doesn't support X errorbars. Defaults to None.
             y_err: Optional error for Y values.
             name: Name of this series.
-            legend_entry: Unsupported as :class:`BaseCurveDrawer` doesn't support toggling legend
-                entries.
-            legend_label: Unsupported as :class:`BaseCurveDrawer` doesn't support toggling legend
-                entries.
+            label: Unsupported as :class:`BaseCurveDrawer` doesn't support customizing legend entries.
+            legend: Unsupported as :class:`BaseCurveDrawer` doesn't support toggling legend entries.
             options: Valid options for the drawer backend API.
         """
         if x_err is not None:
@@ -91,8 +93,8 @@ class LegacyCurveCompatDrawer(BaseDrawer):
         x_data: Sequence[float],
         y_data: Sequence[float],
         name: Optional[str] = None,
-        legend_entry: bool = False,
-        legend_label: Optional[str] = None,
+        label: Optional[str] = None,
+        legend: bool = False,
         **options,
     ):
         """Draw fit line.
@@ -101,10 +103,8 @@ class LegacyCurveCompatDrawer(BaseDrawer):
             x_data: X values.
             y_data: Fit Y values.
             name: Name of this series.
-            legend_entry: Unsupported as :class:`BaseCurveDrawer` doesn't support toggling legend
-                entries.
-            legend_label: Unsupported as :class:`BaseCurveDrawer` doesn't support toggling legend
-                entries.
+            label: Unsupported as :class:`BaseCurveDrawer` doesn't support customizing legend entries.
+            legend: Unsupported as :class:`BaseCurveDrawer` doesn't support toggling legend entries.
             options: Valid options for the drawer backend API.
         """
         self._curve_drawer.draw_fit_line(x_data, y_data, name, **options)
@@ -116,8 +116,8 @@ class LegacyCurveCompatDrawer(BaseDrawer):
         y_ub: Sequence[float],
         y_lb: Sequence[float],
         name: Optional[str] = None,
-        legend_entry: bool = False,
-        legend_label: Optional[str] = None,
+        label: Optional[str] = None,
+        legend: bool = False,
         **options,
     ):
         """Draw filled area as a function of x-values.
@@ -127,10 +127,8 @@ class LegacyCurveCompatDrawer(BaseDrawer):
             y_ub: The upper boundary of Y values.
             y_lb: The lower boundary of Y values.
             name: Name of this series.
-            legend_entry: Unsupported as :class:`BaseCurveDrawer` doesn't support toggling legend
-                entries.
-            legend_label: Unsupported as :class:`BaseCurveDrawer` doesn't support toggling legend
-                entries.
+            label: Unsupported as :class:`BaseCurveDrawer` doesn't support customizing legend entries.
+            legend: Unsupported as :class:`BaseCurveDrawer` doesn't support toggling legend entries.
             options: Valid options for the drawer backend API.
         """
 
@@ -143,8 +141,8 @@ class LegacyCurveCompatDrawer(BaseDrawer):
         x_lb: Sequence[float],
         y_data: Sequence[float],
         name: Optional[str] = None,
-        legend_entry: bool = False,
-        legend_label: Optional[str] = None,
+        label: Optional[str] = None,
+        legend: bool = False,
         **options,
     ):
         """Does nothing as this is functionality not supported by :class:`BaseCurveDrawer`."""

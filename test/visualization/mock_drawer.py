@@ -55,8 +55,8 @@ class MockDrawer(BaseDrawer):
         x_err: Optional[Sequence[float]] = None,
         y_err: Optional[Sequence[float]] = None,
         name: Optional[str] = None,
-        legend_entry: bool = False,
-        legend_label: Optional[str] = None,
+        label: Optional[str] = None,
+        legend: bool = False,
         **options,
     ):
         """Does nothing."""
@@ -67,8 +67,8 @@ class MockDrawer(BaseDrawer):
         x_data: Sequence[float],
         y_data: Sequence[float],
         name: Optional[str] = None,
-        legend_entry: bool = False,
-        legend_label: Optional[str] = None,
+        label: Optional[str] = None,
+        legend: bool = False,
         **options,
     ):
         """Does nothing."""
@@ -80,8 +80,8 @@ class MockDrawer(BaseDrawer):
         y_ub: Sequence[float],
         y_lb: Sequence[float],
         name: Optional[str] = None,
-        legend_entry: bool = False,
-        legend_label: Optional[str] = None,
+        label: Optional[str] = None,
+        legend: bool = False,
         **options,
     ):
         """Does nothing."""
@@ -93,8 +93,8 @@ class MockDrawer(BaseDrawer):
         x_lb: Sequence[float],
         y_data: Sequence[float],
         name: Optional[str] = None,
-        legend_entry: bool = False,
-        legend_label: Optional[str] = None,
+        label: Optional[str] = None,
+        legend: bool = False,
         **options,
     ):
         """Does nothing."""
