@@ -213,7 +213,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
     def _sequences_to_circuits(
         self, sequences: List[Sequence[SequenceElementType]]
     ) -> List[QuantumCircuit]:
-        """Convert a RB sequence into circuit and append the inverse to the end.
+        """Convert an RB sequence into circuit and append the inverse to the end.
 
         Returns:
             A list of RB circuits.
@@ -245,7 +245,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
         return circuits
 
     def __sample_sequence(self, length: int, rng: Generator) -> Sequence[SequenceElementType]:
-        # Sample a RB sequence with the given length.
+        # Sample an RB sequence with the given length.
         # Return integer instead of Clifford object for 1 or 2 qubits case for speed
         if self.num_qubits == 1:
             return rng.integers(24, size=length)

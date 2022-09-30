@@ -72,11 +72,11 @@ class InterleavedRB(StandardRB):
                     the timing constraints of the ``backend``.
                     (:class:``~qiskit_experiments.framework.backend_timing.BackendTiming`
                     is useful to obtain valid delays.)
+                    Parameterized circuit/instruction is not allowded.
             qubits: list of physical qubits for the experiment.
             lengths: A list of RB sequences lengths.
             backend: The backend to run the experiment on.
-            num_samples: Number of samples to generate for each
-                         sequence length
+            num_samples: Number of samples to generate for each sequence length.
             seed: Optional, seed used to initialize ``numpy.random.default_rng``.
                   when generating circuits. The ``default_rng`` will be initialized
                   with this seed value everytime :meth:`circuits` is called.

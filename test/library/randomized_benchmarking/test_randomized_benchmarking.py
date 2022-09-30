@@ -18,7 +18,7 @@ import copy
 import numpy as np
 from ddt import ddt, data, unpack
 
-from qiskit.circuit import Delay, QuantumCircuit
+from qiskit.circuit import Delay, QuantumCircuit, Parameter
 from qiskit.circuit.library import SXGate, CXGate, TGate, CZGate
 from qiskit.exceptions import QiskitError
 from qiskit.providers.fake_provider import FakeManilaV2, FakeWashington
@@ -337,6 +337,44 @@ class TestInterleavedRB(QiskitExperimentsTestCase, RBTestMixin):
         )
         int_circ = exp.circuits()[1]
         self.assertAllIdentity([int_circ])
+
+    def test_interleaving_parameterized_circuit(self):
+        """Fail if parameterized circuit is interleaved but after assigned it may be interleaved."""
+        qubits = (2,)
+        theta = Parameter("theta")
+        phi = Parameter("phi")
+        lam = Parameter("lambda")
+        cliff_circ_with_param = QuantumCircuit(1)
+        cliff_circ_with_param.rz(theta, 0)
+        cliff_circ_with_param.sx(0)
+        cliff_circ_with_param.rz(phi, 0)
+        cliff_circ_with_param.sx(0)
+        cliff_circ_with_param.rz(lam, 0)
+
+        with self.assertRaises(QiskitError):
+            rb.InterleavedRB(
+                interleaved_element=cliff_circ_with_param,
+                qubits=qubits,
+                lengths=[3],
+                num_samples=4,
+                backend=self.backend,
+            )
+
+        # # TODO: Enable after Clifford supports creation from circuits with rz
+        # # parameters must be assigned before initializing InterleavedRB
+        # param_map = {theta: np.pi / 2, phi: -np.pi / 2, lam: np.pi / 2}
+        # cliff_circ_with_param.assign_parameters(param_map, inplace=True)
+        #
+        # exp = rb.InterleavedRB(
+        #     interleaved_element=cliff_circ_with_param,
+        #     qubits=qubits,
+        #     lengths=[3],
+        #     num_samples=4,
+        #     backend=self.backend,
+        # )
+        # circuits = exp.circuits()
+        # for qc in circuits:
+        #     self.assertEqual(qc.num_parameters, 0)
 
 
 class RBRunTestCase(QiskitExperimentsTestCase, RBTestMixin):

@@ -44,11 +44,15 @@ from .clifford_data import (
 
 # Transpilation utilities
 def _transpile_clifford_circuit(circuit: QuantumCircuit, layout: Sequence[int]) -> QuantumCircuit:
+    # Simplified transpile, which only decomposes Clifford circuits and layout qubits
     return _apply_qubit_layout(_decompose_clifford_ops(circuit), layout=layout)
 
 
 def _decompose_clifford_ops(circuit: QuantumCircuit) -> QuantumCircuit:
     # Simplified QuantumCircuit.decompose, which decomposes only Clifford ops
+    # Note that the resulting circuit depends on the input circuit,
+    # that means the changes on the input circuit may affect the resulting circuit.
+    # For example, the resulting circuit shares the parameter_table of the input circuit,
     res = circuit.copy_empty_like()
     res._parameter_table = circuit._parameter_table
     for inst in circuit:
@@ -72,6 +76,7 @@ def _decompose_clifford_ops(circuit: QuantumCircuit) -> QuantumCircuit:
 
 
 def _apply_qubit_layout(circuit: QuantumCircuit, layout: Sequence[int]) -> QuantumCircuit:
+    # Mapping qubits in circuit to physical qubits (layout)
     res = QuantumCircuit(1 + max(layout), name=circuit.name, metadata=circuit.metadata)
     res.add_bits(circuit.clbits)
     for reg in circuit.cregs:
@@ -85,7 +90,8 @@ def _circuit_compose(
     self: QuantumCircuit, other: QuantumCircuit, qubits: Sequence[Union[Qubit, int]]
 ) -> QuantumCircuit:
     # Simplified QuantumCircuit.compose with clbits=None, front=False, inplace=True, wrap=False
-    # without any validation, parameter_table update and copy of operations
+    # without any validation, parameter_table/calibrations updates and copy of operations
+    # The input circuit `self` is changed inplace.
     qubit_map = {
         other.qubits[i]: (self.qubits[q] if isinstance(q, int) else q) for i, q in enumerate(qubits)
     }
@@ -97,10 +103,7 @@ def _circuit_compose(
                 clbits=instr.clbits,
             ),
         )
-
     self.global_phase += other.global_phase
-    for gate, cals in other.calibrations.items():
-        self._calibrations[gate].update(cals)
     return self
 
 
@@ -119,7 +122,10 @@ def _truncate_inactive_qubits(
     return res
 
 
+# TODO: Naming: transform? translate? synthesis?
 def _transform_clifford_circuit(circuit: QuantumCircuit, basis_gates: Tuple[str]) -> QuantumCircuit:
+    # The function that synthesis clifford circuits with given basis gates,
+    # which should be commonly used during custom transpilation in the RB circuit generation.
     return transpile(circuit, basis_gates=list(basis_gates), optimization_level=0)
 
 
