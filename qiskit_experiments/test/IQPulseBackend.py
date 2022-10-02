@@ -1,3 +1,4 @@
+import numpy as np
 from qiskit import circuit
 from qiskit import QuantumCircuit
 from qiskit import pulse
@@ -31,14 +32,31 @@ class IQPulseBackend(BackendV2):
         
         if isinstance(run_inputs, QuantumCircuit):
             run_inputs = [run_inputs]
+            schedules = []
             for circuit in run_inputs:
-                if len(circuit.calibrations) == 0:
-                    schedule = schedule(circuit, self)# self position is for the backend : is self right?
-                elif circuit.calibrations : 
-                    #circuit이 cal가지고있으면 
-                    #cal을 뽑아낸다음 addcal한 최종 circuit을 스케쥴로 만든다
-                    # cal 가진 circuit은 자동으로 cal 반영해서 생성되는거같고
-                    # schedule -> solver.solve
+                # divide the case in two 
+                # when circuit has it's own calibration or no calibration
+                if len(circuit.calibrations) == 0: # No cal -> extract the schedule directly
+                    schedule = schedule(circuit, self)# self position is for the backend : is self right? 
+                    # How can I give the backend as an argument??
+                    schedules.append(schedule)
+                elif circuit.calibrations : # eventhough there's cal, directly extracted schedule include that cal
+                    schedule = schedule(circuit, self)
+                    schedules.append(schedule)
+                # simulate the circuit's extracted schedult with the solver
+                solver = Solver(
+                    static_hamiltonian = self.hamiltonian_static,
+                    hamiltonian_operators = self.hamiltonian_operator,
+                    rotating_frame = self.hamiltonian_static,
+                    rwa_cutoff_freq=2*5.0,
+                    hamiltonian_channels = ['d0'] # how to define what qubit to use?
+                    channel_carrier_freqs = {'d0' : w}, #how to define what qubit to use?
+                    dt = 0.222
+                    )
+                # gave a specific number just for convenience for the time
+                sol = solver.solve(t_span=[0., 20.], y0=Statevector([1., 0.]), 
+                                    signals = schedules, t_eval=np.linspace(0., 200, 2000))
+                    
                     circuit_unitraires = {}
                     circuit.add_calibration()
                     for inst_name, instructions in circuit.calibrations.items():
