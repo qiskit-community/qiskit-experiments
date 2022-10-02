@@ -56,12 +56,27 @@ class IQPulseBackend(BackendV2):
                 # gave a specific number just for convenience for the time
                 sol = solver.solve(t_span=[0., 20.], y0=Statevector([1., 0.]), 
                                     signals = schedules, t_eval=np.linspace(0., 200, 2000))
-                    
-                    circuit_unitraires = {}
-                    circuit.add_calibration()
-                    for inst_name, instructions in circuit.calibrations.items():
-                        circuit_unitraires[inst_name] = instructions
-                        for qubits_params, schedule in instructions.items():
+###################################################################################
+# This is the most confusing part. I dont understand the necessity of this part.
+# Isnt schedule(circuit, backend) enough for extracting the pulse shcedule??
+# Why calibration.items?? I checked If the experiment include calibration, the generated circuit reflect the calibration already.              
+        circuit_unitaries = {}
+        circuit.add_calibration()
+        for inst_name, instructions in circuit.calibrations.items():
+            circuit_unitraires[inst_name] = instructions
+            for qubits_params, schedule in instructions.items():       
+                
+                unitary = self._run_pulse_simulation(schedule)#Does it mean Solver.solve?? or the real pulse simulator??
+                 
+                circuit_unitaries[inst_name][qubits_params] = unitary
+         # multiply the unitaries for the circuit
+        psi = np.array([[1], [0], [0]])  # Need to be a bit more clever here with the dimensions
+        for inst in circuit.data:  # TODO check
+            qubits, params, inst_name = self._get_info(inst)  # TODO
+                
+            unitary = circuit_unitaries[inst_name][(qubits, params)]
+                
+            psi = unitary @ psi  # Forward unitary dynamics.
 
 
 
