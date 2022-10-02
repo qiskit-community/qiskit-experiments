@@ -19,9 +19,9 @@ from ddt import ddt, data, unpack
 from qiskit.circuit import Delay, QuantumCircuit
 from qiskit.circuit.library import SXGate, CXGate, TGate, XGate
 from qiskit.exceptions import QiskitError
-from qiskit.providers.aer import AerSimulator
-from qiskit.providers.aer.noise import NoiseModel, depolarizing_error
 from qiskit.quantum_info import Clifford
+from qiskit_aer import AerSimulator
+from qiskit_aer.noise import NoiseModel, depolarizing_error
 
 from qiskit_experiments.library import randomized_benchmarking as rb
 from qiskit_experiments.database_service.exceptions import ExperimentEntryNotFound
@@ -576,8 +576,9 @@ class TestEPGAnalysis(QiskitExperimentsTestCase):
 
         self.assertGreater(cx_epg.value.n, 0.08 * 0.75)
 
-    def test_correct_1q_depolarization(self):
-        """Compute 2Q EPG with 1Q depolarization correction."""
+    def test_2q_epg_with_correction(self):
+        """Check that 2Q EPG with 1Q depolarization correction gives a better (smaller) result than
+        without the correction."""
         analysis_1qrb_q0 = rb.RBAnalysis()
         analysis_1qrb_q0.set_options(outcome="0", gate_error_ratio={"x": 2, "h": 1, "s": 0})
         result_q0 = analysis_1qrb_q0.run(self.expdata_1qrb_q0, replace_results=False)
@@ -591,10 +592,20 @@ class TestEPGAnalysis(QiskitExperimentsTestCase):
         analysis_2qrb = rb.RBAnalysis()
         analysis_2qrb.set_options(
             outcome="00",
+        )
+        result_2qrb = analysis_2qrb.run(self.expdata_2qrb)
+        self.assertExperimentDone(result_2qrb)
+        cx_epg_raw = result_2qrb.analysis_results("EPG_cx")
+
+        analysis_2qrb = rb.RBAnalysis()
+        analysis_2qrb.set_options(
+            outcome="00",
             epg_1_qubit=result_q0.analysis_results() + result_q1.analysis_results(),
         )
         result_2qrb = analysis_2qrb.run(self.expdata_2qrb)
         self.assertExperimentDone(result_2qrb)
+        cx_epg_corrected = result_2qrb.analysis_results("EPG_cx")
 
-        cx_epg = result_2qrb.analysis_results("EPG_cx")
-        self.assertAlmostEqual(cx_epg.value.n, 0.08 * 0.75, delta=0.006)
+        self.assertLess(
+            np.abs(cx_epg_corrected.value.n - 0.08 * 0.75), np.abs(cx_epg_raw.value.n - 0.08 * 0.75)
+        )
