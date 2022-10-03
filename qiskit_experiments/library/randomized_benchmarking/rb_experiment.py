@@ -202,10 +202,15 @@ class StandardRB(BaseExperiment, RestlessMixin):
         if not basis_gates and self.backend:
             if isinstance(self.backend, BackendV2):
                 basis_gates = self.backend.operation_names
+                non_globals = self.backend.target.get_non_global_operation_names(
+                    strict_direction=True
+                )
+                if non_globals:
+                    basis_gates = set(basis_gates) - set(non_globals)
             else:
                 basis_gates = self.backend.configuration().basis_gates
 
-        if basis_gates:
+        if basis_gates is not None:
             basis_gates = tuple(sorted(basis_gates))
 
         return basis_gates
