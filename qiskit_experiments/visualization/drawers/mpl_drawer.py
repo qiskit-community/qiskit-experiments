@@ -49,12 +49,15 @@ class MplDrawer(BaseDrawer):
             """
             self.factor = factor
 
-        def __call__(self, x: Any, pos: int = None):
+        def __call__(self, x: Any, pos: int = None) -> str:
             """Returns the formatted string for tick position ``pos`` and value ``x``.
 
             Args:
                 x: the tick value to format.
                 pos: the tick label position.
+
+            Returns:
+                str: the formatted tick label.
             """
             return self.fix_minus("{:.3g}".format(x * self.factor))
 

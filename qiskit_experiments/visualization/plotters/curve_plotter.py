@@ -121,7 +121,9 @@ class CurvePlotter(BasePlotter):
 
             # Confidence interval plot
             if self.data_exists_for(ser, ["x_interp", "y_interp", "y_interp_err"]):
-                x, y_interp, y_interp_err = self.data_for(ser, ["x_interp", "y_interp", "y_interp_err"])
+                x, y_interp, y_interp_err = self.data_for(
+                    ser, ["x_interp", "y_interp", "y_interp_err"]
+                )
                 for n_sigma, alpha in self.options.plot_sigma:
                     self.drawer.draw_filled_y_area(
                         x,
