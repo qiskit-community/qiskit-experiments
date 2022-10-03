@@ -318,8 +318,8 @@ for the fitting parameters of interest. A developer can inject a custom code to
 compute custom quantities based on the raw fit parameters.
 See :ref:`curve_analysis_results` for details.
 Afterwards, the analysis draws several curves in the Matplotlib figure.
-User can set custom plotter to the option ``plotter``.
-The plotter defaults to the :class:`CurvePlotter`.
+Users can set a custom plotter in :class:`CurveAnalysis` classes, to customize
+figures, by setting the :attr:`~CurveAnalysis.plotter` attribute.
 Finally, it returns the list of created analysis results and Matplotlib figure.
 
 

@@ -115,7 +115,7 @@ class BasePlotter(ABC):
         """
         # Data to be plotted, such as scatter points, interpolated fits, and confidence intervals
         self._series_data: Dict[str, Dict[str, Any]] = {}
-        # Data for figure-wide drawing, unrelated to series data, such as text or fit reports.
+        # Data that isn't directly associated with a single series, such as text or fit reports.
         self._figure_data: Dict[str, Any] = {}
 
         # Options for the plotter

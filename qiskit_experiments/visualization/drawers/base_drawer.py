@@ -52,8 +52,7 @@ class BaseDrawer(ABC):
 
     draw_line
 
-        This method plots a line from provided X and Y values. This method is typically called with
-        interpolated x and y values from a curve-fit.
+        This method plots a line from provided X and Y values.
 
     draw_filled_y_area
 
@@ -70,18 +69,16 @@ class BaseDrawer(ABC):
     draw_text_box
 
         This method draws a text-box on the canvas, which is a rectangular region containing some text.
-        This method is typically called with a list of analysis results and reduced chi-squared values
-        from a curve-fit.
 
     Options and Figure Options
     ==========================
 
     Drawers have both :attr:`options` and :attr:`figure_options` available to set parameters that define
-    how to drawer and what is drawn. :class:`BasePlotter` is similar in that it also has ``options`` and
-    ``figure_options`. The former contains class-specific variables that define how an instance behaves.
-    The latter contains figure-specific variables that typically contain values that are drawn on the
-    canvas, such as text. For details on the difference between the two sets of options, see the
-    documentation for :class:`BasePlotter`.
+    how to draw and what is drawn, respectively. :class:`BasePlotter` is similar in that it also has
+    ``options`` and ``figure_options`. The former contains class-specific variables that define how an
+    instance behaves. The latter contains figure-specific variables that typically contain values that
+    are drawn on the canvas, such as text. For details on the difference between the two sets of options,
+    see the documentation for :class:`BasePlotter`.
 
     .. note::
         If a drawer instance is used with a plotter, then there is the potential for any figure-option
@@ -337,11 +334,11 @@ class BaseDrawer(ABC):
         legend: bool = False,
         **options,
     ):
-        """Draw fit line.
+        """Draw a line.
 
         Args:
             x_data: X values.
-            y_data: Fit Y values.
+            y_data: Y values.
             name: Name of this series.
             label: Optional legend label to override ``name`` and ``series_params``.
             legend: Whether the drawn area must have a legend entry. Defaults to False.

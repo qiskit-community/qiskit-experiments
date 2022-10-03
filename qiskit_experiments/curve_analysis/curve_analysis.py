@@ -558,14 +558,14 @@ class CurveAnalysis(BaseCurveAnalysis):
                         params=fit_data.ufloat_params,
                     )
                     y_mean = unp.nominal_values(y_data_with_uncertainty)
-                    # Draw fit line
+                    # Add fit line data
                     self.plotter.set_series_data(
                         model._name,
                         x_interp=interp_x,
                         y_mean=y_mean,
                     )
                     if fit_data.covar is not None:
-                        # Draw confidence intervals with different n_sigma
+                        # Add confidence interval data
                         sigmas = unp.std_devs(y_data_with_uncertainty)
                         if np.isfinite(sigmas).all():
                             self.plotter.set_series_data(

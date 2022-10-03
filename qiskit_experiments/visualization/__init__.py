@@ -54,7 +54,6 @@ Drawer Library
 
     BaseDrawer
     MplDrawer
-    LegacyCurveCompatDrawer
 
 Plotting Style
 ==============
