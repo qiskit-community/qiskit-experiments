@@ -12,7 +12,7 @@
 
 """Curve drawer for matplotlib backend."""
 
-from typing import Dict, Optional, Sequence, Tuple
+from typing import Any, Dict, Optional, Sequence, Tuple
 
 import numpy as np
 from matplotlib.axes import Axes
@@ -42,9 +42,20 @@ class MplDrawer(BaseDrawer):
         """
 
         def __init__(self, factor: float):
+            """Create a PrefixFormatter instance.
+
+            Args:
+                factor: factor by which to scale tick values.
+            """
             self.factor = factor
 
-        def __call__(self, x, pos=None):
+        def __call__(self, x: Any, pos: int = None):
+            """Returns the formatted string for tick position ``pos`` and value ``x``.
+
+            Args:
+                x: the tick value to format.
+                pos: the tick label position.
+            """
             return self.fix_minus("{:.3g}".format(x * self.factor))
 
     def __init__(self):
