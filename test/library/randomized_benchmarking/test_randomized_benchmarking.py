@@ -100,8 +100,6 @@ class TestStandardRB(QiskitExperimentsTestCase, RBTestMixin):
             backend=self.backend,
         )
 
-        exp1.set_transpile_options(basis_gates=["rz", "sx", "cx"], optimization_level=1)
-        exp2.set_transpile_options(basis_gates=["rz", "sx", "cx"], optimization_level=1)
         circs1 = exp1.circuits()
         circs2 = exp2.circuits()
 
@@ -118,7 +116,6 @@ class TestStandardRB(QiskitExperimentsTestCase, RBTestMixin):
             backend=self.backend,
             full_sampling=False,
         )
-        exp1.set_transpile_options(basis_gates=["rz", "sx", "cx"], optimization_level=1)
         exp2 = rb.StandardRB(
             qubits=(0,),
             lengths=[10, 20, 30],
@@ -126,7 +123,6 @@ class TestStandardRB(QiskitExperimentsTestCase, RBTestMixin):
             backend=self.backend,
             full_sampling=True,
         )
-        exp2.set_transpile_options(basis_gates=["rz", "sx", "cx"], optimization_level=1)
         circs1 = exp1.circuits()
         circs2 = exp2.circuits()
 
@@ -145,7 +141,6 @@ class TestStandardRB(QiskitExperimentsTestCase, RBTestMixin):
             backend=self.backend,
             full_sampling=False,
         )
-        exp1.set_transpile_options(basis_gates=["rz", "sx", "cx"], optimization_level=1)
 
         exp2 = rb.StandardRB(
             qubits=(0, 1),
@@ -154,7 +149,6 @@ class TestStandardRB(QiskitExperimentsTestCase, RBTestMixin):
             backend=self.backend,
             full_sampling=True,
         )
-        exp2.set_transpile_options(basis_gates=["rz", "sx", "cx"], optimization_level=1)
 
         circs1 = exp1.circuits()
         circs2 = exp2.circuits()

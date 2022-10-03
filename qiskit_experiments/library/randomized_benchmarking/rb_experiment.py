@@ -322,8 +322,11 @@ class StandardRB(BaseExperiment, RestlessMixin):
                 for circ in self.circuits()
             ]
             # Set custom calibrations provided in backend
-            # TODO: Remove V2 restriction after V2 conversion in _set_backend
-            if self.backend and isinstance(self.backend, BackendV2):
+            if self.backend:
+                # TODO: Remove V2 restriction after V2 conversion in _set_backend
+                if not isinstance(self.backend, BackendV2):
+                    raise NotImplementedError
+
                 # assert self.num_qubits <= 2
                 qargs_patterns = [self.physical_qubits]  # for self.num_qubits == 1
                 if self.num_qubits == 2:
