@@ -65,20 +65,20 @@ class TestPlotter(QiskitExperimentsTestCase):
                 # Must index [0] for `data_for` as it returns a tuple.
                 self.assertEqual(value, plotter.data_for(series, data_key)[0])
 
-    def test_figure_data_end_to_end(self):
+    def test_supplementary_data_end_to_end(self):
         """Test end-to-end for figure data setting and retrieval."""
         plotter = MockPlotter(MockDrawer())
 
-        expected_figure_data = {
+        expected_supplementary_data = {
             "report_text": "Lorem ipsum",
             "another_data_key": 3e9,
         }
 
-        plotter.set_figure_data(**expected_figure_data)
+        plotter.set_supplementary_data(**expected_supplementary_data)
 
         # Check if figure data has been stored and can be retrieved
-        for key, expected_value in expected_figure_data.items():
-            actual_value = plotter.figure_data[key]
+        for key, expected_value in expected_supplementary_data.items():
+            actual_value = plotter.supplementary_data[key]
             self.assertEqual(
                 expected_value,
                 actual_value,

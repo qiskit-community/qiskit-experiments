@@ -579,7 +579,7 @@ class CurveAnalysis(BaseCurveAnalysis):
                     if isinstance(res.value, (float, UFloat)):
                         report_description += f"{analysis_result_to_repr(res)}\n"
                 report_description += r"reduced-$\chi^2$ = " + f"{fit_data.reduced_chisq: .4g}"
-                self.plotter.set_figure_data(report_text=report_description)
+                self.plotter.set_supplementary_data(report_text=report_description)
 
         # Add raw data points
         if self.options.return_data_points:

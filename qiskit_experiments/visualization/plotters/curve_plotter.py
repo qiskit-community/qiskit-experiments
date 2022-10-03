@@ -55,7 +55,7 @@ class CurvePlotter(BasePlotter):
         ]
 
     @classmethod
-    def expected_figure_data_keys(cls) -> List[str]:
+    def expected_supplementary_data_keys(cls) -> List[str]:
         """Returns the expected figures data-keys supported by this plotter.
 
         Data Keys:
@@ -133,6 +133,6 @@ class CurvePlotter(BasePlotter):
                     )
 
             # Fit report
-            if "report_text" in self.figure_data:
-                report_text = self.figure_data["report_text"]
+            if "report_text" in self.supplementary_data:
+                report_text = self.supplementary_data["report_text"]
                 self.drawer.draw_text_box(report_text)

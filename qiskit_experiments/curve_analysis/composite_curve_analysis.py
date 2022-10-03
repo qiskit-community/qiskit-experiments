@@ -391,7 +391,7 @@ class CompositeCurveAnalysis(BaseAnalysis):
             for group, fit_data in fit_dataset.items():
                 chisqs.append(r"reduced-$\chi^2$ = " + f"{fit_data.reduced_chisq: .4g} ({group})")
             report += "\n".join(chisqs)
-            self.plotter.set_figure_data(report_text=report)
+            self.plotter.set_supplementary_data(report_text=report)
 
             return analysis_results, [self.plotter.figure()]
 

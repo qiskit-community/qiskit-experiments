@@ -67,5 +67,5 @@ class MockPlotter(BasePlotter):
         return ["x", "y", "z"]
 
     @classmethod
-    def expected_figure_data_keys(cls) -> List[str]:
+    def expected_supplementary_data_keys(cls) -> List[str]:
         return []

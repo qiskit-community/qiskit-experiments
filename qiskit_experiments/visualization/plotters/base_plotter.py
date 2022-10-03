@@ -27,20 +27,20 @@ class BasePlotter(ABC):
     A plotter takes data from an experiment analysis class or experiment and plots a given figure using a
     drawing backend. Sub-classes define the kind of figure created and the expected data.
 
-    Data is split into series and figure data. Series data is grouped by series name (str). For
+    Data is split into series and supplementary data. Series data is grouped by series name (str). For
     :class:`CurveAnalysis`, this is the model name for a curve fit. For series data associated with a
-    single series name and figure data, data-values are identified by a data-key (str). Different data
-    per series and figure must have a different data-key to avoid overwriting values. Experiment and
+    single series name and supplementary data, data-values are identified by a data-key (str). Different
+    data per series and figure must have a different data-key to avoid overwriting values. Experiment and
     analysis results can be passed to the plotter so appropriate graphics can be drawn on the figure
-    canvas. Series data is added to the plotter using :meth:`set_series_data` whereas figure data is
-    added using :meth:`set_figure_data`. Series and figure data are retrieved using :meth:`data_for` and
-    :attr:`figure_data` respectively.
+    canvas. Series data is added to the plotter using :meth:`set_series_data` whereas supplementary data
+    is added using :meth:`set_supplementary_data`. Series and supplementary data are retrieved using
+    :meth:`data_for` and :attr:`supplementary_data` respectively.
 
     Series data contains values to be plotted on a canvas, such that the data can be grouped into subsets
     identified by their series name. Series names can be thought of as legend labels for the plotted
-    data, and as curve names for a curve-fit. Figure data is not associated with a series or curve and is
-    instead only associated with the figure. Examples include analysis reports or other text that is
-    drawn onto the figure canvas.
+    data, and as curve names for a curve-fit. Supplementary data is not associated with a series or curve
+    and is instead only associated with the figure. Examples include analysis reports or other text that
+    is drawn onto the figure canvas.
 
     Options and Figure Options
     ==========================
@@ -117,7 +117,7 @@ class BasePlotter(ABC):
         # Data to be plotted, such as scatter points, interpolated fits, and confidence intervals
         self._series_data: Dict[str, Dict[str, Any]] = {}
         # Data that isn't directly associated with a single series, such as text or fit reports.
-        self._figure_data: Dict[str, Any] = {}
+        self._supplementary_data: Dict[str, Any] = {}
 
         # Options for the plotter
         self._options = self._default_options()
@@ -133,13 +133,14 @@ class BasePlotter(ABC):
         self.drawer = drawer
 
     @property
-    def figure_data(self) -> Dict[str, Any]:
-        """Data for the figure being plotted.
+    def supplementary_data(self) -> Dict[str, Any]:
+        """Additional data for the figure being plotted, that isn't associated with a series.
 
-        Figure data includes text, fit reports, or other data that is associated with the figure as a
-        whole and not an individual series.
+        Supplementary data includes text, fit reports, or other data that is associated with the figure
+        but not an individual series. It is typically data additional to the direct results of an
+        experiment.
         """
-        return self._figure_data
+        return self._supplementary_data
 
     @property
     def series_data(self) -> Dict[str, Dict[str, Any]]:
@@ -248,22 +249,24 @@ class BasePlotter(ABC):
         elif series_name in self._series_data:
             self._series_data.pop(series_name)
 
-    def set_figure_data(self, **data_kwargs):
-        """Sets data for the entire figure.
+    def set_supplementary_data(self, **data_kwargs):
+        """Sets supplementary data for the plotter.
 
-        Figure data differs from series data in that it is not associate with a series name. Fit reports
-        are examples of figure data as they are drawn on figures to report on analysis results and the
-        "goodness" of a curve-fit, not a specific line, point, or shape drawn on the figure canvas.
+        Supplementary data differs from series data in that it is not associate with a series name. Fit
+        reports are examples of supplementary data as they contain fit results from an analysis class,
+        such as the "goodness" of a curve-fit.
 
         Note that if data has already been assigned for the given data-key, it will be overwritten with
-        the new values. ``set_figure_data`` will warn if the data-key is unexpected; i.e., not within
-        those returned by :meth:`expected_figure_data_keys`.
+        the new values. ``set_supplementary_data`` will warn if the data-key is unexpected; i.e., not
+        within those returned by :meth:`expected_supplementary_data_keys`.
 
         """
 
         # Warn if any data-keys are not expected.
         unknown_data_keys = [
-            data_key for data_key in data_kwargs if data_key not in self.expected_figure_data_keys()
+            data_key
+            for data_key in data_kwargs
+            if data_key not in self.expected_supplementary_data_keys()
         ]
         for unknown_data_key in unknown_data_keys:
             warnings.warn(
@@ -271,11 +274,11 @@ class BasePlotter(ABC):
                 "not be used by the plotter class."
             )
 
-        self._figure_data.update(**data_kwargs)
+        self._supplementary_data.update(**data_kwargs)
 
-    def clear_figure_data(self):
-        """Clears figure data."""
-        self._figure_data = {}
+    def clear_supplementary_data(self):
+        """Clears supplementary data."""
+        self._supplementary_data = {}
 
     def data_exists_for(self, series_name: str, data_keys: Union[str, List[str]]) -> bool:
         """Returns whether the given data-keys exist for the given series.
@@ -337,8 +340,8 @@ class BasePlotter(ABC):
 
     @classmethod
     @abstractmethod
-    def expected_figure_data_keys(cls) -> List[str]:
-        """Returns the expected figures data-keys supported by this plotter."""
+    def expected_supplementary_data_keys(cls) -> List[str]:
+        """Returns the expected supplementary data-keys supported by this plotter."""
 
     @property
     def options(self) -> Options:
