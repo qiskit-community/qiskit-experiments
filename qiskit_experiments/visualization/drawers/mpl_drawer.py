@@ -30,7 +30,7 @@ from .base_drawer import BaseDrawer
 class MplDrawer(BaseDrawer):
     """Drawer for MatplotLib backend."""
 
-    DefaultMarkers = MarkerStyle().filled_markers
+    DefaultMarkers = MarkerStyle.filled_markers
     DefaultColors = tab10.colors
 
     class PrefixFormatter(Formatter):
