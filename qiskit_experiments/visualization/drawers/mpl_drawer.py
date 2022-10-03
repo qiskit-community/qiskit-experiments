@@ -92,7 +92,7 @@ class MplDrawer(BaseDrawer):
                             if isinstance(label, list):
                                 # Y label can be given as a list for each sub axis
                                 label = label[i]
-                            sub_ax.set_ylabel(label, fontsize=self.style["axis.label_size"])
+                            sub_ax.set_ylabel(label, fontsize=self.style["axis_label_size"])
                     if i != n_rows - 1:
                         # remove x axis except for most-bottom plot
                         sub_ax.set_xticklabels([])
@@ -103,18 +103,18 @@ class MplDrawer(BaseDrawer):
                             if isinstance(label, list):
                                 # X label can be given as a list for each sub axis
                                 label = label[j]
-                            sub_ax.set_xlabel(label, fontsize=self.style["axis.label_size"])
+                            sub_ax.set_xlabel(label, fontsize=self.style["axis_label_size"])
                     if j == 0 or i == n_rows - 1:
                         # Set label size for outer axes where labels are drawn
-                        sub_ax.tick_params(labelsize=self.style["tick.label_size"])
+                        sub_ax.tick_params(labelsize=self.style["tick_label_size"])
                     sub_ax.grid()
 
             # Remove original axis frames
             axis.axis("off")
         else:
-            axis.set_xlabel(self.figure_options.xlabel, fontsize=self.style["axis.label_size"])
-            axis.set_ylabel(self.figure_options.ylabel, fontsize=self.style["axis.label_size"])
-            axis.tick_params(labelsize=self.style["tick.label_size"])
+            axis.set_xlabel(self.figure_options.xlabel, fontsize=self.style["axis_label_size"])
+            axis.set_ylabel(self.figure_options.ylabel, fontsize=self.style["axis_label_size"])
+            axis.tick_params(labelsize=self.style["tick_label_size"])
             axis.grid()
 
         self._axis = axis
@@ -130,7 +130,7 @@ class MplDrawer(BaseDrawer):
         for sub_ax in all_axes:
             _, labels = sub_ax.get_legend_handles_labels()
             if len(labels) > 1:
-                sub_ax.legend(loc=self.style["legend.loc"])
+                sub_ax.legend(loc=self.style["legend_loc"])
 
         # Format x and y axis
         for ax_type in ("x", "y"):
@@ -216,7 +216,7 @@ class MplDrawer(BaseDrawer):
         if self.figure_options.figure_title is not None:
             self._axis.set_title(
                 label=self.figure_options.figure_title,
-                fontsize=self.style["axis.label_size"],
+                fontsize=self.style["axis_label_size"],
             )
 
     def _get_axis(self, index: Optional[int] = None) -> Axes:
@@ -427,14 +427,14 @@ class MplDrawer(BaseDrawer):
         bbox_props.update(**options)
 
         if rel_pos is None:
-            rel_pos = self.style["textbox.rel_pos"]
+            rel_pos = self.style["textbox_rel_pos"]
 
         text_box_handler = self._axis.text(
             *rel_pos,
             s=description,
             ha="center",
             va="top",
-            size=self.style["textbox.text_size"],
+            size=self.style["textbox_text_size"],
             transform=self._axis.transAxes,
             zorder=1000,  # Very large zorder to draw over other graphics.
         )

@@ -62,11 +62,11 @@ class TestPlotStyle(QiskitExperimentsTestCase):
         default = PlotStyle.default_style()
         expected_not_none_fields = [
             "figsize",
-            "legend.loc",
-            "tick.label_size",
-            "axis.label_size",
-            "textbox.rel_pos",
-            "textbox.text_size",
+            "legend_loc",
+            "tick_label_size",
+            "axis_label_size",
+            "textbox_rel_pos",
+            "textbox_text_size",
         ]
         for field in expected_not_none_fields:
             self.assertIsNotNone(default.get(field, None))

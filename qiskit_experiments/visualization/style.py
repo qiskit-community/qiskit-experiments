@@ -20,7 +20,7 @@ class PlotStyle(dict):
     This style class is used by :class:`BasePlotter` and :class:`BaseDrawer`. The default style for
     Qiskit Experiments is defined in :meth:`default_style`. Style parameters are stored as dictionary
     entries, grouped by graphics or figure component. For example, style parameters relating to textboxes
-    have the prefix ``textbox.``. For default style parameter names and their values, see the
+    have the prefix ``textbox_``. For default style parameter names and their values, see the
     :meth:`default_style` method.
 
     Example:
@@ -28,9 +28,9 @@ class PlotStyle(dict):
         # Create custom style
         custom_style = PlotStyle(
             {
-                "legend.loc": "upper right",
-                "textbox.rel_pos": (1, 1),
-                "textbox.text_size": 14,
+                "legend_loc": "upper right",
+                "textbox_rel_pos": (1, 1),
+                "textbox_text_size": 14,
             }
         )
 
@@ -38,8 +38,8 @@ class PlotStyle(dict):
         full_style = PlotStyle.merge(PlotStyle.default_style(), custom_style)
 
         # Query style parameters
-        full_style["legend.loc"]        # Returns "upper right"
-        full_style["axis.label_size"]   # Returns the value provided in ``PlotStyle.default_style()``
+        full_style["legend_loc"]        # Returns "upper right"
+        full_style["axis_label_size"]   # Returns the value provided in ``PlotStyle.default_style()``
     """
 
     @classmethod
@@ -48,12 +48,12 @@ class PlotStyle(dict):
 
         Style Parameters:
             figsize (Tuple[int,int]): The size of the figure ``(width, height)``, in inches.
-            legend.loc (str): The location of the legend.
-            tick.label_size (int): The font size for tick labels.
-            axis.label_size (int): The font size for axis labels.
-            textbox.rel_pos (Tuple[float,float]): The relative position ``(horizontal, vertical)`` of
+            legend_loc (str): The location of the legend.
+            tick_label_size (int): The font size for tick labels.
+            axis_label_size (int): The font size for axis labels.
+            textbox_rel_pos (Tuple[float,float]): The relative position ``(horizontal, vertical)`` of
                 textboxes, as a percentage of the canvas dimensions.
-            textbox.text_size (int): The font size for textboxes.
+            textbox_text_size (int): The font size for textboxes.
 
         Returns:
             PlotStyle: The default plot style used by Qiskit Experiments.
@@ -62,15 +62,15 @@ class PlotStyle(dict):
             # size of figure (width, height)
             "figsize": (8, 5),  # Tuple[int, int]
             # legend location (vertical, horizontal)
-            "legend.loc": "center right",  # str
+            "legend_loc": "center right",  # str
             # size of tick label
-            "tick.label_size": 14,  #  int
+            "tick_label_size": 14,  #  int
             # size of axis label
-            "axis.label_size": 16,  # int
+            "axis_label_size": 16,  # int
             # relative position of a textbox
-            "textbox.rel_pos": (0.6, 0.95),  # Tuple[float, float]
+            "textbox_rel_pos": (0.6, 0.95),  # Tuple[float, float]
             # size of textbox text
-            "textbox.text_size": 14,  # int
+            "textbox_text_size": 14,  # int
         }
         return cls(**style)
 

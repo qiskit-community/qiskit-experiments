@@ -64,9 +64,11 @@ class CrossResonanceHamiltonianAnalysis(curve.CompositeCurveAnalysis):
         default_options.plotter.set_options(
             subplots=(3, 1),
             style=PlotStyle(
-                figsize=(8, 10),
-                legend_loc="lower right",
-                text_box_rel_pos=(0.28, -0.10),
+                {
+                    "figsize": (8, 10),
+                    "legend_loc": "lower right",
+                    "textbox_rel_pos": (0.28, -0.10),
+                }
             ),
         )
         default_options.plotter.set_figure_options(
