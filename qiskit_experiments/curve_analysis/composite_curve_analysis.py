@@ -342,27 +342,30 @@ class CompositeCurveAnalysis(BaseAnalysis):
 
                 # Draw fit result
                 if self.options.plot:
-                    interp_x = np.linspace(
+                    x_interp = np.linspace(
                         np.min(formatted_data.x), np.max(formatted_data.x), num=100
                     )
                     for model in analysis.models:
                         y_data_with_uncertainty = eval_with_uncertainties(
-                            x=interp_x,
+                            x=x_interp,
                             model=model,
                             params=fit_data.ufloat_params,
                         )
-                        y_mean = unp.nominal_values(y_data_with_uncertainty)
+                        y_interp = unp.nominal_values(y_data_with_uncertainty)
                         # Add fit line data
                         self.plotter.set_series_data(
                             model._name + f"_{analysis.name}",
-                            x_interp=interp_x,
-                            y_mean=y_mean,
+                            x_interp=x_interp,
+                            y_interp=y_interp,
                         )
                         if fit_data.covar is not None:
                             # Add confidence interval data
                             sigmas = unp.std_devs(y_data_with_uncertainty)
                             if np.isfinite(sigmas).all():
-                                self.plotter.set_series_data(model._name, sigmas=sigmas)
+                                self.plotter.set_series_data(
+                                    model._name + f"_{analysis.name}",
+                                    sigmas=sigmas,
+                                )
 
             # Add raw data points
             if self.options.return_data_points:

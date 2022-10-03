@@ -550,19 +550,19 @@ class CurveAnalysis(BaseCurveAnalysis):
                         # This is the case when fit model exist but no data to fit is provided.
                         # For example, experiment may omit experimenting with some setting.
                         continue
-                    interp_x = np.linspace(np.min(sub_data.x), np.max(sub_data.x), num=100)
+                    x_interp = np.linspace(np.min(sub_data.x), np.max(sub_data.x), num=100)
 
                     y_data_with_uncertainty = eval_with_uncertainties(
-                        x=interp_x,
+                        x=x_interp,
                         model=model,
                         params=fit_data.ufloat_params,
                     )
-                    y_mean = unp.nominal_values(y_data_with_uncertainty)
+                    y_interp = unp.nominal_values(y_data_with_uncertainty)
                     # Add fit line data
                     self.plotter.set_series_data(
                         model._name,
-                        x_interp=interp_x,
-                        y_mean=y_mean,
+                        x_interp=x_interp,
+                        y_interp=y_interp,
                     )
                     if fit_data.covar is not None:
                         # Add confidence interval data

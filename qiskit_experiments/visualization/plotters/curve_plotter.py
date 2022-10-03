@@ -39,8 +39,8 @@ class CurvePlotter(BasePlotter):
             y_formatted: Y-values for processed results. Goes with ``x_formatted``.
             y_formatted_err: Error in ``y_formatted``, to be plotted as error-bars.
             x_interp: Interpolated X-values for a curve-fit.
-            y_mean: Y-values corresponding to the fit for ``x_interp`` X-values.
-            sigmas: The standard-deviations of the fit for each X-value in ``x_interp``.
+            y_interp: Y-values corresponding to the fit for ``y_interp`` X-values.
+            y_interp_err: The standard-deviations of the fit for each X-value in ``y_interp``.
                 This data-key relates to the option ``plot_sigma``.
         """
         return [
@@ -50,8 +50,8 @@ class CurvePlotter(BasePlotter):
             "y_formatted",
             "y_formatted_err",
             "x_interp",
-            "y_mean",
-            "sigmas",
+            "y_interp",
+            "y_interp_err",
         ]
 
     @classmethod
@@ -115,18 +115,18 @@ class CurvePlotter(BasePlotter):
                 )
 
             # Line plot for fit
-            if self.data_exists_for(ser, ["x_interp", "y_mean"]):
-                x, y = self.data_for(ser, ["x_interp", "y_mean"])
+            if self.data_exists_for(ser, ["x_interp", "y_interp"]):
+                x, y = self.data_for(ser, ["x_interp", "y_interp"])
                 self.drawer.draw_line(x, y, name=ser, zorder=3)
 
             # Confidence interval plot
-            if self.data_exists_for(ser, ["x_interp", "y_mean", "sigmas"]):
-                x, y_mean, sigmas = self.data_for(ser, ["x_interp", "y_mean", "sigmas"])
+            if self.data_exists_for(ser, ["x_interp", "y_interp", "y_interp_err"]):
+                x, y_interp, y_interp_err = self.data_for(ser, ["x_interp", "y_interp", "y_interp_err"])
                 for n_sigma, alpha in self.options.plot_sigma:
                     self.drawer.draw_filled_y_area(
                         x,
-                        y_mean + n_sigma * sigmas,
-                        y_mean - n_sigma * sigmas,
+                        y_interp + n_sigma * y_interp_err,
+                        y_interp - n_sigma * y_interp_err,
                         name=ser,
                         alpha=alpha,
                         zorder=5,
