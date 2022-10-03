@@ -175,7 +175,7 @@ class LegacyCurveCompatDrawer(BaseDrawer):
         # PlotStyle parameters are normal options in BaseCurveDrawer.
         if "custom_style" in fields:
             custom_style = fields.pop("custom_style")
-            for key, value in custom_style.__dict__.items():
+            for key, value in custom_style.items():
                 fields[key] = value
 
         self._curve_drawer.set_options(**fields)

@@ -65,8 +65,6 @@ Plotting Style
     PlotStyle
 """
 
-# PlotStyle is imported by .drawers and .plotters. Skip PlotStyle import for isort to prevent circular
-# import.
-from .style import PlotStyle  # isort:skip
 from .drawers import BaseDrawer, LegacyCurveCompatDrawer, MplDrawer
 from .plotters import BasePlotter, CurvePlotter
+from .style import PlotStyle

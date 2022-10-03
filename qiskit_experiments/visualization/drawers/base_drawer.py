@@ -16,7 +16,8 @@ from abc import ABC, abstractmethod
 from typing import Dict, Optional, Sequence, Tuple
 
 from qiskit_experiments.framework import Options
-from qiskit_experiments.visualization import PlotStyle
+
+from ..style import PlotStyle
 
 
 class BaseDrawer(ABC):

@@ -37,7 +37,7 @@ class MockDrawer(BaseDrawer):
             overwrite_param: A test style parameter to be overwritten by a test.
         """
         style = super()._default_style()
-        style.overwrite_param = "overwrite_param"
+        style["overwrite_param"] = "overwrite_param"
         return style
 
     def initialize_canvas(self):

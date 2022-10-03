@@ -12,111 +12,80 @@
 """
 Configurable stylesheet for :class:`BasePlotter` and :class:`BaseDrawer`.
 """
-from copy import copy
-from typing import Dict, Tuple
-
-from qiskit_experiments.framework import Options
 
 
-class PlotStyle(Options):
+class PlotStyle(dict):
     """A stylesheet for :class:`BasePlotter` and :class:`BaseDrawer`.
 
     This style class is used by :class:`BasePlotter` and :class:`BaseDrawer`. The default style for
-    Qiskit Experiments is defined in :meth:`default_style`. :class:`PlotStyle` subclasses
-    :class:`Options` and has a similar interface. Extra helper methods are included to merge and update
-    instances of :class:`PlotStyle`: :meth:`merge` and :meth:`update` respectively.
+    Qiskit Experiments is defined in :meth:`default_style`. Style parameters are stored as dictionary
+    entries, grouped by graphics or figure component. For example, style parameters relating to textboxes
+    have the prefix ``textbox.``. For default style parameter names and their values, see the
+    :meth:`default_style` method.
+
+    Example:
+    .. code-block:: python
+        # Create custom style
+        custom_style = PlotStyle(
+            {
+                "legend.loc": "upper right",
+                "textbox.rel_pos": (1, 1),
+                "textbox.text_size": 14,
+            }
+        )
+
+        # Create full style, using PEP448 to combine with default style.
+        full_style = PlotStyle.merge(PlotStyle.default_style(), custom_style)
+
+        # Query style parameters
+        full_style["legend.loc"]        # Returns "upper right"
+        full_style["axis.label_size"]   # Returns the value provided in ``PlotStyle.default_style()``
     """
 
     @classmethod
     def default_style(cls) -> "PlotStyle":
         """The default style across Qiskit Experiments.
 
+        Style Parameters:
+            figsize (Tuple[int,int]): The size of the figure ``(width, height)``, in inches.
+            legend.loc (str): The location of the legend.
+            tick.label_size (int): The font size for tick labels.
+            axis.label_size (int): The font size for axis labels.
+            textbox.rel_pos (Tuple[float,float]): The relative position ``(horizontal, vertical)`` of
+                textboxes, as a percentage of the canvas dimensions.
+            textbox.text_size (int): The font size for textboxes.
+
         Returns:
             PlotStyle: The default plot style used by Qiskit Experiments.
         """
-        # pylint: disable = attribute-defined-outside-init
-        # We disable attribute-defined-outside-init so we can set style parameters outside of the
-        # initialization call and thus include type hints.
-        new = cls()
-        # size of figure (width, height)
-        new.figsize: Tuple[int, int] = (8, 5)
-
-        # legent location (vertical, horizontal)
-        new.legend_loc: str = "center right"
-
-        # size of tick label
-        new.tick_label_size: int = 14
-
-        # size of axis label
-        new.axis_label_size: int = 16
-
-        # relative position of a text
-        new.text_box_rel_pos: Tuple[float, float] = (0.6, 0.95)
-
-        # size of fit report text
-        new.text_box_text_size: int = 14
-
-        return new
-
-    def update(self, other_style: "PlotStyle"):
-        """Updates the plot styles fields with those set in ``other_style``.
-
-        Args:
-            other_style: The style with new field values.
-        """
-        self.update_options(**other_style._fields)
+        style = {
+            # size of figure (width, height)
+            "figsize": (8, 5),  # Tuple[int, int]
+            # legend location (vertical, horizontal)
+            "legend.loc": "center right",  # str
+            # size of tick label
+            "tick.label_size": 14,  #  int
+            # size of axis label
+            "axis.label_size": 16,  # int
+            # relative position of a textbox
+            "textbox.rel_pos": (0.6, 0.95),  # Tuple[float, float]
+            # size of textbox text
+            "textbox.text_size": 14,  # int
+        }
+        return cls(**style)
 
     @classmethod
     def merge(cls, style1: "PlotStyle", style2: "PlotStyle") -> "PlotStyle":
-        """Merge two PlotStyle instances into a new instance.
+        """Merge ``style2`` into ``style1`` as a new PlotStyle instance.
 
-        The styles are merged such that style fields in ``style2`` have priority. i.e., a field ``foo``,
-        defined in both input styles, will have the value :code-block:`style2.foo` in the output.
+        This method merges an additional style ``style2`` into a base instance ``style1``, returning the
+        merged style instance instead of modifying the inputs.
 
         Args:
-            style1: The first style.
-            style2: The second style.
+            style1: Base PlotStyle instance.
+            style2: Additional PlotStyle instance.
 
         Returns:
-            PlotStyle: A plot style containing the combined fields of both input styles.
-
-        Raises:
-            RuntimeError: If either of the input styles is not of type :class:`PlotStyle`.
+            PlotStyle: merged style instance.
         """
-        if not isinstance(style1, PlotStyle) or not isinstance(style2, PlotStyle):
-            raise RuntimeError(
-                "Incorrect style type for PlotStyle.merge: expected PlotStyle but got "
-                f"{type(style1).__name__} and {type(style2).__name__}"
-            )
-        new_style = copy(style1)
-        new_style.update(style2)
-        return new_style
-
-    def config(self) -> Dict:
-        """Return the config dictionary for this PlotStyle instance.
-
-        .. Note::
-            Validators are not currently supported
-
-        Returns:
-            dict: A dictionary containing the config of the plot style.
-        """
-        return {
-            "cls": type(self),
-            **self._fields,
-        }
-
-    @property
-    def __dict__(self) -> Dict:
-        # Needed as __dict__ is not inherited by subclasses.
-        return super().__dict__
-
-    def __json_encode__(self):
-        return self.config()
-
-    @classmethod
-    def __json_decode__(cls, value):
-        kwargs = value
-        kwargs.pop("cls")
-        inst = cls(**kwargs)
-        return inst
+        return PlotStyle({**style1, **style2})

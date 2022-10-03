@@ -49,19 +49,29 @@ class TestPlotStyle(QiskitExperimentsTestCase):
         )
         return custom_1, custom_2, expected_12, expected_21
 
-    def test_default_contains_necessary_fields(self):
-        """Test that expected fields are set in the default style."""
+    def test_default_only_contains_expected_fields(self):
+        """Test that only expected fields are set in the default style.
+
+        This enforces two things:
+            1. The expected style fields are not None.
+            2. No extra fields are set.
+
+        The second property being enforced is to make sure that this test fails if new default style
+        parameters are added to :meth:`PlotStyle.default_style` but not to this test.
+        """
         default = PlotStyle.default_style()
         expected_not_none_fields = [
             "figsize",
-            "legend_loc",
-            "tick_label_size",
-            "axis_label_size",
-            "text_box_rel_pos",
-            "text_box_text_size",
+            "legend.loc",
+            "tick.label_size",
+            "axis.label_size",
+            "textbox.rel_pos",
+            "textbox.text_size",
         ]
         for field in expected_not_none_fields:
-            self.assertIsNotNone(getattr(default, field))
+            self.assertIsNotNone(default.get(field, None))
+        # Check that default style keys are as expected, ignoring order.
+        self.assertCountEqual(expected_not_none_fields, list(default.keys()))
 
     def test_update(self):
         """Test that styles can be updated."""
@@ -69,19 +79,19 @@ class TestPlotStyle(QiskitExperimentsTestCase):
 
         # copy(...) is needed as .update() modifies the style instance
         actual_12 = copy(custom_1)
-        actual_12.update(custom_2)
+        actual_12.update(**custom_2)
         actual_21 = copy(custom_2)
-        actual_21.update(custom_1)
+        actual_21.update(**custom_1)
 
-        self.assertEqual(actual_12, expected_12)
-        self.assertEqual(actual_21, expected_21)
+        self.assertDictEqual(actual_12, expected_12)
+        self.assertDictEqual(actual_21, expected_21)
 
-    def test_merge(self):
+    def test_merge_in_init(self):
         """Test that styles can be merged."""
         custom_1, custom_2, expected_12, expected_21 = self._dummy_styles()
 
-        self.assertEqual(PlotStyle.merge(custom_1, custom_2), expected_12)
-        self.assertEqual(PlotStyle.merge(custom_2, custom_1), expected_21)
+        self.assertDictEqual(PlotStyle.merge(custom_1, custom_2), expected_12)
+        self.assertDictEqual(PlotStyle.merge(custom_2, custom_1), expected_21)
 
     def test_field_access(self):
         """Test that fields are accessed correctly"""
@@ -90,16 +100,16 @@ class TestPlotStyle(QiskitExperimentsTestCase):
             # y isn't assigned and therefore doesn't exist in dummy_style
         )
 
-        self.assertEqual(dummy_style.x, "x")
+        self.assertEqual(dummy_style["x"], "x")
 
         # This should throw as we haven't assigned y
-        with self.assertRaises(AttributeError):
+        with self.assertRaises(KeyError):
             # Disable pointless-statement as accessing style fields can raise an exception.
             # pylint: disable = pointless-statement
-            dummy_style.y
+            dummy_style["y"]
 
     def test_dict(self):
-        """Test that PlotStyle can be converted into a dictionary."""
+        """Test that PlotStyle can be treated as a dictionary."""
         dummy_style = PlotStyle(
             a="a",
             b=0,
@@ -110,13 +120,13 @@ class TestPlotStyle(QiskitExperimentsTestCase):
             "b": 0,
             "c": [1, 2, 3],
         }
-        actual_dict = dummy_style.__dict__
+        actual_dict = dict(dummy_style)
         self.assertDictEqual(actual_dict, expected_dict, msg="PlotStyle dict is not as expected.")
 
         # Add a new variable
-        dummy_style.new_variable = 5e9
+        dummy_style["new_variable"] = 5e9
         expected_dict["new_variable"] = 5e9
-        actual_dict = dummy_style.__dict__
+        actual_dict = dict(dummy_style)
         self.assertDictEqual(
             actual_dict,
             expected_dict,
@@ -133,12 +143,12 @@ class TestPlotStyle(QiskitExperimentsTestCase):
         actual_21 = copy(custom_2)
         actual_21.update(custom_1)
 
-        self.assertDictEqual(actual_12.__dict__, expected_12.__dict__)
-        self.assertDictEqual(actual_21.__dict__, expected_21.__dict__)
+        self.assertDictEqual(actual_12, expected_12)
+        self.assertDictEqual(actual_21, expected_21)
 
     def test_merge_dict(self):
         """Test that PlotStyle dictionary is correct when merged."""
         custom_1, custom_2, expected_12, expected_21 = self._dummy_styles()
 
-        self.assertDictEqual(PlotStyle.merge(custom_1, custom_2).__dict__, expected_12.__dict__)
-        self.assertDictEqual(PlotStyle.merge(custom_2, custom_1).__dict__, expected_21.__dict__)
+        self.assertDictEqual(PlotStyle.merge(custom_1, custom_2), expected_12)
+        self.assertDictEqual(PlotStyle.merge(custom_2, custom_1), expected_21)

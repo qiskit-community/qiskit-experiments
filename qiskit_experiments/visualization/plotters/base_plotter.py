@@ -17,7 +17,8 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 
 from qiskit_experiments.framework import Options
 from qiskit_experiments.visualization.drawers import BaseDrawer
-from qiskit_experiments.visualization.style import PlotStyle
+
+from ..style import PlotStyle
 
 
 class BasePlotter(ABC):
