@@ -566,11 +566,11 @@ class CurveAnalysis(BaseCurveAnalysis):
                     )
                     if fit_data.covar is not None:
                         # Add confidence interval data
-                        sigmas = unp.std_devs(y_data_with_uncertainty)
-                        if np.isfinite(sigmas).all():
+                        y_interp_err = unp.std_devs(y_data_with_uncertainty)
+                        if np.isfinite(y_interp_err).all():
                             self.plotter.set_series_data(
                                 model._name,
-                                sigmas=sigmas,
+                                y_interp_err=y_interp_err,
                             )
 
                 # Write fitting report
