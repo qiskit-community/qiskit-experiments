@@ -1,0 +1,30 @@
+---
+features:
+  - |
+    :class:`.CrossResonanceHamiltonian` experiment and its subclass now accept
+    ``durations`` with default values. Note that values should be provided in
+    units of sec rather than samples, and must include pulse ramps at edges.
+    Default values with linear increment are generated according to new experiment options,
+    ``durations_min``, ``durations_max`, and ``durations_num``, when the durations
+    is not explicitly provided. Default value is chosen by assuming a
+    typical ZX rate around 1 MHz in recent IBM Quantum backends.
+    User can update these option values as well as providing full ``durations``
+    to tailor experiment setting to their device.
+    Total durations should be carefully chosen not to overflow the waveform memory
+    when the experiment is run on a real hardware. With this update, 
+    the minimum example code to run this experiment might be
+    
+    .. code-block:: python
+    
+      from qiskit_experiments.library.characterization import CrossResonanceHamiltonian
+      
+      expr = CrossResonanceHamiltonian(qubits=(0, 1), amp=0.3, backend=backend)
+      exp_data = expr.run()
+    
+    where the durations to scan are implicitly set by experiment options.
+
+deprecations:
+  - |
+    The ``flat_top_widths`` argument and experiment option of 
+    :class:`.CrossResonanceHamiltonian` experiment and its subclass 
+    have been deprecated and will be removed in Qiskit Experiments 0.6.
