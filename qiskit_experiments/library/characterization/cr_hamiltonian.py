@@ -326,7 +326,7 @@ class CrossResonanceHamiltonian(BaseExperiment):
         Raises:
             QiskitError: When the backend is not set with use of pulse gate.
         """
-        if issubclass(self._gate_cls, self.CRPulseGate):
+        if self._gate_cls is self.CRPulseGate:
             if not self.backend:
                 # Backend is not set, but trying to provide CR gate as a pulse gate.
                 raise QiskitError(

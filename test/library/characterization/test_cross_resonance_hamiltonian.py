@@ -15,6 +15,7 @@
 """Spectroscopy tests."""
 from test.base import QiskitExperimentsTestCase
 
+import functools
 import numpy as np
 from ddt import ddt, data, unpack
 from qiskit import QuantumCircuit, pulse, quantum_info as qi
@@ -22,6 +23,13 @@ from qiskit.providers.fake_provider import FakeBogotaV2
 from qiskit.extensions.hamiltonian_gate import HamiltonianGate
 from qiskit_aer import AerSimulator
 from qiskit_experiments.library.characterization import cr_hamiltonian
+
+
+class SimulatableCRGate(HamiltonianGate):
+    """Hamiltonian Gate for simulation."""
+
+    def __init__(self, width, hamiltonian, sigma, dt):
+        super().__init__(data=hamiltonian, time=np.sqrt(2 * np.pi) * sigma * dt + width)
 
 
 @ddt
@@ -152,16 +160,13 @@ class TestCrossResonanceHamiltonian(QiskitExperimentsTestCase):
             )
         )
 
-        class SimulatableCRGate(HamiltonianGate):
-            """Hamiltonian Gate for simulation."""
-
-            def __init__(self, width):
-                super().__init__(data=hamiltonian, time=np.sqrt(2 * np.pi) * sigma * dt + width)
-
         expr = cr_hamiltonian.CrossResonanceHamiltonian(
             qubits=(0, 1),
             sigma=sigma,
-            cr_gate=SimulatableCRGate,
+            # A hack to avoild local function in pickle, i.e. in transpile.
+            cr_gate=functools.partial(
+                SimulatableCRGate, hamiltonian=hamiltonian, sigma=sigma, dt=dt
+            ),
         )
         expr.backend = backend
 
@@ -209,18 +214,15 @@ class TestCrossResonanceHamiltonian(QiskitExperimentsTestCase):
             )
         )
 
-        class SimulatableCRGate(HamiltonianGate):
-            """Hamiltonian Gate for simulation."""
-
-            def __init__(self, width):
-                super().__init__(data=hamiltonian, time=np.sqrt(2 * np.pi) * sigma * dt + width)
-
         with self.assertWarns(DeprecationWarning):
             expr = cr_hamiltonian.CrossResonanceHamiltonian(
                 (0, 1),
                 np.linspace(0, 700, 50),
                 sigma=sigma,
-                cr_gate=SimulatableCRGate,
+                # A hack to avoild local function in pickle, i.e. in transpile.
+                cr_gate=functools.partial(
+                    SimulatableCRGate, hamiltonian=hamiltonian, sigma=sigma, dt=dt
+                ),
             )
         expr.backend = backend
 
