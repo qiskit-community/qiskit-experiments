@@ -2,12 +2,23 @@
 Experiments Tutorials
 #####################
 
+Introduction
+===============
+
+.. toctree::
+    :maxdepth: 2
+
+    intro
 
 
-.. nbgallery::
-    :glob:
+Getting Started
+===============
 
-    *
+.. toctree::
+    :maxdepth: 2
+
+    installation
+    
 
 
 .. Hiding - Indices and tables
