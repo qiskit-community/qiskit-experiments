@@ -31,6 +31,7 @@ Table of Contents
   API References <apidocs/index>
   Experiment Library <apidocs/library>
   Tutorials <tutorials/index>
+  Experiment Guides <guides/index>
   Release Notes <release_notes>
 
 .. Hiding - Indices and tables
