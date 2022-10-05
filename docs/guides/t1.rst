@@ -1,4 +1,4 @@
-A :math:`T_1` experiment
+The `T_1` experiment
 ========================
 
 In a :math:`T_1` experiment, we measure an excited qubit after a delay.
@@ -92,21 +92,6 @@ create a parallel experiment:
         print(result)
 
 
-Viewing sub experiment data
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-The experiment data returned from a batched experiment also contains
-individual experiment data for each sub experiment which can be accessed
-using ``child_data``
-
-.. jupyter-execute::
-
-    # Print sub-experiment data
-    for i, sub_data in enumerate(parallel_data.child_data()):
-        print("Component experiment",i)
-        display(sub_data.figure(0))
-        for result in sub_data.analysis_results():
-            print(result)
 
 :math:`T_1` experiments with kerneled measurement
 ---------------------------------------------------
@@ -163,6 +148,12 @@ that is close to a logical value '0'.
     display(expdataT1_kerneled.figure(0))
     for result in expdataT1_kerneled.analysis_results():
         print(result)
+
+Designing the optimal `T_1` experiment
+--------------------------------------
+
+Given a limited number of shots :math:`t`, what is the optimal selection of delay times
+and the number of shots for each?
 
 .. jupyter-execute::
 

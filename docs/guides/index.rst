@@ -1,7 +1,6 @@
 #####################
-Experiments Tutorials
+Experiment Guides
 #####################
-
 
 
 .. nbgallery::
