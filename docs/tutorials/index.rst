@@ -11,8 +11,8 @@ Introduction
     intro
 
 
-Getting Started
-===============
+Learning from the Ground Up
+===========================
 
 .. toctree::
     :maxdepth: 2
