@@ -198,7 +198,6 @@ class InterleavedRB(StandardRB):
         reference_circuits = self._sequences_to_circuits(reference_sequences)
         for circ, seq in zip(reference_circuits, reference_sequences):
             circ.metadata = {
-                "experiment_type": self._type,
                 "xval": len(seq),
                 "group": "Clifford",
                 "physical_qubits": self.physical_qubits,
@@ -215,7 +214,6 @@ class InterleavedRB(StandardRB):
         interleaved_circuits = self._sequences_to_circuits(interleaved_sequences)
         for circ, seq in zip(interleaved_circuits, reference_sequences):
             circ.metadata = {
-                "experiment_type": self._type,
                 "xval": len(seq),  # set length of the reference sequence
                 "group": "Clifford",
                 "physical_qubits": self.physical_qubits,

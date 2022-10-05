@@ -164,7 +164,6 @@ class StandardRB(BaseExperiment, RestlessMixin):
         # Add metadata for each circuit
         for circ, seq in zip(circuits, sequences):
             circ.metadata = {
-                "experiment_type": self._type,
                 "xval": len(seq),
                 "group": "Clifford",
                 "physical_qubits": self.physical_qubits,
