@@ -349,7 +349,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
 
                 common_calibrations = defaultdict(dict)
                 for op_name, qargs in instructions:
-                    inst_prop = self.backend.target[op_name][qargs]
+                    inst_prop = self.backend.target[op_name].get(qargs, None)
                     if inst_prop is None:
                         continue
                     schedule = inst_prop.calibration
