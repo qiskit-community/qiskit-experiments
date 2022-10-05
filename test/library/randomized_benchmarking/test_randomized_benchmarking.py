@@ -167,7 +167,9 @@ class TestStandardRB(QiskitExperimentsTestCase, RBTestMixin):
         my_inst_map = InstructionScheduleMap()
         my_inst_map.add(SXGate(), qubits, my_sched)
 
-        exp = rb.StandardRB(qubits=qubits, lengths=[3], num_samples=4, backend=self.backend)
+        exp = rb.StandardRB(
+            qubits=qubits, lengths=[3], num_samples=4, backend=self.backend, seed=123
+        )
         exp.set_transpile_options(inst_map=my_inst_map)
         transpiled = exp._transpiled_circuits()
         for qc in transpiled:

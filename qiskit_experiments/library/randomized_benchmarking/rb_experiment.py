@@ -23,7 +23,8 @@ from numpy.random.bit_generator import BitGenerator, SeedSequence
 
 from qiskit.circuit import QuantumCircuit, Instruction, Barrier
 from qiskit.exceptions import QiskitError
-from qiskit.providers.backend import Backend, BackendV2
+from qiskit.providers import BackendV2Converter
+from qiskit.providers.backend import Backend, BackendV1, BackendV2
 from qiskit.pulse.instruction_schedule_map import CalibrationPublisher
 from qiskit.quantum_info import Clifford
 from qiskit.quantum_info.random import random_clifford
@@ -140,13 +141,14 @@ class StandardRB(BaseExperiment, RestlessMixin):
 
         return options
 
-    # TODO: Comment out after terra#8759 is released
-    # def _set_backend(self, backend: Backend):
-    #     """Set the backend V2 for RB experiments since RB experiments only support BackendV2.
-    #     If BackendV1 is provided, it is converted to V2 and stored.
-    #     """
-    #     self._backend = BackendV2Converter(backend)
-    #     self._backend_data = BackendData(self._backend)
+    def _set_backend(self, backend: Backend):
+        """Set the backend V2 for RB experiments since RB experiments only support BackendV2.
+        If BackendV1 is provided, it is converted to V2 and stored.
+        """
+        if isinstance(backend, BackendV1) and "simulator" not in backend.name():
+            super()._set_backend(BackendV2Converter(backend))
+        else:
+            super()._set_backend(backend)
 
     def circuits(self) -> List[QuantumCircuit]:
         """Return a list of RB circuits.
@@ -331,11 +333,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
                 for circ in self.circuits()
             ]
             # Set custom calibrations provided in backend
-            if self.backend:
-                # TODO: Remove V2 restriction after V2 conversion in _set_backend
-                if not isinstance(self.backend, BackendV2):
-                    raise NotImplementedError
-
+            if isinstance(self.backend, BackendV2):
                 # assert self.num_qubits <= 2
                 qargs_patterns = [self.physical_qubits]  # for self.num_qubits == 1
                 if self.num_qubits == 2:
