@@ -4,19 +4,22 @@ Installation
 Official Qiskit Experiments releases can be installed via the python package manager 
 `pip`.
 
-.. code-block::
+.. code-block:: python
+
     python -m pip install qiskit-experiments
 
 If you want to install the most up-to-date version instead (may not be stable), you can
 install the latest main branch:
 
-.. code-block::
+.. code-block:: python
+
     python -m pip install git+https://github.com/Qiskit/qiskit-experiments.git
 
 If you want to develop the package, you can install Qiskit Experiments from source by 
 cloning the repository:
 
-.. code-block::
+.. code-block:: python
+
     git clone https://github.com/Qiskit/qiskit-experiments.git
     python -m pip install -e qiskit-experiments
 
@@ -29,14 +32,16 @@ Running Your First Experiment
 Let's run a T1 experiment. FIrst, we have to import the T1 experiment from the 
 Qiskit Experiments library:
 
-.. code-block::
+.. code-block:: python
+
     from qiskit_experiments.library import T1
     from qiskit_aer import AerSimulator
     import numpy as np
 
 Instantiate the backend and the experiment:
 
-.. code-block::
+.. code-block:: python
+
     backend = AerSimulator.from_backend(FakeVigo(), noise_model=noise_model)
     qubit0_t1 = backend.properties().t1(0)
 
@@ -45,7 +50,8 @@ Instantiate the backend and the experiment:
 
 Run and display results:
 
-.. code-block::
+.. code-block:: python
+
     exp_data = exp.run(backend=backend, seed_simulator=101).block_for_results()
 
     # Print the result

@@ -4,7 +4,8 @@ How to instantiate a new experiment data object
 If you want to instantiate a new experiment data object from an existing experiment and
 jobs that finished execution successfully:
 
-.. code-block::
+.. code-block:: python
+
     from qiskit_experiments.framework import ExperimentData
 
     # The same experiment that you ran
