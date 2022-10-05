@@ -25,13 +25,21 @@ backends can be stored and retrieved from an online experiment
 Table of Contents
 =================
 
+We've divided up the documentation into areas by purpose. The tutorials are 
+learning-based documentation suitable for getting started. The how-to recipes
+are short and direct instructions for solving specific problems. The experiment
+guides have in-depth explanations for key experiments in the package, and discuss
+advanced usage and options that would be of interest to experimentalists and 
+researchers.
+
 .. toctree::
   :maxdepth: 2
 
+  Tutorials <tutorials/index>
+  How-To Recipes <howtos/index>
+  Experiment Guides <guides/index>
   API References <apidocs/index>
   Experiment Library <apidocs/library>
-  Tutorials <tutorials/index>
-  Experiment Guides <guides/index>
   Release Notes <release_notes>
 
 .. Hiding - Indices and tables
