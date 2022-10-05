@@ -197,10 +197,13 @@ class StandardRB(BaseExperiment, RestlessMixin):
         Returns:
             Sorted basis gate names.
         """
-        # Basis gates to use in basis transformation during circuit generation for 1Q/2Q cases
         basis_gates = self.transpile_options.get("basis_gates", None)
         if not basis_gates and self.backend:
             if isinstance(self.backend, BackendV2):
+                # Only the "global basis gates" are returned for v2 backend.
+                # Some non-global basis gates may be usable for some physical qubits. However,
+                # they are conservatively removed here because the basis gates are agnostic to
+                # the direction of each gate.
                 basis_gates = self.backend.operation_names
                 non_globals = self.backend.target.get_non_global_operation_names(
                     strict_direction=True
@@ -253,9 +256,9 @@ class StandardRB(BaseExperiment, RestlessMixin):
         # Sample an RB sequence with the given length.
         # Return integer instead of Clifford object for 1 or 2 qubits case for speed
         if self.num_qubits == 1:
-            return rng.integers(24, size=length)
+            return rng.integers(CliffordUtils.NUM_CLIFFORD_1_QUBIT, size=length)
         if self.num_qubits == 2:
-            return rng.integers(11520, size=length)
+            return rng.integers(CliffordUtils.NUM_CLIFFORD_2_QUBIT, size=length)
         # Return circuit object instead of Clifford object for 3 or more qubits case for speed
         # TODO: Revisit after terra#7269, #7483, #8585
         return [random_clifford(self.num_qubits, rng).to_circuit() for _ in range(length)]
@@ -278,28 +281,30 @@ class StandardRB(BaseExperiment, RestlessMixin):
         return Clifford(np.eye(2 * self.num_qubits))
 
     def __compose_clifford_seq(
-        self, org: SequenceElementType, seq: Sequence[SequenceElementType]
+        self, base_elem: SequenceElementType, elements: Sequence[SequenceElementType]
     ) -> SequenceElementType:
         if self.num_qubits <= 2:
-            new = org
-            for elem in seq:
+            new = base_elem
+            for elem in elements:
                 new = self.__compose_clifford(new, elem)
             return new
         # 3 or more qubits: compose Clifford from circuits for speed
         # TODO: Revisit after terra#7269, #7483, #8585
         circ = QuantumCircuit(self.num_qubits)
-        for elem in seq:
+        for elem in elements:
             circ.compose(elem, inplace=True)
-        return org.compose(Clifford.from_circuit(circ))
+        return base_elem.compose(Clifford.from_circuit(circ))
 
     def __compose_clifford(
-        self, lop: SequenceElementType, rop: SequenceElementType
+        self, left_elem: SequenceElementType, right_elem: SequenceElementType
     ) -> SequenceElementType:
         if self.num_qubits <= 2:
             utils = self._cliff_utils
-            return utils.compose_num_with_clifford(lop, utils.create_cliff_from_num(rop))
+            return utils.compose_num_with_clifford(
+                left_elem, utils.create_cliff_from_num(right_elem)
+            )
 
-        return lop.compose(rop)
+        return left_elem.compose(right_elem)
 
     def __adjoint_clifford(self, op: SequenceElementType) -> SequenceElementType:
         if self.num_qubits <= 2:
@@ -323,7 +328,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
             transpiled = super()._transpiled_circuits()
         else:
             transpiled = [
-                _transpile_clifford_circuit(circ, layout=self.physical_qubits)
+                _transpile_clifford_circuit(circ, physical_qubits=self.physical_qubits)
                 for circ in self.circuits()
             ]
             # Set custom calibrations provided in backend

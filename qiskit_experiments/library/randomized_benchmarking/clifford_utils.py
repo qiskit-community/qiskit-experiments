@@ -43,9 +43,11 @@ from .clifford_data import (
 
 
 # Transpilation utilities
-def _transpile_clifford_circuit(circuit: QuantumCircuit, layout: Sequence[int]) -> QuantumCircuit:
+def _transpile_clifford_circuit(
+    circuit: QuantumCircuit, physical_qubits: Sequence[int]
+) -> QuantumCircuit:
     # Simplified transpile, which only decomposes Clifford circuits and layout qubits
-    return _apply_qubit_layout(_decompose_clifford_ops(circuit), layout=layout)
+    return _apply_qubit_layout(_decompose_clifford_ops(circuit), physical_qubits=physical_qubits)
 
 
 def _decompose_clifford_ops(circuit: QuantumCircuit) -> QuantumCircuit:
@@ -75,13 +77,13 @@ def _decompose_clifford_ops(circuit: QuantumCircuit) -> QuantumCircuit:
     return res
 
 
-def _apply_qubit_layout(circuit: QuantumCircuit, layout: Sequence[int]) -> QuantumCircuit:
+def _apply_qubit_layout(circuit: QuantumCircuit, physical_qubits: Sequence[int]) -> QuantumCircuit:
     # Mapping qubits in circuit to physical qubits (layout)
-    res = QuantumCircuit(1 + max(layout), name=circuit.name, metadata=circuit.metadata)
+    res = QuantumCircuit(1 + max(physical_qubits), name=circuit.name, metadata=circuit.metadata)
     res.add_bits(circuit.clbits)
     for reg in circuit.cregs:
         res.add_register(reg)
-    _circuit_compose(res, circuit, qubits=layout)
+    _circuit_compose(res, circuit, qubits=physical_qubits)
     res._parameter_table = circuit._parameter_table
     return res
 
