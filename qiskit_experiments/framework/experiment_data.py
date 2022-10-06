@@ -80,10 +80,16 @@ def do_auto_save(func: Callable):
 
 
 class FigureData:
-    """Wrapper for figures and figure metadata"""
+    """Wrapper class for figures and figure metadata. The raw figure can be accessed with
+    the ``figure`` attribute."""
 
     def __init__(self, figure, name=None, metadata=None):
-        """Creates a new figure data object"""
+        """Creates a new figure data object.
+
+        Args:
+            figure: the raw figure itself. Can be SVG or matplotlib.Figure.
+            name: Optional, the name of the figure.
+            metadata: Optional, any metadata to be stored with the figure."""
         self.figure = figure
         self._name = name
         self.metadata = metadata or {}
@@ -335,7 +341,7 @@ class ExperimentData:
             The start datetime of this experiment data.
 
         """
-        return self._db_data.end_datetime
+        return self._db_data.start_datetime
 
     @property
     def updated_datetime(self) -> "datetime":
@@ -452,7 +458,7 @@ class ExperimentData:
         Returns:
             Names of figures associated with this experiment.
         """
-        return self._figures.keys()
+        return self._db_data.figure_names
 
     @property
     def share_level(self) -> str:
@@ -1058,6 +1064,7 @@ class ExperimentData:
                 figure_data = FigureData(figure=figure, name=fig_name, metadata=figure_metadata)
 
             self._figures[fig_name] = figure_data
+            self._db_data.figure_names.append(fig_name)
 
             save = save_figure if save_figure is not None else self.auto_save
             if save and self._service:

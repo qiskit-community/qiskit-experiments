@@ -16,10 +16,12 @@ Temporary backend to be used to apply T2 and T1 noise.
 from typing import List
 
 from qiskit import QuantumCircuit
-from qiskit.providers.aer import AerSimulator
-from qiskit.providers.aer.jobs.aerjob import AerJob
-from qiskit.providers.aer.noise.passes import RelaxationNoisePass
 from qiskit.circuit import Delay
+
+from qiskit_aer import AerSimulator
+from qiskit_aer.jobs.aerjob import AerJob
+from qiskit_aer.noise.passes import RelaxationNoisePass
+
 from qiskit_experiments.framework import BackendData
 
 

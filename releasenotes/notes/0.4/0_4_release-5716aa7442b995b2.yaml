@@ -1,0 +1,6 @@
+---
+prelude: >
+    The Qiskit Experiments 0.4 release includes major improvements to the :class:`.CurveAnalysis`
+    class and other bug fixes and improvements. The database service has switched to the
+    `qiskit-ibm-experiment <https://github.com/Qiskit/qiskit-ibm-experiment>`_ provider.
+    Several new data processing nodes have been added.
