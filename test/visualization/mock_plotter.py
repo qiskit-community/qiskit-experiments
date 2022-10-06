@@ -14,7 +14,8 @@ Mock plotter for testing.
 """
 
 from typing import List
-from qiskit_experiments.visualization import BasePlotter, BaseDrawer
+
+from qiskit_experiments.visualization import BaseDrawer, BasePlotter
 
 
 class MockPlotter(BasePlotter):
@@ -47,13 +48,13 @@ class MockPlotter(BasePlotter):
         """Plots a figure if :attr:`plotting_enabled` is True.
 
         If :attr:`plotting_enabled` is True, :class:`MockPlotter` calls
-        :meth:`~BaseDrawer.draw_formatted_data` for a series titled ``seriesA`` with ``x``, ``y``, and
+        :meth:`~BaseDrawer.scatter` for a series titled ``seriesA`` with ``x``, ``y``, and
         ``z`` data-keys assigned to the x and y values and the y-error/standard deviation respectively.
         If :attr:`drawer` generates a figure, then :meth:`figure` should return a scatterplot figure with
         error-bars.
         """
         if self.plotting_enabled:
-            self.drawer.draw_formatted_data(*self.data_for("seriesA", ["x", "y", "z"]), "seriesA")
+            self.drawer.scatter(*self.data_for("seriesA", ["x", "y", "z"]), "seriesA")
 
     @classmethod
     def expected_series_data_keys(cls) -> List[str]:

@@ -48,7 +48,7 @@ class MockDrawer(BaseDrawer):
         """Does nothing."""
         pass
 
-    def draw_scatter(
+    def scatter(
         self,
         x_data: Sequence[float],
         y_data: Sequence[float],
@@ -62,7 +62,7 @@ class MockDrawer(BaseDrawer):
         """Does nothing."""
         pass
 
-    def draw_line(
+    def line(
         self,
         x_data: Sequence[float],
         y_data: Sequence[float],
@@ -74,7 +74,7 @@ class MockDrawer(BaseDrawer):
         """Does nothing."""
         pass
 
-    def draw_filled_y_area(
+    def filled_y_area(
         self,
         x_data: Sequence[float],
         y_ub: Sequence[float],
@@ -87,7 +87,7 @@ class MockDrawer(BaseDrawer):
         """Does nothing."""
         pass
 
-    def draw_filled_x_area(
+    def filled_x_area(
         self,
         x_ub: Sequence[float],
         x_lb: Sequence[float],
@@ -100,7 +100,7 @@ class MockDrawer(BaseDrawer):
         """Does nothing."""
         pass
 
-    def draw_text_box(
+    def textbox(
         self,
         description: str,
         rel_pos: Optional[Tuple[float, float]] = None,

@@ -60,8 +60,8 @@ class CurvePlotter(BasePlotter):
 
         Data Keys:
             report_text: A string containing any fit report information to be drawn in a box.
-                The style and position of the report is controlled by ``text_box_rel_pos`` and
-                ``text_box_text_size`` style parameters in :class:`PlotStyle`.
+                The style and position of the report is controlled by ``textbox_rel_pos`` and
+                ``textbox_text_size`` style parameters in :class:`PlotStyle`.
         """
         return [
             "report_text",
@@ -90,7 +90,7 @@ class CurvePlotter(BasePlotter):
             plotted_formatted_data = False
             if self.data_exists_for(ser, ["x_formatted", "y_formatted", "y_formatted_err"]):
                 x, y, yerr = self.data_for(ser, ["x_formatted", "y_formatted", "y_formatted_err"])
-                self.drawer.draw_scatter(x, y, y_err=yerr, name=ser, zorder=2, legend=True)
+                self.drawer.scatter(x, y, y_err=yerr, name=ser, zorder=2, legend=True)
                 plotted_formatted_data = True
 
             # Scatter plot
@@ -104,10 +104,10 @@ class CurvePlotter(BasePlotter):
                 if plotted_formatted_data:
                     options["color"] = "gray"
                 # If we didn't plot formatted data, the X-Y markers should be used for the legend. We add
-                # it to ``options`` so it's easier to pass to ``draw_scatter``.
+                # it to ``options`` so it's easier to pass to ``scatter``.
                 if not plotted_formatted_data:
                     options["legend"] = True
-                self.drawer.draw_scatter(
+                self.drawer.scatter(
                     x,
                     y,
                     name=ser,
@@ -117,7 +117,7 @@ class CurvePlotter(BasePlotter):
             # Line plot for fit
             if self.data_exists_for(ser, ["x_interp", "y_interp"]):
                 x, y = self.data_for(ser, ["x_interp", "y_interp"])
-                self.drawer.draw_line(x, y, name=ser, zorder=3)
+                self.drawer.line(x, y, name=ser, zorder=3)
 
             # Confidence interval plot
             if self.data_exists_for(ser, ["x_interp", "y_interp", "y_interp_err"]):
@@ -125,7 +125,7 @@ class CurvePlotter(BasePlotter):
                     ser, ["x_interp", "y_interp", "y_interp_err"]
                 )
                 for n_sigma, alpha in self.options.plot_sigma:
-                    self.drawer.draw_filled_y_area(
+                    self.drawer.filled_y_area(
                         x,
                         y_interp + n_sigma * y_interp_err,
                         y_interp - n_sigma * y_interp_err,
@@ -137,4 +137,4 @@ class CurvePlotter(BasePlotter):
             # Fit report
             if "report_text" in self.supplementary_data:
                 report_text = self.supplementary_data["report_text"]
-                self.drawer.draw_text_box(report_text)
+                self.drawer.textbox(report_text)

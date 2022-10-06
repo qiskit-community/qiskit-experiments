@@ -312,7 +312,7 @@ class MplDrawer(BaseDrawer):
             if _label:
                 options["label"] = _label
 
-    def draw_scatter(
+    def scatter(
         self,
         x_data: Sequence[float],
         y_data: Sequence[float],
@@ -359,7 +359,7 @@ class MplDrawer(BaseDrawer):
                 x_data, y_data, yerr=y_err, xerr=x_err, **errorbar_options
             )
 
-    def draw_line(
+    def line(
         self,
         x_data: Sequence[float],
         y_data: Sequence[float],
@@ -381,7 +381,7 @@ class MplDrawer(BaseDrawer):
         draw_ops.update(**options)
         self._get_axis(axis).plot(x_data, y_data, **draw_ops)
 
-    def draw_filled_y_area(
+    def filled_y_area(
         self,
         x_data: Sequence[float],
         y_ub: Sequence[float],
@@ -403,7 +403,7 @@ class MplDrawer(BaseDrawer):
         draw_ops.update(**options)
         self._get_axis(axis).fill_between(x_data, y1=y_lb, y2=y_ub, **draw_ops)
 
-    def draw_filled_x_area(
+    def filled_x_area(
         self,
         x_ub: Sequence[float],
         x_lb: Sequence[float],
@@ -425,7 +425,7 @@ class MplDrawer(BaseDrawer):
         draw_ops.update(**options)
         self._get_axis(axis).fill_betweenx(y_data, x1=x_lb, x2=x_ub, **draw_ops)
 
-    def draw_text_box(
+    def textbox(
         self,
         description: str,
         rel_pos: Optional[Tuple[float, float]] = None,

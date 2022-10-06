@@ -45,31 +45,33 @@ class BaseDrawer(ABC):
         This method formats the appearance of the canvas. Typically, it updates axis and tick labels.
         Note that the axis SI unit may be specified in the drawer figure_options. In this case, axis
         numbers should be auto-scaled with the unit prefix.
+        
+    Drawing Methods:
 
-    draw_scatter
+        scatter
 
-        This method draws scatter points on the canvas, like a scatter-plot, with optional error-bars in
-        both the X and Y axes.
+            This method draws scatter points on the canvas, like a scatter-plot, with optional error-bars in
+            both the X and Y axes.
 
-    draw_line
+        line
 
-        This method plots a line from provided X and Y values.
+            This method plots a line from provided X and Y values.
 
-    draw_filled_y_area
+        filled_y_area
 
-        This method plots a shaped region bounded by upper and lower Y-values. This method is typically
-        called with interpolated x and a pair of y values that represent the upper and lower bound within
-        certain confidence interval. If this is called multiple times, it may be necessary to set the
-        transparency so that overlapping regions can be distinguished.
+            This method plots a shaped region bounded by upper and lower Y-values. This method is typically
+            called with interpolated x and a pair of y values that represent the upper and lower bound within
+            certain confidence interval. If this is called multiple times, it may be necessary to set the
+            transparency so that overlapping regions can be distinguished.
 
-    draw_filled_x_area
+        filled_x_area
 
-        This method plots a shaped region bounded by upper and lower X-values, as a function of Y-values.
-        This method is a rotated analogue of :meth:`draw_filled_y_area`.
+            This method plots a shaped region bounded by upper and lower X-values, as a function of Y-values.
+            This method is a rotated analogue of :meth:`filled_y_area`.
 
-    draw_text_box
+        textbox
 
-        This method draws a text-box on the canvas, which is a rectangular region containing some text.
+            This method draws a text-box on the canvas, which is a rectangular region containing some text.
 
     Options and Figure Options
     ==========================
@@ -92,22 +94,22 @@ class BaseDrawer(ABC):
 
     Legends are generated based off of drawn graphics and their labels or names. These are managed by
     individual drawer subclasses, and generated when the :meth:`format_canvas` method is called. Legend
-    entries are created when any ``draw_*`` function is called with ``legend=True``. There are three
-    parameters in ``draw_*`` functions that are relevant to legend generation: ``name``, ``label``, and
-    ``legend``. If a user would like the graphics drawn onto a canvas, by a call to ``draw_*``, to be
-    used as the graphical component of a legend entry; they should set ``legend=True``. The legend entry
-    label can be defined in three locations: the ``label`` parameter of ``draw_*`` functions, the
-    ``"label"`` entry in ``series_params``, and the ``name`` parameter of ``draw_*`` functions. These
-    three possible label variables have a search hierarchy given by the order in the aforementioned list.
-    If one of the label variables is ``None``, the next is used. If all are ``None``, a legend entry is
-    not generated for the given series.
+    entries are created when any drawing function is called with ``legend=True``. There are three
+    parameters in drawing functions that are relevant to legend generation: ``name``, ``label``, and
+    ``legend``. If a user would like the graphics drawn onto a canvas to be used as the graphical
+    component of a legend entry; they should set ``legend=True``. The legend entry label can be defined
+    in three locations: the ``label`` parameter of drawing functions, the ``"label"`` entry in
+    ``series_params``, and the ``name`` parameter of drawing functions. These three possible label
+    variables have a search hierarchy given by the order in the aforementioned list. If one of the label
+    variables is ``None``, the next is used. If all are ``None``, a legend entry is not generated for the
+    given series.
 
     The recommended way to customize the legend entries is as follows:
         1. Set the labels in the ``series_params`` option, keyed on the series names.
         2. Initialize the canvas.
-        3. Call relevant ``draw_*`` methods to create the figure. When calling the ``draw_*`` method that
+        3. Call relevant drawing methods to create the figure. When calling the drawing method that
            creates the graphic you would like to use in the legend, set ``legend=True``. For example,
-           ``drawer.draw_scatter(...,legend=True)`` would use the scatter points as the legend graphics
+           ``drawer.scatter(...,legend=True)`` would use the scatter points as the legend graphics
            for the given series.
         4. Format the canvas and call :meth:`figure` to get the figure.
     """
@@ -297,7 +299,7 @@ class BaseDrawer(ABC):
         return None
 
     @abstractmethod
-    def draw_scatter(
+    def scatter(
         self,
         x_data: Sequence[float],
         y_data: Sequence[float],
@@ -326,7 +328,7 @@ class BaseDrawer(ABC):
         """
 
     @abstractmethod
-    def draw_line(
+    def line(
         self,
         x_data: Sequence[float],
         y_data: Sequence[float],
@@ -351,7 +353,7 @@ class BaseDrawer(ABC):
         """
 
     @abstractmethod
-    def draw_filled_y_area(
+    def filled_y_area(
         self,
         x_data: Sequence[float],
         y_ub: Sequence[float],
@@ -378,7 +380,7 @@ class BaseDrawer(ABC):
         """
 
     @abstractmethod
-    def draw_filled_x_area(
+    def filled_x_area(
         self,
         x_ub: Sequence[float],
         x_lb: Sequence[float],
@@ -405,7 +407,7 @@ class BaseDrawer(ABC):
         """
 
     @abstractmethod
-    def draw_text_box(
+    def textbox(
         self,
         description: str,
         rel_pos: Optional[Tuple[float, float]] = None,
@@ -415,7 +417,7 @@ class BaseDrawer(ABC):
 
         Args:
             description: A string to be drawn inside a report box.
-            rel_pos: Relative position of the text-box. If None, the default ``text_box_rel_pos`` from
+            rel_pos: Relative position of the text-box. If None, the default ``textbox_rel_pos`` from
                 the style is used.
             options: Valid options for the drawer backend API.
         """

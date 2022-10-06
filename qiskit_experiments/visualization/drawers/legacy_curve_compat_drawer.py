@@ -36,7 +36,7 @@ class LegacyCurveCompatDrawer(BaseDrawer):
 
     .. note::
         As :class:`BaseCurveDrawer` doesn't support customizing legend entries, the ``legend`` and
-        ``label`` parameters in ``draw_*`` methods (such as :meth:`draw_scatter`) are unsupported and
+        ``label`` parameters in drawing methods (such as :meth:`scatter`) are unsupported and
         do nothing.
     """
 
@@ -56,7 +56,7 @@ class LegacyCurveCompatDrawer(BaseDrawer):
         self._curve_drawer.format_canvas()
 
     # pylint: disable=unused-argument
-    def draw_scatter(
+    def scatter(
         self,
         x_data: Sequence[float],
         y_data: Sequence[float],
@@ -88,7 +88,7 @@ class LegacyCurveCompatDrawer(BaseDrawer):
             self._curve_drawer.draw_raw_data(x_data, y_data, name, **options)
 
     # pylint: disable=unused-argument
-    def draw_line(
+    def line(
         self,
         x_data: Sequence[float],
         y_data: Sequence[float],
@@ -110,7 +110,7 @@ class LegacyCurveCompatDrawer(BaseDrawer):
         self._curve_drawer.draw_fit_line(x_data, y_data, name, **options)
 
     # pylint: disable=unused-argument
-    def draw_filled_y_area(
+    def filled_y_area(
         self,
         x_data: Sequence[float],
         y_ub: Sequence[float],
@@ -135,7 +135,7 @@ class LegacyCurveCompatDrawer(BaseDrawer):
         self._curve_drawer.draw_confidence_interval(x_data, y_ub, y_lb, name, **options)
 
     # pylint: disable=unused-argument
-    def draw_filled_x_area(
+    def filled_x_area(
         self,
         x_ub: Sequence[float],
         x_lb: Sequence[float],
@@ -146,18 +146,18 @@ class LegacyCurveCompatDrawer(BaseDrawer):
         **options,
     ):
         """Does nothing as this is functionality not supported by :class:`BaseCurveDrawer`."""
-        warnings.warn(f"{self.__class__.__name__}.draw_filled_x_area is not supported.")
+        warnings.warn(f"{self.__class__.__name__}.filled_x_area is not supported.")
 
     # pylint: disable=unused-argument
-    def draw_text_box(
+    def textbox(
         self, description: str, rel_pos: Optional[Tuple[float, float]] = None, **options
     ):
-        """Draw text box.
+        """Draw textbox.
 
         Args:
-            description: A string to be drawn inside a report box.
+            description: A string to be drawn inside a text box.
             rel_pos: Unsupported as :class:`BaseCurveDrawer` doesn't support modifying the location of
-                text in :meth:`draw_text_box` or :meth:`BaseCurveDrawer.draw_fit_report`.
+                text in :meth:`textbox` or :meth:`BaseCurveDrawer.draw_fit_report`.
             options: Valid options for the drawer backend API.
         """
 
