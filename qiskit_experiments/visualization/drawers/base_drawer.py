@@ -45,13 +45,13 @@ class BaseDrawer(ABC):
         This method formats the appearance of the canvas. Typically, it updates axis and tick labels.
         Note that the axis SI unit may be specified in the drawer figure_options. In this case, axis
         numbers should be auto-scaled with the unit prefix.
-        
+
     Drawing Methods:
 
         scatter
 
-            This method draws scatter points on the canvas, like a scatter-plot, with optional error-bars in
-            both the X and Y axes.
+            This method draws scatter points on the canvas, like a scatter-plot, with optional error-bars
+            in both the X and Y axes.
 
         line
 
@@ -59,19 +59,20 @@ class BaseDrawer(ABC):
 
         filled_y_area
 
-            This method plots a shaped region bounded by upper and lower Y-values. This method is typically
-            called with interpolated x and a pair of y values that represent the upper and lower bound within
-            certain confidence interval. If this is called multiple times, it may be necessary to set the
-            transparency so that overlapping regions can be distinguished.
+            This method plots a shaped region bounded by upper and lower Y-values. This method is
+            typically called with interpolated x and a pair of y values that represent the upper and
+            lower bound within certain confidence interval. If this is called multiple times, it may be
+            necessary to set the transparency so that overlapping regions can be distinguished.
 
         filled_x_area
 
-            This method plots a shaped region bounded by upper and lower X-values, as a function of Y-values.
-            This method is a rotated analogue of :meth:`filled_y_area`.
+            This method plots a shaped region bounded by upper and lower X-values, as a function of
+            Y-values. This method is a rotated analogue of :meth:`filled_y_area`.
 
         textbox
 
-            This method draws a text-box on the canvas, which is a rectangular region containing some text.
+            This method draws a text-box on the canvas, which is a rectangular region containing some
+            text.
 
     Options and Figure Options
     ==========================
@@ -109,8 +110,8 @@ class BaseDrawer(ABC):
         2. Initialize the canvas.
         3. Call relevant drawing methods to create the figure. When calling the drawing method that
            creates the graphic you would like to use in the legend, set ``legend=True``. For example,
-           ``drawer.scatter(...,legend=True)`` would use the scatter points as the legend graphics
-           for the given series.
+           ``drawer.scatter(...,legend=True)`` would use the scatter points as the legend graphics for
+           the given series.
         4. Format the canvas and call :meth:`figure` to get the figure.
     """
 

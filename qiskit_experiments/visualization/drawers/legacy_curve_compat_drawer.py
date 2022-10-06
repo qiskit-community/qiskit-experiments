@@ -150,7 +150,10 @@ class LegacyCurveCompatDrawer(BaseDrawer):
 
     # pylint: disable=unused-argument
     def textbox(
-        self, description: str, rel_pos: Optional[Tuple[float, float]] = None, **options
+        self,
+        description: str,
+        rel_pos: Optional[Tuple[float, float]] = None,
+        **options,
     ):
         """Draw textbox.
 
