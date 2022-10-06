@@ -16,10 +16,10 @@ backends can be stored and retrieved from an online experiment
 
 .. warning::
 
-   This package is still under active development and it is very likely
-   that there will be breaking API changes in future releases.
-   If you encounter any bugs please open an issue on
-   `Github <https://github.com/Qiskit/qiskit-experiments/issues>`_
+    This package is still under active development and it is very likely
+    that there will be breaking API changes in future releases.
+    If you encounter any bugs please open an issue on
+    `Github <https://github.com/Qiskit/qiskit-experiments/issues>`_
 
 
 Table of Contents
@@ -32,15 +32,14 @@ guides have in-depth explanations for key experiments in the package, and discus
 advanced usage and options that would be of interest to experimentalists and 
 researchers.
 
-.. toctree::
-  :maxdepth: 2
+.. nbgallery::
+    :glob:
 
-  Tutorials <tutorials/index>
-  How-To Recipes <howtos/index>
-  Experiment Guides <guides/index>
-  API References <apidocs/index>
-  Experiment Library <apidocs/library>
-  Release Notes <release_notes>
+    Tutorials <tutorials/index>
+    How-To Recipes <howtos/index>
+    Experiment Guides <guides/index>
+    API References <apidocs/index>
+    Release Notes <release_notes>
 
 .. Hiding - Indices and tables
    :ref:`genindex`

@@ -2,7 +2,7 @@ Installation
 =============
 
 Official Qiskit Experiments releases can be installed via the python package manager 
-`pip`.
+``pip``.
 
 .. code-block:: python
 
@@ -23,7 +23,7 @@ cloning the repository:
     git clone https://github.com/Qiskit/qiskit-experiments.git
     python -m pip install -e qiskit-experiments
 
-The `-e` option will keep your installed package up to date as you make or pull new 
+The ``-e`` option will keep your installed package up to date as you make or pull new 
 changes.
 
 Running Your First Experiment
