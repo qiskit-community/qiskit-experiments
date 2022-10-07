@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -11,18 +11,24 @@
 # that they have been altered from the originals.
 
 """A Pulse simulation backend based on Qiskit-Dynamics"""
+import copy
 import datetime
-from typing import Union
+from functools import lru_cache
+from typing import Dict, List, Optional, Tuple, Union
 
 import numpy as np
+
 from qiskit import QuantumCircuit
+from qiskit.circuit import CircuitInstruction
+from qiskit.circuit.measure import Measure
 from qiskit.providers import BackendV2, QubitProperties
 from qiskit.providers.models import PulseDefaults
 from qiskit.providers.options import Options
+from qiskit.pulse import ScheduleBlock
 from qiskit.qobj.utils import MeasLevel, MeasReturnType
 from qiskit.quantum_info.states import Statevector
 from qiskit.result import Result
-from qiskit.transpiler import Target, InstructionProperties
+from qiskit.transpiler import InstructionProperties, Target
 
 from qiskit_dynamics import Solver
 from qiskit_dynamics.pulse import InstructionToSignals
@@ -30,13 +36,17 @@ from qiskit_dynamics.pulse import InstructionToSignals
 from qiskit_experiments.exceptions import QiskitError
 from qiskit_experiments.test.utils import FakeJob
 
-from qiskit.circuit.measure import Measure
-
 
 class IQPulseBackend(BackendV2):
     """Pulse Simulator abstract class"""
 
-    def __init__(self, static_hamiltonian, hamiltonian_operators, dt=0.1 * 1e-9, **kwargs):
+    def __init__(
+        self,
+        static_hamiltonian: np.ndarray,
+        hamiltonian_operators: np.ndarray,
+        dt: Optional[float] = 0.1 * 1e-9,
+        **kwargs,
+    ):
         """Hamiltonian and operators is the Qiskit Dynamics object"""
         super().__init__(
             None,
@@ -45,13 +55,15 @@ class IQPulseBackend(BackendV2):
             online_date=datetime.datetime.utcnow(),
             backend_version="0.0.1",
         )
-        self._defaults = PulseDefaults.from_dict({
+        self._defaults = PulseDefaults.from_dict(
+            {
                 "qubit_freq_est": [0],
                 "meas_freq_est": [0],
                 "buffer": 0,
                 "pulse_library": [],
                 "cmd_def": [],
-            })
+            }
+        )
 
         self.converter = None
 
@@ -62,6 +74,16 @@ class IQPulseBackend(BackendV2):
         self.gound_state = np.zeros(self.solver.model.dim)
         self.gound_state[0] = 1
         self.y_0 = np.eye(self.solver.model.dim)
+
+    @property
+    def default_pulse_unitaries(self) -> Dict[Tuple, np.array]:
+        """Return the default unitary matrices of the backend."""
+        return self._simulated_pulse_unitaries
+
+    @default_pulse_unitaries.setter
+    def default_pulse_unitaries(self, unitaries: Dict[Tuple, np.array]):
+        """Set the default unitary pulses this allows the tests to simulate the pulses only once."""
+        self._simulated_pulse_unitaries = unitaries
 
     @property
     def target(self):
@@ -80,29 +102,34 @@ class IQPulseBackend(BackendV2):
         return Options(shots=1024)
 
     @staticmethod
-    def _get_info(inst):
-        p_dict = inst.operation
-        qubit = tuple(int(str(val)[-2]) for val in inst.qubits)
+    def _get_info(instruction: CircuitInstruction) -> Tuple[Tuple(int), Tuple(float), str]:
+        p_dict = instruction.operation
+        qubit = tuple(int(str(val)[-2]) for val in instruction.qubits)
         params = tuple(float(val) for val in p_dict.params)
         return qubit, params, p_dict.name
 
     @staticmethod
     def _state_vector_to_result(
         state: Union[Statevector, np.ndarray],
-        shots: int = 1024,
-        meas_return: MeasReturnType = 0,
-        meas_level: MeasLevel = 0,
-    ):
+        shots: Optional[int] = 1024,
+        meas_return: Optional[MeasReturnType] = 0,
+        meas_level: Optional[MeasLevel] = 0,
+    ) -> Union[Dict[str, int], complex]:
         """Convert the state vector to IQ data or counts."""
 
-        # if meas_level == MeasLevel.CLASSIFIED:
-        # sample from the state vector. There might already be functions in Qiskit to do this.
-        #     counts = ...
-        # if meas_level == MeasLevel.KERNELED:
-        #     iq_data = ... create IQ data.
-        return Statevector(state).sample_memory(shots)
+        if meas_level == MeasLevel.CLASSIFIED:
+            measurement = Statevector(state).sample_counts(shots)
+        elif meas_level == MeasLevel.KERNELED:
+            raise QiskitError("TODO: generate IQ data")
+            # measurement = iq_data = ... #create IQ data.
 
-    def solve(self, schedule_blocks, qubits):
+        if meas_return == "avg":
+            return np.average(list(measurement.keys()), weights=list(measurement.values()))
+        else:
+            return measurement
+
+    @lru_cache
+    def solve(self, schedule_blocks: ScheduleBlock, qubits: Tuple(int)) -> np.ndarray:
         """Soleves a single schdule block and returns the unitary"""
         if len(qubits) > 1:
             QiskitError("TODO multi qubit gates")
@@ -119,13 +146,8 @@ class IQPulseBackend(BackendV2):
 
         return result
 
-    # Parameters differ from overridden 'run' method
-    def run(self, run_input, **options) -> FakeJob:
-        """This should be able to return both counts and IQ data depending on the run options.
-        Loop through each circuit, extract the pulses from the circuit.calibraitons
-        and give them to the pulse solver.
-        Multiply the unitaries of the gates together to get a state vector
-        that we convert to counts or IQ Data"""
+    def run(self, run_input: Union[QuantumCircuit, List[QuantumCircuit]], **options) -> FakeJob:
+        """run method takes circuits as input and returns FakeJob object with results"""
 
         self.options.update_options(**options)
         shots = self.options.get("shots")
@@ -138,17 +160,14 @@ class IQPulseBackend(BackendV2):
             "job_id": 0,
             "success": True,
             "results": [],
-}
+        }
 
         if isinstance(run_input, QuantumCircuit):
             run_input = [run_input]
 
-        results = []
-        experiment_unitaries = {}
+        experiment_unitaries = copy.deepcopy(self.default_pulse_unitaries)
 
         for circuit in run_input:
-            if circuit.calibrations.__len__ == 0:
-                raise QiskitError("TODO get schedule using pulse.InstructionScheduleMap")
             for name, schedule in circuit.calibrations.items():
                 for (qubits, params), schedule_block in schedule.items():
                     if (name, qubits, params) not in experiment_unitaries:
@@ -161,12 +180,11 @@ class IQPulseBackend(BackendV2):
                 qubits, params, inst_name = self._get_info(instruction)
                 if inst_name in ["barrier", "measure"]:
                     continue
-
                 unitary = experiment_unitaries[(inst_name, qubits, params)]
                 psi = unitary @ psi
-            
-            memory = self._state_vector_to_result(psi/np.linalg.norm(psi), **options)
-            counts = dict(zip(*np.unique(memory, return_counts=True)))
+
+            counts = self._state_vector_to_result(psi / np.linalg.norm(psi), **options)
+            # counts = dict(zip(*np.unique(memory, return_counts=True)))
             run_result = {
                 "shots": shots,
                 "success": True,
@@ -174,43 +192,18 @@ class IQPulseBackend(BackendV2):
                 "meas_level": meas_level,
                 "data": {
                     "counts": counts,
-                    "memory": memory,
+                    # "memory": memory,
                 },
             }
-
-            if meas_level == MeasLevel.CLASSIFIED:
-                counts = {}
-                results = self._rng.multinomial(shots, prob_arr, size=1)[0]
-                for result, num_occurrences in enumerate(results):
-                    result_in_str = str(format(result, "b").zfill(output_length))
-                    counts[result_in_str] = num_occurrences
-                run_result["counts"] = counts
-            else:
-                # Phase has meaning only for IQ shot, so we calculate it here
-                phase = self.experiment_helper.iq_phase([circuit])[0]
-                iq_cluster_centers, iq_cluster_width = self.experiment_helper.iq_clusters([circuit])[0]
-
-                # 'circ_qubits' get a list of all the qubits
-                memory = self._draw_iq_shots(
-                    prob_arr,
-                    shots,
-                    list(range(output_length)),
-                    iq_cluster_centers,
-                    iq_cluster_width,
-                    phase,
-                )
-                if meas_return == "avg":
-                    memory = np.average(np.array(memory), axis=0).tolist()
-                run_result["memory"] = memory
 
             result["results"].append(run_result)
         return FakeJob(self, Result.from_dict(result))
 
 
 class SingleTransmonTestBackend(IQPulseBackend):
-    """Construct H in the init"""
+    """Three level aharmonic transmon qubit"""
 
-    def __init__(self, omega_01, delta, lambda_0, lambda_1):
+    def __init__(self, omega_01: float, delta: float, lambda_0: float, lambda_1: float):
 
         omega_02 = 2 * omega_01 + delta
         ket0 = np.array([[1, 0, 0]]).T
@@ -249,12 +242,11 @@ class SingleTransmonTestBackend(IQPulseBackend):
                 "cmd_def": [],
             }
         )
-
-        self._target = Target(qubit_properties=[QubitProperties(frequency=omega_01)], dt=self.dt, granularity=16)
-
+        self._target = Target(
+            qubit_properties=[QubitProperties(frequency=omega_01)], dt=self.dt, granularity=16
+        )
         measure_props = {
             (0,): InstructionProperties(duration=0, error=0),
         }
         self._target.add_instruction(Measure(), measure_props)
-
         self.converter = InstructionToSignals(self.dt, carriers={"d0": omega_01})
