@@ -192,7 +192,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
 
         return sequences
 
-    def _get_basis_gates(self) -> Optional[Tuple[str]]:
+    def _get_basis_gates(self) -> Optional[Tuple[str, ...]]:
         """Get sorted basis gates to use in basis transformation during circuit generation.
 
         Returns:
