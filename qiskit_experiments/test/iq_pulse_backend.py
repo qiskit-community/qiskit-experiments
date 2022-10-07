@@ -52,7 +52,7 @@ class IQPulseBackend(BackendV2):
                 "pulse_library": [],
                 "cmd_def": [],
             })
-        
+
         self.converter = None
 
         self.static_hamiltonian = static_hamiltonian
@@ -100,7 +100,7 @@ class IQPulseBackend(BackendV2):
         #     counts = ...
         # if meas_level == MeasLevel.KERNELED:
         #     iq_data = ... create IQ data.
-        pass
+        return Statevector(state).sample_memory(shots)
 
     def solve(self, schedule_blocks, qubits):
         """Soleves a single schdule block and returns the unitary"""
@@ -126,6 +126,19 @@ class IQPulseBackend(BackendV2):
         and give them to the pulse solver.
         Multiply the unitaries of the gates together to get a state vector
         that we convert to counts or IQ Data"""
+
+        self.options.update_options(**options)
+        shots = self.options.get("shots")
+        meas_level = self.options.get("meas_level")
+
+        result = {
+            "backend_name": f"{self.__class__.__name__}",
+            "backend_version": self.backend_version,
+            "qobj_id": 0,
+            "job_id": 0,
+            "success": True,
+            "results": [],
+}
 
         if isinstance(run_input, QuantumCircuit):
             run_input = [run_input]
