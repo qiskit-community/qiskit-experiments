@@ -1,93 +1,183 @@
+# This code is part of Qiskit.
+#
+# (C) Copyright IBM 2021.
+#
+# This code is licensed under the Apache License, Version 2.0. You may
+# obtain a copy of this license in the LICENSE.txt file in the root directory
+# of this source tree or at http://www.apache.org/licenses/LICENSE-2.0.
+#
+# Any modifications or derivative works of this code must retain this
+# copyright notice, and modified files need to carry a notice indicating
+# that they have been altered from the originals.
+
+"""A Pulse simulation backend based on Qiskit-Dynamics"""
+from typing import Union
 import numpy as np
-from qiskit import circuit
+import datetime
+
 from qiskit import QuantumCircuit
-from qiskit import pulse
-from qiskit.quantum_info.operators import Operator
 from qiskit.quantum_info.states import Statevector
 from qiskit.providers import BackendV2
-from qiskit.circuit.library.standard_gates import XGate, SXGate, IGate
+from qiskit.providers.models import PulseDefaults
 
-from qiskit.providers.aer import PulseSimulator
-from qiskit.providers.aer.pulse import PulseSystemModel
-from qiskit.compiler import assemble
 from qiskit.qobj.utils import MeasLevel, MeasReturnType
-from qiskit_experiments.library import calibration
 from qiskit_experiments.test.utils import FakeJob
 from qiskit.result import Result
 
-from qiskit_dynamics import Solver, Signal
+from qiskit_dynamics import Solver
 from qiskit_dynamics.pulse import InstructionToSignals
 
+from qiskit.providers.options import Options
+from qiskit.transpiler import Target
+from qiskit_experiments.exceptions import QiskitError
+
+
 class IQPulseBackend(BackendV2):
+    def __init__(self, static_hamiltonian, hamiltonian_operators, dt=0.1 * 1e-9, **kwargs):
+        """Hamiltonian and operators is the Qiskit Dynamics object"""
+        super().__init__(
+            None,
+            name="PulseBackendV2",
+            description="A PulseBackend simulator",
+            online_date=datetime.datetime.utcnow(),
+            backend_version="0.0.1",
+        )
 
-    def __init__(self, hamiltonian_static, hamiltonian_operator,  dt: float = 0.222):
-        '''Hamiltonian and operators is the Qiskit Dynamics object'''
-        self.hamiltonian_static=hamiltonian_static
-        self.hamiltonian_operator=hamiltonian_operator
-        self.dt=dt
-        self._solver = Solver(self.hamiltonian_static, self.hamiltonian_operator)  
+        self.static_hamiltonian = static_hamiltonian
+        self.hamiltonian_operators = hamiltonian_operators
+        self._solver = Solver(self.static_hamiltonian, self.hamiltonian_operators, **kwargs)
+        self._target = Target(dt=dt, granularity=16)
+        self.gs = np.zeros(self._solver.model.dim)
+        self.gs[0] = 1
+        self.y0 = np.eye(self._solver.model.dim)
 
-    def _state_vector_to_result(self, state: Statevector, meas_return: MeasReturnType, meas_level: MeasLevel):
-    """Convert the state vector to IQ data or counts."""
-    
-    if meas_level == MeasLevel.CLASSIFIED:
-        counts = ... # sample from the state vector. There might already be functions in Qiskit to do this.
-    if meas_level == MeasLevel.KERNELED:
-        iq_data = ... create IQ data.
+    @property
+    def target(self):
+        return self._target
 
-    def run(self, run_inputs, meas_level, shots, meas_return) -> FakeJob:
-        ''' This should be able to return both counts and IQ data depending on the run options.
+    @property
+    def max_circuits(self):
+        return None
+
+    def defaults(self):
+        return self._defaults
+
+    @classmethod
+    def _default_options(cls):
+        return Options(shots=1024)
+
+    @staticmethod
+    def _get_info(inst):
+        p_dict = inst.operation
+        qubit = tuple(int(str(val)[-2]) for val in inst.qubits)
+        params = tuple(float(val) for val in p_dict.params)
+        return qubit, params, p_dict.name
+
+    @staticmethod
+    def _state_vector_to_result(
+        state: Union[Statevector, np.ndarray], meas_return: MeasReturnType, meas_level: MeasLevel
+    ):
+        """Convert the state vector to IQ data or counts."""
+
+        # if meas_level == MeasLevel.CLASSIFIED:
+        #     counts = ... # sample from the state vector. There might already be functions in Qiskit to do this.
+        # if meas_level == MeasLevel.KERNELED:
+        #     iq_data = ... create IQ data.
+        pass
+
+    def solve(self, schedule_blocks, qubits):
+
+        if len(qubits) > 1:
+            QiskitError("TODO multi qubit gates")
+
+        signal = self.converter.get_signals(schedule_blocks)
+        T = schedule_blocks.duration * self.dt
+        result = self.hamiltonian_solver.solve(
+            t_span=[0.0, T],
+            y0=self.y0,
+            t_eval=[T],
+            signals=signal,
+            method="RK23",
+        ).y[0]
+
+        return result
+
+    def run(self, run_inputs, meas_level=0, shots=1024, meas_return=0) -> FakeJob:
+        """This should be able to return both counts and IQ data depending on the run options.
         Loop through each circuit, extract the pulses from the circuit.calibraitons
         and give them to the pulse solver.
         Multiply the unitaries of the gates together to get a state vector
-        that we convert to counts or IQ Data'''
-        run_inputs= self.run_inputs        
-        
+        that we convert to counts or IQ Data"""
+
         if isinstance(run_inputs, QuantumCircuit):
             run_inputs = [run_inputs]
-        # extract calibration->get the pulse schedule->
-        # unitary = simulated pulse schedule 
-        circuit_unitaries = {}
-        for circuit in run_inputs:
-            for inst_name, instructions in circuit.calibrations.items():
-                circuit_unitaries[inst_name] = instructions
-                for qubit_params, schedule in instructions.items():
-                    solver = Solver(
-                    static_hamiltonian = self.hamiltonian_static,
-                    hamiltonian_operators = self.hamiltonian_operator,
-                    rotating_frame = self.hamiltonian_static,
-                    rwa_cutoff_freq=2*5.0,
-                    hamiltonian_channels = ['d0'] # how to define what qubit to use?
-                    channel_carrier_freqs = {'d0' : w}, #how to define what qubit to use?
-                    dt = 0.222
-                    )
-                # gave a specific number just for convenience for the time
-                    sol = solver.solve(t_span=[0., 20.], y0=np.eye(self._dim), 
-                                        signals = schedule, t_eval=np.linspace(0., 200, 2000))
-                # how to extract unitary from solver.solve
-                    circuit_unitaries[inst_name][qubit_params] = unitary # suppose we extacted unitary from solver.solve
-        # multiply the unitaries for the circuit(only for single qubit)
-            calibration_unitary=[]
-            for index,(key,elem) in enumerate(circuit.calibrations.items()):
-                calibration_unitary.append(key)
-              
-            total_circuit_unitary=[] # cal 안된 애는 cir.data거 그대로 쓰면되고 cal 된애는 unitary above써야되
-            for i in range(len(circuit.data)):
-                unitary = circuit.data[i][0].name
-                if unitary in calibration_unitary:
-                    unitary = #given by solver.solve which is in circuit_unitaries
-                elif unitary not in calibration_unitary:
-                    if unitary == 'x':
-                        unitary = Operator(XGate())
-                    elif unitary == 'sx':
-                        unitary = Operator(SXGate())
-                total_circuit_unitary.append(unitary)
-            for unitary in total_circuit_unitary:
-                single_unitary = Operator(IGate()).compose(unitary)
-        # solver.solve(single_unitary)   
-        # psi = np.array([[1], [0], [0]])  # Need to be a bit more clever here with the dimensions
-        # psi = unitary @ psi  # Forward unitary dynamics.
-        #result = self._statevector_to_result(psi, meas_return, meas_level)
 
-        return FakeJob(self, Result.from_dict(result))
-       
+        results = []
+        experiment_unitaries = {}
+
+        for circuit in run_inputs:
+            if circuit.calibrations.__len__ == 0:
+                raise QiskitError("TODO get schedule using pulse.InstructionScheduleMap")
+            for name, schedule in circuit.calibrations.items():
+                for (qubits, params), schedule_block in schedule.items():
+                    if (name, qubits, params) not in experiment_unitaries:
+                        experiment_unitaries[(name, qubits, params)] = self.solve(schedule_block)
+            psi = self.gs.copy()
+            for instruction in circuit.data:  # TODO check
+                qubits, params, inst_name = self._get_info(instruction)  # TODO
+                if inst_name in ["barrier", "measure"]:
+                    continue
+                if inst_name in ["x", "sx"]:
+                    raise QiskitError("TODO: implement default schdule map")
+                unitary = experiment_unitaries[(inst_name, qubits, params)]
+                psi = unitary @ psi
+
+            results.append(self._state_vector_to_result(psi, meas_level, meas_return))
+
+        return [FakeJob(self, Result.from_dict(result)) for result in results]
+
+
+class SingleQubitTestBackend(IQPulseBackend):
+    """Construct H in the init"""
+
+    def __init__(self, omega_01, delta, lambda_0, lambda_1):
+
+        self._defaults = PulseDefaults.from_dict(
+            {
+                "qubit_freq_est": [omega_01 / 1e9],
+                "meas_freq_est": [0],
+                "buffer": 0,
+                "pulse_library": [],
+                "cmd_def": [],
+            }
+        )
+
+        omega_02 = 2 * omega_01 + delta
+        ket0 = np.array([[1, 0, 0]]).T
+        ket1 = np.array([[0, 1, 0]]).T
+        ket2 = np.array([[0, 0, 1]]).T
+
+        sigma_m1 = ket0 @ ket1.T.conj()
+        sigma_m2 = ket1 @ ket2.T.conj()
+
+        sigma_p1 = sigma_m1.T.conj()
+        sigma_p2 = sigma_m2.T.conj()
+
+        p1 = ket1 @ ket1.T.conj()
+        p2 = ket2 @ ket2.T.conj()
+
+        drift = 2 * np.pi * (omega_01 * p1 + omega_02 * p2)
+        control = [
+            2 * np.pi * (lambda_0 * (sigma_p1 + sigma_m1) + lambda_1 * (sigma_p2 + sigma_m2))
+        ]
+        r_frame = 2 * np.pi * (omega_01 * p1 + 2 * omega_01 * p2)
+
+        super().__init__(
+            static_hamiltonian=drift,
+            hamiltonian_operators=control,
+            rotating_frame=r_frame,
+            rwa_cutoff_freq=1.9 * omega_01,
+            rwa_carrier_freqs=[omega_01],
+        )
+
+        self.converter = InstructionToSignals(self.dt, carriers={"d0": omega_01})
