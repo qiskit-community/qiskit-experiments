@@ -11,28 +11,29 @@
 # that they have been altered from the originals.
 
 """A Pulse simulation backend based on Qiskit-Dynamics"""
-from typing import Union
-import numpy as np
 import datetime
+from typing import Union
 
+import numpy as np
 from qiskit import QuantumCircuit
-from qiskit.quantum_info.states import Statevector
 from qiskit.providers import BackendV2
 from qiskit.providers.models import PulseDefaults
-
+from qiskit.providers.options import Options
 from qiskit.qobj.utils import MeasLevel, MeasReturnType
-from qiskit_experiments.test.utils import FakeJob
+from qiskit.quantum_info.states import Statevector
 from qiskit.result import Result
+from qiskit.transpiler import Target
 
 from qiskit_dynamics import Solver
 from qiskit_dynamics.pulse import InstructionToSignals
 
-from qiskit.providers.options import Options
-from qiskit.transpiler import Target
 from qiskit_experiments.exceptions import QiskitError
+from qiskit_experiments.test.utils import FakeJob
 
 
 class IQPulseBackend(BackendV2):
+    """Pulse Simulator abstract class"""
+
     def __init__(self, static_hamiltonian, hamiltonian_operators, dt=0.1 * 1e-9, **kwargs):
         """Hamiltonian and operators is the Qiskit Dynamics object"""
         super().__init__(
@@ -42,14 +43,16 @@ class IQPulseBackend(BackendV2):
             online_date=datetime.datetime.utcnow(),
             backend_version="0.0.1",
         )
+        self._defaults = PulseDefaults.from_dict({})
+        self.converter = None
 
         self.static_hamiltonian = static_hamiltonian
         self.hamiltonian_operators = hamiltonian_operators
-        self._solver = Solver(self.static_hamiltonian, self.hamiltonian_operators, **kwargs)
+        self.solver = Solver(self.static_hamiltonian, self.hamiltonian_operators, **kwargs)
         self._target = Target(dt=dt, granularity=16)
-        self.gs = np.zeros(self._solver.model.dim)
-        self.gs[0] = 1
-        self.y0 = np.eye(self._solver.model.dim)
+        self.gound_state = np.zeros(self.solver.model.dim)
+        self.gound_state[0] = 1
+        self.y_0 = np.eye(self.solver.model.dim)
 
     @property
     def target(self):
@@ -60,6 +63,7 @@ class IQPulseBackend(BackendV2):
         return None
 
     def defaults(self):
+        """return backend defaults"""
         return self._defaults
 
     @classmethod
@@ -75,54 +79,62 @@ class IQPulseBackend(BackendV2):
 
     @staticmethod
     def _state_vector_to_result(
-        state: Union[Statevector, np.ndarray], meas_return: MeasReturnType, meas_level: MeasLevel
+        state: Union[Statevector, np.ndarray],
+        shots: int,
+        meas_return: MeasReturnType,
+        meas_level: MeasLevel,
     ):
         """Convert the state vector to IQ data or counts."""
 
         # if meas_level == MeasLevel.CLASSIFIED:
-        #     counts = ... # sample from the state vector. There might already be functions in Qiskit to do this.
+        # sample from the state vector. There might already be functions in Qiskit to do this.
+        #     counts = ...
         # if meas_level == MeasLevel.KERNELED:
         #     iq_data = ... create IQ data.
         pass
 
     def solve(self, schedule_blocks, qubits):
-
+        """Soleves a single schdule block and returns the unitary"""
         if len(qubits) > 1:
             QiskitError("TODO multi qubit gates")
 
         signal = self.converter.get_signals(schedule_blocks)
-        T = schedule_blocks.duration * self.dt
-        result = self.hamiltonian_solver.solve(
-            t_span=[0.0, T],
-            y0=self.y0,
-            t_eval=[T],
+        time_f = schedule_blocks.duration * self.dt
+        result = self.solver.solve(
+            t_span=[0.0, time_f],
+            y0=self.y_0,
+            t_eval=[time_f],
             signals=signal,
             method="RK23",
         ).y[0]
 
         return result
 
-    def run(self, run_inputs, meas_level=0, shots=1024, meas_return=0) -> FakeJob:
+    # Parameters differ from overridden 'run' method
+    def run(self, run_input, **options) -> FakeJob:
         """This should be able to return both counts and IQ data depending on the run options.
         Loop through each circuit, extract the pulses from the circuit.calibraitons
         and give them to the pulse solver.
         Multiply the unitaries of the gates together to get a state vector
         that we convert to counts or IQ Data"""
 
-        if isinstance(run_inputs, QuantumCircuit):
-            run_inputs = [run_inputs]
+        if isinstance(run_input, QuantumCircuit):
+            run_input = [run_input]
 
         results = []
         experiment_unitaries = {}
 
-        for circuit in run_inputs:
+        for circuit in run_input:
             if circuit.calibrations.__len__ == 0:
                 raise QiskitError("TODO get schedule using pulse.InstructionScheduleMap")
             for name, schedule in circuit.calibrations.items():
                 for (qubits, params), schedule_block in schedule.items():
                     if (name, qubits, params) not in experiment_unitaries:
-                        experiment_unitaries[(name, qubits, params)] = self.solve(schedule_block)
-            psi = self.gs.copy()
+                        experiment_unitaries[(name, qubits, params)] = self.solve(
+                            schedule_block, qubits
+                        )
+
+            psi = self.gound_state.copy()
             for instruction in circuit.data:  # TODO check
                 qubits, params, inst_name = self._get_info(instruction)  # TODO
                 if inst_name in ["barrier", "measure"]:
@@ -132,7 +144,7 @@ class IQPulseBackend(BackendV2):
                 unitary = experiment_unitaries[(inst_name, qubits, params)]
                 psi = unitary @ psi
 
-            results.append(self._state_vector_to_result(psi, meas_level, meas_return))
+            results.append(self._state_vector_to_result(psi, **options))
 
         return [FakeJob(self, Result.from_dict(result)) for result in results]
 
