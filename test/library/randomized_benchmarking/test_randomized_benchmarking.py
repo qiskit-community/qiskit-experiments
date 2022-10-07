@@ -703,7 +703,7 @@ class TestRunInterleavedRB(RBRunTestCase):
         # Since this is interleaved, we can directly compare values, i.e. n_gpc = 1
         epc = expdata.analysis_results("EPC")
         epc_expected = 3 / 4 * self.pcz
-        self.assertAlmostEqual(epc.value.n, epc_expected, delta=0.1 * epc_expected)
+        self.assertAlmostEqual(epc.value.n, epc_expected, delta=3 * epc.value.std_dev)
 
     def test_expdata_serialization(self):
         """Test serializing experiment data works."""
