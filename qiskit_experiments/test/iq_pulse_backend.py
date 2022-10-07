@@ -16,19 +16,21 @@ from typing import Union
 
 import numpy as np
 from qiskit import QuantumCircuit
-from qiskit.providers import BackendV2
+from qiskit.providers import BackendV2, QubitProperties
 from qiskit.providers.models import PulseDefaults
 from qiskit.providers.options import Options
 from qiskit.qobj.utils import MeasLevel, MeasReturnType
 from qiskit.quantum_info.states import Statevector
 from qiskit.result import Result
-from qiskit.transpiler import Target
+from qiskit.transpiler import Target, InstructionProperties
 
 from qiskit_dynamics import Solver
 from qiskit_dynamics.pulse import InstructionToSignals
 
 from qiskit_experiments.exceptions import QiskitError
 from qiskit_experiments.test.utils import FakeJob
+
+from qiskit.circuit.measure import Measure
 
 
 class IQPulseBackend(BackendV2):
@@ -43,7 +45,14 @@ class IQPulseBackend(BackendV2):
             online_date=datetime.datetime.utcnow(),
             backend_version="0.0.1",
         )
-        self._defaults = PulseDefaults.from_dict({})
+        self._defaults = PulseDefaults.from_dict({
+                "qubit_freq_est": [0],
+                "meas_freq_est": [0],
+                "buffer": 0,
+                "pulse_library": [],
+                "cmd_def": [],
+            })
+        
         self.converter = None
 
         self.static_hamiltonian = static_hamiltonian
@@ -80,9 +89,9 @@ class IQPulseBackend(BackendV2):
     @staticmethod
     def _state_vector_to_result(
         state: Union[Statevector, np.ndarray],
-        shots: int,
-        meas_return: MeasReturnType,
-        meas_level: MeasLevel,
+        shots: int = 1024,
+        meas_return: MeasReturnType = 0,
+        meas_level: MeasLevel = 0,
     ):
         """Convert the state vector to IQ data or counts."""
 
@@ -135,34 +144,60 @@ class IQPulseBackend(BackendV2):
                         )
 
             psi = self.gound_state.copy()
-            for instruction in circuit.data:  # TODO check
-                qubits, params, inst_name = self._get_info(instruction)  # TODO
+            for instruction in circuit.data:
+                qubits, params, inst_name = self._get_info(instruction)
                 if inst_name in ["barrier", "measure"]:
                     continue
-                if inst_name in ["x", "sx"]:
-                    raise QiskitError("TODO: implement default schdule map")
+
                 unitary = experiment_unitaries[(inst_name, qubits, params)]
                 psi = unitary @ psi
+            
+            memory = self._state_vector_to_result(psi/np.linalg.norm(psi), **options)
+            counts = dict(zip(*np.unique(memory, return_counts=True)))
+            run_result = {
+                "shots": shots,
+                "success": True,
+                "header": {"metadata": circuit.metadata},
+                "meas_level": meas_level,
+                "data": {
+                    "counts": counts,
+                    "memory": memory,
+                },
+            }
 
-            results.append(self._state_vector_to_result(psi, **options))
+            if meas_level == MeasLevel.CLASSIFIED:
+                counts = {}
+                results = self._rng.multinomial(shots, prob_arr, size=1)[0]
+                for result, num_occurrences in enumerate(results):
+                    result_in_str = str(format(result, "b").zfill(output_length))
+                    counts[result_in_str] = num_occurrences
+                run_result["counts"] = counts
+            else:
+                # Phase has meaning only for IQ shot, so we calculate it here
+                phase = self.experiment_helper.iq_phase([circuit])[0]
+                iq_cluster_centers, iq_cluster_width = self.experiment_helper.iq_clusters([circuit])[0]
 
-        return [FakeJob(self, Result.from_dict(result)) for result in results]
+                # 'circ_qubits' get a list of all the qubits
+                memory = self._draw_iq_shots(
+                    prob_arr,
+                    shots,
+                    list(range(output_length)),
+                    iq_cluster_centers,
+                    iq_cluster_width,
+                    phase,
+                )
+                if meas_return == "avg":
+                    memory = np.average(np.array(memory), axis=0).tolist()
+                run_result["memory"] = memory
+
+            result["results"].append(run_result)
+        return FakeJob(self, Result.from_dict(result))
 
 
-class SingleQubitTestBackend(IQPulseBackend):
+class SingleTransmonTestBackend(IQPulseBackend):
     """Construct H in the init"""
 
     def __init__(self, omega_01, delta, lambda_0, lambda_1):
-
-        self._defaults = PulseDefaults.from_dict(
-            {
-                "qubit_freq_est": [omega_01 / 1e9],
-                "meas_freq_est": [0],
-                "buffer": 0,
-                "pulse_library": [],
-                "cmd_def": [],
-            }
-        )
 
         omega_02 = 2 * omega_01 + delta
         ket0 = np.array([[1, 0, 0]]).T
@@ -191,5 +226,22 @@ class SingleQubitTestBackend(IQPulseBackend):
             rwa_cutoff_freq=1.9 * omega_01,
             rwa_carrier_freqs=[omega_01],
         )
+
+        self._defaults = PulseDefaults.from_dict(
+            {
+                "qubit_freq_est": [omega_01 / 1e9],
+                "meas_freq_est": [0],
+                "buffer": 0,
+                "pulse_library": [],
+                "cmd_def": [],
+            }
+        )
+
+        self._target = Target(qubit_properties=[QubitProperties(frequency=omega_01)], dt=self.dt, granularity=16)
+
+        measure_props = {
+            (0,): InstructionProperties(duration=0, error=0),
+        }
+        self._target.add_instruction(Measure(), measure_props)
 
         self.converter = InstructionToSignals(self.dt, carriers={"d0": omega_01})
