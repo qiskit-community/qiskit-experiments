@@ -142,8 +142,8 @@ class StandardRB(BaseExperiment, RestlessMixin):
         return options
 
     def _set_backend(self, backend: Backend):
-        """Set the backend V2 for RB experiments since RB experiments only support BackendV2.
-        If BackendV1 is provided, it is converted to V2 and stored.
+        """Set the backend V2 for RB experiments since RB experiments only support BackendV2
+        except for simulators. If BackendV1 is provided, it is converted to V2 and stored.
         """
         if isinstance(backend, BackendV1) and "simulator" not in backend.name():
             super()._set_backend(BackendV2Converter(backend))

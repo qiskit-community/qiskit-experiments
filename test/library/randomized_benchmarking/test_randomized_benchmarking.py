@@ -628,8 +628,8 @@ class TestRunStandardRB(RBRunTestCase):
         self.assertExperimentDone(expdata)
 
         # Given CX error is dominant and 1q error can be negligible.
-        # Arbitrary SU(4) can be decomposed with (0, 1, 2, 3) CX gates, the expected
-        # average number of CX gate per Clifford is 1.5.
+        # Arbitrary SU(4) can be decomposed with (0, 1, 2, 3) CZ gates, the expected
+        # average number of CZ gate per Clifford is 1.5.
         # Since this is two qubit RB, the dep-parameter is factored by 3/4.
         epc = expdata.analysis_results("EPC")
 

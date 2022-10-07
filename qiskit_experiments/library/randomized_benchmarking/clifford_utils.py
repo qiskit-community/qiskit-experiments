@@ -46,7 +46,7 @@ from .clifford_data import (
 def _transpile_clifford_circuit(
     circuit: QuantumCircuit, physical_qubits: Sequence[int]
 ) -> QuantumCircuit:
-    # Simplified transpile, which only decomposes Clifford circuits and layout qubits
+    # Simplified transpile that only decomposes Clifford circuits and creates the layout.
     return _apply_qubit_layout(_decompose_clifford_ops(circuit), physical_qubits=physical_qubits)
 
 

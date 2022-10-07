@@ -66,13 +66,13 @@ class InterleavedRB(StandardRB):
         Args:
             interleaved_element: The element to interleave,
                     given either as a Clifford element, gate, delay or circuit.
-                    Only when the element contains any non-basis gates,
+                    If the element contains any non-basis gates,
                     it will be transpiled with ``transpiled_options`` of this experiment.
                     If it is/contains a delay, its duration and unit must comply with
                     the timing constraints of the ``backend``.
                     (:class:``~qiskit_experiments.framework.backend_timing.BackendTiming`
                     is useful to obtain valid delays.)
-                    Parameterized circuit/instruction is not allowded.
+                    Parameterized circuit/instruction is not allowed.
             qubits: list of physical qubits for the experiment.
             lengths: A list of RB sequences lengths.
             backend: The backend to run the experiment on.
