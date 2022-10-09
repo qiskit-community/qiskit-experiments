@@ -64,7 +64,7 @@ class IQPulseBackend(BackendV2):
                 "cmd_def": [],
             }
         )
-
+        # Q1. need to define converter=IstructionToSigals() roughly like this
         self.converter = None
 
         self.static_hamiltonian = static_hamiltonian
@@ -75,6 +75,7 @@ class IQPulseBackend(BackendV2):
         self.gound_state[0] = 1
         self.y_0 = np.eye(self.solver.model.dim)
 
+   # Q2 _simulated_pulse_unitaries : required!
     @property
     def default_pulse_unitaries(self) -> Dict[Tuple, np.array]:
         """Return the default unitary matrices of the backend."""
@@ -93,7 +94,7 @@ class IQPulseBackend(BackendV2):
     def max_circuits(self):
         return None
 
-    def defaults(self):
+    def defaults(self): 
         """return backend defaults"""
         return self._defaults
 
@@ -119,10 +120,13 @@ class IQPulseBackend(BackendV2):
 
         if meas_level == MeasLevel.CLASSIFIED:
             measurement = Statevector(state).sample_counts(shots)
+        # Q4. Statevector cannot take matrix form (operator form which is not a
+        # single coulum or single row). However we are giving matrix form??
+        # How can we get the counts data from matrix??
         elif meas_level == MeasLevel.KERNELED:
             raise QiskitError("TODO: generate IQ data")
             # measurement = iq_data = ... #create IQ data.
-
+            # Q5
         if meas_return == "avg":
             return np.average(list(measurement.keys()), weights=list(measurement.values()))
         else:
@@ -130,10 +134,12 @@ class IQPulseBackend(BackendV2):
 
     @lru_cache
     def solve(self, schedule_blocks: ScheduleBlock, qubits: Tuple(int)) -> np.ndarray:
-        """Soleves a single schdule block and returns the unitary"""
+        """Solves a single schdule block and returns the unitary"""
         if len(qubits) > 1:
             QiskitError("TODO multi qubit gates")
-
+        #Q3. get_signals(schedule), Instances of ScheduleBlock must first be converted
+        #to Schedule using block_to_schedule() in Qiskit pulse.
+        #block_to_schedule(`scheduleblock`) -> schedule
         signal = self.converter.get_signals(schedule_blocks)
         time_f = schedule_blocks.duration * self.dt
         result = self.solver.solve(
@@ -141,8 +147,8 @@ class IQPulseBackend(BackendV2):
             y0=self.y_0,
             t_eval=[time_f],
             signals=signal,
-            method="RK23",
-        ).y[0]
+            method="RK23", #?
+        ).y[0] 
 
         return result
 
@@ -173,7 +179,7 @@ class IQPulseBackend(BackendV2):
                     if (name, qubits, params) not in experiment_unitaries:
                         experiment_unitaries[(name, qubits, params)] = self.solve(
                             schedule_block, qubits
-                        )
+                        )#schedule_block -> schedule
 
             psi = self.gound_state.copy()
             for instruction in circuit.data:
@@ -201,7 +207,7 @@ class IQPulseBackend(BackendV2):
 
 
 class SingleTransmonTestBackend(IQPulseBackend):
-    """Three level aharmonic transmon qubit"""
+    """Three level anharmonic transmon qubit"""
 
     def __init__(self, omega_01: float, delta: float, lambda_0: float, lambda_1: float):
 
