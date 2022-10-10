@@ -76,6 +76,7 @@ Some experiments may be also used for gate calibration.
     ~characterization.LocalReadoutError
     ~characterization.CorrelatedReadoutError
     ~characterization.ResonatorSpectroscopy
+    ~characterization.MultiStateDiscrimination
 
 
 .. _calibration:
@@ -148,6 +149,7 @@ from .characterization import (
     ResonatorSpectroscopy,
     LocalReadoutError,
     CorrelatedReadoutError,
+    MultiStateDiscrimination,
 )
 from .randomized_benchmarking import StandardRB, InterleavedRB
 from .tomography import StateTomography, ProcessTomography

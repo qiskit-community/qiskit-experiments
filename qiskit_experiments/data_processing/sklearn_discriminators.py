@@ -19,6 +19,10 @@ from qiskit_experiments.data_processing.exceptions import DataProcessorError
 
 try:
     from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
+    from sklearn.linear_model import SGDClassifier
+    from sklearn.preprocessing import StandardScaler
+    from sklearn.pipeline import make_pipeline
+    from sklearn.utils.validation import check_is_fitted
 
     HAS_SKLEARN = True
 except ImportError:
@@ -99,3 +103,72 @@ class SkLDA(BaseDiscriminator):
                 setattr(lda, name, value)
 
         return SkLDA(lda)
+
+
+class SkCLF(BaseDiscriminator):
+    """A wrapper for the SKlearn classfier Pipeline."""
+
+    def __init__(self, sgdc: "SGDClassifier"):
+        """
+        Args:
+            sgdc: The sklearn linear classifier with SGD training.
+
+        Raises:
+            DataProcessorError: if SKlearn could not be imported.
+        """
+        if not HAS_SKLEARN:
+            raise DataProcessorError(
+                f"SKlearn is needed to initialize an {self.__class__.__name__}."
+            )
+
+        self._clf = make_pipeline(StandardScaler(), sgdc)
+        self.attributes = [
+            "named_steps",
+            "classes_",
+            "n_features_in_",
+            "features_names_in_",
+        ]
+
+    @property
+    def discriminator(self) -> Any:
+        """Return then SKLearn object."""
+        return self._clf
+
+    def is_trained(self) -> bool:
+        """Return True if the discriminator has been trained on data."""
+        return not getattr(self._clf, "classes_", None) is None
+
+    def predict(self, data: List):
+        """Wrap the predict method of the LDA."""
+        return self._clf.predict(data)
+
+    def fit(self, data: List, labels: List):
+        """Fit the classifier.
+
+        Args:
+            data: The independent data.
+            labels: The labels corresponding to data.
+        """
+        self._clf.fit(data, labels)
+        self._sklearn_is_fitted__ = check_is_fitted(self._clf)
+
+    def config(self) -> Dict[str, Any]:
+        """Return the configuration of the classifier."""
+        attr_conf = {attr: getattr(self._clf, attr, None) for attr in self.attributes}
+        return {"params": self._clf.get_params(), "attributes": attr_conf}
+
+    @classmethod
+    def from_config(cls, config: Dict[str, Any]) -> "SkLDA":
+        """Deserialize from an object."""
+
+        if not HAS_SKLEARN:
+            raise DataProcessorError(f"SKlearn is needed to initialize an {cls.__name__}.")
+
+        sgdc = SGDClassifier()
+        sgdc.set_params(**config["params"])
+
+        for name, value in config["attributes"].items():
+            if value is not None:
+                setattr(sgdc, name, value)
+
+        return SkLDA(sgdc)
