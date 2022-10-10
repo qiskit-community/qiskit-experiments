@@ -25,6 +25,7 @@ from qiskit.providers import BackendV2, QubitProperties
 from qiskit.providers.models import PulseDefaults
 from qiskit.providers.options import Options
 from qiskit.pulse import ScheduleBlock
+from qiskit.pulse.transforms import block_to_schedule
 from qiskit.qobj.utils import MeasLevel, MeasReturnType
 from qiskit.quantum_info.states import Statevector
 from qiskit.result import Result
@@ -64,7 +65,6 @@ class IQPulseBackend(BackendV2):
                 "cmd_def": [],
             }
         )
-        # Q1. need to define converter=IstructionToSigals() roughly like this
         self.converter = None
 
         self.static_hamiltonian = static_hamiltonian
@@ -120,9 +120,6 @@ class IQPulseBackend(BackendV2):
 
         if meas_level == MeasLevel.CLASSIFIED:
             measurement = Statevector(state).sample_counts(shots)
-        # Q4. Statevector cannot take matrix form (operator form which is not a
-        # single coulum or single row). However we are giving matrix form??
-        # How can we get the counts data from matrix??
         elif meas_level == MeasLevel.KERNELED:
             raise QiskitError("TODO: generate IQ data")
             # measurement = iq_data = ... #create IQ data.
@@ -137,10 +134,10 @@ class IQPulseBackend(BackendV2):
         """Solves a single schdule block and returns the unitary"""
         if len(qubits) > 1:
             QiskitError("TODO multi qubit gates")
-        #Q3. get_signals(schedule), Instances of ScheduleBlock must first be converted
-        #to Schedule using block_to_schedule() in Qiskit pulse.
-        #block_to_schedule(`scheduleblock`) -> schedule
+        
         signal = self.converter.get_signals(schedule_blocks)
+        #schedule = block_to_schedule(schedule_blocks)
+        #signal = self.converter.get_signals(schedule)
         time_f = schedule_blocks.duration * self.dt
         result = self.solver.solve(
             t_span=[0.0, time_f],
