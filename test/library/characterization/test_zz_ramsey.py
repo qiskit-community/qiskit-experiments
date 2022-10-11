@@ -30,9 +30,10 @@ from qiskit_experiments.test.mock_iq_helpers import MockIQExperimentHelper
 class ZZRamseyHelper(MockIQExperimentHelper):
     """A mock backend for the ZZRamsey experiment"""
 
-    def __init__(self, zz: float):
+    def __init__(self, zz: float, readout_error: float = 0):
         super().__init__()
         self.zz_freq = zz
+        self.readout_error = readout_error
 
     def compute_probabilities(self, circuits: List[QuantumCircuit]) -> List[Dict[str, float]]:
         """Return the probability of the circuit."""
@@ -51,6 +52,8 @@ class ZZRamseyHelper(MockIQExperimentHelper):
 
             prob1 = 0.5 - 0.5 * np.cos(2 * np.pi * freq * delay + phase)
 
+            prob1 = prob1 * (1 - self.readout_error) + (1 - prob1) * self.readout_error
+
             probabilities.append({"0": 1 - prob1, "1": prob1})
 
         return probabilities
@@ -64,7 +67,7 @@ class TestZZRamsey(QiskitExperimentsTestCase):
 
     def test_circuits(self):
         """Test circuit generation"""
-        backend = MockIQBackend(ZZRamseyHelper(1e5))
+        backend = MockIQBackend(ZZRamseyHelper(zz=1e5, readout_error=0.01))
 
         t_min = 0
         t_max = 5e-6

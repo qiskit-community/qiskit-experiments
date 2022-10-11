@@ -27,14 +27,14 @@ from qiskit_experiments.curve_analysis import CurveAnalysis, CurveData, CurveFit
 class ZZRamseyAnalysis(CurveAnalysis):
     # Disable long line check because we can't break the long math lines
     # pylint: disable=line-too-long
-    r"""The :math:`ZZ` Ramsey analysis is based on a fit to a cosine function.
+    r"""A class to analyze a :math:`ZZ` Ramsey experiment.
 
     # section: fit_model
 
-        Analyze a :math:`ZZ` Ramsey experiment by fitting the '0' and '1'
-        series to sinusoidal functions. The two functions share the frequency
-        amplitude, decay constant, and baseline parameters
-        (i.e. beta).
+        Analyze a :math:`ZZ` Ramsey experiment by fitting the :code:`'0'` and
+        :code:`'1'` series to sinusoidal functions as defined in the
+        :class:`ZZRamsey` experiment. The two functions share the frequency,
+        amplitude, decay constant, baseline, and phase parameters.
 
         .. math::
 
@@ -42,33 +42,38 @@ class ZZRamseyAnalysis(CurveAnalysis):
 
             y_1 = {\rm amp} \cdot e^{-x/\tau} \cos\left(2 \pi\cdot {\rm freq + zz / 2}\cdot x + {\rm phase}\right) + {\rm base}
 
-        If the drive frequency of `q_0` is calibrated to be halfway between the
-        frequency of `q_0` when `q_1` is in the ground state and the frequency
-        when `q_1` is in the excited state, :math:`freq` is the same as the
-        "fake" frequency :math:`f` mentioned in :py:class:`ZZRamsey`. Often,
-        the drive frequency is calibrated to the frequency of `q_0` with `q_1`
-        in the ground state. In this case, ``f = freq - zz / 2``.
+        If the drive frequency of the measured qubit (qubit 0) is calibrated to
+        be halfway between the frequency of its frequency when the other qubit
+        (qubit 1) is in the ground state and its frequency when the other qubit
+        is in the excited state, :math:`freq` is the same as the "fake"
+        frequency :math:`f` mentioned in :class:`ZZRamsey`. Often,
+        the drive frequency is calibrated to the frequency of the measured
+        qubit with the other qubit in the ground state. In this case,
+        :code:`f = freq - zz / 2`.
 
     # section: fit_parameters
 
         defpar \rm amp:
-            desc: Amplitude of both series.
-            init_guess: The maximum y value less the minimum y value. 0.5 is
-                also tried.
-            bounds: [-2, 2] scaled to the maximum signal value.
+            desc: Amplitude of the sinusoidal curves.
+            init_guess: Half of the maximum y value less the minimum y value.
+            bounds: [0, the peak to peak range of the data]
         defpar \tau:
-            desc: The exponential decay of the curves.
-            init_guess: Ten times the maximum delay time
-            bounds: [0, inf].
+            desc: The exponential decay of the curve amplitudes.
+            init_guess: Inferred by comparing the peak to peak amplitude for
+                longer delay values with that of shorter delay values and
+                assuming an exponential decay in amplitude.
+            bounds: [1/4 of the typical time spacing,
+                10 times the maximum delay time].
         defpar \rm base:
             desc: Base line of both series.
-            init_guess: Roughly the average of the data.
-            bounds: [-1, 1] scaled to the maximum signal value.
+            init_guess: The average of the data, excluding outliers
+            bounds: [the minimum amplitude less the peak to peak of the data,
+                the maximum amplitude plus the peak to peak of the data]
         defpar \rm freq:
             desc: Average frequency of both series.
             init_guess: The average of the frequencies with the highest power
                 spectral density for each series.
-            bounds: [0, inf].
+            bounds: [0, the Nyquist frequency of the data].
         defpar \rm zz:
             desc: The :math:`ZZ` value for the qubit pair. In terms of the fit,
                 this is frequency difference between series 1 and series 0.
@@ -228,11 +233,18 @@ class ZZRamseyAnalysis(CurveAnalysis):
         Returns:
             The automated fit quality assessment as a string
         """
-        fit_freq = fit_data.ufloat_params["freq"]
+        freq = fit_data.ufloat_params["freq"]
+        zz = fit_data.ufloat_params["zz"]
+        amp = fit_data.ufloat_params["amp"]
+        base = fit_data.ufloat_params["base"]
+
+        rough_freq_magnitude = 1 / (fit_data.x_range[1] - fit_data.x_range[0])
 
         criteria = [
-            fit_data.reduced_chisq < 3,
-            curve.utils.is_error_not_significant(fit_freq),
+            amp.nominal_value > 5 * amp.std_dev,
+            amp.nominal_value > 5 * base.std_dev,
+            rough_freq_magnitude > 5 * freq.std_dev,
+            rough_freq_magnitude > 5 * zz.std_dev,
         ]
 
         if all(criteria):
