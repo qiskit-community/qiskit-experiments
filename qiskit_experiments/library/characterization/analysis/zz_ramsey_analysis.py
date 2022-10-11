@@ -113,7 +113,7 @@ class ZZRamseyAnalysis(CurveAnalysis):
         """
         default_options = super()._default_options()
         default_options.result_parameters = ["zz"]
-        default_options.curve_drawer.set_options(
+        default_options.plotter.set_figure_options(
             xlabel="Delay",
             xval_unit="s",
             ylabel="P(1)",
