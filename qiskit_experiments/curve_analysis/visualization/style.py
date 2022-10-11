@@ -13,9 +13,16 @@
 Configurable stylesheet.
 """
 import dataclasses
-from typing import Tuple, List
+from typing import List, Tuple
+
+from qiskit_experiments.warnings import deprecated_class
 
 
+@deprecated_class(
+    "0.6",
+    msg="Plotting and drawing of analysis figures has been replaced with the new"
+    "`qiskit_experiments.visualization` module.",
+)
 @dataclasses.dataclass
 class PlotterStyle:
     """A stylesheet for curve analysis figure."""

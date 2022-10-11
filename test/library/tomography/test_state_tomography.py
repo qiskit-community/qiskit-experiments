@@ -18,7 +18,7 @@ import ddt
 from qiskit import QuantumCircuit
 from qiskit.circuit.library import XGate
 import qiskit.quantum_info as qi
-from qiskit.providers.aer import AerSimulator
+from qiskit_aer import AerSimulator
 from qiskit_experiments.library import StateTomography
 from qiskit_experiments.library.tomography import StateTomographyAnalysis
 from .tomo_utils import FITTERS, filter_results, teleport_circuit

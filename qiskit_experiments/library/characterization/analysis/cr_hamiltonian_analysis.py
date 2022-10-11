@@ -17,6 +17,7 @@ import numpy as np
 
 import qiskit_experiments.curve_analysis as curve
 from qiskit_experiments.framework import AnalysisResultData
+from qiskit_experiments.visualization import PlotStyle
 
 
 class CrossResonanceHamiltonianAnalysis(curve.CompositeCurveAnalysis):
@@ -60,8 +61,17 @@ class CrossResonanceHamiltonianAnalysis(curve.CompositeCurveAnalysis):
     def _default_options(cls):
         """Return the default analysis options."""
         default_options = super()._default_options()
-        default_options.curve_drawer.set_options(
+        default_options.plotter.set_options(
             subplots=(3, 1),
+            style=PlotStyle(
+                {
+                    "figsize": (8, 10),
+                    "legend_loc": "lower right",
+                    "textbox_rel_pos": (0.28, -0.10),
+                }
+            ),
+        )
+        default_options.plotter.set_figure_options(
             xlabel="Flat top width",
             ylabel=[
                 r"$\langle$X(t)$\rangle$",
@@ -69,17 +79,44 @@ class CrossResonanceHamiltonianAnalysis(curve.CompositeCurveAnalysis):
                 r"$\langle$Z(t)$\rangle$",
             ],
             xval_unit="s",
-            figsize=(8, 10),
-            legend_loc="lower right",
-            fit_report_rpos=(0.28, -0.10),
             ylim=(-1, 1),
-            plot_options={
-                "x_ctrl0": {"color": "blue", "symbol": "o", "canvas": 0},
-                "y_ctrl0": {"color": "blue", "symbol": "o", "canvas": 1},
-                "z_ctrl0": {"color": "blue", "symbol": "o", "canvas": 2},
-                "x_ctrl1": {"color": "red", "symbol": "^", "canvas": 0},
-                "y_ctrl1": {"color": "red", "symbol": "^", "canvas": 1},
-                "z_ctrl1": {"color": "red", "symbol": "^", "canvas": 2},
+            series_params={
+                "x_ctrl0": {
+                    "canvas": 0,
+                    "color": "blue",
+                    "label": "X (ctrl0)",
+                    "symbol": "o",
+                },
+                "y_ctrl0": {
+                    "canvas": 1,
+                    "color": "blue",
+                    "label": "Y (ctrl0)",
+                    "symbol": "o",
+                },
+                "z_ctrl0": {
+                    "canvas": 2,
+                    "color": "blue",
+                    "label": "Z (ctrl0)",
+                    "symbol": "o",
+                },
+                "x_ctrl1": {
+                    "canvas": 0,
+                    "color": "red",
+                    "label": "X (ctrl1)",
+                    "symbol": "^",
+                },
+                "y_ctrl1": {
+                    "canvas": 1,
+                    "color": "red",
+                    "label": "Y (ctrl1)",
+                    "symbol": "^",
+                },
+                "z_ctrl1": {
+                    "canvas": 2,
+                    "color": "red",
+                    "label": "Z (ctrl1)",
+                    "symbol": "^",
+                },
             },
         )
 

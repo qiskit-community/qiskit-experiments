@@ -17,7 +17,7 @@ from typing import Any, Dict, List, Optional, Tuple
 import numpy as np
 from qiskit import QuantumCircuit
 from qiskit.exceptions import QiskitError
-from qiskit.providers.aer import AerSimulator
+from qiskit_aer import AerSimulator
 from qiskit_experiments.framework import BaseExperiment
 
 # Define an IQ point typing class.

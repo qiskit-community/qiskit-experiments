@@ -403,11 +403,17 @@ class EchoedCrossResonance(BasisGateLibrary):
 
         if "cr45m" in basis_gates:
             with pulse.build(name="cr45m") as cr45m:
-                pulse.play(pulse.GaussianSquare(cr_dur, -cr_amp, width=cr_rf, sigma=sigma), u_chan)
+                pulse.play(
+                    pulse.GaussianSquare(cr_dur, -cr_amp, risefall_sigma_ratio=cr_rf, sigma=sigma),
+                    u_chan,
+                )
 
                 if self._target_pulses:
                     pulse.play(
-                        pulse.GaussianSquare(cr_dur, -tgt_amp, width=cr_rf, sigma=sigma), t_chan
+                        pulse.GaussianSquare(
+                            cr_dur, -tgt_amp, risefall_sigma_ratio=cr_rf, sigma=sigma
+                        ),
+                        t_chan,
                     )
 
             schedules["cr45m"] = cr45m

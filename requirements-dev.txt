@@ -12,8 +12,9 @@ sphinx-panels
 nbsphinx
 arxiv
 ddt~=1.4.2
-# FIXME: Remove maximum version once bugs discussed in #909, #910, #911 have been fixed.
-qiskit-aer>=0.10.0,<0.11
+qiskit-aer>=0.11.0
 pandas>=1.1.5
 cvxpy>=1.1.15
 pylatexenc
+# Pin `importlib-metadata` because of a bug relating to version 5.0.0. See #931 for more.
+importlib-metadata==4.13.0;python_version<'3.8'
