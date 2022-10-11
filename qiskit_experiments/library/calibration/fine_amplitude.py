@@ -12,7 +12,7 @@
 
 """Fine amplitude calibration experiment."""
 
-from typing import Dict, Optional
+from typing import Dict, Optional, Sequence, Tuple, Union
 import numpy as np
 
 from qiskit.circuit import Gate, QuantumCircuit
@@ -43,30 +43,41 @@ class FineAmplitudeCal(BaseCalibrationExperiment, FineAmplitude):
 
     def __init__(
         self,
-        qubit: int,
+        qubit: Union[int, Tuple[int, int]],
         calibrations: Calibrations,
         schedule_name: str,
         backend: Optional[Backend] = None,
         cal_parameter_name: Optional[str] = "amp",
         auto_update: bool = True,
+        gate_name: Optional[str] = None,
+        measurement_qubits: Sequence[int] = None,
     ):
         """see class :class:`FineAmplitude` for details.
 
         Args:
-            qubit: The qubit for which to run the fine amplitude calibration.
+            qubit: The qubit for which to run the fine amplitude calibration. This can
+                also be a pair of qubits which correspond to control and target qubit.
             calibrations: The calibrations instance with the schedules.
             schedule_name: The name of the schedule to calibrate.
             backend: Optional, the backend to run the experiment on.
             cal_parameter_name: The name of the parameter in the schedule to update.
             auto_update: Whether or not to automatically update the calibrations. By
                 default this variable is set to True.
+            gate_name: The name of the gate to repeat in the quantum circuit. If this argument
+                is None (the default), then the gate name is the schedule name.
+            measurement_qubits: The qubits in the given physical qubits that need to
+                be measured.
         """
+        qubits = qubit if isinstance(qubit, tuple) else (qubit,)
+        gate_name = gate_name or schedule_name
+
         super().__init__(
             calibrations,
-            [qubit],
-            Gate(name=schedule_name, num_qubits=1, params=[]),
+            qubits,
+            Gate(name=gate_name, num_qubits=len(qubits), params=[]),
             schedule_name=schedule_name,
             backend=backend,
+            measurement_qubits=measurement_qubits,
             cal_parameter_name=cal_parameter_name,
             auto_update=auto_update,
         )
