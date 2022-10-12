@@ -13,7 +13,8 @@
 """A Pulse simulation backend based on Qiskit-Dynamics"""
 import copy
 import datetime
-from functools import lru_cache
+
+# from functools import lru_cache
 from typing import Dict, List, Optional, Tuple, Union
 
 import numpy as np
@@ -25,7 +26,6 @@ from qiskit.providers import BackendV2, QubitProperties
 from qiskit.providers.models import PulseDefaults
 from qiskit.providers.models.pulsedefaults import Command
 from qiskit.providers.options import Options
-from qiskit import pulse
 from qiskit.pulse import Schedule, ScheduleBlock
 from qiskit.pulse.transforms import block_to_schedule
 from qiskit.qobj.pulse_qobj import PulseQobjInstruction
@@ -142,7 +142,6 @@ class IQPulseBackend(BackendV2):
 
         signal = self.converter.get_signals(schedule)
         time_f = schedule.duration * self.dt
-        print("running")
         unitary = self.solver.solve(
             t_span=[0.0, time_f],
             y0=self.y_0,
