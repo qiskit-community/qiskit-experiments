@@ -22,6 +22,7 @@ from qiskit.providers.options import Options
 
 import qiskit_experiments.curve_analysis as curve
 from qiskit_experiments.curve_analysis import CurveAnalysis, CurveData, CurveFitResult, FitOptions
+from qiskit_experiments.curve_analysis.utils import is_error_not_significant
 
 
 class ZZRamseyAnalysis(CurveAnalysis):
@@ -241,10 +242,10 @@ class ZZRamseyAnalysis(CurveAnalysis):
         rough_freq_magnitude = 1 / (fit_data.x_range[1] - fit_data.x_range[0])
 
         criteria = [
-            amp.nominal_value > 5 * amp.std_dev,
-            amp.nominal_value > 5 * base.std_dev,
-            rough_freq_magnitude > 5 * freq.std_dev,
-            rough_freq_magnitude > 5 * zz.std_dev,
+            is_error_not_significant(amp, fraction=0.2),
+            is_error_not_significant(base, absolute=0.2 * amp.nominal_value),
+            is_error_not_significant(freq, absolute=0.2 * rough_freq_magnitude),
+            is_error_not_significant(zz, absolute=0.2 * rough_freq_magnitude),
         ]
 
         if all(criteria):
