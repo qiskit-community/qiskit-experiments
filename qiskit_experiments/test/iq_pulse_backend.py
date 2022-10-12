@@ -114,12 +114,12 @@ class IQPulseBackend(BackendV2):
     @staticmethod
     def _state_vector_to_data(
         state: Union[Statevector, np.ndarray],
-        shots: Optional[int] = 1024,
-        meas_return: Optional[MeasReturnType] = 0,
-        meas_level: Optional[MeasLevel] = 0,
+        shots: int,
+        meas_level: MeasLevel,
+        meas_return: MeasReturnType,
     ) -> Union[Dict[str, int], complex]:
         """Convert the state vector to IQ data or counts."""
-
+        measurement = {0:0} #temp fix for UnboundLocalError
         if meas_level == MeasLevel.CLASSIFIED:
             measurement = Statevector(state).sample_counts(shots)
         elif meas_level == MeasLevel.KERNELED:
@@ -131,7 +131,7 @@ class IQPulseBackend(BackendV2):
         else:
             return measurement
 
-    @lru_cache
+    # @lru_cache | ScheduleBlock is unhashable type, figure out workaround to use lru_cache
     def solve(self, schedule_blocks: ScheduleBlock, qubits: Tuple[int]) -> np.ndarray:
         """Solves a single schdule block and returns the unitary"""
         if len(qubits) > 1:
@@ -149,12 +149,13 @@ class IQPulseBackend(BackendV2):
 
         return unitary
 
-    def run(self, run_input: Union[QuantumCircuit, List[QuantumCircuit]], **options) -> FakeJob:
+    def run(self, run_input: Union[QuantumCircuit, List[QuantumCircuit]], **run_options) -> FakeJob:
         """run method takes circuits as input and returns FakeJob with shots/IQ data"""
 
-        self.options.update_options(**options)
+        self.options.update_options(**run_options)
         shots = self.options.get("shots")
         meas_level = self.options.get("meas_level")
+        meas_return = self.options.get("meas_level")
 
         result = {
             "backend_name": f"{self.__class__.__name__}",
@@ -186,7 +187,7 @@ class IQPulseBackend(BackendV2):
                 unitary = experiment_unitaries[(inst_name, qubits, params)]
                 psi = unitary @ psi
 
-            return_data = self._state_vector_to_data(psi / np.linalg.norm(psi), **options)
+            return_data = self._state_vector_to_data(psi / np.linalg.norm(psi), shots, meas_level, meas_return)
 
             run_result = {
                 "shots": shots,
