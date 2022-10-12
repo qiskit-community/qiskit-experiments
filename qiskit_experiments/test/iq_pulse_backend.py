@@ -24,6 +24,7 @@ from qiskit.circuit.measure import Measure
 from qiskit.providers import BackendV2, QubitProperties
 from qiskit.providers.models import PulseDefaults
 from qiskit.providers.options import Options
+from qiskit import pulse
 from qiskit.pulse import ScheduleBlock
 from qiskit.pulse.transforms import block_to_schedule
 from qiskit.qobj.utils import MeasLevel, MeasReturnType
@@ -95,7 +96,7 @@ class IQPulseBackend(BackendV2):
     def max_circuits(self):
         return None
 
-    def defaults(self): 
+    def defaults(self):
         """return backend defaults"""
         return self._defaults
 
@@ -111,7 +112,7 @@ class IQPulseBackend(BackendV2):
         return qubit, params, p_dict.name
 
     @staticmethod
-    def _state_vector_to_unitary ( 
+    def _state_vector_to_result(
         state: Union[Statevector, np.ndarray],
         shots: Optional[int] = 1024,
         meas_return: Optional[MeasReturnType] = 0,
@@ -124,7 +125,7 @@ class IQPulseBackend(BackendV2):
         elif meas_level == MeasLevel.KERNELED:
             raise QiskitError("TODO: generate IQ data")
             # measurement = iq_data = ... #create IQ data.
-            # Q5
+
         if meas_return == "avg":
             return np.average(list(measurement.keys()), weights=list(measurement.values()))
         else:
@@ -135,35 +136,35 @@ class IQPulseBackend(BackendV2):
         """Solves a single schdule block and returns the unitary"""
         if len(qubits) > 1:
             QiskitError("TODO multi qubit gates")
-        
+
         signal = self.converter.get_signals(schedule_blocks)
         #schedule = block_to_schedule(schedule_blocks)
         #signal = self.converter.get_signals(schedule)
         time_f = schedule_blocks.duration * self.dt
-        unitary   = self.solver.solve(
+        unitary = self.solver.solve(
             t_span=[0.0, time_f],
             y0=self.y_0,
             t_eval=[time_f],
             signals=signal,
-            method="RK23", #?
-        ).y[0] 
+            method="RK23",
+        ).y[0]
 
-        return unitary 
- 
+        return unitary
+
     def run(self, run_input: Union[QuantumCircuit, List[QuantumCircuit]], **options) -> FakeJob:
-        """run method takes circuits as input and returns FakeJob object with unitary s """
+        """run method takes circuits as input and returns FakeJob with shots/IQ data"""
 
         self.options.update_options(**options)
         shots = self.options.get("shots")
         meas_level = self.options.get("meas_level")
 
-        unitary   = {
+        result = {
             "backend_name": f"{self.__class__.__name__}",
             "backend_version": self.backend_version,
             "qobj_id": 0,
             "job_id": 0,
             "success": True,
-            "unitary s ": [],
+            "results": [],
         }
 
         if isinstance(run_input, QuantumCircuit):
@@ -177,7 +178,7 @@ class IQPulseBackend(BackendV2):
                     if (name, qubits, params) not in experiment_unitaries:
                         experiment_unitaries[(name, qubits, params)] = self.solve(
                             schedule_block, qubits
-                        )#schedule_block -> schedule
+                        )
 
             psi = self.gound_state.copy()
             for instruction in circuit.data:
@@ -187,9 +188,9 @@ class IQPulseBackend(BackendV2):
                 unitary = experiment_unitaries[(inst_name, qubits, params)]
                 psi = unitary @ psi
 
-            counts = self._state_vector_to_unitary ( psi / np.linalg.norm(psi), **options)
+            counts = self._state_vector_to_result(psi / np.linalg.norm(psi), **options)
             # counts = dict(zip(*np.unique(memory, return_counts=True)))
-            run_unitary   = {
+            run_result = {
                 "shots": shots,
                 "success": True,
                 "header": {"metadata": circuit.metadata},
@@ -200,8 +201,8 @@ class IQPulseBackend(BackendV2):
                 },
             }
 
-            unitary [ "unitary s "].append(run_unitary ) 
-        return FakeJob(self, unitary . from_dict(unitary ) )
+            result["results"].append(run_result)
+        return FakeJob(self, Result.from_dict(result))
 
 
 class SingleTransmonTestBackend(IQPulseBackend):
@@ -262,10 +263,10 @@ class SingleTransmonTestBackend(IQPulseBackend):
         default_schedule=[]
         d0 = pulse.DriveChannel(0)
         with pulse.build(name='x') as x:
-            pulse.play(Drag(duration=160, amp=0.1, sigma=16, beta=5), d0)
+            pulse.play(pulse.Drag(duration=160, amp=0.1, sigma=16, beta=5), d0)
             default_schedule.append(x)
         with pulse.build(name='sx') as sx:
-            pulse.play(Drag(duration=160, amp=0.1*0.5, sigma=16, beta=5), d0)
+            pulse.play(pulse.Drag(duration=160, amp=0.1*0.5, sigma=16, beta=5), d0)
             default_schedule.append(sx)
         experiment_unitaries={}
         #defualt_unitaries.append(RZ)
@@ -276,6 +277,5 @@ class SingleTransmonTestBackend(IQPulseBackend):
                                     t_eval=[T], signals=signal,
                                     method='RK23').y[0]
             experiment_unitaries[(schedule.name,(0,),())]=unitary
-        
+
         return experiment_unitaries
-    
