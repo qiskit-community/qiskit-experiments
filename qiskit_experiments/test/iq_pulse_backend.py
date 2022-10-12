@@ -119,7 +119,7 @@ class IQPulseBackend(BackendV2):
         meas_return: MeasReturnType,
     ) -> Union[Dict[str, int], complex]:
         """Convert the state vector to IQ data or counts."""
-        measurement = {0:0} #temp fix for UnboundLocalError
+        measurement = {0: 0}  # temp fix for UnboundLocalError
         if meas_level == MeasLevel.CLASSIFIED:
             measurement = Statevector(state).sample_counts(shots)
         elif meas_level == MeasLevel.KERNELED:
@@ -187,7 +187,9 @@ class IQPulseBackend(BackendV2):
                 unitary = experiment_unitaries[(inst_name, qubits, params)]
                 psi = unitary @ psi
 
-            return_data = self._state_vector_to_data(psi / np.linalg.norm(psi), shots, meas_level, meas_return)
+            return_data = self._state_vector_to_data(
+                psi / np.linalg.norm(psi), shots, meas_level, meas_return
+            )
 
             run_result = {
                 "shots": shots,
