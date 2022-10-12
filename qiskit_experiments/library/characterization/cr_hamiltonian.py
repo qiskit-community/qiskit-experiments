@@ -329,14 +329,16 @@ class CrossResonanceHamiltonian(BaseExperiment):
             A list of :class:`QuantumCircuit`.
 
         Raises:
-            QiskitError: When the backend is not set with use of pulse gate.
+            QiskitError: When the backend is not set and cr gate is ``CRPulseGate`` type.
         """
         if self._gate_cls is self.CRPulseGate:
             if not self.backend:
                 # Backend is not set, but trying to provide CR gate as a pulse gate.
                 raise QiskitError(
                     "This experiment requires to have backend set to convert durations into samples "
-                    "with backend reported dt value."
+                    "with backend reported dt value and also it requires the channel mapping from "
+                    "the backend to build cross resonance pulse schedule. "
+                    "Please provide valid backend object supporting 2Q pulse gate."
                 )
             return self._pulse_gate_circuits()
         return self._unitary_circuits()
