@@ -111,8 +111,9 @@ class InterleavedRB(StandardRB):
             delay_ops = [interleaved_element]
         elif isinstance(interleaved_element, QuantumCircuit):
             delay_ops = [delay.operation for delay in interleaved_element.get_instructions("delay")]
-        for delay_op in delay_ops:
+        if delay_ops:
             timing = BackendTiming(backend)
+        for delay_op in delay_ops:
             if delay_op.unit != timing.delay_unit:
                 raise QiskitError(
                     f"Interleaved delay for backend {backend} must have time unit {timing.delay_unit}."
