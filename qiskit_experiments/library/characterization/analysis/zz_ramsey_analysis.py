@@ -38,9 +38,9 @@ class ZZRamseyAnalysis(CurveAnalysis):
 
         .. math::
 
-            y_0 = {\rm amp} \cdot e^{-x/\tau} \cos\left(2 \pi\cdot {\rm freq - zz / 2}\cdot x + {\rm phase}\right) + {\rm base} \\
+            y_0 = - {\rm amp} \cdot e^{-x/\tau} \cos\left(2 \pi\cdot {\rm freq - zz / 2}\cdot x + {\rm phase}\right) + {\rm base} \\
 
-            y_1 = {\rm amp} \cdot e^{-x/\tau} \cos\left(2 \pi\cdot {\rm freq + zz / 2}\cdot x + {\rm phase}\right) + {\rm base}
+            y_1 = - {\rm amp} \cdot e^{-x/\tau} \cos\left(2 \pi\cdot {\rm freq + zz / 2}\cdot x + {\rm phase}\right) + {\rm base}
 
         If the drive frequency of the measured qubit (qubit 0) is calibrated to
         be halfway between the frequency of its frequency when the other qubit
@@ -91,12 +91,12 @@ class ZZRamseyAnalysis(CurveAnalysis):
         super().__init__(
             models=[
                 lmfit.models.ExpressionModel(
-                    expr="amp * exp(-x / tau) * cos(2 * pi * (freq - zz / 2) * x + phase + pi) + base",
+                    expr="-amp * exp(-x / tau) * cos(2 * pi * (freq - zz / 2) * x + phase) + base",
                     name="0",
                     data_sort_key={"series": "0"},
                 ),
                 lmfit.models.ExpressionModel(
-                    expr="amp * exp(-x / tau) * cos(2 * pi * (freq + zz / 2) * x + phase + pi) + base",
+                    expr="-amp * exp(-x / tau) * cos(2 * pi * (freq + zz / 2) * x + phase) + base",
                     name="1",
                     data_sort_key={"series": "1"},
                 ),
