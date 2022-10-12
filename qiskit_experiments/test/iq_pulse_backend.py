@@ -210,9 +210,27 @@ class IQPulseBackend(BackendV2):
 class SingleTransmonTestBackend(IQPulseBackend):
     """Three level anharmonic transmon qubit"""
 
-    def __init__(self, omega_01: float, delta: float, lambda_0: float, lambda_1: float):
+    def __init__(
+        self,
+        qubit_frequency: Optional[float] = 5e9,
+        anharmonicity: Optional[float] = -0.25e9,
+        lambda_0: Optional[float] = 1e9,
+        lambda_1: Optional[float] = 0.8e9,
+    ):
+        """Initialise backend with hamiltonian parameters
 
-        omega_02 = 2 * omega_01 + delta
+        Parameters
+        ----------
+        qubit_frequency : float
+            Frequency of the qubit (0-1)
+        anharmonicity : float
+            Qubit anharmonicity $\\alpha$ = f12 - f01
+        lambda_0 : float
+            Strength of 0-1 transition
+        lambda_1 : float
+            Strength of 1-2 transition
+        """
+        qubit_frequency_02 = 2 * qubit_frequency + anharmonicity
         ket0 = np.array([[1, 0, 0]]).T
         ket1 = np.array([[0, 1, 0]]).T
         ket2 = np.array([[0, 0, 1]]).T
@@ -226,23 +244,23 @@ class SingleTransmonTestBackend(IQPulseBackend):
         p1 = ket1 @ ket1.T.conj()
         p2 = ket2 @ ket2.T.conj()
 
-        drift = 2 * np.pi * (omega_01 * p1 + omega_02 * p2)
+        drift = 2 * np.pi * (qubit_frequency * p1 + qubit_frequency_02 * p2)
         control = [
             2 * np.pi * (lambda_0 * (sigma_p1 + sigma_m1) + lambda_1 * (sigma_p2 + sigma_m2))
         ]
-        r_frame = 2 * np.pi * (omega_01 * p1 + 2 * omega_01 * p2)
+        r_frame = 2 * np.pi * qubit_frequency * (p1 + 2 * p2)
 
         super().__init__(
             static_hamiltonian=drift,
             hamiltonian_operators=control,
             rotating_frame=r_frame,
-            rwa_cutoff_freq=1.9 * omega_01,
-            rwa_carrier_freqs=[omega_01],
+            rwa_cutoff_freq=1.9 * qubit_frequency,
+            rwa_carrier_freqs=[qubit_frequency],
         )
 
         self._defaults = PulseDefaults.from_dict(
             {
-                "qubit_freq_est": [omega_01 / 1e9],
+                "qubit_freq_est": [qubit_frequency / 1e9],
                 "meas_freq_est": [0],
                 "buffer": 0,
                 "pulse_library": [],
@@ -250,13 +268,15 @@ class SingleTransmonTestBackend(IQPulseBackend):
             }
         )
         self._target = Target(
-            qubit_properties=[QubitProperties(frequency=omega_01)], dt=self.dt, granularity=16
+            qubit_properties=[QubitProperties(frequency=qubit_frequency)],
+            dt=self.dt,
+            granularity=16,
         )
         measure_props = {
             (0,): InstructionProperties(duration=0, error=0),
         }
         self._target.add_instruction(Measure(), measure_props)
-        self.converter = InstructionToSignals(self.dt, carriers={"d0": omega_01})
+        self.converter = InstructionToSignals(self.dt, carriers={"d0": qubit_frequency})
 
     # backend has it's own default pulse unitaries for pulse schedule 'x', 'sx','rz'.
     # what can be the best pulse parameters for 'x','sx'
