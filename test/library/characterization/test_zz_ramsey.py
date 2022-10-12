@@ -83,7 +83,7 @@ class TestZZRamsey(QiskitExperimentsTestCase):
         ramsey_with_delays = ZZRamsey(
             (0, 1),
             backend,
-            delays=ramsey_min_max.delays,
+            delays=ramsey_min_max.delays(),
         )
 
         # Sanity check that circuits are generated

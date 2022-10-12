@@ -171,9 +171,13 @@ class ZZRamsey(BaseExperiment):
 
         return options
 
-    @property
-    def delays(self):
-        """Delay values to use in circuits"""
+    def delays(self) -> List[float]:
+        """Delay values to use in circuits
+
+        Returns:
+            The list of delays to use for the different circuits based on the
+            experiment options.
+        """
         # This method allows delays to be set by the user as an explicit
         # sequence or as a minimum, maximum and number of values for a linearly
         # spaced sequence.
@@ -181,7 +185,7 @@ class ZZRamsey(BaseExperiment):
         if options.delays is not None:
             return options.delays
 
-        return np.linspace(options.min_delay, options.max_delay, options.num_delays)
+        return np.linspace(options.min_delay, options.max_delay, options.num_delays).tolist()
 
     def _parameterized_circuits(
         self, delay_unit: str = "s"
@@ -295,7 +299,8 @@ class ZZRamsey(BaseExperiment):
         # chosen to induce zz_rotations number of rotation within the time
         # window that the delay is swept through.
         options = self.experiment_options
-        common_freq = options.zz_rotations / (max(self.delays) - min(self.delays))
+        delays = self.delays()
+        common_freq = options.zz_rotations / (max(delays) - min(delays))
 
         def get(circ, param):
             return next(p for p in circ.parameters if p.name == param)
@@ -328,7 +333,7 @@ class ZZRamsey(BaseExperiment):
         circ0, circ1 = self._template_circuits(dt_value=dt_val, delay_unit=timing.delay_unit)
         circs = []
 
-        for delay in self.delays:
+        for delay in self.delays():
             for circ in (circ0, circ1):
                 assigned = circ.assign_parameters(
                     {circ.parameters[0]: timing.round_delay(time=delay / 2)}, inplace=False
