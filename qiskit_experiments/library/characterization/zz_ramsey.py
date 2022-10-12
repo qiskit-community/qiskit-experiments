@@ -211,8 +211,6 @@ class ZZRamsey(BaseExperiment):
             Circuits for series 0 and 1
         """
         metadata = {
-            "experiment_type": self._type,
-            "qubits": self.physical_qubits,
             "unit": "s",
         }
 
