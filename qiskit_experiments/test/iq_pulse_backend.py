@@ -23,10 +23,12 @@ from qiskit.circuit import CircuitInstruction
 from qiskit.circuit.measure import Measure
 from qiskit.providers import BackendV2, QubitProperties
 from qiskit.providers.models import PulseDefaults
+from qiskit.providers.models.pulsedefaults import Command
 from qiskit.providers.options import Options
 from qiskit import pulse
-from qiskit.pulse import ScheduleBlock
+from qiskit.pulse import Schedule, ScheduleBlock
 from qiskit.pulse.transforms import block_to_schedule
+from qiskit.qobj.pulse_qobj import PulseQobjInstruction
 from qiskit.qobj.utils import MeasLevel, MeasReturnType
 from qiskit.quantum_info.states import Statevector
 from qiskit.result import Result
@@ -75,18 +77,7 @@ class IQPulseBackend(BackendV2):
         self.gound_state = np.zeros(self.solver.model.dim)
         self.gound_state[0] = 1
         self.y_0 = np.eye(self.solver.model.dim)
-
-    # why PulseDefault needed?
-    # just define the initial default pulse is fine I tink!
-    @property
-    def default_pulse_unitaries(self) -> Dict[Tuple, np.array]:
-        """Return the default unitary matrices of the backend."""
-        return self._simulated_pulse_unitaries
-
-    @default_pulse_unitaries.setter
-    def default_pulse_unitaries(self, unitaries: Dict[Tuple, np.array]):
-        """Set the default unitary pulses this allows the tests to simulate the pulses only once."""
-        self._simulated_pulse_unitaries = unitaries
+        self._simulated_pulse_unitaries = {}
 
     @property
     def target(self):
@@ -103,6 +94,16 @@ class IQPulseBackend(BackendV2):
     @classmethod
     def _default_options(cls):
         return Options(shots=1024)
+
+    @property
+    def default_pulse_unitaries(self) -> Dict[Tuple, np.array]:
+        """Return the default unitary matrices of the backend."""
+        return self._simulated_pulse_unitaries
+
+    @default_pulse_unitaries.setter
+    def default_pulse_unitaries(self, unitaries: Dict[Tuple, np.array]):
+        """Set the default unitary pulses this allows the tests to simulate the pulses only once."""
+        self._simulated_pulse_unitaries = unitaries
 
     @staticmethod
     def _get_info(instruction: CircuitInstruction) -> Tuple[Tuple[int], Tuple[float], str]:
@@ -132,13 +133,16 @@ class IQPulseBackend(BackendV2):
             return measurement
 
     # @lru_cache | ScheduleBlock is unhashable type, figure out workaround to use lru_cache
-    def solve(self, schedule_blocks: ScheduleBlock, qubits: Tuple[int]) -> np.ndarray:
+    def solve(self, schedule: Union[ScheduleBlock, Schedule], qubits: Tuple[int]) -> np.ndarray:
         """Solves a single schdule block and returns the unitary"""
         if len(qubits) > 1:
             QiskitError("TODO multi qubit gates")
+        if isinstance(schedule, ScheduleBlock):
+            schedule = block_to_schedule(schedule)
 
-        signal = self.converter.get_signals(block_to_schedule(schedule_blocks))
-        time_f = schedule_blocks.duration * self.dt
+        signal = self.converter.get_signals(schedule)
+        time_f = schedule.duration * self.dt
+        print("running")
         unitary = self.solver.solve(
             t_span=[0.0, time_f],
             y0=self.y_0,
@@ -265,7 +269,50 @@ class SingleTransmonTestBackend(IQPulseBackend):
                 "meas_freq_est": [0],
                 "buffer": 0,
                 "pulse_library": [],
-                "cmd_def": [],
+                "cmd_def": [
+                    Command.from_dict(
+                        {
+                            "name": "x",
+                            "qubits": [0],
+                            "sequence": [
+                                PulseQobjInstruction(
+                                    name="parametric_pulse",
+                                    t0=0,
+                                    ch="d0",
+                                    label="Xp_d0",
+                                    pulse_shape="drag",
+                                    parameters={
+                                        "amp": (0.1 + 0j),
+                                        "beta": 5,
+                                        "duration": 160,
+                                        "sigma": 16,
+                                    },
+                                ).to_dict()
+                            ],
+                        }
+                    ).to_dict(),
+                    Command.from_dict(
+                        {
+                            "name": "sx",
+                            "qubits": [0],
+                            "sequence": [
+                                PulseQobjInstruction(
+                                    name="parametric_pulse",
+                                    t0=0,
+                                    ch="d0",
+                                    label="X90p_d0",
+                                    pulse_shape="drag",
+                                    parameters={
+                                        "amp": (0.1 + 0j) / 2,
+                                        "beta": 5,
+                                        "duration": 160,
+                                        "sigma": 16,
+                                    },
+                                ).to_dict()
+                            ],
+                        }
+                    ).to_dict(),
+                ],
             }
         )
         self._target = Target(
@@ -279,27 +326,11 @@ class SingleTransmonTestBackend(IQPulseBackend):
         self._target.add_instruction(Measure(), measure_props)
         self.converter = InstructionToSignals(self.dt, carriers={"d0": qubit_frequency})
 
-    # backend has it's own default pulse unitaries for pulse schedule 'x', 'sx','rz'.
-    # what can be the best pulse parameters for 'x','sx'
-    @property
-    def default_pulse_unitaries(self) -> Dict[Tuple, np.array]:
-        """Return the default unitary matrices of the backend."""
-        default_schedule = []
-        d0 = pulse.DriveChannel(0)
-        with pulse.build(name="x") as x:
-            pulse.play(pulse.Drag(duration=160, amp=0.1, sigma=16, beta=5), d0)
-            default_schedule.append(x)
-        with pulse.build(name="sx") as sx:
-            pulse.play(pulse.Drag(duration=160, amp=0.1 * 0.5, sigma=16, beta=5), d0)
-            default_schedule.append(sx)
-        experiment_unitaries = {}
-        # defualt_unitaries.append(RZ)
-        for schedule in default_schedule:
-            signal = self.converter.get_signals(schedule)
-            time_f = schedule.duration * self.dt
-            unitary = self.solver.solve(
-                t_span=[0.0, time_f], y0=self.y_0, t_eval=[time_f], signals=signal, method="RK23"
-            ).y[0]
-            experiment_unitaries[(schedule.name, (0,), ())] = unitary
-
-        return experiment_unitaries
+        # TODO RZ gate
+        default_schedules = [
+            self._defaults.instruction_schedule_map.get("x", (0,)),
+            self._defaults.instruction_schedule_map.get("sx", (0,)),
+        ]
+        self._simulated_pulse_unitaries = {
+            (schedule.name, (0,), ()): self.solve(schedule, (0,)) for schedule in default_schedules
+        }
