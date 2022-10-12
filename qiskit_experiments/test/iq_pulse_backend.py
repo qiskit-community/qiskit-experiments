@@ -75,7 +75,8 @@ class IQPulseBackend(BackendV2):
         self.gound_state[0] = 1
         self.y_0 = np.eye(self.solver.model.dim)
 
-   # Q2 _simulated_pulse_unitaries : required!
+   # why PulseDefault needed?
+   # just define the initial default pulse is fine I tink!
     @property
     def default_pulse_unitaries(self) -> Dict[Tuple, np.array]:
         """Return the default unitary matrices of the backend."""
@@ -103,14 +104,14 @@ class IQPulseBackend(BackendV2):
         return Options(shots=1024)
 
     @staticmethod
-    def _get_info(instruction: CircuitInstruction) -> Tuple[Tuple(int), Tuple(float), str]:
+    def _get_info(instruction: CircuitInstruction) -> Tuple[Tuple[int], Tuple[float], str]:
         p_dict = instruction.operation
         qubit = tuple(int(str(val)[-2]) for val in instruction.qubits)
         params = tuple(float(val) for val in p_dict.params)
         return qubit, params, p_dict.name
 
     @staticmethod
-    def _state_vector_to_result(
+    def _state_vector_to_unitary ( 
         state: Union[Statevector, np.ndarray],
         shots: Optional[int] = 1024,
         meas_return: Optional[MeasReturnType] = 0,
@@ -130,7 +131,7 @@ class IQPulseBackend(BackendV2):
             return measurement
 
     @lru_cache
-    def solve(self, schedule_blocks: ScheduleBlock, qubits: Tuple(int)) -> np.ndarray:
+    def solve(self, schedule_blocks: ScheduleBlock, qubits: Tuple[int]) -> np.ndarray:
         """Solves a single schdule block and returns the unitary"""
         if len(qubits) > 1:
             QiskitError("TODO multi qubit gates")
@@ -139,7 +140,7 @@ class IQPulseBackend(BackendV2):
         #schedule = block_to_schedule(schedule_blocks)
         #signal = self.converter.get_signals(schedule)
         time_f = schedule_blocks.duration * self.dt
-        result = self.solver.solve(
+        unitary   = self.solver.solve(
             t_span=[0.0, time_f],
             y0=self.y_0,
             t_eval=[time_f],
@@ -147,22 +148,22 @@ class IQPulseBackend(BackendV2):
             method="RK23", #?
         ).y[0] 
 
-        return result
-
+        return unitary 
+ 
     def run(self, run_input: Union[QuantumCircuit, List[QuantumCircuit]], **options) -> FakeJob:
-        """run method takes circuits as input and returns FakeJob object with results"""
+        """run method takes circuits as input and returns FakeJob object with unitary s """
 
         self.options.update_options(**options)
         shots = self.options.get("shots")
         meas_level = self.options.get("meas_level")
 
-        result = {
+        unitary   = {
             "backend_name": f"{self.__class__.__name__}",
             "backend_version": self.backend_version,
             "qobj_id": 0,
             "job_id": 0,
             "success": True,
-            "results": [],
+            "unitary s ": [],
         }
 
         if isinstance(run_input, QuantumCircuit):
@@ -186,9 +187,9 @@ class IQPulseBackend(BackendV2):
                 unitary = experiment_unitaries[(inst_name, qubits, params)]
                 psi = unitary @ psi
 
-            counts = self._state_vector_to_result(psi / np.linalg.norm(psi), **options)
+            counts = self._state_vector_to_unitary ( psi / np.linalg.norm(psi), **options)
             # counts = dict(zip(*np.unique(memory, return_counts=True)))
-            run_result = {
+            run_unitary   = {
                 "shots": shots,
                 "success": True,
                 "header": {"metadata": circuit.metadata},
@@ -199,8 +200,8 @@ class IQPulseBackend(BackendV2):
                 },
             }
 
-            result["results"].append(run_result)
-        return FakeJob(self, Result.from_dict(result))
+            unitary [ "unitary s "].append(run_unitary ) 
+        return FakeJob(self, unitary . from_dict(unitary ) )
 
 
 class SingleTransmonTestBackend(IQPulseBackend):
@@ -253,3 +254,28 @@ class SingleTransmonTestBackend(IQPulseBackend):
         }
         self._target.add_instruction(Measure(), measure_props)
         self.converter = InstructionToSignals(self.dt, carriers={"d0": omega_01})
+
+# backend has it's own default pulse unitaries for pulse schedule 'x', 'sx','rz'.
+# what can be the best pulse parameters for 'x','sx'
+    def default_pulse_unitaries(self) -> Dict[Tuple, np.array]:
+        """Return the default unitary matrices of the backend."""
+        default_schedule=[]
+        d0 = pulse.DriveChannel(0)
+        with pulse.build(name='x') as x:
+            pulse.play(Drag(duration=160, amp=0.1, sigma=16, beta=5), d0)
+            default_schedule.append(x)
+        with pulse.build(name='sx') as sx:
+            pulse.play(Drag(duration=160, amp=0.1*0.5, sigma=16, beta=5), d0)
+            default_schedule.append(sx)
+        experiment_unitaries={}
+        #defualt_unitaries.append(RZ)
+        for schedule in default_schedule:
+            signal=self.converter.get_signals(schedule)
+            T=schedule.duration*self.dt
+            unitary = self.solver.solve(t_span=[0.0,T], y0=self.y_0,
+                                    t_eval=[T], signals=signal,
+                                    method='RK23').y[0]
+            experiment_unitaries[(schedule.name,(0,),())]=unitary
+        
+        return experiment_unitaries
+    
