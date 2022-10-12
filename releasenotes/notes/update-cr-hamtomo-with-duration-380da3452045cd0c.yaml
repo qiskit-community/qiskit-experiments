@@ -5,7 +5,7 @@ features:
     ``durations`` with default values. Note that values should be provided in
     units of sec rather than samples, and must include pulse ramps at edges.
     Default values with linear increment are generated according to new experiment options,
-    ``durations_min``, ``durations_max`, and ``durations_num``, when the durations
+    ``min_duration``, ``max_duration`, and ``num_durations``, when the durations
     is not explicitly provided. Default value is chosen by assuming a
     typical ZX rate around 1 MHz in recent IBM Quantum backends.
     User can update these option values as well as providing full ``durations``

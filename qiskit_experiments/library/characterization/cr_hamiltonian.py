@@ -23,7 +23,6 @@ from qiskit.exceptions import QiskitError
 from qiskit.providers import Backend
 from qiskit_experiments.framework import (
     BaseExperiment,
-    BackendData,
     BackendTiming,
     Options,
 )
@@ -164,9 +163,12 @@ class CrossResonanceHamiltonian(BaseExperiment):
                 with a single parameter ``width`` in units of sec.
             durations: Optional. The total duration of cross resonance pulse(s) including
                 rising and falling edges. The minimum number should be larger than the
-                total lengths of these ramps. If not provided, default patterns of
-                linear increment will be configured with experiment options.
-                This value should be provided in units of sec.
+                total lengths of these ramps. If not provided, then ``num_durations`` evenly
+                spaced durations between ``min_durations`` and ``max_durations`` are
+                automatically generated from these experiment options. The default numbers
+                are chosen to have a good sensitivity for the Hamiltonian coefficient
+                of interest at the rate around 1 MHz.
+                This argument should be provided in units of sec.
             kwargs: Pulse parameters. See :meth:`experiment_options` for details.
 
         Raises:
@@ -178,6 +180,7 @@ class CrossResonanceHamiltonian(BaseExperiment):
             )
 
         super().__init__(qubits, analysis=CrossResonanceHamiltonianAnalysis(), backend=backend)
+        self._backend_timing = None
         self._gate_cls = cr_gate or self.CRPulseGate
         self.set_experiment_options(durations=durations, **kwargs)
 
@@ -192,22 +195,22 @@ class CrossResonanceHamiltonian(BaseExperiment):
         Experiment Options:
             durations (np.ndarray): The total duration of the cross resonance pulse(s) to scan,
                 in units of sec. Values should be longer than pulse ramps.
-            durations_min (int): The minimum default pulse durations.
-            durations_max (int): The maximum default pulse durations.
-            durations_num (int): The number of default durations. Experiment automatically
-                creates durations of linear increment along with ``durations_min`` and
-                ``durations_max`` when user doesn't explicitly provide ``durations``.
+            min_durations (int): The minimum default pulse duration in samples.
+            max_durations (int): The maximum default pulse duration in samples.
+            num_durations (int): The number of measured durations. The experiment automatically
+                creates durations of linear increment along with ``min_durations`` and
+                ``max_durations`` when user doesn't explicitly provide ``durations``.
             amp (complex): Amplitude of the cross resonance tone.
             amp_t (complex): Amplitude of the cancellation or rotary drive on target qubit.
             sigma (float): Sigma of Gaussian rise and fall edges, in units of dt.
             risefall (float): Ratio of edge durations to sigma.
         """
         options = super()._default_experiment_options()
-        options.flat_top_widths = None  # to be removed
+        options.flat_top_widths = None  # to be removed in Qiskit Experiments 0.6
         options.durations = None
-        options.durations_min = 60e-9
-        options.durations_max = 1200e-9
-        options.durations_num = 48
+        options.min_durations = 60e-9
+        options.max_durations = 1200e-9
+        options.num_durations = 48
         options.amp = 0.5
         options.amp_t = 0.0
         options.sigma = 64
@@ -227,6 +230,11 @@ class CrossResonanceHamiltonian(BaseExperiment):
             )
         super().set_experiment_options(**fields)
 
+    def _set_backend(self, backend: Backend):
+        """Set the backend for the experiment with timing analysis."""
+        super()._set_backend(backend)
+        self._backend_timing = BackendTiming(backend)
+
     def _get_width(self, duration: ParameterValueType) -> ParameterValueType:
         """A helper function to get flat top width.
 
@@ -236,8 +244,7 @@ class CrossResonanceHamiltonian(BaseExperiment):
         Returns:
             A flat top widths of cross resonacne pulse in units of sec.
         """
-        timing = BackendTiming(self.backend)
-        backend_dt = timing.dt or 1
+        backend_dt = self._backend_timing.dt or 1
         sigma_sec = self.experiment_options.sigma * backend_dt
 
         return duration - 2 * sigma_sec * self.experiment_options.risefall
@@ -248,14 +255,13 @@ class CrossResonanceHamiltonian(BaseExperiment):
 
         if opt.flat_top_widths is not None:
             # TODO Remove this in Qiskit Experiments 0.6
-            timing = BackendTiming(self.backend)
-            backend_dt = timing.dt or 1
+            backend_dt = self._backend_timing.dt or 1
             widths = np.asarray(opt.flat_top_widths, dtype=float)
 
             return backend_dt * (widths + 2 * opt.sigma * opt.risefall)
 
         if opt.durations is None:
-            return np.linspace(opt.durations_min, opt.durations_max, opt.durations_num)
+            return np.linspace(opt.min_durations, opt.max_durations, opt.num_durations)
 
         return np.asarray(opt.durations, dtype=float)
 
@@ -282,10 +288,9 @@ class CrossResonanceHamiltonian(BaseExperiment):
         opt = self.experiment_options
         duration = circuit.Parameter("duration")
 
-        backend_data = BackendData(self.backend)
-        cr_drive = backend_data.control_channel(self.physical_qubits)[0]
-        c_drive = backend_data.drive_channel(self.physical_qubits[0])
-        t_drive = backend_data.drive_channel(self.physical_qubits[1])
+        cr_drive = self._backend_data.control_channel(self.physical_qubits)[0]
+        c_drive = self._backend_data.drive_channel(self.physical_qubits[0])
+        t_drive = self._backend_data.drive_channel(self.physical_qubits[1])
 
         with pulse.build(default_alignment="left", name="cr") as cross_resonance:
             # add cross resonance tone
@@ -343,14 +348,13 @@ class CrossResonanceHamiltonian(BaseExperiment):
         This method calls :meth:`_build_default_schedule` to generate actual schedule.
         We assume backend has been set in this method call.
         """
-        timing = BackendTiming(self.backend)
         schedule = self._build_default_schedule()
 
         # Assume this parameter is in units of dt, because this controls pulse samples.
         param_duration = next(iter(schedule.get_parameters("duration")))
 
         # Gate duration will be shown in sec, which is more intuitive.
-        cr_gate = self._gate_cls(width=self._get_width(timing.dt * param_duration))
+        cr_gate = self._gate_cls(width=self._get_width(self._backend_timing.dt * param_duration))
 
         # Create parameterized circuits with calibration.
         tmp_circs = []
@@ -380,11 +384,11 @@ class CrossResonanceHamiltonian(BaseExperiment):
         for duration in self._get_durations():
             # Need to round pulse to satisfy hardware timing constraints.
             # Convert into samples for assignment and validation.
-            valid_duration_dt = timing.round_pulse(time=duration)
+            valid_duration_dt = self._backend_timing.round_pulse(time=duration)
 
             # Convert into sec to pass xval to analysis.
             # Analysis expects xval of flat top widths in units of sec.
-            flat_top_width_sec = self._get_width(timing.dt * valid_duration_dt)
+            flat_top_width_sec = self._get_width(self._backend_timing.dt * valid_duration_dt)
             if flat_top_width_sec < 0:
                 raise ValueError(
                     f"Input duration={duration} is less than pulse ramps lengths, resulting in "
@@ -463,8 +467,7 @@ class CrossResonanceHamiltonian(BaseExperiment):
     def _finalize(self):
         """Set analysis option for initial guess that depends on experiment option values."""
         edge_duration = np.sqrt(2 * np.pi) * self.experiment_options.sigma * self.num_pulses
-        timing = BackendTiming(self.backend)
-        backend_dt = timing.dt or 1
+        backend_dt = self._backend_timing.dt or 1
 
         for analysis in self.analysis.analyses():
             init_guess = analysis.options.p0.copy()
