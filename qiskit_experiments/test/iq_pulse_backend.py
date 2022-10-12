@@ -112,7 +112,7 @@ class IQPulseBackend(BackendV2):
         return qubit, params, p_dict.name
 
     @staticmethod
-    def _state_vector_to_result(
+    def _state_vector_to_data(
         state: Union[Statevector, np.ndarray],
         shots: Optional[int] = 1024,
         meas_return: Optional[MeasReturnType] = 0,
@@ -137,9 +137,7 @@ class IQPulseBackend(BackendV2):
         if len(qubits) > 1:
             QiskitError("TODO multi qubit gates")
 
-        signal = self.converter.get_signals(schedule_blocks)
-        # schedule = block_to_schedule(schedule_blocks)
-        # signal = self.converter.get_signals(schedule)
+        signal = self.converter.get_signals(block_to_schedule(schedule_blocks))
         time_f = schedule_blocks.duration * self.dt
         unitary = self.solver.solve(
             t_span=[0.0, time_f],
@@ -188,7 +186,7 @@ class IQPulseBackend(BackendV2):
                 unitary = experiment_unitaries[(inst_name, qubits, params)]
                 psi = unitary @ psi
 
-            return_data = self._state_vector_to_result(psi / np.linalg.norm(psi), **options)
+            return_data = self._state_vector_to_data(psi / np.linalg.norm(psi), **options)
 
             run_result = {
                 "shots": shots,
@@ -280,6 +278,7 @@ class SingleTransmonTestBackend(IQPulseBackend):
 
     # backend has it's own default pulse unitaries for pulse schedule 'x', 'sx','rz'.
     # what can be the best pulse parameters for 'x','sx'
+    @property
     def default_pulse_unitaries(self) -> Dict[Tuple, np.array]:
         """Return the default unitary matrices of the backend."""
         default_schedule = []
@@ -294,9 +293,9 @@ class SingleTransmonTestBackend(IQPulseBackend):
         # defualt_unitaries.append(RZ)
         for schedule in default_schedule:
             signal = self.converter.get_signals(schedule)
-            T = schedule.duration * self.dt
+            time_f = schedule.duration * self.dt
             unitary = self.solver.solve(
-                t_span=[0.0, T], y0=self.y_0, t_eval=[T], signals=signal, method="RK23"
+                t_span=[0.0, time_f], y0=self.y_0, t_eval=[time_f], signals=signal, method="RK23"
             ).y[0]
             experiment_unitaries[(schedule.name, (0,), ())] = unitary
 
