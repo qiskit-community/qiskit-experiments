@@ -76,8 +76,8 @@ class IQPulseBackend(BackendV2):
         self.gound_state[0] = 1
         self.y_0 = np.eye(self.solver.model.dim)
 
-   # why PulseDefault needed?
-   # just define the initial default pulse is fine I tink!
+    # why PulseDefault needed?
+    # just define the initial default pulse is fine I tink!
     @property
     def default_pulse_unitaries(self) -> Dict[Tuple, np.array]:
         """Return the default unitary matrices of the backend."""
@@ -138,8 +138,8 @@ class IQPulseBackend(BackendV2):
             QiskitError("TODO multi qubit gates")
 
         signal = self.converter.get_signals(schedule_blocks)
-        #schedule = block_to_schedule(schedule_blocks)
-        #signal = self.converter.get_signals(schedule)
+        # schedule = block_to_schedule(schedule_blocks)
+        # signal = self.converter.get_signals(schedule)
         time_f = schedule_blocks.duration * self.dt
         unitary = self.solver.solve(
             t_span=[0.0, time_f],
@@ -256,26 +256,26 @@ class SingleTransmonTestBackend(IQPulseBackend):
         self._target.add_instruction(Measure(), measure_props)
         self.converter = InstructionToSignals(self.dt, carriers={"d0": omega_01})
 
-# backend has it's own default pulse unitaries for pulse schedule 'x', 'sx','rz'.
-# what can be the best pulse parameters for 'x','sx'
+    # backend has it's own default pulse unitaries for pulse schedule 'x', 'sx','rz'.
+    # what can be the best pulse parameters for 'x','sx'
     def default_pulse_unitaries(self) -> Dict[Tuple, np.array]:
         """Return the default unitary matrices of the backend."""
-        default_schedule=[]
+        default_schedule = []
         d0 = pulse.DriveChannel(0)
-        with pulse.build(name='x') as x:
+        with pulse.build(name="x") as x:
             pulse.play(pulse.Drag(duration=160, amp=0.1, sigma=16, beta=5), d0)
             default_schedule.append(x)
-        with pulse.build(name='sx') as sx:
-            pulse.play(pulse.Drag(duration=160, amp=0.1*0.5, sigma=16, beta=5), d0)
+        with pulse.build(name="sx") as sx:
+            pulse.play(pulse.Drag(duration=160, amp=0.1 * 0.5, sigma=16, beta=5), d0)
             default_schedule.append(sx)
-        experiment_unitaries={}
-        #defualt_unitaries.append(RZ)
+        experiment_unitaries = {}
+        # defualt_unitaries.append(RZ)
         for schedule in default_schedule:
-            signal=self.converter.get_signals(schedule)
-            T=schedule.duration*self.dt
-            unitary = self.solver.solve(t_span=[0.0,T], y0=self.y_0,
-                                    t_eval=[T], signals=signal,
-                                    method='RK23').y[0]
-            experiment_unitaries[(schedule.name,(0,),())]=unitary
+            signal = self.converter.get_signals(schedule)
+            T = schedule.duration * self.dt
+            unitary = self.solver.solve(
+                t_span=[0.0, T], y0=self.y_0, t_eval=[T], signals=signal, method="RK23"
+            ).y[0]
+            experiment_unitaries[(schedule.name, (0,), ())] = unitary
 
         return experiment_unitaries
