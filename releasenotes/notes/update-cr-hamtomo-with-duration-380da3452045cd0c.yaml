@@ -22,9 +22,13 @@ features:
       exp_data = expr.run()
     
     where the durations to scan are implicitly set by experiment options.
-
 deprecations:
   - |
     The ``flat_top_widths`` argument and experiment option of 
     :class:`.CrossResonanceHamiltonian` experiment and its subclass 
     have been deprecated and will be removed in Qiskit Experiments 0.6.
+fixes:
+  - |
+    There has been a bug in the :class:`.EchoedCrossResonanceHamiltonian` experiment 
+    in which the Hamiltonian coefficients were overestimated by a factor of 2.
+    This bug has been fixed.
