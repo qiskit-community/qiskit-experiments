@@ -188,18 +188,20 @@ class IQPulseBackend(BackendV2):
                 unitary = experiment_unitaries[(inst_name, qubits, params)]
                 psi = unitary @ psi
 
-            counts = self._state_vector_to_result(psi / np.linalg.norm(psi), **options)
-            # counts = dict(zip(*np.unique(memory, return_counts=True)))
+            return_data = self._state_vector_to_result(psi / np.linalg.norm(psi), **options)
+
             run_result = {
                 "shots": shots,
                 "success": True,
                 "header": {"metadata": circuit.metadata},
                 "meas_level": meas_level,
-                "data": {
-                    "counts": counts,
-                    # "memory": memory,
-                },
+                "data": {},
             }
+
+            if meas_level == MeasLevel.CLASSIFIED:
+                run_result["data"]["counts"] = return_data
+            if meas_level == MeasLevel.KERNELED:
+                run_result["data"]["memory"] = return_data
 
             result["results"].append(run_result)
         return FakeJob(self, Result.from_dict(result))
