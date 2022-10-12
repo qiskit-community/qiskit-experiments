@@ -49,7 +49,7 @@ class FineAmplitudeCal(BaseCalibrationExperiment, FineAmplitude):
         backend: Optional[Backend] = None,
         cal_parameter_name: Optional[str] = "amp",
         auto_update: bool = True,
-        gate_name: Optional[str] = None,
+        gate: Optional[Gate] = None,
         measurement_qubits: Sequence[int] = None,
     ):
         """see class :class:`FineAmplitude` for details.
@@ -63,18 +63,18 @@ class FineAmplitudeCal(BaseCalibrationExperiment, FineAmplitude):
             cal_parameter_name: The name of the parameter in the schedule to update.
             auto_update: Whether or not to automatically update the calibrations. By
                 default this variable is set to True.
-            gate_name: The name of the gate to repeat in the quantum circuit. If this argument
-                is None (the default), then the gate name is the schedule name.
+            gate: The gate to repeat in the quantum circuit. If this argument
+                is None (the default), then the gate is built from the schedule name.
             measurement_qubits: The qubits in the given physical qubits that need to
                 be measured.
         """
         qubits = qubit if isinstance(qubit, tuple) else (qubit,)
-        gate_name = gate_name or schedule_name
+        gate = gate or Gate(name=schedule_name, num_qubits=len(qubits), params=[])
 
         super().__init__(
             calibrations,
             qubits,
-            Gate(name=gate_name, num_qubits=len(qubits), params=[]),
+            gate,
             schedule_name=schedule_name,
             backend=backend,
             measurement_qubits=measurement_qubits,
