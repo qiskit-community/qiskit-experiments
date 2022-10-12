@@ -11,28 +11,370 @@
 # that they have been altered from the originals.
 
 """Test for randomized benchmarking experiments."""
-
 from test.base import QiskitExperimentsTestCase
 
-import random
-from ddt import ddt, data, unpack
-import numpy as np
+import copy
 
-from qiskit.circuit import Delay, QuantumCircuit
+import numpy as np
+from ddt import ddt, data, unpack
+
+from qiskit.circuit import Delay, QuantumCircuit, Parameter
 from qiskit.circuit.library import SXGate, CXGate, TGate, CZGate
 from qiskit.exceptions import QiskitError
+from qiskit.providers.fake_provider import FakeManilaV2, FakeWashington
+from qiskit.pulse import Schedule, InstructionScheduleMap
 from qiskit.quantum_info import Operator
 from qiskit_aer import AerSimulator
 from qiskit_aer.noise import NoiseModel, depolarizing_error
-
-from qiskit_experiments.library import randomized_benchmarking as rb
-from qiskit_experiments.library.randomized_benchmarking import CliffordUtils
-from qiskit_experiments.framework.composite import ParallelExperiment
 from qiskit_experiments.database_service.exceptions import ExperimentEntryNotFound
+from qiskit_experiments.framework.composite import ParallelExperiment
+from qiskit_experiments.library import randomized_benchmarking as rb
 
 
-class RBTestCase(QiskitExperimentsTestCase):
-    """Base test case for randomized benchmarking defining a common noise model."""
+class RBTestMixin:
+    """Mixin for RB tests."""
+
+    def assertAllIdentity(self, circuits):
+        """Test if all experiment circuits are identity."""
+        for circ in circuits:
+            num_qubits = circ.num_qubits
+            qc_iden = QuantumCircuit(num_qubits)
+            circ.remove_final_measurements()
+            self.assertTrue(Operator(circ).equiv(Operator(qc_iden)))
+
+
+@ddt
+class TestStandardRB(QiskitExperimentsTestCase, RBTestMixin):
+    """Test for StandardRB without running the experiments."""
+
+    def setUp(self):
+        """Setup the tests."""
+        super().setUp()
+        self.backend = FakeManilaV2()
+
+    # ### Tests for configuration ###
+    @data(
+        {"qubits": [3, 3], "lengths": [1, 3, 5, 7, 9], "num_samples": 1, "seed": 100},
+        {"qubits": [0, 1], "lengths": [1, 3, 5, -7, 9], "num_samples": 1, "seed": 100},
+        {"qubits": [0, 1], "lengths": [1, 3, 5, 7, 9], "num_samples": -4, "seed": 100},
+        {"qubits": [0, 1], "lengths": [1, 3, 5, 7, 9], "num_samples": 0, "seed": 100},
+        {"qubits": [0, 1], "lengths": [1, 5, 5, 5, 9], "num_samples": 2, "seed": 100},
+    )
+    def test_invalid_configuration(self, configs):
+        """Test raise error when creating experiment with invalid configs."""
+        self.assertRaises(QiskitError, rb.StandardRB, **configs)
+
+    def test_experiment_config(self):
+        """Test converting to and from config works"""
+        exp = rb.StandardRB(qubits=(0,), lengths=[10, 20, 30], seed=123)
+        loaded_exp = rb.StandardRB.from_config(exp.config())
+        self.assertNotEqual(exp, loaded_exp)
+        self.assertTrue(self.json_equiv(exp, loaded_exp))
+
+    def test_roundtrip_serializable(self):
+        """Test round trip JSON serialization"""
+        exp = rb.StandardRB(qubits=(0,), lengths=[10, 20, 30], seed=123)
+        self.assertRoundTripSerializable(exp, self.json_equiv)
+
+    def test_analysis_config(self):
+        """ "Test converting analysis to and from config works"""
+        analysis = rb.RBAnalysis()
+        loaded = rb.RBAnalysis.from_config(analysis.config())
+        self.assertNotEqual(analysis, loaded)
+        self.assertEqual(analysis.config(), loaded.config())
+
+    # ### Tests for circuit generation ###
+    def test_return_same_circuit(self):
+        """Test if setting the same seed returns the same circuits."""
+        exp1 = rb.StandardRB(
+            qubits=(0, 1),
+            lengths=[10, 20, 30],
+            seed=123,
+            backend=self.backend,
+        )
+
+        exp2 = rb.StandardRB(
+            qubits=(0, 1),
+            lengths=[10, 20, 30],
+            seed=123,
+            backend=self.backend,
+        )
+
+        circs1 = exp1.circuits()
+        circs2 = exp2.circuits()
+
+        self.assertEqual(circs1[0].decompose(), circs2[0].decompose())
+        self.assertEqual(circs1[1].decompose(), circs2[1].decompose())
+        self.assertEqual(circs1[2].decompose(), circs2[2].decompose())
+
+    def test_full_sampling_single_qubit(self):
+        """Test if full sampling generates different circuits."""
+        exp1 = rb.StandardRB(
+            qubits=(0,),
+            lengths=[10, 20, 30],
+            seed=123,
+            backend=self.backend,
+            full_sampling=False,
+        )
+        exp2 = rb.StandardRB(
+            qubits=(0,),
+            lengths=[10, 20, 30],
+            seed=123,
+            backend=self.backend,
+            full_sampling=True,
+        )
+        circs1 = exp1.circuits()
+        circs2 = exp2.circuits()
+
+        self.assertEqual(circs1[0].decompose(), circs2[0].decompose())
+
+        # fully sampled circuits are regenerated while other is just built on top of previous length
+        self.assertNotEqual(circs1[1].decompose(), circs2[1].decompose())
+        self.assertNotEqual(circs1[2].decompose(), circs2[2].decompose())
+
+    def test_full_sampling_2_qubits(self):
+        """Test if full sampling generates different circuits."""
+        exp1 = rb.StandardRB(
+            qubits=(0, 1),
+            lengths=[10, 20, 30],
+            seed=123,
+            backend=self.backend,
+            full_sampling=False,
+        )
+
+        exp2 = rb.StandardRB(
+            qubits=(0, 1),
+            lengths=[10, 20, 30],
+            seed=123,
+            backend=self.backend,
+            full_sampling=True,
+        )
+
+        circs1 = exp1.circuits()
+        circs2 = exp2.circuits()
+
+        self.assertEqual(circs1[0].decompose(), circs2[0].decompose())
+
+        # fully sampled circuits are regenerated while other is just built on top of previous length
+        self.assertNotEqual(circs1[1].decompose(), circs2[1].decompose())
+        self.assertNotEqual(circs1[2].decompose(), circs2[2].decompose())
+
+    # ### Tests for transpiled circuit generation ###
+    def test_calibrations_via_transpile_options(self):
+        """Test if calibrations given as transpile_options show up in transpiled circuits."""
+        qubits = (2,)
+        my_sched = Schedule(name="custom_sx_gate")
+        my_inst_map = InstructionScheduleMap()
+        my_inst_map.add(SXGate(), qubits, my_sched)
+
+        exp = rb.StandardRB(
+            qubits=qubits, lengths=[3], num_samples=4, backend=self.backend, seed=123
+        )
+        exp.set_transpile_options(inst_map=my_inst_map)
+        transpiled = exp._transpiled_circuits()
+        for qc in transpiled:
+            self.assertTrue(qc.calibrations)
+            self.assertTrue(qc.has_calibration_for((SXGate(), [qc.qubits[q] for q in qubits], [])))
+            self.assertEqual(qc.calibrations["sx"][(qubits, tuple())], my_sched)
+
+    def test_calibrations_via_custom_backend(self):
+        """Test if calibrations given as custom backend show up in transpiled circuits."""
+        qubits = (2,)
+        my_sched = Schedule(name="custom_sx_gate")
+        my_backend = copy.deepcopy(self.backend)
+        my_backend.target["sx"][qubits].calibration = my_sched
+
+        exp = rb.StandardRB(qubits=qubits, lengths=[3], num_samples=4, backend=my_backend)
+        transpiled = exp._transpiled_circuits()
+        for qc in transpiled:
+            self.assertTrue(qc.calibrations)
+            self.assertTrue(qc.has_calibration_for((SXGate(), [qc.qubits[q] for q in qubits], [])))
+            self.assertEqual(qc.calibrations["sx"][(qubits, tuple())], my_sched)
+
+
+@ddt
+class TestInterleavedRB(QiskitExperimentsTestCase, RBTestMixin):
+    """Test for InterleavedRB without running the experiments."""
+
+    def setUp(self):
+        """Setup the tests."""
+        super().setUp()
+        self.backend = FakeManilaV2()
+        self.backend_with_timing_constraint = FakeWashington()
+
+    # ### Tests for configuration ###
+    def test_non_clifford_interleaved_element(self):
+        """Verifies trying to run interleaved RB with non Clifford element throws an exception"""
+        with self.assertRaises(QiskitError):
+            rb.InterleavedRB(
+                interleaved_element=TGate(),  # T gate is not Clifford, this should fail
+                qubits=[0],
+                lengths=[1, 2, 3, 5, 8, 13],
+            )
+
+    @data([5, "dt"], [1e-7, "s"], [32, "ns"])
+    @unpack
+    def test_interleaving_delay_with_invalid_duration(self, duration, unit):
+        """Raise if delay with invalid duration is given as interleaved_element"""
+        with self.assertRaises(QiskitError):
+            rb.InterleavedRB(
+                interleaved_element=Delay(duration, unit=unit),
+                qubits=[0],
+                lengths=[1, 2, 3],
+                backend=self.backend_with_timing_constraint,
+            )
+
+    def test_experiment_config(self):
+        """Test converting to and from config works"""
+        exp = rb.InterleavedRB(
+            interleaved_element=SXGate(),
+            qubits=(0,),
+            lengths=[10, 20, 30],
+            seed=123,
+        )
+        loaded_exp = rb.InterleavedRB.from_config(exp.config())
+        self.assertNotEqual(exp, loaded_exp)
+        self.assertTrue(self.json_equiv(exp, loaded_exp))
+
+    def test_roundtrip_serializable(self):
+        """Test round trip JSON serialization"""
+        exp = rb.InterleavedRB(
+            interleaved_element=SXGate(), qubits=(0,), lengths=[10, 20, 30], seed=123
+        )
+        self.assertRoundTripSerializable(exp, self.json_equiv)
+
+    def test_analysis_config(self):
+        """ "Test converting analysis to and from config works"""
+        analysis = rb.InterleavedRBAnalysis()
+        loaded = rb.InterleavedRBAnalysis.from_config(analysis.config())
+        self.assertNotEqual(analysis, loaded)
+        self.assertEqual(analysis.config(), loaded.config())
+
+    # ### Tests for circuit generation ###
+    @data([SXGate(), [3], 4], [CXGate(), [4, 7], 5])
+    @unpack
+    def test_interleaved_structure(self, interleaved_element, qubits, length):
+        """Verifies that when generating an interleaved circuit, it will be
+        identical to the original circuit up to additions of
+        barrier and interleaved element between any two Cliffords.
+        """
+        exp = rb.InterleavedRB(
+            interleaved_element=interleaved_element, qubits=qubits, lengths=[length], num_samples=1
+        )
+
+        circuits = exp.circuits()
+        c_std = circuits[0]
+        c_int = circuits[1]
+        if c_std.metadata["interleaved"]:
+            c_std, c_int = c_int, c_std
+        num_cliffords = c_std.metadata["xval"]
+        std_idx = 0
+        int_idx = 0
+        for _ in range(num_cliffords):
+            # barrier
+            self.assertEqual(c_std[std_idx][0].name, "barrier")
+            self.assertEqual(c_int[int_idx][0].name, "barrier")
+            # clifford
+            self.assertEqual(c_std[std_idx + 1], c_int[int_idx + 1])
+            # for interleaved circuit: barrier + interleaved element
+            self.assertEqual(c_int[int_idx + 2][0].name, "barrier")
+            self.assertEqual(c_int[int_idx + 3][0].name, interleaved_element.name)
+            std_idx += 2
+            int_idx += 4
+
+    def test_preserve_interleaved_circuit_element(self):
+        """Interleaved RB should not change a given interleaved circuit during RB circuit generation."""
+        interleaved_circ = QuantumCircuit(2, name="bell_with_delay")
+        interleaved_circ.h(0)
+        interleaved_circ.delay(1.0e-7, 0, unit="s")
+        interleaved_circ.cx(0, 1)
+
+        exp = rb.InterleavedRB(
+            interleaved_element=interleaved_circ, qubits=[2, 1], lengths=[1], num_samples=1
+        )
+        circuits = exp.circuits()
+        # Get the first interleaved operation in the interleaved RB sequence:
+        # 0: barrier, 1: clifford, 2: barrier, 3: interleaved
+        actual = circuits[1][3].operation
+        self.assertEqual(interleaved_circ.count_ops(), actual.definition.count_ops())
+
+    def test_interleaving_delay(self):
+        """Test delay instruction can be interleaved."""
+        # See qiskit-experiments/#727 for details
+        from qiskit_experiments.framework.backend_timing import BackendTiming
+
+        timing = BackendTiming(self.backend)
+        exp = rb.InterleavedRB(
+            interleaved_element=Delay(timing.round_delay(time=1.0e-7)),
+            qubits=[0],
+            lengths=[1],
+            num_samples=1,
+            seed=1234,  # This seed gives a 2-gate clifford
+            backend=self.backend,
+        )
+        int_circs = exp.circuits()[1]
+        # barrier, 2-gate clifford, barrier, "delay", barrier, ...
+        self.assertEqual(int_circs.data[3][0].name, "delay")
+        self.assertAllIdentity([int_circs])
+
+    def test_interleaving_circuit_with_delay(self):
+        """Test circuit with delay can be interleaved."""
+        delay_qc = QuantumCircuit(2)
+        delay_qc.delay(160, [0])
+        delay_qc.x(1)
+
+        exp = rb.InterleavedRB(
+            interleaved_element=delay_qc,
+            qubits=[1, 2],
+            lengths=[1],
+            num_samples=1,
+            seed=1234,
+            backend=self.backend,
+        )
+        int_circ = exp.circuits()[1]
+        self.assertAllIdentity([int_circ])
+
+    def test_interleaving_parameterized_circuit(self):
+        """Fail if parameterized circuit is interleaved but after assigned it may be interleaved."""
+        qubits = (2,)
+        theta = Parameter("theta")
+        phi = Parameter("phi")
+        lam = Parameter("lambda")
+        cliff_circ_with_param = QuantumCircuit(1)
+        cliff_circ_with_param.rz(theta, 0)
+        cliff_circ_with_param.sx(0)
+        cliff_circ_with_param.rz(phi, 0)
+        cliff_circ_with_param.sx(0)
+        cliff_circ_with_param.rz(lam, 0)
+
+        with self.assertRaises(QiskitError):
+            rb.InterleavedRB(
+                interleaved_element=cliff_circ_with_param,
+                qubits=qubits,
+                lengths=[3],
+                num_samples=4,
+                backend=self.backend,
+            )
+
+        # # TODO: Enable after Clifford supports creation from circuits with rz
+        # # parameters must be assigned before initializing InterleavedRB
+        # param_map = {theta: np.pi / 2, phi: -np.pi / 2, lam: np.pi / 2}
+        # cliff_circ_with_param.assign_parameters(param_map, inplace=True)
+        #
+        # exp = rb.InterleavedRB(
+        #     interleaved_element=cliff_circ_with_param,
+        #     qubits=qubits,
+        #     lengths=[3],
+        #     num_samples=4,
+        #     backend=self.backend,
+        # )
+        # circuits = exp.circuits()
+        # for qc in circuits:
+        #     self.assertEqual(qc.num_parameters, 0)
+
+
+class RBRunTestCase(QiskitExperimentsTestCase, RBTestMixin):
+    """Base test case for running RB experiments defining a common noise model."""
 
     def setUp(self):
         """Setup the tests."""
@@ -70,18 +412,9 @@ class RBTestCase(QiskitExperimentsTestCase):
         # Aer simulator
         self.backend = AerSimulator(noise_model=noise_model, seed_simulator=123)
 
-    def assertAllIdentity(self, circuits):
-        """Test if all experiment circuits are identity."""
-        for circ in circuits:
-            num_qubits = circ.num_qubits
-            qc_iden = QuantumCircuit(num_qubits)
-            circ.remove_final_measurements()
-            assert Operator(circ).equiv(Operator(qc_iden))
 
-
-@ddt
-class TestStandardRB(RBTestCase):
-    """Test for standard RB."""
+class TestRunStandardRB(RBRunTestCase):
+    """Test for running StandardRB."""
 
     def test_single_qubit(self):
         """Test single qubit RB."""
@@ -199,134 +532,25 @@ class TestStandardRB(RBTestCase):
         from qiskit.providers.fake_provider import FakeVigoV2
 
         backend = FakeVigoV2()
+        # TODO: this test no longer makes sense (yields small reduced_chisq)
+        #  after fixing how to call fake backend v2 (by adding the next line)
+        # Need to call target before running fake backend v2 to load correct data
+        self.assertLess(backend.target["sx"][(0,)].error, 0.001)
+
         exp = rb.StandardRB(
             qubits=(0,),
-            lengths=[100, 200, 300, 400],
+            lengths=[100, 200, 300],
             seed=123,
             backend=backend,
             num_samples=5,
         )
         exp.set_transpile_options(basis_gates=["x", "sx", "rz"], optimization_level=1)
-        # Simulator seed must be fixed. This can be set via run option with FakeBackend.
-        # pylint: disable=no-member
-        exp.set_run_options(seed_simulator=456)
 
         expdata = exp.run()
         self.assertExperimentDone(expdata)
         overview = expdata.analysis_results(0).value
         # This yields bad fit due to poor data points, but still fit is not completely off.
         self.assertLess(overview.reduced_chisq, 10)
-
-    def test_return_same_circuit(self):
-        """Test if setting the same seed returns the same circuits."""
-        exp1 = rb.StandardRB(
-            qubits=(0, 1),
-            lengths=[10, 20, 30],
-            seed=123,
-            backend=self.backend,
-        )
-
-        exp2 = rb.StandardRB(
-            qubits=(0, 1),
-            lengths=[10, 20, 30],
-            seed=123,
-            backend=self.backend,
-        )
-
-        exp1.set_transpile_options(**self.transpiler_options)
-        exp2.set_transpile_options(**self.transpiler_options)
-        circs1 = exp1.circuits()
-        circs2 = exp2.circuits()
-
-        self.assertEqual(circs1[0].decompose(), circs2[0].decompose())
-        self.assertEqual(circs1[1].decompose(), circs2[1].decompose())
-        self.assertEqual(circs1[2].decompose(), circs2[2].decompose())
-
-    def test_full_sampling_single_qubit(self):
-        """Test if full sampling generates different circuits."""
-        exp1 = rb.StandardRB(
-            qubits=(0,),
-            lengths=[10, 20, 30],
-            seed=123,
-            backend=self.backend,
-            full_sampling=False,
-        )
-        exp1.set_transpile_options(**self.transpiler_options)
-        exp2 = rb.StandardRB(
-            qubits=(0,),
-            lengths=[10, 20, 30],
-            seed=123,
-            backend=self.backend,
-            full_sampling=True,
-        )
-        exp2.set_transpile_options(**self.transpiler_options)
-        circs1 = exp1.circuits()
-        circs2 = exp2.circuits()
-
-        self.assertEqual(circs1[0].decompose(), circs2[0].decompose())
-
-        # fully sampled circuits are regenerated while other is just built on top of previous length
-        self.assertNotEqual(circs1[1].decompose(), circs2[1].decompose())
-        self.assertNotEqual(circs1[2].decompose(), circs2[2].decompose())
-
-    def test_full_sampling_2_qubits(self):
-        """Test if full sampling generates different circuits."""
-        exp1 = rb.StandardRB(
-            qubits=(0, 1),
-            lengths=[10, 20, 30],
-            seed=123,
-            backend=self.backend,
-            full_sampling=False,
-        )
-        exp1.set_transpile_options(**self.transpiler_options)
-
-        exp2 = rb.StandardRB(
-            qubits=(0, 1),
-            lengths=[10, 20, 30],
-            seed=123,
-            backend=self.backend,
-            full_sampling=True,
-        )
-        exp2.set_transpile_options(**self.transpiler_options)
-
-        circs1 = exp1.circuits()
-        circs2 = exp2.circuits()
-
-        self.assertEqual(circs1[0].decompose(), circs2[0].decompose())
-
-        # fully sampled circuits are regenerated while other is just built on top of previous length
-        self.assertNotEqual(circs1[1].decompose(), circs2[1].decompose())
-        self.assertNotEqual(circs1[2].decompose(), circs2[2].decompose())
-
-    @data(
-        {"qubits": [3, 3], "lengths": [1, 3, 5, 7, 9], "num_samples": 1, "seed": 100},
-        {"qubits": [0, 1], "lengths": [1, 3, 5, -7, 9], "num_samples": 1, "seed": 100},
-        {"qubits": [0, 1], "lengths": [1, 3, 5, 7, 9], "num_samples": -4, "seed": 100},
-        {"qubits": [0, 1], "lengths": [1, 3, 5, 7, 9], "num_samples": 0, "seed": 100},
-        {"qubits": [0, 1], "lengths": [1, 5, 5, 5, 9], "num_samples": 2, "seed": 100},
-    )
-    def test_invalid_configuration(self, configs):
-        """Test raise error when creating experiment with invalid configs."""
-        self.assertRaises(QiskitError, rb.StandardRB, **configs)
-
-    def test_experiment_config(self):
-        """Test converting to and from config works"""
-        exp = rb.StandardRB(qubits=(0,), lengths=[10, 20, 30], seed=123)
-        loaded_exp = rb.StandardRB.from_config(exp.config())
-        self.assertNotEqual(exp, loaded_exp)
-        self.assertTrue(self.json_equiv(exp, loaded_exp))
-
-    def test_roundtrip_serializable(self):
-        """Test round trip JSON serialization"""
-        exp = rb.StandardRB(qubits=(0,), lengths=[10, 20, 30], seed=123)
-        self.assertRoundTripSerializable(exp, self.json_equiv)
-
-    def test_analysis_config(self):
-        """ "Test converting analysis to and from config works"""
-        analysis = rb.RBAnalysis()
-        loaded = rb.RBAnalysis.from_config(analysis.config())
-        self.assertNotEqual(analysis, loaded)
-        self.assertEqual(analysis.config(), loaded.config())
 
     def test_expdata_serialization(self):
         """Test serializing experiment data works."""
@@ -404,8 +628,8 @@ class TestStandardRB(RBTestCase):
         self.assertExperimentDone(expdata)
 
         # Given CX error is dominant and 1q error can be negligible.
-        # Arbitrary SU(4) can be decomposed with (0, 1, 2, 3) CX gates, the expected
-        # average number of CX gate per Clifford is 1.5.
+        # Arbitrary SU(4) can be decomposed with (0, 1, 2, 3) CZ gates, the expected
+        # average number of CZ gate per Clifford is 1.5.
         # Since this is two qubit RB, the dep-parameter is factored by 3/4.
         epc = expdata.analysis_results("EPC")
 
@@ -414,86 +638,28 @@ class TestStandardRB(RBTestCase):
         self.assertAlmostEqual(epc.value.n, epc_expected, delta=0.5 * epc_expected)
 
 
-@ddt
-class TestInterleavedRB(RBTestCase):
-    """Test for interleaved RB."""
-
-    @data([SXGate(), [3], 4], [CXGate(), [4, 7], 5])
-    @unpack
-    def test_interleaved_structure(self, interleaved_element, qubits, length):
-        """Verifies that when generating an interleaved circuit, it will be
-        identical to the original circuit up to additions of
-        barrier and interleaved element between any two Cliffords.
-        """
-        full_sampling = [True, False]
-        for val in full_sampling:
-            exp = rb.InterleavedRB(
-                interleaved_element=interleaved_element,
-                qubits=qubits,
-                lengths=[length],
-                num_samples=1,
-                full_sampling=val,
-            )
-            exp.set_transpile_options(**self.transpiler_options)
-            circuits = exp.circuits()
-            c_std = circuits[0]
-            c_int = circuits[1]
-            if c_std.metadata["interleaved"]:
-                c_std, c_int = c_int, c_std
-            num_cliffords = c_std.metadata["xval"]
-            std_idx = 0
-            int_idx = 0
-            for _ in range(num_cliffords):
-                # barrier
-                self.assertEqual(c_std[std_idx][0].name, "barrier")
-                self.assertEqual(c_int[int_idx][0].name, "barrier")
-                # clifford
-                std_idx += 1
-                int_idx += 1
-                while c_std[std_idx][0].name != "barrier":
-                    self.assertEqual(c_std[std_idx], c_int[int_idx])
-                    std_idx += 1
-                    int_idx += 1
-                # for interleaved circuit: barrier + interleaved element
-                self.assertEqual(c_int[int_idx][0].name, "barrier")
-                int_idx += 1
-                self.assertEqual(c_int[int_idx][0].name, interleaved_element.name)
-                int_idx += 1
+class TestRunInterleavedRB(RBRunTestCase):
+    """Test for running InterleavedRB."""
 
     def test_single_qubit(self):
-        """Test single qubit IRB, once with an interleaved gate, once with an interleaved
-        Clifford circuit.
-        """
-        interleaved_gate = SXGate()
-        random.seed(123)
-        num = random.randint(0, 23)
-        interleaved_clifford = CliffordUtils.clifford_1_qubit_circuit(num)
-        # The circuit created for interleaved_clifford is:
-        # qc = QuantumCircuit(1)
-        # qc.rz(np.pi/2, 0)
-        # qc.sx(0)
-        # qc.rz(np.pi/2, 0)
-        # Since there is a single sx per interleaved_element,
-        # therefore epc_expected is the same as for when interleaved_element = SXGate()
-        for interleaved_element in [interleaved_gate, interleaved_clifford]:
-            exp = rb.InterleavedRB(
-                interleaved_element=interleaved_element,
-                qubits=(0,),
-                lengths=list(range(1, 300, 30)),
-                seed=123,
-                backend=self.backend,
-            )
-            exp.set_transpile_options(**self.transpiler_options)
+        """Test single qubit IRB."""
+        exp = rb.InterleavedRB(
+            interleaved_element=SXGate(),
+            qubits=(0,),
+            lengths=list(range(1, 300, 30)),
+            seed=123,
+            backend=self.backend,
+        )
+        exp.set_transpile_options(**self.transpiler_options)
+        self.assertAllIdentity(exp.circuits())
 
-            self.assertAllIdentity(exp.circuits())
+        expdata = exp.run()
+        self.assertExperimentDone(expdata)
 
-            expdata = exp.run()
-            self.assertExperimentDone(expdata)
-
-            # Since this is interleaved, we can directly compare values, i.e. n_gpc = 1
-            epc = expdata.analysis_results("EPC")
-            epc_expected = 1 / 2 * self.p1q
-            self.assertAlmostEqual(epc.value.n, epc_expected, delta=0.1 * epc_expected)
+        # Since this is interleaved, we can directly compare values, i.e. n_gpc = 1
+        epc = expdata.analysis_results("EPC")
+        epc_expected = 1 / 2 * self.p1q
+        self.assertAlmostEqual(epc.value.n, epc_expected, delta=0.1 * epc_expected)
 
     def test_two_qubit(self):
         """Test two qubit IRB."""
@@ -525,7 +691,7 @@ class TestInterleavedRB(RBTestCase):
             interleaved_element=CZGate(),
             qubits=(0, 1),
             lengths=list(range(1, 30, 3)),
-            seed=123,
+            seed=1234,
             backend=self.backend,
         )
         exp.set_transpile_options(**transpiler_options)
@@ -538,85 +704,6 @@ class TestInterleavedRB(RBTestCase):
         epc = expdata.analysis_results("EPC")
         epc_expected = 3 / 4 * self.pcz
         self.assertAlmostEqual(epc.value.n, epc_expected, delta=0.1 * epc_expected)
-
-    def test_non_clifford_interleaved_element(self):
-        """Verifies trying to run interleaved RB with non Clifford element throws an exception"""
-        qubits = [0]
-        lengths = [1, 4, 6, 9, 13, 16]
-        interleaved_element = TGate()  # T gate is not Clifford, this should fail
-        self.assertRaises(
-            QiskitError,
-            rb.InterleavedRB,
-            interleaved_element=interleaved_element,
-            qubits=qubits,
-            lengths=lengths,
-        )
-
-    def test_interleaving_delay(self):
-        """Test delay instruction can be interleaved."""
-        # See qiskit-experiments/#727 for details
-        interleaved_element = Delay(10, unit="us")
-        exp = rb.InterleavedRB(
-            interleaved_element,
-            qubits=[0],
-            lengths=[1],
-            num_samples=1,
-            seed=1234,  # This seed gives a 2-gate clifford
-        )
-        exp.set_transpile_options(**self.transpiler_options)
-
-        int_circs = exp.circuits()[1]
-
-        # barrier, 2-gate clifford, barrier, "delay", barrier, ...
-        self.assertEqual(int_circs.data[4][0].name, interleaved_element.name)
-
-        # Transpiled delay duration is represented in seconds, so must convert from us
-        self.assertEqual(int_circs.data[4][0].unit, "s")
-        self.assertAlmostEqual(int_circs.data[4][0].params[0], interleaved_element.params[0] * 1e-6)
-        self.assertAllIdentity([int_circs])
-
-    def test_interleaving_circuit_with_delay(self):
-        """Test circuit with delay can be interleaved."""
-        delay_qc = QuantumCircuit(2)
-        delay_qc.delay(10, [0], unit="us")
-        delay_qc.x(1)
-
-        exp = rb.InterleavedRB(
-            interleaved_element=delay_qc,
-            qubits=[1, 2],
-            lengths=[1],
-            seed=123,
-            num_samples=1,
-        )
-        exp.set_transpile_options(**self.transpiler_options)
-        int_circ = exp.circuits()[1]
-        self.assertAllIdentity([int_circ])
-
-    def test_experiment_config(self):
-        """Test converting to and from config works"""
-        exp = rb.InterleavedRB(
-            interleaved_element=SXGate(),
-            qubits=(0,),
-            lengths=[10, 20, 30],
-            seed=123,
-        )
-        loaded_exp = rb.InterleavedRB.from_config(exp.config())
-        self.assertNotEqual(exp, loaded_exp)
-        self.assertTrue(self.json_equiv(exp, loaded_exp))
-
-    def test_roundtrip_serializable(self):
-        """Test round trip JSON serialization"""
-        exp = rb.InterleavedRB(
-            interleaved_element=SXGate(), qubits=(0,), lengths=[10, 20, 30], seed=123
-        )
-        self.assertRoundTripSerializable(exp, self.json_equiv)
-
-    def test_analysis_config(self):
-        """ "Test converting analysis to and from config works"""
-        analysis = rb.InterleavedRBAnalysis()
-        loaded = rb.InterleavedRBAnalysis.from_config(analysis.config())
-        self.assertNotEqual(analysis, loaded)
-        self.assertEqual(analysis.config(), loaded.config())
 
     def test_expdata_serialization(self):
         """Test serializing experiment data works."""

@@ -12,34 +12,36 @@
 """
 Standard RB Experiment class.
 """
-
 import logging
 from collections import defaultdict
 from numbers import Integral
-from typing import Union, Iterable, Optional, List, Sequence
+from typing import Union, Iterable, Optional, List, Sequence, Tuple
+
 import numpy as np
 from numpy.random import Generator, default_rng
 from numpy.random.bit_generator import BitGenerator, SeedSequence
 
-from qiskit import QuantumCircuit, ClassicalRegister, QiskitError
-from qiskit.circuit import Clbit
-from qiskit.circuit import Instruction
-from qiskit.providers.backend import Backend
-from qiskit.compiler import transpile
-from qiskit.quantum_info import Clifford, random_clifford
-
+from qiskit.circuit import QuantumCircuit, Instruction, Barrier
+from qiskit.exceptions import QiskitError
+from qiskit.providers import BackendV2Converter
+from qiskit.providers.backend import Backend, BackendV1, BackendV2
+from qiskit.pulse.instruction_schedule_map import CalibrationPublisher
+from qiskit.quantum_info import Clifford
+from qiskit.quantum_info.random import random_clifford
 from qiskit_experiments.framework import BaseExperiment, Options
 from qiskit_experiments.framework.restless_mixin import RestlessMixin
 from .clifford_utils import (
     CliffordUtils,
     _clifford_1q_int_to_instruction,
     _clifford_2q_int_to_instruction,
+    _transpile_clifford_circuit,
 )
 from .rb_analysis import RBAnalysis
 
 LOG = logging.getLogger(__name__)
 
-SequenceElementType = Union[Clifford, Integral]
+
+SequenceElementType = Union[Clifford, Integral, QuantumCircuit]
 
 
 class StandardRB(BaseExperiment, RestlessMixin):
@@ -66,9 +68,6 @@ class StandardRB(BaseExperiment, RestlessMixin):
         .. ref_arxiv:: 2 1109.6887
 
     """
-
-    default_basis_gates = {"rz", "sx", "cx"}
-    _clifford_utils = None
 
     def __init__(
         self,
@@ -118,8 +117,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
         )
         self.analysis.set_options(outcome="0" * self.num_qubits)
 
-        # Set fixed options
-        self._full_sampling = full_sampling
+        self._cliff_utils = None  # TODO: cleanup
 
     @classmethod
     def _default_experiment_options(cls) -> Options:
@@ -143,32 +141,36 @@ class StandardRB(BaseExperiment, RestlessMixin):
 
         return options
 
+    def _set_backend(self, backend: Backend):
+        """Set the backend V2 for RB experiments since RB experiments only support BackendV2
+        except for simulators. If BackendV1 is provided, it is converted to V2 and stored.
+        """
+        if isinstance(backend, BackendV1) and "simulator" not in backend.name():
+            super()._set_backend(BackendV2Converter(backend))
+        else:
+            super()._set_backend(backend)
+
     def circuits(self) -> List[QuantumCircuit]:
         """Return a list of RB circuits.
 
         Returns:
             A list of :class:`QuantumCircuit`.
-
         """
-        self._set_basis_gates()
-        self._initialize_clifford_utils()
-        rng = default_rng(seed=self.experiment_options.seed)
-        circuits = []
-
-        if self.num_qubits in [1, 2]:
-            for _ in range(self.experiment_options.num_samples):
-                rb_circuits = self._build_rb_circuits(self.experiment_options.lengths, rng)
-                circuits += rb_circuits
-        else:
-            for _ in range(self.experiment_options.num_samples):
-                circuits += self._sample_circuits()
-
-        return circuits
-
-    # The following methods are used for RB with more than 2 qubits
-    def _sample_circuits(self):
+        self._cliff_utils = CliffordUtils(
+            self.num_qubits, basis_gates=self._get_basis_gates()
+        )  # TODO: cleanup
+        # Sample random Clifford sequences
         sequences = self._sample_sequences()
-        return self._sequences_to_circuits(sequences)
+        # Convert each sequence into circuit and append the inverse to the end.
+        circuits = self._sequences_to_circuits(sequences)
+        # Add metadata for each circuit
+        for circ, seq in zip(circuits, sequences):
+            circ.metadata = {
+                "xval": len(seq),
+                "group": "Clifford",
+                "physical_qubits": self.physical_qubits,
+            }
+        return circuits
 
     def _sample_sequences(self) -> List[Sequence[SequenceElementType]]:
         """Sample RB sequences
@@ -190,6 +192,33 @@ class StandardRB(BaseExperiment, RestlessMixin):
 
         return sequences
 
+    def _get_basis_gates(self) -> Optional[Tuple[str, ...]]:
+        """Get sorted basis gates to use in basis transformation during circuit generation.
+
+        Returns:
+            Sorted basis gate names.
+        """
+        basis_gates = self.transpile_options.get("basis_gates", None)
+        if not basis_gates and self.backend:
+            if isinstance(self.backend, BackendV2):
+                # Only the "global basis gates" are returned for v2 backend.
+                # Some non-global basis gates may be usable for some physical qubits. However,
+                # they are conservatively removed here because the basis gates are agnostic to
+                # the direction of each gate.
+                basis_gates = self.backend.operation_names
+                non_globals = self.backend.target.get_non_global_operation_names(
+                    strict_direction=True
+                )
+                if non_globals:
+                    basis_gates = set(basis_gates) - set(non_globals)
+            else:
+                basis_gates = self.backend.configuration().basis_gates
+
+        if basis_gates is not None:
+            basis_gates = tuple(sorted(basis_gates))
+
+        return basis_gates
+
     def _sequences_to_circuits(
         self, sequences: List[Sequence[SequenceElementType]]
     ) -> List[QuantumCircuit]:
@@ -198,6 +227,8 @@ class StandardRB(BaseExperiment, RestlessMixin):
         Returns:
             A list of RB circuits.
         """
+        basis_gates = self._get_basis_gates()
+        # Circuit generation
         circuits = []
         for i, seq in enumerate(sequences):
             if (
@@ -206,49 +237,43 @@ class StandardRB(BaseExperiment, RestlessMixin):
             ):
                 prev_elem, prev_seq = self.__identity_clifford(), []
 
-            qubits = list(range(self.num_qubits))
             circ = QuantumCircuit(self.num_qubits)
-            circ.barrier(qubits)
+            circ.append(Barrier(self.num_qubits), circ.qubits)
             for elem in seq:
-                circ.append(self._to_instruction(elem), qubits)
-                circ.barrier(qubits)
+                circ.append(self._to_instruction(elem, basis_gates), circ.qubits)
+                circ.append(Barrier(self.num_qubits), circ.qubits)
 
             # Compute inverse, compute only the difference from the previous shorter sequence
-            for elem in seq[len(prev_seq) :]:
-                prev_elem = self.__compose_clifford(prev_elem, elem)
+            prev_elem = self.__compose_clifford_seq(prev_elem, seq[len(prev_seq) :])
             prev_seq = seq
             inv = self.__adjoint_clifford(prev_elem)
 
-            circ.append(self._to_instruction(inv), qubits)
+            circ.append(self._to_instruction(inv, basis_gates), circ.qubits)
             circ.measure_all()  # includes insertion of the barrier before measurement
-            # Add metadata
-            circ.metadata = {
-                "experiment_type": self._type,
-                "xval": len(seq),
-                "group": "Clifford",
-                "physical_qubits": self.physical_qubits,
-            }
             circuits.append(circ)
         return circuits
 
     def __sample_sequence(self, length: int, rng: Generator) -> Sequence[SequenceElementType]:
-        # Sample a RB sequence with the given length.
-        # Return integer instead of Clifford object for 1 or 2 qubit case for speed
+        # Sample an RB sequence with the given length.
+        # Return integer instead of Clifford object for 1 or 2 qubits case for speed
         if self.num_qubits == 1:
-            return rng.integers(24, size=length)
+            return rng.integers(CliffordUtils.NUM_CLIFFORD_1_QUBIT, size=length)
         if self.num_qubits == 2:
-            return rng.integers(11520, size=length)
+            return rng.integers(CliffordUtils.NUM_CLIFFORD_2_QUBIT, size=length)
+        # Return circuit object instead of Clifford object for 3 or more qubits case for speed
+        # TODO: Revisit after terra#7269, #7483, #8585
+        return [random_clifford(self.num_qubits, rng).to_circuit() for _ in range(length)]
 
-        return [random_clifford(self.num_qubits, rng) for _ in range(length)]
-
-    def _to_instruction(self, elem: SequenceElementType) -> Instruction:
-        # TODO: basis transformation in 1Q (and 2Q) cases for speed
+    def _to_instruction(
+        self, elem: SequenceElementType, basis_gates: Optional[Tuple[str]] = None
+    ) -> Instruction:
         # Switching for speed up
         if isinstance(elem, Integral):
             if self.num_qubits == 1:
-                return _clifford_1q_int_to_instruction(elem)
+                return _clifford_1q_int_to_instruction(elem, basis_gates)
             if self.num_qubits == 2:
-                return _clifford_2q_int_to_instruction(elem)
+                return _clifford_2q_int_to_instruction(elem, basis_gates)
+
         return elem.to_instruction()
 
     def __identity_clifford(self) -> SequenceElementType:
@@ -256,234 +281,90 @@ class StandardRB(BaseExperiment, RestlessMixin):
             return 0
         return Clifford(np.eye(2 * self.num_qubits))
 
-    def __compose_clifford(
-        self, lop: SequenceElementType, rop: SequenceElementType
+    def __compose_clifford_seq(
+        self, base_elem: SequenceElementType, elements: Sequence[SequenceElementType]
     ) -> SequenceElementType:
-        # TODO: Speed up 1Q (and 2Q) cases using integer clifford composition
-        # Integer clifford composition is not yet supported
-        if self.num_qubits == 1:
-            if isinstance(lop, Integral):
-                lop = CliffordUtils.clifford_1_qubit(lop)
-            if isinstance(rop, Integral):
-                rop = CliffordUtils.clifford_1_qubit(rop)
-        if self.num_qubits == 2:
-            if isinstance(lop, Integral):
-                lop = CliffordUtils.clifford_2_qubit(lop)
-            if isinstance(rop, Integral):
-                rop = CliffordUtils.clifford_2_qubit(rop)
-        return lop.compose(rop)
+        if self.num_qubits <= 2:
+            new = base_elem
+            for elem in elements:
+                new = self.__compose_clifford(new, elem)
+            return new
+        # 3 or more qubits: compose Clifford from circuits for speed
+        # TODO: Revisit after terra#7269, #7483, #8585
+        circ = QuantumCircuit(self.num_qubits)
+        for elem in elements:
+            circ.compose(elem, inplace=True)
+        return base_elem.compose(Clifford.from_circuit(circ))
+
+    def __compose_clifford(
+        self, left_elem: SequenceElementType, right_elem: SequenceElementType
+    ) -> SequenceElementType:
+        if self.num_qubits <= 2:
+            utils = self._cliff_utils
+            return utils.compose_num_with_clifford(
+                left_elem, utils.create_cliff_from_num(right_elem)
+            )
+
+        return left_elem.compose(right_elem)
 
     def __adjoint_clifford(self, op: SequenceElementType) -> SequenceElementType:
-        # TODO: Speed up 1Q and 2Q cases using integer clifford inversion
-        # Integer clifford inversion has not yet supported
-        if isinstance(op, Integral):
-            if self.num_qubits == 1:
-                return CliffordUtils.clifford_1_qubit(op).adjoint()
-            if self.num_qubits == 2:
-                return CliffordUtils.clifford_2_qubit(op).adjoint()
+        if self.num_qubits <= 2:
+            return self._cliff_utils.inverse_cliff(op)
+
+        if isinstance(op, QuantumCircuit):
+            return Clifford.from_circuit(op).adjoint()
+
         return op.adjoint()
-
-    # The following methods are used for RB with 1 or 2 qubits
-    def _build_rb_circuits(self, lengths: List[int], rng: Generator) -> List[QuantumCircuit]:
-        """
-        build_rb_circuits
-        Args:
-                lengths: A list of RB sequence lengths. We create random circuits
-                         where the number of cliffords in each is defined in 'lengths'.
-                rng: Generator object for random number generation.
-                     If None, default_rng will be used.
-
-        Returns:
-                The transpiled RB circuits.
-
-        Additional information:
-            To create the RB circuit, we use a mapping between Cliffords and integers
-            defined in the file clifford_data.py. The operations compose and inverse are much faster
-            when performed on the integers rather than on the Cliffords themselves.
-        """
-        if self._full_sampling:
-            return self._build_rb_circuits_full_sampling(lengths, rng)
-        max_qubit = max(self.physical_qubits) + 1
-        all_rb_circuits = []
-
-        # When full_sampling==False, each circuit is the prefix of the next circuit (without the
-        # inverse Clifford at the end of the circuit. The variable 'circ' will contain
-        # the growing circuit.
-        # When each circuit reaches its length, we copy it to rb_circ, append the inverse,
-        # and add it to the list of circuits.
-        n = self.num_qubits
-        qubits = list(range(n))
-        clbits = list(range(n))
-        circ = QuantumCircuit(max_qubit, n)
-        circ.barrier(qubits)
-        # We transpile the empty circuit to match the backend qubits
-        circ = transpile(
-            circuits=circ,
-            optimization_level=1,
-            basis_gates=self.transpile_options.basis_gates,
-            backend=self._backend,
-        )
-
-        # composed_cliff_num is the number representing the composition of all the Cliffords up to now
-        composed_cliff_num = 0  # 0 is the Clifford that is Id
-        prev_length = 0
-
-        for length in lengths:
-            for i in range(prev_length, length):
-                circ, _, composed_cliff_num = self._add_random_cliff_to_circ(
-                    circ, composed_cliff_num, qubits, rng
-                )
-
-                if i == length - 1:
-                    rb_circ = circ.copy()  # circ is used as the prefix of the next circuit
-                    rb_circ = self._add_inverse_to_circ(rb_circ, composed_cliff_num, qubits, clbits)
-
-                    rb_circ.metadata = {
-                        "experiment_type": "rb",
-                        "xval": length,
-                        "group": "Clifford",
-                        "physical_qubits": self.physical_qubits,
-                    }
-                    all_rb_circuits.append(rb_circ)
-                prev_length = i + 1
-        return all_rb_circuits
-
-    def _build_rb_circuits_full_sampling(
-        self, lengths: List[int], rng: Generator
-    ) -> List[QuantumCircuit]:
-        """
-        _build_rb_circuits_full_sampling
-        Args:
-                lengths: A list of RB sequence lengths. We create random circuits
-                    where the number of cliffords in each is defined in 'lengths'.
-                rng: Generator object for random number generation.
-                    If None, default_rng will be used.
-
-        Returns:
-                The transpiled RB circuits.
-
-        Additional information:
-            This is similar to _build_rb_circuits for the case of full_sampling.
-        """
-        all_rb_circuits = []
-        n = self.num_qubits
-        qubits = list(range(n))
-        clbits = list(range(n))
-        max_qubit = max(self.physical_qubits) + 1
-        for length in lengths:
-            # We define the circuit size here, for the layout that will
-            # be created later
-            rb_circ = QuantumCircuit(max_qubit, n)
-            rb_circ.barrier(qubits)
-            # We transpile the empty circuit to match the backend qubits
-            rb_circ = transpile(
-                circuits=rb_circ,
-                optimization_level=1,
-                basis_gates=self.transpile_options.basis_gates,
-                backend=self._backend,
-            )
-
-            # composed_cliff_num is the number representing the composition of
-            # all the Cliffords up to now
-            composed_cliff_num = 0
-
-            # For full_sampling, we create each circuit independently.
-            for _ in range(length):
-                # choose random clifford
-                rb_circ, _, composed_cliff_num = self._add_random_cliff_to_circ(
-                    rb_circ, composed_cliff_num, qubits, rng
-                )
-
-            rb_circ = self._add_inverse_to_circ(rb_circ, composed_cliff_num, qubits, clbits)
-
-            rb_circ.metadata = {
-                "experiment_type": "rb",
-                "xval": length,
-                "group": "Clifford",
-                "physical_qubits": self.physical_qubits,
-                "interleaved": False,
-            }
-
-            all_rb_circuits.append(rb_circ)
-        return all_rb_circuits
-
-    def _add_random_cliff_to_circ(self, circ, composed_cliff_num, qubits, rng):
-        next_circ = StandardRB._clifford_utils.create_random_clifford(rng)
-        circ, composed_cliff_num = self._add_cliff_to_circ(
-            circ, next_circ, composed_cliff_num, qubits
-        )
-        return circ, next_circ, composed_cliff_num
-
-    def _add_cliff_to_circ(
-        self,
-        circ: QuantumCircuit,
-        next_circ: QuantumCircuit,
-        composed_cliff_num: int,
-        qubits: List[int],
-    ):
-        """Append a Clifford to the end of a circuit. Return both the updated circuit and the updated
-        number representing the circuit"""
-        circ.compose(next_circ, inplace=True)
-        composed_cliff_num = StandardRB._clifford_utils.compose_num_with_clifford(
-            composed_num=composed_cliff_num,
-            qc=next_circ,
-        )
-        circ.barrier(qubits)
-        return circ, composed_cliff_num
-
-    def _add_inverse_to_circ(self, rb_circ, composed_num, qubits, clbits):
-        """Append the inverse of a circuit to the end of the circuit"""
-        inverse_cliff = StandardRB._clifford_utils.inverse_cliff(composed_num)
-        rb_circ.compose(inverse_cliff, inplace=True)
-        rb_circ.measure(qubits, clbits)
-        return rb_circ
-
-    # This method does a quick layout to avoid calling 'transpile()' which is
-    # very costly in performance
-    # We simply copy the circuit to a new circuit where we define the mapping
-    # of the qubit to the single physical qubit that was requested by the user
-    # This is a hack, and would be better if transpile() implemented it.
-    # Something similar is done in ParallelExperiment._combined_circuits
-    def _layout_for_rb(self):
-        transpiled = []
-        qargs_map = (
-            {0: self.physical_qubits[0]}
-            if self.num_qubits == 1
-            else {0: self.physical_qubits[0], 1: self.physical_qubits[1]}
-        )
-        for circ in self.circuits():
-            new_circ = QuantumCircuit(
-                *circ.qregs,
-                name=circ.name,
-                global_phase=circ.global_phase,
-                metadata=circ.metadata.copy(),
-            )
-            clbits = circ.num_clbits
-            if clbits:
-                creg = ClassicalRegister(clbits)
-                new_cargs = [Clbit(creg, i) for i in range(clbits)]
-                new_circ.add_register(creg)
-
-            for inst, qargs, cargs in circ.data:
-                mapped_cargs = [new_cargs[circ.find_bit(clbit).index] for clbit in cargs]
-                mapped_qargs = [circ.qubits[qargs_map[circ.find_bit(i).index]] for i in qargs]
-                new_circ.data.append((inst, mapped_qargs, mapped_cargs))
-                # Add the calibrations
-                for gate, cals in circ.calibrations.items():
-                    for key, sched in cals.items():
-                        new_circ.add_calibration(gate, qubits=key[0], schedule=sched, params=key[1])
-
-            transpiled.append(new_circ)
-        return transpiled
 
     def _transpiled_circuits(self) -> List[QuantumCircuit]:
         """Return a list of experiment circuits, transpiled."""
-        if self.num_qubits in [1, 2]:
-            transpiled = self._layout_for_rb()
-        else:
+        has_custom_transpile_option = (
+            any(
+                opt not in {"basis_gates", "optimization_level"}
+                for opt in vars(self.transpile_options)
+            )
+            or self.transpile_options.get("optimization_level", 0) != 0
+        )
+        if self.num_qubits > 2 or has_custom_transpile_option:
             transpiled = super()._transpiled_circuits()
-        if self.analysis.options.get("gate_error_ratio", None) is None:
+        else:
+            transpiled = [
+                _transpile_clifford_circuit(circ, physical_qubits=self.physical_qubits)
+                for circ in self.circuits()
+            ]
+            # Set custom calibrations provided in backend
+            if isinstance(self.backend, BackendV2):
+                # assert self.num_qubits <= 2
+                qargs_patterns = [self.physical_qubits]  # for self.num_qubits == 1
+                if self.num_qubits == 2:
+                    qargs_patterns = [
+                        (self.physical_qubits[0],),
+                        (self.physical_qubits[1],),
+                        self.physical_qubits,
+                        (self.physical_qubits[1], self.physical_qubits[0]),
+                    ]
 
+                instructions = []  # (op_name, qargs) for each element where qargs means qubit tuple
+                for qargs in qargs_patterns:
+                    for op_name in self.backend.target.operation_names_for_qargs(qargs):
+                        instructions.append((op_name, qargs))
+
+                common_calibrations = defaultdict(dict)
+                for op_name, qargs in instructions:
+                    inst_prop = self.backend.target[op_name].get(qargs, None)
+                    if inst_prop is None:
+                        continue
+                    schedule = inst_prop.calibration
+                    if schedule is None:
+                        continue
+                    publisher = schedule.metadata.get("publisher", CalibrationPublisher.QISKIT)
+                    if publisher != CalibrationPublisher.BACKEND_PROVIDER:
+                        common_calibrations[op_name][(qargs, tuple())] = schedule
+
+                for circ in transpiled:
+                    circ.calibrations = common_calibrations
+
+        if self.analysis.options.get("gate_error_ratio", None) is None:
             # Gate errors are not computed, then counting ops is not necessary.
             return transpiled
 
@@ -503,6 +384,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
                 formatted_key = tuple(sorted(qinds)), inst.name
                 count_ops_result[formatted_key] += 1
             circ.metadata["count_ops"] = tuple(count_ops_result.items())
+
         return transpiled
 
     def _metadata(self):
@@ -514,21 +396,3 @@ class StandardRB(BaseExperiment, RestlessMixin):
                 metadata[run_opt] = getattr(self.run_options, run_opt)
 
         return metadata
-
-    def _initialize_clifford_utils(self):
-        if StandardRB._clifford_utils is None or not (
-            StandardRB._clifford_utils.num_qubits == self.num_qubits
-            and StandardRB._clifford_utils.basis_gates == self.transpile_options.basis_gates
-            and StandardRB._clifford_utils._backend == self._backend
-        ):
-            StandardRB._clifford_utils = CliffordUtils(
-                self.num_qubits, self.transpile_options.basis_gates, backend=self._backend
-            )
-
-    def _set_basis_gates(self):
-        if not hasattr(self.transpile_options, "basis_gates"):
-            if not self.backend is None and self.backend.configuration().basis_gates:
-                self.set_transpile_options(basis_gates=self.backend.configuration().basis_gates)
-            else:
-                basis_gates_option = {"basis_gates": StandardRB.default_basis_gates}
-                self.transpile_options.update_options(**basis_gates_option)
