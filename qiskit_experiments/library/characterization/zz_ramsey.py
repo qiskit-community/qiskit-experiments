@@ -206,7 +206,7 @@ class ZZRamsey(BaseExperiment):
 
     def _template_circuits(
         self,
-        frequency : Union[None, float, ParameterExpression] = None,
+        frequency: Union[None, float, ParameterExpression] = None,
     ) -> Tuple[QuantumCircuit, QuantumCircuit]:
         """Template circuits for series 0 and 1 parameterized by delay
 
