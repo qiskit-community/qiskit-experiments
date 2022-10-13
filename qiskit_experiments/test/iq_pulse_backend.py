@@ -158,7 +158,7 @@ class IQPulseBackend(BackendV2):
             complex_iq = (full_i + 1.0j * full_q) * np.exp(1.0j * phase)
             full_i, full_q = complex_iq.real, complex_iq.imag
 
-        return full_i, full_q
+        return np.array([full_i, full_q]).reshape(shots,1,2).tolist()
 
     def _state_vector_to_data(
         self,
@@ -173,7 +173,7 @@ class IQPulseBackend(BackendV2):
 
         elif meas_level == MeasLevel.KERNELED:
             measurement_data = self.iq_data(
-                state * state.conj(), shots, [(-1, -1), (1.3, 0.5), (0.5, 1.3)], 0.2
+                (state * state.conj()).real, shots, [(-1, -1), (1.3, 0.5), (0.5, 1.3)], 0.2
             )
             if meas_return == "avg":
                 measurement_data = np.average(np.array(measurement_data), axis=0)
@@ -247,6 +247,7 @@ class IQPulseBackend(BackendV2):
                 "success": True,
                 "header": {"metadata": circuit.metadata},
                 "meas_level": meas_level,
+                "meas_level": meas_return,
                 "data": {},
             }
 
