@@ -46,7 +46,7 @@ class ZZRamseyAnalysis(CurveAnalysis):
         If the drive frequency of the measured qubit (qubit 0) is calibrated to
         be halfway between the frequency of its frequency when the other qubit
         (qubit 1) is in the ground state and its frequency when the other qubit
-        is in the excited state, :math:`freq` is the same as the "fake"
+        is in the excited state, :math:`freq` is the same as the virtual
         frequency :math:`f` mentioned in :class:`ZZRamsey`. Often,
         the drive frequency is calibrated to the frequency of the measured
         qubit with the other qubit in the ground state. In this case,

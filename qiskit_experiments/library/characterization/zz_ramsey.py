@@ -73,14 +73,16 @@ class ZZRamsey(BaseExperiment):
         relatively small). To help with distinguishing between qubit decay and
         a slow oscillation, an extra Z rotation is applied before the final
         pulse on qubit 0. The angle of this Z rotation is set proportional to
-        the delay time of the sequence so that it acts like an extra rotation
-        frequency common to the two qubit 1 preparations. By looking at the
-        difference in frequency fitted for the two cases, this common frequency
-        (called :math:`f` in the circuits shown below) is removed, leaving only
-        the :math:`f_{ZZ}` value. The value of :math:`f` in terms of the
-        experiment options is ``num_rotations / (max(delays) - min(delays))``.
+        the delay time of the sequence. This angle proportional to time behaves
+        similarly to measuring at a fixed angle with the qubit rotating at a
+        constant frequency. This virtual frequency is common to the two qubit 1
+        preparations. By looking at the difference in frequency fitted for the
+        two cases, this virtual frequency (called :math:`f` in the circuits
+        shown below) is removed, leaving only the :math:`f_{ZZ}` value. The
+        value of :math:`f` in terms of the experiment options is
+        ``num_rotations / (max(delays) - min(delays))``.
 
-        This experiment consists of following two circuits repeated with
+        This experiment consists of the following two circuits repeated with
         different ``delay`` values.
 
         .. parsed-literal::
