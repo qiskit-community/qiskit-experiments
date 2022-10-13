@@ -218,8 +218,8 @@ class SingleTransmonTestBackend(IQPulseBackend):
         self,
         qubit_frequency: Optional[float] = 5e9,
         anharmonicity: Optional[float] = -0.25e9,
-        lambda_0: Optional[float] = 1e9,
-        lambda_1: Optional[float] = 0.8e9,
+        lambda_1: Optional[float] = 1e9,
+        lambda_2: Optional[float] = 0.8e9,
     ):
         """Initialise backend with hamiltonian parameters
 
@@ -250,7 +250,7 @@ class SingleTransmonTestBackend(IQPulseBackend):
 
         drift = 2 * np.pi * (qubit_frequency * p1 + qubit_frequency_02 * p2)
         control = [
-            2 * np.pi * (lambda_0 * (sigma_p1 + sigma_m1) + lambda_1 * (sigma_p2 + sigma_m2))
+            2 * np.pi * (lambda_1 * (sigma_p1 + sigma_m1) + lambda_2 * (sigma_p2 + sigma_m2))
         ]
         r_frame = 2 * np.pi * qubit_frequency * (p1 + 2 * p2)
 
