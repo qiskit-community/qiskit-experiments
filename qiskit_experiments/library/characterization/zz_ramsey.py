@@ -297,11 +297,11 @@ class ZZRamsey(BaseExperiment):
         return circ0, circ1
 
     def parametrized_circuits(self) -> Tuple[QuantumCircuit, QuantumCircuit]:
-        """Create circuits with parameters for numerical quantities
+        r"""Create circuits with parameters for numerical quantities
 
         This method is primarily intended for generating template circuits that
-        visualize well. It inserts :class:`qiskit.circuit.Parameter`s for
-        :math:`pi` and `dt` as well the target qubit rotation frequency `f`.
+        visualize well. It inserts :class:`qiskit.circuit.Parameter`\ s for
+        :math:`π` and `dt` as well the target qubit rotation frequency `f`.
 
         Return:
             Parameterized circuits for the case of the control qubit being in 0
