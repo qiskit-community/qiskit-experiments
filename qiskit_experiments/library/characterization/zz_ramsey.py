@@ -75,11 +75,10 @@ class ZZRamsey(BaseExperiment):
         pulse on qubit 0. The angle of this Z rotation is set proportional to
         the delay time of the sequence so that it acts like an extra rotation
         frequency common to the two qubit 1 preparations. By looking at the
-        difference in frequency fitted for the two cases, this common "fake"
-        frequency (called :math:`f` in the circuits shown below) is removed,
-        leaving only the :math:`f_{ZZ}` value. The value of :math:`f` in terms of
-        the experiment options is
-        ``zz_rotations / (max(delays) - min(delays))``.
+        difference in frequency fitted for the two cases, this common frequency
+        (called :math:`f` in the circuits shown below) is removed, leaving only
+        the :math:`f_{ZZ}` value. The value of :math:`f` in terms of the
+        experiment options is ``zz_rotations / (max(delays) - min(delays))``.
 
         This experiment consists of following two circuits repeated with
         different ``delay`` values.
@@ -158,7 +157,7 @@ class ZZRamsey(BaseExperiment):
             min_delay (float): Minimum delay time to use.
             num_delays (int): Number of circuits to use per control state
                 preparation.
-            zz_rotations (float): The "fake" rotation added to qubit 0 uses a
+            zz_rotations (float): The extra rotation added to qubit 0 uses a
                 frequency that gives this many rotations in the case where
                 :math:`f_{ZZ}` is 0.
         """
