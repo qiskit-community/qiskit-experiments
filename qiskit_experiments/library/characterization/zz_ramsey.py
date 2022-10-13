@@ -78,7 +78,7 @@ class ZZRamsey(BaseExperiment):
         difference in frequency fitted for the two cases, this common frequency
         (called :math:`f` in the circuits shown below) is removed, leaving only
         the :math:`f_{ZZ}` value. The value of :math:`f` in terms of the
-        experiment options is ``zz_rotations / (max(delays) - min(delays))``.
+        experiment options is ``num_rotations / (max(delays) - min(delays))``.
 
         This experiment consists of following two circuits repeated with
         different ``delay`` values.
@@ -157,7 +157,7 @@ class ZZRamsey(BaseExperiment):
             min_delay (float): Minimum delay time to use.
             num_delays (int): Number of circuits to use per control state
                 preparation.
-            zz_rotations (float): The extra rotation added to qubit 0 uses a
+            num_rotations (float): The extra rotation added to qubit 0 uses a
                 frequency that gives this many rotations in the case where
                 :math:`f_{ZZ}` is 0.
         """
@@ -166,7 +166,7 @@ class ZZRamsey(BaseExperiment):
         options.min_delay = 0e-6
         options.max_delay = 10e-6
         options.num_delays = 50
-        options.zz_rotations = 5
+        options.num_rotations = 5
 
         return options
 
@@ -190,7 +190,7 @@ class ZZRamsey(BaseExperiment):
         """Frequency of qubit rotation when ZZ is 0
 
         This method calculates the simulated frequency applied to both sets of
-        circuits. The value is chosen to induce `zz_rotations` number of
+        circuits. The value is chosen to induce `num_rotations` number of
         rotation within the time window that the delay is swept through.
 
         Returns:
@@ -198,7 +198,7 @@ class ZZRamsey(BaseExperiment):
             based on the current experiment options.
         """
         delays = self.delays()
-        freq = self.experiment_options.zz_rotations / (max(delays) - min(delays))
+        freq = self.experiment_options.num_rotations / (max(delays) - min(delays))
 
         return freq
 
