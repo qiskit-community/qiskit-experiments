@@ -113,24 +113,72 @@ class IQPulseBackend(BackendV2):
         return qubit, params, p_dict.name
 
     @staticmethod
+    def iq_data(
+        probability: np.ndarray,
+        shots: int,
+        centers: List[Tuple[float, float]],
+        width: float,
+        phase: float = 0,
+    ) -> Tuple[List, List]:
+        """Generates IQ data for three logical levels
+
+        Parameters
+        ----------
+        probability : np.ndarray
+            probability array for the 3 levels
+        shots : int
+            Number of shots
+        centers : List[Tuple[float, float]]
+            The central i and q points for each level
+        width : float
+            Width of IQ data distribution
+        phase : float, optional
+            Phase of IQ data, by default 0
+
+        Returns
+        -------
+        Tuple[List,List]
+            (I,Q) data
+        """
+        count_0, count_1, count_2 = np.random.multinomial(shots, probability, size=1).T
+
+        i0 = np.random.normal(loc=centers[0][0], scale=width, size=count_0)
+        q0 = np.random.normal(loc=centers[0][1], scale=width, size=count_0)
+
+        i1 = np.random.normal(loc=centers[1][0], scale=width, size=count_1)
+        q1 = np.random.normal(loc=centers[1][1], scale=width, size=count_1)
+
+        i2 = np.random.normal(loc=centers[2][0], scale=width, size=count_2)
+        q2 = np.random.normal(loc=centers[2][1], scale=width, size=count_2)
+
+        full_i = [*i0, *i1, *i2]
+        full_q = [*q0, *q1, *q2]
+
+        if not np.allclose(phase, 0.0):
+            complex_iq = (full_i + 1.0j * full_q) * np.exp(1.0j * phase)
+            full_i, full_q = complex_iq.real, complex_iq.imag
+
+        return full_i, full_q
+
     def _state_vector_to_data(
-        state: Union[Statevector, np.ndarray],
+        self,
+        state: np.ndarray,
         shots: int,
         meas_level: MeasLevel,
         meas_return: MeasReturnType,
     ) -> Union[Dict[str, int], complex]:
         """Convert the state vector to IQ data or counts."""
-        measurement = {0: 0}  # temp fix for UnboundLocalError
         if meas_level == MeasLevel.CLASSIFIED:
-            measurement = Statevector(state).sample_counts(shots)
-        elif meas_level == MeasLevel.KERNELED:
-            raise QiskitError("TODO: generate IQ data")
-            # measurement = iq_data = ... #create IQ data.
+            measurement_data = Statevector(state).sample_counts(shots)
 
-        if meas_return == "avg":
-            return np.average(list(measurement.keys()), weights=list(measurement.values()))
-        else:
-            return measurement
+        elif meas_level == MeasLevel.KERNELED:
+            measurement_data = self.iq_data(
+                state * state.conj(), shots, [(-1, -1), (1.3, 0.5), (0.5, 1.3)], 0.2
+            )
+            if meas_return == "avg":
+                measurement_data = np.average(np.array(measurement_data), axis=0)
+
+        return measurement_data
 
     # @lru_cache | ScheduleBlock is unhashable type, figure out workaround to use lru_cache
     def solve(self, schedule: Union[ScheduleBlock, Schedule], qubits: Tuple[int]) -> np.ndarray:
