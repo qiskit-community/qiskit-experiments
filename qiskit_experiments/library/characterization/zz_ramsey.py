@@ -13,13 +13,13 @@
 ZZ Ramsey experiment
 """
 
-from typing import List, Optional, Tuple
+from typing import List, Tuple, Union
 
 import numpy as np
 
 from qiskit import QuantumCircuit
 from qiskit.providers.backend import Backend
-from qiskit.circuit import Parameter
+from qiskit.circuit import Parameter, ParameterExpression
 
 from qiskit_experiments.framework import BackendTiming, BaseExperiment, Options
 from .analysis.zz_ramsey_analysis import ZZRamseyAnalysis
@@ -128,7 +128,7 @@ class ZZRamsey(BaseExperiment):
     def __init__(
         self,
         qubits: (int, int),
-        backend: Optional[Backend] = None,
+        backend: Union[Backend, None] = None,
         **experiment_options,
     ):
         """Create new experiment.
@@ -187,24 +187,34 @@ class ZZRamsey(BaseExperiment):
 
         return np.linspace(options.min_delay, options.max_delay, options.num_delays).tolist()
 
-    def _parameterized_circuits(
-        self, delay_unit: str = "s"
+    def frequency(self) -> float:
+        """Frequency of qubit rotation when ZZ is 0
+
+        This method calculates the simulated frequency applied to both sets of
+        circuits. The value is chosen to induce `zz_rotations` number of
+        rotation within the time window that the delay is swept through.
+
+        Returns:
+            The frequency at which the target qubit will rotate when ZZ is zero
+            based on the current experiment options.
+        """
+        delays = self.delays()
+        freq = self.experiment_options.zz_rotations / (max(delays) - min(delays))
+
+        return freq
+
+    def _template_circuits(
+        self,
+        frequency : Union[None, float, ParameterExpression] = None,
     ) -> Tuple[QuantumCircuit, QuantumCircuit]:
-        """Circuits for series 0 and 1 with several parameters
+        """Template circuits for series 0 and 1 parameterized by delay
 
-        Circuits are generated with parameters for:
-
-            pi: the mathematical constant
-            f: the synthetic frequency added onto the circuit
-            dt: the conversion factor from the units used in the circuits'
-                delay instructions to time in seconds.
-            delay: the length of each delay instruction in each circuit
-
-        The circuits are parameterized with these parameters so that
-        ``QuantumCircuit.draw()`` produces a nice representation of the
-        parameters in the circuit.
+        The generated circuits have the length of the delay instructions as the
+        only parameter.
 
         Args:
+            dt_value: the value of the backend ``dt`` value. Used to convert
+                delay values into units of seconds.
             delay_unit: the unit of circuit delay instructions.
 
         Returns:
@@ -215,11 +225,21 @@ class ZZRamsey(BaseExperiment):
         }
 
         delay = Parameter("delay")
-        freq = Parameter("f")
-        dt = Parameter("dt")
-        pi = Parameter("pi")
 
-        delay_time_total = 2 * delay * dt
+        timing = BackendTiming(self.backend)
+
+        frequency = frequency if frequency is not None else self.frequency()
+        # frequency is always in units of Hz.  delay_freq has inverse units to
+        # the units of `delay`.
+        #
+        # If the backend does not have a `dt`, the delays will be treated as in
+        # units of seconds. Otherwise they will be in units of samples. For the
+        # samples case, we multiply by `dt` so that `delay_freq` is in inverse
+        # samples per cycle.
+        if timing.delay_unit != "s":
+            delay_freq = timing.dt * frequency
+        else:
+            delay_freq = frequency
 
         # Template circuit for series 0
         # Control qubit starting in |0> state, flipping to |1> in middle
@@ -229,17 +249,17 @@ class ZZRamsey(BaseExperiment):
         circ0.sx(0)
 
         circ0.barrier()
-        circ0.delay(delay, 0, delay_unit)
+        circ0.delay(delay, 0, timing.delay_unit)
         circ0.barrier()
 
         circ0.x(0)
         circ0.x(1)
 
         circ0.barrier()
-        circ0.delay(delay, 0, delay_unit)
+        circ0.delay(delay, 0, timing.delay_unit)
         circ0.barrier()
 
-        circ0.rz(2 * pi * freq * delay_time_total, 0)
+        circ0.rz(2 * np.pi * delay_freq * (2 * delay), 0)
         circ0.sx(0)
         # Flip control back to 0, so control qubit is in 0 for all circuits
         # when qubit 1 is measured.
@@ -257,17 +277,17 @@ class ZZRamsey(BaseExperiment):
         circ1.sx(0)
 
         circ1.barrier()
-        circ1.delay(delay, 0, delay_unit)
+        circ1.delay(delay, 0, timing.delay_unit)
         circ1.barrier()
 
         circ1.x(0)
         circ1.x(1)
 
         circ1.barrier()
-        circ1.delay(delay, 0, delay_unit)
+        circ1.delay(delay, 0, timing.delay_unit)
         circ1.barrier()
 
-        circ1.rz(2 * pi * freq * delay_time_total, 0)
+        circ1.rz(2 * np.pi * delay_freq * (2 * delay), 0)
         circ1.sx(0)
 
         circ1.barrier()
@@ -275,43 +295,30 @@ class ZZRamsey(BaseExperiment):
 
         return circ0, circ1
 
-    def _template_circuits(
-        self, dt_value: float = 1.0, delay_unit: str = "s"
-    ) -> Tuple[QuantumCircuit, QuantumCircuit]:
-        """Template circuits for series 0 and 1 parameterized by delay
+    def parametrized_circuits(self) -> Tuple[QuantumCircuit, QuantumCircuit]:
+        """Create circuits with parameters for numerical quantities
 
-        The generated circuits have the length of the delay instructions as the
-        only parameter.
+        This method is primarily intended for generating template circuits that
+        visualize well. It inserts :class:`qiskit.circuit.Parameter`s for
+        :math:`pi` and `dt` as well the target qubit rotation frequency `f`.
 
-        Args:
-            dt_value: the value of the backend ``dt`` value. Used to convert
-                delay values into units of seconds.
-            delay_unit: the unit of circuit delay instructions.
-
-        Returns:
-            Circuits for series 0 and 1
+        Return:
+            Parameterized circuits for the case of the control qubit being in 0
+            and in 1.
         """
-        circ0, circ1 = self._parameterized_circuits(delay_unit=delay_unit)
+        f_param = Parameter("f")
+        dt = Parameter("dt")
+        pi = Parameter("pi")
 
-        # Simulated frequency applied to both sets of circuits. The value is
-        # chosen to induce zz_rotations number of rotation within the time
-        # window that the delay is swept through.
-        options = self.experiment_options
-        delays = self.delays()
-        common_freq = options.zz_rotations / (max(delays) - min(delays))
+        freq = dt * pi * f_param / np.pi
 
-        def get(circ, param):
-            return next(p for p in circ.parameters if p.name == param)
+        timing = BackendTiming(self.backend)
+        if timing.dt is not None:
+            freq = freq / timing.dt
 
-        for circ in (circ0, circ1):
-            assignments = {
-                get(circ, "pi"): np.pi,
-                get(circ, "f"): common_freq,
-                get(circ, "dt"): dt_value,
-            }
-            circ.assign_parameters(assignments, inplace=True)
+        circs = self._template_circuits(frequency=freq)
 
-        return circ0, circ1
+        return circs
 
     def circuits(self) -> List[QuantumCircuit]:
         """Create circuits
@@ -320,15 +327,8 @@ class ZZRamsey(BaseExperiment):
             A list of circuits with a variable delay.
         """
         timing = BackendTiming(self.backend)
-        if timing.dt is not None:
-            dt_val = timing.dt
-        else:
-            # If the backend does not have dt, we treat it as 1.0 when it is
-            # used the conversion factor to seconds because the delays are
-            # always handled in seconds in this case.
-            dt_val = 1.0
 
-        circ0, circ1 = self._template_circuits(dt_value=dt_val, delay_unit=timing.delay_unit)
+        circ0, circ1 = self._template_circuits()
         circs = []
 
         for delay in self.delays():
