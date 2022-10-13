@@ -370,7 +370,11 @@ class CompositeCurveAnalysis(BaseAnalysis):
             # Add raw data points
             if self.options.return_data_points:
                 analysis_results.extend(
-                    analysis._create_curve_data(curve_data=formatted_data, models=analysis.models)
+                    analysis._create_curve_data(
+                        curve_data=formatted_data,
+                        models=analysis.models,
+                        **metadata,
+                    )
                 )
 
             fit_dataset[analysis.name] = fit_data
