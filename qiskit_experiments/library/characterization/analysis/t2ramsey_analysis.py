@@ -14,7 +14,7 @@ T2Ramsey Experiment class.
 """
 from typing import Union
 import qiskit_experiments.curve_analysis as curve
-from qiskit_experiments.framework import Options
+from qiskit_experiments.framework import Options, ExperimentData
 
 
 class T2RamseyAnalysis(curve.DampedOscillationAnalysis):
@@ -66,3 +66,12 @@ class T2RamseyAnalysis(curve.DampedOscillationAnalysis):
             return "good"
 
         return "bad"
+
+    def _initialize(
+        self,
+        experiment_data: ExperimentData,
+    ):
+        super()._initialize(experiment_data)
+
+        if "virtual_freq" in self.experiment_metadata:
+            self.set_options(extra={"virtual_freq": self.experiment_metadata["virtual_freq"]})

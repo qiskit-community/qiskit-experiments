@@ -53,6 +53,24 @@ class BaseAnalysis(ABC, StoreInitArgs):
         # Store keys of non-default options
         self._set_options = set()
 
+        # Store experiment metadata
+        self._experiment_metadata = None
+
+    @property
+    def experiment_metadata(self):
+        """Metadata of experiment under current analysis."""
+        return self._experiment_metadata
+
+    @experiment_metadata.setter
+    def experiment_metadata(self, metadata: Dict):
+        to_skip = ["_source"]
+        in_data = {}
+        for key, value in metadata.items():
+            if key in to_skip:
+                continue
+            in_data[key] = value
+        self._experiment_metadata = in_data
+
     def config(self) -> AnalysisConfig:
         """Return the config dataclass for this analysis"""
         args = tuple(getattr(self, "__init_args__", OrderedDict()).values())
@@ -157,6 +175,7 @@ class BaseAnalysis(ABC, StoreInitArgs):
         else:
             analysis = self.copy()
             analysis.set_options(**options)
+        analysis.experiment_metadata = experiment_data.metadata
 
         def run_analysis(expdata):
             results, figures = analysis._run_analysis(expdata)
