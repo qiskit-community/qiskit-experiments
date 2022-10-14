@@ -29,7 +29,7 @@ from sklearn.linear_model import SGDClassifier
 
 
 class MultiStateDiscriminationAnalysis(BaseAnalysis):
-    """This class will fit the discriminator to the data."""
+    """This class fits a multi-state discriminator to the data."""
 
     @classmethod
     def _default_options(cls) -> Options:
@@ -38,7 +38,8 @@ class MultiStateDiscriminationAnalysis(BaseAnalysis):
         Analysis Options:
             plot (bool): Set ``True`` to create figure for fit result.
             ax(AxesSubplot): Optional. A matplotlib axis object to draw.
-            discriminator: The discriminator to classify the data.
+            discriminator: The discriminator to classify the data. The default is a stochastic
+            gradient descent (SGD) classifier.
         """
         options = super()._default_options()
         options.plot = True
@@ -52,8 +53,10 @@ class MultiStateDiscriminationAnalysis(BaseAnalysis):
             experiment_data: ExperimentData,
     ) -> Tuple[List[AnalysisResultData], List["matplotlib.figure.Figure"]]:
         """Train a discriminator based on the experiment data.
+
         Args:
             experiment_data: the data obtained from the experiment
+
         Returns:
             The configuration of the trained discriminator and the IQ plot.
         """
@@ -73,10 +76,13 @@ class MultiStateDiscriminationAnalysis(BaseAnalysis):
             result_data.append(np.array(state_data))
         data = np.concatenate([self._reshape_complex_vec(result) for result in result_data])
 
-        # Train a dsicriminator on the processed data
+        # Train a discriminator on the processed data
         discriminator = self.options.discriminator
         discriminator.fit(data, fit_state)
 
+        # Crate analysis results from the discriminator configuration
+        analysis_results = [AnalysisResultData(name="discriminator_config",
+                                               value=discriminator.config())]
         # Create figure
         if self.options.plot:
             ax = self.options.get("ax", None)
@@ -85,14 +91,17 @@ class MultiStateDiscriminationAnalysis(BaseAnalysis):
         else:
             figures = []
 
-        return discriminator.config(), figures  # Make a figure this still needs to be done.
+        return analysis_results, figures
 
-    def _reshape_complex_vec(self, vec) -> List[List[float]]:
-        """Take in complex vector vec and return 2d array w/ real, imag entries. This is needed for the learning.
+    def _reshape_complex_vec(self, vec: List[complex]) -> List[List[float]]:
+        """Take in complex vector vec and return 2D array with real, imaginary entries.
+        This is needed for the learning.
+
         Args:
             vec (List): complex vector of data
+
         Returns:
-            List: vector w/ entries given by (real(vec], imag(vec))
+            List: vector with entries given by [real(vec[i]), imag(vec[i])]
         """
         length = len(vec)
         vec_reshaped = np.zeros((length, 2))

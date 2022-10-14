@@ -18,6 +18,7 @@ from qiskit_experiments.data_processing.discriminator import BaseDiscriminator
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
 
 try:
+    from sklearn.base import ClassifierMixin
     from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
     from sklearn.linear_model import SGDClassifier
     from sklearn.preprocessing import StandardScaler
@@ -108,10 +109,10 @@ class SkLDA(BaseDiscriminator):
 class SkCLF(BaseDiscriminator):
     """A wrapper for the SKlearn classfier Pipeline."""
 
-    def __init__(self, sgdc: "SGDClassifier"):
+    def __init__(self, cls: "ClassifierMixin"):
         """
         Args:
-            sgdc: The sklearn linear classifier with SGD training.
+            cls: The classifier.
 
         Raises:
             DataProcessorError: if SKlearn could not be imported.
@@ -121,7 +122,7 @@ class SkCLF(BaseDiscriminator):
                 f"SKlearn is needed to initialize an {self.__class__.__name__}."
             )
 
-        self._clf = make_pipeline(StandardScaler(), sgdc)
+        self._clf = make_pipeline(StandardScaler(), cls)
         self.attributes = [
             "named_steps",
             "classes_",
@@ -131,7 +132,7 @@ class SkCLF(BaseDiscriminator):
 
     @property
     def discriminator(self) -> Any:
-        """Return then SKLearn object."""
+        """Return the SKLearn object."""
         return self._clf
 
     def is_trained(self) -> bool:

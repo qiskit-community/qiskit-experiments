@@ -15,7 +15,7 @@
 from typing import Dict, List, Optional
 
 from qiskit import QuantumCircuit
-from qiskit.circuit import Gate
+from qiskit.circuit import Gate, Parameter
 from qiskit.providers import Backend
 from qiskit.providers.options import Options
 from qiskit.pulse import ScheduleBlock
@@ -26,7 +26,7 @@ from qiskit_experiments.library.characterization import MultiStateDiscrimination
 
 class MultiStateDiscrimination(BaseExperiment):
     r"""An experiment that prepares the first :math:`n+1` energy states,
-    i.e. :math:`|0\rangle,\cdots,|n\rangle`. TODO:is the name ok? not discriminating yet.
+    i.e. :math:`|0\rangle,\cdots,|n\rangle`.
 
     # section: example
 
@@ -55,7 +55,7 @@ class MultiStateDiscrimination(BaseExperiment):
         """Default values for the number of states if none is given.
 
         Experiment Options:
-            n_states (int): The number of excited states.
+            n_states (int): The number of states to discriminate.
 
         """
         options = super()._default_experiment_options()
@@ -83,9 +83,8 @@ class MultiStateDiscrimination(BaseExperiment):
 
         self.experiment_options.schedules = schedules
 
-        if n_states is None:
-            n_states = self.experiment_options.n_states
-        self.set_experiment_options(n_states=n_states)
+        if n_states is not None:
+            self.set_experiment_options(n_states=n_states)
 
     def circuits(self) -> List[QuantumCircuit]:
         """
@@ -94,6 +93,7 @@ class MultiStateDiscrimination(BaseExperiment):
         Returns:
             A list of circuits preparing the different energy states.
         """
+        amp = Parameter("amp")
         circuits = []
         for level in range(self.experiment_options.n_states):
             circuit = QuantumCircuit(1)
@@ -110,7 +110,8 @@ class MultiStateDiscrimination(BaseExperiment):
                     circuit.append(gate, (0,))
                     if self.experiment_options.schedules is not None:
                         circuit.add_calibration(gate_name, self._physical_qubits,
-                                                self.experiment_options.schedules[gate_name])
+                                                self.experiment_options.schedules[gate_name],
+                                                params=[amp])
 
             # label the circuit
             circuit.metadata = {"label": f"|{level}>"}
