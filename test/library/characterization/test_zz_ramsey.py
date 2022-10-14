@@ -96,7 +96,7 @@ class TestZZRamsey(QiskitExperimentsTestCase):
 
     @idata(product([2e5, -3e5], [4, 5]))
     @unpack
-    def test_end_to_end(self, zz_freq, zz_rotations):
+    def test_end_to_end(self, zz_freq, num_rotations):
         """Test that we can run on a mock backend and perform a fit."""
         backend = MockIQBackend(ZZRamseyHelper(zz_freq))
         # Use a small number of shots so that chi squared is low. For large
@@ -104,7 +104,7 @@ class TestZZRamsey(QiskitExperimentsTestCase):
         # gives a large chi squared.
         backend.options.shots = 40
 
-        ramsey = ZZRamsey((0, 1), backend, zz_rotations=zz_rotations)
+        ramsey = ZZRamsey((0, 1), backend, num_rotations=num_rotations)
         test_data = ramsey.run()
         self.assertExperimentDone(test_data)
 
