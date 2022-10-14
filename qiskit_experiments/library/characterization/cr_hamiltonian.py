@@ -179,9 +179,10 @@ class CrossResonanceHamiltonian(BaseExperiment):
                 "Length of qubits is not 2. Please provide index for control and target qubit."
             )
 
-        super().__init__(qubits, analysis=CrossResonanceHamiltonianAnalysis(), backend=backend)
-        self._backend_timing = None
         self._gate_cls = cr_gate or self.CRPulseGate
+        self._backend_timing = None
+
+        super().__init__(qubits, analysis=CrossResonanceHamiltonianAnalysis(), backend=backend)
         self.set_experiment_options(durations=durations, **kwargs)
 
         if flat_top_widths is not None:
