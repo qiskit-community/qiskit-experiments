@@ -48,7 +48,7 @@ class IQPulseBackend(BackendV2):
         self,
         static_hamiltonian: np.ndarray,
         hamiltonian_operators: np.ndarray,
-        dt: Optional[float] = 0.1 * 1e-9,
+        dt: float = 0.1 * 1e-9,
         **kwargs,
     ):
         """Hamiltonian and operators is the Qiskit Dynamics object"""
@@ -118,7 +118,7 @@ class IQPulseBackend(BackendV2):
         shots: int,
         centers: List[Tuple[float, float]],
         width: float,
-        phase: float = 0,
+        phase: Optional[float] = None,
     ) -> Tuple[List, List]:
         """Generates IQ data for three logical levels
 
@@ -154,7 +154,7 @@ class IQPulseBackend(BackendV2):
         full_i = [*i0, *i1, *i2]
         full_q = [*q0, *q1, *q2]
 
-        if not np.allclose(phase, 0.0):
+        if not phase is None:
             complex_iq = (full_i + 1.0j * full_q) * np.exp(1.0j * phase)
             full_i, full_q = complex_iq.real, complex_iq.imag
 
@@ -265,10 +265,10 @@ class SingleTransmonTestBackend(IQPulseBackend):
 
     def __init__(
         self,
-        qubit_frequency: Optional[float] = 5e9,
-        anharmonicity: Optional[float] = -0.25e9,
-        lambda_1: Optional[float] = 1e9,
-        lambda_2: Optional[float] = 0.8e9,
+        qubit_frequency: float = 5e9,
+        anharmonicity: float = -0.25e9,
+        lambda_1: float = 1e9,
+        lambda_2: float = 0.8e9,
     ):
         """Initialise backend with hamiltonian parameters
 
