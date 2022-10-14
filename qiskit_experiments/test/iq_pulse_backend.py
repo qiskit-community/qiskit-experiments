@@ -13,9 +13,8 @@
 """A Pulse simulation backend based on Qiskit-Dynamics"""
 import copy
 import datetime
-
-# from functools import lru_cache
 from typing import Dict, List, Optional, Tuple, Union
+from itertools import chain
 
 import numpy as np
 
@@ -120,12 +119,12 @@ class IQPulseBackend(BackendV2):
         width: float,
         phase: Optional[float] = None,
     ) -> Tuple[List, List]:
-        """Generates IQ data for three logical levels
+        """Generates IQ data for each logical levels
 
         Parameters
         ----------
         probability : np.ndarray
-            probability array for the 3 levels
+            probability of occupation
         shots : int
             Number of shots
         centers : List[Tuple[float, float]]
@@ -140,21 +139,18 @@ class IQPulseBackend(BackendV2):
         Tuple[List,List]
             (I,Q) data
         """
-        count_0, count_1, count_2 = np.random.multinomial(shots, probability, size=1).T
+        counts_n = np.random.multinomial(shots, probability, size=1).T
+        full_i = []
+        full_q = []
 
-        i0 = np.random.normal(loc=centers[0][0], scale=width, size=count_0)
-        q0 = np.random.normal(loc=centers[0][1], scale=width, size=count_0)
+        for idx, count_i in enumerate(counts_n):
+            full_i.append(np.random.normal(loc=centers[idx][0], scale=width, size=count_i))
+            full_q.append(np.random.normal(loc=centers[idx][1], scale=width, size=count_i))
 
-        i1 = np.random.normal(loc=centers[1][0], scale=width, size=count_1)
-        q1 = np.random.normal(loc=centers[1][1], scale=width, size=count_1)
+        full_i = list(chain.from_iterable(full_i))
+        full_q = list(chain.from_iterable(full_q))
 
-        i2 = np.random.normal(loc=centers[2][0], scale=width, size=count_2)
-        q2 = np.random.normal(loc=centers[2][1], scale=width, size=count_2)
-
-        full_i = [*i0, *i1, *i2]
-        full_q = [*q0, *q1, *q2]
-
-        if not phase is None:
+        if phase is not None:
             complex_iq = (full_i + 1.0j * full_q) * np.exp(1.0j * phase)
             full_i, full_q = complex_iq.real, complex_iq.imag
 
@@ -180,7 +176,6 @@ class IQPulseBackend(BackendV2):
 
         return measurement_data
 
-    # @lru_cache | ScheduleBlock is unhashable type, figure out workaround to use lru_cache
     def solve(self, schedule: Union[ScheduleBlock, Schedule], qubits: Tuple[int]) -> np.ndarray:
         """Solves a single schdule block and returns the unitary"""
         if len(qubits) > 1:
