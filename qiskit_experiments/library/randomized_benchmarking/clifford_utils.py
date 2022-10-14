@@ -271,10 +271,12 @@ class CliffordUtils:
         """
         qc = QuantumCircuit(2, name=f"Clifford-2Q({num})")
         for layer, idx in enumerate(_layer_indices_from_num(num)):
-            qc.compose(_CLIFFORD_LAYER[layer][idx], inplace=True)
-
-        if basis_gates:
-            qc = _transform_clifford_circuit(qc, basis_gates)
+            if basis_gates:
+                layer_circ = _transformed_clifford_layer(layer, idx, basis_gates)
+            else:
+                layer_circ = _CLIFFORD_LAYER[layer][idx]
+            # qc.compose(layer_circ, inplace=True)
+            _circuit_compose(qc, layer_circ, qubits=(0, 1))
 
         return qc
 
@@ -574,6 +576,15 @@ _CLIFFORD_LAYER = (
 _NUM_LAYER_0 = 36
 _NUM_LAYER_1 = 20
 _NUM_LAYER_2 = 16
+
+
+@lru_cache(maxsize=None)
+def _transformed_clifford_layer(
+    layer: int, index: Integral, basis_gates: Tuple[str, ...]
+) -> QuantumCircuit:
+    # Return the index-th quantum circuit of the layer translated with the basis_gates.
+    # The result is cached for speed.
+    return _transform_clifford_circuit(_CLIFFORD_LAYER[layer][index], basis_gates)
 
 
 def _num_from_layer_indices(triplet: Tuple[Integral, Integral, Integral]) -> Integral:
