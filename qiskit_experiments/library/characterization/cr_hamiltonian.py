@@ -344,17 +344,6 @@ class CrossResonanceHamiltonian(BaseExperiment):
                     expr_circs.append(tomo_circ)
         return expr_circs
 
-    def _finalize(self):
-        """Set analysis option for initial guess that depends on experiment option values."""
-        edge_duration = np.sqrt(2 * np.pi) * self.experiment_options.sigma * self.num_pulses
-
-        for analysis in self.analysis.analyses():
-            init_guess = analysis.options.p0.copy()
-            if "t_off" in init_guess:
-                continue
-            init_guess["t_off"] = edge_duration * self._dt
-            analysis.set_options(p0=init_guess)
-
     def _metadata(self):
         metadata = super()._metadata()
         # Store measurement level and meas return if they have been
@@ -362,6 +351,11 @@ class CrossResonanceHamiltonian(BaseExperiment):
         for run_opt in ["meas_level", "meas_return"]:
             if hasattr(self.run_options, run_opt):
                 metadata[run_opt] = getattr(self.run_options, run_opt)
+
+        # Store effective edge duration
+        edge_duration = np.sqrt(2 * np.pi) * self.experiment_options.sigma * self.num_pulses
+        metadata["xval_offset"] = edge_duration * self._dt
+
         return metadata
 
 

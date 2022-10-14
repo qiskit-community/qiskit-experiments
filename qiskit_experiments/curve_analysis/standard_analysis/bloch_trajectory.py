@@ -166,6 +166,9 @@ class BlochTrajectoryAnalysis(curve.CurveAnalysis):
         user_opt.bounds.set_if_empty(t_off=(0, np.inf), b=(-1, 1))
         user_opt.p0.set_if_empty(b=1e-9)
 
+        if "xval_offset" in self.experiment_metadata:
+            user_opt.p0.set_if_empty(t_off=self.experiment_metadata["xval_offset"])
+
         x_data = curve_data.get_subset_of("x")
         y_data = curve_data.get_subset_of("y")
         z_data = curve_data.get_subset_of("z")

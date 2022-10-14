@@ -158,4 +158,6 @@ class T2Ramsey(BaseExperiment):
         for run_opt in ["meas_level", "meas_return"]:
             if hasattr(self.run_options, run_opt):
                 metadata[run_opt] = getattr(self.run_options, run_opt)
+        metadata["virtual_freq"] = self.experiment_options.osc_freq
+
         return metadata

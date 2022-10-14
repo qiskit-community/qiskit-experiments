@@ -282,6 +282,7 @@ class CompositeCurveAnalysis(BaseAnalysis):
         fit_dataset = {}
         for analysis in self._analyses:
             analysis._initialize(experiment_data)
+            analysis.experiment_metadata = self.experiment_metadata
 
             metadata = analysis.options.extra.copy()
             metadata["group"] = analysis.name
