@@ -25,12 +25,30 @@ from qiskit_experiments.library.characterization import MultiStateDiscrimination
 
 
 class MultiStateDiscrimination(BaseExperiment):
-    r"""An experiment that prepares the first :math:`n+1` energy states,
-    i.e. :math:`|0\rangle,\cdots,|n\rangle`.
+    r"""An experiment that discriminates between the first :math:`n` energy states.
 
-    # section: example
+    # section: overview
 
-        The steps to run a multi state discrimination experiment are TODO
+        The experiment creates :math:`n` circuits that prepare, respectively, the energy states
+        :math:`|0\rangle,\cdots,|n-1\rangle`. For, e.g., :math:`n=4` the circuits are of the form
+
+        .. parsed-literal::
+
+            Circuit preparing :math:`|0\rangle`
+
+                       ░ ┌─┐
+                   q: ─░─┤M├
+                       ░ └╥┘
+                meas: ════╩═
+
+            ...
+
+            Circuit preparing :math:`|3\rangle`
+
+                      ┌───┐┌─────┐┌─────┐ ░ ┌─┐
+                   q: ┤ X ├┤ x12 ├┤ x23 ├─░─┤M├
+                      └───┘└─────┘└─────┘ ░ └╥┘
+                meas: ═══════════════════════╩═
 
     # section: reference
         `Qiskit Textbook <https://qiskit.org/textbook/ch-quantum-hardware/accessing\
@@ -64,11 +82,11 @@ class MultiStateDiscrimination(BaseExperiment):
         return options
 
     def __init__(
-            self,
-            qubit: int,
-            backend: Optional[Backend] = None,
-            n_states: Optional[int] = None,
-            schedules: Optional[Dict[str, ScheduleBlock]] = None
+        self,
+        qubit: int,
+        backend: Optional[Backend] = None,
+        n_states: Optional[int] = None,
+        schedules: Optional[Dict[str, ScheduleBlock]] = None,
     ):
         """Setup an experiment to prepare different energy states on a given qubit.
 
@@ -109,9 +127,12 @@ class MultiStateDiscrimination(BaseExperiment):
                     gate = Gate(name=gate_name, num_qubits=1, params=[])
                     circuit.append(gate, (0,))
                     if self.experiment_options.schedules is not None:
-                        circuit.add_calibration(gate_name, self._physical_qubits,
-                                                self.experiment_options.schedules[gate_name],
-                                                params=[amp])
+                        circuit.add_calibration(
+                            gate_name,
+                            self._physical_qubits,
+                            self.experiment_options.schedules[gate_name],
+                            params=[amp],
+                        )
 
             # label the circuit
             circuit.metadata = {"label": f"|{level}>"}

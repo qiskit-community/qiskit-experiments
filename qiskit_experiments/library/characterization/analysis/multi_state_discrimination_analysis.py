@@ -66,15 +66,12 @@ class MultiStateDiscriminationAnalysis(BaseAnalysis):
         NUM_SHOTS = len(experiment_data.data()[0]['memory'])
 
         # Process the data and get labels
-        result_data, fit_state = [], []
+        data, fit_state = [], []
         for i in range(n_states):
-            state_data = []
             for j in range(NUM_SHOTS):
-                re, im = experiment_data.data()[i]['memory'][j][0]
-                state_data.append(re + 1j * im)
+                data.append(experiment_data.data()[i]['memory'][j][0])
                 fit_state.append(experiment_data.data()[i]['metadata']['label'])
-            result_data.append(np.array(state_data))
-        data = np.concatenate([self._reshape_complex_vec(result) for result in result_data])
+        data = np.array(data)
 
         # Train a discriminator on the processed data
         discriminator = self.options.discriminator
@@ -92,22 +89,6 @@ class MultiStateDiscriminationAnalysis(BaseAnalysis):
             figures = []
 
         return analysis_results, figures
-
-    def _reshape_complex_vec(self, vec: List[complex]) -> List[List[float]]:
-        """Take in complex vector vec and return 2D array with real, imaginary entries.
-        This is needed for the learning.
-
-        Args:
-            vec (List): complex vector of data
-
-        Returns:
-            List: vector with entries given by [real(vec[i]), imag(vec[i])]
-        """
-        length = len(vec)
-        vec_reshaped = np.zeros((length, 2))
-        for i in range(len(vec)):
-            vec_reshaped[i] = [np.real(vec[i]), np.imag(vec[i])]
-        return vec_reshaped
 
     def _levels_plot(self, clf, data, n_states, NUM_SHOTS, ax=None):
         """Helper function for plotting IQ plane for different energy levels.
