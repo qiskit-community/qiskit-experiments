@@ -236,7 +236,7 @@ class CrossResonanceHamiltonian(BaseExperiment):
         super()._set_backend(backend)
         self._backend_timing = BackendTiming(backend)
 
-    def _get_dt(self):
+    def _get_dt(self) -> float:
         """A helper function to get finite dt.
 
         Returns:
