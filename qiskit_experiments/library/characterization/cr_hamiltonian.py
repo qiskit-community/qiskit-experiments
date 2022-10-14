@@ -236,6 +236,17 @@ class CrossResonanceHamiltonian(BaseExperiment):
         super()._set_backend(backend)
         self._backend_timing = BackendTiming(backend)
 
+    def _get_dt(self):
+        """A helper function to get finite dt.
+
+        Returns:
+            Backend dt value.
+        """
+        if not self._backend or self._backend_timing.dt is None:
+            # When backend timing is not initialized or backend doesn't report dt.
+            return 1.0
+        return self._backend_timing.dt
+
     def _get_width(self, duration: ParameterValueType) -> ParameterValueType:
         """A helper function to get flat top width.
 
@@ -243,10 +254,9 @@ class CrossResonanceHamiltonian(BaseExperiment):
             duration: Cross resonance pulse duration in units of sec.
 
         Returns:
-            A flat top widths of cross resonacne pulse in units of sec.
+            A flat top widths of cross resonance pulse in units of sec.
         """
-        backend_dt = self._backend_timing.dt or 1
-        sigma_sec = self.experiment_options.sigma * backend_dt
+        sigma_sec = self.experiment_options.sigma * self._get_dt()
 
         return duration - 2 * sigma_sec * self.experiment_options.risefall
 
@@ -256,10 +266,8 @@ class CrossResonanceHamiltonian(BaseExperiment):
 
         if opt.flat_top_widths is not None:
             # TODO Remove this in Qiskit Experiments 0.6
-            backend_dt = self._backend_timing.dt or 1
             widths = np.asarray(opt.flat_top_widths, dtype=float)
-
-            return backend_dt * (widths + 2 * opt.sigma * opt.risefall)
+            return self._get_dt() * (widths + 2 * opt.sigma * opt.risefall)
 
         if opt.durations is None:
             return np.linspace(opt.min_durations, opt.max_durations, opt.num_durations)
@@ -470,13 +478,12 @@ class CrossResonanceHamiltonian(BaseExperiment):
     def _finalize(self):
         """Set analysis option for initial guess that depends on experiment option values."""
         edge_duration = np.sqrt(2 * np.pi) * self.experiment_options.sigma * self.num_pulses
-        backend_dt = self._backend_timing.dt or 1
 
         for analysis in self.analysis.analyses():
             init_guess = analysis.options.p0.copy()
             if "t_off" in init_guess:
                 continue
-            init_guess["t_off"] = backend_dt * edge_duration
+            init_guess["t_off"] = self._get_dt() * edge_duration
             analysis.set_options(p0=init_guess)
 
     def _metadata(self):
