@@ -446,14 +446,13 @@ class EchoedCrossResonance(BasisGateLibrary):
         # Controlled NOT gate built from Echoed Cross-Resonance gate
         if "cx" in basis_gates:
             with pulse.build(name="cx") as cnot:
-                # The equivalent of rz(-np.pi/2) on the control.
-                pulse.shift_phase(-np.pi / 2, pulse.DriveChannel(c_chan_idx))
-                # The equivalent of rx(-np.pi/2) on the target.
-                pulse.shift_phase(-np.pi, pulse.DriveChannel(t_chan_idx))
+                # Rz(np.pi / 2) on the control followed by ``x``.
+                pulse.shift_phase(np.pi / 2, pulse.DriveChannel(c_chan_idx))
+                pulse.reference("x", "q0")
+                # ``sx`` on the target.
                 pulse.reference("sx", "q1")
 
-                # The RZX(np.pi/2) gate starting with the echo.
-                pulse.reference("x", "q0")
+                # The ECR gate.
                 with pulse.align_sequential():
                     pulse.reference("cr45p", "q0", "q1")
                     pulse.reference("x", "q0")
