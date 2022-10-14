@@ -20,6 +20,7 @@ from abc import ABC, abstractmethod
 from collections.abc import Mapping
 from typing import Any, Dict, List, Optional, Set
 from warnings import warn
+import numpy as np
 
 from qiskit.circuit import Parameter
 import qiskit.pulse as pulse
@@ -322,6 +323,8 @@ class EchoedCrossResonance(BasisGateLibrary):
         - cr45p: GaussianSquare cross-resonance gate for a :math:`+\pi/4` rotation.
         - cr45m: GaussianSquare cross-resonance gate for a :math:`-\pi/4` rotation.
         - ecr: Echoed cross-resonance gate defined as ``cr45p - x - cr45m``.
+        - rzx: RZXGate built from the ecr as ``cr45p - x - cr45m - x``.
+        - cx: Controlled-NOT gate built from the ecr and single-qubit rotations.
 
     Required gates:
         - x: the x gate is defined outside of this library, see :class:`FixedFrequencyTransmon`.
@@ -356,7 +359,7 @@ class EchoedCrossResonance(BasisGateLibrary):
     @property
     def __supported_gates__(self) -> Dict[str, int]:
         """The supported gates of the library are two-qubit pulses for the ecr gate."""
-        return {"cr45p": 2, "cr45m": 2, "ecr": 2}
+        return {"cr45p": 2, "cr45m": 2, "ecr": 2, "rzx": 2, "cx": 2}
 
     def default_values(self) -> List[DefaultCalValue]:
         """The default values of the CR library."""
@@ -379,6 +382,7 @@ class EchoedCrossResonance(BasisGateLibrary):
         cr_amp = Parameter("amp")
         cr_dur = Parameter("duration")
         cr_rf = Parameter("risefall")
+        c_chan_idx = Parameter("ch0")
         t_chan_idx = Parameter("ch1")
         u_chan_idx = Parameter("ch0.1")
         t_chan = pulse.DriveChannel(t_chan_idx)
@@ -418,6 +422,7 @@ class EchoedCrossResonance(BasisGateLibrary):
 
             schedules["cr45m"] = cr45m
 
+        # Echoed Cross-Resonance gate
         if "ecr" in basis_gates:
             with pulse.build(name="ecr") as ecr:
                 with pulse.align_sequential():
@@ -426,5 +431,34 @@ class EchoedCrossResonance(BasisGateLibrary):
                     pulse.reference("cr45m", "q0", "q1")
 
             schedules["ecr"] = ecr
+
+        # RZXGate built from Echoed Cross-Resonance gate
+        if "rzx" in basis_gates:
+            with pulse.build(name="rzx") as rzx:
+                with pulse.align_sequential():
+                    pulse.reference("cr45p", "q0", "q1")
+                    pulse.reference("x", "q0")
+                    pulse.reference("cr45m", "q0", "q1")
+                    pulse.reference("x", "q0")
+
+            schedules["rzx"] = rzx
+
+        # Controlled NOT gate built from Echoed Cross-Resonance gate
+        if "cx" in basis_gates:
+            with pulse.build(name="cx") as cnot:
+                # The equivalent of rz(-np.pi/2) on the control.
+                pulse.shift_phase(-np.pi / 2, pulse.DriveChannel(c_chan_idx))
+                # The equivalent of rx(-np.pi/2) on the target.
+                pulse.shift_phase(-np.pi, pulse.DriveChannel(t_chan_idx))
+                pulse.reference("sx", "q1")
+
+                # The RZX(np.pi/2) gate starting with the echo.
+                pulse.reference("x", "q0")
+                with pulse.align_sequential():
+                    pulse.reference("cr45p", "q0", "q1")
+                    pulse.reference("x", "q0")
+                    pulse.reference("cr45m", "q0", "q1")
+
+            schedules["cx"] = cnot
 
         return schedules
