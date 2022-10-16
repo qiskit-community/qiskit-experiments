@@ -283,6 +283,7 @@ class SingleTransmonTestBackend(IQPulseBackend):
         anharmonicity: float = -0.25e9,
         lambda_1: float = 1e9,
         lambda_2: float = 0.8e9,
+        gamma_1: float = 1e3,
     ):
         """Initialise backend with hamiltonian parameters
 
@@ -316,14 +317,20 @@ class SingleTransmonTestBackend(IQPulseBackend):
             2 * np.pi * (lambda_1 * (sigma_p1 + sigma_m1) + lambda_2 * (sigma_p2 + sigma_m2))
         ]
         r_frame = 2 * np.pi * qubit_frequency * (p1 + 2 * p2)
+        t1_dissipator = np.sqrt(gamma_1) * sigma_m1
+
+        evaluation_mode = "dense_vectorized"
 
         super().__init__(
             static_hamiltonian=drift,
             hamiltonian_operators=control,
+            static_dissipators=[t1_dissipator],
             rotating_frame=r_frame,
             rwa_cutoff_freq=1.9 * qubit_frequency,
             rwa_carrier_freqs=[qubit_frequency],
+            evaluation_mode=evaluation_mode,
         )
+        self.logical_levels = 3
 
         self._defaults = PulseDefaults.from_dict(
             {
