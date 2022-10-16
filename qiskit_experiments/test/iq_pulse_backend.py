@@ -190,7 +190,7 @@ class IQPulseBackend(BackendV2):
             # a) move centers infor to subclass OR
             # b) take system dims parameter
             measurement_data = self.iq_data(
-                state.probabilities(), shots, [(-1, -1), (1, 1), (0, np.sqrt(2))], 0.1
+                state.probabilities(), shots, [(-1, -1), (1, 1), (0, np.sqrt(2))], 0.08
             )
             if meas_return == "avg":
                 measurement_data = np.average(np.array(measurement_data), axis=0)
