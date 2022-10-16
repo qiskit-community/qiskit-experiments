@@ -29,7 +29,7 @@ from qiskit.pulse import Schedule, ScheduleBlock
 from qiskit.pulse.transforms import block_to_schedule
 from qiskit.qobj.pulse_qobj import PulseQobjInstruction
 from qiskit.qobj.utils import MeasLevel, MeasReturnType
-from qiskit.quantum_info.states import Statevector
+from qiskit.quantum_info.states import Statevector, DensityMatrix
 from qiskit.result import Result
 from qiskit.transpiler import InstructionProperties, Target
 
@@ -67,15 +67,22 @@ class IQPulseBackend(BackendV2):
                 "cmd_def": [],
             }
         )
+        self._rng = np.random.default_rng(0)
         self.converter = None
+        self.logical_levels = None
+        self.noise = "static_dissipators" in kwargs
 
         self.static_hamiltonian = static_hamiltonian
         self.hamiltonian_operators = hamiltonian_operators
         self.solver = Solver(self.static_hamiltonian, self.hamiltonian_operators, **kwargs)
         self._target = Target(dt=dt, granularity=16)
-        self.gound_state = np.zeros(self.solver.model.dim)
+
+        self.model_dim = self.solver.model.dim
+        if self.noise:
+            self.model_dim = self.model_dim**2
+        self.gound_state = np.zeros(self.model_dim)
         self.gound_state[0] = 1
-        self.y_0 = np.eye(self.solver.model.dim)
+        self.y_0 = np.eye(self.model_dim)
         self._simulated_pulse_unitaries = {}
 
     @property
@@ -92,7 +99,7 @@ class IQPulseBackend(BackendV2):
 
     @classmethod
     def _default_options(cls):
-        return Options(shots=1024)
+        return Options(shots=4000)
 
     @property
     def default_pulse_unitaries(self) -> Dict[Tuple, np.array]:
@@ -111,8 +118,8 @@ class IQPulseBackend(BackendV2):
         params = tuple(float(val) for val in p_dict.params)
         return qubit, params, p_dict.name
 
-    @staticmethod
     def iq_data(
+        self,
         probability: np.ndarray,
         shots: int,
         centers: List[Tuple[float, float]],
@@ -139,7 +146,9 @@ class IQPulseBackend(BackendV2):
         Tuple[List,List]
             (I,Q) data
         """
-        counts_n = np.random.multinomial(shots, probability, size=1).T
+
+        counts_n = np.random.multinomial(shots, np.round(probability, 5), size=1).T
+
         full_i = []
         full_q = []
 
@@ -154,9 +163,10 @@ class IQPulseBackend(BackendV2):
             complex_iq = (full_i + 1.0j * full_q) * np.exp(1.0j * phase)
             full_i, full_q = complex_iq.real, complex_iq.imag
 
-        return np.array([full_i, full_q]).reshape(shots,1,2).tolist()
+        full_iq = np.array([[full_i], [full_q]]).T
+        return full_iq.tolist()
 
-    def _state_vector_to_data(
+    def _state_to_measurement_data(
         self,
         state: np.ndarray,
         shots: int,
@@ -164,12 +174,23 @@ class IQPulseBackend(BackendV2):
         meas_return: MeasReturnType,
     ) -> Union[Dict[str, int], complex]:
         """Convert the state vector to IQ data or counts."""
+        N = self.logical_levels
+        self.curstate = state
+        if self.noise == True:
+            state = state.reshape(N, N)
+            state = DensityMatrix(state / np.trace(state))
+        else:
+            state = Statevector(state / np.linalg.norm(state))
+
         if meas_level == MeasLevel.CLASSIFIED:
-            measurement_data = Statevector(state).sample_counts(shots)
+            measurement_data = state.sample_counts(shots)
 
         elif meas_level == MeasLevel.KERNELED:
+            # TODO: don't hardcode number of levels:
+            # a) move centers infor to subclass OR
+            # b) take system dims parameter
             measurement_data = self.iq_data(
-                (state * state.conj()).real, shots, [(-1, -1), (1.3, 0.5), (0.5, 1.3)], 0.2
+                state.probabilities(), shots, [(-1, -1), (1, 1), (0, np.sqrt(2))], 0.1
             )
             if meas_return == "avg":
                 measurement_data = np.average(np.array(measurement_data), axis=0)
@@ -225,17 +246,15 @@ class IQPulseBackend(BackendV2):
                             schedule_block, qubits
                         )
 
-            psi = self.gound_state.copy()
+            state_t = self.gound_state.copy()
             for instruction in circuit.data:
                 qubits, params, inst_name = self._get_info(instruction)
                 if inst_name in ["barrier", "measure"]:
                     continue
                 unitary = experiment_unitaries[(inst_name, qubits, params)]
-                psi = unitary @ psi
+                state_t = unitary @ state_t
 
-            return_data = self._state_vector_to_data(
-                psi / np.linalg.norm(psi), shots, meas_level, meas_return
-            )
+            return_data = self._state_to_measurement_data(state_t, shots, meas_level, meas_return)
 
             run_result = {
                 "shots": shots,
