@@ -13,8 +13,6 @@
 """A Pulse simulation backend based on Qiskit-Dynamics"""
 import copy
 import datetime
-
-# from functools import lru_cache
 from typing import Dict, List, Optional, Tuple, Union
 
 import numpy as np
@@ -180,7 +178,6 @@ class IQPulseBackend(BackendV2):
 
         return measurement_data
 
-    # @lru_cache | ScheduleBlock is unhashable type, figure out workaround to use lru_cache
     def solve(self, schedule: Union[ScheduleBlock, Schedule], qubits: Tuple[int]) -> np.ndarray:
         """Solves a single schdule block and returns the unitary"""
         if len(qubits) > 1:
@@ -333,7 +330,7 @@ class SingleTransmonTestBackend(IQPulseBackend):
                                         "amp": (0.1 + 0j),
                                         "beta": 5,
                                         "duration": 160,
-                                        "sigma": 16,
+                                        "sigma": 40,
                                     },
                                 ).to_dict()
                             ],
@@ -354,7 +351,7 @@ class SingleTransmonTestBackend(IQPulseBackend):
                                         "amp": (0.1 + 0j) / 2,
                                         "beta": 5,
                                         "duration": 160,
-                                        "sigma": 16,
+                                        "sigma": 40,
                                     },
                                 ).to_dict()
                             ],
