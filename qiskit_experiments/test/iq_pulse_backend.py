@@ -39,7 +39,7 @@ from qiskit_dynamics.pulse import InstructionToSignals
 from qiskit_experiments.exceptions import QiskitError
 from qiskit_experiments.test.utils import FakeJob
 
-
+# TODO: add switch to combine |2> shots into |1> for meas_level=2 
 class IQPulseBackend(BackendV2):
     """Pulse Simulator abstract class"""
 
@@ -273,7 +273,7 @@ class IQPulseBackend(BackendV2):
             result["results"].append(run_result)
         return FakeJob(self, Result.from_dict(result))
 
-
+# TODO: add switch to turn off noise
 class SingleTransmonTestBackend(IQPulseBackend):
     """Three level anharmonic transmon qubit"""
 
