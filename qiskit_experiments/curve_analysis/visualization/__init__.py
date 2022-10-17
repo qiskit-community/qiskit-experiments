@@ -10,22 +10,17 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """
-Visualization functions
+Deprecated Visualization Functions.
+
+.. note::
+    This module is deprecated and replaced by :mod:`qiskit_experiments.visualization`. The new
+    visualization module contains classes to manage drawing to a figure canvas and plotting data
+    obtained from an experiment or analysis.
 """
 
-from enum import Enum
-
-from .base_drawer import BaseCurveDrawer
-from .mpl_drawer import MplCurveDrawer
-
 from . import fit_result_plotters
-from .curves import plot_scatter, plot_errorbar, plot_curve_fit
+from .base_drawer import BaseCurveDrawer
+from .curves import plot_curve_fit, plot_errorbar, plot_scatter
+from .fit_result_plotters import FitResultPlotters
+from .mpl_drawer import MplCurveDrawer
 from .style import PlotterStyle
-
-
-# pylint: disable=invalid-name
-class FitResultPlotters(Enum):
-    """Map the plotter name to the plotters."""
-
-    mpl_single_canvas = fit_result_plotters.MplDrawSingleCanvas
-    mpl_multiv_canvas = fit_result_plotters.MplDrawMultiCanvasVstack

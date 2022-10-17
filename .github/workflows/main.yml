@@ -96,7 +96,12 @@ jobs:
           sudo apt-get install -y pandoc graphviz
       - name: Build Docs
         run: tox -edocs
+      - name: Compress Artifacts
+        run: |
+          mkdir artifacts
+          tar -Jcvf html_docs.tar.xz docs/_build/html
+          mv html_docs.tar.xz artifacts/.
       - uses: actions/upload-artifact@v2
         with:
           name: html_docs
-          path: docs/_build/html
+          path: artifacts

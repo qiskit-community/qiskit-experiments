@@ -16,15 +16,28 @@ Base class of curve analysis.
 
 import warnings
 from abc import ABC, abstractmethod
-from typing import List, Dict, Union
+from typing import Dict, List, Union
 
 import lmfit
 
 from qiskit_experiments.data_processing import DataProcessor
 from qiskit_experiments.data_processing.processor_library import get_processor
-from qiskit_experiments.framework import BaseAnalysis, AnalysisResultData, Options, ExperimentData
-from .curve_data import CurveData, ParameterRepr, CurveFitResult
-from .visualization import MplCurveDrawer, BaseCurveDrawer
+from qiskit_experiments.framework import (
+    AnalysisResultData,
+    BaseAnalysis,
+    ExperimentData,
+    Options,
+)
+from qiskit_experiments.visualization import (
+    BaseDrawer,
+    BasePlotter,
+    CurvePlotter,
+    LegacyCurveCompatDrawer,
+    MplDrawer,
+)
+from qiskit_experiments.warnings import deprecated_function
+
+from .curve_data import CurveData, CurveFitResult, ParameterRepr
 
 PARAMS_ENTRY_PREFIX = "@Parameters_"
 DATA_ENTRY_PREFIX = "@Data_"
@@ -113,16 +126,28 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
         """Return fit models."""
 
     @property
-    def drawer(self) -> BaseCurveDrawer:
-        """A short-cut for curve drawer instance."""
-        return self._options.curve_drawer
+    def plotter(self) -> BasePlotter:
+        """A short-cut to the curve plotter instance."""
+        return self._options.plotter
+
+    @property
+    @deprecated_function(
+        last_version="0.6",
+        msg="Replaced by `plotter` from the new visualization submodule.",
+    )
+    def drawer(self) -> BaseDrawer:
+        """A short-cut for curve drawer instance, if set. ``None`` otherwise."""
+        if isinstance(self.plotter.drawer, LegacyCurveCompatDrawer):
+            return self.plotter.drawer._curve_drawer
+        else:
+            return None
 
     @classmethod
     def _default_options(cls) -> Options:
         """Return default analysis options.
 
         Analysis Options:
-            curve_drawer (BaseCurveDrawer): A curve drawer instance to visualize
+            plotter (BasePlotter): A curve plotter instance to visualize
                 the analysis result.
             plot_raw_data (bool): Set ``True`` to draw processed data points,
                 dataset without formatting, on canvas. This is ``False`` by default.
@@ -168,7 +193,7 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
         """
         options = super()._default_options()
 
-        options.curve_drawer = MplCurveDrawer()
+        options.plotter = CurvePlotter(MplDrawer())
         options.plot_raw_data = False
         options.plot = True
         options.return_fit_parameters = True
@@ -187,7 +212,7 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
 
         # Set automatic validator for particular option values
         options.set_validator(field="data_processor", validator_value=DataProcessor)
-        options.set_validator(field="curve_drawer", validator_value=BaseCurveDrawer)
+        options.set_validator(field="plotter", validator_value=BasePlotter)
 
         return options
 
@@ -210,6 +235,27 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
                 stacklevel=2,
             )
             fields["lmfit_options"] = fields.pop("curve_fitter_options")
+
+        # TODO remove this in Qiskit Experiments 0.6
+        if "curve_drawer" in fields:
+            warnings.warn(
+                "The option 'curve_drawer' is replaced with 'plotter'. "
+                "This option will be removed in Qiskit Experiments 0.6.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            # Set the plotter drawer to `curve_drawer`. If `curve_drawer` is the right type, set it
+            # directly. If not, wrap it in a compatibility drawer.
+            if isinstance(fields["curve_drawer"], BaseDrawer):
+                plotter = self.options.plotter
+                plotter.drawer = fields.pop("curve_drawer")
+                fields["plotter"] = plotter
+            else:
+                drawer = fields["curve_drawer"]
+                compat_drawer = LegacyCurveCompatDrawer(drawer)
+                plotter = self.options.plotter
+                plotter.drawer = compat_drawer
+                fields["plotter"] = plotter
 
         super().set_options(**fields)
 
