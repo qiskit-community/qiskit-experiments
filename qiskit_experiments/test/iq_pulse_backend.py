@@ -148,8 +148,7 @@ class IQPulseBackend(BackendV2):
         Tuple[List,List]
             (I,Q) data
         """
-
-        counts_n = np.random.multinomial(shots, np.round(probability, 5), size=1).T
+        counts_n = np.random.multinomial(shots, probability/sum(probability), size=1).T
 
         full_i = []
         full_q = []
@@ -190,7 +189,7 @@ class IQPulseBackend(BackendV2):
             # a) move centers infor to subclass OR
             # b) take system dims parameter
             measurement_data = self.iq_data(
-                state.probabilities(), shots, [(-1, -1), (1, 1), (0, np.sqrt(2))], 0.08
+                state.probabilities(), shots, [(-1, -1), (1, 1), (0, np.sqrt(2))], 0.2
             )
             if meas_return == "avg":
                 measurement_data = np.average(np.array(measurement_data), axis=0)
@@ -284,7 +283,7 @@ class SingleTransmonTestBackend(IQPulseBackend):
         anharmonicity: float = -0.25e9,
         lambda_1: float = 1e9,
         lambda_2: float = 0.8e9,
-        gamma_1: float = 1e3,
+        gamma_1: float = 1e4,
         **kwargs,
     ):
         """Initialise backend with hamiltonian parameters
