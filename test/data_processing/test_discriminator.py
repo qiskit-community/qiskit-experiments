@@ -17,10 +17,11 @@ from functools import wraps
 from unittest import SkipTest
 import numpy as np
 
-from qiskit_experiments.data_processing import SkLDA
+from qiskit_experiments.data_processing import SkLDA, SkCLF
 
 try:
     from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
+    from sklearn.linear_model import SGDClassifier
 
     HAS_SKLEARN = True
 except ImportError:
@@ -80,3 +81,21 @@ class TestDiscriminator(QiskitExperimentsTestCase):
             return True
 
         self.assertRoundTripSerializable(lda, check_lda)
+
+    @requires_sklearn
+    def test_skclf_from_config(self):
+        """Test building SkCLF from configuration."""
+
+        sk_clf = SGDClassifier(loss="modified_huber", max_iter=1000, tol=1e-3)
+        clf = SkCLF(sk_clf)
+
+        clf.fit([[-1, 0], [1, 0], [-1.1, 0], [0.9, 0.1]], [0, 1, 0, 1])
+
+        self.assertTrue(clf.is_trained())
+        self.assertTrue(clf.predict([[1.1, 0]])[0], 1)
+
+        config = clf.config()
+
+        clf_from_config = SkCLF.from_config(config)
+
+        self.assertTrue(clf_from_config.predict([[1.1, 0]])[0], 1)

@@ -12,7 +12,7 @@
 
 """Discriminators that wrap SKLearn."""
 
-from typing import Any, List, Dict
+from typing import Any, List, Dict, Union
 
 from qiskit_experiments.data_processing.discriminator import BaseDiscriminator
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
@@ -22,7 +22,7 @@ try:
     from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
     from sklearn.linear_model import SGDClassifier
     from sklearn.preprocessing import StandardScaler
-    from sklearn.pipeline import make_pipeline
+    from sklearn.pipeline import make_pipeline, Pipeline
     from sklearn.utils.validation import check_is_fitted
 
     HAS_SKLEARN = True
@@ -109,7 +109,7 @@ class SkLDA(BaseDiscriminator):
 class SkCLF(BaseDiscriminator):
     """A wrapper for the SKlearn classfier Pipeline."""
 
-    def __init__(self, cls: "ClassifierMixin"):
+    def __init__(self, cls: Union[ClassifierMixin, Pipeline]):
         """
         Args:
             cls: The classifier.
@@ -122,7 +122,10 @@ class SkCLF(BaseDiscriminator):
                 f"SKlearn is needed to initialize an {self.__class__.__name__}."
             )
 
-        self._clf = make_pipeline(StandardScaler(), cls)
+        if isinstance(cls, Pipeline):
+            self._clf = cls
+        else:
+            self._clf = make_pipeline(StandardScaler(), cls)
         self.attributes = [
             "named_steps",
             "classes_",
@@ -165,11 +168,12 @@ class SkCLF(BaseDiscriminator):
         if not HAS_SKLEARN:
             raise DataProcessorError(f"SKlearn is needed to initialize an {cls.__name__}.")
 
-        sgdc = SGDClassifier()
+        sgdc = Pipeline(config['params']['steps'])
         sgdc.set_params(**config["params"])
 
+        skclf = SkCLF(sgdc)
         for name, value in config["attributes"].items():
             if value is not None:
-                setattr(sgdc, name, value)
+                setattr(skclf, name, value)
 
-        return SkLDA(sgdc)
+        return skclf
