@@ -39,7 +39,7 @@ from qiskit_dynamics.pulse import InstructionToSignals
 from qiskit_experiments.exceptions import QiskitError
 from qiskit_experiments.test.utils import FakeJob
 
-# TODO: add switch to combine |2> shots into |1> for meas_level=2 
+# TODO: add switch to combine |2> shots into |1> for meas_level=2
 class IQPulseBackend(BackendV2):
     """Pulse Simulator abstract class"""
 
@@ -48,7 +48,7 @@ class IQPulseBackend(BackendV2):
         static_hamiltonian: np.ndarray,
         hamiltonian_operators: np.ndarray,
         dt: float = 0.1 * 1e-9,
-        solver_method = "RK23",
+        solver_method="RK23",
         **kwargs,
     ):
         """Hamiltonian and operators is the Qiskit Dynamics object"""
@@ -165,7 +165,7 @@ class IQPulseBackend(BackendV2):
             complex_iq = (full_i + 1.0j * full_q) * np.exp(1.0j * phase)
             full_i, full_q = complex_iq.real, complex_iq.imag
 
-        full_iq = 1e16*np.array([[full_i], [full_q]]).T
+        full_iq = 1e16 * np.array([[full_i], [full_q]]).T
         return full_iq.tolist()
 
     def _state_to_measurement_data(
@@ -176,10 +176,8 @@ class IQPulseBackend(BackendV2):
         meas_return: MeasReturnType,
     ) -> Union[Dict[str, int], complex]:
         """Convert the state vector to IQ data or counts."""
-        N = self.logical_levels
-        self.curstate = state
-        if self.noise == True:
-            state = state.reshape(N, N)
+        if self.noise is True:
+            state = state.reshape(self.logical_levels, self.logical_levels)
             state = DensityMatrix(state / np.trace(state))
         else:
             state = Statevector(state / np.linalg.norm(state))
@@ -263,7 +261,7 @@ class IQPulseBackend(BackendV2):
                 "success": True,
                 "header": {"metadata": circuit.metadata},
                 "meas_level": meas_level,
-                "meas_level": meas_return,
+                "meas_return": meas_return,
                 "data": {},
             }
 
@@ -274,6 +272,7 @@ class IQPulseBackend(BackendV2):
 
             result["results"].append(run_result)
         return FakeJob(self, Result.from_dict(result))
+
 
 # TODO: add switch to turn off noise
 class SingleTransmonTestBackend(IQPulseBackend):
@@ -286,7 +285,7 @@ class SingleTransmonTestBackend(IQPulseBackend):
         lambda_1: float = 1e9,
         lambda_2: float = 0.8e9,
         gamma_1: float = 1e3,
-        **kwargs
+        **kwargs,
     ):
         """Initialise backend with hamiltonian parameters
 
@@ -334,7 +333,7 @@ class SingleTransmonTestBackend(IQPulseBackend):
             rwa_cutoff_freq=1.9 * qubit_frequency,
             rwa_carrier_freqs=[qubit_frequency],
             evaluation_mode=evaluation_mode,
-            **kwargs
+            **kwargs,
         )
         self.logical_levels = 3
 
