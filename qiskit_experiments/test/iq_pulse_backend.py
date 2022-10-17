@@ -48,6 +48,7 @@ class IQPulseBackend(BackendV2):
         static_hamiltonian: np.ndarray,
         hamiltonian_operators: np.ndarray,
         dt: float = 0.1 * 1e-9,
+        solver_method = "RK23",
         **kwargs,
     ):
         """Hamiltonian and operators is the Qiskit Dynamics object"""
@@ -71,6 +72,7 @@ class IQPulseBackend(BackendV2):
         self.converter = None
         self.logical_levels = None
         self.noise = "static_dissipators" in kwargs
+        self.solver_method = solver_method
 
         self.static_hamiltonian = static_hamiltonian
         self.hamiltonian_operators = hamiltonian_operators
@@ -163,7 +165,7 @@ class IQPulseBackend(BackendV2):
             complex_iq = (full_i + 1.0j * full_q) * np.exp(1.0j * phase)
             full_i, full_q = complex_iq.real, complex_iq.imag
 
-        full_iq = np.array([[full_i], [full_q]]).T
+        full_iq = 1e16*np.array([[full_i], [full_q]]).T
         return full_iq.tolist()
 
     def _state_to_measurement_data(
@@ -211,7 +213,7 @@ class IQPulseBackend(BackendV2):
             y0=self.y_0,
             t_eval=[time_f],
             signals=signal,
-            method="RK23",
+            method=self.solver_method,
         ).y[0]
 
         return unitary
@@ -222,7 +224,7 @@ class IQPulseBackend(BackendV2):
         self.options.update_options(**run_options)
         shots = self.options.get("shots")
         meas_level = self.options.get("meas_level")
-        meas_return = self.options.get("meas_level")
+        meas_return = self.options.get("meas_return")
 
         result = {
             "backend_name": f"{self.__class__.__name__}",
@@ -284,6 +286,7 @@ class SingleTransmonTestBackend(IQPulseBackend):
         lambda_1: float = 1e9,
         lambda_2: float = 0.8e9,
         gamma_1: float = 1e3,
+        **kwargs
     ):
         """Initialise backend with hamiltonian parameters
 
@@ -329,6 +332,7 @@ class SingleTransmonTestBackend(IQPulseBackend):
             rwa_cutoff_freq=1.9 * qubit_frequency,
             rwa_carrier_freqs=[qubit_frequency],
             evaluation_mode=evaluation_mode,
+            **kwargs
         )
         self.logical_levels = 3
 
