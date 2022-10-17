@@ -300,6 +300,8 @@ class SingleTransmonTestBackend(IQPulseBackend):
             Strength of 0-1 transition
         lambda_1 : float
             Strength of 1-2 transition
+        gamma_1 : float
+            Relaxation rate for 1-0
         """
         qubit_frequency_02 = 2 * qubit_frequency + anharmonicity
         ket0 = np.array([[1, 0, 0]]).T
