@@ -36,7 +36,18 @@ class TestGuesses(QiskitExperimentsTestCase):
         x = np.linspace(-1, 1, 101)
         y = 0.3 * np.cos(2 * np.pi * freq * x + 0.5) + 1.2
 
-        freq_guess = guess.frequency(x, y)
+        with self.assertWarns(DeprecationWarning):
+            freq_guess = guess.frequency(x, y)
+
+        self.assertAlmostEqualAbsolute(freq_guess, np.abs(freq))
+
+    @data(1.1, 2.0, 1.6, -1.4, 4.5)
+    def test_lfit_frequency(self, freq: float):
+        """Test for frequency guess with Lorentzian fit."""
+        x = np.linspace(-1, 1, 101)
+        y = 0.3 * np.cos(2 * np.pi * freq * x + 0.5)
+
+        freq_guess = guess.frequency_lorentz_fit(x, y)
 
         self.assertAlmostEqualAbsolute(freq_guess, np.abs(freq))
 
@@ -46,7 +57,28 @@ class TestGuesses(QiskitExperimentsTestCase):
         x = np.concatenate((np.linspace(-1, 0, 15), np.linspace(0.1, 1, 30)))
         y = 0.3 * np.cos(2 * np.pi * freq * x + 0.5) + 1.2
 
-        freq_guess = guess.frequency(x, y)
+        with self.assertWarns(DeprecationWarning):
+            freq_guess = guess.frequency(x, y)
+
+        self.assertAlmostEqualAbsolute(freq_guess, np.abs(freq))
+
+    @data(1.1, 2.0, 1.6, -1.4, 4.5)
+    def test_lfit_frequency_with_non_uniform_sampling(self, freq: float):
+        """Test for frequency guess with Lorentzian fit with non uniform x value."""
+        x = np.concatenate((np.linspace(-1, 0, 15), np.linspace(0.1, 1, 30)))
+        y = 0.3 * np.cos(2 * np.pi * freq * x + 0.5) + 1.2
+
+        freq_guess = guess.frequency_lorentz_fit(x, y)
+
+        self.assertAlmostEqualAbsolute(freq_guess, np.abs(freq))
+
+    @data(0.2, 0.1, -0.2, 0.08, 0.6)
+    def test_low_frequency(self, freq: float):
+        """Test for frequency guess at low frequency limit."""
+        x = np.linspace(-1, 1, 101)
+        y = 0.3 * np.cos(2 * np.pi * freq * x + 0.5)
+
+        freq_guess = guess.low_frequency_limit(x, y)
 
         self.assertAlmostEqualAbsolute(freq_guess, np.abs(freq))
 
@@ -110,24 +142,37 @@ class TestGuesses(QiskitExperimentsTestCase):
 
         self.assertAlmostEqualAbsolute(alpha_guess, alpha)
 
-    def test_exp_decay_with_invalid_y(self):
-        """Test when invalid y data is input to exp curve init guess."""
-        x = np.array([9.0e-06, 1.9e-05, 2.9e-05, 3.9e-05])
-        y = np.array([0.16455749, 0.07045296, 0.02702439, -0.00135192])
-
-        # The last point is excluded. This point might be some artifact due to filtering.
-        alpha_guess = guess.exp_decay(x, y)
-
-        np.testing.assert_almost_equal(alpha_guess, -90326, decimal=0)
-
     @data([1.2, 1.4], [-0.6, 2.5], [0.1, 2.3], [3.5, 1.1], [-4.1, 6.5], [3.0, 1.2])
     @unpack
-    def test_exp_osci_decay(self, alpha, freq):
+    def test_exp_decay_with_oscillation(self, alpha, freq):
         """Test of exponential decay guess with oscillation."""
         x = np.linspace(0, 1, 100)
         y = np.exp(alpha * x) * np.cos(2 * np.pi * freq * x)
 
-        alpha_guess = guess.oscillation_exp_decay(x, y)
+        with self.assertWarns(DeprecationWarning):
+            alpha_guess = guess.oscillation_exp_decay(x, y)
+
+        self.assertAlmostEqualAbsolute(alpha_guess, alpha)
+
+    @data(
+        [1.2, 1.4, 0.0],
+        [-0.6, 2.5, 0.2],
+        [0.1, 2.3, -0.3],
+        [3.5, 1.1, 0.5],
+        [-4.1, 6.5, 2.4],
+        [3.0, 1.2, -0.4],
+    )
+    @unpack
+    def test_exp_decay_with_oscillation_unified(self, alpha, freq, base):
+        """Test of exponential decay guess with oscillation.
+
+        Damped oscillation can be fit with exp_dacay with new implementation.
+        It is also capable of fitting a biased decay curve.
+        """
+        x = np.linspace(0, 1, 100)
+        y = np.exp(alpha * x) * np.cos(2 * np.pi * freq * x) + base
+
+        alpha_guess = guess.exp_decay(x, y)
 
         self.assertAlmostEqualAbsolute(alpha_guess, alpha)
 
@@ -206,4 +251,62 @@ class TestGuesses(QiskitExperimentsTestCase):
 
         alpha_guess = guess.rb_decay(x, y, b=b)
 
-        self.assertAlmostEqual(alpha, alpha_guess, delta=alpha * 0.1)
+        self.assertAlmostEqualAbsolute(alpha, alpha_guess)
+
+    @data(
+        [0.5, 0.0, 2.0, 0.0, 0.5],
+        [0.2, -0.1, 1.3, 0.3, 0.2],
+        [0.6, 0.0, 0.7, 1.5, -0.4],
+        [0.3, -0.9, 0.6, 2.3, 0.9],
+        [0.4, -0.1, 1.6, -0.3, -1.3],
+    )
+    @unpack
+    def test_sinusoidal_freq_offset(self, amp, alpha, freq, phase, base):
+        """Test simulataneous freq and offset guess."""
+        x = np.linspace(0, 1, 100)
+        y = amp * np.exp(alpha * x) * np.cos(2 * np.pi * freq * x + phase) + base
+
+        freq_guess, base_guess = guess.sinusoidal_freq_offset(x, y, 15)
+        self.assertAlmostEqualAbsolute(freq, freq_guess)
+        self.assertAlmostEqualAbsolute(base, base_guess)
+
+    def test_composite_sinusoidal(self):
+        """Test composite guess function of sinusoidal curve.
+
+        Because this just internally calls other guess functions depending on the situation,
+        the generated guess values are not explicitly validated.
+        """
+        x = np.linspace(0, 1, 100)
+        y = 0.1 * np.sin(2 * np.pi * 0.8 * x + 0.3) + 0.3
+
+        # test for case when all values are user-provided.
+        # this returns a single guess.
+        init_params = list(
+            guess.composite_sinusoidal_estimate(x, y, amp=0.1, freq=0.8, base=0.3, phase=0.3)
+        )
+        self.assertEqual(len(init_params), 1)
+
+        # test for case when frequency and base are not available.
+        # this generates three guesses for frequency with different delay parameters.
+        init_params = list(guess.composite_sinusoidal_estimate(x, y, amp=0.1, phase=0.3))
+        self.assertEqual(len(init_params), 3)
+
+        # test for case when base is provided.
+        # this generates a single guesses with FFT.
+        init_params = list(guess.composite_sinusoidal_estimate(x, y, amp=0.1, phase=0.3, base=0.3))
+        self.assertEqual(len(init_params), 1)
+
+        # test for case when frequency is provided and estimate period is longer than x range.
+        # this generates multiple guesses with different base.
+        init_params = list(guess.composite_sinusoidal_estimate(x, y, amp=0.1, freq=0.8, phase=0.3))
+        self.assertEqual(len(init_params), 5)
+
+        # test for case when frequency is provided and estimate period is shorter than x range.
+        # this generates a single guess for base by taking mid value.
+        init_params = list(guess.composite_sinusoidal_estimate(x, y, amp=0.1, freq=1.1, phase=0.3))
+        self.assertEqual(len(init_params), 1)
+
+        # test for case when phase is not known.
+        # this generates multiple guesses for phase.
+        init_params = list(guess.composite_sinusoidal_estimate(x, y, amp=0.1, freq=0.8, base=0.3))
+        self.assertEqual(len(init_params), 5)

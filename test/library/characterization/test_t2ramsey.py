@@ -53,7 +53,7 @@ class TestT2Ramsey(QiskitExperimentsTestCase):
             "amp": 0.5,
             "tau": estimated_t2ramsey[0],
             "freq": estimated_freq,
-            "phi": 0,
+            "phase": 0,
             "base": 0.5,
         }
 
@@ -101,26 +101,6 @@ class TestT2Ramsey(QiskitExperimentsTestCase):
         )
 
         par_exp = ParallelExperiment([exp0, exp2])
-
-        exp0_p0 = {
-            "A": 0.5,
-            "T2star": t2ramsey[0],
-            "f": estimated_freq[0],
-            "phi": 0,
-            "B": 0.5,
-        }
-
-        exp2_p0 = {
-            "A": 0.5,
-            "T2star": t2ramsey[1],
-            "f": estimated_freq[1],
-            "phi": 0,
-            "B": 0.5,
-        }
-
-        exp0.analysis.set_options(p0=exp0_p0)
-        exp2.analysis.set_options(p0=exp2_p0)
-
         expdata = par_exp.run(backend=backend, shots=2000, seed_simulator=1).block_for_results()
         self.assertExperimentDone(expdata)
 
@@ -157,14 +137,6 @@ class TestT2Ramsey(QiskitExperimentsTestCase):
         backend = NoisyDelayAerBackend(t1=[2 * estimated_t2ramsey], t2=[estimated_t2ramsey])
 
         exp0 = T2Ramsey(qubit, delays0, osc_freq=osc_freq)
-        default_p0 = {
-            "A": 0.5,
-            "T2star": estimated_t2ramsey,
-            "f": estimated_freq,
-            "phi": 0,
-            "B": 0.5,
-        }
-        exp0.analysis.set_options(p0=default_p0)
 
         # run circuits
         expdata0 = exp0.run(backend=backend, shots=1000, seed_simulator=1)
@@ -174,7 +146,6 @@ class TestT2Ramsey(QiskitExperimentsTestCase):
         # second experiment
         delays1 = list(range(2, 65, 2))
         exp1 = T2Ramsey(qubit, delays1, osc_freq=osc_freq)
-        exp1.analysis.set_options(p0=default_p0)
         expdata1 = exp1.run(backend=backend, analysis=None, shots=1000, seed_simulator=1)
         self.assertExperimentDone(expdata1)
 
