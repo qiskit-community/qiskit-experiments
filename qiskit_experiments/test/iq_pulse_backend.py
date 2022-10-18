@@ -327,7 +327,7 @@ class SingleTransmonTestBackend(IQPulseBackend):
 
         self.anharmonicity = anharmonicity
         self.rabi_rate_01 = 8.594
-        self.rabi_rate_12 = 7.032
+        self.rabi_rate_12 = 6.876
 
         if noise is True:
             evaluation_mode = "dense_vectorized"
