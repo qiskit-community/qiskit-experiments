@@ -192,6 +192,8 @@ class IQPlotter(BasePlotter):
             discriminator_max_resolution (int): The number of pixels to use for the largest edge of the
                 discriminator extent, used when sampling the discriminator to create the prediction
                 image. Defaults to 1024.
+            discriminator_alpha (float): The transparency of the discriminator prediction image. Defaults
+                to 0.2 (i.e., 20%).
             discriminator_extent (Optional[ExtentTuple]): An optional tuple defining the extent of the
                 image created by sampling from the discriminator. If ``None``, the extent tuple is
                 computed using ``discriminator_multiplier``, ``discriminator_aspect_ratio``, and the
@@ -204,6 +206,7 @@ class IQPlotter(BasePlotter):
         options.discriminator_multiplier = 1.1
         options.discriminator_aspect_ratio = 1.0
         options.discriminator_max_resolution = 1024
+        options.discriminator_alpha = 0.2
         options.discriminator_extent = None
         return options
 
@@ -218,6 +221,30 @@ class IQPlotter(BasePlotter):
 
     def _plot_figure(self):
         """Plots an IQ figure."""
+        # Plot discriminator first so that subsequent graphics change the automatic limits. This is a
+        # function of the way `imshow` works for Matplotlib, in that the limits are automatically changed
+        # to the extents of the image being plotted. If `image` is called after `scatter`, then the
+        # automatic axis limits will be set to match the extent of the image.
+        if "discriminator" in self.supplementary_data and self.options.plot_discriminator:
+            if self.options.subplots != (1, 1):
+                warnings.warn(
+                    "Plotting discriminator predictions with subplots is not well supported by "
+                    "IQPlotter as the predictions image will only be drawn on one subplot."
+                )
+            discrim, extent = self._compute_discriminator_image()
+            if discrim is None:
+                warnings.warn(
+                    "Discriminator was provided but the sampled predictions image could not be "
+                    "generated."
+                )
+            else:
+                self.drawer.image(
+                    np.flip(discrim.transpose(), axis=0),
+                    extent,
+                    name="discriminator",
+                    cmap_use_series_colors=True,
+                    alpha=self.options.discriminator_alpha,
+                )
         # Plot points and centroids
         for ser in self.series:
             has_plotted_centroid = False
@@ -244,29 +271,5 @@ class IQPlotter(BasePlotter):
                     zorder=2,
                     s=10,
                     alpha=0.2,
-                    marker="o",
-                    # edgecolor="w",
-                    # linewidth=0.2,
-                )
-
-        # Plot discriminator
-        if "discriminator" in self.supplementary_data and self.options.plot_discriminator:
-            if self.options.subplots != (1, 1):
-                warnings.warn(
-                    "Plotting discriminator predictions with subplots is not well supported by "
-                    "IQPlotter as the predictions image will only be drawn on one subplot."
-                )
-            discrim, extent = self._compute_discriminator_image()
-            if discrim is None:
-                warnings.warn(
-                    "Discriminator was provided but the sampled predictions image could not be "
-                    "generated."
-                )
-            else:
-                self.drawer.image(
-                    np.flip(discrim.transpose(), axis=0),
-                    extent,
-                    name="discriminator",
-                    cmap_use_series_colors=True,
-                    alpha=0.2,
+                    marker=".",
                 )
