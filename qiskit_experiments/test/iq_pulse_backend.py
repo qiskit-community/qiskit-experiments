@@ -81,7 +81,13 @@ class IQPulseBackend(BackendV2):
 
         self.static_hamiltonian = static_hamiltonian
         self.hamiltonian_operators = hamiltonian_operators
-        self.solver = Solver(self.static_hamiltonian, self.hamiltonian_operators, **kwargs)
+        self.static_dissipators = static_dissipators
+        self.solver = Solver(
+            static_hamiltonian=self.static_hamiltonian,
+            hamiltonian_operators=self.hamiltonian_operators,
+            static_dissipators=self.static_dissipators,
+            **kwargs,
+        )
         self._target = Target(dt=dt, granularity=16)
 
         self.model_dim = self.solver.model.dim
