@@ -16,6 +16,7 @@ Mock drawer for testing.
 from typing import Any, Optional, Sequence, Tuple, Union
 
 from qiskit_experiments.visualization import BaseDrawer, PlotStyle
+from qiskit_experiments.visualization.utils import ExtentTuple
 
 
 class MockDrawer(BaseDrawer):
@@ -112,7 +113,7 @@ class MockDrawer(BaseDrawer):
     def image(
         self,
         data: "numpy.ndarray",
-        extent: Tuple[float, float, float, float],
+        extent: Optional[ExtentTuple] = None,
         name: Optional[str] = None,
         label: Optional[str] = None,
         cmap: Optional[Union[str, Any]] = None,

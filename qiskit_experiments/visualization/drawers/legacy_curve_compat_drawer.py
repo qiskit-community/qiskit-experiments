@@ -20,6 +20,7 @@ import numpy as np
 from qiskit_experiments.curve_analysis.visualization import BaseCurveDrawer
 from qiskit_experiments.warnings import deprecated_class
 
+from ..utils import ExtentTuple
 from .base_drawer import BaseDrawer
 
 
@@ -172,7 +173,7 @@ class LegacyCurveCompatDrawer(BaseDrawer):
     def image(
         self,
         data: np.ndarray,
-        extent: Tuple[float, float, float, float],
+        extent: Optional[ExtentTuple] = None,
         name: Optional[str] = None,
         label: Optional[str] = None,
         cmap: Optional[Union[str, Any]] = None,
