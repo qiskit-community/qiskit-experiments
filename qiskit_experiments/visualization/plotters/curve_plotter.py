@@ -60,10 +60,18 @@ class CurvePlotter(BasePlotter):
     def expected_supplementary_data_keys(cls) -> List[str]:
         """Returns the expected figures data-keys supported by this plotter.
 
+        This plotter generates a single text box, i.e. fit report, by digesting the
+        provided supplementary data. The style and position of the report is controlled by
+        ``textbox_rel_pos`` and ``textbox_text_size`` style parameters in :class:`PlotStyle`.
+
         Data Keys:
-            report_text: A string containing any fit report information to be drawn in a box.
-                The style and position of the report is controlled by ``textbox_rel_pos`` and
-                ``textbox_text_size`` style parameters in :class:`PlotStyle`.
+            primary_results: A list of :class:`.AnalysisResultData` object to be shown in
+                the fit report window. Typically, these are fit parameter values or
+                secondary quantities computed from multiple fit parameters.
+            fit_red_chi: The best reduced-chi squared value of the fit curves. If
+                the fit consists of multiple sub-fits, this will be a dictionary
+                keyed on the analysis name. Otherwise, this is a single float value
+                of a particular analysis.
         """
         return [
             "primary_results",
