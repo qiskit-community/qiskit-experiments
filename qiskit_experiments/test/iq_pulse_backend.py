@@ -21,6 +21,7 @@ import numpy as np
 from qiskit import QuantumCircuit
 from qiskit.circuit import CircuitInstruction
 from qiskit.circuit.measure import Measure
+from qiskit.circuit.library.standard_gates import XGate, SXGate, RZGate
 from qiskit.providers import BackendV2, QubitProperties
 from qiskit.providers.models import PulseDefaults
 from qiskit.providers.models.pulsedefaults import Command
@@ -401,10 +402,20 @@ class SingleTransmonTestBackend(IQPulseBackend):
             dt=self.dt,
             granularity=16,
         )
+
         measure_props = {
             (0,): InstructionProperties(duration=0, error=0),
         }
+        x_props = {
+            (0,): InstructionProperties(duration=160e-10, error=0),
+        }
+        sx_props = {
+            (0,): InstructionProperties(duration=160e-10, error=0),
+        }
         self._target.add_instruction(Measure(), measure_props)
+        self._target.add_instruction(XGate(), x_props)
+        self._target.add_instruction(SXGate(), sx_props)
+
         self.converter = InstructionToSignals(self.dt, carriers={"d0": qubit_frequency})
 
         # TODO RZ gate
