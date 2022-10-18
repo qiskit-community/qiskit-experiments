@@ -25,6 +25,7 @@
 #
 import os
 import sys
+import subprocess
 
 sys.path.insert(0, os.path.abspath("."))
 sys.path.append(os.path.abspath("./_ext"))
@@ -193,3 +194,53 @@ intersphinx_mapping = {
 # Current scipy hosted docs are missing the object.inv file so leaving this
 # commented out until the missing file is added back.
 #                       'scipy': ('https://docs.scipy.org/doc/scipy/reference/', None)}
+
+# Prepend warning for development docs:
+
+if not os.getenv("EXPERIMENTS_DEV_DOCS", None):
+    rst_prolog = """
+.. raw:: html
+    <br><br><br>
+""".format(
+        release
+    )
+else:
+    rst_prolog = """
+.. raw:: html
+    <br><br><br>
+.. note::
+    This is the documnetation for the current state of the development branch
+    of Qiskit Experiments. The documentation or APIs here can change prior to being
+    released.
+"""
+
+
+def _get_versions(app, config):
+    context = config.html_context
+    start_version = (0, 1, 0)
+    proc = subprocess.run(["git", "describe", "--abbrev=0"], capture_output=True)
+    proc.check_returncode()
+    current_version = proc.stdout.decode("utf8")
+    current_version_info = current_version.split(".")
+    if current_version_info[0] == "0":
+        version_list = [
+            "0.%s" % x for x in range(start_version[1], int(current_version_info[1]) + 1)
+        ]
+    else:
+        # TODO: When 1.0.0 add code to handle 0.x version list
+        version_list = []
+        pass
+    context["version_list"] = version_list
+    context["version_label"] = _get_version_label(current_version)
+
+
+def _get_version_label(current_version):
+    if not os.getenv("EXPERIMENTS_DEV_DOCS", None):
+        current_version_info = current_version.split(".")
+        return ".".join(current_version_info[:-1])
+    else:
+        return "Development"
+
+
+def setup(app):
+    app.connect("config-inited", _get_versions)
