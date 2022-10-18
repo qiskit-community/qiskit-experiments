@@ -1,0 +1,272 @@
+# This code is part of Qiskit.
+#
+# (C) Copyright IBM 2022.
+#
+# This code is licensed under the Apache License, Version 2.0. You may
+# obtain a copy of this license in the LICENSE.txt file in the root directory
+# of this source tree or at http://www.apache.org/licenses/LICENSE-2.0.
+#
+# Any modifications or derivative works of this code must retain this
+# copyright notice, and modified files need to carry a notice indicating
+# that they have been altered from the originals.
+"""Plotter for IQ data."""
+import warnings
+from itertools import product
+from typing import List, Optional, Tuple
+
+import numpy as np
+
+from qiskit_experiments.data_processing.discriminator import BaseDiscriminator
+from qiskit_experiments.framework import Options
+
+from ..utils import DataExtentCalculator, ExtentTuple
+from .base_plotter import BasePlotter
+
+
+class IQPlotter(BasePlotter):
+    """A plotter class to plot IQ data.
+
+    :class:`IQPlotter` plots results from experiments which used measurement-level 1, i.e. IQ data. This
+    class also supports plotting predictions from a discriminator (subclass of
+    :class:`BaseDiscriminator`), which is used to classify IQ results into measurement labels. The
+    canonical application of :class:`IQPlotter` is for classification of single-qubit readout for
+    different prepared states.
+
+    Example:
+        .. code-block:: python
+
+            # Create plotter
+            plotter = IQPlotter(MplDrawer())
+
+            # Iterate over results, one per prepared state. Add points and centroid to plotter and set
+            # label for prepared states as |n> where n is the prepared-state number.
+            series_params = {}
+            for res in results:
+                # Get IQ points from result memory.
+                points = res.memory
+
+                # Compute centroid as mean of all points.
+                centroid = np.mean(points, axis=1)
+
+                # Get ``prep``, which is part of the result metadata.
+                prep = res.prep
+
+                # Create label as a ket instead of just a state number (i.e., prep).
+                series_params[prep] = {
+                    "label":f"|{prep}>",
+                }
+
+                plotter.set_series_data(prep, points=points, centroid=centroid)
+            plotter.set_figure_options(series_params=series_params)
+            ...
+            # Optional: Add trained discriminator.
+            discrim = MyIQDiscriminator()
+            discrim.fit(train_data,train_labels)
+            plotter.set_supplementary_data(discriminator=discrim)
+            ...
+            # Plot figure.
+            fig = plotter.figure()
+    """
+
+    @classmethod
+    def expected_series_data_keys(cls) -> List[str]:
+        """Returns the expected series data-keys supported by this plotter.
+
+        Data Keys:
+            points: Single-shot IQ data.
+            centroid: Averaged IQ data.
+        """
+        return [
+            "points",
+            "centroid",
+        ]
+
+    @classmethod
+    def expected_supplementary_data_keys(cls) -> List[str]:
+        """Returns the expected figures data-keys supported by this plotter.
+
+        Data Keys:
+            discriminator: A trained discriminator used to classify IQ points. Must be a subclass of
+                :class:`BaseDiscriminator`.
+        """
+        return [
+            "discriminator",
+        ]
+
+    def _compute_extent(self) -> Optional[ExtentTuple]:
+        """Computes the extent tuple of the data being plotted.
+
+        Returns:
+            Optional[tuple]: The tuple ``(x_min, x_max, y_min, y_max)``, defining a rectangle containing
+                all the data for this plotter. If the plotter contains no data, ``None`` is returned
+                instead.
+        """
+        ext_calc = DataExtentCalculator(
+            multiplier=self.options.discriminator_multiplier,
+            aspect_ratio=self.options.discriminator_aspect_ratio,
+        )
+        has_registered_data = False
+        for series in self.series:
+            if self.data_exists_for(series, "points"):
+                (points,) = self.data_for(series, "points")
+                ext_calc.register_data(points)
+                has_registered_data = True
+            if self.data_exists_for(series, "centroids"):
+                (centroid,) = self.data_for(series, "centroid")
+                ext_calc.register_data(centroid)
+                has_registered_data = True
+        if self.figure_options.xlim:
+            ext_calc.register_data(self.figure_options.xlim, dim=0)
+            has_registered_data = True
+        if self.figure_options.ylim:
+            ext_calc.register_data(self.figure_options.ylim, dim=1)
+            has_registered_data = True
+        if has_registered_data:
+            return ext_calc.extent()
+        else:
+            return None
+
+    def _compute_discriminator_image(
+        self,
+    ) -> Tuple[Optional[np.ndarray], Optional[ExtentTuple]]:
+        """Compute the array/image sampled from the discriminator predictions.
+
+        Returns:
+            tuple: The tuple ``(img, extent)`` where ``img`` is an optional 2D NumPy array of
+                predictions and ``extent`` is a tuple of the extent ``(x_min, x_max, y_min, y_max)`` of
+                the image.
+        """
+        # If the discriminator is not provided, cannot compute the image.
+        if "discriminator" not in self.supplementary_data:
+            return None, None
+
+        if self.options.discriminator_extent:
+            extent = self.options.discriminator_extent
+        else:
+            extent = self._compute_extent()
+        # If ``extent`` is None, we don't have data to plot and thus cannot generate the
+        # discriminator image.
+        if extent is None:
+            return None, None
+
+        # Compute discriminator resolution.
+        extent_range = np.diff(np.asarray(extent).reshape(2, 2), axis=1).flatten()
+        resolution = (
+            (extent_range / np.max(extent_range)) * self.options.discriminator_max_resolution
+        ).astype(int)
+
+        # Create coordinates for each pixel in the image, in the same units as `extent`.
+        coords = [
+            [x, y]
+            for x, y in product(
+                np.linspace(extent[0], extent[1], resolution[0]),
+                np.linspace(extent[2], extent[3], resolution[1]),
+            )
+        ]
+
+        # Get predictions for coordinates from the discriminator, if the discriminator is trained.
+        discrim: BaseDiscriminator = self.supplementary_data["discriminator"]
+        if not discrim.is_trained():
+            return None, None
+        predictions = discrim.predict(coords)
+
+        # Unwrap predictions into a 2D array
+        predictions = np.reshape(predictions, tuple(resolution))
+
+        return predictions, extent
+
+    @classmethod
+    def _default_options(cls) -> Options:
+        """Return iq-plotter specific default plotter options.
+
+        Options:
+            plot_discriminator (bool): Whether to plot an image showing the predictions of the
+                ``discriminator`` entry in :attr:`supplementary_data``. If True, the "discriminator"
+                supplementary data entry must be set.
+            discriminator_multiplier (float): The multiplier to use when computing the extent of
+                the discriminator plot. The range of the series data is taken as the base value and
+                multiplied by ``discriminator_extent_multiplier`` to compute the extent of the
+                discriminator predictions. Defaults to 1.1.
+            discriminator_aspect_ratio (float): The aspect ratio of the extent of the discriminator
+                predictions, being ``width/height``. Defaults to ``1`` for a square region.
+            discriminator_max_resolution (int): The number of pixels to use for the largest edge of the
+                discriminator extent, used when sampling the discriminator to create the prediction
+                image. Defaults to 1024.
+            discriminator_extent (Optional[ExtentTuple]): An optional tuple defining the extent of the
+                image created by sampling from the discriminator. If ``None``, the extent tuple is
+                computed using ``discriminator_multiplier``, ``discriminator_aspect_ratio``, and the
+                series-data ``points`` and ``centroids``. Defaults to ``None``.
+
+        """
+        options = super()._default_options()
+        # Discriminator options
+        options.plot_discriminator = True
+        options.discriminator_multiplier = 1.1
+        options.discriminator_aspect_ratio = 1.0
+        options.discriminator_max_resolution = 1024
+        options.discriminator_extent = None
+        return options
+
+    @classmethod
+    def _default_figure_options(cls) -> Options:
+        fig_opts = super()._default_figure_options()
+        fig_opts.xlabel = "In-Phase"
+        fig_opts.ylabel = "Quadrature"
+        fig_opts.xval_unit = "arb."
+        fig_opts.yval_unit = "arb."
+        return fig_opts
+
+    def _plot_figure(self):
+        """Plots an IQ figure."""
+        # Plot points and centroids
+        for ser in self.series:
+            has_plotted_centroid = False
+            if self.data_exists_for(ser, "centroid"):
+                (centroid,) = self.data_for(ser, "centroid")
+                self.drawer.scatter(
+                    centroid[0],
+                    centroid[1],
+                    name=ser,
+                    legend=True,
+                    zorder=3,
+                    s=20,
+                    edgecolor="k",
+                    marker="o",
+                )
+                has_plotted_centroid = True
+            if self.data_exists_for(ser, "points"):
+                (points,) = self.data_for(ser, "points")
+                self.drawer.scatter(
+                    points[:, 0],
+                    points[:, 1],
+                    name=ser,
+                    legend=not has_plotted_centroid,
+                    zorder=2,
+                    s=10,
+                    alpha=0.2,
+                    marker="o",
+                    # edgecolor="w",
+                    # linewidth=0.2,
+                )
+
+        # Plot discriminator
+        if "discriminator" in self.supplementary_data and self.options.plot_discriminator:
+            if self.options.subplots != (1, 1):
+                warnings.warn(
+                    "Plotting discriminator predictions with subplots is not well supported by "
+                    "IQPlotter as the predictions image will only be drawn on one subplot."
+                )
+            discrim, extent = self._compute_discriminator_image()
+            if discrim is None:
+                warnings.warn(
+                    "Discriminator was provided but the sampled predictions image could not be "
+                    "generated."
+                )
+            else:
+                self.drawer.image(
+                    np.flip(discrim.transpose(), axis=0),
+                    extent,
+                    name="discriminator",
+                    cmap_use_series_colors=True,
+                    alpha=0.2,
+                )
