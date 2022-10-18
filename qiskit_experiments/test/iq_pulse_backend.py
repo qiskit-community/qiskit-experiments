@@ -415,9 +415,13 @@ class SingleTransmonTestBackend(IQPulseBackend):
         sx_props = {
             (0,): InstructionProperties(duration=160e-10, error=0),
         }
+        rz_props = {
+            (0,): InstructionProperties(duration=0., error=0),
+        }
         self._target.add_instruction(Measure(), measure_props)
         self._target.add_instruction(XGate(), x_props)
         self._target.add_instruction(SXGate(), sx_props)
+        self._target.add_instruction(RZGate(), rz_props)
 
         self.converter = InstructionToSignals(self.dt, carriers={"d0": qubit_frequency})
 
