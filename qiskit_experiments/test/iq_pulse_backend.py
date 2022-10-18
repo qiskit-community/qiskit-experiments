@@ -324,7 +324,10 @@ class SingleTransmonTestBackend(IQPulseBackend):
         ]
         r_frame = 2 * np.pi * qubit_frequency * (p1 + 2 * p2)
         t1_dissipator = np.sqrt(gamma_1) * sigma_m1
-        self.rabi_rate = 8.594
+
+        self.anharmonicity = anharmonicity
+        self.rabi_rate_01 = 8.594
+        self.rabi_rate_12 = 7.032
 
         if noise is True:
             evaluation_mode = "dense_vectorized"
@@ -364,7 +367,7 @@ class SingleTransmonTestBackend(IQPulseBackend):
                                     label="Xp_d0",
                                     pulse_shape="drag",
                                     parameters={
-                                        "amp": (0.5 + 0j) / self.rabi_rate,
+                                        "amp": (0.5 + 0j) / self.rabi_rate_01,
                                         "beta": 5,
                                         "duration": 160,
                                         "sigma": 40,
@@ -385,7 +388,7 @@ class SingleTransmonTestBackend(IQPulseBackend):
                                     label="X90p_d0",
                                     pulse_shape="drag",
                                     parameters={
-                                        "amp": (0.25 + 0j) / self.rabi_rate,
+                                        "amp": (0.25 + 0j) / self.rabi_rate_01,
                                         "beta": 5,
                                         "duration": 160,
                                         "sigma": 40,

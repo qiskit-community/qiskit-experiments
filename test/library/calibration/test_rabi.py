@@ -64,7 +64,7 @@ class TestRabiEndToEnd(QiskitExperimentsTestCase):
 
         self.assertEqual(result.quality, "good")
         # The comparison is made against the object that exists in the backend for accurate testing
-        self.assertAlmostEqual(result.value.params["freq"], backend.rabi_rate, delta=test_tol)
+        self.assertAlmostEqual(result.value.params["freq"], backend.rabi_rate_01, delta=test_tol)
 
     def test_wrong_processor(self):
         """Test that we can override the data processing by giving a faulty data processor."""
@@ -103,9 +103,10 @@ class TestEFRabi(QiskitExperimentsTestCase):
         super().setUp()
 
         self.qubit = 0
-
+        self.backend = SingleTransmonTestBackend(noise=False)
+        self.anharmonicity = self.backend.anharmonicity
         with pulse.build(name="x") as sched:
-            with pulse.frequency_offset(-300e6, pulse.DriveChannel(self.qubit)):
+            with pulse.frequency_offset(self.anharmonicity, pulse.DriveChannel(self.qubit)):
                 pulse.play(
                     pulse.Drag(160, Parameter("amp"), 40, 0.4), pulse.DriveChannel(self.qubit)
                 )
@@ -117,22 +118,22 @@ class TestEFRabi(QiskitExperimentsTestCase):
         """Test the EFRabi experiment end to end."""
 
         test_tol = 0.01
-        backend = MockIQBackend(RabiHelper())
+        backend = self.backend
 
         # Note that the backend is not sophisticated enough to simulate an e-f
         # transition so we run the test with a tiny frequency shift, still driving the e-g transition.
         rabi = EFRabi(self.qubit, self.sched)
-        rabi.set_experiment_options(amplitudes=np.linspace(-0.95, 0.95, 21))
+        rabi.set_experiment_options(amplitudes=np.linspace(-0.1, 0.1, 31))
         expdata = rabi.run(backend)
         self.assertExperimentDone(expdata)
         result = expdata.analysis_results(1)
 
         self.assertEqual(result.quality, "good")
-        self.assertTrue(abs(result.value.n - backend.experiment_helper.rabi_rate()) < test_tol)
+        self.assertTrue(abs(result.value.n - backend.rabi_rate_12) < test_tol)
 
     def test_ef_rabi_circuit(self):
         """Test the EFRabi experiment end to end."""
-        anharm = -330e6
+        anharm = self.anharmonicity
 
         with pulse.build() as sched:
             pulse.shift_frequency(anharm, pulse.DriveChannel(2))
