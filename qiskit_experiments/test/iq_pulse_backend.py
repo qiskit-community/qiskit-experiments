@@ -13,15 +13,16 @@
 """A Pulse simulation backend based on Qiskit-Dynamics"""
 import copy
 import datetime
-from typing import Dict, List, Optional, Tuple, Union
 from itertools import chain
+from typing import Dict, List, Optional, Tuple, Union
 
 import numpy as np
 
 from qiskit import QuantumCircuit
 from qiskit.circuit import CircuitInstruction
+from qiskit.circuit.library.standard_gates import RZGate, SXGate, XGate
 from qiskit.circuit.measure import Measure
-from qiskit.circuit.library.standard_gates import XGate, SXGate, RZGate
+from qiskit.circuit.parameter import Parameter
 from qiskit.providers import BackendV2, QubitProperties
 from qiskit.providers.models import PulseDefaults
 from qiskit.providers.models.pulsedefaults import Command
@@ -30,7 +31,7 @@ from qiskit.pulse import Schedule, ScheduleBlock
 from qiskit.pulse.transforms import block_to_schedule
 from qiskit.qobj.pulse_qobj import PulseQobjInstruction
 from qiskit.qobj.utils import MeasLevel, MeasReturnType
-from qiskit.quantum_info.states import Statevector, DensityMatrix
+from qiskit.quantum_info.states import DensityMatrix, Statevector
 from qiskit.result import Result
 from qiskit.transpiler import InstructionProperties, Target
 
@@ -39,6 +40,7 @@ from qiskit_dynamics.pulse import InstructionToSignals
 
 from qiskit_experiments.exceptions import QiskitError
 from qiskit_experiments.test.utils import FakeJob
+
 
 # TODO: add switch to combine |2> shots into |1> for meas_level=2
 class IQPulseBackend(BackendV2):
@@ -416,12 +418,13 @@ class SingleTransmonTestBackend(IQPulseBackend):
             (0,): InstructionProperties(duration=160e-10, error=0),
         }
         rz_props = {
-            (0,): InstructionProperties(duration=0., error=0),
+            (0,): InstructionProperties(duration=0.0, error=0),
         }
+        self._phi = Parameter("phi")
         self._target.add_instruction(Measure(), measure_props)
         self._target.add_instruction(XGate(), x_props)
         self._target.add_instruction(SXGate(), sx_props)
-        self._target.add_instruction(RZGate(), rz_props)
+        self._target.add_instruction(RZGate(self._phi), rz_props)
 
         self.converter = InstructionToSignals(self.dt, carriers={"d0": qubit_frequency})
 

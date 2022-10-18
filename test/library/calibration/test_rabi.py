@@ -29,8 +29,6 @@ from qiskit_experiments.curve_analysis.standard_analysis.oscillation import Osci
 from qiskit_experiments.data_processing.data_processor import DataProcessor
 from qiskit_experiments.data_processing.nodes import Probability
 from qiskit_experiments.test.iq_pulse_backend import SingleTransmonTestBackend
-from qiskit_experiments.test.mock_iq_backend import MockIQBackend
-from qiskit_experiments.test.mock_iq_helpers import MockIQRabiHelper as RabiHelper
 from qiskit_experiments.framework.experiment_data import ExperimentStatus
 
 
@@ -183,7 +181,6 @@ class TestRabiCircuits(QiskitExperimentsTestCase):
         """Test the default schedule."""
         rabi = Rabi(2, self.sched)
         rabi.set_experiment_options(amplitudes=[0.5])
-        rabi.backend = MockIQBackend(RabiHelper())
         circs = rabi.circuits()
 
         with pulse.build() as expected:
@@ -202,7 +199,6 @@ class TestRabiCircuits(QiskitExperimentsTestCase):
 
         rabi = Rabi(2, self.sched)
         rabi.set_experiment_options(schedule=my_schedule, amplitudes=[0.5])
-        rabi.backend = MockIQBackend(RabiHelper())
         circs = rabi.circuits()
 
         assigned_sched = my_schedule.assign_parameters({amp: 0.5}, inplace=False)
