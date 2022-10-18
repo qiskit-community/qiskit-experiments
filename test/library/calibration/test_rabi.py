@@ -28,6 +28,7 @@ from qiskit_experiments.library import Rabi, EFRabi
 from qiskit_experiments.curve_analysis.standard_analysis.oscillation import OscillationAnalysis
 from qiskit_experiments.data_processing.data_processor import DataProcessor
 from qiskit_experiments.data_processing.nodes import Probability
+from qiskit_experiments.test.iq_pulse_backend import SingleTransmonTestBackend
 from qiskit_experiments.test.mock_iq_backend import MockIQBackend
 from qiskit_experiments.test.mock_iq_helpers import MockIQRabiHelper as RabiHelper
 from qiskit_experiments.framework.experiment_data import ExperimentStatus
@@ -40,59 +41,34 @@ class TestRabiEndToEnd(QiskitExperimentsTestCase):
         """Setup the tests."""
         super().setUp()
 
-        self.qubit = 1
+        self.qubit = 0
 
         with pulse.build(name="x") as sched:
             pulse.play(pulse.Drag(160, Parameter("amp"), 40, 0.4), pulse.DriveChannel(self.qubit))
 
         self.sched = sched
+        self.backend = SingleTransmonTestBackend(noise=False)
 
     # pylint: disable=no-member
     def test_rabi_end_to_end(self):
         """Test the Rabi experiment end to end."""
 
-        test_tol = 0.01
-        rabi_experiment_helper = RabiHelper()
-        backend = MockIQBackend(rabi_experiment_helper)
+        test_tol = 0.02
+        backend = self.backend
 
         rabi = Rabi(self.qubit, self.sched)
-        rabi.set_experiment_options(amplitudes=np.linspace(-0.95, 0.95, 21))
+        rabi.set_experiment_options(amplitudes=np.linspace(-0.1, 0.1, 31))
         expdata = rabi.run(backend)
         self.assertExperimentDone(expdata)
         result = expdata.analysis_results(0)
 
         self.assertEqual(result.quality, "good")
         # The comparison is made against the object that exists in the backend for accurate testing
-        self.assertAlmostEqual(
-            result.value.params["freq"], backend.experiment_helper.rabi_rate(), delta=test_tol
-        )
-
-        # updating 'amplitude_to_angle' parameter in the experiment helper
-        rabi_experiment_helper.amplitude_to_angle = np.pi / 2
-
-        expdata = rabi.run(backend)
-        self.assertExperimentDone(expdata)
-        result = expdata.analysis_results(0)
-        self.assertEqual(result.quality, "good")
-        self.assertAlmostEqual(
-            result.value.params["freq"], backend.experiment_helper.rabi_rate(), delta=test_tol
-        )
-
-        # updating 'amplitude_to_angle' parameter in the experiment helper and experiment options
-        rabi_experiment_helper.amplitude_to_angle = 2.5 * np.pi
-        rabi.set_experiment_options(amplitudes=np.linspace(-0.95, 0.95, 101))
-
-        expdata = rabi.run(backend)
-        self.assertExperimentDone(expdata)
-        result = expdata.analysis_results(0)
-        self.assertEqual(result.quality, "good")
-        self.assertAlmostEqual(
-            result.value.params["freq"], backend.experiment_helper.rabi_rate(), delta=test_tol
-        )
+        self.assertAlmostEqual(result.value.params["freq"], backend.rabi_rate, delta=test_tol)
 
     def test_wrong_processor(self):
         """Test that we can override the data processing by giving a faulty data processor."""
-        backend = MockIQBackend(RabiHelper())
+        backend = self.backend
         rabi = Rabi(self.qubit, self.sched)
         fail_key = "fail_key"
 
@@ -107,7 +83,7 @@ class TestRabiEndToEnd(QiskitExperimentsTestCase):
 
     def test_experiment_config(self):
         """Test converting to and from config works"""
-        exp = Rabi(0, self.sched)
+        exp = Rabi(self.qubit, self.sched)
         loaded_exp = Rabi.from_config(exp.config())
         self.assertNotEqual(exp, loaded_exp)
         self.assertTrue(self.json_equiv(exp, loaded_exp))
@@ -115,7 +91,7 @@ class TestRabiEndToEnd(QiskitExperimentsTestCase):
     @unittest.skip("Schedules are not yet JSON serializable")
     def test_roundtrip_serializable(self):
         """Test round trip JSON serialization"""
-        exp = Rabi(0, self.sched)
+        exp = Rabi(self.qubit, self.sched)
         self.assertRoundTripSerializable(exp, self.json_equiv)
 
 
