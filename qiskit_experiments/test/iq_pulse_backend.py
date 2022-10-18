@@ -47,6 +47,7 @@ class IQPulseBackend(BackendV2):
         self,
         static_hamiltonian: np.ndarray,
         hamiltonian_operators: np.ndarray,
+        static_dissipators: Optional[np.ndarray] = None,
         dt: float = 0.1 * 1e-9,
         solver_method="RK23",
         **kwargs,
@@ -71,7 +72,8 @@ class IQPulseBackend(BackendV2):
         self._rng = np.random.default_rng(0)
         self.converter = None
         self.logical_levels = None
-        self.noise = "static_dissipators" in kwargs
+        self.noise = static_dissipators is not None
+
         self.solver_method = solver_method
 
         self.static_hamiltonian = static_hamiltonian
@@ -148,7 +150,7 @@ class IQPulseBackend(BackendV2):
         Tuple[List,List]
             (I,Q) data
         """
-        counts_n = np.random.multinomial(shots, probability/sum(probability), size=1).T
+        counts_n = np.random.multinomial(shots, probability / sum(probability), size=1).T
 
         full_i = []
         full_q = []
@@ -284,6 +286,7 @@ class SingleTransmonTestBackend(IQPulseBackend):
         lambda_1: float = 1e9,
         lambda_2: float = 0.8e9,
         gamma_1: float = 1e4,
+        noise: bool = True,
         **kwargs,
     ):
         """Initialise backend with hamiltonian parameters
@@ -321,13 +324,19 @@ class SingleTransmonTestBackend(IQPulseBackend):
         ]
         r_frame = 2 * np.pi * qubit_frequency * (p1 + 2 * p2)
         t1_dissipator = np.sqrt(gamma_1) * sigma_m1
+        self.rabi_rate = 8.594
 
-        evaluation_mode = "dense_vectorized"
+        if noise is True:
+            evaluation_mode = "dense_vectorized"
+            static_dissipators = [t1_dissipator]
+        else:
+            evaluation_mode = "dense"
+            static_dissipators = None
 
         super().__init__(
             static_hamiltonian=drift,
             hamiltonian_operators=control,
-            static_dissipators=[t1_dissipator],
+            static_dissipators=static_dissipators,
             rotating_frame=r_frame,
             rwa_cutoff_freq=1.9 * qubit_frequency,
             rwa_carrier_freqs=[qubit_frequency],
@@ -355,7 +364,7 @@ class SingleTransmonTestBackend(IQPulseBackend):
                                     label="Xp_d0",
                                     pulse_shape="drag",
                                     parameters={
-                                        "amp": (0.1 + 0j),
+                                        "amp": (0.5 + 0j) / self.rabi_rate,
                                         "beta": 5,
                                         "duration": 160,
                                         "sigma": 40,
@@ -376,7 +385,7 @@ class SingleTransmonTestBackend(IQPulseBackend):
                                     label="X90p_d0",
                                     pulse_shape="drag",
                                     parameters={
-                                        "amp": (0.1 + 0j) / 2,
+                                        "amp": (0.25 + 0j) / self.rabi_rate,
                                         "beta": 5,
                                         "duration": 160,
                                         "sigma": 40,
