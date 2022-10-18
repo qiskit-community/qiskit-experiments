@@ -275,7 +275,6 @@ class IQPulseBackend(BackendV2):
         return FakeJob(self, Result.from_dict(result))
 
 
-# TODO: add switch to turn off noise
 class SingleTransmonTestBackend(IQPulseBackend):
     """Three level anharmonic transmon qubit"""
 
