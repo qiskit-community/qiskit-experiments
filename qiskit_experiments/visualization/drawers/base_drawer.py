@@ -13,7 +13,9 @@
 """Drawer abstract class."""
 
 from abc import ABC, abstractmethod
-from typing import Dict, Optional, Sequence, Tuple
+from typing import Any, Dict, Optional, Sequence, Tuple, Union
+
+import numpy as np
 
 from qiskit_experiments.framework import Options
 
@@ -420,6 +422,48 @@ class BaseDrawer(ABC):
             description: A string to be drawn inside a report box.
             rel_pos: Relative position of the text-box. If None, the default ``textbox_rel_pos`` from
                 the style is used.
+            options: Valid options for the drawer backend API.
+        """
+
+    @abstractmethod
+    def image(
+        self,
+        data: np.ndarray,
+        extent: Tuple[float, float, float, float],
+        name: Optional[str] = None,
+        label: Optional[str] = None,
+        cmap: Optional[Union[str, Any]] = None,
+        cmap_use_series_colors: bool = False,
+        colorbar: bool = False,
+        **options,
+    ):
+        """Draw scatter points, with optional error-bars.
+
+        Args:
+            data: The two-/three-dimensional data defining an image. If ``data.dims==2``, then the pixel
+                colors are determined by ``cmap`` and ``cmap_use_series_colors``. If ``data.dims==3``,
+                then it is assumed that ``data`` contains either RGB or RGBA data; which requires the
+                third dimension to have length ``3`` or ``4`` respectively. For RGB/A data, the elements
+                of ``data`` must be floats or integers in the range 0-1 and 0-255 respectively. If the
+                data is two-dimensional, there is no limit on the range of the values if they are
+                numerical. ``data`` contain strings, where the element values are series names. This is
+                useful when the image contains classification information. Series-names as values
+                requires setting ``cmap_use_series_colors=True``.
+            extent: A tuple ``(x_min, x_max, y_min, y_max)`` which defines a rectangular region within
+                which the values inside ``data`` should be plotted. The units of ``extent`` are the same
+                as those of the X and Y axes for the axis.
+            name: Name of this image. Used to lookup ``canvas`` and ``label`` in ``series_params``.
+            label: An optional label for the colorbar, if ``colorbar=True``.
+            cmap: Optional colormap for assigning colors to the image values, if ``data`` is not an RGB/A
+                image. ``cmap`` must be a string or object instance which is recognized by the drawer.
+                Defaults to None.
+            cmap_use_series_colors: Whether to assign colors to the image based on the series colors,
+                where the values inside ``data`` are series names. If
+                ``cmap_use_series_colors=True``,``cmap`` is ignored. This only works for two-dimensional
+                images as three-dimensional ``data`` contains RGB/A values. If ``len(data.shape)=3``,
+                ``cmap_use_series_colours`` is ignored. Defaults to False.
+            colorbar: Whether to add a bar showing the color-value mapping for the image. Defaults to
+                False.
             options: Valid options for the drawer backend API.
         """
 

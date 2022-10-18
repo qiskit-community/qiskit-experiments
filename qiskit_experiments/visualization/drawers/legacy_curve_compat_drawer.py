@@ -13,7 +13,9 @@
 """Compatibility wrapper for legacy BaseCurveDrawer."""
 
 import warnings
-from typing import Optional, Sequence, Tuple
+from typing import Any, Optional, Sequence, Tuple, Union
+
+import numpy as np
 
 from qiskit_experiments.curve_analysis.visualization import BaseCurveDrawer
 from qiskit_experiments.warnings import deprecated_class
@@ -165,6 +167,20 @@ class LegacyCurveCompatDrawer(BaseDrawer):
         """
 
         self._curve_drawer.draw_fit_report(description, **options)
+
+    # pylint: disable=unused-argument
+    def image(
+        self,
+        data: np.ndarray,
+        extent: Tuple[float, float, float, float],
+        name: Optional[str] = None,
+        label: Optional[str] = None,
+        cmap: Optional[Union[str, Any]] = None,
+        cmap_use_series_colors: bool = False,
+        colorbar: bool = False,
+        **options,
+    ):
+        warnings.warn(f"{self.__class__.__name__}.image is not supported.")
 
     @property
     def figure(self):

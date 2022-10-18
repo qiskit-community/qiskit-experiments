@@ -13,7 +13,7 @@
 Mock drawer for testing.
 """
 
-from typing import Optional, Sequence, Tuple
+from typing import Any, Optional, Sequence, Tuple, Union
 
 from qiskit_experiments.visualization import BaseDrawer, PlotStyle
 
@@ -104,6 +104,20 @@ class MockDrawer(BaseDrawer):
         self,
         description: str,
         rel_pos: Optional[Tuple[float, float]] = None,
+        **options,
+    ):
+        """Does nothing."""
+        pass
+
+    def image(
+        self,
+        data: "numpy.ndarray",
+        extent: Tuple[float, float, float, float],
+        name: Optional[str] = None,
+        label: Optional[str] = None,
+        cmap: Optional[Union[str, Any]] = None,
+        cmap_use_series_colors: bool = False,
+        colorbar: bool = False,
         **options,
     ):
         """Does nothing."""

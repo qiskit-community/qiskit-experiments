@@ -12,14 +12,16 @@
 
 """Curve drawer for matplotlib backend."""
 
-from typing import Any, Dict, Optional, Sequence, Tuple
+from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
 
 import numpy as np
 from matplotlib.axes import Axes
 from matplotlib.cm import tab10
+from matplotlib.colors import Colormap, LinearSegmentedColormap
 from matplotlib.figure import Figure
 from matplotlib.markers import MarkerStyle
 from matplotlib.ticker import Formatter, ScalarFormatter
+from qiskit.exceptions import QiskitError
 from qiskit.utils import detach_prefix
 
 from qiskit_experiments.framework.matplotlib import get_non_gui_ax
@@ -453,6 +455,75 @@ class MplDrawer(BaseDrawer):
             zorder=1000,  # Very large zorder to draw over other graphics.
         )
         text_box_handler.set_bbox(bbox_props)
+
+    def _series_names_to_cmap(self, series_names: List[str]) -> Tuple[Colormap, Dict[str, float]]:
+        # Remove duplicates from series_names, just in-case. Use dict.fromkeys to preserve order and
+        # remove duplicates.
+        unique_series_names = list(dict.fromkeys(series_names))
+
+        # Generate list of colours by calling querying series_params and self._get_default_color(name).
+        colours = []
+        for series_name in unique_series_names:
+            series_params = self.figure_options.series_params.get(series_name, {})
+            colour = series_params.get("color", self._get_default_color(series_name))
+            colours.append(colour)
+
+        # Create CMap.
+        cmap = LinearSegmentedColormap.from_list(
+            "SeriesMap",
+            colours,
+        )
+
+        # Create a dictionary to lookup the floating-point value for each series name.
+        series_cmap_idx = dict(
+            zip(unique_series_names, np.linspace(0, 1, len(unique_series_names)))
+        )
+
+        return cmap, series_cmap_idx
+
+    def image(
+        self,
+        data: np.ndarray,
+        extent: Tuple[float, float, float, float],
+        name: Optional[str] = None,
+        label: Optional[str] = None,
+        cmap: Optional[Union[str, Any]] = None,
+        cmap_use_series_colors: bool = False,
+        colorbar: bool = False,
+        **options,
+    ):
+        series_params = self.figure_options.series_params.get(name, {})
+        axis = series_params.get("canvas", None)
+
+        if len(data.shape) == 3:
+            if data.shape[-1] != 3 and data.shape[-1] != 4:
+                raise QiskitError("Image data is three-dimensional but is not RGB/A data.")
+
+        # Register extent in ops.
+        image_ops = {
+            "extent": extent,
+        }
+
+        # Apply cmap and get image data to be plotted.
+        if cmap_use_series_colors and len(data.shape) == 2:
+            series_names = np.unique(data).tolist()
+            _cmap, cmap_series_map = self._series_names_to_cmap(series_names)
+            img = np.vectorize(lambda x: cmap_series_map[x])(data)
+            image_ops["cmap"] = _cmap
+        else:
+            img = data
+            if cmap:
+                image_ops["cmap"] = cmap
+
+        # Apply kwargs passed in options.
+        image_ops.update(**options)
+
+        mapping = self._get_axis(axis).imshow(img, **image_ops)
+
+        # Create colorbar if requested.
+        if colorbar:
+            colorbar_label = series_params.get("label", label if label is not None else name)
+            self._get_axis(axis).figure.colorbar(mapping, label=colorbar_label)
 
     @property
     def figure(self) -> Figure:
