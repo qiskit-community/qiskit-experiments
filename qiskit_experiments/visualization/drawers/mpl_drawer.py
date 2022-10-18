@@ -26,6 +26,7 @@ from qiskit.utils import detach_prefix
 
 from qiskit_experiments.framework.matplotlib import get_non_gui_ax
 
+from ..utils import ExtentTuple
 from .base_drawer import BaseDrawer
 
 
@@ -484,7 +485,7 @@ class MplDrawer(BaseDrawer):
     def image(
         self,
         data: np.ndarray,
-        extent: Tuple[float, float, float, float],
+        extent: Optional[ExtentTuple] = None,
         name: Optional[str] = None,
         label: Optional[str] = None,
         cmap: Optional[Union[str, Any]] = None,
