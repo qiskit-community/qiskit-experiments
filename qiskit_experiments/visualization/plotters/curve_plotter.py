@@ -12,8 +12,10 @@
 """Plotter for curve-fits, specifically from :class:`CurveAnalysis`."""
 from typing import List
 
-from qiskit_experiments.framework import Options
+from uncertainties import UFloat
 
+from qiskit_experiments.framework import Options
+from qiskit_experiments.curve_analysis.utils import analysis_result_to_repr
 from .base_plotter import BasePlotter
 
 
@@ -64,7 +66,8 @@ class CurvePlotter(BasePlotter):
                 ``textbox_text_size`` style parameters in :class:`PlotStyle`.
         """
         return [
-            "report_text",
+            "primary_results",
+            "fit_red_chi",
         ]
 
     @classmethod
@@ -135,6 +138,42 @@ class CurvePlotter(BasePlotter):
                     )
 
             # Fit report
-            if "report_text" in self.supplementary_data:
-                report_text = self.supplementary_data["report_text"]
-                self.drawer.textbox(report_text)
+            report = self._write_report()
+            if len(report) > 0:
+                self.drawer.textbox(report)
+
+    def _write_report(self) -> str:
+        """Write fit report with supplementary_data.
+
+        Subclass can override this method to customize fit report.
+        By default, this writes important fit parameters and chi-squared value of the
+        fit in the fit report.
+
+        Returns:
+            Fit report.
+        """
+        report = ""
+
+        if "primary_results" in self.supplementary_data:
+            lines = []
+            for outcome in self.supplementary_data["primary_results"]:
+                if isinstance(outcome.value, (float, UFloat)):
+                    lines.append(analysis_result_to_repr(outcome))
+            report += "\n".join(lines)
+
+        if "fit_red_chi" in self.supplementary_data:
+            red_chi = self.supplementary_data["fit_red_chi"]
+            if len(report) > 0:
+                report += "\n\n"
+            if isinstance(red_chi, float):
+                report += f"reduced-chi2 = {red_chi: .4g}"
+            else:
+                # Composite curve analysis reporting multiple chi-sq values.
+                # This is usually given by a dict keyed on fit group name.
+                report += "reduced-chi2 per fit\n"
+                lines = []
+                for mod_name, mod_chi in red_chi.items():
+                    lines.append(f"  * {mod_name}: {mod_chi: .4g}")
+                report += "\n".join(lines)
+
+        return report
