@@ -205,7 +205,7 @@ class TestRabiCircuits(QiskitExperimentsTestCase):
         self.assertEqual(circs[0].calibrations["Rabi"][((2,), (0.5,))], assigned_sched)
 
 
-class TestRabiAnalysis(QiskitExperimentsTestCase):
+class TestOscillationAnalysis(QiskitExperimentsTestCase):
     """Class to test the fitting."""
 
     def simulate_experiment_data(self, thetas, amplitudes, shots=1024):
