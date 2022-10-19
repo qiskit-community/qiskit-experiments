@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2021, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -294,6 +294,8 @@ class CliffordUtils:
         return res
 
 
+# Constant mapping from 1Q single Clifford gate to 1Q Clifford number.
+# This table must be generated using `data.generate_clifford_data.gen_cliff_single_1q_gate_map`.
 _CLIFF_SINGLE_GATE_MAP_1Q = {
     ("id", (0,)): 0,
     ("h", (0,)): 1,
@@ -305,6 +307,8 @@ _CLIFF_SINGLE_GATE_MAP_1Q = {
     ("z", (0,)): 18,
     ("sdg", (0,)): 22,
 }
+# Constant mapping from 2Q single Clifford gate to 2Q Clifford number.
+# This table must be generated using `data.generate_clifford_data.gen_cliff_single_2q_gate_map`.
 _CLIFF_SINGLE_GATE_MAP_2Q = {
     ("id", (0,)): 0,
     ("id", (1,)): 0,
