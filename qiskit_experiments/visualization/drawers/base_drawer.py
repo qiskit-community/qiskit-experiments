@@ -438,7 +438,7 @@ class BaseDrawer(ABC):
         colorbar: bool = False,
         **options,
     ):
-        """Draw scatter points, with optional error-bars.
+        """Draw an image of numerical values, series names, or RGB/A values.
 
         Args:
             data: The two-/three-dimensional data defining an image. If ``data.dims==2``, then the pixel

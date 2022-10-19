@@ -86,8 +86,13 @@ class IQPlotter(BasePlotter):
         """Returns the expected figures data-keys supported by this plotter.
 
         Data Keys:
-            discriminator: A trained discriminator used to classify IQ points. Must be a subclass of
-                :class:`BaseDiscriminator`.
+            discriminator: A trained discriminator that classifies IQ points. If provided, the
+                predictions of the discriminator will be sampled to generate a background image,
+                indicating the regions for each predicted outcome. The predictions are assumed to be
+                series names (str). The generated image allows viewers to see how well the discriminator
+                classifies the provided series data. Must be a subclass of :class:`BaseDiscriminator`.
+                See :attr:`options` for ways to control the generation of the discriminator prediction
+                image.
         """
         return [
             "discriminator",

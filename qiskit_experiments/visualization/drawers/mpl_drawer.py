@@ -458,6 +458,38 @@ class MplDrawer(BaseDrawer):
         text_box_handler.set_bbox(bbox_props)
 
     def _series_names_to_cmap(self, series_names: List[str]) -> Tuple[Colormap, Dict[str, float]]:
+        """Create a :class:`Colormap` instance of series colours.
+
+        This method creates a :class:`Colormap` instance that can be used to plot an image of series
+        classifications: i.e., a 2D array of series names. The returned Colormap positions the series
+        colours, from :meth:`_get_default_color`, along the range :math:`0` to :math:`1`. The returned
+        dictionary contains mappings from series names (str) to floats which are used to "sample" from
+        the Colormap.
+
+        Example:
+            .. code-block:: python
+
+                # 2D array of classification strings, where each value is a series name.
+                data_classification = np.array(..., dtype=str)
+
+                # Get Colormap and its key.
+                series_names = [...]
+                cmap,cmap_map = self._series_names_to_cmap(series_names)
+
+                # Convert classified data into float data.
+                data_float = np.vectorize(lambda x: cmap(cmap_map[x]))(data_classification)
+
+                # Plot float data with Colormap.
+                plt.imshow(data_float, cmap=cmap, ...)
+
+        Args:
+            series_names: List of series names.
+
+        Returns:
+            tuple: a tuple ``(cmap, map)`` where ``cmap`` is a Matplotlib Colormap instance and ``map``
+                is a dictionary that maps series names (keys) to floats that identify the series names'
+                colours in ``cmap``.
+        """
         # Remove duplicates from series_names, just in-case. Use dict.fromkeys to preserve order and
         # remove duplicates.
         unique_series_names = list(dict.fromkeys(series_names))
