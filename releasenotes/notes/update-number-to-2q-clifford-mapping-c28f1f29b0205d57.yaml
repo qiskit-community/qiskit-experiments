@@ -1,0 +1,7 @@
+---
+other:
+  - |
+    :meth:`.ClifforUtils.clifford_2_qubit` (and :meth:`.ClifforUtils.clifford_2_qubit_circuit`)
+    changes its mapping between integer and 2Q Clifford (circuit).
+    That means 2Q RB experiments may sample different set of circuits from before
+    even if exactly the same arguments are used for their construction.
