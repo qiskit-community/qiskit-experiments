@@ -1383,14 +1383,14 @@ class ExperimentData:
                 "when using an IBM Quantum backend."
             )
             return
-
         self._save_experiment_metadata(suppress_errors=suppress_errors)
         if not self._created_in_db:
             LOG.warning("Could not save experiment metadata to DB, aborting experiment save")
             return
 
-        for result in self._analysis_results.values():
-            result.save(suppress_errors=suppress_errors)
+        with futures.ThreadPoolExecutor() as pool:
+            for result in self._analysis_results.values():
+                pool.submit(result.save, suppress_errors)
 
         for result in self._deleted_analysis_results.copy():
             with service_exception_to_warning():
