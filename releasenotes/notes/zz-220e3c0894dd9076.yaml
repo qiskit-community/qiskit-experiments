@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    A new experiment :class:`.ZZRamsey` has been added to measure the ZZ
+    coefficient between a pair of qubits.
