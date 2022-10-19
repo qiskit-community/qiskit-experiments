@@ -1377,12 +1377,14 @@ class ExperimentData:
             experiment_id=self.experiment_id, figure=figure, figure_name=name
         )
 
-    def save(self, suppress_errors: bool = True) -> None:
+    def save(self, suppress_errors: bool = True, max_workers: int = None) -> None:
         """Save the experiment data to a database service.
 
         Args:
             suppress_errors: should the method catch exceptions (true) or
             pass them on, potentially aborting the experiemnt (false)
+            max_workers: Maximum number of multithreaded workers to use when uploading
+            analysis results and figures
         .. note::
             This saves the experiment metadata, all analysis results, and all
             figures. Depending on the number of figures and analysis results this
@@ -1404,7 +1406,7 @@ class ExperimentData:
             LOG.warning("Could not save experiment metadata to DB, aborting experiment save")
             return
 
-        with futures.ThreadPoolExecutor() as pool:
+        with futures.ThreadPoolExecutor(max_workers=max_workers) as pool:
             for result in self._analysis_results.values():
                 pool.submit(self.save_analysis_result, result, suppress_errors)
 
@@ -1414,7 +1416,7 @@ class ExperimentData:
             self._deleted_analysis_results.remove(result)
 
         with self._figures.lock:
-            with futures.ThreadPoolExecutor() as pool:
+            with futures.ThreadPoolExecutor(max_workers=max_workers) as pool:
                 for name, figure in self._figures.items():
                     pool.submit(self.save_figure, name, figure)
 
