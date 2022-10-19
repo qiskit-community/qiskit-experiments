@@ -1361,6 +1361,22 @@ class ExperimentData:
         # currently the entire POST JSON request body is limited by default to 100kb
         return sys.getsizeof(self.metadata) > 10000
 
+    def save_analysis_result(self, result, suppress_errors):
+        result.save(suppress_errors=suppress_errors)
+
+    def save_figure(self, name, figure):
+        if figure is None:
+            return
+        # currently only the figure and its name are stored in the database
+        if isinstance(figure, FigureData):
+            figure = figure.figure
+            LOG.debug("Figure metadata is currently not saved to the database")
+        if isinstance(figure, pyplot.Figure):
+            figure = plot_to_svg_bytes(figure)
+        self._service.create_or_update_figure(
+            experiment_id=self.experiment_id, figure=figure, figure_name=name
+        )
+
     def save(self, suppress_errors: bool = True) -> None:
         """Save the experiment data to a database service.
 
@@ -1390,7 +1406,7 @@ class ExperimentData:
 
         with futures.ThreadPoolExecutor() as pool:
             for result in self._analysis_results.values():
-                pool.submit(result.save, suppress_errors)
+                pool.submit(self.save_analysis_result, result, suppress_errors)
 
         for result in self._deleted_analysis_results.copy():
             with service_exception_to_warning():
@@ -1398,18 +1414,9 @@ class ExperimentData:
             self._deleted_analysis_results.remove(result)
 
         with self._figures.lock:
-            for name, figure in self._figures.items():
-                if figure is None:
-                    continue
-                # currently only the figure and its name are stored in the database
-                if isinstance(figure, FigureData):
-                    figure = figure.figure
-                    LOG.debug("Figure metadata is currently not saved to the database")
-                if isinstance(figure, pyplot.Figure):
-                    figure = plot_to_svg_bytes(figure)
-                self._service.create_or_update_figure(
-                    experiment_id=self.experiment_id, figure=figure, figure_name=name
-                )
+            with futures.ThreadPoolExecutor() as pool:
+                for name, figure in self._figures.items():
+                    pool.submit(self.save_figure, name, figure)
 
         for name in self._deleted_figures.copy():
             with service_exception_to_warning():
