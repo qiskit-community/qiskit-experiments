@@ -380,7 +380,6 @@ class EchoedCrossResonance(BasisGateLibrary):
         cr_amp = Parameter("amp")
         cr_dur = Parameter("duration")
         cr_rf = Parameter("risefall")
-        c_chan_idx = Parameter("ch0")
         t_chan_idx = Parameter("ch1")
         u_chan_idx = Parameter("ch0.1")
         t_chan = pulse.DriveChannel(t_chan_idx)
