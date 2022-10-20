@@ -198,8 +198,9 @@ class CliffordUtils:
         return Clifford(cls.clifford_2_qubit_circuit(num), validate=False)
 
     @deprecated_function()
+    @classmethod
     def random_cliffords(
-        self, num_qubits: int, size: int = 1, rng: Optional[Union[int, Generator]] = None
+        cls, num_qubits: int, size: int = 1, rng: Optional[Union[int, Generator]] = None
     ):
         """Generate a list of random clifford elements"""
         if rng is None:
@@ -208,17 +209,18 @@ class CliffordUtils:
             rng = default_rng(rng)
 
         if num_qubits == 1:
-            samples = rng.integers(self.NUM_CLIFFORD_1_QUBIT, size=size)
-            return [Clifford(self.clifford_1_qubit_circuit(i), validate=False) for i in samples]
+            samples = rng.integers(cls.NUM_CLIFFORD_1_QUBIT, size=size)
+            return [Clifford(cls.clifford_1_qubit_circuit(i), validate=False) for i in samples]
         if num_qubits == 2:
-            samples = rng.integers(self.NUM_CLIFFORD_2_QUBIT, size=size)
-            return [Clifford(self.clifford_2_qubit_circuit(i), validate=False) for i in samples]
+            samples = rng.integers(cls.NUM_CLIFFORD_2_QUBIT, size=size)
+            return [Clifford(cls.clifford_2_qubit_circuit(i), validate=False) for i in samples]
 
         return [random_clifford(num_qubits, seed=rng) for _ in range(size)]
 
     @deprecated_function()
+    @classmethod
     def random_clifford_circuits(
-        self, num_qubits: int, size: int = 1, rng: Optional[Union[int, Generator]] = None
+        cls, num_qubits: int, size: int = 1, rng: Optional[Union[int, Generator]] = None
     ):
         """Generate a list of random clifford circuits"""
         if rng is None:
@@ -227,11 +229,11 @@ class CliffordUtils:
             rng = default_rng(rng)
 
         if num_qubits == 1:
-            samples = rng.integers(self.NUM_CLIFFORD_1_QUBIT, size=size)
-            return [self.clifford_1_qubit_circuit(i) for i in samples]
+            samples = rng.integers(cls.NUM_CLIFFORD_1_QUBIT, size=size)
+            return [cls.clifford_1_qubit_circuit(i) for i in samples]
         if num_qubits == 2:
-            samples = rng.integers(self.NUM_CLIFFORD_2_QUBIT, size=size)
-            return [self.clifford_2_qubit_circuit(i) for i in samples]
+            samples = rng.integers(cls.NUM_CLIFFORD_2_QUBIT, size=size)
+            return [cls.clifford_2_qubit_circuit(i) for i in samples]
 
         return [random_clifford(num_qubits, seed=rng).to_circuit() for _ in range(size)]
 
@@ -434,14 +436,6 @@ def inverse_2q(num: Integral) -> Integral:
 def num_from_2q_circuit(qc: QuantumCircuit) -> Integral:
     """Convert a given 2-qubit Clifford circuit to the corresponding integer."""
     return _compose_num_with_circuit_2q(0, qc)
-
-
-# Shortcut to call the function converting circuit to num by number of qubits
-# TODO: Too much? (if it is usefule, add more explanation)
-num_from_circuit = {
-    1: num_from_1q_circuit,
-    2: num_from_2q_circuit,
-}
 
 
 def _compose_num_with_circuit_2q(num: Integral, qc: QuantumCircuit) -> Integral:

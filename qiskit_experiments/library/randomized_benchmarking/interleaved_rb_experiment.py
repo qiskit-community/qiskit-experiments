@@ -26,7 +26,7 @@ from qiskit.quantum_info import Clifford
 from qiskit.transpiler.exceptions import TranspilerError
 from qiskit_experiments.framework.backend_timing import BackendTiming
 from .clifford_utils import _truncate_inactive_qubits
-from .clifford_utils import num_from_circuit
+from .clifford_utils import num_from_1q_circuit, num_from_2q_circuit
 from .interleaved_rb_analysis import InterleavedRBAnalysis
 from .rb_experiment import StandardRB, SequenceElementType
 
@@ -141,9 +141,12 @@ class InterleavedRB(StandardRB):
             full_sampling=full_sampling,
         )
         # Convert interleaved element to integer for speed
-        if self.num_qubits <= 2:
+        if self.num_qubits in {1, 2}:
             interleaved_circ = self._interleaved_elem.to_circuit()
-            self._interleaved_elem = num_from_circuit[self.num_qubits](interleaved_circ)
+            if self.num_qubits == 1:
+                self._interleaved_elem = num_from_1q_circuit(interleaved_circ)
+            else:
+                self._interleaved_elem = num_from_2q_circuit(interleaved_circ)
         self._interleaved_op = interleaved_element
         self.analysis = InterleavedRBAnalysis()
         self.analysis.set_options(outcome="0" * self.num_qubits)
