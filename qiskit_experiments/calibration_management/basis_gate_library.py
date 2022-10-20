@@ -20,7 +20,6 @@ from abc import ABC, abstractmethod
 from collections.abc import Mapping
 from typing import Any, Dict, List, Optional, Set
 from warnings import warn
-import numpy as np
 
 from qiskit.circuit import Parameter
 import qiskit.pulse as pulse
@@ -324,7 +323,6 @@ class EchoedCrossResonance(BasisGateLibrary):
         - cr45m: GaussianSquare cross-resonance gate for a :math:`-\pi/4` rotation.
         - ecr: Echoed cross-resonance gate defined as ``cr45p - x - cr45m``.
         - rzx: RZXGate built from the ecr as ``cr45p - x - cr45m - x``.
-        - cx: Controlled-NOT gate built from the ecr and single-qubit rotations.
 
     Required gates:
         - x: the x gate is defined outside of this library, see :class:`FixedFrequencyTransmon`.
@@ -359,7 +357,7 @@ class EchoedCrossResonance(BasisGateLibrary):
     @property
     def __supported_gates__(self) -> Dict[str, int]:
         """The supported gates of the library are two-qubit pulses for the ecr gate."""
-        return {"cr45p": 2, "cr45m": 2, "ecr": 2, "rzx": 2, "cx": 2}
+        return {"cr45p": 2, "cr45m": 2, "ecr": 2, "rzx": 2}
 
     def default_values(self) -> List[DefaultCalValue]:
         """The default values of the CR library."""
@@ -442,22 +440,5 @@ class EchoedCrossResonance(BasisGateLibrary):
                     pulse.reference("x", "q0")
 
             schedules["rzx"] = rzx
-
-        # Controlled NOT gate built from Echoed Cross-Resonance gate
-        if "cx" in basis_gates:
-            with pulse.build(name="cx") as cnot:
-                # Rz(np.pi / 2) on the control followed by ``x``.
-                pulse.shift_phase(np.pi / 2, pulse.DriveChannel(c_chan_idx))
-                pulse.reference("x", "q0")
-                # ``sx`` on the target.
-                pulse.reference("sx", "q1")
-
-                # The ECR gate.
-                with pulse.align_sequential():
-                    pulse.reference("cr45p", "q0", "q1")
-                    pulse.reference("x", "q0")
-                    pulse.reference("cr45m", "q0", "q1")
-
-            schedules["cx"] = cnot
 
         return schedules
