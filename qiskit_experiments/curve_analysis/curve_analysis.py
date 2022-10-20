@@ -20,7 +20,7 @@ from typing import Dict, List, Tuple, Union, Optional
 
 import lmfit
 import numpy as np
-from uncertainties import unumpy as unp, UFloat
+from uncertainties import unumpy as unp
 
 from qiskit_experiments.exceptions import AnalysisError
 from qiskit_experiments.framework import ExperimentData, AnalysisResultData, AnalysisConfig
@@ -30,7 +30,7 @@ from qiskit_experiments.warnings import deprecated_function
 from .base_curve_analysis import BaseCurveAnalysis, PARAMS_ENTRY_PREFIX
 from .curve_data import CurveData, FitOptions, CurveFitResult
 from .data_processing import multi_mean_xy_data, data_sort
-from .utils import analysis_result_to_repr, eval_with_uncertainties, convert_lmfit_result
+from .utils import eval_with_uncertainties, convert_lmfit_result
 
 
 class CurveAnalysis(BaseCurveAnalysis):
@@ -140,7 +140,7 @@ class CurveAnalysis(BaseCurveAnalysis):
             )
             # pylint: disable=no-member
             models = []
-            plot_options = {}
+            series_params = {}
             for series_def in self.__series__:
                 models.append(
                     lmfit.Model(
@@ -149,12 +149,13 @@ class CurveAnalysis(BaseCurveAnalysis):
                         data_sort_key=series_def.filter_kwargs,
                     )
                 )
-                plot_options[series_def.name] = {
+                series_params[series_def.name] = {
                     "color": series_def.plot_color,
                     "symbol": series_def.plot_symbol,
                     "canvas": series_def.canvas,
+                    "label": series_def.name,
                 }
-            self.drawer.set_options(plot_options=plot_options)
+            self.plotter.set_figure_options(series_params=series_params)
 
         self._models = models or []
         self._name = name or self.__class__.__name__
@@ -467,10 +468,6 @@ class CurveAnalysis(BaseCurveAnalysis):
         self._initialize(experiment_data)
         analysis_results = []
 
-        # Initialize canvas
-        if self.options.plot:
-            self.drawer.initialize_canvas()
-
         # Run data processing
         processed_data = self._run_data_processing(
             raw_data=experiment_data.data(),
@@ -480,10 +477,10 @@ class CurveAnalysis(BaseCurveAnalysis):
         if self.options.plot and self.options.plot_raw_data:
             for model in self._models:
                 sub_data = processed_data.get_subset_of(model._name)
-                self.drawer.draw_raw_data(
-                    x_data=sub_data.x,
-                    y_data=sub_data.y,
-                    name=model._name,
+                self.plotter.set_series_data(
+                    model._name,
+                    x=sub_data.x,
+                    y=sub_data.y,
                 )
         # for backward compatibility, will be removed in 0.4.
         self.__processed_data_set["raw_data"] = processed_data
@@ -493,11 +490,11 @@ class CurveAnalysis(BaseCurveAnalysis):
         if self.options.plot:
             for model in self._models:
                 sub_data = formatted_data.get_subset_of(model._name)
-                self.drawer.draw_formatted_data(
-                    x_data=sub_data.x,
-                    y_data=sub_data.y,
-                    y_err_data=sub_data.y_err,
-                    name=model._name,
+                self.plotter.set_series_data(
+                    model._name,
+                    x_formatted=sub_data.x,
+                    y_formatted=sub_data.y,
+                    y_formatted_err=sub_data.y_err,
                 )
         # for backward compatibility, will be removed in 0.4.
         self.__processed_data_set["fit_ready"] = formatted_data
@@ -510,6 +507,7 @@ class CurveAnalysis(BaseCurveAnalysis):
 
         if fit_data.success:
             quality = self._evaluate_quality(fit_data)
+            self.plotter.set_supplementary_data(fit_red_chi=fit_data.reduced_chisq)
         else:
             quality = "bad"
 
@@ -526,13 +524,12 @@ class CurveAnalysis(BaseCurveAnalysis):
 
         # Create figure and result data
         if fit_data.success:
-
             # Create analysis results
-            analysis_results.extend(
-                self._create_analysis_results(
-                    fit_data=fit_data, quality=quality, **self.options.extra.copy()
-                )
+            primary_results = self._create_analysis_results(
+                fit_data=fit_data, quality=quality, **self.options.extra.copy()
             )
+            analysis_results.extend(primary_results)
+            self.plotter.set_supplementary_data(primary_results=primary_results)
             # calling old extra entry method for backward compatibility
             if hasattr(self, "_extra_database_entry"):
                 warnings.warn(
@@ -553,40 +550,28 @@ class CurveAnalysis(BaseCurveAnalysis):
                         # This is the case when fit model exist but no data to fit is provided.
                         # For example, experiment may omit experimenting with some setting.
                         continue
-                    interp_x = np.linspace(np.min(sub_data.x), np.max(sub_data.x), num=100)
+                    x_interp = np.linspace(np.min(sub_data.x), np.max(sub_data.x), num=100)
 
                     y_data_with_uncertainty = eval_with_uncertainties(
-                        x=interp_x,
+                        x=x_interp,
                         model=model,
                         params=fit_data.ufloat_params,
                     )
-                    y_mean = unp.nominal_values(y_data_with_uncertainty)
-                    # Draw fit line
-                    self.drawer.draw_fit_line(
-                        x_data=interp_x,
-                        y_data=y_mean,
-                        name=model._name,
+                    y_interp = unp.nominal_values(y_data_with_uncertainty)
+                    # Add fit line data
+                    self.plotter.set_series_data(
+                        model._name,
+                        x_interp=x_interp,
+                        y_interp=y_interp,
                     )
                     if fit_data.covar is not None:
-                        # Draw confidence intervals with different n_sigma
-                        sigmas = unp.std_devs(y_data_with_uncertainty)
-                        if np.isfinite(sigmas).all():
-                            for n_sigma, alpha in self.drawer.options.plot_sigma:
-                                self.drawer.draw_confidence_interval(
-                                    x_data=interp_x,
-                                    y_ub=y_mean + n_sigma * sigmas,
-                                    y_lb=y_mean - n_sigma * sigmas,
-                                    name=model._name,
-                                    alpha=alpha,
-                                )
-
-                # Write fitting report
-                report_description = ""
-                for res in analysis_results:
-                    if isinstance(res.value, (float, UFloat)):
-                        report_description += f"{analysis_result_to_repr(res)}\n"
-                report_description += r"reduced-$\chi^2$ = " + f"{fit_data.reduced_chisq: .4g}"
-                self.drawer.draw_fit_report(description=report_description)
+                        # Add confidence interval data
+                        y_interp_err = unp.std_devs(y_data_with_uncertainty)
+                        if np.isfinite(y_interp_err).all():
+                            self.plotter.set_series_data(
+                                model._name,
+                                y_interp_err=y_interp_err,
+                            )
 
         # Add raw data points
         if self.options.return_data_points:
@@ -596,8 +581,7 @@ class CurveAnalysis(BaseCurveAnalysis):
 
         # Finalize plot
         if self.options.plot:
-            self.drawer.format_canvas()
-            return analysis_results, [self.drawer.figure]
+            return analysis_results, [self.plotter.figure()]
 
         return analysis_results, []
 

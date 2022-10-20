@@ -105,7 +105,7 @@ class ErrorAmplificationAnalysis(curve.CurveAnalysis):
                 considered as good. Defaults to :math:`\pi/2`.
         """
         default_options = super()._default_options()
-        default_options.curve_drawer.set_options(
+        default_options.plotter.set_figure_options(
             xlabel="Number of gates (n)",
             ylabel="Population",
             ylim=(0, 1.0),

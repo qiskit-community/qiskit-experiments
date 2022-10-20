@@ -15,17 +15,30 @@ Analysis class for multi-group curve fitting.
 """
 # pylint: disable=invalid-name
 import warnings
-from typing import Dict, List, Tuple, Optional, Union
+from typing import Dict, List, Optional, Tuple, Union
 
 import lmfit
 import numpy as np
-from uncertainties import unumpy as unp, UFloat
+from uncertainties import unumpy as unp
 
-from qiskit_experiments.framework import BaseAnalysis, ExperimentData, AnalysisResultData, Options
-from .base_curve_analysis import BaseCurveAnalysis, PARAMS_ENTRY_PREFIX
+from qiskit_experiments.framework import (
+    AnalysisResultData,
+    BaseAnalysis,
+    ExperimentData,
+    Options,
+)
+from qiskit_experiments.visualization import (
+    BaseDrawer,
+    BasePlotter,
+    CurvePlotter,
+    LegacyCurveCompatDrawer,
+    MplDrawer,
+)
+from qiskit_experiments.warnings import deprecated_function
+
+from .base_curve_analysis import PARAMS_ENTRY_PREFIX, BaseCurveAnalysis
 from .curve_data import CurveFitResult
-from .utils import analysis_result_to_repr, eval_with_uncertainties
-from .visualization import MplCurveDrawer, BaseCurveDrawer
+from .utils import eval_with_uncertainties
 
 
 class CompositeCurveAnalysis(BaseAnalysis):
@@ -124,9 +137,21 @@ class CompositeCurveAnalysis(BaseAnalysis):
         return models
 
     @property
-    def drawer(self) -> BaseCurveDrawer:
-        """A short-cut for curve drawer instance."""
-        return self._options.curve_drawer
+    def plotter(self) -> BasePlotter:
+        """A short-cut to the plotter instance."""
+        return self._options.plotter
+
+    @property
+    @deprecated_function(
+        last_version="0.6",
+        msg="Replaced by `plotter` from the new visualization submodule.",
+    )
+    def drawer(self) -> BaseDrawer:
+        """A short-cut for curve drawer instance, if set. ``None`` otherwise."""
+        if hasattr(self._options, "curve_drawer"):
+            return self._options.curve_drawer
+        else:
+            return None
 
     def analyses(
         self, index: Optional[Union[str, int]] = None
@@ -187,7 +212,7 @@ class CompositeCurveAnalysis(BaseAnalysis):
         """Default analysis options.
 
         Analysis Options:
-            curve_drawer (BaseCurveDrawer): A curve drawer instance to visualize
+            plotter (BasePlotter): A plotter instance to visualize
                 the analysis result.
             plot (bool): Set ``True`` to create figure for fit result.
                 This is ``True`` by default.
@@ -200,7 +225,7 @@ class CompositeCurveAnalysis(BaseAnalysis):
         """
         options = super()._default_options()
         options.update_options(
-            curve_drawer=MplCurveDrawer(),
+            plotter=CurvePlotter(MplDrawer()),
             plot=True,
             return_fit_parameters=True,
             return_data_points=False,
@@ -208,11 +233,32 @@ class CompositeCurveAnalysis(BaseAnalysis):
         )
 
         # Set automatic validator for particular option values
-        options.set_validator(field="curve_drawer", validator_value=BaseCurveDrawer)
+        options.set_validator(field="plotter", validator_value=BasePlotter)
 
         return options
 
     def set_options(self, **fields):
+        # TODO remove this in Qiskit Experiments 0.6
+        if "curve_drawer" in fields:
+            warnings.warn(
+                "The option 'curve_drawer' is replaced with 'plotter'. "
+                "This option will be removed in Qiskit Experiments 0.6.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            # Set the plotter drawer to `curve_drawer`. If `curve_drawer` is the right type, set it
+            # directly. If not, wrap it in a compatibility drawer.
+            if isinstance(fields["curve_drawer"], BaseDrawer):
+                plotter = self.options.plotter
+                plotter.drawer = fields.pop("curve_drawer")
+                fields["plotter"] = plotter
+            else:
+                drawer = fields["curve_drawer"]
+                compat_drawer = LegacyCurveCompatDrawer(drawer)
+                plotter = self.options.plotter
+                plotter.drawer = compat_drawer
+                fields["plotter"] = plotter
+
         for field in fields:
             if not hasattr(self.options, field):
                 warnings.warn(
@@ -232,11 +278,8 @@ class CompositeCurveAnalysis(BaseAnalysis):
 
         analysis_results = []
 
-        # Initialize canvas
-        if self.options.plot:
-            self.drawer.initialize_canvas()
-
         fit_dataset = {}
+        red_chi = {}
         for analysis in self._analyses:
             analysis._initialize(experiment_data)
 
@@ -251,10 +294,10 @@ class CompositeCurveAnalysis(BaseAnalysis):
             if self.options.plot and analysis.options.plot_raw_data:
                 for model in analysis.models:
                     sub_data = processed_data.get_subset_of(model._name)
-                    self.drawer.draw_raw_data(
-                        x_data=sub_data.x,
-                        y_data=sub_data.y,
-                        name=model._name + f"_{analysis.name}",
+                    self.plotter.set_series_data(
+                        model._name + f"_{analysis.name}",
+                        x=sub_data.x,
+                        y=sub_data.y,
                     )
 
             # Format data
@@ -262,11 +305,11 @@ class CompositeCurveAnalysis(BaseAnalysis):
             if self.options.plot:
                 for model in analysis.models:
                     sub_data = formatted_data.get_subset_of(model._name)
-                    self.drawer.draw_formatted_data(
-                        x_data=sub_data.x,
-                        y_data=sub_data.y,
-                        y_err_data=sub_data.y_err,
-                        name=model._name + f"_{analysis.name}",
+                    self.plotter.set_series_data(
+                        model._name + f"_{analysis.name}",
+                        x_formatted=sub_data.x,
+                        y_formatted=sub_data.y,
+                        y_formatted_err=sub_data.y_err,
                     )
 
             # Run fitting
@@ -277,6 +320,7 @@ class CompositeCurveAnalysis(BaseAnalysis):
 
             if fit_data.success:
                 quality = analysis._evaluate_quality(fit_data)
+                red_chi[analysis.name] = fit_data.reduced_chisq
             else:
                 quality = "bad"
 
@@ -299,66 +343,56 @@ class CompositeCurveAnalysis(BaseAnalysis):
 
                 # Draw fit result
                 if self.options.plot:
-                    interp_x = np.linspace(
+                    x_interp = np.linspace(
                         np.min(formatted_data.x), np.max(formatted_data.x), num=100
                     )
                     for model in analysis.models:
                         y_data_with_uncertainty = eval_with_uncertainties(
-                            x=interp_x,
+                            x=x_interp,
                             model=model,
                             params=fit_data.ufloat_params,
                         )
-                        y_mean = unp.nominal_values(y_data_with_uncertainty)
-                        # Draw fit line
-                        self.drawer.draw_fit_line(
-                            x_data=interp_x,
-                            y_data=y_mean,
-                            name=model._name + f"_{analysis.name}",
+                        y_interp = unp.nominal_values(y_data_with_uncertainty)
+                        # Add fit line data
+                        self.plotter.set_series_data(
+                            model._name + f"_{analysis.name}",
+                            x_interp=x_interp,
+                            y_interp=y_interp,
                         )
                         if fit_data.covar is not None:
-                            # Draw confidence intervals with different n_sigma
-                            sigmas = unp.std_devs(y_data_with_uncertainty)
-                            if np.isfinite(sigmas).all():
-                                for n_sigma, alpha in self.drawer.options.plot_sigma:
-                                    self.drawer.draw_confidence_interval(
-                                        x_data=interp_x,
-                                        y_ub=y_mean + n_sigma * sigmas,
-                                        y_lb=y_mean - n_sigma * sigmas,
-                                        name=model._name + f"_{analysis.name}",
-                                        alpha=alpha,
-                                    )
+                            # Add confidence interval data
+                            y_interp_err = unp.std_devs(y_data_with_uncertainty)
+                            if np.isfinite(y_interp_err).all():
+                                self.plotter.set_series_data(
+                                    model._name + f"_{analysis.name}",
+                                    y_interp_err=y_interp_err,
+                                )
 
             # Add raw data points
             if self.options.return_data_points:
                 analysis_results.extend(
-                    analysis._create_curve_data(curve_data=formatted_data, models=analysis.models)
+                    analysis._create_curve_data(
+                        curve_data=formatted_data,
+                        models=analysis.models,
+                        **metadata,
+                    )
                 )
 
             fit_dataset[analysis.name] = fit_data
 
         total_quality = self._evaluate_quality(fit_dataset)
+        if red_chi:
+            self.plotter.set_supplementary_data(fit_red_chi=red_chi)
 
         # Create analysis results by combining all fit data
-        analysis_results.extend(
-            self._create_analysis_results(
+        if total_quality == "good":
+            primary_results = self._create_analysis_results(
                 fit_data=fit_dataset, quality=total_quality, **self.options.extra.copy()
             )
-        )
+            analysis_results.extend(primary_results)
+            self.plotter.set_supplementary_data(primary_results=primary_results)
 
         if self.options.plot:
-            # Write fitting report
-            report = ""
-            for res in analysis_results:
-                if isinstance(res.value, (float, UFloat)):
-                    report += f"{analysis_result_to_repr(res)}\n"
-            chisqs = []
-            for group, fit_data in fit_dataset.items():
-                chisqs.append(r"reduced-$\chi^2$ = " + f"{fit_data.reduced_chisq: .4g} ({group})")
-            report += "\n".join(chisqs)
-            self.drawer.draw_fit_report(description=report)
-
-            # Finalize canvas
-            self.drawer.format_canvas()
-            return analysis_results, [self.drawer.figure]
+            return analysis_results, [self.plotter.figure()]
 
         return analysis_results, []

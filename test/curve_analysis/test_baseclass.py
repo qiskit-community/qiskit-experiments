@@ -205,7 +205,7 @@ class TestCurveAnalysis(CurveAnalysisTestCase):
             analysis.set_options(data_processor=InvalidClass())
 
         with self.assertRaises(TypeError):
-            analysis.set_options(curve_drawer=InvalidClass())
+            analysis.set_options(plotter=InvalidClass())
 
     def test_end_to_end_single_function(self):
         """Integration test for single function."""
