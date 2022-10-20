@@ -30,6 +30,7 @@ from qiskit.circuit.library import SdgGate, HGate, SGate, XGate, YGate, ZGate
 from qiskit.compiler import transpile
 from qiskit.exceptions import QiskitError
 from qiskit.quantum_info import Clifford, random_clifford
+from qiskit_experiments.warnings import deprecated_function
 
 
 # Transpilation utilities
@@ -196,45 +197,43 @@ class CliffordUtils:
         """
         return Clifford(cls.clifford_2_qubit_circuit(num), validate=False)
 
+    @deprecated_function()
     def random_cliffords(
         self, num_qubits: int, size: int = 1, rng: Optional[Union[int, Generator]] = None
     ):
         """Generate a list of random clifford elements"""
-        if num_qubits > 2:
-            return random_clifford(num_qubits, seed=rng)
-
         if rng is None:
             rng = default_rng()
-
-        if isinstance(rng, int):
+        elif isinstance(rng, int):
             rng = default_rng(rng)
 
         if num_qubits == 1:
-            samples = rng.integers(24, size=size)
+            samples = rng.integers(self.NUM_CLIFFORD_1_QUBIT, size=size)
             return [Clifford(self.clifford_1_qubit_circuit(i), validate=False) for i in samples]
-        else:
-            samples = rng.integers(11520, size=size)
+        if num_qubits == 2:
+            samples = rng.integers(self.NUM_CLIFFORD_2_QUBIT, size=size)
             return [Clifford(self.clifford_2_qubit_circuit(i), validate=False) for i in samples]
 
+        return [random_clifford(num_qubits, seed=rng) for _ in range(size)]
+
+    @deprecated_function()
     def random_clifford_circuits(
         self, num_qubits: int, size: int = 1, rng: Optional[Union[int, Generator]] = None
     ):
         """Generate a list of random clifford circuits"""
-        if num_qubits > 2:
-            return [random_clifford(num_qubits, seed=rng).to_circuit() for _ in range(size)]
-
         if rng is None:
             rng = default_rng()
-
-        if isinstance(rng, int):
+        elif isinstance(rng, int):
             rng = default_rng(rng)
 
         if num_qubits == 1:
-            samples = rng.integers(CliffordUtils.NUM_CLIFFORD_1_QUBIT, size=size)
+            samples = rng.integers(self.NUM_CLIFFORD_1_QUBIT, size=size)
             return [self.clifford_1_qubit_circuit(i) for i in samples]
-        else:
-            samples = rng.integers(CliffordUtils.NUM_CLIFFORD_2_QUBIT, size=size)
+        if num_qubits == 2:
+            samples = rng.integers(self.NUM_CLIFFORD_2_QUBIT, size=size)
             return [self.clifford_2_qubit_circuit(i) for i in samples]
+
+        return [random_clifford(num_qubits, seed=rng).to_circuit() for _ in range(size)]
 
     @classmethod
     @lru_cache(maxsize=24)
