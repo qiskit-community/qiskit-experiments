@@ -227,7 +227,7 @@ class IQPulseBackend(BackendV2):
         return unitary
 
     def run(self, run_input: Union[QuantumCircuit, List[QuantumCircuit]], **run_options) -> FakeJob:
-        """run method takes circuits as input and returns FakeJob with shots/IQ data"""
+        """run method takes circuits as input and returns FakeJob with IQ data or counts."""
 
         self.options.update_options(**run_options)
         shots = self.options.get("shots")
