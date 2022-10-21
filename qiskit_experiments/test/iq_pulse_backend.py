@@ -210,7 +210,7 @@ class IQPulseBackend(BackendV2):
     def solve(self, schedule: Union[ScheduleBlock, Schedule], qubits: Tuple[int]) -> np.ndarray:
         """Solves a single schdule block and returns the unitary"""
         if len(qubits) > 1:
-            QiskitError("TODO multi qubit gates")
+            QiskitError("Multi qubit gates are not yet implemented.")
         if isinstance(schedule, ScheduleBlock):
             schedule = block_to_schedule(schedule)
 
