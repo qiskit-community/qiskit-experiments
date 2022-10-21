@@ -15,7 +15,7 @@ Quantum Tomography experiment
 
 from typing import Union, Optional, Iterable, List, Tuple, Sequence
 from itertools import product
-from qiskit.circuit import QuantumCircuit, Instruction
+from qiskit.circuit import QuantumCircuit, Instruction, ClassicalRegister
 from qiskit.circuit.library import Permutation
 from qiskit.providers.backend import Backend
 from qiskit.quantum_info.operators.base_operator import BaseOperator
@@ -152,16 +152,18 @@ class TomographyExperiment(BaseExperiment):
 
     def circuits(self):
 
-        # Get qubits and clbits
-        circ_qubits = list(range(self._circuit.num_qubits))
-        total_clbits = self._circuit.num_clbits + len(self._meas_qubits)
-        circ_clbits = list(range(self._circuit.num_clbits))
-        meas_clbits = list(range(self._circuit.num_clbits, total_clbits))
+        circ_qubits = self._circuit.qubits
+        circ_clbits = self._circuit.clbits
+        meas_creg = ClassicalRegister((len(self._meas_qubits)), name="c_tomo")
+        template = QuantumCircuit(
+            *self._circuit.qregs, *self._circuit.cregs, meas_creg, name=f"{self._type}"
+        )
+        meas_clbits = [template.find_bit(i).index for i in meas_creg]
 
         # Build circuits
         circuits = []
         for prep_element, meas_element in self._basis_indices():
-            name = f"{self._type}"
+            name = template.name
             metadata = {"clbits": meas_clbits}
             if meas_element:
                 name += f"_{meas_element}"
@@ -170,7 +172,7 @@ class TomographyExperiment(BaseExperiment):
                 name += f"_{prep_element}"
                 metadata["p_idx"] = list(prep_element)
 
-            circ = QuantumCircuit(self.num_qubits, total_clbits, name=name)
+            circ = template.copy()
 
             if prep_element:
                 # Add tomography preparation
