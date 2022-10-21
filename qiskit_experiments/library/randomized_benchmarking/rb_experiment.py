@@ -148,7 +148,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
         except for simulators. If BackendV1 is provided, it is converted to V2 and stored.
         """
         if isinstance(backend, BackendV1) and "simulator" not in backend.name():
-            super()._set_backend(BackendV2Converter(backend))
+            super()._set_backend(BackendV2Converter(backend, add_delay=True))
         else:
             super()._set_backend(backend)
 

@@ -21,7 +21,7 @@ from ddt import ddt, data, unpack
 from qiskit.circuit import Delay, QuantumCircuit, Parameter
 from qiskit.circuit.library import SXGate, CXGate, TGate, CZGate
 from qiskit.exceptions import QiskitError
-from qiskit.providers.fake_provider import FakeManilaV2, FakeWashington
+from qiskit.providers.fake_provider import FakeManila, FakeManilaV2, FakeWashington
 from qiskit.pulse import Schedule, InstructionScheduleMap
 from qiskit.quantum_info import Operator
 from qiskit_aer import AerSimulator
@@ -199,7 +199,7 @@ class TestInterleavedRB(QiskitExperimentsTestCase, RBTestMixin):
     def setUp(self):
         """Setup the tests."""
         super().setUp()
-        self.backend = FakeManilaV2()
+        self.backend = FakeManila()
         self.backend_with_timing_constraint = FakeWashington()
 
     # ### Tests for configuration ###
