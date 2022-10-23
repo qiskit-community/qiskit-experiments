@@ -97,18 +97,20 @@ class TestFramework(QiskitExperimentsTestCase):
 
         class FakeFailedAnalysis(FakeAnalysis):
             """raise analysis error"""
+
             def _run_analysis(self, experiment_data, **options):
-                raise AnalysisError(f"Failed analysis for testing.")
+                raise AnalysisError("Failed analysis for testing.")
 
         analysis = FakeAnalysis()
         failed_analysis = FakeFailedAnalysis()
         expdata1 = analysis.run(ExperimentData(), seed=54321)
         self.assertExperimentDone(expdata1)
-        result_ids = [res.result_id for res in expdata1.analysis_results()]
         with warnings.catch_warnings(record=True) as w:
             # Cause all warnings to always be triggered.
             warnings.simplefilter("always")
-            expdata2 = failed_analysis.run(expdata1, replace_results=True, seed=12345).block_for_results()
+            expdata2 = failed_analysis.run(
+                expdata1, replace_results=True, seed=12345
+            ).block_for_results()
 
             # check warning message raised.
             self.assertIn("Failed analysis for testing.", w[-1].message.args[0])
@@ -122,14 +124,14 @@ class TestFramework(QiskitExperimentsTestCase):
 
         class FakeFailedAnalysis(FakeAnalysis):
             """raise analysis error"""
+
             def _run_analysis(self, experiment_data, **options):
-                raise AnalysisError(f"Failed analysis for testing.")
+                raise AnalysisError("Failed analysis for testing.")
 
         analysis = FakeAnalysis()
         failed_analysis = FakeFailedAnalysis()
         expdata1 = analysis.run(ExperimentData(), seed=54321)
         self.assertExperimentDone(expdata1)
-        result_ids = [res.result_id for res in expdata1.analysis_results()]
         with warnings.catch_warnings(record=True) as w:
             # Cause all warnings to always be triggered.
             warnings.simplefilter("always")

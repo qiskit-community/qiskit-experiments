@@ -167,9 +167,7 @@ class BaseAnalysis(ABC, StoreInitArgs):
                 # making new analysis
                 results, figures = analysis._run_analysis(expdata)
             except AnalysisError as ex:
-                error_msg = (
-                    f"The analysis failed with the following message: {str(ex)}"
-                )
+                error_msg = f"The analysis failed with the following message: {str(ex)}"
                 warnings.warn(error_msg)
                 # raise AnalysisError(f"The analysis failed with error: {str(ex)}") from ex
             else:
