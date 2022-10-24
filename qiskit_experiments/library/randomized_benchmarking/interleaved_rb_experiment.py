@@ -203,17 +203,19 @@ class InterleavedRB(StandardRB):
         # Convert interleaved element to transpiled circuit operation and store it for speed
         basis_gates = self._get_basis_gates()
         # Convert interleaved element to circuit
+        if isinstance(self._interleaved_op, Clifford):
+            self._interleaved_op = self._interleaved_op.to_circuit()
+
+        # assert isinstance(self._interleaved_op, (Instruction, QuantumCircuit))
         if isinstance(self._interleaved_op, QuantumCircuit):
             interleaved_circ = self._interleaved_op
-        elif isinstance(self._interleaved_op, Clifford):
-            interleaved_circ = self._interleaved_op.to_circuit()
         elif isinstance(self._interleaved_op, Gate):
             interleaved_circ = QuantumCircuit(self.num_qubits, name=self._interleaved_op.name)
             interleaved_circ.append(self._interleaved_op, list(range(self.num_qubits)))
         else:  # Delay
             interleaved_circ = []
+
         if basis_gates and any(i.operation.name not in basis_gates for i in interleaved_circ):
-            interleaved_circ.name = f"Clifford-{interleaved_circ.name}"
             # Transpile circuit with non-basis gates and remove idling qubits
             try:
                 interleaved_circ = transpile(
@@ -229,6 +231,8 @@ class InterleavedRB(StandardRB):
                 self._interleaved_op = interleaved_circ.data[0].operation
             else:
                 self._interleaved_op = interleaved_circ
-        # assert isinstance(self._interleaved_op, (Instruction, QuantumCircuit)
-        if not isinstance(self._interleaved_op, Instruction):
+
+        if isinstance(self._interleaved_op, QuantumCircuit):
+            if not self._interleaved_op.name.startswith("Clifford"):
+                self._interleaved_op.name = f"Clifford-{self._interleaved_op.name}"
             self._interleaved_op = self._interleaved_op.to_instruction()

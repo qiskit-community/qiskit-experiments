@@ -372,6 +372,26 @@ class TestInterleavedRB(QiskitExperimentsTestCase, RBTestMixin):
         # for qc in circuits:
         #     self.assertEqual(qc.num_parameters, 0)
 
+    # ### Tests for transpiled circuit generation ###
+    def test_interleaved_circuit_is_decomposed(self):
+        """Test if interleaved circuit is decomposed in transpiled circuits."""
+        delay_qc = QuantumCircuit(2)
+        delay_qc.delay(160, [0])
+        delay_qc.x(1)
+
+        exp = rb.InterleavedRB(
+            interleaved_element=delay_qc,
+            qubits=[1, 2],
+            lengths=[3],
+            num_samples=1,
+            seed=1234,
+            backend=self.backend,
+        )
+        transpiled = exp._transpiled_circuits()
+        for qc in transpiled:
+            self.assertTrue(all(not inst.operation.name.startswith("circuit") for inst in qc))
+            self.assertTrue(all(not inst.operation.name.startswith("Clifford") for inst in qc))
+
 
 class RBRunTestCase(QiskitExperimentsTestCase, RBTestMixin):
     """Base test case for running RB experiments defining a common noise model."""
