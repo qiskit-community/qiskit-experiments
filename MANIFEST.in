@@ -1,5 +1,3 @@
 include LICENSE.txt
 include requirements.txt
 include qiskit_experiments/VERSION.txt
-include qiskit_experiments/library/randomized_benchmarking/data/*.npz
-exclude qiskit_experiments/library/randomized_benchmarking/data/*.py
