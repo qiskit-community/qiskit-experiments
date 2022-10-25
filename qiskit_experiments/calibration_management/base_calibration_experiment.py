@@ -264,6 +264,10 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
 
         Args:
             circuit: The quantum circuit to map to device qubits.
+
+        Returns:
+            A quantum circuit that has the same number of qubits as the backend and where
+            the physical qubits of the experiment have been properly mapped.
         """
         initial_layout = Layout.from_intlist(list(self.physical_qubits), *circuit.qregs)
 
