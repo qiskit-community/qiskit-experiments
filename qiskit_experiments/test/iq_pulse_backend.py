@@ -210,7 +210,7 @@ class IQPulseBackend(BackendV2):
     def solve(self, schedule: Union[ScheduleBlock, Schedule], qubits: Tuple[int]) -> np.ndarray:
         """Solves a single schdule block and returns the unitary"""
         if len(qubits) > 1:
-            QiskitError("TODO multi qubit gates")
+            QiskitError("Multi qubit gates are not yet implemented.")
         if isinstance(schedule, ScheduleBlock):
             schedule = block_to_schedule(schedule)
 
@@ -227,7 +227,7 @@ class IQPulseBackend(BackendV2):
         return unitary
 
     def run(self, run_input: Union[QuantumCircuit, List[QuantumCircuit]], **run_options) -> FakeJob:
-        """run method takes circuits as input and returns FakeJob with shots/IQ data"""
+        """run method takes circuits as input and returns FakeJob with IQ data or counts."""
 
         self.options.update_options(**run_options)
         shots = self.options.get("shots")
