@@ -44,7 +44,7 @@ from qiskit_experiments.test.utils import FakeJob
 
 # TODO: add switch to combine |2> shots into |1> for meas_level=2
 class IQPulseBackend(BackendV2):
-    """Pulse Simulator abstract class"""
+    """Abstract class for pulse simulation backends."""
 
     def __init__(
         self,
@@ -55,7 +55,16 @@ class IQPulseBackend(BackendV2):
         solver_method="RK23",
         **kwargs,
     ):
-        """Hamiltonian and operators is the Qiskit Dynamics object"""
+        """Initialize backend with model information.
+
+        Args:
+            static_hamiltonian: Time-independent term in the Hamiltonian.
+            hamiltonian_operators: List of time-dependent operators
+            static_dissipators: Constant dissipation operators. Defaults to None.
+            dt: Sample rate for simulating pulse schedules. Defaults to 0.1*1e-9.
+            solver_method: Numerical solver method to use. Check qiskit_dynamics for available
+                           methods. Defaults to "RK23".
+        """
         super().__init__(
             None,
             name="PulseBackendV2",
@@ -100,6 +109,7 @@ class IQPulseBackend(BackendV2):
 
     @property
     def target(self):
+        """Contains information for circuit transpilation"""
         return self._target
 
     @property
@@ -107,7 +117,7 @@ class IQPulseBackend(BackendV2):
         return None
 
     def defaults(self):
-        """return backend defaults"""
+        """return backend pulse defaults"""
         return self._defaults
 
     @classmethod
@@ -126,6 +136,14 @@ class IQPulseBackend(BackendV2):
 
     @staticmethod
     def _get_info(instruction: CircuitInstruction) -> Tuple[Tuple[int], Tuple[float], str]:
+        """Returns information that uniquely describes a cirucit instruction
+
+        Args:
+            instruction: A gate or operation in a QuantumCircuit
+
+        Returns:
+            Tuple of qubit index, gate parameters and name of instruction
+        """
         p_dict = instruction.operation
         qubit = tuple(int(str(val)[-2]) for val in instruction.qubits)
         params = tuple(float(val) for val in p_dict.params)
@@ -139,24 +157,16 @@ class IQPulseBackend(BackendV2):
         width: float,
         phase: Optional[float] = None,
     ) -> Tuple[List, List]:
-        """Generates IQ data for each logical levels
+        """Generates IQ data for each physical level
 
-        Parameters
-        ----------
-        probability : np.ndarray
-            probability of occupation
-        shots : int
-            Number of shots
-        centers : List[Tuple[float, float]]
-            The central i and q points for each level
-        width : float
-            Width of IQ data distribution
-        phase : float, optional
-            Phase of IQ data, by default 0
+        Args:
+            probability: probability of occupation
+            shots: Number of shots
+            centers: The central i and q points for each level
+            width: Width of IQ data distribution
+            phase: Phase of IQ data, by default 0. Defaults to None.
 
-        Returns
-        -------
-        Tuple[List,List]
+        Returns:
             (I,Q) data
         """
         counts_n = np.random.multinomial(shots, probability / sum(probability), size=1).T
@@ -184,8 +194,19 @@ class IQPulseBackend(BackendV2):
         shots: int,
         meas_level: MeasLevel,
         meas_return: MeasReturnType,
-    ) -> Union[Dict[str, int], complex]:
-        """Convert the state vector to IQ data or counts."""
+    ) -> Union[Dict[str, int], np.ndarray]:
+        """Convert State operator objects to IQ data or Counts
+
+        Args:
+            state: Quantum state information.
+            shots: Number of repetitions of each circuit, for sampling.
+            meas_level: Measurement level 1 returns IQ data. 2 returns counts.
+            meas_return: "single" returns information from every shot. "avg" returns average
+                          measurement output (averaged over number of shots).
+
+        Returns:
+            Measurement Output
+        """
         if self.noise is True:
             state = state.reshape(self.logical_levels, self.logical_levels)
             state = DensityMatrix(state / np.trace(state))
@@ -208,7 +229,15 @@ class IQPulseBackend(BackendV2):
         return measurement_data
 
     def solve(self, schedule: Union[ScheduleBlock, Schedule], qubits: Tuple[int]) -> np.ndarray:
-        """Solves a single schdule block and returns the unitary"""
+        """Solves for qubit dynamics under the acion of a pulse instruction
+
+        Args:
+            schedule: Pulse signal
+            qubits: (remove after multiqubit gates is implemented)
+
+        Returns:
+            Time-evolution unitary operator
+        """
         if len(qubits) > 1:
             QiskitError("Multi qubit gates are not yet implemented.")
         if isinstance(schedule, ScheduleBlock):
@@ -227,7 +256,14 @@ class IQPulseBackend(BackendV2):
         return unitary
 
     def run(self, run_input: Union[QuantumCircuit, List[QuantumCircuit]], **run_options) -> FakeJob:
-        """run method takes circuits as input and returns FakeJob with IQ data or counts."""
+        """run method takes circuits as input and returns FakeJob with IQ data or counts.
+
+        Args:
+            run_input: Circuits to run
+
+        Returns:
+            FakeJob with simulation data
+        """
 
         self.options.update_options(**run_options)
         shots = self.options.get("shots")
@@ -285,7 +321,11 @@ class IQPulseBackend(BackendV2):
 
 
 class SingleTransmonTestBackend(IQPulseBackend):
-    """Three level anharmonic transmon qubit"""
+    r"""Three level anharmonic transmon qubit.
+    .. math::
+        H = \hbar \sum_{j=1,2} \left[\omega_j \Pi_j + 
+                \mathcal{E}(t) \lambda_j (\sigma_j^+ + \sigma_j^-)\right]
+    """
 
     def __init__(
         self,
@@ -299,18 +339,13 @@ class SingleTransmonTestBackend(IQPulseBackend):
     ):
         """Initialise backend with hamiltonian parameters
 
-        Parameters
-        ----------
-        qubit_frequency : float
-            Frequency of the qubit (0-1)
-        anharmonicity : float
-            Qubit anharmonicity $\\alpha$ = f12 - f01
-        lambda_0 : float
-            Strength of 0-1 transition
-        lambda_1 : float
-            Strength of 1-2 transition
-        gamma_1 : float
-            Relaxation rate for 1-0
+        Args:
+            qubit_frequency: Frequency of the qubit (0-1). Defaults to 5e9.
+            anharmonicity: Qubit anharmonicity $\\alpha$ = f12 - f01. Defaults to -0.25e9.
+            lambda_1: Strength of 0-1 transition. Defaults to 1e9.
+            lambda_2: Strength of 1-2 transition. Defaults to 0.8e9.
+            gamma_1: Relaxation rate (1/T1) for 1-0. Defaults to 1e4.
+            noise: . Defaults to True.
         """
         qubit_frequency_02 = 2 * qubit_frequency + anharmonicity
         ket0 = np.array([[1, 0, 0]]).T
