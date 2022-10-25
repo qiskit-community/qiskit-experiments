@@ -259,6 +259,9 @@ class ExperimentData:
         # to finish first.
         self._analysis_executor = futures.ThreadPoolExecutor(max_workers=2)
         self._monitor_executor = futures.ThreadPoolExecutor()
+        self._save_futures = ThreadSafeList()
+        # we allow the user to specify max_workers when saving, so do not create yet
+        self._save_executor = None
 
         # data storage
         self._result_data = ThreadSafeList()
@@ -1379,7 +1382,9 @@ class ExperimentData:
             experiment_id=self.experiment_id, figure=figure, figure_name=name
         )
 
-    def save(self, suppress_errors: bool = True, max_workers: int = None) -> None:
+    def save(
+        self, suppress_errors: bool = True, max_workers: int = None, blocking: bool = True
+    ) -> None:
         """Save the experiment data to a database service.
 
         Args:
@@ -1387,6 +1392,9 @@ class ExperimentData:
             pass them on, potentially aborting the experiemnt (false)
             max_workers: Maximum number of multithreaded workers to use when uploading
             analysis results and figures
+            blocking: Whether save() should wait for all threads to terminate before
+            proceeding (`True`) or delegate blocking to the user calling `block_for_save`
+            later (`False`)
         .. note::
             This saves the experiment metadata, all analysis results, and all
             figures. Depending on the number of figures and analysis results this
@@ -1408,28 +1416,37 @@ class ExperimentData:
             LOG.warning("Could not save experiment metadata to DB, aborting experiment save")
             return
 
-        with futures.ThreadPoolExecutor(max_workers=max_workers) as pool:
+        # dealing with individual results and figures is done via multithreading
+        with self._save_futures.lock:
+            if self._save_executor is not None:
+                self._save_executor.shutdown(cancel_futures=True)
+            self._save_executor = futures.ThreadPoolExecutor(max_workers=max_workers)
             for result in self._analysis_results.values():
-                pool.submit(self._save_analysis_result, result, suppress_errors)
+                self._save_futures.append(
+                    self._save_executor.submit(self._save_analysis_result, result, suppress_errors)
+                )
+            with self._figures.lock:
+                for name, figure in self._figures.items():
+                    self._save_futures.append(
+                        self._save_executor.submit(self._save_figure, name, figure)
+                    )
 
         for result in self._deleted_analysis_results.copy():
             with service_exception_to_warning():
                 self._service.delete_analysis_result(result_id=result)
             self._deleted_analysis_results.remove(result)
 
-        with self._figures.lock:
-            with futures.ThreadPoolExecutor(max_workers=max_workers) as pool:
-                for name, figure in self._figures.items():
-                    pool.submit(self._save_figure, name, figure)
-
         for name in self._deleted_figures.copy():
             with service_exception_to_warning():
                 self._service.delete_figure(experiment_id=self.experiment_id, figure_name=name)
             self._deleted_figures.remove(name)
 
+        if blocking:
+            self.block_for_save()
+
         if not self.service.local and self.verbose:
             print(
-                "You can view the experiment online at "
+                "After saving is done, you can view the experiment online at "
                 f"https://quantum-computing.ibm.com/experiments/{self.experiment_id}"
             )
         # handle children, but without additional prints
@@ -1544,6 +1561,35 @@ class ExperimentData:
         analysis_cancelled = self.cancel_analysis()
         jobs_cancelled = self.cancel_jobs()
         return analysis_cancelled and jobs_cancelled
+
+    def block_for_save(self, timeout: Optional[float] = None) -> "ExperimentData":
+        """Block until all pending save operations finish.
+
+        Args:
+            timeout: Timeout in seconds for waiting for results.
+
+        Returns:
+            The experiment data with finished jobs and post-processing.
+        """
+        start_time = time.time()
+        with self._save_futures.lock:
+            save_futs = list(self._save_futures)
+        self._wait_for_futures(save_futs, name="database save", timeout=timeout)
+        # Clean up done job futures
+        num_saves = len(save_futs)
+        for i, fut in enumerate(save_futs):
+            if (fut.done() and not fut.exception()) or fut.cancelled():
+                del self._save_futures[i]
+                num_saves -= 1
+
+        # Check if more futures got added while this function was running
+        # and block recursively. This could happen if an analysis callback
+        # spawns another callback or creates more jobs
+        if len(self._save_futures) > num_saves:
+            time_taken = time.time() - start_time
+            if timeout is not None:
+                timeout = max(0, timeout - time_taken)
+            return self.block_for_results(timeout=timeout)
 
     def block_for_results(self, timeout: Optional[float] = None) -> "ExperimentData":
         """Block until all pending jobs and analysis callbacks finish.
