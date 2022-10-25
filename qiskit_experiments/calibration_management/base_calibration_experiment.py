@@ -157,7 +157,7 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
                 to the value "default".
             add_measure_schedules (bool): A boolean that can be set to True (False is the default)
                 to attach schedules to the measure instructions in the transpiled circuits.
-                This can be used when calibration measurement schedules.
+                This can be used when calibrating measurement schedules.
         """
         options = super()._default_experiment_options()
         options.update_options(result_index=-1, group="default", add_measure_schedules=False)
