@@ -286,7 +286,10 @@ class StandardRB(BaseExperiment, RestlessMixin):
         if self.num_qubits <= 2:
             new = base_elem
             for elem in elements:
-                new = self.__compose_clifford(new, elem)
+                if self.num_qubits == 1:
+                    new = compose_1q(new, elem)
+                if self.num_qubits == 2:
+                    new = compose_2q(new, elem)
             return new
         # 3 or more qubits: compose Clifford from circuits for speed
         # TODO: Revisit after terra#7269, #7483, #8585
@@ -294,15 +297,6 @@ class StandardRB(BaseExperiment, RestlessMixin):
         for elem in elements:
             circ.compose(elem, inplace=True)
         return base_elem.compose(Clifford.from_circuit(circ))
-
-    def __compose_clifford(
-        self, left_elem: SequenceElementType, right_elem: SequenceElementType
-    ) -> SequenceElementType:
-        if self.num_qubits == 1:
-            return compose_1q(left_elem, right_elem)
-        if self.num_qubits == 2:
-            return compose_2q(left_elem, right_elem)
-        return left_elem.compose(right_elem)
 
     def __adjoint_clifford(self, op: SequenceElementType) -> SequenceElementType:
         if self.num_qubits == 1:

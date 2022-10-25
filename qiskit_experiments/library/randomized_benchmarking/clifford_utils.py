@@ -295,7 +295,7 @@ class CliffordUtils:
         return res
 
 
-# Constant mapping from 1Q single Clifford gate to 1Q Clifford number.
+# Constant mapping from 1Q single Clifford gate to 1Q Clifford numerical identifier.
 # This table must be generated using `data.generate_clifford_data.gen_cliff_single_1q_gate_map`.
 _CLIFF_SINGLE_GATE_MAP_1Q = {
     ("id", (0,)): 0,
@@ -308,7 +308,7 @@ _CLIFF_SINGLE_GATE_MAP_1Q = {
     ("z", (0,)): 18,
     ("sdg", (0,)): 22,
 }
-# Constant mapping from 2Q single Clifford gate to 2Q Clifford number.
+# Constant mapping from 2Q single Clifford gate to 2Q Clifford numerical identifier.
 # This table must be generated using `data.generate_clifford_data.gen_cliff_single_2q_gate_map`.
 _CLIFF_SINGLE_GATE_MAP_2Q = {
     ("id", (0,)): 0,
