@@ -374,7 +374,7 @@ class SingleTransmonTestBackend(IQPulseBackend):
         t1_dissipator = np.sqrt(gamma_1) * sigma_m1
 
         self.anharmonicity = anharmonicity
-        self.rabi_rate_01 = 8.6
+        self.rabi_rate_01 = 8.589
         self.rabi_rate_12 = 6.876
 
         if noise is True:

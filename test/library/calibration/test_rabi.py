@@ -51,29 +51,27 @@ class TestRabiEndToEnd(QiskitExperimentsTestCase):
     def test_rabi_end_to_end(self):
         """Test the Rabi experiment end to end."""
 
-        test_tol = 0.02
-        backend = self.backend
+        test_tol = 0.015
 
-        rabi = Rabi(self.qubit, self.sched)
+        rabi = Rabi(self.qubit, self.sched, backend=self.backend)
         rabi.set_experiment_options(amplitudes=np.linspace(-0.1, 0.1, 31))
-        expdata = rabi.run(backend)
+        expdata = rabi.run()
         self.assertExperimentDone(expdata)
         result = expdata.analysis_results(0)
 
         self.assertEqual(result.quality, "good")
         # The comparison is made against the object that exists in the backend for accurate testing
-        self.assertAlmostEqual(result.value.params["freq"], backend.rabi_rate_01, delta=test_tol)
+        self.assertAlmostEqual(result.value.params["freq"], self.backend.rabi_rate_01, delta=test_tol)
 
     def test_wrong_processor(self):
         """Test that we can override the data processing by giving a faulty data processor."""
-        backend = self.backend
-        rabi = Rabi(self.qubit, self.sched)
+        rabi = Rabi(self.qubit, self.sched, backend = self.backend)
         fail_key = "fail_key"
 
         rabi.analysis.set_options(data_processor=DataProcessor(fail_key, []))
         # pylint: disable=no-member
         rabi.set_run_options(shots=2)
-        data = rabi.run(backend)
+        data = rabi.run()
         result = data.analysis_results()
 
         self.assertEqual(data.status(), ExperimentStatus.ERROR)
@@ -116,18 +114,17 @@ class TestEFRabi(QiskitExperimentsTestCase):
         """Test the EFRabi experiment end to end."""
 
         test_tol = 0.01
-        backend = self.backend
 
         # Note that the backend is not sophisticated enough to simulate an e-f
         # transition so we run the test with a tiny frequency shift, still driving the e-g transition.
-        rabi = EFRabi(self.qubit, self.sched)
+        rabi = EFRabi(self.qubit, self.sched, backend = self.backend)
         rabi.set_experiment_options(amplitudes=np.linspace(-0.1, 0.1, 31))
-        expdata = rabi.run(backend)
+        expdata = rabi.run()
         self.assertExperimentDone(expdata)
         result = expdata.analysis_results(1)
 
         self.assertEqual(result.quality, "good")
-        self.assertTrue(abs(result.value.n - backend.rabi_rate_12) < test_tol)
+        self.assertTrue(abs(result.value.n - self.backend.rabi_rate_12) < test_tol)
 
     def test_ef_rabi_circuit(self):
         """Test the EFRabi experiment end to end."""
