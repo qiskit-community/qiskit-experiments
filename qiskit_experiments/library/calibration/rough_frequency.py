@@ -13,6 +13,8 @@
 """Calibration version of spectroscopy experiments."""
 
 from typing import Iterable, Optional
+
+from qiskit.circuit import QuantumCircuit
 from qiskit.providers.backend import Backend
 
 from qiskit_experiments.library.characterization.qubit_spectroscopy import QubitSpectroscopy
@@ -67,6 +69,10 @@ class RoughFrequencyCal(BaseCalibrationExperiment, QubitSpectroscopy):
             auto_update=auto_update,
         )
 
+    def _attach_calibrations(self, circuit: QuantumCircuit):
+        """QubitSpectroscopy already has the schedules attached in the program circuits."""
+        pass
+
 
 class RoughEFFrequencyCal(BaseCalibrationExperiment, EFSpectroscopy):
     """A calibration experiment that runs QubitSpectroscopy.
@@ -111,3 +117,8 @@ class RoughEFFrequencyCal(BaseCalibrationExperiment, EFSpectroscopy):
             updater=Frequency,
             auto_update=auto_update,
         )
+
+    def _attach_calibrations(self, circuit: QuantumCircuit):
+        """Adds the calibrations to the transpiled circuits."""
+        schedule = self._cals.get_schedule("x", self.physical_qubits)
+        circuit.add_calibration("x", self.physical_qubits, schedule)
