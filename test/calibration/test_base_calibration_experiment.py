@@ -12,9 +12,9 @@
 
 """Tests for the base class for calibration-type experiments."""
 
-from qiskit.circuit import QuantumCircuit
-
 from test.base import QiskitExperimentsTestCase
+
+from qiskit.circuit import QuantumCircuit
 
 from qiskit_experiments.library import QubitSpectroscopy
 from qiskit_experiments.calibration_management.calibrations import Calibrations
