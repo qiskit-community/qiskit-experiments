@@ -63,9 +63,9 @@ class TestRoughFrequency(QiskitExperimentsTestCase):
 
         frequencies = np.linspace(freq01 - 10.0e6, freq01 + 10.0e6, 21)
 
-        spec = RoughFrequencyCal(0, cals, frequencies)
+        spec = RoughFrequencyCal(0, cals, frequencies, backend=backend_5mhz)
         spec.set_experiment_options(amp=0.005)
-        expdata = spec.run(backend_5mhz)
+        expdata = spec.run()
         self.assertExperimentDone(expdata)
 
         # Check the updated frequency which should be shifted by 5MHz.

@@ -58,8 +58,10 @@ class TestRoughAmpCal(QiskitExperimentsTestCase):
         tol = 0.01
         default_amp = 0.5 / self.backend.rabi_rate_01
 
-        rabi_ef = RoughXSXAmplitudeCal(0, self.cals, amplitudes=np.linspace(-0.1, 0.1, 21))
-        expdata = rabi_ef.run(self.backend)
+        rabi_ef = RoughXSXAmplitudeCal(
+            0, self.cals, amplitudes=np.linspace(-0.1, 0.1, 21), backend=self.backend
+        )
+        expdata = rabi_ef.run()
         self.assertExperimentDone(expdata)
 
         self.assertAlmostEqual(self.cals.get_parameter_value("amp", 0, "x"), default_amp, delta=tol)
@@ -68,8 +70,10 @@ class TestRoughAmpCal(QiskitExperimentsTestCase):
         )
 
         self.cals.add_parameter_value(int(4 * 160 / 5), "duration", (), schedule="x")
-        rabi_ef = RoughXSXAmplitudeCal(0, self.cals, amplitudes=np.linspace(-0.1, 0.1, 21))
-        expdata = rabi_ef.run(self.backend)
+        rabi_ef = RoughXSXAmplitudeCal(
+            0, self.cals, amplitudes=np.linspace(-0.1, 0.1, 21), backend=self.backend
+        )
+        expdata = rabi_ef.run()
         self.assertExperimentDone(expdata)
 
         self.assertTrue(
@@ -147,8 +151,10 @@ class TestSpecializations(QiskitExperimentsTestCase):
         tol = 0.01
         default_amp = 0.5 / self.backend.rabi_rate_12
 
-        rabi_ef = EFRoughXSXAmplitudeCal(0, self.cals, amplitudes=np.linspace(-0.1, 0.1, 21))
-        expdata = rabi_ef.run(self.backend)
+        rabi_ef = EFRoughXSXAmplitudeCal(
+            0, self.cals, amplitudes=np.linspace(-0.1, 0.1, 21), backend=self.backend
+        )
+        expdata = rabi_ef.run()
         self.assertExperimentDone(expdata)
 
         self.assertAlmostEqual(
