@@ -83,7 +83,6 @@ class IQPulseBackend(BackendV2):
         )
         self._rng = np.random.default_rng(0)
         self.converter = None
-        self.logical_levels = None
         self.noise = static_dissipators is not None
 
         self.solver_method = solver_method
@@ -188,6 +187,16 @@ class IQPulseBackend(BackendV2):
         full_iq = 1e16 * np.array([[full_i], [full_q]]).T
         return full_iq.tolist()
 
+    def iq_cluster_centers(self, **kwargs):
+        """A function to provide the points for the IQ centers when doing readout.
+
+        Subclasses can override this function, for instance, to provide circuit dependent
+        IQ cluster centers. If this function is not overridden then the IQ cluster centers returned
+        are evenly distributed on the unit sphere in the IQ plane with |0> located at IQ point (0, 1).
+        """
+        theta = 2 * np.pi / self.model_dim
+        return [(np.cos(idx * theta), np.sin(idx * theta)) for idx in range(self.model_dim)]
+
     def _state_to_measurement_data(
         self,
         state: np.ndarray,
@@ -208,7 +217,7 @@ class IQPulseBackend(BackendV2):
             Measurement Output
         """
         if self.noise is True:
-            state = state.reshape(self.logical_levels, self.logical_levels)
+            state = state.reshape(self.model_dim, self.model_dim)
             state = DensityMatrix(state / np.trace(state))
         else:
             state = Statevector(state / np.linalg.norm(state))
@@ -217,12 +226,8 @@ class IQPulseBackend(BackendV2):
             measurement_data = state.sample_counts(shots)
 
         elif meas_level == MeasLevel.KERNELED:
-            # TODO: don't hardcode number of levels:
-            # a) move centers infor to subclass OR
-            # b) take system dims parameter
-            measurement_data = self.iq_data(
-                state.probabilities(), shots, [(-1, -1), (1, 1), (0, np.sqrt(2))], 0.2
-            )
+            centers = self.iq_cluster_centers()
+            measurement_data = self.iq_data(state.probabilities(), shots, centers, 0.2)
             if meas_return == "avg":
                 measurement_data = np.average(np.array(measurement_data), axis=0)
 
@@ -323,7 +328,7 @@ class IQPulseBackend(BackendV2):
 class SingleTransmonTestBackend(IQPulseBackend):
     r"""Three level anharmonic transmon qubit.
     .. math::
-        H = \hbar \sum_{j=1,2} \left[\omega_j \Pi_j + 
+        H = \hbar \sum_{j=1,2} \left[\omega_j \Pi_j +
                 \mathcal{E}(t) \lambda_j (\sigma_j^+ + \sigma_j^-)\right]
     """
 
@@ -369,7 +374,7 @@ class SingleTransmonTestBackend(IQPulseBackend):
         t1_dissipator = np.sqrt(gamma_1) * sigma_m1
 
         self.anharmonicity = anharmonicity
-        self.rabi_rate_01 = 8.594
+        self.rabi_rate_01 = 8.6
         self.rabi_rate_12 = 6.876
 
         if noise is True:
@@ -389,7 +394,6 @@ class SingleTransmonTestBackend(IQPulseBackend):
             evaluation_mode=evaluation_mode,
             **kwargs,
         )
-        self.logical_levels = 3
 
         self._defaults = PulseDefaults.from_dict(
             {
