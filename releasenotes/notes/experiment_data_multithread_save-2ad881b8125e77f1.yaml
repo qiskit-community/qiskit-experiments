@@ -1,0 +1,8 @@
+---
+features:
+  - |
+    `ExperimentData.save()` now supports multithreading to improve saving times.
+    `save` has two new optional parameters: `max_workers` to denote the maximum
+    number of threads used for saving (defaults to the `futures` default) and
+    `blocking` do denote whether `save()` blocks (waits for all threads to finish)
+    or not.
