@@ -167,12 +167,13 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
         return Options()
 
     def set_transpile_options(self, **fields):
-        """Add a warning message."""
-        warnings.warn(
-            f"Transpile options are not used in {self.__class__.__name__ }. "
-            "If your experiment has overridden `_transpiled_circuits` and needs "
-            "transpile options then please also override `set_transpile_options`."
-        )
+        r"""Add a warning message.
+
+        .. notes::
+            If your experiment has overridden `_transpiled_circuits` and needs
+            transpile options then please also override `set_transpile_options`.
+        """
+        warnings.warn(f"Transpile options are not used in {self.__class__.__name__ }.")
 
     def update_calibrations(self, experiment_data: ExperimentData):
         """Update parameter values in the :class:`Calibrations` instance.
