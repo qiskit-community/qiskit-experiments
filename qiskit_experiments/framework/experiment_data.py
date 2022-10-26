@@ -259,7 +259,7 @@ class ExperimentData:
         # to finish first.
         self._analysis_executor = futures.ThreadPoolExecutor(max_workers=2)
         self._monitor_executor = futures.ThreadPoolExecutor()
-        self._save_futures = ThreadSafeList()
+        self._save_futures = ThreadSafeOrderedDict()
         # we allow the user to specify max_workers when saving, so do not create yet
         self._save_executor = None
 
@@ -1418,18 +1418,19 @@ class ExperimentData:
 
         # dealing with individual results and figures is done via multithreading
         with self._save_futures.lock:
+            for jid in self._save_futures:
+                self._save_futures[jid].cancel()
+                del self._save_futures[jid]
             if self._save_executor is not None:
-                self._save_executor.shutdown(cancel_futures=True)
+                self._save_executor.shutdown(wait=False)
             self._save_executor = futures.ThreadPoolExecutor(max_workers=max_workers)
             for result in self._analysis_results.values():
-                self._save_futures.append(
-                    self._save_executor.submit(self._save_analysis_result, result, suppress_errors)
-                )
+                cid = uuid.uuid4().hex
+                self._save_futures[cid] = self._save_executor.submit(self._save_analysis_result, result, suppress_errors)
             with self._figures.lock:
                 for name, figure in self._figures.items():
-                    self._save_futures.append(
-                        self._save_executor.submit(self._save_figure, name, figure)
-                    )
+                    cid = uuid.uuid4().hex
+                    self._save_futures[cid] = self._save_executor.submit(self._save_figure, name, figure)
 
         for result in self._deleted_analysis_results.copy():
             with service_exception_to_warning():
@@ -1573,13 +1574,14 @@ class ExperimentData:
         """
         start_time = time.time()
         with self._save_futures.lock:
-            save_futs = list(self._save_futures)
+            save_ids = self._save_futures.keys()
+            save_futs = self._save_futures.values()
         self._wait_for_futures(save_futs, name="database save", timeout=timeout)
         # Clean up done job futures
         num_saves = len(save_futs)
-        for i, fut in enumerate(save_futs):
+        for jid, fut in zip(save_ids, save_futs):
             if (fut.done() and not fut.exception()) or fut.cancelled():
-                del self._save_futures[i]
+                del self._save_futures[jid]
                 num_saves -= 1
 
         # Check if more futures got added while this function was running
@@ -1590,6 +1592,8 @@ class ExperimentData:
             if timeout is not None:
                 timeout = max(0, timeout - time_taken)
             return self.block_for_results(timeout=timeout)
+
+        return self
 
     def block_for_results(self, timeout: Optional[float] = None) -> "ExperimentData":
         """Block until all pending jobs and analysis callbacks finish.
