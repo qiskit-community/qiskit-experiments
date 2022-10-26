@@ -169,7 +169,7 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
     def set_transpile_options(self, **fields):
         r"""Add a warning message.
 
-        .. notes::
+        .. note::
             If your experiment has overridden `_transpiled_circuits` and needs
             transpile options then please also override `set_transpile_options`.
         """
