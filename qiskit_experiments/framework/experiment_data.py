@@ -1426,11 +1426,15 @@ class ExperimentData:
             self._save_executor = futures.ThreadPoolExecutor(max_workers=max_workers)
             for result in self._analysis_results.values():
                 cid = uuid.uuid4().hex
-                self._save_futures[cid] = self._save_executor.submit(self._save_analysis_result, result, suppress_errors)
+                self._save_futures[cid] = self._save_executor.submit(
+                    self._save_analysis_result, result, suppress_errors
+                )
             with self._figures.lock:
                 for name, figure in self._figures.items():
                     cid = uuid.uuid4().hex
-                    self._save_futures[cid] = self._save_executor.submit(self._save_figure, name, figure)
+                    self._save_futures[cid] = self._save_executor.submit(
+                        self._save_figure, name, figure
+                    )
 
         for result in self._deleted_analysis_results.copy():
             with service_exception_to_warning():
