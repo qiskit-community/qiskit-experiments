@@ -217,7 +217,7 @@ else:
 
 def _get_versions(app, config):
     context = config.html_context
-    start_version = (0, 1, 0)
+    start_version = (0, 5, 0)
     proc = subprocess.run(["git", "describe", "--abbrev=0"], capture_output=True)
     proc.check_returncode()
     current_version = proc.stdout.decode("utf8")
@@ -236,8 +236,7 @@ def _get_versions(app, config):
 
 def _get_version_label(current_version):
     if not os.getenv("EXPERIMENTS_DEV_DOCS", None):
-        current_version_info = current_version.split(".")
-        return ".".join(current_version_info[:-1])
+        return release
     else:
         return "Development"
 
