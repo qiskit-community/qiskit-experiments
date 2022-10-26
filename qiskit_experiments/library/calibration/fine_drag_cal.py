@@ -15,7 +15,7 @@
 from typing import Dict, Optional
 import numpy as np
 
-from qiskit.circuit import Gate
+from qiskit.circuit import Gate, QuantumCircuit
 from qiskit.providers.backend import Backend
 from qiskit.pulse import Play
 
@@ -80,7 +80,7 @@ class FineDragCal(BaseCalibrationExperiment, FineDrag):
                 This value is needed for the update rule.
         """
         options = super()._default_experiment_options()
-        options.target_angle = np.pi
+        options.update_options(target_angle=np.pi)
         return options
 
     def _metadata(self) -> Dict[str, any]:
@@ -104,6 +104,11 @@ class FineDragCal(BaseCalibrationExperiment, FineDrag):
         )
 
         return metadata
+
+    def _attach_calibrations(self, circuit: QuantumCircuit):
+        """Attach the calibrations to the circuit."""
+        schedule = self._cals.get_schedule(self._sched_name, self.physical_qubits)
+        circuit.add_calibration(self._sched_name, self.physical_qubits, schedule)
 
     def update_calibrations(self, experiment_data: ExperimentData):
         """Update the drag parameter of the pulse in the calibrations."""
