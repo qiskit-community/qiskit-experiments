@@ -162,7 +162,7 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
                 instance that defines the `self.__call__` method.
             normalization (bool) : Set ``True`` to normalize y values within range [-1, 1].
                 Default to ``False``.
-            average_method (str): Method of the y value averaging when the same x values
+            average_method (str): Method to average the y values when the same x values
                 appear multiple times. One of "sample", "iwv", "shots_weighted".
                 See :func:`~qiskit_experiments.curve_analysis.data_processing.mean_xy_data`
                 for details. Default to "shots_weighted".
