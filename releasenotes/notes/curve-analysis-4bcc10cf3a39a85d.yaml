@@ -1,0 +1,8 @@
+---
+features:
+  - |
+    New Curve Analysis options `average_method` has been added. This option
+    modifies an averaging technique for y values over the same x values.
+    Defaults to `sample` for the RB experiments and `shots_weighted` for the rest of analysis.
+    Previously the setup was hardcoded in the ``_format_data`` method of the analysis class,
+    and no statistical difference has been introduced with introduction of this option.
