@@ -311,7 +311,7 @@ class CurveAnalysis(BaseCurveAnalysis):
             ydata=curve_data.y,
             sigma=curve_data.y_err,
             shots=curve_data.shots,
-            method="shots_weighted",
+            method=self.options.average_method,
         )
 
         # sort by x value in ascending order
