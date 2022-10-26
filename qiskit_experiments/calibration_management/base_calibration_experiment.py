@@ -19,6 +19,7 @@ import warnings
 
 from qiskit import QuantumCircuit
 from qiskit.providers.backend import Backend
+from qiskit.providers.options import Options
 from qiskit.pulse import ScheduleBlock
 from qiskit.transpiler import StagedPassManager, PassManager, Layout, CouplingMap
 from qiskit.transpiler.passes import (
@@ -148,7 +149,7 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
         return self._cals
 
     @classmethod
-    def _default_experiment_options(cls):
+    def _default_experiment_options(cls) -> Options:
         """Default values for a calibration experiment.
 
         Experiment Options:
@@ -163,6 +164,19 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
         options.update_options(result_index=-1, group="default", add_measure_schedules=False)
 
         return options
+
+    @classmethod
+    def _default_transpile_options(cls) -> Options:
+        """Return empty default transpile options as optimization_level is not used."""
+        return Options()
+
+    def set_transpile_options(self, **fields):
+        """Add a warning message."""
+        warnings.warn(
+            f"Transpile options are not used in {self.__class__.__name__ }. "
+            "If your experiment has overridden `_transpiled_circuits` and needs "
+            "transpile options then please also override `set_transpile_options`."
+        )
 
     def update_calibrations(self, experiment_data: ExperimentData):
         """Update parameter values in the :class:`Calibrations` instance.
