@@ -20,7 +20,7 @@ import warnings
 from qiskit import QuantumCircuit
 from qiskit.providers.backend import Backend
 from qiskit.pulse import ScheduleBlock
-from qiskit.transpiler import PassManager, Layout, CouplingMap
+from qiskit.transpiler import StagedPassManager, PassManager, Layout, CouplingMap
 from qiskit.transpiler.passes import (
     EnlargeWithAncilla,
     FullAncillaAllocation,
@@ -271,14 +271,16 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
         """
         initial_layout = Layout.from_intlist(list(self.physical_qubits), *circuit.qregs)
 
-        return PassManager(
+        layout = PassManager(
             [
                 SetLayout(initial_layout),
                 FullAncillaAllocation(CouplingMap(self._backend_data.coupling_map)),
                 EnlargeWithAncilla(),
                 ApplyLayout(),
             ]
-        ).run(circuit)
+        )
+
+        return StagedPassManager(["layout"], layout=layout).run(circuit)
 
     def _attach_measure_schedules(self, circuit: QuantumCircuit):
         """Attach measurement schedules to the circuit."""
