@@ -156,13 +156,9 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
             result_index (int): The index of the result from which to update the calibrations.
             group (str): The calibration group to which the parameter belongs. This will default
                 to the value "default".
-            add_measure_schedules (bool): A boolean that can be set to True (False is the default)
-                to attach schedules to the measure instructions in the transpiled circuits.
-                This can be used when calibrating measurement schedules.
         """
         options = super()._default_experiment_options()
-        options.update_options(result_index=-1, group="default", add_measure_schedules=False)
-
+        options.update_options(result_index=-1, group="default")
         return options
 
     @classmethod
@@ -266,9 +262,6 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
             circ = self._map_to_physical_qubits(circ)
             self._attach_calibrations(circ)
 
-            if self.experiment_options.add_measure_schedules:
-                self._attach_measure_schedules(circ)
-
             transpiled.append(circ)
 
         return transpiled
@@ -295,12 +288,6 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
         )
 
         return StagedPassManager(["layout"], layout=layout).run(circuit)
-
-    def _attach_measure_schedules(self, circuit: QuantumCircuit):
-        """Attach measurement schedules to the circuit."""
-        for qubit in self.physical_qubits:
-            meas_sched = self._cals.get_schedule("measure", qubit)
-            circuit.add_calibration("measure", (qubit,), meas_sched)
 
     @abstractmethod
     def _attach_calibrations(self, circuit: QuantumCircuit):
