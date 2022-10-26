@@ -101,7 +101,7 @@ class InterleavedRB(StandardRB):
             )
         # - validate if interleaved_element is Clifford
         try:
-            self._interleaved_elem = Clifford(interleaved_element)
+            interleaved_clifford = Clifford(interleaved_element)
         except QiskitError as err:
             raise QiskitError(
                 f"Interleaved element {interleaved_element.name} could not be converted to Clifford."
@@ -140,13 +140,13 @@ class InterleavedRB(StandardRB):
             seed=seed,
             full_sampling=full_sampling,
         )
-        # Convert interleaved element to integer for speed
-        if self.num_qubits in {1, 2}:
-            interleaved_circ = self._interleaved_elem.to_circuit()
-            if self.num_qubits == 1:
-                self._interleaved_elem = num_from_1q_circuit(interleaved_circ)
-            else:
-                self._interleaved_elem = num_from_2q_circuit(interleaved_circ)
+        # Convert interleaved element to integer for speed in 1Q or 2Q case
+        if self.num_qubits == 1:
+            self._interleaved_elem = num_from_1q_circuit(interleaved_clifford.to_circuit())
+        elif self.num_qubits == 2:
+            self._interleaved_elem = num_from_2q_circuit(interleaved_clifford.to_circuit())
+        else:
+            self._interleaved_elem = interleaved_clifford
         self._interleaved_op = interleaved_element
         self.analysis = InterleavedRBAnalysis()
         self.analysis.set_options(outcome="0" * self.num_qubits)
@@ -206,7 +206,6 @@ class InterleavedRB(StandardRB):
         if isinstance(self._interleaved_op, Clifford):
             self._interleaved_op = self._interleaved_op.to_circuit()
 
-        # assert isinstance(self._interleaved_op, (Instruction, QuantumCircuit))
         if isinstance(self._interleaved_op, QuantumCircuit):
             interleaved_circ = self._interleaved_op
         elif isinstance(self._interleaved_op, Gate):
@@ -232,6 +231,7 @@ class InterleavedRB(StandardRB):
             else:
                 self._interleaved_op = interleaved_circ
 
+        # Store interleaved operation as Instruction
         if isinstance(self._interleaved_op, QuantumCircuit):
             if not self._interleaved_op.name.startswith("Clifford"):
                 self._interleaved_op.name = f"Clifford-{self._interleaved_op.name}"

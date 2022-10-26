@@ -63,7 +63,7 @@ _TO_INT_1Q = {_hash_cliff(cliff): i for i, cliff in _TO_CLIFF_1Q.items()}
 
 def gen_clifford_inverse_1q():
     """Generate table data for integer 1Q Clifford inversion"""
-    invs = np.zeros(NUM_CLIFFORD_1Q, dtype=int)
+    invs = np.empty(NUM_CLIFFORD_1Q, dtype=int)
     for i in range(NUM_CLIFFORD_1Q):
         invs[i] = _TO_INT_1Q[_hash_cliff(_TO_CLIFF_1Q[i].adjoint())]
     assert all(sorted(invs) == np.arange(0, NUM_CLIFFORD_1Q))
@@ -72,7 +72,7 @@ def gen_clifford_inverse_1q():
 
 def gen_clifford_compose_1q():
     """Generate table data for integer 1Q Clifford composition."""
-    products = np.zeros((NUM_CLIFFORD_1Q, NUM_CLIFFORD_1Q), dtype=int)
+    products = np.empty((NUM_CLIFFORD_1Q, NUM_CLIFFORD_1Q), dtype=int)
     for i in range(NUM_CLIFFORD_1Q):
         for j in range(NUM_CLIFFORD_1Q):
             cliff = _TO_CLIFF_1Q[i].compose(_TO_CLIFF_1Q[j])
@@ -87,7 +87,7 @@ _TO_INT_2Q = {_hash_cliff(cliff): i for i, cliff in _TO_CLIFF_2Q.items()}
 
 def gen_clifford_inverse_2q():
     """Generate table data for integer 2Q Clifford inversion"""
-    invs = np.zeros(NUM_CLIFFORD_2Q, dtype=int)
+    invs = np.empty(NUM_CLIFFORD_2Q, dtype=int)
     for i in range(NUM_CLIFFORD_2Q):
         invs[i] = _TO_INT_2Q[_hash_cliff(_TO_CLIFF_2Q[i].adjoint())]
     assert all(sorted(invs) == np.arange(0, NUM_CLIFFORD_2Q))
@@ -95,16 +95,15 @@ def gen_clifford_inverse_2q():
 
 
 def gen_clifford_compose_2q_gate():
-    """Generate table data for integer 2Q Clifford composition.
+    """Generate data for a 2Q Clifford composition table.
 
-    Note that the full compose table of all-Cliffords by all-Cliffords is *NOT* created.
-    Instead, only the Cliffords that consist of a single gate defined in ``_CLIFF_SINGLE_GATE_MAP_2Q``
-    are considered as the target Clifford. That means the compose table of
-    all-Cliffords by single-gate-cliffords is created.
-    It is sufficient because every Clifford on the right hand side of Clifford composition
-    can be broken down into a sequence of single gate Cliffords.
-    This greatly reduces the storage space for the array of
-    composition results (from O(n^2) to O(n)), where n is the number of Cliffords.
+    Cliffords are represented as integers between 0 and 11519. Note that the full composition table
+    would require :math:`11520^2:` elements and is therefore *NOT* generated, as that would take
+    more than 100MB. Instead, we sparsely populate the composition table only for RHS elements
+    from a specific set of basis gates defined by the values of ``_CLIFF_SINGLE_GATE_MAP_2Q``.
+    This is sufficient because when composing two arbitrary Cliffords, we can decompose the RHS
+    into these basis gates (which needs to be done anyways), and subsequently compute the product
+    in multiple steps using this sparse table.
     """
     products = scipy.sparse.lil_matrix((NUM_CLIFFORD_2Q, NUM_CLIFFORD_2Q), dtype=int)
     for lhs in range(NUM_CLIFFORD_2Q):
@@ -129,7 +128,8 @@ _GATE_LIST_1Q = [
 
 def gen_cliff_single_1q_gate_map():
     """
-    Generates a dict mapping numbers to 1Q Cliffords, which is set to ``_CLIFF_SINGLE_GATE_MAP_1Q``
+    Generates a dict mapping numbers to 1Q Cliffords
+    to be used as the value for ``_CLIFF_SINGLE_GATE_MAP_1Q``
     in :mod:`~qiskit_experiment.library.randomized_benchmarking.clifford_utils`.
     Based on it, we build a mapping from every single-gate-clifford to its number.
     The mapping actually looks like {(gate, (0, )): num}.
@@ -146,7 +146,8 @@ def gen_cliff_single_1q_gate_map():
 
 def gen_cliff_single_2q_gate_map():
     """
-    Generates a dict mapping numbers to 2Q Cliffords, which is set to ``_CLIFF_SINGLE_GATE_MAP_2Q``
+    Generates a dict mapping numbers to 2Q Cliffords
+    to be used as the value for ``_CLIFF_SINGLE_GATE_MAP_2Q``
     in :mod:`~qiskit_experiment.library.randomized_benchmarking.clifford_utils`.
     Based on it, we build a mapping from every single-gate-clifford to its number.
     The mapping actually looks like {(gate, (0, 1)): num}.
