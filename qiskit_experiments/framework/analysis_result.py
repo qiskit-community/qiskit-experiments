@@ -232,15 +232,12 @@ class AnalysisResult:
             if not suppress_errors:
                 raise QiskitError(f"Analysis result save failed\nError Message:\n{str(ex)}") from ex
 
-    def copy(self) -> "AnalysisResult":
+    def copy(self, exp_id: str = None) -> "AnalysisResult":
         """Return a copy of the result with a new result ID"""
-        new_instance = AnalysisResult(
-            name=self.name,
-            value=self.value,
-            device_components=self.device_components,
-            experiment_id=self.experiment_id,
-        )
+        new_instance = AnalysisResult()
         new_instance._db_data = self._db_data.copy()
+        if exp_id is not None:
+            new_instance.experiment_id = exp_id
         new_instance._db_data.result_id = str(uuid.uuid4())
         return new_instance
 
@@ -260,7 +257,7 @@ class AnalysisResult:
         Returns:
             Analysis result value.
         """
-        return self._db_data.result_data["_value"]
+        return self._db_data.result_data.get("_value")
 
     @value.setter
     def value(self, new_value: Any) -> None:

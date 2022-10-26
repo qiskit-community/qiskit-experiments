@@ -1367,11 +1367,12 @@ class ExperimentData:
     def _save_analysis_result(self, result, suppress_errors):
         """Saves the analysis result"""
         result.save(suppress_errors=suppress_errors)
+        return result.result_id, True
 
     def _save_figure(self, name, figure):
         """Saves the given figure"""
         if figure is None:
-            return
+            return None, False
         # currently only the figure and its name are stored in the database
         if isinstance(figure, FigureData):
             figure = figure.figure
@@ -1381,6 +1382,7 @@ class ExperimentData:
         self._service.create_or_update_figure(
             experiment_id=self.experiment_id, figure=figure, figure_name=name
         )
+        return name, True
 
     def save(
         self, suppress_errors: bool = True, max_workers: int = None, blocking: bool = True
@@ -1964,7 +1966,7 @@ class ExperimentData:
 
         return expdata
 
-    def copy(self, copy_results: bool = True) -> "ExperimentData":
+    def copy(self, copy_results: bool = True, exp_id: str = None) -> "ExperimentData":
         """Make a copy of the experiment data with a new experiment ID.
 
         Args:
@@ -1972,6 +1974,7 @@ class ExperimentData:
                           into the returned container, along with the
                           experiment data and metadata. If False only copy
                           the experiment data and metadata.
+            exp_id: The new experiment id (generated at random if none is given)
 
         Returns:
             A copy of the experiment data object with the same data
@@ -1993,9 +1996,9 @@ class ExperimentData:
             verbose=self.verbose,
         )
         new_instance._db_data = self._db_data.copy()
-        new_instance._db_data.experiment_id = str(
-            uuid.uuid4()
-        )  # different id for copied experiment
+        if exp_id is None:
+            exp_id = str(uuid.uuid4())
+        new_instance._db_data.experiment_id = exp_id
         if self.experiment is None:
             new_instance._experiment = None
         else:
@@ -2029,7 +2032,9 @@ class ExperimentData:
         self._wait_for_futures(self._analysis_futures.values(), name="analysis")
         with self._analysis_results.lock:
             new_instance._analysis_results = ThreadSafeOrderedDict()
-            new_instance.add_analysis_results([result.copy() for result in self.analysis_results()])
+            new_instance.add_analysis_results(
+                [result.copy(exp_id=exp_id) for result in self.analysis_results()]
+            )
         with self._figures.lock:
             new_instance._figures = ThreadSafeOrderedDict()
             new_instance.add_figures(self._figures.values())
