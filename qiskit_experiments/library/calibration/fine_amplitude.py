@@ -115,6 +115,12 @@ class FineAmplitudeCal(BaseCalibrationExperiment, FineAmplitude):
 
         return metadata
 
+    def _attach_calibrations(self, circuit: QuantumCircuit):
+        """Adds the calibrations to the transpiled circuits."""
+        for gate in ["x", "sx"]:
+            schedule = self._cals.get_schedule(gate, self.physical_qubits)
+            circuit.add_calibration(gate, self.physical_qubits, schedule)
+
     def update_calibrations(self, experiment_data: ExperimentData):
         r"""Update the amplitude of the pulse in the calibrations.
 
@@ -255,18 +261,4 @@ class FineSXAmplitudeCal(FineAmplitudeCal):
         options.add_cal_circuits = False
         options.repetitions = [0, 1, 2, 3, 5, 7, 9, 11, 13, 15, 17, 21, 23, 25]
         options.target_angle = np.pi / 2
-        return options
-
-    @classmethod
-    def _default_transpile_options(cls):
-        """Default transpile options.
-
-        Transpile Options:
-            basis_gates (list(str)): A list of basis gates needed for this experiment.
-                The schedules for these basis gates will be provided by the instruction
-                schedule map from the calibrations.
-        """
-        options = super()._default_transpile_options()
-        options.basis_gates = ["x", "sx"]
-
         return options
