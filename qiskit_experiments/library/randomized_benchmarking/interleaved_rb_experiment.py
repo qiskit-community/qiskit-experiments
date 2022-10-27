@@ -25,7 +25,8 @@ from qiskit.providers.backend import Backend
 from qiskit.quantum_info import Clifford
 from qiskit.transpiler.exceptions import TranspilerError
 from qiskit_experiments.framework.backend_timing import BackendTiming
-from .clifford_utils import CliffordUtils, _truncate_inactive_qubits
+from .clifford_utils import _truncate_inactive_qubits
+from .clifford_utils import num_from_1q_circuit, num_from_2q_circuit
 from .interleaved_rb_analysis import InterleavedRBAnalysis
 from .rb_experiment import StandardRB, SequenceElementType
 
@@ -100,7 +101,7 @@ class InterleavedRB(StandardRB):
             )
         # - validate if interleaved_element is Clifford
         try:
-            self._interleaved_elem = Clifford(interleaved_element)
+            interleaved_clifford = Clifford(interleaved_element)
         except QiskitError as err:
             raise QiskitError(
                 f"Interleaved element {interleaved_element.name} could not be converted to Clifford."
@@ -139,13 +140,13 @@ class InterleavedRB(StandardRB):
             seed=seed,
             full_sampling=full_sampling,
         )
-        # Convert interleaved element to integer for speed
-        if self.num_qubits <= 2:
-            interleaved_circ = self._interleaved_elem.to_circuit()
-            utils = CliffordUtils(
-                self.num_qubits, basis_gates=self._get_basis_gates()
-            )  # TODO: cleanup
-            self._interleaved_elem = utils.compose_num_with_clifford(0, interleaved_circ)
+        # Convert interleaved element to integer for speed in 1Q or 2Q case
+        if self.num_qubits == 1:
+            self._interleaved_elem = num_from_1q_circuit(interleaved_clifford.to_circuit())
+        elif self.num_qubits == 2:
+            self._interleaved_elem = num_from_2q_circuit(interleaved_clifford.to_circuit())
+        else:
+            self._interleaved_elem = interleaved_clifford
         self._interleaved_op = interleaved_element
         self.analysis = InterleavedRBAnalysis()
         self.analysis.set_options(outcome="0" * self.num_qubits)
@@ -159,11 +160,8 @@ class InterleavedRB(StandardRB):
         Raises:
             QiskitError: if failed to transpile interleaved_element.
         """
-        basis_gates = self._get_basis_gates()
-        self._cliff_utils = CliffordUtils(self.num_qubits, basis_gates=basis_gates)  # TODO: cleanup
-
         # Convert interleaved element to transpiled circuit operation and store it for speed
-        self.__set_up_interleaved_op(basis_gates)
+        self.__set_up_interleaved_op()
 
         # Build circuits of reference sequences
         reference_sequences = self._sample_sequences()
@@ -201,20 +199,22 @@ class InterleavedRB(StandardRB):
 
         return super()._to_instruction(elem, basis_gates)
 
-    def __set_up_interleaved_op(self, basis_gates: Optional[Tuple[str, ...]]) -> None:
+    def __set_up_interleaved_op(self) -> None:
         # Convert interleaved element to transpiled circuit operation and store it for speed
+        basis_gates = self._get_basis_gates()
         # Convert interleaved element to circuit
+        if isinstance(self._interleaved_op, Clifford):
+            self._interleaved_op = self._interleaved_op.to_circuit()
+
         if isinstance(self._interleaved_op, QuantumCircuit):
             interleaved_circ = self._interleaved_op
-        elif isinstance(self._interleaved_op, Clifford):
-            interleaved_circ = self._interleaved_op.to_circuit()
         elif isinstance(self._interleaved_op, Gate):
             interleaved_circ = QuantumCircuit(self.num_qubits, name=self._interleaved_op.name)
             interleaved_circ.append(self._interleaved_op, list(range(self.num_qubits)))
         else:  # Delay
             interleaved_circ = []
+
         if basis_gates and any(i.operation.name not in basis_gates for i in interleaved_circ):
-            interleaved_circ.name = f"Clifford-{interleaved_circ.name}"
             # Transpile circuit with non-basis gates and remove idling qubits
             try:
                 interleaved_circ = transpile(
@@ -230,6 +230,9 @@ class InterleavedRB(StandardRB):
                 self._interleaved_op = interleaved_circ.data[0].operation
             else:
                 self._interleaved_op = interleaved_circ
-        # assert isinstance(self._interleaved_op, (Instruction, QuantumCircuit)
-        if not isinstance(self._interleaved_op, Instruction):
+
+        # Store interleaved operation as Instruction
+        if isinstance(self._interleaved_op, QuantumCircuit):
+            if not self._interleaved_op.name.startswith("Clifford"):
+                self._interleaved_op.name = f"Clifford-{self._interleaved_op.name}"
             self._interleaved_op = self._interleaved_op.to_instruction()

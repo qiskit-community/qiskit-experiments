@@ -21,7 +21,7 @@ from ddt import ddt, data, unpack
 from qiskit.circuit import Delay, QuantumCircuit, Parameter
 from qiskit.circuit.library import SXGate, CXGate, TGate, CZGate
 from qiskit.exceptions import QiskitError
-from qiskit.providers.fake_provider import FakeManilaV2, FakeWashington
+from qiskit.providers.fake_provider import FakeManila, FakeManilaV2, FakeWashington
 from qiskit.pulse import Schedule, InstructionScheduleMap
 from qiskit.quantum_info import Operator
 from qiskit_aer import AerSimulator
@@ -199,7 +199,7 @@ class TestInterleavedRB(QiskitExperimentsTestCase, RBTestMixin):
     def setUp(self):
         """Setup the tests."""
         super().setUp()
-        self.backend = FakeManilaV2()
+        self.backend = FakeManila()
         self.backend_with_timing_constraint = FakeWashington()
 
     # ### Tests for configuration ###
@@ -371,6 +371,26 @@ class TestInterleavedRB(QiskitExperimentsTestCase, RBTestMixin):
         # circuits = exp.circuits()
         # for qc in circuits:
         #     self.assertEqual(qc.num_parameters, 0)
+
+    # ### Tests for transpiled circuit generation ###
+    def test_interleaved_circuit_is_decomposed(self):
+        """Test if interleaved circuit is decomposed in transpiled circuits."""
+        delay_qc = QuantumCircuit(2)
+        delay_qc.delay(160, [0])
+        delay_qc.x(1)
+
+        exp = rb.InterleavedRB(
+            interleaved_element=delay_qc,
+            qubits=[1, 2],
+            lengths=[3],
+            num_samples=1,
+            seed=1234,
+            backend=self.backend,
+        )
+        transpiled = exp._transpiled_circuits()
+        for qc in transpiled:
+            self.assertTrue(all(not inst.operation.name.startswith("circuit") for inst in qc))
+            self.assertTrue(all(not inst.operation.name.startswith("Clifford") for inst in qc))
 
 
 class RBRunTestCase(QiskitExperimentsTestCase, RBTestMixin):
@@ -703,7 +723,7 @@ class TestRunInterleavedRB(RBRunTestCase):
         # Since this is interleaved, we can directly compare values, i.e. n_gpc = 1
         epc = expdata.analysis_results("EPC")
         epc_expected = 3 / 4 * self.pcz
-        self.assertAlmostEqual(epc.value.n, epc_expected, delta=0.1 * epc_expected)
+        self.assertAlmostEqual(epc.value.n, epc_expected, delta=3 * epc.value.std_dev)
 
     def test_expdata_serialization(self):
         """Test serializing experiment data works."""
