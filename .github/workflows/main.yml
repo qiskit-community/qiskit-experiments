@@ -101,7 +101,7 @@ jobs:
           mkdir artifacts
           tar -Jcvf html_docs.tar.xz docs/_build/html
           mv html_docs.tar.xz artifacts/.
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           name: html_docs
           path: artifacts
