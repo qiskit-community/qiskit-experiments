@@ -94,6 +94,19 @@ class CurvePlotter(BasePlotter):
         options.plot_sigma = [(1.0, 0.7), (3.0, 0.3)]
         return options
 
+    @classmethod
+    def _default_figure_options(cls) -> Options:
+        """Return curve-plotter specific default figure options.
+
+        Figure Options:
+            report_red_chi2_label (str): The label for the reduced-chi squared entry of the fit
+                report. Defaults to "reduced-$\\chi^2$`.
+        """
+        fig_opts = super()._default_figure_options()
+        fig_opts.report_red_chi2_label = "reduced-$\\chi^2$"
+
+        return fig_opts
+
     def _plot_figure(self):
         """Plots a curve-fit figure."""
         for ser in self.series:
@@ -153,9 +166,9 @@ class CurvePlotter(BasePlotter):
     def _write_report(self) -> str:
         """Write fit report with supplementary_data.
 
-        Subclass can override this method to customize fit report.
-        By default, this writes important fit parameters and chi-squared value of the
-        fit in the fit report.
+        Subclass can override this method to customize fit report. By default, this writes important fit
+        parameters and chi-squared value of the fit in the fit report. The ``report_red_chi2``
+        figure-option controls the label for the chi-squared entries in the report.
 
         Returns:
             Fit report.
@@ -174,11 +187,11 @@ class CurvePlotter(BasePlotter):
             if len(report) > 0:
                 report += "\n\n"
             if isinstance(red_chi, float):
-                report += f"reduced-chi2 = {red_chi: .4g}"
+                report += f"{self.figure_options.report_red_chi2_label} = {red_chi: .4g}"
             else:
                 # Composite curve analysis reporting multiple chi-sq values.
                 # This is usually given by a dict keyed on fit group name.
-                report += "reduced-chi2 per fit\n"
+                report += f"{self.figure_options.report_red_chi2_label} per fit\n"
                 lines = []
                 for mod_name, mod_chi in red_chi.items():
                     lines.append(f"  * {mod_name}: {mod_chi: .4g}")
