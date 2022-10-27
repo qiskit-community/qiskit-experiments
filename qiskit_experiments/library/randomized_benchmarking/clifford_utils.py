@@ -12,12 +12,12 @@
 """
 Utilities for using the Clifford group in randomized benchmarking
 """
-
+import copy
 import itertools
 import os
 from functools import lru_cache
 from numbers import Integral
-from typing import Optional, Union, Tuple, Sequence
+from typing import Optional, Union, Tuple, Sequence, FrozenSet
 
 import numpy as np
 import scipy.sparse
@@ -30,6 +30,7 @@ from qiskit.circuit.library import SdgGate, HGate, SGate, XGate, YGate, ZGate
 from qiskit.compiler import transpile
 from qiskit.exceptions import QiskitError
 from qiskit.quantum_info import Clifford, random_clifford
+from qiskit.transpiler import Target
 from qiskit_experiments.warnings import deprecated_function
 
 
@@ -100,40 +101,83 @@ def _circuit_compose(
     return self
 
 
-def _truncate_inactive_qubits(
-    circ: QuantumCircuit, active_qubits: Sequence[Qubit]
-) -> QuantumCircuit:
-    new_data = []
-    for inst in circ:
-        if all(q in active_qubits for q in inst.qubits):
-            new_data.append(inst)
+class ReducedTarget(Target):
+    """
+    A target class reduced to represent subsystem with specified physical qubits.
 
-    res = QuantumCircuit(active_qubits, name=circ.name)
-    res._calibrations = circ.calibrations
-    res._data = new_data
-    res._metadata = circ.metadata
-    return res
+    Note that this class must be treated as an immutable class since it implements
+    ``__hash__`` function so that its object can be a cache key,
+    even though it is technically mutable.
+    Also note that this class may not contain some data necessary to schedule circuits
+    or transpile pulse gates, different from the parent Target class, and hence
+    it works only with normal circuits.
+    This class must be instantiated by reducing an original Target into physical qubits.
+    In the reduction, the qubits are remapped. That means, for example, when a Target is
+    reduced into physical qubits (3, 2), the resulting ReducedTarget will have
+    virtual qubits (0, 1): Qubit 3 is mapped to 0 and qubit 2 to 1.
+    """
+
+    def __init__(self, target: Target, physical_qubits: Tuple[int, ...]):
+        description = None
+        if target.description:
+            description = f"{target.description} reduced to qubits {physical_qubits}"
+        super().__init__(
+            description=description,
+            num_qubits=len(physical_qubits),
+        )
+        supported_instructions = set()
+        for op_name, qargs_dic in target.items():
+            new_prop_dic = {}
+            for qargs, inst_prop in qargs_dic.items():
+                if qargs is None:
+                    new_prop_dic[None] = None
+                    supported_instructions.add((op_name, None))
+                elif set(qargs).issubset(physical_qubits):
+                    new_prop = copy.copy(inst_prop)
+                    if new_prop and new_prop.calibration:
+                        new_prop.calibration = None
+                    reduced_qargs = tuple(physical_qubits.index(q) for q in qargs)
+                    new_prop_dic[reduced_qargs] = new_prop
+                    supported_instructions.add((op_name, reduced_qargs))
+            if new_prop_dic:
+                super().add_instruction(target.operation_from_name(op_name), new_prop_dic)
+        self._supported_instructions = frozenset(supported_instructions)
+
+    def __hash__(self):
+        return hash(self._supported_instructions)
+
+    def __eq__(self, other):
+        return (
+            isinstance(other, ReducedTarget)
+            and self._supported_instructions == other._supported_instructions
+        )
+
+    @property
+    def supported_instructions(self) -> FrozenSet[Tuple[str, Optional[Tuple[int, ...]]]]:
+        """Set of instructions supported in this target.
+        An instruction is a pair of operation name and qubit arguments, e.g. ("cx", (0, 1)).
+        """
+        return self._supported_instructions
+
+    def add_instruction(self, instruction, properties=None, name=None):
+        """Not supported for ReducedTarget (immutable)"""
+        raise NotImplementedError("Not supported for ReducedTarget (immutable).")
 
 
-# TODO: Naming: transform? translate? synthesis?
-def _transform_clifford_circuit(circuit: QuantumCircuit, basis_gates: Tuple[str]) -> QuantumCircuit:
-    # The function that synthesis clifford circuits with given basis gates,
+def _translate_basis(circuit: QuantumCircuit, target: ReducedTarget) -> QuantumCircuit:
+    # The function that translates clifford circuits into those with gates defined in given target,
     # which should be commonly used during custom transpilation in the RB circuit generation.
-    return transpile(circuit, basis_gates=list(basis_gates), optimization_level=0)
+    return transpile(circuit, target=target, optimization_level=0)
 
 
 @lru_cache(maxsize=None)
-def _clifford_1q_int_to_instruction(
-    num: Integral, basis_gates: Optional[Tuple[str]]
-) -> Instruction:
-    return CliffordUtils.clifford_1_qubit_circuit(num, basis_gates).to_instruction()
+def _clifford_1q_int_to_instruction(num: Integral, target: Optional[ReducedTarget]) -> Instruction:
+    return CliffordUtils.clifford_1_qubit_circuit(num, target).to_instruction()
 
 
 @lru_cache(maxsize=11520)
-def _clifford_2q_int_to_instruction(
-    num: Integral, basis_gates: Optional[Tuple[str]]
-) -> Instruction:
-    return CliffordUtils.clifford_2_qubit_circuit(num, basis_gates).to_instruction()
+def _clifford_2q_int_to_instruction(num: Integral, target: Optional[ReducedTarget]) -> Instruction:
+    return CliffordUtils.clifford_2_qubit_circuit(num, target).to_instruction()
 
 
 # The classes VGate and WGate are not actually used in the code - we leave them here to give
@@ -239,7 +283,7 @@ class CliffordUtils:
 
     @classmethod
     @lru_cache(maxsize=24)
-    def clifford_1_qubit_circuit(cls, num, basis_gates: Optional[Tuple[str, ...]] = None):
+    def clifford_1_qubit_circuit(cls, num, target: Optional[ReducedTarget] = None):
         """Return the 1-qubit clifford circuit corresponding to `num`
         where `num` is between 0 and 23.
         """
@@ -259,21 +303,21 @@ class CliffordUtils:
         if p == 3:
             qc.z(0)
 
-        if basis_gates:
-            qc = _transform_clifford_circuit(qc, basis_gates)
+        if target:
+            qc = _translate_basis(qc, target)
 
         return qc
 
     @classmethod
     @lru_cache(maxsize=11520)
-    def clifford_2_qubit_circuit(cls, num, basis_gates: Optional[Tuple[str, ...]] = None):
+    def clifford_2_qubit_circuit(cls, num, target: Optional[ReducedTarget] = None):
         """Return the 2-qubit clifford circuit corresponding to `num`
         where `num` is between 0 and 11519.
         """
         qc = QuantumCircuit(2, name=f"Clifford-2Q({num})")
         for layer, idx in enumerate(_layer_indices_from_num(num)):
-            if basis_gates:
-                layer_circ = _transformed_clifford_layer(layer, idx, basis_gates)
+            if target:
+                layer_circ = _transformed_clifford_layer(layer, idx, target)
             else:
                 layer_circ = _CLIFFORD_LAYER[layer][idx]
             # qc.compose(layer_circ, inplace=True)
@@ -577,11 +621,11 @@ _NUM_LAYER_2 = 16
 
 @lru_cache(maxsize=None)
 def _transformed_clifford_layer(
-    layer: int, index: Integral, basis_gates: Tuple[str, ...]
+    layer: int, index: Integral, target: ReducedTarget
 ) -> QuantumCircuit:
-    # Return the index-th quantum circuit of the layer translated with the basis_gates.
+    # Return the index-th quantum circuit of the layer translated with the target.
     # The result is cached for speed.
-    return _transform_clifford_circuit(_CLIFFORD_LAYER[layer][index], basis_gates)
+    return _translate_basis(_CLIFFORD_LAYER[layer][index], target)
 
 
 def _num_from_layer_indices(triplet: Tuple[Integral, Integral, Integral]) -> Integral:

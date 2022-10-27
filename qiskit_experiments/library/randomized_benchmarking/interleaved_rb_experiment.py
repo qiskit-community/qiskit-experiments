@@ -13,19 +13,17 @@
 Interleaved RB Experiment class.
 """
 import warnings
-from typing import Union, Iterable, Optional, List, Sequence, Tuple
+from typing import Union, Iterable, Optional, List, Sequence
 
 from numpy.random import Generator
 from numpy.random.bit_generator import BitGenerator, SeedSequence
 
 from qiskit.circuit import QuantumCircuit, Instruction, Gate, Delay
-from qiskit.compiler import transpile
 from qiskit.exceptions import QiskitError
 from qiskit.providers.backend import Backend
 from qiskit.quantum_info import Clifford
-from qiskit.transpiler.exceptions import TranspilerError
 from qiskit_experiments.framework.backend_timing import BackendTiming
-from .clifford_utils import _truncate_inactive_qubits
+from .clifford_utils import _translate_basis, ReducedTarget
 from .clifford_utils import num_from_1q_circuit, num_from_2q_circuit
 from .interleaved_rb_analysis import InterleavedRBAnalysis
 from .rb_experiment import StandardRB, SequenceElementType
@@ -67,8 +65,8 @@ class InterleavedRB(StandardRB):
         Args:
             interleaved_element: The element to interleave,
                     given either as a Clifford element, gate, delay or circuit.
-                    If the element contains any non-basis gates,
-                    it will be transpiled with ``transpiled_options`` of this experiment.
+                    If the element contains any gates not defined in the ``backend``,
+                    it will be internally translated into that with gates supported in the backend.
                     If it is/contains a delay, its duration and unit must comply with
                     the timing constraints of the ``backend``.
                     (:class:``~qiskit_experiments.framework.backend_timing.BackendTiming`
@@ -192,16 +190,16 @@ class InterleavedRB(StandardRB):
         return reference_circuits + interleaved_circuits
 
     def _to_instruction(
-        self, elem: SequenceElementType, basis_gates: Optional[Tuple[str]] = None
+        self, elem: SequenceElementType, target: Optional[ReducedTarget] = None
     ) -> Instruction:
         if elem is self._interleaved_elem:
             return self._interleaved_op
 
-        return super()._to_instruction(elem, basis_gates)
+        return super()._to_instruction(elem, target)
 
     def __set_up_interleaved_op(self) -> None:
         # Convert interleaved element to transpiled circuit operation and store it for speed
-        basis_gates = self._get_basis_gates()
+        target = self._get_reduced_target()
         # Convert interleaved element to circuit
         if isinstance(self._interleaved_op, Clifford):
             self._interleaved_op = self._interleaved_op.to_circuit()
@@ -214,18 +212,18 @@ class InterleavedRB(StandardRB):
         else:  # Delay
             interleaved_circ = []
 
-        if basis_gates and any(i.operation.name not in basis_gates for i in interleaved_circ):
-            # Transpile circuit with non-basis gates and remove idling qubits
-            try:
-                interleaved_circ = transpile(
-                    interleaved_circ, self.backend, **vars(self.transpile_options)
-                )
-            except TranspilerError as err:
-                raise QiskitError("Failed to transpile interleaved_element.") from err
-            interleaved_circ = _truncate_inactive_qubits(
-                interleaved_circ, active_qubits=interleaved_circ.qubits[: self.num_qubits]
-            )
-            # Convert transpiled circuit to operation
+        need_to_translate = False
+        if target:
+            for inst in interleaved_circ:
+                qargs = tuple(interleaved_circ.find_bit(q).index for q in inst.qubits)
+                if (inst.operation.name, qargs) not in target.supported_instructions:
+                    need_to_translate = True
+                    break
+
+        if need_to_translate:
+            # Translate basis of circuit with target
+            interleaved_circ = _translate_basis(interleaved_circ, target)
+            # Convert translated circuit to operation
             if len(interleaved_circ) == 1:
                 self._interleaved_op = interleaved_circ.data[0].operation
             else:

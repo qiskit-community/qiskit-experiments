@@ -15,7 +15,7 @@ Standard RB Experiment class.
 import logging
 from collections import defaultdict
 from numbers import Integral
-from typing import Union, Iterable, Optional, List, Sequence, Tuple
+from typing import Union, Iterable, Optional, List, Sequence
 
 import numpy as np
 from numpy.random import Generator, default_rng
@@ -32,6 +32,7 @@ from qiskit_experiments.framework import BaseExperiment, Options
 from qiskit_experiments.framework.restless_mixin import RestlessMixin
 from .clifford_utils import (
     CliffordUtils,
+    ReducedTarget,
     compose_1q,
     compose_2q,
     inverse_1q,
@@ -140,7 +141,6 @@ class StandardRB(BaseExperiment, RestlessMixin):
             seed=None,
             full_sampling=None,
         )
-
         return options
 
     def _set_backend(self, backend: Backend):
@@ -191,32 +191,16 @@ class StandardRB(BaseExperiment, RestlessMixin):
 
         return sequences
 
-    def _get_basis_gates(self) -> Optional[Tuple[str, ...]]:
-        """Get sorted basis gates to use in basis transformation during circuit generation.
+    def _get_reduced_target(self) -> Optional[ReducedTarget]:
+        """Get a reduced target to use in basis transformation during circuit generation.
 
         Returns:
-            Sorted basis gate names.
+            Reduced target or None if there is no corresponding target.
         """
-        basis_gates = self.transpile_options.get("basis_gates", None)
-        if not basis_gates and self.backend:
-            if isinstance(self.backend, BackendV2):
-                # Only the "global basis gates" are returned for v2 backend.
-                # Some non-global basis gates may be usable for some physical qubits. However,
-                # they are conservatively removed here because the basis gates are agnostic to
-                # the direction of each gate.
-                basis_gates = self.backend.operation_names
-                non_globals = self.backend.target.get_non_global_operation_names(
-                    strict_direction=True
-                )
-                if non_globals:
-                    basis_gates = set(basis_gates) - set(non_globals)
-            else:
-                basis_gates = self.backend.configuration().basis_gates
+        if isinstance(self.backend, BackendV2) and self.backend.target is not None:
+            return ReducedTarget(self.backend.target, self.physical_qubits)
 
-        if basis_gates is not None:
-            basis_gates = tuple(sorted(basis_gates))
-
-        return basis_gates
+        return None
 
     def _sequences_to_circuits(
         self, sequences: List[Sequence[SequenceElementType]]
@@ -226,7 +210,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
         Returns:
             A list of RB circuits.
         """
-        basis_gates = self._get_basis_gates()
+        target = self._get_reduced_target()
         # Circuit generation
         circuits = []
         for i, seq in enumerate(sequences):
@@ -239,7 +223,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
             circ = QuantumCircuit(self.num_qubits)
             circ.append(Barrier(self.num_qubits), circ.qubits)
             for elem in seq:
-                circ.append(self._to_instruction(elem, basis_gates), circ.qubits)
+                circ.append(self._to_instruction(elem, target), circ.qubits)
                 circ.append(Barrier(self.num_qubits), circ.qubits)
 
             # Compute inverse, compute only the difference from the previous shorter sequence
@@ -247,7 +231,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
             prev_seq = seq
             inv = self.__adjoint_clifford(prev_elem)
 
-            circ.append(self._to_instruction(inv, basis_gates), circ.qubits)
+            circ.append(self._to_instruction(inv, target), circ.qubits)
             circ.measure_all()  # includes insertion of the barrier before measurement
             circuits.append(circ)
         return circuits
@@ -264,14 +248,14 @@ class StandardRB(BaseExperiment, RestlessMixin):
         return [random_clifford(self.num_qubits, rng).to_circuit() for _ in range(length)]
 
     def _to_instruction(
-        self, elem: SequenceElementType, basis_gates: Optional[Tuple[str, ...]] = None
+        self, elem: SequenceElementType, target: Optional[ReducedTarget] = None
     ) -> Instruction:
         # Switching for speed up
         if isinstance(elem, Integral):
             if self.num_qubits == 1:
-                return _clifford_1q_int_to_instruction(elem, basis_gates)
+                return _clifford_1q_int_to_instruction(elem, target)
             if self.num_qubits == 2:
-                return _clifford_2q_int_to_instruction(elem, basis_gates)
+                return _clifford_2q_int_to_instruction(elem, target)
 
         return elem.to_instruction()
 
@@ -310,10 +294,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
     def _transpiled_circuits(self) -> List[QuantumCircuit]:
         """Return a list of experiment circuits, transpiled."""
         has_custom_transpile_option = (
-            any(
-                opt not in {"basis_gates", "optimization_level"}
-                for opt in vars(self.transpile_options)
-            )
+            any(opt != "optimization_level" for opt in vars(self.transpile_options))
             or self.transpile_options.get("optimization_level", 0) != 0
         )
         if self.num_qubits > 2 or has_custom_transpile_option:
