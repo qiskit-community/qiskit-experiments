@@ -209,7 +209,7 @@ else:
 .. raw:: html
     <br><br><br>
 .. note::
-    This is the documnetation for the current state of the development branch
+    This is the documentation for the current state of the development branch
     of Qiskit Experiments. The documentation or APIs here can change prior to being
     released.
 """

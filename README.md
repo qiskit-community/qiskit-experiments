@@ -4,11 +4,10 @@
 
 **This repo is still under active development, there will be breaking API changes**
 
-**Qiskit** is an open-source framework for working with noisy quantum computers
-at the level of pulses, circuits, and algorithms.
-
-Qiskit Experiments is a repository that builds tools for building, running,
-and analysis of experiments on noisy quantum computers.
+**Qiskit Experiments** is a repository that builds tools for building, running,
+and analyzing experiments on noisy quantum computers using Qiskit. You can see the 
+most up-to-date documentation corresponding to the main branch of this repository 
+[here](https://qiskit.org/documentation/experiments/dev/).
 
 ## Contribution Guidelines
 
