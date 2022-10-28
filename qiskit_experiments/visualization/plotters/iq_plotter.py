@@ -28,9 +28,11 @@ class IQPlotter(BasePlotter):
 
     :class:`IQPlotter` plots results from experiments which used measurement-level 1, i.e. IQ data. This
     class also supports plotting predictions from a discriminator (subclass of
-    :class:`BaseDiscriminator`), which is used to classify IQ results into measurement labels. The
-    canonical application of :class:`IQPlotter` is for classification of single-qubit readout for
-    different prepared states.
+    :class:`BaseDiscriminator`), which is used to classify IQ results into labels. The discriminator
+    labels are matched with the series-names to generate an image of the predictions. Points that are
+    misclassified by the discriminator are flagged in the figure (see ``flag_misclassified``
+    :attr:`option`). A canonical application of :class:`IQPlotter` is for classification of
+    single-qubit readout for different prepared states.
 
     Example:
         .. code-block:: python
@@ -61,7 +63,7 @@ class IQPlotter(BasePlotter):
             ...
             # Optional: Add trained discriminator.
             discrim = MyIQDiscriminator()
-            discrim.fit(train_data,train_labels)
+            discrim.fit(train_data,train_labels)    # Labels are the same as series-names.
             plotter.set_supplementary_data(discriminator=discrim)
             ...
             # Plot figure.
