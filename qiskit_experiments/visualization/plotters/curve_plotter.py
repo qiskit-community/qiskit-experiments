@@ -167,7 +167,7 @@ class CurvePlotter(BasePlotter):
         """Write fit report with supplementary_data.
 
         Subclass can override this method to customize fit report. By default, this writes important fit
-        parameters and chi-squared value of the fit in the fit report. The ``report_red_chi2``
+        parameters and chi-squared value of the fit in the fit report. The ``report_red_chi2_label``
         figure-option controls the label for the chi-squared entries in the report.
 
         Returns:
@@ -193,7 +193,7 @@ class CurvePlotter(BasePlotter):
                 # This is usually given by a dict keyed on fit group name.
 
                 # Add gap between primary-results and reduced-chi squared as
-                # we have multiple to display. This is easier to read.
+                # we have multiple values to display. This is easier to read.
                 if len(report) > 0:
                     report += "\n"
 

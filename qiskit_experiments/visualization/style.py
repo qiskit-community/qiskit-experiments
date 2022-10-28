@@ -48,12 +48,12 @@ class PlotStyle(dict):
 
         Style Parameters:
             figsize (Tuple[int,int]): The size of the figure ``(width, height)``, in inches.
-            legend_loc (Optional[str]): The location of the legend. If None, location is automatically
-                determined by the drawer.
+            legend_loc (Optional[str]): The location of the legend in axis coordinates. If None, location
+                is automatically determined by the drawer.
             tick_label_size (int): The font size for tick labels.
             axis_label_size (int): The font size for axis labels.
-            symbol_size (float): The size for symbols for points, proportional to the area of the drawn
-                graphic.
+            symbol_size (float): The size of symbols for points/markers, proportional to the area of the
+                drawn graphic.
             errorbar_capsize (float): The size of end-caps for error-bars.
             textbox_rel_pos (Tuple[float,float]): The relative position ``(horizontal, vertical)`` of
                 textboxes, as a percentage of the canvas dimensions.

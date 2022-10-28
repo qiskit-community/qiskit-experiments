@@ -342,9 +342,10 @@ class MplDrawer(BaseDrawer):
         draw_options.update(**options)
 
         if x_err is None and y_err is None:
-            # Size of symbols is defined by the `s` kwarg. Check if this exists in `draw_options`, if not
-            # set to the default style. Square the `symbol_size` as `s` for MPL scatter is proportional
-            # to the width and not the area of the marker, but `symbol_size` is proportional to the area.
+            # Size of symbols is defined by the `s` kwarg for scatter(). Check if `s` exists in
+            # `draw_options`, if not set to the default style. Square the `symbol_size` as `s` for MPL
+            # scatter is proportional to the width and not the area of the marker, but `symbol_size` is
+            # proportional to the area.
             if "s" not in draw_options:
                 draw_options["s"] = self.style["symbol_size"] ** 2
             self._get_axis(axis).scatter(x_data, y_data, **draw_options)
