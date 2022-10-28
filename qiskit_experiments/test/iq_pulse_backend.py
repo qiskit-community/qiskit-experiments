@@ -104,9 +104,14 @@ class IQPulseBackend(BackendV2):
         self._target = Target(dt=dt, granularity=16)
 
         self.model_dim = self.solver.model.dim
-        if self.static_dissipators is not None:
-            self.model_dim = self.model_dim**2
-        self.y_0 = np.eye(self.model_dim)
+
+        if self.static_dissipators is None:
+            self.y_0 = np.eye(self.model_dim)
+            self.gs = np.array([1.0] + [0.0] * (self.model_dim - 1))
+        else:
+            self.y_0 = np.eye(self.model_dim**2)
+            self.gs = np.array([1.0] + [0.0] * (self.model_dim**2 - 1))
+
         self._simulated_pulse_unitaries = {}
 
         # An internal cache of schedules to unitaries. The key is a hashed string representation.
@@ -333,7 +338,7 @@ class IQPulseBackend(BackendV2):
                     unitaries[key] = unitary
 
             # 3. Multiply the unitaries of the circuit instructions onto the ground state.
-            state_t = np.array([1.0] + [0.0] * (self.model_dim - 1))
+            state_t = self.gs.copy()
             for instruction in circuit.data:
                 qubits, params, inst_name = self._get_info(circuit, instruction)
                 if inst_name in ["barrier", "measure"]:
