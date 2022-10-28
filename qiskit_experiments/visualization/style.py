@@ -72,7 +72,7 @@ class PlotStyle(dict):
             # size of axis label
             "axis_label_size": 16,  # int
             # relative position of a textbox
-            "textbox_rel_pos": (0.5, -0.25),  # Tuple[float, float]
+            "textbox_rel_pos": (0.5, -0.1),  # Tuple[float, float]
             # size of textbox text
             "textbox_text_size": 11,  # int
             # size of caps for error-bars
