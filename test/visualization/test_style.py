@@ -53,7 +53,7 @@ class TestPlotStyle(QiskitExperimentsTestCase):
         """Test that only expected fields are set in the default style.
 
         This enforces two things:
-            1. The expected style fields are not None.
+            1. The expected style fields are not None, unless otherwise stated.
             2. No extra fields are set.
 
         The second property being enforced is to make sure that this test fails if new default style
@@ -62,16 +62,24 @@ class TestPlotStyle(QiskitExperimentsTestCase):
         default = PlotStyle.default_style()
         expected_not_none_fields = [
             "figsize",
-            "legend_loc",
             "tick_label_size",
             "axis_label_size",
             "textbox_rel_pos",
             "textbox_text_size",
+            "errorbar_capsize",
+            "symbol_size",
+        ]
+        expected_none_fields = [
+            "legend_loc",
         ]
         for field in expected_not_none_fields:
             self.assertIsNotNone(default.get(field, None))
+        for field in expected_none_fields:
+            self.assertIsNone(default.get(field, 0))
         # Check that default style keys are as expected, ignoring order.
-        self.assertCountEqual(expected_not_none_fields, list(default.keys()))
+        self.assertCountEqual(
+            [*expected_not_none_fields, *expected_none_fields], list(default.keys())
+        )
 
     def test_update(self):
         """Test that styles can be updated."""
