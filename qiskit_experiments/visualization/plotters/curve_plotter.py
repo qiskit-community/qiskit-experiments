@@ -185,12 +185,19 @@ class CurvePlotter(BasePlotter):
         if "fit_red_chi" in self.supplementary_data:
             red_chi = self.supplementary_data["fit_red_chi"]
             if len(report) > 0:
-                report += "\n\n"
+                report += "\n"
             if isinstance(red_chi, float):
                 report += f"{self.figure_options.report_red_chi2_label} = {red_chi: .4g}"
             else:
                 # Composite curve analysis reporting multiple chi-sq values.
                 # This is usually given by a dict keyed on fit group name.
+
+                # Add gap between primary-results and reduced-chi squared as
+                # we have multiple to display. This is easier to read.
+                if len(report) > 0:
+                    report += "\n"
+
+                # Created indented text of reduced-chi squared results.
                 report += f"{self.figure_options.report_red_chi2_label} per fit\n"
                 lines = []
                 for mod_name, mod_chi in red_chi.items():
