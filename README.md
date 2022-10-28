@@ -5,9 +5,12 @@
 **This repo is still under active development, there will be breaking API changes.**
 
 **Qiskit Experiments** is a repository that builds tools for building, running,
-and analyzing experiments on noisy quantum computers using Qiskit. You can see the 
-most up-to-date documentation corresponding to the main branch of this repository 
-[here](https://qiskit.org/documentation/experiments/dev/).
+and analyzing experiments on noisy quantum computers using Qiskit.
+
+To learn more about the package, you can see the 
+[most up-to-date documentation](https://qiskit.org/documentation/experiments/dev/) 
+corresponding to the main branch of this repository or the 
+[documentation for the latest stable release](https://qiskit.org/documentation/experiments/dev/).
 
 ## Contribution Guidelines
 
@@ -19,9 +22,10 @@ uphold this code.
 We use [GitHub issues](https://github.com/Qiskit/qiskit-experiments/issues) for
 tracking requests and bugs. Please
 [join the Qiskit Slack community](https://ibm.co/joinqiskitslack)
-and use the `#experiments` channel in the [Qiskit Slack workspace](https://qiskit.slack.com) for discussion and
+and use the [#experiments](https://qiskit.slack.com/archives/CGZDF48EN) channel in the 
+Qiskit Slack workspace for discussion and
 simple questions.
-For questions that are more suited for a forum we use the Qiskit tag in the
+For questions that are more suited for a forum we use the Qiskit tag in 
 [Stack Exchange](https://quantumcomputing.stackexchange.com/questions/tagged/qiskit).
 
 ## Authors and Citation
