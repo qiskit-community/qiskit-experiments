@@ -116,9 +116,9 @@ class IQPlotter(BasePlotter):
                 (points,) = self.data_for(series, "points")
                 ext_calc.register_data(points)
                 has_registered_data = True
-            if self.data_exists_for(series, "centroids"):
+            if self.data_exists_for(series, "centroid"):
                 (centroid,) = self.data_for(series, "centroid")
-                ext_calc.register_data(centroid)
+                ext_calc.register_data(np.asarray(centroid).reshape(1, 2))
                 has_registered_data = True
         if self.figure_options.xlim:
             ext_calc.register_data(self.figure_options.xlim, dim=0)
