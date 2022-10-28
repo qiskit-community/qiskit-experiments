@@ -17,6 +17,7 @@ Package Modules
     curve_analysis
     calibration_management
     database_service
+    visualization
     test
 
 Experiment Modules
