@@ -496,14 +496,11 @@ object is instantiated:
 Mirror RB implementation in ``pyGSTi``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The ``MirrorRBPyGSTi`` subclass of ``MirrorRB`` uses the circuit generation in 
-``pyGSTi`` but the circuit transpilation in Qiskit Experiments. It is primarily 
-used for testing and comparison, and an instance of such an experiment is 
-constructed in the same way as described above. ``MirrorRBPyGSTi`` uses Qiskit's 
-transpilation because ``pyGSTi`` transpiles circuits slightly differently, 
-producing small discrepancies in fit parameters between the two codes. To 
-illustrate, consider the two circuits below, both of which were generated in 
-``pyGSTi``. The first circuit was transpiled in ``pyGSTi``, 
+The ``pyGSTi`` implementation of Mirror RB can be used for testing and 
+comparison. We note however that ``pyGSTi`` transpiles circuits slightly 
+differently, producing small discrepancies in fit parameters between the two 
+codes. To illustrate, consider the two circuits below, both of which were 
+generated in ``pyGSTi``. The first circuit was transpiled in ``pyGSTi``, 
 
 .. image:: pygsti-data-pygsti-transpiled-circ.png
 
