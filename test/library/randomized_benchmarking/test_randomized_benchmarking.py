@@ -26,6 +26,8 @@ from qiskit.pulse import Schedule, InstructionScheduleMap
 from qiskit.quantum_info import Operator
 from qiskit_aer import AerSimulator
 from qiskit_aer.noise import NoiseModel, depolarizing_error
+
+from qiskit_experiments.library import randomized_benchmarking as rb
 from qiskit_experiments.database_service.exceptions import ExperimentEntryNotFound
 from qiskit_experiments.framework.composite import ParallelExperiment
 from qiskit_experiments.library import randomized_benchmarking as rb
