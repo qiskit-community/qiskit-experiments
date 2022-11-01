@@ -76,11 +76,8 @@ Analysis
     ResonatorSpectroscopyAnalysis
     LocalReadoutErrorAnalysis
     CorrelatedReadoutErrorAnalysis
-<<<<<<< HEAD
-    MultiStateDiscriminationAnalysis
-=======
     ZZRamseyAnalysis
->>>>>>> 0e6153d6f4d2fc61989ec85e9e241546f9d91855
+    MultiStateDiscriminationAnalysis
 
 """
 
