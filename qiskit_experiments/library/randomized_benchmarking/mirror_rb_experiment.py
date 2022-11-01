@@ -152,7 +152,7 @@ class MirrorRB(StandardRB):
 
         # Coupling map is full connectivity by default. If backend has a coupling map,
         # get backend coupling map and create coupling map for physical qubits
-        coupling_map = list(permutations(self.physical_qubits, 2))
+        coupling_map = list(permutations(range(max(self.physical_qubits) + 1), 2))
         if self._backend.configuration().coupling_map:
             coupling_map = self._backend.configuration().coupling_map
         experiment_coupling_map = []
