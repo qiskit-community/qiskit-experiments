@@ -12,20 +12,16 @@
 
 """Multi state discrimination analysis."""
 
-import matplotlib
-import matplotlib.pyplot as plt
-import numpy as np
-import seaborn as sns
-
 from typing import List, Tuple
+
+import matplotlib
+import numpy as np
+from sklearn.linear_model import SGDClassifier
 
 from qiskit.providers.options import Options
 from qiskit_experiments.framework import BaseAnalysis, AnalysisResultData, ExperimentData
-from qiskit_experiments.framework.matplotlib import get_non_gui_ax
 from qiskit_experiments.data_processing import SkCLF
-
-from sklearn.inspection import DecisionBoundaryDisplay
-from sklearn.linear_model import SGDClassifier
+from qiskit_experiments.visualization import IQPlotter, MplDrawer, PlotStyle
 
 
 class MultiStateDiscriminationAnalysis(BaseAnalysis):
@@ -44,13 +40,12 @@ class MultiStateDiscriminationAnalysis(BaseAnalysis):
         options = super()._default_options()
         options.plot = True
         options.ax = None
-        options.discriminator = SkCLF(SGDClassifier(loss="modified_huber", max_iter=1000,
-                                                    tol=1e-3))
+        options.discriminator = SkCLF(SGDClassifier(loss="modified_huber", max_iter=1000, tol=1e-3))
         return options
 
     def _run_analysis(
-            self,
-            experiment_data: ExperimentData,
+        self,
+        experiment_data: ExperimentData,
     ) -> Tuple[List[AnalysisResultData], List["matplotlib.figure.Figure"]]:
         """Train a discriminator based on the experiment data.
 
@@ -63,75 +58,66 @@ class MultiStateDiscriminationAnalysis(BaseAnalysis):
 
         # number of states and shots
         n_states = len(experiment_data.data())
-        NUM_SHOTS = len(experiment_data.data()[0]['memory'])
+        num_shots = len(experiment_data.data()[0]["memory"])
 
         # Process the data and get labels
         data, fit_state = [], []
         for i in range(n_states):
-            for j in range(NUM_SHOTS):
-                data.append(experiment_data.data()[i]['memory'][j][0])
-                fit_state.append(experiment_data.data()[i]['metadata']['label'])
-        data = np.array(data)
+            state_data = []
+            for j in range(num_shots):
+                state_data.append(experiment_data.data()[i]["memory"][j][0])
+            data.append(np.array(state_data))
+            fit_state.append(experiment_data.data()[i]["metadata"]["label"])
 
         # Train a discriminator on the processed data
         discriminator = self.options.discriminator
-        discriminator.fit(data, fit_state)
+        discriminator.fit(
+            np.concatenate(data),
+            np.asarray([[label] * num_shots for label in fit_state]).flatten().transpose(),
+        )
 
         # Crate analysis results from the discriminator configuration
-        analysis_results = [AnalysisResultData(name="discriminator_config",
-                                               value=discriminator.config())]
+        analysis_results = [
+            AnalysisResultData(name="discriminator_config", value=discriminator.config())
+        ]
         # Create figure
         if self.options.plot:
-            ax = self.options.get("ax", None)
-            figures = [self._levels_plot(discriminator.discriminator, data,
-                                         n_states, NUM_SHOTS, ax).get_figure()]
+            figures = [self._levels_plot(discriminator, data, fit_state).get_figure()]
         else:
             figures = []
 
         return analysis_results, figures
 
-    def _levels_plot(self, clf, data, n_states, NUM_SHOTS, ax=None):
+    def _levels_plot(self, discriminator, data, fit_state) -> matplotlib.figure.Figure:
         """Helper function for plotting IQ plane for different energy levels.
+
         Args:
-            clf: the trained discriminator
+            discriminator: the trained discriminator
             data: the training data
-            n_states: the number of energy levels
-            NUM_SHOTS: the number of shots used in the experiment
+            fit_state: the labels
+
         Returns:
             The plotted IQ data.
         """
-        if ax is None:
-            ax = get_non_gui_ax()
-        figure = ax.get_figure()
-
-        # get the colour map, the colour list needs to be trimmed to match the scatter plot
-        colours = sns.color_palette('muted')[:n_states]
-        cmap = matplotlib.colors.ListedColormap(colours)
-
-        # Get the decision boundary plot
-        DecisionBoundaryDisplay.from_estimator(
-            clf,
-            data,
-            cmap=cmap,
-            alpha=0.3,
-            ax=ax,
-            response_method="predict",
-            plot_method="pcolormesh",
-            shading="auto",
+        # Create IQPlotter and generate figure.
+        plotter = IQPlotter(MplDrawer())
+        plotter.set_options(
+            discriminator_max_resolution=64,
+            style=PlotStyle(figsize=(6, 4), legend_loc=None),
         )
 
-        # One cloud of points per level
-        for i in range(n_states):
-            zorder = 1
-            # plot with priority cloud for |1> state
-            if i == 1:
-                zorder = 2
-            ax.scatter(data[i*NUM_SHOTS:NUM_SHOTS*(i+1), 0], data[i*NUM_SHOTS:NUM_SHOTS*(i+1), 1],
-                       color=colours[i], cmap=plt.cm.Paired, edgecolors="k",
-                       label=r'$|%s\rangle$' % i, zorder=zorder)
-        ax.legend()
-        ax.set_ylabel('I', fontsize=15)
-        ax.set_xlabel('Q', fontsize=15)
-        ax.set_title("Energy levels discrimination", fontsize=15)
+        # create figure labels
+        params_dict = {}
+        for i, label in enumerate(fit_state):
+            params_dict[label] = {"label": "$|%s\\rangle$" % i}
+        plotter.set_figure_options(series_params=params_dict)
 
-        return figure
+        # calculate centroids
+        centroids = [np.mean(x, axis=0) for x in data]
+
+        for p, c, n in zip(data, centroids, fit_state):
+            _name = f"{n}"
+            plotter.set_series_data(_name, points=p, centroid=c)
+        plotter.set_supplementary_data(discriminator=discriminator)
+
+        return plotter.figure()

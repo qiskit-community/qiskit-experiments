@@ -19,7 +19,7 @@ from qiskit.circuit import Gate, Parameter
 from qiskit.providers import Backend
 from qiskit.providers.options import Options
 from qiskit.pulse import ScheduleBlock
-from qiskit.qobj.utils import MeasLevel
+from qiskit.qobj.utils import MeasLevel, MeasReturnType
 from qiskit_experiments.framework import BaseExperiment
 from qiskit_experiments.library.characterization import MultiStateDiscriminationAnalysis
 
@@ -64,7 +64,7 @@ class MultiStateDiscrimination(BaseExperiment):
         options = super()._default_run_options()
 
         options.meas_level = MeasLevel.KERNELED
-        options.meas_return = "single"
+        options.meas_return = MeasReturnType.SINGLE
 
         return options
 
@@ -100,6 +100,7 @@ class MultiStateDiscrimination(BaseExperiment):
         super().__init__((qubit,), analysis=MultiStateDiscriminationAnalysis(), backend=backend)
 
         self.experiment_options.schedules = schedules
+        self.run_options.rep_delay = backend.configuration().to_dict()['rep_delay_range'][-1]
 
         if n_states is not None:
             self.set_experiment_options(n_states=n_states)
