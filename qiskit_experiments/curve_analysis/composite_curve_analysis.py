@@ -385,7 +385,7 @@ class CompositeCurveAnalysis(BaseAnalysis):
             self.plotter.set_supplementary_data(fit_red_chi=red_chi)
 
         # Create analysis results by combining all fit data
-        for all(fit_data.success for fit_data in fit_dataset.values()):
+        if all(fit_data.success for fit_data in fit_dataset.values()):
             primary_results = self._create_analysis_results(
                 fit_data=fit_dataset, quality=total_quality, **self.options.extra.copy()
             )
