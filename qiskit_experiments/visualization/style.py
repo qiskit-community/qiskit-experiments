@@ -74,7 +74,7 @@ class PlotStyle(dict):
             # relative position of a textbox
             "textbox_rel_pos": (0.5, -0.1),  # Tuple[float, float]
             # size of textbox text
-            "textbox_text_size": 11,  # int
+            "textbox_text_size": 12,  # int
             # size of caps for error-bars
             "errorbar_capsize": 4,  # float
             # Default size of symbols, used for graphics where symbols are drawn for points.
