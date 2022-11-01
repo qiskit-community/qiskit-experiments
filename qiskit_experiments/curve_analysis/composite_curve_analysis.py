@@ -385,12 +385,11 @@ class CompositeCurveAnalysis(BaseAnalysis):
             self.plotter.set_supplementary_data(fit_red_chi=red_chi)
 
         # Create analysis results by combining all fit data
-        if total_quality == "good":
-            primary_results = self._create_analysis_results(
-                fit_data=fit_dataset, quality=total_quality, **self.options.extra.copy()
-            )
-            analysis_results.extend(primary_results)
-            self.plotter.set_supplementary_data(primary_results=primary_results)
+        primary_results = self._create_analysis_results(
+            fit_data=fit_dataset, quality=total_quality, **self.options.extra.copy()
+        )
+        analysis_results.extend(primary_results)
+        self.plotter.set_supplementary_data(primary_results=primary_results)
 
         if self.options.plot:
             return analysis_results, [self.plotter.figure()]

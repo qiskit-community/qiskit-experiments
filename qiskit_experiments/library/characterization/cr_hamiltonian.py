@@ -379,10 +379,11 @@ class CrossResonanceHamiltonian(BaseExperiment):
                     qubits=[0, 1],
                     inplace=True,
                 )
-                if meas_basis == "y":
-                    tmp_qc.sdg(1)
+                if meas_basis == "x":
+                    tmp_qc.rz(np.pi / 2, 1)
                 if meas_basis in ("x", "y"):
-                    tmp_qc.h(1)
+                    tmp_qc.sx(1)
+                    tmp_qc.rz(np.pi / 2, 1)
                 tmp_qc.measure(1, 0)
                 tmp_qc.metadata = {
                     "control_state": control_state,
