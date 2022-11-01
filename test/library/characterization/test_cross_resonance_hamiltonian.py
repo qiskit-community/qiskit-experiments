@@ -69,26 +69,26 @@ class TestCrossResonanceHamiltonian(QiskitExperimentsTestCase):
 
         x0_circ = QuantumCircuit(2, 1)
         x0_circ.append(cr_gate, [0, 1])
-        x0_circ.h(1)
+        x0_circ.rz(np.pi / 2, 1)
+        x0_circ.sx(1)
         x0_circ.measure(1, 0)
 
         x1_circ = QuantumCircuit(2, 1)
         x1_circ.x(0)
         x1_circ.append(cr_gate, [0, 1])
-        x1_circ.h(1)
+        x1_circ.rz(np.pi / 2, 1)
+        x1_circ.sx(1)
         x1_circ.measure(1, 0)
 
         y0_circ = QuantumCircuit(2, 1)
         y0_circ.append(cr_gate, [0, 1])
-        y0_circ.sdg(1)
-        y0_circ.h(1)
+        y0_circ.sx(1)
         y0_circ.measure(1, 0)
 
         y1_circ = QuantumCircuit(2, 1)
         y1_circ.x(0)
         y1_circ.append(cr_gate, [0, 1])
-        y1_circ.sdg(1)
-        y1_circ.h(1)
+        y1_circ.sx(1)
         y1_circ.measure(1, 0)
 
         z0_circ = QuantumCircuit(2, 1)
