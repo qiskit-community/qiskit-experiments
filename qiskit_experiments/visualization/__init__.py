@@ -44,6 +44,7 @@ Plotter Library
 
     BasePlotter
     CurvePlotter
+    IQPlotter
 
 Drawer Library
 ==============
@@ -66,5 +67,5 @@ Plotting Style
 """
 
 from .drawers import BaseDrawer, LegacyCurveCompatDrawer, MplDrawer
-from .plotters import BasePlotter, CurvePlotter
+from .plotters import BasePlotter, CurvePlotter, IQPlotter
 from .style import PlotStyle

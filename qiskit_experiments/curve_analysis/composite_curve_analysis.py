@@ -19,7 +19,6 @@ from typing import Dict, List, Optional, Tuple, Union
 
 import lmfit
 import numpy as np
-from uncertainties import UFloat
 from uncertainties import unumpy as unp
 
 from qiskit_experiments.framework import (
@@ -39,7 +38,7 @@ from qiskit_experiments.warnings import deprecated_function
 
 from .base_curve_analysis import PARAMS_ENTRY_PREFIX, BaseCurveAnalysis
 from .curve_data import CurveFitResult
-from .utils import analysis_result_to_repr, eval_with_uncertainties
+from .utils import eval_with_uncertainties
 
 
 class CompositeCurveAnalysis(BaseAnalysis):
@@ -280,6 +279,7 @@ class CompositeCurveAnalysis(BaseAnalysis):
         analysis_results = []
 
         fit_dataset = {}
+        red_chi = {}
         for analysis in self._analyses:
             analysis._initialize(experiment_data)
 
@@ -320,6 +320,7 @@ class CompositeCurveAnalysis(BaseAnalysis):
 
             if fit_data.success:
                 quality = analysis._evaluate_quality(fit_data)
+                red_chi[analysis.name] = fit_data.reduced_chisq
             else:
                 quality = "bad"
 
@@ -370,32 +371,28 @@ class CompositeCurveAnalysis(BaseAnalysis):
             # Add raw data points
             if self.options.return_data_points:
                 analysis_results.extend(
-                    analysis._create_curve_data(curve_data=formatted_data, models=analysis.models)
+                    analysis._create_curve_data(
+                        curve_data=formatted_data,
+                        models=analysis.models,
+                        **metadata,
+                    )
                 )
 
             fit_dataset[analysis.name] = fit_data
 
         total_quality = self._evaluate_quality(fit_dataset)
+        if red_chi:
+            self.plotter.set_supplementary_data(fit_red_chi=red_chi)
 
         # Create analysis results by combining all fit data
-        analysis_results.extend(
-            self._create_analysis_results(
+        if total_quality == "good":
+            primary_results = self._create_analysis_results(
                 fit_data=fit_dataset, quality=total_quality, **self.options.extra.copy()
             )
-        )
+            analysis_results.extend(primary_results)
+            self.plotter.set_supplementary_data(primary_results=primary_results)
 
         if self.options.plot:
-            # Write fitting report
-            report = ""
-            for res in analysis_results:
-                if isinstance(res.value, (float, UFloat)):
-                    report += f"{analysis_result_to_repr(res)}\n"
-            chisqs = []
-            for group, fit_data in fit_dataset.items():
-                chisqs.append(r"reduced-$\chi^2$ = " + f"{fit_data.reduced_chisq: .4g} ({group})")
-            report += "\n".join(chisqs)
-            self.plotter.set_supplementary_data(report_text=report)
-
             return analysis_results, [self.plotter.figure()]
 
         return analysis_results, []

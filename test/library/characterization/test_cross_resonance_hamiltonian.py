@@ -23,23 +23,13 @@ from qiskit.providers.fake_provider import FakeBogotaV2
 from qiskit.extensions.hamiltonian_gate import HamiltonianGate
 from qiskit_aer import AerSimulator
 from qiskit_experiments.library.characterization import cr_hamiltonian
-from qiskit_experiments.framework import BackendData
 
 
 class SimulatableCRGate(HamiltonianGate):
-    """Cross resonance unitary that can be simulated with Aer simulator."""
+    """Hamiltonian Gate for simulation."""
 
-    def __init__(self, width, t_off, wix, wiy, wiz, wzx, wzy, wzz, dt=1e-9):
-        # Note that Qiskit is Little endian, i.e. [q1, q0]
-        hamiltonian = (
-            wix * qi.Operator.from_label("XI") / 2
-            + wiy * qi.Operator.from_label("YI") / 2
-            + wiz * qi.Operator.from_label("ZI") / 2
-            + wzx * qi.Operator.from_label("XZ") / 2
-            + wzy * qi.Operator.from_label("YZ") / 2
-            + wzz * qi.Operator.from_label("ZZ") / 2
-        )
-        super().__init__(data=hamiltonian, time=(t_off + width) * dt)
+    def __init__(self, width, hamiltonian, sigma, dt):
+        super().__init__(data=hamiltonian, time=np.sqrt(2 * np.pi) * sigma * dt + width)
 
 
 @ddt
@@ -50,31 +40,31 @@ class TestCrossResonanceHamiltonian(QiskitExperimentsTestCase):
         """Test generated circuits."""
         backend = FakeBogotaV2()
 
-        expr = cr_hamiltonian.CrossResonanceHamiltonian(
-            qubits=(0, 1),
-            flat_top_widths=[1000],
-            amp=0.1,
-            sigma=64,
-            risefall=2,
-        )
+        with self.assertWarns(DeprecationWarning):
+            expr = cr_hamiltonian.CrossResonanceHamiltonian(
+                qubits=(0, 1),
+                flat_top_widths=[1000],
+                amp=0.1,
+                sigma=64,
+                risefall=2,
+            )
         expr.backend = backend
-
-        duration = 1256
 
         with pulse.build(default_alignment="left", name="cr") as ref_cr_sched:
             pulse.play(
                 pulse.GaussianSquare(
-                    duration,
+                    duration=1256,
                     amp=0.1,
                     sigma=64,
                     width=1000,
                 ),
                 pulse.ControlChannel(0),
             )
-            pulse.delay(duration, pulse.DriveChannel(0))
-            pulse.delay(duration, pulse.DriveChannel(1))
+            pulse.delay(1256, pulse.DriveChannel(0))
+            pulse.delay(1256, pulse.DriveChannel(1))
 
-        cr_gate = cr_hamiltonian.CrossResonanceHamiltonian.CRPulseGate(width=1000)
+        width_sec = 1000 * backend.dt
+        cr_gate = cr_hamiltonian.CrossResonanceHamiltonian.CRPulseGate(width=width_sec)
         expr_circs = expr.circuits()
 
         x0_circ = QuantumCircuit(2, 1)
@@ -118,36 +108,25 @@ class TestCrossResonanceHamiltonian(QiskitExperimentsTestCase):
 
     def test_circuit_generation_no_backend(self):
         """User can check experiment circuit without setting backend."""
-        expr = cr_hamiltonian.CrossResonanceHamiltonian(
-            qubits=(0, 1),
-            flat_top_widths=[1000],
-            amp=0.1,
-            sigma=64,
-            risefall=2,
-        )
+
+        class FakeCRGate(HamiltonianGate):
+            """Hamiltonian Gate for simulation."""
+
+            def __init__(self, width):
+                super().__init__(data=np.eye(4), time=width)
+
+        with self.assertWarns(DeprecationWarning):
+            expr = cr_hamiltonian.CrossResonanceHamiltonian(
+                qubits=(0, 1),
+                flat_top_widths=[1000],
+                cr_gate=FakeCRGate,
+                amp=0.1,
+                sigma=64,
+                risefall=2,
+            )
 
         # Not raise an error
         expr.circuits()
-
-    def test_instance_with_backend_without_cr_gate(self):
-        """Calling set backend method without setting cr gate."""
-        backend = FakeBogotaV2()
-
-        # not raise an error
-        exp = cr_hamiltonian.CrossResonanceHamiltonian(
-            qubits=(0, 1),
-            flat_top_widths=[1000],
-            backend=backend,
-        )
-        backend_data = BackendData(backend)
-        ref_dt = backend_data.dt
-        self.assertEqual(exp._dt, ref_dt)
-
-        # These properties are set when cr_gate is not provided
-        ref_cr_channel = backend_data.control_channel((0, 1))[0].index
-        self.assertEqual(exp._cr_channel, ref_cr_channel)
-        ref_granularity = backend_data.granularity
-        self.assertEqual(exp._granularity, ref_granularity)
 
     @data(
         [1e6, 2e6, 1e3, -3e6, -2e6, 1e4],
@@ -159,33 +138,35 @@ class TestCrossResonanceHamiltonian(QiskitExperimentsTestCase):
     @unpack
     def test_integration(self, ix, iy, iz, zx, zy, zz):
         """Integration test for Hamiltonian tomography."""
-        backend = AerSimulator(seed_simulator=123, shots=2000)
-        backend._configuration.dt = 1e-9
         delta = 3e4
 
-        sigma = 20
-        t_off = np.sqrt(2 * np.pi) * sigma
+        dt = 0.222e-9
+        sigma = 64
 
-        # Hack: transpiler calls qiskit.parallel but local object cannot be picked
-        cr_gate = functools.partial(
-            SimulatableCRGate,
-            t_off=t_off,
-            wix=2 * np.pi * ix,
-            wiy=2 * np.pi * iy,
-            wiz=2 * np.pi * iz,
-            wzx=2 * np.pi * zx,
-            wzy=2 * np.pi * zy,
-            wzz=2 * np.pi * zz,
-            dt=1e-9,
+        backend = AerSimulator(seed_simulator=123, shots=2000)
+        backend._configuration.dt = dt
+
+        # Note that Qiskit is Little endian, i.e. [q1, q0]
+        hamiltonian = (
+            2
+            * np.pi
+            * (
+                ix * qi.Operator.from_label("XI") / 2
+                + iy * qi.Operator.from_label("YI") / 2
+                + iz * qi.Operator.from_label("ZI") / 2
+                + zx * qi.Operator.from_label("XZ") / 2
+                + zy * qi.Operator.from_label("YZ") / 2
+                + zz * qi.Operator.from_label("ZZ") / 2
+            )
         )
 
-        durations = np.linspace(0, 700, 50)
         expr = cr_hamiltonian.CrossResonanceHamiltonian(
             qubits=(0, 1),
-            flat_top_widths=durations,
             sigma=sigma,
-            risefall=2,
-            cr_gate=cr_gate,
+            # A hack to avoild local function in pickle, i.e. in transpile.
+            cr_gate=functools.partial(
+                SimulatableCRGate, hamiltonian=hamiltonian, sigma=sigma, dt=dt
+            ),
         )
         expr.backend = backend
 
@@ -207,11 +188,61 @@ class TestCrossResonanceHamiltonian(QiskitExperimentsTestCase):
         self.assertAlmostEqual(exp_data.analysis_results("omega_zy").value.n, zy, delta=delta)
         self.assertAlmostEqual(exp_data.analysis_results("omega_zz").value.n, zz, delta=delta)
 
+    def test_integration_backward_compat(self):
+        """Integration test for Hamiltonian tomography with implicitly setting flat_top_widths."""
+        ix, iy, iz, zx, zy, zz = 1e6, 2e6, 1e3, -3e6, -2e6, 1e4
+
+        delta = 3e4
+
+        dt = 0.222e-9
+        sigma = 64
+
+        backend = AerSimulator(seed_simulator=123, shots=2000)
+        backend._configuration.dt = dt
+
+        # Note that Qiskit is Little endian, i.e. [q1, q0]
+        hamiltonian = (
+            2
+            * np.pi
+            * (
+                ix * qi.Operator.from_label("XI") / 2
+                + iy * qi.Operator.from_label("YI") / 2
+                + iz * qi.Operator.from_label("ZI") / 2
+                + zx * qi.Operator.from_label("XZ") / 2
+                + zy * qi.Operator.from_label("YZ") / 2
+                + zz * qi.Operator.from_label("ZZ") / 2
+            )
+        )
+
+        with self.assertWarns(DeprecationWarning):
+            expr = cr_hamiltonian.CrossResonanceHamiltonian(
+                (0, 1),
+                np.linspace(0, 700, 50),
+                sigma=sigma,
+                # A hack to avoild local function in pickle, i.e. in transpile.
+                cr_gate=functools.partial(
+                    SimulatableCRGate, hamiltonian=hamiltonian, sigma=sigma, dt=dt
+                ),
+            )
+        expr.backend = backend
+
+        exp_data = expr.run()
+        self.assertExperimentDone(exp_data, timeout=1000)
+
+        self.assertEqual(exp_data.analysis_results(0).quality, "good")
+
+        self.assertAlmostEqual(exp_data.analysis_results("omega_ix").value.n, ix, delta=delta)
+        self.assertAlmostEqual(exp_data.analysis_results("omega_iy").value.n, iy, delta=delta)
+        self.assertAlmostEqual(exp_data.analysis_results("omega_iz").value.n, iz, delta=delta)
+        self.assertAlmostEqual(exp_data.analysis_results("omega_zx").value.n, zx, delta=delta)
+        self.assertAlmostEqual(exp_data.analysis_results("omega_zy").value.n, zy, delta=delta)
+        self.assertAlmostEqual(exp_data.analysis_results("omega_zz").value.n, zz, delta=delta)
+
     def test_experiment_config(self):
         """Test converting to and from config works"""
         exp = cr_hamiltonian.CrossResonanceHamiltonian(
             qubits=[0, 1],
-            flat_top_widths=[1000],
+            durations=[1000],
             amp=0.1,
             sigma=64,
             risefall=2,
@@ -224,7 +255,7 @@ class TestCrossResonanceHamiltonian(QiskitExperimentsTestCase):
         """Test round trip JSON serialization"""
         exp = cr_hamiltonian.CrossResonanceHamiltonian(
             qubits=[0, 1],
-            flat_top_widths=[1000],
+            durations=[1000],
             amp=0.1,
             sigma=64,
             risefall=2,

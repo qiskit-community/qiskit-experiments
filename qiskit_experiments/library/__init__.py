@@ -76,7 +76,11 @@ Some experiments may be also used for gate calibration.
     ~characterization.LocalReadoutError
     ~characterization.CorrelatedReadoutError
     ~characterization.ResonatorSpectroscopy
+<<<<<<< HEAD
     ~characterization.MultiStateDiscrimination
+=======
+    ~characterization.ZZRamsey
+>>>>>>> 0e6153d6f4d2fc61989ec85e9e241546f9d91855
 
 
 .. _calibration:
@@ -149,6 +153,7 @@ from .characterization import (
     ResonatorSpectroscopy,
     LocalReadoutError,
     CorrelatedReadoutError,
+    ZZRamsey,
     MultiStateDiscrimination,
 )
 from .randomized_benchmarking import StandardRB, InterleavedRB

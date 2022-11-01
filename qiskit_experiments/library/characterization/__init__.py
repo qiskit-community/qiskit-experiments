@@ -47,7 +47,11 @@ Experiments
     LocalReadoutError
     CorrelatedReadoutError
     ResonatorSpectroscopy
+<<<<<<< HEAD
     MultiStateDiscrimination
+=======
+    ZZRamsey
+>>>>>>> 0e6153d6f4d2fc61989ec85e9e241546f9d91855
 
 
 Analysis
@@ -72,7 +76,11 @@ Analysis
     ResonatorSpectroscopyAnalysis
     LocalReadoutErrorAnalysis
     CorrelatedReadoutErrorAnalysis
+<<<<<<< HEAD
     MultiStateDiscriminationAnalysis
+=======
+    ZZRamseyAnalysis
+>>>>>>> 0e6153d6f4d2fc61989ec85e9e241546f9d91855
 
 """
 
@@ -92,6 +100,7 @@ from .analysis import (
     ResonatorSpectroscopyAnalysis,
     LocalReadoutErrorAnalysis,
     CorrelatedReadoutErrorAnalysis,
+    ZZRamseyAnalysis,
     MultiStateDiscriminationAnalysis,
 )
 
@@ -113,4 +122,5 @@ from .fine_drag import FineDrag, FineXDrag, FineSXDrag
 from .local_readout_error import LocalReadoutError
 from .correlated_readout_error import CorrelatedReadoutError
 from .resonator_spectroscopy import ResonatorSpectroscopy
+from .zz_ramsey import ZZRamsey
 from .multi_state_discrimination import MultiStateDiscrimination
