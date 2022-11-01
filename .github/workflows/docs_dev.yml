@@ -1,8 +1,7 @@
 name: Docs Publish
 on:
   push:
-    tags:
-      - "*"
+    branches: [ main ]
 
 jobs:
   deploy:
@@ -24,6 +23,5 @@ jobs:
       env:
         encrypted_rclone_key: ${{ secrets.encrypted_rclone_key }}
         encrypted_rclone_iv: ${{ secrets.encrypted_rclone_iv }}
-        QISKIT_DOCS_BUILD_TUTORIALS: 'always'
       run: |
-        tools/deploy_documentation.sh
+        tools/deploy_documentation_dev.sh

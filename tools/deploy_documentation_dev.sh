@@ -21,19 +21,12 @@ sudo apt-get install -y ./rclone.deb
 RCLONE_CONFIG_PATH=$(rclone config file | tail -1)
 
 # Build the documentation.
-tox -edocs
+EXPERIMENTS_DEV_DOCS=1 tox -edocs
 
 echo "show current dir: "
 pwd
 
-CURRENT_TAG=`git describe --abbrev=0`
-IFS='.'
-read -ra VERSION <<< "$CURRENT_TAG"
-STABLE_VERSION=${VERSION[0]}.${VERSION[1]}
-
 # Push to qiskit.org website
 openssl aes-256-cbc -K $encrypted_rclone_key -iv $encrypted_rclone_iv -in tools/rclone.conf.enc -out $RCLONE_CONFIG_PATH -d
-echo "Pushing built docs to website"
-rclone sync --progress --exclude-from ./tools/other-builds.txt ./docs/_build/html IBMCOS:qiskit-org-web-resources/documentation/experiments
-echo "Pushing built docs to website"
-rclone sync --progress ./docs/_build/html IBMCOS:qiskit-org-web-resources/documentation/experiments/stable/"$STABLE_VERSION"
+echo "Pushing built docs to dev website"
+rclone sync --progress ./docs/_build/html IBMCOS:qiskit-org-web-resources/documentation/experiments/dev
