@@ -74,12 +74,15 @@ class MultiStateDiscriminationAnalysis(BaseAnalysis):
 
         # Process the data and get labels
         data, fit_state = [], []
+        fit_state_dict = {}
         for i in range(n_states):
             state_data = []
             for j in range(num_shots):
                 state_data.append(experiment_data.data()[i]["memory"][j][0])
             data.append(np.array(state_data))
-            fit_state.append(experiment_data.data()[i]["metadata"]["label"])
+            label = experiment_data.data()[i]["metadata"]["label"]
+            fit_state.append(label)
+            fit_state_dict[label] = i
 
         # Train a discriminator on the processed data
         discriminator = self.options.discriminator
@@ -88,11 +91,29 @@ class MultiStateDiscriminationAnalysis(BaseAnalysis):
             np.asarray([[label] * num_shots for label in fit_state]).flatten().transpose(),
         )
 
-        # Calculate fidelity
+        # Calculate fidelity. First we need to calculate P(i|j):= prob. measuring outcome i given
+        # state j was prepared
+        predicted_data = [discriminator.predict(state_data) for state_data in data]
+        # count per prepared state the number of measured states of each kind and calculate the
+        # probability of measuring the wrong state
+        prob_wrong = 0
+        for i in range(n_states):
+            counts = [0] * n_states
+            for point in predicted_data[i]:
+                counts[fit_state_dict[point]] += 1
+            for j in range(n_states):
+                if j != i:
+                    prob_wrong += counts[j] / num_shots
+
+        # calculate the fidelity
+        fidelity = 1 - (1 / n_states) * prob_wrong
+
         # Crate analysis results from the discriminator configuration
         analysis_results = [
-            AnalysisResultData(name="discriminator_config", value=discriminator.config())
+            AnalysisResultData(name="discriminator_config", value=discriminator.config()),
+            AnalysisResultData(name="fidelity", value=fidelity),
         ]
+
         # Create figure
         if self.options.plot:
             figures = [self._levels_plot(discriminator, data, fit_state).get_figure()]
