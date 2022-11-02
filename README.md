@@ -2,13 +2,15 @@
 
 [![License](https://img.shields.io/github/license/Qiskit/qiskit-experiments.svg?style=popout-square)](https://opensource.org/licenses/Apache-2.0)
 
-**This repo is still under active development, there will be breaking API changes**
+**This repo is still under active development, there will be breaking API changes.**
 
-**Qiskit** is an open-source framework for working with noisy quantum computers
-at the level of pulses, circuits, and algorithms.
+**Qiskit Experiments** is a repository that builds tools for building, running,
+and analyzing experiments on noisy quantum computers using Qiskit.
 
-Qiskit Experiments is a repository that builds tools for building, running,
-and analysis of experiments on noisy quantum computers.
+To learn more about the package, you can see the 
+[most up-to-date documentation](https://qiskit.org/documentation/experiments/dev/) 
+corresponding to the main branch of this repository or the 
+[documentation for the latest stable release](https://qiskit.org/documentation/experiments).
 
 ## Contribution Guidelines
 
@@ -20,9 +22,9 @@ uphold this code.
 We use [GitHub issues](https://github.com/Qiskit/qiskit-experiments/issues) for
 tracking requests and bugs. Please
 [join the Qiskit Slack community](https://ibm.co/joinqiskitslack)
-and use our [Qiskit Slack channel](https://qiskit.slack.com) for discussion and
+and use the [#experiments](https://qiskit.slack.com/archives/CGZDF48EN) channel for discussion and
 simple questions.
-For questions that are more suited for a forum we use the Qiskit tag in the
+For questions that are more suited for a forum we use the Qiskit tag in 
 [Stack Exchange](https://quantumcomputing.stackexchange.com/questions/tagged/qiskit).
 
 ## Authors and Citation
