@@ -1385,8 +1385,12 @@ class ExperimentData:
         return name, True
 
     def save(
-        self, suppress_errors: bool = True, max_workers: int = None, blocking: bool = True
-    ) -> None:
+        self,
+        suppress_errors: bool = True,
+        max_workers: int = None,
+        blocking: bool = True,
+        timeout: Optional[float] = None,
+    ) -> bool:
         """Save the experiment data to a database service.
 
         Args:
@@ -1397,6 +1401,11 @@ class ExperimentData:
             blocking: Whether save() should wait for all threads to terminate before
             proceeding (`True`) or delegate blocking to the user calling `block_for_save`
             later (`False`)
+            timeout: if `blocking=True`, how much time to wait before aborting the save
+        Returns:
+            True if all saves finished. False if timeout time was reached
+            or any save was cancelled or had an exception.
+
         .. note::
             This saves the experiment metadata, all analysis results, and all
             figures. Depending on the number of figures and analysis results this
@@ -1412,11 +1421,11 @@ class ExperimentData:
                 "An experiment service is available, for example, "
                 "when using an IBM Quantum backend."
             )
-            return
+            return False
         self._save_experiment_metadata(suppress_errors=suppress_errors)
         if not self._created_in_db:
             LOG.warning("Could not save experiment metadata to DB, aborting experiment save")
-            return
+            return False
 
         # dealing with individual results and figures is done via multithreading
         with self._save_futures.lock:
@@ -1449,7 +1458,7 @@ class ExperimentData:
             self._deleted_figures.remove(name)
 
         if blocking:
-            self.block_for_save()
+            self.block_for_save(timeout=timeout)
 
         if not self.service.local and self.verbose:
             print(
@@ -1462,6 +1471,7 @@ class ExperimentData:
             data.verbose = False
             data.save()
             data.verbose = original_verbose
+        return self.save_done()
 
     def jobs(self) -> List[Job]:
         """Return a list of jobs for the experiment"""
@@ -1568,6 +1578,19 @@ class ExperimentData:
         analysis_cancelled = self.cancel_analysis()
         jobs_cancelled = self.cancel_jobs()
         return analysis_cancelled and jobs_cancelled
+
+    def save_done(self) -> bool:
+        """Checks whether all database save jobs were completed successfully
+
+        Returns:
+            Whether all the analysis results/figure upload jobs are done,
+            as opposed to running/cancelled/failed.
+        """
+        with self._save_futures.lock:
+            for fut in self._save_futures.values():
+                if not fut.done():
+                    return False
+        return True
 
     def block_for_save(self, timeout: Optional[float] = None) -> "ExperimentData":
         """Block until all pending save operations finish.
