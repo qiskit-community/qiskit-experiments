@@ -44,10 +44,25 @@ from qiskit_experiments.test.utils import FakeJob
 
 # TODO: add some discrimination for IQ data to counts to capture misclassified leakage shots.
 class IQPulseBackend(BackendV2):
-    """Abstract base class for pulse simulation backends.
+    r"""Abstract base class for pulse simulation backends in Qiskit Experiments.
 
     This backend is designed for the tests in Qiskit Experiments as well as for the
-    tutorials in Qiskit Experiments.
+    tutorials in Qiskit Experiments. The backend has a Qiskit Dynamics pulse simulator
+    which allows it to simulate pulse schedules that are included in the calibrations
+    attached to quantum circuits. In addition, sub-classes should implement a set of default
+    schedules so that circuits that do not provide calibrations can also run, much like
+    the hardware backends. In addition, the backends are also capable of simulating level-
+    one (IQ data) and level-two (counts) data. Subclasses of these backends can have an
+    optional disciminator so that they can produce counts based on sampled IQ data. If
+    a discriminator is not provided then the counts will be produced from a statevector
+    or density matrix.
+
+    .. warning::
+
+        Some of the functionality in this backend may move to Qiskit Dynamics and/or be
+        refactored. These backends are not intended as a general pulse-simulator backend
+        but rather to test the experiments and write short tutorials to demonstrate an
+        experiment without having to run on hardware.
     """
 
     def __init__(
@@ -57,9 +72,10 @@ class IQPulseBackend(BackendV2):
         static_dissipators: Optional[np.ndarray] = None,
         dt: float = 0.1 * 1e-9,
         solver_method="RK23",
+        seed: int = 0,
         **kwargs,
     ):
-        """Initialize backend with model information.
+        """Initialize a backend with model information.
 
         Args:
             static_hamiltonian: Time-independent term in the Hamiltonian.
@@ -68,6 +84,8 @@ class IQPulseBackend(BackendV2):
             dt: Sample rate for simulating pulse schedules. Defaults to 0.1*1e-9.
             solver_method: Numerical solver method to use. Check qiskit_dynamics for available
                 methods. Defaults to "RK23".
+            seed: An optional seed given to the random number generator. If this argument is not
+                set then the seed defaults to 0.
         """
         super().__init__(
             None,
@@ -85,7 +103,8 @@ class IQPulseBackend(BackendV2):
                 "cmd_def": [],
             }
         )
-        self._rng = np.random.default_rng(0)
+        # The RNG to sample IQ data.
+        self._rng = np.random.default_rng(seed)
 
         # The instance to convert pulse schedules to signals for Qiskit Dynamics.
         self.converter = None
@@ -168,7 +187,7 @@ class IQPulseBackend(BackendV2):
         params = tuple(float(val) for val in p_dict.params)
         return qubit, params, p_dict.name
 
-    def iq_data(
+    def _iq_data(
         self,
         probability: np.ndarray,
         shots: int,
@@ -188,13 +207,13 @@ class IQPulseBackend(BackendV2):
         Returns:
             (I,Q) data.
         """
-        counts_n = np.random.multinomial(shots, probability / sum(probability), size=1).T
+        counts_n = self._rng.multinomial(shots, probability / sum(probability), size=1).T
 
         full_i, full_q = [], []
 
         for idx, count_i in enumerate(counts_n):
-            full_i.append(np.random.normal(loc=centers[idx][0], scale=width, size=count_i))
-            full_q.append(np.random.normal(loc=centers[idx][1], scale=width, size=count_i))
+            full_i.append(self._rng.normal(loc=centers[idx][0], scale=width, size=count_i))
+            full_q.append(self._rng.normal(loc=centers[idx][1], scale=width, size=count_i))
 
         full_i = list(chain.from_iterable(full_i))
         full_q = list(chain.from_iterable(full_q))
@@ -206,7 +225,7 @@ class IQPulseBackend(BackendV2):
         full_iq = 1e16 * np.array([[full_i], [full_q]]).T
         return full_iq.tolist()
 
-    def iq_cluster_centers(self, circuit: Optional[QuantumCircuit] = None):
+    def _iq_cluster_centers(self, circuit: Optional[QuantumCircuit] = None):
         """A function to provide the points for the IQ centers when doing readout.
 
         Subclasses can override this function, for instance, to provide circuit dependent
@@ -243,7 +262,7 @@ class IQPulseBackend(BackendV2):
                 information that it might need to generate the IQ shots.
 
         Returns:
-            Measurement Output.
+            Measurement output as either counts or IQ data depending on the run input.
         """
         if self.static_dissipators is not None:
             state = state.reshape(self.model_dim, self.model_dim)
@@ -255,8 +274,8 @@ class IQPulseBackend(BackendV2):
             measurement_data = state.sample_counts(shots)
 
         elif meas_level == MeasLevel.KERNELED:
-            centers = self.iq_cluster_centers(circuit=circuit)
-            measurement_data = self.iq_data(state.probabilities(), shots, centers, 0.2)
+            centers = self._iq_cluster_centers(circuit=circuit)
+            measurement_data = self._iq_data(state.probabilities(), shots, centers, 0.2)
             if meas_return == "avg":
                 measurement_data = np.average(np.array(measurement_data), axis=0)
         else:
@@ -293,7 +312,7 @@ class IQPulseBackend(BackendV2):
         return unitary
 
     def run(self, run_input: Union[QuantumCircuit, List[QuantumCircuit]], **run_options) -> FakeJob:
-        """run method takes circuits as input and returns FakeJob with IQ data or counts.
+        """Run method takes circuits as input and returns FakeJob with IQ data or counts.
 
         Args:
             run_input: Circuits to run
@@ -375,10 +394,17 @@ class IQPulseBackend(BackendV2):
 
 
 class SingleTransmonTestBackend(IQPulseBackend):
-    r"""Three level anharmonic transmon qubit.
+    r"""A backend that corresponds to a three level anharmonic transmon qubit.
+
+    The Hamiltonian of the system is
+
     .. math::
-        H = \hbar \sum_{j=1,2} \left[\omega_j \Pi_j +
+        H = \hbar \sum_{j=1,2} \left[\omega_j |j\rangle\langle j| +
                 \mathcal{E}(t) \lambda_j (\sigma_j^+ + \sigma_j^-)\right]
+
+    Here, :math:`\omega_j` is the transition frequency from level :math`0` to level
+    :math:`j`. :math:`\mathcal{E}(t)` is the drive field and :math:`\sigma_j^\pm` are
+    the raising and lowering operators between levels :math:`j-1` and :math:`j`.
     """
 
     def __init__(
