@@ -53,7 +53,8 @@ class MultiStateDiscriminationAnalysis(BaseAnalysis):
             experiment_data: the data obtained from the experiment
 
         Returns:
-            The configuration of the trained discriminator and the IQ plot.
+            The configuration of the trained discriminator and the IQ plot and the fidelity of the
+            discrimination.
         """
 
         # number of states and shots
@@ -76,6 +77,7 @@ class MultiStateDiscriminationAnalysis(BaseAnalysis):
             np.asarray([[label] * num_shots for label in fit_state]).flatten().transpose(),
         )
 
+        # Calculate fidelity
         # Crate analysis results from the discriminator configuration
         analysis_results = [
             AnalysisResultData(name="discriminator_config", value=discriminator.config())
