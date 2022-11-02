@@ -25,7 +25,18 @@ from qiskit_experiments.visualization import IQPlotter, MplDrawer, PlotStyle
 
 
 class MultiStateDiscriminationAnalysis(BaseAnalysis):
-    """This class fits a multi-state discriminator to the data."""
+    """This class fits a multi-state discriminator to the data.
+    
+    The class will report the configuration of the discriminator in the analysis result as well as
+    the fidelity of the discrimination reported as
+    
+    .. math::
+    
+        F = 1 - \frac{1}{d}\sum{i\neq j}P(i|j)
+        
+    Here, :math:`d` is the number of levels that were discriminated while :math:`P(i|j)` is the probability
+    of measuring outcome :math:`i` given that state :math:`j` was prepared.
+    """
 
     @classmethod
     def _default_options(cls) -> Options:
