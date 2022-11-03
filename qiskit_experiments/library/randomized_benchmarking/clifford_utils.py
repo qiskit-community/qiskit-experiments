@@ -22,7 +22,6 @@ from typing import Optional, Union, Tuple, Sequence, List
 
 import numpy as np
 import scipy.sparse
-import warnings
 from numpy.random import Generator, default_rng
 
 from qiskit.circuit import CircuitInstruction, Qubit
