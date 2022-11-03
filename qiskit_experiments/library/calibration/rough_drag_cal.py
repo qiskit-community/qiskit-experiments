@@ -14,7 +14,7 @@
 
 from typing import Dict, Iterable, Optional
 
-from qiskit.circuit import Parameter
+from qiskit.circuit import Parameter, QuantumCircuit
 from qiskit.providers.backend import Backend
 
 from qiskit_experiments.framework import ExperimentData
@@ -91,6 +91,10 @@ class RoughDragCal(BaseCalibrationExperiment, RoughDrag):
             self._param_name, self.physical_qubits, self._sched_name, self.experiment_options.group
         )
         return metadata
+
+    def _attach_calibrations(self, circuit: QuantumCircuit):
+        """RoughDrag already has the schedules attached in the program circuits."""
+        pass
 
     def update_calibrations(self, experiment_data: ExperimentData):
         """Update the beta using the value directly reported from the fit.

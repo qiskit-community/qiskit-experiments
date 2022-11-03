@@ -30,7 +30,7 @@ z_value = 2), and at least 100 trials have been ran.
     from qiskit_experiments.framework import BatchExperiment
     from qiskit_experiments.library import QuantumVolume
     from qiskit import Aer
-    from qiskit.providers.aer import AerSimulator
+    from qiskit_aer import AerSimulator
     
     # For simulation
     from qiskit.providers.fake_provider import FakeSydney

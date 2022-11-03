@@ -24,7 +24,7 @@ for an explanation on the RB method, which is based on Ref. [1, 2].
     import qiskit.circuit.library as circuits
     
     # For simulation
-    from qiskit.providers.aer import AerSimulator
+    from qiskit_aer import AerSimulator
     from qiskit.providers.fake_provider import FakeParis
     
     backend = AerSimulator.from_backend(FakeParis())

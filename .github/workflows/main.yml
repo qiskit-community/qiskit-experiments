@@ -23,13 +23,13 @@ jobs:
           echo -e "\033[31;1;4mConcurrency Group\033[0m"
           echo -e "$CONCURRENCY_GROUP\n"
         shell: bash
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
       - name: Pip cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ~/.cache/pip
           key: ${{ runner.os }}-${{ matrix.python-version }}-pip-tests-${{ hashFiles('setup.py','requirements-dev.txt','constraints.txt') }}
@@ -52,13 +52,13 @@ jobs:
     name: lint
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Set up Python 3.8
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: 3.8
       - name: Pip cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ~/.cache/pip
           key: ${{ runner.os }}-${{ matrix.python-version }}-pip-lint-${{ hashFiles('setup.py','requirements-dev.txt','constraints.txt') }}
@@ -74,15 +74,15 @@ jobs:
     name: docs
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 0
       - name: Set up Python 3.8
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: 3.8
       - name: Pip cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ~/.cache/pip
           key: ${{ runner.os }}-${{ matrix.python-version }}-pip-docs-${{ hashFiles('setup.py','requirements-dev.txt','constraints.txt') }}
@@ -96,7 +96,12 @@ jobs:
           sudo apt-get install -y pandoc graphviz
       - name: Build Docs
         run: tox -edocs
-      - uses: actions/upload-artifact@v2
+      - name: Compress Artifacts
+        run: |
+          mkdir artifacts
+          tar -Jcvf html_docs.tar.xz docs/_build/html
+          mv html_docs.tar.xz artifacts/.
+      - uses: actions/upload-artifact@v3
         with:
           name: html_docs
-          path: docs/_build/html
+          path: artifacts

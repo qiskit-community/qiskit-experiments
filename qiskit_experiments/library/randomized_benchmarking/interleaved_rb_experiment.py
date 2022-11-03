@@ -22,7 +22,7 @@ from qiskit.quantum_info import Clifford
 from qiskit.exceptions import QiskitError
 from qiskit.providers.backend import Backend
 
-from .rb_experiment import StandardRB
+from .rb_experiment import StandardRB, SequenceElementType
 from .interleaved_rb_analysis import InterleavedRBAnalysis
 
 
@@ -74,8 +74,20 @@ class InterleavedRB(StandardRB):
                            all lengths. If False for sample of lengths longer
                            sequences are constructed by appending additional
                            Clifford samples to shorter sequences.
+
+        Raises:
+            QiskitError: the interleaved_element is not convertible to Clifford object.
         """
-        self._set_interleaved_element(interleaved_element)
+        try:
+            self._interleaved_elem = Clifford(interleaved_element)
+        except QiskitError as err:
+            raise QiskitError(
+                f"Interleaved element {interleaved_element.name} could not be converted to Clifford."
+            ) from err
+        # Convert interleaved element to operation
+        self._interleaved_op = interleaved_element
+        if not isinstance(interleaved_element, Instruction):
+            self._interleaved_op = interleaved_element.to_instruction()
         super().__init__(
             qubits,
             lengths,
@@ -87,56 +99,44 @@ class InterleavedRB(StandardRB):
         self.analysis = InterleavedRBAnalysis()
         self.analysis.set_options(outcome="0" * self.num_qubits)
 
-    def _sample_circuits(self, lengths, rng):
-        circuits = []
-        for length in lengths if self._full_sampling else [lengths[-1]]:
-            elements = self._clifford_utils.random_clifford_circuits(self.num_qubits, length, rng)
-            element_lengths = [len(elements)] if self._full_sampling else lengths
-            std_circuits = self._generate_circuit(elements, element_lengths)
-            for circuit in std_circuits:
-                circuit.metadata["interleaved"] = False
-            circuits += std_circuits
-
-            int_elements = self._interleave(elements)
-            int_elements_lengths = [length * 2 for length in element_lengths]
-            int_circuits = self._generate_circuit(int_elements, int_elements_lengths)
-            for circuit in int_circuits:
-                circuit.metadata["interleaved"] = True
-                circuit.metadata["xval"] = circuit.metadata["xval"] // 2
-            circuits += int_circuits
-        return circuits
-
-    def _interleave(self, element_list: List) -> List:
-        """Interleaving the interleaved element inside the element list.
-
-        Args:
-            element_list: The list of elements we add the interleaved element to.
+    def circuits(self) -> List[QuantumCircuit]:
+        """Return a list of RB circuits.
 
         Returns:
-            The new list with the element interleaved.
+            A list of :class:`QuantumCircuit`.
         """
-        new_element_list = []
-        for element in element_list:
-            new_element_list.append(element)
-            new_element_list.append(self._interleaved_element)
-        return new_element_list
+        # Build circuits of reference sequences
+        reference_sequences = self._sample_sequences()
+        reference_circuits = self._sequences_to_circuits(reference_sequences)
+        for circ, seq in zip(reference_circuits, reference_sequences):
+            circ.metadata = {
+                "experiment_type": self._type,
+                "xval": len(seq),
+                "group": "Clifford",
+                "physical_qubits": self.physical_qubits,
+                "interleaved": False,
+            }
+        # Build circuits of interleaved sequences
+        interleaved_sequences = []
+        for seq in reference_sequences:
+            new_seq = []
+            for elem in seq:
+                new_seq.append(elem)
+                new_seq.append(self._interleaved_elem)
+            interleaved_sequences.append(new_seq)
+        interleaved_circuits = self._sequences_to_circuits(interleaved_sequences)
+        for circ, seq in zip(interleaved_circuits, reference_sequences):
+            circ.metadata = {
+                "experiment_type": self._type,
+                "xval": len(seq),  # set length of the reference sequence
+                "group": "Clifford",
+                "physical_qubits": self.physical_qubits,
+                "interleaved": True,
+            }
+        return reference_circuits + interleaved_circuits
 
-    def _set_interleaved_element(self, interleaved_element):
-        """Handle the various types of the interleaved element
+    def _to_instruction(self, elem: SequenceElementType) -> Instruction:
+        if elem is self._interleaved_elem:
+            return self._interleaved_op
 
-        Args:
-            interleaved_element: The element to interleave
-
-        Raises:
-            QiskitError: if there is no known conversion of interleaved_element
-            to a Clifford group element
-        """
-        try:
-            interleaved_element_op = Clifford(interleaved_element)
-            self._interleaved_element = (interleaved_element, interleaved_element_op)
-        except QiskitError as error:
-            raise QiskitError(
-                "Interleaved element {} could not be converted to Clifford element".format(
-                    interleaved_element.name
-                )
-            ) from error
+        return super()._to_instruction(elem)
