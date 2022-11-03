@@ -14,11 +14,11 @@ Utilities for using the Clifford group in randomized benchmarking
 """
 
 import warnings
-import numpy as np
 from typing import Optional, Union, Sequence, List
 from functools import lru_cache
 from numbers import Integral
 
+import numpy as np
 from numpy.random import Generator, default_rng
 
 from qiskit.circuit import Gate, Instruction

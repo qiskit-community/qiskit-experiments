@@ -24,6 +24,7 @@ from qiskit.providers.backend import Backend
 
 from .rb_experiment import StandardRB
 from .mirror_rb_analysis import MirrorRBAnalysis
+from .clifford_utils import CliffordUtils
 
 
 class MirrorRB(StandardRB):
@@ -116,6 +117,10 @@ class MirrorRB(StandardRB):
         self._local_clifford = local_clifford
         self._pauli_randomize = pauli_randomize
         self._two_qubit_gate_density = two_qubit_gate_density
+
+        # Will need to update these 2 lines below to fit with current rb experiment code
+        self._full_sampling = full_sampling
+        self._clifford_utils = CliffordUtils()
 
         # By default, the inverting Pauli layer at the end of the circuit is not added
         self._inverting_pauli_layer = inverting_pauli_layer
