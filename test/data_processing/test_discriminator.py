@@ -22,6 +22,8 @@ from qiskit_experiments.data_processing import SkLDA, SkCLF
 try:
     from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
     from sklearn.linear_model import SGDClassifier
+    from sklearn.pipeline import make_pipeline
+    from sklearn.preprocessing import StandardScaler
 
     HAS_SKLEARN = True
 except ImportError:
@@ -99,3 +101,42 @@ class TestDiscriminator(QiskitExperimentsTestCase):
         clf_from_config = SkCLF.from_config(config)
 
         self.assertTrue(clf_from_config.predict([[1.1, 0]])[0], 1)
+
+    @requires_sklearn
+    def test_skclf_serialization(self):
+        """Test the serialization of a SkCLF."""
+
+        sk_clf = SGDClassifier(loss="modified_huber", max_iter=1000, tol=1e-3)
+        sk_clf = make_pipeline(StandardScaler(), sk_clf)
+        sk_clf.fit([[-1, 0], [1, 0], [-1.1, 0], [0.9, 0.1]], [0, 1, 0, 1])
+
+        self.assertTrue(sk_clf.predict([[1.1, 0]])[0], 1)
+
+        clf = SkCLF(sk_clf)
+
+        self.assertTrue(clf.is_trained())
+        self.assertTrue(clf.predict([[1.1, 0]])[0], 1)
+
+        def check_clf(clf1, clf2):
+            test_data = [[1.1, 0], [0.1, 0], [-2, 0]]
+
+            clf1_y = clf1.predict(test_data)
+            clf2_y = clf2.predict(test_data)
+
+            if len(clf1_y) != len(clf2_y):
+                return False
+
+            for idx, y_val1 in enumerate(clf1_y):
+                if clf2_y[idx] != y_val1:
+                    return False
+
+            for attribute in clf1.attributes:
+                if not np.allclose(
+                        getattr(clf1.discriminator, attribute, np.array([])),
+                        getattr(clf2.discriminator, attribute, np.array([])),
+                ):
+                    return False
+
+            return True
+
+        self.assertRoundTripSerializable(clf, check_clf)

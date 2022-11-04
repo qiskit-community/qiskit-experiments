@@ -127,7 +127,6 @@ class SkCLF(BaseDiscriminator):
         else:
             self._clf = make_pipeline(StandardScaler(), cls)
         self.attributes = [
-            "named_steps",
             "classes_",
             "n_features_in_",
             "features_names_in_",
@@ -177,3 +176,10 @@ class SkCLF(BaseDiscriminator):
                 setattr(skclf, name, value)
 
         return skclf
+
+    def __json_encode__(self) -> Any:
+        return self.config()
+
+    @classmethod
+    def __json_decode__(cls, value: Any) -> "SkCLF":
+        return cls.from_config(value)
