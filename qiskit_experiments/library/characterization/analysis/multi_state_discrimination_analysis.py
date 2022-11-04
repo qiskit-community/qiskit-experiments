@@ -116,19 +116,20 @@ class MultiStateDiscriminationAnalysis(BaseAnalysis):
 
         # Create figure
         if self.options.plot:
-            figures = [self._levels_plot(discriminator, data, fit_state).get_figure()]
+            figures = [self._levels_plot(discriminator, data, fit_state, fidelity).get_figure()]
         else:
             figures = []
 
         return analysis_results, figures
 
-    def _levels_plot(self, discriminator, data, fit_state) -> matplotlib.figure.Figure:
+    def _levels_plot(self, discriminator, data, fit_state, fidelity) -> matplotlib.figure.Figure:
         """Helper function for plotting IQ plane for different energy levels.
 
         Args:
             discriminator: the trained discriminator
             data: the training data
             fit_state: the labels
+            fidelity: the fidelity of the classification
 
         Returns:
             The plotted IQ data.
@@ -152,6 +153,6 @@ class MultiStateDiscriminationAnalysis(BaseAnalysis):
         for p, c, n in zip(data, centroids, fit_state):
             _name = f"{n}"
             plotter.set_series_data(_name, points=p, centroid=c)
-        plotter.set_supplementary_data(discriminator=discriminator)
+        plotter.set_supplementary_data(discriminator=discriminator, fidelity=fidelity)
 
         return plotter.figure()

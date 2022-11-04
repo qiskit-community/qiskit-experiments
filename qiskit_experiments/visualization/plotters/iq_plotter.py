@@ -278,3 +278,25 @@ class IQPlotter(BasePlotter):
                     alpha=0.2,
                     marker=".",
                 )
+
+        # Fidelity report
+        report = self._write_report()
+        if len(report) > 0:
+            self.drawer.textbox(report)
+
+    def _write_report(self) -> str:
+        """Write fidelity report with supplementary_data.
+
+        Subclass can override this method to customize fit report.
+        By default, this writes fidelity of the discriminator in the fidelity report.
+
+        Returns:
+            Fidelity report.
+        """
+        report = ""
+
+        if "fidelity" in self.supplementary_data:
+            fidelity = self.supplementary_data["fidelity"]
+            report += f"fidelity = {fidelity: .4g}"
+
+        return report
