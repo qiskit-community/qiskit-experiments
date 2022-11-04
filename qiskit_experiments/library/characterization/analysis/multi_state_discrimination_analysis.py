@@ -16,11 +16,11 @@ from typing import List, Tuple
 
 import matplotlib
 import numpy as np
-from sklearn.linear_model import SGDClassifier
+from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
 
 from qiskit.providers.options import Options
 from qiskit_experiments.framework import BaseAnalysis, AnalysisResultData, ExperimentData
-from qiskit_experiments.data_processing import SkCLF
+from qiskit_experiments.data_processing import SkQDA
 from qiskit_experiments.visualization import IQPlotter, MplDrawer, PlotStyle
 
 
@@ -51,7 +51,7 @@ class MultiStateDiscriminationAnalysis(BaseAnalysis):
         options = super()._default_options()
         options.plot = True
         options.ax = None
-        options.discriminator = SkCLF(SGDClassifier(loss="modified_huber", max_iter=1000, tol=1e-3))
+        options.discriminator = SkQDA(QuadraticDiscriminantAnalysis())
         return options
 
     def _run_analysis(
