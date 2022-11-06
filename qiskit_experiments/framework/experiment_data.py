@@ -1401,10 +1401,9 @@ class ExperimentData:
             blocking: Whether save() should wait for all threads to terminate before
             proceeding (`True`) or delegate blocking to the user calling `block_for_save`
             later (`False`)
-            timeout: if `blocking=True`, how much time to wait before aborting the save
+            timeout: if `blocking=True`, how much time to wait before proceeding (will not stop the saving process)
         Returns:
-            True if all saves finished. False if timeout time was reached
-            or any save was cancelled or had an exception.
+            True if the save commands were successfully dispatched, False if something went wrong
 
         .. note::
             This saves the experiment metadata, all analysis results, and all
@@ -1471,7 +1470,7 @@ class ExperimentData:
             data.verbose = False
             data.save()
             data.verbose = original_verbose
-        return self.save_done()
+        return True
 
     def jobs(self) -> List[Job]:
         """Return a list of jobs for the experiment"""
@@ -1579,18 +1578,41 @@ class ExperimentData:
         jobs_cancelled = self.cancel_jobs()
         return analysis_cancelled and jobs_cancelled
 
-    def save_done(self) -> bool:
+    def save_status(self) -> ExperimentSaveStatus:
         """Checks whether all database save jobs were completed successfully
 
         Returns:
             Whether all the analysis results/figure upload jobs are done,
             as opposed to running/cancelled/failed.
         """
+        if self._save_executor is None:
+            return ExperimentSaveStatus.EMPTY
+
+        status = ExperimentSaveStatus.DONE
         with self._save_futures.lock:
             for fut in self._save_futures.values():
                 if not fut.done():
-                    return False
-        return True
+                    if status == ExperimentSaveStatus.DONE:
+                        status = ExperimentSaveStatus.RUNNING
+                    continue
+                if fut.exception():
+                    status = ExperimentSaveStatus.ERROR
+                if fut.cancelled and not status == ExperimentSaveStatus.ERROR:
+                    status = ExperimentSaveStatus.CANCELLED
+        return status
+
+    def save_errors(self) -> str:
+        """Return any errors encountered in save execution."""
+        errors = []
+
+        for save_id, fut in self._save_futures.items():
+            if fut and fut.done() and fut.exception():
+                ex = fut.exception()
+                errors.append(
+                    f"[Save ID: {save_id}]"
+                    "\n".join(traceback.format_exception(type(ex), ex, ex.__traceback__))
+                )
+        return "".join(errors)
 
     def block_for_save(self, timeout: Optional[float] = None) -> "ExperimentData":
         """Block until all pending save operations finish.
@@ -1608,9 +1630,9 @@ class ExperimentData:
         self._wait_for_futures(save_futs, name="database save", timeout=timeout)
         # Clean up done job futures
         num_saves = len(save_futs)
-        for jid, fut in zip(save_ids, save_futs):
+        for save_id, fut in zip(save_ids, save_futs):
             if (fut.done() and not fut.exception()) or fut.cancelled():
-                del self._save_futures[jid]
+                del self._save_futures[save_id]
                 num_saves -= 1
 
         # Check if more futures got added while this function was running
@@ -2302,6 +2324,23 @@ class ExperimentStatus(enum.Enum):
     POST_PROCESSING = "experiment analysis is actively running"
     DONE = "experiment jobs and analysis have successfully run"
     ERROR = "experiment jobs or analysis incurred an error"
+
+    def __json_encode__(self):
+        return self.name
+
+    @classmethod
+    def __json_decode__(cls, value):
+        return cls.__members__[value]  # pylint: disable=unsubscriptable-object
+
+
+class ExperimentSaveStatus(enum.Enum):
+    """Class for experiment save status enumerated type."""
+
+    EMPTY = "No save was issued"
+    RUNNING = "save tasks are actively running"
+    CANCELLED = "save has been cancelled"
+    DONE = "save have successfully run"
+    ERROR = "save incurred an error"
 
     def __json_encode__(self):
         return self.name
