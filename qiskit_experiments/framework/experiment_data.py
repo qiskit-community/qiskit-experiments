@@ -1620,7 +1620,7 @@ class ExperimentData:
             time_taken = time.time() - start_time
             if timeout is not None:
                 timeout = max(0, timeout - time_taken)
-            return self.block_for_results(timeout=timeout)
+            return self.block_for_save(timeout=timeout)
 
         return self
 
