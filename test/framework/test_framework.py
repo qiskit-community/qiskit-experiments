@@ -14,7 +14,6 @@
 
 from test.fake_experiment import FakeExperiment, FakeAnalysis
 from test.base import QiskitExperimentsTestCase
-import warnings
 import ddt
 
 from qiskit import QuantumCircuit
@@ -105,19 +104,13 @@ class TestFramework(QiskitExperimentsTestCase):
         failed_analysis = FakeFailedAnalysis()
         expdata1 = analysis.run(ExperimentData(), seed=54321)
         self.assertExperimentDone(expdata1)
-        with warnings.catch_warnings(record=True) as w:
-            # Cause all warnings to always be triggered.
-            warnings.simplefilter("always")
-            expdata2 = failed_analysis.run(
-                expdata1, replace_results=True, seed=12345
-            ).block_for_results()
-
-            # check warning message raised.
-            self.assertIn("Failed analysis for testing.", w[-1].message.args[0])
-            # check that the analysis is empty for the answer of the failed analysis.
-            self.assertEqual(expdata2.analysis_results(), [])
-            # confirming original analysis results is empty due to 'replace_results=True'
-            self.assertEqual(expdata1.analysis_results(), [])
+        expdata2 = failed_analysis.run(
+            expdata1, replace_results=True, seed=12345
+        ).block_for_results()
+        # check that the analysis is empty for the answer of the failed analysis.
+        self.assertEqual(expdata2.analysis_results(), [])
+        # confirming original analysis results is empty due to 'replace_results=True'
+        self.assertEqual(expdata1.analysis_results(), [])
 
     def test_failed_analysis_replace_results_false(self):
         """Test running analysis with replace_results=False"""
@@ -132,17 +125,12 @@ class TestFramework(QiskitExperimentsTestCase):
         failed_analysis = FakeFailedAnalysis()
         expdata1 = analysis.run(ExperimentData(), seed=54321)
         self.assertExperimentDone(expdata1)
-        with warnings.catch_warnings(record=True) as w:
-            # Cause all warnings to always be triggered.
-            warnings.simplefilter("always")
-            expdata2 = failed_analysis.run(expdata1, replace_results=False, seed=12345)
+        expdata2 = failed_analysis.run(expdata1, replace_results=False, seed=12345)
 
-            # check warning message raised
-            self.assertIn("Failed analysis for testing.", w[-1].message.args[0])
-            # check that the analysis is empty for the answer of the failed analysis.
-            self.assertEqual(expdata2.analysis_results(), [])
-            # confirming original analysis results isn't empty due to 'replace_results=False'
-            self.assertNotEqual(expdata1.analysis_results(), [])
+        # check that the analysis is empty for the answer of the failed analysis.
+        self.assertEqual(expdata2.analysis_results(), [])
+        # confirming original analysis results isn't empty due to 'replace_results=False'
+        self.assertNotEqual(expdata1.analysis_results(), [])
 
     def test_analysis_config(self):
         """Test analysis config dataclass"""
