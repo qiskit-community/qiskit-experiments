@@ -172,7 +172,7 @@ class TomographyExperiment(BaseExperiment):
                 name += f"_{prep_element}"
                 metadata["p_idx"] = list(prep_element)
 
-            circ = template.copy()
+            circ = template.copy(name=name)
 
             if prep_element:
                 # Add tomography preparation
