@@ -169,7 +169,7 @@ class BaseAnalysis(ABC, StoreInitArgs):
             except AnalysisError as ex:
                 error_msg = f"The analysis failed with the following message: {str(ex)}"
                 warnings.warn(error_msg)
-                # raise AnalysisError(f"The analysis failed with error: {str(ex)}") from ex
+                raise AnalysisError(f"The analysis failed with error: {str(ex)}") from ex
             else:
                 # Add components
                 analysis_results = [
