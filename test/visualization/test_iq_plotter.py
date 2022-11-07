@@ -82,7 +82,7 @@ class TestIQPlotter(QiskitExperimentsTestCase):
         is_trained: bool = True,
         n_series: int = 3,
         raise_predict_not_trained: bool = False,
-        factor : float = 1,
+        factor: float = 1,
     ) -> Tuple[List, List, BaseDiscriminator]:
         """Create dummy data for the tests.
 
@@ -101,7 +101,7 @@ class TestIQPlotter(QiskitExperimentsTestCase):
         points = []
         labels = []
         for i in range(n_series):
-            points.append(np.random.rand(128, 2)*factor)
+            points.append(np.random.rand(128, 2) * factor)
             labels.append(f"{i}")
         mock_discrim = MockDiscriminator(
             is_trained, n_states=n_series, raise_predict_not_trained=raise_predict_not_trained

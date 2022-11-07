@@ -13,14 +13,13 @@
 Test integration of plotter with Matplotlib drawer.
 """
 
-import ddt
-
-from test.base import QiskitExperimentsTestCase
 from itertools import product
-import matplotlib
-import re
+from test.base import QiskitExperimentsTestCase
 
+import ddt
+import matplotlib
 import numpy as np
+
 from qiskit_experiments.visualization import MplDrawer
 
 from .mock_plotter import MockPlotter
@@ -48,15 +47,16 @@ class TestPlotterAndMplDrawer(QiskitExperimentsTestCase):
         *list(product([(-3, "m"), (0, ""), (3, "k"), (6, "M")], [True, False], [True, False]))
     )
     def test_unit_scale(self, args):
+        """Test whether axis labels' unit-prefixes scale correctly."""
         (exponent, prefix), xval_unit_scale, yval_unit_scale = args
-        INPUT_UNIT_X = "DUMMYX"
-        INPUT_UNIT_Y = "DUMMYY"
+        input_unit_x = "DUMMYX"
+        input_unit_y = "DUMMYY"
         plotter = MockPlotter(MplDrawer(), plotting_enabled=True)
         plotter.set_figure_options(
             xlabel=" ",  # Dummy labels to force drawing of units.
             ylabel=" ",  #
-            xval_unit=INPUT_UNIT_X,
-            yval_unit=INPUT_UNIT_Y,
+            xval_unit=input_unit_x,
+            yval_unit=input_unit_y,
             xval_unit_scale=xval_unit_scale,
             yval_unit_scale=yval_unit_scale,
         )
@@ -71,8 +71,8 @@ class TestPlotterAndMplDrawer(QiskitExperimentsTestCase):
 
         plotter.figure()
 
-        EXPECTED_UNIT_X = prefix + INPUT_UNIT_X if xval_unit_scale else INPUT_UNIT_X
-        EXPECTED_UNIT_Y = prefix + INPUT_UNIT_Y if yval_unit_scale else INPUT_UNIT_Y
+        expected_unit_x = prefix + input_unit_x if xval_unit_scale else input_unit_x
+        expected_unit_y = prefix + input_unit_y if yval_unit_scale else input_unit_y
 
         # Get actual labels
         ax = plotter.drawer._axis
@@ -81,7 +81,7 @@ class TestPlotterAndMplDrawer(QiskitExperimentsTestCase):
 
         # Check if expected units exist in the axis labels.
         for axis, actual_label, expected_units in zip(
-            ["X", "Y"], [xlabel, ylabel], [EXPECTED_UNIT_X, EXPECTED_UNIT_Y]
+            ["X", "Y"], [xlabel, ylabel], [expected_unit_x, expected_unit_y]
         ):
             self.assertTrue(actual_label is not None)
             self.assertTrue(

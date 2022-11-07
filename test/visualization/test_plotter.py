@@ -19,6 +19,7 @@ from test.base import QiskitExperimentsTestCase
 from .mock_drawer import MockDrawer
 from .mock_plotter import MockPlotter
 
+
 class TestPlotter(QiskitExperimentsTestCase):
     """Test the generic plotter interface."""
 
@@ -84,4 +85,3 @@ class TestPlotter(QiskitExperimentsTestCase):
                 msg=f"Actual figure data value for {key} data-key is not as expected: {actual_value} "
                 f"(actual) vs {expected_value} (expected)",
             )
-    
