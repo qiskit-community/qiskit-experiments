@@ -54,7 +54,7 @@ class MockPlotter(BasePlotter):
         error-bars.
         """
         if self.plotting_enabled:
-            self.drawer.scatter(*self.data_for("seriesA", ["x", "y", "z"]), "seriesA")
+            self.drawer.scatter(*self.data_for("seriesA", ["x", "y", "z"]), name="seriesA")
 
     @classmethod
     def expected_series_data_keys(cls) -> List[str]:
