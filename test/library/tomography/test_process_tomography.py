@@ -259,7 +259,7 @@ class TestProcessTomography(QiskitExperimentsTestCase):
         # Check result
         f_threshold = 0.95
 
-        # Check state is density matrix
+        # Check state is a Choi matrix
         state = filter_results(results, "state").value
         self.assertTrue(isinstance(state, qi.Choi), msg="fitted state is not a Choi matrix")
 
@@ -284,7 +284,7 @@ class TestProcessTomography(QiskitExperimentsTestCase):
         # Check result
         f_threshold = 0.95
 
-        # Check state is density matrix
+        # Check state is a Choi matrix
         state = filter_results(results, "state").value
         self.assertTrue(isinstance(state, qi.Choi), msg="fitted state is not a Choi matrix")
 
