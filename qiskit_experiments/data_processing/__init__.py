@@ -100,4 +100,4 @@ from .nodes import (
 )
 
 from .data_processor import DataProcessor
-from .sklearn_discriminators import SkLDA, SkCLF
+from .sklearn_discriminators import SkLDA, SkQDA

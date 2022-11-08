@@ -21,7 +21,7 @@ from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
 from qiskit.providers.options import Options
 from qiskit_experiments.framework import BaseAnalysis, AnalysisResultData, ExperimentData
 from qiskit_experiments.data_processing import SkQDA
-from qiskit_experiments.visualization import IQPlotter, MplDrawer, PlotStyle
+from qiskit_experiments.visualization import BasePlotter, IQPlotter, MplDrawer, PlotStyle
 
 
 class MultiStateDiscriminationAnalysis(BaseAnalysis):
@@ -49,10 +49,20 @@ class MultiStateDiscriminationAnalysis(BaseAnalysis):
             gradient descent (SGD) classifier.
         """
         options = super()._default_options()
+        options.plotter = IQPlotter(MplDrawer())
+        options.plotter.set_options(
+            discriminator_max_resolution=64,
+            style=PlotStyle(figsize=(6, 4), legend_loc=None),
+        )
         options.plot = True
         options.ax = None
         options.discriminator = SkQDA(QuadraticDiscriminantAnalysis())
         return options
+
+    @property
+    def plotter(self) -> BasePlotter:
+        """A short-cut to the curve plotter instance."""
+        return self._options.plotter
 
     def _run_analysis(
         self,
@@ -134,25 +144,21 @@ class MultiStateDiscriminationAnalysis(BaseAnalysis):
         Returns:
             The plotted IQ data.
         """
-        # Create IQPlotter and generate figure.
-        plotter = IQPlotter(MplDrawer())
-        plotter.set_options(
-            discriminator_max_resolution=64,
-            style=PlotStyle(figsize=(6, 4), legend_loc=None),
-        )
-
         # create figure labels
         params_dict = {}
         for i, label in enumerate(fit_state):
             params_dict[label] = {"label": "$|%s\\rangle$" % i}
-        plotter.set_figure_options(series_params=params_dict)
+        # Update params_dict to contain any existing series_params values,
+        # where they have priority over params_dict.
+        params_dict.update(self.plotter.figure_options.series_params)
+        self.plotter.set_figure_options(series_params=params_dict)
 
         # calculate centroids
         centroids = [np.mean(x, axis=0) for x in data]
 
         for p, c, n in zip(data, centroids, fit_state):
             _name = f"{n}"
-            plotter.set_series_data(_name, points=p, centroid=c)
-        plotter.set_supplementary_data(discriminator=discriminator, fidelity=fidelity)
+            self.plotter.set_series_data(_name, points=p, centroid=c)
+        self.plotter.set_supplementary_data(discriminator=discriminator, fidelity=fidelity)
 
-        return plotter.figure()
+        return self.plotter.figure()
