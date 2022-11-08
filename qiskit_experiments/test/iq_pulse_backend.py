@@ -129,7 +129,7 @@ class IQPulseBackend(BackendV2):
             self.ground_state = np.array([1.0] + [0.0] * (self.model_dim - 1))
         else:
             self.y_0 = np.eye(self.model_dim**2)
-            self.ground_state = np.array([1.0] + [0.0] * (self.model_dim ** 2 - 1))
+            self.ground_state = np.array([1.0] + [0.0] * (self.model_dim**2 - 1))
 
         self._simulated_pulse_unitaries = {}
 
@@ -293,14 +293,14 @@ class IQPulseBackend(BackendV2):
             if self._discriminator is None:
                 if memory:
                     memory_data = state.sample_memory(shots)
-                    measurement_data = dict(zip(*np.unique(memory_data,return_counts=True)))
+                    measurement_data = dict(zip(*np.unique(memory_data, return_counts=True)))
                 else:
                     measurement_data = state.sample_counts(shots)
             else:
                 centers = self._iq_cluster_centers(circuit=circuit)
                 iq_data = self._iq_data(state.probabilities(), shots, centers, 0.2)
                 memory_data = self._discriminator.predict(iq_data)
-                measurement_data = dict(zip(*np.unique(memory_data,return_counts=True)))
+                measurement_data = dict(zip(*np.unique(memory_data, return_counts=True)))
 
         elif meas_level == MeasLevel.KERNELED:
             centers = self._iq_cluster_centers(circuit=circuit)
