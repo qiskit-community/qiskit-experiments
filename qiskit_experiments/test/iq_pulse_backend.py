@@ -38,6 +38,7 @@ from qiskit.transpiler import InstructionProperties, Target
 from qiskit_dynamics import Solver
 from qiskit_dynamics.pulse import InstructionToSignals
 
+from qiskit_experiments.data_processing.discriminator import BaseDiscriminator
 from qiskit_experiments.exceptions import QiskitError
 from qiskit_experiments.test.utils import FakeJob
 
@@ -136,6 +137,9 @@ class IQPulseBackend(BackendV2):
         # An internal cache of schedules to unitaries. The key is a hashed string representation.
         self._schedule_cache = {}
 
+        # An optional discriminator that is used to create counts from IQ data.
+        self._discriminator = None
+
     @property
     def target(self):
         """Contains information for circuit transpilation"""
@@ -148,6 +152,16 @@ class IQPulseBackend(BackendV2):
     def defaults(self):
         """return backend pulse defaults"""
         return self._defaults
+
+    @property
+    def discriminator(self) -> BaseDiscriminator:
+        """Return the discriminator for the IQ data."""
+        return self._discriminator
+
+    @discriminator.setter
+    def discriminator(self, discriminator: BaseDiscriminator):
+        """Set the discriminator."""
+        self._discriminator = discriminator
 
     @classmethod
     def _default_options(cls) -> Options:
@@ -246,6 +260,7 @@ class IQPulseBackend(BackendV2):
         shots: int,
         meas_level: MeasLevel,
         meas_return: MeasReturnType,
+        memory: bool,
         circuit: QuantumCircuit,
     ) -> Union[Dict[str, int], np.ndarray]:
         """Convert State operator objects to IQ data or Counts.
@@ -264,16 +279,27 @@ class IQPulseBackend(BackendV2):
         Returns:
             Measurement output as either counts or IQ data depending on the run input.
         """
+        memory_data = None
         if self.static_dissipators is not None:
             state = state.reshape(self.model_dim, self.model_dim)
             state = DensityMatrix(state / np.trace(state))
         else:
             state = Statevector(state / np.linalg.norm(state))
 
-        if meas_level == MeasLevel.CLASSIFIED:
-            measurement_data = state.sample_counts(shots)
+        if meas_level == MeasLevel.CLASSIFIED: #2
+            if self._discriminator is None:
+                if memory:
+                    memory_data = state.sample_memory(shots)
+                    measurement_data = dict(zip(*np.unique(memory_data,return_counts=True)))
+                else:
+                    measurement_data = state.sample_counts(shots)
+            else:
+                centers = self.iq_cluster_centers(circuit=circuit)
+                iq_data = self.iq_data(state.probabilities(), shots, centers, 0.2)
+                memory_data = self._discriminator.predict(iq_data)
+                measurement_data = dict(zip(*np.unique(memory_data,return_counts=True)))
 
-        elif meas_level == MeasLevel.KERNELED:
+        elif meas_level == MeasLevel.KERNELED: #1
             centers = self._iq_cluster_centers(circuit=circuit)
             measurement_data = self._iq_data(state.probabilities(), shots, centers, 0.2)
             if meas_return == "avg":
@@ -281,7 +307,7 @@ class IQPulseBackend(BackendV2):
         else:
             raise QiskitError(f"Unsupported measurement level {meas_level}.")
 
-        return measurement_data
+        return measurement_data, memory_data
 
     def solve(self, schedule: Union[ScheduleBlock, Schedule], qubits: Tuple[int]) -> np.ndarray:
         """Solves for qubit dynamics under the action of a pulse instruction
@@ -370,7 +396,7 @@ class IQPulseBackend(BackendV2):
                 state_t = unitary @ state_t
 
             # 4. Convert the probabilities to IQ data or counts.
-            return_data = self._state_to_measurement_data(
+            measurement_data, memory_data = self._state_to_measurement_data(
                 state_t, shots, meas_level, meas_return, circuit
             )
 
@@ -384,9 +410,11 @@ class IQPulseBackend(BackendV2):
             }
 
             if meas_level == MeasLevel.CLASSIFIED:
-                run_result["data"]["counts"] = return_data
+                run_result["data"]["counts"] = measurement_data
+                if memory_data is not None:
+                    run_result["data"]["memory"] = memory_data
             if meas_level == MeasLevel.KERNELED:
-                run_result["data"]["memory"] = return_data
+                run_result["data"]["memory"] = measurement_data
 
             result["results"].append(run_result)
 
