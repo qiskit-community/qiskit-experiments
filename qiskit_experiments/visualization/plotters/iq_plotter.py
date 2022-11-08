@@ -287,8 +287,8 @@ class IQPlotter(BasePlotter):
     def _write_report(self) -> str:
         """Write fidelity report with supplementary_data.
 
-        Subclass can override this method to customize fit report.
-        By default, this writes fidelity of the discriminator in the fidelity report.
+        Subclass can override this method to customize fidelity report.
+        By default, this writes the fidelity of the discriminator in the fidelity report.
 
         Returns:
             Fidelity report.
