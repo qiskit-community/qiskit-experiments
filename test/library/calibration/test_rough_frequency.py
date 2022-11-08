@@ -61,7 +61,7 @@ class TestRoughFrequency(QiskitExperimentsTestCase):
         prev_freq = cals.get_parameter_value(cals.__drive_freq_parameter__, (0,))
         self.assertEqual(prev_freq, freq01)
 
-        frequencies = np.linspace(freq01 - 10.0e6, freq01 + 10.0e6, 21)
+        frequencies = np.linspace(freq01 - 10.0e6, freq01 + 10.0e6, 11)
 
         spec = RoughFrequencyCal(0, cals, frequencies, backend=backend_5mhz)
         spec.set_experiment_options(amp=0.005)
