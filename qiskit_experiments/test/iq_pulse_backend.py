@@ -240,7 +240,7 @@ class IQPulseBackend(BackendV2):
         return full_iq.tolist()
 
     # pylint: disable=unused-argument
-    def _iq_cluster_centers(self, circuit: Optional[QuantumCircuit] = None):
+    def _iq_cluster_centers(self, circuit: Optional[QuantumCircuit] = None) -> List[Tuple[float]]:
         """A function to provide the points for the IQ centers when doing readout.
 
         Subclasses can override this function, for instance, to provide circuit dependent
@@ -251,6 +251,9 @@ class IQPulseBackend(BackendV2):
             The circuit is provided so that sub-classes that implement their own IQ simulation
                 by overriding this method can access circuit-level data (e.g. for
                 ReadoutSpectroscopy simulation).
+
+        Returns:
+            Coordinates for IQ centers.
         """
         theta = 2 * np.pi / self.model_dim
         return [(np.cos(idx * theta), np.sin(idx * theta)) for idx in range(self.model_dim)]
@@ -263,7 +266,7 @@ class IQPulseBackend(BackendV2):
         meas_return: MeasReturnType,
         memory: bool,
         circuit: QuantumCircuit,
-    ) -> tuple[Union[Union[dict, Counts, tuple[list, list]], Any], Optional[Any]]:
+    ) -> Tuple[Union[Union[Dict, Counts, Tuple[List, List]], Any], Optional[Any]]:
         """Convert State objects to IQ data or Counts.
 
         The counts are produced by sampling from the state vector if no discriminator is
@@ -281,6 +284,9 @@ class IQPulseBackend(BackendV2):
 
         Returns:
             Measurement output as either counts or IQ data depending on the run input.
+
+        Raises:
+            QiskitError: If unsuported measurement options are provided.
         """
         memory_data = None
         if self.static_dissipators is not None:
