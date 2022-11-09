@@ -274,7 +274,7 @@ class PulseBackend(BackendV2):
             shots: Number of repetitions of each circuit, for sampling.
             meas_level: Measurement level 1 returns IQ data. 2 returns counts.
             meas_return: "single" returns information from every shot. "avg" returns average
-                          measurement output (averaged over number of shots).
+                measurement output (averaged over number of shots).
             circuit: The circuit is provided so that :meth:`iq_data` can leverage any circuit-level
                 information that it might need to generate the IQ shots.
 
