@@ -210,7 +210,7 @@ class PulseBackend(BackendV2):
         Args:
             probability: probability of occupation
             shots: Number of shots
-            centers: The central i and q points for each level
+            centers: The central I and Q points for each level
             width: Width of IQ data distribution
             phase: Phase of IQ data, by default 0. Defaults to None.
 
