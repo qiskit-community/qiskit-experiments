@@ -22,7 +22,7 @@ from qiskit.circuit import Parameter
 from qiskit_experiments.calibration_management.basis_gate_library import FixedFrequencyTransmon
 from qiskit_experiments.calibration_management import Calibrations
 from qiskit_experiments.library import EFRoughXSXAmplitudeCal, RoughXSXAmplitudeCal
-from qiskit_experiments.test.iq_pulse_backend import SingleTransmonTestBackend
+from qiskit_experiments.test.pulse_backend import SingleTransmonTestBackend
 
 
 class TestRoughAmpCal(QiskitExperimentsTestCase):

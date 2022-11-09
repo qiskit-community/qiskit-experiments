@@ -94,15 +94,12 @@ class PulseBackend(BackendV2):
             online_date=datetime.datetime.utcnow(),
             backend_version="0.0.1",
         )
-        self._defaults = PulseDefaults.from_dict(
-            {
-                "qubit_freq_est": [0],
-                "meas_freq_est": [0],
-                "buffer": 0,
-                "pulse_library": [],
-                "cmd_def": [],
-            }
-        )
+
+        # subclasses must implements default pulse schedules
+        self._defaults = None
+
+        self._target = Target(dt=dt, granularity=16)
+
         # The RNG to sample IQ data.
         self._rng = np.random.default_rng(seed)
 
@@ -120,7 +117,6 @@ class PulseBackend(BackendV2):
             static_dissipators=self.static_dissipators,
             **kwargs,
         )
-        self._target = Target(dt=dt, granularity=16)
 
         self.model_dim = self.solver.model.dim
 
