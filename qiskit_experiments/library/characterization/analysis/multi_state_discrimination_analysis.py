@@ -83,15 +83,12 @@ class MultiStateDiscriminationAnalysis(BaseAnalysis):
 
         # Process the data and get labels
         data, fit_state = [], []
-        fit_state_dict = {}
         for i in range(n_states):
             state_data = []
             for j in range(num_shots):
                 state_data.append(experiment_data.data()[i]["memory"][j][0])
             data.append(np.array(state_data))
-            label = experiment_data.data()[i]["metadata"]["label"]
-            fit_state.append(label)
-            fit_state_dict[label] = i
+            fit_state.append(experiment_data.data()[i]["metadata"]["label"])
 
         # Train a discriminator on the processed data
         discriminator = self.options.discriminator
@@ -109,7 +106,7 @@ class MultiStateDiscriminationAnalysis(BaseAnalysis):
         for i in range(n_states):
             counts = [0] * n_states
             for point in predicted_data[i]:
-                counts[fit_state_dict[point]] += 1
+                counts[point] += 1
             for j in range(n_states):
                 if j != i:
                     prob_wrong += counts[j] / num_shots
@@ -143,8 +140,8 @@ class MultiStateDiscriminationAnalysis(BaseAnalysis):
         """
         # create figure labels
         params_dict = {}
-        for i, label in enumerate(fit_state):
-            params_dict[label] = {"label": "$|%s\\rangle$" % i}
+        for state in fit_state:
+            params_dict[f"{state}"] = {"label": f"$|{state}\\rangle$"}
         # Update params_dict to contain any existing series_params values,
         # where they have priority over params_dict.
         params_dict.update(self.plotter.figure_options.series_params)
