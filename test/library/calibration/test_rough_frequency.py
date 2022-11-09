@@ -15,24 +15,26 @@ from test.base import QiskitExperimentsTestCase
 
 import numpy as np
 
-from qiskit.providers.fake_provider import FakeArmonkV2
-
 from qiskit_experiments.framework import BackendData
 from qiskit_experiments.library import RoughFrequencyCal
 from qiskit_experiments.calibration_management import Calibrations
 from qiskit_experiments.calibration_management.basis_gate_library import FixedFrequencyTransmon
-from qiskit_experiments.test.mock_iq_backend import MockIQBackend
-from qiskit_experiments.test.mock_iq_helpers import MockIQSpectroscopyHelper as SpectroscopyHelper
+from qiskit_experiments.test.pulse_backend import SingleTransmonTestBackend
 
 
 class TestRoughFrequency(QiskitExperimentsTestCase):
     """Tests for the rough frequency calibration experiment."""
 
+    def setUp(self):
+        """Setup the tests."""
+        super().setUp()
+        self.backend = SingleTransmonTestBackend(noise=False)
+
     def test_init(self):
         """Test that initialization."""
 
-        qubit = 1
-        cals = Calibrations.from_backend(FakeArmonkV2())
+        qubit = 0
+        cals = Calibrations.from_backend(self.backend)
         frequencies = [1000, 2000, 3000]
         auto_update = False
         absolute = False
@@ -49,30 +51,21 @@ class TestRoughFrequency(QiskitExperimentsTestCase):
     def test_update_calibrations(self):
         """Test that we can properly update an instance of Calibrations."""
 
-        freq01 = BackendData(FakeArmonkV2()).drive_freqs[0]
+        freq01 = BackendData(self.backend).drive_freqs[0]
 
-        backend = MockIQBackend(
-            experiment_helper=SpectroscopyHelper(
-                freq_offset=5e6,
-                line_width=2e6,
-                iq_cluster_centers=[((-1.0, -1.0), (1.0, 1.0))],
-                iq_cluster_width=[0.2],
-            ),
-        )
-        backend._configuration.basis_gates = ["x"]
-        backend._configuration.timing_constraints = {"granularity": 16}
+        backend_5mhz = SingleTransmonTestBackend(qubit_frequency=freq01 + 5e6, noise=False)
 
-        backend.defaults().qubit_freq_est = [freq01, freq01]
-
-        library = FixedFrequencyTransmon(basis_gates=["x", "sx"])
-        cals = Calibrations.from_backend(FakeArmonkV2(), libraries=[library])
+        library = FixedFrequencyTransmon()
+        cals = Calibrations.from_backend(self.backend, libraries=[library])
 
         prev_freq = cals.get_parameter_value(cals.__drive_freq_parameter__, (0,))
         self.assertEqual(prev_freq, freq01)
 
-        frequencies = np.linspace(freq01 - 10.0e6, freq01 + 10.0e6, 21)
+        frequencies = np.linspace(freq01 - 10.0e6, freq01 + 10.0e6, 11)
 
-        expdata = RoughFrequencyCal(0, cals, frequencies).run(backend)
+        spec = RoughFrequencyCal(0, cals, frequencies, backend=backend_5mhz)
+        spec.set_experiment_options(amp=0.005)
+        expdata = spec.run()
         self.assertExperimentDone(expdata)
 
         # Check the updated frequency which should be shifted by 5MHz.
@@ -81,7 +74,7 @@ class TestRoughFrequency(QiskitExperimentsTestCase):
 
     def test_experiment_config(self):
         """Test converting to and from config works"""
-        cals = Calibrations.from_backend(FakeArmonkV2())
+        cals = Calibrations.from_backend(self.backend)
         frequencies = [1, 2, 3]
         exp = RoughFrequencyCal(0, cals, frequencies)
         loaded_exp = RoughFrequencyCal.from_config(exp.config())
