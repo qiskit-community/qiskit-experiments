@@ -133,7 +133,7 @@ class MultiStateDiscrimination(BaseExperiment):
                         )
 
             # label the circuit
-            circuit.metadata = {"label": f"|{level}>"}
+            circuit.metadata = {"label": level}
 
             circuit.measure_all()
             circuits.append(circuit)
