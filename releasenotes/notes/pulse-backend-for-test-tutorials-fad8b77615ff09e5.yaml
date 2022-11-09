@@ -9,7 +9,7 @@ features:
     do not need hardware backends.
 issues:
   - |
-    The backend only suports single qubit operations.
+    The backend only suports single qubit operations and will be upgraded in the future.
 upgrade:
   - |
     The `SingleTransmonTestBackend` is now used for the test_rough_amplitude, 
