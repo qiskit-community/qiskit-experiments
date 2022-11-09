@@ -14,7 +14,7 @@
 
 import datetime
 from itertools import chain
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 import numpy as np
 
@@ -32,7 +32,7 @@ from qiskit.pulse.transforms import block_to_schedule
 from qiskit.qobj.pulse_qobj import PulseQobjInstruction
 from qiskit.qobj.utils import MeasLevel, MeasReturnType
 from qiskit.quantum_info.states import DensityMatrix, Statevector
-from qiskit.result import Result
+from qiskit.result import Result, Counts
 from qiskit.transpiler import InstructionProperties, Target
 
 from qiskit_dynamics import Solver
@@ -43,7 +43,6 @@ from qiskit_experiments.exceptions import QiskitError
 from qiskit_experiments.test.utils import FakeJob
 
 
-# TODO: add some discrimination for IQ data to counts to capture misclassified leakage shots.
 class IQPulseBackend(BackendV2):
     r"""Abstract base class for pulse simulation backends in Qiskit Experiments.
 
@@ -127,10 +126,10 @@ class IQPulseBackend(BackendV2):
 
         if self.static_dissipators is None:
             self.y_0 = np.eye(self.model_dim)
-            self.gs = np.array([1.0] + [0.0] * (self.model_dim - 1))
+            self.ground_state = np.array([1.0] + [0.0] * (self.model_dim - 1))
         else:
             self.y_0 = np.eye(self.model_dim**2)
-            self.gs = np.array([1.0] + [0.0] * (self.model_dim**2 - 1))
+            self.ground_state = np.array([1.0] + [0.0] * (self.model_dim**2 - 1))
 
         self._simulated_pulse_unitaries = {}
 
@@ -142,7 +141,7 @@ class IQPulseBackend(BackendV2):
 
     @property
     def target(self):
-        """Contains information for circuit transpilation"""
+        """Contains information for circuit transpilation."""
         return self._target
 
     @property
@@ -170,6 +169,7 @@ class IQPulseBackend(BackendV2):
             shots=4000,
             meas_level=MeasLevel.CLASSIFIED,
             meas_return=MeasReturnType.AVERAGE,
+            memory=False,
         )
 
     @property
@@ -239,6 +239,7 @@ class IQPulseBackend(BackendV2):
         full_iq = 1e16 * np.array([[full_i], [full_q]]).T
         return full_iq.tolist()
 
+    # pylint: disable=unused-argument
     def _iq_cluster_centers(self, circuit: Optional[QuantumCircuit] = None):
         """A function to provide the points for the IQ centers when doing readout.
 
@@ -262,10 +263,12 @@ class IQPulseBackend(BackendV2):
         meas_return: MeasReturnType,
         memory: bool,
         circuit: QuantumCircuit,
-    ) -> Union[Dict[str, int], np.ndarray]:
-        """Convert State operator objects to IQ data or Counts.
+    ) -> tuple[Union[Union[dict, Counts, tuple[list, list]], Any], Optional[Any]]:
+        """Convert State objects to IQ data or Counts.
 
-        TODO we could implement discrimination here.
+        The counts are produced by sampling from the state vector if no discriminator is
+        present. Otherwise, IQ shots are generated and then discriminated based on the
+        discriminator.
 
         Args:
             state: Quantum state information.
@@ -286,20 +289,20 @@ class IQPulseBackend(BackendV2):
         else:
             state = Statevector(state / np.linalg.norm(state))
 
-        if meas_level == MeasLevel.CLASSIFIED: #2
+        if meas_level == MeasLevel.CLASSIFIED:
             if self._discriminator is None:
                 if memory:
                     memory_data = state.sample_memory(shots)
-                    measurement_data = dict(zip(*np.unique(memory_data,return_counts=True)))
+                    measurement_data = dict(zip(*np.unique(memory_data, return_counts=True)))
                 else:
                     measurement_data = state.sample_counts(shots)
             else:
-                centers = self.iq_cluster_centers(circuit=circuit)
-                iq_data = self.iq_data(state.probabilities(), shots, centers, 0.2)
+                centers = self._iq_cluster_centers(circuit=circuit)
+                iq_data = self._iq_data(state.probabilities(), shots, centers, 0.2)
                 memory_data = self._discriminator.predict(iq_data)
-                measurement_data = dict(zip(*np.unique(memory_data,return_counts=True)))
+                measurement_data = dict(zip(*np.unique(memory_data, return_counts=True)))
 
-        elif meas_level == MeasLevel.KERNELED: #1
+        elif meas_level == MeasLevel.KERNELED:
             centers = self._iq_cluster_centers(circuit=circuit)
             measurement_data = self._iq_data(state.probabilities(), shots, centers, 0.2)
             if meas_return == "avg":
@@ -341,7 +344,10 @@ class IQPulseBackend(BackendV2):
         """Run method takes circuits as input and returns FakeJob with IQ data or counts.
 
         Args:
-            run_input: Circuits to run
+            run_input: Circuits to run.
+            run_options: Any option that affects the way that the circuits are run. The options
+                that are currently supported are ``shots``, ``meas_level``, ``meas_return``,
+                and ``memory``.
 
         Returns:
             FakeJob with simulation data.
@@ -350,6 +356,7 @@ class IQPulseBackend(BackendV2):
         shots = self.options.get("shots", self._options.shots)
         meas_level = self.options.get("meas_level", self._options.meas_level)
         meas_return = self.options.get("meas_return", self._options.meas_return)
+        memory = self.options.get("memory", self._options.memory)
 
         result = {
             "backend_name": f"{self.__class__.__name__}",
@@ -383,7 +390,7 @@ class IQPulseBackend(BackendV2):
                     unitaries[key] = unitary
 
             # 3. Multiply the unitaries of the circuit instructions onto the ground state.
-            state_t = self.gs.copy()
+            state_t = self.ground_state.copy()
             for instruction in circuit.data:
                 qubits, params, inst_name = self._get_info(circuit, instruction)
                 if inst_name in ["barrier", "measure"]:
@@ -397,7 +404,7 @@ class IQPulseBackend(BackendV2):
 
             # 4. Convert the probabilities to IQ data or counts.
             measurement_data, memory_data = self._state_to_measurement_data(
-                state_t, shots, meas_level, meas_return, circuit
+                state_t, shots, meas_level, meas_return, memory, circuit
             )
 
             run_result = {
