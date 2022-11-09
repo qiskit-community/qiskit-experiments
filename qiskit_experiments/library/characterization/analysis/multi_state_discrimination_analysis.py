@@ -123,11 +123,9 @@ class MultiStateDiscriminationAnalysis(BaseAnalysis):
             AnalysisResultData(name="fidelity", value=fidelity),
         ]
 
-        # Create figure
+        figures = []
         if self.options.plot:
-            figures = [self._levels_plot(discriminator, data, fit_state, fidelity).get_figure()]
-        else:
-            figures = []
+            figures.append(self._levels_plot(discriminator, data, fit_state, fidelity).get_figure())
 
         return analysis_results, figures
 
