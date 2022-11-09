@@ -45,8 +45,7 @@ class MultiStateDiscriminationAnalysis(BaseAnalysis):
         Analysis Options:
             plot (bool): Set ``True`` to create figure for fit result.
             ax(AxesSubplot): Optional. A matplotlib axis object in which to draw.
-            discriminator: The discriminator to classify the data. The default is a stochastic
-            gradient descent (SGD) classifier.
+            discriminator: The discriminator to classify the data. The default is a quadratic discriminant analysis.
         """
         options = super()._default_options()
         options.plotter = IQPlotter(MplDrawer())
