@@ -61,7 +61,7 @@ class MultiStateDiscriminationAnalysis(BaseAnalysis):
 
     @property
     def plotter(self) -> BasePlotter:
-        """A short-cut to the curve plotter instance."""
+        """A short-cut to the IQ plotter instance."""
         return self._options.plotter
 
     def _run_analysis(
