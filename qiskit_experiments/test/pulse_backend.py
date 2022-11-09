@@ -43,7 +43,7 @@ from qiskit_experiments.exceptions import QiskitError
 from qiskit_experiments.test.utils import FakeJob
 
 
-class IQPulseBackend(BackendV2):
+class PulseBackend(BackendV2):
     r"""Abstract base class for pulse simulation backends in Qiskit Experiments.
 
     This backend is designed for the tests in Qiskit Experiments as well as for the
@@ -434,7 +434,7 @@ class IQPulseBackend(BackendV2):
         return FakeJob(self, Result.from_dict(result))
 
 
-class SingleTransmonTestBackend(IQPulseBackend):
+class SingleTransmonTestBackend(PulseBackend):
     r"""A backend that corresponds to a three level anharmonic transmon qubit.
 
     The Hamiltonian of the system is
