@@ -462,7 +462,8 @@ class SingleTransmonTestBackend(PulseBackend):
             lambda_1: Strength of 0-1 transition. Defaults to 1e9.
             lambda_2: Strength of 1-2 transition. Defaults to 0.8e9.
             gamma_1: Relaxation rate (1/T1) for 1-0. Defaults to 1e4.
-            noise: . Defaults to True.
+            noise: Defaults to True. If True then T1 dissipation is included in the pulse-simulation.
+                The strength is given by ``gamma_1``.
         """
         qubit_frequency_02 = 2 * qubit_frequency + anharmonicity
         ket0 = np.array([[1, 0, 0]]).T
