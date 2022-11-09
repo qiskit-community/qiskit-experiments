@@ -25,7 +25,7 @@ from qiskit_experiments.visualization import BasePlotter, IQPlotter, MplDrawer, 
 
 
 class MultiStateDiscriminationAnalysis(BaseAnalysis):
-    """This class fits a multi-state discriminator to the data.
+    r"""This class fits a multi-state discriminator to the data.
     
     The class will report the configuration of the discriminator in the analysis result as well as
     the fidelity of the discrimination reported as
