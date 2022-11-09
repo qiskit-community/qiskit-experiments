@@ -79,7 +79,7 @@ Discriminators
     :toctree: ../stubs/
 
     SkLDA
-    SkCLF
+    SkQDA
 """
 
 from .data_action import DataAction, TrainableDataAction
