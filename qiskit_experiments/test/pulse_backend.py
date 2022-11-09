@@ -244,7 +244,7 @@ class PulseBackend(BackendV2):
         are evenly distributed on the unit sphere in the IQ plane with |0> located at IQ point (0, 1).
 
         Args:
-            The circuit is provided so that sub-classes that implement their own IQ simulation
+            circuit: provided so that sub-classes that implement their own IQ simulation
                 by overriding this method can access circuit-level data (e.g. for
                 ReadoutSpectroscopy simulation).
 
