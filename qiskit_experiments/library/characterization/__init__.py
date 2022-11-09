@@ -47,11 +47,8 @@ Experiments
     LocalReadoutError
     CorrelatedReadoutError
     ResonatorSpectroscopy
-<<<<<<< HEAD
     MultiStateDiscrimination
-=======
     ZZRamsey
->>>>>>> 0e6153d6f4d2fc61989ec85e9e241546f9d91855
 
 
 Analysis
