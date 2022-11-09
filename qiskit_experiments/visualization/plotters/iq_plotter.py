@@ -93,10 +93,7 @@ class IQPlotter(BasePlotter):
                 classifies the provided series data. Must be a subclass of :class:`BaseDiscriminator`.
                 See :attr:`options` for ways to control the generation of the discriminator prediction
                 image.
-            fidelity: A float representing the fidelity of the discrimination reported as
-                :math:`F = 1 - \frac{1}{d}\sum{i\neq j}P(i|j)`. Here, :math:`d` is the number of
-                levels that were discriminated while :math:`P(i|j)` is the probability of measuring
-                outcome :math:`i` given that state :math:`j` was prepared.
+            fidelity: A float representing the fidelity of the discrimination.
         """
         return [
             "discriminator",
