@@ -593,3 +593,176 @@ class SingleTransmonTestBackend(PulseBackend):
         self._simulated_pulse_unitaries = {
             (schedule.name, (0,), ()): self.solve(schedule, (0,)) for schedule in default_schedules
         }
+
+
+class ParallelTransmonTestBackend(PulseBackend):
+    r"""A backend that corresponds to a three level anharmonic transmon qubit.
+
+    The Hamiltonian of the system is
+
+    .. math::
+        H = \hbar \sum_{j=1,2} \left[\omega_j |j\rangle\langle j| +
+                \mathcal{E}(t) \lambda_j (\sigma_j^+ + \sigma_j^-)\right]
+
+    Here, :math:`\omega_j` is the transition frequency from level :math`0` to level
+    :math:`j`. :math:`\mathcal{E}(t)` is the drive field and :math:`\sigma_j^\pm` are
+    the raising and lowering operators between levels :math:`j-1` and :math:`j`.
+    """
+
+    def __init__(
+        self,
+        qubit_frequency: float = 5e9,
+        anharmonicity: float = -0.25e9,
+        lambda_1: float = 1e9,
+        lambda_2: float = 0.8e9,
+        gamma_1: float = 1e4,
+        noise: bool = True,
+        **kwargs,
+    ):
+        """Initialise backend with hamiltonian parameters
+
+        Args:
+            qubit_frequency: Frequency of the qubit (0-1). Defaults to 5e9.
+            anharmonicity: Qubit anharmonicity $\\alpha$ = f12 - f01. Defaults to -0.25e9.
+            lambda_1: Strength of 0-1 transition. Defaults to 1e9.
+            lambda_2: Strength of 1-2 transition. Defaults to 0.8e9.
+            gamma_1: Relaxation rate (1/T1) for 1-0. Defaults to 1e4.
+            noise: Defaults to True. If True then T1 dissipation is included in the pulse-simulation.
+                The strength is given by ``gamma_1``.
+        """
+        qubit_frequency_02 = 2 * qubit_frequency + anharmonicity
+        ket0 = np.array([[1, 0, 0]]).T
+        ket1 = np.array([[0, 1, 0]]).T
+        ket2 = np.array([[0, 0, 1]]).T
+
+        sigma_m1 = ket0 @ ket1.T.conj()
+        sigma_m2 = ket1 @ ket2.T.conj()
+
+        sigma_p1 = sigma_m1.T.conj()
+        sigma_p2 = sigma_m2.T.conj()
+
+        p1 = ket1 @ ket1.T.conj()
+        p2 = ket2 @ ket2.T.conj()
+
+        ident = np.eye(3)
+
+        drift = 2 * np.pi * (qubit_frequency * p1 + qubit_frequency_02 * p2)
+        drift_2q = np.kron(drift, ident) + np.kron(ident, drift)
+
+        control = [
+            2 * np.pi * (lambda_1 * (sigma_p1 + sigma_m1) + lambda_2 * (sigma_p2 + sigma_m2))
+        ]
+        control_2q = [np.kron(ident, control[0]), np.kron(control[0], ident)]
+
+        r_frame = 2 * np.pi * qubit_frequency * (p1 + 2 * p2)
+        r_frame_2q = np.kron(r_frame, ident) + np.kron(ident, r_frame)
+
+        t1_dissipator0 = np.sqrt(gamma_1) * np.kron(ident, sigma_m1)
+        t1_dissipator1 = np.sqrt(gamma_1) * np.kron(sigma_m1, ident)
+
+        self.anharmonicity = [anharmonicity, anharmonicity]
+        self.rabi_rate_01 = [8.589, 8.589]
+        self.rabi_rate_12 = [6.876, 6.876]
+
+        if noise is True:
+            evaluation_mode = "dense_vectorized"
+            static_dissipators = [t1_dissipator0, t1_dissipator1]
+        else:
+            evaluation_mode = "dense"
+            static_dissipators = None
+
+        super().__init__(
+            static_hamiltonian=drift_2q,
+            hamiltonian_operators=control_2q,
+            static_dissipators=static_dissipators,
+            rotating_frame=r_frame_2q,
+            rwa_cutoff_freq=1.9 * qubit_frequency,
+            rwa_carrier_freqs=[qubit_frequency, qubit_frequency],
+            evaluation_mode=evaluation_mode,
+            **kwargs,
+        )
+
+        pulse_command = lambda qubit, name, amp: Command.from_dict(
+            {
+                "name": name,
+                "qubits": [qubit],
+                "sequence": [
+                    PulseQobjInstruction(
+                        name="parametric_pulse",
+                        t0=0,
+                        ch=f"d{qubit}",
+                        label=f"Xp_d{qubit}",
+                        pulse_shape="drag",
+                        parameters={
+                            "amp": amp / self.rabi_rate_01[qubit],
+                            "beta": 5,
+                            "duration": 160,
+                            "sigma": 40,
+                        },
+                    ).to_dict()
+                ],
+            }
+        ).to_dict()
+
+        self._defaults = PulseDefaults.from_dict(
+            {
+                "qubit_freq_est": [qubit_frequency / 1e9] * 2,
+                "meas_freq_est": [0] * 2,
+                "buffer": 0,
+                "pulse_library": [],
+                "cmd_def": [
+                    pulse_command(name="x", qubit=0, amp=(0.5 + 0j)),
+                    pulse_command(name="sx", qubit=0, amp=(0.25 + 0j)),
+                    pulse_command(name="x", qubit=1, amp=(0.5 + 0j)),
+                    pulse_command(name="sx", qubit=1, amp=(0.25 + 0j)),
+                ],
+            }
+        )
+
+        self._target = Target(
+            qubit_properties=[QubitProperties(frequency=qubit_frequency)],
+            dt=self.dt,
+            granularity=16,
+        )
+
+        measure_props = {
+            (0,): InstructionProperties(duration=0, error=0),
+            (1,): InstructionProperties(duration=0, error=0),
+        }
+        x_props = {
+            (0,): InstructionProperties(duration=160e-10, error=0),
+            (1,): InstructionProperties(duration=160e-10, error=0),
+        }
+        sx_props = {
+            (0,): InstructionProperties(duration=160e-10, error=0),
+            (1,): InstructionProperties(duration=160e-10, error=0),
+        }
+        rz_props = {
+            (0,): InstructionProperties(duration=0.0, error=0),
+            (1,): InstructionProperties(duration=0.0, error=0),
+        }
+        self._phi = Parameter("phi")
+        self._target.add_instruction(Measure(), measure_props)
+        self._target.add_instruction(XGate(), x_props)
+        self._target.add_instruction(SXGate(), sx_props)
+        self._target.add_instruction(RZGate(self._phi), rz_props)
+
+        self.converter = InstructionToSignals(
+            self.dt,
+            carriers={"d0": qubit_frequency, "d1": qubit_frequency},
+            channels=["d0", "d1"],
+        )
+
+        default_schedules = [
+            self._defaults.instruction_schedule_map.get("x", (0,)),
+            self._defaults.instruction_schedule_map.get("sx", (0,)),
+            self._defaults.instruction_schedule_map.get("x", (1,)),
+            self._defaults.instruction_schedule_map.get("sx", (1,)),
+        ]
+
+        self._simulated_pulse_unitaries = {
+            (schedule.name, (schedule.channels[0].index,), ()): self.solve(
+                schedule, (schedule.channels[0].index,)
+            )
+            for schedule in default_schedules
+        }
