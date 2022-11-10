@@ -119,7 +119,7 @@ class PulseBackend(BackendV2):
         )
 
         self.model_dim = self.solver.model.dim
-        self.subsystem_dims = (self.model_dim, )
+        self.subsystem_dims = (self.model_dim,)
 
         if self.static_dissipators is None:
             self.y_0 = np.eye(self.model_dim)
@@ -221,6 +221,9 @@ class PulseBackend(BackendV2):
 
         Returns:
             (I,Q) data as List[shot index][qubit index] = [I,Q]
+        
+        Raises:
+            QiskitError: If number of centers and levels don't match.
         """
         full_i, full_q = [], []
         for sub_idx, _ in enumerate(self.subsystem_dims):
@@ -229,7 +232,9 @@ class PulseBackend(BackendV2):
 
             sub_i, sub_q = [], []
             if len(counts_n) != len(centers):
-                raise QiskitError(f"Number of centers ({len(centers)}) not equal to number of levels ({len(counts_n)})")
+                raise QiskitError(
+                    f"Number of centers ({len(centers)}) not equal to number of levels ({len(counts_n)})"
+                )
 
             for idx, count_i in enumerate(counts_n):
                 sub_i.append(self._rng.normal(loc=centers[idx][0], scale=width, size=count_i))
@@ -313,9 +318,9 @@ class PulseBackend(BackendV2):
             else:
                 centers = self._iq_cluster_centers(circuit=circuit)
                 iq_data = np.array(self._iq_data(state, shots, centers, 0.2))
-                memory_data_0 = self._discriminator.predict(iq_data[:,0])
-                memory_data_1 = self._discriminator.predict(iq_data[:,0])
-                memory_data = [f'{m1}{m0}' for m0,m1 in zip(memory_data_0, memory_data_1)]
+                memory_data_0 = self._discriminator.predict(iq_data[:, 0])
+                memory_data_1 = self._discriminator.predict(iq_data[:, 0])
+                memory_data = [f"{m1}{m0}" for m0, m1 in zip(memory_data_0, memory_data_1)]
                 measurement_data = dict(zip(*np.unique(memory_data, return_counts=True)))
 
         elif meas_level == MeasLevel.KERNELED:
@@ -700,7 +705,7 @@ class ParallelTransmonTestBackend(PulseBackend):
             **kwargs,
         )
 
-        self.subsystem_dims = (3,3)
+        self.subsystem_dims = (3, 3)
 
         pulse_command = lambda qubit, name, amp: Command.from_dict(
             {
