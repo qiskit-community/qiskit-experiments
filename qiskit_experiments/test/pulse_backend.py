@@ -119,6 +119,7 @@ class PulseBackend(BackendV2):
         )
 
         self.model_dim = self.solver.model.dim
+        self.subsystem_dims = (self.model_dim, )
 
         if self.static_dissipators is None:
             self.y_0 = np.eye(self.model_dim)
@@ -203,7 +204,7 @@ class PulseBackend(BackendV2):
 
     def _iq_data(
         self,
-        probability: np.ndarray,
+        state: Union[Statevector, DensityMatrix],
         shots: int,
         centers: List[Tuple[float, float]],
         width: float,
@@ -212,31 +213,38 @@ class PulseBackend(BackendV2):
         """Generates IQ data for each physical level.
 
         Args:
-            probability: probability of occupation
+            state: Quantum state operator
             shots: Number of shots
             centers: The central I and Q points for each level
             width: Width of IQ data distribution
             phase: Phase of IQ data, by default 0. Defaults to None.
 
         Returns:
-            (I,Q) data.
+            (I,Q) data as List[shot index][qubit index] = [I,Q]
         """
-        counts_n = self._rng.multinomial(shots, probability / sum(probability), size=1).T
-
         full_i, full_q = [], []
+        for sub_idx, _ in enumerate(self.subsystem_dims):
+            probability = state.probabilities(qargs=[sub_idx])
+            counts_n = self._rng.multinomial(shots, probability / sum(probability), size=1).T
 
-        for idx, count_i in enumerate(counts_n):
-            full_i.append(self._rng.normal(loc=centers[idx][0], scale=width, size=count_i))
-            full_q.append(self._rng.normal(loc=centers[idx][1], scale=width, size=count_i))
+            sub_i, sub_q = [], []
+            if len(counts_n) != len(centers):
+                raise QiskitError(f"Number of centers ({len(centers)}) not equal to number of levels ({len(counts_n)})")
 
-        full_i = list(chain.from_iterable(full_i))
-        full_q = list(chain.from_iterable(full_q))
+            for idx, count_i in enumerate(counts_n):
+                sub_i.append(self._rng.normal(loc=centers[idx][0], scale=width, size=count_i))
+                sub_q.append(self._rng.normal(loc=centers[idx][1], scale=width, size=count_i))
 
-        if phase is not None:
-            complex_iq = (full_i + 1.0j * full_q) * np.exp(1.0j * phase)
-            full_i, full_q = complex_iq.real, complex_iq.imag
+            sub_i = list(chain.from_iterable(sub_i))
+            sub_q = list(chain.from_iterable(sub_q))
 
-        full_iq = 1e16 * np.array([[full_i], [full_q]]).T
+            if phase is not None:
+                complex_iq = (sub_i + 1.0j * sub_q) * np.exp(1.0j * phase)
+                sub_i, sub_q = complex_iq.real, complex_iq.imag
+
+            full_i.append(sub_i)
+            full_q.append(sub_q)
+        full_iq = np.array([full_i, full_q]).T
         return full_iq.tolist()
 
     # pylint: disable=unused-argument
@@ -255,8 +263,8 @@ class PulseBackend(BackendV2):
         Returns:
             Coordinates for IQ centers.
         """
-        theta = 2 * np.pi / self.model_dim
-        return [(np.cos(idx * theta), np.sin(idx * theta)) for idx in range(self.model_dim)]
+        theta = 2 * np.pi / self.subsystem_dims[0]
+        return [(np.cos(idx * theta), np.sin(idx * theta)) for idx in range(self.subsystem_dims[0])]
 
     def _state_to_measurement_data(
         self,
@@ -291,9 +299,9 @@ class PulseBackend(BackendV2):
         memory_data = None
         if self.static_dissipators is not None:
             state = state.reshape(self.model_dim, self.model_dim)
-            state = DensityMatrix(state / np.trace(state))
+            state = DensityMatrix(state / np.trace(state), self.subsystem_dims)
         else:
-            state = Statevector(state / np.linalg.norm(state))
+            state = Statevector(state / np.linalg.norm(state), self.subsystem_dims)
 
         if meas_level == MeasLevel.CLASSIFIED:
             if self._discriminator is None:
@@ -304,13 +312,15 @@ class PulseBackend(BackendV2):
                     measurement_data = state.sample_counts(shots)
             else:
                 centers = self._iq_cluster_centers(circuit=circuit)
-                iq_data = self._iq_data(state.probabilities(), shots, centers, 0.2)
-                memory_data = self._discriminator.predict(iq_data)
+                iq_data = np.array(self._iq_data(state, shots, centers, 0.2))
+                memory_data_0 = self._discriminator.predict(iq_data[:,0])
+                memory_data_1 = self._discriminator.predict(iq_data[:,0])
+                memory_data = [f'{m1}{m0}' for m0,m1 in zip(memory_data_0, memory_data_1)]
                 measurement_data = dict(zip(*np.unique(memory_data, return_counts=True)))
 
         elif meas_level == MeasLevel.KERNELED:
             centers = self._iq_cluster_centers(circuit=circuit)
-            measurement_data = self._iq_data(state.probabilities(), shots, centers, 0.2)
+            measurement_data = self._iq_data(state, shots, centers, 0.2)
             if meas_return == "avg":
                 measurement_data = np.average(np.array(measurement_data), axis=0)
         else:
@@ -424,7 +434,7 @@ class PulseBackend(BackendV2):
 
             if meas_level == MeasLevel.CLASSIFIED:
                 run_result["data"]["counts"] = measurement_data
-                if memory_data is not None:
+                if memory:
                     run_result["data"]["memory"] = memory_data
             if meas_level == MeasLevel.KERNELED:
                 run_result["data"]["memory"] = measurement_data
@@ -689,6 +699,8 @@ class ParallelTransmonTestBackend(PulseBackend):
             evaluation_mode=evaluation_mode,
             **kwargs,
         )
+
+        self.subsystem_dims = (3,3)
 
         pulse_command = lambda qubit, name, amp: Command.from_dict(
             {
