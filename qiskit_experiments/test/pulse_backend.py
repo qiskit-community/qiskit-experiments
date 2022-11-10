@@ -20,7 +20,7 @@ import numpy as np
 
 from qiskit import QuantumCircuit
 from qiskit.circuit import CircuitInstruction
-from qiskit.circuit.library.standard_gates import RZGate, SXGate, XGate
+from qiskit.circuit.library.standard_gates import RZGate, SXGate, XGate, CXGate
 from qiskit.circuit.measure import Measure
 from qiskit.circuit.parameter import Parameter
 from qiskit.providers import BackendV2, QubitProperties
@@ -147,6 +147,10 @@ class PulseBackend(BackendV2):
     def defaults(self):
         """return backend pulse defaults"""
         return self._defaults
+
+    # pylint: disable=unused-argument
+    def control_channel(self, qubits: List[int]):
+        return []
 
     @property
     def discriminator(self) -> BaseDiscriminator:
@@ -560,8 +564,12 @@ class SingleTransmonTestBackend(PulseBackend):
                 ],
             }
         )
+        self._qubit_properties = [
+            QubitProperties(frequency=qubit_frequency),
+        ]
         self._target = Target(
-            qubit_properties=[QubitProperties(frequency=qubit_frequency)],
+            num_qubits=1,
+            qubit_properties=self._qubit_properties,
             dt=self.dt,
             granularity=16,
         )
@@ -720,7 +728,11 @@ class ParallelTransmonTestBackend(PulseBackend):
         )
 
         self._target = Target(
-            qubit_properties=[QubitProperties(frequency=qubit_frequency)],
+            num_qubits=2,
+            qubit_properties=[
+                QubitProperties(frequency=qubit_frequency),
+                QubitProperties(frequency=qubit_frequency),
+            ],
             dt=self.dt,
             granularity=16,
         )
@@ -741,11 +753,16 @@ class ParallelTransmonTestBackend(PulseBackend):
             (0,): InstructionProperties(duration=0.0, error=0),
             (1,): InstructionProperties(duration=0.0, error=0),
         }
+        cx_props = {
+            (0, 1): InstructionProperties(duration=0, error=0),
+            (1, 0): InstructionProperties(duration=0, error=0),
+        }
         self._phi = Parameter("phi")
         self._target.add_instruction(Measure(), measure_props)
         self._target.add_instruction(XGate(), x_props)
         self._target.add_instruction(SXGate(), sx_props)
         self._target.add_instruction(RZGate(self._phi), rz_props)
+        self._target.add_instruction(CXGate(), cx_props)
 
         self.converter = InstructionToSignals(
             self.dt,
