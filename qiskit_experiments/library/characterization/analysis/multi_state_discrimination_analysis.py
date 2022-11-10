@@ -16,16 +16,16 @@ from typing import List, Tuple
 
 import matplotlib
 import numpy as np
-from sklearn.linear_model import SGDClassifier
+from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
 
 from qiskit.providers.options import Options
 from qiskit_experiments.framework import BaseAnalysis, AnalysisResultData, ExperimentData
-from qiskit_experiments.data_processing import SkCLF
-from qiskit_experiments.visualization import IQPlotter, MplDrawer, PlotStyle
+from qiskit_experiments.data_processing import SkQDA
+from qiskit_experiments.visualization import BasePlotter, IQPlotter, MplDrawer, PlotStyle
 
 
 class MultiStateDiscriminationAnalysis(BaseAnalysis):
-    """This class fits a multi-state discriminator to the data.
+    r"""This class fits a multi-state discriminator to the data.
     
     The class will report the configuration of the discriminator in the analysis result as well as
     the fidelity of the discrimination reported as
@@ -44,15 +44,24 @@ class MultiStateDiscriminationAnalysis(BaseAnalysis):
 
         Analysis Options:
             plot (bool): Set ``True`` to create figure for fit result.
-            ax(AxesSubplot): Optional. A matplotlib axis object to draw.
-            discriminator: The discriminator to classify the data. The default is a stochastic
-            gradient descent (SGD) classifier.
+            ax(AxesSubplot): Optional. A matplotlib axis object in which to draw.
+            discriminator: The discriminator to classify the data. The default is a quadratic discriminant analysis.
         """
         options = super()._default_options()
+        options.plotter = IQPlotter(MplDrawer())
+        options.plotter.set_options(
+            discriminator_max_resolution=64,
+            style=PlotStyle(figsize=(6, 4), legend_loc=None),
+        )
         options.plot = True
         options.ax = None
-        options.discriminator = SkCLF(SGDClassifier(loss="modified_huber", max_iter=1000, tol=1e-3))
+        options.discriminator = SkQDA(QuadraticDiscriminantAnalysis())
         return options
+
+    @property
+    def plotter(self) -> BasePlotter:
+        """A short-cut to the IQ plotter instance."""
+        return self._options.plotter
 
     def _run_analysis(
         self,
@@ -74,15 +83,12 @@ class MultiStateDiscriminationAnalysis(BaseAnalysis):
 
         # Process the data and get labels
         data, fit_state = [], []
-        fit_state_dict = {}
         for i in range(n_states):
             state_data = []
             for j in range(num_shots):
                 state_data.append(experiment_data.data()[i]["memory"][j][0])
             data.append(np.array(state_data))
-            label = experiment_data.data()[i]["metadata"]["label"]
-            fit_state.append(label)
-            fit_state_dict[label] = i
+            fit_state.append(experiment_data.data()[i]["metadata"]["label"])
 
         # Train a discriminator on the processed data
         discriminator = self.options.discriminator
@@ -100,7 +106,7 @@ class MultiStateDiscriminationAnalysis(BaseAnalysis):
         for i in range(n_states):
             counts = [0] * n_states
             for point in predicted_data[i]:
-                counts[fit_state_dict[point]] += 1
+                counts[point] += 1
             for j in range(n_states):
                 if j != i:
                     prob_wrong += counts[j] / num_shots
@@ -114,44 +120,39 @@ class MultiStateDiscriminationAnalysis(BaseAnalysis):
             AnalysisResultData(name="fidelity", value=fidelity),
         ]
 
-        # Create figure
+        figures = []
         if self.options.plot:
-            figures = [self._levels_plot(discriminator, data, fit_state).get_figure()]
-        else:
-            figures = []
+            figures.append(self._levels_plot(discriminator, data, fit_state, fidelity).get_figure())
 
         return analysis_results, figures
 
-    def _levels_plot(self, discriminator, data, fit_state) -> matplotlib.figure.Figure:
+    def _levels_plot(self, discriminator, data, fit_state, fidelity) -> matplotlib.figure.Figure:
         """Helper function for plotting IQ plane for different energy levels.
 
         Args:
             discriminator: the trained discriminator
             data: the training data
             fit_state: the labels
+            fidelity: the fidelity of the classification
 
         Returns:
             The plotted IQ data.
         """
-        # Create IQPlotter and generate figure.
-        plotter = IQPlotter(MplDrawer())
-        plotter.set_options(
-            discriminator_max_resolution=64,
-            style=PlotStyle(figsize=(6, 4), legend_loc=None),
-        )
-
         # create figure labels
         params_dict = {}
-        for i, label in enumerate(fit_state):
-            params_dict[label] = {"label": "$|%s\\rangle$" % i}
-        plotter.set_figure_options(series_params=params_dict)
+        for state in fit_state:
+            params_dict[f"{state}"] = {"label": f"$|{state}\\rangle$"}
+        # Update params_dict to contain any existing series_params values,
+        # where they have priority over params_dict.
+        params_dict.update(self.plotter.figure_options.series_params)
+        self.plotter.set_figure_options(series_params=params_dict)
 
         # calculate centroids
         centroids = [np.mean(x, axis=0) for x in data]
 
         for p, c, n in zip(data, centroids, fit_state):
             _name = f"{n}"
-            plotter.set_series_data(_name, points=p, centroid=c)
-        plotter.set_supplementary_data(discriminator=discriminator)
+            self.plotter.set_series_data(_name, points=p, centroid=c)
+        self.plotter.set_supplementary_data(discriminator=discriminator, fidelity=fidelity)
 
-        return plotter.figure()
+        return self.plotter.figure()

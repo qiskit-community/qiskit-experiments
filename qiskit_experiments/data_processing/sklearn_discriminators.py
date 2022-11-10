@@ -12,18 +12,16 @@
 
 """Discriminators that wrap SKLearn."""
 
-from typing import Any, List, Dict, Union
+from typing import Any, List, Dict
 
 from qiskit_experiments.data_processing.discriminator import BaseDiscriminator
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
 
 try:
-    from sklearn.base import ClassifierMixin
-    from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
-    from sklearn.linear_model import SGDClassifier
-    from sklearn.preprocessing import StandardScaler
-    from sklearn.pipeline import make_pipeline, Pipeline
-    from sklearn.utils.validation import check_is_fitted
+    from sklearn.discriminant_analysis import (
+        LinearDiscriminantAnalysis,
+        QuadraticDiscriminantAnalysis,
+    )
 
     HAS_SKLEARN = True
 except ImportError:
@@ -106,13 +104,14 @@ class SkLDA(BaseDiscriminator):
         return SkLDA(lda)
 
 
-class SkCLF(BaseDiscriminator):
-    """A wrapper for the SKlearn classfier Pipeline."""
+class SkQDA(BaseDiscriminator):
+    """A wrapper for the SKlearn quadratic discriminant analysis."""
 
-    def __init__(self, cls: Union[ClassifierMixin, Pipeline]):
+    def __init__(self, qda: "QuadraticDiscriminantAnalysis"):
         """
         Args:
-            cls: The classifier.
+            qda: The sklearn quadratic discriminant analysis. This may be a trained or an
+                untrained discriminator.
 
         Raises:
             DataProcessorError: if SKlearn could not be imported.
@@ -122,64 +121,61 @@ class SkCLF(BaseDiscriminator):
                 f"SKlearn is needed to initialize an {self.__class__.__name__}."
             )
 
-        if isinstance(cls, Pipeline):
-            self._clf = cls
-        else:
-            self._clf = make_pipeline(StandardScaler(), cls)
+        self._qda = qda
         self.attributes = [
+            "coef_",
+            "intercept_",
+            "covariance_",
+            "explained_variance_ratio_",
+            "means_",
+            "priors_",
+            "scalings_",
+            "xbar_",
             "classes_",
             "n_features_in_",
-            "features_names_in_",
+            "feature_names_in_",
+            "rotations_"
         ]
 
     @property
     def discriminator(self) -> Any:
-        """Return the SKLearn object."""
-        return self._clf
+        """Return then SKLearn object."""
+        return self._qda
 
     def is_trained(self) -> bool:
         """Return True if the discriminator has been trained on data."""
-        return not getattr(self._clf, "classes_", None) is None
+        return not getattr(self._qda, "classes_", None) is None
 
     def predict(self, data: List):
-        """Wrap the predict method of the LDA."""
-        return self._clf.predict(data)
+        """Wrap the predict method of the QDA."""
+        return self._qda.predict(data)
 
     def fit(self, data: List, labels: List):
-        """Fit the classifier.
+        """Fit the QDA.
 
         Args:
             data: The independent data.
             labels: The labels corresponding to data.
         """
-        self._clf.fit(data, labels)
-        self._sklearn_is_fitted__ = check_is_fitted(self._clf)
+        self._qda.fit(data, labels)
 
     def config(self) -> Dict[str, Any]:
-        """Return the configuration of the classifier."""
-        attr_conf = {attr: getattr(self._clf, attr, None) for attr in self.attributes}
-        return {"params": self._clf.get_params(), "attributes": attr_conf}
+        """Return the configuration of the QDA."""
+        attr_conf = {attr: getattr(self._qda, attr, None) for attr in self.attributes}
+        return {"params": self._qda.get_params(), "attributes": attr_conf}
 
     @classmethod
-    def from_config(cls, config: Dict[str, Any]) -> "SkLDA":
+    def from_config(cls, config: Dict[str, Any]) -> "SkQDA":
         """Deserialize from an object."""
 
         if not HAS_SKLEARN:
             raise DataProcessorError(f"SKlearn is needed to initialize an {cls.__name__}.")
 
-        sgdc = Pipeline(config['params']['steps'])
-        sgdc.set_params(**config["params"])
+        qda = QuadraticDiscriminantAnalysis()
+        qda.set_params(**config["params"])
 
-        skclf = SkCLF(sgdc)
         for name, value in config["attributes"].items():
             if value is not None:
-                setattr(skclf, name, value)
+                setattr(qda, name, value)
 
-        return skclf
-
-    def __json_encode__(self) -> Any:
-        return self.config()
-
-    @classmethod
-    def __json_decode__(cls, value: Any) -> "SkCLF":
-        return cls.from_config(value)
+        return SkQDA(qda)

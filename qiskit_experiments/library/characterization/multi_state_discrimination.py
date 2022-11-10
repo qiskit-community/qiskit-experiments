@@ -100,8 +100,6 @@ class MultiStateDiscrimination(BaseExperiment):
         super().__init__((qubit,), analysis=MultiStateDiscriminationAnalysis(), backend=backend)
 
         self.experiment_options.schedules = schedules
-        self.run_options.rep_delay = backend.configuration().to_dict()['rep_delay_range'][-1] \
-                                     * 1e-6
 
         if n_states is not None:
             self.set_experiment_options(n_states=n_states)
@@ -135,7 +133,7 @@ class MultiStateDiscrimination(BaseExperiment):
                         )
 
             # label the circuit
-            circuit.metadata = {"label": f"|{level}>"}
+            circuit.metadata = {"label": level}
 
             circuit.measure_all()
             circuits.append(circuit)

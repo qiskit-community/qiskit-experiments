@@ -17,10 +17,13 @@ from functools import wraps
 from unittest import SkipTest
 import numpy as np
 
-from qiskit_experiments.data_processing import SkLDA, SkCLF
+from qiskit_experiments.data_processing import SkLDA, SkQDA
 
 try:
-    from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
+    from sklearn.discriminant_analysis import (
+        LinearDiscriminantAnalysis,
+        QuadraticDiscriminantAnalysis,
+    )
     from sklearn.linear_model import SGDClassifier
     from sklearn.pipeline import make_pipeline
     from sklearn.preprocessing import StandardScaler
@@ -85,58 +88,39 @@ class TestDiscriminator(QiskitExperimentsTestCase):
         self.assertRoundTripSerializable(lda, check_lda)
 
     @requires_sklearn
-    def test_skclf_from_config(self):
-        """Test building SkCLF from configuration."""
+    def test_qda_serialization(self):
+        """Test the serialization of a qda."""
 
-        sk_clf = SGDClassifier(loss="modified_huber", max_iter=1000, tol=1e-3)
-        clf = SkCLF(sk_clf)
+        sk_qda = QuadraticDiscriminantAnalysis()
+        sk_qda.fit([[-1, -1], [-2, -1], [-3, -2], [1, 1], [2, 1], [3, 2]], [0, 0, 0, 1, 1, 1])
 
-        clf.fit([[-1, 0], [1, 0], [-1.1, 0], [0.9, 0.1]], [0, 1, 0, 1])
+        self.assertTrue(sk_qda.predict([[1.1, 3]])[0], 1)
 
-        self.assertTrue(clf.is_trained())
-        self.assertTrue(clf.predict([[1.1, 0]])[0], 1)
+        qda = SkQDA(sk_qda)
 
-        config = clf.config()
+        self.assertTrue(qda.is_trained())
+        self.assertTrue(qda.predict([[1.1, 3]])[0], 1)
 
-        clf_from_config = SkCLF.from_config(config)
-
-        self.assertTrue(clf_from_config.predict([[1.1, 0]])[0], 1)
-
-    @requires_sklearn
-    def test_skclf_serialization(self):
-        """Test the serialization of a SkCLF."""
-
-        sk_clf = SGDClassifier(loss="modified_huber", max_iter=1000, tol=1e-3)
-        sk_clf = make_pipeline(StandardScaler(), sk_clf)
-        sk_clf.fit([[-1, 0], [1, 0], [-1.1, 0], [0.9, 0.1]], [0, 1, 0, 1])
-
-        self.assertTrue(sk_clf.predict([[1.1, 0]])[0], 1)
-
-        clf = SkCLF(sk_clf)
-
-        self.assertTrue(clf.is_trained())
-        self.assertTrue(clf.predict([[1.1, 0]])[0], 1)
-
-        def check_clf(clf1, clf2):
+        def check_qda(qda1, qda2):
             test_data = [[1.1, 0], [0.1, 0], [-2, 0]]
 
-            clf1_y = clf1.predict(test_data)
-            clf2_y = clf2.predict(test_data)
+            qda1_y = qda1.predict(test_data)
+            qda2_y = qda2.predict(test_data)
 
-            if len(clf1_y) != len(clf2_y):
+            if len(qda1_y) != len(qda2_y):
                 return False
 
-            for idx, y_val1 in enumerate(clf1_y):
-                if clf2_y[idx] != y_val1:
+            for idx, y_val1 in enumerate(qda1_y):
+                if qda2_y[idx] != y_val1:
                     return False
 
-            for attribute in clf1.attributes:
+            for attribute in qda1.attributes:
                 if not np.allclose(
-                        getattr(clf1.discriminator, attribute, np.array([])),
-                        getattr(clf2.discriminator, attribute, np.array([])),
+                        getattr(qda1.discriminator, attribute, np.array([])),
+                        getattr(qda2.discriminator, attribute, np.array([])),
                 ):
                     return False
 
             return True
 
-        self.assertRoundTripSerializable(clf, check_clf)
+        self.assertRoundTripSerializable(qda, check_qda)

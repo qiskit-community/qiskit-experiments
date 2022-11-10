@@ -14,14 +14,16 @@
 StateTomography experiment tests
 """
 from test.base import QiskitExperimentsTestCase
+from math import sqrt
 import ddt
 from qiskit import QuantumCircuit
 from qiskit.circuit.library import XGate
 import qiskit.quantum_info as qi
 from qiskit_aer import AerSimulator
+
 from qiskit_experiments.library import StateTomography
 from qiskit_experiments.library.tomography import StateTomographyAnalysis
-from .tomo_utils import FITTERS, filter_results, teleport_circuit
+from .tomo_utils import FITTERS, filter_results, teleport_circuit, teleport_bell_circuit
 
 
 @ddt.ddt
@@ -69,14 +71,12 @@ class TestStateTomography(QiskitExperimentsTestCase):
                     fid, target_fid, places=6, msg=f"{fitter} result fidelity is incorrect"
                 )
 
-    def test_qst_teleport(self):
+    @ddt.data(True, False)
+    def test_qst_teleport(self, flatten_creg):
         """Test subset state tomography generation"""
-        # NOTE: This test breaks transpiler. I think it is a bug with
-        # conditionals in Terra.
-
         # Teleport qubit 0 -> 2
         backend = AerSimulator(seed_simulator=9000)
-        exp = StateTomography(teleport_circuit(), measurement_qubits=[2])
+        exp = StateTomography(teleport_circuit(flatten_creg), measurement_qubits=[2])
         expdata = exp.run(backend)
         self.assertExperimentDone(expdata)
         results = expdata.analysis_results()
@@ -92,6 +92,29 @@ class TestStateTomography(QiskitExperimentsTestCase):
 
         # Manually check fidelity
         fid = qi.state_fidelity(state, qi.Statevector([1, 0]), validate=False)
+        self.assertGreater(fid, f_threshold, msg="fitted state fidelity is low")
+
+    @ddt.data(True, False)
+    def test_qst_teleport_bell(self, flatten_creg):
+        """Test subset state tomography generation"""
+        # Teleport qubit 0 -> 2
+        backend = AerSimulator(seed_simulator=9000)
+        exp = StateTomography(teleport_bell_circuit(flatten_creg), measurement_qubits=[2, 3])
+        expdata = exp.run(backend)
+        self.assertExperimentDone(expdata)
+        results = expdata.analysis_results()
+
+        # Check result
+        f_threshold = 0.95
+
+        # Check state is density matrix
+        state = filter_results(results, "state").value
+        self.assertTrue(
+            isinstance(state, qi.DensityMatrix), msg="fitted state is not a density matrix"
+        )
+
+        # Manually check fidelity
+        fid = qi.state_fidelity(state, qi.Statevector([1, 0, 0, 1]) / sqrt(2), validate=False)
         self.assertGreater(fid, f_threshold, msg="fitted state fidelity is low")
 
     @ddt.data(
