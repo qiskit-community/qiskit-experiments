@@ -16,6 +16,7 @@ Mock plotter for testing.
 from typing import Dict, List, Union
 
 from qiskit_experiments.visualization import BaseDrawer, BasePlotter
+from qiskit_experiments.visualization.drawers import SeriesName
 
 
 class MockPlotter(BasePlotter):
@@ -82,16 +83,16 @@ class MockPlotter(BasePlotter):
         return self._plotting_enabled
 
     @property
-    def plotted_data_log(self) -> Dict[str, Dict[str, int]]:
+    def plotted_data_log(self) -> Dict[SeriesName, Dict[str, int]]:
         """Returns a dictionary of counters representing the number of times a given series and data-key
         were plotted.
 
         Returns:
-            Dict[str,Dict[str, int]]: A dictionary of counters.
+            Dict[SeriesName,Dict[str, int]]: A dictionary of counters.
         """
         return self._plotted_data_log
 
-    def plotted_data_counter(self, series_name: str, data_key: str) -> int:
+    def plotted_data_counter(self, series_name: SeriesName, data_key: str) -> int:
         """Returns the plotted data counter from :attr:`plotted_data_log`, or zero if no counter exists.
 
         Args:
@@ -103,7 +104,7 @@ class MockPlotter(BasePlotter):
         """
         return self.plotted_data_log.get(series_name, {}).get(data_key, 0)
 
-    def _log_plotted_data(self, series_name: str, data_keys: Union[str, List[str]]):
+    def _log_plotted_data(self, series_name: SeriesName, data_keys: Union[str, List[str]]):
         """Logs that the following data-keys, for the given series, were plotted.
 
         This method helps track the data that is plotted by :class:`MockPlotter`. When called, an
