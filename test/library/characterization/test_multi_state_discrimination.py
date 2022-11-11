@@ -50,7 +50,7 @@ class TestMultiStateDiscrimination(QiskitExperimentsTestCase):
             pulse.shift_frequency(-anharm, d0)
 
 
-        self.schedules = {'x12': cals.get_schedule('x12', self.qubit)}
+        self.schedules = {'x12': x12}
 
     @data(2, 3)
     def test_circuit_generation(self, n_states):
