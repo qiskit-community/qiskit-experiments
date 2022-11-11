@@ -32,7 +32,6 @@ class TestMultiStateDiscrimination(QiskitExperimentsTestCase):
 
         # Build x12 schedule
         self.qubit = 0
-        cals = Calibrations.from_backend(self.backend)
 
         anharm = self.backend.anharmonicity
 
