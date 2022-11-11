@@ -14,8 +14,9 @@ from typing import List
 
 from uncertainties import UFloat
 
-from qiskit_experiments.framework import Options
 from qiskit_experiments.curve_analysis.utils import analysis_result_to_repr
+from qiskit_experiments.framework import Options
+
 from .base_plotter import BasePlotter
 
 

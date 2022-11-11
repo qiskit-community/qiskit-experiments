@@ -27,7 +27,7 @@ from qiskit.utils import detach_prefix
 from qiskit_experiments.framework.matplotlib import get_non_gui_ax
 
 from ..utils import ExtentTuple
-from .base_drawer import BaseDrawer
+from .base_drawer import BaseDrawer, SeriesName
 
 
 class MplDrawer(BaseDrawer):
@@ -259,7 +259,7 @@ class MplDrawer(BaseDrawer):
         else:
             return self._axis
 
-    def _get_default_color(self, name: str) -> Tuple[float, ...]:
+    def _get_default_color(self, name: SeriesName) -> Tuple[float, ...]:
         """A helper method to get default color for the series.
 
         Args:
@@ -274,7 +274,7 @@ class MplDrawer(BaseDrawer):
         ind = self._series.index(name) % len(self.DefaultColors)
         return self.DefaultColors[ind]
 
-    def _get_default_marker(self, name: str) -> str:
+    def _get_default_marker(self, name: SeriesName) -> str:
         """A helper method to get default marker for the scatter plot.
 
         Args:
@@ -292,7 +292,7 @@ class MplDrawer(BaseDrawer):
     def _update_label_in_options(
         self,
         options: Dict[str, any],
-        name: Optional[str],
+        name: Optional[SeriesName],
         label: Optional[str] = None,
         legend: bool = False,
     ):
@@ -321,7 +321,7 @@ class MplDrawer(BaseDrawer):
         y_data: Sequence[float],
         x_err: Optional[Sequence[float]] = None,
         y_err: Optional[Sequence[float]] = None,
-        name: Optional[str] = None,
+        name: Optional[SeriesName] = None,
         label: Optional[str] = None,
         legend: bool = False,
         **options,
@@ -366,7 +366,7 @@ class MplDrawer(BaseDrawer):
         self,
         x_data: Sequence[float],
         y_data: Sequence[float],
-        name: Optional[str] = None,
+        name: Optional[SeriesName] = None,
         label: Optional[str] = None,
         legend: bool = False,
         **options,
@@ -389,7 +389,7 @@ class MplDrawer(BaseDrawer):
         x_data: Sequence[float],
         y_ub: Sequence[float],
         y_lb: Sequence[float],
-        name: Optional[str] = None,
+        name: Optional[SeriesName] = None,
         label: Optional[str] = None,
         legend: bool = False,
         **options,
@@ -411,7 +411,7 @@ class MplDrawer(BaseDrawer):
         x_ub: Sequence[float],
         x_lb: Sequence[float],
         y_data: Sequence[float],
-        name: Optional[str] = None,
+        name: Optional[SeriesName] = None,
         label: Optional[str] = None,
         legend: bool = False,
         **options,
@@ -457,14 +457,14 @@ class MplDrawer(BaseDrawer):
         )
         text_box_handler.set_bbox(bbox_props)
 
-    def _series_names_to_cmap(self, series_names: List[str]) -> Tuple[Colormap, Dict[str, float]]:
+    def _series_names_to_cmap(self, series_names: List[SeriesName]) -> Tuple[Colormap, Dict[str, float]]:
         """Create a :class:`Colormap` instance of series colours.
 
         This method creates a :class:`Colormap` instance that can be used to plot an image of series
         classifications: i.e., a 2D array of series names. The returned Colormap positions the series
         colours, from :meth:`_get_default_color`, along the range :math:`0` to :math:`1`. The returned
-        dictionary contains mappings from series names (str) to floats which are used to "sample" from
-        the Colormap.
+        dictionary contains mappings from series names (``Union[str, int, float]``) to floats which are
+        used to "sample" from the Colormap.
 
         Example:
             .. code-block:: python
@@ -487,8 +487,8 @@ class MplDrawer(BaseDrawer):
 
         Returns:
             tuple: a tuple ``(cmap, map)`` where ``cmap`` is a Matplotlib Colormap instance and ``map``
-                is a dictionary that maps series names (keys) to floats that identify the series names'
-                colours in ``cmap``.
+                is a dictionary that maps series names (dictionary keys) to floats (dictionary values)
+                that identify the series names' colours in ``cmap``.
         """
         # Remove duplicates from series_names, just in-case. Use dict.fromkeys to preserve order and
         # remove duplicates.
@@ -518,7 +518,7 @@ class MplDrawer(BaseDrawer):
         self,
         data: np.ndarray,
         extent: Optional[ExtentTuple] = None,
-        name: Optional[str] = None,
+        name: Optional[SeriesName] = None,
         label: Optional[str] = None,
         cmap: Optional[Union[str, Any]] = None,
         cmap_use_series_colors: bool = False,
@@ -555,7 +555,7 @@ class MplDrawer(BaseDrawer):
 
         # Create colorbar if requested.
         if colorbar:
-            colorbar_label = series_params.get("label", label if label is not None else name)
+            colorbar_label = series_params.get("label", label if label is not None else str(name))
             self._get_axis(axis).figure.colorbar(mapping, label=colorbar_label)
 
     @property

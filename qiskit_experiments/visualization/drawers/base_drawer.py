@@ -22,6 +22,7 @@ from qiskit_experiments.framework import Options
 from ..style import PlotStyle
 from ..utils import ExtentTuple
 
+SeriesName = Union[str,int,float]
 
 class BaseDrawer(ABC):
     """Abstract class for the serializable Qiskit Experiments figure drawer.
@@ -277,7 +278,7 @@ class BaseDrawer(ABC):
     def format_canvas(self):
         """Final cleanup for the canvas appearance."""
 
-    def label_for(self, name: Optional[str], label: Optional[str]) -> Optional[str]:
+    def label_for(self, name: Optional[SeriesName], label: Optional[SeriesName]) -> Optional[str]:
         """Get the legend label for the given series, with optional overrides.
 
         This method determines the legend label for a series, with optional overrides ``label`` and the
@@ -286,7 +287,8 @@ class BaseDrawer(ABC):
         the drawer will look for a ``"label"`` entry in ``series_params`, for the series identified by
         ``name``. If this entry doesn't exist, or is ``None``, then ``name`` is used as the label. If all
         these options are ``None``, then ``None`` is returned; signifying that a legend entry for the
-        provided series should not be generated.
+        provided series should not be generated. Note that :meth:`label_for` will convert ``name`` to
+        :type:`str` when it is returned.
 
         Args:
             name: The name of the series.
@@ -296,10 +298,10 @@ class BaseDrawer(ABC):
             Optional[str]: The legend entry label, or ``None``.
         """
         if label is not None:
-            return label
+            return str(label)
 
-        if name:
-            return self.figure_options.series_params.get(name, {}).get("label", name)
+        if name is not None:
+            return self.figure_options.series_params.get(name, {}).get("label", str(name))
         return None
 
     @abstractmethod
@@ -309,7 +311,7 @@ class BaseDrawer(ABC):
         y_data: Sequence[float],
         x_err: Optional[Sequence[float]] = None,
         y_err: Optional[Sequence[float]] = None,
-        name: Optional[str] = None,
+        name: Optional[SeriesName] = None,
         label: Optional[str] = None,
         legend: bool = False,
         **options,
@@ -336,7 +338,7 @@ class BaseDrawer(ABC):
         self,
         x_data: Sequence[float],
         y_data: Sequence[float],
-        name: Optional[str] = None,
+        name: Optional[SeriesName] = None,
         label: Optional[str] = None,
         legend: bool = False,
         **options,
@@ -362,7 +364,7 @@ class BaseDrawer(ABC):
         x_data: Sequence[float],
         y_ub: Sequence[float],
         y_lb: Sequence[float],
-        name: Optional[str] = None,
+        name: Optional[SeriesName] = None,
         label: Optional[str] = None,
         legend: bool = False,
         **options,
@@ -389,7 +391,7 @@ class BaseDrawer(ABC):
         x_ub: Sequence[float],
         x_lb: Sequence[float],
         y_data: Sequence[float],
-        name: Optional[str] = None,
+        name: Optional[SeriesName] = None,
         label: Optional[str] = None,
         legend: bool = False,
         **options,
@@ -431,7 +433,7 @@ class BaseDrawer(ABC):
         self,
         data: np.ndarray,
         extent: Optional[ExtentTuple] = None,
-        name: Optional[str] = None,
+        name: Optional[SeriesName] = None,
         label: Optional[str] = None,
         cmap: Optional[Union[str, Any]] = None,
         cmap_use_series_colors: bool = False,

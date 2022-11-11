@@ -16,7 +16,7 @@ from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 from qiskit_experiments.framework import Options
-from qiskit_experiments.visualization.drawers import BaseDrawer
+from qiskit_experiments.visualization.drawers import BaseDrawer, SeriesName
 
 from ..style import PlotStyle
 
@@ -27,14 +27,15 @@ class BasePlotter(ABC):
     A plotter takes data from an experiment analysis class or experiment and plots a given figure using a
     drawing backend. Sub-classes define the kind of figure created and the expected data.
 
-    Data is split into series and supplementary data. Series data is grouped by series name (str). For
-    :class:`CurveAnalysis`, this is the model name for a curve fit. For series data associated with a
-    single series name and supplementary data, data-values are identified by a data-key (str). Different
-    data per series and figure must have a different data-key to avoid overwriting values. Experiment and
-    analysis results can be passed to the plotter so appropriate graphics can be drawn on the figure
-    canvas. Series data is added to the plotter using :meth:`set_series_data` whereas supplementary data
-    is added using :meth:`set_supplementary_data`. Series and supplementary data are retrieved using
-    :meth:`data_for` and :attr:`supplementary_data` respectively.
+    Data is split into series and supplementary data. Series data is grouped by series name
+    (:type:`Union[str, int, float]`). For :class:`CurveAnalysis`, this is the model name for a curve fit.
+    For series data associated with a single series name and supplementary data, data-values are
+    identified by a data-key (str). Different data per series and figure must have a different data-key
+    to avoid overwriting values. Experiment and analysis results can be passed to the plotter so
+    appropriate graphics can be drawn on the figure canvas. Series data is added to the plotter using
+    :meth:`set_series_data` whereas supplementary data is added using :meth:`set_supplementary_data`.
+    Series and supplementary data are retrieved using :meth:`data_for` and :attr:`supplementary_data`
+    respectively.
 
     Series data contains values to be plotted on a canvas, such that the data can be grouped into subsets
     identified by their series name. Series names can be thought of as legend labels for the plotted
@@ -115,7 +116,7 @@ class BasePlotter(ABC):
             drawer: The drawer to use when creating the figure.
         """
         # Data to be plotted, such as scatter points, interpolated fits, and confidence intervals
-        self._series_data: Dict[str, Dict[str, Any]] = {}
+        self._series_data: Dict[SeriesName, Dict[str, Any]] = {}
         # Data that isn't directly associated with a single series, such as text or fit reports.
         self._supplementary_data: Dict[str, Any] = {}
 
@@ -143,14 +144,14 @@ class BasePlotter(ABC):
         return self._supplementary_data
 
     @property
-    def series_data(self) -> Dict[str, Dict[str, Any]]:
+    def series_data(self) -> Dict[SeriesName, Dict[str, Any]]:
         """Data for series being plotted.
 
         Series data includes data such as scatter points, interpolated fit values, and
-        standard-deviations. Series data is grouped by series-name and then by a data-key, both strings.
-        Though series data can be accessed through :meth:`series_data`, it is recommended to access them
-        with :meth:`data_for` and :meth:`data_exists_for` as they allow for easier access to nested
-        values and can handle multiple data-keys in one query.
+        standard-deviations. Series data is grouped by series-name (:type:`Union[str, int, float]`) and
+        then by a data-key (:type:`str`). Though series data can be accessed through :meth:`series_data`,
+        it is recommended to access them with :meth:`data_for` and :meth:`data_exists_for` as they allow
+        for easier access to nested values and can handle multiple data-keys in one query.
 
         Returns:
             dict: A dictionary containing series data.
@@ -158,11 +159,11 @@ class BasePlotter(ABC):
         return self._series_data
 
     @property
-    def series(self) -> List[str]:
+    def series(self) -> List[SeriesName]:
         """Series names that have been added to this plotter."""
         return list(self._series_data.keys())
 
-    def data_keys_for(self, series_name: str) -> List[str]:
+    def data_keys_for(self, series_name: SeriesName) -> List[str]:
         """Returns a list of data-keys for the given series.
 
         Args:
@@ -175,7 +176,7 @@ class BasePlotter(ABC):
         """
         return list(self._series_data.get(series_name, []))
 
-    def data_for(self, series_name: str, data_keys: Union[str, List[str]]) -> Tuple[Optional[Any]]:
+    def data_for(self, series_name: SeriesName, data_keys: Union[str, List[str]]) -> Tuple[Optional[Any]]:
         """Returns data associated with the given series.
 
         The returned tuple contains the data, associated with ``data_keys``, in the same orders as they
@@ -211,7 +212,7 @@ class BasePlotter(ABC):
 
         return tuple(self._series_data[series_name].get(key, None) for key in data_keys)
 
-    def set_series_data(self, series_name: str, **data_kwargs):
+    def set_series_data(self, series_name: SeriesName, **data_kwargs):
         """Sets data for the given series.
 
         Note that if data has already been assigned for the given series and data-key, it will be
@@ -237,7 +238,7 @@ class BasePlotter(ABC):
             self._series_data[series_name] = {}
         self._series_data[series_name].update(**data_kwargs)
 
-    def clear_series_data(self, series_name: Optional[str] = None):
+    def clear_series_data(self, series_name: Optional[SeriesName] = None):
         """Clear series data for this plotter.
 
         Args:
@@ -280,7 +281,7 @@ class BasePlotter(ABC):
         """Clears supplementary data."""
         self._supplementary_data = {}
 
-    def data_exists_for(self, series_name: str, data_keys: Union[str, List[str]]) -> bool:
+    def data_exists_for(self, series_name: SeriesName, data_keys: Union[str, List[str]]) -> bool:
         """Returns whether the given data-keys exist for the given series.
 
         Args:
@@ -404,11 +405,11 @@ class BasePlotter(ABC):
                 be displayed in the scientific notation.
             yval_unit (str): Unit of y values. See ``xval_unit`` for details.
             figure_title (str): Title of the figure. Defaults to None, i.e. nothing is shown.
-            series_params (Dict[str, Dict[str, Any]]): A dictionary of plot parameters for each series.
-                This is keyed on the name for each series. Sub-dictionary is expected to have following
-                three configurations, "canvas", "color", and "symbol"; "canvas" is the integer index of
-                axis (when multi-canvas plot is set), "color" is the color of the curve, and "symbol" is
-                the marker style of the curve for scatter plots.
+            series_params (Dict[SeriesName, Dict[str, Any]]): A dictionary of plot parameters for each
+            series. This is keyed on the name for each series. Sub-dictionary is expected to have
+            following three configurations, "canvas", "color", and "symbol"; "canvas" is the integer
+            index of axis (when multi-canvas plot is set), "color" is the color of the curve, and
+            "symbol" is the marker style of the curve for scatter plots.
         """
         return Options(
             xlabel=None,

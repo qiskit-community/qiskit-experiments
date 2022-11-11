@@ -14,6 +14,7 @@ Test integration of plotters and drawers.
 """
 
 from copy import copy
+from itertools import product
 from test.base import QiskitExperimentsTestCase
 
 from qiskit_experiments.framework import Options
@@ -23,13 +24,16 @@ from .mock_drawer import MockDrawer
 from .mock_plotter import MockPlotter
 
 
-def dummy_plotter() -> BasePlotter:
+def dummy_plotter(plotting_enabled:bool=False) -> MockPlotter:
     """Return a MockPlotter with dummy option values.
+
+    Args:
+        plotting_enabled: Whether the returned plotter should actually draw.
 
     Returns:
         BasePlotter: A dummy plotter.
     """
-    plotter = MockPlotter(MockDrawer())
+    plotter = MockPlotter(MockDrawer(),plotting_enabled)
     # Set dummy plot options to update
     plotter.set_figure_options(
         xlabel="xlabel",
@@ -157,3 +161,27 @@ class TestPlotterAndDrawerIntegration(QiskitExperimentsTestCase):
         encoded = original_plotter.__json_encode__()
         decoded_plotter = original_plotter.__class__.__json_decode__(encoded)
         check_options(original_plotter, decoded_plotter)
+
+    def test_end_to_end(self):
+        """Tests end-to-end functionality of plotter with various data-keys."""
+        plotter = dummy_plotter(plotting_enabled=True)
+
+        # Add dummy data. We ignore "x", "y", and "z" as those are for other tests; but we want to add
+        # data for all other expected series data-keys.
+        data_keys = [k for k in plotter.expected_series_data_keys() if k not in ["x", "y", "z"]]
+        series_names = ["seriesA", "seriesB"]
+        for series_name, data_key in product(series_names, data_keys):
+            plotter.set_series_data(series_name, **{data_key: [0, 1, 2, 3]})
+
+        # Generate figure
+        plotter.figure()
+
+        # Check that all data-keys were logged exactly once per series.
+        for series_name, data_key in product(series_names, data_keys):
+            self.assertEqual(
+                plotter.plotted_data_counter(series_name, data_key),
+                1,
+                msg=f"{data_key} was not plotted exactly once for series {series_name}: expected "
+                "plotted data counter of 1 but got "
+                f"{plotter.plotted_data_counter(series_name,data_key)} instead.",
+            )
