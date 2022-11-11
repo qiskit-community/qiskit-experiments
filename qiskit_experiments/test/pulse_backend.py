@@ -420,6 +420,7 @@ class PulseBackend(BackendV2):
                     continue
                 elif inst_name == "measure":
                     meas_qubits += [qubits]
+                    continue
                 elif inst_name == "rz":
                     # Ensures that the action in the qubit space is preserved.
                     unitary = np.diag([np.exp(1.0j * idx * params[0] / 2) for idx in [-1, 1, 3]])
