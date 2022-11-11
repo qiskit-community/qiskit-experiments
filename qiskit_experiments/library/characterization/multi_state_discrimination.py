@@ -74,6 +74,9 @@ class MultiStateDiscrimination(BaseExperiment):
 
         Experiment Options:
             n_states (int): The number of states to discriminate.
+            schedules (dict): A dictionary of the schedules for the gates in the experiment. Each key is
+                a gate name of the form ``xii+1`` which should implement an x-rotation between level
+                ``i`` and ``i+1``.
 
         """
         options = super()._default_experiment_options()
