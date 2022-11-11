@@ -205,6 +205,7 @@ class PulseBackend(BackendV2):
     def _iq_data(
         self,
         state: Union[Statevector, DensityMatrix],
+        meas_qubits: List,
         shots: int,
         centers: List[Tuple[float, float]],
         width: float,
@@ -221,13 +222,13 @@ class PulseBackend(BackendV2):
 
         Returns:
             (I,Q) data as List[shot index][qubit index] = [I,Q]
-        
+
         Raises:
             QiskitError: If number of centers and levels don't match.
         """
         full_i, full_q = [], []
-        for sub_idx, _ in enumerate(self.subsystem_dims):
-            probability = state.probabilities(qargs=[sub_idx])
+        for sub_idx in meas_qubits:
+            probability = state.probabilities(qargs=sub_idx)
             counts_n = self._rng.multinomial(shots, probability / sum(probability), size=1).T
 
             sub_i, sub_q = [], []
@@ -279,6 +280,7 @@ class PulseBackend(BackendV2):
         meas_return: MeasReturnType,
         memory: bool,
         circuit: QuantumCircuit,
+        meas_qubits: List,
     ) -> Tuple[Union[Union[Dict, Counts, Tuple[List, List]], Any], Optional[Any]]:
         """Convert State objects to IQ data or Counts.
 
@@ -311,21 +313,21 @@ class PulseBackend(BackendV2):
         if meas_level == MeasLevel.CLASSIFIED:
             if self._discriminator is None:
                 if memory:
-                    memory_data = state.sample_memory(shots)
+                    memory_data = state.sample_memory(shots, qargs=meas_qubits)
                     measurement_data = dict(zip(*np.unique(memory_data, return_counts=True)))
                 else:
-                    measurement_data = state.sample_counts(shots)
+                    measurement_data = state.sample_counts(shots, qargs=meas_qubits)
             else:
                 centers = self._iq_cluster_centers(circuit=circuit)
-                iq_data = np.array(self._iq_data(state, shots, centers, 0.2))
+                iq_data = np.array(self._iq_data(state, meas_qubits, shots, centers, 0.2))
                 memory_data_0 = self._discriminator.predict(iq_data[:, 0])
-                memory_data_1 = self._discriminator.predict(iq_data[:, 0])
+                memory_data_1 = self._discriminator.predict(iq_data[:, 1])
                 memory_data = [f"{m1}{m0}" for m0, m1 in zip(memory_data_0, memory_data_1)]
                 measurement_data = dict(zip(*np.unique(memory_data, return_counts=True)))
 
         elif meas_level == MeasLevel.KERNELED:
             centers = self._iq_cluster_centers(circuit=circuit)
-            measurement_data = self._iq_data(state, shots, centers, 0.2)
+            measurement_data = self._iq_data(state, meas_qubits, shots, centers, 0.2)
             if meas_return == "avg":
                 measurement_data = np.average(np.array(measurement_data), axis=0)
         else:
@@ -393,7 +395,7 @@ class PulseBackend(BackendV2):
 
         for circuit in run_input:
             unitaries = {}
-
+            meas_qubits = []
             # 1. Parse the calibrations and simulate any new schedule. Add U to the unitaries.
             for name, schedule in circuit.calibrations.items():
                 for (qubits, params), schedule_block in schedule.items():
@@ -414,9 +416,11 @@ class PulseBackend(BackendV2):
             state_t = self.ground_state.copy()
             for instruction in circuit.data:
                 qubits, params, inst_name = self._get_info(circuit, instruction)
-                if inst_name in ["barrier", "measure"]:
+                if inst_name == "barrier":
                     continue
-                if inst_name == "rz":
+                elif inst_name == "measure":
+                    meas_qubits += [qubits]
+                elif inst_name == "rz":
                     # Ensures that the action in the qubit space is preserved.
                     unitary = np.diag([np.exp(1.0j * idx * params[0] / 2) for idx in [-1, 1, 3]])
                 else:
@@ -425,7 +429,7 @@ class PulseBackend(BackendV2):
 
             # 4. Convert the probabilities to IQ data or counts.
             measurement_data, memory_data = self._state_to_measurement_data(
-                state_t, shots, meas_level, meas_return, memory, circuit
+                state_t, shots, meas_level, meas_return, memory, circuit, meas_qubits
             )
 
             run_result = {
