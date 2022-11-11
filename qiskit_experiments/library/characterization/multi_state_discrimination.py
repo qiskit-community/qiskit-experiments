@@ -94,7 +94,7 @@ class MultiStateDiscrimination(BaseExperiment):
             qubit: The qubit on which to run the experiment.
             backend: Optional, the backend to run the experiment on.
             n_states: The number of energy levels to prepare.
-            schedules: The schedules to reach each energy level.
+            schedules: The schedules of the x gates between neighboring energy levels.
         """
 
         super().__init__((qubit,), analysis=MultiStateDiscriminationAnalysis(), backend=backend)
