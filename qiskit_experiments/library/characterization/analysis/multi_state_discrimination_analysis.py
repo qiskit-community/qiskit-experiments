@@ -51,7 +51,7 @@ class MultiStateDiscriminationAnalysis(BaseAnalysis):
         options.plotter = IQPlotter(MplDrawer())
         options.plotter.set_options(
             discriminator_max_resolution=64,
-            style=PlotStyle(figsize=(6, 4), legend_loc=None),
+            style=PlotStyle(figsize=(6, 4), legend_loc=None), # later can remove legend_loc
         )
         options.plot = True
         options.ax = None
@@ -141,7 +141,7 @@ class MultiStateDiscriminationAnalysis(BaseAnalysis):
         # create figure labels
         params_dict = {}
         for state in fit_state:
-            params_dict[f"{state}"] = {"label": f"$|{state}\\rangle$"}
+            params_dict[state] = {"label": f"$|{state}\\rangle$"}
         # Update params_dict to contain any existing series_params values,
         # where they have priority over params_dict.
         params_dict.update(self.plotter.figure_options.series_params)
@@ -151,8 +151,7 @@ class MultiStateDiscriminationAnalysis(BaseAnalysis):
         centroids = [np.mean(x, axis=0) for x in data]
 
         for p, c, n in zip(data, centroids, fit_state):
-            _name = f"{n}"
-            self.plotter.set_series_data(_name, points=p, centroid=c)
+            self.plotter.set_series_data(n, points=p, centroid=c)
         self.plotter.set_supplementary_data(discriminator=discriminator, fidelity=fidelity)
 
         return self.plotter.figure()
