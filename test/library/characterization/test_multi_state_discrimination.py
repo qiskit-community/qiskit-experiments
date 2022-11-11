@@ -15,7 +15,6 @@ from test.base import QiskitExperimentsTestCase
 from ddt import ddt, data
 
 from qiskit import pulse
-from qiskit_experiments.calibration_management import Calibrations
 from qiskit_experiments.library import MultiStateDiscrimination
 from qiskit_experiments.test.pulse_backend import SingleTransmonTestBackend
 
@@ -45,10 +44,8 @@ class TestMultiStateDiscrimination(QiskitExperimentsTestCase):
         beta_x = pulse_x.beta
         with pulse.build(name='x12') as x12:
             pulse.shift_frequency(anharm, d0)
-            pulse.play(pulse.Gaussian(dur_x, amp_x * self.backend.rabi_rate_12, sigma_x, beta_x),
-                       d0)
+            pulse.play(pulse.Gaussian(dur_x, amp_x * self.backend.rabi_rate_12, sigma_x, beta_x), d0)
             pulse.shift_frequency(-anharm, d0)
-
 
         self.schedules = {'x12': x12}
 
@@ -73,3 +70,7 @@ class TestMultiStateDiscrimination(QiskitExperimentsTestCase):
         fidelity = exp_data.analysis_results('fidelity').value
 
         self.assertGreaterEqual(fidelity, 0.96)
+
+        # check that the discriminator differentiates n different states
+        discrim_lbls = exp_data.analysis_results('discriminator_config').value['attributes']['classes_']
+        self.assertEqual(len(discrim_lbls), n_states)
