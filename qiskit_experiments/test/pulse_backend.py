@@ -320,10 +320,22 @@ class PulseBackend(BackendV2):
             else:
                 centers = self._iq_cluster_centers(circuit=circuit)
                 iq_data = np.array(self._iq_data(state, meas_qubits, shots, centers, 0.2))
-                memory_data_0 = self._discriminator.predict(iq_data[:, 0])
-                memory_data_1 = self._discriminator.predict(iq_data[:, 1])
-                memory_data = [f"{m1}{m0}" for m0, m1 in zip(memory_data_0, memory_data_1)]
+                memory_data = [
+                    self._discriminator.predict(iq_data[:, qubit_idx])
+                    for qubit_idx in range(len(meas_qubits))
+                ]
+                memory_data = ["".join(state_label) for state_label in zip(*memory_data[::-1])]
                 measurement_data = dict(zip(*np.unique(memory_data, return_counts=True)))
+
+            collapse_2 = True  # TODO: clean up later.
+            if collapse_2:
+                for key in measurement_data.copy().keys():
+                    if "2" in key:
+                        measurement_data[key.replace("2", "1")] = measurement_data.get(
+                            key.replace("2", "1"), 0
+                        ) + measurement_data.pop(key)
+                        if memory_data is not None:
+                            memory_data[memory_data == key] = key.replace("2", "1")
 
         elif meas_level == MeasLevel.KERNELED:
             centers = self._iq_cluster_centers(circuit=circuit)
@@ -399,7 +411,7 @@ class PulseBackend(BackendV2):
             # 1. Parse the calibrations and simulate any new schedule. Add U to the unitaries.
             for name, schedule in circuit.calibrations.items():
                 for (qubits, params), schedule_block in schedule.items():
-                    schedule_key = hash(repr(schedule))
+                    schedule_key = hash(repr(schedule_block))
 
                     # Simulate the schedule if not in the cache.
                     if schedule_key not in self._schedule_cache:
@@ -418,10 +430,10 @@ class PulseBackend(BackendV2):
                 qubits, params, inst_name = self._get_info(circuit, instruction)
                 if inst_name == "barrier":
                     continue
-                elif inst_name == "measure":
+                if inst_name == "measure":
                     meas_qubits += [qubits[0]]
                     continue
-                elif inst_name == "rz":
+                if inst_name == "rz":
                     # Ensures that the action in the qubit space is preserved.
                     unitary = np.diag([np.exp(1.0j * idx * params[0] / 2) for idx in [-1, 1, 3]])
                 else:
