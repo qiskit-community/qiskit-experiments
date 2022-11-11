@@ -228,7 +228,7 @@ class PulseBackend(BackendV2):
         """
         full_i, full_q = [], []
         for sub_idx in meas_qubits:
-            probability = state.probabilities(qargs=sub_idx)
+            probability = state.probabilities(qargs=[sub_idx])
             counts_n = self._rng.multinomial(shots, probability / sum(probability), size=1).T
 
             sub_i, sub_q = [], []
@@ -419,7 +419,7 @@ class PulseBackend(BackendV2):
                 if inst_name == "barrier":
                     continue
                 elif inst_name == "measure":
-                    meas_qubits += [qubits]
+                    meas_qubits += [qubits[0]]
                     continue
                 elif inst_name == "rz":
                     # Ensures that the action in the qubit space is preserved.
