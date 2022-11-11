@@ -18,22 +18,22 @@ from itertools import product
 from test.base import QiskitExperimentsTestCase
 
 from qiskit_experiments.framework import Options
-from qiskit_experiments.visualization import BasePlotter, PlotStyle
+from qiskit_experiments.visualization import PlotStyle
 
 from .mock_drawer import MockDrawer
 from .mock_plotter import MockPlotter
 
 
-def dummy_plotter(plotting_enabled:bool=False) -> MockPlotter:
+def dummy_plotter(plotting_enabled: bool = False) -> MockPlotter:
     """Return a MockPlotter with dummy option values.
 
     Args:
         plotting_enabled: Whether the returned plotter should actually draw.
 
     Returns:
-        BasePlotter: A dummy plotter.
+        MockPlotter: A dummy plotter.
     """
-    plotter = MockPlotter(MockDrawer(),plotting_enabled)
+    plotter = MockPlotter(MockDrawer(), plotting_enabled)
     # Set dummy plot options to update
     plotter.set_figure_options(
         xlabel="xlabel",

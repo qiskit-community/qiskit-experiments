@@ -21,7 +21,6 @@ import ddt
 import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
-from matplotlib.backends.backend_agg import FigureCanvasAgg
 from matplotlib.testing.compare import calculate_rms
 
 from qiskit_experiments.visualization import MplDrawer
@@ -67,14 +66,14 @@ class TestPlotterAndMplDrawer(QiskitExperimentsTestCase):
         # `qiskit_experiments.framework.matplotlib.get_non_gui_ax` by default; which uses an SVG backend.
         plt.switch_backend("Agg")
         axes = {}
-        for t in series_names.keys():
+        for key in series_names.keys():
             fig = plt.figure()
-            axes[t] = fig.subplots(1, 1)
+            axes[key] = fig.subplots(1, 1)
 
         # Create plotters, one per type, and set the axis.
         plotters = {t: MockPlotter(MplDrawer(), plotting_enabled=True) for t in series_names.keys()}
-        for t in plotters.keys():
-            plotters[t].set_options(axis=axes[t])
+        for key in plotters.keys():
+            plotters[key].set_options(axis=axes[key])
 
         # Tolerance to be used when comparing images (i.e., with calculate_rms)
         tol = 1e-2

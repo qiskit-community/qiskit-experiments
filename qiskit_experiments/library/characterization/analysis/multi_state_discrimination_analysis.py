@@ -26,16 +26,16 @@ from qiskit_experiments.visualization import BasePlotter, IQPlotter, MplDrawer, 
 
 class MultiStateDiscriminationAnalysis(BaseAnalysis):
     r"""This class fits a multi-state discriminator to the data.
-    
+
     The class will report the configuration of the discriminator in the analysis result as well as
     the fidelity of the discrimination reported as
-    
+
     .. math::
-    
+
         F = 1 - \frac{1}{d}\sum{i\neq j}P(i|j)
-        
-    Here, :math:`d` is the number of levels that were discriminated while :math:`P(i|j)` is the probability
-    of measuring outcome :math:`i` given that state :math:`j` was prepared.
+
+    Here, :math:`d` is the number of levels that were discriminated while :math:`P(i|j)` is the
+    probability of measuring outcome :math:`i` given that state :math:`j` was prepared.
     """
 
     @classmethod
@@ -45,13 +45,14 @@ class MultiStateDiscriminationAnalysis(BaseAnalysis):
         Analysis Options:
             plot (bool): Set ``True`` to create figure for fit result.
             ax(AxesSubplot): Optional. A matplotlib axis object in which to draw.
-            discriminator: The discriminator to classify the data. The default is a quadratic discriminant analysis.
+            discriminator: The discriminator to classify the data. The default is a quadratic
+            discriminant analysis.
         """
         options = super()._default_options()
         options.plotter = IQPlotter(MplDrawer())
         options.plotter.set_options(
             discriminator_max_resolution=64,
-            style=PlotStyle(figsize=(6, 4), legend_loc=None), # later can remove legend_loc
+            style=PlotStyle(figsize=(6, 4), legend_loc=None),
         )
         options.plot = True
         options.ax = None
