@@ -49,7 +49,6 @@ class TestMultiStateDiscrimination(QiskitExperimentsTestCase):
                        d0)
             pulse.shift_frequency(-anharm, d0)
 
-        cals.add_schedule(x12, qubits=self.qubit, num_qubits=1)
 
         self.schedules = {'x12': cals.get_schedule('x12', self.qubit)}
 
