@@ -151,6 +151,10 @@ class RoughAmplitudeCal(BaseCalibrationExperiment, Rabi):
 
         return metadata
 
+    def _attach_calibrations(self, circuit: QuantumCircuit):
+        """Rabi already has the schedules attached in the program circuits."""
+        pass
+
     def update_calibrations(self, experiment_data: ExperimentData):
         r"""Update the amplitude of one or several schedules.
 

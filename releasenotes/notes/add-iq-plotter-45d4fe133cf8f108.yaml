@@ -1,0 +1,9 @@
+---
+features:
+  - |
+    Added a new IQ plotting class for plotting IQ/level-1 data (individual 
+    shots and their average) and a discriminator that classifies the data into
+    states.
+  - |
+    Added a new `image()` method to `BaseDrawer` and `MplDrawer` to plot
+    two-dimensional images on a figure canvas.

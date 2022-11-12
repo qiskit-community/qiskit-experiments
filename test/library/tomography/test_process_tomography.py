@@ -21,7 +21,7 @@ import qiskit.quantum_info as qi
 from qiskit_aer import AerSimulator
 from qiskit_experiments.library import ProcessTomography
 from qiskit_experiments.library.tomography import ProcessTomographyAnalysis
-from .tomo_utils import FITTERS, filter_results, teleport_circuit
+from .tomo_utils import FITTERS, filter_results, teleport_circuit, teleport_bell_circuit
 
 
 @ddt.ddt
@@ -244,27 +244,58 @@ class TestProcessTomography(QiskitExperimentsTestCase):
         target_fid = qi.process_fidelity(state, target, require_tp=False, require_cp=False)
         self.assertAlmostEqual(fid, target_fid, places=6, msg="result fidelity is incorrect")
 
-    def test_qpt_teleport(self):
+    @ddt.data(True, False)
+    def test_qpt_teleport(self, flatten_creg):
         """Test subset state tomography generation"""
-        # NOTE: This test breaks transpiler. I think it is a bug with
-        # conditionals in Terra.
-
         # Teleport qubit 0 -> 2
         backend = AerSimulator(seed_simulator=9000)
-        exp = ProcessTomography(teleport_circuit(), measurement_qubits=[2], preparation_qubits=[0])
-        expdata = exp.run(backend, shots=10000)
+        exp = ProcessTomography(
+            teleport_circuit(flatten_creg), measurement_qubits=[2], preparation_qubits=[0]
+        )
+        expdata = exp.run(backend, shots=1000)
         self.assertExperimentDone(expdata)
         results = expdata.analysis_results()
 
         # Check result
         f_threshold = 0.95
 
-        # Check state is density matrix
+        # Check state is a Choi matrix
         state = filter_results(results, "state").value
         self.assertTrue(isinstance(state, qi.Choi), msg="fitted state is not a Choi matrix")
 
         # Manually check fidelity
         fid = qi.process_fidelity(state, require_tp=False, require_cp=False)
+        self.assertGreater(fid, f_threshold, msg="fitted state fidelity is low")
+
+    @ddt.data(True, False)
+    def test_qpt_teleport_bell(self, flatten_creg):
+        """Test subset state tomography generation"""
+        # Teleport qubit 0 -> 2
+        backend = AerSimulator(seed_simulator=9000)
+        exp = ProcessTomography(
+            teleport_bell_circuit(flatten_creg),
+            measurement_qubits=[2, 3],
+            preparation_qubits=[0, 3],
+        )
+        expdata = exp.run(backend, shots=1000)
+        self.assertExperimentDone(expdata)
+        results = expdata.analysis_results()
+
+        # Check result
+        f_threshold = 0.95
+
+        # Check state is a Choi matrix
+        state = filter_results(results, "state").value
+        self.assertTrue(isinstance(state, qi.Choi), msg="fitted state is not a Choi matrix")
+
+        # Target circuit
+        target = QuantumCircuit(2)
+        target.h(0)
+        target.cx(0, 1)
+        target = qi.Operator(target)
+
+        # Manually check fidelity
+        fid = qi.process_fidelity(state, target, require_tp=False, require_cp=False)
         self.assertGreater(fid, f_threshold, msg="fitted state fidelity is low")
 
     def test_experiment_config(self):

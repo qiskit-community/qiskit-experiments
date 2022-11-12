@@ -15,6 +15,7 @@
 from typing import Dict, Optional
 import numpy as np
 
+from qiskit.circuit import QuantumCircuit
 from qiskit.providers.backend import Backend
 
 from qiskit_experiments.framework import ExperimentData
@@ -82,6 +83,12 @@ class HalfAngleCal(BaseCalibrationExperiment, HalfAngle):
         )
 
         return metadata
+
+    def _attach_calibrations(self, circuit: QuantumCircuit):
+        """Adds the calibrations to the transpiled circuits."""
+        for gate in ["y", "sx"]:
+            schedule = self._cals.get_schedule(gate, self.physical_qubits)
+            circuit.add_calibration(gate, self.physical_qubits, schedule)
 
     def update_calibrations(self, experiment_data: ExperimentData):
         r"""Update the value of the parameter in the calibrations.
