@@ -457,7 +457,9 @@ class MplDrawer(BaseDrawer):
         )
         text_box_handler.set_bbox(bbox_props)
 
-    def _series_names_to_cmap(self, series_names: List[SeriesName]) -> Tuple[Colormap, Dict[str, float]]:
+    def _series_names_to_cmap(
+        self, series_names: List[SeriesName]
+    ) -> Tuple[Colormap, Dict[str, float]]:
         """Create a :class:`Colormap` instance of series colours.
 
         This method creates a :class:`Colormap` instance that can be used to plot an image of series

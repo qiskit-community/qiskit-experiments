@@ -22,7 +22,8 @@ from qiskit_experiments.framework import Options
 from ..style import PlotStyle
 from ..utils import ExtentTuple
 
-SeriesName = Union[str,int,float]
+SeriesName = Union[str, int, float]
+
 
 class BaseDrawer(ABC):
     """Abstract class for the serializable Qiskit Experiments figure drawer.

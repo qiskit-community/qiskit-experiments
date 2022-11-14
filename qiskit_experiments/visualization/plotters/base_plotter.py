@@ -176,8 +176,9 @@ class BasePlotter(ABC):
         """
         return list(self._series_data.get(series_name, []))
 
-    def data_for(self, series_name: SeriesName, data_keys: Union[str, List[str]]) -> \
-            Tuple[Optional[Any]]:
+    def data_for(
+        self, series_name: SeriesName, data_keys: Union[str, List[str]]
+    ) -> Tuple[Optional[Any]]:
         """Returns data associated with the given series.
 
         The returned tuple contains the data, associated with ``data_keys``, in the same orders as they
