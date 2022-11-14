@@ -88,10 +88,10 @@ class TestPlotterAndMplDrawer(QiskitExperimentsTestCase):
         legend_plot_types = ["scatter"]
 
         # Add plotters using series-names of specific types
-        for ((plotter_type, plotter), (series_name_type, series_names)), data_key in product(
+        for ((plotter_type, plotter), (series_name_type, type_series_names)), data_key in product(
             zip(plotters.items(), series_names.items()), data_keys
         ):
-            for series_name in series_names:
+            for series_name in type_series_names:
                 # Sanity check for plotter and series_name types
                 self.assertEqual(plotter_type, series_name_type)
                 # Verify that the series_name type is the same as the stated series_name type.

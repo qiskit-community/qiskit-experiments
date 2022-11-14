@@ -24,9 +24,6 @@ try:
         LinearDiscriminantAnalysis,
         QuadraticDiscriminantAnalysis,
     )
-    from sklearn.linear_model import SGDClassifier
-    from sklearn.pipeline import make_pipeline
-    from sklearn.preprocessing import StandardScaler
 
     HAS_SKLEARN = True
 except ImportError:
@@ -116,8 +113,8 @@ class TestDiscriminator(QiskitExperimentsTestCase):
 
             for attribute in qda1.attributes:
                 if not np.allclose(
-                        getattr(qda1.discriminator, attribute, np.array([])),
-                        getattr(qda2.discriminator, attribute, np.array([])),
+                    getattr(qda1.discriminator, attribute, np.array([])),
+                    getattr(qda2.discriminator, attribute, np.array([])),
                 ):
                     return False
 

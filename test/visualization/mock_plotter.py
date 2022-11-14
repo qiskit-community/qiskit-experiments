@@ -42,7 +42,8 @@ class MockPlotter(BasePlotter):
     def enable_legend_for(self, series_name: str, plot_type: str):
         """Enables legend for the given series name and plot-type.
 
-        Plot types can be identified by the series data-key prefixes. They are also listed here, alongside associated data-keys.
+        Plot types can be identified by the series data-key prefixes. They are also listed here,
+        alongside associated data-keys.
 
         Plot Types:
             scatter: For ``scatter_x``, ``scatter_y`` data-keys.

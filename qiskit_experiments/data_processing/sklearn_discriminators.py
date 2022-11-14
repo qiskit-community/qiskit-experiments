@@ -134,7 +134,7 @@ class SkQDA(BaseDiscriminator):
             "classes_",
             "n_features_in_",
             "feature_names_in_",
-            "rotations_"
+            "rotations_",
         ]
 
     @property
