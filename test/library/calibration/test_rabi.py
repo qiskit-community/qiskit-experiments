@@ -28,8 +28,7 @@ from qiskit_experiments.library import Rabi, EFRabi
 from qiskit_experiments.curve_analysis.standard_analysis.oscillation import OscillationAnalysis
 from qiskit_experiments.data_processing.data_processor import DataProcessor
 from qiskit_experiments.data_processing.nodes import Probability
-from qiskit_experiments.test.mock_iq_backend import MockIQBackend
-from qiskit_experiments.test.mock_iq_helpers import MockIQRabiHelper as RabiHelper
+from qiskit_experiments.test.pulse_backend import SingleTransmonTestBackend
 from qiskit_experiments.framework.experiment_data import ExperimentStatus
 
 
@@ -40,66 +39,41 @@ class TestRabiEndToEnd(QiskitExperimentsTestCase):
         """Setup the tests."""
         super().setUp()
 
-        self.qubit = 1
+        self.qubit = 0
 
         with pulse.build(name="x") as sched:
             pulse.play(pulse.Drag(160, Parameter("amp"), 40, 0.4), pulse.DriveChannel(self.qubit))
 
         self.sched = sched
+        self.backend = SingleTransmonTestBackend(noise=False)
 
     # pylint: disable=no-member
     def test_rabi_end_to_end(self):
         """Test the Rabi experiment end to end."""
 
-        test_tol = 0.01
-        rabi_experiment_helper = RabiHelper()
-        backend = MockIQBackend(rabi_experiment_helper)
+        test_tol = 0.015
 
-        rabi = Rabi(self.qubit, self.sched)
-        rabi.set_experiment_options(amplitudes=np.linspace(-0.95, 0.95, 21))
-        expdata = rabi.run(backend)
+        rabi = Rabi(self.qubit, self.sched, backend=self.backend)
+        rabi.set_experiment_options(amplitudes=np.linspace(-0.1, 0.1, 21))
+        expdata = rabi.run()
         self.assertExperimentDone(expdata)
         result = expdata.analysis_results(0)
 
         self.assertEqual(result.quality, "good")
         # The comparison is made against the object that exists in the backend for accurate testing
         self.assertAlmostEqual(
-            result.value.params["freq"], backend.experiment_helper.rabi_rate(), delta=test_tol
-        )
-
-        # updating 'amplitude_to_angle' parameter in the experiment helper
-        rabi_experiment_helper.amplitude_to_angle = np.pi / 2
-
-        expdata = rabi.run(backend)
-        self.assertExperimentDone(expdata)
-        result = expdata.analysis_results(0)
-        self.assertEqual(result.quality, "good")
-        self.assertAlmostEqual(
-            result.value.params["freq"], backend.experiment_helper.rabi_rate(), delta=test_tol
-        )
-
-        # updating 'amplitude_to_angle' parameter in the experiment helper and experiment options
-        rabi_experiment_helper.amplitude_to_angle = 2.5 * np.pi
-        rabi.set_experiment_options(amplitudes=np.linspace(-0.95, 0.95, 101))
-
-        expdata = rabi.run(backend)
-        self.assertExperimentDone(expdata)
-        result = expdata.analysis_results(0)
-        self.assertEqual(result.quality, "good")
-        self.assertAlmostEqual(
-            result.value.params["freq"], backend.experiment_helper.rabi_rate(), delta=test_tol
+            result.value.params["freq"], self.backend.rabi_rate_01, delta=test_tol
         )
 
     def test_wrong_processor(self):
         """Test that we can override the data processing by giving a faulty data processor."""
-        backend = MockIQBackend(RabiHelper())
-        rabi = Rabi(self.qubit, self.sched)
+        rabi = Rabi(self.qubit, self.sched, backend=self.backend)
         fail_key = "fail_key"
 
         rabi.analysis.set_options(data_processor=DataProcessor(fail_key, []))
         # pylint: disable=no-member
         rabi.set_run_options(shots=2)
-        data = rabi.run(backend)
+        data = rabi.run()
         result = data.analysis_results()
 
         self.assertEqual(data.status(), ExperimentStatus.ERROR)
@@ -107,7 +81,7 @@ class TestRabiEndToEnd(QiskitExperimentsTestCase):
 
     def test_experiment_config(self):
         """Test converting to and from config works"""
-        exp = Rabi(0, self.sched)
+        exp = Rabi(self.qubit, self.sched)
         loaded_exp = Rabi.from_config(exp.config())
         self.assertNotEqual(exp, loaded_exp)
         self.assertTrue(self.json_equiv(exp, loaded_exp))
@@ -115,7 +89,7 @@ class TestRabiEndToEnd(QiskitExperimentsTestCase):
     @unittest.skip("Schedules are not yet JSON serializable")
     def test_roundtrip_serializable(self):
         """Test round trip JSON serialization"""
-        exp = Rabi(0, self.sched)
+        exp = Rabi(self.qubit, self.sched)
         self.assertRoundTripSerializable(exp, self.json_equiv)
 
 
@@ -127,9 +101,10 @@ class TestEFRabi(QiskitExperimentsTestCase):
         super().setUp()
 
         self.qubit = 0
-
+        self.backend = SingleTransmonTestBackend(noise=False)
+        self.anharmonicity = self.backend.anharmonicity
         with pulse.build(name="x") as sched:
-            with pulse.frequency_offset(-300e6, pulse.DriveChannel(self.qubit)):
+            with pulse.frequency_offset(self.anharmonicity, pulse.DriveChannel(self.qubit)):
                 pulse.play(
                     pulse.Drag(160, Parameter("amp"), 40, 0.4), pulse.DriveChannel(self.qubit)
                 )
@@ -141,22 +116,21 @@ class TestEFRabi(QiskitExperimentsTestCase):
         """Test the EFRabi experiment end to end."""
 
         test_tol = 0.01
-        backend = MockIQBackend(RabiHelper())
 
         # Note that the backend is not sophisticated enough to simulate an e-f
         # transition so we run the test with a tiny frequency shift, still driving the e-g transition.
-        rabi = EFRabi(self.qubit, self.sched)
-        rabi.set_experiment_options(amplitudes=np.linspace(-0.95, 0.95, 21))
-        expdata = rabi.run(backend)
+        rabi = EFRabi(self.qubit, self.sched, backend=self.backend)
+        rabi.set_experiment_options(amplitudes=np.linspace(-0.1, 0.1, 11))
+        expdata = rabi.run()
         self.assertExperimentDone(expdata)
         result = expdata.analysis_results(1)
 
         self.assertEqual(result.quality, "good")
-        self.assertTrue(abs(result.value.n - backend.experiment_helper.rabi_rate()) < test_tol)
+        self.assertTrue(abs(result.value.n - self.backend.rabi_rate_12) < test_tol)
 
     def test_ef_rabi_circuit(self):
         """Test the EFRabi experiment end to end."""
-        anharm = -330e6
+        anharm = self.anharmonicity
 
         with pulse.build() as sched:
             pulse.shift_frequency(anharm, pulse.DriveChannel(2))
@@ -206,7 +180,6 @@ class TestRabiCircuits(QiskitExperimentsTestCase):
         """Test the default schedule."""
         rabi = Rabi(2, self.sched)
         rabi.set_experiment_options(amplitudes=[0.5])
-        rabi.backend = MockIQBackend(RabiHelper())
         circs = rabi.circuits()
 
         with pulse.build() as expected:
@@ -225,14 +198,13 @@ class TestRabiCircuits(QiskitExperimentsTestCase):
 
         rabi = Rabi(2, self.sched)
         rabi.set_experiment_options(schedule=my_schedule, amplitudes=[0.5])
-        rabi.backend = MockIQBackend(RabiHelper())
         circs = rabi.circuits()
 
         assigned_sched = my_schedule.assign_parameters({amp: 0.5}, inplace=False)
         self.assertEqual(circs[0].calibrations["Rabi"][((2,), (0.5,))], assigned_sched)
 
 
-class TestRabiAnalysis(QiskitExperimentsTestCase):
+class TestOscillationAnalysis(QiskitExperimentsTestCase):
     """Class to test the fitting."""
 
     def simulate_experiment_data(self, thetas, amplitudes, shots=1024):
