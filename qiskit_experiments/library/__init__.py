@@ -36,6 +36,7 @@ Experiments for verification and validation of quantum devices.
 
     ~randomized_benchmarking.StandardRB
     ~randomized_benchmarking.InterleavedRB
+    ~randomized_benchmarking.MirrorRB
     ~tomography.StateTomography
     ~tomography.ProcessTomography
     ~quantum_volume.QuantumVolume
@@ -151,7 +152,7 @@ from .characterization import (
     CorrelatedReadoutError,
     ZZRamsey,
 )
-from .randomized_benchmarking import StandardRB, InterleavedRB
+from .randomized_benchmarking import StandardRB, InterleavedRB, MirrorRB
 from .tomography import StateTomography, ProcessTomography
 from .quantum_volume import QuantumVolume
 

@@ -18,8 +18,7 @@ from numbers import Integral
 from typing import Union, Iterable, Optional, List, Sequence
 
 import numpy as np
-from numpy.random import Generator, default_rng
-from numpy.random.bit_generator import BitGenerator, SeedSequence
+from numpy.random import Generator, default_rng, BitGenerator, SeedSequence
 
 from qiskit.circuit import QuantumCircuit, Instruction
 from qiskit.exceptions import QiskitError

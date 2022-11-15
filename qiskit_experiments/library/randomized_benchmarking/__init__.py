@@ -25,6 +25,7 @@ Experiments
 
     StandardRB
     InterleavedRB
+    MirrorRB
 
 
 Analysis
@@ -36,6 +37,7 @@ Analysis
 
     RBAnalysis
     InterleavedRBAnalysis
+    MirrorRBAnalysis
 
 .. autosummary::
     :toctree: ../stubs/
@@ -44,7 +46,9 @@ Analysis
 """
 from .rb_experiment import StandardRB
 from .interleaved_rb_experiment import InterleavedRB
+from .mirror_rb_experiment import MirrorRB
 from .rb_analysis import RBAnalysis
 from .interleaved_rb_analysis import InterleavedRBAnalysis
+from .mirror_rb_analysis import MirrorRBAnalysis
 from .rb_utils import RBUtils
 from .clifford_utils import CliffordUtils
