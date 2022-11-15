@@ -57,8 +57,6 @@ class MultiStateDiscrimination(BaseExperiment):
         `Qiskit Textbook <https://qiskit.org/textbook/ch-quantum-hardware/accessing\
         _higher_energy_states.html>`_.
 
-    # section: tutorial
-        :doc:`TODO?`
     """
 
     @classmethod
