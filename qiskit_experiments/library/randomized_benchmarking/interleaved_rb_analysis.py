@@ -96,12 +96,10 @@ class InterleavedRBAnalysis(curve.CurveAnalysis):
                 lmfit.models.ExpressionModel(
                     expr="a * alpha ** x + b",
                     name="standard",
-                    data_sort_key={"interleaved": False},
                 ),
                 lmfit.models.ExpressionModel(
                     expr="a * (alpha_c * alpha) ** x + b",
                     name="interleaved",
-                    data_sort_key={"interleaved": True},
                 ),
             ]
         )
@@ -111,6 +109,10 @@ class InterleavedRBAnalysis(curve.CurveAnalysis):
     def _default_options(cls):
         """Default analysis options."""
         default_options = super()._default_options()
+        default_options.data_map = {
+            "standard": {"interleaved": False},
+            "interleaved": {"interleaved": True},
+        }
         default_options.result_parameters = ["alpha", "alpha_c"]
         default_options.average_method = "sample"
         return default_options

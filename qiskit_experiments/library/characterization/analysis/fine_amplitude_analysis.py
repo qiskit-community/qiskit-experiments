@@ -39,12 +39,10 @@ class FineAmplitudeAnalysis(curve.ErrorAmplificationAnalysis):
                 lmfit.models.ExpressionModel(
                     expr="amp / 2 * (2 * x - 1) + base",
                     name="spam cal.",
-                    data_sort_key={"series": "spam-cal"},
                 ),
                 lmfit.models.ExpressionModel(
                     expr="amp / 2 * cos((d_theta + angle_per_gate) * x - phase_offset) + base",
                     name="fine amp.",
-                    data_sort_key={"series": 1},
                 ),
             ],
         )
@@ -53,4 +51,8 @@ class FineAmplitudeAnalysis(curve.ErrorAmplificationAnalysis):
     def _default_options(cls):
         """Return the default analysis options."""
         default_options = super()._default_options()
+        default_options.data_map = {
+            "spam cal.": {"series": "spam-cal"},
+            "fine amp.": {"series": 1},
+        }
         return default_options

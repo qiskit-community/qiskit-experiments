@@ -109,9 +109,9 @@ class DragCalAnalysis(curve.CurveAnalysis):
             List of fit options that are passed to the fitter function.
         """
         # Use the highest-frequency curve to estimate the oscillation frequency.
-        max_rep_model = self._models[-1]
-        max_rep = max_rep_model.opts["data_sort_key"]["nrep"]
-        curve_data = curve_data.get_subset_of(max_rep_model._name)
+        max_rep_model_name = self._models[-1]._name
+        max_rep = self.options.data_map[max_rep_model_name]["nrep"]
+        curve_data = curve_data.get_subset_of(max_rep_model_name)
 
         x_data = curve_data.x
         min_beta, max_beta = min(x_data), max(x_data)
@@ -222,16 +222,18 @@ class DragCalAnalysis(curve.CurveAnalysis):
         self,
         experiment_data: ExperimentData,
     ):
-        super()._initialize(experiment_data)
-
         # Model is initialized at runtime because
         # the experiment option "reps" can be changed before experiment run.
+        data_map = {}
         for nrep in sorted(self.options.reps):
             name = f"nrep={nrep}"
             self._models.append(
                 lmfit.models.ExpressionModel(
                     expr=f"amp * cos(2 * pi * {nrep} * freq * (x - beta)) + base",
                     name=name,
-                    data_sort_key={"nrep": nrep},
                 )
             )
+            data_map[name] = {"nrep": nrep}
+        self._options.data_map = data_map
+
+        super()._initialize(experiment_data)

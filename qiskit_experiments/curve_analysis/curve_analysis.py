@@ -106,11 +106,9 @@ class CurveAnalysis(BaseCurveAnalysis):
             models: List of LMFIT ``Model`` class to define fitting functions and
                 parameters. If multiple models are provided, the analysis performs
                 multi-objective optimization where the parameters with the same name
-                are shared among provided models. The model can be initialized with
-                the keyword ``data_sort_key`` which is a dictionary to specify the
-                circuit metadata that is associated with the model.
-                Usually multiple models must be provided with this keyword to
-                classify the experiment data into subgroups of fit model.
+                are shared among provided models. When multiple models are provided,
+                user must specify the ``data_map`` value in the analysis options
+                to allocate experimental results to a particular fit model.
             name: Optional. Name of this analysis.
         """
         super().__init__()
@@ -141,12 +139,12 @@ class CurveAnalysis(BaseCurveAnalysis):
             # pylint: disable=no-member
             models = []
             series_params = {}
+            data_map = {}
             for series_def in self.__series__:
                 models.append(
                     lmfit.Model(
                         name=series_def.name,
                         func=series_def.fit_func,
-                        data_sort_key=series_def.filter_kwargs,
                     )
                 )
                 series_params[series_def.name] = {
@@ -155,7 +153,9 @@ class CurveAnalysis(BaseCurveAnalysis):
                     "canvas": series_def.canvas,
                     "label": series_def.name,
                 }
+                data_map[series_def.name] = series_def.filter_kwargs
             self.plotter.set_figure_options(series_params=series_params)
+            self._options.data_map = data_map
 
         self._models = models or []
         self._name = name or self.__class__.__name__
@@ -271,10 +271,11 @@ class CurveAnalysis(BaseCurveAnalysis):
             data_allocation = np.full(xdata.size, -1, dtype=int)
             for idx, sub_model in enumerate(models):
                 try:
-                    tags = sub_model.opts["data_sort_key"]
+                    tags = self.options.data_map[sub_model._name]
                 except KeyError as ex:
                     raise DataProcessorError(
-                        f"Data sort options for model {sub_model.name} is not defined."
+                        f"Data sort options for model {sub_model._name} is not defined. "
+                        "Please provide the 'data_map' analysis option for this model."
                     ) from ex
                 if tags is None:
                     continue
@@ -466,6 +467,7 @@ class CurveAnalysis(BaseCurveAnalysis):
 
         # Prepare for fitting
         self._initialize(experiment_data)
+
         analysis_results = []
 
         # Run data processing
