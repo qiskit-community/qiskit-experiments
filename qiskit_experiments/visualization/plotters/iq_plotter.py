@@ -91,13 +91,15 @@ class IQPlotter(BasePlotter):
             discriminator: A trained discriminator that classifies IQ points. If provided, the
                 predictions of the discriminator will be sampled to generate a background image,
                 indicating the regions for each predicted outcome. The predictions are assumed to be
-                series names (str). The generated image allows viewers to see how well the discriminator
-                classifies the provided series data. Must be a subclass of :class:`BaseDiscriminator`.
-                See :attr:`options` for ways to control the generation of the discriminator prediction
-                image.
+                series names (:type:`Union[str, int, float]`). The generated image allows viewers to see
+                how well the discriminator classifies the provided series data. Must be a subclass of
+                :class:`BaseDiscriminator`. See :attr:`options` for ways to control the generation of the
+                discriminator prediction image.
+            fidelity: A float representing the fidelity of the discrimination.
         """
         return [
             "discriminator",
+            "fidelity",
         ]
 
     def _compute_extent(self) -> Optional[ExtentTuple]:
@@ -333,3 +335,25 @@ class IQPlotter(BasePlotter):
                             marker=self.options.misclassified_symbol,
                             color=self.options.misclassified_color,
                         )
+
+        # Fidelity report
+        report = self._write_report()
+        if len(report) > 0:
+            self.drawer.textbox(report)
+
+    def _write_report(self) -> str:
+        """Write fidelity report with supplementary_data.
+
+        Subclass can override this method to customize fidelity report.
+        By default, this writes the fidelity of the discriminator in the fidelity report.
+
+        Returns:
+            Fidelity report.
+        """
+        report = ""
+
+        if "fidelity" in self.supplementary_data:
+            fidelity = self.supplementary_data["fidelity"]
+            report += f"fidelity = {fidelity: .4g}"
+
+        return report

@@ -79,6 +79,7 @@ Discriminators
     :toctree: ../stubs/
 
     SkLDA
+    SkQDA
 """
 
 from .data_action import DataAction, TrainableDataAction
@@ -99,4 +100,4 @@ from .nodes import (
 )
 
 from .data_processor import DataProcessor
-from .sklearn_discriminators import SkLDA
+from .sklearn_discriminators import SkLDA, SkQDA
