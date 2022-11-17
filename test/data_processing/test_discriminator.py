@@ -17,10 +17,13 @@ from functools import wraps
 from unittest import SkipTest
 import numpy as np
 
-from qiskit_experiments.data_processing import SkLDA
+from qiskit_experiments.data_processing import SkLDA, SkQDA
 
 try:
-    from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
+    from sklearn.discriminant_analysis import (
+        LinearDiscriminantAnalysis,
+        QuadraticDiscriminantAnalysis,
+    )
 
     HAS_SKLEARN = True
 except ImportError:
@@ -80,3 +83,41 @@ class TestDiscriminator(QiskitExperimentsTestCase):
             return True
 
         self.assertRoundTripSerializable(lda, check_lda)
+
+    @requires_sklearn
+    def test_qda_serialization(self):
+        """Test the serialization of a qda."""
+
+        sk_qda = QuadraticDiscriminantAnalysis()
+        sk_qda.fit([[-1, -1], [-2, -1], [-3, -2], [1, 1], [2, 1], [3, 2]], [0, 0, 0, 1, 1, 1])
+
+        self.assertTrue(sk_qda.predict([[1.1, 3]])[0], 1)
+
+        qda = SkQDA(sk_qda)
+
+        self.assertTrue(qda.is_trained())
+        self.assertTrue(qda.predict([[1.1, 3]])[0], 1)
+
+        def check_qda(qda1, qda2):
+            test_data = [[1.1, 0], [0.1, 0], [-2, 0]]
+
+            qda1_y = qda1.predict(test_data)
+            qda2_y = qda2.predict(test_data)
+
+            if len(qda1_y) != len(qda2_y):
+                return False
+
+            for idx, y_val1 in enumerate(qda1_y):
+                if qda2_y[idx] != y_val1:
+                    return False
+
+            for attribute in qda1.attributes:
+                if not np.allclose(
+                    getattr(qda1.discriminator, attribute, np.array([])),
+                    getattr(qda2.discriminator, attribute, np.array([])),
+                ):
+                    return False
+
+            return True
+
+        self.assertRoundTripSerializable(qda, check_qda)

@@ -14,6 +14,7 @@
 
 from typing import Dict, List, Optional
 
+from qiskit.circuit import QuantumCircuit
 from qiskit.providers.backend import Backend
 
 from qiskit_experiments.framework import ExperimentData
@@ -73,6 +74,11 @@ class FrequencyCal(BaseCalibrationExperiment, RamseyXY):
         )
 
         return metadata
+
+    def _attach_calibrations(self, circuit: QuantumCircuit):
+        """Adds the calibrations to the transpiled circuits."""
+        schedule = self._cals.get_schedule("sx", self.physical_qubits)
+        circuit.add_calibration("sx", self.physical_qubits, schedule)
 
     def update_calibrations(self, experiment_data: ExperimentData):
         """Update the frequency using the reported frequency less the imparted oscillation."""

@@ -16,13 +16,13 @@ Code for generating data for the Quantum Volume experiment for testing.
 import os
 import sys
 import json
-from qiskit.providers.aer import AerSimulator
-from qiskit.providers.aer.noise import NoiseModel
-from qiskit.providers.aer.noise.errors.standard_errors import (
+from qiskit_aer import AerSimulator
+from qiskit_aer.noise import NoiseModel
+from qiskit_aer.noise.errors.standard_errors import (
     depolarizing_error,
     thermal_relaxation_error,
 )
-from qiskit.providers.aer.noise.errors import readout_error
+from qiskit_aer.noise.errors import readout_error
 from qiskit_experiments.library import QuantumVolume
 from qiskit_experiments.framework import ExperimentEncoder
 

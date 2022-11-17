@@ -341,7 +341,7 @@ class ExperimentData:
             The start datetime of this experiment data.
 
         """
-        return self._db_data.end_datetime
+        return self._db_data.start_datetime
 
     @property
     def updated_datetime(self) -> "datetime":
@@ -458,7 +458,7 @@ class ExperimentData:
         Returns:
             Names of figures associated with this experiment.
         """
-        return self._figures.keys()
+        return self._db_data.figure_names
 
     @property
     def share_level(self) -> str:
@@ -1064,6 +1064,7 @@ class ExperimentData:
                 figure_data = FigureData(figure=figure, name=fig_name, metadata=figure_metadata)
 
             self._figures[fig_name] = figure_data
+            self._db_data.figure_names.append(fig_name)
 
             save = save_figure if save_figure is not None else self.auto_save
             if save and self._service:
@@ -1114,7 +1115,7 @@ class ExperimentData:
         self,
         figure_key: Union[str, int],
         file_name: Optional[str] = None,
-    ) -> Union[int, bytes]:
+    ) -> Union[int, FigureData]:
         """Retrieve the specified experiment figure.
 
         Args:
@@ -1124,7 +1125,7 @@ class ExperimentData:
 
         Returns:
             The size of the figure if `file_name` is specified. Otherwise the
-            content of the figure in bytes.
+            content of the figure as a `FigureData` object.
 
         Raises:
             ExperimentEntryNotFound: If the figure cannot be found.
