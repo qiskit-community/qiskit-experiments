@@ -15,9 +15,9 @@ deprecations:
 developer:
   - |
     To map experiment result data to a particular LMFIT model in the :class:`CurveAnalysis`,
-    an author must provide the data_map analysis option rather than directly binding data_sort_key
-    with the target LMFIT model. The data_map option is a dictionary keyed on the
-    model name. For example,
+    an author must provide the data_subfit_map analysis option rather than directly binding 
+    data_sort_key with the target LMFIT model. 
+    The data_subfit_map option is a dictionary keyed on the model name. For example,
     
     .. code-block:: python3
     
@@ -34,8 +34,8 @@ developer:
         @classmethod
         def _default_options(cls) -> Options:
           options = super()._default_options()
-          options.data_map = {"expr1": {"tag": "1"}, "expr2": {"tag": "2"}}
+          options.data_subfit_map = {"expr1": {"tag": "1"}, "expr2": {"tag": "2"}}
           return options
       
     As shown in above, the dictionary had been attached to each LMFIT model 
-    is now moved to the data_map option.
+    is now moved to the data_subfit_map option.
