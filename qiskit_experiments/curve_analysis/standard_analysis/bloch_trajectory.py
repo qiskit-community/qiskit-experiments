@@ -143,7 +143,7 @@ class BlochTrajectoryAnalysis(curve.CurveAnalysis):
             xval_unit="s",
             ylim=(-1, 1),
         )
-        default_options.data_map = {
+        default_options.data_subfit_map = {
             "x": {"meas_basis": "x"},
             "y": {"meas_basis": "y"},
             "z": {"meas_basis": "z"},

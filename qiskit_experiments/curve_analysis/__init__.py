@@ -181,11 +181,11 @@ Here is another example how to implement multi-objective optimization task:
         ),
     ]
 
-In addition, you need to provide ``data_map`` analysis option, which may look like
+In addition, you need to provide ``data_subfit_map`` analysis option, which may look like
 
 .. code-block:: python3
 
-    {
+    data_subfit_map = {
         "my_experiment1": {"tag": 1},
         "my_experiment2": {"tag": 2},
     }

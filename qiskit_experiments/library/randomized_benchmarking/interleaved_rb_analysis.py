@@ -109,7 +109,7 @@ class InterleavedRBAnalysis(curve.CurveAnalysis):
     def _default_options(cls):
         """Default analysis options."""
         default_options = super()._default_options()
-        default_options.data_map = {
+        default_options.data_subfit_map = {
             "standard": {"interleaved": False},
             "interleaved": {"interleaved": True},
         }

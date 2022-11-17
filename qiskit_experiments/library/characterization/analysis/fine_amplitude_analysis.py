@@ -51,7 +51,7 @@ class FineAmplitudeAnalysis(curve.ErrorAmplificationAnalysis):
     def _default_options(cls):
         """Return the default analysis options."""
         default_options = super()._default_options()
-        default_options.data_map = {
+        default_options.data_subfit_map = {
             "spam cal.": {"series": "spam-cal"},
             "fine amp.": {"series": 1},
         }

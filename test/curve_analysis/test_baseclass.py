@@ -128,7 +128,7 @@ class TestCurveAnalysis(CurveAnalysisTestCase):
         )
         analysis.set_options(
             data_processor=DataProcessor("counts", [Probability("1")]),
-            data_map={
+            data_subfit_map={
                 "s1": {"series": 1},
                 "s2": {"series": 2},
             },
@@ -246,7 +246,7 @@ class TestCurveAnalysis(CurveAnalysisTestCase):
         )
         analysis.set_options(
             data_processor=DataProcessor(input_key="counts", data_actions=[Probability("1")]),
-            data_map={
+            data_subfit_map={
                 "m1": {"series": "cos"},
                 "m2": {"series": "sin"},
             },
@@ -487,7 +487,7 @@ class TestCurveAnalysis(CurveAnalysisTestCase):
             )
             analysis.set_options(
                 filter_data={"setup": setup},
-                data_map={
+                data_subfit_map={
                     "m1": {"type": "cos"},
                     "m2": {"type": "sin"},
                 },
@@ -845,6 +845,6 @@ class TestBackwardCompatibility(QiskitExperimentsTestCase):
             instance._initialize(experiment_data)
 
         self.assertDictEqual(
-            instance.options.data_map,
+            instance.options.data_subfit_map,
             {"experiment1": {"tag": 1}, "experiment2": {"tag": 2}},
         )

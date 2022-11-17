@@ -195,9 +195,9 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
                 Experiment outcomes with metadata that matches with this dictionary
                 are used in the analysis. If not specified, all experiment data are
                 input to the curve fitter. By default, no filtering condition is set.
-            data_map (Dict[str, Dict[str, Any]]): The mapping of experiment result data
+            data_subfit_map (Dict[str, Dict[str, Any]]): The mapping of experiment result data
                 to sub-fit models. This dictionary is keyed on the LMFIT model name,
-                and the value is sort key-value pair to filter the experiment results,
+                and the value is a sorting key-value pair that filters the experiment results,
                 and the filtering is done based on the circuit metadata.
         """
         options = super()._default_options()
@@ -219,7 +219,7 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
         options.bounds = {}
         options.fixed_parameters = {}
         options.filter_data = {}
-        options.data_map = {}
+        options.data_subfit_map = {}
 
         # Set automatic validator for particular option values
         options.set_validator(field="data_processor", validator_value=DataProcessor)
@@ -440,18 +440,18 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
         self.set_options(data_processor=data_processor)
 
         # Check if a model contains legacy data mapping option.
-        data_map = {}
+        data_subfit_map = {}
         for model in self.models:
             if "data_sort_key" in model.opts:
-                data_map[model._name] = model.opts["data_sort_key"]
+                data_subfit_map[model._name] = model.opts["data_sort_key"]
                 del model.opts["data_sort_key"]
-        if data_map:
+        if data_subfit_map:
             warnings.warn(
                 "Setting 'data_sort_key' to an LMFIT model constructor is no longer "
                 "valid configuration of the model. "
-                "Use 'data_map' option in the analysis options. "
+                "Use 'data_subfit_map' option in the analysis options. "
                 "This warning will be dropped in v0.6 along with the support for the "
                 "'data_sort_key' in the LMFIT model options.",
                 DeprecationWarning,
             )
-            self.set_options(data_map=data_map)
+            self.set_options(data_subfit_map=data_subfit_map)

@@ -110,7 +110,7 @@ class DragCalAnalysis(curve.CurveAnalysis):
         """
         # Use the highest-frequency curve to estimate the oscillation frequency.
         max_rep_model_name = self._models[-1]._name
-        max_rep = self.options.data_map[max_rep_model_name]["nrep"]
+        max_rep = self.options.data_subfit_map[max_rep_model_name]["nrep"]
         curve_data = curve_data.get_subset_of(max_rep_model_name)
 
         x_data = curve_data.x
@@ -224,7 +224,7 @@ class DragCalAnalysis(curve.CurveAnalysis):
     ):
         # Model is initialized at runtime because
         # the experiment option "reps" can be changed before experiment run.
-        data_map = {}
+        data_subfit_map = {}
         for nrep in sorted(self.options.reps):
             name = f"nrep={nrep}"
             self._models.append(
@@ -233,7 +233,7 @@ class DragCalAnalysis(curve.CurveAnalysis):
                     name=name,
                 )
             )
-            data_map[name] = {"nrep": nrep}
-        self._options.data_map = data_map
+            data_subfit_map[name] = {"nrep": nrep}
+        self._options.data_subfit_map = data_subfit_map
 
         super()._initialize(experiment_data)

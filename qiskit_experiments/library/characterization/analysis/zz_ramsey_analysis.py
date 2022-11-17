@@ -111,7 +111,7 @@ class ZZRamseyAnalysis(CurveAnalysis):
             xval_unit="s",
             ylabel="P(1)",
         )
-        default_options.data_map = {
+        default_options.data_subfit_map = {
             "0": {"series": "0"},
             "1": {"series": "1"},
         }

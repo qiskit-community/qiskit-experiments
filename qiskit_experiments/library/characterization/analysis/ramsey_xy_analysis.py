@@ -86,7 +86,7 @@ class RamseyXYAnalysis(curve.CurveAnalysis):
         descriptions of analysis options.
         """
         default_options = super()._default_options()
-        default_options.data_map = {
+        default_options.data_subfit_map = {
             "X": {"series": "X"},
             "Y": {"series": "Y"},
         }
