@@ -119,17 +119,19 @@ class TestCurveAnalysis(CurveAnalysisTestCase):
                 ExpressionModel(
                     expr="par0 * x + par1",
                     name="s1",
-                    data_sort_key={"series": 1},
                 ),
                 ExpressionModel(
                     expr="par2 * x + par3",
                     name="s2",
-                    data_sort_key={"series": 2},
                 ),
             ]
         )
         analysis.set_options(
             data_processor=DataProcessor("counts", [Probability("1")]),
+            data_subfit_map={
+                "s1": {"series": 1},
+                "s2": {"series": 2},
+            },
         )
 
         curve_data = analysis._run_data_processing(
@@ -205,7 +207,7 @@ class TestCurveAnalysis(CurveAnalysisTestCase):
             analysis.set_options(data_processor=InvalidClass())
 
         with self.assertRaises(TypeError):
-            analysis.set_options(curve_drawer=InvalidClass())
+            analysis.set_options(plotter=InvalidClass())
 
     def test_end_to_end_single_function(self):
         """Integration test for single function."""
@@ -235,17 +237,19 @@ class TestCurveAnalysis(CurveAnalysisTestCase):
                 ExpressionModel(
                     expr="amp * cos(2 * pi * freq * x + phi) + base",
                     name="m1",
-                    data_sort_key={"series": "cos"},
                 ),
                 ExpressionModel(
                     expr="amp * sin(2 * pi * freq * x + phi) + base",
                     name="m2",
-                    data_sort_key={"series": "sin"},
                 ),
             ]
         )
         analysis.set_options(
             data_processor=DataProcessor(input_key="counts", data_actions=[Probability("1")]),
+            data_subfit_map={
+                "m1": {"series": "cos"},
+                "m2": {"series": "sin"},
+            },
             p0={"amp": 0.5, "freq": 2.1, "phi": 0.3, "base": 0.1},
             result_parameters=["amp", "freq", "phi", "base"],
             plot=False,
@@ -472,17 +476,21 @@ class TestCurveAnalysis(CurveAnalysisTestCase):
                 models=[
                     ExpressionModel(
                         expr="amp * cos(2 * pi * freq * x) + b",
-                        data_sort_key={"type": "cos"},
+                        name="m1",
                     ),
                     ExpressionModel(
                         expr="amp * sin(2 * pi * freq * x) + b",
-                        data_sort_key={"type": "sin"},
+                        name="m2",
                     ),
                 ],
                 name=group_name,
             )
             analysis.set_options(
                 filter_data={"setup": setup},
+                data_subfit_map={
+                    "m1": {"type": "cos"},
+                    "m2": {"type": "sin"},
+                },
                 result_parameters=["amp"],
                 data_processor=DataProcessor(input_key="counts", data_actions=[Probability("1")]),
             )
@@ -809,3 +817,34 @@ class TestBackwardCompatibility(QiskitExperimentsTestCase):
 
         # Still works.
         self.assertListEqual(instance.parameters, ["par0"])
+
+    def test_lmfit_model_with_data_sort_key(self):
+        """Test providing LMFIT model with legacy 'data_sort_key' option."""
+
+        class _DeprecatedAnalysis(CurveAnalysis):
+            def __init__(self):
+                super().__init__(
+                    models=[
+                        ExpressionModel(
+                            expr="x + a",
+                            name="experiment1",
+                            data_sort_key={"tag": 1},
+                        ),
+                        ExpressionModel(
+                            expr="x + b",
+                            name="experiment2",
+                            data_sort_key={"tag": 2},
+                        ),
+                    ]
+                )
+
+        instance = _DeprecatedAnalysis()
+        experiment_data = ExperimentData()
+
+        with self.assertWarns(DeprecationWarning):
+            instance._initialize(experiment_data)
+
+        self.assertDictEqual(
+            instance.options.data_subfit_map,
+            {"experiment1": {"tag": 1}, "experiment2": {"tag": 2}},
+        )

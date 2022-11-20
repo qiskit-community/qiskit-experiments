@@ -12,7 +12,7 @@
 
 """A mock IQ backend for testing."""
 from abc import abstractmethod
-from typing import Sequence, List, Tuple, Dict, Union, Any, Optional
+from typing import Sequence, List, Tuple, Dict, Union, Any
 import numpy as np
 
 from qiskit import QuantumCircuit
@@ -310,8 +310,8 @@ class MockIQBackend(FakeOpenPulse2Q):
         prob: List[float],
         shots: int,
         circ_qubits: Sequence[int],
-        iq_cluster_centers: Optional[List[Tuple[IQPoint, IQPoint]]],
-        iq_cluster_width: Optional[List[float]],
+        iq_cluster_centers: List[Tuple[IQPoint, IQPoint]],
+        iq_cluster_width: List[float],
         phase: float = 0.0,
     ) -> List[List[List[Union[float, complex]]]]:
         """

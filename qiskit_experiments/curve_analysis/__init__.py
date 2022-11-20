@@ -174,17 +174,23 @@ Here is another example how to implement multi-objective optimization task:
         lmfit.models.ExpressionModel(
             expr="amp * exp(-alpha1 * x) + base",
             name="my_experiment1",
-            data_sort_key={"tag": 1},
         ),
         lmfit.models.ExpressionModel(
             expr="amp * exp(-alpha2 * x) + base",
             name="my_experiment2",
-            data_sort_key={"tag": 2},
         ),
     ]
 
-Note that now you need to provide ``data_sort_key`` which is unique argument to
-Qiskit curve analysis. This specifies the metadata of your experiment circuit
+In addition, you need to provide ``data_subfit_map`` analysis option, which may look like
+
+.. code-block:: python3
+
+    data_subfit_map = {
+        "my_experiment1": {"tag": 1},
+        "my_experiment2": {"tag": 2},
+    }
+
+This option specifies the metadata of your experiment circuit
 that is tied to the fit model. If multiple models are provided without this option,
 the curve fitter cannot prepare data to fit.
 In this model, you have four parameters (``amp``, ``alpha1``, ``alpha2``, ``base``)
@@ -203,12 +209,10 @@ By using this model, one can flexibly set up your fit model. Here is another exa
         lmfit.models.ExpressionModel(
             expr="amp * cos(2 * pi * freq * x + phi) + base",
             name="my_experiment1",
-            data_sort_key={"tag": 1},
         ),
         lmfit.models.ExpressionModel(
             expr="amp * sin(2 * pi * freq * x + phi) + base",
             name="my_experiment2",
-            data_sort_key={"tag": 2},
         ),
     ]
 
@@ -318,8 +322,8 @@ for the fitting parameters of interest. A developer can inject a custom code to
 compute custom quantities based on the raw fit parameters.
 See :ref:`curve_analysis_results` for details.
 Afterwards, the analysis draws several curves in the Matplotlib figure.
-User can set custom drawer to the option ``curve_drawer``.
-The drawer defaults to the :class:`MplCurveDrawer`.
+Users can set a custom plotter in :class:`CurveAnalysis` classes, to customize
+figures, by setting the :attr:`~CurveAnalysis.plotter` attribute.
 Finally, it returns the list of created analysis results and Matplotlib figure.
 
 

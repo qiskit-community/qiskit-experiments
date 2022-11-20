@@ -70,12 +70,10 @@ class RamseyXYAnalysis(curve.CurveAnalysis):
                 lmfit.models.ExpressionModel(
                     expr="amp * exp(-x / tau) * cos(2 * pi * freq * x + phase) + base",
                     name="X",
-                    data_sort_key={"series": "X"},
                 ),
                 lmfit.models.ExpressionModel(
                     expr="amp * exp(-x / tau) * sin(2 * pi * freq * x + phase) + base",
                     name="Y",
-                    data_sort_key={"series": "Y"},
                 ),
             ]
         )
@@ -88,7 +86,11 @@ class RamseyXYAnalysis(curve.CurveAnalysis):
         descriptions of analysis options.
         """
         default_options = super()._default_options()
-        default_options.curve_drawer.set_options(
+        default_options.data_subfit_map = {
+            "X": {"series": "X"},
+            "Y": {"series": "Y"},
+        }
+        default_options.plotter.set_figure_options(
             xlabel="Delay",
             ylabel="Signal (arb. units)",
             xval_unit="s",

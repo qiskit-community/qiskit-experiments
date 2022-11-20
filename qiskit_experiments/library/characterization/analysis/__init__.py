@@ -28,3 +28,5 @@ from .readout_angle_analysis import ReadoutAngleAnalysis
 from .local_readout_error_analysis import LocalReadoutErrorAnalysis
 from .correlated_readout_error_analysis import CorrelatedReadoutErrorAnalysis
 from .resonator_spectroscopy_analysis import ResonatorSpectroscopyAnalysis
+from .zz_ramsey_analysis import ZZRamseyAnalysis
+from .multi_state_discrimination_analysis import MultiStateDiscriminationAnalysis

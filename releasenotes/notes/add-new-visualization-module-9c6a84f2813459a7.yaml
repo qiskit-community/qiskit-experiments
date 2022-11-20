@@ -1,0 +1,11 @@
+---
+features:
+  - |
+    Added new visualization module to plot figures and draw onto figure canvases. The new module contains
+    plotters and drawers, which integrate with CurveAnalysis but can be used independently of the
+    analysis classes. This module replaces the old and now deprecated
+    `qiskit_experiments.curve_analysis.visualization` submodule.
+deprecations:
+  - |
+    Deprecated `qiskit_experiments.curve_analysis.visualization` submodule as it is replaced by the new
+    `qiskit_experiments.visualization` submodule.
