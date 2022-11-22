@@ -155,9 +155,11 @@ class MplDrawer(BaseDrawer):
             if ax_type == "x":
                 lim = self.figure_options.xlim
                 unit = self.figure_options.xval_unit
+                unit_scale = self.figure_options.xval_unit_scale
             else:
                 lim = self.figure_options.ylim
                 unit = self.figure_options.yval_unit
+                unit_scale = self.figure_options.yval_unit_scale
 
             # Compute data range from auto scale
             if not lim:
@@ -173,7 +175,7 @@ class MplDrawer(BaseDrawer):
                 lim = (v0, v1)
 
             # Format axis number notation
-            if unit:
+            if unit and unit_scale:
                 # If value is specified, automatically scale axis magnitude
                 # and write prefix to axis label, i.e. 1e3 Hz -> 1 kHz
                 maxv = max(np.abs(lim[0]), np.abs(lim[1]))
@@ -192,7 +194,7 @@ class MplDrawer(BaseDrawer):
                 formatter.set_scientific(True)
                 formatter.set_powerlimits((-3, 3))
 
-                units_str = ""
+                units_str = f" [{unit}]" if unit else ""
 
             for sub_ax in all_axes:
                 if ax_type == "x":
@@ -342,6 +344,12 @@ class MplDrawer(BaseDrawer):
         draw_options.update(**options)
 
         if x_err is None and y_err is None:
+            # Size of symbols is defined by the `s` kwarg for scatter(). Check if `s` exists in
+            # `draw_options`, if not set to the default style. Square the `symbol_size` as `s` for MPL
+            # scatter is proportional to the width and not the area of the marker, but `symbol_size` is
+            # proportional to the area.
+            if "s" not in draw_options:
+                draw_options["s"] = self.style["symbol_size"] ** 2
             self._get_axis(axis).scatter(x_data, y_data, **draw_options)
         else:
             # Check for invalid error values.
@@ -354,7 +362,9 @@ class MplDrawer(BaseDrawer):
             # `options`, and thus draw_options.
             errorbar_options = {
                 "linestyle": "",
-                "markersize": 9,
+                # `markersize` is equivalent to `symbol_size`.
+                "markersize": self.style["symbol_size"],
+                "capsize": self.style["errorbar_capsize"],
             }
             errorbar_options.update(draw_options)
 

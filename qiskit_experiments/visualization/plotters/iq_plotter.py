@@ -240,6 +240,8 @@ class IQPlotter(BasePlotter):
         fig_opts.ylabel = "Quadrature"
         fig_opts.xval_unit = "arb."
         fig_opts.yval_unit = "arb."
+        fig_opts.xval_unit_scale = False
+        fig_opts.yval_unit_scale = False
         return fig_opts
 
     def _misclassified_points(self, series_name: str, points: np.ndarray) -> Optional[np.ndarray]:
