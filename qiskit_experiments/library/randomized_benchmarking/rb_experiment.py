@@ -195,15 +195,23 @@ class StandardRB(BaseExperiment, RestlessMixin):
     def _get_basis_gates(self) -> Optional[Tuple[str, ...]]:
         """Get sorted basis gates to use in basis transformation during circuit generation.
 
-        Return None if this experiment is an RB with 3 or more qubits.
-        Return None if all 2q-gates supported on the physical qubits of the backend are directed.
+        - Return None if this experiment is an RB with 3 or more qubits.
+        - Return None if no basis gates are supplied via ``backend`` or ``transpile_options``.
+        - Return None if all 2q-gates supported on the physical qubits of the backend are one-way
+        directed (e.g. cx(0, 1) is supported but cx(1, 0) is not supported).
+
+        In all those case when None are returned, basis transformation will be skipped in the
+        circuit generation step (i.e. :meth:`circuits`) and it will be done in the successive
+        transpilation step (i.e. :meth:`_transpiled_circuits`) that calls :func:`transpile`.
 
         Returns:
             Sorted basis gate names.
         """
+        # 3 or more qubits case: Return None (skip basis transformation in circuit generation)
         if self.num_qubits > 2:
             return None
 
+        # 1 qubit case: Return all basis gates (or None if no basis gates are supplied)
         if self.num_qubits == 1:
             basis_gates = self.transpile_options.get("basis_gates", None)
             if not basis_gates and self.backend:
@@ -213,26 +221,31 @@ class StandardRB(BaseExperiment, RestlessMixin):
                     basis_gates = self.backend.configuration().basis_gates
             return tuple(sorted(basis_gates)) if basis_gates else None
 
+        # 2 qubits case: Return all basis gates except for one-way directed 2q-gates.
+        # Return None if there is no bi-directed 2q-gates in basis gates.
         if self.num_qubits == 2:
             basis_gates = self.transpile_options.get("basis_gates", None)
             if not basis_gates and self.backend:
                 if isinstance(self.backend, BackendV2) and self.backend.target:
-                    supported_2q_instructions = defaultdict(list)
+                    # prepare to collect one-way directed 2q-gates
+                    supported_2q_instructions = defaultdict(list)  # key: op_name, value: qargs list
                     for op_name, qargs_dic in self.backend.target.items():
                         for qargs in qargs_dic:
                             if self.backend.target.operation_from_name(op_name).num_qubits != 2:
                                 continue
-                            if qargs is None:
+                            if qargs is None:  # the 2q-gate is not available on the qargs
                                 supported_2q_instructions[op_name] = []
                             elif set(qargs).issubset(self.physical_qubits):
                                 reduced_qargs = tuple(self.physical_qubits.index(q) for q in qargs)
                                 supported_2q_instructions[op_name].append(reduced_qargs)
-                    directed_basis_2q_gates = set()
+                    # collect one-way directed 2q-gates
+                    directed_basis_2q_gates = set()  # one-way directed 2q-gates
                     for op_name, qargs_list in supported_2q_instructions.items():
                         if len(qargs_list) == 1:
                             directed_basis_2q_gates.add(op_name)
                     if len(directed_basis_2q_gates) == len(supported_2q_instructions):
                         return None  # supported 2q-gates are all directed
+                    # all basis gates except for one-way directed 2q-gates
                     basis_gates = set(self.backend.operation_names) - directed_basis_2q_gates
                 elif isinstance(self.backend, BackendV1):
                     coupling_map = self.backend.configuration().coupling_map
