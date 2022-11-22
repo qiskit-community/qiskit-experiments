@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Add a new initial circuit option to ``ResonatorSpectroscopy`` to append before measurements. This can
+    be used to run resonator spectroscopy with different qubit states.

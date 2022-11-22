@@ -1115,7 +1115,7 @@ class ExperimentData:
         self,
         figure_key: Union[str, int],
         file_name: Optional[str] = None,
-    ) -> Union[int, bytes]:
+    ) -> Union[int, FigureData]:
         """Retrieve the specified experiment figure.
 
         Args:
@@ -1125,7 +1125,7 @@ class ExperimentData:
 
         Returns:
             The size of the figure if `file_name` is specified. Otherwise the
-            content of the figure in bytes.
+            content of the figure as a `FigureData` object.
 
         Raises:
             ExperimentEntryNotFound: If the figure cannot be found.
