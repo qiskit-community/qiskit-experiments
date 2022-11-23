@@ -3,10 +3,17 @@
 }
 
 .wy-side-scroll {
-    background:#8c8c8c;
+    background: #8c8c8c;
 }
 
-.pre
-{
-color:#BE8184;
+.pre {
+    color: #BE8184;
+}
+
+.sd-card-img-top,
+article.pytorch-article img {
+    height: 40%;
+    width: 40%;
+    margin-left: auto;
+    margin-right: auto;
 }

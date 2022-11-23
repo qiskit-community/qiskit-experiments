@@ -1,47 +1,101 @@
 ################################
-Qiskit Experiments Documentation
+Qiskit Experiments documentation
 ################################
 
-About Qiskit Experiments
-========================
+.. warning::
+
+    This package is still under active development and it is very likely
+    that there will be breaking API changes in future releases.
+    If you encounter any bugs, please open an issue on
+    `Github <https://github.com/Qiskit/qiskit-experiments/issues>`_.
 
 Qiskit Experiments provides both a :doc:`library <apidocs/library>` of standard
 quantum characterization, calibration, and verification experiments, and a
 general :doc:`framework <apidocs/framework>` for implementing custom experiments
 which can be run on quantum devices through Qiskit.
 
-Experiments run on `IBMQ Provider <https://github.com/Qiskit/qiskit-ibmq-provider>`_
-backends can be stored and retrieved from an online experiment
-:doc:`database <apidocs/database_service>`.
+We've divided up the documentation into four sections with different purposes:
 
-.. warning::
+.. grid:: 2
+    :gutter: 3
 
-    This package is still under active development and it is very likely
-    that there will be breaking API changes in future releases.
-    If you encounter any bugs please open an issue on
-    `Github <https://github.com/Qiskit/qiskit-experiments/issues>`_
+    .. grid-item-card::
+        :img-top: _static/tutorials.svg
+
+        Learning Tutorials
+        ^^^^^^^^^^^^^^^^^^
+
+        These step-by-step tutorials teach the fundamentals of the packaage and 
+        are suitable for getting started.
+
+        +++
+
+        .. button-ref:: tutorials/index
+            :expand:
+            :color: secondary
+            :click-parent:
+
+            To the learning tutorials
+
+    .. grid-item-card::
+        :img-top: _static/howtos.svg
+
+        How-To Recipes
+        ^^^^^^^^^^^^^^
+
+        These individual recipes provide short and direct solutions to some commonly
+        asked questions for Qiskit Experiments users.
+
+        +++
+
+        .. button-ref:: howtos/index
+            :expand:
+            :color: secondary
+            :click-parent:
+
+            To the how-to recipes
+
+    .. grid-item-card::
+        :img-top: _static/guides.svg
+
+        Experiment Guides
+        ^^^^^^^^^^^^^^^^^
+
+        These are in-depth guides to key experiments in the package, describing
+        their background, principle, and how to run them in Qiskit Experiments.
+
+        +++
+
+        .. button-ref:: guides/index
+            :expand:
+            :color: secondary
+            :click-parent:
+
+            To the experiment guides
 
 
-Table of Contents
-=================
+    .. grid-item-card::
+        :img-top: _static/api.svg
 
-We've divided up the documentation into areas by purpose. The tutorials are 
-learning-based documentation suitable for getting started. The how-to recipes
-are short and direct instructions for solving specific problems. The experiment
-guides have in-depth explanations for key experiments in the package, and discuss
-advanced usage and options that would be of interest to experimentalists and 
-researchers.
+        API Reference
+        ^^^^^^^^^^^^^
 
-.. nbgallery::
-    :glob:
+        This is a detailed description of every module, method, and function in 
+        Qiskit Experiments and how to use them, suitable for those working closely
+        with specific parts of the package or writing your custom code.
 
-    Tutorials <tutorials/index>
-    How-To Recipes <howtos/index>
-    Experiment Guides <guides/index>
-    API References <apidocs/index>
-    Release Notes <release_notes>
+        +++
+
+        .. button-ref:: apidocs/index
+            :expand:
+            :color: secondary
+            :click-parent:
+
+            To the API reference
+
 
 .. Hiding - Indices and tables
    :ref:`genindex`
    :ref:`modindex`
    :ref:`search`
+

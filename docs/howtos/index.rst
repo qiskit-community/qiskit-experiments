@@ -1,6 +1,6 @@
-#####################
+##############
 How-To Recipes
-#####################
+##############
 
 This section of the documentation provides concrete recipes for how to do specific
 useful actions in Qiskit Experiments.
@@ -8,7 +8,7 @@ useful actions in Qiskit Experiments.
 How to...
 
 .. toctree::
-    :maxdepth: 2
+    :maxdepth: 1
     :glob:
 
     *
