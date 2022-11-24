@@ -37,6 +37,7 @@ the Qiskit transpiler can attach the pulse schedules to the gates in the experim
 We base all our pulses on the default X pulse of "SingleTransmonTestBackend".
 
 .. jupyter-execute::
+
     x_pulse = backend.defaults().instruction_schedule_map.get('x', (qubit,)).instructions[0][1].pulse
     d0, inst_map = pulse.DriveChannel(qubit), pulse.InstructionScheduleMap()
 
@@ -47,6 +48,7 @@ if the experiment can detect this over/underrotation. We replace the default X p
 in the instruction schedule map with this over/underrotated pulse.
 
 .. jupyter-execute::
+
     ideal_amp = x_pulse.amp
     over_amp = ideal_amp*1.02
     under_amp = ideal_amp*0.98
@@ -60,7 +62,7 @@ in the instruction schedule map with this over/underrotated pulse.
 .. jupyter-execute::
     
     overamp_cal = FineXAmplitude(qubit, backend=backend)
-    overamp_cal.set_traspile_options(inst_map=inst_map)
+    overamp_cal.set_transpile_options(inst_map=inst_map)
     # Let's see one of the FineXAmplitude experiment sequence. 
     # For the X gate calibration we add SX gate before X gates to move the ideal population
     # to the equator of the Bloch sphere where the effect of over/under rotations reveals well.
@@ -76,6 +78,7 @@ in the instruction schedule map with this over/underrotated pulse.
     exp_data_over.figure(0)
 
 .. jupyter-execute::
+
     # build the under rotated pulse and add it to the instruction schedule map
     with pulse.build(backend=backend, name="x") as x_under:
         pulse.play(pulse.Drag(x_pulse.duration, under_amp, x_pulse.sigma, x_pulse.beta), d0)
@@ -83,16 +86,17 @@ in the instruction schedule map with this over/underrotated pulse.
 
     # do the experiment
     underamp_cal = FineXAmplitude(qubit, backend=backend)
-    underamp_cal.set_traspile_options(inst_map=inst_map)
+    underamp_cal.set_transpile_options(inst_map=inst_map)
     underamp_cal.circuits()[4].draw(output='mpl')
     
 .. jupyter-execute::
 
     exp_data_under = underamp_cal.run(backend).block_for_results()
-    print(f"The under rotating pulse cannot locate the qubit at the equator with a single X Gate."" )
+    print(f"The under rotating pulse cannot locate the qubit at the equator with a single X Gate." )
     exp_data_under.figure(0)
 
 .. jupyter-execute::
+    
     # analyze the results
     target_angle = np.pi
     dtheta_over = exp_data_over.analysis_results("d_theta").value.nominal_value
@@ -123,7 +127,7 @@ the equator of the Bloch sphere.
 .. jupyter-execute::
 
     # do the expeirment
-    amp_cal = FineSXAmplitude(qubit, pulse_backend)
+    amp_cal = FineSXAmplitude(qubit, backend)
     amp_cal.set_transpile_options(inst_map=inst_map)
     exp_data_x90p = amp_cal.run().block_for_results()
     exp_data_x90p.figure(0)
@@ -145,7 +149,7 @@ Let's change the sx_pulse with the scaled sx_pulse expecting it to make a sharp 
 
     pulse_amp = sx_pulse.amp*scale
 
-    with pulse.build(backend=pulse_backend, name="sx") as sx_new:
+    with pulse.build(backend=backend, name="sx") as sx_new:
         pulse.play(pulse.Drag(x_pulse.duration, pulse_amp, x_pulse.sigma, x_pulse.beta), d0)
 
     inst_map.add("sx", (qubit,), sx_new)
@@ -161,3 +165,4 @@ Let's change the sx_pulse with the scaled sx_pulse expecting it to make a sharp 
 
     # check the dtheta 
     print(data_x90p.analysis_results("d_theta"))
+
