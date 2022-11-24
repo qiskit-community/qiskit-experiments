@@ -28,6 +28,7 @@ from qiskit.providers.backend import Backend, BackendV1, BackendV2
 from qiskit.pulse.instruction_schedule_map import CalibrationPublisher
 from qiskit.quantum_info import Clifford
 from qiskit.quantum_info.random import random_clifford
+from qiskit.transpiler import CouplingMap
 from qiskit_experiments.framework import BaseExperiment, Options
 from qiskit_experiments.framework.restless_mixin import RestlessMixin
 from .clifford_utils import (
@@ -194,29 +195,68 @@ class StandardRB(BaseExperiment, RestlessMixin):
     def _get_basis_gates(self) -> Optional[Tuple[str, ...]]:
         """Get sorted basis gates to use in basis transformation during circuit generation.
 
+        - Return None if this experiment is an RB with 3 or more qubits.
+        - Return None if no basis gates are supplied via ``backend`` or ``transpile_options``.
+        - Return None if all 2q-gates supported on the physical qubits of the backend are one-way
+        directed (e.g. cx(0, 1) is supported but cx(1, 0) is not supported).
+
+        In all those case when None are returned, basis transformation will be skipped in the
+        circuit generation step (i.e. :meth:`circuits`) and it will be done in the successive
+        transpilation step (i.e. :meth:`_transpiled_circuits`) that calls :func:`transpile`.
+
         Returns:
             Sorted basis gate names.
         """
-        basis_gates = self.transpile_options.get("basis_gates", None)
-        if not basis_gates and self.backend:
-            if isinstance(self.backend, BackendV2):
-                # Only the "global basis gates" are returned for v2 backend.
-                # Some non-global basis gates may be usable for some physical qubits. However,
-                # they are conservatively removed here because the basis gates are agnostic to
-                # the direction of each gate.
-                basis_gates = self.backend.operation_names
-                non_globals = self.backend.target.get_non_global_operation_names(
-                    strict_direction=True
-                )
-                if non_globals:
-                    basis_gates = set(basis_gates) - set(non_globals)
-            else:
-                basis_gates = self.backend.configuration().basis_gates
+        # 3 or more qubits case: Return None (skip basis transformation in circuit generation)
+        if self.num_qubits > 2:
+            return None
 
-        if basis_gates is not None:
-            basis_gates = tuple(sorted(basis_gates))
+        # 1 qubit case: Return all basis gates (or None if no basis gates are supplied)
+        if self.num_qubits == 1:
+            basis_gates = self.transpile_options.get("basis_gates", None)
+            if not basis_gates and self.backend:
+                if isinstance(self.backend, BackendV2):
+                    basis_gates = self.backend.operation_names
+                elif isinstance(self.backend, BackendV1):
+                    basis_gates = self.backend.configuration().basis_gates
+            return tuple(sorted(basis_gates)) if basis_gates else None
 
-        return basis_gates
+        # 2 qubits case: Return all basis gates except for one-way directed 2q-gates.
+        # Return None if there is no bi-directed 2q-gates in basis gates.
+        if self.num_qubits == 2:
+            basis_gates = self.transpile_options.get("basis_gates", None)
+            if not basis_gates and self.backend:
+                if isinstance(self.backend, BackendV2) and self.backend.target:
+                    # prepare to collect one-way directed 2q-gates
+                    supported_2q_instructions = defaultdict(list)  # key: op_name, value: qargs list
+                    for op_name, qargs_dic in self.backend.target.items():
+                        for qargs in qargs_dic:
+                            if self.backend.target.operation_from_name(op_name).num_qubits != 2:
+                                continue
+                            if qargs is None:  # the 2q-gate is not available on the qargs
+                                supported_2q_instructions[op_name] = []
+                            elif set(qargs).issubset(self.physical_qubits):
+                                reduced_qargs = tuple(self.physical_qubits.index(q) for q in qargs)
+                                supported_2q_instructions[op_name].append(reduced_qargs)
+                    # collect one-way directed 2q-gates
+                    directed_basis_2q_gates = set()  # one-way directed 2q-gates
+                    for op_name, qargs_list in supported_2q_instructions.items():
+                        if len(qargs_list) == 1:
+                            directed_basis_2q_gates.add(op_name)
+                    if len(directed_basis_2q_gates) == len(supported_2q_instructions):
+                        return None  # supported 2q-gates are all directed
+                    # all basis gates except for one-way directed 2q-gates
+                    basis_gates = set(self.backend.operation_names) - directed_basis_2q_gates
+                elif isinstance(self.backend, BackendV1):
+                    coupling_map = self.backend.configuration().coupling_map
+                    if coupling_map:
+                        coupling = CouplingMap(coupling_map).reduce(self.physical_qubits)
+                        if len(coupling.get_edges()) == 1:
+                            return None  # supported 2q-gates are all directed
+                    basis_gates = self.backend.configuration().basis_gates
+            return tuple(sorted(basis_gates)) if basis_gates else None
+
+        return None
 
     def _sequences_to_circuits(
         self, sequences: List[Sequence[SequenceElementType]]
@@ -316,7 +356,8 @@ class StandardRB(BaseExperiment, RestlessMixin):
             )
             or self.transpile_options.get("optimization_level", 0) != 0
         )
-        if self.num_qubits > 2 or has_custom_transpile_option:
+        has_no_undirected_2q_basis = self._get_basis_gates() is None
+        if self.num_qubits > 2 or has_custom_transpile_option or has_no_undirected_2q_basis:
             transpiled = super()._transpiled_circuits()
         else:
             transpiled = [

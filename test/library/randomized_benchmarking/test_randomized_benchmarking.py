@@ -191,6 +191,20 @@ class TestStandardRB(QiskitExperimentsTestCase, RBTestMixin):
             self.assertTrue(qc.has_calibration_for((SXGate(), [qc.qubits[q] for q in qubits], [])))
             self.assertEqual(qc.calibrations["sx"][(qubits, tuple())], my_sched)
 
+    def test_backend_with_directed_basis_gates(self):
+        """Test if correct circuits are generated from backend with directed basis gates."""
+        my_backend = copy.deepcopy(self.backend)
+        del my_backend.target["cx"][(1, 2)]  # make cx on {1, 2} one-sided
+
+        exp = rb.StandardRB(qubits=(1, 2), lengths=[3], num_samples=4, backend=my_backend)
+        transpiled = exp._transpiled_circuits()
+        for qc in transpiled:
+            self.assertTrue(qc.count_ops().get("cx", 0) > 0)
+            expected_qubits = (qc.qubits[2], qc.qubits[1])
+            for inst in qc:
+                if inst.operation.name == "cx":
+                    self.assertEqual(inst.qubits, expected_qubits)
+
 
 @ddt
 class TestInterleavedRB(QiskitExperimentsTestCase, RBTestMixin):
@@ -391,6 +405,26 @@ class TestInterleavedRB(QiskitExperimentsTestCase, RBTestMixin):
         for qc in transpiled:
             self.assertTrue(all(not inst.operation.name.startswith("circuit") for inst in qc))
             self.assertTrue(all(not inst.operation.name.startswith("Clifford") for inst in qc))
+
+    def test_interleaving_cnot_gate_with_non_supported_direction(self):
+        """Test if cx(0, 1) can be interleaved for backend that support only cx(1, 0)."""
+        my_backend = FakeManilaV2()
+        del my_backend.target["cx"][(0, 1)]  # make support only cx(1, 0)
+
+        exp = rb.InterleavedRB(
+            interleaved_element=CXGate(),
+            qubits=(0, 1),
+            lengths=[3],
+            num_samples=4,
+            backend=my_backend,
+        )
+        transpiled = exp._transpiled_circuits()
+        for qc in transpiled:
+            self.assertTrue(qc.count_ops().get("cx", 0) > 0)
+            expected_qubits = (qc.qubits[1], qc.qubits[0])
+            for inst in qc:
+                if inst.operation.name == "cx":
+                    self.assertEqual(inst.qubits, expected_qubits)
 
 
 class RBRunTestCase(QiskitExperimentsTestCase, RBTestMixin):
