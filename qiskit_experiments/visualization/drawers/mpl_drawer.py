@@ -27,7 +27,7 @@ from qiskit.utils import detach_prefix
 from qiskit_experiments.framework.matplotlib import get_non_gui_ax
 
 from ..utils import ExtentTuple
-from .base_drawer import BaseDrawer
+from .base_drawer import BaseDrawer, SeriesName
 
 
 class MplDrawer(BaseDrawer):
@@ -155,9 +155,11 @@ class MplDrawer(BaseDrawer):
             if ax_type == "x":
                 lim = self.figure_options.xlim
                 unit = self.figure_options.xval_unit
+                unit_scale = self.figure_options.xval_unit_scale
             else:
                 lim = self.figure_options.ylim
                 unit = self.figure_options.yval_unit
+                unit_scale = self.figure_options.yval_unit_scale
 
             # Compute data range from auto scale
             if not lim:
@@ -173,7 +175,7 @@ class MplDrawer(BaseDrawer):
                 lim = (v0, v1)
 
             # Format axis number notation
-            if unit:
+            if unit and unit_scale:
                 # If value is specified, automatically scale axis magnitude
                 # and write prefix to axis label, i.e. 1e3 Hz -> 1 kHz
                 maxv = max(np.abs(lim[0]), np.abs(lim[1]))
@@ -192,7 +194,7 @@ class MplDrawer(BaseDrawer):
                 formatter.set_scientific(True)
                 formatter.set_powerlimits((-3, 3))
 
-                units_str = ""
+                units_str = f" [{unit}]" if unit else ""
 
             for sub_ax in all_axes:
                 if ax_type == "x":
@@ -259,7 +261,7 @@ class MplDrawer(BaseDrawer):
         else:
             return self._axis
 
-    def _get_default_color(self, name: str) -> Tuple[float, ...]:
+    def _get_default_color(self, name: SeriesName) -> Tuple[float, ...]:
         """A helper method to get default color for the series.
 
         Args:
@@ -274,7 +276,7 @@ class MplDrawer(BaseDrawer):
         ind = self._series.index(name) % len(self.DefaultColors)
         return self.DefaultColors[ind]
 
-    def _get_default_marker(self, name: str) -> str:
+    def _get_default_marker(self, name: SeriesName) -> str:
         """A helper method to get default marker for the scatter plot.
 
         Args:
@@ -292,7 +294,7 @@ class MplDrawer(BaseDrawer):
     def _update_label_in_options(
         self,
         options: Dict[str, any],
-        name: Optional[str],
+        name: Optional[SeriesName],
         label: Optional[str] = None,
         legend: bool = False,
     ):
@@ -321,7 +323,7 @@ class MplDrawer(BaseDrawer):
         y_data: Sequence[float],
         x_err: Optional[Sequence[float]] = None,
         y_err: Optional[Sequence[float]] = None,
-        name: Optional[str] = None,
+        name: Optional[SeriesName] = None,
         label: Optional[str] = None,
         legend: bool = False,
         **options,
@@ -342,6 +344,12 @@ class MplDrawer(BaseDrawer):
         draw_options.update(**options)
 
         if x_err is None and y_err is None:
+            # Size of symbols is defined by the `s` kwarg for scatter(). Check if `s` exists in
+            # `draw_options`, if not set to the default style. Square the `symbol_size` as `s` for MPL
+            # scatter is proportional to the width and not the area of the marker, but `symbol_size` is
+            # proportional to the area.
+            if "s" not in draw_options:
+                draw_options["s"] = self.style["symbol_size"] ** 2
             self._get_axis(axis).scatter(x_data, y_data, **draw_options)
         else:
             # Check for invalid error values.
@@ -354,7 +362,9 @@ class MplDrawer(BaseDrawer):
             # `options`, and thus draw_options.
             errorbar_options = {
                 "linestyle": "",
-                "markersize": 9,
+                # `markersize` is equivalent to `symbol_size`.
+                "markersize": self.style["symbol_size"],
+                "capsize": self.style["errorbar_capsize"],
             }
             errorbar_options.update(draw_options)
 
@@ -366,7 +376,7 @@ class MplDrawer(BaseDrawer):
         self,
         x_data: Sequence[float],
         y_data: Sequence[float],
-        name: Optional[str] = None,
+        name: Optional[SeriesName] = None,
         label: Optional[str] = None,
         legend: bool = False,
         **options,
@@ -389,7 +399,7 @@ class MplDrawer(BaseDrawer):
         x_data: Sequence[float],
         y_ub: Sequence[float],
         y_lb: Sequence[float],
-        name: Optional[str] = None,
+        name: Optional[SeriesName] = None,
         label: Optional[str] = None,
         legend: bool = False,
         **options,
@@ -411,7 +421,7 @@ class MplDrawer(BaseDrawer):
         x_ub: Sequence[float],
         x_lb: Sequence[float],
         y_data: Sequence[float],
-        name: Optional[str] = None,
+        name: Optional[SeriesName] = None,
         label: Optional[str] = None,
         legend: bool = False,
         **options,
@@ -457,14 +467,16 @@ class MplDrawer(BaseDrawer):
         )
         text_box_handler.set_bbox(bbox_props)
 
-    def _series_names_to_cmap(self, series_names: List[str]) -> Tuple[Colormap, Dict[str, float]]:
+    def _series_names_to_cmap(
+        self, series_names: List[SeriesName]
+    ) -> Tuple[Colormap, Dict[str, float]]:
         """Create a :class:`Colormap` instance of series colours.
 
         This method creates a :class:`Colormap` instance that can be used to plot an image of series
         classifications: i.e., a 2D array of series names. The returned Colormap positions the series
         colours, from :meth:`_get_default_color`, along the range :math:`0` to :math:`1`. The returned
-        dictionary contains mappings from series names (str) to floats which are used to "sample" from
-        the Colormap.
+        dictionary contains mappings from series names (``Union[str, int, float]``) to floats which are
+        used to "sample" from the Colormap.
 
         Example:
             .. code-block:: python
@@ -487,8 +499,8 @@ class MplDrawer(BaseDrawer):
 
         Returns:
             tuple: a tuple ``(cmap, map)`` where ``cmap`` is a Matplotlib Colormap instance and ``map``
-                is a dictionary that maps series names (keys) to floats that identify the series names'
-                colours in ``cmap``.
+                is a dictionary that maps series names (dictionary keys) to floats (dictionary values)
+                that identify the series names' colours in ``cmap``.
         """
         # Remove duplicates from series_names, just in-case. Use dict.fromkeys to preserve order and
         # remove duplicates.
@@ -518,7 +530,7 @@ class MplDrawer(BaseDrawer):
         self,
         data: np.ndarray,
         extent: Optional[ExtentTuple] = None,
-        name: Optional[str] = None,
+        name: Optional[SeriesName] = None,
         label: Optional[str] = None,
         cmap: Optional[Union[str, Any]] = None,
         cmap_use_series_colors: bool = False,
@@ -555,7 +567,7 @@ class MplDrawer(BaseDrawer):
 
         # Create colorbar if requested.
         if colorbar:
-            colorbar_label = series_params.get("label", label if label is not None else name)
+            colorbar_label = series_params.get("label", label if label is not None else str(name))
             self._get_axis(axis).figure.colorbar(mapping, label=colorbar_label)
 
     @property
