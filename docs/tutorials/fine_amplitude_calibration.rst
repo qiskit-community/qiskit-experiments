@@ -59,23 +59,27 @@ in the instruction schedule map with this over/underrotated pulse.
         pulse.play(pulse.Drag(x_pulse.duration, over_amp, x_pulse.sigma, x_pulse.beta), d0)
     inst_map.add("x", (qubit,), x_over)
 
+Let's look at one of the circuits of the FineXAmplitude experiment. 
+To calibrate the X gate we add an SX gate before the X gates to move the ideal population
+to the equator of the Bloch sphere where the sensitivity to over/under rotations is the highest.
+
 .. jupyter-execute::
     
     overamp_cal = FineXAmplitude(qubit, backend=backend)
     overamp_cal.set_transpile_options(inst_map=inst_map)
-    # Let's see one of the FineXAmplitude experiment sequence. 
-    # For the X gate calibration we add SX gate before X gates to move the ideal population
-    # to the equator of the Bloch sphere where the effect of over/under rotations reveals well.
     overamp_cal.circuits()[4].draw(output='mpl')
 
 .. jupyter-execute::
 
     # do the experiment
     exp_data_over = overamp_cal.run(backend).block_for_results()
-    print(f"The ping-pong pattern points on the figure below indicates")
-    print(f"our over-rotated pulse which makes the initial state rotates more than pi.")
-    print(f"Therefore, the over roating X gate makes the qubit stay away from the Bloch sphere equator.")
+    print(f"The ping-pong pattern points on the figure below indicate")
+    print(f"an over rotation which makes the initial state rotate more than pi.")
+    print(f"Therefore, the miscalibrated X gate makes the qubit stay away from the Bloch sphere equator.")
     exp_data_over.figure(0)
+
+We now look at a pulse with an under rotation to see how the FineXAmplitude experiment 
+detects this error. We will compare the results to the over rotation above.
 
 .. jupyter-execute::
 
@@ -87,13 +91,16 @@ in the instruction schedule map with this over/underrotated pulse.
     # do the experiment
     underamp_cal = FineXAmplitude(qubit, backend=backend)
     underamp_cal.set_transpile_options(inst_map=inst_map)
-    underamp_cal.circuits()[4].draw(output='mpl')
-    
-.. jupyter-execute::
-
+        
     exp_data_under = underamp_cal.run(backend).block_for_results()
-    print(f"The under rotating pulse cannot locate the qubit at the equator with a single X Gate." )
     exp_data_under.figure(0)
+
+Similarly to the over rotation, the under rotated pulse creates 
+qubit populations that do not lie on the equator of the Bloch sphere. 
+However, compared to the ping-pong pattern of the over rotated pulse, 
+the under rotated pulse produces a flipped ping-pong pattern. 
+This allows us to determine not only the magnitude of the rotation error 
+but also its sign.
 
 .. jupyter-execute::
     
@@ -111,10 +118,15 @@ in the instruction schedule map with this over/underrotated pulse.
 -----------------------------------------------------------------------------------
 Analyzing a pi/2 pulse
 -----------------------------------------------------------------------------------
-Unlike added SX gate in the X gate calibration experiment SX gate calibration
-does not require extra SX Gate in front of the sequence. we simply need to choose 
-the right number of repetitions to always have the ideal population land on 
-the equator of the Bloch sphere. 
+The amplitude of the SX gate is calibrated with the FineSXAmplitude experiment.
+Unlike the FineXAmplitude experiment, the FineSXAmplitude experiment 
+does not require other gates than the SX gate since the number of repetition
+can be chosen such that the ideal population is always on the equator of the 
+Bloch sphere.
+To demonstrate the FineSXAmplitude experiment, we now create a SX pulse by
+dividing the amplitude of the X pulse by two.
+We expect that this pulse might have a small rotation error which we want to correct.
+
 
 .. jupyter-execute::
 
@@ -124,13 +136,13 @@ the equator of the Bloch sphere.
         pulse.play(sx_pulse,d0)
     inst_map.add("sx", (qubit,), sched)
 
-.. jupyter-execute::
-
     # do the expeirment
     amp_cal = FineSXAmplitude(qubit, backend)
     amp_cal.set_transpile_options(inst_map=inst_map)
     exp_data_x90p = amp_cal.run().block_for_results()
     exp_data_x90p.figure(0)
+
+From the analysis result, we can see that there is a small rotation error. 
 
 .. jupyter-execute::
 
@@ -142,8 +154,8 @@ the equator of the Bloch sphere.
     print(f"The ideal angle is {target_angle:.2f} rad. We measured a deviation of {dtheta:.3f} rad.")
     print(f"Thus, scale the {sx_pulse.amp:.4f} pulse amplitude by {scale:.3f} to obtain {sx_pulse.amp*scale:.5f}.")
 
-Let's change the sx_pulse with the scaled sx_pulse expecting it to make a sharp pi/2 rotation.
-(dtheta~0.000)
+Let's change the amplitude of the SX pulse by a factor :math:`\pi/2 / (\pi/2 + d\theta)`
+to turn it into a sharp :math:`\pi/2` rotation.
 
 .. jupyter-execute::
 
@@ -155,11 +167,12 @@ Let's change the sx_pulse with the scaled sx_pulse expecting it to make a sharp 
     inst_map.add("sx", (qubit,), sx_new)
     inst_map.get('sx',(qubit,))
 
-.. jupyter-execute::
-
     # do the experiment
     data_x90p = amp_cal.run().block_for_results()
     data_x90p.figure(0)
+
+You can now see that the correction to the pulse amplitude has allowed us 
+to improve our SX gate as shown by the analysis result below. 
 
 .. jupyter-execute::
 
