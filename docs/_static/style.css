@@ -11,9 +11,13 @@
 }
 
 .sd-card-img-top,
-article.pytorch-article img {
-    height: 40%;
-    width: 40%;
+.sd-card img {
+    height: 20%;
+    width: 20%;
     margin-left: auto;
     margin-right: auto;
+}
+
+.sd-card-header .sd-card-text {
+    font-weight: bold;
 }

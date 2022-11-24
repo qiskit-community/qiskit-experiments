@@ -42,12 +42,13 @@ for the qubit frequency estimation.
 The circuit used for an experiment with :math:`N` echoes comprises the
 following components:
 
-  1.\ :math:`Rx\left(\frac{\pi}{2} \right)` gate   2. :math:`N` times
-Echo sequence :     (a) :math:`Delay \left(t_{0} \right)` gate     (b)
-:math:`Rx \left(\pi \right)` gate     (c)
-:math:`Delay \left(t_{0} \right)` gate   3.
-:math:`Rx \left(\pm \frac{\pi}{2} \right)` gate (sign depends on the
-number of echoes)   4. Measurement gate
+1. :math:`Rx\left(\frac{\pi}{2} \right)` gate
+2. :math:`N` times echo sequence:
+    (a) :math:`Delay \left(t_{0} \right)` gate
+    (b) :math:`Rx \left(\pi \right)` gate
+    (c) :math:`Delay \left(t_{0} \right)` gate
+3. :math:`Rx \left(\pm \frac{\pi}{2} \right)` gate (sign depends on the number of echoes)
+4. Measurement gate
 
 The user provides as input a series of delays in seconds. During the
 delay, we expect the qubit to precess about the z-axis. Because of the
@@ -108,7 +109,7 @@ The resulting graph will have the form:
         print(result)
 
 
-2. Providing initial user estimates
+1. Providing initial user estimates
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The user can provide initial estimates for the parameters to help the

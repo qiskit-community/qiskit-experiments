@@ -22,21 +22,32 @@ Learning from the Ground Up
     learning
     
 Modules
-===============
+=======
 
 .. toctree::
     :maxdepth: 1
 
     single_qubit_cals
     data_processor
+    curve_analysis
+    visualization
 
-Writing a Custom Experiment
-===========================
+Customizing Experiments
+=======================
 
 .. toctree::
     :maxdepth: 1
 
     custom_experiment
+
+.. toctree::
+    :hidden:
+
+    tutorials/index
+    howtos/index
+    guides/index
+    apidocs/index
+    release_notes
 
 .. Hiding - Indices and tables
    :ref:`genindex`

@@ -1,5 +1,5 @@
-Experiment: :math:`T_\varphi` characterization
-==============================================
+Tφ Characterization
+===================
 
 :math:`\Gamma_\varphi` is defined as the rate of pure dephasing or
 depolarization in the :math:`x - y` plane. We compute

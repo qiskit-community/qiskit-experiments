@@ -39,7 +39,10 @@ class ExperimentDocumenter(ClassDocumenter):
         sourcename = self.get_sourcename()
 
         try:
-            class_doc, init_doc = self.get_doc()
+            if self.get_doc() is not None:
+                class_doc, init_doc = self.get_doc()
+            else:
+                return
         except ValueError:
             raise QiskitError(
                 f"Documentation of {self.name} doesn't match with the expected format."

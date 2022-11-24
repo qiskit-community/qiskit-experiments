@@ -17,7 +17,7 @@ which can be run on quantum devices through Qiskit.
 We've divided up the documentation into four sections with different purposes:
 
 .. grid:: 2
-    :gutter: 3
+    :gutter: 5
 
     .. grid-item-card::
         :img-top: _static/tutorials.svg
@@ -25,7 +25,7 @@ We've divided up the documentation into four sections with different purposes:
         Learning Tutorials
         ^^^^^^^^^^^^^^^^^^
 
-        These step-by-step tutorials teach the fundamentals of the packaage and 
+        These step-by-step tutorials teach the fundamentals of the package and 
         are suitable for getting started.
 
         +++
@@ -93,6 +93,14 @@ We've divided up the documentation into four sections with different purposes:
 
             To the API reference
 
+.. toctree::
+    :hidden:
+
+    tutorials/index
+    howtos/index
+    guides/index
+    apidocs/index
+    release_notes
 
 .. Hiding - Indices and tables
    :ref:`genindex`
