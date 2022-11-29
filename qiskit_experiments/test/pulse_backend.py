@@ -434,8 +434,15 @@ class PulseBackend(BackendV2):
                     meas_qubits += [qubits[0]]
                     continue
                 if inst_name == "rz":
+                    # TODO: Fix. Assumes 3 level system.
                     # Ensures that the action in the qubit space is preserved.
-                    unitary = np.diag([np.exp(1.0j * idx * params[0] / 2) for idx in [-1, 1, 3]])
+                    unitary_1q = np.diag([np.exp(1.0j * idx * params[0] / 2) for idx in [-1, 1, 3]])
+                    if qubits[0] == 0:
+                        unitary = np.kron(np.eye(3), unitary_1q)
+                    elif qubits[0] == 1:
+                        unitary = np.kron(unitary_1q, np.eye(3))
+                    else:
+                        raise QiskitError("Rz not implemented for more than 2 qubits")
                 else:
                     unitary = unitaries[(inst_name, qubits, params)]
                 state_t = unitary @ state_t
