@@ -159,7 +159,7 @@ class PulseBackend(BackendV2):
         return self._discriminator
 
     @discriminator.setter
-    def discriminator(self, discriminator: BaseDiscriminator):
+    def discriminator(self, discriminator: List[BaseDiscriminator]):
         """Set the discriminator."""
         self._discriminator = discriminator
 
@@ -321,8 +321,8 @@ class PulseBackend(BackendV2):
                 centers = self._iq_cluster_centers(circuit=circuit)
                 iq_data = np.array(self._iq_data(state, meas_qubits, shots, centers, 0.2))
                 memory_data = [
-                    self._discriminator.predict(iq_data[:, qubit_idx])
-                    for qubit_idx in range(len(meas_qubits))
+                    self._discriminator[qubit_idx].predict(iq_data[:, idx])
+                    for idx, qubit_idx in enumerate(meas_qubits)
                 ]
                 memory_data = ["".join(state_label) for state_label in zip(*memory_data[::-1])]
                 measurement_data = dict(zip(*np.unique(memory_data, return_counts=True)))
@@ -543,6 +543,11 @@ class SingleTransmonTestBackend(PulseBackend):
             evaluation_mode=evaluation_mode,
             **kwargs,
         )
+        self._discriminator = BaseDiscriminator()
+        self._discriminator.predict = lambda data: ["0" if iq[0] > 0.25 else "1" for iq in data]
+        self._discriminator = [
+            self._discriminator,
+        ]
 
         self._defaults = PulseDefaults.from_dict(
             {
@@ -721,6 +726,10 @@ class ParallelTransmonTestBackend(PulseBackend):
             evaluation_mode=evaluation_mode,
             **kwargs,
         )
+
+        self._discriminator = BaseDiscriminator()
+        self._discriminator.predict = lambda data: ["0" if iq[0] > 0.25 else "1" for iq in data]
+        self._discriminator = [self._discriminator, self._discriminator]
 
         self.subsystem_dims = (3, 3)
 
