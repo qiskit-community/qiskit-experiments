@@ -1,6 +1,6 @@
-#########################################
-Run a Single-Qubit Calibration Experiment
-#########################################
+##########################
+The Calibrations Module
+##########################
 
 To produce high fidelity quantum operations, we want to be able to run good gates. The calibration module in qiskit-experiments allows users to run experiments to find the pulse shapes and parameter values that maximizes the fidelity of the resulting quantum operations. Calibrations experiments encapsulates the internal processes and allow experimenters do calibration operations in a quicker way. Without the experiments module, we would need to define pulse schedules and plot the resulting measurement data manually (see also `Qiskit textbook <https://qiskit.org/textbook/ch-quantum-hardware/calibrating-qubits-pulse.html>`_ for calibrating qubits with Qiskit Terra). 
 
@@ -18,18 +18,25 @@ Each experiment usually provides additional information about the system used in
 On our own environment, we may use one of the pulse-enabled real backends for all the experiments like below.
 
 .. jupyter-execute::
+    :hide-code:
+    :hide-output:
 
-	# from qiskit import IBMQ
-	# IBMQ.load_account()
-	# provider = IBMQ.get_provider(hub='ibm-q', group='open', project='main')
-	# backend = provider.get_backend('ibmq_armonk')
+    from qiskit.test.ibmq_mock import mock_get_backend
+    backend = mock_get_backend('FakeLima')
+
+.. jupyter-execute::
+
+	from qiskit import IBMQ
+	IBMQ.load_account()
+	provider = IBMQ.get_provider(hub='ibm-q', group='open', project='main')
+	backend = provider.get_backend('ibmq_lima')
 
 We can verify whether the backend supports Pulse features by checking the backend configuration.
 
 .. jupyter-execute::	
 	
-	# backend_config = backend.configuration()
-	# assert backend_config.open_pulse, "Backend doesn't support Pulse"
+	backend_config = backend.configuration()
+	assert backend_config.open_pulse, "Backend doesn't support Pulse"
 
 On the other hand we can also use a mock backend in case no IBM Quantum Experience credentials found. For this tutorial, we will use mock backends prepared for each experiment.
 
@@ -200,16 +207,16 @@ After saving the values of the parameters we may restart our kernel. If we do so
 A Derivative Removal by Adiabatic Gate (DRAG) pulse is designed to minimize leakage
 to a neighbouring transition. It is a standard pulse with an additional derivative
 component. It is designed to reduce the frequency spectrum of a normal pulse near
-the $|1\rangle$ - $|2\rangle$ transition, reducing the chance of leakage
-to the $|2\rangle$ state. The optimal value of the DRAG parameter is chosen to
+the :math:`|1\rangle - |2\rangle` transition, reducing the chance of leakage
+to the :math:`|2\rangle` state. The optimal value of the DRAG parameter is chosen to
 minimize both leakage and phase errors resulting from the AC Stark shift.
-The pulse envelope is $f(t) = \Omega_x(t) + j \beta \frac{\rm d}{{\rm d }t} \Omega_x(t)$.
-Here, $\Omega_x$ is the envelop of the in-phase component of the pulse and
+The pulse envelope is :math:`f(t) = \Omega_x(t) + j \beta \frac{\rm d}{{\rm d }t} \Omega_x(t)`.
+Here, :math:`\Omega_x` is the envelop of the in-phase component of the pulse and
 $\beta$ is the strength of the quadrature which we refer to as the DRAG
 parameter and seek to calibrate in this experiment. 
 The DRAG calibration will run
-several series of circuits. In a given circuit a Rp(β) - Rm(β) block is repeated
-$N$ times. Here, Rp is a rotation with a positive angle and Rm is the same rotation
+several series of circuits. In a given circuit a :math:`Rp(β) - Rm(β)` block is repeated
+:math:`N` times. Here, Rp is a rotation with a positive angle and Rm is the same rotation
 with a negative amplitude.
 
 We use a mock backend in case no IBM credentials found.
@@ -247,7 +254,7 @@ If we do not set any experiment options using `set_experiment_options()` method,
 	drag_data.figure(0)
 
 ==================
-5. Miscalibrations
+1. Miscalibrations
 ==================
 
 In this section, we will see what if we run a miscalibrated `X` gate - with a false amplitude - on a qubit. After that, we will use the amplitude value we get from the Rabi experiment above to see the difference.
@@ -285,7 +292,7 @@ Then we define a calibration for the `X` gate on qubit 0. For the `amp` paramete
 	circ = transpile(circ, backend)
 	circ.draw(idle_wires=False)
 
-Execute our circuit
+Execute our circuit:
 
 .. jupyter-execute::
 

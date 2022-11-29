@@ -13,6 +13,16 @@ How to...
 
     *
 
+.. toctree::
+    :includehidden:
+
+    tutorials/index
+    howtos/index
+    guides/index
+    apidocs/index
+    release_notes
+
+
 
 
 
