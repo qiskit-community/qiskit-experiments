@@ -79,7 +79,7 @@ class PulseBackend(BackendV2):
 
         Args:
             static_hamiltonian: Time-independent term in the Hamiltonian.
-            hamiltonian_operators: List of time-dependent operators
+            hamiltonian_operators: List of time-dependent operators.
             static_dissipators: Constant dissipation operators. Defaults to None.
             dt: Sample rate for simulating pulse schedules. Defaults to 0.1*1e-9.
             solver_method: Numerical solver method to use. Check qiskit_dynamics for available
@@ -146,7 +146,7 @@ class PulseBackend(BackendV2):
         return None
 
     def defaults(self):
-        """return backend pulse defaults"""
+        """return backend pulse defaults."""
         return self._defaults
 
     # pylint: disable=unused-argument
@@ -154,8 +154,8 @@ class PulseBackend(BackendV2):
         return []
 
     @property
-    def discriminator(self) -> BaseDiscriminator:
-        """Return the discriminator for the IQ data."""
+    def discriminator(self) -> List[BaseDiscriminator]:
+        """Return the discriminators for the IQ data."""
         return self._discriminator
 
     @discriminator.setter
@@ -192,7 +192,7 @@ class PulseBackend(BackendV2):
         Args:
             circuit: The quantum circuit in which the instruction is located. This is needed to
                 access the register in the circuit.
-            instruction: A gate or operation in a QuantumCircuit
+            instruction: A gate or operation in a QuantumCircuit.
 
         Returns:
             Tuple of qubit index, gate parameters and instruction name.
@@ -214,14 +214,14 @@ class PulseBackend(BackendV2):
         """Generates IQ data for each physical level.
 
         Args:
-            state: Quantum state operator
-            shots: Number of shots
-            centers: The central I and Q points for each level
-            width: Width of IQ data distribution
+            state: Quantum state operator.
+            shots: Number of shots.
+            centers: The central I and Q points for each level.
+            width: Width of IQ data distribution.
             phase: Phase of IQ data, by default 0. Defaults to None.
 
         Returns:
-            (I,Q) data as List[shot index][qubit index] = [I,Q]
+            (I,Q) data as List[shot index][qubit index] = [I,Q].
 
         Raises:
             QiskitError: If number of centers and levels don't match.
@@ -351,11 +351,11 @@ class PulseBackend(BackendV2):
         """Solves for qubit dynamics under the action of a pulse instruction
 
         Args:
-            schedule: Pulse signal
-            qubits: (remove after multi-qubit gates is implemented)
+            schedule: Pulse signal.
+            qubits: (remove after multi-qubit gates is implemented).
 
         Returns:
-            Time-evolution unitary operator
+            Time-evolution unitary operator.
         """
         if len(qubits) > 1:
             QiskitError("Multi qubit gates are not yet implemented.")
@@ -386,6 +386,9 @@ class PulseBackend(BackendV2):
 
         Returns:
             FakeJob with simulation data.
+
+        Raises:
+            QiskitError: If unsuported operations are performed.
         """
         self.options.update_options(**run_options)
         shots = self.options.get("shots", self._options.shots)
@@ -434,7 +437,7 @@ class PulseBackend(BackendV2):
                     meas_qubits += [qubits[0]]
                     continue
                 if inst_name == "rz":
-                    # TODO: Fix. Assumes 3 level system.
+                    # TODO: Fix: Assumes 3 level system.
                     # Ensures that the action in the qubit space is preserved.
                     unitary_1q = np.diag([np.exp(1.0j * idx * params[0] / 2) for idx in [-1, 1, 3]])
                     if qubits[0] == 0:
@@ -550,11 +553,8 @@ class SingleTransmonTestBackend(PulseBackend):
             evaluation_mode=evaluation_mode,
             **kwargs,
         )
-        self._discriminator = BaseDiscriminator()
-        self._discriminator.predict = lambda data: ["0" if iq[0] > 0.25 else "1" for iq in data]
-        self._discriminator = [
-            self._discriminator,
-        ]
+
+        self._discriminator = [DefaultDiscriminator()]
 
         self._defaults = PulseDefaults.from_dict(
             {
@@ -653,10 +653,11 @@ class ParallelTransmonTestBackend(PulseBackend):
     The Hamiltonian of the system is
 
     .. math::
-        H = \hbar \sum_{j=1,2} \left[\omega_j |j\rangle\langle j| +
-                \mathcal{E}(t) \lambda_j (\sigma_j^+ + \sigma_j^-)\right]
+        H^i = \hbar \sum_{j=1,2} \left[\omega^i_j |j\rangle\langle j| +
+                \mathcal{E}(t) \lambda^i_j (\sigma_j^+ + \sigma_j^-)\right]
 
-    Here, :math:`\omega_j` is the transition frequency from level :math`0` to level
+        H = H^0 ⊗ I + I ⊗ H^1
+    Here, :math:`\omega^i_j` is the ith transition frequency from level :math`0` to level
     :math:`j`. :math:`\mathcal{E}(t)` is the drive field and :math:`\sigma_j^\pm` are
     the raising and lowering operators between levels :math:`j-1` and :math:`j`.
     """
@@ -734,9 +735,7 @@ class ParallelTransmonTestBackend(PulseBackend):
             **kwargs,
         )
 
-        self._discriminator = BaseDiscriminator()
-        self._discriminator.predict = lambda data: ["0" if iq[0] > 0.25 else "1" for iq in data]
-        self._discriminator = [self._discriminator, self._discriminator]
+        self._discriminator = [DefaultDiscriminator(), DefaultDiscriminator()]
 
         self.subsystem_dims = (3, 3)
 
@@ -833,3 +832,23 @@ class ParallelTransmonTestBackend(PulseBackend):
             )
             for schedule in default_schedules
         }
+
+
+class DefaultDiscriminator(BaseDiscriminator):
+    """Default Discriminator used for ``meas_level=2`` in ``SingleTransmonTestBackend``
+    and ``ParallelTransmonTestBackend``.
+    """
+
+    x_0 = 0.25
+
+    def predict(self, data: List):
+        """The function used to predict the labels of the data."""
+        return ["0" if iq[0] > self.x_0 else "1" for iq in data]
+
+    def config(self) -> Dict[str, Any]:
+        """Return the configuration of the discriminator."""
+        return {"x_0": self.x_0}
+
+    def is_trained(self) -> bool:
+        """Return True if this discriminator has been trained on data."""
+        return True
