@@ -1,5 +1,5 @@
-The Data Processor
-==================
+Data Processor: Wrangling data
+==============================
 
 Data processing is the act of taking the data returned by the backend and
 converting it into a format that can be analyzed.

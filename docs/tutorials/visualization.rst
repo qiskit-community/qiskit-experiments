@@ -1,5 +1,5 @@
 =========================================================
-Visualization
+Visualization: Making figures
 =========================================================
 
 The Visualization module provides plotting functionality for creating figures from experiment and analysis results.

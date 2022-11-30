@@ -1,5 +1,5 @@
 =========================================================
-Curve Analysis
+Curve Analysis: Fitting your data
 =========================================================
 
 .. currentmodule:: qiskit_experiments.curve_analysis
