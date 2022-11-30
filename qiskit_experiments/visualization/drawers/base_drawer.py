@@ -22,6 +22,8 @@ from qiskit_experiments.framework import Options
 from ..style import PlotStyle
 from ..utils import ExtentTuple
 
+SeriesName = Union[str, int, float]
+
 
 class BaseDrawer(ABC):
     """Abstract class for the serializable Qiskit Experiments figure drawer.
@@ -185,16 +187,18 @@ class BaseDrawer(ABC):
                 If not provided, it is automatically scaled based on the input data points.
             ylim (Tuple[float, float]): Min and max value of the vertical axis.
                 If not provided, it is automatically scaled based on the input data points.
-            xval_unit (str): SI unit of x values. No prefix is needed here.
-                For example, when the x values represent time, this option will be just "s"
-                rather than "ms". In the output figure, the prefix is automatically selected
-                based on the maximum value in this axis. If your x values are in [1e-3, 1e-4],
-                they are displayed as [1 ms, 10 ms]. This option is likely provided by the
-                analysis class rather than end-users. However, users can still override
-                if they need different unit notation. By default, this option is set to ``None``,
-                and no scaling is applied. If nothing is provided, the axis numbers will be
-                displayed in the scientific notation.
+            xval_unit (str): Unit of x values. No scaling prefix is needed here as this is controlled by
+                ``xval_unit_scale``.
             yval_unit (str): Unit of y values. See ``xval_unit`` for details.
+            xval_unit_scale (bool): Whether to add an SI unit prefix to ``xval_unit`` if needed.
+                For example, when the x values represent time and ``xval_unit="s"``,
+                ``xval_unit_scale=True`` adds an SI unit prefix to ``"s"`` based on X values of plotted
+                data. In the output figure, the prefix is automatically selected based on the maximum
+                value in this axis. If your x values are in [1e-3, 1e-4], they are displayed as [1 ms, 10
+                ms]. By default, this option is set to ``True``. If ``False`` is provided, the axis
+                numbers will be displayed in the scientific notation.
+            yval_unit_scale (bool): Whether to add an SI unit prefix to ``yval_unit`` if needed. See
+                ``xval_unit_scale`` for details.
             figure_title (str): Title of the figure. Defaults to None, i.e. nothing is shown.
             series_params (Dict[str, Dict[str, Any]]): A dictionary of parameters for each series.
                 This is keyed on the name for each series. Sub-dictionary is expected to have the
@@ -213,6 +217,8 @@ class BaseDrawer(ABC):
             ylim=None,
             xval_unit=None,
             yval_unit=None,
+            xval_unit_scale=True,
+            yval_unit_scale=True,
             figure_title=None,
             series_params={},
             custom_style=PlotStyle(),
@@ -277,7 +283,7 @@ class BaseDrawer(ABC):
     def format_canvas(self):
         """Final cleanup for the canvas appearance."""
 
-    def label_for(self, name: Optional[str], label: Optional[str]) -> Optional[str]:
+    def label_for(self, name: Optional[SeriesName], label: Optional[SeriesName]) -> Optional[str]:
         """Get the legend label for the given series, with optional overrides.
 
         This method determines the legend label for a series, with optional overrides ``label`` and the
@@ -286,7 +292,8 @@ class BaseDrawer(ABC):
         the drawer will look for a ``"label"`` entry in ``series_params`, for the series identified by
         ``name``. If this entry doesn't exist, or is ``None``, then ``name`` is used as the label. If all
         these options are ``None``, then ``None`` is returned; signifying that a legend entry for the
-        provided series should not be generated.
+        provided series should not be generated. Note that :meth:`label_for` will convert ``name`` to
+        :type:`str` when it is returned.
 
         Args:
             name: The name of the series.
@@ -296,10 +303,10 @@ class BaseDrawer(ABC):
             Optional[str]: The legend entry label, or ``None``.
         """
         if label is not None:
-            return label
+            return str(label)
 
-        if name:
-            return self.figure_options.series_params.get(name, {}).get("label", name)
+        if name is not None:
+            return self.figure_options.series_params.get(name, {}).get("label", str(name))
         return None
 
     @abstractmethod
@@ -309,7 +316,7 @@ class BaseDrawer(ABC):
         y_data: Sequence[float],
         x_err: Optional[Sequence[float]] = None,
         y_err: Optional[Sequence[float]] = None,
-        name: Optional[str] = None,
+        name: Optional[SeriesName] = None,
         label: Optional[str] = None,
         legend: bool = False,
         **options,
@@ -336,7 +343,7 @@ class BaseDrawer(ABC):
         self,
         x_data: Sequence[float],
         y_data: Sequence[float],
-        name: Optional[str] = None,
+        name: Optional[SeriesName] = None,
         label: Optional[str] = None,
         legend: bool = False,
         **options,
@@ -362,7 +369,7 @@ class BaseDrawer(ABC):
         x_data: Sequence[float],
         y_ub: Sequence[float],
         y_lb: Sequence[float],
-        name: Optional[str] = None,
+        name: Optional[SeriesName] = None,
         label: Optional[str] = None,
         legend: bool = False,
         **options,
@@ -389,7 +396,7 @@ class BaseDrawer(ABC):
         x_ub: Sequence[float],
         x_lb: Sequence[float],
         y_data: Sequence[float],
-        name: Optional[str] = None,
+        name: Optional[SeriesName] = None,
         label: Optional[str] = None,
         legend: bool = False,
         **options,
@@ -431,7 +438,7 @@ class BaseDrawer(ABC):
         self,
         data: np.ndarray,
         extent: Optional[ExtentTuple] = None,
-        name: Optional[str] = None,
+        name: Optional[SeriesName] = None,
         label: Optional[str] = None,
         cmap: Optional[Union[str, Any]] = None,
         cmap_use_series_colors: bool = False,
