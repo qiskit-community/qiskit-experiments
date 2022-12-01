@@ -187,16 +187,18 @@ class BaseDrawer(ABC):
                 If not provided, it is automatically scaled based on the input data points.
             ylim (Tuple[float, float]): Min and max value of the vertical axis.
                 If not provided, it is automatically scaled based on the input data points.
-            xval_unit (str): SI unit of x values. No prefix is needed here.
-                For example, when the x values represent time, this option will be just "s"
-                rather than "ms". In the output figure, the prefix is automatically selected
-                based on the maximum value in this axis. If your x values are in [1e-3, 1e-4],
-                they are displayed as [1 ms, 10 ms]. This option is likely provided by the
-                analysis class rather than end-users. However, users can still override
-                if they need different unit notation. By default, this option is set to ``None``,
-                and no scaling is applied. If nothing is provided, the axis numbers will be
-                displayed in the scientific notation.
+            xval_unit (str): Unit of x values. No scaling prefix is needed here as this is controlled by
+                ``xval_unit_scale``.
             yval_unit (str): Unit of y values. See ``xval_unit`` for details.
+            xval_unit_scale (bool): Whether to add an SI unit prefix to ``xval_unit`` if needed.
+                For example, when the x values represent time and ``xval_unit="s"``,
+                ``xval_unit_scale=True`` adds an SI unit prefix to ``"s"`` based on X values of plotted
+                data. In the output figure, the prefix is automatically selected based on the maximum
+                value in this axis. If your x values are in [1e-3, 1e-4], they are displayed as [1 ms, 10
+                ms]. By default, this option is set to ``True``. If ``False`` is provided, the axis
+                numbers will be displayed in the scientific notation.
+            yval_unit_scale (bool): Whether to add an SI unit prefix to ``yval_unit`` if needed. See
+                ``xval_unit_scale`` for details.
             figure_title (str): Title of the figure. Defaults to None, i.e. nothing is shown.
             series_params (Dict[str, Dict[str, Any]]): A dictionary of parameters for each series.
                 This is keyed on the name for each series. Sub-dictionary is expected to have the
@@ -215,6 +217,8 @@ class BaseDrawer(ABC):
             ylim=None,
             xval_unit=None,
             yval_unit=None,
+            xval_unit_scale=True,
+            yval_unit_scale=True,
             figure_title=None,
             series_params={},
             custom_style=PlotStyle(),
