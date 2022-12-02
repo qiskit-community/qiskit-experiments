@@ -13,7 +13,7 @@ Each experiment usually provides additional information about the system used in
 	import qiskit.pulse as pulse
 	from qiskit.circuit import Parameter
 
-	from qiskit_experiments.calibration_management import BackendCalibrations
+	from qiskit_experiments.calibration_management import Calibrations
 
 On our own environment, we may use one of the pulse-enabled real backends for all the experiments like below.
 
@@ -44,9 +44,9 @@ To use in the experiments we first need to define template schedule to calibrate
 
 .. jupyter-execute::
 
-	def setup_cals(backend) -> BackendCalibrations:
+	def setup_cals(backend) -> Calibrations:
 		"""A function to instantiate calibrations and add a couple of template schedules."""
-		cals = BackendCalibrations(backend)
+		cals = Calibrations(backend)
 
 		dur = Parameter("dur")
 		amp = Parameter("amp")
@@ -62,7 +62,7 @@ To use in the experiments we first need to define template schedule to calibrate
 		
 		return cals
 
-	def add_parameter_guesses(cals: BackendCalibrations):
+	def add_parameter_guesses(cals: Calibrations):
 		
 		"""Add guesses for the parameter values to the calibrations."""
 		for sched in ["x"]:

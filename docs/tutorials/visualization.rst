@@ -1,6 +1,6 @@
-=========================================================
-Visualization: Making figures
-=========================================================
+===============================
+Visualization: Creating figures
+===============================
 
 The Visualization module provides plotting functionality for creating figures from experiment and analysis results.
 This includes plotter and drawer classes to plot data in :py:class:`CurveAnalysis` and its subclasses.

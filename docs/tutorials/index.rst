@@ -28,7 +28,7 @@ Exploring modules
 .. toctree::
     :maxdepth: 1
 
-    single_qubit_cals
+    calibrations
     data_processor
     curve_analysis
     visualization
