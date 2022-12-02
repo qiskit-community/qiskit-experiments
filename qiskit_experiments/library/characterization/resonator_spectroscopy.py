@@ -41,7 +41,17 @@ class ResonatorSpectroscopy(Spectroscopy):
             c: 1/═╩═
                   0
 
-        where a spectroscopy pulse is attached to the measurement instruction.
+        where a spectroscopy pulse is attached to the measurement instruction. An initial circuit can be
+        added before the measurement by setting the ``initial_circuit`` experiment option. If set, the
+        experiment applies the following circuit:
+
+        .. parsed-literal::
+
+                 ┌─────────────────┐┌─┐
+              q: ┤ initial_circuit ├┤M├
+                 └─────────────────┘└╥┘
+            c: 1/════════════════════╩═
+                                     0
 
         Side note: when doing readout resonator spectroscopy, each measured IQ point has a
         frequency dependent phase. Close to the resonance, the IQ points start rotating around
@@ -88,6 +98,9 @@ class ResonatorSpectroscopy(Spectroscopy):
             sigma (float): The standard deviation of the spectroscopy pulse in seconds.
             width (float): The width of the flat-top part of the GaussianSquare pulse in
                 seconds. Defaults to 0.
+            initial_circuit (QuantumCircuit): A single-qubit initial circuit to run before the
+                measurement/spectroscopy pulse. The circuit must contain only a single qubit and zero
+                classical bits. If None, no circuit is appended before the measurement. Defaults to None.
         """
         options = super()._default_experiment_options()
 
@@ -95,8 +108,25 @@ class ResonatorSpectroscopy(Spectroscopy):
         options.duration = 480e-9
         options.sigma = 60e-9
         options.width = 360e-9
+        options.initial_circuit = None
 
         return options
+
+    def set_experiment_options(self, **fields):
+        # Check that the initial circuit is for a single qubit only.
+        if "initial_circuit" in fields:
+            initial_circuit = fields["initial_circuit"]
+            if (
+                initial_circuit is not None
+                and initial_circuit.num_qubits != 1
+                or initial_circuit.num_clbits != 0
+            ):
+                raise QiskitError(
+                    "Initial circuit must be for exactly one qubit and zero classical bits. Got "
+                    f"{initial_circuit.num_qubits} qubits and {initial_circuit.num_clbits} "
+                    "classical bits instead."
+                )
+        return super().set_experiment_options(**fields)
 
     def __init__(
         self,
@@ -161,6 +191,8 @@ class ResonatorSpectroscopy(Spectroscopy):
     def _template_circuit(self) -> QuantumCircuit:
         """Return the template quantum circuit."""
         circuit = QuantumCircuit(1, 1)
+        if self.experiment_options.initial_circuit is not None:
+            circuit.append(self.experiment_options.initial_circuit, [0])
         circuit.measure(0, 0)
 
         return circuit
