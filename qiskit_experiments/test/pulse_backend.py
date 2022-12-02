@@ -327,16 +327,6 @@ class PulseBackend(BackendV2):
                 memory_data = ["".join(state_label) for state_label in zip(*memory_data[::-1])]
                 measurement_data = dict(zip(*np.unique(memory_data, return_counts=True)))
 
-            collapse_2 = True  # TODO: clean up later.
-            if collapse_2:
-                for key in measurement_data.copy().keys():
-                    if "2" in key:
-                        measurement_data[key.replace("2", "1")] = measurement_data.get(
-                            key.replace("2", "1"), 0
-                        ) + measurement_data.pop(key)
-                        if memory_data is not None:
-                            memory_data[memory_data == key] = key.replace("2", "1")
-
         elif meas_level == MeasLevel.KERNELED:
             centers = self._iq_cluster_centers(circuit=circuit)
             measurement_data = self._iq_data(state, meas_qubits, shots, centers, 0.2)
