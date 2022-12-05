@@ -120,7 +120,7 @@ Analyzing a pi/2 pulse
 -----------------------------------------------------------------------------------
 The amplitude of the SX gate is calibrated with the FineSXAmplitude experiment.
 Unlike the FineXAmplitude experiment, the FineSXAmplitude experiment 
-does not require other gates than the SX gate since the number of repetition
+does not require other gates than the SX gate since the number of repetitions
 can be chosen such that the ideal population is always on the equator of the 
 Bloch sphere.
 To demonstrate the FineSXAmplitude experiment, we now create a SX pulse by
