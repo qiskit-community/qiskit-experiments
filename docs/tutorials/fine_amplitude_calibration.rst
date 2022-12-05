@@ -8,7 +8,7 @@ the same gate a variable number of times. Therefore, if each gate
 has a small error :math:`d\theta` in the rotation angle then 
 a sequence of :math:`n` gates will have a rotation error of :math:`n` * :math:`d\theta`.
 
-We will illustrate how the `FineXAmplitude` experiments works with the `PulseBackend`, 
+We will illustrate how the `FineXAmplitude` experiment works with the `PulseBackend`, 
 i.e., a backend that simulates the underlying pulses with Qiskit Dynamics 
 on a three-level model of a transmon. This simulator backend 
 can be replaced with a standard hardware IBM Quantum backend.
