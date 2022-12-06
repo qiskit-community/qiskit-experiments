@@ -1,6 +1,6 @@
-##############
-How-To Recipes
-##############
+#######
+How-Tos
+#######
 
 This section of the documentation provides concrete recipes for how to do specific
 useful actions in Qiskit Experiments.

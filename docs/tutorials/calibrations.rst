@@ -72,230 +72,225 @@ To use in the experiments we first need to define template schedule to calibrate
 			cals.add_parameter_value(320, "dur", schedule=sched)
 			cals.add_parameter_value(0.5, "amp", schedule=sched)
 
-===================================
-1. Finding qubits with spectroscopy
-===================================
-Typically, the first experiment we do is to search for the qubit frequency,  which is the difference between the ground and excited states. This frequency will be crucial for creating pulses which enact particular quantum operators on the qubit.
+.. ===================================
+.. 1. Finding qubits with spectroscopy
+.. ===================================
+.. Typically, the first experiment we do is to search for the qubit frequency,  which is the difference between the ground and excited states. This frequency will be crucial for creating pulses which enact particular quantum operators on the qubit.
 
-We start with a mock backend.
+.. We start with a mock backend.
 
-.. jupyter-execute::
+.. We then setup calibrations for the backend.
 
-	from qiskit_experiments.test.test_qubit_spectroscopy import SpectroscopyBackend
-	spec_backend = SpectroscopyBackend()
+.. .. jupyter-execute::
 
-We then setup calibrations for the backend.
+.. 	cals = setup_cals(spec_backend) # Block until our job and its post processing finish.
+.. 	add_parameter_guesses(cals)
 
-.. jupyter-execute::
+.. We define the qubit we will work with and prepare the experiment using `RoughFrequencyCal`.
 
-	cals = setup_cals(spec_backend) # Block until our job and its post processing finish.
-	add_parameter_guesses(cals)
+.. .. jupyter-execute::
 
-We define the qubit we will work with and prepare the experiment using `RoughFrequencyCal`.
+.. 	from qiskit_experiments.library.calibration.rough_frequency import RoughFrequencyCal
 
-.. jupyter-execute::
+.. 	qubit = 0
+.. 	freq01_estimate = spec_backend.defaults().qubit_freq_est[qubit]
+.. 	frequencies = np.linspace(freq01_estimate -15e6, freq01_estimate + 15e6, 51)
+.. 	spec = RoughFrequencyCal(qubit, cals, frequencies, backend=spec_backend)
 
-	from qiskit_experiments.library.calibration.rough_frequency import RoughFrequencyCal
+.. .. jupyter-execute::
 
-	qubit = 0
-	freq01_estimate = spec_backend.defaults().qubit_freq_est[qubit]
-	frequencies = np.linspace(freq01_estimate -15e6, freq01_estimate + 15e6, 51)
-	spec = RoughFrequencyCal(qubit, cals, frequencies, backend=spec_backend)
+.. 	circuit = spec.circuits()[0]
+.. 	circuit.draw()
 
-.. jupyter-execute::
+.. We run the experiment. After the experiment completes the value of the amplitudes in the calibrations will automatically be updated. This behaviour can be controlled using the `auto_update` argument given to the calibration experiment at initialization.
 
-	circuit = spec.circuits()[0]
-	circuit.draw()
+.. .. jupyter-execute::
 
-We run the experiment. After the experiment completes the value of the amplitudes in the calibrations will automatically be updated. This behaviour can be controlled using the `auto_update` argument given to the calibration experiment at initialization.
+.. 	spec_data = spec.run().block_for_results() 
+.. 	spec_data.figure(0)
 
-.. jupyter-execute::
+.. We can see the analysis results
 
-	spec_data = spec.run().block_for_results() 
-	spec_data.figure(0)
+.. .. jupyter-execute::
 
-We can see the analysis results
+.. 	print(spec_data.analysis_results("f01"))
 
-.. jupyter-execute::
+.. ========================================================
+.. 1. Calibrating the pulse amplitudes with Rabi experiment
+.. ========================================================
+.. We are going to run a sample Rabi experiment to calibrate rotations between the ground-state \|0\⟩ and the excited state \|1\⟩. We can think of this as a rotation by π radians around the x-axis of the Bloch sphere. Our goal is to seek the amplitude of the pulse needed to achieve this rotation.
 
-	print(spec_data.analysis_results("f01"))
+.. First we define the mock backend.
 
-========================================================
-2. Calibrating the pulse amplitudes with Rabi experiment
-========================================================
-We are going to run a sample Rabi experiment to calibrate rotations between the ground-state \|0\⟩ and the excited state \|1\⟩. We can think of this as a rotation by π radians around the x-axis of the Bloch sphere. Our goal is to seek the amplitude of the pulse needed to achieve this rotation.
+.. .. jupyter-execute::
 
-First we define the mock backend.
+.. 	from qiskit_experiments.test.mock_iq_backend import RabiBackend
+.. 	rabi_backend = RabiBackend()
 
-.. jupyter-execute::
+.. We then setup calibrations for the backend.
 
-	from qiskit_experiments.test.mock_iq_backend import RabiBackend
-	rabi_backend = RabiBackend()
+.. .. jupyter-execute::
 
-We then setup calibrations for the backend.
+.. 	cals = setup_cals(rabi_backend)
+.. 	add_parameter_guesses(cals)
 
-.. jupyter-execute::
+.. We create a new Rabi experiment instance by providing the qubit index to be calibrated. In the Rabi experiment we apply a pulse at the frequency of the qubit and scan its amplitude to find the amplitude that creates a rotation of a desired angle.
 
-	cals = setup_cals(rabi_backend)
-	add_parameter_guesses(cals)
+.. We do this with the calibration experiment `RoughAmplitudeCal`. This is a calibration version of the Rabi experiment that will update the calibrations for the X pulse automatically.
 
-We create a new Rabi experiment instance by providing the qubit index to be calibrated. In the Rabi experiment we apply a pulse at the frequency of the qubit and scan its amplitude to find the amplitude that creates a rotation of a desired angle.
+.. If we do not set any experiment options using `set_experiment_options()` method, experiment will use the default values. Default values can be seen `here <https://qiskit.org/documentation/experiments/stubs/qiskit_experiments.library.calibration.Rabi.html#qiskit_experiments.library.calibration.Rabi>`__ under `Experiment Options`.
 
-We do this with the calibration experiment `RoughAmplitudeCal`. This is a calibration version of the Rabi experiment that will update the calibrations for the X pulse automatically.
+.. .. jupyter-execute::
 
-If we do not set any experiment options using `set_experiment_options()` method, experiment will use the default values. Default values can be seen `here <https://qiskit.org/documentation/experiments/stubs/qiskit_experiments.library.calibration.Rabi.html#qiskit_experiments.library.calibration.Rabi>`__ under `Experiment Options`.
+.. 	from qiskit_experiments.library.calibration import RoughAmplitudeCal
 
-.. jupyter-execute::
+.. 	qubit = 0
 
-	from qiskit_experiments.library.calibration import RoughAmplitudeCal
+.. 	rabi = RoughAmplitudeCal(qubit, cals)
 
-	qubit = 0
+.. The rough amplitude calibration is therefore a Rabi experiment in which each circuit contains a pulse with a gate. Different circuits correspond to pulses with different amplitudes.
 
-	rabi = RoughAmplitudeCal(qubit, cals)
+.. .. jupyter-execute::
 
-The rough amplitude calibration is therefore a Rabi experiment in which each circuit contains a pulse with a gate. Different circuits correspond to pulses with different amplitudes.
+.. 	rabi.circuits()[0].draw()
 
-.. jupyter-execute::
+.. After the experiment completes the value of the amplitudes in the calibrations will automatically be updated. This behaviour can be controlled using the `auto_update` argument given to the calibration experiment at initialization.
 
-	rabi.circuits()[0].draw()
-
-After the experiment completes the value of the amplitudes in the calibrations will automatically be updated. This behaviour can be controlled using the `auto_update` argument given to the calibration experiment at initialization.
-
-.. jupyter-execute::
+.. .. jupyter-execute::
 	
-	rabi_data = rabi.run(rabi_backend)
-	rabi_data.block_for_results() # Block until our job and its post processing finish.
-	print(rabi_data)
+.. 	rabi_data = rabi.run(rabi_backend)
+.. 	rabi_data.block_for_results() # Block until our job and its post processing finish.
+.. 	print(rabi_data)
 
-.. jupyter-execute::
+.. .. jupyter-execute::
 
-	rabi_data.figure(0)
+.. 	rabi_data.figure(0)
 
-In the analysis results, ``rabi_rate`` is the unit of frequency which our qubit completes a full cycle by 2π radians around the x-axis of the Bloch sphere. Using this information we calculate one period. However our goal was to seek the amplitude of the pulse needed to achieve a rotation by π radians which will take our qubit from ground-state \|0\⟩ to the excited state \|1\⟩. So we need to divide it by 2.
+.. In the analysis results, ``rabi_rate`` is the unit of frequency which our qubit completes a full cycle by 2π radians around the x-axis of the Bloch sphere. Using this information we calculate one period. However our goal was to seek the amplitude of the pulse needed to achieve a rotation by π radians which will take our qubit from ground-state \|0\⟩ to the excited state \|1\⟩. So we need to divide it by 2.
 
-.. jupyter-execute::
+.. .. jupyter-execute::
 	
-	pi_pulse_amplitude = (1/rabi_data.analysis_results("rabi_rate").value.value) / 2
-	print(pi_pulse_amplitude)
+.. 	pi_pulse_amplitude = (1/rabi_data.analysis_results("rabi_rate").value.value) / 2
+.. 	print(pi_pulse_amplitude)
 
-==================================
-3. Saving and loading calibrations
-==================================
+.. ==================================
+.. 3. Saving and loading calibrations
+.. ==================================
 
-The values of the calibrated parameters can be saved to a .csv file and reloaded at a later point in time.
+.. The values of the calibrated parameters can be saved to a .csv file and reloaded at a later point in time.
 
-.. code-block:: python
+.. .. code-block:: python
 
-	cals.save(file_type="csv", overwrite=True, file_prefix="RabiBackend")
+.. 	cals.save(file_type="csv", overwrite=True, file_prefix="RabiBackend")
 
-After saving the values of the parameters we may restart our kernel. If we do so, we will only need to run the following cell to recover the state of the calibrations. Since the schedules are currently not stored we need to call our `setup_cals` function to populate an instance of `Calibrations` with the template schedules. By contrast, the value of the parameters will be recovered from the file.
+.. After saving the values of the parameters we may restart our kernel. If we do so, we will only need to run the following cell to recover the state of the calibrations. Since the schedules are currently not stored we need to call our `setup_cals` function to populate an instance of `Calibrations` with the template schedules. By contrast, the value of the parameters will be recovered from the file.
 
-.. code-block:: python
+.. .. code-block:: python
 
-	from qiskit_experiments.test.mock_iq_backend import RabiBackend
-	rabi_backend = RabiBackend()
-	cals = BackendCalibrations(rabi_backend)
-	cals.load_parameter_values(file_name="RabiBackendparameter_values.csv")
+.. 	from qiskit_experiments.test.mock_iq_backend import RabiBackend
+.. 	rabi_backend = RabiBackend()
+.. 	cals = BackendCalibrations(rabi_backend)
+.. 	cals.load_parameter_values(file_name="RabiBackendparameter_values.csv")
 
-=======================================================
-4. Using the Calibrated Amplitude in Another Experiment
-=======================================================
-------------------------------------------------------
-4.1. Calibrating the value of the DRAG coefficient
-------------------------------------------------------
+.. =======================================================
+.. 4. Using the Calibrated Amplitude in Another Experiment
+.. =======================================================
+.. ------------------------------------------------------
+.. 4.1. Calibrating the value of the DRAG coefficient
+.. ------------------------------------------------------
 
-A Derivative Removal by Adiabatic Gate (DRAG) pulse is designed to minimize leakage
-to a neighbouring transition. It is a standard pulse with an additional derivative
-component. It is designed to reduce the frequency spectrum of a normal pulse near
-the :math:`|1\rangle - |2\rangle` transition, reducing the chance of leakage
-to the :math:`|2\rangle` state. The optimal value of the DRAG parameter is chosen to
-minimize both leakage and phase errors resulting from the AC Stark shift.
-The pulse envelope is :math:`f(t) = \Omega_x(t) + j \beta \frac{\rm d}{{\rm d }t} \Omega_x(t)`.
-Here, :math:`\Omega_x` is the envelop of the in-phase component of the pulse and
-$\beta$ is the strength of the quadrature which we refer to as the DRAG
-parameter and seek to calibrate in this experiment. 
-The DRAG calibration will run
-several series of circuits. In a given circuit a :math:`Rp(β) - Rm(β)` block is repeated
-:math:`N` times. Here, Rp is a rotation with a positive angle and Rm is the same rotation
-with a negative amplitude.
+.. A Derivative Removal by Adiabatic Gate (DRAG) pulse is designed to minimize leakage
+.. to a neighbouring transition. It is a standard pulse with an additional derivative
+.. component. It is designed to reduce the frequency spectrum of a normal pulse near
+.. the :math:`|1\rangle - |2\rangle` transition, reducing the chance of leakage
+.. to the :math:`|2\rangle` state. The optimal value of the DRAG parameter is chosen to
+.. minimize both leakage and phase errors resulting from the AC Stark shift.
+.. The pulse envelope is :math:`f(t) = \Omega_x(t) + j \beta \frac{\rm d}{{\rm d }t} \Omega_x(t)`.
+.. Here, :math:`\Omega_x` is the envelop of the in-phase component of the pulse and
+.. $\beta$ is the strength of the quadrature which we refer to as the DRAG
+.. parameter and seek to calibrate in this experiment. 
+.. The DRAG calibration will run
+.. several series of circuits. In a given circuit a :math:`Rp(β) - Rm(β)` block is repeated
+.. :math:`N` times. Here, Rp is a rotation with a positive angle and Rm is the same rotation
+.. with a negative amplitude.
 
-We use a mock backend in case no IBM credentials found.
+.. We use a mock backend in case no IBM credentials found.
 
-.. jupyter-execute::
+.. .. jupyter-execute::
 
-	from qiskit_experiments.test.mock_iq_backend import DragBackend
-	drag_backend = DragBackend(gate_name="Drag(x)")
+.. 	from qiskit_experiments.test.mock_iq_backend import DragBackend
+.. 	drag_backend = DragBackend(gate_name="Drag(x)")
 
-We define the template schedule for `x` pulse using previous methods.
+.. We define the template schedule for `x` pulse using previous methods.
 
-Note that, if we run the experiments on real backends, we wouldn't need to define template schedules again.
+.. Note that, if we run the experiments on real backends, we wouldn't need to define template schedules again.
 
-.. jupyter-execute::
+.. .. jupyter-execute::
 
-	cals = setup_cals(drag_backend)
-	add_parameter_guesses(cals)
+.. 	cals = setup_cals(drag_backend)
+.. 	add_parameter_guesses(cals)
 
-We create a calibration version of Drag experiment instance by providing the qubit index to be calibrated. We use the calibration version of Drag experiment `RoughDragCal`. This is a calibration version of the Rabi experiment that will update the calibrations for the X pulse automatically.
+.. We create a calibration version of Drag experiment instance by providing the qubit index to be calibrated. We use the calibration version of Drag experiment `RoughDragCal`. This is a calibration version of the Rabi experiment that will update the calibrations for the X pulse automatically.
 
-If we do not set any experiment options using `set_experiment_options()` method, experiment will use the default values. Default values can be seen `here <https://qiskit.org/documentation/experiments/stubs/qiskit_experiments.library.calibration.DragCal.html#qiskit_experiments.library.calibration.DragCal>`__ under `Experiment Options`.
+.. If we do not set any experiment options using `set_experiment_options()` method, experiment will use the default values. Default values can be seen `here <https://qiskit.org/documentation/experiments/stubs/qiskit_experiments.library.calibration.DragCal.html#qiskit_experiments.library.calibration.DragCal>`__ under `Experiment Options`.
 
-.. jupyter-execute::
+.. .. jupyter-execute::
 
-	from qiskit_experiments.library import RoughDragCal
-	drag = RoughDragCal(qubit, cals)
+.. 	from qiskit_experiments.library import RoughDragCal
+.. 	drag = RoughDragCal(qubit, cals)
 
-.. jupyter-execute::
+.. .. jupyter-execute::
 
-	drag_data = drag.run(drag_backend)
-	drag_data.block_for_results()
+.. 	drag_data = drag.run(drag_backend)
+.. 	drag_data.block_for_results()
 
-.. jupyter-execute::
+.. .. jupyter-execute::
 
-	drag_data.figure(0)
+.. 	drag_data.figure(0)
 
-==================
-1. Miscalibrations
-==================
+.. ==================
+.. 1. Miscalibrations
+.. ==================
 
-In this section, we will see what if we run a miscalibrated `X` gate - with a false amplitude - on a qubit. After that, we will use the amplitude value we get from the Rabi experiment above to see the difference.
+.. In this section, we will see what if we run a miscalibrated `X` gate - with a false amplitude - on a qubit. After that, we will use the amplitude value we get from the Rabi experiment above to see the difference.
 
-Note that, the following lines are for demonstration purposes and should be run on a real backend to see the actual difference.
+.. Note that, the following lines are for demonstration purposes and should be run on a real backend to see the actual difference.
 
-We first define a simple circuit that contains an X gate and measurement.
+.. We first define a simple circuit that contains an X gate and measurement.
 
-.. jupyter-execute::
+.. .. jupyter-execute::
 	
-	from qiskit import QuantumCircuit
+.. 	from qiskit import QuantumCircuit
 
-	circ = QuantumCircuit(1, 1)
-	circ.x(0)
-	circ.measure(0, 0)
-	circ.draw()
+.. 	circ = QuantumCircuit(1, 1)
+.. 	circ.x(0)
+.. 	circ.measure(0, 0)
+.. 	circ.draw()
 
-Then we define a calibration for the `X` gate on qubit 0. For the `amp` parameter we use a default wrong value.
+.. Then we define a calibration for the `X` gate on qubit 0. For the `amp` parameter we use a default wrong value.
 
-.. jupyter-execute::
+.. .. jupyter-execute::
 
-	from qiskit import pulse, transpile
-	from qiskit.test.mock import FakeArmonk
-	from qiskit.pulse.library import Constant
-	backend = FakeArmonk()
+.. 	from qiskit import pulse, transpile
+.. 	from qiskit.test.mock import FakeArmonk
+.. 	from qiskit.pulse.library import Constant
+.. 	backend = FakeArmonk()
 
-	# build a simple circuit that only contain one x gate and measurement
-	circ = QuantumCircuit(1, 1)
-	circ.x(0)
-	circ.measure(0, 0)
-	with pulse.build(backend) as my_schedule:
-		pulse.play(Constant(duration=10, amp=0.1), pulse.drive_channel(0)) # build the constant pulse
+.. 	# build a simple circuit that only contain one x gate and measurement
+.. 	circ = QuantumCircuit(1, 1)
+.. 	circ.x(0)
+.. 	circ.measure(0, 0)
+.. 	with pulse.build(backend) as my_schedule:
+.. 		pulse.play(Constant(duration=10, amp=0.1), pulse.drive_channel(0)) # build the constant pulse
 
-	circ.add_calibration('x', [0], my_schedule) # map x gate in qubit 0 to my_schedule
-	circ = transpile(circ, backend)
-	circ.draw(idle_wires=False)
+.. 	circ.add_calibration('x', [0], my_schedule) # map x gate in qubit 0 to my_schedule
+.. 	circ = transpile(circ, backend)
+.. 	circ.draw(idle_wires=False)
 
-Execute our circuit:
+.. Execute our circuit:
 
-.. jupyter-execute::
+.. .. jupyter-execute::
 
-	result = backend.run(transpile(circ, backend), shots=1000).result()
-	counts  = result.get_counts(circ)
-	print(counts)
+.. 	result = backend.run(transpile(circ, backend), shots=1000).result()
+.. 	counts  = result.get_counts(circ)
+.. 	print(counts)

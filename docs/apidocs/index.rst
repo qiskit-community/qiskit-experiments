@@ -1,8 +1,8 @@
 .. _qiskit-experiments:
 
-================================
-Qiskit Experiments API Reference
-================================
+=============
+API Reference
+=============
 
 Package Modules
 ===============

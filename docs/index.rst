@@ -20,10 +20,10 @@ We've divided up the documentation into four sections with different purposes:
     :gutter: 5
 
     .. grid-item-card::
-        :img-top: _static/tutorials.svg
+        :img-top: _static/tutorials.png
 
-        Learning Tutorials
-        ^^^^^^^^^^^^^^^^^^
+        Tutorials
+        ^^^^^^^^^
 
         These step-by-step tutorials teach the fundamentals of the package and 
         are suitable for getting started.
@@ -44,12 +44,12 @@ We've divided up the documentation into four sections with different purposes:
             To the learning tutorials
 
     .. grid-item-card::
-        :img-top: _static/howtos.svg
+        :img-top: _static/howtos.png
 
-        How-To Recipes
-        ^^^^^^^^^^^^^^
+        How-Tos
+        ^^^^^^^
 
-        These individual recipes provide short and direct solutions to some commonly
+        These individual how-to recipes provide short and direct solutions to some commonly
         asked questions for Qiskit Experiments users.
 
         You'll find in these recipes:
@@ -67,7 +67,7 @@ We've divided up the documentation into four sections with different purposes:
             To the how-to recipes
 
     .. grid-item-card::
-        :img-top: _static/guides.svg
+        :img-top: _static/guides.png
 
         Experiment Guides
         ^^^^^^^^^^^^^^^^^
@@ -90,7 +90,7 @@ We've divided up the documentation into four sections with different purposes:
 
 
     .. grid-item-card::
-        :img-top: _static/api.svg
+        :img-top: _static/api.png
 
         API Reference
         ^^^^^^^^^^^^^
