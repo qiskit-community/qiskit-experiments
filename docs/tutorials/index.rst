@@ -41,15 +41,6 @@ Write your own experiment
 
     custom_experiment
 
-.. toctree::
-    :hidden:
-
-    tutorials/index
-    howtos/index
-    guides/index
-    apidocs/index
-    release_notes
-
 .. Hiding - Indices and tables
    :ref:`genindex`
    :ref:`modindex`

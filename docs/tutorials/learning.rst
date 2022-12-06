@@ -121,6 +121,8 @@ creating a parallel experiment:
 
 .. jupyter-execute::
 
+    from qiskit_experiments.framework import ParallelExperiment
+
     # Create a parallel T1 experiment
     parallel_exp = ParallelExperiment([T1(qubit=i, delays=delays) for i in range(2)])
     parallel_exp.set_transpile_options(scheduling_method='asap')
