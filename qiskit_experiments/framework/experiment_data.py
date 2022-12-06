@@ -1981,17 +1981,19 @@ class ExperimentData:
             self.add_child_data(data)
         self._db_data.metadata["child_data_ids"] = self._child_data.keys()
 
-    def _set_service(self, service: IBMExperimentService) -> None:
+    def _set_service(self, service: IBMExperimentService, replace: bool = None) -> None:
         """Set the service to be used for storing experiment data,
            to this experiment itself and its descendants.
 
         Args:
             service: Service to be used.
+            replace: Should an existing service be replaced?
+            If not, and a current service exists, exception is raised
 
         Raises:
-            ExperimentDataError: If an experiment service is already being used.
+            ExperimentDataError: If an experiment service is already being used and `replace==False`.
         """
-        if self._service:
+        if self._service and not replace:
             raise ExperimentDataError("An experiment service is already being used.")
         self._service = service
         for result in self._analysis_results.values():
