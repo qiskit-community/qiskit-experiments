@@ -16,6 +16,8 @@ This file is a stand-alone script for generating the npz files in
 The script relies on the values of ``_CLIFF_SINGLE_GATE_MAP_2Q``
 in :mod:`~qiskit_experiment.library.randomized_benchmarking.clifford_utils`
 so they must be set correctly before running the script.
+
+Note: Terra >= 0.22 is required to run this script.
 """
 import itertools
 
@@ -51,10 +53,7 @@ def _hash_cliff(cliff):
     """Produce a hashable value that is unique for each different Clifford.  This should only be
     used internally when the classes being hashed are under our control, because classes of this
     type are mutable."""
-    table = cliff.table
-    abits = np.packbits(table.array)
-    pbits = np.packbits(table.phase)
-    return abits.tobytes(), pbits.tobytes()
+    return np.packbits(cliff.tableau).tobytes()
 
 
 _TO_CLIFF_1Q = {i: CliffordUtils.clifford_1_qubit(i) for i in range(NUM_CLIFFORD_1Q)}
