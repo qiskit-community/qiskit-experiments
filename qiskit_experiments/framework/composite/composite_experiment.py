@@ -17,6 +17,7 @@ from typing import List, Sequence, Optional, Union
 from abc import abstractmethod
 import warnings
 from qiskit.providers.backend import Backend
+from qiskit_experiments.exceptions import QiskitError
 from qiskit_experiments.framework import BaseExperiment
 from qiskit_experiments.framework.base_analysis import BaseAnalysis
 from .composite_analysis import CompositeAnalysis
@@ -149,6 +150,9 @@ class CompositeExperiment(BaseExperiment):
         # measurements this method should be updated to validate that all
         # sub-experiments have the same meas level and meas return types,
         # and update the composite experiment run option to that value.
+        #
+        # In addition, we raise an error if we detect inconsistencies in
+        # the usage of BatchExperiment separate_job experiment option.
 
         for i, subexp in enumerate(self._experiments):
             # Validate set and default run options in component experiment
@@ -174,6 +178,14 @@ class CompositeExperiment(BaseExperiment):
                 # Update sub-experiment options with actual run option values so
                 # they can be used by that sub experiments _finalize method.
                 subexp.set_run_options(**dict(zip(overridden_keys, comp_vals)))
+
+            if not self.experiment_options.get(
+                "separate_jobs", False
+            ) and subexp.experiment_options.get("separate_jobs", False):
+                raise QiskitError(
+                    "It is not allowed to equest to separate jobs in a child experiment,"
+                    " if its parent does not separate jobs as well"
+                )
 
             # Call sub-experiments finalize method
             subexp._finalize()

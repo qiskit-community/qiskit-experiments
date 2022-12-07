@@ -1,0 +1,4 @@
+---
+features:
+  - |
+    A new experiment option for batch experiments, called `separate_jobs`. If set to `True`, then circuits of different sub-experiments are routed to different jobs. Default value is `False`.

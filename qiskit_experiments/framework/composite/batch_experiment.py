@@ -17,7 +17,7 @@ from typing import List, Optional
 from collections import OrderedDict
 
 from qiskit import QuantumCircuit
-from qiskit.providers.backend import Backend
+from qiskit.providers import Job, Backend, Options
 
 from .composite_experiment import CompositeExperiment, BaseExperiment
 from .composite_analysis import CompositeAnalysis
@@ -127,3 +127,69 @@ class BatchExperiment(CompositeExperiment):
         new_circuit.metadata = circuit.metadata
         new_circuit.append(circuit, qubit_mapping, list(range(num_clbits)))
         return new_circuit
+
+    def _run_jobs(self, circuits: List[QuantumCircuit], **run_options) -> List[Job]:
+        if len(circuits) == 0:
+            return []
+
+        if self.experiment_options.separate_jobs:
+            try:
+                is_first_time = False
+                # The local metadata is a truncation of the original composite metadata,
+                # such that the current experiment (self) is at the head of the metadata.
+                # In the root experiment (at the beginning of the reucrsion) none of the circuits
+                # contains the local_metadata attribute; after the first iteration they all do.
+                if not hasattr(circuits[0], "local_metadata"):
+                    is_first_time = True
+                    for circ in circuits:
+                        circ.local_metadata = circ.metadata
+
+                # A dictionary that maps sub-experiments to their circuits
+                circs_by_subexps = {}
+                for circ in circuits:
+                    # For batch experiments the composite index is always a list of length 1,
+                    # because unlike parallel experiment, each circuit originates from a single
+                    # sub-experiment.
+                    circ_index = circ.local_metadata["composite_index"][0]
+                    if circ_index in circs_by_subexps:
+                        circs_by_subexps[circ_index].append(circ)
+                    else:
+                        circs_by_subexps[circ_index] = [circ]
+
+                    # For batch experiments the composite metadata is always a list of length 1,
+                    # because unlike parallel experiment, each circuit originates from a single
+                    # sub-experiment.
+                    circ.local_metadata = circ.local_metadata["composite_metadata"][0]
+
+                jobs = []
+                for index, exp in enumerate(self.component_experiment()):
+                    # Currently all the sub-experiments must use the same set of run options,
+                    # even if they run in different jobs
+                    jobs.extend(exp._run_jobs(circs_by_subexps[index], **run_options))
+            finally:
+                # The following lines are in fact redundant.
+                # When we enter _run_jobs for the root experimet, it normally happens
+                # with a fresh set of circuits, obtained from a recent call to circuits().
+                # These circuits don't have a local_metadata attribute.
+                # And, even if, for some reason, they did, it is overridden anyway at the
+                # beginning of the first iteration.
+                # However it is not aesthetic to terminate the _run_jobs method with dirty
+                # circuits, containing an attribute which is internal to this method.
+                if is_first_time:
+                    for circ in circuits:
+                        del circ.local_metadata
+        else:
+            jobs = super()._run_jobs(circuits, **run_options)
+
+        return jobs
+
+    @classmethod
+    def _default_experiment_options(cls) -> Options:
+        """Default experiment options.
+
+        Experiment Options:
+            separate_jobs (Boolean): Whether to route different sub-experiments to different jobs.
+        """
+        options = super()._default_experiment_options()
+        options.separate_jobs = False
+        return options
