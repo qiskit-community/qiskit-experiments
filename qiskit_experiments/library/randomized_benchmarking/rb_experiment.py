@@ -222,39 +222,29 @@ class StandardRB(BaseExperiment, RestlessMixin):
                     basis_gates = self.backend.configuration().basis_gates
             return tuple(sorted(basis_gates)) if basis_gates else None
 
+        def is_bidirectional(coupling_map):
+            return len(coupling_map.reduce(self.physical_qubits).get_edges()) == 2
+
         # 2 qubits case: Return all basis gates except for one-way directed 2q-gates.
-        # Return None if there is no bi-directed 2q-gates in basis gates.
+        # Return None if there is no bidirectional 2q-gates in basis gates.
         if self.num_qubits == 2:
-            basis_gates = self.transpile_options.get("basis_gates", None)
+            basis_gates = self.transpile_options.get("basis_gates", [])
             if not basis_gates and self.backend:
                 if isinstance(self.backend, BackendV2) and self.backend.target:
-                    # prepare to collect one-way directed 2q-gates
-                    supported_2q_instructions = defaultdict(list)  # key: op_name, value: qargs list
-                    for op_name, qargs_dic in self.backend.target.items():
-                        for qargs in qargs_dic:
-                            if self.backend.target.operation_from_name(op_name).num_qubits != 2:
+                    has_bidirectional_2q_gates = False
+                    for op_name in self.backend.target:
+                        if self.backend.target.operation_from_name(op_name).num_qubits == 2:
+                            if is_bidirectional(self.backend.target.build_coupling_map(op_name)):
+                                has_bidirectional_2q_gates = True
+                            else:
                                 continue
-                            if qargs is None:  # the 2q-gate is not available on the qargs
-                                supported_2q_instructions[op_name] = []
-                            elif set(qargs).issubset(self.physical_qubits):
-                                reduced_qargs = tuple(self.physical_qubits.index(q) for q in qargs)
-                                supported_2q_instructions[op_name].append(reduced_qargs)
-                    # collect one-way directed 2q-gates
-                    directed_basis_2q_gates = set()  # one-way directed 2q-gates
-                    for op_name, qargs_list in supported_2q_instructions.items():
-                        if len(qargs_list) == 1:
-                            directed_basis_2q_gates.add(op_name)
-                    if len(directed_basis_2q_gates) == len(supported_2q_instructions):
-                        return None  # supported 2q-gates are all directed
-                    # all basis gates except for one-way directed 2q-gates
-                    basis_gates = set(self.backend.operation_names) - directed_basis_2q_gates
+                        basis_gates.append(op_name)
+                    if not has_bidirectional_2q_gates:
+                        basis_gates = None
                 elif isinstance(self.backend, BackendV1):
-                    coupling_map = self.backend.configuration().coupling_map
-                    if coupling_map:
-                        coupling = CouplingMap(coupling_map).reduce(self.physical_qubits)
-                        if len(coupling.get_edges()) == 1:
-                            return None  # supported 2q-gates are all directed
-                    basis_gates = self.backend.configuration().basis_gates
+                    cmap = self.backend.configuration().coupling_map
+                    if cmap is None or is_bidirectional(CouplingMap(cmap)):
+                        basis_gates = self.backend.configuration().basis_gates
             return tuple(sorted(basis_gates)) if basis_gates else None
 
         return None
