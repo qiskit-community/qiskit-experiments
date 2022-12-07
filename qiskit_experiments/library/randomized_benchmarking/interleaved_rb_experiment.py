@@ -70,10 +70,10 @@ class InterleavedRB(StandardRB):
                     If the element contains any non-basis gates,
                     it will be transpiled with ``transpiled_options`` of this experiment.
                     If it is/contains a delay, its duration and unit must comply with
-                    the timing constraints of the ``backend``.
-                    (:class:``~qiskit_experiments.framework.backend_timing.BackendTiming`
-                    is useful to obtain valid delays.)
-                    Parameterized circuit/instruction is not allowed.
+                    the timing constraints of the ``backend``
+                    (:class:`~qiskit_experiments.framework.backend_timing.BackendTiming`
+                    is useful to obtain valid delays).
+                    Parameterized circuits/instructions are not allowed.
             qubits: list of physical qubits for the experiment.
             lengths: A list of RB sequences lengths.
             backend: The backend to run the experiment on.
@@ -87,7 +87,7 @@ class InterleavedRB(StandardRB):
                            Clifford samples to shorter sequences.
 
         Raises:
-            QiskitError: if the interleaved_element is invalid:
+            QiskitError: If the ``interleaved_element`` is invalid because:
                 * it has different number of qubits from the qubits argument
                 * it is not convertible to Clifford object
                 * it has an invalid delay (e.g. violating the timing constraints of the backend)
@@ -158,7 +158,8 @@ class InterleavedRB(StandardRB):
             A list of :class:`QuantumCircuit`.
 
         Raises:
-            QiskitError: if failed to transpile interleaved_element.
+            QiskitError: If the ``interleaved_element`` provided to the constructor
+                cannot be transpiled.
         """
         # Convert interleaved element to transpiled circuit operation and store it for speed
         self.__set_up_interleaved_op()

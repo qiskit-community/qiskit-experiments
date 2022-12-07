@@ -117,8 +117,8 @@ def _truncate_inactive_qubits(
 
 # TODO: Naming: transform? translate? synthesis?
 def _transform_clifford_circuit(circuit: QuantumCircuit, basis_gates: Tuple[str]) -> QuantumCircuit:
-    # The function that synthesis clifford circuits with given basis gates,
-    # which should be commonly used during custom transpilation in the RB circuit generation.
+    # synthesizes clifford circuits using given basis gates, for use during
+    # custom transpilation during RB circuit generation.
     return transpile(circuit, basis_gates=list(basis_gates), optimization_level=0)
 
 
@@ -276,7 +276,6 @@ class CliffordUtils:
                 layer_circ = _transformed_clifford_layer(layer, idx, basis_gates)
             else:
                 layer_circ = _CLIFFORD_LAYER[layer][idx]
-            # qc.compose(layer_circ, inplace=True)
             _circuit_compose(qc, layer_circ, qubits=(0, 1))
 
         return qc
@@ -296,7 +295,8 @@ class CliffordUtils:
 
 
 # Constant mapping from 1Q single Clifford gate to 1Q Clifford numerical identifier.
-# This table must be generated using `data.generate_clifford_data.gen_cliff_single_1q_gate_map`.
+# This table must be generated using `data.generate_clifford_data.gen_cliff_single_1q_gate_map`, or,
+# equivalently, correspond to the ordering implicitly defined by CliffUtils.clifford_1_qubit_circuit.
 _CLIFF_SINGLE_GATE_MAP_1Q = {
     ("id", (0,)): 0,
     ("h", (0,)): 1,
@@ -309,7 +309,8 @@ _CLIFF_SINGLE_GATE_MAP_1Q = {
     ("sdg", (0,)): 22,
 }
 # Constant mapping from 2Q single Clifford gate to 2Q Clifford numerical identifier.
-# This table must be generated using `data.generate_clifford_data.gen_cliff_single_2q_gate_map`.
+# This table must be generated using `data.generate_clifford_data.gen_cliff_single_2q_gate_map`, or,
+# equivalently, correspond to the ordering defined by _layer_indices_from_num and _CLIFFORD_LAYER.
 _CLIFF_SINGLE_GATE_MAP_2Q = {
     ("id", (0,)): 0,
     ("id", (1,)): 0,
@@ -344,7 +345,7 @@ def compose_1q(lhs: Integral, rhs: Integral) -> Integral:
 
 
 def inverse_1q(num: Integral) -> Integral:
-    """Return the inverse of 1-qubit clifford integers."""
+    """Return the inverse of a 1-qubit clifford integer."""
     return _CLIFFORD_INVERSE_1Q[num]
 
 
@@ -360,7 +361,7 @@ def num_from_1q_circuit(qc: QuantumCircuit) -> Integral:
 def _num_from_1q_gate(op: Instruction) -> int:
     """
     Convert a given 1-qubit clifford operation to the corresponding integer.
-    Note that supported operations are limited to ones in `CLIFF_SINGLE_GATE_MAP_1Q` or Rz gate.
+    Note that supported operations are limited to ones in :const:`CLIFF_SINGLE_GATE_MAP_1Q` or Rz gate.
 
     Args:
         op: operation to be converted.
@@ -429,7 +430,7 @@ def compose_2q(lhs: Integral, rhs: Integral) -> Integral:
 
 
 def inverse_2q(num: Integral) -> Integral:
-    """Return the inverse of 2-qubit clifford integers."""
+    """Return the inverse of a 2-qubit clifford integer."""
     return _CLIFFORD_INVERSE_2Q[num]
 
 

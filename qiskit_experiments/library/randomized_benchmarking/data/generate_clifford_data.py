@@ -11,7 +11,7 @@
 # that they have been altered from the originals.
 """
 This file is a stand-alone script for generating the npz files in
-:mod:`~qiskit_experiment.library.randomized_benchmarking.clifford_utils.data` directory.
+``~qiskit_experiment.library.randomized_benchmarking.clifford_utils.data`` directory.
 
 The script relies on the values of ``_CLIFF_SINGLE_GATE_MAP_2Q``
 in :mod:`~qiskit_experiment.library.randomized_benchmarking.clifford_utils`
@@ -98,7 +98,7 @@ def gen_clifford_compose_2q_gate():
     """Generate data for a 2Q Clifford composition table.
 
     Cliffords are represented as integers between 0 and 11519. Note that the full composition table
-    would require :math:`11520^2:` elements and is therefore *NOT* generated, as that would take
+    would require :math:`11520^2` elements and is therefore *NOT* generated, as that would take
     more than 100MB. Instead, we sparsely populate the composition table only for RHS elements
     from a specific set of basis gates defined by the values of ``_CLIFF_SINGLE_GATE_MAP_2Q``.
     This is sufficient because when composing two arbitrary Cliffords, we can decompose the RHS

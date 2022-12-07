@@ -15,6 +15,6 @@ deprecations:
 other:
   - |
     :meth:`.CliffordUtils.clifford_2_qubit` (and :meth:`.CliffordUtils.clifford_2_qubit_circuit`)
-    changes its mapping between integer and 2Q Clifford (circuit).
+    changed its mapping between integers and 2Q Cliffords.
     That means 2Q RB experiments may sample different set of circuits from before
     even if exactly the same arguments are used for their construction.
