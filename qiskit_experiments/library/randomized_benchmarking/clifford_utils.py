@@ -33,6 +33,14 @@ from qiskit.quantum_info import Clifford, random_clifford
 from qiskit_experiments.warnings import deprecated_function
 
 
+_DATA_FOLDER = os.path.join(os.path.dirname(__file__), "data")
+
+_CLIFFORD_COMPOSE_1Q = np.load(f"{_DATA_FOLDER}/clifford_compose_1q.npz")["table"]
+_CLIFFORD_INVERSE_1Q = np.load(f"{_DATA_FOLDER}/clifford_inverse_1q.npz")["table"]
+_CLIFFORD_COMPOSE_2Q = scipy.sparse.load_npz(f"{_DATA_FOLDER}/clifford_compose_2q_sparse.npz")
+_CLIFFORD_INVERSE_2Q = np.load(f"{_DATA_FOLDER}/clifford_inverse_2q.npz")["table"]
+
+
 # Transpilation utilities
 def _transpile_clifford_circuit(
     circuit: QuantumCircuit, physical_qubits: Sequence[int]
@@ -402,22 +410,6 @@ def _deparameterized_name(inst: Instruction) -> str:
     return inst.name
 
 
-def _load_clifford_compose_1q():
-    dirname = os.path.dirname(__file__)
-    data = np.load(f"{dirname}/data/clifford_compose_1q.npz")
-    return data["table"]
-
-
-def _load_clifford_inverse_1q():
-    dirname = os.path.dirname(__file__)
-    data = np.load(f"{dirname}/data/clifford_inverse_1q.npz")
-    return data["table"]
-
-
-_CLIFFORD_COMPOSE_1Q = _load_clifford_compose_1q()
-_CLIFFORD_INVERSE_1Q = _load_clifford_inverse_1q()
-
-
 ########
 # Functions for 2-qubit integer Clifford operations
 def compose_2q(lhs: Integral, rhs: Integral) -> Integral:
@@ -446,10 +438,7 @@ def _compose_num_with_circuit_2q(num: Integral, qc: QuantumCircuit) -> Integral:
     for inst in qc:
         qubits = tuple(qc.find_bit(q).index for q in inst.qubits)
         rhs = _num_from_2q_gate(op=inst.operation, qubits=qubits)
-        try:
-            lhs = _CLIFFORD_COMPOSE_2Q_GATE[lhs, rhs]
-        except KeyError as err:
-            raise Exception(f"_CLIFFORD_COMPOSE_2Q_GATE[{lhs}][{rhs}]") from err
+        lhs = _CLIFFORD_COMPOSE_2Q[lhs, rhs]
     return lhs
 
 
@@ -598,19 +587,3 @@ def _layer_indices_from_num(num: Integral) -> Tuple[Integral, Integral, Integral
     idx1 = num % _NUM_LAYER_1
     idx0 = num // _NUM_LAYER_1
     return idx0, idx1, idx2
-
-
-def _load_clifford_compose_2q_gate():
-    dirname = os.path.dirname(__file__)
-    data = scipy.sparse.load_npz(f"{dirname}/data/clifford_compose_2q_sparse.npz")
-    return data
-
-
-def _load_clifford_inverse_2q():
-    dirname = os.path.dirname(__file__)
-    data = np.load(f"{dirname}/data/clifford_inverse_2q.npz")
-    return data["table"]
-
-
-_CLIFFORD_COMPOSE_2Q_GATE = _load_clifford_compose_2q_gate()
-_CLIFFORD_INVERSE_2Q = _load_clifford_inverse_2q()

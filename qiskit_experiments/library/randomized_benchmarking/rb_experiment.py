@@ -13,6 +13,7 @@
 Standard RB Experiment class.
 """
 import logging
+import functools
 from collections import defaultdict
 from numbers import Integral
 from typing import Union, Iterable, Optional, List, Sequence, Tuple
@@ -324,13 +325,9 @@ class StandardRB(BaseExperiment, RestlessMixin):
         self, base_elem: SequenceElementType, elements: Sequence[SequenceElementType]
     ) -> SequenceElementType:
         if self.num_qubits <= 2:
-            new = base_elem
-            for elem in elements:
-                if self.num_qubits == 1:
-                    new = compose_1q(new, elem)
-                if self.num_qubits == 2:
-                    new = compose_2q(new, elem)
-            return new
+            return functools.reduce(
+                compose_1q if self.num_qubits == 1 else compose_2q, elements, base_elem
+            )
         # 3 or more qubits: compose Clifford from circuits for speed
         # TODO: Revisit after terra#7269, #7483, #8585
         circ = QuantumCircuit(self.num_qubits)
@@ -350,10 +347,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
     def _transpiled_circuits(self) -> List[QuantumCircuit]:
         """Return a list of experiment circuits, transpiled."""
         has_custom_transpile_option = (
-            any(
-                opt not in {"basis_gates", "optimization_level"}
-                for opt in vars(self.transpile_options)
-            )
+            not set(vars(self.transpile_options)).issubset({"basis_gates", "optimization_level"})
             or self.transpile_options.get("optimization_level", 0) != 0
         )
         has_no_undirected_2q_basis = self._get_basis_gates() is None
@@ -366,7 +360,6 @@ class StandardRB(BaseExperiment, RestlessMixin):
             ]
             # Set custom calibrations provided in backend
             if isinstance(self.backend, BackendV2):
-                # assert self.num_qubits <= 2
                 qargs_patterns = [self.physical_qubits]  # for self.num_qubits == 1
                 if self.num_qubits == 2:
                     qargs_patterns = [
