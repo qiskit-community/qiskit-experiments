@@ -3,9 +3,8 @@ Calibrating single-qubit gates on a pulse backend
 =============================================================
 In this tutorial we demonstrate how to calibrate single-qubit gates 
 on ``SingleTransmonTestBackend`` using the calibration framework in qiskit-experiments. 
-We will run spectroscopy experiment to find the qubit freqeuncy, 
-calibrate the :math:`pi` pulse amplitude with Rabi experiment and 
-calibrate the DRAG parameters that minimizes lekage with DRAG experiments. 
+We will run experiments to find the qubit frequency, calibrate the amplitude 
+of DRAG pulses and chose the value of the DRAG parameter that minimizes leakage.
 The calibration framework requires the user to
 
 - setup an instance of Calibrations,
@@ -94,7 +93,7 @@ the parameters of ``xm``.
 A samilar setup is achieved by using a pre-built library of gates. 
 The library of gates provides a standard set of gates and some initial guesses 
 for the value of the parameters in the template schedules. 
-This is shown below using the ``FixedFrequencyTransmon`` which provides the ``x``,
+This is shown below using the ``FixedFrequencyTransmon`` library which provides the ``x``,
 ``y``, ``sx``, and ``sy`` pulses. Note that in the example below 
 we change the default value of the pulse duration to 320 samples
 
@@ -108,9 +107,9 @@ we change the default value of the pulse duration to 320 samples
     print(cals.get_inst_map()) # check the new cals's InstructionScheduleMap made from the library
     print(cals.get_schedule('x',(0,))) # check one of the schedules built from the new calibration
 
-we are going to do the Spectroscopy, Rabi and DRAG experiments in a row 
-and update the parameters after every experiments. 
-Let's keep track of the parameter values focusing on how it is calibrated, updated and saved.
+We are going to run the spectroscopy, Rabi, DRAG, and fine-amplitude calibration experiments 
+one after another and update the parameters after every experiment. 
+We will keep track of the parameter values after every experiment.
 
 ====================================
 1. Finding qubits with spectroscopy
@@ -123,8 +122,10 @@ there is a resonance at the qubit frequency reported by the backend.
 
     from qiskit_experiments.library.calibration.rough_frequency import RoughFrequencyCal
 
-Check the initial contents of the calibrations for qubit 0 below. 
-The parameters are set by the default values given by the FixedFrequncyTransmon library.
+We first show the contents of the calibrations for qubit 0. 
+Note that the guess values that we added before apply to all qubits on the chip. 
+We see this in the table below as an empty tuple ``()`` in the qubits column. 
+Observe that the parameter values of ``y`` do not appear in this table as they are given by the values of ``x``.
 
 .. jupyter-execute::
 
@@ -160,8 +161,8 @@ The parameters are set by the default values given by the FixedFrequncyTransmon 
     print(spec_data.analysis_results("f01"))
 
 
-We now update the instance of ``calibrations`` 
-with the value of the frequency we measured.
+The instance of ``calibrations`` has automatically been updated with the measured
+frequency, as shown below.
 In addition to the columns shown below, the calibrations also store the group to which a value belongs, 
 whether a values is valid or not and the experiment id that produce a value.
 
@@ -175,7 +176,7 @@ whether a values is valid or not and the experiment id that produce a value.
 =================================================================
 In the Rabi experiment we apply a pulse at the frequency of the qubit 
 and scan its amplitude to find the amplitude that creates a rotation 
-f a desired angle. We do this with the calibration experiment ``RoughXSXAmplitudeCal``.
+of a desired angle. We do this with the calibration experiment ``RoughXSXAmplitudeCal``.
 This is a specialization of the ``Rabi`` experiment that will update the calibrations 
 for both the ``X`` pulse and the ``SX`` pulse using a single experiment.
 
@@ -240,9 +241,11 @@ and reloaded at a later point in time.
 
     cals.save(file_type="csv", overwrite=True, file_prefix="PulseBackend")
 
-After saving the values of the parameters 
-you may restart your kernel. If you do so, you will only need to run the 
-following cell to recover the state of your calibrations.
+After saving the values of the parameters you may restart your kernel. If you do so, 
+you will only need to run the following cell to recover the state of your calibrations. 
+Since the schedules are currently not stored we need to call our ``setup_cals`` function 
+or use a library to populate an instance of Calibrations with the template schedules. 
+By contrast, the value of the parameters will be recovered from the file.
 
 .. jupyter-execute::
 
@@ -258,7 +261,7 @@ following cell to recover the state of your calibrations.
 ===========================================================
 
 A Derivative Removal by Adiabatic Gate (DRAG) pulse is designed to minimize leakage 
-to a neighbouring transition. It is a standard pulse with an additional 
+and phase errors to a neighbouring transition. It is a standard pulse with an additional 
 derivative component. It is designed to reduce the frequency spectrum of a 
 normal pulse near the  :math:`|1> - |2>` transition, 
 reducing the chance of leakage to the :math:`|2>` state. 
@@ -316,6 +319,8 @@ in the gate to determine the optimal amplitude.
 
     print(data_fine.analysis_results("d_theta"))
 
+The cell below shows how the amplitude is updated based on the error in the rotation angle measured by the FineXAmplitude experiment. Note that this calculation is automatically done by the Amplitude.update function.
+
 .. jupyter-execute::
 
     dtheta = data_fine.analysis_results("d_theta").value.nominal_value
@@ -325,9 +330,17 @@ in the gate to determine the optimal amplitude.
     print(f"The ideal angle is {target_angle:.2f} rad. We measured a deviation of {dtheta:.3f} rad.")
     print(f"Thus, scale the {pulse_amp:.4f} pulse amplitude by {scale:.3f} to obtain {pulse_amp*scale:.5f}.")
 
+
+Observe, once again, that the calibrations have automatically been updated.
+
+
 .. jupyter-execute::
 
     pd.DataFrame(**cals.parameters_table(qubit_list=[qubit, ()], parameters="amp"))[columns_to_show]
+
+
+To check that we have managed to reduce the error in the rotation angle we will run the fine amplitude calibration experiment once again.
+
 
 .. jupyter-execute::
 
@@ -339,7 +352,7 @@ in the gate to determine the optimal amplitude.
     print(data_fine2.analysis_results("d_theta"))
 
 As can be seen from the data above and the analysis result below 
-we have managed to reduce the error in the rotation angle dtheta.
+we have managed to reduce the error in the rotation angle :math:`{\rm d}\theta`.
 
 
 
