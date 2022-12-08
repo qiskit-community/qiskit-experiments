@@ -21,6 +21,6 @@ jobs:
         with:
           python-version: 3.8
       - name: Install Deps
-        run: python -m pip install -U tox setuptools virtualenv wheel
+        run: python -m pip install -U 'tox<4' setuptools virtualenv wheel
       - name: Run Tests
         run: tox -epy38 -- -n test/database_service/test_experiment_data_integration.py
