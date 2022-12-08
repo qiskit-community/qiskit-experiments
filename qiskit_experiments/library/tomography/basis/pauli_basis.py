@@ -12,9 +12,13 @@
 """
 Pauli preparation and measurement tomography bases.
 """
-
+from typing import Optional, Union
+import numpy as np
 from qiskit.circuit import QuantumCircuit
 from qiskit.circuit.library import HGate, XGate, ZGate, SGate, SdgGate
+from qiskit.result import LocalReadoutMitigator
+from qiskit.quantum_info import DensityMatrix
+from qiskit.exceptions import QiskitError
 from .local_basis import LocalMeasurementBasis, LocalPreparationBasis
 
 
@@ -45,7 +49,7 @@ class PauliMeasurementBasis(LocalMeasurementBasis):
 
     """
 
-    def __init__(self):
+    def __init__(self, mitigator: Optional[LocalReadoutMitigator] = None):
         """Initialize Pauli measurement basis"""
         # Z-meas rotation
         meas_z = QuantumCircuit(1, name="PauliMeasZ")
@@ -56,10 +60,32 @@ class PauliMeasurementBasis(LocalMeasurementBasis):
         meas_y = QuantumCircuit(1, name="PauliMeasY")
         meas_y.append(SdgGate(), [0])
         meas_y.append(HGate(), [0])
-        super().__init__("PauliMeasurementBasis", [meas_z, meas_x, meas_y])
+        instructions = [meas_z, meas_x, meas_y]
+        self._mitigator = mitigator
+
+        super().__init__(
+            "PauliMeasurementBasis", instructions, qubit_povms=self._mitigator_povm(self._mitigator)
+        )
+
+    @staticmethod
+    def _mitigator_povm(mitigator: Optional[LocalReadoutMitigator] = None):
+        """Construct LocalMeasurementBasis qubit_povm from mitigator."""
+        if mitigator is None:
+            return None
+        povm = {}
+        if isinstance(mitigator, LocalReadoutMitigator):
+            povm = {}
+            for qubit in mitigator.qubits:
+                amat = mitigator.assignment_matrix(qubit)
+                povm[(qubit,)] = {(0,): [DensityMatrix(np.diag(row)) for row in amat]}
+        else:
+            raise QiskitError("Invalid mitigator: must be LocalReadoutMitigator")
+        return povm
 
     def __json_encode__(self):
         # Override LocalMeasurementBasis's encoder
+        if self._mitigator is not None:
+            return {"mitigator": self._mitigator}
         return {}
 
 
