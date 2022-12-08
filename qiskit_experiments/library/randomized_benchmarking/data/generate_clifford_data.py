@@ -56,15 +56,15 @@ def _hash_cliff(cliff):
     return np.packbits(cliff.tableau).tobytes()
 
 
-_TO_CLIFF_1Q = {i: CliffordUtils.clifford_1_qubit(i) for i in range(NUM_CLIFFORD_1Q)}
-_TO_INT_1Q = {_hash_cliff(cliff): i for i, cliff in _TO_CLIFF_1Q.items()}
+_CLIFF_1Q = {i: CliffordUtils.clifford_1_qubit(i) for i in range(NUM_CLIFFORD_1Q)}
+_TO_INT_1Q = {_hash_cliff(cliff): i for i, cliff in _CLIFF_1Q.items()}
 
 
 def gen_clifford_inverse_1q():
     """Generate table data for integer 1Q Clifford inversion"""
     invs = np.empty(NUM_CLIFFORD_1Q, dtype=int)
-    for i in range(NUM_CLIFFORD_1Q):
-        invs[i] = _TO_INT_1Q[_hash_cliff(_TO_CLIFF_1Q[i].adjoint())]
+    for i, cliff_i in _CLIFF_1Q.items():
+        invs[i] = _TO_INT_1Q[_hash_cliff(cliff_i.adjoint())]
     assert all(sorted(invs) == np.arange(0, NUM_CLIFFORD_1Q))
     return invs
 
@@ -72,23 +72,23 @@ def gen_clifford_inverse_1q():
 def gen_clifford_compose_1q():
     """Generate table data for integer 1Q Clifford composition."""
     products = np.empty((NUM_CLIFFORD_1Q, NUM_CLIFFORD_1Q), dtype=int)
-    for i in range(NUM_CLIFFORD_1Q):
-        for j in range(NUM_CLIFFORD_1Q):
-            cliff = _TO_CLIFF_1Q[i].compose(_TO_CLIFF_1Q[j])
+    for i, cliff_i in _CLIFF_1Q.items():
+        for j, cliff_j in _CLIFF_1Q.items():
+            cliff = cliff_i.compose(cliff_j)
             products[i, j] = _TO_INT_1Q[_hash_cliff(cliff)]
         assert all(sorted(products[i]) == np.arange(0, NUM_CLIFFORD_1Q))
     return products
 
 
-_TO_CLIFF_2Q = {i: CliffordUtils.clifford_2_qubit(i) for i in range(NUM_CLIFFORD_2Q)}
-_TO_INT_2Q = {_hash_cliff(cliff): i for i, cliff in _TO_CLIFF_2Q.items()}
+_CLIFF_2Q = {i: CliffordUtils.clifford_2_qubit(i) for i in range(NUM_CLIFFORD_2Q)}
+_TO_INT_2Q = {_hash_cliff(cliff): i for i, cliff in _CLIFF_2Q.items()}
 
 
 def gen_clifford_inverse_2q():
     """Generate table data for integer 2Q Clifford inversion"""
     invs = np.empty(NUM_CLIFFORD_2Q, dtype=int)
-    for i in range(NUM_CLIFFORD_2Q):
-        invs[i] = _TO_INT_2Q[_hash_cliff(_TO_CLIFF_2Q[i].adjoint())]
+    for i, cliff_i in _CLIFF_2Q.items():
+        invs[i] = _TO_INT_2Q[_hash_cliff(cliff_i.adjoint())]
     assert all(sorted(invs) == np.arange(0, NUM_CLIFFORD_2Q))
     return invs
 
@@ -105,9 +105,9 @@ def gen_clifford_compose_2q_gate():
     in multiple steps using this sparse table.
     """
     products = scipy.sparse.lil_matrix((NUM_CLIFFORD_2Q, NUM_CLIFFORD_2Q), dtype=int)
-    for lhs in range(NUM_CLIFFORD_2Q):
+    for lhs, cliff_lhs in _CLIFF_2Q.items():
         for rhs in _CLIFF_SINGLE_GATE_MAP_2Q.values():
-            composed = _TO_CLIFF_2Q[lhs].compose(_TO_CLIFF_2Q[rhs])
+            composed = cliff_lhs.compose(_CLIFF_2Q[rhs])
             products[lhs, rhs] = _TO_INT_2Q[_hash_cliff(composed)]
     return products.tocsr()
 

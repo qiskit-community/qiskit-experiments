@@ -111,15 +111,11 @@ def _circuit_compose(
 def _truncate_inactive_qubits(
     circ: QuantumCircuit, active_qubits: Sequence[Qubit]
 ) -> QuantumCircuit:
-    new_data = []
+    res = QuantumCircuit(active_qubits, name=circ.name, metadata=circ.metadata)
     for inst in circ:
         if all(q in active_qubits for q in inst.qubits):
-            new_data.append(inst)
-
-    res = QuantumCircuit(active_qubits, name=circ.name)
-    res._calibrations = circ.calibrations
-    res._data = new_data
-    res._metadata = circ.metadata
+            res.append(inst)
+    res.calibrations = circ.calibrations
     return res
 
 
