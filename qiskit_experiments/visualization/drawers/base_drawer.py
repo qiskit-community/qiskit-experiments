@@ -32,7 +32,7 @@ class BaseDrawer(ABC):
     that wrap these backends by subclassing :class:`BaseDrawer` must implement the following abstract
     methods.
 
-    initialize_canvas
+    .. describe:: initialize_canvas
 
         This method should implement a protocol to initialize a drawer canvas with user input ``axis``
         object. Note that ``drawer`` supports visualization of experiment results in multiple canvases
@@ -45,39 +45,40 @@ class BaseDrawer(ABC):
         initialize the axis only when it is not provided by the options. Once axis is initialized, this
         is set to the instance member ``self._axis``.
 
-    format_canvas
+    .. describe:: format_canvas
 
         This method formats the appearance of the canvas. Typically, it updates axis and tick labels.
         Note that the axis SI unit may be specified in the drawer figure_options. In this case, axis
         numbers should be auto-scaled with the unit prefix.
 
-    Drawing Methods:
+    Drawing Methods
+    ===============
 
-        scatter
+    .. describe:: scatter
 
-            This method draws scatter points on the canvas, like a scatter-plot, with optional error-bars
-            in both the X and Y axes.
+        This method draws scatter points on the canvas, like a scatter-plot, with optional error-bars
+        in both the X and Y axes.
 
-        line
+    .. describe:: line
 
-            This method plots a line from provided X and Y values.
+        This method plots a line from provided X and Y values.
 
-        filled_y_area
+    .. describe:: filled_y_area
 
-            This method plots a shaped region bounded by upper and lower Y-values. This method is
-            typically called with interpolated x and a pair of y values that represent the upper and
-            lower bound within certain confidence interval. If this is called multiple times, it may be
-            necessary to set the transparency so that overlapping regions can be distinguished.
+        This method plots a shaped region bounded by upper and lower Y-values. This method is
+        typically called with interpolated x and a pair of y values that represent the upper and
+        lower bound within certain confidence interval. If this is called multiple times, it may be
+        necessary to set the transparency so that overlapping regions can be distinguished.
 
-        filled_x_area
+    .. describe:: filled_x_area
 
-            This method plots a shaped region bounded by upper and lower X-values, as a function of
-            Y-values. This method is a rotated analogue of :meth:`filled_y_area`.
+        This method plots a shaped region bounded by upper and lower X-values, as a function of
+        Y-values. This method is a rotated analogue of :meth:`filled_y_area`.
 
-        textbox
+    .. describe:: textbox
 
-            This method draws a text-box on the canvas, which is a rectangular region containing some
-            text.
+        This method draws a text-box on the canvas, which is a rectangular region containing some
+        text.
 
     Options and Figure Options
     ==========================
