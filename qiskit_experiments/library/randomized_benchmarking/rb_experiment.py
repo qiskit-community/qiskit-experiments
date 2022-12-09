@@ -268,7 +268,6 @@ class StandardRB(BaseExperiment, RestlessMixin):
                 prev_elem, prev_seq = self.__identity_clifford(), []
 
             circ = QuantumCircuit(self.num_qubits)
-            circ.append(Barrier(self.num_qubits), circ.qubits)
             for elem in seq:
                 circ.append(self._to_instruction(elem, basis_gates), circ.qubits)
                 circ.append(Barrier(self.num_qubits), circ.qubits)

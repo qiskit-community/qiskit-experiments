@@ -285,14 +285,14 @@ class TestInterleavedRB(QiskitExperimentsTestCase, RBTestMixin):
         std_idx = 0
         int_idx = 0
         for _ in range(num_cliffords):
-            # barrier
-            self.assertEqual(c_std[std_idx][0].name, "barrier")
-            self.assertEqual(c_int[int_idx][0].name, "barrier")
             # clifford
-            self.assertEqual(c_std[std_idx + 1], c_int[int_idx + 1])
-            # for interleaved circuit: barrier + interleaved element
-            self.assertEqual(c_int[int_idx + 2][0].name, "barrier")
-            self.assertEqual(c_int[int_idx + 3][0].name, interleaved_element.name)
+            self.assertEqual(c_std[std_idx], c_int[int_idx])
+            # barrier
+            self.assertEqual(c_std[std_idx + 1][0].name, "barrier")
+            self.assertEqual(c_int[std_idx + 1][0].name, "barrier")
+            # for interleaved circuit: interleaved element + barrier
+            self.assertEqual(c_int[int_idx + 2][0].name, interleaved_element.name)
+            self.assertEqual(c_int[int_idx + 3][0].name, "barrier")
             std_idx += 2
             int_idx += 4
 
@@ -308,8 +308,8 @@ class TestInterleavedRB(QiskitExperimentsTestCase, RBTestMixin):
         )
         circuits = exp.circuits()
         # Get the first interleaved operation in the interleaved RB sequence:
-        # 0: barrier, 1: clifford, 2: barrier, 3: interleaved
-        actual = circuits[1][3].operation
+        # 0: clifford, 1: barrier, 2: interleaved
+        actual = circuits[1][2].operation
         self.assertEqual(interleaved_circ.count_ops(), actual.definition.count_ops())
 
     def test_interleaving_delay(self):
@@ -327,8 +327,7 @@ class TestInterleavedRB(QiskitExperimentsTestCase, RBTestMixin):
             backend=self.backend,
         )
         int_circs = exp.circuits()[1]
-        # barrier, 2-gate clifford, barrier, "delay", barrier, ...
-        self.assertEqual(int_circs.data[3][0].name, "delay")
+        self.assertEqual(int_circs.count_ops().get("delay", 0), 1)
         self.assertAllIdentity([int_circs])
 
     def test_interleaving_circuit_with_delay(self):
