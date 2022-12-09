@@ -119,8 +119,9 @@ def _truncate_inactive_qubits(
     return res
 
 
-# TODO: Naming: transform? translate? synthesis?
-def _transform_clifford_circuit(circuit: QuantumCircuit, basis_gates: Tuple[str]) -> QuantumCircuit:
+def _synthesize_clifford_circuit(
+    circuit: QuantumCircuit, basis_gates: Tuple[str]
+) -> QuantumCircuit:
     # synthesizes clifford circuits using given basis gates, for use during
     # custom transpilation during RB circuit generation.
     return transpile(circuit, basis_gates=list(basis_gates), optimization_level=0)
@@ -264,7 +265,7 @@ class CliffordUtils:
             qc.z(0)
 
         if basis_gates:
-            qc = _transform_clifford_circuit(qc, basis_gates)
+            qc = _synthesize_clifford_circuit(qc, basis_gates)
 
         return qc
 
@@ -567,7 +568,7 @@ def _transformed_clifford_layer(
 ) -> QuantumCircuit:
     # Return the index-th quantum circuit of the layer translated with the basis_gates.
     # The result is cached for speed.
-    return _transform_clifford_circuit(_CLIFFORD_LAYER[layer][index], basis_gates)
+    return _synthesize_clifford_circuit(_CLIFFORD_LAYER[layer][index], basis_gates)
 
 
 def _num_from_layer_indices(triplet: Tuple[Integral, Integral, Integral]) -> Integral:
