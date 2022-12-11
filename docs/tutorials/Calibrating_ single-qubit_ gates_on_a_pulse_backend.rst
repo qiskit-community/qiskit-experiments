@@ -321,6 +321,7 @@ in the gate to determine the optimal amplitude.
     print(data_fine.analysis_results("d_theta"))
 
 The cell below shows how the amplitude is updated based on the error in the rotation angle measured by the FineXAmplitude experiment. Note that this calculation is automatically done by the Amplitude.update function.
+
 .. jupyter-execute::
 
     dtheta = data_fine.analysis_results("d_theta").value.nominal_value
