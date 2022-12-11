@@ -184,6 +184,31 @@ class PulseBackend(BackendV2):
         self._simulated_pulse_unitaries = unitaries
 
     @staticmethod
+    def pulse_command(qubit: int, name: str, amp: complex):
+        """Utility function to create pulse instructions"""
+        return Command.from_dict(
+            {
+                "name": name,
+                "qubits": [qubit],
+                "sequence": [
+                    PulseQobjInstruction(
+                        name="parametric_pulse",
+                        t0=0,
+                        ch=f"d{qubit}",
+                        label=f"Xp_d{qubit}",
+                        pulse_shape="drag",
+                        parameters={
+                            "amp": amp,
+                            "beta": 5,
+                            "duration": 160,
+                            "sigma": 40,
+                        },
+                    ).to_dict()
+                ],
+            }
+        ).to_dict()
+
+    @staticmethod
     def _get_info(
         circuit: QuantumCircuit, instruction: CircuitInstruction
     ) -> Tuple[Tuple[int], Tuple[float], str]:
@@ -337,18 +362,15 @@ class PulseBackend(BackendV2):
 
         return measurement_data, memory_data
 
-    def solve(self, schedule: Union[ScheduleBlock, Schedule], qubits: Tuple[int]) -> np.ndarray:
+    def solve(self, schedule: Union[ScheduleBlock, Schedule]) -> np.ndarray:
         """Solves for qubit dynamics under the action of a pulse instruction
 
         Args:
             schedule: Pulse signal.
-            qubits: (remove after multi-qubit gates is implemented).
 
         Returns:
             Time-evolution unitary operator.
         """
-        if len(qubits) > 1:
-            QiskitError("Multi qubit gates are not yet implemented.")
 
         if isinstance(schedule, ScheduleBlock):
             schedule = block_to_schedule(schedule)
@@ -408,7 +430,7 @@ class PulseBackend(BackendV2):
 
                     # Simulate the schedule if not in the cache.
                     if schedule_key not in self._schedule_cache:
-                        self._schedule_cache[schedule_key] = self.solve(schedule_block, qubits)
+                        self._schedule_cache[schedule_key] = self.solve(schedule_block)
 
                     unitaries[(name, qubits, params)] = self._schedule_cache[schedule_key]
 
@@ -523,8 +545,8 @@ class SingleTransmonTestBackend(PulseBackend):
         t1_dissipator = np.sqrt(gamma_1) * sigma_m1
 
         self.anharmonicity = anharmonicity
-        self.rabi_rate_01 = 8.589
-        self.rabi_rate_12 = 6.876
+        self.rabi_rate_01 = [8.589]
+        self.rabi_rate_12 = [6.876]
 
         if noise is True:
             evaluation_mode = "dense_vectorized"
@@ -553,48 +575,8 @@ class SingleTransmonTestBackend(PulseBackend):
                 "buffer": 0,
                 "pulse_library": [],
                 "cmd_def": [
-                    Command.from_dict(
-                        {
-                            "name": "x",
-                            "qubits": [0],
-                            "sequence": [
-                                PulseQobjInstruction(
-                                    name="parametric_pulse",
-                                    t0=0,
-                                    ch="d0",
-                                    label="Xp_d0",
-                                    pulse_shape="drag",
-                                    parameters={
-                                        "amp": (0.5 + 0j) / self.rabi_rate_01,
-                                        "beta": 5,
-                                        "duration": 160,
-                                        "sigma": 40,
-                                    },
-                                ).to_dict()
-                            ],
-                        }
-                    ).to_dict(),
-                    Command.from_dict(
-                        {
-                            "name": "sx",
-                            "qubits": [0],
-                            "sequence": [
-                                PulseQobjInstruction(
-                                    name="parametric_pulse",
-                                    t0=0,
-                                    ch="d0",
-                                    label="X90p_d0",
-                                    pulse_shape="drag",
-                                    parameters={
-                                        "amp": (0.25 + 0j) / self.rabi_rate_01,
-                                        "beta": 5,
-                                        "duration": 160,
-                                        "sigma": 40,
-                                    },
-                                ).to_dict()
-                            ],
-                        }
-                    ).to_dict(),
+                    self.pulse_command(name="x", qubit=0, amp=(0.5 + 0j) / self.rabi_rate_01[0]),
+                    self.pulse_command(name="sx", qubit=0, amp=(0.25 + 0j) / self.rabi_rate_01[0]),
                 ],
             }
         )
@@ -633,7 +615,7 @@ class SingleTransmonTestBackend(PulseBackend):
             self._defaults.instruction_schedule_map.get("sx", (0,)),
         ]
         self._simulated_pulse_unitaries = {
-            (schedule.name, (0,), ()): self.solve(schedule, (0,)) for schedule in default_schedules
+            (schedule.name, (0,), ()): self.solve(schedule) for schedule in default_schedules
         }
 
 
@@ -729,28 +711,6 @@ class ParallelTransmonTestBackend(PulseBackend):
 
         self.subsystem_dims = (3, 3)
 
-        pulse_command = lambda qubit, name, amp: Command.from_dict(
-            {
-                "name": name,
-                "qubits": [qubit],
-                "sequence": [
-                    PulseQobjInstruction(
-                        name="parametric_pulse",
-                        t0=0,
-                        ch=f"d{qubit}",
-                        label=f"Xp_d{qubit}",
-                        pulse_shape="drag",
-                        parameters={
-                            "amp": amp / self.rabi_rate_01[qubit],
-                            "beta": 5,
-                            "duration": 160,
-                            "sigma": 40,
-                        },
-                    ).to_dict()
-                ],
-            }
-        ).to_dict()
-
         self._defaults = PulseDefaults.from_dict(
             {
                 "qubit_freq_est": [qubit_frequency / 1e9] * 2,
@@ -758,10 +718,10 @@ class ParallelTransmonTestBackend(PulseBackend):
                 "buffer": 0,
                 "pulse_library": [],
                 "cmd_def": [
-                    pulse_command(name="x", qubit=0, amp=(0.5 + 0j)),
-                    pulse_command(name="sx", qubit=0, amp=(0.25 + 0j)),
-                    pulse_command(name="x", qubit=1, amp=(0.5 + 0j)),
-                    pulse_command(name="sx", qubit=1, amp=(0.25 + 0j)),
+                    self.pulse_command(name="x", qubit=0, amp=(0.5 + 0j) / self.rabi_rate_01[0]),
+                    self.pulse_command(name="sx", qubit=0, amp=(0.25 + 0j) / self.rabi_rate_01[0]),
+                    self.pulse_command(name="x", qubit=1, amp=(0.5 + 0j) / self.rabi_rate_01[1]),
+                    self.pulse_command(name="sx", qubit=1, amp=(0.25 + 0j) / self.rabi_rate_01[1]),
                 ],
             }
         )
@@ -817,9 +777,7 @@ class ParallelTransmonTestBackend(PulseBackend):
         ]
 
         self._simulated_pulse_unitaries = {
-            (schedule.name, (schedule.channels[0].index,), ()): self.solve(
-                schedule, (schedule.channels[0].index,)
-            )
+            (schedule.name, (schedule.channels[0].index,), ()): self.solve(schedule)
             for schedule in default_schedules
         }
 

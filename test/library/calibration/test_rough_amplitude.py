@@ -56,7 +56,7 @@ class TestRoughAmpCal(QiskitExperimentsTestCase):
         """Test that the calibrations update properly."""
 
         tol = 0.01
-        default_amp = 0.5 / self.backend.rabi_rate_01
+        default_amp = 0.5 / self.backend.rabi_rate_01[0]
 
         rabi = RoughXSXAmplitudeCal(
             0, self.cals, amplitudes=np.linspace(-0.1, 0.1, 11), backend=self.backend
@@ -146,10 +146,10 @@ class TestSpecializations(QiskitExperimentsTestCase):
             self.assertEqual(circ.calibrations["Rabi"][((0,), (amp,))], expected_x12)
 
     def test_ef_update(self):
-        """Tes that we properly update the pulses on the 1<->2 transition."""
+        """Test that we properly update the pulses on the 1<->2 transition."""
 
         tol = 0.01
-        default_amp = 0.5 / self.backend.rabi_rate_12
+        default_amp = 0.5 / self.backend.rabi_rate_12[0]
 
         rabi_ef = EFRoughXSXAmplitudeCal(
             0, self.cals, amplitudes=np.linspace(-0.1, 0.1, 11), backend=self.backend
