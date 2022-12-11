@@ -130,7 +130,7 @@ Observe that the parameter values of ``y`` do not appear in this table as they a
 
 .. jupyter-execute::
 
-    columns_to_show = ["parameter","qubits","schedule","value","date_time"]    
+    columns_to_show = ["parameter", "qubits", "schedule", "value", "date_time"]    
     pd.DataFrame(**cals.parameters_table(qubit_list=[qubit, ()]))[columns_to_show]
 
 
