@@ -120,8 +120,7 @@ class BlochTrajectoryAnalysis(curve.CurveAnalysis):
             models.append(
                 lmfit.models.ExpressionModel(
                     expr=eq,
-                    name=f"{axis}",
-                    data_sort_key={"meas_basis": axis},
+                    name=axis,
                 )
             )
 
@@ -144,6 +143,11 @@ class BlochTrajectoryAnalysis(curve.CurveAnalysis):
             xval_unit="s",
             ylim=(-1, 1),
         )
+        default_options.data_subfit_map = {
+            "x": {"meas_basis": "x"},
+            "y": {"meas_basis": "y"},
+            "z": {"meas_basis": "z"},
+        }
 
         return default_options
 

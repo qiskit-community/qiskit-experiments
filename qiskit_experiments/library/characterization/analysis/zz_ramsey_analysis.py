@@ -88,12 +88,10 @@ class ZZRamseyAnalysis(CurveAnalysis):
                 lmfit.models.ExpressionModel(
                     expr="-amp * exp(-x / tau) * cos(2 * pi * (freq - zz / 2) * x + phase) + base",
                     name="0",
-                    data_sort_key={"series": "0"},
                 ),
                 lmfit.models.ExpressionModel(
                     expr="-amp * exp(-x / tau) * cos(2 * pi * (freq + zz / 2) * x + phase) + base",
                     name="1",
-                    data_sort_key={"series": "1"},
                 ),
             ]
         )
@@ -113,6 +111,10 @@ class ZZRamseyAnalysis(CurveAnalysis):
             xval_unit="s",
             ylabel="P(1)",
         )
+        default_options.data_subfit_map = {
+            "0": {"series": "0"},
+            "1": {"series": "1"},
+        }
 
         return default_options
 
