@@ -169,9 +169,9 @@ class LocalPreparationBasis(PreparationBasis):
                     f"Basis {self.name} does not define circuits to construct POVMs from"
                 )
             key0 = num_qubits * (0,)
-            if key0 in self._qubit_states:
+            if key0 in states:
                 circuit = _tensor_product_circuit(self._instructions, index, self._name)
-                return _generate_state(circuit, self._qubit_states[key0])
+                return _generate_state(circuit, states[key0])
 
         # No match, so if 1-qubit use default, otherwise return None
         if num_qubits == 1 and self._default_states:

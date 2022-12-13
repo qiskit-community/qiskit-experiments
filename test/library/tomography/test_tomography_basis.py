@@ -17,6 +17,7 @@ Test tomography basis classes
 from cmath import isclose
 import itertools as it
 from test.base import QiskitExperimentsTestCase
+import numpy as np
 import qiskit.quantum_info as qi
 from qiskit.circuit.library import HGate, XGate, SXGate
 from qiskit_experiments.library.tomography.basis import (
@@ -204,6 +205,33 @@ class TestLocalBasis(QiskitExperimentsTestCase):
             fid = qi.state_fidelity(basis_state, target)
             self.assertTrue(isclose(fid, 1))
 
+    def test_local_pbasis_qubit_states_chan(self):
+        """Test noisy preparation basis construction from qubit states"""
+        instructions = PauliPreparationBasis()._instructions
+        num_qubits = 3
+        p_err = 0.1
+        err_chans = [
+            (1 - p_err) * qi.SuperOp(np.eye(4)) + p_err * qi.random_quantum_channel(2, seed=100 + i)
+            for i in range(num_qubits)
+        ]
+        qubit_states_int = {i: [chan] for i, chan in enumerate(err_chans)}
+        qubit_states_tup = {(i,): [chan] for i, chan in enumerate(err_chans)}
+
+        for qubit_states in [qubit_states_int, qubit_states_tup]:
+            pbasis = LocalPreparationBasis(
+                "NoisyPauliPrep",
+                instructions=instructions,
+                qubit_states=qubit_states,
+            )
+
+            for qubit, chan in enumerate(err_chans):
+                prep0 = qi.DensityMatrix.from_label("0").evolve(chan)
+                for index, inst in enumerate(instructions):
+                    value = pbasis.matrix([index], [qubit])
+                    target = prep0.evolve(inst)
+                    infid = 1 - qi.state_fidelity(value, target)
+                    self.assertLess(infid, 1e-7)
+
     def test_local_mbasis_no_inst(self):
         """Test circuits method raises if no instructions"""
         default_povms = [qi.random_unitary(2, seed=30 + i) for i in range(2)]
@@ -283,7 +311,7 @@ class TestLocalBasis(QiskitExperimentsTestCase):
                 fid = qi.state_fidelity(basis_state, target)
                 self.assertTrue(isclose(fid, 1))
 
-    def test_local_mbasis_default_and_qubit_states(self):
+    def test_local_mbasis_default_and_qubit_povm(self):
         """Test qubit and default povm kwarg"""
         size = 3
         outcomes = 2
@@ -323,3 +351,32 @@ class TestLocalBasis(QiskitExperimentsTestCase):
                 target = target0.expand(target1)
                 fid = qi.state_fidelity(basis_state, target)
                 self.assertTrue(isclose(fid, 1))
+
+    def test_local_mbasis_qubit_povm_chan(self):
+        """Test noisy preparation basis construction from qubit states"""
+        instructions = PauliMeasurementBasis()._instructions
+        num_qubits = 3
+        p_err = 0.1
+        err_chans = [
+            (1 - p_err) * qi.SuperOp(np.eye(4)) + p_err * qi.random_quantum_channel(2, seed=100 + i)
+            for i in range(num_qubits)
+        ]
+        qubit_povm_int = {i: [chan] for i, chan in enumerate(err_chans)}
+        qubit_povm_tup = {(i,): [chan] for i, chan in enumerate(err_chans)}
+
+        for qubit_povms in [qubit_povm_int, qubit_povm_tup]:
+            mbasis = LocalMeasurementBasis(
+                "NoisyMeas",
+                instructions=instructions,
+                qubit_povms=qubit_povms,
+            )
+
+            for qubit, chan in enumerate(err_chans):
+                outcome0 = qi.DensityMatrix.from_label("0").evolve(chan.adjoint())
+                outcome1 = qi.DensityMatrix.from_label("1").evolve(chan.adjoint())
+                for index, inst in enumerate(instructions):
+                    for outcome, povm in enumerate([outcome0, outcome1]):
+                        value = mbasis.matrix([index], outcome, [qubit])
+                        target = povm.evolve(inst.inverse())
+                        norm = np.linalg.norm(target.data - value)
+                        self.assertLess(norm, 1e-10)

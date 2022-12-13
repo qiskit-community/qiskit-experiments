@@ -12,7 +12,7 @@
 """
 Pauli preparation and measurement tomography bases.
 """
-from typing import Optional, Union
+from typing import Optional
 import numpy as np
 from qiskit.circuit import QuantumCircuit
 from qiskit.circuit.library import HGate, XGate, ZGate, SGate, SdgGate
