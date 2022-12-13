@@ -12,15 +12,22 @@
 
 """Base class for calibration-type experiments."""
 
-from abc import ABC
-import copy
+from abc import ABC, abstractmethod
 import logging
 from typing import List, Optional, Type, Union
 import warnings
 
-from qiskit import QuantumCircuit, transpile
+from qiskit import QuantumCircuit
 from qiskit.providers.backend import Backend
+from qiskit.providers.options import Options
 from qiskit.pulse import ScheduleBlock
+from qiskit.transpiler import StagedPassManager, PassManager, Layout, CouplingMap
+from qiskit.transpiler.passes import (
+    EnlargeWithAncilla,
+    FullAncillaAllocation,
+    ApplyLayout,
+    SetLayout,
+)
 
 from qiskit_experiments.calibration_management.calibrations import Calibrations
 from qiskit_experiments.calibration_management.update_library import BaseUpdater
@@ -142,21 +149,31 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
         return self._cals
 
     @classmethod
-    def _default_experiment_options(cls):
+    def _default_experiment_options(cls) -> Options:
         """Default values for a calibration experiment.
 
         Experiment Options:
             result_index (int): The index of the result from which to update the calibrations.
             group (str): The calibration group to which the parameter belongs. This will default
                 to the value "default".
-
         """
         options = super()._default_experiment_options()
-
-        options.result_index = -1
-        options.group = "default"
-
+        options.update_options(result_index=-1, group="default")
         return options
+
+    @classmethod
+    def _default_transpile_options(cls) -> Options:
+        """Return empty default transpile options as optimization_level is not used."""
+        return Options()
+
+    def set_transpile_options(self, **fields):
+        r"""Add a warning message.
+
+        .. note::
+            If your experiment has overridden `_transpiled_circuits` and needs
+            transpile options then please also override `set_transpile_options`.
+        """
+        warnings.warn(f"Transpile options are not used in {self.__class__.__name__ }.")
 
     def update_calibrations(self, experiment_data: ExperimentData):
         """Update parameter values in the :class:`Calibrations` instance.
@@ -232,26 +249,60 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
     def _transpiled_circuits(self) -> List[QuantumCircuit]:
         """Override the transpiled circuits method to bring in the inst_map.
 
-        The calibrated schedules are transpiled into the circuits using the instruction
-        schedule map. Since instances of :class:`InstructionScheduleMap` are not serializable
-        they should not be in the transpile options. Only instances of :class:`Calibrations`
-        need to be serialized. Here, we pass the instruction schedule map of the calibrations
-        to the transpiler.
+        The transpilation should do the strict minimum to make the circuits hardware compatible.
+        Indeed, calibration experiments are designed with a specific gate sequence in mind. Any
+        transpiler operation that changes this gate sequence may compromise the validity of the
+        calibration experiment. Sub-classes may override this method to define their own
+        transpilation if need be.
 
         Returns:
             A list of transpiled circuits.
         """
-        transpile_opts = copy.copy(self.transpile_options.__dict__)
-        if "inst_map" in transpile_opts:
-            LOG.warning(
-                "Instruction schedule maps should not be present in calibration "
-                "experiments. Overriding with the inst. map of the calibrations."
-            )
+        transpiled = []
+        for circ in self.circuits():
+            circ = self._map_to_physical_qubits(circ)
+            self._attach_calibrations(circ)
 
-        transpile_opts["inst_map"] = self.calibrations.default_inst_map
-        transpile_opts["initial_layout"] = list(self.physical_qubits)
+            transpiled.append(circ)
 
-        return transpile(self.circuits(), self.backend, **transpile_opts)
+        return transpiled
+
+    def _map_to_physical_qubits(self, circuit: QuantumCircuit) -> QuantumCircuit:
+        """Map program qubits to physical qubits.
+
+        Args:
+            circuit: The quantum circuit to map to device qubits.
+
+        Returns:
+            A quantum circuit that has the same number of qubits as the backend and where
+            the physical qubits of the experiment have been properly mapped.
+        """
+        initial_layout = Layout.from_intlist(list(self.physical_qubits), *circuit.qregs)
+
+        layout = PassManager(
+            [
+                SetLayout(initial_layout),
+                FullAncillaAllocation(CouplingMap(self._backend_data.coupling_map)),
+                EnlargeWithAncilla(),
+                ApplyLayout(),
+            ]
+        )
+
+        return StagedPassManager(["layout"], layout=layout).run(circuit)
+
+    @abstractmethod
+    def _attach_calibrations(self, circuit: QuantumCircuit):
+        """Attach the calibrations to the quantum circuit.
+
+        This method attaches calibrations from the `self._cals` instance to the transpiled
+        quantum circuits. Given how important this method is it is made abstract to force
+        potential calibration experiment developers to implement it and think about how
+        schedules are attached to the circuits. The implementation of this method is delegated
+        to the sub-classes so that they can map gate instructions to the schedules stored in the
+        ``Calibrations`` instance. This method is needed for most calibration experiments. However,
+        some experiments already attach circuits to the logical circuits and do not needed to run
+        ``_attach_calibrations``. In such experiments a simple ``pass`` statement will suffice.
+        """
 
     def run(
         self,

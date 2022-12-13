@@ -96,7 +96,7 @@ class RBAnalysis(curve.CurveAnalysis):
                 2Q RB is corrected to exclude the depolarization of underlying 1Q channels.
         """
         default_options = super()._default_options()
-        default_options.curve_drawer.set_options(
+        default_options.plotter.set_figure_options(
             xlabel="Clifford Length",
             ylabel="P(0)",
         )
@@ -104,6 +104,7 @@ class RBAnalysis(curve.CurveAnalysis):
         default_options.result_parameters = ["alpha"]
         default_options.gate_error_ratio = "default"
         default_options.epg_1_qubit = None
+        default_options.average_method = "sample"
 
         return default_options
 
@@ -147,48 +148,6 @@ class RBAnalysis(curve.CurveAnalysis):
         )
 
         return user_opt
-
-    def _format_data(
-        self,
-        curve_data: curve.CurveData,
-    ) -> curve.CurveData:
-        """Postprocessing for the processed dataset.
-
-        Args:
-            curve_data: Processed dataset created from experiment results.
-
-        Returns:
-            Formatted data.
-        """
-        # TODO Eventually move this to data processor, then create RB data processor.
-
-        # take average over the same x value by keeping sigma
-        data_allocation, xdata, ydata, sigma, shots = curve.data_processing.multi_mean_xy_data(
-            series=curve_data.data_allocation,
-            xdata=curve_data.x,
-            ydata=curve_data.y,
-            sigma=curve_data.y_err,
-            shots=curve_data.shots,
-            method="sample",
-        )
-
-        # sort by x value in ascending order
-        data_allocation, xdata, ydata, sigma, shots = curve.data_processing.data_sort(
-            series=data_allocation,
-            xdata=xdata,
-            ydata=ydata,
-            sigma=sigma,
-            shots=shots,
-        )
-
-        return curve.CurveData(
-            x=xdata,
-            y=ydata,
-            y_err=sigma,
-            shots=shots,
-            data_allocation=data_allocation,
-            labels=curve_data.labels,
-        )
 
     def _create_analysis_results(
         self,

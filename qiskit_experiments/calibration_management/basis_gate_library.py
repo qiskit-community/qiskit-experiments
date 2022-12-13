@@ -322,6 +322,7 @@ class EchoedCrossResonance(BasisGateLibrary):
         - cr45p: GaussianSquare cross-resonance gate for a :math:`+\pi/4` rotation.
         - cr45m: GaussianSquare cross-resonance gate for a :math:`-\pi/4` rotation.
         - ecr: Echoed cross-resonance gate defined as ``cr45p - x - cr45m``.
+        - rzx: RZXGate built from the ecr as ``cr45p - x - cr45m - x``.
 
     Required gates:
         - x: the x gate is defined outside of this library, see :class:`FixedFrequencyTransmon`.
@@ -356,7 +357,7 @@ class EchoedCrossResonance(BasisGateLibrary):
     @property
     def __supported_gates__(self) -> Dict[str, int]:
         """The supported gates of the library are two-qubit pulses for the ecr gate."""
-        return {"cr45p": 2, "cr45m": 2, "ecr": 2}
+        return {"cr45p": 2, "cr45m": 2, "ecr": 2, "rzx": 2}
 
     def default_values(self) -> List[DefaultCalValue]:
         """The default values of the CR library."""
@@ -403,15 +404,22 @@ class EchoedCrossResonance(BasisGateLibrary):
 
         if "cr45m" in basis_gates:
             with pulse.build(name="cr45m") as cr45m:
-                pulse.play(pulse.GaussianSquare(cr_dur, -cr_amp, width=cr_rf, sigma=sigma), u_chan)
+                pulse.play(
+                    pulse.GaussianSquare(cr_dur, -cr_amp, risefall_sigma_ratio=cr_rf, sigma=sigma),
+                    u_chan,
+                )
 
                 if self._target_pulses:
                     pulse.play(
-                        pulse.GaussianSquare(cr_dur, -tgt_amp, width=cr_rf, sigma=sigma), t_chan
+                        pulse.GaussianSquare(
+                            cr_dur, -tgt_amp, risefall_sigma_ratio=cr_rf, sigma=sigma
+                        ),
+                        t_chan,
                     )
 
             schedules["cr45m"] = cr45m
 
+        # Echoed Cross-Resonance gate
         if "ecr" in basis_gates:
             with pulse.build(name="ecr") as ecr:
                 with pulse.align_sequential():
@@ -420,5 +428,16 @@ class EchoedCrossResonance(BasisGateLibrary):
                     pulse.reference("cr45m", "q0", "q1")
 
             schedules["ecr"] = ecr
+
+        # RZXGate built from Echoed Cross-Resonance gate
+        if "rzx" in basis_gates:
+            with pulse.build(name="rzx") as rzx:
+                with pulse.align_sequential():
+                    pulse.reference("cr45p", "q0", "q1")
+                    pulse.reference("x", "q0")
+                    pulse.reference("cr45m", "q0", "q1")
+                    pulse.reference("x", "q0")
+
+            schedules["rzx"] = rzx
 
         return schedules
