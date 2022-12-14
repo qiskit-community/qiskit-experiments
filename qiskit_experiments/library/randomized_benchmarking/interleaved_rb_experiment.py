@@ -142,12 +142,13 @@ class InterleavedRB(StandardRB):
         )
         # Convert interleaved element to integer for speed in 1Q or 2Q case
         if self.num_qubits == 1:
-            self._interleaved_elem = num_from_1q_circuit(interleaved_clifford.to_circuit())
+            self._interleaved_cliff = num_from_1q_circuit(interleaved_clifford.to_circuit())
         elif self.num_qubits == 2:
-            self._interleaved_elem = num_from_2q_circuit(interleaved_clifford.to_circuit())
+            self._interleaved_cliff = num_from_2q_circuit(interleaved_clifford.to_circuit())
         else:
-            self._interleaved_elem = interleaved_clifford
-        self._interleaved_op = interleaved_element
+            self._interleaved_cliff = interleaved_clifford
+        self._interleaved_element = interleaved_element  # Original interleaved element
+        self._interleaved_op = None  # Transpiled interleaved element for speed
         self.analysis = InterleavedRBAnalysis()
         self.analysis.set_options(outcome="0" * self.num_qubits)
 
@@ -180,7 +181,7 @@ class InterleavedRB(StandardRB):
             new_seq = []
             for elem in seq:
                 new_seq.append(elem)
-                new_seq.append(self._interleaved_elem)
+                new_seq.append(self._interleaved_cliff)
             interleaved_sequences.append(new_seq)
         interleaved_circuits = self._sequences_to_circuits(interleaved_sequences)
         for circ, seq in zip(interleaved_circuits, reference_sequences):
@@ -195,13 +196,14 @@ class InterleavedRB(StandardRB):
     def _to_instruction(
         self, elem: SequenceElementType, basis_gates: Optional[Tuple[str]] = None
     ) -> Instruction:
-        if elem is self._interleaved_elem:
+        if elem is self._interleaved_cliff:
             return self._interleaved_op
 
         return super()._to_instruction(elem, basis_gates)
 
     def __set_up_interleaved_op(self) -> None:
         # Convert interleaved element to transpiled circuit operation and store it for speed
+        self._interleaved_op = self._interleaved_element
         basis_gates = self._get_basis_gates()
         # Convert interleaved element to circuit
         if isinstance(self._interleaved_op, Clifford):
