@@ -14,11 +14,12 @@ Quantum State Tomography experiment
 """
 
 from typing import Union, Optional, Iterable, List, Sequence
+from qiskit.providers.backend import Backend
 from qiskit.circuit import QuantumCircuit, Instruction
 from qiskit.quantum_info.operators.base_operator import BaseOperator
 from qiskit.quantum_info import Statevector, DensityMatrix, partial_trace
 from qiskit_experiments.exceptions import QiskitError
-from .tomography_experiment import TomographyExperiment
+from .tomography_experiment import TomographyExperiment, TomographyAnalysis, BaseAnalysis
 from .qst_analysis import StateTomographyAnalysis
 from . import basis
 
@@ -50,27 +51,36 @@ class StateTomography(TomographyExperiment):
     def __init__(
         self,
         circuit: Union[QuantumCircuit, Instruction, BaseOperator, Statevector],
+        backend: Optional[Backend] = None,
+        physical_qubits: Optional[Sequence[int]] = None,
         measurement_basis: basis.MeasurementBasis = basis.PauliMeasurementBasis(),
+        measurement_indices: Optional[Sequence[int]] = None,
         measurement_qubits: Optional[Sequence[int]] = None,
         basis_indices: Optional[Iterable[List[int]]] = None,
         qubits: Optional[Sequence[int]] = None,
+        analysis: Optional[BaseAnalysis] = None,
     ):
         """Initialize a quantum process tomography experiment.
 
         Args:
             circuit: the quantum process circuit. If not a quantum circuit
                 it must be a class that can be appended to a quantum circuit.
+            backend: The backend to run the experiment on.
+            physical_qubits: Optional, the physical qubits for the initial state circuit.
+                If None this will be qubits [0, N) for an N-qubit circuit.
             measurement_basis: Tomography basis for measurements. If not specified the
                 default basis is the :class:`~basis.PauliMeasurementBasis`.
-            measurement_qubits: Optional, the qubits to be measured. These should refer
-                to the logical qubits in the state circuit. If None all qubits
-                in the state circuit will be measured.
+            measurement_indices: Optional, the physical_qubit indices to be measured.
+                If None all circuit physical qubits will be measured.
+            measurement_qubits: DEPREACTED, equivalent to measurement_indices.
             basis_indices: Optional, a list of basis indices for generating partial
                 tomography measurement data. Each item should be given as a list of
                 measurement basis configurations ``[m[0], m[1], ...]`` where ``m[i]``
                 is the measurement basis index for qubit-i. If not specified full
                 tomography for all indices of the measurement basis will be performed.
-            qubits: Optional, the physical qubits for the initial state circuit.
+            qubits: DEPRECATED, the physical qubits for the initial state circuit.
+            analysis: Optional, a custom analysis class to use. If None the default
+                :class:`~.StateTomographyAnalysis` will be used.
         """
         if isinstance(circuit, Statevector):
             # Convert to circuit using initialize instruction
@@ -84,15 +94,19 @@ class StateTomography(TomographyExperiment):
 
         super().__init__(
             circuit,
+            backend=backend,
+            physical_qubits=physical_qubits,
             measurement_basis=measurement_basis,
+            measurement_indices=measurement_indices,
             measurement_qubits=measurement_qubits,
             basis_indices=basis_indices,
             qubits=qubits,
-            analysis=StateTomographyAnalysis(),
+            analysis=analysis or StateTomographyAnalysis(),
         )
 
         # Set target quantum state
-        self.analysis.set_options(target=self._target_quantum_state())
+        if isinstance(self.analysis, TomographyAnalysis):
+            self.analysis.set_options(target=self._target_quantum_state())
 
     def _target_quantum_state(self) -> Union[Statevector, DensityMatrix]:
         """Return the state tomography target"""
@@ -112,10 +126,10 @@ class StateTomography(TomographyExperiment):
             # Circuit couldn't be simulated
             return None
 
-        if self._meas_qubits is None:
+        if self._meas_indices is None:
             return state
 
-        non_meas_qargs = list(range(len(self._meas_qubits), self._circuit.num_qubits))
+        non_meas_qargs = list(range(len(self._meas_indices), self._circuit.num_qubits))
         if non_meas_qargs:
             # Trace over non-measured qubits
             state = partial_trace(state, non_meas_qargs)
