@@ -48,9 +48,13 @@ class PlotStyle(dict):
 
         Style Parameters:
             figsize (Tuple[int,int]): The size of the figure ``(width, height)``, in inches.
-            legend_loc (str): The location of the legend.
+            legend_loc (Optional[str]): The location of the legend in axis coordinates. If None, location
+                is automatically determined by the drawer.
             tick_label_size (int): The font size for tick labels.
             axis_label_size (int): The font size for axis labels.
+            symbol_size (float): The size of symbols for points/markers, proportional to the area of the
+                drawn graphic.
+            errorbar_capsize (float): The size of end-caps for error-bars.
             textbox_rel_pos (Tuple[float,float]): The relative position ``(horizontal, vertical)`` of
                 textboxes, as a percentage of the canvas dimensions.
             textbox_text_size (int): The font size for textboxes.
@@ -61,16 +65,20 @@ class PlotStyle(dict):
         style = {
             # size of figure (width, height)
             "figsize": (8, 5),  # Tuple[int, int]
-            # legend location (vertical, horizontal)
-            "legend_loc": "center right",  # str
+            # legend location (vertical, horizontal) or None.
+            "legend_loc": None,  # str
             # size of tick label
             "tick_label_size": 14,  #  int
             # size of axis label
             "axis_label_size": 16,  # int
             # relative position of a textbox
-            "textbox_rel_pos": (0.6, 0.95),  # Tuple[float, float]
+            "textbox_rel_pos": (0.5, -0.25),  # Tuple[float, float]
             # size of textbox text
-            "textbox_text_size": 14,  # int
+            "textbox_text_size": 12,  # int
+            # size of caps for error-bars
+            "errorbar_capsize": 4,  # float
+            # Default size of symbols, used for graphics where symbols are drawn for points.
+            "symbol_size": 6.0,  # float
         }
         return cls(**style)
 
