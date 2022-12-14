@@ -72,7 +72,7 @@ class StateTomography(TomographyExperiment):
                 default basis is the :class:`~basis.PauliMeasurementBasis`.
             measurement_indices: Optional, the physical_qubit indices to be measured.
                 If None all circuit physical qubits will be measured.
-            measurement_qubits: DEPREACTED, equivalent to measurement_indices.
+            measurement_qubits: DEPRECATED, equivalent to measurement_indices.
             basis_indices: Optional, a list of basis indices for generating partial
                 tomography measurement data. Each item should be given as a list of
                 measurement basis configurations ``[m[0], m[1], ...]`` where ``m[i]``

@@ -77,11 +77,11 @@ class TomographyExperiment(BaseExperiment):
             measurement_basis: Tomography basis for measurements.
             measurement_indices: Optional, the physical_qubit indices to be measured.
                 If None all circuit physical qubits will be measured.
-            measurement_qubits: DEPREACTED, equivalent to measurement_indices.
+            measurement_qubits: DEPRECATED, equivalent to measurement_indices.
             preparation_basis: Tomography basis for measurements.
             preparation_indices: Optional, the physical_qubits indices to be prepared.
                 If None all circuit physical qubits will be prepared.
-            preparation_qubits: DEPREACTED, equivalent to preparation_indices.
+            preparation_qubits: DEPRECATED, equivalent to preparation_indices.
             basis_indices: Optional, the basis elements to be measured. If None
                 All basis elements will be measured.
             qubits: DEPRECATED, the physical qubits for the initial state circuit.
