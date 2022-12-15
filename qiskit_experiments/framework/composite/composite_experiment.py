@@ -183,7 +183,7 @@ class CompositeExperiment(BaseExperiment):
                 "separate_jobs", False
             ) and subexp.experiment_options.get("separate_jobs", False):
                 raise QiskitError(
-                    "It is not allowed to equest to separate jobs in a child experiment,"
+                    "It is not allowed to request to separate jobs in a child experiment,"
                     " if its parent does not separate jobs as well"
                 )
 

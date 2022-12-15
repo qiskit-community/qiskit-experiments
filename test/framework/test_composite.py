@@ -855,19 +855,3 @@ class TestBatchTranspileOptions(QiskitExperimentsTestCase):
         self.assertExperimentDone(meta_expdata)
         job_ids = meta_expdata.job_ids
         self.assertEqual(len(job_ids), 2)
-
-        # calling _run_jobs with the batch experiment circuits will fail,
-        # because _set_backend must be called first.
-        # Here we exploit this failure to verify that,
-        # whenever _run_jobs fails, the circuits after catching the exception
-        # are clean from the local_metadata attribute.
-        circs = batch_exp.circuits()
-        with self.assertRaises(AttributeError):
-            batch_exp._run_jobs(circs)
-        self.assertFalse(hasattr(circs[0], "local_metadata"))
-
-        # similar to the previous checkm but for a successful run of _run_jobs
-        circs = batch_exp.circuits()
-        exp._set_backend(backend)
-        batch_exp._run_jobs(circs)
-        self.assertFalse(hasattr(circs[0], "local_metadata"))
