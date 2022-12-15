@@ -128,12 +128,15 @@ class BatchExperiment(CompositeExperiment):
         new_circuit.append(circuit, qubit_mapping, list(range(num_clbits)))
         return new_circuit
 
-    def _run_jobs_recursive(self, circuits: List[QuantumCircuit], truncated_metadata: List[Dict], **run_options) -> List[Job]:
+    def _run_jobs_recursive(
+        self, circuits: List[QuantumCircuit], truncated_metadata: List[Dict], **run_options
+    ) -> List[Job]:
         # The truncated metadata is a truncation of the original composite metadata.
-        # During the recursion, the current experiment (self) will be at the head of the truncated metadata.
-        
+        # During the recursion, the current experiment (self) will be at the head of the truncated
+        # metadata.
+
         if self.experiment_options.separate_jobs:
-             # A dictionary that maps sub-experiments to their circuits
+            # A dictionary that maps sub-experiments to their circuits
             circs_by_subexps = defaultdict(list)
             for circ_iter, (circ, tmd) in enumerate(zip(circuits, truncated_metadata)):
                 # For batch experiments the composite index is always a list of length 1,
@@ -152,14 +155,16 @@ class BatchExperiment(CompositeExperiment):
                 # Currently all the sub-experiments must use the same set of run options,
                 # even if they run in different jobs
                 if isinstance(exp, BatchExperiment):
-                    new_jobs = exp._run_jobs_recursive(circs_by_subexps[index], truncated_metadata, **run_options)
+                    new_jobs = exp._run_jobs_recursive(
+                        circs_by_subexps[index], truncated_metadata, **run_options
+                    )
                 else:
                     new_jobs = exp._run_jobs(circs_by_subexps[index], **run_options)
                 jobs.extend(new_jobs)
         else:
             jobs = super()._run_jobs(circuits, **run_options)
 
-        return jobs            
+        return jobs
 
     def _run_jobs(self, circuits: List[QuantumCircuit], **run_options) -> List[Job]:
         truncated_metadata = [circ.metadata for circ in circuits]

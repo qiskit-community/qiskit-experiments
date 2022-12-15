@@ -855,4 +855,3 @@ class TestBatchTranspileOptions(QiskitExperimentsTestCase):
         self.assertExperimentDone(meta_expdata)
         job_ids = meta_expdata.job_ids
         self.assertEqual(len(job_ids), 2)
-
