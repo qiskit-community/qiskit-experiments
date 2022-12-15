@@ -13,7 +13,7 @@
 """Test the fine amplitude characterization and calibration experiments."""
 from test.base import QiskitExperimentsTestCase
 import numpy as np
-from ddt import ddt, data #,unpack
+from ddt import ddt, data
 
 from qiskit import transpile
 from qiskit.circuit.library import XGate, SXGate
@@ -30,9 +30,11 @@ from qiskit_experiments.library import (
 from qiskit_experiments.calibration_management.basis_gate_library import FixedFrequencyTransmon
 from qiskit_experiments.calibration_management import Calibrations
 from qiskit_experiments.test.pulse_backend import SingleTransmonTestBackend
+from qiskit_experiments.test.mock_iq_backend import MockIQBackend
+from qiskit_experiments.test.mock_iq_helpers import MockIQFineAmpHelper as FineAmpHelper
+
 
 @ddt
-#@unpack
 class TestFineAmpEndToEnd(QiskitExperimentsTestCase):
     """Test the fine amplitude experiment."""
 
@@ -43,49 +45,45 @@ class TestFineAmpEndToEnd(QiskitExperimentsTestCase):
         self.qubit = 0
         self.backend = SingleTransmonTestBackend(noise=False)
 
-    @data(0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08)
-
-    def test_end_to_end_under_rotation(self, pi_ratio):
+    @data(-0.02, 0.03, -0.04, 0.05, -0.06, 0.07, -0.08)
+    def test_end_to_end(self, pi_ratio):
         """Test the experiment end to end."""
 
-        amp_exp = FineXAmplitude(self.qubit, backend=self.backend)
-        amp_exp.set_transpile_options(basis_gates=["x", "sx"])
+        backend_inst_map = self.backend.defaults().instruction_schedule_map
+        x_pulse = backend_inst_map.get("x", (self.qubit,)).instructions[0][1].pulse
 
-        error = -np.pi * pi_ratio       
+        with pulse.build(name="x") as x_sched:
+            pulse.play(
+                pulse.Drag(
+                    x_pulse.duration, x_pulse.amp * (1 + pi_ratio), x_pulse.sigma, x_pulse.beta
+                ),
+                pulse.DriveChannel(self.qubit),
+            )
+
+        inst_map = pulse.InstructionScheduleMap()
+        inst_map.add("x", (self.qubit,), x_sched)
+
+        amp_exp = FineXAmplitude(self.qubit, backend=self.backend)
+        amp_exp.set_transpile_options(basis_gates=["x", "sx"], inst_map=inst_map)
+
+        error = -np.pi * pi_ratio
 
         expdata = amp_exp.run()
         self.assertExperimentDone(expdata)
         result = expdata.analysis_results(1)
         d_theta = result.value.n
 
-        tol = 0.04
+        tol = 0.003
 
         self.assertAlmostEqual(d_theta, error, delta=tol)
-        self.assertEqual(result.quality, "good")
 
-    @data(0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08)
-    def test_end_to_end_over_rotation(self, pi_ratio):
-        """Test the experiment end to end."""
 
-        amp_exp = FineXAmplitude(self.qubit, backend=self.backend)
-        amp_exp.set_transpile_options(basis_gates=["x", "sx"])
-
-        error = np.pi * pi_ratio
-        
-        expdata = amp_exp.run()
-        self.assertExperimentDone(expdata)
-        result = expdata.analysis_results(1)
-        d_theta = result.value.n
-
-        tol = 0.04
-
-        self.assertAlmostEqual(d_theta, error, delta=tol)
-        self.assertEqual(result.quality, "good")
-
-# not for SingleTransmonTestBackend
 @ddt
 class TestFineZXAmpEndToEnd(QiskitExperimentsTestCase):
-    """Test the fine amplitude experiment."""
+    """Test the fine amplitude experiment.
+
+    Does not use the SingleTransmonTestBackend as this is a two-qubit experiment.
+    """
 
     @data(-0.08, -0.03, -0.02, 0.02, 0.06, 0.07)
     def test_end_to_end(self, pi_ratio):
@@ -119,7 +117,6 @@ class TestFineAmplitudeCircuits(QiskitExperimentsTestCase):
     def setUp(self):
         """Setup some schedules."""
         super().setUp()
-        
 
         with pulse.build(name="xp") as xp:
             pulse.play(Drag(duration=160, amp=0.208519, sigma=40, beta=0.0), DriveChannel(0))
