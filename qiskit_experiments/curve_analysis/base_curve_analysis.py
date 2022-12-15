@@ -16,15 +16,28 @@ Base class of curve analysis.
 
 import warnings
 from abc import ABC, abstractmethod
-from typing import List, Dict, Union
+from typing import Dict, List, Union
 
 import lmfit
 
 from qiskit_experiments.data_processing import DataProcessor
 from qiskit_experiments.data_processing.processor_library import get_processor
-from qiskit_experiments.framework import BaseAnalysis, AnalysisResultData, Options, ExperimentData
-from .curve_data import CurveData, ParameterRepr, CurveFitResult
-from .visualization import MplCurveDrawer, BaseCurveDrawer
+from qiskit_experiments.framework import (
+    AnalysisResultData,
+    BaseAnalysis,
+    ExperimentData,
+    Options,
+)
+from qiskit_experiments.visualization import (
+    BaseDrawer,
+    BasePlotter,
+    CurvePlotter,
+    LegacyCurveCompatDrawer,
+    MplDrawer,
+)
+from qiskit_experiments.warnings import deprecated_function
+
+from .curve_data import CurveData, CurveFitResult, ParameterRepr
 
 PARAMS_ENTRY_PREFIX = "@Parameters_"
 DATA_ENTRY_PREFIX = "@Data_"
@@ -113,16 +126,28 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
         """Return fit models."""
 
     @property
-    def drawer(self) -> BaseCurveDrawer:
-        """A short-cut for curve drawer instance."""
-        return self._options.curve_drawer
+    def plotter(self) -> BasePlotter:
+        """A short-cut to the curve plotter instance."""
+        return self._options.plotter
+
+    @property
+    @deprecated_function(
+        last_version="0.6",
+        msg="Replaced by `plotter` from the new visualization submodule.",
+    )
+    def drawer(self) -> BaseDrawer:
+        """A short-cut for curve drawer instance, if set. ``None`` otherwise."""
+        if isinstance(self.plotter.drawer, LegacyCurveCompatDrawer):
+            return self.plotter.drawer._curve_drawer
+        else:
+            return None
 
     @classmethod
     def _default_options(cls) -> Options:
         """Return default analysis options.
 
         Analysis Options:
-            curve_drawer (BaseCurveDrawer): A curve drawer instance to visualize
+            plotter (BasePlotter): A curve plotter instance to visualize
                 the analysis result.
             plot_raw_data (bool): Set ``True`` to draw processed data points,
                 dataset without formatting, on canvas. This is ``False`` by default.
@@ -137,6 +162,11 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
                 instance that defines the `self.__call__` method.
             normalization (bool) : Set ``True`` to normalize y values within range [-1, 1].
                 Default to ``False``.
+            average_method (str): Method to average the y values when the same x values
+                appear multiple times. One of "sample", "iwv" (i.e. inverse weighted variance),
+                "shots_weighted". See
+                :func:`~qiskit_experiments.curve_analysis.data_processing.mean_xy_data`
+                for details. Default to "shots_weighted".
             p0 (Dict[str, float]): Initial guesses for the fit parameters.
                 The dictionary is keyed on the fit parameter names.
             bounds (Dict[str, Tuple[float, float]]): Boundary of fit parameters.
@@ -164,17 +194,22 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
             filter_data (Dict[str, Any]): Dictionary of experiment data metadata to filter.
                 Experiment outcomes with metadata that matches with this dictionary
                 are used in the analysis. If not specified, all experiment data are
-                input to the curve fitter. By default no filtering condition is set.
+                input to the curve fitter. By default, no filtering condition is set.
+            data_subfit_map (Dict[str, Dict[str, Any]]): The mapping of experiment result data
+                to sub-fit models. This dictionary is keyed on the LMFIT model name,
+                and the value is a sorting key-value pair that filters the experiment results,
+                and the filtering is done based on the circuit metadata.
         """
         options = super()._default_options()
 
-        options.curve_drawer = MplCurveDrawer()
+        options.plotter = CurvePlotter(MplDrawer())
         options.plot_raw_data = False
         options.plot = True
         options.return_fit_parameters = True
         options.return_data_points = False
         options.data_processor = None
         options.normalization = False
+        options.average_method = "shots_weighted"
         options.x_key = "xval"
         options.result_parameters = []
         options.extra = {}
@@ -184,10 +219,11 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
         options.bounds = {}
         options.fixed_parameters = {}
         options.filter_data = {}
+        options.data_subfit_map = {}
 
         # Set automatic validator for particular option values
         options.set_validator(field="data_processor", validator_value=DataProcessor)
-        options.set_validator(field="curve_drawer", validator_value=BaseCurveDrawer)
+        options.set_validator(field="plotter", validator_value=BasePlotter)
 
         return options
 
@@ -210,6 +246,27 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
                 stacklevel=2,
             )
             fields["lmfit_options"] = fields.pop("curve_fitter_options")
+
+        # TODO remove this in Qiskit Experiments 0.6
+        if "curve_drawer" in fields:
+            warnings.warn(
+                "The option 'curve_drawer' is replaced with 'plotter'. "
+                "This option will be removed in Qiskit Experiments 0.6.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            # Set the plotter drawer to `curve_drawer`. If `curve_drawer` is the right type, set it
+            # directly. If not, wrap it in a compatibility drawer.
+            if isinstance(fields["curve_drawer"], BaseDrawer):
+                plotter = self.options.plotter
+                plotter.drawer = fields.pop("curve_drawer")
+                fields["plotter"] = plotter
+            else:
+                drawer = fields["curve_drawer"]
+                compat_drawer = LegacyCurveCompatDrawer(drawer)
+                plotter = self.options.plotter
+                plotter.drawer = compat_drawer
+                fields["plotter"] = plotter
 
         super().set_options(**fields)
 
@@ -381,3 +438,20 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
         if not data_processor.is_trained:
             data_processor.train(data=experiment_data.data())
         self.set_options(data_processor=data_processor)
+
+        # Check if a model contains legacy data mapping option.
+        data_subfit_map = {}
+        for model in self.models:
+            if "data_sort_key" in model.opts:
+                data_subfit_map[model._name] = model.opts["data_sort_key"]
+                del model.opts["data_sort_key"]
+        if data_subfit_map:
+            warnings.warn(
+                "Setting 'data_sort_key' to an LMFIT model constructor is no longer "
+                "valid configuration of the model. "
+                "Use 'data_subfit_map' option in the analysis options. "
+                "This warning will be dropped in v0.6 along with the support for the "
+                "'data_sort_key' in the LMFIT model options.",
+                DeprecationWarning,
+            )
+            self.set_options(data_subfit_map=data_subfit_map)

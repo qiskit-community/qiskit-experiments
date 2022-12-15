@@ -39,6 +39,7 @@ Classes
     Calibrations
     ParameterValue
     FixedFrequencyTransmon
+    EchoedCrossResonance
     BasisGateLibrary
     BaseCalibrationExperiment
 

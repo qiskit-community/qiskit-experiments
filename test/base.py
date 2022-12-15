@@ -32,12 +32,29 @@ from qiskit_experiments.framework import (
     BaseExperiment,
     BaseAnalysis,
 )
-from qiskit_experiments.curve_analysis.visualization.base_drawer import BaseCurveDrawer
+from qiskit_experiments.visualization import BaseDrawer
 from qiskit_experiments.curve_analysis.curve_data import CurveFitResult
 
 
 class QiskitExperimentsTestCase(QiskitTestCase):
     """Qiskit Experiments specific extra functionality for test cases."""
+
+    @classmethod
+    def setUpClass(cls):
+        """Set-up test class."""
+        super().setUpClass()
+
+        # Some functionality may be deprecated in Qiskit Experiments. If the deprecation warnings aren't
+        # filtered, the tests will fail as ``QiskitTestCase`` sets all warnings to be treated as an error
+        # by default.
+        # pylint: disable=invalid-name
+        allow_deprecationwarning_message = [
+            # TODO: Remove in 0.6, when submodule `.curve_analysis.visualization` is removed.
+            r".*Plotting and drawing functionality has been moved",
+            r".*Legacy drawers from `.curve_analysis.visualization are deprecated",
+        ]
+        for msg in allow_deprecationwarning_message:
+            warnings.filterwarnings("default", category=DeprecationWarning, message=msg)
 
     def assertExperimentDone(
         self,
@@ -109,7 +126,7 @@ class QiskitExperimentsTestCase(QiskitTestCase):
     def json_equiv(cls, data1, data2) -> bool:
         """Check if two experiments are equivalent by comparing their configs"""
         # pylint: disable = too-many-return-statements
-        configurable_type = (BaseExperiment, BaseAnalysis, BaseCurveDrawer)
+        configurable_type = (BaseExperiment, BaseAnalysis, BaseDrawer)
         compare_repr = (DataAction, DataProcessor)
         list_type = (list, tuple, set)
         skipped = tuple()

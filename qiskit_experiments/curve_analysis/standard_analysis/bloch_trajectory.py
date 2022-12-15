@@ -120,8 +120,7 @@ class BlochTrajectoryAnalysis(curve.CurveAnalysis):
             models.append(
                 lmfit.models.ExpressionModel(
                     expr=eq,
-                    name=f"{axis}",
-                    data_sort_key={"meas_basis": axis},
+                    name=axis,
                 )
             )
 
@@ -138,12 +137,17 @@ class BlochTrajectoryAnalysis(curve.CurveAnalysis):
             input_key="counts",
             data_actions=[dp.Probability("1"), dp.BasisExpectationValue()],
         )
-        default_options.curve_drawer.set_options(
+        default_options.plotter.set_figure_options(
             xlabel="Flat top width",
             ylabel="Pauli expectation values",
             xval_unit="s",
             ylim=(-1, 1),
         )
+        default_options.data_subfit_map = {
+            "x": {"meas_basis": "x"},
+            "y": {"meas_basis": "y"},
+            "z": {"meas_basis": "z"},
+        }
 
         return default_options
 

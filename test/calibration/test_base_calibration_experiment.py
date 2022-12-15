@@ -14,6 +14,8 @@
 
 from test.base import QiskitExperimentsTestCase
 
+from qiskit.circuit import QuantumCircuit
+
 from qiskit_experiments.library import QubitSpectroscopy
 from qiskit_experiments.calibration_management.calibrations import Calibrations
 from qiskit_experiments.calibration_management.base_calibration_experiment import (
@@ -33,6 +35,10 @@ class TestBaseCalibrationClass(QiskitExperimentsTestCase):
             def __init__(self):
                 """A dummy class for parent order testing."""
                 super().__init__(Calibrations(coupling_map=[]), 0, [0, 1, 2])
+
+            def _attach_calibrations(self, circuit: QuantumCircuit):
+                """Needed as this method is abstract"""
+                pass
 
         CorrectOrder()
 
