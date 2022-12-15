@@ -14,7 +14,7 @@ Batch Experiment class.
 """
 
 from typing import List, Optional, Dict
-from collections import OrderedDict
+from collections import OrderedDict, defaultdict
 
 from qiskit import QuantumCircuit
 from qiskit.providers import Job, Backend, Options
@@ -134,16 +134,13 @@ class BatchExperiment(CompositeExperiment):
         
         if self.experiment_options.separate_jobs:
              # A dictionary that maps sub-experiments to their circuits
-            circs_by_subexps = {}
+            circs_by_subexps = defaultdict(list)
             for circ_iter, (circ, tmd) in enumerate(zip(circuits, truncated_metadata)):
                 # For batch experiments the composite index is always a list of length 1,
                 # because unlike parallel experiment, each circuit originates from a single
                 # sub-experiment.
                 circ_index = tmd["composite_index"][0]
-                if circ_index in circs_by_subexps:
-                    circs_by_subexps[circ_index].append(circ)
-                else:
-                    circs_by_subexps[circ_index] = [circ]
+                circs_by_subexps[circ_index].append(circ)
 
                 # For batch experiments the composite metadata is always a list of length 1,
                 # because unlike parallel experiment, each circuit originates from a single
