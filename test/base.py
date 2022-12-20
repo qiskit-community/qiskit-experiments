@@ -19,6 +19,16 @@ import pickle
 import warnings
 from typing import Any, Callable, Optional
 
+# Temporary work around for https://github.com/Qiskit/qiskit-terra/issues/9291
+# The class decorator / method wrapper in qiskit does not handle
+# __init_subclass__ properly. Python 3.11.1 added an __init_subclass__ to
+# TestCase. It's not that important so as a temporary hack we just drop it.
+from unittest import TestCase
+
+if "__init_subclass__" in TestCase.__dict__:
+    del TestCase.__init_subclass__
+# pylint: disable=wrong-import-position
+
 import numpy as np
 import uncertainties
 from lmfit import Model
