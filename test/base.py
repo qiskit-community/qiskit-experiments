@@ -24,7 +24,10 @@ from typing import Any, Callable, Optional
 # __init_subclass__ properly. Python 3.11.1 added an __init_subclass__ to
 # TestCase. It's not that important so as a temporary hack we just drop it.
 from unittest import TestCase
-
+if not hasattr(TestCase, "_test_cleanups"):
+    TestCase._test_cleanups = []
+if not hasattr(TestCase, "_classSetupFailed"):
+    TestCase._classSetupFailed = False
 if "__init_subclass__" in TestCase.__dict__:
     del TestCase.__init_subclass__
 # pylint: disable=wrong-import-position
