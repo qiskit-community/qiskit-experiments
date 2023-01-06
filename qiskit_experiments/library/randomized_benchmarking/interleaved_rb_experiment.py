@@ -183,7 +183,7 @@ class InterleavedRB(StandardRB):
                 new_seq.append(elem)
                 new_seq.append(self._interleaved_cliff)
             interleaved_sequences.append(new_seq)
-        interleaved_circuits = self._sequences_to_circuits(interleaved_sequences)
+        interleaved_circuits = self._sequences_to_circuits(interleaved_sequences, True)
         for circ, seq in zip(interleaved_circuits, reference_sequences):
             circ.metadata = {
                 "xval": len(seq),  # set length of the reference sequence
@@ -194,12 +194,14 @@ class InterleavedRB(StandardRB):
         return reference_circuits + interleaved_circuits
 
     def _to_instruction(
-        self, elem: SequenceElementType, basis_gates: Optional[Tuple[str]] = None
+        self,
+        elem: SequenceElementType,
+        basis_gates: Optional[Tuple[str]] = None,
+        preserve: bool = False,
     ) -> Instruction:
         if elem is self._interleaved_cliff:
-            return self._interleaved_op
-
-        return super()._to_instruction(elem, basis_gates)
+            elem = self._interleaved_element
+        return super()._to_instruction(elem, basis_gates, preserve)
 
     def __set_up_interleaved_op(self) -> None:
         # Convert interleaved element to transpiled circuit operation and store it for speed

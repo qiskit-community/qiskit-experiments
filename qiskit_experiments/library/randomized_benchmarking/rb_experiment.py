@@ -15,6 +15,7 @@ Standard RB Experiment class.
 import logging
 import functools
 from collections import defaultdict
+from itertools import cycle
 from numbers import Integral
 from typing import Union, Iterable, Optional, List, Sequence, Tuple
 
@@ -250,7 +251,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
         return None
 
     def _sequences_to_circuits(
-        self, sequences: List[Sequence[SequenceElementType]]
+        self, sequences: List[Sequence[SequenceElementType]], preserve_odd: bool = False
     ) -> List[QuantumCircuit]:
         """Convert an RB sequence into circuit and append the inverse to the end.
 
@@ -268,8 +269,8 @@ class StandardRB(BaseExperiment, RestlessMixin):
                 prev_elem, prev_seq = self.__identity_clifford(), []
 
             circ = QuantumCircuit(self.num_qubits)
-            for elem in seq:
-                circ.append(self._to_instruction(elem, basis_gates), circ.qubits)
+            for preserve, elem in zip(cycle([False, preserve_odd]), seq):
+                circ.append(self._to_instruction(elem, basis_gates, preserve), circ.qubits)
                 circ.append(Barrier(self.num_qubits), circ.qubits)
 
             # Compute inverse, compute only the difference from the previous shorter sequence
@@ -294,8 +295,13 @@ class StandardRB(BaseExperiment, RestlessMixin):
         return [random_clifford(self.num_qubits, rng).to_circuit() for _ in range(length)]
 
     def _to_instruction(
-        self, elem: SequenceElementType, basis_gates: Optional[Tuple[str, ...]] = None
+        self,
+        elem: SequenceElementType,
+        basis_gates: Optional[Tuple[str, ...]] = None,
+        preserve: bool = False,
     ) -> Instruction:
+        if preserve:
+            return elem
         # Switching for speed up
         if isinstance(elem, Integral):
             if self.num_qubits == 1:
