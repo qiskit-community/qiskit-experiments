@@ -60,7 +60,7 @@ class MplDrawer(BaseDrawer):
                 pos: the tick label position.
 
             Returns:
-                str: the formatted tick label.
+                The formatted tick label.
             """
             return self.fix_minus("{:.3g}".format(x * self.factor))
 
@@ -498,9 +498,9 @@ class MplDrawer(BaseDrawer):
             series_names: List of series names.
 
         Returns:
-            tuple: a tuple ``(cmap, map)`` where ``cmap`` is a Matplotlib Colormap instance and ``map``
-                is a dictionary that maps series names (dictionary keys) to floats (dictionary values)
-                that identify the series names' colours in ``cmap``.
+            A tuple ``(cmap, map)`` where ``cmap`` is a Matplotlib Colormap instance and ``map`` is a
+            dictionary that maps series names (dictionary keys) to floats (dictionary values) that
+            identify the series names' colours in ``cmap``.
         """
         # Remove duplicates from series_names, just in-case. Use dict.fromkeys to preserve order and
         # remove duplicates.

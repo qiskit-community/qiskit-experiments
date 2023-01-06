@@ -23,8 +23,9 @@ class PlotStyle(dict):
     have the prefix ``textbox_``. For default style parameter names and their values, see the
     :meth:`default_style` method.
 
-    Example:
+    .. rubric:: Example
     .. code-block:: python
+
         # Create custom style
         custom_style = PlotStyle(
             {
@@ -34,7 +35,7 @@ class PlotStyle(dict):
             }
         )
 
-        # Create full style, using PEP448 to combine with default style.
+        # Create full style instance by combining with default style.
         full_style = PlotStyle.merge(PlotStyle.default_style(), custom_style)
 
         # Query style parameters
@@ -46,7 +47,9 @@ class PlotStyle(dict):
     def default_style(cls) -> "PlotStyle":
         """The default style across Qiskit Experiments.
 
-        Style Parameters:
+        The following is a description of the default style parameters are what they are used for.
+
+        Parameters:
             figsize (Tuple[int,int]): The size of the figure ``(width, height)``, in inches.
             legend_loc (Optional[str]): The location of the legend in axis coordinates. If None, location
                 is automatically determined by the drawer.
@@ -94,6 +97,6 @@ class PlotStyle(dict):
             style2: Additional PlotStyle instance.
 
         Returns:
-            PlotStyle: merged style instance.
+            Merged style instance.
         """
         return PlotStyle({**style1, **style2})

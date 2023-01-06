@@ -23,12 +23,13 @@ from .base_plotter import BasePlotter
 class CurvePlotter(BasePlotter):
     """A plotter class to plot results from :class:`CurveAnalysis`.
 
-    :class:`CurvePlotter` plots results from curve-fits, which includes:
-        Raw results as a scatter plot.
-        Processed results with standard-deviations/confidence intervals.
-        Interpolated fit-results from the curve analysis.
-        Confidence interval for the fit-results.
-        A report on the performance of the fit.
+    ``CurvePlotter`` plots results from curve-fits, which includes
+
+        - Raw results as a scatter plot.
+        - Processed results with standard-deviations/confidence intervals.
+        - Interpolated fit-results from the curve analysis.
+        - Confidence interval for the fit-results.
+        - A report on the performance of the fit.
     """
 
     @classmethod
@@ -100,7 +101,7 @@ class CurvePlotter(BasePlotter):
 
         Figure Options:
             report_red_chi2_label (str): The label for the reduced-chi squared entry of the fit
-                report. Defaults to "reduced-$\\chi^2$`.
+                report. Defaults to "reduced-$\\\\chi^2$`.
         """
         fig_opts = super()._default_figure_options()
         fig_opts.report_red_chi2_label = "reduced-$\\chi^2$"

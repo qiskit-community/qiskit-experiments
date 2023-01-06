@@ -56,7 +56,7 @@ class DataExtentCalculator:
         """The multiplier by which to scale the data-extent.
 
         Returns:
-            float: The multiplier for the computed extent.
+            The multiplier for the computed extent.
         """
         return self._multiplier
 
@@ -68,7 +68,7 @@ class DataExtentCalculator:
         achieve a given aspect ratio; instead only scale by :attr:`multiplier`.
 
         Returns:
-            Optional[float]: The target aspect ratio of the computed extent tuple.
+            The target aspect ratio of the computed extent tuple.
         """
         return self._aspect_ratio
 
@@ -130,8 +130,8 @@ class DataExtentCalculator:
             extent: The extent array for the range.
 
         Returns:
-            np.ndarray: the array ``[x_range, y_range]`` where ``x_range`` and ``y_range`` are the ranges
-                for their respective dimensions.
+            The array ``[x_range, y_range]`` where ``x_range`` and ``y_range`` are the ranges for their
+            respective dimensions.
         """
         return np.diff(
             extent,
@@ -146,8 +146,7 @@ class DataExtentCalculator:
             extent: The extent array for the midpoint.
 
         Returns:
-            np.ndarray: the array ``[x, y]`` where ``x`` and ``y`` are the midpoints for their respective
-                dimensions.
+            The array ``[x, y]`` where ``x`` and ``y`` are the midpoints for their respective dimensions.
         """
         return np.mean(
             extent,
@@ -165,8 +164,7 @@ class DataExtentCalculator:
             midpoint: The midpoint of the extent.
 
         Returns:
-            np.ndarray: an extent array with range and midpoint corresponding to ``extent_range`` and
-                ``midpoint``.
+            An extent array with range and midpoint corresponding to ``extent_range`` and ``midpoint``.
         """
         radii = extent_range.flatten() / 2
         new_extent = np.zeros((2, 2))
@@ -193,7 +191,7 @@ class DataExtentCalculator:
             for the extent array. If None, ``extent`` is not extended. Defaults to None.
 
         Returns:
-            np.ndarray: ``extent``, extended to have an aspect ratio defined by ``target_aspect_ratio``.
+            ``extent`` extended to have an aspect ratio defined by ``target_aspect_ratio``.
         """
         if target_aspect_ratio is None:
             return extent
@@ -229,8 +227,8 @@ class DataExtentCalculator:
                 registered before calling :meth:`extent`.
 
         Returns:
-            tuple: the extent tuple for the registered data, scaled by ``multiplier``, and then extended
-                to achieve the set aspect ratio.
+            The extent tuple for the registered data, scaled by ``multiplier``, and then extended to
+            achieve the set aspect ratio.
         """
         if not np.all(np.isfinite(self._data_extent)):
             is_infinite = np.argwhere(np.invert(np.isfinite(self._data_extent)))

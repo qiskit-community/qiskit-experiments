@@ -28,6 +28,8 @@ SeriesName = Union[str, int, float]
 class BaseDrawer(ABC):
     """Abstract class for the serializable Qiskit Experiments figure drawer.
 
+    # section: overview
+
     A drawer may be implemented by different drawer backends such as matplotlib or Plotly. Sub-classes
     that wrap these backends by subclassing :class:`BaseDrawer` must implement the following abstract
     methods.
@@ -51,8 +53,7 @@ class BaseDrawer(ABC):
         Note that the axis SI unit may be specified in the drawer figure_options. In this case, axis
         numbers should be auto-scaled with the unit prefix.
 
-    Drawing Methods
-    ===============
+    .. rubric:: Drawing Methods
 
     .. describe:: scatter
 
@@ -80,24 +81,7 @@ class BaseDrawer(ABC):
         This method draws a text-box on the canvas, which is a rectangular region containing some
         text.
 
-    Options and Figure Options
-    ==========================
-
-    Drawers have both :attr:`options` and :attr:`figure_options` available to set parameters that define
-    how to draw and what is drawn, respectively. :class:`BasePlotter` is similar in that it also has
-    ``options`` and ``figure_options`. The former contains class-specific variables that define how an
-    instance behaves. The latter contains figure-specific variables that typically contain values that
-    are drawn on the canvas, such as text. For details on the difference between the two sets of options,
-    see the documentation for :class:`BasePlotter`.
-
-    .. note::
-        If a drawer instance is used with a plotter, then there is the potential for any figure-option
-        to be overwritten with their value from the plotter. This means that the drawer instance would
-        be modified indirectly when the :meth:`BasePlotter.figure` method is called. This must be kept
-        in mind when creating subclasses of :class:`BaseDrawer`.
-
-    Legends
-    =======
+    .. rubric:: Legends
 
     Legends are generated based off of drawn graphics and their labels or names. These are managed by
     individual drawer subclasses, and generated when the :meth:`format_canvas` method is called. Legend
@@ -112,6 +96,7 @@ class BaseDrawer(ABC):
     given series.
 
     The recommended way to customize the legend entries is as follows:
+
         1. Set the labels in the ``series_params`` option, keyed on the series names.
         2. Initialize the canvas.
         3. Call relevant drawing methods to create the figure. When calling the drawing method that
@@ -119,6 +104,22 @@ class BaseDrawer(ABC):
            ``drawer.scatter(...,legend=True)`` would use the scatter points as the legend graphics for
            the given series.
         4. Format the canvas and call :meth:`figure` to get the figure.
+
+    .. rubric:: Options and Figure Options
+
+    Drawers have both :attr:`options` and :attr:`figure_options` available to set parameters that define
+    how to draw and what is drawn, respectively. :class:`BasePlotter` is similar in that it also has
+    ``options`` and ``figure_options``. The former contains class-specific variables that define how an
+    instance behaves. The latter contains figure-specific variables that typically contain values that
+    are drawn on the canvas, such as text. For details on the difference between the two sets of options,
+    see the documentation for :class:`BasePlotter`.
+
+    .. note::
+        If a drawer instance is used with a plotter, then there is the potential for any figure-option
+        to be overwritten with their value from the plotter. This means that the drawer instance would
+        be modified indirectly when the :meth:`BasePlotter.figure` method is called. This must be kept
+        in mind when creating subclasses of :class:`BaseDrawer`.
+
     """
 
     def __init__(self):
@@ -209,7 +210,7 @@ class BaseDrawer(ABC):
                 provided series label that appears in the legend.
             custom_style (PlotStyle): The style definition to use when drawing. This overwrites style
                 parameters in ``default_style`` in :attr:`options`. Defaults to an empty PlotStyle
-                instance (i.e., :code-block:`PlotStyle()`).
+                instance (i.e., ``PlotStyle()``).
         """
         return Options(
             xlabel=None,
@@ -270,7 +271,7 @@ class BaseDrawer(ABC):
         style is equivalent to ``default_style``.
 
         Returns:
-            PlotStyle: The plot style for this drawer.
+            The plot style for this drawer.
         """
         if isinstance(self.figure_options.custom_style, PlotStyle):
             return PlotStyle.merge(self.options.default_style, self.figure_options.custom_style)
@@ -290,18 +291,18 @@ class BaseDrawer(ABC):
         This method determines the legend label for a series, with optional overrides ``label`` and the
         ``"label"`` entry in the ``series_params`` option (see :attr:`options`). ``label`` is returned if
         it is not ``None``, as this is the override with the highest priority. If it is ``None``, then
-        the drawer will look for a ``"label"`` entry in ``series_params`, for the series identified by
+        the drawer will look for a ``"label"`` entry in ``series_params``, for the series identified by
         ``name``. If this entry doesn't exist, or is ``None``, then ``name`` is used as the label. If all
         these options are ``None``, then ``None`` is returned; signifying that a legend entry for the
         provided series should not be generated. Note that :meth:`label_for` will convert ``name`` to
-        :type:`str` when it is returned.
+        ``str`` when it is returned.
 
         Args:
             name: The name of the series.
             label: Optional label override.
 
         Returns:
-            Optional[str]: The legend entry label, or ``None``.
+            The legend entry label, or ``None``.
         """
         if label is not None:
             return str(label)
@@ -333,9 +334,9 @@ class BaseDrawer(ABC):
             label: Optional legend label to override ``name`` and ``series_params``.
             legend: Whether the drawn area must have a legend entry. Defaults to False.
                 The series label in the legend will be ``label`` if it is not None. If it is, then
-                ``series_params`` is searched for a "label" entry for the series identified by ``name``.
-                If this is also ``None``, then ``name`` is used as the fallback. If no ``name`` is
-                provided, then no legend entry is generated.
+                ``series_params`` is searched for a ``"label"`` entry for the series identified by
+                ``name``. If this is also ``None``, then ``name`` is used as the fallback. If no ``name``
+                is provided, then no legend entry is generated.
             options: Valid options for the drawer backend API.
         """
 
@@ -358,9 +359,9 @@ class BaseDrawer(ABC):
             label: Optional legend label to override ``name`` and ``series_params``.
             legend: Whether the drawn area must have a legend entry. Defaults to False.
                 The series label in the legend will be ``label`` if it is not None. If it is, then
-                ``series_params`` is searched for a "label" entry for the series identified by ``name``.
-                If this is also ``None``, then ``name`` is used as the fallback. If no ``name`` is
-                provided, then no legend entry is generated.
+                ``series_params`` is searched for a ``"label"`` entry for the series identified by
+                ``name``. If this is also ``None``, then ``name`` is used as the fallback. If no ``name``
+                is provided, then no legend entry is generated.
             options: Valid options for the drawer backend API.
         """
 
@@ -385,9 +386,9 @@ class BaseDrawer(ABC):
             label: Optional legend label to override ``name`` and ``series_params``.
             legend: Whether the drawn area must have a legend entry. Defaults to False.
                 The series label in the legend will be ``label`` if it is not None. If it is, then
-                ``series_params`` is searched for a "label" entry for the series identified by ``name``.
-                If this is also ``None``, then ``name`` is used as the fallback. If no ``name`` is
-                provided, then no legend entry is generated.
+                ``series_params`` is searched for a ``"label"`` entry for the series identified by
+                ``name``. If this is also ``None``, then ``name`` is used as the fallback. If no ``name``
+                is provided, then no legend entry is generated.
             options: Valid options for the drawer backend API.
         """
 
@@ -412,9 +413,9 @@ class BaseDrawer(ABC):
             label: Optional legend label to override ``name`` and ``series_params``.
             legend: Whether the drawn area must have a legend entry. Defaults to False.
                 The series label in the legend will be ``label`` if it is not None. If it is, then
-                ``series_params`` is searched for a "label" entry for the series identified by ``name``.
-                If this is also ``None``, then ``name`` is used as the fallback. If no ``name`` is
-                provided, then no legend entry is generated.
+                ``series_params`` is searched for a ``"label"`` entry for the series identified by
+                ``name``. If this is also ``None``, then ``name`` is used as the fallback. If no ``name``
+                is provided, then no legend entry is generated.
             options: Valid options for the drawer backend API.
         """
 
@@ -429,8 +430,8 @@ class BaseDrawer(ABC):
 
         Args:
             description: A string to be drawn inside a report box.
-            rel_pos: Relative position of the text-box. If None, the default ``textbox_rel_pos`` from
-                the style is used.
+            rel_pos: Relative position of the text-box. If None, the default ``textbox_rel_pos`` from the
+                style is used.
             options: Valid options for the drawer backend API.
         """
 

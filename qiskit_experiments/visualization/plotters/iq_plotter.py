@@ -91,7 +91,7 @@ class IQPlotter(BasePlotter):
             discriminator: A trained discriminator that classifies IQ points. If provided, the
                 predictions of the discriminator will be sampled to generate a background image,
                 indicating the regions for each predicted outcome. The predictions are assumed to be
-                series names (:type:`Union[str, int, float]`). The generated image allows viewers to see
+                series names (``Union[str, int, float]``). The generated image allows viewers to see
                 how well the discriminator classifies the provided series data. Must be a subclass of
                 :class:`BaseDiscriminator`. See :attr:`options` for ways to control the generation of the
                 discriminator prediction image.
@@ -106,9 +106,8 @@ class IQPlotter(BasePlotter):
         """Computes the extent tuple of the data being plotted.
 
         Returns:
-            Optional[tuple]: The tuple ``(x_min, x_max, y_min, y_max)``, defining a rectangle containing
-                all the data for this plotter. If the plotter contains no data, ``None`` is returned
-                instead.
+            The tuple ``(x_min, x_max, y_min, y_max)``, defining a rectangle containing all the data for
+            this plotter. If the plotter contains no data, ``None`` is returned instead.
         """
         ext_calc = DataExtentCalculator(
             multiplier=self.options.discriminator_multiplier,
@@ -141,9 +140,8 @@ class IQPlotter(BasePlotter):
         """Compute the array/image sampled from the discriminator predictions.
 
         Returns:
-            tuple: The tuple ``(img, extent)`` where ``img`` is an optional 2D NumPy array of
-                predictions and ``extent`` is a tuple of the extent ``(x_min, x_max, y_min, y_max)`` of
-                the image.
+            The tuple ``(img, extent)`` where ``img`` is an optional 2D NumPy array of predictions and
+            ``extent`` is a tuple of the extent ``(x_min, x_max, y_min, y_max)`` of the image.
         """
         # If the discriminator is not provided, cannot compute the image.
         if "discriminator" not in self.supplementary_data:
@@ -253,9 +251,8 @@ class IQPlotter(BasePlotter):
             points: The list of points to check for misclassification.
 
         Returns:
-            Optional[np.ndarray]: A NumPy array of IQ points, being those that were misclassified by the
-            discriminator. If the discriminator isn't set and trained, then `None` is returned. The array
-            may be empty.
+            A NumPy array of IQ points, being those that were misclassified by the discriminator. If the
+            discriminator isn't set and trained, then `None` is returned. The array may be empty.
         """
         # Check if we have a discriminator, and if it is trained. If not, return None.
         if "discriminator" not in self.supplementary_data:

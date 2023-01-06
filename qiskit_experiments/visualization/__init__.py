@@ -36,7 +36,7 @@ class. These instances can be merged and updated, so that default styles can hav
 overwritten.
 
 Plotter Library
-==============
+===============
 
 .. autosummary::
     :toctree: ../stubs/

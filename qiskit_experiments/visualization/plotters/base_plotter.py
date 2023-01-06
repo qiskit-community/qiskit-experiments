@@ -24,12 +24,14 @@ from ..style import PlotStyle
 class BasePlotter(ABC):
     """An abstract class for the serializable figure plotters.
 
+    # section: overview
+
     A plotter takes data from an experiment analysis class or experiment and plots a given figure using a
     drawing backend. Sub-classes define the kind of figure created and the expected data.
 
     Data is split into series and supplementary data. Series data is grouped by series name
-    (:type:`Union[str, int, float]`). For :class:`CurveAnalysis`, this is the model name for a curve fit.
-    For series data associated with a single series name and supplementary data, data-values are
+    (``Union[str, int, float]``). For :class:`CurveAnalysis`, this is the model name for a curve
+    fit. For series data associated with a single series name and supplementary data, data-values are
     identified by a data-key (str). Different data per series and figure must have a different data-key
     to avoid overwriting values. Experiment and analysis results can be passed to the plotter so
     appropriate graphics can be drawn on the figure canvas. Series data is added to the plotter using
@@ -43,12 +45,11 @@ class BasePlotter(ABC):
     and is instead only associated with the figure. Examples include analysis reports or other text that
     is drawn onto the figure canvas.
 
-    Options and Figure Options
-    ==========================
+    .. rubric:: Options and Figure Options
 
     Plotters have both :attr:`options` and :attr:`figure_options` available to set parameters that define
     how to plot and what is plotted. :class:`BaseDrawer` is similar in that it also has ``options`` and
-    ``figure_options`. The former contains class-specific variables that define how an instance behaves.
+    ``figure_options``. The former contains class-specific variables that define how an instance behaves.
     The latter contains figure-specific variables that typically contain values that are drawn on the
     canvas, such as text.
 
@@ -66,47 +67,51 @@ class BasePlotter(ABC):
     plotter.
 
     .. note::
-        If a figure-option called "foo" is not set in the drawers figure-options (:attr:`~BaseDrawer.
-        figure_options`), but is set in the plotters figure-options (:attr:`figure_options`), it will
-        not be copied over to the drawer when the :meth:`figure` method is called. This means that some
-        figure-options from the plotter may be unused by the drawer. :class:`BasePlotter` and its
-        subclasses filter these options before setting them in the drawer as subclasses of
-        :class:`BaseDrawer` may add additional figure-options. To make validation easier and the code
-        cleaner, the :meth:`figure` method conducts this check before setting figure-options in the
-        drawer.
+        If a figure-option called "foo" is not set in the drawers figure-options
+        (:attr:`BaseDrawer.figure_options`), but is set in the plotters figure-options
+        (:attr:`figure_options`), it will not be copied over to the drawer when the :meth:`figure`
+        method is called. This means that some figure-options from the plotter may be unused by the
+        drawer. :class:`BasePlotter` and its subclasses filter these options before setting them in the
+        drawer as subclasses of :class:`BaseDrawer` may add additional figure-options. To make
+        validation easier and the code cleaner, the :meth:`figure` method conducts this check before
+        setting figure-options in the drawer.
 
-    Example:
-        .. code-block:: python
-            plotter = MyPlotter(MyDrawer())
+    .. rubric:: Example
 
-            # MyDrawer contains the following figure_options with default values.
-            plotter.drawer.figure_options.xlabel
-            plotter.drawer.figure_options.ylabel
+    .. code-block:: python
 
-            # MyDrawer does NOT contain the following figure-option
-            # plotter.drawer.figure_options.unknown_variable    # Raises an error as it does not exist in
-                                                                # `plotter.drawer`.
+        plotter = MyPlotter(MyDrawer())
 
-            # If we set the following figure-options, they will be set in the drawer.
-            plotter.set_figure_options(xlabel="Frequency", ylabel="Fidelity")
+        # MyDrawer contains the following figure_options with default values.
+        plotter.drawer.figure_options.xlabel
+        plotter.drawer.figure_options.ylabel
 
-            # During a call to `plotter.figure()`, the drawer figure-options are updated.
-            # The following values would be returned from the drawer.
-            plotter.drawer.figure_options.xlabel                # returns "Frequency"
-            plotter.drawer.figure_options.ylabel                # returns "Fidelity"
+        # MyDrawer does NOT contain the following figure-option
+        # plotter.drawer.figure_options.unknown_variable    # Raises an error as it does not exist in
+                                                            # `plotter.drawer.figure_options`.
 
-            # If we set the following option and figure-option will NOT be set in the drawer.
-            plotter.set_options(plot_fit=False)                 # Example plotter option
-            plotter.set_figure_options(unknown_variable=5e9)    # Example figure-option
+        # If we set the following figure-options, they will be set in the drawer as they are defined
+        # in `plotter.drawer.figure_options`.
+        plotter.set_figure_options(xlabel="Frequency", ylabel="Fidelity")
 
-            # As `plot_fit` is not a figure-option, it is not set in the drawer.
-            plotter.drawer.options.plot_fit     # Would raise an error if no default exists, or return a
-                                                # different value to `plotter.options.plot_fit`.
+        # During a call to `plotter.figure()`, the drawer's figure-options are updated.
+        # The following values would then be returned from the drawer.
+        plotter.drawer.figure_options.xlabel                # returns "Frequency"
+        plotter.drawer.figure_options.ylabel                # returns "Fidelity"
 
-            # As `unknown_variable` is not set in the drawers figure-options, it is not set during a call
-            # to the `figure()` method.
-            # plotter.drawer.figure_options.unknown_variable    # Raises an error as it does not exist
-                                                                # in `plotter.drawer.figure_options`.
+        # If we set the following option and figure-option, they will NOT be set in the drawer as the
+        # drawer doesn't contain default values for these option names.
+        plotter.set_options(plot_fit=False)                 # Example plotter option
+        plotter.set_figure_options(unknown_variable=5e9)    # Example figure-option
+
+        # As `plot_fit` is not a figure-option, it is not set in the drawer.
+        plotter.drawer.options.plot_fit     # Would raise an error if no default exists, or return a
+                                            # different value to `plotter.options.plot_fit`.
+
+        # As `unknown_variable` is not set in the drawer's figure-options, it is not set during a
+        # call to the `figure()` method.
+        # plotter.drawer.figure_options.unknown_variable    # Raises an error as it does not exist
+                                                            # in `plotter.drawer.figure_options`.
     """
 
     def __init__(self, drawer: BaseDrawer):
@@ -130,8 +135,9 @@ class BasePlotter(ABC):
         # Figure options that have changed, for serialization.
         self._set_figure_options = set()
 
-        # The drawer backend to use for plotting.
-        self.drawer = drawer
+        # The drawer backend to use for plotting. Docstring provided as drawer is not a @property.
+        self.drawer: BaseDrawer = drawer
+        """The drawer to use when plotting."""
 
     @property
     def supplementary_data(self) -> Dict[str, Any]:
@@ -148,13 +154,13 @@ class BasePlotter(ABC):
         """Data for series being plotted.
 
         Series data includes data such as scatter points, interpolated fit values, and
-        standard-deviations. Series data is grouped by series-name (:type:`Union[str, int, float]`) and
-        then by a data-key (:type:`str`). Though series data can be accessed through :meth:`series_data`,
+        standard-deviations. Series data is grouped by series-name (``Union[str, int, float]``) and
+        then by a data-key (``str``). Though series data can be accessed through :attr:`series_data`,
         it is recommended to access them with :meth:`data_for` and :meth:`data_exists_for` as they allow
         for easier access to nested values and can handle multiple data-keys in one query.
 
         Returns:
-            dict: A dictionary containing series data.
+            A dictionary containing series data.
         """
         return self._series_data
 
@@ -171,8 +177,8 @@ class BasePlotter(ABC):
                 each series.
 
         Returns:
-            list: The list of data-keys for data in the plotter associated with the given series. If the
-                series has not been added to the plotter, an empty list is returned.
+            The list of data-keys for data in the plotter associated with the given series. If the series
+            has not been added to the plotter, an empty list is returned.
         """
         return list(self._series_data.get(series_name, []))
 
@@ -184,12 +190,16 @@ class BasePlotter(ABC):
         The returned tuple contains the data, associated with ``data_keys``, in the same orders as they
         are provided. For example,
 
-        .. code-example::python
+        .. code-block:: python
+
             plotter.set_series_data("seriesA", x=data.x, y=data.y, yerr=data.yerr)
 
             # The following calls are equivalent.
-            x, y, yerr = plotter.series_data_for("seriesA", ["x", "y", "yerr"])
+            x, y, yerr = plotter.data_for("seriesA", ["x", "y", "yerr"])
             x, y, yerr = data.x, data.y, data.yerr
+
+            # Retrieving a single data-key returns a tuple. Note the comma after ``x``.
+            x, = plotter.data_for("seriesA", "x")
 
         :meth:`data_for` is intended to be used by sub-classes of :class:`BasePlotter` when plotting in
         the :meth:`_plot_figure` method.
@@ -200,8 +210,8 @@ class BasePlotter(ABC):
                 string, it is wrapped in a list.
 
         Returns:
-            tuple: A tuple of data associated with the given series, identified by ``data_keys``. If no
-                data has been set for a data-key, None is returned for the associated tuple entry.
+            A tuple of data associated with the given series, identified by ``data_keys``. If no data has
+            been set for a data-key, None is returned for the associated tuple entry.
         """
 
         # We may be given a single data-key, but we need a list for the rest of the function.
@@ -291,8 +301,8 @@ class BasePlotter(ABC):
             data_keys: The data-keys to be checked.
 
         Returns:
-            bool: True if all data-keys have values assigned for the given series. False if at least one
-                does not have a value assigned.
+            True if all data-keys have values assigned for the given series. False if at least one
+            does not have a value assigned.
         """
         if not isinstance(data_keys, list):
             data_keys = [data_keys]
@@ -315,11 +325,12 @@ class BasePlotter(ABC):
         """Generates and returns a figure for the already provided series and supplementary data.
 
         :meth:`figure` calls :meth:`_plot_figure`, which is overridden by sub-classes. Before and after
-        calling :meth:`_plot_figure`; :func:`_configure_drawer`, :func:`initialize_canvas` and
-        :func:`format_canvas` are called on the drawer respectively.
+        calling :meth:`_plot_figure`; :meth:`~BaseDrawer._configure_drawer`,
+        :meth:`~BaseDrawer.initialize_canvas` and :meth:`~BaseDrawer.format_canvas` are called on the
+        drawer respectively.
 
         Returns:
-            Any: A figure generated by :attr:`drawer`, of the same type as ``drawer.figure``.
+            A figure generated by :attr:`drawer`, of the same type as ``drawer.figure``.
         """
         # Initialize drawer, to copy axis, subplots, style, and figure-options across.
         self._configure_drawer()
@@ -411,10 +422,10 @@ class BasePlotter(ABC):
                 ``xval_unit_scale`` for details.
             figure_title (str): Title of the figure. Defaults to None, i.e. nothing is shown.
             series_params (Dict[SeriesName, Dict[str, Any]]): A dictionary of plot parameters for each
-            series. This is keyed on the name for each series. Sub-dictionary is expected to have
-            following three configurations, "canvas", "color", and "symbol"; "canvas" is the integer
-            index of axis (when multi-canvas plot is set), "color" is the color of the curve, and
-            "symbol" is the marker style of the curve for scatter plots.
+                series. This is keyed on the name for each series. Sub-dictionary is expected to have
+                following three configurations, "canvas", "color", and "symbol"; "canvas" is the integer
+                index of axis (when multi-canvas plot is set), "color" is the color of the curve, and
+                "symbol" is the marker Style of the curve for scatter plots.
         """
         return Options(
             xlabel=None,
