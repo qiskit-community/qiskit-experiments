@@ -100,6 +100,7 @@ extensions = [
     "autoref",
     "autodoc_experiment",
     "autodoc_analysis",
+    "autodoc_visualization",
     "jupyter-execute-checkenv",
 ]
 html_static_path = ["_static"]
@@ -112,6 +113,8 @@ nbsphinx_widgets_path = ""
 exclude_patterns = ["_build", "**.ipynb_checkpoints"]
 nbsphinx_thumbnails = {}
 
+# Add `data keys` alias. Needed for `expected_*_data_keys` in visualization module.
+napoleon_custom_sections = [("data keys", "params_style")]
 
 # -----------------------------------------------------------------------------
 # Autosummary

@@ -156,7 +156,7 @@ class BaseDrawer(ABC):
     def _default_options(cls) -> Options:
         """Return default drawer options.
 
-        Drawer Options:
+        Options:
             axis (Any): Arbitrary object that can be used as a canvas.
             subplots (Tuple[int, int]): Number of rows and columns when the experimental
                 result is drawn in the multiple windows.

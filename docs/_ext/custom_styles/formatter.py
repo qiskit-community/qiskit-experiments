@@ -215,3 +215,35 @@ class AnalysisSectionFormatter(DocstringSectionFormatter):
         format_lines.append("")
 
         return format_lines
+
+class VisualizationSectionFormatter(DocstringSectionFormatter):
+    """Formatter for visualization classes."""
+
+    @_check_no_indent
+    def format_opts(self, lines: List[str]) -> List[str]:
+        """Format options section."""
+
+        format_lines = [
+            ".. rubric:: Options",
+            "",
+            "The following can be set using :meth:`set_options`.",
+            "",
+        ]
+        format_lines.extend(lines)
+        format_lines.append("")
+
+        return format_lines
+
+    @_check_no_indent
+    def format_figure_opts(self, lines: List[str]) -> List[str]:
+        """Format figure options section."""
+        format_lines = [
+            ".. rubric:: Figure Options",
+            "",
+            "The following can be set using :meth:`set_figure_options`.",
+            "",
+        ]
+        format_lines.extend(lines)
+        format_lines.append("")
+
+        return format_lines

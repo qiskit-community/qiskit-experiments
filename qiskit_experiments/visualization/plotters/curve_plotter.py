@@ -66,13 +66,12 @@ class CurvePlotter(BasePlotter):
         ``textbox_rel_pos`` and ``textbox_text_size`` style parameters in :class:`PlotStyle`.
 
         Data Keys:
-            primary_results: A list of :class:`.AnalysisResultData` object to be shown in
-                the fit report window. Typically, these are fit parameter values or
-                secondary quantities computed from multiple fit parameters.
-            fit_red_chi: The best reduced-chi squared value of the fit curves. If
-                the fit consists of multiple sub-fits, this will be a dictionary
-                keyed on the analysis name. Otherwise, this is a single float value
-                of a particular analysis.
+            primary_results: A list of :class:`.AnalysisResultData` objects to be shown in the fit report
+                window. Typically, these are fit parameter values or secondary quantities computed from
+                multiple fit parameters.
+            fit_red_chi: The best reduced-chi squared value of the fit curves. If the fit consists of
+                multiple sub-fits, this will be a dictionary keyed on the analysis name. Otherwise, this
+                is a single float value of a particular analysis.
         """
         return [
             "primary_results",

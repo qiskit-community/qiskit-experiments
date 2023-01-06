@@ -40,7 +40,7 @@ Plotter Library
 
 .. autosummary::
     :toctree: ../stubs/
-    :template: autosummary/class.rst
+    :template: autosummary/plotter.rst
 
     BasePlotter
     CurvePlotter
@@ -51,7 +51,7 @@ Drawer Library
 
 .. autosummary::
     :toctree: ../stubs/
-    :template: autosummary/class.rst
+    :template: autosummary/drawer.rst
 
     BaseDrawer
     MplDrawer
