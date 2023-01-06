@@ -45,11 +45,13 @@ class PlotStyle(dict):
 
     @classmethod
     def default_style(cls) -> "PlotStyle":
+        # Ignore pylint warnings as `Style Parameters` doesn't contain method parameters.
+        # pylint: disable=differing-param-doc,differing-type-doc
         """The default style across Qiskit Experiments.
 
         The following is a description of the default style parameters are what they are used for.
 
-        Parameters:
+        Style Parameters:
             figsize (Tuple[int,int]): The size of the figure ``(width, height)``, in inches.
             legend_loc (Optional[str]): The location of the legend in axis coordinates. If None, location
                 is automatically determined by the drawer.
