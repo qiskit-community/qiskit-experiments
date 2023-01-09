@@ -242,7 +242,8 @@ class MplDrawer(BaseDrawer):
         """A helper method to get inset axis.
 
         Args:
-            index: Index of inset axis. If nothing is provided, it returns the entire axis.
+            index: Index of inset axis. If nothing is provided, it returns the entire
+                axis.
 
         Returns:
             Corresponding axis object.
@@ -298,19 +299,22 @@ class MplDrawer(BaseDrawer):
         label: Optional[str] = None,
         legend: bool = False,
     ):
-        """Helper function to set the label entry in ``options`` based on given arguments.
+        """Helper function to set the label entry in ``options`` based on given
+        arguments.
 
-        This method uses :meth:`label_for` to get the label for the series identified by ``name``. If
-        :meth:`label_for` returns ``None``, then ``_update_label_in_options`` doesn't add a `"label"`
-        entry into ``options``. I.e., a label entry is added to ``options`` only if it is not ``None``.
+        This method uses :meth:`label_for` to get the label for the series identified by
+        ``name``. If :meth:`label_for` returns ``None``, then
+        ``_update_label_in_options`` doesn't add a `"label"` entry into ``options``.
+        I.e., a label entry is added to ``options`` only if it is not ``None``.
 
         Args:
             options: The options dictionary being modified.
-            name: The name of the series being labelled. Used as a fall-back label if ``label`` is None
-                and no label exists in ``series_params`` for this series.
+            name: The name of the series being labelled. Used as a fall-back label if
+                ``label`` is None and no label exists in ``series_params`` for this
+                series.
             label: Optional legend label to override ``name`` and ``series_params``.
-            legend: Whether a label entry should be added to ``options``. USed as an easy toggle to
-                disable adding a label entry. Defaults to False.
+            legend: Whether a label entry should be added to ``options``. Used as an
+                easy toggle to disable adding a label entry. Defaults to False.
         """
         if legend:
             _label = self.label_for(name, label)
@@ -472,11 +476,12 @@ class MplDrawer(BaseDrawer):
     ) -> Tuple[Colormap, Dict[str, float]]:
         """Create a :class:`Colormap` instance of series colours.
 
-        This method creates a :class:`Colormap` instance that can be used to plot an image of series
-        classifications: i.e., a 2D array of series names. The returned Colormap positions the series
-        colours, from :meth:`_get_default_color`, along the range :math:`0` to :math:`1`. The returned
-        dictionary contains mappings from series names (``Union[str, int, float]``) to floats which are
-        used to "sample" from the Colormap.
+        This method creates a :class:`Colormap` instance that can be used to plot an
+        image of series classifications: i.e., a 2D array of series names. The returned
+        Colormap positions the series colours, from :meth:`_get_default_color`, along
+        the range :math:`0` to :math:`1`. The returned dictionary contains mappings from
+        series names (``Union[str, int, float]``) to floats which are used to "sample"
+        from the Colormap.
 
         Example:
             .. code-block:: python
@@ -489,7 +494,9 @@ class MplDrawer(BaseDrawer):
                 cmap,cmap_map = self._series_names_to_cmap(series_names)
 
                 # Convert classified data into float data.
-                data_float = np.vectorize(lambda x: cmap(cmap_map[x]))(data_classification)
+                data_float = np.vectorize(
+                    lambda x: cmap(cmap_map[x])
+                )(data_classification)
 
                 # Plot float data with Colormap.
                 plt.imshow(data_float, cmap=cmap, ...)
@@ -498,9 +505,9 @@ class MplDrawer(BaseDrawer):
             series_names: List of series names.
 
         Returns:
-            A tuple ``(cmap, map)`` where ``cmap`` is a Matplotlib Colormap instance and ``map`` is a
-            dictionary that maps series names (dictionary keys) to floats (dictionary values) that
-            identify the series names' colours in ``cmap``.
+            A tuple ``(cmap, map)`` where ``cmap`` is a Matplotlib Colormap instance and
+            ``map`` is a dictionary that maps series names (dictionary keys) to floats
+            (dictionary values) that identify the series names' colours in ``cmap``.
         """
         # Remove duplicates from series_names, just in-case. Use dict.fromkeys to preserve order and
         # remove duplicates.
@@ -574,15 +581,15 @@ class MplDrawer(BaseDrawer):
     def figure(self) -> Figure:
         """Return figure object handler to be saved in the database.
 
-        In the MatplotLib the ``Figure`` and ``Axes`` are different object.
-        User can pass a part of the figure (i.e. multi-axes) to the drawer option ``axis``.
-        For example, a user wants to combine two different experiment results in the
-        same figure, one can call ``pyplot.subplots`` with two rows and pass one of the
+        In the MatplotLib the ``Figure`` and ``Axes`` are different object. User can
+        pass a part of the figure (i.e. multi-axes) to the drawer option ``axis``. For
+        example, a user wants to combine two different experiment results in the same
+        figure, one can call ``pyplot.subplots`` with two rows and pass one of the
         generated two axes to each experiment drawer. Once all the experiments complete,
         the user will obtain the single figure collecting all experimental results.
 
-        Note that this method returns the entire figure object, rather than a single axis.
-        Thus, the experiment data saved in the database might have a figure
+        Note that this method returns the entire figure object, rather than a single
+        axis. Thus, the experiment data saved in the database might have a figure
         collecting all child axes drawings.
         """
         return self._axis.get_figure()

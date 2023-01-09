@@ -44,8 +44,8 @@ class CurvePlotter(BasePlotter):
             y_formatted_err: Error in ``y_formatted``, to be plotted as error-bars.
             x_interp: Interpolated X-values for a curve-fit.
             y_interp: Y-values corresponding to the fit for ``y_interp`` X-values.
-            y_interp_err: The standard-deviations of the fit for each X-value in ``y_interp``.
-                This data-key relates to the option ``plot_sigma``.
+            y_interp_err: The standard-deviations of the fit for each X-value in
+                ``y_interp``. This data-key relates to the option ``plot_sigma``.
         """
         return [
             "x",
@@ -63,16 +63,18 @@ class CurvePlotter(BasePlotter):
         """Returns the expected figures data-keys supported by this plotter.
 
         This plotter generates a single text box, i.e. fit report, by digesting the
-        provided supplementary data. The style and position of the report is controlled by
-        ``textbox_rel_pos`` and ``textbox_text_size`` style parameters in :class:`PlotStyle`.
+        provided supplementary data. The style and position of the report is controlled
+        by ``textbox_rel_pos`` and ``textbox_text_size`` style parameters in
+        :class:`PlotStyle`.
 
         Data Keys:
-            primary_results: A list of :class:`.AnalysisResultData` objects to be shown in the fit report
-                window. Typically, these are fit parameter values or secondary quantities computed from
-                multiple fit parameters.
-            fit_red_chi: The best reduced-chi squared value of the fit curves. If the fit consists of
-                multiple sub-fits, this will be a dictionary keyed on the analysis name. Otherwise, this
-                is a single float value of a particular analysis.
+            primary_results: A list of :class:`.AnalysisResultData` objects to be shown
+                in the fit report window. Typically, these are fit parameter values or
+                secondary quantities computed from multiple fit parameters.
+            fit_red_chi: The best reduced-chi squared value of the fit curves. If the
+                fit consists of multiple sub-fits, this will be a dictionary keyed on
+                the analysis name. Otherwise, this is a single float value of a
+                particular analysis.
         """
         return [
             "primary_results",
@@ -84,11 +86,11 @@ class CurvePlotter(BasePlotter):
         """Return curve-plotter specific default plotter options.
 
         Options:
-            plot_sigma (List[Tuple[float, float]]): A list of two number tuples
-                showing the configuration to write confidence intervals for the fit curve.
-                The first argument is the relative sigma (n_sigma), and the second argument is
-                the transparency of the interval plot in ``[0, 1]``.
-                Multiple n_sigma intervals can be drawn for the same curve.
+            plot_sigma (List[Tuple[float, float]]): A list of two number tuples showing
+                the configuration to write confidence intervals for the fit curve. The
+                first argument is the relative sigma (n_sigma), and the second argument
+                is the transparency of the interval plot in ``[0, 1]``. Multiple n_sigma
+                intervals can be drawn for the same curve.
 
         """
         options = super()._default_options()
@@ -100,8 +102,8 @@ class CurvePlotter(BasePlotter):
         """Return curve-plotter specific default figure options.
 
         Figure Options:
-            report_red_chi2_label (str): The label for the reduced-chi squared entry of the fit
-                report. Defaults to "reduced-$\\\\chi^2$`.
+            report_red_chi2_label (str): The label for the reduced-chi squared entry of
+                the fit report. Defaults to "reduced-$\\\\chi^2$`.
         """
         fig_opts = super()._default_figure_options()
         fig_opts.report_red_chi2_label = "reduced-$\\chi^2$"
@@ -167,9 +169,10 @@ class CurvePlotter(BasePlotter):
     def _write_report(self) -> str:
         """Write fit report with supplementary_data.
 
-        Subclass can override this method to customize fit report. By default, this writes important fit
-        parameters and chi-squared value of the fit in the fit report. The ``report_red_chi2_label``
-        figure-option controls the label for the chi-squared entries in the report.
+        Subclass can override this method to customize fit report. By default, this
+        writes important fit parameters and chi-squared value of the fit in the fit
+        report. The ``report_red_chi2_label`` figure-option controls the label for the
+        chi-squared entries in the report.
 
         Returns:
             Fit report.

@@ -26,13 +26,14 @@ from .base_plotter import BasePlotter
 class IQPlotter(BasePlotter):
     """A plotter class to plot IQ data.
 
-    :class:`IQPlotter` plots results from experiments which used measurement-level 1, i.e. IQ data. This
-    class also supports plotting predictions from a discriminator (subclass of
-    :class:`BaseDiscriminator`), which is used to classify IQ results into labels. The discriminator
-    labels are matched with the series-names to generate an image of the predictions. Points that are
-    misclassified by the discriminator are flagged in the figure (see ``flag_misclassified``
-    :attr:`option`). A canonical application of :class:`IQPlotter` is for classification of
-    single-qubit readout for different prepared states.
+    :class:`IQPlotter` plots results from experiments which used measurement-level 1,
+    i.e. IQ data. This class also supports plotting predictions from a discriminator
+    (subclass of :class:`BaseDiscriminator`), which is used to classify IQ results into
+    labels. The discriminator labels are matched with the series-names to generate an
+    image of the predictions. Points that are misclassified by the discriminator are
+    flagged in the figure (see ``flag_misclassified`` :attr:`option`). A canonical
+    application of :class:`IQPlotter` is for classification of single-qubit readout for
+    different prepared states.
 
     Example:
         .. code-block:: python
@@ -40,8 +41,9 @@ class IQPlotter(BasePlotter):
             # Create plotter
             plotter = IQPlotter(MplDrawer())
 
-            # Iterate over results, one per prepared state. Add points and centroid to plotter and set
-            # label for prepared states as |n> where n is the prepared-state number.
+            # Iterate over results, one per prepared state. Add points and centroid to
+            # plotter and set label for prepared states as |n> where n is the
+            # prepared-state number.
             series_params = {}
             for res in results:
                 # Get IQ points from result memory.
@@ -63,7 +65,8 @@ class IQPlotter(BasePlotter):
             ...
             # Optional: Add trained discriminator.
             discrim = MyIQDiscriminator()
-            discrim.fit(train_data,train_labels)    # Labels are the same as series-names.
+            # Discriminator labels are the same as series-names.
+            discrim.fit(train_data, train_labels)
             plotter.set_supplementary_data(discriminator=discrim)
             ...
             # Plot figure.
@@ -88,13 +91,14 @@ class IQPlotter(BasePlotter):
         """Returns the expected figures data-keys supported by this plotter.
 
         Data Keys:
-            discriminator: A trained discriminator that classifies IQ points. If provided, the
-                predictions of the discriminator will be sampled to generate a background image,
-                indicating the regions for each predicted outcome. The predictions are assumed to be
-                series names (``Union[str, int, float]``). The generated image allows viewers to see
-                how well the discriminator classifies the provided series data. Must be a subclass of
-                :class:`BaseDiscriminator`. See :attr:`options` for ways to control the generation of the
-                discriminator prediction image.
+            discriminator: A trained discriminator that classifies IQ points. If
+                provided, the predictions of the discriminator will be sampled to
+                generate a background image, indicating the regions for each predicted
+                outcome. The predictions are assumed to be series names (``Union[str,
+                int, float]``). The generated image allows viewers to see how well the
+                discriminator classifies the provided series data. Must be a subclass of
+                :class:`BaseDiscriminator`. See :attr:`options` for ways to control the
+                generation of the discriminator prediction image.
             fidelity: A float representing the fidelity of the discrimination.
         """
         return [
@@ -106,8 +110,9 @@ class IQPlotter(BasePlotter):
         """Computes the extent tuple of the data being plotted.
 
         Returns:
-            The tuple ``(x_min, x_max, y_min, y_max)``, defining a rectangle containing all the data for
-            this plotter. If the plotter contains no data, ``None`` is returned instead.
+            The tuple ``(x_min, x_max, y_min, y_max)``, defining a rectangle containing
+            all the data for this plotter. If the plotter contains no data, ``None`` is
+            returned instead.
         """
         ext_calc = DataExtentCalculator(
             multiplier=self.options.discriminator_multiplier,
@@ -140,8 +145,9 @@ class IQPlotter(BasePlotter):
         """Compute the array/image sampled from the discriminator predictions.
 
         Returns:
-            The tuple ``(img, extent)`` where ``img`` is an optional 2D NumPy array of predictions and
-            ``extent`` is a tuple of the extent ``(x_min, x_max, y_min, y_max)`` of the image.
+            The tuple ``(img, extent)`` where ``img`` is an optional 2D NumPy array of
+            predictions and ``extent`` is a tuple of the extent ``(x_min, x_max, y_min,
+            y_max)`` of the image.
         """
         # If the discriminator is not provided, cannot compute the image.
         if "discriminator" not in self.supplementary_data:
@@ -189,32 +195,35 @@ class IQPlotter(BasePlotter):
         """Return iq-plotter specific default plotter options.
 
         Options:
-            plot_discriminator (bool): Whether to plot an image showing the predictions of the
-                ``discriminator`` entry in :attr:`supplementary_data``. If True, the "discriminator"
-                supplementary data entry must be set.
-            discriminator_multiplier (float): The multiplier to use when computing the extent of
-                the discriminator plot. The range of the series data is taken as the base value and
-                multiplied by ``discriminator_extent_multiplier`` to compute the extent of the
-                discriminator predictions. Defaults to 1.1.
-            discriminator_aspect_ratio (float): The aspect ratio of the extent of the discriminator
-                predictions, being ``width/height``. Defaults to ``1`` for a square region.
-            discriminator_max_resolution (int): The number of pixels to use for the largest edge of the
-                discriminator extent, used when sampling the discriminator to create the prediction
-                image. Defaults to 1024.
-            discriminator_alpha (float): The transparency of the discriminator prediction image. Defaults
-                to 0.2 (i.e., 20%).
-            discriminator_extent (Optional[ExtentTuple]): An optional tuple defining the extent of the
-                image created by sampling from the discriminator. If ``None``, the extent tuple is
-                computed using ``discriminator_multiplier``, ``discriminator_aspect_ratio``, and the
+            plot_discriminator (bool): Whether to plot an image showing the predictions
+                of the ``discriminator`` entry in :attr:`supplementary_data``. If True,
+                the "discriminator" supplementary data entry must be set.
+            discriminator_multiplier (float): The multiplier to use when computing the
+                extent of the discriminator plot. The range of the series data is taken
+                as the base value and multiplied by ``discriminator_extent_multiplier``
+                to compute the extent of the discriminator predictions. Defaults to 1.1.
+            discriminator_aspect_ratio (float): The aspect ratio of the extent of the
+                discriminator predictions, being ``width/height``. Defaults to ``1`` for
+                a square region.
+            discriminator_max_resolution (int): The number of pixels to use for the
+                largest edge of the discriminator extent, used when sampling the
+                discriminator to create the prediction image. Defaults to 1024.
+            discriminator_alpha (float): The transparency of the discriminator
+                prediction image. Defaults to 0.2 (i.e., 20%).
+            discriminator_extent (Optional[ExtentTuple]): An optional tuple defining the
+                extent of the image created by sampling from the discriminator. If
+                ``None``, the extent tuple is computed using
+                ``discriminator_multiplier``, ``discriminator_aspect_ratio``, and the
                 series-data ``points`` and ``centroid``. Defaults to ``None``.
-            flag_misclassified (bool): Whether to mark misclassified IQ values from all ``points`` series
-                data, based on whether their series-name is not the same as the prediction from the
-                discriminator provided as supplementary data. If ``discriminator`` is not provided,
-                ``flag_misclassified`` has no effect. Defaults to True.
-            misclassified_symbol (str): Symbol for misclassified points, as a drawer-compatible string.
-                Defaults to "x".
-            misclassified_color (str | tuple): Color for misclassified points, as a drawer-compatible
-                string or RGB tuple. Defaults to "r".
+            flag_misclassified (bool): Whether to mark misclassified IQ values from all
+                ``points`` series data, based on whether their series-name is not the
+                same as the prediction from the discriminator provided as supplementary
+                data. If ``discriminator`` is not provided, ``flag_misclassified`` has
+                no effect. Defaults to True.
+            misclassified_symbol (str): Symbol for misclassified points, as a
+                drawer-compatible string. Defaults to "x".
+            misclassified_color (str | tuple): Color for misclassified points, as a
+                drawer-compatible string or RGB tuple. Defaults to "r".
 
         """
         options = super()._default_options()
@@ -246,13 +255,15 @@ class IQPlotter(BasePlotter):
         """Returns a list of IQ coordinates for points that are misclassified by the discriminator.
 
         Args:
-            series_name: The series-name to use as the expected discriminator label. If the discriminator
-                returns a prediction that doesn't equal ``series_name``, it is marked as misclassified.
+            series_name: The series-name to use as the expected discriminator label. If
+                the discriminator returns a prediction that doesn't equal
+                ``series_name``, it is marked as misclassified.
             points: The list of points to check for misclassification.
 
         Returns:
-            A NumPy array of IQ points, being those that were misclassified by the discriminator. If the
-            discriminator isn't set and trained, then `None` is returned. The array may be empty.
+            A NumPy array of IQ points, being those that were misclassified by the
+            discriminator. If the discriminator isn't set and trained, then `None` is
+            returned. The array may be empty.
         """
         # Check if we have a discriminator, and if it is trained. If not, return None.
         if "discriminator" not in self.supplementary_data:
@@ -341,8 +352,8 @@ class IQPlotter(BasePlotter):
     def _write_report(self) -> str:
         """Write fidelity report with supplementary_data.
 
-        Subclass can override this method to customize fidelity report.
-        By default, this writes the fidelity of the discriminator in the fidelity report.
+        Subclass can override this method to customize fidelity report. By default, this
+        writes the fidelity of the discriminator in the fidelity report.
 
         Returns:
             Fidelity report.
