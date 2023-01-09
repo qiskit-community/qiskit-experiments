@@ -74,7 +74,7 @@ class BasePlotter(ABC):
 
     .. note::
         If a figure option called "foo" is not set in the drawer's figure options
-        (:attr:`BaseDrawer.figure_options`), but is set in the plotter's figure options
+        (:attr:`BaseDrawer.figure_options`) but is set in the plotter's figure options
         (:attr:`figure_options`), it will not be copied over to the drawer when the
         :meth:`figure` method is called. This means that some figure options from the
         plotter may be unused by the drawer. :class:`BasePlotter` and its subclasses
