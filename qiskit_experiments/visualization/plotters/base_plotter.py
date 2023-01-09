@@ -74,11 +74,11 @@ class BasePlotter(ABC):
 
     .. note::
         If a figure-option called "foo" is not set in the drawer's figure-options
-        (:attr:`BaseDrawer.figure_options`), but is set in the plotters figure-options
+        (:attr:`BaseDrawer.figure_options`), but is set in the plotter's figure-options
         (:attr:`figure_options`), it will not be copied over to the drawer when the
         :meth:`figure` method is called. This means that some figure-options from the
         plotter may be unused by the drawer. :class:`BasePlotter` and its subclasses
-        filter these options before setting them in the drawer as subclasses of
+        filter these options before setting them in the drawer, as subclasses of
         :class:`BaseDrawer` may add additional figure-options. To make validation
         easier and the code cleaner, the :meth:`figure` method conducts this check
         before setting figure-options in the drawer.
@@ -524,7 +524,7 @@ class BasePlotter(ABC):
         _drawer_figure_options = self.drawer.figure_options.__dict__
         _plotter_figure_options = self.figure_options.__dict__
 
-        # If an option exists in drawer.figure_options AND in self.figure_options, set the drawers
+        # If an option exists in drawer.figure_options AND in self.figure_options, set the drawer's
         # figure-option value to that from the plotter.
         for opt_key in _drawer_figure_options:
             if opt_key in _plotter_figure_options:
