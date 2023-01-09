@@ -29,7 +29,7 @@ class IQPlotter(BasePlotter):
     :class:`IQPlotter` plots results from experiments which used measurement-level 1,
     i.e. IQ data. This class also supports plotting predictions from a discriminator
     (subclass of :class:`BaseDiscriminator`), which is used to classify IQ results into
-    labels. The discriminator labels are matched with the series-names to generate an
+    labels. The discriminator labels are matched with the series names to generate an
     image of the predictions. Points that are misclassified by the discriminator are
     flagged in the figure (see ``flag_misclassified`` :attr:`option`). A canonical
     application of :class:`IQPlotter` is for classification of single-qubit readout for
@@ -65,7 +65,7 @@ class IQPlotter(BasePlotter):
             ...
             # Optional: Add trained discriminator.
             discrim = MyIQDiscriminator()
-            # Discriminator labels are the same as series-names.
+            # Discriminator labels are the same as series names.
             discrim.fit(train_data, train_labels)
             plotter.set_supplementary_data(discriminator=discrim)
             ...
@@ -75,7 +75,7 @@ class IQPlotter(BasePlotter):
 
     @classmethod
     def expected_series_data_keys(cls) -> List[str]:
-        """Returns the expected series data-keys supported by this plotter.
+        """Returns the expected series data keys supported by this plotter.
 
         Data Keys:
             points: Single-shot IQ data.
@@ -88,7 +88,7 @@ class IQPlotter(BasePlotter):
 
     @classmethod
     def expected_supplementary_data_keys(cls) -> List[str]:
-        """Returns the expected figures data-keys supported by this plotter.
+        """Returns the expected figures data keys supported by this plotter.
 
         Data Keys:
             discriminator: A trained discriminator that classifies IQ points. If
@@ -216,7 +216,7 @@ class IQPlotter(BasePlotter):
                 ``discriminator_multiplier``, ``discriminator_aspect_ratio``, and the
                 series-data ``points`` and ``centroid``. Defaults to ``None``.
             flag_misclassified (bool): Whether to mark misclassified IQ values from all
-                ``points`` series data, based on whether their series-name is not the
+                ``points`` series data, based on whether their series name is not the
                 same as the prediction from the discriminator provided as supplementary
                 data. If ``discriminator`` is not provided, ``flag_misclassified`` has
                 no effect. Defaults to True.
@@ -255,7 +255,7 @@ class IQPlotter(BasePlotter):
         """Returns a list of IQ coordinates for points that are misclassified by the discriminator.
 
         Args:
-            series_name: The series-name to use as the expected discriminator label. If
+            series_name: The series name to use as the expected discriminator label. If
                 the discriminator returns a prediction that doesn't equal
                 ``series_name``, it is marked as misclassified.
             points: The list of points to check for misclassification.

@@ -124,7 +124,7 @@ class BaseDrawer(ABC):
 
     .. note::
         If a drawer instance is used with a plotter, then there is the potential for
-        any figure-option to be overwritten with their value from the plotter. This
+        any figure option to be overwritten with their value from the plotter. This
         means that the drawer instance would be modified indirectly when the
         :meth:`BasePlotter.figure` method is called. This must be kept in mind when
         creating subclasses of :class:`BaseDrawer`.
@@ -138,10 +138,10 @@ class BaseDrawer(ABC):
         # A set of changed options for serialization.
         self._set_options = set()
 
-        # Figure options which are typically updated by a plotter instance. Figure-options include the
+        # Figure options which are typically updated by a plotter instance. Figure options include the
         # axis labels, figure title, and a custom style instance.
         self._figure_options = self._default_figure_options()
-        # A set of changed figure-options for serialization.
+        # A set of changed figure options for serialization.
         self._set_figure_options = set()
 
         # The initialized axis/axes, set by `initialize_canvas`.
@@ -263,7 +263,7 @@ class BaseDrawer(ABC):
             fields: The fields to update the figure options
 
         Raises:
-            AttributeError: if an unknown figure-option is encountered.
+            AttributeError: if an unknown figure option is encountered.
         """
         for field in fields:
             if not hasattr(self._figure_options, field):
@@ -479,7 +479,7 @@ class BaseDrawer(ABC):
                 the range of the values if they are numerical. If
                 ``cmap_use_series_colors=True``, then ``data`` contains series names;
                 which can be strings or numerical values, as long as they are
-                appropriate series-names.
+                appropriate series names.
             extent: An optional tuple ``(x_min, x_max, y_min, y_max)`` which defines a
                 rectangular region within which the values inside ``data`` should be
                 plotted. The units of ``extent`` are the same as those of the X and Y

@@ -9,7 +9,7 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
-"""Plotter for curve-fits, specifically from :class:`CurveAnalysis`."""
+"""Plotter for curve fits, specifically from :class:`CurveAnalysis`."""
 from typing import List
 
 from uncertainties import UFloat
@@ -23,18 +23,18 @@ from .base_plotter import BasePlotter
 class CurvePlotter(BasePlotter):
     """A plotter class to plot results from :class:`CurveAnalysis`.
 
-    ``CurvePlotter`` plots results from curve-fits, which includes
+    ``CurvePlotter`` plots results from curve fits, which includes
 
         - Raw results as a scatter plot.
-        - Processed results with standard-deviations/confidence intervals.
-        - Interpolated fit-results from the curve analysis.
-        - Confidence interval for the fit-results.
+        - Processed results with standard deviations/confidence intervals.
+        - Interpolated fit results from the curve analysis.
+        - Confidence interval for the fit results.
         - A report on the performance of the fit.
     """
 
     @classmethod
     def expected_series_data_keys(cls) -> List[str]:
-        """Returns the expected series data-keys supported by this plotter.
+        """Returns the expected series data keys supported by this plotter.
 
         Data Keys:
             x: X-values for raw results.
@@ -42,10 +42,10 @@ class CurvePlotter(BasePlotter):
             x_formatted: X-values for processed results.
             y_formatted: Y-values for processed results. Goes with ``x_formatted``.
             y_formatted_err: Error in ``y_formatted``, to be plotted as error-bars.
-            x_interp: Interpolated X-values for a curve-fit.
+            x_interp: Interpolated X-values for a curve fit.
             y_interp: Y-values corresponding to the fit for ``y_interp`` X-values.
-            y_interp_err: The standard-deviations of the fit for each X-value in
-                ``y_interp``. This data-key relates to the option ``plot_sigma``.
+            y_interp_err: The standard deviations of the fit for each X-value in
+                ``y_interp``. This data key relates to the option ``plot_sigma``.
         """
         return [
             "x",
@@ -60,7 +60,7 @@ class CurvePlotter(BasePlotter):
 
     @classmethod
     def expected_supplementary_data_keys(cls) -> List[str]:
-        """Returns the expected figures data-keys supported by this plotter.
+        """Returns the expected figures data keys supported by this plotter.
 
         This plotter generates a single text box, i.e. fit report, by digesting the
         provided supplementary data. The style and position of the report is controlled
@@ -111,7 +111,7 @@ class CurvePlotter(BasePlotter):
         return fig_opts
 
     def _plot_figure(self):
-        """Plots a curve-fit figure."""
+        """Plots a curve fit figure."""
         for ser in self.series:
             # Scatter plot with error-bars
             plotted_formatted_data = False
@@ -171,7 +171,7 @@ class CurvePlotter(BasePlotter):
 
         Subclass can override this method to customize fit report. By default, this
         writes important fit parameters and chi-squared value of the fit in the fit
-        report. The ``report_red_chi2_label`` figure-option controls the label for the
+        report. The ``report_red_chi2_label`` figure option controls the label for the
         chi-squared entries in the report.
 
         Returns:
