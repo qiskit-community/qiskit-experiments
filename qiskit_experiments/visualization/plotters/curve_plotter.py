@@ -99,11 +99,11 @@ class CurvePlotter(BasePlotter):
 
     @classmethod
     def _default_figure_options(cls) -> Options:
-        """Return curve-plotter specific default figure options.
+        r"""Return curve-plotter specific default figure options.
 
         Figure Options:
             report_red_chi2_label (str): The label for the reduced-chi squared entry of
-                the fit report. Defaults to "reduced-$\\\\chi^2$`.
+                the fit report. Defaults to ``"reduced-$\\chi^2$"``.
         """
         fig_opts = super()._default_figure_options()
         fig_opts.report_red_chi2_label = "reduced-$\\chi^2$"
