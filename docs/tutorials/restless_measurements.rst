@@ -199,8 +199,8 @@ PRX Quantum 2, 020324 (2021).
 
 [2] Caroline Tornow, Naoki Kanazawa, William E. Shanks, Daniel J. Egger,
 Minimum quantum run-time characterization and calibration via restless
-measurements with dynamic repetition rates,
-https://arxiv.org/abs/2202.06981
+measurements with dynamic repetition rates, Physics Review Applied **17**,
+064061 (2022).
 
 [3] Andrew Wack, Hanhee Paik, Ali Javadi-Abhari, Petar Jurcevic, Ismael Faro,
 Jay M. Gambetta, Blake R. Johnson, Quality, Speed, and Scale: three key
