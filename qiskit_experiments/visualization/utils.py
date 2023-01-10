@@ -21,31 +21,35 @@ ExtentTuple = Tuple[float, float, float, float]
 class DataExtentCalculator:
     """A class to handle computing the extent of two-dimensional data.
 
-    This class makes computing the extent of two-dimensional data easier, especially for adding images
-    to plots where the extent of the axes (i.e., axis limits) are not known prior to figure generation.
-    An instance of this class can be used to compute an extent tuple which is larger than the registered
-    data, and thus has a margin that can exceed the axis-limits or be used as the axis limits without
-    cropping additional data-points from a figure. An extent tuple ``(x_min, x_max, y_min, y_max)``
-    contains the minimum and maximum values for the X and Y dimensions.
+    This class makes computing the extent of two-dimensional data easier, especially for
+    adding images to plots where the extent of the axes (i.e., axis limits) are not
+    known prior to figure generation. An instance of this class can be used to compute
+    an extent tuple which is larger than the registered data, and thus has a margin that
+    can exceed the axis-limits or be used as the axis limits without cropping additional
+    data-points from a figure. An extent tuple ``(x_min, x_max, y_min, y_max)`` contains
+    the minimum and maximum values for the X and Y dimensions.
 
-    Data is registered with a :class:`DataExtentCalculator` so that the computed extent covers all
-    values in the data array. The extent tuple is computed as follows:
-        1. The maximum and minimum values for input data is stored whenever new data arrays are
-           registered. This is the data-extent: the minimum-area bounding box that contains all
-           registered data.
-        2. The data-extent is enlarged/shrunk by scaling its width and height by :attr:`multiplier`.
-        3. If :attr:`aspect_ratio` is not ``None``, the scaled extent tuple is extended in one of the
-           dimensions so that the output extent tuple is larger and the target aspect ratio is achieved.
+    Data is registered with a :class:`DataExtentCalculator` so that the computed extent
+    covers all values in the data array. The extent tuple is computed as follows:
+        1. The maximum and minimum values for input data is stored whenever new data
+           arrays are registered. This is the data-extent: the minimum-area bounding box
+           that contains all registered data.
+        2. The data-extent is enlarged/shrunk by scaling its width and height by
+           :attr:`multiplier`.
+        3. If :attr:`aspect_ratio` is not ``None``, the scaled extent tuple is extended
+           in one of the dimensions so that the output extent tuple is larger and the
+           target aspect ratio is achieved.
     """
 
     def __init__(self, multiplier: float = 1.0, aspect_ratio: Optional[float] = 1.0):
         """Create an extent calculator.
 
         Args:
-            multiplier: The factor by which to scale the extent of the data when computing the output
-                extent tuple. Defaults to 1.0,
-            aspect_ratio: An optional target aspect ratio for the output extent tuple. If None, the
-                extent tuple is not extended to achieve a given aspect ratio. Defaults to None.
+            multiplier: The factor by which to scale the extent of the data when
+                computing the output extent tuple. Defaults to 1.0.
+            aspect_ratio: An optional target aspect ratio for the output extent tuple.
+                If None, the extent tuple is not extended to achieve a given aspect
+                ratio. Defaults to None.
         """
         self._multiplier = multiplier
         self._aspect_ratio = aspect_ratio
@@ -56,7 +60,7 @@ class DataExtentCalculator:
         """The multiplier by which to scale the data-extent.
 
         Returns:
-            float: The multiplier for the computed extent.
+            The multiplier for the computed extent.
         """
         return self._multiplier
 
@@ -64,11 +68,12 @@ class DataExtentCalculator:
     def aspect_ratio(self) -> Optional[float]:
         """The target aspect ratio.
 
-        If None, the :class:`DataExtentCalculator` instance will not modify the computed extent tuple to
-        achieve a given aspect ratio; instead only scale by :attr:`multiplier`.
+        If None, the :class:`DataExtentCalculator` instance will not modify the computed
+        extent tuple to achieve a given aspect ratio; instead only scale by
+        :attr:`multiplier`.
 
         Returns:
-            Optional[float]: The target aspect ratio of the computed extent tuple.
+            The target aspect ratio of the computed extent tuple.
         """
         return self._aspect_ratio
 
@@ -76,19 +81,23 @@ class DataExtentCalculator:
         r"""Register data to modify the resulting extent tuple.
 
         Args:
-            data: Array or list of data values to use when calculating the extent tuple. If a list is
-                given, it is converted into an array using :meth:`numpy.asarray`. If the array has the
-                shape ``(m, 2)``, then there are ``m`` values in two dimensions (being the second
-                dimension of ``data``). If the array has the shape ``(m,)`` or ``(m, 1)``, then ``dim``
-                must be set to the index of the dimension for which this data is associated.
-            dim: Optional dimension index if a one-dimensional array is provided (i.e., `X=0` and `Y=1`).
-                If None, then ``data`` must have the shape ``(m, 2)``. Defaults to None.
+            data: Array or list of data values to use when calculating the extent tuple.
+                If a list is given, it is converted into an array using
+                :meth:`numpy.asarray`. If the array has the shape ``(m, 2)``, then there
+                are ``m`` values in two dimensions (being the second dimension of
+                ``data``). If the array has the shape ``(m,)`` or ``(m, 1)``, then
+                ``dim`` must be set to the index of the dimension for which this data is
+                associated.
+            dim: Optional dimension index if a one-dimensional array is provided (i.e.,
+                `X=0` and `Y=1`). If None, then ``data`` must have the shape ``(m, 2)``.
+                Defaults to None.
 
         Raises:
             QiskitError: if the data is not two-dimensional and ``dim`` is not set.
-            QiskitError: if the data does not contain one-dimensional values when ``dim`` is set.
+            QiskitError: if the data does not contain one-dimensional values when
+            ``dim`` is set.
             QiskitError: if ``dim`` is not an index for two-dimensions: i.e.,
-                :math:`0\leq{}\text{dim}<2`.
+            :math:`0\leq{}\text{dim}<2`.
         """
         data = np.asarray(data)
         if dim is None and (len(data.shape) != 2 or (len(data.shape) == 2 and data.shape[1] != 2)):
@@ -130,8 +139,8 @@ class DataExtentCalculator:
             extent: The extent array for the range.
 
         Returns:
-            np.ndarray: the array ``[x_range, y_range]`` where ``x_range`` and ``y_range`` are the ranges
-                for their respective dimensions.
+            The array ``[x_range, y_range]`` where ``x_range`` and ``y_range`` are the
+            ranges for their respective dimensions.
         """
         return np.diff(
             extent,
@@ -146,8 +155,8 @@ class DataExtentCalculator:
             extent: The extent array for the midpoint.
 
         Returns:
-            np.ndarray: the array ``[x, y]`` where ``x`` and ``y`` are the midpoints for their respective
-                dimensions.
+            The array ``[x, y]`` where ``x`` and ``y`` are the midpoints for their
+            respective dimensions.
         """
         return np.mean(
             extent,
@@ -165,8 +174,8 @@ class DataExtentCalculator:
             midpoint: The midpoint of the extent.
 
         Returns:
-            np.ndarray: an extent array with range and midpoint corresponding to ``extent_range`` and
-                ``midpoint``.
+            An extent array with range and midpoint corresponding to ``extent_range``
+            and ``midpoint``.
         """
         radii = extent_range.flatten() / 2
         new_extent = np.zeros((2, 2))
@@ -180,20 +189,23 @@ class DataExtentCalculator:
     ) -> np.ndarray:
         """Expand ``extent`` to have an aspect ratio defined by ``target_aspect_ratio``.
 
-        This method extends ``extent`` along one of the two dimensions so that its aspect ratio is equal
-        to ``target_aspect_ratio``. This is done by computing the ratio of the actual and target aspect
-        ratios, computing the dimension along which to extend ``extent``, and recomputing the extent
-        array based on scaled ranges to achieve the target aspect ratio. If the target ratio is ``None``,
-        nothing is done. If extended, the region defined by the output array is always larger than the
-        input array.
+        This method extends ``extent`` along one of the two dimensions so that its
+        aspect ratio is equal to ``target_aspect_ratio``. This is done by computing the
+        ratio of the actual and target aspect ratios, computing the dimension along
+        which to extend ``extent``, and recomputing the extent array based on scaled
+        ranges to achieve the target aspect ratio. If the target ratio is ``None``,
+        nothing is done. If extended, the region defined by the output array is always
+        larger than the input array.
 
         Args:
             extent: The extent array to expand.
-            target_aspect_ratio: Optional target aspect ratio, being :math:`\text{width}/\text{height}`
-            for the extent array. If None, ``extent`` is not extended. Defaults to None.
+            target_aspect_ratio: Optional target aspect ratio, being
+                :math:`\text{width}/\text{height}` for the extent array. If None,
+                ``extent`` is not extended. Defaults to None.
 
         Returns:
-            np.ndarray: ``extent``, extended to have an aspect ratio defined by ``target_aspect_ratio``.
+            ``extent`` extended to have an aspect ratio defined by
+            ``target_aspect_ratio``.
         """
         if target_aspect_ratio is None:
             return extent
@@ -225,12 +237,12 @@ class DataExtentCalculator:
         """An extent array for the registered data, multiplier, and aspect ratio.
 
         Raises:
-            QiskitError: if the resulting extent tuple is not finite. This can occur if no data was
-                registered before calling :meth:`extent`.
+            QiskitError: if the resulting extent tuple is not finite. This can occur if
+            no data was registered before calling :meth:`extent`.
 
         Returns:
-            tuple: the extent tuple for the registered data, scaled by ``multiplier``, and then extended
-                to achieve the set aspect ratio.
+            The extent tuple for the registered data, scaled by ``multiplier``, and then
+            extended to achieve the set aspect ratio.
         """
         if not np.all(np.isfinite(self._data_extent)):
             is_infinite = np.argwhere(np.invert(np.isfinite(self._data_extent)))

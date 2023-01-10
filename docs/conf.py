@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2018.
+# (C) Copyright IBM 2018, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -100,6 +100,7 @@ extensions = [
     "autoref",
     "autodoc_experiment",
     "autodoc_analysis",
+    "autodoc_visualization",
     "jupyter-execute-checkenv",
 ]
 html_static_path = ["_static"]
@@ -112,6 +113,9 @@ nbsphinx_widgets_path = ""
 exclude_patterns = ["_build", "**.ipynb_checkpoints"]
 nbsphinx_thumbnails = {}
 
+# Add `data keys` and `style parameters` alias. Needed for `expected_*_data_keys` methods in
+# visualization module and `default_style` method in `PlotStyle` respectively.
+napoleon_custom_sections = [("data keys", "params_style"), ("style parameters", "params_style")]
 
 # -----------------------------------------------------------------------------
 # Autosummary
