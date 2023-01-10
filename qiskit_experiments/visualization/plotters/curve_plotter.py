@@ -103,7 +103,9 @@ class CurvePlotter(BasePlotter):
 
         Figure Options:
             report_red_chi2_label (str): The label for the reduced-chi squared entry of
-                the fit report. Defaults to ``"reduced-$\\chi^2$"``.
+                the fit report. Defaults to the Python string literal
+                ``"reduced-$\\chi^2$"``, corresponding to the formatted string
+                reduced-:math:`\chi^2`.
         """
         fig_opts = super()._default_figure_options()
         fig_opts.report_red_chi2_label = "reduced-$\\chi^2$"
