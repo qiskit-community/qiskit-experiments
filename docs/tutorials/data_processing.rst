@@ -155,13 +155,13 @@ References
 [1] Thomas Alexander, Naoki Kanazawa, Daniel J. Egger, Lauren Capelluto,
 Christopher J. Wood, Ali Javadi-Abhari, David McKay, Qiskit Pulse:
 Programming Quantum Computers Through the Cloud with Pulses, Quantum
-Science and Technology **5**, 044006 (2020).
+Science and Technology **5**, 044006 (2020). https://arxiv.org/abs/2004.06755
 
 [2] Caroline Tornow, Naoki Kanazawa, William E. Shanks, Daniel J. Egger,
 Minimum quantum run-time characterization and calibration via restless
 measurements with dynamic repetition rates, Physics Review Applied **17**,
-064061 (2022).
+064061 (2022). https://arxiv.org/abs/2202.06981
 
 [3] Max Werninghaus, Daniel J. Egger, Stefan Filipp, High-speed calibration and
 characterization of superconducting quantum processors without qubit reset,
-PRX Quantum 2, 020324 (2021).
+PRX Quantum 2, 020324 (2021). https://arxiv.org/abs/2010.06576
