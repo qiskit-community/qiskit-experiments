@@ -14,7 +14,7 @@ IBM Quantum backends can return different types of data. There is
 counts data and IQ data [1], referred to as level 2 and level 1 data,
 respectively. Level 2 data corresponds
 to a dictionary with bit-strings as keys and the number of
-times the bit-string was measured as a value. Importantly,
+times the bit-string was measured as a value. Importantly
 for some experiments, the backends can return a lower data level
 known as IQ data. Here, I and Q stand
 for in phase and quadrature. The IQ are points in the complex plane
@@ -73,9 +73,8 @@ The code below sets up the Rabi experiment.
         amplitudes=np.linspace(-0.1, 0.1, 21)
     )
 
-We now run the Rabi experiment twice, once with level 1 data
-
-and once with level 2 data. Here, we manually configure two data
+We now run the Rabi experiment twice, once with level 1 data and
+once with level 2 data. Here, we manually configure two data
 processors but note that typically you do not need to do this
 yourself. We begin with single-shot IQ data.
 
@@ -97,7 +96,27 @@ data on its main axis. The second node averages the single-shot
 data. The output is a single float per quantum circuit. Finally,
 the last node ``MinMaxNormalize`` normalizes the measured signal to
 the interval [0, 1]. The ``iq_dataprocessor`` is then set as an option
-of the analysis class. Now we turn to counts data and see how the
+of the analysis class. For those who are wondering what single-shot IQ
+data looks like we plot the data returned by the zeroth and sixth circuit
+in the code block below.
+
+.. jupyter-execute::
+
+    %matplotlib inline
+
+    from qiskit_experiments.visualization import IQPlotter, MplDrawer
+
+    plotter = IQPlotter(MplDrawer())
+
+    for idx in [0, 6]:
+        plotter.set_series_data(
+            f"Circuit {idx}",
+            points=np.array(exp_data.data(idx)["memory"]).squeeze(),
+        )
+
+    plotter.figure()
+
+Now we turn to counts data and see how the
 data processor needs to be changed.
 
 .. jupyter-execute::
@@ -110,7 +129,7 @@ data processor needs to be changed.
 
     display(exp_data.figure(0))
 
-Now, the ``input_key`` is "counts" since that is key under which counts
+Now, the ``input_key`` is "counts" since that is the key under which the counts
 data is saved in instances of ``ExperimentData``. The list of nodes
 comprises a single data action which converts the counts to an estimation
 of the probability of measuring the outcome "1".
@@ -127,7 +146,7 @@ input and returns the processed numpy array as output. This output
 serves as the input for the next node in the data processing chain.
 Here, the input and output numpy arrays can have a different shape.
 
-In addition to standard the ``DataAction`` the data processing package
+In addition to the standard ``DataAction`` the data processing package
 also supports trainable data actions as subclasses of ``TrainableDataAction``.
 These nodes must first be trained on the data before they can
 process the data. An example of a ``TrainableDataAction`` is the
