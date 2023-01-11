@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2021, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -209,6 +209,38 @@ class AnalysisSectionFormatter(DocstringSectionFormatter):
             ".. rubric:: Fit Parameters",
             "",
             "The following fit parameters are estimated during the analysis.",
+            "",
+        ]
+        format_lines.extend(lines)
+        format_lines.append("")
+
+        return format_lines
+
+class VisualizationSectionFormatter(DocstringSectionFormatter):
+    """Formatter for visualization classes."""
+
+    @_check_no_indent
+    def format_opts(self, lines: List[str]) -> List[str]:
+        """Format options section."""
+
+        format_lines = [
+            ".. rubric:: Options",
+            "",
+            "The following can be set using :meth:`set_options`.",
+            "",
+        ]
+        format_lines.extend(lines)
+        format_lines.append("")
+
+        return format_lines
+
+    @_check_no_indent
+    def format_figure_opts(self, lines: List[str]) -> List[str]:
+        """Format figure options section."""
+        format_lines = [
+            ".. rubric:: Figure Options",
+            "",
+            "The following can be set using :meth:`set_figure_options`.",
             "",
         ]
         format_lines.extend(lines)
