@@ -69,7 +69,8 @@ The code below sets-up the Rabi experiment.
         amplitudes=np.linspace(-0.1, 0.1, 21)
     )
 
-We now run the rabi experiment twice, once with level 1 data
+We now run the Rabi experiment twice, once with level 1 data
+
 and once with level 2 data. Here, we manually configure two data
 processors but note that typically you do not need to do this
 yourself. We begin with single-shot IQ data.
