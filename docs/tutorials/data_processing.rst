@@ -41,7 +41,8 @@ list is the input to the next node in the list.
 
 To illustrate the data processing module we consider an example
 in which we measure a rabi oscillation with different data levels.
-The code below sets-up the Rabi experiment.
+The code below sets up the Rabi experiment.
+
 
 .. jupyter-execute::
 
