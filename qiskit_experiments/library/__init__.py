@@ -79,6 +79,22 @@ Some experiments may be also used for gate calibration.
     ~characterization.ZZRamsey
     ~characterization.MultiStateDiscrimination
 
+.. _stark:
+
+Stark Experiments
+=================
+
+Experiments with the Stark tone. When a qubit is off-resonantly driven,
+the Stark shift occurs on the qubit that slightly modulates the qubit frequency.
+This technique is sometime used to characterize qubit properties in the vicinity of
+the base frequency, especially with the fixed frequency architecture which usually
+doesn't have a knob to control qubit frequency.
+
+.. autosummary::
+    :toctree: ../stubs/
+    :template: autosummary/experiment.rst
+
+    ~stark.StarkRamseyXY
 
 .. _calibration:
 
@@ -156,6 +172,7 @@ from .characterization import (
 from .randomized_benchmarking import StandardRB, InterleavedRB
 from .tomography import StateTomography, ProcessTomography
 from .quantum_volume import QuantumVolume
+from .stark import StarkRamseyXY
 
 # Experiment Sub-modules
 from . import calibration
@@ -163,3 +180,4 @@ from . import characterization
 from . import randomized_benchmarking
 from . import tomography
 from . import quantum_volume
+from . import stark
