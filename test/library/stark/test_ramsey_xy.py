@@ -36,16 +36,22 @@ class TestStarkRamseyXY(QiskitExperimentsTestCase):
             qubit=0,
             stark_amp=0.1,  # positive amplitude
             backend=backend,
-            stark_sigma=64,
+            stark_sigma=15e-9,
             stark_risefall=2,
             stark_freq_offset=80e6,
         )
         param_ram_x, _ = exp.parameterized_circuits()
         freq = backend.qubit_properties(0).frequency - 80e6  # negative frequency shift
+        granularity = backend.target.granularity
+        dt = backend.dt
+        duration = granularity * int(round(4 * 15e-9 / dt / granularity))
+        sigma = duration / 4
 
         with pulse.build() as ref_schedule:
             pulse.set_frequency(freq, pulse.DriveChannel(0))
-            pulse.play(pulse.Gaussian(duration=256, amp=0.1, sigma=64), pulse.DriveChannel(0))
+            pulse.play(
+                pulse.Gaussian(duration=duration, amp=0.1, sigma=sigma), pulse.DriveChannel(0)
+            )
 
         test_schedule = param_ram_x.calibrations["StarkV"][(0,), ()]
         self.assertEqual(test_schedule, ref_schedule)
@@ -57,16 +63,22 @@ class TestStarkRamseyXY(QiskitExperimentsTestCase):
             qubit=0,
             stark_amp=-0.1,  # negative amplitude
             backend=backend,
-            stark_sigma=64,
+            stark_sigma=15e-9,
             stark_risefall=2,
             stark_freq_offset=80e6,
         )
         param_ram_x, _ = exp.parameterized_circuits()
         freq = backend.qubit_properties(0).frequency + 80e6  # positive frequency shift
+        granularity = backend.target.granularity
+        dt = backend.dt
+        duration = granularity * int(round(4 * 15e-9 / dt / granularity))
+        sigma = duration / 4
 
         with pulse.build() as ref_schedule:
             pulse.set_frequency(freq, pulse.DriveChannel(0))
-            pulse.play(pulse.Gaussian(duration=256, amp=0.1, sigma=64), pulse.DriveChannel(0))
+            pulse.play(
+                pulse.Gaussian(duration=duration, amp=0.1, sigma=sigma), pulse.DriveChannel(0)
+            )
 
         test_schedule = param_ram_x.calibrations["StarkV"][(0,), ()]
         self.assertEqual(test_schedule, ref_schedule)

@@ -298,7 +298,7 @@ class StarkRamseyXY(BaseExperiment):
             # Not using pulse_round method of the BackendTiming class
             # because this method considers the minimum pulse duration.
             # Valid delay here corresponds to the flat-top length and thus can be zero at minimum.
-            valid_delay_dt = granularity * int(delay / dt / granularity)
+            valid_delay_dt = granularity * int(round(delay / dt / granularity))
             net_delay_sec = valid_delay_dt * dt
 
             ramx_circ_assigned = ramx_circ.assign_parameters({param: valid_delay_dt}, inplace=False)
