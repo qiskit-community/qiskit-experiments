@@ -23,7 +23,7 @@ Getting started
     learning
     
 Exploring modules
-=======
+=================
 
 .. toctree::
     :maxdepth: 1

@@ -5,9 +5,9 @@ Problem
 -------
 
 Sometimes due to events like a lost connection, the :class:`.ExperimentData` class that is returned 
-upon execution completion of an experiment may not contain correct results. There 
+upon completion of an experiment may not contain correct results. There 
 are also times when you would like to rerun the analysis for existing experiments with
-previously run jobs. 
+previously run jobs.
 
 Solution
 --------

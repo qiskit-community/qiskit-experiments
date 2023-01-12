@@ -258,13 +258,14 @@ every logic defined in the :class:`AnalysisA`.
 
 .. _curve_analysis_workflow:
 
-Cureve Analysis Workflow
-========================
+Curve Analysis Workflow
+=======================
 
 Typically curve analysis performs fitting as follows.
 This workflow is defined in the method :meth:`CurveAnalysis._run_analysis`.
 
 1. Initialization
+-----------------
 
 Curve analysis calls :meth:`_initialization` method where it initializes
 some internal states and optionally populate analysis options
@@ -274,6 +275,7 @@ or dynamically generate the fit models (``self._models``) with fresh analysis op
 A developer can override this method to perform initialization of analysis-specific variables.
 
 2. Data processing
+------------------
 
 Curve analysis calls :meth:`_run_data_processing` method where
 the data processor in the analysis option is internally called.
@@ -287,6 +289,7 @@ A developer can inject extra data processing, for example, filtering, smoothing,
 or elimination of outliers for better fitting.
 
 3. Fitting
+----------
 
 Curve analysis calls :meth:`_run_curve_fit` method which is the core functionality of the fitting.
 The another method :meth:`_generate_fit_guesses` is internally called to
@@ -298,6 +301,7 @@ A developer can also override the entire :meth:`_run_curve_fit` method to apply
 custom fitting algorithms. This method must return :class:`.CurveFitResult` dataclass.
 
 4. Post processing
+------------------
 
 Curve analysis runs several postprocessing against to the fit outcome.
 It calls :meth:`_create_analysis_results` to create :class:`AnalysisResultData` class

@@ -20,6 +20,7 @@ What Qiskit Experiments can do
 * Run built-in or customized experiments with all the options that Terra has
 * Specify fit series and parameters in the analysis
 * Transform the data through the data processor
+* Visualize data with support for custom drawing backends
 * Flexible visualization, storage, and retrieval of data
 
 A quick primer

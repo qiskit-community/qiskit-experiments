@@ -1,5 +1,8 @@
+Getting Started
+===============
+
 Installation
-=============
+============
 
 Official Qiskit Experiments releases can be installed via the python package manager 
 ``pip``.
@@ -57,7 +60,6 @@ this example, but you can use any IBM backend that you can access through Qiskit
 
     delays = np.arange(1e-6, 3 * qubit0_t1, 3e-5)
     exp = T1(qubit=0, delays=delays)
-    exp_data = exp.run(backend=backend, seed_simulator=101).block_for_results()
 
 Run and display results:
 
@@ -70,6 +72,8 @@ Run and display results:
     for result in exp_data.analysis_results():
         print(result)
 
+The `block_for_results` method is optional here, and is used to block execution
+of subsequent code until the experiment has fully completed execution and analysis.
 
 Setting experiment options
 ==========================
@@ -77,34 +81,61 @@ Setting experiment options
 Often it's insufficient to run an experiment with only the default options. 
 There are four types of options one can set for an experiment:
 
-* **Run options**, for passing to the experiment's ``run()`` method. Any run option that 
-  Terra supports can be set and will be passed to the jobs at run time:
+Run options
+-----------
+
+These options are passed to the experiment's ``run()`` method and then to the ``run()``
+method of your specified backend. Any run option that your backend supports can be set:
 
 .. code-block::
 
-  exp.set_run_options(meas_level=MeasLevel.CLASSIFIED)
+  exp.set_run_options(shots=1000,
+                      meas_level=MeasLevel.CLASSIFIED,
+                      meas_return="avg")
 
-* **Transpile options**, for passing to the Terra transpiler:
+Consult the documentation of :meth:`qiskit.providers.ibmq.IBMQBackend.run` or 
+your specific backend type for valid options.
 
-.. code-block::
-
-  exp.set_transpile_options(scheduling_method='asap')
-
-* **Experiment options**, unique to the experiment class. Consult the API references 
-  for the options for each experiment.
-  
-.. code-block::
-
-  exp.set_experiment_options(delays=fields["delays_t1"])
-
-* **Analysis options**, unique to the analysis class. Consult the API references for the
-  options for each experiment analysis. Unlike the other options, this one is
-  not set via the experiment object but via analysis instead:
+Transpile options
+-----------------
+These options are passed to the Terra transpiler to transpile the experiment circuits
+before execution:
 
 .. code-block::
 
+  exp.set_transpile_options(scheduling_method='asap',
+                            optimization_level=3,
+                            basis_gates=["x", "sx", "rz"])
+
+Consult the documentation of :func:`qiskit.compiler.transpile` for valid options.
+
+Experiment options
+------------------
+These options are unique to each experiment class. Many experiment options can be set
+upon experiment instantiation, but can also be explicitly set via :meth:`set_experiment_options`:
+
+.. code-block:: 
+
+  exp = T1(qubit=i, delays=delays)
+  exp.set_experiment_options(delays=new_delays)
+
+Consult the :doc:`API documentation <apidocs/index>` for the options of each experiment class.
+
+Analysis options
+----------------
+These options are unique to each analysis class. Unlike the other options, this one is not set via the experiment object
+but via analysis instead:
+
+.. code-block::
+
+  exp = rb.StandardRB(qubits=(0,),
+                      lengths=list(range(1, 300, 30)),
+                      seed=123,
+                      backend=backend)
   exp.analysis.set_options(gate_error_ratio=None)
 
+Consult the :doc:`API documentation <apidocs/index>` for the options of each 
+experiment's analysis class. 
 
 Running experiments on multiple qubits
 ======================================
@@ -116,8 +147,8 @@ There are two core types of composite experiments:
   qubits used.
 * **Batch experiments** run consecutively in time. These circuits can overlap in qubits.
 
-Here's an example of measuring :math:`T_1` of multiple qubits in the same experiment, by
-creating a parallel experiment:
+Here's an example of measuring :math:`T_1` of two qubits on the same device simultaneously
+in a parallel experiment:
 
 .. jupyter-execute::
 
@@ -132,12 +163,13 @@ creating a parallel experiment:
     for result in parallel_data.analysis_results():
         print(result)
 
+Parallel and batch experiments can be nested arbitrarily to make
 
 Viewing sub experiment data
 ===========================
 
-The experiment data returned from a batched experiment also contains
-individual experiment data for each sub experiment which can be accessed
+The experiment data returned from a composite experiment also contains
+individual experiment data for each sub experiment, which can be accessed
 using ``child_data``.
 
 .. jupyter-execute::
@@ -148,4 +180,7 @@ using ``child_data``.
         display(sub_data.figure(0))
         for result in sub_data.analysis_results():
             print(result)
+
+You can use the `flatten_results` flag to flatten the results of all 
+component experiments into one level.
 

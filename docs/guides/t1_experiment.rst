@@ -1,5 +1,5 @@
-The T1 Experiment
-===========
+T1 Characterization
+===================
 
 Background
 ===========
