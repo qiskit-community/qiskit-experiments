@@ -135,7 +135,8 @@ class StarkRamseyXY(BaseExperiment):
                 If not provided, the same channel with the qubit drive is used.
             stark_freq_offset (float): Offset of Stark tone frequency from the qubit frequency.
                 This must be greater than zero not to apply Rabi drive.
-            stark_sigma (float): Gaussian sigma of the rising and falling edges of the Stark tone.
+            stark_sigma (float): Gaussian sigma of the rising and falling edges
+                of the Stark tone, in seconds.
             stark_risefall (float): Ratio of sigma to the duration of
                 the rising and falling edges of the Stark tone.
             min_freq (float): Minimum frequency that this experiment is guaranteed to resolve.
@@ -152,7 +153,7 @@ class StarkRamseyXY(BaseExperiment):
             stark_amp=0.0,
             stark_channel=None,
             stark_freq_offset=80e6,
-            stark_sigma=64,
+            stark_sigma=15e-9,
             stark_risefall=2,
             min_freq=5e6,
             max_freq=100e6,
@@ -213,15 +214,16 @@ class StarkRamseyXY(BaseExperiment):
         stark_freq = qubit_f01 - np.sign(opt.stark_amp) * opt.stark_freq_offset
         stark_amp = np.abs(opt.stark_amp)
         stark_channel = opt.stark_channel or pulse.DriveChannel(self.physical_qubits[0])
-        risefall_time = self._timing.round_pulse(samples=2 * opt.stark_risefall * opt.stark_sigma)
+        ramps_dt = self._timing.round_pulse(time=2 * opt.stark_risefall * opt.stark_sigma)
+        sigma_dt = ramps_dt / 2 / opt.stark_risefall
 
         with pulse.build() as stark_v_schedule:
             pulse.set_frequency(stark_freq, stark_channel)
             pulse.play(
                 pulse.Gaussian(
-                    duration=risefall_time,
+                    duration=ramps_dt,
                     amp=stark_amp,
-                    sigma=opt.stark_sigma,
+                    sigma=sigma_dt,
                 ),
                 stark_channel,
             )
@@ -230,9 +232,9 @@ class StarkRamseyXY(BaseExperiment):
             pulse.set_frequency(stark_freq, stark_channel)
             pulse.play(
                 pulse.GaussianSquare(
-                    duration=risefall_time + param,
+                    duration=ramps_dt + param,
                     amp=stark_amp,
-                    sigma=opt.stark_sigma,
+                    sigma=sigma_dt,
                     risefall_sigma_ratio=opt.stark_risefall,
                 ),
                 stark_channel,
