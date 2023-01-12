@@ -1,0 +1,12 @@
+---
+features:
+  - |
+    New module :mod:`qiskit_experiments.library.stark` has been added. 
+    This module contains characterization experiments utilizing the Stark shift
+    for spectroscopy. This allows experimentalist to characterize qubit parameter
+    in the vicinity of the qubit frequency, even though the qubit doesn't allow
+    frequency modulation, i.e. fixed-qubit frequency architecture.
+  - |
+    New experiment :class:`.StarkRamseyXY` has been added.
+    This is a variant of :class:`RamseyXY` experiment that characterizes 
+    the qubit frequency offset under the Stark tone drive.
