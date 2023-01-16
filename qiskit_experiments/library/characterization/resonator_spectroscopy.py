@@ -53,11 +53,23 @@ class ResonatorSpectroscopy(Spectroscopy):
             c: 1/════════════════════╩═
                                      0
 
-        Side note: when doing readout resonator spectroscopy, each measured IQ point has a
+        Side note 1: when doing readout resonator spectroscopy, each measured IQ point has a
         frequency dependent phase. Close to the resonance, the IQ points start rotating around
         in the IQ plan. This effect must be accounted for in the data processing to produce a
         meaningful signal. The default data processing workflow will therefore reduce the two-
         dimensional IQ data to one-dimensional data using the magnitude of each IQ point.
+
+        Side node 2: when running readout resonator spectroscopy in a parallel experiment the
+        user will need to specify the memory slot to use. This can easily be done with the code
+        shown below.
+
+        .. code::
+
+            specs = []
+            for slot, qubit in enumerate(qubits):
+                specs.append(ResonatorSpectroscopy(qubit=qubit, backend=backend2, memory_slot=slot))
+
+            exp = ParallelExperiment(specs, backend=backend2)
 
         # section: warning
             Some backends may not have the required functionality to properly support resonator
@@ -101,6 +113,9 @@ class ResonatorSpectroscopy(Spectroscopy):
             initial_circuit (QuantumCircuit): A single-qubit initial circuit to run before the
                 measurement/spectroscopy pulse. The circuit must contain only a single qubit and zero
                 classical bits. If None, no circuit is appended before the measurement. Defaults to None.
+            memory_slot: The memory slot that the acquire instruction uses in the pulse schedule.
+                The default value is ``0``. This argument allows the experiment to function in a
+                :class:`.ParallelExperiment`.
         """
         options = super()._default_experiment_options()
 
@@ -109,6 +124,7 @@ class ResonatorSpectroscopy(Spectroscopy):
         options.sigma = 60e-9
         options.width = 360e-9
         options.initial_circuit = None
+        options.memory_slot = 0
 
         return options
 
@@ -221,7 +237,7 @@ class ResonatorSpectroscopy(Spectroscopy):
                 ),
                 pulse.MeasureChannel(qubit),
             )
-            pulse.acquire(duration, qubit, pulse.MemorySlot(0))
+            pulse.acquire(duration, qubit, pulse.MemorySlot(self.experiment_options.memory_slot))
 
         return schedule, freq_param
 
