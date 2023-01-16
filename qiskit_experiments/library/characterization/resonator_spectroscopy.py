@@ -113,7 +113,7 @@ class ResonatorSpectroscopy(Spectroscopy):
             initial_circuit (QuantumCircuit): A single-qubit initial circuit to run before the
                 measurement/spectroscopy pulse. The circuit must contain only a single qubit and zero
                 classical bits. If None, no circuit is appended before the measurement. Defaults to None.
-            memory_slot: The memory slot that the acquire instruction uses in the pulse schedule.
+            memory_slot (int): The memory slot that the acquire instruction uses in the pulse schedule.
                 The default value is ``0``. This argument allows the experiment to function in a
                 :class:`.ParallelExperiment`.
         """
