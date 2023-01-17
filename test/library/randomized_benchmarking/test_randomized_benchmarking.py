@@ -18,7 +18,7 @@ import copy
 import numpy as np
 from ddt import ddt, data, unpack
 
-from qiskit.circuit import Delay, QuantumCircuit, Parameter
+from qiskit.circuit import Delay, QuantumCircuit, Parameter, Gate
 from qiskit.circuit.library import SXGate, CXGate, TGate, CZGate
 from qiskit.exceptions import QiskitError
 from qiskit.providers.fake_provider import FakeManila, FakeManilaV2, FakeWashington
@@ -84,6 +84,14 @@ class TestStandardRB(QiskitExperimentsTestCase, RBTestMixin):
         self.assertEqual(analysis.config(), loaded.config())
 
     # ### Tests for circuit generation ###
+    @data([[3], 4], [[4, 7], 5], [[0, 1, 2], 3])
+    @unpack
+    def test_generate_circuits(self, qubits, length):
+        """Test RB circuit generation"""
+        exp = rb.StandardRB(qubits=qubits, lengths=[length], num_samples=1)
+        circuits = exp.circuits()
+        self.assertAllIdentity(circuits)
+
     def test_return_same_circuit(self):
         """Test if setting the same seed returns the same circuits."""
         exp1 = rb.StandardRB(
@@ -265,6 +273,28 @@ class TestInterleavedRB(QiskitExperimentsTestCase, RBTestMixin):
         self.assertEqual(analysis.config(), loaded.config())
 
     # ### Tests for circuit generation ###
+    class ThreeQubitGate(Gate):
+        """A 3-qubit Clifford gate for tests"""
+
+        def __init__(self):
+            super().__init__("3q-gate", 3, [])
+
+        def _define(self):
+            qc = QuantumCircuit(3, name=self.name)
+            qc.cx(0, 1)
+            qc.x(2)
+            self.definition = qc
+
+    @data([SXGate(), [3], 4], [CXGate(), [4, 7], 5], [ThreeQubitGate(), [0, 1, 2], 3])
+    @unpack
+    def test_generate_interleaved_circuits(self, interleaved_element, qubits, length):
+        """Test interleaved circuit generation"""
+        exp = rb.InterleavedRB(
+            interleaved_element=interleaved_element, qubits=qubits, lengths=[length], num_samples=1
+        )
+        circuits = exp.circuits()
+        self.assertAllIdentity(circuits)
+
     @data([SXGate(), [3], 4], [CXGate(), [4, 7], 5])
     @unpack
     def test_interleaved_structure(self, interleaved_element, qubits, length):
