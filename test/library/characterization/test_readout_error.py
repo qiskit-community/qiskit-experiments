@@ -21,14 +21,29 @@ import numpy as np
 from qiskit.quantum_info.operators.predicates import matrix_equal
 from qiskit.providers.fake_provider import FakeParisV2
 from qiskit_ibm_experiment import IBMExperimentService
+from qiskit_aer import AerSimulator
 from qiskit_experiments.library.characterization import LocalReadoutError, CorrelatedReadoutError
 from qiskit_experiments.framework import ExperimentData
 from qiskit_experiments.framework import ParallelExperiment
 from qiskit_experiments.framework.json import ExperimentEncoder, ExperimentDecoder
 
 
-class TestRedoutError(QiskitExperimentsTestCase):
+class TestReadoutError(QiskitExperimentsTestCase):
     """Test Readout Error experiments"""
+
+    def test_local_analysis_ideal(self):
+        """Tests local mitigator generation from ideal data"""
+        backend = AerSimulator()
+        physical_qubits = range(3)
+        exp = LocalReadoutError(physical_qubits)
+        expdata = exp.run(backend)
+        mitigator = expdata.analysis_results(0).value
+
+        self.assertEqual(len(physical_qubits), mitigator._num_qubits)
+        self.assertEqual(list(physical_qubits), list(mitigator._qubits))
+        self.assertTrue(
+            matrix_equal([np.eye(2) for _ in physical_qubits], mitigator._assignment_mats)
+        )
 
     def test_local_analysis(self):
         """Tests local mitigator generation from experimental data"""
