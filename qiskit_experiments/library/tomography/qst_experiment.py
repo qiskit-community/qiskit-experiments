@@ -58,7 +58,7 @@ class StateTomography(TomographyExperiment):
         measurement_qubits: Optional[Sequence[int]] = None,
         basis_indices: Optional[Iterable[List[int]]] = None,
         qubits: Optional[Sequence[int]] = None,
-        analysis: Optional[BaseAnalysis] = None,
+        analysis: Optional[Union[BaseAnalysis, None]] = "default",
     ):
         """Initialize a quantum process tomography experiment.
 
@@ -79,8 +79,9 @@ class StateTomography(TomographyExperiment):
                 is the measurement basis index for qubit-i. If not specified full
                 tomography for all indices of the measurement basis will be performed.
             qubits: DEPRECATED, the physical qubits for the initial state circuit.
-            analysis: Optional, a custom analysis class to use. If None the default
-                :class:`~.StateTomographyAnalysis` will be used.
+            analysis: Optional, a custom analysis instance to use. If ``"default"``
+                :class:`~.StateTomographyAnalysis` will be used. If None no analysis
+                instance will be set.
         """
         if isinstance(circuit, Statevector):
             # Convert to circuit using initialize instruction
@@ -92,6 +93,9 @@ class StateTomography(TomographyExperiment):
             # Add trivial preparation indices for base class
             basis_indices = [([], i) for i in basis_indices]
 
+        if analysis == "default":
+            analysis = StateTomographyAnalysis()
+
         super().__init__(
             circuit,
             backend=backend,
@@ -101,7 +105,7 @@ class StateTomography(TomographyExperiment):
             measurement_qubits=measurement_qubits,
             basis_indices=basis_indices,
             qubits=qubits,
-            analysis=analysis or StateTomographyAnalysis(),
+            analysis=analysis,
         )
 
         # Set target quantum state

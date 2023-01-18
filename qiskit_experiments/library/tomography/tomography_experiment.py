@@ -64,7 +64,7 @@ class TomographyExperiment(BaseExperiment):
         preparation_qubits: Optional[Sequence[int]] = None,
         basis_indices: Optional[Iterable[Tuple[List[int], List[int]]]] = None,
         qubits: Optional[Sequence[int]] = None,
-        analysis: Optional[BaseAnalysis] = None,
+        analysis: Optional[Union[BaseAnalysis, None]] = "default",
     ):
         """Initialize a tomography experiment.
 
@@ -85,8 +85,9 @@ class TomographyExperiment(BaseExperiment):
             basis_indices: Optional, the basis elements to be measured. If None
                 All basis elements will be measured.
             qubits: DEPRECATED, the physical qubits for the initial state circuit.
-            analysis: Optional, a custom analysis class to use. If None the default
-                :class:`~.TomographyAnalysis` will be used.
+            analysis: Optional, a custom analysis instance to use. If ``"default"``
+                :class:`~.TomographyAnalysis` will be used. If None no analysis
+                instance will be set.
 
         Raises:
             QiskitError: if input params are invalid.
@@ -120,7 +121,7 @@ class TomographyExperiment(BaseExperiment):
         # Initialize BaseExperiment
         if physical_qubits is None:
             physical_qubits = tuple(range(circuit.num_qubits))
-        if analysis is None:
+        if analysis == "default":
             analysis = TomographyAnalysis()
         super().__init__(physical_qubits, analysis=analysis, backend=backend)
 

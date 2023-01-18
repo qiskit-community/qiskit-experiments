@@ -63,13 +63,16 @@ class ProcessTomography(TomographyExperiment):
         preparation_qubits: Optional[Sequence[int]] = None,
         basis_indices: Optional[Iterable[Tuple[List[int], List[int]]]] = None,
         qubits: Optional[Sequence[int]] = None,
-        analysis: Optional[BaseAnalysis] = None,
+        analysis: Optional[Union[BaseAnalysis, None]] = "default",
     ):
         """Initialize a quantum process tomography experiment.
 
         Args:
             circuit: the quantum process circuit. If not a quantum circuit
                 it must be a class that can be appended to a quantum circuit.
+            backend: The backend to run the experiment on.
+            physical_qubits: Optional, the physical qubits for the initial state circuit.
+                If None this will be qubits [0, N) for an N-qubit circuit.
             measurement_basis: Tomography basis for measurements. If not specified the
                 default basis is the :class:`~basis.PauliMeasurementBasis`.
             measurement_indices: Optional, the physical_qubit indices to be measured.
@@ -88,9 +91,13 @@ class ProcessTomography(TomographyExperiment):
                 for qubit-i. If not specified full tomography for all indices of the
                 preparation and measurement bases will be performed.
             qubits: DEPRECATED, the physical qubits for the initial state circuit.
-            analysis: Optional, a custom analysis class to use. If None the default
-                :class:`~.ProcessTomographyAnalysis` will be used.
+            analysis: Optional, a custom analysis instance to use. If ``"default"``
+                :class:`~.ProcessTomographyAnalysis` will be used. If None no analysis
+                instance will be set.
         """
+        if analysis == "default":
+            analysis = ProcessTomographyAnalysis()
+
         super().__init__(
             circuit,
             backend=backend,
@@ -103,7 +110,7 @@ class ProcessTomography(TomographyExperiment):
             preparation_qubits=preparation_qubits,
             basis_indices=basis_indices,
             qubits=qubits,
-            analysis=analysis or ProcessTomographyAnalysis(),
+            analysis=analysis,
         )
 
         # Set target quantum channel
