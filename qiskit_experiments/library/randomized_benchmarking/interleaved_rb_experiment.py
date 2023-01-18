@@ -145,6 +145,7 @@ class InterleavedRB(StandardRB):
             self._interleaved_cliff = num_from_1q_circuit(interleaved_clifford.to_circuit())
         elif self.num_qubits == 2:
             self._interleaved_cliff = num_from_2q_circuit(interleaved_clifford.to_circuit())
+        # Convert interleaved element to circuit for speed in 3Q or more case
         else:
             self._interleaved_cliff = interleaved_clifford.to_circuit()
         self._interleaved_element = interleaved_element  # Original interleaved element
