@@ -1,6 +1,5 @@
-=========================================================
 Curve Analysis: Fitting your data
-=========================================================
+=================================
 
 .. currentmodule:: qiskit_experiments.curve_analysis
 
@@ -8,7 +7,7 @@ Curve analysis provides the analysis base class for a variety of experiments wit
 a single experimental parameter sweep. This analysis subclasses can override
 several class attributes to customize the behavior from data processing to post-processing,
 including providing systematic initial guess for parameters tailored to the experiment.
-Here we describe how code developers can create new analysis inheriting from the base class.
+Here we describe how code developers can create new analysis that inherits from the base class.
 
 
 .. _curve_analysis_overview:

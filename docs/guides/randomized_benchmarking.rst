@@ -1,14 +1,15 @@
 Randomized Benchmarking
 =======================
 
-A randomized benchmarking (RB) experiment consists of the generation of
+Randomized benchmarking (RB) is a popular protocol for characterizing the
+error rate of quantum processors. An RB experiment consists of the generation of
 random Clifford circuits on the given qubits such that the unitary
 computed by the circuits is the identity. After running the circuits,
 the number of shots resulting in an error (i.e. an output different than
 the ground state) are counted, and from this data one can infer error
 estimates for the quantum device, by calculating the Error Per Clifford.
-See `Qiskit
-Textbook <https://qiskit.org/textbook/ch-quantum-hardware/randomized-benchmarking.html>`__
+See the `Qiskit
+Textbook <https://learn.qiskit.org/course/quantum-hardware/randomized-benchmarking>`__
 for an explanation on the RB method, which is based on Ref. [1, 2].
 
 .. jupyter-execute::
@@ -57,7 +58,7 @@ The analysis results of the RB Experiment may include:
    or 2-qubit quantum gates (see Ref. [3])
 
 Running a 1-qubit RB experiment
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-------------------------------
 
 Standard RB experiment will provide you gate errors for every basis gates
 constituting averaged Clifford gate. Note that you can only obtain a single EPC value :math:`\cal E`
@@ -114,7 +115,7 @@ interleaved RB experiment will always give you accurate error value :math:`e_i`.
 
 
 Running a 2-qubit RB experiment
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-------------------------------
 
 In the same way we can compute EPC for two-qubit RB experiment.
 However, the EPC value obtained by the experiment indicates a depolarization
@@ -205,7 +206,7 @@ contribution of depolarization from single-qubit error channels.
 
 
 Displaying the RB circuits
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+--------------------------
 
 Generating an example RB circuit:
 
@@ -228,9 +229,8 @@ Interleaved RB experiment
 -------------------------
 
 Interleaved RB experiment is used to estimate the gate error of the
-interleaved gate (see Ref. [4]).
-
-In addition to the usual RB parameters, we also need to provide:
+interleaved gate (see Ref. [4]). In addition to the usual RB parameters, we also 
+need to provide:
 
 -  ``interleaved_element``: the element to interleave, given either as a
    group element or as an instruction/circuit
@@ -250,35 +250,7 @@ Extra analysis results include
 -  ``EPC_systematic_bounds``: The systematic error bounds of the
    interleaved gate error (see Ref. [4])
 
-Running a 1-qubit interleaved RB experiment
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. jupyter-execute::
-
-    lengths = np.arange(1, 800, 200)
-    num_samples = 10
-    seed = 1010
-    qubits = [0]
-    
-    # Run an Interleaved RB experiment on qubit 0
-    # The interleaved gate is the x gate
-    int_exp1 = InterleavedRB(
-        circuits.XGate(), qubits, lengths, num_samples=num_samples, seed=seed)
-    
-    # Run
-    int_expdata1 = int_exp1.run(backend).block_for_results()
-    int_results1 = int_expdata1.analysis_results()
-
-.. jupyter-execute::
-
-    # View result data
-    display(int_expdata1.figure(0))
-    for result in int_results1:
-        print(result)
-
-
-Running a 2-qubit interleaved RB experiment
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Let's run an interleaved RB experiment on two qubits:
 
 .. jupyter-execute::
 
@@ -369,7 +341,9 @@ A. Ohki, Mark B. Ketchen, and M. Steffen, *Characterization of
 addressability by simultaneous randomized benchmarking*,
 https://arxiv.org/pdf/1204.6308
 
-.. jupyter-execute::
+See also
+--------
 
-    import qiskit.tools.jupyter
-    %qiskit_copyright
+* API documentation: :mod:`qiskit_experiments.library.randomized_benchmarking`
+* `Qiskit Textbook <https://learn.qiskit.org/course/quantum-hardware/randomized-benchmarking>`__
+

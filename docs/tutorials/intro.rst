@@ -21,7 +21,6 @@ What Qiskit Experiments can do
 * Specify fit series and parameters in the analysis
 * Transform the data through the data processor
 * Visualize data with support for custom drawing backends
-* Flexible visualization, storage, and retrieval of data
 
 A quick primer
 ==============
@@ -31,7 +30,7 @@ library. The framework itself consists of ``Experiment`` and ``Analysis`` classe
 latter of which uses the Data Processor, Curve Analysis, and Visualization modules
 to process the data, fit it to specified models, and plot the results, respectively.
 
-.. figure:: ./images/experimentarch.png
+.. figure:: images/experimentarch.png
     :width: 400
     :align: center
 

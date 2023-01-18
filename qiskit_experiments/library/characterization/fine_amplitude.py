@@ -87,7 +87,7 @@ class FineAmplitude(BaseExperiment, RestlessMixin):
         .. ref_arxiv:: 1 1504.06597
 
     # section: tutorial
-        :doc:`/tutorials/fine_calibrations`
+        :doc:`/tutorials/calibrations`
 
     """
 

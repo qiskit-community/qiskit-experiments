@@ -32,7 +32,9 @@ changes.
 Running your first experiment
 =============================
 
-Let's run a T1 experiment. First, we have to import the T1 experiment from the 
+Let's run a T1 experiment. This experiment estimates T1, the characteristic relaxation
+time of a qubit from the excited state to the ground state, by measuring the 
+excited state population after varying delays. First, we have to import the T1 experiment from the 
 Qiskit Experiments library:
 
 .. jupyter-execute::
@@ -119,7 +121,7 @@ upon experiment instantiation, but can also be explicitly set via :meth:`set_exp
   exp = T1(qubit=i, delays=delays)
   exp.set_experiment_options(delays=new_delays)
 
-Consult the :doc:`API documentation <apidocs/index>` for the options of each experiment class.
+Consult the :doc:`API documentation </apidocs/index>` for the options of each experiment class.
 
 Analysis options
 ----------------
@@ -134,7 +136,7 @@ but via analysis instead:
                       backend=backend)
   exp.analysis.set_options(gate_error_ratio=None)
 
-Consult the :doc:`API documentation <apidocs/index>` for the options of each 
+Consult the :doc:`API documentation </apidocs/index>` for the options of each 
 experiment's analysis class. 
 
 Running experiments on multiple qubits
@@ -143,9 +145,10 @@ Running experiments on multiple qubits
 To run experiments across many qubits of the same device, we use **composite experiments**.
 There are two core types of composite experiments:
 
-* **Parallel experiments** run across qubits simultaneously. The circuits cannot overlap in 
-  qubits used.
-* **Batch experiments** run consecutively in time. These circuits can overlap in qubits.
+* **Parallel experiments** run across qubits simultaneously as set by the user. New circuits 
+  are constructed that parallelize circuits of the sub-experiments to be executed simultaneously.
+  Therefore, the sub-circuits cannot overlap in qubits used.
+* **Batch experiments** run consecutively in time. These circuits can overlap in qubits used.
 
 Here's an example of measuring :math:`T_1` of two qubits on the same device simultaneously
 in a parallel experiment:
@@ -158,19 +161,19 @@ in a parallel experiment:
     parallel_exp = ParallelExperiment([T1(qubit=i, delays=delays) for i in range(2)])
     parallel_exp.set_transpile_options(scheduling_method='asap')
     parallel_data = parallel_exp.run(backend, seed_simulator=101).block_for_results()
-    
-    # View result data
-    for result in parallel_data.analysis_results():
-        print(result)
 
-Parallel and batch experiments can be nested arbitrarily to make
+Parallel and batch experiments can be nested arbitrarily to make complex composite 
+experiments.
+
+.. figure:: ./images/compositeexperiments.png
+    :align: center
 
 Viewing sub experiment data
 ===========================
 
-The experiment data returned from a composite experiment also contains
-individual experiment data for each sub experiment, which can be accessed
-using ``child_data``.
+The experiment data returned from a composite experiment contains
+individual analysis results for each sub experiment that can be accessed
+using ``child_data``. By default, the parent data object does not contain analysis results.
 
 .. jupyter-execute::
 
@@ -181,6 +184,16 @@ using ``child_data``.
         for result in sub_data.analysis_results():
             print(result)
 
-You can use the `flatten_results` flag to flatten the results of all 
-component experiments into one level.
+If you want the parent data object to contain the analysis results instead, 
+you can set the ``flatten_results`` flag to true to flatten the results of all component 
+experiments into one level:
 
+.. jupyter-execute::
+
+    parallel_exp = ParallelExperiment([T1(qubit=i, delays=delays) for i in range(2)],
+                                      flatten_results=True)
+    parallel_exp.set_transpile_options(scheduling_method='asap')
+    parallel_data = parallel_exp.run(backend, seed_simulator=101).block_for_results()
+
+    for result in parallel_data.analysis_results():
+        print(result)

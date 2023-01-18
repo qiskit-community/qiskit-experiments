@@ -3,8 +3,8 @@ Calibrations: Schedules and gate parameters from experiments
 
 To produce high fidelity quantum operations, we want to be able to run good gates. The 
 calibration module in Qiskit Experiments allows users to run experiments to find the 
-pulse shapes and parameter values that maximizes the fidelity of the resulting quantum 
-operations. Calibrations experiments encapsulate the internal processes and allow 
+pulse shapes and parameter values that maximize the fidelity of the resulting quantum 
+operations. Calibration experiments encapsulate the internal processes and allow 
 experimenters to perform calibration operations in a quicker way. Without the experiments 
 module, we would need to define pulse schedules and plot the resulting measurement 
 data manually (see also the `Qiskit textbook <https://qiskit.org/textbook/ch-quantum-hardware/calibrating-qubits-pulse.html>`_ for calibrating qubits with Qiskit Terra). 
@@ -333,6 +333,8 @@ negative amplitude.
 .. jupyter-execute::
 
     pd.DataFrame(**cals.parameters_table(qubit_list=[qubit, ()], parameters="β"))[columns_to_show]
+
+.. _fine-amplitude-cal:
 
 Fine amplitude calibration
 --------------------------
