@@ -22,7 +22,7 @@ from qiskit.quantum_info import DensityMatrix, Statevector, Operator, SuperOp
 from qiskit.exceptions import QiskitError
 
 from .base_basis import PreparationBasis, MeasurementBasis
-from .cache_method import cache_method
+from .cache_method import cache_method, _method_cache_name
 
 
 # Typing
@@ -228,6 +228,12 @@ class LocalPreparationBasis(PreparationBasis):
         if self._qubit_states:
             value["qubit_states"] = self._qubit_states
         return value
+
+    def __getstate__(self):
+        # override get state to skip class cache when pickling
+        state = self.__dict__.copy()
+        state.pop(_method_cache_name(self), None)
+        return state
 
 
 class LocalMeasurementBasis(MeasurementBasis):
@@ -486,6 +492,12 @@ class LocalMeasurementBasis(MeasurementBasis):
         if self._qubit_povms:
             value["qubit_povms"] = self._qubit_povms
         return value
+
+    def __getstate__(self):
+        # override get state to skip class cache when pickling
+        state = self.__dict__.copy()
+        state.pop(_method_cache_name(self), None)
+        return state
 
 
 def _tensor_product_circuit(

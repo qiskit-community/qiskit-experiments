@@ -13,17 +13,30 @@
 Method decorator for caching regular methods in class instances.
 """
 
-from typing import Union, Dict, Callable
+from typing import Dict, Callable, Optional
 import functools
 
 
-def cache_method(cache: Union[Dict, str] = "_cache") -> Callable:
+def _method_cache_name(instance: any) -> str:
+    """Attribute name for storing cache in an instance"""
+    return "_CACHE_" + type(instance).__name__
+
+
+def _get_method_cache(instance: any) -> Dict:
+    """Return instance cache for cached methods"""
+    cache_name = _method_cache_name(instance)
+    try:
+        return getattr(instance, cache_name)
+    except AttributeError:
+        setattr(instance, cache_name, {})
+        return getattr(instance, cache_name)
+
+
+def cache_method(maxsize: Optional[int] = None) -> Callable:
     """Decorator for caching class instance methods.
 
     Args:
-        cache: The cache or cache attribute name to use. If a dict it will
-               be used directly, if a str a cache dict will be created under
-               that attribute name if one is not already present.
+        maxsize: The maximum size of this method's LRU cache.
 
     Returns:
         The decorator for caching methods.
@@ -39,36 +52,16 @@ def cache_method(cache: Union[Dict, str] = "_cache") -> Callable:
             The wrapped cached method.
         """
 
-        def _cache_key(*args, **kwargs):
-            return args + tuple(list(kwargs.items()))
-
-        if isinstance(cache, str):
-
-            def _get_cache(self):
-                if not hasattr(self, cache):
-                    setattr(self, cache, {})
-                return getattr(self, cache)
-
-        else:
-
-            def _get_cache(_):
-                return cache
-
         @functools.wraps(method)
         def _cached_method(self, *args, **kwargs):
-            _cache = _get_cache(self)
+            cache = _get_method_cache(self)
+            key = method.__name__
+            try:
+                meth = cache[key]
+            except KeyError:
+                meth = cache[key] = functools.lru_cache(maxsize)(functools.partial(method, self))
 
-            name = method.__name__
-            if name not in _cache:
-                _cache[name] = {}
-            meth_cache = _cache[name]
-
-            key = _cache_key(*args, **kwargs)
-            if key in meth_cache:
-                return meth_cache[key]
-            result = method(self, *args, **kwargs)
-            meth_cache[key] = result
-            return result
+            return meth(*args, **kwargs)
 
         return _cached_method
 
