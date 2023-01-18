@@ -71,6 +71,19 @@ class TestStateTomography(QiskitExperimentsTestCase):
                     fid, target_fid, places=6, msg=f"{fitter} result fidelity is incorrect"
                 )
 
+    def test_full_qst_analysis_none(self):
+        """Test QST experiment"""
+        seed = 4321
+        shots = 1000
+        # Generate tomography data without analysis
+        backend = AerSimulator(seed_simulator=seed, shots=shots)
+        target = qi.random_statevector(2, seed=seed)
+        exp = StateTomography(target, backend=backend, analysis=None)
+        self.assertEqual(exp.analysis, None)
+        expdata = exp.run()
+        self.assertExperimentDone(expdata)
+        self.assertFalse(expdata.analysis_results())
+
     @ddt.data(True, False)
     def test_qst_teleport(self, flatten_creg):
         """Test subset state tomography generation"""

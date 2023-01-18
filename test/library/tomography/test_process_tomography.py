@@ -67,6 +67,19 @@ class TestProcessTomography(QiskitExperimentsTestCase):
                     fid, target_fid, places=6, msg=f"{fitter} result fidelity is incorrect"
                 )
 
+    def test_full_qpt_analysis_none(self):
+        """Test QPT experiment without analysis"""
+        seed = 4321
+        shots = 1000
+        # Generate tomography data without analysis
+        backend = AerSimulator(seed_simulator=seed, shots=shots)
+        target = qi.random_unitary(2, seed=seed)
+        exp = ProcessTomography(target, backend=backend, analysis=None)
+        self.assertEqual(exp.analysis, None)
+        expdata = exp.run()
+        self.assertExperimentDone(expdata)
+        self.assertFalse(expdata.analysis_results())
+
     def test_cvxpy_gaussian_lstsq_cx(self):
         """Test fitter with high fidelity threshold"""
         seed = 1234
