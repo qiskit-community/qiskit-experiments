@@ -58,7 +58,7 @@ class StateTomography(TomographyExperiment):
         measurement_qubits: Optional[Sequence[int]] = None,
         basis_indices: Optional[Iterable[List[int]]] = None,
         qubits: Optional[Sequence[int]] = None,
-        analysis: Optional[Union[BaseAnalysis, None]] = "default",
+        analysis: Union[BaseAnalysis, None, str] = "default",
     ):
         """Initialize a quantum process tomography experiment.
 
@@ -70,7 +70,7 @@ class StateTomography(TomographyExperiment):
                 If None this will be qubits [0, N) for an N-qubit circuit.
             measurement_basis: Tomography basis for measurements. If not specified the
                 default basis is the :class:`~basis.PauliMeasurementBasis`.
-            measurement_indices: Optional, the physical_qubit indices to be measured.
+            measurement_indices: Optional, the `physical_qubits` indices to be measured.
                 If None all circuit physical qubits will be measured.
             measurement_qubits: DEPRECATED, equivalent to measurement_indices.
             basis_indices: Optional, a list of basis indices for generating partial
@@ -130,7 +130,7 @@ class StateTomography(TomographyExperiment):
             # Circuit couldn't be simulated
             return None
 
-        if self._meas_indices is None:
+        if not self._meas_indices:
             return state
 
         non_meas_qargs = list(range(len(self._meas_indices), self._circuit.num_qubits))

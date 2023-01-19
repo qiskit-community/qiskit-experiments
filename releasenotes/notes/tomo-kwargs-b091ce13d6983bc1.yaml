@@ -2,7 +2,7 @@
 features:
   - |
     Adds ``backend`` and ``analysis`` init kwargs to :class:`~.StateTomography`
-    and :class:`.ProcessTomography` experiments to match the base
+    and :class:`~.ProcessTomography` experiments to match the base
     :class:`~.TomographyExperiment` init kwargs. This allows specifying the
     intented backend, or a custom analysis class when initializing the
     experiments.

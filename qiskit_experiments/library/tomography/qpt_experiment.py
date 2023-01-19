@@ -63,7 +63,7 @@ class ProcessTomography(TomographyExperiment):
         preparation_qubits: Optional[Sequence[int]] = None,
         basis_indices: Optional[Iterable[Tuple[List[int], List[int]]]] = None,
         qubits: Optional[Sequence[int]] = None,
-        analysis: Optional[Union[BaseAnalysis, None]] = "default",
+        analysis: Union[BaseAnalysis, None, str] = "default",
     ):
         """Initialize a quantum process tomography experiment.
 
@@ -75,12 +75,12 @@ class ProcessTomography(TomographyExperiment):
                 If None this will be qubits [0, N) for an N-qubit circuit.
             measurement_basis: Tomography basis for measurements. If not specified the
                 default basis is the :class:`~basis.PauliMeasurementBasis`.
-            measurement_indices: Optional, the physical_qubit indices to be measured.
+            measurement_indices: Optional, the `physical_qubits` indices to be measured.
                 If None all circuit physical qubits will be measured.
             measurement_qubits: DEPRECATED, equivalent to measurement_indices.
             preparation_basis: Tomography basis for measurements. If not specified the
                 default basis is the :class:`~basis.PauliPreparationBasis`.
-            preparation_indices: Optional, the physical_qubits indices to be prepared.
+            preparation_indices: Optional, the `physical_qubits` indices to be prepared.
                 If None all circuit physical qubits will be prepared.
             preparation_qubits: DEPRECATED, equivalent to preparation_indices.
             basis_indices: Optional, a list of basis indices for generating partial
@@ -136,8 +136,8 @@ class ProcessTomography(TomographyExperiment):
             return None
 
         total_qubits = self._circuit.num_qubits
-        num_meas = total_qubits if self._meas_indices is None else len(self._meas_indices)
-        num_prep = total_qubits if self._prep_indices is None else len(self._prep_indices)
+        num_meas = total_qubits if not self._meas_indices else len(self._meas_indices)
+        num_prep = total_qubits if not self._prep_indices else len(self._prep_indices)
 
         # If all qubits are prepared or measurement we are done
         if num_meas == total_qubits and num_prep == total_qubits:

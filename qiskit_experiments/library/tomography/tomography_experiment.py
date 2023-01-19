@@ -64,7 +64,7 @@ class TomographyExperiment(BaseExperiment):
         preparation_qubits: Optional[Sequence[int]] = None,
         basis_indices: Optional[Iterable[Tuple[List[int], List[int]]]] = None,
         qubits: Optional[Sequence[int]] = None,
-        analysis: Optional[Union[BaseAnalysis, None]] = "default",
+        analysis: Union[BaseAnalysis, None, str] = "default",
     ):
         """Initialize a tomography experiment.
 
@@ -74,13 +74,17 @@ class TomographyExperiment(BaseExperiment):
             backend: The backend to run the experiment on.
             physical_qubits: Optional, the physical qubits for the initial state circuit.
                 If None this will be qubits [0, N) for an N-qubit circuit.
-            measurement_basis: Tomography basis for measurements.
-            measurement_indices: Optional, the physical_qubit indices to be measured.
-                If None all circuit physical qubits will be measured.
+            measurement_basis: Tomography basis for measurements. If set to None
+                no tomography measurements will be performed.
+            measurement_indices: Optional, the `physical_qubits` indices to be
+                measured as specified by the `measurement_basis`. If None all
+                circuit physical qubits will be measured.
             measurement_qubits: DEPRECATED, equivalent to measurement_indices.
-            preparation_basis: Tomography basis for measurements.
-            preparation_indices: Optional, the physical_qubits indices to be prepared.
-                If None all circuit physical qubits will be prepared.
+            preparation_basis: Tomography basis for measurements. If set to None
+                no tomography preparations will be performed.
+            preparation_indices: Optional, the `physical_qubits` indices to be
+                prepared as specified by the `preparation_basis`. If None all
+                circuit physical qubits will be prepared.
             preparation_qubits: DEPRECATED, equivalent to preparation_indices.
             basis_indices: Optional, the basis elements to be measured. If None
                 All basis elements will be measured.
