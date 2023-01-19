@@ -92,14 +92,16 @@ class LocalReadoutErrorAnalysis(BaseAnalysis):
         for k in range(num_qubits):
             matrix = np.zeros([2, 2], dtype=float)
             marginalized_counts = []
+            shots = []
             for i in range(2):
-                marginalized_counts.append(marginal_counts(counts[i], [k]))
+                marginal_cts = marginal_counts(counts[i], [k])
+                marginalized_counts.append(marginal_cts)
+                shots.append(sum(marginal_cts.values()))
+
             # matrix[i][j] is the probability of counting i for expected j
             for i in range(2):
                 for j in range(2):
-                    matrix[i][j] = marginalized_counts[j][str(i)] / sum(
-                        marginalized_counts[j].values()
-                    )
+                    matrix[i][j] = marginalized_counts[j].get(str(i), 0) / shots[j]
             matrices.append(matrix)
         return matrices
 
