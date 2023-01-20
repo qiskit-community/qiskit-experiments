@@ -15,7 +15,7 @@ Quantum State Tomography experiment
 
 from typing import Union, Optional, List, Sequence
 from qiskit.providers.backend import Backend
-from qiskit.circuit import QuantumCircuit, Instruction
+from qiskit.circuit import QuantumCircuit, Instruction, Clbit
 from qiskit.quantum_info.operators.base_operator import BaseOperator
 from qiskit.quantum_info import Statevector, DensityMatrix, partial_trace
 
@@ -60,6 +60,8 @@ class StateTomography(TomographyExperiment):
         physical_qubits: Optional[Sequence[int]] = None,
         measurement_basis: basis.MeasurementBasis = basis.PauliMeasurementBasis(),
         measurement_indices: Optional[Sequence[int]] = None,
+        conditional_measurement_indices: Optional[Sequence[int]] = None,
+        conditional_circuit_clbits: Union[bool, Sequence[int], Sequence[Clbit]] = False,
         basis_indices: Optional[Sequence[List[int]]] = None,
         analysis: Union[BaseAnalysis, None, str] = "default",
         target: Union[Statevector, DensityMatrix, None, str] = "default",
@@ -81,6 +83,13 @@ class StateTomography(TomographyExperiment):
                 measurement basis configurations ``[m[0], m[1], ...]`` where ``m[i]``
                 is the measurement basis index for qubit-i. If not specified full
                 tomography for all indices of the measurement basis will be performed.
+            conditional_measurement_indices: Optional, a subset of `measurement_indices`
+                to use for conditional fragment reconstruction. Conditional indices will
+                only be measured in the 0-index basis.
+            conditional_circuit_clbits: Specify any clbits in the input
+                circuit to treat as conditioning bits for conditional tomography.
+                If set to True all circuit clbits will be treated as conditional.
+                If False all circuit clbits will be marginalized over (Default: False).
             analysis: Optional, a custom analysis instance to use. If ``"default"``
                 :class:`~.StateTomographyAnalysis` will be used. If None no analysis
                 instance will be set.
@@ -108,6 +117,8 @@ class StateTomography(TomographyExperiment):
             physical_qubits=physical_qubits,
             measurement_basis=measurement_basis,
             measurement_indices=measurement_indices,
+            conditional_measurement_indices=conditional_measurement_indices,
+            conditional_circuit_clbits=conditional_circuit_clbits,
             basis_indices=basis_indices,
             analysis=analysis,
         )

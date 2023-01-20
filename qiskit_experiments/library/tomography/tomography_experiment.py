@@ -15,7 +15,7 @@ Quantum Tomography experiment
 
 from typing import Union, Optional, Iterable, List, Tuple, Sequence
 from itertools import product
-from qiskit.circuit import QuantumCircuit, Instruction, ClassicalRegister
+from qiskit.circuit import QuantumCircuit, Instruction, ClassicalRegister, Clbit
 from qiskit.circuit.library import Permutation
 from qiskit.providers.backend import Backend
 from qiskit.quantum_info.operators.base_operator import BaseOperator
@@ -47,9 +47,7 @@ class TomographyExperiment(BaseExperiment):
 
         """
         options = super()._default_experiment_options()
-
         options.basis_indices = None
-
         return options
 
     @deprecate_arguments(
@@ -69,6 +67,8 @@ class TomographyExperiment(BaseExperiment):
         measurement_indices: Optional[Sequence[int]] = None,
         preparation_basis: Optional[PreparationBasis] = None,
         preparation_indices: Optional[Sequence[int]] = None,
+        conditional_measurement_indices: Optional[Sequence[int]] = None,
+        conditional_circuit_clbits: Union[bool, Sequence[int], Sequence[Clbit]] = False,
         basis_indices: Optional[Iterable[Tuple[List[int], List[int]]]] = None,
         analysis: Union[BaseAnalysis, None, str] = "default",
     ):
@@ -92,6 +92,13 @@ class TomographyExperiment(BaseExperiment):
                 circuit physical qubits will be prepared.
             basis_indices: Optional, the basis elements to be measured. If None
                 All basis elements will be measured.
+            conditional_measurement_indices: Optional, a subset of `measurement_indices`
+                to use for conditional fragment reconstruction. Conditional indices will
+                only be measured in the 0-index basis.
+            conditional_circuit_clbits: Specify any clbits in the input
+                circuit to treat as conditioning bits for conditional tomography.
+                If set to True all circuit clbits will be treated as conditional.
+                If False all circuit clbits will be marginalized over (Default: False).
             analysis: Optional, a custom analysis instance to use. If ``"default"``
                 :class:`~.TomographyAnalysis` will be used. If None no analysis
                 instance will be set.
@@ -115,6 +122,15 @@ class TomographyExperiment(BaseExperiment):
             target_circuit = QuantumCircuit(num_qubits)
             target_circuit.append(circuit, range(num_qubits))
         self._circuit = target_circuit
+
+        self._cond_clbits = None
+        if conditional_circuit_clbits is True:
+            conditional_circuit_clbits = self._circuit.clbits
+        if conditional_circuit_clbits:
+            self._cond_clbits = [
+                self._circuit.find_bit(i).index if isinstance(i, Clbit) else i
+                for i in conditional_circuit_clbits
+            ]
 
         # Measurement basis and qubits
         self._meas_circ_basis = measurement_basis
@@ -153,6 +169,12 @@ class TomographyExperiment(BaseExperiment):
             self._prep_indices = tuple()
             self._prep_physical_qubits = tuple()
 
+        # Conditional indices
+        if conditional_measurement_indices:
+            self._cond_meas_indices = tuple(conditional_measurement_indices)
+        else:
+            self._cond_meas_indices = tuple()
+
         # Configure experiment options
         if basis_indices:
             self.set_experiment_options(basis_indices=basis_indices)
@@ -162,8 +184,16 @@ class TomographyExperiment(BaseExperiment):
             analysis_options = {}
             if measurement_basis:
                 analysis_options["measurement_basis"] = measurement_basis
+                analysis_options["measurement_qubits"] = self._meas_physical_qubits
             if preparation_basis:
                 analysis_options["preparation_basis"] = preparation_basis
+                analysis_options["preparation_qubits"] = self._prep_physical_qubits
+            if conditional_measurement_indices:
+                analysis_options[
+                    "conditional_measurement_indices"
+                ] = conditional_measurement_indices
+            if conditional_circuit_clbits:
+                analysis_options["conditional_circuit_clbits"] = self._cond_clbits
             self.analysis.set_options(**analysis_options)
 
     def circuits(self):
@@ -173,13 +203,17 @@ class TomographyExperiment(BaseExperiment):
         template = QuantumCircuit(
             *self._circuit.qregs, *self._circuit.cregs, meas_creg, name=f"{self._type}"
         )
+        if self._circuit.metadata:
+            template.metadata = self._circuit.metadata.copy()
+        else:
+            template.metadata = {}
         meas_clbits = [template.find_bit(i).index for i in meas_creg]
 
         # Build circuits
         circuits = []
         for prep_element, meas_element in self._basis_indices():
             name = template.name
-            metadata = {"clbits": meas_clbits}
+            metadata = {"clbits": meas_clbits, "cond_clbits": self._cond_clbits}
             if meas_element:
                 name += f"_{meas_element}"
                 metadata["m_idx"] = list(meas_element)
@@ -208,7 +242,7 @@ class TomographyExperiment(BaseExperiment):
                 circ.compose(meas_circ, self._meas_indices, meas_clbits, inplace=True)
 
             # Add metadata
-            circ.metadata = metadata
+            circ.metadata.update(**metadata)
             circuits.append(circ)
         return circuits
 
@@ -218,16 +252,34 @@ class TomographyExperiment(BaseExperiment):
             metadata["m_qubits"] = list(self._meas_physical_qubits)
         if self._prep_physical_qubits:
             metadata["p_qubits"] = list(self._prep_physical_qubits)
+        if self._cond_meas_indices:
+            metadata["c_indices"] = list(self._cond_meas_indices)
         return metadata
 
     def _basis_indices(self):
         """Return list of basis element indices"""
         basis_indices = self.experiment_options.basis_indices
         if basis_indices is not None:
-            return basis_indices
+            if not self._cond_meas_indices:
+                return basis_indices
+            # Pad with conditional indices
+            padded = []
+            for prep, meas in basis_indices:
+                padded_meas = tuple(
+                    0 if i in self._cond_meas_indices else val for i, val in enumerate(meas)
+                )
+                padded.append((prep, padded_meas))
+            return padded
         if self._meas_circ_basis:
             meas_shape = self._meas_circ_basis.index_shape(self._meas_physical_qubits)
-            meas_elements = product(*[range(i) for i in meas_shape])
+            if self._cond_meas_indices:
+                ranges = [
+                    (0,) if i in self._cond_meas_indices else range(num)
+                    for i, num in enumerate(meas_shape)
+                ]
+            else:
+                ranges = [range(i) for i in meas_shape]
+            meas_elements = product(*ranges)
         else:
             meas_elements = [None]
         if self._prep_circ_basis:

@@ -18,17 +18,19 @@ from typing import List, Dict, Tuple, Union, Optional, Callable
 import warnings
 import functools
 import time
+from collections import defaultdict
+from math import prod
 import numpy as np
 import scipy.linalg as la
 
-from qiskit.result import marginal_counts, Counts
+from qiskit.result import marginal_counts
 from qiskit.quantum_info import DensityMatrix, Choi, Operator
 from qiskit.quantum_info.operators.base_operator import BaseOperator
 from qiskit.quantum_info.operators.channel.quantum_channel import QuantumChannel
 
 from qiskit_experiments.exceptions import AnalysisError
 from qiskit_experiments.framework import BaseAnalysis, AnalysisResultData, Options
-from .basis import MeasurementBasis
+from .basis import MeasurementBasis, PreparationBasis
 from .fitters import (
     linear_inversion,
     scipy_linear_lstsq,
@@ -48,6 +50,10 @@ class TomographyAnalysis(BaseAnalysis):
         "cvxpy_linear_lstsq": cvxpy_linear_lstsq,
         "cvxpy_gaussian_lstsq": cvxpy_gaussian_lstsq,
     }
+    _cvxpy_fitters = (
+        cvxpy_linear_lstsq,
+        cvxpy_gaussian_lstsq,
+    )
 
     @classmethod
     def _default_options(cls) -> Options:
@@ -88,6 +94,12 @@ class TomographyAnalysis(BaseAnalysis):
                 tomographic preparations.
             target (Any): Optional, target object for fidelity comparison of the fit
                 (Default: None).
+            conditional_measurement_indices (list[int]): Optional, indices of measurement
+                qubits to treat as conditional for conditional fragment reconstruction of
+                the circuit.
+            conditional_circuit_clbits (list[int]): Optional, clbits in the source circuit
+                to treat as conditional for conditional fragment reconstruction of the
+                circuit.
         """
         options = super()._default_options()
 
@@ -100,6 +112,8 @@ class TomographyAnalysis(BaseAnalysis):
         options.measurement_qubits = None
         options.preparation_qubits = None
         options.target = None
+        options.conditional_measurement_indices = None
+        options.conditional_circuit_clbits = None
         return options
 
     def set_options(self, **fields):
@@ -139,14 +153,56 @@ class TomographyAnalysis(BaseAnalysis):
         preparation_qubits = self.options.preparation_qubits
         if preparation_basis and preparation_qubits is None:
             preparation_qubits = experiment_data.metadata.get("p_qubits")
+        conditional_measurement_indices = self.options.conditional_measurement_indices
+        if conditional_measurement_indices is None:
+            conditional_measurement_indices = experiment_data.metadata.get("c_indices")
 
         # Generate tomography fitter data
-        outcome_data, shot_data, measurement_data, preparation_data = self._fitter_data(
+        outcome_shape = None
+        if measurement_basis and measurement_qubits:
+            outcome_shape = measurement_basis.outcome_shape(measurement_qubits)
+
+        fitter_data = tomography_data(
             experiment_data.data(),
-            measurement_basis=measurement_basis,
-            measurement_qubits=measurement_qubits,
+            outcome_shape=outcome_shape,
         )
 
+        # Run fitter
+        fit, fitter_metadata = self._run_fit(
+            self._get_fitter(self.options.fitter),
+            *fitter_data,
+            measurement_basis=measurement_basis,
+            measurement_qubits=measurement_qubits,
+            preparation_basis=preparation_basis,
+            preparation_qubits=preparation_qubits,
+            conditional_measurement_indices=conditional_measurement_indices,
+            fitter_options=self.options.fitter_options,
+        )
+
+        # Post process fit
+        analysis_results = self._postprocess_fit(
+            fit,
+            fitter_metadata=fitter_metadata,
+            make_positive=self.options.rescale_positive,
+            target_state=self.options.target,
+        )
+        return analysis_results, []
+
+    def _run_fit(
+        self,
+        fitter: Callable,
+        outcome_data: np.ndarray,
+        shot_data: np.ndarray,
+        measurement_data: np.ndarray,
+        preparation_data: np.ndarray,
+        measurement_basis: Optional[MeasurementBasis] = None,
+        preparation_basis: Optional[PreparationBasis] = None,
+        measurement_qubits: Optional[List[int]] = None,
+        preparation_qubits: Optional[List[int]] = None,
+        conditional_measurement_indices: Optional[List[int]] = None,
+        fitter_options: dict = None,
+    ):
+        """Run tomography fitter on tomography data"""
         # Construct default values for qubit options if not provided
         if preparation_qubits is None:
             preparation_qubits = tuple(range(preparation_data.shape[1]))
@@ -156,43 +212,53 @@ class TomographyAnalysis(BaseAnalysis):
         # Get dimension of the preparation and measurement qubits subsystems
         prep_dims = (1,)
         if preparation_qubits:
+            if not preparation_basis:
+                raise AnalysisError("No tomography preparation basis provided.")
             prep_dims = preparation_basis.matrix_shape(preparation_qubits)
         meas_dims = (1,)
+        full_meas_qubits = measurement_qubits
         if measurement_qubits:
-            meas_dims = measurement_basis.matrix_shape(measurement_qubits)
+            if conditional_measurement_indices is not None:
+                # Remove conditional qubits from full meas qubits
+                full_meas_qubits = [
+                    q for i, q in enumerate(measurement_qubits) if i not in conditional_measurement_indices
+                ]
+            if full_meas_qubits:
+                if not measurement_basis:
+                    raise AnalysisError("No tomography measurement basis provided.")
+                meas_dims = measurement_basis.matrix_shape(full_meas_qubits)
 
-        # Check for both preparation and measurement data to determine if we are
-        # fitting a channel via QPT or a density matrix via QST
-        qpt = preparation_data.shape[1] > 0
-
-        # Compute the preparation dimension if we are performing QPT
-        if qpt:
+        if full_meas_qubits:
+            # QPT or QST
             input_dims = prep_dims
             output_dims = meas_dims
         else:
-            input_dims = (1,)
-            output_dims = meas_dims if measurement_qubits else prep_dims
-
-        # Get tomography fitter function
-        fitter = self._get_fitter(self.options.fitter)
-        fitter_opts = self.options.fitter_options
+            # QST of POVM effects
+            input_dims = meas_dims
+            output_dims = prep_dims
 
         # Use preparation dim to set the expected trace of the fitted state.
         # For QPT this is the input dimension, for QST this will always be 1.
-        trace = np.prod(input_dims) if self.options.rescale_trace else None
+        trace = np.prod(prep_dims) if self.options.rescale_trace else None
+
+        # Get tomography fitter options
+        if fitter_options is None:
+            fitter_options = {}
 
         # Work around to set proper trace and trace preserving constraints for
         # cvxpy fitter
-        if fitter in (cvxpy_linear_lstsq, cvxpy_gaussian_lstsq):
-            fitter_opts = fitter_opts.copy()
+        if fitter in self._cvxpy_fitters:
+            fitter_options = fitter_options.copy()
 
             # Add default value for CVXPY trace constraint if no user value is provided
-            if "trace" not in fitter_opts:
-                fitter_opts["trace"] = trace
+            # Use preparation dim to set the expected trace of the fitted state.
+            # For QPT this is the input dimension, for QST this will always be 1.
+            if "trace" not in fitter_options:
+                fitter_options["trace"] = trace
 
             # By default add trace preserving constraint to cvxpy QPT fit
-            if qpt and "trace_preserving" not in fitter_opts:
-                fitter_opts["trace_preserving"] = True
+            if preparation_data.shape[1] > 0 and "trace_preserving" not in fitter_options:
+                fitter_options["trace_preserving"] = True
 
         # Run tomography fitter
         t_fitter_start = time.time()
@@ -206,7 +272,8 @@ class TomographyAnalysis(BaseAnalysis):
                 preparation_basis=preparation_basis,
                 measurement_qubits=measurement_qubits,
                 preparation_qubits=preparation_qubits,
-                **fitter_opts,
+                conditional_measurement_indices=conditional_measurement_indices,
+                **fitter_options,
             )
         except AnalysisError as ex:
             raise AnalysisError(f"Tomography fitter failed with error: {str(ex)}") from ex
@@ -217,67 +284,75 @@ class TomographyAnalysis(BaseAnalysis):
             fitter_metadata = {}
         fitter_metadata["fitter"] = fitter.__name__
         fitter_metadata["fitter_time"] = t_fitter_stop - t_fitter_start
-
-        # Post process fit
-        analysis_results = self._postprocess_fit(
-            fit,
-            fitter_metadata=fitter_metadata,
-            trace=trace,
-            make_positive=self.options.rescale_positive,
-            input_dims=input_dims,
-            output_dims=output_dims,
-            target_state=self.options.target,
-        )
-        return analysis_results, []
+        fitter_metadata["input_dims"] = input_dims
+        fitter_metadata["output_dims"] = output_dims
+        fitter_metadata["trace"] = trace
+        return fit, fitter_metadata
 
     @classmethod
     def _postprocess_fit(
         cls,
-        fit: np.ndarray,
+        fits: List[np.ndarray],
         fitter_metadata: Optional[Dict] = None,
-        trace: Optional[float] = None,
         make_positive: bool = False,
-        input_dims: Optional[Tuple[int, ...]] = None,
-        output_dims: Optional[Tuple[int, ...]] = None,
         target_state: Optional[Union[Choi, DensityMatrix]] = None,
-    ):
-        """Post-process raw fitter data"""
+    ) -> Dict[str, any]:
+        """Post-process raw fitter result"""
+        # Get dimension and trace from fitter metadata
+        trace = fitter_metadata.get("trace", None)
+        conditionals = fitter_metadata.pop("component_conditionals", None)
+        input_dims = fitter_metadata.get("input_dims", None)
+        output_dims = fitter_metadata.get("output_dims", None)
+
         # Convert fitter matrix to state data for post-processing
         input_dim = np.prod(input_dims) if input_dims else 1
         qpt = input_dim > 1
-        state_result = cls._state_result(
-            fit,
-            make_positive=make_positive,
-            trace=trace,
-            input_dims=input_dims,
-            output_dims=output_dims,
-        )
+        state_results = [
+            cls._state_result(
+                fit,
+                make_positive=make_positive,
+                trace=trace,
+                input_dims=input_dims,
+                output_dims=output_dims,
+                fitter_metadata=fitter_metadata,
+            )
+            for fit in fits
+        ]
 
-        # Add fitter metadata
-        if fitter_metadata:
-            state_result.extra["fitter_metadata"] = fitter_metadata
+        # Compute the conditional probability of each component so that the
+        # total probability of all components is 1, and optional rescale trace
+        # of each component
+        fit_traces = [res.extra.pop("fit_trace") for res in state_results]
+        total_trace = sum(fit_traces)
+        for i, (fit_trace, res) in enumerate(zip(fit_traces, state_results)):
+            # Compute conditional component probability from the the component
+            # non-rescaled fit trace
+            res.extra["component_probability"] = fit_trace / total_trace
+            res.extra["component_index"] = i
+            if conditionals:
+                res.extra["component_conditional"] = conditionals[i]
 
-        # Results list
-        analysis_results = [state_result]
-
+        other_results = []
         # Compute fidelity with target
-        if target_state is not None:
-            analysis_results.append(
-                cls._fidelity_result(state_result, target_state, input_dim=input_dim)
+        if len(state_results) == 1 and target_state is not None:
+            # Note: this currently only works for non-conditional tomography
+            other_results.append(
+                cls._fidelity_result(state_results[0], target_state, input_dim=input_dim)
             )
 
         # Check positive
-        analysis_results.append(cls._positivity_result(state_result, qpt=qpt))
+        other_results.append(cls._positivity_result(state_results, qpt=qpt))
 
         # Check trace preserving
         if qpt:
-            analysis_results.append(cls._tp_result(state_result, input_dim=input_dim))
+            other_results.append(cls._tp_result(state_results, input_dim=input_dim))
 
         # Finally format state result metadata to remove eigenvectors
         # which are no longer needed to reduce size
-        state_result.extra.pop("eigvecs")
+        for state_result in state_results:
+            state_result.extra.pop("eigvecs")
 
-        return analysis_results
+        return state_results + other_results
 
     @classmethod
     def _state_result(
@@ -287,7 +362,8 @@ class TomographyAnalysis(BaseAnalysis):
         trace: Optional[float] = None,
         input_dims: Optional[Tuple[int, ...]] = None,
         output_dims: Optional[Tuple[int, ...]] = None,
-    ) -> AnalysisResultData:
+        fitter_metadata: Optional[Dict] = None,
+    ) -> List[AnalysisResultData]:
         """Convert fit data to state result data"""
         # Get eigensystem of state fit
         raw_eigvals, eigvecs = cls._state_eigensystem(fit)
@@ -322,41 +398,69 @@ class TomographyAnalysis(BaseAnalysis):
             "eigvals": eigvals,
             "raw_eigvals": raw_eigvals,
             "rescaled_psd": rescaled_psd,
+            "fit_trace": fit_trace,
             "eigvecs": eigvecs,
+            "fitter_metadata": fitter_metadata or {},
         }
         return AnalysisResultData("state", value, extra=extra)
 
     @staticmethod
     def _positivity_result(
-        state_result: AnalysisResultData, qpt: bool = False
+        state_results: List[AnalysisResultData], qpt: bool = False
     ) -> AnalysisResultData:
         """Check if eigenvalues are positive"""
-        evals = state_result.extra["eigvals"]
-        cond = np.sum(np.abs(evals[evals < 0]))
-        is_pos = bool(np.isclose(cond, 0))
+        total_cond = 0.0
+        comps_cond = []
+        comps_pos = []
         name = "completely_positive" if qpt else "positive"
+        for result in state_results:
+            evals = result.extra["eigvals"]
+
+            # Check if component is positive and add to extra if so
+            cond = np.sum(np.abs(evals[evals < 0]))
+            pos = bool(np.isclose(cond, 0))
+            result.extra[name] = pos
+
+            # Add component to combined result
+            comps_cond.append(cond)
+            comps_pos.append(pos)
+            total_cond += cond * result.extra["component_probability"]
+
+        # Check if combined conditional state is positive
+        is_pos = bool(np.isclose(total_cond, 0))
         result = AnalysisResultData(name, is_pos)
         if not is_pos:
-            result.extra = {"delta": cond}
+            result.extra = {
+                "delta": total_cond,
+                "components": comps_pos,
+                "components_delta": comps_cond,
+            }
         return result
 
     @staticmethod
     def _tp_result(
-        state_result: AnalysisResultData,
+        state_results: List[AnalysisResultData],
         input_dim: int = 1,
     ) -> AnalysisResultData:
         """Check if QPT channel is trace preserving"""
-        evals = state_result.extra["eigvals"]
-        evecs = state_result.extra["eigvecs"]
-        size = len(evals)
-        output_dim = size // input_dim
-        mats = np.reshape(evecs.T, (size, output_dim, input_dim), order="F")
-        kraus_cond = np.einsum("i,ija,ijb->ab", evals, mats.conj(), mats)
-        cond = np.sum(np.abs(la.eigvalsh(kraus_cond - np.eye(input_dim))))
-        is_tp = bool(np.isclose(cond, 0))
+        # Construct the Kraus TP condition matrix sum_i K_i^dag K_i
+        # summed over all components k
+        kraus_cond = 0.0
+        for result in state_results:
+            evals = result.extra["eigvals"]
+            evecs = result.extra["eigvecs"]
+            prob = result.extra["component_probability"]
+            size = len(evals)
+            output_dim = size // input_dim
+            mats = np.reshape(evecs.T, (size, output_dim, input_dim), order="F")
+            comp_cond = np.einsum("i,ija,ijb->ab", evals, mats.conj(), mats)
+            kraus_cond = kraus_cond + prob * comp_cond
+
+        tp_cond = np.sum(np.abs(la.eigvalsh(kraus_cond - np.eye(input_dim))))
+        is_tp = bool(np.isclose(tp_cond, 0))
         result = AnalysisResultData("trace_preserving", is_tp)
         if not is_tp:
-            result.extra = {"delta": cond}
+            result.extra = {"delta": tp_cond}
         return result
 
     @staticmethod
@@ -364,7 +468,7 @@ class TomographyAnalysis(BaseAnalysis):
         state_result: AnalysisResultData,
         target: Union[Choi, DensityMatrix],
         input_dim: int = 1,
-    ):
+    ) -> AnalysisResultData:
         """Faster computation of fidelity from eigen decomposition"""
         evals = state_result.extra["eigvals"]
         evecs = state_result.extra["eigvecs"]
@@ -436,83 +540,110 @@ class TomographyAnalysis(BaseAnalysis):
                 break
         return ret
 
-    @staticmethod
-    def _fitter_data(
-        data: List[Dict[str, any]],
-        measurement_basis: Optional[MeasurementBasis] = None,
-        measurement_qubits: Optional[Tuple[int, ...]] = None,
-    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
-        """Return list a tuple of basis, frequency, shot data"""
-        meas_size = None
-        prep_size = None
 
-        # Construct marginalized tomography count dicts
-        outcome_dict = {}
-        shots_dict = {}
-        for datum in data:
-            # Get basis data
-            metadata = datum["metadata"]
-            meas_element = tuple(metadata["m_idx"]) if "m_idx" in metadata else tuple()
-            prep_element = tuple(metadata["p_idx"]) if "p_idx" in metadata else tuple()
-            if meas_size is None:
-                meas_size = len(meas_element)
-            if prep_size is None:
-                prep_size = len(prep_element)
+def tomography_data(
+    data,
+    outcome_shape=None,
+    m_idx_key: str = "m_idx",
+    p_idx_key: str = "p_idx",
+    clbits_key: str = "clbits",
+    clbits: Optional[List[int]] = None,
+    cond_clbits_key: str = "cond_clbits",
+    cond_clbits: Optional[List[int]] = None,
+):
+    """Return a tuple of tomography data arrays.
 
-            # Add outcomes
-            counts = Counts(marginal_counts(datum["counts"], metadata["clbits"]))
-            shots = datum.get("shots", sum(counts.values()))
-            basis_key = (meas_element, prep_element)
-            if basis_key in outcome_dict:
-                TomographyAnalysis._append_counts(outcome_dict[basis_key], counts)
-                shots_dict[basis_key] += shots
-            else:
-                outcome_dict[basis_key] = counts
-                shots_dict[basis_key] = shots
+    Args:
+        data: tomography experiment data list.
+        outcome_shape: Optional, the shape of measurement outcomes for
+                       each measurement index. Default is 2.
+        m_idx_key: metadata key for measurement basis index (Default: "m_idx").
+        p_idx_key: metadata key for preparation basis index (Default: "p_idx").
+        clbits_key: metadata clbit key for marginalizing counts (Default: "clbits").
 
-        # Construct function for converting count outcome dit-strings into
-        # integers based on the specified number of outcomes of the measurement
-        # bases on each qubit
-        if meas_size == 0:
-            # Trivial case with no measurement
-            num_outcomes = 1
-            outcome_func = lambda _: 1
-        elif measurement_basis is None:
-            # If no basis is provided assume N-qubit measurement case
-            num_outcomes = 2**meas_size
-            outcome_func = lambda outcome: int(outcome, 2)
-        else:
-            # General measurement basis case for arbitrary outcome measurements
-            if measurement_qubits is None:
-                measurement_qubits = tuple(range(meas_size))
-            elif len(measurement_qubits) != meas_size:
-                raise AnalysisError("Specified number of measurementqubits does not match data.")
-            outcome_shape = measurement_basis.outcome_shape(measurement_qubits)
-            num_outcomes = np.prod(outcome_shape)
-            outcome_func = _int_outcome_function(outcome_shape)
+    Returns:
+        Tuple of data arrays for tomography fitters of form
+        (outcome_data, shot_data, measurement data, preparation data).
+    """
+    meas_size = None
+    prep_size = None
 
-        num_basis = len(outcome_dict)
-        measurement_data = np.zeros((num_basis, meas_size), dtype=int)
-        preparation_data = np.zeros((num_basis, prep_size), dtype=int)
-        shot_data = np.zeros(num_basis, dtype=int)
-        outcome_data = np.zeros((num_basis, num_outcomes), dtype=int)
+    # Construct marginalized tomography count dicts
+    outcome_dict = defaultdict(lambda: defaultdict(lambda: 0))
 
-        for i, (basis_key, counts) in enumerate(outcome_dict.items()):
-            measurement_data[i] = basis_key[0]
-            preparation_data[i] = basis_key[1]
-            shot_data[i] = shots_dict[basis_key]
-            for outcome, freq in counts.items():
-                outcome_data[i][outcome_func(outcome)] = freq
-        return outcome_data, shot_data, measurement_data, preparation_data
+    for datum in data:
+        # Get basis data
+        metadata = datum["metadata"]
+        meas_element = tuple(metadata[m_idx_key]) if m_idx_key in metadata else tuple()
+        prep_element = tuple(metadata[p_idx_key]) if p_idx_key in metadata else tuple()
+        if meas_size is None:
+            meas_size = len(meas_element)
+        if prep_size is None:
+            prep_size = len(prep_element)
+        basis_key = (meas_element, prep_element)
 
-    @staticmethod
-    def _append_counts(counts1, counts2):
-        for key, val in counts2.items():
-            if key in counts1:
-                counts1[key] += val
-            else:
-                counts1[key] = val
-        return counts1
+        # Marginalize counts
+        counts = datum["counts"]
+        count_clbits = []
+        if cond_clbits is None and cond_clbits_key is not None:
+            cond_clbits = metadata[cond_clbits_key] or []
+        if cond_clbits:
+            count_clbits += cond_clbits
+        if clbits is None and clbits_key is not None:
+            clbits = metadata[clbits_key] or []
+        if clbits:
+            count_clbits += clbits
+        if count_clbits:
+            counts = marginal_counts(counts, count_clbits)
+
+        # Accumulate counts
+        combined_counts = outcome_dict[basis_key]
+        for key, val in counts.items():
+            combined_counts[key.replace(" ", "")] += val
+
+    # Format number of outcomes
+    outcome_shape = outcome_shape or 2
+    if isinstance(outcome_shape, int):
+        outcome_shape = meas_size * (outcome_shape,)
+    else:
+        outcome_shape = tuple(outcome_shape)
+    outcome_size = prod(outcome_shape)
+
+    # Construct function for converting count outcome dit-strings into
+    # integers based on the specified number of outcomes of the measurement
+    # bases on each qubit
+    if outcome_size == 1:
+        outcome_func = lambda _: 1
+    else:
+        outcome_func = _int_outcome_function(outcome_shape)
+
+    # Conditional dimension for conditional measurement in source circuit
+    if cond_clbits:
+        num_cond = len(cond_clbits)
+        cond_shape = 2**num_cond
+        cond_mask = sum(1 << i for i in cond_clbits)
+    else:
+        num_cond = 0
+        cond_shape = 1
+        cond_mask = 0
+
+    # Initialize and fill data arrays
+    num_basis = len(outcome_dict)
+    measurement_data = np.zeros((num_basis, meas_size), dtype=int)
+    preparation_data = np.zeros((num_basis, prep_size), dtype=int)
+    shot_data = np.zeros((cond_shape, num_basis), dtype=int)
+    outcome_data = np.zeros((cond_shape, num_basis, outcome_size), dtype=int)
+    for i, (basis_key, counts) in enumerate(outcome_dict.items()):
+        measurement_data[i] = basis_key[0]
+        preparation_data[i] = basis_key[1]
+        for outcome, freq in counts.items():
+            ioutcome = outcome_func(outcome)
+            cond_idx = cond_mask & ioutcome
+            meas_outcome = ioutcome >> num_cond
+            outcome_data[cond_idx][i][meas_outcome] = freq
+            shot_data[cond_idx][i] += freq
+
+    return outcome_data, shot_data, measurement_data, preparation_data
 
 
 @functools.lru_cache(None)

@@ -68,16 +68,24 @@ class StateTomographyAnalysis(TomographyAnalysis):
         """Default analysis options
 
         Analysis Options:
-            measurement_basis (:class:`~basis.BaseFitterMeasurementBasis`): A custom measurement
-                basis for analysis. By default the :meth:`experiment_options` measurement basis
-                will be used.
+            measurement_basis
+                (:class:`~qiskit_experiments.library.tomography.basis.MeasurementBasis`):
+                The measurement
+                :class:`~qiskit_experiments.library.tomography.basis.MeasurementBasis`
+                to use for tomographic state reconstruction.
             fitter (str or Callable): The fitter function to use for reconstruction.
-                rescale_psd (bool): If True rescale the fitted state to be positive-semidefinite
-                (Default: True).
-            fitter_options (Dict[str, Any]): Additional kwargs will be supplied to the
-                fitter function.
-            rescale_trace (bool): If True rescale the state returned by the fitter have either
-                trace 1 (Default: True).
+                This can  be a string to select one of the built-in fitters, or a callable to
+                supply a custom fitter function. See the `Fitter Functions` section for
+                additional information.
+            fitter_options (dict): Any addition kwarg options to be supplied to the fitter
+                function. For documentation of available kwargs refer to the fitter function
+                documentation.
+            rescale_positive (bool): If True rescale the state returned by the fitter
+                to be positive-semidefinite. See the `PSD Rescaling` section for
+                additional information (Default: True).
+            rescale_trace (bool): If True rescale the state returned by the fitter
+                have either trace 1 for :class:`~qiskit.quantum_info.DensityMatrix`,
+                or trace dim for :class:`~qiskit.quantum_info.Choi` matrices (Default: True).
             measurement_qubits (Sequence[int]): Optional, the physical qubits with tomographic
                 measurements. If not specified will be set to ``[0, ..., N-1]`` for N-qubit
                 tomographic measurements.
@@ -85,6 +93,12 @@ class StateTomographyAnalysis(TomographyAnalysis):
                 :class:`~qiskit.quantum_info.Statevector`]): Optional, et a custom target
                 quantum state for computing the :func:~qiskit.quantum_info.state_fidelity`
                 of the fitted state against (Default: None).
+            conditional_measurement_indices (list[int]): Optional, indices of measurement
+                qubits to treat as conditional for conditional fragment reconstruction of
+                the circuit.
+            conditional_circuit_clbits (list[int]): Optional, clbits in the source circuit
+                to treat as conditional for conditional fragment reconstruction of the
+                circuit.
         """
         options = super()._default_options()
         options.measurement_basis = PauliMeasurementBasis()
