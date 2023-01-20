@@ -296,7 +296,7 @@ class TestStateTomography(QiskitExperimentsTestCase):
         )
 
         # Noisy simulator
-        backend = AerSimulator(noise_model=noise_model)
+        backend = AerSimulator(noise_model=noise_model, seed_simulator=1337)
 
         circ = QuantumCircuit(num_qubits)
         circ.h(0)

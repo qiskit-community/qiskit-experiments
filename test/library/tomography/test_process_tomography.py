@@ -402,7 +402,7 @@ class TestProcessTomography(QiskitExperimentsTestCase):
         )
 
         # Noisy simulator
-        backend = AerSimulator(noise_model=noise_model)
+        backend = AerSimulator(noise_model=noise_model, seed_simulator=1337)
 
         exp = ProcessTomography(
             CXGate(), measurement_basis=meas_basis, preparation_basis=prep_basis
