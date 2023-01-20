@@ -9,5 +9,5 @@ features:
 deprecations:
   - |
     The ``qubits`` kwarg of the following experiments has been deprecated and
-    renamed to ``physical_qubits`` :class:`.LocalReadoutError`,
+    renamed to ``physical_qubits``: :class:`.LocalReadoutError`,
     :class:`.CorrelatedReadoutError`.
