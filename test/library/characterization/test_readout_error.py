@@ -33,17 +33,35 @@ class TestReadoutError(QiskitExperimentsTestCase):
 
     def test_local_analysis_ideal(self):
         """Tests local mitigator generation from ideal data"""
-        backend = AerSimulator()
-        physical_qubits = range(3)
-        exp = LocalReadoutError(physical_qubits)
+        num_qubits = 3
+        # Note: using num_qubits instead of n_qubits kwarg here raises an Aer exception
+        backend = AerSimulator(n_qubits=num_qubits)
+        exp = LocalReadoutError(backend=backend)
         expdata = exp.run(backend)
+        self.assertExperimentDone(expdata)
         mitigator = expdata.analysis_results(0).value
 
-        self.assertEqual(len(physical_qubits), mitigator._num_qubits)
-        self.assertEqual(list(physical_qubits), list(mitigator._qubits))
-        self.assertTrue(
-            matrix_equal([np.eye(2) for _ in physical_qubits], mitigator._assignment_mats)
-        )
+        qubits = list(range(num_qubits))
+        self.assertEqual(mitigator._num_qubits, num_qubits)
+        self.assertEqual(list(mitigator._qubits), qubits)
+        for qubit in qubits:
+            self.assertTrue(matrix_equal(mitigator.assignment_matrix([qubit]), np.eye(2)))
+        self.assertTrue(matrix_equal([np.eye(2) for _ in qubits], mitigator._assignment_mats))
+
+    def test_correlated_analysis_ideal(self):
+        """Tests local mitigator generation from ideal data"""
+        num_qubits = 2
+        # Note: using num_qubits instead of n_qubits kwarg here raises an Aer exception
+        backend = AerSimulator(n_qubits=num_qubits)
+        exp = CorrelatedReadoutError(backend=backend)
+        expdata = exp.run(backend)
+        self.assertExperimentDone(expdata)
+        mitigator = expdata.analysis_results(0).value
+
+        qubits = list(range(num_qubits))
+        self.assertEqual(mitigator._num_qubits, num_qubits)
+        self.assertEqual(list(mitigator._qubits), qubits)
+        self.assertTrue(matrix_equal(mitigator.assignment_matrix(qubits), np.eye(2**num_qubits)))
 
     def test_local_analysis(self):
         """Tests local mitigator generation from experimental data"""
