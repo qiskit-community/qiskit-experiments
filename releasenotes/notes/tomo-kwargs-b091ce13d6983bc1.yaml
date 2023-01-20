@@ -1,0 +1,26 @@
+---
+features:
+  - |
+    Adds ``backend`` and ``analysis`` init kwargs to :class:`~.StateTomography`
+    and :class:`~.ProcessTomography` experiments to match the base
+    :class:`~.TomographyExperiment` init kwargs. This allows specifying the
+    intented backend, or a custom analysis class when initializing the
+    experiments.
+upgrade:
+  - |
+    Renames the ``qubits``, ``measurement_qubits``, and ``preparation_qubits``
+    init kwargs of :class:`~.StateTomography`,
+    :class:`~.ProcessTomography`, and :class:`~.TomographyExperiment` to
+    ``physical_qubits``, ``measurement_indices`` and ``preparation_indices``
+    respectively. This is to make the intended use of these kwargs more clear
+    as the measurement and preparation args refer to the index of circuit
+    qubits in the physical qubits list, not the physical qubit values
+    themselves.
+deprecations:
+  - |
+    Renames the ``qubits``, ``measurement_qubits``, and ``preparation_qubits``
+     init kwargs of :class:`~.StateTomography`,
+    :class:`~.ProcessTomography`, and :class:`~.TomographyExperiment` have
+    been deprecated. They have been replaced with kwargs ``physical_qubits``,
+    ``measurement_indices`` and ``preparation_indices`` respectively. The
+    renamed kwargs have the same functionality as the deprecated kwargs.
