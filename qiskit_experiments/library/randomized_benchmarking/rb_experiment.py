@@ -290,7 +290,6 @@ class StandardRB(BaseExperiment, RestlessMixin):
         if self.num_qubits == 2:
             return rng.integers(CliffordUtils.NUM_CLIFFORD_2_QUBIT, size=length)
         # Return circuit object instead of Clifford object for 3 or more qubits case for speed
-        # TODO: Revisit after terra#7269, #7483, #8585
         return [random_clifford(self.num_qubits, rng).to_circuit() for _ in range(length)]
 
     def _to_instruction(
@@ -318,7 +317,6 @@ class StandardRB(BaseExperiment, RestlessMixin):
                 compose_1q if self.num_qubits == 1 else compose_2q, elements, base_elem
             )
         # 3 or more qubits: compose Clifford from circuits for speed
-        # TODO: Revisit after terra#7269, #7483, #8585
         circ = QuantumCircuit(self.num_qubits)
         for elem in elements:
             circ.compose(elem, inplace=True)
