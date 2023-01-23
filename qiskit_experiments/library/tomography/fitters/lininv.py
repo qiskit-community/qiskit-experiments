@@ -15,7 +15,6 @@ Linear inversion MLEtomography fitter.
 
 from typing import Dict, Tuple, Optional, Sequence, List
 from functools import lru_cache
-from math import prod
 import numpy as np
 from qiskit_experiments.library.tomography.basis import (
     MeasurementBasis,
@@ -126,7 +125,7 @@ def linear_inversion(
                 meas_indices.append(i)
 
         # Get size of conditional outcomes
-        cond_size = prod(measurement_basis.outcome_shape(f_cond_qubits))
+        cond_size = np.prod(measurement_basis.outcome_shape(f_cond_qubits), dtype=int)
 
         # Indexing array for fully tomo measured qubits
         f_meas_indices = np.array(meas_indices, dtype=int)
@@ -161,11 +160,11 @@ def linear_inversion(
 
     # Calculate shape of matrix to be fitted
     if prep_dual_basis:
-        pdim = prod(prep_dual_basis.matrix_shape(preparation_qubits))
+        pdim = np.prod(prep_dual_basis.matrix_shape(preparation_qubits), dtype=int)
     else:
         pdim = 1
     if meas_dual_basis:
-        mdim = prod(meas_dual_basis.matrix_shape(f_meas_qubits))
+        mdim = np.prod(meas_dual_basis.matrix_shape(f_meas_qubits), dtype=int)
     else:
         mdim = 1
     shape = (pdim * mdim, pdim * mdim)

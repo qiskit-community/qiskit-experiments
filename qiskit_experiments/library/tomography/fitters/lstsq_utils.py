@@ -15,7 +15,6 @@ Common utility functions for tomography fitters.
 
 from typing import Optional, Tuple, Callable, Sequence, Union
 import functools
-from math import prod
 import numpy as np
 
 from qiskit_experiments.exceptions import AnalysisError
@@ -67,9 +66,9 @@ def lstsq_data(
                 if i not in conditional_measurement_indices
             )
             num_cond = len(conditional_measurement_indices)
-            cdim = prod(measurement_basis.outcome_shape(conditional_qubits))
+            cdim = np.prod(measurement_basis.outcome_shape(conditional_qubits), dtype=int)
         if measurement_qubits:
-            mdim = prod(measurement_basis.matrix_shape(measurement_qubits))
+            mdim = np.prod(measurement_basis.matrix_shape(measurement_qubits), dtype=int)
 
     # Get preparation basis dimensions
     if preparation_basis:
@@ -77,7 +76,7 @@ def lstsq_data(
         if not preparation_qubits:
             preparation_qubits = tuple(range(num_prep))
         if preparation_qubits:
-            pdim = prod(preparation_basis.matrix_shape(preparation_qubits))
+            pdim = np.prod(preparation_basis.matrix_shape(preparation_qubits), dtype=int)
 
     # Reduced outcome functions
     # Set measurement indices to an array so we can use for array indexing later

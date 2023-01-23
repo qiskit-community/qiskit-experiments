@@ -17,7 +17,6 @@ Quantum process tomography analysis
 from typing import List, Dict, Tuple, Union, Optional, Callable
 import functools
 from collections import defaultdict
-from math import prod
 import numpy as np
 
 from qiskit.result import marginal_counts
@@ -98,7 +97,7 @@ def tomography_fitter_data(
         outcome_shape = meas_size * (outcome_shape,)
     else:
         outcome_shape = tuple(outcome_shape)
-    outcome_size = prod(outcome_shape)
+    outcome_size = np.prod(outcome_shape, dtype=int)
 
     # Construct function for converting count outcome dit-strings into
     # integers based on the specified number of outcomes of the measurement
