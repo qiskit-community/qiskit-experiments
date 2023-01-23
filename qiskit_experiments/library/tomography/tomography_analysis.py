@@ -16,14 +16,10 @@ Quantum process tomography analysis
 
 from typing import List, Dict, Tuple, Union, Optional, Callable
 import warnings
-import functools
 import time
-from collections import defaultdict
-from math import prod
 import numpy as np
 import scipy.linalg as la
 
-from qiskit.result import marginal_counts
 from qiskit.quantum_info import DensityMatrix, Choi, Operator
 from qiskit.quantum_info.operators.base_operator import BaseOperator
 from qiskit.quantum_info.operators.channel.quantum_channel import QuantumChannel
@@ -32,6 +28,7 @@ from qiskit_experiments.exceptions import AnalysisError
 from qiskit_experiments.framework import BaseAnalysis, AnalysisResultData, Options
 from .basis import MeasurementBasis, PreparationBasis
 from .fitters import (
+    tomography_fitter_data,
     linear_inversion,
     scipy_linear_lstsq,
     scipy_gaussian_lstsq,
@@ -162,7 +159,7 @@ class TomographyAnalysis(BaseAnalysis):
         if measurement_basis and measurement_qubits:
             outcome_shape = measurement_basis.outcome_shape(measurement_qubits)
 
-        fitter_data = tomography_data(
+        fitter_data = tomography_fitter_data(
             experiment_data.data(),
             outcome_shape=outcome_shape,
         )
@@ -221,7 +218,9 @@ class TomographyAnalysis(BaseAnalysis):
             if conditional_measurement_indices is not None:
                 # Remove conditional qubits from full meas qubits
                 full_meas_qubits = [
-                    q for i, q in enumerate(measurement_qubits) if i not in conditional_measurement_indices
+                    q
+                    for i, q in enumerate(measurement_qubits)
+                    if i not in conditional_measurement_indices
                 ]
             if full_meas_qubits:
                 if not measurement_basis:
@@ -539,131 +538,3 @@ class TomographyAnalysis(BaseAnalysis):
                     ret[j] = evals[j] + shift
                 break
         return ret
-
-
-def tomography_data(
-    data,
-    outcome_shape=None,
-    m_idx_key: str = "m_idx",
-    p_idx_key: str = "p_idx",
-    clbits_key: str = "clbits",
-    clbits: Optional[List[int]] = None,
-    cond_clbits_key: str = "cond_clbits",
-    cond_clbits: Optional[List[int]] = None,
-):
-    """Return a tuple of tomography data arrays.
-
-    Args:
-        data: tomography experiment data list.
-        outcome_shape: Optional, the shape of measurement outcomes for
-                       each measurement index. Default is 2.
-        m_idx_key: metadata key for measurement basis index (Default: "m_idx").
-        p_idx_key: metadata key for preparation basis index (Default: "p_idx").
-        clbits_key: metadata clbit key for marginalizing counts (Default: "clbits").
-
-    Returns:
-        Tuple of data arrays for tomography fitters of form
-        (outcome_data, shot_data, measurement data, preparation data).
-    """
-    meas_size = None
-    prep_size = None
-
-    # Construct marginalized tomography count dicts
-    outcome_dict = defaultdict(lambda: defaultdict(lambda: 0))
-
-    for datum in data:
-        # Get basis data
-        metadata = datum["metadata"]
-        meas_element = tuple(metadata[m_idx_key]) if m_idx_key in metadata else tuple()
-        prep_element = tuple(metadata[p_idx_key]) if p_idx_key in metadata else tuple()
-        if meas_size is None:
-            meas_size = len(meas_element)
-        if prep_size is None:
-            prep_size = len(prep_element)
-        basis_key = (meas_element, prep_element)
-
-        # Marginalize counts
-        counts = datum["counts"]
-        count_clbits = []
-        if cond_clbits is None and cond_clbits_key is not None:
-            cond_clbits = metadata[cond_clbits_key] or []
-        if cond_clbits:
-            count_clbits += cond_clbits
-        if clbits is None and clbits_key is not None:
-            clbits = metadata[clbits_key] or []
-        if clbits:
-            count_clbits += clbits
-        if count_clbits:
-            counts = marginal_counts(counts, count_clbits)
-
-        # Accumulate counts
-        combined_counts = outcome_dict[basis_key]
-        for key, val in counts.items():
-            combined_counts[key.replace(" ", "")] += val
-
-    # Format number of outcomes
-    outcome_shape = outcome_shape or 2
-    if isinstance(outcome_shape, int):
-        outcome_shape = meas_size * (outcome_shape,)
-    else:
-        outcome_shape = tuple(outcome_shape)
-    outcome_size = prod(outcome_shape)
-
-    # Construct function for converting count outcome dit-strings into
-    # integers based on the specified number of outcomes of the measurement
-    # bases on each qubit
-    if outcome_size == 1:
-        outcome_func = lambda _: 1
-    else:
-        outcome_func = _int_outcome_function(outcome_shape)
-
-    # Conditional dimension for conditional measurement in source circuit
-    if cond_clbits:
-        num_cond = len(cond_clbits)
-        cond_shape = 2**num_cond
-        cond_mask = sum(1 << i for i in cond_clbits)
-    else:
-        num_cond = 0
-        cond_shape = 1
-        cond_mask = 0
-
-    # Initialize and fill data arrays
-    num_basis = len(outcome_dict)
-    measurement_data = np.zeros((num_basis, meas_size), dtype=int)
-    preparation_data = np.zeros((num_basis, prep_size), dtype=int)
-    shot_data = np.zeros((cond_shape, num_basis), dtype=int)
-    outcome_data = np.zeros((cond_shape, num_basis, outcome_size), dtype=int)
-    for i, (basis_key, counts) in enumerate(outcome_dict.items()):
-        measurement_data[i] = basis_key[0]
-        preparation_data[i] = basis_key[1]
-        for outcome, freq in counts.items():
-            ioutcome = outcome_func(outcome)
-            cond_idx = cond_mask & ioutcome
-            meas_outcome = ioutcome >> num_cond
-            outcome_data[cond_idx][i][meas_outcome] = freq
-            shot_data[cond_idx][i] += freq
-
-    return outcome_data, shot_data, measurement_data, preparation_data
-
-
-@functools.lru_cache(None)
-def _int_outcome_function(outcome_shape: Tuple[int, ...]) -> Callable:
-    """Generate function for converting string outcomes to ints"""
-    # Recursively extract leading bit(dit)
-    if len(set(outcome_shape)) == 1:
-        # All outcomes are the same shape, so we can use a constant base
-        base = outcome_shape[0]
-        return lambda outcome: int(outcome, base)
-
-    # General function where each dit could be a different base
-    @functools.lru_cache(2048)
-    def _int_outcome_general(outcome: str):
-        """Convert a general dit-string outcome to integer"""
-        # Recursively extract leading bit(dit)
-        value = 0
-        for i, base in zip(outcome, outcome_shape):
-            value *= base
-            value += int(i, base)
-        return value
-
-    return _int_outcome_general
