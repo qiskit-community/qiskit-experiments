@@ -41,13 +41,35 @@ class ResonatorSpectroscopy(Spectroscopy):
             c: 1/═╩═
                   0
 
-        where a spectroscopy pulse is attached to the measurement instruction.
+        where a spectroscopy pulse is attached to the measurement instruction. An initial circuit can be
+        added before the measurement by setting the ``initial_circuit`` experiment option. If set, the
+        experiment applies the following circuit:
 
-        Side note: when doing readout resonator spectroscopy, each measured IQ point has a
+        .. parsed-literal::
+
+                 ┌─────────────────┐┌─┐
+              q: ┤ initial_circuit ├┤M├
+                 └─────────────────┘└╥┘
+            c: 1/════════════════════╩═
+                                     0
+
+        Side note 1: when doing readout resonator spectroscopy, each measured IQ point has a
         frequency dependent phase. Close to the resonance, the IQ points start rotating around
         in the IQ plan. This effect must be accounted for in the data processing to produce a
         meaningful signal. The default data processing workflow will therefore reduce the two-
         dimensional IQ data to one-dimensional data using the magnitude of each IQ point.
+
+        Side node 2: when running readout resonator spectroscopy in a parallel experiment the
+        user will need to specify the memory slot to use. This can easily be done with the code
+        shown below.
+
+        .. code::
+
+            specs = []
+            for slot, qubit in enumerate(qubits):
+                specs.append(ResonatorSpectroscopy(qubit=qubit, backend=backend2, memory_slot=slot))
+
+            exp = ParallelExperiment(specs, backend=backend2)
 
         # section: warning
             Some backends may not have the required functionality to properly support resonator
@@ -88,6 +110,12 @@ class ResonatorSpectroscopy(Spectroscopy):
             sigma (float): The standard deviation of the spectroscopy pulse in seconds.
             width (float): The width of the flat-top part of the GaussianSquare pulse in
                 seconds. Defaults to 0.
+            initial_circuit (QuantumCircuit): A single-qubit initial circuit to run before the
+                measurement/spectroscopy pulse. The circuit must contain only a single qubit and zero
+                classical bits. If None, no circuit is appended before the measurement. Defaults to None.
+            memory_slot (int): The memory slot that the acquire instruction uses in the pulse schedule.
+                The default value is ``0``. This argument allows the experiment to function in a
+                :class:`.ParallelExperiment`.
         """
         options = super()._default_experiment_options()
 
@@ -95,8 +123,26 @@ class ResonatorSpectroscopy(Spectroscopy):
         options.duration = 480e-9
         options.sigma = 60e-9
         options.width = 360e-9
+        options.initial_circuit = None
+        options.memory_slot = 0
 
         return options
+
+    def set_experiment_options(self, **fields):
+        # Check that the initial circuit is for a single qubit only.
+        if "initial_circuit" in fields:
+            initial_circuit = fields["initial_circuit"]
+            if (
+                initial_circuit is not None
+                and initial_circuit.num_qubits != 1
+                or initial_circuit.num_clbits != 0
+            ):
+                raise QiskitError(
+                    "Initial circuit must be for exactly one qubit and zero classical bits. Got "
+                    f"{initial_circuit.num_qubits} qubits and {initial_circuit.num_clbits} "
+                    "classical bits instead."
+                )
+        return super().set_experiment_options(**fields)
 
     def __init__(
         self,
@@ -161,6 +207,8 @@ class ResonatorSpectroscopy(Spectroscopy):
     def _template_circuit(self) -> QuantumCircuit:
         """Return the template quantum circuit."""
         circuit = QuantumCircuit(1, 1)
+        if self.experiment_options.initial_circuit is not None:
+            circuit.append(self.experiment_options.initial_circuit, [0])
         circuit.measure(0, 0)
 
         return circuit
@@ -189,7 +237,7 @@ class ResonatorSpectroscopy(Spectroscopy):
                 ),
                 pulse.MeasureChannel(qubit),
             )
-            pulse.acquire(duration, qubit, pulse.MemorySlot(0))
+            pulse.acquire(duration, qubit, pulse.MemorySlot(self.experiment_options.memory_slot))
 
         return schedule, freq_param
 
