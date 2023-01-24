@@ -383,8 +383,8 @@ class StandardRB(BaseExperiment, RestlessMixin):
         # Compute average basis gate numbers per Clifford operation
         # This is probably main source of performance regression.
         # This should be integrated into transpile pass in future.
+        qubit_indices = {bit: index for index, bit in enumerate(transpiled[0].qubits)}
         for circ in transpiled:
-            qubit_indices = {bit: index for index, bit in enumerate(circ.qubits)}
             count_ops_result = defaultdict(int)
             # This is physical circuits, i.e. qargs is physical index
             for inst, qargs, _ in circ.data:
