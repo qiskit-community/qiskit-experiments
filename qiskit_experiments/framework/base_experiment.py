@@ -40,6 +40,7 @@ class BaseExperiment(ABC, StoreInitArgs):
         analysis: Optional[BaseAnalysis] = None,
         backend: Optional[Backend] = None,
         experiment_type: Optional[str] = None,
+        **experiment_options,
     ):
         """Initialize the experiment object.
 
@@ -48,6 +49,7 @@ class BaseExperiment(ABC, StoreInitArgs):
             analysis: Optional, the analysis to use for the experiment.
             backend: Optional, the backend to run the experiment on.
             experiment_type: Optional, the experiment type string.
+            experiment_options: kwargs for experiment options to set on initialization.
 
         Raises:
             QiskitError: if qubits contains duplicates.
@@ -95,6 +97,9 @@ class BaseExperiment(ABC, StoreInitArgs):
         self._backend_data = None
         if isinstance(backend, Backend):
             self._set_backend(backend)
+
+        # Set experiment options
+        self.set_experiment_options(**experiment_options)
 
     @property
     def experiment_type(self) -> str:

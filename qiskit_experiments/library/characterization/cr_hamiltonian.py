@@ -142,7 +142,7 @@ class CrossResonanceHamiltonian(BaseExperiment):
         backend: Optional[Backend] = None,
         cr_gate: Optional[Type[circuit.Gate]] = None,
         durations: Optional[Sequence[int]] = None,
-        **kwargs,
+        **experiment_options,
     ):
         """Create a new experiment.
 
@@ -169,7 +169,8 @@ class CrossResonanceHamiltonian(BaseExperiment):
                 are chosen to have a good sensitivity for the Hamiltonian coefficient
                 of interest at the rate around 1 MHz.
                 This argument should be provided in units of sec.
-            kwargs: Pulse parameters. See :meth:`experiment_options` for details.
+            experiment_options: kwargs for experiment options to set on initialization. See
+                :py:attr:`experiment_options` for valid parameters.
 
         Raises:
             QiskitError: When ``qubits`` length is not 2.
@@ -182,12 +183,16 @@ class CrossResonanceHamiltonian(BaseExperiment):
         self._gate_cls = cr_gate or self.CRPulseGate
         self._backend_timing = None
 
-        super().__init__(qubits, analysis=CrossResonanceHamiltonianAnalysis(), backend=backend)
-        self.set_experiment_options(durations=durations, **kwargs)
+        experiment_options["durations"] = durations
+        if flat_top_widths is not None:  # TODO: Remove this in Qiskit Experiments 0.6
+            experiment_options["flat_top_widths"] = flat_top_widths
 
-        if flat_top_widths is not None:
-            # TODO remove this in Qiskit Experiments 0.6
-            self.set_experiment_options(flat_top_widths=flat_top_widths)
+        super().__init__(
+            qubits,
+            analysis=CrossResonanceHamiltonianAnalysis(),
+            backend=backend,
+            **experiment_options,
+        )
 
     @classmethod
     def _default_experiment_options(cls) -> Options:
