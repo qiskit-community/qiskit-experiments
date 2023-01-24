@@ -62,6 +62,9 @@ class MitigatedTomographyAnalysis(CompositeAnalysis):
             preparation_qubits (Sequence[int]): Optional, the physical qubits with tomographic
                 preparations. If not specified will be set to ``[0, ..., N-1]`` for N-qubit
                 tomographic preparations.
+            unmitigated_fit (bool): If True also run tomography fit without readout error
+                mitigation and include both mitigated and unmitigated analysis results. If
+                False only compute mitigated results (Default: False)
             target (Any): Optional, target object for fidelity comparison of the fit
                 (Default: None).
         """
@@ -73,12 +76,18 @@ class MitigatedTomographyAnalysis(CompositeAnalysis):
         options.rescale_trace = True
         options.measurement_qubits = None
         options.preparation_qubits = None
+        options.unmitigated_fit = False
         options.target = None
         return options
 
     def set_options(self, **fields):
-        super().set_options(**fields)
-        self._analyses[1].set_options(**fields)
+        # filter fields
+        self_fields = {key: val for key, val in fields.items() if hasattr(self.options, key)}
+        super().set_options(**self_fields)
+        tomo_fields = {
+            key: val for key, val in fields.items() if hasattr(self._analyses[1].options, key)
+        }
+        self._analyses[1].set_options(**tomo_fields)
 
     def _run_analysis(self, experiment_data):
         # Return list of experiment data containers for each component experiment
@@ -88,21 +97,31 @@ class MitigatedTomographyAnalysis(CompositeAnalysis):
 
         # Run readout error analysis
         roerror_analysis.run(roerror_data, replace_results=True).block_for_results()
-        
+
         # Construct noisy measurement basis
         mitigator = roerror_data.analysis_results(0).value
-        
+
         # Construct noisy measurement basis
         measurement_basis = PauliMeasurementBasis(mitigator=mitigator)
         tomo_analysis.set_options(measurement_basis=measurement_basis)
-        
-        # Run tomography analysis
-        tomo_analysis.run(tomo_data, replace_results=True).block_for_results()
 
-        # Optionally flatten results from all component experiments
-        # for adding to the main experiment data container
+        # Run mitigated tomography analysis
+        tomo_analysis.run(tomo_data, replace_results=True).block_for_results()
+        for res in tomo_data.analysis_results(block=False):
+            res.extra["mitigated"] = True
+
+        # Combine results so that tomography results are ordered first
+        combined_data = [tomo_data, roerror_data]
+
+        # Run unmitigated tomography analysis
+        if self.options.unmitigated_fit:
+            tomo_analysis.set_options(measurement_basis=PauliMeasurementBasis())
+            nomit_data = tomo_analysis.run(tomo_data, replace_results=False).block_for_results()
+            for res in nomit_data.analysis_results(block=False):
+                res.extra["mitigated"] = False
+            combined_data.append(nomit_data)
+
         if self._flatten_results:
-            # Combine results so that tomography results are ordered first
-            return self._combine_results([tomo_data, roerror_data])
+            return self._combine_results(combined_data)
 
         return [], []
