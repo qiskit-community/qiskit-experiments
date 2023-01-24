@@ -1,0 +1,8 @@
+---
+features:
+  - |
+    Adds readout error mitigated tomography experiments
+    :class:`.MitigatedStateTomography` and :class:`.MitigatedProcessTomography`.
+    These are both implemented as a :class:``.BatchExperiment` consisting of a
+    :class:`~.LocalReadoutError` characterization experiment followed by either
+    a :class:`~.StateTomography` or class:`~.ProcessTomography` experiment.

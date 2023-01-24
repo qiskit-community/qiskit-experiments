@@ -82,6 +82,12 @@ class ProcessTomographyAnalysis(TomographyAnalysis):
                 fitter function.
             rescale_trace (bool): If True rescale the state returned by the fitter have either
                 trace 1 (Default: True).
+            measurement_qubits (Sequence[int]): Optional, the physical qubits with tomographic
+                measurements. If not specified will be set to ``[0, ..., N-1]`` for N-qubit
+                tomographic measurements.
+            preparation_qubits (Sequence[int]): Optional, the physical qubits with tomographic
+                preparations. If not specified will be set to ``[0, ..., N-1]`` for N-qubit
+                tomographic preparations.
             target (Union[str, :class:`~qiskit.quantum_info.operators.channel.quantum_channel`,
                 :class:`~qiskit.quantum_info.Operator`]): Optional, Set a custom target quantum
                 channel for computing the :func:~qiskit.quantum_info.process_fidelity` of the

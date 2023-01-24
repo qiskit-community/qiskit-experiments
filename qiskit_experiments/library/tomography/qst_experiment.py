@@ -13,7 +13,7 @@
 Quantum State Tomography experiment
 """
 
-from typing import Union, Optional, Iterable, List, Sequence
+from typing import Union, Optional, List, Sequence
 from qiskit.providers.backend import Backend
 from qiskit.circuit import QuantumCircuit, Instruction
 from qiskit.quantum_info.operators.base_operator import BaseOperator
@@ -59,7 +59,7 @@ class StateTomography(TomographyExperiment):
         measurement_basis: basis.MeasurementBasis = basis.PauliMeasurementBasis(),
         measurement_indices: Optional[Sequence[int]] = None,
         measurement_qubits: Optional[Sequence[int]] = None,
-        basis_indices: Optional[Iterable[List[int]]] = None,
+        basis_indices: Optional[Sequence[List[int]]] = None,
         analysis: Union[BaseAnalysis, None, str] = "default",
         target: Union[Statevector, DensityMatrix, None, str] = "default",
     ):

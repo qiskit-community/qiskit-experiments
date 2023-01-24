@@ -13,7 +13,7 @@
 Quantum Process Tomography experiment
 """
 
-from typing import Union, Optional, Iterable, List, Tuple, Sequence
+from typing import Union, Optional, List, Tuple, Sequence
 import numpy as np
 from qiskit.circuit import QuantumCircuit, Instruction
 from qiskit.providers.backend import Backend
@@ -64,7 +64,7 @@ class ProcessTomography(TomographyExperiment):
         preparation_basis: basis.PreparationBasis = basis.PauliPreparationBasis(),
         preparation_indices: Optional[Sequence[int]] = None,
         preparation_qubits: Optional[Sequence[int]] = None,
-        basis_indices: Optional[Iterable[Tuple[List[int], List[int]]]] = None,
+        basis_indices: Optional[Sequence[Tuple[List[int], List[int]]]] = None,
         analysis: Union[BaseAnalysis, None, str] = "default",
         target: Union[Statevector, DensityMatrix, None, str] = "default",
     ):
