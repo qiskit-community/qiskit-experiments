@@ -1,11 +1,10 @@
 ---
 features:
   - |
-    Adds ``backend`` and ``analysis`` init kwargs to :class:`~.StateTomography`
-    and :class:`~.ProcessTomography` experiments to match the base
-    :class:`~.TomographyExperiment` init kwargs. This allows specifying the
-    intented backend, or a custom analysis class when initializing the
-    experiments.
+    Adds ``backend``, ``analysis``, and ``target`` init kwargs to the
+    :class:`~.StateTomography` and :class:`~.ProcessTomography` experiments.
+    These allow specifying intended backend, a custom analysis class, or a
+    custom target for fidelity calculations, when initializing the experiments.
 upgrade:
   - |
     Renames the ``qubits``, ``measurement_qubits``, and ``preparation_qubits``
