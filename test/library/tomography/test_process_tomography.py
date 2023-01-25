@@ -348,7 +348,7 @@ class TestProcessTomography(QiskitExperimentsTestCase):
         state = expdata.analysis_results("state").value
         self.assertTrue(
             isinstance(state, qi.Choi),
-            msg=f"Fitted state is not Choi matrix",
+            msg="Fitted state is not Choi matrix",
         )
         with self.assertRaises(
             ExperimentEntryNotFound, msg="process_fidelity should not exist when target=None"

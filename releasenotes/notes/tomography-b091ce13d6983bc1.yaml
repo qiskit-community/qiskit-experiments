@@ -3,7 +3,7 @@ features:
   - |
     Adds ``backend``, ``analysis``, and ``target`` init kwargs to the
     :class:`~.StateTomography` and :class:`~.ProcessTomography` experiments.
-    These allow specifying intented backend, a custom analysis class, or a
+    These allow specifying intended backend, a custom analysis class, or a
     custom target for fidelity calculations, when initializing the experiments.
 upgrade:
   - |

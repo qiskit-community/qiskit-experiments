@@ -261,7 +261,7 @@ class TestStateTomography(QiskitExperimentsTestCase):
         state = expdata.analysis_results("state").value
         self.assertTrue(
             isinstance(state, qi.DensityMatrix),
-            msg=f"Fitted state is not density matrix",
+            msg="Fitted state is not density matrix",
         )
         with self.assertRaises(
             ExperimentEntryNotFound, msg="state_fidelity should not exist when target=None"
