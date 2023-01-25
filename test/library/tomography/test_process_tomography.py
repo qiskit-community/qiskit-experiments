@@ -21,6 +21,7 @@ import qiskit.quantum_info as qi
 from qiskit_aer import AerSimulator
 from qiskit_experiments.library import ProcessTomography
 from qiskit_experiments.library.tomography import ProcessTomographyAnalysis
+from qiskit_experiments.database_service import ExperimentEntryNotFound
 from .tomo_utils import FITTERS, filter_results, teleport_circuit, teleport_bell_circuit
 
 
@@ -335,3 +336,21 @@ class TestProcessTomography(QiskitExperimentsTestCase):
         self.assertExperimentDone(expdata)
         self.assertRoundTripPickle(expdata, check_func=self.experiment_data_equiv)
         self.assertRoundTripSerializable(expdata, check_func=self.experiment_data_equiv)
+
+    def test_target_none(self):
+        """Test setting target=None disables fidelity calculation."""
+        seed = 4343
+        backend = AerSimulator(seed_simulator=seed)
+        target = qi.random_unitary(2, seed=seed)
+        exp = ProcessTomography(target, backend=backend, target=None)
+        expdata = exp.run()
+        self.assertExperimentDone(expdata)
+        state = expdata.analysis_results("state").value
+        self.assertTrue(
+            isinstance(state, qi.Choi),
+            msg=f"Fitted state is not Choi matrix",
+        )
+        with self.assertRaises(
+            ExperimentEntryNotFound, msg="process_fidelity should not exist when target=None"
+        ):
+            expdata.analysis_results("process_fidelity")

@@ -64,6 +64,7 @@ class ProcessTomography(TomographyExperiment):
         basis_indices: Optional[Iterable[Tuple[List[int], List[int]]]] = None,
         qubits: Optional[Sequence[int]] = None,
         analysis: Union[BaseAnalysis, None, str] = "default",
+        target: Union[Statevector, DensityMatrix, None, str] = "default",
     ):
         """Initialize a quantum process tomography experiment.
 
@@ -94,6 +95,10 @@ class ProcessTomography(TomographyExperiment):
             analysis: Optional, a custom analysis instance to use. If ``"default"``
                 :class:`~.ProcessTomographyAnalysis` will be used. If None no analysis
                 instance will be set.
+            target: Optional, a custom quantum state target for computing the
+                state fidelity of the fitted density matrix during analysis.
+                If "default" the state will be inferred from the input circuit
+                if it contains no classical instructions.
         """
         if analysis == "default":
             analysis = ProcessTomographyAnalysis()
@@ -115,7 +120,9 @@ class ProcessTomography(TomographyExperiment):
 
         # Set target quantum channel
         if isinstance(self.analysis, TomographyAnalysis):
-            self.analysis.set_options(target=self._target_quantum_channel())
+            if target == "default":
+                target = self._target_quantum_channel()
+            self.analysis.set_options(target=target)
 
     def _target_quantum_channel(self) -> Union[Choi, Operator]:
         """Return the process tomography target"""
