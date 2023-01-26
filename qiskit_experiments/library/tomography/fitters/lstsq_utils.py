@@ -100,14 +100,6 @@ def lstsq_data(
     basis_mat = np.zeros((reduced_size, mdim * mdim * pdim * pdim), dtype=complex)
     probs = np.zeros((circ_cdim, cdim, reduced_size), dtype=float)
 
-    # Probably scale is 1/shots
-    # To avoid NaNs from dividing by 0 for conditional data with no shots
-    # we manually set these scale values to 0.For 0 shot conditional state data
-    # we manually set probs to zero
-    pscale_data = np.zeros(shot_data.shape, dtype=float)
-    mask = shot_data != 0
-    pscale_data[mask] = 1 / shot_data[mask]
-
     # Fill matrices
     for cond_circ_idx in range(outcome_data.shape[0]):
         cond_idxs = {i: 0 for i in range(cdim)}
@@ -116,7 +108,7 @@ def lstsq_data(
             midx_meas = midx[measurement_indices]
             pidx = preparation_data[i]
             odata = outcome_data[cond_circ_idx][i]
-            pscale = pscale_data[cond_circ_idx][i]
+            shots = shot_data[i]
 
             # Get prep basis component
             if preparation_qubits:
@@ -134,7 +126,7 @@ def lstsq_data(
                 idx = cond_idxs[outcome_cond]
 
                 # Store probability
-                probs[cond_circ_idx, outcome_cond, idx] = odata[outcome] * pscale
+                probs[cond_circ_idx, outcome_cond, idx] = odata[outcome] / shots
 
                 # Check if new meas basis element and construct basis matrix
                 store_mat = True
@@ -217,13 +209,13 @@ def dirichlet_mean_and_var(
     if shot_data is None:
         posterior_total = np.sum(posterior, axis=(0, -1))
     else:
-        if isinstance(shot_data, np.ndarray):
-            total_shots = np.sum(shot_data, axis=0)
-        else:
-            total_shots = shot_data
+        # if isinstance(shot_data, np.ndarray):
+        #     total_shots = np.sum(shot_data, axis=0)
+        # else:
+        #     total_shots = shot_data
         outcome_shots = np.sum(outcome_data, axis=(0, -1))
         posterior_shots = np.sum(posterior, axis=(0, -1))
-        posterior_total = posterior_shots + total_shots - outcome_shots
+        posterior_total = posterior_shots + shot_data - outcome_shots
 
     # Fill matrices
     for i in range(dim_circ_cond):

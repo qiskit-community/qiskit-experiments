@@ -156,7 +156,8 @@ def linear_inversion(
         )
 
     if shot_data is None:
-        shot_data = np.ones(len(outcome_data))
+        # Define shots by sum of all outcome frequencies for each basis
+        shot_data = np.sum(outcome_data, axis=(0, -1))
 
     # Calculate shape of matrix to be fitted
     if prep_dual_basis:
@@ -177,8 +178,7 @@ def linear_inversion(
     for circ_idx in range(cond_circ_size):
         fits = [np.zeros(shape, dtype=complex) for _ in range(cond_size)]
         for i, outcomes in enumerate(outcome_data[circ_idx]):
-
-            shots = shot_data[circ_idx][i]
+            shots = shot_data[i]
             pidx = preparation_data[i]
             midx = measurement_data[i][f_meas_indices]
 

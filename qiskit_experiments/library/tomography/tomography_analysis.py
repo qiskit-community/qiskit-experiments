@@ -285,7 +285,8 @@ class TomographyAnalysis(BaseAnalysis):
         fitter_metadata["fitter_time"] = t_fitter_stop - t_fitter_start
         fitter_metadata["input_dims"] = input_dims
         fitter_metadata["output_dims"] = output_dims
-        fitter_metadata["trace"] = trace
+        if trace is not None:
+            fitter_metadata["trace"] = trace
         return fit, fitter_metadata
 
     @classmethod
@@ -378,7 +379,11 @@ class TomographyAnalysis(BaseAnalysis):
 
         # Optionally rescale fit trace
         fit_trace = np.sum(eigvals)
-        if trace is not None and not np.isclose(fit_trace - trace, 0, atol=1e-12):
+        if (
+            trace is not None
+            and not np.isclose(fit_trace, 0, atol=1e-10)
+            and not np.isclose(abs(fit_trace - trace), 0, atol=1e-10)
+        ):
             scale = trace / fit_trace
             fit = fit * scale
             eigvals = eigvals * scale

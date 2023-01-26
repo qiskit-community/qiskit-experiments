@@ -158,38 +158,34 @@ def cvxpy_linear_lstsq(
     metadata = {"component_conditionals": []}
     for i in range(num_circ_components):
         for j in range(num_tomo_components):
-            rho_r, rho_i, _cons = cvxpy_utils.complex_matrix_variable(dim, hermitian=True, psd=psd)
+            rho_r, rho_i, cons_i = cvxpy_utils.complex_matrix_variable(dim, hermitian=True, psd=psd)
             rhos_r.append(rho_r)
             rhos_i.append(rho_i)
-            cons += _cons
+            cons.append(cons_i)
             metadata["component_conditionals"].append((i, j))
 
-    # Trace preserving constraint when fitting Choi-matrices for
-    # quantum process tomography.
+    # Partial trace when fitting Choi-matrices for quantum process tomography.
     # This applied ot the sum of conditional components
     # Note that this adds an implicitly
-    # trace constraint of trace(rho) = sqrt(len(rho)) = dim
-    # if a different trace constraint is specified it will be ignored
-    if trace_preserving:
+    # trace preserving is a specific partial trace constraint ptrace(rho) = I
+    # Note: partial trace constraints implicitly define a trace constraint,
+    # so if a different trace constraint is specified it will be ignored
+    joint_cons = None
+    if partial_trace is not None:
+        for rho_r, rho_i, povm in zip(rhos_r, rhos_i, partial_trace):
+            joint_cons = cvxpy_utils.partial_trace_constaint(rho_r, rho_i, povm)
+    elif trace_preserving:
         if not preparation_qubits:
             preparation_qubits = tuple(range(preparation_data.shape[1]))
         input_dim = np.prod(preparation_basis.matrix_shape(preparation_qubits))
-        cons += cvxpy_utils.trace_preserving_constaint(
+        joint_cons = cvxpy_utils.trace_preserving_constaint(
             rhos_r,
             rhos_i,
             input_dim=input_dim,
             hermitian=True,
         )
-    # Add trace constraint. This contraint applies to the sum of the conditional
-    # components
     elif trace is not None:
-        cons += cvxpy_utils.trace_constraint(rhos_r, rhos_i, trace=trace, hermitian=True)
-
-    # POVM constraint is only for measurement tomography, this should probably
-    # be handled by a separate fit function
-    if partial_trace is not None:
-        for rho_r, rho_i, povm in zip(rhos_r, rhos_i, partial_trace):
-            cons += cvxpy_utils.partial_trace_constaint(rho_r, rho_i, povm)
+        joint_cons = cvxpy_utils.trace_constraint(rhos_r, rhos_i, trace=trace, hermitian=True)
 
     # OBJECTIVE FUNCTION
 
@@ -232,24 +228,23 @@ def cvxpy_linear_lstsq(
             args.append(model - data)
             idx += 1
 
-    # Flatten all components into a single objective function if there is a
-    # trace or trace preserving constraint which are joint constraints
-    # on all component variables. If there is no joint constraints we can
-    # solve each component as a separate problem
-    if trace_preserving or trace is not None:
+    # Combine all variables and constraints into a joint optimization problem
+    # if tehre is a joint constraint
+    if joint_cons:
         args = [cvxpy.hstack(args)]
+        for cons_i in cons:
+            joint_cons += cons_i
+        cons = [joint_cons]
 
     # Solve each component separately
     metadata = {
         "cvxpy_solver": None,
         "cvxpy_status": [],
     }
-    for arg in args:
-        arg = cvxpy.hstack(args)
-
+    for arg, con in zip(args, cons):
         # Optimization problem
         obj = cvxpy.Minimize(cvxpy.norm(arg, p=2))
-        prob = cvxpy.Problem(obj, cons)
+        prob = cvxpy.Problem(obj, con)
 
         # Solve SDP
         cvxpy_utils.set_default_sdp_solver(kwargs)
@@ -259,13 +254,13 @@ def cvxpy_linear_lstsq(
         metadata["cvxpy_solver"] = prob.solver_stats.solver_name
         metadata["cvxpy_status"].append(prob.status)
 
-    if trace_preserving:
-        metadata["tp_constraint"] = True
-    if partial_trace is not None:
-        metadata["povm_constraint"] = True
     if psd:
         metadata["psd_constraint"] = True
-    if trace:
+    if partial_trace is not None:
+        metadata["ptr_constraint"] = partial_trace
+    elif trace_preserving:
+        metadata["tp_constraint"] = True
+    elif trace is not None:
         metadata["trace_constraint"] = trace
 
     fits = [rho_r.value + 1j * rho_i.value for rho_r, rho_i in zip(rhos_r, rhos_i)]

@@ -74,11 +74,13 @@ def tomography_fitter_data(
 
         # Marginalize counts
         counts = datum["counts"]
+        num_cond = 0
         count_clbits = []
         if cond_clbits is None and cond_clbits_key is not None:
             cond_clbits = metadata[cond_clbits_key] or []
         if cond_clbits:
             count_clbits += cond_clbits
+            num_cond = len(cond_clbits)
         if clbits is None and clbits_key is not None:
             clbits = metadata[clbits_key] or []
         if clbits:
@@ -108,12 +110,10 @@ def tomography_fitter_data(
         outcome_func = _int_outcome_function(outcome_shape)
 
     # Conditional dimension for conditional measurement in source circuit
-    if cond_clbits:
-        num_cond = len(cond_clbits)
+    if num_cond:
         cond_shape = 2**num_cond
-        cond_mask = sum(1 << i for i in cond_clbits)
+        cond_mask = sum(1 << i for i in range(num_cond))
     else:
-        num_cond = 0
         cond_shape = 1
         cond_mask = 0
 
@@ -121,7 +121,7 @@ def tomography_fitter_data(
     num_basis = len(outcome_dict)
     measurement_data = np.zeros((num_basis, meas_size), dtype=int)
     preparation_data = np.zeros((num_basis, prep_size), dtype=int)
-    shot_data = np.zeros((cond_shape, num_basis), dtype=int)
+    shot_data = np.zeros(num_basis, dtype=int)
     outcome_data = np.zeros((cond_shape, num_basis, outcome_size), dtype=int)
     for i, (basis_key, counts) in enumerate(outcome_dict.items()):
         measurement_data[i] = basis_key[0]
@@ -131,7 +131,7 @@ def tomography_fitter_data(
             cond_idx = cond_mask & ioutcome
             meas_outcome = ioutcome >> num_cond
             outcome_data[cond_idx][i][meas_outcome] = freq
-            shot_data[cond_idx][i] += freq
+            shot_data[i] += freq
 
     return outcome_data, shot_data, measurement_data, preparation_data
 
