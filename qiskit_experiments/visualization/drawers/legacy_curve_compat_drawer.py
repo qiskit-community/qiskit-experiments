@@ -32,15 +32,16 @@ from .base_drawer import BaseDrawer
 class LegacyCurveCompatDrawer(BaseDrawer):
     """A compatibility wrapper for the legacy and deprecated :class:`BaseCurveDrawer`.
 
-    :mod:`qiskit_experiments.curve_analysis.visualization` is deprecated and will be replaced with the
-    new :mod:`qiskit_experiments.visualization` module. Analysis classes instead use subclasses of
-    :class:`BasePlotter` to generate figures. This class wraps the legacy :class:`BaseCurveDrawer` class
-    so it can be used by analysis classes, such as :class:`CurveAnalysis`, until it is removed.
+    :mod:`qiskit_experiments.curve_analysis.visualization` is deprecated and will be
+    replaced with the new :mod:`qiskit_experiments.visualization` module. Analysis
+    classes instead use subclasses of :class:`BasePlotter` to generate figures. This
+    class wraps the legacy :class:`BaseCurveDrawer` class so it can be used by analysis
+    classes, such as :class:`CurveAnalysis`, until it is removed.
 
     .. note::
-        As :class:`BaseCurveDrawer` doesn't support customizing legend entries, the ``legend`` and
-        ``label`` parameters in drawing methods (such as :meth:`scatter`) are unsupported and
-        do nothing.
+        As :class:`BaseCurveDrawer` doesn't support customizing legend entries, the
+        ``legend`` and ``label`` parameters in drawing methods (such as
+        :meth:`scatter`) are unsupported and do nothing.
     """
 
     def __init__(self, curve_drawer: BaseCurveDrawer):
@@ -75,11 +76,14 @@ class LegacyCurveCompatDrawer(BaseDrawer):
         Args:
             x_data: X values.
             y_data: Y values.
-            x_err: Unsupported as :class:`BaseCurveDrawer` doesn't support X errorbars. Defaults to None.
+            x_err: Unsupported as :class:`BaseCurveDrawer` doesn't support X errorbars.
+                Defaults to None.
             y_err: Optional error for Y values.
             name: Name of this series.
-            label: Unsupported as :class:`BaseCurveDrawer` doesn't support customizing legend entries.
-            legend: Unsupported as :class:`BaseCurveDrawer` doesn't support toggling legend entries.
+            label: Unsupported as :class:`BaseCurveDrawer` doesn't support customizing
+                legend entries.
+            legend: Unsupported as :class:`BaseCurveDrawer` doesn't support toggling
+                legend entries.
             options: Valid options for the drawer backend API.
         """
         if x_err is not None:
@@ -106,8 +110,10 @@ class LegacyCurveCompatDrawer(BaseDrawer):
             x_data: X values.
             y_data: Fit Y values.
             name: Name of this series.
-            label: Unsupported as :class:`BaseCurveDrawer` doesn't support customizing legend entries.
-            legend: Unsupported as :class:`BaseCurveDrawer` doesn't support toggling legend entries.
+            label: Unsupported as :class:`BaseCurveDrawer` doesn't support customizing
+                legend entries.
+            legend: Unsupported as :class:`BaseCurveDrawer` doesn't support toggling
+                legend entries.
             options: Valid options for the drawer backend API.
         """
         self._curve_drawer.draw_fit_line(x_data, y_data, name, **options)
@@ -130,8 +136,10 @@ class LegacyCurveCompatDrawer(BaseDrawer):
             y_ub: The upper boundary of Y values.
             y_lb: The lower boundary of Y values.
             name: Name of this series.
-            label: Unsupported as :class:`BaseCurveDrawer` doesn't support customizing legend entries.
-            legend: Unsupported as :class:`BaseCurveDrawer` doesn't support toggling legend entries.
+            label: Unsupported as :class:`BaseCurveDrawer` doesn't support customizing
+                legend entries.
+            legend: Unsupported as :class:`BaseCurveDrawer` doesn't support toggling
+                legend entries.
             options: Valid options for the drawer backend API.
         """
 
@@ -162,8 +170,9 @@ class LegacyCurveCompatDrawer(BaseDrawer):
 
         Args:
             description: A string to be drawn inside a text box.
-            rel_pos: Unsupported as :class:`BaseCurveDrawer` doesn't support modifying the location of
-                text in :meth:`textbox` or :meth:`BaseCurveDrawer.draw_fit_report`.
+            rel_pos: Unsupported as :class:`BaseCurveDrawer` doesn't support modifying
+                the location of text in :meth:`textbox` or
+                :meth:`BaseCurveDrawer.draw_fit_report`.
             options: Valid options for the drawer backend API.
         """
 
