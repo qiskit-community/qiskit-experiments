@@ -20,13 +20,6 @@ that the qubit may experience is described as follows [2]:
 where :math:`\alpha` is the qubit anharmonicity and :math:`\Delta=f_S - f_0` is the
 frequency separation of the Stark tone from the qubit frequency :math:`f_0`.
 We sometime call this *Stark shift*.
-As you can see in the equation above, :math:`\Delta=0` yields a singular point
-where :math:`\delta f_S` diverges. This corresponds to the Rabi drive,
-where the qubit is driven on resonance.
-This indicates the collision of the Stark tone frequency, and thus the tone must be
-well separated in the spectrum from the qubit frequency
-or any other transition frequencies such as
-the two-photon transition at :math:`f_0 + \alpha/2`.
 
 
 .. _stark_tone_implementation:
@@ -72,10 +65,29 @@ In this representation, the sign of the Stark shift matches the sign of :math:`\
     \text{sign}(\delta f_S) = \text{sign}(\bar{\Omega})
 
 This allows an experimentalist to control both sign and amount of
-the Stark shift with the ``stark_amp``. In the superconducting qubit setup,
-the ``stark_freq_offset`` is a fixed positive value in :math:`0 \ll |\Delta| < |\alpha/2|`.
+the Stark shift with the ``stark_amp``.
+
+
+.. _stark_frequency_consideration:
+
+Stark tone frequency
+--------------------
+
+As you can see in the Starks shift equation,
+:math:`\Delta=0` yields a singular point where :math:`\delta f_S` diverges.
+This corresponds to the Rabi drive, where the qubit is driven on resonance and
+the coherent state exchange occurs between :math:`|0\rangle` and :math:`|1\rangle`
+instead of the Stark shift.
+The another obvious forbidden frequency for the Stark tone is :math:`\Delta=\alpha` which
+corresponds to the transition from :math:`|1\rangle` to :math:`|2\rangle`.
+In the high power limit, :math:`\Delta = \alpha/2` is also forbidden since
+this causes the direct excitation from :math:`|0\rangle` to :math:`|2\rangle`
+through what is known as the two-photon transition.
+
+The Stark tone frequency must be sufficiently separated from all of these frequencies
+to avoid unwanted state transitions (frequency collisions).
 In reality, this condition might be more complicated due to transition levels of the
-nearest neighbor qubits, and it must be carefully chosen to avoid frequency collisions [3].
+nearest neighbor qubits, and the frequency must be carefully chosen to avoid frequency collisions [3].
 
 
 .. _stark_channel_consideration:
@@ -102,6 +114,7 @@ such channel can be identified with your backend.
 
     from qiskit.providers.fake_provider import FakeHanoi
 
+    backend = FakeHanoi()
     qubit = 0
     coupling_map = backend.configuration().coupling_map
 

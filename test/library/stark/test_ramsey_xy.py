@@ -30,7 +30,11 @@ class TestStarkRamseyXY(QiskitExperimentsTestCase):
     """
 
     def test_calibration_with_positive_amp(self):
-        """Test Stark frequency shift chooses the proper sign with positive amplitude."""
+        """Test Stark frequency shift chooses the proper sign with positive amplitude.
+
+        * Frequency shift must be negative.
+        * Stark tone amplitude shift must be positive.
+        """
         backend = FakeHanoiV2()
         exp = StarkRamseyXY(
             qubit=0,
@@ -57,7 +61,11 @@ class TestStarkRamseyXY(QiskitExperimentsTestCase):
         self.assertEqual(test_schedule, ref_schedule)
 
     def test_calibration_with_negative_amp(self):
-        """Test Stark frequency shift chooses the proper sign with negative amplitude."""
+        """Test Stark frequency shift chooses the proper sign with negative amplitude.
+
+        * Frequency shift must be positive.
+        * Stark tone amplitude shift must be positive.
+        """
         backend = FakeHanoiV2()
         exp = StarkRamseyXY(
             qubit=0,
@@ -85,14 +93,16 @@ class TestStarkRamseyXY(QiskitExperimentsTestCase):
 
     def test_gen_delays(self):
         """Test generating delays with experiment options."""
+        min_freq = 1e6
+        max_freq = 50e6
         exp = StarkRamseyXY(
             qubit=0,
             stark_amp=0.1,
-            min_freq=1e6,
-            max_freq=50e6,
+            min_freq=min_freq,
+            max_freq=max_freq,
         )
         test_delays = exp.delays()
-        ref_delays = np.arange(0, 1e-6, 1e-8)
+        ref_delays = np.arange(0, 1 / min_freq, 1 / max_freq / 2)
         np.testing.assert_array_equal(test_delays, ref_delays)
 
     def test_circuit_valid_delays(self):

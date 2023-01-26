@@ -110,7 +110,9 @@ class StarkRamseyXY(BaseExperiment):
                 If not provided, the same channel with the qubit drive is used.
                 See :ref:`stark_channel_consideration` for details.
             stark_freq_offset (float): Offset of Stark tone frequency from the qubit frequency.
-                This must be greater than zero not to apply Rabi drive.
+                This offset should be sufficiently large so that the Stark pulse
+                does not Rabi drive the qubit.
+                See :ref:`stark_frequency_consideration` for details.
             stark_sigma (float): Gaussian sigma of the rising and falling edges
                 of the Stark tone, in seconds.
             stark_risefall (float): Ratio of sigma to the duration of
