@@ -27,8 +27,8 @@ class StarkRamseyXY(BaseExperiment):
 
     # section: overview
 
-        This experiment is a variant of :class:`.RamseyXY` with the pulsed Stark tone
-        and consists of following two circuits:
+        This experiment is a variant of :class:`.RamseyXY` with a pulsed Stark tone
+        and consists of the following two circuits:
 
         .. parsed-literal::
 
@@ -48,31 +48,32 @@ class StarkRamseyXY(BaseExperiment):
                 c: 1/══════════════════════════════════════════════════════════╩═
                                                                                0
 
-        In principle, the sequence is a variant of :class:`RamseyXY` circuit,
-        however, the delay in between √X gates is replaced with the off-resonant drive.
-        This off-resonant drive causes the Stark shift on the qubit that modulates
-        qubit frequency under the drive, which accumulates phase during the
-        Ramsey sequence against the shifted frequency.
-        This frequency shift is a function of the offset of the Stark tone from the
-        qubit frequency, and magnitude of the tone.
+        In principle, the sequence is a variant of :class:`.RamseyXY` circuit.
+        However, the delay in between √X gates is replaced with the off-resonant drive.
+        This off-resonant drive shifts the qubit frequency due to the
+        Stark effect and causes it to accumulate phase during the
+        Ramsey sequence. This frequency shift is a function of the
+        offset of the Stark tone frequency from the qubit frequency
+        and of the magnitude of the tone.
 
-        Note that the Stark tone takes the form of the flat-topped Gaussian envelope,
-        in which the magnitude of pulse varies in time in rising and falling edges,
-        resulting in the time-dependent Stark shift.
-        This is hardly characterized by the Ramsey experiment, and thus an additional pulse
-        involving only edges (StarkV) is added in front of the primary Stark drive (StarkU).
-        The sign of phase accumulation is inverted with the X gate in the middle to
-        cancel out the unwanted phase accumulation in the pulse edges.
+        Note that the Stark tone pulse (StarkU) takes the form of a flat-topped Gaussian envelope.
+        The magnitude of the pulse varies in time during its rising and falling edges.
+        It is difficult to characterize the net phase accumulation of the qubit during the
+        edges of the pulse when the frequency shift is varying with the pulse amplitude.
+        In order to simplify the analysis, an additional pulse (StarkV)
+        involving only the edges of StarkU is added to the sequence.
+        The sign of the phase accumulation is inverted for StarkV relative to that of StarkU
+        by inserting an X gate in between the two pulses.
 
-        This technique allows the experiment to only accumulate the net phase
-        during the flat-top part of the StarkU pulse with the constant magnitude.
+        This technique allows the experiment to accumulate only the net phase
+        during the flat-top part of the StarkU pulse with constant magnitude.
 
     # section: note
 
-        In the lower power limit, the Stark shift has a quadratic dependency on the
+        In the low power limit, the Stark shift has a quadratic dependence on the
         pulse amplitude. This implies the resulting Stark shift is not sensitive to
-        the sign of the amplitude of StarkV and StarkU pulses on one hand.
-        On the other hand, the sign of the shift depends on the sign of frequency offset.
+        the sign of the amplitude of the StarkV and StarkU pulses on the one hand.
+        On the other hand, the sign of the shift depends on the sign of the frequency offset.
         In other words, positive (negative) Stark shift occurs when the Stark tone frequency
         is lower (higher) than the qubit frequency.
 
@@ -81,6 +82,15 @@ class StarkRamseyXY(BaseExperiment):
         for better handling of the experiment parameters.
         The StarkV and StarkU pulses are always positive regardless of the sign of stark_amp,
         while the sign of frequency offset is implicitly determined by its sign.
+
+        In this experiment, the sign of the amplitude of the Stark tone,
+        i.e. the ``stark_amp`` parameter, is　abstracted so that the sign of the Stark shift
+        matches the sign of ``stark_amp``　for better handling of the experiment parameters.
+        The StarkV and StarkU pulse amplitudes are always positive
+        regardless of the sign of ``stark_amp``.
+        The ``stark_freq_offset`` option must always be positive, but the actual sign of the
+        frequency offset of the Stark tone is set to the opposite of the sign of ``stark_amp``
+        in order to produce a frequency shift on the qubit with the same sign as ``stark_amp``.
 
     # section: analysis_ref
         :py:class:`RamseyXYAnalysis`
@@ -103,21 +113,23 @@ class StarkRamseyXY(BaseExperiment):
 
             .. _stark_amplitude:
 
-            The `stark_channel` in the experiment options may be necessary supplied.
-            By default, the Stark tone is applied to the same channel with the qubit drive
-            with frequency modulation. This frequency modulation might update the
+            It may be necessary to supply the ``stark_channel`` experiment option.
+            By default, the Stark tone is applied to the same channel as the qubit drive
+            with a frequency shift. This frequency shift might update the
             channel frame, which accumulates unwanted phase against the frequency difference
-            between the qubit drive and Stark tone frequency in addition to
-            the qubit Stark shift. You can use a dedicated Stark drive channel if available,
-            otherwise you may want to reuse a control channel associated with the qubit.
+            between the qubit drive and Stark tone frequencies in addition to
+            the qubit Stark shift. You can use a dedicated Stark drive channel if available.
+            Otherwise, you may want to use a control channel associated with the physical
+            drive port of the qubit (e.g. in a cross-resonance system, a control channel for
+            which the qubit is the control qubit).
             This depends on the architecture of your quantum device.
 
         Args:
             qubit: Index of qubit.
-            stark_amp: A single float parameter to represent the magnitude of Stark tone
-                and the sign of expected Stark shift. See :ref:`stark_amplitude` for details.
+            stark_amp: A single float parameter to represent the magnitude of the Stark tone
+                and the sign of expected the Stark shift. See :ref:`stark_amplitude` for details.
             backend: Optional, the backend to run the experiment on.
-            experiment_options: Extra experiment options. See self.experiment_options.
+            experiment_options: Extra experiment options. See ``self.experiment_options``.
         """
         self._timing = None
 
@@ -140,13 +152,14 @@ class StarkRamseyXY(BaseExperiment):
             stark_risefall (float): Ratio of sigma to the duration of
                 the rising and falling edges of the Stark tone.
             min_freq (float): Minimum frequency that this experiment is guaranteed to resolve.
+                See :meth:`StarkRamseyXY.delays` for details.
                 Note that fitter algorithm :class:`.RamseyXYAnalysis` of this experiment
-                is still capable of fit experiment data with further lower frequency.
+                is still capable of fitting experiment data with lower frequency.
             max_freq (float): Maximum frequency that this experiment can resolve.
-            delays (list[float]): The list of delays in set that will be scanned in the
+            delays (list[float]): The list of delays if set that will be scanned in the
                 experiment. If not set, then evenly spaced delays with interval
                 computed from ``min_freq`` and ``max_freq`` are used.
-                If ``delays`` is set, these parameters are ignored.
+                See :meth:`StarkRamseyXY.delays` for details.
         """
         options = super()._default_experiment_options()
         options.update_options(
@@ -172,11 +185,11 @@ class StarkRamseyXY(BaseExperiment):
 
         .. note::
 
-            The delays are computed with min_freq and max_freq experiment options.
-            The maximum point is computed from the min_freq to guarantee the result
+            The delays are computed with the ``min_freq`` and ``max_freq`` experiment options.
+            The maximum point is computed from the ``min_freq`` to guarantee the result
             contains at least one Ramsey oscillation cycle at this frequency.
-            The interval is computed from the max_freq to sample at frequency
-            higher than the Nyquist frequency of this frequency.
+            The interval is computed from the ``max_freq`` to sample with resolution
+            such that the Nyquist frequency is twice ``max_freq``.
 
         Returns:
             The list of delays to use for the different circuits based on the

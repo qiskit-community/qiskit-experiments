@@ -84,11 +84,11 @@ Some experiments may be also used for gate calibration.
 Stark Experiments
 =================
 
-Experiments with the Stark tone. When a qubit is off-resonantly driven,
-the Stark shift occurs on the qubit that slightly modulates the qubit frequency.
+Experiments with a Stark tone. When a qubit is driven with an off-resonant tone,
+the qubit frequency is slightly shifted through what is known as the Stark effect.
 This technique is sometime used to characterize qubit properties in the vicinity of
-the base frequency, especially with the fixed frequency architecture which usually
-doesn't have a knob to control qubit frequency.
+the base frequency, especially with the fixed frequency qubit architecture which usually
+doesn't have a knob to control frequency.
 
 .. autosummary::
     :toctree: ../stubs/
