@@ -68,30 +68,6 @@ class StarkRamseyXY(BaseExperiment):
         This technique allows the experiment to accumulate only the net phase
         during the flat-top part of the StarkU pulse with constant magnitude.
 
-    # section: note
-
-        In the low power limit, the Stark shift has a quadratic dependence on the
-        pulse amplitude. This implies the resulting Stark shift is not sensitive to
-        the sign of the amplitude of the StarkV and StarkU pulses on the one hand.
-        On the other hand, the sign of the shift depends on the sign of the frequency offset.
-        In other words, positive (negative) Stark shift occurs when the Stark tone frequency
-        is lower (higher) than the qubit frequency.
-
-        In this experiment, the amplitude of Stark tone, i.e. `stark_amp` parameter, is
-        abstracted to give positive (positive) Stark shift with positive (negative) stark_amp
-        for better handling of the experiment parameters.
-        The StarkV and StarkU pulses are always positive regardless of the sign of stark_amp,
-        while the sign of frequency offset is implicitly determined by its sign.
-
-        In this experiment, the sign of the amplitude of the Stark tone,
-        i.e. the ``stark_amp`` parameter, is　abstracted so that the sign of the Stark shift
-        matches the sign of ``stark_amp``　for better handling of the experiment parameters.
-        The StarkV and StarkU pulse amplitudes are always positive
-        regardless of the sign of ``stark_amp``.
-        The ``stark_freq_offset`` option must always be positive, but the actual sign of the
-        frequency offset of the Stark tone is set to the opposite of the sign of ``stark_amp``
-        in order to produce a frequency shift on the qubit with the same sign as ``stark_amp``.
-
     # section: analysis_ref
         :py:class:`RamseyXYAnalysis`
 
@@ -109,25 +85,11 @@ class StarkRamseyXY(BaseExperiment):
     ):
         """Create new experiment.
 
-        .. note::
-
-            .. _stark_amplitude:
-
-            It may be necessary to supply the ``stark_channel`` experiment option.
-            By default, the Stark tone is applied to the same channel as the qubit drive
-            with a frequency shift. This frequency shift might update the
-            channel frame, which accumulates unwanted phase against the frequency difference
-            between the qubit drive and Stark tone frequencies in addition to
-            the qubit Stark shift. You can use a dedicated Stark drive channel if available.
-            Otherwise, you may want to use a control channel associated with the physical
-            drive port of the qubit (e.g. in a cross-resonance system, a control channel for
-            which the qubit is the control qubit).
-            This depends on the architecture of your quantum device.
-
         Args:
             qubit: Index of qubit.
             stark_amp: A single float parameter to represent the magnitude of the Stark tone
-                and the sign of expected the Stark shift. See :ref:`stark_amplitude` for details.
+                and the sign of expected the Stark shift.
+                See :ref:`stark_tone_implementation` for details.
             backend: Optional, the backend to run the experiment on.
             experiment_options: Extra experiment options. See ``self.experiment_options``.
         """
@@ -142,9 +104,11 @@ class StarkRamseyXY(BaseExperiment):
 
         Experiment Options:
             stark_amp (float): A single float parameter to represent the magnitude of Stark tone
-                and the sign of expected Stark shift. See :ref:`stark_amplitude` for details.
+                and the sign of expected Stark shift.
+                See :ref:`stark_tone_implementation` for details.
             stark_channel (PulseChannel): Pulse channel to apply Stark tones.
                 If not provided, the same channel with the qubit drive is used.
+                See :ref:`stark_channel_consideration` for details.
             stark_freq_offset (float): Offset of Stark tone frequency from the qubit frequency.
                 This must be greater than zero not to apply Rabi drive.
             stark_sigma (float): Gaussian sigma of the rising and falling edges
@@ -152,7 +116,6 @@ class StarkRamseyXY(BaseExperiment):
             stark_risefall (float): Ratio of sigma to the duration of
                 the rising and falling edges of the Stark tone.
             min_freq (float): Minimum frequency that this experiment is guaranteed to resolve.
-                See :meth:`StarkRamseyXY.delays` for details.
                 Note that fitter algorithm :class:`.RamseyXYAnalysis` of this experiment
                 is still capable of fitting experiment data with lower frequency.
             max_freq (float): Maximum frequency that this experiment can resolve.
