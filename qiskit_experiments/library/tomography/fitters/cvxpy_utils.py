@@ -108,16 +108,6 @@ def solve_iteratively(problem: Problem, initial_iters: int, scale: int = 2, **so
             )
 
 
-def set_default_sdp_solver(solver_kwargs: dict):
-    """Set default SDP solver from installed solvers."""
-    if "solver" in solver_kwargs:
-        return
-    if "CVXOPT" in cvxpy.installed_solvers():
-        solver_kwargs["solver"] = "CVXOPT"
-    elif "MOSEK" in cvxpy.installed_solvers():
-        solver_kwargs["solver"] = "MOSEK"
-
-
 def complex_matrix_variable(
     dim: int, hermitian: bool = False, psd: bool = False, trace: Optional[complex] = None
 ) -> Tuple[Variable, Variable, List[Constraint]]:

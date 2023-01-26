@@ -64,6 +64,11 @@ upgrade:
     as the measurement and preparation args refer to the index of circuit
     qubits in the physical qubits list, not the physical qubit values
     themselves.
+  - |
+    The automatic overriding of the default CVXPY SDP solver for the
+    `"cvxpy_gaussian_lstsq"` and `"cvxpy_linear_lstsq"` has been disabled
+    and will now use the default SDP solver of CVXPY unless a custom solver
+    is set using the ``fitter_options`` analysis options.
 deprecations:
   - |
     Renames the ``qubits``, ``measurement_qubits``, and ``preparation_qubits``

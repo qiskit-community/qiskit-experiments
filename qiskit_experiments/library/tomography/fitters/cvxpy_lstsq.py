@@ -247,7 +247,6 @@ def cvxpy_linear_lstsq(
         prob = cvxpy.Problem(obj, con)
 
         # Solve SDP
-        cvxpy_utils.set_default_sdp_solver(kwargs)
         cvxpy_utils.solve_iteratively(prob, 5000, **kwargs)
 
         # Return optimal values and problem metadata
