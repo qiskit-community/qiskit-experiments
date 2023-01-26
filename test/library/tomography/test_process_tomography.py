@@ -496,3 +496,58 @@ class TestProcessTomography(QiskitExperimentsTestCase):
                     f_threshold,
                     msg=f"{fitter} fit fidelity is low for qubits {qubits}",
                 )
+
+    @ddt.data([0], [1], [0, 1])
+    def test_qpt_conditional_circuit(self, circuit_clbits):
+        """Test subset state tomography generation"""
+        # Preparation circuit
+        circ = QuantumCircuit(2)
+        circ.measure_all()
+
+        # Run experiment
+        backend = AerSimulator(seed_simulator=7172)
+        exp = ProcessTomography(
+            circ,
+            backend=backend,
+            conditional_circuit_clbits=circuit_clbits,
+        )
+        expdata = exp.run(shots=1000, analysis=None)
+        self.assertExperimentDone(expdata)
+
+        # Targets
+        proj0 = qi.Choi(qi.DensityMatrix.from_label("00").data)
+        proj1 = qi.Choi(qi.DensityMatrix.from_label("11").data)
+        mix = proj0 + proj1
+
+        if circuit_clbits == [0]:
+            targets = [2 * i.expand(mix) for i in [proj0, proj1]]
+        elif circuit_clbits == [1]:
+            targets = [2 * i.tensor(mix) for i in [proj0, proj1]]
+        elif circuit_clbits == [0, 1]:
+            targets = [4 * i.expand(j) for j in [proj0, proj1] for i in [proj0, proj1]]
+        num_cond = len(circuit_clbits)
+        prob_target = 0.5**num_cond
+        for fitter in FITTERS:
+            with self.subTest(fitter=fitter):
+                if fitter:
+                    exp.analysis.set_options(fitter=fitter)
+                fitdata = exp.analysis.run(expdata)
+                states = fitdata.analysis_results("state")
+                if circuit_clbits is None:
+                    states = [states]
+                self.assertEqual(len(states), 2**num_cond)
+                for state in states:
+                    idx = state.extra["component_index"]
+                    prob = state.extra["component_probability"]
+
+                    self.assertTrue(
+                        np.isclose(prob, prob_target, atol=1e-2),
+                        msg=(
+                            f"{fitter} probability incorrect for component"
+                            f" {idx} ({prob} != {prob_target})"
+                        ),
+                    )
+                    fid = qi.process_fidelity(state.value, targets[idx], require_tp=False)
+                    self.assertGreater(
+                        fid, 0.95, msg=f"{fitter} fidelity {fid} is low for component {idx}"
+                    )
