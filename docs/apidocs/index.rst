@@ -31,4 +31,3 @@ Experiment Modules
     mod_randomized_benchmarking
     mod_tomography
     mod_quantum_volume
-    mod_stark
