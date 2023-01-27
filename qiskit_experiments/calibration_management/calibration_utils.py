@@ -15,7 +15,7 @@
 from typing import Optional, Set, Tuple
 from functools import lru_cache
 import re
-import retworkx as rx
+import rustworkx as rx
 
 from qiskit.circuit import ParameterExpression, Parameter
 from qiskit.pulse import ScheduleBlock

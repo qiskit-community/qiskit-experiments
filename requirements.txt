@@ -7,3 +7,4 @@ qiskit_dynamics>=0.3.0
 matplotlib>=3.4
 uncertainties
 lmfit
+rustworkx
