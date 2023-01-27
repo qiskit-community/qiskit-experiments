@@ -7,7 +7,7 @@ This technique is sometime used to characterize qubit properties in the vicinity
 the base frequency, especially with the fixed frequency qubit architecture which usually
 doesn't have a knob to control frequency [1].
 
-The important control parameters of the Stark effect is the amplitude
+The important control parameters of the Stark effect are the amplitude
 :math:`\Omega` and frequency :math:`f_S` of
 the off-resonant tone, which we will call *Stark tone* in the following.
 In the low power limit, the amount of frequency shift :math:`\delta f_S`
@@ -15,7 +15,7 @@ that the qubit may experience is described as follows [2]:
 
 .. math::
 
-    \delta f_S \propto \frac{\alpha}{2\Delta\left(\alpha + \Delta\right)} \Omega^2,
+    \delta f_S \propto \frac{\alpha}{2\Delta\left(\alpha - \Delta\right)} \Omega^2,
 
 where :math:`\alpha` is the qubit anharmonicity and :math:`\Delta=f_S - f_0` is the
 frequency separation of the Stark tone from the qubit frequency :math:`f_0`.
@@ -49,7 +49,8 @@ in addition to the magnitude of :math:`\Omega` as they need to
 switch the sign of the Stark shift.
 
 To alleviate such experimental complexity, the abstracted amplitude :math:`\bar{\Omega}`
-with virtual sign is introduced in Qiskit Experiments:
+with virtual sign is introduced in Qiskit Experiments.
+This works as follows:
 
 .. math::
 
@@ -57,7 +58,7 @@ with virtual sign is introduced in Qiskit Experiments:
     \Omega &= | \bar{\Omega} |.
 
 Stark experiments in Qiskit usually take two control parameters :math:`(\bar{\Omega}, |\Delta|)`,
-usually specified by ``stark_amp`` and ``stark_freq_offset`` in the experiment options, respectively.
+which are specified by ``stark_amp`` and ``stark_freq_offset`` in the experiment options, respectively.
 In this representation, the sign of the Stark shift matches the sign of :math:`\bar{\Omega}`.
 
 .. math::
@@ -66,6 +67,7 @@ In this representation, the sign of the Stark shift matches the sign of :math:`\
 
 This allows an experimentalist to control both sign and amount of
 the Stark shift with the ``stark_amp``.
+Note that ``stark_freq_offset`` is a positive fixed number.
 
 
 .. _stark_frequency_consideration:
