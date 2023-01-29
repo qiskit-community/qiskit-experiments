@@ -31,8 +31,8 @@ import lmfit
 import numpy as np
 import scipy.sparse as sps
 import uncertainties
-from qiskit.circuit import ParameterExpression, QuantumCircuit, Instruction
 from qiskit import qpy
+from qiskit.circuit import ParameterExpression, QuantumCircuit, Instruction
 from qiskit.circuit.library import BlueprintCircuit
 from qiskit.quantum_info import DensityMatrix
 from qiskit.quantum_info.operators.channel.quantum_channel import QuantumChannel
@@ -584,9 +584,7 @@ class ExperimentDecoder(json.JSONDecoder):
                 load_obj = tmp.loads(s=obj_val)
                 return load_obj
             if obj_type == "Instruction":
-                circuit = _decode_and_deserialize(
-                    obj_val, qpy.load, name="QuantumCircuit"
-                )[0]
+                circuit = _decode_and_deserialize(obj_val, qpy.load, name="QuantumCircuit")[0]
                 return circuit.data[0][0]
             if obj_type == "QuantumCircuit":
                 return _decode_and_deserialize(obj_val, qpy.load, name=obj_type)[0]
