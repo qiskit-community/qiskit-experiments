@@ -47,9 +47,9 @@ class LocalPreparationBasis(PreparationBasis):
         """Initialize a fitter preparation basis.
 
         Args:
-            name: a name to identity the basis.
+            name: a name to identify the basis.
             instructions: list of 1-qubit instructions for preparing states
-                          from the :math:`|0^{\\otimes n}\\rangle` state.
+                          from the :math:`|0\\rangle` state.
             default_states: Optional, default density matrices prepared by the
                             input instructions. If None these will be determined by
                             ideal simulation of the preparation instructions.
@@ -109,7 +109,10 @@ class LocalPreparationBasis(PreparationBasis):
         qubits = tuple(qubits)
         if len(qubits) > 1 and qubits in self._qubit_dim:
             return self._qubit_dim[qubits]
-        return tuple(self._qubit_dim.get((i,), self._default_dim) for i in qubits)
+        dims = tuple()
+        for i in qubits:
+            dims += self._qubit_dim.get((i,), (self._default_dim,))
+        return dims
 
     def circuit(
         self, index: Sequence[int], qubits: Optional[Sequence[int]] = None
@@ -192,16 +195,23 @@ class LocalPreparationBasis(PreparationBasis):
             elif len(self._default_states) != self._size:
                 raise QiskitError("Number of instructions and number of states must be equal.")
 
-        # Format qubit POVMS
+        # Format qubit states
         for qubits, states in self._qubit_states.items():
             state = next(iter(states.values()))
-            dim = np.prod(state.dims())
-
-            # Additional formatting for multi-qubit POVMs
             num_qubits = len(qubits)
-            if num_qubits > 1:
-                dim = num_qubits * (int(dim ** (1 / num_qubits)),)
-            self._qubit_dim[qubits] = dim
+            dims = state.dims()
+            if num_qubits == 1:
+                qubit_dim = (np.prod(dims),)
+            elif len(dims) == num_qubits:
+                qubit_dim = tuple(dims)
+            else:
+                # Assume all subsystems have the same dimension if the provided
+                # state dimension don't match number of qubits
+                ave_dim = np.prod(dims) ** (1 / num_qubits)
+                if int(ave_dim) != ave_dim:
+                    raise QiskitError("Cannot infer unequal subsystem dimensions from input states")
+                qubit_dim = num_qubits * (int(ave_dim),)
+            self._qubit_dim[qubits] = qubit_dim
             self._qubits.update(qubits)
 
         # Pseudo hash value to make basis hashable for LRU cached functions
@@ -213,8 +223,8 @@ class LocalPreparationBasis(PreparationBasis):
                 self._default_dim,
                 self._custom_defaults,
                 tuple(self._qubits),
-                tuple(self._qubit_dim.values()),
-                (type(i) for i in self._instructions),
+                tuple(sorted(self._qubit_dim.items())),
+                tuple(type(i) for i in self._instructions),
             )
         )
 
@@ -406,24 +416,36 @@ class LocalMeasurementBasis(MeasurementBasis):
         # Format qubit POVMS
         for qubits, povms in self._qubit_povms.items():
             povm = next(iter(povms.values()))
-            num_outcomes = len(povm)
-            dim = np.prod(povm[0].dims())
-            if any(len(povm) != num_outcomes for povm in povms.values()):
+            num_povms = len(povm)
+            if any(len(povm) != num_povms for povm in povms.values()):
                 raise QiskitError(
                     "LocalMeasurementBasis POVM elements must all have the "
                     "same number of outcomes."
                 )
-
-            # Additional formatting for multi-qubit POVMs
             num_qubits = len(qubits)
-            if num_qubits > 1:
-                num_outcomes = num_qubits * (int(num_outcomes ** (1 / num_qubits)),)
-                dim = num_qubits * (int(dim ** (1 / num_qubits)),)
+            dims = povm[0].dims()
+            dim = np.prod(dims)
+            if num_qubits == 1:
+                qubit_dim = (dim,)
+                num_outcomes = (num_povms,)
+            elif len(dims) == num_qubits:
+                qubit_dim = tuple(dims)
+                if dim != num_povms:
+                    raise QiskitError("POVMs dimensions don't match number of outcomes")
+                num_outcomes = qubit_dim
             else:
-                num_outcomes = (num_outcomes,)
-                dim = (dim,)
+                # Assume all subsystems have the same dimension if the provided
+                # operator dimension don't match number of qubits
+                ave_dim = np.prod(dims) ** (1 / num_qubits)
+                if int(ave_dim) != ave_dim:
+                    raise QiskitError("Cannot infer unequal subsystem dimensions from input POVMs")
+                qubit_dim = num_qubits * (int(ave_dim),)
+                ave_num_outcomes = num_povms ** (1 / num_qubits)
+                if int(ave_num_outcomes) != ave_num_outcomes:
+                    raise QiskitError("Cannot infer unequal subsystem num_outcome from input POVMs")
+                num_outcomes = num_qubits * (int(ave_dim),)
             self._qubit_num_outcomes[qubits] = num_outcomes
-            self._qubit_dim[qubits] = dim
+            self._qubit_dim[qubits] = qubit_dim
             self._qubits.update(qubits)
 
         # Pseudo hash value to make basis hashable for LRU cached functions
@@ -436,9 +458,9 @@ class LocalMeasurementBasis(MeasurementBasis):
                 self._default_num_outcomes,
                 self._custom_defaults,
                 tuple(self._qubits),
-                tuple(self._qubit_dim.values()),
-                tuple(self._qubit_num_outcomes.values()),
-                (type(i) for i in self._instructions),
+                tuple(sorted(self._qubit_dim.items())),
+                tuple(sorted(self._qubit_num_outcomes.items())),
+                tuple(type(i) for i in self._instructions),
             )
         )
 
@@ -480,7 +502,7 @@ class LocalMeasurementBasis(MeasurementBasis):
         # No match, so if 1-qubit use default, otherwise return None
         if num_qubits == 1 and self._default_povms:
             return self._default_povms[index[0]]
-        return []
+        return None
 
     def __json_encode__(self):
         value = {
@@ -646,8 +668,6 @@ def _generate_state(
 ) -> DensityMatrix:
     """Format a state into list of DensityMatrix"""
     # If already a quantum state convert to a density matrix
-    if isinstance(value, DensityMatrix):
-        return value
     if isinstance(value, (QuantumState, np.ndarray, list)):
         return DensityMatrix(value, dims=dims)
 
@@ -668,10 +688,10 @@ def _generate_state(
 
 
 def _format_states(
-    states: Optional[List[any]],
+    states: Optional[Union[List[any], Dict[Tuple[int, ...], any]]],
     init_key: Tuple[int, ...] = (0,),
     instructions: Optional[Sequence[Instruction]] = None,
-) -> List[DensityMatrix]:
+) -> Dict[Tuple[int, ...], DensityMatrix]:
     "Format default state data"
     # Parse data into dict to include legacy handling
     states = _format_data_dict(states, instructions)
