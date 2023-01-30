@@ -115,7 +115,12 @@ def _synthesize_clifford_circuit(
 ) -> QuantumCircuit:
     # synthesizes clifford circuits using given basis gates, for use during
     # custom transpilation during RB circuit generation.
-    return transpile(circuit, basis_gates=list(basis_gates), optimization_level=1)
+    return transpile(
+        circuit,
+        basis_gates=list(basis_gates),
+        coupling_map=[[0, 1]] if circuit.num_qubits == 2 else None,
+        optimization_level=1,
+    )
 
 
 @lru_cache(maxsize=None)
@@ -549,6 +554,7 @@ _CLIFFORD_LAYER = (
     _create_cliff_2q_layer_1(),
     _create_cliff_2q_layer_2(),
 )
+# _NUM_LAYER_0 = 36
 _NUM_LAYER_1 = 20
 _NUM_LAYER_2 = 16
 
