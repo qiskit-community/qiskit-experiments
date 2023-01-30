@@ -311,6 +311,163 @@ class SVD(TrainableDataAction):
         )
 
 
+class TrainableDiscriminatorNode(TrainableDataAction):
+    """A class to discriminate kerneled data, e.g., IQ data, to produce counts.
+
+    This node integrates into the data processing chain a serializable :class:`.BaseDiscriminator`
+    subclass instance which must have a :meth:`predict` method that takes as input a list of lists
+    and returns a list of labels and a :meth:`fit` method that takes as input a list of lists and a list of labels and
+    trains the discriminator. Crucially, this node can be initialized with a single
+    discriminator which applies to each memory slot or it can be initialized with a list of
+    discriminators, i.e., one for each slot.
+
+    .. note::
+
+        This node will drop uncertainty from unclassified nodes.
+        Returned labels don't have uncertainty.
+
+    """
+
+    def __init__(
+            self,
+            discriminators: Union[BaseDiscriminator, List[BaseDiscriminator]],
+            validate: bool = True,
+    ):
+        """Initialize the node with an object that can discriminate.
+
+        Args:
+            discriminators: The entity that will perform the discrimination. This needs to
+                be a :class:`.BaseDiscriminator` or a list thereof that takes
+                as input a list of lists and returns a list of labels. If a list of
+                discriminators is given then there should be as many discriminators as there
+                will be slots in the memory. The discriminator at the i-th index will be applied
+                to the i-th memory slot.
+            validate: If set to False the DataAction will not validate its input.
+        """
+        super().__init__(validate)
+        self._discriminator = discriminators
+        self._n_circs = 0
+        self._n_shots = 0
+        self._n_slots = 0
+        self._n_iq = 0
+
+    @classmethod
+    def _default_parameters(cls) -> Options:
+        """Default parameters.
+
+        Parameters are defined for each qubit in the data and thus
+        represented as an array-like.
+
+        Trainable parameters:
+            trained: whether the discriminator is trained or not
+        """
+        params = super()._default_parameters()
+        params.trained = None
+
+        return params
+
+    def _format_data(self, data: np.ndarray) -> np.ndarray:
+        """Check that there are as many discriminators as there are slots."""
+        self._n_shots = 0
+
+        # identify shape
+        try:
+            # level1 single-shot data
+            self._n_circs, self._n_shots, self._n_slots, self._n_iq = data.shape
+        except ValueError as ex:
+            raise DataProcessorError(
+                f"The data given to {self.__class__.__name__} does not have the shape of "
+                "single-shot IQ data; expecting a 4D array."
+            ) from ex
+
+        if self._validate:
+            if data.shape[-1] != 2:
+                raise DataProcessorError(
+                    f"IQ data given to {self.__class__.__name__} must be a multi-dimensional array"
+                    "of dimension [d0, d1, ..., 2] in which the last dimension "
+                    "corresponds to IQ elements."
+                    f"Input data contains element with length {data.shape[-1]} != 2."
+                )
+
+        if self._validate:
+            if isinstance(self._discriminator, list):
+                if self._n_slots != len(self._discriminator):
+                    raise DataProcessorError(
+                        f"The Discriminator node has {len(self._discriminator)} which does "
+                        f"not match the {self._n_slots} slots in the data."
+                    )
+
+        return unp.nominal_values(data)
+
+    def _process(self, data: np.ndarray) -> np.ndarray:
+        """Discriminate the data.
+
+        Args:
+            data: The IQ data as a list of points to discriminate. This data should have
+                the shape dim_1 x dim_2 x ... x dim_k x 2.
+
+        Returns:
+            The discriminated data as a list of labels with shape dim_1 x ... x dim_k.
+        """
+        if not self.is_trained:
+            raise DataProcessorError("The trainable discriminator must be trained on data before it can be used.")
+
+        # Case where one discriminator is applied to all the data.
+        if not isinstance(self._discriminator, list):
+            # Reshape the IQ data to an array of size n x 2
+            shape, data_length = data.shape, 1
+            for dim in shape[:-1]:
+                data_length *= dim
+
+            data = data.reshape((data_length, 2))  # the last dim is guaranteed by _process
+
+            # Classify the data using the discriminator and reshape it to dim_1 x ... x dim_k
+            classified = np.array(self._discriminator.predict(data)).reshape(shape[0:-1])
+
+        # case where a discriminator is applied to each slot.
+        else:
+            classified = np.empty((self._n_circs, self._n_shots, self._n_slots), dtype=str)
+            for idx, discriminator in enumerate(self._discriminator):
+                sub_data = data[:, :, idx, :].reshape((self._n_circs * self._n_shots, 2))
+                sub_classified = np.array(discriminator.predict(sub_data))
+                sub_classified = sub_classified.reshape((self._n_circs, self._n_shots))
+                classified[:, :, idx] = sub_classified
+
+        # Concatenate the bit-strings together.
+        labeled_data = []
+        for idx in range(self._n_circs):
+            labeled_data.append(
+                ["".join(classified[idx, jdx, :][::-1]) for jdx in range(self._n_shots)]
+            )
+
+        return np.array(labeled_data).reshape((self._n_circs, self._n_shots))
+
+    def train(self, data: np.ndarray):
+        if data is None:
+            return
+        # assuming the training circuits are the 2 first circuits in the job
+        training_data = self._format_data(data)[:2]
+
+        shape, data_length = training_data.shape, 1
+        for dim in shape[:-1]:
+            data_length *= dim
+
+        training_data = training_data.reshape((data_length, 2))
+
+        # assuming only "0" and "1" states are used
+        labels = ["0"] * self._n_shots + ["1"] * self._n_shots
+
+        try:
+            if not isinstance(self._discriminator, list):
+                self._discriminator.fit(training_data, labels)
+            else:
+                for idx, discriminator in enumerate(self._discriminator):
+                    self._discriminator[idx].fit(training_data, labels)
+        except Exception as ex:
+            raise DataProcessorError("The discriminator class must have a fit method in order to train it.")
+        self.set_parameters(trained=True)
+
+
 class IQPart(DataAction):
     """Abstract class for IQ data post-processing."""
 
