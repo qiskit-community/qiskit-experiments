@@ -2152,8 +2152,9 @@ class ExperimentData:
         """Initializes the server from the backend data"""
         db_url = "https://auth.quantum-computing.ibm.com/api"
         try:
-            credentials = backend._provider.credentials
-            service = IBMExperimentService(token=credentials.token, url=db_url)
+            token = backend.provider._account.token
+            hgp = list(backend.provider._hgps.keys())[0]
+            service = IBMExperimentService(token=token, url=db_url, hgp=hgp)
             return service
         except Exception:  # pylint: disable=broad-except
             return None

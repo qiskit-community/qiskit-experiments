@@ -248,7 +248,7 @@ class BaseExperiment(ABC, StoreInitArgs):
         transpiled_circuits = experiment._transpiled_circuits()
 
         # Initialize result container
-        experiment_data = experiment._initialize_experiment_data()
+        experiment_data = experiment._initialize_experiment_data(backend=backend)
 
         # Run options
         run_opts = experiment.run_options.__dict__
@@ -263,9 +263,9 @@ class BaseExperiment(ABC, StoreInitArgs):
         else:
             return experiment_data
 
-    def _initialize_experiment_data(self) -> ExperimentData:
+    def _initialize_experiment_data(self, backend) -> ExperimentData:
         """Initialize the return data container for the experiment run"""
-        return ExperimentData(experiment=self)
+        return ExperimentData(experiment=self, backend=backend)
 
     def _finalize(self):
         """Finalize experiment object before running jobs.
