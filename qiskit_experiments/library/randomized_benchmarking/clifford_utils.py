@@ -110,17 +110,6 @@ def _circuit_compose(
     return self
 
 
-def _truncate_inactive_qubits(
-    circ: QuantumCircuit, active_qubits: Sequence[Qubit]
-) -> QuantumCircuit:
-    res = QuantumCircuit(active_qubits, name=circ.name, metadata=circ.metadata)
-    for inst in circ:
-        if all(q in active_qubits for q in inst.qubits):
-            res.append(inst)
-    res.calibrations = circ.calibrations
-    return res
-
-
 def _synthesize_clifford_circuit(
     circuit: QuantumCircuit, basis_gates: Tuple[str]
 ) -> QuantumCircuit:

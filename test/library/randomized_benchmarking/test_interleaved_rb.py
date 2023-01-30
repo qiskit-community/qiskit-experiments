@@ -286,6 +286,28 @@ class TestInterleavedRB(QiskitExperimentsTestCase, RBTestMixin):
                 if inst.operation.name == "cx":
                     self.assertEqual(inst.qubits, expected_qubits)
 
+    def test_interleaved_element_contains_non_basis_gates(self):
+        """Raise if interleaved_element contains any non basis gate"""
+        with self.assertRaises(QiskitError):
+            rb.InterleavedRB(
+                interleaved_element=CZGate(),  # CZ gate is not in Manila's basis gates
+                physical_qubits=[0, 1],
+                lengths=[1, 2, 3],
+                backend=self.backend,
+            ).circuits()
+
+        qc_cnot = QuantumCircuit(2)
+        qc_cnot.h(1)
+        qc_cnot.cz(0, 1)
+        qc_cnot.h(1)
+        with self.assertRaises(QiskitError):
+            rb.InterleavedRB(
+                interleaved_element=qc_cnot,  # Equivalent with CNOT but it contains CZ (non basis)
+                physical_qubits=[0, 1],
+                lengths=[1, 2, 3],
+                backend=self.backend,
+            ).circuits()
+
 
 class TestRunInterleavedRB(QiskitExperimentsTestCase, RBTestMixin):
     """Test for running InterleavedRB."""
