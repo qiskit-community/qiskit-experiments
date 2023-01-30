@@ -310,6 +310,25 @@ class BaseExperiment(ABC, StoreInitArgs):
         # values for any explicit experiment options that affect circuit
         # generation
 
+    def _add_spam_circuits(self, circuits):
+        circ = QuantumCircuit(self.num_qubits)
+        circ.measure_all()
+        circ.metadata = {
+            "experiment_type": self._type + ",SPAM cal",
+            "qubits": self.physical_qubits,
+        }
+
+        circ_x = QuantumCircuit(self.num_qubits)
+        circ_x.x(list(range(self.num_qubits)))
+        circ_x.measure_all()
+        circ_x.metadata = {
+            "experiment_type": self._type + ",SPAM cal",
+            "qubits": self.physical_qubits,
+        }
+        circuits.insert(0, circ_x)
+        circuits.insert(0, circ)
+        return circuits
+
     def _transpiled_circuits(self) -> List[QuantumCircuit]:
         """Return a list of experiment circuits, transpiled.
 
@@ -317,7 +336,16 @@ class BaseExperiment(ABC, StoreInitArgs):
         """
         transpile_opts = copy.copy(self.transpile_options.__dict__)
         transpile_opts["initial_layout"] = list(self.physical_qubits)
-        transpiled = transpile(self.circuits(), self.backend, **transpile_opts)
+        if self._experiment_options['add_SPAM_circuits']:
+            circuits = self.circuits()
+            circuits = self._add_spam_circuits(circuits)
+            transpiled = transpile(circuits, self.backend, **transpile_opts)
+            # assuming the analysis uses curve_analysis, so the SPAM circuits can be filtered out using filter_data
+            filter_data = self.analysis.options.filter_data
+            filter_data["experiment_type"] = self.experiment_type
+            self.analysis.set_options(filter_data=filter_data)
+        else:
+            transpiled = transpile(self.circuits(), self.backend, **transpile_opts)
 
         return transpiled
 
@@ -329,7 +357,7 @@ class BaseExperiment(ABC, StoreInitArgs):
         # that experiment and their default values. Only options listed
         # here can be modified later by the different methods for
         # setting options.
-        return Options()
+        return Options(add_SPAM_circuits=False)
 
     @property
     def experiment_options(self) -> Options:
