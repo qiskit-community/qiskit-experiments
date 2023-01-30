@@ -555,6 +555,9 @@ class ExperimentData:
 
     def _set_hgp_from_provider(self, provider):
         try:
+            hub = None
+            group = None
+            project = None
             # qiskit-ibmq-provider style
             if hasattr(provider, 'credentials'):
                 creds = provider.credentials
