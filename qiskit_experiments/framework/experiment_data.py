@@ -559,13 +559,13 @@ class ExperimentData:
             group = None
             project = None
             # qiskit-ibmq-provider style
-            if hasattr(provider, 'credentials'):
+            if hasattr(provider, "credentials"):
                 creds = provider.credentials
                 hub = creds.hub
                 group = creds.group
                 project = creds.project
             # qiskit-ibm-provider style
-            if hasattr(provider, '_hgps'):
+            if hasattr(provider, "_hgps"):
                 hub, group, project = list(self.backend.provider._hgps.keys())[0].split("/")
             self._db_data.hub = self._db_data.hub or hub
             self._db_data.group = self._db_data.group or group
@@ -2158,15 +2158,14 @@ class ExperimentData:
     @staticmethod
     def get_service_from_backend(backend):
         """Initializes the server from the backend data"""
-        print("Setting token from backend")
         db_url = "https://auth.quantum-computing.ibm.com/api"
         try:
             provider = backend._provider
             # qiskit-ibmq-provider style
-            if hasattr(provider, 'credentials'):
+            if hasattr(provider, "credentials"):
                 token = provider.credentials.token
             # qiskit-ibm-provider style
-            if hasattr(provider, '_account'):
+            if hasattr(provider, "_account"):
                 token = provider._account.token
             service = IBMExperimentService(token=token, url=db_url)
             return service
