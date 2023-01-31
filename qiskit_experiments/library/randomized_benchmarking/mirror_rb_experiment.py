@@ -12,19 +12,53 @@
 """
 Mirror RB Experiment class.
 """
+from abc import ABC, abstractmethod
 from typing import Union, Iterable, Optional, List, Sequence
 from itertools import permutations
-from numpy.random import Generator, BitGenerator, SeedSequence
+from numpy.random import Generator, BitGenerator, SeedSequence, default_rng
 
 from qiskit import QuantumCircuit, QiskitError
 from qiskit.circuit import Instruction
 from qiskit.quantum_info import Clifford, random_pauli, random_clifford
 from qiskit.quantum_info.operators import Pauli
 from qiskit.providers.backend import Backend
+from qiskit.transpiler.basepasses import TransformationPass
 
 from .rb_experiment import StandardRB
 from .mirror_rb_analysis import MirrorRBAnalysis
 from .clifford_utils import CliffordUtils
+
+
+class MirrorRBDistribution(ABC):
+    """Sampling distribution for the mirror randomized benchmarking experiment."""
+
+    def __init__(self, seed=None):
+        self.rng = default_rng(seed)
+
+    @abstractmethod
+    def __call__(self, qubits, two_qubit_density, coupling_map, **params):
+        self.qubits = qubits
+
+
+class RandomEdgeGrabDistribution(MirrorRBDistribution):
+    def __init__(self):
+        super().__init__(seed)
+
+    def __call__(self, qubits, two_qubit_density, coupling_map, seed=None):
+        self.two_qubit_density = two_qubit_density
+        self.coupling_map = coupling_map
+
+        ...
+
+
+class DiscreteLayerDistribution(MirrorRBDistribution):
+    def __init__(self):
+        super().__init__(qubits, seed)
+
+    def __call__(self, qubits, layers, probs=None, seed=None):
+        self.layers = list(layers)
+        self.probs = probs or [1 / len(layers)] * len(layers)
+        return rng.choice(self.layers, self.prob)
 
 
 class MirrorRB(StandardRB):

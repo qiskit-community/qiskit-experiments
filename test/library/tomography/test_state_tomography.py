@@ -23,6 +23,7 @@ from qiskit_aer import AerSimulator
 
 from qiskit_experiments.library import StateTomography
 from qiskit_experiments.library.tomography import StateTomographyAnalysis
+from qiskit_experiments.database_service import ExperimentEntryNotFound
 from .tomo_utils import FITTERS, filter_results, teleport_circuit, teleport_bell_circuit
 
 
@@ -71,12 +72,25 @@ class TestStateTomography(QiskitExperimentsTestCase):
                     fid, target_fid, places=6, msg=f"{fitter} result fidelity is incorrect"
                 )
 
+    def test_full_qst_analysis_none(self):
+        """Test QST experiment"""
+        seed = 4321
+        shots = 1000
+        # Generate tomography data without analysis
+        backend = AerSimulator(seed_simulator=seed, shots=shots)
+        target = qi.random_statevector(2, seed=seed)
+        exp = StateTomography(target, backend=backend, analysis=None)
+        self.assertEqual(exp.analysis, None)
+        expdata = exp.run()
+        self.assertExperimentDone(expdata)
+        self.assertFalse(expdata.analysis_results())
+
     @ddt.data(True, False)
     def test_qst_teleport(self, flatten_creg):
         """Test subset state tomography generation"""
         # Teleport qubit 0 -> 2
         backend = AerSimulator(seed_simulator=9000)
-        exp = StateTomography(teleport_circuit(flatten_creg), measurement_qubits=[2])
+        exp = StateTomography(teleport_circuit(flatten_creg), measurement_indices=[2])
         expdata = exp.run(backend)
         self.assertExperimentDone(expdata)
         results = expdata.analysis_results()
@@ -99,7 +113,7 @@ class TestStateTomography(QiskitExperimentsTestCase):
         """Test subset state tomography generation"""
         # Teleport qubit 0 -> 2
         backend = AerSimulator(seed_simulator=9000)
-        exp = StateTomography(teleport_bell_circuit(flatten_creg), measurement_qubits=[2, 3])
+        exp = StateTomography(teleport_bell_circuit(flatten_creg), measurement_indices=[2, 3])
         expdata = exp.run(backend)
         self.assertExperimentDone(expdata)
         results = expdata.analysis_results()
@@ -134,7 +148,7 @@ class TestStateTomography(QiskitExperimentsTestCase):
         [2, 0, 1],
         [2, 1, 0],
     )
-    def test_exp_circuits_measurement_qubits(self, meas_qubits):
+    def test_exp_circuits_measurement_indices(self, meas_qubits):
         """Test subset state tomography generation"""
         # Subsystem unitaries
         seed = 1111
@@ -147,7 +161,7 @@ class TestStateTomography(QiskitExperimentsTestCase):
             circ.append(op, [i])
 
         num_meas = len(meas_qubits)
-        exp = StateTomography(circ, measurement_qubits=meas_qubits)
+        exp = StateTomography(circ, measurement_indices=meas_qubits)
         tomo_circuits = exp.circuits()
 
         # Check correct number of circuits are generated
@@ -169,7 +183,7 @@ class TestStateTomography(QiskitExperimentsTestCase):
         self.assertGreater(fid, 0.99, msg="target_state is incorrect")
 
     @ddt.data([0], [1], [2], [0, 1], [1, 0], [0, 2], [2, 0], [1, 2], [2, 1])
-    def test_full_exp_measurement_qubits(self, meas_qubits):
+    def test_full_exp_measurement_indices(self, meas_qubits):
         """Test subset state tomography generation"""
         # Subsystem unitaries
         seed = 1111
@@ -189,7 +203,7 @@ class TestStateTomography(QiskitExperimentsTestCase):
 
         # Run
         backend = AerSimulator(seed_simulator=9000)
-        exp = StateTomography(circ, measurement_qubits=meas_qubits)
+        exp = StateTomography(circ, measurement_indices=meas_qubits)
         expdata = exp.run(backend)
         self.assertExperimentDone(expdata)
         results = expdata.analysis_results()
@@ -222,14 +236,34 @@ class TestStateTomography(QiskitExperimentsTestCase):
 
     def test_experiment_config(self):
         """Test converting to and from config works"""
-        exp = StateTomography(QuantumCircuit(3), measurement_qubits=[0, 2], qubits=[5, 7, 1])
+        exp = StateTomography(
+            QuantumCircuit(3), measurement_indices=[0, 2], physical_qubits=[5, 7, 1]
+        )
         loaded_exp = StateTomography.from_config(exp.config())
         self.assertNotEqual(exp, loaded_exp)
         self.assertTrue(self.json_equiv(exp, loaded_exp))
 
     def test_analysis_config(self):
-        """ "Test converting analysis to and from config works"""
+        """Test converting analysis to and from config works"""
         analysis = StateTomographyAnalysis()
         loaded = StateTomographyAnalysis.from_config(analysis.config())
         self.assertNotEqual(analysis, loaded)
         self.assertEqual(analysis.config(), loaded.config())
+
+    def test_target_none(self):
+        """Test setting target=None disables fidelity calculation."""
+        seed = 4343
+        backend = AerSimulator(seed_simulator=seed)
+        target = qi.random_statevector(2, seed=seed)
+        exp = StateTomography(target, backend=backend, target=None)
+        expdata = exp.run()
+        self.assertExperimentDone(expdata)
+        state = expdata.analysis_results("state").value
+        self.assertTrue(
+            isinstance(state, qi.DensityMatrix),
+            msg="Fitted state is not density matrix",
+        )
+        with self.assertRaises(
+            ExperimentEntryNotFound, msg="state_fidelity should not exist when target=None"
+        ):
+            expdata.analysis_results("state_fidelity")
