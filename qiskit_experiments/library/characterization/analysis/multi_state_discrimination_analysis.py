@@ -20,11 +20,19 @@ import numpy as np
 from qiskit.providers.options import Options
 from qiskit_experiments.framework import BaseAnalysis, AnalysisResultData, ExperimentData
 from qiskit_experiments.data_processing import SkQDA
+from qiskit_experiments.data_processing.exceptions import DataProcessorError
 from qiskit_experiments.visualization import BasePlotter, IQPlotter, MplDrawer, PlotStyle
 from qiskit_experiments.warnings import HAS_SKLEARN
 
 if TYPE_CHECKING:
     from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
+
+try:
+    from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
+
+    HAS_SKLEARN = True
+except ImportError:
+    HAS_SKLEARN = False
 
 
 class MultiStateDiscriminationAnalysis(BaseAnalysis):
@@ -43,6 +51,19 @@ class MultiStateDiscriminationAnalysis(BaseAnalysis):
     .. note::
         This class requires that scikit-learn is installed.
     """
+
+    def __init__(self):
+        """Setup the analysis.
+
+        Raises:
+            DataProcessorError: if sklearn is not installed.
+        """
+        if not HAS_SKLEARN:
+            raise DataProcessorError(
+                f"SKlearn is needed to initialize an {self.__class__.__name__}."
+            )
+
+        super().__init__()
 
     @classmethod
     @HAS_SKLEARN.require_in_call

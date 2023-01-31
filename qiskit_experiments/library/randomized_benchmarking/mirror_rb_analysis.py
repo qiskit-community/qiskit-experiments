@@ -124,7 +124,7 @@ class MirrorRBAnalysis(curve.CurveAnalysis):
         default_options = super()._default_options()
 
         # Set labels of axes
-        default_options.curve_drawer.set_options(
+        default_options.plotter.set_figure_options(
             xlabel="Clifford Length",
             ylabel="Effective Polarization",
         )
