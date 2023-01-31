@@ -17,6 +17,7 @@ from typing import Iterable, List, Optional
 from qiskit import QuantumCircuit
 from qiskit.providers.backend import BackendV2, Backend
 from qiskit.exceptions import QiskitError
+from qiskit.utils.deprecation import deprecate_arguments
 from qiskit_experiments.framework import BaseExperiment
 from qiskit_experiments.library.characterization.analysis.local_readout_error_analysis import (
     LocalReadoutErrorAnalysis,
@@ -66,11 +67,11 @@ class LocalReadoutError(BaseExperiment):
         .. ref_arxiv:: 1 2006.14044
     """
 
+    @deprecate_arguments({"qubits": "physical_qubits"})
     def __init__(
         self,
         physical_qubits: Optional[Iterable[int]] = None,
         backend: Optional[Backend] = None,
-        qubits: Optional[Iterable[int]] = None,
     ):
         """Initialize a local readout error characterization experiment.
 
@@ -84,15 +85,6 @@ class LocalReadoutError(BaseExperiment):
         Raises:
             QiskitError: if args are not valid.
         """
-        # Deprecated qubits kwarg
-        if qubits is not None:
-            physical_qubits = qubits
-            warnings.warn(
-                "The `qubits` kwarg has been renamed to `physical_qubits`."
-                " It will be removed in a future release.",
-                DeprecationWarning,
-                stacklevel=2,
-            )
         if physical_qubits is None:
             if backend is None:
                 raise QiskitError("`physical_qubits` and `backend` kwargs cannot both be None.")
