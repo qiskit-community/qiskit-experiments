@@ -12,7 +12,6 @@
 """
 Correlated readout error calibration experiment class.
 """
-import warnings
 from typing import Iterable, List, Optional
 from qiskit import QuantumCircuit
 from qiskit.providers.backend import BackendV2, Backend
