@@ -54,11 +54,11 @@ class TestStandardRB(QiskitExperimentsTestCase, RBTestMixin):
 
     # ### Tests for configuration ###
     @data(
-        {"qubits": [3, 3], "lengths": [1, 3, 5, 7, 9], "num_samples": 1, "seed": 100},
-        {"qubits": [0, 1], "lengths": [1, 3, 5, -7, 9], "num_samples": 1, "seed": 100},
-        {"qubits": [0, 1], "lengths": [1, 3, 5, 7, 9], "num_samples": -4, "seed": 100},
-        {"qubits": [0, 1], "lengths": [1, 3, 5, 7, 9], "num_samples": 0, "seed": 100},
-        {"qubits": [0, 1], "lengths": [1, 5, 5, 5, 9], "num_samples": 2, "seed": 100},
+        {"physical_qubits": [3, 3], "lengths": [1, 3, 5, 7, 9], "num_samples": 1, "seed": 100},
+        {"physical_qubits": [0, 1], "lengths": [1, 3, 5, -7, 9], "num_samples": 1, "seed": 100},
+        {"physical_qubits": [0, 1], "lengths": [1, 3, 5, 7, 9], "num_samples": -4, "seed": 100},
+        {"physical_qubits": [0, 1], "lengths": [1, 3, 5, 7, 9], "num_samples": 0, "seed": 100},
+        {"physical_qubits": [0, 1], "lengths": [1, 5, 5, 5, 9], "num_samples": 2, "seed": 100},
     )
     def test_invalid_configuration(self, configs):
         """Test raise error when creating experiment with invalid configs."""
@@ -66,14 +66,14 @@ class TestStandardRB(QiskitExperimentsTestCase, RBTestMixin):
 
     def test_experiment_config(self):
         """Test converting to and from config works"""
-        exp = rb.StandardRB(qubits=(0,), lengths=[10, 20, 30], seed=123)
+        exp = rb.StandardRB(physical_qubits=(0,), lengths=[10, 20, 30], seed=123)
         loaded_exp = rb.StandardRB.from_config(exp.config())
         self.assertNotEqual(exp, loaded_exp)
         self.assertTrue(self.json_equiv(exp, loaded_exp))
 
     def test_roundtrip_serializable(self):
         """Test round trip JSON serialization"""
-        exp = rb.StandardRB(qubits=(0,), lengths=[10, 20, 30], seed=123)
+        exp = rb.StandardRB(physical_qubits=(0,), lengths=[10, 20, 30], seed=123)
         self.assertRoundTripSerializable(exp, self.json_equiv)
 
     def test_analysis_config(self):
@@ -86,23 +86,23 @@ class TestStandardRB(QiskitExperimentsTestCase, RBTestMixin):
     # ### Tests for circuit generation ###
     @data([[3], 4], [[4, 7], 5], [[0, 1, 2], 3])
     @unpack
-    def test_generate_circuits(self, qubits, length):
+    def test_generate_circuits(self, physical_qubits, length):
         """Test RB circuit generation"""
-        exp = rb.StandardRB(qubits=qubits, lengths=[length], num_samples=1)
+        exp = rb.StandardRB(physical_qubits=physical_qubits, lengths=[length], num_samples=1)
         circuits = exp.circuits()
         self.assertAllIdentity(circuits)
 
     def test_return_same_circuit(self):
         """Test if setting the same seed returns the same circuits."""
         exp1 = rb.StandardRB(
-            qubits=(0, 1),
+            physical_qubits=(0, 1),
             lengths=[10, 20, 30],
             seed=123,
             backend=self.backend,
         )
 
         exp2 = rb.StandardRB(
-            qubits=(0, 1),
+            physical_qubits=(0, 1),
             lengths=[10, 20, 30],
             seed=123,
             backend=self.backend,
@@ -118,14 +118,14 @@ class TestStandardRB(QiskitExperimentsTestCase, RBTestMixin):
     def test_full_sampling_single_qubit(self):
         """Test if full sampling generates different circuits."""
         exp1 = rb.StandardRB(
-            qubits=(0,),
+            physical_qubits=(0,),
             lengths=[10, 20, 30],
             seed=123,
             backend=self.backend,
             full_sampling=False,
         )
         exp2 = rb.StandardRB(
-            qubits=(0,),
+            physical_qubits=(0,),
             lengths=[10, 20, 30],
             seed=123,
             backend=self.backend,
@@ -143,7 +143,7 @@ class TestStandardRB(QiskitExperimentsTestCase, RBTestMixin):
     def test_full_sampling_2_qubits(self):
         """Test if full sampling generates different circuits."""
         exp1 = rb.StandardRB(
-            qubits=(0, 1),
+            physical_qubits=(0, 1),
             lengths=[10, 20, 30],
             seed=123,
             backend=self.backend,
@@ -151,7 +151,7 @@ class TestStandardRB(QiskitExperimentsTestCase, RBTestMixin):
         )
 
         exp2 = rb.StandardRB(
-            qubits=(0, 1),
+            physical_qubits=(0, 1),
             lengths=[10, 20, 30],
             seed=123,
             backend=self.backend,
@@ -170,41 +170,51 @@ class TestStandardRB(QiskitExperimentsTestCase, RBTestMixin):
     # ### Tests for transpiled circuit generation ###
     def test_calibrations_via_transpile_options(self):
         """Test if calibrations given as transpile_options show up in transpiled circuits."""
-        qubits = (2,)
+        physical_qubits = (2,)
         my_sched = Schedule(name="custom_sx_gate")
         my_inst_map = InstructionScheduleMap()
-        my_inst_map.add(SXGate(), qubits, my_sched)
+        my_inst_map.add(SXGate(), physical_qubits, my_sched)
 
         exp = rb.StandardRB(
-            qubits=qubits, lengths=[3], num_samples=4, backend=self.backend, seed=123
+            physical_qubits=physical_qubits,
+            lengths=[3],
+            num_samples=4,
+            backend=self.backend,
+            seed=123,
         )
         exp.set_transpile_options(inst_map=my_inst_map)
         transpiled = exp._transpiled_circuits()
         for qc in transpiled:
             self.assertTrue(qc.calibrations)
-            self.assertTrue(qc.has_calibration_for((SXGate(), [qc.qubits[q] for q in qubits], [])))
-            self.assertEqual(qc.calibrations["sx"][(qubits, tuple())], my_sched)
+            self.assertTrue(
+                qc.has_calibration_for((SXGate(), [qc.qubits[q] for q in physical_qubits], []))
+            )
+            self.assertEqual(qc.calibrations["sx"][(physical_qubits, tuple())], my_sched)
 
     def test_calibrations_via_custom_backend(self):
         """Test if calibrations given as custom backend show up in transpiled circuits."""
-        qubits = (2,)
+        physical_qubits = (2,)
         my_sched = Schedule(name="custom_sx_gate")
         my_backend = copy.deepcopy(self.backend)
-        my_backend.target["sx"][qubits].calibration = my_sched
+        my_backend.target["sx"][physical_qubits].calibration = my_sched
 
-        exp = rb.StandardRB(qubits=qubits, lengths=[3], num_samples=4, backend=my_backend)
+        exp = rb.StandardRB(
+            physical_qubits=physical_qubits, lengths=[3], num_samples=4, backend=my_backend
+        )
         transpiled = exp._transpiled_circuits()
         for qc in transpiled:
             self.assertTrue(qc.calibrations)
-            self.assertTrue(qc.has_calibration_for((SXGate(), [qc.qubits[q] for q in qubits], [])))
-            self.assertEqual(qc.calibrations["sx"][(qubits, tuple())], my_sched)
+            self.assertTrue(
+                qc.has_calibration_for((SXGate(), [qc.qubits[q] for q in physical_qubits], []))
+            )
+            self.assertEqual(qc.calibrations["sx"][(physical_qubits, tuple())], my_sched)
 
     def test_backend_with_directed_basis_gates(self):
         """Test if correct circuits are generated from backend with directed basis gates."""
         my_backend = copy.deepcopy(self.backend)
         del my_backend.target["cx"][(1, 2)]  # make cx on {1, 2} one-sided
 
-        exp = rb.StandardRB(qubits=(1, 2), lengths=[3], num_samples=4, backend=my_backend)
+        exp = rb.StandardRB(physical_qubits=(1, 2), lengths=[3], num_samples=4, backend=my_backend)
         transpiled = exp._transpiled_circuits()
         for qc in transpiled:
             self.assertTrue(qc.count_ops().get("cx", 0) > 0)
@@ -230,7 +240,7 @@ class TestInterleavedRB(QiskitExperimentsTestCase, RBTestMixin):
         with self.assertRaises(QiskitError):
             rb.InterleavedRB(
                 interleaved_element=TGate(),  # T gate is not Clifford, this should fail
-                qubits=[0],
+                physical_qubits=[0],
                 lengths=[1, 2, 3, 5, 8, 13],
             )
 
@@ -241,7 +251,7 @@ class TestInterleavedRB(QiskitExperimentsTestCase, RBTestMixin):
         with self.assertRaises(QiskitError):
             rb.InterleavedRB(
                 interleaved_element=Delay(duration, unit=unit),
-                qubits=[0],
+                physical_qubits=[0],
                 lengths=[1, 2, 3],
                 backend=self.backend_with_timing_constraint,
             )
@@ -250,7 +260,7 @@ class TestInterleavedRB(QiskitExperimentsTestCase, RBTestMixin):
         """Test converting to and from config works"""
         exp = rb.InterleavedRB(
             interleaved_element=SXGate(),
-            qubits=(0,),
+            physical_qubits=(0,),
             lengths=[10, 20, 30],
             seed=123,
         )
@@ -261,7 +271,7 @@ class TestInterleavedRB(QiskitExperimentsTestCase, RBTestMixin):
     def test_roundtrip_serializable(self):
         """Test round trip JSON serialization"""
         exp = rb.InterleavedRB(
-            interleaved_element=SXGate(), qubits=(0,), lengths=[10, 20, 30], seed=123
+            interleaved_element=SXGate(), physical_qubits=(0,), lengths=[10, 20, 30], seed=123
         )
         self.assertRoundTripSerializable(exp, self.json_equiv)
 
@@ -287,23 +297,29 @@ class TestInterleavedRB(QiskitExperimentsTestCase, RBTestMixin):
 
     @data([SXGate(), [3], 4], [CXGate(), [4, 7], 5], [ThreeQubitGate(), [0, 1, 2], 3])
     @unpack
-    def test_generate_interleaved_circuits(self, interleaved_element, qubits, length):
+    def test_generate_interleaved_circuits(self, interleaved_element, physical_qubits, length):
         """Test interleaved circuit generation"""
         exp = rb.InterleavedRB(
-            interleaved_element=interleaved_element, qubits=qubits, lengths=[length], num_samples=1
+            interleaved_element=interleaved_element,
+            physical_qubits=physical_qubits,
+            lengths=[length],
+            num_samples=1,
         )
         circuits = exp.circuits()
         self.assertAllIdentity(circuits)
 
     @data([SXGate(), [3], 4], [CXGate(), [4, 7], 5])
     @unpack
-    def test_interleaved_structure(self, interleaved_element, qubits, length):
+    def test_interleaved_structure(self, interleaved_element, physical_qubits, length):
         """Verifies that when generating an interleaved circuit, it will be
         identical to the original circuit up to additions of
         barrier and interleaved element between any two Cliffords.
         """
         exp = rb.InterleavedRB(
-            interleaved_element=interleaved_element, qubits=qubits, lengths=[length], num_samples=1
+            interleaved_element=interleaved_element,
+            physical_qubits=physical_qubits,
+            lengths=[length],
+            num_samples=1,
         )
 
         circuits = exp.circuits()
@@ -334,7 +350,7 @@ class TestInterleavedRB(QiskitExperimentsTestCase, RBTestMixin):
         interleaved_circ.cx(0, 1)
 
         exp = rb.InterleavedRB(
-            interleaved_element=interleaved_circ, qubits=[2, 1], lengths=[1], num_samples=1
+            interleaved_element=interleaved_circ, physical_qubits=[2, 1], lengths=[1], num_samples=1
         )
         circuits = exp.circuits()
         # Get the first interleaved operation in the interleaved RB sequence:
@@ -350,7 +366,7 @@ class TestInterleavedRB(QiskitExperimentsTestCase, RBTestMixin):
         timing = BackendTiming(self.backend)
         exp = rb.InterleavedRB(
             interleaved_element=Delay(timing.round_delay(time=1.0e-7)),
-            qubits=[0],
+            physical_qubits=[0],
             lengths=[1],
             num_samples=1,
             seed=1234,  # This seed gives a 2-gate clifford
@@ -368,7 +384,7 @@ class TestInterleavedRB(QiskitExperimentsTestCase, RBTestMixin):
 
         exp = rb.InterleavedRB(
             interleaved_element=delay_qc,
-            qubits=[1, 2],
+            physical_qubits=[1, 2],
             lengths=[1],
             num_samples=1,
             seed=1234,
@@ -379,7 +395,7 @@ class TestInterleavedRB(QiskitExperimentsTestCase, RBTestMixin):
 
     def test_interleaving_parameterized_circuit(self):
         """Fail if parameterized circuit is interleaved but after assigned it may be interleaved."""
-        qubits = (2,)
+        physical_qubits = (2,)
         theta = Parameter("theta")
         phi = Parameter("phi")
         lam = Parameter("lambda")
@@ -393,7 +409,7 @@ class TestInterleavedRB(QiskitExperimentsTestCase, RBTestMixin):
         with self.assertRaises(QiskitError):
             rb.InterleavedRB(
                 interleaved_element=cliff_circ_with_param,
-                qubits=qubits,
+                physical_qubits=physical_qubits,
                 lengths=[3],
                 num_samples=4,
                 backend=self.backend,
@@ -406,7 +422,7 @@ class TestInterleavedRB(QiskitExperimentsTestCase, RBTestMixin):
         #
         # exp = rb.InterleavedRB(
         #     interleaved_element=cliff_circ_with_param,
-        #     qubits=qubits,
+        #     physical_qubits=physical_qubits,
         #     lengths=[3],
         #     num_samples=4,
         #     backend=self.backend,
@@ -424,7 +440,7 @@ class TestInterleavedRB(QiskitExperimentsTestCase, RBTestMixin):
 
         exp = rb.InterleavedRB(
             interleaved_element=delay_qc,
-            qubits=[1, 2],
+            physical_qubits=[1, 2],
             lengths=[3],
             num_samples=1,
             seed=1234,
@@ -442,7 +458,7 @@ class TestInterleavedRB(QiskitExperimentsTestCase, RBTestMixin):
 
         exp = rb.InterleavedRB(
             interleaved_element=CXGate(),
-            qubits=(0, 1),
+            physical_qubits=(0, 1),
             lengths=[3],
             num_samples=4,
             backend=my_backend,
@@ -502,7 +518,7 @@ class TestRunStandardRB(RBRunTestCase):
     def test_single_qubit(self):
         """Test single qubit RB."""
         exp = rb.StandardRB(
-            qubits=(0,),
+            physical_qubits=(0,),
             lengths=list(range(1, 300, 30)),
             seed=123,
             backend=self.backend,
@@ -529,7 +545,7 @@ class TestRunStandardRB(RBRunTestCase):
     def test_two_qubit(self):
         """Test two qubit RB. Use default basis gates."""
         exp = rb.StandardRB(
-            qubits=(0, 1),
+            physical_qubits=(0, 1),
             lengths=list(range(1, 30, 3)),
             seed=123,
             backend=self.backend,
@@ -554,7 +570,7 @@ class TestRunStandardRB(RBRunTestCase):
     def test_three_qubit(self):
         """Test two qubit RB. Use default basis gates."""
         exp = rb.StandardRB(
-            qubits=(0, 1, 2),
+            physical_qubits=(0, 1, 2),
             lengths=list(range(1, 30, 3)),
             seed=123,
             backend=self.backend,
@@ -578,7 +594,7 @@ class TestRunStandardRB(RBRunTestCase):
     def test_add_more_circuit_yields_lower_variance(self):
         """Test variance reduction with larger number of sampling."""
         exp1 = rb.StandardRB(
-            qubits=(0, 1),
+            physical_qubits=(0, 1),
             lengths=list(range(1, 30, 3)),
             seed=123,
             backend=self.backend,
@@ -590,7 +606,7 @@ class TestRunStandardRB(RBRunTestCase):
         self.assertExperimentDone(expdata1)
 
         exp2 = rb.StandardRB(
-            qubits=(0, 1),
+            physical_qubits=(0, 1),
             lengths=list(range(1, 30, 3)),
             seed=456,
             backend=self.backend,
@@ -621,7 +637,7 @@ class TestRunStandardRB(RBRunTestCase):
         self.assertLess(backend.target["sx"][(0,)].error, 0.001)
 
         exp = rb.StandardRB(
-            qubits=(0,),
+            physical_qubits=(0,),
             lengths=[100, 200, 300],
             seed=123,
             backend=backend,
@@ -638,7 +654,7 @@ class TestRunStandardRB(RBRunTestCase):
     def test_expdata_serialization(self):
         """Test serializing experiment data works."""
         exp = rb.StandardRB(
-            qubits=(0,),
+            physical_qubits=(0,),
             lengths=list(range(1, 200, 50)),
             seed=123,
             backend=self.backend,
@@ -651,11 +667,13 @@ class TestRunStandardRB(RBRunTestCase):
 
     def test_single_qubit_parallel(self):
         """Test single qubit RB in parallel."""
-        qubits = [0, 2]
+        physical_qubits = [0, 2]
         lengths = list(range(1, 300, 30))
         exps = []
-        for qubit in qubits:
-            exp = rb.StandardRB(qubits=[qubit], lengths=lengths, seed=123, backend=self.backend)
+        for qubit in physical_qubits:
+            exp = rb.StandardRB(
+                physical_qubits=[qubit], lengths=lengths, seed=123, backend=self.backend
+            )
             exp.analysis.set_options(gate_error_ratio=None, plot_raw_data=False)
             exps.append(exp)
 
@@ -675,7 +693,9 @@ class TestRunStandardRB(RBRunTestCase):
         lengths = list(range(5, 100, 5))
         exps = []
         for pair in qubit_pairs:
-            exp = rb.StandardRB(qubits=pair, lengths=lengths, seed=123, backend=self.backend)
+            exp = rb.StandardRB(
+                physical_qubits=pair, lengths=lengths, seed=123, backend=self.backend
+            )
             exp.analysis.set_options(gate_error_ratio=None, plot_raw_data=False)
             exps.append(exp)
 
@@ -698,7 +718,7 @@ class TestRunStandardRB(RBRunTestCase):
         }
 
         exp = rb.StandardRB(
-            qubits=(0, 1),
+            physical_qubits=(0, 1),
             lengths=list(range(1, 50, 5)),
             seed=123,
             backend=self.backend,
@@ -728,7 +748,7 @@ class TestRunInterleavedRB(RBRunTestCase):
         """Test single qubit IRB."""
         exp = rb.InterleavedRB(
             interleaved_element=SXGate(),
-            qubits=(0,),
+            physical_qubits=(0,),
             lengths=list(range(1, 300, 30)),
             seed=123,
             backend=self.backend,
@@ -748,7 +768,7 @@ class TestRunInterleavedRB(RBRunTestCase):
         """Test two qubit IRB."""
         exp = rb.InterleavedRB(
             interleaved_element=CXGate(),
-            qubits=(0, 1),
+            physical_qubits=(0, 1),
             lengths=list(range(1, 30, 3)),
             seed=123,
             backend=self.backend,
@@ -772,7 +792,7 @@ class TestRunInterleavedRB(RBRunTestCase):
         }
         exp = rb.InterleavedRB(
             interleaved_element=CZGate(),
-            qubits=(0, 1),
+            physical_qubits=(0, 1),
             lengths=list(range(1, 30, 3)),
             seed=1234,
             backend=self.backend,
@@ -792,7 +812,7 @@ class TestRunInterleavedRB(RBRunTestCase):
         """Test serializing experiment data works."""
         exp = rb.InterleavedRB(
             interleaved_element=SXGate(),
-            qubits=(0,),
+            physical_qubits=(0,),
             lengths=list(range(1, 200, 50)),
             seed=123,
             backend=self.backend,
@@ -847,7 +867,7 @@ class TestEPGAnalysis(QiskitExperimentsTestCase):
 
         # Prepare experiment data and cache for analysis
         exp_1qrb_q0 = rb.StandardRB(
-            qubits=(0,),
+            physical_qubits=(0,),
             lengths=[1, 10, 30, 50, 80, 120, 150, 200],
             seed=123,
             backend=backend,
@@ -856,7 +876,7 @@ class TestEPGAnalysis(QiskitExperimentsTestCase):
         expdata_1qrb_q0 = exp_1qrb_q0.run(analysis=None).block_for_results(timeout=300)
 
         exp_1qrb_q1 = rb.StandardRB(
-            qubits=(1,),
+            physical_qubits=(1,),
             lengths=[1, 10, 30, 50, 80, 120, 150, 200],
             seed=123,
             backend=backend,
@@ -865,7 +885,7 @@ class TestEPGAnalysis(QiskitExperimentsTestCase):
         expdata_1qrb_q1 = exp_1qrb_q1.run(analysis=None).block_for_results(timeout=300)
 
         exp_2qrb = rb.StandardRB(
-            qubits=(0, 1),
+            physical_qubits=(0, 1),
             lengths=[1, 3, 5, 10, 15, 20, 30, 50],
             seed=123,
             backend=backend,

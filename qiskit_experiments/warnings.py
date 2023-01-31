@@ -14,8 +14,9 @@
 
 import functools
 import warnings
-
 from typing import Callable, Optional, Type
+
+from qiskit import QiskitError
 
 
 def deprecated_function(
@@ -122,3 +123,48 @@ def deprecated_class(
         return cls
 
     return patch_new
+
+
+def deprecate_arguments(kwarg_map, category: Type[Warning] = DeprecationWarning):
+    """Decorator to automatically alias deprecated argument names and warn upon use."""
+
+    def decorator(func):
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            if kwargs:
+                _rename_kwargs(func.__name__, kwargs, kwarg_map, category)
+            return func(*args, **kwargs)
+
+        return wrapper
+
+    return decorator
+
+
+def _rename_kwargs(func_name, kwargs, kwarg_map, category: Type[Warning] = DeprecationWarning):
+    for old_arg, new_arg in kwarg_map.items():
+        if old_arg in kwargs:
+            if new_arg in kwargs:
+                raise TypeError(f"{func_name} received both {new_arg} and {old_arg} (deprecated).")
+
+            if new_arg is None:
+                warnings.warn(
+                    f"{func_name} keyword argument {old_arg} is deprecated and "
+                    "will in future be removed.",
+                    category=category,
+                    stacklevel=3,
+                )
+            else:
+                if new_arg in kwargs:
+                    raise QiskitError(
+                        f"{func_name} received both deprecated key argument {old_arg}"
+                        " and new key argument {new_arg}"
+                    )
+
+                warnings.warn(
+                    f"{func_name} keyword argument {old_arg} is deprecated and "
+                    f"replaced with {new_arg}.",
+                    category=category,
+                    stacklevel=3,
+                )
+
+                kwargs[new_arg] = kwargs.pop(old_arg)
