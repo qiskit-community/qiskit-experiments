@@ -21,7 +21,7 @@ from qiskit.providers.options import Options
 from qiskit.pulse import ScheduleBlock
 from qiskit.qobj.utils import MeasLevel, MeasReturnType
 from qiskit_experiments.framework import BaseExperiment
-from qiskit_experiments.warnings import deprecate_arguments
+from qiskit_experiments.warnings import specific_deprecate
 from qiskit_experiments.library.characterization import MultiStateDiscriminationAnalysis
 
 
@@ -87,7 +87,7 @@ class MultiStateDiscrimination(BaseExperiment):
 
         return options
 
-    @deprecate_arguments({"qubits": "physical_qubits"})
+    @specific_deprecate()
     def __init__(
         self,
         physical_qubits: Sequence[int],
@@ -104,7 +104,9 @@ class MultiStateDiscrimination(BaseExperiment):
             schedules: The schedules of the x gates between neighboring energy levels.
         """
 
-        super().__init__(physical_qubits, analysis=MultiStateDiscriminationAnalysis(), backend=backend)
+        super().__init__(
+            physical_qubits, analysis=MultiStateDiscriminationAnalysis(), backend=backend
+        )
 
         self.experiment_options.schedules = schedules
 

@@ -21,12 +21,12 @@ from qiskit import pulse, circuit, QuantumCircuit
 from qiskit.circuit.parameterexpression import ParameterValueType
 from qiskit.exceptions import QiskitError
 from qiskit.providers import Backend
+from qiskit.utils.deprecation import deprecate_arguments
 from qiskit_experiments.framework import (
     BaseExperiment,
     BackendTiming,
     Options,
 )
-from qiskit_experiments.warnings import deprecate_arguments
 from qiskit_experiments.library.characterization.analysis import CrossResonanceHamiltonianAnalysis
 
 
@@ -184,7 +184,9 @@ class CrossResonanceHamiltonian(BaseExperiment):
         self._gate_cls = cr_gate or self.CRPulseGate
         self._backend_timing = None
 
-        super().__init__(physical_qubits, analysis=CrossResonanceHamiltonianAnalysis(), backend=backend)
+        super().__init__(
+            physical_qubits, analysis=CrossResonanceHamiltonianAnalysis(), backend=backend
+        )
         self.set_experiment_options(durations=durations, **kwargs)
 
         if flat_top_widths is not None:

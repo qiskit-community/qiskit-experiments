@@ -21,7 +21,7 @@ from qiskit.providers.backend import Backend
 from qiskit_experiments.framework import BaseExperiment, Options
 from qiskit_experiments.warnings import specific_deprecate
 from qiskit_experiments.library.characterization.analysis.t1_analysis import T1Analysis
-              
+
 
 class T1(BaseExperiment):
     r"""
