@@ -168,3 +168,44 @@ def _rename_kwargs(func_name, kwargs, kwarg_map, category: Type[Warning] = Depre
                 )
 
                 kwargs[new_arg] = kwargs.pop(old_arg)
+
+                
+def specific_deprecate():
+    """Decorator to deprecate from qubit to physcial_qubits"""
+
+    def decorator(func):
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            category = DeprecationWarning
+            func_name = args[0].__class__.__name__ + ".__init__"
+            
+            if len(args) > 1 and isinstance(args[1], int):
+                args = list(args)
+                args[1] = [args[1]]
+                args = tuple(args)
+                warnings.warn(f"The first argument of {func_name} has been renamed from qubits to "
+                              "physical_qubits, and is expecting a sequence instead of an integer. "
+                              "Support of integer values is deprecated and will be removed.",
+                              category=category,
+                              stacklevel=3
+                              )
+                
+            if kwargs and "qubit" in kwargs:
+                if "physical_qubits" in kwargs:
+                    raise TypeError(f"{func_name} received both physical_qubits and qubits "
+                                    "(deprecated).")
+
+                warnings.warn(
+                    f"{func_name} keyword argument qubit is deprecated and "
+                    f"replaced with physical_qubits.",
+                    category=category,
+                    stacklevel=3,
+                )
+
+                kwargs["physical_qubits"] = [kwargs.pop("qubit")]
+
+            return func(*args, **kwargs)
+
+        return wrapper
+
+    return decorator
