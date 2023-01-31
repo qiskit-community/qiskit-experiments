@@ -55,7 +55,7 @@ class TestMultiStateDiscrimination(QiskitExperimentsTestCase):
     def test_circuit_generation(self, n_states):
         """Test the experiment circuit generation"""
         exp = MultiStateDiscrimination(
-            self.qubit, n_states=n_states, backend=self.backend, schedules=self.schedules
+            [self.qubit], n_states=n_states, backend=self.backend, schedules=self.schedules
         )
         self.assertEqual(len(exp.circuits()), n_states)
 
@@ -66,7 +66,7 @@ class TestMultiStateDiscrimination(QiskitExperimentsTestCase):
     def test_discrimination_analysis(self, n_states):
         """Test the discrimination analysis"""
         exp = MultiStateDiscrimination(
-            self.qubit, n_states=n_states, backend=self.backend, schedules=self.schedules
+            [self.qubit], n_states=n_states, backend=self.backend, schedules=self.schedules
         )
 
         exp_data = exp.run()
