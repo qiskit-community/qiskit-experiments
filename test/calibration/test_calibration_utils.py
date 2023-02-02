@@ -13,7 +13,7 @@
 """Class to test utility functions for calibrations."""
 
 from test.base import QiskitExperimentsTestCase
-import retworkx as rx
+import rustworkx as rx
 
 from qiskit.circuit import Parameter
 import qiskit.pulse as pulse
