@@ -14,7 +14,7 @@
 
 import functools
 import warnings
-from typing import Callable, Optional, Type
+from typing import Callable, Optional, Type, Dict
 
 
 def deprecated_function(
@@ -26,7 +26,7 @@ def deprecated_function(
 
     Args:
         last_version: The last Qiskit Experiment version that will have this fucntion.
-        msg: Extra message, for example, to indicate alternative approach.
+        msg: Extra message, for example, to indicate an alternative approach.
         stacklevel: Stacklevel of this warning. See Python Warnings documentation for details.
 
     Examples:
@@ -52,11 +52,12 @@ def deprecated_function(
                 message = f"The function '{func.__name__}' has been deprecated and "
             else:
                 cls_name, meth_name = namespace
-                message = f"The method '{meth_name}' of '{cls_name}' class has been deprecated and "
+                message = f"The method '{meth_name}' of '{cls_name}' class has been deprecated and "\
+                    "will be removed "
             if last_version:
-                message += f"will be removed after Qiskit Experiments {last_version}. "
+                message += f"after Qiskit Experiments {last_version}. "
             else:
-                message += "will be removed in future release. "
+                message += "in a future release. "
             if msg:
                 message += msg
             warnings.warn(message, DeprecationWarning, stacklevel=stacklevel)
@@ -79,7 +80,7 @@ def deprecated_class(
     Args:
         last_version: The last Qiskit Experiments version that will have this class.
         new_cls: Alternative class type.
-        msg: Extra message, for example, to indicate alternative approach.
+        msg: Extra message, for example, to indicate an alternative approach.
         stacklevel: Stacklevel of this warning. See Python Warnings documentation for details.
 
     Examples:
@@ -102,14 +103,14 @@ def deprecated_class(
         def new(deprecated_cls, *args, **kwargs):
             message = f"Class '{deprecated_cls.__name__}' has been deprecated"
             if new_cls:
-                message += f" and replaced with '{new_cls.__name__}'."
+                message += f" and replaced with '{new_cls.__name__}'. "
             else:
                 message += ". "
             if last_version:
-                message += f"This class will be removed after Qiskit Experiments {last_version}."
+                message += f"This class will be removed after Qiskit Experiments {last_version}. "
             else:
                 message += "This class will be removed in a future release."
-            message += f"The '{deprecated_cls.__name__}' instance cannot be loaded after removal."
+            message += f"The '{deprecated_cls.__name__}' instance cannot be loaded after removal. "
             if msg:
                 message += msg
             warnings.warn(message, DeprecationWarning, stacklevel=stacklevel)
@@ -123,7 +124,72 @@ def deprecated_class(
     return patch_new
 
 
-def qubit_deprecate():
+def deprecate_arguments(
+    kwarg_map: Dict,
+    last_version: Optional[str] = None,
+    msg: Optional[str] = None,
+    stacklevel: int = 3,
+) -> Callable:
+    """Decorator to automatically alias deprecated argument names and warn upon use.
+
+    Args:
+        kwarg_map: A dictionary mapping old arguments to their new names.
+        last_version: The last Qiskit Experiments version that will support the old argument name.
+        msg: Extra message, for example, to indicate an alternative approach.
+        stacklevel: Stacklevel of this warning. See Python Warnings documentation for details.
+
+    Examples:
+
+        .. code-block::
+
+            @deprecated_argument(last_version="0.5", kwmap={"qubits": "physical_qubits"})
+            def function(*args, **kwargs):  # physical_qubits in in args or kwargs
+                pass
+
+    Returns:
+        Function with argument name replaced from old to new.
+    """
+
+    def decorator(func):
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            if kwargs:
+                _rename_kwargs(
+                    args[0].__class__.__name__ + "." + func.__name__,
+                    kwargs,
+                    kwarg_map,
+                    last_version,
+                    msg,
+                    stacklevel,
+                )
+            return func(*args, **kwargs)
+
+        return wrapper
+
+    return decorator
+
+
+def _rename_kwargs(func_name, kwargs, kwarg_map, last_version, msg, stacklevel):
+    for old_arg, new_arg in kwarg_map.items():
+        if old_arg in kwargs:
+            if new_arg in kwargs:
+                raise TypeError(f"{func_name} received both {new_arg} and {old_arg} (deprecated).")
+
+            message = f"{func_name} keyword argument {old_arg} is deprecated and will be removed "
+            if last_version:
+                message += f"after Qiskit Experiments {last_version}. "
+            else:
+                message += "in a future release. "
+            if new_arg is not None:
+                message += f"It is now replaced with {new_arg}. "
+                kwargs[new_arg] = kwargs.pop(old_arg)
+            if msg:
+                message += msg
+
+            warnings.warn(message, stacklevel=stacklevel)
+
+
+def qubit_deprecate() -> Callable:
     """Decorator to deprecate from qubit to physcial_qubits"""
 
     def decorator(func):

@@ -24,7 +24,7 @@ from qiskit.exceptions import QiskitError
 from qiskit.providers.backend import Backend
 from qiskit.quantum_info import Clifford
 from qiskit.transpiler.exceptions import TranspilerError
-from qiskit.utils.deprecation import deprecate_arguments
+from qiskit_experiments.warnings import deprecate_arguments
 from qiskit_experiments.framework.backend_timing import BackendTiming
 from .clifford_utils import _truncate_inactive_qubits
 from .clifford_utils import num_from_1q_circuit, num_from_2q_circuit
@@ -53,7 +53,7 @@ class InterleavedRB(StandardRB):
 
     """
 
-    @deprecate_arguments({"qubits": "physical_qubits"})
+    @deprecate_arguments({"qubits": "physical_qubits"}, "0.5")
     def __init__(
         self,
         interleaved_element: Union[QuantumCircuit, Gate, Delay, Clifford],
