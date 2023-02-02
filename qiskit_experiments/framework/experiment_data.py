@@ -570,7 +570,7 @@ class ExperimentData:
             self._db_data.hub = self._db_data.hub or hub
             self._db_data.group = self._db_data.group or group
             self._db_data.project = self._db_data.project or project
-        except AttributeError:
+        except (AttributeError, IndexError):
             return
 
     def _clear_results(self):
