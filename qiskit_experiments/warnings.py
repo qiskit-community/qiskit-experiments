@@ -52,8 +52,10 @@ def deprecated_function(
                 message = f"The function '{func.__name__}' has been deprecated and "
             else:
                 cls_name, meth_name = namespace
-                message = f"The method '{meth_name}' of '{cls_name}' class has been deprecated and "\
+                message = (
+                    f"The method '{meth_name}' of '{cls_name}' class has been deprecated and "
                     "will be removed "
+                )
             if last_version:
                 message += f"after Qiskit Experiments {last_version}. "
             else:
