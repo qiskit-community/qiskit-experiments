@@ -20,7 +20,7 @@ from qiskit.qobj.utils import MeasLevel
 from qiskit.providers.backend import Backend
 
 from qiskit_experiments.framework import BaseExperiment, Options
-from qiskit_experiments.warnings import specific_deprecate
+from qiskit_experiments.warnings import qubit_deprecate
 from qiskit_experiments.library.characterization.analysis.readout_angle_analysis import (
     ReadoutAngleAnalysis,
 )
@@ -63,7 +63,7 @@ class ReadoutAngle(BaseExperiment):
 
         return options
 
-    @specific_deprecate()
+    @qubit_deprecate()
     def __init__(
         self,
         physical_qubits: Sequence[int],
@@ -73,7 +73,7 @@ class ReadoutAngle(BaseExperiment):
         Initialize the readout angle experiment class
 
         Args:
-            physical_qubits: a singleton sequence containing the qubit whose readout angle is to be
+            physical_qubits: a single-element sequence containing the qubit whose readout angle is to be
                 estimated
             backend: Optional, the backend to run the experiment on.
         """

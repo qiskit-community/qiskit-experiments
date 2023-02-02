@@ -19,7 +19,7 @@ import numpy as np
 from qiskit import QiskitError
 from qiskit.providers import Backend
 from qiskit_experiments.framework.composite.batch_experiment import BatchExperiment
-from qiskit_experiments.warnings import specific_deprecate
+from qiskit_experiments.warnings import qubit_deprecate
 from qiskit_experiments.library.characterization import (
     T1,
     T2Ramsey,
@@ -71,7 +71,7 @@ class Tphi(BatchExperiment):
             else:
                 raise QiskitError(f"Tphi experiment does not support option {key}")
 
-    @specific_deprecate()
+    @qubit_deprecate()
     def __init__(
         self,
         physical_qubits: Sequence[int],
@@ -83,7 +83,7 @@ class Tphi(BatchExperiment):
         """Initialize the experiment object.
 
         Args:
-            physical_qubits: a singleton sequence containing the qubit under test
+            physical_qubits: a single-element sequence containing the qubit under test
             delays_t1: delay times of the T1 experiment
             delays_t2: delay times of the T2* experiment
             osc_freq: the oscillation frequency induced using by the user for T2Ramsey

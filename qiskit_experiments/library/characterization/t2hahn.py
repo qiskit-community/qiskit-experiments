@@ -21,7 +21,7 @@ from qiskit.providers.backend import Backend
 
 from qiskit_experiments.framework import BaseExperiment, Options
 from qiskit_experiments.library.characterization.analysis.t2hahn_analysis import T2HahnAnalysis
-from qiskit_experiments.warnings import specific_deprecate
+from qiskit_experiments.warnings import qubit_deprecate
 
 
 class T2Hahn(BaseExperiment):
@@ -72,7 +72,7 @@ class T2Hahn(BaseExperiment):
         options.num_echoes = 1
         return options
 
-    @specific_deprecate()
+    @qubit_deprecate()
     def __init__(
         self,
         physical_qubits: Sequence[int],
@@ -84,7 +84,8 @@ class T2Hahn(BaseExperiment):
         Initialize the T2 - Hahn Echo class
 
         Args:
-            physical_qubits: a sequence containing the qubit whose T2 is to be estimated
+            physical_qubits: a single-element sequence containing the qubit whose T2 is to be
+                estimated
             delays: Total delay times of the experiments.
                         backend: Optional, the backend to run the experiment on.
             num_echoes: The number of echoes to preform.

@@ -123,7 +123,7 @@ def deprecated_class(
     return patch_new
 
 
-def specific_deprecate():
+def qubit_deprecate():
     """Decorator to deprecate from qubit to physcial_qubits"""
 
     def decorator(func):

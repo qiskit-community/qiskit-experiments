@@ -21,7 +21,7 @@ from qiskit.providers.options import Options
 from qiskit.pulse import ScheduleBlock
 from qiskit.qobj.utils import MeasLevel, MeasReturnType
 from qiskit_experiments.framework import BaseExperiment
-from qiskit_experiments.warnings import specific_deprecate
+from qiskit_experiments.warnings import qubit_deprecate
 from qiskit_experiments.library.characterization import MultiStateDiscriminationAnalysis
 
 
@@ -87,7 +87,7 @@ class MultiStateDiscrimination(BaseExperiment):
 
         return options
 
-    @specific_deprecate()
+    @qubit_deprecate()
     def __init__(
         self,
         physical_qubits: Sequence[int],
@@ -98,7 +98,8 @@ class MultiStateDiscrimination(BaseExperiment):
         """Setup an experiment to prepare different energy states on a given qubit.
 
         Args:
-            physical_qubits: A singleton sequence containing the qubit on which to run the experiment.
+            physical_qubits: A single-element sequence containing the qubit on which to run the
+                experiment.
             backend: Optional, the backend to run the experiment on.
             n_states: The number of energy levels to prepare.
             schedules: The schedules of the x gates between neighboring energy levels.
