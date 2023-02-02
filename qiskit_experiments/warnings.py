@@ -25,7 +25,7 @@ def deprecated_function(
     """A function or method decorator to show deprecation warning.
 
     Args:
-        last_version: The Qiskit Experiment version that this function is removed.
+        last_version: The last Qiskit Experiment version that will have this fucntion.
         msg: Extra message, for example, to indicate alternative approach.
         stacklevel: Stacklevel of this warning. See Python Warnings documentation for details.
 
@@ -139,7 +139,8 @@ def qubit_deprecate():
                 warnings.warn(
                     f"The first argument of {func_name} has been renamed from qubits to "
                     "physical_qubits, and is expecting a sequence instead of an integer. "
-                    "Support of integer values is deprecated and will be removed.",
+                    "Support of integer values is deprecated and will be removed after Qiskit "
+                    "Experiments 0.5.",
                     category=category,
                     stacklevel=3,
                 )
@@ -147,12 +148,13 @@ def qubit_deprecate():
             if kwargs and "qubit" in kwargs:
                 if "physical_qubits" in kwargs:
                     raise TypeError(
-                        f"{func_name} received both physical_qubits and qubits " "(deprecated)."
+                        f"{func_name} received both physical_qubits and qubits (deprecated)."
                     )
 
                 warnings.warn(
                     f"{func_name} keyword argument qubit is deprecated and "
-                    f"replaced with physical_qubits.",
+                    f"replaced with physical_qubits. It will be removed after Qiskit Experiments "
+                    " 0.5.",
                     category=category,
                     stacklevel=3,
                 )
