@@ -20,7 +20,7 @@ import csv
 import dataclasses
 import json
 import warnings
-import retworkx as rx
+import rustworkx as rx
 
 from qiskit.pulse import (
     ScheduleBlock,
