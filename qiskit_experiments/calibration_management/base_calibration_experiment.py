@@ -13,12 +13,12 @@
 """Base class for calibration-type experiments."""
 
 from abc import ABC, abstractmethod
+import functools
 import logging
 from typing import List, Optional, Type, Union
 import warnings
 
 from qiskit import QuantumCircuit
-from qiskit.providers.backend import Backend
 from qiskit.providers.options import Options
 from qiskit.pulse import ScheduleBlock
 from qiskit.transpiler import StagedPassManager, PassManager, Layout, CouplingMap
@@ -147,6 +147,37 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
     def calibrations(self) -> Calibrations:
         """Return the calibrations."""
         return self._cals
+
+    @property
+    def analysis(self) -> Union[BaseAnalysis, None]:
+        return self._analysis
+
+    @analysis.setter
+    def analysis(self, analysis: Union[BaseAnalysis, None]) -> None:
+        """Set the analysis instance for the experiment"""
+        if analysis is None:
+            return
+
+        # Create direct alias to the original run method to avoid infinite recursion.
+        # .run method is overruled by the wrapped method
+        # and thus .run method cannot be called within the wrapper function.
+        analysis_run = getattr(analysis, "run")
+
+        @functools.wraps(analysis_run)
+        def _wrap_run_analysis(*args, **kwargs):
+            experiment_data = analysis_run(*args, **kwargs)
+            if self.auto_update:
+                experiment_data.add_analysis_callback(self.update_calibrations)
+            return experiment_data
+
+        # Monkey patch run method.
+        # This calls update_calibrations immediately after standard analysis.
+        # This mechanism allows a composite experiment to invoke updator.
+        # Note that the composite experiment only takes circuits from individual experiment
+        # and the composite analysis calls analysis.run of each experiment.
+        # This is only place the updator function can be called from the composite experiment.
+        analysis.run = _wrap_run_analysis
+        BaseExperiment.analysis.fset(self, analysis)
 
     @classmethod
     def _default_experiment_options(cls) -> Options:
@@ -303,36 +334,3 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
         some experiments already attach circuits to the logical circuits and do not needed to run
         ``_attach_calibrations``. In such experiments a simple ``pass`` statement will suffice.
         """
-
-    def run(
-        self,
-        backend: Optional[Backend] = None,
-        analysis: Optional[Union[BaseAnalysis, None]] = "default",
-        timeout: Optional[float] = None,
-        **run_options,
-    ) -> ExperimentData:
-        """Run an experiment, perform analysis, and update any calibrations.
-
-        Args:
-            backend: Optional, the backend to run the experiment on. This
-                     will override any currently set backends for the single
-                     execution.
-            analysis: Optional, a custom analysis instance to use for performing
-                      analysis. If None analysis will not be run. If ``"default"``
-                      the experiments :meth:`analysis` instance will be used if
-                      it contains one.
-            timeout: Time to wait for experiment jobs to finish running before
-                     cancelling.
-            run_options: backend runtime options used for circuit execution.
-
-        Returns:
-            The experiment data object.
-        """
-        experiment_data = super().run(
-            backend=backend, analysis=analysis, timeout=timeout, **run_options
-        )
-
-        if self.auto_update and analysis:
-            experiment_data.add_analysis_callback(self.update_calibrations)
-
-        return experiment_data

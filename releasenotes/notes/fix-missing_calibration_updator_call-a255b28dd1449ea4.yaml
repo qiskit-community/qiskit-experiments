@@ -1,0 +1,6 @@
+---
+
+fixes:
+  - |
+    A bug that :class:`.Calibrations` is not updated when you run any calibration 
+    experiment through composite experiment has been fixed.
