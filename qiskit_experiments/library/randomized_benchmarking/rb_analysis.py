@@ -108,15 +108,6 @@ class RBAnalysis(curve.CurveAnalysis):
 
         return default_options
 
-    def set_options(self, **fields):
-        if "error_dict" in fields:
-            warnings.warn(
-                "Option 'error_dict' has been removed and merged into 'gate_error_ratio'.",
-                DeprecationWarning,
-            )
-            fields["gate_error_ratio"] = fields.pop("error_dict")
-        super().set_options(**fields)
-
     def _generate_fit_guesses(
         self,
         user_opt: curve.FitOptions,

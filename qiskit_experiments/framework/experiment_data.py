@@ -1864,17 +1864,6 @@ class ExperimentData:
             return self._child_data[index]
         raise QiskitError(f"Invalid index type {type(index)}.")
 
-    def component_experiment_data(
-        self, index: Optional[Union[int, slice]] = None
-    ) -> Union[ExperimentData, List[ExperimentData]]:
-        """Return child experiment data"""
-        warnings.warn(
-            "This method is deprecated and will be removed next release. "
-            "Use the `child_data` method instead.",
-            DeprecationWarning,
-        )
-        return self.child_data(index)
-
     @classmethod
     def load(cls, experiment_id: str, service: IBMExperimentService) -> "ExperimentData":
         """Load a saved experiment data from a database service.

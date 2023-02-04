@@ -39,12 +39,9 @@ Analysis
 
 .. autosummary::
     :toctree: ../stubs/
-
-    RBUtils
 """
 from .rb_experiment import StandardRB
 from .interleaved_rb_experiment import InterleavedRB
 from .rb_analysis import RBAnalysis
 from .interleaved_rb_analysis import InterleavedRBAnalysis
-from .rb_utils import RBUtils
 from .clifford_utils import CliffordUtils

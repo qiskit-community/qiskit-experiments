@@ -96,17 +96,6 @@ class CompositeExperiment(BaseExperiment):
             return self._experiments
         return self._experiments[index]
 
-    def component_analysis(self, index=None) -> Union[BaseAnalysis, List[BaseAnalysis]]:
-        """Return the component experiment Analysis object"""
-        warnings.warn(
-            "The `component_analysis` method is deprecated as of "
-            "qiskit-experiments 0.3.0 and will be removed in the 0.4.0 release."
-            " Use `analysis.component_analysis` instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        return self.analysis.component_analysis(index)
-
     @property
     def analysis(self) -> Union[CompositeAnalysis, None]:
         """Return the analysis instance for the experiment"""
