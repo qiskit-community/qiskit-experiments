@@ -1,6 +1,5 @@
 ---
 fixes:
   - |
-    Fixed false information for experiments with failed analysis. Now analysis results will be empty
-    for failed analysis and analysis data for failed analysis will be saved correctly in the experiment
-    DB.
+    Fixed false information for experiments with failed analysis. Now analysis results e cleared first
+    before making the analysis.
