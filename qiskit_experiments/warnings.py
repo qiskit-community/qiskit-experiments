@@ -175,8 +175,10 @@ def _rename_kwargs(func_name, kwargs, kwarg_map, last_version, msg, stacklevel):
     for old_arg, new_arg in kwarg_map.items():
         if old_arg in kwargs:
             if new_arg in kwargs:
-                raise TypeError(f"{func_name} received both {new_arg} and the deprecated {old_arg} "
-                                "parameter. Only {new_arg} should be supplied.")
+                raise TypeError(
+                    f"{func_name} received both {new_arg} and the deprecated {old_arg} "
+                    "parameter. Only {new_arg} should be supplied."
+                )
 
             message = f"{func_name} keyword argument {old_arg} is deprecated and will be removed "
             if last_version:
