@@ -146,10 +146,11 @@ class ExperimentData:
     """Qiskit Experiments Data container class.
 
     This class handles the following:
-        1. Storing the data related to an experiment - the experiment's metadata,
-        the analysis results and the figures
-        2. Managing jobs and adding data from jobs automatically
-        3. Saving/Loading data from the result database
+
+    1. Storing the data related to an experiment - the experiment's metadata,
+       the analysis results and the figures
+    2. Managing jobs and adding data from jobs automatically
+    3. Saving/Loading data from the result database
 
     The field `db_data` is a dataclass (`ExperimentDataclass`) containing
     all the data that can be stored in the database and loaded from it, and

@@ -15,7 +15,6 @@ Analysis class for curve fitting.
 """
 # pylint: disable=invalid-name
 
-import warnings
 from typing import Dict, List, Tuple, Union, Optional
 
 import lmfit
