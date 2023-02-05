@@ -60,7 +60,7 @@ for qubit 0.
     delays = np.arange(1e-6, 3 * qubit0_t1, 3e-5)
     # Create an experiment for qubit 0
     # with the specified time intervals
-    exp = T1(qubit=0, delays=delays)
+    exp = T1(physical_qubits=[0], delays=delays)
     
     # Set scheduling method so circuit is scheduled for delay noise simulation
     exp.set_transpile_options(scheduling_method='asap')
@@ -83,7 +83,7 @@ create a parallel experiment:
 .. jupyter-execute::
 
     # Create a parallel T1 experiment
-    parallel_exp = ParallelExperiment([T1(qubit=i, delays=delays) for i in range(2)])
+    parallel_exp = ParallelExperiment([T1(physical_qubits=[i], delays=delays) for i in range(2)])
     parallel_exp.set_transpile_options(scheduling_method='asap')
     parallel_data = parallel_exp.run(backend, seed_simulator=101).block_for_results()
     
@@ -150,7 +150,7 @@ that is close to a logical value '0'.
     )
 
     # Creating a T1 experiment
-    expT1_kerneled = T1(0, delays)
+    expT1_kerneled = T1([0], delays)
     expT1_kerneled.analysis = T1KerneledAnalysis()
     expT1_kerneled.analysis.set_options(p0={"amp": 1, "tau": t1[0] + t1_estimated_shift, "base": 0})
 

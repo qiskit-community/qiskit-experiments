@@ -212,7 +212,7 @@ Generating an example RB circuit:
 .. jupyter-execute::
 
     # Run an RB experiment on qubit 0
-    exp = StandardRB(qubits=[0], lengths=[10], num_samples=1, seed=seed)
+    exp = StandardRB(physical_qubits=[0], lengths=[10], num_samples=1, seed=seed)
     c = exp.circuits()[0]
 
 We transpile the circuit into the backend’s basis gate set:

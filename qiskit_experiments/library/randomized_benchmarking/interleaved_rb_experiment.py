@@ -24,6 +24,7 @@ from qiskit.exceptions import QiskitError
 from qiskit.providers.backend import Backend
 from qiskit.quantum_info import Clifford
 from qiskit.transpiler.exceptions import TranspilerError
+from qiskit_experiments.warnings import deprecate_arguments
 from qiskit_experiments.framework.backend_timing import BackendTiming
 from .clifford_utils import _truncate_inactive_qubits
 from .clifford_utils import num_from_1q_circuit, num_from_2q_circuit
@@ -52,10 +53,11 @@ class InterleavedRB(StandardRB):
 
     """
 
+    @deprecate_arguments({"qubits": "physical_qubits"}, "0.5")
     def __init__(
         self,
         interleaved_element: Union[QuantumCircuit, Gate, Delay, Clifford],
-        qubits: Sequence[int],
+        physical_qubits: Sequence[int],
         lengths: Iterable[int],
         backend: Optional[Backend] = None,
         num_samples: int = 3,
@@ -74,7 +76,7 @@ class InterleavedRB(StandardRB):
                     (:class:`~qiskit_experiments.framework.backend_timing.BackendTiming`
                     is useful to obtain valid delays).
                     Parameterized circuits/instructions are not allowed.
-            qubits: list of physical qubits for the experiment.
+            physical_qubits: list of physical qubits for the experiment.
             lengths: A list of RB sequences lengths.
             backend: The backend to run the experiment on.
             num_samples: Number of samples to generate for each sequence length.
@@ -94,9 +96,9 @@ class InterleavedRB(StandardRB):
         """
         # Validations of interleaved_element
         # - validate number of qubits of interleaved_element
-        if len(qubits) != interleaved_element.num_qubits:
+        if len(physical_qubits) != interleaved_element.num_qubits:
             raise QiskitError(
-                f"Mismatch in number of qubits between qubits ({len(qubits)})"
+                f"Mismatch in number of qubits between qubits ({len(physical_qubits)})"
                 f" and interleaved element ({interleaved_element.num_qubits})."
             )
         # - validate if interleaved_element is Clifford
@@ -133,7 +135,7 @@ class InterleavedRB(StandardRB):
             warnings.warn("Calibrations in interleaved circuit are ignored", UserWarning)
 
         super().__init__(
-            qubits,
+            physical_qubits,
             lengths,
             backend=backend,
             num_samples=num_samples,

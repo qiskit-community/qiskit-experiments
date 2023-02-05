@@ -14,7 +14,7 @@ T2Ramsey Experiment class.
 
 """
 
-from typing import List, Union, Optional
+from typing import List, Union, Optional, Sequence
 import numpy as np
 
 import qiskit
@@ -23,6 +23,7 @@ from qiskit.providers.backend import Backend
 
 from qiskit_experiments.framework import BaseExperiment, Options
 from qiskit_experiments.library.characterization.analysis.t2ramsey_analysis import T2RamseyAnalysis
+from qiskit_experiments.warnings import qubit_deprecate
 
 
 class T2Ramsey(BaseExperiment):
@@ -74,9 +75,10 @@ class T2Ramsey(BaseExperiment):
 
         return options
 
+    @qubit_deprecate()
     def __init__(
         self,
-        qubit: int,
+        physical_qubits: Sequence[int],
         delays: Union[List[float], np.array],
         backend: Optional[Backend] = None,
         osc_freq: float = 0.0,
@@ -85,14 +87,14 @@ class T2Ramsey(BaseExperiment):
         Initialize the T2Ramsey class.
 
         Args:
-            qubit: the qubit under test.
+            physical_qubits: a single-element sequence containing the qubit under test.
             delays: delay times of the experiments in seconds.
             backend: Optional, the backend to run the experiment on.
             osc_freq: the oscillation frequency induced by the user.
                 The frequency is given in Hz.
 
         """
-        super().__init__([qubit], analysis=T2RamseyAnalysis(), backend=backend)
+        super().__init__(physical_qubits, analysis=T2RamseyAnalysis(), backend=backend)
         self.set_experiment_options(delays=delays, osc_freq=osc_freq)
 
     def _set_backend(self, backend: Backend):

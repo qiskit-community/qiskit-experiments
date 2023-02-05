@@ -1,0 +1,4 @@
+---
+deprecations:
+  - |
+    Experiment constructor arguments `qubit` and `qubits` have been renamed `physical_qubits`. For the `qubit` case, the argument type has changed from integer to sequence.

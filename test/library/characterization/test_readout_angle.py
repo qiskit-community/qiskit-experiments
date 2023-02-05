@@ -35,7 +35,7 @@ class TestReadoutAngle(QiskitExperimentsTestCase):
         backend = MockIQBackend(
             MockIQReadoutAngleHelper(iq_cluster_centers=[((-3.0, 3.0), (5.0, 5.0))]),
         )
-        exp = ReadoutAngle(0)
+        exp = ReadoutAngle([0])
         expdata = exp.run(backend, shots=100000)
         self.assertExperimentDone(expdata)
         res = expdata.analysis_results(0)
@@ -44,7 +44,7 @@ class TestReadoutAngle(QiskitExperimentsTestCase):
         backend = MockIQBackend(
             MockIQReadoutAngleHelper(iq_cluster_centers=[((0, -3.0), (5.0, 5.0))]),
         )
-        exp = ReadoutAngle(0)
+        exp = ReadoutAngle([0])
         expdata = exp.run(backend, shots=100000)
         self.assertExperimentDone(expdata)
         res = expdata.analysis_results(0)
@@ -56,7 +56,7 @@ class TestReadoutAngle(QiskitExperimentsTestCase):
             MockIQReadoutAngleHelper(iq_cluster_centers=[((-3.0, 3.0), (5.0, 5.0))]),
         )
 
-        exp = ReadoutAngle(0)
+        exp = ReadoutAngle([0])
 
         exp.set_run_options(meas_level=MeasLevel.KERNELED, shots=1024)
         expdata = exp.run(backend).block_for_results()
