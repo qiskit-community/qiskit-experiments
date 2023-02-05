@@ -22,10 +22,8 @@ import lmfit
 import numpy as np
 from uncertainties import unumpy as unp
 
-from qiskit_experiments.exceptions import AnalysisError
-from qiskit_experiments.framework import ExperimentData, AnalysisResultData, AnalysisConfig
+from qiskit_experiments.framework import ExperimentData, AnalysisResultData
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
-from qiskit_experiments.warnings import deprecated_function
 
 from .base_curve_analysis import BaseCurveAnalysis, PARAMS_ENTRY_PREFIX
 from .curve_data import CurveData, FitOptions, CurveFitResult

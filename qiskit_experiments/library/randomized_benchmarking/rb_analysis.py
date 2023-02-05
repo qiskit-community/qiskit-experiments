@@ -12,7 +12,6 @@
 """
 Standard RB analysis class.
 """
-import warnings
 from collections import defaultdict
 from typing import Dict, List, Sequence, Tuple, Union, Optional, TYPE_CHECKING
 

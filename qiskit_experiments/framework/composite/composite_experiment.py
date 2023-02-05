@@ -19,7 +19,6 @@ import warnings
 from qiskit.providers.backend import Backend
 from qiskit_experiments.exceptions import QiskitError
 from qiskit_experiments.framework import BaseExperiment
-from qiskit_experiments.framework.base_analysis import BaseAnalysis
 from .composite_analysis import CompositeAnalysis
 
 

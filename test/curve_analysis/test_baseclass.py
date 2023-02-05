@@ -21,9 +21,8 @@ import numpy as np
 from lmfit.models import ExpressionModel
 from qiskit.qobj.utils import MeasLevel
 
-from qiskit_experiments.curve_analysis import CurveAnalysis, CompositeCurveAnalysis, fit_function
+from qiskit_experiments.curve_analysis import CurveAnalysis, CompositeCurveAnalysis
 from qiskit_experiments.curve_analysis.curve_data import (
-    SeriesDef,
     CurveFitResult,
     ParameterRepr,
     FitOptions,

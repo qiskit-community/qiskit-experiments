@@ -101,18 +101,13 @@ class Calibrations:
                 keys are tuples of qubits and the values are a list of ControlChannels
                 that correspond to the qubits in the keys. If a control_channel_map is given
                 then the qubits must be in the coupling_map.
-            libraries: A list of library instance from which to get template schedules to register
+            libraries: A list of library instances from which to get template schedules to register
                 as well as default parameter values.
             add_parameter_defaults: A boolean to indicate weather the default parameter values of
                 the given libraries should be used to populate the calibrations. By default this
                 value is True but can be set to false when deserializing a calibrations object.
             backend_name: The name of the backend that these calibrations are attached to.
             backend_version: The version of the backend that these calibrations are attached to.
-
-        Raises:
-            CalibrationError: if both library and libraries are given. Note that library will be
-                removed in future versions.
-
         """
         self._backend_name = backend_name
         self._backend_version = backend_version
@@ -153,6 +148,9 @@ class Calibrations:
 
         self._libraries = libraries
         if libraries is not None:
+            if not isinstance(libraries, list):
+                libraries = [libraries]
+
             for lib in libraries:
 
                 # Add the basis gates
