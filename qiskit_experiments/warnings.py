@@ -222,7 +222,7 @@ def qubit_deprecate() -> Callable:
                 warnings.warn(
                     f"{func_name} keyword argument qubit is deprecated and "
                     f"replaced with physical_qubits. It will be removed after Qiskit Experiments "
-                    " 0.5.",
+                    "0.5.",
                     category=category,
                     stacklevel=3,
                 )
