@@ -30,7 +30,7 @@ class TestTphi(QiskitExperimentsTestCase):
         """
         delays_t1 = list(range(1, 40, 3))
         delays_t2 = list(range(1, 51, 2))
-        exp = Tphi(qubit=0, delays_t1=delays_t1, delays_t2=delays_t2, osc_freq=0.1)
+        exp = Tphi(physical_qubits=[0], delays_t1=delays_t1, delays_t2=delays_t2, osc_freq=0.1)
 
         t1 = 20
         t2ramsey = 25
@@ -55,7 +55,7 @@ class TestTphi(QiskitExperimentsTestCase):
         """
         delays_t1 = list(range(1, 40, 3))
         delays_t2 = list(range(1, 50, 2))
-        exp = Tphi(qubit=0, delays_t1=delays_t1, delays_t2=delays_t2, osc_freq=0.1)
+        exp = Tphi(physical_qubits=[0], delays_t1=delays_t1, delays_t2=delays_t2, osc_freq=0.1)
 
         t1 = 20
         t2ramsey = 25
@@ -103,7 +103,7 @@ class TestTphi(QiskitExperimentsTestCase):
 
     def test_roundtrip_serializable(self):
         """Test round trip JSON serialization"""
-        exp = Tphi(0, [1], [2], 3)
+        exp = Tphi([0], [1], [2], 3)
         self.assertRoundTripSerializable(exp, self.json_equiv)
 
     def test_analysis_config(self):
