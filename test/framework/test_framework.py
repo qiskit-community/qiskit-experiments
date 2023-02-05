@@ -21,7 +21,6 @@ from qiskit.providers.fake_provider import FakeVigoV2, FakeJob
 from qiskit.providers.jobstatus import JobStatus
 from qiskit.exceptions import QiskitError
 
-from qiskit_experiments.exceptions import AnalysisError
 from qiskit_experiments.framework import (
     ExperimentData,
     BaseExperiment,
