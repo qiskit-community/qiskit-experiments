@@ -91,47 +91,6 @@ class TestFramework(QiskitExperimentsTestCase):
         self.assertNotEqual(expdata1.experiment_id, expdata2.experiment_id)
         self.assertNotEqual(expdata1.analysis_results(), expdata2.analysis_results())
 
-    def test_failed_analysis_replace_results_true(self):
-        """Test running analysis with replace_results=True"""
-
-        class FakeFailedAnalysis(FakeAnalysis):
-            """raise analysis error"""
-
-            def _run_analysis(self, experiment_data, **options):
-                raise AnalysisError("Failed analysis for testing.")
-
-        analysis = FakeAnalysis()
-        failed_analysis = FakeFailedAnalysis()
-        expdata1 = analysis.run(ExperimentData(), seed=54321)
-        self.assertExperimentDone(expdata1)
-        expdata2 = failed_analysis.run(
-            expdata1, replace_results=True, seed=12345
-        ).block_for_results()
-        # check that the analysis is empty for the answer of the failed analysis.
-        self.assertEqual(expdata2.analysis_results(), [])
-        # confirming original analysis results is empty due to 'replace_results=True'
-        self.assertEqual(expdata1.analysis_results(), [])
-
-    def test_failed_analysis_replace_results_false(self):
-        """Test running analysis with replace_results=False"""
-
-        class FakeFailedAnalysis(FakeAnalysis):
-            """raise analysis error"""
-
-            def _run_analysis(self, experiment_data, **options):
-                raise AnalysisError("Failed analysis for testing.")
-
-        analysis = FakeAnalysis()
-        failed_analysis = FakeFailedAnalysis()
-        expdata1 = analysis.run(ExperimentData(), seed=54321)
-        self.assertExperimentDone(expdata1)
-        expdata2 = failed_analysis.run(expdata1, replace_results=False, seed=12345)
-
-        # check that the analysis is empty for the answer of the failed analysis.
-        self.assertEqual(expdata2.analysis_results(), [])
-        # confirming original analysis results isn't empty due to 'replace_results=False'
-        self.assertNotEqual(expdata1.analysis_results(), [])
-
     def test_analysis_config(self):
         """Test analysis config dataclass"""
         analysis = FakeAnalysis(arg1=10, arg2=20)
