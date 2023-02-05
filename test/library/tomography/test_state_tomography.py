@@ -23,6 +23,7 @@ from qiskit_aer import AerSimulator
 
 from qiskit_experiments.library import StateTomography
 from qiskit_experiments.library.tomography import StateTomographyAnalysis
+from qiskit_experiments.database_service import ExperimentEntryNotFound
 from .tomo_utils import FITTERS, filter_results, teleport_circuit, teleport_bell_circuit
 
 
@@ -243,8 +244,26 @@ class TestStateTomography(QiskitExperimentsTestCase):
         self.assertTrue(self.json_equiv(exp, loaded_exp))
 
     def test_analysis_config(self):
-        """ "Test converting analysis to and from config works"""
+        """Test converting analysis to and from config works"""
         analysis = StateTomographyAnalysis()
         loaded = StateTomographyAnalysis.from_config(analysis.config())
         self.assertNotEqual(analysis, loaded)
         self.assertEqual(analysis.config(), loaded.config())
+
+    def test_target_none(self):
+        """Test setting target=None disables fidelity calculation."""
+        seed = 4343
+        backend = AerSimulator(seed_simulator=seed)
+        target = qi.random_statevector(2, seed=seed)
+        exp = StateTomography(target, backend=backend, target=None)
+        expdata = exp.run()
+        self.assertExperimentDone(expdata)
+        state = expdata.analysis_results("state").value
+        self.assertTrue(
+            isinstance(state, qi.DensityMatrix),
+            msg="Fitted state is not density matrix",
+        )
+        with self.assertRaises(
+            ExperimentEntryNotFound, msg="state_fidelity should not exist when target=None"
+        ):
+            expdata.analysis_results("state_fidelity")
