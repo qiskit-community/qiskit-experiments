@@ -13,7 +13,7 @@ upgrade:
     * The ``CompositeExperiment.component_analysis`` method has been removed. Component 
       analysis classes should be directly accessed using 
       :meth:`.CompositeAnalysis.component_analysis`.
-    * The ``library`` argument to :class:`Calibrations` has been removed and replaced by 
+    * The ``library`` argument to :class:`.Calibrations` has been removed and replaced by 
       ``libraries``.
     * The class attribute ``CurveAnalysis.__fixed_parameters__`` has been removed.
       The ``fixed_parameters`` analysis option should be set instead.
