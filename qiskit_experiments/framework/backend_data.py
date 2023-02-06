@@ -58,8 +58,8 @@ class BackendData:
                 except NotImplementedError:
                     return self._pulse_conf.control(qubits)
         except AttributeError:
-            return None
-        return None
+            return []
+        return []
 
     def drive_channel(self, qubit):
         """Returns the backend drive channel for the given qubit"""
