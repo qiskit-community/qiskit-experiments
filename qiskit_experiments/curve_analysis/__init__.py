@@ -547,8 +547,6 @@ Utilities
 
     utils.is_error_not_significant
     utils.analysis_result_to_repr
-    utils.colors10
-    utils.symbols10
     utils.convert_lmfit_result
     utils.eval_with_uncertainties
 """
