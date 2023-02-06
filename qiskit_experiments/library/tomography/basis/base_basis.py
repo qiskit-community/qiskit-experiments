@@ -100,7 +100,14 @@ class PreparationBasis(BaseBasis):
 
     @abstractmethod
     def matrix_shape(self, qubits: Sequence[int]) -> Tuple[int, ...]:
-        """Return the shape of subsystem dimensions of a matrix element."""
+        """Return the shape of subsystem dimensions of the state :py:attr:`~matrix`.
+
+        Args:
+            qubits: the physical qubit subsystems.
+
+        Returns:
+            A tuple of subsystem dimensions for the specified qubits.
+        """
 
     @abstractmethod
     def matrix(self, index: Sequence[int], qubits: Optional[Sequence[int]] = None) -> np.ndarray:
@@ -152,11 +159,25 @@ class MeasurementBasis(BaseBasis):
 
     @abstractmethod
     def outcome_shape(self, qubits: Sequence[int]) -> Tuple[int, ...]:
-        """Return the shape of allowed measurement outcomes on specified qubits."""
+        """Return the shape of allowed measurement outcomes on specified qubits.
+
+        Args:
+            qubits: the physical qubit subsystems.
+
+        Returns:
+            A tuple of the number of measurement outcomes for specified qubits.
+        """
 
     @abstractmethod
     def matrix_shape(self, qubits: Sequence[int]) -> Tuple[int, ...]:
-        """Return the shape of subsystem dimensions of a POVM matrix element."""
+        """Return the shape of subsystem dimensions of a POVM :py:attr:`~matrix`.
+
+        Args:
+            qubits: the physical qubit subsystems.
+
+        Returns:
+            A tuple of subsystem dimensions for the specified qubits.
+        """
 
     @abstractmethod
     def matrix(
