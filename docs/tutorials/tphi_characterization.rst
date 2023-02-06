@@ -43,7 +43,7 @@ we compute the results for :math:`T_\varphi.`
 .. jupyter-execute::
 
     # Create an experiment for qubit 0 with the specified time intervals
-    exp = Tphi(qubit=0, delays_t1=delays_t1, delays_t2=delays_t2, osc_freq=1e5)
+    exp = Tphi(physical_qubits=[0], delays_t1=delays_t1, delays_t2=delays_t2, osc_freq=1e5)
     
     tphi_analysis = TphiAnalysis([T1Analysis(), T2RamseyAnalysis()])
     expdata = exp.run(backend=backend, analysis=tphi_analysis, seed_simulator=101).block_for_results()

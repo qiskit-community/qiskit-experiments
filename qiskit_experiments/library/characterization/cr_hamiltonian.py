@@ -21,6 +21,7 @@ from qiskit import pulse, circuit, QuantumCircuit
 from qiskit.circuit.parameterexpression import ParameterValueType
 from qiskit.exceptions import QiskitError
 from qiskit.providers import Backend
+from qiskit_experiments.warnings import deprecate_arguments
 from qiskit_experiments.framework import (
     BaseExperiment,
     BackendTiming,
@@ -135,9 +136,10 @@ class CrossResonanceHamiltonian(BaseExperiment):
         def __init__(self, width: ParameterValueType):
             super().__init__("cr_gate", 2, [width])
 
+    @deprecate_arguments({"qubits": "physical_qubits"}, "0.5")
     def __init__(
         self,
-        qubits: Tuple[int, int],
+        physical_qubits: Tuple[int, int],
         flat_top_widths: Optional[Iterable[float]] = None,
         backend: Optional[Backend] = None,
         cr_gate: Optional[Type[circuit.Gate]] = None,
@@ -147,7 +149,7 @@ class CrossResonanceHamiltonian(BaseExperiment):
         """Create a new experiment.
 
         Args:
-            qubits: Two-value tuple of qubit indices on which to run tomography.
+            physical_qubits: Two-value tuple of qubit indices on which to run tomography.
                 The first index stands for the control qubit.
             flat_top_widths: Deprecated. The total duration of the square part of
                 cross resonance pulse(s) to scan, in units of dt.
@@ -174,7 +176,7 @@ class CrossResonanceHamiltonian(BaseExperiment):
         Raises:
             QiskitError: When ``qubits`` length is not 2.
         """
-        if len(qubits) != 2:
+        if len(physical_qubits) != 2:
             raise QiskitError(
                 "Length of qubits is not 2. Please provide index for control and target qubit."
             )
@@ -182,7 +184,9 @@ class CrossResonanceHamiltonian(BaseExperiment):
         self._gate_cls = cr_gate or self.CRPulseGate
         self._backend_timing = None
 
-        super().__init__(qubits, analysis=CrossResonanceHamiltonianAnalysis(), backend=backend)
+        super().__init__(
+            physical_qubits, analysis=CrossResonanceHamiltonianAnalysis(), backend=backend
+        )
         self.set_experiment_options(durations=durations, **kwargs)
 
         if flat_top_widths is not None:
