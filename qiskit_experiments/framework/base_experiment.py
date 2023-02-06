@@ -76,17 +76,6 @@ class BaseExperiment(ABC, StoreInitArgs):
         self._analysis = None
         if analysis:
             self.analysis = analysis
-        # TODO: Hack for backwards compatibility with old base class.
-        # Remove after updating subclasses
-        elif hasattr(self, "__analysis_class__"):
-            warnings.warn(
-                "Defining a default BaseAnalysis class for an experiment using the "
-                "__analysis_class__ attribute is deprecated as of 0.2.0. "
-                "Use the `analysis` kwarg of BaseExperiment.__init__ "
-                "to specify a default analysis class."
-            )
-            analysis_cls = getattr(self, "__analysis_class__")
-            self.analysis = analysis_cls()  # pylint: disable = not-callable
 
         # Set backend
         # This should be called last in case `_set_backend` access any of the
@@ -401,23 +390,6 @@ class BaseExperiment(ABC, StoreInitArgs):
         """
         self._run_options.update_options(**fields)
         self._set_run_options = self._set_run_options.union(fields)
-
-    @property
-    def analysis_options(self) -> Options:
-        """Return the analysis options for :meth:`run` analysis.
-
-        .. deprecated:: 0.2.0
-            This is replaced by calling ``experiment.analysis.options`` using
-            the :meth:`analysis`and :meth:`~qiskit_experiments.framework.BaseAnalysis.options`
-            properties.
-        """
-        warnings.warn(
-            "`BaseExperiment.analysis_options` is deprecated as of qiskit-experiments"
-            " 0.2.0 and will be removed in the 0.3.0 release."
-            " Use `experiment.analysis.options instead",
-            DeprecationWarning,
-        )
-        return self.analysis.options
 
     def _metadata(self) -> Dict[str, any]:
         """Return experiment metadata for ExperimentData.
