@@ -21,9 +21,8 @@ import numpy as np
 from lmfit.models import ExpressionModel
 from qiskit.qobj.utils import MeasLevel
 
-from qiskit_experiments.curve_analysis import CurveAnalysis, CompositeCurveAnalysis, fit_function
+from qiskit_experiments.curve_analysis import CurveAnalysis, CompositeCurveAnalysis
 from qiskit_experiments.curve_analysis.curve_data import (
-    SeriesDef,
     CurveFitResult,
     ParameterRepr,
     FitOptions,
@@ -752,71 +751,6 @@ class TestFitOptions(QiskitExperimentsTestCase):
 
 class TestBackwardCompatibility(QiskitExperimentsTestCase):
     """Test case for backward compatibility."""
-
-    def test_old_fixed_param_attributes(self):
-        """Test if old class structure for fixed param is still supported."""
-
-        with self.assertWarns(DeprecationWarning):
-
-            class _DeprecatedAnalysis(CurveAnalysis):
-                __series__ = [
-                    SeriesDef(
-                        fit_func=lambda x, par0, par1, par2, par3: fit_function.exponential_decay(
-                            x, amp=par0, lamb=par1, x0=par2, baseline=par3
-                        ),
-                    )
-                ]
-
-                __fixed_parameters__ = ["par1"]
-
-                @classmethod
-                def _default_options(cls):
-                    opts = super()._default_options()
-                    opts.par1 = 2
-
-                    return opts
-
-        with self.assertWarns(DeprecationWarning):
-            instance = _DeprecatedAnalysis()
-
-        self.assertDictEqual(instance.options.fixed_parameters, {"par1": 2})
-
-    def test_loading_data_with_deprecated_fixed_param(self):
-        """Test loading old data with fixed parameters as standalone options."""
-
-        with self.assertWarns(DeprecationWarning):
-
-            class _DeprecatedAnalysis(CurveAnalysis):
-                __series__ = [
-                    SeriesDef(
-                        fit_func=lambda x, par0, par1, par2, par3: fit_function.exponential_decay(
-                            x, amp=par0, lamb=par1, x0=par2, baseline=par3
-                        ),
-                    )
-                ]
-
-        with self.assertWarns(DeprecationWarning):
-            # old option data structure, i.e. fixed param as a standalone option
-            # the analysis instance fixed parameters might be set via the experiment instance
-            instance = _DeprecatedAnalysis.from_config({"options": {"par1": 2}})
-
-        self.assertDictEqual(instance.options.fixed_parameters, {"par1": 2})
-
-    def test_instantiating_series_def_in_old_format(self):
-        """Test instantiating curve analysis with old series def format."""
-
-        with self.assertWarns(DeprecationWarning):
-
-            class _DeprecatedAnalysis(CurveAnalysis):
-                __series__ = [
-                    SeriesDef(fit_func=lambda x, par0: fit_function.exponential_decay(x, amp=par0))
-                ]
-
-        with self.assertWarns(DeprecationWarning):
-            instance = _DeprecatedAnalysis()
-
-        # Still works.
-        self.assertListEqual(instance.parameters, ["par0"])
 
     def test_lmfit_model_with_data_sort_key(self):
         """Test providing LMFIT model with legacy 'data_sort_key' option."""

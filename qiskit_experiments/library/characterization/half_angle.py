@@ -48,7 +48,7 @@ class HalfAngle(BaseExperiment):
         be different from the :math:`\pi` pulse.
 
     # section: analysis_ref
-        :py:class:`FineHalfAngleAnalysis`
+        :py:class:`.ErrorAmplificationAnalysis`
 
     # section: reference
         .. ref_arxiv:: 1 1504.06597

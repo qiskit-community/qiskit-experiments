@@ -72,7 +72,6 @@ class Calibrations:
         self,
         coupling_map: Optional[List[List[int]]] = None,
         control_channel_map: Optional[Dict[Tuple[int, ...], List[ControlChannel]]] = None,
-        library: Optional[Union[BasisGateLibrary, List[BasisGateLibrary]]] = None,
         libraries: Optional[List[BasisGateLibrary]] = None,
         add_parameter_defaults: bool = True,
         backend_name: Optional[str] = None,
@@ -102,40 +101,16 @@ class Calibrations:
                 keys are tuples of qubits and the values are a list of ControlChannels
                 that correspond to the qubits in the keys. If a control_channel_map is given
                 then the qubits must be in the coupling_map.
-            library (deprecated): A library instance from which to get template schedules to
-                register as well as default parameter values.
-            libraries: A list of library instance from which to get template schedules to register
+            libraries: A list of library instances from which to get template schedules to register
                 as well as default parameter values.
             add_parameter_defaults: A boolean to indicate weather the default parameter values of
                 the given libraries should be used to populate the calibrations. By default this
                 value is True but can be set to false when deserializing a calibrations object.
             backend_name: The name of the backend that these calibrations are attached to.
             backend_version: The version of the backend that these calibrations are attached to.
-
-        Raises:
-            CalibrationError: if both library and libraries are given. Note that library will be
-                removed in future versions.
-
         """
         self._backend_name = backend_name
         self._backend_version = backend_version
-
-        if library:
-            warnings.warn(
-                "library has been deprecated, please provide `libraries` instead."
-                "The `library` argument along with this warning will be removed "
-                "in Qiskit Experiments 0.4.",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-
-            if libraries:
-                raise CalibrationError("Cannot supply both library and libraries.")
-
-            if not isinstance(library, list):
-                libraries = [library]
-            else:
-                libraries = library
 
         # Mapping between qubits and their control channels.
         self._control_channel_map = control_channel_map if control_channel_map else {}
@@ -173,6 +148,9 @@ class Calibrations:
 
         self._libraries = libraries
         if libraries is not None:
+            if not isinstance(libraries, list):
+                libraries = [libraries]
+
             for lib in libraries:
 
                 # Add the basis gates
@@ -246,7 +224,6 @@ class Calibrations:
     def from_backend(
         cls,
         backend: Backend,
-        library: Optional[BasisGateLibrary] = None,
         libraries: Optional[List[BasisGateLibrary]] = None,
         add_parameter_defaults: bool = True,
     ) -> "Calibrations":
@@ -256,8 +233,6 @@ class Calibrations:
             backend: A backend instance from which to extract the qubit and readout frequencies
                 (which will be added as first guesses for the corresponding parameters) as well
                 as the coupling map.
-            library: A library or list thereof from which to get template schedules to register as
-                well as default parameter values.
             libraries: A list of libraries from which to get template schedules to register as
                 well as default parameter values.
             add_parameter_defaults: A boolean to indicate whether the default parameter values of
@@ -276,7 +251,6 @@ class Calibrations:
         cals = Calibrations(
             backend_data.coupling_map,
             control_channel_map,
-            library,
             libraries,
             add_parameter_defaults,
             backend_data.name,
@@ -298,17 +272,6 @@ class Calibrations:
     @property
     def libraries(self) -> Optional[List[BasisGateLibrary]]:
         """Return the libraries used to initialize the calibrations."""
-        return self._libraries
-
-    @property
-    def library(self) -> Optional[List[BasisGateLibrary]]:
-        """Return the libraries used to initialize the calibrations."""
-        warnings.warn(
-            "library has been deprecated, use libraries instead."
-            "This warning will be removed with backport in Qiskit Experiments 0.4.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
         return self._libraries
 
     def _get_operated_qubits(self) -> Dict[int, List[int]]:
