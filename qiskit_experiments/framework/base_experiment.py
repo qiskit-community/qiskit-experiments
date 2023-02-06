@@ -17,7 +17,6 @@ from abc import ABC, abstractmethod
 import copy
 from collections import OrderedDict
 from typing import Sequence, Optional, Tuple, List, Dict, Union
-import warnings
 
 from qiskit import transpile, QuantumCircuit
 from qiskit.providers import Job, Backend
