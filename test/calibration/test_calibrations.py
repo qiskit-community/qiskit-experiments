@@ -32,7 +32,10 @@ from qiskit.pulse import (
 from qiskit import transpile, QuantumCircuit
 from qiskit.pulse.transforms import inline_subroutines, block_to_schedule
 import qiskit.pulse as pulse
+from qiskit.providers import BackendV2, Options
 from qiskit.providers.fake_provider import FakeArmonkV2, FakeBelemV2
+from qiskit.transpiler import Target
+
 from qiskit_experiments.framework import BackendData
 from qiskit_experiments.calibration_management.calibrations import Calibrations, ParameterKey
 from qiskit_experiments.calibration_management.parameter_value import ParameterValue
@@ -40,6 +43,29 @@ from qiskit_experiments.calibration_management.basis_gate_library import (
     FixedFrequencyTransmon,
 )
 from qiskit_experiments.exceptions import CalibrationError
+
+
+class MinimalBackend(BackendV2):
+    """Class for testing a backend with minimal data"""
+
+    target = None
+
+    def __init__(self):
+        super().__init__()
+        self.target = Target()
+
+    @property
+    def max_circuits(self):
+        """Maximum circuits to run at once"""
+        return 100
+
+    @classmethod
+    def _default_options(cls):
+        return Options()
+
+    def run(self, run_input, **options):
+        """Empty method to satisfy abstract base class"""
+        pass
 
 
 class TestCalibrationsBasic(QiskitExperimentsTestCase):
@@ -285,6 +311,11 @@ class TestCalibrationsBasic(QiskitExperimentsTestCase):
         self.assertEqual(control_channel_map_size, 8)
         self.assertEqual(coupling_map_size, 8)
         self.assertEqual(cals.get_parameter_value("drive_freq", 0), 5090167234.445013)
+
+    def test_from_backend_minimal_target(self):
+        """Test that from_backend works for a backend with minimal data"""
+        backend = MinimalBackend()
+        cals = Calibrations.from_backend(backend)
 
 
 class TestOverrideDefaults(QiskitExperimentsTestCase):
