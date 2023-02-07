@@ -12,7 +12,7 @@
 
 """Spectroscopy experiment class for resonators."""
 
-from typing import Iterable, Optional, Tuple
+from typing import Iterable, List, Optional, Sequence, Tuple
 import numpy as np
 
 from qiskit import QuantumCircuit
@@ -23,6 +23,7 @@ import qiskit.pulse as pulse
 
 from qiskit_experiments.framework import Options, BackendData
 from qiskit_experiments.library.characterization.spectroscopy import Spectroscopy
+from qiskit_experiments.warnings import qubit_deprecate
 from .analysis.resonator_spectroscopy_analysis import ResonatorSpectroscopyAnalysis
 
 
@@ -67,7 +68,11 @@ class ResonatorSpectroscopy(Spectroscopy):
 
             specs = []
             for slot, qubit in enumerate(qubits):
-                specs.append(ResonatorSpectroscopy(qubit=qubit, backend=backend2, memory_slot=slot))
+                specs.append(ResonatorSpectroscopy(
+                    physical_qubits=[qubit],
+                    backend=backend2,
+                    memory_slot=slot,
+                ))
 
             exp = ParallelExperiment(specs, backend=backend2)
 
@@ -83,7 +88,7 @@ class ResonatorSpectroscopy(Spectroscopy):
         .. code:: python
 
             qubit = 1
-            spec = ResonatorSpectroscopy(qubit, backend)
+            spec = ResonatorSpectroscopy([qubit], backend)
             exp_data = spec.run().block_for_results()
             exp_data.figure(0)
 
@@ -144,9 +149,10 @@ class ResonatorSpectroscopy(Spectroscopy):
                 )
         return super().set_experiment_options(**fields)
 
+    @qubit_deprecate()
     def __init__(
         self,
-        qubit: int,
+        physical_qubits: Sequence[int],
         backend: Optional[Backend] = None,
         frequencies: Optional[Iterable[float]] = None,
         absolute: bool = True,
@@ -159,7 +165,8 @@ class ResonatorSpectroscopy(Spectroscopy):
         through the experiment options.
 
         Args:
-            qubit: The qubit on which to run readout spectroscopy.
+            physical_qubits: List containing the qubit on which to run readout
+                spectroscopy.
             backend: Optional, the backend to run the experiment on.
             frequencies: The frequencies to scan in the experiment, in Hz. The default values
                 range from -20 MHz to 20 MHz in 51 steps. If the ``absolute`` variable is
@@ -184,10 +191,10 @@ class ResonatorSpectroscopy(Spectroscopy):
                         "Cannot automatically compute absolute frequencies without a backend."
                     )
 
-                center_freq = BackendData(backend).meas_freqs[qubit]
+                center_freq = BackendData(backend).meas_freqs[physical_qubits[0]]
                 frequencies += center_freq
 
-        super().__init__(qubit, frequencies, backend, absolute, analysis, **experiment_options)
+        super().__init__(physical_qubits, frequencies, backend, absolute, analysis, **experiment_options)
 
     @property
     def _backend_center_frequency(self) -> float:

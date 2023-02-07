@@ -13,7 +13,7 @@
 """Abstract spectroscopy experiment base class."""
 
 from abc import ABC, abstractmethod
-from typing import Iterable, Optional
+from typing import Iterable, List, Optional, Sequence
 
 import numpy as np
 import qiskit.pulse as pulse
@@ -24,6 +24,7 @@ from qiskit.qobj.utils import MeasLevel
 
 from qiskit_experiments.framework import BaseAnalysis, BaseExperiment, Options
 from qiskit_experiments.curve_analysis import ResonanceAnalysis
+from qiskit_experiments.warnings import qubit_deprecate
 
 
 class Spectroscopy(BaseExperiment, ABC):
@@ -61,9 +62,10 @@ class Spectroscopy(BaseExperiment, ABC):
 
         return options
 
+    @qubit_deprecate()
     def __init__(
         self,
-        qubit: int,
+        physical_qubits: Sequence[int],
         frequencies: Iterable[float],
         backend: Optional[Backend] = None,
         absolute: bool = True,
@@ -73,7 +75,7 @@ class Spectroscopy(BaseExperiment, ABC):
         """A spectroscopy experiment where the frequency of a pulse is scanned.
 
         Args:
-            qubit: The qubit on which to run spectroscopy.
+            physical_qubits: List containing the qubit on which to run spectroscopy.
             frequencies: The frequencies to scan in the experiment, in Hz.
             backend: Optional, the backend to run the experiment on.
             absolute: Boolean to specify if the frequencies are absolute or relative to the
@@ -87,7 +89,7 @@ class Spectroscopy(BaseExperiment, ABC):
         """
         analysis = analysis or ResonanceAnalysis()
 
-        super().__init__([qubit], analysis=analysis, backend=backend)
+        super().__init__(physical_qubits, analysis=analysis, backend=backend)
 
         if len(frequencies) < 3:
             raise QiskitError("Spectroscopy requires at least three frequencies.")

@@ -12,7 +12,7 @@
 
 """Fine drag calibration experiment."""
 
-from typing import Dict, Optional
+from typing import Dict, Optional, Sequence
 import numpy as np
 
 from qiskit.circuit import Gate, QuantumCircuit
@@ -27,6 +27,7 @@ from qiskit_experiments.calibration_management import (
 )
 from qiskit_experiments.calibration_management.update_library import BaseUpdater
 from qiskit_experiments.library.characterization.fine_drag import FineDrag
+from qiskit_experiments.warnings import qubit_deprecate
 
 
 class FineDragCal(BaseCalibrationExperiment, FineDrag):
@@ -36,9 +37,10 @@ class FineDragCal(BaseCalibrationExperiment, FineDrag):
         qiskit_experiments.library.characterization.fine_drag.FineDrag
     """
 
+    @qubit_deprecate()
     def __init__(
         self,
-        qubit: int,
+        physical_qubits: Sequence[int],
         calibrations: Calibrations,
         schedule_name: str,
         backend: Optional[Backend] = None,
@@ -51,7 +53,8 @@ class FineDragCal(BaseCalibrationExperiment, FineDrag):
         is :math:`\pi` as seen from the default experiment options.
 
         Args:
-            qubit: The qubit for which to run the fine drag calibration.
+            physical_qubits: Sequence containing the qubit for which to run the
+                fine drag calibration.
             calibrations: The calibrations instance with the schedules.
             schedule_name: The name of the schedule to calibrate.
             backend: Optional, the backend to run the experiment on.
@@ -61,7 +64,7 @@ class FineDragCal(BaseCalibrationExperiment, FineDrag):
         """
         super().__init__(
             calibrations,
-            qubit,
+            physical_qubits
             Gate(name=schedule_name, num_qubits=1, params=[]),
             schedule_name=schedule_name,
             backend=backend,
@@ -153,9 +156,10 @@ class FineXDragCal(FineDragCal):
         qiskit_experiments.library.characterization.fine_drag.FineDrag
     """
 
+    @qubit_deprecate()
     def __init__(
         self,
-        qubit: int,
+        physical_qubits: Sequence[int],
         calibrations: Calibrations,
         backend: Optional[Backend] = None,
         cal_parameter_name: Optional[str] = "β",
@@ -164,7 +168,8 @@ class FineXDragCal(FineDragCal):
         r"""see class :class:`FineDrag` for details.
 
         Args:
-            qubit: The qubit for which to run the fine drag calibration.
+            physical_qubits: Sequence containing the qubit for which to run the
+                fine drag calibration.
             calibrations: The calibrations instance with the schedules.
             backend: Optional, the backend to run the experiment on.
             cal_parameter_name: The name of the parameter in the schedule to update.
@@ -188,9 +193,10 @@ class FineSXDragCal(FineDragCal):
         qiskit_experiments.library.characterization.fine_drag.FineDrag
     """
 
+    @qubit_deprecate()
     def __init__(
         self,
-        qubit: int,
+        physical_qubits: Sequence[int],
         calibrations: Calibrations,
         backend: Optional[Backend] = None,
         cal_parameter_name: Optional[str] = "β",
@@ -199,7 +205,8 @@ class FineSXDragCal(FineDragCal):
         r"""see class :class:`FineDrag` for details.
 
         Args:
-            qubit: The qubit for which to run the fine drag calibration.
+            physical_qubits: Sequence containing the qubit for which to run the
+                fine drag calibration.
             calibrations: The calibrations instance with the schedules.
             backend: Optional, the backend to run the experiment on.
             cal_parameter_name: The name of the parameter in the schedule to update.

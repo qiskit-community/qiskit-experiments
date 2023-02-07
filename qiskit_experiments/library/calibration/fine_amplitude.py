@@ -25,6 +25,7 @@ from qiskit_experiments.calibration_management import (
 from qiskit_experiments.library.characterization import FineAmplitude
 from qiskit_experiments.framework import ExperimentData, Options
 from qiskit_experiments.calibration_management.update_library import BaseUpdater
+from qiskit_experiments.warnings import qubit_deprecate
 
 
 class FineAmplitudeCal(BaseCalibrationExperiment, FineAmplitude):
@@ -41,9 +42,10 @@ class FineAmplitudeCal(BaseCalibrationExperiment, FineAmplitude):
 
     """
 
+    @qubit_deprecate()
     def __init__(
         self,
-        qubit: Union[int, Tuple[int, int]],
+        physical_qubits: Sequence[int],
         calibrations: Calibrations,
         schedule_name: str,
         backend: Optional[Backend] = None,
@@ -55,8 +57,9 @@ class FineAmplitudeCal(BaseCalibrationExperiment, FineAmplitude):
         """see class :class:`FineAmplitude` for details.
 
         Args:
-            qubit: The qubit for which to run the fine amplitude calibration. This can
-                also be a pair of qubits which correspond to control and target qubit.
+            physical_qubits: Sequence containing the qubit(s) for which to run
+                the fine amplitude calibration. This can be a pair of qubits
+                which correspond to control and target qubit.
             calibrations: The calibrations instance with the schedules.
             schedule_name: The name of the schedule to calibrate.
             backend: Optional, the backend to run the experiment on.
@@ -68,12 +71,11 @@ class FineAmplitudeCal(BaseCalibrationExperiment, FineAmplitude):
             measurement_qubits: The qubits in the given physical qubits that need to
                 be measured.
         """
-        qubits = qubit if isinstance(qubit, tuple) else (qubit,)
-        gate = gate or Gate(name=schedule_name, num_qubits=len(qubits), params=[])
+        gate = gate or Gate(name=schedule_name, num_qubits=len(physical_qubits), params=[])
 
         super().__init__(
             calibrations,
-            qubits,
+            physical_qubits,
             gate,
             schedule_name=schedule_name,
             backend=backend,
@@ -165,9 +167,10 @@ class FineXAmplitudeCal(FineAmplitudeCal):
         qiskit_experiments.library.characterization.fine_amplitude.FineAmplitude
     """
 
+    @qubit_deprecate()
     def __init__(
         self,
-        qubit: int,
+        physical_qubits: Sequence[int],
         calibrations: Calibrations,
         schedule_name: str,
         backend: Optional[Backend] = None,
@@ -175,7 +178,7 @@ class FineXAmplitudeCal(FineAmplitudeCal):
         auto_update: bool = True,
     ):
         super().__init__(
-            qubit,
+            physical_qubits,
             calibrations,
             schedule_name,
             backend=backend,
@@ -217,9 +220,10 @@ class FineSXAmplitudeCal(FineAmplitudeCal):
         qiskit_experiments.library.characterization.fine_amplitude.FineAmplitude
     """
 
+    @qubit_deprecate()
     def __init__(
         self,
-        qubit: int,
+        physical_qubits: Sequence[int],
         calibrations: Calibrations,
         schedule_name: str,
         backend: Optional[Backend] = None,
@@ -227,7 +231,7 @@ class FineSXAmplitudeCal(FineAmplitudeCal):
         auto_update: bool = True,
     ):
         super().__init__(
-            qubit,
+            physical_qubits,
             calibrations,
             schedule_name,
             backend=backend,

@@ -12,7 +12,7 @@
 
 """Fine DRAG characterization experiment."""
 
-from typing import List, Optional
+from typing import List, Optional, Sequence
 import numpy as np
 
 from qiskit import QuantumCircuit
@@ -22,6 +22,7 @@ from qiskit.providers.backend import Backend
 from qiskit_experiments.framework import BaseExperiment, Options
 from qiskit_experiments.framework.restless_mixin import RestlessMixin
 from qiskit_experiments.curve_analysis.standard_analysis import ErrorAmplificationAnalysis
+from qiskit_experiments.warnings import qubit_deprecate
 
 
 class FineDrag(BaseExperiment, RestlessMixin):
@@ -152,11 +153,13 @@ class FineDrag(BaseExperiment, RestlessMixin):
 
         return options
 
-    def __init__(self, qubit: int, gate: Gate, backend: Optional[Backend] = None):
+    @qubit_deprecate()
+    def __init__(self, physical_qubits: Sequence[int], gate: Gate, backend: Optional[Backend] = None):
         """Setup a fine amplitude experiment on the given qubit.
 
         Args:
-            qubit: The qubit on which to run the fine amplitude calibration experiment.
+            physical_qubits: List containing the qubit on which to run the fine
+                amplitude calibration experiment.
             gate: The gate that will be repeated.
             backend: Optional, the backend to run the experiment on.
         """
@@ -170,7 +173,7 @@ class FineDrag(BaseExperiment, RestlessMixin):
             },
         )
 
-        super().__init__([qubit], analysis=analysis, backend=backend)
+        super().__init__(physical_qubits, analysis=analysis, backend=backend)
         self.set_experiment_options(gate=gate)
 
     @staticmethod
@@ -246,9 +249,10 @@ class FineXDrag(FineDrag):
         qiskit_experiments.library.characterization.fine_drag.FineDrag
     """
 
-    def __init__(self, qubit: int, backend: Optional[Backend] = None):
+    @qubit_deprecate()
+    def __init__(self, physical_qubits: Sequence[int], backend: Optional[Backend] = None):
         """Initialize the experiment."""
-        super().__init__(qubit, XGate(), backend=backend)
+        super().__init__(physical_qubits, XGate(), backend=backend)
 
     @classmethod
     def _default_experiment_options(cls) -> Options:
@@ -275,9 +279,10 @@ class FineSXDrag(FineDrag):
         qiskit_experiments.library.characterization.fine_drag.FineDrag
     """
 
-    def __init__(self, qubit: int, backend: Optional[Backend] = None):
+    @qubit_deprecate()
+    def __init__(self, physical_qubits: Sequence[int], backend: Optional[Backend] = None):
         """Initialize the experiment."""
-        super().__init__(qubit, SXGate(), backend=backend)
+        super().__init__(physical_qubits, SXGate(), backend=backend)
 
     @classmethod
     def _default_experiment_options(cls) -> Options:
