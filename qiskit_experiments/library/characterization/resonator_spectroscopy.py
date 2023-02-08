@@ -194,7 +194,9 @@ class ResonatorSpectroscopy(Spectroscopy):
                 center_freq = BackendData(backend).meas_freqs[physical_qubits[0]]
                 frequencies += center_freq
 
-        super().__init__(physical_qubits, frequencies, backend, absolute, analysis, **experiment_options)
+        super().__init__(
+            physical_qubits, frequencies, backend, absolute, analysis, **experiment_options
+        )
 
     @property
     def _backend_center_frequency(self) -> float:

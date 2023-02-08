@@ -154,7 +154,9 @@ class FineDrag(BaseExperiment, RestlessMixin):
         return options
 
     @qubit_deprecate()
-    def __init__(self, physical_qubits: Sequence[int], gate: Gate, backend: Optional[Backend] = None):
+    def __init__(
+        self, physical_qubits: Sequence[int], gate: Gate, backend: Optional[Backend] = None
+    ):
         """Setup a fine amplitude experiment on the given qubit.
 
         Args:
