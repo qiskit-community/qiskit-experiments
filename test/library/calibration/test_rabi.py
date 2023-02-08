@@ -291,7 +291,7 @@ class TestCompositeExperiment(QiskitExperimentsTestCase):
             with pulse.build() as sched:
                 pulse.play(pulse.Gaussian(160, Parameter("amp"), 40), pulse.DriveChannel(qubit))
 
-            experiments.append(Rabi(qubit, sched, amplitudes=[0.5]))
+            experiments.append(Rabi([qubit], sched, amplitudes=[0.5]))
 
         par_exp = ParallelExperiment(experiments)
         par_circ = par_exp.circuits()[0]
