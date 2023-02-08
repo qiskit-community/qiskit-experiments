@@ -209,10 +209,6 @@ def dirichlet_mean_and_var(
     if shot_data is None:
         posterior_total = np.sum(posterior, axis=(0, -1))
     else:
-        # if isinstance(shot_data, np.ndarray):
-        #     total_shots = np.sum(shot_data, axis=0)
-        # else:
-        #     total_shots = shot_data
         outcome_shots = np.sum(outcome_data, axis=(0, -1))
         posterior_shots = np.sum(posterior, axis=(0, -1))
         posterior_total = posterior_shots + shot_data - outcome_shots

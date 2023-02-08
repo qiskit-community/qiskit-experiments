@@ -165,7 +165,7 @@ class TomographyAnalysis(BaseAnalysis):
         )
 
         # Run fitter
-        fit, fitter_metadata = self._run_fit(
+        fits, fitter_metadata = self._run_fit(
             self._get_fitter(self.options.fitter),
             *fitter_data,
             measurement_basis=measurement_basis,
@@ -177,8 +177,8 @@ class TomographyAnalysis(BaseAnalysis):
         )
 
         # Post process fit
-        analysis_results = self._postprocess_fit(
-            fit,
+        analysis_results = self._postprocess_fits(
+            fits,
             fitter_metadata=fitter_metadata,
             make_positive=self.options.rescale_positive,
             target_state=self.options.target,
@@ -290,7 +290,7 @@ class TomographyAnalysis(BaseAnalysis):
         return fit, fitter_metadata
 
     @classmethod
-    def _postprocess_fit(
+    def _postprocess_fits(
         cls,
         fits: List[np.ndarray],
         fitter_metadata: Optional[Dict] = None,

@@ -214,7 +214,7 @@ def partial_trace_constaint(
     mat_i: Variable,
     constraint: np.ndarray,
 ) -> List[Constraint]:
-    """Return CVXPY trace preserving constraints for a complex matrix.
+    """Return CVXPY partial trace constraints for a complex matrix.
 
     Args:
         mat_r: The CVXPY variable for the real part of the matrix.

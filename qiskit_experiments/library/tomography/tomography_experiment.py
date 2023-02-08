@@ -127,10 +127,17 @@ class TomographyExperiment(BaseExperiment):
         if conditional_circuit_clbits is True:
             conditional_circuit_clbits = self._circuit.clbits
         if conditional_circuit_clbits:
-            self._cond_clbits = [
-                self._circuit.find_bit(i).index if isinstance(i, Clbit) else i
-                for i in conditional_circuit_clbits
-            ]
+            cond_clbits = []
+            for i in conditional_circuit_clbits:
+                if isinstance(i, Clbit):
+                    cond_clbits.append(self._circuit.find_bit(i).index)
+                elif i < self._circuit.num_clbits:
+                    cond_clbits.append(i)
+                else:
+                    raise QiskitError(
+                        f"Circuit {self._circuit.name} does not contain conditional clbit {i}"
+                    )
+            self._cond_clbits = cond_clbits
 
         # Measurement basis and qubits
         self._meas_circ_basis = measurement_basis
@@ -171,6 +178,13 @@ class TomographyExperiment(BaseExperiment):
 
         # Conditional indices
         if conditional_measurement_indices:
+            if not measurement_basis or not set(conditional_measurement_indices).issubset(
+                self._meas_indices
+            ):
+                raise QiskitError(
+                    f"conditional_measurement_indices {conditional_measurement_indices}"
+                    f" are not contained in measurement_indices {self._meas_indices}"
+                )
             self._cond_meas_indices = tuple(conditional_measurement_indices)
         else:
             self._cond_meas_indices = tuple()

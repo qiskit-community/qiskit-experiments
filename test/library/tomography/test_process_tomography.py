@@ -533,8 +533,6 @@ class TestProcessTomography(QiskitExperimentsTestCase):
                     exp.analysis.set_options(fitter=fitter)
                 fitdata = exp.analysis.run(expdata)
                 states = fitdata.analysis_results("state")
-                if circuit_clbits is None:
-                    states = [states]
                 self.assertEqual(len(states), 2**num_cond)
                 for state in states:
                     idx = state.extra["component_index"]

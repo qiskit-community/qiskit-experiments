@@ -165,7 +165,7 @@ def cvxpy_linear_lstsq(
             metadata["component_conditionals"].append((i, j))
 
     # Partial trace when fitting Choi-matrices for quantum process tomography.
-    # This applied ot the sum of conditional components
+    # This applied to the sum of conditional components
     # Note that this adds an implicitly
     # trace preserving is a specific partial trace constraint ptrace(rho) = I
     # Note: partial trace constraints implicitly define a trace constraint,
