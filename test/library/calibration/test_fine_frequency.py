@@ -77,7 +77,7 @@ class TestFineFreqEndToEnd(QiskitExperimentsTestCase):
         backend = MockIQBackend(exp_helper)
         exp_helper.dt = backend.configuration().dt
 
-        fine_freq = FineFrequencyCal(0, self.cals, backend)
+        fine_freq = FineFrequencyCal([0], self.cals, backend)
         armonk_freq = BackendData(FakeArmonkV2()).drive_freqs[0]
 
         freq_before = self.cals.get_parameter_value(self.cals.__drive_freq_parameter__, 0)

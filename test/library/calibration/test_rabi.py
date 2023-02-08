@@ -137,7 +137,7 @@ class TestEFRabi(QiskitExperimentsTestCase):
             pulse.play(pulse.Gaussian(160, Parameter("amp"), 40), pulse.DriveChannel(2))
             pulse.shift_frequency(-anharm, pulse.DriveChannel(2))
 
-        rabi12 = EFRabi(2, sched)
+        rabi12 = EFRabi([2], sched)
         rabi12.set_experiment_options(amplitudes=[0.5])
         circ = rabi12.circuits()[0]
 
@@ -152,7 +152,7 @@ class TestEFRabi(QiskitExperimentsTestCase):
 
     def test_experiment_config(self):
         """Test converting to and from config works"""
-        exp = EFRabi(0, self.sched)
+        exp = EFRabi([0], self.sched)
         loaded_exp = EFRabi.from_config(exp.config())
         self.assertNotEqual(exp, loaded_exp)
         self.assertTrue(self.json_equiv(exp, loaded_exp))
@@ -160,7 +160,7 @@ class TestEFRabi(QiskitExperimentsTestCase):
     @unittest.skip("Schedules are not yet JSON serializable")
     def test_roundtrip_serializable(self):
         """Test round trip JSON serialization"""
-        exp = EFRabi(0, self.sched)
+        exp = EFRabi([0], self.sched)
         self.assertRoundTripSerializable(exp, self.json_equiv)
 
 
