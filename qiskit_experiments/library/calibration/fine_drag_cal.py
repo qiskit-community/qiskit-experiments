@@ -64,7 +64,7 @@ class FineDragCal(BaseCalibrationExperiment, FineDrag):
         """
         super().__init__(
             calibrations,
-            physical_qubits
+            physical_qubits,
             Gate(name=schedule_name, num_qubits=1, params=[]),
             schedule_name=schedule_name,
             backend=backend,

@@ -301,7 +301,7 @@ class FineSXAmplitude(FineAmplitude):
         the appropriate values for the default options.
     """
 
-    @physical_qubits()
+    @qubit_deprecate()
     def __init__(self, physical_qubits: Sequence[int], backend: Optional[Backend] = None):
         """Initialize the experiment."""
         super().__init__(physical_qubits, SXGate(), backend=backend)

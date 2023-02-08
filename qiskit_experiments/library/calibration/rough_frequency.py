@@ -12,7 +12,7 @@
 
 """Calibration version of spectroscopy experiments."""
 
-from typing import Iterable, Optional
+from typing import Iterable, Optional, Sequence
 
 from qiskit.circuit import QuantumCircuit
 from qiskit.providers.backend import Backend
