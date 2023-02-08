@@ -35,12 +35,11 @@ features:
     :class:`~.LocalReadoutError` characterization experiment followed by either
     a :class:`~.StateTomography` or class:`~.ProcessTomography` experiment.
   - |
-    Adds conditional fragment tomography support to the
+    Adds conditional component tomography support to the
     :class:`.StateTomography` and :class:`.ProcessTomography` experiments.
     This allows either conditioning on classical bit values in the tomography
-    circuit, and/or conditioning on a subset of the tomography measurements,
-    and returning a list of the fitted fragment components for each conditional
-    value of the conditioning bits.
+    circuit and returning a list of the fitted components for each
+    conditional value of the conditioning bits.
   - |
     Adds conditional component fitting support to the fitter functions for
     tomography experiments.

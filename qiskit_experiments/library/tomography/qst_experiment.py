@@ -60,9 +60,8 @@ class StateTomography(TomographyExperiment):
         physical_qubits: Optional[Sequence[int]] = None,
         measurement_basis: basis.MeasurementBasis = basis.PauliMeasurementBasis(),
         measurement_indices: Optional[Sequence[int]] = None,
-        conditional_measurement_indices: Optional[Sequence[int]] = None,
-        conditional_circuit_clbits: Union[bool, Sequence[int], Sequence[Clbit]] = False,
         basis_indices: Optional[Sequence[List[int]]] = None,
+        conditional_circuit_clbits: Union[bool, Sequence[int], Sequence[Clbit]] = False,
         analysis: Union[BaseAnalysis, None, str] = "default",
         target: Union[Statevector, DensityMatrix, None, str] = "default",
     ):
@@ -83,9 +82,6 @@ class StateTomography(TomographyExperiment):
                 measurement basis configurations ``[m[0], m[1], ...]`` where ``m[i]``
                 is the measurement basis index for qubit-i. If not specified full
                 tomography for all indices of the measurement basis will be performed.
-            conditional_measurement_indices: Optional, a subset of `measurement_indices`
-                to use for conditional fragment reconstruction. Conditional indices will
-                only be measured in the 0-index basis.
             conditional_circuit_clbits: Specify any clbits in the input
                 circuit to treat as conditioning bits for conditional tomography.
                 If set to True all circuit clbits will be treated as conditional.
@@ -117,9 +113,8 @@ class StateTomography(TomographyExperiment):
             physical_qubits=physical_qubits,
             measurement_basis=measurement_basis,
             measurement_indices=measurement_indices,
-            conditional_measurement_indices=conditional_measurement_indices,
-            conditional_circuit_clbits=conditional_circuit_clbits,
             basis_indices=basis_indices,
+            conditional_circuit_clbits=conditional_circuit_clbits,
             analysis=analysis,
         )
 

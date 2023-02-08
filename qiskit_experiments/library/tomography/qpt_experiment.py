@@ -69,9 +69,8 @@ class ProcessTomography(TomographyExperiment):
         measurement_indices: Optional[Sequence[int]] = None,
         preparation_basis: basis.PreparationBasis = basis.PauliPreparationBasis(),
         preparation_indices: Optional[Sequence[int]] = None,
-        conditional_measurement_indices: Optional[Sequence[int]] = None,
-        conditional_circuit_clbits: Union[bool, Sequence[int], Sequence[Clbit]] = False,
         basis_indices: Optional[Sequence[Tuple[List[int], List[int]]]] = None,
+        conditional_circuit_clbits: Union[bool, Sequence[int], Sequence[Clbit]] = False,
         analysis: Union[BaseAnalysis, None, str] = "default",
         target: Union[Statevector, DensityMatrix, None, str] = "default",
     ):
@@ -98,9 +97,6 @@ class ProcessTomography(TomographyExperiment):
                 preparation basis index, and ``m[i]`` is the measurement basis index
                 for qubit-i. If not specified full tomography for all indices of the
                 preparation and measurement bases will be performed.
-            conditional_measurement_indices: Optional, a subset of `measurement_indices`
-                to use for conditional fragment reconstruction. Conditional indices will
-                only be measured in the 0-index basis.
             conditional_circuit_clbits: Specify any clbits in the input
                 circuit to treat as conditioning bits for conditional tomography.
                 If set to True all circuit clbits will be treated as conditional.
@@ -124,9 +120,8 @@ class ProcessTomography(TomographyExperiment):
             measurement_indices=measurement_indices,
             preparation_basis=preparation_basis,
             preparation_indices=preparation_indices,
-            conditional_measurement_indices=conditional_measurement_indices,
-            conditional_circuit_clbits=conditional_circuit_clbits,
             basis_indices=basis_indices,
+            conditional_circuit_clbits=conditional_circuit_clbits,
             analysis=analysis,
         )
 
