@@ -208,10 +208,11 @@ def qubit_deprecate() -> Callable:
                 args[1] = [args[1]]
                 args = tuple(args)
                 warnings.warn(
-                    f"The first argument of {func_name} has been renamed from qubits to "
-                    "physical_qubits, and is expecting a sequence instead of an integer. "
-                    "Support of integer values is deprecated and will be removed after Qiskit "
-                    "Experiments 0.5.",
+                    f'The first argument of {func_name} has been renamed from "qubit" to '
+                    '"physical_qubits" and is expecting a sequence with a single integer. '
+                    "Support for directly passing an integer argument is "
+                    "deprecated and will be removed after Qiskit Experiments "
+                    "0.5.",
                     category=category,
                     stacklevel=3,
                 )
@@ -219,14 +220,16 @@ def qubit_deprecate() -> Callable:
             if kwargs and "qubit" in kwargs:
                 if "physical_qubits" in kwargs:
                     raise TypeError(
-                        f"{func_name} received both physical_qubits and the deprecated qubits "
-                        "parameter. Only physical_qubits should be supplied."
+                        f'{func_name} received both "physical_qubits" and the deprecated "qubit" '
+                        'parameter. Only "physical_qubits" should be supplied.'
                     )
 
                 warnings.warn(
-                    f"{func_name} keyword argument qubit is deprecated and "
-                    f"replaced with physical_qubits. It will be removed after Qiskit Experiments "
-                    "0.5.",
+                    f'{func_name} keyword argument "qubit" is deprecated and has been '
+                    'replaced with "physical_qubits". "physical_qubits" should be '
+                    "passed as a sequence containing a single integer. "
+                    'Support for using "qubit" with an integer argument is '
+                    "deprecated and will be removed after Qiskit Experiments 0.5.",
                     category=category,
                     stacklevel=3,
                 )
