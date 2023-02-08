@@ -34,6 +34,7 @@ class RoughDragCal(BaseCalibrationExperiment, RoughDrag):
         qiskit_experiments.library.characterization.rough_drag.RoughDrag
     """
 
+    @qubit_deprecate()
     def __init__(
         self,
         physical_qubits: Sequence[int],
