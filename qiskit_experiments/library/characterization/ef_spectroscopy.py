@@ -12,7 +12,7 @@
 
 """Spectroscopy for the e-f transition."""
 
-from typing import Iterable, List, Optional, Sequence
+from typing import Iterable, Optional, Sequence
 from qiskit import QuantumCircuit
 from qiskit.providers import Backend
 from qiskit.circuit import Gate

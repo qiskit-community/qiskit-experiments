@@ -13,7 +13,7 @@
 """Abstract spectroscopy experiment base class."""
 
 from abc import ABC, abstractmethod
-from typing import Iterable, List, Optional, Sequence
+from typing import Iterable, Optional, Sequence
 
 import numpy as np
 import qiskit.pulse as pulse

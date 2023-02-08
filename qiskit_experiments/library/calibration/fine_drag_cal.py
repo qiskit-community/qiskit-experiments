@@ -177,7 +177,7 @@ class FineXDragCal(FineDragCal):
                 default this variable is set to True.
         """
         super().__init__(
-            qubit,
+            physical_qubits,
             calibrations,
             schedule_name="x",
             backend=backend,
@@ -214,7 +214,7 @@ class FineSXDragCal(FineDragCal):
                 default this variable is set to True.
         """
         super().__init__(
-            qubit,
+            physical_qubits,
             calibrations,
             schedule_name="sx",
             backend=backend,

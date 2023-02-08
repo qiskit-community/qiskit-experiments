@@ -12,7 +12,7 @@
 
 """Fine amplitude calibration experiment."""
 
-from typing import Dict, Optional, Sequence, Tuple, Union
+from typing import Dict, Optional, Sequence
 import numpy as np
 
 from qiskit.circuit import Gate, QuantumCircuit

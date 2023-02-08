@@ -12,7 +12,7 @@
 
 """Spectroscopy experiment class for resonators."""
 
-from typing import Iterable, List, Optional, Sequence, Tuple
+from typing import Iterable, Optional, Sequence, Tuple
 import numpy as np
 
 from qiskit import QuantumCircuit
