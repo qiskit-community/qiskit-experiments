@@ -43,11 +43,6 @@ class TestT2Hahn(QiskitExperimentsTestCase):
             (np.linspace(16.0, 45.0, num=59)).astype(float),
         )
         exp = T2Hahn(physical_qubits=[qubit], delays=delays, num_echoes=num_of_echoes)
-        default_p0 = {
-            "A": 0.5,
-            "T2": estimated_t2hahn,
-            "B": 0.5,
-        }
         backend = T2HahnBackend(
             t2hahn=[estimated_t2hahn],
             frequency=[osc_freq],
@@ -56,19 +51,16 @@ class TestT2Hahn(QiskitExperimentsTestCase):
             readout1to0=[0.02],
         )
 
-        for _ in [default_p0, dict()]:
-            exp.analysis.set_options(
-                p0={"amp": 0.5, "tau": estimated_t2hahn, "base": 0.5}, plot=True
-            )
-            expdata = exp.run(backend=backend, shots=1000)
-            self.assertExperimentDone(expdata, timeout=300)
-            self.assertRoundTripSerializable(expdata, check_func=self.experiment_data_equiv)
-            self.assertRoundTripPickle(expdata, check_func=self.experiment_data_equiv)
-            result = expdata.analysis_results("T2")
-            fitval = result.value
-            if num_of_echoes != 0:
-                self.assertEqual(result.quality, "good")
-                self.assertAlmostEqual(fitval.n, estimated_t2hahn, delta=3)
+        exp.analysis.set_options(p0={"amp": 0.5, "tau": estimated_t2hahn, "base": 0.5}, plot=True)
+        expdata = exp.run(backend=backend, shots=1000)
+        self.assertExperimentDone(expdata, timeout=300)
+        self.assertRoundTripSerializable(expdata, check_func=self.experiment_data_equiv)
+        self.assertRoundTripPickle(expdata, check_func=self.experiment_data_equiv)
+        result = expdata.analysis_results("T2")
+        fitval = result.value
+        if num_of_echoes != 0:
+            self.assertEqual(result.quality, "good")
+            self.assertAlmostEqual(fitval.n, estimated_t2hahn, delta=3)
 
     def test_t2hahn_parallel(self):
         """
