@@ -88,9 +88,9 @@ class TestT2Hahn(QiskitExperimentsTestCase):
         backend = T2HahnBackend(
             t2hahn=p0["T2"],
             frequency=p0["frequency"],
-            initialization_error=[0.0],
-            readout0to1=[0.02],
-            readout1to0=[0.02],
+            initialization_error=0.0,
+            readout0to1=0.02,
+            readout1to0=0.02,
         )
         expdata = par_exp.run(backend=backend, shots=1024).block_for_results()
 
