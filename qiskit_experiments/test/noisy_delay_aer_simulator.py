@@ -10,7 +10,6 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """
-T2HahnBackend class.
 Temporary backend to be used to apply T2 and T1 noise.
 """
 from typing import List
