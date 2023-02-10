@@ -13,7 +13,7 @@
 ZZ Ramsey experiment
 """
 
-from typing import List, Tuple, Union, Sequence
+from typing import List, Tuple, Union
 
 import numpy as np
 
@@ -130,7 +130,7 @@ class ZZRamsey(BaseExperiment):
     @deprecate_arguments({"qubits": "physical_qubits"}, "0.5")
     def __init__(
         self,
-        physical_qubits: Sequence[int, int],
+        physical_qubits: Tuple[int, int],
         backend: Union[Backend, None] = None,
         **experiment_options,
     ):

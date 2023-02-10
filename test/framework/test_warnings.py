@@ -71,7 +71,7 @@ class TestWarningsHelper(QiskitExperimentsTestCase):
             instance = OldExperiment(qubits=[0], physical_qubits=[0])
         with self.assertWarns(DeprecationWarning):
             instance = OldExperiment(qubits=[0])
-        self.assertEquals(instance._physical_qubits, (0,))
+        self.assertEqual(instance._physical_qubits, (0,))
 
     def test_deprecated_qubit(self):
         """Test for the temporary qubit_deprecate wrapper."""
