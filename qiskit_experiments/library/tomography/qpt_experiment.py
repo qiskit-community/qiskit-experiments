@@ -19,6 +19,8 @@ from qiskit.circuit import QuantumCircuit, Instruction
 from qiskit.providers.backend import Backend
 from qiskit.quantum_info.operators.base_operator import BaseOperator
 from qiskit.quantum_info import Choi, Operator, Statevector, DensityMatrix, partial_trace
+
+from qiskit_experiments.warnings import deprecate_arguments
 from qiskit_experiments.exceptions import QiskitError
 from .tomography_experiment import TomographyExperiment, TomographyAnalysis, BaseAnalysis
 from .qpt_analysis import ProcessTomographyAnalysis
@@ -50,6 +52,7 @@ class ProcessTomography(TomographyExperiment):
 
     """
 
+    @deprecate_arguments({"qubits": "physical_qubits"}, "0.5")
     def __init__(
         self,
         circuit: Union[QuantumCircuit, Instruction, BaseOperator],
@@ -62,7 +65,6 @@ class ProcessTomography(TomographyExperiment):
         preparation_indices: Optional[Sequence[int]] = None,
         preparation_qubits: Optional[Sequence[int]] = None,
         basis_indices: Optional[Iterable[Tuple[List[int], List[int]]]] = None,
-        qubits: Optional[Sequence[int]] = None,
         analysis: Union[BaseAnalysis, None, str] = "default",
         target: Union[Statevector, DensityMatrix, None, str] = "default",
     ):
@@ -91,7 +93,6 @@ class ProcessTomography(TomographyExperiment):
                 preparation basis index, and ``m[i]`` is the measurement basis index
                 for qubit-i. If not specified full tomography for all indices of the
                 preparation and measurement bases will be performed.
-            qubits: DEPRECATED, the physical qubits for the initial state circuit.
             analysis: Optional, a custom analysis instance to use. If ``"default"``
                 :class:`~.ProcessTomographyAnalysis` will be used. If None no analysis
                 instance will be set.
@@ -114,7 +115,6 @@ class ProcessTomography(TomographyExperiment):
             preparation_indices=preparation_indices,
             preparation_qubits=preparation_qubits,
             basis_indices=basis_indices,
-            qubits=qubits,
             analysis=analysis,
         )
 
