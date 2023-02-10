@@ -37,6 +37,7 @@ class ResetQubits(TransformationPass):
 
     The resets are used to add qubit initialization error.
     """
+
     def run(self, dag: DAGCircuit):
         new_dag = copy.deepcopy(dag)
 
@@ -53,6 +54,7 @@ class QubitDrift(TransformationPass):
     frequency (while assuming that the gate times are negligible; rotations are
     only added for delays).
     """
+
     def __init__(self, qubit_frequencies: Sequence[float], dt: float):
         super().__init__()
         self.qubit_frequencies = qubit_frequencies
@@ -196,9 +198,7 @@ class T2HahnBackend(BackendV2):
         if self._t2hahn:
             t2s = [t if t is not None else 1 for t in self._t2hahn]
             # Make T1 huge so only T2 matters
-            passes.append(
-                RelaxationNoisePass([t * 100 for t in t2s], t2s, self.dt, Delay)
-            )
+            passes.append(RelaxationNoisePass([t * 100 for t in t2s], t2s, self.dt, Delay))
         if self._frequency:
             passes.append(QubitDrift(self._frequency, self.dt))
 
