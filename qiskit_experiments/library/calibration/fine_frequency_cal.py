@@ -12,7 +12,7 @@
 
 """Fine frequency calibration experiment."""
 
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Sequence
 import numpy as np
 
 from qiskit.providers.backend import Backend
@@ -25,6 +25,7 @@ from qiskit_experiments.calibration_management import (
     Calibrations,
 )
 from qiskit_experiments.library.characterization.fine_frequency import FineFrequency
+from qiskit_experiments.warnings import qubit_deprecate
 
 
 class FineFrequencyCal(BaseCalibrationExperiment, FineFrequency):
@@ -34,9 +35,10 @@ class FineFrequencyCal(BaseCalibrationExperiment, FineFrequency):
         :py:class:`FineFrequency`
     """
 
+    @qubit_deprecate()
     def __init__(
         self,
-        qubit: int,
+        physical_qubits: Sequence[int],
         calibrations: Calibrations,
         backend: Optional[Backend] = None,
         delay_duration: Optional[int] = None,
@@ -52,7 +54,8 @@ class FineFrequencyCal(BaseCalibrationExperiment, FineFrequency):
         error attributed to a frequency offset in the qubit.
 
         Args:
-            qubit: The qubit for which to run the fine frequency calibration.
+            physical_qubits: Sequence containing the qubit for which to run the
+                fine frequency calibration.
             calibrations: The calibrations instance with the schedules.
             backend: Optional, the backend to run the experiment on.
             delay_duration: The duration of the delay at :math:`n=1`. If this value is
@@ -64,11 +67,11 @@ class FineFrequencyCal(BaseCalibrationExperiment, FineFrequency):
                 should be the name of a valid schedule in the calibrations.
         """
         if delay_duration is None:
-            delay_duration = calibrations.get_schedule(gate_name, qubit).duration
+            delay_duration = calibrations.get_schedule(gate_name, physical_qubits[0]).duration
 
         super().__init__(
             calibrations,
-            qubit,
+            physical_qubits,
             delay_duration=delay_duration,
             schedule_name=None,
             repetitions=repetitions,

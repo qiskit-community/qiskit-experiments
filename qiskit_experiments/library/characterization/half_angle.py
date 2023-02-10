@@ -12,7 +12,7 @@
 
 """Half angle characterization."""
 
-from typing import List, Optional
+from typing import List, Optional, Sequence
 import numpy as np
 
 from qiskit import QuantumCircuit
@@ -21,6 +21,7 @@ from qiskit.providers import Backend
 from qiskit_experiments.framework import BaseExperiment, Options
 from qiskit_experiments.curve_analysis.standard_analysis import ErrorAmplificationAnalysis
 from qiskit_experiments.curve_analysis import ParameterRepr
+from qiskit_experiments.warnings import qubit_deprecate
 
 
 class HalfAngle(BaseExperiment):
@@ -78,11 +79,13 @@ class HalfAngle(BaseExperiment):
         options.inst_map = None
         return options
 
-    def __init__(self, qubit: int, backend: Optional[Backend] = None):
+    @qubit_deprecate()
+    def __init__(self, physical_qubits: Sequence[int], backend: Optional[Backend] = None):
         """Setup a half angle experiment on the given qubit.
 
         Args:
-            qubit: The qubit on which to run the fine amplitude calibration experiment.
+            physical_qubits: List containing the qubits on which to run the
+                fine amplitude calibration experiment.
             backend: Optional, the backend to run the experiment on.
         """
         analysis = ErrorAmplificationAnalysis()
@@ -101,7 +104,7 @@ class HalfAngle(BaseExperiment):
             bounds=default_bounds,
         )
 
-        super().__init__([qubit], analysis=analysis, backend=backend)
+        super().__init__(physical_qubits, analysis=analysis, backend=backend)
 
     @staticmethod
     def _pre_circuit() -> QuantumCircuit:

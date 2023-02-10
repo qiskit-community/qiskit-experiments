@@ -141,7 +141,7 @@ class ZZRamsey(BaseExperiment):
             backend: Optional, the backend to run the experiment on.
             experiment_options: experiment options to set
         """
-        super().__init__(qubits=physical_qubits, analysis=ZZRamseyAnalysis(), backend=backend)
+        super().__init__(physical_qubits, analysis=ZZRamseyAnalysis(), backend=backend)
         # Override the default of get_processor() which is "1" * num_qubits. We
         # only fit the probability of the target qubit.
         self.analysis.set_options(outcome="1")

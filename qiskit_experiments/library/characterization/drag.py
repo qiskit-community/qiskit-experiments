@@ -12,7 +12,7 @@
 
 """Rough drag experiment."""
 
-from typing import Iterable, List, Optional
+from typing import Iterable, List, Optional, Sequence
 import numpy as np
 
 from qiskit import QuantumCircuit
@@ -24,6 +24,7 @@ from qiskit.pulse import ScheduleBlock
 from qiskit_experiments.framework import BaseExperiment, Options
 from qiskit_experiments.framework.restless_mixin import RestlessMixin
 from qiskit_experiments.library.characterization.analysis import DragCalAnalysis
+from qiskit_experiments.warnings import qubit_deprecate
 
 
 class RoughDrag(BaseExperiment, RestlessMixin):
@@ -92,9 +93,10 @@ class RoughDrag(BaseExperiment, RestlessMixin):
 
         return options
 
+    @qubit_deprecate()
     def __init__(
         self,
-        qubit: int,
+        physical_qubits: Sequence[int],
         schedule: ScheduleBlock,
         betas: Optional[Iterable[float]] = None,
         backend: Optional[Backend] = None,
@@ -102,7 +104,8 @@ class RoughDrag(BaseExperiment, RestlessMixin):
         """Initialize a Drag experiment in the given qubit.
 
         Args:
-            qubit: The qubit for which to run the Drag calibration.
+            physical_qubits: Sequence containing the qubit for which to run the
+                Drag calibration.
             schedule: The schedule to run. This schedule should have one free parameter
                 corresponding to a DRAG parameter.
             betas: The values of the DRAG parameter to scan. If None is given the default range
@@ -114,7 +117,7 @@ class RoughDrag(BaseExperiment, RestlessMixin):
         """
 
         # Create analysis in finalize to reflect user change to reps
-        super().__init__([qubit], analysis=DragCalAnalysis(), backend=backend)
+        super().__init__(physical_qubits, analysis=DragCalAnalysis(), backend=backend)
 
         if betas is not None:
             self.set_experiment_options(betas=betas)
