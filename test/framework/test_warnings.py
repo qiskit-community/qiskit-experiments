@@ -56,7 +56,7 @@ class TestWarningsHelper(QiskitExperimentsTestCase):
 
         self.assertIsInstance(instance, NewExperiment)
 
-    def test_deprecated_qubits(self):
+    def test_deprecated_argument(self):
         """Test that deprecating arguments works as expected."""
 
         class OldExperiment(TempExperiment):
