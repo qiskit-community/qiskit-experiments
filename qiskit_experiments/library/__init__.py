@@ -53,6 +53,7 @@ Some experiments may be also used for gate calibration.
     :template: autosummary/experiment.rst
 
     ~characterization.T1
+    ~characterization.T2Hahn
     ~characterization.T2Ramsey
     ~characterization.Tphi
     ~characterization.QubitSpectroscopy
@@ -127,6 +128,7 @@ from .calibration import (
 )
 from .characterization import (
     T1,
+    T2Hahn,
     T2Ramsey,
     Tphi,
     QubitSpectroscopy,
