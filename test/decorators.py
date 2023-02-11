@@ -31,12 +31,16 @@ from functools import wraps
 from unittest import SkipTest
 from typing import Optional
 
+from qiskit import QiskitError
 from qiskit.test.testing_options import get_test_options
+# pylint can not follow namespace package like qiskit.providers.ibmq
+# pylint: disable=import-error,no-name-in-module
 from qiskit.providers.ibmq import least_busy
 from qiskit.providers.ibmq.ibmqfactory import IBMQFactory
 from qiskit.providers.ibmq.credentials import Credentials, discover_credentials
 from qiskit.providers.ibmq.accountprovider import AccountProvider
 from qiskit.providers.ibmq import IBMQ
+# pylint: enable=import-error,no-name-in-module
 
 
 def requires_qe_access(func):
@@ -265,7 +269,7 @@ def _get_backend(qe_token, qe_url, backend_name):
         _backend = least_busy(provider.backends(simulator=False, min_num_qubits=5))
 
     if not _backend:
-        raise Exception("Unable to find a suitable backend.")
+        raise QiskitError("Unable to find a suitable backend.")
 
     return _backend
 
@@ -303,7 +307,7 @@ def _get_credentials():
         # Use the first available credentials.
         return list(discovered_credentials.values())[0]
 
-    raise Exception("Unable to locate valid credentials.")
+    raise QiskitError("Unable to locate valid credentials.")
 
 
 def _get_custom_provider(ibmq_factory: IBMQFactory) -> Optional[AccountProvider]:

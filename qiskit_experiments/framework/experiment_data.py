@@ -800,7 +800,7 @@ class ExperimentData:
                 return jid, False
             if status == JobStatus.ERROR:
                 LOG.error(
-                    "Job data not added for errorred job [Job ID: %s]" "\nError message: %s",
+                    "Job data not added for errorred job [Job ID: %s]\nError message: %s",
                     jid,
                     job.error_message(),
                 )

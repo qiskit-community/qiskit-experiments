@@ -126,7 +126,7 @@ class QuantumVolumeAnalysis(BaseAnalysis):
         circ_shots = sum(data["counts"].values())
 
         # Calculate the number of heavy output counts in the experiment
-        heavy_output_counts = sum([data["counts"].get(value, 0) for value in heavy_outputs])
+        heavy_output_counts = sum(data["counts"].get(value, 0) for value in heavy_outputs)
 
         # Calculate the experimental heavy output probability
         return heavy_output_counts / circ_shots

@@ -122,7 +122,7 @@ def mean_xy_data(
     if method == "iwv":
         if sigma is None:
             raise QiskitError(
-                "The inverse-weighted variance method cannot be used with" " `sigma=None`"
+                "The inverse-weighted variance method cannot be used with `sigma=None`"
             )
         for i in range(x_means.size):
             # Get positions of y to average

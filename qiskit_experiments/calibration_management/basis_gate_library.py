@@ -150,7 +150,7 @@ class BasisGateLibrary(ABC, Mapping):
         return {
             "class": self.__class__.__name__,
             "kwargs": kwargs,
-            "hash": self.__hash__(),
+            "hash": hash(self),
         }
 
     @classmethod

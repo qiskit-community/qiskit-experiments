@@ -370,7 +370,7 @@ def _deserialize_object_legacy(value: Dict) -> Any:
             if name == class_name:
                 return cls(*args, **kwargs)
 
-        raise Exception(f"Unable to find class {class_name} in module {mod_name}")
+        raise Exception(f"Unable to find class {class_name} in module {mod_name}")  # pylint: disable=broad-exception-raised
 
     except Exception as ex:  # pylint: disable=broad-except
         traceback_msg = "".join(traceback.format_exception(type(ex), ex, ex.__traceback__))
@@ -441,7 +441,7 @@ class ExperimentEncoder(json.JSONEncoder):
         :class:`ExperimentDecoder` is invoked.
     """
 
-    def default(self, obj: Any) -> Any:  # pylint: disable=arguments-differ
+    def default(self, obj: Any) -> Any:  # pylint: disable=arguments-renamed
         if istype(obj):
             return _serialize_type(obj)
         if hasattr(obj, "__json_encode__"):

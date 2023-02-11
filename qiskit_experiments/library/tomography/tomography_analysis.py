@@ -470,11 +470,15 @@ class TomographyAnalysis(BaseAnalysis):
         if meas_size == 0:
             # Trivial case with no measurement
             num_outcomes = 1
-            outcome_func = lambda _: 1
+
+            def outcome_func(_):
+                return 1
         elif measurement_basis is None:
             # If no basis is provided assume N-qubit measurement case
             num_outcomes = 2**meas_size
-            outcome_func = lambda outcome: int(outcome, 2)
+
+            def outcome_func(outcome):
+                return int(outcome, 2)
         else:
             # General measurement basis case for arbitrary outcome measurements
             if measurement_qubits is None:

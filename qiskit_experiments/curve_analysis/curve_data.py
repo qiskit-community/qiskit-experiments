@@ -463,7 +463,7 @@ class OptionsDict(dict):
         """
         for key, value in kwargs.items():
             if self.get(key) is None:
-                self.__setitem__(key, value)
+                self[key] = value
 
     @staticmethod
     def format(value: Any) -> Any:

@@ -82,7 +82,7 @@ class TestQuantumVolume(QiskitExperimentsTestCase):
 
         self.assertTrue(
             matrix_equal(simulation_probabilities, statevector_probabilities),
-            "probabilities calculated using simulation and " "statevector are not the same",
+            "probabilities calculated using simulation and statevector are not the same",
         )
         # compare to pre-calculated probabilities
         dir_name = os.path.dirname(os.path.abspath(__file__))
@@ -117,7 +117,7 @@ class TestQuantumVolume(QiskitExperimentsTestCase):
         self.assertTrue(result_data1.extra["trials"] == 2, "number of trials is incorrect")
         self.assertTrue(
             result_data2.extra["trials"] == 4,
-            "number of trials is incorrect" " after adding more trials",
+            "number of trials is incorrect after adding more trials",
         )
         self.assertTrue(
             result_data2.value.s <= result_data1.value.s,
