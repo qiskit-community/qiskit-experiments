@@ -20,6 +20,8 @@ from qiskit.circuit import QuantumCircuit, Instruction, ClassicalRegister
 from qiskit.circuit.library import Permutation
 from qiskit.providers.backend import Backend
 from qiskit.quantum_info.operators.base_operator import BaseOperator
+
+from qiskit_experiments.warnings import deprecate_arguments
 from qiskit_experiments.exceptions import QiskitError
 from qiskit_experiments.framework import BaseExperiment, BaseAnalysis, Options
 from .basis import PreparationBasis, MeasurementBasis
@@ -51,6 +53,7 @@ class TomographyExperiment(BaseExperiment):
 
         return options
 
+    @deprecate_arguments({"qubits": "physical_qubits"}, "0.5")
     def __init__(
         self,
         circuit: Union[QuantumCircuit, Instruction, BaseOperator],
@@ -63,7 +66,6 @@ class TomographyExperiment(BaseExperiment):
         preparation_indices: Optional[Sequence[int]] = None,
         preparation_qubits: Optional[Sequence[int]] = None,
         basis_indices: Optional[Iterable[Tuple[List[int], List[int]]]] = None,
-        qubits: Optional[Sequence[int]] = None,
         analysis: Union[BaseAnalysis, None, str] = "default",
     ):
         """Initialize a tomography experiment.
@@ -88,7 +90,6 @@ class TomographyExperiment(BaseExperiment):
             preparation_qubits: DEPRECATED, equivalent to preparation_indices.
             basis_indices: Optional, the basis elements to be measured. If None
                 All basis elements will be measured.
-            qubits: DEPRECATED, the physical qubits for the initial state circuit.
             analysis: Optional, a custom analysis instance to use. If ``"default"``
                 :class:`~.TomographyAnalysis` will be used. If None no analysis
                 instance will be set.
@@ -96,15 +97,6 @@ class TomographyExperiment(BaseExperiment):
         Raises:
             QiskitError: if input params are invalid.
         """
-        # Deprecated kwargs
-        if qubits is not None:
-            physical_qubits = qubits
-            warnings.warn(
-                "The `qubits` kwarg has been renamed to `physical_qubits`."
-                " It will be removed in a future release.",
-                DeprecationWarning,
-                stacklevel=2,
-            )
         if measurement_qubits is not None:
             measurement_indices = measurement_qubits
             warnings.warn(

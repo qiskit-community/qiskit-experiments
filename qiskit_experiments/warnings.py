@@ -191,11 +191,11 @@ def _rename_kwargs(func_name, kwargs, kwarg_map, last_version, msg, stacklevel):
             if msg:
                 message += msg
 
-            warnings.warn(message, stacklevel=stacklevel)
+            warnings.warn(message, DeprecationWarning, stacklevel=stacklevel)
 
 
 def qubit_deprecate() -> Callable:
-    """Decorator to deprecate from qubit to physcial_qubits"""
+    """Decorator to deprecate from qubit to physical_qubits"""
 
     def decorator(func):
         @functools.wraps(func)
@@ -233,7 +233,6 @@ def qubit_deprecate() -> Callable:
                     category=category,
                     stacklevel=3,
                 )
-
                 kwargs["physical_qubits"] = [kwargs.pop("qubit")]
 
             return func(*args, **kwargs)
