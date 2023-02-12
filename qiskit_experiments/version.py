@@ -30,14 +30,14 @@ def _minimal_ext_cmd(cmd):
     env["LANGUAGE"] = "C"
     env["LANG"] = "C"
     env["LC_ALL"] = "C"
-    proc = subprocess.Popen(
+    with subprocess.Popen(
         cmd,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         env=env,
         cwd=os.path.join(os.path.dirname(ROOT_DIR)),
-    )
-    out = proc.communicate()[0]
+    ) as proc:
+        out = proc.communicate()[0]
     if proc.returncode > 0:
         raise OSError
     return out

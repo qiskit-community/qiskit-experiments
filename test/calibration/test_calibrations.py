@@ -32,10 +32,9 @@ from qiskit.pulse import (
     RegisterSlot,
     Play,
 )
-from qiskit import transpile, QuantumCircuit
+from qiskit import QuantumCircuit, pulse, transpile
 from qiskit.circuit.library import CXGate, XGate
 from qiskit.pulse.transforms import inline_subroutines, block_to_schedule
-import qiskit.pulse as pulse
 from qiskit.providers import BackendV2, Options
 from qiskit.providers.fake_provider import FakeArmonkV2, FakeBelemV2
 from qiskit.transpiler import Target

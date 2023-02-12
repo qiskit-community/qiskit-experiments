@@ -90,8 +90,8 @@ def main():
     parser.add_argument("paths", type=str, nargs="*", default=default_paths)
     args = parser.parse_args()
     files = discover_files(args.paths)
-    pool = multiprocessing.Pool()
-    res = pool.map(validate_header, files)
+    with multiprocessing.Pool() as pool:
+        res = pool.map(validate_header, files)
     failed_files = [x for x in res if x[1] is False]
     if len(failed_files) > 0:
         for failed_file in failed_files:

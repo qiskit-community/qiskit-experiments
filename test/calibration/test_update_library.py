@@ -14,9 +14,9 @@
 from test.base import QiskitExperimentsTestCase
 import numpy as np
 
+from qiskit import pulse
 from qiskit.circuit import Parameter
 from qiskit.qobj.utils import MeasLevel
-import qiskit.pulse as pulse
 from qiskit.providers.fake_provider import FakeAthensV2
 
 from qiskit_experiments.library import QubitSpectroscopy

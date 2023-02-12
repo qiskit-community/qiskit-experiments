@@ -370,9 +370,9 @@ def _deserialize_object_legacy(value: Dict) -> Any:
             if name == class_name:
                 return cls(*args, **kwargs)
 
-        raise Exception(
+        raise Exception(  # pylint: disable=broad-exception-raised
             f"Unable to find class {class_name} in module {mod_name}"
-        )  # pylint: disable=broad-exception-raised
+        )
 
     except Exception as ex:  # pylint: disable=broad-except
         traceback_msg = "".join(traceback.format_exception(type(ex), ex, ex.__traceback__))

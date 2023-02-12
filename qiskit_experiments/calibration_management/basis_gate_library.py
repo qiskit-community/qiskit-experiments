@@ -22,7 +22,7 @@ from typing import Any, Dict, List, Optional, Set
 from warnings import warn
 
 from qiskit.circuit import Parameter
-import qiskit.pulse as pulse
+from qiskit import pulse
 from qiskit.pulse import ScheduleBlock
 
 from qiskit_experiments.calibration_management.calibration_key_types import DefaultCalValue
