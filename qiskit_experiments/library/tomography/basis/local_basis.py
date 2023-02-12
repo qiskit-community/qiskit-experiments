@@ -737,7 +737,7 @@ def _format_data_dict(
     elif isinstance(data, dict):
         iter_data = data.items()
     elif not data:
-        iter_data = dict().items()
+        iter_data = {}.items()
     else:
         iter_data = data
 

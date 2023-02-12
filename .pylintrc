@@ -74,9 +74,7 @@ disable=fixme,              # disabled as TODOs would show up as warnings
     # be enabled if the violations in the code were addressed. These checks did
     # not exist in 2.8 so ignoring them for now is no regression compared to
     # using 2.8.
-    consider-using-f-string, use-dict-literal, unspecified-encoding,
-    consider-using-with, consider-using-from-import, use-sequence-for-iteration,
-    use-list-literal, consider-iterating-dictionary,
+    consider-using-f-string, unspecified-encoding,
     assigning-non-slot  # https://github.com/Qiskit/qiskit-terra/pull/7347#issuecomment-985007311
 
 

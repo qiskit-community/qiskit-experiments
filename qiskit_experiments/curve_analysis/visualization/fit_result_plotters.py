@@ -135,7 +135,13 @@ class MplDrawSingleCanvas:
                 transform=axis.transAxes,
             )
 
-            bbox_props = dict(boxstyle="square, pad=0.3", fc="white", ec="black", lw=1, alpha=0.8)
+            bbox_props = {
+                "boxstyle": "square, pad=0.3",
+                "fc": "white",
+                "ec": "black",
+                "lw": 1,
+                "alpha": 0.8,
+            }
             report_handler.set_bbox(bbox_props)
 
         axis.tick_params(labelsize=style.tick_label_size)
@@ -292,7 +298,13 @@ class MplDrawMultiCanvasVstack:
                 transform=axis.transAxes,
             )
 
-            bbox_props = dict(boxstyle="square, pad=0.3", fc="white", ec="black", lw=1, alpha=0.8)
+            bbox_props = {
+                "boxstyle": "square, pad=0.3",
+                "fc": "white",
+                "ec": "black",
+                "lw": 1,
+                "alpha": 0.8,
+            }
             report_handler.set_bbox(bbox_props)
 
         axis.tick_params(labelsize=style.tick_label_size)

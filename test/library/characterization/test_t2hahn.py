@@ -56,7 +56,7 @@ class TestT2Hahn(QiskitExperimentsTestCase):
             readout1to0=[0.02],
         )
 
-        for _ in [default_p0, dict()]:
+        for _ in [default_p0, {}]:
             exp.analysis.set_options(
                 p0={"amp": 0.5, "tau": estimated_t2hahn, "base": 0.5}, plot=True
             )

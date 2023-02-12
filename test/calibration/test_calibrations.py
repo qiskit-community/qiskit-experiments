@@ -178,7 +178,7 @@ class TestCalibrationsBasic(QiskitExperimentsTestCase):
             if sched_dict["schedule"].name == "xp":
                 schedule = sched_dict["schedule"]
 
-        for param in {self.amp_xp, self.sigma, self.beta, self.duration, self.chan}:
+        for param in (self.amp_xp, self.sigma, self.beta, self.duration, self.chan):
             self.assertTrue(param in schedule.parameters)
 
         self.assertEqual(len(schedule.parameters), 5)

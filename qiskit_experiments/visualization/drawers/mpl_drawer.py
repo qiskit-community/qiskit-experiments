@@ -68,7 +68,7 @@ class MplDrawer(BaseDrawer):
         super().__init__()
         # Used to track which series have already been plotted. Needed for _get_default_marker and
         # _get_default_color.
-        self._series = list()
+        self._series = []
 
     def initialize_canvas(self):
         # Create axis if empty

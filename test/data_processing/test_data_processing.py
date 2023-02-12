@@ -68,8 +68,8 @@ class TestDataProcessor(BaseDataProcessorTest):
 
         raw_counts1 = {"0x0": 4, "0x2": 6}
         raw_counts2 = {"0x0": 2, "0x2": 8}
-        data1 = ExperimentResultData(counts=dict(**raw_counts1))
-        data2 = ExperimentResultData(counts=dict(**raw_counts2))
+        data1 = ExperimentResultData(counts=raw_counts1)
+        data2 = ExperimentResultData(counts=raw_counts2)
         res1 = ExperimentResult(
             shots=10, success=True, meas_level=2, data=data1, header=self.header
         )

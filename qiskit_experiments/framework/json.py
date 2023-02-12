@@ -363,14 +363,16 @@ def _deserialize_object_legacy(value: Dict) -> Any:
     try:
         class_name = value["__name__"]
         mod_name = value["__module__"]
-        args = value.get("__args__", tuple())
-        kwargs = value.get("__kwargs__", dict())
+        args = value.get("__args__", ())
+        kwargs = value.get("__kwargs__", {})
         mod = importlib.import_module(mod_name)
         for name, cls in inspect.getmembers(mod, inspect.isclass):
             if name == class_name:
                 return cls(*args, **kwargs)
 
-        raise Exception(f"Unable to find class {class_name} in module {mod_name}")  # pylint: disable=broad-exception-raised
+        raise Exception(
+            f"Unable to find class {class_name} in module {mod_name}"
+        )  # pylint: disable=broad-exception-raised
 
     except Exception as ex:  # pylint: disable=broad-except
         traceback_msg = "".join(traceback.format_exception(type(ex), ex, ex.__traceback__))

@@ -36,7 +36,7 @@ class TestLibrary(FixedFrequencyTransmon):
         with pulse.build(name="x") as schedule:
             pulse.play(pulse.Drag(160, 0.1, 40, 0), pulse.DriveChannel(0))
 
-        schedules = dict()
+        schedules = {}
         if "x" in basis_gates:
             schedules["x"] = schedule
 

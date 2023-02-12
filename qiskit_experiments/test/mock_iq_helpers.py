@@ -457,7 +457,7 @@ class MockIQParallelExperimentHelper(MockIQExperimentHelper):
         qubit_experiment_mapping = {}
         for exp in self.exp_list:
             for qubit in exp.physical_qubits:
-                if qubit not in qubit_experiment_mapping.keys():
+                if qubit not in qubit_experiment_mapping:
                     qubit_experiment_mapping[qubit] = exp
                 else:
                     raise QiskitError(

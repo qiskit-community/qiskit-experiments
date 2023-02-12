@@ -207,7 +207,7 @@ class ExperimentData:
         self._experiment = experiment
 
         # data stored in the database
-        metadata = dict()
+        metadata = {}
         if experiment is not None:
             metadata = copy.deepcopy(experiment._metadata())
         source = metadata.pop(
