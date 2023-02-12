@@ -19,7 +19,6 @@ import warnings
 from qiskit.providers.backend import Backend
 from qiskit_experiments.exceptions import QiskitError
 from qiskit_experiments.framework import BaseExperiment
-from qiskit_experiments.framework.base_analysis import BaseAnalysis
 from .composite_analysis import CompositeAnalysis
 
 
@@ -95,17 +94,6 @@ class CompositeExperiment(BaseExperiment):
         if index is None:
             return self._experiments
         return self._experiments[index]
-
-    def component_analysis(self, index=None) -> Union[BaseAnalysis, List[BaseAnalysis]]:
-        """Return the component experiment Analysis object"""
-        warnings.warn(
-            "The `component_analysis` method is deprecated as of "
-            "qiskit-experiments 0.3.0 and will be removed in the 0.4.0 release."
-            " Use `analysis.component_analysis` instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        return self.analysis.component_analysis(index)
 
     @property
     def analysis(self) -> Union[CompositeAnalysis, None]:

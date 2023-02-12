@@ -14,7 +14,7 @@
 
 from abc import ABC, abstractmethod
 import logging
-from typing import List, Optional, Type, Union
+from typing import List, Optional, Sequence, Type, Union
 import warnings
 
 from qiskit import QuantumCircuit
@@ -192,7 +192,7 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
                 schedule=self._sched_name,
             )
 
-    def _validate_channels(self, schedule: ScheduleBlock, physical_qubits: List[int]):
+    def _validate_channels(self, schedule: ScheduleBlock, physical_qubits: Sequence[int]):
         """Check that the physical qubits are contained in the schedule.
 
         This is a helper method that experiment developers can call in their implementation

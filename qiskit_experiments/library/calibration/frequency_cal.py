@@ -12,7 +12,7 @@
 
 """Ramsey XY frequency calibration experiment."""
 
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Sequence
 
 from qiskit.circuit import QuantumCircuit
 from qiskit.providers.backend import Backend
@@ -24,6 +24,7 @@ from qiskit_experiments.calibration_management.update_library import BaseUpdater
 from qiskit_experiments.calibration_management.base_calibration_experiment import (
     BaseCalibrationExperiment,
 )
+from qiskit_experiments.warnings import qubit_deprecate
 
 
 class FrequencyCal(BaseCalibrationExperiment, RamseyXY):
@@ -33,9 +34,10 @@ class FrequencyCal(BaseCalibrationExperiment, RamseyXY):
         qiskit_experiments.library.characterization.ramsey_xy.RamseyXY
     """
 
+    @qubit_deprecate()
     def __init__(
         self,
-        qubit: int,
+        physical_qubits: Sequence[int],
         calibrations: Calibrations,
         backend: Optional[Backend] = None,
         delays: Optional[List] = None,
@@ -44,7 +46,8 @@ class FrequencyCal(BaseCalibrationExperiment, RamseyXY):
     ):
         """
         Args:
-            qubit: The qubit on which to run the frequency calibration.
+            physical_qubits: Sequence containing the qubit on which to run the
+                frequency calibration.
             calibrations: The calibrations instance with the schedules.
             backend: Optional, the backend to run the experiment on.
             delays: The list of delays that will be scanned in the experiment, in seconds.
@@ -55,7 +58,7 @@ class FrequencyCal(BaseCalibrationExperiment, RamseyXY):
         """
         super().__init__(
             calibrations,
-            qubit,
+            physical_qubits,
             backend=backend,
             delays=delays,
             osc_freq=osc_freq,

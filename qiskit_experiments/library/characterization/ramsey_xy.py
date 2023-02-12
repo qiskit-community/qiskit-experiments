@@ -12,7 +12,7 @@
 
 """Ramsey XY frequency characterization experiment."""
 
-from typing import List, Optional
+from typing import List, Optional, Sequence
 import numpy as np
 
 from qiskit import QuantumCircuit
@@ -23,6 +23,7 @@ from qiskit.qobj.utils import MeasLevel
 from qiskit_experiments.framework import BaseExperiment
 from qiskit_experiments.framework.restless_mixin import RestlessMixin
 from qiskit_experiments.library.characterization.analysis import RamseyXYAnalysis
+from qiskit_experiments.warnings import qubit_deprecate
 
 
 class RamseyXY(BaseExperiment, RestlessMixin):
@@ -99,9 +100,10 @@ class RamseyXY(BaseExperiment, RestlessMixin):
 
         return options
 
+    @qubit_deprecate()
     def __init__(
         self,
-        qubit: int,
+        physical_qubits: Sequence[int],
         backend: Optional[Backend] = None,
         delays: Optional[List] = None,
         osc_freq: float = 2e6,
@@ -109,13 +111,14 @@ class RamseyXY(BaseExperiment, RestlessMixin):
         """Create new experiment.
 
         Args:
-            qubit: The qubit on which to run the Ramsey XY experiment.
+            physical_qubits: List containing the qubit on which to run the
+                Ramsey XY experiment.
             backend: Optional, the backend to run the experiment on.
             delays: The delays to scan, in seconds.
             osc_freq: the oscillation frequency induced by the user through a virtual
                 Rz rotation. This quantity is given in Hz.
         """
-        super().__init__([qubit], analysis=RamseyXYAnalysis(), backend=backend)
+        super().__init__(physical_qubits, analysis=RamseyXYAnalysis(), backend=backend)
 
         if delays is None:
             delays = self.experiment_options.delays

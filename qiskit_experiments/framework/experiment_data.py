@@ -23,7 +23,6 @@ from threading import Event
 from functools import wraps
 from collections import deque
 import contextlib
-import warnings
 import copy
 import uuid
 import enum
@@ -147,6 +146,7 @@ class ExperimentData:
     """Qiskit Experiments Data container class.
 
     This class handles the following:
+
     1. Storing the data related to an experiment - the experiment's metadata,
        the analysis results and the figures
     2. Managing jobs and adding data from jobs automatically
@@ -158,6 +158,7 @@ class ExperimentData:
 
     Other data fields can be added and used freely, but they won't be saved
     to the database.
+
     """
 
     _metadata_version = 1
@@ -1863,17 +1864,6 @@ class ExperimentData:
         if isinstance(index, str):
             return self._child_data[index]
         raise QiskitError(f"Invalid index type {type(index)}.")
-
-    def component_experiment_data(
-        self, index: Optional[Union[int, slice]] = None
-    ) -> Union[ExperimentData, List[ExperimentData]]:
-        """Return child experiment data"""
-        warnings.warn(
-            "This method is deprecated and will be removed next release. "
-            "Use the `child_data` method instead.",
-            DeprecationWarning,
-        )
-        return self.child_data(index)
 
     @classmethod
     def load(cls, experiment_id: str, service: IBMExperimentService) -> "ExperimentData":

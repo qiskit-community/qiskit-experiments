@@ -39,9 +39,9 @@ class TestFineAmpEndToEndRestless(QiskitExperimentsTestCase):
         backend = MockRestlessFineAmp(error, np.pi, "x")
 
         with self.assertRaises(DataProcessorError):
-            FineXAmplitude(0, backend).enable_restless(rep_delay=2.0)
+            FineXAmplitude([0], backend).enable_restless(rep_delay=2.0)
 
-        amp_exp = FineXAmplitude(0, backend)
+        amp_exp = FineXAmplitude([0], backend)
         amp_exp.enable_restless(rep_delay=2.0, suppress_t1_error=True)
 
         self.assertTrue(
@@ -58,7 +58,7 @@ class TestFineAmpEndToEndRestless(QiskitExperimentsTestCase):
         error = -np.pi * pi_ratio
         backend = MockRestlessFineAmp(error, np.pi, "x")
 
-        amp_exp = FineXAmplitude(0, backend)
+        amp_exp = FineXAmplitude([0], backend)
         amp_exp.enable_restless(rep_delay=1e-6)
 
         expdata = amp_exp.run(backend)
@@ -80,7 +80,7 @@ class TestFineAmpEndToEndRestless(QiskitExperimentsTestCase):
         error = -np.pi * pi_ratio
         backend = MockRestlessFineAmp(error, np.pi, "x")
 
-        amp_exp = FineXAmplitude(0, backend)
+        amp_exp = FineXAmplitude([0], backend)
         # standard data processor.
         standard_processor = DataProcessor("counts", [Probability("01")])
         amp_exp.analysis.set_options(data_processor=standard_processor)

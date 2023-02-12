@@ -73,7 +73,7 @@ class TestFrequencyUpdate(QiskitExperimentsTestCase):
         freq01 = backend.defaults().qubit_freq_est[qubit]
         frequencies = np.linspace(freq01 - 10.0e6, freq01 + 10.0e6, 21)
 
-        spec = QubitSpectroscopy(qubit, frequencies)
+        spec = QubitSpectroscopy([qubit], frequencies)
         spec.set_run_options(meas_level=MeasLevel.CLASSIFIED)
         exp_data = spec.run(backend)
         self.assertExperimentDone(exp_data)

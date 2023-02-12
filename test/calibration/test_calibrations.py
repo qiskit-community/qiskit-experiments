@@ -17,6 +17,9 @@ import os
 import uuid
 from collections import defaultdict
 from datetime import datetime, timezone, timedelta
+
+from ddt import data, ddt, unpack
+
 from qiskit.circuit import Parameter, Gate
 from qiskit.pulse import (
     Drag,
@@ -30,9 +33,13 @@ from qiskit.pulse import (
     Play,
 )
 from qiskit import transpile, QuantumCircuit
+from qiskit.circuit.library import CXGate, XGate
 from qiskit.pulse.transforms import inline_subroutines, block_to_schedule
 import qiskit.pulse as pulse
+from qiskit.providers import BackendV2, Options
 from qiskit.providers.fake_provider import FakeArmonkV2, FakeBelemV2
+from qiskit.transpiler import Target
+
 from qiskit_experiments.framework import BackendData
 from qiskit_experiments.calibration_management.calibrations import Calibrations, ParameterKey
 from qiskit_experiments.calibration_management.parameter_value import ParameterValue
@@ -42,6 +49,30 @@ from qiskit_experiments.calibration_management.basis_gate_library import (
 from qiskit_experiments.exceptions import CalibrationError
 
 
+class MinimalBackend(BackendV2):
+    """Class for testing a backend with minimal data"""
+
+    target = None
+
+    def __init__(self):
+        super().__init__()
+        self.target = Target()
+
+    @property
+    def max_circuits(self):
+        """Maximum circuits to run at once"""
+        return 100
+
+    @classmethod
+    def _default_options(cls):
+        return Options()
+
+    def run(self, run_input, **options):
+        """Empty method to satisfy abstract base class"""
+        pass
+
+
+@ddt
 class TestCalibrationsBasic(QiskitExperimentsTestCase):
     """Class to test the management of schedules and parameters for calibrations."""
 
@@ -285,6 +316,38 @@ class TestCalibrationsBasic(QiskitExperimentsTestCase):
         self.assertEqual(control_channel_map_size, 8)
         self.assertEqual(coupling_map_size, 8)
         self.assertEqual(cals.get_parameter_value("drive_freq", 0), 5090167234.445013)
+
+    @data(
+        (0, None, False),  # Edge case. Perhaps does not need to be supported
+        (1, None, False),  # Produces backend.target.qubit_properties is None
+        (2, None, False),
+        (1, "x", False),  # Produces backend.coupling_map is None
+        (1, "x", True),
+        (2, "x", True),
+        (2, "cx", True),  # backend.control_channel raises NotImplementedError
+    )
+    @unpack
+    def test_from_minimal_backend(self, num_qubits, gate_name, pass_properties):
+        """Test that from_backend works for a backend with minimal data"""
+        # We do not use Gate or dict test arguments directly because they do
+        # not translate to printable test case names, so we translate here.
+        properties = None
+        if gate_name == "x":
+            gate = XGate()
+            if pass_properties:
+                properties = {(i,): None for i in range(num_qubits)}
+        elif gate_name == "cx":
+            gate = CXGate()
+            if pass_properties:
+                properties = {(0, 1): None}
+        else:
+            gate = None
+
+        backend = MinimalBackend()
+        backend.target = Target(num_qubits=num_qubits)
+        if gate is not None:
+            backend.target.add_instruction(gate, properties=properties)
+        Calibrations.from_backend(backend)
 
 
 class TestOverrideDefaults(QiskitExperimentsTestCase):

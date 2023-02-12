@@ -70,7 +70,7 @@ they use always starts with the qubits in the ground state.
 
     # replace this lines with an IBM Quantum backend to run the experiment.
     backend = FakeBogota()
-    cals = Calibrations.from_backend(backend, library=FixedFrequencyTransmon())
+    cals = Calibrations.from_backend(backend, libraries=[FixedFrequencyTransmon()])
 
     # Define the experiment
     qubit = 2

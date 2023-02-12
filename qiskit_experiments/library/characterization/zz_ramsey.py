@@ -21,6 +21,7 @@ from qiskit import QuantumCircuit
 from qiskit.providers.backend import Backend
 from qiskit.circuit import Parameter, ParameterExpression
 
+from qiskit_experiments.warnings import deprecate_arguments
 from qiskit_experiments.framework import BackendTiming, BaseExperiment, Options
 from .analysis.zz_ramsey_analysis import ZZRamseyAnalysis
 
@@ -126,20 +127,21 @@ class ZZRamsey(BaseExperiment):
         :py:class:`ZZRamseyAnalysis`
     """
 
+    @deprecate_arguments({"qubits": "physical_qubits"}, "0.5")
     def __init__(
         self,
-        qubits: (int, int),
+        physical_qubits: Tuple[int, int],
         backend: Union[Backend, None] = None,
         **experiment_options,
     ):
         """Create new experiment.
 
         Args:
-            qubits: The qubits on which to run the Ramsey XY experiment.
+            physical_qubits: The qubits on which to run the Ramsey XY experiment.
             backend: Optional, the backend to run the experiment on.
             experiment_options: experiment options to set
         """
-        super().__init__(qubits=qubits, analysis=ZZRamseyAnalysis(), backend=backend)
+        super().__init__(physical_qubits, analysis=ZZRamseyAnalysis(), backend=backend)
         # Override the default of get_processor() which is "1" * num_qubits. We
         # only fit the probability of the target qubit.
         self.analysis.set_options(outcome="1")
