@@ -70,7 +70,7 @@ class ExperimentConfig:
                     f" qiskit-experiments version ({__version__}). You could try"
                     " installing a compatible qiskit-experiments version."
                 )
-            raise QiskitError("{}\nError Message:\n{}".format(msg, str(ex))) from ex
+            raise QiskitError(f"{msg}\nError Message:\n{str(ex)}") from ex
 
 
 @dataclasses.dataclass(frozen=True)
@@ -121,4 +121,4 @@ class AnalysisConfig:
                     f" qiskit-experiments version ({__version__}). You could try"
                     " installing a compatible qiskit-experiments version."
                 )
-            raise QiskitError("{}\nError Message:\n{}".format(msg, str(ex))) from ex
+            raise QiskitError(f"{msg}\nError Message:\n{str(ex)}") from ex

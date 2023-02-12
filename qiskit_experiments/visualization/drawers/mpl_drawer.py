@@ -62,7 +62,7 @@ class MplDrawer(BaseDrawer):
             Returns:
                 The formatted tick label.
             """
-            return self.fix_minus("{:.3g}".format(x * self.factor))
+            return self.fix_minus(f"{x * self.factor:.3g}")
 
     def __init__(self):
         super().__init__()

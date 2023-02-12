@@ -103,9 +103,7 @@ def solve_iteratively(problem: Problem, initial_iters: int, scale: int = 2, **so
                     "value for 'max_iters' solver option."
                 )
         else:
-            raise AnalysisError(
-                "CVXPY solver failed with problem status '{}'.".format(problem.status)
-            )
+            raise AnalysisError(f"CVXPY solver failed with problem status '{problem.status}'.")
 
 
 def set_default_sdp_solver(solver_kwargs: dict):

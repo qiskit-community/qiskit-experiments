@@ -2051,7 +2051,7 @@ class ExperimentData:
             return self._extra_data[name]
         except KeyError:
             # pylint: disable=raise-missing-from
-            raise AttributeError("Attribute %s is not defined" % name)
+            raise AttributeError(f"Attribute {name} is not defined")
 
     def _safe_serialize_jobs(self):
         """Return serializable object for stored jobs"""

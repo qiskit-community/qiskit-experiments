@@ -402,7 +402,7 @@ def _deparameterized_name(inst: Instruction) -> str:
         elif np.isclose(inst.params[0], -np.pi / 2):
             return "sdg"
         else:
-            raise QiskitError("Wrong param {} for rz in clifford".format(inst.params[0]))
+            raise QiskitError(f"Wrong param {inst.params[0]} for rz in clifford")
 
     return inst.name
 

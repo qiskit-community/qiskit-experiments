@@ -95,7 +95,7 @@ class QuantumVolumeAnalysis(BaseAnalysis):
              list: the bit strings of the heavy output
         """
 
-        format_spec = "{0:0%db}" % depth
+        format_spec = f"{{0:0{depth}b}}"
         # Keys are bit strings and values are probabilities of observing those strings
         all_output_prob_ideal = {
             format_spec.format(b): float(np.real(probabilities_vector[b]))

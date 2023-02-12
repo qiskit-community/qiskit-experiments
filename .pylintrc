@@ -70,11 +70,6 @@ disable=fixme,              # disabled as TODOs would show up as warnings
     no-else-return,     # relax "elif" after a clause with a return
     docstring-first-line-empty, # relax docstring style
     import-outside-toplevel,
-    # The next three lines were added for updating from 2.8 to 2.16. They could
-    # be enabled if the violations in the code were addressed. These checks did
-    # not exist in 2.8 so ignoring them for now is no regression compared to
-    # using 2.8.
-    consider-using-f-string, unspecified-encoding,
     assigning-non-slot  # https://github.com/Qiskit/qiskit-terra/pull/7347#issuecomment-985007311
 
 
