@@ -1,5 +1,6 @@
 ---
 fixes:
   - |
-    Fixed false information for experiments with failed analysis. Now analysis results e cleared first
-    before making the analysis.
+    There has been a bug in `BaseAnalysis` class where a failed analysis would not be saved when running
+    with the flag `replace_results=True`. Now analysis results will be cleared before running 
+    `self._run_analysis()`. When analysis fails, an empty analysis result will be saved to the DB.
