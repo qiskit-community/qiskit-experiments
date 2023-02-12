@@ -21,6 +21,7 @@ from qiskit.providers.fake_provider import FakeVigoV2, FakeJob
 from qiskit.providers.jobstatus import JobStatus
 from qiskit.exceptions import QiskitError
 
+from qiskit_experiments.exceptions import AnalysisError
 from qiskit_experiments.framework import (
     ExperimentData,
     BaseExperiment,
@@ -127,6 +128,47 @@ class TestFramework(QiskitExperimentsTestCase):
         target_opts["figure_names"] = None
 
         self.assertEqual(analysis.options.__dict__, target_opts)
+
+    def test_failed_analysis_replace_results_true(self):
+        """Test running analysis with replace_results=True"""
+
+        class FakeFailedAnalysis(FakeAnalysis):
+            """raise analysis error"""
+
+            def _run_analysis(self, experiment_data, **options):
+                raise AnalysisError("Failed analysis for testing.")
+
+        analysis = FakeAnalysis()
+        failed_analysis = FakeFailedAnalysis()
+        expdata1 = analysis.run(ExperimentData(), seed=54321)
+        self.assertExperimentDone(expdata1)
+        expdata2 = failed_analysis.run(
+            expdata1, replace_results=True, seed=12345
+        ).block_for_results()
+        # check that the analysis is empty for the answer of the failed analysis.
+        self.assertEqual(expdata2.analysis_results(), [])
+        # confirming original analysis results is empty due to 'replace_results=True'
+        self.assertEqual(expdata1.analysis_results(), [])
+
+    def test_failed_analysis_replace_results_false(self):
+        """Test running analysis with replace_results=False"""
+
+        class FakeFailedAnalysis(FakeAnalysis):
+            """raise analysis error"""
+
+            def _run_analysis(self, experiment_data, **options):
+                raise AnalysisError("Failed analysis for testing.")
+
+        analysis = FakeAnalysis()
+        failed_analysis = FakeFailedAnalysis()
+        expdata1 = analysis.run(ExperimentData(), seed=54321)
+        self.assertExperimentDone(expdata1)
+        expdata2 = failed_analysis.run(expdata1, replace_results=False, seed=12345)
+
+        # check that the analysis is empty for the answer of the failed analysis.
+        self.assertEqual(expdata2.analysis_results(), [])
+        # confirming original analysis results isn't empty due to 'replace_results=False'
+        self.assertNotEqual(expdata1.analysis_results(), [])
 
     def test_after_job_fail(self):
         """Verify that analysis is cancelled in case of job failure"""
