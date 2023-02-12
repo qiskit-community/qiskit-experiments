@@ -1,6 +1,6 @@
 ---
 fixes:
   - |
-    There has been a bug in `BaseAnalysis` class where a failed analysis would not be saved when running
-    with the flag `replace_results=True`. Now analysis results will be cleared before running 
-    `self._run_analysis()`. When analysis fails, an empty analysis result will be saved to the DB.
+    Fixed a bug where old analysis results were saved, in the case of a failed analysis. Now analysis
+    results will be cleared before running `self._run_analysis()`. As a result, when analysis fails, an 
+    empty analysis result will be saved to the DB.
