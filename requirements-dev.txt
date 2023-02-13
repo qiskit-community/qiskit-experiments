@@ -1,6 +1,5 @@
 black~=22.0
 stestr
-astroid==2.5
 pylint==2.16.1
 jinja2==3.0.3
 Sphinx>=1.8.3
