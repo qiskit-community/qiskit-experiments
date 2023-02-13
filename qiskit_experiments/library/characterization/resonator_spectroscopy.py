@@ -21,7 +21,7 @@ from qiskit.exceptions import QiskitError
 from qiskit.providers import Backend
 import qiskit.pulse as pulse
 
-from qiskit_experiments.framework import Options, BackendData
+from qiskit_experiments.framework import BackendData, BackendTiming, Options
 from qiskit_experiments.library.characterization.spectroscopy import Spectroscopy
 from qiskit_experiments.warnings import qubit_deprecate
 from .analysis.resonator_spectroscopy_analysis import ResonatorSpectroscopyAnalysis
@@ -42,9 +42,9 @@ class ResonatorSpectroscopy(Spectroscopy):
             c: 1/═╩═
                   0
 
-        where a spectroscopy pulse is attached to the measurement instruction. An initial circuit can be
-        added before the measurement by setting the ``initial_circuit`` experiment option. If set, the
-        experiment applies the following circuit:
+        where a spectroscopy pulse is attached to the measurement instruction. An initial circuit
+        can be added before the measurement by setting the ``initial_circuit`` experiment option. If
+        set, the experiment applies the following circuit:
 
         .. parsed-literal::
 
@@ -114,7 +114,7 @@ class ResonatorSpectroscopy(Spectroscopy):
             duration (float): The duration in seconds of the spectroscopy pulse.
             sigma (float): The standard deviation of the spectroscopy pulse in seconds.
             width (float): The width of the flat-top part of the GaussianSquare pulse in
-                seconds. Defaults to 0.
+                seconds.
             initial_circuit (QuantumCircuit): A single-qubit initial circuit to run before the
                 measurement/spectroscopy pulse. The circuit must contain only a single qubit and zero
                 classical bits. If None, no circuit is appended before the measurement. Defaults to None.
@@ -224,12 +224,14 @@ class ResonatorSpectroscopy(Spectroscopy):
 
     def _schedule(self) -> Tuple[pulse.ScheduleBlock, Parameter]:
         """Create the spectroscopy schedule."""
+        timing = BackendTiming(self.backend)
 
-        dt, granularity = self._dt, self._granularity
+        if timing.dt is None:
+            raise QiskitError(f"{self.__class__.__name__} requires a backend with a dt value.")
 
-        duration = int(granularity * (self.experiment_options.duration / dt // granularity))
-        sigma = granularity * (self.experiment_options.sigma / dt // granularity)
-        width = granularity * (self.experiment_options.width / dt // granularity)
+        duration = timing.round_pulse(time=self.experiment_options.duration)
+        sigma = self.experiment_options.sigma / timing.dt
+        width = self.experiment_options.width / timing.dt
 
         qubit = self.physical_qubits[0]
 

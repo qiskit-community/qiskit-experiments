@@ -19,7 +19,7 @@ import numpy as np
 from qiskit import QuantumCircuit, QiskitError
 from qiskit.providers.backend import Backend
 
-from qiskit_experiments.framework import BaseExperiment, Options
+from qiskit_experiments.framework import BackendTiming, BaseExperiment, Options
 from qiskit_experiments.library.characterization.analysis.t2hahn_analysis import T2HahnAnalysis
 from qiskit_experiments.warnings import qubit_deprecate
 
@@ -87,7 +87,7 @@ class T2Hahn(BaseExperiment):
             physical_qubits: a single-element sequence containing the qubit whose T2 is to be
                 estimated
             delays: Total delay times of the experiments.
-                        backend: Optional, the backend to run the experiment on.
+            backend: Optional, the backend to run the experiment on.
             num_echoes: The number of echoes to preform.
             backend: Optional, the backend to run the experiment on..
 
@@ -114,14 +114,6 @@ class T2Hahn(BaseExperiment):
                 "non-negative elements."
             )
 
-    def _set_backend(self, backend: Backend):
-        super()._set_backend(backend)
-
-        # Scheduling parameters
-        if not self._backend_data.is_simulator:
-            scheduling_method = getattr(self.transpile_options, "scheduling_method", "alap")
-            self.set_transpile_options(scheduling_method=scheduling_method)
-
     def circuits(self) -> List[QuantumCircuit]:
         """
         Return a list of experiment circuits.
@@ -133,44 +125,30 @@ class T2Hahn(BaseExperiment):
         Returns:
             The experiment circuits.
         """
-
-        dt_unit = False
-        if self.backend:
-            dt_factor = self._backend_data.dt
-            dt_unit = dt_factor is not None
+        timing = BackendTiming(self.backend)
 
         circuits = []
         for delay_gate in np.asarray(self.experiment_options.delays, dtype=float):
-            if dt_unit:
-                delay_dt = round(delay_gate / dt_factor)
-                real_delay_in_sec = delay_dt * dt_factor
-            else:
-                real_delay_in_sec = delay_gate
-
-            total_delay = real_delay_in_sec * (self.experiment_options.num_echoes * 2)
+            num_delays = self.experiment_options.num_echoes + 1
+            # Equal delay is put before and after each echo, so each echo gets
+            # two delay gates. When there are multiple echoes, the total delay
+            # between echoes is 2 * single_delay, made up of two delay gates.
+            single_delay = delay_gate / num_delays / 2
 
             circ = QuantumCircuit(1, 1)
 
             # First X rotation in 90 degrees
             circ.rx(np.pi / 2, 0)  # Brings the qubit to the X Axis
-            for _ in range(self.experiment_options.num_echoes):
-                if dt_unit:
-                    circ.delay(delay_dt, 0, "dt")
-                    circ.rx(np.pi, 0)
-                    circ.delay(delay_dt, 0, "dt")
-                else:
-                    circ.delay(delay_gate, 0, "s")
-                    circ.rx(np.pi, 0)
-                    circ.delay(delay_gate, 0, "s")
-
-            # if number of echoes is 0 then just apply the delay gate
             if self.experiment_options.num_echoes == 0:
-                if dt_unit:
-                    total_delay = real_delay_in_sec
-                    circ.delay(delay_dt, 0, "dt")
-                else:
-                    total_delay = real_delay_in_sec
-                    circ.delay(delay_gate, 0, "s")
+                # if number of echoes is 0 then just apply the delay gate
+                circ.delay(timing.round_delay(time=delay_gate), 0, timing.delay_unit)
+                total_delay = timing.delay_time(time=delay_gate)
+            else:
+                for _ in range(self.experiment_options.num_echoes):
+                    circ.delay(timing.round_delay(time=single_delay), 0, timing.delay_unit)
+                    circ.rx(np.pi, 0)
+                    circ.delay(timing.round_delay(time=single_delay), 0, timing.delay_unit)
+                total_delay = timing.delay_time(time=single_delay) * num_delays * 2
 
             if self.experiment_options.num_echoes % 2 == 1:
                 circ.rx(np.pi / 2, 0)  # X90 again since the num of echoes is odd
