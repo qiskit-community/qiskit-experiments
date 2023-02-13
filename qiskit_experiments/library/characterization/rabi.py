@@ -12,7 +12,7 @@
 
 """Rabi amplitude experiment."""
 
-from typing import Iterable, List, Optional, Tuple
+from typing import Iterable, List, Optional, Sequence, Tuple
 import numpy as np
 
 from qiskit import QuantumCircuit
@@ -25,6 +25,7 @@ from qiskit.exceptions import QiskitError
 from qiskit_experiments.framework import BaseExperiment, Options
 from qiskit_experiments.framework.restless_mixin import RestlessMixin
 from qiskit_experiments.curve_analysis import ParameterRepr, OscillationAnalysis
+from qiskit_experiments.warnings import qubit_deprecate
 
 
 class Rabi(BaseExperiment, RestlessMixin):
@@ -87,9 +88,10 @@ class Rabi(BaseExperiment, RestlessMixin):
 
         return options
 
+    @qubit_deprecate()
     def __init__(
         self,
-        qubit: int,
+        physical_qubits: Sequence[int],
         schedule: ScheduleBlock,
         amplitudes: Optional[Iterable[float]] = None,
         backend: Optional[Backend] = None,
@@ -97,14 +99,14 @@ class Rabi(BaseExperiment, RestlessMixin):
         """Initialize a Rabi experiment on the given qubit.
 
         Args:
-            qubit: The qubit on which to run the Rabi experiment.
+            physical_qubits: List with the qubit on which to run the Rabi experiment.
             schedule: The schedule that will be used in the Rabi experiment. This schedule
                 should have one free parameter namely the amplitude.
             amplitudes: The pulse amplitudes that one wishes to scan. If this variable is not
                 specified it will default to :code:`np.linspace(-0.95, 0.95, 51)`.
             backend: Optional, the backend to run the experiment on.
         """
-        super().__init__([qubit], analysis=OscillationAnalysis(), backend=backend)
+        super().__init__(physical_qubits, analysis=OscillationAnalysis(), backend=backend)
 
         self.analysis.set_options(
             result_parameters=[ParameterRepr("freq", self.__outcome__)],

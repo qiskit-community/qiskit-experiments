@@ -13,7 +13,7 @@
 T2Hahn Echo Experiment class.
 """
 
-from typing import List, Optional, Union
+from typing import List, Optional, Union, Sequence
 import numpy as np
 
 from qiskit import QuantumCircuit, QiskitError
@@ -21,6 +21,7 @@ from qiskit.providers.backend import Backend
 
 from qiskit_experiments.framework import BaseExperiment, Options
 from qiskit_experiments.library.characterization.analysis.t2hahn_analysis import T2HahnAnalysis
+from qiskit_experiments.warnings import qubit_deprecate
 
 
 class T2Hahn(BaseExperiment):
@@ -71,9 +72,10 @@ class T2Hahn(BaseExperiment):
         options.num_echoes = 1
         return options
 
+    @qubit_deprecate()
     def __init__(
         self,
-        qubit: int,
+        physical_qubits: Sequence[int],
         delays: Union[List[float], np.array],
         num_echoes: int = 1,
         backend: Optional[Backend] = None,
@@ -82,7 +84,8 @@ class T2Hahn(BaseExperiment):
         Initialize the T2 - Hahn Echo class
 
         Args:
-            qubit:  the qubit whose T2 is to be estimated
+            physical_qubits: a single-element sequence containing the qubit whose T2 is to be
+                estimated
             delays: Total delay times of the experiments.
                         backend: Optional, the backend to run the experiment on.
             num_echoes: The number of echoes to preform.
@@ -92,7 +95,7 @@ class T2Hahn(BaseExperiment):
              QiskitError : Error for invalid input.
         """
         # Initialize base experiment
-        super().__init__([qubit], analysis=T2HahnAnalysis(), backend=backend)
+        super().__init__(physical_qubits, analysis=T2HahnAnalysis(), backend=backend)
 
         # Set experiment options
         self.set_experiment_options(delays=delays, num_echoes=num_echoes)

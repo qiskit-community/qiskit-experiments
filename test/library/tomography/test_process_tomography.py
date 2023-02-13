@@ -15,12 +15,15 @@ ProcessTomography experiment tests
 """
 from test.base import QiskitExperimentsTestCase
 import ddt
+import numpy as np
 from qiskit import QuantumCircuit
 from qiskit.circuit.library import XGate, CXGate
+from qiskit.result import LocalReadoutMitigator
 import qiskit.quantum_info as qi
 from qiskit_aer import AerSimulator
+from qiskit_aer.noise import NoiseModel
 from qiskit_experiments.library import ProcessTomography
-from qiskit_experiments.library.tomography import ProcessTomographyAnalysis
+from qiskit_experiments.library.tomography import ProcessTomographyAnalysis, basis
 from qiskit_experiments.database_service import ExperimentEntryNotFound
 from .tomo_utils import FITTERS, filter_results, teleport_circuit, teleport_bell_circuit
 
@@ -354,3 +357,87 @@ class TestProcessTomography(QiskitExperimentsTestCase):
             ExperimentEntryNotFound, msg="process_fidelity should not exist when target=None"
         ):
             expdata.analysis_results("process_fidelity")
+
+    def test_qpt_spam_mitigated_basis(self):
+        """Test QPT with SPAM mitigation basis"""
+        num_qubits = 2
+        noise_model = NoiseModel()
+
+        # Reset noise model
+        p_reset = 0.1
+        reset_chans = [
+            (1 - p_reset) * qi.SuperOp(np.eye(4))
+            + p_reset * qi.random_quantum_channel(2, seed=100 + i)
+            for i in range(num_qubits)
+        ]
+        qubit_states = {}
+        for qubit, chan in enumerate(reset_chans):
+            qubit_states[qubit] = [chan]
+            noise_model.add_quantum_error(chan, "reset", [qubit])
+
+        # Noisy preparation basis
+        prep_basis = basis.LocalPreparationBasis(
+            "NoisyPauliPrep",
+            instructions=basis.PauliPreparationBasis()._instructions,
+            qubit_states=qubit_states,
+        )
+
+        # Measurement noise model
+        p_meas = 0.15
+        meas_chans = [
+            (1 - p_meas) * qi.SuperOp(np.eye(4))
+            + p_meas * qi.random_quantum_channel(2, seed=200 + i)
+            for i in range(num_qubits)
+        ]
+        qubit_povms = {}
+        for qubit, chan in enumerate(meas_chans):
+            qubit_povms[qubit] = [chan]
+            noise_model.add_quantum_error(chan, "measure", [qubit])
+
+        # Noisy measurement basis
+        meas_basis = basis.LocalMeasurementBasis(
+            "NoisyMeas",
+            instructions=basis.PauliMeasurementBasis()._instructions,
+            qubit_povms=qubit_povms,
+        )
+
+        # Noisy simulator
+        backend = AerSimulator(noise_model=noise_model, seed_simulator=1337)
+
+        exp = ProcessTomography(
+            CXGate(), measurement_basis=meas_basis, preparation_basis=prep_basis
+        )
+        exp.backend = backend
+        expdata = exp.run(shots=2000).block_for_results()
+        self.assertExperimentDone(expdata)
+        fid = expdata.analysis_results("process_fidelity").value
+        self.assertGreater(fid, 0.95)
+
+    def test_qpt_amat_pauli_basis(self):
+        """Test QPT with A-matrix mitigation Pauli basis"""
+        num_qubits = 4
+
+        #  Construct a-matrices
+        amats = []
+        for qubit in range(num_qubits):
+            p0g1 = 0.1 + 0.01 * qubit
+            p1g0 = 0.05 + 0.01 * qubit
+            amats.append(np.array([[1 - p1g0, p0g1], [p1g0, 1 - p0g1]]))
+
+        # Construct noisy measurement basis
+        mitigator = LocalReadoutMitigator(amats)
+        meas_basis = basis.PauliMeasurementBasis(mitigator=mitigator)
+
+        # Construct noisy simulator
+        noise_model = NoiseModel()
+        for qubit, amat in enumerate(amats):
+            noise_model.add_readout_error(amat.T, [qubit])
+        backend = AerSimulator(noise_model=noise_model)
+
+        # Run experiment
+        exp = ProcessTomography(CXGate(), measurement_basis=meas_basis)
+        exp.backend = backend
+        expdata = exp.run(shots=2000).block_for_results()
+        self.assertExperimentDone(expdata)
+        fid = expdata.analysis_results("process_fidelity").value
+        self.assertGreater(fid, 0.95)

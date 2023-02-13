@@ -38,7 +38,7 @@ class TestBaseCalibrationClass(QiskitExperimentsTestCase):
 
             def __init__(self):
                 """A dummy class for parent order testing."""
-                super().__init__(Calibrations(coupling_map=[]), 0, [0, 1, 2])
+                super().__init__(Calibrations(coupling_map=[]), [0], [0, 1, 2])
 
             def _attach_calibrations(self, circuit):
                 """Needed as this method is abstract"""
@@ -54,7 +54,7 @@ class TestBaseCalibrationClass(QiskitExperimentsTestCase):
 
                 def __init__(self):
                     """A dummy class for parent order testing."""
-                    super().__init__(Calibrations(coupling_map=[]), 0, [0, 1, 2])
+                    super().__init__(Calibrations(coupling_map=[]), [0], [0, 1, 2])
 
     def test_update_calibration(self):
         """Test updating calibrations with execution of calibration experiment."""

@@ -39,7 +39,7 @@ class TestT1(QiskitExperimentsTestCase):
         backend = NoisyDelayAerBackend([t1], [t1 / 2])
 
         delays = np.arange(1e-6, 40e-6, 3e-6)
-        exp = T1(0, delays)
+        exp = T1([0], delays)
 
         exp.analysis.set_options(p0={"amp": 1, "tau": t1, "base": 0})
         exp_data = exp.run(backend, shots=10000, seed_simulator=1).block_for_results()
@@ -84,7 +84,7 @@ class TestT1(QiskitExperimentsTestCase):
         )
 
         # Experiment initialization and analysis options
-        exp0 = T1(0, delays)
+        exp0 = T1([0], delays)
         exp0.analysis = T1KerneledAnalysis()
 
         exp0.analysis.set_options(p0={"amp": 1, "tau": t1[0], "base": 0})
@@ -119,8 +119,8 @@ class TestT1(QiskitExperimentsTestCase):
 
         backend = NoisyDelayAerBackend(t1, t2)
 
-        exp0 = T1(qubit=qubit0, delays=delays)
-        exp2 = T1(qubit=qubit2, delays=delays)
+        exp0 = T1(physical_qubits=[qubit0], delays=delays)
+        exp2 = T1(physical_qubits=[qubit2], delays=delays)
 
         par_exp = ParallelExperiment([exp0, exp2])
         res = par_exp.run(backend=backend, shots=10000, seed_simulator=1).block_for_results()
@@ -163,10 +163,10 @@ class TestT1(QiskitExperimentsTestCase):
         delays = np.append(delays, [t1[0] * 3])
 
         # Experiments
-        exp0 = T1(qubit=qubit0, delays=delays)
+        exp0 = T1(physical_qubits=[qubit0], delays=delays)
         exp0.analysis = T1KerneledAnalysis()
 
-        exp2 = T1(qubit=qubit2, delays=delays)
+        exp2 = T1(physical_qubits=[qubit2], delays=delays)
         exp2.analysis = T1KerneledAnalysis()
 
         par_exp_list = [exp0, exp2]
@@ -230,10 +230,10 @@ class TestT1(QiskitExperimentsTestCase):
 
         delays = list(range(1, 40, 3))
 
-        exp0 = T1(0, delays)
+        exp0 = T1([0], delays)
         exp0.analysis.set_options(p0={"tau": 30})
 
-        exp1 = T1(1, delays)
+        exp1 = T1([1], delays)
         exp1.analysis.set_options(p0={"tau": 1000000})
 
         par_exp = ParallelExperiment([exp0, exp1])
@@ -282,7 +282,7 @@ class TestT1(QiskitExperimentsTestCase):
         """
 
         delays = np.arange(1e-3, 40e-3, 3e-3)
-        exp = T1(0, delays)
+        exp = T1([0], delays)
         circs = exp.circuits()
 
         self.assertEqual(len(circs), len(delays))
@@ -336,8 +336,8 @@ class TestT1(QiskitExperimentsTestCase):
         coupling_map = [[i - 1, i] for i in range(1, num_qubits)]
         basis_gates = ["rx", "delay"]
 
-        exp1 = T1(1, delays=[50e-9, 100e-9, 160e-9])
-        exp2 = T1(3, delays=[40e-9, 80e-9, 190e-9])
+        exp1 = T1([1], delays=[50e-9, 100e-9, 160e-9])
+        exp2 = T1([3], delays=[40e-9, 80e-9, 190e-9])
         parexp = ParallelExperiment([exp1, exp2])
         parexp.set_transpile_options(
             basis_gates=basis_gates,
@@ -362,14 +362,14 @@ class TestT1(QiskitExperimentsTestCase):
 
     def test_experiment_config(self):
         """Test converting to and from config works"""
-        exp = T1(0, [1, 2, 3, 4, 5])
+        exp = T1([0], [1, 2, 3, 4, 5])
         loaded_exp = T1.from_config(exp.config())
         self.assertNotEqual(exp, loaded_exp)
         self.assertTrue(self.json_equiv(exp, loaded_exp))
 
     def test_roundtrip_serializable(self):
         """Test round trip JSON serialization"""
-        exp = T1(0, [1, 2, 3, 4, 5])
+        exp = T1([0], [1, 2, 3, 4, 5])
         self.assertRoundTripSerializable(exp, self.json_equiv)
 
     def test_analysis_config(self):
@@ -385,7 +385,7 @@ class TestT1(QiskitExperimentsTestCase):
         """
         backend = FakeAthensV2()
         delays = np.arange(1e-3, 40e-3, 3e-3)
-        exp = T1(0, delays, backend=backend)
+        exp = T1([0], delays, backend=backend)
         circs = exp.circuits()
 
         self.assertEqual(len(circs), len(delays))

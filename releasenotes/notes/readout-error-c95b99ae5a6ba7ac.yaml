@@ -6,6 +6,13 @@ features:
     ``physical_qubits`` kwarg optional. If a backend is supplied without
     specifying phyiscal qubits, the experiment will be initialized on all
     qubits for the backend.
+fixes:
+  - |
+    Fixes bug in the :class:`~.LocalReadoutError` experiment where analysis
+    would fail when run on an ideal simulator with no readout error.
+
+    See Issue #992 <https://github.com/Qiskit/qiskit-experiments/issues/992>`_
+    for additional details.
 deprecations:
   - |
     The ``qubits`` kwarg of the following experiments has been deprecated and

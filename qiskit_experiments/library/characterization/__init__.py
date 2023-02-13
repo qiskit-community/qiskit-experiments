@@ -65,8 +65,6 @@ Analysis
     TphiAnalysis
     CrossResonanceHamiltonianAnalysis
     DragCalAnalysis
-    FineHalfAngleAnalysis
-    FineDragAnalysis
     FineAmplitudeAnalysis
     RamseyXYAnalysis
     ReadoutAngleAnalysis
@@ -80,8 +78,6 @@ Analysis
 
 from .analysis import (
     DragCalAnalysis,
-    FineHalfAngleAnalysis,
-    FineDragAnalysis,
     FineAmplitudeAnalysis,
     RamseyXYAnalysis,
     T2RamseyAnalysis,

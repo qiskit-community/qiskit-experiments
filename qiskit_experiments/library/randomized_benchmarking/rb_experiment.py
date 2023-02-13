@@ -30,8 +30,11 @@ from qiskit.pulse.instruction_schedule_map import CalibrationPublisher
 from qiskit.quantum_info import Clifford
 from qiskit.quantum_info.random import random_clifford
 from qiskit.transpiler import CouplingMap
+
+from qiskit_experiments.warnings import deprecate_arguments
 from qiskit_experiments.framework import BaseExperiment, Options
 from qiskit_experiments.framework.restless_mixin import RestlessMixin
+
 from .clifford_utils import (
     CliffordUtils,
     compose_1q,
@@ -75,9 +78,10 @@ class StandardRB(BaseExperiment, RestlessMixin):
 
     """
 
+    @deprecate_arguments({"qubits": "physical_qubits"}, "0.5")
     def __init__(
         self,
-        qubits: Sequence[int],
+        physical_qubits: Sequence[int],
         lengths: Iterable[int],
         backend: Optional[Backend] = None,
         num_samples: int = 3,
@@ -87,7 +91,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
         """Initialize a standard randomized benchmarking experiment.
 
         Args:
-            qubits: list of physical qubits for the experiment.
+            physical_qubits: list of physical qubits for the experiment.
             lengths: A list of RB sequences lengths.
             backend: The backend to run the experiment on.
             num_samples: Number of samples to generate for each sequence length.
@@ -103,7 +107,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
             QiskitError: if any invalid argument is supplied.
         """
         # Initialize base experiment
-        super().__init__(qubits, analysis=RBAnalysis(), backend=backend)
+        super().__init__(physical_qubits, analysis=RBAnalysis(), backend=backend)
 
         # Verify parameters
         if any(length <= 0 for length in lengths):
@@ -383,13 +387,14 @@ class StandardRB(BaseExperiment, RestlessMixin):
         # Compute average basis gate numbers per Clifford operation
         # This is probably main source of performance regression.
         # This should be integrated into transpile pass in future.
+        qubit_indices = {bit: index for index, bit in enumerate(transpiled[0].qubits)}
         for circ in transpiled:
             count_ops_result = defaultdict(int)
             # This is physical circuits, i.e. qargs is physical index
             for inst, qargs, _ in circ.data:
                 if inst.name in ("measure", "reset", "delay", "barrier", "snapshot"):
                     continue
-                qinds = [circ.find_bit(q).index for q in qargs]
+                qinds = [qubit_indices[q] for q in qargs]
                 if not set(self.physical_qubits).issuperset(qinds):
                     continue
                 # Not aware of multi-qubit gate direction

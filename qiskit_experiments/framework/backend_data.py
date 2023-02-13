@@ -58,8 +58,8 @@ class BackendData:
                 except NotImplementedError:
                     return self._pulse_conf.control(qubits)
         except AttributeError:
-            return None
-        return None
+            return []
+        return []
 
     def drive_channel(self, qubit):
         """Returns the backend drive channel for the given qubit"""
@@ -181,7 +181,10 @@ class BackendData:
         if self._v1:
             return getattr(self._backend.configuration(), "coupling_map", [])
         elif self._v2:
-            return list(self._backend.coupling_map.get_edges())
+            coupling_map = self._backend.coupling_map
+            if coupling_map is None:
+                return coupling_map
+            return list(coupling_map.get_edges())
         return []
 
     @property
@@ -211,6 +214,8 @@ class BackendData:
         if self._v1:
             return getattr(self._backend.defaults(), "qubit_freq_est", [])
         elif self._v2:
+            if self._backend.target.qubit_properties is None:
+                return []
             return [property.frequency for property in self._backend.target.qubit_properties]
         return []
 

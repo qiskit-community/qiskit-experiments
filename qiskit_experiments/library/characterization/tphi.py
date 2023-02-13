@@ -13,12 +13,13 @@
 Tphi Experiment class.
 """
 
-from typing import List, Optional, Union
+from typing import List, Optional, Union, Sequence
 import numpy as np
 
 from qiskit import QiskitError
 from qiskit.providers import Backend
 from qiskit_experiments.framework.composite.batch_experiment import BatchExperiment
+from qiskit_experiments.warnings import qubit_deprecate
 from qiskit_experiments.library.characterization import (
     T1,
     T2Ramsey,
@@ -70,9 +71,10 @@ class Tphi(BatchExperiment):
             else:
                 raise QiskitError(f"Tphi experiment does not support option {key}")
 
+    @qubit_deprecate()
     def __init__(
         self,
-        qubit: int,
+        physical_qubits: Sequence[int],
         delays_t1: List[Union[List[float], np.array]],
         delays_t2: List[Union[List[float], np.array]],
         osc_freq: float = 0.0,
@@ -81,16 +83,16 @@ class Tphi(BatchExperiment):
         """Initialize the experiment object.
 
         Args:
-            qubit: the qubit under test
+            physical_qubits: a single-element sequence containing the qubit under test
             delays_t1: delay times of the T1 experiment
             delays_t2: delay times of the T2* experiment
             osc_freq: the oscillation frequency induced using by the user for T2Ramsey
             backend: Optional, the backend on which to run the experiment
         """
 
-        exp_t1 = T1(qubit=qubit, delays=delays_t1, backend=backend)
+        exp_t1 = T1(physical_qubits=physical_qubits, delays=delays_t1, backend=backend)
         exp_t2 = T2Ramsey(
-            qubit=qubit,
+            physical_qubits=physical_qubits,
             delays=delays_t2,
             backend=backend,
             osc_freq=osc_freq,

@@ -211,7 +211,6 @@ Experiment Data Classes
 
     ExperimentData
     ExperimentStatus
-    JobStatus
     AnalysisStatus
     AnalysisResult
     AnalysisResultData

@@ -13,12 +13,13 @@
 T1 Experiment class.
 """
 
-from typing import List, Optional, Union
+from typing import List, Optional, Union, Sequence
 import numpy as np
 
 from qiskit import QuantumCircuit
 from qiskit.providers.backend import Backend
 from qiskit_experiments.framework import BaseExperiment, Options
+from qiskit_experiments.warnings import qubit_deprecate
 from qiskit_experiments.library.characterization.analysis.t1_analysis import T1Analysis
 
 
@@ -56,9 +57,10 @@ class T1(BaseExperiment):
         options.delays = None
         return options
 
+    @qubit_deprecate()
     def __init__(
         self,
-        qubit: int,
+        physical_qubits: Sequence[int],
         delays: Union[List[float], np.array],
         backend: Optional[Backend] = None,
     ):
@@ -66,7 +68,8 @@ class T1(BaseExperiment):
         Initialize the T1 experiment class
 
         Args:
-            qubit: the qubit whose T1 is to be estimated
+            physical_qubits: a single-element sequence containing the qubit whose T1 is to be
+                estimated
             delays: delay times of the experiments in seconds
             backend: Optional, the backend to run the experiment on.
 
@@ -74,7 +77,7 @@ class T1(BaseExperiment):
             ValueError: if the number of delays is smaller than 3
         """
         # Initialize base experiment
-        super().__init__([qubit], analysis=T1Analysis(), backend=backend)
+        super().__init__(physical_qubits, analysis=T1Analysis(), backend=backend)
 
         # Set experiment options
         self.set_experiment_options(delays=delays)

@@ -17,7 +17,6 @@ from abc import ABC, abstractmethod
 import copy
 from collections import OrderedDict
 from typing import Sequence, Optional, Tuple, List, Dict, Union
-import warnings
 
 from qiskit import transpile, QuantumCircuit
 from qiskit.providers import Job, Backend
@@ -29,14 +28,16 @@ from qiskit_experiments.framework.store_init_args import StoreInitArgs
 from qiskit_experiments.framework.base_analysis import BaseAnalysis
 from qiskit_experiments.framework.experiment_data import ExperimentData
 from qiskit_experiments.framework.configs import ExperimentConfig
+from qiskit_experiments.warnings import deprecate_arguments
 
 
 class BaseExperiment(ABC, StoreInitArgs):
     """Abstract base class for experiments."""
 
+    @deprecate_arguments({"qubits": "physical_qubits"}, "0.5")
     def __init__(
         self,
-        qubits: Sequence[int],
+        physical_qubits: Sequence[int],
         analysis: Optional[BaseAnalysis] = None,
         backend: Optional[Backend] = None,
         experiment_type: Optional[str] = None,
@@ -44,7 +45,7 @@ class BaseExperiment(ABC, StoreInitArgs):
         """Initialize the experiment object.
 
         Args:
-            qubits: list of physical qubits for the experiment.
+            physical_qubits: list of physical qubits for the experiment.
             analysis: Optional, the analysis to use for the experiment.
             backend: Optional, the backend to run the experiment on.
             experiment_type: Optional, the experiment type string.
@@ -56,8 +57,8 @@ class BaseExperiment(ABC, StoreInitArgs):
         self._type = experiment_type if experiment_type else type(self).__name__
 
         # Circuit parameters
-        self._num_qubits = len(qubits)
-        self._physical_qubits = tuple(qubits)
+        self._num_qubits = len(physical_qubits)
+        self._physical_qubits = tuple(physical_qubits)
         if self._num_qubits != len(set(self._physical_qubits)):
             raise QiskitError("Duplicate qubits in physical qubits list.")
 
@@ -76,17 +77,6 @@ class BaseExperiment(ABC, StoreInitArgs):
         self._analysis = None
         if analysis:
             self.analysis = analysis
-        # TODO: Hack for backwards compatibility with old base class.
-        # Remove after updating subclasses
-        elif hasattr(self, "__analysis_class__"):
-            warnings.warn(
-                "Defining a default BaseAnalysis class for an experiment using the "
-                "__analysis_class__ attribute is deprecated as of 0.2.0. "
-                "Use the `analysis` kwarg of BaseExperiment.__init__ "
-                "to specify a default analysis class."
-            )
-            analysis_cls = getattr(self, "__analysis_class__")
-            self.analysis = analysis_cls()  # pylint: disable = not-callable
 
         # Set backend
         # This should be called last in case `_set_backend` access any of the
@@ -401,23 +391,6 @@ class BaseExperiment(ABC, StoreInitArgs):
         """
         self._run_options.update_options(**fields)
         self._set_run_options = self._set_run_options.union(fields)
-
-    @property
-    def analysis_options(self) -> Options:
-        """Return the analysis options for :meth:`run` analysis.
-
-        .. deprecated:: 0.2.0
-            This is replaced by calling ``experiment.analysis.options`` using
-            the :meth:`analysis`and :meth:`~qiskit_experiments.framework.BaseAnalysis.options`
-            properties.
-        """
-        warnings.warn(
-            "`BaseExperiment.analysis_options` is deprecated as of qiskit-experiments"
-            " 0.2.0 and will be removed in the 0.3.0 release."
-            " Use `experiment.analysis.options instead",
-            DeprecationWarning,
-        )
-        return self.analysis.options
 
     def _metadata(self) -> Dict[str, any]:
         """Return experiment metadata for ExperimentData.
