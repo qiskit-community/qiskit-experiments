@@ -14,6 +14,7 @@ Linear least-square MLE tomography fitter.
 """
 
 from typing import Optional, Dict, Tuple, Union
+import time
 import numpy as np
 import scipy.linalg as la
 from qiskit.utils import deprecate_function
@@ -23,6 +24,7 @@ from qiskit_experiments.library.tomography.basis import (
     PreparationBasis,
 )
 from . import lstsq_utils
+from .fitter_data import _basis_dimensions
 
 # Note this warning doesnt show up when run in analysis so we
 # also add a warning when setting the option value that calls this function
@@ -100,10 +102,24 @@ def scipy_linear_lstsq(
     Returns:
         The fitted matrix rho that maximizes the least-squares likelihood function.
     """
+    t_start = time.time()
     if measurement_basis and measurement_qubits is None:
         measurement_qubits = tuple(range(measurement_data.shape[1]))
     if preparation_basis and preparation_qubits is None:
         preparation_qubits = tuple(range(preparation_data.shape[1]))
+
+    input_dims, output_dims = _basis_dimensions(
+        measurement_basis=measurement_basis,
+        preparation_basis=preparation_basis,
+        measurement_qubits=measurement_qubits,
+        preparation_qubits=preparation_qubits,
+    )
+
+    metadata = {
+        "fitter": "scipy_linear_lstsq",
+        "input_dims": input_dims,
+        "output_dims": output_dims,
+    }
 
     basis_matrix, probability_data = lstsq_utils.lstsq_data(
         outcome_data,
@@ -129,7 +145,7 @@ def scipy_linear_lstsq(
         probability_data = weights * probability_data
 
     fits = []
-    metadata = {"component_conditionals": []}
+    metadata["component_conditionals"] = []
     for i in range(num_circ_components):
         for j in range(num_tomo_components):
             if weights is not None:
@@ -148,6 +164,11 @@ def scipy_linear_lstsq(
             fits.append(fit)
             metadata["component_conditionals"].append((i, j))
 
+    t_stop = time.time()
+    metadata["fitter_time"] = t_stop - t_start
+
+    if len(fits) == 1:
+        return fits[0], metadata
     return fits, metadata
 
 
@@ -222,6 +243,7 @@ def scipy_gaussian_lstsq(
     Returns:
         The fitted matrix rho that maximizes the least-squares likelihood function.
     """
+    t_start = time.time()
     _, variance = lstsq_utils.dirichlet_mean_and_var(
         outcome_data,
         shot_data=shot_data,
@@ -229,7 +251,7 @@ def scipy_gaussian_lstsq(
         conditional_measurement_indices=conditional_measurement_indices,
     )
     weights = 1.0 / np.sqrt(variance)
-    return scipy_linear_lstsq(
+    fits, metadata = scipy_linear_lstsq(
         outcome_data,
         shot_data,
         measurement_data,
@@ -242,3 +264,10 @@ def scipy_gaussian_lstsq(
         weights=weights,
         **kwargs,
     )
+    t_stop = time.time()
+
+    # Update metadata
+    metadata["fitter"] = "scipy_gaussian_lstsq"
+    metadata["fitter_time"] = t_stop - t_start
+
+    return fits, metadata

@@ -15,6 +15,7 @@ Linear inversion MLEtomography fitter.
 
 from typing import Dict, Tuple, Optional, Sequence, List
 from functools import lru_cache
+import time
 import numpy as np
 from qiskit_experiments.library.tomography.basis import (
     MeasurementBasis,
@@ -23,6 +24,7 @@ from qiskit_experiments.library.tomography.basis import (
     LocalPreparationBasis,
 )
 from .lstsq_utils import _partial_outcome_function
+from .fitter_data import _basis_dimensions
 
 
 def linear_inversion(
@@ -107,10 +109,25 @@ def linear_inversion(
     Returns:
         The fitted matrix rho.
     """
+    t_start = time.time()
+
     if measurement_basis and measurement_qubits is None:
         measurement_qubits = tuple(range(measurement_data.shape[1]))
     if preparation_basis and preparation_qubits is None:
         preparation_qubits = tuple(range(preparation_data.shape[1]))
+
+    input_dims, output_dims = _basis_dimensions(
+        measurement_basis=measurement_basis,
+        preparation_basis=preparation_basis,
+        measurement_qubits=measurement_qubits,
+        preparation_qubits=preparation_qubits,
+    )
+
+    metadata = {
+        "fitter": "linear_inversion",
+        "input_dims": input_dims,
+        "output_dims": output_dims,
+    }
 
     if conditional_measurement_indices:
         # Split measurement qubits into conditional and non-conditional qubits
@@ -173,7 +190,7 @@ def linear_inversion(
     # Construct linear inversion matrix
     cond_circ_size = outcome_data.shape[0]
     cond_fits = []
-    metadata = {"component_conditionals": []}
+    metadata["component_conditionals"] = []
 
     for circ_idx in range(cond_circ_size):
         fits = [np.zeros(shape, dtype=complex) for _ in range(cond_size)]
@@ -214,6 +231,11 @@ def linear_inversion(
         # Append conditional circuit fits
         cond_fits += fits
 
+    t_stop = time.time()
+    metadata["fitter_time"] = t_stop - t_start
+
+    if len(cond_fits) == 1:
+        return cond_fits[0], metadata
     return cond_fits, metadata
 
 

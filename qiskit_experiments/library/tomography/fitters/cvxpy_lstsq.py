@@ -14,6 +14,7 @@ Constrained convex least-squares tomography fitter.
 """
 
 from typing import Optional, Dict, Tuple, Union
+import time
 import numpy as np
 
 from qiskit_experiments.library.tomography.basis import (
@@ -23,6 +24,7 @@ from qiskit_experiments.library.tomography.basis import (
 from . import cvxpy_utils
 from .cvxpy_utils import cvxpy
 from . import lstsq_utils
+from .fitter_data import _basis_dimensions
 
 
 @cvxpy_utils.requires_cvxpy
@@ -36,9 +38,9 @@ def cvxpy_linear_lstsq(
     measurement_qubits: Optional[Tuple[int, ...]] = None,
     preparation_qubits: Optional[Tuple[int, ...]] = None,
     conditional_measurement_indices: Optional[Tuple[int, ...]] = None,
+    trace: Union[None, float, str] = "auto",
     psd: bool = True,
-    trace_preserving: bool = False,
-    trace: Optional[float] = None,
+    trace_preserving: Union[None, bool, str] = "auto",
     partial_trace: Optional[np.ndarray] = None,
     weights: Optional[np.ndarray] = None,
     **kwargs,
@@ -109,14 +111,16 @@ def cvxpy_linear_lstsq(
         conditional_measurement_indices: Optional, conditional measurement data
             indices. If set this will return a list of conditional fitted states
             conditioned on a fixed basis measurement of these qubits.
+        trace: trace constraint for the fitted matrix. If "auto" this will be set
+               to 1 for QST or the input dimension for QST (default: "auto").
         psd: If True rescale the eigenvalues of fitted matrix to be positive
              semidefinite (default: True)
         trace_preserving: Enforce the fitted matrix to be trace preserving when
                           fitting a Choi-matrix in quantum process
-                          tomography (default: False).
+                          tomography. If "auto" this will be set to True for
+                          QPT and False for QST (default: "auto").
         partial_trace: Enforce conditional fitted Choi matrices to partial
                        trace to POVM matrices.
-        trace: trace constraint for the fitted matrix (default: None).
         weights: Optional array of weights for least squares objective.
         kwargs: kwargs for cvxpy solver.
 
@@ -127,10 +131,31 @@ def cvxpy_linear_lstsq(
     Returns:
         The fitted matrix rho that maximizes the least-squares likelihood function.
     """
+    t_start = time.time()
+
     if measurement_basis and measurement_qubits is None:
         measurement_qubits = tuple(range(measurement_data.shape[1]))
     if preparation_basis and preparation_qubits is None:
         preparation_qubits = tuple(range(preparation_data.shape[1]))
+
+    input_dims, output_dims = _basis_dimensions(
+        measurement_basis=measurement_basis,
+        preparation_basis=preparation_basis,
+        measurement_qubits=measurement_qubits,
+        preparation_qubits=preparation_qubits,
+    )
+
+    if trace_preserving == "auto" and preparation_data.shape[1] > 0:
+        trace_preserving = True
+
+    if trace == "auto" and output_dims is not None:
+        trace = np.prod(output_dims)
+
+    metadata = {
+        "fitter": "cvxpy_linear_lstsq",
+        "input_dims": input_dims,
+        "output_dims": output_dims,
+    }
 
     basis_matrix, probability_data = lstsq_utils.lstsq_data(
         outcome_data,
@@ -155,7 +180,7 @@ def cvxpy_linear_lstsq(
     rhos_r = []
     rhos_i = []
     cons = []
-    metadata = {"component_conditionals": []}
+    metadata["component_conditionals"] = []
     for i in range(num_circ_components):
         for j in range(num_tomo_components):
             rho_r, rho_i, cons_i = cvxpy_utils.complex_matrix_variable(dim, hermitian=True, psd=psd)
@@ -175,9 +200,7 @@ def cvxpy_linear_lstsq(
         for rho_r, rho_i, povm in zip(rhos_r, rhos_i, partial_trace):
             joint_cons = cvxpy_utils.partial_trace_constaint(rho_r, rho_i, povm)
     elif trace_preserving:
-        if not preparation_qubits:
-            preparation_qubits = tuple(range(preparation_data.shape[1]))
-        input_dim = np.prod(preparation_basis.matrix_shape(preparation_qubits))
+        input_dim = np.prod(input_dims)
         joint_cons = cvxpy_utils.trace_preserving_constaint(
             rhos_r,
             rhos_i,
@@ -237,10 +260,8 @@ def cvxpy_linear_lstsq(
         cons = [joint_cons]
 
     # Solve each component separately
-    metadata = {
-        "cvxpy_solver": None,
-        "cvxpy_status": [],
-    }
+    metadata["cvxpy_solver"] = None
+    metadata["cvxpy_status"] = []
     for arg, con in zip(args, cons):
         # Optimization problem
         obj = cvxpy.Minimize(cvxpy.norm(arg, p=2))
@@ -256,13 +277,19 @@ def cvxpy_linear_lstsq(
     if psd:
         metadata["psd_constraint"] = True
     if partial_trace is not None:
-        metadata["ptr_constraint"] = partial_trace
+        metadata["partial_trace"] = partial_trace
     elif trace_preserving:
-        metadata["tp_constraint"] = True
+        metadata["trace_preserving"] = True
     elif trace is not None:
-        metadata["trace_constraint"] = trace
+        metadata["trace"] = trace
 
     fits = [rho_r.value + 1j * rho_i.value for rho_r, rho_i in zip(rhos_r, rhos_i)]
+
+    t_stop = time.time()
+    metadata["fitter_time"] = t_stop - t_start
+
+    if len(fits) == 1:
+        return fits[0], metadata
     return fits, metadata
 
 
@@ -277,9 +304,10 @@ def cvxpy_gaussian_lstsq(
     measurement_qubits: Optional[Tuple[int, ...]] = None,
     preparation_qubits: Optional[Tuple[int, ...]] = None,
     conditional_measurement_indices: Optional[Tuple[int, ...]] = None,
+    trace: Union[None, float, str] = "auto",
     psd: bool = True,
-    trace_preserving: bool = False,
-    trace: Optional[float] = None,
+    trace_preserving: Union[None, bool, str] = "auto",
+    partial_trace: Optional[np.ndarray] = None,
     outcome_prior: Union[np.ndarray, int] = 0.5,
     **kwargs,
 ) -> Dict:
@@ -333,12 +361,16 @@ def cvxpy_gaussian_lstsq(
         conditional_measurement_indices: Optional, conditional measurement data
             indices. If set this will return a list of conditional fitted states
             conditioned on a fixed basis measurement of these qubits.
+        trace: trace constraint for the fitted matrix. If "auto" this will be set
+               to 1 for QST or the input dimension for QST (default: "auto").
         psd: If True rescale the eigenvalues of fitted matrix to be positive
              semidefinite (default: True)
-        trace_preserving: Enforce the fitted matrix to be
-            trace preserving when fitting a Choi-matrix in quantum process
-            tomography (default: False).
-        trace: trace constraint for the fitted matrix (default: None).
+        trace_preserving: Enforce the fitted matrix to be trace preserving when
+                          fitting a Choi-matrix in quantum process
+                          tomography. If "auto" this will be set to True for
+                          QPT and False for QST (default: "auto").
+        partial_trace: Enforce conditional fitted Choi matrices to partial
+                       trace to POVM matrices.
         outcome_prior: The Baysian prior :math:`\alpha` to use computing Gaussian
             weights. See additional information.
         kwargs: kwargs for cvxpy solver.
@@ -350,14 +382,18 @@ def cvxpy_gaussian_lstsq(
     Returns:
         The fitted matrix rho that maximizes the least-squares likelihood function.
     """
+    t_start = time.time()
+
     _, variance = lstsq_utils.dirichlet_mean_and_var(
         outcome_data,
         shot_data=shot_data,
         outcome_prior=outcome_prior,
         conditional_measurement_indices=conditional_measurement_indices,
     )
+
     weights = 1.0 / np.sqrt(variance)
-    return cvxpy_linear_lstsq(
+
+    fits, metadata = cvxpy_linear_lstsq(
         outcome_data,
         shot_data,
         measurement_data,
@@ -367,9 +403,18 @@ def cvxpy_gaussian_lstsq(
         measurement_qubits=measurement_qubits,
         preparation_qubits=preparation_qubits,
         conditional_measurement_indices=conditional_measurement_indices,
-        psd=psd,
         trace=trace,
+        psd=psd,
         trace_preserving=trace_preserving,
+        partial_trace=partial_trace,
         weights=weights,
         **kwargs,
     )
+
+    t_stop = time.time()
+
+    # Update metadata
+    metadata["fitter"] = "cvxpy_gaussian_lstsq"
+    metadata["fitter_time"] = t_stop - t_start
+
+    return fits, metadata
