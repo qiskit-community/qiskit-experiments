@@ -150,6 +150,12 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
 
     @property
     def analysis(self) -> Union[BaseAnalysis, None]:
+        """Return the analysis instance for the experiment.
+
+        .. note::
+            Analysis instance set to calibration experiment is implicitly patched to run
+            calibration updator to update the parameters in the calibration table.
+        """
         return self._analysis
 
     @analysis.setter

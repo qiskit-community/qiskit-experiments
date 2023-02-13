@@ -234,3 +234,40 @@ class TestBaseCalibrationClass(QiskitExperimentsTestCase):
         new_schedule2 = cals.get_schedule("test2", (1,))
         ref_schedule2 = schedule2.assign_parameters({param2: ref_new_value2}, inplace=False)
         self.assertEqual(new_schedule2, ref_schedule2)
+
+    def test_parameter_changed_after_cal(self):
+        """Test parameter is updated after calibration experiment."""
+        backend = FakeBackend()
+        ref_init_value = 0.1
+        ref_calibrated_value = 0.2
+
+        param = Parameter("to_calibrate")
+        schedule = ScheduleBlock(name="test")
+        schedule.append(Play(Constant(100, param), DriveChannel(0)), inplace=True)
+        cals = Calibrations()
+        cals.add_schedule(schedule, 0, 1)
+
+        # Add init parameter to the cal table
+        cals.add_parameter_value(
+            value=ref_init_value,
+            param="to_calibrate",
+            qubits=(0,),
+            schedule="test",
+        )
+
+        value_before_cal = cals.get_parameter_value("to_calibrate", (0,), "test")
+
+        exp = MockCalExperiment(
+            physical_qubits=(0,),
+            calibrations=cals,
+            new_value=ref_calibrated_value,
+            param_name="to_calibrate",
+            sched_name="test",
+        )
+        exp.run(backend).block_for_results()
+
+        value_after_cal = cals.get_parameter_value("to_calibrate", (0,), "test")
+
+        self.assertNotEqual(value_before_cal, value_after_cal)
+        self.assertEqual(value_before_cal, ref_init_value)
+        self.assertEqual(value_after_cal, ref_calibrated_value)
