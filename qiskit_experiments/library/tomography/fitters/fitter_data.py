@@ -14,12 +14,15 @@ Quantum process tomography analysis
 """
 
 
-from typing import List, Dict, Tuple, Union, Optional, Callable
+from typing import List, Dict, Tuple, Union, Optional, Callable, Sequence
 import functools
 from collections import defaultdict
 import numpy as np
 
 from qiskit.result import marginal_counts
+
+from qiskit_experiments.exceptions import AnalysisError
+from qiskit_experiments.library.tomography.basis import MeasurementBasis, PreparationBasis
 
 
 def tomography_fitter_data(
@@ -157,3 +160,44 @@ def _int_outcome_function(outcome_shape: Tuple[int, ...]) -> Callable:
         return value
 
     return _int_outcome_general
+
+
+def _basis_dimensions(
+    measurement_basis: Optional[MeasurementBasis] = None,
+    preparation_basis: Optional[PreparationBasis] = None,
+    measurement_qubits: Optional[Sequence[int]] = None,
+    preparation_qubits: Optional[Sequence[int]] = None,
+    conditional_measurement_indices: Optional[Sequence[int]] = None,
+) -> Tuple[Tuple[int, ...], Tuple[int, ...]]:
+    """Caculate input and output dimensions for basis and qubits"""
+    # Get dimension of the preparation and measurement qubits subsystems
+    prep_dims = (1,)
+    if preparation_qubits:
+        if not preparation_basis:
+            raise AnalysisError("No tomography preparation basis provided.")
+        prep_dims = preparation_basis.matrix_shape(preparation_qubits)
+    meas_dims = (1,)
+    full_meas_qubits = measurement_qubits
+    if measurement_qubits:
+        if conditional_measurement_indices is not None:
+            # Remove conditional qubits from full meas qubits
+            full_meas_qubits = [
+                q
+                for i, q in enumerate(measurement_qubits)
+                if i not in conditional_measurement_indices
+            ]
+        if full_meas_qubits:
+            if not measurement_basis:
+                raise AnalysisError("No tomography measurement basis provided.")
+            meas_dims = measurement_basis.matrix_shape(full_meas_qubits)
+
+    if full_meas_qubits:
+        # QPT or QST
+        input_dims = prep_dims
+        output_dims = meas_dims
+    else:
+        # QST of POVM effects
+        input_dims = meas_dims
+        output_dims = prep_dims
+
+    return input_dims, output_dims
