@@ -120,7 +120,6 @@ def deprecated_class(
             instance.__init__(*args, **kwargs)  # pylint: disable=unnecessary-dunder-call
             return instance
 
-
         cls.__new__ = new
         return cls
 
