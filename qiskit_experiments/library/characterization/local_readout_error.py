@@ -79,7 +79,6 @@ class LocalReadoutError(BaseExperiment):
                 for readout error. If None all qubits on the provided backend
                 will be characterized.
             backend: Optional, the backend to characterize.
-            qubits: DEPRECATED, equivalent to ``physical_qubits``.
 
         Raises:
             QiskitError: if args are not valid.
