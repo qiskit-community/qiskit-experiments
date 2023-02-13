@@ -742,9 +742,11 @@ class TestBatchTranspileOptions(QiskitExperimentsTestCase):
         transpiled circuit) to a coupling map with distance 3 between qubits 0 and 3.
         """
 
-        def __init__(self, qubits, backend=None):
+        def __init__(self, physical_qubits, backend=None):
             super().__init__(
-                qubits, analysis=TestBatchTranspileOptions.SimpleAnalysis(), backend=backend
+                physical_qubits,
+                analysis=TestBatchTranspileOptions.SimpleAnalysis(),
+                backend=backend,
             )
 
         def circuits(self):
