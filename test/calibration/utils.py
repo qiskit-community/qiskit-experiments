@@ -46,8 +46,8 @@ class DoNothingAnalysis(BaseAnalysis):
 class DoNothingExperiment(BaseExperiment):
     """Experiment doesn't provide any circuit to run."""
 
-    def __init__(self, qubits: Sequence[int], return_value: float):
-        super().__init__(qubits=qubits, analysis=DoNothingAnalysis())
+    def __init__(self, physical_qubits: Sequence[int], return_value: float):
+        super().__init__(physical_qubits=physical_qubits, analysis=DoNothingAnalysis())
         self.analysis.set_options(return_value=return_value)
 
     def circuits(self):
@@ -64,7 +64,7 @@ class MockCalExperiment(BaseCalibrationExperiment, DoNothingExperiment):
 
     def __init__(
         self,
-        qubits: Sequence[int],
+        physical_qubits: Sequence[int],
         calibrations: Calibrations,
         new_value: float,
         param_name: str,
@@ -80,13 +80,13 @@ class MockCalExperiment(BaseCalibrationExperiment, DoNothingExperiment):
             sched_name: Name of schedule to update.
         """
         super().__init__(
-            qubits=qubits,
+            physical_qubits=physical_qubits,
             calibrations=calibrations,
             return_value=new_value,
         )
         self.to_update = {
             "param": param_name,
-            "qubits": qubits,
+            "qubits": physical_qubits,
             "schedule": sched_name,
         }
 

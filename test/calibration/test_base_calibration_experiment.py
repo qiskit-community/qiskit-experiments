@@ -68,7 +68,7 @@ class TestBaseCalibrationClass(QiskitExperimentsTestCase):
         cals.add_schedule(schedule, 0, 1)
 
         exp = MockCalExperiment(
-            qubits=(0,),
+            physical_qubits=(0,),
             calibrations=cals,
             new_value=ref_new_value,
             param_name="to_calibrate",
@@ -95,7 +95,7 @@ class TestBaseCalibrationClass(QiskitExperimentsTestCase):
         cals.add_schedule(schedule, 0, 1)
 
         exp = MockCalExperiment(
-            qubits=(0,),
+            physical_qubits=(0,),
             calibrations=cals,
             new_value=999999,
             param_name="to_calibrate",
@@ -123,7 +123,7 @@ class TestBaseCalibrationClass(QiskitExperimentsTestCase):
         cals.add_schedule(schedule, 0, 1)
 
         exp = MockCalExperiment(
-            qubits=(0,),
+            physical_qubits=(0,),
             calibrations=cals,
             new_value=99999,
             param_name="to_calibrate",
@@ -156,14 +156,14 @@ class TestBaseCalibrationClass(QiskitExperimentsTestCase):
         cals.add_schedule(schedule, 0, 1)
 
         exp1 = MockCalExperiment(
-            qubits=(0,),
+            physical_qubits=(0,),
             calibrations=cals,
             new_value=ref_new_value1,
             param_name="to_calibrate1",
             sched_name="test",
         )
         exp2 = MockCalExperiment(
-            qubits=(0,),
+            physical_qubits=(0,),
             calibrations=cals,
             new_value=ref_new_value2,
             param_name="to_calibrate2",
@@ -205,14 +205,14 @@ class TestBaseCalibrationClass(QiskitExperimentsTestCase):
         cals.add_schedule(schedule2, 1, 1)
 
         exp1 = MockCalExperiment(
-            qubits=(0,),
+            physical_qubits=(0,),
             calibrations=cals,
             new_value=ref_new_value1,
             param_name="to_calibrate1",
             sched_name="test1",
         )
         exp2 = MockCalExperiment(
-            qubits=(1,),
+            physical_qubits=(1,),
             calibrations=cals,
             new_value=ref_new_value2,
             param_name="to_calibrate2",
