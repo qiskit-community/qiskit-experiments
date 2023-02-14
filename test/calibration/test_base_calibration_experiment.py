@@ -59,6 +59,7 @@ class TestBaseCalibrationClass(QiskitExperimentsTestCase):
     def test_update_calibration(self):
         """Test updating calibrations with execution of calibration experiment."""
         backend = FakeBackend()
+        ref_old_value = 0.1
         ref_new_value = 0.3
 
         param = Parameter("to_calibrate")
@@ -66,6 +67,17 @@ class TestBaseCalibrationClass(QiskitExperimentsTestCase):
         schedule.append(Play(Constant(100, param), DriveChannel(0)), inplace=True)
         cals = Calibrations()
         cals.add_schedule(schedule, 0, 1)
+
+        # Add init parameter to the cal table
+        cals.add_parameter_value(
+            value=ref_old_value,
+            param="to_calibrate",
+            qubits=(0,),
+            schedule="test",
+        )
+
+        # Get old value
+        old_value = cals.get_parameter_value("to_calibrate", (0,), "test")
 
         exp = MockCalExperiment(
             physical_qubits=(0,),
@@ -76,16 +88,22 @@ class TestBaseCalibrationClass(QiskitExperimentsTestCase):
         )
         exp.run(backend).block_for_results()
 
+        # Get new value
         new_value = cals.get_parameter_value("to_calibrate", (0,), "test")
-        self.assertEqual(new_value, ref_new_value)
+        self.assertNotEqual(old_value, new_value)
 
+        # Validate calibrated schedule
         new_schedule = cals.get_schedule("test", (0,))
         ref_schedule = schedule.assign_parameters({param: ref_new_value}, inplace=False)
         self.assertEqual(new_schedule, ref_schedule)
 
     def test_update_calibration_update_analysis(self):
-        """Test updating calibrations with experiment with updated analysis option."""
+        """Test updating calibrations with experiment with updated analysis option.
+
+        This checks if the patched analysis instance is the same object.
+        """
         backend = FakeBackend()
+        ref_old_value = 0.1
         ref_new_value = 0.3
 
         param = Parameter("to_calibrate")
@@ -93,6 +111,17 @@ class TestBaseCalibrationClass(QiskitExperimentsTestCase):
         schedule.append(Play(Constant(100, param), DriveChannel(0)), inplace=True)
         cals = Calibrations()
         cals.add_schedule(schedule, 0, 1)
+
+        # Add init parameter to the cal table
+        cals.add_parameter_value(
+            value=ref_old_value,
+            param="to_calibrate",
+            qubits=(0,),
+            schedule="test",
+        )
+
+        # Get old value
+        old_value = cals.get_parameter_value("to_calibrate", (0,), "test")
 
         exp = MockCalExperiment(
             physical_qubits=(0,),
@@ -101,19 +130,25 @@ class TestBaseCalibrationClass(QiskitExperimentsTestCase):
             param_name="to_calibrate",
             sched_name="test",
         )
-        exp.analysis.set_options(return_value=ref_new_value)
+        exp.analysis.set_options(return_value=ref_new_value)  # Update analysis option here
         exp.run(backend).block_for_results()
 
+        # Get new value
         new_value = cals.get_parameter_value("to_calibrate", (0,), "test")
-        self.assertEqual(new_value, ref_new_value)
+        self.assertNotEqual(old_value, new_value)
 
+        # Validate calibrated schedule
         new_schedule = cals.get_schedule("test", (0,))
         ref_schedule = schedule.assign_parameters({param: ref_new_value}, inplace=False)
         self.assertEqual(new_schedule, ref_schedule)
 
     def test_update_calibration_custom_analysis(self):
-        """Test updating calibrations with experiment instance with user analysis."""
+        """Test updating calibrations with experiment instance with user analysis.
+
+        This checks if the patch mechanism works for user provided analysis.
+        """
         backend = FakeBackend()
+        ref_old_value = 0.1
         ref_new_value = 0.3
 
         param = Parameter("to_calibrate")
@@ -121,6 +156,17 @@ class TestBaseCalibrationClass(QiskitExperimentsTestCase):
         schedule.append(Play(Constant(100, param), DriveChannel(0)), inplace=True)
         cals = Calibrations()
         cals.add_schedule(schedule, 0, 1)
+
+        # Add init parameter to the cal table
+        cals.add_parameter_value(
+            value=ref_old_value,
+            param="to_calibrate",
+            qubits=(0,),
+            schedule="test",
+        )
+
+        # Get old value
+        old_value = cals.get_parameter_value("to_calibrate", (0,), "test")
 
         exp = MockCalExperiment(
             physical_qubits=(0,),
@@ -132,12 +178,14 @@ class TestBaseCalibrationClass(QiskitExperimentsTestCase):
 
         user_analysis = DoNothingAnalysis()
         user_analysis.set_options(return_value=ref_new_value)
-        exp.analysis = user_analysis
+        exp.analysis = user_analysis  # Update analysis instance itself here
         exp.run(backend).block_for_results()
 
+        # Get new value
         new_value = cals.get_parameter_value("to_calibrate", (0,), "test")
-        self.assertEqual(new_value, ref_new_value)
+        self.assertNotEqual(old_value, new_value)
 
+        # Validate calibrated schedule
         new_schedule = cals.get_schedule("test", (0,))
         ref_schedule = schedule.assign_parameters({param: ref_new_value}, inplace=False)
         self.assertEqual(new_schedule, ref_schedule)
@@ -145,7 +193,9 @@ class TestBaseCalibrationClass(QiskitExperimentsTestCase):
     def test_update_calibration_batch(self):
         """Test updating calibrations from batch experiment."""
         backend = FakeBackend()
+        ref_old_value1 = 120
         ref_new_value1 = 100
+        ref_old_value2 = 0.2
         ref_new_value2 = 0.4
 
         param1 = Parameter("to_calibrate1")
@@ -154,6 +204,24 @@ class TestBaseCalibrationClass(QiskitExperimentsTestCase):
         schedule.append(Play(Constant(param1, param2), DriveChannel(0)), inplace=True)
         cals = Calibrations()
         cals.add_schedule(schedule, 0, 1)
+
+        # Add init parameter to the cal table
+        cals.add_parameter_value(
+            value=ref_old_value1,
+            param="to_calibrate1",
+            qubits=(0,),
+            schedule="test",
+        )
+        cals.add_parameter_value(
+            value=ref_old_value2,
+            param="to_calibrate2",
+            qubits=(0,),
+            schedule="test",
+        )
+
+        # Get old value
+        old_value1 = cals.get_parameter_value("to_calibrate1", (0,), "test")
+        old_value2 = cals.get_parameter_value("to_calibrate2", (0,), "test")
 
         exp1 = MockCalExperiment(
             physical_qubits=(0,),
@@ -172,12 +240,13 @@ class TestBaseCalibrationClass(QiskitExperimentsTestCase):
         batch_exp = BatchExperiment([exp1, exp2], backend=backend)
         batch_exp.run(backend).block_for_results()
 
+        # Get new value
         new_value1 = cals.get_parameter_value("to_calibrate1", (0,), "test")
-        self.assertEqual(new_value1, ref_new_value1)
-
+        self.assertNotEqual(old_value1, new_value1)
         new_value2 = cals.get_parameter_value("to_calibrate2", (0,), "test")
-        self.assertEqual(new_value2, ref_new_value2)
+        self.assertNotEqual(old_value2, new_value2)
 
+        # Validate calibrated schedule
         new_schedule = cals.get_schedule("test", (0,))
         ref_schedule = schedule.assign_parameters(
             {
@@ -191,7 +260,9 @@ class TestBaseCalibrationClass(QiskitExperimentsTestCase):
     def test_update_calibration_parallel(self):
         """Test updating calibrations from parallel experiment."""
         backend = FakeBackend()
+        ref_old_value1 = 0.1
         ref_new_value1 = 0.3
+        ref_old_value2 = 0.2
         ref_new_value2 = 0.4
 
         param1 = Parameter("to_calibrate1")
@@ -203,6 +274,24 @@ class TestBaseCalibrationClass(QiskitExperimentsTestCase):
         cals = Calibrations()
         cals.add_schedule(schedule1, 0, 1)
         cals.add_schedule(schedule2, 1, 1)
+
+        # Add init parameter to the cal table
+        cals.add_parameter_value(
+            value=ref_old_value1,
+            param="to_calibrate1",
+            qubits=(0,),
+            schedule="test1",
+        )
+        cals.add_parameter_value(
+            value=ref_old_value2,
+            param="to_calibrate2",
+            qubits=(1,),
+            schedule="test2",
+        )
+
+        # Get old value
+        old_value1 = cals.get_parameter_value("to_calibrate1", (0,), "test1")
+        old_value2 = cals.get_parameter_value("to_calibrate2", (1,), "test2")
 
         exp1 = MockCalExperiment(
             physical_qubits=(0,),
@@ -221,12 +310,13 @@ class TestBaseCalibrationClass(QiskitExperimentsTestCase):
         batch_exp = ParallelExperiment([exp1, exp2], backend=backend)
         batch_exp.run(backend).block_for_results()
 
+        # Get new value
         new_value1 = cals.get_parameter_value("to_calibrate1", (0,), "test1")
-        self.assertEqual(new_value1, ref_new_value1)
-
+        self.assertNotEqual(old_value1, new_value1)
         new_value2 = cals.get_parameter_value("to_calibrate2", (1,), "test2")
-        self.assertEqual(new_value2, ref_new_value2)
+        self.assertNotEqual(old_value2, new_value2)
 
+        # Validate calibrated schedules
         new_schedule1 = cals.get_schedule("test1", (0,))
         ref_schedule1 = schedule1.assign_parameters({param1: ref_new_value1}, inplace=False)
         self.assertEqual(new_schedule1, ref_schedule1)
@@ -234,40 +324,3 @@ class TestBaseCalibrationClass(QiskitExperimentsTestCase):
         new_schedule2 = cals.get_schedule("test2", (1,))
         ref_schedule2 = schedule2.assign_parameters({param2: ref_new_value2}, inplace=False)
         self.assertEqual(new_schedule2, ref_schedule2)
-
-    def test_parameter_changed_after_cal(self):
-        """Test parameter is updated after calibration experiment."""
-        backend = FakeBackend()
-        ref_init_value = 0.1
-        ref_calibrated_value = 0.2
-
-        param = Parameter("to_calibrate")
-        schedule = ScheduleBlock(name="test")
-        schedule.append(Play(Constant(100, param), DriveChannel(0)), inplace=True)
-        cals = Calibrations()
-        cals.add_schedule(schedule, 0, 1)
-
-        # Add init parameter to the cal table
-        cals.add_parameter_value(
-            value=ref_init_value,
-            param="to_calibrate",
-            qubits=(0,),
-            schedule="test",
-        )
-
-        value_before_cal = cals.get_parameter_value("to_calibrate", (0,), "test")
-
-        exp = MockCalExperiment(
-            physical_qubits=(0,),
-            calibrations=cals,
-            new_value=ref_calibrated_value,
-            param_name="to_calibrate",
-            sched_name="test",
-        )
-        exp.run(backend).block_for_results()
-
-        value_after_cal = cals.get_parameter_value("to_calibrate", (0,), "test")
-
-        self.assertNotEqual(value_before_cal, value_after_cal)
-        self.assertEqual(value_before_cal, ref_init_value)
-        self.assertEqual(value_after_cal, ref_calibrated_value)
