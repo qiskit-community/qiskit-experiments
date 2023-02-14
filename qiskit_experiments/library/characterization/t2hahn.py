@@ -17,6 +17,7 @@ from typing import List, Optional, Union, Sequence
 import numpy as np
 
 from qiskit import QuantumCircuit, QiskitError
+from qiskit.circuit import Parameter
 from qiskit.providers.backend import Backend
 
 from qiskit_experiments.framework import BackendTiming, BaseExperiment, Options
@@ -127,43 +128,49 @@ class T2Hahn(BaseExperiment):
         """
         timing = BackendTiming(self.backend)
 
+        template = QuantumCircuit(1, 1)
+        template.metadata = {
+            "experiment_type": self._type,
+            "qubit": self.physical_qubits[0],
+            "unit": "s",
+        }
+
+        delay_param = Parameter("delay")
+
+        num_echoes = self.experiment_options.num_echoes
+
+        # First X rotation in 90 degrees
+        template.rx(np.pi / 2, 0)  # Brings the qubit to the X Axis
+        if num_echoes == 0:
+            # if number of echoes is 0 then just apply the delay gate
+            template.delay(delay_param, 0, timing.delay_unit)
+        else:
+            for _ in range(num_echoes):
+                template.delay(delay_param, 0, timing.delay_unit)
+                template.rx(np.pi, 0)
+                template.delay(delay_param, 0, timing.delay_unit)
+
+        if num_echoes % 2 == 1:
+            template.rx(np.pi / 2, 0)  # X90 again since the num of echoes is odd
+        else:
+            template.rx(-np.pi / 2, 0)  # X(-90) again since the num of echoes is even
+        template.measure(0, 0)  # measure
+
         circuits = []
-        for delay_gate in self.experiment_options.delays:
-            circ = QuantumCircuit(1, 1)
-
-            # First X rotation in 90 degrees
-            circ.rx(np.pi / 2, 0)  # Brings the qubit to the X Axis
-            if self.experiment_options.num_echoes == 0:
-                # if number of echoes is 0 then just apply the delay gate
-                circ.delay(timing.round_delay(time=delay_gate), 0, timing.delay_unit)
-                total_delay = timing.delay_time(time=delay_gate)
+        for delay in self.experiment_options.delays:
+            if num_echoes == 0:
+                single_delay = timing.delay_time(time=delay)
+                total_delay = single_delay
             else:
-                num_echoes = self.experiment_options.num_echoes
-
                 # Equal delay is put before and after each echo, so each echo gets
                 # two delay gates. When there are multiple echoes, the total delay
                 # between echoes is 2 * single_delay, made up of two delay gates.
-                single_delay = delay_gate / num_echoes / 2
+                single_delay = timing.delay_time(time=delay / num_echoes / 2)
+                total_delay = single_delay * num_echoes * 2
 
-                for _ in range(self.experiment_options.num_echoes):
-                    circ.delay(timing.round_delay(time=single_delay), 0, timing.delay_unit)
-                    circ.rx(np.pi, 0)
-                    circ.delay(timing.round_delay(time=single_delay), 0, timing.delay_unit)
-                total_delay = timing.delay_time(time=single_delay) * num_echoes * 2
-
-            if self.experiment_options.num_echoes % 2 == 1:
-                circ.rx(np.pi / 2, 0)  # X90 again since the num of echoes is odd
-            else:
-                circ.rx(-np.pi / 2, 0)  # X(-90) again since the num of echoes is even
-            circ.measure(0, 0)  # measure
-            circ.metadata = {
-                "experiment_type": self._type,
-                "qubit": self.physical_qubits[0],
-                "xval": total_delay,
-                "unit": "s",
-            }
-
-            circuits.append(circ)
+            assigned = template.assign_parameters({delay_param: single_delay}, inplace=False)
+            assigned.metadata["xval"] = total_delay
+            circuits.append(assigned)
 
         return circuits
 
