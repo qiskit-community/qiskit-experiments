@@ -3,8 +3,8 @@ How to save and load experiment data with the cloud service
 
 .. note::
     This recipe is only for those who have access to the cloud service. You can 
-    check whether you have access by logging into the Quantum Cloud interface 
-    and seeing whether you can access the `database <https://quantum-computing.ibm.com/experiments>`__.
+    check whether you do by logging into the IBM Quantum interface 
+    and seeing if you can see the `database <https://quantum-computing.ibm.com/experiments>`__.
 
 Problem
 -------

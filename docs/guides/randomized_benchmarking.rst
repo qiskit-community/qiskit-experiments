@@ -335,7 +335,7 @@ Rothwell, Thomas A. Ohki, Mark B. Ketchen, M. Steffen, *Efficient
 measurement of quantum gate error by interleaved randomized
 benchmarking*, https://arxiv.org/pdf/1203.4550
 
-[5] Jay M. Gambetta, A. D. C´orcoles, S. T. Merkel, B. R. Johnson, John
+[5] Jay M. Gambetta, A. D. Córcoles, S. T. Merkel, B. R. Johnson, John
 A. Smolin, Jerry M. Chow, Colm A. Ryan, Chad Rigetti, S. Poletto, Thomas
 A. Ohki, Mark B. Ketchen, and M. Steffen, *Characterization of
 addressability by simultaneous randomized benchmarking*,
@@ -345,5 +345,5 @@ See also
 --------
 
 * API documentation: :mod:`qiskit_experiments.library.randomized_benchmarking`
-* `Qiskit Textbook <https://learn.qiskit.org/course/quantum-hardware/randomized-benchmarking>`__
+* Qiskit Textbook: `Randomized Benchmarking <https://learn.qiskit.org/course/quantum-hardware/randomized-benchmarking>`__
 
