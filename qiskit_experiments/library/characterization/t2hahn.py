@@ -128,7 +128,7 @@ class T2Hahn(BaseExperiment):
         timing = BackendTiming(self.backend)
 
         circuits = []
-        for delay_gate in np.asarray(self.experiment_options.delays, dtype=float):
+        for delay_gate in self.experiment_options.delays:
             circ = QuantumCircuit(1, 1)
 
             # First X rotation in 90 degrees
