@@ -22,17 +22,14 @@ allow configuring various experiment and execution options:
   to set default values for configurable option parameters for the experiment.
 
 - :meth:`.BaseExperiment._default_transpile_options`
-  to set custom default values for the ``qiskit.transpile`` used to
+  to set custom default values for the :func:`qiskit.compiler.transpile` method used to
   transpile the generated circuits before execution.
 
 - :meth:`.BaseExperiment._default_run_options`
   to set default backend options for running the transpiled circuits on a backend.
 
-- :meth:`.BaseExperiment._default_analysis_options`
+- :meth:`.BaseAnalysis._default_options`
   to set default values for configurable options for the experiment's analysis class.
-  Note that these should generally be set by overriding the :class:`.BaseAnalysis`
-  method :meth:`~.BaseAnalysis._default_options` instead of this method, except in the
-  case where the experiment requires different defaults to the used analysis class.
 
 - :meth:`.BaseExperiment._transpiled_circuits`
   to override the default transpilation of circuits before execution.
@@ -166,7 +163,7 @@ measurement readout error.
         backend=None,
         **experiment_options
     ):
-        """Basic randomize Z-basis measuremenent via a Pauli frame transformation
+        """Basic randomize Z-basis measurement via a Pauli frame transformation
         
         Note this will just append a new set of measurment at the end of a circuit.
         A more advanced version of this experiment would be use a transpiler pass to
