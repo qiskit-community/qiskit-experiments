@@ -81,6 +81,22 @@ estimate for the sweep range of the delays.
     delays = np.arange(1e-6, 3 * qubit0_t1, 3e-5)
     exp = T1(physical_qubits=(0,), delays=delays)
 
+The circuits encapsulated by the experiment can be accessed using the experiment's 
+:meth:`.BaseExperiment.circuits` method, which returns a list of circuits that can
+be run on a backend. Let's print the range of delay times we're sweeping over and 
+draw the first and last circuits for our T1 experiment:
+
+.. jupyter-execute::
+
+    print(delays)
+    exp.circuits()[0].draw(output='mpl')
+
+.. jupyter-execute::
+
+    exp.circuits()[-1].draw(output='mpl')
+
+As expected, the delay block spans the full range of time values that we specified.
+
 After instantiating the experiment, we run the experiment by calling :meth:`.run` with our specified backend.
 This returns the :class:`.ExperimentData` class containing the results of the experiment,
 so it's crucial that we assign the output to a data variable. We could have also provided the backend
@@ -226,12 +242,19 @@ in a parallel experiment:
 
     from qiskit_experiments.framework import ParallelExperiment
 
-    parallel_exp = ParallelExperiment([T1(qubit=i, delays=delays) for i in range(2)])
+    parallel_exp = ParallelExperiment([T1(physical_qubits=(i,), delays=delays) for i in range(2)])
     parallel_exp.set_transpile_options(scheduling_method='asap')
     parallel_data = parallel_exp.run(backend, seed_simulator=101).block_for_results()
 
 Note that when options are set for a composite experiment, the child 
-experiments's options are also set recursively.
+experiments's options are also set recursively. Let's examine how the parallel 
+experiment is constructed by visualizing the circuits:
+
+.. jupyter-execute::
+
+    parallel_exp.circuits()[0].draw(output='mpl')
+
+We see that the T1 circuits on qubits 0 and 1 have been parallelized to run simultaneously.
 
 :class:`.ParallelExperiment` and :class:`.BatchExperiment` classes can be nested 
 arbitrarily to make complex composite experiments.
@@ -239,11 +262,11 @@ arbitrarily to make complex composite experiments.
 .. figure:: ./images/compositeexperiments.png
     :align: center
 
-Viewing sub experiment data
-===========================
+Viewing child experiment data
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The experiment data returned from a composite experiment contains
-individual analysis results for each sub experiment that can be accessed
+individual analysis results for each child experiment that can be accessed
 using :meth:`~.ExperimentData.child_data`. By default, the parent data object does not contain analysis results.
 
 .. jupyter-execute::
