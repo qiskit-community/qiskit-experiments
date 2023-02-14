@@ -3,17 +3,20 @@ Curve Analysis: Fitting your data
 
 .. currentmodule:: qiskit_experiments.curve_analysis
 
-Curve analysis provides the analysis base class for a variety of experiments with
+For most experiments, we are interested in fitting our results to a pre-defined 
+mathematical model.
+The Curve Analysis module provides the analysis base class for a variety of experiments with
 a single experimental parameter sweep. This analysis subclasses can override
 several class attributes to customize the behavior from data processing to post-processing,
 including providing systematic initial guess for parameters tailored to the experiment.
-Here we describe how code developers can create new analysis that inherits from the base class.
+Here we describe how the Curve Analysis module works and how you can create new 
+analyses that inherits from the base class.
 
 
 .. _curve_analysis_overview:
 
-Curve Analysis Overview
-=======================
+Curve analysis overview
+-----------------------
 
 The base class :class:`CurveAnalysis` implements the multi-objective optimization on
 different sets of experiment results. A single experiment can define sub-experiments
@@ -91,21 +94,21 @@ More specifically, the curve analysis defines following data model.
   fit parameters. Fit functions in the group are simultaneously fit to
   generate a single fit result.
 
-Once the group is assigned, a curve analysis instance internally builds
-a proper optimization routine.
+Once the group is assigned, a curve analysis instance builds
+a proper internal optimization routine.
 Finally, the analysis outputs a set of :class:`AnalysisResultData` entries
 for important fit outcomes along with a single Matplotlib figure of the fit curves
 with the measured data points.
 
-With this baseclass a developer can avoid writing boilerplate code in
-various curve analyses subclass and one can quickly write up
+With this baseclass, a developer can avoid writing boilerplate code in
+various curve analyses subclass and can quickly write up
 the analysis code for a particular experiment.
 
 
 .. _curve_analysis_define_group:
 
 Defining New Group
-==================
+------------------
 
 The fit model is defined by the `LMFIT`_ ``Model``.
 If you are familiar with this package, you can skip this section.
@@ -206,7 +209,7 @@ with different trigonometric functions.
 .. _curve_analysis_fixed_param:
 
 Fitting with Fixed Parameters
-=============================
+-----------------------------
 
 You can also remain certain parameters unchanged during the fitting by specifying
 the parameter names in the analysis option ``fixed_parameters``.
@@ -258,13 +261,13 @@ every logic defined in the :class:`AnalysisA`.
 .. _curve_analysis_workflow:
 
 Curve Analysis Workflow
-=======================
+-----------------------
 
 Typically curve analysis performs fitting as follows.
 This workflow is defined in the method :meth:`CurveAnalysis._run_analysis`.
 
 1. Initialization
------------------
+^^^^^^^^^^^^^^^^^
 
 Curve analysis calls :meth:`_initialization` method where it initializes
 some internal states and optionally populate analysis options
@@ -274,7 +277,7 @@ or dynamically generate the fit models (``self._models``) with fresh analysis op
 A developer can override this method to perform initialization of analysis-specific variables.
 
 2. Data processing
-------------------
+^^^^^^^^^^^^^^^^^^
 
 Curve analysis calls :meth:`_run_data_processing` method where
 the data processor in the analysis option is internally called.
@@ -288,7 +291,7 @@ A developer can inject extra data processing, for example, filtering, smoothing,
 or elimination of outliers for better fitting.
 
 3. Fitting
-----------
+^^^^^^^^^^
 
 Curve analysis calls :meth:`_run_curve_fit` method which is the core functionality of the fitting.
 The another method :meth:`_generate_fit_guesses` is internally called to
@@ -300,7 +303,7 @@ A developer can also override the entire :meth:`_run_curve_fit` method to apply
 custom fitting algorithms. This method must return :class:`.CurveFitResult` dataclass.
 
 4. Post processing
-------------------
+^^^^^^^^^^^^^^^^^^
 
 Curve analysis runs several postprocessing against to the fit outcome.
 It calls :meth:`_create_analysis_results` to create :class:`AnalysisResultData` class
@@ -316,7 +319,7 @@ Finally, it returns the list of created analysis results and Matplotlib figure.
 .. _curve_analysis_init_guess:
 
 Providing Initial Guesses
-=========================
+-------------------------
 
 When fit is performed without any prior information of parameters, it usually
 falls into unsatisfactory result.
@@ -376,7 +379,7 @@ This allows you to avoid analysis failure with the poor initial guesses.
 .. _curve_analysis_quality:
 
 Evaluate Fit Quality
-====================
+--------------------
 
 A subclass can override :meth:`_evaluate_quality` method to
 provide an algorithm to evaluate quality of the fitting.
@@ -389,7 +392,7 @@ Qiskit Experiments often uses the empirical criterion chi-squared < 3 as a good 
 .. _curve_analysis_results:
 
 Curve Analysis Results
-======================
+----------------------
 
 Once the best fit parameters are found, the :meth:`_create_analysis_results` method is
 called with the same :class:`.CurveFitResult` object.

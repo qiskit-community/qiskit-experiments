@@ -4,7 +4,7 @@ Writing a custom experiment
 Qiskit Experiments is designed to be easily customizable. To create an experiment subclass
 based on either the :class:`.BaseExperiment` class or an existing experiment, you should:
 
-- Implement the abstract :meth:`.BaseExperiment.circuits` method.
+- Implement the abstract :meth:`~.BaseExperiment.circuits` method.
   This should return a list of ``QuantumCircuit`` objects defining
   the experiment payload.
 
@@ -15,8 +15,8 @@ based on either the :class:`.BaseExperiment` class or an existing experiment, yo
   Arguments in the constructor can be overridden so that a subclass can
   be initialized with some experiment configuration.
 
-Optionally the following methods can also be overridden in the subclass to
-allow configuring various experiment and execution options
+Optionally, the following methods can also be overridden in the subclass to
+allow configuring various experiment and execution options:
 
 - :meth:`.BaseExperiment._default_experiment_options`
   to set default values for configurable option parameters for the experiment.
@@ -31,7 +31,7 @@ allow configuring various experiment and execution options
 - :meth:`.BaseExperiment._default_analysis_options`
   to set default values for configurable options for the experiment's analysis class.
   Note that these should generally be set by overriding the :class:`.BaseAnalysis`
-  method :meth:`.BaseAnalysis._default_options` instead of this method, except in the
+  method :meth:`~.BaseAnalysis._default_options` instead of this method, except in the
   case where the experiment requires different defaults to the used analysis class.
 
 - :meth:`.BaseExperiment._transpiled_circuits`
@@ -46,12 +46,12 @@ immediately after the previous measurement. Here, the :class:`.RestlessMixin` ca
 to set the appropriate run options and data processing chain.
 
 Analysis Subclasses
-^^^^^^^^^^^^^^^^^^^
+-------------------
 
 To create an analysis subclass, one only needs to implement the abstract
 :meth:`.BaseAnalysis._run_analysis` method. This method takes an
 :class:`.ExperimentData` container and kwarg analysis options. If any
-kwargs are used the :meth:`.BaseAnalysis._default_options` method should be
+kwargs are used, the :meth:`.BaseAnalysis._default_options` method should be
 overriden to define default values for these options.
 
 The :meth:`.BaseAnalysis._run_analysis` method should return a pair
@@ -59,7 +59,7 @@ The :meth:`.BaseAnalysis._run_analysis` method should return a pair
 :class:`.AnalysisResultData` and ``figures`` is a list of
 :class:`matplotlib.figure.Figure`.
 
-The :mod:`qiskit_experiments.data_processing` module contains classes for
+The :mod:`~qiskit_experiments.data_processing` module contains classes for
 building data processor workflows to help with advanced analysis of
 experiment data.
 
@@ -80,7 +80,7 @@ These provided subclasses focus on the 0 <-> 1 transition, however, this experim
 
 Our objective is to create a new class, ``HigherOrderFineXAmplitude``, which calibrates 
 schedules on transitions other than the 0 <-> 1 transition for the :math:`\pi` rotation.
-In order to do this, we need to create a subclass, shown below.
+In order to do this, we need to create a subclass as shown below.
 
 .. code-block::
    
@@ -108,13 +108,13 @@ In order to do this, we need to create a subclass, shown below.
 In this subclass we have overridden the ``_pre_circuit`` method in order to calibrate on higher energy transitions by using an initial X gate to populate the first excited state.
 
 Using the Subclass
-==================
+------------------
 
 Now, we can use our new subclass as we would the original parent class.
-Shown below are results from following the fine amplitude calibration 
-tutorial :ref:`fine-amplitude-cal` for detecting an over-rotated pulse using our new 
+Shown below are results from following the :ref:`fine-amplitude-cal` tutorial
+for detecting an over-rotated pulse using our new 
 ``HigherOrderFineXAmplitude`` class in place of the original 
-``FineXAmplitude`` class.
+:class:`.FineXAmplitude` class.
 You can try this for yourself and verify that your results are similar.
 
 .. code-block::
@@ -128,13 +128,13 @@ You can try this for yourself and verify that your results are similar.
    - verified: False
 
 Writing a custom experiment
-===========================
+---------------------------
 
-In this tutorial, we'll use what we've learned so far to make a full experiment from
+Now we'll use what we've learned so far to make a full custom experiment from
 the :class:`.BaseExperiment` template.
 
 A randomized measurement experiment
-===================================
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 This experiment creates a list of copies of an input circuit
 and randomly samples an N-qubit Pauli to apply to each one before
@@ -144,9 +144,7 @@ ideal output bitstring in the measurement.
 The analysis uses the applied Pauli frame of a randomized
 measurement experiment to de-randomize the measured counts
 and combine across samples to return a single counts dictionary
-the original circuit.
-
-This has the effect of Pauli-twirling and symmetrizing the
+the original circuit. This has the effect of Pauli-twirling and symmetrizing the
 measurement readout error. 
 
 .. jupyter-execute::

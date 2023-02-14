@@ -51,6 +51,8 @@ Modules
     * - :mod:`~qiskit_experiments.database_service`
       - Classes for saving and retrieving experiment and analysis results
         from a database.
+    * - :mod:`~qiskit_experiments.visualization`
+      - Classes for creating figures from experiment results.
 
 Certain experiments also have additional utilities contained which can be
 accessed by importing the following modules.
@@ -70,3 +72,4 @@ from . import curve_analysis
 from . import calibration_management
 from . import data_processing
 from . import database_service
+from . import visualization

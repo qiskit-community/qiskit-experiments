@@ -5,22 +5,14 @@ Tutorials
 These tutorials assume some familiarity with Qiskit, but no knowledge of Qiskit Experiments.
 They're suitable for beginners who want to get started with the package.
 
-Introduction and overview
-=========================
+The Basics
+==========
 
 .. toctree::
     :maxdepth: 2
 
     intro
-
-
-Getting started
-===============
-
-.. toctree::
-    :maxdepth: 1
-
-    learning
+    getting_started
     
 Exploring modules
 =================
@@ -33,8 +25,8 @@ Exploring modules
     curve_analysis
     visualization
 
-Write your own experiment
-=========================
+Customizing experiments
+=======================
 
 .. toctree::
     :maxdepth: 1

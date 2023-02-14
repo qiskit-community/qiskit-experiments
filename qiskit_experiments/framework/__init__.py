@@ -25,12 +25,12 @@ Experiment Framework (:mod:`qiskit_experiments.framework`)
 Overview
 ========
 
-The experiment framework broadly defines an experiment as the execution of 1 or more
+The experiment framework broadly defines an experiment as the execution of one or more
 circuits on a device, and analysis of the resulting measurement data
-to return 1 or more derived results.
+to return one or more derived results.
 
 The interface for running an experiment is through the *Experiment* classes,
-such as those contained in the :mod:`qiskit_experiments.library`
+such as those contained in the :mod:`~qiskit_experiments.library`.
 The following pseudo-code illustrates the typical workflow in Qiskit Experiments
 for
 
@@ -45,7 +45,7 @@ for
     from qiskit_experiments.library import SomeExperiment
 
     # Initialize with desired qubits and options
-    exp = SomeExperiment(qubits, **options)
+    exp = SomeExperiment(physical_qubits, **options)
 
     # Run on a backend
     exp_data = exp.run(backend)

@@ -5,10 +5,8 @@ Data processing is the act of taking the data returned by the backend and
 converting it into a format that can be analyzed.
 It is implemented as a chain of data processing steps that transform various input data,
 e.g. IQ data, into a desired format, e.g. population, which can be analyzed.
-
 These data transformations may consist of multiple steps, such as kerneling and discrimination.
-Each step is implemented by a :class:`~qiskit_experiments.data_processing.data_action.DataAction`
-also called a `node`.
+Each step is implemented by a member of the :class:`~.DataAction` class, also called a `node`.
 
 The data processor implements the :meth:`__call__` method. Once initialized, it
 can thus be used as a standard python function:
@@ -27,8 +25,8 @@ in the nodes: a standard error can be generated in a node and can be propagated
 through the subsequent nodes in the data processor.
 Correlation between computed values is also considered.
 
-Let's look at an example to see how to initialize an instance of ``DataProcessor`` and 
-create the ``DataAction`` nodes that process the data.
+Let's look at an example to see how to initialize an instance of :class:`.DataProcessor` and 
+create the :class:`.DataAction` nodes that process the data.
 
 Data types on IBM Quantum backends
 ----------------------------------
@@ -47,7 +45,7 @@ on the setup. IQ data can be returned as "single" or "averaged" data.
 Here, single means that the outcome of each single shot is returned
 while average only returns the average of the IQ points over the
 measured shots. The type of data that an experiment should return
-is specified by the ``run_options`` of an experiment.
+is specified by the :meth:`~.BaseExperiment.run_options` of an experiment.
 
 Processing data of different types
 ----------------------------------
@@ -57,15 +55,15 @@ Crucially, the analysis, such as a curve analysis, expects the
 same data format no matter the run options of the experiment.
 Transforming the data returned by the backend into the format
 that the analysis accepts is done by the ``data_processing`` library.
-The key class here is the ``DataProcessor``. It is initialized from
-two arguments. The first, is the ``input_key`` which is typically
-"memory" or "counts" and identifies the key in the experiment data
+The key class here is the :class:`.DataProcessor`. It is initialized from
+two arguments. The first is the ``input_key``, which is typically
+"memory" or "counts", and identifies the key in the experiment data
 where the data is located. The second argument ``data_actions``
 is a list of ``nodes`` where each node performs a processing step
 of the data processor. Crucially, the output of one node in the
 list is the input to the next node in the list.
 
-To illustrate the data processing module we consider an example
+To illustrate the data processing module, we consider an example
 in which we measure a rabi oscillation with different data levels.
 The code below sets up the Rabi experiment.
 
@@ -164,36 +162,35 @@ of the probability of measuring the outcome "1".
 Writing data actions
 --------------------
 
-The nodes in a data processor are all sub-classes of ``DataAction``.
+The nodes in a data processor are all sub-classes of :class:`.DataAction`.
 Users who wish to write their own data actions must (i) sub-class
-``DataAction`` and (ii) implement the internal ``_process`` method
-called by instances of ``DataProcessor``. This method is the
+:class:`.DataAction` and (ii) implement the internal ``_process`` method
+called by instances of :class:`.DataProcessor`. This method is the
 processing step that the node implements. It takes a numpy array as
 input and returns the processed numpy array as output. This output
 serves as the input for the next node in the data processing chain.
 Here, the input and output numpy arrays can have a different shape.
 
-In addition to the standard ``DataAction`` the data processing package
-also supports trainable data actions as subclasses of ``TrainableDataAction``.
+In addition to the standard :class:`.DataAction` the data processing package
+also supports trainable data actions as subclasses of :class:`.TrainableDataAction`.
 These nodes must first be trained on the data before they can
-process the data. An example of a ``TrainableDataAction`` is the
-``SVD`` node which must first learn the main axis of the data before
+process the data. An example of a :class:`.TrainableDataAction` is the
+:class:`.SVD` node which must first learn the main axis of the data before
 it can project a data point onto this axis. To implement trainable nodes
-developers must also implement the ``train`` method. This method is
-called when ``DataProcessor.train`` is called.
+developers must also implement the :meth:`~.DataProcessor.train` method. This method is
+called when :meth:`~.DataProcessor.train` is called.
 
 Conclusion
 ----------
 
-In this tutorial you learnt about the data processing module in Qiskit
-Experiments. Data is processed by data processors that
+Data is processed by data processors that
 call a list of nodes each acting once on the data. Data
 processing connects the data returned by the backend to the data that
 the analysis classes need. Typically, you will not need to implement
 the data processing yourself since Qiskit Experiments has built-in
-methods that determine the correct instance of ``DataProcessor`` for
+methods that determine the correct instance of :class:`.DataProcessor` for
 your data. More advanced data processing includes, for example, handling
-restless measurements [2, 3], see also the ``Restless Measurements`` tutorial.
+restless measurements [2, 3].
 
 References
 ~~~~~~~~~~
@@ -211,3 +208,8 @@ measurements with dynamic repetition rates, Physics Review Applied **17**,
 [3] Max Werninghaus, Daniel J. Egger, Stefan Filipp, High-speed calibration and
 characterization of superconducting quantum processors without qubit reset,
 PRX Quantum 2, 020324 (2021). https://arxiv.org/abs/2010.06576
+
+See also
+--------
+
+Experiment guide: :doc:`/guides/restless_measurements`

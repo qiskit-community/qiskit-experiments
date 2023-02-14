@@ -64,7 +64,7 @@ Standard RB experiment will provide you gate errors for every basis gates
 constituting averaged Clifford gate. Note that you can only obtain a single EPC value :math:`\cal E`
 from a single RB experiment. As such, computing the error values for multiple gates :math:`\{g_i\}`
 requires some assumption of contribution of each gate to the total depolarizing error.
-This is so called ``gate_error_ratio`` option you can find in analysis options.
+This is the so called ``gate_error_ratio`` option you can find in analysis options.
 
 Provided that we have :math:`n_i` gates with independent error :math:`e_i` per Clifford,
 the total EPC is estimated by the composition of error from every basis gate,
@@ -83,14 +83,14 @@ some standard value :math:`e_0`, we can compute EPG :math:`e_i` for each basis g
 
     {\cal E} \sim e_0 \sum_{i} n_i r_i
 
-The EPG of :math:`i` th basis gate will be
+The EPG of the :math:`i` th basis gate will be
 
 .. math::
 
     e_i \sim r_i e_0 = \dfrac{r_i{\cal E}}{\sum_{i} n_i r_i}.
 
 Because EPGs are computed based on this simple assumption,
-this is not necessary representing the true gate error on the hardware.
+this is not necessarily representing the true gate error on the hardware.
 If you have multiple kinds of basis gates with unclear error ratio :math:`r_i`,
 interleaved RB experiment will always give you accurate error value :math:`e_i`.
 
@@ -344,6 +344,6 @@ https://arxiv.org/pdf/1204.6308
 See also
 --------
 
-* API documentation: :mod:`qiskit_experiments.library.randomized_benchmarking`
+* API documentation: :mod:`~qiskit_experiments.library.randomized_benchmarking`
 * Qiskit Textbook: `Randomized Benchmarking <https://learn.qiskit.org/course/quantum-hardware/randomized-benchmarking>`__
 

@@ -94,7 +94,6 @@ extensions = [
     "jupyter_sphinx",
     "sphinx_autodoc_typehints",
     "reno.sphinxext",
-    "sphinx_panels",
     "sphinx_design",
     "sphinx.ext.intersphinx",
     "nbsphinx",
@@ -195,6 +194,7 @@ autoclass_content = "both"
 intersphinx_mapping = {
     "matplotlib": ("https://matplotlib.org/stable/", None),
     "qiskit": ("https://qiskit.org/documentation/", None),
+    "uncertainties": ("https://pythonhosted.org/uncertainties", None),
 }
 
 

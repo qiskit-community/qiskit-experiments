@@ -30,14 +30,7 @@ ran and its options, as well as the IDs of the jobs that were executed.
 
 ``data`` will be the new experiment data class.
 
-Discussion
-----------
-
-The job IDs can be retrieved from the original experiment data object using the 
-``job_ids`` attribute.
-
 See Also
 --------
 
-* `Saving and loading experiment data locally <local_service.html>`_
 * `Saving and loading experiment data with the cloud service <cloud_service.html>`_

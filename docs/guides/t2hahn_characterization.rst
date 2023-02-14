@@ -1,30 +1,30 @@
 T2 Hahn Characterization (CPMG)
 ===============================
 
-The purpose of the :math:`T_2` Hahn Echo experiment is to determine
+The purpose of the :math:`T_2` Hahn Echo experiment is to determine the 
 :math:`T_2` qubit property.
 
 In this experiment, we would like to get a more precise estimate of the
 qubit’s decay time. :math:`T_2` represents the amount of time required
-for a single qubit Bloch vector projection on the XY plane, to fall to
-approximately 37% (:math:`\frac{1}{e}`) of its initial amplitude. In
-Ramsey Experiment we were introduced to the term detuning frequency (The
+for a single qubit's Bloch vector projection on the XY plane to fall to
+approximately 37% (:math:`\frac{1}{e}`) of its initial amplitude. In the
+Ramsey Experiment, we were introduced to the term detuning frequency (The
 difference between the frequency used for the control rotation, and the
-precise frequency). Hahn Echo experiment and CPMG sequence are
+precise frequency). Hahn Echo experiment and the CPMG sequence are
 experiments to estimate :math:`T_2` which are robust to the detuning
 frequency. The decay in amplitude causes the probability function to
 take the following form:
 
 .. math:: f(t) = A \cdot e^{-\frac{t}{T_2}}+ B
 
-The difference between Hahn Echo and CPMG sequence is that in Hahn Echo
+The difference between the Hahn Echo and CPMG sequence is that in the Hahn Echo
 experiment, there is only one echo sequence while in CPMG there are
 multiple echo sequences.
 
-1. Decoherence Time
--------------------
+Decoherence Time
+----------------
 
-Decoherence time is the time taken for off-diagonal components of the
+The decoherence time is the time taken for off-diagonal components of the
 density matrix to fall to approximately 37% (:math:`\frac{1}{e}`). For
 :math:`t\gg T_2`, the qubit statistics behave like a random bit. It gets
 the value of ``0`` with probability of :math:`p` and the value of ``1``
@@ -42,13 +42,13 @@ for the qubit frequency estimation.
 The circuit used for an experiment with :math:`N` echoes comprises the
 following components:
 
-1. :math:`Rx\left(\frac{\pi}{2} \right)` gate
-2. :math:`N` times echo sequence:
-    (a) :math:`Delay \left(t_{0} \right)` gate
-    (b) :math:`Rx \left(\pi \right)` gate
-    (c) :math:`Delay \left(t_{0} \right)` gate
-3. :math:`Rx \left(\pm \frac{\pi}{2} \right)` gate (sign depends on the number of echoes)
-4. Measurement gate
+    1. :math:`Rx\left(\frac{\pi}{2} \right)` gate
+    2. :math:`N` times echo sequence:
+        (a) :math:`Delay \left(t_{0} \right)` gate
+        (b) :math:`Rx \left(\pi \right)` gate
+        (c) :math:`Delay \left(t_{0} \right)` gate
+    3. :math:`Rx \left(\pm \frac{\pi}{2} \right)` gate (sign depends on the number of echoes)
+    4. Measurement gate
 
 The user provides as input a series of delays in seconds. During the
 delay, we expect the qubit to precess about the z-axis. Because of the
@@ -72,7 +72,7 @@ and can analytically extract the desired values.
     print(exp1.circuits()[0])
 
 
-We run the experiment on a simple, simulated backend, tailored
+We run the experiment on a simple simulated backend tailored
 specifically for this experiment.
 
 .. jupyter-execute::
@@ -109,8 +109,8 @@ The resulting graph will have the form:
         print(result)
 
 
-1. Providing initial user estimates
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Providing initial user estimates
+--------------------------------
 
 The user can provide initial estimates for the parameters to help the
 analysis process. In the initial guess, the keys ``{amp, tau, base}``
@@ -141,8 +141,8 @@ computed for other qubits.
 
 
 
-3. Number of echoes
-~~~~~~~~~~~~~~~~~~~
+Number of echoes
+----------------
 
 The user can provide the number of echoes that the circuit will perform.
 This will determine the amount of delay and echo gates. As the number of
@@ -164,9 +164,12 @@ total delay time.
     # set the desired delays
     conversion_factor = 1e-6
     
-    # The delays aren't equally spaced due the behavior of exponential decay curve where the change in the result
-    # in earlier times is larger than later times. In addition, since the total delay is 'delay * 2 * num_of_echoes',
-    # the construction of the delays for each experiment will be different, such that their total length will be the same.
+    # The delays aren't equally spaced due the behavior of the exponential
+    # decay curve where the change in the result during earlier times is 
+    # larger than later times. In addition, since the total delay is 
+    # 'delay * 2 * num_of_echoes', the construction of the delays for 
+    # each experiment will be different such that their total length
+    # will be the same.
     
     # Delays for Hahn Echo Experiment with 0 echoes
     delays2 = np.append(
@@ -231,9 +234,9 @@ total delay time.
 
 We see that the estimate :math:`T_2` is different in the two plots. The
 mock backend for this experiment used :math:`T_{2} = 30[\mu s]`, which
-is close to the estimate of the 1 echo experiment.
+is close to the estimate of the one echo experiment.
 
-.. jupyter-execute::
+See also
+--------
 
-    import qiskit.tools.jupyter
-    %qiskit_copyright
+* API documentation: :class:`.T2Hahn`
