@@ -129,12 +129,6 @@ class T2Hahn(BaseExperiment):
 
         circuits = []
         for delay_gate in np.asarray(self.experiment_options.delays, dtype=float):
-            num_delays = self.experiment_options.num_echoes + 1
-            # Equal delay is put before and after each echo, so each echo gets
-            # two delay gates. When there are multiple echoes, the total delay
-            # between echoes is 2 * single_delay, made up of two delay gates.
-            single_delay = delay_gate / num_delays / 2
-
             circ = QuantumCircuit(1, 1)
 
             # First X rotation in 90 degrees
@@ -144,11 +138,18 @@ class T2Hahn(BaseExperiment):
                 circ.delay(timing.round_delay(time=delay_gate), 0, timing.delay_unit)
                 total_delay = timing.delay_time(time=delay_gate)
             else:
+                num_echoes = self.experiment_options.num_echoes
+
+                # Equal delay is put before and after each echo, so each echo gets
+                # two delay gates. When there are multiple echoes, the total delay
+                # between echoes is 2 * single_delay, made up of two delay gates.
+                single_delay = delay_gate / num_echoes / 2
+
                 for _ in range(self.experiment_options.num_echoes):
                     circ.delay(timing.round_delay(time=single_delay), 0, timing.delay_unit)
                     circ.rx(np.pi, 0)
                     circ.delay(timing.round_delay(time=single_delay), 0, timing.delay_unit)
-                total_delay = timing.delay_time(time=single_delay) * num_delays * 2
+                total_delay = timing.delay_time(time=single_delay) * num_echoes * 2
 
             if self.experiment_options.num_echoes % 2 == 1:
                 circ.rx(np.pi / 2, 0)  # X90 again since the num of echoes is odd
