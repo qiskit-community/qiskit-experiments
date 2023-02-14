@@ -243,7 +243,6 @@ in a parallel experiment:
     from qiskit_experiments.framework import ParallelExperiment
 
     parallel_exp = ParallelExperiment([T1(physical_qubits=(i,), delays=delays) for i in range(2)])
-    parallel_exp.set_transpile_options(scheduling_method='asap')
     parallel_data = parallel_exp.run(backend, seed_simulator=101).block_for_results()
 
 Note that when options are set for a composite experiment, the child 
@@ -285,7 +284,6 @@ experiments into one level:
 
     parallel_exp = ParallelExperiment([T1(qubit=i, delays=delays) for i in range(2)],
                                       flatten_results=True)
-    parallel_exp.set_transpile_options(scheduling_method='asap')
     parallel_data = parallel_exp.run(backend, seed_simulator=101).block_for_results()
 
     for result in parallel_data.analysis_results():
