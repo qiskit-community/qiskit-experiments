@@ -21,7 +21,7 @@ import qiskit
 from qiskit import QuantumCircuit
 from qiskit.providers.backend import Backend
 
-from qiskit_experiments.framework import BaseExperiment, Options
+from qiskit_experiments.framework import BackendTiming, BaseExperiment, Options
 from qiskit_experiments.library.characterization.analysis.t2ramsey_analysis import T2RamseyAnalysis
 from qiskit_experiments.warnings import qubit_deprecate
 
@@ -97,14 +97,6 @@ class T2Ramsey(BaseExperiment):
         super().__init__(physical_qubits, analysis=T2RamseyAnalysis(), backend=backend)
         self.set_experiment_options(delays=delays, osc_freq=osc_freq)
 
-    def _set_backend(self, backend: Backend):
-        super()._set_backend(backend)
-
-        # Scheduling parameters
-        if not self._backend_data.is_simulator:
-            scheduling_method = getattr(self.transpile_options, "scheduling_method", "alap")
-            self.set_transpile_options(scheduling_method=scheduling_method)
-
     def circuits(self) -> List[QuantumCircuit]:
         """Return a list of experiment circuits.
 
@@ -114,27 +106,17 @@ class T2Ramsey(BaseExperiment):
         Returns:
             The experiment circuits
         """
-        dt_unit = False
-        if self.backend:
-            dt_factor = self._backend_data.dt
-            dt_unit = dt_factor is not None
+        timing = BackendTiming(self.backend)
 
         circuits = []
         for delay in self.experiment_options.delays:
-            if dt_unit:
-                delay_dt = round(delay / dt_factor)
-                real_delay_in_sec = delay_dt * dt_factor
-            else:
-                real_delay_in_sec = delay
-
-            rotation_angle = 2 * np.pi * self.experiment_options.osc_freq * real_delay_in_sec
+            rotation_angle = (
+                2 * np.pi * self.experiment_options.osc_freq * timing.delay_time(time=delay)
+            )
 
             circ = qiskit.QuantumCircuit(1, 1)
             circ.sx(0)  # Brings the qubit to the X Axis
-            if dt_unit:
-                circ.delay(delay_dt, 0, "dt")
-            else:
-                circ.delay(delay, 0, "s")
+            circ.delay(timing.round_delay(time=delay), 0, timing.delay_unit)
             circ.rz(rotation_angle, 0)
             circ.barrier(0)
             circ.sx(0)
@@ -144,7 +126,7 @@ class T2Ramsey(BaseExperiment):
             circ.metadata = {
                 "experiment_type": self._type,
                 "qubit": self.physical_qubits[0],
-                "xval": real_delay_in_sec,
+                "xval": timing.delay_time(time=delay),
                 "osc_freq": self.experiment_options.osc_freq,
                 "unit": "s",
             }

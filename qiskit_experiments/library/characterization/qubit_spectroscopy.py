@@ -20,6 +20,7 @@ from qiskit import QuantumCircuit
 from qiskit.circuit import Gate, Parameter
 from qiskit.exceptions import QiskitError
 
+from qiskit_experiments.framework import BackendTiming
 from qiskit_experiments.library.characterization.spectroscopy import Spectroscopy
 
 
@@ -72,13 +73,16 @@ class QubitSpectroscopy(Spectroscopy):
 
     def _schedule(self) -> Tuple[pulse.ScheduleBlock, Parameter]:
         """Create the spectroscopy schedule."""
+        timing = BackendTiming(self.backend)
+
+        if timing.dt is None:
+            raise QiskitError(f"{self.__class__.__name__} requires a backend with a dt value.")
+
+        duration = timing.round_pulse(time=self.experiment_options.duration)
+        sigma = self.experiment_options.sigma / timing.dt
+        width = self.experiment_options.width / timing.dt
+
         freq_param = Parameter("frequency")
-
-        dt, granularity = self._dt, self._granularity
-
-        duration = int(granularity * (self.experiment_options.duration / dt // granularity))
-        sigma = granularity * (self.experiment_options.sigma / dt // granularity)
-        width = granularity * (self.experiment_options.width / dt // granularity)
 
         with pulse.build(backend=self.backend, name="spectroscopy") as schedule:
             pulse.shift_frequency(freq_param, pulse.DriveChannel(self.physical_qubits[0]))
