@@ -18,7 +18,7 @@ from ddt import data, ddt, unpack
 from qiskit import QiskitError
 from qiskit.providers.fake_provider import FakeNairobiV2
 
-from qiskit_experiments.framework import BackendTiming
+from qiskit_experiments.framework import BackendData, BackendTiming
 
 
 @ddt
@@ -33,11 +33,13 @@ class TestBackendTiming(QiskitExperimentsTestCase):
         # terra. Just to be safe, we check that the properties we care about
         # for these tests are never changed from what the tests assume.
         backend = FakeNairobiV2()
+        # Using BackendData to handle acquire/aquire rename. Can replace with
+        # target.acquire_alignment when testing against terra >=0.24
+        backend_data = BackendData(backend)
         target = backend.target
-        acquire_alignment = getattr(target, "acquire_alignment", target.aquire_alignment)
         assumptions = (
             (abs(target.dt * 4.5e9 - 1) < 1e-6)
-            and acquire_alignment == 16
+            and backend_data.acquire_alignment == 16
             and target.pulse_alignment == 1
             and target.min_length == 64
             and target.granularity == 16
@@ -45,7 +47,7 @@ class TestBackendTiming(QiskitExperimentsTestCase):
         if not assumptions:  # pragma: no cover
             raise ValueError("FakeNairobiV2 properties have changed!")
 
-        cls.acquire_alignment = acquire_alignment
+        cls.acquire_alignment = backend_data.acquire_alignment
         cls.dt = target.dt
         cls.granularity = target.granularity
         cls.min_length = target.min_length
