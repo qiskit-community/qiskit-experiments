@@ -136,6 +136,12 @@ class PulseBackend(BackendV2):
         # An optional discriminator that is used to create counts from IQ data.
         self._discriminator = None
 
+    # pylint: disable=unused-argument
+    @staticmethod
+    def rz_gate(qubits, theta):
+        """Initialize RZ gate."""
+        return None
+
     @property
     def target(self):
         """Contains information for circuit transpilation."""
@@ -611,12 +617,11 @@ class SingleTransmonTestBackend(PulseBackend):
         }
 
     @staticmethod
-    def rz_gate(qubits: List[int], theta: float):
+    def rz_gate(_, theta: float) -> np.ndarray:
         """Rz gate corresponding to single qubit 3 level qubit. Note: We do not try to
         model accurate qutrit dynamics.
 
         Args:
-            qubits: Qubit index of gate.
             theta: The angle parameter of Rz gate.
 
         Returns:
@@ -788,7 +793,7 @@ class ParallelTransmonTestBackend(PulseBackend):
         }
 
     @staticmethod
-    def rz_gate(qubits, theta):
+    def rz_gate(qubits: List[int], theta: float) -> np.ndarray:
         """Rz gate corresponding to single qubit 3 level qubit. Note: We do not try to
         model accurate qutrit dynamics.
 
