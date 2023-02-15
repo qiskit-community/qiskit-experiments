@@ -116,12 +116,14 @@ def linear_inversion(
     if preparation_basis and preparation_qubits is None:
         preparation_qubits = tuple(range(preparation_data.shape[1]))
 
-    input_dims, output_dims = _basis_dimensions(
-        measurement_basis=measurement_basis,
-        preparation_basis=preparation_basis,
-        measurement_qubits=measurement_qubits,
-        preparation_qubits=preparation_qubits,
-        conditional_measurement_indices=conditional_measurement_indices,
+    input_dims = _basis_dimensions(
+        basis=preparation_basis,
+        qubits=preparation_qubits,
+    )
+    output_dims = _basis_dimensions(
+        basis=measurement_basis,
+        qubits=measurement_qubits,
+        conditional_indices=conditional_measurement_indices,
     )
 
     metadata = {
@@ -132,32 +134,32 @@ def linear_inversion(
 
     if conditional_measurement_indices:
         # Split measurement qubits into conditional and non-conditional qubits
-        f_cond_qubits = []
+        f_cond_meas_qubits = []
         f_meas_qubits = []
         meas_indices = []
         for i, qubit in enumerate(measurement_qubits):
             if i in conditional_measurement_indices:
-                f_cond_qubits.append(qubit)
+                f_cond_meas_qubits.append(qubit)
             else:
                 f_meas_qubits.append(qubit)
                 meas_indices.append(i)
 
-        cond_size = np.prod(measurement_basis.outcome_shape(f_cond_qubits), dtype=int)
+        cond_meas_size = np.prod(measurement_basis.outcome_shape(f_cond_meas_qubits), dtype=int)
 
         # Indexing array for fully tomo measured qubits
         f_meas_indices = np.array(meas_indices, dtype=int)
-        f_cond_indices = np.array(conditional_measurement_indices, dtype=int)
+        f_cond_meas_indices = np.array(conditional_measurement_indices, dtype=int)
 
         # Reduced outcome functions
         f_meas_outcome = _partial_outcome_function(tuple(f_meas_indices))
-        f_cond_outcome = _partial_outcome_function(tuple(conditional_measurement_indices))
+        f_cond_meas_outcome = _partial_outcome_function(tuple(conditional_measurement_indices))
     else:
-        cond_size = 1
+        cond_meas_size = 1
         f_meas_qubits = measurement_qubits
         f_meas_indices = slice(None)
-        f_cond_indices = slice(0, 0)
+        f_cond_meas_indices = slice(0, 0)
         f_meas_outcome = lambda x: x
-        f_cond_outcome = lambda x: 0
+        f_cond_meas_outcome = lambda x: 0
 
     # Construct dual bases
     meas_dual_basis = None
@@ -194,7 +196,7 @@ def linear_inversion(
     cond_fits = []
     if cond_circ_size > 1:
         metadata["conditional_circuit_outcome"] = []
-    if cond_size > 1:
+    if cond_meas_size > 1:
         metadata["conditional_measurement_index"] = []
         metadata["conditional_measurement_outcome"] = []
     for circ_idx in range(cond_circ_size):
@@ -203,9 +205,9 @@ def linear_inversion(
             shots = shot_data[i]
             pidx = preparation_data[i]
             midx = measurement_data[i][f_meas_indices]
-            c_key = tuple(measurement_data[i][f_cond_indices])
+            c_key = tuple(measurement_data[i][f_cond_meas_indices])
             if c_key not in fits:
-                fits[c_key] = [np.zeros(shape, dtype=complex) for _ in range(cond_size)]
+                fits[c_key] = [np.zeros(shape, dtype=complex) for _ in range(cond_meas_size)]
 
             # Get prep basis component
             if prep_dual_basis:
@@ -230,7 +232,7 @@ def linear_inversion(
                     dual_op = p_mat
 
                 # Add component to correct conditional
-                outcome_cond = f_cond_outcome(outcome)
+                outcome_cond = f_cond_meas_outcome(outcome)
                 fits[c_key][outcome_cond] += prob * dual_op
 
         # Append conditional fit metadata
@@ -238,9 +240,9 @@ def linear_inversion(
             cond_fits += c_fits
             if cond_circ_size > 1:
                 metadata["conditional_circuit_outcome"] += len(c_fits) * [circ_idx]
-            if cond_size > 1:
+            if cond_meas_size > 1:
                 metadata["conditional_measurement_index"] += len(c_fits) * [c_key]
-                metadata["conditional_measurement_outcome"] += list(range(cond_size))
+                metadata["conditional_measurement_outcome"] += list(range(cond_meas_size))
 
     t_stop = time.time()
     metadata["fitter_time"] = t_stop - t_start

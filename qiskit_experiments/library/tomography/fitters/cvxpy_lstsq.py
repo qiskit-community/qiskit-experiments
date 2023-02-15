@@ -139,12 +139,14 @@ def cvxpy_linear_lstsq(
     if preparation_basis and preparation_qubits is None:
         preparation_qubits = tuple(range(preparation_data.shape[1]))
 
-    input_dims, output_dims = _basis_dimensions(
-        measurement_basis=measurement_basis,
-        preparation_basis=preparation_basis,
-        measurement_qubits=measurement_qubits,
-        preparation_qubits=preparation_qubits,
-        conditional_measurement_indices=conditional_measurement_indices,
+    input_dims = _basis_dimensions(
+        basis=preparation_basis,
+        qubits=preparation_qubits,
+    )
+    output_dims = _basis_dimensions(
+        basis=measurement_basis,
+        qubits=measurement_qubits,
+        conditional_indices=conditional_measurement_indices,
     )
 
     if trace_preserving == "auto" and preparation_data.shape[1] > 0:
@@ -175,8 +177,8 @@ def cvxpy_linear_lstsq(
         metadata["conditional_circuit_outcome"] = []
 
     fits = []
-    for cond_idx in cond_meas_indices:
-        cond_mask = np.all(cond_measurement_data == cond_idx, axis=1)
+    for cond_meas_idx in cond_meas_indices:
+        cond_mask = np.all(cond_measurement_data == cond_meas_idx, axis=1)
         if weights is None:
             cond_weights = None
         else:
@@ -217,7 +219,7 @@ def cvxpy_linear_lstsq(
                 if num_circ_components > 1:
                     metadata["conditional_circuit_outcome"].append(i)
                 if num_tomo_components > 1:
-                    metadata["conditional_measurement_index"].append(tuple(cond_idx))
+                    metadata["conditional_measurement_index"].append(tuple(cond_meas_idx))
                     metadata["conditional_measurement_outcome"].append(j)
 
         # Partial trace when fitting Choi-matrices for quantum process tomography.

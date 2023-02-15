@@ -109,11 +109,13 @@ def scipy_linear_lstsq(
     if preparation_basis and preparation_qubits is None:
         preparation_qubits = tuple(range(preparation_data.shape[1]))
 
-    input_dims, output_dims = _basis_dimensions(
-        measurement_basis=measurement_basis,
-        preparation_basis=preparation_basis,
-        measurement_qubits=measurement_qubits,
-        preparation_qubits=preparation_qubits,
+    input_dims = _basis_dimensions(
+        basis=preparation_basis,
+        qubits=preparation_qubits,
+    )
+    output_dims = _basis_dimensions(
+        basis=measurement_basis,
+        qubits=measurement_qubits,
     )
 
     metadata = {

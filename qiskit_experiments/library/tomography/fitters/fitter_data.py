@@ -163,32 +163,24 @@ def _int_outcome_function(outcome_shape: Tuple[int, ...]) -> Callable:
 
 
 def _basis_dimensions(
-    measurement_basis: Optional[MeasurementBasis] = None,
-    preparation_basis: Optional[PreparationBasis] = None,
-    measurement_qubits: Optional[Sequence[int]] = None,
-    preparation_qubits: Optional[Sequence[int]] = None,
-    conditional_measurement_indices: Optional[Sequence[int]] = None,
-) -> Tuple[Tuple[int, ...], Tuple[int, ...]]:
+    basis: Optional[Union[MeasurementBasis, PreparationBasis]] = None,
+    qubits: Optional[Sequence[int]] = None,
+    conditional_indices: Optional[Sequence[int]] = None,
+) -> Tuple[int, ...]:
     """Caculate input and output dimensions for basis and qubits"""
-    # Get dimension of the preparation and measurement qubits subsystems
-    input_dims = (1,)
-    if preparation_qubits:
-        if not preparation_basis:
-            raise AnalysisError("No tomography preparation basis provided.")
-        input_dims = preparation_basis.matrix_shape(preparation_qubits)
-    output_dims = (1,)
-    full_meas_qubits = measurement_qubits
-    if measurement_qubits:
-        if conditional_measurement_indices is not None:
-            # Remove conditional qubits from full meas qubits
-            full_meas_qubits = [
-                q
-                for i, q in enumerate(measurement_qubits)
-                if i not in conditional_measurement_indices
-            ]
-        if full_meas_qubits:
-            if not measurement_basis:
-                raise AnalysisError("No tomography measurement basis provided.")
-            output_dims = measurement_basis.matrix_shape(full_meas_qubits)
+    if not qubits:
+        return (1,)
 
-    return input_dims, output_dims
+    # Get dimension of the preparation and measurement qubits subsystems
+    if conditional_indices is None:
+        full_qubits = qubits
+    else:
+        # Remove conditional qubits from full meas qubits
+        full_qubits = [q for i, q in enumerate(qubits) if i not in conditional_indices]
+
+    if full_qubits:
+        if not basis:
+            raise AnalysisError("No tomography basis provided.")
+        return basis.matrix_shape(full_qubits)
+
+    return (1,)
