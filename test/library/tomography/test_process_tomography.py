@@ -599,3 +599,48 @@ class TestProcessTomography(QiskitExperimentsTestCase):
                         msg=f"fitter {fitter} fidelity {fid} is low for conditional"
                         f" measurement {idx}, {outcome}",
                     )
+
+    def test_qpt_conditional_prep(self):
+        """Test QPT conditional preparation tomography"""
+        # Run experiment
+        backend = AerSimulator(seed_simulator=7172)
+        exp = ProcessTomography(QuantumCircuit(1), backend=backend)
+        exp.analysis.set_options(conditional_preparation_indices=[0])
+        pbasis = exp.analysis.options.preparation_basis
+        expdata = exp.run(shots=5000, analysis=None)
+        self.assertExperimentDone(expdata)
+
+        for fitter in FITTERS:
+            with self.subTest(fitter=fitter):
+                exp.analysis.set_options()
+                if fitter:
+                    exp.analysis.set_options(fitter=fitter)
+                fitdata = exp.analysis.run(expdata)
+                states = fitdata.analysis_results("state")
+                for state in states:
+                    self.assertTrue(
+                        isinstance(state.value, qi.Choi), msg="returned state is not a Choi matrix."
+                    )
+                    self.assertEqual(state.value.input_dims(), (1,))
+                    idx = state.extra["conditional_preparation_index"]
+                    prob = state.extra["conditional_probability"]
+                    prob_target = 1
+                    self.assertTrue(
+                        np.isclose(prob, prob_target, atol=1e-2),
+                        msg=(
+                            f"fitter {fitter} probability incorrect for conditional"
+                            f" preparation {idx} ({prob} != {prob_target})"
+                        ),
+                    )
+
+                    # Convert to state for fidelity calculation
+                    # Choi matrix for condtitional measurement is rho^T
+                    target = qi.DensityMatrix(pbasis.matrix(idx, [0]))
+                    value_state = qi.DensityMatrix(prob * state.value.data)
+                    fid = qi.state_fidelity(value_state, target, validate=False)
+                    self.assertGreater(
+                        fid,
+                        0.95,
+                        msg=f"fitter {fitter} fidelity {fid} is low for conditional"
+                        f" preparation {idx}",
+                    )

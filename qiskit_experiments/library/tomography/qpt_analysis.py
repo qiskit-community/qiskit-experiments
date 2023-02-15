@@ -118,6 +118,12 @@ class ProcessTomographyAnalysis(TomographyAnalysis):
                 integer value of the measurement outcome is stored in state analysis result
                 extra fields `"conditional_measurement_index"` and
                 `"conditional_measurement_outcome"` respectively.
+            conditional_preparation_indices (list[int]): Optional, indices of tomography
+                preparation qubits to used for conditional state reconstruction. Enabling
+                this will return a list of reconstrated channel components conditioned on
+                the remaining tomographic bases conditional on the basis index. The
+                conditionl preparation basis index is stored in state analysis result
+                extra fields `"conditional_preparation_index"`.
         """
         options = super()._default_options()
         options.measurement_basis = PauliMeasurementBasis()

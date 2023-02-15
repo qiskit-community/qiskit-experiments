@@ -105,6 +105,12 @@ class TomographyAnalysis(BaseAnalysis):
                 integer value of the measurement outcome is stored in state analysis result
                 extra fields `"conditional_measurement_index"` and
                 `"conditional_measurement_outcome"` respectively.
+            conditional_preparation_indices (list[int]): Optional, indices of tomography
+                preparation qubits to used for conditional state reconstruction. Enabling
+                this will return a list of reconstrated channel components conditioned on
+                the remaining tomographic bases conditional on the basis index. The
+                conditionl preparation basis index is stored in state analysis result
+                extra fields `"conditional_preparation_index"`.
         """
         options = super()._default_options()
 
@@ -119,6 +125,7 @@ class TomographyAnalysis(BaseAnalysis):
         options.target = None
         options.conditional_circuit_clbits = None
         options.conditional_measurement_indices = None
+        options.conditional_preparation_indices = None
         return options
 
     def set_options(self, **fields):
@@ -149,43 +156,58 @@ class TomographyAnalysis(BaseAnalysis):
         raise AnalysisError(f"Unrecognized tomography fitter {fitter}")
 
     def _run_analysis(self, experiment_data):
-        # Get option values.
-        measurement_basis = self.options.measurement_basis
-        measurement_qubits = self.options.measurement_qubits
-        if measurement_basis and measurement_qubits is None:
-            measurement_qubits = experiment_data.metadata.get("m_qubits")
-        preparation_basis = self.options.preparation_basis
-        preparation_qubits = self.options.preparation_qubits
-        if preparation_basis and preparation_qubits is None:
-            preparation_qubits = experiment_data.metadata.get("p_qubits")
-        conditional_measurement_indices = self.options.conditional_measurement_indices
-        if conditional_measurement_indices is None:
-            conditional_measurement_indices = experiment_data.metadata.get("c_indices")
+
+        # Get option values
+        meas_basis = self.options.measurement_basis
+        meas_qubits = self.options.measurement_qubits
+        if meas_basis and meas_qubits is None:
+            meas_qubits = experiment_data.metadata.get("m_qubits")
+        prep_basis = self.options.preparation_basis
+        prep_qubits = self.options.preparation_qubits
+        if prep_basis and prep_qubits is None:
+            prep_qubits = experiment_data.metadata.get("p_qubits")
+        cond_meas_indices = self.options.conditional_measurement_indices
+        if cond_meas_indices is True:
+            cond_meas_indices = list(range(len(meas_qubits)))
+        cond_prep_indices = self.options.conditional_preparation_indices
+        if cond_prep_indices is True:
+            cond_prep_indices = list(range(len(prep_qubits)))
 
         # Generate tomography fitter data
         outcome_shape = None
-        if measurement_basis and measurement_qubits:
-            outcome_shape = measurement_basis.outcome_shape(measurement_qubits)
+        if meas_basis and meas_qubits:
+            outcome_shape = meas_basis.outcome_shape(meas_qubits)
 
         outcome_data, shot_data, meas_data, prep_data = tomography_fitter_data(
             experiment_data.data(),
             outcome_shape=outcome_shape,
         )
         qpt = prep_data.size > 0
-        fitter = self._get_fitter(self.options.fitter)
 
+        # Get fitter kwargs
+        fitter_kwargs = {}
+        if meas_basis:
+            fitter_kwargs["measurement_basis"] = meas_basis
+        if meas_qubits:
+            fitter_kwargs["measurement_qubits"] = meas_qubits
+        if cond_meas_indices:
+            fitter_kwargs["conditional_measurement_indices"] = cond_meas_indices
+        if prep_basis:
+            fitter_kwargs["preparation_basis"] = prep_basis
+        if prep_qubits:
+            fitter_kwargs["preparation_qubits"] = prep_qubits
+        if cond_prep_indices:
+            fitter_kwargs["conditional_preparation_indices"] = cond_prep_indices
+        fitter_kwargs.update(**self.options.fitter_options)
+
+        fitter = self._get_fitter(self.options.fitter)
         try:
             fits, fitter_metadata = fitter(
                 outcome_data,
                 shot_data,
                 meas_data,
                 prep_data,
-                measurement_basis=measurement_basis,
-                measurement_qubits=measurement_qubits,
-                preparation_basis=preparation_basis,
-                preparation_qubits=preparation_qubits,
-                conditional_measurement_indices=conditional_measurement_indices,
-                **self.options.fitter_options,
+                **fitter_kwargs,
             )
         except AnalysisError as ex:
             raise AnalysisError(f"Tomography fitter failed with error: {str(ex)}") from ex
@@ -287,7 +309,9 @@ class TomographyAnalysis(BaseAnalysis):
             evals = result.extra["eigvals"]
             evecs = result.extra["eigvecs"]
             prob = result.extra["conditional_probability"]
-            cond_idx = result.extra.get("conditional_measurement_index", None)
+            cond_meas_idx = result.extra.get("conditional_measurement_index", None)
+            cond_prep_idx = result.extra.get("conditional_preparation_index", None)
+            cond_idx = (cond_prep_idx, cond_meas_idx)
             size = len(evals)
             input_dim = size // output_dim
             mats = np.reshape(evecs.T, (size, input_dim, output_dim), order="F")

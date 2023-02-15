@@ -99,10 +99,14 @@ def scipy_linear_lstsq(
         The fitted matrix rho that maximizes the least-squares likelihood function.
     """
     t_start = time.time()
-    conditional_indices = kwargs.pop("conditional_measurement_indices", None)
-    if conditional_indices:
+
+    if kwargs.pop("conditional_measurement_indices", None):
         raise AnalysisError(
-            "scipy_linear_lstsq fitter does not support conditional measurement indices."
+            "scipy_linear_lstsq fitter does not support conditional_measurement_indices."
+        )
+    if kwargs.pop("conditional_preparation_indices", None):
+        raise AnalysisError(
+            "scipy_linear_lstsq fitter does not support conditional_preparation_indices."
         )
     if measurement_basis and measurement_qubits is None:
         measurement_qubits = tuple(range(measurement_data.shape[1]))

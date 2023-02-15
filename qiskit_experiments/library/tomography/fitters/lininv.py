@@ -37,6 +37,7 @@ def linear_inversion(
     measurement_qubits: Optional[Tuple[int, ...]] = None,
     preparation_qubits: Optional[Tuple[int, ...]] = None,
     conditional_measurement_indices: Optional[np.ndarray] = None,
+    conditional_preparation_indices: Optional[np.ndarray] = None,
 ) -> Tuple[np.ndarray, Dict]:
     r"""Linear inversion tomography fitter.
 
@@ -100,8 +101,11 @@ def linear_inversion(
         preparation_qubits: Optional, the physical qubits that were prepared.
             If None they are assumed to be [0, ..., N-1] forN prepared qubits.
         conditional_measurement_indices: Optional, conditional measurement data
-            indices. If set this will return a list of conditional fitted
-            states conditioned on a fixed basis measurement of these qubits.
+            indices. If set this will return a list of fitted states conditioned
+            on a fixed basis measurement of these qubits.
+        conditional_preparation_indices: Optional, conditional preparation data
+            indices. If set this will return a list of fitted states conditioned
+            on a fixed basis preparation of these qubits.
 
     Raises:
         AnalysisError: If the fitted vector is not a square matrix
@@ -119,6 +123,7 @@ def linear_inversion(
     input_dims = _basis_dimensions(
         basis=preparation_basis,
         qubits=preparation_qubits,
+        conditional_indices=conditional_preparation_indices,
     )
     output_dims = _basis_dimensions(
         basis=measurement_basis,
@@ -131,6 +136,22 @@ def linear_inversion(
         "input_dims": input_dims,
         "output_dims": output_dims,
     }
+
+    if conditional_preparation_indices:
+        # Split measurement qubits into conditional and non-conditional qubits
+        f_prep_qubits = []
+        prep_indices = []
+        for i, qubit in enumerate(preparation_qubits):
+            if i not in conditional_preparation_indices:
+                f_prep_qubits.append(qubit)
+                prep_indices.append(i)
+        # Indexing array for fully tomo measured qubits
+        f_prep_indices = np.array(prep_indices, dtype=int)
+        f_cond_prep_indices = np.array(conditional_preparation_indices, dtype=int)
+    else:
+        f_prep_qubits = preparation_qubits
+        f_prep_indices = slice(None)
+        f_cond_prep_indices = slice(0, 0)
 
     if conditional_measurement_indices:
         # Split measurement qubits into conditional and non-conditional qubits
@@ -164,14 +185,14 @@ def linear_inversion(
     # Construct dual bases
     meas_dual_basis = None
     if measurement_basis and f_meas_qubits:
-        meas_duals = {i: _dual_povms(measurement_basis, i) for i in measurement_qubits}
+        meas_duals = {i: _dual_povms(measurement_basis, i) for i in f_meas_qubits}
         meas_dual_basis = LocalMeasurementBasis(
             f"Dual_{measurement_basis.name}", qubit_povms=meas_duals
         )
 
     prep_dual_basis = None
-    if preparation_basis:
-        prep_duals = {i: _dual_states(preparation_basis, i) for i in preparation_qubits}
+    if preparation_basis and f_prep_qubits:
+        prep_duals = {i: _dual_states(preparation_basis, i) for i in f_prep_qubits}
         prep_dual_basis = LocalPreparationBasis(
             f"Dual_{preparation_basis.name}", qubit_states=prep_duals
         )
@@ -182,7 +203,7 @@ def linear_inversion(
 
     # Calculate shape of matrix to be fitted
     if prep_dual_basis:
-        pdim = np.prod(prep_dual_basis.matrix_shape(preparation_qubits), dtype=int)
+        pdim = np.prod(prep_dual_basis.matrix_shape(f_prep_qubits), dtype=int)
     else:
         pdim = 1
     if meas_dual_basis:
@@ -196,22 +217,26 @@ def linear_inversion(
     cond_fits = []
     if cond_circ_size > 1:
         metadata["conditional_circuit_outcome"] = []
-    if cond_meas_size > 1:
+    if conditional_measurement_indices:
         metadata["conditional_measurement_index"] = []
         metadata["conditional_measurement_outcome"] = []
+    if conditional_preparation_indices:
+        metadata["conditional_preparation_index"] = []
     for circ_idx in range(cond_circ_size):
         fits = {}
         for i, outcomes in enumerate(outcome_data[circ_idx]):
             shots = shot_data[i]
-            pidx = preparation_data[i]
+            pidx = preparation_data[i][f_prep_indices]
             midx = measurement_data[i][f_meas_indices]
-            c_key = tuple(measurement_data[i][f_cond_meas_indices])
-            if c_key not in fits:
-                fits[c_key] = [np.zeros(shape, dtype=complex) for _ in range(cond_meas_size)]
+            cond_prep_key = tuple(preparation_data[i][f_cond_prep_indices])
+            cond_meas_key = tuple(measurement_data[i][f_cond_meas_indices])
+            key = (cond_prep_key, cond_meas_key)
+            if key not in fits:
+                fits[key] = [np.zeros(shape, dtype=complex) for _ in range(cond_meas_size)]
 
             # Get prep basis component
             if prep_dual_basis:
-                p_mat = np.transpose(prep_dual_basis.matrix(pidx, preparation_qubits))
+                p_mat = np.transpose(prep_dual_basis.matrix(pidx, f_prep_qubits))
             else:
                 p_mat = 1
 
@@ -233,16 +258,18 @@ def linear_inversion(
 
                 # Add component to correct conditional
                 outcome_cond = f_cond_meas_outcome(outcome)
-                fits[c_key][outcome_cond] += prob * dual_op
+                fits[key][outcome_cond] += prob * dual_op
 
         # Append conditional fit metadata
-        for c_key, c_fits in fits.items():
+        for (prep_key, meas_key), c_fits in fits.items():
             cond_fits += c_fits
             if cond_circ_size > 1:
                 metadata["conditional_circuit_outcome"] += len(c_fits) * [circ_idx]
-            if cond_meas_size > 1:
-                metadata["conditional_measurement_index"] += len(c_fits) * [c_key]
+            if conditional_measurement_indices:
+                metadata["conditional_measurement_index"] += len(c_fits) * [meas_key]
                 metadata["conditional_measurement_outcome"] += list(range(cond_meas_size))
+            if conditional_preparation_indices:
+                metadata["conditional_preparation_index"] += len(c_fits) * [prep_key]
 
     t_stop = time.time()
     metadata["fitter_time"] = t_stop - t_start

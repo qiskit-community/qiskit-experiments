@@ -35,6 +35,7 @@ def lstsq_data(
     preparation_qubits: Optional[Tuple[int, ...]] = None,
     weights: Optional[np.ndarray] = None,
     conditional_measurement_indices: Optional[Sequence[int]] = None,
+    conditional_preparation_indices: Optional[Sequence[int]] = None,
 ) -> Tuple[np.ndarray, np.ndarray]:
     """Return stacked vectorized basis matrix A for least squares."""
     if measurement_basis is None and preparation_basis is None:
@@ -46,7 +47,8 @@ def lstsq_data(
     pdim = 1
     circ_cdim = outcome_data.shape[0]
     cdim = 1
-    num_cond = 0
+    num_meas_cond = 0
+    num_prep_cond = 0
 
     # Get full and conditional measurement basis dimensions
     if measurement_basis:
@@ -58,30 +60,42 @@ def lstsq_data(
         # regular measurement qubits
         if conditional_measurement_indices is not None:
             conditional_measurement_indices = tuple(conditional_measurement_indices)
-            conditional_qubits = tuple(
-                measurement_qubits[i] for i in conditional_measurement_indices
-            )
+            num_meas_cond = len(conditional_measurement_indices)
+            cond_meas_qubits = tuple(measurement_qubits[i] for i in conditional_measurement_indices)
             measurement_qubits = tuple(
                 qubit
                 for i, qubit in enumerate(measurement_qubits)
                 if i not in conditional_measurement_indices
             )
-            num_cond = len(conditional_measurement_indices)
-            cdim = np.prod(measurement_basis.outcome_shape(conditional_qubits), dtype=int)
+            cdim = np.prod(measurement_basis.outcome_shape(cond_meas_qubits), dtype=int)
         if measurement_qubits:
             mdim = np.prod(measurement_basis.matrix_shape(measurement_qubits), dtype=int)
 
-    # Get preparation basis dimensions
+    # Get full and conditional preparation basis dimensions
     if preparation_basis:
         bsize, num_prep = preparation_data.shape
         if not preparation_qubits:
             preparation_qubits = tuple(range(num_prep))
+
+        # Partition measurement qubits into conditional measurement qubits and
+        # regular measurement qubits
+        if conditional_preparation_indices is not None:
+            conditional_preparation_indices = tuple(conditional_preparation_indices)
+            num_prep_cond = len(conditional_preparation_indices)
+            preparation_qubits = tuple(
+                qubit
+                for i, qubit in enumerate(preparation_qubits)
+                if i not in conditional_preparation_indices
+            )
         if preparation_qubits:
             pdim = np.prod(preparation_basis.matrix_shape(preparation_qubits), dtype=int)
 
     # Reduced outcome functions
     # Set measurement indices to an array so we can use for array indexing later
-    if num_cond:
+    measurement_indices = None
+    f_meas_outcome = lambda x: x
+    f_cond_outcome = lambda x: 0
+    if num_meas_cond:
         f_cond_outcome = _partial_outcome_function(conditional_measurement_indices)
         if measurement_qubits:
             measurement_indices = np.array(
@@ -91,10 +105,16 @@ def lstsq_data(
         else:
             measurement_indices = []
             f_meas_outcome = lambda x: 0
-    else:
-        measurement_indices = None
-        f_meas_outcome = lambda x: x
-        f_cond_outcome = lambda x: 0
+
+    preparation_indices = None
+    if num_prep_cond:
+        if preparation_qubits:
+            preparation_indices = np.array(
+                [i for i in range(num_prep) if i not in conditional_preparation_indices],
+                dtype=int,
+            )
+        else:
+            preparation_indices = []
 
     # Allocate empty stacked basis matrix and prob vector
     reduced_size = size // circ_cdim // cdim
@@ -112,19 +132,19 @@ def lstsq_data(
         cond_idxs = {i: 0 for i in range(cdim)}
         for i in range(bsize):
             midx = measurement_data[i]
-            midx_meas = midx[measurement_indices]
             pidx = preparation_data[i]
             odata = outcome_data[cond_circ_idx][i]
             shots = shot_data[i]
 
             # Get prep basis component
+            pidx_prep = pidx[preparation_indices] if num_prep_cond else pidx
             if preparation_qubits:
-                p_mat = np.transpose(preparation_basis.matrix(pidx, preparation_qubits))
+                p_mat = np.transpose(preparation_basis.matrix(pidx_prep, preparation_qubits))
             else:
                 p_mat = 1
 
             # Get probabilities and optional measurement basis component
-            midx_meas = midx[measurement_indices] if num_cond else midx
+            midx_meas = midx[measurement_indices] if num_meas_cond else midx
             meas_cache = set()
             for outcome in range(odata.size):
                 # Get conditional and measurement outcome values

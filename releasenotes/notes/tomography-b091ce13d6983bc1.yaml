@@ -37,26 +37,27 @@ features:
   - |
     Adds support for conditional tomographic reconstruction to the
     :class:`.StateTomography` and :class:`.ProcessTomography` experiments.
+
+    There are three types of conditioning that can be used independently
+    or together in any combination for reconstruction of a state or
+    channel as a list of components conditional on these values.
     
-    The new `"conditional_circuit_clbits"` init option can be used to
+    The `"conditional_circuit_clbits"` init option can be used to
     specify any subset of clbits in an tomography circuit containing
     clbits to be conditioned on when peforming the tomographic
-    reconstruction. Using this option will return a list of reconstructed
-    state or channel components conditioned on a specifc value of the
-    conditional clbits in the circuit. The conditioning outcome value
-    of the clbits is stored in the analysis results ``extra`` field.
-
-    The new `"conditional_measurement_indices"` analysis option
-    can be used to also condition on the basis index and outcome value
-    of a specific subset of tomographic basis measurements. Using this
-    option will return a list of reconstructed  state or channel
-    components conditioned on both the measurement basis index and
-    measurement outcome value on the specified tomographic measurement
-    indices. The conditioning basis index and outcome value are both
+    reconstruction. The conditioning outcome value of the clbits is
     stored in the analysis results ``extra`` field.
 
-    Both methods of conditional reconstruction can be used independently
-    or together.
+    The `"conditional_measurement_indices"` analysis option can be used
+    to condition on the measurement basis index and outcome value of a
+    specific subset of tomographic basis measurements. The conditioning
+    basis index and outcome value are both stored in the analysis
+    results ``extra`` field.
+
+    The `"conditional_preparation_indices"` analysis option can be used
+    to condition on the preparation basis index of a specific subset of
+    tomographic basis preprations. The conditioning basis index is stored
+    in the analysis results ``extra`` field.
 fixes:
   - |
     Fixes bug in :class:`~.StateTomography` and :class:`~.ProcessTomography`

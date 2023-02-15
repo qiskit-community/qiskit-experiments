@@ -55,6 +55,7 @@ def postprocess_fitter(
     cond_circuit_outcome = fitter_metadata.pop("conditional_circuit_outcome", None)
     cond_meas_outcome = fitter_metadata.pop("conditional_measurement_outcome", None)
     cond_meas_index = fitter_metadata.pop("conditional_measurement_index", len(fits) * [None])
+    cond_prep_index = fitter_metadata.pop("conditional_preparation_index", len(fits) * [None])
 
     input_dim = np.prod(input_dims) if input_dims else 1
     if qpt == "auto":
@@ -115,18 +116,22 @@ def postprocess_fitter(
     # total probability of all components is 1, and optional rescale trace
     # of each component
     total_traces = defaultdict(float)
-    for cond_idx, fit_trace in zip(cond_meas_index, fit_traces):
-        total_traces[cond_idx] += fit_trace
+    for cond_prep, cond_meas, fit_trace in zip(cond_prep_index, cond_meas_index, fit_traces):
+        total_traces[(cond_prep, cond_meas)] += fit_trace
 
-    for i, (cond_idx, meta) in enumerate(zip(cond_meas_index, states_metadata)):
+    for i, (cond_prep, cond_meas, meta) in enumerate(
+        zip(cond_prep_index, cond_meas_index, states_metadata)
+    ):
         # Compute conditional component probability from the the component
         # non-rescaled fit trace
-        meta["conditional_probability"] = fit_traces[i] / total_traces[cond_idx]
+        meta["conditional_probability"] = fit_traces[i] / total_traces[(cond_prep, cond_meas)]
         if cond_circuit_outcome:
             meta["conditional_circuit_outcome"] = cond_circuit_outcome[i]
-        if cond_meas_outcome:
+        if cond_meas is not None:
             meta["conditional_measurement_outcome"] = cond_meas_outcome[i]
-            meta["conditional_measurement_index"] = cond_idx
+            meta["conditional_measurement_index"] = cond_meas
+        if cond_prep is not None:
+            meta["conditional_preparation_index"] = cond_prep
 
     return states, states_metadata
 
