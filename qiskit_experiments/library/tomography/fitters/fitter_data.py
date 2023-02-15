@@ -171,12 +171,12 @@ def _basis_dimensions(
 ) -> Tuple[Tuple[int, ...], Tuple[int, ...]]:
     """Caculate input and output dimensions for basis and qubits"""
     # Get dimension of the preparation and measurement qubits subsystems
-    prep_dims = (1,)
+    input_dims = (1,)
     if preparation_qubits:
         if not preparation_basis:
             raise AnalysisError("No tomography preparation basis provided.")
-        prep_dims = preparation_basis.matrix_shape(preparation_qubits)
-    meas_dims = (1,)
+        input_dims = preparation_basis.matrix_shape(preparation_qubits)
+    output_dims = (1,)
     full_meas_qubits = measurement_qubits
     if measurement_qubits:
         if conditional_measurement_indices is not None:
@@ -189,15 +189,6 @@ def _basis_dimensions(
         if full_meas_qubits:
             if not measurement_basis:
                 raise AnalysisError("No tomography measurement basis provided.")
-            meas_dims = measurement_basis.matrix_shape(full_meas_qubits)
-
-    if full_meas_qubits:
-        # QPT or QST
-        input_dims = prep_dims
-        output_dims = meas_dims
-    else:
-        # QST of POVM effects
-        input_dims = meas_dims
-        output_dims = prep_dims
+            output_dims = measurement_basis.matrix_shape(full_meas_qubits)
 
     return input_dims, output_dims

@@ -171,6 +171,7 @@ class TomographyAnalysis(BaseAnalysis):
             experiment_data.data(),
             outcome_shape=outcome_shape,
         )
+        qpt = prep_data.size > 0
         fitter = self._get_fitter(self.options.fitter)
 
         try:
@@ -195,14 +196,8 @@ class TomographyAnalysis(BaseAnalysis):
             fitter_metadata,
             make_positive=self.options.rescale_positive,
             trace="auto" if self.options.rescale_trace else None,
+            qpt=qpt,
         )
-
-        if prep_data.shape[1]:
-            qpt = True
-            input_dim = np.prod(states[0].input_dims())
-        else:
-            qpt = False
-            input_dim = 1
 
         # Convert to results
         state_results = [
@@ -215,6 +210,10 @@ class TomographyAnalysis(BaseAnalysis):
         target_state = self.options.target
         if len(state_results) == 1 and target_state is not None:
             # Note: this currently only works for non-conditional tomography
+            if qpt:
+                input_dim = np.prod(states[0].input_dims())
+            else:
+                input_dim = 1
             other_results.append(
                 self._fidelity_result(state_results[0], target_state, input_dim=input_dim)
             )
@@ -224,7 +223,8 @@ class TomographyAnalysis(BaseAnalysis):
 
         # Check trace preserving
         if qpt:
-            other_results += self._tp_result(state_results, input_dim=input_dim)
+            output_dim = np.prod(states[0].output_dims())
+            other_results += self._tp_result(state_results, output_dim)
 
         # Finally format state result metadata to remove eigenvectors
         # which are no longer needed to reduce size
@@ -277,7 +277,7 @@ class TomographyAnalysis(BaseAnalysis):
     @staticmethod
     def _tp_result(
         state_results: List[AnalysisResultData],
-        input_dim: int = 1,
+        output_dim: int = 1,
     ) -> List[AnalysisResultData]:
         """Check if QPT channel is trace preserving"""
         # Construct the Kraus TP condition matrix sum_i K_i^dag K_i
@@ -289,9 +289,9 @@ class TomographyAnalysis(BaseAnalysis):
             prob = result.extra["conditional_probability"]
             cond_idx = result.extra.get("conditional_measurement_index", None)
             size = len(evals)
-            output_dim = size // input_dim
-            mats = np.reshape(evecs.T, (size, output_dim, input_dim), order="F")
-            comp_cond = np.einsum("i,ija,ijb->ab", evals, mats.conj(), mats)
+            input_dim = size // output_dim
+            mats = np.reshape(evecs.T, (size, input_dim, output_dim), order="F")
+            comp_cond = np.einsum("i,iaj,ibj->ab", evals, mats.conj(), mats)
             if cond_idx in kraus_cond:
                 kraus_cond[cond_idx] += prob * comp_cond
             else:
@@ -300,7 +300,7 @@ class TomographyAnalysis(BaseAnalysis):
         results = []
         for key, val in kraus_cond.items():
             tp_cond = np.sum(np.abs(la.eigvalsh(val - np.eye(input_dim))))
-            is_tp = bool(np.isclose(tp_cond, 0))
+            is_tp = bool(np.isclose(tp_cond, 0, atol=1e-5))
             result = AnalysisResultData("trace_preserving", is_tp, extra={})
             if not is_tp:
                 result.extra["delta"] = tp_cond

@@ -27,6 +27,7 @@ def postprocess_fitter(
     fitter_metadata: Optional[Dict] = None,
     make_positive: bool = False,
     trace: Union[float, str, None] = "auto",
+    qpt: Union[bool, str, None] = "auto",
 ) -> Tuple[List[np.ndarray], List[Dict[str, any]]]:
     """Post-process raw fitter result.
 
@@ -38,6 +39,9 @@ def postprocess_fitter(
         trace: If "auto" or float rescale the fitted state to have the
             specified trace. For "auto" states will be set to trace 1
             and channels to trace = dimension.
+        qpt: If True post-process as QPT to return Choi matrices,
+             otherwise post-process as QST to return density matrices.
+             If "auto" infer QPT or QST based on the input dimension.
 
     Returns:
         The fitted state components, and metadata.
@@ -52,12 +56,13 @@ def postprocess_fitter(
     cond_meas_outcome = fitter_metadata.pop("conditional_measurement_outcome", None)
     cond_meas_index = fitter_metadata.pop("conditional_measurement_index", len(fits) * [None])
 
-    # Convert fitter matrix to state data for post-processing
     input_dim = np.prod(input_dims) if input_dims else 1
-    qpt = input_dim > 1
+    if qpt == "auto":
+        qpt = input_dim > 1
     if trace == "auto":
         trace = input_dim
 
+    # Convert fitter matrix to state data for post-processing
     states = []
     states_metadata = []
     fit_traces = []
