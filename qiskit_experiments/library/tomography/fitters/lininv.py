@@ -121,6 +121,7 @@ def linear_inversion(
         preparation_basis=preparation_basis,
         measurement_qubits=measurement_qubits,
         preparation_qubits=preparation_qubits,
+        conditional_measurement_indices=conditional_measurement_indices,
     )
 
     metadata = {
@@ -141,11 +142,11 @@ def linear_inversion(
                 f_meas_qubits.append(qubit)
                 meas_indices.append(i)
 
-        # Get size of conditional outcomes
         cond_size = np.prod(measurement_basis.outcome_shape(f_cond_qubits), dtype=int)
 
         # Indexing array for fully tomo measured qubits
         f_meas_indices = np.array(meas_indices, dtype=int)
+        f_cond_indices = np.array(conditional_measurement_indices, dtype=int)
 
         # Reduced outcome functions
         f_meas_outcome = _partial_outcome_function(tuple(f_meas_indices))
@@ -154,12 +155,13 @@ def linear_inversion(
         cond_size = 1
         f_meas_qubits = measurement_qubits
         f_meas_indices = slice(None)
+        f_cond_indices = slice(0, 0)
         f_meas_outcome = lambda x: x
         f_cond_outcome = lambda x: 0
 
     # Construct dual bases
     meas_dual_basis = None
-    if measurement_basis and f_meas_indices:
+    if measurement_basis and f_meas_qubits:
         meas_duals = {i: _dual_povms(measurement_basis, i) for i in measurement_qubits}
         meas_dual_basis = LocalMeasurementBasis(
             f"Dual_{measurement_basis.name}", qubit_povms=meas_duals
@@ -190,20 +192,26 @@ def linear_inversion(
     # Construct linear inversion matrix
     cond_circ_size = outcome_data.shape[0]
     cond_fits = []
-    metadata["component_conditionals"] = []
-
+    if cond_circ_size > 1:
+        metadata["conditional_circuit_outcome"] = []
+    if cond_size > 1:
+        metadata["conditional_measurement_index"] = []
+        metadata["conditional_measurement_outcome"] = []
     for circ_idx in range(cond_circ_size):
-        fits = [np.zeros(shape, dtype=complex) for _ in range(cond_size)]
+        fits = {}
         for i, outcomes in enumerate(outcome_data[circ_idx]):
             shots = shot_data[i]
             pidx = preparation_data[i]
             midx = measurement_data[i][f_meas_indices]
+            c_key = tuple(measurement_data[i][f_cond_indices])
+            if c_key not in fits:
+                fits[c_key] = [np.zeros(shape, dtype=complex) for _ in range(cond_size)]
 
             # Get prep basis component
             if prep_dual_basis:
                 p_mat = np.transpose(prep_dual_basis.matrix(pidx, preparation_qubits))
             else:
-                p_mat = None
+                p_mat = 1
 
             # Get probabilities and optional measurement basis component
             for outcome, freq in enumerate(outcomes):
@@ -223,13 +231,16 @@ def linear_inversion(
 
                 # Add component to correct conditional
                 outcome_cond = f_cond_outcome(outcome)
-                fits[outcome_cond] += prob * dual_op
+                fits[c_key][outcome_cond] += prob * dual_op
 
-        # Add metadata
-        metadata["component_conditionals"] += list(zip((circ_idx,) * cond_size, range(cond_size)))
-
-        # Append conditional circuit fits
-        cond_fits += fits
+        # Append conditional fit metadata
+        for c_key, c_fits in fits.items():
+            cond_fits += c_fits
+            if cond_circ_size > 1:
+                metadata["conditional_circuit_outcome"] += len(c_fits) * [circ_idx]
+            if cond_size > 1:
+                metadata["conditional_measurement_index"] += len(c_fits) * [c_key]
+                metadata["conditional_measurement_outcome"] += list(range(cond_size))
 
     t_stop = time.time()
     metadata["fitter_time"] = t_stop - t_start

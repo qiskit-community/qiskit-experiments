@@ -93,12 +93,20 @@ class StateTomographyAnalysis(TomographyAnalysis):
                 :class:`~qiskit.quantum_info.Statevector`]): Optional, et a custom target
                 quantum state for computing the :func:~qiskit.quantum_info.state_fidelity`
                 of the fitted state against (Default: None).
-            conditional_measurement_indices (list[int]): Optional, indices of measurement
-                qubits to treat as conditional for conditional fragment reconstruction of
-                the circuit.
-            conditional_circuit_clbits (list[int]): Optional, clbits in the source circuit
-                to treat as conditional for conditional fragment reconstruction of the
-                circuit.
+            conditional_circuit_clbits (list[int]): Optional, the clbit indices in the
+                source circuit to be conditioned on when reconstructing the state.
+                Enabling this will return a list of reconstrated state components
+                conditional on the values of these clbit values. The integer value of the
+                conditioning clbits is stored in state analysis result extra field
+                `"conditional_circuit_outcome"`.
+            conditional_measurement_indices (list[int]): Optional, indices of tomography
+                measurement qubits to used for conditional state reconstruction. Enabling
+                this will return a list of reconstrated state components conditioned on
+                the remaining tomographic bases conditional on the basis index, and outcome
+                value for these measurements. The conditionl measurement basis index and
+                integer value of the measurement outcome is stored in state analysis result
+                extra fields `"conditional_measurement_index"` and
+                `"conditional_measurement_outcome"` respectively.
         """
         options = super()._default_options()
         options.measurement_basis = PauliMeasurementBasis()

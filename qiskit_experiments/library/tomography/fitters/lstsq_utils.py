@@ -33,6 +33,7 @@ def lstsq_data(
     preparation_basis: Optional[PreparationBasis] = None,
     measurement_qubits: Optional[Tuple[int, ...]] = None,
     preparation_qubits: Optional[Tuple[int, ...]] = None,
+    weights: Optional[np.ndarray] = None,
     conditional_measurement_indices: Optional[Sequence[int]] = None,
 ) -> Tuple[np.ndarray, np.ndarray]:
     """Return stacked vectorized basis matrix A for least squares."""
@@ -99,6 +100,12 @@ def lstsq_data(
     reduced_size = size // circ_cdim // cdim
     basis_mat = np.zeros((reduced_size, mdim * mdim * pdim * pdim), dtype=complex)
     probs = np.zeros((circ_cdim, cdim, reduced_size), dtype=float)
+    if weights is None:
+        prob_weights = None
+    else:
+        prob_weights = np.zeros_like(probs)
+        # Renormalize weights
+        weights = weights / np.sqrt(np.sum(weights**2))
 
     # Fill matrices
     for cond_circ_idx in range(outcome_data.shape[0]):
@@ -114,7 +121,7 @@ def lstsq_data(
             if preparation_qubits:
                 p_mat = np.transpose(preparation_basis.matrix(pidx, preparation_qubits))
             else:
-                p_mat = None
+                p_mat = 1
 
             # Get probabilities and optional measurement basis component
             midx_meas = midx[measurement_indices] if num_cond else midx
@@ -125,8 +132,12 @@ def lstsq_data(
                 outcome_meas = f_meas_outcome(outcome)
                 idx = cond_idxs[outcome_cond]
 
-                # Store probability
+                # Store weighted probability
                 probs[cond_circ_idx, outcome_cond, idx] = odata[outcome] / shots
+                if weights is not None:
+                    prob_weights[cond_circ_idx, outcome_cond, idx] = weights[
+                        cond_circ_idx, i, outcome
+                    ]
 
                 # Check if new meas basis element and construct basis matrix
                 store_mat = True
@@ -140,20 +151,21 @@ def lstsq_data(
                         store_mat = False
                 else:
                     mat = p_mat
+
+                # Store weighted basis matrix
                 if store_mat:
                     basis_mat[idx] = np.conj(np.ravel(mat, order="F"))
 
                 # Increase counter
                 cond_idxs[outcome_cond] += 1
 
-    return basis_mat, probs
+    return basis_mat, probs, prob_weights
 
 
 def dirichlet_mean_and_var(
     outcome_data: np.ndarray,
     shot_data: Optional[Union[np.ndarray, int]] = None,
     outcome_prior: Union[np.ndarray, int] = 0.5,
-    conditional_measurement_indices: Optional[Sequence[int]] = None,
 ) -> Tuple[np.ndarray, np.ndarray]:
     r"""Compute mean probabilities and variance from outcome data.
 
@@ -178,28 +190,12 @@ def dirichlet_mean_and_var(
             provided this will be inferred from the sum of outcome data
             for each basis index.
         outcome_prior: measurement outcome Dirichlet distribution prior.
-        conditional_measurement_indices: outcome indices of conditional
-            outcome data.
 
     Returns:
         The mean probabilities and variances for Bayesian update
-        with the given outcome data and prior.
+        with the given outcome data and prior. These are the
+        same shape as the outcome_data array.
     """
-    size = outcome_data.size
-    dim_circ_cond, num_data, tomo_outcomes = outcome_data.shape
-    if conditional_measurement_indices:
-        dim_cond = 2 ** len(conditional_measurement_indices)
-        f_cond_outcome = _partial_outcome_function(tuple(conditional_measurement_indices))
-    else:
-        dim_cond = 1
-        f_cond_outcome = lambda x: 0
-
-    # Compute hedged probabilities where the "add-beta" rule ensures
-    # there are no zero or 1 values so we don't have any zero variance
-    reduced_size = size // dim_cond // dim_circ_cond
-    mean_probs = np.zeros((dim_circ_cond, dim_cond, reduced_size), dtype=float)
-    var_denom = np.zeros((dim_circ_cond, dim_cond, reduced_size), dtype=int)
-
     # Bayesian update
     posterior = outcome_data + outcome_prior
 
@@ -212,55 +208,56 @@ def dirichlet_mean_and_var(
         outcome_shots = np.sum(outcome_data, axis=(0, -1))
         posterior_shots = np.sum(posterior, axis=(0, -1))
         posterior_total = posterior_shots + shot_data - outcome_shots
+    posterior_total = posterior_total[None, 0, None]
 
-    # Fill matrices
-    for i in range(dim_circ_cond):
-        cond_idxs = {i: 0 for i in range(dim_cond)}
-        for j in range(num_data):
-            freqs = posterior[i, j]
-            for outcome in range(tomo_outcomes):
-                shots = posterior_total[outcome]
-                outcome_cond = f_cond_outcome(outcome)
-                idx = cond_idxs[outcome_cond]
-                mean_probs[i, outcome_cond, idx] = freqs[outcome] / shots
-                var_denom[i, outcome_cond, idx] = shots + 1
-                cond_idxs[outcome_cond] += 1
-    variance = mean_probs * (1 - mean_probs) / var_denom
+    # Posterior mean and variance
+    mean_probs = posterior / posterior_total
+    variance = mean_probs * (1 - mean_probs) / (posterior_total + 1)
+
     return mean_probs, variance
 
 
 def binomial_weights(
     outcome_data: np.ndarray,
-    shot_data: Optional[np.ndarray] = None,
+    shot_data: np.ndarray,
     beta: float = 0,
-    conditional_measurement_indices: Optional[Sequence[int]] = None,
 ) -> np.ndarray:
-    r"""Compute weights vector from the multinomial distribution.
-
+    r"""Compute weights vector from the binomial distribution.
     The returned weights are given by :math:`w_i = 1 / \sigma_i` where
-    the standard deviation :math:`\sigma_i` is estimated via Bayesian
-    update of the Dirichlet distribution.
-
+    the standard deviation :math:`\sigma_i` is estimated as
+    :math:`\sigma_i = \sqrt{p_i(1-p_i) / n_i}`. To avoid dividing
+    by zero the probabilities are hedged using the *add-beta* rule
+    .. math:
+        p_i = \frac{f_i + \beta}{n_i + K \beta}
+    where :math:`f_i` is the observed frequency, :math:`n_i` is the
+    number of shots, and :math:`K` is the number of possible measurement
+    outcomes.
     Args:
         outcome_data: measurement outcome frequency data.
-        shot_data: Optional, basis measurement total shot data. If not
-            provided this will be inferred from the sum of outcome data
-            for each basis index.
+        shot_data: basis measurement total shot data.
         beta: Hedging parameter for converting frequencies to
               probabilities. If 0 hedging is disabled.
-        conditional_measurement_indices: outcome indices of conditional
-            outcome data.
-
     Returns:
         The weight vector.
     """
-    _, variance = dirichlet_mean_and_var(
-        outcome_data,
-        shot_data=shot_data,
-        outcome_prior=beta,
-        conditional_measurement_indices=conditional_measurement_indices,
-    )
-    return 1 / np.sqrt(variance)
+    size = outcome_data.size
+    num_data, num_outcomes = outcome_data.shape
+
+    # Compute hedged probabilities where the "add-beta" rule ensures
+    # there are no zero or 1 values so we don't have any zero variance
+    probs = np.zeros(size, dtype=float)
+    prob_shots = np.zeros(size, dtype=int)
+    idx = 0
+    for i in range(num_data):
+        shots = shot_data[i]
+        denom = shots + num_outcomes * beta
+        freqs = outcome_data[i]
+        for outcome in range(num_outcomes):
+            probs[idx] = (freqs[outcome] + beta) / denom
+            prob_shots[idx] = shots
+            idx += 1
+    variance = probs * (1 - probs)
+    return np.sqrt(prob_shots / variance)
 
 
 @functools.lru_cache(None)

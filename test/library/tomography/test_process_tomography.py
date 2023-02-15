@@ -497,7 +497,7 @@ class TestProcessTomography(QiskitExperimentsTestCase):
                     msg=f"{fitter} fit fidelity is low for qubits {qubits}",
                 )
 
-    @ddt.data([0], [1], [0, 1])
+    @ddt.data([0], [1], [0, 1], [1, 0])
     def test_qpt_conditional_circuit(self, circuit_clbits):
         """Test subset state tomography generation"""
         # Preparation circuit
@@ -525,6 +525,8 @@ class TestProcessTomography(QiskitExperimentsTestCase):
             targets = [2 * i.tensor(mix) for i in [proj0, proj1]]
         elif circuit_clbits == [0, 1]:
             targets = [4 * i.expand(j) for j in [proj0, proj1] for i in [proj0, proj1]]
+        elif circuit_clbits == [1, 0]:
+            targets = [4 * i.expand(j) for j in [proj0, proj1] for i in [proj0, proj1]]
         num_cond = len(circuit_clbits)
         prob_target = 0.5**num_cond
         for fitter in FITTERS:
@@ -535,17 +537,19 @@ class TestProcessTomography(QiskitExperimentsTestCase):
                 states = fitdata.analysis_results("state")
                 self.assertEqual(len(states), 2**num_cond)
                 for state in states:
-                    idx = state.extra["component_index"]
-                    prob = state.extra["component_probability"]
+                    idx = state.extra.get("conditional_circuit_outcome", 0)
+                    prob = state.extra["conditional_probability"]
 
                     self.assertTrue(
                         np.isclose(prob, prob_target, atol=1e-2),
                         msg=(
-                            f"{fitter} probability incorrect for component"
+                            f"{fitter} probability incorrect for conditional outcome"
                             f" {idx} ({prob} != {prob_target})"
                         ),
                     )
                     fid = qi.process_fidelity(state.value, targets[idx], require_tp=False)
                     self.assertGreater(
-                        fid, 0.95, msg=f"{fitter} fidelity {fid} is low for component {idx}"
+                        fid,
+                        0.95,
+                        msg=f"{fitter} fidelity {fid} is low for conditional outcome {idx}",
                     )

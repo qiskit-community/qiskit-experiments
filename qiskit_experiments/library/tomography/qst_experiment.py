@@ -82,10 +82,11 @@ class StateTomography(TomographyExperiment):
                 measurement basis configurations ``[m[0], m[1], ...]`` where ``m[i]``
                 is the measurement basis index for qubit-i. If not specified full
                 tomography for all indices of the measurement basis will be performed.
-            conditional_circuit_clbits: Specify any clbits in the input
-                circuit to treat as conditioning bits for conditional tomography.
-                If set to True all circuit clbits will be treated as conditional.
-                If False all circuit clbits will be marginalized over (Default: False).
+            conditional_circuit_clbits: Optional, the clbits in the source circuit to
+                be conditioned on when reconstructing the state. If True all circuit
+                clbits will be conditioned on. Enabling this will return a list of
+                reconstrated state components conditional on the values of these clbit
+                values.
             analysis: Optional, a custom analysis instance to use. If ``"default"``
                 :class:`~.StateTomographyAnalysis` will be used. If None no analysis
                 instance will be set.

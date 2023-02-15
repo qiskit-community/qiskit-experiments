@@ -121,7 +121,8 @@ def cvxpy_linear_lstsq(
                           QPT and False for QST (default: "auto").
         partial_trace: Enforce conditional fitted Choi matrices to partial
                        trace to POVM matrices.
-        weights: Optional array of weights for least squares objective.
+        weights: Optional array of weights for least squares objective. Weights
+                 should be the same shape as the outcome_data.
         kwargs: kwargs for cvxpy solver.
 
     Raises:
@@ -143,6 +144,7 @@ def cvxpy_linear_lstsq(
         preparation_basis=preparation_basis,
         measurement_qubits=measurement_qubits,
         preparation_qubits=preparation_qubits,
+        conditional_measurement_indices=conditional_measurement_indices,
     )
 
     if trace_preserving == "auto" and preparation_data.shape[1] > 0:
@@ -157,123 +159,152 @@ def cvxpy_linear_lstsq(
         "output_dims": output_dims,
     }
 
-    basis_matrix, probability_data = lstsq_utils.lstsq_data(
-        outcome_data,
-        shot_data,
-        measurement_data,
-        preparation_data,
-        measurement_basis=measurement_basis,
-        preparation_basis=preparation_basis,
-        measurement_qubits=measurement_qubits,
-        preparation_qubits=preparation_qubits,
-        conditional_measurement_indices=conditional_measurement_indices,
-    )
-
-    # Since CVXPY only works with real variables we must specify the real
-    # and imaginary parts of matrices seperately: rho = rho_r + 1j * rho_i
-
-    num_circ_components, num_tomo_components, _ = probability_data.shape
-    dim = int(np.sqrt(basis_matrix.shape[1]))
-
-    # Generate list of conditional components for block diagonal matrix
-    # rho = sum_k |k><k| \otimes rho(k)
-    rhos_r = []
-    rhos_i = []
-    cons = []
-    metadata["component_conditionals"] = []
-    for i in range(num_circ_components):
-        for j in range(num_tomo_components):
-            rho_r, rho_i, cons_i = cvxpy_utils.complex_matrix_variable(dim, hermitian=True, psd=psd)
-            rhos_r.append(rho_r)
-            rhos_i.append(rho_i)
-            cons.append(cons_i)
-            metadata["component_conditionals"].append((i, j))
-
-    # Partial trace when fitting Choi-matrices for quantum process tomography.
-    # This applied to the sum of conditional components
-    # Note that this adds an implicitly
-    # trace preserving is a specific partial trace constraint ptrace(rho) = I
-    # Note: partial trace constraints implicitly define a trace constraint,
-    # so if a different trace constraint is specified it will be ignored
-    joint_cons = None
-    if partial_trace is not None:
-        for rho_r, rho_i, povm in zip(rhos_r, rhos_i, partial_trace):
-            joint_cons = cvxpy_utils.partial_trace_constaint(rho_r, rho_i, povm)
-    elif trace_preserving:
-        input_dim = np.prod(input_dims)
-        joint_cons = cvxpy_utils.trace_preserving_constaint(
-            rhos_r,
-            rhos_i,
-            input_dim=input_dim,
-            hermitian=True,
-        )
-    elif trace is not None:
-        joint_cons = cvxpy_utils.trace_constraint(rhos_r, rhos_i, trace=trace, hermitian=True)
-
-    # OBJECTIVE FUNCTION
-
-    # The function we wish to minimize is || arg ||_2 where
-    #   arg =  bm * vec(rho) - data
-    # Since we are working with real matrices in CVXPY we expand this as
-    #   bm * vec(rho) = (bm_r + 1j * bm_i) * vec(rho_r + 1j * rho_i)
-    #                 = bm_r * vec(rho_r) - bm_i * vec(rho_i)
-    #                   + 1j * (bm_r * vec(rho_i) + bm_i * vec(rho_r))
-    #                 = bm_r * vec(rho_r) - bm_i * vec(rho_i)
-    # where we drop the imaginary part since the expectation value is real
-
-    # Construct block diagonal fit variable from conditional components
-    # Construct objective function
-    if weights is not None:
-        weights = weights / np.sqrt(np.sum(weights**2))
-        probability_data = weights * probability_data
-
-    if weights is None:
-        bm_r = np.real(basis_matrix)
-        bm_i = np.imag(basis_matrix)
-        bms_r = [bm_r] * num_circ_components * num_tomo_components
-        bms_i = [bm_i] * num_circ_components * num_tomo_components
+    # Conditional measurement indices
+    if conditional_measurement_indices:
+        cond_measurement_data = measurement_data[
+            :, np.array(conditional_measurement_indices, dtype=int)
+        ]
+        cond_meas_indices = np.unique(cond_measurement_data, axis=0)
+        metadata["conditional_measurement_index"] = []
+        metadata["conditional_measurement_outcome"] = []
     else:
-        bms_r = []
-        bms_i = []
+        cond_measurement_data = np.zeros((measurement_data.shape[0], 0), dtype=int)
+        cond_meas_indices = np.zeros((1, 0), dtype=int)
+
+    if outcome_data.shape[0] > 1:
+        metadata["conditional_circuit_outcome"] = []
+
+    fits = []
+    for cond_idx in cond_meas_indices:
+        cond_mask = np.all(cond_measurement_data == cond_idx, axis=1)
+        if weights is None:
+            cond_weights = None
+        else:
+            cond_weights = weights[:, cond_mask]
+
+        basis_matrix, probability_data, probability_weights = lstsq_utils.lstsq_data(
+            outcome_data[:, cond_mask],
+            shot_data[cond_mask],
+            measurement_data[cond_mask],
+            preparation_data[cond_mask],
+            measurement_basis=measurement_basis,
+            preparation_basis=preparation_basis,
+            measurement_qubits=measurement_qubits,
+            preparation_qubits=preparation_qubits,
+            weights=cond_weights,
+            conditional_measurement_indices=conditional_measurement_indices,
+        )
+
+        # Since CVXPY only works with real variables we must specify the real
+        # and imaginary parts of matrices seperately: rho = rho_r + 1j * rho_i
+
+        num_circ_components, num_tomo_components, _ = probability_data.shape
+        dim = int(np.sqrt(basis_matrix.shape[1]))
+
+        # Generate list of conditional components for block diagonal matrix
+        # rho = sum_k |k><k| \otimes rho(k)
+        rhos_r = []
+        rhos_i = []
+        cons = []
         for i in range(num_circ_components):
             for j in range(num_tomo_components):
-                weighted_mat = weights[i, j][:, None] * basis_matrix
-                bms_r.append(np.real(weighted_mat))
-                bms_i.append(np.imag(weighted_mat))
+                rho_r, rho_i, cons_i = cvxpy_utils.complex_matrix_variable(
+                    dim, hermitian=True, psd=psd
+                )
+                rhos_r.append(rho_r)
+                rhos_i.append(rho_i)
+                cons.append(cons_i)
+                if num_circ_components > 1:
+                    metadata["conditional_circuit_outcome"].append(i)
+                if num_tomo_components > 1:
+                    metadata["conditional_measurement_index"].append(tuple(cond_idx))
+                    metadata["conditional_measurement_outcome"].append(j)
 
-    # Stack lstsq objective from sum of components
-    args = []
-    idx = 0
-    for i in range(num_circ_components):
-        for j in range(num_tomo_components):
-            model = bms_r[idx] @ cvxpy.vec(rhos_r[idx]) - bms_i[idx] @ cvxpy.vec(rhos_i[idx])
-            data = probability_data[i, j]
-            args.append(model - data)
-            idx += 1
+        # Partial trace when fitting Choi-matrices for quantum process tomography.
+        # This applied to the sum of conditional components
+        # Note that this adds an implicitly
+        # trace preserving is a specific partial trace constraint ptrace(rho) = I
+        # Note: partial trace constraints implicitly define a trace constraint,
+        # so if a different trace constraint is specified it will be ignored
+        joint_cons = None
+        if partial_trace is not None:
+            for rho_r, rho_i, povm in zip(rhos_r, rhos_i, partial_trace):
+                joint_cons = cvxpy_utils.partial_trace_constaint(rho_r, rho_i, povm)
+        elif trace_preserving:
+            input_dim = np.prod(input_dims)
+            joint_cons = cvxpy_utils.trace_preserving_constaint(
+                rhos_r,
+                rhos_i,
+                input_dim=input_dim,
+                hermitian=True,
+            )
+        elif trace is not None:
+            joint_cons = cvxpy_utils.trace_constraint(rhos_r, rhos_i, trace=trace, hermitian=True)
 
-    # Combine all variables and constraints into a joint optimization problem
-    # if tehre is a joint constraint
-    if joint_cons:
-        args = [cvxpy.hstack(args)]
-        for cons_i in cons:
-            joint_cons += cons_i
-        cons = [joint_cons]
+        # OBJECTIVE FUNCTION
 
-    # Solve each component separately
-    metadata["cvxpy_solver"] = None
-    metadata["cvxpy_status"] = []
-    for arg, con in zip(args, cons):
-        # Optimization problem
-        obj = cvxpy.Minimize(cvxpy.norm(arg, p=2))
-        prob = cvxpy.Problem(obj, con)
+        # The function we wish to minimize is || arg ||_2 where
+        #   arg =  bm * vec(rho) - data
+        # Since we are working with real matrices in CVXPY we expand this as
+        #   bm * vec(rho) = (bm_r + 1j * bm_i) * vec(rho_r + 1j * rho_i)
+        #                 = bm_r * vec(rho_r) - bm_i * vec(rho_i)
+        #                   + 1j * (bm_r * vec(rho_i) + bm_i * vec(rho_r))
+        #                 = bm_r * vec(rho_r) - bm_i * vec(rho_i)
+        # where we drop the imaginary part since the expectation value is real
 
-        # Solve SDP
-        cvxpy_utils.solve_iteratively(prob, 5000, **kwargs)
+        # Construct block diagonal fit variable from conditional components
+        # Construct objective function
+        if probability_weights is not None:
+            probability_data = probability_weights * probability_data
+            bms_r = []
+            bms_i = []
+            for i in range(num_circ_components):
+                for j in range(num_tomo_components):
+                    weighted_mat = probability_weights[i, j][:, None] * basis_matrix
+                    bms_r.append(np.real(weighted_mat))
+                    bms_i.append(np.imag(weighted_mat))
+        else:
+            bm_r = np.real(basis_matrix)
+            bm_i = np.imag(basis_matrix)
+            bms_r = [bm_r] * num_circ_components * num_tomo_components
+            bms_i = [bm_i] * num_circ_components * num_tomo_components
 
-        # Return optimal values and problem metadata
-        metadata["cvxpy_solver"] = prob.solver_stats.solver_name
-        metadata["cvxpy_status"].append(prob.status)
+        # Stack lstsq objective from sum of components
+        args = []
+        idx = 0
+        for i in range(num_circ_components):
+            for j in range(num_tomo_components):
+                model = bms_r[idx] @ cvxpy.vec(rhos_r[idx]) - bms_i[idx] @ cvxpy.vec(rhos_i[idx])
+                data = probability_data[i, j]
+                args.append(model - data)
+                idx += 1
 
+        # Combine all variables and constraints into a joint optimization problem
+        # if tehre is a joint constraint
+        if joint_cons:
+            args = [cvxpy.hstack(args)]
+            for cons_i in cons:
+                joint_cons += cons_i
+            cons = [joint_cons]
+
+        # Solve each component separately
+        metadata["cvxpy_solver"] = None
+        metadata["cvxpy_status"] = []
+        for arg, con in zip(args, cons):
+            # Optimization problem
+            obj = cvxpy.Minimize(cvxpy.norm(arg, p=2))
+            prob = cvxpy.Problem(obj, con)
+
+            # Solve SDP
+            cvxpy_utils.solve_iteratively(prob, 5000, **kwargs)
+
+            # Return optimal values and problem metadata
+            metadata["cvxpy_solver"] = prob.solver_stats.solver_name
+            metadata["cvxpy_status"].append(prob.status)
+
+        fits += [rho_r.value + 1j * rho_i.value for rho_r, rho_i in zip(rhos_r, rhos_i)]
+
+    # Add additional metadata
     if psd:
         metadata["psd_constraint"] = True
     if partial_trace is not None:
@@ -282,9 +313,6 @@ def cvxpy_linear_lstsq(
         metadata["trace_preserving"] = True
     elif trace is not None:
         metadata["trace"] = trace
-
-    fits = [rho_r.value + 1j * rho_i.value for rho_r, rho_i in zip(rhos_r, rhos_i)]
-
     t_stop = time.time()
     metadata["fitter_time"] = t_stop - t_start
 
@@ -388,7 +416,6 @@ def cvxpy_gaussian_lstsq(
         outcome_data,
         shot_data=shot_data,
         outcome_prior=outcome_prior,
-        conditional_measurement_indices=conditional_measurement_indices,
     )
 
     weights = 1.0 / np.sqrt(variance)

@@ -97,10 +97,11 @@ class ProcessTomography(TomographyExperiment):
                 preparation basis index, and ``m[i]`` is the measurement basis index
                 for qubit-i. If not specified full tomography for all indices of the
                 preparation and measurement bases will be performed.
-            conditional_circuit_clbits: Specify any clbits in the input
-                circuit to treat as conditioning bits for conditional tomography.
-                If set to True all circuit clbits will be treated as conditional.
-                If False all circuit clbits will be marginalized over (Default: False).
+            conditional_circuit_clbits: Optional, the clbits in the source circuit to
+                be conditioned on when reconstructing the channel. If True all circuit
+                clbits will be conditioned on. Enabling this will return a list of
+                reconstrated channel components conditional on the values of these clbit
+                values.
             analysis: Optional, a custom analysis instance to use. If ``"default"``
                 :class:`~.ProcessTomographyAnalysis` will be used. If None no analysis
                 instance will be set.

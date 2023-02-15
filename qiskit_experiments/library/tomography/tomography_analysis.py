@@ -15,6 +15,7 @@ Quantum process tomography analysis
 
 
 from typing import List, Union, Callable
+from collections import defaultdict
 import warnings
 import numpy as np
 import scipy.linalg as la
@@ -90,12 +91,20 @@ class TomographyAnalysis(BaseAnalysis):
                 tomographic preparations.
             target (Any): Optional, target object for fidelity comparison of the fit
                 (Default: None).
-            conditional_measurement_indices (list[int]): Optional, indices of measurement
-                qubits to treat as conditional for conditional fragment reconstruction of
-                the circuit.
-            conditional_circuit_clbits (list[int]): Optional, clbits in the source circuit
-                to treat as conditional for conditional fragment reconstruction of the
-                circuit.
+            conditional_circuit_clbits (list[int]): Optional, the clbit indices in the
+                source circuit to be conditioned on when reconstructing the state.
+                Enabling this will return a list of reconstrated state components
+                conditional on the values of these clbit values. The integer value of the
+                conditioning clbits is stored in state analysis result extra field
+                `"conditional_circuit_outcome"`.
+            conditional_measurement_indices (list[int]): Optional, indices of tomography
+                measurement qubits to used for conditional state reconstruction. Enabling
+                this will return a list of reconstrated state components conditioned on
+                the remaining tomographic bases conditional on the basis index, and outcome
+                value for these measurements. The conditionl measurement basis index and
+                integer value of the measurement outcome is stored in state analysis result
+                extra fields `"conditional_measurement_index"` and
+                `"conditional_measurement_outcome"` respectively.
         """
         options = super()._default_options()
 
@@ -108,8 +117,8 @@ class TomographyAnalysis(BaseAnalysis):
         options.measurement_qubits = None
         options.preparation_qubits = None
         options.target = None
-        options.conditional_measurement_indices = None
         options.conditional_circuit_clbits = None
+        options.conditional_measurement_indices = None
         return options
 
     def set_options(self, **fields):
@@ -211,11 +220,11 @@ class TomographyAnalysis(BaseAnalysis):
             )
 
         # Check positive
-        other_results.append(self._positivity_result(state_results, qpt=qpt))
+        other_results += self._positivity_result(state_results, qpt=qpt)
 
         # Check trace preserving
         if qpt:
-            other_results.append(self._tp_result(state_results, input_dim=input_dim))
+            other_results += self._tp_result(state_results, input_dim=input_dim)
 
         # Finally format state result metadata to remove eigenvectors
         # which are no longer needed to reduce size
@@ -229,13 +238,14 @@ class TomographyAnalysis(BaseAnalysis):
     @staticmethod
     def _positivity_result(
         state_results: List[AnalysisResultData], qpt: bool = False
-    ) -> AnalysisResultData:
+    ) -> List[AnalysisResultData]:
         """Check if eigenvalues are positive"""
-        total_cond = 0.0
-        comps_cond = []
-        comps_pos = []
+        total_cond = defaultdict(float)
+        comps_cond = defaultdict(list)
+        comps_pos = defaultdict(list)
         name = "completely_positive" if qpt else "positive"
         for result in state_results:
+            cond_idx = result.extra.get("conditional_measurement_index", None)
             evals = result.extra["eigvals"]
 
             # Check if component is positive and add to extra if so
@@ -244,46 +254,60 @@ class TomographyAnalysis(BaseAnalysis):
             result.extra[name] = pos
 
             # Add component to combined result
-            comps_cond.append(cond)
-            comps_pos.append(pos)
-            total_cond += cond * result.extra["component_probability"]
+            comps_cond[cond_idx].append(cond)
+            comps_pos[cond_idx].append(pos)
+            total_cond[cond_idx] += cond * result.extra["conditional_probability"]
 
         # Check if combined conditional state is positive
-        is_pos = bool(np.isclose(total_cond, 0))
-        result = AnalysisResultData(name, is_pos)
-        if not is_pos:
-            result.extra = {
-                "delta": total_cond,
-                "components": comps_pos,
-                "components_delta": comps_cond,
-            }
-        return result
+        results = []
+        for key, delta in total_cond.items():
+            is_pos = bool(np.isclose(delta, 0))
+            result = AnalysisResultData(name, is_pos)
+            if not is_pos:
+                result.extra = {
+                    "delta": delta,
+                    "components": comps_pos[key],
+                    "components_delta": comps_cond[key],
+                }
+            if key:
+                result.extra["conditional_measurement_index"] = key
+            results.append(result)
+        return results
 
     @staticmethod
     def _tp_result(
         state_results: List[AnalysisResultData],
         input_dim: int = 1,
-    ) -> AnalysisResultData:
+    ) -> List[AnalysisResultData]:
         """Check if QPT channel is trace preserving"""
         # Construct the Kraus TP condition matrix sum_i K_i^dag K_i
         # summed over all components k
-        kraus_cond = 0.0
+        kraus_cond = {}
         for result in state_results:
             evals = result.extra["eigvals"]
             evecs = result.extra["eigvecs"]
-            prob = result.extra["component_probability"]
+            prob = result.extra["conditional_probability"]
+            cond_idx = result.extra.get("conditional_measurement_index", None)
             size = len(evals)
             output_dim = size // input_dim
             mats = np.reshape(evecs.T, (size, output_dim, input_dim), order="F")
             comp_cond = np.einsum("i,ija,ijb->ab", evals, mats.conj(), mats)
-            kraus_cond = kraus_cond + prob * comp_cond
+            if cond_idx in kraus_cond:
+                kraus_cond[cond_idx] += prob * comp_cond
+            else:
+                kraus_cond[cond_idx] = prob * comp_cond
 
-        tp_cond = np.sum(np.abs(la.eigvalsh(kraus_cond - np.eye(input_dim))))
-        is_tp = bool(np.isclose(tp_cond, 0))
-        result = AnalysisResultData("trace_preserving", is_tp)
-        if not is_tp:
-            result.extra = {"delta": tp_cond}
-        return result
+        results = []
+        for key, val in kraus_cond.items():
+            tp_cond = np.sum(np.abs(la.eigvalsh(val - np.eye(input_dim))))
+            is_tp = bool(np.isclose(tp_cond, 0))
+            result = AnalysisResultData("trace_preserving", is_tp, extra={})
+            if not is_tp:
+                result.extra["delta"] = tp_cond
+            if key:
+                result.extra["conditional_measurement_index"] = key
+            results.append(result)
+        return results
 
     @staticmethod
     def _fidelity_result(

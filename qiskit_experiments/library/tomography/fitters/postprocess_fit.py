@@ -14,6 +14,7 @@ Post-process tomography fits
 """
 
 from typing import List, Dict, Tuple, Union, Optional
+from collections import defaultdict
 import numpy as np
 import scipy.linalg as la
 from qiskit.quantum_info import DensityMatrix, Choi
@@ -45,9 +46,11 @@ def postprocess_fitter(
         fits = [fits]
 
     # Get dimension and trace from fitter metadata
-    conditionals = fitter_metadata.pop("component_conditionals", None)
     input_dims = fitter_metadata.pop("input_dims", None)
     output_dims = fitter_metadata.pop("output_dims", None)
+    cond_circuit_outcome = fitter_metadata.pop("conditional_circuit_outcome", None)
+    cond_meas_outcome = fitter_metadata.pop("conditional_measurement_outcome", None)
+    cond_meas_index = fitter_metadata.pop("conditional_measurement_index", len(fits) * [None])
 
     # Convert fitter matrix to state data for post-processing
     input_dim = np.prod(input_dims) if input_dims else 1
@@ -58,7 +61,6 @@ def postprocess_fitter(
     states = []
     states_metadata = []
     fit_traces = []
-    total_trace = 0.0
     for i, fit in enumerate(fits):
         # Get eigensystem of state fit
         raw_eigvals, eigvecs = _state_eigensystem(fit)
@@ -107,14 +109,19 @@ def postprocess_fitter(
     # Compute the conditional probability of each component so that the
     # total probability of all components is 1, and optional rescale trace
     # of each component
-    total_trace = sum(fit_traces)
-    for i, (fit_trace, meta) in enumerate(zip(fit_traces, states_metadata)):
+    total_traces = defaultdict(float)
+    for cond_idx, fit_trace in zip(cond_meas_index, fit_traces):
+        total_traces[cond_idx] += fit_trace
+
+    for i, (cond_idx, meta) in enumerate(zip(cond_meas_index, states_metadata)):
         # Compute conditional component probability from the the component
         # non-rescaled fit trace
-        meta["component_probability"] = fit_trace / total_trace
-        meta["component_index"] = i
-        if conditionals:
-            meta["component_conditional"] = conditionals[i]
+        meta["conditional_probability"] = fit_traces[i] / total_traces[cond_idx]
+        if cond_circuit_outcome:
+            meta["conditional_circuit_outcome"] = cond_circuit_outcome[i]
+        if cond_meas_outcome:
+            meta["conditional_measurement_outcome"] = cond_meas_outcome[i]
+            meta["conditional_measurement_index"] = cond_idx
 
     return states, states_metadata
 
@@ -142,7 +149,7 @@ def _state_eigensystem(state: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
 def _make_positive(evals: np.ndarray, epsilon: float = 0) -> np.ndarray:
     """Rescale a real vector to be non-negative.
 
-    This truncates any negative values to zero and rescales
+    This truncates any values less than epsilon to zero and rescales
     the remaining eigenvectors such that the sum of the vector
     is preserved.
     """
@@ -159,8 +166,7 @@ def _make_positive(evals: np.ndarray, epsilon: float = 0) -> np.ndarray:
             accum = accum + evals[idx]
             idx -= 1
         else:
-            for j in range(idx + 1):
-                scaled[j] = evals[j] + shift
+            scaled[: idx + 1] = evals[: idx + 1] + shift
             break
 
     return scaled
