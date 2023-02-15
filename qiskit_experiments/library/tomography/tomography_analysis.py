@@ -80,6 +80,12 @@ class TomographyAnalysis(BaseAnalysis):
             rescale_trace (bool): If True rescale the state returned by the fitter
                 have either trace 1 for :class:`~qiskit.quantum_info.DensityMatrix`,
                 or trace dim for :class:`~qiskit.quantum_info.Choi` matrices (Default: True).
+            measurement_qubits (Sequence[int]): Optional, the physical qubits with tomographic
+                measurements. If not specified will be set to ``[0, ..., N-1]`` for N-qubit
+                tomographic measurements.
+            preparation_qubits (Sequence[int]): Optional, the physical qubits with tomographic
+                preparations. If not specified will be set to ``[0, ..., N-1]`` for N-qubit
+                tomographic preparations.
             target (Any): Optional, target object for fidelity comparison of the fit
                 (Default: None).
         """
@@ -87,12 +93,12 @@ class TomographyAnalysis(BaseAnalysis):
 
         options.measurement_basis = None
         options.preparation_basis = None
-        options.measurement_qubits = None
-        options.preparation_qubits = None
         options.fitter = "linear_inversion"
         options.fitter_options = {}
         options.rescale_positive = True
         options.rescale_trace = True
+        options.measurement_qubits = None
+        options.preparation_qubits = None
         options.target = None
         return options
 
