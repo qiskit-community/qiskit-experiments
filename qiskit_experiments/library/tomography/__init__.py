@@ -26,6 +26,8 @@ Experiments
 
     StateTomography
     ProcessTomography
+    MitigatedStateTomography
+    MitigatedProcessTomography
 
 
 Analysis
@@ -37,7 +39,7 @@ Analysis
 
     StateTomographyAnalysis
     ProcessTomographyAnalysis
-
+    MitigatedTomographyAnalysis
 
 Tomography Fitters
 ==================
@@ -90,6 +92,9 @@ Abstract base classes
 # Experiment Classes
 from .qst_experiment import StateTomography, StateTomographyAnalysis
 from .qpt_experiment import ProcessTomography, ProcessTomographyAnalysis
+from .mit_qst_experiment import MitigatedStateTomography
+from .mit_qpt_experiment import MitigatedProcessTomography
+from .mit_tomography_analysis import MitigatedTomographyAnalysis
 
 # Basis Classes
 from . import basis

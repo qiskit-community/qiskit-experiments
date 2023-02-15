@@ -38,6 +38,8 @@ Experiments for verification and validation of quantum devices.
     ~randomized_benchmarking.InterleavedRB
     ~tomography.StateTomography
     ~tomography.ProcessTomography
+    ~tomography.MitigatedStateTomography
+    ~tomography.MitigatedProcessTomography
     ~quantum_volume.QuantumVolume
 
 .. _characterization:
@@ -156,7 +158,12 @@ from .characterization import (
     MultiStateDiscrimination,
 )
 from .randomized_benchmarking import StandardRB, InterleavedRB
-from .tomography import StateTomography, ProcessTomography
+from .tomography import (
+    StateTomography,
+    ProcessTomography,
+    MitigatedStateTomography,
+    MitigatedProcessTomography,
+)
 from .quantum_volume import QuantumVolume
 
 # Experiment Sub-modules
