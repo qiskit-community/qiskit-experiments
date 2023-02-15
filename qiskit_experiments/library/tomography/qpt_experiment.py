@@ -52,7 +52,14 @@ class ProcessTomography(TomographyExperiment):
 
     """
 
-    @deprecate_arguments({"qubits": "physical_qubits"}, "0.5")
+    @deprecate_arguments(
+        {
+            "qubits": "physical_qubits",
+            "measurement_qubits": "measurement_indices",
+            "preparation_qubits": "preparation_indices",
+        },
+        "0.5",
+    )
     def __init__(
         self,
         circuit: Union[QuantumCircuit, Instruction, BaseOperator],
@@ -60,10 +67,8 @@ class ProcessTomography(TomographyExperiment):
         physical_qubits: Optional[Sequence[int]] = None,
         measurement_basis: basis.MeasurementBasis = basis.PauliMeasurementBasis(),
         measurement_indices: Optional[Sequence[int]] = None,
-        measurement_qubits: Optional[Sequence[int]] = None,
         preparation_basis: basis.PreparationBasis = basis.PauliPreparationBasis(),
         preparation_indices: Optional[Sequence[int]] = None,
-        preparation_qubits: Optional[Sequence[int]] = None,
         basis_indices: Optional[Sequence[Tuple[List[int], List[int]]]] = None,
         analysis: Union[BaseAnalysis, None, str] = "default",
         target: Union[Statevector, DensityMatrix, None, str] = "default",
@@ -80,12 +85,10 @@ class ProcessTomography(TomographyExperiment):
                 default basis is the :class:`~basis.PauliMeasurementBasis`.
             measurement_indices: Optional, the `physical_qubits` indices to be measured.
                 If None all circuit physical qubits will be measured.
-            measurement_qubits: DEPRECATED, equivalent to measurement_indices.
             preparation_basis: Tomography basis for measurements. If not specified the
                 default basis is the :class:`~basis.PauliPreparationBasis`.
             preparation_indices: Optional, the `physical_qubits` indices to be prepared.
                 If None all circuit physical qubits will be prepared.
-            preparation_qubits: DEPRECATED, equivalent to preparation_indices.
             basis_indices: Optional, a list of basis indices for generating partial
                 tomography measurement data. Each item should be given as a pair of
                 lists of preparation and measurement basis configurations
@@ -110,10 +113,8 @@ class ProcessTomography(TomographyExperiment):
             physical_qubits=physical_qubits,
             measurement_basis=measurement_basis,
             measurement_indices=measurement_indices,
-            measurement_qubits=measurement_qubits,
             preparation_basis=preparation_basis,
             preparation_indices=preparation_indices,
-            preparation_qubits=preparation_qubits,
             basis_indices=basis_indices,
             analysis=analysis,
         )
