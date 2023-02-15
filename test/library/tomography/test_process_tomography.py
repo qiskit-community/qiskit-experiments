@@ -15,12 +15,16 @@ ProcessTomography experiment tests
 """
 from test.base import QiskitExperimentsTestCase
 import ddt
+import numpy as np
 from qiskit import QuantumCircuit
 from qiskit.circuit.library import XGate, CXGate
+from qiskit.result import LocalReadoutMitigator
 import qiskit.quantum_info as qi
 from qiskit_aer import AerSimulator
+from qiskit_aer.noise import NoiseModel
 from qiskit_experiments.library import ProcessTomography
-from qiskit_experiments.library.tomography import ProcessTomographyAnalysis
+from qiskit_experiments.library.tomography import ProcessTomographyAnalysis, basis
+from qiskit_experiments.database_service import ExperimentEntryNotFound
 from .tomo_utils import FITTERS, filter_results, teleport_circuit, teleport_bell_circuit
 
 
@@ -67,6 +71,19 @@ class TestProcessTomography(QiskitExperimentsTestCase):
                     fid, target_fid, places=6, msg=f"{fitter} result fidelity is incorrect"
                 )
 
+    def test_full_qpt_analysis_none(self):
+        """Test QPT experiment without analysis"""
+        seed = 4321
+        shots = 1000
+        # Generate tomography data without analysis
+        backend = AerSimulator(seed_simulator=seed, shots=shots)
+        target = qi.random_unitary(2, seed=seed)
+        exp = ProcessTomography(target, backend=backend, analysis=None)
+        self.assertEqual(exp.analysis, None)
+        expdata = exp.run()
+        self.assertExperimentDone(expdata)
+        self.assertFalse(expdata.analysis_results())
+
     def test_cvxpy_gaussian_lstsq_cx(self):
         """Test fitter with high fidelity threshold"""
         seed = 1234
@@ -100,7 +117,7 @@ class TestProcessTomography(QiskitExperimentsTestCase):
         )
 
     @ddt.data([0], [1], [2], [0, 1], [1, 0], [0, 2], [2, 0], [1, 2], [2, 1])
-    def test_exp_measurement_preparation_qubits(self, qubits):
+    def test_exp_measurement_preparation_indices(self, qubits):
         """Test subset measurement process tomography generation"""
         # Subsystem unitaries
         seed = 1111
@@ -113,7 +130,7 @@ class TestProcessTomography(QiskitExperimentsTestCase):
             circ.append(op, [i])
 
         num_meas = len(qubits)
-        exp = ProcessTomography(circ, measurement_qubits=qubits, preparation_qubits=qubits)
+        exp = ProcessTomography(circ, measurement_indices=qubits, preparation_indices=qubits)
         tomo_circuits = exp.circuits()
 
         # Check correct number of circuits are generated
@@ -150,7 +167,7 @@ class TestProcessTomography(QiskitExperimentsTestCase):
             circ.append(op, [i])
 
         exp = ProcessTomography(
-            circ, measurement_qubits=[meas_qubit], preparation_qubits=[prep_qubit]
+            circ, measurement_indices=[meas_qubit], preparation_indices=[prep_qubit]
         )
         backend = AerSimulator(seed_simulator=9000)
         expdata = exp.run(backend, shots=5000)
@@ -182,7 +199,7 @@ class TestProcessTomography(QiskitExperimentsTestCase):
             circ.append(op, [i])
 
         exp = ProcessTomography(
-            circ, measurement_qubits=meas_qubits, preparation_qubits=prep_qubits
+            circ, measurement_indices=meas_qubits, preparation_indices=prep_qubits
         )
         backend = AerSimulator(seed_simulator=9000)
         expdata = exp.run(backend, shots=5000)
@@ -224,7 +241,7 @@ class TestProcessTomography(QiskitExperimentsTestCase):
 
         # Run
         backend = AerSimulator(seed_simulator=9000)
-        exp = ProcessTomography(circ, measurement_qubits=qubits, preparation_qubits=qubits)
+        exp = ProcessTomography(circ, measurement_indices=qubits, preparation_indices=qubits)
         expdata = exp.run(backend)
         self.assertExperimentDone(expdata)
         results = expdata.analysis_results()
@@ -250,7 +267,7 @@ class TestProcessTomography(QiskitExperimentsTestCase):
         # Teleport qubit 0 -> 2
         backend = AerSimulator(seed_simulator=9000)
         exp = ProcessTomography(
-            teleport_circuit(flatten_creg), measurement_qubits=[2], preparation_qubits=[0]
+            teleport_circuit(flatten_creg), measurement_indices=[2], preparation_indices=[0]
         )
         expdata = exp.run(backend, shots=1000)
         self.assertExperimentDone(expdata)
@@ -274,8 +291,8 @@ class TestProcessTomography(QiskitExperimentsTestCase):
         backend = AerSimulator(seed_simulator=9000)
         exp = ProcessTomography(
             teleport_bell_circuit(flatten_creg),
-            measurement_qubits=[2, 3],
-            preparation_qubits=[0, 3],
+            measurement_indices=[2, 3],
+            preparation_indices=[0, 3],
         )
         expdata = exp.run(backend, shots=1000)
         self.assertExperimentDone(expdata)
@@ -300,7 +317,9 @@ class TestProcessTomography(QiskitExperimentsTestCase):
 
     def test_experiment_config(self):
         """Test converting to and from config works"""
-        exp = ProcessTomography(teleport_circuit(), measurement_qubits=[2], preparation_qubits=[0])
+        exp = ProcessTomography(
+            teleport_circuit(), measurement_indices=[2], preparation_indices=[0]
+        )
         loaded_exp = ProcessTomography.from_config(exp.config())
         self.assertNotEqual(exp, loaded_exp)
         self.assertTrue(self.json_equiv(exp, loaded_exp))
@@ -320,3 +339,105 @@ class TestProcessTomography(QiskitExperimentsTestCase):
         self.assertExperimentDone(expdata)
         self.assertRoundTripPickle(expdata, check_func=self.experiment_data_equiv)
         self.assertRoundTripSerializable(expdata, check_func=self.experiment_data_equiv)
+
+    def test_target_none(self):
+        """Test setting target=None disables fidelity calculation."""
+        seed = 4343
+        backend = AerSimulator(seed_simulator=seed)
+        target = qi.random_unitary(2, seed=seed)
+        exp = ProcessTomography(target, backend=backend, target=None)
+        expdata = exp.run()
+        self.assertExperimentDone(expdata)
+        state = expdata.analysis_results("state").value
+        self.assertTrue(
+            isinstance(state, qi.Choi),
+            msg="Fitted state is not Choi matrix",
+        )
+        with self.assertRaises(
+            ExperimentEntryNotFound, msg="process_fidelity should not exist when target=None"
+        ):
+            expdata.analysis_results("process_fidelity")
+
+    def test_qpt_spam_mitigated_basis(self):
+        """Test QPT with SPAM mitigation basis"""
+        num_qubits = 2
+        noise_model = NoiseModel()
+
+        # Reset noise model
+        p_reset = 0.1
+        reset_chans = [
+            (1 - p_reset) * qi.SuperOp(np.eye(4))
+            + p_reset * qi.random_quantum_channel(2, seed=100 + i)
+            for i in range(num_qubits)
+        ]
+        qubit_states = {}
+        for qubit, chan in enumerate(reset_chans):
+            qubit_states[qubit] = [chan]
+            noise_model.add_quantum_error(chan, "reset", [qubit])
+
+        # Noisy preparation basis
+        prep_basis = basis.LocalPreparationBasis(
+            "NoisyPauliPrep",
+            instructions=basis.PauliPreparationBasis()._instructions,
+            qubit_states=qubit_states,
+        )
+
+        # Measurement noise model
+        p_meas = 0.15
+        meas_chans = [
+            (1 - p_meas) * qi.SuperOp(np.eye(4))
+            + p_meas * qi.random_quantum_channel(2, seed=200 + i)
+            for i in range(num_qubits)
+        ]
+        qubit_povms = {}
+        for qubit, chan in enumerate(meas_chans):
+            qubit_povms[qubit] = [chan]
+            noise_model.add_quantum_error(chan, "measure", [qubit])
+
+        # Noisy measurement basis
+        meas_basis = basis.LocalMeasurementBasis(
+            "NoisyMeas",
+            instructions=basis.PauliMeasurementBasis()._instructions,
+            qubit_povms=qubit_povms,
+        )
+
+        # Noisy simulator
+        backend = AerSimulator(noise_model=noise_model, seed_simulator=1337)
+
+        exp = ProcessTomography(
+            CXGate(), measurement_basis=meas_basis, preparation_basis=prep_basis
+        )
+        exp.backend = backend
+        expdata = exp.run(shots=2000).block_for_results()
+        self.assertExperimentDone(expdata)
+        fid = expdata.analysis_results("process_fidelity").value
+        self.assertGreater(fid, 0.95)
+
+    def test_qpt_amat_pauli_basis(self):
+        """Test QPT with A-matrix mitigation Pauli basis"""
+        num_qubits = 4
+
+        #  Construct a-matrices
+        amats = []
+        for qubit in range(num_qubits):
+            p0g1 = 0.1 + 0.01 * qubit
+            p1g0 = 0.05 + 0.01 * qubit
+            amats.append(np.array([[1 - p1g0, p0g1], [p1g0, 1 - p0g1]]))
+
+        # Construct noisy measurement basis
+        mitigator = LocalReadoutMitigator(amats)
+        meas_basis = basis.PauliMeasurementBasis(mitigator=mitigator)
+
+        # Construct noisy simulator
+        noise_model = NoiseModel()
+        for qubit, amat in enumerate(amats):
+            noise_model.add_readout_error(amat.T, [qubit])
+        backend = AerSimulator(noise_model=noise_model)
+
+        # Run experiment
+        exp = ProcessTomography(CXGate(), measurement_basis=meas_basis)
+        exp.backend = backend
+        expdata = exp.run(shots=2000).block_for_results()
+        self.assertExperimentDone(expdata)
+        fid = expdata.analysis_results("process_fidelity").value
+        self.assertGreater(fid, 0.95)

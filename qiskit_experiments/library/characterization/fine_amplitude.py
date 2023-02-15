@@ -23,6 +23,7 @@ from qiskit_experiments.data_processing import DataProcessor, nodes
 from qiskit_experiments.framework import BaseExperiment, Options
 from qiskit_experiments.framework.restless_mixin import RestlessMixin
 from qiskit_experiments.library.characterization.analysis import FineAmplitudeAnalysis
+from qiskit_experiments.warnings import deprecate_arguments, qubit_deprecate
 
 
 class FineAmplitude(BaseExperiment, RestlessMixin):
@@ -68,7 +69,7 @@ class FineAmplitude(BaseExperiment, RestlessMixin):
         .. code-block:: python
 
             qubit = 3
-            amp_cal = FineAmplitude(qubit, SXGate())
+            amp_cal = FineAmplitude([qubit], SXGate())
             amp_cal.set_experiment_options(
                 angle_per_gate=np.pi/2,
                 add_xp_circuit=False,
@@ -113,9 +114,10 @@ class FineAmplitude(BaseExperiment, RestlessMixin):
 
         return options
 
+    @deprecate_arguments({"qubits": "physical_qubits"}, "0.5")
     def __init__(
         self,
-        qubits: Sequence[int],
+        physical_qubits: Sequence[int],
         gate: Gate,
         backend: Optional[Backend] = None,
         measurement_qubits: Sequence[int] = None,
@@ -123,13 +125,14 @@ class FineAmplitude(BaseExperiment, RestlessMixin):
         """Setup a fine amplitude experiment on the given qubit.
 
         Args:
-            qubits: The qubit(s) on which to run the fine amplitude calibration experiment.
+            physical_qubits: Sequence containing qubit(s) on which to run the
+                fine amplitude calibration experiment.
             gate: The gate that will be repeated.
             backend: Optional, the backend to run the experiment on.
             measurement_qubits: The qubits in the given physical qubits that need to
                 be measured.
         """
-        super().__init__(qubits, analysis=FineAmplitudeAnalysis(), backend=backend)
+        super().__init__(physical_qubits, analysis=FineAmplitudeAnalysis(), backend=backend)
         self.set_experiment_options(gate=gate)
 
         if measurement_qubits is not None:
@@ -259,9 +262,10 @@ class FineXAmplitude(FineAmplitude):
         the appropriate values for the default options.
     """
 
-    def __init__(self, qubit: int, backend: Optional[Backend] = None):
+    @qubit_deprecate()
+    def __init__(self, physical_qubits: Sequence[int], backend: Optional[Backend] = None):
         """Initialize the experiment."""
-        super().__init__([qubit], XGate(), backend=backend)
+        super().__init__(physical_qubits, XGate(), backend=backend)
         # Set default analysis options
         self.analysis.set_options(
             fixed_parameters={
@@ -297,9 +301,10 @@ class FineSXAmplitude(FineAmplitude):
         the appropriate values for the default options.
     """
 
-    def __init__(self, qubit: int, backend: Optional[Backend] = None):
+    @qubit_deprecate()
+    def __init__(self, physical_qubits: Sequence[int], backend: Optional[Backend] = None):
         """Initialize the experiment."""
-        super().__init__([qubit], SXGate(), backend=backend)
+        super().__init__(physical_qubits, SXGate(), backend=backend)
         # Set default analysis options
         self.analysis.set_options(
             fixed_parameters={
@@ -357,14 +362,17 @@ class FineZXAmplitude(FineAmplitude):
         :code:`RZXGate(np.pi / 2)` rotation.
     """
 
-    def __init__(self, qubits: Sequence[int], backend: Optional[Backend] = None):
+    @deprecate_arguments({"qubits": "physical_qubits"}, "0.5")
+    def __init__(self, physical_qubits: Sequence[int], backend: Optional[Backend] = None):
         """Initialize the experiment."""
 
         # We cannot use RZXGate since it has a parameter so we redefine the gate.
         # Failing to do so causes issues with QuantumCircuit.calibrations.
         gate = Gate("szx", 2, [])
 
-        super().__init__(qubits, gate, backend=backend, measurement_qubits=[qubits[1]])
+        super().__init__(
+            physical_qubits, gate, backend=backend, measurement_qubits=[physical_qubits[1]]
+        )
         # Set default analysis options
         self.analysis.set_options(
             fixed_parameters={

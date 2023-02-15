@@ -17,6 +17,18 @@ from test.base import QiskitExperimentsTestCase
 
 from qiskit_experiments.framework import BaseExperiment
 from qiskit_experiments.warnings import deprecated_class
+from qiskit_experiments.warnings import deprecate_arguments
+from qiskit_experiments.warnings import qubit_deprecate
+
+
+class TempExperiment(BaseExperiment):
+    """Fake experiment."""
+
+    def __init__(self, physical_qubits):
+        super().__init__(physical_qubits)
+
+    def circuits(self):
+        pass
 
 
 class TestWarningsHelper(QiskitExperimentsTestCase):
@@ -26,15 +38,6 @@ class TestWarningsHelper(QiskitExperimentsTestCase):
         """Test old class is instantiated as a new class instance."""
 
         # Here we assume we want to rename class but want to have deprecation period
-        class TempExperiment(BaseExperiment):
-            """Fake experiment."""
-
-            def __init__(self, qubits):
-                super().__init__(qubits)
-
-            def circuits(self):
-                pass
-
         class NewExperiment(TempExperiment):
             """Experiment to be renamed."""
 
@@ -52,3 +55,34 @@ class TestWarningsHelper(QiskitExperimentsTestCase):
             instance = OldExperiment([0])
 
         self.assertIsInstance(instance, NewExperiment)
+
+    def test_deprecated_argument(self):
+        """Test that deprecating arguments works as expected."""
+
+        class OldExperiment(TempExperiment):
+            """Original experiment."""
+
+            @deprecate_arguments({"qubits": "physical_qubits"})
+            def __init__(self, physical_qubits):
+                super().__init__(physical_qubits)
+
+        # Test that providing both old and new kwargs throws an error
+        with self.assertRaises(TypeError):
+            instance = OldExperiment(qubits=[0], physical_qubits=[0])
+        with self.assertWarns(DeprecationWarning):
+            instance = OldExperiment(qubits=[0])
+        self.assertEqual(instance._physical_qubits, (0,))
+
+    def test_deprecated_qubit(self):
+        """Test for the temporary qubit_deprecate wrapper."""
+
+        class OldExperiment(TempExperiment):
+            """Original experiment."""
+
+            @qubit_deprecate()
+            def __init__(self, physical_qubits):
+                super().__init__(physical_qubits)
+
+        with self.assertWarns(DeprecationWarning):
+            instance = OldExperiment(qubit=0)
+        self.assertEqual(instance._physical_qubits, (0,))

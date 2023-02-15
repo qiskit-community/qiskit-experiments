@@ -13,7 +13,7 @@
 """Rough amplitude calibration using Rabi."""
 
 from collections import namedtuple
-from typing import Dict, Iterable, Optional
+from typing import Dict, Iterable, Optional, Sequence
 import numpy as np
 
 from qiskit import QuantumCircuit
@@ -24,6 +24,7 @@ from qiskit_experiments.framework import ExperimentData
 from qiskit_experiments.calibration_management import BaseCalibrationExperiment, Calibrations
 from qiskit_experiments.library.characterization import Rabi
 from qiskit_experiments.calibration_management.update_library import BaseUpdater
+from qiskit_experiments.warnings import qubit_deprecate
 
 AnglesSchedules = namedtuple(
     "AnglesSchedules", ["target_angle", "parameter", "schedule", "previous_value"]
@@ -37,9 +38,10 @@ class RoughAmplitudeCal(BaseCalibrationExperiment, Rabi):
         qiskit_experiments.library.characterization.rabi.Rabi
     """
 
+    @qubit_deprecate()
     def __init__(
         self,
-        qubit: int,
+        physical_qubits: Sequence[int],
         calibrations: Calibrations,
         schedule_name: str = "x",
         amplitudes: Iterable[float] = None,
@@ -52,7 +54,8 @@ class RoughAmplitudeCal(BaseCalibrationExperiment, Rabi):
         r"""see class :class:`Rabi` for details.
 
         Args:
-            qubit: The qubit for which to run the rough amplitude calibration.
+            physical_qubits: Sequence containing the qubit for which to run the
+                rough amplitude calibration.
             calibrations: The calibrations instance with the schedules.
             schedule_name: The name of the schedule to calibrate. Defaults to "x".
             amplitudes: A list of amplitudes to scan. If None is given 51 amplitudes ranging
@@ -65,6 +68,7 @@ class RoughAmplitudeCal(BaseCalibrationExperiment, Rabi):
             group: The group of calibration parameters to use. The default value is "default".
             backend: Optional, the backend to run the experiment on.
         """
+        qubit = physical_qubits[0]
         schedule = calibrations.get_schedule(
             schedule_name, qubit, assign_params={cal_parameter_name: Parameter("amp")}, group=group
         )
@@ -74,7 +78,7 @@ class RoughAmplitudeCal(BaseCalibrationExperiment, Rabi):
 
         super().__init__(
             calibrations,
-            qubit,
+            physical_qubits,
             schedule=schedule,
             amplitudes=amplitudes,
             backend=backend,
@@ -196,16 +200,17 @@ class RoughXSXAmplitudeCal(RoughAmplitudeCal):
         qiskit_experiments.library.characterization.rabi.Rabi
     """
 
+    @qubit_deprecate()
     def __init__(
         self,
-        qubit: int,
+        physical_qubits: Sequence[int],
         calibrations: Calibrations,
         amplitudes: Iterable[float] = None,
         backend: Optional[Backend] = None,
     ):
         """A rough amplitude calibration that updates both the sx and x pulses."""
         super().__init__(
-            qubit,
+            physical_qubits,
             calibrations,
             schedule_name="x",
             amplitudes=amplitudes,
@@ -231,9 +236,10 @@ class EFRoughXSXAmplitudeCal(RoughAmplitudeCal):
 
     __outcome__ = "rabi_rate_12"
 
+    @qubit_deprecate()
     def __init__(
         self,
-        qubit: int,
+        physical_qubits: Sequence[int],
         calibrations: Calibrations,
         amplitudes: Iterable[float] = None,
         backend: Optional[Backend] = None,
@@ -242,7 +248,8 @@ class EFRoughXSXAmplitudeCal(RoughAmplitudeCal):
         r"""A rough amplitude calibration that updates both the sx and x pulses on 1<->2.
 
         Args:
-            qubit: The index of the qubit (technically a qutrit) to run on.
+            physical_qubits: Sequence containing the index of the qubit
+                (technically a qutrit) to run on.
             calibrations: The calibrations instance that stores the pulse schedules.
             amplitudes: The amplitudes to scan.
             backend: Optional, the backend to run the experiment on.
@@ -251,7 +258,7 @@ class EFRoughXSXAmplitudeCal(RoughAmplitudeCal):
                 the 1<->2 transition.
         """
         super().__init__(
-            qubit,
+            physical_qubits,
             calibrations,
             schedule_name="x" + ef_pulse_label,
             amplitudes=amplitudes,

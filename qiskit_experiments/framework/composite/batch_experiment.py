@@ -13,11 +13,11 @@
 Batch Experiment class.
 """
 
-from typing import List, Optional
-from collections import OrderedDict
+from typing import List, Optional, Dict
+from collections import OrderedDict, defaultdict
 
 from qiskit import QuantumCircuit
-from qiskit.providers.backend import Backend
+from qiskit.providers import Job, Backend, Options
 
 from .composite_experiment import CompositeExperiment, BaseExperiment
 from .composite_analysis import CompositeAnalysis
@@ -127,3 +127,57 @@ class BatchExperiment(CompositeExperiment):
         new_circuit.metadata = circuit.metadata
         new_circuit.append(circuit, qubit_mapping, list(range(num_clbits)))
         return new_circuit
+
+    def _run_jobs_recursive(
+        self, circuits: List[QuantumCircuit], truncated_metadata: List[Dict], **run_options
+    ) -> List[Job]:
+        # The truncated metadata is a truncation of the original composite metadata.
+        # During the recursion, the current experiment (self) will be at the head of the truncated
+        # metadata.
+
+        if self.experiment_options.separate_jobs:
+            # A dictionary that maps sub-experiments to their circuits
+            circs_by_subexps = defaultdict(list)
+            for circ_iter, (circ, tmd) in enumerate(zip(circuits, truncated_metadata)):
+                # For batch experiments the composite index is always a list of length 1,
+                # because unlike parallel experiment, each circuit originates from a single
+                # sub-experiment.
+                circ_index = tmd["composite_index"][0]
+                circs_by_subexps[circ_index].append(circ)
+
+                # For batch experiments the composite metadata is always a list of length 1,
+                # because unlike parallel experiment, each circuit originates from a single
+                # sub-experiment.
+                truncated_metadata[circ_iter] = tmd["composite_metadata"][0]
+
+            jobs = []
+            for index, exp in enumerate(self.component_experiment()):
+                # Currently all the sub-experiments must use the same set of run options,
+                # even if they run in different jobs
+                if isinstance(exp, BatchExperiment):
+                    new_jobs = exp._run_jobs_recursive(
+                        circs_by_subexps[index], truncated_metadata, **run_options
+                    )
+                else:
+                    new_jobs = exp._run_jobs(circs_by_subexps[index], **run_options)
+                jobs.extend(new_jobs)
+        else:
+            jobs = super()._run_jobs(circuits, **run_options)
+
+        return jobs
+
+    def _run_jobs(self, circuits: List[QuantumCircuit], **run_options) -> List[Job]:
+        truncated_metadata = [circ.metadata for circ in circuits]
+        jobs = self._run_jobs_recursive(circuits, truncated_metadata, **run_options)
+        return jobs
+
+    @classmethod
+    def _default_experiment_options(cls) -> Options:
+        """Default experiment options.
+
+        Experiment Options:
+            separate_jobs (Boolean): Whether to route different sub-experiments to different jobs.
+        """
+        options = super()._default_experiment_options()
+        options.separate_jobs = False
+        return options

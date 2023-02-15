@@ -93,7 +93,7 @@ class TestResonatorSpectroscopy(QiskitExperimentsTestCase):
         res_freq = backend.defaults().meas_freq_est[qubit]
 
         frequencies = np.linspace(res_freq - 20e6, res_freq + 20e6, 51)
-        spec = ResonatorSpectroscopy(qubit, backend=backend, frequencies=frequencies)
+        spec = ResonatorSpectroscopy([qubit], backend=backend, frequencies=frequencies)
 
         expdata = spec.run(backend)
         self.assertExperimentDone(expdata)
@@ -105,14 +105,14 @@ class TestResonatorSpectroscopy(QiskitExperimentsTestCase):
 
     def test_experiment_config(self):
         """Test converting to and from config works"""
-        exp = ResonatorSpectroscopy(1, frequencies=np.linspace(100, 150, 20) * 1e6)
+        exp = ResonatorSpectroscopy([1], frequencies=np.linspace(100, 150, 20) * 1e6)
         loaded_exp = ResonatorSpectroscopy.from_config(exp.config())
         self.assertNotEqual(exp, loaded_exp)
         self.assertTrue(self.json_equiv(exp, loaded_exp))
 
     def test_roundtrip_serializable(self):
         """Test round trip JSON serialization"""
-        exp = ResonatorSpectroscopy(1, frequencies=np.linspace(int(100e6), int(150e6), int(20e6)))
+        exp = ResonatorSpectroscopy([1], frequencies=np.linspace(int(100e6), int(150e6), int(20e6)))
         self.assertRoundTripSerializable(exp, self.json_equiv)
 
     @data(-5e6, 0, 3e6)
@@ -132,7 +132,7 @@ class TestResonatorSpectroscopy(QiskitExperimentsTestCase):
         res_freq = backend.defaults().meas_freq_est[qubit]
 
         frequencies = np.linspace(res_freq - 20e6, res_freq + 20e6, 51)
-        exp = ResonatorSpectroscopy(qubit, backend=backend, frequencies=frequencies)
+        exp = ResonatorSpectroscopy([qubit], backend=backend, frequencies=frequencies)
 
         expdata = exp.run(backend).block_for_results()
         self.assertExperimentDone(expdata)
@@ -184,10 +184,10 @@ class TestResonatorSpectroscopy(QiskitExperimentsTestCase):
         frequencies2 = np.linspace(res_freq2 - 20e6, res_freq2 + 20e6, 53)
 
         res_spect1 = ResonatorSpectroscopy(
-            qubit1, backend=parallel_backend, frequencies=frequencies1
+            [qubit1], backend=parallel_backend, frequencies=frequencies1
         )
         res_spect2 = ResonatorSpectroscopy(
-            qubit2, backend=parallel_backend, frequencies=frequencies2
+            [qubit2], backend=parallel_backend, frequencies=frequencies2
         )
 
         exp_list = [res_spect1, res_spect2]
@@ -234,12 +234,12 @@ class TestResonatorSpectroscopy(QiskitExperimentsTestCase):
         # Create resonator spectroscopy experiments. We only use 3 frequencies to reduce the number of
         # circuits to check.
         res_spec_no_initial = ResonatorSpectroscopy(
-            0,
+            [0],
             backend=backend,
             frequencies=[5e9, 5.05e9, 5.1e9],
         )
         res_spec_initial = ResonatorSpectroscopy(
-            0,
+            [0],
             backend=backend,
             frequencies=[5e9, 5.05e9, 5.1e9],
         )
@@ -298,7 +298,7 @@ class TestResonatorSpectroscopy(QiskitExperimentsTestCase):
         )
         backend._configuration.timing_constraints = {"granularity": 16}
 
-        res_spec = ResonatorSpectroscopy(0, backend)
+        res_spec = ResonatorSpectroscopy([0], backend)
         try:
             res_spec.set_experiment_options(initial_circuit=circuit)
         except QiskitError as exp_exception:
@@ -320,7 +320,7 @@ class TestResonatorSpectroscopy(QiskitExperimentsTestCase):
         )
         backend._configuration.timing_constraints = {"granularity": 16}
 
-        res_spec = ResonatorSpectroscopy(0, backend)
+        res_spec = ResonatorSpectroscopy([0], backend)
         with self.assertRaises(
             QiskitError,
             msg=f"Setting initial circuit to invalid '{circuit_label}' did not fail with exception.",

@@ -28,6 +28,7 @@ from qiskit import QuantumCircuit
 from qiskit.circuit.library import QuantumVolume as QuantumVolumeCircuit
 from qiskit import transpile
 from qiskit.providers.backend import Backend
+from qiskit_experiments.warnings import deprecate_arguments
 from qiskit_experiments.framework import BaseExperiment, Options
 from .qv_analysis import QuantumVolumeAnalysis
 
@@ -70,9 +71,10 @@ class QuantumVolume(BaseExperiment):
 
     """
 
+    @deprecate_arguments({"qubits": "physical_qubits"}, "0.5")
     def __init__(
         self,
-        qubits: Sequence[int],
+        physical_qubits: Sequence[int],
         backend: Optional[Backend] = None,
         trials: Optional[int] = 100,
         seed: Optional[Union[int, SeedSequence, BitGenerator, Generator]] = None,
@@ -81,7 +83,7 @@ class QuantumVolume(BaseExperiment):
         """Initialize a quantum volume experiment.
 
         Args:
-            qubits: list of physical qubits for the experiment.
+            physical_qubits: list of physical qubits for the experiment.
             backend: Optional, the backend to run the experiment on.
             trials: The number of trials to run the quantum volume circuit.
             seed: Optional, seed used to initialize ``numpy.random.default_rng``
@@ -93,7 +95,7 @@ class QuantumVolume(BaseExperiment):
                 (in case :class:`AerSimulator` is not
                 installed :class:`qiskit.quantum_info.Statevector` will be used).
         """
-        super().__init__(qubits, analysis=QuantumVolumeAnalysis(), backend=backend)
+        super().__init__(physical_qubits, analysis=QuantumVolumeAnalysis(), backend=backend)
 
         # Set configurable options
         self.set_experiment_options(trials=trials, seed=seed)

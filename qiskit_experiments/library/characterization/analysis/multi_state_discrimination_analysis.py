@@ -16,12 +16,19 @@ from typing import List, Tuple
 
 import matplotlib
 import numpy as np
-from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
 
 from qiskit.providers.options import Options
 from qiskit_experiments.framework import BaseAnalysis, AnalysisResultData, ExperimentData
 from qiskit_experiments.data_processing import SkQDA
+from qiskit_experiments.data_processing.exceptions import DataProcessorError
 from qiskit_experiments.visualization import BasePlotter, IQPlotter, MplDrawer, PlotStyle
+
+try:
+    from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
+
+    HAS_SKLEARN = True
+except ImportError:
+    HAS_SKLEARN = False
 
 
 class MultiStateDiscriminationAnalysis(BaseAnalysis):
@@ -37,6 +44,19 @@ class MultiStateDiscriminationAnalysis(BaseAnalysis):
     Here, :math:`d` is the number of levels that were discriminated while :math:`P(i|j)` is the
     probability of measuring outcome :math:`i` given that state :math:`j` was prepared.
     """
+
+    def __init__(self):
+        """Setup the analysis.
+
+        Raises:
+            DataProcessorError: if sklearn is not installed.
+        """
+        if not HAS_SKLEARN:
+            raise DataProcessorError(
+                f"SKlearn is needed to initialize an {self.__class__.__name__}."
+            )
+
+        super().__init__()
 
     @classmethod
     def _default_options(cls) -> Options:

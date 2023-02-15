@@ -13,14 +13,17 @@
 Quantum Tomography experiment
 """
 
+import warnings
 from typing import Union, Optional, Iterable, List, Tuple, Sequence
 from itertools import product
 from qiskit.circuit import QuantumCircuit, Instruction, ClassicalRegister
 from qiskit.circuit.library import Permutation
 from qiskit.providers.backend import Backend
 from qiskit.quantum_info.operators.base_operator import BaseOperator
+
+from qiskit_experiments.warnings import deprecate_arguments
 from qiskit_experiments.exceptions import QiskitError
-from qiskit_experiments.framework import BaseExperiment, Options
+from qiskit_experiments.framework import BaseExperiment, BaseAnalysis, Options
 from .basis import PreparationBasis, MeasurementBasis
 from .tomography_analysis import TomographyAnalysis
 
@@ -50,17 +53,20 @@ class TomographyExperiment(BaseExperiment):
 
         return options
 
+    @deprecate_arguments({"qubits": "physical_qubits"}, "0.5")
     def __init__(
         self,
         circuit: Union[QuantumCircuit, Instruction, BaseOperator],
         backend: Optional[Backend] = None,
+        physical_qubits: Optional[Sequence[int]] = None,
         measurement_basis: Optional[MeasurementBasis] = None,
+        measurement_indices: Optional[Sequence[int]] = None,
         measurement_qubits: Optional[Sequence[int]] = None,
         preparation_basis: Optional[PreparationBasis] = None,
+        preparation_indices: Optional[Sequence[int]] = None,
         preparation_qubits: Optional[Sequence[int]] = None,
         basis_indices: Optional[Iterable[Tuple[List[int], List[int]]]] = None,
-        qubits: Optional[Sequence[int]] = None,
-        analysis: Optional[TomographyAnalysis] = None,
+        analysis: Union[BaseAnalysis, None, str] = "default",
     ):
         """Initialize a tomography experiment.
 
@@ -68,27 +74,52 @@ class TomographyExperiment(BaseExperiment):
             circuit: the quantum process circuit. If not a quantum circuit
                 it must be a class that can be appended to a quantum circuit.
             backend: The backend to run the experiment on.
-            measurement_basis: Tomography basis for measurements.
-            measurement_qubits: Optional, the qubits to be measured. These should refer
-                to the logical qubits in the state circuit.
-            preparation_basis: Tomography basis for measurements.
-            preparation_qubits: Optional, the qubits to be prepared. These should refer
-                to the logical qubits in the process circuit.
+            physical_qubits: Optional, the physical qubits for the initial state circuit.
+                If None this will be qubits [0, N) for an N-qubit circuit.
+            measurement_basis: Tomography basis for measurements. If set to None
+                no tomography measurements will be performed.
+            measurement_indices: Optional, the `physical_qubits` indices to be
+                measured as specified by the `measurement_basis`. If None all
+                circuit physical qubits will be measured.
+            measurement_qubits: DEPRECATED, equivalent to measurement_indices.
+            preparation_basis: Tomography basis for measurements. If set to None
+                no tomography preparations will be performed.
+            preparation_indices: Optional, the `physical_qubits` indices to be
+                prepared as specified by the `preparation_basis`. If None all
+                circuit physical qubits will be prepared.
+            preparation_qubits: DEPRECATED, equivalent to preparation_indices.
             basis_indices: Optional, the basis elements to be measured. If None
                 All basis elements will be measured.
-            qubits: Optional, the physical qubits for the initial state circuit.
-            analysis: Optional, analysis class to use for experiment. If None the default
-                tomography analysis will be used.
+            analysis: Optional, a custom analysis instance to use. If ``"default"``
+                :class:`~.TomographyAnalysis` will be used. If None no analysis
+                instance will be set.
 
         Raises:
             QiskitError: if input params are invalid.
         """
+        if measurement_qubits is not None:
+            measurement_indices = measurement_qubits
+            warnings.warn(
+                "The `measurement_qubits` kwarg has been renamed to `measurement_indices`."
+                " It will be removed in a future release.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+        if preparation_qubits is not None:
+            preparation_indices = preparation_qubits
+            warnings.warn(
+                "The `preparation_qubits` kwarg has been renamed to `preparation_indices`."
+                " It will be removed in a future release.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+
         # Initialize BaseExperiment
-        if qubits is None:
-            qubits = tuple(range(circuit.num_qubits))
-        if analysis is None:
+        if physical_qubits is None:
+            physical_qubits = tuple(range(circuit.num_qubits))
+        if analysis == "default":
             analysis = TomographyAnalysis()
-        super().__init__(qubits, analysis=analysis, backend=backend)
+        super().__init__(physical_qubits, analysis=analysis, backend=backend)
 
         # Get the target tomography circuit
         if isinstance(circuit, QuantumCircuit):
@@ -102,39 +133,39 @@ class TomographyExperiment(BaseExperiment):
 
         # Measurement basis and qubits
         self._meas_circ_basis = measurement_basis
-        if measurement_qubits:
+        if measurement_indices:
             # Convert logical qubits to physical qubits
-            self._meas_qubits = tuple(measurement_qubits)
-            self._meas_physical_qubits = tuple(self.physical_qubits[i] for i in self._meas_qubits)
-            for qubit in self._meas_qubits:
+            self._meas_indices = tuple(measurement_indices)
+            self._meas_physical_qubits = tuple(self.physical_qubits[i] for i in self._meas_indices)
+            for qubit in self._meas_indices:
                 if qubit not in range(self.num_qubits):
                     raise QiskitError(
                         f"measurement qubit ({qubit}) is outside the range"
                         f" of circuit qubits [0, {self.num_qubits})."
                     )
         elif measurement_basis:
-            self._meas_qubits = tuple(range(self.num_qubits))
+            self._meas_indices = tuple(range(self.num_qubits))
             self._meas_physical_qubits = self.physical_qubits
         else:
-            self._meas_qubits = tuple()
+            self._meas_indices = tuple()
             self._meas_physical_qubits = tuple()
 
         # Preparation basis and qubits
         self._prep_circ_basis = preparation_basis
-        if preparation_qubits:
-            self._prep_qubits = tuple(preparation_qubits)
-            self._prep_physical_qubits = tuple(self.physical_qubits[i] for i in self._prep_qubits)
-            for qubit in self._prep_qubits:
+        if preparation_indices:
+            self._prep_indices = tuple(preparation_indices)
+            self._prep_physical_qubits = tuple(self.physical_qubits[i] for i in self._prep_indices)
+            for qubit in self._prep_indices:
                 if qubit not in range(self.num_qubits):
                     raise QiskitError(
                         f"preparation qubit ({qubit}) is outside the range"
                         f" of circuit qubits [0, {self.num_qubits})."
                     )
         elif preparation_basis:
-            self._prep_qubits = tuple(range(self.num_qubits))
+            self._prep_indices = tuple(range(self.num_qubits))
             self._prep_physical_qubits = self.physical_qubits
         else:
-            self._prep_qubits = tuple()
+            self._prep_indices = tuple()
             self._prep_physical_qubits = tuple()
 
         # Configure experiment options
@@ -142,19 +173,18 @@ class TomographyExperiment(BaseExperiment):
             self.set_experiment_options(basis_indices=basis_indices)
 
         # Configure analysis basis options
-        analysis_options = {}
-        if measurement_basis:
-            analysis_options["measurement_basis"] = measurement_basis
-        if preparation_basis:
-            analysis_options["preparation_basis"] = preparation_basis
-
-        self.analysis.set_options(**analysis_options)
+        if isinstance(self.analysis, TomographyAnalysis):
+            analysis_options = {}
+            if measurement_basis:
+                analysis_options["measurement_basis"] = measurement_basis
+            if preparation_basis:
+                analysis_options["preparation_basis"] = preparation_basis
+            self.analysis.set_options(**analysis_options)
 
     def circuits(self):
-
         circ_qubits = self._circuit.qubits
         circ_clbits = self._circuit.clbits
-        meas_creg = ClassicalRegister((len(self._meas_qubits)), name="c_tomo")
+        meas_creg = ClassicalRegister((len(self._meas_indices)), name="c_tomo")
         template = QuantumCircuit(
             *self._circuit.qregs, *self._circuit.cregs, meas_creg, name=f"{self._type}"
         )
@@ -177,9 +207,9 @@ class TomographyExperiment(BaseExperiment):
             if prep_element:
                 # Add tomography preparation
                 prep_circ = self._prep_circ_basis.circuit(prep_element, self._prep_physical_qubits)
-                circ.reset(self._prep_qubits)
-                circ.compose(prep_circ, self._prep_qubits, inplace=True)
-                circ.barrier(self._prep_qubits)
+                circ.reset(self._prep_indices)
+                circ.compose(prep_circ, self._prep_indices, inplace=True)
+                circ.barrier(self._prep_indices)
 
             # Add target circuit
             # Have to use compose since circuit.to_instruction has a bug
@@ -189,8 +219,8 @@ class TomographyExperiment(BaseExperiment):
             # Add tomography measurement
             if meas_element:
                 meas_circ = self._meas_circ_basis.circuit(meas_element, self._meas_physical_qubits)
-                circ.barrier(self._meas_qubits)
-                circ.compose(meas_circ, self._meas_qubits, meas_clbits, inplace=True)
+                circ.barrier(self._meas_indices)
+                circ.compose(meas_circ, self._meas_indices, meas_clbits, inplace=True)
 
             # Add metadata
             circ.metadata = metadata
@@ -230,8 +260,8 @@ class TomographyExperiment(BaseExperiment):
         respectively for the returned circuit.
         """
         default_range = tuple(range(self.num_qubits))
-        permute_meas = self._meas_qubits and self._meas_qubits != default_range
-        permute_prep = self._prep_qubits and self._prep_qubits != default_range
+        permute_meas = self._meas_indices and self._meas_indices != default_range
+        permute_prep = self._prep_indices and self._prep_indices != default_range
         if not permute_meas and not permute_prep:
             return self._circuit
 
@@ -243,10 +273,10 @@ class TomographyExperiment(BaseExperiment):
             perm_circ = QuantumCircuit(total_qubits)
 
         # Apply permutation to put prep qubits as [0, ..., M-1]
-        if self._prep_qubits:
-            prep_qargs = list(self._prep_qubits)
-            if len(self._prep_qubits) != total_qubits:
-                prep_qargs += [i for i in range(total_qubits) if i not in self._prep_qubits]
+        if self._prep_indices:
+            prep_qargs = list(self._prep_indices)
+            if len(self._prep_indices) != total_qubits:
+                prep_qargs += [i for i in range(total_qubits) if i not in self._prep_indices]
             perm_circ.append(Permutation(total_qubits, prep_qargs).inverse(), range(total_qubits))
 
         # Apply original circuit
@@ -256,10 +286,10 @@ class TomographyExperiment(BaseExperiment):
             perm_circ = perm_circ.compose(self._circuit, range(total_qubits))
 
         # Apply permutation to put meas qubits as [0, ..., M-1]
-        if self._meas_qubits:
-            meas_qargs = list(self._meas_qubits)
-            if len(self._meas_qubits) != total_qubits:
-                meas_qargs += [i for i in range(total_qubits) if i not in self._meas_qubits]
+        if self._meas_indices:
+            meas_qargs = list(self._meas_indices)
+            if len(self._meas_indices) != total_qubits:
+                meas_qargs += [i for i in range(total_qubits) if i not in self._meas_indices]
             perm_circ.append(Permutation(total_qubits, meas_qargs), range(total_qubits))
 
         return perm_circ

@@ -23,7 +23,6 @@ from threading import Event
 from functools import wraps
 from collections import deque
 import contextlib
-import warnings
 import copy
 import uuid
 import enum
@@ -147,6 +146,7 @@ class ExperimentData:
     """Qiskit Experiments Data container class.
 
     This class handles the following:
+
     1. Storing the data related to an experiment - the experiment's metadata,
        the analysis results and the figures
     2. Managing jobs and adding data from jobs automatically
@@ -158,6 +158,7 @@ class ExperimentData:
 
     Other data fields can be added and used freely, but they won't be saved
     to the database.
+
     """
 
     _metadata_version = 1
@@ -555,14 +556,22 @@ class ExperimentData:
 
     def _set_hgp_from_provider(self, provider):
         try:
-            creds = provider.credentials
-            hub = self._db_data.hub or creds.hub
-            group = self._db_data.group or creds.group
-            project = self._db_data.project or creds.project
-            self._db_data.hub = hub
-            self._db_data.group = group
-            self._db_data.project = project
-        except AttributeError:
+            hub = None
+            group = None
+            project = None
+            # qiskit-ibmq-provider style
+            if hasattr(provider, "credentials"):
+                creds = provider.credentials
+                hub = creds.hub
+                group = creds.group
+                project = creds.project
+            # qiskit-ibm-provider style
+            if hasattr(provider, "_hgps"):
+                hub, group, project = list(self.backend.provider._hgps.keys())[0].split("/")
+            self._db_data.hub = self._db_data.hub or hub
+            self._db_data.group = self._db_data.group or group
+            self._db_data.project = self._db_data.project or project
+        except (AttributeError, IndexError):
             return
 
     def _clear_results(self):
@@ -1856,17 +1865,6 @@ class ExperimentData:
             return self._child_data[index]
         raise QiskitError(f"Invalid index type {type(index)}.")
 
-    def component_experiment_data(
-        self, index: Optional[Union[int, slice]] = None
-    ) -> Union[ExperimentData, List[ExperimentData]]:
-        """Return child experiment data"""
-        warnings.warn(
-            "This method is deprecated and will be removed next release. "
-            "Use the `child_data` method instead.",
-            DeprecationWarning,
-        )
-        return self.child_data(index)
-
     @classmethod
     def load(cls, experiment_id: str, service: IBMExperimentService) -> "ExperimentData":
         """Load a saved experiment data from a database service.
@@ -2152,8 +2150,14 @@ class ExperimentData:
         """Initializes the server from the backend data"""
         db_url = "https://auth.quantum-computing.ibm.com/api"
         try:
-            credentials = backend._provider.credentials
-            service = IBMExperimentService(token=credentials.token, url=db_url)
+            provider = backend._provider
+            # qiskit-ibmq-provider style
+            if hasattr(provider, "credentials"):
+                token = provider.credentials.token
+            # qiskit-ibm-provider style
+            if hasattr(provider, "_account"):
+                token = provider._account.token
+            service = IBMExperimentService(token=token, url=db_url)
             return service
         except Exception:  # pylint: disable=broad-except
             return None
