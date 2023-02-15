@@ -449,15 +449,7 @@ class PulseBackend(BackendV2):
                     meas_qubits += [qubits[0]]
                     continue
                 if inst_name == "rz":
-                    # TODO: Fix: Assumes 3 level system.
-                    # Ensures that the action in the qubit space is preserved.
-                    unitary_1q = np.diag([np.exp(1.0j * idx * params[0] / 2) for idx in [-1, 1, 3]])
-                    if qubits[0] == 0:
-                        unitary = np.kron(np.eye(3), unitary_1q)
-                    elif qubits[0] == 1:
-                        unitary = np.kron(unitary_1q, np.eye(3))
-                    else:
-                        raise QiskitError("Rz not implemented for more than 2 qubits")
+                    unitary = self.rz_gate(qubits, params[0])
                 else:
                     unitary = unitaries[(inst_name, qubits, params)]
                 state_t = unitary @ state_t
@@ -617,6 +609,20 @@ class SingleTransmonTestBackend(PulseBackend):
         self._simulated_pulse_unitaries = {
             (schedule.name, (0,), ()): self.solve(schedule) for schedule in default_schedules
         }
+
+    @staticmethod
+    def rz_gate(qubits: List[int], theta: float):
+        """Rz gate corresponding to single qubit 3 level qubit. Note: We do not try to
+        model accurate qutrit dynamics.
+
+        Args:
+            qubits: Qubit index of gate.
+            theta: The angle parameter of Rz gate.
+
+        Returns:
+            Matrix of Rz(theta).
+        """
+        return np.diag([np.exp(1.0j * idx * theta / 2) for idx in [-1, 1, 3]])
 
 
 class ParallelTransmonTestBackend(PulseBackend):
@@ -781,13 +787,32 @@ class ParallelTransmonTestBackend(PulseBackend):
             for schedule in default_schedules
         }
 
+    @staticmethod
+    def rz_gate(qubits, theta):
+        """Rz gate corresponding to single qubit 3 level qubit. Note: We do not try to
+        model accurate qutrit dynamics.
+
+        Args:
+            qubits: Qubit index of gate.
+            theta: The angle parameter of Rz gate.
+
+        Returns:
+            Matrix of Rz(theta).
+        """
+        rz_1q = np.diag([np.exp(1.0j * idx * theta / 2) for idx in [-1, 1, 3]])
+        if qubits[0] == 0:
+            rz = np.kron(np.eye(3), rz_1q)
+        elif qubits[0] == 1:
+            rz = np.kron(rz_1q, np.eye(3))
+        return rz
+
 
 class DefaultDiscriminator(BaseDiscriminator):
     """Default Discriminator used for ``meas_level=2`` in ``SingleTransmonTestBackend``
     and ``ParallelTransmonTestBackend``.
     """
 
-    x_0 = 0.25
+    x_0 = 0.25  # empirical threshold
 
     def predict(self, data: List):
         """The function used to predict the labels of the data."""
