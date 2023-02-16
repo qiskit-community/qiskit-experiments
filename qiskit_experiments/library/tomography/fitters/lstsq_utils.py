@@ -16,7 +16,7 @@ Common utility functions for tomography fitters.
 from typing import Optional, Tuple, Callable, Sequence, Union
 import functools
 import numpy as np
-
+from qiskit.utils import deprecate_function
 from qiskit_experiments.exceptions import AnalysisError
 from qiskit_experiments.library.tomography.basis import (
     MeasurementBasis,
@@ -237,6 +237,11 @@ def dirichlet_mean_and_var(
     return mean_probs, variance
 
 
+@deprecate_function(
+    "The binomial_weights function is deprecated and will "
+    "be removed in the 0.6 release. Use the `dirichlet_mean_and_var` "
+    "function instead."
+)
 def binomial_weights(
     outcome_data: np.ndarray,
     shot_data: np.ndarray,
