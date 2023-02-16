@@ -24,10 +24,16 @@ import qiskit.quantum_info as qi
 from qiskit_aer import AerSimulator
 from qiskit_aer.noise import NoiseModel
 
-from qiskit_experiments.library import StateTomography
-from qiskit_experiments.library.tomography import StateTomographyAnalysis, basis
 from qiskit_experiments.database_service import ExperimentEntryNotFound
-from .tomo_utils import FITTERS, filter_results, teleport_circuit, teleport_bell_circuit
+from qiskit_experiments.library import StateTomography, MitigatedStateTomography
+from qiskit_experiments.library.tomography import StateTomographyAnalysis, basis
+from .tomo_utils import (
+    FITTERS,
+    filter_results,
+    teleport_circuit,
+    teleport_bell_circuit,
+    readout_noise_model,
+)
 
 
 @ddt.ddt
@@ -341,3 +347,50 @@ class TestStateTomography(QiskitExperimentsTestCase):
         self.assertExperimentDone(expdata)
         fid = expdata.analysis_results("state_fidelity").value
         self.assertGreater(fid, 0.95)
+
+    @ddt.data((0,), (1,), (2,), (3,), (0, 1), (2, 0), (0, 3), (0, 3, 1))
+    def test_mitigated_full_qst(self, qubits):
+        """Test QST experiment"""
+        seed = 1234
+        shots = 5000
+        f_threshold = 0.95
+
+        noise_model = readout_noise_model(4, seed=seed)
+        backend = AerSimulator(seed_simulator=seed, shots=shots, noise_model=noise_model)
+        target = qi.random_statevector(2 ** len(qubits), seed=seed)
+        exp = MitigatedStateTomography(target, physical_qubits=qubits, backend=backend)
+        exp.analysis.set_options(unmitigated_fit=True)
+        expdata = exp.run(analysis=None)
+        self.assertExperimentDone(expdata)
+
+        for fitter in FITTERS:
+            with self.subTest(fitter=fitter, qubits=qubits):
+                if fitter:
+                    exp.analysis.set_options(fitter=fitter)
+                fitdata = exp.analysis.run(expdata)
+                self.assertExperimentDone(fitdata)
+                # Should be 2 results, mitigated and unmitigated
+                states = expdata.analysis_results("state")
+                self.assertEqual(len(states), 2)
+                for state in states:
+                    self.assertTrue(
+                        isinstance(state.value, qi.DensityMatrix),
+                        msg=f"{fitter} fitted state is not density matrix for qubits {qubits}",
+                    )
+
+                # Check fit state fidelity
+                fids = expdata.analysis_results("state_fidelity")
+                self.assertEqual(len(fids), 2)
+                mitfid, nomitfid = fids
+                # Check mitigation improves fidelity
+                self.assertTrue(
+                    mitfid.value >= nomitfid.value,
+                    msg="mitigated {} did not improve fidelity for qubits {} ({:.4f} < {:.4f})".format(
+                        fitter, qubits, mitfid.value, nomitfid.value
+                    ),
+                )
+                self.assertGreater(
+                    mitfid.value,
+                    f_threshold,
+                    msg=f"{fitter} fit fidelity is low for qubits {qubits}",
+                )

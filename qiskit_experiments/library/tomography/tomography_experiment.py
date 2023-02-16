@@ -13,7 +13,6 @@
 Quantum Tomography experiment
 """
 
-import warnings
 from typing import Union, Optional, Iterable, List, Tuple, Sequence
 from itertools import product
 from qiskit.circuit import QuantumCircuit, Instruction, ClassicalRegister
@@ -53,7 +52,14 @@ class TomographyExperiment(BaseExperiment):
 
         return options
 
-    @deprecate_arguments({"qubits": "physical_qubits"}, "0.5")
+    @deprecate_arguments(
+        {
+            "qubits": "physical_qubits",
+            "measurement_qubits": "measurement_indices",
+            "preparation_qubits": "preparation_indices",
+        },
+        "0.5",
+    )
     def __init__(
         self,
         circuit: Union[QuantumCircuit, Instruction, BaseOperator],
@@ -61,10 +67,8 @@ class TomographyExperiment(BaseExperiment):
         physical_qubits: Optional[Sequence[int]] = None,
         measurement_basis: Optional[MeasurementBasis] = None,
         measurement_indices: Optional[Sequence[int]] = None,
-        measurement_qubits: Optional[Sequence[int]] = None,
         preparation_basis: Optional[PreparationBasis] = None,
         preparation_indices: Optional[Sequence[int]] = None,
-        preparation_qubits: Optional[Sequence[int]] = None,
         basis_indices: Optional[Iterable[Tuple[List[int], List[int]]]] = None,
         analysis: Union[BaseAnalysis, None, str] = "default",
     ):
@@ -81,13 +85,11 @@ class TomographyExperiment(BaseExperiment):
             measurement_indices: Optional, the `physical_qubits` indices to be
                 measured as specified by the `measurement_basis`. If None all
                 circuit physical qubits will be measured.
-            measurement_qubits: DEPRECATED, equivalent to measurement_indices.
             preparation_basis: Tomography basis for measurements. If set to None
                 no tomography preparations will be performed.
             preparation_indices: Optional, the `physical_qubits` indices to be
                 prepared as specified by the `preparation_basis`. If None all
                 circuit physical qubits will be prepared.
-            preparation_qubits: DEPRECATED, equivalent to preparation_indices.
             basis_indices: Optional, the basis elements to be measured. If None
                 All basis elements will be measured.
             analysis: Optional, a custom analysis instance to use. If ``"default"``
@@ -97,23 +99,6 @@ class TomographyExperiment(BaseExperiment):
         Raises:
             QiskitError: if input params are invalid.
         """
-        if measurement_qubits is not None:
-            measurement_indices = measurement_qubits
-            warnings.warn(
-                "The `measurement_qubits` kwarg has been renamed to `measurement_indices`."
-                " It will be removed in a future release.",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-        if preparation_qubits is not None:
-            preparation_indices = preparation_qubits
-            warnings.warn(
-                "The `preparation_qubits` kwarg has been renamed to `preparation_indices`."
-                " It will be removed in a future release.",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-
         # Initialize BaseExperiment
         if physical_qubits is None:
             physical_qubits = tuple(range(circuit.num_qubits))

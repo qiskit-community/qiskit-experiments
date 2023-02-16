@@ -28,6 +28,12 @@ features:
   
     The :class:`.LocalReadoutError` experiment can be run to obtain the 
     :class:`.LocalReadoutMitigator` from its analysis results.
+  - |
+    Adds readout error mitigated tomography experiments
+    :class:`.MitigatedStateTomography` and :class:`.MitigatedProcessTomography`.
+    These are both implemented as a :class:`.BatchExperiment` consisting of a
+    :class:`~.LocalReadoutError` characterization experiment followed by either
+    a :class:`~.StateTomography` or class:`~.ProcessTomography` experiment.
 fixes:
   - |
     Fixes bug in :class:`~.StateTomography` and :class:`~.ProcessTomography`

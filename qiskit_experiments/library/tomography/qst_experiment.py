@@ -13,7 +13,7 @@
 Quantum State Tomography experiment
 """
 
-from typing import Union, Optional, Iterable, List, Sequence
+from typing import Union, Optional, List, Sequence
 from qiskit.providers.backend import Backend
 from qiskit.circuit import QuantumCircuit, Instruction
 from qiskit.quantum_info.operators.base_operator import BaseOperator
@@ -50,7 +50,9 @@ class StateTomography(TomographyExperiment):
 
     """
 
-    @deprecate_arguments({"qubits": "physical_qubits"}, "0.5")
+    @deprecate_arguments(
+        {"qubits": "physical_qubits", "measurement_qubits": "measurement_indices"}, "0.5"
+    )
     def __init__(
         self,
         circuit: Union[QuantumCircuit, Instruction, BaseOperator, Statevector],
@@ -58,8 +60,7 @@ class StateTomography(TomographyExperiment):
         physical_qubits: Optional[Sequence[int]] = None,
         measurement_basis: basis.MeasurementBasis = basis.PauliMeasurementBasis(),
         measurement_indices: Optional[Sequence[int]] = None,
-        measurement_qubits: Optional[Sequence[int]] = None,
-        basis_indices: Optional[Iterable[List[int]]] = None,
+        basis_indices: Optional[Sequence[List[int]]] = None,
         analysis: Union[BaseAnalysis, None, str] = "default",
         target: Union[Statevector, DensityMatrix, None, str] = "default",
     ):
@@ -75,7 +76,6 @@ class StateTomography(TomographyExperiment):
                 default basis is the :class:`~basis.PauliMeasurementBasis`.
             measurement_indices: Optional, the `physical_qubits` indices to be measured.
                 If None all circuit physical qubits will be measured.
-            measurement_qubits: DEPRECATED, equivalent to measurement_indices.
             basis_indices: Optional, a list of basis indices for generating partial
                 tomography measurement data. Each item should be given as a list of
                 measurement basis configurations ``[m[0], m[1], ...]`` where ``m[i]``
@@ -108,7 +108,6 @@ class StateTomography(TomographyExperiment):
             physical_qubits=physical_qubits,
             measurement_basis=measurement_basis,
             measurement_indices=measurement_indices,
-            measurement_qubits=measurement_qubits,
             basis_indices=basis_indices,
             analysis=analysis,
         )

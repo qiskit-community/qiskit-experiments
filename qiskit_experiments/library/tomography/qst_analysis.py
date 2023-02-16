@@ -78,6 +78,9 @@ class StateTomographyAnalysis(TomographyAnalysis):
                 fitter function.
             rescale_trace (bool): If True rescale the state returned by the fitter have either
                 trace 1 (Default: True).
+            measurement_qubits (Sequence[int]): Optional, the physical qubits with tomographic
+                measurements. If not specified will be set to ``[0, ..., N-1]`` for N-qubit
+                tomographic measurements.
             target (Union[str, :class:`~qiskit.quantum_info.DensityMatrix`,
                 :class:`~qiskit.quantum_info.Statevector`]): Optional, et a custom target
                 quantum state for computing the :func:~qiskit.quantum_info.state_fidelity`
