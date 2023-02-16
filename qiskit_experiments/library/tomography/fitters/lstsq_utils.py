@@ -237,6 +237,7 @@ def dirichlet_mean_and_var(
     return mean_probs, variance
 
 
+# pylint: disable = bad-docstring-quotes
 @deprecate_function(
     "The binomial_weights function is deprecated and will "
     "be removed in the 0.6 release. Use the `dirichlet_mean_and_var` "
