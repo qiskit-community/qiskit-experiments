@@ -26,7 +26,7 @@ from qiskit_experiments.visualization import IQPlotter, MplDrawer
 
 class MockDiscriminatorNotTrainedException(Exception):
     """Mock exception to be raised when :meth:`MockDiscriminator.predict` is called on an untrained
-    :class:`MockDiscriminator`."""
+    :class:`.MockDiscriminator`."""
 
     pass
 
@@ -89,14 +89,14 @@ class TestIQPlotter(QiskitExperimentsTestCase):
         Args:
             is_trained: Whether the discriminator should be trained or not. Defaults to True.
             n_series: The number of series to generate dummy data for. Defaults to 3.
-            raise_predict_not_trained: Passed to the discriminator :class:`MockDiscriminator` class.
+            raise_predict_not_trained: Passed to the discriminator :class:`.MockDiscriminator` class.
             factor: A scaler factor by which to multipl all data.
 
 
         Returns:
             tuple: the tuple ``(points, names, discrim)`` where ``points`` is a list of NumPy arrays of
                 IQ points, ``names`` is a list of series names (one for each NumPy array), and
-                ``discrim`` is a :class:`MockDiscriminator` instance.
+                ``discrim`` is a :class:`.MockDiscriminator` instance.
         """
         points = []
         labels = []

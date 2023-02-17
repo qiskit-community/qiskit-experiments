@@ -57,7 +57,7 @@ class T2Ramsey(BaseExperiment):
         :doc:`/tutorials/t2ramsey_characterization`
 
     # section: analysis_ref
-        :py:class:`T2RamseyAnalysis`
+        :class:`T2RamseyAnalysis`
     """
 
     @classmethod

@@ -63,7 +63,7 @@ class QuantumVolume(BaseExperiment):
         information on QV experiment analysis.
 
     # section: analysis_ref
-        :py:class:`QuantumVolumeAnalysis`
+        :class:`QuantumVolumeAnalysis`
 
     # section: reference
         .. ref_arxiv:: 1 1811.12926

@@ -30,7 +30,7 @@ class FineDrag(BaseExperiment, RestlessMixin):
 
     # section: overview
 
-        :class:`FineDrag` runs fine DRAG characterization experiments (see :class:`DragCal`
+        :class:`FineDrag` runs fine DRAG characterization experiments (see :class:`.DragCal`
         for the definition of DRAG pulses). Fine DRAG proceeds by iterating the gate sequence
         Rp - Rm where Rp is a rotation around an axis and Rm is the same rotation but in the
         opposite direction and is implemented by the gates Rz - Rp - Rz where the Rz gates
@@ -126,10 +126,10 @@ class FineDrag(BaseExperiment, RestlessMixin):
         This is the correction formula in the FineDRAG Updater.
 
     # section: analysis_ref
-        :py:class:`~qiskit_experiments.curve_analysis.ErrorAmplificationAnalysis`
+        :class:`.ErrorAmplificationAnalysis`
 
     # section: see_also
-        qiskit_experiments.library.calibration.drag.DragCal
+        :class:`.DragCal`
 
     # section: reference
         .. ref_arxiv:: 1 1612.00858
@@ -248,7 +248,7 @@ class FineXDrag(FineDrag):
     """Class to fine characterize the DRAG parameter of an X gate.
 
     # section: see_also
-        qiskit_experiments.library.characterization.fine_drag.FineDrag
+        :class:`.FineDrag`
     """
 
     @qubit_deprecate()
@@ -278,7 +278,7 @@ class FineSXDrag(FineDrag):
     """Class to fine characterize the DRAG parameter of an SX gate.
 
     # section: see_also
-        qiskit_experiments.library.characterization.fine_drag.FineDrag
+        :class:`.FineDrag`
     """
 
     @qubit_deprecate()

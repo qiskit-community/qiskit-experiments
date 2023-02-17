@@ -46,7 +46,7 @@ class InterleavedRB(StandardRB):
         the interleaved gate error. See Ref. [1] for details.
 
     # section: analysis_ref
-        :py:class:`InterleavedRBAnalysis`
+        :class:`InterleavedRBAnalysis`
 
     # section: reference
         .. ref_arxiv:: 1 1203.4550

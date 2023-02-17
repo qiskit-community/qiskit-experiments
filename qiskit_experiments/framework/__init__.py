@@ -78,6 +78,7 @@ Classes
 
 Experiment Data Classes
 ***********************
+
 .. autosummary::
     :toctree: ../stubs/
 
@@ -96,6 +97,7 @@ Experiment Data Classes
 
 Composite Experiment Classes
 ****************************
+
 .. autosummary::
     :toctree: ../stubs/
 
@@ -113,7 +115,7 @@ Base Classes
     BaseAnalysis
 
 Experiment Configuration Helper Classes
-*******
+***************************************
 
 .. autosummary::
     :toctree: ../stubs/

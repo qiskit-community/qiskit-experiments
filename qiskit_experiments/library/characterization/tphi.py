@@ -40,10 +40,10 @@ class Tphi(BatchExperiment):
 
         :math:`1/T_\varphi = 1/T_{2*} - 1/2T_1`.
 
-        For more details, see :py:class:`T1` and :py:class:`T2Ramsey`
+        For more details, see :class:`T1` and :class:`T2Ramsey`
 
     # section: analysis_ref
-        :py:class:`TphiAnalysis`
+        :class:`TphiAnalysis`
 
     # section: reference
         .. ref_arxiv:: 1 1904.06560v5

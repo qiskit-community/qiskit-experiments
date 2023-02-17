@@ -82,14 +82,12 @@ class DocstringSectionFormatter:
     @_check_no_indent
     def format_see_also(self, lines: List[str]) -> List[str]:
         """Format see also section."""
-        text = ".. seealso:: Module(s) "
+        format_lines = [".. rubric:: See Also", ""]
 
-        modules = []
-        for line in lines:
-            modules.append(f":py:mod:`~{line.lstrip()}`")
-        text += ", ".join(modules)
+        format_lines.extend(lines)
+        format_lines.append("")
 
-        return [text, ""]
+        return format_lines
 
     @_check_no_indent
     def format_tutorial(self, lines: List[str]) -> List[str]:
@@ -215,6 +213,7 @@ class AnalysisSectionFormatter(DocstringSectionFormatter):
         format_lines.append("")
 
         return format_lines
+
 
 class VisualizationSectionFormatter(DocstringSectionFormatter):
     """Formatter for visualization classes."""

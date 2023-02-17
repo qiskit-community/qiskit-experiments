@@ -97,7 +97,7 @@ draw the first and last circuits for our T1 experiment:
 
 As expected, the delay block spans the full range of time values that we specified.
 
-After instantiating the experiment, we run the experiment by calling :meth:`.run` with our specified backend.
+After instantiating the experiment, we run the experiment by calling :meth:`~.BaseExperiment.run` with our specified backend.
 This returns the :class:`.ExperimentData` class containing the results of the experiment,
 so it's crucial that we assign the output to a data variable. We could have also provided the backend
 at the instantiation of the experiment, but specifying the backend at run time
@@ -262,7 +262,7 @@ arbitrarily to make complex composite experiments.
     :align: center
 
 Viewing child experiment data
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+-----------------------------
 
 The experiment data returned from a composite experiment contains
 individual analysis results for each child experiment that can be accessed
@@ -282,7 +282,7 @@ experiments into one level:
 
 .. jupyter-execute::
 
-    parallel_exp = ParallelExperiment([T1(qubit=i, delays=delays) for i in range(2)],
+    parallel_exp = ParallelExperiment([T1(physical_qubits=(i,), delays=delays) for i in range(2)],
                                       flatten_results=True)
     parallel_data = parallel_exp.run(backend, seed_simulator=101).block_for_results()
 

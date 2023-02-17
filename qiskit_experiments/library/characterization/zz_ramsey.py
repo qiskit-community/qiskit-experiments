@@ -124,7 +124,7 @@ class ZZRamsey(BaseExperiment):
 
     # section: analysis_ref
 
-        :py:class:`ZZRamseyAnalysis`
+        :class:`ZZRamseyAnalysis`
     """
 
     @deprecate_arguments({"qubits": "physical_qubits"}, "0.5")

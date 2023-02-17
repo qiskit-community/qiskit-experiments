@@ -339,8 +339,8 @@ negative amplitude.
 Fine amplitude calibration
 --------------------------
 
-The ``FineAmplitude`` calibration experiment repeats :math:`N` times 
-a gate with a pulse to amplify the under or over-rotations 
+The :class:`.FineAmplitude` experiment and its subclass experiments repeats 
+a gate :math:`N` times with a pulse to amplify the under or over-rotations 
 in the gate to determine the optimal amplitude.
 
 .. jupyter-execute::

@@ -49,9 +49,9 @@ Enabling restless measurements
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 In Qiskit Experiments the experiments that support restless measurements
-have a special method :meth:`enable_restless` to set the restless run options 
+have a special method :meth:`~.RestlessMixin.enable_restless` to set the restless run options 
 and define the data processor that will process the measured data.
-If you are an experiment developer, you can add the :class:`RestlessMixin`
+If you are an experiment developer, you can add the :class:`.RestlessMixin`
 to your experiment class to add support for restless measurements.
 Here, we will show how to activate restless measurements using
 a fake backend and a rough Drag experiment. Note however, that you will not
@@ -87,7 +87,7 @@ data processor post-processes the restless measured shots according to the order
 they were acquired. Furthermore, the appropriate run options are also set. Note that
 these run options might be unique to IBM Quantum providers. Therefore, execute may fail
 on non-IBM Quantum providers if the required options are not supported.
-After calling ``enable_restless`` the experiment is ready to be run in a restless
+After calling :meth:`~.RestlessMixin.enable_restless` the experiment is ready to be run in a restless
 mode. With a hardware backend this would be done by calling the ``run`` method
 
 .. code:: python
@@ -95,9 +95,9 @@ mode. With a hardware backend this would be done by calling the ``run`` method
     drag_data_restless = cal_drag.run()
 
 As shown by the example, the code is identical to running a normal experiment aside
-from a call to the method ``enable_restless``. Note that you can also choose to keep
+from a call to the method :meth:`~.RestlessMixin.enable_restless`. Note that you can also choose to keep
 the standard data processor by providing it to the analysis options and telling
-``enable_restless`` not to override the data processor.
+:meth:`~.RestlessMixin.enable_restless` not to override the data processor.
 
 .. jupyter-execute::
 

@@ -121,7 +121,7 @@ class BasisGateLibrary(ABC, Mapping):
 
         Returns
             A list of tuples is returned. These tuples are structured so that instances of
-            :class:`Calibrations` can call :meth:`add_parameter_value` on the tuples.
+            :class:`.Calibrations` can call :meth:`.add_parameter_value` on the tuples.
         """
 
     @abstractmethod
@@ -287,7 +287,7 @@ class FixedFrequencyTransmon(BasisGateLibrary):
 
         Returns
             A list of tuples is returned. These tuples are structured so that instances of
-            :class:`Calibrations` can call :meth:`add_parameter_value` on the tuples.
+            :class:`.Calibrations` can call :meth:`.add_parameter_value` on the tuples.
         """
         defaults = []
         for name, schedule in self.items():
@@ -325,7 +325,7 @@ class EchoedCrossResonance(BasisGateLibrary):
         - rzx: RZXGate built from the ecr as ``cr45p - x - cr45m - x``.
 
     Required gates:
-        - x: the x gate is defined outside of this library, see :class:`FixedFrequencyTransmon`.
+        - x: the x gate is defined outside of this library, see :class:`.FixedFrequencyTransmon`.
 
     Pulse parameters:
         - tgt_amp: The amplitude of the pulse applied to the target qubit. Default value: 0.

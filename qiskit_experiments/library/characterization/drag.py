@@ -63,7 +63,7 @@ class RoughDrag(BaseExperiment, RestlessMixin):
         Note that the analysis class requires this experiment to run with three repetition numbers.
 
     # section: analysis_ref
-        :py:class:`DragCalAnalysis`
+        :class:`DragCalAnalysis`
 
     # section: reference
         .. ref_arxiv:: 1 1011.1949

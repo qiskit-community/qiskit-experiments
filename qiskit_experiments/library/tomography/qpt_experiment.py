@@ -45,10 +45,10 @@ class ProcessTomography(TomographyExperiment):
         preparation and measurement bases.
 
     # section: analysis_ref
-        :py:class:`ProcessTomographyAnalysis`
+        :class:`ProcessTomographyAnalysis`
 
     # section: see_also
-        qiskit_experiments.library.tomography.tomography_experiment.TomographyExperiment
+        :class:`.TomographyExperiment`
 
     """
 

@@ -82,7 +82,7 @@ class RamseyXY(BaseExperiment, RestlessMixin):
         circuit above it appears as the delay-dependent angle θ(τ).
 
     # section: analysis_ref
-        :py:class:`RamseyXYAnalysis`
+        :class:`RamseyXYAnalysis`
     """
 
     @classmethod

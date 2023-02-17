@@ -50,7 +50,7 @@ class ReadoutAngle(BaseExperiment):
         3. Analysis of results: return the average of the angles of the two centers.
 
     # section: analysis_ref
-        :py:class:`ReadoutAngleAnalysis`
+        :class:`ReadoutAngleAnalysis`
     """
 
     @classmethod

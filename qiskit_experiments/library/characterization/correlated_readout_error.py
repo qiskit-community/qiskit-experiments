@@ -72,7 +72,7 @@ class CorrelatedReadoutError(BaseExperiment):
         documentation for additional information on correlated readout error experiment analysis.
 
     # section: analysis_ref
-        :py:class:`CorrelatedReadoutErrorAnalysis`
+        :class:`CorrelatedReadoutErrorAnalysis`
 
     # section: reference
         .. ref_arxiv:: 1 2006.14044

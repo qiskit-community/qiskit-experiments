@@ -31,7 +31,7 @@ class TomographyExperiment(BaseExperiment):
     """Base experiment for quantum state and process tomography.
 
     # section: analysis_ref
-        :py:class:`TomographyAnalysis`
+        :class:`TomographyAnalysis`
     """
 
     @classmethod

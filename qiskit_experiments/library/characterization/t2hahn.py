@@ -57,7 +57,7 @@ class T2Hahn(BaseExperiment):
         :doc:`/tutorials/t2hahn_characterization`
 
     # section: analysis_ref
-        :py:class:`T2HahnAnalysis`
+        :class:`T2HahnAnalysis`
     """
 
     @classmethod

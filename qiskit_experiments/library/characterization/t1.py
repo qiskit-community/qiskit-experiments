@@ -42,7 +42,7 @@ class T1(BaseExperiment):
         by fitting to an exponential curve.
 
     # section: analysis_ref
-        :py:class:`.T1Analysis`
+        :class:`.T1Analysis`
 
     """
 
@@ -65,12 +65,12 @@ class T1(BaseExperiment):
         backend: Optional[Backend] = None,
     ):
         """
-        Initialize the T1 experiment class
+        Initialize the T1 experiment class.
 
         Args:
             physical_qubits: a single-element sequence containing the qubit whose T1 is to be
-                estimated
-            delays: delay times of the experiments in seconds
+                estimated.
+            delays: Delay times of the experiments in seconds.
             backend: Optional, the backend to run the experiment on.
 
         Raises:

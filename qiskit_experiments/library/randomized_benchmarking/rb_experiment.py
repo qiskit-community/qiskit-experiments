@@ -70,7 +70,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
         the Error Per Clifford (EPC), as described in Refs. [1, 2].
 
     # section: analysis_ref
-        :py:class:`RBAnalysis`
+        :class:`RBAnalysis`
 
     # section: reference
         .. ref_arxiv:: 1 1009.3639

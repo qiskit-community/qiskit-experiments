@@ -27,11 +27,11 @@ from qiskit_experiments.warnings import deprecate_arguments, qubit_deprecate
 
 
 class FineAmplitude(BaseExperiment, RestlessMixin):
-    r"""Error amplifying fine amplitude calibration experiment.
+    r"""Error amplifying fine amplitude experiment.
 
     # section: overview
 
-        The :class:`FineAmplitude` calibration experiment repeats N times a gate with a pulse
+        The :class:`FineAmplitude` experiment repeats N times a gate with a pulse
         to amplify the under-/over-rotations in the gate to determine the optimal amplitude.
         The circuits are therefore of the form:
 
@@ -81,7 +81,7 @@ class FineAmplitude(BaseExperiment, RestlessMixin):
         that set the appropriate options by default.
 
     # section: analysis_ref
-        :py:class:`FineAmplitudeAnalysis`
+        :class:`FineAmplitudeAnalysis`
 
     # section: reference
         .. ref_arxiv:: 1 1504.06597

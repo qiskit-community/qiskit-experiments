@@ -49,32 +49,6 @@ version = "0.5"
 # The full version, including alpha/beta/rc tags
 release = "0.5.0"
 
-rst_prolog = """
-.. raw:: html
-
-    <br><br><br>
-
-.. |version| replace:: {0}
-""".format(
-    release
-)
-
-nbsphinx_prolog = """
-{% set docname = env.doc2path(env.docname, base=None) %}
-.. only:: html
-
-    .. role:: raw-html(raw)
-        :format: html
-
-    .. raw:: html
-
-        <br><br><br>
-
-    .. note::
-        Run interactively in jupyter notebook.
-"""
-
-
 # -- General configuration ---------------------------------------------------
 
 # If your documentation needs a minimal Sphinx version, state it here.
@@ -207,6 +181,7 @@ intersphinx_mapping = {
 if not os.getenv("EXPERIMENTS_DEV_DOCS", None):
     rst_prolog = """
 .. raw:: html
+
     <br><br><br>
 """.format(
         release
@@ -214,6 +189,7 @@ if not os.getenv("EXPERIMENTS_DEV_DOCS", None):
 else:
     rst_prolog = """
 .. raw:: html
+
     <br><br><br>
 .. note::
     This is the documentation for the current state of the development branch

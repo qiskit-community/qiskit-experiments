@@ -96,10 +96,10 @@ class ResonatorSpectroscopy(Spectroscopy):
         as well as the kappa, i.e. the line width, of the resonator.
 
     # section: analysis_ref
-        :py:class:`ResonatorSpectroscopyAnalysis`
+        :class:`ResonatorSpectroscopyAnalysis`
 
     # section: see_also
-        qiskit_experiments.library.characterization.qubit_spectroscopy.QubitSpectroscopy
+        :class:`.QubitSpectroscopy`
     """
 
     @classmethod

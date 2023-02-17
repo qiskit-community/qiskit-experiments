@@ -185,7 +185,7 @@ def multi_mean_xy_data(
         Tuple of (series, xdata, ydata, sigma, shots)
 
     See also:
-        :py:func:`~qiskit_experiments.curve_analysis.data_processing.mean_xy_data`
+        :func:`~.data_processing.mean_xy_data`
     """
     series_vals = np.unique(series)
 

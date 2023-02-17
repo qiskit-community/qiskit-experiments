@@ -60,7 +60,7 @@ class ProcessTomographyAnalysis(TomographyAnalysis):
         .. ref_arxiv:: 1 1106.5458
 
     # section: see_also
-        qiskit_experiments.library.tomography.tomography_analysis.TomographyAnalysis
+        :class:`.TomographyAnalysis`
 
     """
 

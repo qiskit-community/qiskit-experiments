@@ -60,7 +60,7 @@ class LocalReadoutError(BaseExperiment):
         documentation for additional information on local readout error experiment analysis.
 
     # section: analysis_ref
-        :py:class:`LocalReadoutErrorAnalysis`
+        :class:`LocalReadoutErrorAnalysis`
 
     # section: reference
         .. ref_arxiv:: 1 2006.14044

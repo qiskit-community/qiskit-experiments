@@ -7,7 +7,7 @@ QV method quantifies the largest random circuit of equal width and depth
 that the computer successfully implements. Quantum computing systems
 with high-fidelity operations, high connectivity, large calibrated gate
 sets, and circuit rewriting toolchains are expected to have higher
-quantum volumes. See `Qiskit
+quantum volumes. See the `Qiskit
 Textbook <https://learn.qiskit.org/course/quantum-hardware/measuring-quantum-volume>`__
 for an explanation on the QV method, which is described in Ref. [1, 2].
 
@@ -18,8 +18,8 @@ circuits <https://qiskit.org/documentation/stubs/qiskit.circuit.library.QuantumV
 on :math:`d` qubits, which contain :math:`d` layers, where each layer
 consists of random 2-qubit unitary gates from :math:`SU(4)`, followed by
 a random permutation on the :math:`d` qubit. Then these circuits run on
-the quantum backend and on an ideal simulator (either ``AerSimulator``
-or ``qiskit.quantum_info.Statevector``).
+the quantum backend and on an ideal simulator (either :class:`qiskit_aer.AerSimulator`
+or :class:`qiskit.quantum_info.Statevector`).
 
 A depth :math:`d` QV circuit is successful if it has ‘mean heavy-output
 probability’ > 2/3 with confidence level > 0.977 (corresponding to

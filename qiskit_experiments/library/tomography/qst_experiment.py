@@ -43,10 +43,10 @@ class StateTomography(TomographyExperiment):
         measurement basis.
 
     # section: analysis_ref
-        :py:class:`StateTomographyAnalysis`
+        :class:`StateTomographyAnalysis`
 
     # section: see_also
-        qiskit_experiments.library.tomography.tomography_experiment.TomographyExperiment
+        :class:`.TomographyExperiment`
 
     """
 

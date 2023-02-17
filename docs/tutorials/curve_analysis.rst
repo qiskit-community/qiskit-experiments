@@ -18,7 +18,7 @@ analyses that inherits from the base class.
 Curve analysis overview
 -----------------------
 
-The base class :class:`CurveAnalysis` implements the multi-objective optimization on
+The base class :class:`.CurveAnalysis` implements the multi-objective optimization on
 different sets of experiment results. A single experiment can define sub-experiments
 consisting of multiple circuits which are tagged with common metadata,
 and curve analysis sorts the experiment results based on the circuit metadata.
@@ -96,7 +96,7 @@ More specifically, the curve analysis defines following data model.
 
 Once the group is assigned, a curve analysis instance builds
 a proper internal optimization routine.
-Finally, the analysis outputs a set of :class:`AnalysisResultData` entries
+Finally, the analysis outputs a set of :class:`.AnalysisResultData` entries
 for important fit outcomes along with a single Matplotlib figure of the fit curves
 with the measured data points.
 
@@ -281,7 +281,7 @@ A developer can override this method to perform initialization of analysis-speci
 
 Curve analysis calls :meth:`_run_data_processing` method where
 the data processor in the analysis option is internally called.
-This consumes input experiment results and creates :class:`CurveData` dataclass.
+This consumes input experiment results and creates :class:`.CurveData` dataclass.
 Then :meth:`_format_data` method is called with the processed dataset to format it.
 By default, the formatter takes average of the outcomes in the processed dataset
 over the same x values, followed by the sorting in the ascending order of x values.
@@ -306,13 +306,13 @@ custom fitting algorithms. This method must return :class:`.CurveFitResult` data
 ^^^^^^^^^^^^^^^^^^
 
 Curve analysis runs several postprocessing against to the fit outcome.
-It calls :meth:`_create_analysis_results` to create :class:`AnalysisResultData` class
+It calls :meth:`._create_analysis_results` to create :class:`.AnalysisResultData` class
 for the fitting parameters of interest. A developer can inject a custom code to
 compute custom quantities based on the raw fit parameters.
 See :ref:`curve_analysis_results` for details.
 Afterwards, the analysis draws several curves in the Matplotlib figure.
-Users can set a custom plotter in :class:`CurveAnalysis` classes, to customize
-figures, by setting the :attr:`~CurveAnalysis.plotter` attribute.
+Users can set a custom plotter in :class:`.CurveAnalysis` classes, to customize
+figures, by setting the :attr:`~.CurveAnalysis.plotter` attribute.
 Finally, it returns the list of created analysis results and Matplotlib figure.
 
 
@@ -339,14 +339,14 @@ by using this curve data object, which will be provided to the fitter.
 Note that there are several common initial guess estimators available in
 :mod:`qiskit_experiments.curve_analysis.guess`.
 
-The :meth:`_generate_fit_guesses` also receives :class:`FitOptions` instance ``user_opt``,
+The :meth:`_generate_fit_guesses` also receives :class:`.FitOptions` instance ``user_opt``,
 which contains user provided guesses and boundaries.
 This is dictionary-like object consisting of sub-dictionaries for
 initial guess ``.p0``, boundary ``.bounds``, and extra options for the fitter.
-Note that :class:`CurveAnalysis` uses SciPy `curve_fit`_ as the least square solver.
+Note that :class:`.CurveAnalysis` uses SciPy `curve_fit`_ as the least square solver.
 See the API documentation for available options.
 
-The :class:`FitOptions` class implements convenient method :meth:`set_if_empty` to manage
+The :class:`.FitOptions` class implements convenient method :meth:`set_if_empty` to manage
 conflict with user provided values, i.e. user provided values have higher priority,
 thus systematically generated values cannot override user values.
 
