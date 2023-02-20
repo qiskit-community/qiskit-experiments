@@ -644,3 +644,104 @@ class TestProcessTomography(QiskitExperimentsTestCase):
                         msg=f"fitter {fitter} fidelity {fid} is low for conditional"
                         f" preparation {idx}",
                     )
+
+    def test_ghz_conditional_clbit(self):
+        """Test entangled GHZ circuit with conditional measurements."""
+        # Run experiment
+        backend = AerSimulator(seed_simulator=7172)
+        qc = QuantumCircuit(3, 2)
+        qc.h(0)
+        qc.cx(0, 1)
+        qc.cx(1, 2)
+        qc.measure([0, 1], [0, 1])
+        exp = ProcessTomography(
+            qc,
+            preparation_indices=[0],
+            measurement_indices=[2],
+            conditional_circuit_clbits=[0, 1],
+            backend=backend,
+        )
+        expdata = exp.run(shots=5000, analysis=None)
+        self.assertExperimentDone(expdata)
+        target_probs = {0: 0.5, 1: 0.0, 2: 0.0, 3: 0.5}
+        target_chois = {
+            0: qi.Choi([[1, 0, 1, 0], [0, 0, 0, 0], [1, 0, 1, 0], [0, 0, 0, 0]]),
+            3: qi.Choi([[0, 0, 0, 0], [1, 0, -1, 0], [0, 0, 0, 0], [-1, 0, 1, 0]]),
+        }
+        for fitter in FITTERS:
+            with self.subTest(fitter=fitter):
+                if fitter:
+                    exp.analysis.set_options(fitter=fitter)
+                fitdata = exp.analysis.run(expdata)
+                states = fitdata.analysis_results("state")
+                for state in states:
+                    idx = state.extra["conditional_circuit_outcome"]
+                    prob = state.extra["conditional_probability"]
+                    self.assertTrue(
+                        np.isclose(prob, target_probs[idx], atol=1e-2),
+                        msg=(
+                            f"fitter {fitter} probability incorrect for conditional"
+                            f" preparation {idx} ({prob} != 0.5)"
+                        ),
+                    )
+                    if idx in [0, 3]:
+                        fid = qi.process_fidelity(
+                            state.value, target_chois[idx], require_cp=False, require_tp=False
+                        )
+                        self.assertGreater(
+                            fid,
+                            0.95,
+                            msg=f"fitter {fitter} fidelity {fid} is low for conditional"
+                            f" preparation {idx}",
+                        )
+
+    def test_ghz_conditional_meas(self):
+        """Test entangled GHZ circuit with conditional measurements."""
+        # Run experiment
+        backend = AerSimulator(seed_simulator=7172)
+        qc = QuantumCircuit(3)
+        qc.h(0)
+        qc.cx(0, 1)
+        qc.cx(0, 2)
+        basis_indices = [([i], [0, 0, j]) for i in range(4) for j in range(3)]
+        exp = ProcessTomography(
+            qc,
+            preparation_indices=[0],
+            measurement_indices=[0, 1, 2],
+            backend=backend,
+            basis_indices=basis_indices,
+        )
+        expdata = exp.run(shots=5000, analysis=None)
+        self.assertExperimentDone(expdata)
+        target_probs = {0: 0.5, 1: 0.0, 2: 0.0, 3: 0.5}
+        target_chois = {
+            0: qi.Choi([[1, 0, 1, 0], [0, 0, 0, 0], [1, 0, 1, 0], [0, 0, 0, 0]]),
+            3: qi.Choi([[0, 0, 0, 0], [0, 1, 0, -1], [0, 0, 0, 0], [0, -1, 0, 1]]),
+        }
+        for fitter in FITTERS:
+            with self.subTest(fitter=fitter):
+                exp.analysis.set_options(conditional_measurement_indices=[0, 1])
+                if fitter:
+                    exp.analysis.set_options(fitter=fitter)
+                fitdata = exp.analysis.run(expdata)
+                states = fitdata.analysis_results("state")
+                for state in states:
+                    idx = state.extra["conditional_measurement_outcome"]
+                    prob = state.extra["conditional_probability"]
+                    self.assertTrue(
+                        np.isclose(prob, target_probs[idx], atol=1e-2),
+                        msg=(
+                            f"fitter {fitter} probability incorrect for conditional"
+                            f" preparation {idx} ({prob} != 0.5)"
+                        ),
+                    )
+                    if idx in [0, 3]:
+                        fid = qi.process_fidelity(
+                            state.value, target_chois[idx], require_cp=False, require_tp=False
+                        )
+                        self.assertGreater(
+                            fid,
+                            0.95,
+                            msg=f"fitter {fitter} fidelity {fid} is low for conditional"
+                            f" preparation {idx}",
+                        )
