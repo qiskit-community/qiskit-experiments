@@ -15,7 +15,7 @@ Quantum State Tomography experiment
 
 from typing import Union, Optional, List, Sequence
 from qiskit.providers.backend import Backend
-from qiskit.circuit import QuantumCircuit, Instruction
+from qiskit.circuit import QuantumCircuit, Instruction, Clbit
 from qiskit.quantum_info.operators.base_operator import BaseOperator
 from qiskit.quantum_info import Statevector, DensityMatrix, partial_trace
 
@@ -61,6 +61,7 @@ class StateTomography(TomographyExperiment):
         measurement_basis: basis.MeasurementBasis = basis.PauliMeasurementBasis(),
         measurement_indices: Optional[Sequence[int]] = None,
         basis_indices: Optional[Sequence[List[int]]] = None,
+        conditional_circuit_clbits: Union[bool, Sequence[int], Sequence[Clbit]] = False,
         analysis: Union[BaseAnalysis, None, str] = "default",
         target: Union[Statevector, DensityMatrix, None, str] = "default",
     ):
@@ -81,6 +82,11 @@ class StateTomography(TomographyExperiment):
                 measurement basis configurations ``[m[0], m[1], ...]`` where ``m[i]``
                 is the measurement basis index for qubit-i. If not specified full
                 tomography for all indices of the measurement basis will be performed.
+            conditional_circuit_clbits: Optional, the clbits in the source circuit to
+                be conditioned on when reconstructing the state. If True all circuit
+                clbits will be conditioned on. Enabling this will return a list of
+                reconstrated state components conditional on the values of these clbit
+                values.
             analysis: Optional, a custom analysis instance to use. If ``"default"``
                 :class:`~.StateTomographyAnalysis` will be used. If None no analysis
                 instance will be set.
@@ -109,6 +115,7 @@ class StateTomography(TomographyExperiment):
             measurement_basis=measurement_basis,
             measurement_indices=measurement_indices,
             basis_indices=basis_indices,
+            conditional_circuit_clbits=conditional_circuit_clbits,
             analysis=analysis,
         )
 

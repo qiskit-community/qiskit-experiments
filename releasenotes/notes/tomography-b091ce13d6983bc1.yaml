@@ -34,6 +34,30 @@ features:
     These are both implemented as a :class:`.BatchExperiment` consisting of a
     :class:`~.LocalReadoutError` characterization experiment followed by either
     a :class:`~.StateTomography` or class:`~.ProcessTomography` experiment.
+  - |
+    Adds support for conditional tomographic reconstruction to the
+    :class:`.StateTomography` and :class:`.ProcessTomography` experiments.
+
+    There are three types of conditioning that can be used independently
+    or together in any combination for reconstruction of a state or
+    channel as a list of components conditional on these values.
+    
+    The `"conditional_circuit_clbits"` init option can be used to
+    specify any subset of clbits in an tomography circuit containing
+    clbits to be conditioned on when peforming the tomographic
+    reconstruction. The conditioning outcome value of the clbits is
+    stored in the analysis results ``extra`` field.
+
+    The `"conditional_measurement_indices"` analysis option can be used
+    to condition on the measurement basis index and outcome value of a
+    specific subset of tomographic basis measurements. The conditioning
+    basis index and outcome value are both stored in the analysis
+    results ``extra`` field.
+
+    The `"conditional_preparation_indices"` analysis option can be used
+    to condition on the preparation basis index of a specific subset of
+    tomographic basis preprations. The conditioning basis index is stored
+    in the analysis results ``extra`` field.
 fixes:
   - |
     Fixes bug in :class:`~.StateTomography` and :class:`~.ProcessTomography`
@@ -54,6 +78,15 @@ upgrade:
     as the measurement and preparation args refer to the index of circuit
     qubits in the physical qubits list, not the physical qubit values
     themselves.
+  - |
+    The automatic overriding of the default CVXPY SDP solver for the
+    `"cvxpy_gaussian_lstsq"` and `"cvxpy_linear_lstsq"` has been disabled
+    and will now use the default SDP solver of CVXPY unless a custom solver
+    is set using the ``fitter_options`` analysis options.
+  - |
+    The ``"weights"`` kwarg of the `"cvxpy_linear_lstsq"` and
+    `"scipy_linear_lstsq"` tomography fitters has been changed to accept
+    a weights array the same shape as the supplied ``outcome_data`` array.
 deprecations:
   - |
     Renames the ``qubits``, ``measurement_qubits``, and ``preparation_qubits``

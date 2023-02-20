@@ -394,3 +394,170 @@ class TestStateTomography(QiskitExperimentsTestCase):
                     f_threshold,
                     msg=f"{fitter} fit fidelity is low for qubits {qubits}",
                 )
+
+    @ddt.data([None, 1], [True, 4], [[0], 2], [[1], 2], [[0, 1], 4])
+    @ddt.unpack
+    def test_qst_conditional_circuit(self, circuit_clbits, num_components):
+        """Test subset state tomography generation"""
+        # Preparation circuit
+        prep_circ = QuantumCircuit(2)
+        prep_circ.ry(np.pi / 3, 0)
+        prep_circ.ry(-np.pi / 4, 1)
+
+        # Calculate component probabilities and targets
+        # measurements project to diagonal of density matrix
+        prep_state = qi.DensityMatrix(np.diag(np.diag(qi.DensityMatrix(prep_circ))))
+        if circuit_clbits is None:
+            component_probs = [1]
+            components = [qi.DensityMatrix(np.diag(prep_state.probabilities()))]
+        elif circuit_clbits is True or len(circuit_clbits) == 2:
+            component_probs = prep_state.probabilities()
+            components = [qi.DensityMatrix.from_label(i) for i in ["00", "01", "10", "11"]]
+        else:
+            component_probs = prep_state.probabilities(circuit_clbits)
+            components = [
+                prep_state.evolve(qi.DensityMatrix.from_label(str(i)), circuit_clbits) / p
+                for i, p in enumerate(component_probs)
+            ]
+
+        # Add measurements
+        circ = prep_circ.copy()
+        circ.measure_all()
+
+        # Run experiment
+        backend = AerSimulator(seed_simulator=7172)
+        exp = StateTomography(
+            circ,
+            backend=backend,
+            conditional_circuit_clbits=circuit_clbits,
+        )
+        expdata = exp.run(shots=2000, analysis=None)
+        self.assertExperimentDone(expdata)
+
+        for fitter in FITTERS:
+            with self.subTest(fitter=fitter):
+                if fitter:
+                    exp.analysis.set_options(fitter=fitter)
+                fitdata = exp.analysis.run(expdata)
+                states = fitdata.analysis_results("state")
+                if circuit_clbits is None:
+                    states = [states]
+                self.assertEqual(len(states), num_components)
+                for state in states:
+                    idx = state.extra.get("conditional_circuit_outcome", 0)
+                    prob = state.extra["conditional_probability"]
+                    fid = qi.state_fidelity(state.value, components[idx])
+                    self.assertGreater(
+                        fid,
+                        0.95,
+                        msg=f"fitter {fitter} fidelity is low for conditional outcome {idx}",
+                    )
+                    self.assertLess(
+                        abs(prob - component_probs[idx]),
+                        1e-2,
+                        msg=f"fitter {fitter} probability is incorrect for conditional outcome {idx}",
+                    )
+
+    @ddt.data([0], [1], [0, 1])
+    def test_qst_conditional_zeros_circuit(self, circuit_clbits):
+        """Test subset state tomography generation"""
+        # Preparation circuit
+        circ = QuantumCircuit(2)
+        circ.measure_all()
+
+        # Run experiment
+        backend = AerSimulator(seed_simulator=7172)
+        exp = StateTomography(
+            circ,
+            backend=backend,
+            conditional_circuit_clbits=circuit_clbits,
+        )
+        expdata = exp.run(shots=2000, analysis=None)
+        self.assertExperimentDone(expdata)
+
+        for fitter in FITTERS:
+            with self.subTest(fitter=fitter):
+                if fitter:
+                    exp.analysis.set_options(fitter=fitter)
+                fitdata = exp.analysis.run(expdata)
+                states = fitdata.analysis_results("state")
+                if circuit_clbits is None:
+                    states = [states]
+                self.assertEqual(len(states), 2 ** len(circuit_clbits))
+                for state in states:
+                    idx = state.extra.get("conditional_circuit_outcome", 0)
+                    prob = state.extra["conditional_probability"]
+                    if idx == 0:
+                        self.assertTrue(
+                            np.isclose(prob, 1, atol=1e-3),
+                            msg=f"fitter {fitter} probability incorrect for component"
+                            f" {idx} ({prob} != 1)",
+                        )
+                        fid = qi.state_fidelity(
+                            state.value, qi.Statevector.from_label("0" * state.value.num_qubits)
+                        )
+                        self.assertGreater(
+                            fid, 0.99, msg=f"fitter {fitter} fidelity is low for component {idx}"
+                        )
+                    else:
+                        self.assertTrue(
+                            np.isclose(prob, 0, atol=1e-3),
+                            msg=f"fitter {fitter} probability incorrect for component"
+                            f" {idx} ({prob} != 0)",
+                        )
+
+    @ddt.data(None, [0], [1], [0, 1])
+    def test_qst_conditional_measurement(self, conditional_indices):
+        """Test subset state tomography generation"""
+        # Preparation circuit
+        circ = QuantumCircuit(2)
+        circ.ry(np.pi / 3, 0)
+        circ.ry(-np.pi / 4, 1)
+        circ_target = qi.DensityMatrix(circ)
+
+        # Run experiment
+        backend = AerSimulator(seed_simulator=7172)
+        exp = StateTomography(circ, backend=backend)
+        expdata = exp.run(shots=5000, analysis=None)
+        self.assertExperimentDone(expdata)
+
+        for fitter in FITTERS:
+            with self.subTest(fitter=fitter):
+                exp.analysis.set_options(conditional_measurement_indices=conditional_indices)
+                if fitter:
+                    exp.analysis.set_options(fitter=fitter)
+                mbasis = exp.analysis.options.measurement_basis
+                fitdata = exp.analysis.run(expdata)
+                states = fitdata.analysis_results("state")
+                if conditional_indices is None:
+                    states = [states]
+                for state in states:
+                    prob = state.extra["conditional_probability"]
+                    index = state.extra.get("conditional_measurement_index")
+                    outcome = state.extra.get("conditional_measurement_outcome")
+                    if index:
+                        outcome_proj = qi.Operator(
+                            mbasis.matrix(index, outcome, conditional_indices)
+                        )
+                        proj = qi.partial_trace(
+                            circ_target.evolve(outcome_proj, conditional_indices),
+                            conditional_indices,
+                        )
+                        target_prob = np.trace(proj).real
+                        target_state = proj / target_prob
+                    else:
+                        target_prob = 1
+                        target_state = circ_target
+                    fid = qi.state_fidelity(state.value, target_state)
+                    self.assertGreater(
+                        fid,
+                        0.94,
+                        msg=f"fitter {fitter} fidelity is low for conditional measurement"
+                        f" {index}, {outcome}",
+                    )
+                    self.assertLess(
+                        abs(prob - target_prob),
+                        2e-2,
+                        msg=f"fitter {fitter} probability is incorrect for conditional"
+                        f" outcome {index}, {outcome}",
+                    )
