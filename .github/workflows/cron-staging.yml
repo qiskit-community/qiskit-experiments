@@ -2,6 +2,8 @@ name: Cron-staging
 on:
   schedule:
     - cron: "0 4 * * *"
+  workflow_dispatch:
+
 jobs:
   experiment-integration:
     name: experiment-integration
@@ -24,3 +26,42 @@ jobs:
         run: python -m pip install -U tox setuptools virtualenv wheel
       - name: Run Tests
         run: tox -epy38 -- -n test/database_service/test_experiment_data_integration.py
+  terra-main-tests:
+    name: tests-python${{ matrix.python-version }}-${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        python-version: [3.7, 3.8, 3.9, "3.10", "3.11"]
+        os: ["ubuntu-latest", "macOS-latest", "windows-latest"]
+    steps:
+      - name: Print Concurrency Group
+        env:
+          CONCURRENCY_GROUP: ${{ github.repository }}-${{ github.ref }}-${{ github.head_ref }}
+        run: |
+          echo -e "\033[31;1;4mConcurrency Group\033[0m"
+          echo -e "$CONCURRENCY_GROUP\n"
+        shell: bash
+      - uses: actions/checkout@v3
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Pip cache
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-${{ matrix.python-version }}-pip-tests-${{ hashFiles('setup.py','requirements.txt','requirements-dev.txt','constraints.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-${{ matrix.python-version }}-pip-tests-
+            ${{ runner.os }}-${{ matrix.python-version }}-pip-
+            ${{ runner.os }}-${{ matrix.python-version }}
+      - name: Install Deps
+        run: python -m pip install -U tox setuptools virtualenv wheel
+      - name: Install and Run Tests
+        run: tox -e terra-main
+        if: runner.os != 'macOS'
+      - name: Install and Run Tests
+        run: tox -e terra-main
+        if: runner.os == 'macOS'
+        env:
+          OMP_NUM_THREADS: 1
