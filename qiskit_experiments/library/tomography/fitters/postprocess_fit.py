@@ -85,14 +85,14 @@ def postprocess_fitter(
         fit_traces.append(fit_trace)
         if (
             trace is not None
-            and not np.isclose(fit_trace, 0, atol=1e-10)
+            and not np.isclose(abs(fit_trace), 0, atol=1e-10)
             and not np.isclose(abs(fit_trace - trace), 0, atol=1e-10)
         ):
-            scale = trace / fit_trace
-            fit = fit * scale
-            eigvals = eigvals * scale
+            scaled_trace = trace / fit_trace
+            fit = fit * scaled_trace
+            eigvals = eigvals * scaled_trace
         else:
-            trace = fit_trace
+            scaled_trace = fit_trace
 
         # Convert class of value
         if qpt:
@@ -101,7 +101,7 @@ def postprocess_fitter(
             state = DensityMatrix(fit, dims=output_dims)
 
         metadata = {
-            "trace": trace,
+            "trace": scaled_trace,
             "eigvals": eigvals,
             "eigvecs": eigvecs,
             "raw_eigvals": raw_eigvals,
