@@ -322,7 +322,12 @@ class BaseExperiment(ABC, StoreInitArgs):
 
     @classmethod
     def _default_experiment_options(cls) -> Options:
-        """Default kwarg options for experiment"""
+        """Default experiment options.
+
+        Experiment Options:
+            max_circuits (Optional[int]): The maximum number of circuits per job when
+                running an experiment on a backend.
+        """
         # Experiment subclasses should override this method to return
         # an `Options` object containing all the supported options for
         # that experiment and their default values. Only options listed
