@@ -10,7 +10,7 @@ Qiskit following its :external+qiskit:doc:`installation guide <getting_started>`
 Qiskit Experiments supports the same platforms and Python versions (currently 3.7+) as 
 Qiskit itself.
 
-Qiskit Experiments releases can be installed via the python package manager 
+Qiskit Experiments releases can be installed via the Python package manager 
 ``pip``:
 
 .. code-block:: console

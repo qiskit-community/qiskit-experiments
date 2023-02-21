@@ -93,7 +93,7 @@ channel indices. A channel must have a name that starts with ``ch`` followed by 
 For control channels, this integer can be followed by a sequence ``.integer``.
 Optionally, the name can end with ``$integer`` to specify the index of a control channel
 for the case when a set of qubits share multiple control channels. For example,
-valid channel names include ``"ch0"``, ``"ch1"``, ``"ch0.1"``, ``"ch0$"``, ``"ch2$3"``, 
+valid channel names include ``"ch0"``, ``"ch1"``, ``"ch0.1"``, ``"ch0$"``, ``"ch2$3"``,
 and ``"ch1.0.3$2"``.
 The ``.`` delimiter is used to specify the different qubits when looking for control
 channels. The optional $ delimiter is used to specify which control channel to use
