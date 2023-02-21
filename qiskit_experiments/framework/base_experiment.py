@@ -268,8 +268,17 @@ class BaseExperiment(ABC, StoreInitArgs):
 
     def _run_jobs(self, circuits: List[QuantumCircuit], **run_options) -> List[Job]:
         """Run circuits on backend as 1 or more jobs."""
+        # Get max circuits for job splitting
+        max_circuits_option = getattr(self.experiment_options, "max_circuits", None)
+        max_circuits_backend = self._backend_data.max_circuits
+        if max_circuits_option and max_circuits_backend:
+            max_circuits = min(max_circuits_option, max_circuits_backend)
+        elif max_circuits_option:
+            max_circuits = max_circuits_option
+        else:
+            max_circuits = max_circuits_backend
+
         # Run experiment jobs
-        max_circuits = self._backend_data.max_circuits
         if max_circuits and len(circuits) > max_circuits:
             # Split jobs for backends that have a maximum job size
             job_circuits = [
@@ -319,7 +328,7 @@ class BaseExperiment(ABC, StoreInitArgs):
         # that experiment and their default values. Only options listed
         # here can be modified later by the different methods for
         # setting options.
-        return Options()
+        return Options(max_circuits=None)
 
     @property
     def experiment_options(self) -> Options:
