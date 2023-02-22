@@ -13,6 +13,8 @@
 """
 Test T2Ramsey experiment
 """
+from test.base import QiskitExperimentsTestCase
+
 import numpy as np
 from ddt import ddt, named_data
 
@@ -23,8 +25,6 @@ from qiskit_experiments.framework import ParallelExperiment
 from qiskit_experiments.library import T2Ramsey
 from qiskit_experiments.library.characterization import T2RamseyAnalysis
 from qiskit_experiments.test.noisy_delay_aer_simulator import NoisyDelayAerBackend
-
-from test.base import QiskitExperimentsTestCase
 
 
 @ddt

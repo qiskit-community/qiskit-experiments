@@ -13,6 +13,8 @@
 Test T2Hahn experiment
 """
 
+from test.base import QiskitExperimentsTestCase
+
 import numpy as np
 from ddt import ddt, data, named_data, unpack
 
@@ -23,8 +25,6 @@ from qiskit_experiments.framework import ParallelExperiment
 from qiskit_experiments.library.characterization.t2hahn import T2Hahn
 from qiskit_experiments.library.characterization import T2HahnAnalysis
 from qiskit_experiments.test.t2hahn_backend import T2HahnBackend
-
-from test.base import QiskitExperimentsTestCase
 
 
 @ddt
