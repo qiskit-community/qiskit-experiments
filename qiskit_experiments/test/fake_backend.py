@@ -26,23 +26,24 @@ class FakeBackend(BackendV1):
     Fake backend for test purposes only.
     """
 
-    def __init__(self, max_experiments=None):
-        configuration = QasmBackendConfiguration(
-            backend_name="fake_backend",
-            backend_version="0",
-            n_qubits=int(1e6),
-            basis_gates=[],
-            gates=[],
-            local=True,
-            simulator=True,
-            conditional=False,
-            open_pulse=False,
-            memory=False,
-            max_shots=int(1e6),
-            max_experiments=max_experiments,
-            coupling_map=None,
-        )
-        super().__init__(configuration)
+    def __init__(self, **config):
+        default_config = {
+            "backend_name": "fake_backend",
+            "backend_version": "0",
+            "n_qubits": int(1e6),
+            "basis_gates": [],
+            "gates": [],
+            "local": True,
+            "simulator": True,
+            "conditional": False,
+            "open_pulse": False,
+            "memory": False,
+            "max_shots": int(1e6),
+            "max_experiments": None,
+            "coupling_map": None,
+        }
+        default_config.update(**config)
+        super().__init__(QasmBackendConfiguration(**default_config))
 
     @classmethod
     def _default_options(cls):
