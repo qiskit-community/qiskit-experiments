@@ -168,7 +168,9 @@ class T2Hahn(BaseExperiment):
                 single_delay = timing.delay_time(time=delay / num_echoes / 2)
                 total_delay = single_delay * num_echoes * 2
 
-            assigned = template.assign_parameters({delay_param: single_delay}, inplace=False)
+            assigned = template.assign_parameters(
+                {delay_param: timing.round_delay(time=single_delay)}, inplace=False
+            )
             assigned.metadata["xval"] = total_delay
             circuits.append(assigned)
 
