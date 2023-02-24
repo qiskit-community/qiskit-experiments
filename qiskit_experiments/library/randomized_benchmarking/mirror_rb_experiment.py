@@ -12,9 +12,12 @@
 """
 Mirror RB Experiment class.
 """
+import warnings
 from abc import ABC, abstractmethod
 from typing import Union, Iterable, Optional, List, Sequence
 from itertools import permutations
+from numbers import Integral
+
 from numpy.random import Generator, BitGenerator, SeedSequence, default_rng
 
 from qiskit import QuantumCircuit, QiskitError
@@ -22,11 +25,14 @@ from qiskit.circuit import Instruction
 from qiskit.quantum_info import Clifford, random_pauli, random_clifford
 from qiskit.quantum_info.operators import Pauli
 from qiskit.providers.backend import Backend
+from qiskit.providers.options import Options
 from qiskit.transpiler.basepasses import TransformationPass
 
 from .rb_experiment import StandardRB
 from .mirror_rb_analysis import MirrorRBAnalysis
 from .clifford_utils import CliffordUtils
+
+SequenceElementType = Union[Clifford, Integral, QuantumCircuit]
 
 
 class MirrorRBDistribution(ABC):
@@ -41,24 +47,104 @@ class MirrorRBDistribution(ABC):
 
 
 class RandomEdgeGrabDistribution(MirrorRBDistribution):
-    def __init__(self):
+    """The edge grab algorithm for sampling one- and two-qubit layers.
+
+    # section: overview
+
+
+
+    # section: reference
+        .. ref_arxiv:: 1 2008.11294
+
+    """
+
+    def __init__(self, seed=None):
         super().__init__(seed)
 
-    def __call__(self, qubits, two_qubit_density, coupling_map, seed=None):
-        self.two_qubit_density = two_qubit_density
+    def __call__(self, qubits, two_qubit_gate_density, coupling_map, length, seed=None):
+        """Sample layers using the ege grab algorithm.
+
+        Args:
+            qubits: The number of qubits in the circuit.
+            two_qubit_gate_density: :math:`1/2` times the expected fraction
+                of qubits with CX gates.
+            coupling_map: List of pairs of connected edges between qubits.
+            length: The length of the sequence to output.
+            seed: Seed for random generation.
+
+        Raises:
+            Warning: If device has no connectivity or two_qubit_gate_density is too high
+
+        Returns:
+            List of QuantumCircuits
+
+        """
+        self.two_qubit_density = two_qubit_gate_density
         self.coupling_map = coupling_map
 
-        ...
+        num_qubits = len(qubits)
 
+        if num_qubits == 1:
+            return rng.integers(CliffordUtils.NUM_CLIFFORD_1_QUBIT, size=length)
 
-class DiscreteLayerDistribution(MirrorRBDistribution):
-    def __init__(self):
-        super().__init__(qubits, seed)
+        if rng is None:
+            rng = default_rng(seed=seed)
 
-    def __call__(self, qubits, layers, probs=None, seed=None):
-        self.layers = list(layers)
-        self.probs = probs or [1 / len(layers)] * len(layers)
-        return rng.choice(self.layers, self.prob)
+        if isinstance(rng, int):
+            rng = default_rng(rng)
+
+        qc_list = []
+        for _ in list(range(size)):
+            all_edges = coupling_map[:]  # make copy of coupling map from which we pop edges
+            selected_edges = []
+            while all_edges:
+                rand_edge = all_edges.pop(rng.integers(len(all_edges)))
+                selected_edges.append(
+                    rand_edge
+                )  # move random edge from all_edges to selected_edges
+                old_all_edges = all_edges[:]
+                all_edges = []
+                # only keep edges in all_edges that do not share a vertex with rand_edge
+                for edge in old_all_edges:
+                    if rand_edge[0] not in edge and rand_edge[1] not in edge:
+                        all_edges.append(edge)
+
+            qr = QuantumRegister(num_qubits)
+            qc = QuantumCircuit(qr)
+            two_qubit_prob = 0
+            try:
+                two_qubit_prob = num_qubits * two_qubit_gate_density / len(selected_edges)
+            except ZeroDivisionError:
+                warnings.warn(
+                    "Device has no connectivity. All cliffords will be single-qubit Cliffords"
+                )
+            if two_qubit_prob > 1:
+                warnings.warn(
+                    "Mean number of two-qubit gates is higher than number of selected edges for CNOTs. "
+                    + "Actual density of two-qubit gates will likely be lower than input density"
+                )
+            selected_edges_logical = [
+                [np.where(q == np.asarray(qubits))[0][0] for q in edge] for edge in selected_edges
+            ]
+            # selected_edges_logical is selected_edges with logical qubit labels rather than physical
+            # ones. Example: qubits = (8,4,5,3,7), selected_edges = [[4,8],[7,5]]
+            # ==> selected_edges_logical = [[1,0],[4,2]]
+            put_1_qubit_clifford = np.arange(num_qubits)
+            # put_1_qubit_clifford is a list of qubits that aren't assigned to a 2-qubit Clifford
+            # 1-qubit Clifford will be assigned to these edges
+            for edge in selected_edges_logical:
+                if rng.random() < two_qubit_prob:
+                    # with probability two_qubit_prob, place CNOT on edge in selected_edges
+                    qc.cx(edge[0], edge[1])
+                    # remove these qubits from put_1_qubit_clifford
+                    put_1_qubit_clifford = np.setdiff1d(put_1_qubit_clifford, edge)
+            for q in put_1_qubit_clifford:
+                clifford1q = self.clifford_1_qubit_circuit(rng.integers(24))
+                insts = [datum[0] for datum in clifford1q.data]
+                for inst in insts:
+                    qc.compose(inst, [q], inplace=True)
+            qc_list.append(qc)
+        return qc_list
 
 
 class MirrorRB(StandardRB):
@@ -66,8 +152,7 @@ class MirrorRB(StandardRB):
 
     # section: overview
         Mirror Randomized Benchmarking (RB) is a method to estimate the average
-        error-rate of quantum gates that is more scalable than other RB methods
-        and can thus detect crosstalk errors.
+        error-rate of quantum gates that is more scalable than the standard RB methods.
 
         A mirror RB experiment generates circuits of layers of Cliffords interleaved
         with layers of Pauli gates and capped at the start and end by a layer of
@@ -92,8 +177,9 @@ class MirrorRB(StandardRB):
 
     def __init__(
         self,
-        qubits: Sequence[int],
+        physical_qubits: Sequence[int],
         lengths: Iterable[int],
+        distribution: MirrorRBDistribution,
         local_clifford: bool = True,
         pauli_randomize: bool = True,
         two_qubit_gate_density: float = 0.2,
@@ -106,8 +192,9 @@ class MirrorRB(StandardRB):
         """Initialize a mirror randomized benchmarking experiment.
 
         Args:
-            qubits: A list of physical qubits for the experiment.
+            physical_qubits: A list of physical qubits for the experiment.
             lengths: A list of RB sequences lengths.
+            distribution: The probability distribution over the layer set to sample.
             local_clifford: If True, begin the circuit with uniformly random 1-qubit
                             Cliffords and end the circuit with their inverses.
             pauli_randomize: If True, surround each inner Clifford layer with
@@ -140,7 +227,7 @@ class MirrorRB(StandardRB):
             raise QiskitError("Two-qubit gate density must be non-negative")
 
         super().__init__(
-            qubits,
+            physical_qubits,
             lengths,
             backend=backend,
             num_samples=num_samples,
@@ -152,15 +239,78 @@ class MirrorRB(StandardRB):
         self._pauli_randomize = pauli_randomize
         self._two_qubit_gate_density = two_qubit_gate_density
 
-        # Will need to update these 2 lines below to fit with current rb experiment code
         self._full_sampling = full_sampling
         self._clifford_utils = CliffordUtils()
+        self._distribution = distribution
 
         # By default, the inverting Pauli layer at the end of the circuit is not added
         self._inverting_pauli_layer = inverting_pauli_layer
 
         # Set analysis options
         self.analysis = MirrorRBAnalysis()
+
+    @classmethod
+    def _default_experiment_options(cls) -> Options:
+        """Default experiment options.
+
+        Experiment Options:
+            lengths (List[int]): A list of RB sequences lengths.
+            num_samples (int): Number of samples to generate for each sequence length.
+            seed (None or int or SeedSequence or BitGenerator or Generator): A seed
+                used to initialize ``numpy.random.default_rng`` when generating circuits.
+                The ``default_rng`` will be initialized with this seed value everytime
+                :meth:`circuits` is called.
+        """
+        options = super()._default_experiment_options()
+        options.update_options(
+            distribution=None,
+            num_samples=None,
+            seed=None,
+            full_sampling=None,
+        )
+
+        return options
+
+    def circuits(self) -> List[QuantumCircuit]:
+        """Return a list of Mirror RB circuits.
+
+        Returns:
+            A list of :class:`QuantumCircuit`.
+        """
+        sequences = self._sample_sequences()
+        circuits = self._sequences_to_circuits(sequences)
+
+        for circ, seq in zip(circuits, sequences):
+            circ.metadata = {
+                "experiment_type": self._type,
+                "xval": len(seq),
+                "group": "Clifford",
+                "physical_qubits": self.physical_qubits,
+                "target": self._clifford_utils.compute_target_bitstring(circ),
+                "inverting_pauli_layer": self._inverting_pauli_layer,
+            }
+        return circuits
+
+    def _sample_sequences(self) -> List[Sequence[SequenceElementType]]:
+        """Sample mirror RB sequences using the provided distribution.
+
+        Returns:
+            A list of mirror RB sequences.
+        """
+
+        rng = default_rng(seed=self.experiment_options.seed)
+        sequences = []
+        if self.experiment_options.full_sampling:
+            for _ in range(self.experiment_options.num_samples):
+                for length in self.experiment_options.lengths:
+                    sequences.append(self._distribution(length, rng))
+        else:
+            for _ in range(self.experiment_options.num_samples):
+                longest_seq = self.__sample_sequence(max(self.experiment_options.lengths), rng)
+                for length in self.experiment_options.lengths:
+                    sequences.append(longest_seq[:length])
+
+        return sequences
 
     def _sample_circuits(self, lengths, rng) -> List[QuantumCircuit]:
         """Sample Mirror RB circuits.

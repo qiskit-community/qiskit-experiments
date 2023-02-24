@@ -675,19 +675,6 @@ def _layer_indices_from_num(num: Integral) -> Tuple[Integral, Integral, Integral
     idx0 = num // _NUM_LAYER_1
     return idx0, idx1, idx2
 
-    def _unpack_num_multi_sigs(self, num, sigs):
-        """Returns the result of `_unpack_num` on one of the
-        signatures in `sigs`
-        """
-        for i, sig in enumerate(sigs):
-            sig_size = 1
-            for k in sig:
-                sig_size *= k
-            if num < sig_size:
-                return [i] + self._unpack_num(num, sig)
-            num -= sig_size
-        return None
-
 
 # Constant mapping from 1Q single Clifford gate to 1Q Clifford numerical identifier.
 # This table must be generated using `data.generate_clifford_data.gen_cliff_single_1q_gate_map`, or,
@@ -974,3 +961,20 @@ def _layer_indices_from_num(num: Integral) -> Tuple[Integral, Integral, Integral
     idx1 = num % _NUM_LAYER_1
     idx0 = num // _NUM_LAYER_1
     return idx0, idx1, idx2
+
+
+def compute_target_bitstring(self, circuit: QuantumCircuit) -> str:
+    """For a Clifford circuit C, compute C|0>.
+    Args:
+        circuit: A Clifford QuantumCircuit
+    Returns:
+        Target bit string
+    """
+
+    # convert circuit to Boolean phase vector of stabilizer table
+    phase_vector = Clifford(circuit).table.phase
+    n = circuit.num_qubits
+
+    # target string has a 1 for each True in the stabilizer half of the phase vector
+    target = "".join(["1" if phase else "0" for phase in phase_vector[n:][::-1]])
+    return target

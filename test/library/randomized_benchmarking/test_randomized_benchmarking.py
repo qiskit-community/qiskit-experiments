@@ -546,6 +546,24 @@ class TestRunStandardRB(RBRunTestCase):
         epc_expected = 1 - (1 - 1 / 2 * self.p1q) ** 1.0
         self.assertAlmostEqual(epc.value.n, epc_expected, delta=0.1 * epc_expected)
 
+    def test_custom_distribution(self):
+        """Test providing a custom distribution."""
+        qubits = (
+            0,
+            1,
+            2,
+        )
+        exp = rb.MirrorRB(
+            physical_qubits=qubits,
+            distribution=rb.RandomEdgeGrabDistribution,
+            two_qubit_gate_density=0.5,
+            lengths=list(range(2, 300, 20)),
+            seed=124,
+            backend=self.backend,
+            num_samples=30,
+        )
+        # test that feeding the circuit from edge grab into discrete yields the same answer(?)
+
     def test_two_qubit(self):
         """Test two qubit RB. Use default basis gates."""
         exp = rb.StandardRB(
