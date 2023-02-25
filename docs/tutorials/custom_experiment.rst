@@ -1,8 +1,13 @@
 Writing a custom experiment
 ===========================
 
-Qiskit Experiments is designed to be easily customizable. To create an experiment subclass
-based on either the :class:`.BaseExperiment` class or an existing experiment, you should:
+Qiskit Experiments is designed to be easily customizable. If you would like to 
+run an experiment that's similar to an existing experiment in the 
+:doc:`library <apidocs/library>`, you can subclass the existing experiment and analysis
+classes. You can also write your own experiment class from the ground up by subclassing
+the :class:`.BaseExperiment` class. We will discuss both cases in this tutorial.
+
+In general, to subclass :class:`.BaseExperiment` class, you should:
 
 - Implement the abstract :meth:`.BaseExperiment.circuits` method.
   This should return a list of :class:`~qiskit.QuantumCircuit` objects defining
@@ -39,8 +44,7 @@ Optionally, to allow configuring experiment and execution options, you can overr
 Furthermore, some characterization and calibration experiments can be run with restless
 measurements, i.e. measurements where the qubits are not reset and circuits are executed
 immediately after the previous measurement. Here, the :class:`.RestlessMixin` class
-can help
-to set the appropriate run options and data processing chain.
+can help to set the appropriate run options and data processing chain.
 
 Analysis Subclasses
 -------------------
@@ -69,15 +73,21 @@ Experiments library.
 The FineAmplitude Experiment
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The ``FineAmplitude`` calibration experiment optimizes gate amplitude by repeating the 
+The :class:`.FineAmplitude` experiment optimizes gate amplitude by repeating the 
 gate pulse N times, hence amplifying the under- or over-rotations.
 This experiment can be performed for a variety of rotations, and subclasses are 
-provided for the :math:`\pi` and :math:`\frac{\pi}{2}` rotations as ``FineXAmplitude`` and ``FineSXAmplitude`` respectively.
-These provided subclasses focus on the 0 <-> 1 transition, however, this experiment can also be performed for higher order transitions.
+provided for the :math:`\pi` and :math:`\frac{\pi}{2}` rotations as 
+:class:`.FineXAmplitude`` and :class:`.FineSXAmplitude`` respectively. These provided subclasses 
+focus on the 0 <-> 1 transition, but this experiment can also be performed 
+for higher order transitions.
 
 Our objective is to create a new class, ``HigherOrderFineXAmplitude``, which calibrates 
-schedules on transitions other than the 0 <-> 1 transition for the :math:`\pi` rotation.
-In order to do this, we need to create a subclass as shown below.
+schedules on the 1 <-> 2 transition for the :math:`\pi` rotation. To do this, we need to
+excite the qubit to the :math:`|1\rangle` state and then execute the Usually we would need
+to override the :meth:`~.BaseExperiment.circuits` method, but :class:`.FineAmplitude` 
+generates the preparation circuit generation in a separate method, 
+:meth:`~.FineAmplitude._pre_circuit`, which is combined with the main circuit in 
+:meth:`~.BaseExperiment.circuits`. Therefore, we only need to 
 
 .. code-block::
    
@@ -127,6 +137,53 @@ You can try this for yourself and verify that your results are similar.
 
 Writing a new experiment
 ------------------------
+
+Based on the information so far, here is a barebones template to help you get started
+with customization:
+
+.. code-block:: python
+
+    class CustomExperiment(BaseExperiment):
+        """Custom experiment class template."""
+
+        def __init__(self, qubits=None):
+            """Initialize the experiment."""
+            if qubits is None:
+                qubits = [0]
+            super().__init__(qubits, analysis=FakeAnalysis())
+
+        def circuits(self):
+            """Generate the list of circuits to be run."""
+            return []
+
+        @classmethod
+        def _default_experiment_options(cls) -> Options:
+            """Update default experiment options here."""
+            options = super()._default_experiment_options()
+            options.update_options(
+                dummy_option=None,
+            )
+            return options
+
+And the corresponding analysis class template:
+
+.. code-block:: python
+
+    class CustomAnalysis(BaseAnalysis):
+        """Custom analysis class template."""
+
+        def __init__(self, **kwargs):
+            super().__init__()
+            self._kwargs = kwargs
+
+        def _run_analysis(self, experiment_data, **options):
+            seed = options.get("seed", None)
+            rng = np.random.default_rng(seed=seed)
+            analysis_results = [
+                AnalysisResultData(f"result_{i}", value) for i, value in enumerate(rng.random(3))
+            ]
+            return analysis_results, None
+
 
 Now we'll use what we've learned so far to make an entirely new experiment using
 the :class:`.BaseExperiment` template.

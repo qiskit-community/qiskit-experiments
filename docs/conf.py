@@ -101,9 +101,7 @@ autosummary_generate = True
 # Autodoc
 # -----------------------------------------------------------------------------
 
-autodoc_default_options = {
-    "inherited-members": None,
-}
+autodoc_default_options = {"inherited-members": None, "private-members": True}
 
 
 # If true, figures, tables and code-blocks are automatically numbered if they
@@ -182,7 +180,6 @@ if not os.getenv("EXPERIMENTS_DEV_DOCS", None):
     rst_prolog = """
 .. raw:: html
 
-    <br><br><br>
 """.format(
         release
     )

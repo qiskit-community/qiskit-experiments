@@ -72,13 +72,12 @@ class FineAmplitude(BaseExperiment, RestlessMixin):
             amp_cal = FineAmplitude([qubit], SXGate())
             amp_cal.set_experiment_options(
                 angle_per_gate=np.pi/2,
-                add_xp_circuit=False,
-                add_sx=False
+                phase_offset=np.pi
             )
             amp_cal.run(backend)
 
         Note that there are subclasses of :class:`FineAmplitude` such as :class:`FineSXAmplitude`
-        that set the appropriate options by default.
+        that set the appropriate options for specific gates by default.
 
     # section: analysis_ref
         :class:`FineAmplitudeAnalysis`

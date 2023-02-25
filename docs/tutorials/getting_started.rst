@@ -97,6 +97,9 @@ draw the first and last circuits for our T1 experiment:
 
 As expected, the delay block spans the full range of time values that we specified.
 
+The ExperimentData class
+========================
+
 After instantiating the experiment, we run the experiment by calling :meth:`~.BaseExperiment.run` with our specified backend.
 This returns the :class:`.ExperimentData` class containing the results of the experiment,
 so it's crucial that we assign the output to a data variable. We could have also provided the backend
@@ -156,6 +159,9 @@ and the :meth:`~.ExperimentData.metadata` property:
 
     print(exp_data.data(0)['counts'])
     print(exp_data.metadata)
+
+The actual backend jobs that were executed for the experiment can be accessed with the
+:meth:`~.ExperimentData.jobs` method.
 
 Setting experiment options
 ==========================
