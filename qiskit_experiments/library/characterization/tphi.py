@@ -49,7 +49,7 @@ class Tphi(BatchExperiment):
         .. ref_arxiv:: 1 1904.06560v5
 
     # section: tutorial
-        :doc:`/tutorials/tphi_characterization`
+        :doc:`/guides/tphi_characterization`
     """
 
     def set_experiment_options(self, **fields):

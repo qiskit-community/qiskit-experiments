@@ -42,13 +42,13 @@ Experiments for verification and validation of quantum devices.
     ~tomography.MitigatedProcessTomography
     ~quantum_volume.QuantumVolume
 
-.. _characterization:
+.. _characterization single qubit:
 
-Characterization Experiments
-============================
+Characterization Experiments: Single Qubit
+==========================================
 
-Experiments for characterization of qubits and quantum device properties.
-Some experiments may be also used for gate calibration.
+Experiments for characterization of properties of individual qubits.
+Some experiments also have a calibration experiment version.
 
 .. autosummary::
     :toctree: ../stubs/
@@ -60,12 +60,6 @@ Some experiments may be also used for gate calibration.
     ~characterization.Tphi
     ~characterization.QubitSpectroscopy
     ~characterization.EFSpectroscopy
-    ~characterization.CrossResonanceHamiltonian
-    ~characterization.EchoedCrossResonanceHamiltonian
-    ~characterization.RoughDrag
-    ~characterization.FineDrag
-    ~characterization.FineXDrag
-    ~characterization.FineSXDrag
     ~characterization.HalfAngle
     ~characterization.FineAmplitude
     ~characterization.FineXAmplitude
@@ -76,12 +70,54 @@ Some experiments may be also used for gate calibration.
     ~characterization.RamseyXY
     ~characterization.FineFrequency
     ~characterization.ReadoutAngle
-    ~characterization.LocalReadoutError
-    ~characterization.CorrelatedReadoutError
     ~characterization.ResonatorSpectroscopy
-    ~characterization.ZZRamsey
     ~characterization.MultiStateDiscrimination
 
+.. _characterization two qubits:
+
+Characterization Experiments: Two Qubits
+========================================
+
+Experiments for characterization of properties of two qubit interactions.
+
+.. autosummary::
+    :toctree: ../stubs/
+    :template: autosummary/experiment.rst
+
+    ~characterization.CrossResonanceHamiltonian
+    ~characterization.EchoedCrossResonanceHamiltonian
+    ~characterization.ZZRamsey
+
+.. _characterization pulse gates:
+
+Characterization Experiments: Pulse Gates
+=========================================
+
+Experiments for characterization of pulse gates.
+Some experiments also have a calibration experiment version.
+
+.. autosummary::
+    :toctree: ../stubs/
+    :template: autosummary/experiment.rst
+
+    ~characterization.RoughDrag
+    ~characterization.FineDrag
+    ~characterization.FineXDrag
+    ~characterization.FineSXDrag
+
+.. _characterization-mitigation:
+
+Characterization Experiments: Mitigation
+========================================
+
+Experiments for characterizing and mitigating readout error.
+
+.. autosummary::
+    :toctree: ../stubs/
+    :template: autosummary/experiment.rst
+
+    ~characterization.LocalReadoutError
+    ~characterization.CorrelatedReadoutError
 
 .. _calibration:
 

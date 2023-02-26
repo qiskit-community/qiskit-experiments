@@ -32,6 +32,10 @@ class RoughDragCal(BaseCalibrationExperiment, RoughDrag):
 
     # section: see_also
         :class:`.RoughDrag`
+
+    # section: tutorial
+        :ref:`DRAG Calibration`
+
     """
 
     @qubit_deprecate()

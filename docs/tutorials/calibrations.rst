@@ -208,6 +208,7 @@ whether a values is valid or not and the experiment id that produce a value.
 
     pd.DataFrame(**cals.parameters_table(qubit_list=[qubit]))[columns_to_show]
     
+.. _Rabi Calibration:
 
 Calibrating the pulse amplitudes with a Rabi experiment
 -------------------------------------------------------
@@ -293,6 +294,7 @@ By contrast, the value of the parameters will be recovered from the file.
 
     pd.DataFrame(**cals.parameters_table(qubit_list=[qubit, ()], parameters="amp"))[columns_to_show]
 
+.. _DRAG Calibration:
 
 Calibrating the value of the DRAG coefficient
 ---------------------------------------------

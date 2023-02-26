@@ -54,7 +54,7 @@ class T2Ramsey(BaseExperiment):
         The circuits are run on the device or on a simulator backend.
 
     # section: tutorial
-        :doc:`/tutorials/t2ramsey_characterization`
+        :doc:`/guides/t2ramsey_characterization`
 
     # section: analysis_ref
         :class:`T2RamseyAnalysis`

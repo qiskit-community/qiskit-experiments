@@ -11,7 +11,8 @@ Solution
 --------
 
 Use the code template below. You need to know the exact experiment you
-ran and its options, as well as the IDs of the jobs that were executed.
+ran and its options, the IDs of the jobs that were executed. You also need the
+``backend`` object corresponding to the backend that the experiment was run on.
 
 .. code-block:: python
 
@@ -23,7 +24,8 @@ ran and its options, as well as the IDs of the jobs that were executed.
     # List of job IDs for the experiment
     job_ids= [job1, job2, ...]
 
-    data = ExperimentData(job_ids=job_ids)
+    data = ExperimentData(experiment = experiment)
+    data.add_jobs([backend.retrieve_job(job_id) for job_id in job_ids])
     experiment.analysis.run(data)
 
     # Block execution of subsequent code until analysis is complete
@@ -39,13 +41,29 @@ where the jobs may have finished running on the remote backends but the
 :class:`.ExperimentData` class returned upon completion of an experiment does not 
 contain correct results.
 
-There are also times when you may want to rerun the analysis of a previously-run 
-experiment. You can instantiate this new :class:`.ExperimentData` object 
-with different options. Here's an example where we take an existing T1 experiment
-and rerun it with a new analysis:
+You may also want to rerun the analysis of a previously-run experiment with different 
+options when you instantiate this new :class:`.ExperimentData` object.
+Here's a code snippet where we reconstruct a parallel experiment
+consisting of randomized benchmarking experiments, then change the gate error ratio
+as well as the line plot color of the first component experiment.
 
-exp = T1(qubit=0, delays=t1_delays)
-...
+.. code-block:: python
+
+    pexp = ParallelExperiment([
+        StandardRB((i,), np.arange(1, 800, 200), num_samples=10) for i in range(2)])
+
+    pexp.analysis.options.gate_error_ratio = {"x": 10, "sx": 1, "rz": 0}
+
+    pexp.analysis.component_analysis(0).options.gate_error_ratio = {"x": 10, "sx": 1, "rz": 0}
+    pexp.analysis.component_analysis(0).plotter.figure_options.series_params.update(
+        {
+            "rb_decay": {"color": "r"}
+        }
+    )
+
+    data = ExperimentData(experiment=pexp)
+    data.add_jobs([backend_real.retrieve_job(job_id) for job_id in job_ids])
+    pexp.analysis.run(data)
 
 See Also
 --------

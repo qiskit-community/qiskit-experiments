@@ -86,7 +86,7 @@ class FineAmplitude(BaseExperiment, RestlessMixin):
         .. ref_arxiv:: 1 1504.06597
 
     # section: tutorial
-        :doc:`/tutorials/calibrations`
+        :doc:`/guides/calibrations`
 
     """
 
@@ -345,10 +345,10 @@ class FineZXAmplitude(FineAmplitude):
 
     # section: example
 
-        To run this experiment the user will have to provide the instruction schedule
+        To run this experiment, the user will have to provide the instruction schedule
         map in the transpile options that contains the schedule for the experiment.
 
-        ..code-block:: python
+        .. code-block:: python
 
             qubits = (1, 2)
             inst_map = InstructionScheduleMap()

@@ -1,7 +1,7 @@
 Restless Measurements
 =====================
 
-When running circuits the qubits are typically reset to the ground state after
+When running circuits, the qubits are typically reset to the ground state after
 each measurement to ensure that the next circuit has a well-defined initial state.
 This can be done passively by waiting several :math:`T_1`-times so that qubits in
 the excited state decay to :math:`\left\vert0\right\rangle`. Since :math:`T_1`-times
@@ -48,13 +48,13 @@ respectively. This is why restless measurements need special post-processing.
 Enabling restless measurements
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-In Qiskit Experiments the experiments that support restless measurements
+In Qiskit Experiments, the experiments that support restless measurements
 have a special method :meth:`~.RestlessMixin.enable_restless` to set the restless run options 
 and define the data processor that will process the measured data.
 If you are an experiment developer, you can add the :class:`.RestlessMixin`
 to your experiment class to add support for restless measurements.
 Here, we will show how to activate restless measurements using
-a fake backend and a rough Drag experiment. Note however, that you will not
+a fake backend and a rough DRAG experiment. Note however, that you will not
 observe any meaningful outcomes with fake backends since the circuit simulator
 they use always starts with the qubits in the ground state.
 

@@ -136,7 +136,8 @@ that is close to a logical value '0'.
     for result in expdataT1_kerneled.analysis_results():
         print(result)
 
-.. jupyter-execute::
+See also
+--------
 
-    import qiskit.tools.jupyter
-    %qiskit_copyright
+* API documentation: :mod:`~qiskit_experiments.library.t1`
+* Qiskit Textbook: `Randomized Benchmarking <https://learn.qiskit.org/course/quantum-hardware/randomized-benchmarking>`__
