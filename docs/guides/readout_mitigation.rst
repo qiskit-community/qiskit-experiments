@@ -51,7 +51,7 @@ experiments to generate the corresponding mitigators.
 
 .. jupyter-execute::
 
-    SHOTS = 1024
+    shots = 1024
     qubits = [0,1,2,3]
     num_qubits = len(qubits)
 
@@ -108,8 +108,8 @@ Mitigation Example
 
 .. jupyter-execute::
 
-    counts = backend.run(qc, shots=SHOTS, seed_simulator=42, method="density_matrix").result().get_counts()
-    unmitigated_probs = {label: count / SHOTS for label, count in counts.items()}
+    counts = backend.run(qc, shots=shots, seed_simulator=42, method="density_matrix").result().get_counts()
+    unmitigated_probs = {label: count / shots for label, count in counts.items()}
 
 .. jupyter-execute::
 
@@ -136,7 +136,7 @@ Expectation value
     diagonals = [str2diag(d) for d in diagonal_labels]
     qubit_index = {i: i for i in range(num_qubits)}
     unmitigated_probs_vector, _ = counts_probability_vector(unmitigated_probs, qubit_index=qubit_index)
-    unmitigated_expectation = [expval_with_stddev(d, unmitigated_probs_vector, SHOTS) for d in diagonals]
+    unmitigated_expectation = [expval_with_stddev(d, unmitigated_probs_vector, shots) for d in diagonals]
     mitigated_expectation = [mitigator.expectation_value(counts, d) for d in diagonals]
 
 .. jupyter-execute::
@@ -171,7 +171,8 @@ a few qubits.
         print(c)
 
 
-.. jupyter-execute::
+See also
+--------
 
-    import qiskit.tools.jupyter
-    %qiskit_copyright
+* API documentation: :mod:`~qiskit_experiments.library.randomized_benchmarking`
+* Qiskit Textbook: `Randomized Benchmarking <https://learn.qiskit.org/course/quantum-hardware/randomized-benchmarking>`__

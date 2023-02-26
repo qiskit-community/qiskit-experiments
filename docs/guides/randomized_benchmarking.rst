@@ -346,4 +346,3 @@ See also
 
 * API documentation: :mod:`~qiskit_experiments.library.randomized_benchmarking`
 * Qiskit Textbook: `Randomized Benchmarking <https://learn.qiskit.org/course/quantum-hardware/randomized-benchmarking>`__
-

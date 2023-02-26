@@ -25,10 +25,11 @@ from .correlated_readout_error import calibration_circuit
 
 
 class LocalReadoutError(BaseExperiment):
-    r"""Class for local readout error characterization experiment
+    r"""Class for local readout error characterization experiment.
+
     # section: overview
 
-        This class constructs the a :class:`~qiskit.result.LocalReadoutMitigator` containing sequence
+        This class constructs a :class:`~qiskit.result.LocalReadoutMitigator` containing a sequence
         of assignment matrices :math:`A` characterizing the readout error for the given qubits
         from the experiment results. The full assignment matrix is accessible via the
         :meth:`~qiskit.result.LocalReadoutMitigator.assignment_matrix` method.

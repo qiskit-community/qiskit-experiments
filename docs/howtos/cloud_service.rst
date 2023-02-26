@@ -1,5 +1,5 @@
-How to save and load experiment data with the cloud service
-===========================================================
+Save and load experiment data with the cloud service
+====================================================
 
 .. note::
     This recipe is only for those who have access to the cloud service. You can 
@@ -53,9 +53,9 @@ backend to be able to save it. You can save the experiment data by calling ``sav
 Loading
 ~~~~~~~
 
-Let’s load a `previous T1
-experiment <https://quantum-computing.ibm.com/experiments/9640736e-d797-4321-b063-d503f8e98571>`__,
-which we’ve made public by editing the ``Share level`` field:
+Let's load a `previous T1
+experiment <https://quantum-computing.ibm.com/experiments/9640736e-d797-4321-b063-d503f8e98571>`__ 
+(requires login to view), which we've made public by editing the ``Share level`` field:
 
 .. jupyter-execute::
     :hide-output:
@@ -129,9 +129,9 @@ The analysis results have been retrieved as well:
 Discussion
 ----------
 
-Calling ``save()`` before the experiment is complete will
+Calling :meth:`.ExperimentData.save` before the experiment is complete will
 instantiate an experiment entry in the database, but it will not have
-complete data. To fix this, you can call ``save()`` again once the
+complete data. To fix this, you can call :meth:`~.ExperimentData.save` again once the
 experiment is done running.
 
 .. jupyter-execute::
@@ -175,7 +175,7 @@ analysis results, which for the :math:`T_1` experiment is the fitted
 
 .. image:: ./experiment_cloud_service/t1_experiment.png
 
-The metadata field shows experiment metadata included in the ``ExperimentData`` object.
+The metadata field shows experiment metadata included in the :class:`.ExperimentData` object.
 
 .. image:: ./experiment_cloud_service/metadata.png
 
@@ -190,8 +190,8 @@ human to determine whether the result is acceptable.
 Auto-saving an experiment
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The ``auto_save`` feature automatically saves changes to the `ExperimentData` object to 
-the cloud service whenever it's updated.
+The :meth:`.ExperimentData.auto_save` feature automatically saves changes to the 
+:class:`.ExperimentData` object to the cloud service whenever it's updated.
 
 .. jupyter-execute::
     :hide-output:
@@ -213,8 +213,9 @@ Deleting an experiment
 
 Both figures and analysis results can be deleted. Note that unless you
 have auto save on, the update has to be manually saved to the remote
-database by calling ``save()``. Because there are two analysis results, one for 
-the T1 parameter and one for the curve fitting results, we delete twice.
+database by calling :meth:`.ExperimentData.save`. Because there are two analysis
+results, one for the T1 parameter and one for the curve fitting results, we must 
+delete twice to fully remove the analysis results.
 
 .. jupyter-execute::
     :hide-output:

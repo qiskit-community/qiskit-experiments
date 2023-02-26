@@ -38,6 +38,8 @@ Data Classes
 
 .. autosummary::
     :toctree: ../stubs/
+    :exclude-members: CurveData.data_allocation, CurveData.labels, CurveData.shots,
+        CurveData.x, CurveData.y, CurveData.y_err, CurveData.y_err
 
     SeriesDef
     CurveData

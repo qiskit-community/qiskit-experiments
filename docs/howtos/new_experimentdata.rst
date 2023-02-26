@@ -1,5 +1,5 @@
-How to instantiate a new data object for an existing experiment
-===============================================================
+Instantiate a new data object for an existing experiment
+========================================================
 
 Problem
 -------
@@ -25,7 +25,8 @@ ran and its options, as well as the IDs of the jobs that were executed.
 
     data = ExperimentData(job_ids=job_ids)
     experiment.analysis.run(data)
-    # Blocks execution of subsequent code until analysis is complete
+
+    # Block execution of subsequent code until analysis is complete
     data.block_for_results()
 
 ``data`` will be the new experiment data object.

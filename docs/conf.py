@@ -176,14 +176,7 @@ intersphinx_mapping = {
 
 # Prepend warning for development docs:
 
-if not os.getenv("EXPERIMENTS_DEV_DOCS", None):
-    rst_prolog = """
-.. raw:: html
-
-""".format(
-        release
-    )
-else:
+if os.getenv("EXPERIMENTS_DEV_DOCS", None):
     rst_prolog = """
 .. raw:: html
 

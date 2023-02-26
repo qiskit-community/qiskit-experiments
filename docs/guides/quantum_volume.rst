@@ -183,7 +183,9 @@ https://arxiv.org/pdf/1811.12926
 a superconducting quantum computing system,
 https://arxiv.org/pdf/2008.08571
 
-.. jupyter-execute::
+See also
+--------
 
-    import qiskit.tools.jupyter
-    %qiskit_copyright
+* API documentation: :mod:`~qiskit_experiments.library.quantum_volume`
+* Qiskit Textbook: `Measuring Quantum Volume <https://qiskit.org/textbook/ch-quantum-hardware/measuring-quantum-volume.html>`__
+
