@@ -77,7 +77,7 @@ The :class:`.FineAmplitude` experiment optimizes gate amplitude by repeating the
 gate pulse N times, hence amplifying the under- or over-rotations.
 This experiment can be performed for a variety of rotations, and subclasses are 
 provided for the :math:`\pi` and :math:`\frac{\pi}{2}` rotations as 
-:class:`.FineXAmplitude`` and :class:`.FineSXAmplitude`` respectively. These provided subclasses 
+:class:`.FineXAmplitude` and :class:`.FineSXAmplitude` respectively. These provided subclasses 
 focus on the 0 <-> 1 transition, but this experiment can also be performed 
 for higher order transitions.
 
@@ -89,7 +89,7 @@ generates the preparation circuit generation in a separate method,
 :meth:`~.FineAmplitude._pre_circuit`, which is combined with the main circuit in 
 :meth:`~.BaseExperiment.circuits`. Therefore, we only need to 
 
-.. code-block::
+.. jupyter-input::
    
   class HigherOrderFineXAmplitude(FineXAmplitude):
       def _pre_circuit(self) -> QuantumCircuit:
@@ -135,13 +135,12 @@ You can try this for yourself and verify that your results are similar.
    - device_components: ['Q0']
    - verified: False
 
-Writing a new experiment
-------------------------
+Custom experiment template
+--------------------------
 
-Based on the information so far, here is a barebones template to help you get started
-with customization:
+Here is a barebones template to help you get started with customization:
 
-.. code-block:: python
+.. jupyter-input::
 
     class CustomExperiment(BaseExperiment):
         """Custom experiment class template."""
@@ -167,7 +166,7 @@ with customization:
 
 And the corresponding analysis class template:
 
-.. code-block:: python
+.. jupyter-input::
 
     class CustomAnalysis(BaseAnalysis):
         """Custom analysis class template."""
@@ -188,8 +187,8 @@ And the corresponding analysis class template:
 Now we'll use what we've learned so far to make an entirely new experiment using
 the :class:`.BaseExperiment` template.
 
-A randomized measurement experiment
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Writing a new experiment
+------------------------
 
 Our goal is to write an experiment that symmetrizes the measurement readout error
 of an input circuit, which is especially useful in systems where readout has an unknown
@@ -210,7 +209,7 @@ physical qubits to run the circuit over, and which qubits to measure over. If th
 doesn't specify these options, we default to the list of qubits starting with 0 with
 the length of the number of qubits in the circuit for both.
 
-.. code-block:: python
+.. jupyter-input::
 
   from qiskit import QuantumCircuit
   from qiskit_experiments.framework import BaseExperiment
@@ -257,7 +256,7 @@ Now we consider default experiment options. Because randomness is involved,
 it is good practice to allow the user to set a seed. We would also like the user to 
 be able to set how many repetitions of the circuit to run:
 
-.. code-block:: python
+.. jupyter-input::
 
     @classmethod
     def _default_experiment_options(cls):
@@ -269,7 +268,7 @@ be able to set how many repetitions of the circuit to run:
 Now we write the ``circuits()`` method. We need to take the input circuit in ``self._circuit``
 and add our random Paulis as well as measurement at the end.
 
-.. code-block:: python
+.. jupyter-input::
 
     from qiskit.quantum_info import random_pauli_list
     from numpy.random import default_rng, Generator
@@ -299,7 +298,7 @@ We use the :func:`~qiskit.quantum_info.random_pauli_list` function from the quan
 info module to generate random Paulis. This returns ``num_samples`` Paulis, each 
 across ``meas_nc`` qubits.
 
-.. code-block:: python
+.. jupyter-input::
 
         # Sample Paulis this might have duplicates, but we don't really
         # have any easy way of running different number of shots per circuit
@@ -326,13 +325,6 @@ across ``meas_nc`` qubits.
             # Add final Measurement
             circ.measure(meas_qubits, meas_clbits)
 
-Let's look at what the :meth:`~.qiskit.circuit.QuantumCircuit.compose` does here.
-
-We need to tell our analysis class how to restore the results of the original circuit.
-To do so, we add metadata to each of our circuits.
-
-.. code-block:: python
-
             circ.metadata = orig_metadata.copy()
             circ.metadata["rm_bits"] = meas_clbits
             circ.metadata["rm_frame"] = str(pauli)
@@ -342,9 +334,10 @@ To do so, we add metadata to each of our circuits.
 
         return circuits
 
-And the corresponding analysis class:
+Metadata is added to each of our circuits to tell the analysis class how to restore
+results of the original circuit. Now we write the analysis class:
 
-.. code-block:: python
+.. jupyter-input::
 
   from qiskit_experiments.framework import BaseAnalysis, AnalysisResultData
 

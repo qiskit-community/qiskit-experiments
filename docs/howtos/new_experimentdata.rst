@@ -14,7 +14,7 @@ Use the code template below. You need to know the exact experiment you
 ran and its options, the IDs of the jobs that were executed. You also need the
 ``backend`` object corresponding to the backend that the experiment was run on.
 
-.. code-block:: python
+.. jupyter-input::
 
     from qiskit_experiments.framework import ExperimentData
 
@@ -47,14 +47,14 @@ Here's a code snippet where we reconstruct a parallel experiment
 consisting of randomized benchmarking experiments, then change the gate error ratio
 as well as the line plot color of the first component experiment.
 
-.. code-block:: python
+.. jupyter-input::
 
     pexp = ParallelExperiment([
         StandardRB((i,), np.arange(1, 800, 200), num_samples=10) for i in range(2)])
 
-    pexp.analysis.options.gate_error_ratio = {"x": 10, "sx": 1, "rz": 0}
-
-    pexp.analysis.component_analysis(0).options.gate_error_ratio = {"x": 10, "sx": 1, "rz": 0}
+    pexp.analysis.component_analysis(0).options.gate_error_ratio = {
+        "x": 10, "sx": 1, "rz": 0
+    }
     pexp.analysis.component_analysis(0).plotter.figure_options.series_params.update(
         {
             "rb_decay": {"color": "r"}

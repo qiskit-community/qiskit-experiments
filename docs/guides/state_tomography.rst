@@ -17,7 +17,7 @@ Quantum State Tomography
 State Tomography Experiment
 ---------------------------
 
-To run a state tomography experiment we initialize the experiment with a
+To run a state tomography experiment, we initialize the experiment with a
 circuit to prepare the state to be measured. We can also pass in an
 ``Operator``, or a ``Statevector`` to describe the preparation circuit.
 
@@ -146,7 +146,7 @@ PSD without requiring rescaling.
 Parallel Tomography Experiment
 ------------------------------
 
-We can also use the ``qiskit_experiments.ParallelExperiment`` class to
+We can also use the :class:`.ParallelExperiment` class to
 run subsystem tomography on multiple qubits in parallel.
 
 For example if we want to perform 1-qubit QST on several qubits at once:
@@ -168,7 +168,7 @@ For example if we want to perform 1-qubit QST on several qubits at once:
     for result in pardata.analysis_results():
         print(result)
 
-View component experiment analysis results
+View component experiment analysis results:
 
 .. jupyter-execute::
 
@@ -180,8 +180,7 @@ View component experiment analysis results
         print("State Fidelity: {:.5f}".format(fid_result_i.value))
         print("State: {}".format(state_result_i.value))
 
+See also
+--------
 
-.. jupyter-execute::
-
-    import qiskit.tools.jupyter
-    %qiskit_copyright
+* API documentation: :mod:`~qiskit_experiments.library.tomography.StateTomography`

@@ -21,14 +21,7 @@ You will need to have :mod:`qiskit-ibmq-provider` installed locally
 and an account in the Qiskit cloud service. You must run the experiment on a real IBM
 backend to be able to save it. You can save the experiment data by calling ``save()``:
 
-.. jupyter-execute::
-    :hide-code:
-    :hide-output:
-
-    from qiskit.test.ibmq_mock import mock_get_backend
-    backend = mock_get_backend('FakeLima')
-
-.. jupyter-execute::
+.. jupyter-input::
 
     from qiskit import IBMQ
     IBMQ.load_account()
@@ -45,10 +38,10 @@ backend to be able to save it. You can save the experiment data by calling ``sav
     t1_expdata = exp.run(backend=backend, shots=1000).block_for_results()
     t1_expdata.save()
 
-.. jupyter-execute::
-    :hide-code:
+.. jupyter-output::
 
-    print("You can view the experiment online at https://quantum-computing.ibm.com/experiments/10a43cb0-7cb9-41db-ad74-18ea6cf63704")
+    You can view the experiment online at 
+    https://quantum-computing.ibm.com/experiments/10a43cb0-7cb9-41db-ad74-18ea6cf63704
 
 Loading
 ~~~~~~~
@@ -79,17 +72,14 @@ To display the figure, which is serialized into a string, we need the
 
 The analysis results have been retrieved as well:
 
-.. jupyter-execute::
-    :hide-output:
-    :raises:
+.. jupyter-input::
 
     for result in load_expdata.analysis_results():
         print(result)
 
-.. jupyter-execute::
-    :hide-code:
+.. jupyter-output::
 
-    print("""AnalysisResult
+    AnalysisResult
     - name: T1
     - value: 0.0001040+/-0.0000028
     - χ²: 0.8523786276663019
@@ -124,7 +114,7 @@ The analysis results have been retrieved as well:
     * (amp, tau) = 0.09302612202500576
     - quality: good
     - device_components: ['Q0']
-    - verified: False""")
+    - verified: False
 
 Discussion
 ----------
@@ -134,15 +124,7 @@ instantiate an experiment entry in the database, but it will not have
 complete data. To fix this, you can call :meth:`~.ExperimentData.save` again once the
 experiment is done running.
 
-.. jupyter-execute::
-    :hide-code:
-    :hide-output:
-
-    from qiskit.test.ibmq_mock import mock_get_backend
-    backend = mock_get_backend('FakeLima')
-
-
-.. jupyter-execute::
+.. jupyter-input::
 
     from qiskit import IBMQ
     IBMQ.load_account()
@@ -152,10 +134,9 @@ experiment is done running.
     t1_expdata = exp.run(backend=backend, shots=1000).block_for_results()
     t1_expdata.save()
 
-.. jupyter-execute::
-    :hide-code:
+.. jupyter-output::
 
-    print("You can view the experiment online at https://quantum-computing.ibm.com/experiments/10a43cb0-7cb9-41db-ad74-18ea6cf63704")
+    You can view the experiment online at https://quantum-computing.ibm.com/experiments/10a43cb0-7cb9-41db-ad74-18ea6cf63704")
 
 
 You can also view the results at the `IBM Quantum Experiments
@@ -169,15 +150,21 @@ by device, date, provider, and result by clicking on the filter icon.
 
 .. image:: ./experiment_cloud_service/filter.png
 
+|
+
 Individual experiment pages show the plot, and one or more important
 analysis results, which for the :math:`T_1` experiment is the fitted
 :math:`T_1` value.
 
 .. image:: ./experiment_cloud_service/t1_experiment.png
 
+|
+
 The metadata field shows experiment metadata included in the :class:`.ExperimentData` object.
 
 .. image:: ./experiment_cloud_service/metadata.png
+
+|
 
 You can change the quality and verify/unverify the results upon
 selection of an analysis result. Quality is an automatic parameter
@@ -193,8 +180,7 @@ Auto-saving an experiment
 The :meth:`.ExperimentData.auto_save` feature automatically saves changes to the 
 :class:`.ExperimentData` object to the cloud service whenever it's updated.
 
-.. jupyter-execute::
-    :hide-output:
+.. jupyter-input::
 
     exp = T1(qubit=0, delays=t1_delays)
     
@@ -202,11 +188,10 @@ The :meth:`.ExperimentData.auto_save` feature automatically saves changes to the
     t1_expdata.auto_save = True
     t1_expdata.block_for_results()
 
-.. jupyter-execute::
-    :hide-code:
+.. jupyter-output::
 
-    print("You can view the experiment online at https://quantum-computing.ibm.com/experiments/cdaff3fa-f621-4915-a4d8-812d05d9a9ca")
-    print("<ExperimentData[T1], backend: ibmq_lima, status: ExperimentStatus.DONE, experiment_id: cdaff3fa-f621-4915-a4d8-812d05d9a9ca>")
+    You can view the experiment online at https://quantum-computing.ibm.com/experiments/cdaff3fa-f621-4915-a4d8-812d05d9a9ca
+    <ExperimentData[T1], backend: ibmq_lima, status: ExperimentStatus.DONE, experiment_id: cdaff3fa-f621-4915-a4d8-812d05d9a9ca>
 
 Deleting an experiment
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -217,24 +202,22 @@ database by calling :meth:`.ExperimentData.save`. Because there are two analysis
 results, one for the T1 parameter and one for the curve fitting results, we must 
 delete twice to fully remove the analysis results.
 
-.. jupyter-execute::
-    :hide-output:
+.. jupyter-input::
     
     t1_expdata.delete_figure(0)
     t1_expdata.delete_analysis_result(0)
     t1_expdata.delete_analysis_result(0)
 
-.. jupyter-execute::
-    :hide-code:
+.. jupyter-output::
 
-    print("Are you sure you want to delete the experiment plot? [y/N]: y")
-    print("Are you sure you want to delete the analysis result? [y/N]: y")
-    print("Are you sure you want to delete the analysis result? [y/N]: y")
+    Are you sure you want to delete the experiment plot? [y/N]: y
+    Are you sure you want to delete the analysis result? [y/N]: y
+    Are you sure you want to delete the analysis result? [y/N]: y
 
 The web interface shows that both the figure and analysis result have been
-deleted: |t1_deleted.png|
+deleted:
 
-.. |t1_deleted.png| image:: ./experiment_cloud_service/t1_deleted.png
+.. image:: ./experiment_cloud_service/t1_deleted.png
 
 Tagging and sharing experiments
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -242,7 +225,7 @@ Tagging and sharing experiments
 Tags and notes can be added to experiments to help identify specific experiments in the interface.
 For example, an experiment can be tagged and made public with the following code.
 
-.. jupyter-execute::
+.. jupyter-input::
    
    t1_expdata.tags = ['tag1', 'tag2']
    t1_expdata.share_level = "public"

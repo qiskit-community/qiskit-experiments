@@ -79,8 +79,8 @@ we compute the results for :math:`T_\varphi.`
 
     display(expdata.figure(1))
 
-.. jupyter-execute::
+See also
+--------
 
-    import qiskit.tools.jupyter
-    %qiskit_copyright
+* API documentation: :mod:`~qiskit_experiments.library.characterization.Tphi`
 

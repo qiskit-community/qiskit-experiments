@@ -26,20 +26,17 @@ We've divided up the documentation into four sections with different purposes:
         ^^^^^^^^^
 
         These step-by-step tutorials teach the fundamentals of the package and 
-        are suitable for getting started.
+        are suitable for getting started. You'll find in these tutorials:
 
-        You'll find in these tutorials:
-
-        * An overview of the package structure
-        * What constitutes an experiment
-        * How to write your own experiment
+        * An overview of the :ref:`package structure <primer>`
+        * How to :doc:`install the package and run your first experiment </tutorials/getting_started>`
+        * How to :doc:`write your own experiment </tutorials/custom_experiment>`
 
         +++
 
         .. button-ref:: tutorials/index
             :expand:
             :color: secondary
-            :click-parent:
 
             To the learning tutorials
 
@@ -50,19 +47,16 @@ We've divided up the documentation into four sections with different purposes:
         ^^^^^^^
 
         These individual how-to recipes provide short and direct solutions to some commonly
-        asked questions for Qiskit Experiments users.
+        asked questions for Qiskit Experiments users. You'll find in these recipes:
 
-        You'll find in these recipes:
-
-        * How to save and retrieve experiment data
-        * How to customize the appearance of your figures
+        * How to :doc:`instantiate experiment data for an existing experiment <howtos/new_experimentdata>`
+        * How to :doc:`customize the splitting of circuits into jobs <howtos/job_splitting>`
 
         +++
 
         .. button-ref:: howtos/index
             :expand:
             :color: secondary
-            :click-parent:
 
             To the how-to recipes
 
@@ -73,18 +67,15 @@ We've divided up the documentation into four sections with different purposes:
         ^^^^^^^^^^^^^^^^^
 
         These are in-depth guides to key experiments in the package, describing
-        their background, principle, and how to run them in Qiskit Experiments.
-
-        You'll find in these guides:
+        their background, principle, and how to run them in Qiskit Experiments. You'll find in these guides:
         
-        * What is randomized benchmarking and when is it useful
+        * What is :doc:`randomized benchmarking </guides/randomized_benchmarking>` and when is it useful
 
         +++
 
         .. button-ref:: guides/index
             :expand:
             :color: secondary
-            :click-parent:
 
             To the experiment guides
 
@@ -97,18 +88,15 @@ We've divided up the documentation into four sections with different purposes:
 
         This is a detailed description of every module, method, and function in 
         Qiskit Experiments and how to use them, suitable for those working closely
-        with specific parts of the package or writing your custom code.
-
-        You'll find in these references:
+        with specific parts of the package or writing your custom code. You'll find in these references:
         
-        * What are all possible input parameters to CurveAnalysis
+        * What are all possible input parameters to the :class:`.CurveAnalysis` class
 
         +++
 
         .. button-ref:: apidocs/index
             :expand:
             :color: secondary
-            :click-parent:
 
             To the API reference
 
@@ -120,6 +108,7 @@ We've divided up the documentation into four sections with different purposes:
     guides/index
     apidocs/index
     release_notes
+    GitHub <https://github.com/Qiskit/qiskit-experiments>
 
 .. Hiding - Indices and tables
    :ref:`genindex`

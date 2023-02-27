@@ -71,6 +71,10 @@ Some experiments also have a calibration experiment version.
     ~characterization.FineFrequency
     ~characterization.ReadoutAngle
     ~characterization.ResonatorSpectroscopy
+    ~characterization.RoughDrag
+    ~characterization.FineDrag
+    ~characterization.FineXDrag
+    ~characterization.FineSXDrag
     ~characterization.MultiStateDiscrimination
 
 .. _characterization two qubits:
@@ -87,23 +91,6 @@ Experiments for characterization of properties of two qubit interactions.
     ~characterization.CrossResonanceHamiltonian
     ~characterization.EchoedCrossResonanceHamiltonian
     ~characterization.ZZRamsey
-
-.. _characterization pulse gates:
-
-Characterization Experiments: Pulse Gates
-=========================================
-
-Experiments for characterization of pulse gates.
-Some experiments also have a calibration experiment version.
-
-.. autosummary::
-    :toctree: ../stubs/
-    :template: autosummary/experiment.rst
-
-    ~characterization.RoughDrag
-    ~characterization.FineDrag
-    ~characterization.FineXDrag
-    ~characterization.FineSXDrag
 
 .. _characterization-mitigation:
 

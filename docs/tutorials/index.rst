@@ -5,6 +5,8 @@ Tutorials
 These tutorials assume some familiarity with Qiskit, but no knowledge of Qiskit Experiments.
 They're suitable for beginners who want to get started with the package.
 
+.. _basics:
+
 The Basics
 ==========
 

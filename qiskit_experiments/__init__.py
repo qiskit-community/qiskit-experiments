@@ -48,9 +48,6 @@ Modules
       - Utility functions for curve fitting and analysis.
     * - :mod:`~qiskit_experiments.calibration_management`
       - Classes for managing calibration experiment result data.
-    * - :mod:`~qiskit_experiments.database_service`
-      - Classes for saving and retrieving experiment and analysis results
-        from a database.
     * - :mod:`~qiskit_experiments.visualization`
       - Classes for creating figures from experiment results.
 

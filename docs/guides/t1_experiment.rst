@@ -139,5 +139,4 @@ that is close to a logical value '0'.
 See also
 --------
 
-* API documentation: :mod:`~qiskit_experiments.library.t1`
-* Qiskit Textbook: `Randomized Benchmarking <https://learn.qiskit.org/course/quantum-hardware/randomized-benchmarking>`__
+* API documentation: :mod:`~qiskit_experiments.library.characterization.T1`

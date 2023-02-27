@@ -1,7 +1,7 @@
 T2 Ramsey Characterization
 ==========================
 
-The purpose of the :math:`T_2`\ Ramsey experiment is to determine two of
+The purpose of the :math:`T_2` Ramsey experiment is to determine two of
 the qubit's properties: *Ramsey* or *detuning frequency* and
 :math:`T_2^\ast`. The rough frequency of the qubit was already
 determined previously. The control pulses are based on this frequency.
@@ -25,15 +25,15 @@ frequency* (``osc_freq`` parameter).
     import qiskit
     from qiskit_experiments.library import T2Ramsey
 
-The circuit used for the experiment comprises the following:
+The circuits used for the experiment comprise the following steps:
 
-::
+#. Hadamard gate
+#. Delay
+#. RZ gate that rotates the qubit in the x-y plane 
+#. Hadamard gate
+#. Measurement
 
-   1. Hadamard gate
-   2. delay
-   3. RZ gate that rotates the qubit in the x-y plane 
-   4. Hadamard gate
-   5. measurement
+|
 
 The user provides as input a series of delays (in seconds) and the
 oscillation frequency (in Hz). During the delay, we expect the qubit to
@@ -140,7 +140,7 @@ computed for other qubits.
         print(result)
 
 
-.. jupyter-execute::
+See also
+--------
 
-    import qiskit.tools.jupyter
-    %qiskit_copyright
+* API documentation: :mod:`~qiskit_experiments.library.characterization.T2Ramsey`

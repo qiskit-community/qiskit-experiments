@@ -13,21 +13,21 @@ Qiskit itself.
 Qiskit Experiments releases can be installed via the Python package manager 
 ``pip``:
 
-.. code-block:: console
+.. jupyter-input::
 
     python -m pip install qiskit-experiments
 
 If you want to run the most up-to-date version instead (may not be stable), you can
 install the latest main branch:
 
-.. code-block:: console
+.. jupyter-input::
 
     python -m pip install git+https://github.com/Qiskit/qiskit-experiments.git
 
 If you want to develop the package, you can install Qiskit Experiments from source by 
 cloning the repository:
 
-.. code-block:: console
+.. jupyter-input::
 
     git clone https://github.com/Qiskit/qiskit-experiments.git
     python -m pip install -e qiskit-experiments
@@ -48,7 +48,7 @@ Qiskit Experiments library:
     from qiskit_experiments.library import T1
 
 Experiments must be run on a backend. We're going to use a simulator, 
-:class:`qiskit.providers.fake_provider.FakeVigo`, for 
+:class:`~qiskit.providers.fake_provider.FakeVigo`, for 
 this example, but you can use any IBM backend, real or simulated, that you can access 
 through Qiskit.
 
@@ -82,9 +82,9 @@ estimate for the sweep range of the delays.
     exp = T1(physical_qubits=(0,), delays=delays)
 
 The circuits encapsulated by the experiment can be accessed using the experiment's 
-:meth:`.BaseExperiment.circuits` method, which returns a list of circuits that can
+:meth:`~.BaseExperiment.circuits` method, which returns a list of circuits that can
 be run on a backend. Let's print the range of delay times we're sweeping over and 
-draw the first and last circuits for our T1 experiment:
+draw the first and last circuits for our :math:`T_1` experiment:
 
 .. jupyter-execute::
 
@@ -100,8 +100,15 @@ As expected, the delay block spans the full range of time values that we specifi
 The ExperimentData class
 ========================
 
-After instantiating the experiment, we run the experiment by calling :meth:`~.BaseExperiment.run` with our specified backend.
-This returns the :class:`.ExperimentData` class containing the results of the experiment,
+After instantiating the experiment, we run the experiment by calling 
+:meth:`~.BaseExperiment.run` with our backend of choice. This transpiles our experiment
+circuits then packages them into jobs that are run on the backend.
+
+.. note::
+    See the how-tos for :doc:`customizing job splitting </howtos/job_splitting>` when
+    running an experiment. 
+
+This statement returns the :class:`.ExperimentData` class containing the results of the experiment,
 so it's crucial that we assign the output to a data variable. We could have also provided the backend
 at the instantiation of the experiment, but specifying the backend at run time
 allows us to run the same exact experiment on different backends should we choose to do so.
@@ -112,8 +119,13 @@ allows us to run the same exact experiment on different backends should we choos
 
 The :meth:`~.ExperimentData.block_for_results` method is optional and is used to block execution
 of subsequent code until the experiment has fully completed execution and analysis. If
-``exp_data = exp.run(backend=backend)`` is executed instead, the statement will finish
-running as soon as the jobs are submitted, but the analysis callback won't populate
+
+.. jupyter-input::
+    
+    exp_data = exp.run(backend=backend)
+
+is executed instead, the statement will finish running as soon as the jobs are submitted, 
+but the analysis callback won't populate
 ``exp_data`` with results until the entire process has finished. In this case, there are
 two useful methods in the :class:`.ExperimentData`, :meth:`~.ExperimentData.job_status` 
 and :meth:`~.ExperimentData.analysis_status`, that return the current status of the job
@@ -163,6 +175,10 @@ and the :meth:`~.ExperimentData.metadata` property:
 The actual backend jobs that were executed for the experiment can be accessed with the
 :meth:`~.ExperimentData.jobs` method.
 
+.. note::
+    See the how-tos for :doc:`instantiating a new ExperimentData object </howtos/new_experimentdata>`
+    from an existing experiment that finished execution.
+
 Setting experiment options
 ==========================
 
@@ -175,7 +191,7 @@ Run options
 These options are passed to the experiment's ``run()`` method and then to the ``run()``
 method of your specified backend. Any run option that your backend supports can be set:
 
-.. code-block::
+.. jupyter-input::
 
   exp.set_run_options(shots=1000,
                       meas_level=MeasLevel.CLASSIFIED,
@@ -189,7 +205,7 @@ Transpile options
 These options are passed to the Terra transpiler to transpile the experiment circuits
 before execution:
 
-.. code-block::
+.. jupyter-input::
 
   exp.set_transpile_options(scheduling_method='asap',
                             optimization_level=3,
@@ -217,7 +233,7 @@ These options are unique to each analysis class. Unlike the other options, analy
 are not directly set via the experiment object
 but use instead a method of the associated ``analysis``:
 
-.. code-block::
+.. jupyter-input::
 
   exp = rb.StandardRB(physical_qubits=(0,),
                       lengths=list(range(1, 300, 30)),
@@ -235,10 +251,10 @@ To run experiments across many qubits of the same device, we use **composite exp
 A composite experiment is a parent object that contains one or more child 
 experiments, which may themselves be composite. There are two core types of composite experiments:
 
-* **Parallel experiments** run across qubits simultaneously as set by the user. New circuits 
-  are constructed such that parallelize circuits of the child experiments are executed 
-  simultaneously. Therefore, the circuits in child experiments *cannot* overlap in qubits 
-  used. The marginalization of measurement data for analysis of each child experiment is handled automatically. 
+* **Parallel experiments** run across qubits simultaneously as set by the user. The
+  circuits of child experiments are combined into new circuits that map circuit gates onto 
+  qubits in parallel. Therefore, the circuits in child experiments *cannot* overlap in the ``physical_qubits`` 
+  parameter. The marginalization of measurement data for analysis of each child experiment is handled automatically. 
 * **Batch experiments** run consecutively in time. These child circuits *can* overlap in qubits used.
 
 Here's an example of measuring the :math:`T_1` of two qubits on the same device simultaneously
@@ -251,15 +267,15 @@ in a parallel experiment:
     parallel_exp = ParallelExperiment([T1(physical_qubits=(i,), delays=delays) for i in range(2)])
     parallel_data = parallel_exp.run(backend, seed_simulator=101).block_for_results()
 
-Note that when options are set for a composite experiment, the child 
-experiments's options are also set recursively. Let's examine how the parallel 
+Note that when the transpile and run options are set for a composite experiment, the child 
+experiments's options are also set to the same options recursively. Let's examine how the parallel 
 experiment is constructed by visualizing the circuits:
 
 .. jupyter-execute::
 
     parallel_exp.circuits()[0].draw(output='mpl')
 
-We see that the T1 circuits on qubits 0 and 1 have been parallelized to run simultaneously.
+We see that the :math:`T_1` circuits on qubits 0 and 1 have been parallelized to run simultaneously.
 
 :class:`.ParallelExperiment` and :class:`.BatchExperiment` classes can be nested 
 arbitrarily to make complex composite experiments.
@@ -272,7 +288,8 @@ Viewing child experiment data
 
 The experiment data returned from a composite experiment contains
 individual analysis results for each child experiment that can be accessed
-using :meth:`~.ExperimentData.child_data`. By default, the parent data object does not contain analysis results.
+using :meth:`~.ExperimentData.child_data`. By default, the parent data object does 
+not contain analysis results.
 
 .. jupyter-execute::
 

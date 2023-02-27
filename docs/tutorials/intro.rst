@@ -27,6 +27,8 @@ What Qiskit Experiments can do
 * Visualize data with support for custom drawing backends
 * Save and retrieve timestamped calibration parameters for physical backends
 
+.. _primer:
+
 A quick primer
 ==============
 

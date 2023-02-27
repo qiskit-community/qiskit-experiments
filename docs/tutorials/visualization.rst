@@ -2,7 +2,7 @@ Visualization: Creating figures
 ===============================
 
 The Visualization module provides plotting functionality for creating figures from experiment and analysis results.
-This includes `plotter` and `drawer` classes to plot data in :py:class:`CurveAnalysis` and its subclasses.
+This includes ``plotter`` and ``drawer`` classes to plot data in :class:`.CurveAnalysis` and its subclasses.
 Plotters define the kind of figures to plot, while drawers are backends that enable them to be visualized. 
 
 How much you will interact directly with the visualization module depends on your use case:
@@ -10,28 +10,30 @@ How much you will interact directly with the visualization module depends on you
 - **Running library experiments as-is:** You won't need to interact with the visualization module.
 - **Running library experiments with custom styling for figures**: You will be setting figure options through the plotter.
 - **Making plots using a plotting library other than Matplotlib**: You will need to define a custom drawer class.
-- **Writing your own analysis class**: You don't need to interact with the visualization module.
-  if you want to use the the default plotter and drawer settings, or you can customize them
+- **Writing your own analysis class**: If you want to use the the default plotter and drawer settings,
+  you don't need to interact with the visualization module. Optionally, you can customize
   your plotter and drawer.
 
-Plotters inherit from :class:`BasePlotter` and define a type of figure that may be generated from
-experiment or analysis data. For example, the results from :class:`CurveAnalysis` --- or any other
+Plotters inherit from :class:`.BasePlotter` and define a type of figure that may be generated from
+experiment or analysis data. For example, the results from :class:`.CurveAnalysis` --- or any other
 experiment where results are plotted against a single parameter (i.e., :math:`x`) --- can be plotted
-using the :class:`CurvePlotter` class, which plots X-Y-like values.
+using the :class:`.CurvePlotter` class, which plots X-Y-like values.
 
 These plotter classes act as a bridge (from the common bridge pattern in software development) between
 analysis classes (or even users) and plotting backends such as Matplotlib. Drawers are the backends, with
-a common interface defined in :class:`BaseDrawer`. Though Matplotlib is the only officially supported
-plotting backend in Qiskit Experiments through :class:`MplDrawer`, custom drawers can be
+a common interface defined in :class:`.BaseDrawer`. Though Matplotlib is the only officially supported
+plotting backend in Qiskit Experiments through :class:`.MplDrawer`, custom drawers can be
 implemented by users to use alternative backends. As long as the backend is a subclass of
-:class:`BaseDrawer`, and implements all the necessary functionality, all plotters should be able to
+:class:`.BaseDrawer`, and implements all the necessary functionality, all plotters should be able to
 generate figures with the alternative backend.
+
+
 
 
 Generating and customizing a figure using a plotter
 ---------------------------------------------------
 
-First, we display the default figure from a :class:`Rabi` experiment as a starting point:
+First, we display the default figure from a :class:`.Rabi` experiment as a starting point:
 
 .. jupyter-execute::
 
@@ -184,20 +186,20 @@ Customizing plotting in your experiment
 Plotters are easily integrated into custom analysis classes. To add a plotter instance
 to such a class, we define a new ``plotter`` property, pass it relevant data in the 
 analysis class's ``_run_analysis`` method, and return the generated figure alongside our
-analysis results. We use the ``IQPlotter`` class to illustrate how this is done for an 
+analysis results. We use the :class:`.IQPlotter` class to illustrate how this is done for an 
 arbitrary analysis class.
 
-To ensure that we have an interface simlar to existing analysis classes, we make our plotter
+To ensure that we have an interface similar to existing analysis classes, we make our plotter
 accessible as an ``analysis.plotter`` property and analysis.options.plotter option. 
 The code below accomplishes this for our example ``MyIQAnalysis`` analysis class. We 
-set the drawer to MplDrawer to use Matplotlib by default. The plotter property of our 
+set the drawer to :class:`.MplDrawer` to use :mod:`matplotlib` by default. The plotter property of our 
 analysis class makes it easier to access the plotter instance; i.e., using ``self.plotter``
 and ``analysis.plotter``. We set default options and figure options in 
 ``_default_options``, but you can still override them as we did above.
 
 The ``MyIQAnalysis`` class accepts single-shot level 1 IQ data, which consists of an 
 in-phase and quadrature measurement for each shot and circuit. ``_run_analysis`` is 
-passed an ``ExperimentData`` instance which contains IQ data as a list of dictionaries 
+passed an :class:`.ExperimentData` instance which contains IQ data as a list of dictionaries 
 (one per circuit) where their "memory" entries are lists of IQ values (one per shot). 
 Each dictionary has a "metadata" entry, with the name of a prepared state: "0", "1", 
 or "2". These are our series names.
@@ -206,7 +208,7 @@ Our goal is to create a figure that displays the single-shot IQ values of each
 prepared-state (one per circuit). We process the "memory" data passed to the 
 analysis class and set the points and centroid series data in the plotter. 
 This is accomplished in the code below, where we also train a discriminator 
-to label the IQ points as one of the three prepared states. IQPlotter supports 
+to label the IQ points as one of the three prepared states. :class:`.IQPlotter` supports 
 plotting a discriminator as optional supplementary data, which will show predicted 
 series over the axis area.
 
@@ -287,11 +289,11 @@ You can create a custom figure plotter by subclassing :class:`.BasePlotter` and 
 :meth:`~.BasePlotter.expected_supplementary_data_keys`, and 
 :meth:`~.BasePlotter._plot_figure`.
 
-The first two methods allow you to define a list of supported data-keys, 
+The first two methods allow you to define a list of supported data-keys 
 as strings, which identify the different data to plot. The third method, 
 :meth:`~.BasePlotter._plot_figure`, must contain your code to generate a figure by calling methods 
 on the plotter's drawer instance (self.drawer). When ``plotter.figure()`` is called 
-by an analysis class, the plotter calls _plot_figure and then returns your figure 
+by an analysis class, the plotter calls ``_plot_figure()`` and then returns your figure 
 object which is added to the experiment data instance. It is also good practice to 
 set default values for figure options, such as axis labels. You can do this by 
 overriding the :meth:`~.BasePlotter._default_figure_options` method in your plotter subclass.

@@ -207,7 +207,7 @@ Jay M. Gambetta, Blake R. Johnson, Quality, Speed, and Scale: three key
 attributes to measure the performance of near-term quantum computers,
 https://arxiv.org/abs/2110.14108
 
-.. jupyter-execute::
+See also
+--------
 
-    import qiskit.tools.jupyter
-    %qiskit_copyright
+* API documentation: :mod:`~qiskit_experiments.framework.RestlessMixin`

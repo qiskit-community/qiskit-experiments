@@ -239,4 +239,4 @@ is close to the estimate of the one echo experiment.
 See also
 --------
 
-* API documentation: :class:`.T2Hahn`
+* API documentation: :mod:`~qiskit_experiments.library.characterization.T2Hahn`

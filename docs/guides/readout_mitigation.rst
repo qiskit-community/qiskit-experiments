@@ -174,5 +174,6 @@ a few qubits.
 See also
 --------
 
-* API documentation: :mod:`~qiskit_experiments.library.randomized_benchmarking`
-* Qiskit Textbook: `Randomized Benchmarking <https://learn.qiskit.org/course/quantum-hardware/randomized-benchmarking>`__
+* API documentation: :mod:`~qiskit_experiments.library.characterization.LocalReadoutError`, 
+  :mod:`~qiskit_experiments.library.characterization.CorrelatedReadoutError`
+* Qiskit Textbook: `Measurement Error Mitigation <https://qiskit.org/textbook/ch-quantum-hardware/measurement-error-mitigation.html>`__
