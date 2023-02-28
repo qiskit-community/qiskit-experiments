@@ -1,9 +1,9 @@
 ---
 features:
   - |
-    Adds a ``backend`` init kwarg to the :class:`.LocalReadoutError` and
-    :class:`.CorrelatedReadoutError` experiments, and makes the
-    ``physical_qubits`` kwarg optional. If a backend is supplied without
+    Added a ``backend`` init kwarg to the :class:`.LocalReadoutError` and
+    :class:`.CorrelatedReadoutError` experiments, and the
+    ``physical_qubits`` kwarg has been made optional. If a backend is supplied without
     specifying phyiscal qubits, the experiment will be initialized on all
     qubits for the backend.
 fixes:
@@ -11,7 +11,7 @@ fixes:
     Fixes bug in the :class:`~.LocalReadoutError` experiment where analysis
     would fail when run on an ideal simulator with no readout error.
 
-    See Issue #992 <https://github.com/Qiskit/qiskit-experiments/issues/992>`_
+    See `Issue #992 <https://github.com/Qiskit/qiskit-experiments/issues/992>`_
     for additional details.
 deprecations:
   - |

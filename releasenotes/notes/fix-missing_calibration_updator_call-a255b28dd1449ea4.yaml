@@ -2,5 +2,5 @@
 
 fixes:
   - |
-    Fixes a bug where :class:`.Calibrations` is not updated when you run any calibration 
-    experiment through composite experiment.
+    Fixed a bug where :class:`.Calibrations` was not updated when you ran calibration 
+    experiments through the composite experiment framework.

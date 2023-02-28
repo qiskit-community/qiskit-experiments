@@ -38,6 +38,8 @@ Mock backends for running simulated jobs.
 .. autosummary::
     :toctree: ../stubs/
 
+    PulseBackend
+    SingleTransmonTestBackend
     MockIQBackend
     MockIQParallelBackend
     T2HahnBackend
@@ -46,6 +48,7 @@ Mock backends for running simulated jobs.
 """
 
 from .utils import FakeJob
+from .pulse_backend import PulseBackend, SingleTransmonTestBackend
 from .mock_iq_backend import MockIQBackend, MockIQParallelBackend
 from .noisy_delay_aer_simulator import NoisyDelayAerBackend
 from .t2hahn_backend import T2HahnBackend

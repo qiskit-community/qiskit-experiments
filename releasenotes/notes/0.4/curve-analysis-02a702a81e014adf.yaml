@@ -1,7 +1,7 @@
 ---
 features:
   - |
-    The :class:`.CurveAnalysis` has been modified to delegate the core fitting functionality to the
+    The :class:`.CurveAnalysis` class has been modified to delegate the core fitting functionality to the
     `LMFIT <https://lmfit.github.io/lmfit-py/>`_ package. Fit curves are specified using
     `LMFIT Model <https://lmfit.github.io/lmfit-py/model.html#>`_ objects. For multi-curve fitting
     a list of models can be used.
