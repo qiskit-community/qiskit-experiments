@@ -249,16 +249,13 @@ execution, a mapping is performed to place these circuits on the physical layout
                 rng = seed
             else:
                 rng = default_rng(seed)
+            
+            paulis = random_pauli_list(meas_nc, size=num_samples, phase=False, seed=rng)
 
-We use the :func:`~qiskit.quantum_info.random_pauli_list` function from the quantum 
-info module to generate random Paulis. This returns ``num_samples`` Paulis, each 
+In the last line of the above code block, we used the 
+:func:`~qiskit.quantum_info.random_pauli_list` function from the :mod:`qiskit.quantum_info` 
+module to generate random Paulis. This returns ``num_samples`` Paulis, each 
 across ``meas_nc`` qubits.
-
-.. jupyter-input::
-
-    ...
-
-        paulis = random_pauli_list(meas_nc, size=num_samples, phase=False, seed=rng)
 
 Now we construct the circuits by composing the original circuit with a Pauli frame then
 adding a measurement at the end only to the measurement qubits. Metadata containing
