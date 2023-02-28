@@ -12,7 +12,7 @@
 
 """Multi state discrimination analysis."""
 
-from typing import List, Tuple
+from typing import List, Tuple, TYPE_CHECKING
 
 import matplotlib
 import numpy as np
@@ -22,13 +22,10 @@ from qiskit_experiments.framework import BaseAnalysis, AnalysisResultData, Exper
 from qiskit_experiments.data_processing import SkQDA
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
 from qiskit_experiments.visualization import BasePlotter, IQPlotter, MplDrawer, PlotStyle
+from qiskit_experiments.warnings import HAS_SKLEARN
 
-try:
+if TYPE_CHECKING:
     from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
-
-    HAS_SKLEARN = True
-except ImportError:
-    HAS_SKLEARN = False
 
 
 class MultiStateDiscriminationAnalysis(BaseAnalysis):
@@ -51,14 +48,10 @@ class MultiStateDiscriminationAnalysis(BaseAnalysis):
         Raises:
             DataProcessorError: if sklearn is not installed.
         """
-        if not HAS_SKLEARN:
-            raise DataProcessorError(
-                f"SKlearn is needed to initialize an {self.__class__.__name__}."
-            )
-
         super().__init__()
 
     @classmethod
+    @HAS_SKLEARN.require_in_call
     def _default_options(cls) -> Options:
         """Return default analysis options.
 
@@ -76,6 +69,8 @@ class MultiStateDiscriminationAnalysis(BaseAnalysis):
         )
         options.plot = True
         options.ax = None
+        from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
+
         options.discriminator = SkQDA(QuadraticDiscriminantAnalysis())
         return options
 

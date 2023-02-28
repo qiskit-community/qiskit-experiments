@@ -16,6 +16,9 @@ import functools
 import warnings
 from typing import Callable, Optional, Type, Dict
 
+from qiskit.exceptions import QiskitError
+from qiskit.utils.lazy_tester import LazyImportTester
+
 
 def deprecated_function(
     last_version: Optional[str] = None,
@@ -240,3 +243,15 @@ def qubit_deprecate() -> Callable:
         return wrapper
 
     return decorator
+
+
+HAS_SKLEARN = LazyImportTester(
+    {
+        "sklearn.discriminant_analysis": (
+            "LinearDiscriminantAnalysis",
+            "QuadraticDiscriminantAnalysis",
+        )
+    },
+    name="scikit-learn",
+    install="pip install scikit-learn",
+)
