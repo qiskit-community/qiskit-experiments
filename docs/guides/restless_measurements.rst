@@ -90,7 +90,7 @@ on non-IBM Quantum providers if the required options are not supported.
 After calling :meth:`~.RestlessMixin.enable_restless` the experiment is ready to be run in a restless
 mode. With a hardware backend this would be done by calling the ``run`` method
 
-.. code:: python
+.. jupyter-input::
 
     drag_data_restless = cal_drag.run()
 

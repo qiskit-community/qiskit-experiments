@@ -117,7 +117,7 @@ class ExperimentSectionFormatter(DocstringSectionFormatter):
         format_lines = [
             ".. rubric:: Experiment Options",
             "",
-            "These options can be set by :py:meth:`set_experiment_options` method.",
+            "These options can be set by the :py:meth:`set_experiment_options` method.",
             "",
         ]
         format_lines.extend(lines)
@@ -131,7 +131,7 @@ class ExperimentSectionFormatter(DocstringSectionFormatter):
         format_lines = [
             ".. rubric:: Analysis Options",
             "",
-            "These options can be set by :py:meth:`analysis.set_options` method.",
+            "These options can be set by the :py:meth:`analysis.set_options` method.",
             "",
         ]
         format_lines.extend(lines)

@@ -164,12 +164,22 @@ The nominal value and standard deviation of each value can be accessed as follow
 For further documentation on how to work with UFloats, consult the ``uncertainties`` 
 :external+uncertainties:doc:`user_guide`.
 
-The raw data and metadata can be accessed with the :meth:`~.ExperimentData.data` method
-and the :meth:`~.ExperimentData.metadata` property:
+Raw circuit output data and its associated metadata can be accessed with the 
+:meth:`~.ExperimentData.data` property. Data is indexed by the circuit
+it corresponds to. Depending on the measurement level set in the experiment, the raw data
+will either be in the key ``counts`` (level 2) or ``memory`` (level 1 IQ data). Circuit metadata
+contains information set by the experiment on a circuit-by-circuit basis; ``xval`` 
+is used by the analysis to extract the x value for each circuit when fitting the data.
 
 .. jupyter-execute::
 
-    print(exp_data.data(0)['counts'])
+    print(exp_data.data(0))
+
+Experiments also have global associated metadata accessed by the
+:meth:`~.ExperimentData.metadata` property.
+
+.. jupyter-execute::
+
     print(exp_data.metadata)
 
 The actual backend jobs that were executed for the experiment can be accessed with the

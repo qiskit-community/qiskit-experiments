@@ -197,7 +197,7 @@ class RoughXSXAmplitudeCal(RoughAmplitudeCal):
     """A rough amplitude calibration of x and sx gates.
 
     # section: see_also
-        :class:`.Rabi`
+        :class:`.Rabi`, :class:`.RoughAmplitudeCal`
     """
 
     @qubit_deprecate()
@@ -231,7 +231,7 @@ class EFRoughXSXAmplitudeCal(RoughAmplitudeCal):
     """A rough amplitude calibration of x and sx gates on the 1<->2 transition.
 
     # section: see_also
-        :class:`.Rabi`
+        :class:`.Rabi`, :class:`.RoughAmplitudeCal`
     """
 
     __outcome__ = "rabi_rate_12"

@@ -14,6 +14,8 @@ with :ref:`the basics <basics>` of the package before using these recipes.
     *
 
 |
+|
+|
 
 
 .. Hiding - Indices and tables

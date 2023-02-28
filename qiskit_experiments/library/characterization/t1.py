@@ -32,13 +32,11 @@ class T1(BaseExperiment):
 
         Each experiment consists of the following steps:
 
-        1. Circuits generation: the circuits set the qubit in the excited state,
+        #. Circuits generation: the circuits set the qubit in the excited state,
         wait different time intervals, then measure the qubit.
-
-        2. Backend execution: actually running the circuits on the device
+        #. Backend execution: actually running the circuits on the device
         (or simulator).
-
-        3. Analysis of results: deduction of T\ :sub:`1`\ , based on the outcomes,
+        #. Analysis of results: deduction of T\ :sub:`1`\ , based on the outcomes,
         by fitting to an exponential curve.
 
     # section: analysis_ref
