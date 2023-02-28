@@ -90,7 +90,7 @@ class EdgeGrabSampler(MirrorRBSampler):
         two_qubit_gate_set: Optional[List] = ["cx"],
         seed=None,
     ):
-        """Sample layers using the ege grab algorithm.
+        """Sample layers using the edge grab algorithm.
 
         Args:
             num_qubits: The number of qubits to generate layers for.
@@ -109,7 +109,7 @@ class EdgeGrabSampler(MirrorRBSampler):
             TypeError: If invalid gate set(s) are specified.
 
         Returns:
-            List of sampled QuantumCircuits.
+            List of sampled QuantumCircuit layers with length ``length``.
 
         """
         if isinstance(one_qubit_gate_set, list) or not (
@@ -150,10 +150,6 @@ class EdgeGrabSampler(MirrorRBSampler):
                     "Mean number of two-qubit gates is higher than the number of selected edges. "
                     + "Actual density of two-qubit gates will likely be lower than input density."
                 )
-            selected_edges_logical = [
-                [np.where(q == np.asarray(num_qubits))[0][0] for q in edge]
-                for edge in selected_edges
-            ]
 
             # selected_edges_logical is selected_edges with logical qubit labels rather than physical
             # ones. Example: qubits = (8,4,5,3,7), selected_edges = [[4,8],[7,5]]
@@ -161,7 +157,7 @@ class EdgeGrabSampler(MirrorRBSampler):
             put_1_qubit_gates = np.arange(num_qubits)
             # put_1_qubit_gates is a list of qubits that aren't assigned to a 2-qubit gate
             # 1-qubit gates will be assigned to these edges
-            for edge in selected_edges_logical:
+            for edge in selected_edges:
                 if rng.random() < two_qubit_prob:
                     # with probability two_qubit_prob, place a two-qubit gate from the
                     # gate set on edge in selected_edges
@@ -173,8 +169,10 @@ class EdgeGrabSampler(MirrorRBSampler):
                     put_1_qubit_gates = np.setdiff1d(put_1_qubit_gates, edge)
             for q in put_1_qubit_gates:
                 if one_qubit_gate_set == "clifford":
-                    clifford1q = random_clifford(self.num_qubits, rng).to_circuit()
-                insts = [datum[0] for datum in clifford1q.data]
+                    gates_1q = random_clifford(1, rng).to_circuit()
+                else:
+                    gates_1q = rng.choice(one_qubit_gate_set).to_circuit()
+                insts = [datum[0] for datum in gates_1q.data]
                 for inst in insts:
                     qc.compose(inst, [q], inplace=True)
             qc_list.append(qc)

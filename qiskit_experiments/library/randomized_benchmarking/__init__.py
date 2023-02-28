@@ -52,7 +52,8 @@ Utilities
 """
 from .rb_experiment import StandardRB
 from .interleaved_rb_experiment import InterleavedRB
-from .mirror_rb_experiment import MirrorRB, MirrorRBDistribution, RandomEdgeGrabDistribution
+from .mirror_rb_experiment import MirrorRB
+from .sampling_utils import MirrorRBSampler, EdgeGrabSampler
 from .rb_analysis import RBAnalysis
 from .interleaved_rb_analysis import InterleavedRBAnalysis
 from .mirror_rb_analysis import MirrorRBAnalysis

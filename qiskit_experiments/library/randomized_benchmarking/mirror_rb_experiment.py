@@ -12,8 +12,8 @@
 """
 Mirror RB Experiment class.
 """
-import warnings
 from typing import Union, Iterable, Optional, List, Sequence
+from numbers import Integral
 from itertools import permutations
 
 
@@ -200,24 +200,76 @@ class MirrorRB(StandardRB):
         if not self._backend:
             raise QiskitError("A backend must be provided.")
 
+        # Coupling map is full connectivity by default. If backend has a coupling map,
+        # get backend coupling map and create coupling map for physical qubits
+        coupling_map = list(permutations(range(max(self.physical_qubits) + 1), 2))
+        if self._backend.configuration().coupling_map:
+            coupling_map = self._backend.configuration().coupling_map
+        experiment_coupling_map = []
+        for edge in coupling_map:
+            if edge[0] in self.physical_qubits and edge[1] in self.physical_qubits:
+                experiment_coupling_map.append(edge)
+
         rng = default_rng(seed=self.experiment_options.seed)
         sequences = []
         if self.experiment_options.full_sampling:
             for _ in range(self.experiment_options.num_samples):
                 for length in self.experiment_options.lengths:
-                    sequences.append(self._distribution(length, rng))
+                    sequences.append(
+                        self._distribution(
+                            self.num_qubits, self._two_qubit_density, coupling_map, length, rng
+                        )
+                    )
         else:
             for _ in range(self.experiment_options.num_samples):
-                longest_seq = self.__sample_sequence(max(self.experiment_options.lengths), rng)
+                longest_seq = self._distribution(
+                    self.num_qubits,
+                    self._two_qubit_density,
+                    coupling_map,
+                    max(self.experiment_options.lengths),
+                    rng,
+                )
                 for length in self.experiment_options.lengths:
                     sequences.append(longest_seq[:length])
 
         return sequences
 
+    def _sequences_to_circuits(
+        self, sequences: List[Sequence[SequenceElementType]]
+    ) -> List[QuantumCircuit]:
+        """Convert an RB sequence into circuit and append the inverse to the end.
+
+        Returns:
+            A list of RB circuits.
+        """
+        basis_gates = self._get_basis_gates()
+        # Circuit generation
+        circuits = []
+        for i, seq in enumerate(sequences):
+            if (
+                self.experiment_options.full_sampling
+                or i % len(self.experiment_options.lengths) == 0
+            ):
+                prev_elem, prev_seq = self.__identity_clifford(), []
+
+            circ = QuantumCircuit(self.num_qubits)
+            for elem in seq:
+                circ.append(self._to_instruction(elem, basis_gates), circ.qubits)
+                circ.append(Barrier(self.num_qubits), circ.qubits)
+
+            # Compute inverse, compute only the difference from the previous shorter sequence
+            prev_elem = self.__compose_clifford_seq(prev_elem, seq[len(prev_seq) :])
+            prev_seq = seq
+            inv = self.__adjoint_clifford(prev_elem)
+
+            circ.append(self._to_instruction(inv, basis_gates), circ.qubits)
+            circ.measure_all()  # includes insertion of the barrier before measurement
+            circuits.append(circ)
+        return circuits
+
     def _sample_circuits(self, lengths, rng) -> List[QuantumCircuit]:
 
         # Backend must have a coupling map
-
         circuits = []
         lengths_half = [length // 2 for length in lengths]
 
