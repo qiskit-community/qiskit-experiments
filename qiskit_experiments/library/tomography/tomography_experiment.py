@@ -219,9 +219,10 @@ class TomographyExperiment(BaseExperiment):
             if prep_element:
                 # Add tomography preparation
                 prep_circ = self._prep_circ_basis.circuit(prep_element, self._prep_physical_qubits)
-                circ.reset(self._prep_indices)
+                for qubit in self._prep_indices:
+                    circ.reset(qubit)
                 circ.compose(prep_circ, self._prep_indices, inplace=True)
-                circ.barrier(self._prep_indices)
+                circ.barrier(*self._prep_indices)
 
             # Add target circuit
             # Have to use compose since circuit.to_instruction has a bug
@@ -231,7 +232,7 @@ class TomographyExperiment(BaseExperiment):
             # Add tomography measurement
             if meas_element:
                 meas_circ = self._meas_circ_basis.circuit(meas_element, self._meas_physical_qubits)
-                circ.barrier(self._meas_indices)
+                circ.barrier(*self._meas_indices)
                 circ.compose(meas_circ, self._meas_indices, meas_clbits, inplace=True)
 
             # Add metadata
