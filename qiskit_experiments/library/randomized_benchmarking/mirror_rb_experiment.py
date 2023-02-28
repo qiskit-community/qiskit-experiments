@@ -202,11 +202,11 @@ class MirrorRB(StandardRB):
 
         # Coupling map is full connectivity by default. If backend has a coupling map,
         # get backend coupling map and create coupling map for physical qubits
-        coupling_map = list(permutations(range(max(self.physical_qubits) + 1), 2))
+        self.coupling_map = list(permutations(range(max(self.physical_qubits) + 1), 2))
         if self._backend.configuration().coupling_map:
-            coupling_map = self._backend.configuration().coupling_map
+            self.coupling_map = self._backend.configuration().coupling_map
         experiment_coupling_map = []
-        for edge in coupling_map:
+        for edge in self.coupling_map:
             if edge[0] in self.physical_qubits and edge[1] in self.physical_qubits:
                 experiment_coupling_map.append(edge)
 
@@ -217,7 +217,7 @@ class MirrorRB(StandardRB):
                 for length in self.experiment_options.lengths:
                     sequences.append(
                         self._distribution(
-                            self.num_qubits, self._two_qubit_density, coupling_map, length, rng
+                            self.num_qubits, self._two_qubit_density, self.coupling_map, length, rng
                         )
                     )
         else:
@@ -225,7 +225,7 @@ class MirrorRB(StandardRB):
                 longest_seq = self._distribution(
                     self.num_qubits,
                     self._two_qubit_density,
-                    coupling_map,
+                    self.coupling_map,
                     max(self.experiment_options.lengths),
                     rng,
                 )
@@ -272,16 +272,6 @@ class MirrorRB(StandardRB):
         # Backend must have a coupling map
         circuits = []
         lengths_half = [length // 2 for length in lengths]
-
-        # Coupling map is full connectivity by default. If backend has a coupling map,
-        # get backend coupling map and create coupling map for physical qubits
-        coupling_map = list(permutations(range(max(self.physical_qubits) + 1), 2))
-        if self._backend.configuration().coupling_map:
-            coupling_map = self._backend.configuration().coupling_map
-        experiment_coupling_map = []
-        for edge in coupling_map:
-            if edge[0] in self.physical_qubits and edge[1] in self.physical_qubits:
-                experiment_coupling_map.append(edge)
 
         for length in lengths_half if self._full_sampling else [lengths_half[-1]]:
             # Sample Clifford layer elements for first half of mirror circuit
