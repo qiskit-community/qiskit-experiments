@@ -370,7 +370,11 @@ class StandardRB(BaseExperiment, RestlessMixin):
                     inst_prop = self.backend.target[op_name].get(qargs, None)
                     if inst_prop is None:
                         continue
-                    schedule = inst_prop.calibration
+                    try:
+                        schedule = inst_prop.calibration
+                    except AttributeError:
+                        # TODO remove after qiskit-terra/#9681 is in stable release.
+                        schedule = None
                     if schedule is None:
                         continue
                     publisher = schedule.metadata.get("publisher", CalibrationPublisher.QISKIT)
@@ -378,6 +382,9 @@ class StandardRB(BaseExperiment, RestlessMixin):
                         common_calibrations[op_name][(qargs, tuple())] = schedule
 
                 for circ in transpiled:
+                    # This logic is inefficient in terms of payload size and backend compilation
+                    # because this binds every custom pulse to a circuit regardless of
+                    # its existence. It works but redundant calibration must be removed -- NK.
                     circ.calibrations = common_calibrations
 
         if self.analysis.options.get("gate_error_ratio", None) is None:
