@@ -193,7 +193,7 @@ if os.getenv("EXPERIMENTS_DEV_DOCS", None):
 
 def _get_versions(app, config):
     context = config.html_context
-    start_version = (0, 4, 0)
+    start_version = (0, 5, 0)
     proc = subprocess.run(["git", "describe", "--abbrev=0"], capture_output=True)
     proc.check_returncode()
     current_version = proc.stdout.decode("utf8")
