@@ -26,7 +26,7 @@ from qiskit_experiments.warnings import qubit_deprecate
 
 
 class T2Hahn(BaseExperiment):
-    r"""T2 Hahn Echo Experiment.
+    r"""An experiment to measure the dephasing time using Hahn echos.
 
     # section: overview
 

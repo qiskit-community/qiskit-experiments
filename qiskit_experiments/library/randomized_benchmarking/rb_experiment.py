@@ -54,11 +54,11 @@ SequenceElementType = Union[Clifford, Integral, QuantumCircuit]
 
 
 class StandardRB(BaseExperiment, RestlessMixin):
-    """Standard randomized benchmarking experiment.
+    """An experiment to characterize the error rate of a gate set on a device.
 
     # section: overview
         Randomized Benchmarking (RB) is an efficient and robust method
-        for estimating the average error-rate of a set of quantum gate operations.
+        for estimating the average error rate of a set of quantum gate operations.
         See `Qiskit Textbook
         <https://qiskit.org/textbook/ch-quantum-hardware/randomized-benchmarking.html>`_
         for an explanation on the RB method.
@@ -91,7 +91,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
         """Initialize a standard randomized benchmarking experiment.
 
         Args:
-            physical_qubits: list of physical qubits for the experiment.
+            physical_qubits: List of physical qubits for the experiment.
             lengths: A list of RB sequences lengths.
             backend: The backend to run the experiment on.
             num_samples: Number of samples to generate for each sequence length.

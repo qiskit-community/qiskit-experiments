@@ -27,7 +27,7 @@ from qiskit_experiments.warnings import qubit_deprecate
 
 
 class RamseyXY(BaseExperiment, RestlessMixin):
-    r"""Ramsey XY experiment to measure the frequency of a qubit.
+    r"""A sign-sensitive experiment to measure the frequency of a qubit.
 
     # section: overview
 

@@ -27,7 +27,7 @@ from qiskit_experiments.warnings import deprecate_arguments, qubit_deprecate
 
 
 class FineAmplitude(BaseExperiment, RestlessMixin):
-    r"""Error amplifying fine amplitude experiment.
+    r"""An experiment to determine the optimal pulse amplitude by amplifying gate errors.
 
     # section: overview
 

@@ -26,7 +26,7 @@ from qiskit_experiments.warnings import qubit_deprecate
 
 
 class FineDrag(BaseExperiment, RestlessMixin):
-    r"""Fine DRAG experiment.
+    r"""An experiment that performs fine characterizations of DRAG pulse coefficients.
 
     # section: overview
 
@@ -44,7 +44,7 @@ class FineDrag(BaseExperiment, RestlessMixin):
             meas: 1/══════════════════════════════════════════════════════╩═
                                                                           0
 
-        Here, Pre and Post designate gates that may be pre-appended and and post-appended,
+        Here, "Pre" and "Post" designate gates that may be pre-appended and and post-appended,
         respectively, to the repeated sequence of Rp - Rz - Rp - Rz gates. When calibrating
         a pulse with a target rotation angle of π the Pre and Post gates are Id and RYGate(π/2),
         respectively. When calibrating a pulse with a target rotation angle of π/2 the Pre and

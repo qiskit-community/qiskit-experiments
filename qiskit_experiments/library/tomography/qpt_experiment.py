@@ -28,7 +28,7 @@ from . import basis
 
 
 class ProcessTomography(TomographyExperiment):
-    """Quantum process tomography experiment.
+    """An experiment to reconstruct the quantum channel from measurement data.
 
     # section: overview
         Quantum process tomography (QPT) is a method for experimentally

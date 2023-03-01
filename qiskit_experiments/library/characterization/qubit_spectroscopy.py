@@ -25,7 +25,7 @@ from qiskit_experiments.library.characterization.spectroscopy import Spectroscop
 
 
 class QubitSpectroscopy(Spectroscopy):
-    """Class that runs spectroscopy by sweeping the qubit frequency.
+    """A spectroscopy experiment to obtain a frequency sweep of the qubit.
 
     # section: overview
         The circuits produced by spectroscopy, i.e.

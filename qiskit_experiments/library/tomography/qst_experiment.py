@@ -27,7 +27,7 @@ from . import basis
 
 
 class StateTomography(TomographyExperiment):
-    """Quantum state tomography experiment.
+    """An experiment to reconstruct the quantum state from measurement data.
 
     # section: overview
         Quantum state tomography (QST) is a method for experimentally

@@ -25,7 +25,7 @@ from .correlated_readout_error import calibration_circuit
 
 
 class LocalReadoutError(BaseExperiment):
-    r"""Class for local readout error characterization experiment.
+    r"""An experiment for characterizing local readout error.
 
     # section: overview
 

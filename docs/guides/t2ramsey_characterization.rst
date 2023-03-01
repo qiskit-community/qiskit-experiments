@@ -5,7 +5,7 @@ The purpose of the :math:`T_2` Ramsey experiment is to determine two of
 the qubit's properties: *Ramsey* or *detuning frequency* and
 :math:`T_2^\ast`. In this experiment, we would like to get a more precise estimate of the
 qubit's frequency given a rough estimate. The difference between the frequency used for the
-control rotation pulses, and the precise frequency is called the
+control rotation pulses and the qubit transition frequency is called the
 *detuning frequency*. This part of the experiment is called a *Ramsey
 Experiment*. :math:`T_2^\ast` represents the rate of decay toward a
 mixed state, when the qubit is initialized to the

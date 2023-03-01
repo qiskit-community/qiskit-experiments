@@ -30,15 +30,15 @@ Therefore, the measured outcomes of the restless experiments require post-proces
 The following example, taken from Ref. [1], illustrates what happens to the single
 measurement outcomes represented as complex numbers in the IQ plane in a restless
 setting. Here, we run three circuits with an identity gate and three circuits with
-an X gate, each followed by a measurement. The numbers in the IQ shots indicate the
+an :math:`X` gate, each followed by a measurement. The numbers in the IQ shots indicate the
 order in which the shots were acquired. The IQ plane on the left shows the single
 measurement shots gathered when the qubits are reset. Here, the blue and red points,
-corresponding to measurements following the Id and X gates, are associated with the
+corresponding to measurements following the :math:`Id` and :math:`X` gates, are associated with the
 :math:`\left\vert0\right\rangle` and :math:`\left\vert1\right\rangle` states,
 respectively.
 By contrast, with restless measurements the qubit is not reset after a
 measurement. As one can see in the IQ plane on the right the single measurement
-outcomes of the Id and X circuits no longer match with the
+outcomes of the :math:`Id`` and :math:`X` circuits no longer match with the
 :math:`\left\vert0\right\rangle` and :math:`\left\vert1\right\rangle` states,
 respectively. This is why restless measurements need special post-processing.
 

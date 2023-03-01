@@ -28,7 +28,7 @@ from .analysis.resonator_spectroscopy_analysis import ResonatorSpectroscopyAnaly
 
 
 class ResonatorSpectroscopy(Spectroscopy):
-    """Perform spectroscopy on the readout resonator.
+    """An experiment to perform frequency spectroscopy of the readout resonator.
 
     # section: overview
         This experiment does spectroscopy on the readout resonator. It applies the following

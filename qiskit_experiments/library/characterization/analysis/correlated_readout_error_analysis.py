@@ -22,8 +22,7 @@ from qiskit_experiments.framework import BaseAnalysis, AnalysisResultData, Optio
 
 
 class CorrelatedReadoutErrorAnalysis(BaseAnalysis):
-    r"""
-    Correlated readout error characterization analysis
+    r"""An analysis to characterize correlated readout error.
 
     # section: overview
 
