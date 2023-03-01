@@ -1,5 +1,5 @@
 Calibrations: Schedules and gate parameters from experiments 
-############################################################
+============================================================
 
 To produce high fidelity quantum operations, we want to be able to run good gates. The 
 calibration module in Qiskit Experiments allows users to run experiments to find the 
@@ -7,10 +7,7 @@ pulse shapes and parameter values that maximize the fidelity of the resulting qu
 operations. Calibration experiments encapsulate the internal processes and allow 
 experimenters to perform calibration operations in a quicker way. Without the experiments 
 module, we would need to define pulse schedules and plot the resulting measurement 
-data manually (see also the `Qiskit textbook <https://qiskit.org/textbook/ch-quantum-hardware/calibrating-qubits-pulse.html>`_ for calibrating qubits with Qiskit Terra). 
-
-Calibrating single-qubit gates on a pulse backend
-=================================================
+data manually.
 
 In this tutorial, we demonstrate how to calibrate single-qubit gates using the 
 calibration framework in Qiskit Experiments. You can run these experiments on any 
@@ -39,17 +36,17 @@ backend configuration:
 	assert backend_config.open_pulse, "Backend doesn't support Pulse"
 
 For the purposes of the tutorial, we will run experiments on our test pulse 
-backend, ``SingleTransmonTestBackend``, a backend that simulates the underlying pulses 
-with Qiskit Dynamics on a three-level model of a transmon. We will run experiments to 
+backend, :class:`.SingleTransmonTestBackend`, a backend that simulates the underlying pulses 
+with :doc:`Qiskit Dynamics <qiskit/dynamics>` on a three-level model of a transmon. We will run experiments to 
 find the qubit frequency, calibrate the amplitude of DRAG pulses, and choose the value 
 of the DRAG parameter that minimizes leakage. The calibration framework requires 
 the user to
 
-- Setup an instance of Calibrations,
+- Set up an instance of :class:`.Calibrations`,
 
-- Run calibration experiments, found in ``qiskit_experiments.library.calibration``.
+- Run calibration experiments found in :mod:`qiskit_experiments.library.calibration`.
 
-Note that the values of the parameters stored in the instance of the ``Calibrations`` class 
+Note that the values of the parameters stored in the instance of the :class:`.Calibrations` class 
 will automatically be updated by the calibration experiments. 
 This automatic updating can also be disabled using the ``auto_update`` flag.
 
@@ -70,13 +67,13 @@ This automatic updating can also be disabled using the ``auto_update`` flag.
     cals=Calibrations.from_backend(backend)
     print(cals.get_inst_map())
 
-The two functions below show how to setup an instance of Calibrations. 
+The two functions below show how to set up an instance of :class:`.Calibrations`. 
 To do this the user defines the template schedules to calibrate. 
 These template schedules are fully parameterized, even the channel indices 
 on which the pulses are played. Furthermore, the name of the parameter in the channel 
 index must follow the convention laid out in the documentation 
 of the calibration module. Note that the parameters in the channel indices 
-are automatically mapped to the channel index when get_schedule is called.
+are automatically mapped to the channel index when :meth:`.Calibrations.get_schedule` is called.
 
 .. jupyter-execute::
     
@@ -215,14 +212,14 @@ Calibrating the pulse amplitudes with a Rabi experiment
 
 In the Rabi experiment we apply a pulse at the frequency of the qubit 
 and scan its amplitude to find the amplitude that creates a rotation 
-of a desired angle. We do this with the calibration experiment ``RoughXSXAmplitudeCal``.
-This is a specialization of the ``Rabi`` experiment that will update the calibrations 
-for both the ``X`` pulse and the ``SX`` pulse using a single experiment.
+of a desired angle. We do this with the calibration experiment :class:`.RoughXSXAmplitudeCal`.
+This is a specialization of the :class:`.Rabi` experiment that will update the calibrations 
+for both the :math:`X` pulse and the :math:`SX` pulse using a single experiment.
 
 .. jupyter-execute:: 
 
     from qiskit_experiments.library.calibration import RoughXSXAmplitudeCal
-    rabi = RoughXSXAmplitudeCal(qubit, cals, backend=backend, amplitudes=np.linspace(-0.1, 0.1, 51))
+    rabi = RoughXSXAmplitudeCal([qubit], cals, backend=backend, amplitudes=np.linspace(-0.1, 0.1, 51))
 
 The rough amplitude calibration is therefore a Rabi experiment in which 
 each circuit contains a pulse with a gate. Different circuits correspond to pulses 
@@ -253,7 +250,7 @@ The table above shows that we have now updated the amplitude of our :math:`\pi` 
 from 0.5 to the value obtained in the most recent Rabi experiment. 
 Importantly, since we linked the amplitudes of the ``x`` and ``y`` schedules 
 we will see that the amplitude of the ``y`` schedule has also been updated 
-as seen when requesting schedules form the ``Calibrations`` instance. 
+as seen when requesting schedules from the :class:`.Calibrations` instance. 
 Furthermore, we used the result from the Rabi experiment to also update 
 the value of the ``sx`` pulse. 
 
@@ -338,121 +335,39 @@ negative amplitude.
 
 .. _fine-amplitude-cal:
 
-Fine amplitude calibration
---------------------------
-
-The :class:`.FineAmplitude` experiment and its subclass experiments repeats 
-a gate :math:`N` times with a pulse to amplify the under or over-rotations 
-in the gate to determine the optimal amplitude.
-
-.. jupyter-execute::
-    
-    from qiskit_experiments.library.calibration.fine_amplitude import FineXAmplitudeCal
-    amp_x_cal = FineXAmplitudeCal(qubit, cals, backend=backend, schedule_name="x")
-    amp_x_cal.circuits()[5].draw(output="mpl")
-
-.. jupyter-execute::
-
-    data_fine = amp_x_cal.run().block_for_results()
-    data_fine.figure(0)
-
-.. jupyter-execute::
-
-    print(data_fine.analysis_results("d_theta"))
-
-The cell below shows how the amplitude is updated based on the error in the rotation angle measured by the FineXAmplitude experiment. Note that this calculation is automatically done by the Amplitude.update function.
-
-.. jupyter-execute::
-
-    dtheta = data_fine.analysis_results("d_theta").value.nominal_value
-    target_angle = np.pi
-    scale = target_angle / (target_angle + dtheta)
-    pulse_amp = cals.get_parameter_value("amp", qubit, "x")
-    print(f"The ideal angle is {target_angle:.2f} rad. We measured a deviation of {dtheta:.3f} rad.")
-    print(f"Thus, scale the {pulse_amp:.4f} pulse amplitude by {scale:.3f} to obtain {pulse_amp*scale:.5f}.")
-
-Observe, once again, that the calibrations have automatically been updated.
-
-.. jupyter-execute::
-
-    pd.DataFrame(**cals.parameters_table(qubit_list=[qubit, ()], parameters="amp"))[columns_to_show]
-
-To check that we have managed to reduce the error in the rotation angle we will run the fine amplitude calibration experiment once again.
-
-.. jupyter-execute::
-
-    data_fine2 = amp_x_cal.run().block_for_results()
-    data_fine2.figure(0)
-
-.. jupyter-execute::
-
-    print(data_fine2.analysis_results("d_theta"))
-
-As can be seen from the data above and the analysis result below 
-we have managed to reduce the error in the rotation angle dtheta.
-
-Fine amplitude calibration of the :math:`\pi`/2 rotation
---------------------------------------------------------
-
-We now wish to calibrate the amplitude of the :math:`\pi/2` rotation.
-
-.. jupyter-execute::
-
-    from qiskit_experiments.library.calibration.fine_amplitude import FineSXAmplitudeCal
-
-    amp_sx_cal = FineSXAmplitudeCal(qubit, cals, backend=backend, schedule_name="sx")
-    amp_sx_cal.circuits()[5].draw(output="mpl")
-
-.. jupyter-execute::
-
-    data_fine_sx = amp_sx_cal.run().block_for_results()
-    data_fine_sx.figure(0)
-
-.. jupyter-execute::
-
-    print(data_fine_sx.analysis_results(0))
-
-.. jupyter-execute::
-
-    print(data_fine_sx.analysis_results("d_theta"))
-
-.. jupyter-execute::
-
-    pd.DataFrame(**cals.parameters_table(qubit_list=[qubit, ()], parameters="amp"))[columns_to_show]
-
-
 Fine calibrations of a pulse amplitude
-======================================
+--------------------------------------
 
 The amplitude of a pulse can be precisely calibrated using
 error amplifying gate sequences. These gate sequences apply 
 the same gate a variable number of times. Therefore, if each gate
 has a small error :math:`d\theta` in the rotation angle then 
 a sequence of :math:`n` gates will have a rotation error of :math:`n` * :math:`d\theta`.
+The :class:`.FineAmplitude` experiment and its subclass experiments implements
+these sequences to obtain the correction value of imperfect pulses. We will first examine
+how to detect imperfect pulses using the characterization version of these experiments,
+then update calibrations with a calibration experiment.
 
 .. jupyter-execute:: 
 
-    import numpy as np
     from qiskit.pulse import InstructionScheduleMap
-    import qiskit.pulse as pulse
-    from qiskit_experiments.library import FineXAmplitude, FineSXAmplitude
-    from qiskit_experiments.test.pulse_backend import SingleTransmonTestBackend
+    from qiskit_experiments.library import FineXAmplitude
 
 .. jupyter-execute::
 
     backend = SingleTransmonTestBackend()
     qubit = 0
 
-Fine `X` gate amplitude calibration
------------------------------------
+Detecting over- and under-rotated pulses
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-We will run the error amplifying experiments with our own pulse schedules
-on which we purposefully add over and under rotations.
-To do this we create an instruction to schedule map which we populate with 
+We now run the error amplifying experiments with our own pulse schedules
+on which we purposefully add over- and under-rotations to observe their effects.
+To do this, we create an instruction to schedule map which we populate with 
 the schedules we wish to work with. This instruction schedule map is then 
 given to the transpile options of the experiment so that 
 the Qiskit transpiler can attach the pulse schedules to the gates in the experiments. 
-We base all our pulses on the default X pulse of "SingleTransmonTestBackend".
+We base all our pulses on the default :math:`X` pulse of :class:`.SingleTransmonTestBackend`.
 
 .. jupyter-execute::
 
@@ -460,10 +375,10 @@ We base all our pulses on the default X pulse of "SingleTransmonTestBackend".
     d0, inst_map = pulse.DriveChannel(qubit), pulse.InstructionScheduleMap()
 
 
-We now take the ideal x pulse amplitude reported by the backend and 
+We now take the ideal :math:`X` pulse amplitude reported by the backend and 
 add/subtract a 2% over/underrotation to it by scaling the ideal amplitude and see 
-if the experiment can detect this over/underrotation. We replace the default X pulse 
-in the instruction schedule map with this over/underrotated pulse.
+if the experiment can detect this over/underrotation. We replace the default :math:`X` pulse 
+in the instruction schedule map with this over/under-rotated pulse.
 
 .. jupyter-execute::
 
@@ -477,8 +392,8 @@ in the instruction schedule map with this over/underrotated pulse.
         pulse.play(pulse.Drag(x_pulse.duration, over_amp, x_pulse.sigma, x_pulse.beta), d0)
     inst_map.add("x", (qubit,), x_over)
 
-Let's look at one of the circuits of the FineXAmplitude experiment. 
-To calibrate the X gate we add an SX gate before the X gates to move the ideal population
+Let's look at one of the circuits of the :class:`.FineXAmplitude` experiment. 
+To calibrate the :math:`X` gate, we add an :math:`SX` gate before the :math:`X` gates to move the ideal population
 to the equator of the Bloch sphere where the sensitivity to over/under rotations is the highest.
 
 .. jupyter-execute::
@@ -491,13 +406,13 @@ to the equator of the Bloch sphere where the sensitivity to over/under rotations
 
     # do the experiment
     exp_data_over = overamp_cal.run(backend).block_for_results()
-    print(f"The ping-pong pattern points on the figure below indicate")
-    print(f"an over rotation which makes the initial state rotate more than pi.")
-    print(f"Therefore, the miscalibrated X gate makes the qubit stay away from the Bloch sphere equator.")
     exp_data_over.figure(0)
 
-We now look at a pulse with an under rotation to see how the FineXAmplitude experiment 
-detects this error. We will compare the results to the over rotation above.
+The ping-pong pattern on the figure indicates an over-rotation which makes the initial state
+rotate more than :math:`\pi`.
+
+We now look at a pulse with an under rotation to see how the :class:`.FineXAmplitude` experiment 
+detects this error. We will compare the results to the over-rotation above.
 
 .. jupyter-execute::
 
@@ -513,10 +428,10 @@ detects this error. We will compare the results to the over rotation above.
     exp_data_under = underamp_cal.run(backend).block_for_results()
     exp_data_under.figure(0)
 
-Similarly to the over rotation, the under rotated pulse creates 
+Similarly to the over-rotation, the under-rotated pulse creates 
 qubit populations that do not lie on the equator of the Bloch sphere. 
 However, compared to the ping-pong pattern of the over rotated pulse, 
-the under rotated pulse produces a flipped ping-pong pattern. 
+the under rotated pulse produces an inverted ping-pong pattern. 
 This allows us to determine not only the magnitude of the rotation error 
 but also its sign.
 
@@ -533,20 +448,25 @@ but also its sign.
     print(f"On the other hand, we measued a deviation of {dtheta_under:.3f} rad in under-rotated pulse case.")
     print(f"Thus, scale the {under_amp:.4f} pulse amplitude by {scale_under:.3f} to obtain {under_amp*scale_under:.5f}.")
 
-Analyzing a :math:`\pi`/2 pulse
--------------------------------
 
-The amplitude of the `SX` gate is calibrated with the FineSXAmplitude experiment.
-Unlike the FineXAmplitude experiment, the FineSXAmplitude experiment 
-does not require other gates than the SX gate since the number of repetitions
+Calibrating a :math:`\pi`/2 :math:`X` pulse
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Now we apply the same principles to a different example using the calibration version of
+a Fine Amplitude experiment.
+The amplitude of the :math:`SX` gate, which is an :math:`X` pulse with half the amplitude,
+is calibrated with the :class:`.FineSXAmplitudeCal` experiment.
+Unlike the :class:`.FineSXAmplitude` experiment, the :class:`.FineSXAmplitudeCal` experiment 
+does not require other gates than the :math:`SX` gate since the number of repetitions
 can be chosen such that the ideal population is always on the equator of the 
 Bloch sphere.
-To demonstrate the FineSXAmplitude experiment, we now create a SX pulse by
+To demonstrate the :class:`.FineSXAmplitudeCal` experiment, we now create a :math:`SX` pulse by
 dividing the amplitude of the X pulse by two.
 We expect that this pulse might have a small rotation error which we want to correct.
 
-
 .. jupyter-execute::
+
+    from qiskit_experiments.library import FineSXAmplitudeCal
 
     # build sx_pulse with the default x_pulse from defaults and add it to the InstructionScheduleMap
     sx_pulse = pulse.Drag(x_pulse.duration, 0.5*x_pulse.amp, x_pulse.sigma, x_pulse.beta, name="SXp_d0")
@@ -554,8 +474,13 @@ We expect that this pulse might have a small rotation error which we want to cor
         pulse.play(sx_pulse,d0)
     inst_map.add("sx", (qubit,), sched)
 
-    # do the expeirment
-    amp_cal = FineSXAmplitude(qubit, backend)
+    amp_cal = FineSXAmplitudeCal([qubit], cals, backend=backend, schedule_name="sx")
+    amp_cal.circuits()[4].draw(output="mpl")
+
+Let's run the calibration experiment:
+
+.. jupyter-execute::
+
     amp_cal.set_transpile_options(inst_map=inst_map)
     exp_data_x90p = amp_cal.run().block_for_results()
     exp_data_x90p.figure(0)
@@ -590,16 +515,25 @@ to turn it into a sharp :math:`\pi/2` rotation.
     data_x90p.figure(0)
 
 You can now see that the correction to the pulse amplitude has allowed us 
-to improve our SX gate as shown by the analysis result below. 
+to improve our :math:`SX` gate as shown by the analysis result below. 
 
 .. jupyter-execute::
 
     # check the dtheta 
     print(data_x90p.analysis_results("d_theta"))
 
+Observe, once again, that the calibrations have automatically been updated.
+
+.. jupyter-execute::
+
+    pd.DataFrame(**cals.parameters_table(qubit_list=[qubit, ()], parameters="amp"))[columns_to_show]
 
 
+See also
+--------
 
+* API documentation: :mod:`~qiskit_experiments.calibration_management` and :mod:`~qiskit_experiments.library.calibration`
+* Qiskit Textbook: `Calibrating Qubits with Qiskit Pulse <https://qiskit.org/textbook/ch-quantum-hardware/calibrating-qubits-pulse.html>`__
 
 
 
