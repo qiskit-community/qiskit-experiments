@@ -28,7 +28,7 @@ from qiskit_experiments.library.characterization import (
 
 
 class Tphi(BatchExperiment):
-    r"""Tphi Experiment Class
+    r"""An experiment to measure the :math:`x - y` plane dephasing rate.
 
     # section: overview
 

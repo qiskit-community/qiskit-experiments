@@ -502,9 +502,10 @@ class BasePlotter(ABC):
         """Configures :attr:`drawer` before plotting.
 
         The following actions are taken:
-            1. ``axis``, ``subplots``, and ``style`` are passed to :attr:`drawer`.
-            2. ``figure_options`` in :attr:`drawer` are updated based on values set in
-               the plotter :attr:`figure_options`
+
+        1. ``axis``, ``subplots``, and ``style`` are passed to :attr:`drawer`.
+        2. ``figure_options`` in :attr:`drawer` are updated based on values set in
+           the plotter :attr:`figure_options`
 
         These steps are different as all figure options could be passed to
         :attr:`drawer`, if the drawer already has a figure option with the same name.

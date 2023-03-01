@@ -27,7 +27,7 @@ from qiskit_experiments.warnings import qubit_deprecate
 
 
 class T2Ramsey(BaseExperiment):
-    r"""T2 Ramsey Experiment.
+    r"""An experiment to measure the effective qubit dephasing time and Ramsey frequency.
 
     # section: overview
 

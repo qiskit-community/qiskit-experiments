@@ -31,14 +31,15 @@ class DataExtentCalculator:
 
     Data is registered with a :class:`DataExtentCalculator` so that the computed extent
     covers all values in the data array. The extent tuple is computed as follows:
-        1. The maximum and minimum values for input data is stored whenever new data
-           arrays are registered. This is the data-extent: the minimum-area bounding box
-           that contains all registered data.
-        2. The data-extent is enlarged/shrunk by scaling its width and height by
-           :attr:`multiplier`.
-        3. If :attr:`aspect_ratio` is not ``None``, the scaled extent tuple is extended
-           in one of the dimensions so that the output extent tuple is larger and the
-           target aspect ratio is achieved.
+
+    1. The maximum and minimum values for input data is stored whenever new data
+       arrays are registered. This is the data-extent: the minimum-area bounding box
+       that contains all registered data.
+    2. The data-extent is enlarged/shrunk by scaling its width and height by
+       :attr:`multiplier`.
+    3. If :attr:`aspect_ratio` is not ``None``, the scaled extent tuple is extended
+       in one of the dimensions so that the output extent tuple is larger and the
+       target aspect ratio is achieved.
     """
 
     def __init__(self, multiplier: float = 1.0, aspect_ratio: Optional[float] = 1.0):
