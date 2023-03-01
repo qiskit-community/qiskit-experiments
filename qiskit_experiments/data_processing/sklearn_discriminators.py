@@ -15,7 +15,6 @@
 from typing import Any, List, Dict, TYPE_CHECKING
 
 from qiskit_experiments.data_processing.discriminator import BaseDiscriminator
-from qiskit_experiments.data_processing.exceptions import DataProcessorError
 from qiskit_experiments.warnings import HAS_SKLEARN
 
 if TYPE_CHECKING:

@@ -16,7 +16,6 @@ import functools
 import warnings
 from typing import Callable, Optional, Type, Dict
 
-from qiskit.exceptions import QiskitError
 from qiskit.utils.lazy_tester import LazyImportTester
 
 

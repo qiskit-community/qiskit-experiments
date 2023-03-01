@@ -20,7 +20,6 @@ import numpy as np
 from qiskit.providers.options import Options
 from qiskit_experiments.framework import BaseAnalysis, AnalysisResultData, ExperimentData
 from qiskit_experiments.data_processing import SkQDA
-from qiskit_experiments.data_processing.exceptions import DataProcessorError
 from qiskit_experiments.visualization import BasePlotter, IQPlotter, MplDrawer, PlotStyle
 from qiskit_experiments.warnings import HAS_SKLEARN
 
@@ -41,14 +40,6 @@ class MultiStateDiscriminationAnalysis(BaseAnalysis):
     Here, :math:`d` is the number of levels that were discriminated while :math:`P(i|j)` is the
     probability of measuring outcome :math:`i` given that state :math:`j` was prepared.
     """
-
-    def __init__(self):
-        """Setup the analysis.
-
-        Raises:
-            DataProcessorError: if sklearn is not installed.
-        """
-        super().__init__()
 
     @classmethod
     @HAS_SKLEARN.require_in_call
