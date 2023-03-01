@@ -198,7 +198,7 @@ There are four types of options one can set for an experiment:
 Run options
 -----------
 
-These options are passed to the experiment's ``run()`` method and then to the ``run()``
+These options are passed to the experiment's :meth:`~.BaseExperiment.run` method and then to the ``run()``
 method of your specified backend. Any run option that your backend supports can be set:
 
 .. jupyter-input::
@@ -207,7 +207,7 @@ method of your specified backend. Any run option that your backend supports can 
                       meas_level=MeasLevel.CLASSIFIED,
                       meas_return="avg")
 
-Consult the documentation of :meth:`qiskit.providers.ibmq.IBMQBackend.run` or 
+Consult the documentation of :meth:`qiskit.execute_function` or the run method of 
 your specific backend type for valid options.
 
 Transpile options
@@ -229,7 +229,7 @@ These options are unique to each experiment class. Many experiment options can b
 upon experiment instantiation, but can also be explicitly set via 
 :meth:`~BaseExperiment.set_experiment_options`:
 
-.. code-block:: 
+.. jupyter-input::
 
   exp = T1(physical_qubits=(i,), delays=delays)
   exp.set_experiment_options(delays=new_delays)

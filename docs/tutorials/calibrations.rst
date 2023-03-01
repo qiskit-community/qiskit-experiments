@@ -10,37 +10,16 @@ module, we would need to define pulse schedules and plot the resulting measureme
 data manually.
 
 In this tutorial, we demonstrate how to calibrate single-qubit gates using the 
-calibration framework in Qiskit Experiments. You can run these experiments on any 
-backend with Pulse enabled:
-
-.. jupyter-execute::
-    :hide-code:
-    :hide-output:
-
-    from qiskit.test.ibmq_mock import mock_get_backend
-    backend = mock_get_backend('FakeLima')
-
-.. jupyter-execute::
-
-	from qiskit import IBMQ
-	IBMQ.load_account()
-	provider = IBMQ.get_provider(hub='ibm-q', group='open', project='main')
-	backend = provider.get_backend('ibmq_lima')
-
-We can verify whether the backend supports Pulse features by checking the 
-backend configuration:
-
-.. jupyter-execute::	
-	
-	backend_config = backend.configuration()
-	assert backend_config.open_pulse, "Backend doesn't support Pulse"
-
-For the purposes of the tutorial, we will run experiments on our test pulse 
+calibration framework in Qiskit Experiments. We will run experiments on our test pulse 
 backend, :class:`.SingleTransmonTestBackend`, a backend that simulates the underlying pulses 
-with :doc:`Qiskit Dynamics <qiskit/dynamics>` on a three-level model of a transmon. We will run experiments to 
+with `Qiskit Dynamics <https://qiskit.org/documentation/dynamics/>`_ on a 
+three-level model of a transmon. You can run these experiments on any real backend with
+Pulse enabled (see :external+qiskit:doc:`tutorials/circuits_advanced/08_gathering_system_information`).
+
+. We will run experiments to 
 find the qubit frequency, calibrate the amplitude of DRAG pulses, and choose the value 
 of the DRAG parameter that minimizes leakage. The calibration framework requires 
-the user to
+the user to:
 
 - Set up an instance of :class:`.Calibrations`,
 

@@ -10,13 +10,17 @@ experiment whose jobs have finished execution successfully.
 Solution
 --------
 
+.. note::
+    This recipe requires :mod:`qiskit-ibm-provider`. For how to migrate from the deprecated :mod:`qiskit-ibmq-provider` to :mod:`qiskit-ibm-provider`,
+    consult the `migration guide <https://qiskit.org/documentation/partners/qiskit_ibm_provider/tutorials/Migration_Guide_from_qiskit-ibmq-provider.html>`_.\
+
 Use the code template below. You need to know the exact experiment you
-ran and its options, the IDs of the jobs that were executed. You also need the
-``backend`` object corresponding to the backend that the experiment was run on.
+ran and its options, as well as the IDs of the jobs that were executed.
 
 .. jupyter-input::
 
     from qiskit_experiments.framework import ExperimentData
+    from qiskit_ibm_provider import IBMProvider
 
     # The experiment you ran
     experiment = Experiment(**opts)
@@ -24,8 +28,10 @@ ran and its options, the IDs of the jobs that were executed. You also need the
     # List of job IDs for the experiment
     job_ids= [job1, job2, ...]
 
+    provider = IBMProvider()
+
     data = ExperimentData(experiment = experiment)
-    data.add_jobs([backend.retrieve_job(job_id) for job_id in job_ids])
+    data.add_jobs([provider.retrieve_job(job_id) for job_id in job_ids])
     experiment.analysis.run(data)
 
     # Block execution of subsequent code until analysis is complete
@@ -62,7 +68,7 @@ as well as the line plot color of the first component experiment.
     )
 
     data = ExperimentData(experiment=pexp)
-    data.add_jobs([backend_real.retrieve_job(job_id) for job_id in job_ids])
+    data.add_jobs([provider.retrieve_job(job_id) for job_id in job_ids])
     pexp.analysis.run(data)
 
 See Also
