@@ -2,7 +2,7 @@
 pull_request_rules:
   - name: backport
     conditions:
-      - label=stable backport potential
+      - label=backport stable potential
     actions:
       backport:
         branches:
