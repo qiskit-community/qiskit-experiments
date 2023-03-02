@@ -13,6 +13,9 @@
 # pylint: disable=unused-argument, unused-variable
 """Test warning helper."""
 
+import subprocess
+import sys
+import textwrap
 from test.base import QiskitExperimentsTestCase
 
 from qiskit_experiments.framework import BaseExperiment
@@ -86,3 +89,35 @@ class TestWarningsHelper(QiskitExperimentsTestCase):
         with self.assertWarns(DeprecationWarning):
             instance = OldExperiment(qubit=0)
         self.assertEqual(instance._physical_qubits, (0,))
+
+    def test_warn_sklearn(self):
+        """Test that a suggestion to import scikit-learn is given when appropriate"""
+        script = """
+        import sys
+        sys.modules["sklearn"] = None
+        import qiskit_experiments
+        print("qiskit_experiments imported!")
+        from qiskit_experiments.data_processing.sklearn_discriminators import SkLDA
+        SkLDA.from_config({})
+        """
+        script = textwrap.dedent(script)
+
+        proc = subprocess.run(
+            [sys.executable, "-c", script], check=False, text=True, capture_output=True
+        )
+
+        self.assertTrue(
+            proc.stdout.startswith("qiskit_experiments imported!"),
+            msg="Failed to import qiskit_experiments without sklearn",
+        )
+
+        self.assertNotEqual(
+            proc.returncode,
+            0,
+            msg="scikit-learn usage did not error without scikit-learn available",
+        )
+        self.assertTrue(
+            "qiskit.exceptions.MissingOptionalLibraryError" in proc.stderr
+            and "scikit-learn" in proc.stderr,
+            msg="scikit-learn import guard did not run on scikit-learn usage",
+        )
