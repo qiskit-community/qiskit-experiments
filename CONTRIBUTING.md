@@ -10,27 +10,30 @@ Qiskit Experiments are documented below.
 
 ### Contents
 
-  + [Proposing a new experiment](#proposing-a-new-experiment)
-  + [Choosing an issue to work on](#choosing-an-issue-to-work-on)
-  + [Pull request checklist](#pull-request-checklist)
-  + [Code style](#code-style)
-  + [Testing your code](#testing-your-code)
-    - [STDOUT/STDERR and logging capture](#stdoutstderr-and-logging-capture)
-  + [Changelog generation](#changelog-generation)
-  + [Release notes](#release-notes)
-    - [Adding a new release note](#adding-a-new-release-note)
-      * [Linking to issues](#linking-to-issues)
-    - [Generating release notes](#generating-release-notes)
-  + [Documentation](#documentation)
-    + [Experiment class documentation](#experiment-class-documentation)
-    + [Analysis class documentation](#analysis-class-documentation)
-    + [Populating the table of contents](#populating-the-table-of-contents)
-    + [Updating the tutorials](#updating-the-tutorials)
-    + [Building documentation locally](#building-documentation-locally)
-  + [Adding deprecation warnings](#adding-deprecation-warnings)
-  + [Development cycle](#development-cycle)
-  + [Branches](#branches)
-  + [Release cycle](#release-cycle)
+- [Contributing Guide](#contributing-guide)
+  - [Contributing to Qiskit Experiments](#contributing-to-qiskit-experiments)
+    - [Contents](#contents)
+    - [Proposing a new experiment](#proposing-a-new-experiment)
+    - [Choosing an issue to work on](#choosing-an-issue-to-work-on)
+    - [Pull request checklist](#pull-request-checklist)
+    - [Code style](#code-style)
+    - [Testing your code](#testing-your-code)
+      - [STDOUT/STDERR and logging capture](#stdoutstderr-and-logging-capture)
+    - [Changelog generation](#changelog-generation)
+    - [Release notes](#release-notes)
+      - [Adding a new release note](#adding-a-new-release-note)
+        - [Linking to issues](#linking-to-issues)
+      - [Generating release notes](#generating-release-notes)
+    - [Documentation](#documentation)
+      - [Experiment class documentation](#experiment-class-documentation)
+      - [Analysis class documentation](#analysis-class-documentation)
+      - [Populating the table of contents](#populating-the-table-of-contents)
+      - [Updating the documentation](#updating-the-documentation)
+      - [Building documentation locally](#building-documentation-locally)
+    - [Adding deprecation warnings](#adding-deprecation-warnings)
+    - [Development cycle](#development-cycle)
+    - [Branches](#branches)
+    - [Release cycle](#release-cycle)
 
 ### Proposing a new experiment
 
@@ -65,9 +68,9 @@ When submitting a pull request for review, please ensure that:
 
 1. The code follows the code style of the project and successfully passes the tests.
 2. The API documentation has been updated accordingly.
-3. You have updated the relevant tutorial or write a new one. In case the PR needs to be
+3. You have updated the relevant documentation or written new docs. In case the PR needs to be
    merged without delay (e.g. for a high priority fix), open an issue for updating or
-   adding the tutorial later.
+   adding the documentation later.
 4. You've added tests that cover the changes you've made, if relevant.
 5. If your change has an end user facing impact (new feature, deprecation, removal,
    etc.), you've added or updated a reno release note for that change and tagged the PR
@@ -374,7 +377,7 @@ You should complete or update the class documentation and method documentation f
        the destination location separated by single comma.
    
    # section: tutorial
-       Optional. Link to tutorial of this experiment if one exists.
+       Optional. Link to documentation of this experiment if one exists.
    
    # section: see_also
        Optional. You can list relevant experiment or module.
@@ -534,14 +537,14 @@ qiskit_experiments/library/__init__.py
 Here the reference start with `~`. We only add experiment classes to the table of the
 entire library.
 
-#### Updating the tutorials
+#### Updating the documentation
 
-Any change that would affect an existing tutorial or a new feature that requires a
-tutorial should be updated correspondingly. Before updating a tutorial, review the
-[existing tutorials](https://qiskit.org/documentation/experiments/tutorials/index.html) for their style and content, and read the [tutorial guidelines](docs/tutorials/GUIDELINES.md)
- for further details.
+Any change that would affect existing documentation, or a new feature that requires a
+documentation, should be updated correspondingly. Before updating, review the
+[existing documentation](https://qiskit.org/documentation/experiments) for their style and content, and read the [documentation guidelines](docs/GUIDELINES.md)
+for further details.
 
-Tutorials are written in reStructuredText format and then built into Jupyter notebooks.
+Documentation is written in reStructuredText format and then built into Jupyter notebooks.
 Code cells can be written using `jupyter-execute` blocks, which will be automatically
 executed, with both code and output shown to the user:
 
@@ -560,7 +563,9 @@ to the user, use the `:hide-code:` and `:hide-output:` directives:
         from qiskit.test.ibmq_mock import mock_get_backend
         backend = mock_get_backend('FakeLima')
 
-To ignore an error from a Jupyter cell block, use the `:raises:` directive.
+To display a block without actually executing the code, use the `.. jupyter-input::`
+and `.. jupyter-output::` directives. To ignore an error from a Jupyter cell block, 
+use the `:raises:` directive.
 #### Building documentation locally
 
 To check what the rendered html output of the API documentation, tutorials, and release

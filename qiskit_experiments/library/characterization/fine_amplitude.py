@@ -46,7 +46,7 @@ class FineAmplitude(BaseExperiment, RestlessMixin):
         Here, Gate is the name of the gate which will be repeated. The user can optionally add a
         square-root of X pulse before the gates are repeated. This square-root of X pulse allows
         the analysis to differentiate between over rotations and under rotations in the case of
-        pi-pulses. Importantly, the resulting data is analyzed by a fit to a cosine function in
+        :math:`\pi`-pulses. Importantly, the resulting data is analyzed by a fit to a cosine function in
         which we try to determine the over/under rotation given an intended rotation angle per
         gate which must also be specified by the user.
 
@@ -54,7 +54,7 @@ class FineAmplitude(BaseExperiment, RestlessMixin):
         the equator of the Bloch sphere. This is why users should insert a square-root of X pulse
         before running calibrations for :math:`\pm\pi` rotations. When all data points are close to
         the equator, it is difficult for a fitter to infer the overall scale of the error. When
-        calibrating a :math:`pi` rotation, one can use ``add_xp_circuit = True`` to insert one
+        calibrating a :math:`\pi` rotation, one can use ``add_xp_circuit = True`` to insert one
         circuit that puts the qubit in the excited state to set the scale for the other circuits.
         Furthermore, when running calibrations for :math:`\pm\pi/2` rotations users are advised
         to use an odd number of repetitions, e.g. [1, 2, 3, 5, 7, ...] to ensure that the ideal
@@ -86,7 +86,7 @@ class FineAmplitude(BaseExperiment, RestlessMixin):
         .. ref_arxiv:: 1 1504.06597
 
     # section: tutorial
-        :doc:`/guides/calibrations`
+        :ref:`fine-amplitude-cal`
 
     """
 
