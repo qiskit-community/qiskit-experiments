@@ -42,7 +42,7 @@ class HalfAngleCal(BaseCalibrationExperiment, HalfAngle):
         calibrations: Calibrations,
         backend: Optional[Backend] = None,
         schedule_name: str = "sx",
-        cal_parameter_name: Optional[str] = "amp",
+        cal_parameter_name: Optional[str] = "angle",
         auto_update: bool = True,
     ):
         """see class :class:`HalfAngle` for details.
@@ -116,15 +116,15 @@ class HalfAngleCal(BaseCalibrationExperiment, HalfAngle):
 
         result_index = self.experiment_options.result_index
         group = experiment_data.metadata["cal_group"]
-        prev_amp = experiment_data.metadata["cal_param_value"]
+        prev_angle = experiment_data.metadata["cal_param_value"]
 
         d_theta = BaseUpdater.get_value(experiment_data, "d_hac", result_index)
-        new_amp = prev_amp * np.exp(-1.0j * d_theta / 2)
+        new_angle = prev_angle - (d_theta / 2)
 
         BaseUpdater.add_parameter_value(
             self._cals,
             experiment_data,
-            new_amp,
+            new_angle,
             self._param_name,
             self._sched_name,
             group,
