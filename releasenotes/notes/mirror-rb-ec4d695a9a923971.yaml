@@ -1,0 +1,7 @@
+---
+features:
+  - |
+    A new experiment class :class:`.MirrorRB` is 
+    introduced. This class implements mirror randomized benchmarking, a version 
+    of RB that uses mirror circuits. It is more scalable than other RB protocols and
+    can consequently be used to detect crosstalk errors.
