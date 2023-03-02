@@ -149,6 +149,8 @@ modindex_common_prefix = ["qiskit_experiments."]
 #
 html_theme = "qiskit_sphinx_theme"  # use the theme in subdir 'theme'
 
+html_output_encoding = "utf-8"
+
 html_context = {
     "analytics_enabled": True,
     "expandable_sidebar": True,
