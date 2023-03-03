@@ -77,9 +77,8 @@ extensions = [
     "autodoc_visualization",
     "jupyter-execute-checkenv",
 ]
-html_static_path = ["_static"]
 templates_path = ["_templates"]
-html_css_files = ["style.css", "custom.css", "gallery.css"]
+html_css_files = ["custom.css", "gallery.css"]
 
 nbsphinx_timeout = 360
 nbsphinx_execute = os.getenv("QISKIT_DOCS_BUILD_TUTORIALS", "never")
@@ -148,8 +147,6 @@ modindex_common_prefix = ["qiskit_experiments."]
 # a list of builtin themes.
 #
 html_theme = "qiskit_sphinx_theme"  # use the theme in subdir 'theme'
-
-html_output_encoding = "utf-8"
 
 html_context = {
     "analytics_enabled": True,
