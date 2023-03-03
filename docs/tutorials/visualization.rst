@@ -301,4 +301,4 @@ overriding the :meth:`~.BasePlotter._default_figure_options` method in your plot
 See also
 --------
 
-API documentation: :doc:`/apidocs/visualization`
+API documentation: :doc:`Visualization Module </apidocs/visualization>`

@@ -137,7 +137,7 @@ and analysis, respectively:
     print(exp_data.analysis_status())
 
 Once the analysis is complete, figures are retrieved using the :meth:`~.ExperimentData.figure` method. See the 
-:doc:`visualization` tutorial on how to customize figures for an experiment. For our :math:`T_1`
+:doc:`visualization module <visualization>` tutorial on how to customize figures for an experiment. For our :math:`T_1`
 experiment, we have a single figure showing the raw data and fit to the exponential
 decay model of the :math:`T_1` experiment:
 

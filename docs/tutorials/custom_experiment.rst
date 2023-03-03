@@ -3,7 +3,7 @@ Writing your own experiment
 
 Qiskit Experiments is designed to be easily customizable. If you would like to 
 run an experiment that's similar to an existing experiment in the 
-:doc:`library <apidocs/library>`, you can subclass the existing experiment and analysis
+:doc:`library </apidocs/library>`, you can subclass the existing experiment and analysis
 classes. You can also write your own experiment class from the ground up by subclassing
 the :class:`.BaseExperiment` class. We will discuss both cases in this tutorial.
 

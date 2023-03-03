@@ -49,7 +49,7 @@ We've divided up the documentation into four sections with different purposes:
         These individual how-to recipes provide short and direct solutions to some commonly
         asked questions for Qiskit Experiments users. You'll find in these recipes:
 
-        * How to :doc:`instantiate experiment data for an existing experiment <howtos/new_experimentdata>`
+        * How to :doc:`re-instantiate experiment data for an existing experiment <howtos/new_experimentdata>`
         * How to :doc:`customize the splitting of circuits into jobs <howtos/job_splitting>`
 
         +++
@@ -69,7 +69,8 @@ We've divided up the documentation into four sections with different purposes:
         These are in-depth guides to key experiments in the package, describing
         their background, principle, and how to run them in Qiskit Experiments. You'll find in these guides:
         
-        * What is :doc:`randomized benchmarking </guides/randomized_benchmarking>` and when is it useful
+        * How to analyze 1- and 2-qubit errors in :doc:`randomized benchmarking </guides/randomized_benchmarking>`
+        * How to calculate the speedup from using :doc:`restless measurements </guides/restless_measurements>`
 
         +++
 
@@ -90,8 +91,8 @@ We've divided up the documentation into four sections with different purposes:
         Qiskit Experiments and how to use them, suitable for those working closely
         with specific parts of the package or writing your custom code. You'll find in these references:
         
-        * What are all possible input parameters to the :class:`.CurveAnalysis` class
-
+        * Parameters, attributes, and methods of the :class:`.BaseExperiment` class
+        * Default experiment, transpile, and run options for the :class:`.T1` experiment
         +++
 
         .. button-ref:: apidocs/index
