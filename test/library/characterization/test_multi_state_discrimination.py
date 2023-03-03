@@ -32,7 +32,7 @@ def requires_sklearn(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
         try:
-            HAS_SKLEARN.require_now("SKLearn disciminator testing")
+            HAS_SKLEARN.require_now("SKLearn discriminator testing")
         except MissingOptionalLibraryError as exc:
             raise SkipTest("SKLearn is required for test.") from exc
 
