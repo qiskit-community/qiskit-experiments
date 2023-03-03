@@ -93,10 +93,20 @@ class TestWarningsHelper(QiskitExperimentsTestCase):
     def test_warn_sklearn(self):
         """Test that a suggestion to import scikit-learn is given when appropriate"""
         script = """
-        import sys
-        sys.modules["sklearn"] = None
+        import builtins
+        disallowed_imports = {"sklearn"}
+        old_import = builtins.__import__
+        def guarded_import(name, *args, **kwargs):
+            if name in disallowed_imports:
+                raise import_error(f"Import of {name} not allowed!")
+            return old_import(name, *args, **kwargs)
+        builtins.__import__ = guarded_import
+        # Raise Exception on imports so that ImportError can't be caught
+        import_error = Exception
         import qiskit_experiments
         print("qiskit_experiments imported!")
+        # Raise ImportError so the guard can catch it
+        import_error = ImportError
         from qiskit_experiments.data_processing.sklearn_discriminators import SkLDA
         SkLDA.from_config({})
         """
