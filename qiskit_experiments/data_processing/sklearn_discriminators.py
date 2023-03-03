@@ -25,7 +25,11 @@ if TYPE_CHECKING:
 
 
 class SkLDA(BaseDiscriminator):
-    """A wrapper for the SKlearn linear discriminant analysis."""
+    """A wrapper for the scikit-learn linear discriminant analysis.
+
+    .. note::
+        This class requires that scikit-learn is installed.
+    """
 
     def __init__(self, lda: "LinearDiscriminantAnalysis"):
         """
@@ -95,7 +99,11 @@ class SkLDA(BaseDiscriminator):
 
 
 class SkQDA(BaseDiscriminator):
-    """A wrapper for the SKlearn quadratic discriminant analysis."""
+    """A wrapper for the SKlearn quadratic discriminant analysis.
+
+    .. note::
+        This class requires that scikit-learn is installed.
+    """
 
     def __init__(self, qda: "QuadraticDiscriminantAnalysis"):
         """

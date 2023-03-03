@@ -39,6 +39,9 @@ class MultiStateDiscriminationAnalysis(BaseAnalysis):
 
     Here, :math:`d` is the number of levels that were discriminated while :math:`P(i|j)` is the
     probability of measuring outcome :math:`i` given that state :math:`j` was prepared.
+
+    .. note::
+        This class requires that scikit-learn is installed.
     """
 
     @classmethod
