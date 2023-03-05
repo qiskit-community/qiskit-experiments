@@ -5,7 +5,7 @@ pylint==2.7.1
 jinja2==3.0.3
 sphinx~=5.0
 jupyter-sphinx>=0.4.0
-qiskit-sphinx-theme>=1.10.2
+qiskit-sphinx-theme~=1.10
 sphinx-autodoc-typehints<=1.20.2
 sphinx-design==0.3.0
 pygments>=2.4
@@ -20,3 +20,4 @@ pylatexenc
 # Pin `importlib-metadata` because of a bug relating to version 5.0.0. See #931 for more.
 importlib-metadata==4.13.0;python_version<'3.8'
 scikit-learn
+sphinx-copybutton

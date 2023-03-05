@@ -262,7 +262,7 @@ adding a measurement at the end only to the measurement qubits. Metadata contain
 the classical measurement register and the applied Pauli, and the 
 each of the circuits to tell the analysis class how to restore the original results.
 To make restoration easier, we store Paulis in the 
-:class:`x symplectic form <qiskit.quantum_info.PauliTable>` in ``metadata["rm_frame"]``
+:class:`x symplectic form <qiskit.quantum_info.PauliTable>` in ``metadata["rm_sig"]``
 so we know whether to apply a bit flip to each bit of the result 
 (the phase is not important for our purposes).
 
