@@ -32,4 +32,4 @@ class JupyterCellCheckEnv(JupyterCell):
 
 
 def setup(app: Sphinx):
-    app.add_directive("jupyter-execute", JupyterCellCheckEnv)
+    app.add_directive("jupyter-execute", JupyterCellCheckEnv, override=True)

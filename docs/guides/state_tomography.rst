@@ -17,9 +17,10 @@ Quantum State Tomography
 State Tomography Experiment
 ---------------------------
 
-To run a state tomography experiment, we initialize the experiment with a
-circuit to prepare the state to be measured. We can also pass in an
-``Operator``, or a ``Statevector`` to describe the preparation circuit.
+To run a state tomography experiment, we initialize the experiment with a circuit to
+prepare the state to be measured. We can also pass in an
+:class:`~qiskit.quantum_info.Operator`, or a :class:`~qiskit.quantum_info.Statevector`
+to describe the preparation circuit.
 
 .. jupyter-execute::
 
@@ -54,8 +55,12 @@ The main result for tomography is the fitted state, which is stored as a
     state_result = qstdata1.analysis_results("state")
     print(state_result.value)
 
+We can also visualize the density matrix:
 
+.. jupyter-execute::
 
+    from qiskit.visualization import plot_state_city
+    plot_state_city(qstdata1.analysis_results("state").value, title='Density Matrix')
 
 The state fidelity of the fitted state with the ideal state prepared by
 the input circuit is stored in the ``"state_fidelity"`` result field.
