@@ -1,7 +1,7 @@
 ---
 features:
   - |
-    Adds a :meth:`.BaseExperiment._finalize` method to :class:`.BaseExperiment`
+    Added a :meth:`.BaseExperiment._finalize` method to :class:`.BaseExperiment`
     which is after configuring any runtime options, backend, or analysis
     classes but before generation and execution of experiment
     circuits during :class:`.BaseExperiment.run`.

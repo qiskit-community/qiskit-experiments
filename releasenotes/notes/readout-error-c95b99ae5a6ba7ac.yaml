@@ -8,7 +8,7 @@ features:
     qubits for the backend.
 fixes:
   - |
-    Fixes bug in the :class:`~.LocalReadoutError` experiment where analysis
+    Fixed bug in the :class:`~.LocalReadoutError` experiment where analysis
     would fail when run on an ideal simulator with no readout error.
 
     See `Issue #992 <https://github.com/Qiskit/qiskit-experiments/issues/992>`_

@@ -1,10 +1,10 @@
 ---
 fixes:
   - |
-    Fix a bug where :meth:`.CliffordUtils.random_cliffords` always returned a single Clifford
+    Fixed a bug where :meth:`.CliffordUtils.random_cliffords` always returned a single Clifford
     ignoring the ``size`` arguments. Now it returns a list of Cliffords with ``size``.
   - |
-    Fix a bug where both :meth:`.CliffordUtils.random_cliffords` and
+    Fixed a bug where both :meth:`.CliffordUtils.random_cliffords` and
     :meth:`.CliffordUtils.random_clifford_circuits` with integer ``seed``
     returned a list of the same circuits (sampled with a common seed).
     Now it returns a list of circuits sampled with different seeds.

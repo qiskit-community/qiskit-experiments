@@ -35,7 +35,7 @@ features:
     :class:`.LocalReadoutError` characterization experiment followed by either
     a :class:`.StateTomography` or :class:`.ProcessTomography` experiment.
   - |
-    Adds support for conditional tomographic reconstruction to the
+    Added support for conditional tomographic reconstruction to the
     :class:`.StateTomography` and :class:`.ProcessTomography` experiments.
 
     There are three types of conditioning that can be used independently
@@ -60,17 +60,17 @@ features:
     in the analysis results ``extra`` field.
 fixes:
   - |
-    Fixes bug in :class:`~.StateTomography` and :class:`~.ProcessTomography`
+    Fixed bug in :class:`~.StateTomography` and :class:`~.ProcessTomography`
     experiments where if the input circuit contained conditional instructions
     with multiple classical registers the tomography measurement circuits
     would contain incorrect conditionals due to a bug in the
     :meth:`.QuantumCircuit.compose` method.
 
-    See Issue #942 <https://github.com/Qiskit/qiskit-experiments/issues/943>`_
+    See `Issue #942 <https://github.com/Qiskit/qiskit-experiments/issues/943>`_
     for additional details.
 upgrade:
   - |
-    Renames the ``qubits``, ``measurement_qubits``, and ``preparation_qubits``
+    Renamed the ``qubits``, ``measurement_qubits``, and ``preparation_qubits``
     init kwargs of :class:`~.StateTomography`,
     :class:`~.ProcessTomography`, and :class:`~.TomographyExperiment` to
     ``physical_qubits``, ``measurement_indices`` and ``preparation_indices``
