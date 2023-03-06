@@ -48,7 +48,7 @@ class Tphi(BatchExperiment):
     # section: reference
         .. ref_arxiv:: 1 1904.06560v5
 
-    # section: tutorial
+    # section: guide
         :doc:`/guides/tphi_characterization`
     """
 

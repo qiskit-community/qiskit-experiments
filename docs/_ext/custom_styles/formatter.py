@@ -90,9 +90,9 @@ class DocstringSectionFormatter:
         return format_lines
 
     @_check_no_indent
-    def format_tutorial(self, lines: List[str]) -> List[str]:
-        """Format tutorial section."""
-        format_lines = [".. rubric:: Tutorials", ""]
+    def format_guide(self, lines: List[str]) -> List[str]:
+        """Format user guide section."""
+        format_lines = [".. rubric:: User Guide", ""]
         format_lines.extend(lines)
         format_lines.append("")
 

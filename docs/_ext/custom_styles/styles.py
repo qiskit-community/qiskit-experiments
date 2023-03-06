@@ -161,7 +161,7 @@ class ExperimentDocstring(QiskitExperimentDocstring):
         "warning": load_standard_section,
         "overview": load_standard_section,
         "reference": load_standard_section,
-        "tutorial": load_standard_section,
+        "guide": load_standard_section,
         "analysis_ref": load_standard_section,
         "experiment_opts": None,
         "transpiler_opts": None,
@@ -266,7 +266,7 @@ class AnalysisDocstring(QiskitExperimentDocstring):
         "fit_model": load_standard_section,
         "fit_parameters": load_fit_parameters,
         "reference": load_standard_section,
-        "tutorial": load_standard_section,
+        "guide": load_standard_section,
         "analysis_opts": None,
         "example": load_standard_section,
         "note": load_standard_section,
@@ -322,9 +322,9 @@ class VisualizationDocstring(QiskitExperimentDocstring):
         "warning": load_standard_section,
         "overview": load_standard_section,
         "reference": load_standard_section,
-        "tutorial": load_standard_section,
-        "opts": None,           # For standard options
-        "figure_opts": None,    # For figure options
+        "guide": load_standard_section,
+        "opts": None,  # For standard options
+        "figure_opts": None,  # For figure options
         "example": load_standard_section,
         "note": load_standard_section,
         "see_also": load_standard_section,

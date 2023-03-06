@@ -2,7 +2,7 @@ T1 Characterization
 ===================
 
 Background
-===========
+----------
 
 In a :math:`T_1` experiment, we measure an excited qubit after a delay.
 Due to decoherence processes (e.g. amplitude damping channel), it is
@@ -80,7 +80,7 @@ for qubit 0.
 
 
 :math:`T_1` experiments with kerneled measurement
-=================================================
+-------------------------------------------------
 
 :math:`T_1` experiments can also be done with kerneled measurements.
 If we set the run option `meas_level=MeasLevel.KERNELED`, the job

@@ -122,7 +122,7 @@ class CrossResonanceHamiltonian(BaseExperiment):
     # section: reference
         .. ref_arxiv:: 1 1603.04821
 
-    # section: tutorial
+    # section: guide
         .. ref_website:: Qiskit Textbook 6.7,
             https://qiskit.org/textbook/ch-quantum-hardware/hamiltonian-tomography.html
     """

@@ -26,12 +26,11 @@ Decoherence Time
 
 The decoherence time is the time taken for off-diagonal components of the
 density matrix to fall to approximately 37% (:math:`\frac{1}{e}`). For
-:math:`t\gg T_2`, the qubit statistics behave like a random bit. It gets
-the value of ``0`` with probability of :math:`p` and the value of ``1``
-with probability of :math:`1-p`.
+:math:`t\gg T_2`, the qubit statistics behave like a random bit, with
+value 0 with probability of :math:`p` and value 1 with probability :math:`1-p`.
 
 Since the qubit is exposed to other types of noise (like T1), we are
-using :math:`Rx(\pi)` pulses for decoupling and to solve our inaccuracy
+using :math:`R_x(\pi)` pulses for decoupling and to solve our inaccuracy
 for the qubit frequency estimation.
 
 .. jupyter-execute::
@@ -42,17 +41,21 @@ for the qubit frequency estimation.
 The circuit used for an experiment with :math:`N` echoes comprises the
 following components:
 
-    1. :math:`Rx\left(\frac{\pi}{2} \right)` gate
-    2. :math:`N` times echo sequence:
-        (a) :math:`Delay \left(t_{0} \right)` gate
-        (b) :math:`Rx \left(\pi \right)` gate
-        (c) :math:`Delay \left(t_{0} \right)` gate
-    3. :math:`Rx \left(\pm \frac{\pi}{2} \right)` gate (sign depends on the number of echoes)
-    4. Measurement gate
+#. :math:`R_x\left(\frac{\pi}{2} \right)` gate
+#. :math:`N` times echo sequence:
+
+   #. :math:`Delay \left(t_{0} \right)` gate
+   #. :math:`R_x \left(\pi \right)` gate
+   #. :math:`Delay \left(t_{0} \right)` gate
+
+#. :math:`R_x \left(\pm \frac{\pi}{2} \right)` gate (sign depends on the number of echoes)
+#. Measurement gate
+
+|
 
 The user provides as input a series of delays in seconds. During the
 delay, we expect the qubit to precess about the z-axis. Because of the
-echo gate (:math:`Rx(\pi)`) for each echo, the angle after the delay
+echo gate (:math:`R_x(\pi)`) for each echo, the angle after the delay
 gates will be :math:`\theta_{new} = \theta_{old} + \pi`. After waiting
 the same delay time, the angle will be approximately :math:`0` or
 :math:`\pi`. By varying the extension of the delays, we get a series of

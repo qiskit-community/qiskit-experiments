@@ -53,7 +53,7 @@ class T2Hahn(BaseExperiment):
         the delay in the metadata is the total delay which is delay * (num_echoes +1)
         The circuits are run on the device or on a simulator backend.
 
-    # section: tutorial
+    # section: guide
         :doc:`/guides/t2hahn_characterization`
 
     # section: analysis_ref
