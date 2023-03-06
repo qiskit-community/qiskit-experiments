@@ -20,9 +20,7 @@
    .. autosummary::
       :toctree: ../stubs/
    {% for item in all_attributes %}
-      {%- if not item.startswith('_') %}
-      {{ name }}.{{ item }}
-      {%- endif -%}
+      .. autoattribute:: {{ item }}
    {%- endfor %}
    {% endif %}
    {% endblock %}

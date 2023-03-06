@@ -122,6 +122,9 @@ class BasePlotter(ABC):
         # plotter.drawer.figure_options.unknown_variable    # Raises an error as it
                                                             # does not exist in
                                                             # `drawer.figure_options`.
+
+    Attributes:
+        drawer (BaseDrawer): The drawer to use when plotting.
     """
 
     def __init__(self, drawer: BaseDrawer):
@@ -145,9 +148,7 @@ class BasePlotter(ABC):
         # Figure options that have changed, for serialization.
         self._set_figure_options = set()
 
-        # The drawer backend to use for plotting. Docstring provided as drawer is not a @property.
         self.drawer: BaseDrawer = drawer
-        """The drawer to use when plotting."""
 
     @property
     def supplementary_data(self) -> Dict[str, Any]:
