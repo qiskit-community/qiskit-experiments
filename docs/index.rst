@@ -19,11 +19,10 @@ We've divided up the documentation into four sections with different purposes:
 .. grid:: 2
     :gutter: 5
 
-    .. grid-item-card::
-        :img-top: _static/tutorials.png
+    .. grid-item-card:: Tutorials
 
-        Tutorials
-        ^^^^^^^^^
+        .. image:: _static/tutorials.png
+            :target: tutorials/index.html
 
         These step-by-step tutorials teach the fundamentals of the package and 
         are suitable for getting started. You'll find in these tutorials:
@@ -40,12 +39,11 @@ We've divided up the documentation into four sections with different purposes:
 
             To the learning tutorials
 
-    .. grid-item-card::
-        :img-top: _static/howtos.png
+    .. grid-item-card:: How-Tos
 
-        How-Tos
-        ^^^^^^^
-
+        .. image:: _static/howtos.png
+            :target: howtos/index.html
+    
         These individual how-to recipes provide short and direct solutions to some commonly
         asked questions for Qiskit Experiments users. You'll find in these recipes:
 
@@ -60,11 +58,10 @@ We've divided up the documentation into four sections with different purposes:
 
             To the how-to recipes
 
-    .. grid-item-card::
-        :img-top: _static/guides.png
+    .. grid-item-card:: Experiment Guides
 
-        Experiment Guides
-        ^^^^^^^^^^^^^^^^^
+        .. image:: _static/guides.png
+            :target: guides/index.html
 
         These are in-depth guides to key experiments in the package, describing
         their background, principle, and how to run them in Qiskit Experiments. You'll find in these guides:
@@ -81,11 +78,10 @@ We've divided up the documentation into four sections with different purposes:
             To the experiment guides
 
 
-    .. grid-item-card::
-        :img-top: _static/api.png
+    .. grid-item-card:: API Reference
 
-        API Reference
-        ^^^^^^^^^^^^^
+        .. image:: _static/api.png
+            :target: apidocs/index.html
 
         This is a detailed description of every module, method, and function in 
         Qiskit Experiments and how to use them, suitable for those working closely
