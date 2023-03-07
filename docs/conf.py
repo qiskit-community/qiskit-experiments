@@ -98,10 +98,10 @@ nbsphinx_thumbnails = {
     "guides/benchmarking/randomized_benchmarking": "_images/randomized_benchmarking_3_1.png",
     "guides/measurement/restless_measurements": "_images/restless_shots.png",
     "guides/benchmarking/state_tomography": "_images/state_tomography_3_0.png",
-    "guides/characterization/t1": "_images/t1_characterization_0_0.png",
-    "guides/characterization/t2ramsey": "_images/t2ramsey_characterization_4_0.png",
-    "guides/characterization/tphi": "_images/tphi_characterization_8_0.png",
-    "guides/characterization/t2hahn": "_images/t2hahn_characterization_5_0.png",
+    "guides/characterization/t1": "_images/t1_0_0.png",
+    "guides/characterization/t2ramsey": "_images/t2ramsey_4_0.png",
+    "guides/characterization/tphi": "_images/tphi_8_0.png",
+    "guides/characterization/t2hahn": "_images/t2hahn_5_0.png",
 }
 
 # Add `data keys` and `style parameters` alias. Needed for `expected_*_data_keys` methods in

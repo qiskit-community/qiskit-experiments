@@ -33,3 +33,4 @@ class JupyterCellCheckEnv(JupyterCell):
 
 def setup(app: Sphinx):
     app.add_directive("jupyter-execute", JupyterCellCheckEnv, override=True)
+    return {"parallel_read_safe": True}

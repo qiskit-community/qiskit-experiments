@@ -79,3 +79,4 @@ def setup(app: Sphinx):
     existing_documenter = app.registry.documenters.get(ExperimentDocumenter.objtype)
     if existing_documenter is None or not issubclass(existing_documenter, ExperimentDocumenter):
         app.add_autodocumenter(ExperimentDocumenter, override=True)
+    return {"parallel_read_safe": True}

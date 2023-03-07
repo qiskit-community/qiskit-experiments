@@ -28,18 +28,11 @@ class T1(BaseExperiment):
 
     # section: overview
 
-        Design and analyze experiments for estimating :math:`T_1` relaxation time of the qubit.
-
-        Each experiment consists of the following steps:
-
-        1. Circuits generation: the circuits set the qubit in the excited state,
-           wait different time intervals, then measure the qubit.
-        2. Backend execution: actually running the circuits on the device
-           (or simulator).
-        3. Analysis of results: deduction of :math:`T_1`, based on the outcomes,
-           by fitting to an exponential curve.
-
-        |
+        This experiment estimates the :math:`T_1` relaxation time of the qubit by
+        generating a series of circuits that excite the qubit then wait for different
+        intervals before measurement. The resulting data of excited population versus
+        wait time is fitted to an exponential curve to obtain an estimate for
+        :math:`T_1`.
 
     # section: analysis_ref
         :class:`.T1Analysis`
