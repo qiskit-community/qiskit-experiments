@@ -14,7 +14,10 @@ with :ref:`the basics <basics>` of the package before using these recipes.
     *
 
 |
-|
+
+If there are recipes on solving specific problems that you'd like to see added, please 
+`file an issue on GitHub <https://github.com/Qiskit/qiskit-experiments/issues/new?assignees=&labels=enhancement&template=FEATURE_REQUEST.md&title=>`_.
+
 |
 
 

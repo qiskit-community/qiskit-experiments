@@ -77,7 +77,7 @@ extensions = [
     "autodoc_experiment",
     "autodoc_analysis",
     "autodoc_visualization",
-    "jupyter-execute-checkenv",
+    "jupyter_execute_custom",
 ]
 
 html_static_path = ["_static"]
@@ -90,18 +90,19 @@ nbsphinx_widgets_path = ""
 exclude_patterns = ["_build", "**.ipynb_checkpoints"]
 
 # Thumbnails for experiment guides from output images
+# These should ideally be automatically generated using a custom macro to specify
+# chosen cells for thumbnails, like the nbsphinx-gallery tag
 nbsphinx_thumbnails = {
-    "guides/quantum_volume": "_images/quantum_volume_2_0.png",
-    "guides/readout_mitigation": "_images/readout_mitigation_4_0.png",
-    "guides/randomized_benchmarking": "_images/randomized_benchmarking_3_1.png",
-    "guides/restless_measurements": "_images/restless_shots.png",
-    "guides/state_tomography": "_images/state_tomography_3_0.png",
-    "guides/t1_characterization": "_images/t1_characterization_0_0.png",
-    "guides/t2ramsey_characterization": "_images/t2ramsey_characterization_4_0.png",
-    "guides/tphi_characterization": "_images/tphi_characterization_8_0.png",
-    "guides/t2hahn_characterization": "_images/t2hahn_characterization_5_0.png",
+    "guides/benchmarking/quantum_volume": "_images/quantum_volume_2_0.png",
+    "guides/measurement/readout_mitigation": "_images/readout_mitigation_4_0.png",
+    "guides/benchmarking/randomized_benchmarking": "_images/randomized_benchmarking_3_1.png",
+    "guides/measurement/restless_measurements": "_images/restless_shots.png",
+    "guides/benchmarking/state_tomography": "_images/state_tomography_3_0.png",
+    "guides/characterization/t1": "_images/t1_characterization_0_0.png",
+    "guides/characterization/t2ramsey": "_images/t2ramsey_characterization_4_0.png",
+    "guides/characterization/tphi": "_images/tphi_characterization_8_0.png",
+    "guides/characterization/t2hahn": "_images/t2hahn_characterization_5_0.png",
 }
-
 
 # Add `data keys` and `style parameters` alias. Needed for `expected_*_data_keys` methods in
 # visualization module and `default_style` method in `PlotStyle` respectively.

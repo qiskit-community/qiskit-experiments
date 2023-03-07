@@ -28,7 +28,7 @@ class T1(BaseExperiment):
 
     # section: overview
 
-        Design and analyze experiments for estimating T\ :sub:`1` relaxation time of the qubit.
+        Design and analyze experiments for estimating :math:`T_1` relaxation time of the qubit.
 
         Each experiment consists of the following steps:
 
@@ -36,13 +36,16 @@ class T1(BaseExperiment):
            wait different time intervals, then measure the qubit.
         2. Backend execution: actually running the circuits on the device
            (or simulator).
-        3. Analysis of results: deduction of T\ :sub:`1`\ , based on the outcomes,
+        3. Analysis of results: deduction of :math:`T_1`, based on the outcomes,
            by fitting to an exponential curve.
 
         |
 
     # section: analysis_ref
         :class:`.T1Analysis`
+
+    # section: guide
+        :doc:`/guides/characterization/t1`
 
     """
 

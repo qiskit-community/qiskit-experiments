@@ -1,17 +1,15 @@
 Tφ Characterization
 ===================
 
-:math:`\Gamma_\varphi` is defined as the rate of pure dephasing or
-depolarization in the :math:`x - y` plane. We compute
-:math:`\Gamma_\varphi` by computing :math:`\Gamma_2*`, the transverse
-relaxation rate, and subtracting :math:`\Gamma_1`, the longitudinal
-relaxation rate. The pure dephasing time is defined by
-:math:`T_\varphi = 1/\Gamma_\varphi`. Or more precisely,
-:math:`1/T_\varphi = 1/T_{2*} - 1/2T_1`
+:math:`\Gamma_\varphi` is defined as the rate of pure dephasing or depolarization in the
+:math:`x - y` plane. We compute :math:`\Gamma_\varphi` by computing :math:`\Gamma_2*`,
+the transverse relaxation rate, and subtracting :math:`\Gamma_1`, the longitudinal
+relaxation rate. The pure dephasing time is defined by :math:`T_\varphi =
+1/\Gamma_\varphi`. Or more precisely, :math:`1/T_\varphi = 1/T_{2*} - 1/2T_1`
 
-We therefore create a composite experiment consisting of a :math:`T_1`
-experiment and a :math:`T_2*` experiment. From the results of these two,
-we compute the results for :math:`T_\varphi.`
+We therefore create a composite experiment consisting of a :math:`T_1` experiment and a
+:math:`T_2*` experiment. From the results of these two, we compute the results for
+:math:`T_\varphi.`
 
 .. jupyter-execute::
 

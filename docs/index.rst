@@ -66,8 +66,8 @@ We've divided up the documentation into four sections with different purposes:
         These are in-depth guides to key experiments in the package, describing
         their background, principle, and how to run them in Qiskit Experiments. You'll find in these guides:
         
-        * How to analyze 1- and 2-qubit errors in :doc:`randomized benchmarking </guides/randomized_benchmarking>`
-        * How to calculate the speedup from using :doc:`restless measurements </guides/restless_measurements>`
+        * How to analyze 1- and 2-qubit errors in :doc:`randomized benchmarking </guides/benchmarking/randomized_benchmarking>`
+        * How to calculate the speedup from using :doc:`restless measurements </guides/measurement/restless_measurements>`
 
         +++
 

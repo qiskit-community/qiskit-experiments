@@ -19,7 +19,7 @@ State Tomography Experiment
 
 To run a state tomography experiment, we initialize the experiment with a circuit to
 prepare the state to be measured. We can also pass in an
-:class:`~qiskit.quantum_info.Operator`, or a :class:`~qiskit.quantum_info.Statevector`
+:class:`~qiskit.quantum_info.Operator` or a :class:`~qiskit.quantum_info.Statevector`
 to describe the preparation circuit.
 
 .. jupyter-execute::
@@ -79,24 +79,25 @@ Additional state metadata
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Additional data is stored in the tomography under the
-``"state_metadata"`` field. This includes - ``eigvals``: the eigenvalues
-of the fitted state - ``trace``: the trace of the fitted state -
-``positive``: Whether the eigenvalues are all non-negative -
-``positive_delta``: the deviation from positivity given by 1-norm of
-negative eigenvalues.
+``"state_metadata"`` field. This includes
 
-If trace rescaling was performed this dictionary will also contain a
-``raw_trace`` field containing the trace before rescaling. Futhermore,
-if the state was rescaled to be positive or trace 1 an additional field
-``raw_eigvals`` will contain the state eigenvalues before rescaling was
-performed.
+- ``eigvals``: the eigenvalues of the fitted state 
+- ``trace``: the trace of the fitted state 
+- ``positive``: Whether the eigenvalues are all non-negative 
+- ``positive_delta``: the deviation from positivity given by 1-norm of negative
+  eigenvalues.
+
+If trace rescaling was performed this dictionary will also contain a ``raw_trace`` field
+containing the trace before rescaling. Futhermore, if the state was rescaled to be
+positive or trace 1 an additional field ``raw_eigvals`` will contain the state
+eigenvalues before rescaling was performed.
 
 .. jupyter-execute::
 
     state_result.extra
 
-To see the effect of rescaling we can perform a “bad” fit with very low
-counts
+To see the effect of rescaling, we can perform a “bad” fit with very low
+counts:
 
 .. jupyter-execute::
 
@@ -124,8 +125,8 @@ Gambetta, G Smith, Phys. Rev. Lett. 108, 070502 (2012), `open
 access <https://arxiv.org/abs/arXiv:1106.5458>`__.
 
 There are several other fitters are included (See API documentation for
-details). For example if ``cvxpy`` is installed we can use the
-``cvxpy_gaussian_lstsq`` fitter which allows constraining the fit to be
+details). For example, if ``cvxpy`` is installed we can use the
+:func:`~.cvxpy_gaussian_lstsq` fitter, which allows constraining the fit to be
 PSD without requiring rescaling.
 
 .. jupyter-execute::

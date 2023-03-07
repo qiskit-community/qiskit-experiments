@@ -11,7 +11,7 @@
 # that they have been altered from the originals.
 
 """
-Directive to skip build of tutorial cells when indicated by the environment.
+Customizations of :mod:`jupyter-sphinx`.
 """
 from jupyter_sphinx import JupyterCell
 from sphinx.application import Sphinx

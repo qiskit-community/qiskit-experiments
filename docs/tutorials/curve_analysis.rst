@@ -25,7 +25,7 @@ and curve analysis sorts the experiment results based on the circuit metadata.
 
 This is an example of showing the abstract data structure of typical curve analysis experiment:
 
-.. code-block:: none
+.. jupyter-input::
     :emphasize-lines: 1,10,19
 
     "experiment"
@@ -118,7 +118,7 @@ Basically the Qiskit curve analysis delegates the core fitting functionality to 
 
 You can intuitively write the definition of model, as shown below:
 
-.. code-block:: python3
+.. jupyter-input::
 
     import lmfit
 
@@ -135,7 +135,7 @@ consists of three parameters (``amp``, ``alpha``, ``base``), and ``exp`` indicat
 a universal function in Python's math module.
 Alternatively, you can take a callable to define the model object.
 
-.. code-block:: python3
+.. jupyter-input::
 
     import lmfit
     import numpy as np
@@ -145,7 +145,7 @@ Alternatively, you can take a callable to define the model object.
 
     models = [lmfit.Model(func=exp_decay)]
 
-See `LMFIT`_ documentation for detailed user guide. They also provide preset models.
+See the `LMFIT`_ documentation for detailed user guide. They also provide preset models.
 
 If the :class:`.CurveAnalysis` is instantiated with multiple models,
 it internally builds a cost function to simultaneously minimize the residuals of
@@ -155,7 +155,7 @@ in the analysis result, and potentially in your experiment database as a fit res
 
 Here is another example how to implement multi-objective optimization task:
 
-.. code-block:: python3
+.. jupyter-input::
 
     import lmfit
 
@@ -184,7 +184,7 @@ Here one should expect the experiment data will have two classes of data with me
 
 By using this model, one can flexibly set up your fit model. Here is another example:
 
-.. code-block:: python3
+.. jupyter-input::
 
     import lmfit
 
@@ -216,7 +216,7 @@ the parameter names in the analysis option ``fixed_parameters``.
 This feature is useful especially when you want to define a subclass of
 a particular analysis class.
 
-.. code-block:: python3
+.. jupyter-input::
 
     class AnalysisA(CurveAnalysis):
 
@@ -241,7 +241,7 @@ a particular analysis class.
 The parameter specified in ``fixed_parameters`` is excluded from the fitting.
 This code will give you identical fit model to the one defined in the following class:
 
-.. code-block:: python3
+.. jupyter-input::
 
     class AnalysisB(CurveAnalysis):
 
@@ -350,7 +350,7 @@ The :class:`.FitOptions` class implements convenient method :meth:`set_if_empty`
 conflict with user provided values, i.e. user provided values have higher priority,
 thus systematically generated values cannot override user values.
 
-.. code-block:: python3
+.. jupyter-input::
 
     def _generate_fit_guesses(self, user_opt, curve_data):
 
@@ -401,7 +401,7 @@ If you want to create an analysis result entry for the particular parameter,
 you can override the analysis options ``result_parameters``.
 By using :class:`ParameterRepr` representation, you can rename the parameter in the entry.
 
-.. code-block:: python3
+.. jupyter-input::
 
     from qiskit_experiments.curve_analysis import ParameterRepr
 
@@ -419,7 +419,7 @@ Not only returning the fit parameters, you can also compute new quantities
 by combining multiple fit parameters.
 This can be done by overriding the :meth:`_create_analysis_results` method.
 
-.. code-block:: python3
+.. jupyter-input::
 
     from qiskit_experiments.framework import AnalysisResultData
 

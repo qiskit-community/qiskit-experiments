@@ -40,6 +40,7 @@ to process the data, fit it to specified models, and plot the results, respectiv
 .. figure:: images/experimentarch.png
     :width: 400
     :align: center
+    :class: no-scaled-link
 
 
 Experiments start with an ``Experiment`` class, which instantiates the circuits that

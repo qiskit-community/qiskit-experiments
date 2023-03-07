@@ -90,7 +90,7 @@ upgrade:
 deprecations:
   - |
     Renames the ``qubits``, ``measurement_qubits``, and ``preparation_qubits``
-     init kwargs of :class:`~.StateTomography`,
+    init kwargs of :class:`~.StateTomography`,
     :class:`~.ProcessTomography`, and :class:`~.TomographyExperiment` have
     been deprecated. They have been replaced with kwargs ``physical_qubits``,
     ``measurement_indices`` and ``preparation_indices`` respectively. The

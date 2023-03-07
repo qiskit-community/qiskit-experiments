@@ -147,7 +147,8 @@ with a code example and example outputs by printing relevant analysis results an
 figures. Required and common parameters, such as experiment and analysis options, shoud
 be covered.
 
-See the [Randomized Benchmarking](docs/guides/randomized_benchmarking.rst) guide for an
+See the [Randomized Benchmarking](https://qiskit.org/documentation/experiments/guides/benchmarking/randomized_benchmarking.html)
+guide and its [source code](docs/guides/benchmarking/randomized_benchmarking.rst) for an
 example. Here is a simple template for a guide:
 
 ```

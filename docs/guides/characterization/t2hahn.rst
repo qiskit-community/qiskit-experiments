@@ -1,19 +1,17 @@
-T2 Hahn Characterization (CPMG)
-===============================
+T2 Hahn Characterization
+========================
 
 The purpose of the :math:`T_2` Hahn Echo experiment is to determine the 
 :math:`T_2` qubit property.
 
-In this experiment, we would like to get a more precise estimate of the
-qubit’s decay time. :math:`T_2` represents the amount of time required
-for a single qubit's Bloch vector projection on the XY plane to fall to
-approximately 37% (:math:`\frac{1}{e}`) of its initial amplitude. In the
-Ramsey Experiment, we were introduced to the term detuning frequency (The
-difference between the frequency used for the control rotation, and the
-precise frequency). Hahn Echo experiment and the CPMG sequence are
-experiments to estimate :math:`T_2` which are robust to the detuning
-frequency. The decay in amplitude causes the probability function to
-take the following form:
+In this experiment, we would like to get a more precise estimate of the qubit’s decay
+time. :math:`T_2` represents the amount of time required for a single qubit's Bloch
+vector projection on the XY plane to fall to approximately 37% (:math:`\frac{1}{e}`) of
+its initial amplitude. Hahn Echo experiment and the Carr-Purcell-Meiboom-Gill (CPMG)
+sequence are experiments to estimate :math:`T_2` which are robust to the detuning
+frequency, or the difference between the qubit frequency and the pulse frequency of the
+applied rotation. The decay in amplitude causes the probability function to take the
+following form:
 
 .. math:: f(t) = A \cdot e^{-\frac{t}{T_2}}+ B
 

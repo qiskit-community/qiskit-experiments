@@ -20,12 +20,12 @@ the tensor product of :math:`n` :math:`2 \times 2` matrices, one for
 each qubit, making it practical to store the assignment matrix in
 implicit form, by storing the individual :math:`2 \times 2` assignment
 matrices. The corresponding class in Qiskit is the 
-:class:`~qiskit.result.LocalReadoutMitigator` in Qiskit Terra.
+:class:`~qiskit.result.LocalReadoutMitigator`.
 
 A *Correlated readout mitigator* uses the full :math:`2^n \times 2^n`
 assignment matrix, meaning it can only be used for small values of
 :math:`n`. The corresponding class in Qiskit is the 
-:class:`~qiskit.result.CorrelatedReadoutMitigator` in Qiskit Terra.
+:class:`~qiskit.result.CorrelatedReadoutMitigator`.
 
 This notebook demonstrates the usage of both the local and correlated
 experiments to generate the corresponding mitigators.

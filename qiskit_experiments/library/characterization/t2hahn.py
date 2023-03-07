@@ -54,7 +54,7 @@ class T2Hahn(BaseExperiment):
         The circuits are run on the device or on a simulator backend.
 
     # section: guide
-        :doc:`/guides/t2hahn_characterization`
+        :doc:`/guides/characterization/t2hahn`
 
     # section: analysis_ref
         :class:`T2HahnAnalysis`

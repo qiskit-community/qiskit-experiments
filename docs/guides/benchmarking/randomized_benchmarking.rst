@@ -1,16 +1,15 @@
 Randomized Benchmarking
 =======================
 
-Randomized benchmarking (RB) is a popular protocol for characterizing the
-error rate of quantum processors. An RB experiment consists of the generation of
-random Clifford circuits on the given qubits such that the unitary
-computed by the circuits is the identity. After running the circuits,
-the number of shots resulting in an error (i.e. an output different than
-the ground state) are counted, and from this data one can infer error
-estimates for the quantum device, by calculating the Error Per Clifford.
-See the `Qiskit
-Textbook <https://learn.qiskit.org/course/quantum-hardware/randomized-benchmarking>`__
-for an explanation on the RB method, which is based on Ref. [1, 2].
+Randomized benchmarking (RB) is a popular protocol for characterizing the error rate of
+quantum processors. An RB experiment consists of the generation of random Clifford
+circuits on the given qubits such that the unitary computed by the circuits is the
+identity. After running the circuits, the number of shots resulting in an error (i.e. an
+output different from the ground state) are counted, and from this data one can infer
+error estimates for the quantum device, by calculating the Error Per Clifford. See the
+`Qiskit Textbook
+<https://learn.qiskit.org/course/quantum-hardware/randomized-benchmarking>`__ for an
+explanation on the RB method, which is based on Ref. [1, 2].
 
 .. jupyter-execute::
 

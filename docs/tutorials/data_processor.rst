@@ -212,4 +212,4 @@ PRX Quantum 2, 020324 (2021). https://arxiv.org/abs/2010.06576
 See also
 --------
 
-Experiment guide: :doc:`/guides/restless_measurements`
+Experiment guide: :doc:`/guides/measurement/restless_measurements`
