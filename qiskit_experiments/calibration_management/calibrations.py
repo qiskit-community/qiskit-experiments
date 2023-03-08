@@ -616,7 +616,7 @@ class Calibrations:
             The registered template schedule.
 
         Raises:
-            CalibrationError: if no template schedule for the given schedule name and qubits
+            CalibrationError: If no template schedule for the given schedule name and qubits
                 was registered.
         """
         key = ScheduleKey(schedule_name, self._to_tuple(qubits))
@@ -1367,7 +1367,7 @@ class Calibrations:
                 default so that when saving to csv all values will be saved.
 
         Raises:
-            CalibrationError: if the files exist and overwrite is not set to True.
+            CalibrationError: If the files exist and overwrite is not set to True.
         """
         warnings.warn("Schedules are only saved in text format. They cannot be re-loaded.")
 

@@ -247,7 +247,7 @@ class BaseDrawer(ABC):
             fields: The fields to update the options
 
         Raises:
-            AttributeError: if an unknown options is encountered.
+            AttributeError: If an unknown options is encountered.
         """
         for field in fields:
             if not hasattr(self._options, field):
@@ -265,7 +265,7 @@ class BaseDrawer(ABC):
             fields: The fields to update the figure options
 
         Raises:
-            AttributeError: if an unknown figure option is encountered.
+            AttributeError: If an unknown figure option is encountered.
         """
         for field in fields:
             if not hasattr(self._figure_options, field):

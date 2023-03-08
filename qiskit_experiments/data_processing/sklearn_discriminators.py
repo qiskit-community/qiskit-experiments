@@ -38,7 +38,7 @@ class SkLDA(BaseDiscriminator):
                 untrained discriminator.
 
         Raises:
-            DataProcessorError: if SKlearn could not be imported.
+            DataProcessorError: If SKlearn could not be imported.
         """
         self._lda = lda
         self.attributes = [
@@ -112,7 +112,7 @@ class SkQDA(BaseDiscriminator):
                 untrained discriminator.
 
         Raises:
-            DataProcessorError: if SKlearn could not be imported.
+            DataProcessorError: If SKlearn could not be imported.
         """
         self._qda = qda
         self.attributes = [

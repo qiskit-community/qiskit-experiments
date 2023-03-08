@@ -70,7 +70,7 @@ class T1(BaseExperiment):
             backend: Optional, the backend to run the experiment on.
 
         Raises:
-            ValueError: if the number of delays is smaller than 3
+            ValueError: If the number of delays is smaller than 3
         """
         # Initialize base experiment
         super().__init__(physical_qubits, analysis=T1Analysis(), backend=backend)

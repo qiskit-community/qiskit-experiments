@@ -104,7 +104,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
                            The default is False.
 
         Raises:
-            QiskitError: if any invalid argument is supplied.
+            QiskitError: If any invalid argument is supplied.
         """
         # Initialize base experiment
         super().__init__(physical_qubits, analysis=RBAnalysis(), backend=backend)

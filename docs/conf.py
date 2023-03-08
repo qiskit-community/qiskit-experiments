@@ -118,7 +118,7 @@ autosummary_generate = True
 # Autodoc
 # -----------------------------------------------------------------------------
 
-autodoc_default_options = {"inherited-members": None, "private-members": True}
+autodoc_default_options = {"inherited-members": None}
 
 
 # If true, figures, tables and code-blocks are automatically numbered if they

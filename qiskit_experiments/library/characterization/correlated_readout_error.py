@@ -93,7 +93,7 @@ class CorrelatedReadoutError(BaseExperiment):
             backend: Optional, the backend to characterize.
 
         Raises:
-            QiskitError: if args are not valid.
+            QiskitError: If args are not valid.
         """
         if physical_qubits is None:
             if backend is None:

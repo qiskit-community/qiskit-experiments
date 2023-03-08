@@ -494,7 +494,7 @@ class MockIQDragHelper(MockIQExperimentHelper):
             are different centers for different logical values of the qubit.
             iq_cluster_width: A list of standard deviation values for the sampling of each qubit.
         Raises:
-            ValueError: if probability value is not valid.
+            ValueError: If probability value is not valid.
         """
         super().__init__(iq_cluster_centers, iq_cluster_width)
         if max_probability + offset_probability > 1:

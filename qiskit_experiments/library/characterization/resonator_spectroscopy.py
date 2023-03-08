@@ -177,7 +177,7 @@ class ResonatorSpectroscopy(Spectroscopy):
             experiment_options: Key word arguments used to set the experiment options.
 
         Raises:
-            QiskitError: if no frequencies are given and absolute frequencies are desired and
+            QiskitError: If no frequencies are given and absolute frequencies are desired and
                 no backend is given.
         """
         analysis = ResonatorSpectroscopyAnalysis()

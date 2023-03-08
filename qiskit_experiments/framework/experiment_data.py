@@ -1856,7 +1856,7 @@ class ExperimentData:
             The requested single or list of child experiment data.
 
         Raises:
-            QiskitError: if the index or ID of the child experiment data
+            QiskitError: If the index or ID of the child experiment data
                          cannot be found.
         """
         if index is None:

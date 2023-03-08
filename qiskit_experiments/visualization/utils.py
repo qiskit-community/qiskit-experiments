@@ -94,10 +94,10 @@ class DataExtentCalculator:
                 Defaults to None.
 
         Raises:
-            QiskitError: if the data is not two-dimensional and ``dim`` is not set.
-            QiskitError: if the data does not contain one-dimensional values when
+            QiskitError: If the data is not two-dimensional and ``dim`` is not set.
+            QiskitError: If the data does not contain one-dimensional values when
             ``dim`` is set.
-            QiskitError: if ``dim`` is not an index for two-dimensions: i.e.,
+            QiskitError: If ``dim`` is not an index for two-dimensions: i.e.,
             :math:`0\leq{}\text{dim}<2`.
         """
         data = np.asarray(data)
@@ -238,7 +238,7 @@ class DataExtentCalculator:
         """An extent array for the registered data, multiplier, and aspect ratio.
 
         Raises:
-            QiskitError: if the resulting extent tuple is not finite. This can occur if
+            QiskitError: If the resulting extent tuple is not finite. This can occur if
             no data was registered before calling :meth:`extent`.
 
         Returns:

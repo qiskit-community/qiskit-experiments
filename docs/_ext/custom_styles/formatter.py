@@ -145,7 +145,7 @@ class ExperimentSectionFormatter(DocstringSectionFormatter):
         format_lines = [
             ".. rubric:: Transpiler Options",
             "",
-            "This option can be set by :py:meth:`set_transpile_options` method.",
+            "This option can be set by the :py:meth:`set_transpile_options` method.",
             "",
         ]
         format_lines.extend(lines)
@@ -159,7 +159,7 @@ class ExperimentSectionFormatter(DocstringSectionFormatter):
         format_lines = [
             ".. rubric:: Backend Run Options",
             "",
-            "This option can be set by :py:meth:`set_run_options` method.",
+            "This option can be set by the :py:meth:`set_run_options` method.",
             "",
         ]
         format_lines.extend(lines)

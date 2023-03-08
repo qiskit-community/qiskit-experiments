@@ -113,7 +113,7 @@ class RoughDrag(BaseExperiment, RestlessMixin):
             backend: Optional, the backend to run the experiment on.
 
         Raises:
-            QiskitError: if the schedule does not have a free parameter.
+            QiskitError: If the schedule does not have a free parameter.
         """
 
         # Create analysis in finalize to reflect user change to reps
@@ -141,13 +141,13 @@ class RoughDrag(BaseExperiment, RestlessMixin):
             circuits: The circuits that will run the Drag calibration.
 
         Raises:
-            QiskitError: if the number of different repetition series is not three.
+            QiskitError: If the number of different repetition series is not three.
         """
         schedule = self.experiment_options.schedule
 
         beta = next(iter(schedule.parameters))
 
-        # Note: if the pulse has a reserved name, e.g. x, which does not have parameters
+        # Note: If the pulse has a reserved name, e.g. x, which does not have parameters
         # then we cannot directly call the gate x and attach a schedule to it. Doing so
         # would results in QObj errors.
         drag_gate = Gate(name="Drag(" + schedule.name + ")", num_qubits=1, params=[beta])

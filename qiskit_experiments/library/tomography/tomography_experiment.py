@@ -100,7 +100,7 @@ class TomographyExperiment(BaseExperiment):
                 instance will be set.
 
         Raises:
-            QiskitError: if input params are invalid.
+            QiskitError: If input params are invalid.
         """
         # Initialize BaseExperiment
         if physical_qubits is None:

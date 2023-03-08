@@ -92,7 +92,7 @@ def mean_xy_data(
                duplicated x value entries.
 
     Raises:
-        QiskitError: if "ivw" method is used without providing a sigma.
+        QiskitError: If "ivw" method is used without providing a sigma.
     """
     x_means = np.unique(xdata, axis=0)
     y_means = np.zeros(x_means.size)
