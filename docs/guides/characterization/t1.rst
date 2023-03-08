@@ -5,7 +5,7 @@ Background
 ----------
 
 In a :math:`T_1` experiment, we measure an excited qubit after a delay.
-Due to decoherence processes (e.g. amplitude damping channel), it is
+Due to decoherence processes (e.g. the amplitude damping channel), it is
 possible that, at the time of measurement, after the delay, the qubit
 will not be excited anymore. The larger the delay time is, the more
 likely is the qubit to fall to the ground state. The goal of the
@@ -63,7 +63,7 @@ for qubit 0.
     delays = np.arange(1e-6, 3 * qubit0_t1, 3e-5)
     # Create an experiment for qubit 0
     # with the specified time intervals
-    exp = T1(qubit=0, delays=delays)
+    exp = T1(physical_qubits=[0], delays=delays)
     
     # Set scheduling method so circuit is scheduled for delay noise simulation
     exp.set_transpile_options(scheduling_method='asap')
@@ -77,14 +77,12 @@ for qubit 0.
         print(result)
 
 
-
-
 :math:`T_1` experiments with kerneled measurement
 -------------------------------------------------
 
 :math:`T_1` experiments can also be done with kerneled measurements.
-If we set the run option `meas_level=MeasLevel.KERNELED`, the job
-will not discriminate the data and will not label it. In the T1 experiment,
+If we set the run option ``meas_level=MeasLevel.KERNELED``, the job
+will not discriminate the IQ data and will not label it. In the T1 experiment,
 since we know that :math:`P(1|t=0)=1`, we will add a circuit with delay=0,
 and another circuit with a very large delay. In this configuration we know that the data starts from
 a point [I,Q] that is close to a logical value '1' and ends at a point [I,Q]
@@ -122,7 +120,7 @@ that is close to a logical value '0'.
     )
 
     # Creating a T1 experiment
-    expT1_kerneled = T1(0, delays)
+    expT1_kerneled = T1([0], delays)
     expT1_kerneled.analysis = T1KerneledAnalysis()
     expT1_kerneled.analysis.set_options(p0={"amp": 1, "tau": t1[0] + t1_estimated_shift, "base": 0})
 
