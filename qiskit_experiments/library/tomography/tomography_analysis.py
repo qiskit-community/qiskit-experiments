@@ -224,16 +224,17 @@ class TomographyAnalysis(BaseAnalysis):
         other_results = []
 
         # Compute fidelity with target
-        other_results += self._fidelity_result(
-            state_results[0],
-            fitter,
-            outcome_data,
-            shot_data,
-            meas_data,
-            prep_data,
-            qpt=qpt,
-            **fitter_kwargs,
-        )
+        if len(state_results) == 1:
+            other_results += self._fidelity_result(
+                state_results[0],
+                fitter,
+                outcome_data,
+                shot_data,
+                meas_data,
+                prep_data,
+                qpt=qpt,
+                **fitter_kwargs,
+            )
 
         # Check positive
         other_results += self._positivity_result(state_results, qpt=qpt)
