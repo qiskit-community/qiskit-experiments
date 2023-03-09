@@ -261,10 +261,14 @@ class DataProcessor:
             # The output data format is a standard ndarray with dtype=object with
             # arbitrary shape [n_circuits, ...] depending on the measurement setup.
             nominal_values = np.asarray(data_to_process, float)
-            return unp.uarray(
-                nominal_values=nominal_values,
-                std_devs=np.full_like(nominal_values, np.nan, dtype=float),
-            )
+            with np.errstate(invalid="ignore"):
+                # Setting std_devs to NaN will trigger floating point exceptions
+                # which we can ignore. See https://stackoverflow.com/q/75656026
+                uarray = unp.uarray(
+                    nominal_values=nominal_values,
+                    std_devs=np.full_like(nominal_values, np.nan, dtype=float),
+                )
+            return uarray
         else:
             # Likely level2 counts or level2 memory data. Cannot be typecasted to ufloat.
             # The output data format is a standard ndarray with dtype=object with
