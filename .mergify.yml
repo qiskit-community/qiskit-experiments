@@ -1,0 +1,9 @@
+---
+pull_request_rules:
+  - name: backport
+    conditions:
+      - label=backport stable potential
+    actions:
+      backport:
+        branches:
+          - stable/0.4
