@@ -10,17 +10,22 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """
-Test T2Ramsey experiment
+Test Tphi experiment.
 """
 
+from qiskit.exceptions import QiskitError
 from test.base import QiskitExperimentsTestCase
-from qiskit_experiments.library import Tphi
+from qiskit_experiments.library import Tphi, T2Hahn, T2Ramsey
 from qiskit_experiments.test.noisy_delay_aer_simulator import NoisyDelayAerBackend
-from qiskit_experiments.library.characterization.analysis.tphi_analysis import TphiAnalysis
+from qiskit_experiments.library.characterization.analysis import (
+    TphiAnalysis,
+    T2RamseyAnalysis,
+    T2HahnAnalysis,
+)
 
 
 class TestTphi(QiskitExperimentsTestCase):
-    """Test Tphi experiment"""
+    """Test Tphi experiment."""
 
     __tolerance__ = 0.1
 
@@ -100,6 +105,24 @@ class TestTphi(QiskitExperimentsTestCase):
         self.assertListEqual(x_values_t1, new_delays_t1, "Incorrect delays_t1")
         self.assertListEqual(x_values_t2, new_delays_t2, "Incorrect delays_t2")
         self.assertEqual(new_freq_t2, new_osc_freq, "Option osc_freq not set correctly")
+
+    def test_tphi_t2_option(self):
+        """Test that Tphi switches between T2Ramsey and T2Hahn correctly."""
+
+        delays_t1 = list(range(1, 40, 3))
+        delays_t2 = list(range(1, 50, 2))
+
+        exp = Tphi(physical_qubits=[0], delays_t1=delays_t1, delays_t2=delays_t2)
+        self.assertTrue(isinstance(exp.component_experiment(1), T2Ramsey))
+        self.assertTrue(isinstance(exp.analysis.component_analysis(1), T2RamseyAnalysis))
+        with self.assertRaises(QiskitError):  # T2Ramsey should not allow a T2Hahn option
+            exp.set_experiment_options(num_echoes=1)
+
+        exp = Tphi(physical_qubits=[0], delays_t1=delays_t1, delays_t2=delays_t2, t2star=False)
+        self.assertTrue(isinstance(exp.component_experiment(1), T2Hahn))
+        self.assertTrue(isinstance(exp.analysis.component_analysis(1), T2HahnAnalysis))
+        with self.assertRaises(QiskitError):  # T2Hahn should not allow a T2ramsey option
+            exp.set_experiment_options(osc_freq=0.0)
 
     def test_roundtrip_serializable(self):
         """Test round trip JSON serialization"""

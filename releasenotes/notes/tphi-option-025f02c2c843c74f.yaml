@@ -1,0 +1,7 @@
+---
+features:
+  - |
+    Added an option ``t2star`` to the :class:`.Tphi` experiment to allow the user to
+    toggle between using :math:`T_2^*` from :class:`.T2Ramsey` or :math:`T_2` from
+    :class:`.T2Hahn`. By default, the experiment will continue to use :class:`.T2Ramsey`
+    as before.

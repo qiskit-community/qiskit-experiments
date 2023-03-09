@@ -1,17 +1,21 @@
 Experiment: :math:`T_\varphi` characterization
 ==============================================
 
-:math:`\Gamma_\varphi` is defined as the rate of pure dephasing or
-depolarization in the :math:`x - y` plane. We compute
-:math:`\Gamma_\varphi` by computing :math:`\Gamma_2*`, the transverse
-relaxation rate, and subtracting :math:`\Gamma_1`, the longitudinal
-relaxation rate. The pure dephasing time is defined by
-:math:`T_\varphi = 1/\Gamma_\varphi`. Or more precisely,
-:math:`1/T_\varphi = 1/T_{2*} - 1/2T_1`
+:math:`T_\varphi`, or :math:`1/\Gamma_\varphi`, is the pure dephasing time of
+depolarization in the :math:`x - y` plane of the Bloch sphere. We compute
+:math:`\Gamma_\varphi` by computing :math:`\Gamma_2`, the transverse relaxation rate,
+and subtracting :math:`\Gamma_1`, the longitudinal relaxation rate. It follows that
+:math:`1/T_\varphi = 1/T_2 - 1/2T_1`.
 
-We therefore create a composite experiment consisting of a :math:`T_1`
-experiment and a :math:`T_2*` experiment. From the results of these two,
-we compute the results for :math:`T_\varphi.`
+We therefore create a composite experiment consisting of a :math:`T_1` experiment and a
+:math:`T_2` experiment. Both Ramsey and Hahn echo experiments can be used here, with
+different effects. The :math:`T_2^*` estimate of the Ramsey experiment is sensitive to
+inhomogeneous broadening, low-frequency fluctuations that vary between experiments due
+to :math:`1/f`-type noise. The :math:`T_{2}` estimate from the Hahn echo (also
+:math:`T_{2E}` in [#]_) is less sensitive to inhomogeneous broadening due to its
+refocusing pulse, and so it is at least as large as :math:`T_2^*`.
+
+From the :math:`T_1` and :math:`T_2` estimates, we compute the results for :math:`T_\varphi.`
 
 .. jupyter-execute::
 
@@ -38,14 +42,13 @@ we compute the results for :math:`T_\varphi.`
     delays_t1 = np.arange(1e-6, 300e-6, 10e-6)
     delays_t2 = np.arange(1e-6, 50e-6, 2e-6)
     
-    
+By default, the Tphi experiment will use the T2* Ramsey experiment for its T2 estimate.
 
 .. jupyter-execute::
 
     # Create an experiment for qubit 0 with the specified time intervals
     exp = Tphi(physical_qubits=[0], delays_t1=delays_t1, delays_t2=delays_t2, osc_freq=1e5)
     
-    tphi_analysis = TphiAnalysis([T1Analysis(), T2RamseyAnalysis()])
     expdata = exp.run(backend=backend, analysis=tphi_analysis, seed_simulator=101).block_for_results()
     result = expdata.analysis_results("T_phi")
 
@@ -53,7 +56,6 @@ we compute the results for :math:`T_\varphi.`
 
     # Print the result for T_phi
     print(result)
-
 
 .. jupyter-execute::
 
@@ -74,13 +76,33 @@ we compute the results for :math:`T_\varphi.`
 
     print(expdata.analysis_results("T2star"))
 
-
 .. jupyter-execute::
 
     display(expdata.figure(1))
+
+Let's now run the experiment with T2Hahn echo by setting the ``t2star`` option to ``False``:
+
+.. jupyter-execute::
+
+    exp = Tphi(physical_qubits=[0], delays_t1=delays_t1, delays_t2=delays_t2, num_echoes=1, t2star=False)
+    
+    expdata = exp.run(backend=backend, analysis=tphi_analysis, seed_simulator=101).block_for_results()
+    result = expdata.analysis_results("T_phi")
+
+.. jupyter-execute::
+
+    print(expdata.analysis_results("T2"))
+    display(expdata.figure(0))
+
+As expected, because :math:`T_2 > T_2^*`, the obtained :math:`T_{\varphi}` is larger
+when the Hahn echo experiment is used.
+
+.. rubric:: Footnotes
+
+.. [#] Krantz, Philip, et al. "A Quantum Engineer's Guide to Superconducting Qubits." 
+       `arXiv:1904.06560 (2019) <https://arxiv.org/abs/1904.06560>`_.
 
 .. jupyter-execute::
 
     import qiskit.tools.jupyter
     %qiskit_copyright
-
