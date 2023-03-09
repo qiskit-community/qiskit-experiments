@@ -182,6 +182,54 @@ def lstsq_data(
     return basis_mat, probs, prob_weights
 
 
+def gaussian_weights(
+    outcome_data: np.ndarray,
+    shot_data: Optional[Union[np.ndarray, int]] = None,
+    outcome_prior: Union[np.ndarray, int] = 0.5,
+    max_weight: float = 1e10,
+) -> np.ndarray:
+    r"""Compute Gaussian weights from tomography data variance.
+
+    This is computed via a Bayesian update of a Dirichlet distribution
+    with observed outcome data frequences :math:`f_i(s)`, and Dirichlet
+    prior :math:`\alpha_i(s)` for tomography basis index `i` and
+    measurement outcome `s`.
+
+    The mean posterior probabilities are computed as
+
+    .. math:
+        p_i(s) &= \frac{f_i(s) + \alpha_i(s)}{\bar{\alpha}_i + N_i} \\
+        Var[p_i(s)] &= \frac{p_i(s)(1-p_i(s))}{\bar{\alpha}_i + N_i + 1}
+
+    where :math:`N_i = \sum_s f_i(s)` is the total number of shots, and
+    :math:`\bar{\alpha}_i = \sum_s \alpha_i(s)` is the norm of the prior
+    vector for basis index `i`.
+
+    Args:
+        outcome_data: measurement outcome frequency data.
+        shot_data: Optional, basis measurement total shot data. If not
+            provided this will be inferred from the sum of outcome data
+            for each basis index.
+        outcome_prior: measurement outcome Dirichlet distribution prior.
+        max_weight: Set the maximum value allowed for weights vector computed from
+            tomography data variance.
+
+    Returns:
+        The array of weights computed from the tomography data.
+    """
+    # Compute variance
+    _, variance = dirichlet_mean_and_var(
+        outcome_data,
+        shot_data=shot_data,
+        outcome_prior=outcome_prior,
+    )
+    # Use max weights to determin a min variance value and clip variance
+    min_variance = 1 / (max_weight**2)
+    variance = np.clip(variance, min_variance, None)
+    weights = 1.0 / np.sqrt(variance)
+    return weights
+
+
 def dirichlet_mean_and_var(
     outcome_data: np.ndarray,
     shot_data: Optional[Union[np.ndarray, int]] = None,
@@ -240,7 +288,7 @@ def dirichlet_mean_and_var(
 # pylint: disable = bad-docstring-quotes
 @deprecate_function(
     "The binomial_weights function is deprecated and will "
-    "be removed in the 0.6 release. Use the `dirichlet_mean_and_var` "
+    "be removed in the 0.6 release. Use the `gaussian_weights` "
     "function instead."
 )
 def binomial_weights(

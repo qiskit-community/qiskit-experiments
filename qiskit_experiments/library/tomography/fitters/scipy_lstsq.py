@@ -190,6 +190,7 @@ def scipy_gaussian_lstsq(
     measurement_qubits: Optional[Tuple[int, ...]] = None,
     preparation_qubits: Optional[Tuple[int, ...]] = None,
     outcome_prior: Union[np.ndarray, int] = 0.5,
+    max_weight: float = 1e10,
     **kwargs,
 ) -> Dict:
     r"""Gaussian linear least-squares tomography fitter.
@@ -239,6 +240,8 @@ def scipy_gaussian_lstsq(
             If None they are assumed to be ``[0, ..., N-1]`` for N preparated qubits.
         outcome_prior: The Baysian prior :math:`\alpha` to use computing Gaussian
             weights. See additional information.
+        max_weight: Set the maximum value allowed for weights vector computed from
+            tomography data variance.
         kwargs: additional kwargs for :func:`scipy.linalg.lstsq`.
 
     Raises:
@@ -248,12 +251,14 @@ def scipy_gaussian_lstsq(
         The fitted matrix rho that maximizes the least-squares likelihood function.
     """
     t_start = time.time()
-    _, variance = lstsq_utils.dirichlet_mean_and_var(
+
+    weights = lstsq_utils.gaussian_weights(
         outcome_data,
         shot_data=shot_data,
         outcome_prior=outcome_prior,
+        max_weight=max_weight,
     )
-    weights = 1.0 / np.sqrt(variance)
+
     fits, metadata = scipy_linear_lstsq(
         outcome_data,
         shot_data,
