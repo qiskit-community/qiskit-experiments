@@ -282,8 +282,9 @@ experiments:
 * **Batch experiments** run consecutively in time. These child circuits *can* overlap in
   qubits used.
 
-Using parallel experiments, we can measure the :math:`T_1` of one qubit while doing a 
-:class:`.StandardRB` experiment on other qubits simultaneously on the same device:
+Using parallel experiments, we can measure the :math:`T_1` of one qubit while doing a
+standard Randomized Benchmarking :class:`.StandardRB` experiment on other qubits
+simultaneously on the same device:
 
 .. jupyter-execute::
 
@@ -316,10 +317,10 @@ circuits are composed together and then reassigned virtual qubit indices:
     parallel_exp.circuits()[0].draw(output='mpl')
 
 During experiment transpilation, a mapping is performed to place these circuits on the
-physical layout. We can see the effects of transpilation by looking at the transpiled
-circuit, which is accessed via the internal method ``_transpiled_circuits()``. Now the
-:class:`.T1` experiment is correctly placed on physical qubit 2 and the Randomized
-Benchmarking experiment is on physical qubits 3, 1.
+physical layout. We can see its effects by looking at the transpiled
+circuit, which is accessed via the internal method ``_transpiled_circuits()``. After
+transpilation, the :class:`.T1` experiment is correctly placed on physical qubit 2 
+and the :class:`.StandardRB` experiment's gates are on physical qubits 3 and 1.
 
 .. jupyter-execute::
 

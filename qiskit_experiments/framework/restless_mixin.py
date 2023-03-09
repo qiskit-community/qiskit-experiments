@@ -31,11 +31,11 @@ LOG = logging.getLogger(__name__)
 class RestlessMixin:
     """A mixin to facilitate restless experiments.
 
-    This class defines the following methods
+    This class defines the following methods:
 
-        - :meth:`~.RestlessMixin.enable_restless`
-        - :meth:`~.RestlessMixin._get_restless_processor`
-        - :meth:`~.RestlessMixin._t1_check`
+    - :meth:`~.RestlessMixin.enable_restless`
+    - :meth:`~.RestlessMixin._get_restless_processor`
+    - :meth:`~.RestlessMixin._t1_check`
 
     A restless enabled experiment is an experiment that can be run in a restless
     measurement setting. In restless measurements, the qubit is not reset after

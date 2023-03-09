@@ -99,13 +99,27 @@ We've divided up the documentation into four sections with different purposes:
 
 .. toctree::
     :hidden:
+    :caption: Tutorials
 
-    tutorials/index
+    All Tutorials <tutorials/index>
+    tutorials/intro
+    tutorials/getting_started
+    Calibrations <tutorials/calibrations>
+    Data Processor <tutorials/data_processor>
+    Curve Analysis <tutorials/curve_analysis>
+    Visualization <tutorials/visualization>
+    Custom Experiments <tutorials/custom_experiment>
+
+.. toctree::
+    :hidden:
+
     howtos/index
     guides/index
     apidocs/index
     release_notes
     GitHub <https://github.com/Qiskit/qiskit-experiments>
+
+|
 
 .. Hiding - Indices and tables
    :ref:`genindex`
