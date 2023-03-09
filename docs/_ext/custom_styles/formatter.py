@@ -117,7 +117,7 @@ class ExperimentSectionFormatter(DocstringSectionFormatter):
         format_lines = [
             ".. rubric:: Experiment Options",
             "",
-            "These options can be set by the :py:meth:`set_experiment_options` method.",
+            "These options can be set by the :meth:`set_experiment_options` method.",
             "",
         ]
         format_lines.extend(lines)
@@ -131,7 +131,7 @@ class ExperimentSectionFormatter(DocstringSectionFormatter):
         format_lines = [
             ".. rubric:: Analysis Options",
             "",
-            "These options can be set by the :py:meth:`analysis.set_options` method.",
+            "These options can be set by the :meth:`analysis.set_options` method.",
             "",
         ]
         format_lines.extend(lines)
@@ -145,7 +145,7 @@ class ExperimentSectionFormatter(DocstringSectionFormatter):
         format_lines = [
             ".. rubric:: Transpiler Options",
             "",
-            "This option can be set by the :py:meth:`set_transpile_options` method.",
+            "This option can be set by the :meth:`set_transpile_options` method.",
             "",
         ]
         format_lines.extend(lines)
@@ -159,7 +159,7 @@ class ExperimentSectionFormatter(DocstringSectionFormatter):
         format_lines = [
             ".. rubric:: Backend Run Options",
             "",
-            "This option can be set by the :py:meth:`set_run_options` method.",
+            "This option can be set by the :meth:`set_run_options` method.",
             "",
         ]
         format_lines.extend(lines)
@@ -177,7 +177,7 @@ class AnalysisSectionFormatter(DocstringSectionFormatter):
         format_lines = [
             ".. rubric:: Run Options",
             "",
-            "These are the keyword arguments of :py:meth:`run` method.",
+            "These are the keyword arguments of :meth:`run` method.",
             "",
         ]
         format_lines.extend(lines)

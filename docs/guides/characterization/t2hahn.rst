@@ -7,11 +7,12 @@ The purpose of the :math:`T_2` Hahn Echo experiment is to determine the
 In this experiment, we would like to get a more precise estimate of the qubit’s decay
 time. :math:`T_2` represents the amount of time required for a single qubit's Bloch
 vector projection on the XY plane to fall to approximately 37% (:math:`\frac{1}{e}`) of
-its initial amplitude. Hahn Echo experiment and the Carr-Purcell-Meiboom-Gill (CPMG)
-sequence are experiments to estimate :math:`T_2` which are robust to the detuning
-frequency, or the difference between the qubit frequency and the pulse frequency of the
-applied rotation. The decay in amplitude causes the probability function to take the
-following form:
+its initial amplitude. Unlike :math:`T_2^*`, which is measured by :class:`.T2Ramsey`,
+:math:`T_2` is insensitive to inhomogenous broadening. Hahn Echo experiment and the
+Carr-Purcell-Meiboom-Gill (CPMG) sequence are experiments to estimate :math:`T_2` which
+are robust to the detuning frequency, or the difference between the qubit frequency and
+the pulse frequency of the applied rotation. The decay in amplitude causes the
+probability function to take the following form:
 
 .. math:: f(t) = A \cdot e^{-\frac{t}{T_2}}+ B
 

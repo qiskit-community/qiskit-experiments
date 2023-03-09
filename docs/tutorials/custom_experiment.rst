@@ -206,13 +206,13 @@ be able to set how many repetitions of the circuit to run:
             return options
 
 
-Now we write the ``circuits()`` method. We need to take the input circuit in ``self._circuit``
-and add our random Paulis as well as measurement at the end. We use the built-in property
-:attr:`~.BaseExperiment.num_qubits` of :class:`~.BaseExperiment` to get the number of qubits
-in the experiment. We keep track of the list of qubits and classical
-Note that the circuits themselves are always built on qubits `0` to `length of the circuit - 1`, 
-and not the actual physical qubit indices given in ``physical_qubits``. During experiment
-execution, a mapping is performed to place these circuits on the physical layout.
+Now we write the ``circuits()`` method. We need to take the input circuit in
+``self._circuit`` and add our random Paulis as well as measurement at the end. We use
+the built-in property :attr:`~.BaseExperiment.num_qubits` of :class:`~.BaseExperiment`
+to get the number of qubits in the experiment. We keep track of the list of qubits and
+classical Note that the circuits themselves are always built on qubits `0` to `length of
+the circuit - 1`, and not the actual physical qubit indices given in
+``physical_qubits``, as discussed in :doc:`getting_started`.
 
 .. jupyter-input::
 

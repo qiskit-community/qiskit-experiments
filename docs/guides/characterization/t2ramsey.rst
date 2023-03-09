@@ -1,20 +1,21 @@
 T2 Ramsey Characterization
 ==========================
 
-The purpose of the :math:`T_2` Ramsey experiment is to determine two of
-the qubit's properties: *Ramsey* or *detuning frequency* and
-:math:`T_2^\ast`. In this experiment, we would like to get a more precise estimate of the
-qubit's frequency given a rough estimate. The difference between the frequency used for the
-control rotation pulses and the qubit transition frequency is called the
-*detuning frequency*. This part of the experiment is called a *Ramsey
-Experiment*. :math:`T_2^\ast` represents the rate of decay toward a
-mixed state, when the qubit is initialized to the
-:math:`\left|1\right\rangle` state.
+The purpose of the :math:`T_2` Ramsey experiment is to determine two of the qubit's
+properties: *Ramsey* or *detuning frequency* and :math:`T_2^\ast`. In this experiment,
+we would like to get a more precise estimate of the qubit's frequency given a rough
+estimate. The difference between the frequency used for the control rotation pulses and
+the qubit transition frequency is called the *detuning frequency*. This part of the
+experiment is called a *Ramsey Experiment*. :math:`T_2^\ast` represents the rate of
+decay toward a mixed state, when the qubit is initialized to the
+:math:`\left|1\right\rangle` state. It is the dephasing time or the transverse
+relaxation time of the qubit on the Bloch sphere as a result of both energy relaxation
+and pure dephasing in the transverse plane. Unlike :math:`T_2`, which is measured by
+:class:`.T2Hahn`, :math:`T_2^*` is sensitive to inhomogenous broadening.
 
-Since the detuning frequency is relatively small, we add a phase gate to
-the circuit to enable better measurement. The actual frequency measured
-is the sum of the detuning frequency and the user induced *oscillation
-frequency* (``osc_freq`` parameter).
+Since the detuning frequency is relatively small, we add a phase gate to the circuit to
+enable better measurement. The actual frequency measured is the sum of the detuning
+frequency and the user induced *oscillation frequency* (``osc_freq`` parameter).
 
 .. jupyter-execute::
 
