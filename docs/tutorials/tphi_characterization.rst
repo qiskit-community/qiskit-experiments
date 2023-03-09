@@ -13,7 +13,7 @@ different effects. The :math:`T_2^*` estimate of the Ramsey experiment is sensit
 inhomogeneous broadening, low-frequency fluctuations that vary between experiments due
 to :math:`1/f`-type noise. The :math:`T_{2}` estimate from the Hahn echo (defined as
 :math:`T_{2E}` in [#]_) is less sensitive to inhomogeneous broadening due to its
-refocusing pulse, and so it is at least as large as :math:`T_2^*`.
+refocusing pulse, and so it is strictly larger than :math:`T_2^*` on a real device.
 
 From the :math:`T_1` and :math:`T_2` estimates, we compute the results for :math:`T_\varphi.`
 
@@ -58,7 +58,7 @@ Run the experiment and print results:
 
 .. jupyter-execute::
 
-    expdata = exp.run(backend=backend, seed_simulator=101).block_for_results()
+    expdata = exp.run(backend=backend, seed_simulator=100).block_for_results()
     result = expdata.analysis_results("T_phi")
     print(result)
 
@@ -88,12 +88,13 @@ Run and display results:
 
 .. jupyter-execute::
 
-    expdata = exp.run(backend=backend, seed_simulator=101).block_for_results()
+    expdata = exp.run(backend=backend, seed_simulator=100).block_for_results()
     print(expdata.analysis_results("T_phi"))
     display(expdata.figure(1))
 
-As expected, because :math:`T_2 > T_2^*`, the obtained :math:`T_{\varphi}` is larger
-when the Hahn echo experiment is used.
+Because we are using a simulator that doesn't model inhomogeneous broadening, the
+:math:`T_2` and :math:`T_2^*` values are not significantly different. On a real device,
+:math:`T_{\varphi}` should be larger when the Hahn echo experiment is used.
 
 |
 
