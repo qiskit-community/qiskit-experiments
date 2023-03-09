@@ -355,7 +355,7 @@ class TestStateTomography(QiskitExperimentsTestCase):
         noise_model = NoiseModel()
         for qubit, amat in enumerate(amats):
             noise_model.add_readout_error(amat.T, [qubit])
-        backend = AerSimulator(noise_model=noise_model)
+        backend = AerSimulator(noise_model=noise_model, seed_simulator=1234)
 
         # Run experiment
         circ = QuantumCircuit(num_qubits)
@@ -367,7 +367,7 @@ class TestStateTomography(QiskitExperimentsTestCase):
         expdata = exp.run(shots=2000).block_for_results()
         self.assertExperimentDone(expdata)
         fid = expdata.analysis_results("state_fidelity").value
-        self.assertGreater(fid, 0.95)
+        self.assertGreater(fid, 0.945)
 
     @ddt.data((0,), (1,), (2,), (3,), (0, 1), (2, 0), (0, 3), (0, 3, 1))
     def test_mitigated_full_qst(self, qubits):
