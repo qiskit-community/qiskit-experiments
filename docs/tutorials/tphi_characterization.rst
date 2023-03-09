@@ -76,17 +76,19 @@ And :class:`.T2Ramsey`:
     print(expdata.analysis_results("T2star"))
     display(expdata.figure(1))
 
-Let's now run the experiment with :class:`.T2Hahn` by setting the ``t2star`` option to ``False``:
+Let's now run the experiment with :class:`.T2Hahn` by setting the ``t2star`` option to ``False``.
+The circuit of the second child experiment will now be a Hahn echo experiment:
 
 .. jupyter-execute::
 
     exp = Tphi(physical_qubits=[0], delays_t1=delays_t1, delays_t2=delays_t2, num_echoes=1, t2star=False)
-    
-    expdata = exp.run(backend=backend, seed_simulator=101).block_for_results()
-    result = expdata.analysis_results("T_phi")
+    exp.component_experiment(1).circuits()[-1].draw("mpl")
+
+Run and display results:
 
 .. jupyter-execute::
 
+    expdata = exp.run(backend=backend, seed_simulator=101).block_for_results()
     print(expdata.analysis_results("T_phi"))
     display(expdata.figure(1))
 

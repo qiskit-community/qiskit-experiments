@@ -12,9 +12,8 @@
 """
 Test Tphi experiment.
 """
-
-from qiskit.exceptions import QiskitError
 from test.base import QiskitExperimentsTestCase
+from qiskit.exceptions import QiskitError
 from qiskit_experiments.library import Tphi, T2Hahn, T2Ramsey
 from qiskit_experiments.test.noisy_delay_aer_simulator import NoisyDelayAerBackend
 from qiskit_experiments.library.characterization.analysis import (
