@@ -5,7 +5,7 @@ Experiment: :math:`T_\varphi` characterization
 depolarization in the :math:`x - y` plane of the Bloch sphere. We compute
 :math:`\Gamma_\varphi` by computing :math:`\Gamma_2`, the *transverse relaxation rate*,
 and subtracting :math:`\Gamma_1`, the *longitudinal relaxation rate*. It follows that
-:math:`1/T_\varphi = 1/T_2 - 1/2T_1`.
+:math:`\frac{1}{T_\varphi} = \frac{1}{T_2} - \frac{1}{2T_1}`.
 
 We therefore create a composite experiment consisting of a :math:`T_1` experiment and a
 :math:`T_2` experiment. Both Ramsey and Hahn echo experiments can be used here, with
@@ -21,9 +21,7 @@ From the :math:`T_1` and :math:`T_2` estimates, we compute the results for :math
 
     import numpy as np
     import qiskit
-    from qiskit_experiments.library.characterization import Tphi, TphiAnalysis, T1Analysis, T2RamseyAnalysis
-
-.. jupyter-execute::
+    from qiskit_experiments.library.characterization import Tphi
 
     # An Aer simulator
     from qiskit.providers.fake_provider import FakeVigo
@@ -95,7 +93,7 @@ Let's now run the experiment with :class:`.T2Hahn` by setting the ``t2star`` opt
 As expected, because :math:`T_2 > T_2^*`, the obtained :math:`T_{\varphi}` is larger
 when the Hahn echo experiment is used.
 
-.. rubric:: Footnotes
+|
 
 .. [#] Krantz, Philip, et al. "A Quantum Engineer's Guide to Superconducting Qubits." 
        `arXiv:1904.06560 (2019) <https://arxiv.org/abs/1904.06560>`_.
