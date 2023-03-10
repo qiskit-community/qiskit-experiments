@@ -324,7 +324,9 @@ class TomographyAnalysis(BaseAnalysis):
         prob_data = outcome_data / shot_data[None, :, None]
         bs_fidelities = []
         for _ in range(self.options.target_bootstrap_samples):
-            sampled_data = rng.multinomial(shot_data, prob_data)
+            sampled_data = np.zeros_like(outcome_data)
+            for i, probs in enumerate(prob_data):
+                sampled_data[i] = rng.multinomial(shot_data, probs)
             try:
                 state_results = self._fit_state_results(
                     fitter,
