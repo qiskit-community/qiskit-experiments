@@ -322,7 +322,7 @@ class VisualizationDocstring(QiskitExperimentDocstring):
         "warning": load_standard_section,
         "overview": load_standard_section,
         "reference": load_standard_section,
-        "guide": load_standard_section,
+        "manual": load_standard_section,
         "opts": None,  # For standard options
         "figure_opts": None,  # For figure options
         "example": load_standard_section,

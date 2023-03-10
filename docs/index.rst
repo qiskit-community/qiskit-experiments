@@ -119,8 +119,8 @@ We've divided up the documentation into four sections with different purposes:
     manuals/index
     apidocs/index
     release_notes
-    Development Branch Docs <https://qiskit.org/documentation/experiments/dev>
     GitHub <https://github.com/Qiskit/qiskit-experiments>
+    Development Branch Docs <https://qiskit.org/documentation/experiments/dev>
 
 |
 
