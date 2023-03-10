@@ -15,13 +15,21 @@
    {% block attributes_summary %}
    {% if attributes %}
 
+   {% set count = namespace(value=0) %}
+
+   {% for item in attributes %}
+      {% if not item.startswith('_') %}
+      {% set count.value = count.value + 1 %}
+         {% if count.value == 1 %}
    .. rubric:: Attributes
 
    .. autosummary::
       :toctree: ../stubs/
-   {% for item in all_attributes %}
-      .. autoattribute:: {{ item }}
-   {%- endfor %}
+         {% endif %}
+      
+      {{ name }}.{{ item }}
+      {% endif %}
+   {% endfor %}
    {% endif %}
    {% endblock %}
 
