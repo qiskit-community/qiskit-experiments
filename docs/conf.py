@@ -238,7 +238,34 @@ def setup(app):
     app.connect("autodoc-skip-member", maybe_skip_member)
 
 
+from qiskit_experiments.curve_analysis import ParameterRepr
+from qiskit_experiments.curve_analysis import SeriesDef
+from qiskit_experiments.curve_analysis import CurveData
+
+
 def maybe_skip_member(app, what, name, obj, skip, options):
+    skip_names = [
+        "analysis",
+        "set_run_options",
+        "data_allocation",
+        "labels",
+        "shots",
+        "x",
+        "y",
+        "y_err",
+        "name",
+        "filter_kwargs",
+        "fit_func",
+        "signature",
+    ]
+    skip_members = [
+        ParameterRepr.repr,
+        ParameterRepr.unit,
+        SeriesDef.plot_color,
+        SeriesDef.plot_symbol,
+        SeriesDef.model_description,
+        SeriesDef.canvas,
+    ]
     if not skip:
-        return name in {"analysis", "set_run_options"} and what == "attribute"
+        return (name in skip_names or obj in skip_members) and what == "attribute"
     return skip
