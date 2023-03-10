@@ -324,9 +324,14 @@ class TomographyAnalysis(BaseAnalysis):
         prob_data = outcome_data / shot_data[None, :, None]
         bs_fidelities = []
         for _ in range(self.options.target_bootstrap_samples):
+            # Once python 3.7 support is dropped and minimum NumPy
+            # version can be set to 1.22 this can be replaced with
+            # `sampled_data = rng.multinomial(shot_data, probs)`
             sampled_data = np.zeros_like(outcome_data)
-            for i, probs in enumerate(prob_data):
-                sampled_data[i] = rng.multinomial(shot_data, probs)
+            for i in range(prob_data.shape[0]):
+                for j in range(prob_data.shape[1]):
+                    sampled_data[i, j] = rng.multinomial(shot_data[j], prob_data[i, j])
+
             try:
                 state_results = self._fit_state_results(
                     fitter,
