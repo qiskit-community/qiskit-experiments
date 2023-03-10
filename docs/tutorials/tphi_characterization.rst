@@ -13,7 +13,9 @@ different effects. The :math:`T_2^*` estimate of the Ramsey experiment is sensit
 inhomogeneous broadening, low-frequency fluctuations that vary between experiments due
 to :math:`1/f`-type noise. The :math:`T_{2}` estimate from the Hahn echo (defined as
 :math:`T_{2E}` in [#]_) is less sensitive to inhomogeneous broadening due to its
-refocusing pulse, and so it is strictly larger than :math:`T_2^*` on a real device.
+refocusing pulse, and so it is strictly larger than :math:`T_2^*` on a real device. In
+superconducting qubits, :math:`T_2^*` tends to be significantly smaller than
+:math:`T_1`, so :math:`T_2` is usually used.
 
 From the :math:`T_1` and :math:`T_2` estimates, we compute the results for :math:`T_\varphi.`
 
@@ -30,7 +32,7 @@ From the :math:`T_1` and :math:`T_2` estimates, we compute the results for :math
     
     # Create a pure relaxation noise model for AerSimulator
     noise_model = NoiseModel.from_backend(
-        FakeVigo(), thermal_relaxation=True, gate_error=False, readout_error=False
+        FakeVigo(), thermal_relaxation=True, gate_error=True, readout_error=False
     )
     
     # Create a fake backend simulator
@@ -40,14 +42,13 @@ From the :math:`T_1` and :math:`T_2` estimates, we compute the results for :math
     delays_t1 = np.arange(1e-6, 300e-6, 10e-6)
     delays_t2 = np.arange(1e-6, 50e-6, 2e-6)
     
-By default, the :class:`.Tphi` experiment will use the Ramsey experiment for its transverse
+By default, the :class:`.Tphi` experiment will use the Hahn echo experiment for its transverse
 relaxation time estimate. We can see that the component experiments of the batch 
-:class:`.Tphi` experiment are what we expect for :class:`.T1` and :class:`.T2Ramsey`:
+:class:`.Tphi` experiment are what we expect for :class:`.T1` and :class:`.T2Hahn`:
 
 .. jupyter-execute::
 
-    # Create an experiment for qubit 0 with the specified time intervals
-    exp = Tphi(physical_qubits=[0], delays_t1=delays_t1, delays_t2=delays_t2, osc_freq=1e5)
+    exp = Tphi(physical_qubits=[0], delays_t1=delays_t1, delays_t2=delays_t2, num_echoes=1)
     exp.component_experiment(0).circuits()[-1].draw("mpl")
 
 .. jupyter-execute::
@@ -69,19 +70,25 @@ You can also retrieve the results and figures of the constituent experiments. :c
     print(expdata.analysis_results("T1"))
     display(expdata.figure(0))
 
-And :class:`.T2Ramsey`:
+And :class:`.T2Hahn`:
 
 .. jupyter-execute::
 
-    print(expdata.analysis_results("T2star"))
+    print(expdata.analysis_results("T2"))
     display(expdata.figure(1))
 
-Let's now run the experiment with :class:`.T2Hahn` by setting the ``t2star`` option to ``False``.
-The circuit of the second child experiment will now be a Hahn echo experiment:
+Let's now run the experiment with :class:`.T2Ramsey` by setting the ``t2type`` option to
+``ramsey`` and specifying ``osc_freq``. Now the second component experiment is a Ramsey
+experiment:
 
 .. jupyter-execute::
 
-    exp = Tphi(physical_qubits=[0], delays_t1=delays_t1, delays_t2=delays_t2, num_echoes=1, t2star=False)
+    exp = Tphi(physical_qubits=[0], 
+               delays_t1=delays_t1, 
+               delays_t2=delays_t2, 
+               t2type="ramsey", 
+               osc_freq=1e5)
+
     exp.component_experiment(1).circuits()[-1].draw("mpl")
 
 Run and display results:
@@ -93,8 +100,9 @@ Run and display results:
     display(expdata.figure(1))
 
 Because we are using a simulator that doesn't model inhomogeneous broadening, the
-:math:`T_2` and :math:`T_2^*` values are not significantly different. On a real device,
-:math:`T_{\varphi}` should be larger when the Hahn echo experiment is used.
+:math:`T_2` and :math:`T_2^*` values are not significantly different. On a real
+superconducting device, :math:`T_{\varphi}` should be significantly larger when the Hahn
+echo experiment is used.
 
 |
 

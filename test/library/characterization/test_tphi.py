@@ -28,13 +28,19 @@ class TestTphi(QiskitExperimentsTestCase):
 
     __tolerance__ = 0.1
 
-    def test_tphi_end_to_end(self):
+    def test_tphi_ramsey_end_to_end(self):
         """
-        Run a complete Tphi experiment on a fake Tphi backend
+        Run a complete Tphi experiment with T2ramsey on a fake Tphi backend.
         """
         delays_t1 = list(range(1, 40, 3))
         delays_t2 = list(range(1, 51, 2))
-        exp = Tphi(physical_qubits=[0], delays_t1=delays_t1, delays_t2=delays_t2, osc_freq=0.1)
+        exp = Tphi(
+            physical_qubits=[0],
+            delays_t1=delays_t1,
+            delays_t2=delays_t2,
+            t2type="ramsey",
+            osc_freq=0.1,
+        )
 
         t1 = 20
         t2ramsey = 25
@@ -59,7 +65,13 @@ class TestTphi(QiskitExperimentsTestCase):
         """
         delays_t1 = list(range(1, 40, 3))
         delays_t2 = list(range(1, 50, 2))
-        exp = Tphi(physical_qubits=[0], delays_t1=delays_t1, delays_t2=delays_t2, osc_freq=0.1)
+        exp = Tphi(
+            physical_qubits=[0],
+            delays_t1=delays_t1,
+            delays_t2=delays_t2,
+            t2type="ramsey",
+            osc_freq=0.1,
+        )
 
         t1 = 20
         t2ramsey = 25
@@ -111,13 +123,13 @@ class TestTphi(QiskitExperimentsTestCase):
         delays_t1 = list(range(1, 40, 3))
         delays_t2 = list(range(1, 50, 2))
 
-        exp = Tphi(physical_qubits=[0], delays_t1=delays_t1, delays_t2=delays_t2)
+        exp = Tphi(physical_qubits=[0], delays_t1=delays_t1, delays_t2=delays_t2, t2type="ramsey")
         self.assertTrue(isinstance(exp.component_experiment(1), T2Ramsey))
         self.assertTrue(isinstance(exp.analysis.component_analysis(1), T2RamseyAnalysis))
         with self.assertRaises(QiskitError):  # T2Ramsey should not allow a T2Hahn option
             exp.set_experiment_options(num_echoes=1)
 
-        exp = Tphi(physical_qubits=[0], delays_t1=delays_t1, delays_t2=delays_t2, t2star=False)
+        exp = Tphi(physical_qubits=[0], delays_t1=delays_t1, delays_t2=delays_t2)
         self.assertTrue(isinstance(exp.component_experiment(1), T2Hahn))
         self.assertTrue(isinstance(exp.analysis.component_analysis(1), T2HahnAnalysis))
         with self.assertRaises(QiskitError):  # T2Hahn should not allow a T2ramsey option
@@ -125,7 +137,7 @@ class TestTphi(QiskitExperimentsTestCase):
 
     def test_roundtrip_serializable(self):
         """Test round trip JSON serialization"""
-        exp = Tphi([0], [1], [2], 3)
+        exp = Tphi([0], [1], [2])
         self.assertRoundTripSerializable(exp, self.json_equiv)
 
     def test_analysis_config(self):
