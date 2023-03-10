@@ -85,7 +85,7 @@ class FineAmplitude(BaseExperiment, RestlessMixin):
     # section: reference
         .. ref_arxiv:: 1 1504.06597
 
-    # section: guide
+    # section: manual
         :ref:`fine-amplitude-cal`
 
     """

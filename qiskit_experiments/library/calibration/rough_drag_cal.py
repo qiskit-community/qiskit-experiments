@@ -33,7 +33,7 @@ class RoughDragCal(BaseCalibrationExperiment, RoughDrag):
     # section: see_also
         :class:`.RoughDrag`
 
-    # section: guide
+    # section: manual
         :ref:`DRAG Calibration`
 
     """

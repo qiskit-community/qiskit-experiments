@@ -124,7 +124,6 @@ Experiment Configuration Helper Classes
     BackendTiming
     RestlessMixin
 
-.. _create-experiment:
 """
 from qiskit.providers.options import Options
 from qiskit_experiments.framework.backend_data import BackendData

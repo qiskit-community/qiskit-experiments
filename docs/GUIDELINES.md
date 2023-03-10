@@ -7,8 +7,8 @@ Contents:
   - [Introduction](#introduction)
     - [General formatting guidelines](#general-formatting-guidelines)
     - [Tutorials](#tutorials)
-    - [How-to recipes](#how-to-recipes)
-    - [Experiment guides](#experiment-guides)
+    - [How-to guides](#how-to-guides)
+    - [Experiment manuals](#experiment-manuals)
     - [API documentation](#api-documentation)
       - [Experiment class documentation](#experiment-class-documentation)
       - [Analysis class documentation](#analysis-class-documentation)
@@ -19,8 +19,8 @@ Contents:
 Qiskit Experiments documentation is split into four sections:
 
 - Tutorials for learning the package from the ground up
-- How-to recipes for solving specific problems
-- Experiment guides for information on specific experiments
+- How-to guides for solving specific problems
+- Experiment manuals for information on specific experiments
 - API reference for technical documentation
 
 All documentation is written in reStructuredText format and then built into formatted
@@ -75,13 +75,13 @@ tutorials:
   be used to the old usage pattern.
 
 
-### How-to recipes
+### How-to guides
 
 The title of a how-to should clearly describe what problem it's solving. It should be an
 action that follows "How to". The text itself has up to four sections, but only the
 first two are required:
 
-- Problem: This section should describe the user problem that your recipe is providing a
+- Problem: This section should describe the user problem that your guide is providing a
   direct solution for in second person. This should ideally be a one-liner so that users
   can quickly scan it and see if it’s relevant to what they’re trying to do.
 
@@ -132,9 +132,9 @@ See also
 ```
 
 
-### Experiment guides
+### Experiment manuals
 
-The main goal of `qiskit-experiment` experiment guides is to serve as user guides for
+The main goal of `qiskit-experiment` experiment manuals is to serve as user manuals for
 the various package components such as the characterization and calibration experiments.
 To this end, each guide should introduce the cover the main (if not all) use-cases of
 the documented functionality, including code examples and expected outputs. Another
@@ -147,8 +147,8 @@ with a code example and example outputs by printing relevant analysis results an
 figures. Required and common parameters, such as experiment and analysis options, shoud
 be covered.
 
-See the [Randomized Benchmarking](https://qiskit.org/documentation/experiments/guides/benchmarking/randomized_benchmarking.html)
-guide and its [source code](docs/guides/benchmarking/randomized_benchmarking.rst) for an
+See the [Randomized Benchmarking](https://qiskit.org/documentation/experiments/manuals/benchmarking/randomized_benchmarking.html)
+guide and its [source code](docs/manuals/benchmarking/randomized_benchmarking.rst) for an
 example. Here is a simple template for a guide:
 
 ```
@@ -266,8 +266,8 @@ There are several predefined sections for the class docstring.
        you can use the above macro, where you can provide a string for the hyperlink and 
        the destination location separated by single comma.
    
-   # section: guide
-       Optional. Link to user guide of this experiment if one exists.
+   # section: manual
+       Optional. Link to manuals of this experiment if one exists.
    
    # section: see_also
        Optional. You can list relevant experiment or module.

@@ -37,8 +37,8 @@ class T1(BaseExperiment):
     # section: analysis_ref
         :class:`.T1Analysis`
 
-    # section: guide
-        :doc:`/guides/characterization/t1`
+    # section: manual
+        :doc:`/manuals/characterization/t1`
 
     """
 

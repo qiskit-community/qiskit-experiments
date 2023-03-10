@@ -1,13 +1,14 @@
-################################
-Qiskit Experiments documentation
-################################
+.. _qiskit-experiments:
+
+Qiskit Experiments Documentation
+================================
 
 .. warning::
 
     This package is still under active development and it is very likely
     that there will be breaking API changes in future releases.
     If you encounter any bugs, please open an issue on
-    `Github <https://github.com/Qiskit/qiskit-experiments/issues>`_.
+    `GitHub <https://github.com/Qiskit/qiskit-experiments/issues>`_.
 
 Qiskit Experiments provides both a :doc:`library <apidocs/library>` of standard
 quantum characterization, calibration, and verification experiments, and a
@@ -39,13 +40,13 @@ We've divided up the documentation into four sections with different purposes:
 
             To the learning tutorials
 
-    .. grid-item-card:: How-Tos
+    .. grid-item-card:: How-To Guides
 
         .. image:: _static/howtos.png
             :target: howtos/index.html
     
-        These individual how-to recipes provide short and direct solutions to some commonly
-        asked questions for Qiskit Experiments users. You'll find in these recipes:
+        These standalone how-to guides provide short and direct solutions to some commonly
+        asked questions for Qiskit Experiments users. You'll find in these guides:
 
         * How to :doc:`re-instantiate experiment data for an existing experiment <howtos/new_experimentdata>`
         * How to :doc:`customize the splitting of circuits into jobs <howtos/job_splitting>`
@@ -56,26 +57,27 @@ We've divided up the documentation into four sections with different purposes:
             :expand:
             :color: secondary
 
-            To the how-to recipes
+            To the how-to guides
 
-    .. grid-item-card:: Experiment Guides
+    .. grid-item-card:: Experiment Manuals
 
-        .. image:: _static/guides.png
-            :target: guides/index.html
+        .. image:: _static/manuals.png
+            :target: manuals/index.html
 
-        These are in-depth guides to key experiments in the package, describing
-        their background, principle, and how to run them in Qiskit Experiments. You'll find in these guides:
+        These are in-depth manuals to key experiments in the package, describing their
+        background, principle, and how to run them in Qiskit Experiments. You'll find in
+        these manuals:
         
-        * How to analyze 1- and 2-qubit errors in :doc:`randomized benchmarking </guides/benchmarking/randomized_benchmarking>`
-        * How to calculate the speedup from using :doc:`restless measurements </guides/measurement/restless_measurements>`
+        * How to analyze 1- and 2-qubit errors in :doc:`randomized benchmarking </manuals/benchmarking/randomized_benchmarking>`
+        * How to calculate the speedup from using :doc:`restless measurements </manuals/measurement/restless_measurements>`
 
         +++
 
-        .. button-ref:: guides/index
+        .. button-ref:: manuals/index
             :expand:
             :color: secondary
 
-            To the experiment guides
+            To the experiment manuals
 
 
     .. grid-item-card:: API Reference
@@ -114,9 +116,10 @@ We've divided up the documentation into four sections with different purposes:
     :hidden:
 
     howtos/index
-    guides/index
+    manuals/index
     apidocs/index
     release_notes
+    Development Branch Docs <https://qiskit.org/documentation/experiments/dev>
     GitHub <https://github.com/Qiskit/qiskit-experiments>
 
 |

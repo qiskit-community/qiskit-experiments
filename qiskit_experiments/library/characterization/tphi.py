@@ -48,8 +48,8 @@ class Tphi(BatchExperiment):
     # section: reference
         .. ref_arxiv:: 1 1904.06560v5
 
-    # section: guide
-        :doc:`/guides/characterization/tphi`
+    # section: manual
+        :doc:`/manuals/characterization/tphi`
     """
 
     def set_experiment_options(self, **fields):

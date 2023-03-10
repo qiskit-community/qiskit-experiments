@@ -89,19 +89,19 @@ nbsphinx_execute = os.getenv("QISKIT_DOCS_BUILD_TUTORIALS", "never")
 nbsphinx_widgets_path = ""
 exclude_patterns = ["_build", "**.ipynb_checkpoints"]
 
-# Thumbnails for experiment guides from output images
+# Thumbnails for experiment manuals from output images
 # These should ideally be automatically generated using a custom macro to specify
 # chosen cells for thumbnails, like the nbsphinx-gallery tag
 nbsphinx_thumbnails = {
-    "guides/benchmarking/quantum_volume": "_images/quantum_volume_2_0.png",
-    "guides/measurement/readout_mitigation": "_images/readout_mitigation_4_0.png",
-    "guides/benchmarking/randomized_benchmarking": "_images/randomized_benchmarking_3_1.png",
-    "guides/measurement/restless_measurements": "_images/restless_shots.png",
-    "guides/benchmarking/state_tomography": "_images/state_tomography_3_0.png",
-    "guides/characterization/t1": "_images/t1_0_0.png",
-    "guides/characterization/t2ramsey": "_images/t2ramsey_4_0.png",
-    "guides/characterization/tphi": "_images/tphi_8_0.png",
-    "guides/characterization/t2hahn": "_images/t2hahn_5_0.png",
+    "manuals/benchmarking/quantum_volume": "_images/quantum_volume_2_0.png",
+    "manuals/measurement/readout_mitigation": "_images/readout_mitigation_4_0.png",
+    "manuals/benchmarking/randomized_benchmarking": "_images/randomized_benchmarking_3_1.png",
+    "manuals/measurement/restless_measurements": "_images/restless_shots.png",
+    "manuals/benchmarking/state_tomography": "_images/state_tomography_3_0.png",
+    "manuals/characterization/t1": "_images/t1_0_0.png",
+    "manuals/characterization/t2ramsey": "_images/t2ramsey_4_0.png",
+    "manuals/characterization/tphi": "_images/tphi_8_0.png",
+    "manuals/characterization/t2hahn": "_images/t2hahn_5_0.png",
 }
 
 # Add `data keys` and `style parameters` alias. Needed for `expected_*_data_keys` methods in
@@ -169,9 +169,8 @@ html_theme = "qiskit_sphinx_theme"  # use the theme in subdir 'theme'
 html_context = {
     "analytics_enabled": True,
     "expandable_sidebar": True,
-}  # enable built-in analytics
+}
 
-# html_sidebars = {'**': ['globaltoc.html']}
 html_last_updated_fmt = "%Y/%m/%d"
 
 html_theme_options = {
@@ -236,3 +235,10 @@ def _get_version_label(current_version):
 
 def setup(app):
     app.connect("config-inited", _get_versions)
+    app.connect("autodoc-skip-member", maybe_skip_member)
+
+
+def maybe_skip_member(app, what, name, obj, skip, options):
+    if not skip:
+        return name in {"analysis", "set_run_options"} and what == "attribute"
+    return skip

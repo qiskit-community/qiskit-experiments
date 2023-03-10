@@ -54,8 +54,8 @@ class T2Ramsey(BaseExperiment):
         and the delays are specified by the user.
         The circuits are run on the device or on a simulator backend.
 
-    # section: guide
-        :doc:`/guides/characterization/t2ramsey`
+    # section: manual
+        :doc:`/manuals/characterization/t2ramsey`
 
     # section: analysis_ref
         :class:`T2RamseyAnalysis`

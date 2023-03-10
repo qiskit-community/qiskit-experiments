@@ -2,7 +2,7 @@ Save and load experiment data with the cloud service
 ====================================================
 
 .. note::
-    This recipe is only for those who have access to the cloud service. You can 
+    This guide is only for those who have access to the cloud service. You can 
     check whether you do by logging into the IBM Quantum interface 
     and seeing if you can see the `database <https://quantum-computing.ibm.com/experiments>`__.
 
@@ -18,7 +18,7 @@ Saving
 ~~~~~~
 
 .. note::
-    This recipe requires :mod:`qiskit-ibm-provider`. For how to migrate from the deprecated :mod:`qiskit-ibmq-provider` to :mod:`qiskit-ibm-provider`,
+    This guide requires :mod:`qiskit-ibm-provider`. For how to migrate from the deprecated :mod:`qiskit-ibmq-provider` to :mod:`qiskit-ibm-provider`,
     consult the `migration guide <https://qiskit.org/documentation/partners/qiskit_ibm_provider/tutorials/Migration_Guide_from_qiskit-ibmq-provider.html>`_.\
 
 You must run the experiment on a real IBM

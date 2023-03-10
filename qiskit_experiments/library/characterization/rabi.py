@@ -47,7 +47,7 @@ class Rabi(BaseExperiment, RestlessMixin):
         The user provides his own schedule for the Rabi at initialization which must have one
         free parameter, i.e. the amplitude to scan and a drive channel which matches the qubit.
 
-    # section: guide
+    # section: manual
         :ref:`Rabi Calibration`
 
         See also `Qiskit Textbook <https://qiskit.org/textbook/ch-quantum-hardware/\

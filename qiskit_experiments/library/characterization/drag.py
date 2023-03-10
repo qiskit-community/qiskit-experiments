@@ -70,7 +70,7 @@ class RoughDrag(BaseExperiment, RestlessMixin):
         .. ref_arxiv:: 2 0901.0534
         .. ref_arxiv:: 3 1509.05470
 
-    # section: guide
+    # section: manual
         :ref:`DRAG Calibration`
 
     """

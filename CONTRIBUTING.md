@@ -326,8 +326,8 @@ This will build all the documentation into `docs/_build/html`. The main page
 manually:
 
 * `tutorials/`: Contains the built tutorials.
-* `howtos/`: Contains the built how-tos.
-* `guides/`: Contains the built experiment guides.
+* `howtos/`: Contains the built how-to guides.
+* `manuals/`: Contains the built experiment manuals.
 * `apidocs/`:  Contains the API docs automatically compiled from module docstrings.
 * `release_notes.html`: Contains the release notes.
 

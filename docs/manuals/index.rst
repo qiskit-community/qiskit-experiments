@@ -1,9 +1,10 @@
-#####################
-Experiment Guides
-#####################
+Experiment Manuals
+==================
 
-These experiment guides are in-depth dives into individual experiments, their
+These experiment manuals are in-depth dives into individual experiments, their
 operational principles, and how to run them in Qiskit Experiments.
+
+.. _benchmarking:
 
 Benchmarking Experiments
 ------------------------
@@ -16,6 +17,8 @@ metrics, such as the space-time volume of circuits that can be successfully exec
 
     benchmarking/*
 
+.. _qubit characterization:
+
 Qubit Characterization Experiments
 ----------------------------------
 
@@ -25,6 +28,8 @@ These experiment measure specific properties of a qubit.
     :glob:
 
     characterization/*
+
+.. _measurement-related:
 
 Measurement-Related Experiments
 -------------------------------

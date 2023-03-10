@@ -11,7 +11,7 @@ Solution
 --------
 
 .. note::
-    This recipe requires :mod:`qiskit-ibm-provider`. For how to migrate from the deprecated :mod:`qiskit-ibmq-provider` to :mod:`qiskit-ibm-provider`,
+    This guide requires :mod:`qiskit-ibm-provider`. For how to migrate from the deprecated :mod:`qiskit-ibmq-provider` to :mod:`qiskit-ibm-provider`,
     consult the `migration guide <https://qiskit.org/documentation/partners/qiskit_ibm_provider/tutorials/Migration_Guide_from_qiskit-ibmq-provider.html>`_.\
 
 Use the code template below. You need to know the exact experiment you
@@ -42,7 +42,7 @@ ran and its options, as well as the IDs of the jobs that were executed.
 Discussion
 ----------
 
-This recipe is helpful for cases such as a lost connection during experiment execution, 
+This guide is helpful for cases such as a lost connection during experiment execution, 
 where the jobs may have finished running on the remote backends but the 
 :class:`.ExperimentData` class returned upon completion of an experiment does not 
 contain correct results.
