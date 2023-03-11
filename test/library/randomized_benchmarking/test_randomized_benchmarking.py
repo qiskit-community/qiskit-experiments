@@ -21,15 +21,11 @@ from ddt import ddt, data, unpack
 from qiskit.circuit import Delay, QuantumCircuit, Parameter, Gate
 from qiskit.circuit.library import SXGate, CXGate, TGate, CZGate
 from qiskit.exceptions import QiskitError
-from qiskit.providers.fake_provider import FakeManila, FakeManilaV2, FakeWashington, FakeParis
+from qiskit.providers.fake_provider import FakeManila, FakeManilaV2, FakeWashington
 from qiskit.pulse import Schedule, InstructionScheduleMap
 from qiskit.quantum_info import Operator
-from qiskit.transpiler.basepasses import TransformationPass
-from qiskit.transpiler import Layout, PassManager, CouplingMap
-
 from qiskit_aer import AerSimulator
 from qiskit_aer.noise import NoiseModel, depolarizing_error
-
 from qiskit_experiments.database_service.exceptions import ExperimentEntryNotFound
 from qiskit_experiments.framework.composite import ParallelExperiment
 from qiskit_experiments.library import randomized_benchmarking as rb
@@ -476,6 +472,526 @@ class TestInterleavedRB(QiskitExperimentsTestCase, RBTestMixin):
                     self.assertEqual(inst.qubits, expected_qubits)
 
 
+class NoiseSimulator(AerSimulator):
+    """Quantum device simulator that has nonlocal CX errors"""
+
+    def run(self, circuits, validate=False, parameter_binds=None, **run_options):
+        """Applies transpiler pass NonlocalCXDepError to circuits run on this backend"""
+        pm = PassManager()
+        cm = CouplingMap(couplinglist=self.configuration().coupling_map)
+        pm.append([NonlocalCXDepError(cm)])
+        noise_circuits = pm.run(circuits)
+        return super().run(
+            noise_circuits, validate=validate, parameter_binds=parameter_binds, **run_options
+        )
+
+
+@ddt
+class TestMirrorRB(RBTestCase):
+    """Test for mirror RB."""
+
+    def test_single_qubit(self):
+        """Test single qubit mirror RB."""
+        exp = rb.MirrorRB(
+            qubits=(0,),
+            lengths=list(range(2, 300, 20)),
+            seed=124,
+            backend=self.backend,
+            num_samples=30,
+        )
+        # exp.analysis.set_options(gate_error_ratio=None)
+        exp.set_transpile_options(**self.transpiler_options)
+        self.assertAllIdentity(exp.circuits())
+
+        expdata = exp.run()
+        self.assertExperimentDone(expdata)
+
+        # Given we have gate number per Clifford n_gpc, we can compute EPC as
+        # EPC = 1 - (1 - r)^n_gpc
+        # where r is gate error of SX gate, i.e. dep-parameter divided by 2.
+        # We let transpiler use SX and RZ.
+        # The number of physical gate per Clifford will distribute
+        # from 0 to 2, i.e. arbitrary U gate can be decomposed into up to 2 SX with RZs.
+        # We may want to expect the average number of SX is (0 + 1 + 2) / 3 = 1.0.
+        # But for mirror RB, we must also add the SX gate number per Pauli n_gpp,
+        # which is 2 for X and Y gates and 0 for I and Z gates (average = 1.0). So the
+        # formula should be EPC = 1 - (1 - r)^(n_gpc + n_gpp) = 1 - (1 - r)^2
+        epc = expdata.analysis_results("EPC")
+
+        epc_expected = 1 - (1 - 1 / 2 * self.p1q) ** 2.0
+        self.assertAlmostEqual(epc.value.n, epc_expected, delta=0.1 * epc_expected)
+
+    def test_two_qubit(self):
+        """Test two qubit RB."""
+        two_qubit_gate_density = 0.2
+        exp = rb.MirrorRB(
+            qubits=(0, 1),
+            lengths=list(range(2, 300, 20)),
+            seed=123,
+            backend=self.backend,
+            num_samples=30,
+            two_qubit_gate_density=two_qubit_gate_density,
+        )
+        exp.analysis.set_options(gate_error_ratio=None)
+        exp.set_transpile_options(**self.transpiler_options)
+        self.assertAllIdentity(exp.circuits())
+
+        expdata = exp.run()
+        self.assertExperimentDone(expdata)
+
+        # Given a two qubit gate density xi and an n qubit circuit, a Clifford
+        # layer has n*xi two-qubit gates. Obviously a Pauli has no two-qubit
+        # gates, so on aveage, a Clifford + Pauli layer has n*xi two-qubit gates
+        # and 2*n - 2*n*xi one-qubit gates (two layers have 2*n lattice sites,
+        # 2*n*xi of which are occupied by two-qubit gates). For two-qubit
+        # mirrored RB, the average infidelity is ((2^2 - 1)/2^2 = 3/4) times
+        # the two-qubit depolarizing parameter
+        epc = expdata.analysis_results("EPC")
+        cx_factor = (1 - 3 * self.p2q / 4) ** (2 * two_qubit_gate_density)
+        sx_factor = (1 - self.p1q / 2) ** (2 * 2 * (1 - two_qubit_gate_density))
+        epc_expected = 1 - cx_factor * sx_factor
+        self.assertAlmostEqual(epc.value.n, epc_expected, delta=0.1 * epc_expected)
+
+    def test_two_qubit_nonlocal_noise(self):
+        """Test for 2 qubit Mirrored RB with a nonlocal noise model"""
+        # depolarizing error
+        p1q = 0.0
+        p2q = 0.01
+        pvz = 0.0
+
+        # setup noise model
+        sx_error = depolarizing_error(p1q, 1)
+        rz_error = depolarizing_error(pvz, 1)
+        cx_error = depolarizing_error(p2q, 2)
+
+        noise_model = NoiseModel()
+        noise_model.add_all_qubit_quantum_error(sx_error, "sx")
+        noise_model.add_all_qubit_quantum_error(rz_error, "rz")
+        noise_model.add_all_qubit_quantum_error(cx_error, "cx")
+
+        basis_gates = ["id", "sx", "rz", "cx"]
+        # Need level1 for consecutive gate cancellation for reference EPC value calculation
+        transpiler_options = {
+            "basis_gates": basis_gates,
+            "optimization_level": 1,
+        }
+        # Coupling map is 3 x 3 lattice
+        noise_backend = NoiseSimulator(
+            noise_model=noise_model,
+            seed_simulator=123,
+            coupling_map=CouplingMap.from_grid(3, 3).get_edges(),
+        )
+
+        two_qubit_gate_density = 0.2
+        exp = rb.MirrorRB(
+            qubits=(0, 1),
+            lengths=list(range(2, 110, 20)),
+            seed=123,
+            backend=noise_backend,
+            num_samples=20,
+            two_qubit_gate_density=two_qubit_gate_density,
+        )
+        exp.analysis.set_options(gate_error_ratio=None)
+        exp.set_transpile_options(**transpiler_options)
+        self.assertAllIdentity(exp.circuits())
+        expdata = exp.run(noise_backend)
+        self.assertExperimentDone(expdata)
+
+        epc = expdata.analysis_results("EPC")
+        # Compared to expected EPC in two-qubit test without nonlocal noise above,
+        # we include an extra factor for the nonlocal CX error. This nonlocal
+        # error is modeled by a one-qubit depolarizing channel on each qubit after
+        # each CX, so the expected number of one-qubit depolarizing channels
+        # induced by CXs is (number of CXs) * (number of qubits) = (two qubit gate
+        # density) * (number of qubits) * (number of qubits).
+        num_q = 2
+        cx_factor = (1 - 3 * p2q / 4) ** (num_q * two_qubit_gate_density)
+        sx_factor = (1 - p1q / 2) ** (2 * num_q * (1 - two_qubit_gate_density))
+        cx_nonlocal_factor = (1 - 0.0035 / 2) ** (num_q * num_q * two_qubit_gate_density)
+        epc_expected = 1 - cx_factor * sx_factor * cx_nonlocal_factor
+        self.assertAlmostEqual(epc.value.n, epc_expected, delta=0.1 * epc_expected)
+
+    def test_three_qubit_nonlocal_noise(self):
+        """Test three-qubit mirrored RB on a nonlocal noise model"""
+        # depolarizing error
+        p1q = 0.001
+        p2q = 0.01
+        pvz = 0.0
+
+        # setup noise modelle
+        sx_error = depolarizing_error(p1q, 1)
+        rz_error = depolarizing_error(pvz, 1)
+        cx_error = depolarizing_error(p2q, 2)
+
+        noise_model = NoiseModel()
+        noise_model.add_all_qubit_quantum_error(sx_error, "sx")
+        noise_model.add_all_qubit_quantum_error(rz_error, "rz")
+        noise_model.add_all_qubit_quantum_error(cx_error, "cx")
+
+        basis_gates = ["id", "sx", "rz", "cx"]
+        # Need level1 for consecutive gate cancellation for reference EPC value calculation
+        transpiler_options = {
+            "basis_gates": basis_gates,
+            "optimization_level": 1,
+        }
+        noise_backend = NoiseSimulator(
+            noise_model=noise_model,
+            seed_simulator=123,
+            coupling_map=CouplingMap.from_grid(3, 3).get_edges(),
+        )
+
+        two_qubit_gate_density = 0.2
+        exp = rb.MirrorRB(
+            qubits=(0, 1, 2),
+            lengths=list(range(2, 110, 50)),
+            seed=123,
+            backend=noise_backend,
+            num_samples=20,
+            two_qubit_gate_density=two_qubit_gate_density,
+        )
+        exp.analysis.set_options(gate_error_ratio=None)
+        exp.set_transpile_options(**transpiler_options)
+        self.assertAllIdentity(exp.circuits())
+        expdata = exp.run(noise_backend)
+        self.assertExperimentDone(expdata)
+
+        epc = expdata.analysis_results("EPC")
+        # The expected EPC was computed in simulations not presented here.
+        # Method:
+        # 1. Sample N Clifford layers according to the edgegrab algorithm
+        #    in clifford_utils.
+        # 2. Transpile these into SX, RZ, and CX gates.
+        # 3. Replace each SX and CX with one- and two-qubit depolarizing
+        #    channels, respectively, and remove RZ gates.
+        # 4. Use qiskit.quantum_info.average_gate_fidelity on these N layers
+        #    to compute 1 - EPC for each layer, and average over the N layers.
+        epc_expected = 0.0124
+        self.assertAlmostEqual(epc.value.n, epc_expected, delta=0.2 * epc_expected)
+
+    def test_add_more_circuit_yields_lower_variance(self):
+        """Test variance reduction with larger number of sampling."""
+        exp1 = rb.MirrorRB(
+            qubits=(0, 1),
+            lengths=list(range(2, 30, 4)),
+            seed=123,
+            backend=self.backend,
+            num_samples=3,
+            inverting_pauli_layer=False,
+        )
+        exp1.analysis.set_options(gate_error_ratio=None)
+        exp1.set_transpile_options(**self.transpiler_options)
+        expdata1 = exp1.run()
+        self.assertExperimentDone(expdata1)
+
+        exp2 = rb.MirrorRB(
+            qubits=(0, 1),
+            lengths=list(range(2, 30, 4)),
+            seed=456,
+            backend=self.backend,
+            num_samples=10,
+            inverting_pauli_layer=False,
+        )
+        exp2.analysis.set_options(gate_error_ratio=None)
+        exp2.set_transpile_options(**self.transpiler_options)
+        expdata2 = exp2.run()
+        self.assertExperimentDone(expdata2)
+
+        self.assertLess(
+            expdata2.analysis_results("EPC").value.s,
+            expdata1.analysis_results("EPC").value.s,
+        )
+
+    def test_return_same_circuit(self):
+        """Test if setting the same seed returns the same circuits."""
+        lengths = [10, 20]
+        exp1 = rb.MirrorRB(
+            qubits=(0, 1),
+            lengths=lengths,
+            seed=123,
+            backend=self.backend,
+        )
+
+        exp2 = rb.MirrorRB(
+            qubits=(0, 1),
+            lengths=lengths,
+            seed=123,
+            backend=self.backend,
+        )
+
+        circs1 = exp1.circuits()
+        circs2 = exp2.circuits()
+
+        for circ1, circ2 in zip(circs1, circs2):
+            self.assertEqual(circ1.decompose(), circ2.decompose())
+
+    def test_full_sampling(self):
+        """Test if full sampling generates different circuits."""
+        exp1 = rb.MirrorRB(
+            qubits=(0, 1),
+            lengths=[10, 20],
+            seed=123,
+            backend=self.backend,
+            num_samples=1,
+            full_sampling=True,
+        )
+
+        exp2 = rb.MirrorRB(
+            qubits=(0, 1),
+            lengths=[10, 20],
+            seed=123,
+            backend=self.backend,
+            num_samples=1,
+            full_sampling=False,
+        )
+
+        circs1 = exp1.circuits()
+        circs2 = exp2.circuits()
+
+        self.assertNotEqual(circs1[0].decompose(), circs2[0].decompose())
+
+        # fully sampled circuits are regenerated while other is just built on
+        # top of previous length
+        self.assertNotEqual(circs1[1].decompose(), circs2[1].decompose())
+
+    def test_target_bitstring(self):
+        """Test if correct target bitstring is returned."""
+        qc = QuantumCircuit(9)
+        qc.z(0)
+        qc.y(1)
+        qc.y(2)
+        qc.z(3)
+        qc.y(4)
+        qc.x(7)
+        qc.y(8)
+        exp = rb.MirrorRB(qubits=[0], lengths=[2], backend=self.backend)
+        expected_tb = exp._clifford_utils.compute_target_bitstring(qc)
+        actual_tb = "110010110"
+        self.assertEqual(expected_tb, actual_tb)
+
+    def test_zero_2q_gate_density(self):
+        """Test that there are no two-qubit gates when the two-qubit gate
+        density is set to 0."""
+        exp = rb.MirrorRB(
+            qubits=(0, 1),
+            lengths=[40],
+            seed=124,
+            backend=self.backend,
+            num_samples=1,
+            two_qubit_gate_density=0,
+        )
+        circ = exp.circuits()[0].decompose()
+        for datum in circ.data:
+            inst_name = datum[0].name
+            self.assertNotEqual("cx", inst_name)
+
+    def test_max_2q_gate_density(self):
+        """Test that every intermediate Clifford layer is filled with two-qubit
+        gates when the two-qubit gate density is set to 0.5, its maximum value
+        (assuming an even number of qubits and a backend coupling map with full
+        connectivity)."""
+        backend = AerSimulator(coupling_map=CouplingMap.from_full(4).get_edges())
+        exp = rb.MirrorRB(
+            qubits=(0, 1, 2, 3),
+            lengths=[40],
+            seed=125,
+            backend=backend,
+            num_samples=1,
+            two_qubit_gate_density=0.5,
+        )
+        circ = exp.circuits()[0].decompose()
+        num_cxs = 0
+        for datum in circ.data:
+            if datum[0].name == "cx":
+                num_cxs += 1
+        self.assertEqual(80, num_cxs)
+
+    def test_local_clifford(self):
+        """Test that the number of layers is correct depending on whether
+        local_clifford is set to True or False by counting the number of barriers."""
+        exp = rb.MirrorRB(
+            qubits=(0,),
+            lengths=[2],
+            seed=126,
+            backend=self.backend,
+            num_samples=1,
+            local_clifford=True,
+            pauli_randomize=False,
+            two_qubit_gate_density=0.2,
+            inverting_pauli_layer=False,
+        )
+        circ = exp.circuits()[0]
+        num_barriers = 0
+        for datum in circ.data:
+            if datum[0].name == "barrier":
+                num_barriers += 1
+        self.assertEqual(5, num_barriers)
+
+    def test_pauli_randomize(self):
+        """Test that the number of layers is correct depending on whether
+        pauli_randomize is set to True or False by counting the number of barriers."""
+        exp = rb.MirrorRB(
+            qubits=(0,),
+            lengths=[2],
+            seed=126,
+            backend=self.backend,
+            num_samples=1,
+            local_clifford=False,
+            pauli_randomize=True,
+            two_qubit_gate_density=0.2,
+            inverting_pauli_layer=False,
+        )
+        circ = exp.circuits()[0]
+        num_barriers = 0
+        for datum in circ.data:
+            if datum[0].name == "barrier":
+                num_barriers += 1
+        self.assertEqual(6, num_barriers)
+
+    def test_inverting_pauli_layer(self):
+        """Test that a circuit with an inverting Pauli layer at the end (i.e.,
+        a layer of Paulis before the final measurement that restores the output
+        to |0>^num_qubits up to a global phase) composes to the identity (up to
+        a global phase)"""
+        exp = rb.MirrorRB(
+            qubits=(0, 1, 2),
+            lengths=[2],
+            seed=127,
+            backend=self.backend,
+            num_samples=3,
+            local_clifford=True,
+            pauli_randomize=True,
+            two_qubit_gate_density=0.2,
+            inverting_pauli_layer=True,
+        )
+        self.assertAllIdentity(exp.circuits())
+
+    @data(
+        {
+            "qubits": [3, 3],
+            "lengths": [2, 4, 6, 8, 10],
+            "num_samples": 1,
+            "seed": 100,
+            "backend": AerSimulator(coupling_map=[[0, 1], [1, 0]]),
+        },  # repeated qubits
+        {
+            "qubits": [0, 1],
+            "lengths": [2, 4, 6, -8, 10],
+            "num_samples": 1,
+            "seed": 100,
+            "backend": AerSimulator(coupling_map=[[0, 1], [1, 0]]),
+        },  # negative length
+        {
+            "qubits": [0, 1],
+            "lengths": [2, 4, 6, 8, 10],
+            "num_samples": -4,
+            "seed": 100,
+            "backend": AerSimulator(coupling_map=[[0, 1], [1, 0]]),
+        },  # negative number of samples
+        {
+            "qubits": [0, 1],
+            "lengths": [2, 4, 6, 8, 10],
+            "num_samples": 0,
+            "seed": 100,
+            "backend": AerSimulator(coupling_map=[[0, 1], [1, 0]]),
+        },  # zero samples
+        {
+            "qubits": [0, 1],
+            "lengths": [2, 6, 6, 6, 10],
+            "num_samples": 2,
+            "seed": 100,
+            "backend": AerSimulator(coupling_map=[[0, 1], [1, 0]]),
+        },  # repeated lengths
+        {
+            "qubits": [0, 1],
+            "lengths": [2, 4, 5, 8, 10],
+            "num_samples": 2,
+            "seed": 100,
+            "backend": AerSimulator(coupling_map=[[0, 1], [1, 0]]),
+        },  # odd length
+        {
+            "qubits": [0, 1],
+            "lengths": [2, 4, 6, 8, 10],
+            "num_samples": 1,
+            "seed": 100,
+            "two_qubit_gate_density": -0.1,
+            "backend": AerSimulator(coupling_map=[[0, 1], [1, 0]]),
+        },  # negative two-qubit gate density
+    )
+    def test_invalid_configuration(self, configs):
+        """Test raise error when creating experiment with invalid configs."""
+        self.assertRaises(QiskitError, rb.MirrorRB, **configs)
+
+    @data(
+        {
+            "qubits": [0, 1],
+            "lengths": [2, 4, 6, 8, 10],
+            "num_samples": 1,
+            "seed": 100,
+            "backend": None,
+        },  # no backend
+    )
+    def test_no_backend(self, configs):
+        """Test raise error when no backend is provided for sampling circuits."""
+        mirror_exp = rb.MirrorRB(**configs)
+        self.assertRaises(QiskitError, mirror_exp.run)
+
+    @data(
+        {
+            "qubits": [0, 25],
+            "lengths": [2, 4, 6, 8, 10],
+            "num_samples": 1,
+            "seed": 100,
+            "backend": AerSimulator.from_backend(FakeParis()),
+        },  # Uncoupled qubits to test edgegrab algorithm warning
+        {
+            "qubits": [0, 1],
+            "lengths": [2, 4, 6, 8, 10],
+            "num_samples": 1,
+            "seed": 100,
+            "two_qubit_gate_density": 0.6,
+            "backend": AerSimulator(coupling_map=[[0, 1], [1, 0]]),
+        },  # High two-qubit gate density warning
+    )
+    def test_warnings(self, configs):
+        """Test raise warnings when creating experiment."""
+        mirror_exp = rb.MirrorRB(**configs)
+        self.assertWarns(Warning, mirror_exp.run)
+
+    def test_experiment_config(self):
+        """Test converting to and from config works"""
+        exp = rb.MirrorRB(qubits=(0,), lengths=[10, 20, 30], seed=123, backend=self.backend)
+        loaded_exp = rb.MirrorRB.from_config(exp.config())
+        self.assertNotEqual(exp, loaded_exp)
+        self.assertTrue(self.json_equiv(exp, loaded_exp))
+
+    def test_roundtrip_serializable(self):
+        """Test round trip JSON serialization"""
+        exp = rb.MirrorRB(qubits=(0,), lengths=[10, 20, 30], seed=123)
+        self.assertRoundTripSerializable(exp, self.json_equiv)
+
+    def test_analysis_config(self):
+        """ "Test converting analysis to and from config works"""
+        analysis = RBAnalysis()
+        loaded = RBAnalysis.from_config(analysis.config())
+        self.assertNotEqual(analysis, loaded)
+        self.assertEqual(analysis.config(), loaded.config())
+
+    def test_expdata_serialization(self):
+        """Test serializing experiment data works."""
+        exp = rb.MirrorRB(
+            qubits=(0,),
+            lengths=list(range(2, 200, 50)),
+            seed=123,
+            backend=self.backend,
+            inverting_pauli_layer=False,
+        )
+        exp.set_transpile_options(**self.transpiler_options)
+        expdata = exp.run()
+        self.assertExperimentDone(expdata)
+        self.assertRoundTripSerializable(expdata, check_func=self.experiment_data_equiv)
+        self.assertRoundTripPickle(expdata, check_func=self.experiment_data_equiv)
+
+
 class RBRunTestCase(QiskitExperimentsTestCase, RBTestMixin):
     """Base test case for running RB experiments defining a common noise model."""
 
@@ -545,24 +1061,6 @@ class TestRunStandardRB(RBRunTestCase):
 
         epc_expected = 1 - (1 - 1 / 2 * self.p1q) ** 1.0
         self.assertAlmostEqual(epc.value.n, epc_expected, delta=0.1 * epc_expected)
-
-    def test_custom_distribution(self):
-        """Test providing a custom distribution."""
-        qubits = (
-            0,
-            1,
-            2,
-        )
-        exp = rb.MirrorRB(
-            physical_qubits=qubits,
-            distribution=rb.RandomEdgeGrabDistribution,
-            two_qubit_gate_density=0.5,
-            lengths=list(range(2, 300, 20)),
-            seed=124,
-            backend=self.backend,
-            num_samples=30,
-        )
-        # test that feeding the circuit from edge grab into discrete yields the same answer(?)
 
     def test_two_qubit(self):
         """Test two qubit RB. Use default basis gates."""

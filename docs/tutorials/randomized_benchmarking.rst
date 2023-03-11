@@ -12,14 +12,9 @@ Textbook <https://qiskit.org/textbook/ch-quantum-hardware/randomized-benchmarkin
 for an explanation on the RB method, which is based on Ref. [1, 2].
 
 .. jupyter-execute::
-    :hide-code:
-
-    %matplotlib inline
-
-.. jupyter-execute::
 
     import numpy as np
-    from qiskit_experiments.library import StandardRB, InterleavedRB, MirrorRB
+    from qiskit_experiments.library import StandardRB, InterleavedRB
     from qiskit_experiments.framework import ParallelExperiment, BatchExperiment
     import qiskit.circuit.library as circuits
     

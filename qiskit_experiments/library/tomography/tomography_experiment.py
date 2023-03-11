@@ -13,7 +13,6 @@
 Quantum Tomography experiment
 """
 
-import warnings
 from typing import Union, Optional, Iterable, List, Tuple, Sequence
 from itertools import product
 from qiskit.circuit import QuantumCircuit, Instruction, ClassicalRegister, Clbit
@@ -103,32 +102,6 @@ class TomographyExperiment(BaseExperiment):
         Raises:
             QiskitError: if input params are invalid.
         """
-        # Deprecated kwargs
-        if qubits is not None:
-            physical_qubits = qubits
-            warnings.warn(
-                "The `qubits` kwarg has been renamed to `physical_qubits`."
-                " It will be removed in a future release.",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-        if measurement_qubits is not None:
-            measurement_indices = measurement_qubits
-            warnings.warn(
-                "The `measurement_qubits` kwarg has been renamed to `measurement_indices`."
-                " It will be removed in a future release.",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-        if preparation_qubits is not None:
-            preparation_indices = preparation_qubits
-            warnings.warn(
-                "The `preparation_qubits` kwarg has been renamed to `preparation_indices`."
-                " It will be removed in a future release.",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-
         # Initialize BaseExperiment
         if physical_qubits is None:
             physical_qubits = tuple(range(circuit.num_qubits))
