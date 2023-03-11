@@ -20,12 +20,12 @@ import os
 
 class JupyterCellCheckEnv(JupyterCell):
     """This class overrides the JupyterCell class in :mod:`jupyter-sphinx`
-    to skip cell execution when `QISKIT_DOCS_SKIP_RST` is true in the environment.
+    to skip cell execution when `QISKIT_DOCS_SKIP_EXECUTE` is true in the environment.
     """
 
     def run(self):
         [cell] = super().run()
-        if os.getenv("QISKIT_DOCS_SKIP_RST", False):
+        if os.getenv("QISKIT_DOCS_SKIP_EXECUTE", False):
             cell["execute"] = False
             cell["hide_code"] = False
         return [cell]

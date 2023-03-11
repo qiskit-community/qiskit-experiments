@@ -17,38 +17,39 @@
 # full list see the documentation:
 # http://www.sphinx-doc.org/en/master/config
 
+"""
+Sphinx documentation builder.
+"""
+
+import os
+import sys
+import subprocess
+import datetime
+
 # -- Path setup --------------------------------------------------------------
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
-import os
-import sys
-import subprocess
 
 sys.path.insert(0, os.path.abspath("."))
 sys.path.append(os.path.abspath("./_ext"))
 sys.path.append(os.path.abspath(".."))
-
-
-"""
-Sphinx documentation builder
-"""
 
 # Set env flag so that we can doc functions that may otherwise not be loaded
 # see for example interactive visualizations in qiskit.visualization.
 os.environ["QISKIT_DOCS"] = "TRUE"
 
 # -- Project information -----------------------------------------------------
-project = "Qiskit Experiments"
-copyright = "2021, Qiskit Development Team"  # pylint: disable=redefined-builtin
-author = "Qiskit Development Team"
-
 # The short X.Y version
 version = "0.5"
 # The full version, including alpha/beta/rc tags
 release = "0.5.0"
+project = f"Qiskit Experiments {version}"
+copyright = f"2021-{datetime.date.today().year}, Qiskit Development Team"  # pylint: disable=redefined-builtin
+author = "Qiskit Development Team"
+
 
 # -- General configuration ---------------------------------------------------
 
@@ -108,18 +109,9 @@ nbsphinx_thumbnails = {
 # visualization module and `default_style` method in `PlotStyle` respectively.
 napoleon_custom_sections = [("data keys", "params_style"), ("style parameters", "params_style")]
 
-# -----------------------------------------------------------------------------
-# Autosummary
-# -----------------------------------------------------------------------------
-
 autosummary_generate = True
 
-# -----------------------------------------------------------------------------
-# Autodoc
-# -----------------------------------------------------------------------------
-
 autodoc_default_options = {"inherited-members": None}
-
 
 # If true, figures, tables and code-blocks are automatically numbered if they
 # have a caption.
@@ -189,10 +181,6 @@ intersphinx_mapping = {
 }
 
 
-# Current scipy hosted docs are missing the object.inv file so leaving this
-# commented out until the missing file is added back.
-#                       'scipy': ('https://docs.scipy.org/doc/scipy/reference/', None)}
-
 # Prepend warning for development docs:
 
 if os.getenv("EXPERIMENTS_DEV_DOCS", None):
@@ -238,9 +226,11 @@ def setup(app):
     app.connect("autodoc-skip-member", maybe_skip_member)
 
 
+# Hardcoded list of class variables to skip in autodoc to avoid warnings
+# Should come up with better way to address this
+
 from qiskit_experiments.curve_analysis import ParameterRepr
 from qiskit_experiments.curve_analysis import SeriesDef
-from qiskit_experiments.curve_analysis import CurveData
 
 
 def maybe_skip_member(app, what, name, obj, skip, options):

@@ -53,9 +53,7 @@ Let's load a `previous T1
 experiment <https://quantum-computing.ibm.com/experiments/9640736e-d797-4321-b063-d503f8e98571>`__ 
 (requires login to view), which we've made public by editing the ``Share level`` field:
 
-.. jupyter-execute::
-    :hide-output:
-    :raises:
+.. jupyter-input::
 
     from qiskit_experiments.framework.experiment_data import ExperimentData
     service = ExperimentData.get_service_from_backend(backend)
@@ -64,9 +62,7 @@ experiment <https://quantum-computing.ibm.com/experiments/9640736e-d797-4321-b06
 To display the figure, which is serialized into a string, we need the
 ``SVG`` library:
 
-.. jupyter-execute::
-    :hide-output:
-    :raises:
+.. jupyter-input::
 
     from IPython.display import SVG
     SVG(load_expdata.figure(0).figure)

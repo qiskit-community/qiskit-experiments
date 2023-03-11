@@ -19,14 +19,12 @@ measure :math:`|1\rangle` after the delay. We repeat this process for a
 set of delay times, resulting in a set of probability estimates.
 
 In the absence of state preparation and measurement errors, the
-probability to measure \|1> after time :math:`t` is :math:`e^{-t/T_1}`,
+probability to measure :math:`|1\rangle` after time :math:`t` is :math:`e^{-t/T_1}`,
 for a constant :math:`T_1` (the coherence time), which is our target
 number. Since state preparation and measurement errors do exist, the
 qubit’s decay towards the ground state assumes the form
 :math:`Ae^{-t/T_1} + B`, for parameters :math:`A, T_1`, and :math:`B`,
-which we deduce form the probability estimates. To this end, the
-:math:`T_1` experiment internally calls the ``curve_fit`` method of
-``scipy.optimize``.
+which we deduce from the probability estimates.
 
 The following code demonstrates a basic run of a :math:`T_1` experiment
 for qubit 0.

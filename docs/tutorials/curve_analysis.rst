@@ -15,7 +15,7 @@ analyses that inherits from the base class.
 
 .. _curve_analysis_overview:
 
-Curve analysis overview
+Curve Analysis overview
 -----------------------
 
 The base class :class:`.CurveAnalysis` implements the multi-objective optimization on
@@ -81,10 +81,11 @@ Since series A and B share the parameters in this example, :math:`\Theta_{\rm fi
 and the fixed parameters are :math:`\Theta_{\rm fix} = \{ p_1 \}` as mentioned.
 Thus, :math:`\Theta = \{ p_0, p_1, p_2 \}`.
 
-Experiment for each series can perform individual parameter sweep for :math:`x_A` and :math:`x_B`,
-and experiment data yield outcomes :math:`y_A` and :math:`y_B`, which might be different size.
-Data processing function may also compute :math:`\sigma_A` and :math:`\sigma_B` which are
-the uncertainty of outcomes arising from the sampling error or measurement error.
+Experiment for each series can perform individual parameter sweep for :math:`x_A` and
+:math:`x_B`, and experiment data yield outcomes :math:`y_A` and :math:`y_B`, which might
+be different size. Data processing function may also compute :math:`\sigma_A` and
+:math:`\sigma_B` which are the uncertainty of outcomes arising from the sampling error
+or measurement error.
 
 More specifically, the curve analysis defines following data model.
 
@@ -107,16 +108,15 @@ the analysis code for a particular experiment.
 
 .. _curve_analysis_define_group:
 
-Defining New Group
-------------------
+Defining new models
+-------------------
 
-The fit model is defined by the `LMFIT`_ ``Model``.
-If you are familiar with this package, you can skip this section.
-The LMFIT package manages complicated fit function and offers several algorithms
-to solve non-linear least-square problems.
-Basically the Qiskit curve analysis delegates the core fitting functionality to this package.
+The fit model is defined by the `LMFIT`_ ``Model``. If you are familiar with this
+package, you can skip this section. The LMFIT package manages complicated fit function
+and offers several algorithms to solve non-linear least-square problems. Curve Analysis
+delegates the core fitting functionality to this package.
 
-You can intuitively write the definition of model, as shown below:
+You can intuitively write the definition of a model, as shown below:
 
 .. jupyter-input::
 
@@ -208,13 +208,12 @@ with different trigonometric functions.
 
 .. _curve_analysis_fixed_param:
 
-Fitting with Fixed Parameters
+Fitting with fixed parameters
 -----------------------------
 
-You can also remain certain parameters unchanged during the fitting by specifying
-the parameter names in the analysis option ``fixed_parameters``.
-This feature is useful especially when you want to define a subclass of
-a particular analysis class.
+You can also keep certain parameters unchanged during the fitting by specifying the
+parameter names in the analysis option ``fixed_parameters``. This feature is useful
+especially when you want to define a subclass of a particular analysis class.
 
 .. jupyter-input::
 
@@ -260,7 +259,7 @@ every logic defined in the :class:`AnalysisA`.
 
 .. _curve_analysis_workflow:
 
-Curve Analysis Workflow
+Curve Analysis workflow
 -----------------------
 
 Typically curve analysis performs fitting as follows.
@@ -318,33 +317,28 @@ Finally, it returns the list of created analysis results and Matplotlib figure.
 
 .. _curve_analysis_init_guess:
 
-Providing Initial Guesses
+Providing initial guesses
 -------------------------
 
-When fit is performed without any prior information of parameters, it usually
-falls into unsatisfactory result.
-User can provide initial guesses and boundaries for the fit parameters
-through analysis options ``p0`` and ``bounds``.
-These values are the dictionary keyed on the parameter name,
-and one can get the list of parameters with the :attr:`CurveAnalysis.parameters`.
-Each boundary value can be a tuple of float representing min and max value.
+Fitting without initial guesses for parameters often results in a bad fit. User can
+provide initial guesses and boundaries for the fit parameters through analysis options
+``p0`` and ``bounds``. These values are the dictionary keyed on the parameter name, and
+one can get the list of parameters with the :attr:`CurveAnalysis.parameters`. Each
+boundary value can be a tuple of float representing min and max value.
 
-Apart from user provided guesses, the analysis can systematically generate
-those values with the method :meth:`_generate_fit_guesses` which is called with
-:class:`CurveData` dataclass. If the analysis contains multiple models definitions,
-we can get the subset of curve data with :meth:`CurveData.get_subset_of` with
-the name of the series.
-A developer can implement the algorithm to generate initial guesses and boundaries
-by using this curve data object, which will be provided to the fitter.
-Note that there are several common initial guess estimators available in
-:mod:`qiskit_experiments.curve_analysis.guess`.
+Apart from user provided guesses, the analysis can systematically generate those values
+with the method :meth:`_generate_fit_guesses` which is called with :class:`CurveData`
+dataclass. If the analysis contains multiple models definitions, we can get the subset
+of curve data with :meth:`.CurveData.get_subset_of` with the name of the series. A
+developer can implement the algorithm to generate initial guesses and boundaries by
+using this curve data object, which will be provided to the fitter. Note that there are
+several common initial guess estimators available in :mod:`curve_analysis.guess`.
 
-The :meth:`_generate_fit_guesses` also receives :class:`.FitOptions` instance ``user_opt``,
-which contains user provided guesses and boundaries.
-This is dictionary-like object consisting of sub-dictionaries for
-initial guess ``.p0``, boundary ``.bounds``, and extra options for the fitter.
-Note that :class:`.CurveAnalysis` uses SciPy `curve_fit`_ as the least square solver.
-See the API documentation for available options.
+The :meth:`_generate_fit_guesses` also receives the :class:`.FitOptions` instance
+``user_opt``, which contains user provided guesses and boundaries. This is
+dictionary-like object consisting of sub-dictionaries for initial guess ``.p0``,
+boundary ``.bounds``, and extra options for the fitter. See the API
+documentation for available options.
 
 The :class:`.FitOptions` class implements convenient method :meth:`set_if_empty` to manage
 conflict with user provided values, i.e. user provided values have higher priority,
@@ -364,17 +358,13 @@ thus systematically generated values cannot override user values.
 
         return [opt1, opt2]
 
-Here you created two options with different ``p1`` values.
-If multiple options are returned like this, the :meth:`_run_curve_fit` method
-attempts to fit with all provided options and finds the best outcome with
-the minimum reduced chi-square value.
-When the fit model contains some parameter that cannot be easily estimated from the
-curve data, you can create multiple options with varying the initial guess to
-let the fitter find the most reasonable parameters to explain the model.
-This allows you to avoid analysis failure with the poor initial guesses.
-
-.. _curve_fit: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.curve_fit.html
-
+Here you created two options with different ``p1`` values. If multiple options are
+returned like this, the :meth:`_run_curve_fit` method attempts to fit with all provided
+options and finds the best outcome with the minimum reduced chi-square value. When the
+fit model contains some parameter that cannot be easily estimated from the curve data,
+you can create multiple options with varying the initial guess to let the fitter find
+the most reasonable parameters to explain the model. This allows you to avoid analysis
+failure with the poor initial guesses.
 
 .. _curve_analysis_quality:
 
@@ -446,3 +436,8 @@ Since this object natively supports error propagation,
 you don't need to manually recompute the error of new value.
 
 .. _ufloat: https://pythonhosted.org/uncertainties/user_guide.html
+
+See also
+--------
+
+API documentation: :doc:`Curve Analysis Module </apidocs/curve_analysis>`

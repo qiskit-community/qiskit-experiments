@@ -68,11 +68,15 @@ The learning tutorials are for users who are familiar with Python and Qiskit and
 the Qiskit Experiments package. Here are what to keep in mind when writing and updating
 tutorials:
 
+- The tutorials should be suitable for progressive learning, starting with simple
+  instructions and gradually adding complexity. For example, T1 is a much better
+  starting experiment than cross resonance hamiltonian tomography. Each new bit of
+  added complexity that the user hasn't seen before should be explained.
 - Whenever possible, external resources should be linked to. For example, classes and
-  methods in Qiskit should be linked 
+  methods in Qiskit should be linked.
 - If you make changes to the basic API shown in the tutorials, it's important to update
-  them. Consider adding a special note for major recent changes to inform users who may
-  be used to the old usage pattern.
+  the corresponding part in the tutorials. Consider adding a special note for major
+  recent changes to inform users who may be used to the old usage pattern.
 
 
 ### How-to guides
@@ -94,16 +98,16 @@ first two are required:
 
 - See also: Links to other relevant documentation or resources.
 
-Here is a template for how-tos:
+Here is a template for how-to guides:
 
 ```
-Write a how-to
-===============
+Write a how-to guide
+====================
 
 Problem
 -------
 
-You want to write a how-to.
+You want to write a how-to guide.
 
 Solution
 --------
@@ -136,20 +140,20 @@ See also
 
 The main goal of `qiskit-experiment` experiment manuals is to serve as user manuals for
 the various package components such as the characterization and calibration experiments.
-To this end, each guide should introduce the cover the main (if not all) use-cases of
-the documented functionality, including code examples and expected outputs. Another
+To this end, each document should introduce the cover the main (if not all) use cases of
+the experiment functionality, including code examples and expected outputs. Another
 objective of the documentation is to provide the user with basic background on each
-experiment method. Hence a good practice would be to have in the beginning of the
-documentation a short background explanation, preferably 1 or 2 paragraphs long which
-includes the main literature references as well as a link to the relevant chapter in the
-Qiskit textbook, if available. The common use cases of the experiment should be covered
-with a code example and example outputs by printing relevant analysis results and plot
-figures. Required and common parameters, such as experiment and analysis options, shoud
-be covered.
+experiment method. The start of the manual should have a short background explanation
+for what the experiment does, preferably 1 or 2 paragraphs long, which includes the main
+literature references as well as a link to the relevant chapter in the Qiskit textbook,
+if available. The common use cases of the experiment should be covered with a code
+example and example outputs by printing relevant analysis results and plot figures.
+Required and common parameters, such as experiment and analysis options, should be
+covered.
 
 See the [Randomized Benchmarking](https://qiskit.org/documentation/experiments/manuals/benchmarking/randomized_benchmarking.html)
 guide and its [source code](docs/manuals/benchmarking/randomized_benchmarking.rst) for an
-example. Here is a simple template for a guide:
+example. Here is a simple template for a manual:
 
 ```
 New Experiment
@@ -160,7 +164,7 @@ ideally provided to the level of someone who has taken a background course in qu
 computing. References are provided to the original paper where the experiment was 
 described, if relevant, and to good resources for understanding it.
 
-Running new experiment
+Running the experiment
 ----------------------
 
 Here caveats about the specific implementation of the experiment in this package are 

@@ -335,12 +335,10 @@ If you encounter a build error involving `config-inited`, you need to be in the 
 the qiskit-experiments git repository then run `git remote add upstream
 https://github.com/Qiskit/qiskit-experiments` and `git fetch upstream` before building.
 
-To build release notes and API docs without executing the Jupyter cells in the `.rst`
-files, which is a relatively slow process, you can run
+There are a few other build options available:
 
-    tox -edocsnorst
-    
-instead.
+* `tox -edocs-minimal`: build documentation without executing Jupyter code cells
+* `tox -edocs-parallel`: do a full build with multiprocessing (may crash on Macs)
 
 ### Adding deprecation warnings
 
