@@ -13,7 +13,7 @@
 Tphi Experiment class.
 """
 
-from typing import List, Optional, Union, Sequence, Literal
+from typing import List, Optional, Union, Sequence
 import numpy as np
 
 from qiskit import QiskitError
@@ -70,7 +70,7 @@ class Tphi(BatchExperiment):
         physical_qubits: Sequence[int],
         delays_t1: List[Union[List[float], np.array]],
         delays_t2: List[Union[List[float], np.array]],
-        t2type: Literal["hahn", "ramsey"] = "hahn",
+        t2type: str = "hahn",
         osc_freq: float = 0.0,
         num_echoes: int = 1,
         backend: Optional[Backend] = None,

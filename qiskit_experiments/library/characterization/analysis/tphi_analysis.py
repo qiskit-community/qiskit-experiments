@@ -19,8 +19,8 @@ from qiskit_experiments.framework import ExperimentData, AnalysisResultData
 from qiskit_experiments.framework.composite.composite_analysis import CompositeAnalysis
 from qiskit_experiments.library.characterization.analysis import (
     T1Analysis,
-    T2RamseyAnalysis,
     T2HahnAnalysis,
+    T2RamseyAnalysis,
 )
 from qiskit_experiments.exceptions import QiskitError
 
@@ -31,14 +31,14 @@ class TphiAnalysis(CompositeAnalysis):
 
     # section: see_also
         qiskit_experiments.library.characterization.analysis.T1Analysis
-        qiskit_experiments.library.characterization.analysis.T2RamseyAnalysis
         qiskit_experiments.library.characterization.analysis.T2HahnAnalysis
+        qiskit_experiments.library.characterization.analysis.T2RamseyAnalysis
 
     """
 
     def __init__(self, analyses=None):
         if analyses is None:
-            analyses = [T1Analysis(), T2RamseyAnalysis()]
+            analyses = [T1Analysis(), T2HahnAnalysis()]
 
         # Validate analyses kwarg
         if (
@@ -48,7 +48,7 @@ class TphiAnalysis(CompositeAnalysis):
         ):
             raise QiskitError(
                 "Invalid component analyses for Tphi, analyses must be a pair of "
-                "T1Analysis and T2RamseyAnalysis or T2HahnAnalysis instances."
+                "T1Analysis and T2HahnAnalysis or T2RamseyAnalysis instances."
             )
         super().__init__(analyses, flatten_results=True)
 
