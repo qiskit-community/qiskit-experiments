@@ -1,0 +1,228 @@
+Mirror Randomized Benchmarking
+==============================
+
+Mirror randomized benchmarking (mirror RB) is a randomized benchmarking protocol
+that is more scalable than standard randomized benchmarking and is suitable for
+characterizing crosstalk errors over a large number of qubits in a quantum device. A
+randomized Clifford mirror circuit [1]_ consists of:
+
+- random layers of one- and two-qubit Cliffords and their inverses sampled 
+  according to some distribution :math:`\Omega` over a layer set 
+  :math:`\mathbb{L}`,
+
+- uniformly random one-qubit Paulis between these layers, and 
+  
+- a layer of uniformly random one-qubit Cliffords at the beginning and the end 
+  of the circuit.
+
+Because the Clifford gates are only one- and two-qubit, unlike in standard RB, which
+requires the implementation of n-qubit Cliffords, mirror RB ????. Mirror RB can also be
+generalized to universal gatesets beyond the Cliffords [2]_.
+
+Running a Mirror RB experiment
+------------------------------
+
+Even though a `MirrorRB` experiment can be instantiated without a backend, the 
+backend must be specified when the circuits are sampled because :math:`\Omega` 
+depends on the backend's connectivity. 
+
+In standard and interleaved RB, $n$-qubit circuits of varying lengths 
+:math:`\ell` that compose to the identity are run on a device, and the 
+**success probability** $P$, the probability that the circuit's output bit 
+string equals the input bit string, is estimated for each circuit length by 
+running several circuits at each length. The :math:`P`-versus-:math:`\ell` 
+curve is fit to the function :math:`A\alpha^\ell + b`, and the error per 
+Clifford (EPC) (the average infidelity) is estimated using 
+
+.. math::
+
+    r = \frac{\left(2^n - 1\right)p}{2^n}.
+
+Our implementation of MRB computes additional values in addition to the 
+success probability that have been seen in the literature and ``pyGSTi``. 
+Specifically, we compute the **adjusted success probability** 
+
+.. math::
+
+    P_0 = \sum_{k=0}^n \left(-\frac{1}{2}\right)^k h_k, 
+
+where :math:`h_k` is the probability of the actual output bit string being 
+Hamming distance :math:`k` away from the expected output bit string (note 
+:math:`h_0 = P`). We also compute the **effective polarization** 
+
+.. math::
+
+    S = \frac{4^n P_0}{4^n - 1} - \frac{1}{4^n - 1}.
+
+In [1]_, the function :math:`A\alpha^\ell` (without a baseline) is fit to the 
+effective polarizations to find entanglement infidelities.
+
+In Qiskit Experiments, mirror RB analysis results include the following:
+
+- ``alpha``: the depolarizing parameter. The user can select which of :math:`P, P_0, S` 
+  to fit, and the corresponding :math:`\alpha` will be provided.
+
+- ``EPC``: the expectation of the average gate infidelity of a layer sampled 
+  according to :math:`\Omega`.
+
+- ``EI``: the expectation of the entanglement infidelity of a layer sampled 
+  according to :math:`\Omega`. 
+
+Note that the ``EPC`` :math:`\epsilon_a` and the ``EI`` :math:`\epsilon_e` are 
+related by 
+
+.. math:: 
+
+    \epsilon_e = \left(1 + \frac{1}{2^n}\right) \epsilon_a, 
+
+where :math:`n` is the number of qubits (see Ref. [7]). 
+
+
+Running a one-qubit mirror RB experiment
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. jupyter-execute::
+
+    lengths = np.arange(2, 810, 200)
+    num_samples = 30
+    seed = 1010
+    qubits = (0,)
+
+    # Run a MRB experiment on qubit 0
+    exp_1q = MirrorRB(qubits, lengths, backend=backend, num_samples=num_samples, seed=seed)
+    expdata_1q = exp_1q.run(backend).block_for_results()
+    results_1q = expdata_1q.analysis_results()
+
+.. jupyter-execute::
+
+    # View result data
+    print("Gate error ratio: %s" % expdata_1q.experiment.analysis.options.gate_error_ratio)
+    display(expdata_1q.figure(0))
+    for result in results_1q:
+        print(result)
+
+
+Running a two-qubit mirror RB experiment
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In MRB experiments with :math:`n > 1` qubits, intermediate Clifford layers 
+are sampled according to the **edge grab** algorithm [3]_. The Clifford layers 
+in :math:`\mathbb{L}` are constructed from a gate set consisting of 
+one-qubit Clifford gates and a single two-qubit Clifford gate (e.g., 
+CX) that can be applied to any two connected qubits. The user can specify 
+an expected two-qubit gate density 
+:math:`\xi \in \left[0, \frac{1}{2}\right]`, and each intermediate Clifford 
+layer will have approximately :math:`n \xi` CXs on average.
+
+.. jupyter-execute::
+
+    # Two-qubit circuit example
+    exp_2q_circ = MirrorRB((0,1), lengths=[4], backend=backend, num_samples=1, seed=1010, two_qubit_gate_density=.4)
+    qc2 = exp_2q_circ.circuits()[0].decompose()#gates_to_decompose=['Clifford*','circuit*'])
+    qc2.draw()
+
+.. jupyter-execute::
+
+    lengths = np.arange(2, 810, 200)
+    num_samples = 30
+    seed = 1011
+    qubits = (0,1)
+
+    # Run a MRB experiment on qubits 0, 1
+    exp_2q = MirrorRB(qubits, lengths, backend=backend, num_samples=num_samples, seed=seed)
+    expdata_2q = exp_2q.run(backend).block_for_results()
+    results_2q = expdata_2q.analysis_results()
+
+.. jupyter-execute::
+
+    # View result data
+    print("Gate error ratio: %s" % expdata_2q.experiment.analysis.options.gate_error_ratio)
+    display(expdata_2q.figure(0))
+    for result in results_2q:
+        print(result)
+
+
+Selecting :math:`y`-axis values
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. jupyter-execute::
+
+    lengths = [2, 52, 102, 152]
+    num_samples = 30
+    seed = 42
+    qubits = (0,)
+
+    exp = MirrorRB(qubits, lengths, backend=backend, num_samples=num_samples, seed=seed)
+    # select y-axis
+    exp.analysis.set_options(y_axis="Success Probability") # or "Adjusted Success Probability" or "Effective Polarization"
+    # y-axis label must be set separately
+    exp.analysis.options.curve_drawer.set_options(
+    #     xlabel="Clifford Length",
+        ylabel="Success Probability",
+    )
+    expdata = exp.run(backend).block_for_results()
+    results = expdata.analysis_results()
+
+.. jupyter-execute::
+
+    display(expdata.figure(0))
+    for result in results:
+        print(result)
+
+
+Mirror RB user options
+~~~~~~~~~~~~~~~~~~~~~~
+
+Circuit generation options can be specified when a ``MirrorRB`` experiment 
+object is instantiated: 
+
+- ``local_clifford`` (default ``True``): if ``True``, begin the circuit with 
+  uniformly random one-qubit Cliffords and end the circuit with their inverses
+
+- ``pauli_randomize`` (default ``True``): if ``True``, put layers of uniformly 
+  random Paulis between the intermediate Clifford layers
+
+- ``two_qubit_gate_density`` (default ``0.2``): expected fraction of two-qubit 
+  gates in each intermediate Clifford layer
+
+- ``inverting_pauli_layer`` (default ``False``): if ``True``, put a layer of 
+  Paulis at the end of the circuit to set the output to 
+  :math:`\left\vert0\right\rangle^{\otimes n}`, up to a global phase
+
+Let's look at how these options change the circuit:
+
+## insert draw stuff here
+
+
+Mirror RB implementation in ``pyGSTi``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The ``pyGSTi`` implementation of Mirror RB can be used for testing and 
+comparison. We note however that ``pyGSTi`` transpiles circuits slightly 
+differently, producing small discrepancies in fit parameters between the two 
+codes. To illustrate, consider the two circuits below, both of which were 
+generated in ``pyGSTi``. The first circuit was transpiled in ``pyGSTi``, 
+
+.. image:: pygsti-data-pygsti-transpiled-circ.png
+
+and the second was transpiled in Qiskit. 
+
+.. image:: pygsti-data-qiskit-transpiled-circ.png
+
+Note the different implementations of the same Clifford on 
+qubit 0 in the fifth layer.
+
+References
+----------
+
+[1]_ Timothy Proctor, Stefan Seritan, Kenneth Rudinger, Erik Nielsen, Robin 
+Blume-Kohout, Kevin Young, *Scalable randomized benchmarking of quantum 
+computers using mirror circuits*, https://arxiv.org/pdf/2112.09853.pdf
+
+[2]_ Hines, Jordan, et al. *Demonstrating scalable randomized benchmarking of universal gate
+sets*, arXiv preprint arXiv:2207.07272 (2022).
+
+[3]_ Timothy Proctor, Kenneth Rudinger, Kevin Young, Erik Nielsen, and Robin 
+Blume-Kohout, *Measuring the Capabilities of Quantum Computers*, 
+https://arxiv.org/pdf/2008.11294.pdf
+

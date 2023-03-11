@@ -46,8 +46,8 @@ Utilities
     :toctree: ../stubs/
 
     RBUtils
-    MirrorRBDistribution
-    RandomEdgeGrabDistribution
+    MirrorRBSampler
+    EdgeGrabSampler
 
 """
 from .rb_experiment import StandardRB

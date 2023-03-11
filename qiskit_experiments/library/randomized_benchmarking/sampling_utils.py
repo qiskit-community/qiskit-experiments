@@ -19,7 +19,8 @@ from typing import Optional, Union, Sequence, List, Tuple
 from numbers import Integral
 
 import numpy as np
-from numpy.random import Generator, default_rng
+from numpy.random import Generator, default_rng, BitGenerator, SeedSequence
+
 from qiskit import QuantumCircuit, QuantumRegister
 from qiskit.exceptions import QiskitError
 from qiskit.circuit import Gate
@@ -82,13 +83,13 @@ class EdgeGrabSampler(MirrorRBSampler):
 
     def __call__(
         self,
-        num_qubits,
-        two_qubit_gate_density,
-        coupling_map,
-        length,
+        num_qubits: int,
+        two_qubit_gate_density: float,
+        coupling_map: List[List[int]],
+        length: int,
         one_qubit_gate_set: Optional[Union[str, List]] = "clifford",
         two_qubit_gate_set: Optional[List] = ["cx"],
-        seed=None,
+        seed: Optional[Union[int, SeedSequence, BitGenerator, Generator]] = None,
     ):
         """Sample layers using the edge grab algorithm.
 
@@ -109,18 +110,22 @@ class EdgeGrabSampler(MirrorRBSampler):
             TypeError: If invalid gate set(s) are specified.
 
         Returns:
-            List of sampled QuantumCircuit layers with length ``length``.
+            List of sampled QuantumCircuit layers with length ``length``. Integers are
+            returned for one-qubit Cliffords for speed.
 
         """
+        rng = default_rng(seed=seed)
+
         if isinstance(one_qubit_gate_set, list) or not (
-            one_qubit_gate_set.casefold() in ["clifford"]
+            one_qubit_gate_set.casefold() == "clifford"
         ):
             raise TypeError("one_qubit_gate_set must be a list of gates or 'clifford'.")
 
-        self.two_qubit_density = two_qubit_gate_density
-        self.coupling_map = coupling_map
-
-        rng = default_rng(seed=seed)
+        if num_qubits == 1:
+            if one_qubit_gate_set.casefold() == "clifford":
+                return rng.integers(CliffordUtils.NUM_CLIFFORD_1_QUBIT, size=length)
+            else:
+                return rng.choice(one_qubit_gate_set, size=length)
 
         qc_list = []
         for _ in list(range(length)):
@@ -162,6 +167,7 @@ class EdgeGrabSampler(MirrorRBSampler):
                     # with probability two_qubit_prob, place a two-qubit gate from the
                     # gate set on edge in selected_edges
                     try:
+                        print(edge[0], edge[1])
                         getattr(qc, rng.choice(two_qubit_gate_set))(edge[0], edge[1])
                     except AttributeError:
                         raise QiskitError("Invalid two-qubit gate set specified.")
