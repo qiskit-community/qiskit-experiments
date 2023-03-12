@@ -32,7 +32,7 @@ From the :math:`T_1` and :math:`T_2` estimates, we compute the results for :math
     
     # Create a pure relaxation noise model for AerSimulator
     noise_model = NoiseModel.from_backend(
-        FakeVigo(), thermal_relaxation=True, gate_error=True, readout_error=False
+        FakeVigo(), thermal_relaxation=True, gate_error=False, readout_error=False
     )
     
     # Create a fake backend simulator
