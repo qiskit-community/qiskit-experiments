@@ -21,17 +21,18 @@ You can set the ``max_circuits`` option manually when running an experiment:
 The experiment class will split its circuits into jobs such that no job has more than
 ``max_circuits`` number of jobs.
 
-Furthermore, the :class:`.BatchExperiment` class has the experiment option ``separate_jobs``
-which will run circuits of different sub-experiments in different jobs:
+Furthermore, the :class:`.BatchExperiment` class has the experiment option
+``separate_jobs`` which will run circuits of different sub-experiments in different
+jobs:
 
 .. jupyter-input::
 
     batch_exp = BatchExperiment([exp, exp])
     batch_exp.set_experiment_options(separate_jobs=True)
 
-Note that the purpose of :class:`.ParallelExperiment` is to run 
-circuits on disjoint sets of qubits simultaneously,
-therefore this option is not of much use for parallel experiments.
+Note that this option is only available to :class:`.BatchExperiment` objects. To manage
+job splitting when using :class:`.ParallelExperiment`, you can make a nested batch
+experiment of parallel experiments.
 
 Discussion
 ----------

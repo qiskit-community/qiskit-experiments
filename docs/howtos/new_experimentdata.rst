@@ -14,8 +14,9 @@ Solution
     This guide requires :mod:`qiskit-ibm-provider`. For how to migrate from the deprecated :mod:`qiskit-ibmq-provider` to :mod:`qiskit-ibm-provider`,
     consult the `migration guide <https://qiskit.org/documentation/partners/qiskit_ibm_provider/tutorials/Migration_Guide_from_qiskit-ibmq-provider.html>`_.\
 
-Use the code template below. You need to know the exact experiment you
-ran and its options, as well as the IDs of the jobs that were executed.
+Use the code template below. You need to recreate the exact experiment you ran and its
+options, as well as the IDs of the jobs that were executed. The jobs must be accessible
+through the provider that you use.
 
 .. jupyter-input::
 
@@ -47,11 +48,20 @@ where the jobs may have finished running on the remote backends but the
 :class:`.ExperimentData` class returned upon completion of an experiment does not 
 contain correct results.
 
-You may also want to rerun the analysis of a previously-run experiment with different 
-options when you instantiate this new :class:`.ExperimentData` object.
-Here's a code snippet where we reconstruct a parallel experiment
-consisting of randomized benchmarking experiments, then change the gate error ratio
-as well as the line plot color of the first component experiment.
+Recreation of the experiment object is often done by rerunning the code that you ran
+previously to create it. It may sometimes be helpful instead to save an experiment and
+restore it later with the following lines of code:
+
+.. jupyter-input::
+
+    serialized_exp = json.dumps(Experiment.config())
+    Experiment.from_config(json.loads(serialized_exp))
+
+You may also want to rerun the analysis with different options of a previously-run
+experiment when you instantiate this new :class:`.ExperimentData` object. Here's a code
+snippet where we reconstruct a parallel experiment consisting of randomized benchmarking
+experiments, then change the gate error ratio as well as the line plot color of the
+first component experiment.
 
 .. jupyter-input::
 

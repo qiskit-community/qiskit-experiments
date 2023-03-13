@@ -62,12 +62,12 @@ The :meth:`.BaseAnalysis._run_analysis` method should return a pair
 :class:`.AnalysisResultData` objects and ``figures`` is a list of
 :class:`matplotlib.figure.Figure` objects.
 
-The :mod:`~qiskit_experiments.data_processing` module contains classes for
+The :doc:`Data Processor <data_processor>` module contains classes for
 building data processor workflows to help with advanced analysis of
 experiment data.
 
 If you want to customize the figures of the experiment, consult the 
-:doc:`visualization module </tutorials/visualization>` tutorial.
+:doc:`Visualization tutorial </tutorials/visualization>`.
 
 
 
@@ -78,25 +78,38 @@ Here is a barebones template to help you get started with customization:
 
 .. jupyter-input::
 
+    from qiskit.circuit import QuantumCircuit
+    from typing import List, Optional, Sequence
+    from qiskit.providers.backend import Backend
+    from qiskit_experiments.framework import BaseExperiment, Options
+
     class CustomExperiment(BaseExperiment):
         """Custom experiment class template."""
 
-        def __init__(self, qubits=None):
+        def __init__(self, 
+                     physical_qubits: Sequence[int], 
+                     backend: Optional[Backend] = None):
             """Initialize the experiment."""
-            if qubits is None:
-                qubits = [0]
-            super().__init__(qubits, analysis=FakeAnalysis())
+            super().__init__(physical_qubits, 
+                             analysis = CustomAnalysis(),
+                             backend = backend)
 
-        def circuits(self):
+        def circuits(self) -> List[QuantumCircuit]:
             """Generate the list of circuits to be run."""
-            return []
+            circuits = []
+            # Generate circuits and populate metadata here
+            for i in loops:
+                circ = QuantumCircuit(self.num_qubits)
+                circ.metadata = {}
+                circuits.append(circ)
+            return circuits
 
         @classmethod
         def _default_experiment_options(cls) -> Options:
-            """Update default experiment options here."""
+            """Set default experiment options here."""
             options = super()._default_experiment_options()
             options.update_options(
-                dummy_option=None,
+                dummy_option = None,
             )
             return options
 
@@ -104,21 +117,43 @@ And the corresponding analysis class template:
 
 .. jupyter-input::
 
+    import matplotlib
+    from typing import Tuple, List
+    from qiskit_experiments.framework import (
+        BaseAnalysis, 
+        Options, 
+        ExperimentData, 
+        AnalysisResultData
+    )
+
     class CustomAnalysis(BaseAnalysis):
         """Custom analysis class template."""
 
-        def __init__(self, **kwargs):
-            super().__init__()
-            self._kwargs = kwargs
+        @classmethod
+        def _default_options(cls) -> Options:
+            """Set default analysis options. Plotting is on by default."""
 
-        def _run_analysis(self, experiment_data, **options):
-            seed = options.get("seed", None)
-            rng = np.random.default_rng(seed=seed)
+            options = super()._default_options()
+            options.dummy_analysis_option = None
+            options.plot = True
+            options.ax = None
+            return options
+
+        def _run_analysis(
+            self, 
+            experiment_data: ExperimentData
+        ) -> Tuple[List[AnalysisResultData], List["matplotlib.figure.Figure"]]:
+            """Run the analysis."""
+
+            # Process the data here
+
             analysis_results = [
-                AnalysisResultData(f"result_{i}", value) for i, value in enumerate(rng.random(3))
+                AnalysisResultData(name="dummy result", value=data)
             ]
-            return analysis_results, None
-
+            figures = []
+            if self.options.plot:
+                figures.append(self._plot(data))
+            return analysis_results, figures
 
 Now we'll use what we've learned so far to make an entirely new experiment using
 the :class:`.BaseExperiment` template.
@@ -142,9 +177,9 @@ measurement readout error.
 
 To start, we write our own ``__init__()`` method to take as input the circuit that
 we want to twirl on. We also want to give the user the option to specify which
-physical qubits to run the circuit over, and which qubits to measure over. If the user
-doesn't specify these options, we default both to the list of qubits starting with 0 with
-the length of the number of qubits in the circuit for both.
+physical qubits to run the circuit over and which qubits to measure over. If the user
+doesn't specify these options, we default both to the list of qubits starting with 0 and
+up to the length of the number of qubits in the circuit - 1 for both.
 
 .. jupyter-input::
 
@@ -161,7 +196,8 @@ the length of the number of qubits in the circuit for both.
             measured_qubits=None,
             physical_qubits=None,
             backend=None,
-            **experiment_options
+            num_samples=10,
+            seed=None
         ):
             """Basic randomized Z-basis measurement experiment via a Pauli frame transformation
             
@@ -183,12 +219,11 @@ the length of the number of qubits in the circuit for both.
             self._measured_qubits = measured_qubits
             
             # Set any init optinos
-            self.set_experiment_options(**experiment_options)
+            self.set_experiment_options(num_samples=num_samples, seed=seed)
 
 Notice that when we called ``super().__init__``, we provided the list of physical qubits,
 the name of our analysis class, and the backend, which is optionally specified by the
 user at this stage.
-
 
 Now we consider default experiment options. Because randomness is involved,
 it is good practice to allow the user to set a seed. We would also like the user to 
@@ -210,8 +245,8 @@ Now we write the ``circuits()`` method. We need to take the input circuit in
 ``self._circuit`` and add our random Paulis as well as measurement at the end. We use
 the built-in property :attr:`~.BaseExperiment.num_qubits` of :class:`~.BaseExperiment`
 to get the number of qubits in the experiment. We keep track of the list of qubits and
-classical Note that the circuits themselves are always built on qubits `0` to `length of
-the circuit - 1`, and not the actual physical qubit indices given in
+classical registers. Note that the circuits themselves are always built on qubits `0` to
+`length of the circuit - 1`, and not the actual physical qubit indices given in
 ``physical_qubits``, as discussed in :doc:`getting_started`.
 
 .. jupyter-input::
@@ -259,7 +294,7 @@ across ``meas_nc`` qubits.
 
 Now we construct the circuits by composing the original circuit with a Pauli frame then
 adding a measurement at the end only to the measurement qubits. Metadata containing
-the classical measurement register and the applied Pauli, and the 
+the classical measurement register and the applied Pauli is added to 
 each of the circuits to tell the analysis class how to restore the original results.
 To make restoration easier, we store Paulis in the 
 :class:`x symplectic form <qiskit.quantum_info.PauliTable>` in ``metadata["rm_sig"]``
@@ -311,9 +346,6 @@ counts from the original experiment.
     class RandomizedMeasurementAnalysis(BaseAnalysis):
         """Analysis for randomized measurement experiment."""
 
-        # Helper dict to swap a clbit value
-        _swap_bit = {"0": "1", "1": "0"}
-
         def _run_analysis(self, experiment_data):
             
             combined_counts = {}
@@ -349,6 +381,8 @@ output if the Pauli corresponding to that bit has a nonzero signature.
 .. jupyter-input::
 
     ...
+        # Helper dict to swap a clbit value
+        _swap_bit = {"0": "1", "1": "0"}
 
         @classmethod
         def _swap_bitstring(cls, bitstring, sig):
@@ -376,7 +410,8 @@ output if the Pauli corresponding to that bit has a nonzero signature.
         measured_qubits=None,
         physical_qubits=None,
         backend=None,
-        **experiment_options
+        num_samples=10,
+        seed=None
     ):
 
         if physical_qubits is None:
@@ -390,7 +425,7 @@ output if the Pauli corresponding to that bit has a nonzero signature.
         self._circuit = circuit
         self._measured_qubits = measured_qubits
 
-        self.set_experiment_options(**experiment_options)
+        self.set_experiment_options(num_samples=num_samples, seed=seed)
 
     @classmethod
     def _default_experiment_options(cls):
@@ -496,7 +531,7 @@ To test our code, we first simulate a noisy backend with asymmetric readout erro
   noise_model.add_all_qubit_readout_error([[1 - p1g0, p1g0], [p0g1, 1 - p0g1]])
   noise_backend = AerSimulator(noise_model=noise_model)
 
-Let's use a GHZ circuit as the input.
+Let's use a GHZ circuit as the input:
 
 .. jupyter-execute::
 
@@ -522,7 +557,8 @@ Check that the experiment is appending a random Pauli and measurements as expect
     exp = RandomizedMeasurement(qc, num_samples=num_samples)
     exp.circuits()[0].draw("mpl")
 
-We now run the experiment with a GHZ circuit on an ideal backend:
+We now run the experiment with a GHZ circuit on an ideal backend, whic produces nearly
+perfect symmetrical results between :math:`|0000\rangle` and :math:`|1111\rangle`:
 
 .. jupyter-execute::
 
@@ -554,6 +590,23 @@ from running GHZ circuit itself:
                         "Asymmetric meas error (Direct)",
                         "Asymmetric meas error (Randomized)"])
 
-The asymmetric measurement of the original circuit on this backend (Direct on the plot legend)
-has been successfully symmetrized by the application of randomized measurement 
-(Randomized on the plot legend).
+For a GHZ state, we expect a symmetric noise model to also produce symmetric readout
+results. The asymmetric measurement of the original circuit on this backend (Direct on
+the plot legend) has been successfully symmetrized by the application of randomized
+measurement (Randomized on the plot legend).
+
+Note that since this experiment tracks the original and added classical registers, it is
+possible for the original circuit to have its own mid-circuit measurements that would be
+unaffected by the added randomized measurements, which use its own classical registers:
+
+.. jupyter-execute::
+
+    qc = QuantumCircuit(nq)
+    qc.h(0)
+    qc.measure_all()
+    qc.barrier()
+    for i in range(1, nq):
+        qc.cx(i-1, i)
+
+    exp = RandomizedMeasurement(qc, num_samples=num_samples)
+    exp.circuits()[0].draw()

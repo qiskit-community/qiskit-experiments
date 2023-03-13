@@ -175,13 +175,13 @@ References
 ----------
 
 .. [1] Andrew W. Cross, Lev S. Bishop, Sarah Sheldon, Paul D. Nation, and
-Jay M. Gambetta, Validating quantum computers using randomized model
-circuits, Phys. Rev. A 100, 032328 (2019).
-https://arxiv.org/pdf/1811.12926
+    Jay M. Gambetta, Validating quantum computers using randomized model
+    circuits, Phys. Rev. A 100, 032328 (2019).
+    https://arxiv.org/pdf/1811.12926
 
 .. [2] Petar Jurcevic et. al. Demonstration of quantum volume 64 on
-a superconducting quantum computing system,
-https://arxiv.org/pdf/2008.08571
+    a superconducting quantum computing system,
+    https://arxiv.org/pdf/2008.08571
 
 See also
 --------
