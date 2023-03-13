@@ -101,7 +101,7 @@ nbsphinx_thumbnails = {
     "manuals/benchmarking/state_tomography": "_images/state_tomography_3_0.png",
     "manuals/characterization/t1": "_images/t1_0_0.png",
     "manuals/characterization/t2ramsey": "_images/t2ramsey_4_0.png",
-    "manuals/characterization/tphi": "_images/tphi_8_0.png",
+    "manuals/characterization/tphi": "_images/tphi_5_1.png",
     "manuals/characterization/t2hahn": "_images/t2hahn_5_0.png",
 }
 

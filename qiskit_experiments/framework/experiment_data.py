@@ -147,10 +147,10 @@ class ExperimentData:
 
     This class handles the following:
 
-    1. Storing the data related to an experiment - the experiment's metadata,
-       the analysis results and the figures
+    1. Storing the data related to an experiment: raw data, metadata, analysis results,
+        and figures
     2. Managing jobs and adding data from jobs automatically
-    3. Saving/Loading data from the result database
+    3. Saving and loading data from the database service
 
     |
 

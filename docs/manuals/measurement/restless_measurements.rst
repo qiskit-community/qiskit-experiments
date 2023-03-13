@@ -27,7 +27,7 @@ allow the readout resonator to depopulate.
 When the qubit is not reset it will either be in the :math:`\left\vert0\right\rangle`
 or in the :math:`\left\vert1\right\rangle` state when the next circuit starts.
 Therefore, the measured outcomes of the restless experiments require post-processing.
-The following example, taken from Ref. [1], illustrates what happens to the single
+The following example, taken from Ref. [1]_, illustrates what happens to the single
 measurement outcomes represented as complex numbers in the IQ plane in a restless
 setting. Here, we run three circuits with an identity gate and three circuits with
 an :math:`X` gate, each followed by a measurement. The numbers in the IQ shots indicate the
@@ -87,8 +87,10 @@ data processor post-processes the restless measured shots according to the order
 they were acquired. Furthermore, the appropriate run options are also set. Note that
 these run options might be unique to IBM Quantum providers. Therefore, execute may fail
 on non-IBM Quantum providers if the required options are not supported.
-After calling :meth:`~.RestlessMixin.enable_restless` the experiment is ready to be run in a restless
-mode. With a hardware backend this would be done by calling the ``run`` method
+
+After calling :meth:`~.RestlessMixin.enable_restless` the experiment is ready to be run
+in a restless mode. With a hardware backend, this would be done by calling the
+:meth:`~.BaseExperiment.run` method:
 
 .. jupyter-input::
 
@@ -117,17 +119,17 @@ the standard data processor by providing it to the analysis options and telling
 
 If you run the experiment in this setting you will see that the data is often
 unusable which illustrates the importance of the data processing. As detailed
-in Ref. [2] restless measurements can be done with a wide variety
+in Ref. [2]_, restless measurements can be done with a wide variety
 of experiments such as fine amplitude and drag error amplifying gate sequences
 as well as randomized benchmarking.
 
 Calculating restless quantum processor speed-ups
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Following Ref. [2], we can compare the time spent by the quantum processor executing
+Following Ref. [2]_, we can compare the time spent by the quantum processor executing
 restless and standard jobs. This allows us to compute the effective speed-up we gain
 when performing restless experiments. Note that we do not consider any classical
-run-time contributions such as runtime-compilation or data transfer times [3].
+run-time contributions such as runtime-compilation or data transfer times [3]_.
 The time to run :math:`K` circuits and gather :math:`N` shots for each
 circuit is
 
@@ -191,21 +193,21 @@ The example above is applicable to other experiments and shows that restless
 measurements can greatly speed-up characterization and calibration tasks.
 
 References
-~~~~~~~~~~
+----------
 
-[1] Max Werninghaus, Daniel J. Egger, Stefan Filipp, High-speed calibration and
-characterization of superconducting quantum processors without qubit reset,
-PRX Quantum **2**, 020324 (2021). https://arxiv.org/abs/2010.06576
+.. [1] Max Werninghaus, Daniel J. Egger, Stefan Filipp, High-speed calibration and
+    characterization of superconducting quantum processors without qubit reset,
+    PRX Quantum **2**, 020324 (2021). https://arxiv.org/abs/2010.06576.
 
-[2] Caroline Tornow, Naoki Kanazawa, William E. Shanks, Daniel J. Egger,
-Minimum quantum run-time characterization and calibration via restless
-measurements with dynamic repetition rates, Physics Review Applied **17**,
-064061 (2022). https://arxiv.org/abs/2202.06981
+.. [2] Caroline Tornow, Naoki Kanazawa, William E. Shanks, Daniel J. Egger,
+    Minimum quantum run-time characterization and calibration via restless
+    measurements with dynamic repetition rates, Physics Review Applied **17**,
+    064061 (2022). https://arxiv.org/abs/2202.06981.
 
-[3] Andrew Wack, Hanhee Paik, Ali Javadi-Abhari, Petar Jurcevic, Ismael Faro,
-Jay M. Gambetta, Blake R. Johnson, Quality, Speed, and Scale: three key
-attributes to measure the performance of near-term quantum computers,
-https://arxiv.org/abs/2110.14108
+.. [3] Andrew Wack, Hanhee Paik, Ali Javadi-Abhari, Petar Jurcevic, Ismael Faro,
+    Jay M. Gambetta, Blake R. Johnson, Quality, Speed, and Scale: three key
+    attributes to measure the performance of near-term quantum computers,
+    https://arxiv.org/abs/2110.14108.
 
 See also
 --------

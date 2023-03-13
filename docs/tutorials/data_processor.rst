@@ -31,21 +31,18 @@ create the :class:`.DataAction` nodes that process the data.
 Data types on IBM Quantum backends
 ----------------------------------
 
-IBM Quantum backends can return different types of data. There is
-counts data and IQ data [1], referred to as level 2 and level 1 data,
-respectively. Level 2 data corresponds
-to a dictionary with bit-strings as keys and the number of
-times the bit-string was measured as a value. Importantly
-for some experiments, the backends can return a lower data level
-known as IQ data. Here, I and Q stand
-for in phase and quadrature. The IQ are points in the complex plane
-corresponding to a time integrated measurement signal which is
-reflected or transmitted through the readout resonator depending
-on the setup. IQ data can be returned as "single" or "averaged" data.
-Here, single means that the outcome of each single shot is returned
-while average only returns the average of the IQ points over the
-measured shots. The type of data that an experiment should return
-is specified by the :meth:`~.BaseExperiment.run_options` of an experiment.
+IBM Quantum backends can return different types of data. There is counts data and IQ
+data [1]_, referred to as level 2 and level 1 data, respectively. Level 2 data
+corresponds to a dictionary with bit-strings as keys and the number of times the
+bit-string was measured as a value. Importantly for some experiments, the backends can
+return a lower data level known as IQ data. Here, I and Q stand for in phase and
+quadrature. The IQ are points in the complex plane corresponding to a time integrated
+measurement signal which is reflected or transmitted through the readout resonator
+depending on the setup. IQ data can be returned as "single" or "averaged" data. Here,
+single means that the outcome of each single shot is returned while average only returns
+the average of the IQ points over the measured shots. The type of data that an
+experiment should return is specified by the :meth:`~.BaseExperiment.run_options` of an
+experiment.
 
 Processing data of different types
 ----------------------------------
@@ -155,7 +152,7 @@ data processor needs to be changed.
     display(exp_data.figure(0))
 
 Now, the ``input_key`` is "counts" since that is the key under which the counts
-data is saved in instances of ``ExperimentData``. The list of nodes
+data is saved in instances of :class:`.ExperimentData`. The list of nodes
 comprises a single data action which converts the counts to an estimation
 of the probability of measuring the outcome "1".
 
@@ -190,26 +187,17 @@ the analysis classes need. Typically, you will not need to implement
 the data processing yourself since Qiskit Experiments has built-in
 methods that determine the correct instance of :class:`.DataProcessor` for
 your data. More advanced data processing includes, for example, handling
-restless measurements [2, 3].
+:doc:`restless measurements </manuals/measurement/restless_measurements>`.
 
 References
-~~~~~~~~~~
+----------
 
-[1] Thomas Alexander, Naoki Kanazawa, Daniel J. Egger, Lauren Capelluto,
+.. [1] Thomas Alexander, Naoki Kanazawa, Daniel J. Egger, Lauren Capelluto,
 Christopher J. Wood, Ali Javadi-Abhari, David McKay, Qiskit Pulse:
 Programming Quantum Computers Through the Cloud with Pulses, Quantum
-Science and Technology **5**, 044006 (2020). https://arxiv.org/abs/2004.06755
-
-[2] Caroline Tornow, Naoki Kanazawa, William E. Shanks, Daniel J. Egger,
-Minimum quantum run-time characterization and calibration via restless
-measurements with dynamic repetition rates, Physics Review Applied **17**,
-064061 (2022). https://arxiv.org/abs/2202.06981
-
-[3] Max Werninghaus, Daniel J. Egger, Stefan Filipp, High-speed calibration and
-characterization of superconducting quantum processors without qubit reset,
-PRX Quantum 2, 020324 (2021). https://arxiv.org/abs/2010.06576
+Science and Technology **5**, 044006 (2020). https://arxiv.org/abs/2004.06755.
 
 See also
 --------
 
-Experiment manual: :doc:`/manuals/measurement/restless_measurements`
+- Experiment manual: :doc:`/manuals/measurement/restless_measurements`

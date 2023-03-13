@@ -9,7 +9,7 @@ with high-fidelity operations, high connectivity, large calibrated gate
 sets, and circuit rewriting toolchains are expected to have higher
 quantum volumes. See the `Qiskit
 Textbook <https://learn.qiskit.org/course/quantum-hardware/measuring-quantum-volume>`__
-for an explanation on the QV method, which is described in Ref. [1, 2].
+for an explanation on the QV method, which is described in Refs. [1]_ [2]_.
 
 The Quantum Volume is determined by the largest successful circuit depth
 :math:`d_{max}`, and equals to :math:`2^{d_{max}}`. In the QV experiment
@@ -174,12 +174,12 @@ Extracting the maximum Quantum Volume.
 References
 ----------
 
-[1] Andrew W. Cross, Lev S. Bishop, Sarah Sheldon, Paul D. Nation, and
+.. [1] Andrew W. Cross, Lev S. Bishop, Sarah Sheldon, Paul D. Nation, and
 Jay M. Gambetta, Validating quantum computers using randomized model
 circuits, Phys. Rev. A 100, 032328 (2019).
 https://arxiv.org/pdf/1811.12926
 
-[2] Petar Jurcevic et. al. Demonstration of quantum volume 64 on
+.. [2] Petar Jurcevic et. al. Demonstration of quantum volume 64 on
 a superconducting quantum computing system,
 https://arxiv.org/pdf/2008.08571
 

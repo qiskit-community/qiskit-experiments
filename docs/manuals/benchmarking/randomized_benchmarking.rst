@@ -9,7 +9,7 @@ output different from the ground state) are counted, and from this data one can 
 error estimates for the quantum device, by calculating the Error Per Clifford. See the
 `Qiskit Textbook
 <https://learn.qiskit.org/course/quantum-hardware/randomized-benchmarking>`__ for an
-explanation on the RB method, which is based on Ref. [1, 2].
+explanation on the RB method, which is based on Refs. [1]_ [2]_.
 
 .. jupyter-execute::
 
@@ -54,16 +54,17 @@ The analysis results of the RB Experiment may include:
    :math:`a \cdot \alpha^m + b`, where :math:`m` is the Clifford length
 
 -  ``EPG``: The Error Per Gate calculated from the EPC, only for 1-qubit
-   or 2-qubit quantum gates (see Ref. [3])
+   or 2-qubit quantum gates (see [3]_)
 
 Running a 1-qubit RB experiment
 -------------------------------
 
-Standard RB experiment will provide you gate errors for every basis gates
-constituting averaged Clifford gate. Note that you can only obtain a single EPC value :math:`\cal E`
-from a single RB experiment. As such, computing the error values for multiple gates :math:`\{g_i\}`
-requires some assumption of contribution of each gate to the total depolarizing error.
-This is the so called ``gate_error_ratio`` option you can find in analysis options.
+The standard RB experiment will provide you gate errors for every basis gate
+constituting an averaged Clifford gate. Note that you can only obtain a single EPC value
+:math:`\cal E` from a single RB experiment. As such, computing the error values for
+multiple gates :math:`\{g_i\}` requires some assumption of contribution of each gate to
+the total depolarizing error. This is provided by the ``gate_error_ratio`` analysis
+option.
 
 Provided that we have :math:`n_i` gates with independent error :math:`e_i` per Clifford,
 the total EPC is estimated by the composition of error from every basis gate,
@@ -121,7 +122,7 @@ However, the EPC value obtained by the experiment indicates a depolarization
 which is a composition of underlying error channels for 2Q gates and 1Q gates in each qubit.
 Usually 1Q gate contribution is small enough to ignore, but in case this
 contribution is significant comparing to the 2Q gate error,
-we can decompose the contribution of 1Q gates [3].
+we can decompose the contribution of 1Q gates [3]_.
 
 .. math::
 
@@ -227,9 +228,8 @@ We transpile the circuit into the backend’s basis gate set:
 Interleaved RB experiment
 -------------------------
 
-Interleaved RB experiment is used to estimate the gate error of the
-interleaved gate (see Ref. [4]). In addition to the usual RB parameters, we also 
-need to provide:
+The interleaved RB experiment is used to estimate the gate error of the interleaved gate
+(see [4]_). In addition to the usual RB parameters, we also need to provide:
 
 -  ``interleaved_element``: the element to interleave, given either as a
    group element or as an instruction/circuit
@@ -244,10 +244,10 @@ The analysis results of the RB Experiment includes the following:
 Extra analysis results include
 
 -  ``EPC_systematic_err``: The systematic error of the interleaved gate
-   error (see Ref. [4])
+   error [4]_
 
 -  ``EPC_systematic_bounds``: The systematic error bounds of the
-   interleaved gate error (see Ref. [4])
+   interleaved gate error [4]_
 
 Let's run an interleaved RB experiment on two qubits:
 
@@ -275,70 +275,26 @@ Let's run an interleaved RB experiment on two qubits:
         print(result)
 
 
-
-Running a simultaneous RB experiment
-------------------------------------
-
-We use ``ParallelExperiment`` to run the RB experiment simultaneously on
-different qubits (see Ref. [5])
-
-.. jupyter-execute::
-
-    lengths = np.arange(1, 800, 200)
-    num_samples = 10
-    seed = 1010
-    qubits = range(3)
-    
-    # Run a parallel 1-qubit RB experiment on qubits 0, 1, 2
-    exps = [StandardRB([i], lengths, num_samples=num_samples, seed=seed + i)
-            for i in qubits]
-    par_exp = ParallelExperiment(exps)
-    par_expdata = par_exp.run(backend).block_for_results()
-    par_results = par_expdata.analysis_results()
-
-
-Viewing sub experiment data
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-The experiment data returned from a batched experiment also contains
-individual experiment data for each sub experiment which can be accessed
-using ``child_data``
-
-.. jupyter-execute::
-
-    # Print sub-experiment data
-    for i in qubits:
-        print(f"Component experiment {i}")
-        display(par_expdata.child_data(i).figure(0))
-        for result in par_expdata.child_data(i).analysis_results():
-            print(result)
-
 References
 ----------
 
-[1] Easwar Magesan, J. M. Gambetta, and Joseph Emerson, *Robust
-randomized benchmarking of quantum processes*,
-https://arxiv.org/pdf/1009.3639
+.. [1] Easwar Magesan, J. M. Gambetta, and Joseph Emerson, *Robust
+    randomized benchmarking of quantum processes*,
+    https://arxiv.org/abs/1009.3639.
 
-[2] Easwar Magesan, Jay M. Gambetta, and Joseph Emerson, *Characterizing
-Quantum Gates via Randomized Benchmarking*,
-https://arxiv.org/pdf/1109.6887
+.. [2] Easwar Magesan, Jay M. Gambetta, and Joseph Emerson, *Characterizing
+    Quantum Gates via Randomized Benchmarking*,
+    https://arxiv.org/abs/1109.6887.
 
-[3] David C. McKay, Sarah Sheldon, John A. Smolin, Jerry M. Chow, and
-Jay M. Gambetta, *Three Qubit Randomized Benchmarking*,
-https://arxiv.org/pdf/1712.06550
+.. [3] David C. McKay, Sarah Sheldon, John A. Smolin, Jerry M. Chow, and
+    Jay M. Gambetta, *Three Qubit Randomized Benchmarking*,
+    https://arxiv.org/abs/1712.06550.
 
-[4] Easwar Magesan, Jay M. Gambetta, B. R. Johnson, Colm A. Ryan, Jerry
-M. Chow, Seth T. Merkel, Marcus P. da Silva, George A. Keefe, Mary B.
-Rothwell, Thomas A. Ohki, Mark B. Ketchen, M. Steffen, *Efficient
-measurement of quantum gate error by interleaved randomized
-benchmarking*, https://arxiv.org/pdf/1203.4550
-
-[5] Jay M. Gambetta, A. D. Córcoles, S. T. Merkel, B. R. Johnson, John
-A. Smolin, Jerry M. Chow, Colm A. Ryan, Chad Rigetti, S. Poletto, Thomas
-A. Ohki, Mark B. Ketchen, and M. Steffen, *Characterization of
-addressability by simultaneous randomized benchmarking*,
-https://arxiv.org/pdf/1204.6308
+.. [4] Easwar Magesan, Jay M. Gambetta, B. R. Johnson, Colm A. Ryan, Jerry
+    M. Chow, Seth T. Merkel, Marcus P. da Silva, George A. Keefe, Mary B.
+    Rothwell, Thomas A. Ohki, Mark B. Ketchen, M. Steffen, *Efficient
+    measurement of quantum gate error by interleaved randomized
+    benchmarking*, https://arxiv.org/abs/1203.4550.
 
 See also
 --------

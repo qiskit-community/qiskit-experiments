@@ -334,6 +334,9 @@ manually:
 If you encounter a build error involving `config-inited`, you need to be in the root of
 the qiskit-experiments git repository then run `git remote add upstream
 https://github.com/Qiskit/qiskit-experiments` and `git fetch upstream` before building.
+Trying to rebuild docs over a document tree that's changed can also lead to problems;
+in this case, you should delete the `docs/stubs` and `docs/_build` directories before
+rebuilding.
 
 There are a few other build options available:
 
