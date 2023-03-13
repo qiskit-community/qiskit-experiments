@@ -48,6 +48,9 @@ class Tphi(BatchExperiment):
         In 0.5.0, this experiment changed from using :math:`T_2^*` as the default
         to :math:`T_2`.
 
+    # section: analysis_ref
+        :class:`.TPhiAnalysis`
+
     # section: reference
         .. ref_arxiv:: 1 1904.06560
 
