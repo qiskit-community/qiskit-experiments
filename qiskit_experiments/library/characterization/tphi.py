@@ -31,40 +31,33 @@ from qiskit_experiments.library.characterization import (
 class Tphi(BatchExperiment):
     r"""An experiment to measure the qubit dephasing rate in the :math:`x - y` plane.
 
-        # section: overview
+    # section: overview
 
-            :math:`T_\varphi`, or :math:`1/\Gamma_\varphi`, is the pure dephasing time in
-            the :math:`x - y` plane of the Bloch sphere. We compute :math:`\Gamma_\varphi`
-            by computing :math:`\Gamma_2`, the transverse relaxation rate, and subtracting
-            :math:`\Gamma_1`, the longitudinal relaxation rate. It follows that
+    :math:`T_\varphi`, or :math:`1/\Gamma_\varphi`, is the pure dephasing time in
+    the :math:`x - y` plane of the Bloch sphere. We compute :math:`\Gamma_\varphi`
+    by computing :math:`\Gamma_2`, the transverse relaxation rate, and subtracting
+    :math:`\Gamma_1`, the longitudinal relaxation rate. It follows that
 
-            :math:`1/T_\varphi = 1/T_2 - 1/2T_1`.
+    :math:`1/T_\varphi = 1/T_2 - 1/2T_1`.
 
-    <<<<<<< HEAD
-            For more details, see :class:`T1` and :class:`T2Ramsey`
-    =======
-            The transverse relaxation rate can be estimated by either :math:`T_2` or
-            :math:`T_2^*` experiments. In superconducting qubits, :math:`T_2^*` tends to be
-            significantly smaller than :math:`T_1`, so :math:`T_2` is usually used.
+    The transverse relaxation rate can be estimated by either :math:`T_2` or
+    :math:`T_2^*` experiments. In superconducting qubits, :math:`T_2^*` tends to be
+    significantly smaller than :math:`T_1`, so :math:`T_2` is usually used.
 
-            .. note::
-                In 0.5.0, this experiment changed from using :math:`T_2^*` as the default
-                to :math:`T_2`.
-    >>>>>>> upstream/main
+    .. note::
+        In 0.5.0, this experiment changed from using :math:`T_2^*` as the default
+        to :math:`T_2`.
 
-        # section: analysis_ref
-            :class:`TphiAnalysis`
+    # section: reference
+        .. ref_arxiv:: 1 1904.06560
 
-        # section: reference
-            .. ref_arxiv:: 1 1904.06560
+    # section: manual
+        :doc:`/manuals/characterization/tphi`
 
-        # section: manual
-            :doc:`/manuals/characterization/tphi`
-
-        # section: see_also
-            qiskit_experiments.library.characterization.t1
-            qiskit_experiments.library.characterization.t2ramsey
-            qiskit_experiments.library.characterization.t2hahn
+    # section: see_also
+        qiskit_experiments.library.characterization.t1
+        qiskit_experiments.library.characterization.t2ramsey
+        qiskit_experiments.library.characterization.t2hahn
 
     """
 
