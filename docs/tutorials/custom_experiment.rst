@@ -70,7 +70,6 @@ If you want to customize the figures of the experiment, consult the
 :doc:`Visualization tutorial </tutorials/visualization>`.
 
 
-
 Custom experiment template
 --------------------------
 
@@ -113,7 +112,11 @@ Here is a barebones template to help you get started with customization:
             )
             return options
 
-And the corresponding analysis class template:
+Notice that when we called ``super().__init__``, we provided the list of physical
+qubits, the name of our analysis class, and the backend, which is optionally specified
+by the user at this stage.
+
+The corresponding custom analysis class template:
 
 .. jupyter-input::
 
@@ -175,11 +178,13 @@ are then combined across samples to return a single counts dictionary for
 the original circuit. This has the effect of Pauli twirling and symmetrizing the
 measurement readout error.
 
-To start, we write our own ``__init__()`` method to take as input the circuit that
-we want to twirl on. We also want to give the user the option to specify which
-physical qubits to run the circuit over and which qubits to measure over. If the user
-doesn't specify these options, we default both to the list of qubits starting with 0 and
-up to the length of the number of qubits in the circuit - 1 for both.
+To start, we write our own ``__init__()`` method to take as input the circuit that we
+want to twirl on. We also want to give the user the option to specify which physical
+qubits to run the circuit over, which qubits to measure over, the number of samples to
+repeat, and the seed for the random generator. If the user doesn't specify these
+options, we default the qubits to the list of qubits starting with 0 and up to the
+length of the number of qubits in the circuit - 1 for both, and the number of samples
+to 10.
 
 .. jupyter-input::
 
@@ -221,13 +226,8 @@ up to the length of the number of qubits in the circuit - 1 for both.
             # Set any init optinos
             self.set_experiment_options(num_samples=num_samples, seed=seed)
 
-Notice that when we called ``super().__init__``, we provided the list of physical qubits,
-the name of our analysis class, and the backend, which is optionally specified by the
-user at this stage.
-
-Now we consider default experiment options. Because randomness is involved,
-it is good practice to allow the user to set a seed. We would also like the user to 
-be able to set how many repetitions of the circuit to run:
+Now we consider default experiment options. We choose to only let the user change
+the number of samples and seed after instantiation by updating the experiment options.
 
 .. jupyter-input::
 
@@ -609,4 +609,4 @@ unaffected by the added randomized measurements, which use its own classical reg
         qc.cx(i-1, i)
 
     exp = RandomizedMeasurement(qc, num_samples=num_samples)
-    exp.circuits()[0].draw()
+    exp.circuits()[0].draw("mpl")

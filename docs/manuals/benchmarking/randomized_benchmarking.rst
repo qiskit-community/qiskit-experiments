@@ -208,21 +208,28 @@ contribution of depolarization from single-qubit error channels.
 Displaying the RB circuits
 --------------------------
 
-Generating an example RB circuit:
+The default RB circuit output shows Clifford blocks:
 
 .. jupyter-execute::
 
     # Run an RB experiment on qubit 0
-    exp = StandardRB(physical_qubits=[0], lengths=[10], num_samples=1, seed=seed)
+    exp = StandardRB(physical_qubits=[0], lengths=[2], num_samples=1, seed=seed)
     c = exp.circuits()[0]
+    c.draw("mpl")
 
-We transpile the circuit into the backend’s basis gate set:
+You can decompose the circuit into underlying gates:
+
+.. jupyter-execute::
+
+    c.decompose().draw("mpl")
+
+And see the transpiled circuit using the basis gate set of the backend:
 
 .. jupyter-execute::
 
     from qiskit import transpile
     basis_gates = backend.configuration().basis_gates
-    print(transpile(c, basis_gates=basis_gates))
+    transpile(c, basis_gates=basis_gates).draw("mpl")
 
 
 Interleaved RB experiment
