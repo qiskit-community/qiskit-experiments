@@ -92,12 +92,14 @@ class TomographyAnalysis(BaseAnalysis):
                 tomographic preparations.
             target (Any): Optional, target object for fidelity comparison of the fit
                 (Default: None).
-            target_bootstrap_samples (int): Optional, number of boostrapped samples to run
-                fit and target fidelity on to boostrapped fidelity standard error calculation
+            target_bootstrap_samples (int): Optional, number of outcome re-samples to draw
+                from measurement data for each basis for computing a bootstrapped standard
+                error of fidelity with the target state. If 0 no bootstrapping will be
+                performed and the target fidelity will not include a standard error
                 (Default: 0).
-            target_bootstrap_seed (int | None): Optional, RNG seed or Generator to use for
-                bootstrapping data for boostrapped fidelity standard error calculation.
-                (Default: None).
+            target_bootstrap_seed (int | None | Generator): Optional, RNG seed or
+                Generator to use for bootstrapping data for boostrapped fidelity
+                standard error calculation (Default: None).
             conditional_circuit_clbits (list[int]): Optional, the clbit indices in the
                 source circuit to be conditioned on when reconstructing the state.
                 Enabling this will return a list of reconstrated state components
@@ -346,13 +348,12 @@ class TomographyAnalysis(BaseAnalysis):
             except AnalysisError:
                 pass
 
-        bs_size = len(bs_fidelities)
         bs_stderr = np.std(bs_fidelities)
         return [
             AnalysisResultData(
                 name,
                 ufloat(fidelity, bs_stderr),
-                extra={"bootstrap_samples": bs_size},
+                extra={"bootstrap_samples": bs_fidelities},
             )
         ]
 
