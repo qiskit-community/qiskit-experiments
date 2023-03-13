@@ -193,9 +193,9 @@ References
 ----------
 
 .. [1] Thomas Alexander, Naoki Kanazawa, Daniel J. Egger, Lauren Capelluto,
-Christopher J. Wood, Ali Javadi-Abhari, David McKay, Qiskit Pulse:
-Programming Quantum Computers Through the Cloud with Pulses, Quantum
-Science and Technology **5**, 044006 (2020). https://arxiv.org/abs/2004.06755.
+    Christopher J. Wood, Ali Javadi-Abhari, David McKay, Qiskit Pulse:
+    Programming Quantum Computers Through the Cloud with Pulses, Quantum
+    Science and Technology **5**, 044006 (2020). https://arxiv.org/abs/2004.06755.
 
 See also
 --------

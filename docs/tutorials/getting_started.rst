@@ -95,8 +95,8 @@ first and last circuits for our :math:`T_1` experiment:
 
 As expected, the delay block spans the full range of time values that we specified.
 
-The ExperimentData class
-========================
+The :class:`.ExperimentData` class
+==================================
 
 After instantiating the experiment, we run the experiment by calling
 :meth:`~.BaseExperiment.run` with our backend of choice. This transpiles our experiment
@@ -175,9 +175,15 @@ For further documentation on how to work with UFloats, consult the ``uncertainti
 Raw circuit output data and its associated metadata can be accessed with the
 :meth:`~.ExperimentData.data` property. Data is indexed by the circuit it corresponds
 to. Depending on the measurement level set in the experiment, the raw data will either
-be in the key ``counts`` (level 2) or ``memory`` (level 1 IQ data). Circuit metadata
-contains information set by the experiment on a circuit-by-circuit basis; ``xval`` is
-used by the analysis to extract the x value for each circuit when fitting the data.
+be in the key ``counts`` (level 2) or ``memory`` (level 1 IQ data).
+
+.. note::
+    See the :doc:`data processor tutorial <data_processor>` for more 
+    information on level 1 and level 2 data.
+
+Circuit metadata contains information set by the experiment on a circuit-by-circuit
+basis; ``xval`` is used by the analysis to extract the x value for each circuit when
+fitting the data.
 
 .. jupyter-execute::
 
