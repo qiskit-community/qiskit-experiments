@@ -16,7 +16,7 @@ Common utility functions for tomography fitters.
 from typing import Optional, Tuple, Callable, Sequence, Union
 import functools
 import numpy as np
-from qiskit.utils import deprecate_function
+from qiskit.utils import deprecate_arguments
 from qiskit_experiments.exceptions import AnalysisError
 from qiskit_experiments.library.tomography.basis import (
     MeasurementBasis,
@@ -182,13 +182,14 @@ def lstsq_data(
     return basis_mat, probs, prob_weights
 
 
-def gaussian_weights(
+@deprecate_arguments({"beta": "outcome_prior"})
+def binomial_weights(
     outcome_data: np.ndarray,
     shot_data: Optional[Union[np.ndarray, int]] = None,
     outcome_prior: Union[np.ndarray, int] = 0.5,
     max_weight: float = 1e10,
 ) -> np.ndarray:
-    r"""Compute Gaussian weights from tomography data variance.
+    r"""Compute weights from tomography data variance.
 
     This is computed via a Bayesian update of a Dirichlet distribution
     with observed outcome data frequences :math:`f_i(s)`, and Dirichlet
@@ -283,55 +284,6 @@ def dirichlet_mean_and_var(
     variance = mean_probs * (1 - mean_probs) / (posterior_total + 1)
 
     return mean_probs, variance
-
-
-# pylint: disable = bad-docstring-quotes
-@deprecate_function(
-    "The binomial_weights function is deprecated and will "
-    "be removed in the 0.6 release. Use the `gaussian_weights` "
-    "function instead."
-)
-def binomial_weights(
-    outcome_data: np.ndarray,
-    shot_data: np.ndarray,
-    beta: float = 0,
-) -> np.ndarray:
-    r"""Compute weights vector from the binomial distribution.
-    The returned weights are given by :math:`w_i = 1 / \sigma_i` where
-    the standard deviation :math:`\sigma_i` is estimated as
-    :math:`\sigma_i = \sqrt{p_i(1-p_i) / n_i}`. To avoid dividing
-    by zero the probabilities are hedged using the *add-beta* rule
-    .. math:
-        p_i = \frac{f_i + \beta}{n_i + K \beta}
-    where :math:`f_i` is the observed frequency, :math:`n_i` is the
-    number of shots, and :math:`K` is the number of possible measurement
-    outcomes.
-    Args:
-        outcome_data: measurement outcome frequency data.
-        shot_data: basis measurement total shot data.
-        beta: Hedging parameter for converting frequencies to
-              probabilities. If 0 hedging is disabled.
-    Returns:
-        The weight vector.
-    """
-    size = outcome_data.size
-    num_data, num_outcomes = outcome_data.shape
-
-    # Compute hedged probabilities where the "add-beta" rule ensures
-    # there are no zero or 1 values so we don't have any zero variance
-    probs = np.zeros(size, dtype=float)
-    prob_shots = np.zeros(size, dtype=int)
-    idx = 0
-    for i in range(num_data):
-        shots = shot_data[i]
-        denom = shots + num_outcomes * beta
-        freqs = outcome_data[i]
-        for outcome in range(num_outcomes):
-            probs[idx] = (freqs[outcome] + beta) / denom
-            prob_shots[idx] = shots
-            idx += 1
-    variance = probs * (1 - probs)
-    return np.sqrt(prob_shots / variance)
 
 
 @functools.lru_cache(None)

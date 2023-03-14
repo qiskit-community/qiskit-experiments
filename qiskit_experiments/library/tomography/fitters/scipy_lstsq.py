@@ -252,7 +252,7 @@ def scipy_gaussian_lstsq(
     """
     t_start = time.time()
 
-    weights = lstsq_utils.gaussian_weights(
+    weights = lstsq_utils.binomial_weights(
         outcome_data,
         shot_data=shot_data,
         outcome_prior=outcome_prior,
