@@ -14,7 +14,6 @@ authors:
     corresponding: true
     affiliation: 2
   - name: Yael Ben-Haim
-    orcid: 0000-0000-0000-0000
     affiliation: 3
   - name: Helena Zhang
     orcid: 0000-0002-7813-7133
@@ -23,7 +22,6 @@ authors:
     orcid: 0000-0002-5045-8808
     affiliation: 4
   - name: Gadi Aleksandrowicz
-    orcid: 0000-0000-0000-0000
     affiliation: 3
   - name: Christopher J. Wood
     orcid: 0000-0001-7606-7349
@@ -37,7 +35,7 @@ affiliations:
    index: 3
  - name: IBM Quantum, IBM T.J. Watson Research Center, Yorktown Heights, NY 10598, USA
    index: 4
-date: 21 February 2023
+date: 15 February 2023
 bibliography: paper.bib
 
 ---
@@ -93,8 +91,8 @@ maintainers to easily execute characterization and calibration experiments.
 experiments that integrate with pulse-level control [@Alexander2020].
 In addition, `Qiskit Experiments` provides a calibration framework to manage device calibration.
 This framework is usable with any hardware exposed as a Qiskit backend.
-For example, the `Qiskit Experiments` framework has been used to explore measurements without qubit 
-reset [@Tornow2022], characterize positive operator value measures [@Fischer2022], quantum 
+For example, the `Qiskit Experiments` framework is used to explore measurements without qubit 
+reset [@Tornow2022], benchmarking [@Amico2023], characterize positive operator value measures [@Fischer2022], quantum 
 states [@Hamilton2022], and time-evolutions [@Greenaway2022], as well as calibrate gates [@Vazquez2022].
 
 ![
