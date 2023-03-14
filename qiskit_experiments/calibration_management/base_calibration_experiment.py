@@ -63,7 +63,7 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
 
         RoughFrequencyCal(BaseCalibrationExperiment, QubitSpectroscopy)
 
-    This ensures that the :meth:`run` method of :class:`.RoughFrequencyCal` will be the
+    This ensures that the ``run`` method of :class:`.RoughFrequencyCal` will be the
     run method of the :class:`.BaseCalibrationExperiment` class. Furthermore, developers
     must explicitly call the :meth:`__init__` methods of both parent classes.
 

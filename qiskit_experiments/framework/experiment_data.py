@@ -1709,21 +1709,20 @@ class ExperimentData:
     def job_status(self) -> JobStatus:
         """Return the experiment job execution status.
 
-        Possible return values for :class:`.JobStatus` are
+        Possible return values for :class:`qiskit.providers.jobstatus.JobStatus` are
 
-        * :attr:`~.JobStatus.ERROR` - if any job incurred an error
-        * :attr:`~.JobStatus.CANCELLED` - if any job is cancelled.
-        * :attr:`~.JobStatus.RUNNING` - if any job is still running.
-        * :attr:`~.JobStatus.QUEUED` - if any job is queued.
-        * :attr:`~.JobStatus.VALIDATING` - if any job is being validated.
-        * :attr:`~.JobStatus.INITIALIZING` - if any job is being initialized.
-        * :attr:`~.JobStatus.DONE` - if all jobs are finished.
+        * `ERROR`` - if any job incurred an error
+        * ``CANCELLED`` - if any job is cancelled.
+        * ``RUNNING`` - if any job is still running.
+        * ``QUEUED`` - if any job is queued.
+        * ``VALIDATING`` - if any job is being validated.
+        * ``INITIALIZING`` - if any job is being initialized.
+        * ``DONE`` - if all jobs are finished.
 
         .. note::
 
-            If an experiment has status :attr:`~.JobStatus.ERROR` or
-            :attr:`~.JobStatus.CANCELLED` there may still be pending or
-            running jobs. In these cases it may be beneficial to call
+            If an experiment has status ``ERROR`` or ``CANCELLED`` there may still be
+            pending or running jobs. In these cases it may be beneficial to call
             :meth:`cancel_jobs` to terminate these remaining jobs.
 
         Returns:

@@ -94,7 +94,7 @@ class PreparationBasis(BaseBasis):
     * The :meth:`index_shape` method which returns the shape of allowed
       basis indices for the specified qubits, and their values.
 
-    * The :meth:`matrix_shape` method which returns the shape of subsystem
+    * The :meth:`~.PreparationBasis.matrix_shape` method which returns the shape of subsystem
       dimensions of the density matrix state on the specified qubits.
     """
 
@@ -150,7 +150,7 @@ class MeasurementBasis(BaseBasis):
     * The :meth:`index_shape` method which returns the shape of allowed
       basis indices for the specified qubits, and their values.
 
-    * The :meth:`matrix_shape` method which returns the shape of subsystem
+    * The :meth:`~.PreparationBasis.matrix_shape` method which returns the shape of subsystem
       dimensions of the POVM element matrices on the specified qubits.
 
     * The :meth:`outcome_shape` method which returns the shape of allowed

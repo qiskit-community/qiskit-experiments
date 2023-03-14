@@ -36,6 +36,7 @@ Experiments for verification and validation of quantum devices.
 
     ~randomized_benchmarking.StandardRB
     ~randomized_benchmarking.InterleavedRB
+    ~tomography.TomographyExperiment
     ~tomography.StateTomography
     ~tomography.ProcessTomography
     ~tomography.MitigatedStateTomography
@@ -182,6 +183,7 @@ from .characterization import (
 )
 from .randomized_benchmarking import StandardRB, InterleavedRB
 from .tomography import (
+    TomographyExperiment,
     StateTomography,
     ProcessTomography,
     MitigatedStateTomography,

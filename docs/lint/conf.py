@@ -1,17 +1,13 @@
-import sys, os
-
 # This is the configuration file to run sphinx linting for `tox -edocs-nitpick`.
 # It will output warnings for each missing reference.
+
+import sys, os
 
 sys.path.insert(0, os.path.abspath("../"))
 sys.path.append(os.path.abspath("../_ext"))
 sys.path.append(os.path.abspath("../../"))
 
 exclude_patterns = ["_build"]
-
-# # Set env flag so that we can doc functions that may otherwise not be loaded
-# # see for example interactive visualizations in qiskit.visualization.
-# os.environ["QISKIT_DOCS"] = "TRUE"
 
 project = "Qiskit Experiments"
 nitpicky = True
@@ -23,16 +19,15 @@ extensions = [
     "sphinx.ext.napoleon",
     "sphinx.ext.autodoc",
     "sphinx.ext.autosummary",
-    "sphinx.ext.extlinks",
-    "jupyter_sphinx",
+    "reno.sphinxext",
     "sphinx_autodoc_typehints",
-    "sphinx_design",
     "sphinx.ext.intersphinx",
-    "nbsphinx",
     "autoref",
     "autodoc_experiment",
     "autodoc_analysis",
     "autodoc_visualization",
+    "sphinx_design",
+    "jupyter_sphinx",
     "jupyter_execute_custom",
 ]
 
@@ -41,9 +36,15 @@ nbsphinx_allow_errors = True
 # Ignore these objects
 nitpick_ignore_regex = [
     ("py:.*", "qiskit.*"),
+    ("py:.*", "numpy.*"),
+    ("py:.*", "sklearn.*"),
+    ("py:.*", "scipy.*"),
+    ("py:.*", "datetime.*"),
+    ("py:.*", "IBM.*"),
     ("py:.*", ".*\._.*"),
     ("py:.*", "_.*"),
-    ("py:.*", "numpy.*"),
+    ("py:.*", "lmfit.*"),
+    ("py:.*", "uncertainties.*"),
     ("py:.*", ".*__.*"),
     ("py:.*", "typing.*"),
     ("py:.*", ".*Error"),
@@ -52,6 +53,6 @@ nitpick_ignore_regex = [
 
 # Deprecated objects that should be ignored in the release notes
 nitpick_ignore_regex += [
-    ("py:class", "MplCurveDrawer"),
+    ("py:*", "MplCurveDrawer.*"),
     ("py:.*", "CliffordUtils.*"),
 ]

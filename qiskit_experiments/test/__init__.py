@@ -52,4 +52,4 @@ from .mock_iq_backend import MockIQBackend, MockIQParallelBackend
 from .noisy_delay_aer_simulator import NoisyDelayAerBackend
 from .t2hahn_backend import T2HahnBackend
 from .fake_service import FakeService
-from .pulse_backend import PulseBackend
+from .pulse_backend import PulseBackend, SingleTransmonTestBackend

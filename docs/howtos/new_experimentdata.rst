@@ -84,4 +84,4 @@ first component experiment.
 See Also
 --------
 
-* `Saving and loading experiment data with the cloud service <cloud_service.html>`_
+* :doc:`cloud_service`
