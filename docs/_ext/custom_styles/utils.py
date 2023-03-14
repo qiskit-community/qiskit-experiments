@@ -81,6 +81,7 @@ def _generate_options_documentation(
     target_args: List[str] = None,
     config: SphinxConfig = None,
     indent: str = "",
+    recursive: bool = True,
 ) -> List[str]:
     """Automatically generate documentation from the default options method."""
 
@@ -107,17 +108,26 @@ def _generate_options_documentation(
     )
 
     if target_args:
-        # parse parent class method docstring if some arg documentation is missing
-        parent_parsed_lines = _generate_options_documentation(
-            current_class=inspect.getmro(current_class)[1],
-            method_name=method_name,
-            target_args=target_args,
-            config=config,
-            indent=indent,
-        )
-        options_docstring_lines.extend(parent_parsed_lines)
-
-    options_docstring_lines.extend(parsed_lines)
+        parent_class = inspect.getmro(current_class)[1]
+        if recursive:
+            # parse parent class method docstring if some arg documentation is missing
+            parent_parsed_lines = _generate_options_documentation(
+                current_class=parent_class,
+                method_name=method_name,
+                target_args=target_args,
+                config=config,
+                indent=indent,
+            )
+            options_docstring_lines.extend(parent_parsed_lines)
+            options_docstring_lines.extend(parsed_lines)
+        else:
+            options_docstring_lines.extend(parsed_lines)
+            clsname = parent_class.__name__
+            out = [
+                "",
+                f"See :class:`.{clsname}` for all available options.",
+            ]
+            options_docstring_lines.extend(out)
 
     if options_docstring_lines:
         return _trim_empty_lines(options_docstring_lines)

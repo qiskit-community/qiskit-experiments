@@ -196,6 +196,7 @@ class ExperimentDocstring(QiskitExperimentDocstring):
             method_name="_default_experiment_options",
             config=exp_docs_config,
             indent=self._indent,
+            recursive=False,
         )
         if exp_option:
             exp_option_desc.extend(exp_option)
@@ -298,6 +299,7 @@ class AnalysisDocstring(QiskitExperimentDocstring):
             method_name="_default_options",
             config=analysis_docs_config,
             indent=self._indent,
+            recursive=False,
         )
         if analysis_option:
             option_desc.extend(analysis_option)
