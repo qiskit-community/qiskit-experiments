@@ -55,8 +55,7 @@ class MultiStateDiscrimination(BaseExperiment):
         :class:`MultiStateDiscriminationAnalysis`
 
     # section: reference
-        `Qiskit Textbook <https://qiskit.org/textbook/ch-quantum-hardware/accessing\
-        _higher_energy_states.html>`_.
+        `Qiskit Textbook <https://qiskit.org/textbook/ch-quantum-hardware/accessing_higher_energy_states.html>`_.
 
     """
 

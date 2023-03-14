@@ -253,9 +253,9 @@ This code will give you identical fit model to the one defined in the following 
         )
 
 However, note that you can also inherit other features, e.g. the algorithm to
-generate initial guesses for parameters, from the :class:`AnalysisA` in the first example.
+generate initial guesses for parameters, from the ``AnalysisA`` class in the first example.
 On the other hand, in the latter case, you need to manually copy and paste
-every logic defined in the :class:`AnalysisA`.
+every logic defined in ``AnalysisA``.
 
 .. _curve_analysis_workflow:
 
@@ -268,7 +268,7 @@ This workflow is defined in the method :meth:`CurveAnalysis._run_analysis`.
 1. Initialization
 ^^^^^^^^^^^^^^^^^
 
-Curve analysis calls :meth:`_initialization` method where it initializes
+Curve analysis calls the :meth:`_initialization` method, where it initializes
 some internal states and optionally populate analysis options
 with the input experiment data.
 In some case it may train the data processor with fresh outcomes,
