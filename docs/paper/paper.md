@@ -117,7 +117,7 @@ visualization options, as exemplified by the QV plot in \autoref{fig:qv}.
 
 ![Example result of a quantum volume measurement carried out with `Qiskit Experiments`.
 The dashed line shows the two-thirds threshold.
-Each dot shows an execution of a quantum circuit.
+Each dot shows an execution of a randomized quantum circuit aggregated over many shots.
 The shaded area is a $2\sigma$ confidence interval.
 \label{fig:qv}](qv.pdf){ width=75% }
 
