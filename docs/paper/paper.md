@@ -47,7 +47,7 @@ bibliography: paper.bib
 Qiskit Experiments is a Python package for designing and running quantum computing experiments 
 with a focus on calibration and characterization of quantum devices. 
 It consists of a general purpose experiments framework which can be used by researchers to rapidly 
-implement new experiments, and a library of common experiments for calibration, characterization, 
+implement new experiments and a library of common experiments for calibration, characterization, 
 and verification of quantum devices.
 
 The core framework of `Qiskit Experiments` consists of three parts.
