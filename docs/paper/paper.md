@@ -113,7 +113,7 @@ A depth $d$ QV circuit is successful if it has mean heavy-output probability gre
 than two-thirds with a confidence level exceeding 0.977, and at least 100 trials have been run.
 `Qiskit Experiments` only requires a few lines of code to run this standardized yet complex experiment.
 The analysis classes of existing experiments automatically generate key figures with customizable 
-visualization options, as exemplified by the QV plot, see \autoref{fig:qv}.
+visualization options, as exemplified by the QV plot in \autoref{fig:qv}.
 
 ![Example result of a quantum volume measurement carried out with `Qiskit Experiments`.
 The dashed line shows the two-thirds threshold.
