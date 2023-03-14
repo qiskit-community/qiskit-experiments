@@ -59,7 +59,7 @@ The analysis also attaches its results, such as fit results and figures, to the 
 \autoref{fig:framework} summarizes this framework.
 Importantly, this framework can interface with services to store, load, and share data.
 The library of experiments includes common quantum computing experiments such as Randomized 
-Benchmarking [@Magesan2011], Quantum state and process tomography [@Banaszek1999], Quantum Volume [@Cross2019], 
+Benchmarking [@Magesan2011], Quantum State and Process Tomography [@Banaszek1999], Quantum Volume [@Cross2019], 
 and gate error amplifying calibration sequences [@Tornow2022].
 
 `Qiskit Experiments` is based on Qiskit [@Qiskit], a general purpose Python library for programming 
