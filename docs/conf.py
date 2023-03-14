@@ -192,6 +192,7 @@ autoclass_content = "both"
 intersphinx_mapping = {
     "matplotlib": ("https://matplotlib.org/stable/", None),
     "qiskit": ("https://qiskit.org/documentation/", None),
+    "pygsti": ("https://pygsti.readthedocs.io/en/latest/", None),
 }
 
 

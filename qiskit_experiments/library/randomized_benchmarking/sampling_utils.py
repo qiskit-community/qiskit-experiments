@@ -64,12 +64,12 @@ class EdgeGrabSampler(MirrorRBSampler):
         graph, and the desired two-qubit gate density :math:`\xi`, outputs a layer
         as follows:
 
-            1. Begin with the empty set :math:`E` and :math:`E_r`, the set of all
-               edges in the connectivity graph. Select an edge from :math:`E_r` at random
-               and add it to :math:`E`, removing all edges that share a qubit with the edge
+            1. Begin with the empty set :math:`E` and :math:`E_r`, the set of all edges
+               in the connectivity graph. Select an edge from :math:`E_r` at random and
+               add it to :math:`E`, removing all edges that share a qubit with the edge
                from :math:`E_r`.
-            2. Select edges from :math:`E` with the probability :math:`w\xi/|E|`. These edges will
-            have two-qubit gates in the output layer.
+            2. Select edges from :math:`E` with the probability :math:`w\xi/|E|`. These
+               edges will have two-qubit gates in the output layer.
 
         This produces a layer with an expected two-qubit gate density :math:`2\xi`.
         Accounting for all the layers in mirror RB, this means the overall two-qubit gate
@@ -106,7 +106,8 @@ class EdgeGrabSampler(MirrorRBSampler):
             seed: Seed for random generation.
 
         Raises:
-            Warning: If device has no connectivity or two_qubit_gate_density is too high
+            Warning: If device has no connectivity or ``two_qubit_gate_density`` is too
+                high.
             TypeError: If invalid gate set(s) are specified.
 
         Returns:

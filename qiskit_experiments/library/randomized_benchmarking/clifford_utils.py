@@ -244,100 +244,12 @@ class CliffordUtils:
         return [random_clifford(num_qubits, seed=rng).to_circuit() for _ in range(size)]
 
     @classmethod
-    def random_edgegrab_clifford_circuits(
-        self,
-        qubits: Sequence[int],
-        coupling_map: list,
-        two_qubit_gate_density: float = 0.2,
-        size: int = 1,
-        rng: Optional[Union[int, Generator]] = None,
-    ) -> List[QuantumCircuit]:
-        """Generate a list of random Clifford circuits sampled using the edgegrab algorithm
-
-        Args:
-            qubits: Sequence of integers representing the physical qubits
-            coupling_map: List of edges, where an edge is a list of 2 integers
-            two_qubit_gate_density: :math:`1/2` times the expected fraction of qubits with CX gates
-            size: length of RB sequence
-            rng: Random seed
-
-        Raises:
-            Warning: If device has no connectivity or two_qubit_gate_density is too high
-
-        Returns:
-            List of QuantumCircuits
-
-        Ref: arXiv:2008.11294v2
-        """
-        num_qubits = len(qubits)
-        # if circuit has one qubit, call random_clifford_circuits()
-        if num_qubits == 1:
-            return self.random_clifford_circuits(num_qubits, size, rng)
-
-        if rng is None:
-            rng = default_rng()
-
-        if isinstance(rng, int):
-            rng = default_rng(rng)
-
-        qc_list = []
-        for _ in list(range(size)):
-            all_edges = coupling_map[:]  # make copy of coupling map from which we pop edges
-            selected_edges = []
-            while all_edges:
-                rand_edge = all_edges.pop(rng.integers(len(all_edges)))
-                selected_edges.append(
-                    rand_edge
-                )  # move random edge from all_edges to selected_edges
-                old_all_edges = all_edges[:]
-                all_edges = []
-                # only keep edges in all_edges that do not share a vertex with rand_edge
-                for edge in old_all_edges:
-                    if rand_edge[0] not in edge and rand_edge[1] not in edge:
-                        all_edges.append(edge)
-
-            qr = QuantumRegister(num_qubits)
-            qc = QuantumCircuit(qr)
-            two_qubit_prob = 0
-            try:
-                two_qubit_prob = num_qubits * two_qubit_gate_density / len(selected_edges)
-            except ZeroDivisionError:
-                warnings.warn(
-                    "Device has no connectivity. All cliffords will be single-qubit Cliffords"
-                )
-            if two_qubit_prob > 1:
-                warnings.warn(
-                    "Mean number of two-qubit gates is higher than number of selected edges for CNOTs. "
-                    + "Actual density of two-qubit gates will likely be lower than input density"
-                )
-            selected_edges_logical = [
-                [np.where(q == np.asarray(qubits))[0][0] for q in edge] for edge in selected_edges
-            ]
-            # selected_edges_logical is selected_edges with logical qubit labels rather than physical
-            # ones. Example: qubits = (8,4,5,3,7), selected_edges = [[4,8],[7,5]]
-            # ==> selected_edges_logical = [[1,0],[4,2]]
-            put_1_qubit_clifford = np.arange(num_qubits)
-            # put_1_qubit_clifford is a list of qubits that aren't assigned to a 2-qubit Clifford
-            # 1-qubit Clifford will be assigned to these edges
-            for edge in selected_edges_logical:
-                if rng.random() < two_qubit_prob:
-                    # with probability two_qubit_prob, place CNOT on edge in selected_edges
-                    qc.cx(edge[0], edge[1])
-                    # remove these qubits from put_1_qubit_clifford
-                    put_1_qubit_clifford = np.setdiff1d(put_1_qubit_clifford, edge)
-            for q in put_1_qubit_clifford:
-                clifford1q = self.clifford_1_qubit_circuit(rng.integers(24))
-                insts = [datum[0] for datum in clifford1q.data]
-                for inst in insts:
-                    qc.compose(inst, [q], inplace=True)
-            qc_list.append(qc)
-        return qc_list
-
     @lru_cache(maxsize=24)
     def clifford_1_qubit_circuit(cls, num, basis_gates: Optional[Tuple[str, ...]] = None):
         """Return the 1-qubit clifford circuit corresponding to `num`
         where `num` is between 0 and 23.
         """
+        print("1-qubit", num)
         unpacked = cls._unpack_num(num, cls.CLIFFORD_1_QUBIT_SIG)
         i, j, p = unpacked[0], unpacked[1], unpacked[2]
         qc = QuantumCircuit(1, name=f"Clifford-1Q({num})")

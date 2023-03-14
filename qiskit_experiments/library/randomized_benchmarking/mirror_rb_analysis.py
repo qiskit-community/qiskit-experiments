@@ -120,7 +120,21 @@ class MirrorRBAnalysis(curve.CurveAnalysis):
 
     @classmethod
     def _default_options(cls):
-        """Default analysis options."""
+        """Default analysis options.
+
+        Analysis Options:
+            y_axis (str): Set the metric to plot on the y-axis. Must be one of
+                "Effective Polarization" (default), "Success Probability", or "Adjusted
+                Success Probability".
+            gate_error_ratio (Optional[Dict[str, float]]): A dictionary with gate name keys
+                and error ratio values used when calculating EPG from the estimated EPC.
+                The default value will use standard gate error ratios.
+                If you don't know accurate error ratio between your basis gates,
+                you can skip analysis of EPGs by setting this options to ``None``.
+            epg_1_qubit (List[AnalysisResult]): Analysis results from previous RB experiments
+                for individual single qubit gates. If this is provided, EPC of
+                2Q RB is corrected to exclude the depolarization of underlying 1Q channels.
+        """
         default_options = super()._default_options()
 
         # Set labels of axes
