@@ -43,8 +43,7 @@ class CrossResonanceHamiltonianAnalysis(curve.CompositeCurveAnalysis):
         for the projection axis :math:`\beta` with the control qubit state :math:`|j\rangle`.
 
     # section: see_also
-
-        qiskit_experiments.curve_analysis.standard_analysis.BlochTrajectoryAnalysis
+        :class:`.BlochTrajectoryAnalysis`
 
     """
 

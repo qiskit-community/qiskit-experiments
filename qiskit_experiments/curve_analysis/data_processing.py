@@ -92,7 +92,7 @@ def mean_xy_data(
                duplicated x value entries.
 
     Raises:
-        QiskitError: if "ivw" method is used without providing a sigma.
+        QiskitError: If "ivw" method is used without providing a sigma.
     """
     x_means = np.unique(xdata, axis=0)
     y_means = np.zeros(x_means.size)
@@ -185,7 +185,7 @@ def multi_mean_xy_data(
         Tuple of (series, xdata, ydata, sigma, shots)
 
     See also:
-        :py:func:`~qiskit_experiments.curve_analysis.data_processing.mean_xy_data`
+        :func:`~.data_processing.mean_xy_data`
     """
     series_vals = np.unique(series)
 

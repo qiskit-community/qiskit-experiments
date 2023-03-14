@@ -27,11 +27,11 @@ from qiskit_experiments.warnings import deprecate_arguments, qubit_deprecate
 
 
 class FineAmplitude(BaseExperiment, RestlessMixin):
-    r"""Error amplifying fine amplitude calibration experiment.
+    r"""An experiment to determine the optimal pulse amplitude by amplifying gate errors.
 
     # section: overview
 
-        The :class:`FineAmplitude` calibration experiment repeats N times a gate with a pulse
+        The :class:`FineAmplitude` experiment repeats N times a gate with a pulse
         to amplify the under-/over-rotations in the gate to determine the optimal amplitude.
         The circuits are therefore of the form:
 
@@ -46,7 +46,7 @@ class FineAmplitude(BaseExperiment, RestlessMixin):
         Here, Gate is the name of the gate which will be repeated. The user can optionally add a
         square-root of X pulse before the gates are repeated. This square-root of X pulse allows
         the analysis to differentiate between over rotations and under rotations in the case of
-        pi-pulses. Importantly, the resulting data is analyzed by a fit to a cosine function in
+        :math:`\pi`-pulses. Importantly, the resulting data is analyzed by a fit to a cosine function in
         which we try to determine the over/under rotation given an intended rotation angle per
         gate which must also be specified by the user.
 
@@ -54,7 +54,7 @@ class FineAmplitude(BaseExperiment, RestlessMixin):
         the equator of the Bloch sphere. This is why users should insert a square-root of X pulse
         before running calibrations for :math:`\pm\pi` rotations. When all data points are close to
         the equator, it is difficult for a fitter to infer the overall scale of the error. When
-        calibrating a :math:`pi` rotation, one can use ``add_xp_circuit = True`` to insert one
+        calibrating a :math:`\pi` rotation, one can use ``add_xp_circuit = True`` to insert one
         circuit that puts the qubit in the excited state to set the scale for the other circuits.
         Furthermore, when running calibrations for :math:`\pm\pi/2` rotations users are advised
         to use an odd number of repetitions, e.g. [1, 2, 3, 5, 7, ...] to ensure that the ideal
@@ -72,22 +72,21 @@ class FineAmplitude(BaseExperiment, RestlessMixin):
             amp_cal = FineAmplitude([qubit], SXGate())
             amp_cal.set_experiment_options(
                 angle_per_gate=np.pi/2,
-                add_xp_circuit=False,
-                add_sx=False
+                phase_offset=np.pi
             )
             amp_cal.run(backend)
 
         Note that there are subclasses of :class:`FineAmplitude` such as :class:`FineSXAmplitude`
-        that set the appropriate options by default.
+        that set the appropriate options for specific gates by default.
 
     # section: analysis_ref
-        :py:class:`FineAmplitudeAnalysis`
+        :class:`FineAmplitudeAnalysis`
 
     # section: reference
         .. ref_arxiv:: 1 1504.06597
 
-    # section: tutorial
-        :doc:`/tutorials/fine_calibrations`
+    # section: manual
+        :ref:`fine-amplitude-cal`
 
     """
 
@@ -346,10 +345,10 @@ class FineZXAmplitude(FineAmplitude):
 
     # section: example
 
-        To run this experiment the user will have to provide the instruction schedule
+        To run this experiment, the user will have to provide the instruction schedule
         map in the transpile options that contains the schedule for the experiment.
 
-        ..code-block:: python
+        .. code-block:: python
 
             qubits = (1, 2)
             inst_map = InstructionScheduleMap()

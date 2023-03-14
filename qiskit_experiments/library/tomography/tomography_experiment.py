@@ -31,7 +31,7 @@ class TomographyExperiment(BaseExperiment):
     """Base experiment for quantum state and process tomography.
 
     # section: analysis_ref
-        :py:class:`TomographyAnalysis`
+        :class:`TomographyAnalysis`
     """
 
     @classmethod
@@ -100,7 +100,7 @@ class TomographyExperiment(BaseExperiment):
                 instance will be set.
 
         Raises:
-            QiskitError: if input params are invalid.
+            QiskitError: If input params are invalid.
         """
         # Initialize BaseExperiment
         if physical_qubits is None:

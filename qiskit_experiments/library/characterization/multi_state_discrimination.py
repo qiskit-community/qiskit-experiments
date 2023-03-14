@@ -52,7 +52,7 @@ class MultiStateDiscrimination(BaseExperiment):
                 meas: ═══════════════════════╩═
 
     # section: analysis_ref
-        :py:class:`MultiStateDiscriminationAnalysis`
+        :class:`MultiStateDiscriminationAnalysis`
 
     # section: reference
         `Qiskit Textbook <https://qiskit.org/textbook/ch-quantum-hardware/accessing\

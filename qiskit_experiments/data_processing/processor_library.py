@@ -44,7 +44,7 @@ def get_kerneled_processor(
         the corresponding job.
 
     Raises:
-        DataProcessorError: if the wrong dimensionality reduction for kerneled data
+        DataProcessorError: If the wrong dimensionality reduction for kerneled data
                 is specified.
     """
 
@@ -104,7 +104,7 @@ def get_processor(experiment_data: ExperimentData, analysis_options: Options) ->
         classified data if it was not given in the analysis options.
 
     Raises:
-        DataProcessorError: if the measurement level is not supported.
+        DataProcessorError: If the measurement level is not supported.
     """
     metadata = experiment_data.metadata
     if "job_metadata" in metadata:

@@ -34,7 +34,7 @@ from .qv_analysis import QuantumVolumeAnalysis
 
 
 class QuantumVolume(BaseExperiment):
-    """Quantum Volume Experiment class.
+    """An experiment to measure the largest random square circuit that can be run on a processor.
 
     # section: overview
         Quantum Volume (QV) is a single-number metric that can be measured using a concrete protocol
@@ -63,7 +63,7 @@ class QuantumVolume(BaseExperiment):
         information on QV experiment analysis.
 
     # section: analysis_ref
-        :py:class:`QuantumVolumeAnalysis`
+        :class:`QuantumVolumeAnalysis`
 
     # section: reference
         .. ref_arxiv:: 1 1811.12926

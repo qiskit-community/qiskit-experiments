@@ -39,7 +39,10 @@ class ExperimentDocumenter(ClassDocumenter):
         sourcename = self.get_sourcename()
 
         try:
-            class_doc, init_doc = self.get_doc()
+            if self.get_doc() is not None:
+                class_doc, init_doc = self.get_doc()
+            else:
+                return
         except ValueError:
             raise QiskitError(
                 f"Documentation of {self.name} doesn't match with the expected format."
@@ -76,3 +79,4 @@ def setup(app: Sphinx):
     existing_documenter = app.registry.documenters.get(ExperimentDocumenter.objtype)
     if existing_documenter is None or not issubclass(existing_documenter, ExperimentDocumenter):
         app.add_autodocumenter(ExperimentDocumenter, override=True)
+    return {"parallel_read_safe": True}

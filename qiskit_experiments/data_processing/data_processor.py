@@ -143,7 +143,7 @@ class DataProcessor:
         Args:
             data: The data, typically from ExperimentData.data(...), that needs to be processed.
             This dict or list of dicts also contains the metadata of each experiment.
-            with_history: if True the history is returned otherwise it is not.
+            with_history: If True the history is returned otherwise it is not.
             history_nodes: The nodes, specified by index in the data processing chain, to
                 include in the history. If None is given then all nodes will be included
                 in the history.

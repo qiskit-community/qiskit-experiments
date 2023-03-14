@@ -181,7 +181,7 @@ def _format_default_options(defaults: Dict[str, Any], indent: str = "") -> List[
     if not defaults:
         docstring_lines.append(indent + "No default options are set.")
     else:
-        docstring_lines.append(indent + "Following values are set by default.")
+        docstring_lines.append(indent + "The following values are set by default.")
         docstring_lines.append("")
         docstring_lines.append(indent + ".. parsed-literal::")
         docstring_lines.append("")

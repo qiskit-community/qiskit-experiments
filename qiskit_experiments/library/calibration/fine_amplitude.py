@@ -29,16 +29,16 @@ from qiskit_experiments.warnings import qubit_deprecate
 
 
 class FineAmplitudeCal(BaseCalibrationExperiment, FineAmplitude):
-    r"""A calibration version of the :class:`FineAmplitude` experiment.
+    r"""A calibration version of the :class:`.FineAmplitude` experiment.
 
     # section: overview
 
-        :class:`FineAmplitudeCal` is a subclass of :class:`FineAmplitude`. In the calibration
+        :class:`FineAmplitudeCal` is a subclass of :class:`.FineAmplitude`. In the calibration
         experiment the circuits that are run have a custom gate with the pulse schedule attached
         to it through the calibrations.
 
     # section: see_also
-        qiskit_experiments.library.characterization.fine_amplitude.FineAmplitude
+        :class:`.FineAmplitude`
 
     """
 
@@ -54,7 +54,7 @@ class FineAmplitudeCal(BaseCalibrationExperiment, FineAmplitude):
         gate: Optional[Gate] = None,
         measurement_qubits: Sequence[int] = None,
     ):
-        """see class :class:`FineAmplitude` for details.
+        """See class :class:`FineAmplitude` for details.
 
         Args:
             physical_qubits: Sequence containing the qubit(s) for which to run
@@ -164,7 +164,7 @@ class FineXAmplitudeCal(FineAmplitudeCal):
     """A calibration experiment to calibrate the amplitude of the X schedule.
 
     # section: see_also
-        qiskit_experiments.library.characterization.fine_amplitude.FineAmplitude
+        :class:`.FineAmplitude`
     """
 
     @qubit_deprecate()
@@ -217,7 +217,7 @@ class FineSXAmplitudeCal(FineAmplitudeCal):
     """A calibration experiment to calibrate the amplitude of the SX schedule.
 
     # section: see_also
-        qiskit_experiments.library.characterization.fine_amplitude.FineAmplitude
+        :class:`.FineAmplitude`
     """
 
     @qubit_deprecate()
