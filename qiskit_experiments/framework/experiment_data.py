@@ -1711,7 +1711,7 @@ class ExperimentData:
 
         Possible return values for :class:`qiskit.providers.jobstatus.JobStatus` are
 
-        * `ERROR`` - if any job incurred an error
+        * ``ERROR`` - if any job incurred an error
         * ``CANCELLED`` - if any job is cancelled.
         * ``RUNNING`` - if any job is still running.
         * ``QUEUED`` - if any job is queued.
