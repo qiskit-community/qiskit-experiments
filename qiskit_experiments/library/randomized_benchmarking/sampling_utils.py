@@ -72,7 +72,8 @@ class EdgeGrabSampler(MirrorRBSampler):
                edges will have two-qubit gates in the output layer.
 
         This produces a layer with an expected two-qubit gate density :math:`2\xi`.
-        Accounting for all the layers in mirror RB, this means the overall two-qubit gate
+        In the default mirror RB configuration where these layers are dressed with
+        single-qubit Pauli layers, this means the overall two-qubit gate
         density will be :math:`\xi`. The overall average density will converge to
         :math:`\xi` as the circuit size increases.
 
@@ -111,8 +112,7 @@ class EdgeGrabSampler(MirrorRBSampler):
             TypeError: If invalid gate set(s) are specified.
 
         Returns:
-            List of sampled QuantumCircuit layers with length ``length``. Integers are
-            returned for one-qubit Cliffords for speed.
+            List of sampled QuantumCircuit layers with length ``length``.
 
         """
         rng = default_rng(seed=seed)
@@ -124,7 +124,8 @@ class EdgeGrabSampler(MirrorRBSampler):
 
         if num_qubits == 1:
             if one_qubit_gate_set.casefold() == "clifford":
-                return rng.integers(CliffordUtils.NUM_CLIFFORD_1_QUBIT, size=length)
+                # return rng.integers(CliffordUtils.NUM_CLIFFORD_1_QUBIT, size=length)
+                return [random_clifford(1, rng) for i in range(length)]
             else:
                 return rng.choice(one_qubit_gate_set, size=length)
 
@@ -168,7 +169,6 @@ class EdgeGrabSampler(MirrorRBSampler):
                     # with probability two_qubit_prob, place a two-qubit gate from the
                     # gate set on edge in selected_edges
                     try:
-                        print(edge[0], edge[1])
                         getattr(qc, rng.choice(two_qubit_gate_set))(edge[0], edge[1])
                     except AttributeError:
                         raise QiskitError("Invalid two-qubit gate set specified.")
