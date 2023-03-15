@@ -3,23 +3,23 @@ message: "If you use this software, please cite it as below."
 authors:
 - family-names: "Kanazawa"
   given-names: "Naoki"
-  orcid: 0000-0002-4192-5558
+  orcid: "https://orcid.org/0000-0002-4192-5558"
 - family-names: "Egger"
   given-names: "Daniel J."
-  orcid: 0000-0002-5523-9807
+  orcid: "https://orcid.org/0000-0002-5523-9807"
 - family-names: "Ben-Haim"
   given-names: "Yael"
-- family-name: "Zhang"
+- family-names: "Zhang"
   given-names: "Helena"
-  orcid: 0000-0002-7813-7133
-- family-name: "Shanks"
+  orcid: "https://orcid.org/0000-0002-7813-7133"
+- family-names: "Shanks"
   given-names: "Will E."
-  orcid: 0000-0002-5045-8808
-- family-name: "Aleksandrowicz"
+  orcid: "https://orcid.org/0000-0002-5045-8808"
+- family-names: "Aleksandrowicz"
   given-names: "Gadi"
-- family-name: "Wood"
+- family-names: "Wood"
   given-names: "Christopher J."
-  orcid: 0000-0001-7606-7349
+  orcid: "https://orcid.org/0000-0001-7606-7349"
 title: "Qiskit Experiments"
 version: 0.4.0
 doi: 10.5281/zenodo.7737486
