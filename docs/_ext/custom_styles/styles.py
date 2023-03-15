@@ -359,13 +359,13 @@ class VisualizationDocstring(QiskitExperimentDocstring):
             indent=self._indent,
         )
         if option:
-            option_desc.extend(option)
             option_desc.extend(
                 _format_default_options(
                     defaults=self._target_cls._default_options().__dict__,
                     indent=self._indent,
                 )
             )
+            option_desc.extend(option)
         else:
             option_desc.append("No options available.")
 
@@ -377,13 +377,13 @@ class VisualizationDocstring(QiskitExperimentDocstring):
             indent=self._indent,
         )
         if figure_option:
-            figure_option_desc.extend(figure_option)
             figure_option_desc.extend(
                 _format_default_options(
                     defaults=self._target_cls._default_figure_options().__dict__,
                     indent=self._indent,
                 )
             )
+            figure_option_desc.extend(figure_option)
         else:
             figure_option_desc.append("No figure options available.")
 
