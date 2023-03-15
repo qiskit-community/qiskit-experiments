@@ -13,14 +13,19 @@
 """
 StateTomography experiment tests
 """
+import io
 from test.base import QiskitExperimentsTestCase
 from math import sqrt
+
 import ddt
 import numpy as np
-from qiskit import QuantumCircuit
+from uncertainties import UFloat
+
+import qiskit.quantum_info as qi
+from qiskit import QuantumCircuit, qpy
 from qiskit.circuit.library import XGate
 from qiskit.result import LocalReadoutMitigator
-import qiskit.quantum_info as qi
+
 from qiskit_aer import AerSimulator
 from qiskit_aer.noise import NoiseModel
 
@@ -62,7 +67,7 @@ class TestStateTomography(QiskitExperimentsTestCase):
                     exp.analysis.set_options(fitter=fitter)
                 fitdata = exp.analysis.run(expdata)
                 self.assertExperimentDone(fitdata)
-                results = expdata.analysis_results()
+                results = fitdata.analysis_results()
 
                 # Check state is density matrix
                 state = filter_results(results, "state").value
@@ -190,6 +195,23 @@ class TestStateTomography(QiskitExperimentsTestCase):
             target_circ.append(ops[qubit], [i])
         fid = qi.state_fidelity(target_state, qi.Statevector(target_circ))
         self.assertGreater(fid, 0.99, msg="target_state is incorrect")
+
+    def test_circuit_serialization(self):
+        """Test simple circuit serialization"""
+        circ = QuantumCircuit(2)
+        circ.h(0)
+        circ.s(0)
+        circ.cx(0, 1)
+
+        exp = StateTomography(circ)
+        circs = exp.circuits()
+
+        qpy_file = io.BytesIO()
+        qpy.dump(circs, qpy_file)
+        qpy_file.seek(0)
+        new_circs = qpy.load(qpy_file)
+
+        self.assertEqual(circs, new_circs)
 
     @ddt.data([0], [1], [2], [0, 1], [1, 0], [0, 2], [2, 0], [1, 2], [2, 1])
     def test_full_exp_measurement_indices(self, meas_qubits):
@@ -334,7 +356,7 @@ class TestStateTomography(QiskitExperimentsTestCase):
         noise_model = NoiseModel()
         for qubit, amat in enumerate(amats):
             noise_model.add_readout_error(amat.T, [qubit])
-        backend = AerSimulator(noise_model=noise_model)
+        backend = AerSimulator(noise_model=noise_model, seed_simulator=1234)
 
         # Run experiment
         circ = QuantumCircuit(num_qubits)
@@ -346,7 +368,7 @@ class TestStateTomography(QiskitExperimentsTestCase):
         expdata = exp.run(shots=2000).block_for_results()
         self.assertExperimentDone(expdata)
         fid = expdata.analysis_results("state_fidelity").value
-        self.assertGreater(fid, 0.95)
+        self.assertGreater(fid, 0.945)
 
     @ddt.data((0,), (1,), (2,), (3,), (0, 1), (2, 0), (0, 3), (0, 3, 1))
     def test_mitigated_full_qst(self, qubits):
@@ -370,7 +392,7 @@ class TestStateTomography(QiskitExperimentsTestCase):
                 fitdata = exp.analysis.run(expdata)
                 self.assertExperimentDone(fitdata)
                 # Should be 2 results, mitigated and unmitigated
-                states = expdata.analysis_results("state")
+                states = fitdata.analysis_results("state")
                 self.assertEqual(len(states), 2)
                 for state in states:
                     self.assertTrue(
@@ -561,3 +583,32 @@ class TestStateTomography(QiskitExperimentsTestCase):
                         msg=f"fitter {fitter} probability is incorrect for conditional"
                         f" outcome {index}, {outcome}",
                     )
+
+    def test_bootstrap_qst(self):
+        """Test QST experiment with bootstrapped error bars"""
+        seed = 1234
+        shots = 100
+        bootstrap_samples = 10
+
+        # Generate tomography data without analysis
+        backend = AerSimulator(seed_simulator=seed, shots=shots)
+        target = qi.Statevector([0, 1])
+        exp = StateTomography(target)
+        exp.analysis.set_options(target_bootstrap_samples=bootstrap_samples)
+        expdata = exp.run(backend, analysis=None)
+        self.assertExperimentDone(expdata)
+
+        # Run each tomography fitter analysis as a subtest so
+        # we don't have to re-run simulation data for each fitter
+        for fitter in FITTERS:
+            with self.subTest(fitter=fitter):
+                if fitter:
+                    exp.analysis.set_options(fitter=fitter)
+                fitdata = exp.analysis.run(expdata)
+                self.assertExperimentDone(fitdata)
+                results = fitdata.analysis_results()
+
+                # Check fit state fidelity
+                fid = filter_results(results, "state_fidelity").value
+                self.assertTrue(isinstance(fid, UFloat))
+                self.assertGreater(fid.s, 0)

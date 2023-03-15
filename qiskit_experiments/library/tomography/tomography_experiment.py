@@ -31,7 +31,7 @@ class TomographyExperiment(BaseExperiment):
     """Base experiment for quantum state and process tomography.
 
     # section: analysis_ref
-        :py:class:`TomographyAnalysis`
+        :class:`TomographyAnalysis`
     """
 
     @classmethod
@@ -100,7 +100,7 @@ class TomographyExperiment(BaseExperiment):
                 instance will be set.
 
         Raises:
-            QiskitError: if input params are invalid.
+            QiskitError: If input params are invalid.
         """
         # Initialize BaseExperiment
         if physical_qubits is None:
@@ -221,7 +221,7 @@ class TomographyExperiment(BaseExperiment):
                 prep_circ = self._prep_circ_basis.circuit(prep_element, self._prep_physical_qubits)
                 circ.reset(self._prep_indices)
                 circ.compose(prep_circ, self._prep_indices, inplace=True)
-                circ.barrier(self._prep_indices)
+                circ.barrier(*self._prep_indices)
 
             # Add target circuit
             # Have to use compose since circuit.to_instruction has a bug
@@ -231,7 +231,7 @@ class TomographyExperiment(BaseExperiment):
             # Add tomography measurement
             if meas_element:
                 meas_circ = self._meas_circ_basis.circuit(meas_element, self._meas_physical_qubits)
-                circ.barrier(self._meas_indices)
+                circ.barrier(*self._meas_indices)
                 circ.compose(meas_circ, self._meas_indices, meas_clbits, inplace=True)
 
             # Add metadata

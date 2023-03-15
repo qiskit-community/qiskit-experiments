@@ -25,7 +25,8 @@ from . import basis
 
 
 class MitigatedProcessTomography(BatchExperiment):
-    """Readout error mitigated quantum process tomography experiment.
+    """A batched experiment to characterize readout error then perform process tomography
+    for doing readout error mitigated process tomography.
 
     # section: overview
         Readout error mitigated Quantum process tomography is a batch

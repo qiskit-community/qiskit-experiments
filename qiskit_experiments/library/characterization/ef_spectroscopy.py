@@ -23,7 +23,7 @@ from qiskit_experiments.warnings import qubit_deprecate
 
 
 class EFSpectroscopy(QubitSpectroscopy):
-    """Class that runs spectroscopy on the e-f transition by scanning the frequency.
+    """A spectroscopy experiment to obtain a frequency sweep of the qubit's e-f transition.
 
     # section: overview
         The circuits produced by spectroscopy, i.e.

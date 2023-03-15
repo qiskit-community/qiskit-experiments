@@ -34,7 +34,7 @@ class RBUtils:
         Returns:
             float: coherence limited error per gate.
         Raises:
-            ValueError: if there are invalid inputs
+            ValueError: If there are invalid inputs
         """
         # pylint: disable = invalid-name
 

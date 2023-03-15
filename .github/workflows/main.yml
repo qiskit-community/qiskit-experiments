@@ -1,9 +1,11 @@
 name: Tests
 on:
   push:
-    branches: [ main, 'stable/*' ]
+    branches: [ 'stable/*' ]
   pull_request:
     branches: [ main, 'stable/*' ]
+  merge_group:
+    branches: [ main ]
 concurrency:
   group: ${{ github.repository }}-${{ github.ref }}-${{ github.head_ref }}
   cancel-in-progress: true
@@ -95,7 +97,7 @@ jobs:
           python -m pip install -U tox
           sudo apt-get install -y pandoc graphviz
       - name: Build Docs
-        run: tox -edocs
+        run: tox -edocs-parallel -- -W
       - name: Compress Artifacts
         run: |
           mkdir artifacts

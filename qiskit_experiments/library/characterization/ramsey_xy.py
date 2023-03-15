@@ -27,7 +27,7 @@ from qiskit_experiments.warnings import qubit_deprecate
 
 
 class RamseyXY(BaseExperiment, RestlessMixin):
-    r"""Ramsey XY experiment to measure the frequency of a qubit.
+    r"""A sign-sensitive experiment to measure the frequency of a qubit.
 
     # section: overview
 
@@ -82,7 +82,7 @@ class RamseyXY(BaseExperiment, RestlessMixin):
         circuit above it appears as the delay-dependent angle θ(τ).
 
     # section: analysis_ref
-        :py:class:`RamseyXYAnalysis`
+        :class:`RamseyXYAnalysis`
     """
 
     @classmethod

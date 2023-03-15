@@ -31,7 +31,7 @@ class RoughFrequencyCal(BaseCalibrationExperiment, QubitSpectroscopy):
     """A calibration experiment that runs QubitSpectroscopy.
 
     # section: see_also
-        qiskit_experiments.library.characterization.qubit_spectroscopy.QubitSpectroscopy
+        :class:`.QubitSpectroscopy`
     """
 
     @qubit_deprecate()
@@ -58,7 +58,7 @@ class RoughFrequencyCal(BaseCalibrationExperiment, QubitSpectroscopy):
                 qubit frequency in the backend.
 
         Raises:
-            QiskitError: if there are less than three frequency shifts.
+            QiskitError: If there are less than three frequency shifts.
 
         """
         super().__init__(
@@ -80,7 +80,7 @@ class RoughEFFrequencyCal(BaseCalibrationExperiment, EFSpectroscopy):
     """A calibration experiment that runs QubitSpectroscopy.
 
     # section: see_also
-        qiskit_experiments.library.characterization.ef_spectroscopy.EFSpectroscopy
+        :class:`.EFSpectroscopy`
     """
 
     __updater__ = Frequency
@@ -107,7 +107,7 @@ class RoughEFFrequencyCal(BaseCalibrationExperiment, EFSpectroscopy):
                 qubit frequency in the backend.
 
         Raises:
-            QiskitError: if there are less than three frequency shifts.
+            QiskitError: If there are less than three frequency shifts.
 
         """
         super().__init__(
