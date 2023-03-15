@@ -117,6 +117,9 @@ def _generate_options_documentation(
 
     mro_classes = inspect.getmro(current_class)
     for i, mro_cls in enumerate(mro_classes):
+        if method_name not in mro_cls.__dict__:
+            # Do not directly get method docs from parent class.
+            continue
         default_opts_clsmethod = getattr(mro_cls, method_name, None)
         if not default_opts_clsmethod:
             continue
