@@ -51,9 +51,10 @@ class MultiStateDiscriminationAnalysis(BaseAnalysis):
 
         Analysis Options:
             plot (bool): Set ``True`` to create figure for fit result.
+            plotter (BasePlotter): A plotter instance to visualize the analysis result.
             ax(AxesSubplot): Optional. A matplotlib axis object in which to draw.
             discriminator: The discriminator to classify the data. The default is a quadratic
-            discriminant analysis.
+                discriminant analysis.
         """
         options = super()._default_options()
         options.plotter = IQPlotter(MplDrawer())

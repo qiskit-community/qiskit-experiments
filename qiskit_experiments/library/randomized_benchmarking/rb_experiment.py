@@ -138,6 +138,9 @@ class StandardRB(BaseExperiment, RestlessMixin):
                 used to initialize ``numpy.random.default_rng`` when generating circuits.
                 The ``default_rng`` will be initialized with this seed value everytime
                 :meth:`circuits` is called.
+            full_sampling (bool): If True all Cliffords are independently sampled for
+                all lengths. If False for sample of lengths longer sequences are constructed
+                by appending additional Clifford samples to shorter sequences.
         """
         options = super()._default_experiment_options()
         options.update_options(

@@ -87,7 +87,12 @@ class BaseAnalysis(ABC, StoreInitArgs):
 
     @classmethod
     def _default_options(cls) -> Options:
-        """Default analysis options common to all analyzes."""
+        """Default analysis options common to all analyzes.
+
+        Analysis Options:
+            figure_names (str or List[str]): Identifier of figures that appear in the
+                experiment data to sort figures by name.
+        """
         options = Options()
         # figure names can be set for each analysis by calling
         # experiment_obj.analysis.set_options(figure_names=FIGURE_NAMES)

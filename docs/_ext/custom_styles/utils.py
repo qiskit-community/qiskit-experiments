@@ -15,7 +15,7 @@ A collection of utilities to generate documentation.
 
 import inspect
 import re
-from typing import List, Tuple, Dict, Any, Callable
+from typing import List, Set, Tuple, Dict, Any, Callable, Type
 
 from sphinx.config import Config as SphinxConfig
 from sphinx.ext.napoleon.docstring import GoogleDocstring
@@ -42,9 +42,9 @@ def _trim_empty_lines(docstring_lines: List[str]) -> List[str]:
 def _parse_option_field(
     docstring: str,
     config: SphinxConfig,
-    target_args: List[str],
+    target_args: Set[str],
     indent: str = "",
-) -> Tuple[List[str], List[str]]:
+) -> Tuple[List[str], Set[str]]:
     """A helper function to extract descriptions of target arguments."""
 
     # use GoogleDocstring parameter parser
@@ -70,64 +70,56 @@ def _parse_option_field(
             target_params_description.append(line)
 
     # find missing parameters
-    missing = set(target_args) - described_params
+    missing = target_args - described_params
 
-    return target_params_description, list(missing)
+    return target_params_description, missing
 
 
 def _generate_options_documentation(
-    current_class: object,
+    current_class: Type,
     method_name: str,
     target_args: List[str] = None,
     config: SphinxConfig = None,
     indent: str = "",
-    recursive: bool = True,
 ) -> List[str]:
     """Automatically generate documentation from the default options method."""
-
-    if current_class == object:
-        # check if no more base class
-        raise Exception(f"Option docstring for {', '.join(target_args)} is missing.")
-
     options_docstring_lines = []
 
-    default_opts = getattr(current_class, method_name, None)
-    if not default_opts:
-        # getter option is not defined
-        return []
-
     if not target_args:
-        target_args = list(default_opts().__dict__.keys())
+        default_opts_clsmethod = getattr(current_class, method_name, None)
+        if not default_opts_clsmethod:
+            # getter option is not defined
+            return []
+        target_args = set(default_opts_clsmethod().__dict__.keys())
 
-    # parse default options method
-    parsed_lines, target_args = _parse_option_field(
-        docstring=default_opts.__doc__ or "",
-        config=config,
-        target_args=target_args,
-        indent=indent,
-    )
-
-    if target_args:
-        parent_class = inspect.getmro(current_class)[1]
-        if recursive:
-            # parse parent class method docstring if some arg documentation is missing
-            parent_parsed_lines = _generate_options_documentation(
-                current_class=parent_class,
-                method_name=method_name,
-                target_args=target_args,
-                config=config,
-                indent=indent,
+    mro_classes = inspect.getmro(current_class)
+    for i, mro_cls in enumerate(mro_classes):
+        default_opts_clsmethod = getattr(mro_cls, method_name, None)
+        if not default_opts_clsmethod:
+            continue
+        parsed_lines, target_args = _parse_option_field(
+            docstring=default_opts_clsmethod.__doc__ or "",
+            config=config,
+            target_args=target_args,
+            indent=indent,
+        )
+        if parsed_lines:
+            if i == 0:
+                description = "defined in the current class"
+            else:
+                description = "inherited from the parent class"
+            options_docstring_lines.extend(
+                [
+                    f"(Options {description} :class:`.{mro_cls.__name__}`)",
+                    "",
+                ]
             )
-            options_docstring_lines.extend(parent_parsed_lines)
             options_docstring_lines.extend(parsed_lines)
-        else:
-            options_docstring_lines.extend(parsed_lines)
-            clsname = parent_class.__name__
-            out = [
-                "",
-                f"See :class:`.{clsname}` for all available options.",
-            ]
-            options_docstring_lines.extend(out)
+        if not target_args:
+            break
+    else:
+        # Investigated all parent classes but all args are not described.
+        raise Exception(f"Option docstring for {', '.join(target_args)} is missing.")
 
     if options_docstring_lines:
         return _trim_empty_lines(options_docstring_lines)
@@ -189,7 +181,7 @@ def _format_default_options(defaults: Dict[str, Any], indent: str = "") -> List[
     ]
 
     if not defaults:
-        docstring_lines.append(indent + "No default options are set.")
+        docstring_lines.append(indent + "No default  options are set.")
     else:
         docstring_lines.append(indent + "The following values are set by default.")
         docstring_lines.append("")

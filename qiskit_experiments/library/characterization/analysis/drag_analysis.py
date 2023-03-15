@@ -80,8 +80,10 @@ class DragCalAnalysis(curve.CurveAnalysis):
     def _default_options(cls):
         """Return the default analysis options.
 
-        See :meth:`~qiskit_experiment.curve_analysis.CurveAnalysis._default_options` for
-        descriptions of analysis options.
+        Analysis Options:
+            reps (List[int]): The number of times the Rp - Rm gate sequence is repeated in
+                each series. This option must be provided from the experiment class to
+                build fit models.
         """
         default_options = super()._default_options()
         default_options.plotter.set_figure_options(

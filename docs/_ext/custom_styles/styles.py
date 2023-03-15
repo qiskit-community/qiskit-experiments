@@ -196,53 +196,56 @@ class ExperimentDocstring(QiskitExperimentDocstring):
             method_name="_default_experiment_options",
             config=exp_docs_config,
             indent=self._indent,
-            recursive=False,
         )
         if exp_option:
-            exp_option_desc.extend(exp_option)
-            exp_option_desc.append("")
             exp_option_desc.extend(
                 _format_default_options(
                     defaults=self._target_cls._default_experiment_options().__dict__,
                     indent=self._indent,
                 )
             )
+            exp_option_desc.extend(exp_option)
         else:
             exp_option_desc.append("No experiment option available for this experiment.")
 
         sectioned_docstring["experiment_opts"] = exp_option_desc
 
         # add transpiler option
-        transpiler_option_desc = [
-            "This option is used for circuit optimization. ",
-            "See the documentation of :func:`qiskit.transpile <qiskit.compiler.transpile>` "
-            "for available options.",
-            "",
-        ]
+        transpiler_option_desc = []
         transpiler_option_desc.extend(
             _format_default_options(
                 defaults=self._target_cls._default_transpile_options().__dict__,
                 indent=self._indent,
             )
         )
-
+        transpiler_option_desc.extend(
+            [
+                "This option is used for circuit optimization. ",
+                "See the documentation of :func:`qiskit.transpile <qiskit.compiler.transpile>` "
+                "for available options.",
+                "",
+            ]
+        )
         sectioned_docstring["transpiler_opts"] = transpiler_option_desc
 
         # add run option
-        run_option_desc = [
-            "This option is used for controlling job execution condition. "
-            "Note that this option is provider dependent. "
-            "See provider's backend runner API for available options. "
-            "See the documentation of "
-            ":meth:`IBMQBackend.run <qiskit.providers.ibmq.IBMQBackend.run>` "
-            "for the IBM Quantum Service.",
-            "",
-        ]
+        run_option_desc = []
         run_option_desc.extend(
             _format_default_options(
                 defaults=self._target_cls._default_run_options().__dict__,
                 indent=self._indent,
             )
+        )
+        run_option_desc.extend(
+            [
+                "This option is used for controlling job execution condition. "
+                "Note that this option is provider dependent. "
+                "See provider's backend runner API for available options. "
+                "See the documentation of "
+                ":meth:`IBMQBackend.run <qiskit.providers.ibmq.IBMQBackend.run>` "
+                "for the IBM Quantum Service.",
+                "",
+            ]
         )
         sectioned_docstring["run_opts"] = run_option_desc
 
@@ -299,17 +302,15 @@ class AnalysisDocstring(QiskitExperimentDocstring):
             method_name="_default_options",
             config=analysis_docs_config,
             indent=self._indent,
-            recursive=False,
         )
         if analysis_option:
-            option_desc.extend(analysis_option)
-            option_desc.append("")
             option_desc.extend(
                 _format_default_options(
                     defaults=self._target_cls._default_options().__dict__,
                     indent=self._indent,
                 )
             )
+            option_desc.extend(analysis_option)
         else:
             option_desc.append("No option available for this analysis.")
 

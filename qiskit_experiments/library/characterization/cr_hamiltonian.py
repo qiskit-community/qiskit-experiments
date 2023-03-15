@@ -198,6 +198,7 @@ class CrossResonanceHamiltonian(BaseExperiment):
         """Default experiment options.
 
         Experiment Options:
+            flat_top_widths (np.ndarray): Deprecated. Length of Gaussian flat top to scan.
             durations (np.ndarray): The total duration of the cross resonance pulse(s) to scan,
                 in units of sec. Values should be longer than pulse ramps.
             min_durations (int): The minimum default pulse duration in samples.
