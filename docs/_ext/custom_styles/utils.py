@@ -119,7 +119,10 @@ def _generate_options_documentation(
             break
     else:
         # Investigated all parent classes but all args are not described.
-        raise Exception(f"Option docstring for {', '.join(target_args)} is missing.")
+        raise Exception(
+            f"Option documentation for {', '.join(target_args)} is missing "
+            f"for the class {mro_classes[0].__name__}."
+        )
 
     if options_docstring_lines:
         return _trim_empty_lines(options_docstring_lines)
