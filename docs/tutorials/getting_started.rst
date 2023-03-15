@@ -203,6 +203,8 @@ The actual backend jobs that were executed for the experiment can be accessed wi
     See the how-tos for :doc:`instantiating a new ExperimentData object </howtos/new_experimentdata>`
     from an existing experiment that finished execution.
 
+.. _guide_setting_options:
+
 Setting experiment options
 ==========================
 

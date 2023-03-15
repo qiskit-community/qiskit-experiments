@@ -87,7 +87,7 @@ class BaseAnalysis(ABC, StoreInitArgs):
 
     @classmethod
     def _default_options(cls) -> Options:
-        """Default analysis options common to all analyzes.
+        """Default analysis options common to all analyses.
 
         Analysis Options:
             figure_names (str or List[str]): Identifier of figures that appear in the
