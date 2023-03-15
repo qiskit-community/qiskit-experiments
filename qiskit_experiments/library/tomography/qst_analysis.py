@@ -68,8 +68,7 @@ class StateTomographyAnalysis(TomographyAnalysis):
         """Default analysis options
 
         Analysis Options:
-            measurement_basis
-                (:class:`~qiskit_experiments.library.tomography.basis.MeasurementBasis`):
+            measurement_basis (:class:`~qiskit_experiments.library.tomography.basis.MeasurementBasis`):
                 The measurement
                 :class:`~qiskit_experiments.library.tomography.basis.MeasurementBasis`
                 to use for tomographic state reconstruction.
@@ -89,9 +88,10 @@ class StateTomographyAnalysis(TomographyAnalysis):
             measurement_qubits (Sequence[int]): Optional, the physical qubits with tomographic
                 measurements. If not specified will be set to ``[0, ..., N-1]`` for N-qubit
                 tomographic measurements.
-            target (Union[str, :class:`~qiskit.quantum_info.DensityMatrix`,
-                :class:`~qiskit.quantum_info.Statevector`]): Optional, et a custom target
-                quantum state for computing the :func:~qiskit.quantum_info.state_fidelity`
+            target (str or :class:`~qiskit.quantum_info.DensityMatrix`
+                or :class:`~qiskit.quantum_info.Statevector`): Optional,
+                set a custom target quantum state for computing the
+                :func:`~qiskit.quantum_info.state_fidelity`
                 of the fitted state against (Default: None).
             conditional_circuit_clbits (list[int]): Optional, the clbit indices in the
                 source circuit to be conditioned on when reconstructing the state.

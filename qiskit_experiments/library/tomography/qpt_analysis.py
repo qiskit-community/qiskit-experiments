@@ -69,13 +69,11 @@ class ProcessTomographyAnalysis(TomographyAnalysis):
         """Default analysis options
 
         Analysis Options:
-            measurement_basis
-                (:class:`~qiskit_experiments.library.tomography.basis.MeasurementBasis`):
+            measurement_basis (:class:`~qiskit_experiments.library.tomography.basis.MeasurementBasis`):
                 The measurement
                 :class:`~qiskit_experiments.library.tomography.basis.MeasurementBasis`
                 to use for tomographic process reconstruction.
-            preparation_basis
-                (:class:`~qiskit_experiments.library.tomography.basis.PreparationBasis`):
+            preparation_basis (:class:`~qiskit_experiments.library.tomography.basis.PreparationBasis`):
                 The preparation
                 :class:`~qiskit_experiments.library.tomography.basis.PreparationBasis`
                 to use for tomographic process reconstruction.
@@ -100,9 +98,10 @@ class ProcessTomographyAnalysis(TomographyAnalysis):
                 This can  be a string to select one of the built-in fitters, or a callable to
                 supply a custom fitter function. See the `Fitter Functions` section for
                 additional information.
-            target (Union[str, :class:`~qiskit.quantum_info.operators.channel.quantum_channel`,
-                :class:`~qiskit.quantum_info.Operator`]): Optional, Set a custom target quantum
-                channel for computing the :func:~qiskit.quantum_info.process_fidelity` of the
+            target (str or
+                :class:`~qiskit.quantum_info.operators.channel.quantum_channel.QuantumChannel`
+                or :class:`~qiskit.quantum_info.Operator`): Optional, Set a custom target quantum
+                channel for computing the :func:`~qiskit.quantum_info.process_fidelity` of the
                 fitted process against (Default: None).
             conditional_circuit_clbits (list[int]): Optional, the clbit indices in the
                 source circuit to be conditioned on when reconstructing the channel.
@@ -114,7 +113,7 @@ class ProcessTomographyAnalysis(TomographyAnalysis):
                 measurement qubits to used for conditional state reconstruction. Enabling
                 this will return a list of reconstrated channel components conditioned on
                 the remaining tomographic bases conditional on the basis index, and outcome
-                value for these measurements. The conditionl measurement basis index and
+                value for these measurements. The conditional measurement basis index and
                 integer value of the measurement outcome is stored in state analysis result
                 extra fields `"conditional_measurement_index"` and
                 `"conditional_measurement_outcome"` respectively.
@@ -122,7 +121,7 @@ class ProcessTomographyAnalysis(TomographyAnalysis):
                 preparation qubits to used for conditional state reconstruction. Enabling
                 this will return a list of reconstrated channel components conditioned on
                 the remaining tomographic bases conditional on the basis index. The
-                conditionl preparation basis index is stored in state analysis result
+                conditional preparation basis index is stored in state analysis result
                 extra fields `"conditional_preparation_index"`.
         """
         options = super()._default_options()

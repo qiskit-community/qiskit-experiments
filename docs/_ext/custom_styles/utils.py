@@ -46,33 +46,56 @@ def _parse_option_field(
     indent: str = "",
 ) -> Tuple[List[str], Set[str]]:
     """A helper function to extract descriptions of target arguments."""
+    # Convert str into list of reST lines.
+    rest_doc = prepare_docstring(docstring, tabsize=len(indent))
 
-    # use GoogleDocstring parameter parser
-    experiment_option_parser = GoogleDocstring(
-        docstring=prepare_docstring(docstring, tabsize=len(indent)), config=config
-    )
-    parsed_lines = experiment_option_parser.lines()
+    # Extra formatting to remove line feed and non-target documentation.
+    line_ind = 0
+    while line_ind < len(rest_doc):
+        if "Options:" in rest_doc[line_ind]:
+            break
+        line_ind += 1
+    else:
+        return [], target_args
+    line0 = rest_doc[line_ind + 1]
+    section_indent = len(line0) - len(line0.lstrip())
 
-    # remove redundant descriptions
-    param_regex = re.compile(r":(param|type) (?P<pname>\S+):")
-    target_params_description = []
+    to_parse = []
     described_params = set()
-    valid_line = False
-    for line in parsed_lines:
-        is_item = re.match(param_regex, line)
-        if is_item:
-            if is_item["pname"] in target_args:
-                valid_line = True
-                described_params.add(is_item["pname"])
-            else:
-                valid_line = False
-        if valid_line:
-            target_params_description.append(line)
-
+    tmp = ""
+    for line in rest_doc[line_ind + 1:]:
+        if line[section_indent:].startswith(indent):
+            # Remove line-feed for safety.
+            # GoogleDocstring parser doesn't support line break during type annotation.
+            #
+            # e.g.
+            #     param1 (some_very_long_type1 or some_very_long_type2
+            #         some_very_long_type2): here is documentation.
+            #
+            # Parsing above documentation always fails, and type is not recognized.
+            tmp += " " + line.lstrip()
+        else:
+            if tmp:
+                argname = tmp.split(maxsplit=1)[0]
+                if argname in target_args:
+                    # Add only description for target option. Otherwise, just ignore.
+                    described_params.add(argname)
+                    to_parse.append(tmp)
+            tmp = line
     # find missing parameters
     missing = target_args - described_params
 
-    return target_params_description, missing
+    if not to_parse:
+        return [],  missing
+
+    # readd section header, e.g. XXX Options:
+    to_parse.insert(0, rest_doc[line_ind])
+
+    # use GoogleDocstring parameter parser
+    experiment_option_parser = GoogleDocstring(docstring=to_parse, config=config)
+    parsed_lines = experiment_option_parser.lines()
+
+    return parsed_lines, missing
 
 
 def _generate_options_documentation(
@@ -120,8 +143,9 @@ def _generate_options_documentation(
     else:
         # Investigated all parent classes but all args are not described.
         raise Exception(
-            f"Option documentation for {', '.join(target_args)} is missing "
-            f"for the class {mro_classes[0].__name__}."
+            f"Option documentation for {', '.join(target_args)} is missing or incomplete "
+            f"for the class {mro_classes[0].__name__}. "
+            "Use Google style docstring. PEP484 type annotations is not supported for options."
         )
 
     if options_docstring_lines:
