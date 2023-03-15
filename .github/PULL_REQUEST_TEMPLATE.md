@@ -1,18 +1,21 @@
-<!--
-⚠️ If you do not respect this template, your pull request will be closed.
-⚠️ Your pull request title should be short detailed and understandable for all.
-⚠️ Also, please add it in the CHANGELOG file under Unreleased section.
-⚠️ If your pull request fixes an open issue, please link to the issue.
-
-✅ I have added the tests to cover my changes.
-✅ I have updated the documentation accordingly.
-✅ I have read the CONTRIBUTING document.
--->
-
 ### Summary
 
-
+Please describe what this PR changes as concisely as possible. Link to the issue(s) 
+that this addresses, if any.
 
 ### Details and comments
 
+Some details that should be in this section include:
 
+- Why this change was necessary
+- What alternative approaches were considered and why the current approach was chosen
+- What tests and documentation have been added/updated
+- What do users and developers need to know about this change
+
+### PR checklist (delete when all critera are met)
+
+- [ ] I have read the contributing guide `CONTRIBUTING.md`.
+- [ ] I have added the tests to cover my changes.
+- [ ] I have updated the documentation accordingly.
+- [ ] I have added a release note file using `reno` if this change needs to be 
+      documented in the release notes.
