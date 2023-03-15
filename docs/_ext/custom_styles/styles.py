@@ -223,7 +223,6 @@ class ExperimentDocstring(QiskitExperimentDocstring):
                 "This option is used for circuit optimization. ",
                 "See the documentation of :func:`qiskit.transpile <qiskit.compiler.transpile>` "
                 "for available options.",
-                "",
             ]
         )
         sectioned_docstring["transpiler_opts"] = transpiler_option_desc
@@ -244,7 +243,6 @@ class ExperimentDocstring(QiskitExperimentDocstring):
                 "See the documentation of "
                 ":meth:`IBMQBackend.run <qiskit.providers.ibmq.IBMQBackend.run>` "
                 "for the IBM Quantum Service.",
-                "",
             ]
         )
         sectioned_docstring["run_opts"] = run_option_desc
@@ -366,7 +364,6 @@ class VisualizationDocstring(QiskitExperimentDocstring):
         )
         if option:
             option_desc.extend(option)
-            option_desc.append("")
             option_desc.extend(
                 _format_default_options(
                     defaults=self._target_cls._default_options().__dict__,
@@ -385,7 +382,6 @@ class VisualizationDocstring(QiskitExperimentDocstring):
         )
         if figure_option:
             figure_option_desc.extend(figure_option)
-            figure_option_desc.append("")
             figure_option_desc.extend(
                 _format_default_options(
                     defaults=self._target_cls._default_figure_options().__dict__,

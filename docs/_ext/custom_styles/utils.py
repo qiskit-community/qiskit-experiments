@@ -201,6 +201,8 @@ def _format_default_options(defaults: Dict[str, Any], indent: str = "") -> List[
             else:
                 value_repr = repr(value)
             docstring_lines.append(indent * 2 + f"{par:<25} := {value_repr}")
+    docstring_lines.insert(0, "")
+    docstring_lines.append("")
 
     return docstring_lines
 
