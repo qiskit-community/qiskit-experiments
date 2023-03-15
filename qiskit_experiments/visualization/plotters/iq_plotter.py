@@ -26,13 +26,13 @@ from .base_plotter import BasePlotter
 class IQPlotter(BasePlotter):
     """A plotter class to plot IQ data.
 
-    :class:`IQPlotter` plots results from experiments which used measurement-level 1,
+    :class:`.IQPlotter` plots results from experiments which used measurement-level 1,
     i.e. IQ data. This class also supports plotting predictions from a discriminator
-    (subclass of :class:`BaseDiscriminator`), which is used to classify IQ results into
+    (subclass of :class:`.BaseDiscriminator`), which is used to classify IQ results into
     labels. The discriminator labels are matched with the series names to generate an
     image of the predictions. Points that are misclassified by the discriminator are
     flagged in the figure (see ``flag_misclassified`` :attr:`option`). A canonical
-    application of :class:`IQPlotter` is for classification of single-qubit readout for
+    application of :class:`.IQPlotter` is for classification of single-qubit readout for
     different prepared states.
 
     Example:
@@ -97,7 +97,7 @@ class IQPlotter(BasePlotter):
                 outcome. The predictions are assumed to be series names (``Union[str,
                 int, float]``). The generated image allows viewers to see how well the
                 discriminator classifies the provided series data. Must be a subclass of
-                :class:`BaseDiscriminator`. See :attr:`options` for ways to control the
+                :class:`.BaseDiscriminator`. See :attr:`options` for ways to control the
                 generation of the discriminator prediction image.
             fidelity: A float representing the fidelity of the discrimination.
         """

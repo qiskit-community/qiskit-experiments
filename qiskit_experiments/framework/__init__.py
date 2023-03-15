@@ -17,20 +17,15 @@ Experiment Framework (:mod:`qiskit_experiments.framework`)
 
 .. currentmodule:: qiskit_experiments.framework
 
-.. note::
-
-    This page provides useful information for developers to implement new
-    experiments.
-
 Overview
 ========
 
-The experiment framework broadly defines an experiment as the execution of 1 or more
+The experiment framework broadly defines an experiment as the execution of one or more
 circuits on a device, and analysis of the resulting measurement data
-to return 1 or more derived results.
+to return one or more derived results.
 
 The interface for running an experiment is through the *Experiment* classes,
-such as those contained in the :mod:`qiskit_experiments.library`
+such as those contained in the :mod:`~qiskit_experiments.library`.
 The following pseudo-code illustrates the typical workflow in Qiskit Experiments
 for
 
@@ -45,7 +40,7 @@ for
     from qiskit_experiments.library import SomeExperiment
 
     # Initialize with desired qubits and options
-    exp = SomeExperiment(qubits, **options)
+    exp = SomeExperiment(physical_qubits, **options)
 
     # Run on a backend
     exp_data = exp.run(backend)
@@ -78,134 +73,12 @@ and :meth:`ExperimentData.data` methods respectively. Additional metadata
 for the experiment itself can be added via :meth:`ExperimentData.metadata`.
 
 
-Analysis/plotting is done in a separate child thread, so it doesn't block the
-main thread. Since matplotlib doesn't support GUI mode in a child threads, the
-figures generated during analysis need to use a non-GUI canvas. The default is
-:class:`~matplotlib.backends.backend_svg.FigureCanvasSVG`, but you can change it to a different
-`non-interactive backend
-<https://matplotlib.org/stable/tutorials/introductory/usage.html#the-builtin-backends>`_
-by setting the ``qiskit_experiments.framework.matplotlib.default_figure_canvas``
-attribute. For example, you can set ``default_figure_canvas`` to
-:class:`~matplotlib.backends.backend_agg.FigureCanvasAgg` to use the
-``AGG`` backend.
-
-For experiments run through a compatible provider such as the
-`IBMQ provider <https://github.com/Qiskit/qiskit-ibmq-provider>`_
-the :class:`ExperimentData` object can be saved to an online experiment
-database by calling the :meth:`ExperimentData.save` method. This data can
-later be retrieved by its unique :attr:`~ExperimentData.experiment_id`* string
-using :meth:`ExperimentData.load`.
-
-
-Composite Experiments
-=====================
-
-The experiment classes :class:`ParallelExperiment` and :class:`BatchExperiment`
-provide a way of combining separate component experiments for execution as a
-single composite experiment.
-
-- A :class:`ParallelExperiment` combines all the sub experiment circuits
-  into circuits which run the component gates in parallel on the
-  respective qubits. The marginalization of measurement data for analysis
-  of each sub-experiment is handled automatically. To run as a parallel
-  experiment each sub experiment must be defined on a independent subset
-  of device qubits.
-
-- A :class:`BatchExperiment` combines the sub-experiment circuits into a
-  single large job that runs all the circuits for each experiment in series.
-  Filtering the batch result data for analysis for each sub-experiment is
-  handled automatically.
-
-
-Creating Custom Experiments
-===========================
-
-Qiskit experiments provides a framework for creating custom experiments which
-can be through Qiskit and stored in the online database when run through the IBMQ
-provider. You may use this framework to release your own module of experiments
-subject to the requirements of the Apache 2.0 license.
-
-Creating a custom experiment is done by subclassing the
-:class:`BaseExperiment` and :class:`BaseAnalysis` classes.
-
-- The *experiment* class generates the list of circuits to be executed on the
-  backend and any corresponding metadata that is required for the analysis
-  of measurement results.
-
-- The *analysis* class performs post-processing of the measurement results
-  after execution. Analysis classes can be re-used between experiments so
-  you can either use one of the included analysis classes if appropriate or
-  implement your own.
-
-Experiment Subclasses
-*********************
-
-To create an experiment subclass
-
-- Implement the abstract :meth:`BaseExperiment.circuits` method.
-  This should return a list of ``QuantumCircuit`` objects defining
-  the experiment payload.
-
-- Call the :meth:`BaseExperiment.__init__` method during the subclass
-  constructor with a list of physical qubits. The length of this list must
-  be equal to the number of qubits in each circuit and is used to map these
-  circuits to this layout during execution.
-  Arguments in the constructor can be overridden so that a subclass can
-  be initialized with some experiment configuration.
-
-Optionally the following methods can also be overridden in the subclass to
-allow configuring various experiment and execution options
-
-- :meth:`BaseExperiment._default_experiment_options`
-  to set default values for configurable option parameters for the experiment.
-
-- :meth:`BaseExperiment._default_transpile_options`
-  to set custom default values for the ``qiskit.transpile`` used to
-  transpile the generated circuits before execution.
-
-- :meth:`BaseExperiment._default_run_options`
-  to set default backend options for running the transpiled circuits on a backend.
-
-- :meth:`BaseExperiment._default_analysis_options`
-  to set default values for configurable options for the experiments analysis class.
-  Note that these should generally be set by overriding the :class:`BaseAnalysis`
-  method :meth:`BaseAnalysis._default_options` instead of this method except in the
-  case where the experiment requires different defaults to the used analysis class.
-
-- :meth:`BaseExperiment._transpiled_circuits`
-  to override the default transpilation of circuits before execution.
-
-- :meth:`BaseExperiment._metadata`
-  to add any experiment metadata to the result data.
-
-Furthermore, some characterization and calibration experiments can be run with restless
-measurements, i.e. measurements where the qubits are not reset and circuits are executed
-immediately after the previous measurement. Here, the :class:`.RestlessMixin` can help
-to set the appropriate run options and data processing chain.
-
-Analysis Subclasses
-*******************
-
-To create an analysis subclass one only needs to implement the abstract
-:meth:`BaseAnalysis._run_analysis` method. This method takes a
-:class:`ExperimentData` container and kwarg analysis options. If any
-kwargs are used the :meth:`BaseAnalysis._default_options` method should be
-overriden to define default values for these options.
-
-The :meth:`BaseAnalysis._run_analysis` method should return a pair
-``(results, figures)`` where ``results`` is a list of
-:class:`AnalysisResultData` and ``figures`` is a list of
-:class:`matplotlib.figure.Figure`.
-
-The :mod:`qiskit_experiments.data_processing` module contains classes for
-building data processor workflows to help with advanced analysis of
-experiment data.
-
 Classes
 =======
 
 Experiment Data Classes
 ***********************
+
 .. autosummary::
     :toctree: ../stubs/
 
@@ -224,6 +97,7 @@ Experiment Data Classes
 
 Composite Experiment Classes
 ****************************
+
 .. autosummary::
     :toctree: ../stubs/
 
@@ -241,7 +115,7 @@ Base Classes
     BaseAnalysis
 
 Experiment Configuration Helper Classes
-*******
+***************************************
 
 .. autosummary::
     :toctree: ../stubs/
@@ -250,7 +124,6 @@ Experiment Configuration Helper Classes
     BackendTiming
     RestlessMixin
 
-.. _create-experiment:
 """
 from qiskit.providers.options import Options
 from qiskit_experiments.framework.backend_data import BackendData

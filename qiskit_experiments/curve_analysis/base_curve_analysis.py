@@ -158,7 +158,7 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
             return_data_points (bool): Set ``True`` to include in the analysis result
                 the formatted data points given to the fitter. Default to ``False``.
             data_processor (Callable): A callback function to format experiment data.
-                This can be a :class:`~qiskit_experiments.data_processing.DataProcessor`
+                This can be a :class:`.DataProcessor`
                 instance that defines the `self.__call__` method.
             normalization (bool) : Set ``True`` to normalize y values within range [-1, 1].
                 Default to ``False``.

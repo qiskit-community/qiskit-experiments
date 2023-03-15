@@ -19,6 +19,7 @@ from collections import defaultdict
 import warnings
 import numpy as np
 import scipy.linalg as la
+from uncertainties import ufloat
 
 from qiskit.quantum_info import DensityMatrix, Choi, Operator
 from qiskit.quantum_info.operators.base_operator import BaseOperator
@@ -91,6 +92,14 @@ class TomographyAnalysis(BaseAnalysis):
                 tomographic preparations.
             target (Any): Optional, target object for fidelity comparison of the fit
                 (Default: None).
+            target_bootstrap_samples (int): Optional, number of outcome re-samples to draw
+                from measurement data for each basis for computing a bootstrapped standard
+                error of fidelity with the target state. If 0 no bootstrapping will be
+                performed and the target fidelity will not include a standard error
+                (Default: 0).
+            target_bootstrap_seed (int | None | Generator): Optional, RNG seed or
+                Generator to use for bootstrapping data for boostrapped fidelity
+                standard error calculation (Default: None).
             conditional_circuit_clbits (list[int]): Optional, the clbit indices in the
                 source circuit to be conditioned on when reconstructing the state.
                 Enabling this will return a list of reconstrated state components
@@ -123,6 +132,8 @@ class TomographyAnalysis(BaseAnalysis):
         options.measurement_qubits = None
         options.preparation_qubits = None
         options.target = None
+        options.target_bootstrap_samples = 0
+        options.target_bootstrap_seed = None
         options.conditional_circuit_clbits = None
         options.conditional_measurement_indices = None
         options.conditional_preparation_indices = None
@@ -199,14 +210,68 @@ class TomographyAnalysis(BaseAnalysis):
         if cond_prep_indices:
             fitter_kwargs["conditional_preparation_indices"] = cond_prep_indices
         fitter_kwargs.update(**self.options.fitter_options)
-
         fitter = self._get_fitter(self.options.fitter)
-        try:
-            fits, fitter_metadata = fitter(
+
+        # Fit state results
+        state_results = self._fit_state_results(
+            fitter,
+            outcome_data,
+            shot_data,
+            meas_data,
+            prep_data,
+            qpt=qpt,
+            **fitter_kwargs,
+        )
+
+        other_results = []
+
+        # Compute fidelity with target
+        if len(state_results) == 1:
+            other_results += self._fidelity_result(
+                state_results[0],
+                fitter,
                 outcome_data,
                 shot_data,
                 meas_data,
                 prep_data,
+                qpt=qpt,
+                **fitter_kwargs,
+            )
+
+        # Check positive
+        other_results += self._positivity_result(state_results, qpt=qpt)
+
+        # Check trace preserving
+        if qpt:
+            output_dim = np.prod(state_results[0].value.output_dims())
+            other_results += self._tp_result(state_results, output_dim)
+
+        # Finally format state result metadata to remove eigenvectors
+        # which are no longer needed to reduce size
+        for state_result in state_results:
+            state_result.extra.pop("eigvecs")
+
+        analysis_results = state_results + other_results
+
+        return analysis_results, []
+
+    def _fit_state_results(
+        self,
+        fitter: Callable,
+        outcome_data: np.ndarray,
+        shot_data: np.ndarray,
+        measurement_data: np.ndarray,
+        preparation_data: np.ndarray,
+        qpt: Union[bool, str, None] = "auto",
+        **fitter_kwargs,
+    ):
+        """Fit state results from tomography data,"""
+        try:
+            fits, fitter_metadata = fitter(
+                outcome_data,
+                shot_data,
+                measurement_data,
+                preparation_data,
                 **fitter_kwargs,
             )
         except AnalysisError as ex:
@@ -226,36 +291,71 @@ class TomographyAnalysis(BaseAnalysis):
             AnalysisResultData("state", state, extra=extra)
             for state, extra in zip(states, states_metadata)
         ]
-        other_results = []
+        return state_results
 
-        # Compute fidelity with target
-        target_state = self.options.target
-        if len(state_results) == 1 and target_state is not None:
-            # Note: this currently only works for non-conditional tomography
-            if qpt:
-                input_dim = np.prod(states[0].input_dims())
-            else:
-                input_dim = 1
-            other_results.append(
-                self._fidelity_result(state_results[0], target_state, input_dim=input_dim)
+    def _fidelity_result(
+        self,
+        state_result: AnalysisResultData,
+        fitter: Callable,
+        outcome_data: np.ndarray,
+        shot_data: np.ndarray,
+        measurement_data: np.ndarray,
+        preparation_data: np.ndarray,
+        qpt: bool = False,
+        **fitter_kwargs,
+    ) -> List[AnalysisResultData]:
+        """Calculate fidelity result if a target has been set"""
+        target = self.options.target
+        if target is None:
+            return []
+
+        # Compute fidelity
+        name = "process_fidelity" if qpt else "state_fidelity"
+        fidelity = self._compute_fidelity(state_result, target, qpt=qpt)
+
+        if not self.options.target_bootstrap_samples:
+            # No bootstrapping
+            return [AnalysisResultData(name, fidelity)]
+
+        # Optionally, Estimate std error of fidelity via boostrapping
+        seed = self.options.target_bootstrap_seed
+        if isinstance(seed, np.random.Generator):
+            rng = seed
+        else:
+            rng = np.random.default_rng(seed)
+        prob_data = outcome_data / shot_data[None, :, None]
+        bs_fidelities = []
+        for _ in range(self.options.target_bootstrap_samples):
+            # Once python 3.7 support is dropped and minimum NumPy
+            # version can be set to 1.22 this can be replaced with
+            # `sampled_data = rng.multinomial(shot_data, probs)`
+            sampled_data = np.zeros_like(outcome_data)
+            for i in range(prob_data.shape[0]):
+                for j in range(prob_data.shape[1]):
+                    sampled_data[i, j] = rng.multinomial(shot_data[j], prob_data[i, j])
+
+            try:
+                state_results = self._fit_state_results(
+                    fitter,
+                    sampled_data,
+                    shot_data,
+                    measurement_data,
+                    preparation_data,
+                    qpt=qpt,
+                    **fitter_kwargs,
+                )
+                bs_fidelities.append(self._compute_fidelity(state_results[0], target, qpt=qpt))
+            except AnalysisError:
+                pass
+
+        bs_stderr = np.std(bs_fidelities)
+        return [
+            AnalysisResultData(
+                name,
+                ufloat(fidelity, bs_stderr),
+                extra={"bootstrap_samples": bs_fidelities},
             )
-
-        # Check positive
-        other_results += self._positivity_result(state_results, qpt=qpt)
-
-        # Check trace preserving
-        if qpt:
-            output_dim = np.prod(states[0].output_dims())
-            other_results += self._tp_result(state_results, output_dim)
-
-        # Finally format state result metadata to remove eigenvectors
-        # which are no longer needed to reduce size
-        for state_result in state_results:
-            state_result.extra.pop("eigvecs")
-
-        analysis_results = state_results + other_results
-
-        return analysis_results, []
+        ]
 
     @staticmethod
     def _positivity_result(
@@ -334,17 +434,20 @@ class TomographyAnalysis(BaseAnalysis):
         return results
 
     @staticmethod
-    def _fidelity_result(
+    def _compute_fidelity(
         state_result: AnalysisResultData,
         target: Union[Choi, DensityMatrix],
-        input_dim: int = 1,
+        qpt: bool = False,
     ) -> AnalysisResultData:
         """Faster computation of fidelity from eigen decomposition"""
+        if qpt:
+            input_dim = np.prod(state_result.value.input_dims())
+        else:
+            input_dim = 1
         evals = state_result.extra["eigvals"]
         evecs = state_result.extra["eigvecs"]
 
         # Format target to statevector or densitymatrix array
-        name = "process_fidelity" if input_dim > 1 else "state_fidelity"
         if target is None:
             raise AnalysisError("No target state provided")
         if isinstance(target, QuantumChannel):
@@ -362,4 +465,4 @@ class TomographyAnalysis(BaseAnalysis):
             sqrt_rho = evecs @ (np.sqrt(evals / input_dim) * evecs).T.conj()
             eig = la.eigvalsh(sqrt_rho @ target_state @ sqrt_rho)
             fidelity = np.sum(np.sqrt(np.maximum(eig, 0))) ** 2
-        return AnalysisResultData(name, fidelity)
+        return fidelity

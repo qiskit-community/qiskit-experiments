@@ -393,8 +393,8 @@ def _num_from_1q_gate(op: Instruction) -> int:
         An integer representing a Clifford consisting of a single operation.
 
     Raises:
-        QiskitError: if the input instruction is not a Clifford instruction.
-        QiskitError: if rz is given with a angle that is not Clifford.
+        QiskitError: If the input instruction is not a Clifford instruction.
+        QiskitError: If rz is given with a angle that is not Clifford.
     """
     if op.name in {"delay", "barrier"}:
         return 0
@@ -472,8 +472,8 @@ def _num_from_2q_gate(
         An integer representing a Clifford consisting of a single operation.
 
     Raises:
-        QiskitError: if the input instruction is not a Clifford instruction.
-        QiskitError: if rz is given with a angle that is not Clifford.
+        QiskitError: If the input instruction is not a Clifford instruction.
+        QiskitError: If rz is given with a angle that is not Clifford.
     """
     if op.name in {"delay", "barrier"}:
         return 0

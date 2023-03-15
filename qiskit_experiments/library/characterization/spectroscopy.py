@@ -84,7 +84,7 @@ class Spectroscopy(BaseExperiment, ABC):
             experiment_options: Key word arguments used to set the experiment options.
 
         Raises:
-            QiskitError: if there are less than three frequency shifts.
+            QiskitError: If there are less than three frequency shifts.
 
         """
         analysis = analysis or ResonanceAnalysis()

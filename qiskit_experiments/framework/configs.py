@@ -48,7 +48,7 @@ class ExperimentConfig:
             BaseExperiment: The experiment reconstructed from the config.
 
         Raises:
-            QiskitError: if the experiment class is not stored,
+            QiskitError: If the experiment class is not stored,
                          was not successful deserialized, or reconstruction
                          of the experiment fails.
         """
@@ -99,7 +99,7 @@ class AnalysisConfig:
             BaseAnalysis: The analysis reconstructed from the config.
 
         Raises:
-            QiskitError: if the analysis class is not stored,
+            QiskitError: If the analysis class is not stored,
                          was not successful deserialized, or reconstruction
                          of the analysis class fails.
         """

@@ -152,19 +152,19 @@ class DampedOscillationAnalysis(curve.CurveAnalysis):
 
         defpar \rm base:
             desc: Offset. Base line of the decay curve.
-            init_guess: Determined by :py:func:`~qiskit_experiments.curve_analysis.\
+            init_guess: Determined by :func:`~qiskit_experiments.curve_analysis.\
                 guess.constant_sinusoidal_offset`
             bounds: [0, 1.5]
 
         defpar \tau:
             desc: Represents the rate of decay.
-            init_guess: Determined by :py:func:`~qiskit_experiments.curve_analysis.\
+            init_guess: Determined by :func:`~qiskit_experiments.curve_analysis.\
                 guess.oscillation_exp_decay`
             bounds: [0, None]
 
         defpar \rm freq:
             desc: Oscillation frequency.
-            init_guess: Determined by :py:func:`~qiskit_experiments.curve_analysis.guess.frequency`
+            init_guess: Determined by :func:`~qiskit_experiments.curve_analysis.guess.frequency`
             bounds: [0, 10 freq]
 
         defpar \phi:
