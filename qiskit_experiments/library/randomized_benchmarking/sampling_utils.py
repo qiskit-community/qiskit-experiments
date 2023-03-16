@@ -96,8 +96,8 @@ class EdgeGrabSampler(MirrorRBSampler):
 
         Args:
             num_qubits: The number of qubits to generate layers for.
-            one_qubit_gate_set: The one qubit gate set to sample from. Can be either a list
-                of gates or "clifford".
+            one_qubit_gate_set: The one qubit gate set to sample from. Can be either a
+                list of gates or "clifford".
             two_qubit_gate_set: The two qubit gate set to sample from. Can be either a
                 list of gates or one of "cx", "cy", "cz", or "csx".
             two_qubit_gate_density: the expected fraction of two-qubit gates in the
@@ -107,12 +107,13 @@ class EdgeGrabSampler(MirrorRBSampler):
             seed: Seed for random generation.
 
         Raises:
-            Warning: If device has no connectivity or ``two_qubit_gate_density`` is too
-                high.
+            Warning: If the coupling map has no connectivity or
+                ``two_qubit_gate_density`` is too high.
             TypeError: If invalid gate set(s) are specified.
 
         Returns:
-            List of sampled QuantumCircuit layers with length ``length``.
+            ``length``-long list of :class:`qiskit.circuit.QuantumCircuit` layers over
+                ``num_qubits`` qubits.
 
         """
         rng = default_rng(seed=seed)

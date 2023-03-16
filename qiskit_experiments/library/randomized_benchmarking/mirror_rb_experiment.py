@@ -227,7 +227,6 @@ class MirrorRB(StandardRB):
                     length // 2,
                     seed=self.experiment_options.seed,
                 )
-
                 # Append inverses of Clifford elements to second half of circuit
                 for element in elements[::-1]:
                     elements.append(self._adjoint_clifford(element))
@@ -241,17 +240,7 @@ class MirrorRB(StandardRB):
                 if self.experiment_options.local_clifford:
                     elements = self._start_end_cliffords(elements)
 
-            # mirror_circuits = self._generate_mirror(elements, element_lengths)
-            # for circuit in mirror_circuits:
-            #     # Use "boolean arithmetic" to calculate xval correctly for each circuit
-            #     pauli_scale = self._pauli_randomize + 1
-            #     clifford_const = self._local_clifford * 2
-            #     circuit.metadata["xval"] = (
-            #         circuit.metadata["xval"] - self._pauli_randomize - clifford_const
-            #     ) // pauli_scale
-            #     circuit.metadata["mirror"] = True
-            # circuits += mirror_circuits
-            sequences.append(elements)
+                sequences.append(elements)
         return sequences
 
     def _adjoint_clifford(self, op: SequenceElementType) -> SequenceElementType:
@@ -272,14 +261,13 @@ class MirrorRB(StandardRB):
         """
         basis_gates = self._get_basis_gates()
         circuits = []
-        print(len(sequences))
-        for seq in sequences:
+        for i, seq in enumerate(sequences):
             circ = QuantumCircuit(self.num_qubits)
             for elem in seq:
                 # if isinstance(elem, Integral) or hasattr(elem, "to_instruction"):
                 #     circ.append(self._to_instruction(elem, basis_gates, 1), circ.qubits)
                 # else:
-                circ.append(elem, circ.qubits)
+                circ.append(elem.to_instruction(), circ.qubits)
                 circ.append(Barrier(self.num_qubits), circ.qubits)
 
             if self.experiment_options.inverting_pauli_layer:
@@ -294,7 +282,7 @@ class MirrorRB(StandardRB):
 
             circ.metadata = {
                 "experiment_type": self._type,
-                "xval": len(seq),
+                "xval": self.experiment_options.lengths[i % len(self.experiment_options.lengths)],
                 "group": "Clifford",
                 "physical_qubits": self.physical_qubits,
                 "target": self._clifford_utils.compute_target_bitstring(circ),
@@ -314,20 +302,6 @@ class MirrorRB(StandardRB):
         Returns:
             The new list of elements with the Paulis interleaved.
         """
-        # Generate random Pauli
-        # rand_pauli = random_pauli(
-        #     self._num_qubits, seed=self.experiment_options.seed
-        # ).to_instruction()
-        # rand_pauli_op = Clifford(rand_pauli)
-        # new_element_list = [(rand_pauli, rand_pauli_op)]
-        # for element in element_list:
-        #     new_element_list.append(element)
-        #     rand_pauli = random_pauli(
-        #         self._num_qubits, seed=self.experiment_options.seed
-        #     ).to_instruction()
-        #     rand_pauli_op = Clifford(rand_pauli)
-        #     new_element_list.append((rand_pauli, rand_pauli_op))
-        # return new_element_list
 
         rand_pauli = random_pauli(self._num_qubits, seed=self.experiment_options.seed)
         new_element_list = [rand_pauli]

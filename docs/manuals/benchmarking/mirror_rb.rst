@@ -221,11 +221,11 @@ small discrepancies in fit parameters between the two codes. To illustrate, cons
 two circuits below, both of which were generated in ``pyGSTi``. The first circuit was
 transpiled in ``pyGSTi``.
 
-.. image:: pygsti-data-pygsti-transpiled-circ.png
+.. image:: images/pygsti-data-pygsti-transpiled-circ.png
 
 and the second was transpiled in Qiskit. 
 
-.. image:: pygsti-data-qiskit-transpiled-circ.png
+.. image:: images/pygsti-data-qiskit-transpiled-circ.png
 
 Note the different implementations of the same Clifford on 
 qubit 0 in the fifth layer.
