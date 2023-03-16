@@ -4,18 +4,19 @@ Experiment Manuals
 These experiment manuals are in-depth dives into individual experiments, their
 operational principles, and how to run them in Qiskit Experiments.
 
-.. _benchmarking:
+.. _verification:
 
-Benchmarking Experiments
+Verification Experiments
 ------------------------
 
-These experiments measure your device performance according to a set of defined
-metrics, such as the space-time volume of circuits that can be successfully executed.
+These experiments measure and verify your device performance according to a set of
+defined metrics, such as the space-time volume of circuits that can be successfully
+executed.
 
 .. nbgallery::
     :glob:
 
-    benchmarking/*
+    verification/*
 
 .. _qubit characterization:
 
