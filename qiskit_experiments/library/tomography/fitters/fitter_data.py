@@ -108,8 +108,10 @@ def tomography_fitter_data(
     # integers based on the specified number of outcomes of the measurement
     # bases on each qubit
     if outcome_size == 1:
+
         def outcome_func(_):
             return 1
+
     else:
         outcome_func = _int_outcome_function(outcome_shape)
 

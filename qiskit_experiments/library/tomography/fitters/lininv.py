@@ -181,8 +181,10 @@ def linear_inversion(
         f_meas_qubits = measurement_qubits
         f_meas_indices = slice(None)
         f_cond_meas_indices = slice(0, 0)
+
         def f_meas_outcome(x):
             return x
+
         def f_cond_meas_outcome(_):
             return 0
 

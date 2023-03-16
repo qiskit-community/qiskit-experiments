@@ -93,10 +93,13 @@ def lstsq_data(
     # Reduced outcome functions
     # Set measurement indices to an array so we can use for array indexing later
     measurement_indices = None
+
     def identity(x):
         return x
+
     def zero(_):
         return 0
+
     f_meas_outcome = identity
     f_cond_outcome = zero
     if num_meas_cond:
