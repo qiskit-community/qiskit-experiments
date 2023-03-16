@@ -55,7 +55,7 @@ class TestT2Hahn(QiskitExperimentsTestCase):
         qubit = 0
         delays = np.append(
             (np.linspace(1.0, 15.0, num=15)).astype(float),
-            (np.linspace(16.0, 45.0, num=59)).astype(float),
+            (np.linspace(16.0, 100.0, num=59)).astype(float),
         )
         exp = T2Hahn(physical_qubits=[qubit], delays=delays, num_echoes=num_of_echoes)
         backend = T2HahnBackend(
@@ -75,7 +75,10 @@ class TestT2Hahn(QiskitExperimentsTestCase):
         fitval = result.value
         if num_of_echoes != 0:
             self.assertEqual(result.quality, "good")
-            self.assertAlmostEqual(fitval.n, estimated_t2hahn, delta=3)
+            # Check that fit is within 20%. This bound can be reduced by using
+            # more shots, but testing with some degree of noise is more
+            # realistic.
+            self.assertAlmostEqual(fitval.n, estimated_t2hahn, delta=estimated_t2hahn * 0.2)
 
     def test_t2hahn_parallel(self):
         """
@@ -123,7 +126,7 @@ class TestT2Hahn(QiskitExperimentsTestCase):
         estimated_t2hahn = 30
         # First experiment
         qubit = 0
-        delays0 = list(range(1, 60, 2))
+        delays0 = list(range(1, 180, 6))
         osc_freq = 0.08
 
         exp0 = T2Hahn([qubit], delays0)
@@ -142,7 +145,7 @@ class TestT2Hahn(QiskitExperimentsTestCase):
 
         res_t2_0 = expdata0.analysis_results("T2")
         # second experiment
-        delays1 = list(range(2, 65, 2))
+        delays1 = list(range(4, 180, 6))
         exp1 = T2Hahn([qubit], delays1)
         exp1.analysis.set_options(p0={"amp": 0.5, "tau": estimated_t2hahn, "base": 0.5}, plot=True)
         expdata1 = exp1.run(backend=backend, analysis=None, shots=1000).block_for_results()
