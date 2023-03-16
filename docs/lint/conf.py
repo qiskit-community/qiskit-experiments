@@ -31,7 +31,15 @@ extensions = [
     "jupyter_execute_custom",
 ]
 
+# Minimal options to let the build run successfully
+autodoc_default_options = {"inherited-members": None}
 nbsphinx_allow_errors = True
+autoclass_content = "both"
+napoleon_custom_sections = [("data keys", "params_style"), ("style parameters", "params_style")]
+autosummary_generate = True
+autodoc_default_options = {"inherited-members": None}
+numfig = True
+numfig_format = {"table": "Table %s"}
 
 # Ignore these objects
 nitpick_ignore_regex = [

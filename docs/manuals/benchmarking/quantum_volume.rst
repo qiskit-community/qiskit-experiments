@@ -138,7 +138,7 @@ Calculating Quantum Volume using a batch experiment
 Run the QV experiment with an increasing number of qubits to check what
 is the maximum Quantum Volume for the specific device. To reach the real
 system’s Quantum Volume, one must run more trials and additional
-enhancements might be required (See Ref. [2] for details).
+enhancements might be required (See Ref. [2]_ for details).
 
 .. jupyter-execute::
 

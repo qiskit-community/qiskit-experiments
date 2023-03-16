@@ -185,8 +185,6 @@ intersphinx_mapping = {
 
 if os.getenv("EXPERIMENTS_DEV_DOCS", None):
     rst_prolog = """
-.. raw:: html
-
 .. note::
     This is the documentation for the current state of the development branch
     of Qiskit Experiments. The documentation or APIs here can change prior to being
