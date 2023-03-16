@@ -61,21 +61,21 @@ class EdgeGrabSampler(MirrorRBSampler):
     # section: overview
 
         The edge grab sampler, given a list of :math:`w` qubits, their connectivity
-        graph, and the desired two-qubit gate density :math:`\xi`, outputs a layer
+        graph, and the desired two-qubit gate density :math:`\xi_s`, outputs a layer
         as follows:
 
             1. Begin with the empty set :math:`E` and :math:`E_r`, the set of all edges
                in the connectivity graph. Select an edge from :math:`E_r` at random and
                add it to :math:`E`, removing all edges that share a qubit with the edge
                from :math:`E_r`.
-            2. Select edges from :math:`E` with the probability :math:`w\xi/|E|`. These
+            2. Select edges from :math:`E` with the probability :math:`w\xi/2|E|`. These
                edges will have two-qubit gates in the output layer.
 
-        This produces a layer with an expected two-qubit gate density :math:`2\xi`.
-        In the default mirror RB configuration where these layers are dressed with
-        single-qubit Pauli layers, this means the overall two-qubit gate
-        density will be :math:`\xi`. The overall average density will converge to
-        :math:`\xi` as the circuit size increases.
+        This produces a layer with an expected two-qubit gate density :math:`\xi`. In
+        the default mirror RB configuration where these layers are dressed with
+        single-qubit Pauli layers, this means the overall two-qubit gate density will be
+        :math:`\xi_s/2=\xi`. The overall density will converge to :math:`\xi` as the
+        circuit size increases.
 
     # section: reference
         .. ref_arxiv:: 1 2008.11294
@@ -150,7 +150,8 @@ class EdgeGrabSampler(MirrorRBSampler):
             qc = QuantumCircuit(qr)
             two_qubit_prob = 0
             try:
-                two_qubit_prob = num_qubits * two_qubit_gate_density / len(selected_edges)
+                # need to divide by 2 since each two-qubit gate spans two lattice sites
+                two_qubit_prob = num_qubits * two_qubit_gate_density / 2 / len(selected_edges)
             except ZeroDivisionError:
                 warnings.warn("Device has no connectivity. All gates will be single-qubit.")
             if two_qubit_prob > 1:

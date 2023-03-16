@@ -306,7 +306,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
         if isinstance(elem, Integral):
             if self.num_qubits == 1 or gate_size == 1:
                 return _clifford_1q_int_to_instruction(elem, basis_gates)
-            if self.num_qubits == 2 or gate_size == 1:
+            if self.num_qubits == 2 or gate_size == 2:
                 return _clifford_2q_int_to_instruction(elem, basis_gates)
 
         return elem.to_instruction()
@@ -338,11 +338,12 @@ class StandardRB(BaseExperiment, RestlessMixin):
             return Clifford.from_circuit(op).adjoint()
         return op.adjoint()
 
-    def _transpiled_circuits(self) -> List[QuantumCircuit]:
+    def _transpiled_circuits(self, custom_transpile=False) -> List[QuantumCircuit]:
         """Return a list of experiment circuits, transpiled."""
         has_custom_transpile_option = (
             not set(vars(self.transpile_options)).issubset({"basis_gates", "optimization_level"})
             or self.transpile_options.get("optimization_level", 0) != 0
+            or custom_transpile
         )
         has_no_undirected_2q_basis = self._get_basis_gates() is None
         if self.num_qubits > 2 or has_custom_transpile_option or has_no_undirected_2q_basis:
