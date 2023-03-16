@@ -13,9 +13,7 @@
 """Test rough amplitude calibration experiment classes."""
 
 from test.base import QiskitExperimentsTestCase
-import numpy as np
 
-from qiskit import transpile
 import qiskit.pulse as pulse
 from qiskit.circuit import Parameter
 
