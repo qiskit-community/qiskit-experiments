@@ -65,7 +65,6 @@ Some experiments also have a calibration experiment version.
     ~characterization.FineAmplitude
     ~characterization.FineXAmplitude
     ~characterization.FineSXAmplitude
-    ~characterization.FineZXAmplitude
     ~characterization.Rabi
     ~characterization.EFRabi
     ~characterization.RamseyXY
@@ -92,6 +91,7 @@ Experiments for characterization of properties of two qubit interactions.
     ~characterization.CrossResonanceHamiltonian
     ~characterization.EchoedCrossResonanceHamiltonian
     ~characterization.ZZRamsey
+    ~characterization.FineZXAmplitude
 
 .. _characterization-mitigation:
 
