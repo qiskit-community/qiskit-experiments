@@ -35,7 +35,7 @@ class RoughAmplitudeCal(BaseCalibrationExperiment, Rabi):
     """A calibration version of the Rabi experiment.
 
     # section: see_also
-        qiskit_experiments.library.characterization.rabi.Rabi
+        :class:`.Rabi`
     """
 
     @qubit_deprecate()
@@ -198,7 +198,7 @@ class RoughXSXAmplitudeCal(RoughAmplitudeCal):
     """A rough amplitude calibration of x and sx gates.
 
     # section: see_also
-        qiskit_experiments.library.characterization.rabi.Rabi
+        :class:`.Rabi`, :class:`.RoughAmplitudeCal`
     """
 
     @qubit_deprecate()
@@ -232,7 +232,7 @@ class EFRoughXSXAmplitudeCal(RoughAmplitudeCal):
     """A rough amplitude calibration of x and sx gates on the 1<->2 transition.
 
     # section: see_also
-        qiskit_experiments.library.characterization.rabi.Rabi
+        :class:`.Rabi`, :class:`.RoughAmplitudeCal`
     """
 
     __outcome__ = "rabi_rate_12"

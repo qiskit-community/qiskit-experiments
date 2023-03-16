@@ -40,7 +40,8 @@ def calibration_circuit(num_qubits: int, state_label: str) -> QuantumCircuit:
 
 
 class CorrelatedReadoutError(BaseExperiment):
-    r"""Class for correlated readout error characterization experiment
+    r"""Correlated readout error characterization experiment.
+
     # section: overview
         This class constructs the a :class:`~qiskit.result.CorrelatedReadoutMitigator`
         containing the full assignment matrix :math:`A` characterizing the readout error
@@ -71,7 +72,7 @@ class CorrelatedReadoutError(BaseExperiment):
         documentation for additional information on correlated readout error experiment analysis.
 
     # section: analysis_ref
-        :py:class:`CorrelatedReadoutErrorAnalysis`
+        :class:`CorrelatedReadoutErrorAnalysis`
 
     # section: reference
         .. ref_arxiv:: 1 2006.14044
@@ -92,7 +93,7 @@ class CorrelatedReadoutError(BaseExperiment):
             backend: Optional, the backend to characterize.
 
         Raises:
-            QiskitError: if args are not valid.
+            QiskitError: If args are not valid.
         """
         if physical_qubits is None:
             if backend is None:

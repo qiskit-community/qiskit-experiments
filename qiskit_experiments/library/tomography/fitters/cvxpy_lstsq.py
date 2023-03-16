@@ -365,6 +365,7 @@ def cvxpy_gaussian_lstsq(
     trace_preserving: Union[None, bool, str] = "auto",
     partial_trace: Optional[np.ndarray] = None,
     outcome_prior: Union[np.ndarray, int] = 0.5,
+    max_weight: float = 1e10,
     **kwargs,
 ) -> Dict:
     r"""Constrained Gaussian linear least-squares tomography fitter.
@@ -429,6 +430,8 @@ def cvxpy_gaussian_lstsq(
                        trace to POVM matrices.
         outcome_prior: The Baysian prior :math:`\alpha` to use computing Gaussian
             weights. See additional information.
+        max_weight: Set the maximum value allowed for weights vector computed from
+            tomography data variance.
         kwargs: kwargs for cvxpy solver.
 
     Raises:
@@ -440,13 +443,12 @@ def cvxpy_gaussian_lstsq(
     """
     t_start = time.time()
 
-    _, variance = lstsq_utils.dirichlet_mean_and_var(
+    weights = lstsq_utils.binomial_weights(
         outcome_data,
         shot_data=shot_data,
         outcome_prior=outcome_prior,
+        max_weight=max_weight,
     )
-
-    weights = 1.0 / np.sqrt(variance)
 
     fits, metadata = cvxpy_linear_lstsq(
         outcome_data,

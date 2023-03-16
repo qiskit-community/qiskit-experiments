@@ -54,7 +54,7 @@ class CompositeExperiment(BaseExperiment):
                       supplied experiments.
 
         Raises:
-            QiskitError: if the provided analysis class is not a CompositeAnalysis
+            QiskitError: If the provided analysis class is not a CompositeAnalysis
                          instance.
         """
         self._experiments = experiments
