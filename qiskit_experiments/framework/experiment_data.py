@@ -143,16 +143,18 @@ class FigureData:
 
 
 class ExperimentData:
-    """Qiskit Experiments Data container class.
+    """Experiment data container class.
 
     This class handles the following:
 
-    1. Storing the data related to an experiment - the experiment's metadata,
-       the analysis results and the figures
+    1. Storing the data related to an experiment: raw data, metadata, analysis results,
+        and figures
     2. Managing jobs and adding data from jobs automatically
-    3. Saving/Loading data from the result database
+    3. Saving and loading data from the database service
 
-    The field `db_data` is a dataclass (`ExperimentDataclass`) containing
+    |
+
+    The field ``db_data`` is a dataclass (``ExperimentDataclass``) containing
     all the data that can be stored in the database and loaded from it, and
     as such is subject to strict conventions.
 
@@ -1854,7 +1856,7 @@ class ExperimentData:
             The requested single or list of child experiment data.
 
         Raises:
-            QiskitError: if the index or ID of the child experiment data
+            QiskitError: If the index or ID of the child experiment data
                          cannot be found.
         """
         if index is None:

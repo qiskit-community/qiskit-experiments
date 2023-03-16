@@ -44,13 +44,13 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
 
     This abstract class extends a characterization experiment by turning it into a
     calibration experiment. Such experiments allow schedule management and updating of an
-    instance of :class:`Calibrations`. Furthermore, calibration experiments also specify
+    instance of :class:`.Calibrations`. Furthermore, calibration experiments also specify
     an auto_update variable which, by default, is set to True. If this variable,
-    is True then the run method of the experiment will call :meth:`block_for_results`
+    is True then the run method of the experiment will call :meth:`~.ExperimentData.block_for_results`
     and update the calibrations instance once the backend has returned the data.
 
-    This mixin class inherits from the :class:`BaseExperiment` class since calibration
-    experiments by default call :meth:`block_for_results`. This ensures that the next
+    This mixin class inherits from the :class:`.BaseExperiment` class since calibration
+    experiments by default call :meth:`~.ExperimentData.block_for_results`. This ensures that the next
     calibration experiment cannot proceed before the calibration parameters have been
     updated. Developers that wish to create a calibration experiment must subclass this
     base class and the characterization experiment. Therefore, developers that use this
@@ -63,12 +63,12 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
 
         RoughFrequency(BaseCalibrationExperiment, QubitSpectroscopy)
 
-    This ensures that the :meth:`run` method of :class:`RoughFrequency` will be the
-    run method of the :class:`BaseCalibrationExperiment` class. Furthermore, developers
+    This ensures that the :meth:`run` method of :class:`.RoughFrequency` will be the
+    run method of the :class:`.BaseCalibrationExperiment` class. Furthermore, developers
     must explicitly call the :meth:`__init__` methods of both parent classes.
 
     Developers should strive to follow the convention that the first two arguments of
-    a calibration experiment are the qubit(s) and the :class:`Calibration` instance.
+    a calibration experiment are the qubit(s) and the :class:`.Calibration` instance.
 
     If the experiment uses custom schedules, which is typically the case, then
     developers may chose to use the :meth:`get_schedules` method when creating the
@@ -85,7 +85,7 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
     These methods are called by :meth:`get_schedules`.
 
     The :meth:`update_calibrations` method is responsible for updating the values of the parameters
-    stored in the instance of :class:`Calibrations`. Here, :class:`BaseCalibrationExperiment`
+    stored in the instance of :class:`.Calibrations`. Here, :class:`BaseCalibrationExperiment`
     provides a default update methodology that subclasses can override if a more elaborate behaviour
     is needed. At the minimum the developer must set the variable :code:`_updater` which
     should have an :code:`update` method and can be chosen from the library
@@ -213,13 +213,13 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
         warnings.warn(f"Transpile options are not used in {self.__class__.__name__ }.")
 
     def update_calibrations(self, experiment_data: ExperimentData):
-        """Update parameter values in the :class:`Calibrations` instance.
+        """Update parameter values in the :class:`.Calibrations` instance.
 
         The default behaviour is to call the update method of the class variable
         :code:`__updater__` with simplistic options. Subclasses can override this
-        method to update the instance of :class:`Calibrations` if they require a
-        more sophisticated behaviour as is the case for the :class:`Rabi` and
-        :class:`FineAmplitude` calibration experiments.
+        method to update the instance of :class:`.Calibrations` if they require a
+        more sophisticated behaviour as is the case for the :class:`.Rabi` and
+        :class:`.FineAmplitude` calibration experiments.
         """
         if self._updater is not None:
             self._updater.update(

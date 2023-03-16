@@ -143,7 +143,7 @@ class DataProcessor:
         Args:
             data: The data, typically from ExperimentData.data(...), that needs to be processed.
             This dict or list of dicts also contains the metadata of each experiment.
-            with_history: if True the history is returned otherwise it is not.
+            with_history: If True the history is returned otherwise it is not.
             history_nodes: The nodes, specified by index in the data processing chain, to
                 include in the history. If None is given then all nodes will be included
                 in the history.
@@ -261,10 +261,14 @@ class DataProcessor:
             # The output data format is a standard ndarray with dtype=object with
             # arbitrary shape [n_circuits, ...] depending on the measurement setup.
             nominal_values = np.asarray(data_to_process, float)
-            return unp.uarray(
-                nominal_values=nominal_values,
-                std_devs=np.full_like(nominal_values, np.nan, dtype=float),
-            )
+            with np.errstate(invalid="ignore"):
+                # Setting std_devs to NaN will trigger floating point exceptions
+                # which we can ignore. See https://stackoverflow.com/q/75656026
+                uarray = unp.uarray(
+                    nominal_values=nominal_values,
+                    std_devs=np.full_like(nominal_values, np.nan, dtype=float),
+                )
+            return uarray
         else:
             # Likely level2 counts or level2 memory data. Cannot be typecasted to ufloat.
             # The output data format is a standard ndarray with dtype=object with

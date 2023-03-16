@@ -28,7 +28,7 @@ from .analysis.resonator_spectroscopy_analysis import ResonatorSpectroscopyAnaly
 
 
 class ResonatorSpectroscopy(Spectroscopy):
-    """Perform spectroscopy on the readout resonator.
+    """An experiment to perform frequency spectroscopy of the readout resonator.
 
     # section: overview
         This experiment does spectroscopy on the readout resonator. It applies the following
@@ -96,10 +96,10 @@ class ResonatorSpectroscopy(Spectroscopy):
         as well as the kappa, i.e. the line width, of the resonator.
 
     # section: analysis_ref
-        :py:class:`ResonatorSpectroscopyAnalysis`
+        :class:`ResonatorSpectroscopyAnalysis`
 
     # section: see_also
-        qiskit_experiments.library.characterization.qubit_spectroscopy.QubitSpectroscopy
+        :class:`.QubitSpectroscopy`
     """
 
     @classmethod
@@ -177,7 +177,7 @@ class ResonatorSpectroscopy(Spectroscopy):
             experiment_options: Key word arguments used to set the experiment options.
 
         Raises:
-            QiskitError: if no frequencies are given and absolute frequencies are desired and
+            QiskitError: If no frequencies are given and absolute frequencies are desired and
                 no backend is given.
         """
         analysis = ResonatorSpectroscopyAnalysis()

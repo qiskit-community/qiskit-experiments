@@ -58,6 +58,16 @@ features:
     to condition on the preparation basis index of a specific subset of
     tomographic basis preprations. The conditioning basis index is stored
     in the analysis results ``extra`` field.
+  - |
+    Adds an option to :class:`~.StateTomographyAnalysis` and
+    :class:`~.ProcessTomographyAnalysis` to bootstrap error bars on state
+    and process fidelity analysis results. This can be activated by setting
+    the ``target_bootstrap_samples`` analysis option to a value.
+
+    Note that bootstrapping involves re-running the full tomography fit on
+    re-samples of tomography outcome data for each measurement basis and
+    hence the total analysis time will increase linearly with the number
+    of bootstrap samples.
 fixes:
   - |
     Fixes bug in :class:`~.StateTomography` and :class:`~.ProcessTomography`
@@ -90,7 +100,7 @@ upgrade:
 deprecations:
   - |
     Renames the ``qubits``, ``measurement_qubits``, and ``preparation_qubits``
-     init kwargs of :class:`~.StateTomography`,
+    init kwargs of :class:`~.StateTomography`,
     :class:`~.ProcessTomography`, and :class:`~.TomographyExperiment` have
     been deprecated. They have been replaced with kwargs ``physical_qubits``,
     ``measurement_indices`` and ``preparation_indices`` respectively. The

@@ -32,7 +32,7 @@ class HalfAngleCal(BaseCalibrationExperiment, HalfAngle):
     """Calibration version of the half-angle experiment.
 
     # section: see_also
-        qiskit_experiments.library.characterization.half_angle.HalfAngle
+        :class:`.HalfAngle`
     """
 
     @qubit_deprecate()
