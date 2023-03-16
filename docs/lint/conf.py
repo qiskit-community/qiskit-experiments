@@ -19,19 +19,31 @@ extensions = [
     "sphinx.ext.napoleon",
     "sphinx.ext.autodoc",
     "sphinx.ext.autosummary",
-    "reno.sphinxext",
+    "sphinx.ext.mathjax",
+    "sphinx.ext.viewcode",
+    "sphinx.ext.extlinks",
+    "sphinx_copybutton",
+    "jupyter_sphinx",
     "sphinx_autodoc_typehints",
+    "reno.sphinxext",
+    "sphinx_design",
     "sphinx.ext.intersphinx",
+    "nbsphinx",
     "autoref",
     "autodoc_experiment",
     "autodoc_analysis",
     "autodoc_visualization",
-    "sphinx_design",
-    "jupyter_sphinx",
     "jupyter_execute_custom",
 ]
 
 # Minimal options to let the build run successfully
+nbsphinx_timeout = 360
+nbsphinx_execute = os.getenv("QISKIT_DOCS_BUILD_TUTORIALS", "never")
+nbsphinx_widgets_path = ""
+exclude_patterns = ["_build", "**.ipynb_checkpoints"]
+language = "en"
+add_module_names = False
+modindex_common_prefix = ["qiskit_experiments."]
 autodoc_default_options = {"inherited-members": None}
 nbsphinx_allow_errors = True
 autoclass_content = "both"
