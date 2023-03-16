@@ -25,10 +25,11 @@ from .correlated_readout_error import calibration_circuit
 
 
 class LocalReadoutError(BaseExperiment):
-    r"""Class for local readout error characterization experiment
+    r"""An experiment for characterizing local readout error.
+
     # section: overview
 
-        This class constructs the a :class:`~qiskit.result.LocalReadoutMitigator` containing sequence
+        This class constructs a :class:`~qiskit.result.LocalReadoutMitigator` containing a sequence
         of assignment matrices :math:`A` characterizing the readout error for the given qubits
         from the experiment results. The full assignment matrix is accessible via the
         :meth:`~qiskit.result.LocalReadoutMitigator.assignment_matrix` method.
@@ -60,7 +61,7 @@ class LocalReadoutError(BaseExperiment):
         documentation for additional information on local readout error experiment analysis.
 
     # section: analysis_ref
-        :py:class:`LocalReadoutErrorAnalysis`
+        :class:`LocalReadoutErrorAnalysis`
 
     # section: reference
         .. ref_arxiv:: 1 2006.14044
@@ -79,10 +80,9 @@ class LocalReadoutError(BaseExperiment):
                 for readout error. If None all qubits on the provided backend
                 will be characterized.
             backend: Optional, the backend to characterize.
-            qubits: DEPRECATED, equivalent to ``physical_qubits``.
 
         Raises:
-            QiskitError: if args are not valid.
+            QiskitError: If args are not valid.
         """
         if physical_qubits is None:
             if backend is None:

@@ -17,6 +17,7 @@ from typing import List, Sequence, Optional, Union
 from abc import abstractmethod
 import warnings
 from qiskit.providers.backend import Backend
+from qiskit_experiments.warnings import deprecate_arguments
 from qiskit_experiments.exceptions import QiskitError
 from qiskit_experiments.framework import BaseExperiment
 from .composite_analysis import CompositeAnalysis
@@ -25,10 +26,11 @@ from .composite_analysis import CompositeAnalysis
 class CompositeExperiment(BaseExperiment):
     """Composite Experiment base class"""
 
+    @deprecate_arguments({"qubits": "physical_qubits"}, "0.5")
     def __init__(
         self,
         experiments: List[BaseExperiment],
-        qubits: Sequence[int],
+        physical_qubits: Sequence[int],
         backend: Optional[Backend] = None,
         experiment_type: Optional[str] = None,
         flatten_results: bool = False,
@@ -38,7 +40,7 @@ class CompositeExperiment(BaseExperiment):
 
         Args:
             experiments: a list of experiment objects.
-            qubits: list of physical qubits for the experiment.
+            physical_qubits: list of physical qubits for the experiment.
             backend: Optional, the backend to run the experiment on.
             experiment_type: Optional, composite experiment subclass name.
             flatten_results: If True flatten all component experiment results
@@ -52,7 +54,7 @@ class CompositeExperiment(BaseExperiment):
                       supplied experiments.
 
         Raises:
-            QiskitError: if the provided analysis class is not a CompositeAnalysis
+            QiskitError: If the provided analysis class is not a CompositeAnalysis
                          instance.
         """
         self._experiments = experiments
@@ -62,7 +64,7 @@ class CompositeExperiment(BaseExperiment):
                 [exp.analysis for exp in self._experiments], flatten_results=flatten_results
             )
         super().__init__(
-            qubits,
+            physical_qubits,
             analysis=analysis,
             backend=backend,
             experiment_type=experiment_type,

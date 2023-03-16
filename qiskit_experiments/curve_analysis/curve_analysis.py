@@ -41,7 +41,7 @@ class CurveAnalysis(BaseCurveAnalysis):
     .. rubric:: _run_data_processing
 
     This method performs data processing and returns the processed dataset.
-    By default, it internally calls the :class:`DataProcessor` instance from
+    By default, it internally calls the :class:`.DataProcessor` instance from
     the `data_processor` analysis option and processes the experiment data payload
     to create Y data with uncertainty.
     X data and other metadata are generated within this method by inspecting the

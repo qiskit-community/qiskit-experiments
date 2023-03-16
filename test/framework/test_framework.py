@@ -14,6 +14,7 @@
 
 from test.fake_experiment import FakeExperiment, FakeAnalysis
 from test.base import QiskitExperimentsTestCase
+from itertools import product
 import ddt
 
 from qiskit import QuantumCircuit
@@ -21,6 +22,7 @@ from qiskit.providers.fake_provider import FakeVigoV2, FakeJob
 from qiskit.providers.jobstatus import JobStatus
 from qiskit.exceptions import QiskitError
 
+from qiskit_experiments.exceptions import AnalysisError
 from qiskit_experiments.framework import (
     ExperimentData,
     BaseExperiment,
@@ -36,7 +38,7 @@ class TestFramework(QiskitExperimentsTestCase):
     """Test Base Experiment"""
 
     @ddt.data(None, 1, 2, 3)
-    def test_job_splitting(self, max_experiments):
+    def test_job_splitting_max_experiments(self, max_experiments):
         """Test job splitting"""
 
         num_circuits = 10
@@ -62,6 +64,45 @@ class TestFramework(QiskitExperimentsTestCase):
         else:
             num_jobs = num_circuits // max_experiments
             if num_circuits % max_experiments:
+                num_jobs += 1
+        self.assertEqual(len(job_ids), num_jobs)
+
+    @ddt.data(*product(*2 * [(None, 1, 2, 3)]))
+    @ddt.unpack
+    def test_job_splitting_max_circuits(self, max_circuits1, max_circuits2):
+        """Test job splitting"""
+
+        num_circuits = 10
+        backend = FakeBackend(max_experiments=max_circuits1)
+
+        class Experiment(FakeExperiment):
+            """Fake Experiment to test job splitting"""
+
+            def circuits(self):
+                """Generate fake circuits"""
+                qc = QuantumCircuit(1)
+                qc.measure_all()
+                return num_circuits * [qc]
+
+        exp = Experiment([0])
+        exp.set_experiment_options(max_circuits=max_circuits2)
+
+        expdata = exp.run(backend)
+        self.assertExperimentDone(expdata)
+        job_ids = expdata.job_ids
+
+        # Compute expected number of jobs
+        if max_circuits1 and max_circuits2:
+            max_circuits = min(max_circuits1, max_circuits2)
+        elif max_circuits1:
+            max_circuits = max_circuits1
+        else:
+            max_circuits = max_circuits2
+        if max_circuits is None:
+            num_jobs = 1
+        else:
+            num_jobs = num_circuits // max_circuits
+            if num_circuits % max_circuits:
                 num_jobs += 1
         self.assertEqual(len(job_ids), num_jobs)
 
@@ -127,6 +168,47 @@ class TestFramework(QiskitExperimentsTestCase):
         target_opts["figure_names"] = None
 
         self.assertEqual(analysis.options.__dict__, target_opts)
+
+    def test_failed_analysis_replace_results_true(self):
+        """Test running analysis with replace_results=True"""
+
+        class FakeFailedAnalysis(FakeAnalysis):
+            """raise analysis error"""
+
+            def _run_analysis(self, experiment_data, **options):
+                raise AnalysisError("Failed analysis for testing.")
+
+        analysis = FakeAnalysis()
+        failed_analysis = FakeFailedAnalysis()
+        expdata1 = analysis.run(ExperimentData(), seed=54321)
+        self.assertExperimentDone(expdata1)
+        expdata2 = failed_analysis.run(
+            expdata1, replace_results=True, seed=12345
+        ).block_for_results()
+        # check that the analysis is empty for the answer of the failed analysis.
+        self.assertEqual(expdata2.analysis_results(), [])
+        # confirming original analysis results is empty due to 'replace_results=True'
+        self.assertEqual(expdata1.analysis_results(), [])
+
+    def test_failed_analysis_replace_results_false(self):
+        """Test running analysis with replace_results=False"""
+
+        class FakeFailedAnalysis(FakeAnalysis):
+            """raise analysis error"""
+
+            def _run_analysis(self, experiment_data, **options):
+                raise AnalysisError("Failed analysis for testing.")
+
+        analysis = FakeAnalysis()
+        failed_analysis = FakeFailedAnalysis()
+        expdata1 = analysis.run(ExperimentData(), seed=54321)
+        self.assertExperimentDone(expdata1)
+        expdata2 = failed_analysis.run(expdata1, replace_results=False, seed=12345)
+
+        # check that the analysis is empty for the answer of the failed analysis.
+        self.assertEqual(expdata2.analysis_results(), [])
+        # confirming original analysis results isn't empty due to 'replace_results=False'
+        self.assertNotEqual(expdata1.analysis_results(), [])
 
     def test_after_job_fail(self):
         """Verify that analysis is cancelled in case of job failure"""

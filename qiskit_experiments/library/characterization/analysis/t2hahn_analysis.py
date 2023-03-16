@@ -26,7 +26,7 @@ class T2HahnAnalysis(curve.DecayAnalysis):
     r"""A class to analyze T2Hahn experiments.
 
     # section: see_also
-        qiskit_experiments.curve_analysis.standard_analysis.decay.DecayAnalysis
+        :class:`.DecayAnalysis`
 
     """
 

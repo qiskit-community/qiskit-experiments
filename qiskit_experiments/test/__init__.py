@@ -11,9 +11,9 @@
 # that they have been altered from the originals.
 
 """
-=================================================================
-Qiskit Experiments Test Utilities (:mod:`qiskit_experiments.test`)
-=================================================================
+===============================================
+Test Utilities (:mod:`qiskit_experiments.test`)
+===============================================
 
 .. currentmodule:: qiskit_experiments.test
 

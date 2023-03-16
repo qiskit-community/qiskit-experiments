@@ -31,7 +31,7 @@ class FrequencyCal(BaseCalibrationExperiment, RamseyXY):
     """A qubit frequency calibration experiment based on the Ramsey XY experiment.
 
     # section: see_also
-        qiskit_experiments.library.characterization.ramsey_xy.RamseyXY
+        :class:`.RamseyXY`
     """
 
     @qubit_deprecate()

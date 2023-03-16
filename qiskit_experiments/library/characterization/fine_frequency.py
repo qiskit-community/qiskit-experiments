@@ -48,7 +48,7 @@ class FineFrequency(BaseExperiment):
             meas: 1/══════════════════════════════════════════════╩═
                                                                   0
     # section: analysis_ref
-        :py:class:`~qiskit_experiments.curve_analysis.ErrorAmplificationAnalysis`
+        :class:`~qiskit_experiments.curve_analysis.ErrorAmplificationAnalysis`
     """
 
     @qubit_deprecate()

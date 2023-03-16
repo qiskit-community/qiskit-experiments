@@ -84,7 +84,7 @@ class Spectroscopy(BaseExperiment, ABC):
             experiment_options: Key word arguments used to set the experiment options.
 
         Raises:
-            QiskitError: if there are less than three frequency shifts.
+            QiskitError: If there are less than three frequency shifts.
 
         """
         analysis = analysis or ResonanceAnalysis()
@@ -98,16 +98,6 @@ class Spectroscopy(BaseExperiment, ABC):
         self._absolute = absolute
 
         self.set_experiment_options(**experiment_options)
-
-    def _set_backend(self, backend: Backend):
-        """Set the backend for the experiment and extract config information."""
-        super()._set_backend(backend)
-
-        self._dt = self._backend_data.dt
-        self._granularity = self._backend_data.granularity
-
-        if self._dt is None or self._granularity is None:
-            raise QiskitError(f"{self.__class__.__name__} needs both dt and sample granularity.")
 
     @property
     @abstractmethod
