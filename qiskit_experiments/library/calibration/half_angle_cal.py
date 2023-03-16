@@ -13,12 +13,12 @@
 """Half angle calibration."""
 
 from typing import Dict, Optional, Sequence
-import numpy as np
 
 from qiskit.circuit import QuantumCircuit
 from qiskit.providers.backend import Backend
 
 from qiskit_experiments.framework import ExperimentData
+from qiskit_experiments.exceptions import CalibrationError
 from qiskit_experiments.calibration_management import (
     BaseCalibrationExperiment,
     Calibrations,
@@ -45,7 +45,9 @@ class HalfAngleCal(BaseCalibrationExperiment, HalfAngle):
         cal_parameter_name: Optional[str] = "angle",
         auto_update: bool = True,
     ):
-        """see class :class:`HalfAngle` for details.
+        """see class :class:`HalfAngle` for details. The experiment updates the
+        angle of the complex amplitude represented in (amp,angle) representation,
+        matching the logic of the `ScalableSymbolicPulse` class.
 
         Args:
             physical_qubits: Sequence containing the qubit for which to run the
@@ -54,10 +56,46 @@ class HalfAngleCal(BaseCalibrationExperiment, HalfAngle):
             backend: Optional, the backend to run the experiment on.
             schedule_name: The name of the schedule to calibrate which defaults to sx.
             cal_parameter_name: The name of the parameter in the schedule to update. This will
-                default to amp since the complex amplitude contains the phase of the pulse.
+                default to 'angle' in accordance with the naming convention of the
+                'ScalableSymbolicPulse` class.
             auto_update:  Whether or not to automatically update the calibrations. By
                 default this variable is set to True.
+
+        Raises:
+            CalibrationError: if cal_parameter_name is set to `amp`, to reflect the
+                transition from calibrating complex amplitude to calibrating the phase.
+            CalibrationError: if the default cal_parameter_name is used, and it is not
+                a valid parameter of the calibrated schedule.
         """
+        if cal_parameter_name == "amp":
+            raise CalibrationError(
+                "The Half-Angle calibration experiment was changed from calibrating"
+                " the pulse's complex amplitude, to calibrating the angle parameter "
+                "in the real (amp,angle) representation. Setting cal_parameter_name to "
+                "'amp' thus indicates that you are probably using the experiment in "
+                "an inconsistent way. If your pulse does in fact use a complex amplitude,"
+                "you need to convert it to (amp,angle) representation, preferably using"
+                "the ScalableSymbolicPulse class. Note that all library pulses now use "
+                "this representation."
+            )
+        # If the default cal_parameter_name is used, validate that it is in fact a parameter
+        if cal_parameter_name == "angle":
+            try:
+                calibrations.calibration_parameter("angle", schedule_name=schedule_name)
+            except CalibrationError as err:
+                raise CalibrationError(
+                    "The Half-Angle calibration experiment was changed from calibrating"
+                    " the pulse's complex amplitude, to calibrating the angle parameter "
+                    "in the real (amp,angle) representation. The default cal_parameter_name "
+                    "was thus changed to angle, which is not a valid parameter of the "
+                    "calibrated schedule. It is likely that you are trying to calibrate "
+                    "a schedule which is defined by a complex amplitude. To use the "
+                    "Half-Angle experiment you need to convert the pulses in the schedule "
+                    "to (amp,angle) representation (preferably, using the "
+                    "ScalableSymbolicPulse class), and have a parameter associated with "
+                    "the angle. Note that all library pulses now use this representation."
+                ) from err
+
         super().__init__(
             calibrations,
             physical_qubits,

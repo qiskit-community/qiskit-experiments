@@ -194,12 +194,14 @@ class FixedFrequencyTransmon(BasisGateLibrary):
         - duration: Duration of the pulses Default value: 160 samples.
         - σ: Standard deviation of the pulses Default value: ``duration / 4``.
         - β: DRAG parameter of the pulses Default value: 0.
-        - amp: Amplitude of the pulses. If the parameters are linked then ``x`` and ``y``
+        - amp: Magnitude of the complex amplitude of the pulses. If the parameters are
+          linked then ``x`` and ``y``
           share the same parameter and ``sx`` and ``sy`` share the same parameter.
           Default value: 50% of the maximum output for ``x`` and ``y`` and 25% of the
           maximum output for ``sx`` and ``sy``. Note that the user provided default amplitude
           in the ``__init__`` method sets the default amplitude of the ``x`` and ``y`` pulses.
           The amplitude of the ``sx`` and ``sy`` pulses is half the provided value.
+        - angle: The phase of the complex amplitude of the pulses.
 
     Note that the β and amp parameters may be linked between the x and y as well as between
     the sx and sy pulses. All pulses share the same duration and σ parameters.
@@ -242,14 +244,14 @@ class FixedFrequencyTransmon(BasisGateLibrary):
         x_amp, x_beta, x_angle = Parameter("amp"), Parameter("β"), Parameter("angle")
 
         if self._link_parameters:
-            y_amp, y_beta, y_angle = x_amp, x_beta, x_angle + np.pi/2
+            y_amp, y_beta, y_angle = x_amp, x_beta, x_angle + np.pi / 2
         else:
             y_amp, y_beta, y_angle = Parameter("amp"), Parameter("β"), Parameter("angle")
 
         sx_amp, sx_beta, sx_angle = Parameter("amp"), Parameter("β"), Parameter("angle")
 
         if self._link_parameters:
-            sy_amp, sy_beta, sy_angle = sx_amp, sx_beta, sx_angle + np.pi/2
+            sy_amp, sy_beta, sy_angle = sx_amp, sx_beta, sx_angle + np.pi / 2
         else:
             sy_amp, sy_beta, sy_angle = Parameter("amp"), Parameter("β"), Parameter("angle")
 
@@ -307,7 +309,7 @@ class FixedFrequencyTransmon(BasisGateLibrary):
                         value /= 2.0
 
                     if "y" in name and param.name == "angle":
-                        value += np.pi/2
+                        value += np.pi / 2
 
                     defaults.append(DefaultCalValue(value, param.name, tuple(), name))
 
@@ -337,7 +339,15 @@ class EchoedCrossResonance(BasisGateLibrary):
         - risefall: The number of σ's in the flanks of the pulses. Default value: 2.
     """
 
-    __default_values__ = {"tgt_amp": 0.0, "amp": 0.5, "σ": 64, "risefall": 2, "duration": 1168}
+    __default_values__ = {
+        "tgt_amp": 0.0,
+        "tgt_angle": 0.0,
+        "amp": 0.5,
+        "angle": 0.0,
+        "σ": 64,
+        "risefall": 2,
+        "duration": 1168,
+    }
 
     def __init__(
         self,
@@ -378,8 +388,10 @@ class EchoedCrossResonance(BasisGateLibrary):
         schedules = dict()
 
         tgt_amp = Parameter("tgt_amp")
+        tgt_angle = Parameter("tgt_angle")
         sigma = Parameter("σ")
         cr_amp = Parameter("amp")
+        cr_angle = Parameter("angle")
         cr_dur = Parameter("duration")
         cr_rf = Parameter("risefall")
         t_chan_idx = Parameter("ch1")
@@ -390,14 +402,20 @@ class EchoedCrossResonance(BasisGateLibrary):
         if "cr45p" in basis_gates:
             with pulse.build(name="cr45p") as cr45p:
                 pulse.play(
-                    pulse.GaussianSquare(cr_dur, cr_amp, risefall_sigma_ratio=cr_rf, sigma=sigma),
+                    pulse.GaussianSquare(
+                        cr_dur, cr_amp, angle=cr_angle, risefall_sigma_ratio=cr_rf, sigma=sigma
+                    ),
                     u_chan,
                 )
 
                 if self._target_pulses:
                     pulse.play(
                         pulse.GaussianSquare(
-                            cr_dur, tgt_amp, risefall_sigma_ratio=cr_rf, sigma=sigma
+                            cr_dur,
+                            tgt_amp,
+                            angle=tgt_angle,
+                            risefall_sigma_ratio=cr_rf,
+                            sigma=sigma,
                         ),
                         t_chan,
                     )
@@ -407,14 +425,20 @@ class EchoedCrossResonance(BasisGateLibrary):
         if "cr45m" in basis_gates:
             with pulse.build(name="cr45m") as cr45m:
                 pulse.play(
-                    pulse.GaussianSquare(cr_dur, -cr_amp, risefall_sigma_ratio=cr_rf, sigma=sigma),
+                    pulse.GaussianSquare(
+                        cr_dur, -cr_amp, angle=cr_angle, risefall_sigma_ratio=cr_rf, sigma=sigma
+                    ),
                     u_chan,
                 )
 
                 if self._target_pulses:
                     pulse.play(
                         pulse.GaussianSquare(
-                            cr_dur, -tgt_amp, risefall_sigma_ratio=cr_rf, sigma=sigma
+                            cr_dur,
+                            -tgt_amp,
+                            angle=tgt_angle,
+                            risefall_sigma_ratio=cr_rf,
+                            sigma=sigma,
                         ),
                         t_chan,
                     )

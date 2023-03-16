@@ -17,6 +17,7 @@ import json
 
 from test.base import QiskitExperimentsTestCase
 import qiskit.pulse as pulse
+from numpy import pi
 
 from qiskit_experiments.calibration_management.basis_gate_library import FixedFrequencyTransmon
 from qiskit_experiments.calibration_management.calibration_key_types import DefaultCalValue
@@ -54,7 +55,7 @@ class TestFixedFrequencyTransmon(QiskitExperimentsTestCase):
         for gate in ["x", "sx"]:
             sched = library[gate]
             self.assertTrue(isinstance(sched, pulse.ScheduleBlock))
-            self.assertEqual(len(sched.parameters), 5)
+            self.assertEqual(len(sched.parameters), 6)
 
         sched_x = library["x"]
         sched_y = library["y"]
@@ -72,10 +73,12 @@ class TestFixedFrequencyTransmon(QiskitExperimentsTestCase):
             DefaultCalValue(0.0, "β", (), "x"),
             DefaultCalValue(320, "duration", (), "x"),
             DefaultCalValue(80, "σ", (), "x"),
+            DefaultCalValue(0.0, "angle", (), "x"),
             DefaultCalValue(320, "duration", (), "sx"),
             DefaultCalValue(0.0, "β", (), "sx"),
             DefaultCalValue(0.25, "amp", (), "sx"),
             DefaultCalValue(80, "σ", (), "sx"),
+            DefaultCalValue(0.0, "angle", (), "sx"),
         ]
 
         for param_conf in library.default_values():
@@ -107,18 +110,22 @@ class TestFixedFrequencyTransmon(QiskitExperimentsTestCase):
             DefaultCalValue(0.0, "β", (), "x"),
             DefaultCalValue(160, "duration", (), "x"),
             DefaultCalValue(40, "σ", (), "x"),
+            DefaultCalValue(0.0, "angle", (), "x"),
             DefaultCalValue(160, "duration", (), "sx"),
             DefaultCalValue(0.0, "β", (), "sx"),
             DefaultCalValue(0.25, "amp", (), "sx"),
             DefaultCalValue(40, "σ", (), "sx"),
-            DefaultCalValue(0.5j, "amp", (), "y"),
+            DefaultCalValue(0.0, "angle", (), "sx"),
+            DefaultCalValue(0.5, "amp", (), "y"),
             DefaultCalValue(0.0, "β", (), "y"),
             DefaultCalValue(160, "duration", (), "y"),
             DefaultCalValue(40, "σ", (), "y"),
+            DefaultCalValue(pi / 2, "angle", (), "y"),
             DefaultCalValue(160, "duration", (), "sy"),
             DefaultCalValue(0.0, "β", (), "sy"),
-            DefaultCalValue(0.25j, "amp", (), "sy"),
+            DefaultCalValue(0.25, "amp", (), "sy"),
             DefaultCalValue(40, "σ", (), "sy"),
+            DefaultCalValue(pi / 2, "angle", (), "sy"),
         ]
 
         self.assertSetEqual(set(library.default_values()), set(expected))
