@@ -54,11 +54,11 @@ SequenceElementType = Union[Clifford, Integral, QuantumCircuit]
 
 
 class StandardRB(BaseExperiment, RestlessMixin):
-    """Standard randomized benchmarking experiment.
+    """An experiment to characterize the error rate of a gate set on a device.
 
     # section: overview
         Randomized Benchmarking (RB) is an efficient and robust method
-        for estimating the average error-rate of a set of quantum gate operations.
+        for estimating the average error rate of a set of quantum gate operations.
         See `Qiskit Textbook
         <https://qiskit.org/textbook/ch-quantum-hardware/randomized-benchmarking.html>`_
         for an explanation on the RB method.
@@ -70,7 +70,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
         the Error Per Clifford (EPC), as described in Refs. [1, 2].
 
     # section: analysis_ref
-        :py:class:`RBAnalysis`
+        :class:`RBAnalysis`
 
     # section: reference
         .. ref_arxiv:: 1 1009.3639
@@ -91,7 +91,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
         """Initialize a standard randomized benchmarking experiment.
 
         Args:
-            physical_qubits: list of physical qubits for the experiment.
+            physical_qubits: List of physical qubits for the experiment.
             lengths: A list of RB sequences lengths.
             backend: The backend to run the experiment on.
             num_samples: Number of samples to generate for each sequence length.
@@ -104,7 +104,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
                            The default is False.
 
         Raises:
-            QiskitError: if any invalid argument is supplied.
+            QiskitError: If any invalid argument is supplied.
         """
         # Initialize base experiment
         super().__init__(physical_qubits, analysis=RBAnalysis(), backend=backend)
@@ -370,7 +370,11 @@ class StandardRB(BaseExperiment, RestlessMixin):
                     inst_prop = self.backend.target[op_name].get(qargs, None)
                     if inst_prop is None:
                         continue
-                    schedule = inst_prop.calibration
+                    try:
+                        schedule = inst_prop.calibration
+                    except AttributeError:
+                        # TODO remove after qiskit-terra/#9681 is in stable release.
+                        schedule = None
                     if schedule is None:
                         continue
                     publisher = schedule.metadata.get("publisher", CalibrationPublisher.QISKIT)
@@ -378,6 +382,9 @@ class StandardRB(BaseExperiment, RestlessMixin):
                         common_calibrations[op_name][(qargs, tuple())] = schedule
 
                 for circ in transpiled:
+                    # This logic is inefficient in terms of payload size and backend compilation
+                    # because this binds every custom pulse to a circuit regardless of
+                    # its existence. It works but redundant calibration must be removed -- NK.
                     circ.calibrations = common_calibrations
 
         if self.analysis.options.get("gate_error_ratio", None) is None:

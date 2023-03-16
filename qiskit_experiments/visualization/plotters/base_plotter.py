@@ -122,6 +122,9 @@ class BasePlotter(ABC):
         # plotter.drawer.figure_options.unknown_variable    # Raises an error as it
                                                             # does not exist in
                                                             # `drawer.figure_options`.
+
+    Attributes:
+        drawer (BaseDrawer): The drawer to use when plotting.
     """
 
     def __init__(self, drawer: BaseDrawer):
@@ -145,9 +148,7 @@ class BasePlotter(ABC):
         # Figure options that have changed, for serialization.
         self._set_figure_options = set()
 
-        # The drawer backend to use for plotting. Docstring provided as drawer is not a @property.
         self.drawer: BaseDrawer = drawer
-        """The drawer to use when plotting."""
 
     @property
     def supplementary_data(self) -> Dict[str, Any]:
@@ -474,7 +475,7 @@ class BasePlotter(ABC):
             fields: The fields to update in options.
 
         Raises:
-            AttributeError: if an unknown option is encountered.
+            AttributeError: If an unknown option is encountered.
         """
         for field in fields:
             if not hasattr(self._options, field):
@@ -502,9 +503,10 @@ class BasePlotter(ABC):
         """Configures :attr:`drawer` before plotting.
 
         The following actions are taken:
-            1. ``axis``, ``subplots``, and ``style`` are passed to :attr:`drawer`.
-            2. ``figure_options`` in :attr:`drawer` are updated based on values set in
-               the plotter :attr:`figure_options`
+
+        1. ``axis``, ``subplots``, and ``style`` are passed to :attr:`drawer`.
+        2. ``figure_options`` in :attr:`drawer` are updated based on values set in
+           the plotter :attr:`figure_options`
 
         These steps are different as all figure options could be passed to
         :attr:`drawer`, if the drawer already has a figure option with the same name.

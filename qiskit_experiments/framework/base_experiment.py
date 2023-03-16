@@ -51,7 +51,7 @@ class BaseExperiment(ABC, StoreInitArgs):
             experiment_type: Optional, the experiment type string.
 
         Raises:
-            QiskitError: if qubits contains duplicates.
+            QiskitError: If qubits contains duplicates.
         """
         # Experiment identification metadata
         self._type = experiment_type if experiment_type else type(self).__name__
@@ -212,7 +212,7 @@ class BaseExperiment(ABC, StoreInitArgs):
             The experiment data object.
 
         Raises:
-            QiskitError: if experiment is run with an incompatible existing
+            QiskitError: If experiment is run with an incompatible existing
                          ExperimentData container.
         """
 
@@ -268,8 +268,17 @@ class BaseExperiment(ABC, StoreInitArgs):
 
     def _run_jobs(self, circuits: List[QuantumCircuit], **run_options) -> List[Job]:
         """Run circuits on backend as 1 or more jobs."""
+        # Get max circuits for job splitting
+        max_circuits_option = getattr(self.experiment_options, "max_circuits", None)
+        max_circuits_backend = self._backend_data.max_circuits
+        if max_circuits_option and max_circuits_backend:
+            max_circuits = min(max_circuits_option, max_circuits_backend)
+        elif max_circuits_option:
+            max_circuits = max_circuits_option
+        else:
+            max_circuits = max_circuits_backend
+
         # Run experiment jobs
-        max_circuits = self._backend_data.max_circuits
         if max_circuits and len(circuits) > max_circuits:
             # Split jobs for backends that have a maximum job size
             job_circuits = [
@@ -313,13 +322,18 @@ class BaseExperiment(ABC, StoreInitArgs):
 
     @classmethod
     def _default_experiment_options(cls) -> Options:
-        """Default kwarg options for experiment"""
+        """Default experiment options.
+
+        Experiment Options:
+            max_circuits (Optional[int]): The maximum number of circuits per job when
+                running an experiment on a backend.
+        """
         # Experiment subclasses should override this method to return
         # an `Options` object containing all the supported options for
         # that experiment and their default values. Only options listed
         # here can be modified later by the different methods for
         # setting options.
-        return Options()
+        return Options(max_circuits=None)
 
     @property
     def experiment_options(self) -> Options:
@@ -363,7 +377,7 @@ class BaseExperiment(ABC, StoreInitArgs):
             fields: The fields to update the options
 
         Raises:
-            QiskitError: if `initial_layout` is one of the fields.
+            QiskitError: If `initial_layout` is one of the fields.
         """
         if "initial_layout" in fields:
             raise QiskitError(

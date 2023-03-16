@@ -9,7 +9,7 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
-"""Plotter for curve fits, specifically from :class:`CurveAnalysis`."""
+"""Plotter for curve fits, specifically from :class:`.CurveAnalysis`."""
 from typing import List
 
 from uncertainties import UFloat
@@ -21,7 +21,7 @@ from .base_plotter import BasePlotter
 
 
 class CurvePlotter(BasePlotter):
-    """A plotter class to plot results from :class:`CurveAnalysis`.
+    """A plotter class to plot results from :class:`.CurveAnalysis`.
 
     ``CurvePlotter`` plots results from curve fits, which includes
 

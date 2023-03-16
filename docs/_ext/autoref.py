@@ -103,3 +103,5 @@ class Arxiv(Directive):
 def setup(app: Sphinx):
     app.add_directive("ref_arxiv", Arxiv)
     app.add_directive("ref_website", WebSite)
+
+    return {"parallel_read_safe": True}

@@ -27,15 +27,10 @@ import pkg_resources
 from dateutil import tz
 from qiskit.version import __version__ as terra_version
 
-try:
-    from qiskit.providers.ibmq.experiment import (
-        IBMExperimentEntryExists,
-        IBMExperimentEntryNotFound,
-    )
-
-    HAS_IBMQ = True
-except ImportError:
-    HAS_IBMQ = False
+from qiskit_ibm_experiment import (
+    IBMExperimentEntryExists,
+    IBMExperimentEntryNotFound,
+)
 
 from .exceptions import ExperimentEntryNotFound, ExperimentEntryExists, ExperimentDataError
 from ..version import __version__ as experiments_version
@@ -131,11 +126,9 @@ def save_data(
         ExperimentDataError: If unable to determine whether the entry exists.
     """
     attempts = 0
-    no_entry_exception = [ExperimentEntryNotFound]
-    dup_entry_exception = [ExperimentEntryExists]
-    if HAS_IBMQ:
-        no_entry_exception.append(IBMExperimentEntryNotFound)
-        dup_entry_exception.append(IBMExperimentEntryExists)
+    no_entry_exception = (ExperimentEntryNotFound, IBMExperimentEntryNotFound)
+    dup_entry_exception = (ExperimentEntryExists, IBMExperimentEntryExists)
+
     try:
         kwargs = {}
         if json_encoder:
@@ -150,13 +143,13 @@ def save_data(
                     kwargs.update(new_data)
                     kwargs.update(update_data)
                     return True, new_func(**kwargs)
-                except tuple(dup_entry_exception):
+                except dup_entry_exception:
                     is_new = False
             else:
                 try:
                     kwargs.update(update_data)
                     return True, update_func(**kwargs)
-                except tuple(no_entry_exception):
+                except no_entry_exception:
                     is_new = True
         raise ExperimentDataError("Unable to determine the existence of the entry.")
     except Exception:  # pylint: disable=broad-except

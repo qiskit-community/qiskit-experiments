@@ -31,7 +31,11 @@ class RoughDragCal(BaseCalibrationExperiment, RoughDrag):
     """A calibration version of the Drag experiment.
 
     # section: see_also
-        qiskit_experiments.library.characterization.rough_drag.RoughDrag
+        :class:`.RoughDrag`
+
+    # section: manual
+        :ref:`DRAG Calibration`
+
     """
 
     @qubit_deprecate()

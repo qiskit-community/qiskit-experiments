@@ -217,7 +217,7 @@ def multi_curve_fit(
         ``xrange`` the range of xdata values used for fit.
 
     Raises:
-        AnalysisError: if the number of degrees of freedom of the fit is
+        AnalysisError: If the number of degrees of freedom of the fit is
                        less than 1, or the curve fitting fails.
 
     .. note::

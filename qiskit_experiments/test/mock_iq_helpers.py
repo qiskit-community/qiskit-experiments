@@ -40,9 +40,9 @@ class MockIQExperimentHelper:
         """Create a MockIQBackend helper object to define how the backend functions.
 
         `iq_cluster_centers` and `iq_cluster_width` define the base IQ cluster centers and
-        standard-deviations for each qubit in a :py:class:`MockIQBackend` instance. These are used by
-        :py:meth:`iq_clusters` by default. Subclasses can override :py:meth:`iq_clusters` to return a
-        modified version of :py:attr:`iq_cluster_centers` and :py:attr:`iq_cluster_width`.
+        standard-deviations for each qubit in a :class:`MockIQBackend` instance. These are used by
+        :meth:`iq_clusters` by default. Subclasses can override :meth:`iq_clusters` to return a
+        modified version of attr:`iq_cluster_centers` and attr:`iq_cluster_width`.
         `iq_cluster_centers` is a list of tuples. For a given qubit `i_qbt` and computational state
         `i_state` (either `0` or `1`), the centers of the IQ clusters are found by indexing
         `iq_cluster_centers` as follows:
@@ -182,17 +182,17 @@ class MockIQExperimentHelper:
         """Returns circuit-specific IQ cluster centers and widths in the IQ plane.
 
         Subclasses can override this function to modify the centers and widths of IQ clusters based on
-        the circuits being simulated by a :py:class:`MockIQBackend`. The base centers and widths are
-        stored internally within the helper object, and can be set in :py:meth:`__init__` or by modifying
-        :py:attr:`iq_cluster_centers` and :py:attr:`iq_cluster_width`. The default behaviour for
-        :py:meth:`iq_clusters` is to return the centers and widths unmodified for each circuit in
+        the circuits being simulated by a :class:`MockIQBackend`. The base centers and widths are
+        stored internally within the helper object, and can be set in :meth:`__init__` or by modifying
+        attr:`iq_cluster_centers` and attr:`iq_cluster_width`. The default behaviour for
+        :meth:`iq_clusters` is to return the centers and widths unmodified for each circuit in
         `circuits`. Subclasses may return different centers and widths based on the circuits provided.
 
         The returned list contains a tuple per circuit. Each tuple contains the IQ centers and widths in
-        the same format as :py:attr:`iq_cluster_centers` and :py:attr:`iq_cluster_width`, passed as
-        arguments to :py:meth:`__init__`. The format of the centers and widths lists, in the argument
+        the same format as attr:`iq_cluster_centers` and attr:`iq_cluster_width`, passed as
+        arguments to :meth:`__init__`. The format of the centers and widths lists, in the argument
         list and in the returned tuples, must match the format of `iq_cluster_centers` and
-        `iq_cluster_width` in :py:func:`qiskit_experiments.test.MockIQExperimentHelper.__init__`.
+        `iq_cluster_width` in :func:`qiskit_experiments.test.MockIQExperimentHelper.__init__`.
 
         Args:
             circuits: The quantum circuits for which the clusters should be modified.
@@ -216,14 +216,14 @@ class MockIQParallelExperimentHelper(MockIQExperimentHelper):
         Parallel Experiment Helper initializer. The class assumes `exp_helper_list` is ordered to
         match the corresponding experiment in `exp_list`.
 
-        Note that :py:meth:`__init__` does not have `iq_cluster_centers` and `iq_cluster_width` as in
-        :py:func:`MockIQExperimentHelper.__init__`. This is because the centers and widths for
-        :py:class:`MockIQParallelBackend` are stored in multiple experiment helpers in the list
+        Note that :meth:`__init__` does not have `iq_cluster_centers` and `iq_cluster_width` as in
+        :func:`MockIQExperimentHelper.__init__`. This is because the centers and widths for
+        :class:`MockIQParallelBackend` are stored in multiple experiment helpers in the list
         `exp_helper_list`.
 
         Args:
             exp_list(List): List of experiments.
-            exp_helper_list(List): Ordered list of `MockIQExperimentHelper` corresponding to the
+            exp_helper_list(List): Ordered list of :class:`.MockIQExperimentHelper` corresponding to the
              experiments in `exp_list`. Nested parallel experiment aren't supported currently.
 
         Raises:
@@ -494,7 +494,7 @@ class MockIQDragHelper(MockIQExperimentHelper):
             are different centers for different logical values of the qubit.
             iq_cluster_width: A list of standard deviation values for the sampling of each qubit.
         Raises:
-            ValueError: if probability value is not valid.
+            ValueError: If probability value is not valid.
         """
         super().__init__(iq_cluster_centers, iq_cluster_width)
         if max_probability + offset_probability > 1:

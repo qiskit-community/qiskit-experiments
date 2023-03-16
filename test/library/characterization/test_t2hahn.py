@@ -14,8 +14,13 @@ Test T2Hahn experiment
 """
 
 from test.base import QiskitExperimentsTestCase
+
 import numpy as np
-from ddt import ddt, data, unpack
+from ddt import ddt, data, named_data, unpack
+
+from qiskit.providers.fake_provider import FakeVigoV2
+from qiskit_aer import AerSimulator
+
 from qiskit_experiments.framework import ParallelExperiment
 from qiskit_experiments.library.characterization.t2hahn import T2Hahn
 from qiskit_experiments.library.characterization import T2HahnAnalysis
@@ -27,6 +32,16 @@ class TestT2Hahn(QiskitExperimentsTestCase):
     """Test T2Hahn experiment"""
 
     __tolerance__ = 0.1
+
+    @named_data(
+        ["no_backend", None], ["fake_backend", FakeVigoV2()], ["aer_backend", AerSimulator()]
+    )
+    def test_circuits(self, backend: str):
+        """Test circuit generation does not error"""
+        delays = [1e-6, 5e-6, 10e-6]
+        circs = T2Hahn([0], delays, backend=backend).circuits()
+        for delay, circ in zip(delays, circs):
+            self.assertAlmostEqual(delay, circ.metadata["xval"])
 
     @data([0], [1], [2])
     @unpack

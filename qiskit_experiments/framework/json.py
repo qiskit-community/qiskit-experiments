@@ -194,7 +194,7 @@ def _decode_and_deserialize(value: Dict, deserializer: Callable, name: Optional[
         Deserialized data.
 
     Raises:
-        ValueError: if deserialization fails.
+        ValueError: If deserialization fails.
     """
     try:
         with io.BytesIO() as buff:
@@ -294,7 +294,7 @@ def _serialize_object(obj: Any, settings: Optional[Dict] = None, safe_float: boo
     Args:
         obj: The object to be serialized.
         settings: Optional, settings for reconstructing the object from kwargs.
-        safe_float: if True check float values for NaN, inf and -inf
+        safe_float: If True check float values for NaN, inf and -inf
                     and cast to strings during serialization.
 
     Returns:

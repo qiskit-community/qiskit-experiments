@@ -38,15 +38,17 @@ Experiments for verification and validation of quantum devices.
     ~randomized_benchmarking.InterleavedRB
     ~tomography.StateTomography
     ~tomography.ProcessTomography
+    ~tomography.MitigatedStateTomography
+    ~tomography.MitigatedProcessTomography
     ~quantum_volume.QuantumVolume
 
-.. _characterization:
+.. _characterization single qubit:
 
-Characterization Experiments
-============================
+Characterization Experiments: Single Qubit
+==========================================
 
-Experiments for characterization of qubits and quantum device properties.
-Some experiments may be also used for gate calibration.
+Experiments for characterization of properties of individual qubits.
+Some experiments also have a calibration experiment version.
 
 .. autosummary::
     :toctree: ../stubs/
@@ -58,12 +60,6 @@ Some experiments may be also used for gate calibration.
     ~characterization.Tphi
     ~characterization.QubitSpectroscopy
     ~characterization.EFSpectroscopy
-    ~characterization.CrossResonanceHamiltonian
-    ~characterization.EchoedCrossResonanceHamiltonian
-    ~characterization.RoughDrag
-    ~characterization.FineDrag
-    ~characterization.FineXDrag
-    ~characterization.FineSXDrag
     ~characterization.HalfAngle
     ~characterization.FineAmplitude
     ~characterization.FineXAmplitude
@@ -74,12 +70,41 @@ Some experiments may be also used for gate calibration.
     ~characterization.RamseyXY
     ~characterization.FineFrequency
     ~characterization.ReadoutAngle
-    ~characterization.LocalReadoutError
-    ~characterization.CorrelatedReadoutError
     ~characterization.ResonatorSpectroscopy
-    ~characterization.ZZRamsey
+    ~characterization.RoughDrag
+    ~characterization.FineDrag
+    ~characterization.FineXDrag
+    ~characterization.FineSXDrag
     ~characterization.MultiStateDiscrimination
 
+.. _characterization two qubits:
+
+Characterization Experiments: Two Qubits
+========================================
+
+Experiments for characterization of properties of two qubit interactions.
+
+.. autosummary::
+    :toctree: ../stubs/
+    :template: autosummary/experiment.rst
+
+    ~characterization.CrossResonanceHamiltonian
+    ~characterization.EchoedCrossResonanceHamiltonian
+    ~characterization.ZZRamsey
+
+.. _characterization-mitigation:
+
+Characterization Experiments: Mitigation
+========================================
+
+Experiments for characterizing and mitigating readout error.
+
+.. autosummary::
+    :toctree: ../stubs/
+    :template: autosummary/experiment.rst
+
+    ~characterization.LocalReadoutError
+    ~characterization.CorrelatedReadoutError
 
 .. _calibration:
 
@@ -88,9 +113,9 @@ Calibration Experiments
 
 Experiments for pulse level calibration of quantum gates. These experiments
 are usually run with a
-:py:class:`~qiskit_experiments.calibration_management.Calibrations`
+:class:`~qiskit_experiments.calibration_management.Calibrations`
 class instance to manage parameters and pulse schedules.
-See :doc:`/tutorials/calibrating_real_device` for example.
+See :doc:`/tutorials/calibrations` for examples.
 
 .. autosummary::
     :toctree: ../stubs/
@@ -156,7 +181,12 @@ from .characterization import (
     MultiStateDiscrimination,
 )
 from .randomized_benchmarking import StandardRB, InterleavedRB
-from .tomography import StateTomography, ProcessTomography
+from .tomography import (
+    StateTomography,
+    ProcessTomography,
+    MitigatedStateTomography,
+    MitigatedProcessTomography,
+)
 from .quantum_volume import QuantumVolume
 
 # Experiment Sub-modules

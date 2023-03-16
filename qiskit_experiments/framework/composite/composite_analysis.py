@@ -144,7 +144,7 @@ class CompositeAnalysis(BaseAnalysis):
             component experiment.
 
         Raises:
-            AnalysisError: if the component experiment data cannot be extracted.
+            AnalysisError: If the component experiment data cannot be extracted.
         """
         if not self._flatten_results:
             # Retrieve child data for component experiments for updating

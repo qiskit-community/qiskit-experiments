@@ -59,7 +59,7 @@ class LocalPreparationBasis(PreparationBasis):
                           qubits not specified in this dict.
 
         Raises:
-            QiskitError: if input states or instructions are not valid, or no
+            QiskitError: If input states or instructions are not valid, or no
                          instructions or states are provided.
         """
         if instructions is None and default_states is None and qubit_states is None:
@@ -283,7 +283,7 @@ class LocalMeasurementBasis(MeasurementBasis):
                          not specified in this dict.
 
         Raises:
-            QiskitError: if the input instructions or POVMs are not valid, or if no
+            QiskitError: If the input instructions or POVMs are not valid, or if no
                          instructions or POVMs are provided.
         """
         if instructions is None and default_povms is None and qubit_povms is None:

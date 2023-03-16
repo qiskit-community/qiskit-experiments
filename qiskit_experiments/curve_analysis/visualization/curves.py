@@ -55,7 +55,7 @@ def plot_curve_fit(
         matplotlib.axes.Axes: the matplotlib axes containing the plot.
 
     Raises:
-        ImportError: if matplotlib is not installed.
+        ImportError: If matplotlib is not installed.
     """
     if ax is None:
         ax = get_non_gui_ax()
