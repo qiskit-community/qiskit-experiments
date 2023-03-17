@@ -44,6 +44,9 @@ from qiskit_experiments.library.randomized_benchmarking.clifford_utils import (
     _layer_indices_from_num,
     _CLIFFORD_LAYER,
 )
+from qiskit_experiments.library.randomized_benchmarking.clifford_utils import (
+    compute_target_bitstring,
+)
 
 
 @ddt

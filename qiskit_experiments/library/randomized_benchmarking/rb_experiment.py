@@ -279,7 +279,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
             # Compute inverse, compute only the difference from the previous shorter sequence
             prev_elem = self.__compose_clifford_seq(prev_elem, seq[len(prev_seq) :])
             prev_seq = seq
-            inv = self._adjoint_clifford(prev_elem)
+            inv = self.__adjoint_clifford(prev_elem)
 
             circ.append(self._to_instruction(inv, basis_gates), circ.qubits)
             circ.measure_all()  # includes insertion of the barrier before measurement
@@ -300,13 +300,12 @@ class StandardRB(BaseExperiment, RestlessMixin):
         self,
         elem: SequenceElementType,
         basis_gates: Optional[Tuple[str, ...]] = None,
-        gate_size=None,
     ) -> Instruction:
         # Switching for speed up
         if isinstance(elem, Integral):
-            if self.num_qubits == 1 or gate_size == 1:
+            if self.num_qubits == 1:
                 return _clifford_1q_int_to_instruction(elem, basis_gates)
-            if self.num_qubits == 2 or gate_size == 2:
+            if self.num_qubits == 2:
                 return _clifford_2q_int_to_instruction(elem, basis_gates)
 
         return elem.to_instruction()
@@ -329,7 +328,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
             circ.compose(elem, inplace=True)
         return base_elem.compose(Clifford.from_circuit(circ))
 
-    def _adjoint_clifford(self, op: SequenceElementType) -> SequenceElementType:
+    def __adjoint_clifford(self, op: SequenceElementType) -> SequenceElementType:
         if self.num_qubits == 1:
             return inverse_1q(op)
         if self.num_qubits == 2:
@@ -338,6 +337,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
             return Clifford.from_circuit(op).adjoint()
         return op.adjoint()
 
+    # pyline: disable=arguments-differ
     def _transpiled_circuits(self, custom_transpile=False) -> List[QuantumCircuit]:
         """Return a list of experiment circuits, transpiled."""
         has_custom_transpile_option = (

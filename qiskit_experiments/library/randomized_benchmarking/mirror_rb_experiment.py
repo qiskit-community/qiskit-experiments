@@ -28,17 +28,10 @@ from qiskit.providers.options import Options
 from qiskit.transpiler.basepasses import TransformationPass
 from qiskit_experiments.warnings import deprecate_arguments
 
-from .rb_experiment import StandardRB
+from .rb_experiment import StandardRB, SequenceElementType
 from .mirror_rb_analysis import MirrorRBAnalysis
-from .clifford_utils import (
-    CliffordUtils,
-    _decompose_clifford_ops,
-    _clifford_1q_int_to_instruction,
-    compute_target_bitstring,
-)
+from .clifford_utils import compute_target_bitstring
 from .sampling_utils import MirrorRBSampler, EdgeGrabSampler
-
-SequenceElementType = Union[Clifford, Integral, QuantumCircuit]
 
 
 class MirrorRB(StandardRB):

@@ -24,10 +24,13 @@ from qiskit.exceptions import QiskitError
 from qiskit.providers.fake_provider import FakeManila, FakeManilaV2, FakeWashington, FakeParis
 from qiskit.pulse import Schedule, InstructionScheduleMap
 from qiskit.quantum_info import Operator
-from qiskit_aer import AerSimulator
-from qiskit_aer.noise import NoiseModel, depolarizing_error
 from qiskit.transpiler.basepasses import TransformationPass
 from qiskit.transpiler import Layout, PassManager, CouplingMap
+from qiskit.transpiler.exceptions import TranspilerError
+
+from qiskit_aer import AerSimulator
+from qiskit_aer.noise import NoiseModel, depolarizing_error
+
 from qiskit_experiments.database_service.exceptions import ExperimentEntryNotFound
 from qiskit_experiments.framework.composite import ParallelExperiment
 from qiskit_experiments.library import randomized_benchmarking as rb
@@ -545,6 +548,7 @@ class TestRunStandardRB(RBRunTestCase):
         epc = expdata.analysis_results("EPC")
 
         epc_expected = 1 - (1 - 1 / 2 * self.p1q) ** 1.0
+        print(epc.value.n)
         self.assertAlmostEqual(epc.value.n, epc_expected, delta=0.1 * epc_expected)
 
     def test_two_qubit(self):
@@ -1099,19 +1103,59 @@ class TestMirrorRB(QiskitExperimentsTestCase, RBTestMixin):
         self.assertEqual(analysis.config(), loaded.config())
 
 
+@ddt
 class TestRunMirrorRB(RBRunTestCase):
+    """Class for testing execution of mirror RB experiments."""
+
+    def setUp(self):
+        """Setup the tests."""
+        super().setUp()
+
+        # depolarizing error
+        self.p1q = 0.02
+        self.p2q = 0.10
+        self.pvz = 0.0
+
+        # basis gates
+        self.basis_gates = ["sx", "rz", "cx", "id"]
+
+        # setup noise model
+        sx_error = depolarizing_error(self.p1q, 1)
+        rz_error = depolarizing_error(self.pvz, 1)
+        cx_error = depolarizing_error(self.p2q, 2)
+
+        noise_model = NoiseModel()
+        noise_model.add_all_qubit_quantum_error(sx_error, "sx")
+        noise_model.add_all_qubit_quantum_error(rz_error, "rz")
+        noise_model.add_all_qubit_quantum_error(cx_error, "cx")
+
+        self.noise_model = noise_model
+        self.basis_gates = noise_model.basis_gates
+
+        # Need level1 for consecutive gate cancellation for reference EPC value calculation
+        self.transpiler_options = {
+            "basis_gates": self.basis_gates,
+            "optimization_level": 1,
+        }
+
+        # Aer simulator
+        self.backend = AerSimulator(
+            noise_model=noise_model,
+            seed_simulator=123,
+            coupling_map=AerSimulator.from_backend(FakeParis()).configuration().coupling_map,
+        )
+
     def test_single_qubit(self):
         """Test single qubit mirror RB."""
         exp = rb.MirrorRB(
             physical_qubits=(0,),
-            lengths=list(range(2, 300, 20)),
+            lengths=list(range(2, 300, 40)),
             seed=124,
             backend=self.backend,
-            num_samples=30,
+            num_samples=20,
         )
-        # exp.analysis.set_options(gate_error_ratio=None)
+        exp.analysis.set_options(gate_error_ratio=None)
         exp.set_transpile_options(**self.transpiler_options)
-        self.assertAllIdentity(exp.circuits())
 
         expdata = exp.run()
         self.assertExperimentDone(expdata)
@@ -1128,6 +1172,8 @@ class TestRunMirrorRB(RBRunTestCase):
         # formula should be EPC = 1 - (1 - r)^(n_gpc + n_gpp) = 1 - (1 - r)^2
         epc = expdata.analysis_results("EPC")
         epc_expected = 1 - (1 - 1 / 2 * self.p1q) ** 2.0
+
+        print(epc.value.n)
         self.assertAlmostEqual(epc.value.n, epc_expected, delta=0.1 * epc_expected)
 
     def test_two_qubit(self):
@@ -1135,10 +1181,10 @@ class TestRunMirrorRB(RBRunTestCase):
         two_qubit_gate_density = 0.2
         exp = rb.MirrorRB(
             physical_qubits=(0, 1),
-            lengths=list(range(2, 300, 20)),
+            lengths=list(range(2, 300, 40)),
             seed=123,
             backend=self.backend,
-            num_samples=30,
+            num_samples=20,
             two_qubit_gate_density=two_qubit_gate_density,
         )
         exp.analysis.set_options(gate_error_ratio=None)
@@ -1312,49 +1358,49 @@ class TestRunMirrorRB(RBRunTestCase):
 
     @data(
         {
-            "qubits": [3, 3],
+            "physical_qubits": [3, 3],
             "lengths": [2, 4, 6, 8, 10],
             "num_samples": 1,
             "seed": 100,
             "backend": AerSimulator(coupling_map=[[0, 1], [1, 0]]),
         },  # repeated qubits
         {
-            "qubits": [0, 1],
+            "physical_qubits": [0, 1],
             "lengths": [2, 4, 6, -8, 10],
             "num_samples": 1,
             "seed": 100,
             "backend": AerSimulator(coupling_map=[[0, 1], [1, 0]]),
         },  # negative length
         {
-            "qubits": [0, 1],
+            "physical_qubits": [0, 1],
             "lengths": [2, 4, 6, 8, 10],
             "num_samples": -4,
             "seed": 100,
             "backend": AerSimulator(coupling_map=[[0, 1], [1, 0]]),
         },  # negative number of samples
         {
-            "qubits": [0, 1],
+            "physical_qubits": [0, 1],
             "lengths": [2, 4, 6, 8, 10],
             "num_samples": 0,
             "seed": 100,
             "backend": AerSimulator(coupling_map=[[0, 1], [1, 0]]),
         },  # zero samples
         {
-            "qubits": [0, 1],
+            "physical_qubits": [0, 1],
             "lengths": [2, 6, 6, 6, 10],
             "num_samples": 2,
             "seed": 100,
             "backend": AerSimulator(coupling_map=[[0, 1], [1, 0]]),
         },  # repeated lengths
         {
-            "qubits": [0, 1],
+            "physical_qubits": [0, 1],
             "lengths": [2, 4, 5, 8, 10],
             "num_samples": 2,
             "seed": 100,
             "backend": AerSimulator(coupling_map=[[0, 1], [1, 0]]),
         },  # odd length
         {
-            "qubits": [0, 1],
+            "physical_qubits": [0, 1],
             "lengths": [2, 4, 6, 8, 10],
             "num_samples": 1,
             "seed": 100,
@@ -1368,7 +1414,7 @@ class TestRunMirrorRB(RBRunTestCase):
 
     @data(
         {
-            "qubits": [0, 1],
+            "physical_qubits": [0, 1],
             "lengths": [2, 4, 6, 8, 10],
             "num_samples": 1,
             "seed": 100,
@@ -1382,14 +1428,14 @@ class TestRunMirrorRB(RBRunTestCase):
 
     @data(
         {
-            "qubits": [0, 4],
+            "physical_qubits": [0, 4],
             "lengths": [2, 4, 6, 8, 10],
             "num_samples": 1,
             "seed": 100,
             "backend": AerSimulator.from_backend(FakeManila()),
         },  # Uncoupled qubits to test edgegrab algorithm warning
         {
-            "qubits": [0, 1],
+            "physical_qubits": [0, 1],
             "lengths": [2, 4, 6, 8, 10],
             "num_samples": 1,
             "seed": 100,

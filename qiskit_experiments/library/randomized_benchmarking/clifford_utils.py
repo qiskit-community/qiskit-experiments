@@ -15,10 +15,9 @@ Utilities for using the Clifford group in randomized benchmarking
 
 import itertools
 import os
-import warnings
 from functools import lru_cache
 from numbers import Integral
-from typing import Optional, Union, Tuple, Sequence, List
+from typing import Optional, Union, Tuple, Sequence
 
 import numpy as np
 import scipy.sparse
