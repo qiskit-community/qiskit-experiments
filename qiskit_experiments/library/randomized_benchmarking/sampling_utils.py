@@ -41,8 +41,6 @@ from qiskit.extensions import UnitaryGate
 from qiskit.converters import circuit_to_dag
 from .clifford_utils import CliffordUtils
 
-# SequenceElementType = Union[Clifford, Integral, QuantumCircuit]
-
 
 class MirrorRBSampler(ABC):
     """Sampling distribution for the mirror randomized benchmarking experiment."""
@@ -52,7 +50,8 @@ class MirrorRBSampler(ABC):
 
     @abstractmethod
     def __call__(self, num_qubits, seed=None, **params):
-        self.num_qubits = num_qubits
+        """Samplers should define this method so that it returns a single sampled layer."""
+        pass
 
 
 class EdgeGrabSampler(MirrorRBSampler):
@@ -112,7 +111,7 @@ class EdgeGrabSampler(MirrorRBSampler):
             TypeError: If invalid gate set(s) are specified.
 
         Returns:
-            ``length``-long list of :class:`qiskit.circuit.QuantumCircuit` layers over
+            A ``length``-long list of :class:`qiskit.circuit.QuantumCircuit` layers over
                 ``num_qubits`` qubits.
 
         """

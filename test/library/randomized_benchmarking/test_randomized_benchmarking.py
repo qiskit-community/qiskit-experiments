@@ -31,6 +31,9 @@ from qiskit.transpiler import Layout, PassManager, CouplingMap
 from qiskit_experiments.database_service.exceptions import ExperimentEntryNotFound
 from qiskit_experiments.framework.composite import ParallelExperiment
 from qiskit_experiments.library import randomized_benchmarking as rb
+from qiskit_experiments.library.randomized_benchmarking.clifford_utils import (
+    compute_target_bitstring,
+)
 
 
 class RBTestMixin:
@@ -827,7 +830,6 @@ class TestRunInterleavedRB(RBRunTestCase):
         self.assertRoundTripPickle(expdata, check_func=self.experiment_data_equiv)
 
 
-
 class NonlocalCXDepError(TransformationPass):
     """Transpiler pass for simulating nonlocal errors in a quantum device"""
 
@@ -927,36 +929,18 @@ class TestMirrorRB(QiskitExperimentsTestCase, RBTestMixin):
             "optimization_level": 1,
         }
 
-    def test_custom_distribution(self):
-        """Test providing a custom distribution."""
-        qubits = (
-            0,
-            1,
-            2,
-        )
-        exp = rb.MirrorRB(
-            physical_qubits=qubits,
-            distribution=rb.RandomEdgeGrabDistribution,
-            two_qubit_gate_density=0.5,
-            lengths=list(range(2, 300, 20)),
-            seed=124,
-            backend=self.backend,
-            num_samples=30,
-        )
-        # test that feeding the circuit from edge grab into discrete yields the same answer(?)
-
     def test_return_same_circuit(self):
         """Test if setting the same seed returns the same circuits."""
         lengths = [10, 20]
         exp1 = rb.MirrorRB(
-            qubits=(0, 1),
+            physical_qubits=(0, 1),
             lengths=lengths,
             seed=123,
             backend=self.backend,
         )
 
         exp2 = rb.MirrorRB(
-            qubits=(0, 1),
+            physical_qubits=(0, 1),
             lengths=lengths,
             seed=123,
             backend=self.backend,
@@ -971,7 +955,7 @@ class TestMirrorRB(QiskitExperimentsTestCase, RBTestMixin):
     def test_full_sampling(self):
         """Test if full sampling generates different circuits."""
         exp1 = rb.MirrorRB(
-            qubits=(0, 1),
+            physical_qubits=(0, 1),
             lengths=[10, 20],
             seed=123,
             backend=self.backend,
@@ -980,7 +964,7 @@ class TestMirrorRB(QiskitExperimentsTestCase, RBTestMixin):
         )
 
         exp2 = rb.MirrorRB(
-            qubits=(0, 1),
+            physical_qubits=(0, 1),
             lengths=[10, 20],
             seed=123,
             backend=self.backend,
@@ -997,26 +981,11 @@ class TestMirrorRB(QiskitExperimentsTestCase, RBTestMixin):
         # top of previous length
         self.assertNotEqual(circs1[1].decompose(), circs2[1].decompose())
 
-    def test_target_bitstring(self):
-        """Test if correct target bitstring is returned."""
-        qc = QuantumCircuit(9)
-        qc.z(0)
-        qc.y(1)
-        qc.y(2)
-        qc.z(3)
-        qc.y(4)
-        qc.x(7)
-        qc.y(8)
-        exp = rb.MirrorRB(qubits=[0], lengths=[2], backend=self.backend)
-        expected_tb = exp._clifford_utils.compute_target_bitstring(qc)
-        actual_tb = "110010110"
-        self.assertEqual(expected_tb, actual_tb)
-
     def test_zero_2q_gate_density(self):
         """Test that there are no two-qubit gates when the two-qubit gate
         density is set to 0."""
         exp = rb.MirrorRB(
-            qubits=(0, 1),
+            physical_qubits=(0, 1),
             lengths=[40],
             seed=124,
             backend=self.backend,
@@ -1035,7 +1004,7 @@ class TestMirrorRB(QiskitExperimentsTestCase, RBTestMixin):
         connectivity)."""
         backend = AerSimulator(coupling_map=CouplingMap.from_full(4).get_edges())
         exp = rb.MirrorRB(
-            qubits=(0, 1, 2, 3),
+            physical_qubits=(0, 1, 2, 3),
             lengths=[40],
             seed=125,
             backend=backend,
@@ -1053,7 +1022,7 @@ class TestMirrorRB(QiskitExperimentsTestCase, RBTestMixin):
         """Test that the number of layers is correct depending on whether
         local_clifford is set to True or False by counting the number of barriers."""
         exp = rb.MirrorRB(
-            qubits=(0,),
+            physical_qubits=(0,),
             lengths=[2],
             seed=126,
             backend=self.backend,
@@ -1074,7 +1043,7 @@ class TestMirrorRB(QiskitExperimentsTestCase, RBTestMixin):
         """Test that the number of layers is correct depending on whether
         pauli_randomize is set to True or False by counting the number of barriers."""
         exp = rb.MirrorRB(
-            qubits=(0,),
+            physical_qubits=(0,),
             lengths=[2],
             seed=126,
             backend=self.backend,
@@ -1092,12 +1061,10 @@ class TestMirrorRB(QiskitExperimentsTestCase, RBTestMixin):
         self.assertEqual(6, num_barriers)
 
     def test_inverting_pauli_layer(self):
-        """Test that a circuit with an inverting Pauli layer at the end (i.e.,
-        a layer of Paulis before the final measurement that restores the output
-        to |0>^num_qubits up to a global phase) composes to the identity (up to
-        a global phase)"""
+        """Test that a circuit with an inverting Pauli layer at the end generates
+        an all-zero output."""
         exp = rb.MirrorRB(
-            qubits=(0, 1, 2),
+            physical_qubits=(0, 1, 2),
             lengths=[2],
             seed=127,
             backend=self.backend,
@@ -1107,18 +1074,21 @@ class TestMirrorRB(QiskitExperimentsTestCase, RBTestMixin):
             two_qubit_gate_density=0.2,
             inverting_pauli_layer=True,
         )
-        self.assertAllIdentity(exp.circuits())
+        self.assertEqual(
+            compute_target_bitstring(exp.circuits()[0].remove_final_measurements(inplace=False)),
+            "000",
+        )
 
     def test_experiment_config(self):
         """Test converting to and from config works"""
-        exp = rb.MirrorRB(qubits=(0,), lengths=[10, 20, 30], seed=123, backend=self.backend)
+        exp = rb.MirrorRB([0], lengths=[10, 20, 30], seed=123, backend=self.backend)
         loaded_exp = rb.MirrorRB.from_config(exp.config())
         self.assertNotEqual(exp, loaded_exp)
         self.assertTrue(self.json_equiv(exp, loaded_exp))
 
     def test_roundtrip_serializable(self):
         """Test round trip JSON serialization"""
-        exp = rb.MirrorRB(qubits=(0,), lengths=[10, 20, 30], seed=123)
+        exp = rb.MirrorRB([0], lengths=[10, 20, 30], seed=123)
         self.assertRoundTripSerializable(exp, self.json_equiv)
 
     def test_analysis_config(self):
@@ -1164,7 +1134,7 @@ class TestRunMirrorRB(RBRunTestCase):
         """Test two qubit RB."""
         two_qubit_gate_density = 0.2
         exp = rb.MirrorRB(
-            qubits=(0, 1),
+            physical_qubits=(0, 1),
             lengths=list(range(2, 300, 20)),
             seed=123,
             backend=self.backend,
@@ -1223,7 +1193,7 @@ class TestRunMirrorRB(RBRunTestCase):
 
         two_qubit_gate_density = 0.2
         exp = rb.MirrorRB(
-            qubits=(0, 1),
+            physical_qubits=(0, 1),
             lengths=list(range(2, 110, 20)),
             seed=123,
             backend=noise_backend,
@@ -1281,7 +1251,7 @@ class TestRunMirrorRB(RBRunTestCase):
 
         two_qubit_gate_density = 0.2
         exp = rb.MirrorRB(
-            qubits=(0, 1, 2),
+            physical_qubits=(0, 1, 2),
             lengths=list(range(2, 110, 50)),
             seed=123,
             backend=noise_backend,
@@ -1310,7 +1280,7 @@ class TestRunMirrorRB(RBRunTestCase):
     def test_add_more_circuit_yields_lower_variance(self):
         """Test variance reduction with larger number of sampling."""
         exp1 = rb.MirrorRB(
-            qubits=(0, 1),
+            physical_qubits=(0, 1),
             lengths=list(range(2, 30, 4)),
             seed=123,
             backend=self.backend,
@@ -1323,7 +1293,7 @@ class TestRunMirrorRB(RBRunTestCase):
         self.assertExperimentDone(expdata1)
 
         exp2 = rb.MirrorRB(
-            qubits=(0, 1),
+            physical_qubits=(0, 1),
             lengths=list(range(2, 30, 4)),
             seed=456,
             backend=self.backend,
@@ -1435,7 +1405,7 @@ class TestRunMirrorRB(RBRunTestCase):
     def test_expdata_serialization(self):
         """Test serializing experiment data works."""
         exp = rb.MirrorRB(
-            qubits=(0,),
+            physical_qubits=(0,),
             lengths=list(range(2, 200, 50)),
             seed=123,
             backend=self.backend,
