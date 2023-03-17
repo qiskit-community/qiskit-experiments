@@ -15,8 +15,8 @@ randomized Clifford mirror circuit [1]_ consists of:
 - a layer of uniformly random one-qubit Cliffords at the beginning and the end 
   of the circuit.
 
-Because the Clifford gates are only one- and two-qubit, unlike in standard RB, which
-requires the implementation of n-qubit Cliffords, mirror RB ????. Mirror RB can also be
+Note that the Clifford gates are only one- and two-qubit, unlike in standard RB, which
+requires the implementation of n-qubit Cliffords. Mirror RB can also be
 generalized to universal gatesets beyond the Cliffords [2]_.
 
 Output metrics
@@ -87,7 +87,9 @@ user can specify an expected two-qubit gate density :math:`\xi \in \left[0,
 
 Even though a :class:`.MirrorRB` experiment can be instantiated without a backend, the
 backend must be specified when the circuits are sampled because :math:`\Omega` depends
-on the backend's connectivity. Here is a typical way to instantiate and run the
+on the backend's connectivity. To use your own :math:`\Omega`, you have to implement
+your own subclass of the abstract :class:`.MirrorRBSampler` class, but here we will use
+the built-in :class:`.EdgeGrabSampler`. Here's how to instantiate and run the
 experiment:
 
 .. jupyter-execute::
@@ -96,8 +98,13 @@ experiment:
     from qiskit_experiments.library import MirrorRB
     from qiskit_experiments.library.randomized_benchmarking.sampling_utils import EdgeGrabSampler
 
+    from qiskit_aer import AerSimulator
+    from qiskit.providers.fake_provider import FakeParis
+    
+    backend = AerSimulator.from_backend(FakeParis())
+
     lengths = np.arange(2, 810, 200)
-    num_samples = 30
+    num_samples = 5
     seed = 1010
     qubits = (0,)
 
@@ -109,33 +116,6 @@ experiment:
                       two_qubit_gate_density=.4,
                       distribution=EdgeGrabSampler)
 
-    exp_1q = MirrorRB(qubits, lengths, backend=backend, num_samples=num_samples, seed=seed)
-    expdata_1q = exp_1q.run(backend).block_for_results()
-    results_1q = expdata_1q.analysis_results()
-
-.. jupyter-execute::
-
-    print("Gate error ratio: %s" % expdata_1q.experiment.analysis.options.gate_error_ratio)
-    display(expdata_1q.figure(0))
-    for result in results_1q:
-        print(result)
-
-
-.. jupyter-execute::
-
-    # Two-qubit circuit example
-    exp_2q_circ = MirrorRB((0,1), lengths=[4], backend=backend, num_samples=1, seed=1010, two_qubit_gate_density=.4)
-    qc2 = exp_2q_circ.circuits()[0].decompose()
-    qc2.draw()
-
-.. jupyter-execute::
-
-    lengths = np.arange(2, 810, 200)
-    num_samples = 30
-    seed = 1011
-    qubits = (0,1)
-
-    # Run a MRB experiment on qubits 0, 1
     exp_2q = MirrorRB(qubits, lengths, backend=backend, num_samples=num_samples, seed=seed)
     expdata_2q = exp_2q.run(backend).block_for_results()
     results_2q = expdata_2q.analysis_results()
@@ -148,24 +128,17 @@ experiment:
     for result in results_2q:
         print(result)
 
-Using your own custom :math:`\Omega`
-------------------------------------
-
-To use your own :math:`\Omega`, you have to implement your own subclass of the abstract
-:class:`.MirrorRBSampler` class.
-
-
 Selecting :math:`y`-axis values
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 You can set what you want to use as the :math:`y`-axis metric for fitting by setting
 the ``y-axis`` analysis option. Here's an example of plotting the success probability 
-instead of the default 
+instead of the default:
 
 .. jupyter-execute::
 
     lengths = [2, 52, 102, 152]
-    num_samples = 30
+    num_samples = 5
     seed = 42
     qubits = (0,)
 
@@ -173,8 +146,7 @@ instead of the default
     # select y-axis
     exp.analysis.set_options(y_axis="Success Probability") # or "Adjusted Success Probability" or "Effective Polarization"
     # y-axis label must be set separately
-    exp.analysis.options.curve_drawer.set_options(
-    #     xlabel="Clifford Length",
+    exp.analysis.options.plotter.set_figure_options(
         ylabel="Success Probability",
     )
     expdata = exp.run(backend).block_for_results()
@@ -202,14 +174,32 @@ object is instantiated:
 - ``two_qubit_gate_density`` (default ``0.2``): expected fraction of two-qubit 
   gates in each intermediate Clifford layer
 
-- ``inverting_pauli_layer`` (default ``False``): if ``True``, put a layer of 
+- ``inverting_pauli_layer`` (default ``False``): if ``True``, add a layer of 
   Paulis at the end of the circuit to set the output to 
   :math:`\left\vert0\right\rangle^{\otimes n}`, up to a global phase
 
-Let's look at how these options change the circuit:
+Let's look at how these options change the circuit. First, the default with Pauli
+layers between Cliffords and single-qubit Cliffords at the start and end:
 
-## insert draw stuff here
+.. jupyter-execute::
 
+    exp = MirrorRB((0,1,2),
+                   lengths=[2],
+                   backend=backend,
+                   num_samples=1)
+    exp.circuits()[0].decompose().draw("mpl")
+
+And now with both options turned off:
+
+.. jupyter-execute::
+
+    exp = MirrorRB((0,1,2),
+                   lengths=[2],
+                   backend=backend,
+                   num_samples=1,
+                   local_clifford=False,
+                   pauli_randomize=False)
+    exp.circuits()[0].decompose().draw("mpl")
 
 Mirror RB implementation in ``pyGSTi``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

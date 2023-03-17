@@ -108,11 +108,7 @@ class MirrorRBAnalysis(curve.CurveAnalysis):
 
     def __init__(self):
         super().__init__(
-            models=[
-                lmfit.models.ExpressionModel(
-                    expr="a * alpha ** x + b", name="mirror", data_sort_key={"mirror": True}
-                )
-            ]
+            models=[lmfit.models.ExpressionModel(expr="a * alpha ** x + b", name="mirror")]
         )
         self._gate_counts_per_clifford = None
         self._physical_qubits = None

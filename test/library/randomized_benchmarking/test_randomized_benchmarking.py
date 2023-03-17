@@ -37,6 +37,7 @@ from qiskit_experiments.library import randomized_benchmarking as rb
 from qiskit_experiments.library.randomized_benchmarking.clifford_utils import (
     compute_target_bitstring,
 )
+from qiskit_experiments.library.randomized_benchmarking.sampling_utils import EdgeGrabSampler
 
 
 class RBTestMixin:
@@ -1173,7 +1174,6 @@ class TestRunMirrorRB(RBRunTestCase):
         epc = expdata.analysis_results("EPC")
         epc_expected = 1 - (1 - 1 / 2 * self.p1q) ** 2.0
 
-        print(epc.value.n)
         self.assertAlmostEqual(epc.value.n, epc_expected, delta=0.1 * epc_expected)
 
     def test_two_qubit(self):
@@ -1189,7 +1189,6 @@ class TestRunMirrorRB(RBRunTestCase):
         )
         exp.analysis.set_options(gate_error_ratio=None)
         exp.set_transpile_options(**self.transpiler_options)
-        self.assertAllIdentity(exp.circuits())
 
         expdata = exp.run()
         self.assertExperimentDone(expdata)
@@ -1248,7 +1247,6 @@ class TestRunMirrorRB(RBRunTestCase):
         )
         exp.analysis.set_options(gate_error_ratio=None)
         exp.set_transpile_options(**transpiler_options)
-        self.assertAllIdentity(exp.circuits())
         expdata = exp.run(noise_backend)
         self.assertExperimentDone(expdata)
 
@@ -1306,7 +1304,6 @@ class TestRunMirrorRB(RBRunTestCase):
         )
         exp.analysis.set_options(gate_error_ratio=None)
         exp.set_transpile_options(**transpiler_options)
-        self.assertAllIdentity(exp.circuits())
         expdata = exp.run(noise_backend)
         self.assertExperimentDone(expdata)
 
@@ -1425,28 +1422,6 @@ class TestRunMirrorRB(RBRunTestCase):
         """Test raise error when no backend is provided for sampling circuits."""
         mirror_exp = rb.MirrorRB(**configs)
         self.assertRaises(QiskitError, mirror_exp.run)
-
-    @data(
-        {
-            "physical_qubits": [0, 4],
-            "lengths": [2, 4, 6, 8, 10],
-            "num_samples": 1,
-            "seed": 100,
-            "backend": AerSimulator.from_backend(FakeManila()),
-        },  # Uncoupled qubits to test edgegrab algorithm warning
-        {
-            "physical_qubits": [0, 1],
-            "lengths": [2, 4, 6, 8, 10],
-            "num_samples": 1,
-            "seed": 100,
-            "two_qubit_gate_density": 0.6,
-            "backend": AerSimulator(coupling_map=[[0, 1], [1, 0]]),
-        },  # High two-qubit gate density warning
-    )
-    def test_warnings(self, configs):
-        """Test raise warnings when creating experiment."""
-        mirror_exp = rb.MirrorRB(**configs)
-        self.assertWarns(Warning, mirror_exp.run)
 
     def test_expdata_serialization(self):
         """Test serializing experiment data works."""

@@ -97,6 +97,7 @@ nbsphinx_thumbnails = {
     "manuals/benchmarking/quantum_volume": "_images/quantum_volume_2_0.png",
     "manuals/measurement/readout_mitigation": "_images/readout_mitigation_4_0.png",
     "manuals/benchmarking/randomized_benchmarking": "_images/randomized_benchmarking_3_1.png",
+    "manuals/benchmarking/mirror_rb": "_images/mirror_rb_1_1.png",
     "manuals/measurement/restless_measurements": "_images/restless_shots.png",
     "manuals/benchmarking/state_tomography": "_images/state_tomography_3_0.png",
     "manuals/characterization/t1": "_images/t1_0_0.png",
