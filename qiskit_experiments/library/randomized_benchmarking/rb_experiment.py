@@ -149,6 +149,11 @@ class StandardRB(BaseExperiment, RestlessMixin):
 
         return options
 
+    @classmethod
+    def _default_transpile_options(cls) -> Options:
+        """Default transpiler options for transpiling RB circuits (`optimization_level=1`)."""
+        return Options(optimization_level=1)
+
     def _set_backend(self, backend: Backend):
         """Set the backend V2 for RB experiments since RB experiments only support BackendV2
         except for simulators. If BackendV1 is provided, it is converted to V2 and stored.
@@ -339,7 +344,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
         """Return a list of experiment circuits, transpiled."""
         has_custom_transpile_option = (
             not set(vars(self.transpile_options)).issubset({"basis_gates", "optimization_level"})
-            or self.transpile_options.get("optimization_level", 0) != 0
+            or self.transpile_options.get("optimization_level", 1) != 1
         )
         has_no_undirected_2q_basis = self._get_basis_gates() is None
         if self.num_qubits > 2 or has_custom_transpile_option or has_no_undirected_2q_basis:
