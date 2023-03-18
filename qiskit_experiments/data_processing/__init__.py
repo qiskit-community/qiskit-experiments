@@ -78,6 +78,7 @@ Discriminators
 .. autosummary::
     :toctree: ../stubs/
 
+    BaseDiscriminator
     SkLDA
     SkQDA
 """
@@ -100,4 +101,5 @@ from .nodes import (
 )
 
 from .data_processor import DataProcessor
+from .discriminator import BaseDiscriminator
 from .sklearn_discriminators import SkLDA, SkQDA

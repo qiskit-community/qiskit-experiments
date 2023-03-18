@@ -148,7 +148,7 @@ class ExperimentData:
     This class handles the following:
 
     1. Storing the data related to an experiment: raw data, metadata, analysis results,
-        and figures
+       and figures
     2. Managing jobs and adding data from jobs automatically
     3. Saving and loading data from the database service
 
@@ -186,17 +186,17 @@ class ExperimentData:
         """Initialize experiment data.
 
         Args:
-            experiment: Optional, experiment object that generated the data.
-            backend: Optional, Backend the experiment runs on; overrides the
-            backend in the experiment object
+            experiment: Experiment object that generated the data.
+            backend: Backend the experiment runs on. This overrides the
+                backend in the experiment object.
             service: The service that stores the experiment results to the database
-            parent_id: Optional, ID of the parent experiment data
+            parent_id: ID of the parent experiment data
                 in the setting of a composite experiment
-            job_ids: Optional, IDs of jobs submitted for the experiment.
-            child_data: Optional, list of child experiment data.
-            verbose: Optional, whether to print messages
-            db_data: Optional, a prepared ExperimentDataclass of the experiment info;
-            overrides other db parameters.
+            job_ids: IDs of jobs submitted for the experiment.
+            child_data: List of child experiment data.
+            verbose: Whether to print messages.
+            db_data: A prepared ExperimentDataclass of the experiment info.
+                This overrides other db parameters.
         """
         if experiment is not None:
             backend = backend or experiment.backend

@@ -348,9 +348,12 @@ There are a few other build options available:
 Qiskit Experiments is part of Qiskit and, therefore, the [Qiskit Deprecation
 Policy](https://qiskit.org/documentation/contributing_to_qiskit.html#deprecation-policy)
 fully applies here. We have a deprecation decorator for showing deprecation warnings. To
-deprecate a function:
+deprecate a function, for example:
 
 ```python
+
+  from qiskit_experiments.warnings import deprecated_function
+
   @deprecated_function(last_version="0.3", msg="Use new_function instead.")
   def old_function(*args, **kwargs):
       pass
@@ -361,6 +364,8 @@ deprecate a function:
 To deprecate a class:
 
 ```python
+  from qiskit_experiments.warnings import deprecated_class
+
   @deprecated_class(last_version="0.3", new_cls=NewCls)
   class OldClass:
       pass
@@ -408,5 +413,5 @@ following steps:
 4.  Generate a PR on the meta-repository to bump the qiskit-experiments version and
     meta-package version.
 
-The `stable/*` branches should only receive changes in the form of bug fixes.
+The `stable/*` branches should only receive changes in the form of bug fixes. If you're making a bug fix PR that you believe should be backported to the current stable release, tag it with `backport stable potential`.
 

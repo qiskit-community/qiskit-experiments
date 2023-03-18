@@ -196,7 +196,7 @@ class IQPlotter(BasePlotter):
 
         Options:
             plot_discriminator (bool): Whether to plot an image showing the predictions
-                of the ``discriminator`` entry in :attr:`supplementary_data``. If True,
+                of the ``discriminator`` entry in :attr:`supplementary_data`. If True,
                 the "discriminator" supplementary data entry must be set.
             discriminator_multiplier (float): The multiplier to use when computing the
                 extent of the discriminator plot. The range of the series data is taken
