@@ -212,7 +212,7 @@ to label the IQ points as one of the three prepared states. :class:`.IQPlotter` 
 plotting a discriminator as optional supplementary data, which will show predicted 
 series over the axis area.
 
-.. jupyter-execute::
+.. jupyter-input::
 
 
     drag_experiment_helper = DragHelper(gate_name="Drag(xp)")

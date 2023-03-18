@@ -31,7 +31,7 @@ class IQPlotter(BasePlotter):
     (subclass of :class:`.BaseDiscriminator`), which is used to classify IQ results into
     labels. The discriminator labels are matched with the series names to generate an
     image of the predictions. Points that are misclassified by the discriminator are
-    flagged in the figure (see ``flag_misclassified`` :attr:`option`). A canonical
+    flagged in the figure (see the ``flag_misclassified`` option). A canonical
     application of :class:`.IQPlotter` is for classification of single-qubit readout for
     different prepared states.
 

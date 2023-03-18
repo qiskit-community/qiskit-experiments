@@ -203,8 +203,8 @@ The actual backend jobs that were executed for the experiment can be accessed wi
     See the how-tos for :doc:`instantiating a new ExperimentData object </howtos/new_experimentdata>`
     from an existing experiment that finished execution.
 
-Setting experiment options
-==========================
+Setting options for your experiment
+===================================
 
 It's often insufficient to run an experiment with only its default options. There are
 four types of options one can set for an experiment:
@@ -222,8 +222,8 @@ supports can be set:
                       meas_level=MeasLevel.CLASSIFIED,
                       meas_return="avg")
 
-Consult the documentation of :meth:`qiskit.execute_function` or the run method of your
-specific backend type for valid options.
+Consult the documentation of :func:`qiskit.execute_function.execute` or the run method
+of your specific backend type for valid options.
 
 Transpile options
 -----------------

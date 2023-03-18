@@ -163,19 +163,25 @@ Here is another example how to implement multi-objective optimization task:
         lmfit.models.ExpressionModel(
             expr="amp * exp(-alpha1 * x) + base",
             name="my_experiment1",
-            data_sort_key={"tag": 1},
         ),
         lmfit.models.ExpressionModel(
             expr="amp * exp(-alpha2 * x) + base",
             name="my_experiment2",
-            data_sort_key={"tag": 2},
         ),
     ]
 
-Note that now you need to provide ``data_sort_key`` which is unique argument to
-Qiskit curve analysis. This specifies the metadata of your experiment circuit
+In addition, you need to provide ``data_subfit_map`` analysis option, which may look like
+
+.. jupyter-input::
+
+    data_subfit_map = {
+        "my_experiment1": {"tag": 1},
+        "my_experiment2": {"tag": 2},
+    }
+
+This option specifies the metadata of your experiment circuit
 that is tied to the fit model. If multiple models are provided without this option,
-the curve fitter cannot prepare data to fit.
+the curve fitter cannot prepare the data for fitting.
 In this model, you have four parameters (``amp``, ``alpha1``, ``alpha2``, ``base``)
 and the two curves share ``amp`` (``base``) for the amplitude (baseline) in
 the exponential decay function.
@@ -192,12 +198,10 @@ By using this model, one can flexibly set up your fit model. Here is another exa
         lmfit.models.ExpressionModel(
             expr="amp * cos(2 * pi * freq * x + phi) + base",
             name="my_experiment1",
-            data_sort_key={"tag": 1},
         ),
         lmfit.models.ExpressionModel(
             expr="amp * sin(2 * pi * freq * x + phi) + base",
             name="my_experiment2",
-            data_sort_key={"tag": 2},
         ),
     ]
 
