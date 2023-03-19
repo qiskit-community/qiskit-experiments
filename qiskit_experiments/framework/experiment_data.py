@@ -1408,7 +1408,6 @@ class ExperimentData:
             self.service.create_analysis_results(data=analysis_results_to_create, blocking=True, json_encoder=self._json_encoder, max_workers=max_workers)
             for result in self._analysis_results.values():
                 result._created_in_db = True
-        # result.save(suppress_errors=suppress_errors)
         except Exception as ex:  # pylint: disable=broad-except
         # Don't automatically fail the experiment just because its data cannot be saved.
             LOG.error("Unable to save the experiment data: %s",
@@ -1424,6 +1423,7 @@ class ExperimentData:
             self._deleted_analysis_results.remove(result)
 
         with self._figures.lock:
+            figures_to_create = []
             for name, figure in self._figures.items():
                 if figure is None:
                     continue
@@ -1433,9 +1433,8 @@ class ExperimentData:
                     LOG.debug("Figure metadata is currently not saved to the database")
                 if isinstance(figure, pyplot.Figure):
                     figure = plot_to_svg_bytes(figure)
-                self._service.create_or_update_figure(
-                    experiment_id=self.experiment_id, figure=figure, figure_name=name
-                )
+                figures_to_create.append((figure, name))
+            self.service.create_figures(experiment_id=self.experiment_id, figure_list=figures_to_create, blocking=True, max_workers=max_workers)
 
         for name in self._deleted_figures.copy():
             with service_exception_to_warning():
