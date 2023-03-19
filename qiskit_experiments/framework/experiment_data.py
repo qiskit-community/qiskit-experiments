@@ -1373,7 +1373,7 @@ class ExperimentData:
         # currently the entire POST JSON request body is limited by default to 100kb
         return sys.getsizeof(self.metadata) > 10000
 
-    def save(self, suppress_errors: bool = True) -> None:
+    def save(self, suppress_errors: bool = True, max_workers=100) -> None:
         """Save the experiment data to a database service.
 
         Args:
@@ -1401,8 +1401,27 @@ class ExperimentData:
             LOG.warning("Could not save experiment metadata to DB, aborting experiment save")
             return
 
+        analysis_results_to_create = []
+        analysis_results_to_update = []
         for result in self._analysis_results.values():
-            result.save(suppress_errors=suppress_errors)
+            if result._created_in_db:
+                analysis_results_to_update.append(result._db_data)
+            else:
+                analysis_results_to_create.append(result._db_data)
+        try:
+            self.service.create_analysis_results(data=analysis_results_to_create, blocking=True, json_encoder=self._json_encoder, max_workers=max_workers)
+            self.service.bulk_update_analysis_result(data=analysis_results_to_update, json_encoder=self._json_encoder)
+            for result in self._analysis_results.values():
+                result._created_in_db = True
+        # result.save(suppress_errors=suppress_errors)
+        except Exception as ex:  # pylint: disable=broad-except
+        # Don't automatically fail the experiment just because its data cannot be saved.
+            LOG.error("Unable to save the experiment data: %s",
+                      traceback.format_exc())
+            if not suppress_errors:
+                raise QiskitError(
+                    f"Analysis result save failed\nError Message:\n{str(ex)}") from ex
+
 
         for result in self._deleted_analysis_results.copy():
             with service_exception_to_warning():
