@@ -1402,15 +1402,10 @@ class ExperimentData:
             return
 
         analysis_results_to_create = []
-        analysis_results_to_update = []
         for result in self._analysis_results.values():
-            if result._created_in_db:
-                analysis_results_to_update.append(result._db_data)
-            else:
-                analysis_results_to_create.append(result._db_data)
+            analysis_results_to_create.append(result._db_data)
         try:
             self.service.create_analysis_results(data=analysis_results_to_create, blocking=True, json_encoder=self._json_encoder, max_workers=max_workers)
-            self.service.bulk_update_analysis_result(data=analysis_results_to_update, json_encoder=self._json_encoder)
             for result in self._analysis_results.values():
                 result._created_in_db = True
         # result.save(suppress_errors=suppress_errors)
