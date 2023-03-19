@@ -835,6 +835,13 @@ class TestRunInterleavedRB(RBRunTestCase):
         self.assertRoundTripPickle(expdata, check_func=self.experiment_data_equiv)
 
 
+def decr_dep_param(q, q_1, q_2, coupling_map):
+    """Helper function to generate a one-qubit depolarizing channel whose
+    parameter depends on coupling map distance in a backend"""
+    d = min(coupling_map.distance(q, q_1), coupling_map.distance(q, q_2))
+    return 0.0035 * 0.999**d
+
+
 class NonlocalCXDepError(TransformationPass):
     """Transpiler pass for simulating nonlocal errors in a quantum device"""
 
@@ -1102,6 +1109,26 @@ class TestMirrorRB(QiskitExperimentsTestCase, RBTestMixin):
         loaded = rb.RBAnalysis.from_config(analysis.config())
         self.assertNotEqual(analysis, loaded)
         self.assertEqual(analysis.config(), loaded.config())
+
+    def test_backend_with_directed_basis_gates(self):
+        """Test if correct circuits are generated from backend with directed basis gates."""
+        my_backend = copy.deepcopy(self.backend)
+        del my_backend.target["cx"][(1, 2)]  # make cx on {1, 2} one-sided
+
+        exp = rb.MirrorRB(
+            physical_qubits=(1, 2),
+            two_qubit_gate_density=1,
+            lengths=[3],
+            num_samples=4,
+            backend=my_backend,
+        )
+        transpiled = exp._transpiled_circuits()
+        for qc in transpiled:
+            self.assertTrue(qc.count_ops().get("cx", 0) > 0)
+            expected_qubits = (qc.qubits[2], qc.qubits[1])
+            for inst in qc:
+                if inst.operation.name == "cx":
+                    self.assertEqual(inst.qubits, expected_qubits)
 
 
 @ddt
