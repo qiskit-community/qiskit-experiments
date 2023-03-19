@@ -131,6 +131,7 @@ See :doc:`/tutorials/calibrations` for examples.
     ~calibration.FineAmplitudeCal
     ~calibration.FineXAmplitudeCal
     ~calibration.FineSXAmplitudeCal
+    ~calibration.HalfAngleCal
     ~calibration.RoughAmplitudeCal
     ~calibration.RoughXSXAmplitudeCal
     ~calibration.EFRoughXSXAmplitudeCal
@@ -150,6 +151,7 @@ from .calibration import (
     RoughFrequencyCal,
     FrequencyCal,
     FineFrequencyCal,
+    HalfAngleCal,
 )
 from .characterization import (
     T1,
