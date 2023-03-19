@@ -791,7 +791,7 @@ class ExperimentData:
         jid = job.job_id()
         try:
             job_result = job.result()
-            self._add_result_data(job_result)
+            self._add_result_data(job_result, jid)
             LOG.debug("Job data added [Job ID: %s]", jid)
             return jid, True
         except Exception as ex:  # pylint: disable=broad-except
@@ -912,20 +912,21 @@ class ExperimentData:
             LOG.warning(error_msg)
             return callback_id, False
 
-    def _add_result_data(self, result: Result) -> None:
+    def _add_result_data(self, result: Result, job_id: str) -> None:
         """Add data from a Result object
 
         Args:
             result: Result object containing data to be added.
+            job_id: The id of the job the result came from
         """
-        if result.job_id not in self._jobs:
-            self._jobs[result.job_id] = None
-            self.job_ids.append(result.job_id)
+        if job_id not in self._jobs:
+            self._jobs[job_id] = None
+            self.job_ids.append(job_id)
         with self._result_data.lock:
             # Lock data while adding all result data
             for i, _ in enumerate(result.results):
                 data = result.data(i)
-                data["job_id"] = result.job_id
+                data["job_id"] = job_id
                 if "counts" in data:
                     # Format to Counts object rather than hex dict
                     data["counts"] = result.get_counts(i)
