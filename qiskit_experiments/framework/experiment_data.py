@@ -1373,7 +1373,7 @@ class ExperimentData:
         # currently the entire POST JSON request body is limited by default to 100kb
         return sys.getsizeof(self.metadata) > 10000
 
-    def save(self, suppress_errors: bool = True, max_workers=100) -> None:
+    def save(self, suppress_errors: bool = True, max_workers=100, save_figures=True) -> None:
         """Save the experiment data to a database service.
 
         Args:
@@ -1422,19 +1422,20 @@ class ExperimentData:
                 self._service.delete_analysis_result(result_id=result)
             self._deleted_analysis_results.remove(result)
 
-        with self._figures.lock:
-            figures_to_create = []
-            for name, figure in self._figures.items():
-                if figure is None:
-                    continue
-                # currently only the figure and its name are stored in the database
-                if isinstance(figure, FigureData):
-                    figure = figure.figure
-                    LOG.debug("Figure metadata is currently not saved to the database")
-                if isinstance(figure, pyplot.Figure):
-                    figure = plot_to_svg_bytes(figure)
-                figures_to_create.append((figure, name))
-            self.service.create_figures(experiment_id=self.experiment_id, figure_list=figures_to_create, blocking=True, max_workers=max_workers)
+        if save_figures:
+            with self._figures.lock:
+                figures_to_create = []
+                for name, figure in self._figures.items():
+                    if figure is None:
+                        continue
+                    # currently only the figure and its name are stored in the database
+                    if isinstance(figure, FigureData):
+                        figure = figure.figure
+                        LOG.debug("Figure metadata is currently not saved to the database")
+                    if isinstance(figure, pyplot.Figure):
+                        figure = plot_to_svg_bytes(figure)
+                    figures_to_create.append((figure, name))
+                self.service.create_figures(experiment_id=self.experiment_id, figure_list=figures_to_create, blocking=True, max_workers=max_workers)
 
         for name in self._deleted_figures.copy():
             with service_exception_to_warning():
