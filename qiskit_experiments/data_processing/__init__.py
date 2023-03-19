@@ -68,6 +68,7 @@ Data Processing Nodes
     AverageData
     BasisExpectationValue
     MinMaxNormalize
+    ShotOrder
     RestlessNode
     RestlessToCounts
     RestlessToIQ
@@ -95,6 +96,7 @@ from .nodes import (
     AverageData,
     BasisExpectationValue,
     MinMaxNormalize,
+    ShotOrder,
     RestlessNode,
     RestlessToCounts,
     RestlessToIQ,

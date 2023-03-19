@@ -47,12 +47,13 @@ Helper classes for supporting test functionality.
     :toctree: ../stubs/
 
     MockIQExperimentHelper
+    MockIQParallelExperimentHelper
 
 """
 
 from .utils import FakeJob
 from .mock_iq_backend import MockIQBackend, MockIQParallelBackend
-from .mock_iq_helpers import MockIQExperimentHelper
+from .mock_iq_helpers import MockIQExperimentHelper, MockIQParallelExperimentHelper
 from .noisy_delay_aer_simulator import NoisyDelayAerBackend
 from .t2hahn_backend import T2HahnBackend
 from .fake_service import FakeService

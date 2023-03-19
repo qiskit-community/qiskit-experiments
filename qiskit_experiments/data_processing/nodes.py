@@ -435,7 +435,7 @@ class DiscriminatorNode(DataAction):
     """A class to discriminate kerneled data, e.g., IQ data, to produce counts.
 
     This node integrates into the data processing chain a serializable :class:`.BaseDiscriminator`
-    subclass instance which must have a :meth:`predict` method that takes as input a list of lists
+    subclass instance which must have a :meth:`~.BaseDiscriminator.predict` method that takes as input a list of lists
     and returns a list of labels. Crucially, this node can be initialized with a single
     discriminator which applies to each memory slot or it can be initialized with a list of
     discriminators, i.e., one for each slot.
@@ -551,7 +551,7 @@ class DiscriminatorNode(DataAction):
 class MemoryToCounts(DataAction):
     """A data action that takes discriminated data and transforms it into a counts dict.
 
-    This node is intended to be used after the :class:`.Discriminator` node. It will convert
+    This node is intended to be used after the :class:`.DiscriminatorNode` node. It will convert
     the classified memory into a list of count dictionaries wrapped in a numpy array.
     """
 

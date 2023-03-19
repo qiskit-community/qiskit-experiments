@@ -55,44 +55,50 @@ def mean_xy_data(
 ) -> Tuple[np.ndarray, ...]:
     r"""Return (x, y_mean, sigma) data.
 
-    The mean is taken over all ydata values with the same xdata value using
-    the specified method. For each x the mean :math:`\overline{y}` and variance
+    The mean is taken over all :math:`y` data values with the same :math:`x` data value using
+    the specified method. For each :math:`x` the mean :math:`\overline{y}` and variance
     :math:`\sigma^2` are computed as
 
-    * ``"sample"`` (default) *Sample mean and variance*
-      :math:`\overline{y} = \sum_{i=1}^N y_i / N`,
-      :math:`\sigma^2 = \sum_{i=1}^N ((\overline{y} - y_i)^2) / N`
-    * ``"iwv"`` *Inverse-weighted variance*
-      :math:`\overline{y} = (\sum_{i=1}^N y_i / \sigma_i^2 ) \sigma^2`
-      :math:`\sigma^2 = 1 / (\sum_{i=1}^N 1 / \sigma_i^2)`
-    * ``"shots_weighted_variance"`` *Sample mean and variance with weights from shots*
-      :math:`\overline{y} = \sum_{i=1}^N n_i y_i / M`,
-      :math:`\sigma^2 = \sum_{i=1}^N (n_i \sigma_i / M)^2`,
-      where :math:`n_i` is the number of shots per data point and :math:`M = \sum_{i=1}^N n_i`
-      is a total number of shots from different circuit execution at the same x value.
-      If ``shots`` is not provided, this applies uniform weights to all values.
+    * ``"sample"`` (default): *Sample mean and variance*
 
-    Args
+      * :math:`\overline{y} = \sum_{i=1}^N y_i / N`,
+
+      * :math:`\sigma^2 = \sum_{i=1}^N ((\overline{y} - y_i)^2) / N`
+
+    * ``"iwv"``: *Inverse-weighted variance*
+
+      * :math:`\overline{y} = (\sum_{i=1}^N y_i / \sigma_i^2 ) \sigma^2`
+      * :math:`\sigma^2 = 1 / (\sum_{i=1}^N 1 / \sigma_i^2)`
+
+    * ``"shots_weighted_variance"``: *Sample mean and variance with weights from shots*
+
+      * :math:`\overline{y} = \sum_{i=1}^N n_i y_i / M`,
+
+      * :math:`\sigma^2 = \sum_{i=1}^N (n_i \sigma_i / M)^2`,
+        where :math:`n_i` is the number of shots per data point and :math:`M = \sum_{i=1}^N n_i`
+        is a total number of shots from different circuit execution at the same :math:`x` value.
+        If ``shots`` is not provided, this applies uniform weights to all values.
+
+    Args:
         xdata: 1D or 2D array of xdata from curve_fit_data or
-               multi_curve_fit_data
+            multi_curve_fit_data
         ydata: array of ydata returned from curve_fit_data or
-               multi_curve_fit_data
+            multi_curve_fit_data
         sigma: Optional, array of standard deviations in ydata.
         shots: Optional, array of shots used to get a data point.
         method: The method to use for computing y means and
-                standard deviations sigma (default: "sample").
+            standard deviations sigma (default: "sample").
 
     Returns:
-        tuple: ``(x, y_mean, sigma, shots)``, where
-               ``x`` is an arrays of unique x-values, ``y`` is an array of
-               sample mean y-values, ``sigma`` is an array of sample standard
-               deviation of y values, and ``shots`` are the total number of experiment shots
-               used to evaluate the data point. If ``shots`` in the function call is ``None``,
-               the numbers appear in the returned value will represent just a number of
-               duplicated x value entries.
+        tuple: ``(x, y_mean, sigma, shots)``, where ``x`` is an arrays of unique
+        x-values, ``y`` is an array of sample mean y-values, ``sigma`` is an array of
+        sample standard deviation of y values, and ``shots`` are the total number of
+        experiment shots used to evaluate the data point. If ``shots`` in the function
+        call is ``None``, the numbers appear in the returned value will represent just a
+        number of duplicated x value entries.
 
     Raises:
-        QiskitError: If "ivw" method is used without providing a sigma.
+        QiskitError: If the "ivw" method is used without providing a sigma.
     """
     x_means = np.unique(xdata, axis=0)
     y_means = np.zeros(x_means.size)
@@ -168,7 +174,7 @@ def multi_mean_xy_data(
     shots: Optional[np.ndarray] = None,
     method: str = "sample",
 ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
-    """Take mean of multi series data set.
+    """Take mean of multi series data set. See :func:`.mean_xy_data`.
 
     Args:
         series: Series index.
@@ -182,10 +188,8 @@ def multi_mean_xy_data(
                 standard deviations sigma (default: "sample").
 
     Returns:
-        Tuple of (series, xdata, ydata, sigma, shots)
+        Tuple of ``(series, xdata, ydata, sigma, shots)``.
 
-    See also:
-        :func:`~.data_processing.mean_xy_data`
     """
     series_vals = np.unique(series)
 
@@ -237,15 +241,14 @@ def data_sort(
 
     Args:
         series: Series index.
-        xdata: 1D or 2D array of xdata from curve_fit_data or
-               multi_curve_fit_data
-        ydata: array of ydata returned from curve_fit_data or
-               multi_curve_fit_data
+        xdata: 1D or 2D array of xdata.
+        ydata: Array of ydata.
         sigma: Optional, array of standard deviations in ydata.
         shots: Optional, array of shots used to get a data point.
 
     Returns:
-        Tuple of (series, xdata, ydata, sigma, shots) sorted in ascending order of xdata and series.
+        Tuple of (series, xdata, ydata, sigma, shots) sorted in ascending order of xdata
+        and series.
     """
     if sigma is None:
         sigma = np.full(series.size, np.nan, dtype=float)

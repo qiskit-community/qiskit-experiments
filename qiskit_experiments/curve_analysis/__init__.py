@@ -70,7 +70,7 @@ Standard Analysis Library
     ErrorAmplificationAnalysis
 
 Fit Functions
-*************
+=============
 .. autosummary::
     :toctree: ../stubs/
 
@@ -86,7 +86,7 @@ Fit Functions
     fit_function.bloch_oscillation_z
 
 Initial Guess Estimators
-************************
+========================
 .. autosummary::
     :toctree: ../stubs/
 
@@ -101,7 +101,7 @@ Initial Guess Estimators
     guess.oscillation_exp_decay
 
 Utilities
-*********
+=========
 .. autosummary::
     :toctree: ../stubs/
 
@@ -109,6 +109,19 @@ Utilities
     utils.analysis_result_to_repr
     utils.convert_lmfit_result
     utils.eval_with_uncertainties
+
+Data Processing Functions
+=========================
+.. autosummary::
+    :toctree: ../stubs/
+
+    filter_data
+    mean_xy_data
+    multi_mean_xy_data
+    data_sort
+    level2_probability
+    probability
+
 """
 from .base_curve_analysis import BaseCurveAnalysis
 from .curve_analysis import CurveAnalysis
@@ -141,6 +154,15 @@ from .standard_analysis import (
     GaussianAnalysis,
     ErrorAmplificationAnalysis,
     BlochTrajectoryAnalysis,
+)
+
+from .data_processing import (
+    filter_data,
+    mean_xy_data,
+    multi_mean_xy_data,
+    data_sort,
+    level2_probability,
+    probability,
 )
 
 # deprecated
