@@ -15,7 +15,7 @@ You can set the ``max_circuits`` option manually when running an experiment:
 
 .. jupyter-input::
 
-    exp = Experiment([0])
+    exp = Experiment((0,))
     exp.set_experiment_options(max_circuits=100)
 
 The experiment class will split its circuits into jobs such that no job has more than

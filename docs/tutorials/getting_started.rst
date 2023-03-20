@@ -66,7 +66,14 @@ IBM backend, real or simulated, that you can access through Qiskit.
 
 All experiments require a ``physical_qubits`` parameter as input that specifies which
 physical qubit or qubits the circuits will be executed on. The qubits must be given as a
-Python sequence (usually a tuple or a list). In addition, the :math:`T_1` experiment has
+Python sequence (usually a tuple or a list).
+
+.. note::
+    Since 0.5.0, using ``qubits`` instead of ``physical_qubits`` or specifying an 
+    integer qubit index instead of a one-element sequence for a single-qubit experiment
+    is deprecated.
+
+In addition, the :math:`T_1` experiment has
 a second required parameter, ``delays``, which is a list of times in seconds at which to
 measure the excited state population. In this example, we'll run the :math:`T_1`
 experiment on qubit 0, and use the ``t1`` backend property of this qubit to give us a

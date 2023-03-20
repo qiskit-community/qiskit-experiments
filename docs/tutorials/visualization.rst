@@ -130,7 +130,7 @@ to see what the default figure looks like:
     drag_experiment_helper = DragHelper(gate_name="Drag(xp)")
     backend = MockIQBackend(drag_experiment_helper)
 
-    drag = RoughDrag(0, xp, backend=backend)
+    drag = RoughDrag((0,), xp, backend=backend)
 
     drag_data = drag.run().block_for_results()
     drag_data.figure(0)
@@ -139,7 +139,7 @@ Now we specify the figure options before running the experiment for a second tim
 
 .. jupyter-execute::
 
-    drag = RoughDrag(0, xp, backend=backend)
+    drag = RoughDrag((0,), xp, backend=backend)
 
     # Set plotter options
     plotter = drag.analysis.plotter
