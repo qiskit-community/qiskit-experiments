@@ -434,11 +434,12 @@ class ToAbs(IQPart):
 class DiscriminatorNode(DataAction):
     """A class to discriminate kerneled data, e.g., IQ data, to produce counts.
 
-    This node integrates into the data processing chain a serializable :class:`.BaseDiscriminator`
-    subclass instance which must have a :meth:`~.BaseDiscriminator.predict` method that takes as input a list of lists
-    and returns a list of labels. Crucially, this node can be initialized with a single
-    discriminator which applies to each memory slot or it can be initialized with a list of
-    discriminators, i.e., one for each slot.
+    This node integrates into the data processing chain a serializable
+    :class:`.BaseDiscriminator` subclass instance which must have a
+    :meth:`~.BaseDiscriminator.predict` method that takes as input a list of lists and
+    returns a list of labels. Crucially, this node can be initialized with a single
+    discriminator which applies to each memory slot or it can be initialized with a list
+    of discriminators, i.e., one for each slot.
 
     .. note::
 
