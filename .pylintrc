@@ -127,40 +127,6 @@ include-naming-hint=no
 # to this list to register other decorators that produce valid properties.
 property-classes=abc.abstractproperty
 
-# Regular expression matching correct module names
-module-rgx=(([a-z_][a-z0-9_]*)|([A-Z][a-zA-Z0-9]+))$
-
-# Regular expression matching correct constant names
-const-rgx=(([A-Z_][A-Z0-9_]*)|(__.*__))$
-
-# Regular expression matching correct class names
-class-rgx=[A-Z_][a-zA-Z0-9]+$
-
-# Regular expression matching correct function names
-function-rgx=[a-z_][a-z0-9_]{2,30}$
-
-# Regular expression matching correct method names
-method-rgx=(([a-z_][a-z0-9_]{2,49})|(assert[A-Z][a-zA-Z0-9]{2,43})|(test_[_a-zA-Z0-9]{2,}))$
-
-# Regular expression matching correct attribute names
-attr-rgx=[a-z_][a-z0-9_]{2,30}$
-
-# Regular expression matching correct argument names
-argument-rgx=[a-z_][a-z0-9_]{2,30}|ax|dt$
-
-# Regular expression matching correct variable names
-variable-rgx=[a-z_][a-z0-9_]{1,30}$
-
-# Regular expression matching correct class attribute names
-class-attribute-rgx=([A-Za-z_][A-Za-z0-9_]{2,30}|(__.*__))$
-
-# Regular expression matching correct inline iteration names
-inlinevar-rgx=[A-Za-z_][A-Za-z0-9_]*$
-
-# Regular expression which should only match function or class names that do
-# not require a docstring.
-no-docstring-rgx=^_
-
 # Minimum line length for functions/classes that require docstrings, shorter
 # ones are exempt.
 docstring-min-length=-1
