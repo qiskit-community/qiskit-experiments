@@ -229,22 +229,22 @@ class DragCalAnalysis(curve.CurveAnalysis):
         self,
         experiment_data: ExperimentData,
     ):
-        if "nreps" not in experiment_data.metadata:
+        if "reps" not in experiment_data.metadata:
             warnings.warn(
-                "Experiment metadata 'nreps' is missing. "
+                "Experiment metadata 'reps' is missing. "
                 "Analysis options 'reps' has been deprecated and will be removed in "
                 "Qiskit Experiments v0.7.",
                 DeprecationWarning,
             )
-            nreps = self.options.reps
+            reps = self.options.reps
         else:
-            nreps = experiment_data.metadata["nreps"]
+            reps = experiment_data.metadata["reps"]
 
         # Model is initialized at runtime because
         # the experiment option "reps" can be changed before experiment run.
         models = []
         data_subfit_map = {}
-        for nrep in sorted(nreps):
+        for nrep in sorted(reps):
             name = f"nrep={nrep}"
             models.append(
                 lmfit.models.ExpressionModel(

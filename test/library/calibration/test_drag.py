@@ -138,9 +138,20 @@ class TestDragEndToEnd(QiskitExperimentsTestCase):
         # but the client doesn't know the original setting.
         analysis = DragCalAnalysis()
         expdata1 = analysis.run(expdata.copy(), replace_results=True)
+        # Check mapping of model name to circuit metadata.
+        self.assertDictEqual(
+            analysis.options.data_subfit_map,
+            {
+                "nrep=2": {"nrep": 2},
+                "nrep=4": {"nrep": 4},
+                "nrep=6": {"nrep": 6},
+            }
+        )
+
         # Running experiment twice.
         # Reported by https://github.com/Qiskit/qiskit-experiments/issues/1086.
         expdata2 = analysis.run(expdata.copy(), replace_results=True)
+        self.assertEqual(len(analysis.models), 3)
 
         self.assertAlmostEqual(
             expdata1.analysis_results("beta").value.n,
