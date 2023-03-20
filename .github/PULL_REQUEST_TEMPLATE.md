@@ -14,8 +14,7 @@ Some details that should be in this section include:
 
 Note that this entire PR description field will be used as the commit message upon
 merge, so please keep it updated along with the PR. Secondary discussions, such as
-intermediate testing and bug statuses that do not affect the final PR, should be in the
-PR comments.
+intermediate testing and bug statuses that do not affect the final PR, should be in the PR comments.
 
 ### PR checklist (delete when all criteria are met)
 

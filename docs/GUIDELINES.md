@@ -38,6 +38,7 @@ Qiskit Experiments documentation is split into four sections:
 * Use device names as shown in the IBM Quantum Services dashboard, e.g. `ibmq_lima`
   instead of IBMQ Lima
 * put identifier names (e.g. osc_freq) in code blocks using double backticks, i.e. `osc_freq`
+
 ### Writing code
 
 All documentation is written in reStructuredText format and then built into formatted
