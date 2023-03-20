@@ -1,0 +1,10 @@
+---
+deprecations:
+  - |
+    An analysis option `reps` in :class:`DragCalAnalysis` was deprecated.
+    Corresponding value must be provided by the experiment metadata
+    for the robustness of data analysis.
+fixes:
+  - |
+    A bug of redoing :class:`DragCalAnalysis.run` generates wrong fit models
+    was fixed.

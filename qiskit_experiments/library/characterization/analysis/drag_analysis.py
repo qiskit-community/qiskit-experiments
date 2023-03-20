@@ -12,6 +12,7 @@
 
 """DRAG pulse calibration experiment."""
 
+import warnings
 from typing import List, Union
 
 import lmfit
@@ -78,11 +79,7 @@ class DragCalAnalysis(curve.CurveAnalysis):
 
     @classmethod
     def _default_options(cls):
-        """Return the default analysis options.
-
-        See :meth:`~qiskit_experiment.curve_analysis.CurveAnalysis._default_options` for
-        descriptions of analysis options.
-        """
+        """Return the default analysis options."""
         default_options = super()._default_options()
         default_options.plotter.set_figure_options(
             xlabel="Beta",
@@ -90,9 +87,19 @@ class DragCalAnalysis(curve.CurveAnalysis):
         )
         default_options.result_parameters = ["beta"]
         default_options.normalization = True
-        default_options.reps = [1, 3, 5]
+        default_options.reps = []
 
         return default_options
+
+    def set_options(self, **fields):
+        if "reps" in fields:
+            warnings.warn(
+                "Analysis option 'reps' has been deprecated. "
+                "This value is now provided by the experiment metadata."
+                "This option will be dropped in Qiskit Experiments v0.7.",
+                DeprecationWarning,
+            )
+        super().set_options(**fields)
 
     def _generate_fit_guesses(
         self,
@@ -222,18 +229,31 @@ class DragCalAnalysis(curve.CurveAnalysis):
         self,
         experiment_data: ExperimentData,
     ):
+        if "nreps" not in experiment_data.metadata:
+            warnings.warn(
+                "Experiment metadata 'nreps' is missing. "
+                "Analysis options 'reps' has been deprecated and will be removed in "
+                "Qiskit Experiments v0.7.",
+                DeprecationWarning,
+            )
+            nreps = self.options.reps
+        else:
+            nreps = experiment_data.metadata["nreps"]
+
         # Model is initialized at runtime because
         # the experiment option "reps" can be changed before experiment run.
+        models = []
         data_subfit_map = {}
-        for nrep in sorted(self.options.reps):
+        for nrep in sorted(nreps):
             name = f"nrep={nrep}"
-            self._models.append(
+            models.append(
                 lmfit.models.ExpressionModel(
                     expr=f"amp * cos(2 * pi * {nrep} * freq * (x - beta)) + base",
                     name=name,
                 )
             )
             data_subfit_map[name] = {"nrep": nrep}
+        self._models = models
         self._options.data_subfit_map = data_subfit_map
 
         super()._initialize(experiment_data)

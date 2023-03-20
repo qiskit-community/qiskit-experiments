@@ -183,11 +183,6 @@ class RoughDrag(BaseExperiment, RestlessMixin):
 
         return circuits
 
-    def _finalize(self):
-        if isinstance(self.analysis, DragCalAnalysis):
-            # Set reps to analysis option to create proper model
-            self.analysis.set_options(reps=self.experiment_options.reps)
-
     def _metadata(self):
         metadata = super()._metadata()
         # Store measurement level and meas return if they have been
@@ -195,4 +190,5 @@ class RoughDrag(BaseExperiment, RestlessMixin):
         for run_opt in ["meas_level", "meas_return"]:
             if hasattr(self.run_options, run_opt):
                 metadata[run_opt] = getattr(self.run_options, run_opt)
+        metadata["nreps"] = self.experiment_options.reps
         return metadata
