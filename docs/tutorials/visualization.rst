@@ -250,32 +250,32 @@ series over the axis area.
             )
             return options
 
-    @property
-    def plotter(self) -> BasePlotter:
-        return self.options.plotter
+        @property
+        def plotter(self) -> BasePlotter:
+            return self.options.plotter
 
-    def _run_analysis(self, experiment_data):
-        data = experiment_data.data()
-        analysis_results = []
-        for datum in data:
-                # Analysis code
-                analysis_results.append(self._analysis_result(datum))
+        def _run_analysis(self, experiment_data):
+            data = experiment_data.data()
+            analysis_results = []
+            for datum in data:
+                    # Analysis code
+                    analysis_results.append(self._analysis_result(datum))
 
-                # Plotting code
-                series_name = datum["metadata"]["name"]
-                points = datum["memory"]
-                centroid = np.mean(points, axis=0)
-                self.plotter.set_series_data(
-                    series_name,
-                    points=points,
-                    centroid=centroid,
-                )
+                    # Plotting code
+                    series_name = datum["metadata"]["name"]
+                    points = datum["memory"]
+                    centroid = np.mean(points, axis=0)
+                    self.plotter.set_series_data(
+                        series_name,
+                        points=points,
+                        centroid=centroid,
+                    )
 
-        # Add discriminator to IQPlotter
-        discriminator = self._train_discriminator(data)
-        self.plotter.set_supplementary_data(discriminator=discriminator)
+            # Add discriminator to IQPlotter
+            discriminator = self._train_discriminator(data)
+            self.plotter.set_supplementary_data(discriminator=discriminator)
 
-        return analysis_results, [self.plotter.figure()]
+            return analysis_results, [self.plotter.figure()]
 
 If we run the above analysis on some appropriate experiment data, as previously 
 described, our class will generate a figure showing IQ points and their centroids.

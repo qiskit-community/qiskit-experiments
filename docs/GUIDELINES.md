@@ -27,7 +27,7 @@ Qiskit Experiments documentation is split into four sections:
 
 ### General formatting guidelines 
 
-* For experiments, documentation title should be just the name of the experiment. Use
+* For experiments, the documentation title should be just the name of the experiment. Use
   regular capitalization
 * Use headers, subheaders, subsubheaders etc. for hierarchical text organization. No
   need to number the headers
