@@ -160,7 +160,6 @@ intersphinx_mapping = {
     "matplotlib": ("https://matplotlib.org/stable/", None),
     "qiskit": ("https://qiskit.org/documentation/", None),
     "uncertainties": ("https://pythonhosted.org/uncertainties", None),
-    "qiskit-ibm-provider": ("https://qiskit.org/documentation/partners/qiskit_ibm_provider", None),
 }
 
 
