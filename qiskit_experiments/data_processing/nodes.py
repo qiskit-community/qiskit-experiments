@@ -851,11 +851,13 @@ class ShotOrder(Enum):
 
     Generally, there are two possible modes in which a backend measures m
     circuits with n shots:
-        - In the "circuit_first" mode, the backend subsequently first measures
-          all m circuits and then repeats this n times.
-        - In the "shot_first" mode, the backend first measures the 1st circuit
-          n times, then the 2nd circuit n times, and it proceeds with the remaining
-          circuits in the same way until it measures the m-th circuit n times.
+
+    - In the "circuit_first" mode, the backend subsequently first measures
+      all m circuits and then repeats this n times.
+
+    - In the "shot_first" mode, the backend first measures the 1st circuit
+      n times, then the 2nd circuit n times, and it proceeds with the remaining
+      circuits in the same way until it measures the m-th circuit n times.
 
     The current default mode of IBM Quantum devices is "circuit_first".
     """
@@ -871,7 +873,7 @@ class RestlessNode(DataAction, ABC):
     In restless measurements, the qubit is not reset after each measurement. Instead, the
     outcome of the previous quantum non-demolition measurement is the initial state for the
     current circuit. Restless measurements therefore require special data processing nodes
-    that are implemented as sub-classes of `RestlessNode`. Restless experiments provide a
+    that are implemented as sub-classes of ``RestlessNode``. Restless experiments provide a
     fast alternative for several calibration and characterization tasks, for details
     see https://arxiv.org/pdf/2202.06981.pdf.
 

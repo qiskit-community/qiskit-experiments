@@ -648,7 +648,8 @@ class ExperimentData:
         """Add experiment data.
 
         Args:
-            data: Experiment data to add. Several types are accepted for convenience
+            data: Experiment data to add. Several types are accepted for convenience:
+
                 * Result: Add data from this ``Result`` object.
                 * List[Result]: Add data from the ``Result`` objects.
                 * Dict: Add this data.

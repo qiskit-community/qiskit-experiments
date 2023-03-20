@@ -200,8 +200,8 @@ The actual backend jobs that were executed for the experiment can be accessed wi
 :meth:`~.ExperimentData.jobs` method.
 
 .. note::
-    See the how-tos for :doc:`instantiating a new ExperimentData object </howtos/new_experimentdata>`
-    from an existing experiment that finished execution.
+    See the how-tos for :doc:`rerunning the analysis </howtos/rerun_analysis>`
+    for an existing experiment that finished execution.
 
 Setting options for your experiment
 ===================================
@@ -242,7 +242,7 @@ Experiment options
 ------------------
 These options are unique to each experiment class. Many experiment options can be set
 upon experiment instantiation, but can also be explicitly set via
-:meth:`~BaseExperiment.set_experiment_options`:
+:meth:`~.BaseExperiment.set_experiment_options`:
 
 .. jupyter-input::
 

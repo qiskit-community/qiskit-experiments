@@ -48,7 +48,7 @@ We've divided up the documentation into four sections with different purposes:
         These standalone how-to guides provide short and direct solutions to some commonly
         asked questions for Qiskit Experiments users. You'll find in these guides:
 
-        * How to :doc:`re-instantiate experiment data for an existing experiment <howtos/new_experimentdata>`
+        * How to :doc:`rerun analysis for an existing experiment <howtos/rerun_analysis>`
         * How to :doc:`customize the splitting of circuits into jobs <howtos/job_splitting>`
 
         +++
