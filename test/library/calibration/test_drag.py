@@ -145,7 +145,7 @@ class TestDragEndToEnd(QiskitExperimentsTestCase):
                 "nrep=2": {"nrep": 2},
                 "nrep=4": {"nrep": 4},
                 "nrep=6": {"nrep": 6},
-            }
+            },
         )
 
         # Running experiment twice.

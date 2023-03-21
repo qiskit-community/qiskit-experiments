@@ -20,6 +20,7 @@ import numpy as np
 
 import qiskit_experiments.curve_analysis as curve
 from qiskit_experiments.framework import ExperimentData
+from qiskit_experiments.exceptions import AnalysisError
 
 
 class DragCalAnalysis(curve.CurveAnalysis):
@@ -87,18 +88,17 @@ class DragCalAnalysis(curve.CurveAnalysis):
         )
         default_options.result_parameters = ["beta"]
         default_options.normalization = True
-        default_options.reps = []
 
         return default_options
 
     def set_options(self, **fields):
         if "reps" in fields:
             warnings.warn(
-                "Analysis option 'reps' has been deprecated. "
-                "This value is now provided by the experiment metadata."
-                "This option will be dropped in Qiskit Experiments v0.7.",
+                "Analysis option 'reps' has been dropped and analysis is bootstrapped by "
+                "circuit metadata. Setting this option no longer impacts analysis result.",
                 DeprecationWarning,
             )
+            del fields["reps"]
         super().set_options(**fields)
 
     def _generate_fit_guesses(
@@ -229,16 +229,15 @@ class DragCalAnalysis(curve.CurveAnalysis):
         self,
         experiment_data: ExperimentData,
     ):
-        if "reps" not in experiment_data.metadata:
-            warnings.warn(
-                "Experiment metadata 'reps' is missing. "
-                "Analysis options 'reps' has been deprecated and will be removed in "
-                "Qiskit Experiments v0.7.",
-                DeprecationWarning,
+        reps = set(d.get("metadata", None).get("nrep", None) for d in experiment_data.data())
+        if None in reps:
+            reps.remove(None)
+        if not reps:
+            raise AnalysisError(
+                f"{self.__class__.__name__} expects 'nrep' value in circuit metadata. "
+                "Please setup your experiment circuits with proper metadata."
             )
-            reps = self.options.reps
-        else:
-            reps = experiment_data.metadata["reps"]
+        reps = sorted(reps)
 
         # Model is initialized at runtime because
         # the experiment option "reps" can be changed before experiment run.
