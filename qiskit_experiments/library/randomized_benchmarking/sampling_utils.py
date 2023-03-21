@@ -20,35 +20,19 @@ from numbers import Integral
 
 import numpy as np
 from numpy.random import Generator, default_rng, BitGenerator, SeedSequence
-from functools import lru_cache
 
-from qiskit import QuantumCircuit, QuantumRegister, Operator
+from qiskit import QuantumCircuit, QuantumRegister
 from qiskit.exceptions import QiskitError
-from qiskit.circuit import Gate
+from qiskit.circuit import Instruction
+from qiskit.circuit.library import CXGate
 from qiskit.quantum_info.operators.base_operator import BaseOperator
-from qiskit.quantum_info import random_unitary, Pauli, random_pauli
+from qiskit.quantum_info import random_unitary, Pauli, random_pauli, Operator
 from qiskit.extensions import UnitaryGate
 from qiskit.converters import circuit_to_dag
 from .clifford_utils import CliffordUtils, _clifford_1q_int_to_instruction
 from .rb_experiment import SequenceElementType
 
-from time import time
-
-Idx = TypeVar("Idx", int, Tuple[int, ...])
-Gate = TypeVar("Gate", Instruction, Operator, QuantumCircuit, BaseOperator)
-
-
-def timer_func(func):
-    # This function shows the execution time of
-    # the function object passed
-    def wrap_func(*args, **kwargs):
-        t1 = time()
-        result = func(*args, **kwargs)
-        t2 = time()
-        print(f"Function {func.__name__!r} executed in {(t2-t1):.4f}s")
-        return result
-
-    return wrap_func
+GateType = TypeVar("Gate", Instruction, Operator, QuantumCircuit, BaseOperator)
 
 
 class RBSampler(ABC):
@@ -59,11 +43,11 @@ class RBSampler(ABC):
         pass
 
     @abstractmethod
-    def __call__(self, num_qubits, seed=None, **params) -> Tuple[Tuple[Idx, Gate], ...]:
+    def __call__(self, num_qubits, seed=None, **params) -> List[Tuple[Tuple[int, ...], GateType]]:
         """Samplers should define this method such that it returns sampled layers
         given the input parameters. Each layer is represented by a list of size-2 tuples
-        where the first element is a qubit index or a tuple of indices, and the second
-        element represents the gate that should be applied."""
+        where the first element is a tuple of qubit indices, and the second
+        element represents the gate that should be applied to the indices."""
         pass
 
 
@@ -74,25 +58,43 @@ class SingleQubitSampler(RBSampler):
         length,
         gate_set: Optional[Union[str, List]] = "clifford",
         seed: Optional[Union[int, SeedSequence, BitGenerator, Generator]] = None,
-    ) -> Tuple[Tuple[Idx, Gate], ...]:
+    ) -> List[Tuple[Tuple[int, ...], GateType]]:
         """Samples a layer of random single-qubit gates from a specified gate set.
 
+        Args:
+            num_qubits: The number of qubits to generate layers for.
+            length: The length of the sequence to output.
+            gate_set: The one qubit gate set to sample from. Can be either a
+                list of gates, "clifford", or "pauli". Default is "clifford".
+            seed: Seed for random generation.
+
         Returns:
-        For two qubits and length 3, a possible output would be
-        (((0,20),(1,14)),((0,11),(1,4)),((0,2),(1,9)))
+            A ``length``-long list of :class:`qiskit.circuit.QuantumCircuit` layers over
+            ``num_qubits`` qubits. Each layer is represented by a list of tuples which
+            are in the format ((one or more qubit indices), gate). Single-qubit
+            Cliffords are represented by integers for speed. For two qubits, length
+            3, and the default Clifford gate set, an example output would be
+
+                .. code-block::
+                    [(((0,), 2), ((1,), 2)), (((0,), 11), ((1,), 4)), (((0,), 17), ((1,), 17))]
         """
         rng = default_rng(seed=seed)
         if gate_set == "clifford":
             layers = []
             for i in rng.integers(CliffordUtils.NUM_CLIFFORD_1_QUBIT, size=(length, num_qubits)):
-                layers.append(tuple(zip((range(num_qubits)), i)))
+                layers.append(tuple(zip(((j,) for j in range(num_qubits)), i)))
         elif gate_set == "pauli":
             layers = []
             for i in range(length):
-                layers.append(tuple(zip(range(num_qubits), random_pauli(num_qubits, seed=rng))))
+                layers.append(
+                    tuple(
+                        zip(((j,) for j in range(num_qubits)), random_pauli(num_qubits, seed=rng))
+                    )
+                )
         else:
-            # TODO finish this
-            pass
+            layers = []
+            for i in rng.integers(len(gate_set), size=(length, num_qubits)):
+                layers.append(tuple(zip(((j,) for j in range(num_qubits)), gate_set[i])))
         return layers
 
 
@@ -123,7 +125,6 @@ class EdgeGrabSampler(RBSampler):
 
     """
 
-    @timer_func
     def __call__(
         self,
         num_qubits: int,
@@ -131,9 +132,9 @@ class EdgeGrabSampler(RBSampler):
         coupling_map: List[List[int]],
         length: int,
         one_qubit_gate_set: Optional[Union[str, List]] = "clifford",
-        two_qubit_gate_set: Optional[List] = ["cx"],
+        two_qubit_gate_set: Optional[Union[str, List]] = "cx",
         seed: Optional[Union[int, SeedSequence, BitGenerator, Generator]] = None,
-    ) -> List[List]:
+    ) -> List[Tuple[Tuple[int, ...], GateType]]:
         """Sample layers using the edge grab algorithm.
 
         Args:
@@ -155,43 +156,38 @@ class EdgeGrabSampler(RBSampler):
 
         Returns:
             A ``length``-long list of :class:`qiskit.circuit.QuantumCircuit` layers over
-                ``num_qubits`` qubits. Each layer is represented by a list of tuples
-                which are of two formats: (single qubit index, single qubit gate)
-                represented by (int, int), or ((two qubit indices), two qubit gate)
-                represented by ((int, int), int). Here's an example with the default
-                choice of Cliffords for the single-qubit gates and CXs for the two-qubit
-                gates:
+            ``num_qubits`` qubits. Each layer is represented by a list of tuples which
+            are in the format ((one or more qubit indices), gate). Single-qubit
+            Cliffords are represented by integers for speed. Here's an example with the
+            default choice of Cliffords for the single-qubit gates and CXs for the
+            two-qubit gates:
 
-                .. code-block::
-                    (((1, 2), 0), (0, 12), (3, 20))
+            .. code-block::
+                (((1, 2), 0), ((0,), 12), ((3,), 20))
 
-                This represents a layer where the 12th Clifford is performed on qubit 0,
-                a CX is performed with control qubit 1 and target qubit 2, and the 20th
-                Clifford is performed on qubit 3.
+            This represents a layer where the 12th Clifford is performed on qubit 0,
+            a CX is performed with control qubit 1 and target qubit 2, and the 20th
+            Clifford is performed on qubit 3.
 
         """
         rng = default_rng(seed=seed)
 
-        if isinstance(one_qubit_gate_set, list) or not (
-            one_qubit_gate_set.casefold() == "clifford"
-        ):
+        if not isinstance(one_qubit_gate_set, list) and one_qubit_gate_set.casefold() != "clifford":
             raise TypeError("one_qubit_gate_set must be a list of gates or 'clifford'.")
 
         if num_qubits == 1:
             if one_qubit_gate_set.casefold() == "clifford":
                 return (
-                    ((0, i),) for i in rng.integers(CliffordUtils.NUM_CLIFFORD_1_QUBIT, size=length)
+                    (((0,), i),)
+                    for i in rng.integers(CliffordUtils.NUM_CLIFFORD_1_QUBIT, size=length)
                 )
             else:
-                return enumerate((0, i) for i in rng.choice(one_qubit_gate_set, size=length))
+                return list(enumerate((0, i) for i in rng.choice(one_qubit_gate_set, size=length)))
 
-        timed = {}
+        if not isinstance(two_qubit_gate_set, list) and two_qubit_gate_set.casefold() != "cx":
+            raise TypeError("two_qubit_gate_set must be a list of gates or 'cx'.")
 
-        timed["looptotal"] = time()
-        timed["2q"] = 0
-        timed["cliffs"] = 0
-
-        qc_list = []
+        layer_list = []
         for _ in list(range(length)):
             all_edges = coupling_map[:]  # make copy of coupling map from which we pop edges
             selected_edges = []
@@ -207,8 +203,6 @@ class EdgeGrabSampler(RBSampler):
                     if rand_edge[0] not in edge and rand_edge[1] not in edge:
                         all_edges.append(edge)
 
-            qr = QuantumRegister(num_qubits)
-            qc = QuantumCircuit(qr)
             two_qubit_prob = 0
             try:
                 # need to divide by 2 since each two-qubit gate spans two lattice sites
@@ -224,45 +218,25 @@ class EdgeGrabSampler(RBSampler):
             # selected_edges_logical is selected_edges with logical qubit labels rather than physical
             # ones. Example: qubits = (8,4,5,3,7), selected_edges = [[4,8],[7,5]]
             # ==> selected_edges_logical = [[1,0],[4,2]]
-            put_1_qubit_gates = np.arange(num_qubits)
+            put_1_qubit_gates = set(range(num_qubits))
             # put_1_qubit_gates is a list of qubits that aren't assigned to a 2-qubit gate
             # 1-qubit gates will be assigned to these edges
-            t1 = time()
-
+            layer = []
             for edge in selected_edges:
                 if rng.random() < two_qubit_prob:
                     # with probability two_qubit_prob, place a two-qubit gate from the
                     # gate set on edge in selected_edges
-                    if two_qubit_gate_set == ["cx"]:
-                        qc.cx(edge[0], edge[1])
+                    if two_qubit_gate_set == "cx":
+                        layer.append((tuple(edge), CXGate()))
                     else:
                         try:
-                            getattr(qc, rng.choice(two_qubit_gate_set))(edge[0], edge[1])
+                            layer.append(edge, rng.choice(two_qubit_gate_set))
                         except AttributeError:
                             raise QiskitError("Invalid two-qubit gate set specified.")
                     # remove these qubits from put_1_qubit_gates
-                    put_1_qubit_gates = np.setdiff1d(put_1_qubit_gates, edge)
-            t2 = time()
-
-            # for q in put_1_qubit_gates:
-            #     if one_qubit_gate_set == "clifford":
-            #         gates_1q = _clifford_1q_int_to_instruction
-            #         gates_1q = CliffordUtils.clifford_1_qubit(
-            #             rng.integers(CliffordUtils.NUM_CLIFFORD_1_QUBIT)
-            #         ).to_instruction()
-            #     else:
-            #         gates_1q = rng.choice(one_qubit_gate_set).to_instruction()
-            #     qc.compose(gates_1q, [q], inplace=True)
-
+                    put_1_qubit_gates.remove(edge[0])
+                    put_1_qubit_gates.remove(edge[1])
             for q in put_1_qubit_gates:
-                gate_1q = rng.integers(CliffordUtils.NUM_CLIFFORD_1_QUBIT)
-
-                qc.compose(_clifford_1q_int_to_instruction(gate_1q, basis_gates), [q], inplace=True)
-            print(qc.decompose())
-            qc_list.append(qc)
-            t3 = time()
-            timed["2q"] += t2 - t1
-            timed["cliffs"] += t3 - t2
-        timed["looptotal"] = time() - timed["looptotal"]
-        print(timed)
-        return qc_list
+                layer.append(((q,), rng.integers(CliffordUtils.NUM_CLIFFORD_1_QUBIT)))
+            layer_list.append(tuple(layer))
+        return layer_list

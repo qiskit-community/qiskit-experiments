@@ -337,13 +337,11 @@ class StandardRB(BaseExperiment, RestlessMixin):
             return Clifford.from_circuit(op).adjoint()
         return op.adjoint()
 
-    # pyline: disable=arguments-differ
-    def _transpiled_circuits(self, custom_transpile=False) -> List[QuantumCircuit]:
+    def _transpiled_circuits(self) -> List[QuantumCircuit]:
         """Return a list of experiment circuits, transpiled."""
         has_custom_transpile_option = (
             not set(vars(self.transpile_options)).issubset({"basis_gates", "optimization_level"})
             or self.transpile_options.get("optimization_level", 0) != 0
-            or custom_transpile
         )
         has_no_undirected_2q_basis = self._get_basis_gates() is None
         if self.num_qubits > 2 or has_custom_transpile_option or has_no_undirected_2q_basis:
