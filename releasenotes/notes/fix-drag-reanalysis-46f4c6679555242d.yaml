@@ -1,9 +1,10 @@
 ---
-deprecations:
+upgrade:
   - |
-    An analysis option `reps` in :class:`DragCalAnalysis` was deprecated.
-    Corresponding value must be provided by the experiment metadata
-    for the robustness of data analysis.
+    An analysis option `reps` in :class:`DragCalAnalysis` was dropped.
+    Now analysis is bootstrapped with circuit metadata and setting this value 
+    no longer impacts the analysis result. 
+    This upgrade doesn't introduce any breaking API change for existing experiments.
 fixes:
   - |
     A bug of redoing :class:`DragCalAnalysis.run` generates wrong fit models
