@@ -221,11 +221,11 @@ supports can be set:
 .. jupyter-input::
 
   exp.set_run_options(shots=1000,
-                      meas_level=MeasLevel.CLASSIFIED,
-                      meas_return="avg")
+                      meas_level=MeasLevel.CLASSIFIED)
 
-Consult the documentation of :meth:`qiskit.execute_function` or the run method of your
+Consult the documentation of the run method of your
 specific backend type for valid options.
+For example, see :meth:`qiskit_ibm_provider.IBMBackend.run` for IBM backends.
 
 Transpile options
 -----------------

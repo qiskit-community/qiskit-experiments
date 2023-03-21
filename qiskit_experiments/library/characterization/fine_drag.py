@@ -128,9 +128,6 @@ class FineDrag(BaseExperiment, RestlessMixin):
     # section: analysis_ref
         :class:`.ErrorAmplificationAnalysis`
 
-    # section: see_also
-        :class:`.DragCal`
-
     # section: reference
         .. ref_arxiv:: 1 1612.00858
         .. ref_arxiv:: 2 1011.1949
@@ -245,11 +242,7 @@ class FineDrag(BaseExperiment, RestlessMixin):
 
 
 class FineXDrag(FineDrag):
-    """Class to fine characterize the DRAG parameter of an X gate.
-
-    # section: see_also
-        :class:`.FineDrag`
-    """
+    """Class to fine characterize the DRAG parameter of an X gate."""
 
     @qubit_deprecate()
     def __init__(self, physical_qubits: Sequence[int], backend: Optional[Backend] = None):
@@ -275,11 +268,7 @@ class FineXDrag(FineDrag):
 
 
 class FineSXDrag(FineDrag):
-    """Class to fine characterize the DRAG parameter of an SX gate.
-
-    # section: see_also
-        :class:`.FineDrag`
-    """
+    """Class to fine characterize the DRAG parameter of an SX gate."""
 
     @qubit_deprecate()
     def __init__(self, physical_qubits: Sequence[int], backend: Optional[Backend] = None):

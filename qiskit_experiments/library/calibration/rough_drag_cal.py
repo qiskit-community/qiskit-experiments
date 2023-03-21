@@ -30,9 +30,6 @@ from qiskit_experiments.warnings import qubit_deprecate
 class RoughDragCal(BaseCalibrationExperiment, RoughDrag):
     """A calibration version of the Drag experiment.
 
-    # section: see_also
-        :class:`.RoughDrag`
-
     # section: manual
         :ref:`DRAG Calibration`
 

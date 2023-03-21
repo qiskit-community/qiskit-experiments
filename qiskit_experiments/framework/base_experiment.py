@@ -378,6 +378,8 @@ class BaseExperiment(ABC, StoreInitArgs):
 
         Raises:
             QiskitError: If `initial_layout` is one of the fields.
+
+        .. seealso:: The :ref:`guide_setting_options` guide for code example.
         """
         if "initial_layout" in fields:
             raise QiskitError(
@@ -402,6 +404,8 @@ class BaseExperiment(ABC, StoreInitArgs):
 
         Args:
             fields: The fields to update the options
+
+        .. seealso:: The :ref:`guide_setting_options` guide for code example.
         """
         self._run_options.update_options(**fields)
         self._set_run_options = self._set_run_options.union(fields)

@@ -97,9 +97,6 @@ class ResonatorSpectroscopy(Spectroscopy):
 
     # section: analysis_ref
         :class:`ResonatorSpectroscopyAnalysis`
-
-    # section: see_also
-        :class:`.QubitSpectroscopy`
     """
 
     @classmethod

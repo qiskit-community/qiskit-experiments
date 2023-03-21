@@ -15,13 +15,18 @@ A collection of utilities to generate documentation.
 
 import inspect
 import re
-from typing import List, Set, Tuple, Dict, Any, Callable, Type
+import collections
+from typing import List, Callable, Type, Iterator
 
 from sphinx.config import Config as SphinxConfig
 from sphinx.ext.napoleon.docstring import GoogleDocstring
 from sphinx.util.docstrings import prepare_docstring
 
 from qiskit_experiments.framework import BaseExperiment
+
+
+_parameter_regex = re.compile(r'(.+?)\(\s*(.*[^\s]+)\s*\):(.*[^\s]+)')
+_rest_role_regex = re.compile(r':(.+?) (.+?):\s*(.*[^\s]+)')
 
 
 def _trim_empty_lines(docstring_lines: List[str]) -> List[str]:
@@ -37,124 +42,6 @@ def _trim_empty_lines(docstring_lines: List[str]) -> List[str]:
         i_end -= 1
 
     return docstring_lines[i_start:i_end]
-
-
-def _parse_option_field(
-    docstring: str,
-    config: SphinxConfig,
-    target_args: Set[str],
-    indent: str = "",
-) -> Tuple[List[str], Set[str]]:
-    """A helper function to extract descriptions of target arguments."""
-    # Convert str into list of reST lines.
-    rest_doc = prepare_docstring(docstring, tabsize=len(indent))
-
-    # Extra formatting to remove line feed and non-target documentation.
-    line_ind = 0
-    while line_ind < len(rest_doc):
-        if "Options:" in rest_doc[line_ind]:
-            break
-        line_ind += 1
-    else:
-        return [], target_args
-    line0 = rest_doc[line_ind + 1]
-    section_indent = len(line0) - len(line0.lstrip())
-
-    to_parse = []
-    described_params = set()
-    tmp = ""
-    for line in rest_doc[line_ind + 1:]:
-        if line[section_indent:].startswith(indent):
-            # Remove line-feed for safety.
-            # GoogleDocstring parser doesn't support line break during type annotation.
-            #
-            # e.g.
-            #     param1 (some_very_long_type1 or some_very_long_type2
-            #         some_very_long_type2): here is documentation.
-            #
-            # Parsing above documentation always fails, and type is not recognized.
-            tmp += " " + line.lstrip()
-        else:
-            if tmp:
-                argname = tmp.split(maxsplit=1)[0]
-                if argname in target_args:
-                    # Add only description for target option. Otherwise, just ignore.
-                    described_params.add(argname)
-                    to_parse.append(tmp)
-            tmp = line
-    # find missing parameters
-    missing = target_args - described_params
-
-    if not to_parse:
-        return [],  missing
-
-    # readd section header, e.g. XXX Options:
-    to_parse.insert(0, rest_doc[line_ind])
-
-    # use GoogleDocstring parameter parser
-    experiment_option_parser = GoogleDocstring(docstring=to_parse, config=config)
-    parsed_lines = experiment_option_parser.lines()
-
-    return parsed_lines, missing
-
-
-def _generate_options_documentation(
-    current_class: Type,
-    method_name: str,
-    target_args: List[str] = None,
-    config: SphinxConfig = None,
-    indent: str = "",
-) -> List[str]:
-    """Automatically generate documentation from the default options method."""
-    options_docstring_lines = []
-
-    if not target_args:
-        default_opts_clsmethod = getattr(current_class, method_name, None)
-        if not default_opts_clsmethod:
-            # getter option is not defined
-            return []
-        target_args = set(default_opts_clsmethod().__dict__.keys())
-
-    mro_classes = inspect.getmro(current_class)
-    for i, mro_cls in enumerate(mro_classes):
-        if method_name not in mro_cls.__dict__:
-            # Do not directly get method docs from parent class.
-            continue
-        default_opts_clsmethod = getattr(mro_cls, method_name, None)
-        if not default_opts_clsmethod:
-            continue
-        parsed_lines, target_args = _parse_option_field(
-            docstring=default_opts_clsmethod.__doc__ or "",
-            config=config,
-            target_args=target_args,
-            indent=indent,
-        )
-        if parsed_lines:
-            if i == 0:
-                description = "defined in the current class"
-            else:
-                description = "inherited from the parent class"
-            options_docstring_lines.extend(
-                [
-                    f"(Options {description} :class:`.{mro_cls.__name__}`)",
-                    "",
-                ]
-            )
-            options_docstring_lines.extend(parsed_lines)
-        if not target_args:
-            break
-    else:
-        # Investigated all parent classes but all args are not described.
-        raise Exception(
-            f"Option documentation for {', '.join(target_args)} is missing or incomplete "
-            f"for the class {mro_classes[0].__name__}. "
-            "Use Google style docstring. PEP484 type annotations is not supported for options."
-        )
-
-    if options_docstring_lines:
-        return _trim_empty_lines(options_docstring_lines)
-
-    return options_docstring_lines
 
 
 def _generate_analysis_ref(
@@ -193,45 +80,13 @@ def _generate_analysis_ref(
         raise Exception(f"Option docstring for analysis_ref is missing.")
 
     analysis_ref_lines = []
-    for line in lines[analysis_ref_start + 1 :]:
+    for line in lines[analysis_ref_start + 1:]:
         # add lines until hitting to next section
         if line.startswith("# section:"):
             break
         analysis_ref_lines.append(line)
 
     return analysis_ref_lines
-
-
-def _format_default_options(defaults: Dict[str, Any], indent: str = "") -> List[str]:
-    """Format default options to docstring lines."""
-    docstring_lines = [
-        ".. dropdown:: Default values",
-        indent + ":animate: fade-in-slide-down",
-        "",
-    ]
-
-    if not defaults:
-        docstring_lines.append(indent + "No default  options are set.")
-    else:
-        docstring_lines.append(indent + "The following values are set by default.")
-        docstring_lines.append("")
-        docstring_lines.append(indent + ".. parsed-literal::")
-        docstring_lines.append("")
-        for par, value in defaults.items():
-            if callable(value):
-                if value.__class__.__name__ == "function":
-                    # callback function
-                    value_repr = f"Callable {value.__name__}"
-                else:
-                    # class instance with call method
-                    value_repr = repr(value)
-            else:
-                value_repr = repr(value)
-            docstring_lines.append(indent * 2 + f"{par:<25} := {value_repr}")
-    docstring_lines.insert(0, "")
-    docstring_lines.append("")
-
-    return docstring_lines
 
 
 def _check_no_indent(method: Callable) -> Callable:
@@ -247,3 +102,74 @@ def _check_no_indent(method: Callable) -> Callable:
         return method(self, lines, *args, **kwargs)
 
     return wraps
+
+
+def _get_superclass(current_class: Type, base_class: Type = None):
+    """Get a list of restructured text of super classes of current class."""
+
+    doc_classes = []
+    mro_classes = inspect.getmro(current_class)[1:]
+    if base_class:
+        for mro_class in mro_classes:
+            if issubclass(mro_class, base_class) and mro_class is not base_class:
+                doc_classes.append(mro_class)
+    else:
+        doc_classes.extend(mro_classes)
+
+    lines = []
+    for doc_class in doc_classes:
+        lines.append(f"* Super class :class:`{doc_class.__module__}.{doc_class.__name__}`")
+
+    return lines
+
+
+def _write_options(lines, indent) -> Iterator:
+    """A helper function to write options section.
+
+    Consume restructured text of default options with role and create plain sphinx text.
+    """
+
+    prev_name = None
+    params = collections.defaultdict(dict)
+    tmp = {}
+    for line in lines:
+        if len(line) == 0 or line.isspace():
+            continue
+        matched = _rest_role_regex.match(line)
+        if not matched:
+            raise ValueError(
+                f"{line} is not a valid directive. This must be parsed by docstring extension."
+            )
+        role = matched.group(1)
+        name = matched.group(2)
+        data = matched.group(3)
+        if role == "mro_index":
+            data = int(data)
+        if prev_name and prev_name != name:
+            params["Unknown class"][prev_name] = tmp
+            tmp = {role: data}
+            prev_name = name
+        elif role == "source":
+            params[data][name] = tmp
+            tmp = {}
+            prev_name = None
+        else:
+            tmp[role] = data
+            prev_name = name
+
+    if not params:
+        yield "Option is not provided from this class."
+    else:
+        yield "Options"
+        for source, data in params.items():
+            yield indent + f"* Defined in the class {source}"
+            yield ""
+            for name, info in data.items():
+                _type = info.get("type", "n/a")
+                _default = info.get("default_val", "n/a")
+                _desc = info.get("param", "n/a")
+                yield indent + f"  * **{name}** ({_type})"
+                yield ""
+                yield indent + f"    | Default value: {_default}"
+                yield indent + f"    | {_desc}"
+                yield ""

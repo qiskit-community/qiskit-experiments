@@ -24,7 +24,7 @@ class MitigatedTomographyAnalysis(CompositeAnalysis):
 
     Analysis is performed as a :class:`.CompositeAnalysis` consisting
     of :class:`.LocalReadoutErrorAnalysis` to determine the local
-    assigment matrices describing single qubit Z-basis readout errors,
+    assignment matrices describing single qubit Z-basis readout errors,
     and then these matrices are used to automatically construct a noisy
     :class:`~.PauliMeasurementBasis` for use during tomographic
     fitting with the tomography analysis.

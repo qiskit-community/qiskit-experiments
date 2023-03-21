@@ -58,9 +58,6 @@ class StateTomographyAnalysis(TomographyAnalysis):
     # section: reference
         .. ref_arxiv:: 1 1106.5458
 
-    # section: see_also
-        :class:`.TomographyAnalysis`
-
     """
 
     @classmethod

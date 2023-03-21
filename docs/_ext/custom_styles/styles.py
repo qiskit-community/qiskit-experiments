@@ -21,7 +21,6 @@ from typing import Union, List, Dict
 
 from qiskit_experiments.framework.base_analysis import BaseAnalysis
 from qiskit_experiments.framework.base_experiment import BaseExperiment
-from qiskit_experiments.visualization import BaseDrawer, BasePlotter
 from sphinx.config import Config as SphinxConfig
 
 from .formatter import (
@@ -32,19 +31,21 @@ from .formatter import (
 )
 from .section_parsers import load_standard_section, load_fit_parameters
 from .utils import (
-    _generate_options_documentation,
     _generate_analysis_ref,
-    _format_default_options,
+    _get_superclass,
 )
 
-section_regex = re.compile(r"# section: (?P<section_name>\S+)")
+
+_section_regex = re.compile(r"\s*# section:\s*(?P<section_key>\S+)")
 
 
 class QiskitExperimentDocstring(ABC):
     """Qiskit Experiment style docstring parser base class."""
 
     # mapping of sections supported by this style to parsing method or function
-    __sections__ = {}
+    __sections__ = {
+        "header": load_standard_section,
+    }
 
     # section formatter
     __formatter__ = DocstringSectionFormatter
@@ -55,6 +56,7 @@ class QiskitExperimentDocstring(ABC):
         docstring_lines: Union[str, List[str]],
         config: SphinxConfig,
         indent: str = "",
+        **extra_sections: List[str],
     ):
         """Create new parser and parse formatted docstring."""
 
@@ -67,54 +69,58 @@ class QiskitExperimentDocstring(ABC):
         self._indent = indent
         self._config = config
 
-        self._parsed_lines = self._classify(lines)
+        self._parsed_lines = self._classify(lines, **extra_sections)
 
-    def _classify(self, docstrings: List[str]) -> Dict[str, List[str]]:
+    def _classify(
+        self,
+        docstring_lines: List[str],
+        **extra_sections: List[str],
+    ) -> Dict[str, List[str]]:
         """Classify formatted docstring into sections."""
         sectioned_docstrings = dict()
 
-        def add_new_section(section: str, lines: List[str]):
-            if lines:
-                parser = self.__sections__[section]
-                if not parser:
+        for sec_key, parsed_lines in extra_sections.items():
+            if sec_key not in self.__sections__:
+                raise KeyError(
+                    f"Section key {sec_key} is not a valid Qiskit Experiments extension "
+                    f"section keys. Use one of {','.join(self.__sections__.keys())}."
+                )
+            sectioned_docstrings[sec_key] = parsed_lines
+
+        current_section = "header"
+        min_indent = sys.maxsize
+        tmp_lines = []
+        for line in docstring_lines:
+            matched = _section_regex.match(line)
+            if matched:
+                # Process previous section
+                if min_indent < sys.maxsize:
+                    tmp_lines = [_line[min_indent:] for _line in tmp_lines]
+                parser = self.__sections__[current_section]
+                sectioned_docstrings[current_section] = parser(tmp_lines)
+                # Start new line
+                sec_key = matched["section_key"]
+                if sec_key not in self.__sections__:
                     raise KeyError(
-                        f"Section {section} is automatically generated section. "
-                        "This section cannot be overridden by class docstring."
+                        f"Section key {sec_key} is not a valid Qiskit Experiments extension "
+                        f"section keys. Use one of {','.join(self.__sections__.keys())}."
                     )
-                sectioned_docstrings[section] = parser(temp_lines)
-
-        current_section = list(self.__sections__.keys())[0]
-        temp_lines = list()
-        margin = sys.maxsize
-        for docstring_line in docstrings:
-            match = re.match(section_regex, docstring_line.strip())
-            if match:
-                section_name = match["section_name"]
-                if section_name in self.__sections__:
-                    # parse previous section
-                    if margin < sys.maxsize:
-                        temp_lines = [l[margin:] for l in temp_lines]
-                    add_new_section(current_section, temp_lines)
-                    # set new section
-                    current_section = section_name
-                    temp_lines.clear()
-                    margin = sys.maxsize
-                else:
-                    raise KeyError(f"Section name {section_name} is invalid.")
+                current_section = sec_key
+                tmp_lines.clear()
+                min_indent = sys.maxsize
                 continue
-
             # calculate section indent
-            if len(docstring_line) > 0 and not docstring_line.isspace():
+            if len(line) > 0 and not line.isspace():
                 # ignore empty line
-                indent = len(docstring_line) - len(docstring_line.lstrip())
-                margin = min(indent, margin)
-
-            temp_lines.append(docstring_line)
-
-        # parse final section
-        if margin < sys.maxsize:
-            temp_lines = [l[margin:] for l in temp_lines]
-        add_new_section(current_section, temp_lines)
+                indent = len(line) - len(line.lstrip())
+                min_indent = min(indent, min_indent)
+            tmp_lines.append(line)
+        # Process final section
+        if tmp_lines:
+            if min_indent < sys.maxsize:
+                tmp_lines = [_line[min_indent:] for _line in tmp_lines]
+            parser = self.__sections__[current_section]
+            sectioned_docstrings[current_section] = parser(tmp_lines)
 
         # add extra section
         self._extra_sections(sectioned_docstrings)
@@ -163,90 +169,32 @@ class ExperimentDocstring(QiskitExperimentDocstring):
         "reference": load_standard_section,
         "manual": load_standard_section,
         "analysis_ref": load_standard_section,
-        "experiment_opts": None,
-        "transpiler_opts": None,
-        "run_opts": None,
+        "experiment_opts": load_standard_section,
         "example": load_standard_section,
         "note": load_standard_section,
         "see_also": load_standard_section,
+        "init": load_standard_section,
     }
 
     __formatter__ = ExperimentSectionFormatter
 
-    def __init__(
-        self,
-        target_cls: BaseExperiment,
-        docstring_lines: Union[str, List[str]],
-        config: SphinxConfig,
-        indent: str = "",
-    ):
-        """Create new parser and parse formatted docstring."""
-        super().__init__(target_cls, docstring_lines, config, indent)
-
     def _extra_sections(self, sectioned_docstring: Dict[str, List[str]]):
         """Generate extra sections."""
+        current_class = self._target_cls
 
-        # add experiment option
-        exp_option_desc = []
-
-        exp_docs_config = copy.copy(self._config)
-        exp_docs_config.napoleon_custom_sections = [("experiment options", "args")]
-        exp_option = _generate_options_documentation(
-            current_class=self._target_cls,
-            method_name="_default_experiment_options",
-            config=exp_docs_config,
-            indent=self._indent,
-        )
-        if exp_option:
-            exp_option_desc.extend(
-                _format_default_options(
-                    defaults=self._target_cls._default_experiment_options().__dict__,
-                    indent=self._indent,
-                )
-            )
-            exp_option_desc.extend(exp_option)
-        else:
-            exp_option_desc.append("No experiment option available for this experiment.")
-
-        sectioned_docstring["experiment_opts"] = exp_option_desc
-
-        # add transpiler option
-        transpiler_option_desc = []
-        transpiler_option_desc.extend(
-            _format_default_options(
-                defaults=self._target_cls._default_transpile_options().__dict__,
-                indent=self._indent,
-            )
-        )
-        transpiler_option_desc.extend(
-            [
-                "These options are used for circuit optimization. ",
-                "See the :ref:`guide_setting_options` guide for code example.",
-            ]
-        )
-        sectioned_docstring["transpiler_opts"] = transpiler_option_desc
-
-        # add run option
-        run_option_desc = []
-        run_option_desc.extend(
-            _format_default_options(
-                defaults=self._target_cls._default_run_options().__dict__,
-                indent=self._indent,
-            )
-        )
-        run_option_desc.extend(
-            [
-                "These options are used for controlling the job execution condition. "
-                "Note that available options are provider dependent. "
-                "For example, see :meth:`qiskit_ibm_provider.IBMBackend.run` for IBM backends."
-            ]
-        )
-        sectioned_docstring["run_opts"] = run_option_desc
+        # add see also for super classes
+        if "see_also" not in sectioned_docstring:
+            class_refs = _get_superclass(current_class, BaseExperiment)
+            if class_refs:
+                sectioned_docstring["see_also"] = class_refs
 
         # add analysis reference, if nothing described, it copies from parent
+        exp_docs_config = copy.copy(self._config)
+        exp_docs_config.napoleon_custom_sections = [("experiment options", "args")]
+
         if not sectioned_docstring.get("analysis_ref", None):
             analysis_desc = _generate_analysis_ref(
-                current_class=self._target_cls,
+                current_class=current_class,
                 config=exp_docs_config,
                 indent=self._indent,
             )
@@ -265,50 +213,24 @@ class AnalysisDocstring(QiskitExperimentDocstring):
         "fit_parameters": load_fit_parameters,
         "reference": load_standard_section,
         "manual": load_standard_section,
-        "analysis_opts": None,
+        "analysis_opts": load_standard_section,
         "example": load_standard_section,
         "note": load_standard_section,
         "see_also": load_standard_section,
+        "init": load_standard_section,
     }
 
     __formatter__ = AnalysisSectionFormatter
 
-    def __init__(
-        self,
-        target_cls: BaseAnalysis,
-        docstring_lines: Union[str, List[str]],
-        config: SphinxConfig,
-        indent: str = "",
-    ):
-        """Create new parser and parse formatted docstring."""
-        super().__init__(target_cls, docstring_lines, config, indent)
-
     def _extra_sections(self, sectioned_docstring: Dict[str, List[str]]):
         """Generate extra sections."""
+        current_class = self._target_cls
 
-        # add analysis option
-        option_desc = []
-
-        analysis_docs_config = copy.copy(self._config)
-        analysis_docs_config.napoleon_custom_sections = [("analysis options", "args")]
-        analysis_option = _generate_options_documentation(
-            current_class=self._target_cls,
-            method_name="_default_options",
-            config=analysis_docs_config,
-            indent=self._indent,
-        )
-        if analysis_option:
-            option_desc.extend(
-                _format_default_options(
-                    defaults=self._target_cls._default_options().__dict__,
-                    indent=self._indent,
-                )
-            )
-            option_desc.extend(analysis_option)
-        else:
-            option_desc.append("No option available for this analysis.")
-
-        sectioned_docstring["analysis_opts"] = option_desc
+        # add see also for super classes
+        if "see_also" not in sectioned_docstring:
+            class_refs = _get_superclass(current_class, BaseAnalysis)
+            if class_refs:
+                sectioned_docstring["see_also"] = class_refs
 
 
 class VisualizationDocstring(QiskitExperimentDocstring):
@@ -320,72 +242,12 @@ class VisualizationDocstring(QiskitExperimentDocstring):
         "overview": load_standard_section,
         "reference": load_standard_section,
         "manual": load_standard_section,
-        "opts": None,  # For standard options
-        "figure_opts": None,  # For figure options
+        "opts": load_standard_section,  # For standard options
+        "figure_opts": load_standard_section,  # For figure options
         "example": load_standard_section,
         "note": load_standard_section,
         "see_also": load_standard_section,
+        "init": load_standard_section,
     }
 
     __formatter__ = VisualizationSectionFormatter
-
-    def __init__(
-        self,
-        target_cls: Union[BaseDrawer, BasePlotter],
-        docstring_lines: Union[str, List[str]],
-        config: SphinxConfig,
-        indent: str = "",
-    ):
-        """Create new parser and parse formatted docstring."""
-        super().__init__(target_cls, docstring_lines, config, indent)
-
-    def _extra_sections(self, sectioned_docstring: Dict[str, List[str]]):
-        """Generate extra sections."""
-        # add options
-        option_desc = []
-        figure_option_desc = []
-
-        docs_config = copy.copy(self._config)
-        docs_config.napoleon_custom_sections = [
-            ("options", "args"),
-            ("figure options", "args"),
-        ]
-
-        # Generate options docs
-        option = _generate_options_documentation(
-            current_class=self._target_cls,
-            method_name="_default_options",
-            config=docs_config,
-            indent=self._indent,
-        )
-        if option:
-            option_desc.extend(
-                _format_default_options(
-                    defaults=self._target_cls._default_options().__dict__,
-                    indent=self._indent,
-                )
-            )
-            option_desc.extend(option)
-        else:
-            option_desc.append("No options available.")
-
-        # Generate figure options docs
-        figure_option = _generate_options_documentation(
-            current_class=self._target_cls,
-            method_name="_default_figure_options",
-            config=docs_config,
-            indent=self._indent,
-        )
-        if figure_option:
-            figure_option_desc.extend(
-                _format_default_options(
-                    defaults=self._target_cls._default_figure_options().__dict__,
-                    indent=self._indent,
-                )
-            )
-            figure_option_desc.extend(figure_option)
-        else:
-            figure_option_desc.append("No figure options available.")
-
-        sectioned_docstring["opts"] = option_desc
-        sectioned_docstring["figure_opts"] = figure_option_desc
