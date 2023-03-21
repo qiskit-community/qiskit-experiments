@@ -21,3 +21,6 @@ pylatexenc
 importlib-metadata==4.13.0;python_version<'3.8'
 scikit-learn
 sphinx-copybutton
+# Pin versions below because of build errors
+ipykernel~=6.21.0
+jupyter-client~=8.0.0
