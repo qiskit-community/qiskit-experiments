@@ -322,10 +322,15 @@ class CurveAnalysis(BaseCurveAnalysis):
             ys = []
             for model in models:
                 sub_data = curve_data.get_subset_of(model._name)
+                with np.errstate(divide="ignore"):
+                    # Ignore numpy runtime warning.
+                    # Zero y_err point introduces infinite weight,
+                    # but this should be managed by LMFIT.
+                    weights = 1.0 / sub_data.y_err if valid_uncertainty else None
                 yi = model._residual(
                     params=_params,
                     data=sub_data.y,
-                    weights=1.0 / sub_data.y_err if valid_uncertainty else None,
+                    weights=weights,
                     x=sub_data.x,
                 )
                 ys.append(yi)
