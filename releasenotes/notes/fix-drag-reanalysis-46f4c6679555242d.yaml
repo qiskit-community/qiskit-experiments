@@ -7,5 +7,5 @@ upgrade:
     This upgrade doesn't introduce any breaking API change for existing experiments.
 fixes:
   - |
-    A bug of redoing :class:`DragCalAnalysis.run` generates wrong fit models
+    A bug of redoing :meth:`.DragCalAnalysis.run` generates wrong fit models
     was fixed.
