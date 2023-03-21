@@ -109,18 +109,12 @@ Utilities
     utils.analysis_result_to_repr
     utils.convert_lmfit_result
     utils.eval_with_uncertainties
-
-Data Processing Functions
-=========================
-.. autosummary::
-    :toctree: ../stubs/
-
-    filter_data
-    mean_xy_data
-    multi_mean_xy_data
-    data_sort
-    level2_probability
-    probability
+    utils.filter_data
+    utils.mean_xy_data
+    utils.multi_mean_xy_data
+    utils.data_sort
+    utils.level2_probability
+    utils.probability
 
 """
 from .base_curve_analysis import BaseCurveAnalysis
@@ -154,15 +148,6 @@ from .standard_analysis import (
     GaussianAnalysis,
     ErrorAmplificationAnalysis,
     BlochTrajectoryAnalysis,
-)
-
-from .data_processing import (
-    filter_data,
-    mean_xy_data,
-    multi_mean_xy_data,
-    data_sort,
-    level2_probability,
-    probability,
 )
 
 # deprecated
