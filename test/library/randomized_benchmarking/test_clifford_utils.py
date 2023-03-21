@@ -199,7 +199,7 @@ class TestCliffordUtils(QiskitExperimentsTestCase):
             layered = Clifford(circ)
             self.assertEqual(standard, layered)
 
-    def test_target_bitstring(self, qubits):
+    def test_target_bitstring(self):
         """Test if correct target bitstring is returned."""
         qc = QuantumCircuit(9)
         qc.z(0)

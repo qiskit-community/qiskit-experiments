@@ -12,10 +12,10 @@
 """
 Mirror RB Experiment class.
 """
-from typing import Union, Iterable, Optional, List, Sequence
+from typing import Union, Iterable, Optional, List, Sequence, Tuple
 from numbers import Integral
-from itertools import permutations
-
+import itertools
+from time import time
 
 from numpy.random import Generator, BitGenerator, SeedSequence, default_rng
 
@@ -30,8 +30,21 @@ from qiskit_experiments.warnings import deprecate_arguments
 
 from .rb_experiment import StandardRB, SequenceElementType
 from .mirror_rb_analysis import MirrorRBAnalysis
-from .clifford_utils import compute_target_bitstring
-from .sampling_utils import MirrorRBSampler, EdgeGrabSampler
+from .clifford_utils import compute_target_bitstring, CliffordUtils, inverse_1q
+from .sampling_utils import RBSampler, EdgeGrabSampler, SingleQubitSampler
+
+
+def timer_func(func):
+    # This function shows the execution time of
+    # the function object passed
+    def wrap_func(*args, **kwargs):
+        t1 = time()
+        result = func(*args, **kwargs)
+        t2 = time()
+        print(f"Function {func.__name__!r} executed in {(t2-t1):.4f}s")
+        return result
+
+    return wrap_func
 
 
 class MirrorRB(StandardRB):
@@ -67,7 +80,7 @@ class MirrorRB(StandardRB):
         self,
         physical_qubits: Sequence[int],
         lengths: Iterable[int],
-        distribution: MirrorRBSampler = EdgeGrabSampler,
+        distribution: RBSampler = EdgeGrabSampler,
         local_clifford: bool = True,
         pauli_randomize: bool = True,
         two_qubit_gate_density: float = 0.2,
@@ -171,6 +184,25 @@ class MirrorRB(StandardRB):
 
         return circuits
 
+    def _inverse_layer(self, layer) -> List[Tuple[Union[int, Tuple], int]]:
+        """Generates the inverse layer of a Clifford mirror RB layer by inverting the
+        single-qubit Cliffords and keeping the CXs identical. See
+        :class:`.RBSampler` for the format of the layer.
+
+        Raises:
+            QiskitError: If the layer has invalid format.
+        """
+        inverse_layer = []
+        for elem in layer:
+            if isinstance(elem[0], int):
+                inverse_layer.append((elem[0], inverse_1q(elem[1])))
+            elif isinstance(elem[0], tuple):
+                inverse_layer.append(elem)
+            else:
+                raise QiskitError("Invalid layer from sampler.")
+        return tuple(inverse_layer)
+
+    @timer_func
     def _sample_sequences(self) -> List[Sequence[SequenceElementType]]:
         """Sample layers of mirror RB using the provided distribution and user options.
         First, layers are sampled using the distribution, then Pauli-dressed if
@@ -186,13 +218,12 @@ class MirrorRB(StandardRB):
             A list of mirror RB sequences. Each element is a list of layers with length
             matching the corresponding element in ``lengths``.
         """
-        rng = default_rng(seed=self.experiment_options.seed)
         if not self._backend:
-            raise QiskitError("A backend must be provided.")
+            raise QiskitError("A backend must be provided for circuit generation.")
 
         # Coupling map is full connectivity by default. If backend has a coupling map,
         # get backend coupling map and create coupling map for physical qubits
-        coupling_map = list(permutations(range(max(self.physical_qubits) + 1), 2))
+        coupling_map = list(itertools.permutations(range(max(self.physical_qubits) + 1), 2))
         if self._backend_data.coupling_map:
             coupling_map = self._backend_data.coupling_map
         experiment_coupling_map = []
@@ -200,75 +231,74 @@ class MirrorRB(StandardRB):
             if edge[0] in self.physical_qubits and edge[1] in self.physical_qubits:
                 experiment_coupling_map.append(edge)
 
-        # adjust the density based on whether the pauli layers are in
+        rng = default_rng(seed=self.experiment_options.seed)
+
+        sequences = []
+
+        # Adjust the density based on whether the pauli layers are in
         if self.experiment_options.pauli_randomize:
             adjusted_2q_density = self.experiment_options.two_qubit_gate_density * 2
         else:
             adjusted_2q_density = self.experiment_options.two_qubit_gate_density
 
-        sequences = []
+        # Sequence of lengths to sample for
+        if not self.experiment_options.full_sampling:
+            seqlens = (max(self.experiment_options.lengths),)
+            build_seq_lengths = self.experiment_options.lengths
+        else:
+            seqlens = self.experiment_options.lengths
 
-        if self.experiment_options.full_sampling:
-            for _ in range(self.experiment_options.num_samples):
-                for length in self.experiment_options.lengths:
-                    # Sample Clifford layer elements for first half of mirror circuit
-                    elements = self._distribution(
+        for _ in range(self.experiment_options.num_samples):
+            for seqlen in seqlens:
+                seq = []
+                layers = list(
+                    self._distribution(
                         self.num_qubits,
                         adjusted_2q_density,
                         experiment_coupling_map,
-                        length // 2,
+                        seqlen // 2,
                         seed=rng,
                     )
-                    # Append inverses of Clifford elements to second half of circuit
-                    for element in elements[::-1]:
-                        elements.append(self._adjoint_clifford(element))
-
-                    # Interleave random Paulis if set by user
-                    if self.experiment_options.pauli_randomize:
-                        elements = self._pauli_dress(elements, rng)
-
-                    # Add start and end local cliffords if set by user
-                    if self.experiment_options.local_clifford:
-                        elements = self._start_end_cliffords(elements, rng)
-
-                    sequences.append(elements)
-        else:
-            for _ in range(self.experiment_options.num_samples):
-                longest_seq = self._distribution(
-                    self.num_qubits,
-                    adjusted_2q_density,
-                    experiment_coupling_map,
-                    max(self.experiment_options.lengths) // 2,
-                    seed=rng,
                 )
-                element_lengths = self.experiment_options.lengths
+                seq.extend(layers)
 
-                # Append inverses of Clifford elements to second half of circuit
-                for element in longest_seq[::-1]:
-                    longest_seq.append(self._adjoint_clifford(element))
+                # Add the second half mirror layers
+                for i in range(len(list(layers))):
+                    seq.append(self._inverse_layer(layers[-i - 1]))
+
                 # Interleave random Paulis if set by user
                 if self.experiment_options.pauli_randomize:
-                    longest_seq = self._pauli_dress(longest_seq, rng)
-                    element_lengths = [length * 2 + 1 for length in element_lengths]
+                    sampler = SingleQubitSampler()
+                    pauli_layers = sampler(self.num_qubits, seqlen + 1, "pauli", rng)
+                    seq = list(itertools.chain(*zip(pauli_layers[:-1], seq)))
+                    seq.append(pauli_layers[-1])
+                    if not self.experiment_options.full_sampling:
+                        build_seq_lengths = [length * 2 + 1 for length in build_seq_lengths]
 
                 # Add start and end local cliffords if set by user
                 if self.experiment_options.local_clifford:
-                    longest_seq = self._start_end_cliffords(longest_seq, rng)
-                    element_lengths = [length + 2 for length in element_lengths]
+                    cseq = []
+                    sampler = SingleQubitSampler()
+                    clifford_layers = sampler(self.num_qubits, 1, "clifford", rng)
+                    cseq.append(clifford_layers[0])
+                    cseq.extend(seq)
+                    cseq.append(self._inverse_layer(clifford_layers[0]))
+                    if not self.experiment_options.full_sampling:
+                        build_seq_lengths = [length + 2 for length in build_seq_lengths]
+                    seq = cseq
 
-                # Construct the remaining sequences from the longest
-                for real_length in element_lengths:
-                    sequences.append(
-                        longest_seq[: real_length // 2] + longest_seq[-real_length // 2 :]
-                    )
+                if self.experiment_options.full_sampling:
+                    sequences.append(seq)
+
+            # Construct the rest of the sequences from the longest if `full_sampling` is
+            # off
+            if not self.experiment_options.full_sampling:
+                for real_length in build_seq_lengths:
+                    sequences.append(seq[: real_length // 2] + seq[-real_length // 2 :])
 
         return sequences
 
-    def _adjoint_clifford(self, op: SequenceElementType) -> SequenceElementType:
-        if isinstance(op, QuantumCircuit):
-            return Clifford.from_circuit(op).adjoint()
-        return op.adjoint()
-
+    @timer_func
     def _sequences_to_circuits(
         self, sequences: List[Sequence[SequenceElementType]]
     ) -> List[QuantumCircuit]:
@@ -282,34 +312,30 @@ class MirrorRB(StandardRB):
         """
         basis_gates = self._get_basis_gates()
         circuits = []
+
         for i, seq in enumerate(sequences):
             circ = QuantumCircuit(self.num_qubits)
-            for elem in seq:
-                circ.append(elem.to_instruction(), circ.qubits)
+            # Hack to get target bitstrings until qiskit-terra#9475 is resolved
+            circ_target = QuantumCircuit(self.num_qubits)
+            for layer in seq:
+                for elem in layer:
+                    circ.append(self._to_instruction(elem[1], basis_gates), [elem[0]])
+                    circ_target.append(self._to_instruction(elem[1]), [elem[0]])
                 circ.append(Barrier(self.num_qubits), circ.qubits)
-
+                circ_target.append(Barrier(self.num_qubits), circ_target.qubits)
             circ.metadata = {
                 "xval": self.experiment_options.lengths[i % len(self.experiment_options.lengths)],
                 "group": "Clifford",
                 "physical_qubits": self.physical_qubits,
-                "target": compute_target_bitstring(circ),
+                "target": compute_target_bitstring(circ_target),
                 "inverting_pauli_layer": self.experiment_options.inverting_pauli_layer,
             }
 
-            if self.experiment_options.inverting_pauli_layer:
-                # Get target bitstring (ideal bitstring outputted by the circuit)
-                target = circ.metadata["target"]
-
-                # Pauli gates to apply to each qubit to reset each to the state 0.
-                # E.g., if the ideal bitstring is 01001, the Pauli label is IXIIX,
-                # which sets all qubits to 0 (up to a global phase)
-                label = "".join(["X" if char == "1" else "I" for char in target])
-                circ.append(Pauli(label), list(range(self._num_qubits)))
-
-            circ.measure_all()  # includes insertion of the barrier before measurement
+            circ.measure_all()
             circuits.append(circ)
         return circuits
 
+    @timer_func
     def _pauli_dress(self, element_list: List, rng: Generator) -> List:
         """Interleaving layers of random Paulis inside the element list.
 
@@ -328,9 +354,11 @@ class MirrorRB(StandardRB):
             new_element_list.append(rand_pauli)
         return new_element_list
 
+    @timer_func
     def _transpiled_circuits(self) -> List[QuantumCircuit]:
-        return super()._transpiled_circuits(custom_transpile=True)
+        return super()._transpiled_circuits()
 
+    @timer_func
     def _start_end_cliffords(
         self, elements: Iterable[Clifford], rng: Generator
     ) -> List[QuantumCircuit]:
@@ -338,18 +366,21 @@ class MirrorRB(StandardRB):
            and its inverse to the end of the list.
 
         Args:
-            element_list: The list of elements we add the Clifford layers to
+            elements: The list of elements we add the Clifford layers to
             rng: Randomness generator
 
         Returns:
             The new list of elements with the start and end local (1-qubit) Cliffords.
         """
 
-        rand_clifford = [random_clifford(1, rng) for i in range(self.num_qubits)]
+        rand_clifford = [
+            CliffordUtils.clifford_1_qubit(rng.integers(CliffordUtils.NUM_CLIFFORD_1_QUBIT))
+            for _ in range(self.num_qubits)
+        ]
+
         tensor_op = rand_clifford[0]
         for cliff in rand_clifford[1:]:
             tensor_op = tensor_op ^ cliff
         tensor_circ = tensor_op.to_circuit()
 
-        rand_clifford = random_clifford(self.num_qubits, seed=rng).to_circuit()
         return [tensor_circ] + elements + [tensor_circ.inverse()]
