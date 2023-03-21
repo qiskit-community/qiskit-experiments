@@ -1,7 +1,7 @@
 ---
 upgrade:
   - |
-    An analysis option `reps` in :class:`DragCalAnalysis` was dropped.
+    An analysis option `reps` in :class:`.DragCalAnalysis` was dropped.
     Now analysis is bootstrapped with circuit metadata and setting this value 
     no longer impacts the analysis result. 
     This upgrade doesn't introduce any breaking API change for existing experiments.
