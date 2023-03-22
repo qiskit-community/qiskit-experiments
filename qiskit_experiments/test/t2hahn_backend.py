@@ -32,12 +32,6 @@ from qiskit_aer.noise import NoiseModel, ReadoutError, RelaxationNoisePass, rese
 from qiskit_experiments.test.utils import FakeJob
 
 
-# These pylint directives should be removed when the version of pylint is
-# updated from 2.7.1
-# pylint: disable=isinstance-second-argument-not-valid-type
-# pylint: disable=arguments-differ
-
-
 class ResetQubits(TransformationPass):
     """Pass to inject reset instructions for each qubit
 
