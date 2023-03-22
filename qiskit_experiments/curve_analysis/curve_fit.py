@@ -20,7 +20,7 @@ import numpy as np
 import uncertainties
 import scipy.optimize as opt
 from qiskit_experiments.exceptions import AnalysisError
-from qiskit_experiments.curve_analysis.data_processing import filter_data
+from qiskit_experiments.curve_analysis.utils import filter_data
 from qiskit_experiments.curve_analysis.curve_data import FitData
 from qiskit_experiments.warnings import deprecated_function
 

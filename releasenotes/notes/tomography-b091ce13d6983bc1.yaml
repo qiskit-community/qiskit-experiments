@@ -22,12 +22,12 @@ features:
   - |
     Adds an optional ``mitigator`` kwarg to :class:`.PauliMeasurementBasis`
     which can be used to initialize the basis with a
-    :class:`.LocalReadoutMitigator` to construct a readout error mitigated
+    :class:`~qiskit.result.LocalReadoutMitigator` to construct a readout error mitigated
     basis for use with :class:`.StateTomography` and
     :class:`.ProcessTomography` experiments.
   
     The :class:`.LocalReadoutError` experiment can be run to obtain the 
-    :class:`.LocalReadoutMitigator` from its analysis results.
+    :class:`~qiskit.result.LocalReadoutMitigator` from its analysis results.
   - |
     Adds readout error mitigated tomography experiments
     :class:`.MitigatedStateTomography` and :class:`.MitigatedProcessTomography`.
@@ -74,7 +74,7 @@ fixes:
     experiments where if the input circuit contained conditional instructions
     with multiple classical registers the tomography measurement circuits
     would contain incorrect conditionals due to a bug in the
-    :meth:`.QuantumCircuit.compose` method.
+    :meth:`qiskit.circuit.QuantumCircuit.compose` method.
 
     See Issue #942 <https://github.com/Qiskit/qiskit-experiments/issues/943>`_
     for additional details.
@@ -82,7 +82,7 @@ upgrade:
   - |
     Renames the ``qubits``, ``measurement_qubits``, and ``preparation_qubits``
     init kwargs of :class:`~.StateTomography`,
-    :class:`~.ProcessTomography`, and :class:`~.TomographyExperiment` to
+    :class:`~.ProcessTomography`, and :class:`.TomographyExperiment` to
     ``physical_qubits``, ``measurement_indices`` and ``preparation_indices``
     respectively. This is to make the intended use of these kwargs more clear
     as the measurement and preparation args refer to the index of circuit
@@ -101,7 +101,7 @@ deprecations:
   - |
     Renames the ``qubits``, ``measurement_qubits``, and ``preparation_qubits``
     init kwargs of :class:`~.StateTomography`,
-    :class:`~.ProcessTomography`, and :class:`~.TomographyExperiment` have
+    :class:`~.ProcessTomography`, and :class:`.TomographyExperiment` have
     been deprecated. They have been replaced with kwargs ``physical_qubits``,
     ``measurement_indices`` and ``preparation_indices`` respectively. The
     renamed kwargs have the same functionality as the deprecated kwargs.

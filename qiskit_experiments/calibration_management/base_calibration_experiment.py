@@ -61,14 +61,14 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
 
     .. code-block:: python
 
-        RoughFrequency(BaseCalibrationExperiment, QubitSpectroscopy)
+        RoughFrequencyCal(BaseCalibrationExperiment, QubitSpectroscopy)
 
-    This ensures that the :meth:`run` method of :class:`.RoughFrequency` will be the
+    This ensures that the ``run`` method of :class:`.RoughFrequencyCal` will be the
     run method of the :class:`.BaseCalibrationExperiment` class. Furthermore, developers
     must explicitly call the :meth:`__init__` methods of both parent classes.
 
     Developers should strive to follow the convention that the first two arguments of
-    a calibration experiment are the qubit(s) and the :class:`.Calibration` instance.
+    a calibration experiment are the qubit(s) and the :class:`.Calibrations` instance.
 
     If the experiment uses custom schedules, which is typically the case, then
     developers may chose to use the :meth:`get_schedules` method when creating the
@@ -133,8 +133,8 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
             updater: The updater class that updates the Calibrations instance. Different
                 calibration experiments will use different updaters.
             auto_update: If set to True (the default) then the calibrations will automatically be
-                updated once the experiment has run and :meth:`block_for_results()` will be called.
-            kwargs: Key word arguments for the characterization class.
+                updated once the experiment has run and :meth:`.block_for_results` will be called.
+            kwargs: Keyword arguments for the characterization class.
         """
         super().__init__(*args, **kwargs)
         self._cals = calibrations
