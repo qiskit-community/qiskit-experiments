@@ -26,7 +26,7 @@ class T1Analysis(curve.DecayAnalysis):
     r"""A class to analyze T1 experiments.
 
     # section: see_also
-        qiskit_experiments.curve_analysis.standard_analysis.decay.DecayAnalysis
+        :class:`.DecayAnalysis`
 
     """
 
@@ -77,7 +77,7 @@ class T1KerneledAnalysis(curve.DecayAnalysis):
     r"""A class to analyze T1 experiments with kerneled data.
 
     # section: see_also
-        qiskit_experiments.curve_analysis.standard_analysis.decay.DecayAnalysis
+        :class:`.DecayAnalysis`
 
     """
 

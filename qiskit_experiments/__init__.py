@@ -21,8 +21,8 @@ Qiskit Experiments (:mod:`qiskit_experiments`)
 
     This package is still under active development and it is very likely
     that there will be breaking API changes in future releases.
-    If you encounter any bugs please open an issue on
-    `Github <https://github.com/Qiskit/qiskit-experiments/issues>`_
+    If you encounter any bugs, please open an issue on
+    `GitHub <https://github.com/Qiskit/qiskit-experiments/issues>`_.
 
 Qiskit Experiments provides both a general
 :mod:`~qiskit_experiments.framework` for creating and
@@ -48,9 +48,8 @@ Modules
       - Utility functions for curve fitting and analysis.
     * - :mod:`~qiskit_experiments.calibration_management`
       - Classes for managing calibration experiment result data.
-    * - :mod:`~qiskit_experiments.database_service`
-      - Classes for saving and retrieving experiment and analysis results
-        from a database.
+    * - :mod:`~qiskit_experiments.visualization`
+      - Classes for creating figures from experiment results.
 
 Certain experiments also have additional utilities contained which can be
 accessed by importing the following modules.
@@ -70,3 +69,4 @@ from . import curve_analysis
 from . import calibration_management
 from . import data_processing
 from . import database_service
+from . import visualization

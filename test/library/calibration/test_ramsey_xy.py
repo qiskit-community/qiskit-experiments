@@ -15,8 +15,9 @@
 import unittest
 from test.base import QiskitExperimentsTestCase
 
-from ddt import ddt, data
+from ddt import ddt, data, named_data
 from qiskit.providers.fake_provider import FakeArmonkV2
+from qiskit_aer import AerSimulator
 
 from qiskit_experiments.calibration_management.calibrations import Calibrations
 from qiskit_experiments.calibration_management.basis_gate_library import FixedFrequencyTransmon
@@ -37,6 +38,18 @@ class TestRamseyXY(QiskitExperimentsTestCase):
         library = FixedFrequencyTransmon()
         self.cals = Calibrations.from_backend(FakeArmonkV2(), libraries=[library])
 
+    @named_data(
+        ["no_backend", None], ["fake_backend", FakeArmonkV2()], ["aer_backend", AerSimulator()]
+    )
+    def test_circuits(self, backend: str):
+        """Test circuit generation does not error"""
+        delays = [1e-6, 5e-6, 10e-6]
+        circs = RamseyXY([0], delays=delays, backend=backend).circuits()
+        # Deduplicate xvals
+        xvals = sorted({c.metadata["xval"] for c in circs})
+        for delay, xval in zip(delays, xvals):
+            self.assertAlmostEqual(delay, xval)
+
     @data(2e6, -3e6, 1e3, 0.0, 0.2e6, 0.3e6)
     def test_end_to_end(self, freq_shift: float):
         """Test that we can run on a mock backend and perform a fit.
@@ -47,7 +60,7 @@ class TestRamseyXY(QiskitExperimentsTestCase):
         abs_tol = max(1e3, abs(freq_shift) * test_tol)
 
         exp_helper = RamseyXYHelper()
-        ramsey = RamseyXY(0)
+        ramsey = RamseyXY([0])
         ramsey.backend = MockIQBackend(exp_helper)
 
         exp_helper.freq_shift = freq_shift
@@ -75,7 +88,7 @@ class TestRamseyXY(QiskitExperimentsTestCase):
 
         # oscillation with 6 MHz
         backend = MockIQBackend(RamseyXYHelper(freq_shift=freq_shift + osc_shift))
-        expdata = FrequencyCal(0, self.cals, backend, osc_freq=osc_shift).run()
+        expdata = FrequencyCal([0], self.cals, backend, osc_freq=osc_shift).run()
         self.assertExperimentDone(expdata)
 
         # Check that qubit frequency after running the cal is shifted by freq_shift, i.e. 4 MHz.
@@ -98,7 +111,7 @@ class TestRamseyXY(QiskitExperimentsTestCase):
             def _run_analysis(self, experiment_data):
                 return ([], [])
 
-        expt = FrequencyCal(0, self.cals, backend, auto_update=True)
+        expt = FrequencyCal([0], self.cals, backend, auto_update=True)
         expt.analysis = NoResults()
         expdata = expt.run()
         expdata.block_for_results(timeout=3)
@@ -106,19 +119,19 @@ class TestRamseyXY(QiskitExperimentsTestCase):
 
     def test_ramseyxy_experiment_config(self):
         """Test RamseyXY config roundtrips"""
-        exp = RamseyXY(0)
+        exp = RamseyXY([0])
         loaded_exp = RamseyXY.from_config(exp.config())
         self.assertNotEqual(exp, loaded_exp)
         self.assertTrue(self.json_equiv(exp, loaded_exp))
 
     def test_ramseyxy_roundtrip_serializable(self):
         """Test round trip JSON serialization"""
-        exp = RamseyXY(0)
+        exp = RamseyXY([0])
         self.assertRoundTripSerializable(exp, self.json_equiv)
 
     def test_cal_experiment_config(self):
         """Test FrequencyCal config roundtrips"""
-        exp = FrequencyCal(0, self.cals)
+        exp = FrequencyCal([0], self.cals)
         loaded_exp = FrequencyCal.from_config(exp.config())
         self.assertNotEqual(exp, loaded_exp)
         self.assertTrue(self.json_equiv(exp, loaded_exp))
@@ -126,5 +139,5 @@ class TestRamseyXY(QiskitExperimentsTestCase):
     @unittest.skip("Cal experiments are not yet JSON serializable")
     def test_freqcal_roundtrip_serializable(self):
         """Test round trip JSON serialization"""
-        exp = FrequencyCal(0, self.cals)
+        exp = FrequencyCal([0], self.cals)
         self.assertRoundTripSerializable(exp, self.json_equiv)

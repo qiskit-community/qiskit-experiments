@@ -11,22 +11,15 @@
 # that they have been altered from the originals.
 
 """
-=================================================================
-Qiskit Experiments Test Utilities (:mod:`qiskit_experiments.test`)
-=================================================================
+===============================================
+Test Utilities (:mod:`qiskit_experiments.test`)
+===============================================
 
 .. currentmodule:: qiskit_experiments.test
 
 This module contains classes and functions that are used to enable testing
-of Qiskit Experiments. It's primarily composed of fake and mock backends that
-act like a normal :class:`~qiskit.providers.BackendV1` for a real device but
-instead call a simulator internally.
-
-.. autosummary::
-    :toctree: ../stubs/
-
-    FakeJob
-    FakeService
+of Qiskit Experiments. It's primarily composed of mock backends that
+simulate real backends.
 
 .. _backends:
 
@@ -42,11 +35,26 @@ Mock backends for running simulated jobs.
     MockIQParallelBackend
     T2HahnBackend
     NoisyDelayAerBackend
+    PulseBackend
+    SingleTransmonTestBackend
+
+Helpers
+=======
+
+Helper classes for supporting test functionality.
+
+.. autosummary::
+    :toctree: ../stubs/
+
+    MockIQExperimentHelper
+    MockIQParallelExperimentHelper
 
 """
 
 from .utils import FakeJob
 from .mock_iq_backend import MockIQBackend, MockIQParallelBackend
+from .mock_iq_helpers import MockIQExperimentHelper, MockIQParallelExperimentHelper
 from .noisy_delay_aer_simulator import NoisyDelayAerBackend
 from .t2hahn_backend import T2HahnBackend
 from .fake_service import FakeService
+from .pulse_backend import PulseBackend, SingleTransmonTestBackend

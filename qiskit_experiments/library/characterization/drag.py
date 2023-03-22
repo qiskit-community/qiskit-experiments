@@ -12,7 +12,7 @@
 
 """Rough drag experiment."""
 
-from typing import Iterable, List, Optional
+from typing import Iterable, List, Optional, Sequence
 import numpy as np
 
 from qiskit import QuantumCircuit
@@ -24,6 +24,7 @@ from qiskit.pulse import ScheduleBlock
 from qiskit_experiments.framework import BaseExperiment, Options
 from qiskit_experiments.framework.restless_mixin import RestlessMixin
 from qiskit_experiments.library.characterization.analysis import DragCalAnalysis
+from qiskit_experiments.warnings import qubit_deprecate
 
 
 class RoughDrag(BaseExperiment, RestlessMixin):
@@ -62,15 +63,15 @@ class RoughDrag(BaseExperiment, RestlessMixin):
         Note that the analysis class requires this experiment to run with three repetition numbers.
 
     # section: analysis_ref
-        :py:class:`DragCalAnalysis`
+        :class:`DragCalAnalysis`
 
     # section: reference
         .. ref_arxiv:: 1 1011.1949
         .. ref_arxiv:: 2 0901.0534
         .. ref_arxiv:: 3 1509.05470
 
-    # section: tutorial
-        :doc:`/tutorials/calibrating_real_device`
+    # section: manual
+        :ref:`DRAG Calibration`
 
     """
 
@@ -92,9 +93,10 @@ class RoughDrag(BaseExperiment, RestlessMixin):
 
         return options
 
+    @qubit_deprecate()
     def __init__(
         self,
-        qubit: int,
+        physical_qubits: Sequence[int],
         schedule: ScheduleBlock,
         betas: Optional[Iterable[float]] = None,
         backend: Optional[Backend] = None,
@@ -102,7 +104,8 @@ class RoughDrag(BaseExperiment, RestlessMixin):
         """Initialize a Drag experiment in the given qubit.
 
         Args:
-            qubit: The qubit for which to run the Drag calibration.
+            physical_qubits: Sequence containing the qubit for which to run the
+                Drag calibration.
             schedule: The schedule to run. This schedule should have one free parameter
                 corresponding to a DRAG parameter.
             betas: The values of the DRAG parameter to scan. If None is given the default range
@@ -110,11 +113,11 @@ class RoughDrag(BaseExperiment, RestlessMixin):
             backend: Optional, the backend to run the experiment on.
 
         Raises:
-            QiskitError: if the schedule does not have a free parameter.
+            QiskitError: If the schedule does not have a free parameter.
         """
 
         # Create analysis in finalize to reflect user change to reps
-        super().__init__([qubit], analysis=DragCalAnalysis(), backend=backend)
+        super().__init__(physical_qubits, analysis=DragCalAnalysis(), backend=backend)
 
         if betas is not None:
             self.set_experiment_options(betas=betas)
@@ -138,13 +141,13 @@ class RoughDrag(BaseExperiment, RestlessMixin):
             circuits: The circuits that will run the Drag calibration.
 
         Raises:
-            QiskitError: if the number of different repetition series is not three.
+            QiskitError: If the number of different repetition series is not three.
         """
         schedule = self.experiment_options.schedule
 
         beta = next(iter(schedule.parameters))
 
-        # Note: if the pulse has a reserved name, e.g. x, which does not have parameters
+        # Note: If the pulse has a reserved name, e.g. x, which does not have parameters
         # then we cannot directly call the gate x and attach a schedule to it. Doing so
         # would results in QObj errors.
         drag_gate = Gate(name="Drag(" + schedule.name + ")", num_qubits=1, params=[beta])

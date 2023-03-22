@@ -12,7 +12,7 @@
 
 """Fine frequency characterization experiment."""
 
-from typing import List, Optional
+from typing import List, Optional, Sequence
 import numpy as np
 
 from qiskit import QuantumCircuit
@@ -20,6 +20,7 @@ from qiskit.providers.backend import Backend
 
 from qiskit_experiments.framework import BaseExperiment, Options
 from qiskit_experiments.curve_analysis.standard_analysis import ErrorAmplificationAnalysis
+from qiskit_experiments.warnings import qubit_deprecate
 
 
 class FineFrequency(BaseExperiment):
@@ -47,12 +48,13 @@ class FineFrequency(BaseExperiment):
             meas: 1/══════════════════════════════════════════════╩═
                                                                   0
     # section: analysis_ref
-        :py:class:`~qiskit_experiments.curve_analysis.ErrorAmplificationAnalysis`
+        :class:`~qiskit_experiments.curve_analysis.ErrorAmplificationAnalysis`
     """
 
+    @qubit_deprecate()
     def __init__(
         self,
-        qubit: int,
+        physical_qubits: Sequence[int],
         delay_duration: int,
         backend: Optional[Backend] = None,
         repetitions: Optional[List[int]] = None,
@@ -60,7 +62,8 @@ class FineFrequency(BaseExperiment):
         """Setup a fine frequency experiment on the given qubit.
 
         Args:
-            qubit: The qubit on which to run the fine frequency characterization experiment.
+            physical_qubits: List containing the qubit on which to run the fine
+                frequency characterization experiment.
             delay_duration: The duration of the delay at :math:`n=1` in dt.
             backend: Optional, the backend to run the experiment on.
             repetitions: The number of repetitions, if not given then the default value
@@ -75,7 +78,7 @@ class FineFrequency(BaseExperiment):
             },
         )
 
-        super().__init__([qubit], analysis=analysis, backend=backend)
+        super().__init__(physical_qubits, analysis=analysis, backend=backend)
 
         if repetitions is not None:
             self.set_experiment_options(repetitions=repetitions)

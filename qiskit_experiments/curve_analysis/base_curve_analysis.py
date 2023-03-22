@@ -46,7 +46,7 @@ DATA_ENTRY_PREFIX = "@Data_"
 class BaseCurveAnalysis(BaseAnalysis, ABC):
     """Abstract superclass of curve analysis base classes.
 
-    Note that this class doesn't define :meth:`_run_analysis` method,
+    Note that this class doesn't define the :meth:`_run_analysis` method,
     and no actual fitting protocol is implemented in this base class.
     However, this class defines several common methods that can be reused.
     A curve analysis subclass can construct proper fitting protocol
@@ -158,10 +158,14 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
             return_data_points (bool): Set ``True`` to include in the analysis result
                 the formatted data points given to the fitter. Default to ``False``.
             data_processor (Callable): A callback function to format experiment data.
-                This can be a :class:`~qiskit_experiments.data_processing.DataProcessor`
+                This can be a :class:`.DataProcessor`
                 instance that defines the `self.__call__` method.
             normalization (bool) : Set ``True`` to normalize y values within range [-1, 1].
                 Default to ``False``.
+            average_method (str): Method to average the y values when the same x values
+                appear multiple times. One of "sample", "iwv" (i.e. inverse weighted variance),
+                "shots_weighted". See :func:`.mean_xy_data` for details. Default to
+                "shots_weighted".
             p0 (Dict[str, float]): Initial guesses for the fit parameters.
                 The dictionary is keyed on the fit parameter names.
             bounds (Dict[str, Tuple[float, float]]): Boundary of fit parameters.
@@ -189,7 +193,11 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
             filter_data (Dict[str, Any]): Dictionary of experiment data metadata to filter.
                 Experiment outcomes with metadata that matches with this dictionary
                 are used in the analysis. If not specified, all experiment data are
-                input to the curve fitter. By default no filtering condition is set.
+                input to the curve fitter. By default, no filtering condition is set.
+            data_subfit_map (Dict[str, Dict[str, Any]]): The mapping of experiment result data
+                to sub-fit models. This dictionary is keyed on the LMFIT model name,
+                and the value is a sorting key-value pair that filters the experiment results,
+                and the filtering is done based on the circuit metadata.
         """
         options = super()._default_options()
 
@@ -200,6 +208,7 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
         options.return_data_points = False
         options.data_processor = None
         options.normalization = False
+        options.average_method = "shots_weighted"
         options.x_key = "xval"
         options.result_parameters = []
         options.extra = {}
@@ -209,6 +218,7 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
         options.bounds = {}
         options.fixed_parameters = {}
         options.filter_data = {}
+        options.data_subfit_map = {}
 
         # Set automatic validator for particular option values
         options.set_validator(field="data_processor", validator_value=DataProcessor)
@@ -427,3 +437,20 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
         if not data_processor.is_trained:
             data_processor.train(data=experiment_data.data())
         self.set_options(data_processor=data_processor)
+
+        # Check if a model contains legacy data mapping option.
+        data_subfit_map = {}
+        for model in self.models:
+            if "data_sort_key" in model.opts:
+                data_subfit_map[model._name] = model.opts["data_sort_key"]
+                del model.opts["data_sort_key"]
+        if data_subfit_map:
+            warnings.warn(
+                "Setting 'data_sort_key' to an LMFIT model constructor is no longer "
+                "valid configuration of the model. "
+                "Use 'data_subfit_map' option in the analysis options. "
+                "This warning will be dropped in v0.6 along with the support for the "
+                "'data_sort_key' in the LMFIT model options.",
+                DeprecationWarning,
+            )
+            self.set_options(data_subfit_map=data_subfit_map)

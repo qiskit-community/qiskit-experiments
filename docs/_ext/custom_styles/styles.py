@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2021, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -21,12 +21,14 @@ from typing import Union, List, Dict
 
 from qiskit_experiments.framework.base_analysis import BaseAnalysis
 from qiskit_experiments.framework.base_experiment import BaseExperiment
+from qiskit_experiments.visualization import BaseDrawer, BasePlotter
 from sphinx.config import Config as SphinxConfig
 
 from .formatter import (
     ExperimentSectionFormatter,
     AnalysisSectionFormatter,
     DocstringSectionFormatter,
+    VisualizationSectionFormatter,
 )
 from .section_parsers import load_standard_section, load_fit_parameters
 from .utils import (
@@ -159,7 +161,7 @@ class ExperimentDocstring(QiskitExperimentDocstring):
         "warning": load_standard_section,
         "overview": load_standard_section,
         "reference": load_standard_section,
-        "tutorial": load_standard_section,
+        "manual": load_standard_section,
         "analysis_ref": load_standard_section,
         "experiment_opts": None,
         "transpiler_opts": None,
@@ -264,7 +266,7 @@ class AnalysisDocstring(QiskitExperimentDocstring):
         "fit_model": load_standard_section,
         "fit_parameters": load_fit_parameters,
         "reference": load_standard_section,
-        "tutorial": load_standard_section,
+        "manual": load_standard_section,
         "analysis_opts": None,
         "example": load_standard_section,
         "note": load_standard_section,
@@ -310,3 +312,85 @@ class AnalysisDocstring(QiskitExperimentDocstring):
             option_desc.append("No option available for this analysis.")
 
         sectioned_docstring["analysis_opts"] = option_desc
+
+
+class VisualizationDocstring(QiskitExperimentDocstring):
+    """Documentation parser for visualization classes' introductions."""
+
+    __sections__ = {
+        "header": load_standard_section,
+        "warning": load_standard_section,
+        "overview": load_standard_section,
+        "reference": load_standard_section,
+        "manual": load_standard_section,
+        "opts": None,  # For standard options
+        "figure_opts": None,  # For figure options
+        "example": load_standard_section,
+        "note": load_standard_section,
+        "see_also": load_standard_section,
+    }
+
+    __formatter__ = VisualizationSectionFormatter
+
+    def __init__(
+        self,
+        target_cls: Union[BaseDrawer, BasePlotter],
+        docstring_lines: Union[str, List[str]],
+        config: SphinxConfig,
+        indent: str = "",
+    ):
+        """Create new parser and parse formatted docstring."""
+        super().__init__(target_cls, docstring_lines, config, indent)
+
+    def _extra_sections(self, sectioned_docstring: Dict[str, List[str]]):
+        """Generate extra sections."""
+        # add options
+        option_desc = []
+        figure_option_desc = []
+
+        docs_config = copy.copy(self._config)
+        docs_config.napoleon_custom_sections = [
+            ("options", "args"),
+            ("figure options", "args"),
+        ]
+
+        # Generate options docs
+        option = _generate_options_documentation(
+            current_class=self._target_cls,
+            method_name="_default_options",
+            config=docs_config,
+            indent=self._indent,
+        )
+        if option:
+            option_desc.extend(option)
+            option_desc.append("")
+            option_desc.extend(
+                _format_default_options(
+                    defaults=self._target_cls._default_options().__dict__,
+                    indent=self._indent,
+                )
+            )
+        else:
+            option_desc.append("No options available.")
+
+        # Generate figure options docs
+        figure_option = _generate_options_documentation(
+            current_class=self._target_cls,
+            method_name="_default_figure_options",
+            config=docs_config,
+            indent=self._indent,
+        )
+        if figure_option:
+            figure_option_desc.extend(figure_option)
+            figure_option_desc.append("")
+            figure_option_desc.extend(
+                _format_default_options(
+                    defaults=self._target_cls._default_figure_options().__dict__,
+                    indent=self._indent,
+                )
+            )
+        else:
+            figure_option_desc.append("No figure options available.")
+
+        sectioned_docstring["opts"] = option_desc
+        sectioned_docstring["figure_opts"] = figure_option_desc

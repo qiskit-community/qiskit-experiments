@@ -28,7 +28,7 @@ therefore requires experiments which are analyzed to extract parameter values.
 Furthermore, the resulting parameter values and schedules must be managed. The
 calibration management module in Qiskit experiments allows users to manage
 the resulting schedules and parameter values from obtained when running
-calibration experiments from the :mod:`qiskit_experiments.library`.
+calibration experiments from the :mod:`~qiskit_experiments.library`.
 
 Classes
 =======
@@ -39,6 +39,7 @@ Classes
     Calibrations
     ParameterValue
     FixedFrequencyTransmon
+    EchoedCrossResonance
     BasisGateLibrary
     BaseCalibrationExperiment
 
@@ -46,7 +47,7 @@ Classes
 Managing Calibration Data
 =========================
 
-Calibrations are managed by the :class:`Calibrations` class. This class stores schedules
+Calibrations are managed by the :class:`.Calibrations` class. This class stores schedules
 which are intended to be fully parameterized, including the index of the channels. This
 class:
 
@@ -88,25 +89,26 @@ Parametric channel naming convention
 
 Parametrized channel indices must be named according to a predefined pattern to properly
 identify the channels and control channels when assigning values to the parametric
-channel indices. A channel must have a name that starts with `ch` followed by an integer.
-For control channels this integer can be followed by a sequence `.integer`.
-Optionally, the name can end with `$integer` to specify the index of a control channel
+channel indices. A channel must have a name that starts with ``ch`` followed by an integer.
+For control channels, this integer can be followed by a sequence ``.integer``.
+Optionally, the name can end with ``$integer`` to specify the index of a control channel
 for the case when a set of qubits share multiple control channels. For example,
-valid channel names include "ch0", "ch1", "ch0.1", "ch0$", "ch2$3", and "ch1.0.3$2".
-The "." delimiter is used to specify the different qubits when looking for control
+valid channel names include ``"ch0"``, ``"ch1"``, ``"ch0.1"``, ``"ch0$"``, ``"ch2$3"``,
+and ``"ch1.0.3$2"``.
+The ``.`` delimiter is used to specify the different qubits when looking for control
 channels. The optional $ delimiter is used to specify which control channel to use
 if several control channels work together on the same qubits. For example, if the
-control channel configuration is {(3,2): [ControlChannel(3), ControlChannel(12)]}
-then given qubits (2, 3) the name "ch1.0$1" will resolve to ControlChannel(12) while
-"ch1.0$0" will resolve to ControlChannel(3). A channel can only have one parameter.
+control channel configuration is ``{(3,2): [ControlChannel(3), ControlChannel(12)]}``
+then given qubits ``(2, 3)`` the name ``"ch1.0$1"`` will resolve to ``ControlChannel(12)`` while
+``"ch1.0$0"`` will resolve to ``ControlChannel(3)``. A channel can only have one parameter.
 
 Parameter naming restriction
 ****************************
 
 Each parameter must have a unique name within each schedule. For example, it is
-acceptable to have a parameter named 'amp' in the schedule 'xp' and a different
-parameter instance named 'amp' in the schedule named 'xm'. It is not acceptable
-to have two parameters named 'amp' in the same schedule. The naming restriction
+acceptable to have a parameter named ``amp`` in the schedule ``xp`` and a different
+parameter instance named ``amp`` in the schedule named ``xm``. It is not acceptable
+to have two parameters named ``amp`` in the same schedule. The naming restriction
 only applies to parameters used in the immediate scope of the schedule. Schedules
 called by Call instructions have their own scope for Parameter names.
 

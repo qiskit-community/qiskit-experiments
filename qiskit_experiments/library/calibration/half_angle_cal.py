@@ -12,9 +12,10 @@
 
 """Half angle calibration."""
 
-from typing import Dict, Optional
+from typing import Dict, Optional, Sequence
 import numpy as np
 
+from qiskit.circuit import QuantumCircuit
 from qiskit.providers.backend import Backend
 
 from qiskit_experiments.framework import ExperimentData
@@ -24,18 +25,20 @@ from qiskit_experiments.calibration_management import (
 )
 from qiskit_experiments.library.characterization import HalfAngle
 from qiskit_experiments.calibration_management.update_library import BaseUpdater
+from qiskit_experiments.warnings import qubit_deprecate
 
 
 class HalfAngleCal(BaseCalibrationExperiment, HalfAngle):
     """Calibration version of the half-angle experiment.
 
     # section: see_also
-        qiskit_experiments.library.characterization.half_angle.HalfAngle
+        :class:`.HalfAngle`
     """
 
+    @qubit_deprecate()
     def __init__(
         self,
-        qubit,
+        physical_qubits: Sequence[int],
         calibrations: Calibrations,
         backend: Optional[Backend] = None,
         schedule_name: str = "sx",
@@ -45,7 +48,8 @@ class HalfAngleCal(BaseCalibrationExperiment, HalfAngle):
         """see class :class:`HalfAngle` for details.
 
         Args:
-            qubit: The qubit for which to run the half-angle calibration.
+            physical_qubits: Sequence containing the qubit for which to run the
+                half-angle calibration.
             calibrations: The calibrations instance with the schedules.
             backend: Optional, the backend to run the experiment on.
             schedule_name: The name of the schedule to calibrate which defaults to sx.
@@ -56,7 +60,7 @@ class HalfAngleCal(BaseCalibrationExperiment, HalfAngle):
         """
         super().__init__(
             calibrations,
-            qubit,
+            physical_qubits,
             backend=backend,
             schedule_name=schedule_name,
             cal_parameter_name=cal_parameter_name,
@@ -82,6 +86,12 @@ class HalfAngleCal(BaseCalibrationExperiment, HalfAngle):
         )
 
         return metadata
+
+    def _attach_calibrations(self, circuit: QuantumCircuit):
+        """Adds the calibrations to the transpiled circuits."""
+        for gate in ["y", "sx"]:
+            schedule = self._cals.get_schedule(gate, self.physical_qubits)
+            circuit.add_calibration(gate, self.physical_qubits, schedule)
 
     def update_calibrations(self, experiment_data: ExperimentData):
         r"""Update the value of the parameter in the calibrations.

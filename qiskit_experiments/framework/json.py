@@ -31,7 +31,8 @@ import lmfit
 import numpy as np
 import scipy.sparse as sps
 import uncertainties
-from qiskit.circuit import ParameterExpression, QuantumCircuit, qpy_serialization, Instruction
+from qiskit import qpy
+from qiskit.circuit import ParameterExpression, QuantumCircuit, Instruction
 from qiskit.circuit.library import BlueprintCircuit
 from qiskit.quantum_info import DensityMatrix
 from qiskit.quantum_info.operators.channel.quantum_channel import QuantumChannel
@@ -193,7 +194,7 @@ def _decode_and_deserialize(value: Dict, deserializer: Callable, name: Optional[
         Deserialized data.
 
     Raises:
-        ValueError: if deserialization fails.
+        ValueError: If deserialization fails.
     """
     try:
         with io.BytesIO() as buff:
@@ -293,7 +294,7 @@ def _serialize_object(obj: Any, settings: Optional[Dict] = None, safe_float: boo
     Args:
         obj: The object to be serialized.
         settings: Optional, settings for reconstructing the object from kwargs.
-        safe_float: if True check float values for NaN, inf and -inf
+        safe_float: If True check float values for NaN, inf and -inf
                     and cast to strings during serialization.
 
     Returns:
@@ -497,7 +498,7 @@ class ExperimentEncoder(json.JSONEncoder):
             circuit = QuantumCircuit(obj.num_qubits, obj.num_clbits)
             circuit.append(obj, range(obj.num_qubits), range(obj.num_clbits))
             value = _serialize_and_encode(
-                data=circuit, serializer=lambda buff, data: qpy_serialization.dump(data, buff)
+                data=circuit, serializer=lambda buff, data: qpy.dump(data, buff)
             )
             return {"__type__": "Instruction", "__value__": value}
         if isinstance(obj, QuantumCircuit):
@@ -505,13 +506,13 @@ class ExperimentEncoder(json.JSONEncoder):
             if isinstance(obj, BlueprintCircuit):
                 obj = obj.decompose()
             value = _serialize_and_encode(
-                data=obj, serializer=lambda buff, data: qpy_serialization.dump(data, buff)
+                data=obj, serializer=lambda buff, data: qpy.dump(data, buff)
             )
             return {"__type__": "QuantumCircuit", "__value__": value}
         if isinstance(obj, ParameterExpression):
             value = _serialize_and_encode(
                 data=obj,
-                serializer=qpy_serialization._write_parameter_expression,
+                serializer=qpy._write_parameter_expression,
                 compress=False,
             )
             return {"__type__": "ParameterExpression", "__value__": value}
@@ -583,15 +584,13 @@ class ExperimentDecoder(json.JSONDecoder):
                 load_obj = tmp.loads(s=obj_val)
                 return load_obj
             if obj_type == "Instruction":
-                circuit = _decode_and_deserialize(
-                    obj_val, qpy_serialization.load, name="QuantumCircuit"
-                )[0]
+                circuit = _decode_and_deserialize(obj_val, qpy.load, name="QuantumCircuit")[0]
                 return circuit.data[0][0]
             if obj_type == "QuantumCircuit":
-                return _decode_and_deserialize(obj_val, qpy_serialization.load, name=obj_type)[0]
+                return _decode_and_deserialize(obj_val, qpy.load, name=obj_type)[0]
             if obj_type == "ParameterExpression":
                 return _decode_and_deserialize(
-                    obj_val, qpy_serialization._read_parameter_expression, name=obj_type
+                    obj_val, qpy._read_parameter_expression, name=obj_type
                 )
             if obj_type == "safe_float":
                 return self._NaNs.get(obj_val, obj_val)

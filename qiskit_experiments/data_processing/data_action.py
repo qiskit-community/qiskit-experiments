@@ -105,14 +105,14 @@ class TrainableDataAction(DataAction):
     .. note::
 
         The parameters of trainable nodes computed during training should be listed
-        in the class method :meth:`._default_parameters`. These parameters
-        are initialized at construction time and serialized together with the
-        constructor arguments. All parameters defined in
-        :meth:`._default_parameters` should be assigned a `None` value to
-        indicate that the node has not been trained.
+        in the class method :meth:`.TrainableDataAction._default_parameters`.
+        These parameters are initialized at construction time and serialized
+        together with the constructor arguments. All parameters defined in
+        :meth:`.TrainableDataAction._default_parameters` should be assigned a
+        `None` value to indicate that the node has not been trained.
 
         Parameter values can be updated with the :meth:`.set_parameters` method
-        and refer to using the :meth:`.parameters` method.
+        and refer to using the :meth:`.TrainableDataAction.parameters` method.
         This is required to correctly JSON serialize and deserialize
         a trainable node with parameters set during training.
     """

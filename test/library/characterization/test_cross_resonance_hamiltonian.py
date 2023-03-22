@@ -42,7 +42,7 @@ class TestCrossResonanceHamiltonian(QiskitExperimentsTestCase):
 
         with self.assertWarns(DeprecationWarning):
             expr = cr_hamiltonian.CrossResonanceHamiltonian(
-                qubits=(0, 1),
+                physical_qubits=(0, 1),
                 flat_top_widths=[1000],
                 amp=0.1,
                 sigma=64,
@@ -69,26 +69,26 @@ class TestCrossResonanceHamiltonian(QiskitExperimentsTestCase):
 
         x0_circ = QuantumCircuit(2, 1)
         x0_circ.append(cr_gate, [0, 1])
-        x0_circ.h(1)
+        x0_circ.rz(np.pi / 2, 1)
+        x0_circ.sx(1)
         x0_circ.measure(1, 0)
 
         x1_circ = QuantumCircuit(2, 1)
         x1_circ.x(0)
         x1_circ.append(cr_gate, [0, 1])
-        x1_circ.h(1)
+        x1_circ.rz(np.pi / 2, 1)
+        x1_circ.sx(1)
         x1_circ.measure(1, 0)
 
         y0_circ = QuantumCircuit(2, 1)
         y0_circ.append(cr_gate, [0, 1])
-        y0_circ.sdg(1)
-        y0_circ.h(1)
+        y0_circ.sx(1)
         y0_circ.measure(1, 0)
 
         y1_circ = QuantumCircuit(2, 1)
         y1_circ.x(0)
         y1_circ.append(cr_gate, [0, 1])
-        y1_circ.sdg(1)
-        y1_circ.h(1)
+        y1_circ.sx(1)
         y1_circ.measure(1, 0)
 
         z0_circ = QuantumCircuit(2, 1)
@@ -117,7 +117,7 @@ class TestCrossResonanceHamiltonian(QiskitExperimentsTestCase):
 
         with self.assertWarns(DeprecationWarning):
             expr = cr_hamiltonian.CrossResonanceHamiltonian(
-                qubits=(0, 1),
+                physical_qubits=(0, 1),
                 flat_top_widths=[1000],
                 cr_gate=FakeCRGate,
                 amp=0.1,
@@ -161,7 +161,7 @@ class TestCrossResonanceHamiltonian(QiskitExperimentsTestCase):
         )
 
         expr = cr_hamiltonian.CrossResonanceHamiltonian(
-            qubits=(0, 1),
+            physical_qubits=(0, 1),
             sigma=sigma,
             # A hack to avoild local function in pickle, i.e. in transpile.
             cr_gate=functools.partial(
@@ -241,7 +241,7 @@ class TestCrossResonanceHamiltonian(QiskitExperimentsTestCase):
     def test_experiment_config(self):
         """Test converting to and from config works"""
         exp = cr_hamiltonian.CrossResonanceHamiltonian(
-            qubits=[0, 1],
+            physical_qubits=[0, 1],
             durations=[1000],
             amp=0.1,
             sigma=64,
@@ -254,7 +254,7 @@ class TestCrossResonanceHamiltonian(QiskitExperimentsTestCase):
     def test_roundtrip_serializable(self):
         """Test round trip JSON serialization"""
         exp = cr_hamiltonian.CrossResonanceHamiltonian(
-            qubits=[0, 1],
+            physical_qubits=[0, 1],
             durations=[1000],
             amp=0.1,
             sigma=64,

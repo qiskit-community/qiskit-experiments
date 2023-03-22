@@ -36,47 +36,76 @@ Experiments for verification and validation of quantum devices.
 
     ~randomized_benchmarking.StandardRB
     ~randomized_benchmarking.InterleavedRB
+    ~tomography.TomographyExperiment
     ~tomography.StateTomography
     ~tomography.ProcessTomography
+    ~tomography.MitigatedStateTomography
+    ~tomography.MitigatedProcessTomography
     ~quantum_volume.QuantumVolume
 
-.. _characterization:
+.. _characterization single qubit:
 
-Characterization Experiments
-============================
+Characterization Experiments: Single Qubit
+==========================================
 
-Experiments for characterization of qubits and quantum device properties.
-Some experiments may be also used for gate calibration.
+Experiments for characterization of properties of individual qubits.
+Some experiments also have a calibration experiment version.
 
 .. autosummary::
     :toctree: ../stubs/
     :template: autosummary/experiment.rst
 
     ~characterization.T1
+    ~characterization.T2Hahn
     ~characterization.T2Ramsey
     ~characterization.Tphi
     ~characterization.QubitSpectroscopy
     ~characterization.EFSpectroscopy
-    ~characterization.CrossResonanceHamiltonian
-    ~characterization.EchoedCrossResonanceHamiltonian
-    ~characterization.RoughDrag
-    ~characterization.FineDrag
-    ~characterization.FineXDrag
-    ~characterization.FineSXDrag
     ~characterization.HalfAngle
     ~characterization.FineAmplitude
     ~characterization.FineXAmplitude
     ~characterization.FineSXAmplitude
-    ~characterization.FineZXAmplitude
     ~characterization.Rabi
     ~characterization.EFRabi
     ~characterization.RamseyXY
     ~characterization.FineFrequency
     ~characterization.ReadoutAngle
+    ~characterization.ResonatorSpectroscopy
+    ~characterization.RoughDrag
+    ~characterization.FineDrag
+    ~characterization.FineXDrag
+    ~characterization.FineSXDrag
+    ~characterization.MultiStateDiscrimination
+
+.. _characterization two qubits:
+
+Characterization Experiments: Two Qubits
+========================================
+
+Experiments for characterization of properties of two qubit interactions.
+
+.. autosummary::
+    :toctree: ../stubs/
+    :template: autosummary/experiment.rst
+
+    ~characterization.CrossResonanceHamiltonian
+    ~characterization.EchoedCrossResonanceHamiltonian
+    ~characterization.ZZRamsey
+    ~characterization.FineZXAmplitude
+
+.. _characterization-mitigation:
+
+Characterization Experiments: Mitigation
+========================================
+
+Experiments for characterizing and mitigating readout error.
+
+.. autosummary::
+    :toctree: ../stubs/
+    :template: autosummary/experiment.rst
+
     ~characterization.LocalReadoutError
     ~characterization.CorrelatedReadoutError
-    ~characterization.ResonatorSpectroscopy
-
 
 .. _calibration:
 
@@ -85,9 +114,9 @@ Calibration Experiments
 
 Experiments for pulse level calibration of quantum gates. These experiments
 are usually run with a
-:py:class:`~qiskit_experiments.calibration_management.Calibrations`
+:class:`~qiskit_experiments.calibration_management.Calibrations`
 class instance to manage parameters and pulse schedules.
-See :doc:`/tutorials/calibrating_real_device` for example.
+See :doc:`/tutorials/calibrations` for examples.
 
 .. autosummary::
     :toctree: ../stubs/
@@ -103,6 +132,7 @@ See :doc:`/tutorials/calibrating_real_device` for example.
     ~calibration.FineAmplitudeCal
     ~calibration.FineXAmplitudeCal
     ~calibration.FineSXAmplitudeCal
+    ~calibration.HalfAngleCal
     ~calibration.RoughAmplitudeCal
     ~calibration.RoughXSXAmplitudeCal
     ~calibration.EFRoughXSXAmplitudeCal
@@ -122,9 +152,11 @@ from .calibration import (
     RoughFrequencyCal,
     FrequencyCal,
     FineFrequencyCal,
+    HalfAngleCal,
 )
 from .characterization import (
     T1,
+    T2Hahn,
     T2Ramsey,
     Tphi,
     QubitSpectroscopy,
@@ -148,9 +180,17 @@ from .characterization import (
     ResonatorSpectroscopy,
     LocalReadoutError,
     CorrelatedReadoutError,
+    ZZRamsey,
+    MultiStateDiscrimination,
 )
 from .randomized_benchmarking import StandardRB, InterleavedRB
-from .tomography import StateTomography, ProcessTomography
+from .tomography import (
+    TomographyExperiment,
+    StateTomography,
+    ProcessTomography,
+    MitigatedStateTomography,
+    MitigatedProcessTomography,
+)
 from .quantum_volume import QuantumVolume
 
 # Experiment Sub-modules

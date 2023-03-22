@@ -12,15 +12,22 @@
 
 """Base class for calibration-type experiments."""
 
-from abc import ABC
-import copy
+from abc import ABC, abstractmethod
+import functools
 import logging
-from typing import List, Optional, Type, Union
+from typing import List, Optional, Sequence, Type, Union
 import warnings
 
-from qiskit import QuantumCircuit, transpile
-from qiskit.providers.backend import Backend
+from qiskit import QuantumCircuit
+from qiskit.providers.options import Options
 from qiskit.pulse import ScheduleBlock
+from qiskit.transpiler import StagedPassManager, PassManager, Layout, CouplingMap
+from qiskit.transpiler.passes import (
+    EnlargeWithAncilla,
+    FullAncillaAllocation,
+    ApplyLayout,
+    SetLayout,
+)
 
 from qiskit_experiments.calibration_management.calibrations import Calibrations
 from qiskit_experiments.calibration_management.update_library import BaseUpdater
@@ -37,13 +44,13 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
 
     This abstract class extends a characterization experiment by turning it into a
     calibration experiment. Such experiments allow schedule management and updating of an
-    instance of :class:`Calibrations`. Furthermore, calibration experiments also specify
+    instance of :class:`.Calibrations`. Furthermore, calibration experiments also specify
     an auto_update variable which, by default, is set to True. If this variable,
-    is True then the run method of the experiment will call :meth:`block_for_results`
+    is True then the run method of the experiment will call :meth:`~.ExperimentData.block_for_results`
     and update the calibrations instance once the backend has returned the data.
 
-    This mixin class inherits from the :class:`BaseExperiment` class since calibration
-    experiments by default call :meth:`block_for_results`. This ensures that the next
+    This mixin class inherits from the :class:`.BaseExperiment` class since calibration
+    experiments by default call :meth:`~.ExperimentData.block_for_results`. This ensures that the next
     calibration experiment cannot proceed before the calibration parameters have been
     updated. Developers that wish to create a calibration experiment must subclass this
     base class and the characterization experiment. Therefore, developers that use this
@@ -54,14 +61,14 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
 
     .. code-block:: python
 
-        RoughFrequency(BaseCalibrationExperiment, QubitSpectroscopy)
+        RoughFrequencyCal(BaseCalibrationExperiment, QubitSpectroscopy)
 
-    This ensures that the :meth:`run` method of :class:`RoughFrequency` will be the
-    run method of the :class:`BaseCalibrationExperiment` class. Furthermore, developers
+    This ensures that the ``run`` method of :class:`.RoughFrequencyCal` will be the
+    run method of the :class:`.BaseCalibrationExperiment` class. Furthermore, developers
     must explicitly call the :meth:`__init__` methods of both parent classes.
 
     Developers should strive to follow the convention that the first two arguments of
-    a calibration experiment are the qubit(s) and the :class:`Calibration` instance.
+    a calibration experiment are the qubit(s) and the :class:`.Calibrations` instance.
 
     If the experiment uses custom schedules, which is typically the case, then
     developers may chose to use the :meth:`get_schedules` method when creating the
@@ -78,7 +85,7 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
     These methods are called by :meth:`get_schedules`.
 
     The :meth:`update_calibrations` method is responsible for updating the values of the parameters
-    stored in the instance of :class:`Calibrations`. Here, :class:`BaseCalibrationExperiment`
+    stored in the instance of :class:`.Calibrations`. Here, :class:`BaseCalibrationExperiment`
     provides a default update methodology that subclasses can override if a more elaborate behaviour
     is needed. At the minimum the developer must set the variable :code:`_updater` which
     should have an :code:`update` method and can be chosen from the library
@@ -126,8 +133,8 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
             updater: The updater class that updates the Calibrations instance. Different
                 calibration experiments will use different updaters.
             auto_update: If set to True (the default) then the calibrations will automatically be
-                updated once the experiment has run and :meth:`block_for_results()` will be called.
-            kwargs: Key word arguments for the characterization class.
+                updated once the experiment has run and :meth:`.block_for_results` will be called.
+            kwargs: Keyword arguments for the characterization class.
         """
         super().__init__(*args, **kwargs)
         self._cals = calibrations
@@ -141,31 +148,78 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
         """Return the calibrations."""
         return self._cals
 
+    @property
+    def analysis(self) -> Union[BaseAnalysis, None]:
+        """Return the analysis instance for the experiment.
+
+        .. note::
+            Analysis instance set to calibration experiment is implicitly patched to run
+            calibration updator to update the parameters in the calibration table.
+        """
+        return self._analysis
+
+    @analysis.setter
+    def analysis(self, analysis: Union[BaseAnalysis, None]) -> None:
+        """Set the analysis instance for the experiment"""
+        if analysis is None:
+            return
+
+        # Create direct alias to the original run method to avoid infinite recursion.
+        # .run method is overruled by the wrapped method
+        # and thus .run method cannot be called within the wrapper function.
+        analysis_run = getattr(analysis, "run")
+
+        @functools.wraps(analysis_run)
+        def _wrap_run_analysis(*args, **kwargs):
+            experiment_data = analysis_run(*args, **kwargs)
+            if self.auto_update:
+                experiment_data.add_analysis_callback(self.update_calibrations)
+            return experiment_data
+
+        # Monkey patch run method.
+        # This calls update_calibrations immediately after standard analysis.
+        # This mechanism allows a composite experiment to invoke updator.
+        # Note that the composite experiment only takes circuits from individual experiment
+        # and the composite analysis calls analysis.run of each experiment.
+        # This is only place the updator function can be called from the composite experiment.
+        analysis.run = _wrap_run_analysis
+        BaseExperiment.analysis.fset(self, analysis)
+
     @classmethod
-    def _default_experiment_options(cls):
+    def _default_experiment_options(cls) -> Options:
         """Default values for a calibration experiment.
 
         Experiment Options:
             result_index (int): The index of the result from which to update the calibrations.
             group (str): The calibration group to which the parameter belongs. This will default
                 to the value "default".
-
         """
         options = super()._default_experiment_options()
-
-        options.result_index = -1
-        options.group = "default"
-
+        options.update_options(result_index=-1, group="default")
         return options
 
+    @classmethod
+    def _default_transpile_options(cls) -> Options:
+        """Return empty default transpile options as optimization_level is not used."""
+        return Options()
+
+    def set_transpile_options(self, **fields):
+        r"""Add a warning message.
+
+        .. note::
+            If your experiment has overridden `_transpiled_circuits` and needs
+            transpile options then please also override `set_transpile_options`.
+        """
+        warnings.warn(f"Transpile options are not used in {self.__class__.__name__ }.")
+
     def update_calibrations(self, experiment_data: ExperimentData):
-        """Update parameter values in the :class:`Calibrations` instance.
+        """Update parameter values in the :class:`.Calibrations` instance.
 
         The default behaviour is to call the update method of the class variable
         :code:`__updater__` with simplistic options. Subclasses can override this
-        method to update the instance of :class:`Calibrations` if they require a
-        more sophisticated behaviour as is the case for the :class:`Rabi` and
-        :class:`FineAmplitude` calibration experiments.
+        method to update the instance of :class:`.Calibrations` if they require a
+        more sophisticated behaviour as is the case for the :class:`.Rabi` and
+        :class:`.FineAmplitude` calibration experiments.
         """
         if self._updater is not None:
             self._updater.update(
@@ -175,7 +229,7 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
                 schedule=self._sched_name,
             )
 
-    def _validate_channels(self, schedule: ScheduleBlock, physical_qubits: List[int]):
+    def _validate_channels(self, schedule: ScheduleBlock, physical_qubits: Sequence[int]):
         """Check that the physical qubits are contained in the schedule.
 
         This is a helper method that experiment developers can call in their implementation
@@ -232,56 +286,57 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
     def _transpiled_circuits(self) -> List[QuantumCircuit]:
         """Override the transpiled circuits method to bring in the inst_map.
 
-        The calibrated schedules are transpiled into the circuits using the instruction
-        schedule map. Since instances of :class:`InstructionScheduleMap` are not serializable
-        they should not be in the transpile options. Only instances of :class:`Calibrations`
-        need to be serialized. Here, we pass the instruction schedule map of the calibrations
-        to the transpiler.
+        The transpilation should do the strict minimum to make the circuits hardware compatible.
+        Indeed, calibration experiments are designed with a specific gate sequence in mind. Any
+        transpiler operation that changes this gate sequence may compromise the validity of the
+        calibration experiment. Sub-classes may override this method to define their own
+        transpilation if need be.
 
         Returns:
             A list of transpiled circuits.
         """
-        transpile_opts = copy.copy(self.transpile_options.__dict__)
-        if "inst_map" in transpile_opts:
-            LOG.warning(
-                "Instruction schedule maps should not be present in calibration "
-                "experiments. Overriding with the inst. map of the calibrations."
-            )
+        transpiled = []
+        for circ in self.circuits():
+            circ = self._map_to_physical_qubits(circ)
+            self._attach_calibrations(circ)
 
-        transpile_opts["inst_map"] = self.calibrations.default_inst_map
-        transpile_opts["initial_layout"] = list(self.physical_qubits)
+            transpiled.append(circ)
 
-        return transpile(self.circuits(), self.backend, **transpile_opts)
+        return transpiled
 
-    def run(
-        self,
-        backend: Optional[Backend] = None,
-        analysis: Optional[Union[BaseAnalysis, None]] = "default",
-        timeout: Optional[float] = None,
-        **run_options,
-    ) -> ExperimentData:
-        """Run an experiment, perform analysis, and update any calibrations.
+    def _map_to_physical_qubits(self, circuit: QuantumCircuit) -> QuantumCircuit:
+        """Map program qubits to physical qubits.
 
         Args:
-            backend: Optional, the backend to run the experiment on. This
-                     will override any currently set backends for the single
-                     execution.
-            analysis: Optional, a custom analysis instance to use for performing
-                      analysis. If None analysis will not be run. If ``"default"``
-                      the experiments :meth:`analysis` instance will be used if
-                      it contains one.
-            timeout: Time to wait for experiment jobs to finish running before
-                     cancelling.
-            run_options: backend runtime options used for circuit execution.
+            circuit: The quantum circuit to map to device qubits.
 
         Returns:
-            The experiment data object.
+            A quantum circuit that has the same number of qubits as the backend and where
+            the physical qubits of the experiment have been properly mapped.
         """
-        experiment_data = super().run(
-            backend=backend, analysis=analysis, timeout=timeout, **run_options
+        initial_layout = Layout.from_intlist(list(self.physical_qubits), *circuit.qregs)
+
+        layout = PassManager(
+            [
+                SetLayout(initial_layout),
+                FullAncillaAllocation(CouplingMap(self._backend_data.coupling_map)),
+                EnlargeWithAncilla(),
+                ApplyLayout(),
+            ]
         )
 
-        if self.auto_update and analysis:
-            experiment_data.add_analysis_callback(self.update_calibrations)
+        return StagedPassManager(["layout"], layout=layout).run(circuit)
 
-        return experiment_data
+    @abstractmethod
+    def _attach_calibrations(self, circuit: QuantumCircuit):
+        """Attach the calibrations to the quantum circuit.
+
+        This method attaches calibrations from the `self._cals` instance to the transpiled
+        quantum circuits. Given how important this method is it is made abstract to force
+        potential calibration experiment developers to implement it and think about how
+        schedules are attached to the circuits. The implementation of this method is delegated
+        to the sub-classes so that they can map gate instructions to the schedules stored in the
+        ``Calibrations`` instance. This method is needed for most calibration experiments. However,
+        some experiments already attach circuits to the logical circuits and do not needed to run
+        ``_attach_calibrations``. In such experiments a simple ``pass`` statement will suffice.
+        """

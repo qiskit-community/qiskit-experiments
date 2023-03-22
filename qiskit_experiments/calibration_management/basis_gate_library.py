@@ -120,8 +120,9 @@ class BasisGateLibrary(ABC, Mapping):
         """Return the default values for the parameters.
 
         Returns
-            A list of tuples is returned. These tuples are structured so that instances of
-            :class:`Calibrations` can call :meth:`add_parameter_value` on the tuples.
+            A list of tuples is returned. These tuples are structured so that instances
+            of :class:`.Calibrations` can call :meth:`.Calibrations.add_parameter_value`
+            on the tuples.
         """
 
     @abstractmethod
@@ -219,7 +220,7 @@ class FixedFrequencyTransmon(BasisGateLibrary):
             default_values: Default values for the parameters this dictionary can contain
                 the following keys: "duration", "amp", "β", and "σ". If "σ" is not provided
                 this library will take one fourth of the pulse duration as default value.
-            link_parameters: if set to True then the amplitude and DRAG parameters of the
+            link_parameters: If set to True then the amplitude and DRAG parameters of the
                 X and Y gates will be linked as well as those of the SX and SY gates.
         """
         self._link_parameters = link_parameters
@@ -286,8 +287,9 @@ class FixedFrequencyTransmon(BasisGateLibrary):
         """Return the default values for the parameters.
 
         Returns
-            A list of tuples is returned. These tuples are structured so that instances of
-            :class:`Calibrations` can call :meth:`add_parameter_value` on the tuples.
+            A list of tuples is returned. These tuples are structured so that instances
+            of :class:`.Calibrations` can call :meth:`.Calibrations.add_parameter_value`
+            on the tuples.
         """
         defaults = []
         for name, schedule in self.items():
@@ -322,9 +324,10 @@ class EchoedCrossResonance(BasisGateLibrary):
         - cr45p: GaussianSquare cross-resonance gate for a :math:`+\pi/4` rotation.
         - cr45m: GaussianSquare cross-resonance gate for a :math:`-\pi/4` rotation.
         - ecr: Echoed cross-resonance gate defined as ``cr45p - x - cr45m``.
+        - rzx: RZXGate built from the ecr as ``cr45p - x - cr45m - x``.
 
     Required gates:
-        - x: the x gate is defined outside of this library, see :class:`FixedFrequencyTransmon`.
+        - x: the x gate is defined outside of this library, see :class:`.FixedFrequencyTransmon`.
 
     Pulse parameters:
         - tgt_amp: The amplitude of the pulse applied to the target qubit. Default value: 0.
@@ -356,7 +359,7 @@ class EchoedCrossResonance(BasisGateLibrary):
     @property
     def __supported_gates__(self) -> Dict[str, int]:
         """The supported gates of the library are two-qubit pulses for the ecr gate."""
-        return {"cr45p": 2, "cr45m": 2, "ecr": 2}
+        return {"cr45p": 2, "cr45m": 2, "ecr": 2, "rzx": 2}
 
     def default_values(self) -> List[DefaultCalValue]:
         """The default values of the CR library."""
@@ -418,6 +421,7 @@ class EchoedCrossResonance(BasisGateLibrary):
 
             schedules["cr45m"] = cr45m
 
+        # Echoed Cross-Resonance gate
         if "ecr" in basis_gates:
             with pulse.build(name="ecr") as ecr:
                 with pulse.align_sequential():
@@ -426,5 +430,16 @@ class EchoedCrossResonance(BasisGateLibrary):
                     pulse.reference("cr45m", "q0", "q1")
 
             schedules["ecr"] = ecr
+
+        # RZXGate built from Echoed Cross-Resonance gate
+        if "rzx" in basis_gates:
+            with pulse.build(name="rzx") as rzx:
+                with pulse.align_sequential():
+                    pulse.reference("cr45p", "q0", "q1")
+                    pulse.reference("x", "q0")
+                    pulse.reference("cr45m", "q0", "q1")
+                    pulse.reference("x", "q0")
+
+            schedules["rzx"] = rzx
 
         return schedules

@@ -26,10 +26,18 @@ tox -edocs
 echo "show current dir: "
 pwd
 
+CURRENT_TAG=`git describe --abbrev=0`
+IFS='.'
+read -ra VERSION <<< "$CURRENT_TAG"
+STABLE_VERSION=${VERSION[0]}.${VERSION[1]}
+
 # Push to qiskit.org/ecosystem
 openssl aes-256-cbc -K $encrypted_rclone_key -iv $encrypted_rclone_iv -in tools/rclone.conf.enc -out $RCLONE_CONFIG_PATH -d
-echo "Pushing built docs to qiskit.org/ecosystem"
-rclone sync --progress ./docs/_build/html IBMCOS:qiskit-org-web-resources/ecosystem/experiments
+echo "Pushing built docs to website"
+rclone sync --progress --exclude-from ./tools/other-builds.txt ./docs/_build/html IBMCOS:qiskit-org-web-resources/ecosystem/experiments
+echo "Pushing $STABLE_VERSION built docs to website"
+rclone sync --progress ./docs/_build/html IBMCOS:qiskit-org-web-resources/ecosystem/experiments/stable/"$STABLE_VERSION"
 
 # Push to qiskit.org/documentation
-rclone sync --progress ./docs/_build/html IBMCOS:qiskit-org-web-resources/documentation/experiments
+rclone sync --progress --exclude-from ./tools/other-builds.txt ./docs/_build/html IBMCOS:qiskit-org-web-resources/documentation/experiments
+rclone sync --progress ./docs/_build/html IBMCOS:qiskit-org-web-resources/documentation/experiments/stable/"$STABLE_VERSION"

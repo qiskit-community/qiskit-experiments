@@ -244,7 +244,7 @@ class MockIQBackend(FakeOpenPulse2Q):
         """
         Produce a list in the size of num_qubits. Each entry value is produced from normal distribution
         with expected value of '0' and standard deviation of 1. The intention is that these samples are
-        scaled by :py:func:`_scale_samples_for_widths` for various circuits, experiments, and their IQ
+        scaled by :func:`_scale_samples_for_widths` for various circuits, experiments, and their IQ
         widths; removing the need to query a RNG for each new width list.
 
         Example:
