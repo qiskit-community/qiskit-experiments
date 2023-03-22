@@ -228,8 +228,12 @@ And see the transpiled circuit using the basis gate set of the backend:
 .. jupyter-execute::
 
     from qiskit import transpile
-    basis_gates = backend.configuration().basis_gates
-    transpile(c, basis_gates=basis_gates).draw("mpl")
+    transpile(c, backend, **vars(exp.transpile_options)).draw("mpl", idle_wires=False)
+
+.. note::
+    In 0.5.0, the default value of ``optimization_level`` in ``transpile_options`` changed
+    from ``0`` to ``1`` for RB experiments.
+    Transpiled circuits may have less number of gates after the change.
 
 
 Interleaved RB experiment

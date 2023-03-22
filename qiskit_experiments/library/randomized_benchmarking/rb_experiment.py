@@ -76,6 +76,10 @@ class StandardRB(BaseExperiment, RestlessMixin):
         .. ref_arxiv:: 1 1009.3639
         .. ref_arxiv:: 2 1109.6887
 
+    .. note::
+        In 0.5.0, the default value of ``optimization_level`` in ``transpile_options`` changed
+        from ``0`` to ``1`` for RB experiments. That may result in shorter RB circuits
+        hence slower decay curves than before.
     """
 
     @deprecate_arguments({"qubits": "physical_qubits"}, "0.5")
@@ -151,7 +155,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
 
     @classmethod
     def _default_transpile_options(cls) -> Options:
-        """Default transpiler options for transpiling RB circuits (`optimization_level=1`)."""
+        """Default transpiler options for transpiling RB circuits."""
         return Options(optimization_level=1)
 
     def _set_backend(self, backend: Backend):
