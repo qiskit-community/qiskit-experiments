@@ -26,8 +26,7 @@ from qiskit_experiments.data_processing.exceptions import DataProcessorError
 
 from .base_curve_analysis import BaseCurveAnalysis, PARAMS_ENTRY_PREFIX
 from .curve_data import CurveData, FitOptions, CurveFitResult
-from .data_processing import multi_mean_xy_data, data_sort
-from .utils import eval_with_uncertainties, convert_lmfit_result
+from .utils import eval_with_uncertainties, convert_lmfit_result, multi_mean_xy_data, data_sort
 
 
 class CurveAnalysis(BaseCurveAnalysis):

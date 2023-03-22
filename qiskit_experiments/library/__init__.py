@@ -36,6 +36,7 @@ Experiments for verification and validation of quantum devices.
 
     ~randomized_benchmarking.StandardRB
     ~randomized_benchmarking.InterleavedRB
+    ~tomography.TomographyExperiment
     ~tomography.StateTomography
     ~tomography.ProcessTomography
     ~tomography.MitigatedStateTomography
@@ -64,7 +65,6 @@ Some experiments also have a calibration experiment version.
     ~characterization.FineAmplitude
     ~characterization.FineXAmplitude
     ~characterization.FineSXAmplitude
-    ~characterization.FineZXAmplitude
     ~characterization.Rabi
     ~characterization.EFRabi
     ~characterization.RamseyXY
@@ -91,6 +91,7 @@ Experiments for characterization of properties of two qubit interactions.
     ~characterization.CrossResonanceHamiltonian
     ~characterization.EchoedCrossResonanceHamiltonian
     ~characterization.ZZRamsey
+    ~characterization.FineZXAmplitude
 
 .. _characterization-mitigation:
 
@@ -184,6 +185,7 @@ from .characterization import (
 )
 from .randomized_benchmarking import StandardRB, InterleavedRB
 from .tomography import (
+    TomographyExperiment,
     StateTomography,
     ProcessTomography,
     MitigatedStateTomography,

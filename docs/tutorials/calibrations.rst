@@ -213,7 +213,7 @@ for both the :math:`X` pulse and the :math:`SX` pulse using a single experiment.
 .. jupyter-execute:: 
 
     from qiskit_experiments.library.calibration import RoughXSXAmplitudeCal
-    rabi = RoughXSXAmplitudeCal([qubit], cals, backend=backend, amplitudes=np.linspace(-0.1, 0.1, 51))
+    rabi = RoughXSXAmplitudeCal((qubit,), cals, backend=backend, amplitudes=np.linspace(-0.1, 0.1, 51))
 
 The rough amplitude calibration is therefore a Rabi experiment in which 
 each circuit contains a pulse with a gate. Different circuits correspond to pulses 

@@ -120,8 +120,9 @@ class BasisGateLibrary(ABC, Mapping):
         """Return the default values for the parameters.
 
         Returns
-            A list of tuples is returned. These tuples are structured so that instances of
-            :class:`.Calibrations` can call :meth:`.add_parameter_value` on the tuples.
+            A list of tuples is returned. These tuples are structured so that instances
+            of :class:`.Calibrations` can call :meth:`.Calibrations.add_parameter_value`
+            on the tuples.
         """
 
     @abstractmethod
@@ -286,8 +287,9 @@ class FixedFrequencyTransmon(BasisGateLibrary):
         """Return the default values for the parameters.
 
         Returns
-            A list of tuples is returned. These tuples are structured so that instances of
-            :class:`.Calibrations` can call :meth:`.add_parameter_value` on the tuples.
+            A list of tuples is returned. These tuples are structured so that instances
+            of :class:`.Calibrations` can call :meth:`.Calibrations.add_parameter_value`
+            on the tuples.
         """
         defaults = []
         for name, schedule in self.items():

@@ -57,7 +57,7 @@ for
 
 The experiment class contains information for generating circuits and analysis
 of results. These can typically be configured with a variety of options.
-Once all options are set, you can call :meth:`BaseExperiment.run` method to run
+Once all options are set, you can call the :meth:`.BaseExperiment.run` method to run
 the experiment on a Qiskit compatible ``backend``.
 
 The steps of running an experiment involves generation experimental circuits
@@ -68,9 +68,9 @@ data analysis of the experiment execution results.
 The result of running an experiment is an :class:`ExperimentData` container
 which contains the analysis results, any figures generated during analysis,
 and the raw measurement data. These can each be accessed using the
-:meth:`ExperimentData.analysis_results`, :meth:`ExperimentData.figure`
-and :meth:`ExperimentData.data` methods respectively. Additional metadata
-for the experiment itself can be added via :meth:`ExperimentData.metadata`.
+:meth:`.ExperimentData.analysis_results`, :meth:`.ExperimentData.figure`
+and :meth:`.ExperimentData.data` methods respectively. Additional metadata
+for the experiment itself can be added via :meth:`.ExperimentData.metadata`.
 
 
 Classes
