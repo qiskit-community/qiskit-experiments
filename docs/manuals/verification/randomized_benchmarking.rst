@@ -213,7 +213,7 @@ The default RB circuit output shows Clifford blocks:
 .. jupyter-execute::
 
     # Run an RB experiment on qubit 0
-    exp = StandardRB(physical_qubits=[0], lengths=[2], num_samples=1, seed=seed)
+    exp = StandardRB(physical_qubits=(0,), lengths=[2], num_samples=1, seed=seed)
     c = exp.circuits()[0]
     c.draw("mpl")
 

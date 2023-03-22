@@ -20,7 +20,7 @@ The visualization module provides plotting functionality for creating figures fr
 experiment and analysis results. This includes plotter and drawer classes to plot data
 in :class:`.CurveAnalysis` and its subclasses. Plotters inherit from
 :class:`BasePlotter` and define a type of figure that may be generated from experiment
-or analysis data. For example, the results from :class:`CurveAnalysis`---or any other
+or analysis data. For example, the results from :class:`.CurveAnalysis`---or any other
 experiment where results are plotted against a single parameter (i.e., :math:`x`)---can
 be plotted using the :class:`CurvePlotter` class, which plots X-Y-like values.
 

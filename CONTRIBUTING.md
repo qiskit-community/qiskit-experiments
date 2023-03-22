@@ -227,8 +227,8 @@ should look something like:
 ```yaml
 features:
   - |
-    Introduced a new feature foo, that adds support for doing something to
-    ``QuantumCircuit`` objects. It can be used by using the foo function,
+    Introduced a new feature foo that adds support for doing something to
+    :class:`~qiskit.circuit.QuantumCircuit` objects. It can be used by using the foo function,
     for example::
 
       from qiskit import foo
@@ -236,9 +236,9 @@ features:
       foo(QuantumCircuit())
 
   - |
-    The ``qiskit.QuantumCircuit`` module has a new method ``foo()``. This is
-    the equivalent of calling the ``qiskit.foo()`` to do something to your
-    QuantumCircuit. This is the equivalent of running ``qiskit.foo()`` on
+    The :class:`~qiskit.circuit.QuantumCircuit` class has a new method :meth:`.foo`. This is
+    the equivalent of calling :func:`qiskit.foo` to do something to your
+    QuantumCircuit. This is the equivalent of running :func:`qiskit.foo` on
     your circuit, but provides the convenience of running it natively on
     an object. For example::
 
@@ -249,11 +249,11 @@ features:
 
 deprecations:
   - |
-    The ``qiskit.bar`` module has been deprecated and will be removed in a
-    future release. Its sole function, ``foobar()`` has been superseded by the
-    ``qiskit.foo()`` function which provides similar functionality but with
+    The :mod:`qiskit.bar` module has been deprecated and will be removed in a
+    future release. Its sole function, :func:`foobar` has been superseded by the
+    :func:`qiskit.foo` function which provides similar functionality but with
     more accurate results and better performance. You should update your calls
-    ``qiskit.bar.foobar()`` calls to ``qiskit.foo()``.
+    :func:`qiskit.bar.foobar` calls to :func:`qiskit.foo`.
 ```
 
 You can also look at existing release notes for more examples.
@@ -348,9 +348,12 @@ There are a few other build options available:
 Qiskit Experiments is part of Qiskit and, therefore, the [Qiskit Deprecation
 Policy](https://qiskit.org/documentation/contributing_to_qiskit.html#deprecation-policy)
 fully applies here. We have a deprecation decorator for showing deprecation warnings. To
-deprecate a function:
+deprecate a function, for example:
 
 ```python
+
+  from qiskit_experiments.warnings import deprecated_function
+
   @deprecated_function(last_version="0.3", msg="Use new_function instead.")
   def old_function(*args, **kwargs):
       pass
@@ -361,6 +364,8 @@ deprecate a function:
 To deprecate a class:
 
 ```python
+  from qiskit_experiments.warnings import deprecated_class
+
   @deprecated_class(last_version="0.3", new_cls=NewCls)
   class OldClass:
       pass
@@ -408,5 +413,5 @@ following steps:
 4.  Generate a PR on the meta-repository to bump the qiskit-experiments version and
     meta-package version.
 
-The `stable/*` branches should only receive changes in the form of bug fixes.
+The `stable/*` branches should only receive changes in the form of bug fixes. If you're making a bug fix PR that you believe should be backported to the current stable release, tag it with `backport stable potential`.
 

@@ -36,7 +36,7 @@ backend and not a simulator to be able to save the experiment data. This is done
     
     t1_delays = np.arange(1e-6, 600e-6, 50e-6)
 
-    exp = T1(qubit=0, delays=t1_delays)
+    exp = T1(physical_qubits=(0,), delays=t1_delays)
 
     t1_expdata = exp.run(backend=backend).block_for_results()
     t1_expdata.save()
@@ -131,7 +131,7 @@ The :meth:`~.ExperimentData.auto_save` feature automatically saves changes to th
 
 .. jupyter-input::
 
-    exp = T1(qubit=0, delays=t1_delays)
+    exp = T1(physical_qubits=(0,), delays=t1_delays)
     
     t1_expdata = exp.run(backend=backend, shots=1000)
     t1_expdata.auto_save = True
