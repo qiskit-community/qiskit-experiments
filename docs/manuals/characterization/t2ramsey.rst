@@ -52,7 +52,7 @@ resulting function, and can analytically extract the desired values.
 .. jupyter-execute::
 
     # Create a T2Ramsey experiment. Print the first circuit as an example
-    exp1 = T2Ramsey([qubit], delays, osc_freq=1e5)
+    exp1 = T2Ramsey((qubit,), delays, osc_freq=1e5)
     
     print(exp1.circuits()[0])
 
@@ -121,7 +121,7 @@ computed for other qubits.
         "phi": 0,
         "B": 0.5
             }
-    exp_with_p0 = T2Ramsey([qubit], delays, osc_freq=1e5)
+    exp_with_p0 = T2Ramsey((qubit,), delays, osc_freq=1e5)
     exp_with_p0.analysis.set_options(p0=user_p0)
     exp_with_p0.set_transpile_options(scheduling_method='asap')
     expdata_with_p0 = exp_with_p0.run(backend=backend, shots=2000, seed_simulator=101)

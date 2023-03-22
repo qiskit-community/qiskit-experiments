@@ -7,8 +7,8 @@ Installation
 
 Qiskit Experiments is built on top of Qiskit, so we recommend that you first install
 Qiskit following its :external+qiskit:doc:`installation guide <getting_started>`. Qiskit
-Experiments supports the same platforms and Python versions (currently 3.7+) as Qiskit
-itself.
+Experiments supports the same platforms and Python versions (currently **3.7+**) as
+Qiskit itself.
 
 Qiskit Experiments releases can be installed via the Python package manager ``pip``:
 
@@ -66,7 +66,14 @@ IBM backend, real or simulated, that you can access through Qiskit.
 
 All experiments require a ``physical_qubits`` parameter as input that specifies which
 physical qubit or qubits the circuits will be executed on. The qubits must be given as a
-Python sequence (usually a tuple or a list). In addition, the :math:`T_1` experiment has
+Python sequence (usually a tuple or a list).
+
+.. note::
+    Since 0.5.0, using ``qubits`` instead of ``physical_qubits`` or specifying an 
+    integer qubit index instead of a one-element sequence for a single-qubit experiment
+    is deprecated.
+
+In addition, the :math:`T_1` experiment has
 a second required parameter, ``delays``, which is a list of times in seconds at which to
 measure the excited state population. In this example, we'll run the :math:`T_1`
 experiment on qubit 0, and use the ``t1`` backend property of this qubit to give us a
@@ -200,11 +207,11 @@ The actual backend jobs that were executed for the experiment can be accessed wi
 :meth:`~.ExperimentData.jobs` method.
 
 .. note::
-    See the how-tos for :doc:`instantiating a new ExperimentData object </howtos/new_experimentdata>`
-    from an existing experiment that finished execution.
+    See the how-tos for :doc:`rerunning the analysis </howtos/rerun_analysis>`
+    for an existing experiment that finished execution.
 
-Setting experiment options
-==========================
+Setting options for your experiment
+===================================
 
 It's often insufficient to run an experiment with only its default options. There are
 four types of options one can set for an experiment:
@@ -222,8 +229,8 @@ supports can be set:
                       meas_level=MeasLevel.CLASSIFIED,
                       meas_return="avg")
 
-Consult the documentation of :meth:`qiskit.execute_function` or the run method of your
-specific backend type for valid options.
+Consult the documentation of :func:`qiskit.execute_function.execute` or the run method
+of your specific backend type for valid options.
 
 Transpile options
 -----------------
@@ -242,7 +249,7 @@ Experiment options
 ------------------
 These options are unique to each experiment class. Many experiment options can be set
 upon experiment instantiation, but can also be explicitly set via
-:meth:`~BaseExperiment.set_experiment_options`:
+:meth:`~.BaseExperiment.set_experiment_options`:
 
 .. jupyter-input::
 
