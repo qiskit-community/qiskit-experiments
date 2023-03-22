@@ -22,6 +22,7 @@ from qiskit.quantum_info.operators import Pauli
 from qiskit.providers.backend import Backend
 from qiskit.providers.options import Options
 from qiskit.exceptions import QiskitError
+from qiskit.circuit.library import CXGate
 
 from qiskit_experiments.warnings import deprecate_arguments
 from .rb_experiment import StandardRB, SequenceElementType
@@ -71,6 +72,7 @@ class MirrorRB(StandardRB):
         local_clifford: bool = True,
         pauli_randomize: bool = True,
         two_qubit_gate_density: float = 0.2,
+        two_qubit_gate: GateType = CXGate,
         backend: Optional[Backend] = None,
         num_samples: int = 3,
         seed: Optional[Union[int, SeedSequence, BitGenerator, Generator]] = None,
@@ -83,13 +85,16 @@ class MirrorRB(StandardRB):
             physical_qubits: A list of physical qubits for the experiment.
             lengths: A list of RB sequences lengths.
             distribution: The probability distribution over the layer set to sample.
-                Defaults to the :class:`.EdgeGrabSampler`.
+                Defaults to the :class:`.EdgeGrabSampler`. Distribution options can be set by
+                accessing the distribution object of this class.
             local_clifford: If True, begin the circuit with uniformly random 1-qubit
                 Cliffords and end the circuit with their inverses.
             pauli_randomize: If True, surround each inner Clifford layer with
                 uniformly random Paulis.
-            two_qubit_gate_density: Expected proportion of qubits with CNOTs based on
-                the backend coupling map.
+            two_qubit_gate_density: Expected proportion of qubit sites with two-qubit
+                gates over all circuit layers (not counting optional layers at the start
+                and end).
+            two_qubit_gate: The two-qubit gate to use. Defaults to "cx".
             backend: The backend to run the experiment on.
             num_samples: Number of samples to generate for each sequence length.
             seed: Optional, seed used to initialize ``numpy.random.default_rng``.
@@ -121,14 +126,14 @@ class MirrorRB(StandardRB):
             full_sampling=full_sampling,
         )
 
-        self._distribution = distribution()
+        self.distribution = distribution()
 
         self.set_experiment_options(
-            distribution=distribution,
             local_clifford=local_clifford,
             pauli_randomize=pauli_randomize,
             inverting_pauli_layer=inverting_pauli_layer,
             two_qubit_gate_density=two_qubit_gate_density,
+            two_qubit_gate=two_qubit_gate,
         )
 
         self.analysis = MirrorRBAnalysis()
@@ -147,6 +152,7 @@ class MirrorRB(StandardRB):
             two_qubit_gate_density (float): Expected proportion of two-qubit gates in
                 the mirror circuit layers (not counting Clifford or Pauli layers at the
                 start and end).
+            two_qubit_gate (str | ): The two qubit gate to use.
             num_samples (int): Number of samples to generate for each sequence length.
         """
         options = super()._default_experiment_options()
@@ -154,6 +160,7 @@ class MirrorRB(StandardRB):
             local_clifford=True,
             pauli_randomize=True,
             two_qubit_gate_density=0.2,
+            two_qubit_gate="cx",
             distribution=None,
             inverting_pauli_layer=False,
         )
@@ -207,13 +214,18 @@ class MirrorRB(StandardRB):
 
         rng = default_rng(seed=self.experiment_options.seed)
 
-        sequences = []
-
         # Adjust the density based on whether the pauli layers are in
         if self.experiment_options.pauli_randomize:
             adjusted_2q_density = self.experiment_options.two_qubit_gate_density * 2
         else:
             adjusted_2q_density = self.experiment_options.two_qubit_gate_density
+
+        self.distribution.seed = rng
+        self.distribution.coupling_map = experiment_coupling_map
+        self.distribution.gate_distribution = [
+            (adjusted_2q_density, 2, self.experiment_options.two_qubit_gate),
+            (1 - adjusted_2q_density, 1, "clifford"),
+        ]
 
         # Sequence of lengths to sample for
         if not self.experiment_options.full_sampling:
@@ -221,18 +233,25 @@ class MirrorRB(StandardRB):
         else:
             seqlens = self.experiment_options.lengths
 
+        if self.experiment_options.pauli_randomize:
+            pauli_sampler = SingleQubitSampler(seed=rng)
+            pauli_sampler.gate_distribution = [(1, 1, "pauli")]
+
+        if self.experiment_options.local_clifford:
+            clifford_sampler = SingleQubitSampler(seed=rng)
+            clifford_sampler.gate_distribution = [(1, 1, "clifford")]
+
+        sequences = []
+
         for _ in range(self.experiment_options.num_samples):
             for seqlen in seqlens:
                 seq = []
 
                 # Sample the first half of the mirror layers
                 layers = list(
-                    self._distribution(
-                        range(self.num_qubits),
-                        adjusted_2q_density,
-                        experiment_coupling_map,
-                        seqlen // 2,
-                        seed=rng,
+                    self.distribution(
+                        qubits=range(self.num_qubits),
+                        length=seqlen // 2,
                     )
                 )
 
@@ -247,8 +266,7 @@ class MirrorRB(StandardRB):
 
                 # Interleave random Paulis if set by user
                 if self.experiment_options.pauli_randomize:
-                    sampler = SingleQubitSampler()
-                    pauli_layers = sampler(range(self.num_qubits), seqlen + 1, "pauli", rng)
+                    pauli_layers = pauli_sampler(range(self.num_qubits), length=seqlen + 1)
                     seq = list(itertools.chain(*zip(pauli_layers[:-1], seq)))
                     seq.append(pauli_layers[-1])
                     if not self.experiment_options.full_sampling:
@@ -257,8 +275,7 @@ class MirrorRB(StandardRB):
                 # Add start and end local cliffords if set by user
                 if self.experiment_options.local_clifford:
                     cseq = []
-                    sampler = SingleQubitSampler()
-                    clifford_layers = sampler(range(self.num_qubits), 1, "clifford", rng)
+                    clifford_layers = clifford_sampler(range(self.num_qubits), length=1)
                     cseq.append(clifford_layers[0])
                     cseq.extend(seq)
                     cseq.append(self._inverse_layer(clifford_layers[0]))
@@ -327,12 +344,15 @@ class MirrorRB(StandardRB):
         elem: SequenceElementType,
         basis_gates: Optional[Tuple[str, ...]] = None,
     ) -> Instruction:
-        # Overriding the default RB, which uses ``self.num_qubits`` to assume Clifford size
+        """Convert the sampled object to an instruction."""
         if isinstance(elem, Integral):
             return _clifford_1q_int_to_instruction(elem, basis_gates)
         elif isinstance(elem, Instruction):
             return elem
-        return elem.to_instruction()
+        elif getattr(elem, "to_instruction", None):
+            return elem.to_instruction()
+        else:
+            return elem()
 
     def _inverse_layer(
         self, layer: List[Tuple[Tuple[int, ...], GateType]]
