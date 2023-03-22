@@ -15,10 +15,10 @@
 from typing import Tuple
 
 import numpy as np
-import qiskit.pulse as pulse
 from qiskit import QuantumCircuit
 from qiskit.circuit import Gate, Parameter
 from qiskit.exceptions import QiskitError
+from qiskit import pulse
 
 from qiskit_experiments.framework import BackendTiming
 from qiskit_experiments.library.characterization.spectroscopy import Spectroscopy

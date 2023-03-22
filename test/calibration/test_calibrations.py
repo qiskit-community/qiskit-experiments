@@ -32,10 +32,9 @@ from qiskit.pulse import (
     RegisterSlot,
     Play,
 )
-from qiskit import transpile, QuantumCircuit
+from qiskit import QuantumCircuit, pulse, transpile
 from qiskit.circuit.library import CXGate, XGate
 from qiskit.pulse.transforms import inline_subroutines, block_to_schedule
-import qiskit.pulse as pulse
 from qiskit.providers import BackendV2, Options
 from qiskit.providers.fake_provider import FakeArmonkV2, FakeBelemV2
 from qiskit.transpiler import Target
@@ -178,7 +177,7 @@ class TestCalibrationsBasic(QiskitExperimentsTestCase):
             if sched_dict["schedule"].name == "xp":
                 schedule = sched_dict["schedule"]
 
-        for param in {self.amp_xp, self.sigma, self.beta, self.duration, self.chan}:
+        for param in (self.amp_xp, self.sigma, self.beta, self.duration, self.chan):
             self.assertTrue(param in schedule.parameters)
 
         self.assertEqual(len(schedule.parameters), 5)

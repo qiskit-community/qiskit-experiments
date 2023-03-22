@@ -16,10 +16,10 @@ from typing import Iterable, Optional, Sequence, Tuple
 import numpy as np
 
 from qiskit import QuantumCircuit
+from qiskit import pulse
 from qiskit.circuit import Parameter
 from qiskit.exceptions import QiskitError
 from qiskit.providers import Backend
-import qiskit.pulse as pulse
 
 from qiskit_experiments.framework import BackendData, BackendTiming, Options
 from qiskit_experiments.library.characterization.spectroscopy import Spectroscopy

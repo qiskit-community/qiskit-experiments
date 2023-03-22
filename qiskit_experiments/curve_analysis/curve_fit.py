@@ -134,9 +134,7 @@ def curve_fit(
             fit_func, xdata, ydata, sigma=sigma, p0=param_p0, bounds=param_bounds, **kwargs
         )
     except Exception as ex:
-        raise AnalysisError(
-            "scipy.optimize.curve_fit failed with error: {}".format(str(ex))
-        ) from ex
+        raise AnalysisError(f"scipy.optimize.curve_fit failed with error: {str(ex)}") from ex
 
     if np.isfinite(pcov).all():
         # Keep parameter correlations in following analysis steps

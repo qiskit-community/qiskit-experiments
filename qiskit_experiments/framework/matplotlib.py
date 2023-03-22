@@ -36,4 +36,4 @@ def get_non_gui_ax():
     """
     figure = Figure()
     _ = default_figure_canvas(figure)
-    return figure.subplots()
+    return figure.subplots(squeeze=False)[0, 0]

@@ -119,7 +119,7 @@ def deprecated_class(
                 message += msg
             warnings.warn(message, DeprecationWarning, stacklevel=stacklevel)
             instance = object.__new__(new_cls or deprecated_cls)
-            instance.__init__(*args, **kwargs)
+            instance.__init__(*args, **kwargs)  # pylint: disable=unnecessary-dunder-call
             return instance
 
         cls.__new__ = new

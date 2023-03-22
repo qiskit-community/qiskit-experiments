@@ -62,13 +62,13 @@ class MplDrawer(BaseDrawer):
             Returns:
                 The formatted tick label.
             """
-            return self.fix_minus("{:.3g}".format(x * self.factor))
+            return self.fix_minus(f"{x * self.factor:.3g}")
 
     def __init__(self):
         super().__init__()
         # Used to track which series have already been plotted. Needed for _get_default_marker and
         # _get_default_color.
-        self._series = list()
+        self._series = []
 
     def initialize_canvas(self):
         # Create axis if empty
