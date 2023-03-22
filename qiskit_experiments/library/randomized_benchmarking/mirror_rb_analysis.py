@@ -80,8 +80,6 @@ class MirrorRBAnalysis(curve.CurveAnalysis):
     # section: fit_model
         The fit is based on the following decay functions:
 
-        Fit model for mirror RB
-
         .. math::
 
             F(x) = a \alpha^{x} + b

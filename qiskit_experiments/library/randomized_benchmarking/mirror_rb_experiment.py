@@ -15,25 +15,19 @@ Mirror RB Experiment class.
 from typing import Union, Iterable, Optional, List, Sequence, Tuple
 from numbers import Integral
 import itertools
-from time import time
-
 from numpy.random import Generator, BitGenerator, SeedSequence, default_rng
 
-from qiskit.exceptions import QiskitError
 from qiskit.circuit import QuantumCircuit, Instruction, Barrier
-from qiskit.quantum_info import Clifford, random_pauli, random_clifford
 from qiskit.quantum_info.operators import Pauli
 from qiskit.providers.backend import Backend
 from qiskit.providers.options import Options
-from qiskit.transpiler.basepasses import TransformationPass
-from qiskit_experiments.warnings import deprecate_arguments
-from qiskit.circuit.library import CXGate
+from qiskit.exceptions import QiskitError
 
+from qiskit_experiments.warnings import deprecate_arguments
 from .rb_experiment import StandardRB, SequenceElementType
 from .mirror_rb_analysis import MirrorRBAnalysis
 from .clifford_utils import (
     compute_target_bitstring,
-    CliffordUtils,
     inverse_1q,
     _clifford_1q_int_to_instruction,
 )
@@ -100,7 +94,7 @@ class MirrorRB(StandardRB):
             num_samples: Number of samples to generate for each sequence length.
             seed: Optional, seed used to initialize ``numpy.random.default_rng``.
                 when generating circuits. The ``default_rng`` will be initialized
-                with this seed value everytime :meth:`circuits` is called.
+                with this seed value every time :meth:`circuits` is called.
             full_sampling: If True all Cliffords are independently sampled for
                 all lengths. If False for sample of lengths longer sequences are
                 constructed by appending additional Clifford samples to shorter
@@ -149,7 +143,7 @@ class MirrorRB(StandardRB):
             pauli_randomize (bool): Whether to surround each inner Clifford layer with
                 uniformly random Paulis.
             inverting_pauli_layer (bool): Whether to append a layer of Pauli gates at the
-                end of the circuit to set all qubits to 0
+                end of the circuit to set all qubits to 0.
             two_qubit_gate_density (float): Expected proportion of two-qubit gates in
                 the mirror circuit layers (not counting Clifford or Pauli layers at the
                 start and end).
@@ -176,32 +170,6 @@ class MirrorRB(StandardRB):
         circuits = self._sequences_to_circuits(sequences)
 
         return circuits
-
-    def _inverse_layer(
-        self, layer: List[Tuple[Tuple[int, ...], GateType]]
-    ) -> List[Tuple[Tuple[int, ...], GateType]]:
-        """Generates the inverse layer of a Clifford mirror RB layer by inverting the
-        single-qubit Cliffords and keeping the CXs identical. See
-        :class:`.RBSampler` for the format of the layer.
-
-        Args:
-            layer: The input layer.
-
-        Returns:
-            The layer that performs the inverse operation to the input layer.
-
-        Raises:
-            QiskitError: If the layer has invalid format.
-        """
-        inverse_layer = []
-        for elem in layer:
-            if len(elem[0]) == 1:
-                inverse_layer.append((elem[0], inverse_1q(elem[1])))
-            elif len(elem[0]) == 2:
-                inverse_layer.append(elem)
-            else:
-                raise QiskitError("Invalid layer from sampler.")
-        return tuple(inverse_layer)
 
     def _sample_sequences(self) -> List[Sequence[SequenceElementType]]:
         """Sample layers of mirror RB using the provided distribution and user options.
@@ -246,6 +214,7 @@ class MirrorRB(StandardRB):
             adjusted_2q_density = self.experiment_options.two_qubit_gate_density * 2
         else:
             adjusted_2q_density = self.experiment_options.two_qubit_gate_density
+
         # Sequence of lengths to sample for
         if not self.experiment_options.full_sampling:
             seqlens = (max(self.experiment_options.lengths),)
@@ -255,6 +224,8 @@ class MirrorRB(StandardRB):
         for _ in range(self.experiment_options.num_samples):
             for seqlen in seqlens:
                 seq = []
+
+                # Sample the first half of the mirror layers
                 layers = list(
                     self._distribution(
                         range(self.num_qubits),
@@ -362,3 +333,29 @@ class MirrorRB(StandardRB):
         elif isinstance(elem, Instruction):
             return elem
         return elem.to_instruction()
+
+    def _inverse_layer(
+        self, layer: List[Tuple[Tuple[int, ...], GateType]]
+    ) -> List[Tuple[Tuple[int, ...], GateType]]:
+        """Generates the inverse layer of a Clifford mirror RB layer by inverting the
+        single-qubit Cliffords and keeping the CXs identical. See
+        :class:`.RBSampler` for the format of the layer.
+
+        Args:
+            layer: The input layer.
+
+        Returns:
+            The layer that performs the inverse operation to the input layer.
+
+        Raises:
+            QiskitError: If the layer has invalid format.
+        """
+        inverse_layer = []
+        for elem in layer:
+            if len(elem[0]) == 1:
+                inverse_layer.append((elem[0], inverse_1q(elem[1])))
+            elif len(elem[0]) == 2:
+                inverse_layer.append(elem)
+            else:
+                raise QiskitError("Invalid layer from sampler.")
+        return tuple(inverse_layer)

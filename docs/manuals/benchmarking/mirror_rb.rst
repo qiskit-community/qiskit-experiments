@@ -122,7 +122,6 @@ experiment:
 
 .. jupyter-execute::
 
-    # View result data
     print("Gate error ratio: %s" % expdata_2q.experiment.analysis.options.gate_error_ratio)
     display(expdata_2q.figure(0))
     for result in results_2q:
@@ -137,14 +136,16 @@ instead of the default:
 
 .. jupyter-execute::
 
-    lengths = [2, 52, 102, 152]
+    lengths = np.arange(2,302,50)
     num_samples = 5
     seed = 42
     qubits = (0,)
 
     exp = MirrorRB(qubits, lengths, backend=backend, num_samples=num_samples, seed=seed)
-    # select y-axis
-    exp.analysis.set_options(y_axis="Success Probability") # or "Adjusted Success Probability" or "Effective Polarization"
+    
+    # select y-axis, can also be "Adjusted Success Probability" or "Effective Polarization"
+    exp.analysis.set_options(y_axis="Success Probability")
+    
     # y-axis label must be set separately
     exp.analysis.options.plotter.set_figure_options(
         ylabel="Success Probability",
@@ -162,29 +163,60 @@ instead of the default:
 Mirror RB user options
 ~~~~~~~~~~~~~~~~~~~~~~
 
-Circuit generation options can be specified when a :class:`.MirrorRB` experiment 
-object is instantiated: 
+There are several options that change the composition of the mirror RB circuit layers.
+One important option is ``two_qubit_gate_density`` (default ``0.2``). This is the
+expected fraction of two-qubit gates in the circuit, not accounting for the optional
+constant number of Clifford and Pauli layers at the start and end. This means that given
+the same ``two_qubit_gate_density``, if ``pauli_randomize`` is off, the concentration of
+CX gates in the Clifford layers will be halved so that the overall density doesn't
+change. We'll demonstrate this by first leaving ``pauli_randomize`` on:
 
-- ``local_clifford`` (default ``True``): if ``True``, begin the circuit with 
-  uniformly random one-qubit Cliffords and end the circuit with their inverses
+.. jupyter-execute::
+
+    exp = MirrorRB((0,1,2,3),
+                   lengths=[2],
+                   two_qubit_gate_density=0.25,
+                   seed=100,
+                   backend=backend,
+                   num_samples=1)
+    exp.circuits()[0].draw("mpl")
+
+And now we remove the Pauli layers to see that the CX density in the Clifford layers
+have halved:
+
+.. jupyter-execute::
+
+    exp = MirrorRB((0,1,2,3),
+                   lengths=[2],
+                   two_qubit_gate_density=0.25,
+                   pauli_randomize=False,
+                   seed=100,
+                   backend=backend,
+                   num_samples=1)
+    exp.circuits()[0].draw("mpl")
+
+There are three boolean options that 
 
 - ``pauli_randomize`` (default ``True``): if ``True``, put layers of uniformly 
   random Paulis between the intermediate Clifford layers
 
-- ``two_qubit_gate_density`` (default ``0.2``): expected fraction of two-qubit 
-  gates in each intermediate Clifford layer
+- ``local_clifford`` (default ``True``): if ``True``, begin the circuit with 
+  uniformly random one-qubit Cliffords and end the circuit with their inverses
 
 - ``inverting_pauli_layer`` (default ``False``): if ``True``, add a layer of 
   Paulis at the end of the circuit to set the output to 
   :math:`\left\vert0\right\rangle^{\otimes n}`, up to a global phase
 
-Let's look at how these options change the circuit. First, the default with Pauli
-layers between Cliffords and single-qubit Cliffords at the start and end:
+The default settings produce the circuits in Ref [1]_.
+
+Let's look at how these options change the circuit. First, the default with Pauli layers
+between Cliffords and single-qubit Cliffords at the start and end:
 
 .. jupyter-execute::
 
     exp = MirrorRB((0,1,2),
                    lengths=[2],
+                   seed=100,
                    backend=backend,
                    num_samples=1)
     exp.circuits()[0].decompose().draw("mpl")
@@ -195,11 +227,16 @@ And now with both options turned off:
 
     exp = MirrorRB((0,1,2),
                    lengths=[2],
+                   seed=100,
                    backend=backend,
                    num_samples=1,
                    local_clifford=False,
-                   pauli_randomize=False)
+                   two_qubit_gate_density=0.4,
+                   pauli_randomize=False,
+                   inverting_pauli_layer=True)
     exp.circuits()[0].decompose().draw("mpl")
+
+
 
 Mirror RB implementation in ``pyGSTi``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

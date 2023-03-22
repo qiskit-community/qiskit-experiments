@@ -20,5 +20,4 @@ pylatexenc
 # Pin `importlib-metadata` because of a bug relating to version 5.0.0. See #931 for more.
 importlib-metadata==4.13.0;python_version<'3.8'
 scikit-learn
-pygsti==0.9.10.1
 sphinx-copybutton
