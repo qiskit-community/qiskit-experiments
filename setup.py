@@ -64,7 +64,7 @@ setup(
     python_requires=">=3.7",
     project_urls={
         "Bug Tracker": "https://github.com/Qiskit/qiskit-experiments/issues",
-        "Documentation": "https://qiskit.org/documentation/",
+        "Documentation": "https://qiskit.org/ecosystem/experiments",
         "Source Code": "https://github.com/Qiskit/qiskit-experiments",
     },
     zip_safe=False,
