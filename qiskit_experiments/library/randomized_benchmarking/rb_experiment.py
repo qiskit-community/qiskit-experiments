@@ -297,9 +297,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
         return [random_clifford(self.num_qubits, rng).to_circuit() for _ in range(length)]
 
     def _to_instruction(
-        self,
-        elem: SequenceElementType,
-        basis_gates: Optional[Tuple[str, ...]] = None,
+        self, elem: SequenceElementType, basis_gates: Optional[Tuple[str, ...]] = None,
     ) -> Instruction:
         # Switching for speed up
         if isinstance(elem, Integral):

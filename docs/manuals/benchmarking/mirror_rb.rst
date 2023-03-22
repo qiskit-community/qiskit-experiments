@@ -88,7 +88,7 @@ user can specify an expected two-qubit gate density :math:`\xi \in \left[0,
 Even though a :class:`.MirrorRB` experiment can be instantiated without a backend, the
 backend must be specified when the circuits are sampled because :math:`\Omega` depends
 on the backend's connectivity. To use your own :math:`\Omega`, you have to implement
-your own subclass of the abstract :class:`.MirrorRBSampler` class, but here we will use
+your own subclass of the abstract :class:`.RBSampler` class, but here we will use
 the built-in :class:`.EdgeGrabSampler`. Here's how to instantiate and run the
 experiment:
 

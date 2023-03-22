@@ -46,7 +46,7 @@ Utilities
     :toctree: ../stubs/
 
     RBUtils
-    MirrorRBSampler
+    RBSampler
     EdgeGrabSampler
     SingleQubitSampler
 

@@ -225,14 +225,17 @@ class MirrorRB(StandardRB):
             raise QiskitError("A backend must be provided for circuit generation.")
 
         # Coupling map is full connectivity by default. If backend has a coupling map,
-        # get backend coupling map and create coupling map for physical qubits
+        # get backend coupling map and create coupling map for physical qubits converted
+        # to qubits 0, 1...n
         coupling_map = list(itertools.permutations(range(max(self.physical_qubits) + 1), 2))
         if self._backend_data.coupling_map:
             coupling_map = self._backend_data.coupling_map
+
+        qmap = {self.physical_qubits[i]: i for i in range(len(self.physical_qubits))}
         experiment_coupling_map = []
         for edge in coupling_map:
             if edge[0] in self.physical_qubits and edge[1] in self.physical_qubits:
-                experiment_coupling_map.append(edge)
+                experiment_coupling_map.append((qmap[edge[0]], qmap[edge[1]]))
 
         rng = default_rng(seed=self.experiment_options.seed)
 
@@ -254,7 +257,7 @@ class MirrorRB(StandardRB):
                 seq = []
                 layers = list(
                     self._distribution(
-                        self.num_qubits,
+                        range(self.num_qubits),
                         adjusted_2q_density,
                         experiment_coupling_map,
                         seqlen // 2,
@@ -274,7 +277,7 @@ class MirrorRB(StandardRB):
                 # Interleave random Paulis if set by user
                 if self.experiment_options.pauli_randomize:
                     sampler = SingleQubitSampler()
-                    pauli_layers = sampler(self.num_qubits, seqlen + 1, "pauli", rng)
+                    pauli_layers = sampler(range(self.num_qubits), seqlen + 1, "pauli", rng)
                     seq = list(itertools.chain(*zip(pauli_layers[:-1], seq)))
                     seq.append(pauli_layers[-1])
                     if not self.experiment_options.full_sampling:
@@ -284,7 +287,7 @@ class MirrorRB(StandardRB):
                 if self.experiment_options.local_clifford:
                     cseq = []
                     sampler = SingleQubitSampler()
-                    clifford_layers = sampler(self.num_qubits, 1, "clifford", rng)
+                    clifford_layers = sampler(range(self.num_qubits), 1, "clifford", rng)
                     cseq.append(clifford_layers[0])
                     cseq.extend(seq)
                     cseq.append(self._inverse_layer(clifford_layers[0]))
@@ -326,7 +329,6 @@ class MirrorRB(StandardRB):
                     circ.append(self._to_instruction(elem[1], basis_gates), elem[0])
                     circ_target.append(self._to_instruction(elem[1]), elem[0])
                 circ.append(Barrier(self.num_qubits), circ.qubits)
-                circ_target.append(Barrier(self.num_qubits), circ_target.qubits)
             circ.metadata = {
                 "xval": self.experiment_options.lengths[i % len(self.experiment_options.lengths)],
                 "group": "Clifford",

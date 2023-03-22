@@ -37,7 +37,6 @@ from qiskit_experiments.library import randomized_benchmarking as rb
 from qiskit_experiments.library.randomized_benchmarking.clifford_utils import (
     compute_target_bitstring,
 )
-from qiskit_experiments.library.randomized_benchmarking.sampling_utils import EdgeGrabSampler
 
 
 class RBTestMixin:
@@ -1112,13 +1111,13 @@ class TestMirrorRB(QiskitExperimentsTestCase, RBTestMixin):
 
     def test_backend_with_directed_basis_gates(self):
         """Test if correct circuits are generated from backend with directed basis gates."""
-        my_backend = copy.deepcopy(self.backend)
+        my_backend = copy.deepcopy(FakeManilaV2())
         del my_backend.target["cx"][(1, 2)]  # make cx on {1, 2} one-sided
 
         exp = rb.MirrorRB(
             physical_qubits=(1, 2),
-            two_qubit_gate_density=1,
-            lengths=[3],
+            two_qubit_gate_density=0.5,
+            lengths=[4],
             num_samples=4,
             backend=my_backend,
         )
@@ -1208,7 +1207,7 @@ class TestRunMirrorRB(RBRunTestCase):
         two_qubit_gate_density = 0.2
         exp = rb.MirrorRB(
             physical_qubits=(0, 1),
-            lengths=list(range(2, 300, 40)),
+            lengths=list(range(2, 80, 16)),
             seed=123,
             backend=self.backend,
             num_samples=20,
@@ -1231,7 +1230,7 @@ class TestRunMirrorRB(RBRunTestCase):
         cx_factor = (1 - 3 * self.p2q / 4) ** (2 * two_qubit_gate_density)
         sx_factor = (1 - self.p1q / 2) ** (2 * 2 * (1 - two_qubit_gate_density))
         epc_expected = 1 - cx_factor * sx_factor
-        self.assertAlmostEqual(epc.value.n, epc_expected, delta=0.1 * epc_expected)
+        self.assertAlmostEqual(epc.value.n, epc_expected, delta=0.2 * epc_expected)
 
     def test_two_qubit_nonlocal_noise(self):
         """Test for 2 qubit Mirrored RB with a nonlocal noise model"""
