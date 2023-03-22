@@ -6,18 +6,19 @@ that is more scalable than standard randomized benchmarking and is suitable for
 characterizing crosstalk errors over a large number of qubits in a quantum device. A
 randomized Clifford mirror circuit [1]_ consists of:
 
-- random layers of one- and two-qubit Cliffords and their inverses sampled 
-  according to some distribution :math:`\Omega` over a layer set 
-  :math:`\mathbb{L}`,
+- random n-qubit Clifford layers and their inverses sampled according to some
+  distribution :math:`\Omega` over a layer set :math:`\mathbb{L}`,
 
 - uniformly random one-qubit Paulis between these layers, and 
   
 - a layer of uniformly random one-qubit Cliffords at the beginning and the end 
   of the circuit.
 
-Note that the Clifford gates are only one- and two-qubit, unlike in standard RB, which
-requires the implementation of n-qubit Cliffords. Mirror RB can also be
-generalized to universal gatesets beyond the Cliffords [2]_.
+Note that the random n-qubit Clifford layers can be realized with only one-qubit
+Cliffords and a two-qubit gate such as CX, which twirl the local errors sufficiently to
+produce a useful metric of gate infidelity. This is in contrast to standard RB, which
+requires the implementation of n-qubit Cliffords that have much more overhead for large
+n. Mirror RB can also be generalized to universal gatesets beyond the Cliffords [2]_.
 
 Output metrics
 --------------
@@ -41,9 +42,9 @@ Specifically, we compute the **adjusted success probability**
 
     P_0 = \sum_{k=0}^n \left(-\frac{1}{2}\right)^k h_k, 
 
-where :math:`h_k` is the probability of the actual output bit string being 
-Hamming distance :math:`k` away from the expected output bit string (note 
-:math:`h_0 = P`). We also compute the **effective polarization** 
+where :math:`h_k` is the probability of the actual output bit string being Hamming
+distance :math:`k` away from the expected output bit string (note :math:`h_0 = P`). We
+also compute the **effective polarization**, which is fitted and visualized by default:
 
 .. math::
 
@@ -164,36 +165,6 @@ Mirror RB user options
 ~~~~~~~~~~~~~~~~~~~~~~
 
 There are several options that change the composition of the mirror RB circuit layers.
-One important option is ``two_qubit_gate_density`` (default ``0.2``). This is the
-expected fraction of two-qubit gates in the circuit, not accounting for the optional
-constant number of Clifford and Pauli layers at the start and end. This means that given
-the same ``two_qubit_gate_density``, if ``pauli_randomize`` is off, the concentration of
-CX gates in the Clifford layers will be halved so that the overall density doesn't
-change. We'll demonstrate this by first leaving ``pauli_randomize`` on:
-
-.. jupyter-execute::
-
-    exp = MirrorRB((0,1,2,3),
-                   lengths=[2],
-                   two_qubit_gate_density=0.25,
-                   seed=100,
-                   backend=backend,
-                   num_samples=1)
-    exp.circuits()[0].draw("mpl")
-
-And now we remove the Pauli layers to see that the CX density in the Clifford layers
-have halved:
-
-.. jupyter-execute::
-
-    exp = MirrorRB((0,1,2,3),
-                   lengths=[2],
-                   two_qubit_gate_density=0.25,
-                   pauli_randomize=False,
-                   seed=100,
-                   backend=backend,
-                   num_samples=1)
-    exp.circuits()[0].draw("mpl")
 
 There are three boolean options that 
 
@@ -235,6 +206,37 @@ And now with both options turned off:
                    pauli_randomize=False,
                    inverting_pauli_layer=True)
     exp.circuits()[0].decompose().draw("mpl")
+
+Another important option is ``two_qubit_gate_density`` (default ``0.2``). This is the
+expected fraction of two-qubit gates in the circuit, not accounting for the optional
+constant number of Clifford and Pauli layers at the start and end. This means that given
+the same ``two_qubit_gate_density``, if ``pauli_randomize`` is off, the concentration of
+CX gates in the Clifford layers will be halved so that the overall density doesn't
+change. We'll demonstrate this by first leaving ``pauli_randomize`` on:
+
+.. jupyter-execute::
+
+    exp = MirrorRB(range(8),
+                   lengths=[2],
+                   two_qubit_gate_density=0.5,
+                   seed=101,
+                   backend=backend,
+                   num_samples=1)
+    exp.circuits()[0].remove_final_measurements(inplace=False).draw("mpl")
+
+Note that And now we remove the Pauli layers to see that the CX density in the Clifford layers
+have halved:
+
+.. jupyter-execute::
+
+    exp = MirrorRB(range(8),
+                   lengths=[2],
+                   two_qubit_gate_density=0.5,
+                   pauli_randomize=False,
+                   seed=101,
+                   backend=backend,
+                   num_samples=1)
+    exp.circuits()[0].remove_final_measurements(inplace=False).draw("mpl")
 
 
 

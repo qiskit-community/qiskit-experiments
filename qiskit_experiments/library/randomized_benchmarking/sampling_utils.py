@@ -15,12 +15,11 @@ Utilities for sampling layers in randomized benchmarking experiments
 
 import warnings
 from abc import ABC, abstractmethod
-from typing import Optional, Union, Sequence, List, Tuple, TypeVar
+from typing import Optional, Union, List, Tuple, TypeVar
 
 from numpy.random import Generator, default_rng, BitGenerator, SeedSequence
 
 from qiskit import QuantumCircuit
-from qiskit.exceptions import QiskitError
 from qiskit.circuit import Instruction
 from qiskit.circuit.library import CXGate
 from qiskit.quantum_info.operators.base_operator import BaseOperator
@@ -49,12 +48,13 @@ class RBSampler(ABC):
             seed: Seed for random generation.
 
         """
-        pass
+        return None
 
 
 class SingleQubitSampler(RBSampler):
     """A sampler that samples layers of random single-qubit gates from a specified gate set."""
 
+    # pylint: disable=arguments-differ
     def __call__(
         self,
         qubits,
@@ -129,6 +129,7 @@ class EdgeGrabSampler(RBSampler):
 
     """
 
+    # pylint: disable=arguments-differ
     def __call__(
         self,
         qubits: int,
