@@ -61,7 +61,7 @@ class QubitSpectroscopy(Spectroscopy):
         if self.backend is None:
             raise QiskitError("backend not set. Cannot determine the center frequency.")
 
-        return self.backend.defaults().qubit_freq_est[self.physical_qubits[0]]
+        return self._backend_data.drive_freqs[self.physical_qubits[0]]
 
     def _template_circuit(self, freq_param) -> QuantumCircuit:
         """Return the template quantum circuit."""

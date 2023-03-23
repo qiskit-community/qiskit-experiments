@@ -67,9 +67,12 @@ class FakeOpenPulse2QV2(FakeBackendV2):
     def _conf_dict(self, value):
         pass
 
-    def defaults(self):
-        """Pulse defaults"""
-        return self._defaults
+    # This method is not defined in the base class as we would like to avoid
+    # relying on it as much as necessary. Individual tests should add it when
+    # necessary.
+    # def defaults(self):
+    #     """Pulse defaults"""
+    #     return self._defaults
 
 
 class MockRestlessBackend(FakeOpenPulse2QV2):

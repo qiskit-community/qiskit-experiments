@@ -21,9 +21,8 @@ from qiskit_aer import AerSimulator
 
 from qiskit_experiments.calibration_management.calibrations import Calibrations
 from qiskit_experiments.calibration_management.basis_gate_library import FixedFrequencyTransmon
-from qiskit_experiments.framework import BaseAnalysis, AnalysisStatus
+from qiskit_experiments.framework import AnalysisStatus, BackendData, BaseAnalysis
 from qiskit_experiments.library import RamseyXY, FrequencyCal
-from qiskit_experiments.test.fake_pulse_backends import FakeArmonkV2Pulse
 from qiskit_experiments.test.mock_iq_backend import MockIQBackend
 from qiskit_experiments.test.mock_iq_helpers import MockIQRamseyXYHelper as RamseyXYHelper
 
@@ -37,7 +36,7 @@ class TestRamseyXY(QiskitExperimentsTestCase):
         super().setUp()
 
         library = FixedFrequencyTransmon()
-        self.cals = Calibrations.from_backend(FakeArmonkV2Pulse(), libraries=[library])
+        self.cals = Calibrations.from_backend(FakeArmonkV2(), libraries=[library])
 
     @named_data(
         ["no_backend", None], ["fake_backend", FakeArmonkV2()], ["aer_backend", AerSimulator()]
@@ -82,7 +81,7 @@ class TestRamseyXY(QiskitExperimentsTestCase):
         # Check qubit frequency before running the cal
         f01 = self.cals.get_parameter_value(freq_name, 0)
         self.assertTrue(len(self.cals.parameters_table(parameters=[freq_name])["data"]), 1)
-        self.assertEqual(f01, FakeArmonkV2Pulse().defaults().qubit_freq_est[0])
+        self.assertEqual(f01, BackendData(FakeArmonkV2()).drive_freqs[0])
 
         freq_shift = 4e6
         osc_shift = 2e6
@@ -96,7 +95,7 @@ class TestRamseyXY(QiskitExperimentsTestCase):
         f01 = self.cals.get_parameter_value(freq_name, 0)
         self.assertTrue(len(self.cals.parameters_table(parameters=[freq_name])["data"]), 2)
         self.assertLess(
-            abs(f01 - (freq_shift + FakeArmonkV2Pulse().defaults().qubit_freq_est[0])), tol
+            abs(f01 - (freq_shift + BackendData(FakeArmonkV2()).drive_freqs[0])), tol
         )
 
     def test_update_with_failed_analysis(self):

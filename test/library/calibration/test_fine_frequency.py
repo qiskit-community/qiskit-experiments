@@ -17,6 +17,7 @@ import numpy as np
 from ddt import ddt, data
 
 from qiskit import pulse
+from qiskit.providers.fake_provider import FakeArmonkV2
 
 from qiskit_experiments.library import (
     FineFrequency,
@@ -25,7 +26,6 @@ from qiskit_experiments.library import (
 from qiskit_experiments.calibration_management.basis_gate_library import FixedFrequencyTransmon
 from qiskit_experiments.calibration_management import Calibrations
 from qiskit_experiments.framework import BackendData
-from qiskit_experiments.test.fake_pulse_backends import FakeArmonkV2Pulse
 from qiskit_experiments.test.mock_iq_backend import MockIQBackend
 from qiskit_experiments.test.mock_iq_helpers import MockIQFineFreqHelper as FineFreqHelper
 
@@ -47,7 +47,7 @@ class TestFineFreqEndToEnd(QiskitExperimentsTestCase):
         self.inst_map.add("sx", 0, sx_sched)
 
         self.cals = Calibrations.from_backend(
-            FakeArmonkV2Pulse(), libraries=[FixedFrequencyTransmon()]
+            FakeArmonkV2(), libraries=[FixedFrequencyTransmon()]
         )
 
     @data(-0.5e6, -0.1e6, 0.1e6, 0.5e6)
@@ -80,7 +80,7 @@ class TestFineFreqEndToEnd(QiskitExperimentsTestCase):
         exp_helper.dt = BackendData(backend).dt
 
         fine_freq = FineFrequencyCal([0], self.cals, backend)
-        armonk_freq = FakeArmonkV2Pulse().defaults().qubit_freq_est[0]
+        armonk_freq = BackendData(FakeArmonkV2()).drive_freqs[0]
 
         freq_before = self.cals.get_parameter_value(self.cals.__drive_freq_parameter__, 0)
 

@@ -14,12 +14,13 @@
 from test.base import QiskitExperimentsTestCase
 import numpy as np
 
+from qiskit.providers.fake_provider import FakeAthensV2
 from qiskit.qobj.utils import MeasLevel
 
+from qiskit_experiments.framework import BackendData
 from qiskit_experiments.library import QubitSpectroscopy
 from qiskit_experiments.calibration_management.calibrations import Calibrations
 from qiskit_experiments.calibration_management.update_library import Frequency
-from qiskit_experiments.test.fake_pulse_backends import FakeAthensV2Pulse
 from qiskit_experiments.test.mock_iq_backend import MockIQBackend
 from qiskit_experiments.test.mock_iq_helpers import MockIQSpectroscopyHelper as SpectroscopyHelper
 
@@ -40,7 +41,7 @@ class TestFrequencyUpdate(QiskitExperimentsTestCase):
             ),
         )
 
-        freq01 = backend.defaults().qubit_freq_est[qubit]
+        freq01 = BackendData(backend).drive_freqs[qubit]
         frequencies = np.linspace(freq01 - 10.0e6, freq01 + 10.0e6, 21)
 
         spec = QubitSpectroscopy([qubit], frequencies)
@@ -54,7 +55,7 @@ class TestFrequencyUpdate(QiskitExperimentsTestCase):
         self.assertEqual(result.quality, "good")
 
         # Test the integration with the Calibrations
-        cals = Calibrations.from_backend(FakeAthensV2Pulse())
+        cals = Calibrations.from_backend(FakeAthensV2())
         self.assertNotEqual(cals.get_parameter_value(cals.__drive_freq_parameter__, qubit), value)
         Frequency.update(cals, exp_data)
         self.assertEqual(cals.get_parameter_value(cals.__drive_freq_parameter__, qubit), value)
