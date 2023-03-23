@@ -1,7 +1,7 @@
 ---
 upgrade:
   - |
-    The :class:`CurveAnalysis` class has been updated to use the covariance between fit
+    The :class:`.CurveAnalysis` class has been updated to use the covariance between fit
     parameters in the error propagation. This will provide more accurate standard
     error for your fit values.
   - |

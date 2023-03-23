@@ -70,7 +70,7 @@ and can analytically extract the desired values.
     number_of_echoes = 1
     
     # Create a T2Hahn experiment. Print the first circuit as an example
-    exp1 = T2Hahn(physical_qubits=[qubit], delays=delays, num_echoes=number_of_echoes)
+    exp1 = T2Hahn(physical_qubits=(qubit,), delays=delays, num_echoes=number_of_echoes)
     print(exp1.circuits()[0])
 
 

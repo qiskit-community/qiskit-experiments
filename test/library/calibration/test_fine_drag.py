@@ -16,10 +16,9 @@ from test.base import QiskitExperimentsTestCase
 import copy
 import numpy as np
 
-from qiskit import transpile
+from qiskit import pulse, transpile
 from qiskit.circuit import Gate
 from qiskit.providers.fake_provider import FakeArmonkV2
-import qiskit.pulse as pulse
 
 from qiskit_experiments.library import FineDrag, FineXDrag, FineDragCal
 from qiskit_experiments.test.mock_iq_backend import MockIQBackend

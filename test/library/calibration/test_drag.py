@@ -17,10 +17,10 @@ import unittest
 from ddt import ddt, data, unpack
 import numpy as np
 
+from qiskit import pulse
 from qiskit.circuit import Parameter
 from qiskit.exceptions import QiskitError
 from qiskit.pulse import DriveChannel, Drag
-import qiskit.pulse as pulse
 from qiskit.qobj.utils import MeasLevel
 from qiskit import transpile
 
