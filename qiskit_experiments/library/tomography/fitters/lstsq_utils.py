@@ -93,8 +93,15 @@ def lstsq_data(
     # Reduced outcome functions
     # Set measurement indices to an array so we can use for array indexing later
     measurement_indices = None
-    f_meas_outcome = lambda x: x
-    f_cond_outcome = lambda x: 0
+
+    def identity(x):
+        return x
+
+    def zero(_):
+        return 0
+
+    f_meas_outcome = identity
+    f_cond_outcome = zero
     if num_meas_cond:
         f_cond_outcome = _partial_outcome_function(conditional_measurement_indices)
         if measurement_qubits:
@@ -104,7 +111,7 @@ def lstsq_data(
             f_meas_outcome = _partial_outcome_function(tuple(measurement_indices))
         else:
             measurement_indices = []
-            f_meas_outcome = lambda x: 0
+            f_meas_outcome = zero
 
     preparation_indices = None
     if num_prep_cond:

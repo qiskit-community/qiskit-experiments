@@ -16,8 +16,8 @@ from typing import Dict, Set
 import json
 
 from test.base import QiskitExperimentsTestCase
-import qiskit.pulse as pulse
 
+from qiskit import pulse
 from qiskit_experiments.calibration_management.basis_gate_library import FixedFrequencyTransmon
 from qiskit_experiments.calibration_management.calibration_key_types import DefaultCalValue
 from qiskit_experiments.exceptions import CalibrationError
@@ -36,7 +36,7 @@ class TestLibrary(FixedFrequencyTransmon):
         with pulse.build(name="x") as schedule:
             pulse.play(pulse.Drag(160, 0.1, 40, 0), pulse.DriveChannel(0))
 
-        schedules = dict()
+        schedules = {}
         if "x" in basis_gates:
             schedules["x"] = schedule
 

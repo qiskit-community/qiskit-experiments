@@ -15,10 +15,9 @@ from test.base import QiskitExperimentsTestCase
 import numpy as np
 from ddt import ddt, data
 
-from qiskit import transpile
+from qiskit import pulse, transpile
 from qiskit.circuit.library import XGate, SXGate
 from qiskit.pulse import DriveChannel, Drag
-import qiskit.pulse as pulse
 
 from qiskit_experiments.library import (
     FineXAmplitude,

@@ -22,7 +22,7 @@ from typing import Any, Dict, List, Optional, Set
 from warnings import warn
 
 from qiskit.circuit import Parameter
-import qiskit.pulse as pulse
+from qiskit import pulse
 from qiskit.pulse import ScheduleBlock
 
 from qiskit_experiments.calibration_management.calibration_key_types import DefaultCalValue
@@ -33,7 +33,7 @@ class BasisGateLibrary(ABC, Mapping):
     """A base class for libraries of basis gates to make it easier to setup Calibrations."""
 
     # Location where default parameter values are stored. These may be updated at construction.
-    __default_values__ = dict()
+    __default_values__ = {}
 
     def __init__(
         self,
@@ -151,7 +151,7 @@ class BasisGateLibrary(ABC, Mapping):
         return {
             "class": self.__class__.__name__,
             "kwargs": kwargs,
-            "hash": self.__hash__(),
+            "hash": hash(self),
         }
 
     @classmethod
@@ -259,7 +259,7 @@ class FixedFrequencyTransmon(BasisGateLibrary):
         sched_sx = self._single_qubit_schedule("sx", dur, sx_amp, sigma, sx_beta)
         sched_sy = self._single_qubit_schedule("sy", dur, sy_amp, sigma, sy_beta)
 
-        schedules = dict()
+        schedules = {}
         for sched in [sched_x, sched_y, sched_sx, sched_sy]:
             if sched.name in basis_gates:
                 schedules[sched.name] = sched
@@ -375,7 +375,7 @@ class EchoedCrossResonance(BasisGateLibrary):
     def _build_schedules(self, basis_gates: Set[str]) -> Dict[str, ScheduleBlock]:
         """Build the schedules of the CR library."""
 
-        schedules = dict()
+        schedules = {}
 
         tgt_amp = Parameter("tgt_amp")
         sigma = Parameter("σ")

@@ -209,7 +209,7 @@ class ExperimentData:
         self._experiment = experiment
 
         # data stored in the database
-        metadata = dict()
+        metadata = {}
         if experiment is not None:
             metadata = copy.deepcopy(experiment._metadata())
         source = metadata.pop(
@@ -803,7 +803,7 @@ class ExperimentData:
                 return jid, False
             if status == JobStatus.ERROR:
                 LOG.error(
-                    "Job data not added for errorred job [Job ID: %s]" "\nError message: %s",
+                    "Job data not added for errorred job [Job ID: %s]\nError message: %s",
                     jid,
                     job.error_message(),
                 )
@@ -2053,7 +2053,7 @@ class ExperimentData:
             return self._extra_data[name]
         except KeyError:
             # pylint: disable=raise-missing-from
-            raise AttributeError("Attribute %s is not defined" % name)
+            raise AttributeError(f"Attribute {name} is not defined")
 
     def _safe_serialize_jobs(self):
         """Return serializable object for stored jobs"""

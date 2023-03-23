@@ -61,7 +61,7 @@ def plot_curve_fit(
         ax = get_non_gui_ax()
 
     if fit_uncertainty is None:
-        fit_uncertainty = list()
+        fit_uncertainty = []
     elif isinstance(fit_uncertainty, tuple):
         fit_uncertainty = [fit_uncertainty]
 
