@@ -27,16 +27,17 @@ from qiskit_experiments.warnings import qubit_deprecate
 
 
 class T2Ramsey(BaseExperiment):
-    r"""T2 Ramsey Experiment.
+    r"""An experiment to measure the Ramsey frequency and the qubit dephasing time
+    sensitive to inhomogeneous broadening.
 
     # section: overview
 
         This experiment is used to estimate two properties for a single qubit:
-        T2* and Ramsey frequency.
-
-        See `Qiskit Textbook <https://qiskit.org/textbook/ch-quantum-hardware/\
-        calibrating-qubits-pulse.html>`_  for a more detailed explanation on
-        these properties.
+        :math:`T_2^*` and Ramsey frequency. :math:`T_2^*` is the dephasing time
+        or the transverse relaxation time of the qubit on the Bloch sphere as a result
+        of both energy relaxation and pure dephasing in the transverse plane. Unlike
+        :math:`T_2`, which is measured by :class:`.T2Hahn`, :math:`T_2^*` is sensitive
+        to inhomogenous broadening.
 
         This experiment consists of a series of circuits of the form
 
@@ -53,11 +54,14 @@ class T2Ramsey(BaseExperiment):
         and the delays are specified by the user.
         The circuits are run on the device or on a simulator backend.
 
-    # section: tutorial
-        :doc:`/tutorials/t2ramsey_characterization`
+    # section: manual
+        :doc:`/manuals/characterization/t2ramsey`
 
     # section: analysis_ref
-        :py:class:`T2RamseyAnalysis`
+        :class:`T2RamseyAnalysis`
+
+    # section: reference
+        .. ref_arxiv:: 1 1904.06560
     """
 
     @classmethod

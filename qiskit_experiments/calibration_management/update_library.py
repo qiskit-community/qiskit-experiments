@@ -35,14 +35,14 @@ class BaseUpdater(ABC):
         """Updaters are not meant to be instantiated.
 
         Instead of instantiating updaters use them by calling the :meth:`update` class method.
-        For example, the :class:`Frequency` updater is called in the following way
+        For example, the :class:`.Frequency` updater is called in the following way
 
          .. code-block:: python
 
             Frequency.update(calibrations, spectroscopy_data)
 
-        Here, calibrations is an instance of :class:`Calibrations` and spectroscopy_data
-        is the result of a :class:`QubitSpectroscopy` experiment.
+        Here, calibrations is an instance of :class:`.Calibrations` and spectroscopy_data
+        is the result of a :class:`.QubitSpectroscopy` experiment.
         """
         raise CalibrationError(
             "Calibration updaters are not meant to be instantiated. The intended usage"

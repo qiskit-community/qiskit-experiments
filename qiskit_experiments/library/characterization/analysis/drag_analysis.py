@@ -12,6 +12,7 @@
 
 """DRAG pulse calibration experiment."""
 
+import warnings
 from typing import List, Union
 
 import lmfit
@@ -19,6 +20,7 @@ import numpy as np
 
 import qiskit_experiments.curve_analysis as curve
 from qiskit_experiments.framework import ExperimentData
+from qiskit_experiments.exceptions import AnalysisError
 
 
 class DragCalAnalysis(curve.CurveAnalysis):
@@ -78,11 +80,7 @@ class DragCalAnalysis(curve.CurveAnalysis):
 
     @classmethod
     def _default_options(cls):
-        """Return the default analysis options.
-
-        See :meth:`~qiskit_experiment.curve_analysis.CurveAnalysis._default_options` for
-        descriptions of analysis options.
-        """
+        """Return the default analysis options."""
         default_options = super()._default_options()
         default_options.plotter.set_figure_options(
             xlabel="Beta",
@@ -90,9 +88,18 @@ class DragCalAnalysis(curve.CurveAnalysis):
         )
         default_options.result_parameters = ["beta"]
         default_options.normalization = True
-        default_options.reps = [1, 3, 5]
 
         return default_options
+
+    def set_options(self, **fields):
+        if "reps" in fields:
+            warnings.warn(
+                "Analysis option 'reps' has been dropped and analysis is bootstrapped by "
+                "circuit metadata. Setting this option no longer impacts analysis result.",
+                DeprecationWarning,
+            )
+            del fields["reps"]
+        super().set_options(**fields)
 
     def _generate_fit_guesses(
         self,
@@ -222,18 +229,30 @@ class DragCalAnalysis(curve.CurveAnalysis):
         self,
         experiment_data: ExperimentData,
     ):
+        reps = set(d.get("metadata", None).get("nrep", None) for d in experiment_data.data())
+        if None in reps:
+            reps.remove(None)
+        if not reps:
+            raise AnalysisError(
+                f"{self.__class__.__name__} expects 'nrep' value in circuit metadata. "
+                "Please setup your experiment circuits with proper metadata."
+            )
+        reps = sorted(reps)
+
         # Model is initialized at runtime because
         # the experiment option "reps" can be changed before experiment run.
+        models = []
         data_subfit_map = {}
-        for nrep in sorted(self.options.reps):
+        for nrep in sorted(reps):
             name = f"nrep={nrep}"
-            self._models.append(
+            models.append(
                 lmfit.models.ExpressionModel(
                     expr=f"amp * cos(2 * pi * {nrep} * freq * (x - beta)) + base",
                     name=name,
                 )
             )
             data_subfit_map[name] = {"nrep": nrep}
+        self._models = models
         self._options.data_subfit_map = data_subfit_map
 
         super()._initialize(experiment_data)

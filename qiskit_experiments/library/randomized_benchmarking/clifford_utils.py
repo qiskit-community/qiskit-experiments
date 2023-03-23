@@ -124,7 +124,7 @@ def _synthesize_clifford_circuit(
 ) -> QuantumCircuit:
     # synthesizes clifford circuits using given basis gates, for use during
     # custom transpilation during RB circuit generation.
-    return transpile(circuit, basis_gates=list(basis_gates), optimization_level=0)
+    return transpile(circuit, basis_gates=list(basis_gates), optimization_level=1)
 
 
 @lru_cache(maxsize=None)
@@ -375,8 +375,8 @@ def _num_from_1q_gate(op: Instruction) -> int:
         An integer representing a Clifford consisting of a single operation.
 
     Raises:
-        QiskitError: if the input instruction is not a Clifford instruction.
-        QiskitError: if rz is given with a angle that is not Clifford.
+        QiskitError: If the input instruction is not a Clifford instruction.
+        QiskitError: If rz is given with a angle that is not Clifford.
     """
     if op.name in {"delay", "barrier"}:
         return 0
@@ -402,7 +402,7 @@ def _deparameterized_name(inst: Instruction) -> str:
         elif np.isclose(inst.params[0], -np.pi / 2):
             return "sdg"
         else:
-            raise QiskitError("Wrong param {} for rz in clifford".format(inst.params[0]))
+            raise QiskitError(f"Wrong param {inst.params[0]} for rz in clifford")
 
     return inst.name
 
@@ -454,8 +454,8 @@ def _num_from_2q_gate(
         An integer representing a Clifford consisting of a single operation.
 
     Raises:
-        QiskitError: if the input instruction is not a Clifford instruction.
-        QiskitError: if rz is given with a angle that is not Clifford.
+        QiskitError: If the input instruction is not a Clifford instruction.
+        QiskitError: If rz is given with a angle that is not Clifford.
     """
     if op.name in {"delay", "barrier"}:
         return 0

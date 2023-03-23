@@ -51,7 +51,7 @@ class BaseExperiment(ABC, StoreInitArgs):
             experiment_type: Optional, the experiment type string.
 
         Raises:
-            QiskitError: if qubits contains duplicates.
+            QiskitError: If qubits contains duplicates.
         """
         # Experiment identification metadata
         self._type = experiment_type if experiment_type else type(self).__name__
@@ -212,7 +212,7 @@ class BaseExperiment(ABC, StoreInitArgs):
             The experiment data object.
 
         Raises:
-            QiskitError: if experiment is run with an incompatible existing
+            QiskitError: If experiment is run with an incompatible existing
                          ExperimentData container.
         """
 
@@ -298,12 +298,12 @@ class BaseExperiment(ABC, StoreInitArgs):
         """Return a list of experiment circuits.
 
         Returns:
-            A list of :class:`QuantumCircuit`.
+            A list of :class:`~qiskit.circuit.QuantumCircuit`.
 
         .. note::
             These circuits should be on qubits ``[0, .., N-1]`` for an
             *N*-qubit experiment. The circuits mapped to physical qubits
-            are obtained via the :meth:`transpiled_circuits` method.
+            are obtained via the internal :meth:`_transpiled_circuits` method.
         """
         # NOTE: Subclasses should override this method using the `options`
         # values for any explicit experiment options that affect circuit
@@ -377,7 +377,7 @@ class BaseExperiment(ABC, StoreInitArgs):
             fields: The fields to update the options
 
         Raises:
-            QiskitError: if `initial_layout` is one of the fields.
+            QiskitError: If `initial_layout` is one of the fields.
         """
         if "initial_layout" in fields:
             raise QiskitError(

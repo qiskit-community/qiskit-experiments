@@ -30,9 +30,9 @@ calibration module in Qiskit experiments allows users to run calibration
 experiments and manage the resulting schedules and parameter values.
 
 The following experiments are designed to calibrate parameter values. Some experiments such
-as :class:`QubitSpectroscopy` can both be seen as characterization and calibrations
+as :class:`.QubitSpectroscopy` can both be seen as characterization and calibrations
 experiments. Such experiments can be found in the
-:mod:`qiskit_experiments.library.characterization`
+:mod:`~qiskit_experiments.library.characterization`
 module.
 
 .. autosummary::
@@ -49,6 +49,7 @@ module.
     FineAmplitudeCal
     FineXAmplitudeCal
     FineSXAmplitudeCal
+    HalfAngleCal
     RoughAmplitudeCal
     RoughXSXAmplitudeCal
     EFRoughXSXAmplitudeCal
@@ -56,7 +57,7 @@ module.
 Calibrations management
 =======================
 
-See :mod:`qiskit_experiments.calibration_management`.
+See :mod:`.calibration_management`.
 """
 
 from .rough_frequency import RoughFrequencyCal
@@ -66,3 +67,4 @@ from .fine_amplitude import FineAmplitudeCal, FineXAmplitudeCal, FineSXAmplitude
 from .fine_drag_cal import FineDragCal, FineXDragCal, FineSXDragCal
 from .frequency_cal import FrequencyCal
 from .fine_frequency_cal import FineFrequencyCal
+from .half_angle_cal import HalfAngleCal

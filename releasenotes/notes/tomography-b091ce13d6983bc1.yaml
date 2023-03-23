@@ -22,12 +22,12 @@ features:
   - |
     Added an optional ``mitigator`` kwarg to :class:`.PauliMeasurementBasis`
     which can be used to initialize the basis with a
-    :class:`.LocalReadoutMitigator` to construct a readout error mitigated
+    :class:`~qiskit.result.LocalReadoutMitigator` to construct a readout error mitigated
     basis for use with :class:`.StateTomography` and
     :class:`.ProcessTomography` experiments.
   
     The :class:`.LocalReadoutError` experiment can be run to obtain the 
-    :class:`.LocalReadoutMitigator` from its analysis results.
+    :class:`~qiskit.result.LocalReadoutMitigator` from its analysis results.
   - |
     Added readout error mitigated tomography experiments
     :class:`.MitigatedStateTomography` and :class:`.MitigatedProcessTomography`.
@@ -58,13 +58,23 @@ features:
     to condition on the preparation basis index of a specific subset of
     tomographic basis preprations. The conditioning basis index is stored
     in the analysis results ``extra`` field.
+  - |
+    Adds an option to :class:`~.StateTomographyAnalysis` and
+    :class:`~.ProcessTomographyAnalysis` to bootstrap error bars on state
+    and process fidelity analysis results. This can be activated by setting
+    the ``target_bootstrap_samples`` analysis option to a value.
+
+    Note that bootstrapping involves re-running the full tomography fit on
+    re-samples of tomography outcome data for each measurement basis and
+    hence the total analysis time will increase linearly with the number
+    of bootstrap samples.
 fixes:
   - |
     Fixed bug in :class:`~.StateTomography` and :class:`~.ProcessTomography`
     experiments where if the input circuit contained conditional instructions
     with multiple classical registers the tomography measurement circuits
     would contain incorrect conditionals due to a bug in the
-    :meth:`.QuantumCircuit.compose` method.
+    :meth:`qiskit.circuit.QuantumCircuit.compose` method.
 
     See `Issue #942 <https://github.com/Qiskit/qiskit-experiments/issues/943>`_
     for additional details.
@@ -72,7 +82,7 @@ upgrade:
   - |
     Renamed the ``qubits``, ``measurement_qubits``, and ``preparation_qubits``
     init kwargs of :class:`~.StateTomography`,
-    :class:`~.ProcessTomography`, and :class:`~.TomographyExperiment` to
+    :class:`~.ProcessTomography`, and :class:`.TomographyExperiment` to
     ``physical_qubits``, ``measurement_indices`` and ``preparation_indices``
     respectively. This is to make the intended use of these kwargs more clear
     as the measurement and preparation args refer to the index of circuit

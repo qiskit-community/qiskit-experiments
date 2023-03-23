@@ -21,7 +21,7 @@ uphold this code.
 
 We use [GitHub issues](https://github.com/Qiskit/qiskit-experiments/issues) for
 tracking requests and bugs. Please
-[join the Qiskit Slack community](https://ibm.co/joinqiskitslack)
+[join the Qiskit Slack community](https://qisk.it/join-slack)
 and use the [#experiments](https://qiskit.slack.com/archives/CGZDF48EN) channel for discussion and
 simple questions.
 For questions that are more suited for a forum we use the Qiskit tag in 

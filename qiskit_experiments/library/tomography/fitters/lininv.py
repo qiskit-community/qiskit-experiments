@@ -38,6 +38,7 @@ def linear_inversion(
     preparation_qubits: Optional[Tuple[int, ...]] = None,
     conditional_measurement_indices: Optional[np.ndarray] = None,
     conditional_preparation_indices: Optional[np.ndarray] = None,
+    atol: float = 1e-8,
 ) -> Tuple[np.ndarray, Dict]:
     r"""Linear inversion tomography fitter.
 
@@ -106,6 +107,7 @@ def linear_inversion(
         conditional_preparation_indices: Optional, conditional preparation data
             indices. If set this will return a list of fitted states conditioned
             on a fixed basis preparation of these qubits.
+        atol: truncate any probabilities below this value to zero.
 
     Raises:
         AnalysisError: If the fitted vector is not a square matrix
@@ -179,8 +181,12 @@ def linear_inversion(
         f_meas_qubits = measurement_qubits
         f_meas_indices = slice(None)
         f_cond_meas_indices = slice(0, 0)
-        f_meas_outcome = lambda x: x
-        f_cond_meas_outcome = lambda x: 0
+
+        def f_meas_outcome(x):
+            return x
+
+        def f_cond_meas_outcome(_):
+            return 0
 
     # Construct dual bases
     meas_dual_basis = None
@@ -242,10 +248,10 @@ def linear_inversion(
 
             # Get probabilities and optional measurement basis component
             for outcome, freq in enumerate(outcomes):
-                if freq == 0:
+                prob = freq / shots
+                if np.isclose(prob, 0, atol=atol):
                     # Skip component with zero probability
                     continue
-                prob = freq / shots
 
                 # Get component on non-conditional bits
                 outcome_meas = f_meas_outcome(outcome)

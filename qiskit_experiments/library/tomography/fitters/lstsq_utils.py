@@ -16,7 +16,7 @@ Common utility functions for tomography fitters.
 from typing import Optional, Tuple, Callable, Sequence, Union
 import functools
 import numpy as np
-from qiskit.utils import deprecate_function
+from qiskit.utils import deprecate_arguments
 from qiskit_experiments.exceptions import AnalysisError
 from qiskit_experiments.library.tomography.basis import (
     MeasurementBasis,
@@ -93,8 +93,15 @@ def lstsq_data(
     # Reduced outcome functions
     # Set measurement indices to an array so we can use for array indexing later
     measurement_indices = None
-    f_meas_outcome = lambda x: x
-    f_cond_outcome = lambda x: 0
+
+    def identity(x):
+        return x
+
+    def zero(_):
+        return 0
+
+    f_meas_outcome = identity
+    f_cond_outcome = zero
     if num_meas_cond:
         f_cond_outcome = _partial_outcome_function(conditional_measurement_indices)
         if measurement_qubits:
@@ -104,7 +111,7 @@ def lstsq_data(
             f_meas_outcome = _partial_outcome_function(tuple(measurement_indices))
         else:
             measurement_indices = []
-            f_meas_outcome = lambda x: 0
+            f_meas_outcome = zero
 
     preparation_indices = None
     if num_prep_cond:
@@ -182,6 +189,55 @@ def lstsq_data(
     return basis_mat, probs, prob_weights
 
 
+@deprecate_arguments({"beta": "outcome_prior"})
+def binomial_weights(
+    outcome_data: np.ndarray,
+    shot_data: Optional[Union[np.ndarray, int]] = None,
+    outcome_prior: Union[np.ndarray, int] = 0.5,
+    max_weight: float = 1e10,
+) -> np.ndarray:
+    r"""Compute weights from tomography data variance.
+
+    This is computed via a Bayesian update of a Dirichlet distribution
+    with observed outcome data frequences :math:`f_i(s)`, and Dirichlet
+    prior :math:`\alpha_i(s)` for tomography basis index `i` and
+    measurement outcome `s`.
+
+    The mean posterior probabilities are computed as
+
+    .. math:
+        p_i(s) &= \frac{f_i(s) + \alpha_i(s)}{\bar{\alpha}_i + N_i} \\
+        Var[p_i(s)] &= \frac{p_i(s)(1-p_i(s))}{\bar{\alpha}_i + N_i + 1}
+
+    where :math:`N_i = \sum_s f_i(s)` is the total number of shots, and
+    :math:`\bar{\alpha}_i = \sum_s \alpha_i(s)` is the norm of the prior
+    vector for basis index `i`.
+
+    Args:
+        outcome_data: measurement outcome frequency data.
+        shot_data: Optional, basis measurement total shot data. If not
+            provided this will be inferred from the sum of outcome data
+            for each basis index.
+        outcome_prior: measurement outcome Dirichlet distribution prior.
+        max_weight: Set the maximum value allowed for weights vector computed from
+            tomography data variance.
+
+    Returns:
+        The array of weights computed from the tomography data.
+    """
+    # Compute variance
+    _, variance = dirichlet_mean_and_var(
+        outcome_data,
+        shot_data=shot_data,
+        outcome_prior=outcome_prior,
+    )
+    # Use max weights to determin a min variance value and clip variance
+    min_variance = 1 / (max_weight**2)
+    variance = np.clip(variance, min_variance, None)
+    weights = 1.0 / np.sqrt(variance)
+    return weights
+
+
 def dirichlet_mean_and_var(
     outcome_data: np.ndarray,
     shot_data: Optional[Union[np.ndarray, int]] = None,
@@ -235,55 +291,6 @@ def dirichlet_mean_and_var(
     variance = mean_probs * (1 - mean_probs) / (posterior_total + 1)
 
     return mean_probs, variance
-
-
-# pylint: disable = bad-docstring-quotes
-@deprecate_function(
-    "The binomial_weights function is deprecated and will "
-    "be removed in the 0.6 release. Use the `dirichlet_mean_and_var` "
-    "function instead."
-)
-def binomial_weights(
-    outcome_data: np.ndarray,
-    shot_data: np.ndarray,
-    beta: float = 0,
-) -> np.ndarray:
-    r"""Compute weights vector from the binomial distribution.
-    The returned weights are given by :math:`w_i = 1 / \sigma_i` where
-    the standard deviation :math:`\sigma_i` is estimated as
-    :math:`\sigma_i = \sqrt{p_i(1-p_i) / n_i}`. To avoid dividing
-    by zero the probabilities are hedged using the *add-beta* rule
-    .. math:
-        p_i = \frac{f_i + \beta}{n_i + K \beta}
-    where :math:`f_i` is the observed frequency, :math:`n_i` is the
-    number of shots, and :math:`K` is the number of possible measurement
-    outcomes.
-    Args:
-        outcome_data: measurement outcome frequency data.
-        shot_data: basis measurement total shot data.
-        beta: Hedging parameter for converting frequencies to
-              probabilities. If 0 hedging is disabled.
-    Returns:
-        The weight vector.
-    """
-    size = outcome_data.size
-    num_data, num_outcomes = outcome_data.shape
-
-    # Compute hedged probabilities where the "add-beta" rule ensures
-    # there are no zero or 1 values so we don't have any zero variance
-    probs = np.zeros(size, dtype=float)
-    prob_shots = np.zeros(size, dtype=int)
-    idx = 0
-    for i in range(num_data):
-        shots = shot_data[i]
-        denom = shots + num_outcomes * beta
-        freqs = outcome_data[i]
-        for outcome in range(num_outcomes):
-            probs[idx] = (freqs[outcome] + beta) / denom
-            prob_shots[idx] = shots
-            idx += 1
-    variance = probs * (1 - probs)
-    return np.sqrt(prob_shots / variance)
 
 
 @functools.lru_cache(None)

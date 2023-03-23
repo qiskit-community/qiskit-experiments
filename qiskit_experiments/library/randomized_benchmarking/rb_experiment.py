@@ -54,28 +54,33 @@ SequenceElementType = Union[Clifford, Integral, QuantumCircuit]
 
 
 class StandardRB(BaseExperiment, RestlessMixin):
-    """Standard randomized benchmarking experiment.
+    """An experiment to characterize the error rate of a gate set on a device.
 
     # section: overview
-        Randomized Benchmarking (RB) is an efficient and robust method
-        for estimating the average error-rate of a set of quantum gate operations.
-        See `Qiskit Textbook
-        <https://qiskit.org/textbook/ch-quantum-hardware/randomized-benchmarking.html>`_
-        for an explanation on the RB method.
 
-        A standard RB experiment generates sequences of random Cliffords
-        such that the unitary computed by the sequences is the identity.
-        After running the sequences on a backend, it calculates the probabilities to get back to
-        the ground state, fits an exponentially decaying curve, and estimates
-        the Error Per Clifford (EPC), as described in Refs. [1, 2].
+    Randomized Benchmarking (RB) is an efficient and robust method
+    for estimating the average error rate of a set of quantum gate operations.
+    See `Qiskit Textbook
+    <https://qiskit.org/textbook/ch-quantum-hardware/randomized-benchmarking.html>`_
+    for an explanation on the RB method.
+
+    A standard RB experiment generates sequences of random Cliffords
+    such that the unitary computed by the sequences is the identity.
+    After running the sequences on a backend, it calculates the probabilities to get back to
+    the ground state, fits an exponentially decaying curve, and estimates
+    the Error Per Clifford (EPC), as described in Refs. [1, 2].
+
+    .. note::
+        In 0.5.0, the default value of ``optimization_level`` in ``transpile_options`` changed
+        from ``0`` to ``1`` for RB experiments. That may result in shorter RB circuits
+        hence slower decay curves than before.
 
     # section: analysis_ref
-        :py:class:`RBAnalysis`
+        :class:`RBAnalysis`
 
     # section: reference
         .. ref_arxiv:: 1 1009.3639
         .. ref_arxiv:: 2 1109.6887
-
     """
 
     @deprecate_arguments({"qubits": "physical_qubits"}, "0.5")
@@ -91,7 +96,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
         """Initialize a standard randomized benchmarking experiment.
 
         Args:
-            physical_qubits: list of physical qubits for the experiment.
+            physical_qubits: List of physical qubits for the experiment.
             lengths: A list of RB sequences lengths.
             backend: The backend to run the experiment on.
             num_samples: Number of samples to generate for each sequence length.
@@ -104,7 +109,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
                            The default is False.
 
         Raises:
-            QiskitError: if any invalid argument is supplied.
+            QiskitError: If any invalid argument is supplied.
         """
         # Initialize base experiment
         super().__init__(physical_qubits, analysis=RBAnalysis(), backend=backend)
@@ -148,6 +153,11 @@ class StandardRB(BaseExperiment, RestlessMixin):
         )
 
         return options
+
+    @classmethod
+    def _default_transpile_options(cls) -> Options:
+        """Default transpiler options for transpiling RB circuits."""
+        return Options(optimization_level=1)
 
     def _set_backend(self, backend: Backend):
         """Set the backend V2 for RB experiments since RB experiments only support BackendV2
@@ -339,7 +349,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
         """Return a list of experiment circuits, transpiled."""
         has_custom_transpile_option = (
             not set(vars(self.transpile_options)).issubset({"basis_gates", "optimization_level"})
-            or self.transpile_options.get("optimization_level", 0) != 0
+            or self.transpile_options.get("optimization_level", 1) != 1
         )
         has_no_undirected_2q_basis = self._get_basis_gates() is None
         if self.num_qubits > 2 or has_custom_transpile_option or has_no_undirected_2q_basis:

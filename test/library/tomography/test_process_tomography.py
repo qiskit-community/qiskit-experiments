@@ -18,6 +18,7 @@ from test.base import QiskitExperimentsTestCase
 
 import ddt
 import numpy as np
+from uncertainties import UFloat
 
 import qiskit.quantum_info as qi
 from qiskit import QuantumCircuit, qpy
@@ -493,7 +494,7 @@ class TestProcessTomography(QiskitExperimentsTestCase):
                 fitdata = exp.analysis.run(expdata)
                 self.assertExperimentDone(fitdata)
                 # Should be 2 results, mitigated and unmitigated
-                states = expdata.analysis_results("state")
+                states = fitdata.analysis_results("state")
                 self.assertEqual(len(states), 2)
 
                 # Check state is density matrix
@@ -510,8 +511,9 @@ class TestProcessTomography(QiskitExperimentsTestCase):
                 # Check mitigation improves fidelity
                 self.assertTrue(
                     mitfid.value >= nomitfid.value,
-                    msg="mitigated {} did not improve fidelity for qubits {} ({:.4f} < {:.4f})".format(
-                        fitter, qubits, mitfid.value, nomitfid.value
+                    msg=(
+                        f"mitigated {fitter} did not improve fidelity for qubits {qubits} "
+                        f"({mitfid.value:.4f} < {nomitfid.value:.4f})"
                     ),
                 )
                 self.assertGreater(
@@ -768,3 +770,32 @@ class TestProcessTomography(QiskitExperimentsTestCase):
                             msg=f"fitter {fitter} fidelity {fid} is low for conditional"
                             f" preparation {idx}",
                         )
+
+    def test_bootstrap_qpt(self):
+        """Test QPT experiment with bootstrapped error bars"""
+        seed = 1234
+        shots = 100
+        bootstrap_samples = 10
+
+        # Generate tomography data without analysis
+        backend = AerSimulator(seed_simulator=seed, shots=shots)
+        target = XGate()
+        exp = ProcessTomography(target)
+        exp.analysis.set_options(target_bootstrap_samples=bootstrap_samples)
+        expdata = exp.run(backend, analysis=None)
+        self.assertExperimentDone(expdata)
+
+        # Run each tomography fitter analysis as a subtest so
+        # we don't have to re-run simulation data for each fitter
+        for fitter in FITTERS:
+            with self.subTest(fitter=fitter):
+                if fitter:
+                    exp.analysis.set_options(fitter=fitter)
+                fitdata = exp.analysis.run(expdata)
+                self.assertExperimentDone(fitdata)
+                results = fitdata.analysis_results()
+
+                # Check fit state fidelity
+                fid = filter_results(results, "process_fidelity").value
+                self.assertTrue(isinstance(fid, UFloat))
+                self.assertGreater(fid.s, 0)

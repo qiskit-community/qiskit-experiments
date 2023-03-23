@@ -325,7 +325,7 @@ class PulseBackend(BackendV2):
             Time-evolution unitary operator
         """
         if len(qubits) > 1:
-            QiskitError("Multi qubit gates are not yet implemented.")
+            raise QiskitError("Multi qubit gates are not yet implemented.")
 
         if isinstance(schedule, ScheduleBlock):
             schedule = block_to_schedule(schedule)

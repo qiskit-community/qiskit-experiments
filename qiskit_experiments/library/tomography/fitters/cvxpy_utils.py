@@ -103,9 +103,7 @@ def solve_iteratively(problem: Problem, initial_iters: int, scale: int = 2, **so
                     "value for 'max_iters' solver option."
                 )
         else:
-            raise AnalysisError(
-                "CVXPY solver failed with problem status '{}'.".format(problem.status)
-            )
+            raise AnalysisError(f"CVXPY solver failed with problem status '{problem.status}'.")
 
 
 def complex_matrix_variable(
@@ -184,7 +182,7 @@ def trace_constraint(
         A list of constraints on the real and imaginary parts.
 
     Raises:
-        TypeError: if input variables are not valid.
+        TypeError: If input variables are not valid.
     """
     if isinstance(mat_r, (list, tuple)):
         arg_r = cvxpy.sum(mat_r)
@@ -225,7 +223,7 @@ def partial_trace_constaint(
         A list of constraints on the real and imaginary parts.
 
     Raises:
-        TypeError: if input variables are not valid.
+        TypeError: If input variables are not valid.
     """
     sdim = mat_r.shape[0]
     output_dim = constraint.shape[0]
@@ -258,7 +256,7 @@ def trace_preserving_constaint(
         A list of constraints on the real and imaginary parts.
 
     Raises:
-        TypeError: if input variables are not valid.
+        TypeError: If input variables are not valid.
     """
     if isinstance(mat_r, (tuple, list)):
         sdim = mat_r[0].shape[0]

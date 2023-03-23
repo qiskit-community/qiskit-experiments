@@ -42,7 +42,8 @@ class MockRestlessBackend(FakeOpenPulse2Q):
         self._precomputed_probabilities = None
         super().__init__()
 
-    def _default_options(self):
+    @classmethod
+    def _default_options(cls):
         """Default options of the test backend."""
         return Options(
             shots=1024,
@@ -192,7 +193,8 @@ class MockIQBackend(FakeOpenPulse2Q):
 
         super().__init__()
 
-    def _default_options(self):
+    @classmethod
+    def _default_options(cls):
         """Default options of the test backend."""
         return Options(
             shots=1024,
@@ -244,7 +246,7 @@ class MockIQBackend(FakeOpenPulse2Q):
         """
         Produce a list in the size of num_qubits. Each entry value is produced from normal distribution
         with expected value of '0' and standard deviation of 1. The intention is that these samples are
-        scaled by :py:func:`_scale_samples_for_widths` for various circuits, experiments, and their IQ
+        scaled by :func:`_scale_samples_for_widths` for various circuits, experiments, and their IQ
         widths; removing the need to query a RNG for each new width list.
 
         Example:
