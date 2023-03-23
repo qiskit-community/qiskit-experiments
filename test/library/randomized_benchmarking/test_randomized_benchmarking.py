@@ -834,13 +834,6 @@ class TestRunInterleavedRB(RBRunTestCase):
         self.assertRoundTripPickle(expdata, check_func=self.experiment_data_equiv)
 
 
-def decr_dep_param(q, q_1, q_2, coupling_map):
-    """Helper function to generate a one-qubit depolarizing channel whose
-    parameter depends on coupling map distance in a backend"""
-    d = min(coupling_map.distance(q, q_1), coupling_map.distance(q, q_2))
-    return 0.0035 * 0.999**d
-
-
 class NonlocalCXDepError(TransformationPass):
     """Transpiler pass for simulating nonlocal errors in a quantum device"""
 
@@ -853,6 +846,12 @@ class NonlocalCXDepError(TransformationPass):
         super().__init__()
         self.coupling_map = coupling_map
         self.initial_layout = initial_layout
+
+    def decr_dep_param(self, q, q_1, q_2, coupling_map):
+        """Helper function to generate a one-qubit depolarizing channel whose
+        parameter depends on coupling map distance in a backend"""
+        d = min(coupling_map.distance(q, q_1), coupling_map.distance(q, q_2))
+        return 0.0035 * 0.999**d
 
     def run(self, dag):
         """Runs the NonlocalCXDepError pass on `dag`
@@ -895,7 +894,7 @@ class NonlocalCXDepError(TransformationPass):
                     qubit_1 = current_layout[cx.qargs[0]]
                     qubit_2 = current_layout[cx.qargs[1]]
                     for qubit in range(dag.num_qubits()):
-                        dep_param = decr_dep_param(qubit, qubit_1, qubit_2, self.coupling_map)
+                        dep_param = self.decr_dep_param(qubit, qubit_1, qubit_2, self.coupling_map)
                         graph.apply_operation_back(
                             depolarizing_error(dep_param, 1).to_instruction(),
                             qargs=[canonical_register[qubit]],
@@ -1278,15 +1277,14 @@ class TestRunMirrorRB(RBRunTestCase):
         noise_model.add_all_qubit_quantum_error(cx_error, "cx")
 
         basis_gates = ["id", "sx", "rz", "cx"]
-        # Need level1 for consecutive gate cancellation for reference EPC value calculation
+
         transpiler_options = {
             "basis_gates": basis_gates,
         }
-        # Coupling map is 3 x 3 lattice
         noise_backend = NoiseSimulator(
             noise_model=noise_model,
             seed_simulator=123,
-            coupling_map=CouplingMap.from_grid(3, 3).get_edges(),
+            coupling_map=CouplingMap.from_grid(2, 1).get_edges(),
         )
 
         two_qubit_gate_density = 0.2
@@ -1315,7 +1313,6 @@ class TestRunMirrorRB(RBRunTestCase):
         sx_factor = (1 - p1q / 2) ** (2 * num_q * (1 - two_qubit_gate_density))
         cx_nonlocal_factor = (1 - 0.0035 / 2) ** (num_q * num_q * two_qubit_gate_density)
         epc_expected = 1 - cx_factor * sx_factor * cx_nonlocal_factor
-        print(epc.value.n, epc_expected)
         self.assertAlmostEqual(epc.value.n, epc_expected, delta=3 * epc.value.std_dev)
 
     def test_three_qubit_nonlocal_noise(self):
@@ -1336,7 +1333,7 @@ class TestRunMirrorRB(RBRunTestCase):
         noise_model.add_all_qubit_quantum_error(cx_error, "cx")
 
         basis_gates = ["id", "sx", "rz", "cx"]
-        # Need level1 for consecutive gate cancellation for reference EPC value calculation
+
         transpiler_options = {
             "basis_gates": basis_gates,
         }

@@ -22,15 +22,12 @@ from collections import defaultdict
 from numpy.random import Generator, default_rng, BitGenerator, SeedSequence
 import numpy as np
 
-from qiskit import QuantumCircuit
 from qiskit.circuit import Instruction
-from qiskit.quantum_info.operators.base_operator import BaseOperator
-from qiskit.quantum_info import Operator
 from qiskit.exceptions import QiskitError
 
 from .clifford_utils import CliffordUtils, _CLIFF_SINGLE_GATE_MAP_1Q
 
-GateTypeT = TypeVar("GateTypeT", str, int, Instruction, Operator, QuantumCircuit, BaseOperator)
+GateTypeT = TypeVar("GateTypeT", str, int, Instruction)
 
 
 class RBSampler(ABC):

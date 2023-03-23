@@ -100,7 +100,8 @@ class MirrorRB(StandardRB):
             two_qubit_gate_density: Expected proportion of qubit sites with two-qubit
                 gates over all circuit layers (not counting optional layers at the start
                 and end).
-            two_qubit_gate: The two-qubit gate to use. Defaults to "cx".
+            two_qubit_gate: The two-qubit gate to use. Defaults to
+                :class:`~qiskit.circuit.library.CXGate`.
             backend: The backend to run the experiment on.
             num_samples: Number of samples to generate for each sequence length.
             seed: Optional, seed used to initialize ``numpy.random.default_rng``.
@@ -158,7 +159,8 @@ class MirrorRB(StandardRB):
             two_qubit_gate_density (float): Expected proportion of two-qubit gates in
                 the mirror circuit layers (not counting Clifford or Pauli layers at the
                 start and end).
-            two_qubit_gate (str | ): The two qubit gate to use.
+            two_qubit_gate (str | int | :class:`~qiskit.circuit.Instruction`): The two
+                qubit gate to use. Defaults to :class:`~qiskit.circuit.library.CXGate`.
             num_samples (int): Number of samples to generate for each sequence length.
         """
         options = super()._default_experiment_options()
