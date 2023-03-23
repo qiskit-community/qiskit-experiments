@@ -14,7 +14,7 @@ T2HahnBackend class.
 Temporary backend to be used for t2hahn experiment
 """
 import copy
-from typing import List, Sequence, Union
+from typing import List, Optional, Sequence, Union
 
 import numpy as np
 
@@ -90,14 +90,14 @@ class T2HahnBackend(BackendV2):
 
     def __init__(
         self,
-        t2hahn: Union[None, float, Sequence[Union[float, None]]] = None,
-        frequency: Union[None, float, Sequence[Union[float, None]]] = None,
-        initialization_error: Union[None, float, Sequence[Union[float, None]]] = None,
-        readout0to1: Union[None, float, Sequence[Union[float, None]]] = None,
-        readout1to0: Union[None, float, Sequence[Union[float, None]]] = None,
+        t2hahn: Union[float, Sequence[float]] = float("inf"),
+        frequency: Union[float, Sequence[float]] = 0.0,
+        initialization_error: Union[float, Sequence[float]] = 0.0,
+        readout0to1: Union[float, Sequence[float]] = 0.0,
+        readout1to0: Union[float, Sequence[float]] = 0.0,
         seed: int = 9000,
         dt: float = 1 / 4.5e9,
-        num_qubits: Union[None, int] = None,
+        num_qubits: Optional[int] = None,
     ):
         """
         Initialize the T2Hahn backend
@@ -108,34 +108,28 @@ class T2HahnBackend(BackendV2):
             backend_version="0",
         )
 
-        if num_qubits is None:
-            for arg in (t2hahn, frequency, initialization_error, readout0to1, readout1to0):
-                if isinstance(arg, Sequence):
+        for arg in (t2hahn, frequency, initialization_error, readout0to1, readout1to0):
+            if isinstance(arg, Sequence):
+                if num_qubits is None:
                     num_qubits = len(arg)
-                    break
-            else:
-                num_qubits = 1
+                elif len(arg) != num_qubits:
+                    raise ValueError(f"Input lengths are not consistent: {num_qubits} != {len(arg)}")
 
-        self._t2hahn = (
-            t2hahn if isinstance(t2hahn, (Sequence, type(None))) else [t2hahn] * num_qubits
-        )
-        self._frequency = (
-            frequency if isinstance(frequency, (Sequence, type(None))) else [frequency] * num_qubits
-        )
+        if num_qubits is None:
+            num_qubits = 1
+
+        self._t2hahn = t2hahn if isinstance(t2hahn, Sequence) else [t2hahn] * num_qubits
+        self._frequency = frequency if isinstance(frequency, Sequence) else [frequency] * num_qubits
         self._initialization_error = (
             initialization_error
-            if isinstance(initialization_error, (Sequence, type(None)))
+            if isinstance(initialization_error, Sequence)
             else [initialization_error] * num_qubits
         )
         self._readout0to1 = (
-            readout0to1
-            if isinstance(readout0to1, (Sequence, type(None)))
-            else [readout0to1] * num_qubits
+            readout0to1 if isinstance(readout0to1, Sequence) else [readout0to1] * num_qubits
         )
         self._readout1to0 = (
-            readout1to0
-            if isinstance(readout1to0, (Sequence, type(None)))
-            else [readout1to0] * num_qubits
+            readout1to0 if isinstance(readout1to0, Sequence) else [readout1to0] * num_qubits
         )
         self._seed = seed
 
@@ -184,25 +178,16 @@ class T2HahnBackend(BackendV2):
                     continue
                 noise_model.add_quantum_error(reset_error(1 - error, error), ["reset"], [qubit])
 
-        readout0to1 = self._readout0to1
-        readout1to0 = self._readout1to0
-        if readout0to1 and not readout1to0:
-            readout1to0 = [0] * self.num_qubits
-        elif readout1to0 and not readout0to1:
-            readout0to1 = [0] * self.num_qubits
-        if readout0to1:
-            for qubit, (err0to1, err1to0) in enumerate(zip(readout0to1, readout1to0)):
-                if err0to1 is None:
-                    err0to1 = 0
-                if err1to0 is None:
-                    err1to0 = 0
+        if any(self._readout0to1) or any(self._readout1to0):
+            for qubit, (err0to1, err1to0) in enumerate(zip(self._readout0to1, self._readout1to0)):
                 error = ReadoutError([[1 - err0to1, err0to1], [err1to0, 1 - err1to0]])
                 noise_model.add_readout_error(error, [qubit])
-        if self._t2hahn:
-            t2s = [t if t is not None else 1 for t in self._t2hahn]
+        if any(t2 != float("inf") for t2 in self._t2hahn):
             # Make T1 huge so only T2 matters
-            passes.append(RelaxationNoisePass([t * 100 for t in t2s], t2s, self.dt, Delay))
-        if self._frequency:
+            passes.append(
+                RelaxationNoisePass([t * 100 for t in self._t2hahn], self._t2hahn, self.dt, Delay)
+            )
+        if any(self._frequency):
             passes.append(QubitDrift(self._frequency, self.dt))
 
         pm = PassManager(passes)

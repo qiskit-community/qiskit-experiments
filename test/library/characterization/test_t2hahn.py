@@ -98,8 +98,8 @@ class TestT2Hahn(QiskitExperimentsTestCase):
 
         p0 = {
             "A": [0.5, None, 0.5],
-            "T2": [t2hahn[0], None, t2hahn[1]],
-            "frequency": [osc_freq[0], None, osc_freq[1]],
+            "T2": [t2hahn[0], float("inf"), t2hahn[1]],
+            "frequency": [osc_freq[0], 0.0, osc_freq[1]],
             "B": [0.5, None, 0.5],
         }
 

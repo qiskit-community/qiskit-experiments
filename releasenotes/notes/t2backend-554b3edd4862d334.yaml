@@ -11,3 +11,6 @@ upgrade:
     If passing numbers for a backend to represent more than one qubit, at least
     one parameter must be passed as a sequence or the ``num_qubits`` parameter
     must be passed to indicate how many qubits the backend should simulate.
+    Additionally, passing ``None`` for these arguments was deprecated. The
+    value that makes that option have no effect should be used instead (for
+    example, ``0.0`` for ``initialization_error``).
