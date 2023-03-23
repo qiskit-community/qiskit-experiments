@@ -148,7 +148,7 @@ class ExperimentData:
     This class handles the following:
 
     1. Storing the data related to an experiment: raw data, metadata, analysis results,
-        and figures
+       and figures
     2. Managing jobs and adding data from jobs automatically
     3. Saving and loading data from the database service
 
@@ -186,17 +186,17 @@ class ExperimentData:
         """Initialize experiment data.
 
         Args:
-            experiment: Optional, experiment object that generated the data.
-            backend: Optional, Backend the experiment runs on; overrides the
-            backend in the experiment object
+            experiment: Experiment object that generated the data.
+            backend: Backend the experiment runs on. This overrides the
+                backend in the experiment object.
             service: The service that stores the experiment results to the database
-            parent_id: Optional, ID of the parent experiment data
+            parent_id: ID of the parent experiment data
                 in the setting of a composite experiment
-            job_ids: Optional, IDs of jobs submitted for the experiment.
-            child_data: Optional, list of child experiment data.
-            verbose: Optional, whether to print messages
-            db_data: Optional, a prepared ExperimentDataclass of the experiment info;
-            overrides other db parameters.
+            job_ids: IDs of jobs submitted for the experiment.
+            child_data: List of child experiment data.
+            verbose: Whether to print messages.
+            db_data: A prepared ExperimentDataclass of the experiment info.
+                This overrides other db parameters.
         """
         if experiment is not None:
             backend = backend or experiment.backend
@@ -209,7 +209,7 @@ class ExperimentData:
         self._experiment = experiment
 
         # data stored in the database
-        metadata = dict()
+        metadata = {}
         if experiment is not None:
             metadata = copy.deepcopy(experiment._metadata())
         source = metadata.pop(
@@ -648,7 +648,8 @@ class ExperimentData:
         """Add experiment data.
 
         Args:
-            data: Experiment data to add. Several types are accepted for convenience
+            data: Experiment data to add. Several types are accepted for convenience:
+
                 * Result: Add data from this ``Result`` object.
                 * List[Result]: Add data from the ``Result`` objects.
                 * Dict: Add this data.
@@ -802,7 +803,7 @@ class ExperimentData:
                 return jid, False
             if status == JobStatus.ERROR:
                 LOG.error(
-                    "Job data not added for errorred job [Job ID: %s]" "\nError message: %s",
+                    "Job data not added for errorred job [Job ID: %s]\nError message: %s",
                     jid,
                     job.error_message(),
                 )
@@ -2052,7 +2053,7 @@ class ExperimentData:
             return self._extra_data[name]
         except KeyError:
             # pylint: disable=raise-missing-from
-            raise AttributeError("Attribute %s is not defined" % name)
+            raise AttributeError(f"Attribute {name} is not defined")
 
     def _safe_serialize_jobs(self):
         """Return serializable object for stored jobs"""

@@ -302,7 +302,7 @@ class T2HahnBackend(BackendV1):
             nqubits = circ.num_qubits
             qubit_indices = {bit: idx for idx, bit in enumerate(circ.qubits)}
             clbit_indices = {bit: idx for idx, bit in enumerate(circ.clbits)}
-            counts = dict()
+            counts = {}
 
             for _ in range(shots):
                 qubit_state = self._qubit_initialization(

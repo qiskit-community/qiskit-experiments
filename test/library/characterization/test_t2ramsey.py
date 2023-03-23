@@ -73,7 +73,7 @@ class TestT2Ramsey(QiskitExperimentsTestCase):
             "base": 0.5,
         }
 
-        for user_p0 in [default_p0, dict()]:
+        for user_p0 in [default_p0, {}]:
             exp.analysis.set_options(p0=user_p0)
             expdata = exp.run(backend=backend, shots=2000, seed_simulator=1).block_for_results()
             self.assertExperimentDone(expdata)

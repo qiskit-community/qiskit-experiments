@@ -1,11 +1,11 @@
 black~=22.0
 stestr
-astroid==2.5
-pylint==2.7.1
+pylint~=2.16.2
+astroid~=2.14.2  # Must be kept aligned to what pylint wants
 jinja2==3.0.3
 sphinx~=5.0
 jupyter-sphinx>=0.4.0
-qiskit-sphinx-theme>=1.11.0rc1
+qiskit-sphinx-theme==1.11.0rc1
 sphinx-autodoc-typehints>=1.22.0
 sphinx-design==0.3.0
 pygments>=2.4
@@ -22,3 +22,6 @@ importlib-metadata==4.13.0;python_version<'3.8'
 scikit-learn
 sphinx-copybutton
 sphinxcontrib-jupyter
+# Pin versions below because of build errors
+ipykernel<=6.21.3
+jupyter-client<=8.0.3

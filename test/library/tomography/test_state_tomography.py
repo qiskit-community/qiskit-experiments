@@ -407,8 +407,9 @@ class TestStateTomography(QiskitExperimentsTestCase):
                 # Check mitigation improves fidelity
                 self.assertTrue(
                     mitfid.value >= nomitfid.value,
-                    msg="mitigated {} did not improve fidelity for qubits {} ({:.4f} < {:.4f})".format(
-                        fitter, qubits, mitfid.value, nomitfid.value
+                    msg=(
+                        f"mitigated {fitter} did not improve fidelity for qubits {qubits} "
+                        f"({mitfid.value:.4f} < {nomitfid.value:.4f})"
                     ),
                 )
                 self.assertGreater(
