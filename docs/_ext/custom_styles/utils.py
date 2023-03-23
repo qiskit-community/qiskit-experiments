@@ -162,7 +162,7 @@ def _write_options(lines, indent) -> Iterator:
     else:
         yield "Options"
         for source, data in params.items():
-            yield indent + f"* Defined in the class {source}"
+            yield indent + f"* Defined in the class {source}:"
             yield ""
             for name, info in data.items():
                 _type = info.get("type", "n/a")
