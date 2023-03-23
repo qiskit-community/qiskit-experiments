@@ -86,10 +86,10 @@ def process_default_options(
     descriptions = ["Parameters:"]
     desc_sources = {}
     for mro_class in inspect.getmro(current_class):
-        try:
-            default_opts_clsmethod = getattr(mro_class, default_option_method)
-        except AttributeError:
+        if default_option_method not in mro_class.__dict__:
+            # Do not directly get method docs from parent class.
             continue
+        default_opts_clsmethod = getattr(mro_class, default_option_method)
         parsed_lines, added_args = _flatten_option_docs(
             docstring=default_opts_clsmethod.__doc__,
             section_repr=section_repr,
