@@ -489,10 +489,10 @@ class RBRunTestCase(QiskitExperimentsTestCase, RBTestMixin):
         super().setUp()
 
         # depolarizing error
-        self.p1q = 0.02
-        self.p2q = 0.10
+        self.p1q = 0.004
+        self.p2q = 0.04
         self.pvz = 0.0
-        self.pcz = 0.15
+        self.pcz = 0.06
 
         # basis gates
         self.basis_gates = ["rz", "sx", "cx"]
@@ -549,8 +549,7 @@ class TestRunStandardRB(RBRunTestCase):
         epc = expdata.analysis_results("EPC")
 
         epc_expected = 1 - (1 - 1 / 2 * self.p1q) ** 1.0
-        print(epc.value.n)
-        self.assertAlmostEqual(epc.value.n, epc_expected, delta=0.1 * epc_expected)
+        self.assertAlmostEqual(epc.value.n, epc_expected, delta=3 * epc.value.std_dev)
 
     def test_two_qubit(self):
         """Test two qubit RB. Use default basis gates."""
@@ -573,9 +572,9 @@ class TestRunStandardRB(RBRunTestCase):
         # average number of CX gate per Clifford is 1.5.
         # Since this is two qubit RB, the dep-parameter is factored by 3/4.
         epc = expdata.analysis_results("EPC")
-        # Allow for 50 percent tolerance since we ignore 1q gate contribution
+        # Allow for 30 percent tolerance since we ignore 1q gate contribution
         epc_expected = 1 - (1 - 3 / 4 * self.p2q) ** 1.5
-        self.assertAlmostEqual(epc.value.n, epc_expected, delta=0.5 * epc_expected)
+        self.assertAlmostEqual(epc.value.n, epc_expected, delta=0.3 * epc_expected)
 
     def test_three_qubit(self):
         """Test two qubit RB. Use default basis gates."""
@@ -696,12 +695,12 @@ class TestRunStandardRB(RBRunTestCase):
         epc_expected = 1 - (1 - 1 / 2 * self.p1q) ** 1.0
         for i in range(2):
             epc = par_expdata.child_data(i).analysis_results("EPC")
-            self.assertAlmostEqual(epc.value.n, epc_expected, delta=0.1 * epc_expected)
+            self.assertAlmostEqual(epc.value.n, epc_expected, delta=3 * epc.value.std_dev)
 
     def test_two_qubit_parallel(self):
         """Test two qubit RB in parallel."""
         qubit_pairs = [[0, 1], [2, 3]]
-        lengths = list(range(5, 100, 5))
+        lengths = list(range(1, 30, 3))
         exps = []
         for pair in qubit_pairs:
             exp = rb.StandardRB(
@@ -718,8 +717,8 @@ class TestRunStandardRB(RBRunTestCase):
         epc_expected = 1 - (1 - 3 / 4 * self.p2q) ** 1.5
         for i in range(2):
             epc = par_expdata.child_data(i).analysis_results("EPC")
-            # Allow for 20 percent tolerance since we ignore 1q gate contribution
-            self.assertAlmostEqual(epc.value.n, epc_expected, delta=0.2 * epc_expected)
+            # Allow for 30 percent tolerance since we ignore 1q gate contribution
+            self.assertAlmostEqual(epc.value.n, epc_expected, delta=0.3 * epc_expected)
 
     def test_two_qubit_with_cz(self):
         """Test two qubit RB."""
@@ -747,9 +746,9 @@ class TestRunStandardRB(RBRunTestCase):
         # Since this is two qubit RB, the dep-parameter is factored by 3/4.
         epc = expdata.analysis_results("EPC")
 
-        # Allow for 50 percent tolerance since we ignore 1q gate contribution
+        # Allow for 30 percent tolerance since we ignore 1q gate contribution
         epc_expected = 1 - (1 - 3 / 4 * self.pcz) ** 1.5
-        self.assertAlmostEqual(epc.value.n, epc_expected, delta=0.5 * epc_expected)
+        self.assertAlmostEqual(epc.value.n, epc_expected, delta=0.3 * epc_expected)
 
 
 class TestRunInterleavedRB(RBRunTestCase):
@@ -773,7 +772,7 @@ class TestRunInterleavedRB(RBRunTestCase):
         # Since this is interleaved, we can directly compare values, i.e. n_gpc = 1
         epc = expdata.analysis_results("EPC")
         epc_expected = 1 / 2 * self.p1q
-        self.assertAlmostEqual(epc.value.n, epc_expected, delta=0.1 * epc_expected)
+        self.assertAlmostEqual(epc.value.n, epc_expected, delta=3 * epc.value.std_dev)
 
     def test_two_qubit(self):
         """Test two qubit IRB."""
@@ -793,7 +792,7 @@ class TestRunInterleavedRB(RBRunTestCase):
         # Since this is interleaved, we can directly compare values, i.e. n_gpc = 1
         epc = expdata.analysis_results("EPC")
         epc_expected = 3 / 4 * self.p2q
-        self.assertAlmostEqual(epc.value.n, epc_expected, delta=0.1 * epc_expected)
+        self.assertAlmostEqual(epc.value.n, epc_expected, delta=3 * epc.value.std_dev)
 
     def test_two_qubit_with_cz(self):
         """Test two qubit IRB."""

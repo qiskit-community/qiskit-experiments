@@ -124,7 +124,7 @@ def _synthesize_clifford_circuit(
 ) -> QuantumCircuit:
     # synthesizes clifford circuits using given basis gates, for use during
     # custom transpilation during RB circuit generation.
-    return transpile(circuit, basis_gates=list(basis_gates), optimization_level=0)
+    return transpile(circuit, basis_gates=list(basis_gates), optimization_level=1)
 
 
 @lru_cache(maxsize=None)
