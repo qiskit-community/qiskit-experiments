@@ -321,4 +321,4 @@ References
 See also
 --------
 
-* :doc:`<Randomized benchmarking manual> /manuals/verification/randomized_benchmarking`
+* Experiment manual: :doc:`/manuals/verification/randomized_benchmarking`

@@ -58,6 +58,9 @@ class MirrorRB(StandardRB):
     # section: analysis_ref
         :class:`MirrorRBAnalysis`
 
+    # section: manual
+        :doc:`/manuals/verification/mirror_rb`
+
     # section: reference
         .. ref_arxiv:: 1 2112.09853
         .. ref_arxiv:: 2 2008.11294
