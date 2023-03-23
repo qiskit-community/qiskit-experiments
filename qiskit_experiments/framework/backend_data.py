@@ -226,8 +226,8 @@ class BackendData:
         .. note::
 
             The qiskit-terra base classes do not provide this information as a
-            standard, but it is available from some providers in the data
-            returned by the ``Backend.defaults()`` method.
+            standard backend property, but it is available from some providers
+            in the data returned by the ``Backend.defaults()`` method.
         """
         if not hasattr(self._backend, "defaults"):
             return []
