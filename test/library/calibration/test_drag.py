@@ -25,6 +25,7 @@ from qiskit.qobj.utils import MeasLevel
 from qiskit import transpile
 
 from qiskit_experiments.library import RoughDrag, RoughDragCal
+from qiskit_experiments.library.characterization.analysis import DragCalAnalysis
 from qiskit_experiments.test.mock_iq_backend import MockIQBackend
 from qiskit_experiments.test.mock_iq_helpers import MockIQDragHelper as DragHelper
 from qiskit_experiments.calibration_management.basis_gate_library import FixedFrequencyTransmon
@@ -119,6 +120,43 @@ class TestDragEndToEnd(QiskitExperimentsTestCase):
         # pylint: disable=no-member
         self.assertTrue(abs(result.value.n - backend.experiment_helper.ideal_beta) < tol)
         self.assertEqual(result.quality, "good")
+
+    def test_drag_reanalysis(self):
+        """Test edge case for re-analyzing DRAG result multiple times."""
+        drag_experiment_helper = DragHelper(gate_name="Drag(xp)")
+        backend = MockIQBackend(drag_experiment_helper)
+
+        drag = RoughDrag([1], self.x_plus)
+        drag.set_experiment_options(reps=[2, 4, 6])
+
+        expdata = drag.run(backend, analysis=None)
+        self.assertExperimentDone(expdata)
+
+        # Assume the situation we reloaded experiment data from server
+        # and prepared analysis class in the client machine.
+        # DRAG reps numbers might be different from the default value,
+        # but the client doesn't know the original setting.
+        analysis = DragCalAnalysis()
+        expdata1 = analysis.run(expdata.copy(), replace_results=True).block_for_results()
+        # Check mapping of model name to circuit metadata.
+        self.assertDictEqual(
+            analysis.options.data_subfit_map,
+            {
+                "nrep=2": {"nrep": 2},
+                "nrep=4": {"nrep": 4},
+                "nrep=6": {"nrep": 6},
+            },
+        )
+
+        # Running experiment twice.
+        # Reported by https://github.com/Qiskit/qiskit-experiments/issues/1086.
+        expdata2 = analysis.run(expdata.copy(), replace_results=True).block_for_results()
+        self.assertEqual(len(analysis.models), 3)
+
+        self.assertAlmostEqual(
+            expdata1.analysis_results("beta").value.n,
+            expdata2.analysis_results("beta").value.n,
+        )
 
 
 class TestDragCircuits(QiskitExperimentsTestCase):
