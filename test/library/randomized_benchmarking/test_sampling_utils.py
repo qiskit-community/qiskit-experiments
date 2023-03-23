@@ -67,3 +67,13 @@ class TestSamplingUtils(QiskitExperimentsTestCase):
             self.assertTrue(
                 (i[0][1] < CliffordUtils.NUM_CLIFFORD_1_QUBIT and i[0][1] >= 0) or i[0][1] == CXGate
             )
+
+    def test_edgegrab_all_2q(self):
+        """Test that the edge grab sampler behaves as expected when two qubit density is
+        1."""
+        sampler = EdgeGrabSampler(seed=self.seed)
+        sampler.gate_distribution = [(0, 1, "clifford"), (1, 2, CXGate)]
+        sampler.coupling_map = [[k, k + 1] for k in range(9)]
+        layer = sampler(range(10), 3)
+        for i in layer:
+            self.assertTrue(i[0][1] == CXGate)

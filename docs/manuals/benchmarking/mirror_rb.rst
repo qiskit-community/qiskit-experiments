@@ -171,7 +171,7 @@ There are three boolean options that
 - ``pauli_randomize`` (default ``True``): if ``True``, put layers of uniformly 
   random Paulis between the intermediate Clifford layers
 
-- ``local_clifford`` (default ``True``): if ``True``, begin the circuit with 
+- ``start_end_clifford`` (default ``True``): if ``True``, begin the circuit with 
   uniformly random one-qubit Cliffords and end the circuit with their inverses
 
 - ``inverting_pauli_layer`` (default ``False``): if ``True``, add a layer of 
@@ -201,7 +201,7 @@ And now with both options turned off:
                    seed=100,
                    backend=backend,
                    num_samples=1,
-                   local_clifford=False,
+                   start_end_clifford=False,
                    two_qubit_gate_density=0.4,
                    pauli_randomize=False,
                    inverting_pauli_layer=True)
@@ -216,43 +216,95 @@ change. We'll demonstrate this by first leaving ``pauli_randomize`` on:
 
 .. jupyter-execute::
 
-    exp = MirrorRB(range(8),
+    # choose a linear string on this backend for ease of visualization
+    exp = MirrorRB((0,1,2,3,5,8,11,14),
                    lengths=[2],
                    two_qubit_gate_density=0.5,
-                   seed=101,
+                   seed=120,
                    backend=backend,
-                   num_samples=1)
+                   num_samples=1,
+                   start_end_clifford=False)
     exp.circuits()[0].remove_final_measurements(inplace=False).draw("mpl")
 
-Note that And now we remove the Pauli layers to see that the CX density in the Clifford layers
-have halved:
+And now we remove the Pauli layers to see that the CX density in the Clifford layers
+has decreased:
 
 .. jupyter-execute::
 
-    exp = MirrorRB(range(8),
+    exp = MirrorRB((0,1,2,3,5,8,11,14),
                    lengths=[2],
                    two_qubit_gate_density=0.5,
                    pauli_randomize=False,
-                   seed=101,
+                   seed=120,
                    backend=backend,
-                   num_samples=1)
+                   num_samples=1,
+                   start_end_clifford=False)
     exp.circuits()[0].remove_final_measurements(inplace=False).draw("mpl")
 
+Note that the edge grab algorithm is probabilistic, and only tends to the exact two
+qubit gate density asymptotically.
 
+
+Custom layer distributions
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+It is possible to customize the layer distributions when running mirror RB by setting 
+the distribution and its options directly using the :attr:`.MirrorRB.distribution`
+attribute. Note that if the distribution options are set manually after experiment 
+instantiation, the experiment will let you override experiment options such as
+``two_qubit_gate_density`` with your custom distribution.
+
+Here is an example where we override the default distribution and change the gate
+distribution manually into one with 20% single-qubit Paulis and 80% two-qubit
+:class:`~.qiskit.circuit.library.ECRGate` (Consult the :class:`.EdgeGrabSampler`
+documentation for details on available options):
+
+.. jupyter-execute::
+
+    from qiskit.circuit.library import ECRGate
+
+    exp = MirrorRB(range(4),
+                   lengths=[2],
+                   two_qubit_gate_density=0.5,
+                   seed=101,
+                   backend=backend,
+                   num_samples=1,
+                   start_end_clifford=False)
+    exp.distribution.gate_distribution = [(0.5, 1, "pauli"), (0.5, 2, ECRGate)]
+    exp.circuits()[0].remove_final_measurements(inplace=False).draw("mpl")
+
+If we reset the distribution to :class:`.EdgeGrabSampler`, we will get the expected
+default behavior again.
+
+.. jupyter-execute::
+
+    exp.distribution = EdgeGrabSampler
+    exp.circuits()[0].remove_final_measurements(inplace=False).draw("mpl")
+
+It is possible to set the distribution to another sampler entirely, or your own custom sampler:
+
+.. jupyter-execute::
+
+    from qiskit_experiments.library.randomized_benchmarking.sampling_utils import SingleQubitSampler
+    from qiskit.circuit.library import SGate
+
+    exp.distribution = SingleQubitSampler
+    exp.distribution.gate_distribution = [(1, 1, SGate)]
+    exp.circuits()[0].remove_final_measurements(inplace=False).draw("mpl")
 
 Mirror RB implementation in ``pyGSTi``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The :mod:`pygsti` implementation of Mirror RB,
+The :mod:`pygsti` implementation of mirror RB,
 :class:`~.pygsti.protocols.rb.MirrorRBDesign`, can be used for testing and comparison.
 We note however that ``pyGSTi`` transpiles circuits slightly differently, producing
 small discrepancies in fit parameters between the two codes. To illustrate, consider the
-two circuits below, both of which were generated in ``pyGSTi``. The first circuit was
-transpiled in ``pyGSTi``.
+two circuits below, both of which were generated in ``pyGSTi``. This first circuit was
+transpiled in ``pyGSTi``:
 
 .. image:: images/pygsti-data-pygsti-transpiled-circ.png
 
-and the second was transpiled in Qiskit. 
+This second circuit was transpiled in Qiskit:
 
 .. image:: images/pygsti-data-qiskit-transpiled-circ.png
 
@@ -273,3 +325,8 @@ References
        Blume-Kohout, *Measuring the Capabilities of Quantum Computers*, 
        https://arxiv.org/pdf/2008.11294.pdf
 
+
+See also
+--------
+
+* :doc:`<Randomized benchmarking manual> /manuals/verification/randomized_benchmarking`

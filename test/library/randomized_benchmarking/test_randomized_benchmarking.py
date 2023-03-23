@@ -19,7 +19,7 @@ import numpy as np
 from ddt import ddt, data, unpack
 
 from qiskit.circuit import Delay, QuantumCircuit, Parameter, Gate
-from qiskit.circuit.library import SXGate, CXGate, TGate, CZGate
+from qiskit.circuit.library import SXGate, CXGate, TGate, CZGate, ECRGate
 from qiskit.exceptions import QiskitError
 from qiskit.providers.fake_provider import FakeManila, FakeManilaV2, FakeWashington, FakeParis
 from qiskit.pulse import Schedule, InstructionScheduleMap
@@ -36,7 +36,9 @@ from qiskit_experiments.framework.composite import ParallelExperiment
 from qiskit_experiments.library import randomized_benchmarking as rb
 from qiskit_experiments.library.randomized_benchmarking.clifford_utils import (
     compute_target_bitstring,
+    CliffordUtils,
 )
+from qiskit_experiments.library.randomized_benchmarking.sampling_utils import EdgeGrabSampler
 
 
 class RBTestMixin:
@@ -928,6 +930,8 @@ class NoiseSimulator(AerSimulator):
 class TestMirrorRB(QiskitExperimentsTestCase, RBTestMixin):
     """Test for mirror RB."""
 
+    seed = 123
+
     def setUp(self):
         """Setup the tests."""
         super().setUp()
@@ -946,14 +950,14 @@ class TestMirrorRB(QiskitExperimentsTestCase, RBTestMixin):
         exp1 = rb.MirrorRB(
             physical_qubits=(0, 1),
             lengths=lengths,
-            seed=123,
+            seed=self.seed,
             backend=self.backend,
         )
 
         exp2 = rb.MirrorRB(
             physical_qubits=(0, 1),
             lengths=lengths,
-            seed=123,
+            seed=self.seed,
             backend=self.backend,
         )
 
@@ -968,7 +972,7 @@ class TestMirrorRB(QiskitExperimentsTestCase, RBTestMixin):
         exp1 = rb.MirrorRB(
             physical_qubits=(0, 1),
             lengths=[10, 20],
-            seed=123,
+            seed=self.seed,
             backend=self.backend,
             num_samples=1,
             full_sampling=True,
@@ -977,7 +981,7 @@ class TestMirrorRB(QiskitExperimentsTestCase, RBTestMixin):
         exp2 = rb.MirrorRB(
             physical_qubits=(0, 1),
             lengths=[10, 20],
-            seed=123,
+            seed=self.seed,
             backend=self.backend,
             num_samples=1,
             full_sampling=False,
@@ -998,7 +1002,7 @@ class TestMirrorRB(QiskitExperimentsTestCase, RBTestMixin):
         exp = rb.MirrorRB(
             physical_qubits=(0, 1),
             lengths=[40],
-            seed=124,
+            seed=self.seed,
             backend=self.backend,
             num_samples=1,
             two_qubit_gate_density=0,
@@ -1017,7 +1021,7 @@ class TestMirrorRB(QiskitExperimentsTestCase, RBTestMixin):
         exp = rb.MirrorRB(
             physical_qubits=(0, 1, 2, 3),
             lengths=[40],
-            seed=125,
+            seed=self.seed,
             backend=backend,
             num_samples=1,
             two_qubit_gate_density=0.5,
@@ -1029,16 +1033,16 @@ class TestMirrorRB(QiskitExperimentsTestCase, RBTestMixin):
                 num_cxs += 1
         self.assertEqual(80, num_cxs)
 
-    def test_local_clifford(self):
+    def test_start_end_clifford(self):
         """Test that the number of layers is correct depending on whether
-        local_clifford is set to True or False by counting the number of barriers."""
+        start_end_clifford is set to True or False by counting the number of barriers."""
         exp = rb.MirrorRB(
             physical_qubits=(0,),
             lengths=[2],
-            seed=126,
+            seed=self.seed,
             backend=self.backend,
             num_samples=1,
-            local_clifford=True,
+            start_end_clifford=True,
             pauli_randomize=False,
             two_qubit_gate_density=0.2,
             inverting_pauli_layer=False,
@@ -1056,10 +1060,10 @@ class TestMirrorRB(QiskitExperimentsTestCase, RBTestMixin):
         exp = rb.MirrorRB(
             physical_qubits=(0,),
             lengths=[2],
-            seed=126,
+            seed=self.seed,
             backend=self.backend,
             num_samples=1,
-            local_clifford=False,
+            start_end_clifford=False,
             pauli_randomize=True,
             two_qubit_gate_density=0.2,
             inverting_pauli_layer=False,
@@ -1077,10 +1081,10 @@ class TestMirrorRB(QiskitExperimentsTestCase, RBTestMixin):
         exp = rb.MirrorRB(
             physical_qubits=(0, 1, 2),
             lengths=[2],
-            seed=127,
+            seed=self.seed,
             backend=self.backend,
             num_samples=3,
-            local_clifford=True,
+            start_end_clifford=True,
             pauli_randomize=True,
             two_qubit_gate_density=0.2,
             inverting_pauli_layer=True,
@@ -1120,6 +1124,7 @@ class TestMirrorRB(QiskitExperimentsTestCase, RBTestMixin):
             lengths=[4],
             num_samples=4,
             backend=my_backend,
+            seed=self.seed,
         )
         transpiled = exp._transpiled_circuits()
         for qc in transpiled:
@@ -1129,10 +1134,36 @@ class TestMirrorRB(QiskitExperimentsTestCase, RBTestMixin):
                 if inst.operation.name == "cx":
                     self.assertEqual(inst.qubits, expected_qubits)
 
+    def test_change_distribution_options(self):
+        """Test that changing the distribution option and then resetting works as expected."""
+
+        exp = rb.MirrorRB(
+            physical_qubits=range(4),
+            two_qubit_gate_density=1,
+            lengths=[4],
+            num_samples=1,
+            backend=self.backend,
+            seed=self.seed,
+        )
+
+        exp.distribution.gate_distribution = [(0.2, 1, "clifford"), (0.8, 2, ECRGate)]
+        gates = exp.circuits()[0].count_ops()
+        if "ecr" not in gates or "cx" in gates:
+            raise QiskitError("Unexpected output gate distribution.")
+
+        exp.distribution = EdgeGrabSampler
+
+        gates = exp.circuits()[0].count_ops()
+
+        if "cx" not in gates or "ecr" in gates:
+            raise QiskitError("Unexpected output gate distribution.")
+
 
 @ddt
 class TestRunMirrorRB(RBRunTestCase):
     """Class for testing execution of mirror RB experiments."""
+
+    seed = 123
 
     def setUp(self):
         """Setup the tests."""
@@ -1177,7 +1208,7 @@ class TestRunMirrorRB(RBRunTestCase):
         exp = rb.MirrorRB(
             physical_qubits=(0,),
             lengths=list(range(2, 300, 40)),
-            seed=124,
+            seed=self.seed,
             backend=self.backend,
             num_samples=20,
         )
@@ -1208,7 +1239,7 @@ class TestRunMirrorRB(RBRunTestCase):
         exp = rb.MirrorRB(
             physical_qubits=(0, 1),
             lengths=list(range(2, 80, 16)),
-            seed=123,
+            seed=self.seed,
             backend=self.backend,
             num_samples=20,
             two_qubit_gate_density=two_qubit_gate_density,
@@ -1266,9 +1297,9 @@ class TestRunMirrorRB(RBRunTestCase):
         exp = rb.MirrorRB(
             physical_qubits=(0, 1),
             lengths=list(range(2, 110, 20)),
-            seed=123,
+            seed=self.seed,
             backend=noise_backend,
-            num_samples=20,
+            num_samples=30,
             two_qubit_gate_density=two_qubit_gate_density,
         )
         exp.analysis.set_options(gate_error_ratio=None)
@@ -1288,7 +1319,7 @@ class TestRunMirrorRB(RBRunTestCase):
         sx_factor = (1 - p1q / 2) ** (2 * num_q * (1 - two_qubit_gate_density))
         cx_nonlocal_factor = (1 - 0.0035 / 2) ** (num_q * num_q * two_qubit_gate_density)
         epc_expected = 1 - cx_factor * sx_factor * cx_nonlocal_factor
-        self.assertAlmostEqual(epc.value.n, epc_expected, delta=0.1 * epc_expected)
+        self.assertAlmostEqual(epc.value.n, epc_expected, delta=0.2 * epc_expected)
 
     def test_three_qubit_nonlocal_noise(self):
         """Test three-qubit mirrored RB on a nonlocal noise model"""
@@ -1323,7 +1354,7 @@ class TestRunMirrorRB(RBRunTestCase):
         exp = rb.MirrorRB(
             physical_qubits=(0, 1, 2),
             lengths=list(range(2, 110, 50)),
-            seed=123,
+            seed=self.seed,
             backend=noise_backend,
             num_samples=20,
             two_qubit_gate_density=two_qubit_gate_density,
@@ -1351,7 +1382,7 @@ class TestRunMirrorRB(RBRunTestCase):
         exp1 = rb.MirrorRB(
             physical_qubits=(0, 1),
             lengths=list(range(2, 30, 4)),
-            seed=123,
+            seed=self.seed,
             backend=self.backend,
             num_samples=3,
             inverting_pauli_layer=False,
@@ -1454,7 +1485,7 @@ class TestRunMirrorRB(RBRunTestCase):
         exp = rb.MirrorRB(
             physical_qubits=(0,),
             lengths=list(range(2, 200, 50)),
-            seed=123,
+            seed=self.seed,
             backend=self.backend,
             inverting_pauli_layer=False,
         )

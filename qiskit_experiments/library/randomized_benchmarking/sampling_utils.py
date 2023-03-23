@@ -33,7 +33,7 @@ GateType = TypeVar("GateType", str, int, Instruction, Operator, QuantumCircuit, 
 
 
 class RBSampler(ABC):
-    """Sampling distribution for randomized benchmarking experiments.
+    """Base class for the sampling distribution for randomized benchmarking experiments.
     Subclasses must implement the ``__call__()`` method."""
 
     def __init__(
@@ -42,9 +42,7 @@ class RBSampler(ABC):
         coupling_map: Optional[List[List[int]]] = None,
         seed: Optional[Union[int, SeedSequence, BitGenerator, Generator]] = None,
     ):
-        """Instantiate the sampler. Note that this is different from invoking the
-        instance.
-
+        """
         Args:
             seed: Seed for random generation.
             gate_distribution: The gate distribution for sampling.
@@ -166,11 +164,10 @@ class SingleQubitSampler(RBSampler):
 
         Returns:
             A ``length``-long list of :class:`qiskit.circuit.QuantumCircuit` layers over
-            ``num_qubits`` qubits. Each layer is represented by a list of tuples which
-            are in the format ((one or more qubit indices), gate). Single-qubit
-            Cliffords are represented by integers for speed. For two qubits, length 3,
-            and the full Clifford distribution `[(1, "clifford1q")]`, an example output
-            would be
+            ``qubits``. Each layer is represented by a list of tuples which are in the
+            format ((one or more qubit indices), gate). Single-qubit Cliffords are
+            represented by integers for speed. For two qubits, length 3, and the
+            all-Clifford distribution ``[(1, "clifford")]``, an example output would be
 
             .. parsed-literal::
                 [[((0,), 2), ((1,), 2)], [((0,), 11), ((1,), 4)], [((0,), 17), ((1,), 17)]]
@@ -195,30 +192,29 @@ class SingleQubitSampler(RBSampler):
 
 
 class EdgeGrabSampler(RBSampler):
-    r"""A sampler that uses the edge grab algorithm for sampling one- and two-qubit gate
-     layers.
+    r"""A sampler that uses the edge grab algorithm [1] for sampling gate layers.
 
-    # section: overview
+    The edge grab sampler, given a list of :math:`w` qubits, their connectivity
+    graph, and the desired two-qubit gate density :math:`\xi_s`, outputs a layer
+    as follows:
 
-        The edge grab sampler, given a list of :math:`w` qubits, their connectivity
-        graph, and the desired two-qubit gate density :math:`\xi_s`, outputs a layer
-        as follows:
+    1. Begin with the empty set :math:`E` and :math:`E_r`, the set of all edges
+    in the connectivity graph. Select an edge from :math:`E_r` at random and
+    add it to :math:`E`, removing all edges that share a qubit with the edge
+    from :math:`E_r`.
 
-            1. Begin with the empty set :math:`E` and :math:`E_r`, the set of all edges
-               in the connectivity graph. Select an edge from :math:`E_r` at random and
-               add it to :math:`E`, removing all edges that share a qubit with the edge
-               from :math:`E_r`.
-            2. Select edges from :math:`E` with the probability :math:`w\xi/2|E|`. These
-               edges will have two-qubit gates in the output layer.
+    2. Select edges from :math:`E` with the probability :math:`w\xi/2|E|`. These
+    edges will have two-qubit gates in the output layer.
 
-        This produces a layer with an expected two-qubit gate density :math:`\xi`. In
-        the default mirror RB configuration where these layers are dressed with
-        single-qubit Pauli layers, this means the overall two-qubit gate density will be
-        :math:`\xi_s/2=\xi`. The overall density will converge to :math:`\xi` as the
-        circuit size increases.
+    |
 
-    # section: reference
-        .. ref_arxiv:: 1 2008.11294
+    This produces a layer with an expected two-qubit gate density :math:`\xi`. In
+    the default mirror RB configuration where these layers are dressed with
+    single-qubit Pauli layers, this means the overall two-qubit gate density will be
+    :math:`\xi_s/2=\xi`. The overall density will converge to :math:`\xi` as the
+    circuit size increases.
+
+    .. ref_arxiv:: 1 2008.11294
 
     """
 
@@ -256,7 +252,6 @@ class EdgeGrabSampler(RBSampler):
 
         """
         num_qubits = len(qubits)
-
         gateset = self._probs_by_gate_size()
         norm1q = sum(gateset[1][1])
         norm2q = sum(gateset[2][1])
@@ -268,6 +263,9 @@ class EdgeGrabSampler(RBSampler):
                     gateset[1][0], p=[i / norm1q for i in gateset[1][1]], size=length
                 )
             ]
+
+        if not isinstance(self.coupling_map, List):
+            raise QiskitError("The coupling map must be set correctly before sampling.")
 
         layer_list = []
         for _ in list(range(length)):
@@ -291,7 +289,7 @@ class EdgeGrabSampler(RBSampler):
                 two_qubit_prob = num_qubits * two_qubit_gate_density / 2 / len(selected_edges)
             except ZeroDivisionError:
                 warnings.warn("Device has no connectivity. All gates will be single-qubit.")
-            if two_qubit_prob > 1:
+            if two_qubit_prob > 1 and not np.isclose(two_qubit_prob, 1):
                 warnings.warn(
                     "Mean number of two-qubit gates is higher than the number of selected edges. "
                     + "Actual density of two-qubit gates will likely be lower than input density."
@@ -320,23 +318,20 @@ class EdgeGrabSampler(RBSampler):
                     # remove these qubits from put_1q_gates
                     put_1q_gates.remove(edge[0])
                     put_1q_gates.remove(edge[1])
-                for q in put_1q_gates:
-
-                    if sum(gateset[1][1]) > 0:
-                        layer.append(
-                            (
-                                (q,),
-                                self._rng.choice(
-                                    gateset[1][0], p=[x / norm1q for x in gateset[1][1]]
-                                ),
-                            )
+            for q in put_1q_gates:
+                if sum(gateset[1][1]) > 0:
+                    layer.append(
+                        (
+                            (q,),
+                            self._rng.choice(gateset[1][0], p=[x / norm1q for x in gateset[1][1]]),
                         )
-                    else:  # edge case of two qubit density of 1 where we still fill gaps
-                        layer.append(
-                            (
-                                (q,),
-                                self._rng.choice(gateset[1][0]),
-                            )
+                    )
+                else:  # edge case of two qubit density of 1 where we still fill gaps
+                    layer.append(
+                        (
+                            (q,),
+                            self._rng.choice(gateset[1][0]),
                         )
+                    )
             layer_list.append(tuple(layer))
         return layer_list
