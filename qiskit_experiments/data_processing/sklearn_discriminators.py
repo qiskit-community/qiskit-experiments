@@ -12,21 +12,24 @@
 
 """Discriminators that wrap SKLearn."""
 
-from typing import Any, List, Dict
+from typing import Any, List, Dict, TYPE_CHECKING
 
 from qiskit_experiments.data_processing.discriminator import BaseDiscriminator
-from qiskit_experiments.data_processing.exceptions import DataProcessorError
+from qiskit_experiments.warnings import HAS_SKLEARN
 
-try:
-    from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
-
-    HAS_SKLEARN = True
-except ImportError:
-    HAS_SKLEARN = False
+if TYPE_CHECKING:
+    from sklearn.discriminant_analysis import (
+        LinearDiscriminantAnalysis,
+        QuadraticDiscriminantAnalysis,
+    )
 
 
 class SkLDA(BaseDiscriminator):
-    """A wrapper for the SKlearn linear discriminant analysis."""
+    """A wrapper for the scikit-learn linear discriminant analysis.
+
+    .. note::
+        This class requires that scikit-learn is installed.
+    """
 
     def __init__(self, lda: "LinearDiscriminantAnalysis"):
         """
@@ -35,13 +38,8 @@ class SkLDA(BaseDiscriminator):
                 untrained discriminator.
 
         Raises:
-            DataProcessorError: if SKlearn could not be imported.
+            DataProcessorError: If SKlearn could not be imported.
         """
-        if not HAS_SKLEARN:
-            raise DataProcessorError(
-                f"SKlearn is needed to initialize an {self.__class__.__name__}."
-            )
-
         self._lda = lda
         self.attributes = [
             "coef_",
@@ -85,11 +83,10 @@ class SkLDA(BaseDiscriminator):
         return {"params": self._lda.get_params(), "attributes": attr_conf}
 
     @classmethod
+    @HAS_SKLEARN.require_in_call
     def from_config(cls, config: Dict[str, Any]) -> "SkLDA":
         """Deserialize from an object."""
-
-        if not HAS_SKLEARN:
-            raise DataProcessorError(f"SKlearn is needed to initialize an {cls.__name__}.")
+        from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 
         lda = LinearDiscriminantAnalysis()
         lda.set_params(**config["params"])
@@ -99,3 +96,78 @@ class SkLDA(BaseDiscriminator):
                 setattr(lda, name, value)
 
         return SkLDA(lda)
+
+
+class SkQDA(BaseDiscriminator):
+    """A wrapper for the SKlearn quadratic discriminant analysis.
+
+    .. note::
+        This class requires that scikit-learn is installed.
+    """
+
+    def __init__(self, qda: "QuadraticDiscriminantAnalysis"):
+        """
+        Args:
+            qda: The sklearn quadratic discriminant analysis. This may be a trained or an
+                untrained discriminator.
+
+        Raises:
+            DataProcessorError: If SKlearn could not be imported.
+        """
+        self._qda = qda
+        self.attributes = [
+            "coef_",
+            "intercept_",
+            "covariance_",
+            "explained_variance_ratio_",
+            "means_",
+            "priors_",
+            "scalings_",
+            "xbar_",
+            "classes_",
+            "n_features_in_",
+            "feature_names_in_",
+            "rotations_",
+        ]
+
+    @property
+    def discriminator(self) -> Any:
+        """Return then SKLearn object."""
+        return self._qda
+
+    def is_trained(self) -> bool:
+        """Return True if the discriminator has been trained on data."""
+        return not getattr(self._qda, "classes_", None) is None
+
+    def predict(self, data: List):
+        """Wrap the predict method of the QDA."""
+        return self._qda.predict(data)
+
+    def fit(self, data: List, labels: List):
+        """Fit the QDA.
+
+        Args:
+            data: The independent data.
+            labels: The labels corresponding to data.
+        """
+        self._qda.fit(data, labels)
+
+    def config(self) -> Dict[str, Any]:
+        """Return the configuration of the QDA."""
+        attr_conf = {attr: getattr(self._qda, attr, None) for attr in self.attributes}
+        return {"params": self._qda.get_params(), "attributes": attr_conf}
+
+    @classmethod
+    @HAS_SKLEARN.require_in_call
+    def from_config(cls, config: Dict[str, Any]) -> "SkQDA":
+        """Deserialize from an object."""
+        from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
+
+        qda = QuadraticDiscriminantAnalysis()
+        qda.set_params(**config["params"])
+
+        for name, value in config["attributes"].items():
+            if value is not None:
+                setattr(qda, name, value)
+
+        return SkQDA(qda)

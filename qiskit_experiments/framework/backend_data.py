@@ -58,8 +58,8 @@ class BackendData:
                 except NotImplementedError:
                     return self._pulse_conf.control(qubits)
         except AttributeError:
-            return None
-        return None
+            return []
+        return []
 
     def drive_channel(self, qubit):
         """Returns the backend drive channel for the given qubit"""
@@ -181,7 +181,10 @@ class BackendData:
         if self._v1:
             return getattr(self._backend.configuration(), "coupling_map", [])
         elif self._v2:
-            return list(self._backend.coupling_map.get_edges())
+            coupling_map = self._backend.coupling_map
+            if coupling_map is None:
+                return coupling_map
+            return list(coupling_map.get_edges())
         return []
 
     @property
@@ -206,6 +209,31 @@ class BackendData:
         return None
 
     @property
+    def drive_freqs(self):
+        """Returns the backend's qubit drive frequencies"""
+        if self._v1:
+            return getattr(self._backend.defaults(), "qubit_freq_est", [])
+        elif self._v2:
+            if self._backend.target.qubit_properties is None:
+                return []
+            return [property.frequency for property in self._backend.target.qubit_properties]
+        return []
+
+    @property
+    def meas_freqs(self):
+        """Returns the backend's measurement stimulus frequencies.
+
+        .. note::
+
+            The qiskit-terra base classes do not provide this information as a
+            standard, but it is available from some providers in the data
+            returned by the ``Backend.defaults()`` method.
+        """
+        if not hasattr(self._backend, "defaults"):
+            return []
+        return getattr(self._backend.defaults(), "meas_freq_est", [])
+
+    @property
     def num_qubits(self):
         """Returns the backend's number of qubits"""
         if self._v1:
@@ -218,8 +246,10 @@ class BackendData:
     @property
     def is_simulator(self):
         """Returns True given an indication the backend is a simulator
+
         .. note::
-            Note: for `BackendV2` we sometimes cannot be sure, because it lacks
+
+            For `BackendV2` we sometimes cannot be sure, because it lacks
             a `simulator` field, as was present in `BackendV1`'s configuration.
             We still check whether the backend inherits `FakeBackendV2`, for
             either of its existing implementations in Terra.

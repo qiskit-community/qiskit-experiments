@@ -12,7 +12,7 @@
 
 """A mock IQ backend for testing."""
 from abc import abstractmethod
-from typing import Sequence, List, Tuple, Dict, Union, Any, Optional
+from typing import Sequence, List, Tuple, Dict, Union, Any
 import numpy as np
 
 from qiskit import QuantumCircuit
@@ -83,7 +83,8 @@ class MockRestlessBackend(FakeOpenPulse2QV2):
         self._precomputed_probabilities = None
         super().__init__()
 
-    def _default_options(self):
+    @classmethod
+    def _default_options(cls):
         """Default options of the test backend."""
         return Options(
             shots=1024,
@@ -234,7 +235,8 @@ class MockIQBackend(FakeOpenPulse2QV2):
 
         super().__init__()
 
-    def _default_options(self):
+    @classmethod
+    def _default_options(cls):
         """Default options of the test backend."""
         return Options(
             shots=1024,
@@ -286,7 +288,7 @@ class MockIQBackend(FakeOpenPulse2QV2):
         """
         Produce a list in the size of num_qubits. Each entry value is produced from normal distribution
         with expected value of '0' and standard deviation of 1. The intention is that these samples are
-        scaled by :py:func:`_scale_samples_for_widths` for various circuits, experiments, and their IQ
+        scaled by :func:`_scale_samples_for_widths` for various circuits, experiments, and their IQ
         widths; removing the need to query a RNG for each new width list.
 
         Example:
@@ -352,8 +354,8 @@ class MockIQBackend(FakeOpenPulse2QV2):
         prob: List[float],
         shots: int,
         circ_qubits: Sequence[int],
-        iq_cluster_centers: Optional[List[Tuple[IQPoint, IQPoint]]],
-        iq_cluster_width: Optional[List[float]],
+        iq_cluster_centers: List[Tuple[IQPoint, IQPoint]],
+        iq_cluster_width: List[float],
         phase: float = 0.0,
     ) -> List[List[List[Union[float, complex]]]]:
         """

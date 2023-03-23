@@ -15,16 +15,13 @@
 from test.base import QiskitExperimentsTestCase
 import numpy as np
 
-from qiskit import transpile
-import qiskit.pulse as pulse
+from qiskit import pulse, transpile
 from qiskit.circuit import Parameter
 
 from qiskit_experiments.calibration_management.basis_gate_library import FixedFrequencyTransmon
 from qiskit_experiments.calibration_management import Calibrations
 from qiskit_experiments.library import EFRoughXSXAmplitudeCal, RoughXSXAmplitudeCal
-from qiskit_experiments.test.fake_pulse_backends import FakeArmonkV2Pulse
-from qiskit_experiments.test.mock_iq_backend import MockIQBackend
-from qiskit_experiments.test.mock_iq_helpers import MockIQRabiHelper as RabiHelper
+from qiskit_experiments.test.pulse_backend import SingleTransmonTestBackend
 
 
 class TestRoughAmpCal(QiskitExperimentsTestCase):
@@ -35,13 +32,13 @@ class TestRoughAmpCal(QiskitExperimentsTestCase):
         super().setUp()
         library = FixedFrequencyTransmon()
 
-        self.backend = FakeArmonkV2Pulse()
+        self.backend = SingleTransmonTestBackend(noise=False)
         self.cals = Calibrations.from_backend(self.backend, libraries=[library])
 
     def test_circuits(self):
         """Test the quantum circuits."""
         test_amps = [-0.5, 0, 0.5]
-        rabi = RoughXSXAmplitudeCal(0, self.cals, amplitudes=test_amps)
+        rabi = RoughXSXAmplitudeCal([0], self.cals, amplitudes=test_amps)
 
         circs = transpile(rabi.circuits(), self.backend, inst_map=self.cals.default_inst_map)
 
@@ -57,20 +54,37 @@ class TestRoughAmpCal(QiskitExperimentsTestCase):
     def test_update(self):
         """Test that the calibrations update properly."""
 
-        self.assertTrue(np.allclose(self.cals.get_parameter_value("amp", 0, "x"), 0.5))
-        self.assertTrue(np.allclose(self.cals.get_parameter_value("amp", 0, "sx"), 0.25))
+        tol = 0.01
+        default_amp = 0.5 / self.backend.rabi_rate_01
 
-        rabi_ef = RoughXSXAmplitudeCal(0, self.cals)
-        expdata = rabi_ef.run(MockIQBackend(RabiHelper(amplitude_to_angle=np.pi * 1.5)))
+        rabi = RoughXSXAmplitudeCal(
+            [0], self.cals, amplitudes=np.linspace(-0.1, 0.1, 11), backend=self.backend
+        )
+        expdata = rabi.run()
         self.assertExperimentDone(expdata)
 
-        tol = 0.002
-        self.assertTrue(abs(self.cals.get_parameter_value("amp", 0, "x") - 0.333) < tol)
-        self.assertTrue(abs(self.cals.get_parameter_value("amp", 0, "sx") - 0.333 / 2) < tol)
+        self.assertAlmostEqual(self.cals.get_parameter_value("amp", 0, "x"), default_amp, delta=tol)
+        self.assertAlmostEqual(
+            self.cals.get_parameter_value("amp", 0, "sx"), default_amp / 2, delta=tol
+        )
+
+        self.cals.add_parameter_value(int(4 * 160 / 5), "duration", (), schedule="x")
+        rabi = RoughXSXAmplitudeCal(
+            [0], self.cals, amplitudes=np.linspace(-0.1, 0.1, 11), backend=self.backend
+        )
+        expdata = rabi.run()
+        self.assertExperimentDone(expdata)
+
+        self.assertTrue(
+            abs(self.cals.get_parameter_value("amp", 0, "x") * (4 / 5) - default_amp) < tol
+        )
+        self.assertTrue(
+            abs(self.cals.get_parameter_value("amp", 0, "sx") * (4 / 5) - default_amp / 2) < tol
+        )
 
     def test_experiment_config(self):
         """Test converting to and from config works"""
-        exp = RoughXSXAmplitudeCal(0, self.cals)
+        exp = RoughXSXAmplitudeCal([0], self.cals)
         config = exp.config()
         loaded_exp = RoughXSXAmplitudeCal.from_config(config)
         self.assertNotEqual(exp, loaded_exp)
@@ -86,29 +100,31 @@ class TestSpecializations(QiskitExperimentsTestCase):
 
         library = FixedFrequencyTransmon()
 
-        self.backend = FakeArmonkV2Pulse()
+        self.backend = SingleTransmonTestBackend(noise=False)
         self.cals = Calibrations.from_backend(self.backend, libraries=[library])
 
         # Add some pulses on the 1-2 transition.
         d0 = pulse.DriveChannel(0)
         with pulse.build(name="x12") as x12:
             with pulse.frequency_offset(-300e6, d0):
-                pulse.play(pulse.Drag(160, Parameter("amp"), 40, 0.0), d0)
+                pulse.play(pulse.Drag(Parameter("duration"), Parameter("amp"), 40, 0.0), d0)
 
         with pulse.build(name="sx12") as sx12:
             with pulse.frequency_offset(-300e6, d0):
-                pulse.play(pulse.Drag(160, Parameter("amp"), 40, 0.0), d0)
+                pulse.play(pulse.Drag(Parameter("duration"), Parameter("amp"), 40, 0.0), d0)
 
         self.cals.add_schedule(x12, 0)
         self.cals.add_schedule(sx12, 0)
         self.cals.add_parameter_value(0.4, "amp", 0, "x12")
         self.cals.add_parameter_value(0.2, "amp", 0, "sx12")
+        self.cals.add_parameter_value(160, "duration", 0, "x12")
+        self.cals.add_parameter_value(160, "duration", 0, "sx12")
 
     def test_ef_circuits(self):
         """Test that we get the expected circuits with calibrations for the EF experiment."""
 
         test_amps = [-0.5, 0, 0.5]
-        rabi_ef = EFRoughXSXAmplitudeCal(0, self.cals, amplitudes=test_amps)
+        rabi_ef = EFRoughXSXAmplitudeCal([0], self.cals, amplitudes=test_amps)
 
         circs = transpile(rabi_ef.circuits(), self.backend, inst_map=self.cals.default_inst_map)
 
@@ -131,13 +147,31 @@ class TestSpecializations(QiskitExperimentsTestCase):
     def test_ef_update(self):
         """Tes that we properly update the pulses on the 1<->2 transition."""
 
-        self.assertTrue(np.allclose(self.cals.get_parameter_value("amp", 0, "x12"), 0.4))
-        self.assertTrue(np.allclose(self.cals.get_parameter_value("amp", 0, "sx12"), 0.2))
+        tol = 0.01
+        default_amp = 0.5 / self.backend.rabi_rate_12
 
-        rabi_ef = EFRoughXSXAmplitudeCal(0, self.cals)
-        expdata = rabi_ef.run(MockIQBackend(RabiHelper(amplitude_to_angle=np.pi * 1.5)))
+        rabi_ef = EFRoughXSXAmplitudeCal(
+            [0], self.cals, amplitudes=np.linspace(-0.1, 0.1, 11), backend=self.backend
+        )
+        expdata = rabi_ef.run()
         self.assertExperimentDone(expdata)
 
-        tol = 0.002
-        self.assertTrue(abs(self.cals.get_parameter_value("amp", 0, "x12") - 0.333) < tol)
-        self.assertTrue(abs(self.cals.get_parameter_value("amp", 0, "sx12") - 0.333 / 2) < tol)
+        self.assertAlmostEqual(
+            self.cals.get_parameter_value("amp", 0, "x12"), default_amp, delta=tol
+        )
+        self.assertAlmostEqual(
+            self.cals.get_parameter_value("amp", 0, "sx12"), default_amp / 2, delta=tol
+        )
+
+        self.cals.add_parameter_value(int(4 * 160 / 5), "duration", 0, "x12")
+        self.cals.add_parameter_value(int(4 * 160 / 5), "duration", 0, "sx12")
+        rabi_ef = EFRoughXSXAmplitudeCal([0], self.cals, amplitudes=np.linspace(-0.1, 0.1, 11))
+        expdata = rabi_ef.run(self.backend)
+        self.assertExperimentDone(expdata)
+
+        self.assertTrue(
+            abs(self.cals.get_parameter_value("amp", 0, "x12") * (4 / 5) - default_amp) < tol
+        )
+        self.assertTrue(
+            abs(self.cals.get_parameter_value("amp", 0, "sx12") * (4 / 5) - default_amp / 2) < tol
+        )

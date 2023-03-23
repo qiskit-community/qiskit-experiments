@@ -16,7 +16,7 @@ Composite StateTomography and ProcessTomography experiment tests
 from test.base import QiskitExperimentsTestCase
 from qiskit import QuantumCircuit
 import qiskit.quantum_info as qi
-from qiskit.providers.aer import AerSimulator
+from qiskit_aer import AerSimulator
 from qiskit_experiments.framework import BatchExperiment, ParallelExperiment
 from qiskit_experiments.library import StateTomography, ProcessTomography
 from .tomo_utils import filter_results
@@ -26,7 +26,7 @@ class TestCompositeTomography(QiskitExperimentsTestCase):
     """Test composite tomography experiments"""
 
     def test_batch_qst_exp(self):
-        """Test batch state tomography experiment with measurement_qubits kwarg"""
+        """Test batch state tomography experiment with measurement_indices kwarg"""
         # Subsystem unitaries
         seed = 1111
         nq = 3
@@ -42,7 +42,7 @@ class TestCompositeTomography(QiskitExperimentsTestCase):
         targets = []
         for i in range(nq):
             targets.append(qi.Statevector(ops[i].to_instruction()))
-            exps.append(StateTomography(circuit, measurement_qubits=[i]))
+            exps.append(StateTomography(circuit, measurement_indices=[i]))
 
         # Run batch experiments
         backend = AerSimulator(seed_simulator=9000)
@@ -80,7 +80,7 @@ class TestCompositeTomography(QiskitExperimentsTestCase):
         exps = []
         targets = []
         for i in range(nq):
-            exps.append(StateTomography(ops[i], qubits=[i]))
+            exps.append(StateTomography(ops[i], physical_qubits=[i]))
             targets.append(qi.Statevector(ops[i].to_instruction()))
 
         # Run batch experiments
@@ -108,7 +108,7 @@ class TestCompositeTomography(QiskitExperimentsTestCase):
             target_fid = qi.state_fidelity(state, targets[i], validate=False)
             self.assertAlmostEqual(fid, target_fid, places=6, msg="result fidelity is incorrect")
 
-    def test_batch_qpt_exp_with_measurement_qubits(self):
+    def test_batch_qpt_exp_with_measurement_indices(self):
         """Test batch process tomography experiment with kwargs"""
         seed = 1111
         nq = 3
@@ -124,7 +124,9 @@ class TestCompositeTomography(QiskitExperimentsTestCase):
         targets = []
         for i in range(nq):
             targets.append(ops[i])
-            exps.append(ProcessTomography(circuit, measurement_qubits=[i], preparation_qubits=[i]))
+            exps.append(
+                ProcessTomography(circuit, measurement_indices=[i], preparation_indices=[i])
+            )
 
         # Run batch experiments
         backend = AerSimulator(seed_simulator=9000)
@@ -160,7 +162,7 @@ class TestCompositeTomography(QiskitExperimentsTestCase):
         exps = []
         targets = []
         for i in range(nq):
-            exps.append(ProcessTomography(ops[i], qubits=[i]))
+            exps.append(ProcessTomography(ops[i], physical_qubits=[i]))
             targets.append(ops[i])
 
         # Run batch experiments

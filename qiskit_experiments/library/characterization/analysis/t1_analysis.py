@@ -26,7 +26,7 @@ class T1Analysis(curve.DecayAnalysis):
     r"""A class to analyze T1 experiments.
 
     # section: see_also
-        qiskit_experiments.curve_analysis.standard_analysis.decay.DecayAnalysis
+        :class:`.DecayAnalysis`
 
     """
 
@@ -34,7 +34,7 @@ class T1Analysis(curve.DecayAnalysis):
     def _default_options(cls) -> Options:
         """Default analysis options."""
         options = super()._default_options()
-        options.curve_drawer.set_options(
+        options.plotter.set_figure_options(
             xlabel="Delay",
             ylabel="P(1)",
             xval_unit="s",
@@ -77,7 +77,7 @@ class T1KerneledAnalysis(curve.DecayAnalysis):
     r"""A class to analyze T1 experiments with kerneled data.
 
     # section: see_also
-        qiskit_experiments.curve_analysis.standard_analysis.decay.DecayAnalysis
+        :class:`.DecayAnalysis`
 
     """
 
@@ -85,7 +85,7 @@ class T1KerneledAnalysis(curve.DecayAnalysis):
     def _default_options(cls) -> Options:
         """Default analysis options."""
         options = super()._default_options()
-        options.curve_drawer.set_options(
+        options.plotter.set_figure_options(
             xlabel="Delay",
             ylabel="Normalized Projection on the Main Axis",
             xval_unit="s",

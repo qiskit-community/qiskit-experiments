@@ -67,17 +67,17 @@ class DataAction(ABC, StoreInitArgs):
 
     def __json_encode__(self) -> Dict[str, Any]:
         """Return the config dict for this node."""
-        return dict(
-            cls=type(self),
-            args=tuple(getattr(self, "__init_args__", OrderedDict()).values()),
-            kwargs=dict(getattr(self, "__init_kwargs__", OrderedDict())),
-        )
+        return {
+            "cls": type(self),
+            "args": tuple(getattr(self, "__init_args__", OrderedDict()).values()),
+            "kwargs": dict(getattr(self, "__init_kwargs__", OrderedDict())),
+        }
 
     @classmethod
     def __json_decode__(cls, config: Dict[str, Any]) -> "DataAction":
         """Initialize a node from config dict."""
-        init_args = config.get("args", tuple())
-        init_kwargs = config.get("kwargs", dict())
+        init_args = config.get("args", ())
+        init_kwargs = config.get("kwargs", {})
 
         return cls(*init_args, **init_kwargs)
 
@@ -105,14 +105,14 @@ class TrainableDataAction(DataAction):
     .. note::
 
         The parameters of trainable nodes computed during training should be listed
-        in the class method :meth:`._default_parameters`. These parameters
-        are initialized at construction time and serialized together with the
-        constructor arguments. All parameters defined in
-        :meth:`._default_parameters` should be assigned a `None` value to
-        indicate that the node has not been trained.
+        in the class method :meth:`.TrainableDataAction._default_parameters`.
+        These parameters are initialized at construction time and serialized
+        together with the constructor arguments. All parameters defined in
+        :meth:`.TrainableDataAction._default_parameters` should be assigned a
+        `None` value to indicate that the node has not been trained.
 
         Parameter values can be updated with the :meth:`.set_parameters` method
-        and refer to using the :meth:`.parameters` method.
+        and refer to using the :meth:`.TrainableDataAction.parameters` method.
         This is required to correctly JSON serialize and deserialize
         a trainable node with parameters set during training.
     """
@@ -181,9 +181,9 @@ class TrainableDataAction(DataAction):
     @classmethod
     def __json_decode__(cls, config: Dict[str, Any]) -> "TrainableDataAction":
         """Initialize a node from config dict."""
-        init_args = config.get("args", tuple())
-        init_kwargs = config.get("kwargs", dict())
-        params = config.get("params", dict())
+        init_args = config.get("args", ())
+        init_kwargs = config.get("kwargs", {})
+        params = config.get("params", {})
 
         instance = cls(*init_args, **init_kwargs)
         instance.set_parameters(**params)

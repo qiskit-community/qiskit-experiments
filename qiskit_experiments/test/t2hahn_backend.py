@@ -183,7 +183,7 @@ class T2HahnBackend(BackendV1):
             dict: The state of the qubit after operating the gate.
 
         Raises:
-            QiskitError: if angle is not ±π/2 or ±π. Those are the only supported angles.
+            QiskitError: If angle is not ±π/2 or ±π. Those are the only supported angles.
         """
 
         if qubit_state["XY plane"]:
@@ -302,7 +302,7 @@ class T2HahnBackend(BackendV1):
             nqubits = circ.num_qubits
             qubit_indices = {bit: idx for idx, bit in enumerate(circ.qubits)}
             clbit_indices = {bit: idx for idx, bit in enumerate(circ.clbits)}
-            counts = dict()
+            counts = {}
 
             for _ in range(shots):
                 qubit_state = self._qubit_initialization(

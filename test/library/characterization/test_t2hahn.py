@@ -14,8 +14,13 @@ Test T2Hahn experiment
 """
 
 from test.base import QiskitExperimentsTestCase
+
 import numpy as np
-from ddt import ddt, data, unpack
+from ddt import ddt, data, named_data, unpack
+
+from qiskit.providers.fake_provider import FakeVigoV2
+from qiskit_aer import AerSimulator
+
 from qiskit_experiments.framework import ParallelExperiment
 from qiskit_experiments.library.characterization.t2hahn import T2Hahn
 from qiskit_experiments.library.characterization import T2HahnAnalysis
@@ -27,6 +32,16 @@ class TestT2Hahn(QiskitExperimentsTestCase):
     """Test T2Hahn experiment"""
 
     __tolerance__ = 0.1
+
+    @named_data(
+        ["no_backend", None], ["fake_backend", FakeVigoV2()], ["aer_backend", AerSimulator()]
+    )
+    def test_circuits(self, backend: str):
+        """Test circuit generation does not error"""
+        delays = [1e-6, 5e-6, 10e-6]
+        circs = T2Hahn([0], delays, backend=backend).circuits()
+        for delay, circ in zip(delays, circs):
+            self.assertAlmostEqual(delay, circ.metadata["xval"])
 
     @data([0], [1], [2])
     @unpack
@@ -42,7 +57,7 @@ class TestT2Hahn(QiskitExperimentsTestCase):
             (np.linspace(1.0, 15.0, num=15)).astype(float),
             (np.linspace(16.0, 45.0, num=59)).astype(float),
         )
-        exp = T2Hahn(qubit=qubit, delays=delays, num_echoes=num_of_echoes)
+        exp = T2Hahn(physical_qubits=[qubit], delays=delays, num_echoes=num_of_echoes)
         default_p0 = {
             "A": 0.5,
             "T2": estimated_t2hahn,
@@ -56,7 +71,7 @@ class TestT2Hahn(QiskitExperimentsTestCase):
             readout1to0=[0.02],
         )
 
-        for _ in [default_p0, dict()]:
+        for _ in [default_p0, {}]:
             exp.analysis.set_options(
                 p0={"amp": 0.5, "tau": estimated_t2hahn, "base": 0.5}, plot=True
             )
@@ -78,8 +93,8 @@ class TestT2Hahn(QiskitExperimentsTestCase):
         delays = [list(range(1, 60)), list(range(1, 50))]
         osc_freq = [0.11, 0.11]
 
-        exp0 = T2Hahn(0, delays[0])
-        exp2 = T2Hahn(2, delays[1])
+        exp0 = T2Hahn([0], delays[0])
+        exp2 = T2Hahn([2], delays[1])
 
         exp0.analysis.set_options(p0={"amp": 0.5, "tau": t2hahn[0], "base": 0.5}, plot=True)
         exp2.analysis.set_options(p0={"amp": 0.5, "tau": t2hahn[1], "base": 0.5}, plot=True)
@@ -119,7 +134,7 @@ class TestT2Hahn(QiskitExperimentsTestCase):
         delays0 = list(range(1, 60, 2))
         osc_freq = 0.08
 
-        exp0 = T2Hahn(qubit, delays0)
+        exp0 = T2Hahn([qubit], delays0)
         exp0.analysis.set_options(p0={"amp": 0.5, "tau": estimated_t2hahn, "base": 0.5}, plot=True)
         backend = T2HahnBackend(
             t2hahn=[estimated_t2hahn],
@@ -136,7 +151,7 @@ class TestT2Hahn(QiskitExperimentsTestCase):
         res_t2_0 = expdata0.analysis_results("T2")
         # second experiment
         delays1 = list(range(2, 65, 2))
-        exp1 = T2Hahn(qubit, delays1)
+        exp1 = T2Hahn([qubit], delays1)
         exp1.analysis.set_options(p0={"amp": 0.5, "tau": estimated_t2hahn, "base": 0.5}, plot=True)
         expdata1 = exp1.run(backend=backend, analysis=None, shots=1000).block_for_results()
         expdata1.add_data(expdata0.data())
@@ -159,7 +174,7 @@ class TestT2Hahn(QiskitExperimentsTestCase):
 
     def test_experiment_config(self):
         """Test converting to and from config works"""
-        exp = T2Hahn(0, [1, 2, 3, 4, 5])
+        exp = T2Hahn([0], [1, 2, 3, 4, 5])
         loaded_exp = T2Hahn.from_config(exp.config())
         self.assertNotEqual(exp, loaded_exp)
         self.assertTrue(self.json_equiv(exp, loaded_exp))
@@ -169,7 +184,7 @@ class TestT2Hahn(QiskitExperimentsTestCase):
 
         delays0 = list(range(1, 60, 2))
 
-        exp = T2Hahn(0, delays0)
+        exp = T2Hahn([0], delays0)
         self.assertRoundTripSerializable(exp, self.json_equiv)
 
         osc_freq = 0.08

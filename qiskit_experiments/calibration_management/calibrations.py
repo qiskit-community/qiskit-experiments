@@ -20,19 +20,16 @@ import csv
 import dataclasses
 import json
 import warnings
-import re
+import rustworkx as rx
 
 from qiskit.pulse import (
     ScheduleBlock,
     DriveChannel,
     ControlChannel,
     MeasureChannel,
-    Call,
-    Instruction,
     AcquireChannel,
     RegisterSlot,
     MemorySlot,
-    Schedule,
     InstructionScheduleMap,
 )
 from qiskit.pulse.channels import PulseChannel
@@ -43,7 +40,12 @@ from qiskit_experiments.exceptions import CalibrationError
 from qiskit_experiments.calibration_management.basis_gate_library import BasisGateLibrary
 from qiskit_experiments.calibration_management.parameter_value import ParameterValue
 from qiskit_experiments.calibration_management.control_channel_map import ControlChannelMap
-from qiskit_experiments.calibration_management.calibration_utils import used_in_calls
+from qiskit_experiments.calibration_management.calibration_utils import (
+    used_in_references,
+    validate_channels,
+    reference_info,
+    update_schedule_dependency,
+)
 from qiskit_experiments.calibration_management.calibration_key_types import (
     ParameterKey,
     ParameterValueType,
@@ -66,14 +68,10 @@ class Calibrations:
     # The name of the parameter under which the readout frequencies are registered.
     __readout_freq_parameter__ = "meas_freq"
 
-    # The channel indices need to be parameterized following this regex.
-    __channel_pattern__ = r"^ch\d[\.\d]*\${0,1}[\d]*$"
-
     def __init__(
         self,
         coupling_map: Optional[List[List[int]]] = None,
         control_channel_map: Optional[Dict[Tuple[int, ...], List[ControlChannel]]] = None,
-        library: Optional[Union[BasisGateLibrary, List[BasisGateLibrary]]] = None,
         libraries: Optional[List[BasisGateLibrary]] = None,
         add_parameter_defaults: bool = True,
         backend_name: Optional[str] = None,
@@ -82,7 +80,7 @@ class Calibrations:
         """Initialize the calibrations.
 
         Calibrations can be initialized from a list of basis gate libraries, i.e. a subclass of
-        :class:`BasisGateLibrary`. As example consider the following code:
+        :class:`.BasisGateLibrary`. As example consider the following code:
 
         .. code-block:: python
 
@@ -103,40 +101,16 @@ class Calibrations:
                 keys are tuples of qubits and the values are a list of ControlChannels
                 that correspond to the qubits in the keys. If a control_channel_map is given
                 then the qubits must be in the coupling_map.
-            library (deprecated): A library instance from which to get template schedules to
-                register as well as default parameter values.
-            libraries: A list of library instance from which to get template schedules to register
+            libraries: A list of library instances from which to get template schedules to register
                 as well as default parameter values.
             add_parameter_defaults: A boolean to indicate weather the default parameter values of
                 the given libraries should be used to populate the calibrations. By default this
                 value is True but can be set to false when deserializing a calibrations object.
             backend_name: The name of the backend that these calibrations are attached to.
             backend_version: The version of the backend that these calibrations are attached to.
-
-        Raises:
-            CalibrationError: if both library and libraries are given. Note that library will be
-                removed in future versions.
-
         """
         self._backend_name = backend_name
         self._backend_version = backend_version
-
-        if library:
-            warnings.warn(
-                "library has been deprecated, please provide `libraries` instead."
-                "The `library` argument along with this warning will be removed "
-                "in Qiskit Experiments 0.4.",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-
-            if libraries:
-                raise CalibrationError("Cannot supply both library and libraries.")
-
-            if not isinstance(library, list):
-                libraries = [library]
-            else:
-                libraries = library
 
         # Mapping between qubits and their control channels.
         self._control_channel_map = control_channel_map if control_channel_map else {}
@@ -162,6 +136,11 @@ class Calibrations:
         # Dict of the form: ScheduleKey: int (number of qubits in corresponding circuit instruction)
         self._schedules_qubits = {}
 
+        # A directed acyclic graph to manage schedule reference dependencies.
+        # Each node is a schedule key and edges are schedule references.
+        # The acyclic nature prevents users from registering schedules with cyclic dependencies.
+        self._schedule_dependency = rx.PyDiGraph(check_cycle=True)
+
         # A variable to store all parameter hashes encountered and present them as ordered
         # indices to the user.
         self._hash_to_counter_map = {}
@@ -169,6 +148,9 @@ class Calibrations:
 
         self._libraries = libraries
         if libraries is not None:
+            if not isinstance(libraries, list):
+                libraries = [libraries]
+
             for lib in libraries:
 
                 # Add the basis gates
@@ -233,11 +215,15 @@ class Calibrations:
         """Return the version of the backend."""
         return self._backend_version
 
+    @property
+    def schedule_dependency(self) -> rx.PyDiGraph:
+        """Return the schedule dependencies in the calibrations."""
+        return self._schedule_dependency.copy()
+
     @classmethod
     def from_backend(
         cls,
         backend: Backend,
-        library: Optional[BasisGateLibrary] = None,
         libraries: Optional[List[BasisGateLibrary]] = None,
         add_parameter_defaults: bool = True,
     ) -> "Calibrations":
@@ -247,8 +233,6 @@ class Calibrations:
             backend: A backend instance from which to extract the qubit and readout frequencies
                 (which will be added as first guesses for the corresponding parameters) as well
                 as the coupling map.
-            library: A library or list thereof from which to get template schedules to register as
-                well as default parameter values.
             libraries: A list of libraries from which to get template schedules to register as
                 well as default parameter values.
             add_parameter_defaults: A boolean to indicate whether the default parameter values of
@@ -261,13 +245,13 @@ class Calibrations:
         backend_data = BackendData(backend)
 
         control_channel_map = {}
-        for qargs in backend_data.coupling_map:
-            control_channel_map[tuple(qargs)] = backend_data.control_channel(qargs)
+        if backend_data.coupling_map is not None:
+            for qargs in backend_data.coupling_map:
+                control_channel_map[tuple(qargs)] = backend_data.control_channel(qargs)
 
         cals = Calibrations(
             backend_data.coupling_map,
             control_channel_map,
-            library,
             libraries,
             add_parameter_defaults,
             backend_data.name,
@@ -275,10 +259,10 @@ class Calibrations:
         )
 
         if add_parameter_defaults:
-            for qubit, freq in enumerate(getattr(backend.defaults(), "qubit_freq_est", [])):
+            for qubit, freq in enumerate(backend_data.drive_freqs):
                 cals.add_parameter_value(freq, cals.drive_freq, qubit, update_inst_map=False)
 
-            for meas, freq in enumerate(getattr(backend.defaults(), "meas_freq_est", [])):
+            for meas, freq in enumerate(backend_data.meas_freqs):
                 cals.add_parameter_value(freq, cals.meas_freq, meas, update_inst_map=False)
 
         # Update the instruction schedule map after adding all parameter values.
@@ -289,17 +273,6 @@ class Calibrations:
     @property
     def libraries(self) -> Optional[List[BasisGateLibrary]]:
         """Return the libraries used to initialize the calibrations."""
-        return self._libraries
-
-    @property
-    def library(self) -> Optional[List[BasisGateLibrary]]:
-        """Return the libraries used to initialize the calibrations."""
-        warnings.warn(
-            "library has been deprecated, use libraries instead."
-            "This warning will be removed with backport in Qiskit Experiments 0.4.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
         return self._libraries
 
     def _get_operated_qubits(self) -> Dict[int, List[int]]:
@@ -517,7 +490,7 @@ class Calibrations:
             schedule_name: The name of the schedule. If None is given then we assume that the
                 schedule and the instruction have the same name.
             assign_params: An optional dict of parameter mappings to apply. See for instance
-                :meth:`get_schedule` of :class:`Calibrations`.
+                :meth:`.get_schedule` of :class:`.Calibrations`.
         """
         schedule_name = schedule_name or instruction_name
 
@@ -553,9 +526,8 @@ class Calibrations:
 
         Raises:
             CalibrationError: If schedule is not an instance of :class:`ScheduleBlock`.
-            CalibrationError: If the parameterized channel index is not formatted properly.
+            CalibrationError: If a schedule has assigned references.
             CalibrationError: If several parameters in the same schedule have the same name.
-            CalibrationError: If a channel is parameterized by more than one parameter.
             CalibrationError: If the schedule name starts with the prefix of ScheduleBlock.
             CalibrationError: If the schedule calls subroutines that have not been registered.
             CalibrationError: If a :class:`Schedule` is Called instead of a :class:`ScheduleBlock`.
@@ -575,6 +547,12 @@ class Calibrations:
         if not isinstance(schedule, ScheduleBlock):
             raise CalibrationError(f"{schedule.name} is not a ScheduleBlock.")
 
+        if len(schedule.references) != len(schedule.references.unassigned()):
+            raise CalibrationError(
+                f"Cannot add {schedule} with assigned references. {self.__class__.__name__} only "
+                "accepts schedules without references or schedules with references by name."
+            )
+
         sched_key = ScheduleKey(schedule.name, qubits)
 
         # Ensure one to one mapping between name and number of qubits.
@@ -593,31 +571,11 @@ class Calibrations:
                 f"unintended consequences. Please define a meaningful and unique schedule name."
             )
 
-        param_indices = set()
-        for ch in schedule.channels:
-            if isinstance(ch.index, Parameter):
-                if len(ch.index.parameters) != 1:
-                    raise CalibrationError(f"Channel {ch} can only have one parameter.")
-
-                param_indices.add(ch.index)
-                if re.compile(self.__channel_pattern__).match(ch.index.name) is None:
-                    raise CalibrationError(
-                        f"Parameterized channel must correspond to {self.__channel_pattern__}"
-                    )
+        param_indices = validate_channels(schedule)
 
         # Check that subroutines are present.
-        for block in schedule.blocks:
-            if isinstance(block, Call):
-                if isinstance(block.subroutine, Schedule):
-                    raise CalibrationError(
-                        "Calling a Schedule is forbidden, call ScheduleBlock instead."
-                    )
-
-                if (block.subroutine.name, qubits) not in self._schedules:
-                    raise CalibrationError(
-                        f"Cannot register schedule block {schedule.name} with unregistered "
-                        f"subroutine {block.subroutine.name}."
-                    )
+        for reference in schedule.references:
+            self.get_template(*reference_info(reference, qubits))
 
         # Clean the parameter to schedule mapping. This is needed if we overwrite a schedule.
         self._clean_parameter_map(schedule.name, qubits)
@@ -626,44 +584,20 @@ class Calibrations:
         self._schedules[sched_key] = schedule
         self._schedules_qubits[sched_key] = num_qubits
 
+        # Update the schedule dependency.
+        update_schedule_dependency(schedule, self._schedule_dependency, sched_key)
+
         # Register parameters that are not indices.
-        # Do not register parameters that are in call instructions.
         params_to_register = set()
-        for inst in self._exclude_calls(schedule, []):
-            for param in inst.parameters:
-                if param not in param_indices:
-                    params_to_register.add(param)
+        for param in schedule.parameters:
+            if param not in param_indices:
+                params_to_register.add(param)
 
         if len(params_to_register) != len(set(param.name for param in params_to_register)):
             raise CalibrationError(f"Parameter names in {schedule.name} must be unique.")
 
         for param in params_to_register:
             self._register_parameter(param, qubits, schedule)
-
-    def _exclude_calls(
-        self, schedule: ScheduleBlock, instructions: List[Instruction]
-    ) -> List[Instruction]:
-        """Return the non-Call instructions.
-
-        Recursive function to get all non-Call instructions. This will flatten all blocks
-        in a :class:`ScheduleBlock` and return the instructions of the ScheduleBlock leaving
-        out any Call instructions.
-
-        Args:
-            schedule: A :class:`ScheduleBlock` from which to extract the instructions.
-            instructions: The list of instructions that is recursively populated.
-
-        Returns:
-            The list of instructions to which all non-Call instructions have been added.
-        """
-        for block in schedule.blocks:
-            if isinstance(block, ScheduleBlock):
-                instructions = self._exclude_calls(block, instructions)
-            else:
-                if not isinstance(block, Call):
-                    instructions.append(block)
-
-        return instructions
 
     def get_template(
         self, schedule_name: str, qubits: Optional[Tuple[int, ...]] = None
@@ -682,7 +616,7 @@ class Calibrations:
             The registered template schedule.
 
         Raises:
-            CalibrationError: if no template schedule for the given schedule name and qubits
+            CalibrationError: If no template schedule for the given schedule name and qubits
                 was registered.
         """
         key = ScheduleKey(schedule_name, self._to_tuple(qubits))
@@ -710,10 +644,23 @@ class Calibrations:
             schedule: The schedule to remove.
             qubits: The qubits for which to remove the schedules. If None is given then this
                 schedule is the default schedule for all qubits.
+
+        Raises:
+            CalibrationError: If other schedules depend on ``schedule``.
         """
         qubits = self._to_tuple(qubits)
-
         sched_key = ScheduleKey(schedule.name, qubits)
+
+        # Remove the schedule from the schedule dependency DAG. Raise if others depend on it.
+        sched_idx = self._schedule_dependency.nodes().index(sched_key)
+        prev_nodes = self._schedule_dependency.predecessors(sched_idx)
+        if len(prev_nodes) > 0:
+            raise CalibrationError(
+                f"Cannot remove schedule {schedule.name} as {prev_nodes} depend on it."
+            )
+
+        self._schedule_dependency.remove_node(sched_idx)
+
         if sched_key in self._schedules:
             del self._schedules[sched_key]
             del self._schedules_qubits[sched_key]
@@ -868,13 +815,19 @@ class Calibrations:
 
         self._params[ParameterKey(param_name, qubits, sched_name)].append(value)
 
+        # When updating the inst_map we need to
+        # a) Update all the schedules that use the parameter to be updated
+        # b) Update all schedules that reference the updated schedules under a)
         if update_inst_map and schedule is not None:
             param_obj = self.calibration_parameter(param_name, qubits, sched_name)
+
+            # Take care of a) i.e. update all schedules that use the parameter.
             schedules = set(key.schedule for key in self._parameter_map_r[param_obj])
+            keys = set(ScheduleKey(sched, qubits) for sched in schedules)
 
-            # Find schedules that may call the schedule we want to update.
-            schedules.update(used_in_calls(sched_name, list(self._schedules.values())))
-
+            # Take care of b) i.e. find all schedules that refer to the schedules that
+            # make use of the updated parameter.
+            schedules.update(used_in_references(keys, self._schedule_dependency))
             self.update_inst_map(schedules, qubits=qubits)
 
     def _get_channel_index(self, qubits: Tuple[int, ...], chan: PulseChannel) -> int:
@@ -1035,6 +988,47 @@ class Calibrations:
         # 5) Return the most recent parameter.
         return max(enumerate(candidates), key=lambda x: (x[1].date_time, x[0]))[1].value
 
+    def _standardize_assign_params(
+        self,
+        assign_params: Dict,
+        qubits: Tuple[int, ...],
+        schedule_name: str,
+    ) -> Dict[ParameterKey, ParameterValueType]:
+        """Standardize the format of manually specified parameter assignments.
+
+        Users specify parameter assignment dictionaries as tuples. This function (a) converts
+        these tuples to ``ParameterKey`` instances and (b) looks up parameter links between
+        schedules and adds them to the standardized returned parameter assignment dictionary.
+
+        Args:
+            assign_params: The dictionary that specifies how to assign parameters.
+            qubits: The qubits for which to get a schedule.
+            schedule_name: The name of the schedule in which the parameters can be found.
+
+        Returns:
+            A dict with :class:`.ParameterKey`s as keys and :class:`.ParameterValueType`s as values.
+        """
+        linked_assign_params = {}
+
+        if assign_params:
+            # Add parameter links for automatic linking.
+            for param, value in assign_params.items():
+                if isinstance(param, str):
+                    key = ParameterKey(param, qubits, schedule_name)
+                else:
+                    key = ParameterKey(*param)
+                linked_assign_params[key] = value
+                param = self.calibration_parameter(*key)
+                for key2 in self._parameter_map_r[param]:  # Loop over linked keys pointing to param
+                    # Link only over the same qubits.
+                    if key2.qubits == ():
+                        key2 = ParameterKey(key2.parameter, key.qubits, key2.schedule)
+
+                    if key2 not in linked_assign_params:
+                        linked_assign_params[key2] = value
+
+        return linked_assign_params
+
     def get_schedule(
         self,
         name: str,
@@ -1056,7 +1050,7 @@ class Calibrations:
             sched = cals.get_schedule("xp", 3, assign_params={"amp": Parameter("amp")})
 
             # Get an echoed-cross-resonance schedule between qubits (0, 2) where the xp echo gates
-            # are Called schedules but leave their amplitudes as parameters.
+            # are referenced schedules but leave their amplitudes as parameters.
             assign_dict = {("amp", (0,), "xp"): Parameter("my_amp")}
             sched = cals.get_schedule("cr", (0, 2), assign_params=assign_dict)
 
@@ -1077,8 +1071,7 @@ class Calibrations:
                 may be erroneous.
 
         Returns:
-            schedule: A copy of the template schedule with all parameters assigned
-            except for those specified by assign_params.
+            schedule: A copy of the template schedule with all parameters assigned.
 
         Raises:
             CalibrationError: If the name of the schedule is not known.
@@ -1086,26 +1079,25 @@ class Calibrations:
         """
         qubits = self._to_tuple(qubits)
 
-        # Standardize the input in the assignment dictionary
-        if assign_params:
-            assign_params_ = dict()
-            for assign_param, value in assign_params.items():
-                if isinstance(assign_param, str):
-                    assign_params_[ParameterKey(assign_param, qubits, name)] = value
-                else:
-                    assign_params_[ParameterKey(*assign_param)] = value
+        assign_params = self._standardize_assign_params(assign_params, qubits, name)
 
-            assign_params = assign_params_
-        else:
-            assign_params = dict()
+        schedule = self.get_template(name, qubits)
 
-        # Get the template schedule
-        if (name, qubits) in self._schedules:
-            schedule = self._schedules[ScheduleKey(name, qubits)]
-        elif (name, ()) in self._schedules:
-            schedule = self._schedules[ScheduleKey(name, ())]
-        else:
-            raise CalibrationError(f"Schedule {name} is not defined for qubits {qubits}.")
+        # assign any references using a depth first-search.
+        referenced_schedules = {}
+        for ref in schedule.references.unassigned():
+            ref_name, ref_qubits = reference_info(ref, qubits)
+            ref_assign = {}
+            for key, val in assign_params.items():
+                if key.schedule == ref_name and (key.qubits == tuple() or key.qubits == ref_qubits):
+                    ref_assign[key] = val
+
+            referenced_schedules[ref] = self.get_schedule(
+                ref_name,
+                ref_qubits,
+                assign_params=ref_assign,
+            )
+        schedule = schedule.assign_references(referenced_schedules, inplace=False)
 
         # Retrieve the channel indices based on the qubits and bind them.
         binding_dict = {}
@@ -1120,9 +1112,9 @@ class Calibrations:
         assigned_schedule = self._assign(schedule, qubits, assign_params, group, cutoff_date)
 
         free_params = set()
-        for param in assign_params.values():
-            if isinstance(param, ParameterExpression):
-                free_params.add(param)
+        for param_value in assign_params.values():
+            if isinstance(param_value, ParameterExpression):
+                free_params.add(param_value)
 
         if len(assigned_schedule.parameters) != len(free_params):
             raise CalibrationError(
@@ -1141,55 +1133,10 @@ class Calibrations:
         group: Optional[str] = "default",
         cutoff_date: datetime = None,
     ) -> ScheduleBlock:
-        """Recursively assign parameters in a schedule.
+        """Assign parameters in a schedule.
 
-        The recursive behaviour is needed to handle Call instructions as the name of
-        the called instruction defines the scope of the parameter. Each time a Call
-        is found _assign recurses on the channel-assigned subroutine of the Call
-        instruction and the qubits that are in said subroutine. This requires a
-        careful extraction of the qubits from the subroutine and in the appropriate
-        order. Next, the parameters are identified and assigned. This is needed to
-        handle situations where the same parameterized schedule is called but on
-        different channels. For example,
-
-        .. code-block:: python
-
-            ch0 = Parameter("ch0")
-            ch1 = Parameter("ch1")
-
-            with pulse.build(name="xp") as xp:
-                pulse.play(Gaussian(duration, amp, sigma), DriveChannel(ch0))
-
-            with pulse.build(name="xt_xp") as xt:
-                pulse.call(xp)
-                pulse.call(xp, value_dict={ch0: ch1})
-
-        Here, we define the xp :class:`ScheduleBlock` for all qubits as a Gaussian. Next, we define
-        a schedule where both xp schedules are called simultaneously on different channels. We now
-        explain a subtlety related to manually assigning values in the case above. In the schedule
-        above, the parameters of the Gaussian pulses are coupled, e.g. the xp pulse on ch0 and ch1
-        share the same instance of :class:`ParameterExpression`. Suppose now that both pulses have
-        a duration and sigma of 160 and 40 samples, respectively, and that the amplitudes are 0.5
-        and 0.3 for qubits 0 and 2, respectively. These values are stored in self._params. When
-        retrieving a schedule without specifying assign_params, i.e.
-
-        .. code-block:: python
-
-            cals.get_schedule("xt_xp", (0, 2))
-
-        we will obtain the expected schedule with amplitudes 0.5 and 0.3. When specifying the
-        following :code:`assign_params = {("amp", (0,), "xp"): Parameter("my_new_amp")}` we
-        will obtain a schedule where the amplitudes of the xp pulse on qubit 0 is set to
-        :code:`Parameter("my_new_amp")`. The amplitude of the xp pulse on qubit 2 is set to
-        the value stored by the calibrations, i.e. 0.3.
-
-        .. code-bloc:: python
-
-            cals.get_schedule(
-                "xt_xp",
-                (0, 2),
-                assign_params = {("amp", (0,), "xp"): Parameter("my_new_amp")}
-            )
+        This function builds the binding dictionary and ensures that manually specified parameters
+        have priority over those managed by the calibrations class.
 
         Args:
             schedule: The schedule with assigned channel indices for which we wish to
@@ -1206,22 +1153,19 @@ class Calibrations:
             ret_schedule: The schedule with assigned parameters.
 
         Raises:
-            CalibrationError:
-                - If a channel has not been assigned.
-                - If there is an ambiguous parameter assignment.
-                - If there are inconsistencies between a called schedule and the template
-                  schedule registered under the name of the called schedule.
+            CalibrationError: If a channel has not been assigned.
+            CalibrationError: If there is an ambiguous parameter assignment.
+            CalibrationError: If there are inconsistencies between a called schedule and the
+                template schedule registered under the name of the called schedule.
         """
         # 1) Restrict the given qubits to those in the given schedule.
         qubit_set = set()
         for chan in schedule.channels:
             if isinstance(chan.index, ParameterExpression):
-                raise (
-                    CalibrationError(
-                        f"All parametric channels must be assigned before searching for "
-                        f"non-channel parameters. {chan} is parametric."
-                    )
+                raise CalibrationError(
+                    f"Parametric channels must be assigned. {chan} is parametric."
                 )
+
             if isinstance(chan, (DriveChannel, MeasureChannel)):
                 qubit_set.add(chan.index)
 
@@ -1231,40 +1175,8 @@ class Calibrations:
 
         qubits_ = tuple(qubit for qubit in qubits if qubit in qubit_set)
 
-        # 2) Recursively assign the parameters in the called instructions.
-        ret_schedule = ScheduleBlock(
-            alignment_context=schedule.alignment_context,
-            name=schedule.name,
-            metadata=schedule.metadata,
-        )
-
-        for inst in schedule.blocks:
-            if isinstance(inst, Call):
-                # Check that there are no inconsistencies with the called subroutines.
-                template_subroutine = self.get_template(inst.subroutine.name, qubits_)
-                if inst.subroutine != template_subroutine:
-                    raise CalibrationError(
-                        f"The subroutine {inst.subroutine.name} called by {inst.name} does not "
-                        f"match the template schedule stored under {template_subroutine.name}."
-                    )
-
-                inst = inst.assigned_subroutine()
-
-            if isinstance(inst, ScheduleBlock):
-                inst = self._assign(inst, qubits_, assign_params, group, cutoff_date)
-
-            ret_schedule.append(inst, inplace=True)
-
-        # 3) Get the parameter keys of the remaining instructions. At this point in
-        #    _assign all parameters in Call instructions that are supposed to be
-        #     assigned have been assigned.
-        keys = set()
-
-        if ret_schedule.name in set(key.schedule for key in self._parameter_map):
-            for param in ret_schedule.parameters:
-                keys.add(ParameterKey(param.name, qubits_, ret_schedule.name))
-
-        # 4) Build the parameter binding dictionary.
+        # 2) Build the parameter binding dictionary.
+        # 2a) Handle parameter assignments that come outside of Calibrations
         binding_dict = {}
         assignment_table = {}
         for key, value in assign_params.items():
@@ -1280,18 +1192,18 @@ class Calibrations:
             elif key.qubits != qubits_:
                 continue
             param = self.calibration_parameter(*key)
-            if param in ret_schedule.parameters:
+            if param in schedule.parameters:
                 assign_okay = (
                     param not in binding_dict
-                    or key.schedule == ret_schedule.name
-                    and assignment_table[param].schedule != ret_schedule.name
+                    or key.schedule == schedule.name
+                    and assignment_table[param].schedule != schedule.name
                 )
                 if assign_okay:
                     binding_dict[param] = value
                     assignment_table[param] = key_orig
                 elif (
-                    key.schedule == ret_schedule.name
-                    or assignment_table[param].schedule != ret_schedule.name
+                    key.schedule == schedule.name
+                    or assignment_table[param].schedule != schedule.name
                 ) and binding_dict[param] != value:
                     raise CalibrationError(
                         "Ambiguous assignment: assign_params keys "
@@ -1299,22 +1211,25 @@ class Calibrations:
                         "resolve to the same parameter."
                     )
 
-        for key in keys:
-            # Get the parameter object. Since we are dealing with a schedule the name of
-            # the schedule is always defined. However, the parameter may be a default
-            # parameter for all qubits, i.e. qubits may be an empty tuple.
-            param = self.calibration_parameter(*key)
+        # 2b) Handle automatic parameter assignments managed by calibrations.
+        if schedule.name in set(key.schedule for key in self._parameter_map):  # skip references
+            for param in schedule.parameters:
+                key = ParameterKey(param.name, qubits_, schedule.name)
+                # Get the parameter object. Since we are dealing with a schedule the name of
+                # the schedule is always defined. However, the parameter may be a default
+                # parameter for all qubits, i.e. qubits may be an empty tuple.
+                param = self.calibration_parameter(*key)
 
-            if param not in binding_dict:
-                binding_dict[param] = self.get_parameter_value(
-                    key.parameter,
-                    key.qubits,
-                    key.schedule,
-                    group=group,
-                    cutoff_date=cutoff_date,
-                )
+                if param not in binding_dict:
+                    binding_dict[param] = self.get_parameter_value(
+                        key.parameter,
+                        key.qubits,
+                        key.schedule,
+                        group=group,
+                        cutoff_date=cutoff_date,
+                    )
 
-        return ret_schedule.assign_parameters(binding_dict, inplace=False)
+        return schedule.assign_parameters(binding_dict, inplace=False)
 
     def schedules(self) -> List[Dict[str, Any]]:
         """Return the managed schedules in a list of dictionaries.
@@ -1452,7 +1367,7 @@ class Calibrations:
                 default so that when saving to csv all values will be saved.
 
         Raises:
-            CalibrationError: if the files exist and overwrite is not set to True.
+            CalibrationError: If the files exist and overwrite is not set to True.
         """
         warnings.warn("Schedules are only saved in text format. They cannot be re-loaded.")
 

@@ -166,7 +166,7 @@ class FakeService:
                             "start_datetime": datetime(2022, 1, 1)
                             + timedelta(hours=len(self.exps)),
                             "figure_names": [],
-                            "backend": FakeBackend(backend_name),
+                            "backend": FakeBackend(backend_name=backend_name),
                         }
                     ],
                     columns=self.exps.columns,

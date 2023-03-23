@@ -16,7 +16,7 @@ from test.base import QiskitExperimentsTestCase
 import numpy as np
 from ddt import ddt, data
 
-import qiskit.pulse as pulse
+from qiskit import pulse
 
 from qiskit_experiments.library import (
     FineFrequency,
@@ -57,7 +57,7 @@ class TestFineFreqEndToEnd(QiskitExperimentsTestCase):
         backend = MockIQBackend(exp_helper)
         exp_helper.dt = BackendData(backend).dt
 
-        freq_exp = FineFrequency(0, 160, backend)
+        freq_exp = FineFrequency([0], 160, backend)
         freq_exp.set_transpile_options(inst_map=self.inst_map)
 
         expdata = freq_exp.run(shots=100)
@@ -79,7 +79,7 @@ class TestFineFreqEndToEnd(QiskitExperimentsTestCase):
         backend = MockIQBackend(exp_helper)
         exp_helper.dt = BackendData(backend).dt
 
-        fine_freq = FineFrequencyCal(0, self.cals, backend)
+        fine_freq = FineFrequencyCal([0], self.cals, backend)
         armonk_freq = FakeArmonkV2Pulse().defaults().qubit_freq_est[0]
 
         freq_before = self.cals.get_parameter_value(self.cals.__drive_freq_parameter__, 0)
@@ -96,12 +96,12 @@ class TestFineFreqEndToEnd(QiskitExperimentsTestCase):
 
     def test_experiment_config(self):
         """Test converting to and from config works"""
-        exp = FineFrequency(0, 160)
+        exp = FineFrequency([0], 160)
         loaded_exp = FineFrequency.from_config(exp.config())
         self.assertNotEqual(exp, loaded_exp)
         self.assertTrue(self.json_equiv(exp, loaded_exp))
 
     def test_roundtrip_serializable(self):
         """Test round trip JSON serialization"""
-        exp = FineFrequency(0, 160)
+        exp = FineFrequency([0], 160)
         self.assertRoundTripSerializable(exp, self.json_equiv)

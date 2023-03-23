@@ -21,7 +21,7 @@ class T2RamseyAnalysis(curve.DampedOscillationAnalysis):
     """T2 Ramsey result analysis class.
 
     # section: see_also
-        qiskit_experiments.curve_analysis.standard_analysis.oscillation.DampedOscillationAnalysis
+        :class:`.DampedOscillationAnalysis`
 
     """
 
@@ -29,7 +29,7 @@ class T2RamseyAnalysis(curve.DampedOscillationAnalysis):
     def _default_options(cls) -> Options:
         """Default analysis options."""
         options = super()._default_options()
-        options.curve_drawer.set_options(
+        options.plotter.set_figure_options(
             xlabel="Delay",
             ylabel="P(1)",
             xval_unit="s",

@@ -20,11 +20,13 @@ from test.base import QiskitExperimentsTestCase
 from ddt import ddt, data
 
 from qiskit import QuantumCircuit, Aer
-from qiskit.providers.aer import noise
 from qiskit.result import Result
+
+from qiskit_aer import noise
 
 from qiskit_ibm_experiment import IBMExperimentService
 
+from qiskit_experiments.exceptions import QiskitError
 from qiskit_experiments.test.utils import FakeJob
 from qiskit_experiments.test.fake_backend import FakeBackend
 from qiskit_experiments.framework import (
@@ -740,9 +742,11 @@ class TestBatchTranspileOptions(QiskitExperimentsTestCase):
         transpiled circuit) to a coupling map with distance 3 between qubits 0 and 3.
         """
 
-        def __init__(self, qubits, backend=None):
+        def __init__(self, physical_qubits, backend=None):
             super().__init__(
-                qubits, analysis=TestBatchTranspileOptions.SimpleAnalysis(), backend=backend
+                physical_qubits,
+                analysis=TestBatchTranspileOptions.SimpleAnalysis(),
+                backend=backend,
             )
 
         def circuits(self):
@@ -810,3 +814,46 @@ class TestBatchTranspileOptions(QiskitExperimentsTestCase):
         self.assertEqual(expdata.child_data(0).analysis_results(0).value, 8)
         self.assertEqual(expdata.child_data(1).child_data(0).analysis_results(0).value, 16)
         self.assertEqual(expdata.child_data(1).child_data(1).analysis_results(0).value, 4)
+
+    def test_separate_jobs(self):
+        """Test the separate_job experiment option"""
+
+        backend = FakeBackend()
+
+        class Experiment(FakeExperiment):
+            """Fake Experiment to test the separate_job experiment option"""
+
+            def circuits(self):
+                """Generate fake circuits"""
+                qc = QuantumCircuit(1)
+                qc.measure_all()
+                return [qc]
+
+        exp = Experiment([0])
+
+        # test separate_jobs=False
+        batch_exp = BatchExperiment([exp, exp])
+        batch_data = batch_exp.run(backend)
+        self.assertExperimentDone(batch_data)
+        job_ids = batch_data.job_ids
+        self.assertEqual(len(job_ids), 1)
+
+        # test separate_jobs=True
+        batch_exp.set_experiment_options(separate_jobs=True)
+        batch_data = batch_exp.run(backend)
+        self.assertExperimentDone(batch_data)
+        job_ids = batch_data.job_ids
+        self.assertEqual(len(job_ids), 2)
+
+        # test a forbidden nested case, where a parent sets separate_jobs
+        # to False while the child sets it to True
+        meta_exp = BatchExperiment([batch_exp])
+        with self.assertRaises(QiskitError):
+            meta_exp.run(backend)
+
+        # test a valid nested case
+        meta_exp.set_experiment_options(separate_jobs=True)
+        meta_expdata = meta_exp.run(backend)
+        self.assertExperimentDone(meta_expdata)
+        job_ids = meta_expdata.job_ids
+        self.assertEqual(len(job_ids), 2)

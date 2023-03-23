@@ -15,22 +15,18 @@ Analysis class for curve fitting.
 """
 # pylint: disable=invalid-name
 
-import warnings
 from typing import Dict, List, Tuple, Union, Optional
 
 import lmfit
 import numpy as np
-from uncertainties import unumpy as unp, UFloat
+from uncertainties import unumpy as unp
 
-from qiskit_experiments.exceptions import AnalysisError
-from qiskit_experiments.framework import ExperimentData, AnalysisResultData, AnalysisConfig
+from qiskit_experiments.framework import ExperimentData, AnalysisResultData
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
-from qiskit_experiments.warnings import deprecated_function
 
 from .base_curve_analysis import BaseCurveAnalysis, PARAMS_ENTRY_PREFIX
 from .curve_data import CurveData, FitOptions, CurveFitResult
-from .data_processing import multi_mean_xy_data, data_sort
-from .utils import analysis_result_to_repr, eval_with_uncertainties, convert_lmfit_result
+from .utils import eval_with_uncertainties, convert_lmfit_result, multi_mean_xy_data, data_sort
 
 
 class CurveAnalysis(BaseCurveAnalysis):
@@ -44,7 +40,7 @@ class CurveAnalysis(BaseCurveAnalysis):
     .. rubric:: _run_data_processing
 
     This method performs data processing and returns the processed dataset.
-    By default, it internally calls the :class:`DataProcessor` instance from
+    By default, it internally calls the :class:`.DataProcessor` instance from
     the `data_processor` analysis option and processes the experiment data payload
     to create Y data with uncertainty.
     X data and other metadata are generated within this method by inspecting the
@@ -106,61 +102,15 @@ class CurveAnalysis(BaseCurveAnalysis):
             models: List of LMFIT ``Model`` class to define fitting functions and
                 parameters. If multiple models are provided, the analysis performs
                 multi-objective optimization where the parameters with the same name
-                are shared among provided models. The model can be initialized with
-                the keyword ``data_sort_key`` which is a dictionary to specify the
-                circuit metadata that is associated with the model.
-                Usually multiple models must be provided with this keyword to
-                classify the experiment data into subgroups of fit model.
+                are shared among provided models. When multiple models are provided,
+                user must specify the ``data_subfit_map`` value in the analysis options
+                to allocate experimental results to a particular fit model.
             name: Optional. Name of this analysis.
         """
         super().__init__()
 
-        if hasattr(self, "__fixed_parameters__"):
-            warnings.warn(
-                "The class attribute __fixed_parameters__ has been deprecated and will be removed. "
-                "Now this attribute is absorbed in analysis options as fixed_parameters. "
-                "This warning will be dropped in v0.4 along with "
-                "the support for the deprecated attribute.",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-            # pylint: disable=no-member
-            self._options.fixed_parameters = {
-                p: self.options.get(p, None) for p in self.__fixed_parameters__
-            }
-
-        if hasattr(self, "__series__"):
-            warnings.warn(
-                "The class attribute __series__ has been deprecated and will be removed. "
-                "Now this class attribute is moved to the constructor argument. "
-                "This warning will be dropped in v0.5 along with "
-                "the support for the deprecated attribute.",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-            # pylint: disable=no-member
-            models = []
-            plot_options = {}
-            for series_def in self.__series__:
-                models.append(
-                    lmfit.Model(
-                        name=series_def.name,
-                        func=series_def.fit_func,
-                        data_sort_key=series_def.filter_kwargs,
-                    )
-                )
-                plot_options[series_def.name] = {
-                    "color": series_def.plot_color,
-                    "symbol": series_def.plot_symbol,
-                    "canvas": series_def.canvas,
-                }
-            self.drawer.set_options(plot_options=plot_options)
-
         self._models = models or []
         self._name = name or self.__class__.__name__
-
-        #: List[CurveData]: Processed experiment data set. For backward compatibility.
-        self.__processed_data_set = {}
 
     @property
     def name(self) -> str:
@@ -181,41 +131,6 @@ class CurveAnalysis(BaseCurveAnalysis):
     def models(self) -> List[lmfit.Model]:
         """Return fit models."""
         return self._models
-
-    # pylint: disable=bad-docstring-quotes
-    @deprecated_function(
-        last_version="0.4",
-        msg=(
-            "CurveAnalysis will also drop internal cache of processed data after 0.4. "
-            "Relevant method signature has been updated to directly receive curve data "
-            "rather than accessing data with this method."
-        ),
-    )
-    def _data(
-        self,
-        series_name: Optional[str] = None,
-        label: Optional[str] = "fit_ready",
-    ) -> CurveData:
-        """Deprecated. Getter for experiment data set.
-
-        Args:
-            series_name: Series name to search for.
-            label: Label attached to data set. By default, it returns "fit_ready" data.
-
-        Returns:
-            Filtered curve data set.
-
-        Raises:
-            AnalysisError: When requested series or label are not defined.
-        """
-        try:
-            data = self.__processed_data_set[label]
-        except KeyError as ex:
-            raise AnalysisError(f"Requested data with label {label} does not exist.") from ex
-
-        if series_name is None:
-            return data
-        return data.get_subset_of(series_name)
 
     def _run_data_processing(
         self,
@@ -270,10 +185,11 @@ class CurveAnalysis(BaseCurveAnalysis):
             data_allocation = np.full(xdata.size, -1, dtype=int)
             for idx, sub_model in enumerate(models):
                 try:
-                    tags = sub_model.opts["data_sort_key"]
+                    tags = self.options.data_subfit_map[sub_model._name]
                 except KeyError as ex:
                     raise DataProcessorError(
-                        f"Data sort options for model {sub_model.name} is not defined."
+                        f"Data sort options for model {sub_model._name} is not defined. "
+                        "Please provide the 'data_subfit_map' analysis option for this model."
                     ) from ex
                 if tags is None:
                     continue
@@ -310,7 +226,7 @@ class CurveAnalysis(BaseCurveAnalysis):
             ydata=curve_data.y,
             sigma=curve_data.y_err,
             shots=curve_data.shots,
-            method="shots_weighted",
+            method=self.options.average_method,
         )
 
         # sort by x value in ascending order
@@ -393,17 +309,8 @@ class CurveAnalysis(BaseCurveAnalysis):
         else:
             fixed_parameters = {}
 
-        try:
-            fit_options = self._generate_fit_guesses(default_fit_opt, curve_data)
-        except TypeError:
-            warnings.warn(
-                "Calling '_generate_fit_guesses' method without curve data has been "
-                "deprecated and will be prohibited after 0.4. "
-                "Update the method signature of your custom analysis class.",
-                DeprecationWarning,
-            )
-            # pylint: disable=no-value-for-parameter
-            fit_options = self._generate_fit_guesses(default_fit_opt)
+        fit_options = self._generate_fit_guesses(default_fit_opt, curve_data)
+
         if isinstance(fit_options, FitOptions):
             fit_options = [fit_options]
 
@@ -414,10 +321,15 @@ class CurveAnalysis(BaseCurveAnalysis):
             ys = []
             for model in models:
                 sub_data = curve_data.get_subset_of(model._name)
+                with np.errstate(divide="ignore"):
+                    # Ignore numpy runtime warning.
+                    # Zero y_err point introduces infinite weight,
+                    # but this should be managed by LMFIT.
+                    weights = 1.0 / sub_data.y_err if valid_uncertainty else None
                 yi = model._residual(
                     params=_params,
                     data=sub_data.y,
-                    weights=1.0 / sub_data.y_err if valid_uncertainty else None,
+                    weights=weights,
                     x=sub_data.x,
                 )
                 ys.append(yi)
@@ -465,11 +377,8 @@ class CurveAnalysis(BaseCurveAnalysis):
 
         # Prepare for fitting
         self._initialize(experiment_data)
-        analysis_results = []
 
-        # Initialize canvas
-        if self.options.plot:
-            self.drawer.initialize_canvas()
+        analysis_results = []
 
         # Run data processing
         processed_data = self._run_data_processing(
@@ -480,27 +389,23 @@ class CurveAnalysis(BaseCurveAnalysis):
         if self.options.plot and self.options.plot_raw_data:
             for model in self._models:
                 sub_data = processed_data.get_subset_of(model._name)
-                self.drawer.draw_raw_data(
-                    x_data=sub_data.x,
-                    y_data=sub_data.y,
-                    name=model._name,
+                self.plotter.set_series_data(
+                    model._name,
+                    x=sub_data.x,
+                    y=sub_data.y,
                 )
-        # for backward compatibility, will be removed in 0.4.
-        self.__processed_data_set["raw_data"] = processed_data
 
         # Format data
         formatted_data = self._format_data(processed_data)
         if self.options.plot:
             for model in self._models:
                 sub_data = formatted_data.get_subset_of(model._name)
-                self.drawer.draw_formatted_data(
-                    x_data=sub_data.x,
-                    y_data=sub_data.y,
-                    y_err_data=sub_data.y_err,
-                    name=model._name,
+                self.plotter.set_series_data(
+                    model._name,
+                    x_formatted=sub_data.x,
+                    y_formatted=sub_data.y,
+                    y_formatted_err=sub_data.y_err,
                 )
-        # for backward compatibility, will be removed in 0.4.
-        self.__processed_data_set["fit_ready"] = formatted_data
 
         # Run fitting
         fit_data = self._run_curve_fit(
@@ -510,6 +415,7 @@ class CurveAnalysis(BaseCurveAnalysis):
 
         if fit_data.success:
             quality = self._evaluate_quality(fit_data)
+            self.plotter.set_supplementary_data(fit_red_chi=fit_data.reduced_chisq)
         else:
             quality = "bad"
 
@@ -526,60 +432,44 @@ class CurveAnalysis(BaseCurveAnalysis):
 
         # Create figure and result data
         if fit_data.success:
-
             # Create analysis results
-            analysis_results.extend(
-                self._create_analysis_results(
-                    fit_data=fit_data, quality=quality, **self.options.extra.copy()
-                )
+            primary_results = self._create_analysis_results(
+                fit_data=fit_data, quality=quality, **self.options.extra.copy()
             )
-            # calling old extra entry method for backward compatibility
-            if hasattr(self, "_extra_database_entry"):
-                warnings.warn(
-                    "Method '_extra_database_entry' has been deprecated and will be "
-                    "removed after 0.4. Please override new method "
-                    "'_create_analysis_results' with updated method signature.",
-                    DeprecationWarning,
-                )
-                deprecated_method = getattr(self, "_extra_database_entry")
-                analysis_results.extend(deprecated_method(fit_data))
+            analysis_results.extend(primary_results)
+            self.plotter.set_supplementary_data(primary_results=primary_results)
 
             # Draw fit curves and report
             if self.options.plot:
-                interp_x = np.linspace(np.min(formatted_data.x), np.max(formatted_data.x), num=100)
                 for model in self._models:
+                    sub_data = formatted_data.get_subset_of(model._name)
+                    if sub_data.x.size == 0:
+                        # If data is empty, skip drawing this model.
+                        # This is the case when fit model exist but no data to fit is provided.
+                        # For example, experiment may omit experimenting with some setting.
+                        continue
+                    x_interp = np.linspace(np.min(sub_data.x), np.max(sub_data.x), num=100)
+
                     y_data_with_uncertainty = eval_with_uncertainties(
-                        x=interp_x,
+                        x=x_interp,
                         model=model,
                         params=fit_data.ufloat_params,
                     )
-                    y_mean = unp.nominal_values(y_data_with_uncertainty)
-                    # Draw fit line
-                    self.drawer.draw_fit_line(
-                        x_data=interp_x,
-                        y_data=y_mean,
-                        name=model._name,
+                    y_interp = unp.nominal_values(y_data_with_uncertainty)
+                    # Add fit line data
+                    self.plotter.set_series_data(
+                        model._name,
+                        x_interp=x_interp,
+                        y_interp=y_interp,
                     )
                     if fit_data.covar is not None:
-                        # Draw confidence intervals with different n_sigma
-                        sigmas = unp.std_devs(y_data_with_uncertainty)
-                        if np.isfinite(sigmas).all():
-                            for n_sigma, alpha in self.drawer.options.plot_sigma:
-                                self.drawer.draw_confidence_interval(
-                                    x_data=interp_x,
-                                    y_ub=y_mean + n_sigma * sigmas,
-                                    y_lb=y_mean - n_sigma * sigmas,
-                                    name=model._name,
-                                    alpha=alpha,
-                                )
-
-                # Write fitting report
-                report_description = ""
-                for res in analysis_results:
-                    if isinstance(res.value, (float, UFloat)):
-                        report_description += f"{analysis_result_to_repr(res)}\n"
-                report_description += r"reduced-$\chi^2$ = " + f"{fit_data.reduced_chisq: .4g}"
-                self.drawer.draw_fit_report(description=report_description)
+                        # Add confidence interval data
+                        y_interp_err = unp.std_devs(y_data_with_uncertainty)
+                        if np.isfinite(y_interp_err).all():
+                            self.plotter.set_series_data(
+                                model._name,
+                                y_interp_err=y_interp_err,
+                            )
 
         # Add raw data points
         if self.options.return_data_points:
@@ -589,8 +479,7 @@ class CurveAnalysis(BaseCurveAnalysis):
 
         # Finalize plot
         if self.options.plot:
-            self.drawer.format_canvas()
-            return analysis_results, [self.drawer.figure]
+            return analysis_results, [self.plotter.figure()]
 
         return analysis_results, []
 
@@ -610,32 +499,3 @@ class CurveAnalysis(BaseCurveAnalysis):
             model_objs.append(mod)
         self.__dict__.update(state)
         self._models = model_objs
-
-    @classmethod
-    def from_config(cls, config: Union[AnalysisConfig, Dict]) -> "CurveAnalysis":
-        # For backward compatibility. This will be removed in v0.4.
-
-        instance = super().from_config(config)
-
-        # When fixed param value is hard-coded as options. This is deprecated data structure.
-        loaded_opts = instance.options.__dict__
-
-        # pylint: disable=no-member
-        deprecated_fixed_params = {
-            p: loaded_opts[p] for p in instance.parameters if p in loaded_opts
-        }
-        if any(deprecated_fixed_params):
-            warnings.warn(
-                "Fixed parameter value should be defined in options.fixed_parameters as "
-                "a dictionary values, rather than a standalone analysis option. "
-                "Please re-save this experiment to be loaded after deprecation period. "
-                "This warning will be dropped in v0.4 along with "
-                "the support for the deprecated fixed parameter options.",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-            new_fixed_params = instance.options.fixed_parameters
-            new_fixed_params.update(deprecated_fixed_params)
-            instance.set_options(fixed_parameters=new_fixed_params)
-
-        return instance

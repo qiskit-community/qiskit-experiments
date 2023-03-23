@@ -46,7 +46,7 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
         freq01 = backend.defaults().qubit_freq_est[qubit]
         frequencies = np.linspace(freq01 - 10.0e6, freq01 + 10.0e6, 21)
 
-        spec = QubitSpectroscopy(qubit, frequencies)
+        spec = QubitSpectroscopy([qubit], frequencies)
         spec.set_run_options(meas_level=MeasLevel.CLASSIFIED)
         expdata = spec.run(backend)
         self.assertExperimentDone(expdata)
@@ -59,7 +59,7 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
 
         # Test if we find still find the peak when it is shifted by 5 MHz.
         exp_helper.freq_offset = 5.0e6
-        spec = QubitSpectroscopy(qubit, frequencies)
+        spec = QubitSpectroscopy([qubit], frequencies)
         spec.set_run_options(meas_level=MeasLevel.CLASSIFIED)
         expdata = spec.run(backend)
         self.assertExperimentDone(expdata)
@@ -86,7 +86,7 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
         freq01 = backend.defaults().qubit_freq_est[qubit]
         frequencies = np.linspace(freq01 - 10.0e6, freq01 + 10.0e6, 21)
 
-        spec = QubitSpectroscopy(qubit, frequencies)
+        spec = QubitSpectroscopy([qubit], frequencies)
         expdata = spec.run(backend)
         self.assertExperimentDone(expdata)
         result = expdata.analysis_results(1)
@@ -98,7 +98,7 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
         exp_helper.freq_offset = 5.0e6
         exp_helper.iq_cluster_centers = [((1.0, 1.0), (-1.0, -1.0))]
 
-        spec = QubitSpectroscopy(qubit, frequencies)
+        spec = QubitSpectroscopy([qubit], frequencies)
         expdata = spec.run(backend)
         self.assertExperimentDone(expdata)
         result = expdata.analysis_results(1)
@@ -133,7 +133,7 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
 
         # Note that the backend is not sophisticated enough to simulate an e-f
         # transition so we run the test with g-e.
-        spec = EFSpectroscopy(qubit, frequencies)
+        spec = EFSpectroscopy([qubit], frequencies)
         spec.backend = backend
         spec.set_run_options(meas_level=MeasLevel.CLASSIFIED)
         expdata = spec.run(backend)
@@ -151,14 +151,14 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
 
     def test_experiment_config(self):
         """Test converting to and from config works"""
-        exp = QubitSpectroscopy(1, np.linspace(100, 150, 20) * 1e6)
+        exp = QubitSpectroscopy([1], np.linspace(100, 150, 20) * 1e6)
         loaded_exp = QubitSpectroscopy.from_config(exp.config())
         self.assertNotEqual(exp, loaded_exp)
         self.assertTrue(self.json_equiv(exp, loaded_exp))
 
     def test_roundtrip_serializable(self):
         """Test round trip JSON serialization"""
-        exp = QubitSpectroscopy(1, np.linspace(int(100e6), int(150e6), int(20e6)))
+        exp = QubitSpectroscopy([1], np.linspace(int(100e6), int(150e6), int(20e6)))
         # Checking serialization of the experiment
         self.assertRoundTripSerializable(exp, self.json_equiv)
 
@@ -177,7 +177,7 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
         qubit = 1
         freq01 = backend.defaults().qubit_freq_est[qubit]
         frequencies = np.linspace(freq01 - 10.0e6, freq01 + 10.0e6, 21)
-        exp = QubitSpectroscopy(qubit, frequencies)
+        exp = QubitSpectroscopy([qubit], frequencies)
 
         exp.set_run_options(meas_level=MeasLevel.CLASSIFIED, shots=1024)
         expdata = exp.run(backend).block_for_results()
@@ -204,7 +204,7 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
         qubit = 1
         freq01 = backend.defaults().qubit_freq_est[qubit]
         frequencies = np.linspace(freq01 - 10.0e6, freq01 + 10.0e6, 21)
-        exp = QubitSpectroscopy(qubit, frequencies)
+        exp = QubitSpectroscopy([qubit], frequencies)
 
         exp.set_run_options(meas_level=MeasLevel.KERNELED, shots=1024)
         expdata = exp.run(backend).block_for_results()
@@ -246,11 +246,11 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
 
         exp_list = [
             QubitSpectroscopy(
-                qubit1,
+                [qubit1],
                 frequencies1,
             ),
             QubitSpectroscopy(
-                qubit2,
+                [qubit2],
                 frequencies2,
             ),
         ]

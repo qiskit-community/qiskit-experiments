@@ -26,7 +26,7 @@ class T2HahnAnalysis(curve.DecayAnalysis):
     r"""A class to analyze T2Hahn experiments.
 
     # section: see_also
-        qiskit_experiments.curve_analysis.standard_analysis.decay.DecayAnalysis
+        :class:`.DecayAnalysis`
 
     """
 
@@ -34,7 +34,7 @@ class T2HahnAnalysis(curve.DecayAnalysis):
     def _default_options(cls) -> Options:
         """Default analysis options."""
         options = super()._default_options()
-        options.curve_drawer.set_options(
+        options.plotter.set_figure_options(
             xlabel="Delay",
             ylabel="P(0)",
             xval_unit="s",

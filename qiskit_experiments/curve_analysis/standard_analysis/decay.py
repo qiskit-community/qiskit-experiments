@@ -33,7 +33,7 @@ class DecayAnalysis(curve.CurveAnalysis):
 
         defpar \rm amp:
            desc: Height of the decay curve.
-           init_guess: Determined by :py:func:`~qiskit_experiments.curve_analysis.guess.min_height`.
+           init_guess: Determined by :func:`~qiskit_experiments.curve_analysis.guess.min_height`.
            bounds: None
 
         defpar \rm base:
@@ -43,7 +43,7 @@ class DecayAnalysis(curve.CurveAnalysis):
 
         defpar \tau:
            desc: This is the fit parameter of main interest.
-           init_guess: Determined by :py:func:`~qiskit_experiments.curve_analysis.guess.exp_decay`.
+           init_guess: Determined by :func:`~qiskit_experiments.curve_analysis.guess.exp_decay`.
            bounds: None
 
     """

@@ -16,13 +16,13 @@ Code for generating data for the Quantum Volume experiment for testing.
 import os
 import sys
 import json
-from qiskit.providers.aer import AerSimulator
-from qiskit.providers.aer.noise import NoiseModel
-from qiskit.providers.aer.noise.errors.standard_errors import (
+from qiskit_aer import AerSimulator
+from qiskit_aer.noise import NoiseModel
+from qiskit_aer.noise.errors.standard_errors import (
     depolarizing_error,
     thermal_relaxation_error,
 )
-from qiskit.providers.aer.noise.errors import readout_error
+from qiskit_aer.noise.errors import readout_error
 from qiskit_experiments.library import QuantumVolume
 from qiskit_experiments.framework import ExperimentEncoder
 
@@ -44,7 +44,7 @@ def create_qv_ideal_probabilities(dir_path: str):
     ]
 
     result_file_path = os.path.join(dir_path, "qv_ideal_probabilities.json")
-    with open(result_file_path, "w") as json_file:
+    with open(result_file_path, "w", encoding="utf-8") as json_file:
         json.dump(simulation_probabilities, json_file, cls=ExperimentEncoder)
 
 
@@ -63,7 +63,7 @@ def create_qv_data_70_trials(dir_path: str):
     qv_data.block_for_results()
 
     result_file_path = os.path.join(dir_path, "qv_data_70_trials.json")
-    with open(result_file_path, "w") as json_file:
+    with open(result_file_path, "w", encoding="utf-8") as json_file:
         json.dump(qv_data.data(), json_file, cls=ExperimentEncoder)
 
 
@@ -85,7 +85,7 @@ def create_qv_data_low_hop(dir_path: str):
     qv_data.block_for_results()
 
     result_file_path = os.path.join(dir_path, "qv_data_high_noise.json")
-    with open(result_file_path, "w") as json_file:
+    with open(result_file_path, "w", encoding="utf-8") as json_file:
         json.dump(qv_data.data(), json_file, cls=ExperimentEncoder)
 
 
@@ -108,7 +108,7 @@ def create_qv_data_low_confidence(dir_path: str):
     qv_data.block_for_results()
 
     result_file_path = os.path.join(dir_path, "qv_data_moderate_noise_100_trials.json")
-    with open(result_file_path, "w") as json_file:
+    with open(result_file_path, "w", encoding="utf-8") as json_file:
         json.dump(qv_data.data(), json_file, cls=ExperimentEncoder)
 
 
@@ -132,11 +132,11 @@ def create_qv_data_high_confidence(dir_path: str):
     qv_data.block_for_results()
 
     result_file_path = os.path.join(dir_path, "qv_data_moderate_noise_300_trials.json")
-    with open(result_file_path, "w") as json_file:
+    with open(result_file_path, "w", encoding="utf-8") as json_file:
         json.dump(qv_data.data(), json_file, cls=ExperimentEncoder)
 
     result_file_path = os.path.join(dir_path, "qv_result_moderate_noise_300_trials.json")
-    with open(result_file_path, "w") as json_file:
+    with open(result_file_path, "w", encoding="utf-8") as json_file:
         result_dicts = []
         for result in qv_data.analysis_results():
             result_dicts.append(

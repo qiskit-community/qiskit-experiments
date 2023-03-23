@@ -14,28 +14,30 @@ T2Ramsey Experiment class.
 
 """
 
-from typing import List, Union, Optional
+from typing import List, Union, Optional, Sequence
 import numpy as np
 
 import qiskit
 from qiskit import QuantumCircuit
 from qiskit.providers.backend import Backend
 
-from qiskit_experiments.framework import BaseExperiment, Options
+from qiskit_experiments.framework import BackendTiming, BaseExperiment, Options
 from qiskit_experiments.library.characterization.analysis.t2ramsey_analysis import T2RamseyAnalysis
+from qiskit_experiments.warnings import qubit_deprecate
 
 
 class T2Ramsey(BaseExperiment):
-    r"""T2 Ramsey Experiment.
+    r"""An experiment to measure the Ramsey frequency and the qubit dephasing time
+    sensitive to inhomogeneous broadening.
 
     # section: overview
 
         This experiment is used to estimate two properties for a single qubit:
-        T2* and Ramsey frequency.
-
-        See `Qiskit Textbook <https://qiskit.org/textbook/ch-quantum-hardware/\
-        calibrating-qubits-pulse.html>`_  for a more detailed explanation on
-        these properties.
+        :math:`T_2^*` and Ramsey frequency. :math:`T_2^*` is the dephasing time
+        or the transverse relaxation time of the qubit on the Bloch sphere as a result
+        of both energy relaxation and pure dephasing in the transverse plane. Unlike
+        :math:`T_2`, which is measured by :class:`.T2Hahn`, :math:`T_2^*` is sensitive
+        to inhomogenous broadening.
 
         This experiment consists of a series of circuits of the form
 
@@ -52,11 +54,14 @@ class T2Ramsey(BaseExperiment):
         and the delays are specified by the user.
         The circuits are run on the device or on a simulator backend.
 
-    # section: tutorial
-        :doc:`/tutorials/t2ramsey_characterization`
+    # section: manual
+        :doc:`/manuals/characterization/t2ramsey`
 
     # section: analysis_ref
-        :py:class:`T2RamseyAnalysis`
+        :class:`T2RamseyAnalysis`
+
+    # section: reference
+        .. ref_arxiv:: 1 1904.06560
     """
 
     @classmethod
@@ -74,9 +79,10 @@ class T2Ramsey(BaseExperiment):
 
         return options
 
+    @qubit_deprecate()
     def __init__(
         self,
-        qubit: int,
+        physical_qubits: Sequence[int],
         delays: Union[List[float], np.array],
         backend: Optional[Backend] = None,
         osc_freq: float = 0.0,
@@ -85,23 +91,15 @@ class T2Ramsey(BaseExperiment):
         Initialize the T2Ramsey class.
 
         Args:
-            qubit: the qubit under test.
+            physical_qubits: a single-element sequence containing the qubit under test.
             delays: delay times of the experiments in seconds.
             backend: Optional, the backend to run the experiment on.
             osc_freq: the oscillation frequency induced by the user.
                 The frequency is given in Hz.
 
         """
-        super().__init__([qubit], analysis=T2RamseyAnalysis(), backend=backend)
+        super().__init__(physical_qubits, analysis=T2RamseyAnalysis(), backend=backend)
         self.set_experiment_options(delays=delays, osc_freq=osc_freq)
-
-    def _set_backend(self, backend: Backend):
-        super()._set_backend(backend)
-
-        # Scheduling parameters
-        if not self._backend_data.is_simulator:
-            scheduling_method = getattr(self.transpile_options, "scheduling_method", "alap")
-            self.set_transpile_options(scheduling_method=scheduling_method)
 
     def circuits(self) -> List[QuantumCircuit]:
         """Return a list of experiment circuits.
@@ -112,27 +110,17 @@ class T2Ramsey(BaseExperiment):
         Returns:
             The experiment circuits
         """
-        dt_unit = False
-        if self.backend:
-            dt_factor = self._backend_data.dt
-            dt_unit = dt_factor is not None
+        timing = BackendTiming(self.backend)
 
         circuits = []
         for delay in self.experiment_options.delays:
-            if dt_unit:
-                delay_dt = round(delay / dt_factor)
-                real_delay_in_sec = delay_dt * dt_factor
-            else:
-                real_delay_in_sec = delay
-
-            rotation_angle = 2 * np.pi * self.experiment_options.osc_freq * real_delay_in_sec
+            rotation_angle = (
+                2 * np.pi * self.experiment_options.osc_freq * timing.delay_time(time=delay)
+            )
 
             circ = qiskit.QuantumCircuit(1, 1)
             circ.sx(0)  # Brings the qubit to the X Axis
-            if dt_unit:
-                circ.delay(delay_dt, 0, "dt")
-            else:
-                circ.delay(delay, 0, "s")
+            circ.delay(timing.round_delay(time=delay), 0, timing.delay_unit)
             circ.rz(rotation_angle, 0)
             circ.barrier(0)
             circ.sx(0)
@@ -142,7 +130,7 @@ class T2Ramsey(BaseExperiment):
             circ.metadata = {
                 "experiment_type": self._type,
                 "qubit": self.physical_qubits[0],
-                "xval": real_delay_in_sec,
+                "xval": timing.delay_time(time=delay),
                 "osc_freq": self.experiment_options.osc_freq,
                 "unit": "s",
             }

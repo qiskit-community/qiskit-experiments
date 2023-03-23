@@ -17,18 +17,20 @@ from typing import List, Sequence, Optional, Union
 from abc import abstractmethod
 import warnings
 from qiskit.providers.backend import Backend
+from qiskit_experiments.warnings import deprecate_arguments
+from qiskit_experiments.exceptions import QiskitError
 from qiskit_experiments.framework import BaseExperiment
-from qiskit_experiments.framework.base_analysis import BaseAnalysis
 from .composite_analysis import CompositeAnalysis
 
 
 class CompositeExperiment(BaseExperiment):
     """Composite Experiment base class"""
 
+    @deprecate_arguments({"qubits": "physical_qubits"}, "0.5")
     def __init__(
         self,
         experiments: List[BaseExperiment],
-        qubits: Sequence[int],
+        physical_qubits: Sequence[int],
         backend: Optional[Backend] = None,
         experiment_type: Optional[str] = None,
         flatten_results: bool = False,
@@ -38,7 +40,7 @@ class CompositeExperiment(BaseExperiment):
 
         Args:
             experiments: a list of experiment objects.
-            qubits: list of physical qubits for the experiment.
+            physical_qubits: list of physical qubits for the experiment.
             backend: Optional, the backend to run the experiment on.
             experiment_type: Optional, composite experiment subclass name.
             flatten_results: If True flatten all component experiment results
@@ -52,7 +54,7 @@ class CompositeExperiment(BaseExperiment):
                       supplied experiments.
 
         Raises:
-            QiskitError: if the provided analysis class is not a CompositeAnalysis
+            QiskitError: If the provided analysis class is not a CompositeAnalysis
                          instance.
         """
         self._experiments = experiments
@@ -62,7 +64,7 @@ class CompositeExperiment(BaseExperiment):
                 [exp.analysis for exp in self._experiments], flatten_results=flatten_results
             )
         super().__init__(
-            qubits,
+            physical_qubits,
             analysis=analysis,
             backend=backend,
             experiment_type=experiment_type,
@@ -94,17 +96,6 @@ class CompositeExperiment(BaseExperiment):
         if index is None:
             return self._experiments
         return self._experiments[index]
-
-    def component_analysis(self, index=None) -> Union[BaseAnalysis, List[BaseAnalysis]]:
-        """Return the component experiment Analysis object"""
-        warnings.warn(
-            "The `component_analysis` method is deprecated as of "
-            "qiskit-experiments 0.3.0 and will be removed in the 0.4.0 release."
-            " Use `analysis.component_analysis` instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        return self.analysis.component_analysis(index)
 
     @property
     def analysis(self) -> Union[CompositeAnalysis, None]:
@@ -149,6 +140,9 @@ class CompositeExperiment(BaseExperiment):
         # measurements this method should be updated to validate that all
         # sub-experiments have the same meas level and meas return types,
         # and update the composite experiment run option to that value.
+        #
+        # In addition, we raise an error if we detect inconsistencies in
+        # the usage of BatchExperiment separate_job experiment option.
 
         for i, subexp in enumerate(self._experiments):
             # Validate set and default run options in component experiment
@@ -174,6 +168,14 @@ class CompositeExperiment(BaseExperiment):
                 # Update sub-experiment options with actual run option values so
                 # they can be used by that sub experiments _finalize method.
                 subexp.set_run_options(**dict(zip(overridden_keys, comp_vals)))
+
+            if not self.experiment_options.get(
+                "separate_jobs", False
+            ) and subexp.experiment_options.get("separate_jobs", False):
+                raise QiskitError(
+                    "It is not allowed to request to separate jobs in a child experiment,"
+                    " if its parent does not separate jobs as well"
+                )
 
             # Call sub-experiments finalize method
             subexp._finalize()

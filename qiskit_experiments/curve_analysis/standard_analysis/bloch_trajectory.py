@@ -74,8 +74,8 @@ class BlochTrajectoryAnalysis(curve.CurveAnalysis):
                 a flat-topped Gaussian, two Gaussian edges may become an offset duration.
             init_guess: Computed as :math:`N \sqrt{2 \pi} \sigma` where the :math:`N` is number of
                 pulses and :math:`\sigma` is Gaussian sigma of rising and falling edges.
-                Note that this implicitly assumes the :py:class:`~qiskit.pulse.library\
-                .parametric_pulses.GaussianSquare` pulse envelope.
+                Note that this implicitly assumes the :class:`~qiskit.pulse.library\
+                .GaussianSquare` pulse envelope.
             bounds: [0, None]
 
         defpar p_x:
@@ -120,8 +120,7 @@ class BlochTrajectoryAnalysis(curve.CurveAnalysis):
             models.append(
                 lmfit.models.ExpressionModel(
                     expr=eq,
-                    name=f"{axis}",
-                    data_sort_key={"meas_basis": axis},
+                    name=axis,
                 )
             )
 
@@ -138,12 +137,17 @@ class BlochTrajectoryAnalysis(curve.CurveAnalysis):
             input_key="counts",
             data_actions=[dp.Probability("1"), dp.BasisExpectationValue()],
         )
-        default_options.curve_drawer.set_options(
+        default_options.plotter.set_figure_options(
             xlabel="Flat top width",
             ylabel="Pauli expectation values",
             xval_unit="s",
             ylim=(-1, 1),
         )
+        default_options.data_subfit_map = {
+            "x": {"meas_basis": "x"},
+            "y": {"meas_basis": "y"},
+            "z": {"meas_basis": "z"},
+        }
 
         return default_options
 

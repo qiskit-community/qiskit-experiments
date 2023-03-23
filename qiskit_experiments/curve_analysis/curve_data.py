@@ -29,6 +29,7 @@ from qiskit_experiments.warnings import deprecated_function, deprecated_class
 @dataclasses.dataclass(frozen=True)
 class SeriesDef:
     """A dataclass to describe the definition of the curve.
+
     Attributes:
         fit_func: A callable that defines the fit model of this curve. The argument names
             in the callable are parsed to create the fit parameter list, which will appear
@@ -463,7 +464,7 @@ class OptionsDict(dict):
         """
         for key, value in kwargs.items():
             if self.get(key) is None:
-                self.__setitem__(key, value)
+                self[key] = value
 
     @staticmethod
     def format(value: Any) -> Any:

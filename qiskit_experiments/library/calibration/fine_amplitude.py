@@ -12,7 +12,7 @@
 
 """Fine amplitude calibration experiment."""
 
-from typing import Dict, Optional
+from typing import Dict, Optional, Sequence
 import numpy as np
 
 from qiskit.circuit import Gate, QuantumCircuit
@@ -25,48 +25,61 @@ from qiskit_experiments.calibration_management import (
 from qiskit_experiments.library.characterization import FineAmplitude
 from qiskit_experiments.framework import ExperimentData, Options
 from qiskit_experiments.calibration_management.update_library import BaseUpdater
+from qiskit_experiments.warnings import qubit_deprecate
 
 
 class FineAmplitudeCal(BaseCalibrationExperiment, FineAmplitude):
-    r"""A calibration version of the :class:`FineAmplitude` experiment.
+    r"""A calibration version of the :class:`.FineAmplitude` experiment.
 
     # section: overview
 
-        :class:`FineAmplitudeCal` is a subclass of :class:`FineAmplitude`. In the calibration
+        :class:`FineAmplitudeCal` is a subclass of :class:`.FineAmplitude`. In the calibration
         experiment the circuits that are run have a custom gate with the pulse schedule attached
         to it through the calibrations.
 
     # section: see_also
-        qiskit_experiments.library.characterization.fine_amplitude.FineAmplitude
+        :class:`.FineAmplitude`
 
     """
 
+    @qubit_deprecate()
     def __init__(
         self,
-        qubit: int,
+        physical_qubits: Sequence[int],
         calibrations: Calibrations,
         schedule_name: str,
         backend: Optional[Backend] = None,
         cal_parameter_name: Optional[str] = "amp",
         auto_update: bool = True,
+        gate: Optional[Gate] = None,
+        measurement_qubits: Sequence[int] = None,
     ):
-        """see class :class:`FineAmplitude` for details.
+        """See class :class:`FineAmplitude` for details.
 
         Args:
-            qubit: The qubit for which to run the fine amplitude calibration.
+            physical_qubits: Sequence containing the qubit(s) for which to run
+                the fine amplitude calibration. This can be a pair of qubits
+                which correspond to control and target qubit.
             calibrations: The calibrations instance with the schedules.
             schedule_name: The name of the schedule to calibrate.
             backend: Optional, the backend to run the experiment on.
             cal_parameter_name: The name of the parameter in the schedule to update.
             auto_update: Whether or not to automatically update the calibrations. By
                 default this variable is set to True.
+            gate: The gate to repeat in the quantum circuit. If this argument
+                is None (the default), then the gate is built from the schedule name.
+            measurement_qubits: The qubits in the given physical qubits that need to
+                be measured.
         """
+        gate = gate or Gate(name=schedule_name, num_qubits=len(physical_qubits), params=[])
+
         super().__init__(
             calibrations,
-            [qubit],
-            Gate(name=schedule_name, num_qubits=1, params=[]),
+            physical_qubits,
+            gate,
             schedule_name=schedule_name,
             backend=backend,
+            measurement_qubits=measurement_qubits,
             cal_parameter_name=cal_parameter_name,
             auto_update=auto_update,
         )
@@ -103,6 +116,12 @@ class FineAmplitudeCal(BaseCalibrationExperiment, FineAmplitude):
         )
 
         return metadata
+
+    def _attach_calibrations(self, circuit: QuantumCircuit):
+        """Adds the calibrations to the transpiled circuits."""
+        for gate in ["x", "sx"]:
+            schedule = self._cals.get_schedule(gate, self.physical_qubits)
+            circuit.add_calibration(gate, self.physical_qubits, schedule)
 
     def update_calibrations(self, experiment_data: ExperimentData):
         r"""Update the amplitude of the pulse in the calibrations.
@@ -145,12 +164,13 @@ class FineXAmplitudeCal(FineAmplitudeCal):
     """A calibration experiment to calibrate the amplitude of the X schedule.
 
     # section: see_also
-        qiskit_experiments.library.characterization.fine_amplitude.FineAmplitude
+        :class:`.FineAmplitude`
     """
 
+    @qubit_deprecate()
     def __init__(
         self,
-        qubit: int,
+        physical_qubits: Sequence[int],
         calibrations: Calibrations,
         schedule_name: str,
         backend: Optional[Backend] = None,
@@ -158,7 +178,7 @@ class FineXAmplitudeCal(FineAmplitudeCal):
         auto_update: bool = True,
     ):
         super().__init__(
-            qubit,
+            physical_qubits,
             calibrations,
             schedule_name,
             backend=backend,
@@ -197,12 +217,13 @@ class FineSXAmplitudeCal(FineAmplitudeCal):
     """A calibration experiment to calibrate the amplitude of the SX schedule.
 
     # section: see_also
-        qiskit_experiments.library.characterization.fine_amplitude.FineAmplitude
+        :class:`.FineAmplitude`
     """
 
+    @qubit_deprecate()
     def __init__(
         self,
-        qubit: int,
+        physical_qubits: Sequence[int],
         calibrations: Calibrations,
         schedule_name: str,
         backend: Optional[Backend] = None,
@@ -210,7 +231,7 @@ class FineSXAmplitudeCal(FineAmplitudeCal):
         auto_update: bool = True,
     ):
         super().__init__(
-            qubit,
+            physical_qubits,
             calibrations,
             schedule_name,
             backend=backend,
@@ -244,18 +265,4 @@ class FineSXAmplitudeCal(FineAmplitudeCal):
         options.add_cal_circuits = False
         options.repetitions = [0, 1, 2, 3, 5, 7, 9, 11, 13, 15, 17, 21, 23, 25]
         options.target_angle = np.pi / 2
-        return options
-
-    @classmethod
-    def _default_transpile_options(cls):
-        """Default transpile options.
-
-        Transpile Options:
-            basis_gates (list(str)): A list of basis gates needed for this experiment.
-                The schedules for these basis gates will be provided by the instruction
-                schedule map from the calibrations.
-        """
-        options = super()._default_transpile_options()
-        options.basis_gates = ["x", "sx"]
-
         return options

@@ -22,8 +22,7 @@ from qiskit_experiments.framework import BaseAnalysis, AnalysisResultData, Optio
 
 
 class CorrelatedReadoutErrorAnalysis(BaseAnalysis):
-    r"""
-    Correlated readout error characterization analysis
+    r"""An analysis to characterize correlated readout error.
 
     # section: overview
 
@@ -104,9 +103,9 @@ class CorrelatedReadoutErrorAnalysis(BaseAnalysis):
             The generated plot of the assignment matrix
 
         Raises:
-            QiskitError: if _cal_matrices was not set.
+            QiskitError: If _cal_matrices was not set.
 
-            ImportError: if matplotlib was not installed.
+            ImportError: If matplotlib was not installed.
 
         """
 
