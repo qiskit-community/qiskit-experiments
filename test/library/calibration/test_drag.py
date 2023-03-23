@@ -150,7 +150,7 @@ class TestDragEndToEnd(QiskitExperimentsTestCase):
 
         # Running experiment twice.
         # Reported by https://github.com/Qiskit/qiskit-experiments/issues/1086.
-        expdata2 = analysis.run(expdata.copy(), replace_results=True)
+        expdata2 = analysis.run(expdata.copy(), replace_results=True).block_for_results()
         self.assertEqual(len(analysis.models), 3)
 
         self.assertAlmostEqual(
