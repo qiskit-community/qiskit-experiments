@@ -6,6 +6,8 @@ Contents:
 - [Guidelines for writing documentation](#guidelines-for-writing-documentation)
   - [Introduction](#introduction)
     - [General formatting guidelines](#general-formatting-guidelines)
+    - [Writing code](#writing-code)
+    - [Referencing objects](#referencing-objects)
     - [Tutorials](#tutorials)
     - [How-to guides](#how-to-guides)
     - [Experiment manuals](#experiment-manuals)
@@ -23,33 +25,10 @@ Qiskit Experiments documentation is split into four sections:
 - Experiment manuals for information on specific experiments
 - API reference for technical documentation
 
-All documentation is written in reStructuredText format and then built into formatted
-text by Sphinx. Code cells can be written using `jupyter-execute` blocks, which will be
-automatically executed, with both code and output shown to the user:
-
-    .. jupyter-execute::
-
-        # write Python code here
-
-Your code should use the appropriate mock backend to show what expected experiment
-results might look like for the user. To instantiate a mock backend without exposing it
-to the user, use the `:hide-code:` and `:hide-output:` directives:
-
-    .. jupyter-execute::
-        :hide-code:
-        :hide-output:
-
-        from qiskit.test.ibmq_mock import mock_get_backend
-        backend = mock_get_backend('FakeLima')
-
-To display a block without actually executing the code, use the `.. jupyter-input::` and
-`.. jupyter-output::` directives. To ignore an error from a Jupyter cell block, use the
-`:raises:` directive. To see more options, consult the [Jupyter Sphinx documentation](https://jupyter-sphinx.readthedocs.io/en/latest/).
-
 ### General formatting guidelines 
 
-* For experiments, documentation title should be just the name of the experiment. Use
-  regular capitalization. 
+* For experiments, the documentation title should be just the name of the experiment. Use
+  regular capitalization
 * Use headers, subheaders, subsubheaders etc. for hierarchical text organization. No
   need to number the headers
 * Use present progressive for subtitles, such as "Saving experiment data to the
@@ -60,7 +39,39 @@ To display a block without actually executing the code, use the `.. jupyter-inpu
   instead of IBMQ Lima
 * put identifier names (e.g. osc_freq) in code blocks using double backticks, i.e. `osc_freq`
 
-Below we provide templates and guidelines for each of these types of documentation.
+### Writing code
+
+All documentation is written in reStructuredText format and then built into formatted
+text by Sphinx. Code cells can be written using `jupyter-execute` blocks, which will be
+automatically executed, with both code and output shown to the user:
+
+    .. jupyter-execute::
+
+        # write Python code here
+
+To display a block without actually executing the code, use the `.. jupyter-input::` and
+`.. jupyter-output::` directives. To ignore an error from a Jupyter cell block, use the
+`:raises:` directive. To see more options, consult the [Jupyter Sphinx documentation](https://jupyter-sphinx.readthedocs.io/en/latest/).
+
+### Referencing objects
+
+Modules, classes, methods, functions, and attributes mentioned in the documentation
+should link to their API documentation whenever possible using the `:mod:`, `:class:`,
+`:meth:`, `:func:`, and `:attr:` directives followed by the name of the object in single
+backticks. Here are some common usage patterns:
+
+- `` :class:`.CurveAnalysis` ``: This will render a link to the curve analysis class
+  `CurveAnalysis` if its name is unique.
+- `` :class:`qiskit_experiments.curve_analysis.CurveAnalysis` ``: This will render the 
+  full path to the object with a link as long as the path is correct.
+- `` :class:`~qiskit_experiments.curve_analysis.CurveAnalysis` ``: This will render only
+  the object name itself instead of the full path. It's simpler to use the first pattern
+  instead if the name is unique.
+
+Consult the [Sphinx documentation](https://www.sphinx-doc.org/en/master/usage/restructuredtext/domains.html) for more detailed syntax.
+
+
+Below are templates and guidelines for each of these types of documentation.
 
 ### Tutorials
 

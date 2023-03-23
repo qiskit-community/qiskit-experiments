@@ -18,7 +18,7 @@ Database Service (:mod:`qiskit_experiments.database_service`)
 .. currentmodule:: qiskit_experiments.database_service
 
 This subpackage provides database-specific utility functions and exceptions which
-are used with the :class:`ExperimentData` and :class:`AnalysisResult` classes.
+are used with the :class:`.ExperimentData` and :class:`.AnalysisResult` classes.
 
 
 Exceptions

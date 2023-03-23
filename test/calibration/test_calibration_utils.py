@@ -15,8 +15,8 @@
 from test.base import QiskitExperimentsTestCase
 import rustworkx as rx
 
+from qiskit import pulse
 from qiskit.circuit import Parameter
-import qiskit.pulse as pulse
 
 from qiskit_experiments.exceptions import CalibrationError
 from qiskit_experiments.calibration_management import EchoedCrossResonance

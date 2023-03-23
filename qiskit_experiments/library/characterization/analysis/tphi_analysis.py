@@ -64,9 +64,7 @@ class TphiAnalysis(CompositeAnalysis):
         # Run composite analysis and extract T1 and T2 results
         analysis_results, figures = super()._run_analysis(experiment_data)
         t1_result = next(filter(lambda res: res.name == "T1", analysis_results))
-        t2_result = next(
-            filter(lambda res: res.name == "T2star" or res.name == "T2", analysis_results)
-        )
+        t2_result = next(filter(lambda res: res.name in {"T2star", "T2"}, analysis_results))
 
         # Calculate Tphi from T1 and T2
         tphi = 1 / (1 / t2_result.value - 1 / (2 * t1_result.value))

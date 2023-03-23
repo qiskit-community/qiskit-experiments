@@ -1,7 +1,7 @@
 ---
 features:
   - |
-    The curve fit parameter guess function :func:`~rb_decay` has been added. 
+    The curve fit parameter guess function :func:`~.guess.rb_decay` has been added. 
     This improves the initial parameter estimation of randomized benchmark experiments.
 upgrade:
   - |

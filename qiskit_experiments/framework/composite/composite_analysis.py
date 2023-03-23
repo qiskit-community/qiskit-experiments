@@ -40,15 +40,15 @@ class CompositeAnalysis(BaseAnalysis):
 
     .. note::
 
-        If the composite :class:`ExperimentData` does not already contain
-        child experiment data containers for the component experiments
-        they will be initialized and added to the experiment data when :meth:`run`
-        is called on the composite data.
+        If the composite :class:`ExperimentData` does not already contain child
+        experiment data containers for the component experiments they will be
+        initialized and added to the experiment data when
+        :meth:`~.CompositeAnalysis.run` is called on the composite data.
 
-        When calling :meth:`run` on experiment data already containing
-        initialized component experiment data, any previously stored
-        circuit data will be cleared and replaced with the marginalized data
-        from the composite experiment data.
+        When calling :meth:`~.CompositeAnalysis.run` on experiment data already
+        containing initialized component experiment data, any previously stored circuit
+        data will be cleared and replaced with the marginalized data from the composite
+        experiment data.
     """
 
     def __init__(self, analyses: List[BaseAnalysis], flatten_results: bool = False):
