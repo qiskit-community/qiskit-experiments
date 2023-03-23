@@ -939,7 +939,6 @@ class TestMirrorRB(QiskitExperimentsTestCase, RBTestMixin):
 
         self.transpiler_options = {
             "basis_gates": self.basis_gates,
-            "optimization_level": 1,
         }
 
     def test_return_same_circuit(self):
@@ -1229,7 +1228,7 @@ class TestRunMirrorRB(RBRunTestCase):
         epc = expdata.analysis_results("EPC")
         epc_expected = 1 - (1 - 1 / 2 * self.p1q) ** 2.0
 
-        self.assertAlmostEqual(epc.value.n, epc_expected, delta=0.1 * epc_expected)
+        self.assertAlmostEqual(epc.value.n, epc_expected, delta=3 * epc.value.std_dev)
 
     def test_two_qubit(self):
         """Test two qubit RB."""
@@ -1259,7 +1258,7 @@ class TestRunMirrorRB(RBRunTestCase):
         cx_factor = (1 - 3 * self.p2q / 4) ** (2 * two_qubit_gate_density)
         sx_factor = (1 - self.p1q / 2) ** (2 * 2 * (1 - two_qubit_gate_density))
         epc_expected = 1 - cx_factor * sx_factor
-        self.assertAlmostEqual(epc.value.n, epc_expected, delta=0.2 * epc_expected)
+        self.assertAlmostEqual(epc.value.n, epc_expected, delta=3 * epc.value.std_dev)
 
     def test_two_qubit_nonlocal_noise(self):
         """Test for 2 qubit Mirrored RB with a nonlocal noise model"""
@@ -1282,7 +1281,6 @@ class TestRunMirrorRB(RBRunTestCase):
         # Need level1 for consecutive gate cancellation for reference EPC value calculation
         transpiler_options = {
             "basis_gates": basis_gates,
-            "optimization_level": 1,
         }
         # Coupling map is 3 x 3 lattice
         noise_backend = NoiseSimulator(
@@ -1317,10 +1315,11 @@ class TestRunMirrorRB(RBRunTestCase):
         sx_factor = (1 - p1q / 2) ** (2 * num_q * (1 - two_qubit_gate_density))
         cx_nonlocal_factor = (1 - 0.0035 / 2) ** (num_q * num_q * two_qubit_gate_density)
         epc_expected = 1 - cx_factor * sx_factor * cx_nonlocal_factor
-        self.assertAlmostEqual(epc.value.n, epc_expected, delta=0.2 * epc_expected)
+        print(epc.value.n, epc_expected)
+        self.assertAlmostEqual(epc.value.n, epc_expected, delta=3 * epc.value.std_dev)
 
     def test_three_qubit_nonlocal_noise(self):
-        """Test three-qubit mirrored RB on a nonlocal noise model"""
+        """Test three-qubit mirror RB on a nonlocal noise model"""
         # depolarizing error
         p1q = 0.001
         p2q = 0.01
@@ -1340,7 +1339,6 @@ class TestRunMirrorRB(RBRunTestCase):
         # Need level1 for consecutive gate cancellation for reference EPC value calculation
         transpiler_options = {
             "basis_gates": basis_gates,
-            "optimization_level": 1,
         }
         noise_backend = NoiseSimulator(
             noise_model=noise_model,
@@ -1373,7 +1371,7 @@ class TestRunMirrorRB(RBRunTestCase):
         # 4. Use qiskit.quantum_info.average_gate_fidelity on these N layers
         #    to compute 1 - EPC for each layer, and average over the N layers.
         epc_expected = 0.0124
-        self.assertAlmostEqual(epc.value.n, epc_expected, delta=0.2 * epc_expected)
+        self.assertAlmostEqual(epc.value.n, epc_expected, delta=3 * epc.value.std_dev)
 
     def test_add_more_circuit_yields_lower_variance(self):
         """Test variance reduction with larger number of sampling."""

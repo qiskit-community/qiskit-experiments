@@ -129,7 +129,7 @@ instead of the default:
 
 .. jupyter-execute::
 
-    lengths = np.arange(2,302,50)
+    lengths = np.arange(2,202,50)
     num_samples = 5
     seed = 42
     qubits = (0,)

@@ -46,7 +46,8 @@ class MirrorRB(StandardRB):
         quantum gates using gate layers sampled from a distribution that are then
         inverted in the second half of the circuit.
 
-        The default mirror RB experiment generates circuits of layers of Cliffords
+        The default mirror RB experiment generates circuits of layers of Cliffords,
+        consisting of single-qubit Cliffords and a two-qubit gate such as CX,
         interleaved with layers of Pauli gates and capped at the start and end by a
         layer of single-qubit Cliffords. The second half of the Clifford layers are the
         inverses of the first half of Clifford layers. After running the circuits on a
