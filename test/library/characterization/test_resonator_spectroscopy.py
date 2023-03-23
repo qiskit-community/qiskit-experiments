@@ -35,6 +35,7 @@ from qiskit_experiments.test.mock_iq_helpers import (
 
 class MockIQBackendDefaults(MockIQBackend):
     """MockIQBackend with defaults() method"""
+
     def defaults(self):
         """Pulse defaults"""
         return self._defaults
@@ -42,6 +43,7 @@ class MockIQBackendDefaults(MockIQBackend):
 
 class MockIQParallelBackendDefaults(MockIQParallelBackend):
     """MockIQParallelBackend with defaults() method"""
+
     def defaults(self):
         """Pulse defaults"""
         return self._defaults
