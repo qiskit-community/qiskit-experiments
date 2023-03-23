@@ -213,7 +213,7 @@ class MirrorRBAnalysis(curve.CurveAnalysis):
         # TODO Eventually move this to data processor, then create RB data processor.
 
         # take average over the same x value by keeping sigma
-        data_allocation, xdata, ydata, sigma, shots = curve.data_processing.multi_mean_xy_data(
+        data_allocation, xdata, ydata, sigma, shots = curve.utils.multi_mean_xy_data(
             series=curve_data.data_allocation,
             xdata=curve_data.x,
             ydata=curve_data.y,
@@ -223,7 +223,7 @@ class MirrorRBAnalysis(curve.CurveAnalysis):
         )
 
         # sort by x value in ascending order
-        data_allocation, xdata, ydata, sigma, shots = curve.data_processing.data_sort(
+        data_allocation, xdata, ydata, sigma, shots = curve.utils.data_sort(
             series=data_allocation,
             xdata=xdata,
             ydata=ydata,

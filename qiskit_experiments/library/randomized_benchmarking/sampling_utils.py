@@ -20,6 +20,7 @@ from typing import Optional, Union, List, Tuple, Sequence, TypeVar
 from collections import defaultdict
 
 from numpy.random import Generator, default_rng, BitGenerator, SeedSequence
+import numpy as np
 
 from qiskit import QuantumCircuit
 from qiskit.circuit import Instruction
@@ -29,7 +30,7 @@ from qiskit.exceptions import QiskitError
 
 from .clifford_utils import CliffordUtils, _CLIFF_SINGLE_GATE_MAP_1Q
 
-GateType = TypeVar("GateType", str, int, Instruction, Operator, QuantumCircuit, BaseOperator)
+GateTypeT = TypeVar("GateTypeT", str, int, Instruction, Operator, QuantumCircuit, BaseOperator)
 
 
 class RBSampler(ABC):
@@ -83,7 +84,7 @@ class RBSampler(ABC):
         return self._gate_distribution
 
     @gate_distribution.setter
-    def gate_distribution(self, dist: List[Tuple[float, int, GateType]]):
+    def gate_distribution(self, dist: List[Tuple[float, int, GateTypeT]]):
         """Set the distribution of gates used in the sampler.
 
         Args:
@@ -134,7 +135,9 @@ class RBSampler(ABC):
         return gate_probs
 
     @abstractmethod
-    def __call__(self, qubits: Sequence, length: int = 1) -> List[Tuple[Tuple[int, ...], GateType]]:
+    def __call__(
+        self, qubits: Sequence, length: int = 1
+    ) -> List[Tuple[Tuple[int, ...], GateTypeT]]:
         """Samplers should define this method such that it returns sampled layers
         given the input parameters. Each layer is represented by a list of size-2 tuples
         where the first element is a tuple of qubit indices, and the second
@@ -154,7 +157,7 @@ class SingleQubitSampler(RBSampler):
         self,
         qubits: Sequence,
         length: int = 1,
-    ) -> List[List[Tuple[Tuple[int, ...], GateType]]]:
+    ) -> List[List[Tuple[Tuple[int, ...], GateTypeT]]]:
         """Samples random single-qubit gates from the specified gate set.
 
         Args:
@@ -222,7 +225,7 @@ class EdgeGrabSampler(RBSampler):
         self,
         qubits: Sequence,
         length: int = 1,
-    ) -> List[Tuple[Tuple[int, ...], GateType]]:
+    ) -> List[Tuple[Tuple[int, ...], GateTypeT]]:
         """Sample layers using the edge grab algorithm.
 
         Args:

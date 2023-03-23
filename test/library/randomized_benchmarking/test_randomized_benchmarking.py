@@ -36,7 +36,6 @@ from qiskit_experiments.framework.composite import ParallelExperiment
 from qiskit_experiments.library import randomized_benchmarking as rb
 from qiskit_experiments.library.randomized_benchmarking.clifford_utils import (
     compute_target_bitstring,
-    CliffordUtils,
 )
 from qiskit_experiments.library.randomized_benchmarking.sampling_utils import EdgeGrabSampler
 

@@ -107,15 +107,7 @@ experiment:
     lengths = np.arange(2, 810, 200)
     num_samples = 5
     seed = 1010
-    qubits = (0,)
-
-    exp_2q = MirrorRB((0,1), 
-                      lengths=[4],
-                      backend=backend, 
-                      num_samples=1, 
-                      seed=1010, 
-                      two_qubit_gate_density=.4,
-                      distribution=EdgeGrabSampler)
+    qubits = (0,1)
 
     exp_2q = MirrorRB(qubits, lengths, backend=backend, num_samples=num_samples, seed=seed)
     expdata_2q = exp_2q.run(backend).block_for_results()

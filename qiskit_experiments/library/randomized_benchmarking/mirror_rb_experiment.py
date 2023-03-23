@@ -17,7 +17,7 @@ from typing import Union, Iterable, Optional, List, Sequence, Tuple
 from numbers import Integral
 import itertools
 import numpy as np
-from numpy.random import Generator, BitGenerator, SeedSequence, default_rng
+from numpy.random import Generator, BitGenerator, SeedSequence
 
 from qiskit.circuit import QuantumCircuit, Instruction, Barrier
 from qiskit.quantum_info.operators import Pauli
@@ -34,7 +34,7 @@ from .clifford_utils import (
     inverse_1q,
     _clifford_1q_int_to_instruction,
 )
-from .sampling_utils import RBSampler, EdgeGrabSampler, SingleQubitSampler, GateType
+from .sampling_utils import RBSampler, EdgeGrabSampler, SingleQubitSampler, GateTypeT
 
 
 class MirrorRB(StandardRB):
@@ -74,7 +74,7 @@ class MirrorRB(StandardRB):
         start_end_clifford: bool = True,
         pauli_randomize: bool = True,
         two_qubit_gate_density: float = 0.2,
-        two_qubit_gate: GateType = CXGate,
+        two_qubit_gate: GateTypeT = CXGate,
         backend: Optional[Backend] = None,
         num_samples: int = 3,
         seed: Optional[Union[int, SeedSequence, BitGenerator, Generator]] = None,
@@ -387,8 +387,8 @@ class MirrorRB(StandardRB):
             return elem()
 
     def _inverse_layer(
-        self, layer: List[Tuple[Tuple[int, ...], GateType]]
-    ) -> List[Tuple[Tuple[int, ...], GateType]]:
+        self, layer: List[Tuple[Tuple[int, ...], GateTypeT]]
+    ) -> List[Tuple[Tuple[int, ...], GateTypeT]]:
         """Generates the inverse layer of a Clifford mirror RB layer by inverting the
         single-qubit Cliffords and keeping the two-qubit gate identical. See
         :class:`.RBSampler` for the format of the layer.
