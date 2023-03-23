@@ -178,7 +178,7 @@ class ResonatorSpectroscopy(Spectroscopy):
 
         Raises:
             QiskitError: If no frequencies are given and absolute frequencies are desired and
-                no backend is given.
+                no backend is given or the backend does not have default measurement frequencies.
         """
         analysis = ResonatorSpectroscopyAnalysis()
 
@@ -186,18 +186,27 @@ class ResonatorSpectroscopy(Spectroscopy):
             frequencies = np.linspace(-20.0e6, 20.0e6, 51)
 
             if absolute:
-                if backend is None:
-                    raise QiskitError(
-                        "Cannot automatically compute absolute frequencies without a backend."
-                    )
-
-                # TODO: check me!
-                center_freq = BackendData(backend).meas_freqs[physical_qubits[0]]
-                frequencies += center_freq
+                frequencies += self._get_backend_meas_freq(backend, physical_qubits[0])
 
         super().__init__(
             physical_qubits, frequencies, backend, absolute, analysis, **experiment_options
         )
+
+    @staticmethod
+    def _get_backend_meas_freq(backend: Optional[Backend], qubit: int) -> float:
+        """Get backend meas_freq with error checking"""
+        if backend is None:
+            raise QiskitError(
+                "Cannot automatically compute absolute frequencies without a backend."
+            )
+
+        meas_freqs = BackendData(backend).meas_freqs
+        if len(meas_freqs) < qubit + 1:
+            raise QiskitError(
+                "Cannot retrieve default measurement frequencies from backend. "
+                "Please set frequencies explicitly or set `absolute` to `False`."
+            )
+        return meas_freqs[qubit]
 
     @property
     def _backend_center_frequency(self) -> float:
@@ -209,10 +218,7 @@ class ResonatorSpectroscopy(Spectroscopy):
         Raises:
             QiskitError: If the experiment does not have a backend set.
         """
-        if self.backend is None:
-            raise QiskitError("backend not set. Cannot call center_frequency.")
-
-        return self.backend.defaults().meas_freq_est[self.physical_qubits[0]]
+        return self._get_backend_meas_freq(self.backend, self.physical_qubits[0])
 
     def _template_circuit(self) -> QuantumCircuit:
         """Return the template quantum circuit."""
