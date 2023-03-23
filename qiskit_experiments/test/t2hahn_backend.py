@@ -113,7 +113,9 @@ class T2HahnBackend(BackendV2):
                 if num_qubits is None:
                     num_qubits = len(arg)
                 elif len(arg) != num_qubits:
-                    raise ValueError(f"Input lengths are not consistent: {num_qubits} != {len(arg)}")
+                    raise ValueError(
+                        f"Input lengths are not consistent: {num_qubits} != {len(arg)}"
+                    )
 
         if num_qubits is None:
             num_qubits = 1
