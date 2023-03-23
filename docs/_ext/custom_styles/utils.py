@@ -118,7 +118,7 @@ def _get_superclass(current_class: Type, base_class: Type = None):
 
     lines = []
     for doc_class in doc_classes:
-        lines.append(f"* Super class :class:`{doc_class.__module__}.{doc_class.__name__}`")
+        lines.append(f"* Superclass :class:`{doc_class.__module__}.{doc_class.__name__}`")
 
     return lines
 
