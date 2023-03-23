@@ -210,6 +210,8 @@ The actual backend jobs that were executed for the experiment can be accessed wi
     See the how-tos for :doc:`rerunning the analysis </howtos/rerun_analysis>`
     for an existing experiment that finished execution.
 
+.. _guide_setting_options:
+
 Setting options for your experiment
 ===================================
 
