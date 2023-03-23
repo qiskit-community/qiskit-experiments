@@ -14,7 +14,7 @@ T2HahnBackend class.
 Temporary backend to be used for t2hahn experiment
 """
 import copy
-from typing import Sequence, Union
+from typing import List, Sequence, Union
 
 import numpy as np
 
@@ -159,12 +159,15 @@ class T2HahnBackend(BackendV2):
     def _default_options(cls) -> Options:
         return Options()
 
-    def run(self, circuits, shots: int = 1024, **options) -> Job:
-
+    def run(
+        self, run_input: Union[QuantumCircuit, List[QuantumCircuit]], shots: int = 1024, **options
+    ) -> Job:
         passes = []
 
-        if isinstance(circuits, QuantumCircuit):
-            circuits = [circuits]
+        if isinstance(run_input, QuantumCircuit):
+            circuits = [run_input]
+        else:
+            circuits = run_input
 
         for circuit in circuits:
             if circuit.num_qubits > self.num_qubits:
