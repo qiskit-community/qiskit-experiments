@@ -284,11 +284,11 @@ class DataProcessor:
 
     def __json_encode__(self) -> Dict[str, Any]:
         """Return the config dict for this data processor."""
-        return dict(
-            cls=type(self),
-            input_key=self._input_key,
-            nodes=self._nodes,
-        )
+        return {
+            "cls": type(self),
+            "input_key": self._input_key,
+            "nodes": self._nodes,
+        }
 
     @classmethod
     def __json_decode__(cls, config: Dict[str, Any]) -> "DataProcessor":

@@ -30,13 +30,13 @@ class BaseDataProcessorTest(QiskitExperimentsTestCase):
         """Define variables needed for most tests."""
         super().setUp()
 
-        self.base_result_args = dict(
-            backend_name="test_backend",
-            backend_version="1.0.0",
-            qobj_id="id-123",
-            job_id="job-123",
-            success=True,
-        )
+        self.base_result_args = {
+            "backend_name": "test_backend",
+            "backend_version": "1.0.0",
+            "qobj_id": "id-123",
+            "job_id": "job-123",
+            "success": True,
+        }
 
         self.header = QobjExperimentHeader(
             memory_slots=2,

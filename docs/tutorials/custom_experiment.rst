@@ -10,7 +10,7 @@ the :class:`.BaseExperiment` class. We will discuss both cases in this tutorial.
 In general, to subclass :class:`.BaseExperiment` class, you should:
 
 - Implement the abstract :meth:`.BaseExperiment.circuits` method.
-  This should return a list of :class:`~qiskit.QuantumCircuit` objects defining
+  This should return a list of :class:`~qiskit.circuit.QuantumCircuit` objects defining
   the experiment payload.
 
 - Call the :meth:`.BaseExperiment.__init__` method during the subclass

@@ -83,7 +83,7 @@ class PreparationBasis(BaseBasis):
     define a preparation basis:
 
     * The :meth:`circuit` method which returns the logical preparation
-      :class:`.QuantumCircuit` for basis element index on the specified
+      :class:`~qiskit.circuit.QuantumCircuit` for basis element index on the specified
       qubits. This circuit should be a logical circuit on the specified
       number of qubits and will be remapped to the corresponding physical
       qubits during transpilation.
@@ -94,7 +94,7 @@ class PreparationBasis(BaseBasis):
     * The :meth:`index_shape` method which returns the shape of allowed
       basis indices for the specified qubits, and their values.
 
-    * The :meth:`matrix_shape` method which returns the shape of subsystem
+    * The :meth:`~.PreparationBasis.matrix_shape` method which returns the shape of subsystem
       dimensions of the density matrix state on the specified qubits.
     """
 
@@ -135,22 +135,22 @@ class MeasurementBasis(BaseBasis):
     define a preparation basis:
 
     * The :meth:`circuit` method which returns the logical measurement
-      :class:`.QuantumCircuit` for basis element index on the specified
+      :class:`~qiskit.circuit.QuantumCircuit` for basis element index on the specified
       physical qubits. This circuit should be a logical circuit on the
       specified number of qubits and will be remapped to the corresponding
       physical qubits during transpilation. It should include classical
       bits and the measure instructions for the basis measurement storing
       the outcome value in these bits.
 
-    * The :meth:`matrix` method which returns the POVM element corresponding
-      to the basis element index and measurement outcome on the specified
-      qubits. This should return either a :class:`.Statevector` for a PVM
-      element, or :class:`.DensityMatrix` for a general POVM element.
+    * The :meth:`matrix` method which returns the POVM element corresponding to the
+      basis element index and measurement outcome on the specified qubits. This should
+      return either a :class:`~qiskit.quantum_info.Statevector` for a PVM element, or
+      :class:`~qiskit.quantum_info.DensityMatrix` for a general POVM element.
 
     * The :meth:`index_shape` method which returns the shape of allowed
       basis indices for the specified qubits, and their values.
 
-    * The :meth:`matrix_shape` method which returns the shape of subsystem
+    * The :meth:`~.PreparationBasis.matrix_shape` method which returns the shape of subsystem
       dimensions of the POVM element matrices on the specified qubits.
 
     * The :meth:`outcome_shape` method which returns the shape of allowed
