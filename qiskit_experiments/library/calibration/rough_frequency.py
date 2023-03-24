@@ -28,11 +28,7 @@ from qiskit_experiments.warnings import qubit_deprecate
 
 
 class RoughFrequencyCal(BaseCalibrationExperiment, QubitSpectroscopy):
-    """A calibration experiment that runs QubitSpectroscopy.
-
-    # section: see_also
-        :class:`.QubitSpectroscopy`
-    """
+    """A calibration experiment that runs QubitSpectroscopy."""
 
     @qubit_deprecate()
     def __init__(
@@ -77,11 +73,7 @@ class RoughFrequencyCal(BaseCalibrationExperiment, QubitSpectroscopy):
 
 
 class RoughEFFrequencyCal(BaseCalibrationExperiment, EFSpectroscopy):
-    """A calibration experiment that runs QubitSpectroscopy.
-
-    # section: see_also
-        :class:`.EFSpectroscopy`
-    """
+    """A calibration experiment that runs QubitSpectroscopy."""
 
     __updater__ = Frequency
 

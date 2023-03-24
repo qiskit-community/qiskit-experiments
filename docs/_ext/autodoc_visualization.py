@@ -17,6 +17,7 @@ Documentation extension for visualization classes.
 from typing import Any
 
 from docs._ext.custom_styles.styles import VisualizationDocstring
+from docs._ext.custom_styles.option_parser import process_default_options
 from qiskit.exceptions import QiskitError
 from qiskit_experiments.visualization import BasePlotter, BaseDrawer
 from sphinx.application import Sphinx
@@ -41,23 +42,42 @@ class VisualizationDocumenter(ClassDocumenter):
                 "Please run sphinx build without using the visualization template."
             )
 
+        option_doc = process_default_options(
+            current_class=self.object,
+            default_option_method="_default_options",
+            section_repr="Options:",
+            app=self.env.app,
+            options=self.options,
+            config=self.env.app.config,
+            indent=self.content_indent,
+        )
+        init_doc = list(self.process_doc([init_doc]))
+
+        fig_option_doc = process_default_options(
+            current_class=self.object,
+            default_option_method="_default_figure_options",
+            section_repr="Figure Options:",
+            app=self.env.app,
+            options=self.options,
+            config=self.env.app.config,
+            indent=self.content_indent,
+        )
+
         # format visualization class documentation into the visualization style
         class_doc_parser = VisualizationDocstring(
             target_cls=self.object,
             docstring_lines=class_doc,
             config=self.env.app.config,
             indent=self.content_indent,
+            opts=option_doc,
+            figure_opts=fig_option_doc,
+            init=init_doc,
         )
 
         # write introduction
-        for i, line in enumerate(self.process_doc(class_doc_parser.generate_class_docs())):
-            self.add_line(line, sourcename, i)
-        self.add_line("", sourcename)
-
-        # write init method documentation
-        self.add_line(".. rubric:: Initialization", sourcename)
-        self.add_line("", sourcename)
-        for i, line in enumerate(self.process_doc([init_doc])):
+        init_doc = list(self.process_doc([init_doc]))
+        custom_docs = class_doc_parser.generate_class_docs()
+        for i, line in enumerate(self.process_doc(custom_docs)):
             self.add_line(line, sourcename, i)
         self.add_line("", sourcename)
 
