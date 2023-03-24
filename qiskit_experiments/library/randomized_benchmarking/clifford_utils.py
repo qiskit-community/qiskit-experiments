@@ -300,18 +300,14 @@ class CliffordUtils:
 
 
 def compute_target_bitstring(circuit: QuantumCircuit) -> str:
-    """For a Clifford circuit C, compute C|0>.
+    """For a Pauli circuit C, which consists only of Clifford gates, compute C|0>.
     Args:
-        circuit: A Clifford QuantumCircuit.
+        circuit: A Pauli QuantumCircuit.
     Returns:
         Target bitstring.
     """
-    # convert circuit to Boolean phase vector of stabilizer table
-    phase_vector = Clifford(circuit).table.phase
-    n = circuit.num_qubits
-
     # target string has a 1 for each True in the stabilizer half of the phase vector
-    target = "".join(["1" if phase else "0" for phase in phase_vector[n:][::-1]])
+    target = "".join(["1" if phase else "0" for phase in Clifford(circuit).stab_phase[::-1]])
     return target
 
 

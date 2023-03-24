@@ -89,7 +89,7 @@ user can specify an expected two-qubit gate density :math:`\xi \in \left[0,
 Even though a :class:`.MirrorRB` experiment can be instantiated without a backend, the
 backend must be specified when the circuits are sampled because :math:`\Omega` depends
 on the backend's connectivity. To use your own :math:`\Omega`, you have to implement
-your own subclass of the abstract :class:`.RBSampler` class, but here we will use
+your own subclass of the abstract :class:`.BaseSampler` class, but here we will use
 the built-in :class:`.EdgeGrabSampler`. Here's how to instantiate and run the
 experiment:
 
@@ -254,6 +254,7 @@ documentation for details on available options):
 .. jupyter-execute::
 
     from qiskit.circuit.library import ECRGate
+    from qiskit.circuit.library import HGate
 
     exp = MirrorRB(range(4),
                    lengths=[2],
@@ -262,7 +263,7 @@ documentation for details on available options):
                    backend=backend,
                    num_samples=1,
                    start_end_clifford=False)
-    exp.distribution.gate_distribution = [(0.5, 1, "pauli"), (0.5, 2, ECRGate)]
+    exp.distribution.gate_distribution = [(0.4, 1, "pauli"),(0.4, 1, HGate()),(0.2, 2, ECRGate())]
     exp.circuits()[0].remove_final_measurements(inplace=False).draw("mpl")
 
 If we reset the distribution to :class:`.EdgeGrabSampler`, we will get the expected
@@ -278,11 +279,13 @@ It is possible to set the distribution to another sampler entirely, or your own 
 .. jupyter-execute::
 
     from qiskit_experiments.library.randomized_benchmarking.sampling_utils import SingleQubitSampler
-    from qiskit.circuit.library import SGate
+    from qiskit.circuit.library import SGate, HGate
 
     exp.distribution = SingleQubitSampler
-    exp.distribution.gate_distribution = [(1, 1, SGate)]
+    exp.distribution.gate_distribution = [(0.5, 1, SGate()), (0.5, 1, HGate())]
     exp.circuits()[0].remove_final_measurements(inplace=False).draw("mpl")
+
+Note that only Clifford gates can be used.
 
 Mirror RB implementation in ``pyGSTi``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -321,4 +324,5 @@ References
 See also
 --------
 
+* API documentation: :mod:`.MirrorRB`
 * Experiment manual: :doc:`/manuals/verification/randomized_benchmarking`

@@ -1142,7 +1142,7 @@ class TestMirrorRB(QiskitExperimentsTestCase, RBTestMixin):
             seed=self.seed,
         )
 
-        exp.distribution.gate_distribution = [(0.2, 1, "clifford"), (0.8, 2, ECRGate)]
+        exp.distribution.gate_distribution = [(0.2, 1, "clifford"), (0.8, 2, ECRGate())]
         gates = exp.circuits()[0].count_ops()
         if "ecr" not in gates or "cx" in gates:
             raise QiskitError("Unexpected output gate distribution.")

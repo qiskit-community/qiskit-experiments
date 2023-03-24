@@ -30,7 +30,7 @@ from .clifford_utils import CliffordUtils, _CLIFF_SINGLE_GATE_MAP_1Q
 GateTypeT = TypeVar("GateTypeT", str, int, Instruction)
 
 
-class RBSampler(ABC):
+class BaseSampler(ABC):
     """Base class for the sampling distribution for randomized benchmarking experiments.
     Subclasses must implement the ``__call__()`` method."""
 
@@ -75,7 +75,7 @@ class RBSampler(ABC):
         example distribution for the edge grab sampler might be
 
         .. parsed-literal::
-            [(0.8, 1, "clifford"), (0.2, 2, CXGate)]
+            [(0.8, 1, "clifford"), (0.2, 2, CXGate())]
 
         The probabilities must sum to 1."""
         return self._gate_distribution
@@ -91,13 +91,16 @@ class RBSampler(ABC):
             raise TypeError("The gate distribution should be a list.")
         if sum(list(zip(*dist))[0]) != 1:
             raise QiskitError("Gate distribution probabilities must sum to 1.")
+        for gate in dist:
+            if gate[2] not in ["clifford", "pauli"] and not isinstance(gate[2], Instruction):
+                raise TypeError(
+                    "The only allowed gates in the distribution are 'clifford', 'pauli', and Instruction instances."
+                )
 
         self._gate_distribution = dist
 
     def _probs_by_gate_size(self):
-        """Return a list of gates and their probabilities indexed by the size of the gate. The
-        probability distributions are normalized to 1 within each gate size category.
-        """
+        """Return a list of gates and their probabilities indexed by the size of the gate."""
         if not self._gate_distribution:
             raise QiskitError("Gate distribution must be set before sampling.")
         gate_probs = defaultdict(list)
@@ -115,7 +118,7 @@ class RBSampler(ABC):
                     _CLIFF_SINGLE_GATE_MAP_1Q[("y", (0,))],
                     _CLIFF_SINGLE_GATE_MAP_1Q[("z", (0,))],
                 ]
-                probs = [gate[0] / 4] * 4
+                probs = [gate[0] / len(gateset)] * len(gateset)
             elif gate[2] == "clifford" and gate[1] == 2:
                 gateset = list(range(CliffordUtils.NUM_CLIFFORD_2_QUBIT))
                 probs = [
@@ -147,7 +150,7 @@ class RBSampler(ABC):
         return None
 
 
-class SingleQubitSampler(RBSampler):
+class SingleQubitSampler(BaseSampler):
     """A sampler that samples layers of random single-qubit gates from a specified gate set."""
 
     def __call__(
@@ -180,7 +183,7 @@ class SingleQubitSampler(RBSampler):
             )
 
         samples = self._rng.choice(
-            gateset[1][0],
+            np.array(gateset[1][0], dtype=Instruction),
             size=(length, len(qubits)),
             p=gateset[1][1],
         )
@@ -191,7 +194,7 @@ class SingleQubitSampler(RBSampler):
         return layers
 
 
-class EdgeGrabSampler(RBSampler):
+class EdgeGrabSampler(BaseSampler):
     r"""A sampler that uses the edge grab algorithm [1] for sampling gate layers.
 
     The edge grab sampler, given a list of :math:`w` qubits, their connectivity
@@ -208,10 +211,10 @@ class EdgeGrabSampler(RBSampler):
 
     |
 
-    This produces a layer with an expected two-qubit gate density :math:`\xi`. In
-    the default mirror RB configuration where these layers are dressed with
-    single-qubit Pauli layers, this means the overall two-qubit gate density will be
-    :math:`\xi_s/2=\xi`. The overall density will converge to :math:`\xi` as the
+    This produces a layer with an expected two-qubit gate density :math:`\xi`. In the
+    default mirror RB configuration where these layers are dressed with single-qubit
+    Pauli layers, this means the overall expected two-qubit gate density will be
+    :math:`\xi_s/2=\xi`. The actual density will converge to :math:`\xi_s` as the
     circuit size increases.
 
     .. ref_arxiv:: 1 2008.11294
@@ -244,7 +247,7 @@ class EdgeGrabSampler(RBSampler):
             two-qubit gates:
 
             .. parsed-literal::
-                (((1, 2), CXGate), ((0,), 12), ((3,), 20))
+                (((1, 2), CXGate()), ((0,), 12), ((3,), 20))
 
             This represents a layer where the 12th Clifford is performed on qubit 0,
             a CX is performed with control qubit 1 and target qubit 2, and the 20th
@@ -260,7 +263,9 @@ class EdgeGrabSampler(RBSampler):
             return [
                 (((qubits[0],), i),)
                 for i in self._rng.choice(
-                    gateset[1][0], p=[i / norm1q for i in gateset[1][1]], size=length
+                    np.array(gateset[1][0], dtype=Instruction),
+                    p=[i / norm1q for i in gateset[1][1]],
+                    size=length,
                 )
             ]
 
@@ -310,7 +315,7 @@ class EdgeGrabSampler(RBSampler):
                             (
                                 tuple(edge),
                                 self._rng.choice(
-                                    gateset[2][0],
+                                    np.array(gateset[2][0], dtype=Instruction),
                                     p=[x / norm2q for x in gateset[2][1]],
                                 ),
                             ),
@@ -323,14 +328,17 @@ class EdgeGrabSampler(RBSampler):
                     layer.append(
                         (
                             (q,),
-                            self._rng.choice(gateset[1][0], p=[x / norm1q for x in gateset[1][1]]),
+                            self._rng.choice(
+                                np.array(gateset[1][0], dtype=Instruction),
+                                p=[x / norm1q for x in gateset[1][1]],
+                            ),
                         )
                     )
                 else:  # edge case of two qubit density of 1 where we still fill gaps
                     layer.append(
                         (
                             (q,),
-                            self._rng.choice(gateset[1][0]),
+                            self._rng.choice(np.array(gateset[1][0], dtype=Instruction)),
                         )
                     )
             layer_list.append(tuple(layer))

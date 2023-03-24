@@ -6,5 +6,5 @@ features:
     the fidelity of user-defined ensembles of randomized mirror circuits.
   - |
     Added a base class that samples circuit layers for randomized benchmarking experiments,
-    :class:`.RBSampler`. The edge grab sampler :class:`.EdgeGrabSampler` and a single
+    :class:`.BaseSampler`. The edge grab sampler :class:`.EdgeGrabSampler` and a single
     qubit gate sampler :class:`.SingleQubitSampler` are implemented.

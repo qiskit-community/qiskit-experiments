@@ -24,9 +24,8 @@ from qiskit.quantum_info.operators import Pauli
 from qiskit.providers.backend import Backend
 from qiskit.providers.options import Options
 from qiskit.exceptions import QiskitError
-from qiskit.circuit.library import CXGate
+from qiskit.circuit.library import CXGate, CYGate, CZGate, ECRGate, SwapGate, iSwapGate
 
-from qiskit_experiments.warnings import deprecate_arguments
 from .rb_experiment import StandardRB, SequenceElementType
 from .mirror_rb_analysis import MirrorRBAnalysis
 from .clifford_utils import (
@@ -34,7 +33,10 @@ from .clifford_utils import (
     inverse_1q,
     _clifford_1q_int_to_instruction,
 )
-from .sampling_utils import RBSampler, EdgeGrabSampler, SingleQubitSampler, GateTypeT
+from .sampling_utils import BaseSampler, EdgeGrabSampler, SingleQubitSampler, GateTypeT
+
+# two qubit gates that are their own inverse
+_self_adjoint_gates = [CXGate, CYGate, CZGate, ECRGate, SwapGate, iSwapGate]
 
 
 class MirrorRB(StandardRB):
@@ -69,16 +71,15 @@ class MirrorRB(StandardRB):
 
     """
 
-    @deprecate_arguments({"qubits": "physical_qubits"}, "0.5")
     def __init__(
         self,
         physical_qubits: Sequence[int],
         lengths: Iterable[int],
-        distribution: RBSampler = EdgeGrabSampler,
+        distribution: BaseSampler = EdgeGrabSampler,
         start_end_clifford: bool = True,
         pauli_randomize: bool = True,
         two_qubit_gate_density: float = 0.2,
-        two_qubit_gate: GateTypeT = CXGate,
+        two_qubit_gate: Instruction = CXGate(),
         backend: Optional[Backend] = None,
         num_samples: int = 3,
         seed: Optional[Union[int, SeedSequence, BitGenerator, Generator]] = None,
@@ -147,7 +148,7 @@ class MirrorRB(StandardRB):
 
     @classmethod
     def _default_experiment_options(cls) -> Options:
-        """Default experiment options.
+        """Default mirror RB experiment options.
 
         Experiment Options:
             start_end_clifford (bool): Whether to begin the circuit with uniformly random 1-qubit
@@ -159,7 +160,7 @@ class MirrorRB(StandardRB):
             two_qubit_gate_density (float): Expected proportion of two-qubit gates in
                 the mirror circuit layers (not counting Clifford or Pauli layers at the
                 start and end).
-            two_qubit_gate (str | int | :class:`~qiskit.circuit.Instruction`): The two
+            two_qubit_gate (:class:`~qiskit.circuit.Instruction`): The two
                 qubit gate to use. Defaults to :class:`~qiskit.circuit.library.CXGate`.
             num_samples (int): Number of samples to generate for each sequence length.
         """
@@ -168,8 +169,7 @@ class MirrorRB(StandardRB):
             start_end_clifford=True,
             pauli_randomize=True,
             two_qubit_gate_density=0.2,
-            two_qubit_gate=CXGate,
-            distribution=None,
+            two_qubit_gate=CXGate(),
             inverting_pauli_layer=False,
         )
 
@@ -397,7 +397,7 @@ class MirrorRB(StandardRB):
     ) -> List[Tuple[Tuple[int, ...], GateTypeT]]:
         """Generates the inverse layer of a Clifford mirror RB layer by inverting the
         single-qubit Cliffords and keeping the two-qubit gate identical. See
-        :class:`.RBSampler` for the format of the layer.
+        :class:`.BaseSampler` for the format of the layer.
 
         Args:
             layer: The input layer.
@@ -412,11 +412,11 @@ class MirrorRB(StandardRB):
         for elem in layer:
             if len(elem[0]) == 1 and np.issubdtype(type(elem[1]), int):
                 inverse_layer.append((elem[0], inverse_1q(elem[1])))
-            elif len(elem[0]) == 2 and elem[1] == CXGate:
+            elif len(elem[0]) == 2 and elem[1] in _self_adjoint_gates:
                 inverse_layer.append(elem)
             else:
                 try:
-                    inverse_layer.append((elem[0], elem[1]().inverse()))
+                    inverse_layer.append((elem[0], elem[1].inverse()))
                 except TypeError as exc:
                     raise QiskitError("Invalid layer supplied.") from exc
         return tuple(inverse_layer)

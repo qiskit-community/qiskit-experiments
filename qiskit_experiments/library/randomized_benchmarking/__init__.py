@@ -46,7 +46,7 @@ Utilities
     :toctree: ../stubs/
 
     RBUtils
-    RBSampler
+    BaseSampler
     EdgeGrabSampler
     SingleQubitSampler
 
@@ -54,7 +54,7 @@ Utilities
 from .rb_experiment import StandardRB
 from .interleaved_rb_experiment import InterleavedRB
 from .mirror_rb_experiment import MirrorRB
-from .sampling_utils import RBSampler, EdgeGrabSampler, SingleQubitSampler
+from .sampling_utils import BaseSampler, EdgeGrabSampler, SingleQubitSampler
 from .rb_analysis import RBAnalysis
 from .interleaved_rb_analysis import InterleavedRBAnalysis
 from .mirror_rb_analysis import MirrorRBAnalysis
