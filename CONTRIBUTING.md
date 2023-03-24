@@ -22,7 +22,8 @@ Contents:
     - [Documentation](#documentation)
       - [Updating the documentation](#updating-the-documentation)
       - [Building documentation locally](#building-documentation-locally)
-    - [Adding deprecation warnings](#adding-deprecation-warnings)
+    - [Deprecation policy](#deprecation-policy)
+      - [Adding deprecation warnings](#adding-deprecation-warnings)
     - [Development cycle](#development-cycle)
     - [Branches](#branches)
     - [Release cycle](#release-cycle)
@@ -343,13 +344,15 @@ There are a few other build options available:
 * `tox -edocs-minimal`: build documentation without executing Jupyter code cells
 * `tox -edocs-parallel`: do a full build with multiprocessing (may crash on Macs)
 
-### Adding deprecation warnings
+### Deprecation policy
 
 Qiskit Experiments is part of Qiskit and, therefore, the [Qiskit Deprecation
 Policy](https://qiskit.org/documentation/deprecation_policy.html) fully applies here.
-Deprecations can only happen on minor releases and not on patch releases, and API
-changes must come with a deprecation warning for at least three months or two version
-cycles before the old feature is removed.
+Public-facing changes must come with a deprecation warning for at least three months or
+two version cycles before the old feature is removed. Deprecations can only happen on
+minor releases and not on patch releases.
+
+#### Adding deprecation warnings
 
 We have a deprecation decorator for showing deprecation warnings. To
 deprecate a function, for example:
