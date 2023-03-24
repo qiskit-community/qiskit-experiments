@@ -12,7 +12,7 @@
 
 """Fake backend class for tests."""
 import uuid
-from qiskit.circuit.library import CXGate, Measure
+from qiskit.circuit.library import Measure
 from qiskit.providers.backend import BackendV2
 from qiskit.providers.options import Options
 from qiskit.transpiler import Target
