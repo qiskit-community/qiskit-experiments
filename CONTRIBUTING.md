@@ -346,8 +346,12 @@ There are a few other build options available:
 ### Adding deprecation warnings
 
 Qiskit Experiments is part of Qiskit and, therefore, the [Qiskit Deprecation
-Policy](https://qiskit.org/documentation/contributing_to_qiskit.html#deprecation-policy)
-fully applies here. We have a deprecation decorator for showing deprecation warnings. To
+Policy](https://qiskit.org/documentation/deprecation_policy.html) fully applies here.
+Deprecations can only happen on minor releases and not on patch releases, and API
+changes must come with a deprecation warning for at least three months or two version
+cycles before the old feature is removed.
+
+We have a deprecation decorator for showing deprecation warnings. To
 deprecate a function, for example:
 
 ```python
