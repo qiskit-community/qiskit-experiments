@@ -39,11 +39,8 @@ class TomographyExperiment(BaseExperiment):
         """Default experiment options.
 
         Experiment Options:
-            measurement_basis (:class:`~basis.BaseTomographyMeasurementBasis`): The
-                Tomography measurement basis to use for the experiment.
-                The default basis is the :class:`~basis.PauliMeasurementBasis` which
-                performs measurements in the Pauli Z, X, Y bases for each qubit
-                measurement.
+            basis_indices (Iterable[Tuple[List[int], List[int]]]): The basis elements to be measured.
+                If None All basis elements will be measured.
 
         """
         options = super()._default_experiment_options()
