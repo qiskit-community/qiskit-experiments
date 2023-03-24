@@ -23,12 +23,7 @@ from qiskit_experiments.framework import Options
 
 
 class T2HahnAnalysis(curve.DecayAnalysis):
-    r"""A class to analyze T2Hahn experiments.
-
-    # section: see_also
-        :class:`.DecayAnalysis`
-
-    """
+    """A class to analyze T2Hahn experiments."""
 
     @classmethod
     def _default_options(cls) -> Options:

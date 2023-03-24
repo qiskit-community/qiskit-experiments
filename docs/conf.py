@@ -162,6 +162,7 @@ intersphinx_mapping = {
     "qiskit": ("https://qiskit.org/documentation/", None),
     "pygsti": ("https://pygsti.readthedocs.io/en/latest/", None),
     "uncertainties": ("https://pythonhosted.org/uncertainties", None),
+    "qiskit_ibm_provider": ("https://qiskit.org/documentation/partners/qiskit_ibm_provider", None),
 }
 
 

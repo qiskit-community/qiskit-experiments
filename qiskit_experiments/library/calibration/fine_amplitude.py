@@ -37,9 +37,6 @@ class FineAmplitudeCal(BaseCalibrationExperiment, FineAmplitude):
         experiment the circuits that are run have a custom gate with the pulse schedule attached
         to it through the calibrations.
 
-    # section: see_also
-        :class:`.FineAmplitude`
-
     """
 
     @qubit_deprecate()
@@ -161,11 +158,7 @@ class FineAmplitudeCal(BaseCalibrationExperiment, FineAmplitude):
 
 
 class FineXAmplitudeCal(FineAmplitudeCal):
-    """A calibration experiment to calibrate the amplitude of the X schedule.
-
-    # section: see_also
-        :class:`.FineAmplitude`
-    """
+    """A calibration experiment to calibrate the amplitude of the X schedule."""
 
     @qubit_deprecate()
     def __init__(
@@ -214,11 +207,7 @@ class FineXAmplitudeCal(FineAmplitudeCal):
 
 
 class FineSXAmplitudeCal(FineAmplitudeCal):
-    """A calibration experiment to calibrate the amplitude of the SX schedule.
-
-    # section: see_also
-        :class:`.FineAmplitude`
-    """
+    """A calibration experiment to calibrate the amplitude of the SX schedule."""
 
     @qubit_deprecate()
     def __init__(

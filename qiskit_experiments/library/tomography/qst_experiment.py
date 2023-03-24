@@ -45,9 +45,6 @@ class StateTomography(TomographyExperiment):
     # section: analysis_ref
         :class:`StateTomographyAnalysis`
 
-    # section: see_also
-        :class:`.TomographyExperiment`
-
     """
 
     @deprecate_arguments(

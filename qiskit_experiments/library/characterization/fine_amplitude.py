@@ -96,8 +96,8 @@ class FineAmplitude(BaseExperiment, RestlessMixin):
 
         Experiment Options:
             repetitions (List[int]): A list of the number of times that the gate is repeated.
-            gate_type (Gate): This is a gate class such as XGate, so that one can obtain a gate
-                by doing :code:`options.gate_class()`.
+            gate (Gate): This is a gate class such as XGate, so that one can obtain a gate
+                by doing :code:`options.gate()`.
             normalization (bool): If set to True the DataProcessor will normalized the
                 measured signal to the interval [0, 1]. Defaults to True.
             add_cal_circuits (bool): If set to True then two circuits to calibrate 0 and 1 points
