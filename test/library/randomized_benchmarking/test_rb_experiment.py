@@ -21,6 +21,9 @@ from qiskit.circuit.library import SXGate
 from qiskit.exceptions import QiskitError
 from qiskit.providers.fake_provider import FakeManilaV2
 from qiskit.pulse import Schedule, InstructionScheduleMap
+from qiskit_aer import AerSimulator
+from qiskit_aer.noise import NoiseModel, depolarizing_error
+from qiskit_experiments.framework.composite import ParallelExperiment
 from qiskit_experiments.library import randomized_benchmarking as rb
 
 
@@ -193,3 +196,268 @@ class TestStandardRB(QiskitExperimentsTestCase, RBTestMixin):
             for inst in qc:
                 if inst.operation.name == "cx":
                     self.assertEqual(inst.qubits, expected_qubits)
+
+
+class TestRunStandardRB(QiskitExperimentsTestCase, RBTestMixin):
+    """Test for running StandardRB."""
+
+    def setUp(self):
+        """Setup the tests."""
+        super().setUp()
+
+        # depolarizing error
+        self.p1q = 0.004
+        self.p2q = 0.04
+        self.pvz = 0.0
+        self.pcz = 0.06
+
+        # basis gates
+        self.basis_gates = ["rz", "sx", "cx"]
+
+        # setup noise model
+        sx_error = depolarizing_error(self.p1q, 1)
+        rz_error = depolarizing_error(self.pvz, 1)
+        cx_error = depolarizing_error(self.p2q, 2)
+        cz_error = depolarizing_error(self.pcz, 2)
+
+        noise_model = NoiseModel()
+        noise_model.add_all_qubit_quantum_error(sx_error, "sx")
+        noise_model.add_all_qubit_quantum_error(rz_error, "rz")
+        noise_model.add_all_qubit_quantum_error(cx_error, "cx")
+        noise_model.add_all_qubit_quantum_error(cz_error, "cz")
+
+        self.noise_model = noise_model
+
+        # Need level1 for consecutive gate cancellation for reference EPC value calculation
+        self.transpiler_options = {
+            "basis_gates": self.basis_gates,
+        }
+
+        # Aer simulator
+        self.backend = AerSimulator(noise_model=noise_model, seed_simulator=123)
+
+    def test_single_qubit(self):
+        """Test single qubit RB."""
+        exp = rb.StandardRB(
+            physical_qubits=(0,),
+            lengths=list(range(1, 300, 30)),
+            seed=123,
+            backend=self.backend,
+        )
+        exp.analysis.set_options(gate_error_ratio=None)
+        exp.set_transpile_options(**self.transpiler_options)
+        self.assertAllIdentity(exp.circuits())
+
+        expdata = exp.run()
+        self.assertExperimentDone(expdata)
+
+        # Given we have gate number per Clifford n_gpc, we can compute EPC as
+        # EPC = 1 - (1 - r)^n_gpc
+        # where r is gate error of SX gate, i.e. dep-parameter divided by 2.
+        # We let transpiler use SX and RZ.
+        # The number of physical gate per Clifford will distribute
+        # from 0 to 2, i.e. arbitrary U gate can be decomposed into up to 2 SX with RZs.
+        # We may want to expect the average number of SX is (0 + 1 + 2) / 3 = 1.0.
+        epc = expdata.analysis_results("EPC")
+
+        epc_expected = 1 - (1 - 1 / 2 * self.p1q) ** 1.0
+        self.assertAlmostEqual(epc.value.n, epc_expected, delta=3 * epc.value.std_dev)
+
+    def test_two_qubit(self):
+        """Test two qubit RB. Use default basis gates."""
+        exp = rb.StandardRB(
+            physical_qubits=(0, 1),
+            lengths=list(range(1, 30, 3)),
+            seed=123,
+            backend=self.backend,
+        )
+        exp.analysis.set_options(gate_error_ratio=None)
+        transpiler_options = {"optimization_level": 1}
+        exp.set_transpile_options(**transpiler_options)
+        self.assertAllIdentity(exp.circuits())
+
+        expdata = exp.run()
+        self.assertExperimentDone(expdata)
+
+        # Given CX error is dominant and 1q error can be negligible.
+        # Arbitrary SU(4) can be decomposed with (0, 1, 2, 3) CX gates, the expected
+        # average number of CX gate per Clifford is 1.5.
+        # Since this is two qubit RB, the dep-parameter is factored by 3/4.
+        epc = expdata.analysis_results("EPC")
+        # Allow for 30 percent tolerance since we ignore 1q gate contribution
+        epc_expected = 1 - (1 - 3 / 4 * self.p2q) ** 1.5
+        self.assertAlmostEqual(epc.value.n, epc_expected, delta=0.3 * epc_expected)
+
+    def test_three_qubit(self):
+        """Test two qubit RB. Use default basis gates."""
+        exp = rb.StandardRB(
+            physical_qubits=(0, 1, 2),
+            lengths=list(range(1, 30, 3)),
+            seed=123,
+            backend=self.backend,
+        )
+        exp.analysis.set_options(gate_error_ratio=None)
+        exp.set_transpile_options(**self.transpiler_options)
+        self.assertAllIdentity(exp.circuits())
+
+        expdata = exp.run()
+        self.assertExperimentDone(expdata)
+
+        # Given CX error is dominant and 1q error can be negligible.
+        # Arbitrary SU(8) can be decomposed with [0,...,7] CX gates, the expected
+        # average number of CX gate per Clifford is 3.5.
+        # Since this is three qubit RB, the dep-parameter is factored by 7/8.
+        epc = expdata.analysis_results("EPC")
+        # Allow for 50 percent tolerance since we ignore 1q gate contribution
+        epc_expected = 1 - (1 - 7 / 8 * self.p2q) ** 3.5
+        self.assertAlmostEqual(epc.value.n, epc_expected, delta=0.5 * epc_expected)
+
+    def test_add_more_circuit_yields_lower_variance(self):
+        """Test variance reduction with larger number of sampling."""
+        exp1 = rb.StandardRB(
+            physical_qubits=(0, 1),
+            lengths=list(range(1, 30, 3)),
+            seed=123,
+            backend=self.backend,
+            num_samples=3,
+        )
+        exp1.analysis.set_options(gate_error_ratio=None)
+        exp1.set_transpile_options(**self.transpiler_options)
+        expdata1 = exp1.run()
+        self.assertExperimentDone(expdata1)
+
+        exp2 = rb.StandardRB(
+            physical_qubits=(0, 1),
+            lengths=list(range(1, 30, 3)),
+            seed=456,
+            backend=self.backend,
+            num_samples=5,
+        )
+        exp2.analysis.set_options(gate_error_ratio=None)
+        exp2.set_transpile_options(**self.transpiler_options)
+        expdata2 = exp2.run()
+        self.assertExperimentDone(expdata2)
+
+        self.assertLess(
+            expdata2.analysis_results("EPC").value.s,
+            expdata1.analysis_results("EPC").value.s,
+        )
+
+    def test_poor_experiment_result(self):
+        """Test edge case that tail of decay is not sampled.
+
+        This is a special case that fit outcome is very sensitive to initial guess.
+        Perhaps generated initial guess is close to a local minima.
+        """
+        from qiskit.providers.fake_provider import FakeVigoV2
+
+        backend = FakeVigoV2()
+        backend.set_options(seed_simulator=123)
+        # TODO: this test no longer makes sense (yields small reduced_chisq)
+        #  after fixing how to call fake backend v2 (by adding the next line)
+        # Need to call target before running fake backend v2 to load correct data
+        self.assertLess(backend.target["sx"][(0,)].error, 0.001)
+
+        exp = rb.StandardRB(
+            physical_qubits=(0,),
+            lengths=[100, 200, 300],
+            seed=123,
+            backend=backend,
+            num_samples=5,
+        )
+        exp.set_transpile_options(basis_gates=["x", "sx", "rz"], optimization_level=1)
+
+        expdata = exp.run()
+        self.assertExperimentDone(expdata)
+        overview = expdata.analysis_results(0).value
+        # This yields bad fit due to poor data points, but still fit is not completely off.
+        self.assertLess(overview.reduced_chisq, 14)
+
+    def test_expdata_serialization(self):
+        """Test serializing experiment data works."""
+        exp = rb.StandardRB(
+            physical_qubits=(0,),
+            lengths=list(range(1, 200, 50)),
+            seed=123,
+            backend=self.backend,
+        )
+        exp.set_transpile_options(**self.transpiler_options)
+        expdata = exp.run()
+        self.assertExperimentDone(expdata)
+        self.assertRoundTripSerializable(expdata, check_func=self.experiment_data_equiv)
+        self.assertRoundTripPickle(expdata, check_func=self.experiment_data_equiv)
+
+    def test_single_qubit_parallel(self):
+        """Test single qubit RB in parallel."""
+        physical_qubits = [0, 2]
+        lengths = list(range(1, 300, 30))
+        exps = []
+        for qubit in physical_qubits:
+            exp = rb.StandardRB(
+                physical_qubits=[qubit], lengths=lengths, seed=123, backend=self.backend
+            )
+            exp.analysis.set_options(gate_error_ratio=None, plot_raw_data=False)
+            exps.append(exp)
+
+        par_exp = ParallelExperiment(exps)
+        par_exp.set_transpile_options(**self.transpiler_options)
+
+        par_expdata = par_exp.run(backend=self.backend)
+        self.assertExperimentDone(par_expdata)
+        epc_expected = 1 - (1 - 1 / 2 * self.p1q) ** 1.0
+        for i in range(2):
+            epc = par_expdata.child_data(i).analysis_results("EPC")
+            self.assertAlmostEqual(epc.value.n, epc_expected, delta=3 * epc.value.std_dev)
+
+    def test_two_qubit_parallel(self):
+        """Test two qubit RB in parallel."""
+        qubit_pairs = [[0, 1], [2, 3]]
+        lengths = list(range(1, 30, 3))
+        exps = []
+        for pair in qubit_pairs:
+            exp = rb.StandardRB(
+                physical_qubits=pair, lengths=lengths, seed=123, backend=self.backend
+            )
+            exp.analysis.set_options(gate_error_ratio=None, plot_raw_data=False)
+            exps.append(exp)
+
+        par_exp = ParallelExperiment(exps)
+        par_exp.set_transpile_options(**self.transpiler_options)
+
+        par_expdata = par_exp.run(backend=self.backend)
+        self.assertExperimentDone(par_expdata)
+        epc_expected = 1 - (1 - 3 / 4 * self.p2q) ** 1.5
+        for i in range(2):
+            epc = par_expdata.child_data(i).analysis_results("EPC")
+            # Allow for 30 percent tolerance since we ignore 1q gate contribution
+            self.assertAlmostEqual(epc.value.n, epc_expected, delta=0.3 * epc_expected)
+
+    def test_two_qubit_with_cz(self):
+        """Test two qubit RB."""
+        transpiler_options = {
+            "basis_gates": ["sx", "rz", "cz"],
+            "optimization_level": 1,
+        }
+
+        exp = rb.StandardRB(
+            physical_qubits=(0, 1),
+            lengths=list(range(1, 50, 5)),
+            seed=123,
+            backend=self.backend,
+        )
+        exp.analysis.set_options(gate_error_ratio=None)
+        exp.set_transpile_options(**transpiler_options)
+
+        expdata = exp.run()
+        self.assertAllIdentity(exp.circuits())
+        self.assertExperimentDone(expdata)
+
+        # Given CX error is dominant and 1q error can be negligible.
+        # Arbitrary SU(4) can be decomposed with (0, 1, 2, 3) CZ gates, the expected
+        # average number of CZ gate per Clifford is 1.5.
+        # Since this is two qubit RB, the dep-parameter is factored by 3/4.
+        epc = expdata.analysis_results("EPC")
+
+        # Allow for 30 percent tolerance since we ignore 1q gate contribution
+        epc_expected = 1 - (1 - 3 / 4 * self.pcz) ** 1.5
+        self.assertAlmostEqual(epc.value.n, epc_expected, delta=0.3 * epc_expected)

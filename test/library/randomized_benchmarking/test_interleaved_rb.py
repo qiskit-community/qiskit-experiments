@@ -17,9 +17,11 @@ from test.library.randomized_benchmarking.mixin import RBTestMixin
 from ddt import ddt, data, unpack
 
 from qiskit.circuit import Delay, QuantumCircuit, Parameter, Gate
-from qiskit.circuit.library import SXGate, CXGate, TGate
+from qiskit.circuit.library import SXGate, CXGate, TGate, CZGate
 from qiskit.exceptions import QiskitError
 from qiskit.providers.fake_provider import FakeManila, FakeManilaV2, FakeWashington
+from qiskit_aer import AerSimulator
+from qiskit_aer.noise import NoiseModel, depolarizing_error
 from qiskit_experiments.library import randomized_benchmarking as rb
 
 
@@ -269,3 +271,121 @@ class TestInterleavedRB(QiskitExperimentsTestCase, RBTestMixin):
             for inst in qc:
                 if inst.operation.name == "cx":
                     self.assertEqual(inst.qubits, expected_qubits)
+
+
+class TestRunInterleavedRB(QiskitExperimentsTestCase, RBTestMixin):
+    """Test for running InterleavedRB."""
+
+    def setUp(self):
+        """Setup the tests."""
+        super().setUp()
+
+        # depolarizing error
+        self.p1q = 0.004
+        self.p2q = 0.04
+        self.pvz = 0.0
+        self.pcz = 0.06
+
+        # basis gates
+        self.basis_gates = ["rz", "sx", "cx"]
+
+        # setup noise model
+        sx_error = depolarizing_error(self.p1q, 1)
+        rz_error = depolarizing_error(self.pvz, 1)
+        cx_error = depolarizing_error(self.p2q, 2)
+        cz_error = depolarizing_error(self.pcz, 2)
+
+        noise_model = NoiseModel()
+        noise_model.add_all_qubit_quantum_error(sx_error, "sx")
+        noise_model.add_all_qubit_quantum_error(rz_error, "rz")
+        noise_model.add_all_qubit_quantum_error(cx_error, "cx")
+        noise_model.add_all_qubit_quantum_error(cz_error, "cz")
+
+        self.noise_model = noise_model
+
+        # Need level1 for consecutive gate cancellation for reference EPC value calculation
+        self.transpiler_options = {
+            "basis_gates": self.basis_gates,
+        }
+
+        # Aer simulator
+        self.backend = AerSimulator(noise_model=noise_model, seed_simulator=123)
+
+    def test_single_qubit(self):
+        """Test single qubit IRB."""
+        exp = rb.InterleavedRB(
+            interleaved_element=SXGate(),
+            physical_qubits=(0,),
+            lengths=list(range(1, 300, 30)),
+            seed=123,
+            backend=self.backend,
+        )
+        exp.set_transpile_options(**self.transpiler_options)
+        self.assertAllIdentity(exp.circuits())
+
+        expdata = exp.run()
+        self.assertExperimentDone(expdata)
+
+        # Since this is interleaved, we can directly compare values, i.e. n_gpc = 1
+        epc = expdata.analysis_results("EPC")
+        epc_expected = 1 / 2 * self.p1q
+        self.assertAlmostEqual(epc.value.n, epc_expected, delta=3 * epc.value.std_dev)
+
+    def test_two_qubit(self):
+        """Test two qubit IRB."""
+        exp = rb.InterleavedRB(
+            interleaved_element=CXGate(),
+            physical_qubits=(0, 1),
+            lengths=list(range(1, 30, 3)),
+            seed=123,
+            backend=self.backend,
+        )
+        exp.set_transpile_options(**self.transpiler_options)
+        self.assertAllIdentity(exp.circuits())
+
+        expdata = exp.run()
+        self.assertExperimentDone(expdata)
+
+        # Since this is interleaved, we can directly compare values, i.e. n_gpc = 1
+        epc = expdata.analysis_results("EPC")
+        epc_expected = 3 / 4 * self.p2q
+        self.assertAlmostEqual(epc.value.n, epc_expected, delta=3 * epc.value.std_dev)
+
+    def test_two_qubit_with_cz(self):
+        """Test two qubit IRB."""
+        transpiler_options = {
+            "basis_gates": ["sx", "rz", "cz"],
+            "optimization_level": 1,
+        }
+        exp = rb.InterleavedRB(
+            interleaved_element=CZGate(),
+            physical_qubits=(0, 1),
+            lengths=list(range(1, 30, 3)),
+            seed=1234,
+            backend=self.backend,
+        )
+        exp.set_transpile_options(**transpiler_options)
+        self.assertAllIdentity(exp.circuits())
+
+        expdata = exp.run()
+        self.assertExperimentDone(expdata)
+
+        # Since this is interleaved, we can directly compare values, i.e. n_gpc = 1
+        epc = expdata.analysis_results("EPC")
+        epc_expected = 3 / 4 * self.pcz
+        self.assertAlmostEqual(epc.value.n, epc_expected, delta=3 * epc.value.std_dev)
+
+    def test_expdata_serialization(self):
+        """Test serializing experiment data works."""
+        exp = rb.InterleavedRB(
+            interleaved_element=SXGate(),
+            physical_qubits=(0,),
+            lengths=list(range(1, 200, 50)),
+            seed=123,
+            backend=self.backend,
+        )
+        exp.set_transpile_options(**self.transpiler_options)
+        expdata = exp.run()
+        self.assertExperimentDone(expdata)
+        self.assertRoundTripSerializable(expdata, check_func=self.experiment_data_equiv)
+        self.assertRoundTripPickle(expdata, check_func=self.experiment_data_equiv)
