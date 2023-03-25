@@ -24,4 +24,4 @@ sphinx-copybutton
 # Pin versions below because of build errors
 ipykernel<=6.21.3
 jupyter-client<=8.0.3
-git+https://github.com/symengine/symengine.git@v0.10.1
+symengine<=0.9.2
