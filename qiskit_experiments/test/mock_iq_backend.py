@@ -51,7 +51,7 @@ class FakeOpenPulse2QV2(FakeBackendV2):
 
         # Workaround a bug in FakeOpenPulse2Q. It defines u1 on qubit 1 in the
         # cmd_def in the defaults json file but not in the gates in the
-        # properties json. The code FakeBackendV2 uses to build the Target
+        # properties instance. The code FakeBackendV2 uses to build the Target
         # assumes these two are consistent.
         u1_0 = next(g for g in self._props_dict["gates"] if g["gate"] == "u1")
         self._props_dict["gates"].append(u1_0.copy())
