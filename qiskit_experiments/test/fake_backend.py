@@ -27,11 +27,9 @@ class FakeBackend(BackendV2):
     Fake backend for test purposes only.
     """
 
-    target = None
-
     def __init__(self, backend_name="fake_backend", num_qubits=1, max_experiments=100):
         super().__init__(name=backend_name)
-        self.target = Target(num_qubits=num_qubits)
+        self._target = Target(num_qubits=num_qubits)
         # Add a measure for each qubit so a simple measure circuit works
         self.target.add_instruction(Measure())
         self._max_circuits = max_experiments
@@ -44,6 +42,10 @@ class FakeBackend(BackendV2):
     @classmethod
     def _default_options(cls):
         return Options()
+
+    @property
+    def target(self) -> Target:
+        return self._target
 
     def run(self, run_input, **options):
         result = {
