@@ -279,10 +279,10 @@ It is possible to set the distribution to another sampler entirely, or your own 
 .. jupyter-execute::
 
     from qiskit_experiments.library.randomized_benchmarking.sampling_utils import SingleQubitSampler
-    from qiskit.circuit.library import SGate, HGate
+    from qiskit.circuit.library import HGate
 
     exp.distribution = SingleQubitSampler
-    exp.distribution.gate_distribution = [(0.5, 1, SGate()), (0.5, 1, HGate())]
+    exp.distribution.gate_distribution = [(0.5, 1, "pauli"), (0.5, 1, HGate())]
     exp.circuits()[0].remove_final_measurements(inplace=False).draw("mpl")
 
 Note that only Clifford gates can be used.

@@ -16,7 +16,7 @@ Utilities for sampling layers in randomized benchmarking experiments
 import warnings
 import math
 from abc import ABC, abstractmethod
-from typing import Optional, Union, List, Tuple, Sequence, TypeVar
+from typing import Optional, Union, List, Tuple, Sequence, TypeVar, NamedTuple
 from collections import defaultdict
 
 from numpy.random import Generator, default_rng, BitGenerator, SeedSequence
@@ -30,9 +30,19 @@ from .clifford_utils import CliffordUtils, _CLIFF_SINGLE_GATE_MAP_1Q
 GateTypeT = TypeVar("GateTypeT", str, int, Instruction)
 
 
+class GateInstruction(NamedTuple):
+    """Named tuple class for sampler output."""
+
+    # the list of qubits to apply the operation on
+    qargs: tuple
+    # the operation to apply
+    op: GateTypeT
+
+
 class BaseSampler(ABC):
-    """Base class for the sampling distribution for randomized benchmarking experiments.
-    Subclasses must implement the ``__call__()`` method."""
+    """Base class for samplers that generate circuit layers based on a defined
+    algorithm and gate set. Subclasses must implement the ``__call__()`` method
+    which outputs a number of circuit layers."""
 
     def __init__(
         self,
@@ -40,7 +50,8 @@ class BaseSampler(ABC):
         coupling_map: Optional[List[List[int]]] = None,
         seed: Optional[Union[int, SeedSequence, BitGenerator, Generator]] = None,
     ):
-        """
+        """Initializes the sampler.
+
         Args:
             seed: Seed for random generation.
             gate_distribution: The gate distribution for sampling.
@@ -94,7 +105,8 @@ class BaseSampler(ABC):
         for gate in dist:
             if gate[2] not in ["clifford", "pauli"] and not isinstance(gate[2], Instruction):
                 raise TypeError(
-                    "The only allowed gates in the distribution are 'clifford', 'pauli', and Instruction instances."
+                    "The only allowed gates in the distribution are 'clifford', 'pauli', "
+                    "and Instruction instances."
                 )
 
         self._gate_distribution = dist
@@ -135,17 +147,19 @@ class BaseSampler(ABC):
         return gate_probs
 
     @abstractmethod
-    def __call__(
-        self, qubits: Sequence, length: int = 1
-    ) -> List[Tuple[Tuple[int, ...], GateTypeT]]:
+    def __call__(self, qubits: Sequence, length: int = 1) -> List[Tuple[GateInstruction]]:
         """Samplers should define this method such that it returns sampled layers
-        given the input parameters. Each layer is represented by a list of size-2 tuples
-        where the first element is a tuple of qubit indices, and the second
-        element represents the gate that should be applied to the indices.
+        given the input parameters. Each layer is represented by a list of
+        ``GateInstruction`` namedtuples, where ``GateInstruction.op`` is the gate to be
+        applied and ``GateInstruction.qargs`` is the tuple of qubit indices to
+        apply the gate to.
 
         Args:
             qubits: A sequence of qubits to generate layers for.
             length: The number of layers to generate. Defaults to 1.
+
+        Returns:
+            A list of layers consisting of GateInstruction objects.
         """
         return None
 
@@ -157,8 +171,9 @@ class SingleQubitSampler(BaseSampler):
         self,
         qubits: Sequence,
         length: int = 1,
-    ) -> List[List[Tuple[Tuple[int, ...], GateTypeT]]]:
-        """Samples random single-qubit gates from the specified gate set.
+    ) -> List[Tuple[GateInstruction]]:
+        """Samples random single-qubit gates from the specified gate set. The
+        input gate distribution must consist solely of single qubit gates.
 
         Args:
             qubits: A sequence of qubits to generate layers for.
@@ -166,14 +181,12 @@ class SingleQubitSampler(BaseSampler):
             seed: Seed for random generation.
 
         Returns:
-            A ``length``-long list of :class:`qiskit.circuit.QuantumCircuit` layers over
-            ``qubits``. Each layer is represented by a list of tuples which are in the
-            format ((one or more qubit indices), gate). Single-qubit Cliffords are
-            represented by integers for speed. For two qubits, length 3, and the
-            all-Clifford distribution ``[(1, "clifford")]``, an example output would be
-
-            .. parsed-literal::
-                [[((0,), 2), ((1,), 2)], [((0,), 11), ((1,), 4)], [((0,), 17), ((1,), 17)]]
+            A ``length``-long list of :class:`qiskit.circuit.QuantumCircuit`
+            layers over ``qubits``. Each layer is represented by a list of
+            ``GateInstruction`` tuples where ``GateInstruction.op`` is the gate
+            to be applied and ``GateInstruction.qargs`` is the tuple of qubit
+            indices to apply the gate to. Single-qubit Cliffords are represented
+            by integers for speed.
         """
 
         gateset = self._probs_by_gate_size()
@@ -189,8 +202,10 @@ class SingleQubitSampler(BaseSampler):
         )
 
         layers = []
-        for layer in samples:
-            layers.append(tuple(zip(((j,) for j in qubits), layer)))
+        for samplelayer in samples:
+            layers.append(
+                tuple(GateInstruction(*ins) for ins in zip(((j,) for j in qubits), samplelayer))
+            )
         return layers
 
 
@@ -225,7 +240,7 @@ class EdgeGrabSampler(BaseSampler):
         self,
         qubits: Sequence,
         length: int = 1,
-    ) -> List[Tuple[Tuple[int, ...], GateTypeT]]:
+    ) -> List[Tuple[GateInstruction]]:
         """Sample layers using the edge grab algorithm.
 
         Args:
@@ -261,7 +276,7 @@ class EdgeGrabSampler(BaseSampler):
         two_qubit_gate_density = sum(gateset[2][1]) / (sum(gateset[2][1]) + sum(gateset[1][1]))
         if num_qubits == 1:
             return [
-                (((qubits[0],), i),)
+                (GateInstruction((qubits[0],), i),)
                 for i in self._rng.choice(
                     np.array(gateset[1][0], dtype=Instruction),
                     p=[i / norm1q for i in gateset[1][1]],
@@ -309,10 +324,10 @@ class EdgeGrabSampler(BaseSampler):
                     # with probability two_qubit_prob, place a two-qubit gate from the
                     # gate set on edge in selected_edges
                     if len(gateset[2][0]) == 1:
-                        layer.append((tuple(edge), gateset[2][0][0]))
+                        layer.append(GateInstruction(tuple(edge), gateset[2][0][0]))
                     else:
                         layer.append(
-                            (
+                            GateInstruction(
                                 tuple(edge),
                                 self._rng.choice(
                                     np.array(gateset[2][0], dtype=Instruction),
@@ -326,20 +341,19 @@ class EdgeGrabSampler(BaseSampler):
             for q in put_1q_gates:
                 if sum(gateset[1][1]) > 0:
                     layer.append(
-                        (
+                        GateInstruction(
                             (q,),
                             self._rng.choice(
                                 np.array(gateset[1][0], dtype=Instruction),
                                 p=[x / norm1q for x in gateset[1][1]],
                             ),
-                        )
+                        ),
                     )
                 else:  # edge case of two qubit density of 1 where we still fill gaps
                     layer.append(
-                        (
-                            (q,),
-                            self._rng.choice(np.array(gateset[1][0], dtype=Instruction)),
-                        )
+                        GateInstruction(
+                            (q,), self._rng.choice(np.array(gateset[1][0], dtype=Instruction))
+                        ),
                     )
             layer_list.append(tuple(layer))
         return layer_list

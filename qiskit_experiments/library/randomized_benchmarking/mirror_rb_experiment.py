@@ -33,7 +33,13 @@ from .clifford_utils import (
     inverse_1q,
     _clifford_1q_int_to_instruction,
 )
-from .sampling_utils import BaseSampler, EdgeGrabSampler, SingleQubitSampler, GateTypeT
+from .sampling_utils import (
+    BaseSampler,
+    EdgeGrabSampler,
+    SingleQubitSampler,
+    GateTypeT,
+    GateInstruction,
+)
 
 # two qubit gates that are their own inverse
 _self_adjoint_gates = [CXGate, CYGate, CZGate, ECRGate, SwapGate, iSwapGate]
@@ -352,8 +358,8 @@ class MirrorRB(StandardRB):
             circ_target = QuantumCircuit(self.num_qubits)
             for layer in seq:
                 for elem in layer:
-                    circ.append(self._to_instruction(elem[1], basis_gates), elem[0])
-                    circ_target.append(self._to_instruction(elem[1]), elem[0])
+                    circ.append(self._to_instruction(elem.op, basis_gates), elem.qargs)
+                    circ_target.append(self._to_instruction(elem.op), elem.qargs)
                 circ.append(Barrier(self.num_qubits), circ.qubits)
             circ.metadata = {
                 "xval": self.experiment_options.lengths[i % len(self.experiment_options.lengths)],
@@ -410,13 +416,13 @@ class MirrorRB(StandardRB):
         """
         inverse_layer = []
         for elem in layer:
-            if len(elem[0]) == 1 and np.issubdtype(type(elem[1]), int):
-                inverse_layer.append((elem[0], inverse_1q(elem[1])))
-            elif len(elem[0]) == 2 and elem[1] in _self_adjoint_gates:
+            if len(elem.qargs) == 1 and np.issubdtype(type(elem.op), int):
+                inverse_layer.append(GateInstruction(elem.qargs, inverse_1q(elem.op)))
+            elif len(elem.qargs) == 2 and elem.op in _self_adjoint_gates:
                 inverse_layer.append(elem)
             else:
                 try:
-                    inverse_layer.append((elem[0], elem[1].inverse()))
+                    inverse_layer.append(GateInstruction(elem.qargs, elem.op.inverse()))
                 except TypeError as exc:
                     raise QiskitError("Invalid layer supplied.") from exc
         return tuple(inverse_layer)
