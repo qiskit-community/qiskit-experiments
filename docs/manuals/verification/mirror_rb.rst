@@ -86,12 +86,13 @@ user can specify an expected two-qubit gate density :math:`\xi \in \left[0,
 \frac{1}{2}\right]`, and each intermediate Clifford layer will have approximately
 :math:`n \xi` CXs on average.
 
-Even though a :class:`.MirrorRB` experiment can be instantiated without a backend, the
-backend must be specified when the circuits are sampled because :math:`\Omega` depends
-on the backend's connectivity. To use your own :math:`\Omega`, you have to implement
-your own subclass of the abstract :class:`.BaseSampler` class, but here we will use
-the built-in :class:`.EdgeGrabSampler`. Here's how to instantiate and run the
-experiment:
+Even though a :class:`.MirrorRB` experiment can be instantiated without a
+backend, the backend must be specified when the circuits are sampled because
+sampling algorithms containing two-qubit gates need to know the backend's
+connectivity. To use your own :math:`\Omega`, you must implement your own
+subclass of the abstract :class:`.BaseSampler` class, but in this manual we will
+use the built-in :class:`.EdgeGrabSampler`. Here's how to instantiate and run
+the experiment:
 
 .. jupyter-execute::
 
@@ -100,9 +101,9 @@ experiment:
     from qiskit_experiments.library.randomized_benchmarking.sampling_utils import EdgeGrabSampler
 
     from qiskit_aer import AerSimulator
-    from qiskit.providers.fake_provider import FakeParis
+    from qiskit.providers.fake_provider import FakeParisV2
     
-    backend = AerSimulator.from_backend(FakeParis())
+    backend = AerSimulator.from_backend(FakeParisV2())
 
     lengths = np.arange(2, 810, 200)
     num_samples = 5
@@ -158,10 +159,8 @@ Mirror RB user options
 
 There are several options that change the composition of the mirror RB circuit layers.
 
-There are three boolean options that 
-
 - ``pauli_randomize`` (default ``True``): if ``True``, put layers of uniformly 
-  random Paulis between the intermediate Clifford layers
+  random Paulis between the intermediate sampled layers
 
 - ``start_end_clifford`` (default ``True``): if ``True``, begin the circuit with 
   uniformly random one-qubit Cliffords and end the circuit with their inverses
@@ -184,7 +183,7 @@ between Cliffords and single-qubit Cliffords at the start and end:
                    num_samples=1)
     exp.circuits()[0].decompose().draw("mpl")
 
-And now with both options turned off:
+And now with the intermediate Pauli layers turned off and the inverting Pauli layer added at the end:
 
 .. jupyter-execute::
 
@@ -194,8 +193,7 @@ And now with both options turned off:
                    backend=backend,
                    num_samples=1,
                    start_end_clifford=False,
-                   two_qubit_gate_density=0.4,
-                   pauli_randomize=False,
+                   pauli_randomize=True,
                    inverting_pauli_layer=True)
     exp.circuits()[0].decompose().draw("mpl")
 
@@ -212,7 +210,7 @@ change. We'll demonstrate this by first leaving ``pauli_randomize`` on:
     exp = MirrorRB((0,1,2,3,5,8,11,14),
                    lengths=[2],
                    two_qubit_gate_density=0.5,
-                   seed=120,
+                   seed=100,
                    backend=backend,
                    num_samples=1,
                    start_end_clifford=False)
@@ -227,65 +225,15 @@ has decreased:
                    lengths=[2],
                    two_qubit_gate_density=0.5,
                    pauli_randomize=False,
-                   seed=120,
+                   seed=100,
                    backend=backend,
                    num_samples=1,
                    start_end_clifford=False)
     exp.circuits()[0].remove_final_measurements(inplace=False).draw("mpl")
 
-Note that the edge grab algorithm is probabilistic, and only tends to the exact two
+Note that the edge grab algorithm is probabilistic and only tends to the exact two
 qubit gate density asymptotically.
 
-
-Custom layer distributions
-~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-It is possible to customize the layer distributions when running mirror RB by setting 
-the distribution and its options directly using the :attr:`.MirrorRB.distribution`
-attribute. Note that if the distribution options are set manually after experiment 
-instantiation, the experiment will let you override experiment options such as
-``two_qubit_gate_density`` with your custom distribution.
-
-Here is an example where we override the default distribution and change the gate
-distribution manually into one with 20% single-qubit Paulis and 80% two-qubit
-:class:`~.qiskit.circuit.library.ECRGate` (Consult the :class:`.EdgeGrabSampler`
-documentation for details on available options):
-
-.. jupyter-execute::
-
-    from qiskit.circuit.library import ECRGate
-    from qiskit.circuit.library import HGate
-
-    exp = MirrorRB(range(4),
-                   lengths=[2],
-                   two_qubit_gate_density=0.5,
-                   seed=101,
-                   backend=backend,
-                   num_samples=1,
-                   start_end_clifford=False)
-    exp.distribution.gate_distribution = [(0.4, 1, "pauli"),(0.4, 1, HGate()),(0.2, 2, ECRGate())]
-    exp.circuits()[0].remove_final_measurements(inplace=False).draw("mpl")
-
-If we reset the distribution to :class:`.EdgeGrabSampler`, we will get the expected
-default behavior again.
-
-.. jupyter-execute::
-
-    exp.distribution = EdgeGrabSampler
-    exp.circuits()[0].remove_final_measurements(inplace=False).draw("mpl")
-
-It is possible to set the distribution to another sampler entirely, or your own custom sampler:
-
-.. jupyter-execute::
-
-    from qiskit_experiments.library.randomized_benchmarking.sampling_utils import SingleQubitSampler
-    from qiskit.circuit.library import HGate
-
-    exp.distribution = SingleQubitSampler
-    exp.distribution.gate_distribution = [(0.5, 1, "pauli"), (0.5, 1, HGate())]
-    exp.circuits()[0].remove_final_measurements(inplace=False).draw("mpl")
-
-Note that only Clifford gates can be used.
 
 Mirror RB implementation in ``pyGSTi``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

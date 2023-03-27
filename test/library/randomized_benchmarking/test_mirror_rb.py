@@ -302,10 +302,7 @@ class TestMirrorRB(QiskitExperimentsTestCase, RBTestMixin):
 
     def test_roundtrip_serializable(self):
         """Test round trip JSON serialization"""
-        exp = rb.MirrorRB([0], lengths=[10, 20, 30], seed=123)
-        self.assertRoundTripSerializable(exp, self.json_equiv)
-        exp = rb.MirrorRB([0], lengths=[10, 20, 30], seed=123)
-        exp.distribution.gate_distribution = [(0.5, 1, "pauli"), (0.5, 1, "clifford")]
+        exp = rb.MirrorRB([0], lengths=[10, 20, 30], seed=123, two_qubit_gate=ECRGate())
         self.assertRoundTripSerializable(exp, self.json_equiv)
 
     def test_analysis_config(self):
@@ -335,30 +332,6 @@ class TestMirrorRB(QiskitExperimentsTestCase, RBTestMixin):
             for inst in qc:
                 if inst.operation.name == "cx":
                     self.assertEqual(inst.qubits, expected_qubits)
-
-    def test_change_distribution_options(self):
-        """Test that changing the distribution option and then resetting works as expected."""
-
-        exp = rb.MirrorRB(
-            physical_qubits=range(4),
-            two_qubit_gate_density=1,
-            lengths=[4],
-            num_samples=1,
-            backend=self.backend,
-            seed=self.seed,
-        )
-
-        exp.distribution.gate_distribution = [(0.2, 1, "clifford"), (0.8, 2, ECRGate())]
-        gates = exp.circuits()[0].count_ops()
-        if "ecr" not in gates or "cx" in gates:
-            raise QiskitError("Unexpected output gate distribution.")
-
-        exp.distribution = EdgeGrabSampler
-
-        gates = exp.circuits()[0].count_ops()
-
-        if "cx" not in gates or "ecr" in gates:
-            raise QiskitError("Unexpected output gate distribution.")
 
 
 @ddt

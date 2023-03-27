@@ -23,11 +23,25 @@ from numpy.random import Generator, default_rng, BitGenerator, SeedSequence
 import numpy as np
 
 from qiskit.circuit import Instruction
+from qiskit.circuit.gate import Gate
 from qiskit.exceptions import QiskitError
+from qiskit.transpiler import CouplingMap
 
 from .clifford_utils import CliffordUtils, _CLIFF_SINGLE_GATE_MAP_1Q
 
-GateTypeT = TypeVar("GateTypeT", str, int, Instruction)
+
+class GenericClifford(Gate):
+    """Representation of a generic multi-qubit Clifford gate for sampling."""
+
+    def __init__(self, n_qubits):
+        super().__init__("generic_clifford", n_qubits, [])
+
+
+class GenericPauli(Gate):
+    """Representation of a generic multi-qubit Pauli gate for sampling."""
+
+    def __init__(self, n_qubits):
+        super().__init__("generic_pauli", n_qubits, [])
 
 
 class GateInstruction(NamedTuple):
@@ -36,18 +50,16 @@ class GateInstruction(NamedTuple):
     # the list of qubits to apply the operation on
     qargs: tuple
     # the operation to apply
-    op: GateTypeT
+    op: Instruction
 
 
 class GateDistribution(NamedTuple):
     """Named tuple class for sampler input distribution."""
 
-    # probability of the instruction to be sampled
+    # probability with which to sample the instruction
     prob: float
-    # the number of qubits the instruction applies to
-    nq: int
-    # the instruction, can be Instructions or the special keywords "clifford", "pauli"
-    op: Union[Instruction, str]
+    # the instruction to include in sampling
+    op: Instruction
 
 
 class BaseSampler(ABC):
@@ -57,8 +69,6 @@ class BaseSampler(ABC):
 
     def __init__(
         self,
-        gate_distribution=None,
-        coupling_map: Optional[List[List[int]]] = None,
         seed: Optional[Union[int, SeedSequence, BitGenerator, Generator]] = None,
     ) -> None:
         """Initializes the sampler.
@@ -67,18 +77,7 @@ class BaseSampler(ABC):
             seed: Seed for random generation.
             gate_distribution: The gate distribution for sampling.
         """
-        self._gate_distribution = gate_distribution
-        self._coupling_map = coupling_map
-        self.seed = default_rng(seed)
-
-    @property
-    def coupling_map(self) -> Optional[List[List[int]]]:
-        """The coupling map of the system to sample over."""
-        return self._coupling_map
-
-    @coupling_map.setter
-    def coupling_map(self, coupling_map) -> None:
-        self._coupling_map = coupling_map
+        self.seed = seed
 
     @property
     def seed(self) -> Union[int, SeedSequence, BitGenerator, Generator]:
@@ -92,14 +91,12 @@ class BaseSampler(ABC):
     @property
     def gate_distribution(self) -> List[GateDistribution]:
         """The gate distribution for sampling. The distribution is a list of
-        ``GateDistribution`` named tuples with field names ``(prob, nq, op)``,
-        where the probabilites must sum to 1 and ``nq`` is the number of qubits
-        the ``op`` applies to. Gates can be ``Instruction`` or the special
-        keywords "clifford", "pauli". An example distribution for the edge grab
-        sampler might be
+        ``GateDistribution`` named tuples with field names ``(prob, op)``, where
+        the probabilites must sum to 1 and ``op`` is the Instruction instance to
+        be sampled. An example distribution for the edge grab sampler is
 
         .. parsed-literal::
-            [(0.8, 1, "clifford"), (0.2, 2, CXGate())]
+            [(0.8, GenericClifford(1)), (0.2, CXGate())]
         """
         return self._gate_distribution
 
@@ -108,60 +105,71 @@ class BaseSampler(ABC):
         """Set the distribution of gates used in the sampler.
 
         Args:
-            dist: A list of tuples with format ``(probability, width of gate, gate)``.
+            dist: A list of tuples with format ``(probability, gate)``.
         """
-        if not isinstance(dist, List):
-            raise TypeError("The gate distribution should be a list.")
         # cast to named tuple
-        dist = [GateDistribution(*elem) for elem in dist]
+        try:
+            dist = [GateDistribution(*elem) for elem in dist]
+        except TypeError as exc:
+            raise TypeError(
+                "The gate distribution should be a sequence of (prob, op) tuples."
+            ) from exc
         if sum(list(zip(*dist))[0]) != 1:
             raise QiskitError("Gate distribution probabilities must sum to 1.")
         for gate in dist:
-            if gate.op not in ["clifford", "pauli"] and not isinstance(gate.op, Instruction):
+            if not isinstance(gate.op, Instruction):
                 raise TypeError(
-                    "The only allowed gates in the distribution are 'clifford', 'pauli', "
-                    "and Instruction instances."
+                    "The only allowed gates in the distribution are Instruction instances."
                 )
 
         self._gate_distribution = dist
 
-    def _probs_by_gate_size(self) -> Dict:
+    def _probs_by_gate_size(self, distribution: Sequence[GateDistribution]) -> Dict:
         """Return a list of gates and their probabilities indexed by the size of the gate."""
-        if not self._gate_distribution:
-            raise QiskitError("Gate distribution must be set before sampling.")
+
         gate_probs = defaultdict(list)
 
-        for gate in self.gate_distribution:
-            if gate.op == "clifford" and gate.nq == 1:
-                gateset = list(range(CliffordUtils.NUM_CLIFFORD_1_QUBIT))
-                probs = [
-                    gate.prob / CliffordUtils.NUM_CLIFFORD_1_QUBIT
-                ] * CliffordUtils.NUM_CLIFFORD_1_QUBIT
-            elif gate.op == "pauli" and gate.nq == 1:
-                gateset = [
-                    _CLIFF_SINGLE_GATE_MAP_1Q[("id", (0,))],
-                    _CLIFF_SINGLE_GATE_MAP_1Q[("x", (0,))],
-                    _CLIFF_SINGLE_GATE_MAP_1Q[("y", (0,))],
-                    _CLIFF_SINGLE_GATE_MAP_1Q[("z", (0,))],
-                ]
-                probs = [gate.prob / len(gateset)] * len(gateset)
-            elif gate.op == "clifford" and gate.nq == 2:
-                gateset = list(range(CliffordUtils.NUM_CLIFFORD_2_QUBIT))
-                probs = [
-                    gate.prob / CliffordUtils.NUM_CLIFFORD_2_QUBIT
-                ] * CliffordUtils.NUM_CLIFFORD_2_QUBIT
+        for gate in distribution:
+            if gate.op.name == "generic_clifford":
+                if gate.op.num_qubits == 1:
+                    gateset = list(range(CliffordUtils.NUM_CLIFFORD_1_QUBIT))
+                    probs = [
+                        gate.prob / CliffordUtils.NUM_CLIFFORD_1_QUBIT
+                    ] * CliffordUtils.NUM_CLIFFORD_1_QUBIT
+                elif gate.op.num_qubits == 2:
+                    gateset = list(range(CliffordUtils.NUM_CLIFFORD_2_QUBIT))
+                    probs = [
+                        gate.prob / CliffordUtils.NUM_CLIFFORD_2_QUBIT
+                    ] * CliffordUtils.NUM_CLIFFORD_2_QUBIT
+                else:
+                    raise QiskitError(
+                        "Generic Cliffords larger than 2-qubit are not currently supported."
+                    )
+            elif gate.op.name == "generic_pauli":
+                if gate.op.num_qubits == 1:
+                    gateset = [
+                        _CLIFF_SINGLE_GATE_MAP_1Q[("id", (0,))],
+                        _CLIFF_SINGLE_GATE_MAP_1Q[("x", (0,))],
+                        _CLIFF_SINGLE_GATE_MAP_1Q[("y", (0,))],
+                        _CLIFF_SINGLE_GATE_MAP_1Q[("z", (0,))],
+                    ]
+                    probs = [gate.prob / len(gateset)] * len(gateset)
+                else:
+                    raise QiskitError(
+                        "Generic Paulis larger than 1-qubit are not currently supported."
+                    )
             else:
                 gateset = [gate.op]
                 probs = [gate.prob]
-            if len(gate_probs[gate.nq]) == 0:
-                gate_probs[gate.nq] = [gateset, probs]
+            if len(gate_probs[gate.op.num_qubits]) == 0:
+                gate_probs[gate.op.num_qubits] = [gateset, probs]
             else:
-                gate_probs[gate.nq][0].extend(gateset)
-                gate_probs[gate.nq][1].extend(probs)
+                gate_probs[gate.op.num_qubits][0].extend(gateset)
+                gate_probs[gate.op.num_qubits][1].extend(probs)
         return gate_probs
 
     @abstractmethod
-    def __call__(self, qubits: Sequence, length: int = 1) -> List[Tuple[GateInstruction]]:
+    def __call__(self, qubits: Sequence, length: int = 1) -> List[Tuple[GateInstruction, ...]]:
         """Samplers should define this method such that it returns sampled layers
         given the input parameters. Each layer is represented by a list of
         ``GateInstruction`` namedtuples, where ``GateInstruction.op`` is the gate to be
@@ -175,7 +183,7 @@ class BaseSampler(ABC):
         Returns:
             A list of layers consisting of GateInstruction objects.
         """
-        return None
+        raise NotImplementedError
 
 
 class SingleQubitSampler(BaseSampler):
@@ -192,7 +200,6 @@ class SingleQubitSampler(BaseSampler):
         Args:
             qubits: A sequence of qubits to generate layers for.
             length: The length of the sequence to output.
-            seed: Seed for random generation.
 
         Returns:
             A ``length``-long list of :class:`qiskit.circuit.QuantumCircuit`
@@ -203,14 +210,14 @@ class SingleQubitSampler(BaseSampler):
             by integers for speed.
         """
 
-        gateset = self._probs_by_gate_size()
+        gateset = self._probs_by_gate_size(self._gate_distribution)
         if not math.isclose(sum(gateset[1][1]), 1):
             raise QiskitError(
                 "The distribution for SingleQubitSampler should be all single qubit gates."
             )
 
         samples = self._rng.choice(
-            np.array(gateset[1][0], dtype=Instruction),
+            np.array(gateset[1][0], dtype=object),
             size=(length, len(qubits)),
             p=gateset[1][1],
         )
@@ -250,6 +257,32 @@ class EdgeGrabSampler(BaseSampler):
 
     """
 
+    def __init__(
+        self,
+        gate_distribution=None,
+        coupling_map: Optional[Union[List[List[int]], CouplingMap]] = None,
+        seed: Optional[Union[int, SeedSequence, BitGenerator, Generator]] = None,
+    ) -> None:
+        """Initializes the sampler.
+
+        Args:
+            seed: Seed for random generation.
+            gate_distribution: The gate distribution for sampling.
+            coupling_map: The coupling map between the qubits.
+        """
+        super().__init__(seed)
+        self._gate_distribution = gate_distribution
+        self._coupling_map = coupling_map
+
+    @property
+    def coupling_map(self):
+        """The coupling map of the system to sample over."""
+        return self._coupling_map
+
+    @coupling_map.setter
+    def coupling_map(self, coupling_map):
+        self._coupling_map = coupling_map
+
     def __call__(
         self,
         qubits: Sequence,
@@ -260,20 +293,20 @@ class EdgeGrabSampler(BaseSampler):
         Args:
             qubits: A sequence of qubits to generate layers for.
             length: The length of the sequence to output.
-            seed: Seed for random generation.
 
         Raises:
             Warning: If the coupling map has no connectivity or
                 ``two_qubit_gate_density`` is too high.
             TypeError: If invalid gate set(s) are specified.
+            QiskitError: If the coupling map is invalid.
 
         Returns:
-            A ``length``-long list of :class:`qiskit.circuit.QuantumCircuit` layers over
-            ``num_qubits`` qubits. Each layer is represented by a list of tuples which
-            are in the format ((one or more qubit indices), gate). Single-qubit
-            Cliffords are represented by integers for speed. Here's an example with the
-            default choice of Cliffords for the single-qubit gates and CXs for the
-            two-qubit gates:
+            A ``length``-long list of :class:`qiskit.circuit.QuantumCircuit`
+            layers over ``num_qubits`` qubits. Each layer is represented by a
+            list of ``GateInstruction`` named tuples which are in the format
+            (qargs, gate). Single-qubit Cliffords are represented by integers
+            for speed. Here's an example with the default choice of Cliffords
+            for the single-qubit gates and CXs for the two-qubit gates:
 
             .. parsed-literal::
                 (((1, 2), CXGate()), ((0,), 12), ((3,), 20))
@@ -284,25 +317,27 @@ class EdgeGrabSampler(BaseSampler):
 
         """
         num_qubits = len(qubits)
-        gateset = self._probs_by_gate_size()
+        gateset = self._probs_by_gate_size(self._gate_distribution)
         norm1q = sum(gateset[1][1])
         norm2q = sum(gateset[2][1])
-        two_qubit_gate_density = sum(gateset[2][1]) / (sum(gateset[2][1]) + sum(gateset[1][1]))
+        if not np.isclose(norm1q + norm2q, 1):
+            raise TypeError("The edge grab sampler only supports 1- and 2-qubit gates.")
+        two_qubit_gate_density = norm2q / (norm1q + norm2q)
         if num_qubits == 1:
             return [
                 (GateInstruction((qubits[0],), i),)
                 for i in self._rng.choice(
-                    np.array(gateset[1][0], dtype=Instruction),
+                    np.array(gateset[1][0], dtype=object),
                     p=[i / norm1q for i in gateset[1][1]],
                     size=length,
                 )
             ]
 
-        if not isinstance(self.coupling_map, List):
+        if not isinstance(self.coupling_map, List) or isinstance(self.coupling_map, CouplingMap):
             raise QiskitError("The coupling map must be set correctly before sampling.")
 
         layer_list = []
-        for _ in list(range(length)):
+        for _ in range(length):
             all_edges = self.coupling_map[:]  # make copy of coupling map from which we pop edges
             selected_edges = []
             while all_edges:
@@ -349,6 +384,7 @@ class EdgeGrabSampler(BaseSampler):
                                 ),
                             ),
                         )
+
                     # remove these qubits from put_1q_gates
                     put_1q_gates.remove(edge[0])
                     put_1q_gates.remove(edge[1])
