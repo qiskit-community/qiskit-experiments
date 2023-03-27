@@ -69,7 +69,7 @@ physical qubit or qubits the circuits will be executed on. The qubits must be gi
 Python sequence (usually a tuple or a list).
 
 .. note::
-    Since 0.5.0, using ``qubits`` instead of ``physical_qubits`` or specifying an 
+    Since 0.5.0, using ``qubits`` instead of ``physical_qubits`` or specifying an
     integer qubit index instead of a one-element sequence for a single-qubit experiment
     is deprecated.
 
@@ -210,6 +210,8 @@ The actual backend jobs that were executed for the experiment can be accessed wi
     See the how-tos for :doc:`rerunning the analysis </howtos/rerun_analysis>`
     for an existing experiment that finished execution.
 
+.. _guide_setting_options:
+
 Setting options for your experiment
 ===================================
 
@@ -226,11 +228,11 @@ supports can be set:
 .. jupyter-input::
 
   exp.set_run_options(shots=1000,
-                      meas_level=MeasLevel.CLASSIFIED,
-                      meas_return="avg")
+                      meas_level=MeasLevel.CLASSIFIED)
 
-Consult the documentation of :func:`qiskit.execute_function.execute` or the run method
-of your specific backend type for valid options.
+Consult the documentation of the run method of your
+specific backend type for valid options.
+For example, see :meth:`qiskit_ibm_provider.IBMBackend.run` for IBM backends.
 
 Transpile options
 -----------------

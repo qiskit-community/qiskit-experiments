@@ -27,6 +27,13 @@ class ResonatorSpectroscopyAnalysis(curve.ResonanceAnalysis):
 
     @classmethod
     def _default_options(cls):
+        """Return default analysis options.
+
+        Analysis Options:
+            dimensionality_reduction (ProjectorType): Type of the data processor node
+                that will reduce the two-dimensional data to one dimension.
+            plot_iq_data (bool): Set True to generate IQ plot.
+        """
         options = super()._default_options()
         options.dimensionality_reduction = ProjectorType.ABS
         options.result_parameters = [

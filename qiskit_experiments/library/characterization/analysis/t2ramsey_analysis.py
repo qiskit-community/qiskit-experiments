@@ -18,12 +18,7 @@ from qiskit_experiments.framework import Options
 
 
 class T2RamseyAnalysis(curve.DampedOscillationAnalysis):
-    """T2 Ramsey result analysis class.
-
-    # section: see_also
-        :class:`.DampedOscillationAnalysis`
-
-    """
+    """T2 Ramsey result analysis class."""
 
     @classmethod
     def _default_options(cls) -> Options:

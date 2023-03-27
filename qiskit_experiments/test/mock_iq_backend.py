@@ -16,8 +16,10 @@ from typing import Sequence, List, Tuple, Dict, Union, Any
 import numpy as np
 
 from qiskit import QuantumCircuit
+from qiskit.circuit.library import XGate, SXGate
 from qiskit.result import Result
 from qiskit.providers.fake_provider import FakeOpenPulse2Q
+from qiskit.providers.fake_provider.fake_backend import FakeBackendV2
 
 from qiskit.qobj.utils import MeasLevel
 from qiskit_experiments.exceptions import QiskitError
@@ -31,7 +33,49 @@ from qiskit_experiments.test.mock_iq_helpers import (
 )
 
 
-class MockRestlessBackend(FakeOpenPulse2Q):
+class FakeOpenPulse2QV2(FakeBackendV2):
+    """BackendV2 version of FakeOpenPulse2Q"""
+
+    def __init__(self):
+        # FakeOpenPulse2Q has its data hard-coded rather than in json files. We
+        # prepopulate the dicts so that FakeBackendV2 does not try to load them
+        # from files.
+        #
+        # We have to use a hack to populate _conf_dict
+        backend_v1 = FakeOpenPulse2Q()
+        self._conf_dict_real = backend_v1._configuration.to_dict()
+        super().__init__()
+        self._props_dict = backend_v1._properties.to_dict()
+        self._defs_dict = backend_v1._defaults.to_dict()
+        self._defaults = backend_v1._defaults
+
+        # Workaround a bug in FakeOpenPulse2Q. It defines u1 on qubit 1 in the
+        # cmd_def in the defaults json file but not in the gates in the
+        # properties instance. The code FakeBackendV2 uses to build the Target
+        # assumes these two are consistent.
+        u1_0 = next(g for g in self._props_dict["gates"] if g["gate"] == "u1")
+        self._props_dict["gates"].append(u1_0.copy())
+        self._props_dict["gates"][-1]["qubits"] = [1]
+
+    @property
+    def _conf_dict(self):
+        # FakeBackendV2 sets this in __init__. As a hack, we use this property
+        # to prevent it from overriding our values.
+        return self._conf_dict_real
+
+    @_conf_dict.setter
+    def _conf_dict(self, value):
+        pass
+
+    # This method is not defined in the base class as we would like to avoid
+    # relying on it as much as necessary. Individual tests should add it when
+    # necessary.
+    # def defaults(self):
+    #     """Pulse defaults"""
+    #     return self._defaults
+
+
+class MockRestlessBackend(FakeOpenPulse2QV2):
     """An abstract backend for testing that can mock restless data."""
 
     def __init__(self, rng_seed: int = 0):
@@ -145,7 +189,8 @@ class MockRestlessFineAmp(MockRestlessBackend):
         self._angle_per_gate = angle_per_gate
         super().__init__(rng_seed=rng_seed)
 
-        self.configuration().basis_gates.extend(["sx", "x"])
+        self.target.add_instruction(SXGate(), properties={(0,): None})
+        self.target.add_instruction(XGate(), properties={(0,): None})
 
     def _compute_outcome_probabilities(self, circuits: List[QuantumCircuit]):
         """Compute the probabilities of being in the excited state or
@@ -171,7 +216,7 @@ class MockRestlessFineAmp(MockRestlessBackend):
             self._precomputed_probabilities[(idx, "01")] = [prob_1, prob_0, 0, 0]
 
 
-class MockIQBackend(FakeOpenPulse2Q):
+class MockIQBackend(FakeOpenPulse2QV2):
     """A mock backend for testing with IQ data."""
 
     def __init__(

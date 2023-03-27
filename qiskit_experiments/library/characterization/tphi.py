@@ -58,9 +58,9 @@ class Tphi(BatchExperiment):
         :doc:`/manuals/characterization/tphi`
 
     # section: see_also
-        qiskit_experiments.library.characterization.t1
-        qiskit_experiments.library.characterization.t2ramsey
-        qiskit_experiments.library.characterization.t2hahn
+        * :py:class:`qiskit_experiments.library.characterization.T1`
+        * :py:class:`qiskit_experiments.library.characterization.T2Ramsey`
+        * :py:class:`qiskit_experiments.library.characterization.T2Hahn`
 
     """
 
