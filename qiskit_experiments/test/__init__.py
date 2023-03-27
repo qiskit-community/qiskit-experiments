@@ -54,7 +54,6 @@ Helper classes for supporting test functionality.
 """
 
 from .utils import FakeJob
-from .pulse_backend import PulseBackend, SingleTransmonTestBackend
 from .mock_iq_backend import MockIQBackend, MockIQParallelBackend
 from .mock_iq_helpers import MockIQExperimentHelper, MockIQParallelExperimentHelper
 from .noisy_delay_aer_simulator import NoisyDelayAerBackend
