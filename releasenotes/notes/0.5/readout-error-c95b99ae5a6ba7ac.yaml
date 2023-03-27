@@ -9,12 +9,7 @@ features:
 fixes:
   - |
     Fixed bug in the :class:`~.LocalReadoutError` experiment where analysis
-    would fail when run on an ideal simulator with no readout error.
-
-    See `Issue #992 <https://github.com/Qiskit/qiskit-experiments/issues/992>`_
+    would fail when run on an ideal simulator with no readout error. See 
+    `Issue #992 <https://github.com/Qiskit/qiskit-experiments/issues/992>`_
     for additional details.
-deprecations:
-  - |
-    The ``qubits`` kwarg of the following experiments has been deprecated and
-    renamed to ``physical_qubits``: :class:`.LocalReadoutError`,
-    :class:`.CorrelatedReadoutError`.
+

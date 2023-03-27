@@ -1,7 +1,7 @@
 ---
 features:
   - |
-    Added a new experiment (:class:`~qiskit_experiments.library.MultiStateDiscrimination`)
+    Added a new experiment :class:`~qiskit_experiments.library.MultiStateDiscrimination`
     for classifying IQ clusters of multi-level energy states.
   - |
     Added a new sklearn discriminator class :class:`~qiskit_experiments.data_processing.SkQDA`.

@@ -13,4 +13,4 @@ issues:
 deprecations:
   - |
     :class:`~qiskit_experiments.test.mock_iq_helpers.MockIQRabiHelper` is now deprecated and
-    shoudd be replaced with :class:`.SingleTransmonTestBackend`.
+    should be replaced with :class:`.SingleTransmonTestBackend`.

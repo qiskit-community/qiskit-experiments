@@ -6,5 +6,5 @@ fixes:
     support :class:`~qiskit.providers.BackendV2` backends. The look up of the
     latter is ``qiskit-ibm-provider`` specific. This change fixes errors
     failing to find these properties when using :class:`.ResonatorSpectroscopy`
-    (issue `#1099 <https://github.com/Qiskit/qiskit-experiments/issues/1099>_`)
+    (issue `#1099 <https://github.com/Qiskit/qiskit-experiments/issues/1099>`_)
     and when using restless measurements with ``BackendV2`` backends.
