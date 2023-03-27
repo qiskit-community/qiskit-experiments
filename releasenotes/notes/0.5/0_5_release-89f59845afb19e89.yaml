@@ -1,0 +1,11 @@
+---
+prelude: >
+    The Qiskit Experiments 0.5 release added the visualization module for
+    drawing figures which replaces the previous plotting functionality. The
+    speed of randomized benchmarking experiments has been significantly
+    improved. The ``qubit`` and ``qubits`` input to experiments has been
+    regularized to ``physical_qubits``. A new :class:`.MultiStateDiscrimination`
+    class has been added for classifying IQ data. A test backend that uses
+    Qiskit Dynamics for pulse-level simulations has been added. The
+    documentation has been significantly refactored and introductory tutorials
+    have been added. Various improvements and bug fixes 

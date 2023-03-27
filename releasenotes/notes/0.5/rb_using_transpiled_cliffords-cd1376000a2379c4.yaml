@@ -1,7 +1,7 @@
 ---
 other:
   - |
-    Improved the performance of circuit generation in 1Q/2Q RB experiments (about 10x speedup).
+    Improved the performance of circuit generation in 1Q/2Q randomized benchmarking experiments (about 10x speedup).
     That is mainly achieved by the following two updates in their implementation:
 
     * Custom transpilation of circuits (mapping circuits to physical qubits without using transpile),
