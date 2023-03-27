@@ -29,7 +29,7 @@ from qiskit_experiments.framework.backend_timing import BackendTiming
 from .clifford_utils import _truncate_inactive_qubits
 from .clifford_utils import num_from_1q_circuit, num_from_2q_circuit
 from .interleaved_rb_analysis import InterleavedRBAnalysis
-from .rb_experiment import StandardRB, SequenceElementType
+from .standard_rb import StandardRB, SequenceElementType
 
 
 class InterleavedRB(StandardRB):
