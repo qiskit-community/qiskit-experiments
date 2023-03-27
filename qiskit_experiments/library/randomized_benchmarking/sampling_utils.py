@@ -16,7 +16,7 @@ Utilities for sampling layers in randomized benchmarking experiments
 import warnings
 import math
 from abc import ABC, abstractmethod
-from typing import Optional, Union, List, Tuple, Sequence, TypeVar, NamedTuple
+from typing import Optional, Union, List, Tuple, Sequence, TypeVar, NamedTuple, Dict
 from collections import defaultdict
 
 from numpy.random import Generator, default_rng, BitGenerator, SeedSequence
@@ -39,6 +39,17 @@ class GateInstruction(NamedTuple):
     op: GateTypeT
 
 
+class GateDistribution(NamedTuple):
+    """Named tuple class for sampler input distribution."""
+
+    # probability of the instruction to be sampled
+    prob: float
+    # the number of qubits the instruction applies to
+    nq: int
+    # the instruction, can be Instructions or the special keywords "clifford", "pauli"
+    op: Union[Instruction, str]
+
+
 class BaseSampler(ABC):
     """Base class for samplers that generate circuit layers based on a defined
     algorithm and gate set. Subclasses must implement the ``__call__()`` method
@@ -49,7 +60,7 @@ class BaseSampler(ABC):
         gate_distribution=None,
         coupling_map: Optional[List[List[int]]] = None,
         seed: Optional[Union[int, SeedSequence, BitGenerator, Generator]] = None,
-    ):
+    ) -> None:
         """Initializes the sampler.
 
         Args:
@@ -61,38 +72,39 @@ class BaseSampler(ABC):
         self.seed = default_rng(seed)
 
     @property
-    def coupling_map(self):
+    def coupling_map(self) -> Optional[List[List[int]]]:
         """The coupling map of the system to sample over."""
         return self._coupling_map
 
     @coupling_map.setter
-    def coupling_map(self, coupling_map):
+    def coupling_map(self, coupling_map) -> None:
         self._coupling_map = coupling_map
 
     @property
-    def seed(self):
+    def seed(self) -> Union[int, SeedSequence, BitGenerator, Generator]:
         """The seed for random generation."""
         return self._rng
 
     @seed.setter
-    def seed(self, seed):
+    def seed(self, seed) -> None:
         self._rng = default_rng(seed)
 
     @property
-    def gate_distribution(self):
-        """The gate distribution for sampling. The distribution is a list of tuples
-        of the form ``(probability, width of gate, gate)``. Gates can be actual
-        operators, circuits, or the special keywords "clifford", "pauli", "idle". An
-        example distribution for the edge grab sampler might be
+    def gate_distribution(self) -> List[GateDistribution]:
+        """The gate distribution for sampling. The distribution is a list of
+        ``GateDistribution`` named tuples with field names ``(prob, nq, op)``,
+        where the probabilites must sum to 1 and ``nq`` is the number of qubits
+        the ``op`` applies to. Gates can be ``Instruction`` or the special
+        keywords "clifford", "pauli". An example distribution for the edge grab
+        sampler might be
 
         .. parsed-literal::
             [(0.8, 1, "clifford"), (0.2, 2, CXGate())]
-
-        The probabilities must sum to 1."""
+        """
         return self._gate_distribution
 
     @gate_distribution.setter
-    def gate_distribution(self, dist: List[Tuple[float, int, GateTypeT]]):
+    def gate_distribution(self, dist: List[GateDistribution]) -> None:
         """Set the distribution of gates used in the sampler.
 
         Args:
@@ -100,10 +112,12 @@ class BaseSampler(ABC):
         """
         if not isinstance(dist, List):
             raise TypeError("The gate distribution should be a list.")
+        # cast to named tuple
+        dist = [GateDistribution(*elem) for elem in dist]
         if sum(list(zip(*dist))[0]) != 1:
             raise QiskitError("Gate distribution probabilities must sum to 1.")
         for gate in dist:
-            if gate[2] not in ["clifford", "pauli"] and not isinstance(gate[2], Instruction):
+            if gate.op not in ["clifford", "pauli"] and not isinstance(gate.op, Instruction):
                 raise TypeError(
                     "The only allowed gates in the distribution are 'clifford', 'pauli', "
                     "and Instruction instances."
@@ -111,39 +125,39 @@ class BaseSampler(ABC):
 
         self._gate_distribution = dist
 
-    def _probs_by_gate_size(self):
+    def _probs_by_gate_size(self) -> Dict:
         """Return a list of gates and their probabilities indexed by the size of the gate."""
         if not self._gate_distribution:
             raise QiskitError("Gate distribution must be set before sampling.")
         gate_probs = defaultdict(list)
 
         for gate in self.gate_distribution:
-            if gate[2] == "clifford" and gate[1] == 1:
+            if gate.op == "clifford" and gate.nq == 1:
                 gateset = list(range(CliffordUtils.NUM_CLIFFORD_1_QUBIT))
                 probs = [
-                    gate[0] / CliffordUtils.NUM_CLIFFORD_1_QUBIT
+                    gate.prob / CliffordUtils.NUM_CLIFFORD_1_QUBIT
                 ] * CliffordUtils.NUM_CLIFFORD_1_QUBIT
-            elif gate[2] == "pauli" and gate[1] == 1:
+            elif gate.op == "pauli" and gate.nq == 1:
                 gateset = [
                     _CLIFF_SINGLE_GATE_MAP_1Q[("id", (0,))],
                     _CLIFF_SINGLE_GATE_MAP_1Q[("x", (0,))],
                     _CLIFF_SINGLE_GATE_MAP_1Q[("y", (0,))],
                     _CLIFF_SINGLE_GATE_MAP_1Q[("z", (0,))],
                 ]
-                probs = [gate[0] / len(gateset)] * len(gateset)
-            elif gate[2] == "clifford" and gate[1] == 2:
+                probs = [gate.prob / len(gateset)] * len(gateset)
+            elif gate.op == "clifford" and gate.nq == 2:
                 gateset = list(range(CliffordUtils.NUM_CLIFFORD_2_QUBIT))
                 probs = [
-                    gate[0] / CliffordUtils.NUM_CLIFFORD_2_QUBIT
+                    gate.prob / CliffordUtils.NUM_CLIFFORD_2_QUBIT
                 ] * CliffordUtils.NUM_CLIFFORD_2_QUBIT
             else:
-                gateset = [gate[2]]
-                probs = [gate[0]]
-            if len(gate_probs[gate[1]]) == 0:
-                gate_probs[gate[1]] = [gateset, probs]
+                gateset = [gate.op]
+                probs = [gate.prob]
+            if len(gate_probs[gate.nq]) == 0:
+                gate_probs[gate.nq] = [gateset, probs]
             else:
-                gate_probs[gate[1]][0].extend(gateset)
-                gate_probs[gate[1]][1].extend(probs)
+                gate_probs[gate.nq][0].extend(gateset)
+                gate_probs[gate.nq][1].extend(probs)
         return gate_probs
 
     @abstractmethod

@@ -39,6 +39,7 @@ from .sampling_utils import (
     SingleQubitSampler,
     GateTypeT,
     GateInstruction,
+    GateDistribution,
 )
 
 # two qubit gates that are their own inverse
@@ -246,8 +247,10 @@ class MirrorRB(StandardRB):
             adjusted_2q_density = 1
 
         self._distribution.gate_distribution = [
-            (adjusted_2q_density, 2, self.experiment_options.two_qubit_gate),
-            (1 - adjusted_2q_density, 1, "clifford"),
+            GateDistribution(
+                prob=adjusted_2q_density, nq=2, op=self.experiment_options.two_qubit_gate
+            ),
+            GateDistribution(prob=1 - adjusted_2q_density, nq=1, op="clifford"),
         ]
 
     def _sample_sequences(self) -> List[Sequence[SequenceElementType]]:
@@ -279,11 +282,11 @@ class MirrorRB(StandardRB):
 
         if self.experiment_options.pauli_randomize:
             pauli_sampler = SingleQubitSampler(seed=self.experiment_options.seed)
-            pauli_sampler.gate_distribution = [(1, 1, "pauli")]
+            pauli_sampler.gate_distribution = [GateDistribution(prob=1, nq=1, op="pauli")]
 
         if self.experiment_options.start_end_clifford:
             clifford_sampler = SingleQubitSampler(seed=self.experiment_options.seed)
-            clifford_sampler.gate_distribution = [(1, 1, "clifford")]
+            clifford_sampler.gate_distribution = [GateDistribution(prob=1, nq=1, op="clifford")]
 
         sequences = []
 
