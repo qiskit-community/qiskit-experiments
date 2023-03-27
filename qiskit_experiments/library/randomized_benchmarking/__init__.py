@@ -51,7 +51,7 @@ Utilities
     SingleQubitSampler
 
 """
-from .rb_experiment import StandardRB
+from .standard_rb import StandardRB
 from .interleaved_rb_experiment import InterleavedRB
 from .mirror_rb_experiment import MirrorRB
 from .sampling_utils import BaseSampler, EdgeGrabSampler, SingleQubitSampler

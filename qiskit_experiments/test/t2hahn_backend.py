@@ -13,337 +13,190 @@
 T2HahnBackend class.
 Temporary backend to be used for t2hahn experiment
 """
+import copy
+from typing import List, Optional, Sequence, Union
 
-from typing import List
 import numpy as np
-from numpy import isclose
-from qiskit import QiskitError
-from qiskit.providers import BackendV1
-from qiskit.providers.models import QasmBackendConfiguration
-from qiskit.result import Result
-from qiskit_experiments.framework import Options
+
+from qiskit import QiskitError, QuantumCircuit
+from qiskit.circuit import Delay, Reset, Parameter
+from qiskit.circuit.library import Measure, RZGate, SXGate, XGate
+from qiskit.dagcircuit import DAGCircuit
+from qiskit.providers import BackendV2, Job, Options
+from qiskit.transpiler import InstructionProperties, PassManager, Target, TransformationPass
+from qiskit.utils.units import apply_prefix
+
+from qiskit_aer import AerSimulator
+from qiskit_aer.noise import NoiseModel, ReadoutError, RelaxationNoisePass, reset_error
+
 from qiskit_experiments.test.utils import FakeJob
 
-# Fix seed for simulations
-SEED = 9000
+
+class ResetQubits(TransformationPass):
+    """Pass to inject reset instructions for each qubit
+
+    The resets are used to add qubit initialization error.
+    """
+
+    def run(self, dag: DAGCircuit):
+        new_dag = copy.deepcopy(dag)
+
+        for qreg in new_dag.qregs.values():
+            new_dag.apply_operation_front(Reset(), qreg, [])
+
+        return new_dag
 
 
-class T2HahnBackend(BackendV1):
+class QubitDrift(TransformationPass):
+    """Pass to rotate qubits during delays
+
+    This pass adds rotations that mimic the qubit being detuned from the drive
+    frequency (while assuming that the gate times are negligible; rotations are
+    only added for delays).
+    """
+
+    def __init__(self, qubit_frequencies: Sequence[float], dt: float):
+        super().__init__()
+        self.qubit_frequencies = qubit_frequencies
+        self.dt = dt
+
+    def run(self, dag: DAGCircuit):
+        qubit_indices = {bit: index for index, bit in enumerate(dag.qubits)}
+
+        new_dag = dag.copy_empty_like()
+
+        for node in dag.topological_op_nodes():
+            new_dag.apply_operation_back(node.op, node.qargs, node.cargs)
+
+            if node.name == "delay":
+                q0 = qubit_indices[node.qargs[0]]
+                if self.qubit_frequencies[q0] is None:
+                    continue
+                if node.op.unit == "dt":
+                    duration = node.op.duration * self.dt
+                elif node.op.unit != "s":
+                    duration = apply_prefix(node.op.duration, node.op.unit)
+                angle = 2 * np.pi * self.qubit_frequencies[q0] * duration
+                angle = angle % (2 * np.pi)
+                new_dag.apply_operation_back(RZGate(angle), [node.qargs[0]], [])
+
+        return new_dag
+
+
+class T2HahnBackend(BackendV2):
     """
     A simple and primitive backend, to be run by the T2Hahn tests
     """
 
     def __init__(
         self,
-        t2hahn=None,
-        frequency=None,
-        initialization_error=None,
-        readout0to1=None,
-        readout1to0=None,
+        t2hahn: Union[float, Sequence[float]] = float("inf"),
+        frequency: Union[float, Sequence[float]] = 0.0,
+        initialization_error: Union[float, Sequence[float]] = 0.0,
+        readout0to1: Union[float, Sequence[float]] = 0.0,
+        readout1to0: Union[float, Sequence[float]] = 0.0,
+        seed: int = 9000,
+        dt: float = 1 / 4.5e9,
+        num_qubits: Optional[int] = None,
     ):
         """
         Initialize the T2Hahn backend
         """
-        configuration = QasmBackendConfiguration(
-            backend_name="T2Hahn_simulator",
+
+        super().__init__(
+            name="T2Hahn_simulator",
             backend_version="0",
-            n_qubits=int(1e6),
-            basis_gates=["barrier", "rx", "delay", "measure"],
-            gates=[],
-            local=True,
-            simulator=True,
-            conditional=False,
-            open_pulse=False,
-            memory=False,
-            max_shots=int(1e6),
-            coupling_map=None,
         )
 
-        self._t2hahn = t2hahn
-        self._frequency = frequency
-        self._initialization_error = initialization_error
-        self._readout0to1 = readout0to1
-        self._readout1to0 = readout1to0
-        self._rng = np.random.default_rng(seed=SEED)
-        super().__init__(configuration)
+        for arg in (t2hahn, frequency, initialization_error, readout0to1, readout1to0):
+            if isinstance(arg, Sequence):
+                if num_qubits is None:
+                    num_qubits = len(arg)
+                elif len(arg) != num_qubits:
+                    raise ValueError(
+                        f"Input lengths are not consistent: {num_qubits} != {len(arg)}"
+                    )
+
+        if num_qubits is None:
+            num_qubits = 1
+
+        self._t2hahn = t2hahn if isinstance(t2hahn, Sequence) else [t2hahn] * num_qubits
+        self._frequency = frequency if isinstance(frequency, Sequence) else [frequency] * num_qubits
+        self._initialization_error = (
+            initialization_error
+            if isinstance(initialization_error, Sequence)
+            else [initialization_error] * num_qubits
+        )
+        self._readout0to1 = (
+            readout0to1 if isinstance(readout0to1, Sequence) else [readout0to1] * num_qubits
+        )
+        self._readout1to0 = (
+            readout1to0 if isinstance(readout1to0, Sequence) else [readout1to0] * num_qubits
+        )
+        self._seed = seed
+
+        self._target = Target(dt=dt, num_qubits=num_qubits)
+        for instruction in (Measure(), Reset(), RZGate(Parameter("angle")), SXGate(), XGate()):
+            self.target.add_instruction(
+                instruction,
+                properties={(q,): InstructionProperties(duration=0) for q in range(num_qubits)},
+            )
+        self.target.add_instruction(Delay(Parameter("duration")))
+
+    @property
+    def target(self) -> Target:
+        return self._target
+
+    @property
+    def max_circuits(self) -> None:
+        return None
 
     @classmethod
-    def _default_options(cls):
-        """Default options of the test backend."""
-        return Options(shots=1024)
+    def _default_options(cls) -> Options:
+        return Options()
 
-    def _qubit_initialization(self, nqubits: int) -> List[dict]:
-        """
-        Initialize the list of qubits state. If initialization error is provided to the backend it will
-        use it to determine the initialized state.
+    def run(
+        self, run_input: Union[QuantumCircuit, List[QuantumCircuit]], shots: int = 1024, **options
+    ) -> Job:
+        passes = []
 
-        Args:
-            nqubits(int): the number of qubits in the circuit.
+        if isinstance(run_input, QuantumCircuit):
+            circuits = [run_input]
+        else:
+            circuits = run_input
 
-        Returns:
-            List[dict]: A list of dictionary which each dictionary contain the qubit state in the format
-                        {"XY plane": (bool), "ZX plane": (bool), "Theta": float}
-
-        Raises:
-            QiskitError: Raised if initialization_error type isn't 'None'', 'float' or a list of 'float'
-                         with length of number of the qubits.
-            ValueError: Raised if the initialization error is negative.
-        """
-        qubits_sates = [{} for _ in range(nqubits)]
-        # Making an array with the initialization error for each qubit.
-        initialization_error = self._initialization_error
-        if isinstance(initialization_error, float) or initialization_error is None:
-            initialization_error_arr = [initialization_error for _ in range(nqubits)]
-        elif isinstance(initialization_error, list):
-            if len(initialization_error) == 1:
-                initialization_error_arr = [initialization_error[0] for _ in range(nqubits)]
-            elif len(initialization_error) == nqubits:
-                initialization_error_arr = initialization_error
-            else:
+        for circuit in circuits:
+            if circuit.num_qubits > self.num_qubits:
                 raise QiskitError(
-                    f"The length of the list {initialization_error} isn't the same as the number "
-                    "of qubits."
+                    f"{self.__class__} can only run circuits that match its num_qubits"
                 )
-        else:
-            raise QiskitError("Initialization error type isn't a list or float")
 
-        for err in initialization_error_arr:
-            if not isinstance(err, float):
-                raise QiskitError("Initialization error type isn't a list or float")
-            if err < 0:
-                raise ValueError("Initialization error value can't be negative.")
+        noise_model = NoiseModel()
 
-        for qubit in range(nqubits):
-            if initialization_error_arr[qubit] is not None and (
-                self._rng.random() < initialization_error_arr[qubit]
-            ):
-                qubits_sates[qubit] = {"XY plane": False, "ZX plane": True, "Theta": np.pi}
-            else:
-                qubits_sates[qubit] = {
-                    "XY plane": False,
-                    "ZX plane": True,
-                    "Theta": 0,
-                }
-        return qubits_sates
+        if self._initialization_error is not None:
+            passes.append(ResetQubits())
+            for qubit, error in enumerate(self._initialization_error):
+                if error is None:
+                    continue
+                noise_model.add_quantum_error(reset_error(1 - error, error), ["reset"], [qubit])
 
-    def _delay_gate(self, qubit_state: dict, delay: float, t2hahn: float, frequency: float) -> dict:
-        """
-        Apply delay gate to the qubit. From the delay time we can calculate the probability
-        that an error has accrued.
-
-        Args:
-            qubit_state(dict): The state of the qubit before operating the gate.
-            delay(float): The time in which there are no operation on the qubit.
-            t2hahn(float): The T2 parameter of the backhand for probability calculation.
-            frequency(float): The frequency of the qubit for phase calculation.
-
-        Returns:
-            dict: The state of the qubit after operating the gate.
-
-         Raises:
-            QiskitError: Raised if the frequency is 'None' or if the qubit isn't in the XY plane.
-        """
-        if frequency is None:
-            raise QiskitError("Delay gate supported only if the qubit is on the XY plane.")
-        new_qubit_state = qubit_state
-        if qubit_state["XY plane"]:
-            prob_noise = 1 - (np.exp(-delay / t2hahn))
-            if self._rng.random() < prob_noise:
-                if self._rng.random() < 0.5:
-                    new_qubit_state = {
-                        "XY plane": False,
-                        "ZX plane": True,
-                        "Theta": 0,
-                    }
-                else:
-                    new_qubit_state = {
-                        "XY plane": False,
-                        "ZX plane": True,
-                        "Theta": np.pi,
-                    }
-            else:
-                phase = frequency * delay
-                new_theta = qubit_state["Theta"] + phase
-                new_theta = new_theta % (2 * np.pi)
-                new_qubit_state = {"XY plane": True, "ZX plane": False, "Theta": new_theta}
-        else:
-            if not isclose(qubit_state["Theta"], np.pi) and not isclose(qubit_state["Theta"], 0):
-                raise QiskitError("Delay gate supported only if the qubit is on the XY plane.")
-        return new_qubit_state
-
-    def _rx_gate(self, qubit_state: dict, angle: float) -> dict:
-        """
-        Apply Rx gate.
-
-        Args:
-            qubit_state(dict): The state of the qubit before operating the gate.
-            angle(float): The angle of the rotation.
-
-        Returns:
-            dict: The state of the qubit after operating the gate.
-
-        Raises:
-            QiskitError: If angle is not ±π/2 or ±π. Those are the only supported angles.
-        """
-
-        if qubit_state["XY plane"]:
-            if isclose(angle, np.pi):
-                new_theta = -qubit_state["Theta"]
-                new_theta = new_theta % (2 * np.pi)
-                new_qubit_state = {
-                    "XY plane": True,
-                    "ZX plane": False,
-                    "Theta": new_theta,
-                }
-            elif isclose(angle, np.pi / 2):
-                new_theta = (np.pi / 2) - qubit_state["Theta"]
-                new_theta = new_theta % (2 * np.pi)
-                new_qubit_state = {
-                    "XY plane": False,
-                    "ZX plane": True,
-                    "Theta": new_theta,
-                }
-            elif isclose(angle, -np.pi / 2):
-                new_theta = np.abs((-np.pi / 2) - qubit_state["Theta"])
-                new_theta = new_theta % (2 * np.pi)
-                new_qubit_state = {
-                    "XY plane": False,
-                    "ZX plane": True,
-                    "Theta": new_theta,
-                }
-            else:
-                raise QiskitError(
-                    f"Error - the angle {angle} isn't supported. We only support multiplications of pi/2"
-                )
-        else:
-            if isclose(angle, np.pi):
-                new_theta = qubit_state["Theta"] + np.pi
-                new_theta = new_theta % (2 * np.pi)
-                new_qubit_state = {
-                    "XY plane": False,
-                    "ZX plane": True,
-                    "Theta": new_theta,
-                }
-            elif isclose(angle, np.pi / 2):
-                new_theta = (
-                    qubit_state["Theta"] + 3 * np.pi / 2
-                )  # its theta -pi/2 but we added 2*pi
-                new_theta = new_theta % (2 * np.pi)
-                new_qubit_state = {
-                    "XY plane": True,
-                    "ZX plane": False,
-                    "Theta": new_theta,
-                }
-            elif isclose(angle, -np.pi / 2):
-                new_theta = np.pi / 2 - qubit_state["Theta"]
-                new_theta = new_theta % (2 * np.pi)
-                new_qubit_state = {
-                    "XY plane": True,
-                    "ZX plane": False,
-                    "Theta": new_theta,
-                }
-            else:
-                raise QiskitError(
-                    f"Error - The angle {angle} isn't supported. We only support multiplication of pi/2"
-                )
-        return new_qubit_state
-
-    def _measurement_gate(self, qubit_state: dict) -> int:
-        """
-        Implementing measurement on qubit with read-out error.
-
-        Args:
-            qubit_state(dict): The state of the qubit at the end of the circuit.
-
-        Returns:
-            int: The result of the measurement after applying read-out error.
-        """
-        # Here we are calculating the probability for measurement result depending on the
-        # location of the qubit on the Bloch sphere.
-        if qubit_state["XY plane"]:
-            meas_res = self._rng.random() < 0.5
-        else:
-            # Since we are not in the XY plane, we need to calculate the probability for
-            # measuring output. First, we calculate the probability and later we are
-            # tossing to see if the event did happen.
-            z_projection = np.cos(qubit_state["Theta"])
-            probability = z_projection**2
-            if self._rng.random() > probability:
-                meas_res = self._rng.random() < 0.5
-            else:
-                meas_res = z_projection < 0
-
-        # Measurement error implementation
-        if meas_res and self._readout1to0 is not None:
-            if self._rng.random() < self._readout1to0[0]:
-                meas_res = 0
-        elif not meas_res and self._readout0to1 is not None:
-            if self._rng.random() < self._readout0to1[0]:
-                meas_res = 1
-
-        return meas_res
-
-    # pylint: disable = arguments-differ
-    def run(self, run_input, **options):
-        """
-        Run the T2Hahn backend
-        """
-        self.options.update_options(**options)
-        shots = self.options.get("shots")
-        result = {
-            "backend_name": "T2Hahn backend",
-            "backend_version": "0",
-            "qobj_id": "0",
-            "job_id": "0",
-            "success": True,
-            "results": [],
-        }
-        for circ in run_input:
-            nqubits = circ.num_qubits
-            qubit_indices = {bit: idx for idx, bit in enumerate(circ.qubits)}
-            clbit_indices = {bit: idx for idx, bit in enumerate(circ.clbits)}
-            counts = {}
-
-            for _ in range(shots):
-                qubit_state = self._qubit_initialization(
-                    nqubits=nqubits
-                )  # for parallel need to make an array
-                clbits = np.zeros(circ.num_clbits, dtype=int)
-                for op, qargs, cargs in circ.data:
-                    qubit = qubit_indices[qargs[0]]
-
-                    # The noise will only be applied if we are in the XY plane.
-                    if op.name == "delay":
-                        delay = op.params[0]
-                        t2hahn = self._t2hahn[qubit]
-                        freq = self._frequency[qubit]
-                        qubit_state[qubit] = self._delay_gate(
-                            qubit_state=qubit_state[qubit],
-                            delay=delay,
-                            t2hahn=t2hahn,
-                            frequency=freq,
-                        )
-                    elif op.name == "rx":
-                        qubit_state[qubit] = self._rx_gate(qubit_state[qubit], op.params[0])
-                    elif op.name == "measure":
-                        meas_res = self._measurement_gate(qubit_state[qubit])
-                        clbit = clbit_indices[cargs[0]]
-                        clbits[clbit] = meas_res
-
-                clstr = ""
-                for clbit in clbits[::-1]:
-                    clstr = clstr + str(clbit)
-
-                if clstr in counts:
-                    counts[clstr] += 1
-                else:
-                    counts[clstr] = 1
-            result["results"].append(
-                {
-                    "shots": shots,
-                    "success": True,
-                    "header": {"metadata": circ.metadata},
-                    "data": {"counts": counts},
-                }
+        if any(self._readout0to1) or any(self._readout1to0):
+            for qubit, (err0to1, err1to0) in enumerate(zip(self._readout0to1, self._readout1to0)):
+                error = ReadoutError([[1 - err0to1, err0to1], [err1to0, 1 - err1to0]])
+                noise_model.add_readout_error(error, [qubit])
+        if any(t2 != float("inf") for t2 in self._t2hahn):
+            # Make T1 huge so only T2 matters
+            passes.append(
+                RelaxationNoisePass([t * 100 for t in self._t2hahn], self._t2hahn, self.dt, Delay)
             )
-        return FakeJob(self, Result.from_dict(result))
+        if any(self._frequency):
+            passes.append(QubitDrift(self._frequency, self.dt))
+
+        pm = PassManager(passes)
+        new_circuits = pm.run(circuits)
+
+        sim = AerSimulator(noise_model=noise_model, seed_simulator=self._seed)
+
+        job = sim.run(new_circuits, shots=shots)
+
+        return FakeJob(self, job.result())

@@ -26,7 +26,7 @@ from qiskit.providers.options import Options
 from qiskit.exceptions import QiskitError
 from qiskit.circuit.library import CXGate, CYGate, CZGate, ECRGate, SwapGate, iSwapGate
 
-from .rb_experiment import StandardRB, SequenceElementType
+from .standard_rb import StandardRB, SequenceElementType
 from .mirror_rb_analysis import MirrorRBAnalysis
 from .clifford_utils import (
     compute_target_bitstring,
