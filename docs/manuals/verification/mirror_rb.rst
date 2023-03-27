@@ -2,9 +2,10 @@ Mirror Randomized Benchmarking
 ==============================
 
 Mirror randomized benchmarking (mirror RB) is a randomized benchmarking protocol
-that is more scalable than standard randomized benchmarking and is suitable for
-characterizing crosstalk errors over a large number of qubits in a quantum device. A
-randomized Clifford mirror circuit [1]_ consists of:
+where layers of gates are sampled from a distribution and then run on a set of
+qubits along with their mirror inverses. A randomized Clifford mirror circuit
+[1]_, which we will be running in this manual, is a specific type of mirror RB
+and consists of:
 
 - random n-qubit Clifford layers and their inverses sampled according to some
   distribution :math:`\Omega` over a layer set :math:`\mathbb{L}`,
@@ -15,10 +16,13 @@ randomized Clifford mirror circuit [1]_ consists of:
   of the circuit.
 
 Note that the random n-qubit Clifford layers can be realized with only one-qubit
-Cliffords and a two-qubit gate such as CX, which twirl the local errors sufficiently to
-produce a useful metric of gate infidelity. This is in contrast to standard RB, which
-requires the implementation of n-qubit Cliffords that have much more overhead for large
-n. Mirror RB can also be generalized to universal gatesets beyond the Cliffords [2]_.
+Cliffords and a two-qubit gate such as CX, which twirl the local errors
+sufficiently to produce a useful metric of gate infidelity. This is in contrast
+to standard RB, which requires the implementation of n-qubit Cliffords that have
+much more overhead for large n. As a result, mirror RB is more scalable than
+standard RB and is suitable for characterizing crosstalk errors over a large
+number of qubits in a quantum device. Mirror RB can also be generalized to
+universal gatesets beyond the Cliffords [2]_.
 
 Output metrics
 --------------
@@ -116,7 +120,6 @@ the experiment:
 
 .. jupyter-execute::
 
-    print("Gate error ratio: %s" % expdata_2q.experiment.analysis.options.gate_error_ratio)
     display(expdata_2q.figure(0))
     for result in results_2q:
         print(result)

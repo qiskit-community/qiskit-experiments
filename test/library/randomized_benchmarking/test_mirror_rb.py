@@ -20,7 +20,7 @@ from ddt import ddt, data
 
 from qiskit.circuit.library import CXGate, ECRGate
 from qiskit.exceptions import QiskitError
-from qiskit.providers.fake_provider import FakeManilaV2, FakeParis
+from qiskit.providers.fake_provider import FakeManilaV2
 from qiskit.transpiler.basepasses import TransformationPass
 from qiskit.transpiler import Layout, PassManager, CouplingMap
 from qiskit.transpiler.exceptions import TranspilerError
@@ -34,7 +34,6 @@ from qiskit_experiments.library import randomized_benchmarking as rb
 from qiskit_experiments.library.randomized_benchmarking.clifford_utils import (
     compute_target_bitstring,
 )
-from qiskit_experiments.library.randomized_benchmarking.sampling_utils import EdgeGrabSampler
 
 
 class NonlocalCXDepError(TransformationPass):
@@ -135,7 +134,7 @@ class TestMirrorRB(QiskitExperimentsTestCase, RBTestMixin):
     def setUp(self):
         """Setup the tests."""
         super().setUp()
-        self.backend = FakeParis()
+        self.backend = FakeManilaV2()
 
         self.basis_gates = ["sx", "rz", "cx"]
 
@@ -375,7 +374,7 @@ class TestRunMirrorRB(QiskitExperimentsTestCase, RBTestMixin):
         self.backend = AerSimulator(
             noise_model=noise_model,
             seed_simulator=123,
-            coupling_map=AerSimulator.from_backend(FakeParis()).configuration().coupling_map,
+            coupling_map=AerSimulator.from_backend(FakeManilaV2()).configuration().coupling_map,
         )
 
     def test_single_qubit(self):

@@ -52,18 +52,23 @@ class MirrorRB(StandardRB):
 
     # section: overview
         Mirror randomized benchmarking (mirror RB) estimates the average error rate of
-        quantum gates using gate layers sampled from a distribution that are then
+        quantum gates using layers of gates sampled from a distribution that are then
         inverted in the second half of the circuit.
 
         The default mirror RB experiment generates circuits of layers of Cliffords,
         consisting of single-qubit Cliffords and a two-qubit gate such as CX,
         interleaved with layers of Pauli gates and capped at the start and end by a
         layer of single-qubit Cliffords. The second half of the Clifford layers are the
-        inverses of the first half of Clifford layers. After running the circuits on a
-        backend, various quantities (success probability, adjusted success probability,
-        and effective polarization) are computed and used to fit an exponential decay
-        curve and calculate the EPC (error per Clifford, also referred to as the average
-        gate infidelity) and entanglement infidelity (see references for more info).
+        inverses of the first half of Clifford layers. This algorithm has a lot less
+        overhead than the standard randomized benchmarking, which requires
+        n-qubit Clifford gates, and so it can be used for benchmarking gates on
+        10s of or even 100+ noisy qubits.
+
+        After running the circuits on a backend, various quantities (success
+        probability, adjusted success probability, and effective polarization)
+        are computed and used to fit an exponential decay curve and calculate
+        the EPC (error per Clifford, also referred to as the average gate
+        infidelity) and entanglement infidelity (see references for more info).
 
     # section: analysis_ref
         :class:`MirrorRBAnalysis`
@@ -80,6 +85,7 @@ class MirrorRB(StandardRB):
 
     sampler_map = {"edge_grab": EdgeGrabSampler, "single_qubit": SingleQubitSampler}
 
+    # pylint: disable=dangerous-default-value
     def __init__(
         self,
         physical_qubits: Sequence[int],
@@ -89,9 +95,9 @@ class MirrorRB(StandardRB):
         sampling_algorithm: str = "edge_grab",
         two_qubit_gate_density: float = 0.2,
         two_qubit_gate: Instruction = CXGate(),
-        sampler_opts: dict = {},
-        backend: Optional[Backend] = None,
         num_samples: int = 3,
+        sampler_opts: Optional[dict] = {},
+        backend: Optional[Backend] = None,
         seed: Optional[Union[int, SeedSequence, BitGenerator, Generator]] = None,
         full_sampling: bool = False,
         inverting_pauli_layer: bool = False,
@@ -114,9 +120,9 @@ class MirrorRB(StandardRB):
             two_qubit_gate: The two-qubit gate to use. Defaults to
                 :class:`~qiskit.circuit.library.CXGate`. Only has effect if the
                 default sampler :class:`.EdgeGrabSampler` is used.
-            sampler_opts: Dictionary of keyword arguments to pass to the sampler.
-            backend: The backend to run the experiment on.
             num_samples: Number of samples to generate for each sequence length.
+            sampler_opts: Optional dictionary of keyword arguments to pass to the sampler.
+            backend: Optional, the backend to run the experiment on.
             seed: Optional, seed used to initialize ``numpy.random.default_rng``.
                 when generating circuits. The ``default_rng`` will be initialized
                 with this seed value every time :meth:`circuits` is called.
