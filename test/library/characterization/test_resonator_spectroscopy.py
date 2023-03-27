@@ -37,7 +37,13 @@ class MockIQBackendDefaults(MockIQBackend):
     """MockIQBackend with defaults() method"""
 
     def defaults(self):
-        """Pulse defaults"""
+        """Pulse defaults
+
+        NOTE: ResonatorSpectroscopy still relies on defaults() so we add here.
+        Because defaults() is not in the BackendV2 base class, we do not add it
+        to Backend classes outside of this test module so that we do not
+        introduce new dependencies on it.
+        """
         return self._defaults
 
 
@@ -45,7 +51,13 @@ class MockIQParallelBackendDefaults(MockIQParallelBackend):
     """MockIQParallelBackend with defaults() method"""
 
     def defaults(self):
-        """Pulse defaults"""
+        """Pulse defaults
+
+        NOTE: ResonatorSpectroscopy still relies on defaults() so we add here.
+        Because defaults() is not in the BackendV2 base class, we do not add it
+        to Backend classes outside of this test module so that we do not
+        introduce new dependencies on it.
+        """
         return self._defaults
 
 
