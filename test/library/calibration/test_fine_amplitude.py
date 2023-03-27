@@ -16,6 +16,7 @@ import numpy as np
 from ddt import ddt, data
 
 from qiskit import pulse, transpile
+from qiskit.circuit import Gate
 from qiskit.circuit.library import XGate, SXGate
 from qiskit.pulse import DriveChannel, Drag
 
@@ -41,10 +42,11 @@ class TestFineAmpEndToEnd(QiskitExperimentsTestCase):
         """Test the experiment end to end."""
 
         amp_exp = FineXAmplitude([0])
-        amp_exp.set_transpile_options(basis_gates=["x", "sx"])
 
         error = -np.pi * pi_ratio
         backend = MockIQBackend(FineAmpHelper(error, np.pi, "x"))
+        backend.target.add_instruction(XGate(), properties={(0,): None})
+        backend.target.add_instruction(SXGate(), properties={(0,): None})
 
         expdata = amp_exp.run(backend)
         self.assertExperimentDone(expdata)
@@ -61,10 +63,11 @@ class TestFineAmpEndToEnd(QiskitExperimentsTestCase):
         """Test the experiment end to end."""
 
         amp_exp = FineXAmplitude([0])
-        amp_exp.set_transpile_options(basis_gates=["x", "sx"])
 
         error = np.pi * pi_ratio
         backend = MockIQBackend(FineAmpHelper(error, np.pi, "x"))
+        backend.target.add_instruction(XGate(), properties={(0,): None})
+        backend.target.add_instruction(SXGate(), properties={(0,): None})
         expdata = amp_exp.run(backend)
         self.assertExperimentDone(expdata)
         result = expdata.analysis_results(1)
@@ -87,6 +90,7 @@ class TestFineZXAmpEndToEnd(QiskitExperimentsTestCase):
         error = -np.pi * pi_ratio
         amp_exp = FineZXAmplitude((0, 1))
         backend = MockIQBackend(FineAmpHelper(error, np.pi / 2, "szx"))
+        backend.target.add_instruction(Gate("szx", 2, []), properties={(0, 1): None})
 
         expdata = amp_exp.run(backend)
         self.assertExperimentDone(expdata)
@@ -207,8 +211,8 @@ class TestFineAmplitudeCal(QiskitExperimentsTestCase):
         library = FixedFrequencyTransmon()
 
         self.backend = MockIQBackend(FineAmpHelper(-np.pi * 0.07, np.pi, "xp"))
-        self.backend.configuration().basis_gates.append("sx")
-        self.backend.configuration().basis_gates.append("x")
+        self.backend.target.add_instruction(SXGate(), properties={(0,): None})
+        self.backend.target.add_instruction(XGate(), properties={(0,): None})
         self.cals = Calibrations.from_backend(self.backend, libraries=[library])
 
     def test_cal_options(self):
