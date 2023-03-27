@@ -51,11 +51,9 @@ from qiskit_experiments.exceptions import CalibrationError
 class MinimalBackend(BackendV2):
     """Class for testing a backend with minimal data"""
 
-    target = None
-
-    def __init__(self):
+    def __init__(self, num_qubits=1):
         super().__init__()
-        self.target = Target()
+        self._target = Target(num_qubits=num_qubits)
 
     @property
     def max_circuits(self):
@@ -65,6 +63,11 @@ class MinimalBackend(BackendV2):
     @classmethod
     def _default_options(cls):
         return Options()
+
+    @property
+    def target(self) -> Target:
+        """Target instance for the backend"""
+        return self._target
 
     def run(self, run_input, **options):
         """Empty method to satisfy abstract base class"""
@@ -342,8 +345,7 @@ class TestCalibrationsBasic(QiskitExperimentsTestCase):
         else:
             gate = None
 
-        backend = MinimalBackend()
-        backend.target = Target(num_qubits=num_qubits)
+        backend = MinimalBackend(num_qubits=num_qubits)
         if gate is not None:
             backend.target.add_instruction(gate, properties=properties)
         Calibrations.from_backend(backend)
