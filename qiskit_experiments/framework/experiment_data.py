@@ -39,6 +39,7 @@ from qiskit.exceptions import QiskitError
 from qiskit.providers import Job, Backend, Provider
 
 from qiskit_ibm_experiment import IBMExperimentService
+from qiskit_ibm_provider import IBMProvider
 from qiskit_ibm_experiment import ExperimentData as ExperimentDataclass
 from qiskit_experiments.framework.json import ExperimentEncoder, ExperimentDecoder
 from qiskit_experiments.database_service.utils import (
@@ -176,6 +177,7 @@ class ExperimentData:
         experiment: Optional["BaseExperiment"] = None,
         backend: Optional[Backend] = None,
         service: Optional[IBMExperimentService] = None,
+        provider: Optional[IBMProvider] = None,
         parent_id: Optional[str] = None,
         job_ids: Optional[List[str]] = None,
         child_data: Optional[List[ExperimentData]] = None,
@@ -243,9 +245,13 @@ class ExperimentData:
         self._backend = None
         if backend is not None:
             self._set_backend(backend, recursive=False)
+        if provider is not None:
+            self._provider = provider
+        elif backend is not None:
+            self._provider = backend.provider
         self._service = service
-        if self._service is None and self.backend is not None:
-            self._service = self.get_service_from_backend(self.backend)
+        if self._service is None and self._provider is not None:
+            self._service = self.get_service_from_provider(self._provider)
         self._auto_save = False
         self._created_in_db = False
         self._extra_data = kwargs
@@ -395,17 +401,6 @@ class ExperimentData:
 
         """
         return self._db_data.project
-
-    @property
-    def _provider(self) -> Optional[Provider]:
-        """Return the provider.
-
-        Returns:
-            Provider used for the experiment, or ``None`` if unknown.
-        """
-        if self._backend is None:
-            return None
-        return self._backend.provider()
 
     @property
     def experiment_id(self) -> str:
@@ -941,22 +936,28 @@ class ExperimentData:
 
     def _retrieve_data(self):
         """Retrieve job data if missing experiment data."""
-        if self._result_data or not self._backend:
-            return
+        # if self._result_data or not self._backend:
+        #     return
         # Get job results if missing experiment data.
         retrieved_jobs = {}
+        jobs_to_retreive = []
+        for jid in self.job_ids:
+            if jid not in self._jobs or self._jobs[jid] is None:
+                jobs_to_retreive.append(jid)
         for jid, job in self._jobs.items():
             if job is None:
-                try:
-                    LOG.debug("Retrieving job from backend %s [Job ID: %s]", self._backend, jid)
-                    job = self._backend.retrieve_job(jid)
-                    retrieved_jobs[jid] = job
-                except Exception:  # pylint: disable=broad-except
-                    LOG.warning(
-                        "Unable to retrieve data from job on backend %s [Job ID: %s]",
-                        self._backend,
-                        jid,
-                    )
+                jobs_to_retreive.append(jid)
+        for jid in jobs_to_retreive:
+            try:
+                LOG.debug("Retrieving job from backend %s [Job ID: %s]", self._backend, jid)
+                job = self._provider.retrieve_job(jid)
+                retrieved_jobs[jid] = job
+            except Exception:  # pylint: disable=broad-except
+                LOG.warning(
+                    "Unable to retrieve data from job on backend %s [Job ID: %s]",
+                    self._backend,
+                    jid,
+                )
         # Add retrieved job objects to stored jobs and extract data
         for jid, job in retrieved_jobs.items():
             self._jobs[jid] = job
@@ -1883,21 +1884,28 @@ class ExperimentData:
         raise QiskitError(f"Invalid index type {type(index)}.")
 
     @classmethod
-    def load(cls, experiment_id: str, service: IBMExperimentService) -> "ExperimentData":
+    def load(cls, experiment_id: str, service: Optional[IBMExperimentService]=None, provider: Optional[IBMProvider]=None) -> "ExperimentData":
         """Load a saved experiment data from a database service.
 
         Args:
             experiment_id: Experiment ID.
             service: the database service.
+            provider: an IBMProvider required for loading job data and can be used to initialize the service
 
         Returns:
             The loaded experiment data.
+        Raises:
+            ExperimentDataError: If not service or provider were given
         """
+        if service is None:
+            if provider is None:
+                raise ExperimentDataError("Loading an experiment requires a valid ibm provider or experiment service")
+            service = cls.get_service_from_provider(provider)
         data = service.experiment(experiment_id, json_decoder=cls._json_decoder)
         if service.experiment_has_file(experiment_id, cls._metadata_filename):
             metadata = service.file_download(experiment_id, cls._metadata_filename)
             data.metadata.update(metadata)
-        expdata = cls(service=service, db_data=data)
+        expdata = cls(service=service, db_data=data, provider=provider)
 
         # Retrieve data and analysis results
         # Maybe this isn't necessary but the repr of the class should
@@ -2163,11 +2171,10 @@ class ExperimentData:
         return state
 
     @staticmethod
-    def get_service_from_backend(backend):
+    def get_service_from_provider(provider):
         """Initializes the server from the backend data"""
         db_url = "https://auth.quantum-computing.ibm.com/api"
         try:
-            provider = backend._provider
             # qiskit-ibmq-provider style
             if hasattr(provider, "credentials"):
                 token = provider.credentials.token
