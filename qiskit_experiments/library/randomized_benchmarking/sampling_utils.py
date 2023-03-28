@@ -18,6 +18,7 @@ import math
 from abc import ABC, abstractmethod
 from typing import Optional, Union, List, Tuple, Sequence, NamedTuple, Dict
 from collections import defaultdict
+from typing import Iterator
 from numpy.random import Generator, default_rng, BitGenerator, SeedSequence
 import numpy as np
 
@@ -120,7 +121,6 @@ class BaseSampler(ABC):
                 raise TypeError(
                     "The only allowed gates in the distribution are Instruction instances."
                 )
-
         self._gate_distribution = dist
 
     def _probs_by_gate_size(self, distribution: Sequence[GateDistribution]) -> Dict:
@@ -168,7 +168,7 @@ class BaseSampler(ABC):
         return gate_probs
 
     @abstractmethod
-    def __call__(self, qubits: Sequence, length: int = 1) -> List[Tuple[GateInstruction, ...]]:
+    def __call__(self, qubits: Sequence, length: int = 1) -> Iterator[Tuple[GateInstruction, ...]]:
         """Samplers should define this method such that it returns sampled layers
         given the input parameters. Each layer is represented by a list of
         ``GateInstruction`` namedtuples, where ``GateInstruction.op`` is the gate to be
@@ -180,7 +180,7 @@ class BaseSampler(ABC):
             length: The number of layers to generate. Defaults to 1.
 
         Returns:
-            A list of layers consisting of GateInstruction objects.
+            A generator of layers consisting of GateInstruction objects.
         """
         raise NotImplementedError
 
@@ -188,11 +188,26 @@ class BaseSampler(ABC):
 class SingleQubitSampler(BaseSampler):
     """A sampler that samples layers of random single-qubit gates from a specified gate set."""
 
+    @BaseSampler.gate_distribution.setter
+    def gate_distribution(self, dist: List[GateDistribution]) -> None:
+        """Set the distribution of gates used in the sampler.
+
+        Args:
+            dist: A list of tuples with format ``(probability, gate)``.
+        """
+        super(SingleQubitSampler, type(self)).gate_distribution.fset(self, dist)
+
+        gateset = self._probs_by_gate_size(dist)
+        if not math.isclose(sum(gateset[1][1]), 1):
+            raise QiskitError(
+                "The distribution for SingleQubitSampler should be all single qubit gates."
+            )
+
     def __call__(
         self,
         qubits: Sequence,
         length: int = 1,
-    ) -> List[Tuple[GateInstruction]]:
+    ) -> Iterator[Tuple[GateInstruction]]:
         """Samples random single-qubit gates from the specified gate set. The
         input gate distribution must consist solely of single qubit gates.
 
@@ -201,7 +216,7 @@ class SingleQubitSampler(BaseSampler):
             length: The length of the sequence to output.
 
         Returns:
-            A ``length``-long list of :class:`qiskit.circuit.QuantumCircuit`
+            A ``length``-long iterator of :class:`qiskit.circuit.QuantumCircuit`
             layers over ``qubits``. Each layer is represented by a list of
             ``GateInstruction`` tuples where ``GateInstruction.op`` is the gate
             to be applied and ``GateInstruction.qargs`` is the tuple of qubit
@@ -210,10 +225,6 @@ class SingleQubitSampler(BaseSampler):
         """
 
         gateset = self._probs_by_gate_size(self._gate_distribution)
-        if not math.isclose(sum(gateset[1][1]), 1):
-            raise QiskitError(
-                "The distribution for SingleQubitSampler should be all single qubit gates."
-            )
 
         samples = self._rng.choice(
             np.array(gateset[1][0], dtype=object),
@@ -221,12 +232,8 @@ class SingleQubitSampler(BaseSampler):
             p=gateset[1][1],
         )
 
-        layers = []
         for samplelayer in samples:
-            layers.append(
-                tuple(GateInstruction(*ins) for ins in zip(((j,) for j in qubits), samplelayer))
-            )
-        return layers
+            yield tuple(GateInstruction(*ins) for ins in zip(((j,) for j in qubits), samplelayer))
 
 
 class EdgeGrabSampler(BaseSampler):
@@ -289,7 +296,7 @@ class EdgeGrabSampler(BaseSampler):
         self,
         qubits: Sequence,
         length: int = 1,
-    ) -> List[Tuple[GateInstruction]]:
+    ) -> Iterator[Tuple[GateInstruction]]:
         """Sample layers using the edge grab algorithm.
 
         Args:
@@ -303,7 +310,7 @@ class EdgeGrabSampler(BaseSampler):
             QiskitError: If the coupling map is invalid.
 
         Returns:
-            A ``length``-long list of :class:`qiskit.circuit.QuantumCircuit`
+            A ``length``-long iterator of :class:`qiskit.circuit.QuantumCircuit`
             layers over ``num_qubits`` qubits. Each layer is represented by a
             list of ``GateInstruction`` named tuples which are in the format
             (qargs, gate). Single-qubit Cliffords are represented by integers
@@ -330,17 +337,6 @@ class EdgeGrabSampler(BaseSampler):
         if not np.isclose(norm1q + norm2q, 1):
             raise QiskitError("The edge grab sampler only supports 1- and 2-qubit gates.")
         two_qubit_gate_density = norm2q / (norm1q + norm2q)
-        if num_qubits == 1:
-            return [
-                (GateInstruction((qubits[0],), i),)
-                for i in self._rng.choice(
-                    np.array(gateset[1][0], dtype=object),
-                    p=[i / norm1q for i in gateset[1][1]],
-                    size=length,
-                )
-            ]
-
-        layer_list = []
 
         for _ in range(length):
             all_edges = self.coupling_map.get_edges()[
@@ -391,7 +387,6 @@ class EdgeGrabSampler(BaseSampler):
                                 ),
                             ),
                         )
-
                     # remove these qubits from put_1q_gates
                     put_1q_gates.remove(edge[0])
                     put_1q_gates.remove(edge[1])
@@ -412,5 +407,4 @@ class EdgeGrabSampler(BaseSampler):
                             (q,), self._rng.choice(np.array(gateset[1][0], dtype=Instruction))
                         ),
                     )
-            layer_list.append(tuple(layer))
-        return layer_list
+            yield tuple(layer)

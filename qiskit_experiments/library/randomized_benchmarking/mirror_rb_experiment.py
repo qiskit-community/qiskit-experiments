@@ -321,7 +321,7 @@ class MirrorRB(StandardRB):
 
                 # Interleave random Paulis if set by user
                 if self.experiment_options.pauli_randomize:
-                    pauli_layers = pauli_sampler(range(self.num_qubits), length=seqlen + 1)
+                    pauli_layers = list(pauli_sampler(range(self.num_qubits), length=seqlen + 1))
                     seq = list(itertools.chain(*zip(pauli_layers[:-1], seq)))
                     seq.append(pauli_layers[-1])
                     if not self.experiment_options.full_sampling:
@@ -329,7 +329,7 @@ class MirrorRB(StandardRB):
 
                 # Add start and end cliffords if set by user
                 if self.experiment_options.start_end_clifford:
-                    clifford_layers = clifford_sampler(range(self.num_qubits), length=1)
+                    clifford_layers = list(clifford_sampler(range(self.num_qubits), length=1))
                     seq.insert(0, clifford_layers[0])
                     seq.append(self._inverse_layer(clifford_layers[0]))
                     if not self.experiment_options.full_sampling:
