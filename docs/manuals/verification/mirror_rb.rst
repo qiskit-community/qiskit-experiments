@@ -124,12 +124,12 @@ the experiment:
     for result in results_2q:
         print(result)
 
-Selecting :math:`y`-axis values
+Selecting the analyzed quantity
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-You can set what you want to use as the :math:`y`-axis metric for fitting by setting
-the ``y-axis`` analysis option. Here's an example of plotting the success probability 
-instead of the default:
+You can set what you want to use as the metric for fitting by setting the
+``analyzed_quantity`` analysis option. Here's an example of plotting the success
+probability instead of the default:
 
 .. jupyter-execute::
 
@@ -140,8 +140,8 @@ instead of the default:
 
     exp = MirrorRB(qubits, lengths, backend=backend, num_samples=num_samples, seed=seed)
     
-    # select y-axis, can also be "Adjusted Success Probability" or "Effective Polarization"
-    exp.analysis.set_options(y_axis="Success Probability")
+    # select analyzed_quantity, can also be "Adjusted Success Probability" or "Effective Polarization"
+    exp.analysis.set_options(analyzed_quantity="Success Probability")
     
     # y-axis label must be set separately
     exp.analysis.options.plotter.set_figure_options(
@@ -186,7 +186,7 @@ between Cliffords and single-qubit Cliffords at the start and end:
                    num_samples=1)
     exp.circuits()[0].decompose().draw("mpl")
 
-And now with the intermediate Pauli layers turned off and the inverting Pauli layer added at the end:
+And now with the start and end Clifford layers turned off and the inverting Pauli layer added at the end:
 
 .. jupyter-execute::
 
@@ -204,7 +204,7 @@ Another important option is ``two_qubit_gate_density`` (default ``0.2``). This i
 expected fraction of two-qubit gates in the circuit, not accounting for the optional
 constant number of Clifford and Pauli layers at the start and end. This means that given
 the same ``two_qubit_gate_density``, if ``pauli_randomize`` is off, the concentration of
-CX gates in the Clifford layers will be halved so that the overall density doesn't
+two-qubit gates in the Clifford layers will be halved so that the overall density doesn't
 change. We'll demonstrate this by first leaving ``pauli_randomize`` on:
 
 .. jupyter-execute::

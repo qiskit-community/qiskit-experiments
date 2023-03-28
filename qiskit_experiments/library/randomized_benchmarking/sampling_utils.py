@@ -318,10 +318,15 @@ class EdgeGrabSampler(BaseSampler):
         """
         num_qubits = len(qubits)
         gateset = self._probs_by_gate_size(self._gate_distribution)
-        norm1q = sum(gateset[1][1])
-        norm2q = sum(gateset[2][1])
+        try:
+            norm1q = sum(gateset[1][1])
+            norm2q = sum(gateset[2][1])
+        except KeyError as exc:
+            raise QiskitError(
+                "The edge grab sampler requires 1-qubit and 2-qubit gates to be specified."
+            ) from exc
         if not np.isclose(norm1q + norm2q, 1):
-            raise TypeError("The edge grab sampler only supports 1- and 2-qubit gates.")
+            raise QiskitError("The edge grab sampler only supports 1- and 2-qubit gates.")
         two_qubit_gate_density = norm2q / (norm1q + norm2q)
         if num_qubits == 1:
             return [

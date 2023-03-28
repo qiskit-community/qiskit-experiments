@@ -108,7 +108,7 @@ class MirrorRBAnalysis(RBAnalysis):
         """Default analysis options.
 
         Analysis Options:
-            y_axis (str): Set the metric to plot on the y-axis. Must be one of
+            analyzed_quantity (str): Set the metric to plot on the y-axis. Must be one of
                 "Effective Polarization" (default), "Success Probability", or "Adjusted
                 Success Probability".
             gate_error_ratio (Optional[Dict[str, float]]): A dictionary with gate name keys
@@ -143,19 +143,19 @@ class MirrorRBAnalysis(RBAnalysis):
         # By default, effective polarization is plotted (see arXiv:2112.09853). We can
         # also plot success probability or adjusted success probability (see PyGSTi).
         # Do this by setting options to "Success Probability" or "Adjusted Success Probability"
-        default_options.y_axis = "Effective Polarization"
+        default_options.analyzed_quantity = "Effective Polarization"
 
         return default_options
 
     def set_options(self, **fields):
-        if "y_axis" in fields:
-            if fields["y_axis"] not in [
+        if "analyzed_quantity" in fields:
+            if fields["analyzed_quantity"] not in [
                 "Success Probability",
                 "Adjusted Success Probability",
                 "Effective Polarization",
             ]:
                 raise QiskitError(
-                    'y_axis must be one of "Success Probability", "Adjusted Success Probability", '
+                    'analyzed_quantity must be one of "Success Probability", "Adjusted Success Probability", '
                     'or "Effective Polarization"'
                 )
         super().set_options(**fields)
@@ -180,7 +180,7 @@ class MirrorRBAnalysis(RBAnalysis):
 
         # Initialize guess for baseline and amplitude based on infidelity type
         b_guess = 1 / 4**num_qubits
-        if self.options.y_axis == "Success Probability":
+        if self.options.analyzed_quantity == "Success Probability":
             b_guess = 1 / 2**num_qubits
 
         mirror_curve = curve_data.get_subset_of("rb_decay")
@@ -363,7 +363,7 @@ class MirrorRBAnalysis(RBAnalysis):
                         "shots", sum(circ_result["counts"].values())
                     )
                     success_prob_unc = np.sqrt(success_prob * (1 - success_prob))
-                    if self.options.y_axis == "Success Probability":
+                    if self.options.analyzed_quantity == "Success Probability":
                         y_data.append(success_prob)
                         y_data_unc.append(success_prob_unc)
                     circ_result["metadata"]["success_probability"] = success_prob
@@ -391,7 +391,7 @@ class MirrorRBAnalysis(RBAnalysis):
             circ_result["metadata"][
                 "adjusted_success_probability_stddev"
             ] = adjusted_success_prob_unc
-            if self.options.y_axis == "Adjusted Success Probability":
+            if self.options.analyzed_quantity == "Adjusted Success Probability":
                 y_data.append(adjusted_success_prob)
                 y_data_unc.append(adjusted_success_prob_unc)
 
@@ -401,7 +401,7 @@ class MirrorRBAnalysis(RBAnalysis):
             pol_unc = np.sqrt(pol_factor / (pol_factor - 1)) * adjusted_success_prob_unc
             circ_result["metadata"]["polarization"] = pol
             circ_result["metadata"]["polarization_uncertainty"] = pol_unc
-            if self.options.y_axis == "Effective Polarization":
+            if self.options.analyzed_quantity == "Effective Polarization":
                 y_data.append(pol)
                 y_data_unc.append(pol_unc)
 
