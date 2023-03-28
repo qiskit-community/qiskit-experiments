@@ -302,7 +302,7 @@ https://github.com/Qiskit/qiskit-experiments/blob/main/docs/release_notes.rst).
 
 ### Documentation
 
-The [Qiskit Experiments documentation](https://qiskit.org/ecosystem/experiments/) is
+The [Qiskit Experiments documentation](https://qiskit.org/documentation/experiments/) is
 rendered from `.rst` files as well as experiment and analysis class docstrings into HTML
 files.
 
@@ -310,7 +310,7 @@ files.
 
 Any change that would affect existing documentation, or a new feature that requires a
 documentation, should be updated correspondingly. Before updating, review the [existing
-documentation](https://qiskit.org/ecosystem/experiments) for their style and
+documentation](https://qiskit.org/documentation/experiments) for their style and
 content, and read the [documentation guidelines](docs/GUIDELINES.md) for further
 details.
 

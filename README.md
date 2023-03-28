@@ -8,9 +8,9 @@
 and analyzing experiments on noisy quantum computers using Qiskit.
 
 To learn more about the package, you can see the 
-[most up-to-date documentation](https://qiskit.org/ecosystem/experiments/dev/) 
+[most up-to-date documentation](https://qiskit.org/documentation/experiments/dev/)
 corresponding to the main branch of this repository or the 
-[documentation for the latest stable release](https://qiskit.org/ecosystem/experiments).
+[documentation for the latest stable release](https://qiskit.org/documentation/experiments).
 
 ## Contribution Guidelines
 
