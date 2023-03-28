@@ -609,22 +609,19 @@ class ExperimentData:
 
     @property
     def provider(self) -> Optional[Provider]:
-        """Return the database service.
+        """Return the backend provider.
 
         Returns:
-            Service that can be used to access this experiment in a database.
+            Provider that is used to obtain backends and job data.
         """
         return self._provider
 
     @provider.setter
     def provider(self, provider: Provider) -> None:
-        """Set the service to be used for storing experiment data
+        """Set the provider to be used for obtaining job data
 
         Args:
-            service: Service to be used.
-
-        Raises:
-            ExperimentDataError: If an experiment service is already being used.
+            provider: Provider to be used.
         """
         self._provider = provider
 
@@ -1410,6 +1407,8 @@ class ExperimentData:
         Args:
             suppress_errors: should the method catch exceptions (true) or
             pass them on, potentially aborting the experiemnt (false)
+            max_workers: Maximum number of concurrent worker threads
+            save_figures: Whether to save figures in the database or not
         .. note::
             This saves the experiment metadata, all analysis results, and all
             figures. Depending on the number of figures and analysis results this
@@ -1931,7 +1930,8 @@ class ExperimentData:
         Args:
             experiment_id: Experiment ID.
             service: the database service.
-            provider: an IBMProvider required for loading job data and can be used to initialize the service
+            provider: an IBMProvider required for loading job data and
+            can be used to initialize the service
 
         Returns:
             The loaded experiment data.
