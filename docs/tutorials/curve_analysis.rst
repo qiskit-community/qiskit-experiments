@@ -153,7 +153,7 @@ all fit functions.
 The names of the parameters in the fit function are important since they are used
 in the analysis result, and potentially in your experiment database as a fit result.
 
-Here is another example how to implement a multi-objective optimization task:
+Here is another example on how to implement a multi-objective optimization task:
 
 .. jupyter-input::
 
