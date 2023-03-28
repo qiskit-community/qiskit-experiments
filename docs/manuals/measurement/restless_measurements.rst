@@ -184,7 +184,8 @@ using the code below.
     tau = sum(durations) * dt / (len(durations))
 
     n_circs = len(cal_drag.circuits())
-    # can be obtained from backend.default_rep_delay on a real backend
+    # can be obtained from backend.default_rep_delay on a backend from qiskit-ibm-provider
+
     delay_s = 0.0025
     delay_r = 1e-6  # restless delay
     reset = 4e-6  # Estimated reset duration
