@@ -51,7 +51,7 @@ This is an example of showing the abstract data structure of a typical curve ana
         - "series_B": y_B = f_B(x_B; p0, p1, p2)
         - fixed parameters {p1: v}
 
-Here the experiment runs two subset ofs experiments, namely, series A and series B.
+Here the experiment runs two subsets of experiments, namely, series A and series B.
 The analysis defines corresponding fit models :math:`f_A(x_A)` and :math:`f_B(x_B)`.
 Data extraction function in the analysis creates two datasets, :math:`(x_A, y_A)`
 for the series A and :math:`(x_B, y_B)` for the series B, from the experiment data.
