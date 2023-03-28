@@ -363,12 +363,17 @@ class ExperimentData:
     @property
     def end_datetime(self) -> "datetime":
         """Return the end datetime of this experiment data.
+        The end datetime is the time the latest job data was
+        added; this can change as more jobs finish
 
         Returns:
             The end datetime of this experiment data.
 
         """
         return self._db_data.end_datetime
+    @end_datetime.setter
+    def end_datetime(self, new_end_datetime: "datetime") -> None:
+        self._db_data.end_datetime = new_end_datetime
 
     @property
     def hub(self) -> str:
@@ -953,6 +958,7 @@ class ExperimentData:
                 if hasattr(expr_result, "meas_return"):
                     data["meas_return"] = expr_result.meas_return
                 self._result_data.append(data)
+        self.end_datetime = datetime.now()
 
     def _retrieve_data(self):
         """Retrieve job data if missing experiment data."""
