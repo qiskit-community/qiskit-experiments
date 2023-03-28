@@ -4,8 +4,10 @@ prelude: >
     drawing figures which replaces the previous plotting functionality. The
     speed of randomized benchmarking experiments has been significantly
     improved. The ``qubit`` and ``qubits`` input to experiments has been
-    regularized to ``physical_qubits``. A new :class:`.MultiStateDiscrimination`
-    class has been added for classifying IQ data. A test backend that uses
-    Qiskit Dynamics for pulse-level simulations has been added. The
-    documentation has been significantly refactored and introductory tutorials
-    have been added. Various improvements and bug fixes 
+    regularized to ``physical_qubits``, and ``qiskit-ibmq-provider`` has been
+    deprecated in favor of ``qiskit-ibm-provider``. A new
+    :class:`.MultiStateDiscrimination` experiment has been added for classifying
+    IQ data. A test backend that uses Qiskit Dynamics for pulse-level
+    simulations has been added. The documentation has been significantly
+    refactored and introductory tutorials have been added. Various improvements
+    and bug fixes were made.
