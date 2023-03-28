@@ -9,10 +9,10 @@ Quantum State Tomography
     
     # For simulation
     from qiskit_aer import AerSimulator
-    from qiskit.providers.fake_provider import FakeParis
+    from qiskit.providers.fake_provider import FakePerth
     
     # Noisy simulator backend
-    backend = AerSimulator.from_backend(FakeParis())
+    backend = AerSimulator.from_backend(FakePerth())
 
 State Tomography Experiment
 ---------------------------

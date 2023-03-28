@@ -39,7 +39,7 @@ experiments to generate the corresponding mitigators.
     from qiskit_experiments.library import LocalReadoutError, CorrelatedReadoutError
     # For simulation
     from qiskit_aer import AerSimulator
-    from qiskit.providers.fake_provider import FakeParis
+    from qiskit.providers.fake_provider import FakePerth
 
     from qiskit.result.mitigation.utils import (
         expval_with_stddev,
@@ -47,7 +47,7 @@ experiments to generate the corresponding mitigators.
         counts_probability_vector
     )
 
-    backend = AerSimulator.from_backend(FakeParis())
+    backend = AerSimulator.from_backend(FakePerth())
 
 .. jupyter-execute::
 

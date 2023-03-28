@@ -47,22 +47,22 @@ the experiment from the Qiskit Experiments library:
     from qiskit_experiments.library import T1
 
 Experiments must be run on a backend. We're going to use a simulator,
-:class:`~qiskit.providers.fake_provider.FakeVigo`, for this example, but you can use any
+:class:`~qiskit.providers.fake_provider.FakePerth`, for this example, but you can use any
 IBM backend, real or simulated, that you can access through Qiskit.
 
 .. jupyter-execute::
 
-    from qiskit.providers.fake_provider import FakeVigo
+    from qiskit.providers.fake_provider import FakePerth
     from qiskit_aer import AerSimulator
     from qiskit.providers.aer.noise import NoiseModel
     import numpy as np
 
     # Create a pure relaxation noise model for AerSimulator
     noise_model = NoiseModel.from_backend(
-        FakeVigo(), thermal_relaxation=True, gate_error=False, readout_error=False
+        FakePerth(), thermal_relaxation=True, gate_error=False, readout_error=False
     )
 
-    backend = AerSimulator.from_backend(FakeVigo(), noise_model=noise_model)
+    backend = AerSimulator.from_backend(FakePerth(), noise_model=noise_model)
 
 All experiments require a ``physical_qubits`` parameter as input that specifies which
 physical qubit or qubits the circuits will be executed on. The qubits must be given as a
@@ -81,7 +81,7 @@ good estimate for the sweep range of the delays.
 
 .. jupyter-execute::
 
-    qubit0_t1 = backend.properties().t1(0)
+    qubit0_t1 = FakePerth().qubit_properties(0).t1
 
     delays = np.arange(1e-6, 3 * qubit0_t1, 3e-5)
     exp = T1(physical_qubits=(0,), delays=delays)
