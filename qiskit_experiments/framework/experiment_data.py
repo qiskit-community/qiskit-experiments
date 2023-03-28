@@ -39,7 +39,6 @@ from qiskit.exceptions import QiskitError
 from qiskit.providers import Job, Backend, Provider
 
 from qiskit_ibm_experiment import IBMExperimentService
-from qiskit_ibm_provider import IBMProvider
 from qiskit_ibm_experiment import ExperimentData as ExperimentDataclass
 from qiskit_experiments.framework.json import ExperimentEncoder, ExperimentDecoder
 from qiskit_experiments.database_service.utils import (
@@ -177,7 +176,7 @@ class ExperimentData:
         experiment: Optional["BaseExperiment"] = None,
         backend: Optional[Backend] = None,
         service: Optional[IBMExperimentService] = None,
-        provider: Optional[IBMProvider] = None,
+        provider: Optional[Provider] = None,
         parent_id: Optional[str] = None,
         job_ids: Optional[List[str]] = None,
         child_data: Optional[List[ExperimentData]] = None,
@@ -1884,7 +1883,7 @@ class ExperimentData:
         raise QiskitError(f"Invalid index type {type(index)}.")
 
     @classmethod
-    def load(cls, experiment_id: str, service: Optional[IBMExperimentService]=None, provider: Optional[IBMProvider]=None) -> "ExperimentData":
+    def load(cls, experiment_id: str, service: Optional[IBMExperimentService]=None, provider: Optional[Provider]=None) -> "ExperimentData":
         """Load a saved experiment data from a database service.
 
         Args:
