@@ -44,6 +44,9 @@ from qiskit_experiments.library.randomized_benchmarking.clifford_utils import (
     _layer_indices_from_num,
     _CLIFFORD_LAYER,
 )
+from qiskit_experiments.library.randomized_benchmarking.clifford_utils import (
+    compute_target_bitstring,
+)
 
 
 @ddt
@@ -195,3 +198,17 @@ class TestCliffordUtils(QiskitExperimentsTestCase):
                 circ.compose(_CLIFFORD_LAYER[layer][idx], inplace=True)
             layered = Clifford(circ)
             self.assertEqual(standard, layered)
+
+    def test_target_bitstring(self):
+        """Test if correct target bitstring is returned."""
+        qc = QuantumCircuit(9)
+        qc.z(0)
+        qc.y(1)
+        qc.y(2)
+        qc.z(3)
+        qc.y(4)
+        qc.x(7)
+        qc.y(8)
+        expected_tb = compute_target_bitstring(qc)
+        actual_tb = "110010110"
+        self.assertEqual(expected_tb, actual_tb)

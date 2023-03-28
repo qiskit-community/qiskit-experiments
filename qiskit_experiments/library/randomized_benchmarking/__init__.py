@@ -25,6 +25,7 @@ Experiments
 
     StandardRB
     InterleavedRB
+    MirrorRB
 
 
 Analysis
@@ -36,15 +37,26 @@ Analysis
 
     RBAnalysis
     InterleavedRBAnalysis
+    MirrorRBAnalysis
+
+Utilities
+=========
 
 .. autosummary::
     :toctree: ../stubs/
 
     RBUtils
+    BaseSampler
+    EdgeGrabSampler
+    SingleQubitSampler
+
 """
 from .standard_rb import StandardRB
 from .interleaved_rb_experiment import InterleavedRB
+from .mirror_rb_experiment import MirrorRB
+from .sampling_utils import BaseSampler, EdgeGrabSampler, SingleQubitSampler
 from .rb_analysis import RBAnalysis
 from .interleaved_rb_analysis import InterleavedRBAnalysis
+from .mirror_rb_analysis import MirrorRBAnalysis
 from .clifford_utils import CliffordUtils
 from .rb_utils import RBUtils

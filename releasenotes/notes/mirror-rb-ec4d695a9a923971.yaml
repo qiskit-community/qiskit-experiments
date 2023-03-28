@@ -1,0 +1,10 @@
+---
+features:
+  - |
+    Added a new experiment class :class:`.MirrorRB`. This class implements
+    mirror randomized benchmarking, a variant of randomized benchmarking that measures
+    the fidelity of user-defined ensembles of randomized mirror circuits.
+  - |
+    Added a base class that samples circuit layers for randomized benchmarking experiments,
+    :class:`.BaseSampler`. The edge grab sampler :class:`.EdgeGrabSampler` and a single
+    qubit gate sampler :class:`.SingleQubitSampler` are implemented.

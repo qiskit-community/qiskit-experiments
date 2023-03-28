@@ -299,6 +299,18 @@ class CliffordUtils:
         return res
 
 
+def compute_target_bitstring(circuit: QuantumCircuit) -> str:
+    """For a Pauli circuit C, which consists only of Clifford gates, compute C|0>.
+    Args:
+        circuit: A Pauli QuantumCircuit.
+    Returns:
+        Target bitstring.
+    """
+    # target string has a 1 for each True in the stabilizer half of the phase vector
+    target = "".join(["1" if phase else "0" for phase in Clifford(circuit).stab_phase[::-1]])
+    return target
+
+
 # Constant mapping from 1Q single Clifford gate to 1Q Clifford numerical identifier.
 # This table must be generated using `data.generate_clifford_data.gen_cliff_single_1q_gate_map`, or,
 # equivalently, correspond to the ordering implicitly defined by CliffUtils.clifford_1_qubit_circuit.

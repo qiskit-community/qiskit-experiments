@@ -36,6 +36,7 @@ Experiments for verification and validation of quantum devices.
 
     ~randomized_benchmarking.StandardRB
     ~randomized_benchmarking.InterleavedRB
+    ~randomized_benchmarking.MirrorRB
     ~tomography.TomographyExperiment
     ~tomography.StateTomography
     ~tomography.ProcessTomography
@@ -183,7 +184,7 @@ from .characterization import (
     ZZRamsey,
     MultiStateDiscrimination,
 )
-from .randomized_benchmarking import StandardRB, InterleavedRB
+from .randomized_benchmarking import StandardRB, InterleavedRB, MirrorRB
 from .tomography import (
     TomographyExperiment,
     StateTomography,
