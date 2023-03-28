@@ -1,7 +1,7 @@
 ---
 features:
   - |
-    Adds :meth:`.CompositeAnalysis.component_analysis` method for accessing
+    Added :meth:`.CompositeAnalysis.component_analysis` method for accessing
     a component analysis class object from a composite analysis object.
 upgrade:
   - |

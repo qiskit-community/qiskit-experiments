@@ -1,6 +1,0 @@
----
-features:
-  - |
-    Added new class :class:`.T1KerneledAnalysis`. This class is used for T1
-    Experiment with the option `meas_level=MeasLevel.KERNELED`. The analysis
-    normalizes the data and fixes its orientation.

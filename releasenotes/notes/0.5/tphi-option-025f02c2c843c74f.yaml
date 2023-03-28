@@ -1,5 +1,5 @@
 ---
-upgrades:
+upgrade:
   - |
     The :class:`.Tphi` has been changed to use :class:`.T2Hahn` as the default T2 
     estimate because it provides a more meaningful measurement on superconducting
