@@ -328,7 +328,7 @@ Fitting without initial guesses for parameters often results in a bad fit. Users
 provide initial guesses and boundaries for the fit parameters through analysis options
 ``p0`` and ``bounds``. These values are the dictionary keyed on the parameter name, and
 one can get the list of parameters with the :attr:`CurveAnalysis.parameters`. Each
-boundary value can be a tuple of floats representing min and max value.
+boundary value can be a tuple of floats representing minimum and maximum values.
 
 Apart from user provided guesses, the analysis can systematically generate those values
 with the method :meth:`_generate_fit_guesses`, which is called with the :class:`CurveData`
