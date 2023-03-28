@@ -272,16 +272,19 @@ class EdgeGrabSampler(BaseSampler):
         """
         super().__init__(seed)
         self._gate_distribution = gate_distribution
-        self._coupling_map = coupling_map
+        self.coupling_map = coupling_map
 
     @property
-    def coupling_map(self):
+    def coupling_map(self) -> CouplingMap:
         """The coupling map of the system to sample over."""
         return self._coupling_map
 
     @coupling_map.setter
-    def coupling_map(self, coupling_map):
-        self._coupling_map = coupling_map
+    def coupling_map(self, coupling_map: Union[List[List[int]], CouplingMap]) -> None:
+        try:
+            self._coupling_map = CouplingMap(coupling_map)
+        except (ValueError, TypeError) as exc:
+            raise TypeError("Invalid coupling map provided.") from exc
 
     def __call__(
         self,
@@ -338,12 +341,12 @@ class EdgeGrabSampler(BaseSampler):
                 )
             ]
 
-        if not isinstance(self.coupling_map, List) or isinstance(self.coupling_map, CouplingMap):
-            raise QiskitError("The coupling map must be set correctly before sampling.")
-
         layer_list = []
+
         for _ in range(length):
-            all_edges = self.coupling_map[:]  # make copy of coupling map from which we pop edges
+            all_edges = self.coupling_map.get_edges()[
+                :
+            ]  # make copy of coupling map from which we pop edges
             selected_edges = []
             while all_edges:
                 rand_edge = all_edges.pop(self._rng.integers(len(all_edges)))

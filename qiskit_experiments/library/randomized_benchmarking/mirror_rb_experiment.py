@@ -24,7 +24,8 @@ from qiskit.quantum_info.operators import Pauli
 from qiskit.providers.backend import Backend
 from qiskit.providers.options import Options
 from qiskit.exceptions import QiskitError
-from qiskit.circuit.library import CXGate, CYGate, CZGate, ECRGate, SwapGate, iSwapGate
+from qiskit.transpiler import CouplingMap
+from qiskit.circuit.library import CXGate, CYGate, CZGate, ECRGate, SwapGate
 
 from .standard_rb import StandardRB, SequenceElementType
 from .mirror_rb_analysis import MirrorRBAnalysis
@@ -43,7 +44,7 @@ from .sampling_utils import (
 )
 
 # two qubit gates that are their own inverse
-_self_adjoint_gates = [CXGate, CYGate, CZGate, ECRGate, SwapGate, iSwapGate]
+_self_adjoint_gates = [CXGate, CYGate, CZGate, ECRGate, SwapGate]
 
 
 class MirrorRB(StandardRB):
@@ -140,9 +141,6 @@ class MirrorRB(StandardRB):
         if not all(length % 2 == 0 for length in lengths):
             raise QiskitError("All lengths must be even")
 
-        if two_qubit_gate_density < 0 or two_qubit_gate_density > 1:
-            raise QiskitError("Two-qubit gate density must be between 0 and 1.")
-
         super().__init__(
             physical_qubits,
             lengths,
@@ -197,6 +195,7 @@ class MirrorRB(StandardRB):
             sampler_opts={},
             inverting_pauli_layer=False,
         )
+        options.set_validator(field="two_qubit_gate_density", validator_value=(0, 1))
 
         return options
 
@@ -228,17 +227,11 @@ class MirrorRB(StandardRB):
         # get backend coupling map and create coupling map for physical qubits converted
         # to qubits 0, 1...n
         if self.backend and self._backend_data.coupling_map:
-            coupling_map = self._backend_data.coupling_map
+            coupling_map = CouplingMap(self._backend_data.coupling_map)
         else:
-            coupling_map = list(itertools.permutations(range(max(self.physical_qubits) + 1), 2))
-        qmap = {self.physical_qubits[i]: i for i in range(len(self.physical_qubits))}
-        experiment_coupling_map = []
+            coupling_map = CouplingMap.from_full(len(self.physical_qubits))
 
-        for edge in coupling_map:
-            if edge[0] in self.physical_qubits and edge[1] in self.physical_qubits:
-                experiment_coupling_map.append((qmap[edge[0]], qmap[edge[1]]))
-
-        self._distribution.coupling_map = experiment_coupling_map
+        self._distribution.coupling_map = coupling_map.reduce(self.physical_qubits)
 
         # Adjust the density based on whether the pauli layers are in
         if self.experiment_options.pauli_randomize:
@@ -336,14 +329,11 @@ class MirrorRB(StandardRB):
 
                 # Add start and end cliffords if set by user
                 if self.experiment_options.start_end_clifford:
-                    cseq = []
                     clifford_layers = clifford_sampler(range(self.num_qubits), length=1)
-                    cseq.append(clifford_layers[0])
-                    cseq.extend(seq)
-                    cseq.append(self._inverse_layer(clifford_layers[0]))
+                    seq.insert(0, clifford_layers[0])
+                    seq.append(self._inverse_layer(clifford_layers[0]))
                     if not self.experiment_options.full_sampling:
                         build_seq_lengths = [length + 2 for length in build_seq_lengths]
-                    seq = cseq
 
                 if self.experiment_options.full_sampling:
                     sequences.append(seq)
@@ -381,8 +371,6 @@ class MirrorRB(StandardRB):
                 circ.append(Barrier(self.num_qubits), circ.qubits)
             circ.metadata = {
                 "xval": self.experiment_options.lengths[i % len(self.experiment_options.lengths)],
-                "group": "Clifford",
-                "physical_qubits": self.physical_qubits,
                 "target": compute_target_bitstring(circ_target),
                 "inverting_pauli_layer": self.experiment_options.inverting_pauli_layer,
             }
