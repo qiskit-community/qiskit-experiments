@@ -313,10 +313,8 @@ It calls :meth:`._create_analysis_results` to create the :class:`.AnalysisResult
 for the fitting parameters of interest. A developer can inject custom code to
 compute custom quantities based on the raw fit parameters.
 See :ref:`curve_analysis_results` for details.
-Afterwards, the analysis draws several curves in the figure.
-Users can set a custom plotter in :class:`.CurveAnalysis` classes, to customize
-figures, by setting the :attr:`~.CurveAnalysis.plotter` attribute (see documentation of the visualization module).
-Finally, it returns the list of created analysis results and a figure.
+Afterwards, figure plotting is handed over to the :doc:`Visualization </tutorials/visualization>` module via
+the :attr:`~.CurveAnalysis.plotter` attribute, and a list of created analysis results and the figure are returned.
 
 
 .. _curve_analysis_init_guess:
