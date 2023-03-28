@@ -1406,17 +1406,19 @@ class ExperimentData:
         for result in self._analysis_results.values():
             analysis_results_to_create.append(result._db_data)
         try:
-            self.service.create_analysis_results(data=analysis_results_to_create, blocking=True, json_encoder=self._json_encoder, max_workers=max_workers)
+            self.service.create_analysis_results(
+                data=analysis_results_to_create,
+                blocking=True,
+                json_encoder=self._json_encoder,
+                max_workers=max_workers,
+            )
             for result in self._analysis_results.values():
                 result._created_in_db = True
         except Exception as ex:  # pylint: disable=broad-except
-        # Don't automatically fail the experiment just because its data cannot be saved.
-            LOG.error("Unable to save the experiment data: %s",
-                      traceback.format_exc())
+            # Don't automatically fail the experiment just because its data cannot be saved.
+            LOG.error("Unable to save the experiment data: %s", traceback.format_exc())
             if not suppress_errors:
-                raise QiskitError(
-                    f"Analysis result save failed\nError Message:\n{str(ex)}") from ex
-
+                raise QiskitError(f"Analysis result save failed\nError Message:\n{str(ex)}") from ex
 
         for result in self._deleted_analysis_results.copy():
             with service_exception_to_warning():
@@ -1436,7 +1438,12 @@ class ExperimentData:
                     if isinstance(figure, pyplot.Figure):
                         figure = plot_to_svg_bytes(figure)
                     figures_to_create.append((figure, name))
-                self.service.create_figures(experiment_id=self.experiment_id, figure_list=figures_to_create, blocking=True, max_workers=max_workers)
+                self.service.create_figures(
+                    experiment_id=self.experiment_id,
+                    figure_list=figures_to_create,
+                    blocking=True,
+                    max_workers=max_workers,
+                )
 
         for name in self._deleted_figures.copy():
             with service_exception_to_warning():
@@ -1883,7 +1890,12 @@ class ExperimentData:
         raise QiskitError(f"Invalid index type {type(index)}.")
 
     @classmethod
-    def load(cls, experiment_id: str, service: Optional[IBMExperimentService]=None, provider: Optional[Provider]=None) -> "ExperimentData":
+    def load(
+        cls,
+        experiment_id: str,
+        service: Optional[IBMExperimentService] = None,
+        provider: Optional[Provider] = None,
+    ) -> "ExperimentData":
         """Load a saved experiment data from a database service.
 
         Args:
@@ -1898,7 +1910,9 @@ class ExperimentData:
         """
         if service is None:
             if provider is None:
-                raise ExperimentDataError("Loading an experiment requires a valid ibm provider or experiment service")
+                raise ExperimentDataError(
+                    "Loading an experiment requires a valid ibm provider or experiment service"
+                )
             service = cls.get_service_from_provider(provider)
         data = service.experiment(experiment_id, json_decoder=cls._json_decoder)
         if service.experiment_has_file(experiment_id, cls._metadata_filename):
