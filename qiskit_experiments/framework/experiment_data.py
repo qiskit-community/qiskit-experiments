@@ -935,11 +935,11 @@ class ExperimentData:
 
         Args:
             result: Result object containing data to be added.
-            job_id: The id of the job the result came from. If `None`, a new
-            job id is created
+            job_id: The id of the job the result came from. If `None`, the
+            job id in `result` is used.
         """
         if job_id is None:
-            job_id = str(uuid.uuid4())
+            job_id = result.job_id
         if job_id not in self._jobs:
             self._jobs[job_id] = None
             self.job_ids.append(job_id)
