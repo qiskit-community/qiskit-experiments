@@ -310,7 +310,7 @@ custom fitting algorithms. This method must return a :class:`.CurveFitResult` da
 
 Curve analysis runs several postprocessing against the fit outcome.
 It calls :meth:`._create_analysis_results` to create the :class:`.AnalysisResultData` class
-for the fitting parameters of interest. A developer can inject a custom code to
+for the fitting parameters of interest. A developer can inject custom code to
 compute custom quantities based on the raw fit parameters.
 See :ref:`curve_analysis_results` for details.
 Afterwards, the analysis draws several curves in the Matplotlib figure.
