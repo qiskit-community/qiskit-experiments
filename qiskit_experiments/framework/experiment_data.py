@@ -371,6 +371,7 @@ class ExperimentData:
 
         """
         return self._db_data.end_datetime
+
     @end_datetime.setter
     def end_datetime(self, new_end_datetime: "datetime") -> None:
         self._db_data.end_datetime = new_end_datetime
@@ -932,13 +933,16 @@ class ExperimentData:
             LOG.warning(error_msg)
             return callback_id, False
 
-    def _add_result_data(self, result: Result, job_id: str) -> None:
+    def _add_result_data(self, result: Result, job_id: Optional[str] = None) -> None:
         """Add data from a Result object
 
         Args:
             result: Result object containing data to be added.
-            job_id: The id of the job the result came from
+            job_id: The id of the job the result came from. If `None`, a new
+            job id is created
         """
+        if job_id is None:
+            job_id = str(uuid.uuid4())
         if job_id not in self._jobs:
             self._jobs[job_id] = None
             self.job_ids.append(job_id)
