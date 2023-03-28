@@ -17,11 +17,6 @@ Calibration Experiments (:mod:`qiskit_experiments.library.calibration`)
 
 .. currentmodule:: qiskit_experiments.library.calibration
 
-.. warning::
-    The calibrations interface is still in active development. It may have
-    breaking API changes without deprecation warnings in future releases until
-    otherwise indicated.
-
 Calibrating qubit setups is the task of finding the pulse shapes and parameter
 values that maximizes the fidelity of the resulting quantum operations. This
 therefore requires experiments which are analyzed to extract parameter values.
