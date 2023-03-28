@@ -18,7 +18,6 @@ import math
 from abc import ABC, abstractmethod
 from typing import Optional, Union, List, Tuple, Sequence, NamedTuple, Dict
 from collections import defaultdict
-
 from numpy.random import Generator, default_rng, BitGenerator, SeedSequence
 import numpy as np
 

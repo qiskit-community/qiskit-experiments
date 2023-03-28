@@ -82,7 +82,7 @@ exclude_patterns = ["_build", "**.ipynb_checkpoints"]
 nbsphinx_thumbnails = {
     "manuals/verification/quantum_volume": "_images/quantum_volume_2_0.png",
     "manuals/measurement/readout_mitigation": "_images/readout_mitigation_4_0.png",
-    "manuals/verification/mirror_rb": "_images/mirror_rb_1_1.png",
+    "manuals/verification/mirror_rb": "_images/mirror_rb_1_0.png",
     "manuals/verification/randomized_benchmarking": "_images/randomized_benchmarking_3_1.png",
     "manuals/measurement/restless_measurements": "_images/restless_shots.png",
     "manuals/verification/state_tomography": "_images/state_tomography_3_0.png",

@@ -172,7 +172,7 @@ There are several options that change the composition of the mirror RB circuit l
   Paulis at the end of the circuit to set the output to 
   :math:`\left\vert0\right\rangle^{\otimes n}`, up to a global phase
 
-The default settings produce the circuits in Ref [1]_.
+The default settings produce the circuits in Ref. [1]_.
 
 Let's look at how these options change the circuit. First, the default with Pauli layers
 between Cliffords and single-qubit Cliffords at the start and end:
@@ -184,7 +184,7 @@ between Cliffords and single-qubit Cliffords at the start and end:
                    seed=100,
                    backend=backend,
                    num_samples=1)
-    exp.circuits()[0].decompose().draw("mpl")
+    exp.circuits()[0].decompose().remove_final_measurements(inplace=False).draw("mpl")
 
 And now with the start and end Clifford layers turned off and the inverting Pauli layer added at the end:
 
@@ -198,7 +198,7 @@ And now with the start and end Clifford layers turned off and the inverting Paul
                    start_end_clifford=False,
                    pauli_randomize=True,
                    inverting_pauli_layer=True)
-    exp.circuits()[0].decompose().draw("mpl")
+    exp.circuits()[0].decompose().remove_final_measurements(inplace=False).draw("mpl")
 
 Another important option is ``two_qubit_gate_density`` (default ``0.2``). This is the
 expected fraction of two-qubit gates in the circuit, not accounting for the optional
@@ -235,8 +235,15 @@ has decreased:
     exp.circuits()[0].remove_final_measurements(inplace=False).draw("mpl")
 
 Note that the edge grab algorithm is probabilistic and only tends to the exact two
-qubit gate density asymptotically.
+qubit gate density asymptotically, so you may not get layers fully packed with
+two-qubit gates even if you specify a density of 1.
 
+The default interface of :class:`MirrorRB` only allows the above options in
+addition to passing ``sampler_opts`` to your sampler upon instantiation. If you
+decide to choose a custom gate set or implement your own sampler, note that the
+validity of fitting the effective polarizaton as a function of circuit length to
+obtain average gate infidelity depends on a list of assumptions [1]_ that may no
+longer be valid.
 
 Mirror RB implementation in ``pyGSTi``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

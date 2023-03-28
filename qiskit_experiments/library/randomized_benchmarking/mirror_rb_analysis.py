@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -12,26 +12,17 @@
 """
 Mirror RB analysis class.
 """
-from typing import Dict, List, Tuple, Union, TYPE_CHECKING
-
-import lmfit
-from qiskit.exceptions import QiskitError
-
+from typing import List, Union
 import numpy as np
+from uncertainties import unumpy as unp
 from scipy.spatial.distance import hamming
 
 import qiskit_experiments.curve_analysis as curve
-from qiskit_experiments.framework import AnalysisResultData
-from qiskit_experiments.data_processing.exceptions import DataProcessorError
-from uncertainties import unumpy as unp  # pylint: disable=wrong-import-order
+from qiskit_experiments.framework import AnalysisResultData, ExperimentData
+from qiskit_experiments.data_processing import DataProcessor
+from qiskit_experiments.data_processing.data_action import DataAction
 
 from .rb_analysis import RBAnalysis
-
-if TYPE_CHECKING:
-    from uncertainties import UFloat
-
-# A dictionary key of qubit aware quantum instruction; type alias for better readability
-QubitGateTuple = Tuple[Tuple[int, ...], str]
 
 
 class MirrorRBAnalysis(RBAnalysis):
@@ -145,20 +136,16 @@ class MirrorRBAnalysis(RBAnalysis):
         # Do this by setting options to "Success Probability" or "Adjusted Success Probability"
         default_options.analyzed_quantity = "Effective Polarization"
 
-        return default_options
-
-    def set_options(self, **fields):
-        if "analyzed_quantity" in fields:
-            if fields["analyzed_quantity"] not in [
+        default_options.set_validator(
+            field="analyzed_quantity",
+            validator_value=[
                 "Success Probability",
                 "Adjusted Success Probability",
                 "Effective Polarization",
-            ]:
-                raise QiskitError(
-                    'analyzed_quantity must be one of "Success Probability", "Adjusted Success Probability", '
-                    'or "Effective Polarization"'
-                )
-        super().set_options(**fields)
+            ],
+        )
+
+        return default_options
 
     def _generate_fit_guesses(
         self,
@@ -190,48 +177,6 @@ class MirrorRBAnalysis(RBAnalysis):
         user_opt.p0.set_if_empty(b=b_guess, a=a_guess, alpha=alpha_mirror)
 
         return user_opt
-
-    def _format_data(
-        self,
-        curve_data: curve.CurveData,
-    ) -> curve.CurveData:
-        """Postprocessing for the processed dataset.
-
-        Args:
-            curve_data: Processed dataset created from experiment results.
-
-        Returns:
-            Formatted data.
-        """
-        # TODO Eventually move this to data processor, then create RB data processor.
-
-        # take average over the same x value by keeping sigma
-        data_allocation, xdata, ydata, sigma, shots = curve.utils.multi_mean_xy_data(
-            series=curve_data.data_allocation,
-            xdata=curve_data.x,
-            ydata=curve_data.y,
-            sigma=curve_data.y_err,
-            shots=curve_data.shots,
-            method="sample",
-        )
-
-        # sort by x value in ascending order
-        data_allocation, xdata, ydata, sigma, shots = curve.utils.data_sort(
-            series=data_allocation,
-            xdata=xdata,
-            ydata=ydata,
-            sigma=sigma,
-            shots=shots,
-        )
-
-        return curve.CurveData(
-            x=xdata,
-            y=ydata,
-            y_err=sigma,
-            shots=shots,
-            data_allocation=data_allocation,
-            labels=curve_data.labels,
-        )
 
     def _create_analysis_results(
         self,
@@ -266,116 +211,83 @@ class MirrorRBAnalysis(RBAnalysis):
 
         return outcomes
 
-    def _run_data_processing(
-        self, raw_data: List[Dict], models: List[lmfit.Model]
-    ) -> curve.CurveData:
-        """Manual data processing
+    def _initialize(self, experiment_data: ExperimentData):
+        """Initialize curve analysis by setting up the data processor for Mirror
+        RB data.
 
         Args:
-            raw_data: Payload in the experiment data.
-            models: A list of LMFIT models that provide the model name and
-                optionally data sorting keys.
-
-        Returns:
-            Processed data that will be sent to the formatter method.
-
-        Raises:
-            DataProcessorError: When model is multi-objective function but
-                data sorting option is not provided.
-            DataProcessorError: When key for x values is not found in the metadata.
+            experiment_data: Experiment data to analyze.
         """
-        x_key = self.options.x_key
+        super()._initialize(experiment_data)
 
-        try:
-            xdata = np.asarray([datum["metadata"][x_key] for datum in raw_data], dtype=float)
-        except KeyError as ex:
-            raise DataProcessorError(
-                f"X value key {x_key} is not defined in circuit metadata."
-            ) from ex
+        num_qubits = len(self._physical_qubits)
+        target_bs = []
+        for circ_result in experiment_data.data():
+            if circ_result["metadata"]["inverting_pauli_layer"] is True:
+                target_bs.append("0" * num_qubits)
+            else:
+                target_bs.append(circ_result["metadata"]["target"])
 
-        ydata = self._compute_polarizations_and_probabilities(raw_data)
-        shots = np.asarray([datum.get("shots", np.nan) for datum in raw_data])
-
-        def _matched(metadata, **filters):
-            try:
-                return all(metadata[key] == val for key, val in filters.items())
-            except KeyError:
-                return False
-
-        if len(models) == 1:
-            # all data belongs to the single model
-            data_allocation = np.full(xdata.size, 0, dtype=int)
-        else:
-            data_allocation = np.full(xdata.size, -1, dtype=int)
-            for idx, sub_model in enumerate(models):
-                try:
-                    tags = sub_model.opts["data_sort_key"]
-                except KeyError as ex:
-                    raise DataProcessorError(
-                        f"Data sort options for model {sub_model.name} is not defined."
-                    ) from ex
-                if tags is None:
-                    continue
-                matched_inds = np.asarray(
-                    [_matched(d["metadata"], **tags) for d in raw_data], dtype=bool
-                )
-                data_allocation[matched_inds] = idx
-
-        return curve.CurveData(
-            x=xdata,
-            y=unp.nominal_values(ydata),
-            y_err=unp.std_devs(ydata),
-            shots=shots,
-            data_allocation=data_allocation,
-            labels=[sub_model._name for sub_model in models],
+        self.set_options(
+            data_processor=DataProcessor(
+                input_key="counts",
+                data_actions=[
+                    ComputeQuantities(
+                        analyzed_quantity=self.options.analyzed_quantity,
+                        num_qubits=num_qubits,
+                        target_bs=target_bs,
+                    )
+                ],
+            )
         )
 
-    def _compute_polarizations_and_probabilities(self, raw_data: List[Dict]) -> unp.uarray:
-        """Compute success probabilities, adjusted success probabilities, and
-        polarizations from raw results
 
-        Args:
-            raw_data: List of raw results for each circuit
+class ComputeQuantities(DataAction):
+    """Data processing node for computing useful mirror RB quantities from raw results."""
 
-        Returns:
-            Unp array of either success probabiltiies, adjusted success probabilities,
-            or polarizations as specified by the user.
+    def __init__(
+        self,
+        num_qubits,
+        target_bs,
+        analyzed_quantity: str = "Effective Polarization",
+        validate: bool = True,
+    ):
         """
+        Args:
+            num_qubits: Number of qubits.
+            quantity: The quantity to calculate.
+            validate: If set to False the DataAction will not validate its input.
+        """
+        super().__init__(validate)
+        self._num_qubits = num_qubits
+        self._analyzed_quantity = analyzed_quantity
+        self._target_bs = target_bs
 
+    def _process(self, data: np.ndarray):
         # Arrays to store the y-axis data and uncertainties
         y_data = []
         y_data_unc = []
-        num_qubits = len(self._physical_qubits)
-        target_bs = "0" * num_qubits
-        for circ_result in raw_data:
 
-            # If there is no inverting Pauli layer at the end of the circuit, get the target bitstring
-            if not circ_result["metadata"]["inverting_pauli_layer"]:
-                target_bs = circ_result["metadata"]["target"]
+        for i, circ_result in enumerate(data):
+            target_bs = self._target_bs[i]
 
             # h[k] = proportion of shots that are Hamming distance k away from target bitstring
-            hamming_dists = np.zeros(num_qubits + 1)
-            for bitstring, count in circ_result["counts"].items():
+            hamming_dists = np.zeros(self._num_qubits + 1)
+            for bitstring, count in circ_result.items():
                 # Compute success probability
                 success_prob = 0.0
                 if bitstring == target_bs:
-                    success_prob = count / circ_result.get(
-                        "shots", sum(circ_result["counts"].values())
-                    )
+                    success_prob = count / sum(circ_result.values())
                     success_prob_unc = np.sqrt(success_prob * (1 - success_prob))
-                    if self.options.analyzed_quantity == "Success Probability":
+                    if self._analyzed_quantity == "Success Probability":
                         y_data.append(success_prob)
                         y_data_unc.append(success_prob_unc)
-                    circ_result["metadata"]["success_probability"] = success_prob
-                    circ_result["metadata"]["success_probability_stddev"] = success_prob_unc
 
                 # Compute hamming distance proportions
                 target_bs_to_list = [int(char) for char in target_bs]
                 actual_bs_to_list = [int(char) for char in bitstring]
-                k = int(round(hamming(target_bs_to_list, actual_bs_to_list) * num_qubits))
-                hamming_dists[k] += count / circ_result.get(
-                    "shots", sum(circ_result["counts"].values())
-                )
+                k = int(round(hamming(target_bs_to_list, actual_bs_to_list) * self._num_qubits))
+                hamming_dists[k] += count / sum(circ_result.values())
 
             # Compute hamming distance uncertainties
             hamming_dist_unc = np.sqrt(hamming_dists * (1 - hamming_dists))
@@ -383,25 +295,19 @@ class MirrorRBAnalysis(RBAnalysis):
             # Compute adjusted success probability and standard deviation
             adjusted_success_prob = 0.0
             adjusted_success_prob_unc = 0.0
-            for k in range(num_qubits + 1):
+            for k in range(self._num_qubits + 1):
                 adjusted_success_prob += (-0.5) ** k * hamming_dists[k]
                 adjusted_success_prob_unc += (0.5) ** k * hamming_dist_unc[k] ** 2
             adjusted_success_prob_unc = np.sqrt(adjusted_success_prob_unc)
-            circ_result["metadata"]["adjusted_success_probability"] = adjusted_success_prob
-            circ_result["metadata"][
-                "adjusted_success_probability_stddev"
-            ] = adjusted_success_prob_unc
-            if self.options.analyzed_quantity == "Adjusted Success Probability":
+            if self._analyzed_quantity == "Adjusted Success Probability":
                 y_data.append(adjusted_success_prob)
                 y_data_unc.append(adjusted_success_prob_unc)
 
             # Compute effective polarization and standard deviation (arXiv:2112.09853v1)
-            pol_factor = 4**num_qubits
+            pol_factor = 4**self._num_qubits
             pol = pol_factor / (pol_factor - 1) * adjusted_success_prob - 1 / (pol_factor - 1)
             pol_unc = np.sqrt(pol_factor / (pol_factor - 1)) * adjusted_success_prob_unc
-            circ_result["metadata"]["polarization"] = pol
-            circ_result["metadata"]["polarization_uncertainty"] = pol_unc
-            if self.options.analyzed_quantity == "Effective Polarization":
+            if self._analyzed_quantity == "Effective Polarization":
                 y_data.append(pol)
                 y_data_unc.append(pol_unc)
 
