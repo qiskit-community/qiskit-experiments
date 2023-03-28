@@ -20,9 +20,9 @@ explanation on the RB method, which is based on Refs. [1]_ [2]_.
     
     # For simulation
     from qiskit_aer import AerSimulator
-    from qiskit.providers.fake_provider import FakeParis
+    from qiskit.providers.fake_provider import FakePerth
     
-    backend = AerSimulator.from_backend(FakeParis())
+    backend = AerSimulator.from_backend(FakePerth())
 
 Standard RB experiment
 ----------------------
@@ -170,9 +170,9 @@ The EPGs of two-qubit RB are analyzed with the corrected EPC if available.
     lengths_1_qubit = np.arange(1, 800, 200)
     num_samples = 10
     seed = 1010
-    qubits = (1, 4)
+    qubits = (1, 2)
 
-    # Run a 1-qubit RB experiment on qubits 1, 4 to determine the error-per-gate of 1-qubit gates
+    # Run a 1-qubit RB experiment on qubits 1, 2 to determine the error-per-gate of 1-qubit gates
     single_exps = BatchExperiment(
         [
             StandardRB([qubit], lengths_1_qubit, num_samples=num_samples, seed=seed)
@@ -185,7 +185,7 @@ The EPGs of two-qubit RB are analyzed with the corrected EPC if available.
 
 .. jupyter-execute::
 
-    # Run an RB experiment on qubits 1, 4
+    # Run an RB experiment on qubits 1, 2
     exp_2q = StandardRB(qubits, lengths_2_qubit, num_samples=num_samples, seed=seed)
     
     # Use the EPG data of the 1-qubit runs to ensure correct 2-qubit EPG computation
@@ -267,14 +267,12 @@ Let's run an interleaved RB experiment on two qubits:
     lengths = np.arange(1, 200, 30)
     num_samples = 10
     seed = 1010
-    qubits = [1,4]
+    qubits = (1, 2)
     
-    # Run an Interleaved RB experiment on qubits 1, 4
-    # The interleaved gate is the cx gate
+    # The interleaved gate is the CX gate
     int_exp2 = InterleavedRB(
         circuits.CXGate(), qubits, lengths, num_samples=num_samples, seed=seed)
     
-    # Run
     int_expdata2 = int_exp2.run(backend).block_for_results()
     int_results2 = int_expdata2.analysis_results()
 

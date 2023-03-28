@@ -38,7 +38,7 @@ for qubit 0.
     from qiskit_experiments.library.characterization.analysis.t1_analysis import T1KerneledAnalysis
 
     # A T1 simulator
-    from qiskit.providers.fake_provider import FakeVigo
+    from qiskit.providers.fake_provider import FakePerth
     from qiskit_aer import AerSimulator
     from qiskit_aer.noise import NoiseModel
 
@@ -48,14 +48,14 @@ for qubit 0.
     
     # Create a pure relaxation noise model for AerSimulator
     noise_model = NoiseModel.from_backend(
-        FakeVigo(), thermal_relaxation=True, gate_error=False, readout_error=False
+        FakePerth(), thermal_relaxation=True, gate_error=False, readout_error=False
     )
     
     # Create a fake backend simulator
-    backend = AerSimulator.from_backend(FakeVigo(), noise_model=noise_model)
+    backend = AerSimulator.from_backend(FakePerth(), noise_model=noise_model)
     
     # Look up target T1 of qubit-0 from device properties
-    qubit0_t1 = backend.properties().t1(0)
+    qubit0_t1 = FakePerth().qubit_properties(0).t1
     
     # Time intervals to wait before measurement
     delays = np.arange(1e-6, 3 * qubit0_t1, 3e-5)
