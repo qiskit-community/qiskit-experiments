@@ -98,7 +98,7 @@ More specifically, the curve analysis defines the following data model.
 Once the group is assigned, a curve analysis instance builds
 a proper internal optimization routine.
 Finally, the analysis outputs a set of :class:`.AnalysisResultData` entries
-for important fit outcomes along with a single Matplotlib figure of the fit curves
+for important fit outcomes along with a single figure of the fit curves
 with the measured data points.
 
 With this base class, a developer can avoid writing boilerplate code in
@@ -313,10 +313,10 @@ It calls :meth:`._create_analysis_results` to create the :class:`.AnalysisResult
 for the fitting parameters of interest. A developer can inject custom code to
 compute custom quantities based on the raw fit parameters.
 See :ref:`curve_analysis_results` for details.
-Afterwards, the analysis draws several curves in the Matplotlib figure.
+Afterwards, the analysis draws several curves in the figure.
 Users can set a custom plotter in :class:`.CurveAnalysis` classes, to customize
-figures, by setting the :attr:`~.CurveAnalysis.plotter` attribute.
-Finally, it returns the list of created analysis results and a Matplotlib figure.
+figures, by setting the :attr:`~.CurveAnalysis.plotter` attribute (see documentation of the visualization module).
+Finally, it returns the list of created analysis results and a figure.
 
 
 .. _curve_analysis_init_guess:
