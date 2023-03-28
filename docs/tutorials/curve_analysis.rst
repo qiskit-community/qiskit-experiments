@@ -282,7 +282,7 @@ A developer can override this method to perform initialization of analysis-speci
 2. Data processing
 ^^^^^^^^^^^^^^^^^^
 
-Curve analysis calls :meth:`_run_data_processing` method, where
+Curve analysis calls the :meth:`_run_data_processing` method, where
 the data processor in the analysis option is internally called.
 This consumes input experiment results and creates the :class:`.CurveData` dataclass.
 Then the :meth:`_format_data` method is called with the processed dataset to format it.
