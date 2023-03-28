@@ -124,7 +124,7 @@ def _synthesize_clifford_circuit(
 ) -> QuantumCircuit:
     # synthesizes clifford circuits using given basis gates, for use during
     # custom transpilation during RB circuit generation.
-    return transpile(circuit, basis_gates=list(basis_gates), optimization_level=0)
+    return transpile(circuit, basis_gates=list(basis_gates), optimization_level=1)
 
 
 @lru_cache(maxsize=None)
@@ -402,7 +402,7 @@ def _deparameterized_name(inst: Instruction) -> str:
         elif np.isclose(inst.params[0], -np.pi / 2):
             return "sdg"
         else:
-            raise QiskitError("Wrong param {} for rz in clifford".format(inst.params[0]))
+            raise QiskitError(f"Wrong param {inst.params[0]} for rz in clifford")
 
     return inst.name
 
