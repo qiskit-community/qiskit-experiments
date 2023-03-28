@@ -437,7 +437,7 @@ This can be done by overriding the :meth:`_create_analysis_results` method.
 Note that both ``p0`` and ``p1`` are `UFloat`_ objects consisting of
 a nominal value and an error value which assumes the standard deviation.
 Since this object natively supports error propagation,
-you don't need to manually recompute the error of new value.
+you don't have to manually recompute the error of the new value.
 
 .. _ufloat: https://pythonhosted.org/uncertainties/user_guide.html
 
