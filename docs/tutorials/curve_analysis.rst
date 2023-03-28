@@ -296,7 +296,7 @@ or elimination of outliers for better fitting.
 3. Fitting
 ^^^^^^^^^^
 
-Curve analysis calls :meth:`_run_curve_fit`, method which is the core functionality of the fitting.
+Curve analysis calls the :meth:`_run_curve_fit` method, which is the core functionality of the fitting.
 Another method :meth:`_generate_fit_guesses` is internally called to
 prepare the initial guess and parameter boundary with respect to the formatted data.
 Developers usually override this method to provide better initial guesses
