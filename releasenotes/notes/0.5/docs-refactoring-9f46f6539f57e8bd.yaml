@@ -6,4 +6,4 @@ other:
     tutorials, how-to guides, experiment manuals, and the API references.
   - |
     The internal curve analysis helper functions in ``curve_analysis.data_processing``
-    has been moved to ``curve_analysis.utils``.
+    have been moved to ``curve_analysis.utils``.

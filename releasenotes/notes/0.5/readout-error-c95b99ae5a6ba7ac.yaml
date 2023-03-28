@@ -4,7 +4,7 @@ features:
     Added a ``backend`` init kwarg to the :class:`.LocalReadoutError` and
     :class:`.CorrelatedReadoutError` experiments, and the
     ``physical_qubits`` kwarg has been made optional. If a backend is supplied without
-    specifying phyiscal qubits, the experiment will be initialized on all
+    specifying physical qubits, the experiment will be initialized on all
     qubits for the backend.
 fixes:
   - |

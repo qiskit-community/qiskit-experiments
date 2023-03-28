@@ -29,5 +29,5 @@ deprecations:
     have been deprecated and will be removed in Qiskit Experiments 0.6.
 fixes:
   - |
-    Fixe a bug where the :class:`.EchoedCrossResonanceHamiltonian` experiment 
+    Fixed a bug where the :class:`.EchoedCrossResonanceHamiltonian` experiment 
     overestimated Hamiltonian coefficients by a factor of 2.

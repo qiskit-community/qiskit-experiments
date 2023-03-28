@@ -6,10 +6,10 @@ features:
     the calibrations attached to transpiled quantum circuits. The backend is capable of 
     simulating level one (IQ) and level two (counts) data. The main purpose of this 
     backend is to make the test suite more realistic and allow for tutorials that 
-    do not need hardware backends.
+    do not require hardware backends.
 issues:
   - |
-    The :class:`.PulseBackend` only suports single qubit operations and will be upgraded in the future.
+    The :class:`.PulseBackend` only supports single qubit operations and will be upgraded in the future.
 deprecations:
   - |
     :class:`~qiskit_experiments.test.mock_iq_helpers.MockIQRabiHelper` is now deprecated and
