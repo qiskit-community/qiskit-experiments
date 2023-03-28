@@ -1401,7 +1401,9 @@ class ExperimentData:
         # currently the entire POST JSON request body is limited by default to 100kb
         return sys.getsizeof(self.metadata) > 10000
 
-    def save(self, suppress_errors: bool = True, max_workers=100, save_figures=True) -> None:
+    def save(
+        self, suppress_errors: bool = True, max_workers: int = 100, save_figures: bool = True
+    ) -> None:
         """Save the experiment data to a database service.
 
         Args:
@@ -1409,6 +1411,7 @@ class ExperimentData:
             pass them on, potentially aborting the experiemnt (false)
             max_workers: Maximum number of concurrent worker threads
             save_figures: Whether to save figures in the database or not
+
         .. note::
             This saves the experiment metadata, all analysis results, and all
             figures. Depending on the number of figures and analysis results this
