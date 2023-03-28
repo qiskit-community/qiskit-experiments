@@ -232,7 +232,7 @@ class MirrorRBAnalysis(RBAnalysis):
             data_processor=DataProcessor(
                 input_key="counts",
                 data_actions=[
-                    ComputeQuantities(
+                    _ComputeQuantities(
                         analyzed_quantity=self.options.analyzed_quantity,
                         num_qubits=num_qubits,
                         target_bs=target_bs,
@@ -242,7 +242,7 @@ class MirrorRBAnalysis(RBAnalysis):
         )
 
 
-class ComputeQuantities(DataAction):
+class _ComputeQuantities(DataAction):
     """Data processing node for computing useful mirror RB quantities from raw results."""
 
     def __init__(

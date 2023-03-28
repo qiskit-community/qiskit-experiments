@@ -243,21 +243,10 @@ class MirrorRB(StandardRB):
             warnings.warn("Two-qubit gate density is too high, capping at 1.")
             adjusted_2q_density = 1
 
-        if self.experiment_options.pauli_randomize:
-            self._distribution.gate_distribution = [
-                GateDistribution(
-                    prob=adjusted_2q_density, op=self.experiment_options.two_qubit_gate
-                ),
-                GateDistribution(prob=1 - adjusted_2q_density, op=GenericClifford(1)),
-            ]
-
-        else:
-            self._distribution.gate_distribution = [
-                GateDistribution(
-                    prob=adjusted_2q_density, op=self.experiment_options.two_qubit_gate
-                ),
-                GateDistribution(prob=1 - adjusted_2q_density, op=GenericClifford(1)),
-            ]
+        self._distribution.gate_distribution = [
+            GateDistribution(prob=adjusted_2q_density, op=self.experiment_options.two_qubit_gate),
+            GateDistribution(prob=1 - adjusted_2q_density, op=GenericClifford(1)),
+        ]
 
     def _sample_sequences(self) -> List[Sequence[SequenceElementType]]:
         """Sample layers of mirror RB using the provided distribution and user options.

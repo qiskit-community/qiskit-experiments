@@ -16,9 +16,8 @@ Utilities for sampling layers in randomized benchmarking experiments
 import warnings
 import math
 from abc import ABC, abstractmethod
-from typing import Optional, Union, List, Tuple, Sequence, NamedTuple, Dict
+from typing import Optional, Union, List, Tuple, Sequence, NamedTuple, Dict, Iterator
 from collections import defaultdict
-from typing import Iterator
 from numpy.random import Generator, default_rng, BitGenerator, SeedSequence
 import numpy as np
 
@@ -197,7 +196,7 @@ class SingleQubitSampler(BaseSampler):
         """
         super(SingleQubitSampler, type(self)).gate_distribution.fset(self, dist)
 
-        gateset = self._probs_by_gate_size(dist)
+        gateset = self._probs_by_gate_size(self.gate_distribution)
         if not math.isclose(sum(gateset[1][1]), 1):
             raise QiskitError(
                 "The distribution for SingleQubitSampler should be all single qubit gates."
@@ -263,6 +262,27 @@ class EdgeGrabSampler(BaseSampler):
 
     """
 
+    @BaseSampler.gate_distribution.setter
+    def gate_distribution(self, dist: List[GateDistribution]) -> None:
+        """Set the distribution of gates used in the sampler.
+
+        Args:
+            dist: A list of tuples with format ``(probability, gate)``.
+        """
+        super(EdgeGrabSampler, type(self)).gate_distribution.fset(self, dist)
+
+        gateset = self._probs_by_gate_size(self.gate_distribution)
+
+        try:
+            norm1q = sum(gateset[1][1])
+            norm2q = sum(gateset[2][1])
+        except IndexError as exc:
+            raise QiskitError(
+                "The edge grab sampler requires 1-qubit and 2-qubit gates to be specified."
+            ) from exc
+        if not np.isclose(norm1q + norm2q, 1):
+            raise QiskitError("The edge grab sampler only supports 1- and 2-qubit gates.")
+
     def __init__(
         self,
         gate_distribution=None,
@@ -327,15 +347,9 @@ class EdgeGrabSampler(BaseSampler):
         """
         num_qubits = len(qubits)
         gateset = self._probs_by_gate_size(self._gate_distribution)
-        try:
-            norm1q = sum(gateset[1][1])
-            norm2q = sum(gateset[2][1])
-        except KeyError as exc:
-            raise QiskitError(
-                "The edge grab sampler requires 1-qubit and 2-qubit gates to be specified."
-            ) from exc
-        if not np.isclose(norm1q + norm2q, 1):
-            raise QiskitError("The edge grab sampler only supports 1- and 2-qubit gates.")
+        norm1q = sum(gateset[1][1])
+        norm2q = sum(gateset[2][1])
+
         two_qubit_gate_density = norm2q / (norm1q + norm2q)
 
         for _ in range(length):
