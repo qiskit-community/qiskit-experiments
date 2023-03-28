@@ -244,13 +244,12 @@ class ExperimentData:
         self._backend = None
         if backend is not None:
             self._set_backend(backend, recursive=False)
-        if provider is not None:
-            self._provider = provider
-        elif backend is not None:
-            self._provider = backend.provider
+        self._provider = provider
+        if provider is None and backend is not None:
+            self.provider = backend.provider
         self._service = service
-        if self._service is None and self._provider is not None:
-            self._service = self.get_service_from_provider(self._provider)
+        if self._service is None and self.provider is not None:
+            self._service = self.get_service_from_provider(self.provider)
         self._auto_save = False
         self._created_in_db = False
         self._extra_data = kwargs
@@ -603,6 +602,27 @@ class ExperimentData:
         self._set_service(service)
 
     @property
+    def provider(self) -> Optional[Provider]:
+        """Return the database service.
+
+        Returns:
+            Service that can be used to access this experiment in a database.
+        """
+        return self._provider
+
+    @provider.setter
+    def provider(self, provider: Provider) -> None:
+        """Set the service to be used for storing experiment data
+
+        Args:
+            service: Service to be used.
+
+        Raises:
+            ExperimentDataError: If an experiment service is already being used.
+        """
+        self._provider = provider
+
+    @property
     def auto_save(self) -> bool:
         """Return current auto-save option.
 
@@ -950,7 +970,7 @@ class ExperimentData:
         for jid in jobs_to_retreive:
             try:
                 LOG.debug("Retrieving job from backend %s [Job ID: %s]", self._backend, jid)
-                job = self._provider.retrieve_job(jid)
+                job = self.provider.retrieve_job(jid)
                 retrieved_jobs[jid] = job
             except Exception:  # pylint: disable=broad-except
                 LOG.warning(
