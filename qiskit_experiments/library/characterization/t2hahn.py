@@ -70,6 +70,7 @@ class T2Hahn(BaseExperiment):
 
         Experiment Options:
             delays (Iterable[float]): Delay times of the experiments.
+            num_echoes (int): The number of echoes to preform.
         """
         options = super()._default_experiment_options()
 
@@ -94,7 +95,7 @@ class T2Hahn(BaseExperiment):
             delays: Total delay times of the experiments.
             backend: Optional, the backend to run the experiment on.
             num_echoes: The number of echoes to preform.
-            backend: Optional, the backend to run the experiment on..
+            backend: Optional, the backend to run the experiment on.
 
          Raises:
              QiskitError : Error for invalid input.

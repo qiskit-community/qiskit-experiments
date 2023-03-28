@@ -57,17 +57,23 @@ class StandardRB(BaseExperiment, RestlessMixin):
     """An experiment to characterize the error rate of a gate set on a device.
 
     # section: overview
-        Randomized Benchmarking (RB) is an efficient and robust method
-        for estimating the average error rate of a set of quantum gate operations.
-        See `Qiskit Textbook
-        <https://qiskit.org/textbook/ch-quantum-hardware/randomized-benchmarking.html>`_
-        for an explanation on the RB method.
 
-        A standard RB experiment generates sequences of random Cliffords
-        such that the unitary computed by the sequences is the identity.
-        After running the sequences on a backend, it calculates the probabilities to get back to
-        the ground state, fits an exponentially decaying curve, and estimates
-        the Error Per Clifford (EPC), as described in Refs. [1, 2].
+    Randomized Benchmarking (RB) is an efficient and robust method
+    for estimating the average error rate of a set of quantum gate operations.
+    See `Qiskit Textbook
+    <https://qiskit.org/textbook/ch-quantum-hardware/randomized-benchmarking.html>`_
+    for an explanation on the RB method.
+
+    A standard RB experiment generates sequences of random Cliffords
+    such that the unitary computed by the sequences is the identity.
+    After running the sequences on a backend, it calculates the probabilities to get back to
+    the ground state, fits an exponentially decaying curve, and estimates
+    the Error Per Clifford (EPC), as described in Refs. [1, 2].
+
+    .. note::
+        In 0.5.0, the default value of ``optimization_level`` in ``transpile_options`` changed
+        from ``0`` to ``1`` for RB experiments. That may result in shorter RB circuits
+        hence slower decay curves than before.
 
     # section: analysis_ref
         :class:`RBAnalysis`
@@ -75,7 +81,6 @@ class StandardRB(BaseExperiment, RestlessMixin):
     # section: reference
         .. ref_arxiv:: 1 1009.3639
         .. ref_arxiv:: 2 1109.6887
-
     """
 
     @deprecate_arguments({"qubits": "physical_qubits"}, "0.5")
@@ -138,6 +143,9 @@ class StandardRB(BaseExperiment, RestlessMixin):
                 used to initialize ``numpy.random.default_rng`` when generating circuits.
                 The ``default_rng`` will be initialized with this seed value everytime
                 :meth:`circuits` is called.
+            full_sampling (bool): If True all Cliffords are independently sampled for
+                all lengths. If False for sample of lengths longer sequences are constructed
+                by appending additional Clifford samples to shorter sequences.
         """
         options = super()._default_experiment_options()
         options.update_options(
@@ -148,6 +156,11 @@ class StandardRB(BaseExperiment, RestlessMixin):
         )
 
         return options
+
+    @classmethod
+    def _default_transpile_options(cls) -> Options:
+        """Default transpiler options for transpiling RB circuits."""
+        return Options(optimization_level=1)
 
     def _set_backend(self, backend: Backend):
         """Set the backend V2 for RB experiments since RB experiments only support BackendV2
@@ -339,7 +352,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
         """Return a list of experiment circuits, transpiled."""
         has_custom_transpile_option = (
             not set(vars(self.transpile_options)).issubset({"basis_gates", "optimization_level"})
-            or self.transpile_options.get("optimization_level", 0) != 0
+            or self.transpile_options.get("optimization_level", 1) != 1
         )
         has_no_undirected_2q_basis = self._get_basis_gates() is None
         if self.num_qubits > 2 or has_custom_transpile_option or has_no_undirected_2q_basis:

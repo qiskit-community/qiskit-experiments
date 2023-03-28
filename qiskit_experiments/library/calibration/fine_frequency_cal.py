@@ -29,11 +29,7 @@ from qiskit_experiments.warnings import qubit_deprecate
 
 
 class FineFrequencyCal(BaseCalibrationExperiment, FineFrequency):
-    """A calibration version of the fine frequency experiment.
-
-    # section: see_also
-        :class:`.FineFrequency`
-    """
+    """A calibration version of the fine frequency experiment."""
 
     @qubit_deprecate()
     def __init__(

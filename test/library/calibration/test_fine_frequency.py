@@ -16,16 +16,16 @@ from test.base import QiskitExperimentsTestCase
 import numpy as np
 from ddt import ddt, data
 
+from qiskit import pulse
 from qiskit.providers.fake_provider import FakeArmonkV2
-import qiskit.pulse as pulse
 
 from qiskit_experiments.library import (
     FineFrequency,
     FineFrequencyCal,
 )
-from qiskit_experiments.framework import BackendData
 from qiskit_experiments.calibration_management.basis_gate_library import FixedFrequencyTransmon
 from qiskit_experiments.calibration_management import Calibrations
+from qiskit_experiments.framework import BackendData
 from qiskit_experiments.test.mock_iq_backend import MockIQBackend
 from qiskit_experiments.test.mock_iq_helpers import MockIQFineFreqHelper as FineFreqHelper
 
@@ -53,7 +53,7 @@ class TestFineFreqEndToEnd(QiskitExperimentsTestCase):
         """Test the experiment end to end."""
         exp_helper = FineFreqHelper(sx_duration=self.sx_duration, freq_shift=freq_shift)
         backend = MockIQBackend(exp_helper)
-        exp_helper.dt = backend.configuration().dt
+        exp_helper.dt = BackendData(backend).dt
 
         freq_exp = FineFrequency([0], 160, backend)
         freq_exp.set_transpile_options(inst_map=self.inst_map)
@@ -62,7 +62,7 @@ class TestFineFreqEndToEnd(QiskitExperimentsTestCase):
         self.assertExperimentDone(expdata)
         result = expdata.analysis_results(1)
         d_theta = result.value.n
-        dt = backend.configuration().dt
+        dt = BackendData(backend).dt
         d_freq = d_theta / (2 * np.pi * self.sx_duration * dt)
 
         tol = 0.01e6
@@ -75,7 +75,7 @@ class TestFineFreqEndToEnd(QiskitExperimentsTestCase):
 
         exp_helper = FineFreqHelper(sx_duration=self.sx_duration, freq_shift=0.1e6)
         backend = MockIQBackend(exp_helper)
-        exp_helper.dt = backend.configuration().dt
+        exp_helper.dt = BackendData(backend).dt
 
         fine_freq = FineFrequencyCal([0], self.cals, backend)
         armonk_freq = BackendData(FakeArmonkV2()).drive_freqs[0]

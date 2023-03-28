@@ -12,42 +12,40 @@
 
 """Fake backend class for tests."""
 import uuid
-from qiskit.providers.backend import BackendV1
-from qiskit.providers.models import QasmBackendConfiguration
+from qiskit.circuit.library import Measure
+from qiskit.providers.backend import BackendV2
+from qiskit.providers.options import Options
+from qiskit.transpiler import Target
 
 from qiskit.result import Result
 
-from qiskit_experiments.framework import Options
 from qiskit_experiments.test.utils import FakeJob
 
 
-class FakeBackend(BackendV1):
+class FakeBackend(BackendV2):
     """
     Fake backend for test purposes only.
     """
 
-    def __init__(self, **config):
-        default_config = {
-            "backend_name": "fake_backend",
-            "backend_version": "0",
-            "n_qubits": int(1e6),
-            "basis_gates": [],
-            "gates": [],
-            "local": True,
-            "simulator": True,
-            "conditional": False,
-            "open_pulse": False,
-            "memory": False,
-            "max_shots": int(1e6),
-            "max_experiments": None,
-            "coupling_map": None,
-        }
-        default_config.update(**config)
-        super().__init__(QasmBackendConfiguration(**default_config))
+    def __init__(self, backend_name="fake_backend", num_qubits=1, max_experiments=100):
+        super().__init__(name=backend_name)
+        self._target = Target(num_qubits=num_qubits)
+        # Add a measure for each qubit so a simple measure circuit works
+        self.target.add_instruction(Measure())
+        self._max_circuits = max_experiments
+
+    @property
+    def max_circuits(self):
+        """Maximum circuits to run at once"""
+        return self._max_circuits
 
     @classmethod
     def _default_options(cls):
         return Options()
+
+    @property
+    def target(self) -> Target:
+        return self._target
 
     def run(self, run_input, **options):
         result = {

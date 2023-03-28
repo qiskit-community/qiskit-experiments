@@ -48,7 +48,7 @@ class QuantumVolumeAnalysis(BaseAnalysis):
 
         Analysis Options:
             plot (bool): Set ``True`` to create figure for fit result.
-            ax(AxesSubplot): Optional. A matplotlib axis object to draw.
+            ax (AxesSubplot): Optional. A matplotlib axis object to draw.
         """
         options = super()._default_options()
         options.plot = True
@@ -95,7 +95,7 @@ class QuantumVolumeAnalysis(BaseAnalysis):
              list: the bit strings of the heavy output
         """
 
-        format_spec = "{0:0%db}" % depth
+        format_spec = f"{{0:0{depth}b}}"
         # Keys are bit strings and values are probabilities of observing those strings
         all_output_prob_ideal = {
             format_spec.format(b): float(np.real(probabilities_vector[b]))
@@ -126,7 +126,7 @@ class QuantumVolumeAnalysis(BaseAnalysis):
         circ_shots = sum(data["counts"].values())
 
         # Calculate the number of heavy output counts in the experiment
-        heavy_output_counts = sum([data["counts"].get(value, 0) for value in heavy_outputs])
+        heavy_output_counts = sum(data["counts"].get(value, 0) for value in heavy_outputs)
 
         # Calculate the experimental heavy output probability
         return heavy_output_counts / circ_shots

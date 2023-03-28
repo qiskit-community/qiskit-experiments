@@ -32,10 +32,9 @@ from qiskit.pulse import (
     RegisterSlot,
     Play,
 )
-from qiskit import transpile, QuantumCircuit
+from qiskit import QuantumCircuit, pulse, transpile
 from qiskit.circuit.library import CXGate, XGate
 from qiskit.pulse.transforms import inline_subroutines, block_to_schedule
-import qiskit.pulse as pulse
 from qiskit.providers import BackendV2, Options
 from qiskit.providers.fake_provider import FakeArmonkV2, FakeBelemV2
 from qiskit.transpiler import Target
@@ -52,11 +51,9 @@ from qiskit_experiments.exceptions import CalibrationError
 class MinimalBackend(BackendV2):
     """Class for testing a backend with minimal data"""
 
-    target = None
-
-    def __init__(self):
+    def __init__(self, num_qubits=1):
         super().__init__()
-        self.target = Target()
+        self._target = Target(num_qubits=num_qubits)
 
     @property
     def max_circuits(self):
@@ -66,6 +63,11 @@ class MinimalBackend(BackendV2):
     @classmethod
     def _default_options(cls):
         return Options()
+
+    @property
+    def target(self) -> Target:
+        """Target instance for the backend"""
+        return self._target
 
     def run(self, run_input, **options):
         """Empty method to satisfy abstract base class"""
@@ -178,7 +180,7 @@ class TestCalibrationsBasic(QiskitExperimentsTestCase):
             if sched_dict["schedule"].name == "xp":
                 schedule = sched_dict["schedule"]
 
-        for param in {self.amp_xp, self.sigma, self.beta, self.duration, self.chan}:
+        for param in (self.amp_xp, self.sigma, self.beta, self.duration, self.chan):
             self.assertTrue(param in schedule.parameters)
 
         self.assertEqual(len(schedule.parameters), 5)
@@ -343,8 +345,7 @@ class TestCalibrationsBasic(QiskitExperimentsTestCase):
         else:
             gate = None
 
-        backend = MinimalBackend()
-        backend.target = Target(num_qubits=num_qubits)
+        backend = MinimalBackend(num_qubits=num_qubits)
         if gate is not None:
             backend.target.add_instruction(gate, properties=properties)
         Calibrations.from_backend(backend)

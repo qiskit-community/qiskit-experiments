@@ -47,9 +47,6 @@ class ProcessTomography(TomographyExperiment):
     # section: analysis_ref
         :class:`ProcessTomographyAnalysis`
 
-    # section: see_also
-        :class:`.TomographyExperiment`
-
     """
 
     @deprecate_arguments(
