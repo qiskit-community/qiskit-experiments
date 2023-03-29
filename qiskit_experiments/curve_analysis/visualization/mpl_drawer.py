@@ -36,7 +36,7 @@ from .base_drawer import BaseCurveDrawer
 class MplCurveDrawer(BaseCurveDrawer):
     """Curve drawer for MatplotLib backend."""
 
-    DefaultMarkers = MarkerStyle().filled_markers
+    DefaultMarkers = MarkerStyle('').filled_markers
     DefaultColors = tab10.colors
 
     class PrefixFormatter(Formatter):
