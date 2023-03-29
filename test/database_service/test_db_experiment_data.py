@@ -493,8 +493,8 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         exp_data.service = service
         exp_data.save()
         service.create_or_update_experiment.assert_called_once()
-        service.create_or_update_figure.assert_called_once()
-        analysis_result.save.assert_called_once()
+        service.create_figures.assert_called_once()
+        service.create_analysis_results.assert_called_once()
 
     def test_save_delete(self):
         """Test saving all deletion."""

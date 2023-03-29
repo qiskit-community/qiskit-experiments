@@ -968,9 +968,10 @@ class ExperimentData:
         # Get job results if missing experiment data.
         retrieved_jobs = {}
         jobs_to_retreive = []
-        for jid in self.job_ids:
-            if jid not in self._jobs or self._jobs[jid] is None:
-                jobs_to_retreive.append(jid)
+        if self.job_ids is not None:
+            for jid in self.job_ids:
+                if jid not in self._jobs or self._jobs[jid] is None:
+                    jobs_to_retreive.append(jid)
         for jid, job in self._jobs.items():
             if job is None:
                 jobs_to_retreive.append(jid)
