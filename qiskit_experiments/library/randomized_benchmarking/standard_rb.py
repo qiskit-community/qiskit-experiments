@@ -383,11 +383,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
                     inst_prop = self.backend.target[op_name].get(qargs, None)
                     if inst_prop is None:
                         continue
-                    try:
-                        schedule = inst_prop.calibration
-                    except AttributeError:
-                        # TODO remove after qiskit-terra/#9681 is in stable release.
-                        schedule = None
+                    schedule = inst_prop.calibration
                     if schedule is None:
                         continue
                     publisher = schedule.metadata.get("publisher", CalibrationPublisher.QISKIT)
