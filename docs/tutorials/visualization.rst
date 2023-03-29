@@ -52,13 +52,14 @@ First, we display the default figure from a :class:`.Rabi` experiment as a start
             pulse.DriveChannel(0)
         )
 
-    backend = SingleTransmonTestBackend()
-
+    seed = 100
+    backend = SingleTransmonTestBackend(seed=seed)
+    
     rabi = Rabi(
         physical_qubits=(0,),
         backend=backend,
         schedule=sched,
-        amplitudes=np.linspace(-0.1, 0.1, 21)
+        amplitudes=np.linspace(-0.1, 0.1, 21),
     )
 
     rabi_data = rabi.run().block_for_results()
@@ -128,7 +129,7 @@ to see what the default figure looks like:
         pulse.play(pulse.Drag(64, 0.66, 16, beta), pulse.DriveChannel(0))
 
     drag_experiment_helper = DragHelper(gate_name="Drag(xp)")
-    backend = MockIQBackend(drag_experiment_helper)
+    backend = MockIQBackend(drag_experiment_helper, rng_seed=seed)
 
     drag = RoughDrag((0,), xp, backend=backend)
 
@@ -214,8 +215,6 @@ series over the axis area.
 
 .. jupyter-input::
 
-    drag_experiment_helper = DragHelper(gate_name="Drag(xp)")
-    backend = MockIQBackend(drag_experiment_helper)
     with pulse.build(name="xp") as xp:
         pulse.play(Drag(duration=160, amp=0.208519, sigma=40, beta=beta), DriveChannel(0))
 

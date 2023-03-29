@@ -33,9 +33,9 @@ z_value = 2), and at least 100 trials have been ran.
     from qiskit_aer import AerSimulator
     
     # For simulation
-    from qiskit.providers.fake_provider import FakeSydney
+    from qiskit.providers.fake_provider import FakeSydneyV2
     
-    backend = AerSimulator.from_backend(FakeSydney())
+    backend = AerSimulator.from_backend(FakeSydneyV2())
 
 QV experiment
 -------------

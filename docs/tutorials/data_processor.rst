@@ -82,7 +82,7 @@ The code below sets up the Rabi experiment.
             pulse.DriveChannel(0)
         )
 
-    backend = SingleTransmonTestBackend()
+    backend = SingleTransmonTestBackend(seed=100)
 
     exp = Rabi(
         qubit=0,

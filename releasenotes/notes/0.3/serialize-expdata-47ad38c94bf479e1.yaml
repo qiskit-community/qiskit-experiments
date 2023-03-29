@@ -1,7 +1,7 @@
 ---
 features:
   - |
-    Adds support for JSON serialization of :class:`.ExperimentData` objects.
+    Added support for JSON serialization of :class:`.ExperimentData` objects.
     These objects can be serialized using the :class:`.ExperimentEncoder`
     and :class:`.ExperimentDecoder` classes.
     
@@ -9,5 +9,5 @@ features:
     individual option values and analysis result types are themselves JSON
     serializable using the encoder and decoder classes.
   - |
-    Adds support for pickling :class:`.ExperimentData` objects using the
+    Added support for pickling :class:`.ExperimentData` objects using the
     Python ``pickle`` module.

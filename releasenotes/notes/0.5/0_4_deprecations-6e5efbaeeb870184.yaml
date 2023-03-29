@@ -7,7 +7,7 @@ upgrade:
       should be used instead.
     * The ``__analysis_class__`` attribute of :class:`.BaseAnalysis` has been removed.
       Use the ``analysis`` kwarg of ``BaseExperiment.__init__`` to specify a default 
-      analysis class."
+      analysis class.
     * The ``component_experiment_data()`` method has been removed from 
       :class:`.ExperimentData` and replaced by :meth:`.ExperimentData.child_data`.
     * The ``CompositeExperiment.component_analysis`` method has been removed. Component 

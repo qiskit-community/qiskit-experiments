@@ -62,17 +62,17 @@ pure T1/T2 relaxation noise model.
 .. jupyter-execute::
 
     # A T1 simulator
-    from qiskit.providers.fake_provider import FakeVigo
+    from qiskit.providers.fake_provider import FakePerth
     from qiskit_aer import AerSimulator
     from qiskit_aer.noise import NoiseModel
     
     # Create a pure relaxation noise model for AerSimulator
     noise_model = NoiseModel.from_backend(
-        FakeVigo(), thermal_relaxation=True, gate_error=False, readout_error=False
+        FakePerth(), thermal_relaxation=True, gate_error=False, readout_error=False
     )
     
     # Create a fake backend simulator
-    backend = AerSimulator.from_backend(FakeVigo(), noise_model=noise_model)
+    backend = AerSimulator.from_backend(FakePerth(), noise_model=noise_model)
 
 The resulting graph will have the form:
 :math:`f(t) = a^{-t/T_2*} \cdot \cos(2 \pi f t + \phi) + b` where *t* is
