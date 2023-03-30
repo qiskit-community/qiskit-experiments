@@ -6,24 +6,24 @@ features:
     experiment can enabled by setting the ``qiskit_experiments`` log level
     to ``DEBUG``.
   - |
-    Adds :meth:`.ExperimentData.jobs` method for returning a list of
+    Added :meth:`.ExperimentData.jobs` method for returning a list of
     Qiskit Jobs for a running or finished experiment.
   - |
-    Adds :meth:`.ExperimentData.job_status` method for returning the status
+    Added :meth:`.ExperimentData.job_status` method for returning the status
     of Qiskit Job execution for an experiment. This returns a
     :class:`.JobStatus` enum class value.
   - |
-    Adds :meth:`.ExperimentData.analysis_status` method for returning the status
+    Added :meth:`.ExperimentData.analysis_status` method for returning the status
     of analysis callbacks for an experiment. This returns a
     :class:`.AnalysisStatus` enum class value.
   - |
-    Adds :meth:`.ExperimentData.cancel_analysis` method to allow cancelling
+    Added :meth:`.ExperimentData.cancel_analysis` method to allow cancelling
     pending analysis callbacks. Note that analysis callbacks that have already
     started running cannot be cancelled.
   - |
-    Adds :meth:`.ExperimentData.cancel` to cancel both jobs and analysis.
+    Added :meth:`.ExperimentData.cancel` to cancel both jobs and analysis.
   - |
-    Adds :meth:`.ExperimentData.add_jobs` method for adding one or more Qiskit
+    Added :meth:`.ExperimentData.add_jobs` method for adding one or more Qiskit
     jobs to experiment data. This method takes an optional ``timeout`` kwarg that
     when used will automatically cancel all non-finished jobs that exceed the
     alloted time.
@@ -46,5 +46,5 @@ deprecations:
     method.
 fixes:
   - |
-    Fixes an issue with :meth:`.ExperimentData.block_for_results` sometimes
+    Fixed an issue with :meth:`.ExperimentData.block_for_results` sometimes
     having a race issue with all analysis callbacks finishing.

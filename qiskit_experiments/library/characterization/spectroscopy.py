@@ -13,17 +13,18 @@
 """Abstract spectroscopy experiment base class."""
 
 from abc import ABC, abstractmethod
-from typing import Iterable, Optional
+from typing import Iterable, Optional, Sequence
 
 import numpy as np
-import qiskit.pulse as pulse
 from qiskit import QuantumCircuit
+from qiskit import pulse
 from qiskit.exceptions import QiskitError
 from qiskit.providers import Backend
 from qiskit.qobj.utils import MeasLevel
 
 from qiskit_experiments.framework import BaseAnalysis, BaseExperiment, Options
 from qiskit_experiments.curve_analysis import ResonanceAnalysis
+from qiskit_experiments.warnings import qubit_deprecate
 
 
 class Spectroscopy(BaseExperiment, ABC):
@@ -61,9 +62,10 @@ class Spectroscopy(BaseExperiment, ABC):
 
         return options
 
+    @qubit_deprecate()
     def __init__(
         self,
-        qubit: int,
+        physical_qubits: Sequence[int],
         frequencies: Iterable[float],
         backend: Optional[Backend] = None,
         absolute: bool = True,
@@ -73,7 +75,7 @@ class Spectroscopy(BaseExperiment, ABC):
         """A spectroscopy experiment where the frequency of a pulse is scanned.
 
         Args:
-            qubit: The qubit on which to run spectroscopy.
+            physical_qubits: List containing the qubit on which to run spectroscopy.
             frequencies: The frequencies to scan in the experiment, in Hz.
             backend: Optional, the backend to run the experiment on.
             absolute: Boolean to specify if the frequencies are absolute or relative to the
@@ -82,12 +84,12 @@ class Spectroscopy(BaseExperiment, ABC):
             experiment_options: Key word arguments used to set the experiment options.
 
         Raises:
-            QiskitError: if there are less than three frequency shifts.
+            QiskitError: If there are less than three frequency shifts.
 
         """
         analysis = analysis or ResonanceAnalysis()
 
-        super().__init__([qubit], analysis=analysis, backend=backend)
+        super().__init__(physical_qubits, analysis=analysis, backend=backend)
 
         if len(frequencies) < 3:
             raise QiskitError("Spectroscopy requires at least three frequencies.")
@@ -96,16 +98,6 @@ class Spectroscopy(BaseExperiment, ABC):
         self._absolute = absolute
 
         self.set_experiment_options(**experiment_options)
-
-    def _set_backend(self, backend: Backend):
-        """Set the backend for the experiment and extract config information."""
-        super()._set_backend(backend)
-
-        self._dt = self._backend_data.dt
-        self._granularity = self._backend_data.granularity
-
-        if self._dt is None or self._granularity is None:
-            raise QiskitError(f"{self.__class__.__name__} needs both dt and sample granularity.")
 
     @property
     @abstractmethod

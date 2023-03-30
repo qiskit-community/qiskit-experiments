@@ -12,7 +12,7 @@
 
 """Rough drag calibration experiment."""
 
-from typing import Dict, Iterable, Optional
+from typing import Dict, Iterable, Optional, Sequence
 
 from qiskit.circuit import Parameter, QuantumCircuit
 from qiskit.providers.backend import Backend
@@ -24,18 +24,21 @@ from qiskit_experiments.calibration_management import (
 )
 from qiskit_experiments.calibration_management.update_library import BaseUpdater
 from qiskit_experiments.library.characterization.drag import RoughDrag
+from qiskit_experiments.warnings import qubit_deprecate
 
 
 class RoughDragCal(BaseCalibrationExperiment, RoughDrag):
     """A calibration version of the Drag experiment.
 
-    # section: see_also
-        qiskit_experiments.library.characterization.rough_drag.RoughDrag
+    # section: manual
+        :ref:`DRAG Calibration`
+
     """
 
+    @qubit_deprecate()
     def __init__(
         self,
-        qubit: int,
+        physical_qubits: Sequence[int],
         calibrations: Calibrations,
         backend: Optional[Backend] = None,
         schedule_name: str = "x",
@@ -47,7 +50,8 @@ class RoughDragCal(BaseCalibrationExperiment, RoughDrag):
         r"""see class :class:`RoughDrag` for details.
 
         Args:
-            qubit: The qubit for which to run the rough drag calibration.
+            physical_qubits: Sequence containing the qubit for which to run the
+                rough drag calibration.
             calibrations: The calibrations instance with the schedules.
             backend: Optional, the backend to run the experiment on.
             schedule_name: The name of the schedule to calibrate. Defaults to "x".
@@ -59,6 +63,7 @@ class RoughDragCal(BaseCalibrationExperiment, RoughDrag):
                 default this variable is set to True.
             group: The group of calibration parameters to use. The default value is "default".
         """
+        qubit = physical_qubits[0]
         schedule = calibrations.get_schedule(
             schedule_name, qubit, assign_params={cal_parameter_name: Parameter("β")}, group=group
         )
@@ -68,7 +73,7 @@ class RoughDragCal(BaseCalibrationExperiment, RoughDrag):
 
         super().__init__(
             calibrations,
-            qubit,
+            physical_qubits,
             schedule=schedule,
             betas=betas,
             backend=backend,

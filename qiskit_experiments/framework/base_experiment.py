@@ -17,7 +17,6 @@ from abc import ABC, abstractmethod
 import copy
 from collections import OrderedDict
 from typing import Sequence, Optional, Tuple, List, Dict, Union
-import warnings
 
 from qiskit import transpile, QuantumCircuit
 from qiskit.providers import Job, Backend
@@ -29,14 +28,16 @@ from qiskit_experiments.framework.store_init_args import StoreInitArgs
 from qiskit_experiments.framework.base_analysis import BaseAnalysis
 from qiskit_experiments.framework.experiment_data import ExperimentData
 from qiskit_experiments.framework.configs import ExperimentConfig
+from qiskit_experiments.warnings import deprecate_arguments
 
 
 class BaseExperiment(ABC, StoreInitArgs):
     """Abstract base class for experiments."""
 
+    @deprecate_arguments({"qubits": "physical_qubits"}, "0.5")
     def __init__(
         self,
-        qubits: Sequence[int],
+        physical_qubits: Sequence[int],
         analysis: Optional[BaseAnalysis] = None,
         backend: Optional[Backend] = None,
         experiment_type: Optional[str] = None,
@@ -44,20 +45,20 @@ class BaseExperiment(ABC, StoreInitArgs):
         """Initialize the experiment object.
 
         Args:
-            qubits: list of physical qubits for the experiment.
+            physical_qubits: list of physical qubits for the experiment.
             analysis: Optional, the analysis to use for the experiment.
             backend: Optional, the backend to run the experiment on.
             experiment_type: Optional, the experiment type string.
 
         Raises:
-            QiskitError: if qubits contains duplicates.
+            QiskitError: If qubits contains duplicates.
         """
         # Experiment identification metadata
         self._type = experiment_type if experiment_type else type(self).__name__
 
         # Circuit parameters
-        self._num_qubits = len(qubits)
-        self._physical_qubits = tuple(qubits)
+        self._num_qubits = len(physical_qubits)
+        self._physical_qubits = tuple(physical_qubits)
         if self._num_qubits != len(set(self._physical_qubits)):
             raise QiskitError("Duplicate qubits in physical qubits list.")
 
@@ -76,17 +77,6 @@ class BaseExperiment(ABC, StoreInitArgs):
         self._analysis = None
         if analysis:
             self.analysis = analysis
-        # TODO: Hack for backwards compatibility with old base class.
-        # Remove after updating subclasses
-        elif hasattr(self, "__analysis_class__"):
-            warnings.warn(
-                "Defining a default BaseAnalysis class for an experiment using the "
-                "__analysis_class__ attribute is deprecated as of 0.2.0. "
-                "Use the `analysis` kwarg of BaseExperiment.__init__ "
-                "to specify a default analysis class."
-            )
-            analysis_cls = getattr(self, "__analysis_class__")
-            self.analysis = analysis_cls()  # pylint: disable = not-callable
 
         # Set backend
         # This should be called last in case `_set_backend` access any of the
@@ -222,7 +212,7 @@ class BaseExperiment(ABC, StoreInitArgs):
             The experiment data object.
 
         Raises:
-            QiskitError: if experiment is run with an incompatible existing
+            QiskitError: If experiment is run with an incompatible existing
                          ExperimentData container.
         """
 
@@ -278,8 +268,17 @@ class BaseExperiment(ABC, StoreInitArgs):
 
     def _run_jobs(self, circuits: List[QuantumCircuit], **run_options) -> List[Job]:
         """Run circuits on backend as 1 or more jobs."""
+        # Get max circuits for job splitting
+        max_circuits_option = getattr(self.experiment_options, "max_circuits", None)
+        max_circuits_backend = self._backend_data.max_circuits
+        if max_circuits_option and max_circuits_backend:
+            max_circuits = min(max_circuits_option, max_circuits_backend)
+        elif max_circuits_option:
+            max_circuits = max_circuits_option
+        else:
+            max_circuits = max_circuits_backend
+
         # Run experiment jobs
-        max_circuits = self._backend_data.max_circuits
         if max_circuits and len(circuits) > max_circuits:
             # Split jobs for backends that have a maximum job size
             job_circuits = [
@@ -299,12 +298,12 @@ class BaseExperiment(ABC, StoreInitArgs):
         """Return a list of experiment circuits.
 
         Returns:
-            A list of :class:`QuantumCircuit`.
+            A list of :class:`~qiskit.circuit.QuantumCircuit`.
 
         .. note::
             These circuits should be on qubits ``[0, .., N-1]`` for an
             *N*-qubit experiment. The circuits mapped to physical qubits
-            are obtained via the :meth:`transpiled_circuits` method.
+            are obtained via the internal :meth:`_transpiled_circuits` method.
         """
         # NOTE: Subclasses should override this method using the `options`
         # values for any explicit experiment options that affect circuit
@@ -323,13 +322,18 @@ class BaseExperiment(ABC, StoreInitArgs):
 
     @classmethod
     def _default_experiment_options(cls) -> Options:
-        """Default kwarg options for experiment"""
+        """Default experiment options.
+
+        Experiment Options:
+            max_circuits (Optional[int]): The maximum number of circuits per job when
+                running an experiment on a backend.
+        """
         # Experiment subclasses should override this method to return
         # an `Options` object containing all the supported options for
         # that experiment and their default values. Only options listed
         # here can be modified later by the different methods for
         # setting options.
-        return Options()
+        return Options(max_circuits=None)
 
     @property
     def experiment_options(self) -> Options:
@@ -373,7 +377,9 @@ class BaseExperiment(ABC, StoreInitArgs):
             fields: The fields to update the options
 
         Raises:
-            QiskitError: if `initial_layout` is one of the fields.
+            QiskitError: If `initial_layout` is one of the fields.
+
+        .. seealso:: The :ref:`guide_setting_options` guide for code example.
         """
         if "initial_layout" in fields:
             raise QiskitError(
@@ -398,26 +404,11 @@ class BaseExperiment(ABC, StoreInitArgs):
 
         Args:
             fields: The fields to update the options
+
+        .. seealso:: The :ref:`guide_setting_options` guide for code example.
         """
         self._run_options.update_options(**fields)
         self._set_run_options = self._set_run_options.union(fields)
-
-    @property
-    def analysis_options(self) -> Options:
-        """Return the analysis options for :meth:`run` analysis.
-
-        .. deprecated:: 0.2.0
-            This is replaced by calling ``experiment.analysis.options`` using
-            the :meth:`analysis`and :meth:`~qiskit_experiments.framework.BaseAnalysis.options`
-            properties.
-        """
-        warnings.warn(
-            "`BaseExperiment.analysis_options` is deprecated as of qiskit-experiments"
-            " 0.2.0 and will be removed in the 0.3.0 release."
-            " Use `experiment.analysis.options instead",
-            DeprecationWarning,
-        )
-        return self.analysis.options
 
     def _metadata(self) -> Dict[str, any]:
         """Return experiment metadata for ExperimentData.

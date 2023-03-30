@@ -15,8 +15,7 @@
 from test.base import QiskitExperimentsTestCase
 import numpy as np
 
-from qiskit import transpile
-import qiskit.pulse as pulse
+from qiskit import pulse, transpile
 from qiskit.circuit import Parameter
 
 from qiskit_experiments.calibration_management.basis_gate_library import FixedFrequencyTransmon
@@ -39,7 +38,7 @@ class TestRoughAmpCal(QiskitExperimentsTestCase):
     def test_circuits(self):
         """Test the quantum circuits."""
         test_amps = [-0.5, 0, 0.5]
-        rabi = RoughXSXAmplitudeCal(0, self.cals, amplitudes=test_amps)
+        rabi = RoughXSXAmplitudeCal([0], self.cals, amplitudes=test_amps)
 
         circs = transpile(rabi.circuits(), self.backend, inst_map=self.cals.default_inst_map)
 
@@ -59,7 +58,7 @@ class TestRoughAmpCal(QiskitExperimentsTestCase):
         default_amp = 0.5 / self.backend.rabi_rate_01
 
         rabi = RoughXSXAmplitudeCal(
-            0, self.cals, amplitudes=np.linspace(-0.1, 0.1, 11), backend=self.backend
+            [0], self.cals, amplitudes=np.linspace(-0.1, 0.1, 11), backend=self.backend
         )
         expdata = rabi.run()
         self.assertExperimentDone(expdata)
@@ -71,7 +70,7 @@ class TestRoughAmpCal(QiskitExperimentsTestCase):
 
         self.cals.add_parameter_value(int(4 * 160 / 5), "duration", (), schedule="x")
         rabi = RoughXSXAmplitudeCal(
-            0, self.cals, amplitudes=np.linspace(-0.1, 0.1, 11), backend=self.backend
+            [0], self.cals, amplitudes=np.linspace(-0.1, 0.1, 11), backend=self.backend
         )
         expdata = rabi.run()
         self.assertExperimentDone(expdata)
@@ -85,7 +84,7 @@ class TestRoughAmpCal(QiskitExperimentsTestCase):
 
     def test_experiment_config(self):
         """Test converting to and from config works"""
-        exp = RoughXSXAmplitudeCal(0, self.cals)
+        exp = RoughXSXAmplitudeCal([0], self.cals)
         config = exp.config()
         loaded_exp = RoughXSXAmplitudeCal.from_config(config)
         self.assertNotEqual(exp, loaded_exp)
@@ -125,7 +124,7 @@ class TestSpecializations(QiskitExperimentsTestCase):
         """Test that we get the expected circuits with calibrations for the EF experiment."""
 
         test_amps = [-0.5, 0, 0.5]
-        rabi_ef = EFRoughXSXAmplitudeCal(0, self.cals, amplitudes=test_amps)
+        rabi_ef = EFRoughXSXAmplitudeCal([0], self.cals, amplitudes=test_amps)
 
         circs = transpile(rabi_ef.circuits(), self.backend, inst_map=self.cals.default_inst_map)
 
@@ -152,7 +151,7 @@ class TestSpecializations(QiskitExperimentsTestCase):
         default_amp = 0.5 / self.backend.rabi_rate_12
 
         rabi_ef = EFRoughXSXAmplitudeCal(
-            0, self.cals, amplitudes=np.linspace(-0.1, 0.1, 11), backend=self.backend
+            [0], self.cals, amplitudes=np.linspace(-0.1, 0.1, 11), backend=self.backend
         )
         expdata = rabi_ef.run()
         self.assertExperimentDone(expdata)
@@ -166,7 +165,7 @@ class TestSpecializations(QiskitExperimentsTestCase):
 
         self.cals.add_parameter_value(int(4 * 160 / 5), "duration", 0, "x12")
         self.cals.add_parameter_value(int(4 * 160 / 5), "duration", 0, "sx12")
-        rabi_ef = EFRoughXSXAmplitudeCal(0, self.cals, amplitudes=np.linspace(-0.1, 0.1, 11))
+        rabi_ef = EFRoughXSXAmplitudeCal([0], self.cals, amplitudes=np.linspace(-0.1, 0.1, 11))
         expdata = rabi_ef.run(self.backend)
         self.assertExperimentDone(expdata)
 

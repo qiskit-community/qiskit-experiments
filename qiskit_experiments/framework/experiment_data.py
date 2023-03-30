@@ -23,7 +23,6 @@ from threading import Event
 from functools import wraps
 from collections import deque
 import contextlib
-import warnings
 import copy
 import uuid
 import enum
@@ -144,20 +143,24 @@ class FigureData:
 
 
 class ExperimentData:
-    """Qiskit Experiments Data container class.
+    """Experiment data container class.
 
     This class handles the following:
-    1. Storing the data related to an experiment - the experiment's metadata,
-       the analysis results and the figures
-    2. Managing jobs and adding data from jobs automatically
-    3. Saving/Loading data from the result database
 
-    The field `db_data` is a dataclass (`ExperimentDataclass`) containing
+    1. Storing the data related to an experiment: raw data, metadata, analysis results,
+       and figures
+    2. Managing jobs and adding data from jobs automatically
+    3. Saving and loading data from the database service
+
+    |
+
+    The field ``db_data`` is a dataclass (``ExperimentDataclass``) containing
     all the data that can be stored in the database and loaded from it, and
     as such is subject to strict conventions.
 
     Other data fields can be added and used freely, but they won't be saved
     to the database.
+
     """
 
     _metadata_version = 1
@@ -183,17 +186,17 @@ class ExperimentData:
         """Initialize experiment data.
 
         Args:
-            experiment: Optional, experiment object that generated the data.
-            backend: Optional, Backend the experiment runs on; overrides the
-            backend in the experiment object
+            experiment: Experiment object that generated the data.
+            backend: Backend the experiment runs on. This overrides the
+                backend in the experiment object.
             service: The service that stores the experiment results to the database
-            parent_id: Optional, ID of the parent experiment data
+            parent_id: ID of the parent experiment data
                 in the setting of a composite experiment
-            job_ids: Optional, IDs of jobs submitted for the experiment.
-            child_data: Optional, list of child experiment data.
-            verbose: Optional, whether to print messages
-            db_data: Optional, a prepared ExperimentDataclass of the experiment info;
-            overrides other db parameters.
+            job_ids: IDs of jobs submitted for the experiment.
+            child_data: List of child experiment data.
+            verbose: Whether to print messages.
+            db_data: A prepared ExperimentDataclass of the experiment info.
+                This overrides other db parameters.
         """
         if experiment is not None:
             backend = backend or experiment.backend
@@ -206,7 +209,7 @@ class ExperimentData:
         self._experiment = experiment
 
         # data stored in the database
-        metadata = dict()
+        metadata = {}
         if experiment is not None:
             metadata = copy.deepcopy(experiment._metadata())
         source = metadata.pop(
@@ -555,14 +558,22 @@ class ExperimentData:
 
     def _set_hgp_from_provider(self, provider):
         try:
-            creds = provider.credentials
-            hub = self._db_data.hub or creds.hub
-            group = self._db_data.group or creds.group
-            project = self._db_data.project or creds.project
-            self._db_data.hub = hub
-            self._db_data.group = group
-            self._db_data.project = project
-        except AttributeError:
+            hub = None
+            group = None
+            project = None
+            # qiskit-ibmq-provider style
+            if hasattr(provider, "credentials"):
+                creds = provider.credentials
+                hub = creds.hub
+                group = creds.group
+                project = creds.project
+            # qiskit-ibm-provider style
+            if hasattr(provider, "_hgps"):
+                hub, group, project = list(self.backend.provider._hgps.keys())[0].split("/")
+            self._db_data.hub = self._db_data.hub or hub
+            self._db_data.group = self._db_data.group or group
+            self._db_data.project = self._db_data.project or project
+        except (AttributeError, IndexError):
             return
 
     def _clear_results(self):
@@ -637,7 +648,8 @@ class ExperimentData:
         """Add experiment data.
 
         Args:
-            data: Experiment data to add. Several types are accepted for convenience
+            data: Experiment data to add. Several types are accepted for convenience:
+
                 * Result: Add data from this ``Result`` object.
                 * List[Result]: Add data from the ``Result`` objects.
                 * Dict: Add this data.
@@ -791,7 +803,7 @@ class ExperimentData:
                 return jid, False
             if status == JobStatus.ERROR:
                 LOG.error(
-                    "Job data not added for errorred job [Job ID: %s]" "\nError message: %s",
+                    "Job data not added for errorred job [Job ID: %s]\nError message: %s",
                     jid,
                     job.error_message(),
                 )
@@ -1698,21 +1710,20 @@ class ExperimentData:
     def job_status(self) -> JobStatus:
         """Return the experiment job execution status.
 
-        Possible return values for :class:`.JobStatus` are
+        Possible return values for :class:`qiskit.providers.jobstatus.JobStatus` are
 
-        * :attr:`~.JobStatus.ERROR` - if any job incurred an error
-        * :attr:`~.JobStatus.CANCELLED` - if any job is cancelled.
-        * :attr:`~.JobStatus.RUNNING` - if any job is still running.
-        * :attr:`~.JobStatus.QUEUED` - if any job is queued.
-        * :attr:`~.JobStatus.VALIDATING` - if any job is being validated.
-        * :attr:`~.JobStatus.INITIALIZING` - if any job is being initialized.
-        * :attr:`~.JobStatus.DONE` - if all jobs are finished.
+        * ``ERROR`` - if any job incurred an error
+        * ``CANCELLED`` - if any job is cancelled.
+        * ``RUNNING`` - if any job is still running.
+        * ``QUEUED`` - if any job is queued.
+        * ``VALIDATING`` - if any job is being validated.
+        * ``INITIALIZING`` - if any job is being initialized.
+        * ``DONE`` - if all jobs are finished.
 
         .. note::
 
-            If an experiment has status :attr:`~.JobStatus.ERROR` or
-            :attr:`~.JobStatus.CANCELLED` there may still be pending or
-            running jobs. In these cases it may be beneficial to call
+            If an experiment has status ``ERROR`` or ``CANCELLED`` there may still be
+            pending or running jobs. In these cases it may be beneficial to call
             :meth:`cancel_jobs` to terminate these remaining jobs.
 
         Returns:
@@ -1845,7 +1856,7 @@ class ExperimentData:
             The requested single or list of child experiment data.
 
         Raises:
-            QiskitError: if the index or ID of the child experiment data
+            QiskitError: If the index or ID of the child experiment data
                          cannot be found.
         """
         if index is None:
@@ -1855,17 +1866,6 @@ class ExperimentData:
         if isinstance(index, str):
             return self._child_data[index]
         raise QiskitError(f"Invalid index type {type(index)}.")
-
-    def component_experiment_data(
-        self, index: Optional[Union[int, slice]] = None
-    ) -> Union[ExperimentData, List[ExperimentData]]:
-        """Return child experiment data"""
-        warnings.warn(
-            "This method is deprecated and will be removed next release. "
-            "Use the `child_data` method instead.",
-            DeprecationWarning,
-        )
-        return self.child_data(index)
 
     @classmethod
     def load(cls, experiment_id: str, service: IBMExperimentService) -> "ExperimentData":
@@ -2053,7 +2053,7 @@ class ExperimentData:
             return self._extra_data[name]
         except KeyError:
             # pylint: disable=raise-missing-from
-            raise AttributeError("Attribute %s is not defined" % name)
+            raise AttributeError(f"Attribute {name} is not defined")
 
     def _safe_serialize_jobs(self):
         """Return serializable object for stored jobs"""
@@ -2152,8 +2152,14 @@ class ExperimentData:
         """Initializes the server from the backend data"""
         db_url = "https://auth.quantum-computing.ibm.com/api"
         try:
-            credentials = backend._provider.credentials
-            service = IBMExperimentService(token=credentials.token, url=db_url)
+            provider = backend._provider
+            # qiskit-ibmq-provider style
+            if hasattr(provider, "credentials"):
+                token = provider.credentials.token
+            # qiskit-ibm-provider style
+            if hasattr(provider, "_account"):
+                token = provider._account.token
+            service = IBMExperimentService(token=token, url=db_url)
             return service
         except Exception:  # pylint: disable=broad-except
             return None

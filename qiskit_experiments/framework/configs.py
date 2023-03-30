@@ -48,7 +48,7 @@ class ExperimentConfig:
             BaseExperiment: The experiment reconstructed from the config.
 
         Raises:
-            QiskitError: if the experiment class is not stored,
+            QiskitError: If the experiment class is not stored,
                          was not successful deserialized, or reconstruction
                          of the experiment fails.
         """
@@ -70,7 +70,7 @@ class ExperimentConfig:
                     f" qiskit-experiments version ({__version__}). You could try"
                     " installing a compatible qiskit-experiments version."
                 )
-            raise QiskitError("{}\nError Message:\n{}".format(msg, str(ex))) from ex
+            raise QiskitError(f"{msg}\nError Message:\n{str(ex)}") from ex
 
 
 @dataclasses.dataclass(frozen=True)
@@ -99,7 +99,7 @@ class AnalysisConfig:
             BaseAnalysis: The analysis reconstructed from the config.
 
         Raises:
-            QiskitError: if the analysis class is not stored,
+            QiskitError: If the analysis class is not stored,
                          was not successful deserialized, or reconstruction
                          of the analysis class fails.
         """
@@ -121,4 +121,4 @@ class AnalysisConfig:
                     f" qiskit-experiments version ({__version__}). You could try"
                     " installing a compatible qiskit-experiments version."
                 )
-            raise QiskitError("{}\nError Message:\n{}".format(msg, str(ex))) from ex
+            raise QiskitError(f"{msg}\nError Message:\n{str(ex)}") from ex

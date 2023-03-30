@@ -17,14 +17,15 @@ import unittest
 from ddt import ddt, data, unpack
 import numpy as np
 
+from qiskit import pulse
 from qiskit.circuit import Parameter
 from qiskit.exceptions import QiskitError
 from qiskit.pulse import DriveChannel, Drag
-import qiskit.pulse as pulse
 from qiskit.qobj.utils import MeasLevel
 from qiskit import transpile
 
 from qiskit_experiments.library import RoughDrag, RoughDragCal
+from qiskit_experiments.library.characterization.analysis import DragCalAnalysis
 from qiskit_experiments.test.mock_iq_backend import MockIQBackend
 from qiskit_experiments.test.mock_iq_helpers import MockIQDragHelper as DragHelper
 from qiskit_experiments.calibration_management.basis_gate_library import FixedFrequencyTransmon
@@ -54,7 +55,7 @@ class TestDragEndToEnd(QiskitExperimentsTestCase):
         drag_experiment_helper = DragHelper(gate_name="Drag(xp)")
         backend = MockIQBackend(drag_experiment_helper)
 
-        drag = RoughDrag(1, self.x_plus)
+        drag = RoughDrag([1], self.x_plus)
 
         expdata = drag.run(backend)
         self.assertExperimentDone(expdata)
@@ -68,7 +69,7 @@ class TestDragEndToEnd(QiskitExperimentsTestCase):
         # rather increase beta.
         drag_experiment_helper.frequency = 0.0044
 
-        drag = RoughDrag(0, self.x_plus)
+        drag = RoughDrag([0], self.x_plus)
         exp_data = drag.run(backend)
         self.assertExperimentDone(exp_data)
         result = exp_data.analysis_results(1)
@@ -79,7 +80,7 @@ class TestDragEndToEnd(QiskitExperimentsTestCase):
 
         # Large leakage will make the curves oscillate quickly.
         drag_experiment_helper.frequency = 0.04
-        drag = RoughDrag(1, self.x_plus, betas=np.linspace(-4, 4, 31))
+        drag = RoughDrag([1], self.x_plus, betas=np.linspace(-4, 4, 31))
         # pylint: disable=no-member
         drag.set_run_options(shots=200)
         drag.analysis.set_options(p0={"beta": 1.8, "freq": 0.08})
@@ -110,7 +111,7 @@ class TestDragEndToEnd(QiskitExperimentsTestCase):
             )
         )
 
-        drag = RoughDrag(0, self.x_plus, betas=betas)
+        drag = RoughDrag([0], self.x_plus, betas=betas)
         drag.set_experiment_options(reps=reps)
 
         exp_data = drag.run(backend)
@@ -119,6 +120,43 @@ class TestDragEndToEnd(QiskitExperimentsTestCase):
         # pylint: disable=no-member
         self.assertTrue(abs(result.value.n - backend.experiment_helper.ideal_beta) < tol)
         self.assertEqual(result.quality, "good")
+
+    def test_drag_reanalysis(self):
+        """Test edge case for re-analyzing DRAG result multiple times."""
+        drag_experiment_helper = DragHelper(gate_name="Drag(xp)")
+        backend = MockIQBackend(drag_experiment_helper)
+
+        drag = RoughDrag([1], self.x_plus)
+        drag.set_experiment_options(reps=[2, 4, 6])
+
+        expdata = drag.run(backend, analysis=None)
+        self.assertExperimentDone(expdata)
+
+        # Assume the situation we reloaded experiment data from server
+        # and prepared analysis class in the client machine.
+        # DRAG reps numbers might be different from the default value,
+        # but the client doesn't know the original setting.
+        analysis = DragCalAnalysis()
+        expdata1 = analysis.run(expdata.copy(), replace_results=True).block_for_results()
+        # Check mapping of model name to circuit metadata.
+        self.assertDictEqual(
+            analysis.options.data_subfit_map,
+            {
+                "nrep=2": {"nrep": 2},
+                "nrep=4": {"nrep": 4},
+                "nrep=6": {"nrep": 6},
+            },
+        )
+
+        # Running experiment twice.
+        # Reported by https://github.com/Qiskit/qiskit-experiments/issues/1086.
+        expdata2 = analysis.run(expdata.copy(), replace_results=True).block_for_results()
+        self.assertEqual(len(analysis.models), 3)
+
+        self.assertAlmostEqual(
+            expdata1.analysis_results("beta").value.n,
+            expdata2.analysis_results("beta").value.n,
+        )
 
 
 class TestDragCircuits(QiskitExperimentsTestCase):
@@ -139,7 +177,7 @@ class TestDragCircuits(QiskitExperimentsTestCase):
         """Test the default circuit."""
 
         backend = MockIQBackend(DragHelper(gate_name="Drag(xp)", frequency=0.005))
-        drag = RoughDrag(0, self.x_plus)
+        drag = RoughDrag([0], self.x_plus)
         drag.set_experiment_options(reps=[2, 4, 8])
         drag.backend = MockIQBackend(DragHelper(gate_name="Drag(xp)"))
         circuits = drag.circuits()
@@ -158,7 +196,7 @@ class TestDragCircuits(QiskitExperimentsTestCase):
             pulse.play(Drag(duration=160, amp=amp, sigma=40, beta=beta), DriveChannel(0))
 
         with self.assertRaises(QiskitError):
-            RoughDrag(1, xp, betas=np.linspace(-3, 3, 21))
+            RoughDrag([1], xp, betas=np.linspace(-3, 3, 21))
 
 
 class TestRoughDragCalUpdate(QiskitExperimentsTestCase):
@@ -182,7 +220,7 @@ class TestRoughDragCalUpdate(QiskitExperimentsTestCase):
         prev_beta = self.cals.get_parameter_value("β", (0,), "x")
         self.assertEqual(prev_beta, 0)
 
-        expdata = RoughDragCal(qubit, self.cals, backend=self.backend).run()
+        expdata = RoughDragCal([qubit], self.cals, backend=self.backend).run()
         self.assertExperimentDone(expdata)
 
         new_beta = self.cals.get_parameter_value("β", (0,), "x")
@@ -191,7 +229,7 @@ class TestRoughDragCalUpdate(QiskitExperimentsTestCase):
 
     def test_dragcal_experiment_config(self):
         """Test RoughDragCal config can round trip"""
-        exp = RoughDragCal(0, self.cals, backend=self.backend)
+        exp = RoughDragCal([0], self.cals, backend=self.backend)
         loaded_exp = RoughDragCal.from_config(exp.config())
         self.assertNotEqual(exp, loaded_exp)
         self.assertTrue(self.json_equiv(exp, loaded_exp))
@@ -199,14 +237,14 @@ class TestRoughDragCalUpdate(QiskitExperimentsTestCase):
     @unittest.skip("Calibration experiments are not yet JSON serializable")
     def test_dragcal_roundtrip_serializable(self):
         """Test round trip JSON serialization"""
-        exp = RoughDragCal(0, self.cals)
+        exp = RoughDragCal([0], self.cals)
         self.assertRoundTripSerializable(exp, self.json_equiv)
 
     def test_drag_experiment_config(self):
         """Test RoughDrag config can roundtrip"""
         with pulse.build(name="xp") as sched:
             pulse.play(pulse.Drag(160, 0.5, 40, Parameter("β")), pulse.DriveChannel(0))
-        exp = RoughDrag(0, backend=self.backend, schedule=sched)
+        exp = RoughDrag([0], backend=self.backend, schedule=sched)
         loaded_exp = RoughDrag.from_config(exp.config())
         self.assertNotEqual(exp, loaded_exp)
         self.assertTrue(self.json_equiv(exp, loaded_exp))
@@ -216,5 +254,5 @@ class TestRoughDragCalUpdate(QiskitExperimentsTestCase):
         """Test round trip JSON serialization"""
         with pulse.build(name="xp") as sched:
             pulse.play(pulse.Drag(160, 0.5, 40, Parameter("β")), pulse.DriveChannel(0))
-        exp = RoughDrag(0, backend=self.backend, schedule=sched)
+        exp = RoughDrag([0], backend=self.backend, schedule=sched)
         self.assertRoundTripSerializable(exp, self.json_equiv)

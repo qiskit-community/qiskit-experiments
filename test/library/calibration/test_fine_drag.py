@@ -16,10 +16,9 @@ from test.base import QiskitExperimentsTestCase
 import copy
 import numpy as np
 
-from qiskit import transpile
+from qiskit import pulse, transpile
 from qiskit.circuit import Gate
 from qiskit.providers.fake_provider import FakeArmonkV2
-import qiskit.pulse as pulse
 
 from qiskit_experiments.library import FineDrag, FineXDrag, FineDragCal
 from qiskit_experiments.test.mock_iq_backend import MockIQBackend
@@ -43,7 +42,7 @@ class TestFineDrag(QiskitExperimentsTestCase):
     def test_circuits(self):
         """Test the circuits of the experiment."""
 
-        drag = FineDrag(0, Gate("Drag", num_qubits=1, params=[]))
+        drag = FineDrag([0], Gate("Drag", num_qubits=1, params=[]))
         drag.set_experiment_options(schedule=self.schedule)
         drag.backend = FakeArmonkV2()
         for circuit in drag.circuits()[1:]:
@@ -53,7 +52,7 @@ class TestFineDrag(QiskitExperimentsTestCase):
     def test_end_to_end(self):
         """A simple test to check if the experiment will run and fit data."""
 
-        drag = FineDrag(0, Gate("Drag", num_qubits=1, params=[]))
+        drag = FineDrag([0], Gate("Drag", num_qubits=1, params=[]))
         drag.set_experiment_options(schedule=self.schedule)
         drag.set_transpile_options(basis_gates=["rz", "Drag", "sx"])
         exp_data = drag.run(MockIQBackend(FineDragHelper()))
@@ -63,14 +62,14 @@ class TestFineDrag(QiskitExperimentsTestCase):
 
     def test_end_to_end_no_schedule(self):
         """Test that we can run without a schedule."""
-        exp_data = FineXDrag(0).run(MockIQBackend(FineDragHelper()))
+        exp_data = FineXDrag([0]).run(MockIQBackend(FineDragHelper()))
         self.assertExperimentDone(exp_data)
 
         self.assertEqual(exp_data.analysis_results(0).quality, "good")
 
     def test_experiment_config(self):
         """Test converting to and from config works"""
-        exp = FineDrag(0, Gate("Drag", num_qubits=1, params=[]))
+        exp = FineDrag([0], Gate("Drag", num_qubits=1, params=[]))
         config = exp.config()
         loaded_exp = FineDrag.from_config(config)
         self.assertNotEqual(exp, loaded_exp)
@@ -90,7 +89,7 @@ class TestFineDragCal(QiskitExperimentsTestCase):
 
     def test_experiment_config(self):
         """Test converting to and from config works"""
-        exp = FineDragCal(0, self.cals, schedule_name="x")
+        exp = FineDragCal([0], self.cals, schedule_name="x")
         config = exp.config()
         loaded_exp = FineDragCal.from_config(config)
         self.assertNotEqual(exp, loaded_exp)
@@ -101,10 +100,12 @@ class TestFineDragCal(QiskitExperimentsTestCase):
 
         init_beta = 0.0
 
-        drag_cal = FineDragCal(0, self.cals, "x", self.backend)
+        drag_cal = FineDragCal([0], self.cals, "x", self.backend)
 
         transpile_opts = copy.copy(drag_cal.transpile_options.__dict__)
         transpile_opts["initial_layout"] = list(drag_cal.physical_qubits)
+        transpile_opts["optimization_level"] = 0
+
         circs = transpile(
             drag_cal.circuits(), inst_map=self.cals.default_inst_map, **transpile_opts
         )
@@ -128,6 +129,8 @@ class TestFineDragCal(QiskitExperimentsTestCase):
 
         transpile_opts = copy.copy(drag_cal.transpile_options.__dict__)
         transpile_opts["initial_layout"] = list(drag_cal.physical_qubits)
+        transpile_opts["optimization_level"] = 0
+
         circs = transpile(
             drag_cal.circuits(), inst_map=self.cals.default_inst_map, **transpile_opts
         )

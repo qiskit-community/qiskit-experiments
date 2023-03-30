@@ -12,7 +12,7 @@
 
 """Half angle calibration."""
 
-from typing import Dict, Optional
+from typing import Dict, Optional, Sequence
 import numpy as np
 
 from qiskit.circuit import QuantumCircuit
@@ -25,18 +25,16 @@ from qiskit_experiments.calibration_management import (
 )
 from qiskit_experiments.library.characterization import HalfAngle
 from qiskit_experiments.calibration_management.update_library import BaseUpdater
+from qiskit_experiments.warnings import qubit_deprecate
 
 
 class HalfAngleCal(BaseCalibrationExperiment, HalfAngle):
-    """Calibration version of the half-angle experiment.
+    """Calibration version of the half-angle experiment."""
 
-    # section: see_also
-        qiskit_experiments.library.characterization.half_angle.HalfAngle
-    """
-
+    @qubit_deprecate()
     def __init__(
         self,
-        qubit,
+        physical_qubits: Sequence[int],
         calibrations: Calibrations,
         backend: Optional[Backend] = None,
         schedule_name: str = "sx",
@@ -46,7 +44,8 @@ class HalfAngleCal(BaseCalibrationExperiment, HalfAngle):
         """see class :class:`HalfAngle` for details.
 
         Args:
-            qubit: The qubit for which to run the half-angle calibration.
+            physical_qubits: Sequence containing the qubit for which to run the
+                half-angle calibration.
             calibrations: The calibrations instance with the schedules.
             backend: Optional, the backend to run the experiment on.
             schedule_name: The name of the schedule to calibrate which defaults to sx.
@@ -57,7 +56,7 @@ class HalfAngleCal(BaseCalibrationExperiment, HalfAngle):
         """
         super().__init__(
             calibrations,
-            qubit,
+            physical_qubits,
             backend=backend,
             schedule_name=schedule_name,
             cal_parameter_name=cal_parameter_name,

@@ -1,7 +1,0 @@
----
-features:
-  - |
-    New experiment (:class:`~qiskit_experiments.library.MultiStateDiscrimination`)
-    for classifying energy states.
-  - |
-    A new sklearn discriminator class :class:`~qiskit_experiments.data_processing.SkQDA`.

@@ -23,12 +23,7 @@ from qiskit_experiments.curve_analysis.curve_data import CurveData
 
 
 class T1Analysis(curve.DecayAnalysis):
-    r"""A class to analyze T1 experiments.
-
-    # section: see_also
-        qiskit_experiments.curve_analysis.standard_analysis.decay.DecayAnalysis
-
-    """
+    """A class to analyze T1 experiments."""
 
     @classmethod
     def _default_options(cls) -> Options:
@@ -74,12 +69,7 @@ class T1Analysis(curve.DecayAnalysis):
 
 
 class T1KerneledAnalysis(curve.DecayAnalysis):
-    r"""A class to analyze T1 experiments with kerneled data.
-
-    # section: see_also
-        qiskit_experiments.curve_analysis.standard_analysis.decay.DecayAnalysis
-
-    """
+    """A class to analyze T1 experiments with kerneled data."""
 
     @classmethod
     def _default_options(cls) -> Options:

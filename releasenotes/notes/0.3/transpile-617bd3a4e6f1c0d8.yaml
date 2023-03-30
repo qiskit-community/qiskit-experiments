@@ -1,7 +1,7 @@
 ---
 features:
   - |
-    Adds :meth:`.BaseExperiment._transpiled_circuits` which returns a list of
+    Added :meth:`.BaseExperiment._transpiled_circuits` which returns a list of
     experiment circuits, transpiled. It can be overridden to define custom
     transpilation.
 deprecations:

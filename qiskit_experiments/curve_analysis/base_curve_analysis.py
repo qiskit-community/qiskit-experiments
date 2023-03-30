@@ -46,7 +46,7 @@ DATA_ENTRY_PREFIX = "@Data_"
 class BaseCurveAnalysis(BaseAnalysis, ABC):
     """Abstract superclass of curve analysis base classes.
 
-    Note that this class doesn't define :meth:`_run_analysis` method,
+    Note that this class doesn't define the :meth:`_run_analysis` method,
     and no actual fitting protocol is implemented in this base class.
     However, this class defines several common methods that can be reused.
     A curve analysis subclass can construct proper fitting protocol
@@ -158,15 +158,14 @@ class BaseCurveAnalysis(BaseAnalysis, ABC):
             return_data_points (bool): Set ``True`` to include in the analysis result
                 the formatted data points given to the fitter. Default to ``False``.
             data_processor (Callable): A callback function to format experiment data.
-                This can be a :class:`~qiskit_experiments.data_processing.DataProcessor`
+                This can be a :class:`.DataProcessor`
                 instance that defines the `self.__call__` method.
-            normalization (bool) : Set ``True`` to normalize y values within range [-1, 1].
+            normalization (bool): Set ``True`` to normalize y values within range [-1, 1].
                 Default to ``False``.
             average_method (str): Method to average the y values when the same x values
                 appear multiple times. One of "sample", "iwv" (i.e. inverse weighted variance),
-                "shots_weighted". See
-                :func:`~qiskit_experiments.curve_analysis.data_processing.mean_xy_data`
-                for details. Default to "shots_weighted".
+                "shots_weighted". See :func:`.mean_xy_data` for details. Default to
+                "shots_weighted".
             p0 (Dict[str, float]): Initial guesses for the fit parameters.
                 The dictionary is keyed on the fit parameter names.
             bounds (Dict[str, Tuple[float, float]]): Boundary of fit parameters.

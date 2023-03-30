@@ -1,4 +1,4 @@
 ---
 fixes:
   - |
-    Fixes a bug that caused analysis to sometimes run after job or previous analysis failure.
+    Fixed a bug that caused analysis to sometimes run after job or previous analysis failure.
