@@ -144,10 +144,3 @@ https://arxiv.org/abs/1804.04073
 Laser-annealing Josephson junctions for yielding scaled-up superconducting quantum processors,
 npj Quantum Information 7, 129 (2021).
 https://arxiv.org/abs/2009.00781
-
-
-
-.. jupyter-execute::
-
-    import qiskit.tools.jupyter
-    %qiskit_copyright

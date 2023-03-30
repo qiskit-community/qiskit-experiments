@@ -37,7 +37,7 @@ class TestStarkRamseyXY(QiskitExperimentsTestCase):
         """
         backend = FakeHanoiV2()
         exp = StarkRamseyXY(
-            qubit=0,
+            physical_qubits=[0],
             stark_amp=0.1,  # positive amplitude
             backend=backend,
             stark_sigma=15e-9,
@@ -68,7 +68,7 @@ class TestStarkRamseyXY(QiskitExperimentsTestCase):
         """
         backend = FakeHanoiV2()
         exp = StarkRamseyXY(
-            qubit=0,
+            physical_qubits=[0],
             stark_amp=-0.1,  # negative amplitude
             backend=backend,
             stark_sigma=15e-9,
@@ -96,7 +96,7 @@ class TestStarkRamseyXY(QiskitExperimentsTestCase):
         min_freq = 1e6
         max_freq = 50e6
         exp = StarkRamseyXY(
-            qubit=0,
+            physical_qubits=[0],
             stark_amp=0.1,
             min_freq=min_freq,
             max_freq=max_freq,
@@ -110,7 +110,7 @@ class TestStarkRamseyXY(QiskitExperimentsTestCase):
         backend = FakeHanoiV2()
         dt = backend.dt
         exp = StarkRamseyXY(
-            qubit=0,
+            physical_qubits=[0],
             stark_amp=0.1,
             backend=backend,
             delays=np.linspace(0, 10e-6, 5),
@@ -130,6 +130,6 @@ class TestStarkRamseyXY(QiskitExperimentsTestCase):
 
     def test_stark_offset_always_positive(self):
         """Test raise error by definition when the offset is negative."""
-        exp = StarkRamseyXY(qubit=0, stark_amp=0.1)
+        exp = StarkRamseyXY(physical_qubits=[0], stark_amp=0.1)
         with self.assertRaises(ValueError):
             exp.set_experiment_options(stark_freq_offset=-10e6)
