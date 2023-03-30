@@ -91,6 +91,7 @@ class RoughEFFrequencyCal(BaseCalibrationExperiment, EFSpectroscopy):
         physical_qubits: Sequence[int],
         calibrations: Calibrations,
         frequencies: Iterable[float],
+        backend: Optional[Backend] = None,
         auto_update: bool = True,
         absolute: bool = True,
     ):
@@ -101,6 +102,7 @@ class RoughEFFrequencyCal(BaseCalibrationExperiment, EFSpectroscopy):
             calibrations: If calibrations is given then running the experiment may update the values
                 of the frequencies stored in calibrations.
             frequencies: The frequencies to scan in the experiment, in Hz.
+            backend: Optional, the backend to run the experiment on.
             auto_update: If set to True, which is the default, then the experiment will
                 automatically update the frequency in the calibrations.
             absolute: Boolean to specify if the frequencies are absolute or relative to the
@@ -114,6 +116,7 @@ class RoughEFFrequencyCal(BaseCalibrationExperiment, EFSpectroscopy):
             calibrations,
             physical_qubits,
             frequencies,
+            backend,
             absolute,
             cal_parameter_name="f12",
             updater=Frequency,
