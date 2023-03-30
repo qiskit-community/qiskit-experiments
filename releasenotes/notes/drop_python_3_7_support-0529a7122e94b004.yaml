@@ -1,4 +1,4 @@
 ---
 upgrade:
   - |
-    Dropped support for Python 3.7 and upgraded NumPy to 1.22.
+    Dropped support for Python 3.7.

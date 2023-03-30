@@ -22,6 +22,7 @@ from ddt import data, ddt
 from qiskit.exceptions import QiskitError
 
 from qiskit_experiments.visualization.utils import DataExtentCalculator
+from qiskit_experiments.framework.package_deps import numpy_version
 
 
 @ddt
@@ -46,18 +47,30 @@ class TestDataExtentCalculator(QiskitExperimentsTestCase):
         #      [[a], [b], [c], [d], [e], [f]], g]
         #  [a, [[b], [c], [d], [e], [f], [g]]
         # The result is a list of pairs representing a moving window of size 2.
-
+        # TODO: remove the old code once numpy is above 1.20.
         dummy_data = []
-        for (x_min, x_max), (y_min, y_max) in it.product(
-            *np.lib.stride_tricks.sliding_window_view(bin_edges, 2, 1)
-        ):
-            _dummy_data = np.asarray(
-                [
-                    np.linspace(x_min, x_max, n_points),
-                    np.linspace(y_min, y_max, n_points),
-                ]
-            )
-            dummy_data.append(_dummy_data.swapaxes(-1, -2))
+        if numpy_version() >= (1, 20):
+            for (x_min, x_max), (y_min, y_max) in it.product(
+                *np.lib.stride_tricks.sliding_window_view(bin_edges, 2, 1)
+            ):
+                _dummy_data = np.asarray(
+                    [
+                        np.linspace(x_min, x_max, n_points),
+                        np.linspace(y_min, y_max, n_points),
+                    ]
+                )
+                dummy_data.append(_dummy_data.swapaxes(-1, -2))
+        else:
+            for (x_min, x_max), (y_min, y_max) in it.product(
+                *tuple(list(zip(b[0:-1], b[1:])) for b in bin_edges)
+            ):
+                _dummy_data = np.asarray(
+                    [
+                        np.linspace(x_min, x_max, n_points),
+                        np.linspace(y_min, y_max, n_points),
+                    ]
+                )
+                dummy_data.append(_dummy_data.swapaxes(-1, -2))
         return dummy_data
 
     @data(*list(it.product([1.0, 1.1, 2.0], [None, 1.0, np.sqrt(2)])))
