@@ -114,17 +114,16 @@ such channel can be identified with your backend.
 
 .. jupyter-execute::
 
-    from qiskit.providers.fake_provider import FakeHanoi
+    from qiskit.providers.fake_provider import FakeHanoiV2
 
-    backend = FakeHanoi()
+    backend = FakeHanoiV2()
     qubit = 0
-    coupling_map = backend.configuration().coupling_map
 
-    for qpair in coupling_map:
+    for qpair in backend.coupling_map:
         if qpair[0] == qubit:
             break
 
-    print(backend.configuration().control(qpair)[0])
+    print(backend.control_channel(qpair)[0])
 
 This returns a control channel for which the qubit is the control qubit.
 This depends on the architecture of your quantum device.

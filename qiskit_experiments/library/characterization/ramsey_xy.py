@@ -86,7 +86,7 @@ class RamseyXY(BaseExperiment, RestlessMixin):
     """
 
     @classmethod
-    def _default_experiment_options(cls):
+    def _default_experiment_options(cls) -> Options:
         """Default values for the Ramsey XY experiment.
 
         Experiment Options:
@@ -211,7 +211,7 @@ class RamseyXY(BaseExperiment, RestlessMixin):
 
 
 class StarkRamseyXY(BaseExperiment):
-    """Ramsey XY experiment with pulsed Stark tone.
+    """A sign-sensitive experiment to measure the frequency of a qubit under pulsed Stark tone.
 
     # section: overview
 
@@ -266,25 +266,25 @@ class StarkRamseyXY(BaseExperiment):
 
     def __init__(
         self,
-        qubit: int,
-        stark_amp: float,
+        physical_qubits: Sequence[int],
         backend: Optional[Backend] = None,
         **experiment_options,
     ):
         """Create new experiment.
 
         Args:
-            qubit: Index of qubit.
-            stark_amp: A single float parameter to represent the magnitude of the Stark tone
-                and the sign of expected the Stark shift.
-                See :ref:`stark_tone_implementation` for details.
+            physical_qubits: Index of physical qubit.
             backend: Optional, the backend to run the experiment on.
             experiment_options: Extra experiment options. See ``self.experiment_options``.
         """
         self._timing = None
 
-        super().__init__(qubits=[qubit], analysis=RamseyXYAnalysis(), backend=backend)
-        self.set_experiment_options(stark_amp=stark_amp, **experiment_options)
+        super().__init__(
+            physical_qubits=physical_qubits,
+            analysis=RamseyXYAnalysis(),
+            backend=backend,
+        )
+        self.set_experiment_options(**experiment_options)
 
     @classmethod
     def _default_experiment_options(cls) -> Options:
@@ -351,7 +351,7 @@ class StarkRamseyXY(BaseExperiment):
         opt = self.experiment_options  # alias
 
         if opt.delays is None:
-            # Delay is longer enough to capture 1 cycle of the minmum frequency.
+            # Delay is longer enough to capture 1 cycle of the minimum frequency.
             # Fitter can still accurately fit samples shorter than 1 cycle.
             max_period = 1 / opt.min_freq
             # Inverse of interval should be greater than Nyquist frequency.
