@@ -51,7 +51,6 @@ from qiskit_experiments.calibration_management.calibration_key_types import (
     ParameterValueType,
     ScheduleKey,
 )
-from qiskit_experiments.calibration_management.save_utils import to_dict, from_dict
 from qiskit_experiments.framework import BackendData, ExperimentEncoder, ExperimentDecoder
 
 
@@ -1374,12 +1373,14 @@ class Calibrations:
             os.chdir(folder)
 
         if file_type == "json":
+            from .save_utils import to_dict
+
             file_path = file_prefix + ".json"
             if os.path.isfile(file_path) and not overwrite:
                 raise CalibrationError(f"{file_path} already exists. Set overwrite to True.")
 
             canonical_data = to_dict(self, most_recent_only=most_recent_only)
-            with open(file_path, "wb") as file:
+            with open(file_path, "w") as file:
                 json.dump(canonical_data, file, cls=ExperimentEncoder)
 
         elif file_type == "csv":
@@ -1546,7 +1547,9 @@ class Calibrations:
         Returns:
             Calibration instance restored from the file.
         """
-        with open(file_path, "rb") as file:
+        from .save_utils import from_dict
+
+        with open(file_path, "r") as file:
             # Do we really need branching for data types?
             # Parsing data format and dispatching the loader seems an overkill,
             # but save method intend to support multiple formats.
@@ -1636,6 +1639,8 @@ class Calibrations:
         Returns:
             The config dictionary of the calibrations instance.
         """
+        from .save_utils import to_dict
+
         return to_dict(self, most_recent_only=False)
 
     @classmethod
@@ -1653,13 +1658,19 @@ class Calibrations:
         Returns:
             Calibration instance restored from configuration data.
         """
+        from .save_utils import from_dict
+
         return from_dict(config)
 
     def __json_encode__(self):
         """Convert to format that can be JSON serialized."""
+        from .save_utils import to_dict
+
         return to_dict(self, most_recent_only=False)
 
     @classmethod
     def __json_decode__(cls, value: Dict[str, Any]) -> "Calibrations":
         """Load from JSON compatible format."""
+        from .save_utils import from_dict
+
         return from_dict(value)

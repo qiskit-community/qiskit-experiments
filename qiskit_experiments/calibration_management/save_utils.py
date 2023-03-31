@@ -207,21 +207,22 @@ def _canonicalize_calibration_data_v1(
     parameters = getattr(cals, "_params")
     if most_recent_only:
         # Get values with most recent time stamps.
-        parameters = {k: max(parameters[k], key=lambda x: x.date_time) for k in parameters}
+        parameters = {k: [max(parameters[k], key=lambda x: x.date_time)] for k in parameters}
 
     data_entries = []
-    for param_key, param_value in parameters.items():
-        entry = ParameterModelV1(
-            param_name=param_key.parameter,
-            qubits=param_key.qubits,
-            schedule=param_key.schedule,
-            value=param_value.value,
-            datetime=param_value.date_time,
-            valid=param_value.valid,
-            exp_id=param_value.exp_id,
-            group=param_value.group,
-        )
-        data_entries.append(entry)
+    for param_key, param_values in parameters.items():
+        for param_value in param_values:
+            entry = ParameterModelV1(
+                param_name=param_key.parameter,
+                qubits=param_key.qubits,
+                schedule=param_key.schedule,
+                value=param_value.value,
+                datetime=param_value.date_time,
+                valid=param_value.valid,
+                exp_id=param_value.exp_id,
+                group=param_value.group,
+            )
+            data_entries.append(entry)
 
     sched_entries = []
     for sched_key, sched_obj in schedules.items():
