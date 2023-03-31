@@ -12,8 +12,16 @@
 
 """A helper module to save calibration data to local storage.
 
-These model version must be upgraded when :class:`.Calibrations` data structure changes
-and current data model no longer supports the upgraded data structure.
+.. warning::
+
+    This module is expected to be internal and no stable user-facing API
+    may not be guaranteed.
+
+.. note::
+
+    These model version must be upgraded when :class:`.Calibrations` data structure changes
+    in future and when the current data model becames unable to support it.
+
 """
 
 from dataclasses import dataclass, field, asdict
