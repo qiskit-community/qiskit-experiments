@@ -55,7 +55,6 @@ extensions = [
     "sphinx.ext.extlinks",
     "sphinx_copybutton",
     "jupyter_sphinx",
-    "sphinx_autodoc_typehints",
     "reno.sphinxext",
     "sphinx_design",
     "sphinx.ext.intersphinx",
@@ -94,6 +93,13 @@ nbsphinx_thumbnails = {
 # Add `data keys` and `style parameters` alias. Needed for `expected_*_data_keys` methods in
 # visualization module and `default_style` method in `PlotStyle` respectively.
 napoleon_custom_sections = [("data keys", "params_style"), ("style parameters", "params_style")]
+
+# Move type hints from signatures to the parameter descriptions (except in overload cases, where
+# that's not possible).
+autodoc_typehints = "description"
+# Only add type hints from signature to description body if the parameter has documentation.  The
+# return type is always added to the description (if in the signature).
+autodoc_typehints_description_target = "documented_params"
 
 autosummary_generate = True
 
