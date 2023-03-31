@@ -12,6 +12,7 @@
 
 """Class to store and manage the results of calibration experiments."""
 
+import warnings
 import os
 from collections import defaultdict
 from datetime import datetime, timezone
@@ -19,7 +20,6 @@ from typing import Any, Dict, Set, Tuple, Union, List, Optional
 import csv
 import dataclasses
 import json
-import warnings
 import rustworkx as rx
 
 from qiskit.pulse import (
@@ -35,11 +35,11 @@ from qiskit.pulse import (
 from qiskit.pulse.channels import PulseChannel
 from qiskit.circuit import Parameter, ParameterExpression
 from qiskit.providers.backend import Backend
+from qiskit.utils.deprecation import deprecate_func, deprecate_arg
 
 from qiskit_experiments.exceptions import CalibrationError
 from qiskit_experiments.calibration_management.basis_gate_library import BasisGateLibrary
 from qiskit_experiments.calibration_management.parameter_value import ParameterValue
-from qiskit_experiments.calibration_management.control_channel_map import ControlChannelMap
 from qiskit_experiments.calibration_management.calibration_utils import (
     used_in_references,
     validate_channels,
@@ -51,7 +51,8 @@ from qiskit_experiments.calibration_management.calibration_key_types import (
     ParameterValueType,
     ScheduleKey,
 )
-from qiskit_experiments.framework import BackendData
+from qiskit_experiments.calibration_management.save_utils import to_dict, from_dict
+from qiskit_experiments.framework import BackendData, ExperimentEncoder, ExperimentDecoder
 
 
 class Calibrations:
@@ -1333,9 +1334,16 @@ class Calibrations:
         value_dict["date_time"] = value_dict["date_time"].strftime("%Y-%m-%d %H:%M:%S.%f%z")
         data.append(value_dict)
 
+    @deprecate_arg(
+        name="file_type",
+        since="0.5",
+        additional_msg="Full data saving is now supported through json format including parameters.",
+        package_name="qiskit-experiments",
+        predicate=lambda file_type: file_type == "csv",
+    )
     def save(
         self,
-        file_type: str = "csv",
+        file_type: str = "json",
         folder: str = None,
         overwrite: bool = False,
         file_prefix: str = "",
@@ -1343,20 +1351,12 @@ class Calibrations:
     ):
         """Save the parameterized schedules and parameter value.
 
-        The schedules and parameter values can be stored in csv files. This method creates
-        three files:
+        .. note::
 
-        * parameter_config.csv: This file stores a table of parameters which indicates
-          which parameters appear in which schedules.
-        * parameter_values.csv: This file stores the values of the calibrated parameters.
-        * schedules.csv: This file stores the parameterized schedules.
-
-        Warning:
-            Schedule blocks will only be saved in string format and can therefore not be
-            reloaded and must instead be rebuilt.
+            Only JSON format is supported.
 
         Args:
-            file_type: The type of file to which to save. By default this is a csv.
+            file_type: The type of file to which to save. By default, this is a json.
                 Other file types may be supported in the future.
             folder: The folder in which to save the calibrations.
             overwrite: If the files already exist then they will not be overwritten
@@ -1369,43 +1369,54 @@ class Calibrations:
         Raises:
             CalibrationError: If the files exist and overwrite is not set to True.
         """
-        warnings.warn("Schedules are only saved in text format. They cannot be re-loaded.")
-
         cwd = os.getcwd()
         if folder:
             os.chdir(folder)
 
-        parameter_config_file = file_prefix + "parameter_config.csv"
-        parameter_value_file = file_prefix + "parameter_values.csv"
-        schedule_file = file_prefix + "schedules.csv"
+        if file_type == "json":
+            file_path = file_prefix + ".json"
+            if os.path.isfile(file_path) and not overwrite:
+                raise CalibrationError(f"{file_path} already exists. Set overwrite to True.")
 
-        if os.path.isfile(parameter_config_file) and not overwrite:
-            raise CalibrationError(
-                f"{parameter_config_file} already exists. Set overwrite to True."
-            )
+            canonical_data = to_dict(self, most_recent_only=most_recent_only)
+            with open(file_path, "wb") as file:
+                json.dump(canonical_data, file, cls=ExperimentEncoder)
 
-        if os.path.isfile(parameter_value_file) and not overwrite:
-            raise CalibrationError(f"{parameter_value_file} already exists. Set overwrite to True.")
+        elif file_type == "csv":
+            warnings.warn("Schedules are only saved in text format. They cannot be re-loaded.")
 
-        if os.path.isfile(schedule_file) and not overwrite:
-            raise CalibrationError(f"{schedule_file} already exists. Set overwrite to True.")
+            parameter_config_file = file_prefix + "parameter_config.csv"
+            parameter_value_file = file_prefix + "parameter_values.csv"
+            schedule_file = file_prefix + "schedules.csv"
 
-        # Write the parameter configuration.
-        header_keys = ["parameter.name", "parameter unique id", "schedule", "qubits"]
-        body = []
-
-        for parameter, keys in self.parameters.items():
-            for key in keys:
-                body.append(
-                    {
-                        "parameter.name": parameter.name,
-                        "parameter unique id": self._hash_to_counter_map[parameter],
-                        "schedule": key.schedule,
-                        "qubits": key.qubits,
-                    }
+            if os.path.isfile(parameter_config_file) and not overwrite:
+                raise CalibrationError(
+                    f"{parameter_config_file} already exists. Set overwrite to True."
                 )
 
-        if file_type == "csv":
+            if os.path.isfile(parameter_value_file) and not overwrite:
+                raise CalibrationError(
+                    f"{parameter_value_file} already exists. Set overwrite to True."
+                )
+
+            if os.path.isfile(schedule_file) and not overwrite:
+                raise CalibrationError(f"{schedule_file} already exists. Set overwrite to True.")
+
+            # Write the parameter configuration.
+            header_keys = ["parameter.name", "parameter unique id", "schedule", "qubits"]
+            body = []
+
+            for parameter, keys in self.parameters.items():
+                for key in keys:
+                    body.append(
+                        {
+                            "parameter.name": parameter.name,
+                            "parameter unique id": self._hash_to_counter_map[parameter],
+                            "schedule": key.schedule,
+                            "qubits": key.qubits,
+                        }
+                    )
+
             with open(parameter_config_file, "w", newline="", encoding="utf-8") as output_file:
                 dict_writer = csv.DictWriter(output_file, header_keys)
                 dict_writer.writeheader()
@@ -1434,6 +1445,11 @@ class Calibrations:
 
         os.chdir(cwd)
 
+    @deprecate_func(
+        since="0.5",
+        additional_msg="Schedule serialization is natively performed in QPY format.",
+        package_name="qiskit-experiments",
+    )
     def schedule_information(self) -> Tuple[List[str], List[Dict]]:
         """Get the information on the schedules stored in the calibrations.
 
@@ -1452,6 +1468,11 @@ class Calibrations:
 
         return ["name", "qubits", "schedule"], schedules
 
+    @deprecate_func(
+        since="0.5",
+        additional_msg="Loading file now retrieves full calibration data including parameters.",
+        package_name="qiskit-experiments",
+    )
     def load_parameter_values(self, file_name: str = "parameter_values.csv"):
         """
         Load parameter values from a given file into self._params.
@@ -1495,6 +1516,8 @@ class Calibrations:
             parameter: The name of the parameter.
             qubits: The qubits on which the parameter acts.
         """
+        # TODO remove this after load_parameter_values method is removed.
+
         param_val = ParameterValue(value, date_time, valid, exp_id, group)
 
         if schedule == "":
@@ -1506,12 +1529,30 @@ class Calibrations:
         self.add_parameter_value(param_val, *key, update_inst_map=False)
 
     @classmethod
-    def load(cls, files: List[str]) -> "Calibrations":
+    @deprecate_arg(
+        name="files",
+        new_alias="file_path",
+        since="0.5",
+        package_name="qiskit-experiments",
+    )
+    def load(cls, file_path: str) -> "Calibrations":
         """
         Retrieves the parameterized schedules and pulse parameters from the
         given location.
+
+        Args:
+            file_path: Path to file location.
+
+        Returns:
+            Calibration instance restored from the file.
         """
-        raise CalibrationError("Full calibration loading is not implemented yet.")
+        with open(file_path, "rb") as file:
+            # Do we really need branching for data types?
+            # Parsing data format and dispatching the loader seems an overkill,
+            # but save method intend to support multiple formats.
+            cal_data = json.load(file, cls=ExperimentDecoder)
+
+        return from_dict(cal_data)
 
     @staticmethod
     def _to_tuple(qubits: Union[str, int, Tuple[int, ...]]) -> Tuple[int, ...]:
@@ -1584,55 +1625,41 @@ class Calibrations:
 
         return sorted_params_a == sorted_params_b
 
+    @deprecate_func(
+        since="0.5",
+        additional_msg="This method will be removed and no alternative will be provided.",
+        package_name="qiskit-experiments",
+    )
     def config(self) -> Dict[str, Any]:
         """Return the settings used to initialize the calibrations.
 
         Returns:
             The config dictionary of the calibrations instance.
-
-        Raises:
-            CalibrationError: If schedules were added outside of the :code:`__init__`
-                method. This will remain so until schedules can be serialized.
         """
-        if self._has_manually_added_schedule:
-            raise CalibrationError(
-                f"Config dictionaries for {self.__class__.__name__} are currently "
-                "not supported if schedules were added manually."
-            )
-
-        kwargs = {
-            "coupling_map": self._coupling_map,
-            "control_channel_map": ControlChannelMap(self._control_channel_map),
-            "libraries": self.libraries,
-            "add_parameter_defaults": False,  # the parameters will be added outside of the init
-            "backend_name": self._backend_name,
-            "backend_version": self._backend_version,
-        }
-
-        return {
-            "class": self.__class__.__name__,
-            "kwargs": kwargs,
-            "parameters": self.parameters_table()["data"],
-        }
+        return to_dict(self, most_recent_only=False)
 
     @classmethod
+    @deprecate_func(
+        since="0.5",
+        additional_msg="This method will be removed and no alternative will be provided.",
+        package_name="qiskit-experiments",
+    )
     def from_config(cls, config: Dict) -> "Calibrations":
-        """Deserialize the calibrations given the input dictionary"""
+        """Restore Calibration from config data.
 
-        config["kwargs"]["control_channel_map"] = config["kwargs"]["control_channel_map"].chan_map
+        Args:
+            config: Configuration data.
 
-        calibrations = cls(**config["kwargs"])
-
-        for param_config in config["parameters"]:
-            calibrations._add_parameter_value_from_conf(**param_config)
-
-        return calibrations
+        Returns:
+            Calibration instance restored from configuration data.
+        """
+        return from_dict(config)
 
     def __json_encode__(self):
         """Convert to format that can be JSON serialized."""
-        return self.config()
+        return to_dict(self, most_recent_only=False)
 
     @classmethod
     def __json_decode__(cls, value: Dict[str, Any]) -> "Calibrations":
         """Load from JSON compatible format."""
-        return cls.from_config(value)
+        return from_dict(value)
