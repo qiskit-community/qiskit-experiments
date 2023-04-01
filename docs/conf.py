@@ -185,9 +185,9 @@ def _get_versions(app, config):
     current_version = proc.stdout.decode("utf8")
     current_version_info = current_version.split(".")
     if current_version_info[0] == "0":
-        version_list = [
-            f"0.{x}" % x for x in range(start_version[1], int(current_version_info[1]) + 1)
-        ]
+        version_list = list(
+            f"0.{x}" for x in range(start_version[1], int(current_version_info[1]) + 1)
+        )
     else:
         # TODO: When 1.0.0 add code to handle 0.x version list
         version_list = []
