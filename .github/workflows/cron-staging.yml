@@ -37,10 +37,10 @@ jobs:
       - name: Install Deps
         run: python -m pip install -U nox setuptools virtualenv wheel
       - name: Install and Run Tests
-        run: nox -e test-terra-main
+        run: nox -e "test-terra-main-${{ matrix.python-version }}"
         if: runner.os != 'macOS'
       - name: Install and Run Tests
-        run: nox -e test-terra-main
+        run: nox -e "test-terra-main-${{ matrix.python-version }}"
         if: runner.os == 'macOS'
         env:
           OMP_NUM_THREADS: 1

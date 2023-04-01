@@ -2,8 +2,10 @@
 
 import nox
 
+PYTHON_VERSIONS = ["3.7", "3.8", "3.9", "3.10", "3.11"]
 
-@nox.session(python=["3.7", "3.8", "3.9", "3.10", "3.11"], tags=["ci"])
+
+@nox.session(python=PYTHON_VERSIONS, tags=["ci"])
 def test(session):
     """Run CI tests."""
     session.env["QISKIT_SUPPRESS_PACKAGING_WARNINGS"] = "Y"
@@ -15,7 +17,7 @@ def test(session):
     session.run("stestr", "run", *posargs)
 
 
-@nox.session(python=["3.7", "3.8", "3.9", "3.10", "3.11"], tags=["cron"])
+@nox.session(python=PYTHON_VERSIONS, tags=["cron"])
 def test_terra_main(session):
     """Run CI tests against terra main branch."""
     session.env["QISKIT_SUPPRESS_PACKAGING_WARNINGS"] = "Y"
