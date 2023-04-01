@@ -7,10 +7,11 @@ import nox
 def test(session):
     """Run CI tests."""
     session.env["QISKIT_SUPPRESS_PACKAGING_WARNINGS"] = "Y"
-    if session.posargs:
-        posargs = session.posargs
     session.install("-r", "requirements-dev.txt")
     session.install("-e", ".")
+    posargs = {}
+    if session.posargs:
+        posargs = session.posargs
     session.run("stestr", "run", *posargs)
 
 
@@ -18,10 +19,11 @@ def test(session):
 def test_terra_main(session):
     """Run CI tests against terra main branch."""
     session.env["QISKIT_SUPPRESS_PACKAGING_WARNINGS"] = "Y"
-    if session.posargs:
-        posargs = session.posargs
     session.install("git+https://github.com/Qiskit/qiskit-terra", "-r", "requirements-dev.txt")
     session.install("-e", ".")
+    posargs = {}
+    if session.posargs:
+        posargs = session.posargs
     session.run("stestr", "run", *posargs)
 
 
