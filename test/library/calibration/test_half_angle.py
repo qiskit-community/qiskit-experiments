@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -14,7 +14,7 @@
 
 from test.base import QiskitExperimentsTestCase
 
-import qiskit.pulse as pulse
+from qiskit import pulse
 from qiskit.circuit import Parameter
 
 from qiskit_experiments.exceptions import CalibrationError
