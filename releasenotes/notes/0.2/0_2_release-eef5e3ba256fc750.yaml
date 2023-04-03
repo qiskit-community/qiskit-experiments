@@ -33,7 +33,7 @@ upgrade:
     0.1 API may not be able to be loaded using Qiskit Experiments 0.2.
 developer:
   - |
-    Adds hooks for serialization and deserialization of custom classes to
+    Added hooks for serialization and deserialization of custom classes to
     the JSON :class:`qiskit_experiments.framework.ExperimentEncoder`
     and :class:`qiskit_experiments.framework.ExperimentDecoder`.
     To enable serialization classes must implement a method

@@ -493,7 +493,7 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
         par_exp = ParallelExperiment(
             [exp1, BatchExperiment([ParallelExperiment([exp2, exp3]), exp4])]
         )
-        expdata = par_exp.run(Backend())
+        expdata = par_exp.run(Backend(num_qubits=4))
         self.assertExperimentDone(expdata)
 
         self.assertEqual(len(expdata.data()), len(counts))

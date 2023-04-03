@@ -298,12 +298,12 @@ class BaseExperiment(ABC, StoreInitArgs):
         """Return a list of experiment circuits.
 
         Returns:
-            A list of :class:`QuantumCircuit`.
+            A list of :class:`~qiskit.circuit.QuantumCircuit`.
 
         .. note::
             These circuits should be on qubits ``[0, .., N-1]`` for an
             *N*-qubit experiment. The circuits mapped to physical qubits
-            are obtained via the :meth:`transpiled_circuits` method.
+            are obtained via the internal :meth:`_transpiled_circuits` method.
         """
         # NOTE: Subclasses should override this method using the `options`
         # values for any explicit experiment options that affect circuit
@@ -378,6 +378,8 @@ class BaseExperiment(ABC, StoreInitArgs):
 
         Raises:
             QiskitError: If `initial_layout` is one of the fields.
+
+        .. seealso:: The :ref:`guide_setting_options` guide for code example.
         """
         if "initial_layout" in fields:
             raise QiskitError(
@@ -402,6 +404,8 @@ class BaseExperiment(ABC, StoreInitArgs):
 
         Args:
             fields: The fields to update the options
+
+        .. seealso:: The :ref:`guide_setting_options` guide for code example.
         """
         self._run_options.update_options(**fields)
         self._set_run_options = self._set_run_options.union(fields)

@@ -181,8 +181,12 @@ def linear_inversion(
         f_meas_qubits = measurement_qubits
         f_meas_indices = slice(None)
         f_cond_meas_indices = slice(0, 0)
-        f_meas_outcome = lambda x: x
-        f_cond_meas_outcome = lambda x: 0
+
+        def f_meas_outcome(x):
+            return x
+
+        def f_cond_meas_outcome(_):
+            return 0
 
     # Construct dual bases
     meas_dual_basis = None

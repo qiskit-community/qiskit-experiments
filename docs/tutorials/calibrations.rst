@@ -42,7 +42,7 @@ This automatic updating can also be disabled using the ``auto_update`` flag.
 
 .. jupyter-execute::
 
-    backend = SingleTransmonTestBackend(5.2e9,-.25e9, 1e9, 0.8e9, noise=False)
+    backend = SingleTransmonTestBackend(5.2e9,-.25e9, 1e9, 0.8e9, noise=False, seed=100)
     qubit = 0 
     cals=Calibrations.from_backend(backend)
     print(cals.get_inst_map())
@@ -213,7 +213,7 @@ for both the :math:`X` pulse and the :math:`SX` pulse using a single experiment.
 .. jupyter-execute:: 
 
     from qiskit_experiments.library.calibration import RoughXSXAmplitudeCal
-    rabi = RoughXSXAmplitudeCal([qubit], cals, backend=backend, amplitudes=np.linspace(-0.1, 0.1, 51))
+    rabi = RoughXSXAmplitudeCal((qubit,), cals, backend=backend, amplitudes=np.linspace(-0.1, 0.1, 51))
 
 The rough amplitude calibration is therefore a Rabi experiment in which 
 each circuit contains a pulse with a gate. Different circuits correspond to pulses 
@@ -345,11 +345,6 @@ update calibrations with a calibration experiment.
 
     from qiskit.pulse import InstructionScheduleMap
     from qiskit_experiments.library import FineXAmplitude
-
-.. jupyter-execute::
-
-    backend = SingleTransmonTestBackend()
-    qubit = 0
 
 Detecting over- and under-rotated pulses
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

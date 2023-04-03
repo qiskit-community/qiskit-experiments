@@ -60,7 +60,7 @@ class RBAnalysis(curve.CurveAnalysis):
             bounds: [0, 1]
         defpar \alpha:
             desc: Depolarizing parameter.
-            init_guess: Determined by :func:`~rb_decay`.
+            init_guess: Determined by :func:`~.guess.rb_decay`.
             bounds: [0, 1]
 
     # section: reference

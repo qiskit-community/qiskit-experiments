@@ -42,9 +42,6 @@ class CrossResonanceHamiltonianAnalysis(curve.CompositeCurveAnalysis):
         where :math:`p_{\beta, |j\rangle}` is a fit parameter of :class:`.BlochTrajectoryAnalysis`
         for the projection axis :math:`\beta` with the control qubit state :math:`|j\rangle`.
 
-    # section: see_also
-        :class:`.BlochTrajectoryAnalysis`
-
     """
 
     def __init__(self):

@@ -29,7 +29,7 @@ from qiskit_experiments.framework.backend_timing import BackendTiming
 from .clifford_utils import _truncate_inactive_qubits
 from .clifford_utils import num_from_1q_circuit, num_from_2q_circuit
 from .interleaved_rb_analysis import InterleavedRBAnalysis
-from .rb_experiment import StandardRB, SequenceElementType
+from .standard_rb import StandardRB, SequenceElementType
 
 
 class InterleavedRB(StandardRB):
@@ -89,10 +89,11 @@ class InterleavedRB(StandardRB):
                            Clifford samples to shorter sequences.
 
         Raises:
-            QiskitError: If the ``interleaved_element`` is invalid because:
-                * it has different number of qubits from the qubits argument
-                * it is not convertible to Clifford object
-                * it has an invalid delay (e.g. violating the timing constraints of the backend)
+            QiskitError: When interleaved_element has different number of qubits
+                from the physical_qubits argument.
+            QiskitError: When interleaved_element is not convertible to Clifford object.
+            QiskitError: When interleaved_element has an invalid delay
+                (e.g. violating the timing constraints of the backend).
         """
         # Validations of interleaved_element
         # - validate number of qubits of interleaved_element

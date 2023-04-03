@@ -31,11 +31,7 @@ from qiskit_experiments.warnings import qubit_deprecate
 
 
 class FineDragCal(BaseCalibrationExperiment, FineDrag):
-    """A calibration version of the fine drag experiment.
-
-    # section: see_also
-        :class:`.FineDrag`
-    """
+    """A calibration version of the fine drag experiment."""
 
     @qubit_deprecate()
     def __init__(
@@ -150,11 +146,7 @@ class FineDragCal(BaseCalibrationExperiment, FineDrag):
 
 
 class FineXDragCal(FineDragCal):
-    """Fine drag calibration of X gate.
-
-    # section: see_also
-        :class:`.FineDrag`
-    """
+    """Fine drag calibration of X gate."""
 
     @qubit_deprecate()
     def __init__(
@@ -187,11 +179,7 @@ class FineXDragCal(FineDragCal):
 
 
 class FineSXDragCal(FineDragCal):
-    """Fine drag calibration of X gate.
-
-    # section: see_also
-        :class:`.FineDrag`
-    """
+    """Fine drag calibration of X gate."""
 
     @qubit_deprecate()
     def __init__(

@@ -56,7 +56,7 @@ class LocalReadoutErrorAnalysis(BaseAnalysis):
 
         Analysis Options:
             plot (bool): Set ``True`` to create figure for fit result.
-            ax(AxesSubplot): Optional. A matplotlib axis object to draw.
+            ax (AxesSubplot): Optional. A matplotlib axis object to draw.
         """
         options = super()._default_options()
         # since the plot size grows exponentially with the number of qubits, plotting is off by default

@@ -52,7 +52,7 @@ resulting function, and can analytically extract the desired values.
 .. jupyter-execute::
 
     # Create a T2Ramsey experiment. Print the first circuit as an example
-    exp1 = T2Ramsey([qubit], delays, osc_freq=1e5)
+    exp1 = T2Ramsey((qubit,), delays, osc_freq=1e5)
     
     print(exp1.circuits()[0])
 
@@ -62,17 +62,17 @@ pure T1/T2 relaxation noise model.
 .. jupyter-execute::
 
     # A T1 simulator
-    from qiskit.providers.fake_provider import FakeVigo
+    from qiskit.providers.fake_provider import FakePerth
     from qiskit_aer import AerSimulator
     from qiskit_aer.noise import NoiseModel
     
     # Create a pure relaxation noise model for AerSimulator
     noise_model = NoiseModel.from_backend(
-        FakeVigo(), thermal_relaxation=True, gate_error=False, readout_error=False
+        FakePerth(), thermal_relaxation=True, gate_error=False, readout_error=False
     )
     
     # Create a fake backend simulator
-    backend = AerSimulator.from_backend(FakeVigo(), noise_model=noise_model)
+    backend = AerSimulator.from_backend(FakePerth(), noise_model=noise_model)
 
 The resulting graph will have the form:
 :math:`f(t) = a^{-t/T_2*} \cdot \cos(2 \pi f t + \phi) + b` where *t* is
@@ -121,7 +121,7 @@ computed for other qubits.
         "phi": 0,
         "B": 0.5
             }
-    exp_with_p0 = T2Ramsey([qubit], delays, osc_freq=1e5)
+    exp_with_p0 = T2Ramsey((qubit,), delays, osc_freq=1e5)
     exp_with_p0.analysis.set_options(p0=user_p0)
     exp_with_p0.set_transpile_options(scheduling_method='asap')
     expdata_with_p0 = exp_with_p0.run(backend=backend, shots=2000, seed_simulator=101)

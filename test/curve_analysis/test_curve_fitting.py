@@ -17,7 +17,7 @@ import numpy as np
 from qiskit import QuantumCircuit, transpile
 from qiskit.providers.basicaer import QasmSimulatorPy
 from qiskit_experiments.curve_analysis import curve_fit, multi_curve_fit, process_curve_data
-from qiskit_experiments.curve_analysis.data_processing import (
+from qiskit_experiments.curve_analysis.utils import (
     level2_probability,
     mean_xy_data,
     multi_mean_xy_data,

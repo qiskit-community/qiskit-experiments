@@ -1,7 +1,7 @@
 ---
 features:
   - |
-    The :class:`.CurveAnalysis` has been modified to delegate the core fitting functionality to the
+    The :class:`.CurveAnalysis` class has been modified to delegate the core fitting functionality to the
     `LMFIT <https://lmfit.github.io/lmfit-py/>`_ package. Fit curves are specified using
     `LMFIT Model <https://lmfit.github.io/lmfit-py/model.html#>`_ objects. For multi-curve fitting
     a list of models can be used.
@@ -41,7 +41,7 @@ features:
 
   - |
     ``plot_options`` has been added. This was conventionally included
-    in the :class:`SeriesDef` dataclass, which was static and not configurable. 
+    in the :class:`.SeriesDef` dataclass, which was static and not configurable. 
     Now end-user can update visual representation of curves through this option.
     This option is a dictionary that defines three properties, for example,
     

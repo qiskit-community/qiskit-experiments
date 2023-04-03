@@ -3,13 +3,6 @@
 Qiskit Experiments Documentation
 ================================
 
-.. warning::
-
-    This package is still under active development and it is very likely
-    that there will be breaking API changes in future releases.
-    If you encounter any bugs, please open an issue on
-    `GitHub <https://github.com/Qiskit/qiskit-experiments/issues>`_.
-
 Qiskit Experiments provides both a :doc:`library <apidocs/library>` of standard
 quantum characterization, calibration, and verification experiments, and a
 general :doc:`framework <apidocs/framework>` for implementing custom experiments
@@ -48,7 +41,7 @@ We've divided up the documentation into four sections with different purposes:
         These standalone how-to guides provide short and direct solutions to some commonly
         asked questions for Qiskit Experiments users. You'll find in these guides:
 
-        * How to :doc:`re-instantiate experiment data for an existing experiment <howtos/new_experimentdata>`
+        * How to :doc:`rerun analysis for an existing experiment <howtos/rerun_analysis>`
         * How to :doc:`customize the splitting of circuits into jobs <howtos/job_splitting>`
 
         +++
@@ -68,7 +61,7 @@ We've divided up the documentation into four sections with different purposes:
         background, principle, and how to run them in Qiskit Experiments. You'll find in
         these manuals:
         
-        * How to analyze 1- and 2-qubit errors in :doc:`randomized benchmarking </manuals/benchmarking/randomized_benchmarking>`
+        * How to analyze 1- and 2-qubit errors in :doc:`randomized benchmarking </manuals/verification/randomized_benchmarking>`
         * How to calculate the speedup from using :doc:`restless measurements </manuals/measurement/restless_measurements>`
 
         +++

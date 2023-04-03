@@ -32,11 +32,7 @@ AnglesSchedules = namedtuple(
 
 
 class RoughAmplitudeCal(BaseCalibrationExperiment, Rabi):
-    """A calibration version of the Rabi experiment.
-
-    # section: see_also
-        :class:`.Rabi`
-    """
+    """A calibration version of the Rabi experiment."""
 
     @qubit_deprecate()
     def __init__(
@@ -195,11 +191,7 @@ class RoughAmplitudeCal(BaseCalibrationExperiment, Rabi):
 
 
 class RoughXSXAmplitudeCal(RoughAmplitudeCal):
-    """A rough amplitude calibration of x and sx gates.
-
-    # section: see_also
-        :class:`.Rabi`, :class:`.RoughAmplitudeCal`
-    """
+    """A rough amplitude calibration of x and sx gates."""
 
     @qubit_deprecate()
     def __init__(
@@ -229,11 +221,7 @@ class RoughXSXAmplitudeCal(RoughAmplitudeCal):
 
 
 class EFRoughXSXAmplitudeCal(RoughAmplitudeCal):
-    """A rough amplitude calibration of x and sx gates on the 1<->2 transition.
-
-    # section: see_also
-        :class:`.Rabi`, :class:`.RoughAmplitudeCal`
-    """
+    """A rough amplitude calibration of x and sx gates on the 1<->2 transition."""
 
     __outcome__ = "rabi_rate_12"
 

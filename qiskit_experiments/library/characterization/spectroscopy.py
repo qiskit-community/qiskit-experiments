@@ -16,8 +16,8 @@ from abc import ABC, abstractmethod
 from typing import Iterable, Optional, Sequence
 
 import numpy as np
-import qiskit.pulse as pulse
 from qiskit import QuantumCircuit
+from qiskit import pulse
 from qiskit.exceptions import QiskitError
 from qiskit.providers import Backend
 from qiskit.qobj.utils import MeasLevel

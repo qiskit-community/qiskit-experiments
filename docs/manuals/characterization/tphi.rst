@@ -27,17 +27,17 @@ From the :math:`T_1` and :math:`T_2` estimates, we compute the results for
     from qiskit_experiments.library.characterization import Tphi
 
     # An Aer simulator
-    from qiskit.providers.fake_provider import FakeVigo
+    from qiskit.providers.fake_provider import FakePerth
     from qiskit_aer import AerSimulator
     from qiskit_aer.noise import NoiseModel
     
     # Create a pure relaxation noise model for AerSimulator
     noise_model = NoiseModel.from_backend(
-        FakeVigo(), thermal_relaxation=True, gate_error=False, readout_error=False
+        FakePerth(), thermal_relaxation=True, gate_error=False, readout_error=False
     )
     
     # Create a fake backend simulator
-    backend = AerSimulator.from_backend(FakeVigo(), noise_model=noise_model)
+    backend = AerSimulator.from_backend(FakePerth(), noise_model=noise_model)
     
     # Time intervals to wait before measurement for t1 and t2
     delays_t1 = np.arange(1e-6, 300e-6, 10e-6)
@@ -49,7 +49,7 @@ relaxation time estimate. We can see that the component experiments of the batch
 
 .. jupyter-execute::
 
-    exp = Tphi(physical_qubits=[0], delays_t1=delays_t1, delays_t2=delays_t2, num_echoes=1)
+    exp = Tphi(physical_qubits=(0,), delays_t1=delays_t1, delays_t2=delays_t2, num_echoes=1)
     exp.component_experiment(0).circuits()[-1].draw("mpl")
 
 .. jupyter-execute::
@@ -84,7 +84,7 @@ experiment:
 
 .. jupyter-execute::
 
-    exp = Tphi(physical_qubits=[0], 
+    exp = Tphi(physical_qubits=(0,), 
                delays_t1=delays_t1, 
                delays_t2=delays_t2, 
                t2type="ramsey", 

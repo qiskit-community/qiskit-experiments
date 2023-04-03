@@ -17,14 +17,14 @@ from typing import Any, Dict, List
 
 
 class BaseDiscriminator:
-    """An abstract base class for serializable discriminators.
-
-    ``BaseDiscriminator``s are used in the :class:`.Discriminator` data action nodes.
+    """An abstract base class for serializable discriminators used in the
+    :class:`.DiscriminatorNode` data action nodes.
 
     This class allows developers to implement their own discriminators or wrap discriminators
     from external libraries which therefore ensures that the discriminator fits in
     the data processing chain. This class defines an interface for discriminator objects.
     Subclasses must implement the following methods:
+
     - :meth:`predict`: called in the :class:`.Discriminator` data-action class to predict
       labels from the input level-one data.
     - :meth:`config`: produces the config file to serialize and deserialize the discriminator.
