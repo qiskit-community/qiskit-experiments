@@ -65,8 +65,8 @@ class TestFixedFrequencyTransmon(QiskitExperimentsTestCase):
         self.assertEqual(sched_x.blocks[0].pulse.duration, sched_sx.blocks[0].pulse.duration)
         self.assertEqual(sched_x.blocks[0].pulse.sigma, sched_sx.blocks[0].pulse.sigma)
 
-        self.assertEqual(len(set(sched_x.parameters) & set(sched_y.parameters)), 4)
-        self.assertEqual(len(set(sched_sx.parameters) & set(sched_sy.parameters)), 4)
+        self.assertEqual(len(set(sched_x.parameters) & set(sched_y.parameters)), 5)
+        self.assertEqual(len(set(sched_sx.parameters) & set(sched_sy.parameters)), 5)
 
         expected = [
             DefaultCalValue(0.5, "amp", (), "x"),

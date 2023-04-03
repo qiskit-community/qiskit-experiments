@@ -38,7 +38,7 @@ class TestHalfAngleCal(QiskitExperimentsTestCase):
     def test_amp_parameter_error(self):
         """Test that setting cal_parameter_name to amp raises an error"""
         with self.assertRaises(CalibrationError):
-            HalfAngleCal(0, self.cals, cal_parameter_name="amp")
+            HalfAngleCal([0], self.cals, cal_parameter_name="amp")
 
     def test_angle_parameter_missing_error(self):
         """Test that default cal_parameter_name with no matching parameter raises an error"""
@@ -54,4 +54,4 @@ class TestHalfAngleCal(QiskitExperimentsTestCase):
 
         cals_no_angle.add_schedule(sx, num_qubits=1)
         with self.assertRaises(CalibrationError):
-            HalfAngleCal(0, cals_no_angle)
+            HalfAngleCal([0], cals_no_angle)
