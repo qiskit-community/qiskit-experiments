@@ -1,0 +1,25 @@
+---
+other:
+  - |
+    Qiskit Terra 0.23.0, began phasing out support of complex parameters
+    in the Pulse module. Mainly, all library symbolic pulses were converted
+    from complex amplitude representation to a duo of real (float) parameters
+    (amp, angle). To avoid problems, qiskit experiments adopted this convention.
+    
+    The ``FixedFrequencyTransmon`` library now includes an ``angle`` parameter
+    for every pulse, and the default values of ``amp`` are set to float instead
+    of complex.
+    
+    With the exception of ``HalfAngleCal``, all experiments should continue
+    function as they did before (even with complex ``amp``).
+    ``HalfAngleCal`` was changed from updating
+    the complex amplitude of the pulse, to updating the angle. When used with
+    the ``FixedFrequencyTransmon`` library, it will continue to work seamlessly 
+    in the new representation. However, when the experiment is used with custom
+    built pulses, which rely on the old convention of complex ``amp`` (with no
+    angle parameter) - the experiment will fail. Most reasonable cases will raise
+    a detailed ``CalibrationError`` explaining the change and the way to adjust
+    to it. Some edge cases, like a custom built pulse with an ``angle`` parameter
+    which doesn't conform to the naming convention of Qiskit Terra's 
+    ``ScalableSymbolicPulse`` class - will result in the updating of the wrong
+    parameter. 
