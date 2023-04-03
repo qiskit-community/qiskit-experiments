@@ -1,17 +1,17 @@
-AC Stark effect
+AC Stark Effect
 ===============
 
 When a qubit is driven with an off-resonant tone,
 the qubit frequency :math:`f_0` is slightly shifted through what is known as the (AC) Stark effect.
 This technique is sometime used to characterize qubit properties in the vicinity of
 the base frequency, especially with the fixed frequency qubit architecture which usually
-doesn't have a knob to control frequency [1].
+doesn't have a knob to control frequency [1]_.
 
 The important control parameters of the Stark effect are the amplitude
 :math:`\Omega` and frequency :math:`f_S` of
 the off-resonant tone, which we will call *Stark tone* in the following.
 In the low power limit, the amount of frequency shift :math:`\delta f_S`
-that the qubit may experience is described as follows [2]:
+that the qubit may experience is described as follows [2]_:
 
 .. math::
 
@@ -89,7 +89,7 @@ through what is known as the two-photon transition.
 The Stark tone frequency must be sufficiently separated from all of these frequencies
 to avoid unwanted state transitions (frequency collisions).
 In reality, this condition might be more complicated due to transition levels of the
-nearest neighbor qubits, and the frequency must be carefully chosen to avoid frequency collisions [3].
+nearest neighbor qubits, and the frequency must be carefully chosen to avoid frequency collisions [3]_.
 
 
 .. _stark_channel_consideration:
@@ -132,15 +132,15 @@ This depends on the architecture of your quantum device.
 References
 ----------
 
-[1] Malcolm Carroll, Sami Rosenblatt, Petar Jurcevic, Isaac Lauer and Abhinav Kandala,
-Dynamics of superconducting qubit relaxation times, npj Quantum Inf 8, 132 (2022).
-https://arxiv.org/abs/2105.15201
+.. [1] Malcolm Carroll, Sami Rosenblatt, Petar Jurcevic, Isaac Lauer and Abhinav Kandala,
+    Dynamics of superconducting qubit relaxation times, npj Quantum Inf 8, 132 (2022).
+    https://arxiv.org/abs/2105.15201
 
-[2] Easwar Magesan, Jay M. Gambetta, Effective Hamiltonian models of the cross-resonance gate,
-Phys. Rev. A 101, 052308 (2020).
-https://arxiv.org/abs/1804.04073
+.. [2] Easwar Magesan, Jay M. Gambetta, Effective Hamiltonian models of the cross-resonance gate,
+    Phys. Rev. A 101, 052308 (2020).
+    https://arxiv.org/abs/1804.04073
 
-[3] Jared B. Hertzberg, Eric J. Zhang, Sami Rosenblatt, et. al.,
-Laser-annealing Josephson junctions for yielding scaled-up superconducting quantum processors,
-npj Quantum Information 7, 129 (2021).
-https://arxiv.org/abs/2009.00781
+.. [3] Jared B. Hertzberg, Eric J. Zhang, Sami Rosenblatt, et. al.,
+    Laser-annealing Josephson junctions for yielding scaled-up superconducting quantum processors,
+    npj Quantum Information 7, 129 (2021).
+    https://arxiv.org/abs/2009.00781
