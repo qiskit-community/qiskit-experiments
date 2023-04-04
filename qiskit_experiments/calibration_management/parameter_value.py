@@ -15,6 +15,7 @@
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Union
+import warnings
 
 from qiskit_experiments.exceptions import CalibrationError
 
@@ -70,6 +71,19 @@ class ParameterValue:
                 )
 
         self.date_time = self.date_time.astimezone()
+
+        if isinstance(self.value, complex):
+            warnings.warn(
+                "Support of complex parameters is now pending deprecation, following the"
+                "same transition in Qiskit Terra's Pulse module. With the exception of"
+                "the Half Angle Calibration experiment all experiments will continue to"
+                "work with complex parameters until Qiskit Terra completes the deprecation."
+                "The main use of complex parameters was the complex amplitude SymbolicPulse"
+                "instances. This use could be removed by converting the pulses to the"
+                "ScalableSymbolicPulse class which uses two floats (amp,angle) for the"
+                "complex amplitude.",
+                PendingDeprecationWarning,
+            )
 
         if not isinstance(self.value, (int, float, complex)):
             raise CalibrationError(f"Values {self.value} must be int, float or complex.")
