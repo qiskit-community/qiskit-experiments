@@ -160,7 +160,7 @@ class Rabi(BaseExperiment, RestlessMixin):
         # Create the circuits to run
         circs = []
         for amp in self.experiment_options.amplitudes:
-            amp = np.round(amp, decimals=6)
+            amp = round(amp, ndigits=6)
             assigned_circ = circuit.assign_parameters({param: amp}, inplace=False)
             assigned_circ.metadata = {
                 "experiment_type": self._type,
