@@ -85,12 +85,21 @@ Quantum development software packages such as Qiskit, ReCirq [@QuantumAI], tKet 
 Forest [@Smith2016] are part of the quantum stack to execute quantum circuits on hardware.
 They also enable high-level applications that abstract away the quantum hardware. 
 Forest-benchmarking [@Forest] and pyGSTi [@pyGSTi] are tailored towards benchmarking of quantum hardware.
+Commercial solutions that provide quantum optimal control as a service now also exist [@Ball2021].
 However, there is still a need for open-source software that enables researchers and hardware 
 maintainers to easily execute characterization and calibration experiments.
-`Qiskit Experiments` is unique in this perspective as it provides low-level characterization 
-experiments that integrate with pulse-level control [@Alexander2020].
+Recently, software packages have started to emerge to fill this gap [@Pasquale2023]. 
+`Qiskit Experiments` is unique in this perspective as it provides open-source low-level 
+characterization experiments that integrate with pulse-level control [@Alexander2020].
 In addition, `Qiskit Experiments` provides a calibration framework to manage device calibration.
-This framework is usable with any hardware exposed as a Qiskit backend.
+This framework is usable with any hardware exposed as a Qiskit backend. 
+`Qiskit Experiments` greatly simplifies the execution of complex experiments. 
+Indeed, the experiments in the library run multiple quantum circuits and complex fitting 
+but only require a few code lines to run.
+In addition, the base framework of `Qiskit Experiments` provides experimentalists a clear interface
+to create new experiments. 
+They must (i) implement the abstract `circuits` method, (ii) define the experiment
+options, and optionally (iii) implement the analysis class, if not already present in the library.
 For example, the `Qiskit Experiments` framework is used to explore measurements without qubit 
 reset [@Tornow2022], benchmarking [@Amico2023], characterize positive operator value measures [@Fischer2022], quantum 
 states [@Hamilton2022], and time-evolutions [@Greenaway2022], as well as calibrate gates [@Vazquez2022].
