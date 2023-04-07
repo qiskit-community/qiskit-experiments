@@ -98,7 +98,7 @@ Indeed, the experiments in the library run multiple quantum circuits and complex
 but only require a few code lines to run.
 In addition, the base framework of `Qiskit Experiments` provides experimentalists a clear interface
 to create new experiments. 
-They must (i) implement the abstract `circuits` method, (ii) define the experiment
+They must (i) define how circuits are constructed, (ii) define the experiment
 options, and optionally (iii) implement the analysis class, if not already present in the library.
 For example, the `Qiskit Experiments` framework is used to explore measurements without qubit 
 reset [@Tornow2022], benchmarking [@Amico2023], characterize positive operator value measures [@Fischer2022], quantum 
