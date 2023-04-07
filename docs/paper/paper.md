@@ -100,7 +100,8 @@ In addition, the base framework of `Qiskit Experiments` provides experimentalist
 to create new experiments. 
 They must (i) define how circuits are constructed, (ii) define the experiment
 options, and optionally (iii) implement the analysis class, if not already present in the library.
-For example, the `Qiskit Experiments` framework is used to explore measurements without qubit 
+Experiments in the `Qiskit Experiments` library and custom extensions built on top of the 
+framework have been used to explore measurements without qubit
 reset [@Tornow2022], benchmarking [@Amico2023], characterize positive operator value measures [@Fischer2022], quantum 
 states [@Hamilton2022], and time-evolutions [@Greenaway2022], as well as calibrate gates [@Vazquez2022].
 
