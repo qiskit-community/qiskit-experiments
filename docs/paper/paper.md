@@ -131,7 +131,7 @@ The shaded area is a $2\sigma$ confidence interval.
 # Documentation
 
 `Qiskit Experiments` documentation is available at [https://qiskit.org/documentation/experiments](https://qiskit.org/documentation/experiments).
-The documentation also includes [experiment manuals](https://qiskit.org/documentation/experiments/manuals/index.html) 
+The documentation also includes [experiment manuals](https://qiskit.org/documentation/experiments/manuals) 
 that show how to run experiments such as the Quantum Volume presented above.
 
 # Acknowledgements
