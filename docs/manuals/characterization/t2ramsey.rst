@@ -31,8 +31,6 @@ The circuits used for the experiment comprise the following steps:
 #. Hadamard gate
 #. Measurement
 
-|
-
 The user provides as input a series of delays (in seconds) and the
 oscillation frequency (in Hz). During the delay, we expect the qubit to
 precess about the z-axis. If the p gate and the precession offset each

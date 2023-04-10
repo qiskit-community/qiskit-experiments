@@ -48,6 +48,9 @@ class InterleavedRB(StandardRB):
     # section: analysis_ref
         :class:`InterleavedRBAnalysis`
 
+    # section: manual
+        :doc:`/manuals/verification/randomized_benchmarking`
+
     # section: reference
         .. ref_arxiv:: 1 1203.4550
 
