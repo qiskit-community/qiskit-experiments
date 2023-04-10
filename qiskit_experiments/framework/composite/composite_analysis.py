@@ -148,7 +148,7 @@ class CompositeAnalysis(BaseAnalysis):
         """Return a list of marginalized experiment data for component experiments.
 
         Args:
-            experiment_data: a composite experiment experiment data container.
+            experiment_data: a composite experiment data container.
 
         Returns:
             The list of analysis-ready marginalized experiment data for each
@@ -355,15 +355,37 @@ class CompositeAnalysis(BaseAnalysis):
         """
         analysis_results = []
         figures = []
-        for i, sub_expdata in enumerate(component_experiment_data):
+        for sub_expdata in component_experiment_data:
             figures += sub_expdata._figures.values()
-            for result in sub_expdata.analysis_results():
-                # Add metadata to distinguish the component experiment
-                # the result was generated from
-                result.extra["component_experiment"] = {
-                    "experiment_type": sub_expdata.experiment_type,
-                    "component_index": i,
+
+            # Convert Dataframe Series back into AnalysisResultData
+            # This is due to limitation that _run_analysis must return List[AnalysisResultData],
+            # and some composite analysis such as TphiAnalysis overrides this method to
+            # return extra quantity computed from sub analysis results.
+            # This produces unnecessary data conversion.
+            # The _run_analysis mechanism seems just complicating the entire logic.
+            # Since it's impossible to deprecate the usage of this protected method,
+            # we should implement new CompositeAnalysis class with much more efficient
+            # internal logic. Note that the child data structure is no longer necessary
+            # because dataframe offers more efficient data filtering mechanisms.
+            analysis_table = sub_expdata.analysis_results(verbosity=3, dataframe=True)
+            for _, series in analysis_table.iterrows():
+                data_dict = series.to_dict()
+                primary_info = {
+                    "name": data_dict.pop("name"),
+                    "value": data_dict.pop("value"),
+                    "quality": data_dict.pop("quality"),
+                    "device_components": data_dict.pop("components"),
                 }
-                analysis_results.append(result)
+                chisq = data_dict.pop("chisq", np.nan)
+                if chisq:
+                    primary_info["chisq"] = chisq
+                data_dict["experiment"] = sub_expdata.experiment_type
+                if "experiment_id" in data_dict:
+                    # Use experiment ID of parent experiment data.
+                    # Sub experiment data is merged and discarded.
+                    del data_dict["experiment_id"]
+                analysis_result = AnalysisResultData(**primary_info, extra=data_dict)
+                analysis_results.append(analysis_result)
 
         return analysis_results, figures

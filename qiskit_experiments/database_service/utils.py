@@ -19,12 +19,15 @@ import traceback
 from abc import ABC, abstractmethod
 from collections import OrderedDict
 from datetime import datetime, timezone
-from typing import Callable, Tuple, Dict, Any, Union, Type, Optional
+from typing import Callable, Tuple, List, Dict, Any, Union, Type, Optional
 import json
+import uuid
 
+import pandas as pd
 import dateutil.parser
 import pkg_resources
 from dateutil import tz
+
 from qiskit.version import __version__ as terra_version
 
 from qiskit_ibm_experiment import (
@@ -276,3 +279,236 @@ class ThreadSafeList(ThreadSafeContainer):
         """Append to the list."""
         with self._lock:
             self._container.append(value)
+
+
+class ThreadSafeDataFrame(ThreadSafeContainer):
+    """Thread safe data frame.
+
+    This class wraps pandas dataframe with predefined column labels,
+    which is specified by the class method `_default_columns`.
+    Subclass can override this method to provide default labels specific to its data structure.
+
+    This object is expected to be used internally in the ExperimentData.
+    """
+
+    def __init__(self, init_values=None):
+        """ThreadSafeContainer constructor."""
+        self._columns = self._default_columns()
+        self._extra = []
+        super().__init__(init_values)
+
+    @classmethod
+    def _default_columns(cls) -> List[str]:
+        return []
+
+    def _init_container(self, init_values: Optional[Union[Dict, pd.DataFrame]] = None):
+        """Initialize the container."""
+        if init_values is None:
+            return pd.DataFrame(columns=self.get_columns())
+        if isinstance(init_values, pd.DataFrame):
+            input_columns = list(init_values.columns)
+            if input_columns != self.get_columns():
+                raise ValueError(
+                    f"Input data frame contains unexpected columns {input_columns}. "
+                    f"{self.__class__.__name__} defines {self.get_columns()} as default columns."
+                )
+            return init_values
+        if isinstance(init_values, dict):
+            return pd.DataFrame.from_dict(
+                data=init_values,
+                orient="index",
+                columns=self.get_columns(),
+            )
+        raise TypeError(f"Initial value of {type(init_values)} is not valid data type.")
+
+    def get_columns(self) -> List[str]:
+        """Return current column names.
+
+        Returns:
+            List of column names.
+        """
+        return self._columns.copy()
+
+    def add_columns(self, *new_columns: str, default_value: Any = None):
+        """Add new columns to the table.
+
+        This operation mutates the current container.
+
+        Args:
+            new_columns: Name of columns to add.
+            default_value: Default value to fill added columns.
+        """
+        # Order sensitive
+        new_columns = [c for c in new_columns if c not in self.get_columns()]
+        self._extra.extend(new_columns)
+
+        # Update current table
+        with self._lock:
+            for new_column in new_columns:
+                self._container.insert(len(self._container.columns), new_column, default_value)
+        self._columns.extend(new_columns)
+
+    def clear(self):
+        """Remove all elements from this container."""
+        with self._lock:
+            self._container = self._init_container()
+            self._columns = self._default_columns()
+            self._extra = []
+
+    def container(
+        self,
+        collapse_extra: bool = True,
+    ) -> pd.DataFrame:
+        """Return bare pandas dataframe.
+
+        Args:
+            collapse_extra: Set True to show only default columns.
+
+        Returns:
+            Bare pandas dataframe. This object is no longer thread safe.
+        """
+        with self._lock:
+            container = self._container
+
+        if collapse_extra:
+            return container[self._default_columns()]
+        return container
+
+    def add_entry(self, **kwargs):
+        """Add new entry to the dataframe.
+
+        Args:
+            kwargs: Description of new entry to register.
+        """
+        columns = self.get_columns()
+        missing = kwargs.keys() - set(columns)
+        if missing:
+            self.add_columns(*sorted(missing))
+
+        template = dict.fromkeys(self.get_columns())
+        template.update(kwargs)
+
+        if not template["result_id"]:
+            template["result_id"] = uuid.uuid4().hex
+        name = self._unique_table_index(template["result_id"])
+        with self._lock:
+            self._container.loc[name] = list(template.values())
+
+    def _unique_table_index(self, index_name: str):
+        """Generate unique index name with 8 characters."""
+        if not isinstance(index_name, str):
+            index_name = str(index_name)
+        truncated = index_name[:8]
+        with self.lock:
+            while truncated in self._container.index:
+                truncated = uuid.uuid4().hex[:8]
+        return truncated
+
+    def _repr_html_(self) -> Union[str, None]:
+        """Return HTML representation of this dataframe."""
+        with self._lock:
+            # Remove underscored columns.
+            return self._container._repr_html_()
+
+    def __getattr__(self, item):
+        lock = object.__getattribute__(self, "_lock")
+
+        with lock:
+            # Lock when access to container's member.
+            container = object.__getattribute__(self, "_container")
+            if hasattr(container, item):
+                return getattr(container, item)
+        raise AttributeError(f"'ThreadSafeDataFrame' object has no attribute '{item}'")
+
+    def __json_encode__(self) -> Dict[str, Any]:
+        return {
+            "class": "ThreadSafeDataFrame",
+            "data": self._container.to_dict(orient="index"),
+            "columns": self._columns,
+            "extra": self._extra,
+        }
+
+    @classmethod
+    def __json_decode__(cls, value: Dict[str, Any]) -> "ThreadSafeDataFrame":
+        if not value.get("class", None) == "ThreadSafeDataFrame":
+            raise ValueError("JSON decoded value for ThreadSafeDataFrame is not valid class type.")
+
+        instance = object.__new__(AnalysisResultTable)
+        # Need to update self._columns first to set extra columns in the dataframe container.
+        instance._columns = value.get("columns", cls._default_columns())
+        instance._extra = value.get("extra", [])
+        instance._lock = threading.RLock()
+        instance._container = instance._init_container(init_values=value.get("data", {}))
+        return instance
+
+
+class AnalysisResultTable(ThreadSafeDataFrame):
+    """Thread safe dataframe to store the analysis results."""
+
+    @classmethod
+    def _default_columns(cls) -> List[str]:
+        return [
+            "name",
+            "value",
+            "quality",
+            "components",
+            "experiment",
+            "experiment_id",
+            "result_id",
+            "tags",
+            "backend",
+            "run_time",
+            "created_time",
+        ]
+
+    @classmethod
+    def _tier1(cls) -> List[str]:
+        """The data group that the analysis class produces."""
+        return [
+            "name",
+            "value",
+            "components",
+            "quality",
+        ]
+
+    @classmethod
+    def _tier2(cls) -> List[str]:
+        """The data group of metadata that the experiment class provides."""
+        return [
+            "experiment",
+            "backend",
+            "run_time",
+        ]
+
+    @classmethod
+    def _tier3(cls) -> List[str]:
+        """The data group which is used to communicate with the experiment service."""
+        return [
+            "experiment_id",
+            "result_id",
+            "tags",
+            "created_time",
+        ]
+
+    def filter_columns(self, verbosity: int) -> List[str]:
+        """Return column names at given verbosity level.
+
+        Extra columns are always added.
+
+        Args:
+            verbosity: Level of verbosity of returned data table (1, 2, 3):
+
+                    * 1 (minimum): Return data from the analysis.
+                    * 2 (normal): With supplemental data experiment.
+                    * 3 (finest): With extra data to communicate with experiment service.
+
+        Return:
+            Valid column names.
+        """
+        if verbosity == 1:
+            return self._tier1() + self._extra
+        if verbosity == 2:
+            return self._tier1() + self._tier2() + self._extra
+        if verbosity == 3:
+            return self._tier1() + self._tier2() + self._tier3() + self._extra
+        raise ValueError(f"verbosity {verbosity} is not defined. Choose value from 1, 2, 3.")

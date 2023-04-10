@@ -15,6 +15,7 @@ Base analysis class.
 from abc import ABC, abstractmethod
 import copy
 from collections import OrderedDict
+from datetime import datetime, timezone
 from typing import List, Tuple, Union, Dict
 
 from qiskit_experiments.database_service.device_component import Qubit
@@ -23,7 +24,6 @@ from qiskit_experiments.framework.store_init_args import StoreInitArgs
 from qiskit_experiments.framework.experiment_data import ExperimentData
 from qiskit_experiments.framework.configs import AnalysisConfig
 from qiskit_experiments.framework.analysis_result_data import AnalysisResultData
-from qiskit_experiments.framework.analysis_result import AnalysisResult
 
 
 class BaseAnalysis(ABC, StoreInitArgs):
@@ -153,8 +153,6 @@ class BaseAnalysis(ABC, StoreInitArgs):
         if not replace_results and _requires_copy(experiment_data):
             experiment_data = experiment_data.copy()
 
-        experiment_components = self._get_experiment_components(experiment_data)
-
         # Set Analysis options
         if not options:
             analysis = self
@@ -162,21 +160,41 @@ class BaseAnalysis(ABC, StoreInitArgs):
             analysis = self.copy()
             analysis.set_options(**options)
 
-        def run_analysis(expdata):
+        def run_analysis(expdata: ExperimentData):
             # Clearing previous analysis data
             experiment_data._clear_results()
-            # making new analysis
+            experiment_components = self._get_experiment_components(experiment_data)
+
+            # Making new analysis
             results, figures = analysis._run_analysis(expdata)
-            # Add components
-            analysis_results = [
-                analysis._format_analysis_result(
-                    result, expdata.experiment_id, experiment_components
-                )
-                for result in results
-            ]
-            # Update experiment data with analysis results
-            if analysis_results:
-                expdata.add_analysis_results(analysis_results)
+
+            if results:
+                for result in results:
+                    supplementary = result.extra
+                    if result.chisq is not None:
+                        supplementary["chisq"] = result.chisq
+                    if "experiment" not in supplementary:
+                        supplementary["experiment"] = expdata.experiment_type
+                    if "experiment_id" not in supplementary:
+                        supplementary["experiment_id"] = expdata.experiment_id
+                    if "backend" not in supplementary:
+                        supplementary["backend"] = expdata.backend_name
+                    if "run_time" not in supplementary:
+                        # TODO add job RUNNING time
+                        supplementary["run_time"] = None
+                    if "created_time" not in supplementary:
+                        supplementary["created_time"] = datetime.now(timezone.utc)
+                    # Bypass generation of AnalysisResult, i.e. calling add_analysis_results.
+                    # AnalysisResult is a data container with experiment service API.
+                    # Since analysis is a local operation in the client,
+                    # we should directly populate analysis result dataframe.
+                    expdata.add_analysis_results(
+                        name=result.name,
+                        value=result.value,
+                        quality=result.quality,
+                        components=result.device_components or experiment_components,
+                        **supplementary,
+                    )
             if figures:
                 expdata.add_figures(figures, figure_names=self.options.figure_names)
 
@@ -194,30 +212,6 @@ class BaseAnalysis(ABC, StoreInitArgs):
             experiment_components = []
 
         return experiment_components
-
-    def _format_analysis_result(self, data, experiment_id, experiment_components=None):
-        """Format run analysis result to DbAnalysisResult"""
-        device_components = []
-        if data.device_components:
-            device_components = data.device_components
-        elif experiment_components:
-            device_components = experiment_components
-
-        if isinstance(data, AnalysisResult):
-            # Update device components and experiment id
-            data.device_components = device_components
-            data.experiment_id = experiment_id
-            return data
-
-        return AnalysisResult(
-            name=data.name,
-            value=data.value,
-            device_components=device_components,
-            experiment_id=experiment_id,
-            chisq=data.chisq,
-            quality=data.quality,
-            extra=data.extra,
-        )
 
     @abstractmethod
     def _run_analysis(
