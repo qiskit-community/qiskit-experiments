@@ -21,12 +21,14 @@ import dataclasses
 from typing import Any, List, Union
 
 import numpy as np
+import pandas as pd
 import uncertainties
 from lmfit import Model
 from multimethod import multimethod
 from qiskit_experiments.curve_analysis.curve_data import CurveFitResult
 from qiskit_experiments.data_processing import DataAction, DataProcessor
 from qiskit_experiments.database_service.utils import (
+    ThreadSafeDataFrame,
     ThreadSafeList,
     ThreadSafeOrderedDict,
 )
@@ -270,6 +272,15 @@ def _check_configurable_classes(
 ):
     """Check equality of Qiskit Experiments class with config method."""
     return is_equivalent(data1.config(), data2.config(), **kwargs)
+
+
+@_is_equivalent_dispatcher.register
+def _check_dataframes(
+    data1: Union[pd.DataFrame, ThreadSafeDataFrame],
+    data2: Union[pd.DataFrame, ThreadSafeDataFrame],
+):
+    """Check equality of data frame which may involve Qiskit Experiments class value."""
+    return is_equivalent(data1.to_dict(orient="index"), data2.to_dict(orient="index"))
 
 
 @_is_equivalent_dispatcher.register
