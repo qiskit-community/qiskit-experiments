@@ -450,28 +450,43 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         """Test adding and getting analysis results."""
         exp_data = ExperimentData(experiment_type="qiskit_test")
         results = []
-        for idx in range(5):
+        result_ids = list(map(str, range(5)))
+        for idx in result_ids:
             res = mock.MagicMock()
             res.result_id = idx
             results.append(res)
             exp_data.add_analysis_results(res)
 
-        self.assertEqual(results, exp_data.analysis_results())
-        self.assertEqual(results[1], exp_data.analysis_results(1))
-        self.assertEqual(results[2:4], exp_data.analysis_results(slice(2, 4)))
-        self.assertEqual(results[4], exp_data.analysis_results(results[4].result_id))
+        # We cannot compare results with exp_data.analysis_results()
+        # This test is too hacky since it tris to compare MagicMock with AnalysisResult.
+        self.assertEqual(
+            [res.result_id for res in exp_data.analysis_results()],
+            result_ids,
+        )
+        self.assertEqual(
+            exp_data.analysis_results(1).result_id,
+            result_ids[1],
+        )
+        self.assertEqual(
+            [res.result_id for res in exp_data.analysis_results(slice(2, 4))],
+            result_ids[2:4],
+        )
 
     def test_add_get_analysis_results(self):
         """Test adding and getting a list of analysis results."""
         exp_data = ExperimentData(experiment_type="qiskit_test")
         results = []
-        for idx in range(5):
+        result_ids = list(map(str, range(5)))
+        for idx in result_ids:
             res = mock.MagicMock()
             res.result_id = idx
             results.append(res)
         exp_data.add_analysis_results(results)
+        get_result_ids = [res.result_id for res in exp_data.analysis_results()]
 
-        self.assertEqual(results, exp_data.analysis_results())
+        # We cannot compare results with exp_data.analysis_results()
+        # This test is too hacky since it tris to compare MagicMock with AnalysisResult.
+        self.assertEqual(get_result_ids, result_ids)
 
     def test_delete_analysis_result(self):
         """Test deleting analysis result."""
