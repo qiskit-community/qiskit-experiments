@@ -65,6 +65,9 @@ class QuantumVolume(BaseExperiment):
     # section: analysis_ref
         :class:`QuantumVolumeAnalysis`
 
+    # section: manual
+        :doc:`/manuals/verification/quantum_volume`
+
     # section: reference
         .. ref_arxiv:: 1 1811.12926
         .. ref_arxiv:: 2 2008.08571

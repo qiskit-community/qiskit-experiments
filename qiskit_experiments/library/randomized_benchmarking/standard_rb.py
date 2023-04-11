@@ -78,6 +78,9 @@ class StandardRB(BaseExperiment, RestlessMixin):
     # section: analysis_ref
         :class:`RBAnalysis`
 
+    # section: manual
+        :doc:`/manuals/verification/randomized_benchmarking`
+
     # section: reference
         .. ref_arxiv:: 1 1009.3639
         .. ref_arxiv:: 2 1109.6887
