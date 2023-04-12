@@ -39,7 +39,7 @@ os.environ["QISKIT_DOCS"] = "TRUE"
 version = "0.6"
 # The full version, including alpha/beta/rc tags
 release = "0.6.0"
-project = f"Qiskit Experiments"
+project = f"Qiskit Experiments {version}"
 copyright = f"2021-{datetime.date.today().year}, Qiskit Development Team"  # pylint: disable=redefined-builtin
 author = "Qiskit Development Team"
 
