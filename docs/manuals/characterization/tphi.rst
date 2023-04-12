@@ -1,10 +1,6 @@
 Tφ Characterization
 ===================
 
-.. note::
-    This manual requires the ``qiskit-aer`` package to run simulations.
-    You can install it with ``python -m pip install qiskit-aer``.
-
 :math:`T_\varphi`, or :math:`1/\Gamma_\varphi`, is the pure dephasing time of
 depolarization in the :math:`x - y` plane of the Bloch sphere. We compute
 :math:`\Gamma_\varphi` by computing :math:`\Gamma_2`, the *transverse relaxation rate*,
