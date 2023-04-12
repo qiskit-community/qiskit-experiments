@@ -114,16 +114,17 @@ The raw data, figures and analysis results are contained in the `ExperimentData`
 
 # Example usage
 
-Here, we exemplify `Qiskit Experiments` with a Quantum Volume (QV) measurement [@Cross2019].
-We execute random SU(4) circuits on a noisy simulator of a quantum backend to quantify
+`Qiskit Experiments` can run, for example, a Quantum Volume (QV) measurement [@Cross2019].
+Evaluating the QV of a quantum computer requires executing random SU(4) circuits to quantify
 the largest quantum circuit with equal width and depth that can be successfully run.
 A depth $d$ QV circuit is successful if it has mean heavy-output probability greater 
 than two-thirds with a confidence level exceeding 0.977, and at least 100 trials have been run.
-`Qiskit Experiments` only requires a few lines of code to run this standardized yet complex experiment.
+`Qiskit Experiments` only requires a few lines of code to run this standardized yet complex experiment,
+see the [online documentation](https://qiskit.org/documentation/experiments/manuals/verification/quantum_volume.html).
 The analysis classes of existing experiments automatically generate key figures with customizable 
 visualization options, as exemplified by the QV plot in \autoref{fig:qv}.
 
-![Example result of a quantum volume measurement carried out with `Qiskit Experiments`.
+![Example result of a quantum volume measurement carried out with `Qiskit Experiments` on a noisy simulator. 
 The dashed line shows the two-thirds threshold.
 Each dot shows an execution of a randomized quantum circuit aggregated over many shots.
 The shaded area is a $2\sigma$ confidence interval.
