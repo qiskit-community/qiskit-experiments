@@ -3,7 +3,7 @@ Experiment Manuals
 
 These experiment manuals are in-depth dives into some individual experiments, their
 operational principles, and how to run them in Qiskit Experiments. Note that the
-experiments below is only a small fraction of the full list of experiments in
+experiments below are only a small fraction of the full list of experiments in
 the :doc:`package library <../apidocs/library>`.
 
 .. _verification manuals:
