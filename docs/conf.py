@@ -39,7 +39,7 @@ os.environ["QISKIT_DOCS"] = "TRUE"
 version = "0.6"
 # The full version, including alpha/beta/rc tags
 release = "0.6.0"
-project = f"Qiskit Experiments {version}"
+project = f"Qiskit Experiments"
 copyright = f"2021-{datetime.date.today().year}, Qiskit Development Team"  # pylint: disable=redefined-builtin
 author = "Qiskit Development Team"
 
@@ -190,9 +190,7 @@ def _get_versions(app, config):
     current_version = proc.stdout.decode("utf8")
     current_version_info = current_version.split(".")
     if current_version_info[0] == "0":
-        version_list = [
-            "0.%s" % x for x in range(start_version[1], int(current_version_info[1]) + 1)
-        ]
+        version_list = ["0.%s" % x for x in range(start_version[1], int(current_version_info[1]))]
     else:
         # TODO: When 1.0.0 add code to handle 0.x version list
         version_list = []
