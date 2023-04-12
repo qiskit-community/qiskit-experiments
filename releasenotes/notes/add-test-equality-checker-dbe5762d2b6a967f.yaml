@@ -1,14 +1,14 @@
 ---
 developer:
   - |
-    Add :meth:`QiskitExperimentsTestCase.assertEqualExtended` method for generic equality check
+    Added the :meth:`QiskitExperimentsTestCase.assertEqualExtended` method for generic equality checks
     of Qiskit Experiments class instances in unittests. This is a drop-in replacement of 
     calling the assertTrue with :meth:`QiskitExperimentsTestCase.json_equiv`.
     Note that some Qiskit Experiments classes may not officially implement equality check logic,
     although objects may be compared during unittests. Extended equality check is used
     for such situations.
   - |
-    Following unittest test case methods will be deprecated:
+    The following unittest test case methods will be deprecated:
     
       * :meth:`QiskitExperimentsTestCase.json_equiv`
       * :meth:`QiskitExperimentsTestCase.ufloat_equiv`
@@ -16,10 +16,10 @@ developer:
       * :meth:`QiskitExperimentsTestCase.curve_fit_data_equiv`
       * :meth:`QiskitExperimentsTestCase.experiment_data_equiv`
     
-    One can now use :func:`~test.extended_equality.is_equivalent` method instead.
+    One can now use the :func:`~test.extended_equality.is_equivalent` function instead.
     This function internally dispatches the logic for equality check.
   - |
-    Default behavior of :meth:`QiskitExperimentsTestCase.assertRoundTripSerializable` and 
+    The default behavior of :meth:`QiskitExperimentsTestCase.assertRoundTripSerializable` and 
     :meth:`QiskitExperimentsTestCase.assertRoundTripPickle` when `check_func` is not 
     provided was upgraded. These methods now compare the decoded instance with
     :func:`~test.extended_equality.is_equivalent`, rather than 

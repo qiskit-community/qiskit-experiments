@@ -51,7 +51,15 @@ def is_equivalent(
             data1.__dict__,
             data2.__dict__,
         )
-    return data1 == data2
+    evaluated = data1 == data2
+    if not isinstance(evaluated, bool):
+        # When either one of input is numpy array type, it may broadcast equality check
+        # and return ndarray of dtype=bool. e.g. np.array([]) == 123
+        # The input values should not be equal in this case.
+        return False
+
+    # Return the outcome of native equivalence check.
+    return evaluated
 
 
 @is_equivalent.register
@@ -67,29 +75,36 @@ def _check_dicts(
 
 @is_equivalent.register
 def _check_floats(
-    data1: float,
-    data2: float,
+    data1: Union[float, np.floating],
+    data2: Union[float, np.floating],
 ):
-    """Check equality of float. This function supports float("nan")."""
+    """Check equality of float.
+
+    Both python built-in float and numpy floating subtypes can be compared.
+    This function also supports comparison of float("nan").
+    """
     if np.isnan(data1) and np.isnan(data2):
         # Special case
         return True
-    return data1 == data2
+    return float(data1) == float(data2)
 
 
 @is_equivalent.register
-def _check_ndarrays(
-    data1: np.ndarray,
-    data2: np.ndarray,
+def _check_integer(
+    data1: Union[int, np.integer],
+    data2: Union[int, np.integer],
 ):
-    """Check equality of numpy ndarray."""
-    return np.allclose(data1, data2)
+    """Check equality of integer.
+
+    Both python built-in integer and numpy integer subtypes can be compared.
+    """
+    return int(data1) == int(data2)
 
 
 @is_equivalent.register
 def _check_sequences(
-    data1: Union[list, tuple, ThreadSafeList],
-    data2: Union[list, tuple, ThreadSafeList],
+    data1: Union[list, tuple, np.ndarray, ThreadSafeList],
+    data2: Union[list, tuple, np.ndarray, ThreadSafeList],
 ):
     """Check equality of sequence."""
     if len(data1) != len(data2):
