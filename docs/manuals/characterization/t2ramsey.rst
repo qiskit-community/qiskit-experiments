@@ -57,6 +57,10 @@ resulting function, and can analytically extract the desired values.
 We run the experiment on a simulated backend using Qiskit Aer with a
 pure T1/T2 relaxation noise model.
 
+.. note::
+    This manual requires the ``qiskit-aer`` package to run simulations.
+    You can install it with ``python -m pip install qiskit-aer``.
+
 .. jupyter-execute::
 
     # A T1 simulator
