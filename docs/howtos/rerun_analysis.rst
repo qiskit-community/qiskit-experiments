@@ -84,9 +84,11 @@ previously to create it. It may sometimes be helpful instead to save an experime
 restore it later with the following lines of code:
 
 .. jupyter-input::
+    
+    from qiskit_experiments.framework import ExperimentDecoder, ExperimentEncoder
 
-    serialized_exp = json.dumps(Experiment.config())
-    Experiment.from_config(json.loads(serialized_exp))
+    serialized_exp = json.dumps(Experiment.config(), cls=ExperimentEncoder)
+    Experiment.from_config(json.loads(serialized_exp), cls=ExperimentDecoder)
 
 Rerunning with different analysis options
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
