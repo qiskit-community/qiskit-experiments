@@ -2,10 +2,10 @@ Quantum State Tomography
 ========================
 
 Quantum tomography is an experimental procedure to reconstruct a description of
-part of quantum system from the measurement outcomes of a specific set of
-experiments. In particular, quantum state tomography makes measurements on many
-copies of a state, obtained by preparing a system using a defined preparation
-circuit, with the goal of reconstructing the density matrix of the state.
+part of a quantum system from the measurement outcomes of a specific set of
+experiments. In particular, quantum state tomography reconstructs the density matrix
+of a quantum state by preparing the state many times and measuring them in a tomographically 
+complete basis of measurement operators.
 
 .. note::
     This tutorial requires the ``qiskit-aer`` package for simulations.
