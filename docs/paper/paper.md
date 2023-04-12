@@ -119,6 +119,7 @@ Evaluating the QV of a quantum computer requires executing random SU(4) circuits
 the largest quantum circuit with equal width and depth that can be successfully run.
 A depth $d$ QV circuit is successful if it has mean heavy-output probability greater 
 than two-thirds with a confidence level exceeding 0.977, and at least 100 trials have been run.
+The ideal heavy-outputs are determined from a classical simulation of the quantum circuits.
 `Qiskit Experiments` only requires a few lines of code to run this standardized yet complex experiment,
 as shown in the [online documentation](https://qiskit.org/documentation/experiments/manuals/verification/quantum_volume.html).
 The analysis classes of existing experiments automatically generate key figures with customizable 
