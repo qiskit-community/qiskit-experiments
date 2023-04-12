@@ -254,9 +254,10 @@ These options are unique to each experiment class. Many experiment options can b
 upon experiment instantiation, but can also be explicitly set via
 :meth:`~.BaseExperiment.set_experiment_options`:
 
-.. jupyter-input::
+.. jupyter-execute::
 
     exp = T1(physical_qubits=(i,), delays=delays)
+    new_delays=np.arange(1e-6, 600e-6, 50e-6)
     exp.set_experiment_options(delays=new_delays)
 
 Consult the :doc:`API documentation </apidocs/index>` for the options of each experiment
