@@ -256,7 +256,7 @@ upon experiment instantiation, but can also be explicitly set via
 
 .. jupyter-execute::
 
-    exp = T1(physical_qubits=(i,), delays=delays)
+    exp = T1(physical_qubits=(0,), delays=delays)
     new_delays=np.arange(1e-6, 600e-6, 50e-6)
     exp.set_experiment_options(delays=new_delays)
 
