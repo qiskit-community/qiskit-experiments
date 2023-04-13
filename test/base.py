@@ -75,7 +75,9 @@ class QiskitExperimentsTestCase(QiskitTestCase):
         self,
         first: Any,
         second: Any,
+        *,
         msg: Optional[str] = None,
+        strict_type: bool = False,
     ):
         """Extended equality assertion which covers Qiskit Experiments classes.
 
@@ -91,11 +93,22 @@ class QiskitExperimentsTestCase(QiskitTestCase):
             first: First object to compare.
             second: Second object to compare.
             msg: Optional. Custom error message issued when first and second object are not equal.
+            strict_type: Set True to enforce type check before comparison.
         """
         default_msg = f"{first} != {second}"
-        self.assertTrue(is_equivalent(first, second), msg=msg or default_msg)
 
-    def assertRoundTripSerializable(self, obj: Any, check_func: Optional[Callable] = None):
+        self.assertTrue(
+            is_equivalent(first, second, strict_type=strict_type),
+            msg=msg or default_msg,
+        )
+
+    def assertRoundTripSerializable(
+        self,
+        obj: Any,
+        *,
+        check_func: Optional[Callable] = None,
+        strict_type: bool = False,
+    ):
         """Assert that an object is round trip serializable.
 
         Args:
@@ -103,6 +116,7 @@ class QiskitExperimentsTestCase(QiskitTestCase):
             check_func: Optional, a custom function ``check_func(a, b) -> bool``
                 to check equality of the original object with the decoded
                 object. If None :meth:`.assertEqualExtended` is called.
+            strict_type: Set True to enforce type check before comparison.
         """
         try:
             encoded = json.dumps(obj, cls=ExperimentEncoder)
@@ -116,9 +130,15 @@ class QiskitExperimentsTestCase(QiskitTestCase):
         if check_func is not None:
             self.assertTrue(check_func(obj, decoded), msg=f"{obj} != {decoded}")
         else:
-            self.assertEqualExtended(obj, decoded)
+            self.assertEqualExtended(obj, decoded, strict_type=strict_type)
 
-    def assertRoundTripPickle(self, obj: Any, check_func: Optional[Callable] = None):
+    def assertRoundTripPickle(
+        self,
+        obj: Any,
+        *,
+        check_func: Optional[Callable] = None,
+        strict_type: bool = False,
+    ):
         """Assert that an object is round trip serializable using pickle module.
 
         Args:
@@ -126,6 +146,7 @@ class QiskitExperimentsTestCase(QiskitTestCase):
             check_func: Optional, a custom function ``check_func(a, b) -> bool``
                 to check equality of the original object with the decoded
                 object. If None :meth:`.assertEqualExtended` is called.
+            strict_type: Set True to enforce type check before comparison.
         """
         try:
             encoded = pickle.dumps(obj)
@@ -139,7 +160,7 @@ class QiskitExperimentsTestCase(QiskitTestCase):
         if check_func is not None:
             self.assertTrue(check_func(obj, decoded), msg=f"{obj} != {decoded}")
         else:
-            self.assertEqualExtended(obj, decoded)
+            self.assertEqualExtended(obj, decoded, strict_type=strict_type)
 
     @classmethod
     @deprecate_func(
