@@ -1,0 +1,5 @@
+---
+fixes:
+  - |
+    Fixed a bug where :class:`.MultiStateDiscrimination` outputted integer state labels rather than the
+    string labels expected by the :class:`.DiscriminatorNode`.

@@ -12,8 +12,9 @@
 
 """Test the multi state discrimination experiments."""
 from functools import wraps
-from test.base import QiskitExperimentsTestCase
+from test.data_processing import BaseDataProcessorTest
 from unittest import SkipTest
+import numpy as np
 
 from ddt import ddt, data
 
@@ -22,6 +23,8 @@ from qiskit.exceptions import MissingOptionalLibraryError
 
 from qiskit_experiments.library import MultiStateDiscrimination
 from qiskit_experiments.test.pulse_backend import SingleTransmonTestBackend
+from qiskit_experiments.data_processing import SkQDA
+from qiskit_experiments.data_processing.nodes import DiscriminatorNode
 
 from qiskit_experiments.warnings import HAS_SKLEARN
 
@@ -42,7 +45,7 @@ def requires_sklearn(func):
 
 
 @ddt
-class TestMultiStateDiscrimination(QiskitExperimentsTestCase):
+class TestMultiStateDiscrimination(BaseDataProcessorTest):
     """Tests of the multi state discrimination experiment."""
 
     def setUp(self):
@@ -83,7 +86,7 @@ class TestMultiStateDiscrimination(QiskitExperimentsTestCase):
         self.assertEqual(len(exp.circuits()), n_states)
 
         # check the metadata
-        self.assertEqual(exp.circuits()[-1].metadata["label"], n_states - 1)
+        self.assertEqual(exp.circuits()[-1].metadata["label"], str(n_states - 1))
 
     @data(2, 3)
     @requires_sklearn
@@ -104,3 +107,36 @@ class TestMultiStateDiscrimination(QiskitExperimentsTestCase):
             "classes_"
         ]
         self.assertEqual(len(discrim_lbls), n_states)
+
+    @requires_sklearn
+    def test_discriminator_data_processing(self):
+        """Test that the discriminator experiment works with the discriminator node."""
+        discriminator = MultiStateDiscrimination([self.qubit], n_states=2, backend=self.backend)
+        discriminator_data = discriminator.run(
+            meas_level=1, meas_return="single"
+        ).block_for_results()
+        qda = SkQDA.from_config(discriminator_data.analysis_results("discriminator_config").value)
+        discriminatornode = DiscriminatorNode(discriminators=qda)
+
+        iq_data = [
+            # Circuit no. 1, 5 shots, 3 qubits
+            [
+                [[0.8, -1.0], [0.1, 0.3], [-0.3, 0.4]],
+                [[0.2, -1.0], [-0.5, 0.3], [-0.2, 0.4]],
+                [[-0.8, -1.0], [-0.1, 0.3], [-0.3, 0.4]],
+                [[-0.5, -1.0], [-0.2, 0.3], [-0.9, 0.4]],
+                [[-0.8, -1.0], [0.2, 0.3], [0.3, 0.4]],
+            ],
+            # Circuit no. 2, 5 shots, 3 qubits
+            [
+                [[-0.3, -1.0], [0.1, 0.3], [0.9, 0.4]],
+                [[0.8, -1.0], [0.9, 0.3], [0.3, 0.4]],
+                [[-0.7, -1.0], [0.1, 0.3], [0.1, 0.4]],
+                [[-0.8, -1.0], [0.7, 0.3], [0.3, 0.4]],
+                [[-0.8, -1.0], [-0.1, 0.3], [0.2, 0.4]],
+            ],
+        ]
+
+        self.create_experiment_data(iq_data, single_shot=True)
+        fake_data = np.asarray([datum["memory"] for datum in self.iq_experiment.data()])
+        discriminatornode(fake_data)

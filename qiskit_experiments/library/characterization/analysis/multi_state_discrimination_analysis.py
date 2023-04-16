@@ -117,7 +117,7 @@ class MultiStateDiscriminationAnalysis(BaseAnalysis):
         for i in range(n_states):
             counts = [0] * n_states
             for point in predicted_data[i]:
-                counts[point] += 1
+                counts[int(point)] += 1
             for j in range(n_states):
                 if j != i:
                     prob_wrong += counts[j] / num_shots
