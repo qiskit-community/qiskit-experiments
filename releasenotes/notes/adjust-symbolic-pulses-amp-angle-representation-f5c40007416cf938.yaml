@@ -4,7 +4,7 @@ other:
     Qiskit Terra 0.23.0, began phasing out support of complex parameters
     in the Pulse module. Mainly, all library symbolic pulses were converted
     from complex amplitude representation to a duo of real (float) parameters
-    (amp, angle). To avoid problems, qiskit experiments adopted this convention.
+    (amp, angle). To avoid problems, Qiskit Experiments adopted this convention.
     
     The ``FixedFrequencyTransmon`` library now includes an ``angle`` parameter
     for every pulse, and the default values of ``amp`` are set to float instead
