@@ -52,7 +52,7 @@ class TestMultiStateDiscrimination(BaseDataProcessorTest):
         """Setup test variables."""
         super().setUp()
 
-        self.backend = SingleTransmonTestBackend(noise=False)
+        self.backend = SingleTransmonTestBackend(noise=False, lambda_2=0, seed=0)
 
         # Build x12 schedule
         self.qubit = 0
@@ -112,31 +112,24 @@ class TestMultiStateDiscrimination(BaseDataProcessorTest):
     def test_discriminator_data_processing(self):
         """Test that the discriminator experiment works with the discriminator node."""
         discriminator = MultiStateDiscrimination([self.qubit], n_states=2, backend=self.backend)
-        discriminator_data = discriminator.run(
-            meas_level=1, meas_return="single"
-        ).block_for_results()
+        discriminator_data = discriminator.run().block_for_results()
         qda = SkQDA.from_config(discriminator_data.analysis_results("discriminator_config").value)
         discriminatornode = DiscriminatorNode(discriminators=qda)
 
         iq_data = [
-            # Circuit no. 1, 5 shots, 3 qubits
             [
-                [[0.8, -1.0], [0.1, 0.3], [-0.3, 0.4]],
-                [[0.2, -1.0], [-0.5, 0.3], [-0.2, 0.4]],
-                [[-0.8, -1.0], [-0.1, 0.3], [-0.3, 0.4]],
-                [[-0.5, -1.0], [-0.2, 0.3], [-0.9, 0.4]],
-                [[-0.8, -1.0], [0.2, 0.3], [0.3, 0.4]],
+                [[0.8, -1.0], [0.1, 0.5], [-0.3, 0.4]],
+                [[-0.2, 0.4], [0.2, -1.0], [-0.5, 0.3]],
             ],
-            # Circuit no. 2, 5 shots, 3 qubits
             [
-                [[-0.3, -1.0], [0.1, 0.3], [0.9, 0.4]],
-                [[0.8, -1.0], [0.9, 0.3], [0.3, 0.4]],
-                [[-0.7, -1.0], [0.1, 0.3], [0.1, 0.4]],
-                [[-0.8, -1.0], [0.7, 0.3], [0.3, 0.4]],
-                [[-0.8, -1.0], [-0.1, 0.3], [0.2, 0.4]],
+                [[0, -1.0], [0.1, -0.5], [0.9, 0]],
+                [[-0.8, -0.5], [-0.1, 0.5], [0.2, 1.5]],
             ],
         ]
 
-        self.create_experiment_data(iq_data, single_shot=True)
+        self.create_experiment_data(np.array(iq_data) * 1e16, single_shot=True)
         fake_data = np.asarray([datum["memory"] for datum in self.iq_experiment.data()])
-        discriminatornode(fake_data)
+        classified = discriminatornode(fake_data)
+        expected = [["110", "101"], ["000", "111"]]
+
+        self.assertListEqual(classified.tolist(), expected)
