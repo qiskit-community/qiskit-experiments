@@ -6,7 +6,7 @@ other:
     from complex amplitude representation to a duo of real (float) parameters
     (amp, angle). To avoid problems, Qiskit Experiments adopted this convention.
     
-    The ``FixedFrequencyTransmon`` library now includes an ``angle`` parameter
+    The :class:`.FixedFrequencyTransmon` library now includes an ``angle`` parameter
     for every pulse, and the default values of ``amp`` are set to float instead
     of complex.
     
