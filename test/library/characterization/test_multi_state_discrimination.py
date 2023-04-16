@@ -52,7 +52,7 @@ class TestMultiStateDiscrimination(BaseDataProcessorTest):
         """Setup test variables."""
         super().setUp()
 
-        self.backend = SingleTransmonTestBackend(noise=False, lambda_2=0, seed=0)
+        self.backend = SingleTransmonTestBackend(noise=False, seed=0)
 
         # Build x12 schedule
         self.qubit = 0
