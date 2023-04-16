@@ -10,7 +10,7 @@ other:
     for every pulse, and the default values of ``amp`` are set to float instead
     of complex.
     
-    With the exception of ``HalfAngleCal``, all experiments should continue
+    With the exception of :class:`.HalfAngleCal`, all experiments should continue
     function as they did before (even with complex ``amp``).
     ``HalfAngleCal`` was changed from updating
     the complex amplitude of the pulse, to updating the angle. When used with
