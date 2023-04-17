@@ -1352,7 +1352,8 @@ class Calibrations:
 
         .. note::
 
-            Only JSON format is supported.
+            Only JSON format supports full round-trip of :class:`.Calibrations` instance.
+            This may be extended to other file formats in future version.
 
         Args:
             file_type: The type of file to which to save. By default, this is a json.
@@ -1547,7 +1548,7 @@ class Calibrations:
         Returns:
             Calibration instance restored from the file.
         """
-        from .save_utils import from_dict
+        from .save_utils import calibrations_from_dict
 
         with open(file_path, "r") as file:
             # Do we really need branching for data types?
@@ -1555,7 +1556,7 @@ class Calibrations:
             # but save method intend to support multiple formats.
             cal_data = json.load(file, cls=ExperimentDecoder)
 
-        return from_dict(cal_data)
+        return calibrations_from_dict(cal_data)
 
     @staticmethod
     def _to_tuple(qubits: Union[str, int, Tuple[int, ...]]) -> Tuple[int, ...]:
@@ -1658,9 +1659,9 @@ class Calibrations:
         Returns:
             Calibration instance restored from configuration data.
         """
-        from .save_utils import from_dict
+        from .save_utils import calibrations_from_dict
 
-        return from_dict(config)
+        return calibrations_from_dict(config)
 
     def __json_encode__(self):
         """Convert to format that can be JSON serialized."""
@@ -1671,6 +1672,6 @@ class Calibrations:
     @classmethod
     def __json_decode__(cls, value: Dict[str, Any]) -> "Calibrations":
         """Load from JSON compatible format."""
-        from .save_utils import from_dict
+        from .save_utils import calibrations_from_dict
 
-        return from_dict(value)
+        return calibrations_from_dict(value)

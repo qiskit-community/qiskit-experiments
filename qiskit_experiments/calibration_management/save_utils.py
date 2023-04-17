@@ -14,13 +14,28 @@
 
 .. warning::
 
-    This module is expected to be internal and no stable user-facing API
-    may not be guaranteed.
+    This module is expected to be internal and is not intended as a stable user-facing API.
 
 .. note::
 
-    These model version must be upgraded when :class:`.Calibrations` data structure changes
-    in future and when the current data model becames unable to support it.
+    Because a locally saved :class:`.Calibrations` instance may not conform to the
+    data model of the latest Qiskit Experiments implementation, the calibration loader
+    must be aware of the data model version.
+    CalibrationModel classes representing the data model must have
+    the version suffix and the `schema_version` field.
+    This helps the loader to raise user-friendly error rather than being crashed by
+    incompatible data, and possibly to dispatch the loader function based on the version number.
+
+    When the :class:`.Calibrations` class is refactored and starts to use new data model,
+    a developer also needs to define new CalibrationModel with new version number,
+    rather than modifying the existing CalibrationModel class to preserve backward compatibility.
+
+
+.. note::
+
+    We don't guarantee the portability of stored data across different Qiskit Experiments
+    versions. We allow the calibration loader to raise an error for non-supported
+    data models.
 
 """
 
@@ -46,38 +61,33 @@ class ParameterModelV1:
     """
 
     param_name: str
+    """Name of the parameter."""
+
     qubits: List[int]
+    """List of associated qubits."""
+
     schedule: str = ""
+    """Associated schedule name."""
+
     value: float = 0.0
-    datetime: datetime = datetime.now()
+    """Parameter value."""
+
+    datetime: datetime = None
+    """A date time at which this value is obtained."""
+
     valid: bool = True
+    """If this parameter is valid."""
+
     exp_id: str = ""
+    """Associated experiment ID which is used to obtain this value."""
+
     group: str = ""
+    """Name of calibration group in which this calibration parameter belongs to."""
 
     @classmethod
     def apply_schema(cls, data: Dict[str, Any]):
         """Consume dictionary and returns canonical data model."""
         return ParameterModelV1(**data)
-
-
-@dataclass(frozen=True)
-class ScheduleModelV1:
-    """A data schema of a single templated schedule.
-
-    .. note::
-        This is intentionally agnostic to the data structure of
-        Qiskit Experiments Calibrations for portability.
-
-    """
-
-    data: ScheduleBlock
-    qubits: List[int] = field(default_factory=list)
-    num_qubits: int = 0
-
-    @classmethod
-    def apply_schema(cls, data: Dict[str, Any]):
-        """Consume dictionary and returns canonical data model."""
-        return ScheduleModelV1(**data)
 
 
 @dataclass
@@ -91,27 +101,38 @@ class CalibrationModelV1:
     """
 
     backend_name: str
+    """Name of the backend."""
+
     backend_version: str
+    """Version of the backend."""
+
     device_coupling_graph: List[List[int]]
+    """Qubit coupling graph of the device."""
+
     control_channel_map: ControlChannelMap
-    schedules: List[ScheduleModelV1] = field(default_factory=list)
+    """Mapping of ControlChannel to qubit index."""
+
+    schedules: List[ScheduleBlock] = field(default_factory=list)
+    """Template schedules. It must contain the metadata for qubits and num_qubits."""
+
     parameters: List[ParameterModelV1] = field(default_factory=list)
+    """List of calibrated pulse parameters."""
+
     schema_version: str = "1.0"
+    """Version of this data model. This must be static."""
 
     @classmethod
     def apply_schema(cls, data: Dict[str, Any]):
         """Consume dictionary and returns canonical data model."""
         in_data = {}
         for key, value in data.items():
-            if key == "schedules":
-                value = list(map(ScheduleModelV1.apply_schema, value))
             if key == "parameters":
                 value = list(map(ParameterModelV1.apply_schema, value))
             in_data[key] = value
         return CalibrationModelV1(**in_data)
 
 
-def to_dict(
+def calibrations_to_dict(
     cals: Calibrations,
     most_recent_only: bool = True,
 ) -> Dict[str, Any]:
@@ -122,26 +143,68 @@ def to_dict(
         most_recent_only: Set True to save calibration parameters with most recent time stamps.
 
     Returns:
-        Canonicalized calibration data in dictionary format.
+        Canonical calibration data in dictionary format.
     """
-    # This can dispatch canonicalize function as version evolves.
-    model = _canonicalize_calibration_data_v1(cals, most_recent_only)
+    schedules = getattr(cals, "_schedules")
+    num_qubits = getattr(cals, "_schedules_qubits")
+    parameters = getattr(cals, "_params")
+    if most_recent_only:
+        # Get values with most recent time stamps.
+        parameters = {k: [max(parameters[k], key=lambda x: x.date_time)] for k in parameters}
+
+    data_entries = []
+    for param_key, param_values in parameters.items():
+        for param_value in param_values:
+            entry = ParameterModelV1(
+                param_name=param_key.parameter,
+                qubits=param_key.qubits,
+                schedule=param_key.schedule,
+                value=param_value.value,
+                datetime=param_value.date_time,
+                valid=param_value.valid,
+                exp_id=param_value.exp_id,
+                group=param_value.group,
+            )
+            data_entries.append(entry)
+
+    sched_entries = []
+    for sched_key, sched_obj in schedules.items():
+        if "qubits" not in sched_obj.metadata or "num_qubits" not in sched_obj.metadata:
+            qubit_metadata = {
+                "qubits": sched_key.qubits,
+                "num_qubits": num_qubits[sched_key],
+            }
+            sched_obj.metadata.update(qubit_metadata)
+        sched_entries.append(sched_obj)
+
+    model = CalibrationModelV1(
+        backend_name=cals.backend_name,
+        backend_version=cals.backend_version,
+        device_coupling_graph=getattr(cals, "_coupling_map"),
+        control_channel_map=ControlChannelMap(getattr(cals, "_control_channel_map")),
+        schedules=sched_entries,
+        parameters=data_entries,
+    )
+
     return asdict(model)
 
 
-def from_dict(
+def calibrations_from_dict(
     cal_data: Dict[str, Any],
 ) -> Calibrations:
     """A helper function to build calibration instance from canonical dictionary.
 
     Args:
-        cal_data: Calibration data that conforms to the predefined data schema.
+        cal_data: Calibration data dictionary which is formatted according to the
+            predefined data schema provided by Qiskit Experiments.
+            This formatting is implicitly performed when the calibration data is
+            dumped into dictionary with the :func:`calibrations_to_dict` function.
 
     Returns:
         Calibration instance.
 
     Raises:
-        ValueError: When input data model version is no longer supported.
+        ValueError: When input data model version is not supported.
         KeyError: When input data model doesn't conform to data schema.
     """
     # Apply schema for data field validation
@@ -170,10 +233,12 @@ def from_dict(
 
     # Add schedules
     for sched in model.schedules:
+        qubits = sched.metadata.pop("qubits", tuple())
+        num_qubits = sched.metadata.pop("num_qubits", None)
         cals.add_schedule(
-            schedule=sched.data,
-            qubits=sched.qubits if len(sched.qubits) != 0 else None,
-            num_qubits=sched.num_qubits,
+            schedule=sched,
+            qubits=qubits if qubits and len(qubits) != 0 else None,
+            num_qubits=num_qubits,
         )
 
     # Add parameters
@@ -195,59 +260,3 @@ def from_dict(
     cals.update_inst_map()
 
     return cals
-
-
-def _canonicalize_calibration_data_v1(
-    cals: Calibrations,
-    most_recent_only: bool = True,
-) -> CalibrationModelV1:
-    """A helper function to canonicalize calibration data.
-
-    Args:
-        cals: Calibration instance to apply data model.
-        most_recent_only: Set True to save calibration parameters with most recent time stamps.
-
-    Returns:
-        Canonical calibration data.
-    """
-    schedules = getattr(cals, "_schedules")
-    num_qubits = getattr(cals, "_schedules_qubits")
-    parameters = getattr(cals, "_params")
-    if most_recent_only:
-        # Get values with most recent time stamps.
-        parameters = {k: [max(parameters[k], key=lambda x: x.date_time)] for k in parameters}
-
-    data_entries = []
-    for param_key, param_values in parameters.items():
-        for param_value in param_values:
-            entry = ParameterModelV1(
-                param_name=param_key.parameter,
-                qubits=param_key.qubits,
-                schedule=param_key.schedule,
-                value=param_value.value,
-                datetime=param_value.date_time,
-                valid=param_value.valid,
-                exp_id=param_value.exp_id,
-                group=param_value.group,
-            )
-            data_entries.append(entry)
-
-    sched_entries = []
-    for sched_key, sched_obj in schedules.items():
-        entry = ScheduleModelV1(
-            data=sched_obj,
-            qubits=sched_key.qubits or [],
-            num_qubits=num_qubits[sched_key],
-        )
-        sched_entries.append(entry)
-
-    calibration_data = CalibrationModelV1(
-        backend_name=cals.backend_name,
-        backend_version=cals.backend_version,
-        device_coupling_graph=getattr(cals, "_coupling_map"),
-        control_channel_map=ControlChannelMap(getattr(cals, "_control_channel_map")),
-        schedules=sched_entries,
-        parameters=data_entries,
-    )
-
-    return calibration_data
