@@ -428,7 +428,11 @@ class EchoedCrossResonance(BasisGateLibrary):
             with pulse.build(name="cr45m") as cr45m:
                 pulse.play(
                     pulse.GaussianSquare(
-                        cr_dur, -cr_amp, angle=cr_angle, risefall_sigma_ratio=cr_rf, sigma=sigma
+                        cr_dur,
+                        cr_amp,
+                        angle=cr_angle + np.pi,
+                        risefall_sigma_ratio=cr_rf,
+                        sigma=sigma,
                     ),
                     u_chan,
                 )
@@ -437,8 +441,8 @@ class EchoedCrossResonance(BasisGateLibrary):
                     pulse.play(
                         pulse.GaussianSquare(
                             cr_dur,
-                            -tgt_amp,
-                            angle=tgt_angle,
+                            tgt_amp,
+                            angle=tgt_angle + np.pi,
                             risefall_sigma_ratio=cr_rf,
                             sigma=sigma,
                         ),

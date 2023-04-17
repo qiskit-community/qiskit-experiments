@@ -75,10 +75,8 @@ class ParameterValue:
         if isinstance(self.value, complex):
             warnings.warn(
                 "Support of complex parameters is now pending deprecation, following the"
-                "same transition in Qiskit Terra's Pulse module. With the exception of"
-                "the Half Angle Calibration experiment all experiments will continue to"
-                "work with complex parameters until Qiskit Terra completes the deprecation."
-                "The main use of complex parameters was the complex amplitude SymbolicPulse"
+                "same transition in Qiskit Terra's Pulse module."
+                "The main use of complex parameters was the complex amplitude in SymbolicPulse"
                 "instances. This use could be removed by converting the pulses to the"
                 "ScalableSymbolicPulse class which uses two floats (amp,angle) for the"
                 "complex amplitude.",
