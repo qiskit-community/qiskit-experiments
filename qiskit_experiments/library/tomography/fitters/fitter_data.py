@@ -19,7 +19,7 @@ import functools
 from collections import defaultdict
 import numpy as np
 
-from qiskit.result import marginal_counts
+from qiskit.result import marginal_distribution
 
 from qiskit_experiments.exceptions import AnalysisError
 from qiskit_experiments.library.tomography.basis import MeasurementBasis, PreparationBasis
@@ -89,7 +89,7 @@ def tomography_fitter_data(
         if clbits:
             count_clbits += clbits
         if count_clbits:
-            counts = marginal_counts(counts, count_clbits)
+            counts = marginal_distribution(counts, count_clbits)
 
         # Accumulate counts
         combined_counts = outcome_dict[basis_key]
