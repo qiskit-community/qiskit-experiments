@@ -189,7 +189,8 @@ class ExperimentData:
             backend: Backend the experiment runs on. This overrides the
                 backend in the experiment object.
             service: The service that stores the experiment results to the database
-            provider: The provider used for the experiments (can be used to automatically obtain the service)
+            provider: The provider used for the experiments
+            (can be used to automatically obtain the service)
             parent_id: ID of the parent experiment data
                 in the setting of a composite experiment
             job_ids: IDs of jobs submitted for the experiment.
