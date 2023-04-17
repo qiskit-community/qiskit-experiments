@@ -53,6 +53,10 @@ class RestlessMixin:
     complex restless data processing such as two-qubit calibrations. In addition, this
     class makes it easy to determine if restless measurements are supported for a given
     experiment.
+
+    User Manual
+        :doc:`/manuals/measurement/restless_measurements`
+
     """
 
     analysis: BaseAnalysis

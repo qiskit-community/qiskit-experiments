@@ -36,9 +36,9 @@ os.environ["QISKIT_DOCS"] = "TRUE"
 
 # -- Project information -----------------------------------------------------
 # The short X.Y version
-version = "0.5"
+version = "0.6"
 # The full version, including alpha/beta/rc tags
-release = "0.5.0"
+release = "0.6.0"
 project = f"Qiskit Experiments {version}"
 copyright = f"2021-{datetime.date.today().year}, Qiskit Development Team"  # pylint: disable=redefined-builtin
 author = "Qiskit Development Team"
@@ -55,7 +55,6 @@ extensions = [
     "sphinx.ext.extlinks",
     "sphinx_copybutton",
     "jupyter_sphinx",
-    "sphinx_autodoc_typehints",
     "reno.sphinxext",
     "sphinx_design",
     "sphinx.ext.intersphinx",
@@ -89,11 +88,19 @@ nbsphinx_thumbnails = {
     "manuals/characterization/t2ramsey": "_images/t2ramsey_4_0.png",
     "manuals/characterization/tphi": "_images/tphi_5_1.png",
     "manuals/characterization/t2hahn": "_images/t2hahn_5_0.png",
+    "**": "_static/no_image.png",
 }
 
 # Add `data keys` and `style parameters` alias. Needed for `expected_*_data_keys` methods in
 # visualization module and `default_style` method in `PlotStyle` respectively.
 napoleon_custom_sections = [("data keys", "params_style"), ("style parameters", "params_style")]
+
+# Move type hints from signatures to the parameter descriptions (except in overload cases, where
+# that's not possible).
+autodoc_typehints = "description"
+# Only add type hints from signature to description body if the parameter has documentation.  The
+# return type is always added to the description (if in the signature).
+autodoc_typehints_description_target = "documented_params"
 
 autosummary_generate = True
 
