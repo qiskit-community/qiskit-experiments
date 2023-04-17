@@ -206,7 +206,9 @@ class CompositeAnalysis(BaseAnalysis):
                 sub_data = {"metadata": metadata["composite_metadata"][i]}
                 if "counts" in datum:
                     if composite_clbits is not None:
-                        sub_data["counts"] = marginal_distribution(datum["counts"], composite_clbits[i])
+                        sub_data["counts"] = marginal_distribution(
+                            datum["counts"], composite_clbits[i]
+                        )
                     else:
                         sub_data["counts"] = datum["counts"]
                 if "memory" in datum:
