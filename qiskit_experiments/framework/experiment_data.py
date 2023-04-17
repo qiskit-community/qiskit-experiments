@@ -152,8 +152,6 @@ class ExperimentData:
     2. Managing jobs and adding data from jobs automatically
     3. Saving and loading data from the database service
 
-    |
-
     The field ``db_data`` is a dataclass (``ExperimentDataclass``) containing
     all the data that can be stored in the database and loaded from it, and
     as such is subject to strict conventions.
