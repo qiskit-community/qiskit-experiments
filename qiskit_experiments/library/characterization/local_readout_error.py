@@ -63,6 +63,9 @@ class LocalReadoutError(BaseExperiment):
     # section: analysis_ref
         :class:`LocalReadoutErrorAnalysis`
 
+    # section: manual
+        :doc:`/manuals/measurement/readout_mitigation`
+
     # section: reference
         .. ref_arxiv:: 1 2006.14044
     """
