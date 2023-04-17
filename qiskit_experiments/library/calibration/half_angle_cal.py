@@ -41,9 +41,8 @@ class HalfAngleCal(BaseCalibrationExperiment, HalfAngle):
         cal_parameter_name: Optional[str] = "angle",
         auto_update: bool = True,
     ):
-        """see class :class:`HalfAngle` for details. The experiment updates the
-        angle of the complex amplitude represented in (amp,angle) representation,
-        matching the logic of the `ScalableSymbolicPulse` class.
+        """The experiment updates the angle of the complex amplitude
+         represented in (amp,angle) representation.
 
         Args:
             physical_qubits: Sequence containing the qubit for which to run the
