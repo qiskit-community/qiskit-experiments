@@ -18,7 +18,7 @@ authors:
   - name: Helena Zhang
     orcid: 0000-0002-7813-7133
     affiliation: 4
-  - name: Will E. Shanks
+  - name: William E. Shanks
     orcid: 0000-0002-5045-8808
     affiliation: 4
   - name: Gadi Aleksandrowicz
@@ -27,15 +27,15 @@ authors:
     orcid: 0000-0001-7606-7349
     affiliation: 4
 affiliations:
- - name: IBM Quantum – IBM Research Tokyo, Tokyo, 103-8510, Japan
+ - name: IBM Quantum, IBM Research Tokyo, Tokyo, Japan
    index: 1
- - name: IBM Quantum, IBM Research Europe - Zurich, Ruschlikon 8003, Switzerland
+ - name: IBM Quantum, IBM Research Europe - Zurich, Ruschlikon, Switzerland
    index: 2
- - name: IBM Quantum, IBM Research Israel, Haifa 31905, Israel
+ - name: IBM Quantum, IBM Research Israel, Haifa, Israel
    index: 3
- - name: IBM Quantum, IBM T.J. Watson Research Center, Yorktown Heights, NY 10598, USA
+ - name: IBM Quantum, IBM T.J. Watson Research Center, Yorktown Heights, USA
    index: 4
-date: 15 February 2023
+date: 17 April 2023
 bibliography: paper.bib
 
 ---
