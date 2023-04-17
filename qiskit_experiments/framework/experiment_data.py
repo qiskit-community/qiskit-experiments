@@ -189,6 +189,7 @@ class ExperimentData:
             backend: Backend the experiment runs on. This overrides the
                 backend in the experiment object.
             service: The service that stores the experiment results to the database
+            provider: The provider used for the experiments (can be used to automatically obtain the service)
             parent_id: ID of the parent experiment data
                 in the setting of a composite experiment
             job_ids: IDs of jobs submitted for the experiment.
@@ -196,6 +197,14 @@ class ExperimentData:
             verbose: Whether to print messages.
             db_data: A prepared ExperimentDataclass of the experiment info.
                 This overrides other db parameters.
+
+        Additional info:
+            In order for to save the experiment data to the resultDB, the class
+            needs access to the experiment service provider. It can be obtained
+            via three different methods, given here by priority:
+            1. Passing it directly via the `service` parameter.
+            2. Implicitly obtaining it from the `provider` parameter.
+            3. Implicitly obtaining it from the `backend` parameter, using that backend's provider.
         """
         if experiment is not None:
             backend = backend or experiment.backend
@@ -242,12 +251,14 @@ class ExperimentData:
         self._backend = None
         if backend is not None:
             self._set_backend(backend, recursive=False)
-        self._provider = provider
+        self.provider = provider
         if provider is None and backend is not None:
             self.provider = backend.provider
         self._service = service
         if self._service is None and self.provider is not None:
             self._service = self.get_service_from_provider(self.provider)
+        if self._service is None and self.provider is None and self.backend is not None:
+            self._service = self.get_service_from_backend(self.backend)
         self._auto_save = False
         self._created_in_db = False
         self._extra_data = kwargs
@@ -362,7 +373,7 @@ class ExperimentData:
     def end_datetime(self) -> "datetime":
         """Return the end datetime of this experiment data.
         The end datetime is the time the latest job data was
-        added; this can change as more jobs finish
+        added without errors; this can change as more jobs finish
 
         Returns:
             The end datetime of this experiment data.
@@ -957,23 +968,25 @@ class ExperimentData:
                 if hasattr(expr_result, "meas_return"):
                     data["meas_return"] = expr_result.meas_return
                 self._result_data.append(data)
-        self.end_datetime = datetime.now()
+        # if this was the last job and no errors, set the end time
+        if self.job_status() == JobStatus.DONE:
+            self.end_datetime = datetime.now()
 
     def _retrieve_data(self):
         """Retrieve job data if missing experiment data."""
         # if self._result_data or not self._backend:
         #     return
-        # Get job results if missing experiment data.
+        # Get job results if missing in experiment data.
         retrieved_jobs = {}
-        jobs_to_retreive = []
+        jobs_to_retrieve = [] # the list of all jobs to retrieve from the server
+
+        # first find which jobs are listed in the `job_ids` field of the experiment data
         if self.job_ids is not None:
             for jid in self.job_ids:
                 if jid not in self._jobs or self._jobs[jid] is None:
-                    jobs_to_retreive.append(jid)
-        for jid, job in self._jobs.items():
-            if job is None:
-                jobs_to_retreive.append(jid)
-        for jid in jobs_to_retreive:
+                    jobs_to_retrieve.append(jid)
+
+        for jid in jobs_to_retrieve:
             try:
                 LOG.debug("Retrieving job from backend %s [Job ID: %s]", self._backend, jid)
                 job = self.provider.retrieve_job(jid)
@@ -1938,7 +1951,7 @@ class ExperimentData:
         Returns:
             The loaded experiment data.
         Raises:
-            ExperimentDataError: If not service or provider were given
+            ExperimentDataError: If not service nor provider were given
         """
         if service is None:
             if provider is None:
@@ -2216,8 +2229,13 @@ class ExperimentData:
         return state
 
     @staticmethod
+    def get_service_from_backend(backend):
+        """Initializes the service from the backend data"""
+        return ExperimentData.get_service_from_provider(backend.provider)
+
+    @staticmethod
     def get_service_from_provider(provider):
-        """Initializes the server from the backend data"""
+        """Initializes the service from the provider data"""
         db_url = "https://auth.quantum-computing.ibm.com/api"
         try:
             # qiskit-ibmq-provider style
