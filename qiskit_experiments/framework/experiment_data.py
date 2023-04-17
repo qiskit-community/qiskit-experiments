@@ -978,7 +978,7 @@ class ExperimentData:
         #     return
         # Get job results if missing in experiment data.
         retrieved_jobs = {}
-        jobs_to_retrieve = [] # the list of all jobs to retrieve from the server
+        jobs_to_retrieve = []  # the list of all jobs to retrieve from the server
 
         # first find which jobs are listed in the `job_ids` field of the experiment data
         if self.job_ids is not None:
