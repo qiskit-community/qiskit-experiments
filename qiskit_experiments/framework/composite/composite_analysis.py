@@ -212,9 +212,7 @@ class CompositeAnalysis(BaseAnalysis):
                         counts = datum["counts"]
                         if any(isinstance(x, np.integer) for x in counts.values()):
                             counts = {k: int(v) for k, v in counts.items()}
-                        sub_data["counts"] = marginal_distribution(
-                            counts, composite_clbits[i]
-                        )
+                        sub_data["counts"] = marginal_distribution(counts, composite_clbits[i])
                     else:
                         sub_data["counts"] = datum["counts"]
                 if "memory" in datum:
