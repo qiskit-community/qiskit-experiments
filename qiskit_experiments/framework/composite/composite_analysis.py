@@ -206,8 +206,14 @@ class CompositeAnalysis(BaseAnalysis):
                 sub_data = {"metadata": metadata["composite_metadata"][i]}
                 if "counts" in datum:
                     if composite_clbits is not None:
+                        # `marginal_distribution() doesn't support int64 values
+                        # so detect and cast to an int. This can be removed
+                        # when Qiskit/qiskit-terra#9976 is released
+                        counts = datum["counts"]
+                        if any(isinstance(x, np.integer) for x in counts.values()):
+                            counts = {k: int(v) for k, v in counts.items()}
                         sub_data["counts"] = marginal_distribution(
-                            datum["counts"], composite_clbits[i]
+                            counts, composite_clbits[i]
                         )
                     else:
                         sub_data["counts"] = datum["counts"]
