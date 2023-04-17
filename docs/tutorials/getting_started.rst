@@ -48,21 +48,18 @@ the experiment from the Qiskit Experiments library:
 
 Experiments must be run on a backend. We're going to use a simulator,
 :class:`~qiskit.providers.fake_provider.FakePerth`, for this example, but you can use any
-IBM backend, real or simulated, that you can access through Qiskit.
+backend, real or simulated, that you can access through Qiskit.
+
+.. note::
+    This tutorial requires the ``qiskit-aer`` package to run simulations.
+    You can install it with ``python -m pip install qiskit-aer``.
 
 .. jupyter-execute::
 
     from qiskit.providers.fake_provider import FakePerth
     from qiskit_aer import AerSimulator
-    from qiskit.providers.aer.noise import NoiseModel
-    import numpy as np
 
-    # Create a pure relaxation noise model for AerSimulator
-    noise_model = NoiseModel.from_backend(
-        FakePerth(), thermal_relaxation=True, gate_error=False, readout_error=False
-    )
-
-    backend = AerSimulator.from_backend(FakePerth(), noise_model=noise_model)
+    backend = AerSimulator.from_backend(FakePerth())
 
 All experiments require a ``physical_qubits`` parameter as input that specifies which
 physical qubit or qubits the circuits will be executed on. The qubits must be given as a
@@ -81,9 +78,11 @@ good estimate for the sweep range of the delays.
 
 .. jupyter-execute::
 
+    import numpy as np
+    
     qubit0_t1 = FakePerth().qubit_properties(0).t1
-
     delays = np.arange(1e-6, 3 * qubit0_t1, 3e-5)
+
     exp = T1(physical_qubits=(0,), delays=delays)
 
 The circuits encapsulated by the experiment can be accessed using the experiment's
@@ -225,7 +224,9 @@ These options are passed to the experiment's :meth:`~.BaseExperiment.run` method
 then to the ``run()`` method of your specified backend. Any run option that your backend
 supports can be set:
 
-.. jupyter-input::
+.. jupyter-execute::
+
+  from qiskit.qobj.utils import MeasLevel
 
   exp.set_run_options(shots=1000,
                       meas_level=MeasLevel.CLASSIFIED)
@@ -239,7 +240,7 @@ Transpile options
 These options are passed to the Terra transpiler to transpile the experiment circuits
 before execution:
 
-.. jupyter-input::
+.. jupyter-execute::
 
   exp.set_transpile_options(scheduling_method='asap',
                             optimization_level=3,
@@ -253,9 +254,10 @@ These options are unique to each experiment class. Many experiment options can b
 upon experiment instantiation, but can also be explicitly set via
 :meth:`~.BaseExperiment.set_experiment_options`:
 
-.. jupyter-input::
+.. jupyter-execute::
 
-    exp = T1(physical_qubits=(i,), delays=delays)
+    exp = T1(physical_qubits=(0,), delays=delays)
+    new_delays=np.arange(1e-6, 600e-6, 50e-6)
     exp.set_experiment_options(delays=new_delays)
 
 Consult the :doc:`API documentation </apidocs/index>` for the options of each experiment

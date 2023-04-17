@@ -50,8 +50,6 @@ following components:
 #. :math:`R_x \left(\pm \frac{\pi}{2} \right)` gate (sign depends on the number of echoes)
 #. Measurement gate
 
-|
-
 The user provides as input a series of delays in seconds. During the
 delay, we expect the qubit to precess about the z-axis. Because of the
 echo gate (:math:`R_x(\pi)`) for each echo, the angle after the delay

@@ -25,6 +25,10 @@ A depth :math:`d` QV circuit is successful if it has ‘mean heavy-output
 probability’ > 2/3 with confidence level > 0.977 (corresponding to
 z_value = 2), and at least 100 trials have been ran.
 
+.. note::
+    This manual requires the ``qiskit-aer`` package to run simulations.
+    You can install it with ``python -m pip install qiskit-aer``.
+
 .. jupyter-execute::
 
     from qiskit_experiments.framework import BatchExperiment
