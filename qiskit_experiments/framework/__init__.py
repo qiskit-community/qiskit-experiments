@@ -146,3 +146,4 @@ from .composite import (
 )
 from .json import ExperimentEncoder, ExperimentDecoder
 from .restless_mixin import RestlessMixin
+from .package_deps import numpy_version

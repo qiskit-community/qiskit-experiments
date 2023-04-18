@@ -1,6 +1,9 @@
 # Qiskit Experiments
 
 [![License](https://img.shields.io/github/license/Qiskit/qiskit-experiments.svg?style=popout-square)](https://opensource.org/licenses/Apache-2.0)
+[![Release](https://img.shields.io/github/release/Qiskit/qiskit-experiments.svg?style=popout-square)](https://github.com/Qiskit/qiskit-experiments/releases)
+![Python](https://img.shields.io/pypi/pyversions/qiskit-experiments.svg?style=popout-square)
+
 
 **Qiskit Experiments** is a repository that builds tools for building, running,
 and analyzing experiments on noisy quantum computers using Qiskit.
