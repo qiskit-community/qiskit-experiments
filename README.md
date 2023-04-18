@@ -1,6 +1,9 @@
 # Qiskit Experiments
 
 [![License](https://img.shields.io/github/license/Qiskit/qiskit-experiments.svg?style=popout-square)](https://opensource.org/licenses/Apache-2.0)
+[![Release](https://img.shields.io/github/release/Qiskit/qiskit-experiments.svg?style=popout-square)](https://github.com/Qiskit/qiskit-experiments/releases)
+![Python](https://img.shields.io/pypi/pyversions/qiskit-experiments.svg?style=popout-square)
+
 
 **Qiskit Experiments** is a repository that builds tools for building, running,
 and analyzing experiments on noisy quantum computers using Qiskit.
@@ -28,7 +31,11 @@ For questions that are more suited for a forum we use the Qiskit tag in
 ## Authors and Citation
 
 Qiskit Experiments is the work of [many people](https://github.com/Qiskit/qiskit-experiments/graphs/contributors) who contribute
-to the project at different levels. If you use Qiskit, please cite as per the included [BibTeX file](https://github.com/Qiskit/qiskit/blob/master/Qiskit.bib).
+to the project at different levels. If you use Qiskit Experiments, please cite
+the following references:
+
+- Qiskit, as per the [BibTeX file](https://github.com/Qiskit/qiskit-metapackage/blob/master/Qiskit.bib).
+- Qiskit Experiments, as per the [DOI](https://doi.org/10.5281/zenodo.7737483).
 
 ## License
 

@@ -223,8 +223,9 @@ class FixedFrequencyTransmon(BasisGateLibrary):
             default_values: Default values for the parameters this dictionary can contain
                 the following keys: "duration", "amp", "β", and "σ". If "σ" is not provided
                 this library will take one fourth of the pulse duration as default value.
-            link_parameters: If set to True then the amplitude and DRAG parameters of the
-                X and Y gates will be linked as well as those of the SX and SY gates.
+            link_parameters: If set to ``True``, then the amplitude and DRAG parameters of the
+                :math:`X` and :math:`Y` gates will be linked as well as those of
+                the :math:`SX` and :math:`SY` gates.
         """
         self._link_parameters = link_parameters
 
