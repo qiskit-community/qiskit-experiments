@@ -1,0 +1,11 @@
+---
+fixes:
+  - |
+    Fixed a deprecated Matplotlib ``MarkerStyle`` usage in the visualization module that was causing
+    warnings in Matplotlib 3.6+.
+  - |
+    Added a missing `backend` parameter to :class:`~.RoughFrequencyCal`.
+  - |
+    Fixed error generating circuits for :class:`.BaseCalibrationExperiment`
+    subclasses when the backend instance had no coupling map. Fixed `#1116
+    <https://github.com/Qiskit/qiskit-experiments/issues/1116>`_.
