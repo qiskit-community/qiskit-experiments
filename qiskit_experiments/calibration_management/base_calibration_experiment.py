@@ -316,10 +316,14 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
         """
         initial_layout = Layout.from_intlist(list(self.physical_qubits), *circuit.qregs)
 
+        coupling_map = self._backend_data.coupling_map
+        if coupling_map is not None:
+            coupling_map = CouplingMap(self._backend_data.coupling_map)
+
         layout = PassManager(
             [
                 SetLayout(initial_layout),
-                FullAncillaAllocation(CouplingMap(self._backend_data.coupling_map)),
+                FullAncillaAllocation(coupling_map),
                 EnlargeWithAncilla(),
                 ApplyLayout(),
             ]
