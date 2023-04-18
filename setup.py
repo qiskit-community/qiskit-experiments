@@ -10,25 +10,24 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"The Qiskit Terra setup file."
+"The Qiskit Experiments setup file."
 
 import os
-import sys
 from setuptools import setup, find_packages
 
-with open("requirements.txt") as f:
+with open("requirements.txt", encoding="utf-8") as f:
     REQUIREMENTS = f.read().splitlines()
 
 
 version_path = os.path.abspath(
     os.path.join(os.path.join(os.path.dirname(__file__), "qiskit_experiments"), "VERSION.txt")
 )
-with open(version_path, "r") as fd:
+with open(version_path, "r", encoding="utf-8") as fd:
     version = fd.read().rstrip()
 
 # Read long description from README.
 README_PATH = os.path.join(os.path.abspath(os.path.dirname(__file__)), "README.md")
-with open(README_PATH) as readme_file:
+with open(README_PATH, encoding="utf-8") as readme_file:
     README = readme_file.read()
 
 setup(
