@@ -10,7 +10,8 @@ upgrade:
     set to the latest time a successful job terminated.
     4. :meth:`.ExperimentData.save` can now raise exceptions when saving
     fails, unless the `suppress_errors` flag is set (on by default)
+
 fixes:
   - |
-   1. Fixed a bug in :meth:`.ExperimentData._add_job_data` where the wrong
+    1. Fixed a bug in :meth:`.ExperimentData._add_job_data` where the wrong
     job id was used.
