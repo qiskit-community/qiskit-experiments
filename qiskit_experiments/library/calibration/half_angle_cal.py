@@ -41,8 +41,7 @@ class HalfAngleCal(BaseCalibrationExperiment, HalfAngle):
         cal_parameter_name: Optional[str] = "angle",
         auto_update: bool = True,
     ):
-        """The experiment updates the angle of the complex amplitude
-         represented in (amp,angle) representation.
+        """The experiment to update angle of half-pi rotation gates.
 
         Args:
             physical_qubits: Sequence containing the qubit for which to run the
