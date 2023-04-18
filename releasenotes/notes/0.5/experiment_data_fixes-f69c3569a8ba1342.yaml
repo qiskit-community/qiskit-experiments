@@ -1,0 +1,14 @@
+---
+upgrade:
+  - |
+    1. :meth:`.ExperimentData.save` now uses the multithreading capability
+    of the experiment service to enable faster saving times.
+    2. :class:`.ExperimentData` now supports the new method 
+    :meth:`.ExperimentData.get_service_from_provider` enabling the automatic
+    setting of the experiment database service via passing the provider.
+    3. The `end_datetime` property of :class:`.ExperimentData` is now being
+    set to the latest time a successful job terminated.
+fixes:
+  - |
+   1. Fixed a bug in :meth:`.ExperimentData._add_job_data` where the wrong
+    job id was used.
