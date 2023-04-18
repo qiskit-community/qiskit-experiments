@@ -17,7 +17,6 @@ upgrade:
     was changed from complex amplitude to (amp,angle) representation. All pulses
     now include an ``angle`` parameter, and the default values of ``amp`` are set
     to float instead
-
   - |
     :class:`.HalfAngleCal`, was changed from updating the complex amplitude of 
     the pulse, to updating the angle in the (amp, angle) representation. When used with
