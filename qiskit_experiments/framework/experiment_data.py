@@ -976,9 +976,9 @@ class ExperimentData:
 
     def _retrieve_data(self):
         """Retrieve job data if missing experiment data."""
-        # if self._result_data or not self._backend:
-        #     return
         # Get job results if missing in experiment data.
+        if self.provider is None:
+            return
         retrieved_jobs = {}
         jobs_to_retrieve = []  # the list of all jobs to retrieve from the server
 
@@ -990,13 +990,12 @@ class ExperimentData:
 
         for jid in jobs_to_retrieve:
             try:
-                LOG.debug("Retrieving job from backend %s [Job ID: %s]", self._backend, jid)
+                LOG.debug("Retrieving job [Job ID: %s]", jid)
                 job = self.provider.retrieve_job(jid)
                 retrieved_jobs[jid] = job
             except Exception:  # pylint: disable=broad-except
                 LOG.warning(
-                    "Unable to retrieve data from job on backend %s [Job ID: %s]",
-                    self._backend,
+                    "Unable to retrieve data from job [Job ID: %s]",
                     jid,
                 )
         # Add retrieved job objects to stored jobs and extract data
