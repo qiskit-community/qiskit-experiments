@@ -53,6 +53,7 @@ from qiskit_experiments.database_service.exceptions import (
     ExperimentDataError,
     ExperimentEntryNotFound,
     ExperimentEntryExists,
+    ExperimentDataSaveFailed,
 )
 
 if TYPE_CHECKING:
@@ -1425,6 +1426,10 @@ class ExperimentData:
             max_workers: Maximum number of concurrent worker threads
             save_figures: Whether to save figures in the database or not
 
+        Raises:
+            ExperimentDataSaveFailed: If no experiment database service
+            was found, or the experiment service failed to save
+
         .. note::
             This saves the experiment metadata, all analysis results, and all
             figures. Depending on the number of figures and analysis results this
@@ -1440,7 +1445,10 @@ class ExperimentData:
                 "An experiment service is available, for example, "
                 "when using an IBM Quantum backend."
             )
-            return
+            if suppress_errors:
+                return
+            else:
+                raise ExperimentDataSaveFailed("No service found")
 
         self._save_experiment_metadata(suppress_errors=suppress_errors)
         if not self._created_in_db:
@@ -1463,7 +1471,9 @@ class ExperimentData:
             # Don't automatically fail the experiment just because its data cannot be saved.
             LOG.error("Unable to save the experiment data: %s", traceback.format_exc())
             if not suppress_errors:
-                raise QiskitError(f"Analysis result save failed\nError Message:\n{str(ex)}") from ex
+                raise ExperimentDataSaveFailed(
+                    f"Analysis result save failed\nError Message:\n{str(ex)}"
+                ) from ex
 
         for result in self._deleted_analysis_results.copy():
             with service_exception_to_warning():
