@@ -83,7 +83,6 @@ class StandardRB(BaseExperiment, RestlessMixin):
         .. ref_arxiv:: 2 1109.6887
     """
 
-    @deprecate_arguments({"qubits": "physical_qubits"}, "0.5")
     def __init__(
         self,
         physical_qubits: Sequence[int],

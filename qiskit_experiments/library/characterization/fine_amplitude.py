@@ -113,7 +113,6 @@ class FineAmplitude(BaseExperiment, RestlessMixin):
 
         return options
 
-    @deprecate_arguments({"qubits": "physical_qubits"}, "0.5")
     def __init__(
         self,
         physical_qubits: Sequence[int],
@@ -361,7 +360,6 @@ class FineZXAmplitude(FineAmplitude):
         :code:`RZXGate(np.pi / 2)` rotation.
     """
 
-    @deprecate_arguments({"qubits": "physical_qubits"}, "0.5")
     def __init__(self, physical_qubits: Sequence[int], backend: Optional[Backend] = None):
         """Initialize the experiment."""
 

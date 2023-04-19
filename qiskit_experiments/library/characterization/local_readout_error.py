@@ -67,7 +67,6 @@ class LocalReadoutError(BaseExperiment):
         .. ref_arxiv:: 1 2006.14044
     """
 
-    @deprecate_arguments({"qubits": "physical_qubits"}, "0.5")
     def __init__(
         self,
         physical_qubits: Optional[Iterable[int]] = None,

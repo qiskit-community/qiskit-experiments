@@ -26,7 +26,6 @@ from .composite_analysis import CompositeAnalysis
 class CompositeExperiment(BaseExperiment):
     """Composite Experiment base class"""
 
-    @deprecate_arguments({"qubits": "physical_qubits"}, "0.5")
     def __init__(
         self,
         experiments: List[BaseExperiment],

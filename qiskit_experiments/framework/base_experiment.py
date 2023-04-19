@@ -34,7 +34,6 @@ from qiskit_experiments.warnings import deprecate_arguments
 class BaseExperiment(ABC, StoreInitArgs):
     """Abstract base class for experiments."""
 
-    @deprecate_arguments({"qubits": "physical_qubits"}, "0.5")
     def __init__(
         self,
         physical_qubits: Sequence[int],

@@ -278,10 +278,3 @@ class DampedOscillationAnalysis(curve.CurveAnalysis):
             return "good"
 
         return "bad"
-
-
-@deprecated_class("0.5", new_cls=DampedOscillationAnalysis)
-class DumpedOscillationAnalysis:
-    """Deprecated."""
-
-    pass

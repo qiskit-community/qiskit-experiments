@@ -127,7 +127,6 @@ class ZZRamsey(BaseExperiment):
         :class:`ZZRamseyAnalysis`
     """
 
-    @deprecate_arguments({"qubits": "physical_qubits"}, "0.5")
     def __init__(
         self,
         physical_qubits: Tuple[int, int],
