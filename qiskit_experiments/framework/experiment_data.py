@@ -1513,7 +1513,9 @@ class ExperimentData:
         for data in self._child_data.values():
             original_verbose = data.verbose
             data.verbose = False
-            data.save()
+            data.save(
+                suppress_errors=suppress_errors, max_workers=max_workers, save_figures=save_figures
+            )
             data.verbose = original_verbose
 
     def jobs(self) -> List[Job]:
@@ -1985,7 +1987,9 @@ class ExperimentData:
         expdata._created_in_db = True
 
         child_data_ids = expdata.metadata.pop("child_data_ids", [])
-        child_data = [ExperimentData.load(child_id, service) for child_id in child_data_ids]
+        child_data = [
+            ExperimentData.load(child_id, service, provider) for child_id in child_data_ids
+        ]
         expdata._set_child_data(child_data)
 
         return expdata
