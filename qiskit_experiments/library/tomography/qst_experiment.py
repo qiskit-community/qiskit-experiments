@@ -45,6 +45,9 @@ class StateTomography(TomographyExperiment):
     # section: analysis_ref
         :class:`StateTomographyAnalysis`
 
+    # section: manual
+        :doc:`/manuals/verification/state_tomography`
+
     """
 
     def __init__(

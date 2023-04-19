@@ -111,8 +111,6 @@ class BaseDrawer(ABC):
        the scatter points as the legend graphics for the given series.
     4. Format the canvas and call :meth:`figure` to get the figure.
 
-    |
-
     .. rubric:: Options and Figure Options
 
     Drawers have both :attr:`options` and :attr:`figure_options` available to set

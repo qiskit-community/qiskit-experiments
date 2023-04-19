@@ -123,6 +123,7 @@ See :doc:`/tutorials/calibrations` for examples.
     :template: autosummary/experiment.rst
 
     ~calibration.RoughFrequencyCal
+    ~calibration.RoughEFFrequencyCal
     ~calibration.FrequencyCal
     ~calibration.FineFrequencyCal
     ~calibration.RoughDragCal
@@ -150,6 +151,7 @@ from .calibration import (
     FineXAmplitudeCal,
     FineSXAmplitudeCal,
     RoughFrequencyCal,
+    RoughEFFrequencyCal,
     FrequencyCal,
     FineFrequencyCal,
     HalfAngleCal,

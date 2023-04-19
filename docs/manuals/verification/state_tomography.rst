@@ -1,21 +1,24 @@
 Quantum State Tomography
 ========================
 
+Quantum tomography is an experimental procedure to reconstruct a description of
+part of a quantum system from the measurement outcomes of a specific set of
+experiments. In particular, quantum state tomography reconstructs the density matrix
+of a quantum state by preparing the state many times and measuring them in a tomographically 
+complete basis of measurement operators.
+
+.. note::
+    This tutorial requires the :mod:`qiskit_aer` package for simulations.
+    You can install it with ``python -m pip install qiskit-aer``.
+
+We first initialize a simulator to run the experiments on.
+
 .. jupyter-execute::
 
-    import qiskit
-    from qiskit_experiments.framework import ParallelExperiment
-    from qiskit_experiments.library import StateTomography
-    
-    # For simulation
     from qiskit_aer import AerSimulator
     from qiskit.providers.fake_provider import FakePerth
     
-    # Noisy simulator backend
     backend = AerSimulator.from_backend(FakePerth())
-
-State Tomography Experiment
----------------------------
 
 To run a state tomography experiment, we initialize the experiment with a circuit to
 prepare the state to be measured. We can also pass in an
@@ -24,8 +27,10 @@ to describe the preparation circuit.
 
 .. jupyter-execute::
 
-    # Run experiments
-    
+    import qiskit
+    from qiskit_experiments.framework import ParallelExperiment
+    from qiskit_experiments.library import StateTomography
+
     # GHZ State preparation circuit
     nq = 2
     qc_ghz = qiskit.QuantumCircuit(nq)
