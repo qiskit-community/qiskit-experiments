@@ -716,12 +716,14 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
         exp2 = FakeExperiment([1])
         exp2.analysis = FakeAnalysis()
         batch_exp = BatchExperiment([exp1, exp2], flatten_results=True)
-        exp_data = batch_exp.run(backend=self.backend).block_for_results()
+        exp_data = batch_exp.run(backend=self.backend)
+        self.assertExperimentDone(exp_data)
         # when flattening, individual analysis result share exp id
         for result in exp_data.analysis_results():
             self.assertEqual(result.experiment_id, exp_data.experiment_id)
         batch_exp = BatchExperiment([exp1, exp2], flatten_results=False)
-        exp_data = batch_exp.run(backend=self.backend).block_for_results()
+        exp_data = batch_exp.run(backend=self.backend)
+        self.assertExperimentDone(exp_data)
         self.assertEqual(exp_data.child_data(0).experiment_type, exp1.experiment_type)
         self.assertEqual(exp_data.child_data(1).experiment_type, exp2.experiment_type)
 

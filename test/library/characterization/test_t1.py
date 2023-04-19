@@ -93,7 +93,7 @@ class TestT1(QiskitExperimentsTestCase):
             meas_return="avg",
             meas_level=MeasLevel.KERNELED,
             shots=num_shots,
-        ).block_for_results()
+        )
         self.assertExperimentDone(expdata0)
 
         self.assertRoundTripSerializable(expdata0, check_func=self.experiment_data_equiv)
@@ -199,7 +199,7 @@ class TestT1(QiskitExperimentsTestCase):
             rng_seed=1,
             meas_level=MeasLevel.KERNELED,
             meas_return="avg",
-        ).block_for_results()
+        )
         self.assertExperimentDone(res)
 
         # Checking analysis

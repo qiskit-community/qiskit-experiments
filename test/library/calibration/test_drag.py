@@ -137,7 +137,8 @@ class TestDragEndToEnd(QiskitExperimentsTestCase):
         # DRAG reps numbers might be different from the default value,
         # but the client doesn't know the original setting.
         analysis = DragCalAnalysis()
-        expdata1 = analysis.run(expdata.copy(), replace_results=True).block_for_results()
+        expdata1 = analysis.run(expdata.copy(), replace_results=True)
+        self.assertExperimentDone(expdata1)
         # Check mapping of model name to circuit metadata.
         self.assertDictEqual(
             analysis.options.data_subfit_map,

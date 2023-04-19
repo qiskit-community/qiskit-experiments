@@ -47,14 +47,6 @@ class TomographyExperiment(BaseExperiment):
         options.basis_indices = None
         return options
 
-    @deprecate_arguments(
-        {
-            "qubits": "physical_qubits",
-            "measurement_qubits": "measurement_indices",
-            "preparation_qubits": "preparation_indices",
-        },
-        "0.5",
-    )
     def __init__(
         self,
         circuit: Union[QuantumCircuit, Instruction, BaseOperator],

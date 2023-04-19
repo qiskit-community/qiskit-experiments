@@ -47,9 +47,6 @@ class StateTomography(TomographyExperiment):
 
     """
 
-    @deprecate_arguments(
-        {"qubits": "physical_qubits", "measurement_qubits": "measurement_indices"}, "0.5"
-    )
     def __init__(
         self,
         circuit: Union[QuantumCircuit, Instruction, BaseOperator, Statevector],
