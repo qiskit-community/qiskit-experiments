@@ -44,15 +44,15 @@ bibliography: paper.bib
 
 Qiskit Experiments is a Python package for designing and running quantum computing experiments 
 with a focus on calibration and characterization of quantum devices. 
-It consists of a general purpose experiments framework which can be used by researchers to rapidly 
+It consists of a general purpose experiments framework that can be used by researchers to rapidly 
 implement new experiments and a library of common experiments for calibration, characterization, 
 and verification of quantum devices.
 
-The core framework of `Qiskit Experiments` consists of three parts.
-(i) An experiment class defines the quantum circuits to run. 
-(ii) A data container class named `ExperimentData` stores the data measured during the execution 
-of the quantum circuits.
-(iii) An analysis class, attached to each experiment, defines how to analyze the measured data.
+The core framework of `Qiskit Experiments` consists of three parts:
+(i) an experiment class defines the quantum circuits to run; 
+(ii) a data container class named `ExperimentData` that stores the data measured during the execution 
+of the quantum circuits; and
+(iii) an analysis class, attached to each experiment, that defines how to analyze the measured data.
 The analysis also attaches its results, such as fit results and figures, to the data container.
 \autoref{fig:framework} summarizes this framework.
 Importantly, this framework can interface with services to store, load, and share data.
@@ -72,8 +72,8 @@ and uncertainties [@Lebigot2016] to provide measurements with a mean and a stand
 
 Quantum computing processes information following the laws of quantum mechanics.
 Quantum computers, like classical computers, must be programmed to perform quantum computations. 
-A quantum computer consists of qubits which store information in 
-quantum states, along with additional hardware elements, such as resonators to couple, control, 
+A quantum computer consists of qubits, which store information in 
+quantum states, along with additional hardware elements, such as resonators, to couple, control, 
 and readout the qubits. 
 The different elements in the quantum hardware have properties that must be characterized to 
 calibrate the quantum gates that process the information. 
@@ -93,7 +93,7 @@ Recently, software packages have started to emerge to fill this gap [@Pasquale20
 characterization experiments that integrate with pulse-level control [@Alexander2020].
 `Qiskit Experiments` greatly simplifies the execution of complex experiments and is 
 usable with any hardware exposed as a Qiskit backend.
-Indeed, a library provides many experiments which run multiple quantum circuits and complex fitting. 
+Indeed, a library provides many experiments that run multiple quantum circuits and complex fitting. 
 Crucially, each experiment only requires a few code lines to run with `Qiskit Experiments`.
 In addition, the base framework of `Qiskit Experiments` provides experimentalists a clear 
 interface to create new experiments. 
@@ -109,7 +109,7 @@ states [@Hamilton2022], and time-evolutions [@Greenaway2022], as well as calibra
 Conceptual framework of Qiskit Experiments.
 The circuits are run as jobs on the quantum backends.
 If an experiment exceeds the maximum circuit limit per job it is broken down in multiple jobs.
-The raw data, figures and analysis results are contained in the `ExperimentData` class.
+The raw data, figures, and analysis results are contained in the `ExperimentData` class.
 \label{fig:framework}](framework.pdf){ width=50% }
 
 # Example usage
