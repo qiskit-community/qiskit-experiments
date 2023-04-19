@@ -31,11 +31,8 @@ For questions that are more suited for a forum we use the Qiskit tag in
 ## Authors and Citation
 
 Qiskit Experiments is the work of [many people](https://github.com/Qiskit/qiskit-experiments/graphs/contributors) who contribute
-to the project at different levels. If you use Qiskit Experiments, please cite
-the following references:
-
-- Qiskit, as per the [BibTeX file](https://github.com/Qiskit/qiskit-metapackage/blob/master/Qiskit.bib).
-- Qiskit Experiments, as per the [DOI](https://doi.org/10.5281/zenodo.7737483).
+to the project at different levels. If you use Qiskit Experiments, please cite our paper as per the
+included [citation file](CITATION.cff).
 
 ## License
 
