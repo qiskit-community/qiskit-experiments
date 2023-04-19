@@ -31,7 +31,7 @@ This notebook demonstrates the usage of both the local and correlated
 experiments to generate the corresponding mitigators.
 
 .. note::
-    This manual requires the ``qiskit-aer`` package to run simulations.
+    This manual requires the :mod:`qiskit_aer` package to run simulations.
     You can install it with ``python -m pip install qiskit-aer``.
 
 .. jupyter-execute::
