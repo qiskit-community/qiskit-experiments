@@ -191,7 +191,7 @@ class ExperimentData:
                 backend in the experiment object.
             service: The service that stores the experiment results to the database
             provider: The provider used for the experiments
-            (can be used to automatically obtain the service)
+                (can be used to automatically obtain the service)
             parent_id: ID of the parent experiment data
                 in the setting of a composite experiment
             job_ids: IDs of jobs submitted for the experiment.
@@ -822,6 +822,8 @@ class ExperimentData:
             job_result = job.result()
             self._add_result_data(job_result, jid)
             LOG.debug("Job data added [Job ID: %s]", jid)
+            # sets the endtime to be the time the last successful job was added
+            self.end_datetime = datetime.now()
             return jid, True
         except Exception as ex:  # pylint: disable=broad-except
             # Handle cancelled jobs
@@ -970,9 +972,6 @@ class ExperimentData:
                 if hasattr(expr_result, "meas_return"):
                     data["meas_return"] = expr_result.meas_return
                 self._result_data.append(data)
-        # if this was the last job and no errors, set the end time
-        if self.job_status() == JobStatus.DONE:
-            self.end_datetime = datetime.now()
 
     def _retrieve_data(self):
         """Retrieve job data if missing experiment data."""
