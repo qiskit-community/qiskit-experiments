@@ -8,7 +8,7 @@ of a quantum state by preparing the state many times and measuring them in a tom
 complete basis of measurement operators.
 
 .. note::
-    This tutorial requires the ``qiskit-aer`` package for simulations.
+    This tutorial requires the :mod:`qiskit_aer` package for simulations.
     You can install it with ``python -m pip install qiskit-aer``.
 
 We first initialize a simulator to run the experiments on.

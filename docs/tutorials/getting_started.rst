@@ -51,7 +51,7 @@ Experiments must be run on a backend. We're going to use a simulator,
 backend, real or simulated, that you can access through Qiskit.
 
 .. note::
-    This tutorial requires the ``qiskit-aer`` package to run simulations.
+    This tutorial requires the :mod:`qiskit_aer` package to run simulations.
     You can install it with ``python -m pip install qiskit-aer``.
 
 .. jupyter-execute::
