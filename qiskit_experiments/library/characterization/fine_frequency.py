@@ -48,7 +48,7 @@ class FineFrequency(BaseExperiment):
             meas: 1/══════════════════════════════════════════════╩═
                                                                   0
     # section: analysis_ref
-        :py:class:`~qiskit_experiments.curve_analysis.ErrorAmplificationAnalysis`
+        :class:`~qiskit_experiments.curve_analysis.ErrorAmplificationAnalysis`
     """
 
     @qubit_deprecate()
@@ -91,7 +91,7 @@ class FineFrequency(BaseExperiment):
 
         Experiment Options:
             repetitions (List[int]): A list of the number of times that the delay is repeated.
-            delay_duration (int): The duration of the delay as the number of ``dt``s it contains.
+            delay_duration (int): The duration of the delay as the number of ``dt`` s it contains.
                 The total length of the delay in units of ``dt`` will be n times ``delay_duration``
                 where n also  determines the rotation angle of the ``RZGate`` by :math:`n \pi/2`.
         """

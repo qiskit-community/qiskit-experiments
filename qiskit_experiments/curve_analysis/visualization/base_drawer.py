@@ -88,7 +88,7 @@ class BaseCurveDrawer(ABC):
         self._options = self._default_options()
         self._set_options = set()
         self._axis = None
-        self._curves = list()
+        self._curves = []
 
     @property
     def options(self) -> Options:

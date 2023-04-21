@@ -16,6 +16,8 @@ import functools
 import warnings
 from typing import Callable, Optional, Type, Dict
 
+from qiskit.utils.lazy_tester import LazyImportTester
+
 
 def deprecated_function(
     last_version: Optional[str] = None,
@@ -25,7 +27,7 @@ def deprecated_function(
     """A function or method decorator to show deprecation warning.
 
     Args:
-        last_version: The last Qiskit Experiment version that will have this fucntion.
+        last_version: The last Qiskit Experiment version that will have this function.
         msg: Extra message, for example, to indicate an alternative approach.
         stacklevel: Stacklevel of this warning. See Python Warnings documentation for details.
 
@@ -117,7 +119,7 @@ def deprecated_class(
                 message += msg
             warnings.warn(message, DeprecationWarning, stacklevel=stacklevel)
             instance = object.__new__(new_cls or deprecated_cls)
-            instance.__init__(*args, **kwargs)
+            instance.__init__(*args, **kwargs)  # pylint: disable=unnecessary-dunder-call
             return instance
 
         cls.__new__ = new
@@ -240,3 +242,15 @@ def qubit_deprecate() -> Callable:
         return wrapper
 
     return decorator
+
+
+HAS_SKLEARN = LazyImportTester(
+    {
+        "sklearn.discriminant_analysis": (
+            "LinearDiscriminantAnalysis",
+            "QuadraticDiscriminantAnalysis",
+        )
+    },
+    name="scikit-learn",
+    install="pip install scikit-learn",
+)

@@ -152,9 +152,9 @@ class TestT1(QiskitExperimentsTestCase):
 
         # qubits
         qubit0 = 0
-        qubit2 = 2
+        qubit1 = 1
 
-        quantum_bit = [qubit0, qubit2]
+        quantum_bit = [qubit0, qubit1]
 
         # Delays
         delays = np.logspace(1, 11, num=23, base=np.exp(1))
@@ -166,7 +166,7 @@ class TestT1(QiskitExperimentsTestCase):
         exp0 = T1(physical_qubits=[qubit0], delays=delays)
         exp0.analysis = T1KerneledAnalysis()
 
-        exp2 = T1(physical_qubits=[qubit2], delays=delays)
+        exp2 = T1(physical_qubits=[qubit1], delays=delays)
         exp2.analysis = T1KerneledAnalysis()
 
         par_exp_list = [exp0, exp2]

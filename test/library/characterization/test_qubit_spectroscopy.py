@@ -15,8 +15,10 @@ from test.base import QiskitExperimentsTestCase
 import numpy as np
 
 from qiskit.qobj.utils import MeasLevel
+from qiskit.circuit.library import XGate
 from qiskit_experiments.framework import ParallelExperiment
 
+from qiskit_experiments.framework import BackendData
 from qiskit_experiments.library import QubitSpectroscopy, EFSpectroscopy
 from qiskit_experiments.test.mock_iq_backend import MockIQBackend, MockIQParallelBackend
 from qiskit_experiments.test.mock_iq_helpers import MockIQSpectroscopyHelper as SpectroscopyHelper
@@ -39,11 +41,10 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
         backend = MockIQBackend(
             experiment_helper=exp_helper,
         )
-        backend._configuration.basis_gates = ["x"]
-        backend._configuration.timing_constraints = {"granularity": 16}
+        backend.target.add_instruction(XGate(), properties={(0,): None})
 
         qubit = 1
-        freq01 = backend.defaults().qubit_freq_est[qubit]
+        freq01 = BackendData(backend).drive_freqs[qubit]
         frequencies = np.linspace(freq01 - 10.0e6, freq01 + 10.0e6, 21)
 
         spec = QubitSpectroscopy([qubit], frequencies)
@@ -53,7 +54,7 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
         result = expdata.analysis_results(1)
         self.assertRoundTripSerializable(result.value, check_func=self.ufloat_equiv)
 
-        self.assertTrue(4.999e9 < result.value.n < 5.001e9)
+        self.assertAlmostEqual(result.value.n, freq01, delta=1e6)
         self.assertEqual(result.quality, "good")
         self.assertEqual(str(result.device_components[0]), f"Q{qubit}")
 
@@ -66,7 +67,7 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
         result = expdata.analysis_results(1)
         self.assertRoundTripSerializable(result.value, check_func=self.ufloat_equiv)
 
-        self.assertTrue(5.0049e9 < result.value.n < 5.0051e9)
+        self.assertAlmostEqual(result.value.n, freq01 + 5e6, delta=1e6)
         self.assertEqual(result.quality, "good")
 
     def test_spectroscopy_end2end_kerneled(self):
@@ -80,11 +81,10 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
         backend = MockIQBackend(
             experiment_helper=exp_helper,
         )
-        backend._configuration.basis_gates = ["x"]
-        backend._configuration.timing_constraints = {"granularity": 16}
+        backend.target.add_instruction(XGate(), properties={(0,): None})
 
         qubit = 0
-        freq01 = backend.defaults().qubit_freq_est[qubit]
+        freq01 = BackendData(backend).drive_freqs[qubit]
         frequencies = np.linspace(freq01 - 10.0e6, freq01 + 10.0e6, 21)
 
         spec = QubitSpectroscopy([qubit], frequencies)
@@ -127,10 +127,9 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
                 iq_cluster_width=[0.2],
             ),
         )
-        backend._configuration.basis_gates = ["x"]
-        backend._configuration.timing_constraints = {"granularity": 16}
+        backend.target.add_instruction(XGate(), properties={(0,): None})
         qubit = 0
-        freq01 = backend.defaults().qubit_freq_est[qubit]
+        freq01 = BackendData(backend).drive_freqs[qubit]
         frequencies = np.linspace(freq01 - 10.0e6, freq01 + 10.0e6, 21)
 
         # Note that the backend is not sophisticated enough to simulate an e-f
@@ -174,11 +173,10 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
         backend = MockIQBackend(
             experiment_helper=exp_helper,
         )
-        backend._configuration.basis_gates = ["x"]
-        backend._configuration.timing_constraints = {"granularity": 16}
+        backend.target.add_instruction(XGate(), properties={(0,): None})
 
         qubit = 1
-        freq01 = backend.defaults().qubit_freq_est[qubit]
+        freq01 = BackendData(backend).drive_freqs[qubit]
         frequencies = np.linspace(freq01 - 10.0e6, freq01 + 10.0e6, 21)
         exp = QubitSpectroscopy([qubit], frequencies)
 
@@ -202,11 +200,10 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
         backend = MockIQBackend(
             experiment_helper=exp_helper,
         )
-        backend._configuration.basis_gates = ["x"]
-        backend._configuration.timing_constraints = {"granularity": 16}
+        backend.target.add_instruction(XGate(), properties={(0,): None})
 
         qubit = 1
-        freq01 = backend.defaults().qubit_freq_est[qubit]
+        freq01 = BackendData(backend).drive_freqs[qubit]
         frequencies = np.linspace(freq01 - 10.0e6, freq01 + 10.0e6, 21)
         exp = QubitSpectroscopy([qubit], frequencies)
 
@@ -233,14 +230,17 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
             experiment_helper=None,
             rng_seed=0,
         )
-        parallel_backend._configuration.basis_gates = ["x"]
-        parallel_backend._configuration.timing_constraints = {"granularity": 16}
+        parallel_backend.target.add_instruction(
+            XGate(),
+            properties={(0,): None, (1,): None},
+        )
 
         # experiment hyper parameters
         qubit1 = 0
         qubit2 = 1
-        freq01 = parallel_backend.defaults().qubit_freq_est[qubit1]
-        freq02 = parallel_backend.defaults().qubit_freq_est[qubit2]
+        backend_data = BackendData(parallel_backend)
+        freq01 = backend_data.drive_freqs[qubit1]
+        freq02 = backend_data.drive_freqs[qubit2]
 
         # experiments initialization
         frequencies1 = np.linspace(freq01 - 10.0e6, freq01 + 10.0e6, 23)

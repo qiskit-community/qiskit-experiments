@@ -18,9 +18,11 @@ from typing import Dict, List
 from test.base import QiskitExperimentsTestCase
 
 import numpy as np
-from ddt import ddt, idata, unpack
+from ddt import ddt, idata, named_data, unpack
 
 from qiskit import QuantumCircuit
+from qiskit.providers.fake_provider import FakeVigoV2
+from qiskit_aer import AerSimulator
 
 from qiskit_experiments.library import ZZRamsey
 from qiskit_experiments.test.mock_iq_backend import MockIQBackend
@@ -65,10 +67,11 @@ class TestZZRamsey(QiskitExperimentsTestCase):
 
     test_tol = 0.05
 
-    def test_circuits(self):
+    @named_data(
+        ["no_backend", None], ["fake_backend", FakeVigoV2()], ["aer_backend", AerSimulator()]
+    )
+    def test_circuits(self, backend):
         """Test circuit generation"""
-        backend = MockIQBackend(ZZRamseyHelper(zz=1e5, readout_error=0.01))
-
         t_min = 0
         t_max = 5e-6
         num = 50
@@ -86,13 +89,10 @@ class TestZZRamsey(QiskitExperimentsTestCase):
             delays=ramsey_min_max.delays(),
         )
 
-        # Sanity check that circuits are generated
+        # Check that the right number of circuits are generated
         self.assertEqual(len(ramsey_min_max.circuits()), num * 2)
         # Test setting min/max and setting exact delays give same results
         self.assertEqual(ramsey_min_max.circuits(), ramsey_with_delays.circuits())
-
-        ramsey_no_backend = ZZRamsey((0, 1), num_delays=50)
-        self.assertEqual(len(ramsey_no_backend.circuits()), 2 * 50)
 
     @idata(product([2e5, -3e5], [4, 5]))
     @unpack

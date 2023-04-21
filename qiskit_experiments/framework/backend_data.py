@@ -224,14 +224,14 @@ class BackendData:
         """Returns the backend's measurement stimulus frequencies.
 
         .. note::
-            Currently BackendV2 does not have access to this data.
+
+            The qiskit-terra base classes do not provide this information as a
+            standard backend property, but it is available from some providers
+            in the data returned by the ``Backend.defaults()`` method.
         """
-        if self._v1:
-            return getattr(self._backend.defaults(), "meas_freq_est", [])
-        elif self._v2:
-            # meas_freq_est is currently not part of the BackendV2
+        if not hasattr(self._backend, "defaults"):
             return []
-        return []
+        return getattr(self._backend.defaults(), "meas_freq_est", [])
 
     @property
     def num_qubits(self):
@@ -246,8 +246,10 @@ class BackendData:
     @property
     def is_simulator(self):
         """Returns True given an indication the backend is a simulator
+
         .. note::
-            Note: for `BackendV2` we sometimes cannot be sure, because it lacks
+
+            For `BackendV2` we sometimes cannot be sure, because it lacks
             a `simulator` field, as was present in `BackendV1`'s configuration.
             We still check whether the backend inherits `FakeBackendV2`, for
             either of its existing implementations in Terra.
@@ -260,3 +262,18 @@ class BackendData:
                 return True
 
         return False
+
+    def qubit_t1(self, qubit: int) -> float:
+        """Return the T1 value for a qubit from the backend properties
+
+        Args:
+            qubit: the qubit index to return T1 for
+
+        Returns:
+            The T1 value
+        """
+        if self._v1:
+            return self._backend.properties().qubit_property(qubit)["T1"][0]
+        if self._v2:
+            return self._backend.qubit_properties(qubit).t1
+        return float("nan")

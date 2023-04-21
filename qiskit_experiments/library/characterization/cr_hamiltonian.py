@@ -95,11 +95,11 @@ class CrossResonanceHamiltonian(BaseExperiment):
         Here ``cr_tone`` is implemented by a single cross resonance tone
         driving the control qubit at the frequency of the target qubit.
         The pulse envelope might be a flat-topped Gaussian implemented by the parametric pulse
-        :py:class:`~qiskit.pulse.library.parametric_pulses.GaussianSquare`.
+        :class:`~qiskit.pulse.library.parametric_pulses.GaussianSquare`.
 
         This experiment scans the total duration of the cross resonance pulse
         including the pulse ramps at both edges. The pulse shape is defined by the
-        :py:class:`~qiskit.pulse.library.parametric_pulses.GaussianSquare`, and
+        :class:`~qiskit.pulse.library.parametric_pulses.GaussianSquare`, and
         an effective length of these Gaussian ramps with :math:`\sigma` can be computed by
 
         .. math::
@@ -117,12 +117,12 @@ class CrossResonanceHamiltonian(BaseExperiment):
         interaction rates.
 
     # section: analysis_ref
-        :py:class:`CrossResonanceHamiltonianAnalysis`
+        :class:`CrossResonanceHamiltonianAnalysis`
 
     # section: reference
         .. ref_arxiv:: 1 1603.04821
 
-    # section: tutorial
+    # section: manual
         .. ref_website:: Qiskit Textbook 6.7,
             https://qiskit.org/textbook/ch-quantum-hardware/hamiltonian-tomography.html
     """
@@ -198,6 +198,7 @@ class CrossResonanceHamiltonian(BaseExperiment):
         """Default experiment options.
 
         Experiment Options:
+            flat_top_widths (np.ndarray): Deprecated. Length of Gaussian flat top to scan.
             durations (np.ndarray): The total duration of the cross resonance pulse(s) to scan,
                 in units of sec. Values should be longer than pulse ramps.
             min_durations (int): The minimum default pulse duration in samples.
@@ -505,7 +506,7 @@ class EchoedCrossResonanceHamiltonian(CrossResonanceHamiltonian):
 
     # section: overview
 
-        This is a variant of :py:class:`CrossResonanceHamiltonian`
+        This is a variant of :class:`CrossResonanceHamiltonian`
         for which the experiment framework is identical but the
         cross resonance operation is realized as an echoed sequence
         to remove unwanted single qubit rotations. The cross resonance
@@ -519,7 +520,7 @@ class EchoedCrossResonanceHamiltonian(CrossResonanceHamiltonian):
             q_1: ┤1                   ├┤ Rz(π) ├┤1                   ├┤ Rz(-π) ├
                  └────────────────────┘└───────┘└────────────────────┘└────────┘
 
-        Here two ``cr_tone``s are applied where the latter one is with the
+        Here two ``cr_tone`` are applied, where the latter one is with the
         control qubit state flipped and with a phase flip of the target qubit frame.
         This operation is equivalent to applying the ``cr_tone`` with a negative amplitude.
         The Hamiltonian for this decomposition has no IX and ZI interactions,

@@ -34,7 +34,7 @@ from .qv_analysis import QuantumVolumeAnalysis
 
 
 class QuantumVolume(BaseExperiment):
-    """Quantum Volume Experiment class.
+    """An experiment to measure the largest random square circuit that can be run on a processor.
 
     # section: overview
         Quantum Volume (QV) is a single-number metric that can be measured using a concrete protocol
@@ -63,7 +63,10 @@ class QuantumVolume(BaseExperiment):
         information on QV experiment analysis.
 
     # section: analysis_ref
-        :py:class:`QuantumVolumeAnalysis`
+        :class:`QuantumVolumeAnalysis`
+
+    # section: manual
+        :doc:`/manuals/verification/quantum_volume`
 
     # section: reference
         .. ref_arxiv:: 1 1811.12926
@@ -91,9 +94,9 @@ class QuantumVolume(BaseExperiment):
                   with this seed value everytime :meth:`circuits` is called.
             simulation_backend: The simulator backend to use to generate
                 the expected results. the simulator must have a 'save_probabilities'
-                method. If None :class:`AerSimulator` simulator will be used
-                (in case :class:`AerSimulator` is not
-                installed :class:`qiskit.quantum_info.Statevector` will be used).
+                method. If None, the :class:`qiskit_aer.AerSimulator` simulator will be used
+                (in case :mod:`qiskit_aer` is not
+                installed, :class:`qiskit.quantum_info.Statevector` will be used).
         """
         super().__init__(physical_qubits, analysis=QuantumVolumeAnalysis(), backend=backend)
 

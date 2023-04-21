@@ -87,7 +87,12 @@ class BaseAnalysis(ABC, StoreInitArgs):
 
     @classmethod
     def _default_options(cls) -> Options:
-        """Default analysis options common to all analyzes."""
+        """Default analysis options common to all analyses.
+
+        Analysis Options:
+            figure_names (str or List[str]): Identifier of figures that appear in the
+                experiment data to sort figures by name.
+        """
         options = Options()
         # figure names can be set for each analysis by calling
         # experiment_obj.analysis.set_options(figure_names=FIGURE_NAMES)
@@ -118,7 +123,7 @@ class BaseAnalysis(ABC, StoreInitArgs):
 
         Args:
             experiment_data: the experiment data to analyze.
-            replace_results: if True clear any existing analysis results and
+            replace_results: If True clear any existing analysis results and
                              figures in the experiment data and replace with
                              new results. See note for additional information.
             options: additional analysis options. See class documentation for
@@ -128,7 +133,7 @@ class BaseAnalysis(ABC, StoreInitArgs):
             An experiment data object containing the analysis results and figures.
 
         Raises:
-            QiskitError: if experiment_data container is not valid for analysis.
+            QiskitError: If experiment_data container is not valid for analysis.
 
         .. note::
             **Updating Results**
@@ -230,7 +235,7 @@ class BaseAnalysis(ABC, StoreInitArgs):
             is a list of any figures for the experiment.
 
         Raises:
-            AnalysisError: if the analysis fails.
+            AnalysisError: If the analysis fails.
         """
         # NOTE: passing kwarg options to _run_analysis should be removed once
         pass

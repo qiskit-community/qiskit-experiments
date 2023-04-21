@@ -58,9 +58,6 @@ class StateTomographyAnalysis(TomographyAnalysis):
     # section: reference
         .. ref_arxiv:: 1 1106.5458
 
-    # section: see_also
-        qiskit_experiments.library.tomography.tomography_analysis.TomographyAnalysis
-
     """
 
     @classmethod
@@ -68,23 +65,45 @@ class StateTomographyAnalysis(TomographyAnalysis):
         """Default analysis options
 
         Analysis Options:
-            measurement_basis (:class:`~basis.BaseFitterMeasurementBasis`): A custom measurement
-                basis for analysis. By default the :meth:`experiment_options` measurement basis
-                will be used.
+            measurement_basis (:class:`~qiskit_experiments.library.tomography.basis.MeasurementBasis`):
+                The measurement
+                :class:`~qiskit_experiments.library.tomography.basis.MeasurementBasis`
+                to use for tomographic state reconstruction.
             fitter (str or Callable): The fitter function to use for reconstruction.
-                rescale_psd (bool): If True rescale the fitted state to be positive-semidefinite
-                (Default: True).
-            fitter_options (Dict[str, Any]): Additional kwargs will be supplied to the
-                fitter function.
-            rescale_trace (bool): If True rescale the state returned by the fitter have either
-                trace 1 (Default: True).
+                This can be a string to select one of the built-in fitters, or a callable to
+                supply a custom fitter function. See the `Fitter Functions` section for
+                additional information.
+            fitter_options (dict): Any addition kwarg options to be supplied to the fitter
+                function. For documentation of available kwargs refer to the fitter function
+                documentation.
+            rescale_positive (bool): If True rescale the state returned by the fitter
+                to be positive-semidefinite. See the `PSD Rescaling` section for
+                additional information (Default: True).
+            rescale_trace (bool): If True rescale the state returned by the fitter
+                have either trace 1 for :class:`~qiskit.quantum_info.DensityMatrix`,
+                or trace dim for :class:`~qiskit.quantum_info.Choi` matrices (Default: True).
             measurement_qubits (Sequence[int]): Optional, the physical qubits with tomographic
                 measurements. If not specified will be set to ``[0, ..., N-1]`` for N-qubit
                 tomographic measurements.
-            target (Union[str, :class:`~qiskit.quantum_info.DensityMatrix`,
-                :class:`~qiskit.quantum_info.Statevector`]): Optional, et a custom target
-                quantum state for computing the :func:~qiskit.quantum_info.state_fidelity`
+            target (str or :class:`~qiskit.quantum_info.DensityMatrix`
+                or :class:`~qiskit.quantum_info.Statevector`): Optional,
+                set a custom target quantum state for computing the
+                :func:`~qiskit.quantum_info.state_fidelity`
                 of the fitted state against (Default: None).
+            conditional_circuit_clbits (list[int]): Optional, the clbit indices in the
+                source circuit to be conditioned on when reconstructing the state.
+                Enabling this will return a list of reconstrated state components
+                conditional on the values of these clbit values. The integer value of the
+                conditioning clbits is stored in state analysis result extra field
+                `"conditional_circuit_outcome"`.
+            conditional_measurement_indices (list[int]): Optional, indices of tomography
+                measurement qubits to used for conditional state reconstruction. Enabling
+                this will return a list of reconstrated state components conditioned on
+                the remaining tomographic bases conditional on the basis index, and outcome
+                value for these measurements. The conditionl measurement basis index and
+                integer value of the measurement outcome is stored in state analysis result
+                extra fields `"conditional_measurement_index"` and
+                `"conditional_measurement_outcome"` respectively.
         """
         options = super()._default_options()
         options.measurement_basis = PauliMeasurementBasis()

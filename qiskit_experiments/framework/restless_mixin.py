@@ -31,27 +31,32 @@ LOG = logging.getLogger(__name__)
 class RestlessMixin:
     """A mixin to facilitate restless experiments.
 
-    This class defines the following methods
+    This class defines the following methods:
 
-        - :meth:`enable_restless`
-        - :meth:`_get_restless_processor`
-        - :meth:`_t1_check`
+    - :meth:`~.RestlessMixin.enable_restless`
+    - :meth:`~.RestlessMixin._get_restless_processor`
+    - :meth:`~.RestlessMixin._t1_check`
 
     A restless enabled experiment is an experiment that can be run in a restless
     measurement setting. In restless measurements, the qubit is not reset after
     each measurement. Instead, the outcome of the previous quantum non-demolition
     measurement is the initial state for the current circuit. Restless measurements
     therefore require special data processing which is provided by sub-classes of
-    the :code:`RestlessNode`. Restless experiments are a fast alternative for
+    the :class:`.RestlessNode`. Restless experiments are a fast alternative for
     several calibration and characterization tasks, for details see
     https://arxiv.org/pdf/2202.06981.pdf.
-    This class makes it possible for users to enter a restless run-mode without having
+
+    This class makes it possible for users to enter a restless run mode without having
     to manually set all the required run options and the data processor. The required options
     are ``rep_delay``, ``init_qubits``, ``memory``, and ``meas_level``. Furthermore,
     subclasses can override the :meth:`_get_restless_processor` method if they require more
     complex restless data processing such as two-qubit calibrations. In addition, this
     class makes it easy to determine if restless measurements are supported for a given
-    experiments.
+    experiment.
+
+    User Manual
+        :doc:`/manuals/measurement/restless_measurements`
+
     """
 
     analysis: BaseAnalysis
@@ -84,12 +89,12 @@ class RestlessMixin:
                 be logged as restless measurements may have a large amount of noise.
 
         Raises:
-            DataProcessorError: if the attribute rep_delay_range is not defined for the backend.
-            DataProcessorError: if a data processor has already been set but
+            DataProcessorError: If the attribute rep_delay_range is not defined for the backend.
+            DataProcessorError: If a data processor has already been set but
                 override_processor_by_restless is True.
-            DataProcessorError: if the experiment analysis does not have the data_processor
+            DataProcessorError: If the experiment analysis does not have the data_processor
                 option.
-            DataProcessorError: if the rep_delay is equal to or greater than the
+            DataProcessorError: If the rep_delay is equal to or greater than the
                 T1 time of one of the physical qubits in the experiment and the flag
                 ``ignore_t1_check`` is False.
         """
@@ -194,13 +199,13 @@ class RestlessMixin:
             True if the repetition delay is smaller than the qubit T1 times.
 
         Raises:
-            DataProcessorError: if the T1 values are not defined for the qubits of
+            DataProcessorError: If the T1 values are not defined for the qubits of
                 the used backend.
         """
 
         try:
             t1_values = [
-                self._backend.properties().qubit_property(physical_qubit)["T1"][0]
+                self._backend_data.qubit_t1(physical_qubit)
                 for physical_qubit in self._physical_qubits
             ]
 

@@ -1,5 +1,5 @@
 ---
 fixes:
   - |
-    Fixes a bug in the :class:`.InterleavedRB` experiment where a :class:`.Delay` instruction,
+    Fixed a bug in the :class:`.InterleavedRB` experiment where a :class:`.Delay` instruction,
     or a Clifford circuit containing delay instructions, could not be used as the interleaved element.

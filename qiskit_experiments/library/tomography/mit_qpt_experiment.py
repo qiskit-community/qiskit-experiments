@@ -15,7 +15,7 @@ Quantum Process Tomography experiment
 
 from typing import Union, Optional, Iterable, List, Tuple, Sequence
 from qiskit.providers.backend import Backend
-from qiskit.circuit import QuantumCircuit, Instruction
+from qiskit.circuit import QuantumCircuit, Instruction, Clbit
 from qiskit.quantum_info.operators.base_operator import BaseOperator
 from qiskit_experiments.framework import BatchExperiment, BaseAnalysis
 from qiskit_experiments.library.characterization.local_readout_error import LocalReadoutError
@@ -25,7 +25,8 @@ from . import basis
 
 
 class MitigatedProcessTomography(BatchExperiment):
-    """Readout error mitigated quantum process tomography experiment.
+    """A batched experiment to characterize readout error then perform process tomography
+    for doing readout error mitigated process tomography.
 
     # section: overview
         Readout error mitigated Quantum process tomography is a batch
@@ -46,8 +47,8 @@ class MitigatedProcessTomography(BatchExperiment):
         :py:class:`MitigatedTomographyAnalysis`
 
     # section: see_also
-        qiskit_experiments.library.ProcessTomography
-        qiskit_experiments.library.LocalReadoutError
+        * :py:class:`qiskit_experiments.library.tomography.ProcessTomography`
+        * :py:class:`qiskit_experiments.library.characterization.LocalReadoutError`
 
     """
 
@@ -59,6 +60,7 @@ class MitigatedProcessTomography(BatchExperiment):
         measurement_indices: Optional[Sequence[int]] = None,
         preparation_indices: Optional[Sequence[int]] = None,
         basis_indices: Optional[Iterable[Tuple[List[int], List[int]]]] = None,
+        conditional_circuit_clbits: Union[bool, Sequence[int], Sequence[Clbit]] = False,
         analysis: Union[BaseAnalysis, None, str] = "default",
     ):
         """Initialize a quantum process tomography experiment.
@@ -80,6 +82,11 @@ class MitigatedProcessTomography(BatchExperiment):
                 preparation basis index, and ``m[i]`` is the measurement basis index
                 for qubit-i. If not specified full tomography for all indices of the
                 preparation and measurement bases will be performed.
+            conditional_circuit_clbits: Optional, the clbits in the source circuit to
+                be conditioned on when reconstructing the state. If True all circuit
+                clbits will be conditioned on. Enabling this will return a list of
+                reconstrated state components conditional on the values of these clbit
+                values.
             analysis: Optional, a custom tomography analysis instance to use.
                 If ``"default"`` :class:`~.ProcessTomographyAnalysis` will be
                 used. If None no analysis instance will be set.
@@ -93,6 +100,7 @@ class MitigatedProcessTomography(BatchExperiment):
             preparation_basis=basis.PauliPreparationBasis(),
             preparation_indices=preparation_indices,
             basis_indices=basis_indices,
+            conditional_circuit_clbits=conditional_circuit_clbits,
             analysis=analysis,
         )
 

@@ -16,10 +16,10 @@ from typing import Iterable, Optional, Sequence, Tuple
 import numpy as np
 
 from qiskit import QuantumCircuit
+from qiskit import pulse
 from qiskit.circuit import Parameter
 from qiskit.exceptions import QiskitError
 from qiskit.providers import Backend
-import qiskit.pulse as pulse
 
 from qiskit_experiments.framework import BackendData, BackendTiming, Options
 from qiskit_experiments.library.characterization.spectroscopy import Spectroscopy
@@ -28,7 +28,7 @@ from .analysis.resonator_spectroscopy_analysis import ResonatorSpectroscopyAnaly
 
 
 class ResonatorSpectroscopy(Spectroscopy):
-    """Perform spectroscopy on the readout resonator.
+    """An experiment to perform frequency spectroscopy of the readout resonator.
 
     # section: overview
         This experiment does spectroscopy on the readout resonator. It applies the following
@@ -96,10 +96,7 @@ class ResonatorSpectroscopy(Spectroscopy):
         as well as the kappa, i.e. the line width, of the resonator.
 
     # section: analysis_ref
-        :py:class:`ResonatorSpectroscopyAnalysis`
-
-    # section: see_also
-        qiskit_experiments.library.characterization.qubit_spectroscopy.QubitSpectroscopy
+        :class:`ResonatorSpectroscopyAnalysis`
     """
 
     @classmethod
@@ -177,8 +174,8 @@ class ResonatorSpectroscopy(Spectroscopy):
             experiment_options: Key word arguments used to set the experiment options.
 
         Raises:
-            QiskitError: if no frequencies are given and absolute frequencies are desired and
-                no backend is given.
+            QiskitError: If no frequencies are given and absolute frequencies are desired and
+                no backend is given or the backend does not have default measurement frequencies.
         """
         analysis = ResonatorSpectroscopyAnalysis()
 
@@ -186,17 +183,29 @@ class ResonatorSpectroscopy(Spectroscopy):
             frequencies = np.linspace(-20.0e6, 20.0e6, 51)
 
             if absolute:
-                if backend is None:
-                    raise QiskitError(
-                        "Cannot automatically compute absolute frequencies without a backend."
-                    )
-
-                center_freq = BackendData(backend).meas_freqs[physical_qubits[0]]
-                frequencies += center_freq
+                frequencies += self._get_backend_meas_freq(
+                    BackendData(backend) if backend is not None else None,
+                    physical_qubits[0],
+                )
 
         super().__init__(
             physical_qubits, frequencies, backend, absolute, analysis, **experiment_options
         )
+
+    @staticmethod
+    def _get_backend_meas_freq(backend_data: Optional[BackendData], qubit: int) -> float:
+        """Get backend meas_freq with error checking"""
+        if backend_data is None:
+            raise QiskitError(
+                "Cannot automatically compute absolute frequencies without a backend."
+            )
+
+        if len(backend_data.meas_freqs) < qubit + 1:
+            raise QiskitError(
+                "Cannot retrieve default measurement frequencies from backend. "
+                "Please set frequencies explicitly or set `absolute` to `False`."
+            )
+        return backend_data.meas_freqs[qubit]
 
     @property
     def _backend_center_frequency(self) -> float:
@@ -208,10 +217,7 @@ class ResonatorSpectroscopy(Spectroscopy):
         Raises:
             QiskitError: If the experiment does not have a backend set.
         """
-        if self.backend is None:
-            raise QiskitError("backend not set. Cannot call center_frequency.")
-
-        return self._backend_data.meas_freqs[self.physical_qubits[0]]
+        return self._get_backend_meas_freq(self._backend_data, self.physical_qubits[0])
 
     def _template_circuit(self) -> QuantumCircuit:
         """Return the template quantum circuit."""

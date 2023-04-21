@@ -26,8 +26,7 @@ from qiskit_experiments.data_processing.exceptions import DataProcessorError
 
 from .base_curve_analysis import BaseCurveAnalysis, PARAMS_ENTRY_PREFIX
 from .curve_data import CurveData, FitOptions, CurveFitResult
-from .data_processing import multi_mean_xy_data, data_sort
-from .utils import eval_with_uncertainties, convert_lmfit_result
+from .utils import eval_with_uncertainties, convert_lmfit_result, multi_mean_xy_data, data_sort
 
 
 class CurveAnalysis(BaseCurveAnalysis):
@@ -41,7 +40,7 @@ class CurveAnalysis(BaseCurveAnalysis):
     .. rubric:: _run_data_processing
 
     This method performs data processing and returns the processed dataset.
-    By default, it internally calls the :class:`DataProcessor` instance from
+    By default, it internally calls the :class:`.DataProcessor` instance from
     the `data_processor` analysis option and processes the experiment data payload
     to create Y data with uncertainty.
     X data and other metadata are generated within this method by inspecting the
@@ -322,10 +321,15 @@ class CurveAnalysis(BaseCurveAnalysis):
             ys = []
             for model in models:
                 sub_data = curve_data.get_subset_of(model._name)
+                with np.errstate(divide="ignore"):
+                    # Ignore numpy runtime warning.
+                    # Zero y_err point introduces infinite weight,
+                    # but this should be managed by LMFIT.
+                    weights = 1.0 / sub_data.y_err if valid_uncertainty else None
                 yi = model._residual(
                     params=_params,
                     data=sub_data.y,
-                    weights=1.0 / sub_data.y_err if valid_uncertainty else None,
+                    weights=weights,
                     x=sub_data.x,
                 )
                 ys.append(yi)

@@ -26,15 +26,16 @@ from qiskit_experiments.warnings import qubit_deprecate
 
 
 class T2Hahn(BaseExperiment):
-    r"""T2 Hahn Echo Experiment.
+    r"""An experiment to measure the dephasing time insensitive to inhomogeneous
+    broadening using Hahn echos.
 
     # section: overview
 
-        This experiment is used to estimate T2 noise of a single qubit.
-
-        See `Qiskit Textbook <https://qiskit.org/textbook/ch-quantum-hardware/\
-        calibrating-qubits-pulse.html>`_  for a more detailed explanation on
-        these properties.
+        This experiment is used to estimate the :math:`T_2` time of a single qubit.
+        :math:`T_2` is the dephasing time or the transverse relaxation time of the qubit
+        on the Bloch sphere as a result of both energy relaxation and pure dephasing in
+        the transverse plane. Unlike :math:`T_2^*`, which is measured by
+        :class:`.T2Ramsey`, :math:`T_2` is insensitive to inhomogenous broadening.
 
         This experiment consists of a series of circuits of the form
 
@@ -53,11 +54,14 @@ class T2Hahn(BaseExperiment):
         the delay in the metadata is the total delay which is delay * (num_echoes +1)
         The circuits are run on the device or on a simulator backend.
 
-    # section: tutorial
-        :doc:`/tutorials/t2hahn_characterization`
+    # section: manual
+        :doc:`/manuals/characterization/t2hahn`
 
     # section: analysis_ref
-        :py:class:`T2HahnAnalysis`
+        :class:`T2HahnAnalysis`
+
+    # section: reference
+        .. ref_arxiv:: 1 1904.06560
     """
 
     @classmethod
@@ -66,6 +70,7 @@ class T2Hahn(BaseExperiment):
 
         Experiment Options:
             delays (Iterable[float]): Delay times of the experiments.
+            num_echoes (int): The number of echoes to preform.
         """
         options = super()._default_experiment_options()
 
@@ -90,7 +95,7 @@ class T2Hahn(BaseExperiment):
             delays: Total delay times of the experiments.
             backend: Optional, the backend to run the experiment on.
             num_echoes: The number of echoes to preform.
-            backend: Optional, the backend to run the experiment on..
+            backend: Optional, the backend to run the experiment on.
 
          Raises:
              QiskitError : Error for invalid input.
@@ -168,7 +173,9 @@ class T2Hahn(BaseExperiment):
                 single_delay = timing.delay_time(time=delay / num_echoes / 2)
                 total_delay = single_delay * num_echoes * 2
 
-            assigned = template.assign_parameters({delay_param: single_delay}, inplace=False)
+            assigned = template.assign_parameters(
+                {delay_param: timing.round_delay(time=single_delay)}, inplace=False
+            )
             assigned.metadata["xval"] = total_delay
             circuits.append(assigned)
 

@@ -80,7 +80,7 @@ class Calibrations:
         """Initialize the calibrations.
 
         Calibrations can be initialized from a list of basis gate libraries, i.e. a subclass of
-        :class:`BasisGateLibrary`. As example consider the following code:
+        :class:`.BasisGateLibrary`. As example consider the following code:
 
         .. code-block:: python
 
@@ -490,7 +490,7 @@ class Calibrations:
             schedule_name: The name of the schedule. If None is given then we assume that the
                 schedule and the instruction have the same name.
             assign_params: An optional dict of parameter mappings to apply. See for instance
-                :meth:`get_schedule` of :class:`Calibrations`.
+                :meth:`.get_schedule` of :class:`.Calibrations`.
         """
         schedule_name = schedule_name or instruction_name
 
@@ -616,7 +616,7 @@ class Calibrations:
             The registered template schedule.
 
         Raises:
-            CalibrationError: if no template schedule for the given schedule name and qubits
+            CalibrationError: If no template schedule for the given schedule name and qubits
                 was registered.
         """
         key = ScheduleKey(schedule_name, self._to_tuple(qubits))
@@ -1367,7 +1367,7 @@ class Calibrations:
                 default so that when saving to csv all values will be saved.
 
         Raises:
-            CalibrationError: if the files exist and overwrite is not set to True.
+            CalibrationError: If the files exist and overwrite is not set to True.
         """
         warnings.warn("Schedules are only saved in text format. They cannot be re-loaded.")
 

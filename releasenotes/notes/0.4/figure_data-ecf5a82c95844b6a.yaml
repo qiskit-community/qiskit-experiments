@@ -1,7 +1,7 @@
 ---
 upgrade:
   - |
-    Adds a :class:`.FigureData` class for adding metadata to analysis result figures. Figures added to
+    Added a :class:`.FigureData` class for adding metadata to analysis result figures. Figures added to
     :class:`.ExperimentData` are now stored using this class. The raw image object (SVG or matplotlib.Figure)
     can be accessed using the :attr:`.FigureData.figure` attribute.
 

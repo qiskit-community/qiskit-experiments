@@ -27,7 +27,7 @@ from .analysis.zz_ramsey_analysis import ZZRamseyAnalysis
 
 
 class ZZRamsey(BaseExperiment):
-    r"""Experiment to characterize the static :math:`ZZ` interaction for a qubit pair
+    r"""An experiment to characterize the static :math:`ZZ` interaction for a qubit pair.
 
     # section: overview
 
@@ -124,7 +124,7 @@ class ZZRamsey(BaseExperiment):
 
     # section: analysis_ref
 
-        :py:class:`ZZRamseyAnalysis`
+        :class:`ZZRamseyAnalysis`
     """
 
     @deprecate_arguments({"qubits": "physical_qubits"}, "0.5")

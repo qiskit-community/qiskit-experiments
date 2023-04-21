@@ -28,11 +28,7 @@ from qiskit_experiments.warnings import qubit_deprecate
 
 
 class FrequencyCal(BaseCalibrationExperiment, RamseyXY):
-    """A qubit frequency calibration experiment based on the Ramsey XY experiment.
-
-    # section: see_also
-        qiskit_experiments.library.characterization.ramsey_xy.RamseyXY
-    """
+    """A qubit frequency calibration experiment based on the Ramsey XY experiment."""
 
     @qubit_deprecate()
     def __init__(

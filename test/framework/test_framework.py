@@ -14,6 +14,7 @@
 
 from test.fake_experiment import FakeExperiment, FakeAnalysis
 from test.base import QiskitExperimentsTestCase
+from itertools import product
 import ddt
 
 from qiskit import QuantumCircuit
@@ -37,7 +38,7 @@ class TestFramework(QiskitExperimentsTestCase):
     """Test Base Experiment"""
 
     @ddt.data(None, 1, 2, 3)
-    def test_job_splitting(self, max_experiments):
+    def test_job_splitting_max_experiments(self, max_experiments):
         """Test job splitting"""
 
         num_circuits = 10
@@ -63,6 +64,45 @@ class TestFramework(QiskitExperimentsTestCase):
         else:
             num_jobs = num_circuits // max_experiments
             if num_circuits % max_experiments:
+                num_jobs += 1
+        self.assertEqual(len(job_ids), num_jobs)
+
+    @ddt.data(*product(*2 * [(None, 1, 2, 3)]))
+    @ddt.unpack
+    def test_job_splitting_max_circuits(self, max_circuits1, max_circuits2):
+        """Test job splitting"""
+
+        num_circuits = 10
+        backend = FakeBackend(max_experiments=max_circuits1)
+
+        class Experiment(FakeExperiment):
+            """Fake Experiment to test job splitting"""
+
+            def circuits(self):
+                """Generate fake circuits"""
+                qc = QuantumCircuit(1)
+                qc.measure_all()
+                return num_circuits * [qc]
+
+        exp = Experiment([0])
+        exp.set_experiment_options(max_circuits=max_circuits2)
+
+        expdata = exp.run(backend)
+        self.assertExperimentDone(expdata)
+        job_ids = expdata.job_ids
+
+        # Compute expected number of jobs
+        if max_circuits1 and max_circuits2:
+            max_circuits = min(max_circuits1, max_circuits2)
+        elif max_circuits1:
+            max_circuits = max_circuits1
+        else:
+            max_circuits = max_circuits2
+        if max_circuits is None:
+            num_jobs = 1
+        else:
+            num_jobs = num_circuits // max_circuits
+            if num_circuits % max_circuits:
                 num_jobs += 1
         self.assertEqual(len(job_ids), num_jobs)
 

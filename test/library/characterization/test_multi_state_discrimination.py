@@ -11,12 +11,34 @@
 # that they have been altered from the originals.
 
 """Test the multi state discrimination experiments."""
+from functools import wraps
 from test.base import QiskitExperimentsTestCase
+from unittest import SkipTest
+
 from ddt import ddt, data
 
 from qiskit import pulse
+from qiskit.exceptions import MissingOptionalLibraryError
+
 from qiskit_experiments.library import MultiStateDiscrimination
 from qiskit_experiments.test.pulse_backend import SingleTransmonTestBackend
+
+from qiskit_experiments.warnings import HAS_SKLEARN
+
+
+def requires_sklearn(func):
+    """Decorator to check for SKLearn."""
+
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        try:
+            HAS_SKLEARN.require_now("SKLearn discriminator testing")
+        except MissingOptionalLibraryError as exc:
+            raise SkipTest("SKLearn is required for test.") from exc
+
+        func(*args, **kwargs)
+
+    return wrapper
 
 
 @ddt
@@ -52,6 +74,7 @@ class TestMultiStateDiscrimination(QiskitExperimentsTestCase):
         self.schedules = {"x12": x12}
 
     @data(2, 3)
+    @requires_sklearn
     def test_circuit_generation(self, n_states):
         """Test the experiment circuit generation"""
         exp = MultiStateDiscrimination(
@@ -63,6 +86,7 @@ class TestMultiStateDiscrimination(QiskitExperimentsTestCase):
         self.assertEqual(exp.circuits()[-1].metadata["label"], n_states - 1)
 
     @data(2, 3)
+    @requires_sklearn
     def test_discrimination_analysis(self, n_states):
         """Test the discrimination analysis"""
         exp = MultiStateDiscrimination(

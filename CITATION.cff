@@ -1,0 +1,64 @@
+cff-version: "1.2.0"
+authors:
+- family-names: Kanazawa
+  given-names: Naoki
+  orcid: "https://orcid.org/0000-0002-4192-5558"
+- family-names: Egger
+  given-names: Daniel J.
+  orcid: "https://orcid.org/0000-0002-5523-9807"
+- family-names: Ben-Haim
+  given-names: Yael
+- family-names: Zhang
+  given-names: Helena
+  orcid: "https://orcid.org/0000-0002-7813-7133"
+- family-names: Shanks
+  given-names: William E.
+  orcid: "https://orcid.org/0000-0002-5045-8808"
+- family-names: Aleksandrowicz
+  given-names: Gadi
+- family-names: Wood
+  given-names: Christopher J.
+  orcid: "https://orcid.org/0000-0001-7606-7349"
+contact:
+- family-names: Egger
+  given-names: Daniel J.
+  orcid: "https://orcid.org/0000-0002-5523-9807"
+doi: 10.5281/zenodo.7844174
+message: If you use this software, please cite our article in the
+  Journal of Open Source Software.
+preferred-citation:
+  authors:
+  - family-names: Kanazawa
+    given-names: Naoki
+    orcid: "https://orcid.org/0000-0002-4192-5558"
+  - family-names: Egger
+    given-names: Daniel J.
+    orcid: "https://orcid.org/0000-0002-5523-9807"
+  - family-names: Ben-Haim
+    given-names: Yael
+  - family-names: Zhang
+    given-names: Helena
+    orcid: "https://orcid.org/0000-0002-7813-7133"
+  - family-names: Shanks
+    given-names: William E.
+    orcid: "https://orcid.org/0000-0002-5045-8808"
+  - family-names: Aleksandrowicz
+    given-names: Gadi
+  - family-names: Wood
+    given-names: Christopher J.
+    orcid: "https://orcid.org/0000-0001-7606-7349"
+  date-published: 2023-04-19
+  doi: 10.21105/joss.05329
+  issn: 2475-9066
+  issue: 84
+  journal: Journal of Open Source Software
+  publisher:
+    name: Open Journals
+  start: 5329
+  title: "Qiskit Experiments: A Python package to characterize and
+    calibrate quantum computers"
+  type: article
+  url: "https://joss.theoj.org/papers/10.21105/joss.05329"
+  volume: 8
+title: "Qiskit Experiments: A Python package to characterize and
+  calibrate quantum computers"

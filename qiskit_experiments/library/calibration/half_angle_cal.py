@@ -29,11 +29,7 @@ from qiskit_experiments.warnings import qubit_deprecate
 
 
 class HalfAngleCal(BaseCalibrationExperiment, HalfAngle):
-    """Calibration version of the half-angle experiment.
-
-    # section: see_also
-        qiskit_experiments.library.characterization.half_angle.HalfAngle
-    """
+    """Calibration version of the half-angle experiment."""
 
     @qubit_deprecate()
     def __init__(

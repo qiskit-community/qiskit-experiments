@@ -15,12 +15,13 @@
 import unittest
 from test.base import QiskitExperimentsTestCase
 
-from ddt import ddt, data
+from ddt import ddt, data, named_data
 from qiskit.providers.fake_provider import FakeArmonkV2
+from qiskit_aer import AerSimulator
 
 from qiskit_experiments.calibration_management.calibrations import Calibrations
 from qiskit_experiments.calibration_management.basis_gate_library import FixedFrequencyTransmon
-from qiskit_experiments.framework import BaseAnalysis, AnalysisStatus, BackendData
+from qiskit_experiments.framework import AnalysisStatus, BackendData, BaseAnalysis
 from qiskit_experiments.library import RamseyXY, FrequencyCal
 from qiskit_experiments.test.mock_iq_backend import MockIQBackend
 from qiskit_experiments.test.mock_iq_helpers import MockIQRamseyXYHelper as RamseyXYHelper
@@ -36,6 +37,18 @@ class TestRamseyXY(QiskitExperimentsTestCase):
 
         library = FixedFrequencyTransmon()
         self.cals = Calibrations.from_backend(FakeArmonkV2(), libraries=[library])
+
+    @named_data(
+        ["no_backend", None], ["fake_backend", FakeArmonkV2()], ["aer_backend", AerSimulator()]
+    )
+    def test_circuits(self, backend: str):
+        """Test circuit generation does not error"""
+        delays = [1e-6, 5e-6, 10e-6]
+        circs = RamseyXY([0], delays=delays, backend=backend).circuits()
+        # Deduplicate xvals
+        xvals = sorted({c.metadata["xval"] for c in circs})
+        for delay, xval in zip(delays, xvals):
+            self.assertAlmostEqual(delay, xval)
 
     @data(2e6, -3e6, 1e3, 0.0, 0.2e6, 0.3e6)
     def test_end_to_end(self, freq_shift: float):

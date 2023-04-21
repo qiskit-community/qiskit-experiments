@@ -32,11 +32,7 @@ AnglesSchedules = namedtuple(
 
 
 class RoughAmplitudeCal(BaseCalibrationExperiment, Rabi):
-    """A calibration version of the Rabi experiment.
-
-    # section: see_also
-        qiskit_experiments.library.characterization.rabi.Rabi
-    """
+    """A calibration version of the Rabi experiment."""
 
     @qubit_deprecate()
     def __init__(
@@ -194,11 +190,7 @@ class RoughAmplitudeCal(BaseCalibrationExperiment, Rabi):
 
 
 class RoughXSXAmplitudeCal(RoughAmplitudeCal):
-    """A rough amplitude calibration of x and sx gates.
-
-    # section: see_also
-        qiskit_experiments.library.characterization.rabi.Rabi
-    """
+    """A rough amplitude calibration of x and sx gates."""
 
     @qubit_deprecate()
     def __init__(
@@ -228,10 +220,8 @@ class RoughXSXAmplitudeCal(RoughAmplitudeCal):
 
 
 class EFRoughXSXAmplitudeCal(RoughAmplitudeCal):
-    """A rough amplitude calibration of x and sx gates on the 1<->2 transition.
-
-    # section: see_also
-        qiskit_experiments.library.characterization.rabi.Rabi
+    r"""A rough amplitude calibration of :math:`X` and :math:`SX` gates on the
+    :math:`|1\rangle` <-> :math:`|2\rangle` transition.
     """
 
     __outcome__ = "rabi_rate_12"
@@ -245,7 +235,8 @@ class EFRoughXSXAmplitudeCal(RoughAmplitudeCal):
         backend: Optional[Backend] = None,
         ef_pulse_label: str = "12",
     ):
-        r"""A rough amplitude calibration that updates both the sx and x pulses on 1<->2.
+        r"""A rough amplitude calibration that updates both the sx and x pulses on the
+        :math:`|1\rangle` <-> :math:`|2\rangle` transition.
 
         Args:
             physical_qubits: Sequence containing the index of the qubit
@@ -255,7 +246,7 @@ class EFRoughXSXAmplitudeCal(RoughAmplitudeCal):
             backend: Optional, the backend to run the experiment on.
             ef_pulse_label: A label that is post-pended to "x" and "sx" to obtain the name
                 of the pulses that drive a :math:`\pi` and :math:`\pi/2` rotation on
-                the 1<->2 transition.
+                the :math:`|1\rangle` <-> :math:`|2\rangle` transition.
         """
         super().__init__(
             physical_qubits,

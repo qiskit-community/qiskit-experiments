@@ -15,12 +15,11 @@ from test.base import QiskitExperimentsTestCase
 import unittest
 import numpy as np
 
-from qiskit import QuantumCircuit, transpile
+from qiskit import QuantumCircuit, pulse, transpile
 from qiskit.exceptions import QiskitError
 from qiskit.circuit import Parameter
 from qiskit.providers.basicaer import QasmSimulatorPy
 from qiskit.qobj.utils import MeasLevel
-import qiskit.pulse as pulse
 
 from qiskit_experiments.framework import ExperimentData, ParallelExperiment
 from qiskit_experiments.library import Rabi, EFRabi

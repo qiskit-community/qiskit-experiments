@@ -36,7 +36,7 @@ from .base_drawer import BaseCurveDrawer
 class MplCurveDrawer(BaseCurveDrawer):
     """Curve drawer for MatplotLib backend."""
 
-    DefaultMarkers = MarkerStyle().filled_markers
+    DefaultMarkers = MarkerStyle.filled_markers
     DefaultColors = tab10.colors
 
     class PrefixFormatter(Formatter):
@@ -51,7 +51,7 @@ class MplCurveDrawer(BaseCurveDrawer):
             self.factor = factor
 
         def __call__(self, x, pos=None):
-            return self.fix_minus("{:.3g}".format(x * self.factor))
+            return self.fix_minus(f"{x * self.factor:.3g}")
 
     def initialize_canvas(self):
         # Create axis if empty

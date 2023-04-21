@@ -26,11 +26,11 @@ from qiskit_experiments.warnings import qubit_deprecate
 
 
 class FineDrag(BaseExperiment, RestlessMixin):
-    r"""Fine DRAG experiment.
+    r"""An experiment that performs fine characterizations of DRAG pulse coefficients.
 
     # section: overview
 
-        :class:`FineDrag` runs fine DRAG characterization experiments (see :class:`DragCal`
+        :class:`FineDrag` runs fine DRAG characterization experiments (see :class:`.DragCal`
         for the definition of DRAG pulses). Fine DRAG proceeds by iterating the gate sequence
         Rp - Rm where Rp is a rotation around an axis and Rm is the same rotation but in the
         opposite direction and is implemented by the gates Rz - Rp - Rz where the Rz gates
@@ -44,7 +44,7 @@ class FineDrag(BaseExperiment, RestlessMixin):
             meas: 1/══════════════════════════════════════════════════════╩═
                                                                           0
 
-        Here, Pre and Post designate gates that may be pre-appended and and post-appended,
+        Here, "Pre" and "Post" designate gates that may be pre-appended and and post-appended,
         respectively, to the repeated sequence of Rp - Rz - Rp - Rz gates. When calibrating
         a pulse with a target rotation angle of π the Pre and Post gates are Id and RYGate(π/2),
         respectively. When calibrating a pulse with a target rotation angle of π/2 the Pre and
@@ -90,7 +90,7 @@ class FineDrag(BaseExperiment, RestlessMixin):
             \bar\delta(t) = {\rm d}\beta\, \Omega^2_x(t)
 
 
-        We can integrate :math:`\bar{\delta}(t)`, i.e. the instantaneous Z-angle rotation error,
+        We can integrate :math:`\bar{\delta}(t)`, i.e. the instantaneous :math:`Z`-angle rotation error,
         to obtain the total rotation angle error per pulse, :math:`{\rm d}\theta`:
 
         .. math::
@@ -103,7 +103,7 @@ class FineDrag(BaseExperiment, RestlessMixin):
         :math:`A\sigma\sqrt{\pi/2}=\theta_\text{target}`, where :math:`\theta_\text{target}`
         is the target rotation angle, i.e. the area under the pulse. This last point allows
         us to rewrite :math:`A^2\sigma\sqrt{\pi}` as
-        :math:`\theta^2_\text{target}/(2\sigma\sqrt{\pi})`. The total Z angle error per pulse
+        :math:`\theta^2_\text{target}/(2\sigma\sqrt{\pi})`. The total :math:`Z` angle error per pulse
         is therefore
 
         .. math::
@@ -111,13 +111,13 @@ class FineDrag(BaseExperiment, RestlessMixin):
            {\rm d}\theta=
             \int\bar\delta(t){\rm d}t={\rm d}\beta\,\frac{\theta^2_\text{target}}{2\sigma\sqrt{\pi}}
 
-        Here, :math:`{\rm d}\theta` is the Z angle error per pulse. The qubit population produced by
-        the gate sequence shown above is used to measure :math:`{\rm d}\theta`. Indeed, each
-        gate pair Rp - Rm will produce a small unwanted Z - rotation out of the ZX plane with a
-        magnitude :math:`2\,{\rm d}\theta`. The total rotation out of the ZX plane is then mapped
-        to a qubit population by the final Post gate. Inverting the relation above after cancelling
-        out the factor of two due to the Rp - Rm pulse pair yields the error in :math:`\beta` that
-        produced the rotation error :math:`{\rm d}\theta` as
+        Here, :math:`{\rm d}\theta` is the :math:`Z` angle error per pulse. The qubit population
+        produced by the gate sequence shown above is used to measure :math:`{\rm d}\theta`. Indeed,
+        each gate pair Rp - Rm will produce a small unwanted :math:`Z`-rotation out of the
+        :math:`ZX` plane with a magnitude :math:`2\,{\rm d}\theta`. The total rotation out of the
+        :math:`ZX` plane is then mapped to a qubit population by the final Post gate. Inverting the
+        relation above after cancelling out the factor of two due to the Rp - Rm pulse pair yields
+        the error in :math:`\beta` that produced the rotation error :math:`{\rm d}\theta` as
 
         .. math::
 
@@ -126,10 +126,7 @@ class FineDrag(BaseExperiment, RestlessMixin):
         This is the correction formula in the FineDRAG Updater.
 
     # section: analysis_ref
-        :py:class:`~qiskit_experiments.curve_analysis.ErrorAmplificationAnalysis`
-
-    # section: see_also
-        qiskit_experiments.library.calibration.drag.DragCal
+        :class:`.ErrorAmplificationAnalysis`
 
     # section: reference
         .. ref_arxiv:: 1 1612.00858
@@ -245,11 +242,7 @@ class FineDrag(BaseExperiment, RestlessMixin):
 
 
 class FineXDrag(FineDrag):
-    """Class to fine characterize the DRAG parameter of an X gate.
-
-    # section: see_also
-        qiskit_experiments.library.characterization.fine_drag.FineDrag
-    """
+    """Class to fine characterize the DRAG parameter of an X gate."""
 
     @qubit_deprecate()
     def __init__(self, physical_qubits: Sequence[int], backend: Optional[Backend] = None):
@@ -275,11 +268,7 @@ class FineXDrag(FineDrag):
 
 
 class FineSXDrag(FineDrag):
-    """Class to fine characterize the DRAG parameter of an SX gate.
-
-    # section: see_also
-        qiskit_experiments.library.characterization.fine_drag.FineDrag
-    """
+    """Class to fine characterize the DRAG parameter of an :math:`SX` gate."""
 
     @qubit_deprecate()
     def __init__(self, physical_qubits: Sequence[int], backend: Optional[Backend] = None):

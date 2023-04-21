@@ -14,7 +14,7 @@
 A class that formats documentation sections.
 """
 from typing import List
-from .utils import _check_no_indent
+from .utils import _check_no_indent, _write_options
 
 
 class DocstringSectionFormatter:
@@ -37,7 +37,11 @@ class DocstringSectionFormatter:
     @_check_no_indent
     def format_overview(self, lines: List[str]) -> List[str]:
         """Format overview section."""
-        format_lines = [".. rubric:: Overview", ""]
+        format_lines = [
+            ""
+            ".. rubric:: Overview",
+            "",
+        ]
         format_lines.extend(lines)
         format_lines.append("")
 
@@ -46,7 +50,10 @@ class DocstringSectionFormatter:
     @_check_no_indent
     def format_reference(self, lines: List[str]) -> List[str]:
         """Format reference section."""
-        format_lines = [".. rubric:: References", ""]
+        format_lines = [
+            ".. rubric:: References",
+            "",
+        ]
         format_lines.extend(lines)
         format_lines.append("")
 
@@ -64,7 +71,10 @@ class DocstringSectionFormatter:
     @_check_no_indent
     def format_example(self, lines: List[str]) -> List[str]:
         """Format example section."""
-        format_lines = [".. rubric:: Example", ""]
+        format_lines = [
+            ".. rubric:: Example",
+            "",
+        ]
         format_lines.extend(lines)
         format_lines.append("")
 
@@ -82,19 +92,35 @@ class DocstringSectionFormatter:
     @_check_no_indent
     def format_see_also(self, lines: List[str]) -> List[str]:
         """Format see also section."""
-        text = ".. seealso:: Module(s) "
+        format_lines = [
+            ".. rubric:: See also",
+            "",
+        ]
 
-        modules = []
-        for line in lines:
-            modules.append(f":py:mod:`~{line.lstrip()}`")
-        text += ", ".join(modules)
+        format_lines.extend(lines)
+        format_lines.append("")
 
-        return [text, ""]
+        return format_lines
 
     @_check_no_indent
-    def format_tutorial(self, lines: List[str]) -> List[str]:
-        """Format tutorial section."""
-        format_lines = [".. rubric:: Tutorials", ""]
+    def format_manual(self, lines: List[str]) -> List[str]:
+        """Format user manual section."""
+        format_lines = [
+            ".. rubric:: User manual",
+            "",
+        ]
+        format_lines.extend(lines)
+        format_lines.append("")
+
+        return format_lines
+
+    @_check_no_indent
+    def format_init(self, lines: List[str]) -> List[str]:
+        """Format user manual section."""
+        format_lines = [
+            ".. rubric:: Initialization",
+            "",
+        ]
         format_lines.extend(lines)
         format_lines.append("")
 
@@ -107,7 +133,10 @@ class ExperimentSectionFormatter(DocstringSectionFormatter):
     @_check_no_indent
     def format_analysis_ref(self, lines: List[str]) -> List[str]:
         """Format analysis class reference section."""
-        format_lines = [".. rubric:: Analysis Class Reference", ""]
+        format_lines = [
+            ".. rubric:: Analysis class reference",
+            "",
+        ]
         format_lines.extend(lines)
         format_lines.append("")
 
@@ -117,54 +146,13 @@ class ExperimentSectionFormatter(DocstringSectionFormatter):
     def format_experiment_opts(self, lines: List[str]) -> List[str]:
         """Format experiment options section."""
         format_lines = [
-            ".. rubric:: Experiment Options",
+            ".. rubric:: Experiment options",
             "",
-            "These options can be set by :py:meth:`set_experiment_options` method.",
-            "",
-        ]
-        format_lines.extend(lines)
-        format_lines.append("")
-
-        return format_lines
-
-    @_check_no_indent
-    def format_analysis_opts(self, lines: List[str]) -> List[str]:
-        """Format analysis options section."""
-        format_lines = [
-            ".. rubric:: Analysis Options",
-            "",
-            "These options can be set by :py:meth:`analysis.set_options` method.",
+            "These options can be set by the :meth:`set_experiment_options` method.",
             "",
         ]
-        format_lines.extend(lines)
-        format_lines.append("")
-
-        return format_lines
-
-    @_check_no_indent
-    def format_transpiler_opts(self, lines: List[str]) -> List[str]:
-        """Format transpiler options section."""
-        format_lines = [
-            ".. rubric:: Transpiler Options",
-            "",
-            "This option can be set by :py:meth:`set_transpile_options` method.",
-            "",
-        ]
-        format_lines.extend(lines)
-        format_lines.append("")
-
-        return format_lines
-
-    @_check_no_indent
-    def format_run_opts(self, lines: List[str]) -> List[str]:
-        """Format run options section."""
-        format_lines = [
-            ".. rubric:: Backend Run Options",
-            "",
-            "This option can be set by :py:meth:`set_run_options` method.",
-            "",
-        ]
-        format_lines.extend(lines)
+        for line in _write_options(lines, self.indent):
+            format_lines.append(line)
         format_lines.append("")
 
         return format_lines
@@ -177,12 +165,13 @@ class AnalysisSectionFormatter(DocstringSectionFormatter):
     def format_analysis_opts(self, lines: List[str]) -> List[str]:
         """Format analysis options section."""
         format_lines = [
-            ".. rubric:: Run Options",
+            ".. rubric:: Analysis options",
             "",
-            "These are the keyword arguments of :py:meth:`run` method.",
+            "These are the keyword arguments of :meth:`run` method.",
             "",
         ]
-        format_lines.extend(lines)
+        for line in _write_options(lines, self.indent):
+            format_lines.append(line)
         format_lines.append("")
 
         return format_lines
@@ -191,7 +180,7 @@ class AnalysisSectionFormatter(DocstringSectionFormatter):
     def format_fit_model(self, lines: List[str]) -> List[str]:
         """Format fit model section."""
         format_lines = [
-            ".. rubric:: Fit Model",
+            ".. rubric:: Fit model",
             "",
             "This is the curve fitting analysis. ",
             "The following equation(s) are used to represent curve(s).",
@@ -206,7 +195,7 @@ class AnalysisSectionFormatter(DocstringSectionFormatter):
     def format_fit_parameters(self, lines: List[str]) -> List[str]:
         """Format fit parameter section."""
         format_lines = [
-            ".. rubric:: Fit Parameters",
+            ".. rubric:: Fit parameters",
             "",
             "The following fit parameters are estimated during the analysis.",
             "",
@@ -215,6 +204,7 @@ class AnalysisSectionFormatter(DocstringSectionFormatter):
         format_lines.append("")
 
         return format_lines
+
 
 class VisualizationSectionFormatter(DocstringSectionFormatter):
     """Formatter for visualization classes."""
@@ -229,7 +219,8 @@ class VisualizationSectionFormatter(DocstringSectionFormatter):
             "The following can be set using :meth:`set_options`.",
             "",
         ]
-        format_lines.extend(lines)
+        for line in _write_options(lines, self.indent):
+            format_lines.append(line)
         format_lines.append("")
 
         return format_lines
@@ -238,12 +229,13 @@ class VisualizationSectionFormatter(DocstringSectionFormatter):
     def format_figure_opts(self, lines: List[str]) -> List[str]:
         """Format figure options section."""
         format_lines = [
-            ".. rubric:: Figure Options",
+            ".. rubric:: Figure options",
             "",
             "The following can be set using :meth:`set_figure_options`.",
             "",
         ]
-        format_lines.extend(lines)
+        for line in _write_options(lines, self.indent):
+            format_lines.append(line)
         format_lines.append("")
 
         return format_lines

@@ -194,7 +194,7 @@ def _decode_and_deserialize(value: Dict, deserializer: Callable, name: Optional[
         Deserialized data.
 
     Raises:
-        ValueError: if deserialization fails.
+        ValueError: If deserialization fails.
     """
     try:
         with io.BytesIO() as buff:
@@ -294,7 +294,7 @@ def _serialize_object(obj: Any, settings: Optional[Dict] = None, safe_float: boo
     Args:
         obj: The object to be serialized.
         settings: Optional, settings for reconstructing the object from kwargs.
-        safe_float: if True check float values for NaN, inf and -inf
+        safe_float: If True check float values for NaN, inf and -inf
                     and cast to strings during serialization.
 
     Returns:
@@ -363,14 +363,16 @@ def _deserialize_object_legacy(value: Dict) -> Any:
     try:
         class_name = value["__name__"]
         mod_name = value["__module__"]
-        args = value.get("__args__", tuple())
-        kwargs = value.get("__kwargs__", dict())
+        args = value.get("__args__", ())
+        kwargs = value.get("__kwargs__", {})
         mod = importlib.import_module(mod_name)
         for name, cls in inspect.getmembers(mod, inspect.isclass):
             if name == class_name:
                 return cls(*args, **kwargs)
 
-        raise Exception(f"Unable to find class {class_name} in module {mod_name}")
+        raise Exception(  # pylint: disable=broad-exception-raised
+            f"Unable to find class {class_name} in module {mod_name}"
+        )
 
     except Exception as ex:  # pylint: disable=broad-except
         traceback_msg = "".join(traceback.format_exception(type(ex), ex, ex.__traceback__))
@@ -441,7 +443,7 @@ class ExperimentEncoder(json.JSONEncoder):
         :class:`ExperimentDecoder` is invoked.
     """
 
-    def default(self, obj: Any) -> Any:  # pylint: disable=arguments-differ
+    def default(self, obj: Any) -> Any:  # pylint: disable=arguments-renamed
         if istype(obj):
             return _serialize_type(obj)
         if hasattr(obj, "__json_encode__"):

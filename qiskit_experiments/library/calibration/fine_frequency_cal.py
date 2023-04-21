@@ -29,11 +29,7 @@ from qiskit_experiments.warnings import qubit_deprecate
 
 
 class FineFrequencyCal(BaseCalibrationExperiment, FineFrequency):
-    """A calibration version of the fine frequency experiment.
-
-    # section: see_also
-        :py:class:`FineFrequency`
-    """
+    """A calibration version of the fine frequency experiment."""
 
     @qubit_deprecate()
     def __init__(
@@ -46,7 +42,7 @@ class FineFrequencyCal(BaseCalibrationExperiment, FineFrequency):
         auto_update: bool = True,
         gate_name: str = "sx",
     ):
-        r"""see class :class:`FineFrequency` for details.
+        r"""See class :class:`.FineFrequency` for details.
 
         Note that this class implicitly assumes that the target angle of the gate
         is :math:`\pi/2` as seen from the default analysis options. This experiment
