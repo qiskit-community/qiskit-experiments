@@ -11,7 +11,7 @@
 # that they have been altered from the originals.
 
 """Ramsey XY frequency characterization experiment."""
-
+import warnings
 from typing import List, Tuple, Dict, Optional, Sequence
 
 import numpy as np
@@ -337,6 +337,46 @@ class StarkRamseyXY(BaseExperiment):
         super()._set_backend(backend)
         self._timing = BackendTiming(backend)
 
+    def set_experiment_options(self, **fields):
+        # Do validation for circuit number
+        min_freq = fields.get("min_freq", None)
+        max_freq = fields.get("max_freq", None)
+        delays = fields.get("delays", None)
+        if min_freq is not None and max_freq is not None:
+            if delays:
+                warnings.warn(
+                    "Experiment option 'min_freq' and 'max_freq' are ignored "
+                    "when 'delays' are explicitly specified.",
+                    UserWarning,
+                )
+            else:
+                n_expr_circs = 2 * int(2 * max_freq / min_freq)  # delays * (x, y)
+                max_experiment = self._backend_data.max_circuits() or 300
+                if n_expr_circs > max_experiment:
+                    warnings.warn(
+                        f"Provided configuration generates {n_expr_circs} circuits. "
+                        "You can set smaller 'max_freq' or larger 'min_freq' to reduce this number. "
+                        "This experiment is still executable but your execution may consume "
+                        "unnecessary quantum device time, and result may suffer "
+                        "device parameter drift in consequence of the long execution time.",
+                        UserWarning,
+                    )
+        # Do validation for spectrum overlap to avoid real excitation
+        stark_freq_offset = fields.get("stark_freq_offset", None)
+        stark_sigma = fields.get("stark_sigma", None)
+        if stark_freq_offset is not None and stark_sigma is not None:
+            if stark_freq_offset < 1 / stark_sigma:
+                warnings.warn(
+                    "Provided configuration may induce coherence state exchange of qubit "
+                    "because of the potential spectrum overlap. You can avoid this by "
+                    "increasing the 'stark_sigma' or 'stark_freq_offset'. "
+                    "Note that this experiment is still executable.",
+                    UserWarning,
+                )
+            pass
+
+        super().set_experiment_options(**fields)
+
     def delays(self) -> np.ndarray:
         """Delay values to use in circuits.
 
@@ -351,10 +391,15 @@ class StarkRamseyXY(BaseExperiment):
         Returns:
             The list of delays to use for the different circuits based on the
             experiment options.
+
+        Raises:
+            ValueError: When ``min_freq`` is larger than ``max_freq``.
         """
         opt = self.experiment_options  # alias
 
         if opt.delays is None:
+            if opt.min_freq > opt.max_freq:
+                raise ValueError("Experiment option 'min_freq' must be smaller than 'max_freq'.")
             # Delay is longer enough to capture 1 cycle of the minimum frequency.
             # Fitter can still accurately fit samples shorter than 1 cycle.
             max_period = 1 / opt.min_freq
