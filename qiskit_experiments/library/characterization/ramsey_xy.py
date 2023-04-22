@@ -338,6 +338,8 @@ class StarkRamseyXY(BaseExperiment):
         self._timing = BackendTiming(backend)
 
     def set_experiment_options(self, **fields):
+        _warning_circuit_length = 300
+
         # Do validation for circuit number
         min_freq = fields.get("min_freq", None)
         max_freq = fields.get("max_freq", None)
@@ -351,8 +353,10 @@ class StarkRamseyXY(BaseExperiment):
                 )
             else:
                 n_expr_circs = 2 * int(2 * max_freq / min_freq)  # delays * (x, y)
-                max_experiment = self._backend_data.max_circuits() or 300
-                if n_expr_circs > max_experiment:
+                max_circs_per_job = None
+                if self._backend_data:
+                    max_circs_per_job = self._backend_data.max_circuits()
+                if n_expr_circs > (max_circs_per_job or _warning_circuit_length):
                     warnings.warn(
                         f"Provided configuration generates {n_expr_circs} circuits. "
                         "You can set smaller 'max_freq' or larger 'min_freq' to reduce this number. "
