@@ -458,18 +458,15 @@ class StarkRamseyXY(BaseExperiment):
         Returns:
             A list of circuits with a variable delay.
         """
+        timing = BackendTiming(self.backend, min_length=0)
+
         ramx_circ, ramy_circ = self.parameterized_circuits()
         param = next(iter(ramx_circ.parameters))
 
         circs = []
-        dt = self._backend_data.dt
-        granularity = self._backend_data.granularity
         for delay in self.delays():
-            # Not using pulse_round method of the BackendTiming class
-            # because this method considers the minimum pulse duration.
-            # Valid delay here corresponds to the flat-top length and thus can be zero at minimum.
-            valid_delay_dt = granularity * int(round(delay / dt / granularity))
-            net_delay_sec = valid_delay_dt * dt
+            valid_delay_dt = timing.round_pulse(time=delay)
+            net_delay_sec = timing.pulse_time(time=delay)
 
             ramx_circ_assigned = ramx_circ.assign_parameters({param: valid_delay_dt}, inplace=False)
             ramx_circ_assigned.metadata["xval"] = net_delay_sec
