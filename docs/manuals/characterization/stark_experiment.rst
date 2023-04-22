@@ -3,13 +3,13 @@ AC Stark Effect
 
 When a qubit is driven with an off-resonant tone,
 the qubit frequency :math:`f_0` is slightly shifted through what is known as the (AC) Stark effect.
-This technique is sometime used to characterize qubit properties in the vicinity of
-the base frequency, especially with the fixed frequency qubit architecture which usually
+This technique is sometimes used to characterize qubit properties in the vicinity of
+the base frequency, especially with a fixed frequency qubit architecture which otherwise
 doesn't have a knob to control frequency [1]_.
 
 The important control parameters of the Stark effect are the amplitude
 :math:`\Omega` and frequency :math:`f_S` of
-the off-resonant tone, which we will call *Stark tone* in the following.
+the off-resonant tone, which we will call the *Stark tone* in the following.
 In the low power limit, the amount of frequency shift :math:`\delta f_S`
 that the qubit may experience is described as follows [2]_:
 
@@ -19,7 +19,7 @@ that the qubit may experience is described as follows [2]_:
 
 where :math:`\alpha` is the qubit anharmonicity and :math:`\Delta=f_S - f_0` is the
 frequency separation of the Stark tone from the qubit frequency :math:`f_0`.
-We sometime call this *Stark shift*.
+We sometimes call :math:`\delta f_S` the *Stark shift* [3]_.
 
 
 .. _stark_tone_implementation:
@@ -28,7 +28,7 @@ Stark tone implementation in Qiskit
 -----------------------------------
 
 Usually, we fix the Stark tone frequency :math:`f_S` and control the amplitude :math:`\Omega`
-to modulate qubit frequency.
+to modulate the qubit frequency.
 In Qiskit, we often use an abstracted amplitude :math:`\bar{\Omega}`,
 instead of the physical amplitude :math:`\Omega` in the experiments.
 
@@ -45,10 +45,9 @@ In other words, positive (negative) Stark shift occurs when the tone frequency :
 is lower (higher) than the qubit frequency :math:`f_0`.
 When an experimentalist wants to perform spectroscopy of some qubit parameter
 in the vicinity of :math:`f_0`, one must manage the sign of :math:`f_S`
-in addition to the magnitude of :math:`\Omega` as they need to
-switch the sign of the Stark shift.
+in addition to the magnitude of :math:`\Omega`.
 
-To alleviate such experimental complexity, the abstracted amplitude :math:`\bar{\Omega}`
+To alleviate such experimental complexity, an abstracted amplitude :math:`\bar{\Omega}`
 with virtual sign is introduced in Qiskit Experiments.
 This works as follows:
 
@@ -65,9 +64,9 @@ In this representation, the sign of the Stark shift matches the sign of :math:`\
 
     \text{sign}(\delta f_S) = \text{sign}(\bar{\Omega})
 
-This allows an experimentalist to control both sign and amount of
-the Stark shift with the ``stark_amp``.
-Note that ``stark_freq_offset`` is a positive fixed number.
+This allows an experimentalist to control both the sign and the amount of
+the Stark shift with the ``stark_amp`` experiment option.
+Note that ``stark_freq_offset`` should be set as a positive number.
 
 
 .. _stark_frequency_consideration:
@@ -75,21 +74,22 @@ Note that ``stark_freq_offset`` is a positive fixed number.
 Stark tone frequency
 --------------------
 
-As you can see in the Starks shift equation,
+As you can see in the equation for :math:`\delta f_S` above,
 :math:`\Delta=0` yields a singular point where :math:`\delta f_S` diverges.
-This corresponds to the Rabi drive, where the qubit is driven on resonance and
-the coherent state exchange occurs between :math:`|0\rangle` and :math:`|1\rangle`
+This corresponds to a Rabi drive, where the qubit is driven on resonance and
+coherent state exchange occurs between :math:`|0\rangle` and :math:`|1\rangle`
 instead of the Stark shift.
-The another obvious forbidden frequency for the Stark tone is :math:`\Delta=\alpha` which
+Another frequency that should be avoided for the Stark tone is :math:`\Delta=\alpha` which
 corresponds to the transition from :math:`|1\rangle` to :math:`|2\rangle`.
-In the high power limit, :math:`\Delta = \alpha/2` is also forbidden since
+In the high power limit, :math:`\Delta = \alpha/2` should also be avoided since
 this causes the direct excitation from :math:`|0\rangle` to :math:`|2\rangle`
-through what is known as the two-photon transition.
+through what is known as a two-photon transition.
 
 The Stark tone frequency must be sufficiently separated from all of these frequencies
 to avoid unwanted state transitions (frequency collisions).
-In reality, this condition might be more complicated due to transition levels of the
-nearest neighbor qubits, and the frequency must be carefully chosen to avoid frequency collisions [3]_.
+In reality, the choice of the frequency could be even more complicated
+due to the transition levels of the nearest neighbor qubits.
+The frequency must be carefully chosen to avoid frequency collisions [4]_.
 
 
 .. _stark_channel_consideration:
@@ -109,8 +109,8 @@ You can use a dedicated Stark drive channel if available.
 Otherwise, you may want to use a control channel associated with the physical
 drive port of the qubit.
 
-In a typical IBM device of the cross-resonance drive architecture,
-such channel can be identified with your backend.
+In a typical IBM device using the cross-resonance drive architecture,
+such channel can be identified with your backend as follows:
 
 .. jupyter-execute::
 
@@ -126,7 +126,7 @@ such channel can be identified with your backend.
     print(backend.control_channel(qpair)[0])
 
 This returns a control channel for which the qubit is the control qubit.
-This depends on the architecture of your quantum device.
+This approach may not work for other device architectures.
 
 
 References
@@ -140,7 +140,10 @@ References
     Phys. Rev. A 101, 052308 (2020).
     https://arxiv.org/abs/1804.04073
 
-.. [3] Jared B. Hertzberg, Eric J. Zhang, Sami Rosenblatt, et. al.,
+.. [3] Wikipedia. "Autler–Townes effect" Wikipedia Foundation.
+    https://en.wikipedia.org/wiki/Autler%E2%80%93Townes_effect
+
+.. [4] Jared B. Hertzberg, Eric J. Zhang, Sami Rosenblatt, et. al.,
     Laser-annealing Josephson junctions for yielding scaled-up superconducting quantum processors,
     npj Quantum Information 7, 129 (2021).
     https://arxiv.org/abs/2009.00781

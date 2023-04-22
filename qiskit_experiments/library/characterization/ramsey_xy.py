@@ -211,7 +211,7 @@ class RamseyXY(BaseExperiment, RestlessMixin):
 
 
 class StarkRamseyXY(BaseExperiment):
-    """A sign-sensitive experiment to measure the frequency of a qubit under pulsed Stark tone.
+    """A sign-sensitive experiment to measure the frequency of a qubit under a pulsed Stark tone.
 
     # section: overview
 
@@ -237,7 +237,7 @@ class StarkRamseyXY(BaseExperiment):
                                                                                0
 
         In principle, the sequence is a variant of :class:`.RamseyXY` circuit.
-        However, the delay in between √X gates is replaced with the off-resonant drive.
+        However, the delay in between √X gates is replaced with an off-resonant drive.
         This off-resonant drive shifts the qubit frequency due to the
         Stark effect and causes it to accumulate phase during the
         Ramsey sequence. This frequency shift is a function of the
@@ -260,7 +260,10 @@ class StarkRamseyXY(BaseExperiment):
         :py:class:`RamseyXYAnalysis`
 
     # section: see_also
-        qiskit_experiments.library.characterization.ramsey_xy.RamseyXY
+        :class:`qiskit_experiments.library.characterization.ramsey_xy.RamseyXY`
+
+    # section: manual
+        :doc:`/manuals/characterization/stark_experiment`
 
     """
 
@@ -275,7 +278,8 @@ class StarkRamseyXY(BaseExperiment):
         Args:
             physical_qubits: Index of physical qubit.
             backend: Optional, the backend to run the experiment on.
-            experiment_options: Extra experiment options. See ``self.experiment_options``.
+            experiment_options: Experiment options. See the class documentation or
+                ``self._default_experiment_options`` for descriptions.
         """
         self._timing = None
 

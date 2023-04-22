@@ -2,5 +2,5 @@
 features:
   - |
     New experiment :class:`.StarkRamseyXY` has been added.
-    This is a variant of :class:`.RamseyXY` experiment that characterizes 
-    the qubit frequency offset under the Stark tone drive.
+    This is a variant of the :class:`.RamseyXY` experiment that characterizes 
+    the qubit frequency offset under a Stark tone drive.
