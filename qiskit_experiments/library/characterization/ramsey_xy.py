@@ -443,6 +443,7 @@ class StarkRamseyXY(BaseExperiment):
                     duration=ramps_dt,
                     amp=stark_amp,
                     sigma=sigma_dt,
+                    name="StarkV",
                 ),
                 stark_channel,
             )
@@ -455,6 +456,7 @@ class StarkRamseyXY(BaseExperiment):
                     amp=stark_amp,
                     sigma=sigma_dt,
                     risefall_sigma_ratio=opt.stark_risefall,
+                    name="StarkU",
                 ),
                 stark_channel,
             )

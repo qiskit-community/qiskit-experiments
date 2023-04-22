@@ -129,6 +129,77 @@ This returns a control channel for which the qubit is the control qubit.
 This approach may not work for other device architectures.
 
 
+Characterizing Frequency Shift
+------------------------------
+
+One can experimentally measure :math:`\delta f_S` with the :class:`.StarkRamseyXY` experiment.
+Following pulse sequence illustrates how :math:`\delta f_S` is characterized
+by a variant of the Hahn-echo pulse sequence [5]_.
+
+.. jupyter-execute::
+    :hide-code:
+
+    %matplotlib inline
+
+    from qiskit_experiments.library import StarkRamseyXY
+    from qiskit import schedule, pulse
+    from qiskit.providers.fake_provider import FakeHanoi
+    from qiskit.visualization.pulse_v2 import IQXSimple
+
+    backend = FakeHanoi()
+    exp = StarkRamseyXY(
+        physical_qubits=[0],
+        backend=backend,
+        stark_amp=0.2,
+        delays=[100e-9],
+        stark_channel=pulse.ControlChannel(0),
+    )
+
+    circ = exp.circuits()[0]
+    ram_x_schedule = schedule(circ, backend=backend)
+
+    opt = {
+        "formatter.general.fig_chart_height": 10,
+        "formatter.margin.top": 0.1,
+        "formatter.margin.bottom": 0.2,
+        "formatter.label_offset.pulse_name": 0.1,
+        "formatter.text_size.annotate": 14,
+    }
+    ram_x_schedule.draw(time_range=(0, 1600), style=IQXSimple(**opt), backend=backend)
+
+The qubit is initialized in the :math:`Y`-eigenstate with the first half-pi pulse.
+This state may be visualized by a Bloch vector located on the equator of the Bloch sphere,
+which is highly sensitive to Z rotation arising from any qubit frequency offset.
+This operation is followed by a pi-pulse and another negative half-pi pulse
+right before the measurement tone filled in red.
+This sequence recovers the initial state when Z rotation is zero or :math:`\delta f_S=0`.
+
+As you may notice, this sequence is interleaved with two pulses labeled
+"StarkV" (Gaussian) and "StarkU" (GaussianSquare) filled in yellow, representing Stark tones.
+These pulses are designed to have the same maximum amplitude :math:`\Omega` resulting
+in the same :math:`\delta f_S` at this amplitude -- but why we need two pulses?
+
+Since :math:`\delta f_S` is amplitude dependent, Stark tones cause time-dependent
+frequency shift at pulse ramps. With a single Stark tone, you are only able to estimate
+the average :math:`\delta f_S` over the history of amplitudes :math:`\Omega(t)`,
+even though you may want to characterize :math:`\delta f_S` at a particular :math:`\Omega`.
+You have to remember that you cannot use a square envelope to set a uniform amplitude,
+because such pulse is known to have broad frequency component.
+
+The pulse sequence shown in above is adopted to address such issue.
+The Z rotation accumulated by the first pulse is proportional to :math:`\int \Omega_V^2(t) dt`,
+while that of the second pulse is :math:`-\int \Omega_U^2(t) dt` because
+the qubit state to prove this rotation is flipped by the pi-pulse in the middle.
+The only difference of the :math:`\Omega_U(t)` from the :math:`\Omega_V(t)` is the flat-top part
+with a constant amplitude :math:`\Omega`, where :math:`\delta f_S` is also constant.
+Thanks to this sign flip, the net Z rotation accumulated through two tones is
+only proportional to the flat-top part of the StarkU pulse.
+This technique allows you to estimate :math:`\delta f_S` at a particular :math:`\Omega`.
+
+In Qiskit Experiments, the experiment option ``stark_amp`` usually refers to
+the height of this GaussianSquare flat-top.
+
+
 References
 ----------
 
@@ -147,3 +218,8 @@ References
     Laser-annealing Josephson junctions for yielding scaled-up superconducting quantum processors,
     npj Quantum Information 7, 129 (2021).
     https://arxiv.org/abs/2009.00781
+
+.. [5] J. Stehlik, D. M. Zajac, D. L. Underwood, et.al.,
+    Tunable Coupling Architecture for Fixed-Frequency Transmon Superconducting Qubits,
+    Phys. Rev. Lett. 127, 080505 (2021).
+    https://arxiv.org/abs/2101.07746
