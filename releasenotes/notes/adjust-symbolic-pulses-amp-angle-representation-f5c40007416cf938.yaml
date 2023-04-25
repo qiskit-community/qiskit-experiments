@@ -18,7 +18,7 @@ upgrade:
     now include an ``angle`` parameter, and the default values of ``amp`` are set
     to float instead
   - |
-    :class:`.HalfAngleCal`, was changed from updating the complex amplitude of 
+    :class:`.HalfAngleCal` was changed from updating the complex amplitude of 
     the pulse, to updating the angle in the (amp, angle) representation. When used with
     the :class:`.FixedFrequencyTransmon` library, it will continue to work seamlessly 
     in the new representation. However, when the experiment is used with custom
