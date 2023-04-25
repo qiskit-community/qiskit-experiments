@@ -51,7 +51,7 @@ class HalfAngleCal(BaseCalibrationExperiment, HalfAngle):
             schedule_name: The name of the schedule to calibrate which defaults to sx.
             cal_parameter_name: The name of the parameter in the schedule to update. This will
                 default to 'angle' in accordance with the naming convention of the
-                'ScalableSymbolicPulse` class.
+                :class:`~qiskit.pulse.ScalableSymbolicPulse` class.
             auto_update:  Whether or not to automatically update the calibrations. By
                 default this variable is set to True.
 
