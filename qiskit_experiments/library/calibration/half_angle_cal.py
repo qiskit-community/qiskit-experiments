@@ -56,7 +56,7 @@ class HalfAngleCal(BaseCalibrationExperiment, HalfAngle):
                 default this variable is set to True.
 
         Raises:
-            CalibrationError: if cal_parameter_name is set to `amp`, to reflect the
+            CalibrationError: if cal_parameter_name is set to ``amp``, to reflect the
                 transition from calibrating complex amplitude to calibrating the phase.
             CalibrationError: if the default cal_parameter_name is used, and it is not
                 a valid parameter of the calibrated schedule.
