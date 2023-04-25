@@ -30,7 +30,7 @@ The following code demonstrates a basic run of a :math:`T_1` experiment
 for qubit 0.
 
 .. note::
-    This manual requires the ``qiskit-aer`` package to run simulations.
+    This manual requires the :mod:`qiskit_aer` package to run simulations.
     You can install it with ``python -m pip install qiskit-aer``.
 
 .. jupyter-execute::
