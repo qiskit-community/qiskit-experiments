@@ -9,7 +9,7 @@ other:
     Changes were made to :class:`.FixedFrequencyTransmon` and :class:`.HalfAngleCal`
     (see upgrade section). With the exception of :class:`.HalfAngleCal`, all 
     library experiments should continue to function as they did before (even with 
-    complex ``amp``). When used with :class:`.FixedFrequencyTransmon` library, 
+    complex ``amp``). When used with the :class:`.FixedFrequencyTransmon` library, 
     :class:`.HalfAngleCal` will also continue working as before.
 upgrade:
   - |
