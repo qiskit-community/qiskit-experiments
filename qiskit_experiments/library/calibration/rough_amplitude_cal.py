@@ -183,7 +183,7 @@ class RoughAmplitudeCal(BaseCalibrationExperiment, Rabi):
         for angle, param, schedule, prev_amp in experiment_data.metadata["angles_schedules"]:
 
             # This implementation conserves the type, while working for both real and complex prev_amp
-            value = np.round(angle / rate, decimals=8) * (prev_amp / np.abs(prev_amp))
+            value = np.round(angle / rate, decimals=8) * prev_amp / np.abs(prev_amp)
 
             BaseUpdater.add_parameter_value(
                 self._cals, experiment_data, value, param, schedule, group
