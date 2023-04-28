@@ -180,10 +180,10 @@ class TestDragCircuits(QiskitExperimentsTestCase):
         drag = RoughDrag([0], self.x_plus)
         drag.set_experiment_options(reps=[2, 4, 8])
         drag.backend = MockIQBackend(DragHelper(gate_name="Drag(xp)"))
-        circuits = drag.circuits()
+        circuits = drag._transpiled_circuits()
 
         for idx, expected in enumerate([4, 8, 16]):
-            ops = transpile(circuits[idx * 51], backend).count_ops()
+            ops = circuits[idx * 51].count_ops()
             self.assertEqual(ops["Drag(xp)"], expected)
 
     def test_raise_multiple_parameter(self):

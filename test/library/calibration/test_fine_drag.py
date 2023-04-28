@@ -102,13 +102,7 @@ class TestFineDragCal(QiskitExperimentsTestCase):
 
         drag_cal = FineDragCal([0], self.cals, "x", self.backend)
 
-        transpile_opts = copy.copy(drag_cal.transpile_options.__dict__)
-        transpile_opts["initial_layout"] = list(drag_cal.physical_qubits)
-        transpile_opts["optimization_level"] = 0
-
-        circs = transpile(
-            drag_cal.circuits(), inst_map=self.cals.default_inst_map, **transpile_opts
-        )
+        circs = drag_cal._transpiled_circuits()
 
         with pulse.build(name="x") as expected_x:
             pulse.play(pulse.Drag(160, 0.5, 40, 0), pulse.DriveChannel(0))
@@ -127,13 +121,7 @@ class TestFineDragCal(QiskitExperimentsTestCase):
         target_angle = np.pi
         new_beta = -np.sqrt(np.pi) * d_theta * sigma / target_angle**2
 
-        transpile_opts = copy.copy(drag_cal.transpile_options.__dict__)
-        transpile_opts["initial_layout"] = list(drag_cal.physical_qubits)
-        transpile_opts["optimization_level"] = 0
-
-        circs = transpile(
-            drag_cal.circuits(), inst_map=self.cals.default_inst_map, **transpile_opts
-        )
+        circs = drag_cal._transpiled_circuits()
 
         x_cal = circs[5].calibrations["x"][((0,), ())]
 
