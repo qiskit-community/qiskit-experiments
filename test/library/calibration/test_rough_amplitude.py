@@ -15,7 +15,7 @@
 from test.base import QiskitExperimentsTestCase
 import numpy as np
 
-from qiskit import pulse, transpile
+from qiskit import pulse
 from qiskit.circuit import Parameter
 
 from qiskit_experiments.calibration_management.basis_gate_library import FixedFrequencyTransmon

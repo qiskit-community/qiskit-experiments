@@ -13,10 +13,9 @@
 """Test fine drag calibration experiment."""
 
 from test.base import QiskitExperimentsTestCase
-import copy
 import numpy as np
 
-from qiskit import pulse, transpile
+from qiskit import pulse
 from qiskit.circuit import Gate
 from qiskit.providers.fake_provider import FakeArmonkV2
 
