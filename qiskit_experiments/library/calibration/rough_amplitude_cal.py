@@ -278,3 +278,12 @@ class EFRoughXSXAmplitudeCal(RoughAmplitudeCal):
         circ = QuantumCircuit(1)
         circ.x(0)
         return circ
+
+    def _attach_calibrations(self, circuit: QuantumCircuit):
+        """Attach an x calibration if it is defined."""
+        # Attach the x calibration as well if it is in self._cals. We allow for
+        # it not to be present in case a user wants to rely on the default x
+        # calibration and only calibrate the pulses between levels 1 and 2.
+        if self._cals.has_template("x", self.physical_qubits):
+            schedule = self._cals.get_schedule("x", self.physical_qubits)
+            circuit.add_calibration("x", self.physical_qubits, schedule)
