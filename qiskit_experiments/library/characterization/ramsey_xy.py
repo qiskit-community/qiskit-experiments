@@ -361,7 +361,7 @@ class StarkRamseyXY(BaseExperiment):
                         f"Provided configuration generates {n_expr_circs} circuits. "
                         "You can set smaller 'max_freq' or larger 'min_freq' to reduce this number. "
                         "This experiment is still executable but your execution may consume "
-                        "unnecessary quantum device time, and result may suffer "
+                        "unnecessary long quantum device time, and result may suffer "
                         "device parameter drift in consequence of the long execution time.",
                         UserWarning,
                     )
@@ -371,7 +371,7 @@ class StarkRamseyXY(BaseExperiment):
         if stark_freq_offset is not None and stark_sigma is not None:
             if stark_freq_offset < 1 / stark_sigma:
                 warnings.warn(
-                    "Provided configuration may induce coherence state exchange of qubit "
+                    "Provided configuration may induce coherent state exchange between qubit levels "
                     "because of the potential spectrum overlap. You can avoid this by "
                     "increasing the 'stark_sigma' or 'stark_freq_offset'. "
                     "Note that this experiment is still executable.",

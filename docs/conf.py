@@ -89,6 +89,7 @@ nbsphinx_thumbnails = {
     "manuals/characterization/t2ramsey": "_images/t2ramsey_4_0.png",
     "manuals/characterization/tphi": "_images/tphi_5_1.png",
     "manuals/characterization/t2hahn": "_images/t2hahn_5_0.png",
+    "manuals/characterization/stark_experiment": "_images/stark_experiment_1_0.png",
 }
 
 # Add `data keys` and `style parameters` alias. Needed for `expected_*_data_keys` methods in

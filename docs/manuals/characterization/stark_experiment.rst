@@ -15,7 +15,7 @@ that the qubit may experience is described as follows [2]_:
 
 .. math::
 
-    \delta f_S \propto \frac{\alpha}{2\Delta\left(\alpha - \Delta\right)} \Omega^2,
+    \delta f_S \approx \frac{\alpha}{2\Delta\left(\alpha - \Delta\right)} \Omega^2,
 
 where :math:`\alpha` is the qubit anharmonicity and :math:`\Delta=f_S - f_0` is the
 frequency separation of the Stark tone from the qubit frequency :math:`f_0`.
@@ -129,11 +129,11 @@ This returns a control channel for which the qubit is the control qubit.
 This approach may not work for other device architectures.
 
 
-Characterizing Frequency Shift
-------------------------------
+Characterizing the frequency shift
+----------------------------------
 
 One can experimentally measure :math:`\delta f_S` with the :class:`.StarkRamseyXY` experiment.
-Following pulse sequence illustrates how :math:`\delta f_S` is characterized
+The following pulse sequence illustrates how :math:`\delta f_S` is characterized
 by a variant of the Hahn-echo pulse sequence [5]_.
 
 .. jupyter-execute::
@@ -177,23 +177,34 @@ This sequence recovers the initial state when Z rotation is zero or :math:`\delt
 As you may notice, this sequence is interleaved with two pulses labeled
 "StarkV" (Gaussian) and "StarkU" (GaussianSquare) filled in yellow, representing Stark tones.
 These pulses are designed to have the same maximum amplitude :math:`\Omega` resulting
-in the same :math:`\delta f_S` at this amplitude -- but why we need two pulses?
+in the same :math:`\delta f_S` at this amplitude -- but why do we need two pulses?
 
-Since :math:`\delta f_S` is amplitude dependent, Stark tones cause time-dependent
-frequency shift at pulse ramps. With a single Stark tone, you are only able to estimate
+Since :math:`\delta f_S` is amplitude dependent, the Stark pulses cause time-dependent
+frequency shifts during the pulse ramps. With a single Stark tone, you are only able to estimate
 the average :math:`\delta f_S` over the history of amplitudes :math:`\Omega(t)`,
 even though you may want to characterize :math:`\delta f_S` at a particular :math:`\Omega`.
 You have to remember that you cannot use a square envelope to set a uniform amplitude,
-because such pulse is known to have broad frequency component.
+because the sharp rise and fall of the pulse amplitude has a broad frequency spectrum
+which could produce unwanted excitations.
 
-The pulse sequence shown in above is adopted to address such issue.
+The pulse sequence shown above is adopted to address such issue.
 The Z rotation accumulated by the first pulse is proportional to :math:`\int \Omega_V^2(t) dt`,
 while that of the second pulse is :math:`-\int \Omega_U^2(t) dt` because
-the qubit state to prove this rotation is flipped by the pi-pulse in the middle.
-The only difference of the :math:`\Omega_U(t)` from the :math:`\Omega_V(t)` is the flat-top part
-with a constant amplitude :math:`\Omega`, where :math:`\delta f_S` is also constant.
-Thanks to this sign flip, the net Z rotation accumulated through two tones is
-only proportional to the flat-top part of the StarkU pulse.
+the qubit state is flipped by the pi-pulse in the middle,
+flipping the sense of rotation of the state even though
+the actual rotation direction is the same for both pulses.
+The only difference between :math:`\Omega_U(t)` and :math:`\Omega_V(t)` is the flat-top part
+with constant amplitude :math:`\Omega` and duration :math:`t_w`,
+where :math:`\delta f_S` is also constant.
+Thanks to this sign flip, the net Z rotation :math:`\theta` accumulated through the two pulses is
+proportional to only the flat-top part of the StarkU pulse.
+
+.. math::
+
+    \theta = 2 \pi \int \delta f_S(t) dt
+    \propto \int \Omega_U^2(t) dt - \int \Omega_V^2(t) dt
+    = \Omega^2 t_w
+
 This technique allows you to estimate :math:`\delta f_S` at a particular :math:`\Omega`.
 
 In Qiskit Experiments, the experiment option ``stark_amp`` usually refers to
