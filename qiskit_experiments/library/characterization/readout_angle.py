@@ -47,8 +47,6 @@ class ReadoutAngle(BaseExperiment):
            the cluster centers of the ground and excited states.
         3. Analysis of results: return the average of the angles of the two centers.
 
-        |
-
     # section: analysis_ref
         :class:`ReadoutAngleAnalysis`
     """

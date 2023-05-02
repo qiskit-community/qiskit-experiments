@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    Added a missing ``backend`` parameter to :class:`~.RoughEFFrequencyCal` and
+    exposed it in the experiment library.
+

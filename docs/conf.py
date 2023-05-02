@@ -39,7 +39,7 @@ os.environ["QISKIT_DOCS"] = "TRUE"
 version = "0.6"
 # The full version, including alpha/beta/rc tags
 release = "0.6.0"
-project = f"Qiskit Experiments {version}"
+project = "Qiskit Experiments"
 copyright = f"2021-{datetime.date.today().year}, Qiskit Development Team"  # pylint: disable=redefined-builtin
 author = "Qiskit Development Team"
 
@@ -55,7 +55,6 @@ extensions = [
     "sphinx.ext.extlinks",
     "sphinx_copybutton",
     "jupyter_sphinx",
-    "sphinx_autodoc_typehints",
     "reno.sphinxext",
     "sphinx_design",
     "sphinx.ext.intersphinx",
@@ -90,11 +89,19 @@ nbsphinx_thumbnails = {
     "manuals/characterization/tphi": "_images/tphi_5_1.png",
     "manuals/characterization/t2hahn": "_images/t2hahn_5_0.png",
     "manuals/characterization/stark_experiment": "_images/stark_experiment_1_0.png",
+    "**": "_static/no_image.png",
 }
 
 # Add `data keys` and `style parameters` alias. Needed for `expected_*_data_keys` methods in
 # visualization module and `default_style` method in `PlotStyle` respectively.
 napoleon_custom_sections = [("data keys", "params_style"), ("style parameters", "params_style")]
+
+# Move type hints from signatures to the parameter descriptions (except in overload cases, where
+# that's not possible).
+autodoc_typehints = "description"
+# Only add type hints from signature to description body if the parameter has documentation.  The
+# return type is always added to the description (if in the signature).
+autodoc_typehints_description_target = "documented_params"
 
 autosummary_generate = True
 
@@ -161,7 +168,8 @@ intersphinx_mapping = {
     "matplotlib": ("https://matplotlib.org/stable/", None),
     "qiskit": ("https://qiskit.org/documentation/", None),
     "uncertainties": ("https://pythonhosted.org/uncertainties", None),
-    "qiskit_ibm_provider": ("https://qiskit.org/documentation/partners/qiskit_ibm_provider", None),
+    "qiskit_ibm_provider": ("https://qiskit.org/ecosystem/ibm-provider/", None),
+    "qiskit_aer": ("https://qiskit.org/ecosystem/aer", None),
 }
 
 
@@ -179,14 +187,10 @@ if os.getenv("EXPERIMENTS_DEV_DOCS", None):
 def _get_versions(app, config):
     context = config.html_context
     start_version = (0, 5, 0)
-    proc = subprocess.run(["git", "describe", "--abbrev=0"], capture_output=True)
-    proc.check_returncode()
-    current_version = proc.stdout.decode("utf8")
+    current_version = release
     current_version_info = current_version.split(".")
     if current_version_info[0] == "0":
-        version_list = [
-            "0.%s" % x for x in range(start_version[1], int(current_version_info[1]) + 1)
-        ]
+        version_list = ["0.%s" % x for x in range(start_version[1], int(current_version_info[1]))]
     else:
         # TODO: When 1.0.0 add code to handle 0.x version list
         version_list = []

@@ -20,6 +20,10 @@ superconducting qubits, :math:`T_2^*` tends to be significantly smaller than
 From the :math:`T_1` and :math:`T_2` estimates, we compute the results for
 :math:`T_\varphi.`
 
+.. note::
+    This manual requires the :mod:`qiskit_aer` package to run simulations.
+    You can install it with ``python -m pip install qiskit-aer``.
+
 .. jupyter-execute::
 
     import numpy as np
