@@ -998,27 +998,27 @@ class ExperimentData:
     @do_auto_save
     def add_figures(
         self,
-        figures,
-        figure_names=None,
-        overwrite=False,
-        save_figure=None,
+        figures: Union[str, bytes, pyplot.Figure, list],
+        figure_names: Union[str, list] = None,
+        overwrite: bool = False,
+        save_figure: bool = None,
     ) -> Union[str, List[str]]:
         """Add the experiment figure.
 
         Args:
-            figures (str or bytes or pyplot.Figure or list): Paths of the figure
-                files or figure data.
-            figure_names (str or list): Names of the figures. If ``None``, use the figure file
-                names, if given, or a generated name. If `figures` is a list, then
-                `figure_names` must also be a list of the same length or ``None``.
-            overwrite (bool): Whether to overwrite the figure if one already exists with
+            figures: Paths of the figure files or figure data.
+            figure_names: Names of the figures. If ``None``, use the figure file
+                names, if given, or a generated name of the format ``experiment_type``, figure
+                index, first 5 elements of ``physical_qubits``, and first 8 digits of the experiment
+                ID connected by underscores. If `figures` is a list, then `figure_names` must also
+                be a list of the same length or ``None``.
+            overwrite: Whether to overwrite the figure if one already exists with
                 the same name.
-            save_figure (bool): Whether to save the figure in the database. If ``None``,
+            save_figure: Whether to save the figure in the database. If ``None``,
                 the ``auto-save`` attribute is used.
 
         Returns:
-            str or list:
-                Figure names.
+            Figure names.
 
         Raises:
             ExperimentEntryExists: If the figure with the same name already exists,
@@ -1044,6 +1044,7 @@ class ExperimentData:
                     fig_name = (
                         f"{self.experiment_type}_"
                         f"Fig-{len(self._figures)}_"
+                        f'{"_".join(f"Q{i}" for i in self.metadata.get("physical_qubits")[:5])}_'
                         f"Exp-{self.experiment_id[:8]}.svg"
                     )
             else:
@@ -1067,10 +1068,13 @@ class ExperimentData:
 
             # check whether the figure is already wrapped, meaning it came from a sub-experiment
             if isinstance(figure, FigureData):
-                figure_data = figure.copy(new_name=fig_name)
+                figure_data = figure.copy(new_name=figure.name)
 
             else:
-                figure_metadata = {"qubits": self.metadata.get("physical_qubits")}
+                figure_metadata = {
+                    "qubits": self.metadata.get("physical_qubits"),
+                    "experiment_type": self.experiment_type,
+                }
                 figure_data = FigureData(figure=figure, name=fig_name, metadata=figure_metadata)
 
             self._figures[fig_name] = figure_data

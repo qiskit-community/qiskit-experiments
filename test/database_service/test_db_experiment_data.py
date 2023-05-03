@@ -350,7 +350,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
 
         self.assertEqual(figure_data.metadata["qubits"], qubits)
         self.assertEqual(figure_data.metadata["foo"], "bar")
-        expected_name_prefix = "qiskit_test_Fig-0_Exp-"
+        expected_name_prefix = "qiskit_test_Fig-0_Q0_Q1_Q2_Exp-"
         self.assertEqual(figure_data.name[: len(expected_name_prefix)], expected_name_prefix)
 
         exp_data2 = ExperimentData(
