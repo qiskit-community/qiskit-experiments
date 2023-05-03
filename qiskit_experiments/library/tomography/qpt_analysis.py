@@ -92,7 +92,8 @@ class ProcessTomographyAnalysis(TomographyAnalysis):
             preparation_qubits (Sequence[int]): Optional, the physical qubits with tomographic
                 preparations. If not specified will be set to ``[0, ..., N-1]`` for N-qubit
                 tomographic preparations.
-                This can  be a string to select one of the built-in fitters, or a callable to
+            fitter (str or Callable): The fitter function to use for reconstruction.
+                This can be a string to select one of the built-in fitters, or a callable to
                 supply a custom fitter function. See the `Fitter Functions` section for
                 additional information.
             target (str or

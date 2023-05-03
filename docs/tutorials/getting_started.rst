@@ -7,8 +7,8 @@ Installation
 
 Qiskit Experiments is built on top of Qiskit, so we recommend that you first install
 Qiskit following its :external+qiskit:doc:`installation guide <getting_started>`. Qiskit
-Experiments supports the same platforms and Python versions (currently **3.7+**) as
-Qiskit itself.
+Experiments supports the same platforms as Qiskit itself and Python versions 3.8,
+3.9, 3.10, and 3.11.
 
 Qiskit Experiments releases can be installed via the Python package manager ``pip``:
 
@@ -51,7 +51,7 @@ Experiments must be run on a backend. We're going to use a simulator,
 backend, real or simulated, that you can access through Qiskit.
 
 .. note::
-    This tutorial requires the ``qiskit-aer`` package to run simulations.
+    This tutorial requires the :mod:`qiskit_aer` package to run simulations.
     You can install it with ``python -m pip install qiskit-aer``.
 
 .. jupyter-execute::

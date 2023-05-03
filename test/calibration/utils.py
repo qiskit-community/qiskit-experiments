@@ -13,7 +13,10 @@
 """Utility to test calibration module."""
 
 import datetime
-from typing import Sequence
+from typing import Optional, Sequence
+
+from qiskit import QuantumCircuit
+from qiskit.providers import Backend
 
 from qiskit_experiments.calibration_management import (
     BaseCalibrationExperiment,
@@ -46,12 +49,25 @@ class DoNothingAnalysis(BaseAnalysis):
 class DoNothingExperiment(BaseExperiment):
     """Experiment doesn't provide any circuit to run."""
 
-    def __init__(self, physical_qubits: Sequence[int], return_value: float):
-        super().__init__(physical_qubits=physical_qubits, analysis=DoNothingAnalysis())
+    def __init__(
+        self,
+        physical_qubits: Sequence[int],
+        return_value: float,
+        circuits: Optional[Sequence[QuantumCircuit]] = None,
+        backend: Optional[Backend] = None,
+    ):
+        super().__init__(
+            physical_qubits=physical_qubits, analysis=DoNothingAnalysis(), backend=backend
+        )
         self.analysis.set_options(return_value=return_value)
 
+        if circuits is not None:
+            self._circuits = circuits
+        else:
+            self._circuits = []
+
     def circuits(self):
-        return []
+        return self._circuits
 
 
 class MockCalExperiment(BaseCalibrationExperiment, DoNothingExperiment):
@@ -69,6 +85,8 @@ class MockCalExperiment(BaseCalibrationExperiment, DoNothingExperiment):
         new_value: float,
         param_name: str,
         sched_name: str,
+        circuits: Optional[Sequence[QuantumCircuit]] = None,
+        backend: Optional[Backend] = None,
     ):
         """Create mock calibration experiment.
 
@@ -78,11 +96,15 @@ class MockCalExperiment(BaseCalibrationExperiment, DoNothingExperiment):
             new_value: New parameter value obtained by the calibration experiment.
             param_name: Name of parameter to update.
             sched_name: Name of schedule to update.
+            circuits: List of QuantumCircuits for the circuits() method
+            backend: Backend to set on experiment
         """
         super().__init__(
             physical_qubits=physical_qubits,
             calibrations=calibrations,
             return_value=new_value,
+            circuits=circuits,
+            backend=backend,
         )
         self.to_update = {
             "param": param_name,
