@@ -201,12 +201,12 @@ class ExperimentData:
                 This overrides other db parameters.
 
         Additional info:
-            In order for to save the experiment data to the resultDB, the class
+            In order for to save the experiment data to the cloud service, the class
             needs access to the experiment service provider. It can be obtained
             via three different methods, given here by priority:
-            1. Passing it directly via the `service` parameter.
-            2. Implicitly obtaining it from the `provider` parameter.
-            3. Implicitly obtaining it from the `backend` parameter, using that backend's provider.
+            1. Passing it directly via the ``service`` parameter.
+            2. Implicitly obtaining it from the ``provider`` parameter.
+            3. Implicitly obtaining it from the ``backend`` parameter, using that backend's provider.
         """
         if experiment is not None:
             backend = backend or experiment.backend
