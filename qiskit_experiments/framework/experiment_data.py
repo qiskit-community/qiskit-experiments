@@ -1040,13 +1040,15 @@ class ExperimentData:
             if figure_names is None:
                 if isinstance(figure, str):
                     fig_name = figure
-                else:
+                elif not isinstance(figure, FigureData):
                     fig_name = (
                         f"{self.experiment_type}_"
                         f"Fig-{len(self._figures)}_"
-                        f'{"_".join(f"Q{i}" for i in self.metadata.get("physical_qubits")[:5])}_'
+                        f'{"_".join(f"Q{i}" for i in self.metadata.get("physical_qubits", [])[:5])}_'
                         f"Exp-{self.experiment_id[:8]}.svg"
                     )
+                else:
+                    fig_name = figure.name
             else:
                 fig_name = figure_names[idx]
 
@@ -1068,7 +1070,7 @@ class ExperimentData:
 
             # check whether the figure is already wrapped, meaning it came from a sub-experiment
             if isinstance(figure, FigureData):
-                figure_data = figure.copy(new_name=figure.name)
+                figure_data = figure.copy(new_name=fig_name)
 
             else:
                 figure_metadata = {
