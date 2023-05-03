@@ -89,6 +89,9 @@ def tomography_fitter_data(
         if clbits:
             count_clbits += clbits
         if count_clbits:
+            # The input clbits might come in out of order, sort to ensure we
+            # don't permute the output during marginalization
+            count_clbits = list(sorted(count_clbits))
             counts = marginal_distribution(counts, count_clbits)
 
         # Accumulate counts
