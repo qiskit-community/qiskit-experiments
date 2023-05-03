@@ -599,6 +599,25 @@ class Calibrations:
         for param in params_to_register:
             self._register_parameter(param, qubits, schedule)
 
+    def has_template(self, schedule_name: str, qubits: Optional[Tuple[int, ...]] = None) -> bool:
+        """Test if a template schedule is defined
+
+        Args:
+            schedule_name: The name of the template schedule.
+            qubits: The qubits under which the template schedule was registered.
+
+        Returns:
+            True if a template exists for the schedule name for the given qubits
+        """
+        found = False
+        try:
+            self.get_template(schedule_name, qubits)
+            found = True
+        except CalibrationError:
+            pass
+
+        return found
+
     def get_template(
         self, schedule_name: str, qubits: Optional[Tuple[int, ...]] = None
     ) -> ScheduleBlock:
