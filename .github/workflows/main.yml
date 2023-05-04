@@ -42,40 +42,20 @@ jobs:
       - name: Install Deps
         run: python -m pip install -U tox setuptools virtualenv wheel
       - name: Install and Run Tests
-        run: tox -e py
+        run: tox -e cover
         if: runner.os != 'macOS'
       - name: Install and Run Tests
-        run: tox -e py
+        run: tox -e cover
         if: runner.os == 'macOS'
         env:
           OMP_NUM_THREADS: 1
-
-  coverage:
-    name: coverage
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Set up Python 3.8
-        uses: actions/setup-python@v4
-        with:
-          python-version: 3.8
-      - name: Pip cache
-        uses: actions/cache@v3
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-${{ matrix.python-version }}-pip-cover-${{ hashFiles('setup.py','requirements.txt','requirements-dev.txt','constraints.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-${{ matrix.python-version }}-pip-cover-
-            ${{ runner.os }}-${{ matrix.python-version }}-pip-
-            ${{ runner.os }}-${{ matrix.python-version }}-
-      - name: Install Deps
-        run: python -m pip install -U tox
-      - name: Run coverage
-        run: tox -e cover
       - name: Report coverage to coveralls.io
         uses: coverallsapp/github-action@v1
+        env:
+          ACTIONS_RUNNER_DEBUG: 1
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
+          flag-name: unit-tests_python${{ matrix.python-version }}-${{ matrix.os }}
           parallel: true
           path-to-lcov: coverage.lcov
 
