@@ -589,7 +589,10 @@ class ExperimentData:
                 project = creds.project
             # qiskit-ibm-provider style
             if hasattr(provider, "_hgps"):
-                hub, group, project = list(self.backend.provider._hgps.keys())[0].split("/")
+                for hgp_string, hgp in self.backend.provider._hgps.items():
+                    if self.backend.name in hgp.backends:
+                        hub, group, project = hgp_string.split("/")
+                        break
             self._db_data.hub = self._db_data.hub or hub
             self._db_data.group = self._db_data.group or group
             self._db_data.project = self._db_data.project or project
@@ -1401,9 +1404,10 @@ class ExperimentData:
                 metadata = self._db_data.metadata
                 self._db_data.metadata = {}
 
-            self.service.create_or_update_experiment(
+            result = self.service.create_or_update_experiment(
                 self._db_data, json_encoder=self._json_encoder, create=not self._created_in_db
             )
+            print("Result from saving experiment:", result)
             self._created_in_db = True
 
             if handle_metadata_separately:
