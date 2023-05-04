@@ -55,7 +55,6 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           flag-name: tests-python${{ matrix.python-version }}-${{ matrix.os }}
           parallel: true
-          path-to-lcov: coverage.lcov
 
   lint:
     name: lint
