@@ -1408,6 +1408,14 @@ class ExperimentData:
                 self._db_data, json_encoder=self._json_encoder, create=not self._created_in_db
             )
             print("Result from saving experiment:", result)
+            if isinstance(result, dict):
+                created_datetime = result.get('created_at', None)
+                updated_datetime = result.get('updated_at', None)
+            db_datetime_format = '%Y-%m-%dT%H:%M:%S.%fZ'
+            if created_datetime is not None:
+                self._db_data.creation_datetime = datetime.strptime(created_datetime, db_datetime_format)
+            if updated_datetime is not None:
+                self._db_data.updated_datetime = datetime.strptime(updated_datetime, db_datetime_format)
             self._created_in_db = True
 
             if handle_metadata_separately:
