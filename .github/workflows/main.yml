@@ -55,7 +55,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Run coverage
-      - run: tox -e cover
+        run: tox -e cover
       - name: Report coverage to coveralls.io
         uses: coverallsapp/github-action@v1
         with:
