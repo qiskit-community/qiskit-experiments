@@ -181,6 +181,7 @@ class ExperimentData:
         child_data: Optional[List[ExperimentData]] = None,
         verbose: Optional[bool] = True,
         db_data: Optional[ExperimentDataclass] = None,
+        start_datetime: Optional[datetime] = None,
         **kwargs,
     ):
         """Initialize experiment data.
@@ -199,6 +200,8 @@ class ExperimentData:
             verbose: Whether to print messages.
             db_data: A prepared ExperimentDataclass of the experiment info.
                 This overrides other db parameters.
+            start_datetime: The time when the experiment was started.
+                If none, defaults to the current time
 
         Additional info:
             In order for to save the experiment data to the resultDB, the class
@@ -232,12 +235,15 @@ class ExperimentData:
         )
         metadata["_source"] = source
         experiment_id = kwargs.get("experiment_id", str(uuid.uuid4()))
+        if start_datetime is None:
+            start_datetime = datetime.now()
         if db_data is None:
             self._db_data = ExperimentDataclass(
                 experiment_id=experiment_id,
                 experiment_type=experiment_type,
                 parent_id=parent_id,
                 job_ids=job_ids,
+                start_datetime=start_datetime,
                 metadata=metadata,
             )
         else:
@@ -342,7 +348,7 @@ class ExperimentData:
         return self._db_data.metadata
 
     @property
-    def creation_datetime(self) -> "datetime":
+    def creation_datetime(self) -> datetime:
         """Return the creation datetime of this experiment data.
 
         Returns:
@@ -352,7 +358,7 @@ class ExperimentData:
         return self._db_data.creation_datetime
 
     @property
-    def start_datetime(self) -> "datetime":
+    def start_datetime(self) -> datetime:
         """Return the start datetime of this experiment data.
 
         Returns:
@@ -361,8 +367,12 @@ class ExperimentData:
         """
         return self._db_data.start_datetime
 
+    @start_datetime.setter
+    def start_datetime(self, new_start_datetime: datetime) -> None:
+        self._db_data.start_datetime = new_start_datetime
+
     @property
-    def updated_datetime(self) -> "datetime":
+    def updated_datetime(self) -> datetime:
         """Return the update datetime of this experiment data.
 
         Returns:
@@ -372,7 +382,7 @@ class ExperimentData:
         return self._db_data.updated_datetime
 
     @property
-    def end_datetime(self) -> "datetime":
+    def end_datetime(self) -> datetime:
         """Return the end datetime of this experiment data.
         The end datetime is the time the latest job data was
         added without errors; this can change as more jobs finish
@@ -384,7 +394,7 @@ class ExperimentData:
         return self._db_data.end_datetime
 
     @end_datetime.setter
-    def end_datetime(self, new_end_datetime: "datetime") -> None:
+    def end_datetime(self, new_end_datetime: datetime) -> None:
         self._db_data.end_datetime = new_end_datetime
 
     @property
