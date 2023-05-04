@@ -49,6 +49,15 @@ jobs:
         if: runner.os == 'macOS'
         env:
           OMP_NUM_THREADS: 1
+      - name: Run unit tests
+        run: make unit-test-coverage
+      - name: Report coverage to coveralls.io
+        uses: coverallsapp/github-action@v1
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          flag-name: tests-python${{ matrix.python-version }}-${{ matrix.os }}
+          parallel: true
+          path-to-lcov: coverage.lcov
 
   lint:
     name: lint
