@@ -28,7 +28,8 @@ from qiskit_experiments.warnings import qubit_deprecate
 
 
 class RoughFrequencyCal(BaseCalibrationExperiment, QubitSpectroscopy):
-    """A calibration experiment that runs QubitSpectroscopy."""
+    """A calibration experiment that runs :class:`.QubitSpectroscopy` to calibrate the qubit
+    transition frequency."""
 
     @qubit_deprecate()
     def __init__(
@@ -40,7 +41,7 @@ class RoughFrequencyCal(BaseCalibrationExperiment, QubitSpectroscopy):
         auto_update: bool = True,
         absolute: bool = True,
     ):
-        """See :class:`QubitSpectroscopy` for detailed documentation.
+        """See :class:`.QubitSpectroscopy` for detailed documentation.
 
         Args:
             physical_qubits: List with the qubit on which to run spectroscopy.
@@ -73,7 +74,9 @@ class RoughFrequencyCal(BaseCalibrationExperiment, QubitSpectroscopy):
 
 
 class RoughEFFrequencyCal(BaseCalibrationExperiment, EFSpectroscopy):
-    """A calibration experiment that runs QubitSpectroscopy."""
+    r"""A calibration experiment that runs :class:`.QubitSpectroscopy` for the
+    :math:`|1\rangle` <-> :math:`|2\rangle` transition.
+    """
 
     __updater__ = Frequency
 
@@ -87,7 +90,7 @@ class RoughEFFrequencyCal(BaseCalibrationExperiment, EFSpectroscopy):
         auto_update: bool = True,
         absolute: bool = True,
     ):
-        """See :class:`QubitSpectroscopy` for detailed documentation.
+        """See :class:`.QubitSpectroscopy` for detailed documentation.
 
         Args:
             physical_qubits: List containing the qubit on which to run spectroscopy.

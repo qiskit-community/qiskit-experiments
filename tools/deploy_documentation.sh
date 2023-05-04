@@ -37,7 +37,3 @@ echo "Pushing built docs to website"
 rclone sync --progress --exclude-from ./tools/other-builds.txt ./docs/_build/html IBMCOS:qiskit-org-web-resources/ecosystem/experiments
 echo "Pushing $STABLE_VERSION built docs to website"
 rclone sync --progress ./docs/_build/html IBMCOS:qiskit-org-web-resources/ecosystem/experiments/stable/"$STABLE_VERSION"
-
-# Push to qiskit.org/documentation
-rclone sync --progress --exclude-from ./tools/other-builds.txt ./docs/_build/html IBMCOS:qiskit-org-web-resources/documentation/experiments
-rclone sync --progress ./docs/_build/html IBMCOS:qiskit-org-web-resources/documentation/experiments/stable/"$STABLE_VERSION"

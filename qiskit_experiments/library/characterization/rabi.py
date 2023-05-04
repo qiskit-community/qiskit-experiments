@@ -29,7 +29,8 @@ from qiskit_experiments.warnings import qubit_deprecate
 
 
 class Rabi(BaseExperiment, RestlessMixin):
-    """An experiment that scans a pulse amplitude to calibrate rotations between 0 and 1.
+    r"""An experiment that scans a pulse amplitude to calibrate rotations on the :math:`|0\rangle`
+    <-> :math:`|1\rangle` transition.
 
     # section: overview
 
@@ -185,16 +186,17 @@ class Rabi(BaseExperiment, RestlessMixin):
 
 
 class EFRabi(Rabi):
-    """An experiment that scans the amplitude of a pulse inducing rotations between 1 and 2.
+    r"""An experiment that scans the amplitude of a pulse inducing rotations on the
+     :math:`|1\rangle` <-> :math:`|2\rangle` transition.
 
     # section: overview
 
         This experiment is a subclass of the :class:`Rabi` experiment but takes place between
         the first and second excited state. An initial X gate populates the first excited state.
-        The Rabi pulse is applied on the 1 <-> 2 transition (sometimes also labeled the e <-> f
-        transition). The necessary frequency shift (typically the qubit anharmonicity) is given
-        through the pulse schedule given at initialization. The schedule is then also stored in
-        the experiment options. The circuits are of the form:
+        The Rabi pulse is applied on the :math:`|1\rangle` <-> :math:`|2\rangle` transition
+        (sometimes also labeled the e <-> f transition). The necessary frequency shift (typically
+        the qubit anharmonicity) is given through the pulse schedule given at initialization. The
+        schedule is then also stored in the experiment options. The circuits are of the form:
 
         .. parsed-literal::
 

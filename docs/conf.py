@@ -39,7 +39,7 @@ os.environ["QISKIT_DOCS"] = "TRUE"
 version = "0.6"
 # The full version, including alpha/beta/rc tags
 release = "0.6.0"
-project = f"Qiskit Experiments {version}"
+project = "Qiskit Experiments"
 copyright = f"2021-{datetime.date.today().year}, Qiskit Development Team"  # pylint: disable=redefined-builtin
 author = "Qiskit Development Team"
 
@@ -167,7 +167,8 @@ intersphinx_mapping = {
     "matplotlib": ("https://matplotlib.org/stable/", None),
     "qiskit": ("https://qiskit.org/documentation/", None),
     "uncertainties": ("https://pythonhosted.org/uncertainties", None),
-    "qiskit_ibm_provider": ("https://qiskit.org/documentation/partners/qiskit_ibm_provider", None),
+    "qiskit_ibm_provider": ("https://qiskit.org/ecosystem/ibm-provider/", None),
+    "qiskit_aer": ("https://qiskit.org/ecosystem/aer", None),
 }
 
 
@@ -185,14 +186,10 @@ if os.getenv("EXPERIMENTS_DEV_DOCS", None):
 def _get_versions(app, config):
     context = config.html_context
     start_version = (0, 5, 0)
-    proc = subprocess.run(["git", "describe", "--abbrev=0"], capture_output=True)
-    proc.check_returncode()
-    current_version = proc.stdout.decode("utf8")
+    current_version = release
     current_version_info = current_version.split(".")
     if current_version_info[0] == "0":
-        version_list = [
-            "0.%s" % x for x in range(start_version[1], int(current_version_info[1]) + 1)
-        ]
+        version_list = ["0.%s" % x for x in range(start_version[1], int(current_version_info[1]))]
     else:
         # TODO: When 1.0.0 add code to handle 0.x version list
         version_list = []

@@ -70,7 +70,7 @@ class StateTomographyAnalysis(TomographyAnalysis):
                 :class:`~qiskit_experiments.library.tomography.basis.MeasurementBasis`
                 to use for tomographic state reconstruction.
             fitter (str or Callable): The fitter function to use for reconstruction.
-                This can  be a string to select one of the built-in fitters, or a callable to
+                This can be a string to select one of the built-in fitters, or a callable to
                 supply a custom fitter function. See the `Fitter Functions` section for
                 additional information.
             fitter_options (dict): Any addition kwarg options to be supplied to the fitter
