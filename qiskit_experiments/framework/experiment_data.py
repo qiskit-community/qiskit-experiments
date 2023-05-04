@@ -18,6 +18,7 @@ import logging
 import dataclasses
 from typing import Dict, Optional, List, Union, Any, Callable, Tuple, TYPE_CHECKING
 from datetime import datetime
+from dateutil import tz
 from concurrent import futures
 from threading import Event
 from functools import wraps
@@ -77,6 +78,36 @@ def do_auto_save(func: Callable):
         return return_val
 
     return _wrapped
+
+
+def utc_to_local(utc_dt: datetime) -> datetime:
+    """Convert input UTC timestamp to local timezone.
+
+    Args:
+        utc_dt: Input UTC timestamp.
+
+    Returns:
+        A ``datetime`` with the local timezone.
+    """
+    if utc_dt is None:
+        return None
+    local_dt = utc_dt.astimezone(tz.tzlocal())
+    return local_dt
+
+
+def local_to_utc(local_dt: datetime) -> datetime:
+    """Convert input local timezone timestamp to UTC timezone.
+
+    Args:
+        local_dt: Input local timestamp.
+
+    Returns:
+        A ``datetime`` with the UTC timezone.
+    """
+    if local_dt is None:
+        return None
+    utc_dt = local_dt.astimezone(tz.UTC)
+    return utc_dt
 
 
 class FigureData:
@@ -243,12 +274,11 @@ class ExperimentData:
                 experiment_type=experiment_type,
                 parent_id=parent_id,
                 job_ids=job_ids,
-                start_datetime=start_datetime,
                 metadata=metadata,
             )
         else:
             self._db_data = db_data
-
+        self.start_datetime = start_datetime
         for key, value in kwargs.items():
             if hasattr(self._db_data, key):
                 setattr(self._db_data, key, value)
@@ -352,10 +382,10 @@ class ExperimentData:
         """Return the creation datetime of this experiment data.
 
         Returns:
-            The creation datetime of this experiment data.
+            The creation datetime of this experiment data in the local timezone.
 
         """
-        return self._db_data.creation_datetime
+        return utc_to_local(self._db_data.creation_datetime)
 
     @property
     def start_datetime(self) -> datetime:
@@ -365,11 +395,11 @@ class ExperimentData:
             The start datetime of this experiment data.
 
         """
-        return self._db_data.start_datetime
+        return utc_to_local(self._db_data.start_datetime)
 
     @start_datetime.setter
     def start_datetime(self, new_start_datetime: datetime) -> None:
-        self._db_data.start_datetime = new_start_datetime
+        self._db_data.start_datetime = local_to_utc(new_start_datetime)
 
     @property
     def updated_datetime(self) -> datetime:
@@ -379,7 +409,7 @@ class ExperimentData:
             The update datetime of this experiment data.
 
         """
-        return self._db_data.updated_datetime
+        return utc_to_local(self._db_data.updated_datetime)
 
     @property
     def end_datetime(self) -> datetime:
@@ -391,11 +421,11 @@ class ExperimentData:
             The end datetime of this experiment data.
 
         """
-        return self._db_data.end_datetime
+        return utc_to_local(self._db_data.end_datetime)
 
     @end_datetime.setter
     def end_datetime(self, new_end_datetime: datetime) -> None:
-        self._db_data.end_datetime = new_end_datetime
+        self._db_data.end_datetime = local_to_utc(new_end_datetime)
 
     @property
     def hub(self) -> str:

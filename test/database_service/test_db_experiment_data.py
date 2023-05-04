@@ -36,6 +36,7 @@ from qiskit_ibm_experiment import IBMExperimentService
 from qiskit_experiments.framework import ExperimentData
 from qiskit_experiments.framework import AnalysisResult
 from qiskit_experiments.framework import BackendData
+from qiskit_experiments.framework.experiment_data import local_to_utc, utc_to_local
 from qiskit_experiments.database_service.exceptions import (
     ExperimentDataError,
     ExperimentEntryNotFound,
@@ -1066,16 +1067,16 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         data = ExperimentData()
         test_time = datetime.now()
         data._db_data.creation_datetime = test_time
-        self.assertEqual(data.creation_datetime, test_time)
+        self.assertEqual(data.creation_datetime, local_to_utc(test_time))
         test_time = test_time + timedelta(hours=1)
         data._db_data.start_datetime = test_time
-        self.assertEqual(data.start_datetime, test_time)
+        self.assertEqual(data.start_datetime, local_to_utc(test_time))
         test_time = test_time + timedelta(hours=1)
         data._db_data.end_datetime = test_time
-        self.assertEqual(data.end_datetime, test_time)
+        self.assertEqual(data.end_datetime, local_to_utc(test_time))
         test_time = test_time + timedelta(hours=1)
         data._db_data.updated_datetime = test_time
-        self.assertEqual(data.updated_datetime, test_time)
+        self.assertEqual(data.updated_datetime, local_to_utc(test_time))
 
         data._db_data.hub = "hub_name"
         data._db_data.group = "group_name"
