@@ -21,8 +21,7 @@ features:
   - |
     :meth:`.ExperimentData.save` can now raise exceptions when saving
     fails, unless the `suppress_errors` flag is set (on by default)
-  - |
-    
+  
 
 fixes:
   - |

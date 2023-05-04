@@ -18,7 +18,6 @@ import logging
 import dataclasses
 from typing import Dict, Optional, List, Union, Any, Callable, Tuple, TYPE_CHECKING
 from datetime import datetime
-from dateutil import tz
 from concurrent import futures
 from threading import Event
 from functools import wraps
@@ -32,6 +31,7 @@ import io
 import sys
 import traceback
 import numpy as np
+from dateutil import tz
 from matplotlib import pyplot
 from matplotlib.figure import Figure as MatplotlibFigure
 from qiskit.result import Result
