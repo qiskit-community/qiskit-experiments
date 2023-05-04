@@ -18,6 +18,7 @@ cvxpy>=1.1.15
 pylatexenc
 scikit-learn
 sphinx-copybutton
+coverage
 # Pin versions below because of build errors
 ipykernel<=6.21.3
 jupyter-client<=8.0.3
