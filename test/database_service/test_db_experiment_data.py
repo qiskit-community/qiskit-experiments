@@ -36,7 +36,7 @@ from qiskit_ibm_experiment import IBMExperimentService
 from qiskit_experiments.framework import ExperimentData
 from qiskit_experiments.framework import AnalysisResult
 from qiskit_experiments.framework import BackendData
-from qiskit_experiments.framework.experiment_data import local_to_utc, utc_to_local
+from qiskit_experiments.framework.experiment_data import local_to_utc
 from qiskit_experiments.database_service.exceptions import (
     ExperimentDataError,
     ExperimentEntryNotFound,
