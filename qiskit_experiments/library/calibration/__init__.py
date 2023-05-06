@@ -55,7 +55,7 @@ Calibrations management
 See :mod:`.calibration_management`.
 """
 
-from .rough_frequency import RoughFrequencyCal
+from .rough_frequency import RoughFrequencyCal, RoughEFFrequencyCal
 from .rough_drag_cal import RoughDragCal
 from .rough_amplitude_cal import RoughAmplitudeCal, RoughXSXAmplitudeCal, EFRoughXSXAmplitudeCal
 from .fine_amplitude import FineAmplitudeCal, FineXAmplitudeCal, FineSXAmplitudeCal

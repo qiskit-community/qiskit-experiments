@@ -78,6 +78,9 @@ class StandardRB(BaseExperiment, RestlessMixin):
     # section: analysis_ref
         :class:`RBAnalysis`
 
+    # section: manual
+        :doc:`/manuals/verification/randomized_benchmarking`
+
     # section: reference
         .. ref_arxiv:: 1 1009.3639
         .. ref_arxiv:: 2 1109.6887
@@ -383,11 +386,7 @@ class StandardRB(BaseExperiment, RestlessMixin):
                     inst_prop = self.backend.target[op_name].get(qargs, None)
                     if inst_prop is None:
                         continue
-                    try:
-                        schedule = inst_prop.calibration
-                    except AttributeError:
-                        # TODO remove after qiskit-terra/#9681 is in stable release.
-                        schedule = None
+                    schedule = inst_prop.calibration
                     if schedule is None:
                         continue
                     publisher = schedule.metadata.get("publisher", CalibrationPublisher.QISKIT)

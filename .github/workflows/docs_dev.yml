@@ -1,4 +1,4 @@
-name: Docs Publish
+name: Dev Docs Publish
 on:
   push:
     branches: [ main ]
