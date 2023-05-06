@@ -14,7 +14,7 @@
 
 import warnings
 import os
-from collections import defaultdict
+from collections import defaultdict, Counter
 from datetime import datetime, timezone
 from typing import Any, Dict, Set, Tuple, Union, List, Optional
 import csv
@@ -40,6 +40,7 @@ from qiskit.utils.deprecation import deprecate_func, deprecate_arg
 from qiskit_experiments.exceptions import CalibrationError
 from qiskit_experiments.calibration_management.basis_gate_library import BasisGateLibrary
 from qiskit_experiments.calibration_management.parameter_value import ParameterValue
+from qiskit_experiments.calibration_management.control_channel_map import ControlChannelMap
 from qiskit_experiments.calibration_management.calibration_utils import (
     used_in_references,
     validate_channels,
@@ -1354,7 +1355,7 @@ class Calibrations:
 
     @deprecate_arg(
         name="file_type",
-        since="0.5",
+        since="0.6",
         additional_msg="Full data saving is now supported through json format including parameters.",
         package_name="qiskit-experiments",
         predicate=lambda file_type: file_type == "csv",
@@ -1393,14 +1394,14 @@ class Calibrations:
             os.chdir(folder)
 
         if file_type == "json":
-            from .save_utils import to_dict
+            from .save_utils import calibrations_to_dict
 
             file_path = file_prefix + ".json"
             if os.path.isfile(file_path) and not overwrite:
                 raise CalibrationError(f"{file_path} already exists. Set overwrite to True.")
 
-            canonical_data = to_dict(self, most_recent_only=most_recent_only)
-            with open(file_path, "w") as file:
+            canonical_data = calibrations_to_dict(self, most_recent_only=most_recent_only)
+            with open(file_path, "w", encoding="utf-8") as file:
                 json.dump(canonical_data, file, cls=ExperimentEncoder)
 
         elif file_type == "csv":
@@ -1467,7 +1468,7 @@ class Calibrations:
         os.chdir(cwd)
 
     @deprecate_func(
-        since="0.5",
+        since="0.6",
         additional_msg="Schedule serialization is natively performed in QPY format.",
         package_name="qiskit-experiments",
     )
@@ -1490,7 +1491,7 @@ class Calibrations:
         return ["name", "qubits", "schedule"], schedules
 
     @deprecate_func(
-        since="0.5",
+        since="0.6",
         additional_msg="Loading file now retrieves full calibration data including parameters.",
         package_name="qiskit-experiments",
     )
@@ -1553,7 +1554,7 @@ class Calibrations:
     @deprecate_arg(
         name="files",
         new_alias="file_path",
-        since="0.5",
+        since="0.6",
         package_name="qiskit-experiments",
     )
     def load(cls, file_path: str) -> "Calibrations":
@@ -1569,7 +1570,7 @@ class Calibrations:
         """
         from .save_utils import calibrations_from_dict
 
-        with open(file_path, "r") as file:
+        with open(file_path, "r", encoding="utf-8") as file:
             # Do we really need branching for data types?
             # Parsing data format and dispatching the loader seems an overkill,
             # but save method intend to support multiple formats.
@@ -1640,16 +1641,15 @@ class Calibrations:
         if self._schedules.keys() != other._schedules.keys():
             return False
 
-        def _hash(data: dict):
-            return hash(json.dumps(data))
+        def _counting(table):
+            return Counter(map(lambda d: tuple(d.items()), table["data"]))
 
-        sorted_params_a = sorted(self.parameters_table()["data"], key=_hash)
-        sorted_params_b = sorted(other.parameters_table()["data"], key=_hash)
-
-        return sorted_params_a == sorted_params_b
+        # Use counting sort algorithm to compare unordered sequences
+        # https://en.wikipedia.org/wiki/Counting_sort
+        return _counting(self.parameters_table()) == _counting(other.parameters_table())
 
     @deprecate_func(
-        since="0.5",
+        since="0.6",
         additional_msg="This method will be removed and no alternative will be provided.",
         package_name="qiskit-experiments",
     )
@@ -1658,14 +1658,35 @@ class Calibrations:
 
         Returns:
             The config dictionary of the calibrations instance.
-        """
-        from .save_utils import to_dict
 
-        return to_dict(self, most_recent_only=False)
+        Raises:
+            CalibrationError: If schedules were added outside of the :code:`__init__`
+                method. This will remain so until schedules can be serialized.
+        """
+        if self._has_manually_added_schedule:
+            raise CalibrationError(
+                f"Config dictionaries for {self.__class__.__name__} are currently "
+                "not supported if schedules were added manually."
+            )
+
+        kwargs = {
+            "coupling_map": self._coupling_map,
+            "control_channel_map": ControlChannelMap(self._control_channel_map),
+            "libraries": self.libraries,
+            "add_parameter_defaults": False,  # the parameters will be added outside of the init
+            "backend_name": self._backend_name,
+            "backend_version": self._backend_version,
+        }
+
+        return {
+            "class": self.__class__.__name__,
+            "kwargs": kwargs,
+            "parameters": self.parameters_table()["data"],
+        }
 
     @classmethod
     @deprecate_func(
-        since="0.5",
+        since="0.6",
         additional_msg="This method will be removed and no alternative will be provided.",
         package_name="qiskit-experiments",
     )
@@ -1684,9 +1705,9 @@ class Calibrations:
 
     def __json_encode__(self):
         """Convert to format that can be JSON serialized."""
-        from .save_utils import to_dict
+        from .save_utils import calibrations_to_dict
 
-        return to_dict(self, most_recent_only=False)
+        return calibrations_to_dict(self, most_recent_only=False)
 
     @classmethod
     def __json_decode__(cls, value: Dict[str, Any]) -> "Calibrations":

@@ -312,7 +312,8 @@ class TestCalibrationsBasic(QiskitExperimentsTestCase):
         the data is passed correctly"""
         backend = FakeBelemV2()
         cals = Calibrations.from_backend(backend)
-        config_args = cals.config()["kwargs"]
+        with self.assertWarns(DeprecationWarning):
+            config_args = cals.config()["kwargs"]
         control_channel_map_size = len(config_args["control_channel_map"].chan_map)
         coupling_map_size = len(config_args["coupling_map"])
         self.assertEqual(control_channel_map_size, 8)
