@@ -2017,7 +2017,7 @@ class ExperimentData:
         Returns:
             The loaded experiment data.
         Raises:
-            ExperimentDataError: If not service nor provider were given
+            ExperimentDataError: If not service nor provider were given.
         """
         if service is None:
             if provider is None:
