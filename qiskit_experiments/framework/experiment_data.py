@@ -415,7 +415,7 @@ class ExperimentData:
     def end_datetime(self) -> datetime:
         """Return the end datetime of this experiment data.
         The end datetime is the time the latest job data was
-        added without errors; this can change as more jobs finish
+        added without errors; this can change as more jobs finish.
 
         Returns:
             The end datetime of this experiment data.
