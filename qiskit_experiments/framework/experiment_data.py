@@ -235,7 +235,7 @@ class ExperimentData:
                 If none, defaults to the current time
 
         Additional info:
-            In order for to save the experiment data to the cloud service, the class
+            In order to save the experiment data to the cloud service, the class
             needs access to the experiment service provider. It can be obtained
             via three different methods, given here by priority:
             1. Passing it directly via the ``service`` parameter.
