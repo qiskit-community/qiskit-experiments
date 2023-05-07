@@ -2012,7 +2012,7 @@ class ExperimentData:
             experiment_id: Experiment ID.
             service: the database service.
             provider: an IBMProvider required for loading job data and
-            can be used to initialize the service
+            can be used to initialize the service.
 
         Returns:
             The loaded experiment data.
