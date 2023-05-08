@@ -246,7 +246,8 @@ class ExperimentData:
             backend = backend or experiment.backend
             experiment_type = experiment.experiment_type
         else:
-            experiment_type = None
+            # Don't use None since the resultDB won't accept that
+            experiment_type = ""
         if job_ids is None:
             job_ids = []
 
