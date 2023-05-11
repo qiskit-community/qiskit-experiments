@@ -14,6 +14,7 @@ Composite Experiment Analysis class.
 """
 
 from typing import List, Dict, Union, Optional, Tuple
+import warnings
 import numpy as np
 from qiskit.result import marginal_distribution
 from qiskit.result.postprocess import format_counts_memory
@@ -51,7 +52,7 @@ class CompositeAnalysis(BaseAnalysis):
         experiment data.
     """
 
-    def __init__(self, analyses: List[BaseAnalysis], flatten_results: bool = False):
+    def __init__(self, analyses: List[BaseAnalysis], flatten_results: bool = None):
         """Initialize a composite analysis class.
 
         Args:
@@ -62,6 +63,16 @@ class CompositeAnalysis(BaseAnalysis):
                              component experiment results as a separate child
                              ExperimentData container.
         """
+        if flatten_results is None:
+            # Backward compatibility for 0.6
+            # This if-clause will be removed in 0.7 and flatten_result=True is set in arguments.
+            warnings.warn(
+                "Default value of flatten_results will be turned to True in Qiskit Experiments 0.7. "
+                "If you want child experiment data for each subset experiment, "
+                "set 'flatten_results=False' explicitly.",
+                DeprecationWarning,
+            )
+            flatten_results = False
         super().__init__()
         self._analyses = analyses
         self._flatten_results = False

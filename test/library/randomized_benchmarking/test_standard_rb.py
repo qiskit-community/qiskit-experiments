@@ -399,7 +399,7 @@ class TestRunStandardRB(QiskitExperimentsTestCase, RBTestMixin):
             exp.analysis.set_options(gate_error_ratio=None, plot_raw_data=False)
             exps.append(exp)
 
-        par_exp = ParallelExperiment(exps)
+        par_exp = ParallelExperiment(exps, flatten_results=False)
         par_exp.set_transpile_options(**self.transpiler_options)
 
         par_expdata = par_exp.run(backend=self.backend)
@@ -421,7 +421,7 @@ class TestRunStandardRB(QiskitExperimentsTestCase, RBTestMixin):
             exp.analysis.set_options(gate_error_ratio=None, plot_raw_data=False)
             exps.append(exp)
 
-        par_exp = ParallelExperiment(exps)
+        par_exp = ParallelExperiment(exps, flatten_results=False)
         par_exp.set_transpile_options(**self.transpiler_options)
 
         par_expdata = par_exp.run(backend=self.backend)

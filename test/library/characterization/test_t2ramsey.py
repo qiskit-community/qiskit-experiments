@@ -116,7 +116,7 @@ class TestT2Ramsey(QiskitExperimentsTestCase):
             [par_exp_qubits[1]], delays[1], osc_freq=osc_freq[par_exp_qubits[1]], backend=backend
         )
 
-        par_exp = ParallelExperiment([exp0, exp2])
+        par_exp = ParallelExperiment([exp0, exp2], flatten_results=False)
 
         exp0_p0 = {
             "A": 0.5,
