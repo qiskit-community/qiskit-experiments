@@ -31,3 +31,9 @@ class ExperimentEntryExists(ExperimentDataError):
     """Errors raised when an experiment entry already exists."""
 
     pass
+
+
+class ExperimentDataSaveFailed(ExperimentDataError):
+    """Errors raised when an experiment save fails."""
+
+    pass
