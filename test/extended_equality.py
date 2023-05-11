@@ -132,7 +132,7 @@ def _check_floats(
     precision = kwargs.get("numerical_precision", 0.0)
     if precision == 0.0:
         return float(data1) == float(data2)
-    return np.isclose(np.abs(data1-data2), 0.0, atol=precision)
+    return np.isclose(np.abs(data1 - data2), 0.0, atol=precision)
 
 
 @_is_equivalent_dispatcher.register
