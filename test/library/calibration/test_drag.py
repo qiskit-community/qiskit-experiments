@@ -22,7 +22,6 @@ from qiskit.circuit import Parameter
 from qiskit.exceptions import QiskitError
 from qiskit.pulse import DriveChannel, Drag
 from qiskit.qobj.utils import MeasLevel
-from qiskit import transpile
 
 from qiskit_experiments.library import RoughDrag, RoughDragCal
 from qiskit_experiments.library.characterization.analysis import DragCalAnalysis
@@ -176,14 +175,13 @@ class TestDragCircuits(QiskitExperimentsTestCase):
     def test_default_circuits(self):
         """Test the default circuit."""
 
-        backend = MockIQBackend(DragHelper(gate_name="Drag(xp)", frequency=0.005))
         drag = RoughDrag([0], self.x_plus)
         drag.set_experiment_options(reps=[2, 4, 8])
         drag.backend = MockIQBackend(DragHelper(gate_name="Drag(xp)"))
-        circuits = drag.circuits()
+        circuits = drag._transpiled_circuits()
 
         for idx, expected in enumerate([4, 8, 16]):
-            ops = transpile(circuits[idx * 51], backend).count_ops()
+            ops = circuits[idx * 51].count_ops()
             self.assertEqual(ops["Drag(xp)"], expected)
 
     def test_raise_multiple_parameter(self):
