@@ -352,7 +352,7 @@ class TestProcessTomography(QiskitExperimentsTestCase):
         )
         loaded_exp = ProcessTomography.from_config(exp.config())
         self.assertNotEqual(exp, loaded_exp)
-        self.assertTrue(self.json_equiv(exp, loaded_exp))
+        self.assertEqualExtended(exp, loaded_exp)
 
     def test_analysis_config(self):
         """ "Test converting analysis to and from config works"""
@@ -367,8 +367,8 @@ class TestProcessTomography(QiskitExperimentsTestCase):
         exp = ProcessTomography(XGate())
         expdata = exp.run(backend)
         self.assertExperimentDone(expdata)
-        self.assertRoundTripPickle(expdata, check_func=self.experiment_data_equiv)
-        self.assertRoundTripSerializable(expdata, check_func=self.experiment_data_equiv)
+        self.assertRoundTripPickle(expdata)
+        self.assertRoundTripSerializable(expdata)
 
     def test_target_none(self):
         """Test setting target=None disables fidelity calculation."""
