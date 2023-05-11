@@ -111,6 +111,7 @@ def local_to_utc(local_dt: datetime) -> datetime:
 
 
 def parse_utc_datetime(dt_str: str) -> datetime:
+    """Parses UTC datetime from a string"""
     if dt_str is None:
         return None
 
@@ -1452,7 +1453,6 @@ class ExperimentData:
             if isinstance(result, dict):
                 created_datetime = result.get("created_at", None)
                 updated_datetime = result.get("updated_at", None)
-                db_datetime_format = "%Y-%m-%dT%H:%M:%S.%fZ"
                 self._db_data.creation_datetime = parse_utc_datetime(created_datetime)
                 self._db_data.updated_datetime = parse_utc_datetime(updated_datetime)
 
