@@ -15,7 +15,7 @@ Composite Experiment Analysis class.
 
 from typing import List, Dict, Union, Optional, Tuple
 import numpy as np
-from qiskit.result import marginal_counts
+from qiskit.result import marginal_distribution
 from qiskit.result.postprocess import format_counts_memory
 from qiskit_experiments.framework import BaseAnalysis, ExperimentData
 from qiskit_experiments.framework.analysis_result_data import AnalysisResultData
@@ -206,7 +206,13 @@ class CompositeAnalysis(BaseAnalysis):
                 sub_data = {"metadata": metadata["composite_metadata"][i]}
                 if "counts" in datum:
                     if composite_clbits is not None:
-                        sub_data["counts"] = marginal_counts(datum["counts"], composite_clbits[i])
+                        # `marginal_distribution() doesn't support int64 values
+                        # so detect and cast to an int. This can be removed
+                        # when Qiskit/qiskit-terra#9976 is released
+                        counts = datum["counts"]
+                        if any(isinstance(x, np.integer) for x in counts.values()):
+                            counts = {k: int(v) for k, v in counts.items()}
+                        sub_data["counts"] = marginal_distribution(counts, composite_clbits[i])
                     else:
                         sub_data["counts"] = datum["counts"]
                 if "memory" in datum:
