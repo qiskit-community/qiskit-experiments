@@ -1,0 +1,8 @@
+---
+prelude: >
+    Qiskit Experiments 0.5.2 is a minor bug fix and performance improvement release.
+other:
+  - |
+    The performance of experiment analysis for parallel experiments has been improved
+    significantly due to improved results marginalization. See PR 
+    `#1144 <https://github.com/Qiskit/qiskit-experiments/pull/1144>`_ for more details.
