@@ -107,7 +107,7 @@ class TestFineZXAmpEndToEnd(QiskitExperimentsTestCase):
         exp = FineZXAmplitude((0, 1))
         loaded_exp = FineZXAmplitude.from_config(exp.config())
         self.assertNotEqual(exp, loaded_exp)
-        self.assertTrue(self.json_equiv(exp, loaded_exp))
+        self.assertEqualExtended(exp, loaded_exp)
 
 
 class TestFineAmplitudeCircuits(QiskitExperimentsTestCase):
@@ -168,7 +168,7 @@ class TestSpecializations(QiskitExperimentsTestCase):
     def test_x_roundtrip_serializable(self):
         """Test round trip JSON serialization"""
         exp = FineXAmplitude([0])
-        self.assertRoundTripSerializable(exp, self.json_equiv)
+        self.assertRoundTripSerializable(exp)
 
     def test_fine_sx_amp(self):
         """Test the fine SX amplitude."""
@@ -188,7 +188,7 @@ class TestSpecializations(QiskitExperimentsTestCase):
     def test_sx_roundtrip_serializable(self):
         """Test round trip JSON serialization"""
         exp = FineSXAmplitude([0])
-        self.assertRoundTripSerializable(exp, self.json_equiv)
+        self.assertRoundTripSerializable(exp)
 
     @data((2, 3), (3, 1), (0, 1))
     def test_measure_qubits(self, qubits):
@@ -319,9 +319,9 @@ class TestFineAmplitudeCal(QiskitExperimentsTestCase):
         exp = FineSXAmplitudeCal([0], self.cals, "sx")
         loaded_exp = FineSXAmplitudeCal.from_config(exp.config())
         self.assertNotEqual(exp, loaded_exp)
-        self.assertTrue(self.json_equiv(exp, loaded_exp))
+        self.assertEqualExtended(exp, loaded_exp)
 
     def test_roundtrip_serializable(self):
         """Test round trip JSON serialization"""
         exp = FineSXAmplitudeCal([0], self.cals, "sx")
-        self.assertRoundTripSerializable(exp, self.json_equiv)
+        self.assertRoundTripSerializable(exp)

@@ -97,9 +97,9 @@ class TestFineFreqEndToEnd(QiskitExperimentsTestCase):
         exp = FineFrequency([0], 160)
         loaded_exp = FineFrequency.from_config(exp.config())
         self.assertNotEqual(exp, loaded_exp)
-        self.assertTrue(self.json_equiv(exp, loaded_exp))
+        self.assertEqualExtended(exp, loaded_exp)
 
     def test_roundtrip_serializable(self):
         """Test round trip JSON serialization"""
         exp = FineFrequency([0], 160)
-        self.assertRoundTripSerializable(exp, self.json_equiv)
+        self.assertRoundTripSerializable(exp)

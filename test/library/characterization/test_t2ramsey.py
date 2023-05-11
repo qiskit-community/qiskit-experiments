@@ -77,8 +77,8 @@ class TestT2Ramsey(QiskitExperimentsTestCase):
             exp.analysis.set_options(p0=user_p0)
             expdata = exp.run(backend=backend, shots=2000, seed_simulator=1).block_for_results()
             self.assertExperimentDone(expdata)
-            self.assertRoundTripSerializable(expdata, check_func=self.experiment_data_equiv)
-            self.assertRoundTripPickle(expdata, check_func=self.experiment_data_equiv)
+            self.assertRoundTripSerializable(expdata)
+            self.assertRoundTripPickle(expdata)
 
             result = expdata.analysis_results("T2star")
             self.assertAlmostEqual(
@@ -218,12 +218,12 @@ class TestT2Ramsey(QiskitExperimentsTestCase):
         exp = T2Ramsey([0], [1, 2, 3, 4, 5])
         loaded_exp = T2Ramsey.from_config(exp.config())
         self.assertNotEqual(exp, loaded_exp)
-        self.assertTrue(self.json_equiv(exp, loaded_exp))
+        self.assertEqualExtended(exp, loaded_exp)
 
     def test_roundtrip_serializable(self):
         """Test round trip JSON serialization"""
         exp = T2Ramsey([0], [1, 2, 3, 4, 5])
-        self.assertRoundTripSerializable(exp, self.json_equiv)
+        self.assertRoundTripSerializable(exp)
 
     def test_analysis_config(self):
         """ "Test converting analysis to and from config works"""

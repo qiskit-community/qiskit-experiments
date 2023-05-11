@@ -44,8 +44,8 @@ class TestT1(QiskitExperimentsTestCase):
         exp.analysis.set_options(p0={"amp": 1, "tau": t1, "base": 0})
         exp_data = exp.run(backend, shots=10000, seed_simulator=1).block_for_results()
         self.assertExperimentDone(exp_data)
-        self.assertRoundTripSerializable(exp_data, check_func=self.experiment_data_equiv)
-        self.assertRoundTripPickle(exp_data, check_func=self.experiment_data_equiv)
+        self.assertRoundTripSerializable(exp_data)
+        self.assertRoundTripPickle(exp_data)
         res = exp_data.analysis_results("T1")
         self.assertEqual(res.quality, "good")
         self.assertAlmostEqual(res.value.n, t1, delta=3)
@@ -54,10 +54,19 @@ class TestT1(QiskitExperimentsTestCase):
         exp_data.service = IBMExperimentService(local=True, local_save=False)
         exp_data.save()
         loaded_data = ExperimentData.load(exp_data.experiment_id, exp_data.service)
-        exp_res = exp_data.analysis_results()
-        load_res = loaded_data.analysis_results()
-        for exp_res, load_res in zip(exp_res, load_res):
-            self.analysis_result_equiv(exp_res, load_res)
+
+        # By default, server result is sorted by creation_datetime and result_id.
+        # In some test environment datetime sorting may not keep original element ordering.
+        exp_results = sorted(
+            exp_data.analysis_results(),
+            key=lambda r: r.name,
+        )
+        load_results = sorted(
+            loaded_data.analysis_results(),
+            key=lambda r: r.name,
+        )
+        for exp_res, load_res in zip(exp_results, load_results):
+            self.assertEqualExtended(exp_res, load_res)
 
     def test_t1_measurement_level_1(self):
         """
@@ -96,8 +105,8 @@ class TestT1(QiskitExperimentsTestCase):
         ).block_for_results()
         self.assertExperimentDone(expdata0)
 
-        self.assertRoundTripSerializable(expdata0, check_func=self.experiment_data_equiv)
-        self.assertRoundTripPickle(expdata0, check_func=self.experiment_data_equiv)
+        self.assertRoundTripSerializable(expdata0)
+        self.assertRoundTripPickle(expdata0)
 
         res = expdata0.analysis_results("T1")
         self.assertEqual(res.quality, "good")
@@ -365,12 +374,12 @@ class TestT1(QiskitExperimentsTestCase):
         exp = T1([0], [1, 2, 3, 4, 5])
         loaded_exp = T1.from_config(exp.config())
         self.assertNotEqual(exp, loaded_exp)
-        self.assertTrue(self.json_equiv(exp, loaded_exp))
+        self.assertEqualExtended(exp, loaded_exp)
 
     def test_roundtrip_serializable(self):
         """Test round trip JSON serialization"""
         exp = T1([0], [1, 2, 3, 4, 5])
-        self.assertRoundTripSerializable(exp, self.json_equiv)
+        self.assertRoundTripSerializable(exp)
 
     def test_analysis_config(self):
         """ "Test converting analysis to and from config works"""

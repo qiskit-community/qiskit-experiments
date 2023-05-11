@@ -1754,7 +1754,7 @@ class TestSerialization(QiskitExperimentsTestCase):
         cals = Calibrations.from_backend(backend, libraries=[library])
         cals.add_parameter_value(0.12345, "amp", 3, "x")
 
-        self.assertRoundTripSerializable(cals, self.json_equiv)
+        self.assertRoundTripSerializable(cals)
 
     def test_equality(self):
         """Test the equal method on calibrations."""
