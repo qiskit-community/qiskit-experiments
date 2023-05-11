@@ -1,6 +1,6 @@
 numpy>=1.17
 scipy>=1.4
-qiskit-terra>=0.23
+qiskit-terra>=0.24
 qiskit-ibm-experiment>=0.3.1
 qiskit_dynamics>=0.3.0
 matplotlib>=3.4

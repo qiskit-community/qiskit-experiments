@@ -17,9 +17,6 @@ other:
     complex values.
 upgrade:
   - |
-    The minimal required Qiskit-Terra version was bumped to 0.23 in order to use 
-    the (``amp``, ``angle``) representation of library pulses in Qiskit Pulse.
-  - |
     The representation of pulses in the :class:`.FixedFrequencyTransmon` library 
     was changed from complex amplitude to (``amp``,``angle``) representation. All pulses
     now include an ``angle`` parameter, and the default values of ``amp`` are set

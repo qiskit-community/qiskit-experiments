@@ -1,0 +1,6 @@
+---
+upgrade:
+  - |
+    The minimal required Qiskit-Terra version was bumped to 0.24. This version enables
+    new pulse amplitude representation of (``amp``, ``angle``) pair
+    and improved user-communication for deprecated functionalities.
