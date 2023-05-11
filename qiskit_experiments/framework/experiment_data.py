@@ -17,7 +17,7 @@ from __future__ import annotations
 import logging
 import dataclasses
 from typing import Dict, Optional, List, Union, Any, Callable, Tuple, TYPE_CHECKING
-from datetime import datetime
+from datetime import datetime, timezone
 from concurrent import futures
 from threading import Event
 from functools import wraps
@@ -108,6 +108,16 @@ def local_to_utc(local_dt: datetime) -> datetime:
         return None
     utc_dt = local_dt.astimezone(tz.UTC)
     return utc_dt
+
+
+def parse_utc_datetime(dt_str: str) -> datetime:
+    if dt_str is None:
+        return None
+
+    db_datetime_format = "%Y-%m-%dT%H:%M:%S.%fZ"
+    dt_utc = datetime.strptime(dt_str, db_datetime_format)
+    dt_utc = dt_utc.replace(tzinfo=timezone.utc)
+    return dt_utc
 
 
 class FigureData:
@@ -267,8 +277,6 @@ class ExperimentData:
         )
         metadata["_source"] = source
         experiment_id = kwargs.get("experiment_id", str(uuid.uuid4()))
-        if start_datetime is None:
-            start_datetime = datetime.now()
         if db_data is None:
             self._db_data = ExperimentDataclass(
                 experiment_id=experiment_id,
@@ -279,7 +287,10 @@ class ExperimentData:
             )
         else:
             self._db_data = db_data
-        self.start_datetime = start_datetime
+        if self.start_datetime is None:
+            if start_datetime is None:
+                start_datetime = datetime.now()
+            self.start_datetime = start_datetime
         for key, value in kwargs.items():
             if hasattr(self._db_data, key):
                 setattr(self._db_data, key, value)
@@ -1442,14 +1453,9 @@ class ExperimentData:
                 created_datetime = result.get("created_at", None)
                 updated_datetime = result.get("updated_at", None)
                 db_datetime_format = "%Y-%m-%dT%H:%M:%S.%fZ"
-                if created_datetime is not None:
-                    self._db_data.creation_datetime = datetime.strptime(
-                        created_datetime, db_datetime_format
-                    )
-                if updated_datetime is not None:
-                    self._db_data.updated_datetime = datetime.strptime(
-                        updated_datetime, db_datetime_format
-                    )
+                self._db_data.creation_datetime = parse_utc_datetime(created_datetime)
+                self._db_data.updated_datetime = parse_utc_datetime(updated_datetime)
+
             self._created_in_db = True
 
             if handle_metadata_separately:
