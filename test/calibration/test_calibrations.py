@@ -480,6 +480,13 @@ class TestOverrideDefaults(QiskitExperimentsTestCase):
         self.assertEqual(params[0]["value"], 0.25)
         self.assertEqual(params[0]["qubits"], (3,))
 
+    def test_complex_parameter_value_deprecation_warning(self):
+        """Test that complex parameter values raise PendingDeprecationWarning"""
+        with self.assertWarns(PendingDeprecationWarning):
+            ParameterValue(40j, self.date_time)
+        with self.assertWarns(PendingDeprecationWarning):
+            self.cals.add_parameter_value(40j, "amp", schedule="xp")
+
     def _add_parameters(self):
         """Helper function."""
 
@@ -1830,4 +1837,4 @@ class TestSerialization(QiskitExperimentsTestCase):
         cals = Calibrations.from_backend(backend, libraries=[library])
         cals.add_parameter_value(0.12345, "amp", 3, "x")
 
-        self.assertRoundTripSerializable(cals, self.json_equiv)
+        self.assertRoundTripSerializable(cals)

@@ -47,8 +47,8 @@ class TestTphi(QiskitExperimentsTestCase):
         backend = NoisyDelayAerBackend([t1], [t2ramsey])
         expdata = exp.run(backend=backend, seed_simulator=1)
         self.assertExperimentDone(expdata)
-        self.assertRoundTripSerializable(expdata, check_func=self.experiment_data_equiv)
-        self.assertRoundTripPickle(expdata, check_func=self.experiment_data_equiv)
+        self.assertRoundTripSerializable(expdata)
+        self.assertRoundTripPickle(expdata)
         result = expdata.analysis_results("T_phi")
         estimated_tphi = 1 / ((1 / t2ramsey) - (1 / (2 * t1)))
         self.assertAlmostEqual(
@@ -138,11 +138,11 @@ class TestTphi(QiskitExperimentsTestCase):
     def test_roundtrip_serializable(self):
         """Test round trip JSON serialization"""
         exp = Tphi([0], [1], [2])
-        self.assertRoundTripSerializable(exp, self.json_equiv)
+        self.assertRoundTripSerializable(exp)
         exp = Tphi([0], [1], [2], "hahn", 3)
-        self.assertRoundTripSerializable(exp, self.json_equiv)
+        self.assertRoundTripSerializable(exp)
         exp = Tphi([0], [1], [2], "ramsey", 0)
-        self.assertRoundTripSerializable(exp, self.json_equiv)
+        self.assertRoundTripSerializable(exp)
 
     def test_analysis_config(self):
         """Test converting analysis to and from config works"""

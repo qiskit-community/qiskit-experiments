@@ -61,7 +61,7 @@ class TestJSON(QiskitExperimentsTestCase):
         obj = FakeExperiment([0])
         obj.set_transpile_options(optimization_level=3, basis_gates=["rx", "ry", "cz"])
         obj.set_run_options(shots=2000)
-        self.assertRoundTripSerializable(obj, self.json_equiv)
+        self.assertRoundTripSerializable(obj)
 
     @ddt.data(SXGate(), RZXGate(0.4), Barrier(5), Measure())
     def test_roundtrip_gate(self, instruction):

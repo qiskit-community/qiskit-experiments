@@ -266,9 +266,9 @@ class TestQuantumVolume(QiskitExperimentsTestCase):
         exp = QuantumVolume([0, 1, 2], seed=42)
         loaded_exp = QuantumVolume.from_config(exp.config())
         self.assertNotEqual(exp, loaded_exp)
-        self.assertTrue(self.json_equiv(exp, loaded_exp))
+        self.assertEqualExtended(exp, loaded_exp)
 
     def test_roundtrip_serializable(self):
         """Test round trip JSON serialization"""
         exp = QuantumVolume([0, 1, 2], seed=42)
-        self.assertRoundTripSerializable(exp, self.json_equiv)
+        self.assertRoundTripSerializable(exp)
