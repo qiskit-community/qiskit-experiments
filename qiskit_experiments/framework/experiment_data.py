@@ -1308,7 +1308,7 @@ class ExperimentData:
     @deprecate_arg(
         name="results",
         since="0.6",
-        additional_msg="Use keyword arguments rather than creating AnalysisResult object.",
+        additional_msg="Use keyword arguments rather than creating an AnalysisResult object.",
         package_name="qiskit-experiments",
         pending=True,
     )
@@ -1338,8 +1338,8 @@ class ExperimentData:
             value: Analyzed quantity.
             quality: Quality of the data.
             components: Associated device components.
-            experiment: String identifier of experiment.
-            experiment_id: Experiment ID associated with this analysis.
+            experiment: String identifier of the associated experiment.
+            experiment_id: ID of the associated experiment.
             result_id: ID of this analysis entry. If not set a random UUID is generated.
             tags: List of arbitrary tags.
             backend: Name of associated backend.
