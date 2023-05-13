@@ -9,7 +9,7 @@ fixes:
     optional so that these functions could be used for fitting raw tomography
     fitter data with preparation data but no measurement data.
   - |
-    Fix bug in :class:`.TomographyAnalysis` when accumulating count data
+    Fixed bug in :class:`.TomographyAnalysis` when accumulating count data
     from repeated circuits using the same preparation and measurement basis
     configuration.
 developer:

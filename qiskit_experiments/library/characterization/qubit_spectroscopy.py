@@ -15,16 +15,17 @@
 from typing import Tuple
 
 import numpy as np
-import qiskit.pulse as pulse
 from qiskit import QuantumCircuit
 from qiskit.circuit import Gate, Parameter
 from qiskit.exceptions import QiskitError
+from qiskit import pulse
 
+from qiskit_experiments.framework import BackendTiming
 from qiskit_experiments.library.characterization.spectroscopy import Spectroscopy
 
 
 class QubitSpectroscopy(Spectroscopy):
-    """Class that runs spectroscopy by sweeping the qubit frequency.
+    """A spectroscopy experiment to obtain a frequency sweep of the qubit.
 
     # section: overview
         The circuits produced by spectroscopy, i.e.
@@ -42,7 +43,7 @@ class QubitSpectroscopy(Spectroscopy):
         pulse. A list of circuits is generated, each with a different frequency "freq".
 
     # section: analysis_ref
-        :py:class:`~qiskit_experiments.curve_analysis.ResonanceAnalysis`
+        :class:`~qiskit_experiments.curve_analysis.ResonanceAnalysis`
     """
 
     __spec_gate_name__ = "Spec"
@@ -72,13 +73,16 @@ class QubitSpectroscopy(Spectroscopy):
 
     def _schedule(self) -> Tuple[pulse.ScheduleBlock, Parameter]:
         """Create the spectroscopy schedule."""
+        timing = BackendTiming(self.backend)
+
+        if timing.dt is None:
+            raise QiskitError(f"{self.__class__.__name__} requires a backend with a dt value.")
+
+        duration = timing.round_pulse(time=self.experiment_options.duration)
+        sigma = self.experiment_options.sigma / timing.dt
+        width = self.experiment_options.width / timing.dt
+
         freq_param = Parameter("frequency")
-
-        dt, granularity = self._dt, self._granularity
-
-        duration = int(granularity * (self.experiment_options.duration / dt // granularity))
-        sigma = granularity * (self.experiment_options.sigma / dt // granularity)
-        width = granularity * (self.experiment_options.width / dt // granularity)
 
         with pulse.build(backend=self.backend, name="spectroscopy") as schedule:
             pulse.shift_frequency(freq_param, pulse.DriveChannel(self.physical_qubits[0]))

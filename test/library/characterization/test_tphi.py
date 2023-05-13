@@ -10,35 +10,45 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """
-Test T2Ramsey experiment
+Test Tphi experiment.
 """
-
 from test.base import QiskitExperimentsTestCase
-from qiskit_experiments.library import Tphi
+from qiskit.exceptions import QiskitError
+from qiskit_experiments.library import Tphi, T2Hahn, T2Ramsey
 from qiskit_experiments.test.noisy_delay_aer_simulator import NoisyDelayAerBackend
-from qiskit_experiments.library.characterization.analysis.tphi_analysis import TphiAnalysis
+from qiskit_experiments.library.characterization.analysis import (
+    TphiAnalysis,
+    T2RamseyAnalysis,
+    T2HahnAnalysis,
+)
 
 
 class TestTphi(QiskitExperimentsTestCase):
-    """Test Tphi experiment"""
+    """Test Tphi experiment."""
 
     __tolerance__ = 0.1
 
-    def test_tphi_end_to_end(self):
+    def test_tphi_ramsey_end_to_end(self):
         """
-        Run a complete Tphi experiment on a fake Tphi backend
+        Run a complete Tphi experiment with T2ramsey on a fake Tphi backend.
         """
         delays_t1 = list(range(1, 40, 3))
         delays_t2 = list(range(1, 51, 2))
-        exp = Tphi(qubit=0, delays_t1=delays_t1, delays_t2=delays_t2, osc_freq=0.1)
+        exp = Tphi(
+            physical_qubits=[0],
+            delays_t1=delays_t1,
+            delays_t2=delays_t2,
+            t2type="ramsey",
+            osc_freq=0.1,
+        )
 
         t1 = 20
         t2ramsey = 25
         backend = NoisyDelayAerBackend([t1], [t2ramsey])
         expdata = exp.run(backend=backend, seed_simulator=1)
         self.assertExperimentDone(expdata)
-        self.assertRoundTripSerializable(expdata, check_func=self.experiment_data_equiv)
-        self.assertRoundTripPickle(expdata, check_func=self.experiment_data_equiv)
+        self.assertRoundTripSerializable(expdata)
+        self.assertRoundTripPickle(expdata)
         result = expdata.analysis_results("T_phi")
         estimated_tphi = 1 / ((1 / t2ramsey) - (1 / (2 * t1)))
         self.assertAlmostEqual(
@@ -55,7 +65,13 @@ class TestTphi(QiskitExperimentsTestCase):
         """
         delays_t1 = list(range(1, 40, 3))
         delays_t2 = list(range(1, 50, 2))
-        exp = Tphi(qubit=0, delays_t1=delays_t1, delays_t2=delays_t2, osc_freq=0.1)
+        exp = Tphi(
+            physical_qubits=[0],
+            delays_t1=delays_t1,
+            delays_t2=delays_t2,
+            t2type="ramsey",
+            osc_freq=0.1,
+        )
 
         t1 = 20
         t2ramsey = 25
@@ -101,10 +117,32 @@ class TestTphi(QiskitExperimentsTestCase):
         self.assertListEqual(x_values_t2, new_delays_t2, "Incorrect delays_t2")
         self.assertEqual(new_freq_t2, new_osc_freq, "Option osc_freq not set correctly")
 
+    def test_tphi_t2_option(self):
+        """Test that Tphi switches between T2Ramsey and T2Hahn correctly."""
+
+        delays_t1 = list(range(1, 40, 3))
+        delays_t2 = list(range(1, 50, 2))
+
+        exp = Tphi(physical_qubits=[0], delays_t1=delays_t1, delays_t2=delays_t2, t2type="ramsey")
+        self.assertTrue(isinstance(exp.component_experiment(1), T2Ramsey))
+        self.assertTrue(isinstance(exp.analysis.component_analysis(1), T2RamseyAnalysis))
+        with self.assertRaises(QiskitError):  # T2Ramsey should not allow a T2Hahn option
+            exp.set_experiment_options(num_echoes=1)
+
+        exp = Tphi(physical_qubits=[0], delays_t1=delays_t1, delays_t2=delays_t2)
+        self.assertTrue(isinstance(exp.component_experiment(1), T2Hahn))
+        self.assertTrue(isinstance(exp.analysis.component_analysis(1), T2HahnAnalysis))
+        with self.assertRaises(QiskitError):  # T2Hahn should not allow a T2ramsey option
+            exp.set_experiment_options(osc_freq=0.0)
+
     def test_roundtrip_serializable(self):
         """Test round trip JSON serialization"""
-        exp = Tphi(0, [1], [2], 3)
-        self.assertRoundTripSerializable(exp, self.json_equiv)
+        exp = Tphi([0], [1], [2])
+        self.assertRoundTripSerializable(exp)
+        exp = Tphi([0], [1], [2], "hahn", 3)
+        self.assertRoundTripSerializable(exp)
+        exp = Tphi([0], [1], [2], "ramsey", 0)
+        self.assertRoundTripSerializable(exp)
 
     def test_analysis_config(self):
         """Test converting analysis to and from config works"""

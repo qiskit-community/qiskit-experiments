@@ -39,13 +39,13 @@ class TestT1(QiskitExperimentsTestCase):
         backend = NoisyDelayAerBackend([t1], [t1 / 2])
 
         delays = np.arange(1e-6, 40e-6, 3e-6)
-        exp = T1(0, delays)
+        exp = T1([0], delays)
 
         exp.analysis.set_options(p0={"amp": 1, "tau": t1, "base": 0})
         exp_data = exp.run(backend, shots=10000, seed_simulator=1).block_for_results()
         self.assertExperimentDone(exp_data)
-        self.assertRoundTripSerializable(exp_data, check_func=self.experiment_data_equiv)
-        self.assertRoundTripPickle(exp_data, check_func=self.experiment_data_equiv)
+        self.assertRoundTripSerializable(exp_data)
+        self.assertRoundTripPickle(exp_data)
         res = exp_data.analysis_results("T1")
         self.assertEqual(res.quality, "good")
         self.assertAlmostEqual(res.value.n, t1, delta=3)
@@ -54,10 +54,19 @@ class TestT1(QiskitExperimentsTestCase):
         exp_data.service = IBMExperimentService(local=True, local_save=False)
         exp_data.save()
         loaded_data = ExperimentData.load(exp_data.experiment_id, exp_data.service)
-        exp_res = exp_data.analysis_results()
-        load_res = loaded_data.analysis_results()
-        for exp_res, load_res in zip(exp_res, load_res):
-            self.analysis_result_equiv(exp_res, load_res)
+
+        # By default, server result is sorted by creation_datetime and result_id.
+        # In some test environment datetime sorting may not keep original element ordering.
+        exp_results = sorted(
+            exp_data.analysis_results(),
+            key=lambda r: r.name,
+        )
+        load_results = sorted(
+            loaded_data.analysis_results(),
+            key=lambda r: r.name,
+        )
+        for exp_res, load_res in zip(exp_results, load_results):
+            self.assertEqualExtended(exp_res, load_res)
 
     def test_t1_measurement_level_1(self):
         """
@@ -84,7 +93,7 @@ class TestT1(QiskitExperimentsTestCase):
         )
 
         # Experiment initialization and analysis options
-        exp0 = T1(0, delays)
+        exp0 = T1([0], delays)
         exp0.analysis = T1KerneledAnalysis()
 
         exp0.analysis.set_options(p0={"amp": 1, "tau": t1[0], "base": 0})
@@ -96,8 +105,8 @@ class TestT1(QiskitExperimentsTestCase):
         ).block_for_results()
         self.assertExperimentDone(expdata0)
 
-        self.assertRoundTripSerializable(expdata0, check_func=self.experiment_data_equiv)
-        self.assertRoundTripPickle(expdata0, check_func=self.experiment_data_equiv)
+        self.assertRoundTripSerializable(expdata0)
+        self.assertRoundTripPickle(expdata0)
 
         res = expdata0.analysis_results("T1")
         self.assertEqual(res.quality, "good")
@@ -119,8 +128,8 @@ class TestT1(QiskitExperimentsTestCase):
 
         backend = NoisyDelayAerBackend(t1, t2)
 
-        exp0 = T1(qubit=qubit0, delays=delays)
-        exp2 = T1(qubit=qubit2, delays=delays)
+        exp0 = T1(physical_qubits=[qubit0], delays=delays)
+        exp2 = T1(physical_qubits=[qubit2], delays=delays)
 
         par_exp = ParallelExperiment([exp0, exp2])
         res = par_exp.run(backend=backend, shots=10000, seed_simulator=1).block_for_results()
@@ -152,9 +161,9 @@ class TestT1(QiskitExperimentsTestCase):
 
         # qubits
         qubit0 = 0
-        qubit2 = 2
+        qubit1 = 1
 
-        quantum_bit = [qubit0, qubit2]
+        quantum_bit = [qubit0, qubit1]
 
         # Delays
         delays = np.logspace(1, 11, num=23, base=np.exp(1))
@@ -163,10 +172,10 @@ class TestT1(QiskitExperimentsTestCase):
         delays = np.append(delays, [t1[0] * 3])
 
         # Experiments
-        exp0 = T1(qubit=qubit0, delays=delays)
+        exp0 = T1(physical_qubits=[qubit0], delays=delays)
         exp0.analysis = T1KerneledAnalysis()
 
-        exp2 = T1(qubit=qubit2, delays=delays)
+        exp2 = T1(physical_qubits=[qubit1], delays=delays)
         exp2.analysis = T1KerneledAnalysis()
 
         par_exp_list = [exp0, exp2]
@@ -230,10 +239,10 @@ class TestT1(QiskitExperimentsTestCase):
 
         delays = list(range(1, 40, 3))
 
-        exp0 = T1(0, delays)
+        exp0 = T1([0], delays)
         exp0.analysis.set_options(p0={"tau": 30})
 
-        exp1 = T1(1, delays)
+        exp1 = T1([1], delays)
         exp1.analysis.set_options(p0={"tau": 1000000})
 
         par_exp = ParallelExperiment([exp0, exp1])
@@ -282,7 +291,7 @@ class TestT1(QiskitExperimentsTestCase):
         """
 
         delays = np.arange(1e-3, 40e-3, 3e-3)
-        exp = T1(0, delays)
+        exp = T1([0], delays)
         circs = exp.circuits()
 
         self.assertEqual(len(circs), len(delays))
@@ -336,8 +345,8 @@ class TestT1(QiskitExperimentsTestCase):
         coupling_map = [[i - 1, i] for i in range(1, num_qubits)]
         basis_gates = ["rx", "delay"]
 
-        exp1 = T1(1, delays=[50e-9, 100e-9, 160e-9])
-        exp2 = T1(3, delays=[40e-9, 80e-9, 190e-9])
+        exp1 = T1([1], delays=[50e-9, 100e-9, 160e-9])
+        exp2 = T1([3], delays=[40e-9, 80e-9, 190e-9])
         parexp = ParallelExperiment([exp1, exp2])
         parexp.set_transpile_options(
             basis_gates=basis_gates,
@@ -362,15 +371,15 @@ class TestT1(QiskitExperimentsTestCase):
 
     def test_experiment_config(self):
         """Test converting to and from config works"""
-        exp = T1(0, [1, 2, 3, 4, 5])
+        exp = T1([0], [1, 2, 3, 4, 5])
         loaded_exp = T1.from_config(exp.config())
         self.assertNotEqual(exp, loaded_exp)
-        self.assertTrue(self.json_equiv(exp, loaded_exp))
+        self.assertEqualExtended(exp, loaded_exp)
 
     def test_roundtrip_serializable(self):
         """Test round trip JSON serialization"""
-        exp = T1(0, [1, 2, 3, 4, 5])
-        self.assertRoundTripSerializable(exp, self.json_equiv)
+        exp = T1([0], [1, 2, 3, 4, 5])
+        self.assertRoundTripSerializable(exp)
 
     def test_analysis_config(self):
         """ "Test converting analysis to and from config works"""
@@ -385,7 +394,7 @@ class TestT1(QiskitExperimentsTestCase):
         """
         backend = FakeAthensV2()
         delays = np.arange(1e-3, 40e-3, 3e-3)
-        exp = T1(0, delays, backend=backend)
+        exp = T1([0], delays, backend=backend)
         circs = exp.circuits()
 
         self.assertEqual(len(circs), len(delays))

@@ -1,7 +1,7 @@
 ---
 features:
   - |
-    Adds a new class, :class:`.BackendData`, which provides a common access inferface
+    Added a new class, :class:`.BackendData`, which provides a common access inferface
     for both :class:`~qiskit.providers.backend.BackendV1` and 
     :class:`~qiskit.providers.backend.BackendV2` data fields, since those
     classes do not share the same interface. The :class:`.BackendData` can be called

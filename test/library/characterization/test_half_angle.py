@@ -15,9 +15,8 @@
 from test.base import QiskitExperimentsTestCase
 import copy
 
-from qiskit import transpile
+from qiskit import pulse, transpile
 from qiskit.providers.fake_provider import FakeAthens
-import qiskit.pulse as pulse
 from qiskit.pulse import InstructionScheduleMap
 
 from qiskit_experiments.test.mock_iq_backend import MockIQBackend
@@ -36,7 +35,7 @@ class TestHalfAngle(QiskitExperimentsTestCase):
         backend = MockIQBackend(exp_helper)
         for error in [-0.05, -0.02, 0.02, 0.05]:
             exp_helper.error = error
-            hac = HalfAngle(0)
+            hac = HalfAngle([0])
             exp_data = hac.run(backend)
 
             self.assertExperimentDone(exp_data)
@@ -53,7 +52,7 @@ class TestHalfAngle(QiskitExperimentsTestCase):
         for inst in ["sx", "y"]:
             inst_map.add(inst, (qubit,), pulse.Schedule(name=inst))
 
-        hac = HalfAngle(qubit)
+        hac = HalfAngle([qubit])
         hac.set_transpile_options(inst_map=inst_map)
 
         # mimic what will happen in the experiment.
@@ -70,7 +69,7 @@ class TestHalfAngle(QiskitExperimentsTestCase):
 
     def test_experiment_config(self):
         """Test converting to and from config works"""
-        exp = HalfAngle(1)
+        exp = HalfAngle([1])
         config = exp.config()
         loaded_exp = HalfAngle.from_config(config)
         self.assertNotEqual(exp, loaded_exp)

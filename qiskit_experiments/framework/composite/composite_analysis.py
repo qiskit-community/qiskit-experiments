@@ -15,7 +15,7 @@ Composite Experiment Analysis class.
 
 from typing import List, Dict, Union, Optional, Tuple
 import numpy as np
-from qiskit.result import marginal_counts
+from qiskit.result import marginal_distribution
 from qiskit.result.postprocess import format_counts_memory
 from qiskit_experiments.framework import BaseAnalysis, ExperimentData
 from qiskit_experiments.framework.analysis_result_data import AnalysisResultData
@@ -40,15 +40,15 @@ class CompositeAnalysis(BaseAnalysis):
 
     .. note::
 
-        If the composite :class:`ExperimentData` does not already contain
-        child experiment data containers for the component experiments
-        they will be initialized and added to the experiment data when :meth:`run`
-        is called on the composite data.
+        If the composite :class:`ExperimentData` does not already contain child
+        experiment data containers for the component experiments they will be
+        initialized and added to the experiment data when
+        :meth:`~.CompositeAnalysis.run` is called on the composite data.
 
-        When calling :meth:`run` on experiment data already containing
-        initialized component experiment data, any previously stored
-        circuit data will be cleared and replaced with the marginalized data
-        from the composite experiment data.
+        When calling :meth:`~.CompositeAnalysis.run` on experiment data already
+        containing initialized component experiment data, any previously stored circuit
+        data will be cleared and replaced with the marginalized data from the composite
+        experiment data.
     """
 
     def __init__(self, analyses: List[BaseAnalysis], flatten_results: bool = False):
@@ -144,7 +144,7 @@ class CompositeAnalysis(BaseAnalysis):
             component experiment.
 
         Raises:
-            AnalysisError: if the component experiment data cannot be extracted.
+            AnalysisError: If the component experiment data cannot be extracted.
         """
         if not self._flatten_results:
             # Retrieve child data for component experiments for updating
@@ -206,7 +206,10 @@ class CompositeAnalysis(BaseAnalysis):
                 sub_data = {"metadata": metadata["composite_metadata"][i]}
                 if "counts" in datum:
                     if composite_clbits is not None:
-                        sub_data["counts"] = marginal_counts(datum["counts"], composite_clbits[i])
+                        sub_data["counts"] = marginal_distribution(
+                            counts=datum["counts"],
+                            indices=composite_clbits[i],
+                        )
                     else:
                         sub_data["counts"] = datum["counts"]
                 if "memory" in datum:

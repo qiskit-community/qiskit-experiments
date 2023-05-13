@@ -31,7 +31,7 @@ class ReadoutAngleAnalysis(BaseAnalysis):
 
         Analysis Options:
             plot (bool): Set ``True`` to create figure for fit result.
-            ax(AxesSubplot): Optional. A matplotlib axis object to draw.
+            ax (AxesSubplot): Optional. A matplotlib axis object to draw.
         """
         options = super()._default_options()
         options.plot = True

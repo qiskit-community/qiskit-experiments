@@ -55,13 +55,13 @@ def plot_curve_fit(
         matplotlib.axes.Axes: the matplotlib axes containing the plot.
 
     Raises:
-        ImportError: if matplotlib is not installed.
+        ImportError: If matplotlib is not installed.
     """
     if ax is None:
         ax = get_non_gui_ax()
 
     if fit_uncertainty is None:
-        fit_uncertainty = list()
+        fit_uncertainty = []
     elif isinstance(fit_uncertainty, tuple):
         fit_uncertainty = [fit_uncertainty]
 

@@ -82,12 +82,14 @@ class TestQuantumVolume(QiskitExperimentsTestCase):
 
         self.assertTrue(
             matrix_equal(simulation_probabilities, statevector_probabilities),
-            "probabilities calculated using simulation and " "statevector are not the same",
+            "probabilities calculated using simulation and statevector are not the same",
         )
         # compare to pre-calculated probabilities
         dir_name = os.path.dirname(os.path.abspath(__file__))
         probabilities_json_file = "qv_ideal_probabilities.json"
-        with open(os.path.join(dir_name, probabilities_json_file), "r") as json_file:
+        with open(
+            os.path.join(dir_name, probabilities_json_file), "r", encoding="utf-8"
+        ) as json_file:
             probabilities = json.load(json_file, cls=ExperimentDecoder)
         self.assertTrue(
             matrix_equal(simulation_probabilities, probabilities),
@@ -117,7 +119,7 @@ class TestQuantumVolume(QiskitExperimentsTestCase):
         self.assertTrue(result_data1.extra["trials"] == 2, "number of trials is incorrect")
         self.assertTrue(
             result_data2.extra["trials"] == 4,
-            "number of trials is incorrect" " after adding more trials",
+            "number of trials is incorrect after adding more trials",
         )
         self.assertTrue(
             result_data2.value.s <= result_data1.value.s,
@@ -131,7 +133,9 @@ class TestQuantumVolume(QiskitExperimentsTestCase):
         """
         dir_name = os.path.dirname(os.path.abspath(__file__))
         insufficient_trials_json_file = "qv_data_70_trials.json"
-        with open(os.path.join(dir_name, insufficient_trials_json_file), "r") as json_file:
+        with open(
+            os.path.join(dir_name, insufficient_trials_json_file), "r", encoding="utf-8"
+        ) as json_file:
             insufficient_trials_data = json.load(json_file, cls=ExperimentDecoder)
 
         num_of_qubits = 3
@@ -155,7 +159,9 @@ class TestQuantumVolume(QiskitExperimentsTestCase):
         """
         dir_name = os.path.dirname(os.path.abspath(__file__))
         insufficient_hop_json_file = "qv_data_high_noise.json"
-        with open(os.path.join(dir_name, insufficient_hop_json_file), "r") as json_file:
+        with open(
+            os.path.join(dir_name, insufficient_hop_json_file), "r", encoding="utf-8"
+        ) as json_file:
             insufficient_hop_data = json.load(json_file, cls=ExperimentDecoder)
 
         num_of_qubits = 4
@@ -180,7 +186,9 @@ class TestQuantumVolume(QiskitExperimentsTestCase):
         """
         dir_name = os.path.dirname(os.path.abspath(__file__))
         insufficient_confidence_json = "qv_data_moderate_noise_100_trials.json"
-        with open(os.path.join(dir_name, insufficient_confidence_json), "r") as json_file:
+        with open(
+            os.path.join(dir_name, insufficient_confidence_json), "r", encoding="utf-8"
+        ) as json_file:
             insufficient_confidence_data = json.load(json_file, cls=ExperimentDecoder)
 
         num_of_qubits = 4
@@ -204,7 +212,7 @@ class TestQuantumVolume(QiskitExperimentsTestCase):
         """
         dir_name = os.path.dirname(os.path.abspath(__file__))
         successful_json_file = "qv_data_moderate_noise_300_trials.json"
-        with open(os.path.join(dir_name, successful_json_file), "r") as json_file:
+        with open(os.path.join(dir_name, successful_json_file), "r", encoding="utf-8") as json_file:
             successful_data = json.load(json_file, cls=ExperimentDecoder)
 
         num_of_qubits = 4
@@ -216,7 +224,7 @@ class TestQuantumVolume(QiskitExperimentsTestCase):
 
         qv_exp.analysis.run(exp_data)
         results_json_file = "qv_result_moderate_noise_300_trials.json"
-        with open(os.path.join(dir_name, results_json_file), "r") as json_file:
+        with open(os.path.join(dir_name, results_json_file), "r", encoding="utf-8") as json_file:
             successful_results = json.load(json_file, cls=ExperimentDecoder)
 
         results = exp_data.analysis_results()
@@ -258,9 +266,9 @@ class TestQuantumVolume(QiskitExperimentsTestCase):
         exp = QuantumVolume([0, 1, 2], seed=42)
         loaded_exp = QuantumVolume.from_config(exp.config())
         self.assertNotEqual(exp, loaded_exp)
-        self.assertTrue(self.json_equiv(exp, loaded_exp))
+        self.assertEqualExtended(exp, loaded_exp)
 
     def test_roundtrip_serializable(self):
         """Test round trip JSON serialization"""
         exp = QuantumVolume([0, 1, 2], seed=42)
-        self.assertRoundTripSerializable(exp, self.json_equiv)
+        self.assertRoundTripSerializable(exp)

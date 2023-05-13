@@ -26,7 +26,7 @@ IQPoint = Tuple[float, float]
 
 
 class MockIQExperimentHelper:
-    """Abstract class for the MockIQ helper classes
+    """Abstract class for the MockIQ helper classes.
 
     Different tests will use experiment specific helper classes which define the pattern
     of the IQ data that is then analyzed.
@@ -39,13 +39,14 @@ class MockIQExperimentHelper:
     ):
         """Create a MockIQBackend helper object to define how the backend functions.
 
-        `iq_cluster_centers` and `iq_cluster_width` define the base IQ cluster centers and
-        standard-deviations for each qubit in a :py:class:`MockIQBackend` instance. These are used by
-        :py:meth:`iq_clusters` by default. Subclasses can override :py:meth:`iq_clusters` to return a
-        modified version of :py:attr:`iq_cluster_centers` and :py:attr:`iq_cluster_width`.
-        `iq_cluster_centers` is a list of tuples. For a given qubit `i_qbt` and computational state
-        `i_state` (either `0` or `1`), the centers of the IQ clusters are found by indexing
-        `iq_cluster_centers` as follows:
+        :attr:`iq_cluster_centers` and :attr:`iq_cluster_width` define the base IQ
+        cluster centers and standard deviations for each qubit in a
+        :class:`MockIQBackend` instance. These are used by :meth:`iq_clusters` by
+        default. Subclasses can override :meth:`iq_clusters` to return a modified
+        version of :attr:`iq_cluster_centers` and :attr:`iq_cluster_width`.
+        `iq_cluster_centers` is a list of tuples. For a given qubit ``i_qbt`` and
+        computational state ``i_state`` (either `0` or `1`), the centers of the IQ
+        clusters are found by indexing ``iq_cluster_centers`` as follows:
 
         .. code-block:: python
 
@@ -53,8 +54,8 @@ class MockIQExperimentHelper:
             center_inphase = iq_center[0]
             center_quadrature = iq_center[1]
 
-        `iq_cluster_width` is indexed similarly except that there is only one width per qubit: i.e., the
-        standard-deviation of the IQ cluster for qubit `i_qbt` is
+        :attr:`iq_cluster_width` is indexed similarly except that there is only one width
+        per qubit: i.e., the standard deviation of the IQ cluster for qubit ``i_qbt`` is
 
         .. code-block:: python
 
@@ -109,61 +110,68 @@ class MockIQExperimentHelper:
 
         Examples:
 
-            **1 qubit circuit - excited state**
+        **1 qubit circuit - excited state**
 
-            In this experiment, we want to bring a qubit to its excited state and measure it.
-            The circuit:
-                         ┌───┐┌─┐
-                      q: ┤ X ├┤M├
-                         └───┘└╥┘
-                    c: 1/══════╩═
-                               0
+        In this experiment, we want to bring a qubit to its excited state and measure it.
+        The circuit:
 
-            The function that calculates the probability for this circuit, doesn't need any
-            calculation_parameters. It will be as following:
+        .. parsed-literal::
 
-            .. code-block::
+                 ┌───┐┌─┐
+            q:   ┤ X ├┤M├
+                 └───┘└╥┘
+            c: 1/══════╩═
+                        0
 
-                @staticmethod
-                def compute_probabilities(self, circuits: List[QuantumCircuit])
-                    -> List[Dict[str, float]]:
+        The function that calculates the probability for this circuit doesn't need any
+        calculation parameters:
 
-                    output_dict_list = []
-                    for circuit in circuits:
-                        probability_output_dict = {"1": 1.0, "0": 0.0}
-                        output_dict_list.append(probability_output_dict)
-                    return output_dict_list
+        .. code-block::
 
-            **3 qubit circuit**
-            In this experiment, we prepare a Bell state with the first and second qubit.
-            In addition, we will bring the third qubit to its excited state.
-            The circuit:
-                         ┌───┐     ┌─┐
-                    q_0: ┤ H ├──■──┤M├───
-                         └───┘┌─┴─┐└╥┘┌─┐
-                    q_1: ─────┤ X ├─╫─┤M├
-                         ┌───┐└┬─┬┘ ║ └╥┘
-                    q_2: ┤ X ├─┤M├──╫──╫─
-                         └───┘ └╥┘  ║  ║
-                    c: 3/═══════╩═══╩══╩═
-                                2   0  1
+            @staticmethod
+            def compute_probabilities(self, circuits: List[QuantumCircuit])
+                -> List[Dict[str, float]]:
 
-            When an output string isn't in the probability dictionary, the backend will presume its
-             probability is 0.
+                output_dict_list = []
+                for circuit in circuits:
+                    probability_output_dict = {"1": 1.0, "0": 0.0}
+                    output_dict_list.append(probability_output_dict)
+                return output_dict_list
 
-            .. code-block::
+        **3 qubit circuit**
 
-                @staticmethod
-                def compute_probabilities(self, circuits: List[QuantumCircuit])
-                    -> List[Dict[str, float]]:
+        In this experiment, we prepare a Bell state with the first and second qubit.
+        In addition, we will bring the third qubit to its excited state.
+        The circuit:
 
-                    output_dict_list = []
-                    for circuit in circuits:
-                        probability_output_dict = {}
-                        probability_output_dict["001"] = 0.5
-                        probability_output_dict["111"] = 0.5
-                        output_dict_list.append(probability_output_dict)
-                    return output_dict_list
+        .. parsed-literal::
+
+                    ┌───┐     ┌─┐
+            q_0:    ┤ H ├──■──┤M├───
+                    └───┘┌─┴─┐└╥┘┌─┐
+            q_1:    ─────┤ X ├─╫─┤M├
+                    ┌───┐└┬─┬┘ ║ └╥┘
+            q_2:    ┤ X ├─┤M├──╫──╫─
+                    └───┘ └╥┘  ║  ║
+            c:    3/═══════╩═══╩══╩═
+                        2   0  1
+
+        When an output string isn't in the probability dictionary, the backend will
+        assume its probability is 0.
+
+        .. code-block::
+
+            @staticmethod
+            def compute_probabilities(self, circuits: List[QuantumCircuit])
+                -> List[Dict[str, float]]:
+
+                output_dict_list = []
+                for circuit in circuits:
+                    probability_output_dict = {}
+                    probability_output_dict["001"] = 0.5
+                    probability_output_dict["111"] = 0.5
+                    output_dict_list.append(probability_output_dict)
+                return output_dict_list
         """
 
     # pylint: disable=unused-argument
@@ -182,17 +190,17 @@ class MockIQExperimentHelper:
         """Returns circuit-specific IQ cluster centers and widths in the IQ plane.
 
         Subclasses can override this function to modify the centers and widths of IQ clusters based on
-        the circuits being simulated by a :py:class:`MockIQBackend`. The base centers and widths are
-        stored internally within the helper object, and can be set in :py:meth:`__init__` or by modifying
-        :py:attr:`iq_cluster_centers` and :py:attr:`iq_cluster_width`. The default behaviour for
-        :py:meth:`iq_clusters` is to return the centers and widths unmodified for each circuit in
+        the circuits being simulated by a :class:`MockIQBackend`. The base centers and widths are
+        stored internally within the helper object, and can be set in :meth:`__init__` or by modifying
+        attr:`iq_cluster_centers` and attr:`iq_cluster_width`. The default behaviour for
+        :meth:`iq_clusters` is to return the centers and widths unmodified for each circuit in
         `circuits`. Subclasses may return different centers and widths based on the circuits provided.
 
         The returned list contains a tuple per circuit. Each tuple contains the IQ centers and widths in
-        the same format as :py:attr:`iq_cluster_centers` and :py:attr:`iq_cluster_width`, passed as
-        arguments to :py:meth:`__init__`. The format of the centers and widths lists, in the argument
+        the same format as attr:`iq_cluster_centers` and attr:`iq_cluster_width`, passed as
+        arguments to :meth:`__init__`. The format of the centers and widths lists, in the argument
         list and in the returned tuples, must match the format of `iq_cluster_centers` and
-        `iq_cluster_width` in :py:func:`qiskit_experiments.test.MockIQExperimentHelper.__init__`.
+        `iq_cluster_width` in :func:`qiskit_experiments.test.MockIQExperimentHelper.__init__`.
 
         Args:
             circuits: The quantum circuits for which the clusters should be modified.
@@ -216,14 +224,14 @@ class MockIQParallelExperimentHelper(MockIQExperimentHelper):
         Parallel Experiment Helper initializer. The class assumes `exp_helper_list` is ordered to
         match the corresponding experiment in `exp_list`.
 
-        Note that :py:meth:`__init__` does not have `iq_cluster_centers` and `iq_cluster_width` as in
-        :py:func:`MockIQExperimentHelper.__init__`. This is because the centers and widths for
-        :py:class:`MockIQParallelBackend` are stored in multiple experiment helpers in the list
+        Note that :meth:`__init__` does not have `iq_cluster_centers` and `iq_cluster_width` as in
+        :func:`MockIQExperimentHelper.__init__`. This is because the centers and widths for
+        :class:`MockIQParallelBackend` are stored in multiple experiment helpers in the list
         `exp_helper_list`.
 
         Args:
             exp_list(List): List of experiments.
-            exp_helper_list(List): Ordered list of `MockIQExperimentHelper` corresponding to the
+            exp_helper_list(List): Ordered list of :class:`.MockIQExperimentHelper` corresponding to the
              experiments in `exp_list`. Nested parallel experiment aren't supported currently.
 
         Raises:
@@ -457,7 +465,7 @@ class MockIQParallelExperimentHelper(MockIQExperimentHelper):
         qubit_experiment_mapping = {}
         for exp in self.exp_list:
             for qubit in exp.physical_qubits:
-                if qubit not in qubit_experiment_mapping.keys():
+                if qubit not in qubit_experiment_mapping:
                     qubit_experiment_mapping[qubit] = exp
                 else:
                     raise QiskitError(
@@ -494,7 +502,7 @@ class MockIQDragHelper(MockIQExperimentHelper):
             are different centers for different logical values of the qubit.
             iq_cluster_width: A list of standard deviation values for the sampling of each qubit.
         Raises:
-            ValueError: if probability value is not valid.
+            ValueError: If probability value is not valid.
         """
         super().__init__(iq_cluster_centers, iq_cluster_width)
         if max_probability + offset_probability > 1:

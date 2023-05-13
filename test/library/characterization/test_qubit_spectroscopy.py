@@ -15,8 +15,10 @@ from test.base import QiskitExperimentsTestCase
 import numpy as np
 
 from qiskit.qobj.utils import MeasLevel
+from qiskit.circuit.library import XGate
 from qiskit_experiments.framework import ParallelExperiment
 
+from qiskit_experiments.framework import BackendData
 from qiskit_experiments.library import QubitSpectroscopy, EFSpectroscopy
 from qiskit_experiments.test.mock_iq_backend import MockIQBackend, MockIQParallelBackend
 from qiskit_experiments.test.mock_iq_helpers import MockIQSpectroscopyHelper as SpectroscopyHelper
@@ -39,34 +41,33 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
         backend = MockIQBackend(
             experiment_helper=exp_helper,
         )
-        backend._configuration.basis_gates = ["x"]
-        backend._configuration.timing_constraints = {"granularity": 16}
+        backend.target.add_instruction(XGate(), properties={(0,): None})
 
         qubit = 1
-        freq01 = backend.defaults().qubit_freq_est[qubit]
+        freq01 = BackendData(backend).drive_freqs[qubit]
         frequencies = np.linspace(freq01 - 10.0e6, freq01 + 10.0e6, 21)
 
-        spec = QubitSpectroscopy(qubit, frequencies)
+        spec = QubitSpectroscopy([qubit], frequencies)
         spec.set_run_options(meas_level=MeasLevel.CLASSIFIED)
         expdata = spec.run(backend)
         self.assertExperimentDone(expdata)
         result = expdata.analysis_results(1)
-        self.assertRoundTripSerializable(result.value, check_func=self.ufloat_equiv)
+        self.assertRoundTripSerializable(result.value)
 
-        self.assertTrue(4.999e9 < result.value.n < 5.001e9)
+        self.assertAlmostEqual(result.value.n, freq01, delta=1e6)
         self.assertEqual(result.quality, "good")
         self.assertEqual(str(result.device_components[0]), f"Q{qubit}")
 
         # Test if we find still find the peak when it is shifted by 5 MHz.
         exp_helper.freq_offset = 5.0e6
-        spec = QubitSpectroscopy(qubit, frequencies)
+        spec = QubitSpectroscopy([qubit], frequencies)
         spec.set_run_options(meas_level=MeasLevel.CLASSIFIED)
         expdata = spec.run(backend)
         self.assertExperimentDone(expdata)
         result = expdata.analysis_results(1)
-        self.assertRoundTripSerializable(result.value, check_func=self.ufloat_equiv)
+        self.assertRoundTripSerializable(result.value)
 
-        self.assertTrue(5.0049e9 < result.value.n < 5.0051e9)
+        self.assertAlmostEqual(result.value.n, freq01 + 5e6, delta=1e6)
         self.assertEqual(result.quality, "good")
 
     def test_spectroscopy_end2end_kerneled(self):
@@ -80,18 +81,17 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
         backend = MockIQBackend(
             experiment_helper=exp_helper,
         )
-        backend._configuration.basis_gates = ["x"]
-        backend._configuration.timing_constraints = {"granularity": 16}
+        backend.target.add_instruction(XGate(), properties={(0,): None})
 
         qubit = 0
-        freq01 = backend.defaults().qubit_freq_est[qubit]
+        freq01 = BackendData(backend).drive_freqs[qubit]
         frequencies = np.linspace(freq01 - 10.0e6, freq01 + 10.0e6, 21)
 
-        spec = QubitSpectroscopy(qubit, frequencies)
+        spec = QubitSpectroscopy([qubit], frequencies)
         expdata = spec.run(backend)
         self.assertExperimentDone(expdata)
         result = expdata.analysis_results(1)
-        self.assertRoundTripSerializable(result.value, check_func=self.ufloat_equiv)
+        self.assertRoundTripSerializable(result.value)
 
         self.assertTrue(freq01 - 2e6 < result.value.n < freq01 + 2e6)
         self.assertEqual(result.quality, "good")
@@ -99,11 +99,11 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
         exp_helper.freq_offset = 5.0e6
         exp_helper.iq_cluster_centers = [((1.0, 1.0), (-1.0, -1.0))]
 
-        spec = QubitSpectroscopy(qubit, frequencies)
+        spec = QubitSpectroscopy([qubit], frequencies)
         expdata = spec.run(backend)
         self.assertExperimentDone(expdata)
         result = expdata.analysis_results(1)
-        self.assertRoundTripSerializable(result.value, check_func=self.ufloat_equiv)
+        self.assertRoundTripSerializable(result.value)
 
         self.assertTrue(freq01 + 3e6 < result.value.n < freq01 + 8e6)
         self.assertEqual(result.quality, "good")
@@ -112,7 +112,7 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
         expdata = spec.run(backend)
         self.assertExperimentDone(expdata)
         result = expdata.analysis_results(1)
-        self.assertRoundTripSerializable(result.value, check_func=self.ufloat_equiv)
+        self.assertRoundTripSerializable(result.value)
 
         self.assertTrue(freq01 + 3e6 < result.value.n < freq01 + 8e6)
         self.assertEqual(result.quality, "good")
@@ -127,21 +127,20 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
                 iq_cluster_width=[0.2],
             ),
         )
-        backend._configuration.basis_gates = ["x"]
-        backend._configuration.timing_constraints = {"granularity": 16}
+        backend.target.add_instruction(XGate(), properties={(0,): None})
         qubit = 0
-        freq01 = backend.defaults().qubit_freq_est[qubit]
+        freq01 = BackendData(backend).drive_freqs[qubit]
         frequencies = np.linspace(freq01 - 10.0e6, freq01 + 10.0e6, 21)
 
         # Note that the backend is not sophisticated enough to simulate an e-f
         # transition so we run the test with g-e.
-        spec = EFSpectroscopy(qubit, frequencies)
+        spec = EFSpectroscopy([qubit], frequencies)
         spec.backend = backend
         spec.set_run_options(meas_level=MeasLevel.CLASSIFIED)
         expdata = spec.run(backend)
         self.assertExperimentDone(expdata)
         result = expdata.analysis_results(1)
-        self.assertRoundTripSerializable(result.value, check_func=self.ufloat_equiv)
+        self.assertRoundTripSerializable(result.value)
 
         self.assertTrue(freq01 - 2e6 < result.value.n < freq01 + 2e6)
         self.assertEqual(result.quality, "good")
@@ -153,16 +152,16 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
 
     def test_experiment_config(self):
         """Test converting to and from config works"""
-        exp = QubitSpectroscopy(1, np.linspace(100, 150, 20) * 1e6)
+        exp = QubitSpectroscopy([1], np.linspace(100, 150, 20) * 1e6)
         loaded_exp = QubitSpectroscopy.from_config(exp.config())
         self.assertNotEqual(exp, loaded_exp)
-        self.assertTrue(self.json_equiv(exp, loaded_exp))
+        self.assertEqualExtended(exp, loaded_exp)
 
     def test_roundtrip_serializable(self):
         """Test round trip JSON serialization"""
-        exp = QubitSpectroscopy(1, np.linspace(int(100e6), int(150e6), int(20e6)))
+        exp = QubitSpectroscopy([1], np.linspace(int(100e6), int(150e6), int(20e6)))
         # Checking serialization of the experiment
-        self.assertRoundTripSerializable(exp, self.json_equiv)
+        self.assertRoundTripSerializable(exp)
 
     def test_expdata_serialization(self):
         """Test experiment data and analysis data JSON serialization"""
@@ -174,23 +173,22 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
         backend = MockIQBackend(
             experiment_helper=exp_helper,
         )
-        backend._configuration.basis_gates = ["x"]
-        backend._configuration.timing_constraints = {"granularity": 16}
+        backend.target.add_instruction(XGate(), properties={(0,): None})
 
         qubit = 1
-        freq01 = backend.defaults().qubit_freq_est[qubit]
+        freq01 = BackendData(backend).drive_freqs[qubit]
         frequencies = np.linspace(freq01 - 10.0e6, freq01 + 10.0e6, 21)
-        exp = QubitSpectroscopy(qubit, frequencies)
+        exp = QubitSpectroscopy([qubit], frequencies)
 
         exp.set_run_options(meas_level=MeasLevel.CLASSIFIED, shots=1024)
         expdata = exp.run(backend).block_for_results()
         self.assertExperimentDone(expdata)
 
         # Checking serialization of the experiment data
-        self.assertRoundTripSerializable(expdata, self.experiment_data_equiv)
+        self.assertRoundTripSerializable(expdata)
 
         # Checking serialization of the analysis
-        self.assertRoundTripSerializable(expdata.analysis_results(1), self.analysis_result_equiv)
+        self.assertRoundTripSerializable(expdata.analysis_results(1))
 
     def test_kerneled_expdata_serialization(self):
         """Test experiment data and analysis data JSON serialization"""
@@ -202,23 +200,22 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
         backend = MockIQBackend(
             experiment_helper=exp_helper,
         )
-        backend._configuration.basis_gates = ["x"]
-        backend._configuration.timing_constraints = {"granularity": 16}
+        backend.target.add_instruction(XGate(), properties={(0,): None})
 
         qubit = 1
-        freq01 = backend.defaults().qubit_freq_est[qubit]
+        freq01 = BackendData(backend).drive_freqs[qubit]
         frequencies = np.linspace(freq01 - 10.0e6, freq01 + 10.0e6, 21)
-        exp = QubitSpectroscopy(qubit, frequencies)
+        exp = QubitSpectroscopy([qubit], frequencies)
 
         exp.set_run_options(meas_level=MeasLevel.KERNELED, shots=1024)
         expdata = exp.run(backend).block_for_results()
         self.assertExperimentDone(expdata)
 
         # Checking serialization of the experiment data
-        self.assertRoundTripSerializable(expdata, self.experiment_data_equiv)
+        self.assertRoundTripSerializable(expdata)
 
         # Checking serialization of the analysis
-        self.assertRoundTripSerializable(expdata.analysis_results(1), self.analysis_result_equiv)
+        self.assertRoundTripSerializable(expdata.analysis_results(1))
 
     def test_parallel_experiment(self):
         """Test for parallel experiment"""
@@ -233,14 +230,17 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
             experiment_helper=None,
             rng_seed=0,
         )
-        parallel_backend._configuration.basis_gates = ["x"]
-        parallel_backend._configuration.timing_constraints = {"granularity": 16}
+        parallel_backend.target.add_instruction(
+            XGate(),
+            properties={(0,): None, (1,): None},
+        )
 
         # experiment hyper parameters
         qubit1 = 0
         qubit2 = 1
-        freq01 = parallel_backend.defaults().qubit_freq_est[qubit1]
-        freq02 = parallel_backend.defaults().qubit_freq_est[qubit2]
+        backend_data = BackendData(parallel_backend)
+        freq01 = backend_data.drive_freqs[qubit1]
+        freq02 = backend_data.drive_freqs[qubit2]
 
         # experiments initialization
         frequencies1 = np.linspace(freq01 - 10.0e6, freq01 + 10.0e6, 23)
@@ -248,11 +248,11 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
 
         exp_list = [
             QubitSpectroscopy(
-                qubit1,
+                [qubit1],
                 frequencies1,
             ),
             QubitSpectroscopy(
-                qubit2,
+                [qubit2],
                 frequencies2,
             ),
         ]
@@ -275,7 +275,7 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
         # since under _experiment in kwargs there is an argument of the backend which isn't serializable.
         par_data._experiment = None
         # Checking serialization of the experiment data
-        self.assertRoundTripSerializable(par_data, self.experiment_data_equiv)
+        self.assertRoundTripSerializable(par_data)
 
         for child_data in par_data.child_data():
-            self.assertRoundTripSerializable(child_data, self.experiment_data_equiv)
+            self.assertRoundTripSerializable(child_data)

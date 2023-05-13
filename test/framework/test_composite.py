@@ -130,7 +130,7 @@ class TestComposite(QiskitExperimentsTestCase):
 
         loaded_exp = BatchExperiment.from_config(exp.config())
         self.assertNotEqual(exp, loaded_exp)
-        self.assertTrue(self.json_equiv(exp, loaded_exp))
+        self.assertEqualExtended(exp, loaded_exp)
 
     def test_roundtrip_serializable(self):
         """Test round trip JSON serialization"""
@@ -141,7 +141,7 @@ class TestComposite(QiskitExperimentsTestCase):
 
         exp = BatchExperiment([exp1, exp2])
 
-        self.assertRoundTripSerializable(exp, self.json_equiv)
+        self.assertRoundTripSerializable(exp)
 
 
 @ddt
@@ -493,7 +493,7 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
         par_exp = ParallelExperiment(
             [exp1, BatchExperiment([ParallelExperiment([exp2, exp3]), exp4])]
         )
-        expdata = par_exp.run(Backend())
+        expdata = par_exp.run(Backend(num_qubits=4))
         self.assertExperimentDone(expdata)
 
         self.assertEqual(len(expdata.data()), len(counts))
@@ -742,9 +742,11 @@ class TestBatchTranspileOptions(QiskitExperimentsTestCase):
         transpiled circuit) to a coupling map with distance 3 between qubits 0 and 3.
         """
 
-        def __init__(self, qubits, backend=None):
+        def __init__(self, physical_qubits, backend=None):
             super().__init__(
-                qubits, analysis=TestBatchTranspileOptions.SimpleAnalysis(), backend=backend
+                physical_qubits,
+                analysis=TestBatchTranspileOptions.SimpleAnalysis(),
+                backend=backend,
             )
 
         def circuits(self):

@@ -40,7 +40,7 @@ class TestRoughFrequency(QiskitExperimentsTestCase):
         absolute = False
 
         freq = RoughFrequencyCal(
-            qubit, cals, frequencies, auto_update=auto_update, absolute=absolute
+            [qubit], cals, frequencies, auto_update=auto_update, absolute=absolute
         )
 
         self.assertEqual(freq.physical_qubits, (qubit,))
@@ -63,7 +63,7 @@ class TestRoughFrequency(QiskitExperimentsTestCase):
 
         frequencies = np.linspace(freq01 - 10.0e6, freq01 + 10.0e6, 11)
 
-        spec = RoughFrequencyCal(0, cals, frequencies, backend=backend_5mhz)
+        spec = RoughFrequencyCal([0], cals, frequencies, backend=backend_5mhz)
         spec.set_experiment_options(amp=0.005)
         expdata = spec.run()
         self.assertExperimentDone(expdata)
@@ -76,7 +76,7 @@ class TestRoughFrequency(QiskitExperimentsTestCase):
         """Test converting to and from config works"""
         cals = Calibrations.from_backend(self.backend)
         frequencies = [1, 2, 3]
-        exp = RoughFrequencyCal(0, cals, frequencies)
+        exp = RoughFrequencyCal([0], cals, frequencies)
         loaded_exp = RoughFrequencyCal.from_config(exp.config())
         self.assertNotEqual(exp, loaded_exp)
-        self.assertTrue(self.json_equiv(exp, loaded_exp))
+        self.assertEqualExtended(exp, loaded_exp)

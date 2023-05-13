@@ -13,10 +13,10 @@
 """Class to test utility functions for calibrations."""
 
 from test.base import QiskitExperimentsTestCase
-import retworkx as rx
+import rustworkx as rx
 
+from qiskit import pulse
 from qiskit.circuit import Parameter
-import qiskit.pulse as pulse
 
 from qiskit_experiments.exceptions import CalibrationError
 from qiskit_experiments.calibration_management import EchoedCrossResonance

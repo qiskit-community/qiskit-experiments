@@ -12,8 +12,11 @@
 """
 Local readout error calibration experiment class.
 """
-from typing import Iterable, List
+from typing import Iterable, List, Optional
 from qiskit import QuantumCircuit
+from qiskit.providers.backend import BackendV2, Backend
+from qiskit.exceptions import QiskitError
+from qiskit_experiments.warnings import deprecate_arguments
 from qiskit_experiments.framework import BaseExperiment
 from qiskit_experiments.library.characterization.analysis.local_readout_error_analysis import (
     LocalReadoutErrorAnalysis,
@@ -22,10 +25,11 @@ from .correlated_readout_error import calibration_circuit
 
 
 class LocalReadoutError(BaseExperiment):
-    r"""Class for local readout error characterization experiment
+    r"""An experiment for characterizing local readout error.
+
     # section: overview
 
-        This class constructs the a :class:`~qiskit.result.LocalReadoutMitigator` containing sequence
+        This class constructs a :class:`~qiskit.result.LocalReadoutMitigator` containing a sequence
         of assignment matrices :math:`A` characterizing the readout error for the given qubits
         from the experiment results. The full assignment matrix is accessible via the
         :meth:`~qiskit.result.LocalReadoutMitigator.assignment_matrix` method.
@@ -57,19 +61,45 @@ class LocalReadoutError(BaseExperiment):
         documentation for additional information on local readout error experiment analysis.
 
     # section: analysis_ref
-        :py:class:`LocalReadoutErrorAnalysis`
+        :class:`LocalReadoutErrorAnalysis`
+
+    # section: manual
+        :doc:`/manuals/measurement/readout_mitigation`
 
     # section: reference
         .. ref_arxiv:: 1 2006.14044
     """
 
-    def __init__(self, qubits: Iterable[int]):
+    @deprecate_arguments({"qubits": "physical_qubits"}, "0.5")
+    def __init__(
+        self,
+        physical_qubits: Optional[Iterable[int]] = None,
+        backend: Optional[Backend] = None,
+    ):
         """Initialize a local readout error characterization experiment.
 
         Args:
-            qubits: The qubits being characterized for readout error
+            physical_qubits: Optional, the backend qubits being characterized
+                for readout error. If None all qubits on the provided backend
+                will be characterized.
+            backend: Optional, the backend to characterize.
+
+        Raises:
+            QiskitError: If args are not valid.
         """
-        super().__init__(qubits)
+        if physical_qubits is None:
+            if backend is None:
+                raise QiskitError("`physical_qubits` and `backend` kwargs cannot both be None.")
+            num_qubits = 0
+            if isinstance(backend, BackendV2):
+                num_qubits = backend.target.num_qubits
+            elif isinstance(backend, Backend):
+                num_qubits = backend.configuration().num_qubits
+            if num_qubits:
+                physical_qubits = range(num_qubits)
+            else:
+                raise QiskitError(f"Cannot infer backend qubits from backend {backend}")
+        super().__init__(physical_qubits, backend=backend)
         self.analysis = LocalReadoutErrorAnalysis()
 
     def circuits(self) -> List[QuantumCircuit]:

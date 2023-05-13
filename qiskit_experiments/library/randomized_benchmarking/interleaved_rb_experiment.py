@@ -24,15 +24,16 @@ from qiskit.exceptions import QiskitError
 from qiskit.providers.backend import Backend
 from qiskit.quantum_info import Clifford
 from qiskit.transpiler.exceptions import TranspilerError
+from qiskit_experiments.warnings import deprecate_arguments
 from qiskit_experiments.framework.backend_timing import BackendTiming
 from .clifford_utils import _truncate_inactive_qubits
 from .clifford_utils import num_from_1q_circuit, num_from_2q_circuit
 from .interleaved_rb_analysis import InterleavedRBAnalysis
-from .rb_experiment import StandardRB, SequenceElementType
+from .standard_rb import StandardRB, SequenceElementType
 
 
 class InterleavedRB(StandardRB):
-    """Interleaved randomized benchmarking experiment.
+    """An experiment to characterize the error rate of a specific gate on a device.
 
     # section: overview
         Interleaved Randomized Benchmarking (RB) is a method
@@ -45,17 +46,21 @@ class InterleavedRB(StandardRB):
         the interleaved gate error. See Ref. [1] for details.
 
     # section: analysis_ref
-        :py:class:`InterleavedRBAnalysis`
+        :class:`InterleavedRBAnalysis`
+
+    # section: manual
+        :doc:`/manuals/verification/randomized_benchmarking`
 
     # section: reference
         .. ref_arxiv:: 1 1203.4550
 
     """
 
+    @deprecate_arguments({"qubits": "physical_qubits"}, "0.5")
     def __init__(
         self,
         interleaved_element: Union[QuantumCircuit, Gate, Delay, Clifford],
-        qubits: Sequence[int],
+        physical_qubits: Sequence[int],
         lengths: Iterable[int],
         backend: Optional[Backend] = None,
         num_samples: int = 3,
@@ -74,7 +79,7 @@ class InterleavedRB(StandardRB):
                     (:class:`~qiskit_experiments.framework.backend_timing.BackendTiming`
                     is useful to obtain valid delays).
                     Parameterized circuits/instructions are not allowed.
-            qubits: list of physical qubits for the experiment.
+            physical_qubits: list of physical qubits for the experiment.
             lengths: A list of RB sequences lengths.
             backend: The backend to run the experiment on.
             num_samples: Number of samples to generate for each sequence length.
@@ -87,16 +92,17 @@ class InterleavedRB(StandardRB):
                            Clifford samples to shorter sequences.
 
         Raises:
-            QiskitError: If the ``interleaved_element`` is invalid because:
-                * it has different number of qubits from the qubits argument
-                * it is not convertible to Clifford object
-                * it has an invalid delay (e.g. violating the timing constraints of the backend)
+            QiskitError: When interleaved_element has different number of qubits
+                from the physical_qubits argument.
+            QiskitError: When interleaved_element is not convertible to Clifford object.
+            QiskitError: When interleaved_element has an invalid delay
+                (e.g. violating the timing constraints of the backend).
         """
         # Validations of interleaved_element
         # - validate number of qubits of interleaved_element
-        if len(qubits) != interleaved_element.num_qubits:
+        if len(physical_qubits) != interleaved_element.num_qubits:
             raise QiskitError(
-                f"Mismatch in number of qubits between qubits ({len(qubits)})"
+                f"Mismatch in number of qubits between qubits ({len(physical_qubits)})"
                 f" and interleaved element ({interleaved_element.num_qubits})."
             )
         # - validate if interleaved_element is Clifford
@@ -133,7 +139,7 @@ class InterleavedRB(StandardRB):
             warnings.warn("Calibrations in interleaved circuit are ignored", UserWarning)
 
         super().__init__(
-            qubits,
+            physical_qubits,
             lengths,
             backend=backend,
             num_samples=num_samples,
@@ -145,8 +151,9 @@ class InterleavedRB(StandardRB):
             self._interleaved_cliff = num_from_1q_circuit(interleaved_clifford.to_circuit())
         elif self.num_qubits == 2:
             self._interleaved_cliff = num_from_2q_circuit(interleaved_clifford.to_circuit())
+        # Convert interleaved element to circuit for speed in 3Q or more case
         else:
-            self._interleaved_cliff = interleaved_clifford
+            self._interleaved_cliff = interleaved_clifford.to_circuit()
         self._interleaved_element = interleaved_element  # Original interleaved element
         self._interleaved_op = None  # Transpiled interleaved element for speed
         self.analysis = InterleavedRBAnalysis()

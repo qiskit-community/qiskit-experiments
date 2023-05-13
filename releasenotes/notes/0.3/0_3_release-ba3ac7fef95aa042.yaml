@@ -12,6 +12,6 @@ prelude: >
     storing and loading of experiments to and from the IBM experiment database service.
 features:
   - |
-    Adds an ``analysis`` kwarg to :class:`.CompositeExperiment`, :class:`.BatchExperiment` 
+    Added an ``analysis`` kwarg to :class:`.CompositeExperiment`, :class:`.BatchExperiment` 
     and :class:`.ParallelExperiment` to allow a user to supply a custom 
     :class:`.CompositeAnalysis` instance.

@@ -14,7 +14,12 @@
 Test T2Ramsey experiment
 """
 from test.base import QiskitExperimentsTestCase
+
 import numpy as np
+from ddt import ddt, named_data
+
+from qiskit.providers.fake_provider import FakeVigoV2
+from qiskit_aer import AerSimulator
 
 from qiskit_experiments.framework import ParallelExperiment
 from qiskit_experiments.library import T2Ramsey
@@ -22,10 +27,21 @@ from qiskit_experiments.library.characterization import T2RamseyAnalysis
 from qiskit_experiments.test.noisy_delay_aer_simulator import NoisyDelayAerBackend
 
 
+@ddt
 class TestT2Ramsey(QiskitExperimentsTestCase):
     """Test T2Ramsey experiment"""
 
     __tolerance__ = 0.1
+
+    @named_data(
+        ["no_backend", None], ["fake_backend", FakeVigoV2()], ["aer_backend", AerSimulator()]
+    )
+    def test_circuits(self, backend: str):
+        """Test circuit generation does not error"""
+        delays = [1e-6, 5e-6, 10e-6]
+        circs = T2Ramsey([0], delays, backend=backend).circuits()
+        for delay, circ in zip(delays, circs):
+            self.assertAlmostEqual(delay, circ.metadata["xval"])
 
     def test_t2ramsey_run_end2end(self):
         """
@@ -47,7 +63,7 @@ class TestT2Ramsey(QiskitExperimentsTestCase):
 
         backend = NoisyDelayAerBackend(t1, estimated_t2ramsey)
 
-        exp = T2Ramsey(qubit, delays, osc_freq=osc_freq, backend=backend)
+        exp = T2Ramsey([qubit], delays, osc_freq=osc_freq, backend=backend)
 
         default_p0 = {
             "amp": 0.5,
@@ -57,12 +73,12 @@ class TestT2Ramsey(QiskitExperimentsTestCase):
             "base": 0.5,
         }
 
-        for user_p0 in [default_p0, dict()]:
+        for user_p0 in [default_p0, {}]:
             exp.analysis.set_options(p0=user_p0)
             expdata = exp.run(backend=backend, shots=2000, seed_simulator=1).block_for_results()
             self.assertExperimentDone(expdata)
-            self.assertRoundTripSerializable(expdata, check_func=self.experiment_data_equiv)
-            self.assertRoundTripPickle(expdata, check_func=self.experiment_data_equiv)
+            self.assertRoundTripSerializable(expdata)
+            self.assertRoundTripPickle(expdata)
 
             result = expdata.analysis_results("T2star")
             self.assertAlmostEqual(
@@ -94,10 +110,10 @@ class TestT2Ramsey(QiskitExperimentsTestCase):
         backend = NoisyDelayAerBackend(t1=t1, t2=t2ramsey)
 
         exp0 = T2Ramsey(
-            par_exp_qubits[0], delays[0], osc_freq=osc_freq[par_exp_qubits[0]], backend=backend
+            [par_exp_qubits[0]], delays[0], osc_freq=osc_freq[par_exp_qubits[0]], backend=backend
         )
         exp2 = T2Ramsey(
-            par_exp_qubits[1], delays[1], osc_freq=osc_freq[par_exp_qubits[1]], backend=backend
+            [par_exp_qubits[1]], delays[1], osc_freq=osc_freq[par_exp_qubits[1]], backend=backend
         )
 
         par_exp = ParallelExperiment([exp0, exp2])
@@ -156,7 +172,7 @@ class TestT2Ramsey(QiskitExperimentsTestCase):
         osc_freq = 0.08
         backend = NoisyDelayAerBackend(t1=[2 * estimated_t2ramsey], t2=[estimated_t2ramsey])
 
-        exp0 = T2Ramsey(qubit, delays0, osc_freq=osc_freq)
+        exp0 = T2Ramsey([qubit], delays0, osc_freq=osc_freq)
         default_p0 = {
             "A": 0.5,
             "T2star": estimated_t2ramsey,
@@ -173,7 +189,7 @@ class TestT2Ramsey(QiskitExperimentsTestCase):
 
         # second experiment
         delays1 = list(range(2, 65, 2))
-        exp1 = T2Ramsey(qubit, delays1, osc_freq=osc_freq)
+        exp1 = T2Ramsey([qubit], delays1, osc_freq=osc_freq)
         exp1.analysis.set_options(p0=default_p0)
         expdata1 = exp1.run(backend=backend, analysis=None, shots=1000, seed_simulator=1)
         self.assertExperimentDone(expdata1)
@@ -199,15 +215,15 @@ class TestT2Ramsey(QiskitExperimentsTestCase):
 
     def test_experiment_config(self):
         """Test converting to and from config works"""
-        exp = T2Ramsey(0, [1, 2, 3, 4, 5])
+        exp = T2Ramsey([0], [1, 2, 3, 4, 5])
         loaded_exp = T2Ramsey.from_config(exp.config())
         self.assertNotEqual(exp, loaded_exp)
-        self.assertTrue(self.json_equiv(exp, loaded_exp))
+        self.assertEqualExtended(exp, loaded_exp)
 
     def test_roundtrip_serializable(self):
         """Test round trip JSON serialization"""
-        exp = T2Ramsey(0, [1, 2, 3, 4, 5])
-        self.assertRoundTripSerializable(exp, self.json_equiv)
+        exp = T2Ramsey([0], [1, 2, 3, 4, 5])
+        self.assertRoundTripSerializable(exp)
 
     def test_analysis_config(self):
         """ "Test converting analysis to and from config works"""

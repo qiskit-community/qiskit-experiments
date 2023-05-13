@@ -434,11 +434,12 @@ class ToAbs(IQPart):
 class DiscriminatorNode(DataAction):
     """A class to discriminate kerneled data, e.g., IQ data, to produce counts.
 
-    This node integrates into the data processing chain a serializable :class:`.BaseDiscriminator`
-    subclass instance which must have a :meth:`predict` method that takes as input a list of lists
-    and returns a list of labels. Crucially, this node can be initialized with a single
-    discriminator which applies to each memory slot or it can be initialized with a list of
-    discriminators, i.e., one for each slot.
+    This node integrates into the data processing chain a serializable
+    :class:`.BaseDiscriminator` subclass instance which must have a
+    :meth:`~.BaseDiscriminator.predict` method that takes as input a list of lists and
+    returns a list of labels. Crucially, this node can be initialized with a single
+    discriminator which applies to each memory slot or it can be initialized with a list
+    of discriminators, i.e., one for each slot.
 
     .. note::
 
@@ -551,7 +552,7 @@ class DiscriminatorNode(DataAction):
 class MemoryToCounts(DataAction):
     """A data action that takes discriminated data and transforms it into a counts dict.
 
-    This node is intended to be used after the :class:`.Discriminator` node. It will convert
+    This node is intended to be used after the :class:`.DiscriminatorNode` node. It will convert
     the classified memory into a list of count dictionaries wrapped in a numpy array.
     """
 
@@ -851,11 +852,13 @@ class ShotOrder(Enum):
 
     Generally, there are two possible modes in which a backend measures m
     circuits with n shots:
-        - In the "circuit_first" mode, the backend subsequently first measures
-          all m circuits and then repeats this n times.
-        - In the "shot_first" mode, the backend first measures the 1st circuit
-          n times, then the 2nd circuit n times, and it proceeds with the remaining
-          circuits in the same way until it measures the m-th circuit n times.
+
+    - In the "circuit_first" mode, the backend subsequently first measures
+      all m circuits and then repeats this n times.
+
+    - In the "shot_first" mode, the backend first measures the 1st circuit
+      n times, then the 2nd circuit n times, and it proceeds with the remaining
+      circuits in the same way until it measures the m-th circuit n times.
 
     The current default mode of IBM Quantum devices is "circuit_first".
     """
@@ -871,7 +874,7 @@ class RestlessNode(DataAction, ABC):
     In restless measurements, the qubit is not reset after each measurement. Instead, the
     outcome of the previous quantum non-demolition measurement is the initial state for the
     current circuit. Restless measurements therefore require special data processing nodes
-    that are implemented as sub-classes of `RestlessNode`. Restless experiments provide a
+    that are implemented as sub-classes of ``RestlessNode``. Restless experiments provide a
     fast alternative for several calibration and characterization tasks, for details
     see https://arxiv.org/pdf/2202.06981.pdf.
 

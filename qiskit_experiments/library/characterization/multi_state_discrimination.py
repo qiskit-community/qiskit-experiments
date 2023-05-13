@@ -12,7 +12,7 @@
 
 """Multi state discrimination experiment."""
 
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Sequence
 
 from qiskit import QuantumCircuit
 from qiskit.circuit import Gate
@@ -21,6 +21,7 @@ from qiskit.providers.options import Options
 from qiskit.pulse import ScheduleBlock
 from qiskit.qobj.utils import MeasLevel, MeasReturnType
 from qiskit_experiments.framework import BaseExperiment
+from qiskit_experiments.warnings import qubit_deprecate
 from qiskit_experiments.library.characterization import MultiStateDiscriminationAnalysis
 
 
@@ -51,11 +52,11 @@ class MultiStateDiscrimination(BaseExperiment):
                 meas: ═══════════════════════╩═
 
     # section: analysis_ref
-        :py:class:`MultiStateDiscriminationAnalysis`
+        :class:`MultiStateDiscriminationAnalysis`
 
     # section: reference
-        `Qiskit Textbook <https://qiskit.org/textbook/ch-quantum-hardware/accessing\
-        _higher_energy_states.html>`_.
+        `Qiskit Textbook\
+        <https://qiskit.org/textbook/ch-quantum-hardware/accessing_higher_energy_states.html>`_
 
     """
 
@@ -86,9 +87,10 @@ class MultiStateDiscrimination(BaseExperiment):
 
         return options
 
+    @qubit_deprecate()
     def __init__(
         self,
-        qubit: int,
+        physical_qubits: Sequence[int],
         backend: Optional[Backend] = None,
         n_states: Optional[int] = None,
         schedules: Optional[Dict[str, ScheduleBlock]] = None,
@@ -96,13 +98,16 @@ class MultiStateDiscrimination(BaseExperiment):
         """Setup an experiment to prepare different energy states on a given qubit.
 
         Args:
-            qubit: The qubit on which to run the experiment.
+            physical_qubits: A single-element sequence containing the qubit on which to run the
+                experiment.
             backend: Optional, the backend to run the experiment on.
             n_states: The number of energy levels to prepare.
             schedules: The schedules of the x gates between neighboring energy levels.
         """
 
-        super().__init__((qubit,), analysis=MultiStateDiscriminationAnalysis(), backend=backend)
+        super().__init__(
+            physical_qubits, analysis=MultiStateDiscriminationAnalysis(), backend=backend
+        )
 
         self.experiment_options.schedules = schedules
 

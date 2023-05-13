@@ -13,13 +13,14 @@
 Readout Angle Experiment class.
 """
 
-from typing import List, Optional
+from typing import List, Optional, Sequence
 
 from qiskit.circuit import QuantumCircuit
 from qiskit.qobj.utils import MeasLevel
 from qiskit.providers.backend import Backend
 
 from qiskit_experiments.framework import BaseExperiment, Options
+from qiskit_experiments.warnings import qubit_deprecate
 from qiskit_experiments.library.characterization.analysis.readout_angle_analysis import (
     ReadoutAngleAnalysis,
 )
@@ -27,7 +28,7 @@ from qiskit_experiments.library.characterization.analysis.readout_angle_analysis
 
 class ReadoutAngle(BaseExperiment):
     r"""
-    Readout angle experiment class
+    An experiment to measure the angle between ground and excited state IQ clusters.
 
     # section: overview
 
@@ -39,17 +40,15 @@ class ReadoutAngle(BaseExperiment):
         Each experiment consists of the following steps:
 
         1. Circuits generation: two circuits, the first circuit measures the qubit
-        in the ground state, the second circuit sets the qubit in the excited state
-        and measures it. Measurements are in level 1 (kerneled).
-
+           in the ground state, the second circuit sets the qubit in the excited state
+           and measures it. Measurements are in level 1 (kerneled).
         2. Backend execution: actually running the circuits on the device
-        (or a simulator that supports level 1 measurements). The backend returns
-        the cluster centers of the ground and excited states.
-
+           (or a simulator that supports level 1 measurements). The backend returns
+           the cluster centers of the ground and excited states.
         3. Analysis of results: return the average of the angles of the two centers.
 
     # section: analysis_ref
-        :py:class:`ReadoutAngleAnalysis`
+        :class:`ReadoutAngleAnalysis`
     """
 
     @classmethod
@@ -62,20 +61,22 @@ class ReadoutAngle(BaseExperiment):
 
         return options
 
+    @qubit_deprecate()
     def __init__(
         self,
-        qubit: int,
+        physical_qubits: Sequence[int],
         backend: Optional[Backend] = None,
     ):
         """
         Initialize the readout angle experiment class
 
         Args:
-            qubit: the qubit whose readout angle is to be estimated
+            physical_qubits: a single-element sequence containing the qubit whose readout angle is to be
+                estimated
             backend: Optional, the backend to run the experiment on.
         """
         # Initialize base experiment
-        super().__init__([qubit], analysis=ReadoutAngleAnalysis(), backend=backend)
+        super().__init__(physical_qubits, analysis=ReadoutAngleAnalysis(), backend=backend)
 
     def circuits(self) -> List[QuantumCircuit]:
         """
