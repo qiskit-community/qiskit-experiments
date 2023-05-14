@@ -68,7 +68,6 @@ extensions = [
 
 html_static_path = ["_static"]
 templates_path = ["_templates"]
-html_css_files = ["gallery.css"]
 
 nbsphinx_timeout = 360
 nbsphinx_execute = os.getenv("QISKIT_DOCS_BUILD_TUTORIALS", "never")

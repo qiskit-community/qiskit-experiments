@@ -52,7 +52,7 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
         expdata = spec.run(backend)
         self.assertExperimentDone(expdata)
         result = expdata.analysis_results(1)
-        self.assertRoundTripSerializable(result.value, check_func=self.ufloat_equiv)
+        self.assertRoundTripSerializable(result.value)
 
         self.assertAlmostEqual(result.value.n, freq01, delta=1e6)
         self.assertEqual(result.quality, "good")
@@ -65,7 +65,7 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
         expdata = spec.run(backend)
         self.assertExperimentDone(expdata)
         result = expdata.analysis_results(1)
-        self.assertRoundTripSerializable(result.value, check_func=self.ufloat_equiv)
+        self.assertRoundTripSerializable(result.value)
 
         self.assertAlmostEqual(result.value.n, freq01 + 5e6, delta=1e6)
         self.assertEqual(result.quality, "good")
@@ -91,7 +91,7 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
         expdata = spec.run(backend)
         self.assertExperimentDone(expdata)
         result = expdata.analysis_results(1)
-        self.assertRoundTripSerializable(result.value, check_func=self.ufloat_equiv)
+        self.assertRoundTripSerializable(result.value)
 
         self.assertTrue(freq01 - 2e6 < result.value.n < freq01 + 2e6)
         self.assertEqual(result.quality, "good")
@@ -103,7 +103,7 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
         expdata = spec.run(backend)
         self.assertExperimentDone(expdata)
         result = expdata.analysis_results(1)
-        self.assertRoundTripSerializable(result.value, check_func=self.ufloat_equiv)
+        self.assertRoundTripSerializable(result.value)
 
         self.assertTrue(freq01 + 3e6 < result.value.n < freq01 + 8e6)
         self.assertEqual(result.quality, "good")
@@ -112,7 +112,7 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
         expdata = spec.run(backend)
         self.assertExperimentDone(expdata)
         result = expdata.analysis_results(1)
-        self.assertRoundTripSerializable(result.value, check_func=self.ufloat_equiv)
+        self.assertRoundTripSerializable(result.value)
 
         self.assertTrue(freq01 + 3e6 < result.value.n < freq01 + 8e6)
         self.assertEqual(result.quality, "good")
@@ -140,7 +140,7 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
         expdata = spec.run(backend)
         self.assertExperimentDone(expdata)
         result = expdata.analysis_results(1)
-        self.assertRoundTripSerializable(result.value, check_func=self.ufloat_equiv)
+        self.assertRoundTripSerializable(result.value)
 
         self.assertTrue(freq01 - 2e6 < result.value.n < freq01 + 2e6)
         self.assertEqual(result.quality, "good")
@@ -155,13 +155,13 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
         exp = QubitSpectroscopy([1], np.linspace(100, 150, 20) * 1e6)
         loaded_exp = QubitSpectroscopy.from_config(exp.config())
         self.assertNotEqual(exp, loaded_exp)
-        self.assertTrue(self.json_equiv(exp, loaded_exp))
+        self.assertEqualExtended(exp, loaded_exp)
 
     def test_roundtrip_serializable(self):
         """Test round trip JSON serialization"""
         exp = QubitSpectroscopy([1], np.linspace(int(100e6), int(150e6), int(20e6)))
         # Checking serialization of the experiment
-        self.assertRoundTripSerializable(exp, self.json_equiv)
+        self.assertRoundTripSerializable(exp)
 
     def test_expdata_serialization(self):
         """Test experiment data and analysis data JSON serialization"""
@@ -185,10 +185,10 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
         self.assertExperimentDone(expdata)
 
         # Checking serialization of the experiment data
-        self.assertRoundTripSerializable(expdata, self.experiment_data_equiv)
+        self.assertRoundTripSerializable(expdata)
 
         # Checking serialization of the analysis
-        self.assertRoundTripSerializable(expdata.analysis_results(1), self.analysis_result_equiv)
+        self.assertRoundTripSerializable(expdata.analysis_results(1))
 
     def test_kerneled_expdata_serialization(self):
         """Test experiment data and analysis data JSON serialization"""
@@ -212,10 +212,10 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
         self.assertExperimentDone(expdata)
 
         # Checking serialization of the experiment data
-        self.assertRoundTripSerializable(expdata, self.experiment_data_equiv)
+        self.assertRoundTripSerializable(expdata)
 
         # Checking serialization of the analysis
-        self.assertRoundTripSerializable(expdata.analysis_results(1), self.analysis_result_equiv)
+        self.assertRoundTripSerializable(expdata.analysis_results(1))
 
     def test_parallel_experiment(self):
         """Test for parallel experiment"""
@@ -275,7 +275,7 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
         # since under _experiment in kwargs there is an argument of the backend which isn't serializable.
         par_data._experiment = None
         # Checking serialization of the experiment data
-        self.assertRoundTripSerializable(par_data, self.experiment_data_equiv)
+        self.assertRoundTripSerializable(par_data)
 
         for child_data in par_data.child_data():
-            self.assertRoundTripSerializable(child_data, self.experiment_data_equiv)
+            self.assertRoundTripSerializable(child_data)

@@ -118,9 +118,9 @@ class TestZZRamsey(QiskitExperimentsTestCase):
         exp = ZZRamsey((0, 1))
         loaded_exp = ZZRamsey.from_config(exp.config())
         self.assertNotEqual(exp, loaded_exp)
-        self.assertTrue(self.json_equiv(exp, loaded_exp))
+        self.assertEqualExtended(exp, loaded_exp)
 
     def test_roundtrip_serializable(self):
         """Test round trip JSON serialization"""
         exp = ZZRamsey((0, 1))
-        self.assertRoundTripSerializable(exp, self.json_equiv)
+        self.assertRoundTripSerializable(exp)
